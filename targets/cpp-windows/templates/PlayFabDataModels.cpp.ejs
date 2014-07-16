@@ -1,0 +1,59 @@
+
+#include "playfab/PlayFabDataModels.h"
+
+using namespace PlayFab;
+using namespace rapidjson;
+
+
+<% for(var i in datatypes) { var datatype = datatypes[i]; if(datatype.isenum) { %>
+void PlayFab::write<%- datatype.name %>EnumJSON(<%- datatype.name %> enumVal, PFStringJsonWriter& writer)
+{
+	switch(enumVal)
+	{
+		<% for(var i=0; i<datatype.enumvalues.length-1; i++) { var enumval = datatype.enumvalues[i] %>
+		case <%- datatype.name %><%- enumval.name %>: writer.String("<%- enumval.name %>"); break;<% } %>
+	}
+}
+
+<%- datatype.name %> PlayFab::read<%- datatype.name %>FromValue(const rapidjson::Value& obj)
+{
+	std::string enumStr = obj.GetString();
+	if(enumStr == "<%- datatype.enumvalues[0].name %>")
+		return <%- datatype.name %><%- datatype.enumvalues[0].name %>;<% for(var i=1; i<datatype.enumvalues.length-1; i++) { var enumval = datatype.enumvalues[i] %>
+	else if(enumStr == "<%- enumval.name %>")
+		return <%- datatype.name %><%- enumval.name %>;<% } %>
+	
+	return <%- datatype.name %><%- datatype.enumvalues[0].name %>;
+}
+
+<% } else { %>
+<%- datatype.name %>::~<%- datatype.name %>()
+{
+	<% for(var p in datatype.properties) { var property = datatype.properties[p];
+	if(!property.collection && property.isclass && property.optional) { %>if(<%- property.name %> != NULL) delete <%- property.name %>;
+	<% } } %>
+}
+
+void <%- datatype.name %>::writeJSON(PFStringJsonWriter& writer)
+{
+    writer.StartObject();
+
+	<% for(var p in datatype.properties) { var property = datatype.properties[p]; %>
+	<%- getPropertySerializer(property, datatype) %>
+	<% } %>
+	
+	writer.EndObject();
+}
+
+bool <%- datatype.name %>::readFromValue(const rapidjson::Value& obj)
+{
+	<% for(var p in datatype.properties) { var property = datatype.properties[p]; %>
+	<%- getPropertyDeserializer(property, datatype) %>
+	<% } %>
+	
+	return true;
+}
+
+<% } } %>
+
+

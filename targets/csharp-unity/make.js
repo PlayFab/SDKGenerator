@@ -452,14 +452,14 @@ function getAuthParams(apiCall)
 
 function getRequestActions(apiCall, api)
 {
-	if(api.name == "Client" && apiCall.result == "LoginResult")
+	if(api.name == "Client" && (apiCall.result == "LoginResult" || apiCall.request == "RegisterPlayFabUserRequest"))
 		return "request.TitleId = PlayFabSettings.TitleId ?? request.TitleId;\n";
 	return "";
 }
 
 function getResultActions(apiCall, api)
 {
-	if(api.name == "Client" && apiCall.result == "LoginResult")
+	if(api.name == "Client" && (apiCall.result == "LoginResult" || apiCall.result == "RegisterPlayFabUserResult"))
 		return "AuthKey = result.SessionTicket ?? AuthKey;\n";
 	return "";
 }

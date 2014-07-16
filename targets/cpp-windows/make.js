@@ -876,14 +876,14 @@ function getAuthParams(apiCall)
 
 function getRequestActions(apiCall, api)
 {
-	if(api.name == "Client" && apiCall.result == "LoginResult")
+	if(api.name == "Client" && (apiCall.result == "LoginResult" || apiCall.request == "RegisterPlayFabUserRequest"))
 		return "if (PlayFabSettings::titleId.length() > 0)\n\t\trequest.TitleId = PlayFabSettings::titleId;";
 	return "";
 }
 
 function getResultActions(apiCall, api)
 {
-	if(api.name == "Client" && apiCall.result == "LoginResult")
+	if(api.name == "Client" && (apiCall.result == "LoginResult" || apiCall.result == "RegisterPlayFabUserResult"))
 		return "if (outResult.SessionTicket.length() > 0)\n\t\t\t(static_cast<PlayFab"+api.name+"API*>(userData))->mUserSessionTicket = outResult.SessionTicket;";
 	return "";
 }

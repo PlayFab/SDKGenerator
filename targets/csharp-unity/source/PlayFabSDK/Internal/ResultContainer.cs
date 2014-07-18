@@ -56,28 +56,33 @@ namespace PlayFab.Internal
 				PlayFabErrorCode errorEnum;
 				try
 				{
-					errorEnum = (PlayFabErrorCode)rawResultEnvelope["errorCode"];
+					errorEnum = (PlayFabErrorCode)(int)(double)rawResultEnvelope["errorCode"];
 				}
 				catch
 				{
 					errorEnum = PlayFabErrorCode.Unknown;
 				}
-				Dictionary<string,object> rawErrorDetails = (Dictionary<string,object>)rawResultEnvelope["errorDetails"];
-				Dictionary<string, List<string>> errorDetails = new Dictionary<string, List<string>> ();
-				foreach(string key in rawErrorDetails.Keys)
+
+				Dictionary<string, List<string>> errorDetails = null;
+				if(rawResultEnvelope.ContainsKey("errorDetails"))
 				{
-					object[] keyErrors = (object[])rawErrorDetails[key];
-					List<string> errorList = new List<string>();
-					for(int i=0; i<keyErrors.Length; i++)
+					Dictionary<string,object> rawErrorDetails = (Dictionary<string,object>)rawResultEnvelope["errorDetails"];
+					errorDetails = new Dictionary<string, List<string>> ();
+					foreach(string key in rawErrorDetails.Keys)
 					{
-						errorList.Add ((string)keyErrors[i]);
+						object[] keyErrors = (object[])rawErrorDetails[key];
+						List<string> errorList = new List<string>();
+						for(int i=0; i<keyErrors.Length; i++)
+						{
+							errorList.Add ((string)keyErrors[i]);
+						}
+						errorDetails.Add (key, errorList);
 					}
-					errorDetails.Add (key, errorList);
 				}
 
 				error = new PlayFabError
 				{
-					HttpCode = (int)rawResultEnvelope["code"],
+					HttpCode = (int)(double)rawResultEnvelope["code"],
 					HttpStatus = (string)rawResultEnvelope["status"],
 					Error = errorEnum,
 					ErrorMessage = (string)rawResultEnvelope["errorMessage"],

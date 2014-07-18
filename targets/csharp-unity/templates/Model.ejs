@@ -1,9 +1,4 @@
-using System.Collections.Generic;
-<% if(hasEnum) { %><% } %>
-<% if(needsSystem) { %>using System;<% } %>
 
-namespace PlayFab.Model
-{
 	<% if(datatype.description) { %>
 	/// <summary>
 	/// <%- datatype.description %>
@@ -15,7 +10,7 @@ namespace PlayFab.Model
 		/// <summary>
 		/// <%- property.description %>
 		/// </summary><% } %>
-		<%- getPropertyAttribs(property, api) %>
+		<%- getPropertyAttribs(property, datatype) %>
 		public <%- getPropertyDef(property, datatype) %> { get; set;}<% } %>
 		
 		public override void Deserialize (Dictionary<string,object> json)
@@ -24,4 +19,3 @@ namespace PlayFab.Model
 			<%- getPropertyJsonReader(property, datatype) %><% } %>
 		}
 	}
-}

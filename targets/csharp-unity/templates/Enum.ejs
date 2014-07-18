@@ -1,6 +1,4 @@
 
-namespace PlayFab.Model
-{
 	<% if(datatype.description) { %>
 	/// <summary>
 	/// <%- datatype.description %>
@@ -10,4 +8,3 @@ namespace PlayFab.Model
 		<% for(var i=0; i<datatype.enumvalues.length-1; i++) { var enumprops = datatype.enumvalues[i] %><%- enumprops.name %>,
 		<% } %><%- datatype.enumvalues[datatype.enumvalues.length-1].name %>
 	}
-}

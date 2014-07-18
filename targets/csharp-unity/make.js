@@ -1,6 +1,8 @@
 
 var path = require('path');
 
+var sdkVersion = "1.0.0";
+
 exports.makeClientAPI = function(api, sourceDir, apiOutputDir)
 {
 	console.log("Generating C-sharp Unity client SDK to "+apiOutputDir);
@@ -8,9 +10,13 @@ exports.makeClientAPI = function(api, sourceDir, apiOutputDir)
 	copyTree(path.resolve(sourceDir, 'source'), apiOutputDir);
 	copyTree(path.resolve(sourceDir, 'client-source'), apiOutputDir);
 	
+	makeDatatypes([api], sourceDir, apiOutputDir);
+	
 	makeAPI(api, sourceDir, apiOutputDir);
 	
 	generateErrors(api, sourceDir, apiOutputDir);
+	
+	generateVersion(api, sourceDir, apiOutputDir);
 }
 
 exports.makeServerAPI = function(apis, sourceDir, apiOutputDir)
@@ -20,6 +26,8 @@ exports.makeServerAPI = function(apis, sourceDir, apiOutputDir)
 	copyTree(path.resolve(sourceDir, 'source'), apiOutputDir);
 	copyTree(path.resolve(sourceDir, 'server-source'), apiOutputDir);
 	
+	makeDatatypes(apis, sourceDir, apiOutputDir);
+	
 	for(var i in apis)
 	{
 		var api = apis[i];
@@ -27,51 +35,38 @@ exports.makeServerAPI = function(apis, sourceDir, apiOutputDir)
 	}
 	
 	generateErrors(apis[0], sourceDir, apiOutputDir);
+	
+	generateVersion(apis[0], sourceDir, apiOutputDir);
 }
 
-function makeAPI(api, sourceDir, apiOutputDir)
+function makeDatatypes(apis, sourceDir, apiOutputDir)
 {
-	console.log("Generating C# "+api.name+" library to "+apiOutputDir);
-	
 	var templateDir = path.resolve(sourceDir, "templates");
 	
 	var modelTemplate = ejs.compile(readFile(path.resolve(templateDir, "Model.ejs")));
+	var modelsTemplate = ejs.compile(readFile(path.resolve(templateDir, "Models.cp.ejs")));
 	var enumTemplate = ejs.compile(readFile(path.resolve(templateDir, "Enum.ejs")));
-	var apiTemplate = ejs.compile(readFile(path.resolve(templateDir, "API.ejs")));
 	
-	var modelOutDir = path.resolve(apiOutputDir, "PlayFabSDK/Public/Model");
+	var datatypes = [];
 	
-	for(var i in api.datatypes)
+	for(var a in apis)
+	{
+		var api = apis[a];
+		for(var i in api.datatypes)
+		{
+			datatypes.push(api.datatypes[i]);
+		}
+	}
+	
+	var generatedDatatypes = [];
+	
+	for(var i in datatypes)
 	{
 		var modelLocals = {};
-		modelLocals.datatype = api.datatypes[i];
+		modelLocals.datatype = datatypes[i];
 		modelLocals.getPropertyDef = getModelPropertyDef;
 		modelLocals.getPropertyAttribs = getPropertyAttribs;
 		modelLocals.getPropertyJsonReader = getPropertyJsonReader;
-		modelLocals.api = api;
-		modelLocals.hasGenerics = false;
-		modelLocals.hasEnum = false;
-		modelLocals.needsSystem = false;
-		
-		
-		for(var p in modelLocals.datatype.properties)
-		{
-			var prop = modelLocals.datatype.properties[p];
-			if(prop.collection)
-			{
-				modelLocals.hasGenerics = true;
-			}
-			if(prop.isenum)
-			{
-				modelLocals.hasEnum = true;
-			}
-			if(prop.actualtype == 'DateTime' || prop.actualtype == 'TimeSpan')
-			{
-				modelLocals.needsSystem = true;
-			}
-		}
-		
-		var modelFilename = path.resolve(modelOutDir, modelLocals.datatype.name+'.cs');
 		
 		var generatedModel = null;
 		
@@ -84,11 +79,24 @@ function makeAPI(api, sourceDir, apiOutputDir)
 			generatedModel = modelTemplate(modelLocals);
 		}
 		
-		writeFile(modelFilename, generatedModel);
+		generatedDatatypes.push(generatedModel);
 	}
 	
+	var modelsLocal = {};
+	modelsLocal.datatypes = generatedDatatypes;
+	var generatedModels = modelsTemplate(modelsLocal);
+	writeFile(path.resolve(apiOutputDir, "PlayFabSDK/Public/PlayFabModelsAPI.cs"), generatedModels);
+}
+
+function makeAPI(api, sourceDir, apiOutputDir)
+{
+	console.log("Generating C# "+api.name+" library to "+apiOutputDir);
 	
+	var templateDir = path.resolve(sourceDir, "templates");
 	
+	var apiTemplate = ejs.compile(readFile(path.resolve(templateDir, "API.ejs")));
+	
+
 	var apiLocals = {};
 	apiLocals.api = api;
 	apiLocals.getAuthParams = getAuthParams;
@@ -108,6 +116,17 @@ function generateErrors(api, sourceDir, apiOutputDir)
 	errorLocals.errors = api.errors;
 	var generatedErrors = errorsTemplate(errorLocals);
 	writeFile(path.resolve(apiOutputDir, "PlayFabSDK/Public/PlayFabErrors.cs"), generatedErrors);
+}
+
+function generateVersion(api, sourceDir, apiOutputDir)
+{
+	var versionTemplate = ejs.compile(readFile(path.resolve(sourceDir, "templates/PlayFabVersion.cp.ejs")));
+	
+	var versionLocals = {};
+	versionLocals.apiRevision = api.revision;
+	versionLocals.sdkRevision = sdkVersion;
+	var generatedVersion = versionTemplate(versionLocals);
+	writeFile(path.resolve(apiOutputDir, "PlayFabSDK/Internal/PlayFabVersion.cs"), generatedVersion);
 }
 
 
@@ -453,7 +472,11 @@ function getAuthParams(apiCall)
 function getRequestActions(apiCall, api)
 {
 	if(api.name == "Client" && (apiCall.result == "LoginResult" || apiCall.request == "RegisterPlayFabUserRequest"))
-		return "request.TitleId = PlayFabSettings.TitleId ?? request.TitleId;\n";
+		return "request.TitleId = PlayFabSettings.TitleId ?? request.TitleId;\n\t\t\tif(request.TitleId == null) throw new Exception (\"Must be have PlayFabSettings.TitleId set to call this method\");\n";
+	if(api.name == "Client" && apiCall.auth == 'SessionTicket')
+		return "if (AuthKey == null) throw new Exception (\"Must be logged in to call this method\");\n"
+	if(apiCall.auth == 'SecretKey')
+		return "if (PlayFabSettings.DeveloperSecretKey == null) throw new Exception (\"Must have PlayFabSettings.DeveloperSecretKey set to call this method\");\n"
 	return "";
 }
 

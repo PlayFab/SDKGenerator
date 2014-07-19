@@ -3,6 +3,7 @@
 #include "playfab/PlayFabSettings.h"
 #include "playfab/PlayFabResultHandler.h"
 #include "playfab/HttpRequesterCURL.h"
+#include "playfab/PlayFabVersion.h"
 
 #include <string>
 
@@ -68,6 +69,7 @@ void PlayFab<%- api.name %>API::<%- apiCall.name %>(
     <%- getRequestActions(apiCall, api) %>
     HttpRequest* httpRequest = new HttpRequest("POST", PlayFabSettings::getURL("<%- apiCall.url %>"));
     httpRequest->SetHeader("Content-Type", "application/json");
+	httpRequest->SetHeader("X-PlayFabSDK", PlayFabVersionString);
 	<%- getAuthParams(apiCall) %>
 	
     httpRequest->SetResultCallback(callback);

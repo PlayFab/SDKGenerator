@@ -1,6 +1,8 @@
 
 var path = require('path');
 
+var sdkVersion = "1.0.0";
+
 exports.makeClientAPI = function(api, sourceDir, apiOutputDir)
 {
 	var libname = "Client";
@@ -15,6 +17,7 @@ exports.makeClientAPI = function(api, sourceDir, apiOutputDir)
 	generateModels(api.datatypes, sourceDir, apiOutputDir, libname);
 	
 	generateErrors(api, sourceDir, apiOutputDir);
+	generateVersion(api, sourceDir, apiOutputDir);
 	
 	makeAPIProject([api], sourceDir, apiOutputDir, libname);
 }
@@ -43,6 +46,7 @@ exports.makeServerAPI = function(apis, sourceDir, apiOutputDir)
 	generateModels(allDatatypes, sourceDir, apiOutputDir, libname);
 	
 	generateErrors(apis[0], sourceDir, apiOutputDir);
+	generateVersion(apis[0], sourceDir, apiOutputDir);
 	
 	makeAPIProject(apis, sourceDir, apiOutputDir, libname);
 }
@@ -71,6 +75,7 @@ exports.makeCombinedAPI = function(apis, sourceDir, apiOutputDir)
 	generateModels(allDatatypes, sourceDir, apiOutputDir, libname);
 	
 	generateErrors(apis[0], sourceDir, apiOutputDir);
+	generateVersion(apis[0], sourceDir, apiOutputDir);
 	
 	makeAPIProject(apis, sourceDir, apiOutputDir, libname);
 }
@@ -860,6 +865,17 @@ function generateErrors(api, sourceDir, apiOutputDir)
 	errorLocals.errors = api.errors;
 	var generatedErrors = errorsTemplate(errorLocals);
 	writeFile(path.resolve(apiOutputDir, "include/playfab/PlayFabError.h"), generatedErrors);
+}
+
+function generateVersion(api, sourceDir, apiOutputDir)
+{
+	var versionTemplate = ejs.compile(readFile(path.resolve(sourceDir, "templates/PlayFabVersion.cpp.ejs")));
+	
+	var versionLocals = {};
+	versionLocals.apiRevision = api.revision;
+	versionLocals.sdkRevision = sdkVersion;
+	var generatedVersion = versionTemplate(versionLocals);
+	writeFile(path.resolve(apiOutputDir, "source/core/PlayFabVersion.cpp"), generatedVersion);
 }
 
 

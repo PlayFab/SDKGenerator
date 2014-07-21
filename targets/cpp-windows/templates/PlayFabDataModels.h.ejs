@@ -1,9 +1,11 @@
-#ifndef PLAYFAB_<%- libraryName.toUpperCase() %>_DATA_MODELS_H_
-#define PLAYFAB_<%- libraryName.toUpperCase() %>_DATA_MODELS_H_
+#ifndef PLAYFAB_<%- api.name.toUpperCase() %>_DATA_MODELS_H_
+#define PLAYFAB_<%- api.name.toUpperCase() %>_DATA_MODELS_H_
 
 #include "playfab/PlayFabBaseModel.h"
 
 namespace PlayFab
+{
+namespace <%- api.name %>Models
 {
 
 	<% for(var i in datatypes) { var datatype = datatypes[i]; if(datatype.isenum) { %>
@@ -43,7 +45,8 @@ namespace PlayFab
         bool readFromValue(const rapidjson::Value& obj);
     };
 	<% } } %>
-	
+
+}
 }
 
 #endif

@@ -5,7 +5,9 @@ var sdkVersion = "1.0.0";
 
 exports.makeClientAPI = function(api, sourceDir, apiOutputDir)
 {
-	console.log("Generating C-sharp Unity client SDK to "+apiOutputDir);
+	console.log("Generating C-sharp client SDK to "+apiOutputDir);
+	
+	var libname = "Client";
 	
 	copyTree(path.resolve(sourceDir, 'source'), apiOutputDir);
 	copyTree(path.resolve(sourceDir, 'client-source'), apiOutputDir);
@@ -15,13 +17,16 @@ exports.makeClientAPI = function(api, sourceDir, apiOutputDir)
 	makeAPI(api, sourceDir, apiOutputDir);
 	
 	generateErrors(api, sourceDir, apiOutputDir);
-	
 	generateVersion(api, sourceDir, apiOutputDir);
+	
+	generateProject([api], sourceDir, apiOutputDir, libname);
 }
 
 exports.makeServerAPI = function(apis, sourceDir, apiOutputDir)
 {
-	console.log("Generating C-sharp Unity server SDK to "+apiOutputDir);
+	console.log("Generating C-sharp server SDK to "+apiOutputDir);
+	
+	var libname = "Server";
 	
 	copyTree(path.resolve(sourceDir, 'source'), apiOutputDir);
 	copyTree(path.resolve(sourceDir, 'server-source'), apiOutputDir);
@@ -35,8 +40,32 @@ exports.makeServerAPI = function(apis, sourceDir, apiOutputDir)
 	}
 	
 	generateErrors(apis[0], sourceDir, apiOutputDir);
-	
 	generateVersion(apis[0], sourceDir, apiOutputDir);
+	
+	generateProject(apis, sourceDir, apiOutputDir, libname);
+}
+
+exports.makeCombinedAPI = function(apis, sourceDir, apiOutputDir)
+{
+	console.log("Generating C-sharp combined SDK to "+apiOutputDir);
+	
+	var libname = "All";
+	
+	copyTree(path.resolve(sourceDir, 'source'), apiOutputDir);
+	copyTree(path.resolve(sourceDir, 'server-source'), apiOutputDir);
+	
+	makeDatatypes(apis, sourceDir, apiOutputDir);
+	
+	for(var i in apis)
+	{
+		var api = apis[i];
+		makeAPI(api, sourceDir, apiOutputDir);
+	}
+	
+	generateErrors(apis[0], sourceDir, apiOutputDir);
+	generateVersion(apis[0], sourceDir, apiOutputDir);
+	
+	generateProject(apis, sourceDir, apiOutputDir, libname);
 }
 
 function makeDatatypes(apis, sourceDir, apiOutputDir)
@@ -47,14 +76,12 @@ function makeDatatypes(apis, sourceDir, apiOutputDir)
 	var modelsTemplate = ejs.compile(readFile(path.resolve(templateDir, "Models.cp.ejs")));
 	var enumTemplate = ejs.compile(readFile(path.resolve(templateDir, "Enum.cp.ejs")));
 	
-	
 	var makeDatatype = function(datatype)
 	{
 		var modelLocals = {};
 		modelLocals.datatype = datatype;
 		modelLocals.getPropertyDef = getModelPropertyDef;
 		modelLocals.getPropertyAttribs = getPropertyAttribs;
-		modelLocals.getPropertyJsonReader = getPropertyJsonReader;
 		
 		var generatedModel = null;
 		
@@ -78,14 +105,16 @@ function makeDatatypes(apis, sourceDir, apiOutputDir)
 		modelsLocal.api = api;
 		modelsLocal.makeDatatype = makeDatatype;
 		var generatedModels = modelsTemplate(modelsLocal);
-		writeFile(path.resolve(apiOutputDir, "PlayFabSDK/Public/PlayFab"+api.name+"Models.cs"), generatedModels);
+		writeFile(path.resolve(apiOutputDir, "source/PlayFab"+api.name+"Models.cs"), generatedModels);
 	}
 }
+
 
 function makeAPI(api, sourceDir, apiOutputDir)
 {
 	console.log("Generating C# "+api.name+" library to "+apiOutputDir);
 	
+
 	var templateDir = path.resolve(sourceDir, "templates");
 	
 	var apiTemplate = ejs.compile(readFile(path.resolve(templateDir, "API.cp.ejs")));
@@ -98,7 +127,7 @@ function makeAPI(api, sourceDir, apiOutputDir)
 	apiLocals.getResultActions = getResultActions;
 	apiLocals.authKey = api.name == "Client";
 	var generatedApi = apiTemplate(apiLocals);
-	writeFile(path.resolve(apiOutputDir, "PlayFabSDK/Public/PlayFab"+api.name+"API.cs"), generatedApi);
+	writeFile(path.resolve(apiOutputDir, "source/PlayFab"+api.name+"API.cs"), generatedApi);
 }
 
 function generateErrors(api, sourceDir, apiOutputDir)
@@ -109,7 +138,7 @@ function generateErrors(api, sourceDir, apiOutputDir)
 	errorLocals.errorList = api.errorList;
 	errorLocals.errors = api.errors;
 	var generatedErrors = errorsTemplate(errorLocals);
-	writeFile(path.resolve(apiOutputDir, "PlayFabSDK/Public/PlayFabErrors.cs"), generatedErrors);
+	writeFile(path.resolve(apiOutputDir, "source/PlayFabErrors.cs"), generatedErrors);
 }
 
 function generateVersion(api, sourceDir, apiOutputDir)
@@ -120,9 +149,20 @@ function generateVersion(api, sourceDir, apiOutputDir)
 	versionLocals.apiRevision = api.revision;
 	versionLocals.sdkRevision = sdkVersion;
 	var generatedVersion = versionTemplate(versionLocals);
-	writeFile(path.resolve(apiOutputDir, "PlayFabSDK/Internal/PlayFabVersion.cs"), generatedVersion);
+	writeFile(path.resolve(apiOutputDir, "source/PlayFabVersion.cs"), generatedVersion);
 }
 
+function generateProject(apis, sourceDir, apiOutputDir, libname)
+{
+	var vcProjTemplate = ejs.compile(readFile(path.resolve(sourceDir, "templates/PlayFabSDK.csproj.ejs")));
+	
+	var projLocals = {};
+	projLocals.apis = apis;
+	projLocals.libname = libname;
+	
+	var generatedProject = vcProjTemplate(projLocals);
+	writeFile(path.resolve(apiOutputDir, "PlayFabSDK.csproj"), generatedProject);
+}
 
 function getModelPropertyDef(property, datatype)
 {
@@ -152,6 +192,10 @@ function getModelPropertyDef(property, datatype)
 
 function getPropertyAttribs(property, datatype)
 {
+	if(property.isenum)
+	{
+		return "[JsonConverter(typeof(StringEnumConverter))]";
+	}
 	return "";
 }
 
@@ -200,10 +244,6 @@ function getPropertyCSType(property, datatype, needOptional)
 	{
 		return 'double'+optional;
 	}
-	else if(property.actualtype == 'decimal')
-	{
-		return 'decimal'+optional;
-	}
 	else if(property.actualtype == 'DateTime')
 	{
 		return 'DateTime'+optional;
@@ -226,231 +266,6 @@ function getPropertyCSType(property, datatype, needOptional)
 	}
 }
 
-function getPropertyJSType(property, datatype)
-{
-
-	if(property.actualtype == 'String')
-	{
-		return 'string';
-	}
-	else if(property.actualtype == 'Boolean')
-	{
-		return 'bool?';
-	}
-	else if(property.actualtype == 'int16')
-	{
-		return 'double?';
-	}
-	else if(property.actualtype == 'uint16')
-	{
-		return 'double?';
-	}
-	else if(property.actualtype == 'int32')
-	{
-		return 'double?';
-	}
-	else if(property.actualtype == 'uint32')
-	{
-		return 'double?';
-	}
-	else if(property.actualtype == 'int64')
-	{
-		return 'double?';
-	}
-	else if(property.actualtype == 'uint64')
-	{
-		return 'double?';
-	}
-	else if(property.actualtype == 'float')
-	{
-		return 'double?';
-	}
-	else if(property.actualtype == 'double')
-	{
-		return 'double?';
-	}
-	else if(property.actualtype == 'decimal')
-	{
-		return 'double?';
-	}
-	else if(property.actualtype == 'DateTime')
-	{
-		return 'string';
-	}
-	else if(property.isclass)
-	{
-		return 'object';
-	}
-	else if(property.isenum)
-	{
-		return 'string';
-	}
-	else if(property.actualtype == "object")
-	{
-		return 'object';
-	}
-	else
-	{
-		throw "Unknown property type: "+property.actualtype+" for " +property.name+" in "+datatype.name;
-	}
-}
-
-
-function getMapDeserializer(property, datatype)
-{
-	if(property.actualtype == 'String')
-	{
-		return "JsonUtil.GetDictionary<string>(json, \""+property.name+"\");";
-	}
-	else if(property.actualtype == 'Boolean')
-	{
-		return "JsonUtil.GetDictionary<bool>(json, \""+property.name+"\");";
-	}
-	else if(property.actualtype == 'int16')
-	{
-		return "JsonUtil.GetDictionaryInt16(json, \""+property.name+"\");";
-	}
-	else if(property.actualtype == 'uint16')
-	{
-		return "JsonUtil.GetDictionaryUInt16(json, \""+property.name+"\");";
-	}
-	else if(property.actualtype == 'int32')
-	{
-		return "JsonUtil.GetDictionaryInt32(json, \""+property.name+"\");";
-	}
-	else if(property.actualtype == 'uint32')
-	{
-		return "JsonUtil.GetDictionaryUInt32(json, \""+property.name+"\");";
-	}
-	else if(property.actualtype == 'int64')
-	{
-		return "JsonUtil.GetDictionaryInt64(json, \""+property.name+"\");";
-	}
-	else if(property.actualtype == 'uint64')
-	{
-		return "JsonUtil.GetDictionaryUint64(json, \""+property.name+"\");";
-	}
-	else if(property.actualtype == 'float')
-	{
-		return "JsonUtil.GetDictionaryFloat(json, \""+property.name+"\");";
-	}
-	else if(property.actualtype == 'double')
-	{
-		return "JsonUtil.GetDictionaryDouble(json, \""+property.name+"\");";
-	}
-	else if(property.actualtype == "object")
-	{
-		return "JsonUtil.GetDictionary<object>(json, \""+property.name+"\");";
-	}
-	else
-	{
-		throw "Unknown property type: "+property.actualtype+" for " +property.name+" in "+datatype.name;
-	}
-}
-
-
-
-function getListDeserializer(property, api)
-{
-	if(property.actualtype == 'String')
-	{
-		return "JsonUtil.GetList<string>(json, \""+property.name+"\");";
-	}
-	else if(property.actualtype == 'Boolean')
-	{
-		return "JsonUtil.GetList<bool>(json, \""+property.name+"\");";
-	}
-	else if(property.actualtype == 'int16')
-	{
-		return "JsonUtil.GetListInt16(json, \""+property.name+"\");";
-	}
-	else if(property.actualtype == 'uint16')
-	{
-		return "JsonUtil.GetListUInt16(json, \""+property.name+"\");";
-	}
-	else if(property.actualtype == 'int32')
-	{
-		return "JsonUtil.GetListInt32(json, \""+property.name+"\");";
-	}
-	else if(property.actualtype == 'uint32')
-	{
-		return "JsonUtil.GetListUInt32(json, \""+property.name+"\");";
-	}
-	else if(property.actualtype == 'int64')
-	{
-		return "JsonUtil.GetListInt64(json, \""+property.name+"\");";
-	}
-	else if(property.actualtype == 'uint64')
-	{
-		return "JsonUtil.GetListUint64(json, \""+property.name+"\");";
-	}
-	else if(property.actualtype == 'float')
-	{
-		return "JsonUtil.GetListFloat(json, \""+property.name+"\");";
-	}
-	else if(property.actualtype == 'double')
-	{
-		return "JsonUtil.GetListDouble(json, \""+property.name+"\");";
-	}
-	else if(property.actualtype == "object")
-	{
-		return "JsonUtil.GetList<object>(json, \""+property.name+"\");";
-	}
-	else
-	{
-		throw "Unknown property type: "+property.actualtype+" for " +property.name+" in "+datatype.name;
-	}
-}
-
-
-function getPropertyJsonReader(property, datatype)
-{
-	var csType = getPropertyCSType(property, datatype, false);
-	var csOptionalType = getPropertyCSType(property, datatype, true);
-	var jsType = getPropertyJSType(property, datatype);
-	
-	
-	if(property.isclass)
-	{
-		if(property.collection == "map")
-		{
-			return property.name + " = JsonUtil.GetObjectDictionary<"+csType+">(json, \""+property.name+"\");";
-		}
-		else if(property.collection == "array")
-		{
-			return property.name + " = JsonUtil.GetObjectList<"+csType+">(json, \""+property.name+"\");";
-		}
-		else
-		{
-			return property.name + " = JsonUtil.GetObject<"+csType+">(json, \""+property.name+"\");";
-		}
-	}
-	else if(property.collection == "map")
-	{
-		return property.name + " = "+getMapDeserializer(property, datatype);
-	}
-	else if(property.collection == "array")
-	{
-		return property.name + " = "+getListDeserializer(property, datatype);
-	}
-	else if(property.isenum)
-	{
-		return property.name + " = ("+csOptionalType+")JsonUtil.GetEnum<"+csType+">(json, \""+property.name+"\");";
-	}
-	else if(property.actualtype == "DateTime")
-	{
-		return property.name + " = ("+csOptionalType+")JsonUtil.GetDateTime(json, \""+property.name+"\");";
-	}
-	else if(property.actualtype == "object")
-	{
-		return property.name + " = JsonUtil.GetObject<object>(json, \""+property.name+"\");";
-	}
-	else
-	{
-		return property.name + " = ("+csOptionalType+")JsonUtil.Get<"+jsType+">(json, \""+property.name+"\");";
-	}
-	
-}
 
 function getAuthParams(apiCall)
 {

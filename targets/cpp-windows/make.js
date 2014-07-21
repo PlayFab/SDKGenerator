@@ -14,7 +14,7 @@ exports.makeClientAPI = function(api, sourceDir, apiOutputDir)
 	
 	makeAPI(api, sourceDir, apiOutputDir);
 	
-	generateModels(api.datatypes, sourceDir, apiOutputDir, libname);
+	generateModels([api], sourceDir, apiOutputDir, libname);
 	
 	generateErrors(api, sourceDir, apiOutputDir);
 	generateVersion(api, sourceDir, apiOutputDir);
@@ -31,19 +31,14 @@ exports.makeServerAPI = function(apis, sourceDir, apiOutputDir)
 	copyTree(path.resolve(sourceDir, 'source'), apiOutputDir);
 	copyTree(path.resolve(sourceDir, 'server-source'), apiOutputDir);
 	
-	var allDatatypes = {};
 	for(var i in apis)
 	{
 		var api = apis[i];
 		
-		for(var d in api.datatypes)
-		{
-			allDatatypes[d] = api.datatypes[d];
-		}
-		
 		makeAPI(api, sourceDir, apiOutputDir);
 	}
-	generateModels(allDatatypes, sourceDir, apiOutputDir, libname);
+	
+	generateModels(apis, sourceDir, apiOutputDir, libname);
 	
 	generateErrors(apis[0], sourceDir, apiOutputDir);
 	generateVersion(apis[0], sourceDir, apiOutputDir);
@@ -60,19 +55,14 @@ exports.makeCombinedAPI = function(apis, sourceDir, apiOutputDir)
 	copyTree(path.resolve(sourceDir, 'source'), apiOutputDir);
 	copyTree(path.resolve(sourceDir, 'server-source'), apiOutputDir);
 	
-	var allDatatypes = {};
 	for(var i in apis)
 	{
 		var api = apis[i];
 		
-		for(var d in api.datatypes)
-		{
-			allDatatypes[d] = api.datatypes[d];
-		}
-		
 		makeAPI(api, sourceDir, apiOutputDir);
 	}
-	generateModels(allDatatypes, sourceDir, apiOutputDir, libname);
+	
+	generateModels(apis, sourceDir, apiOutputDir, libname);
 	
 	generateErrors(apis[0], sourceDir, apiOutputDir);
 	generateVersion(apis[0], sourceDir, apiOutputDir);
@@ -177,10 +167,6 @@ function getPropertyCPPType(property, datatype, needOptional)
 	{
 		return isOptional ? 'OptionalDouble' : 'double';
 	}
-	else if(property.actualtype == 'decimal')
-	{
-		return isOptional ? 'OptionalDouble' : 'double';
-	}
 	else if(property.actualtype == 'DateTime')
 	{
 		return isOptional ? 'OptionalTime' : 'time_t';
@@ -246,10 +232,6 @@ function getPropertyDefaultValue(property, datatype)
 		return isOptional ? '' : '0';
 	}
 	else if(property.actualtype == 'double')
-	{
-		return isOptional ? '' : '0';
-	}
-	else if(property.actualtype == 'decimal')
 	{
 		return isOptional ? '' : '0';
 	}
@@ -347,11 +329,6 @@ function getPropertySerializer(property, datatype)
 		writer = "writer.Double("+propName+");";
 		tester = propName+".notNull()";
 	}
-	else if(property.actualtype == 'decimal')
-	{
-		writer = "writer.Double("+propName+");";
-		tester = propName+".notNull()";
-	}
 	else if(property.actualtype == 'DateTime')
 	{
 		writer = "writeDatetime("+propName+", writer);";
@@ -435,10 +412,6 @@ function getArrayPropertySerializer(property, datatype)
 		writer = "writer.Double(*iter);";
 	}
 	else if(property.actualtype == 'double')
-	{
-		writer = "writer.Double(*iter);";
-	}
-	else if(property.actualtype == 'decimal')
 	{
 		writer = "writer.Double(*iter);";
 	}
@@ -528,10 +501,6 @@ function getMapPropertySerializer(property, datatype)
 	{
 		writer = "writer.Double(iter->second);";
 	}
-	else if(property.actualtype == 'decimal')
-	{
-		writer = "writer.Double(iter->second);";
-	}
 	else if(property.actualtype == 'DateTime')
 	{
 		writer = "writeDatetime(iter->second, writer);";
@@ -611,13 +580,9 @@ function getPropertyDeserializer(property, datatype)
 	}
 	else if(property.actualtype == 'float')
 	{
-		getter = property.name+"_member->value.GetDouble()";
+		getter = "(float)"+property.name+"_member->value.GetDouble()";
 	}
 	else if(property.actualtype == 'double')
-	{
-		getter = property.name+"_member->value.GetDouble()";
-	}
-	else if(property.actualtype == 'decimal')
 	{
 		getter = property.name+"_member->value.GetDouble()";
 	}
@@ -689,13 +654,9 @@ function getArrayPropertyDeserializer(property, datatype)
 	}
 	else if(property.actualtype == 'float')
 	{
-		getter = "memberList[i].GetDouble()";
+		getter = "(float)memberList[i].GetDouble()";
 	}
 	else if(property.actualtype == 'double')
-	{
-		getter = "memberList[i].GetDouble()";
-	}
-	else if(property.actualtype == 'decimal')
 	{
 		getter = "memberList[i].GetDouble()";
 	}
@@ -767,13 +728,9 @@ function getMapPropertyDeserializer(property, datatype)
 	}
 	else if(property.actualtype == 'float')
 	{
-		getter = "iter->value.GetDouble()";
+		getter = "(float)iter->value.GetDouble()";
 	}
 	else if(property.actualtype == 'double')
-	{
-		getter = "iter->value.GetDouble()";
-	}
-	else if(property.actualtype == 'decimal')
 	{
 		getter = "iter->value.GetDouble()";
 	}
@@ -825,34 +782,40 @@ function addTypeAndDependencies(datatype, datatypes, orderedTypes, addedSet)
 	addedSet[datatype.name] = datatype;
 }
 
-function generateModels(datatypes, sourceDir, apiOutputDir, libraryName)
+function generateModels(apis, sourceDir, apiOutputDir, libraryName)
 {
-	// Order datatypes based on dependency graph
-	var orderedTypes = [];
-	var addedSet = {};
-	
-	for(var i in datatypes)
+	for(var a in apis)
 	{
-		var datatype = datatypes[i];
-		addTypeAndDependencies(datatype, datatypes, orderedTypes, addedSet);
+		var api = apis[a];
+		
+		// Order datatypes based on dependency graph
+		var orderedTypes = [];
+		var addedSet = {};
+		
+		for(var i in api.datatypes)
+		{
+			var datatype = api.datatypes[i];
+			addTypeAndDependencies(datatype, api.datatypes, orderedTypes, addedSet);
+		}
+		
+		var modelHeaderTemplate = ejs.compile(readFile(path.resolve(sourceDir, "templates/PlayFabDataModels.h.ejs")));
+		var modelBodyTemplate = ejs.compile(readFile(path.resolve(sourceDir, "templates/PlayFabDataModels.cpp.ejs")));
+		
+		var modelLocals = {};
+		modelLocals.api = api;
+		modelLocals.datatypes = orderedTypes;
+		modelLocals.getPropertyDef = getPropertyDef;
+		modelLocals.getPropertySerializer = getPropertySerializer;
+		modelLocals.getPropertyDeserializer = getPropertyDeserializer;
+		modelLocals.getPropertyDefaultValue = getPropertyDefaultValue;
+		modelLocals.getPropertyCopyValue = getPropertyCopyValue;
+		modelLocals.libraryName = libraryName;
+		var generatedHeader = modelHeaderTemplate(modelLocals);
+		writeFile(path.resolve(apiOutputDir, "include/playfab/PlayFab"+api.name+"DataModels.h"), generatedHeader);
+		
+		var generatedBody = modelBodyTemplate(modelLocals);
+		writeFile(path.resolve(apiOutputDir, "source/core/PlayFab"+api.name+"DataModels.cpp"), generatedBody);
 	}
-	
-	var modelHeaderTemplate = ejs.compile(readFile(path.resolve(sourceDir, "templates/PlayFabDataModels.h.ejs")));
-	var modelBodyTemplate = ejs.compile(readFile(path.resolve(sourceDir, "templates/PlayFabDataModels.cpp.ejs")));
-	
-	var modelLocals = {};
-	modelLocals.datatypes = orderedTypes;
-	modelLocals.getPropertyDef = getPropertyDef;
-	modelLocals.getPropertySerializer = getPropertySerializer;
-	modelLocals.getPropertyDeserializer = getPropertyDeserializer;
-	modelLocals.getPropertyDefaultValue = getPropertyDefaultValue;
-	modelLocals.getPropertyCopyValue = getPropertyCopyValue;
-	modelLocals.libraryName = libraryName;
-	var generatedHeader = modelHeaderTemplate(modelLocals);
-	writeFile(path.resolve(apiOutputDir, "include/playfab/PlayFabDataModels.h"), generatedHeader);
-	
-	var generatedBody = modelBodyTemplate(modelLocals);
-	writeFile(path.resolve(apiOutputDir, "source/core/PlayFabDataModels.cpp"), generatedBody);
 }
 
 

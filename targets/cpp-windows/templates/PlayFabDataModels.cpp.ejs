@@ -1,12 +1,13 @@
 
-#include "playfab/PlayFabDataModels.h"
+#include "playfab/PlayFab<%- api.name %>DataModels.h"
 
 using namespace PlayFab;
+using namespace PlayFab::<%- api.name %>Models;
 using namespace rapidjson;
 
 
 <% for(var i in datatypes) { var datatype = datatypes[i]; if(datatype.isenum) { %>
-void PlayFab::write<%- datatype.name %>EnumJSON(<%- datatype.name %> enumVal, PFStringJsonWriter& writer)
+void PlayFab::<%- api.name %>Models::write<%- datatype.name %>EnumJSON(<%- datatype.name %> enumVal, PFStringJsonWriter& writer)
 {
 	switch(enumVal)
 	{
@@ -15,7 +16,7 @@ void PlayFab::write<%- datatype.name %>EnumJSON(<%- datatype.name %> enumVal, PF
 	}
 }
 
-<%- datatype.name %> PlayFab::read<%- datatype.name %>FromValue(const rapidjson::Value& obj)
+<%- datatype.name %> PlayFab::<%- api.name %>Models::read<%- datatype.name %>FromValue(const rapidjson::Value& obj)
 {
 	std::string enumStr = obj.GetString();
 	if(enumStr == "<%- datatype.enumvalues[0].name %>")

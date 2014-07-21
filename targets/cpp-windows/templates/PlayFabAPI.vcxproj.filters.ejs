@@ -20,6 +20,9 @@
     </ClCompile>
     <% for(var i in apis) { var api = apis[i]; %><ClCompile Include="..\..\..\source\core\PlayFab<%- api.name %>API.cpp">
       <Filter>Source Files</Filter>
+    </ClCompile>
+	<ClCompile Include="..\..\..\source\core\PlayFab<%- api.name %>DataModels.cpp">
+      <Filter>Source Files</Filter>
     </ClCompile><% } %>
     <ClCompile Include="..\..\..\source\curl\HttpRequesterCURL.cpp">
       <Filter>Source Files</Filter>
@@ -48,6 +51,9 @@
       <Filter>Header Files</Filter>
     </ClInclude>
 	<% for(var i in apis) { var api = apis[i]; %><ClInclude Include="..\..\..\include\playfab\PlayFab<%- api.name %>API.h">
+      <Filter>Header Files</Filter>
+    </ClInclude>
+	<ClInclude Include="..\..\..\include\playfab\PlayFab<%- api.name %>DataModels.h">
       <Filter>Header Files</Filter>
     </ClInclude><% } %>
     <ClInclude Include="..\..\..\include\playfab\PlayFabError.h">

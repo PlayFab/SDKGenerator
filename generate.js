@@ -132,6 +132,7 @@ function generate(args)
 
 	if(testData)
 	{
+		// Add all the extra lookups needed by the test generators
 		for(var a in allApis)
 		{
 			var api = allApis[a];
@@ -142,6 +143,18 @@ function generate(args)
 			{
 				var call = api.calls[c];
 				api.callLookup[call.name] = call;
+			}
+			
+			for(var d in api.datatypes)
+			{
+				var datatype = api.datatypes[d];
+				var propLookup = {};
+				datatype.propLookup = propLookup;
+				for(var p in datatype.properties)
+				{
+					var property = datatype.properties[p];
+					propLookup[property.name] = property;
+				}
 			}
 		}
 	

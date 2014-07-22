@@ -78,6 +78,7 @@ exports.makeTests = function(testData, apiLookup, sourceDir, testOutputLocation)
 	testsLocals.testData = testData;
 	testsLocals.apiLookup = apiLookup;
 	testsLocals.getJsonString = getJsonString;
+	testsLocals.escapeForString = escapeForString;
 	testsLocals.getExpectedDataList = getExpectedDataList;
 	var generatedTests = testsTemplate(testsLocals);
 	writeFile(testOutputLocation, generatedTests);
@@ -88,34 +89,49 @@ function getJsonString(input)
 	if(!input)
 		return "{}";
 	var json = JSON.stringify(input);
-	json = json.replace(new RegExp( '\\\\', "g" ), '\\\\');
-	json = json.replace(new RegExp( '\"', "g" ), '\\"');
-	return json;
+	return escapeForString(json);
 }
 
-function getExpectedDataList(test)
+function escapeForString(input)
+{
+	input = input.replace(new RegExp( '\\\\', "g" ), '\\\\');
+	input = input.replace(new RegExp( '\"', "g" ), '\\"');
+	return input;
+}
+
+function getExpectedDataList(test, api)
 {
 	var dataList = [];
+	var callInfo = api.callLookup[test.call];
+	var resultType = api.datatypes[callInfo.result];
 	
-	addExpectedObjectData(test.result, "", dataList);
+	addExpectedClassData(test.result, resultType, "", dataList);
 	
 	return dataList;
 }
 
-function addExpectedObjectData(datatype, typeName, dataList)
+function addExpectedClassData(datatype, resultType, typeName, dataList)
 {
 	for(var fieldName in datatype)
 	{
+		var propInfo = resultType.propLookup[fieldName];
+		if(!propInfo)
+		{
+			console.log("Error: Unknown field "+fieldName+" in "+resultType.name);
+		}
+		
 		var value = datatype[fieldName];
 		if(value instanceof Array)
 		{
-			addExpectedArrayData(value, typeName+fieldName, dataList);
+			addExpectedArrayData(value, resultType, typeName+fieldName, dataList);
 		}
 		else if(value != null && typeof value === 'object')
 		{
-			addExpectedObjectData(value, typeName+fieldName+".", dataList);
+			if(propInfo.collection == "map")
+				addExpectedObjectData(value, typeName+fieldName, dataList);
+			else
+				addExpectedClassData(value, resultType, typeName+fieldName+".", dataList);
 		}
-		
 		else
 		{
 			dataList.push(typeName+fieldName);
@@ -123,18 +139,40 @@ function addExpectedObjectData(datatype, typeName, dataList)
 	}
 }
 
-function addExpectedArrayData(datatype, typeName, dataList)
+function addExpectedObjectData(datatype, typeName, dataList)
+{
+	for(var fieldName in datatype)
+	{
+		
+		var value = datatype[fieldName];
+		if(value instanceof Array)
+		{
+			console.log("Error: Can't have an array in a freeform object" +fieldName);
+		}
+		else if(value != null && typeof value === 'object')
+		{
+			console.log("Error: Can't have an object in a freeform object" +fieldName);
+		}
+		else
+		{
+			dataList.push(typeName+"[\""+fieldName+"\"]");
+		}
+	}
+}
+
+
+function addExpectedArrayData(datatype, resultType, typeName, dataList)
 {
 	for(var fieldName in datatype)
 	{
 		var value = datatype[fieldName];
 		if(value instanceof Array)
 		{
-			addExpectedArrayData(value, typeName+"["+fieldName+"]", dataList);
+			addExpectedArrayData(value, resultType, typeName+"["+fieldName+"]", dataList);
 		}
 		else if(value != null && typeof value === 'object')
 		{
-			addExpectedObjectData(value, typeName+"["+fieldName+"]"+".", dataList);
+			addExpectedClassData(value, resultType, typeName+"["+fieldName+"]"+".", dataList);
 		}
 		else
 		{

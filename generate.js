@@ -29,11 +29,11 @@ function generate(args)
 {
 	var targetList = getTargetsList();
 	
-	var syntax = "Synatax: node generate.js <apiSpecLocation> [<targetName>=<targetOutputLocation>] ...\n"+
+	var syntax = "Synatax: node generate.js <apiSpecLocation> [-t <testFilePath>] [<targetName>=<targetOutputLocation>] ...\n"+
 				"\t<apiSpecLocation> : Directory where the *.api.json files are\n"+
 				"\tYou must list one or more target=outputLocation arguments. Warning, put no spaces around the =\n";
 	
-	if(args.length < 3)
+	if(args.length < 4)
 	{
 		console.log(syntax);
 		console.log("Possible targetNames:\n");
@@ -52,16 +52,44 @@ function generate(args)
 	}
 	
 	var specLocation = path.normalize(args[2]);
+	var testLocation = null;
+	var testData = null;
 	
-	if(args.length == 3)
+	var firstTargetIndex = 3;
+	if(args[3] == "-t")
 	{
-		console.error(syntax);
+		if(args.length < 5)
+		{
+			console.log(syntax);
+			process.exit();
+		}
+		testLocation = path.normalize(args[4]);
+		
+		testData = require(testLocation);
+		if(!testData)
+		{
+			console.log("Couldn't load test input data at "+testLocation);
+			process.exit();
+		}
+		
+		firstTargetIndex = 5;
+	}
+	
+	if(firstTargetIndex >= args.length)
+	{
+		console.log(syntax);
+		console.log("Possible targetNames:\n");
+		for(var i in targetList)
+		{
+			console.log("\t"+targetList[i]);
+		}
+	
 		process.exit();
 	}
 	
 	var targetOutputLocationList = [];
 	
-	for(var a = 3; a<args.length; a++)
+	for(var a = firstTargetIndex; a<args.length; a++)
 	{
 		var argPair = args[a].split('=');
 		if(argPair.length != 2)
@@ -83,7 +111,7 @@ function generate(args)
 	
 			process.exit();
 		}
-		if(fs.existsSync(targetOutput.dest) && !fs.lstatSync(targetOutput.dest).isDirectory())
+		if(!testData && fs.existsSync(targetOutput.dest) && !fs.lstatSync(targetOutput.dest).isDirectory())
 		{
 			console.log("Invalid target output path: "+targetOutput.dest);
 			process.exit();
@@ -99,6 +127,26 @@ function generate(args)
 		require(path.resolve(specLocation, 'Server.api.json'))
 		];
 	var allApis = serverApis.concat(clientApi);
+	
+	var apiLookup = {};
+
+	if(testData)
+	{
+		for(var a in allApis)
+		{
+			var api = allApis[a];
+			apiLookup[api.name] = api;
+			
+			api.callLookup = {};
+			for(var c in api.calls)
+			{
+				var call = api.calls[c];
+				api.callLookup[call.name] = call;
+			}
+		}
+	
+		preprocessTests(testData, apiLookup);
+	}
 	
 	console.log("Generating PlayFab APIs from specs at "+specLocation);
 
@@ -116,6 +164,19 @@ function generate(args)
 		
 		console.log("Making target "+target.name+" to location "+sdkOutputDir);
 		var targetMaker = require(targetMain);
+		
+		if(testData)
+		{
+			if(targetMaker.makeTests)
+			{
+				targetMaker.makeTests(testData, apiLookup, targetSourceDir, sdkOutputDir);
+			}
+			else
+			{
+				console.log("Target "+target.name+" can't make tests");
+			}
+			continue;
+		}
 		
 		if(targetMaker.makeClientAPI)
 		{
@@ -158,6 +219,67 @@ function generate(args)
 			}
 		}
 	}
+}
+
+function preprocessTests(testData, apiLookup)
+{
+	var testNames = {};
+	var error = false;
+	
+	for(var t in testData.tests)
+	{
+		var test = testData.tests[t];
+		var api = apiLookup[test.api];
+		if(!api)
+		{
+			console.log("Test refers to unknown API "+test.api);
+			error = true;
+		}
+		
+		if(!api.callLookup[test.call])
+		{
+			console.log("Test refers to unknown API call "+test.api+"/"+test.call);
+			error = true;
+		}
+		
+		if(test.result && test.error)
+		{
+			console.log("Test expects both an error and a result "+test.api+"/"+test.call);
+			error = true;
+		}
+		
+		if(test.error && !api.errors[test.error])
+		{
+			console.log("Test "+test.api+"/"+test.call+" expects unknown error code "+test.error);
+			error = true;
+		}
+		
+		var baseName = test.name;
+		if(!baseName)
+			baseName = test.api+"_"+test.call;
+		var name = baseName;
+		
+		if(testNames[name])
+		{
+			// Name already used
+			for(var incr = 1; incr < 1000; incr++)
+			{
+				name = baseName+incr;
+				if(!testNames[name])
+				{
+					break;
+				}
+			}
+		}
+		
+		
+		testNames[name] = test;
+		test.name = name;
+		
+	}
+	
+	if(error)
+		process.exit();
 }
 	
 GLOBAL.copyTree = function(source, dest)

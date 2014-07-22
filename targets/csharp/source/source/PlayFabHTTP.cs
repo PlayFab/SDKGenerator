@@ -25,7 +25,7 @@ namespace PlayFab.Internal
         public ResultT data;
     }
 
-    class PlayFabHTTP
+    public class PlayFabHTTP
     {
         public static async Task<object> DoPost(string url, object request, string authType, string authKey)
         {

@@ -68,13 +68,88 @@ exports.makeCombinedAPI = function(apis, sourceDir, apiOutputDir)
 	generateProject(apis, sourceDir, apiOutputDir, libname);
 }
 
+exports.makeTests = function(testData, apiLookup, sourceDir, testOutputLocation)
+{
+	var templateDir = path.resolve(sourceDir, "templates");
+	
+	var testsTemplate = ejs.compile(readFile(path.resolve(templateDir, "Tests.cs.ejs")));
+	
+	var testsLocals = {};
+	testsLocals.testData = testData;
+	testsLocals.apiLookup = apiLookup;
+	testsLocals.getJsonString = getJsonString;
+	testsLocals.getExpectedDataList = getExpectedDataList;
+	var generatedTests = testsTemplate(testsLocals);
+	writeFile(testOutputLocation, generatedTests);
+}
+
+function getJsonString(input)
+{
+	if(!input)
+		return "{}";
+	var json = JSON.stringify(input);
+	json = json.replace(new RegExp( '\\\\', "g" ), '\\\\');
+	json = json.replace(new RegExp( '\"', "g" ), '\\"');
+	return json;
+}
+
+function getExpectedDataList(test)
+{
+	var dataList = [];
+	
+	addExpectedObjectData(test.result, "", dataList);
+	
+	return dataList;
+}
+
+function addExpectedObjectData(datatype, typeName, dataList)
+{
+	for(var fieldName in datatype)
+	{
+		var value = datatype[fieldName];
+		if(value instanceof Array)
+		{
+			addExpectedArrayData(value, typeName+fieldName, dataList);
+		}
+		else if(value != null && typeof value === 'object')
+		{
+			addExpectedObjectData(value, typeName+fieldName+".", dataList);
+		}
+		
+		else
+		{
+			dataList.push(typeName+fieldName);
+		}
+	}
+}
+
+function addExpectedArrayData(datatype, typeName, dataList)
+{
+	for(var fieldName in datatype)
+	{
+		var value = datatype[fieldName];
+		if(value instanceof Array)
+		{
+			addExpectedArrayData(value, typeName+"["+fieldName+"]", dataList);
+		}
+		else if(value != null && typeof value === 'object')
+		{
+			addExpectedObjectData(value, typeName+"["+fieldName+"]"+".", dataList);
+		}
+		else
+		{
+			dataList.push(typeName+"["+fieldName+"]");
+		}
+	}
+}
+
 function makeDatatypes(apis, sourceDir, apiOutputDir)
 {
 	var templateDir = path.resolve(sourceDir, "templates");
 	
-	var modelTemplate = ejs.compile(readFile(path.resolve(templateDir, "Model.cp.ejs")));
-	var modelsTemplate = ejs.compile(readFile(path.resolve(templateDir, "Models.cp.ejs")));
-	var enumTemplate = ejs.compile(readFile(path.resolve(templateDir, "Enum.cp.ejs")));
+	var modelTemplate = ejs.compile(readFile(path.resolve(templateDir, "Model.cs.ejs")));
+	var modelsTemplate = ejs.compile(readFile(path.resolve(templateDir, "Models.cs.ejs")));
+	var enumTemplate = ejs.compile(readFile(path.resolve(templateDir, "Enum.cs.ejs")));
 	
 	var makeDatatype = function(datatype)
 	{
@@ -117,7 +192,7 @@ function makeAPI(api, sourceDir, apiOutputDir)
 
 	var templateDir = path.resolve(sourceDir, "templates");
 	
-	var apiTemplate = ejs.compile(readFile(path.resolve(templateDir, "API.cp.ejs")));
+	var apiTemplate = ejs.compile(readFile(path.resolve(templateDir, "API.cs.ejs")));
 	
 
 	var apiLocals = {};
@@ -132,7 +207,7 @@ function makeAPI(api, sourceDir, apiOutputDir)
 
 function generateErrors(api, sourceDir, apiOutputDir)
 {
-	var errorsTemplate = ejs.compile(readFile(path.resolve(sourceDir, "templates/Errors.cp.ejs")));
+	var errorsTemplate = ejs.compile(readFile(path.resolve(sourceDir, "templates/Errors.cs.ejs")));
 	
 	var errorLocals = {};
 	errorLocals.errorList = api.errorList;
@@ -143,7 +218,7 @@ function generateErrors(api, sourceDir, apiOutputDir)
 
 function generateVersion(api, sourceDir, apiOutputDir)
 {
-	var versionTemplate = ejs.compile(readFile(path.resolve(sourceDir, "templates/PlayFabVersion.cp.ejs")));
+	var versionTemplate = ejs.compile(readFile(path.resolve(sourceDir, "templates/PlayFabVersion.cs.ejs")));
 	
 	var versionLocals = {};
 	versionLocals.apiRevision = api.revision;

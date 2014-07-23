@@ -1,47 +1,38 @@
 using System;
-using System.IO;
-using System.Collections.Generic;
-using Newtonsoft.Json;
-
+using Newtonsoft.Json.Linq;
 
 namespace PlayFab
 {
-	public class <%- testData.name %>
+	public class <%- testData.name %> : PlayFabTestBase
 	{
-		public static JsonSerializer Serializer = JsonSerializer.Create(PlayFabSettings.JsonSettings);
-        
-        public static TypeT Deserialize<TypeT>(string input) where TypeT : class
+
+        public void Start()
         {
-            return Serializer.Deserialize<TypeT>(new JsonTextReader(new StringReader(input)));
-        }
-		
-		public static void Error(string message)
-        {
-            throw new Exception(message);
+			Console.WriteLine("Starting <%- testData.name %> tests");
+            SetupTestData();
+			
+			Console.WriteLine("Resetting server data for test title");
+            ResetServer();
+			
+			<% for(var t in testData.tests) { var test = testData.tests[t] %>
+			<%- test.name %>();
+			<% } %>Done();
+			
         }
 
-        public static void Error(PlayFabError error)
+        public void SetupTestData()
         {
-            throw new Exception(error.ErrorMessage);
+			<% for(var t in testData.testdata) { var testdataVal = testData.testdata[t] %>
+			TestData["<%- t %>"] = "<%- getJsonString( testdataVal ) %>";
+			<% } %>
         }
 
-        public static void Start()
-        {
-            var task = PlayFabTestAPI.ResetTestTitle(new TestModels.ResetTestTitleRequest());
-            task.Wait();
-            var result = task.Result;
-            if(result.Error != null)
-            {
-                PlayFabError error = result.Error;
-                Error(error);
-            }
-
-			<%- testData.tests[0].name %>();
-        }
 
 		<% for(var t in testData.tests) { var test = testData.tests[t] %>
-		public static void <%- test.name %>()
+		public void <%- test.name %>()
 		{
+			Console.WriteLine("Running test <%- test.name %>");
+		
 			var req = Deserialize<<%- test.api %>Models.<%- apiLookup[test.api].callLookup[test.call].request %>>("<%- getJsonString( test.request ) %>");
 			var task = PlayFab<%- test.api %>API.<%- test.call %>Async(req);
             task.Wait(<%- test.timeout || "2000" %>);
@@ -65,22 +56,13 @@ namespace PlayFab
 				return;
             }
 			var actual = result.Result;
-			var expected = Deserialize<<%- test.api %>Models.<%- apiLookup[test.api].callLookup[test.call].result %>>("<%- getJsonString( test.result ) %>");
-			<% var expectedList = getExpectedDataList(test, apiLookup[test.api]); for(var l in  expectedList) { var dataName = expectedList[l] %>
-			if(actual.<%- dataName %> != expected.<%- dataName %>) { Error("Wrong value for <%- escapeForString(dataName) %>"); }<% } %>
+			JToken expected = (JToken)Deserialize("<%- getJsonString( test.result ) %>");
+			ValidateResults(expected, actual);
 			<% } %>
 			
-			<% if(t < testData.tests.length-1) { var next = parseInt(t)+1 %>
-			<%- testData.tests[next].name %>();
-			<% } else { %>
-			Done();
-			<% } %>
+			Console.WriteLine("Passed!");
 		}
 		<% } %>
 		
-		public static void Done()
-		{
-			
-		}
 	}
 }

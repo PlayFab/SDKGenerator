@@ -3,14 +3,21 @@
 	/// <summary>
 	/// <%- datatype.description %>
 	/// </summary><% } %>
-	public class <%- datatype.name %>
+	public class <%- datatype.name %><% if(datatype.sortKey) { %> : IComparable<<%- datatype.name %>><% } %>
 	{
 		<% for(var i in datatype.properties) { var property = datatype.properties[i] %>
 		<% if(property.description) { %>
 		/// <summary>
 		/// <%- property.description %>
 		/// </summary><% } %>
-		<%- getPropertyAttribs(property, datatype) %>
-		public <%- getPropertyDef(property, datatype) %> { get; set;}<% } %>
+		<%- getPropertyAttribs(property, datatype, api) %>public <%- getPropertyDef(property, datatype) %> { get; set;}<% } %>
 		
+		<% if(datatype.sortKey) { %>
+		public int CompareTo(<%- datatype.name %> other)
+        {
+            if (other == null || other.<%- datatype.sortKey%> == null) return 1;
+            if (<%- datatype.sortKey%> == null) return -1;
+            return <%- datatype.sortKey%>.CompareTo(other.<%- datatype.sortKey%>);
+        }
+		<% } %>
 	}

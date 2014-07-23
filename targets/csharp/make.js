@@ -74,12 +74,13 @@ exports.makeTests = function(testData, apiLookup, sourceDir, testOutputLocation)
 	
 	var testsTemplate = ejs.compile(readFile(path.resolve(templateDir, "Tests.cs.ejs")));
 	
+	
 	var testsLocals = {};
 	testsLocals.testData = testData;
 	testsLocals.apiLookup = apiLookup;
 	testsLocals.getJsonString = getJsonString;
 	testsLocals.escapeForString = escapeForString;
-	testsLocals.getExpectedDataList = getExpectedDataList;
+
 	var generatedTests = testsTemplate(testsLocals);
 	writeFile(testOutputLocation, generatedTests);
 }
@@ -99,87 +100,6 @@ function escapeForString(input)
 	return input;
 }
 
-function getExpectedDataList(test, api)
-{
-	var dataList = [];
-	var callInfo = api.callLookup[test.call];
-	var resultType = api.datatypes[callInfo.result];
-	
-	addExpectedClassData(test.result, resultType, "", dataList);
-	
-	return dataList;
-}
-
-function addExpectedClassData(datatype, resultType, typeName, dataList)
-{
-	for(var fieldName in datatype)
-	{
-		var propInfo = resultType.propLookup[fieldName];
-		if(!propInfo)
-		{
-			console.log("Error: Unknown field "+fieldName+" in "+resultType.name);
-		}
-		
-		var value = datatype[fieldName];
-		if(value instanceof Array)
-		{
-			addExpectedArrayData(value, resultType, typeName+fieldName, dataList);
-		}
-		else if(value != null && typeof value === 'object')
-		{
-			if(propInfo.collection == "map")
-				addExpectedObjectData(value, typeName+fieldName, dataList);
-			else
-				addExpectedClassData(value, resultType, typeName+fieldName+".", dataList);
-		}
-		else
-		{
-			dataList.push(typeName+fieldName);
-		}
-	}
-}
-
-function addExpectedObjectData(datatype, typeName, dataList)
-{
-	for(var fieldName in datatype)
-	{
-		
-		var value = datatype[fieldName];
-		if(value instanceof Array)
-		{
-			console.log("Error: Can't have an array in a freeform object" +fieldName);
-		}
-		else if(value != null && typeof value === 'object')
-		{
-			console.log("Error: Can't have an object in a freeform object" +fieldName);
-		}
-		else
-		{
-			dataList.push(typeName+"[\""+fieldName+"\"]");
-		}
-	}
-}
-
-
-function addExpectedArrayData(datatype, resultType, typeName, dataList)
-{
-	for(var fieldName in datatype)
-	{
-		var value = datatype[fieldName];
-		if(value instanceof Array)
-		{
-			addExpectedArrayData(value, resultType, typeName+"["+fieldName+"]", dataList);
-		}
-		else if(value != null && typeof value === 'object')
-		{
-			addExpectedClassData(value, resultType, typeName+"["+fieldName+"]"+".", dataList);
-		}
-		else
-		{
-			dataList.push(typeName+"["+fieldName+"]");
-		}
-	}
-}
 
 function makeDatatypes(apis, sourceDir, apiOutputDir)
 {
@@ -189,12 +109,13 @@ function makeDatatypes(apis, sourceDir, apiOutputDir)
 	var modelsTemplate = ejs.compile(readFile(path.resolve(templateDir, "Models.cs.ejs")));
 	var enumTemplate = ejs.compile(readFile(path.resolve(templateDir, "Enum.cs.ejs")));
 	
-	var makeDatatype = function(datatype)
+	var makeDatatype = function(datatype, api)
 	{
 		var modelLocals = {};
 		modelLocals.datatype = datatype;
 		modelLocals.getPropertyDef = getModelPropertyDef;
 		modelLocals.getPropertyAttribs = getPropertyAttribs;
+		modelLocals.api = api;
 		
 		var generatedModel = null;
 		
@@ -303,13 +224,25 @@ function getModelPropertyDef(property, datatype)
 	}
 }
 
-function getPropertyAttribs(property, datatype)
+function getPropertyAttribs(property, datatype, api)
 {
+	var attribs = "";
+	
 	if(property.isenum)
 	{
-		return "[JsonConverter(typeof(StringEnumConverter))]";
+		attribs += "[JsonConverter(typeof(StringEnumConverter))]\n\t\t";
 	}
-	return "";
+	
+	if(property.isUnordered)
+	{
+		var listDatatype = api.datatypes[property.actualtype];
+		if(listDatatype && listDatatype.sortKey)
+			attribs += "[Unordered(SortProperty=\""+listDatatype.sortKey+"\")]\n\t\t";
+		else
+			attribs += "[Unordered]\n\t\t";
+	}
+	
+	return attribs;
 }
 
 

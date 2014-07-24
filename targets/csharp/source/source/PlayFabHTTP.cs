@@ -29,13 +29,27 @@ namespace PlayFab.Internal
     {
         public static async Task<object> DoPost(string url, object request, string authType, string authKey)
         {
-            StringWriter jsonString = new StringWriter();
-            var writer = new JsonTextWriter(jsonString) { Formatting = PlayFabSettings.JsonFormatting };
-            var serializer = JsonSerializer.Create(PlayFabSettings.JsonSettings);
-            serializer.Serialize(writer, request);
+            string bodyString = null;
+			var serializer = JsonSerializer.Create(PlayFabSettings.JsonSettings);
+			
+            if(request == null)
+            {
+                bodyString = "{}";
+            }
+            else if (request is String)
+            {
+                bodyString = (String)request;
+            }
+            else
+            {
+                StringWriter jsonString = new StringWriter();
+                var writer = new JsonTextWriter(jsonString) { Formatting = PlayFabSettings.JsonFormatting };
+                serializer.Serialize(writer, request);
+                bodyString = jsonString.ToString();
+            }
 
             HttpClient client = new HttpClient();
-            ByteArrayContent postBody = new ByteArrayContent(Encoding.UTF8.GetBytes(jsonString.ToString()));
+            ByteArrayContent postBody = new ByteArrayContent(Encoding.UTF8.GetBytes(bodyString));
             postBody.Headers.Add("Content-Type", "application/json");
             if (authType != null)
                 postBody.Headers.Add(authType, authKey);

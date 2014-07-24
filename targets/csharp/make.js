@@ -80,9 +80,27 @@ exports.makeTests = function(testData, apiLookup, sourceDir, testOutputLocation)
 	testsLocals.apiLookup = apiLookup;
 	testsLocals.getJsonString = getJsonString;
 	testsLocals.escapeForString = escapeForString;
-
+	testsLocals.makeTestInstruction = makeTestInstruction;
 	var generatedTests = testsTemplate(testsLocals);
 	writeFile(testOutputLocation, generatedTests);
+}
+
+function makeTestInstruction(action)
+{
+	if(typeof action == 'string')
+	{
+		action = action.trim().toLowerCase();
+		if(action == "clearcache")
+			return "ClearServerCache();";
+		else if(action == "wait")
+			return "Wait();";
+		else if(action == "reset")
+			return "ResetServer();";
+		
+		throw "Unknown test action "+action;
+	}
+	
+	return action.name+"();";
 }
 
 function getJsonString(input)

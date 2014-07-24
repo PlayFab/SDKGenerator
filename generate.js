@@ -64,8 +64,13 @@ function generate(args)
 			process.exit();
 		}
 		testLocation = path.normalize(args[4]);
-		
-		testData = require(testLocation);
+		if(!fs.existsSync(testLocation))
+		{
+			console.log("Test plan file not found: "+testLocation);
+			process.exit();
+		}
+		var testData = (JSON.parse(fs.readFileSync(testLocation)));
+		//testData = require(testLocation);
 		if(!testData)
 		{
 			console.log("Couldn't load test input data at "+testLocation);
@@ -242,6 +247,9 @@ function preprocessTests(testData, apiLookup)
 	for(var t in testData.tests)
 	{
 		var test = testData.tests[t];
+		if(typeof test == 'string')
+			continue;
+		
 		var api = apiLookup[test.api];
 		if(!api)
 		{

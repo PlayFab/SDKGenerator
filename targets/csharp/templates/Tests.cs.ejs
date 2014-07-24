@@ -11,11 +11,10 @@ namespace PlayFab
 			Console.WriteLine("Starting <%- testData.name %> tests");
             SetupTestData();
 			
-			Console.WriteLine("Resetting server data for test title");
             ResetServer();
 			
 			<% for(var t in testData.tests) { var test = testData.tests[t] %>
-			<%- test.name %>();
+			<%- makeTestInstruction(test) %>
 			<% } %>Done();
 			
         }
@@ -28,7 +27,7 @@ namespace PlayFab
         }
 
 
-		<% for(var t in testData.tests) { var test = testData.tests[t] %>
+		<% for(var t in testData.tests) { var test = testData.tests[t]; if(typeof test == 'string') continue; %>
 		public void <%- test.name %>()
 		{
 			Console.WriteLine("Running test <%- test.name %>");

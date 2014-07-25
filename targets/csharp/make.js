@@ -96,7 +96,8 @@ function makeTestInstruction(action)
 			return "Wait();";
 		else if(action == "reset")
 			return "ResetServer();";
-		
+		else if(action == "abort")
+			return "return;";
 		throw "Unknown test action "+action;
 	}
 	

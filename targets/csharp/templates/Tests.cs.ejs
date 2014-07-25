@@ -22,7 +22,7 @@ namespace PlayFab
         public void SetupTestData()
         {
 			<% for(var t in testData.testdata) { var testdataVal = testData.testdata[t] %>
-			TestData["<%- t %>"] = "<%- getJsonString( testdataVal ) %>";
+			TestData["<%- t.toLowerCase() %>"] = "<%- getJsonString( testdataVal ) %>";
 			<% } %>
         }
 

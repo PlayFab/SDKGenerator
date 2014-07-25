@@ -5,7 +5,7 @@ function getTargetsList()
 {
 	var targetList = [];
 	
-	var targetsDir = './targets';
+	var targetsDir = path.resolve(__dirname, 'targets');
 
 	var targets = fs.readdirSync(targetsDir);
 	for(var i in targets)
@@ -168,7 +168,7 @@ function generate(args)
 	
 	console.log("Generating PlayFab APIs from specs at "+specLocation);
 
-	var targetsDir = './targets';
+	var targetsDir = path.resolve(__dirname, 'targets');
 
 	var targets = fs.readdirSync(targetsDir);
 	for(var t in targetOutputLocationList)

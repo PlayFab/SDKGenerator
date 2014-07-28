@@ -15,14 +15,17 @@ namespace PlayFab
         public static Formatting JsonFormatting = Formatting.None;
 
         public static bool UseDevelopmentEnvironment = false;
-		public static string DevelopmentEnvironmentURL = "https://api.playfabdev.com";
-		public static string ProductionEnvironmentURL = "https://api.playfab.com";
+		public static string DevelopmentEnvironmentURL = ".playfabsandbox.com";
+		public static string ProductionEnvironmentURL = ".playfabapi.com";
 		public static string TitleId = null;
 		public static ErrorCallback GlobalErrorHandler  { get; set; }
 		
 		public static string GetURL()
 		{
-			return UseDevelopmentEnvironment ? DevelopmentEnvironmentURL : ProductionEnvironmentURL;
+			string baseUrl = UseDevelopmentEnvironment ? DevelopmentEnvironmentURL : ProductionEnvironmentURL;
+			if(baseUrl.StartsWith("http"))
+				return baseUrl;
+			return "https://"+TitleId+baseUrl;
 		}
 	}
 }

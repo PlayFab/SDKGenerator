@@ -12,6 +12,7 @@ namespace PlayFab
     public:
 
         static bool useDevelopmentEnvironment;
+        static std::string serverURL;
         static std::string developmentEnvironmentURL;
         static std::string productionEnvironmentURL;
         static std::string titleId;
@@ -19,7 +20,9 @@ namespace PlayFab
 
         static std::string getURL(const std::string& callPath)
         {
-            return (useDevelopmentEnvironment ? developmentEnvironmentURL : productionEnvironmentURL) + callPath;
+            if (serverURL.length() == 0)
+                serverURL = "https://"+titleId+(useDevelopmentEnvironment ? developmentEnvironmentURL : productionEnvironmentURL);
+            return serverURL + callPath;
         }
     };
 

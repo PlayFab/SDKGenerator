@@ -112,6 +112,14 @@ namespace PlayFab.Internal
                 error.ErrorDetails = errorResult.errorDetails;
                 return error;
             }
+			
+			if(String.IsNullOrEmpty(httpResponseString))
+            {
+                PlayFabError error = new PlayFabError();
+                error.Error = PlayFabErrorCode.Unknown;
+                error.ErrorMessage = "Internal server error";
+                return error;
+            }
 
             return httpResponseString;
         }

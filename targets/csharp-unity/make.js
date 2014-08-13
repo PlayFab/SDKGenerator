@@ -1,7 +1,7 @@
 
 var path = require('path');
 
-var sdkVersion = "1.0.1";
+var sdkVersion = "1.0.2";
 
 exports.makeClientAPI = function(api, sourceDir, apiOutputDir)
 {
@@ -78,7 +78,7 @@ function makeDatatypes(apis, sourceDir, apiOutputDir)
 		modelsLocal.api = api;
 		modelsLocal.makeDatatype = makeDatatype;
 		var generatedModels = modelsTemplate(modelsLocal);
-		writeFile(path.resolve(apiOutputDir, "PlayFabSDK/Public/PlayFab"+api.name+"Models.cs"), generatedModels);
+		writeFile(path.resolve(apiOutputDir, "Playfab/PlayFabSDK/Public/PlayFab"+api.name+"Models.cs"), generatedModels);
 	}
 }
 
@@ -98,7 +98,7 @@ function makeAPI(api, sourceDir, apiOutputDir)
 	apiLocals.getResultActions = getResultActions;
 	apiLocals.authKey = api.name == "Client";
 	var generatedApi = apiTemplate(apiLocals);
-	writeFile(path.resolve(apiOutputDir, "PlayFabSDK/Public/PlayFab"+api.name+"API.cs"), generatedApi);
+	writeFile(path.resolve(apiOutputDir, "Playfab/PlayFabSDK/Public/PlayFab"+api.name+"API.cs"), generatedApi);
 }
 
 function generateErrors(api, sourceDir, apiOutputDir)
@@ -109,7 +109,7 @@ function generateErrors(api, sourceDir, apiOutputDir)
 	errorLocals.errorList = api.errorList;
 	errorLocals.errors = api.errors;
 	var generatedErrors = errorsTemplate(errorLocals);
-	writeFile(path.resolve(apiOutputDir, "PlayFabSDK/Public/PlayFabErrors.cs"), generatedErrors);
+	writeFile(path.resolve(apiOutputDir, "Playfab/PlayFabSDK/Public/PlayFabErrors.cs"), generatedErrors);
 }
 
 function generateVersion(api, sourceDir, apiOutputDir)
@@ -120,7 +120,7 @@ function generateVersion(api, sourceDir, apiOutputDir)
 	versionLocals.apiRevision = api.revision;
 	versionLocals.sdkRevision = sdkVersion;
 	var generatedVersion = versionTemplate(versionLocals);
-	writeFile(path.resolve(apiOutputDir, "PlayFabSDK/Internal/PlayFabVersion.cs"), generatedVersion);
+	writeFile(path.resolve(apiOutputDir, "Playfab/PlayFabSDK/Internal/PlayFabVersion.cs"), generatedVersion);
 }
 
 

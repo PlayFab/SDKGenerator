@@ -1,13 +1,13 @@
 ﻿using UnityEngine;
 using System.Collections;
 using PlayFab;
-using PlayFab.Model;
+using PlayFab.ClientModels;
 
 public class MiniExample : MonoBehaviour {
 
 
 	void Start () {
-		PlayFabSettings.UseDevelopmentEnvironment = true;
+		PlayFabSettings.UseDevelopmentEnvironment = false;
 		PlayFabSettings.TitleId = "AAA";
 		PlayFabSettings.GlobalErrorHandler = OnPlayFabError;
 

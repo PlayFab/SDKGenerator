@@ -11,7 +11,7 @@ void PlayFab::<%- api.name %>Models::write<%- datatype.name %>EnumJSON(<%- datat
 {
 	switch(enumVal)
 	{
-		<% for(var i=0; i<datatype.enumvalues.length-1; i++) { var enumval = datatype.enumvalues[i] %>
+		<% for(var i=0; i<datatype.enumvalues.length; i++) { var enumval = datatype.enumvalues[i] %>
 		case <%- datatype.name %><%- enumval.name %>: writer.String("<%- enumval.name %>"); break;<% } %>
 	}
 }
@@ -20,7 +20,7 @@ void PlayFab::<%- api.name %>Models::write<%- datatype.name %>EnumJSON(<%- datat
 {
 	std::string enumStr = obj.GetString();
 	if(enumStr == "<%- datatype.enumvalues[0].name %>")
-		return <%- datatype.name %><%- datatype.enumvalues[0].name %>;<% for(var i=1; i<datatype.enumvalues.length-1; i++) { var enumval = datatype.enumvalues[i] %>
+		return <%- datatype.name %><%- datatype.enumvalues[0].name %>;<% for(var i=1; i<datatype.enumvalues.length; i++) { var enumval = datatype.enumvalues[i] %>
 	else if(enumStr == "<%- enumval.name %>")
 		return <%- datatype.name %><%- enumval.name %>;<% } %>
 	

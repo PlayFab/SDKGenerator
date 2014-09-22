@@ -3,8 +3,7 @@
 
 #include <curl/curl.h>
 
-#define ZLIB_WINAPI
-#include "zlib/zlib.h"
+#include "playfab/PlayFabZlib.h"
 
 #define CHUNK 0x4000
 

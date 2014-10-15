@@ -20,7 +20,6 @@ exports.makeClientAPI = function(api, sourceDir, apiOutputDir)
 	
 	copyBaseFiles(sourceDir, apiOutputDir);
 	copyTree(path.resolve(sourceDir, 'source'), apiOutputDir);
-	copyTree(path.resolve(sourceDir, 'client-source'), apiOutputDir);
 	
 	var sdkOutputDir = path.resolve(apiOutputDir, 'PlayFabSDK');
 	
@@ -40,7 +39,6 @@ exports.makeServerAPI = function(apis, sourceDir, apiOutputDir)
 	
 	copyBaseFiles(sourceDir, apiOutputDir);
 	copyTree(path.resolve(sourceDir, 'source'), apiOutputDir);
-	copyTree(path.resolve(sourceDir, 'server-source'), apiOutputDir);
 	
 	var sdkOutputDir = path.resolve(apiOutputDir, 'PlayFabSDK');
 	
@@ -65,7 +63,6 @@ exports.makeCombinedAPI = function(apis, sourceDir, apiOutputDir)
 	
 	copyBaseFiles(sourceDir, apiOutputDir);
 	copyTree(path.resolve(sourceDir, 'source'), apiOutputDir);
-	copyTree(path.resolve(sourceDir, 'server-source'), apiOutputDir);
 	
 	var sdkOutputDir = path.resolve(apiOutputDir, 'PlayFabSDK');
 	

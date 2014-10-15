@@ -12,7 +12,6 @@ exports.makeClientAPI = function(api, sourceDir, apiOutputDir)
 	
 	copyTree(path.resolve(sourceDir, '../cpp-shared/source'), apiOutputDir);
 	copyTree(path.resolve(sourceDir, 'source'), apiOutputDir);
-	copyTree(path.resolve(sourceDir, 'client-source'), apiOutputDir);
 	
 	shared.makeAPI(api, apiOutputDir, "core/");
 	
@@ -32,7 +31,6 @@ exports.makeServerAPI = function(apis, sourceDir, apiOutputDir)
 	
 	copyTree(path.resolve(sourceDir, '../cpp-shared/source'), apiOutputDir);
 	copyTree(path.resolve(sourceDir, 'source'), apiOutputDir);
-	copyTree(path.resolve(sourceDir, 'server-source'), apiOutputDir);
 	
 	for(var i in apis)
 	{
@@ -57,7 +55,6 @@ exports.makeCombinedAPI = function(apis, sourceDir, apiOutputDir)
 	
 	copyTree(path.resolve(sourceDir, '../cpp-shared/source'), apiOutputDir);
 	copyTree(path.resolve(sourceDir, 'source'), apiOutputDir);
-	copyTree(path.resolve(sourceDir, 'server-source'), apiOutputDir);
 	
 	for(var i in apis)
 	{

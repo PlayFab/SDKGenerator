@@ -10,7 +10,6 @@ exports.makeClientAPI = function(api, sourceDir, apiOutputDir)
 	var libname = "Client";
 	
 	copyTree(path.resolve(sourceDir, 'source'), apiOutputDir);
-	copyTree(path.resolve(sourceDir, 'client-source'), apiOutputDir);
 	
 	makeDatatypes([api], sourceDir, apiOutputDir);
 	
@@ -29,7 +28,6 @@ exports.makeServerAPI = function(apis, sourceDir, apiOutputDir)
 	var libname = "Server";
 	
 	copyTree(path.resolve(sourceDir, 'source'), apiOutputDir);
-	copyTree(path.resolve(sourceDir, 'server-source'), apiOutputDir);
 	
 	makeDatatypes(apis, sourceDir, apiOutputDir);
 	
@@ -52,7 +50,6 @@ exports.makeCombinedAPI = function(apis, sourceDir, apiOutputDir)
 	var libname = "All";
 	
 	copyTree(path.resolve(sourceDir, 'source'), apiOutputDir);
-	copyTree(path.resolve(sourceDir, 'server-source'), apiOutputDir);
 	
 	makeDatatypes(apis, sourceDir, apiOutputDir);
 	

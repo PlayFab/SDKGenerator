@@ -8,7 +8,6 @@ exports.makeClientAPI = function(api, sourceDir, apiOutputDir)
 	console.log("Generating C-sharp Unity client SDK to "+apiOutputDir);
 	
 	copyTree(path.resolve(sourceDir, 'source'), apiOutputDir);
-	copyTree(path.resolve(sourceDir, 'client-source'), apiOutputDir);
 	
 	makeDatatypes([api], sourceDir, apiOutputDir);
 	
@@ -24,7 +23,6 @@ exports.makeServerAPI = function(apis, sourceDir, apiOutputDir)
 	console.log("Generating C-sharp Unity server SDK to "+apiOutputDir);
 	
 	copyTree(path.resolve(sourceDir, 'source'), apiOutputDir);
-	copyTree(path.resolve(sourceDir, 'server-source'), apiOutputDir);
 	
 	makeDatatypes(apis, sourceDir, apiOutputDir);
 	
@@ -396,9 +394,13 @@ function getListDeserializer(property, api)
 	{
 		return "JsonUtil.GetList<object>(json, \""+property.name+"\");";
 	}
+	else if(property.isenum)
+	{
+		return "JsonUtil.GetListEnum<"+property.actualtype+">(json, \""+property.name+"\");";
+	}
 	else
 	{
-		throw "Unknown property type: "+property.actualtype+" for " +property.name+" in "+datatype.name;
+		throw "Unknown property type: "+property.actualtype+" for " +property.name;
 	}
 }
 

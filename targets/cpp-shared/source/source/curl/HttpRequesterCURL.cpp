@@ -54,7 +54,7 @@ PlayFabErrorCode HttpRequesterCURL::AddRequest(HttpRequest* request, RequestComp
         std::string body = request->GetBody();
         char* buffer = NULL;
         size_t bodyLen = 0;
-        int compressionLevel = request->GetCompressionLevel();
+        int compressionLevel = 0; //request->GetCompressionLevel(); Temporarily disabled due to problems
         if(compressionLevel != 0)
         {
             unsigned long ret = 0;

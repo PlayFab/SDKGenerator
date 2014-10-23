@@ -2,7 +2,7 @@
 var path = require('path');
 var shared = require('../cpp-shared/cpp-shared');
 
-var sdkVersion = "1.0.2";
+var sdkVersion = "1.0.3";
 
 exports.makeClientAPI = function(api, sourceDir, apiOutputDir)
 {

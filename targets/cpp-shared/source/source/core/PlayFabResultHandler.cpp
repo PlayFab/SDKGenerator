@@ -14,6 +14,7 @@ bool PlayFabRequestHandler::DecodeRequest(int httpStatus, HttpRequest* request, 
     if (request->GetReponse().length() == 0)
     {
         // Got a null body
+		memset(&outError, 0, sizeof(outError));
         return false;
     }
 

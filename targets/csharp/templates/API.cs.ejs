@@ -25,7 +25,7 @@ namespace PlayFab
         public static async Task<PlayFabResult<<%- apiCall.result %>>> <%- apiCall.name %>Async(<%- apiCall.request %> request)
         {
             <%- getRequestActions(apiCall, api) %>
-            object httpResult = await PlayFabHTTP.DoPost(PlayFabSettings.GetURL() + "<%- apiCall.url %>", request, <%- getAuthParams(apiCall) %>);
+            object httpResult = await PlayFabHTTP.DoPost(<%- getUrlAccessor(apiCall) %> + "<%- apiCall.url %>", request, <%- getAuthParams(apiCall) %>);
             if(httpResult is PlayFabError)
             {
                 PlayFabError error = (PlayFabError)httpResult;

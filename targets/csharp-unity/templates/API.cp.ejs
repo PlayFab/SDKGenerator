@@ -41,7 +41,7 @@ namespace PlayFab
 					}
 				}
 			};
-			PlayFabHTTP.Post(PlayFabSettings.GetURL()+"<%- apiCall.url %>", serializedJSON, <%- getAuthParams(apiCall) %>, callback);
+			PlayFabHTTP.Post(<%- getUrlAccessor(apiCall) %>+"<%- apiCall.url %>", serializedJSON, <%- getAuthParams(apiCall) %>, callback);
 		}<% } %>
 		
 		

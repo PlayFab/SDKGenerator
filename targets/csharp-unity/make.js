@@ -94,6 +94,7 @@ function makeAPI(api, sourceDir, apiOutputDir)
 	apiLocals.getAuthParams = getAuthParams;
 	apiLocals.getRequestActions = getRequestActions;
 	apiLocals.getResultActions = getResultActions;
+	apiLocals.getUrlAccessor = getUrlAccessor;
 	apiLocals.authKey = api.name == "Client";
 	var generatedApi = apiTemplate(apiLocals);
 	writeFile(path.resolve(apiOutputDir, "Playfab/PlayFabSDK/Public/PlayFab"+api.name+"API.cs"), generatedApi);
@@ -480,8 +481,17 @@ function getResultActions(apiCall, api)
 {
 	if(api.name == "Client" && (apiCall.result == "LoginResult" || apiCall.result == "RegisterPlayFabUserResult"))
 		return "AuthKey = result.SessionTicket ?? AuthKey;\n";
+	else if(api.name == "Client" && apiCall.result == "GetLogicServerUrlResult")
+		return "PlayFabSettings.LogicServerURL = result.Url;\n";
 	return "";
 }
 
+function getUrlAccessor(apiCall)
+{
+	if(apiCall.serverType == 'logic')
+		return "PlayFabSettings.GetLogicURL()";
+
+	return "PlayFabSettings.GetURL()";
+}
 
 

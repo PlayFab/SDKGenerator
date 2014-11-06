@@ -68,7 +68,7 @@ void PlayFab<%- api.name %>API::<%- apiCall.name %>(
     )
 {
     <%- getRequestActions(apiCall, api) %>
-    HttpRequest* httpRequest = new HttpRequest("POST", PlayFabSettings::getURL("<%- apiCall.url %>"));
+    HttpRequest* httpRequest = new HttpRequest("POST", <%- getUrlAccessor(apiCall) %>);
     httpRequest->SetHeader("Content-Type", "application/json");
 	httpRequest->SetHeader("X-PlayFabSDK", PlayFabVersionString);
 	<%- getAuthParams(apiCall) %>

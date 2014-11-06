@@ -14,6 +14,7 @@ var makeAPI = exports.makeAPI = function(api, apiOutputDir, subdir)
 	apiLocals.getAuthParams = getAuthParams;
 	apiLocals.getRequestActions = getRequestActions;
 	apiLocals.getResultActions = getResultActions;
+	apiLocals.getUrlAccessor = getUrlAccessor;
 	apiLocals.authKey = api.name == "Client";
 	apiLocals.hasRequest = hasRequest;
 	
@@ -774,5 +775,16 @@ var getResultActions = exports.getResultActions = function(apiCall, api)
 {
 	if(api.name == "Client" && (apiCall.result == "LoginResult" || apiCall.result == "RegisterPlayFabUserResult"))
 		return "if (outResult.SessionTicket.length() > 0)\n\t\t\t(static_cast<PlayFab"+api.name+"API*>(userData))->mUserSessionTicket = outResult.SessionTicket;";
+	else if(api.name == "Client" && apiCall.result == "GetLogicServerUrlResult")
+		return "if (outResult.Url.length() > 0)\n\t\t\tPlayFabSettings::logicServerURL = outResult.Url;";
 	return "";
 }
+
+function getUrlAccessor(apiCall)
+{
+	if(apiCall.serverType == 'logic')
+		return "PlayFabSettings::getLogicURL(\""+apiCall.url+"\")";
+
+	return "PlayFabSettings::getURL(\""+apiCall.url+"\")";
+}
+

@@ -216,7 +216,10 @@ function generate(args)
 		
 		if(targetMaker.makeCombinedAPI)
 		{
-			var apiOutputDir = path.resolve(sdkOutputDir, 'PlayFabSDK');
+			var apiOutputDir = sdkOutputDir;
+			if(!targetMaker.putInRoot)
+				apiOutputDir = path.resolve(sdkOutputDir, 'PlayFabSDK');
+				
 			if(!fs.existsSync(apiOutputDir))
 				mkdirParentsSync(apiOutputDir);
 			

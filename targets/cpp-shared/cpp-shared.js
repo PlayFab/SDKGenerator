@@ -775,7 +775,7 @@ var getResultActions = exports.getResultActions = function(apiCall, api)
 {
 	if(api.name == "Client" && (apiCall.result == "LoginResult" || apiCall.result == "RegisterPlayFabUserResult"))
 		return "if (outResult.SessionTicket.length() > 0)\n\t\t\t(static_cast<PlayFab"+api.name+"API*>(userData))->mUserSessionTicket = outResult.SessionTicket;";
-	else if(api.name == "Client" && apiCall.result == "GetLogicServerUrlResult")
+	else if(api.name == "Client" && apiCall.result == "GetCloudScriptUrlResult")
 		return "if (outResult.Url.length() > 0)\n\t\t\tPlayFabSettings::logicServerURL = outResult.Url;";
 	return "";
 }

@@ -356,7 +356,7 @@ function getResultActions(apiCall, api)
 {
 	if(api.name == "Client" && (apiCall.result == "LoginResult" || apiCall.result == "RegisterPlayFabUserResult"))
 		return "AuthKey = result.SessionTicket ?? AuthKey;\n";
-	else if(api.name == "Client" && apiCall.result == "GetLogicServerUrlResult")
+	else if(api.name == "Client" && apiCall.result == "GetCloudScriptUrlResult")
 		return "PlayFabSettings.LogicServerURL = result.Url;\n";
 	return "";
 }

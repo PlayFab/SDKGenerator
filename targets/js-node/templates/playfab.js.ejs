@@ -117,7 +117,7 @@ exports.<%- apiName %> = {};
 exports.<%- apiName %>.<%- apiCall.name %> = function(request, callback)
 {	
 	<%- getRequestActions(apiCall, api) %>
-	make_request(<%- getUrlAccessor(apiCall) %> + "/Server/GetTitleData", request, <%- getAuthParams(apiCall) %>, function(error, result)
+	make_request(<%- getUrlAccessor(apiCall) %> + "<%- apiCall.url %>", request, <%- getAuthParams(apiCall) %>, function(error, result)
 	{
 		<%- getResultActions(apiCall, api) %>
 		if(callback != null)

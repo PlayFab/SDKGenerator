@@ -1,7 +1,7 @@
 
 var path = require('path');
 
-var sdkVersion = "1.0.3";
+var sdkVersion = "1.0.4";
 
 exports.makeClientAPI = function(api, sourceDir, apiOutputDir)
 {
@@ -446,7 +446,7 @@ function getPropertyJsonReader(property, datatype)
 	}
 	else if(property.actualtype == "object")
 	{
-		return property.name + " = JsonUtil.GetObject<object>(json, \""+property.name+"\");";
+		return property.name + " = JsonUtil.GetObjectRaw(json, \""+property.name+"\");";
 	}
 	else
 	{

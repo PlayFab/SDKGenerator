@@ -3,12 +3,23 @@
 using System.Collections.Generic;
 using System;
 using System.Globalization;
+using PlayFab.Serialization.JsonFx;
 
 namespace PlayFab.Internal
 {
-	public abstract class PlayFabModelBase
+	public abstract class PlayFabModelBase : IJsonSerializable
 	{
 		public abstract void Deserialize (Dictionary<string,object> json);
+		
+		public virtual void ReadJson(JsonReader reader)
+		{
+			throw new NotImplementedException("The method or operation is not implemented.");
+		}
+
+		public virtual void WriteJson(JsonWriter writer)
+		{
+			throw new NotImplementedException("The method or operation is not implemented.");
+		}
 	}
 
 	public class JsonUtil
@@ -23,6 +34,16 @@ namespace PlayFab.Internal
 			return default(DataType);
 		}
 
+		public static object GetObjectRaw(Dictionary<string,object> json, string name)
+		{
+			object value=null;
+			if (json.TryGetValue(name, out value))
+			{
+				return value;
+			}
+			return null;
+		}
+		
 		public static DataType GetObject<DataType>(Dictionary<string,object> json, string name) where DataType : PlayFabModelBase, new()
 		{
 			object value;

@@ -69,7 +69,7 @@ namespace PlayFab.Serialization.JsonFx
 
 		#region Fields
 
-		private readonly TextWriter Writer;
+		public readonly TextWriter Writer;
 		private JsonWriterSettings settings;
 		private int depth;
 		private Dictionary<object,int> previouslySerializedObjects;
@@ -1074,7 +1074,7 @@ namespace PlayFab.Serialization.JsonFx
 			this.Writer.Write(JsonReader.OperatorObjectEnd);
 		}
 
-		private void WriteObjectProperty(string key, object value)
+		public void WriteObjectProperty(string key, object value)
 		{
 			this.WriteLine();
 			this.WriteObjectPropertyName(key);

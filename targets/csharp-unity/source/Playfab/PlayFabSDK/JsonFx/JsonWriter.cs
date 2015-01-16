@@ -59,6 +59,7 @@ namespace PlayFab.Serialization.JsonFx
 		public const string JsonFileExtension = ".json";
 
 		private const string AnonymousTypePrefix = "<>f__AnonymousType";
+		private const string AnonymousTypePrefix2 = "<>__AnonType";
 		private const string ErrorMaxDepth = "The maxiumum depth of {0} was exceeded. Check for cycles in object graph.";
 		private const string ErrorIDictionaryEnumerator = "Types which implement Generic IDictionary<TKey, TValue> must have an IEnumerator which implements IDictionaryEnumerator. ({0})";
 
@@ -1133,7 +1134,7 @@ namespace PlayFab.Serialization.JsonFx
 					this.WriteObjectProperty(this.settings.TypeHintName, type.FullName+", "+type.Assembly.GetName().Name);
 				}
 
-				bool anonymousType = type.IsGenericType && type.Name.StartsWith(JsonWriter.AnonymousTypePrefix);
+				bool anonymousType = type.IsGenericType && (type.Name.StartsWith(JsonWriter.AnonymousTypePrefix) || type.Name.StartsWith(JsonWriter.AnonymousTypePrefix2));
 
 				// serialize public properties
 				PropertyInfo[] properties = type.GetProperties();

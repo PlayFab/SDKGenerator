@@ -1,0 +1,102 @@
+var exports = {};
+exports.sdk_version = "1.0.0";
+exports.api_version = "1.1.0";
+
+var settings = {};
+exports.settings = settings;
+settings.use_development_environment = false;
+settings.development_environment_url = ".playfabsandbox.com";
+settings.production_environment_url = ".playfabapi.com";
+settings.logic_server_url = null;
+settings.title_id = null;
+settings.session_ticket = null;
+settings.developer_secret_key = null;
+settings.global_error_handler = null;
+
+function get_server_url()
+{
+	var baseUrl = settings.use_development_environment ? settings.development_environment_url : settings.production_environment_url;
+	if(baseUrl.substring(0, 4) == "http")
+		return baseUrl;
+	return "https://"+settings.title_id+baseUrl;
+}
+
+function get_logic_server_url()
+{
+	return settings.logic_server_url;
+}
+
+function make_request(urlStr, request, authType, authValue, callback)
+{
+	console.log("make_request s: "+urlStr);
+	if(request == null)
+		request = {};
+	var requestBody = JSON.stringify(request);
+
+	var xhr = new XMLHttpRequest();
+	xhr.open("POST", urlStr, true);
+	xhr.setRequestHeader('Content-Type', 'application/json');
+	//xhr.setRequestHeader('Content-Length', ""+requestBody.length);
+	xhr.setRequestHeader('X-PlayFabSDK', "NodeSDK-" + exports.sdk_version + "-" + exports.api_version);
+
+	xhr.onreadystatechange=function() {
+		if (xhr.readyState === 4){   //if complete
+			if(xhr.status === 200){  //check if "OK" (200)
+				//success
+			} else {
+				if(callback != null)
+				{
+					callback({
+						code: 0,
+						status: "Connection error",
+						error: "Connection error",
+						errorCode: 1,
+						errorMessage: xhr.responseText
+					}, null);
+				}
+				return;
+			}
+		}
+	}
+
+	xhr.onloadend = function () {
+		// done
+		var replyEnvelope = JSON.parse(xhr.responseText);
+		console.log("replyEnvelope : "+replyEnvelope);
+		if(replyEnvelope.error || !replyEnvelope.data)
+		{
+			if(callback != null)
+			{
+				callback(replyEnvelope, null);
+			}
+		}
+		else
+		{
+			if(callback != null)
+			{
+				callback(null, replyEnvelope.data);
+			}
+		}
+	};
+	xhr.send(requestBody);
+}
+
+<% for(var a in apis) { var api = apis[a]; var apiName = api.name.toLowerCase(); if( api.name==="Client"){%>
+
+exports.<%- apiName %> = {};
+<%}; for(var i in api.calls) { var apiCall = api.calls[i];if( api.name==="Client"){ %>
+
+exports.<%- apiName %>.<%- apiCall.name %> = function(request, callback)
+{
+	<%- getRequestActions(apiCall, api) %>
+	make_request(<%- getUrlAccessor(apiCall) %> + "<%- apiCall.url %>", request, <%- getAuthParams(apiCall) %>, function(error, result)
+	{
+		if(result != null)
+		<%- getResultActions(apiCall, api) %>
+		if(callback != null)
+			callback(error, result);
+	});
+};
+<% }} %>
+<% } %>
+

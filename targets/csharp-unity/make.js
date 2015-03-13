@@ -1,7 +1,7 @@
 
 var path = require('path');
 
-var sdkVersion = "1.0.4";
+var sdkVersion = "1.0.5";
 
 exports.makeClientAPI = function(api, sourceDir, apiOutputDir)
 {

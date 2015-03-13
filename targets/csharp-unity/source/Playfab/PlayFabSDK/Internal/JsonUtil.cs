@@ -541,6 +541,9 @@ namespace PlayFab.Internal
 			}
 			return null;
 		}
+		
+		// IL2CPP type hints
+		private static System.Collections.Generic.Dictionary<System.String,System.Object>[] _hint1;
 	}
 }
 

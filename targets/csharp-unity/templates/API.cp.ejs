@@ -23,7 +23,7 @@ namespace PlayFab
 		{
 			<%- getRequestActions(apiCall, api) %>
 			string serializedJSON = JsonWriter.Serialize (request, Util.GlobalJsonWriterSettings);
-			PlayFabHTTP.HTTPCallback callback = delegate(string responseStr, string errorStr)
+			Action<string,string> callback = delegate(string responseStr, string errorStr)
 			{
 				<%- apiCall.result %> result = null;
 				PlayFabError error = null;

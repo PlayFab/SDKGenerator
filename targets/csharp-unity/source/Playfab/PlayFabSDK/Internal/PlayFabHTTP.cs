@@ -8,23 +8,21 @@ namespace PlayFab.Internal
 {
 	public class PlayFabHTTP : SingletonMonoBehaviour<PlayFabHTTP>  {
 		
-		public delegate void HTTPCallback(string response, string error);
-		
 		
 		/// <summary>
 		/// Sends a POST HTTP request
 		/// </summary>
-		public static void Post (string url, string data, string authType, string authKey, HTTPCallback callback)
+		public static void Post (string url, string data, string authType, string authKey, Action<string,string> callback)
 		{
 			PlayFabHTTP.instance.InstPost(url, data, authType, authKey, callback);
 		}
 		
-		private void InstPost (string url, string data, string authType, string authKey, HTTPCallback callback)
+		private void InstPost (string url, string data, string authType, string authKey, Action<string,string> callback)
 		{
 			StartCoroutine(MakeRequest (url, data, authType, authKey, callback));
 		}
 		
-		private IEnumerator MakeRequest (string url, string data, string authType, string authKey, HTTPCallback callback)
+		private IEnumerator MakeRequest (string url, string data, string authType, string authKey, Action<string,string> callback)
 		{
 			byte[] bData = System.Text.Encoding.UTF8.GetBytes(data);
 

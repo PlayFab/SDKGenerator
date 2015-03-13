@@ -28,7 +28,6 @@ function get_logic_server_url()
 
 function make_request(urlStr, request, authType, authValue, callback)
 {
-	console.log("make_request s: "+urlStr);
 	if(request == null)
 		request = {};
 	var requestBody = JSON.stringify(request);
@@ -36,7 +35,6 @@ function make_request(urlStr, request, authType, authValue, callback)
 	var xhr = new XMLHttpRequest();
 	xhr.open("POST", urlStr, true);
 	xhr.setRequestHeader('Content-Type', 'application/json');
-	//xhr.setRequestHeader('Content-Length', ""+requestBody.length);
 	xhr.setRequestHeader('X-PlayFabSDK', "NodeSDK-" + exports.sdk_version + "-" + exports.api_version);
 
 	xhr.onreadystatechange=function() {
@@ -62,7 +60,6 @@ function make_request(urlStr, request, authType, authValue, callback)
 	xhr.onloadend = function () {
 		// done
 		var replyEnvelope = JSON.parse(xhr.responseText);
-		console.log("replyEnvelope : "+replyEnvelope);
 		if(replyEnvelope.error || !replyEnvelope.data)
 		{
 			if(callback != null)
@@ -80,6 +77,7 @@ function make_request(urlStr, request, authType, authValue, callback)
 	};
 	xhr.send(requestBody);
 }
+
 
 <% for(var a in apis) { var api = apis[a]; var apiName = api.name.toLowerCase(); if( api.name==="Client"){%>
 

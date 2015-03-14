@@ -31,11 +31,11 @@ function make_request(urlStr, request, authType, authValue, callback)
 	if(request == null)
 		request = {};
 	var requestBody = JSON.stringify(request);
-
 	var xhr = new XMLHttpRequest();
 	xhr.open("POST", urlStr, true);
 	xhr.setRequestHeader('Content-Type', 'application/json');
-	xhr.setRequestHeader('X-PlayFabSDK', "NodeSDK-" + exports.sdk_version + "-" + exports.api_version);
+	if(authType!=null)xhr.setRequestHeader(authType, authValue);
+	xhr.setRequestHeader('X-PlayFabSDK', "JavaScriptSDK-" + exports.sdk_version + "-" + exports.api_version);
 
 	xhr.onreadystatechange=function() {
 		if (xhr.readyState === 4){   //if complete
@@ -77,7 +77,6 @@ function make_request(urlStr, request, authType, authValue, callback)
 	};
 	xhr.send(requestBody);
 }
-
 
 <% for(var a in apis) { var api = apis[a]; var apiName = api.name.toLowerCase(); if( api.name==="Client"){%>
 

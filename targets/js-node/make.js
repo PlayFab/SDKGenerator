@@ -14,6 +14,7 @@ exports.makeCombinedAPI = function(apis, sourceDir, apiOutputDir)
 	var apiTemplate = ejs.compile(readFile(path.resolve(templateDir, "playfab.js.ejs")));
 	
 	var apiLocals = {};
+	apiLocals.sdkVersion = sdkVersion;
 	apiLocals.apis = apis;
 	apiLocals.getAuthParams = getAuthParams;
 	apiLocals.getRequestActions = getRequestActions;

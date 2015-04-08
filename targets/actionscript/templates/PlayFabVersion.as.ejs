@@ -1,0 +1,14 @@
+
+package com.playfab
+{
+	public class PlayFabVersion
+	{
+		public static const ApiRevision:String = "<%- apiRevision %>";
+		public static const SdkRevision:String = "<%- sdkRevision %>";
+		
+		public static function getVersionString():String
+		{
+			return "ActionScript-" + SdkRevision + "-" + ApiRevision;
+		}
+	}
+}

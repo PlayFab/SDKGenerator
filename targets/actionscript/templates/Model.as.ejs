@@ -1,0 +1,20 @@
+
+package com.playfab.models
+{
+	<% if(needsPlayFabUtil) { %>import com.playfab.PlayFabUtil;<% } %>
+
+	public class <%- datatype.name %>
+	{
+<% for(var i in datatype.properties) { var property = datatype.properties[i] %>		public var <%- getPropertyDef(property, datatype) %>;
+<% } %>
+
+		public function <%- datatype.name %>(data:Object=null)
+		{
+			if(data == null)
+				return;
+
+<% for(var i in datatype.properties) { var property = datatype.properties[i] %>			<%- getPropertyInit(property, datatype) %>
+<% } %>
+		}
+	}
+}

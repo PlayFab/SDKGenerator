@@ -1,7 +1,7 @@
 
 var path = require('path');
 
-var sdkVersion = "1.0.1";
+var sdkVersion = "1.0.2";
 
 exports.makeClientAPI = function(api, sourceDir, apiOutputDir)
 {
@@ -247,7 +247,11 @@ function getPropertyAttribs(property, datatype, api)
 	
 	if(property.isenum)
 	{
-		attribs += "[JsonConverter(typeof(StringEnumConverter))]\n\t\t";
+		if(property.collection)
+			attribs += "[JsonProperty(ItemConverterType = typeof(StringEnumConverter))]\n\t\t";
+		else
+			attribs += "[JsonConverter(typeof(StringEnumConverter))]\n\t\t";
+		
 	}
 	
 	if(property.isUnordered)

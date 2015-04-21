@@ -1,7 +1,7 @@
 
 var path = require('path');
 
-var sdkVersion = "1.0.5";
+var sdkVersion = "1.0.6";
 
 exports.makeClientAPI = function(api, sourceDir, apiOutputDir)
 {
@@ -225,8 +225,9 @@ function getPropertyCSType(property, datatype, needOptional)
 	}
 }
 
-function getPropertyJSType(property, datatype)
+function getPropertyJSType(property, datatype, needOptional)
 {
+	var optional = (needOptional && property.optional) ? '?' : '';
 
 	if(property.actualtype == 'String')
 	{
@@ -234,43 +235,43 @@ function getPropertyJSType(property, datatype)
 	}
 	else if(property.actualtype == 'Boolean')
 	{
-		return 'bool?';
+		return 'bool'+optional;
 	}
 	else if(property.actualtype == 'int16')
 	{
-		return 'double?';
+		return 'double'+optional;
 	}
 	else if(property.actualtype == 'uint16')
 	{
-		return 'double?';
+		return 'double'+optional;
 	}
 	else if(property.actualtype == 'int32')
 	{
-		return 'double?';
+		return 'double'+optional;
 	}
 	else if(property.actualtype == 'uint32')
 	{
-		return 'double?';
+		return 'double'+optional;
 	}
 	else if(property.actualtype == 'int64')
 	{
-		return 'double?';
+		return 'double'+optional;
 	}
 	else if(property.actualtype == 'uint64')
 	{
-		return 'double?';
+		return 'double'+optional;
 	}
 	else if(property.actualtype == 'float')
 	{
-		return 'double?';
+		return 'double'+optional;
 	}
 	else if(property.actualtype == 'double')
 	{
-		return 'double?';
+		return 'double'+optional;
 	}
 	else if(property.actualtype == 'decimal')
 	{
-		return 'double?';
+		return 'double'+optional;
 	}
 	else if(property.actualtype == 'DateTime')
 	{
@@ -410,8 +411,8 @@ function getPropertyJsonReader(property, datatype)
 {
 	var csType = getPropertyCSType(property, datatype, false);
 	var csOptionalType = getPropertyCSType(property, datatype, true);
-	var jsType = getPropertyJSType(property, datatype);
-	
+	var jsType = getPropertyJSType(property, datatype, false);
+	var jsOptionalType = getPropertyJSType(property, datatype, true);
 	
 	if(property.isclass)
 	{
@@ -450,7 +451,7 @@ function getPropertyJsonReader(property, datatype)
 	}
 	else
 	{
-		return property.name + " = ("+csOptionalType+")JsonUtil.Get<"+jsType+">(json, \""+property.name+"\");";
+		return property.name + " = ("+csOptionalType+")JsonUtil.Get<"+jsOptionalType+">(json, \""+property.name+"\");";
 	}
 	
 }

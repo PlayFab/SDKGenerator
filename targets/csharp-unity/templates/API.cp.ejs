@@ -1,5 +1,5 @@
 using System;
-using PlayFab.Serialization.JsonFx;
+using Newtonsoft.Json;
 using PlayFab.<%- api.name %>Models;
 using PlayFab.Internal;
 
@@ -22,7 +22,7 @@ namespace PlayFab
 		public static void <%- apiCall.name %>(<%- apiCall.request %> request, <%- apiCall.name %>Callback resultCallback, ErrorCallback errorCallback)
 		{
 			<%- getRequestActions(apiCall, api) %>
-			string serializedJSON = JsonWriter.Serialize (request, Util.GlobalJsonWriterSettings);
+			string serializedJSON = JsonConvert.SerializeObject(request, Util.JsonFormatting, Util.JsonSettings);
 			Action<string,string> callback = delegate(string responseStr, string errorStr)
 			{
 				<%- apiCall.result %> result = null;

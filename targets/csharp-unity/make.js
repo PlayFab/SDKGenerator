@@ -149,9 +149,20 @@ function getModelPropertyDef(property, datatype)
 	}
 }
 
-function getPropertyAttribs(property, datatype)
+function getPropertyAttribs(property, datatype, api)
 {
-	return "";
+	var attribs = "";
+	
+	if(property.isenum)
+	{
+		if(property.collection)
+			attribs += "[JsonProperty(ItemConverterType = typeof(StringEnumConverter))]\n\t\t";
+		else
+			attribs += "[JsonConverter(typeof(StringEnumConverter))]\n\t\t";
+		
+	}
+	
+	return attribs;
 }
 
 

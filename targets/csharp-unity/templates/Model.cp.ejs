@@ -3,7 +3,7 @@
 	/// <summary>
 	/// <%- datatype.description %>
 	/// </summary><% } %>
-	public class <%- datatype.name %> : PlayFabModelBase
+	public class <%- datatype.name %>
 	{
 		<% for(var i in datatype.properties) { var property = datatype.properties[i] %>
 		<% if(property.description) { %>
@@ -12,21 +12,5 @@
 		/// </summary><% } %>
 		<%- getPropertyAttribs(property, datatype) %>
 		public <%- getPropertyDef(property, datatype) %> { get; set;}<% } %>
-		
-		public override void WriteJson(JsonWriter writer)
-		{
-			writer.Writer.Write(JsonReader.OperatorObjectStart);
-			<% var first = true; for(var i in datatype.properties) { var property = datatype.properties[i]; if(!first) {%>
-			writer.Writer.Write(JsonReader.OperatorValueDelim);
-			<% } else { first = false; } %>
-			writer.WriteObjectProperty("<%- property.name %>", <%- property.name %>);
-			<% } %>
-			writer.Writer.Write(JsonReader.OperatorObjectEnd);
-		}
-		
-		public override void Deserialize (Dictionary<string,object> json)
-		{
-			<% for(var i in datatype.properties) { var property = datatype.properties[i] %>
-			<%- getPropertyJsonReader(property, datatype) %><% } %>
-		}
+
 	}

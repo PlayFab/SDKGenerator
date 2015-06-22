@@ -5,6 +5,8 @@ var sdkVersion = "1.0.6";
 
 exports.makeClientAPI = function(api, sourceDir, apiOutputDir)
 {
+	apiOutputDir = path.resolve(apiOutputDir, '../PlayFabClientSample/Assets/PlayFabSDK');
+
 	console.log("Generating C-sharp Unity client SDK to "+apiOutputDir);
 	
 	copyTree(path.resolve(sourceDir, 'source'), apiOutputDir);
@@ -20,6 +22,8 @@ exports.makeClientAPI = function(api, sourceDir, apiOutputDir)
 
 exports.makeServerAPI = function(apis, sourceDir, apiOutputDir)
 {
+	apiOutputDir = path.resolve(apiOutputDir, '../PlayFabServerSDK');
+
 	console.log("Generating C-sharp Unity server SDK to "+apiOutputDir);
 	
 	copyTree(path.resolve(sourceDir, 'source'), apiOutputDir);
@@ -76,7 +80,7 @@ function makeDatatypes(apis, sourceDir, apiOutputDir)
 		modelsLocal.api = api;
 		modelsLocal.makeDatatype = makeDatatype;
 		var generatedModels = modelsTemplate(modelsLocal);
-		writeFile(path.resolve(apiOutputDir, "Playfab/PlayFabSDK/Public/PlayFab"+api.name+"Models.cs"), generatedModels);
+		writeFile(path.resolve(apiOutputDir, "Public/PlayFab"+api.name+"Models.cs"), generatedModels);
 	}
 }
 
@@ -97,7 +101,7 @@ function makeAPI(api, sourceDir, apiOutputDir)
 	apiLocals.getUrlAccessor = getUrlAccessor;
 	apiLocals.authKey = api.name == "Client";
 	var generatedApi = apiTemplate(apiLocals);
-	writeFile(path.resolve(apiOutputDir, "Playfab/PlayFabSDK/Public/PlayFab"+api.name+"API.cs"), generatedApi);
+	writeFile(path.resolve(apiOutputDir, "Public/PlayFab"+api.name+"API.cs"), generatedApi);
 }
 
 function generateErrors(api, sourceDir, apiOutputDir)
@@ -108,7 +112,7 @@ function generateErrors(api, sourceDir, apiOutputDir)
 	errorLocals.errorList = api.errorList;
 	errorLocals.errors = api.errors;
 	var generatedErrors = errorsTemplate(errorLocals);
-	writeFile(path.resolve(apiOutputDir, "Playfab/PlayFabSDK/Public/PlayFabErrors.cs"), generatedErrors);
+	writeFile(path.resolve(apiOutputDir, "Public/PlayFabErrors.cs"), generatedErrors);
 }
 
 function generateVersion(api, sourceDir, apiOutputDir)
@@ -119,7 +123,7 @@ function generateVersion(api, sourceDir, apiOutputDir)
 	versionLocals.apiRevision = api.revision;
 	versionLocals.sdkRevision = sdkVersion;
 	var generatedVersion = versionTemplate(versionLocals);
-	writeFile(path.resolve(apiOutputDir, "Playfab/PlayFabSDK/Internal/PlayFabVersion.cs"), generatedVersion);
+	writeFile(path.resolve(apiOutputDir, "Internal/PlayFabVersion.cs"), generatedVersion);
 }
 
 

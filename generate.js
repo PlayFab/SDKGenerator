@@ -203,7 +203,7 @@ function generate(args)
 			if(!targetMaker.putInRoot)
 				apiOutputDir = path.resolve(sdkOutputDir, 'PlayFabClientSDK');
 
-			console.log("NOw generating to "+apiOutputDir);
+			console.log("Now generating to "+apiOutputDir);
 
 			if(!fs.existsSync(apiOutputDir))
 				mkdirParentsSync(apiOutputDir);

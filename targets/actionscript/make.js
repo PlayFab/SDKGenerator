@@ -217,7 +217,7 @@ function getModelPropertyInit(property, datatype)
 		{
 			if(property.collection == 'array')
 			{
-				return "if(data."+property.name+") { "+property.name+" = new Vector.<"+property.actualtype+">(); for(var "+property.name+"_iter:int in data."+property.name+") { "+property.name+"["+property.name+"_iter] = new "+property.actualtype+"(data."+property.name+"["+property.name+"_iter]); }}";
+				return "if(data."+property.name+") { "+property.name+" = new Vector.<"+property.actualtype+">(); for(var "+property.name+"_iter:int = 0; "+property.name+"_iter < data."+property.name+".Length; "+property.name+"_iter++) { "+property.name+"["+property.name+"_iter] = new "+property.actualtype+"(data."+property.name+"["+property.name+"_iter]); }}";
 			}
 			else if(property.collection == 'map')
 			{

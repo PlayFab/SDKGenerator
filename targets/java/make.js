@@ -16,8 +16,6 @@ exports.makeClientAPI = function(api, sourceDir, apiOutputDir)
 	
 	generateErrors(api, sourceDir, apiOutputDir);
 	generateVersion(api, sourceDir, apiOutputDir);
-	
-	generateProject([api], sourceDir, apiOutputDir, libname);
 }
 
 exports.makeServerAPI = function(apis, sourceDir, apiOutputDir)
@@ -38,8 +36,6 @@ exports.makeServerAPI = function(apis, sourceDir, apiOutputDir)
 	
 	generateErrors(apis[0], sourceDir, apiOutputDir);
 	generateVersion(apis[0], sourceDir, apiOutputDir);
-	
-	generateProject(apis, sourceDir, apiOutputDir, libname);
 }
 
 exports.makeCombinedAPI = function(apis, sourceDir, apiOutputDir)
@@ -60,8 +56,6 @@ exports.makeCombinedAPI = function(apis, sourceDir, apiOutputDir)
 	
 	generateErrors(apis[0], sourceDir, apiOutputDir);
 	generateVersion(apis[0], sourceDir, apiOutputDir);
-	
-	generateProject(apis, sourceDir, apiOutputDir, libname);
 }
 
 function getJsonString(input)
@@ -165,11 +159,6 @@ function generateVersion(api, sourceDir, apiOutputDir)
 	writeFile(path.resolve(apiOutputDir, "src/playfab/internal/PlayFabVersion.java"), generatedVersion);
 }
 
-function generateProject(apis, sourceDir, apiOutputDir, libname)
-{
-	
-}
-
 function getModelPropertyDef(property, datatype)
 {
 	if(property.collection)
@@ -231,7 +220,7 @@ function getPropertyJavaType(property, datatype, needOptional)
 	}
 	else if(property.actualtype == 'uint16')
 	{
-		return 'Short'+optional;
+		return 'Integer'+optional;
 	}
 	else if(property.actualtype == 'int32')
 	{
@@ -239,7 +228,7 @@ function getPropertyJavaType(property, datatype, needOptional)
 	}
 	else if(property.actualtype == 'uint32')
 	{
-		return 'Integer'+optional;
+		return 'Long'+optional;
 	}
 	else if(property.actualtype == 'int64')
 	{

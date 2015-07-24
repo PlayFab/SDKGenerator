@@ -8,7 +8,7 @@ exports.makeClientAPI = function(api, sourceDir, apiOutputDir)
 	console.log("Generating Java client SDK to "+apiOutputDir);
 	
 	var libname = "Client";
-	copyTree(path.resolve(sourceDir, 'src/'), apiOutputDir + "/src/");
+	copyTree(path.resolve(sourceDir, 'src/'), apiOutputDir);
 	
 	makeDatatypes([api], sourceDir, apiOutputDir);
 	
@@ -24,7 +24,7 @@ exports.makeServerAPI = function(apis, sourceDir, apiOutputDir)
 	
 	var libname = "Server";
 	
-	copyTree(path.resolve(sourceDir, 'src/'), apiOutputDir + "/src/");
+	copyTree(path.resolve(sourceDir, 'src/'), apiOutputDir);
 	
 	makeDatatypes(apis, sourceDir, apiOutputDir);
 	
@@ -44,7 +44,7 @@ exports.makeCombinedAPI = function(apis, sourceDir, apiOutputDir)
 	
 	var libname = "All";
 	
-	copyTree(path.resolve(sourceDir, 'src/'), apiOutputDir + "/src/");
+	copyTree(path.resolve(sourceDir, 'src/'), apiOutputDir);
 	
 	makeDatatypes(apis, sourceDir, apiOutputDir);
 	

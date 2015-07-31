@@ -104,7 +104,7 @@ namespace PlayFab.UUnit
         [UUnitTest]
         public void LoginOrRegister()
         {
-            if (string.IsNullOrEmpty(PlayFabClientAPI.AuthKey)) // If we haven't already logged in once...
+            if (!PlayFabClientAPI.IsClientLoggedIn()) // If we haven't already logged in...
             {
                 var loginRequest = new ClientModels.LoginWithEmailAddressRequest();
                 loginRequest.Email = USER_EMAIL;
@@ -117,7 +117,7 @@ namespace PlayFab.UUnit
                     playFabId = loginTask.Result.Result.PlayFabId; // Needed for subsequent tests
             }
 
-            if (!string.IsNullOrEmpty(PlayFabClientAPI.AuthKey))
+            if (PlayFabClientAPI.IsClientLoggedIn())
                 return; // Success, already logged in
 
             // If the setup failed to log in a user, we need to create one.
@@ -134,7 +134,7 @@ namespace PlayFab.UUnit
 
             playFabId = registerTask.Result.Result.PlayFabId; // Needed for subsequent tests
 
-            UUnitAssert.NotNull(PlayFabClientAPI.AuthKey, "User login failed");
+            UUnitAssert.True(PlayFabClientAPI.IsClientLoggedIn(), "User login failed");
         }
 
         /// <summary>

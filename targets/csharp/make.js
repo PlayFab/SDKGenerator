@@ -50,6 +50,7 @@ exports.makeCombinedAPI = function(apis, sourceDir, apiOutputDir)
 	var libname = "All";
 	
 	copyTree(path.resolve(sourceDir, 'source'), apiOutputDir);
+	copyTree(path.resolve(sourceDir, 'UnittestRunner'), path.resolve(apiOutputDir, 'UnittestRunner')); // Copy the actual unittest project in the CombinedAPI
 	
 	makeDatatypes(apis, sourceDir, apiOutputDir);
 	

@@ -400,10 +400,11 @@ GLOBAL.copyFile = function(source, dest)
 	
 	if(fs.existsSync(dest))
 	{
-		if(fs.lstatSync(dest).mtime.getTime() >= sourceStat.mtime.getTime())
-		{
-			return;
-		}
+		// TODO: Make this an optional flag
+		//if(fs.lstatSync(dest).mtime.getTime() >= sourceStat.mtime.getTime())
+		//{
+		//	return;
+		//}
 	}
 	
 	var BUF_LENGTH = 64*1024;

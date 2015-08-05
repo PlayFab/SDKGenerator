@@ -47,7 +47,7 @@ function getRequestActions(apiCall, api)
 function getResultActions(apiCall, api)
 {
 	if(api.name == "Client" && (apiCall.result == "LoginResult" || apiCall.result == "RegisterPlayFabUserResult"))
-		return "settings.session_ticket = result.SessionTicket != null ? settings.session_ticket : settings.session_ticket;\n";
+		return "settings.session_ticket = result.SessionTicket != null ? result.session_ticket : settings.session_ticket;\n";
 	else if(api.name == "Client" && apiCall.result == "GetCloudScriptUrlResult")
 		return "settings.logic_server_url = result.Url;\n";
 	return "";

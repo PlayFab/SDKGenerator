@@ -1,4 +1,4 @@
-﻿#if UNITY_EDITOR
+#if UNITY_EDITOR
 
 #elif UNITY_ANDROID
 #define PLAYFAB_ANDROID_PLUGIN
@@ -11,7 +11,6 @@ using UnityEngine;
 using System;
 using System.Collections;
 using System.Collections.Generic;
-using PlayFab.Internal;
 using System.Net;
 using System.Threading;
 using System.Text;
@@ -25,11 +24,17 @@ namespace PlayFab.Internal
 
         void Awake()
         {
+
+#if !UNITY_WP8
             //These are performance Optimizations for HttpWebRequests.
             ServicePointManager.DefaultConnectionLimit = 10;
             ServicePointManager.Expect100Continue = false;
+            
             //Support for SSL
-            ServicePointManager.ServerCertificateValidationCallback = new System.Net.Security.RemoteCertificateValidationCallback(AcceptAllCertifications);
+            var rcvc = new System.Net.Security.RemoteCertificateValidationCallback(AcceptAllCertifications);
+            ServicePointManager.ServerCertificateValidationCallback = rcvc;
+#endif
+
         }
 
         #region Public API to call PlayFab API Calls.
@@ -68,11 +73,13 @@ namespace PlayFab.Internal
         #region Web Request Methods based on PlayFabSettings.WebRequestTypes
         private void InstPost(string url, string data, string authType, string authKey, Action<string, string> callback)
         {
+#if !UNITY_WP8
             if (PlayFabSettings.RequestType == WebRequestType.HttpWebRequest)
             {
                 MakeRequestViaWebRequest(url, data, authType, authKey, callback);
                 return;
             }
+#endif
             StartCoroutine(MakeRequestViaUnity(url, data, authType, authKey, callback));
         }
 
@@ -284,10 +291,12 @@ namespace PlayFab.Internal
         #endregion
 
         #region Support for SSL
+#if !UNITY_WP8
         private bool AcceptAllCertifications(object sender, System.Security.Cryptography.X509Certificates.X509Certificate certificate, System.Security.Cryptography.X509Certificates.X509Chain chain, System.Net.Security.SslPolicyErrors sslPolicyErrors)
         {
             return true;
         }
+#endif
         #endregion
     }
     

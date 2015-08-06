@@ -50,6 +50,9 @@ exports.makeCombinedAPI = function(apis, sourceDir, apiOutputDir)
 	var libname = "All";
 	
 	copyTree(path.resolve(sourceDir, 'source'), apiOutputDir);
+	copyTree(path.resolve(sourceDir, 'UnittestRunner'), path.resolve(apiOutputDir, 'UnittestRunner')); // Copy the actual unittest project in the CombinedAPI
+	copyFile(path.resolve(sourceDir, 'build+unit.bat'), path.resolve(apiOutputDir, 'build+unit.bat'));
+	copyFile(path.resolve(sourceDir, 'PlayFabSDK+Unit.sln'), path.resolve(apiOutputDir, 'PlayFabSDK+Unit.sln'));
 	
 	makeDatatypes(apis, sourceDir, apiOutputDir);
 	

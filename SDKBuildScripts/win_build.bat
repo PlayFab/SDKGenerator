@@ -1,6 +1,6 @@
-pushd ..\SDKGenerator
+cd c:\depot\SDKGenerator
 node generate.js ..\API_Specs cpp-windows=..\sdks\WindowsSDK
-popd
+
 pushd ..\sdks\WindowsSDK\PlayFabClientSDK\build\VC12
 call build.bat
 popd

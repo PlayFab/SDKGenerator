@@ -1,6 +1,14 @@
 var PlayFabClientSDK = new function(){
+	
+	var internalSettings = {
+		session_ticket: null,
+		sdk_version: "1.1.0",
+		api_version: "1.1.0",
+		production_environment_url: ".playfabapi.com"
+	}
+
     var getServerUrl = function () {
-        return "https://" + PlayFabClientSDK.settings.title_id + PlayFabClientSDK.settings.production_environment_url;
+        return "https://" + PlayFabClientSDK.settings.title_id + internalSettings.production_environment_url;
     }
 
      var getLogicServerUrl = function () {
@@ -21,11 +29,11 @@ var PlayFabClientSDK = new function(){
 
         xhr.setRequestHeader('Content-Type', 'application/json');
 
-        if (PlayFabClientSDK.settings.session_ticket != null) {
-            xhr.setRequestHeader("X-Authorization", PlayFabClientSDK.settings.session_ticket);
+        if (internalSettings.session_ticket != null) {
+            xhr.setRequestHeader("X-Authorization", internalSettings.session_ticket);
         }
 
-        xhr.setRequestHeader('X-PlayFabSDK', "JavaScriptSDK-" + PlayFabClientSDK.settings.sdk_version + "-" + PlayFabClientSDK.settings.api_version);
+        xhr.setRequestHeader('X-PlayFabSDK', "JavaScriptSDK-" + internalSettings.sdk_version + "-" + internalSettings.api_version);
 
         xhr.onloadend = function () {
             if (callback != null && typeof (callback) == "function") {
@@ -52,12 +60,7 @@ var PlayFabClientSDK = new function(){
 	
 	return {
 	    settings: {
-			production_environment_url: ".playfabapi.com",
 			title_id: null,
-			session_ticket: null,
-
-			sdk_version: "1.1.0",
-			api_version: "1.1.0"
 		},
 	
 	<% for(var a in apis){ var api = apis[a];  var apiName = api.name.toLowerCase();  if( api.name==="Client"){ %><% for(var i in api.calls) { var apiCall = api.calls[i]; %>

@@ -26,7 +26,7 @@ function getRequestActions(apiCall, api)
 	if(api.name == "Client" && (apiCall.result == "LoginResult" || apiCall.request == "RegisterPlayFabUserRequest"))
 		return "request.TitleId = PlayFabClientSDK.settings.title_id != null ? PlayFabClientSDK.settings.title_id : request.TitleId; if(request.TitleId == null) throw \"Must be have settings.title_id set to call this method\";\n";
 	if(api.name == "Client" && apiCall.auth == 'SessionTicket')
-		return "if (PlayFabClientSDK.settings.session_ticket == null) throw \"Must be logged in to call this method\";\n"
+		return "if (internalSettings.session_ticket == null) throw \"Must be logged in to call this method\";\n"
 	if(apiCall.auth == 'SecretKey')
 		return "if (PlayFabClientSDK.settings.developer_secret_key == null) throw \"Must have PlayFabSettings.DeveloperSecretKey set to call this method\";\n"
 	return "";
@@ -35,7 +35,7 @@ function getRequestActions(apiCall, api)
 function getResultActions(apiCall, api)
 {
 	if(api.name == "Client" && (apiCall.result == "LoginResult" || apiCall.result == "RegisterPlayFabUserResult"))
-		return "PlayFabClientSDK.settings.session_ticket = result.data.SessionTicket;\n";
+		return "if(result.data && result.data.SessionTicket){ internalSettings.session_ticket = result.data.SessionTicket; }\n";
 	else if(api.name == "Client" && apiCall.result == "GetCloudScriptUrlResult")
 		return "PlayFabClientSDK.settings.logic_server_url = result.Url;\n";
 	return "";

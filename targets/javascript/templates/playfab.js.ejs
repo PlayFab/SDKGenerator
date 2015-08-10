@@ -16,6 +16,10 @@ var PlayFabClientSDK = new function(){
     }
 
     var executeRequest = function (url, data, callback) {
+		if(callback != null && typeof (callback) != "function"){
+			throw "Callback must be null of a function";
+		}
+	
         if (data == null){
             data = {};
 		}

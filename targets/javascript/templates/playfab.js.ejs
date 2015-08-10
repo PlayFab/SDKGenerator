@@ -1,99 +1,81 @@
-var exports = {};
-exports.sdk_version = "1.0.0";
-exports.api_version = "1.1.0";
+var PlayFabClientSDK = new function(){
+    var getServerUrl = function () {
+        return "https://" + PlayFabClientSDK.settings.title_id + PlayFabClientSDK.settings.production_environment_url;
+    }
 
-var settings = {};
-exports.settings = settings;
-settings.use_development_environment = false;
-settings.development_environment_url = ".playfabsandbox.com";
-settings.production_environment_url = ".playfabapi.com";
-settings.logic_server_url = null;
-settings.title_id = null;
-settings.session_ticket = null;
-settings.developer_secret_key = null;
-settings.global_error_handler = null;
+     var getLogicServerUrl = function () {
+        throw "Not Implemented!";
+    }
 
-function get_server_url()
-{
-	var baseUrl = settings.use_development_environment ? settings.development_environment_url : settings.production_environment_url;
-	if(baseUrl.substring(0, 4) == "http")
-		return baseUrl;
-	return "https://"+settings.title_id+baseUrl;
-}
-
-function get_logic_server_url()
-{
-	return settings.logic_server_url;
-}
-
-function make_request(urlStr, request, authType, authValue, callback)
-{
-	if(request == null)
-		request = {};
-	var requestBody = JSON.stringify(request);
-	var xhr = new XMLHttpRequest();
-	xhr.open("POST", urlStr, true);
-	xhr.setRequestHeader('Content-Type', 'application/json');
-	if(authType!=null)xhr.setRequestHeader(authType, authValue);
-	xhr.setRequestHeader('X-PlayFabSDK', "JavaScriptSDK-" + exports.sdk_version + "-" + exports.api_version);
-
-	xhr.onreadystatechange=function() {
-		if (xhr.readyState === 4){   //if complete
-			if(xhr.status === 200){  //check if "OK" (200)
-				//success
-			} else {
-				if(callback != null)
-				{
-					callback({
-						code: 0,
-						status: "Connection error",
-						error: "Connection error",
-						errorCode: 1,
-						errorMessage: xhr.responseText
-					}, null);
-				}
-				return;
-			}
+    var executeRequest = function (url, data, callback) {
+        if (data == null){
+            data = {};
 		}
-	}
+		
+		var startTime = new Date();
+		
+		var requestBody = JSON.stringify(data);
+		
+        var xhr = new XMLHttpRequest();
+        xhr.open("POST", getServerUrl() + url, true);
 
-	xhr.onloadend = function () {
-		// done
-		var replyEnvelope = JSON.parse(xhr.responseText);
-		if(replyEnvelope.error || !replyEnvelope.data)
-		{
-			if(callback != null)
-			{
-				callback(replyEnvelope, null);
-			}
-		}
-		else
-		{
-			if(callback != null)
-			{
-				callback(null, replyEnvelope.data);
-			}
-		}
-	};
-	xhr.send(requestBody);
-}
+        xhr.setRequestHeader('Content-Type', 'application/json');
 
-<% for(var a in apis) { var api = apis[a]; var apiName = api.name.toLowerCase(); if( api.name==="Client"){%>
+        if (PlayFabClientSDK.settings.session_ticket != null) {
+            xhr.setRequestHeader("X-Authorization", PlayFabClientSDK.settings.session_ticket);
+        }
 
-exports.<%- apiName %> = {};
-<%}; for(var i in api.calls) { var apiCall = api.calls[i];if( api.name==="Client"){ %>
+        xhr.setRequestHeader('X-PlayFabSDK', "JavaScriptSDK-" + PlayFabClientSDK.settings.sdk_version + "-" + PlayFabClientSDK.settings.api_version);
 
-exports.<%- apiName %>.<%- apiCall.name %> = function(request, callback)
-{
-	<%- getRequestActions(apiCall, api) %>
-	make_request(<%- getUrlAccessor(apiCall) %> + "<%- apiCall.url %>", request, <%- getAuthParams(apiCall) %>, function(error, result)
+        xhr.onloadend = function () {
+            if (callback != null && typeof (callback) == "function") {
+				var result = JSON.parse(xhr.responseText);
+				
+				result.CallBackTimeMS = new Date() - startTime;
+				
+                callback(result);
+            }
+        }
+
+        xhr.onerror = function () {
+            if (callback != null && typeof (callback) == "function") {
+                var result = JSON.parse(xhr.responseText);
+				
+				result.CallBackTimeMS = new Date() - startTime;
+				
+                callback(result);
+            }
+        }
+
+        xhr.send(requestBody);
+    }
+	
+	return {
+	    settings: {
+			production_environment_url: ".playfabapi.com",
+			title_id: null,
+			session_ticket: null,
+
+			sdk_version: "1.1.0",
+			api_version: "1.1.0"
+		},
+	
+	<% for(var a in apis){ var api = apis[a];  var apiName = api.name.toLowerCase();  if( api.name==="Client"){ %><% for(var i in api.calls) { var apiCall = api.calls[i]; %>
+	<%- apiCall.name %>: function(request, callback)
 	{
-		if(result != null)
-		<%- getResultActions(apiCall, api) %>
-		if(callback != null)
-			callback(error, result);
-	});
-};
-<% }} %>
-<% } %>
+		<%- getRequestActions(apiCall, api) %>
+		
+		<% if(apiCall.result == "LoginResult" || apiCall.result == "RegisterPlayFabUserResult"){ %>
+		var overloadCallback = function(result){
+			<%- getResultActions(apiCall, api) %>
 
+			if (callback != null && typeof (callback) == "function") {
+				callback(result);
+			}
+		};
+		
+		executeRequest("<%- apiCall.url %>", request, overloadCallback);<% }else{ %>executeRequest("<%- apiCall.url %>", request, callback);<% } %>
+	},
+	<% } %><% } %><% } %>
+	}
+}();

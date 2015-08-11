@@ -51,13 +51,20 @@ IHttpRequester* PlayFab<%- api.name %>API::GetRequester(bool relinquishOwnership
     return mHttpRequester;
 }
 
-void PlayFab<%- api.name %>API::Update()
+size_t PlayFab<%- api.name %>API::Update()
 {
     if(mHttpRequester != NULL)
     {
-        mHttpRequester->UpdateRequests();
+        return mHttpRequester->UpdateRequests();
     }
+
+	return 0;
 }
+
+<% if(api.name == "Client") { %>bool PlayFabClientAPI::IsClientLoggedIn()
+{
+	return !mUserSessionTicket.empty();
+}<% } %>
 
 <% for(var i in api.calls) { var apiCall = api.calls[i]; %>
 void PlayFab<%- api.name %>API::<%- apiCall.name %>(

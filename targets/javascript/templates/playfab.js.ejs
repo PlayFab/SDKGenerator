@@ -75,7 +75,6 @@ var PlayFabClientSDK = new function(){
 		<% if(apiCall.result == "LoginResult" || apiCall.result == "RegisterPlayFabUserResult"){ %>
 		var overloadCallback = function(result){
 			<%- getResultActions(apiCall, api) %>
-
 			if (callback != null && typeof (callback) == "function") {
 				callback(result);
 			}

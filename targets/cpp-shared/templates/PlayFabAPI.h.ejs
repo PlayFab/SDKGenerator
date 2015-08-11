@@ -25,7 +25,9 @@ namespace PlayFab
         ~PlayFab<%- api.name %>API();
 
         IHttpRequester* GetRequester(bool relinquishOwnership = false);
-        void Update();
+        size_t Update();
+
+		<% if(api.name == "Client") { %>bool IsClientLoggedIn();<% } %>
 
         // ------------ Generated API calls
 		<% for(var i in api.calls) { var apiCall = api.calls[i]; if(hasRequest(apiCall, api)) { %>

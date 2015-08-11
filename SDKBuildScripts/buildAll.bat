@@ -1,14 +1,27 @@
-cd C:\depot\SDKGenerator\SDKBuildScripts
+pushd ..
 call actionscript_build.bat
-cd C:\depot\SDKGenerator\SDKBuildScripts
+popd
+
+pushd ..
 call cocos_build.bat
-cd C:\depot\SDKGenerator\SDKBuildScripts
+popd
+
+pushd ..
 call csharp_build.bat
-cd C:\depot\SDKGenerator\SDKBuildScripts
+popd
+
+pushd ..
 call js_build.bat
-cd C:\depot\SDKGenerator\SDKBuildScripts
+popd
+
+pushd ..
 call node_build.bat
-cd C:\depot\SDKGenerator\SDKBuildScripts
+popd
+
+pushd ..
 call unity_build.bat
-cd C:\depot\SDKGenerator\SDKBuildScripts
+popd
+
+pushd ..
 call win_build.bat
+popd

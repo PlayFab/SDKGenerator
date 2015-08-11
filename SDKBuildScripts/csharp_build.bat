@@ -1,11 +1,16 @@
-cd c:\depot\SDKGenerator
+pushd ..
+rem === BUILDING CSharpSDK ===
 node generate.js ..\API_Specs csharp=..\sdks\CSharpSDK
+popd
 
-cd c:\depot\sdks\CSharpSDK\PlayFabClientSDK
+pushd ..\..\sdks\CSharpSDK\PlayFabClientSDK
 call build.bat
+popd
 
-cd c:\depot\sdks\CSharpSDK\PlayFabServerSDK
+pushd ..\..\sdks\CSharpSDK\PlayFabServerSDK
 call build.bat
+popd
 
-cd c:\depot\sdks\CSharpSDK\PlayFabSDK
+pushd ..\..\sdks\CSharpSDK\PlayFabSDK
 call build.bat
+popd

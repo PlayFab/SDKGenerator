@@ -40,7 +40,7 @@ var PlayFabClientSDK = new function(){
         xhr.setRequestHeader('X-PlayFabSDK', "JavaScriptSDK-" + internalSettings.sdk_version + "-" + internalSettings.api_version);
 
         xhr.onloadend = function () {
-            if (callback != null && typeof (callback) == "function") {
+            if (callback != null) {
 				var result = JSON.parse(xhr.responseText);
 				
 				result.CallBackTimeMS = new Date() - startTime;
@@ -50,7 +50,7 @@ var PlayFabClientSDK = new function(){
         }
 
         xhr.onerror = function () {
-            if (callback != null && typeof (callback) == "function") {
+            if (callback != null) {
                 var result = JSON.parse(xhr.responseText);
 				
 				result.CallBackTimeMS = new Date() - startTime;

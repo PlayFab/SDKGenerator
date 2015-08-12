@@ -43,7 +43,7 @@
   <PropertyGroup Label="UserMacros" />
   <PropertyGroup Condition="'$(Configuration)|$(Platform)'=='Debug|Win32'">
     <LinkIncremental>true</LinkIncremental>
-    <LibraryPath>C:\depot\sdks\WindowsSDK\PlayFabSDK\dependencies\lib\Win32;$(LibraryPath)</LibraryPath>
+    <LibraryPath>$(ProjectDir)\..\..\..\dependencies\lib\Win32;$(LibraryPath)</LibraryPath>
     <OutDir>$(ProjectDir)$(Configuration)\</OutDir>
   </PropertyGroup>
   <PropertyGroup Condition="'$(Configuration)|$(Platform)'=='Release|Win32'">
@@ -54,16 +54,16 @@
       <PrecompiledHeader>NotUsing</PrecompiledHeader>
       <WarningLevel>Level3</WarningLevel>
       <Optimization>Disabled</Optimization>
-      <AdditionalIncludeDirectories>C:\depot\sdks\WindowsSDK\PlayFabSDK\include;C:\depot\sdks\WindowsSDK\PlayFabSDK\dependencies\include;$(VCInstallDir)UnitTest\include;%(AdditionalIncludeDirectories)</AdditionalIncludeDirectories>
+      <AdditionalIncludeDirectories>$(ProjectDir)\..\..\..\include;$(ProjectDir)\..\..\..\dependencies\include;$(VCInstallDir)UnitTest\include;%(AdditionalIncludeDirectories)</AdditionalIncludeDirectories>
       <PreprocessorDefinitions>WIN32;_DEBUG;%(PreprocessorDefinitions)</PreprocessorDefinitions>
       <UseFullPaths>true</UseFullPaths>
       <PrecompiledHeaderFile />
-      <AdditionalUsingDirectories>C:\depot\sdks\WindowsSDK\PlayFabSDK\lib\Win32;C:\depot\sdks\WindowsSDK\PlayFabSDK\dependencies\lib\Win32;%(AdditionalUsingDirectories)</AdditionalUsingDirectories>
+      <AdditionalUsingDirectories>$(ProjectDir)\..\..\..\lib\Win32;$(ProjectDir)\..\..\..\dependencies\lib\Win32;%(AdditionalUsingDirectories)</AdditionalUsingDirectories>
     </ClCompile>
     <Link>
       <SubSystem>Windows</SubSystem>
       <GenerateDebugInformation>true</GenerateDebugInformation>
-      <AdditionalLibraryDirectories>C:\depot\sdks\WindowsSDK\PlayFabSDK\lib\Win32;C:\depot\sdks\WindowsSDK\PlayFabSDK\dependencies\lib\Win32;$(VCInstallDir)UnitTest\lib;%(AdditionalLibraryDirectories)</AdditionalLibraryDirectories>
+      <AdditionalLibraryDirectories>$(ProjectDir)\..\..\..\lib\Win32;$(ProjectDir)\..\..\..\dependencies\lib\Win32;$(VCInstallDir)UnitTest\lib;%(AdditionalLibraryDirectories)</AdditionalLibraryDirectories>
       <AdditionalDependencies>%(AdditionalDependencies)</AdditionalDependencies>
     </Link>
     <ProjectReference>

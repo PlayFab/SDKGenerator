@@ -50,7 +50,7 @@ namespace UnittestRunner
 	const int TEST_STAT_BASE = 10;
 	const string TEST_STAT_NAME = "str";
 	const string CHAR_TEST_TYPE = "Test";
-	const string TEST_TITLE_DATA_LOC = "C:/depot/pf-main/tools/SDKBuildScripts/testTitleData.json";
+	const string TEST_TITLE_DATA_LOC = "C:/depot/pf-main/tools/SDKBuildScripts/testTitleData.json"; // TODO: Convert hard coded path to a relative path that always works (harder than it sounds when the unittests are run from multiple working directories)
 	const string TEST_DATA_KEY = "testCounter";
 
 	// Variables for specific tests

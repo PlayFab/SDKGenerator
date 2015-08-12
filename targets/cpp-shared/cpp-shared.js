@@ -529,7 +529,7 @@ var getPropertyDeserializer = exports.getPropertyDeserializer = function(propert
 	}
 	
 	var val = "const Value::Member* "+property.name+"_member = obj.FindMember(\""+property.name+"\");\n";
-	val += "\tif ("+property.name+"_member != NULL) "+property.name+" = "+getter+";"
+	val += "\tif (" + property.name + "_member != NULL && !" + property.name + "_member->value.IsNull()) " + property.name + " = " + getter + ";"
 	
 	return val;
 }

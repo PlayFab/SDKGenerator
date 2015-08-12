@@ -176,7 +176,7 @@ namespace UnittestRunner
 			clientApi.LoginWithEmailAddress(request, &LoginCallback, &LoginFailedCallback, NULL);
 			ClientApiWait();
 
-			Assert::IsTrue(testMessageReturn.compare("Login_Failed") == 0); // This call is supposed to return as an error
+			Assert::IsTrue(testMessageReturn.compare("Login_Failed - Password") == 0); // This call is supposed to return as an error
 		}
 		static void LoginCallback(LoginResult& result, void* userData)
 		{
@@ -185,8 +185,10 @@ namespace UnittestRunner
 		}
 		static void LoginFailedCallback(PlayFabError& error, void* userData)
 		{
-			testMessageReturn = "Login_Failed";
-			// TODO: error.ErrorMessage contains "password"
+			if (error.ErrorMessage.find("password") != std::string::npos)
+				testMessageReturn = "Login_Failed - Password";
+			else
+				testMessageReturn = "Login_Failed - " + error.ErrorMessage;
 		}
 
 		TEST_METHOD(LoginOrRegister)

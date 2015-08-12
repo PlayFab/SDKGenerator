@@ -83,12 +83,5 @@ bool PlayFabRequestHandler::DecodeRequest(int httpStatus, HttpRequest* request, 
 	if (data == NULL || !data->value.IsObject())
 		return false;
 
-	bool success = outResult.readFromValue(data->value);
-	if (!success)
-	{
-		// json decoding error
-		return false;
-	}
-
-	return true;
+	return outResult.readFromValue(data->value);
 }

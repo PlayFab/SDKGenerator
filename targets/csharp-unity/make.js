@@ -41,6 +41,17 @@ exports.makeServerAPI = function(apis, sourceDir, apiOutputDir)
 	generateVersion(apis[0], sourceDir, apiOutputDir);
 }
 
+function getIsResultHandler(datatype) {
+    if (datatype.name.toLowerCase().indexOf("result") > -1 || datatype.name.toLowerCase().indexOf("response") > -1) {
+        //Handle Exclusions
+        if (datatype.name === "ModifyUserVirtualCurrencyResult") {
+            return false;
+        }
+        return true;
+    }
+    return false;
+}
+
 function makeDatatypes(apis, sourceDir, apiOutputDir)
 {
 	var templateDir = path.resolve(sourceDir, "templates");
@@ -48,8 +59,7 @@ function makeDatatypes(apis, sourceDir, apiOutputDir)
 	var modelTemplate = ejs.compile(readFile(path.resolve(templateDir, "Model.cp.ejs")));
 	var modelsTemplate = ejs.compile(readFile(path.resolve(templateDir, "Models.cp.ejs")));
 	var enumTemplate = ejs.compile(readFile(path.resolve(templateDir, "Enum.cp.ejs")));
-	
-	
+    
 	var makeDatatype = function(datatype)
 	{
 		var modelLocals = {};
@@ -57,7 +67,7 @@ function makeDatatypes(apis, sourceDir, apiOutputDir)
 		modelLocals.getPropertyDef = getModelPropertyDef;
 		modelLocals.getPropertyAttribs = getPropertyAttribs;
 		modelLocals.getPropertyJsonReader = getPropertyJsonReader;
-		
+	    modelLocals.isResultHandler = getIsResultHandler;
 		var generatedModel = null;
 		
 		if(datatype.isenum)

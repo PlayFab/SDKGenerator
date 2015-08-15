@@ -14,22 +14,24 @@ using System.Collections.Generic;
 using System.Net;
 using System.Threading;
 using System.Text;
+using System.IO;
 
 namespace PlayFab.Internal
 {
-	public class PlayFabHTTP : SingletonMonoBehaviour<PlayFabHTTP>  {
-        
+    public class PlayFabHTTP : SingletonMonoBehaviour<PlayFabHTTP>
+    {
         //Queue for making thread safe Callbacks back to the Main Thread in unity.
-        private Queue<CallBackContainer> _RunOnMainThreadQueue = new Queue<CallBackContainer>(); 
+        private Queue<CallBackContainer> _RunOnMainThreadQueue = new Queue<CallBackContainer>();
+        private int pendingMessages = 0;
 
-        void Awake()
+        public void Awake()
         {
 
 #if !UNITY_WP8
             //These are performance Optimizations for HttpWebRequests.
             ServicePointManager.DefaultConnectionLimit = 10;
             ServicePointManager.Expect100Continue = false;
-            
+
             //Support for SSL
             var rcvc = new System.Net.Security.RemoteCertificateValidationCallback(AcceptAllCertifications);
             ServicePointManager.ServerCertificateValidationCallback = rcvc;
@@ -39,16 +41,16 @@ namespace PlayFab.Internal
 
         #region Public API to call PlayFab API Calls.
         /// <summary>
-		/// Sends a POST HTTP request
-		/// </summary>
-		public static void Post (string url, string data, string authType, string authKey, Action<string,string> callback)
-		{
+        /// Sends a POST HTTP request
+        /// </summary>
+        public static void Post(string url, string data, string authType, string authKey, Action<string, string> callback)
+        {
 #if PLAYFAB_IOS_PLUGIN
 			PlayFabiOSPlugin.Post(url, data, authType, authKey, PlayFabVersion.getVersionString(), callback);
 #else
-			PlayFabHTTP.instance.InstPost(url, data, authType, authKey, callback);
+            PlayFabHTTP.instance.InstPost(url, data, authType, authKey, callback);
 #endif
-		}
+        }
 
         /// <summary>
         /// Sends a POST HTTP request
@@ -73,6 +75,7 @@ namespace PlayFab.Internal
         #region Web Request Methods based on PlayFabSettings.WebRequestTypes
         private void InstPost(string url, string data, string authType, string authKey, Action<string, string> callback)
         {
+            pendingMessages += 1;
 #if !UNITY_WP8
             if (PlayFabSettings.RequestType == WebRequestType.HttpWebRequest)
             {
@@ -87,13 +90,14 @@ namespace PlayFab.Internal
         {
             byte[] payload = System.Text.Encoding.UTF8.GetBytes(data);
             //TODO: make closure it's own method.
-            Thread workerThread = new Thread(() => {
+            Thread workerThread = new Thread(() =>
+            {
                 try
                 {
                     HttpWebRequest request = (HttpWebRequest)WebRequest.Create(url);
                     //Prevents hitting a proxy is no proxy is available.
                     request.Proxy = null; //TODO: Add support for proxy's.
-                    request.Headers.Add("X-ReportErrorAsSuccess", "true");
+                    request.Headers.Add("X-ReportErrorAsSuccess", "true"); // Without this, we have to catch WebException instead, and manually decode the result
                     request.Headers.Add("X-PlayFabSDK", PlayFabVersion.getVersionString());
                     if (authType != null)
                     {
@@ -103,15 +107,15 @@ namespace PlayFab.Internal
                     request.Method = "POST";
                     request.KeepAlive = PlayFabSettings.RequestKeepAlive;
                     request.Timeout = PlayFabSettings.RequestTimeout;
-                    
+
                     //Get Request Stream and send data in the body.
                     using (var stream = request.GetRequestStream())
                     {
                         stream.Write(payload, 0, payload.Length);
                     }
 
-                    //Debug.LogFormat("Response Code: {0}", response.StatusCode);
                     var response = (HttpWebResponse)request.GetResponse();
+                    //Debug.Log("Response Code: " + response.StatusCode);
                     if (response.StatusCode == HttpStatusCode.OK)
                     {
                         using (var stream = new System.IO.StreamReader(response.GetResponseStream()))
@@ -139,8 +143,9 @@ namespace PlayFab.Internal
                 }
                 catch (Exception e)
                 {
-                    Debug.Log(e.Message);
-                    Debug.Log(e.StackTrace);
+                    Debug.LogException(e);
+                    //Debug.Log(e.Message);
+                    //Debug.Log(e.StackTrace);
                     var errorString = GenerateJsonError(500, e.Message, 1123, e.Message, e.Message);
                     //Lock for protection of simuiltanious API calls.
                     lock (_RunOnMainThreadQueue)
@@ -149,6 +154,7 @@ namespace PlayFab.Internal
                         _RunOnMainThreadQueue.Enqueue(cbc);
                     }
                 }
+                pendingMessages -= 1;
             });
             workerThread.Start();
         }
@@ -203,39 +209,40 @@ namespace PlayFab.Internal
                 //Lock for protection of simuiltanious API calls.
                 callback(errorString, null);
             }
+            pendingMessages -= 1;
         }
 
         //This is the old Unity WWW class call.
         private IEnumerator MakeRequestViaUnity(string url, string data, string authType, string authKey, Action<string, string> callback)
-		{
-			byte[] bData = System.Text.Encoding.UTF8.GetBytes(data);
+        {
+            byte[] bData = System.Text.Encoding.UTF8.GetBytes(data);
 
 #if UNITY_4_4 || UNITY_4_3 || UNITY_4_2 || UNITY_4_2 || UNITY_4_0 || UNITY_3_0 || UNITY_3_1 || UNITY_3_2 || UNITY_3_3 || UNITY_3_4 || UNITY_3_5
 			// Using hashtable for compatibility with Unity < 4.5
 			Hashtable headers = new Hashtable ();
 #else
-			Dictionary<string, string> headers = new Dictionary<string,string>();
+            Dictionary<string, string> headers = new Dictionary<string, string>();
 #endif
-			headers.Add("Content-Type", "application/json");
-			if(authType != null)
-				headers.Add(authType, authKey);
-			headers.Add("X-ReportErrorAsSuccess", "true");
-			headers.Add("X-PlayFabSDK", PlayFabVersion.getVersionString ());
-			WWW www = new WWW(url, bData, headers);
-			yield return www;
-			
-			if(!String.IsNullOrEmpty(www.error))
-			{
-				Debug.LogError(www.error);
-				callback(null, www.error);
-			}
-			else
-			{
-				string response = www.text;
-				callback(response, null);
-			}
-			
-		}
+            headers.Add("Content-Type", "application/json");
+            if (authType != null)
+                headers.Add(authType, authKey);
+            headers.Add("X-ReportErrorAsSuccess", "true");
+            headers.Add("X-PlayFabSDK", PlayFabVersion.getVersionString());
+            WWW www = new WWW(url, bData, headers);
+            yield return www;
+
+            if (!String.IsNullOrEmpty(www.error))
+            {
+                Debug.LogError(www.error);
+                callback(null, www.error);
+            }
+            else
+            {
+                string response = www.text;
+                callback(response, null);
+            }
+
+        }
         #endregion
 
         #region Helper Classes for new HttpWebReqeust
@@ -269,7 +276,7 @@ namespace PlayFab.Internal
 
         #region Thread Safety for HttpWebRequests
         readonly Queue<CallBackContainer> _tempActions = new Queue<CallBackContainer>();
-        void Update()
+        public void Update()
         {
             //Lock for protection of simuiltanious API calls.
             lock (_RunOnMainThreadQueue)
@@ -284,7 +291,7 @@ namespace PlayFab.Internal
             while (_tempActions.Count > 0)
             {
                 var eachaction = _tempActions.Dequeue();
-                eachaction.action.Invoke(eachaction.result,eachaction.error);
+                eachaction.action.Invoke(eachaction.result, eachaction.error);
             }
 
         }
@@ -298,8 +305,15 @@ namespace PlayFab.Internal
         }
 #endif
         #endregion
+
+        #region Support for Unit Testing
+        public int GetPendingMessages()
+        {
+            return pendingMessages;
+        }
+        #endregion
     }
-    
+
     /// <summary>
     /// This is a callback class for use with HttpWebRequest.
     /// </summary>
@@ -309,5 +323,4 @@ namespace PlayFab.Internal
         public string result;
         public string error;
     }
-
 }

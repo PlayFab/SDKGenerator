@@ -1,82 +1,101 @@
+/*
+ * UUnit system from UnityCommunity
+ * Heavily modified
+ * 0.4 release by pboechat
+ * http://wiki.unity3d.com/index.php?title=UUnit
+ * http://creativecommons.org/licenses/by-sa/3.0/
+*/
+
 using System;
 using System.Collections.Generic;
 using System.Reflection;
 
-[AttributeUsage(AttributeTargets.Method)]
-public class UUnitTestAttribute : Attribute
+namespace PlayFab.UUnit
 {
-}
-
-public class UUnitTestSuite
-{
-    private List<UUnitTestCase> tests = new List<UUnitTestCase>();
-    private int lastTestIndex = -1;
-    private UUnitTestResult testResult = new UUnitTestResult();
-
-    public void Add(UUnitTestCase testCase)
+    [AttributeUsage(AttributeTargets.Method)]
+    public class UUnitTestAttribute : Attribute
     {
-        tests.Add(testCase);
     }
 
-    public void RunAllTests()
+    public class UUnitTestSuite
     {
-        bool eachResult = false;
-        while (eachResult == false)
-            eachResult = RunOneTest();
-    }
+        private List<UUnitTestCase> tests = new List<UUnitTestCase>();
+        private int lastTestIndex = -1;
+        private UUnitTestResult testResult = new UUnitTestResult();
 
-    /// <summary>
-    /// Run a single test, and return whether the test suite is finished
-    /// </summary>
-    /// <returns>True when all tests are finished</returns>
-    public bool RunOneTest()
-    {
-        // Abort if we've already finished testing
-        bool doneTesting = lastTestIndex >= tests.Count;
-        if (doneTesting) return true;
-
-        lastTestIndex++;
-        doneTesting = lastTestIndex >= tests.Count;
-        if (!doneTesting)
+        public void Add(UUnitTestCase testCase)
         {
-            tests[lastTestIndex].Run(testResult);
+            tests.Add(testCase);
         }
-        return doneTesting;
-    }
 
-    public UUnitTestResult GetResults()
-    {
-        bool doneTesting = lastTestIndex >= tests.Count;
-        return doneTesting ? testResult : null; // Only return the results when finished
-    }
-
-    public void FindAndAddAllTestCases(Type parent)
-    {
-        var assemblies = AppDomain.CurrentDomain.GetAssemblies();
-        foreach (var a in assemblies)
+        public void RunAllTests()
         {
-            var types = a.GetTypes();
-            foreach (var t in types)
+            bool eachResult = false;
+            while (eachResult == false)
+                eachResult = RunOneTest();
+        }
+
+        /// <summary>
+        /// Run a single test, and return whether the test suite is finished
+        /// </summary>
+        /// <returns>True when all tests are finished</returns>
+        public bool RunOneTest()
+        {
+            // Abort if we've already finished testing
+            bool doneTesting = lastTestIndex >= tests.Count;
+            if (doneTesting) return true;
+
+            lastTestIndex++;
+            doneTesting = lastTestIndex >= tests.Count;
+            if (!doneTesting)
             {
-                if (!t.IsAbstract && t.IsSubclassOf(parent))
-                    AddAll(t);
+                tests[lastTestIndex].Run(testResult);
+            }
+            return doneTesting;
+        }
+
+        public UUnitTestResult GetResults()
+        {
+            bool doneTesting = lastTestIndex >= tests.Count;
+            return doneTesting ? testResult : null; // Only return the results when finished
+        }
+
+        public void FindAndAddAllTestCases(Type parent)
+        {
+            var assemblies = AppDomain.CurrentDomain.GetAssemblies();
+            foreach (var a in assemblies)
+            {
+                var types = a.GetTypes();
+                foreach (var t in types)
+                {
+                    if (!t.IsAbstract && t.IsSubclassOf(parent))
+                        AddAll(t);
+                }
             }
         }
-    }
 
-    private void AddAll(Type testCaseType)
-    {
-        var methods = testCaseType.GetMethods(BindingFlags.Public | BindingFlags.NonPublic | BindingFlags.Instance);
-        foreach (MethodInfo m in methods)
+        private void AddAll(Type testCaseType)
         {
-            var attributes = m.GetCustomAttributes(typeof(UUnitTestAttribute), false);
-            if (attributes.Length > 0)
+            var methods = testCaseType.GetMethods(BindingFlags.Public | BindingFlags.NonPublic | BindingFlags.Instance);
+            foreach (MethodInfo m in methods)
             {
-                ConstructorInfo constructor = testCaseType.GetConstructors()[0];
-                UUnitTestCase newTestCase = (UUnitTestCase)constructor.Invoke(null);
-                newTestCase.SetTest(m.Name);
-                Add(newTestCase);
+                var attributes = m.GetCustomAttributes(typeof(UUnitTestAttribute), false);
+                if (attributes.Length > 0)
+                {
+                    ConstructorInfo constructor = testCaseType.GetConstructors()[0];
+                    UUnitTestCase newTestCase = (UUnitTestCase)constructor.Invoke(null);
+                    newTestCase.SetTest(m.Name);
+                    Add(newTestCase);
+                }
             }
+        }
+
+        /// <summary>
+        /// Return that tests were run, and all of them reported success
+        /// </summary>
+        public bool AllTestsPassed()
+        {
+            return testResult.AllTestsPassed();
         }
     }
 }

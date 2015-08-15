@@ -27,6 +27,7 @@ namespace PlayFab
         public static WebRequestType RequestType = WebRequestType.UnityWWW;
         public static int RequestTimeout = 2000;
         public static bool RequestKeepAlive = true;
+        public static string DeveloperSecretKey = null;
 
 		public static ErrorCallback GlobalErrorHandler  { get; set; }
 

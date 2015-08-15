@@ -1,21 +1,24 @@
 using UnityEngine;
 
-public class UnityIncrementalTestRunner : MonoBehaviour
+namespace PlayFab.UUnit
 {
-    UUnitTestSuite suite = new UUnitTestSuite();
-
-    public void Start()
+    public class UnityIncrementalTestRunner : MonoBehaviour
     {
-        suite.FindAndAddAllTestCases(typeof(UUnitTestCase));
-    }
+        UUnitTestSuite suite = new UUnitTestSuite();
 
-    public void Update()
-    {
-        if (suite.RunOneTest())
+        public void Start()
         {
-            UUnitTestResult result = suite.GetResults();
-            Debug.Log(result.Summary());
-            GameObject.Destroy(gameObject);
+            suite.FindAndAddAllTestCases(typeof(UUnitTestCase));
+        }
+
+        public void Update()
+        {
+            if (suite.RunOneTest())
+            {
+                UUnitTestResult result = suite.GetResults();
+                Debug.Log(result.Summary());
+                GameObject.Destroy(gameObject);
+            }
         }
     }
 }

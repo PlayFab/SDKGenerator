@@ -43,10 +43,6 @@ exports.makeServerAPI = function(apis, sourceDir, apiOutputDir)
 
 function getIsResultHandler(datatype) {
     if (datatype.name.toLowerCase().indexOf("result") > -1 || datatype.name.toLowerCase().indexOf("response") > -1) {
-        //Handle Exclusions
-        if (datatype.name === "ModifyUserVirtualCurrencyResult") {
-            return false;
-        }
         return true;
     }
     return false;

@@ -72,21 +72,28 @@ exports.makeCombinedAPI = function (apis, sourceDir, apiOutputDir) {
     copyFile(path.resolve(sourceDir, 'PlayFabApiTest.cs'), path.resolve(apiOutputDir, 'Internal/Testing/PlayFabApiTest.cs'));
 }
 
+function getIsResultHandler(datatype) {
+    if (datatype.name.toLowerCase().indexOf("result") > -1 || datatype.name.toLowerCase().indexOf("response") > -1) {
+        return true;
+    }
+    return false;
+}
+
 function makeDatatypes(apis, sourceDir, apiOutputDir) {
     var templateDir = path.resolve(sourceDir, "templates");
 
     var modelTemplate = ejs.compile(readFile(path.resolve(templateDir, "Model.cp.ejs")));
     var modelsTemplate = ejs.compile(readFile(path.resolve(templateDir, "Models.cp.ejs")));
     var enumTemplate = ejs.compile(readFile(path.resolve(templateDir, "Enum.cp.ejs")));
-
-
-    var makeDatatype = function (datatype) {
+	
+	var makeDatatype = function(datatype)
+	{
         var modelLocals = {};
         modelLocals.datatype = datatype;
         modelLocals.getPropertyDef = getModelPropertyDef;
         modelLocals.getPropertyAttribs = getPropertyAttribs;
         modelLocals.getPropertyJsonReader = getPropertyJsonReader;
-
+	    modelLocals.isResultHandler = getIsResultHandler;
         var generatedModel = null;
 
         if (datatype.isenum) {

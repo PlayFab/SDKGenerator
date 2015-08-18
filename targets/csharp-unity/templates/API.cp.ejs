@@ -19,7 +19,7 @@ namespace PlayFab
 		/// <summary>
 		/// <%- apiCall.summary %>
 		/// </summary><% } %>
-		public static void <%- apiCall.name %>(<%- apiCall.request %> request, <%- apiCall.name %>Callback resultCallback, ErrorCallback errorCallback)
+		public static void <%- apiCall.name %>(<%- apiCall.request %> request, <%- apiCall.name %>Callback resultCallback, ErrorCallback errorCallback, object customData = null)
 		{
 			<%- getRequestActions(apiCall, api) %>
 			string serializedJSON = JsonConvert.SerializeObject(request, Util.JsonFormatting, Util.JsonSettings);
@@ -35,6 +35,8 @@ namespace PlayFab
 				if(result != null)
 				{
 					<%- getResultActions(apiCall, api) %>
+					result.CustomData = customData;
+					result.Request = request;
 					if(resultCallback != null)
 					{
 						resultCallback(result);
@@ -53,6 +55,7 @@ namespace PlayFab
             return !string.IsNullOrEmpty(AuthKey);
         }
 		<% } %>
+
 	}
 }
 

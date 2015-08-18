@@ -50,7 +50,7 @@ namespace UnittestRunner
 	const int TEST_STAT_BASE = 10;
 	const string TEST_STAT_NAME = "str";
 	const string CHAR_TEST_TYPE = "Test";
-	const string TEST_TITLE_DATA_LOC = "C:/depot/pf-main/tools/SDKBuildScripts/testTitleData.json";
+	const string TEST_TITLE_DATA_LOC = "C:/depot/pf-main/tools/SDKBuildScripts/testTitleData.json"; // TODO: Convert hard coded path to a relative path that always works (harder than it sounds when the unittests are run from multiple working directories)
 	const string TEST_DATA_KEY = "testCounter";
 
 	// Variables for specific tests
@@ -176,7 +176,7 @@ namespace UnittestRunner
 			clientApi.LoginWithEmailAddress(request, &LoginCallback, &LoginFailedCallback, NULL);
 			ClientApiWait();
 
-			Assert::IsTrue(testMessageReturn.compare("Login_Failed") == 0); // This call is supposed to return as an error
+			Assert::IsTrue(testMessageReturn.compare("Login_Failed - Password") == 0); // This call is supposed to return as an error
 		}
 		static void LoginCallback(LoginResult& result, void* userData)
 		{
@@ -185,8 +185,10 @@ namespace UnittestRunner
 		}
 		static void LoginFailedCallback(PlayFabError& error, void* userData)
 		{
-			testMessageReturn = "Login_Failed";
-			// TODO: error.ErrorMessage contains "password"
+			if (error.ErrorMessage.find("password") != std::string::npos)
+				testMessageReturn = "Login_Failed - Password";
+			else
+				testMessageReturn = "Login_Failed - " + error.ErrorMessage;
 		}
 
 		TEST_METHOD(LoginOrRegister)
@@ -382,6 +384,29 @@ namespace UnittestRunner
 		{
 			testMessageReturn = "GetServerLB_Success";
 			testMessageInt = result.Leaderboard.size();
+		}
+
+		// The primary purpose of this test is to verify that enums work properly
+		TEST_METHOD(AccountInfo)
+		{
+			LoginOrRegister();
+
+			GetAccountInfoRequest request;
+			request.PlayFabId = playFabId;
+			clientApi.GetAccountInfo(request, &AcctInfoCallback, &FailedCallback, NULL);
+			ClientApiWait();
+			Assert::IsTrue(testMessageReturn.compare("Enums tested") == 0);
+		}
+		static void AcctInfoCallback(GetAccountInfoResult& result, void* userData)
+		{
+			if (result.AccountInfo == NULL || result.AccountInfo->TitleInfo == NULL || result.AccountInfo->TitleInfo->Origination.isNull())
+			{
+				testMessageReturn = "Enums not properly tested";
+				return;
+			}
+
+			auto output = result.AccountInfo->TitleInfo->Origination.mValue; // C++ can't really do anything with this once fetched
+			testMessageReturn = "Enums tested";
 		}
 
 	private:

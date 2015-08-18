@@ -18,13 +18,19 @@ void PlayFab::<%- api.name %>Models::write<%- datatype.name %>EnumJSON(<%- datat
 
 <%- datatype.name %> PlayFab::<%- api.name %>Models::read<%- datatype.name %>FromValue(const rapidjson::Value& obj)
 {
-	std::string enumStr = obj.GetString();
-	if(enumStr == "<%- datatype.enumvalues[0].name %>")
-		return <%- datatype.name %><%- datatype.enumvalues[0].name %>;<% for(var i=1; i<datatype.enumvalues.length; i++) { var enumval = datatype.enumvalues[i] %>
-	else if(enumStr == "<%- enumval.name %>")
-		return <%- datatype.name %><%- enumval.name %>;<% } %>
-	
-	return <%- datatype.name %><%- datatype.enumvalues[0].name %>;
+    static std::map<std::string, <%- datatype.name %>> _<%- datatype.name %>Map;
+    if (_<%- datatype.name %>Map.size() == 0)
+    {
+        // Auto-generate the map on the first use
+<% for(var i=0; i<datatype.enumvalues.length; i++) { var enumval = datatype.enumvalues[i] %>        _<%- datatype.name %>Map["<%- datatype.enumvalues[i].name %>"] = <%- datatype.name %><%- datatype.enumvalues[i].name %>;
+<% } %>
+    }
+
+    auto output = _<%- datatype.name %>Map.find(obj.GetString());
+    if (output != _<%- datatype.name %>Map.end())
+        return output->second;
+
+    return <%- datatype.name %><%- datatype.enumvalues[0].name %>; // Basically critical fail
 }
 
 <% } else { %>

@@ -386,6 +386,29 @@ namespace UnittestRunner
 			testMessageInt = result.Leaderboard.size();
 		}
 
+		// The primary purpose of this test is to verify that enums work properly
+		TEST_METHOD(AccountInfo)
+		{
+			LoginOrRegister();
+
+			GetAccountInfoRequest request;
+			request.PlayFabId = playFabId;
+			clientApi.GetAccountInfo(request, &AcctInfoCallback, &FailedCallback, NULL);
+			ClientApiWait();
+			Assert::IsTrue(testMessageReturn.compare("Enums tested") == 0);
+		}
+		static void AcctInfoCallback(GetAccountInfoResult& result, void* userData)
+		{
+			if (result.AccountInfo == NULL || result.AccountInfo->TitleInfo == NULL || result.AccountInfo->TitleInfo->Origination.isNull())
+			{
+				testMessageReturn = "Enums not properly tested";
+				return;
+			}
+
+			auto output = result.AccountInfo->TitleInfo->Origination.mValue; // C++ can't really do anything with this once fetched
+			testMessageReturn = "Enums tested";
+		}
+
 	private:
 		PlayFabClientAPI clientApi;
 		PlayFabServerAPI serverApi;

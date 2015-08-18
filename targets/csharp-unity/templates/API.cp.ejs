@@ -35,10 +35,8 @@ namespace PlayFab
 				if(result != null)
 				{
 					<%- getResultActions(apiCall, api) %>
-					<% if(apiCall.result != "ModifyUserVirtualCurrencyResult") { %>
 					result.CustomData = customData;
 					result.Request = request;
-					<% } %>
 					if(resultCallback != null)
 					{
 						resultCallback(result);

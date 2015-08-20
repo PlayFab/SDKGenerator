@@ -38,7 +38,7 @@ bool PlayFabRequestHandler::DecodeRequest(int httpStatus, HttpRequest* request, 
 			outError.HttpCode = 408;
 			outError.ErrorCode = PlayFabErrorConnectionTimeout;
 			// For text returns, use the non-json response if possible, else default to no response
-			outError.ErrorName = outError.ErrorMessage = outError.HttpStatus = response.length() == 0 ? "Request Timeout or null response" : response;
+			outError.ErrorName = outError.ErrorMessage = outError.HttpStatus = response;
 			return false;
 		}
 		// TODO: what happens when the error is not in the enum?

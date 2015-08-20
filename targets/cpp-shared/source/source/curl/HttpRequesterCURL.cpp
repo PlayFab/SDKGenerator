@@ -11,8 +11,8 @@ using namespace PlayFab;
 
 unsigned long GetMaxCompressedLen(unsigned long nLenSrc)
 {
-    unsigned long n16kBlocks = ( nLenSrc + 16383 ) / 16384;
-    return  (nLenSrc + 6 + (n16kBlocks * 5) );
+    unsigned long n16kBlocks = (nLenSrc + 16383) / 16384;
+    return  (nLenSrc + 6 + (n16kBlocks * 5));
 }
 
 
@@ -23,7 +23,7 @@ HttpRequesterCURL::HttpRequesterCURL()
 
 HttpRequesterCURL::~HttpRequesterCURL()
 {
-    for(size_t i = 0; i < mHandles.size(); ++i)
+    for (size_t i = 0; i < mHandles.size(); ++i)
     {
         CleanupRequest(mHandles[i]);
     }
@@ -37,14 +37,14 @@ PlayFabErrorCode HttpRequesterCURL::AddRequest(HttpRequest* request, RequestComp
     PlayFabErrorCode res = PlayFabErrorSuccess;
 
     curl_slist* headers = NULL;
-    
+
     CURL* handle = curl_easy_init();
-    if(handle != NULL)
+    if (handle != NULL)
     {
-        for(size_t i = 0; i < request->GetHeaderCount(); ++i)
+        for (size_t i = 0; i < request->GetHeaderCount(); ++i)
         {
             std::string header;
-            if(request->GetHeader(i, header))
+            if (request->GetHeader(i, header))
             {
                 headers = curl_slist_append(headers, header.c_str());
             }
@@ -55,20 +55,20 @@ PlayFabErrorCode HttpRequesterCURL::AddRequest(HttpRequest* request, RequestComp
         char* buffer = NULL;
         size_t bodyLen = 0;
         int compressionLevel = 0; //request->GetCompressionLevel(); Temporarily disabled due to problems
-        if(compressionLevel != 0)
+        if (compressionLevel != 0)
         {
             unsigned long ret = 0;
-            if(body.length() > 0)
+            if (body.length() > 0)
             {
                 std::string tempString;
                 unsigned char out_buffer[CHUNK];
-    
+
                 z_stream zStream;
                 zStream.zalloc = Z_NULL;
                 zStream.zfree = Z_NULL;
                 zStream.opaque = Z_NULL;
                 ret = deflateInit2(&zStream, compressionLevel, Z_DEFLATED, 15 | 16, 8, Z_DEFAULT_STRATEGY);
-                if(ret == Z_OK)
+                if (ret == Z_OK)
                 {
 
                     zStream.next_in = (Bytef*)body.c_str();
@@ -84,47 +84,47 @@ PlayFabErrorCode HttpRequesterCURL::AddRequest(HttpRequest* request, RequestComp
                         tempString.append((const char*)out_buffer, have);
                         /*if(ret == Z_STREAM_END)
                         {
-                            ret = zStream.total_out;
+                        ret = zStream.total_out;
                         }*/
-                    }
-                    while(zStream.avail_out == 0);
+                    } while (zStream.avail_out == 0);
                 }
                 deflateEnd(&zStream);
 
                 bodyLen = tempString.length();
-                buffer = new char[bodyLen+1];
-                memcpy(buffer, tempString.c_str(), bodyLen);
+                buffer = new char[bodyLen + 1];
+                sprintf(buffer, "%s", tempString.c_str());
                 buffer[bodyLen] = 0;
 
                 headers = curl_slist_append(headers, "Content-Encoding: gzip");
 
             }
         }
-        else if(body.length() > 0)
+        else if (body.length() > 0)
         {
             bodyLen = body.length();
-            buffer = new char[body.length()+1];
-            std::strncpy(buffer, body.c_str(), body.length());
+            buffer = new char[bodyLen + 1];
+            sprintf(buffer, "%s", body.c_str());
+            buffer[body.length()] = 0;
         }
 
 #if LOCALHOST_PROXY
         curl_easy_setopt(handle, CURLOPT_PROXY, "127.0.0.1:8888");
 #endif
         //Accept-Encoding: gzip
-        if(request->GetAcceptGZip())
+        if (request->GetAcceptGZip())
         {
             curl_easy_setopt(handle, CURLOPT_ENCODING, "gzip");
         }
 
         curl_easy_setopt(handle, CURLOPT_URL, request->GetUrl().c_str());
         curl_easy_setopt(handle, CURLOPT_CUSTOMREQUEST, request->GetMethod().c_str());
-        
-        if(headers != NULL)
+
+        if (headers != NULL)
         {
             curl_easy_setopt(handle, CURLOPT_HTTPHEADER, headers);
         }
 
-        if(buffer != NULL)
+        if (buffer != NULL)
         {
             curl_easy_setopt(handle, CURLOPT_POSTFIELDSIZE, bodyLen);
             curl_easy_setopt(handle, CURLOPT_POSTFIELDS, buffer);
@@ -132,7 +132,7 @@ PlayFabErrorCode HttpRequesterCURL::AddRequest(HttpRequest* request, RequestComp
 
         //Note: Peer certifcates were not validating in early tests.
         curl_easy_setopt(handle, CURLOPT_SSL_VERIFYPEER, 0L);
-        
+
         curl_easy_setopt(handle, CURLOPT_WRITEFUNCTION, HttpRequesterCURL::Write);
         curl_easy_setopt(handle, CURLOPT_WRITEDATA, request);
 
@@ -158,11 +158,11 @@ PlayFabErrorCode HttpRequesterCURL::AddRequest(HttpRequest* request, RequestComp
 size_t HttpRequesterCURL::UpdateRequests()
 {
     size_t numActiveRequests = mHandles.size();
-    if( numActiveRequests > 0 )
+    if (numActiveRequests > 0)
     {
         curl_multi_perform(mHandle, (int*)&numActiveRequests);
-    
-        if(numActiveRequests < mHandles.size())
+
+        if (numActiveRequests < mHandles.size())
         {
             FinalizeRequests();
         }
@@ -176,17 +176,18 @@ void HttpRequesterCURL::FinalizeRequests()
     long httpResponseStatus = 0;
     int queuedMessages = 0;
     CURLMsg* msg = NULL;
-    while((msg = curl_multi_info_read(mHandle, &queuedMessages)))
+    while ((msg = curl_multi_info_read(mHandle, &queuedMessages)))
     {
-        for(size_t i = 0; i < mHandles.size(); ++i)
+        for (size_t i = 0; i < mHandles.size(); ++i)
         {
-            if(mHandles[i].handle == msg->easy_handle)
+            if (mHandles[i].handle == msg->easy_handle)
             {
                 CurlRequest request = mHandles[i];
 
-                curl_easy_getinfo(request.handle, CURLINFO_RESPONSE_CODE, &httpResponseStatus);
+                CURLcode curlCode = curl_easy_getinfo(request.handle, CURLINFO_RESPONSE_CODE, &httpResponseStatus);
+                // TODO: utilize the curlCode
 
-                if(request.callback != NULL)
+                if (request.callback != NULL)
                 {
                     request.callback((int)httpResponseStatus, request.request, request.callbackData);
                 }
@@ -201,14 +202,14 @@ void HttpRequesterCURL::FinalizeRequests()
 
 void HttpRequesterCURL::CleanupRequest(CurlRequest request)
 {
-    if(request.headers != NULL)
+    if (request.headers != NULL)
     {
         curl_slist_free_all((curl_slist*)request.headers);
     }
 
     curl_easy_cleanup(request.handle);
 
-    if( request.body != NULL)
+    if (request.body != NULL)
     {
         delete request.body;
         request.body = NULL;

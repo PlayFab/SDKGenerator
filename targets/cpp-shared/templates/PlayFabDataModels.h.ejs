@@ -26,12 +26,12 @@ namespace <%- api.name %>Models
 	
         <%- datatype.name %>() :
 			PlayFabBaseModel()<% for(var i in datatype.properties) { var property = datatype.properties[i] %>,
-			<%- property.name %>(<%- getPropertyDefaultValue(property, datatype) %>)<% } %>
+			<%- getPropertySafeName(property) %>(<%- getPropertyDefaultValue(property, datatype) %>)<% } %>
 			{}
 		
 		<%- datatype.name %>(const <%- datatype.name %>& src) :
 			PlayFabBaseModel()<% for(var i in datatype.properties) { var property = datatype.properties[i] %>,
-			<%- property.name %>(<%- getPropertyCopyValue(property, datatype) %>)<% } %>
+			<%- getPropertySafeName(property) %>(<%- getPropertyCopyValue(property, datatype) %>)<% } %>
 			{}
 			
 		<%- datatype.name %>(const rapidjson::Value& obj) : <%- datatype.name %>()

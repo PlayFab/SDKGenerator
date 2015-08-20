@@ -9,11 +9,11 @@ using namespace rapidjson;
 <% for(var i in datatypes) { var datatype = datatypes[i]; if(datatype.isenum) { %>
 void PlayFab::<%- api.name %>Models::write<%- datatype.name %>EnumJSON(<%- datatype.name %> enumVal, PFStringJsonWriter& writer)
 {
-	switch(enumVal)
-	{
-		<% for(var i=0; i<datatype.enumvalues.length; i++) { var enumval = datatype.enumvalues[i] %>
-		case <%- datatype.name %><%- enumval.name %>: writer.String("<%- enumval.name %>"); break;<% } %>
-	}
+    switch(enumVal)
+    {
+        <% for(var i=0; i<datatype.enumvalues.length; i++) { var enumval = datatype.enumvalues[i] %>
+        case <%- datatype.name %><%- enumval.name %>: writer.String("<%- enumval.name %>"); break;<% } %>
+    }
 }
 
 <%- datatype.name %> PlayFab::<%- api.name %>Models::read<%- datatype.name %>FromValue(const rapidjson::Value& obj)
@@ -36,29 +36,29 @@ void PlayFab::<%- api.name %>Models::write<%- datatype.name %>EnumJSON(<%- datat
 <% } else { %>
 <%- datatype.name %>::~<%- datatype.name %>()
 {
-	<% for(var p in datatype.properties) { var property = datatype.properties[p];
-	if(!property.collection && property.isclass && property.optional) { %>if(<%- property.name %> != NULL) delete <%- property.name %>;
-	<% } } %>
+    <% for(var p in datatype.properties) { var property = datatype.properties[p];
+    if(!property.collection && property.isclass && property.optional) { %>if(<%- property.name %> != NULL) delete <%- property.name %>;
+    <% } } %>
 }
 
 void <%- datatype.name %>::writeJSON(PFStringJsonWriter& writer)
 {
     writer.StartObject();
 
-	<% for(var p in datatype.properties) { var property = datatype.properties[p]; %>
-	<%- getPropertySerializer(property, datatype) %>
-	<% } %>
-	
-	writer.EndObject();
+    <% for(var p in datatype.properties) { var property = datatype.properties[p]; %>
+    <%- getPropertySerializer(property, datatype) %>
+    <% } %>
+    
+    writer.EndObject();
 }
 
 bool <%- datatype.name %>::readFromValue(const rapidjson::Value& obj)
 {
-	<% for(var p in datatype.properties) { var property = datatype.properties[p]; %>
-	<%- getPropertyDeserializer(property, datatype) %>
-	<% } %>
-	
-	return true;
+    <% for(var p in datatype.properties) { var property = datatype.properties[p]; %>
+    <%- getPropertyDeserializer(property, datatype) %>
+    <% } %>
+    
+    return true;
 }
 
 <% } } %>

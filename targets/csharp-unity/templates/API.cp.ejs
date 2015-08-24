@@ -23,14 +23,13 @@ namespace PlayFab
 		{
 			<%- getRequestActions(apiCall, api) %>
 			string serializedJSON = JsonConvert.SerializeObject(request, Util.JsonFormatting, Util.JsonSettings);
-			Action<string,string> callback = delegate(string responseStr, string errorStr)
+			Action<string,PlayFabError> callback = delegate(string responseStr, PlayFabError pfError)
 			{
 				<%- apiCall.result %> result = null;
-				PlayFabError error = null;
-				ResultContainer<<%- apiCall.result %>>.HandleResults(responseStr, errorStr, out result, out error);
-				if(error != null && errorCallback != null)
+				ResultContainer<<%- apiCall.result %>>.HandleResults(responseStr, ref pfError, out result);
+				if(pfError != null && errorCallback != null)
 				{
-					errorCallback(error);
+					errorCallback(pfError);
 				}
 				if(result != null)
 				{

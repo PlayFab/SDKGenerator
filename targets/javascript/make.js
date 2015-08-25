@@ -18,7 +18,7 @@ exports.makeCombinedAPI = function(apis, sourceDir, apiOutputDir)
 	apiLocals.getRequestActions = getRequestActions;
 	apiLocals.getResultActions = getResultActions;
 	var generatedApi = apiTemplate(apiLocals);
-	writeFile(path.resolve(apiOutputDir, "PlayFabClientSDK.js"), generatedApi);
+	writeFile(path.resolve(apiOutputDir, "playfab.js"), generatedApi);
 }
 
 function getRequestActions(apiCall, api)

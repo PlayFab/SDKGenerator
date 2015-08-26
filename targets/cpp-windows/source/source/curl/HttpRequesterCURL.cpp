@@ -55,7 +55,7 @@ PlayFabErrorCode HttpRequesterCURL::AddRequest(HttpRequest* request, RequestComp
         std::string body = request->GetBody();
         char* buffer = NULL;
         size_t bodyLen = 0;
-        int compressionLevel = request->GetCompressionLevel();
+        int compressionLevel = 0; //request->GetCompressionLevel(); Temporarily disabled due to mobile problems
         if(compressionLevel != 0)
         {
             unsigned long ret = 0;
@@ -93,8 +93,8 @@ PlayFabErrorCode HttpRequesterCURL::AddRequest(HttpRequest* request, RequestComp
                 deflateEnd(&zStream);
 
                 bodyLen = tempString.length();
-                buffer = new char[bodyLen+1];
-                memcpy(buffer, tempString.c_str(), bodyLen);
+                buffer = new char[bodyLen + 1];
+                sprintf(buffer, "%s", tempString.c_str());
                 buffer[bodyLen] = 0;
 
                 headers = curl_slist_append(headers, "Content-Encoding: gzip");
@@ -104,8 +104,9 @@ PlayFabErrorCode HttpRequesterCURL::AddRequest(HttpRequest* request, RequestComp
         else if(body.length() > 0)
         {
             bodyLen = body.length();
-            buffer = new char[body.length()+1];
-            std::strncpy(buffer, body.c_str(), body.length());
+            buffer = new char[bodyLen + 1];
+            sprintf(buffer, "%s", body.c_str());
+            buffer[body.length()] = 0;
         }
 
 #if LOCALHOST_PROXY
@@ -185,7 +186,8 @@ void HttpRequesterCURL::FinalizeRequests()
             {
                 CurlRequest request = mHandles[i];
 
-                curl_easy_getinfo(request.handle, CURLINFO_RESPONSE_CODE, &httpResponseStatus);
+                CURLcode curlCode = curl_easy_getinfo(request.handle, CURLINFO_RESPONSE_CODE, &httpResponseStatus);
+                // TODO: utilize the curlCode
 
                 if(request.callback != NULL)
                 {

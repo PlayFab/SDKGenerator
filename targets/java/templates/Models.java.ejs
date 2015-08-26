@@ -1,0 +1,10 @@
+package playfab;
+
+import java.util.*;
+import playfab.PlayFabUtil.*;
+
+public class PlayFab<%- api.name %>Models {
+	<% for(var d in api.datatypes) { var datatype = api.datatypes[d] %>
+	<%- makeDatatype(datatype, api) %>
+	<% } %>
+}

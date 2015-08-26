@@ -17,5 +17,8 @@ xcopy ..\..\..\SDKGenerator\targets\cpp-cocos2dx\ExampleFiles\main.cpp proj.win3
 xcopy ..\..\..\SDKGenerator\targets\cpp-cocos2dx\ExampleFiles\PlayFabSDKExample.vcxproj proj.win32\ /c /f /y
 xcopy ..\..\..\SDKGenerator\targets\cpp-cocos2dx\ExampleFiles\PlayFabSDKExample.vcxproj.filters proj.win32\ /c /f /y
 
+xcopy ..\..\..\SDKGenerator\targets\cpp-cocos2dx\ExampleFiles\Android.mk proj.android\jni\ /c /f /y
+xcopy ..\..\..\SDKGenerator\targets\cpp-cocos2dx\ExampleFiles\Application.mk proj.android\jni\ /c /f /y
+
 popd
 popd

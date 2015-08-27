@@ -4,6 +4,11 @@ import org.junit.*;
 import java.util.Arrays;
 import java.util.HashMap;
 import java.util.List;
+import java.io.*;
+import java.util.Properties;
+
+import com.google.gson.*;
+import com.google.gson.reflect.*;
 
 import playfab.PlayFabErrors.*;
 import playfab.PlayFabSettings;
@@ -20,11 +25,11 @@ public class PlayFabApiTest
 	private static final String CHAR_TEST_TYPE = "Test";
 
 	// Fixed values provided from testInputs
-	private static String USER_NAME = "paul";
-	private static String USER_EMAIL = "paul@playfab.com";
-	private static String USER_PASSWORD = "testPassword";
-	private static String CHAR_NAME = "Ragnar";
-	private static boolean TITLE_CAN_UPDATE_SETTINGS = true;
+	private static String USER_NAME;
+	private static String USER_EMAIL;
+	private static String USER_PASSWORD;
+	private static String CHAR_NAME;
+	private static boolean TITLE_CAN_UPDATE_SETTINGS;
 
 	// Cached values
 	private static String playFabId = null;
@@ -46,11 +51,49 @@ public class PlayFabApiTest
 		}
 	}
 	
+	private class TitleData
+	{
+		public String titleId;
+		public String developerSecretKey;
+		public String titleCanUpdateSettings;
+		public String userName;
+		public String userEmail;
+		public String userPassword;
+		public String characterName;
+	}
+	
 	@BeforeClass
     public static void oneTimeSetUp() {
-        // TODO: Load the testTitleData.json file
-		PlayFabSettings.TitleId = "6195";
-		PlayFabSettings.DeveloperSecretKey = "TKHKZYUQF1AFKYOKPKAZJ1HRNQY61KJZC6E79ZF9YYXR9Q74CT";
+		String testTitleDataFile = System.getProperty("testTitleData");
+		String testTitleJson;
+		try{
+			File file = new File(testTitleDataFile);
+			FileInputStream fis = new FileInputStream(file);
+			byte[] data = new byte[(int) file.length()];
+			fis.read(data);
+			fis.close();
+			testTitleJson = new String(data);
+		} catch (IOException e) {
+			// NOTE: Un-Comment and put your title-specific information here to test your title, or provide the following command line parameter when running the tests
+			//   -testTitleData=YOUR_FILE_LOCATION\testTitleData.json
+			//PlayFabSettings.TitleId = "TODO: TitleID";
+			//PlayFabSettings.DeveloperSecretKey = "TODO: A big long secret key that you should NEVER publish with your client";
+			//TITLE_CAN_UPDATE_SETTINGS = false; // TODO: Set to true if you've enabled this in your title.
+			//USER_NAME = "TODO: a test username (make this up for yourself)";
+			//USER_EMAIL = "TODO: a test email (use your own)";
+			//USER_PASSWORD = "TODO: a test password (this is the existing password for the user above, or the new password if the user doesn't exist yet)";
+			//CHAR_NAME = "TODO: a test character (make this up for yourself)";
+			return;
+		}
+		Gson gson = new GsonBuilder().create();
+		TitleData resultData = gson.fromJson(testTitleJson, new TypeToken<TitleData>(){}.getType()); 
+		PlayFabSettings.TitleId = resultData.titleId;
+		PlayFabSettings.DeveloperSecretKey = resultData.developerSecretKey;
+		TITLE_CAN_UPDATE_SETTINGS = Boolean.parseBoolean(resultData.titleCanUpdateSettings); 
+		USER_NAME = resultData.userName;
+		USER_EMAIL = resultData.userEmail;
+		USER_PASSWORD = resultData.userPassword;
+		CHAR_NAME = resultData.characterName;
     }
 
 	// Tests

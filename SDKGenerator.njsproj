@@ -12,7 +12,7 @@
     <ProjectTypeGuids>{3AF33F2E-1136-4D97-BBB7-1795711AC8B8};{349c5851-65df-11da-9384-00065b846f21};{9092AA53-FB77-4645-B42D-1CCCA6BD08BD}</ProjectTypeGuids>
     <VisualStudioVersion Condition="'$(VisualStudioVersion)' == ''">11.0</VisualStudioVersion>
     <VSToolsPath Condition="'$(VSToolsPath)' == ''">$(MSBuildExtensionsPath32)\Microsoft\VisualStudio\v$(VisualStudioVersion)</VSToolsPath>
-    <ScriptArguments>..\API_Specs cpp-cocos2dx=..\sdks\Cocos2d-xSDK</ScriptArguments>
+    <ScriptArguments>..\API_Specs java=..\sdks\JavaSDK</ScriptArguments>
     <StartWebBrowser>False</StartWebBrowser>
   </PropertyGroup>
   <PropertyGroup Condition="'$(Configuration)' == 'Debug'" />
@@ -27,7 +27,21 @@
     <Compile Include="targets\csharp\make.js" />
     <Compile Include="targets\csharp-unity\make.js" />
     <Compile Include="targets\javascript\make.js" />
+    <Compile Include="targets\java\make.js" />
     <Compile Include="targets\js-node\make.js" />
+    <Content Include="targets\java\src\bomremover.exe" />
+    <Content Include="targets\java\src\build.bat" />
+    <Content Include="targets\java\src\lib\gson-2.2.4.jar" />
+    <Content Include="targets\java\src\src\playfab\internal\PlayFabHTTP.java" />
+    <Content Include="targets\java\src\src\playfab\PlayFabSettings.java" />
+    <Content Include="targets\java\src\src\playfab\PlayFabUtil.java" />
+    <Content Include="targets\java\templates\API.java.ejs" />
+    <Content Include="targets\java\templates\Enum.java.ejs" />
+    <Content Include="targets\java\templates\Errors.java.ejs" />
+    <Content Include="targets\java\templates\Model.java.ejs" />
+    <Content Include="targets\java\templates\Models.java.ejs" />
+    <Content Include="targets\java\templates\PlayFabVersion.java.ejs" />
+    <Content Include="targets\java\templates\Tests.java.ejs" />
     <Content Include="targets\PostmanSDK\replacements.json" />
     <Compile Include="targets\PostmanSDK\make.js" />
     <Content Include="targets\actionscript\templates\API.as.ejs" />
@@ -159,6 +173,13 @@
     <Folder Include="targets\csharp-unity\templates" />
     <Folder Include="targets\javascript" />
     <Folder Include="targets\javascript\templates" />
+    <Folder Include="targets\java\" />
+    <Folder Include="targets\java\src\" />
+    <Folder Include="targets\java\src\lib\" />
+    <Folder Include="targets\java\src\src\" />
+    <Folder Include="targets\java\src\src\playfab\" />
+    <Folder Include="targets\java\src\src\playfab\internal\" />
+    <Folder Include="targets\java\templates\" />
     <Folder Include="targets\js-node" />
     <Folder Include="targets\js-node\templates" />
     <Folder Include="targets\PostmanSDK" />

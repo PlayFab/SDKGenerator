@@ -1,0 +1,11 @@
+package playfab.internal;
+
+public class PlayFabVersion {
+	public static String ApiRevision = "<%- apiRevision %>";
+	public static String SdkRevision = "<%- sdkRevision %>";
+	public static String getVersionString() {
+		return "JavaSDK-" + SdkRevision + "-" + ApiRevision;
+	}
+}
+
+

@@ -355,7 +355,7 @@ namespace UnittestRunner
 		{
 			// C++ Environment is nicely secluded, but also means that we have to manually handle sequential requirements
 			LoginOrRegister();
-			UserCharacter();
+            UserStatisticsApi();
 
 			GetLeaderboardAroundCurrentUserRequest clientRequest;
 			clientRequest.MaxResultsCount = 3;
@@ -365,12 +365,11 @@ namespace UnittestRunner
 			Assert::IsTrue(testMessageReturn.compare("GetClientLB_Success") == 0);
 			Assert::IsTrue(testMessageInt != 0);
 
-			PlayFab::ServerModels::GetLeaderboardAroundCharacterRequest serverRequest;
+			PlayFab::ServerModels::GetLeaderboardAroundUserRequest serverRequest;
 			serverRequest.MaxResultsCount = 3;
 			serverRequest.StatisticName = TEST_STAT_NAME;
-			serverRequest.CharacterId = characterId;
 			serverRequest.PlayFabId = playFabId;
-			serverApi.GetLeaderboardAroundCharacter(serverRequest, &ServerLeaderboardCallback, &FailedCallback, NULL);
+			serverApi.GetLeaderboardAroundUser(serverRequest, &ServerLeaderboardCallback, &FailedCallback, NULL);
 			ServerApiWait();
 			Assert::IsTrue(testMessageReturn.compare("GetServerLB_Success") == 0);
 			Assert::IsTrue(testMessageInt != 0);
@@ -380,7 +379,7 @@ namespace UnittestRunner
 			testMessageReturn = "GetClientLB_Success";
 			testMessageInt = result.Leaderboard.size();
 		}
-		static void ServerLeaderboardCallback(PlayFab::ServerModels::GetLeaderboardAroundCharacterResult& result, void* userData)
+		static void ServerLeaderboardCallback(PlayFab::ServerModels::GetLeaderboardAroundUserResult& result, void* userData)
 		{
 			testMessageReturn = "GetServerLB_Success";
 			testMessageInt = result.Leaderboard.size();

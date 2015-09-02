@@ -26,22 +26,17 @@ exports.makeServerAPI = function (apis, sourceDir, apiOutputDir) {
     console.log("  - Generating C-sharp Unity server SDK sample proj to\n  - " + apiOutputDir);
 
     copyTree(path.resolve(sourceDir, 'source'), apiOutputDir);
-    
-    filteredApis = [];
-    for (var i in apis)
-        if (apis[i].name != "Admin") // Temporary removal of broken Admin api
-            filteredApis.push(apis[i]);
 
-    makeDatatypes(filteredApis, sourceDir, apiOutputDir);
+    makeDatatypes(apis, sourceDir, apiOutputDir);
 
-    for (var i in filteredApis) {
-        var api = filteredApis[i];
+    for (var i in apis) {
+        var api = apis[i];
         makeAPI(api, sourceDir, apiOutputDir);
     }
 
-    generateErrors(filteredApis[0], sourceDir, apiOutputDir);
+    generateErrors(apis[0], sourceDir, apiOutputDir);
 
-    generateVersion(filteredApis[0], sourceDir, apiOutputDir);
+    generateVersion(apis[0], sourceDir, apiOutputDir);
 }
 
 exports.makeCombinedAPI = function (apis, sourceDir, apiOutputDir) {
@@ -51,23 +46,17 @@ exports.makeCombinedAPI = function (apis, sourceDir, apiOutputDir) {
     console.log("  - Generating C-sharp Unity combined SDK sample proj to\n  - " + apiOutputDir);
 
     copyTree(path.resolve(sourceDir, 'source'), apiOutputDir);
-    
-    filteredApis = [];
-    for (var i in apis)
-        if (apis[i].name != "Admin") // Temporary removal of broken Admin api
-            filteredApis.push(apis[i]);
 
-    makeDatatypes(filteredApis, sourceDir, apiOutputDir);
+    makeDatatypes(apis, sourceDir, apiOutputDir);
 
-    for (var i in filteredApis) {
-        var api = filteredApis[i];
-        if (api.name != "Admin")
+    for (var i in apis) {
+        var api = apis[i];
             makeAPI(api, sourceDir, apiOutputDir);
     }
 
-    generateErrors(filteredApis[0], sourceDir, apiOutputDir);
+    generateErrors(apis[0], sourceDir, apiOutputDir);
 
-    generateVersion(filteredApis[0], sourceDir, apiOutputDir);
+    generateVersion(apis[0], sourceDir, apiOutputDir);
 
     copyFile(path.resolve(sourceDir, 'PlayFabApiTest.cs'), path.resolve(apiOutputDir, 'Internal/Testing/PlayFabApiTest.cs'));
 }
@@ -177,21 +166,7 @@ function getModelPropertyDef(property, datatype) {
 }
 
 function getPropertyAttribs(property, datatype, api) {
-    var attribs = "";
-
-    if (property.isenum) {
-        if (property.collection) {
-            // With the new json library, this is no longer supported
-            throw "List of enums no longer supported: " + property.name + " " + datatype.name + " " + api;
-            // attribs += "[JsonProperty(ItemConverterType = typeof(StringEnumConverter))]\n\t\t";
-        }
-        else {
-            attribs += "[JsonConverter(typeof(StringEnumConverter))]\n\t\t";
-        }
-
-    }
-
-    return attribs;
+    return "";
 }
 
 function getPropertyCSType(property, datatype, needOptional) {

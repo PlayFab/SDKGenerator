@@ -5,20 +5,8 @@ var sdkVersion = "1.0.0";
 
 exports.putInRoot = true;
 
-exports.makeClientAPI = function (api, sourceDir, apiOutputDir) {
-    console.log("Generating ActionScript3 client SDK to " + apiOutputDir);
-    
-    makeDatatypes(api, sourceDir, apiOutputDir);
-    
-    makeAPI(api, sourceDir, apiOutputDir);
-    
-    generateErrors(api, sourceDir, apiOutputDir);
-    
-    generateVersion(api, sourceDir, apiOutputDir);
-}
-
-exports.makeServerAPI = function (apis, sourceDir, apiOutputDir) {
-    console.log("Generating ActionScript3 client SDK to " + apiOutputDir);
+exports.makeCombinedAPI = function (apis, sourceDir, apiOutputDir) {
+    console.log("Generating ActionScript3 combined SDK to " + apiOutputDir);
     
     for (var i in apis) {
         makeDatatypes(apis[i], sourceDir, apiOutputDir);

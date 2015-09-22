@@ -193,7 +193,7 @@ function getModelPropertyInit(property, datatype) {
     if (property.isclass) {
         if (property.collection) {
             if (property.collection == 'array') {
-                return "if(data." + property.name + ") { " + property.name + " = new Vector.<" + property.actualtype + ">(); for(var " + property.name + "_iter:int = 0; " + property.name + "_iter < data." + property.name + ".Length; " + property.name + "_iter++) { " + property.name + "[" + property.name + "_iter] = new " + property.actualtype + "(data." + property.name + "[" + property.name + "_iter]); }}";
+                return "if(data." + property.name + ") { " + property.name + " = new Vector.<" + property.actualtype + ">(); for(var " + property.name + "_iter:int = 0; " + property.name + "_iter < data." + property.name + ".length; " + property.name + "_iter++) { " + property.name + "[" + property.name + "_iter] = new " + property.actualtype + "(data." + property.name + "[" + property.name + "_iter]); }}";
             }
             else if (property.collection == 'map') {
                 return "if(data." + property.name + ") { " + property.name + " = {}; for(var " + property.name + "_iter:String in data." + property.name + ") { " + property.name + "[" + property.name + "_iter] = new " + property.actualtype + "(data." + property.name + "[" + property.name + "_iter]); }}";
@@ -243,7 +243,7 @@ function getRequestActions(apiCall, api) {
     if (api.name == "Client" && apiCall.auth == 'SessionTicket')
         return "if (SessionTicket == null) throw new Error(\"Must be logged in to call this method\");\n"
     if (apiCall.auth == 'SecretKey')
-        return "if (PlayFabSettings.DeveloperSecretKey == null) throw new Exception (\"Must have PlayFabSettings.DeveloperSecretKey set to call this method\");\n"
+        return "if (PlayFabSettings.DeveloperSecretKey == null) throw new Error (\"Must have PlayFabSettings.DeveloperSecretKey set to call this method\");\n"
     return "";
 }
 

@@ -1,4 +1,4 @@
-﻿using PlayFab;
+using PlayFab;
 using System;
 using System.Collections.Generic;
 
@@ -303,10 +303,11 @@ namespace PlayFab.UUnit
             clientRequest.MaxResultsCount = 3;
             clientRequest.StatisticName = TEST_STAT_NAME;
             var clientTask = PlayFabClientAPI.GetLeaderboardAroundCurrentUserAsync(clientRequest);
+            clientTask.Wait();
             UUnitAssert.Null(clientTask.Result.Error, "Failed to get client leaderboard");
             UUnitAssert.NotNull(clientTask.Result.Result, "Failed to get client leaderboard");
             UUnitAssert.NotNull(clientTask.Result.Result.Leaderboard, "Failed to get client leaderboard");
-            // Testing anything more would be testing actual functionality of the Leaderboard, which is outside the scope of this test.
+            UUnitAssert.True(clientTask.Result.Result.Leaderboard.Count > 0, "Leaderboard does not contain enough entries.");
 
             var serverRequest = new ServerModels.GetLeaderboardAroundCharacterRequest();
             serverRequest.MaxResultsCount = 3;
@@ -314,9 +315,31 @@ namespace PlayFab.UUnit
             serverRequest.CharacterId = characterId;
             serverRequest.PlayFabId = playFabId;
             var serverTask = PlayFabServerAPI.GetLeaderboardAroundCharacterAsync(serverRequest);
+            clientTask.Wait();
             UUnitAssert.Null(serverTask.Result.Error, "Failed to get server leaderboard");
             UUnitAssert.NotNull(serverTask.Result.Result, "Failed to get server leaderboard");
             UUnitAssert.NotNull(serverTask.Result.Result.Leaderboard, "Failed to get server leaderboard");
+            UUnitAssert.True(serverTask.Result.Result.Leaderboard.Count > 0, "Leaderboard does not contain enough entries.");
+        }
+
+        /// <summary>
+        /// CLIENT API
+        /// Test that AccountInfo can be requested
+        /// Parameter types tested: List of enum-as-strings converted to list of enums
+        /// </summary>
+        [UUnitTest]
+        public void AccountInfo()
+        {
+            ClientModels.GetAccountInfoRequest request = new ClientModels.GetAccountInfoRequest();
+            request.PlayFabId = playFabId;
+            var task = PlayFabClientAPI.GetAccountInfoAsync(request);
+            task.Wait();
+            UUnitAssert.Null(task.Result.Error, "Failed to get accountInfo");
+            UUnitAssert.NotNull(task.Result.Result, "Failed to get accountInfo");
+            UUnitAssert.NotNull(task.Result.Result.AccountInfo, "Failed to get accountInfo");
+            UUnitAssert.NotNull(task.Result.Result.AccountInfo.TitleInfo, "Failed to get accountInfo");
+            UUnitAssert.NotNull(task.Result.Result.AccountInfo.TitleInfo.Origination, "Failed to get Origination Enum");
+            UUnitAssert.True(Enum.IsDefined(typeof(ClientModels.UserOrigination), task.Result.Result.AccountInfo.TitleInfo.Origination.Value), "Origination Enum not valid");
         }
     }
 }

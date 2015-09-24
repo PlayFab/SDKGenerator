@@ -1,6 +1,5 @@
 package com.playfab
 {
-
     import flash.events.Event;
     import flash.events.HTTPStatusEvent;
     import flash.events.IOErrorEvent;

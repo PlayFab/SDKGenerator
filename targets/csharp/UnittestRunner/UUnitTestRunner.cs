@@ -1,4 +1,4 @@
-﻿using PlayFab;
+using PlayFab;
 using PlayFab.UUnit;
 using System.Reflection;
 using System;

@@ -1,6 +1,7 @@
 using PlayFab;
 using System;
 using System.Collections.Generic;
+using Newtonsoft.Json.Linq;
 
 namespace PlayFab.UUnit
 {
@@ -340,6 +341,43 @@ namespace PlayFab.UUnit
             UUnitAssert.NotNull(task.Result.Result.AccountInfo.TitleInfo, "Failed to get accountInfo");
             UUnitAssert.NotNull(task.Result.Result.AccountInfo.TitleInfo.Origination, "Failed to get Origination Enum");
             UUnitAssert.True(Enum.IsDefined(typeof(ClientModels.UserOrigination), task.Result.Result.AccountInfo.TitleInfo.Origination.Value), "Origination Enum not valid");
+        }
+
+        /// <summary>
+        /// CLIENT API
+        /// Test that CloudScript can be properly set up and invoked
+        /// </summary>
+        [UUnitTest]
+        public void CloudScript()
+        {
+            if (string.IsNullOrEmpty(PlayFabSettings.LogicServerURL))
+            {
+                var getUrlTask = PlayFabClientAPI.GetCloudScriptUrlAsync(new ClientModels.GetCloudScriptUrlRequest());
+                getUrlTask.Wait();
+                UUnitAssert.Null(getUrlTask.Result.Error, "Failed to get LogicServerURL");
+                UUnitAssert.NotNull(getUrlTask.Result.Result, "Failed to get LogicServerURL");
+                UUnitAssert.False(string.IsNullOrEmpty(getUrlTask.Result.Result.Url), "Failed to get LogicServerURL");
+                UUnitAssert.False(string.IsNullOrEmpty(PlayFabSettings.LogicServerURL), "Failed to get LogicServerURL");
+            }
+
+            var request = new ClientModels.RunCloudScriptRequest();
+            request.ActionId = "helloWorld";
+            var cloudTask = PlayFabClientAPI.RunCloudScriptAsync(request);
+            cloudTask.Wait();
+            UUnitAssert.Null(cloudTask.Result.Error, "Failed to Execute CloudScript");
+            UUnitAssert.NotNull(cloudTask.Result.Result, "Failed to Execute CloudScript");
+            UUnitAssert.False(string.IsNullOrEmpty(cloudTask.Result.Result.ResultsEncoded), "Failed to Execute CloudScript");
+
+            // Get the helloWorld return message
+            JObject jobj = cloudTask.Result.Result.Results as JObject;
+            UUnitAssert.NotNull(jobj);
+            JToken jtok;
+            jobj.TryGetValue("messageValue", out jtok);
+            UUnitAssert.NotNull(jtok);
+            JValue jval = jtok as JValue;
+            UUnitAssert.NotNull(jval);
+            string actualMessage = jval.Value as string;
+            UUnitAssert.Equals("Hello " + playFabId + "!", actualMessage);
         }
     }
 }

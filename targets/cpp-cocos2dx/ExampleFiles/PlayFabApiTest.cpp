@@ -454,12 +454,12 @@ namespace PlayFabApiTest
     /// </summary>
     void CloudUrlCallback(GetCloudScriptUrlResult& result, void* userData)
     {
-        CCLOG("%s", "AcctInfoCallback");
+        CCLOG("%s", "CloudUrlCallback");
         testMessageReturn = (result.Url.length() > 0) ? "CloudUrl retrieved" : "CloudUrl failed";
     }
     void CloudHelloWorldCallback(RunCloudScriptResult& result, void* userData)
     {
-        CCLOG("%s", "AcctInfoCallback");
+        CCLOG("%s", "CloudHelloWorldCallback");
 
         // KNOWN ISSUE: result.Results does not get populated/decoded correctly!!!
         //if (result.Results.isNull())

@@ -3,30 +3,30 @@ package playfab;
 import java.util.Map;
 
 public class PlayFabErrors {
-	/** 
-	 * Error codes returned by PlayFabAPIs
-	 */
-	public static enum PlayFabErrorCode {
-		Success(0),
-		Unknown(1),
-		ConnectionError(2),
+    /** 
+     * Error codes returned by PlayFabAPIs
+     */
+    public static enum PlayFabErrorCode {
+        Success(0),
+        Unknown(1),
+        ConnectionError(2),
         JsonParseError(3),
-		<% for(var i=1; i<errorList.length-1; i++) { var errorProps = errors[errorList[i]] %><%- errorProps.name %>(<%- errorProps.id %>),
-		<% } %><% var errorProps = errors[errorList[errorList.length-1]] %><%- errorProps.name %>(<%- errorProps.id %>);
-		
-		public int id;
-		
-		private PlayFabErrorCode(int id) {
-			this.id = id;
-		}
-		
-		public boolean equals(int i) {
-			return i == id;
-		}
-		
-		public boolean equals(PlayFabErrorCode o) {
-			return equals(o.id);
-		}
+        <% for(var i=1; i<errorList.length-1; i++) { var errorProps = errors[errorList[i]] %><%- errorProps.name %>(<%- errorProps.id %>),
+        <% } %><% var errorProps = errors[errorList[errorList.length-1]] %><%- errorProps.name %>(<%- errorProps.id %>);
+        
+        public int id;
+        
+        private PlayFabErrorCode(int id) {
+            this.id = id;
+        }
+        
+        public boolean equals(int i) {
+            return i == id;
+        }
+        
+        public boolean equals(PlayFabErrorCode o) {
+            return equals(o.id);
+        }
 
         public static PlayFabErrorCode getFromCode(int code) {
             for(PlayFabErrorCode error : PlayFabErrorCode.values()) {
@@ -36,13 +36,13 @@ public class PlayFabErrors {
             }
             return PlayFabErrorCode.Unknown;
         }
-		
-	}
+        
+    }
 
-	public static class PlayFabError {
+    public static class PlayFabError {
         public int httpCode;
         public String httpStatus;
-		public PlayFabErrorCode pfErrorCode;
+        public PlayFabErrorCode pfErrorCode;
         public String errorMessage;
     }
 
@@ -64,8 +64,8 @@ public class PlayFabErrors {
         public PlayFabError Error;
         public ResultT Result;
     }
-	
-	public static interface ErrorCallback {
-		public void callback(PlayFabError error);
-	}
+    
+    public static interface ErrorCallback {
+        public void callback(PlayFabError error);
+    }
 }

@@ -12,27 +12,27 @@ import playfab.PlayFabErrors.PlayFabJsonError;
 import playfab.PlayFabErrors.PlayFabJsonSuccess;
 
 public class PlayFabHTTP {
-	private static Gson gson = new GsonBuilder().setDateFormat("YYYY-MM-DD'T'hh:mm:ss.SSS'Z'").create();
+    private static Gson gson = new GsonBuilder().setDateFormat("YYYY-MM-DD'T'hh:mm:ss.SSS'Z'").create();
 
-	public static FutureTask<Object> doPost(final String url, final Object request, final String authType, final String authKey) {
-		return new FutureTask<Object>(new Callable<Object>() {
-			public Object call() throws Exception {
-				return doPostPrivate(url, request, authType, authKey);
-			}
-		});
-	}
-		
+    public static FutureTask<Object> doPost(final String url, final Object request, final String authType, final String authKey) {
+        return new FutureTask<Object>(new Callable<Object>() {
+            public Object call() throws Exception {
+                return doPostPrivate(url, request, authType, authKey);
+            }
+        });
+    }
+        
     private static Object doPostPrivate(String url, Object request, String authType, String authKey) throws Exception {
         String bodyString = null;
-		
+        
         if(request == null) {
-        	bodyString = "{}";
+            bodyString = "{}";
         }
         else if (request instanceof String) {
-        	bodyString = (String)request;
+            bodyString = (String)request;
         }
         else {
-        	bodyString = gson.toJson(request);
+            bodyString = gson.toJson(request);
         }
         
         // System.out.println("Sending: " + bodyString);
@@ -41,71 +41,71 @@ public class PlayFabHTTP {
         con.setRequestMethod("POST");
         con.setRequestProperty("Content-Type", "application/json");
         if(authType != null) {
-        	con.setRequestProperty(authType, authKey);
+            con.setRequestProperty(authType, authKey);
         }
         con.setRequestProperty("X-PlayFabSDK", PlayFabVersion.getVersionString());
         con.setDoOutput(true);
         con.setDoInput(true);
 
-		// Make the API-Call and get the normal response httpCode
-		int httpCode = 503; // default to SERVICE_UNAVAILABLE
-		try {
-        	OutputStreamWriter writer = new OutputStreamWriter(con.getOutputStream());
-        	writer.write(bodyString);
-        	writer.close();
-			httpCode = con.getResponseCode();
-		} catch(Exception e) {
-			return GeneratePfError(httpCode, PlayFabErrorCode.ServiceUnavailable, "Failed to post to server: " + url);
-		}
+        // Make the API-Call and get the normal response httpCode
+        int httpCode = 503; // default to SERVICE_UNAVAILABLE
+        try {
+            OutputStreamWriter writer = new OutputStreamWriter(con.getOutputStream());
+            writer.write(bodyString);
+            writer.close();
+            httpCode = con.getResponseCode();
+        } catch(Exception e) {
+            return GeneratePfError(httpCode, PlayFabErrorCode.ServiceUnavailable, "Failed to post to server: " + url);
+        }
 
-		// Get the response string
-		String responseString = null;
-		try {
-			responseString = receive(con.getInputStream());
-		} catch(IOException e) {
-			responseString = receive(con.getErrorStream());
-		}
+        // Get the response string
+        String responseString = null;
+        try {
+            responseString = receive(con.getInputStream());
+        } catch(IOException e) {
+            responseString = receive(con.getErrorStream());
+        }
 
-		// Check for normal error results
-		if(httpCode != 200 || responseString == null || responseString.isEmpty()) {
-			if(responseString == null || responseString.isEmpty() || httpCode == 404 )
-				return GeneratePfError(httpCode, PlayFabErrorCode.ServiceUnavailable, "Empty server response");
+        // Check for normal error results
+        if(httpCode != 200 || responseString == null || responseString.isEmpty()) {
+            if(responseString == null || responseString.isEmpty() || httpCode == 404 )
+                return GeneratePfError(httpCode, PlayFabErrorCode.ServiceUnavailable, "Empty server response");
 
-			PlayFabJsonError errorResult = null;
-			try {
-				errorResult = gson.fromJson(responseString, PlayFabJsonError.class);
-			} catch(Exception e) {
-				return GeneratePfError(httpCode, PlayFabErrorCode.JsonParseError, "Server response not proper json :" + responseString);
-			}
-			
-			httpCode = errorResult.code;
-			return GeneratePfError(httpCode, PlayFabErrorCode.getFromCode(errorResult.errorCode), errorResult.errorMessage);
-		}
+            PlayFabJsonError errorResult = null;
+            try {
+                errorResult = gson.fromJson(responseString, PlayFabJsonError.class);
+            } catch(Exception e) {
+                return GeneratePfError(httpCode, PlayFabErrorCode.JsonParseError, "Server response not proper json :" + responseString);
+            }
+            
+            httpCode = errorResult.code;
+            return GeneratePfError(httpCode, PlayFabErrorCode.getFromCode(errorResult.errorCode), errorResult.errorMessage);
+        }
 
-		return responseString;
+        return responseString;
     }
 
     public static String receive(InputStream in) throws IOException {
-    	StringBuilder recieved = new StringBuilder();
-    	BufferedReader reader = new BufferedReader(new InputStreamReader(in));
-    		
-    	String line = null;
-    	while ((line = reader.readLine()) != null) {
-    		recieved.append(line);
-    		recieved.append('\n');
-    	}
-    		
-    	return recieved.toString();
+        StringBuilder recieved = new StringBuilder();
+        BufferedReader reader = new BufferedReader(new InputStreamReader(in));
+            
+        String line = null;
+        while ((line = reader.readLine()) != null) {
+            recieved.append(line);
+            recieved.append('\n');
+        }
+            
+        return recieved.toString();
     }
 
-	public static PlayFabError GeneratePfError(int httpCode, PlayFabErrorCode pfErrorCode, String errorMessage) {
-		PlayFabError output =  new PlayFabError();
-		
-		output.httpCode = httpCode;
-		output.httpStatus = "" + httpCode; // TODO: Convert this to the right string-name
-		output.pfErrorCode = pfErrorCode;
-		output.errorMessage = errorMessage;
+    public static PlayFabError GeneratePfError(int httpCode, PlayFabErrorCode pfErrorCode, String errorMessage) {
+        PlayFabError output =  new PlayFabError();
+        
+        output.httpCode = httpCode;
+        output.httpStatus = "" + httpCode; // TODO: Convert this to the right string-name
+        output.pfErrorCode = pfErrorCode;
+        output.errorMessage = errorMessage;
 
-		return output;
-	}
+        return output;
+    }
 }

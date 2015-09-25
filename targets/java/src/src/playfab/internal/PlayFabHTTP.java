@@ -5,28 +5,15 @@ import java.util.concurrent.*;
 import java.net.*;
 import java.io.*;
 import com.google.gson.*;
-import playfab.*;
-import playfab.PlayFabErrors.*;
+
+import playfab.PlayFabErrors.PlayFabError;
+import playfab.PlayFabErrors.PlayFabErrorCode;
+import playfab.PlayFabErrors.PlayFabJsonError;
+import playfab.PlayFabErrors.PlayFabJsonSuccess;
 
 public class PlayFabHTTP {
-	
 	private static Gson gson = new GsonBuilder().setDateFormat("YYYY-MM-DD'T'hh:mm:ss.SSS'Z'").create();
-	
-	public static class PlayFabJsonError {
-		public int Code;
-		public String Status;
-		public String Error;
-		public int ErrorCode;
-		public String ErrorMessage;
-	   	public Map<String, String[]> ErrorDetails = null;
-	}
 
-	public static class PlayFabJsonSuccess<ResultT>{
-	   	public int Code;
-	   	public String Status;
-	   	public ResultT Data;
-	}
-	
 	public static FutureTask<Object> doPost(final String url, final Object request, final String authType, final String authKey) {
 		return new FutureTask<Object>(new Callable<Object>() {
 			public Object call() throws Exception {
@@ -59,61 +46,45 @@ public class PlayFabHTTP {
         con.setRequestProperty("X-PlayFabSDK", PlayFabVersion.getVersionString());
         con.setDoOutput(true);
         con.setDoInput(true);
-        try {
+
+		// Make the API-Call and get the normal response httpCode
+		int httpCode = 503; // default to SERVICE_UNAVAILABLE
+		try {
         	OutputStreamWriter writer = new OutputStreamWriter(con.getOutputStream());
         	writer.write(bodyString);
         	writer.close();
-				
-        	String responseString = null;
-        	try {
-        		responseString = receive(con.getInputStream());
-        	} catch(IOException e) {
-        		responseString = receive(con.getErrorStream());
-        	}
-				
-        	if(con.getResponseCode() != 200) {
-        		PlayFabError error = new PlayFabError();
-        		if(responseString == null || responseString.isEmpty() || con.getResponseCode() == 404 ) {
-					error.HttpCode = con.getResponseCode();
-					return error;
-        		}
-        		PlayFabErrors.PlayFabJsonError errorResult = null;
-        		
-        		try {
-        			errorResult = gson.fromJson(responseString, PlayFabErrors.PlayFabJsonError.class);
-        		} catch(Exception e) {
-        			error.HttpCode = con.getResponseCode();
-        			error.Error = PlayFabErrorCode.JsonParseError;
-        			error.ErrorMessage = e.getLocalizedMessage();
-        			return error;
-        		}
-        		
-        		error.HttpCode = errorResult.code;
-            	error.HttpStatus = errorResult.status;
-            	error.Error = PlayFabErrorCode.getFromCode(errorResult.errorCode);
-            	error.ErrorMessage = errorResult.errorMessage;
-            	error.ErrorDetails = errorResult.errorDetails;
-            	return error;
-        		
-        	}
-        	
-        	if(responseString == null || responseString.length() == 0) {
-            	PlayFabError error = new PlayFabError();
-            	error.Error = PlayFabErrorCode.Unknown;
-            	error.ErrorMessage = "Internal server error";
-            	return error;
-            }
+			httpCode = con.getResponseCode();
+		} catch(Exception e) {
+			return GeneratePfError(httpCode, PlayFabErrorCode.ServiceUnavailable, "Failed to post to server: " + url);
+		}
 
-            return responseString;
-        	
-        } catch(Exception e) {
-        	PlayFabError error = new PlayFabError();
-        	error.Error = PlayFabErrorCode.ConnectionError;
-        	error.ErrorMessage = e.getLocalizedMessage();
-        	return error;
-        }
+		// Get the response string
+		String responseString = null;
+		try {
+			responseString = receive(con.getInputStream());
+		} catch(IOException e) {
+			responseString = receive(con.getErrorStream());
+		}
+
+		// Check for normal error results
+		if(httpCode != 200 || responseString == null || responseString.isEmpty()) {
+			if(responseString == null || responseString.isEmpty() || httpCode == 404 )
+				return GeneratePfError(httpCode, PlayFabErrorCode.ServiceUnavailable, "Empty server response");
+
+			PlayFabJsonError errorResult = null;
+			try {
+				errorResult = gson.fromJson(responseString, PlayFabJsonError.class);
+			} catch(Exception e) {
+				return GeneratePfError(httpCode, PlayFabErrorCode.JsonParseError, "Server response not proper json :" + responseString);
+			}
+			
+			httpCode = errorResult.code;
+			return GeneratePfError(httpCode, PlayFabErrorCode.getFromCode(errorResult.errorCode), errorResult.errorMessage);
+		}
+
+		return responseString;
     }
-        
+
     public static String receive(InputStream in) throws IOException {
     	StringBuilder recieved = new StringBuilder();
     	BufferedReader reader = new BufferedReader(new InputStreamReader(in));
@@ -126,5 +97,15 @@ public class PlayFabHTTP {
     		
     	return recieved.toString();
     }
-    
+
+	public static PlayFabError GeneratePfError(int httpCode, PlayFabErrorCode pfErrorCode, String errorMessage) {
+		PlayFabError output =  new PlayFabError();
+		
+		output.httpCode = httpCode;
+		output.httpStatus = "" + httpCode; // TODO: Convert this to the right string-name
+		output.pfErrorCode = pfErrorCode;
+		output.errorMessage = errorMessage;
+
+		return output;
+	}
 }

@@ -38,23 +38,22 @@ public class PlayFabErrors {
         }
 		
 	}
-	
+
 	public static class PlayFabError {
-        public int HttpCode;
-		public String HttpStatus;
-		public PlayFabErrorCode Error;
-		public String ErrorMessage;
-		public Map<String, String[] > ErrorDetails;
+        public int httpCode;
+        public String httpStatus;
+		public PlayFabErrorCode pfErrorCode;
+        public String errorMessage;
     }
 
     public static class PlayFabJsonError {
         public int code;
         public String status;
+        public String error;
         public int errorCode;
         public String errorMessage;
-        public Map<String, String[] > errorDetails;
     }
-    
+
     public static class PlayFabJsonSuccess<E> {
         public int code;
         public String status;

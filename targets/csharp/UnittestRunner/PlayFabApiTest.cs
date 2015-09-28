@@ -1,6 +1,7 @@
-﻿using PlayFab;
+using PlayFab;
 using System;
 using System.Collections.Generic;
+using Newtonsoft.Json.Linq;
 
 namespace PlayFab.UUnit
 {
@@ -303,10 +304,11 @@ namespace PlayFab.UUnit
             clientRequest.MaxResultsCount = 3;
             clientRequest.StatisticName = TEST_STAT_NAME;
             var clientTask = PlayFabClientAPI.GetLeaderboardAroundCurrentUserAsync(clientRequest);
+            clientTask.Wait();
             UUnitAssert.Null(clientTask.Result.Error, "Failed to get client leaderboard");
             UUnitAssert.NotNull(clientTask.Result.Result, "Failed to get client leaderboard");
             UUnitAssert.NotNull(clientTask.Result.Result.Leaderboard, "Failed to get client leaderboard");
-            // Testing anything more would be testing actual functionality of the Leaderboard, which is outside the scope of this test.
+            UUnitAssert.True(clientTask.Result.Result.Leaderboard.Count > 0, "Leaderboard does not contain enough entries.");
 
             var serverRequest = new ServerModels.GetLeaderboardAroundCharacterRequest();
             serverRequest.MaxResultsCount = 3;
@@ -314,9 +316,68 @@ namespace PlayFab.UUnit
             serverRequest.CharacterId = characterId;
             serverRequest.PlayFabId = playFabId;
             var serverTask = PlayFabServerAPI.GetLeaderboardAroundCharacterAsync(serverRequest);
+            clientTask.Wait();
             UUnitAssert.Null(serverTask.Result.Error, "Failed to get server leaderboard");
             UUnitAssert.NotNull(serverTask.Result.Result, "Failed to get server leaderboard");
             UUnitAssert.NotNull(serverTask.Result.Result.Leaderboard, "Failed to get server leaderboard");
+            UUnitAssert.True(serverTask.Result.Result.Leaderboard.Count > 0, "Leaderboard does not contain enough entries.");
+        }
+
+        /// <summary>
+        /// CLIENT API
+        /// Test that AccountInfo can be requested
+        /// Parameter types tested: List of enum-as-strings converted to list of enums
+        /// </summary>
+        [UUnitTest]
+        public void AccountInfo()
+        {
+            ClientModels.GetAccountInfoRequest request = new ClientModels.GetAccountInfoRequest();
+            request.PlayFabId = playFabId;
+            var task = PlayFabClientAPI.GetAccountInfoAsync(request);
+            task.Wait();
+            UUnitAssert.Null(task.Result.Error, "Failed to get accountInfo");
+            UUnitAssert.NotNull(task.Result.Result, "Failed to get accountInfo");
+            UUnitAssert.NotNull(task.Result.Result.AccountInfo, "Failed to get accountInfo");
+            UUnitAssert.NotNull(task.Result.Result.AccountInfo.TitleInfo, "Failed to get accountInfo");
+            UUnitAssert.NotNull(task.Result.Result.AccountInfo.TitleInfo.Origination, "Failed to get Origination Enum");
+            UUnitAssert.True(Enum.IsDefined(typeof(ClientModels.UserOrigination), task.Result.Result.AccountInfo.TitleInfo.Origination.Value), "Origination Enum not valid");
+        }
+
+        /// <summary>
+        /// CLIENT API
+        /// Test that CloudScript can be properly set up and invoked
+        /// </summary>
+        [UUnitTest]
+        public void CloudScript()
+        {
+            if (string.IsNullOrEmpty(PlayFabSettings.LogicServerURL))
+            {
+                var getUrlTask = PlayFabClientAPI.GetCloudScriptUrlAsync(new ClientModels.GetCloudScriptUrlRequest());
+                getUrlTask.Wait();
+                UUnitAssert.Null(getUrlTask.Result.Error, "Failed to get LogicServerURL");
+                UUnitAssert.NotNull(getUrlTask.Result.Result, "Failed to get LogicServerURL");
+                UUnitAssert.False(string.IsNullOrEmpty(getUrlTask.Result.Result.Url), "Failed to get LogicServerURL");
+                UUnitAssert.False(string.IsNullOrEmpty(PlayFabSettings.LogicServerURL), "Failed to get LogicServerURL");
+            }
+
+            var request = new ClientModels.RunCloudScriptRequest();
+            request.ActionId = "helloWorld";
+            var cloudTask = PlayFabClientAPI.RunCloudScriptAsync(request);
+            cloudTask.Wait();
+            UUnitAssert.Null(cloudTask.Result.Error, "Failed to Execute CloudScript");
+            UUnitAssert.NotNull(cloudTask.Result.Result, "Failed to Execute CloudScript");
+            UUnitAssert.False(string.IsNullOrEmpty(cloudTask.Result.Result.ResultsEncoded), "Failed to Execute CloudScript");
+
+            // Get the helloWorld return message
+            JObject jobj = cloudTask.Result.Result.Results as JObject;
+            UUnitAssert.NotNull(jobj);
+            JToken jtok;
+            jobj.TryGetValue("messageValue", out jtok);
+            UUnitAssert.NotNull(jtok);
+            JValue jval = jtok as JValue;
+            UUnitAssert.NotNull(jval);
+            string actualMessage = jval.Value as string;
+            UUnitAssert.Equals("Hello " + playFabId + "!", actualMessage);
         }
     }
 }

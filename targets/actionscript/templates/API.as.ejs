@@ -1,42 +1,39 @@
 
 package com.playfab
 {
-	import com.playfab.models.*;
+    import com.playfab.<%- api.name %>Models.*;
 
-	public class PlayFabClientAPI
-	{
+    public class PlayFab<%- api.name %>API
+    {
+<% for(var i in api.calls) { var apiCall = api.calls[i]; %>        public static function <%- apiCall.name %>(request:<%- apiCall.request %>, onComplete:Function, onError:Function):void
+        {
+            <%- getRequestActions(apiCall, api) %>
+            var requetJson:String = JSON.stringify( request );
+            
+            var onPostComplete:Function = function(resultData:Object, error:PlayFabError):void
+            {
+                if(error)
+                {
+                    if(onError != null)
+                        onError(error);
+                    if(PlayFabSettings.GlobalErrorHandler != null)
+                        PlayFabSettings.GlobalErrorHandler(error);
+                }
+                else
+                {
+                    var result:<%- apiCall.result %> = new <%- apiCall.result %>(resultData);
+                    
+                    <%- getResultActions(apiCall, api) %>
 
-<% for(var i in api.calls) { var apiCall = api.calls[i]; %>
-		public static function <%- apiCall.name %>(request:<%- apiCall.request %>, onComplete:Function, onError:Function):void
-		{
-			<%- getRequestActions(apiCall, api) %>
+                    if(onComplete != null)
+                        onComplete(result);
+                }
+            }
 
-			var requetJson:String = JSON.stringify( request );
-			
-			var onPostComplete:Function = function(resultData:Object, error:PlayFabError):void
-			{
-				if(error)
-				{
-					if(onError != null)
-						onError(error);
-					if(PlayFabSettings.GlobalErrorHandler != null)
-						PlayFabSettings.GlobalErrorHandler(error);
-				}
-				else
-				{
-					var result:<%- apiCall.result %> = new <%- apiCall.result %>(resultData);
-					
-					<%- getResultActions(apiCall, api) %>
+            PlayFabHTTP.post(<%- getUrlAccessor(apiCall) %>+"<%- apiCall.url %>", requetJson, <%- getAuthParams(apiCall) %>, onPostComplete);
+        }
 
-					if(onComplete != null)
-						onComplete(result);
-				}
-			}
-			
-			PlayFabHTTP.post(<%- getUrlAccessor(apiCall) %>+"<%- apiCall.url %>", requetJson, <%- getAuthParams(apiCall) %>, onPostComplete);
-		}
-<% } %>	
-		
-		public static var SessionTicket:String = null;
-	}
+<% } %>
+        public static var SessionTicket:String = null;
+    }
 }

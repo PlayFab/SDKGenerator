@@ -1,9 +1,9 @@
 
-package com.playfab.models
+package com.playfab.<%- api.name %>Models
 {
-	public class <%- datatype.name %>
-	{
-<% for(var i=0; i<datatype.enumvalues.length; i++) { var enumprops = datatype.enumvalues[i] %>		public static const <%- enumprops.name %>:String = "<%- enumprops.name %>";
+    public class <%- datatype.name %>
+    {
+<% for(var i=0; i<datatype.enumvalues.length; i++) { var enumprops = datatype.enumvalues[i] %>        public static const <%- enumprops.name %>:String = "<%- enumprops.name %>";
 <% } %>
-	}
+    }
 }

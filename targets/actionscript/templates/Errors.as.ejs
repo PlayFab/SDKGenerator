@@ -1,30 +1,28 @@
 package com.playfab
 {
-	import flash.utils.Dictionary;
+    public class PlayFabError
+    {
+        public static const Unknown:int = 1;
+        public static const NetworkIOError:int = 2;
+        public static const FlashSecurityError:int = 3;
 
-	public class PlayFabError
-	{
-		public static const Unknown:int = 1;
-		public static const NetworkIOError:int = 2;
-		public static const FlashSecurityError:int = 3;
-
-<% for(var i=0; i<errorList.length; i++) { var errorProps = errors[errorList[i]] %>		public static const <%- errorProps.name %>:int = <%- errorProps.id %>;
+<% for(var i=0; i<errorList.length; i++) { var errorProps = errors[errorList[i]] %>        public static const <%- errorProps.name %>:int = <%- errorProps.id %>;
 <% } %>
 
-		public function PlayFabError(data:Object=null)
-		{
-			if(data == null) return;
-			HttpCode = data.HttpCode;
-			HttpStatus = data.HttpStatus;
-			Error = data.Error;
-			ErrorMessage = data.ErrorMessage;
-			ErrorDetails = data.ErrorDetails;
-		}
-		
-		public var HttpCode:int;
-		public var HttpStatus:String;
-		public var Error:int;
-		public var ErrorMessage:String;
-		public var ErrorDetails:Dictionary;
-	}
+        public function PlayFabError(data:Object=null)
+        {
+            if(data == null) return;
+            httpCode = data.code;
+            httpStatus = data.status;
+            error = data.error;
+            errorCode = data.errorCode;
+            errorMessage = data.errorMessage;
+        }
+
+        public var httpCode:int; // HTTP return code
+        public var httpStatus:String; // HTTP status
+        public var error:String; // PlayFab error enum-string
+        public var errorCode:int; // PlayFab error code
+        public var errorMessage:String; // PlayFab specific error message
+    }
 }

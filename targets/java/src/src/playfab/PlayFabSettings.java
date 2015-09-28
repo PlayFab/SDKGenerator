@@ -11,7 +11,7 @@ public class PlayFabSettings {
     
     
     public static String GetLogicURL() {
-        return "https://" + LogicServerURL;
+        return LogicServerURL;
     }
     
     public static String GetURL() {

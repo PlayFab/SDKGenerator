@@ -13,39 +13,39 @@ import com.google.gson.reflect.*;
  * <%- api.description %>
  */<% } %>
 public class PlayFab<%- api.name %>API {
-	private static Gson gson = new GsonBuilder().setDateFormat("YYYY-MM-DD'T'hh:mm:ss.SSS'Z'").create();
-	<% for(var i in api.calls) { var apiCall = api.calls[i]; %><% if(apiCall.summary) { %>
-	/**
-	 * <%- apiCall.summary %>
-	 */<% } %>
+    private static Gson gson = new GsonBuilder().setDateFormat("YYYY-MM-DD'T'hh:mm:ss.SSS'Z'").create();
+    <% for(var i in api.calls) { var apiCall = api.calls[i]; %><% if(apiCall.summary) { %>
+    /**
+     * <%- apiCall.summary %>
+     */<% } %>
     public static FutureTask<PlayFabResult<<%- apiCall.result %>>> <%- apiCall.name %>Async(<%- apiCall.request %> request) {
-		return new FutureTask(new Callable<PlayFabResult<<%- apiCall.result %>>>() {
-			public PlayFabResult<<%- apiCall.result %>> call() throws Exception {
-				return private<%- apiCall.name %>Async(request);
-			}
-		});
-	}
+        return new FutureTask(new Callable<PlayFabResult<<%- apiCall.result %>>>() {
+            public PlayFabResult<<%- apiCall.result %>> call() throws Exception {
+                return private<%- apiCall.name %>Async(request);
+            }
+        });
+    }
 
     <% if(apiCall.summary) { %>/**
-	 * <%- apiCall.summary %>
-	 */<% } %>
+     * <%- apiCall.summary %>
+     */<% } %>
     public static PlayFabResult<<%- apiCall.result %>> <%- apiCall.name %>(<%- apiCall.request %> request) {
-		FutureTask<PlayFabResult<<%- apiCall.result %>>> task = new FutureTask(new Callable<PlayFabResult<<%- apiCall.result %>>>() {
-			public PlayFabResult<<%- apiCall.result %>> call() throws Exception {
-				return private<%- apiCall.name %>Async(request);
-			}
-		});
+        FutureTask<PlayFabResult<<%- apiCall.result %>>> task = new FutureTask(new Callable<PlayFabResult<<%- apiCall.result %>>>() {
+            public PlayFabResult<<%- apiCall.result %>> call() throws Exception {
+                return private<%- apiCall.name %>Async(request);
+            }
+        });
         try {
             task.run();
             return task.get();
         } catch(Exception e) {
             return null;
         }
-	}
-	
-	<% if(apiCall.summary) { %>/**
-	 * <%- apiCall.summary %>
-	 */<% } %>
+    }
+    
+    <% if(apiCall.summary) { %>/**
+     * <%- apiCall.summary %>
+     */<% } %>
     private static PlayFabResult<<%- apiCall.result %>> private<%- apiCall.name %>Async(<%- apiCall.request %> request) throws Exception {
         <%- getRequestActions(apiCall, api) %>
         FutureTask<Object> task = PlayFabHTTP.doPost(<%- getUrlAccessor(apiCall) %> + "<%- apiCall.url %>", request, <%- getAuthParams(apiCall) %>);
@@ -55,21 +55,21 @@ public class PlayFab<%- api.name %>API {
             PlayFabError error = (PlayFabError)httpResult;
             if (PlayFabSettings.GlobalErrorHandler != null)
                 PlayFabSettings.GlobalErrorHandler.callback(error);
-			PlayFabResult result = new PlayFabResult<<%- apiCall.result %>>();
-			result.Error = error;
-			return result;
+            PlayFabResult result = new PlayFabResult<<%- apiCall.result %>>();
+            result.Error = error;
+            return result;
         }
-		String resultRawJson = (String) httpResult;
+        String resultRawJson = (String) httpResult;
         
-		PlayFabJsonSuccess<<%- apiCall.result %>> resultData = gson.fromJson(resultRawJson, new TypeToken<PlayFabJsonSuccess<<%- apiCall.result %>>>(){}.getType()); 
-		<%- apiCall.result %> result = resultData.data;
-		<%- getResultActions(apiCall, api) %>
-		PlayFabResult<<%- apiCall.result %>> pfResult = new PlayFabResult<<%- apiCall.result %>>();
-		pfResult.Result = result;
+        PlayFabJsonSuccess<<%- apiCall.result %>> resultData = gson.fromJson(resultRawJson, new TypeToken<PlayFabJsonSuccess<<%- apiCall.result %>>>(){}.getType()); 
+        <%- apiCall.result %> result = resultData.data;
+        <%- getResultActions(apiCall, api) %>
+        PlayFabResult<<%- apiCall.result %>> pfResult = new PlayFabResult<<%- apiCall.result %>>();
+        pfResult.Result = result;
         return pfResult;
     }<% } %>
 
-	<% if(authKey) { %>
-	private static String AuthKey = null;
-	<% } %>
+    <% if(authKey) { %>
+    private static String AuthKey = null;
+    <% } %>
 }

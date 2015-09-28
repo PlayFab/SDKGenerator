@@ -7,7 +7,9 @@ exports.putInRoot = true;
 
 exports.makeCombinedAPI = function (apis, sourceDir, apiOutputDir) {
     console.log("Generating ActionScript3 combined SDK to " + apiOutputDir);
-    
+
+    copyTree(path.resolve(sourceDir, 'source'), apiOutputDir);
+
     for (var i in apis) {
         makeDatatypes(apis[i], sourceDir, apiOutputDir);
         makeAPI(apis[i], sourceDir, apiOutputDir);

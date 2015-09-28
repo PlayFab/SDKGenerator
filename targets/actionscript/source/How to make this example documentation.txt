@@ -1,0 +1,123 @@
+MS Windows 10
+
+Install the Adobe Air SDK
+http://www.adobe.com/devnet/air/air-sdk-download.html
+I installed Air 18, to C:\dev\AirSdk
+Add the air-bin path to your path environment variable:
+C:\dev\AirSdk\bin (in my case)
+
+Install the Adobe Flex SDK
+http://www.adobe.com/devnet/flex/flex-sdk-download.html
+I installed Flex 4.6, to C:\dev\flex_sdk_4.6
+Create a new environment variable: FLEX_HOME=C:\dev\flex_sdk_4.6 (in my case)
+Add the flex-bin path to your path environment variable:
+C:\dev\flex_sdk_4.6\bin (in my case)
+
+Creating the Example Project, starting with the most useful help page:
+
+http://help.adobe.com/en_US/air/build/WS901d38e593cd1bac25d3d8c712b2d86751e-8000.html
+
+All the instructions here are good, save one line in HelloWorld.xml.  Replace:
+
+    <application xmlns="http://ns.adobe.com/air/application/2.7">
+
+With:
+
+    <application xmlns="http://ns.adobe.com/air/application/18.0">
+
+Presumably this should match the version of AirSDK that you have installed above.  This document is already out of date, as the AirSDK link at the top is now version 19.0
+
+Create flexcfg.xml:
+
+    mxmlc -dump-config flexcfg.xml
+
+This will throw compiler errors, ignore them.  There will be many problems with this file, which need to be fixed.  Several paths will not be set correctly:
+
+    <path-element>libs</path-element>
+
+(and others, all starting with < path-element >)
+These will reference files from your AirSDK, but it will not reference them correctly.
+I put the full path to my local AirSDK:
+
+    <path-element>C:/dev/AirSdk/frameworks/libs</path-element>
+
+This path will be unique to your installation of the AirSDK.  Once again, there will be several of these, fix all of them, scattered in the file.
+
+--------
+
+This gets a basic hello-world working.  Now, for the file-access part, this link provides part of the solution:
+
+http://stackoverflow.com/questions/5446536/flash-builder-1172-definition-could-not-be-found
+
+Specifically, once again in your flexcfg.xml file, you need to find this line:
+
+    <external-library-path>
+
+And add another line below it:
+
+    <path-element>C:/dev/AirSdk/frameworks/libs/air/airglobal.swc</path-element>
+
+(once again, your AirSdk may be installed in another directory)
+
+There are several places that will give you the necessary lines to write "Hello World" to a file, here's one:
+http://stackoverflow.com/questions/22241454/saving-string-to-text-file-in-as3
+Make sure you use "writeUTFBytes" as the answer indicates, rather than the question.
+
+The final version of HelloWorld.as looks like this:
+
+    package
+    {
+    	import flash.display.Sprite;
+    	import flash.text.*;
+    	import flash.filesystem.*;
+
+    	public class HelloWorld extends Sprite
+    	{
+    		public function HelloWorld()
+    		{
+    			var textField:TextField = new TextField();
+    			stage.addChild( textField );
+    			textField.text = "Hello, World!";
+
+    			var outputFile:File = new File("C:/depot/sdks/ActionScriptSDK/HelloWorld/output.txt");
+    			var stream:FileStream = new FileStream();
+    			stream.open(outputFile, FileMode.WRITE);
+    			stream.writeUTFBytes("Hello, File World!");
+    			stream.close();
+    		}
+    	}
+    }
+
+flexcfg.xml is MOSTLY generated automatically.  It's a long file, I won't share it all, but I will share some relevant lines:
+
+    <external-library-path>
+    	<path-element>C:/dev/AirSdk/frameworks/libs/player/{targetPlayerMajorVersion}.{targetPlayerMinorVersion}/playerglobal.swc</path-element>
+    	<path-element>C:/dev/AirSdk/frameworks/libs/air/airglobal.swc</path-element>
+    </external-library-path>
+
+and later in the same file:
+
+    <library-path>
+    	<path-element>C:/dev/AirSdk/frameworks/libs</path-element>
+    	<path-element>C:/dev/AirSdk/frameworks/locale/{locale}</path-element>
+    </library-path>
+
+HelloWorld.xml is almost copy paste of the one from help.adobe.com, but here it is:
+
+    <?xml version="1.0" encoding="UTF-8"?>
+    <application xmlns="http://ns.adobe.com/air/application/18.0">
+    	<id>samples.android.HelloWorld</id>
+    	<versionNumber>0.0.1</versionNumber>
+    	<filename>HelloWorld</filename>
+    	<initialWindow>
+    		<content>HelloWorld.swf</content>
+    	</initialWindow>
+    	<supportedProfiles>mobileDevice</supportedProfiles>
+    </application>
+
+Finally, to wrap it up into one step, go.bat:
+
+    call mxmlc HelloWorld.as -load-config flexcfg.xml
+    call adl HelloWorld.xml
+
+(Then rename everything HelloWorld to PfApiTests)

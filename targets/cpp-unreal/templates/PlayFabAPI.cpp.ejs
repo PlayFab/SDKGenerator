@@ -1,0 +1,472 @@
+////////////////////////////////////////////////////////////////////////////////////////////// 
+// Automatically generated cpp file for the UE4 PlayFab plugin.
+//
+// API: <%- api.name %>
+// API Version: <%- apiRevision %>
+// SDK Version: <%- sdkVersion %>
+//////////////////////////////////////////////////////////////////////////////////////////////
+
+#include "PlayFabPrivatePCH.h"
+#include "PlayFab<%- api.name %>API.h"
+
+UPlayFab<%- api.name %>API* g_proxy = NULL;
+
+UPlayFab<%- api.name %>API::UPlayFab<%- api.name %>API(const FObjectInitializer& ObjectInitializer)
+	: Super(ObjectInitializer)
+{
+    g_proxy = this;
+}
+
+void UPlayFab<%- api.name %>API::SetRequestObject(UPlayFabJsonObject* JsonObject)
+{
+	RequestJsonObj = JsonObject;
+}
+
+UPlayFabJsonObject* UPlayFab<%- api.name %>API::GetResponseObject()
+{
+	return ResponseJsonObj;
+}
+
+FString UPlayFab<%- api.name %>API::PercentEncode(const FString& Text)
+{
+	FString OutText = Text;
+
+	OutText = OutText.Replace(TEXT("!"), TEXT("%21"));
+	OutText = OutText.Replace(TEXT("\""), TEXT("%22"));
+	OutText = OutText.Replace(TEXT("#"), TEXT("%23"));
+	OutText = OutText.Replace(TEXT("$"), TEXT("%24"));
+	//OutText = OutText.Replace(TEXT("&"), TEXT("%26"));
+	OutText = OutText.Replace(TEXT("'"), TEXT("%27"));
+	OutText = OutText.Replace(TEXT("("), TEXT("%28"));
+	OutText = OutText.Replace(TEXT(")"), TEXT("%29"));
+	OutText = OutText.Replace(TEXT("*"), TEXT("%2A"));
+	OutText = OutText.Replace(TEXT("+"), TEXT("%2B"));
+	OutText = OutText.Replace(TEXT(","), TEXT("%2C"));
+	//OutText = OutText.Replace(TEXT("/"), TEXT("%2F"));
+	OutText = OutText.Replace(TEXT(":"), TEXT("%3A"));
+	OutText = OutText.Replace(TEXT(";"), TEXT("%3B"));
+	OutText = OutText.Replace(TEXT("="), TEXT("%3D"));
+	//OutText = OutText.Replace(TEXT("?"), TEXT("%3F"));
+	OutText = OutText.Replace(TEXT("@"), TEXT("%40"));
+	OutText = OutText.Replace(TEXT("["), TEXT("%5B"));
+	OutText = OutText.Replace(TEXT("]"), TEXT("%5D"));
+	OutText = OutText.Replace(TEXT("{"), TEXT("%7B"));
+	OutText = OutText.Replace(TEXT("}"), TEXT("%7D"));
+
+	return OutText;
+}
+
+//////////////////////////////////////////////////////////////////////////
+// Generated PlayFab <%- api.name %> API Functions
+//////////////////////////////////////////////////////////////////////////
+
+<%
+
+// This loop goes through the subgroups of the api and orders the functions in groups.
+// It makes it a little easier to navigate.
+
+for(var subgroup in api.subgroups) 
+{ 
+%>
+///////////////////////////////////////////////////////
+// <%- api.subgroups[subgroup].name %>
+//////////////////////////////////////////////////////
+	<%
+
+	// This loop goes through all the api calls.
+	// It checks to see if the subgroup is the correct subgroup we are currently on.
+	// If so it creates the function definition with the summary text.
+	// This allows us to see the summary in UE4 when we hover over a node.
+		 
+	for(var i in api.calls) 
+	{
+		var apiCall = api.calls[i];
+		if(apiCall.subgroup == api.subgroups[subgroup].name)
+		{ 
+			var functionParamsString = "";
+			var functionParams = [];
+			var properties = api.datatypes[apiCall.request].properties;
+
+			// This loop goes through each property of the call and creates a correct parameter for UE4.
+			// We have to break it down into types so we know what cpp type to give it.
+			// Also, UE4 has a few custom types.
+
+			for(var z in properties)
+			{
+				switch(properties[z].jsontype)
+				{
+					case "String":
+						if(properties[z].name == "TitleId") break;
+						if(properties[z].hasOwnProperty('collection'))
+						{
+							if(properties[z].collection == "array" || properties[z].collection == "map") 
+							{
+								functionParams[z] = "TArray<FString> " + properties[z].name;
+							}
+						}
+						else if(properties[z].actualtype == "UserDataPermission")
+						{
+							functionParams[z] = "EUserDataPermision::Type " + properties[z].name;
+						}
+						else
+						{
+							if(properties[z].optional) 
+							{ 
+								functionParams[z] = "FString " + properties[z].name + " = \"\"";
+							}
+							else 
+							{
+								functionParams[z] = "FString " + properties[z].name; 
+							}	
+						}
+						break;
+
+					case "Boolean": 
+						if(properties[z].hasOwnProperty('collection'))
+						{
+							if(properties[z].collection == "array" || properties[z].collection == "map") 
+							{
+								functionParams[z] = "TArray<bool> " + properties[z].name;
+							}
+						}
+						else
+						{
+							if(properties[z].optional) { functionParams[z] = "bool " + properties[z].name + " = false "; }
+							else { functionParams[z] = "bool " + properties[z].name; }
+						}
+						break;	
+
+					case "Number":
+						if(properties[z].hasOwnProperty('collection'))
+						{
+							if(properties[z].collection == "array" || properties[z].collection == "map") 
+							{
+								functionParams[z] = "TArray<float> " + properties[z].name;
+							}
+						}
+						else
+						{
+							if(properties[z].optional) { functionParams[z] = "int32 " + properties[z].name + " = 0"; }
+							else { functionParams[z] = "int32 " + properties[z].name; }
+						}
+						break;
+
+					case "Object":
+						if(properties[z].hasOwnProperty('collection'))
+						{
+							if(properties[z].collection == "array" || properties[z].collection == "map") 
+							{
+								functionParams[z] = "TArray<UPlayFabJsonObject*> " + properties[z].name;
+							}
+						}
+						else
+						{
+							functionParams[z] = "UPlayFabJsonObject* " + properties[z].name;
+						}
+						break;
+				}								
+			}
+
+			// Now based on if the api requires a Session ticket or not we add that parameter
+
+			if(apiCall.auth == "SessionTicket")
+			{
+				functionParams.push("FString SessionTicket");
+			}
+
+			// Now the interesting part. Because we have to have any optional parameters last we have to sort them.
+			// Cpp doesn't like having parameters with defaults before non optional ones.
+
+			functionParams.sort(
+				function(a, b)
+				{
+					// We search for the "=" symbol which means its optional with a default
+					if(a.indexOf("=") != -1)
+					{
+						if(b.indexOf("=") != -1) { return -1; }
+						else { return -1; }
+					}
+					else
+					{
+						if(b.indexOf("=") != -1) { return 1; }
+						else { return 1; }
+					}
+				}
+			);
+
+			// The sort above oders the array backwards from what we want so we just reverse.
+
+			functionParams.reverse();
+
+			// Because this is the cpp file and we do not want to redefine the defaults we remove them
+
+			for(var z in functionParams)
+			{
+				if(functionParams[z].indexOf("=") != -1)
+				{
+					functionParams[z] = functionParams[z].substring(0, functionParams[z].indexOf("=") - 1)
+				}
+			}
+
+			// This loop adds the paramaters to one main parameters string
+
+			for(var z in functionParams)
+			{
+				if(z == functionParams.length - 1) { functionParamsString = functionParamsString + functionParams[z]; }
+				else { functionParamsString = functionParamsString + functionParams[z] + ", "; }
+			}
+%>
+/** <%- apiCall.summary %> */
+UPlayFab<%- api.name %>API* UPlayFab<%- api.name %>API::<%- apiCall.name %>(<%- functionParamsString %>)
+{
+	// Objects containing request data
+	UPlayFab<%- api.name %>API* manager = NewObject<UPlayFab<%- api.name %>API>();
+	UPlayFabJsonObject* OutRestJsonObj = NewObject<UPlayFabJsonObject>();
+
+	// Setup the request
+	manager->PlayFabRequestURL = "<%- apiCall.url %>";
+	<% 
+	
+	// If the api requires a sessionticket we add it, if not then leave it blank
+
+	if(apiCall.auth == "SessionTicket") 
+	{
+		%>manager->PlayFabSessionTicket = SessionTicket;
+	<%	%>manager->useSessionTicket = true;
+	<%
+	}
+	else
+	{
+		%>manager->PlayFabSessionTicket = "";
+	<%	%>manager->useSessionTicket = false;
+	<%
+	}
+
+	// If the api requires the secret key we add say true so it pulls from the PlayFab.cpp file.
+
+	if(apiCall.auth == "SecretKey") 
+	{
+		%>manager->useSecretKey = true;
+	<%
+	}
+	else
+	{
+		%>manager->useSecretKey = false;
+	<%
+	}
+	%>
+	
+	// Setup request object
+	<%
+
+	// Now this is where the magic really happens.
+	// Certain api calls require certain things, so we loop through each call to determine what it wants.
+	// Then we just add that code that is related to that api call and presto.
+
+	for(var z in properties)
+	{
+		var objectRequestString = "";
+
+		switch(properties[z].jsontype)
+		{
+			case "String":
+				if(properties[z].name == "TitleId")
+				{
+					%>OutRestJsonObj->SetStringField(TEXT("<%- properties[z].name %>"), IPlayFab::PlayFabAppId);
+	<%				break;
+				}
+				if(properties[z].hasOwnProperty('collection'))
+				{
+					if(properties[z].collection == "array" || properties[z].collection == "map") 
+					{
+						%>OutRestJsonObj->SetStringArrayField(TEXT("<%- properties[z].name %>"), <%- properties[z].name %>);
+	<%
+					}
+				}
+				else if(properties[z].actualtype == "UserDataPermission")
+				{
+					%>if (Permission == EUserDataPermision::Type::PUBLIC) OutRestJsonObj->SetStringField(TEXT("<%- properties[z].name %>"), TEXT("Public"));
+	<%				%>if (Permission == EUserDataPermision::Type::PRIVATE) OutRestJsonObj->SetStringField(TEXT("<%- properties[z].name %>"), TEXT("Private"));
+	<%
+				}
+				else
+				{
+					%>OutRestJsonObj->SetStringField(TEXT("<%- properties[z].name %>"), <%- properties[z].name %>);
+	<%
+				}
+				break;
+
+			case "Number":
+				if(properties[z].hasOwnProperty('collection'))
+				{
+					if(properties[z].collection == "array" || properties[z].collection == "map") 
+					{
+						%>OutRestJsonObj->SetNumberArrayField(TEXT("<%- properties[z].name %>"), <%- properties[z].name %>);
+	<%
+					}
+				}
+				else
+				{
+					%>OutRestJsonObj->SetNumberField(TEXT("<%- properties[z].name %>"), <%- properties[z].name %>);
+	<%
+				}
+				break;
+
+			case "Object":
+				if(properties[z].hasOwnProperty('collection'))
+				{
+					if(properties[z].collection == "array" || properties[z].collection == "map") 
+					{
+						%>OutRestJsonObj->SetObjectArrayField(TEXT("<%- properties[z].name %>"), <%- properties[z].name %>);
+	<%
+					}
+				}
+				else
+				{
+					%>OutRestJsonObj->SetObjectField(TEXT("<%- properties[z].name %>"), <%- properties[z].name %>);
+	<%
+				}
+				break;
+
+			case "Boolean":
+				if(properties[z].hasOwnProperty('collection'))
+				{
+					if(properties[z].collection == "array" || properties[z].collection == "map") 
+					{
+						%>OutRestJsonObj->SetBoolArrayField(TEXT("<%- properties[z].name %>"), <%- properties[z].name %>);
+	<%
+					}
+				}
+				else
+				{
+					%>OutRestJsonObj->SetBoolField(TEXT("<%- properties[z].name %>"), <%- properties[z].name %>);
+	<%
+				}
+				break;
+		}
+	}%>
+
+	// Add Request to manager
+	manager->SetRequestObject(OutRestJsonObj);
+
+	return manager;
+}
+		<%}		
+	}
+} %>
+
+void UPlayFab<%- api.name %>API::OnProcessRequestComplete(FHttpRequestPtr Request, FHttpResponsePtr Response, bool bWasSuccessful)
+{
+	// Be sure that we have no data from previous response
+	ResetResponseData();
+
+	// Check we have result to process futher
+	if (!bWasSuccessful)
+	{
+		UE_LOG(LogPlayFab, Error, TEXT("Request failed: %s"), *Request->GetURL());
+
+		// Broadcast the result event
+		ResponseJsonObj->SetNumberField(TEXT("code"), 500);
+		g_proxy->OnPlayFabResponse.Broadcast(ResponseJsonObj, false);
+
+		return;
+	}
+
+	// Save response data as a string
+	ResponseContent = Response->GetContentAsString();
+
+	// Save response code as int32
+	ResponseCode = Response->GetResponseCode();
+
+	// Log response state
+	UE_LOG(LogPlayFab, Log, TEXT("Response (%d): %s"), Response->GetResponseCode(), *Response->GetContentAsString());
+
+	// Try to deserialize data to JSON
+	TSharedRef<TJsonReader<TCHAR>> JsonReader = TJsonReaderFactory<TCHAR>::Create(ResponseContent);
+	FJsonSerializer::Deserialize(JsonReader, ResponseJsonObj->GetRootObject());
+
+	// Decide whether the request was successful
+	bIsValidJsonResponse = bWasSuccessful && ResponseJsonObj->GetRootObject().IsValid();
+
+	// Log errors
+	if (!bIsValidJsonResponse)
+	{
+		if (!ResponseJsonObj->GetRootObject().IsValid())
+		{
+			// As we assume it's recommended way to use current class, but not the only one,
+			// it will be the warning instead of error
+			UE_LOG(LogPlayFab, Warning, TEXT("JSON could not be decoded!"));
+		}
+	}
+
+	// Broadcast the result event
+	g_proxy->OnPlayFabResponse.Broadcast(ResponseJsonObj, true);
+}
+
+void UPlayFab<%- api.name %>API::Activate()
+{
+	FString RequestUrl = IPlayFab::PlayFabURL;
+
+	// Build the full request url
+	if (cloudScript)
+	{
+		RequestUrl = IPlayFab::PlayFabLogicURL + CloudScriptVersion + TEXT("/prod/");
+	}
+
+	RequestUrl = RequestUrl + PlayFabRequestURL;
+
+	TSharedRef<IHttpRequest> HttpRequest = FHttpModule::Get().CreateRequest();
+	HttpRequest->SetURL(RequestUrl);
+
+	if (!PlayFabSessionTicket.IsEmpty())
+	{
+		HttpRequest->SetHeader("X-Authentication", PlayFabSessionTicket);
+	}
+	if (useSecretKey)
+	{
+		HttpRequest->SetHeader("X-SecretKey", IPlayFab::PlayFabApiKey);
+	}
+
+	// Set verb
+	HttpRequest->SetVerb("POST");
+
+
+	// Set content-type
+	HttpRequest->SetHeader("Content-Type", "application/json");
+
+	// Serialize data to json string
+	FString OutputString;
+	TSharedRef< TJsonWriter<> > Writer = TJsonWriterFactory<>::Create(&OutputString);
+	FJsonSerializer::Serialize(RequestJsonObj->GetRootObject().ToSharedRef(), Writer);
+
+	// Set Json content
+	HttpRequest->SetContentAsString(OutputString);
+
+	// Apply additional headers
+	for (TMap<FString, FString>::TConstIterator It(RequestHeaders); It; ++It)
+	{
+		HttpRequest->SetHeader(It.Key(), It.Value());
+	}
+
+	UE_LOG(LogPlayFab, Log, TEXT("Request: %s"), *OutputString);
+
+	// Bind event
+	HttpRequest->OnProcessRequestComplete().BindUObject(this, &UPlayFab<%- api.name %>API::OnProcessRequestComplete);
+
+	// Execute the request
+	HttpRequest->ProcessRequest();
+}
+
+void UPlayFab<%- api.name %>API::ResetResponseData()
+{
+	if (ResponseJsonObj != NULL)
+	{
+		ResponseJsonObj->Reset();
+	}
+	else
+	{
+		ResponseJsonObj = NewObject<UPlayFabJsonObject>();
+	}
+
+	bIsValidJsonResponse = false;
+}

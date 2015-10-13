@@ -1,0 +1,238 @@
+#pragma once
+
+////////////////////////////////////////////////////////////////////////////////////////////// 
+// Automatically generated header file for the UE4 PlayFab plugin.
+// This header file contains the function definitions.
+//
+// API: <%- api.name %>
+// API Version: <%- apiRevision %>
+// SDK Version: <%- sdkVersion %>
+//////////////////////////////////////////////////////////////////////////////////////////////
+
+#include "OnlineBlueprintCallProxyBase.h"
+#include "PlayFabPrivatePCH.h"
+#include "PlayFab<%- api.name %>API.generated.h"
+
+DECLARE_DYNAMIC_MULTICAST_DELEGATE_TwoParams(FOnPlayFab<%- api.name %>RequestCompleted, UPlayFabJsonObject*, response, bool, successful);
+
+UCLASS(Blueprintable, BlueprintType)
+class UPlayFab<%- api.name %>API : public UOnlineBlueprintCallProxyBase
+{
+	GENERATED_UCLASS_BODY()
+
+public:
+
+	UPROPERTY(BlueprintAssignable)
+	FOnPlayFab<%- api.name %>RequestCompleted OnPlayFabResponse;
+
+	/** Set the Request Json object */
+	//UFUNCTION(BlueprintCallable, Category = "PlayFab")
+		void SetRequestObject(UPlayFabJsonObject* JsonObject);
+
+	/** Get the Response Json object */
+	//UFUNCTION(BlueprintCallable, Category = "PlayFab")
+		UPlayFabJsonObject* GetResponseObject();
+
+	/** Applies percent-encoding to text */
+	//UFUNCTION(BlueprintCallable, Category = "PlayFab")
+		static FString PercentEncode(const FString& Text);
+
+	/** Reset saved response data */
+	//UFUNCTION(BlueprintCallable, Category = "PlayFab")
+		void ResetResponseData();
+
+	/** UOnlineBlueprintCallProxyBase interface */
+	virtual void Activate() override;
+
+	//////////////////////////////////////////////////////////////////////////
+	// Generated PlayFab <%- api.name %> API Functions
+	//////////////////////////////////////////////////////////////////////////
+
+	<%
+
+	// This loop goes through the subgroups of the api and orders the functions in groups.
+	// It makes it a little easier to navigate.
+
+	for(var subgroup in api.subgroups) 
+	{ 
+	%>
+
+	///////////////////////////////////////////////////////
+	// <%- api.subgroups[subgroup].name %>
+	//////////////////////////////////////////////////////
+		<%
+
+		// This loop goes through all the api calls.
+		// It checks to see if the subgroup is the correct subgroup we are currently on.
+		// If so it creates the function definition with the summary text.
+		// This allows us to see the summary in UE4 when we hover over a node.
+		 
+		for(var i in api.calls) 
+		{
+			var apiCall = api.calls[i];
+			if(apiCall.subgroup == api.subgroups[subgroup].name)
+			{ 
+				var functionParamsString = "";
+				var functionParams = [];
+				var properties = api.datatypes[apiCall.request].properties;
+
+				// This loop goes through each property of the call and creates a correct parameter for UE4.
+				// We have to break it down into types so we know what cpp type to give it.
+				// Also, UE4 has a few custom types.
+
+				for(var z in properties)
+				{
+					switch(properties[z].jsontype)
+					{
+						case "String":
+							if(properties[z].name == "TitleId") break;
+							if(properties[z].hasOwnProperty('collection'))
+							{
+								if(properties[z].collection == "array" || properties[z].collection == "map") 
+								{
+									functionParams[z] = "TArray<FString> " + properties[z].name;
+								}
+							}
+							else if(properties[z].actualtype == "UserDataPermission")
+							{
+								functionParams[z] = "EUserDataPermision::Type " + properties[z].name;
+							}
+							else
+							{
+								if(properties[z].optional) 
+								{ 
+									functionParams[z] = "FString " + properties[z].name + " = \"\"";
+								}
+								else 
+								{
+									functionParams[z] = "FString " + properties[z].name; 
+								}	
+							}
+							break;
+
+						case "Boolean": 
+							if(properties[z].hasOwnProperty('collection'))
+							{
+								if(properties[z].collection == "array" || properties[z].collection == "map") 
+								{
+									functionParams[z] = "TArray<bool> " + properties[z].name;
+								}
+							}
+							else
+							{
+								if(properties[z].optional) { functionParams[z] = "bool " + properties[z].name + " = false "; }
+								else { functionParams[z] = "bool " + properties[z].name; }
+							}
+							break;
+								
+						case "Number":
+							if(properties[z].hasOwnProperty('collection'))
+							{
+								if(properties[z].collection == "array" || properties[z].collection == "map") 
+								{
+									functionParams[z] = "TArray<float> " + properties[z].name;
+								}
+							}
+							else
+							{
+								if(properties[z].optional) { functionParams[z] = "int32 " + properties[z].name + " = 0"; }
+								else { functionParams[z] = "int32 " + properties[z].name; }
+							}
+							break;
+
+						case "Object":
+							if(properties[z].hasOwnProperty('collection'))
+							{
+								if(properties[z].collection == "array" || properties[z].collection == "map") 
+								{
+									functionParams[z] = "TArray<UPlayFabJsonObject*> " + properties[z].name;
+								}
+							}
+							else
+							{
+								functionParams[z] = "UPlayFabJsonObject* " + properties[z].name;
+							}
+							break;
+					}								
+				}
+
+				// Now based on if the api requires a Session ticket or not we add that parameter
+
+				if(apiCall.auth == "SessionTicket")
+				{
+					functionParams.push("FString SessionTicket");
+				}
+				
+				// Now the interesting part. Because we have to have any optional parameters last we have to sort them.
+				// Cpp doesn't like having parameters with defaults before non optional ones.
+
+				functionParams.sort(
+					function(a, b)
+					{
+						// We search for the "=" symbol which means its optional with a default
+						if(a.indexOf("=") != -1)
+						{
+							if(b.indexOf("=") != -1) { return -1; }
+							else { return -1; }
+						}
+						else
+						{
+							if(b.indexOf("=") != -1) { return 1; }
+							else { return 1; }
+						}
+					}
+				);
+
+				// The sort above oders the array backwards from what we want so we just reverse.
+
+				functionParams.reverse();
+
+				// This loop adds the paramaters to one main parameters string
+
+				for(var z in functionParams)
+				{
+					if(z == functionParams.length - 1) { functionParamsString = functionParamsString + functionParams[z]; }
+					else { functionParamsString = functionParamsString + functionParams[z] + ", "; }
+				}
+			
+			%>
+	/** <%- apiCall.summary %> */
+	UFUNCTION(BlueprintCallable, Category = "PlayFab | <%- api.name %> | <%- api.subgroups[subgroup].name %>", meta = (BlueprintInternalUseOnly = "true"))
+		static UPlayFab<%- api.name %>API* <%- apiCall.name %>(<%- functionParamsString %>);
+		<%
+		
+			}		
+		}
+	} %>
+
+	/** PlayFab Request Info */
+	FString PlayFabRequestURL;
+	FString PlayFabSessionTicket;
+	FString CloudScriptVersion;
+	bool useSecretKey = false;
+	bool useSessionTicket = false;
+	bool cloudScript = false;
+
+	/** Is the response valid JSON? */
+	bool bIsValidJsonResponse;
+	FString ResponseContent;
+	int32 ResponseCode;
+
+private:
+	/** Internal bind function for the IHTTPRequest::OnProcessRequestCompleted() event */
+	void OnProcessRequestComplete(FHttpRequestPtr Request, FHttpResponsePtr Response, bool bWasSuccessful);
+
+protected:
+
+	/** Internal request data stored as JSON */
+	UPROPERTY()
+	UPlayFabJsonObject* RequestJsonObj;
+
+	/** Response data stored as JSON */
+	UPROPERTY()
+	UPlayFabJsonObject* ResponseJsonObj;
+
+	/** Mapping of header section to values. Used to generate final header string for request */
+	TMap<FString, FString> RequestHeaders;
+};
+

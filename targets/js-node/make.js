@@ -9,24 +9,29 @@ exports.makeCombinedAPI = function (apis, sourceDir, apiOutputDir) {
     var templateDir = path.resolve(sourceDir, "templates");
     var coreTemplate = ejs.compile(readFile(path.resolve(templateDir, "playfab.js.ejs")));
     var apiTemplate = ejs.compile(readFile(path.resolve(templateDir, "api.js.ejs")));
-    
-    // Write the core functionality file
-    var coreLocals = {};
-    coreLocals.apiVersion = apis[0].revision;
-    coreLocals.sdkVersion = sdkVersion;
-    var generatedCore = coreTemplate(coreLocals);
-    writeFile(path.resolve(apiOutputDir, "PlayFab.js"), generatedCore);
-    
-    // Write the API files
-    for (var i in apis) {
-        var apiLocals = {};
-        apiLocals.api = apis[i];
-        apiLocals.getAuthParams = getAuthParams;
-        apiLocals.getRequestActions = getRequestActions;
-        apiLocals.getResultActions = getResultActions;
-        apiLocals.getUrlAccessor = getUrlAccessor;
-        var generatedApi = apiTemplate(apiLocals);
-        writeFile(path.resolve(apiOutputDir, "PlayFab" + apis[i].name + ".js"), generatedApi);
+
+    var destSubFolders = ["PlayFabSdk", "PlayFabTesting"]; // Write both the published folder and the testing folder
+    for (var folderIndex in destSubFolders) {
+        var eachOutputDir = path.resolve(apiOutputDir, destSubFolders[folderIndex])
+        
+        // Write the core functionality file
+        var coreLocals = {};
+        coreLocals.apiVersion = apis[0].revision;
+        coreLocals.sdkVersion = sdkVersion;
+        var generatedCore = coreTemplate(coreLocals);
+        writeFile(path.resolve(eachOutputDir, "PlayFab.js"), generatedCore);
+        
+        // Write the API files
+        for (var i in apis) {
+            var apiLocals = {};
+            apiLocals.api = apis[i];
+            apiLocals.getAuthParams = getAuthParams;
+            apiLocals.getRequestActions = getRequestActions;
+            apiLocals.getResultActions = getResultActions;
+            apiLocals.getUrlAccessor = getUrlAccessor;
+            var generatedApi = apiTemplate(apiLocals);
+            writeFile(path.resolve(eachOutputDir, "PlayFab" + apis[i].name + ".js"), generatedApi);
+        }
     }
 }
 

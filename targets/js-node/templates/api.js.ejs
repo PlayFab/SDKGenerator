@@ -1,0 +1,13 @@
+var PlayFab = require('./PlayFab.js');
+
+exports.Settings = PlayFab.Settings;
+<% for(var i in api.calls) { var apiCall = api.calls[i]; %>
+exports.<%- apiCall.name %> = function (request, callback) {
+<%- getRequestActions(4, apiCall, api) %>
+    PlayFab.MakeRequest(<%- getUrlAccessor(apiCall) %> + "<%- apiCall.url %>", request, <%- getAuthParams(apiCall) %>, function (error, result) {
+<%- getResultActions(8, apiCall, api) %>
+        if (callback != null)
+            callback(error, result);
+    });
+};
+<% } %>

@@ -1,129 +1,90 @@
-
 var url = require('url');
 var https = require('https');
-var http = require('http');
 
 exports.sdk_version = "<%- sdkVersion %>";
-exports.api_version = "1.1.0";
+exports.api_version = "<%- apiVersion %>";
 
-var settings = {};
-exports.settings = settings;
-settings.use_development_environment = false;
-settings.development_environment_url = ".playfabsandbox.com";
-settings.production_environment_url = ".playfabapi.com";
-settings.logic_server_url = null;
-settings.title_id = null;
-settings.session_ticket = null;
-settings.developer_secret_key = null;
-settings.global_error_handler = null;
-
-function get_server_url()
-{
-	var baseUrl = settings.use_development_environment ? settings.development_environment_url : settings.production_environment_url;
-	if(baseUrl.substring(0, 4) == "http")
-		return baseUrl;
-	return "https://"+settings.title_id+baseUrl;
-}
-
-function get_logic_server_url()
-{
-	return settings.logic_server_url;
-}
-
-function make_request(urlStr, request, authType, authValue, callback)
-{
-	if(request == null)
-		request = {};
-	var requestBody = JSON.stringify(request);
-	
-	var options = url.parse(urlStr);
-	options.method = 'POST';
-	options.headers = {
-		'Content-Type': 'application/json',
-		'Content-Length': requestBody.length,
-		'X-PlayFabSDK': "NodeSDK-" + exports.sdk_version + "-" + exports.api_version
-	};
-	
-	if(authType)
-	{
-		options.headers[authType] = authValue;
-	}
-	var requestLib = null;
-	
-	if(options.protocol == "http:")
-	{
-		if(options.port == null)
-			options.port = 80;
-		requestLib = http;
-	}
-	else if(options.protocol == "https:")
-	{
-		if(options.port == null)
-			options.port = 443;
-		requestLib = https;
-	}
-	else
-	{
-		throw "Unknown protocol: "+urlInfo.protocol;
-	}
-	
-	var post_req = requestLib.request(options, function(res)
-	{
-		var rawReply = "";
-		res.setEncoding('utf8');
-		res.on('data', function (chunk) {
-			rawReply += chunk;
-		});
-		res.on('end', function() {
-			var replyEnvelope = JSON.parse(rawReply);
-			if(replyEnvelope.error || !replyEnvelope.data)
-			{
-				if(callback != null)
-				{
-					callback(replyEnvelope, null);
-				}
-			}
-			else
-			{
-				if(callback != null)
-				{
-					callback(null, replyEnvelope.data);
-				}
-			}
-		});
-	});
-	
-	post_req.on('error', function(e) {
-		if(callback != null)
-		{
-			callback({
-				code: 0,
-				status: "Connection error",
-				error: "Connection error",
-				errorCode: 1,
-				errorMessage: e.message
-			}, null);
-		}
-	});
-	
-	post_req.write(requestBody);
-	post_req.end();
-  
-}
-
-<% for(var a in apis) { var api = apis[a]; var apiName = api.name.toLowerCase(); %>
-exports.<%- apiName %> = {};
-<% for(var i in api.calls) { var apiCall = api.calls[i]; %>
-exports.<%- apiName %>.<%- apiCall.name %> = function(request, callback)
-{	
-	<%- getRequestActions(apiCall, api) %>
-	make_request(<%- getUrlAccessor(apiCall) %> + "<%- apiCall.url %>", request, <%- getAuthParams(apiCall) %>, function(error, result)
-	{
-		<%- getResultActions(apiCall, api) %>
-		if(callback != null)
-			callback(error, result);
-	});
+exports.settings = {
+    useDevEnv: false,
+    devEnvUrl: ".playfabsandbox.com",
+    liveUrl: ".playfabapi.com",
+    logicServerUrl: null,
+    titleId: null,
+    sessionTicket: null,
+    developerSecretKey: null,
+    globalErrorHandler: null,
 };
-<% } %>
-<% } %>
 
+exports.GetServerUrl = function () {
+    var baseUrl = exports.settings.useDevEnv ? exports.settings.devEnvUrl : exports.settings.liveUrl;
+    return "https://" + exports.settings.titleId + baseUrl;
+}
+
+exports.GetLogicServerUrl = function () {
+    return exports.settings.logicServerUrl;
+}
+
+exports.MakeRequest = function (urlStr, request, authType, authValue, callback) {
+    if (request == null)
+        request = {};
+    var requestBody = JSON.stringify(request);
+
+    var options = url.parse(urlStr);
+    if (options.protocol != "https:")
+        throw "Unsupported protocol: " + urlInfo.protocol;
+    options.method = 'POST';
+    options.port = 443;
+    options.headers = {
+        'Content-Type': 'application/json',
+        'Content-Length': requestBody.length,
+        'X-PlayFabSDK': "NodeSDK-" + exports.sdk_version + "-" + exports.api_version
+    };
+
+    if (authType)
+        options.headers[authType] = authValue;
+
+    var post_req = https.request(options, function (res) {
+        var rawReply = "";
+        res.setEncoding('utf8');
+        res.on('data', function (chunk) { rawReply += chunk; });
+        res.on('end', function () {
+            if (callback == null)
+                return; // No need to bother decoding results
+
+            var replyEnvelope = null;
+            try {
+                replyEnvelope = JSON.parse(rawReply);
+            } catch (e) {
+                // Handle when rawReply is not valid json
+                replyEnvelope = {
+                    code: 503, // Service Unavailable
+                    status: "Service Unavailable",
+                    error: "Connection error",
+                    errorCode: 2, // PlayFabErrorCode.ConnectionError
+                    errorMessage: rawReply
+                };
+            }
+
+            if (replyEnvelope.hasOwnProperty("error") || !replyEnvelope.hasOwnProperty("data"))
+                callback(replyEnvelope, null);
+            else
+                callback(null, replyEnvelope.data);
+        });
+    });
+
+    post_req.on('error', function (e) {
+        if (callback == null)
+            return; // No need to bother decoding results
+
+        callback({
+            code: 503, // Service Unavailable
+            status: "Service Unavailable",
+            error: "Connection error",
+            errorCode: 2, // PlayFabErrorCode.ConnectionError
+            errorMessage: e.message
+        }, null);
+    });
+
+    post_req.write(requestBody);
+    post_req.end();
+}

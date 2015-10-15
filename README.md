@@ -8,7 +8,7 @@ This is a node.js based program that takes a json description of the PlayFab API
 2. Prerequisites:
 ----
 1. You must have Node.js installed: http://nodejs.org/
-2. You must have the PlayFab API spec json files: https://github.com/PlayFab/api-specs
+2. You must have the PlayFab API spec json files: https://github.com/PlayFab/api_specs
 
 
 3. Usage Instructions:
@@ -18,7 +18,7 @@ To invoke the generator, open a command line at the root of the project and type
 node generate.js <apiSpecLocation> [<targetName>=<targetOutputLocation>] ...
 ```
 
-&lt;apiSpecLocation&gt; is the directory containing the api spec json files obtained from the PlayFab api-specs repo.
+&lt;apiSpecLocation&gt; is the directory containing the api spec json files obtained from the PlayFab api_specs repo.
 
 Next you supply a list of targets to generate, and the directory to generate them to. Each target takes the form:
 
@@ -28,7 +28,7 @@ Where &lt;targetName&gt; is one of the supported SDK targets, and &lt;targetOutp
 
 Example:
 
-node generate.js ../api-specs csharp-unity=../sdks/unitySDK
+node generate.js ../api_specs csharp-unity=../sdks/unitySDK
 
 4. Troubleshooting:
 ----
@@ -40,7 +40,7 @@ Do you have ideas on how we can make our products and services better?
 
 Our Developer Success Team can assist with answering any questions as well as process any feedback you have about PlayFab services.
 
-[Forums, Support and Knowledge Base](https://support.playfab.com/support/home)
+[Forums, Support and Knowledge Base](https://community.playfab.com/hc/en-us)
 
 
 5. Copyright and Licensing Information:
@@ -50,7 +50,3 @@ Our Developer Success Team can assist with answering any questions as well as pr
   http://www.apache.org/licenses/
 
   Full details available within the LICENSE file.
-
-6. Version History:
-----
-* (v1.00) -- Initial upload

@@ -40,7 +40,7 @@ Do you have ideas on how we can make our products and services better?
 
 Our Developer Success Team can assist with answering any questions as well as process any feedback you have about PlayFab services.
 
-[Forums, Support and Knowledge Base](https://support.playfab.com/support/home)
+[Forums, Support and Knowledge Base](https://community.playfab.com/hc/en-us)
 
 
 5. Copyright and Licensing Information:
@@ -50,7 +50,3 @@ Our Developer Success Team can assist with answering any questions as well as pr
   http://www.apache.org/licenses/
 
   Full details available within the LICENSE file.
-
-6. Version History:
-----
-* (v1.00) -- Initial upload

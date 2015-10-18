@@ -1,0 +1,134 @@
+#pragma once
+
+////////////////////////////////////////////////////////////////////////////////////////////// 
+// Automatically generated model file for the UE4 PlayFab plugin.
+// This model file contains the request and response USTRUCTS
+//
+// API: <%- api.name %>
+// API Version: <%- apiRevision %>
+// SDK Version: <%- sdkVersion %>
+//////////////////////////////////////////////////////////////////////////////////////////////
+
+#include "PlayFabPrivatePCH.h"
+#include "PlayFab<%- api.name %>Models.generated.h"
+
+class UPlayFabJsonObject;
+
+//////////////////////////////////////////////////////////////////////////
+// Generated PlayFab <%- api.name %> Models
+//////////////////////////////////////////////////////////////////////////
+
+USTRUCT(BlueprintType)
+struct FPlayFab<%- api.name %>Response
+{
+	GENERATED_USTRUCT_BODY()
+
+public:
+
+	/** Response code. */
+	UPROPERTY(EditAnywhere, BlueprintReadWrite, Category = "PlayFab | Response")
+		int32 responseCode;
+
+	/** Response Data Json Object */
+	UPROPERTY(EditAnywhere, BlueprintReadWrite, Category = "PlayFab | Response")
+		UPlayFabJsonObject* responseData;
+
+};
+
+
+<%
+// This loop goes through the datatypes and creates UStructsfor each
+for(var i in api.datatypes) 
+{ 
+		var datatype = api.datatypes[i];
+		if(datatype.name.substr(datatype.name.length - 3) == "est") {continue;} // go to next model if it is a request
+	%>USTRUCT(BlueprintType)
+<%	%>struct F<%- api.name %><%- datatype.name %>
+<%	%>{
+<%	%>	GENERATED_USTRUCT_BODY()
+
+public:
+
+<%		
+	// Now loop through all the properties to create the variables for the struct
+
+	for(var z in datatype.properties)
+	{
+		
+		var property = datatype.properties[z];
+	%>	/** <%- property.description %> */
+<%	%>	UPROPERTY(EditAnywhere, BlueprintReadWrite, Category = "PlayFab | <%- api.name %> | Models")
+<%		
+		switch(property.jsontype)
+		{
+			case "String":
+				if(property.hasOwnProperty('collection'))
+				{
+					if(property.collection == "array" || property.collection == "map") 
+					{
+					%>	TArray<FString> <%- property.name %>;
+<%
+					}
+				}
+				else
+				{
+					%>	FString <%- property.name %>;
+<%
+				}
+				break;
+
+			case "Boolean":
+				if(property.hasOwnProperty('collection'))
+				{
+					if(property.collection == "array" || property.collection == "map") 
+					{
+					%>	TArray<bool> <%- property.name %>;
+<%
+					}
+				}
+				else
+				{
+					%>	bool <%- property.name %>;
+<%
+				}
+				break;
+
+			case "Number":
+				if(property.hasOwnProperty('collection'))
+				{
+					if(property.collection == "array" || property.collection == "map") 
+					{
+					%>	TArray<int32> <%- property.name %>;
+<%
+					}
+				}
+				else
+				{
+					%>	int32 <%- property.name %>;
+<%
+				}
+				break;
+
+			case "Object":
+				if(property.hasOwnProperty('collection'))
+				{
+					if(property.collection == "array" || property.collection == "map") 
+					{
+					%>	TArray<UPlayFabJsonObject*> <%- property.name %>;
+<%
+					}
+				}
+				else
+				{
+					%>	UPlayFabJsonObject* <%- property.name %>;
+<%
+				}
+				break;
+		
+		}
+	}
+	%>};
+
+<%		
+}
+%>

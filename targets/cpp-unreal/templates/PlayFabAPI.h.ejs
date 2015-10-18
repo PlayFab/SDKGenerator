@@ -10,10 +10,11 @@
 //////////////////////////////////////////////////////////////////////////////////////////////
 
 #include "OnlineBlueprintCallProxyBase.h"
+#include "PlayFab<%- api.name %>Models.h"
 #include "PlayFabPrivatePCH.h"
 #include "PlayFab<%- api.name %>API.generated.h"
 
-DECLARE_DYNAMIC_MULTICAST_DELEGATE_TwoParams(FOnPlayFab<%- api.name %>RequestCompleted, UPlayFabJsonObject*, response, bool, successful);
+DECLARE_DYNAMIC_MULTICAST_DELEGATE_TwoParams(FOnPlayFab<%- api.name %>RequestCompleted, FPlayFab<%- api.name %>Response, response, bool, successful);
 
 UCLASS(Blueprintable, BlueprintType)
 class UPlayFab<%- api.name %>API : public UOnlineBlueprintCallProxyBase
@@ -155,14 +156,7 @@ public:
 							break;
 					}								
 				}
-
-				// Now based on if the api requires a Session ticket or not we add that parameter
-
-				if(apiCall.auth == "SessionTicket")
-				{
-					functionParams.push("FString SessionTicket");
-				}
-				
+	
 				// Now the interesting part. Because we have to have any optional parameters last we have to sort them.
 				// Cpp doesn't like having parameters with defaults before non optional ones.
 
@@ -207,8 +201,6 @@ public:
 
 	/** PlayFab Request Info */
 	FString PlayFabRequestURL;
-	FString PlayFabSessionTicket;
-	FString CloudScriptVersion;
 	bool useSecretKey = false;
 	bool useSessionTicket = false;
 	bool cloudScript = false;

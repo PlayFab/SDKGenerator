@@ -10,22 +10,11 @@ Key features:
 * Blueprintable FJsonValue wrapper - **full Json features made for blueprints!**
 * [PlayFab](https://PlayFab.com) REST API manager to start working with PlayFab out of the box!
 
-Current version: **1.0**
-
 Installation:
 
 * Copy all files into your plugins folder. <Projet>/Plugins/PlayFab/
 * Generate Visual Studio Files for your project.
 * Rebuild your game. **That is it!**
-
-Setup:
-
-* Navigate to the PlayFab.cpp file located in Plugins/PlayFab/Source/PlayFab/Private
-* Edit the top part of the file to match the AppId and SecretKeys provided to you by PlayFab.
-* Replace <GameTitleID> with your Game Title ID. E.g.("https://0000.playfabapi.com")
-* Replace <PlayFabAPISecretKey> with your secret key given to you by PlayFab.
-
-![CppSetup](CppSetup.jpg)
 
 Use:
 
@@ -36,6 +25,8 @@ To use the plugin, drag an API call onto the Event Graph. The API calls and the 
 Attach the node to an event, pass in the required variables and then attach whatever you want to handle the response up to the graph like below.
 
 ![LoginEvent](LoginEvent.jpg)
+
+Make sure to add a "Set Play Fab Settings" node to the start of the project. This node sets up the Game Title Id and more. The settings are needed to work with Play Fab.
 
 **That is all it takes!** The PlayFab nodes will send out the API call, wait for a response and pass back the response from the PlayFab servers. Take a look at their documentation to see what each API call returns and expects.
 

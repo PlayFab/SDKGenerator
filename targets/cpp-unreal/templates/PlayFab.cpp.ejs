@@ -1,7 +1,6 @@
 ////////////////////////////////////////////////////////////////////////////////////////////// 
 // Automatically generated cpp file for the UE4 PlayFab plugin.
 // This cpp file is the main cpp file for the plugin. We set up globals here.
-// Edit the variables between the "Edit Here Start" and "Edit Here Stop" Comments
 //
 // API Version: <%- apiRevision %>
 // SDK Version: <%- sdkVersion %>
@@ -9,24 +8,9 @@
 
 #include "PlayFabPrivatePCH.h"
 
-///////////////////////// 
-// Edit Here Start
-////////////////////////
 
-// Replace each <> pair with the correct information from your PlayFab Dashboard
-
-const FString	IPlayFab::PlayFabURL(TEXT("https://<GameTitleID>.playfabapi.com"));
-const FString	IPlayFab::PlayFabLogicURL(TEXT("https://<GameTitleID>.playfablogic.com"));
-const FString	IPlayFab::PlayFabAppId(TEXT("<GameTitleID>"));
-const int32		IPlayFab::CloudScriptVersionInt(1);
-const FString	IPlayFab::PlayFabApiKey(TEXT("<PlayFabAPISecretKey>"));
-const FString	IPlayFab::PhotonRealtimeAppId(TEXT("<PhotonRealtimeAppID>"));
-const FString	IPlayFab::PhotonTurnbasedAppId(TEXT("<PhotonTurnbasedAppID>"));
-const FString	IPlayFab::PhotonChatAppId(TEXT("<PhotonChatAppID>"));
-
-////////////////////////
-// Edit Here Stop
-////////////////////////
+const FString	IPlayFab::PlayFabURL(TEXT(".playfabapi.com"));
+const FString	IPlayFab::PlayFabLogicURL(TEXT(".playfablogic.com/"));
 
 class FPlayFab : public IPlayFab
 {
@@ -48,6 +32,7 @@ class FPlayFab : public IPlayFab
 	{
 
 	}
+
 };
 
 IMPLEMENT_MODULE( FPlayFab, PlayFab )

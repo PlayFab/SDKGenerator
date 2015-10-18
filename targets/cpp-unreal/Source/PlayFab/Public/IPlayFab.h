@@ -20,14 +20,17 @@ public:
 	 */
 
 	/** PlayFab App Id */
-	static const FString PlayFabAppId;
+	FString GameTitleId;
+
+	/** Session Ticket */
+	FString SessionTicket;
 
 	/** PlayFab Api Key */
-	static const FString PlayFabApiKey;
-	static const FString PhotonRealtimeAppId;
-	static const FString PhotonTurnbasedAppId;
-	static const FString PhotonChatAppId;
-	static const int32 CloudScriptVersionInt;
+	FString PlayFabApiSecretKey;
+	FString PhotonRealtimeAppId;
+	FString PhotonTurnbasedAppId;
+	FString PhotonChatAppId;
+	int32 CloudScriptVersion;
 
 	/** PlayFab URL */
 	static const FString PlayFabURL;

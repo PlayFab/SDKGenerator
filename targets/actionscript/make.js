@@ -1,20 +1,17 @@
-
 var path = require('path');
-
-var sdkVersion = "1.0.0";
 
 exports.putInRoot = true;
 
 exports.makeCombinedAPI = function (apis, sourceDir, apiOutputDir) {
     console.log("Generating ActionScript3 combined SDK to " + apiOutputDir);
-
+    
     copyTree(path.resolve(sourceDir, 'source'), apiOutputDir);
-
+    
     for (var i in apis) {
         makeDatatypes(apis[i], sourceDir, apiOutputDir);
         makeAPI(apis[i], sourceDir, apiOutputDir);
     }
-
+    
     generateErrors(apis[0], sourceDir, apiOutputDir);
     
     generateVersion(apis[0], sourceDir, apiOutputDir);
@@ -94,7 +91,7 @@ function generateVersion(api, sourceDir, apiOutputDir) {
     
     var versionLocals = {};
     versionLocals.apiRevision = api.revision;
-    versionLocals.sdkRevision = sdkVersion;
+    versionLocals.sdkRevision = exports.sdkVersion;
     var generatedVersion = versionTemplate(versionLocals);
     writeFile(path.resolve(apiOutputDir, "com/playfab/PlayFabVersion.as"), generatedVersion);
 }

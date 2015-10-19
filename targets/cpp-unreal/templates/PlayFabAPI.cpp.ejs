@@ -9,12 +9,12 @@
 #include "PlayFabPrivatePCH.h"
 #include "PlayFab<%- api.name %>API.h"
 
-UPlayFab<%- api.name %>API* g_proxy = NULL;
+UPlayFab<%- api.name %>API* <%- api.name %>_proxy = NULL;
 
 UPlayFab<%- api.name %>API::UPlayFab<%- api.name %>API(const FObjectInitializer& ObjectInitializer)
 	: Super(ObjectInitializer)
 {
-    g_proxy = this;
+    <%- api.name %>_proxy = this;
 }
 
 void UPlayFab<%- api.name %>API::SetRequestObject(UPlayFabJsonObject* JsonObject)
@@ -389,7 +389,7 @@ void UPlayFab<%- api.name %>API::OnProcessRequestComplete(FHttpRequestPtr Reques
 		
 		myResponse.responseData = ResponseJsonObj;
 
-		g_proxy->OnPlayFabResponse.Broadcast(myResponse, false);
+		<%- api.name %>_proxy->OnPlayFabResponse.Broadcast(myResponse, false);
 
 		return;
 	}
@@ -426,7 +426,7 @@ void UPlayFab<%- api.name %>API::OnProcessRequestComplete(FHttpRequestPtr Reques
 	else { myResponse.responseData = ResponseJsonObj; }
 
 	// Broadcast the result event
-	g_proxy->OnPlayFabResponse.Broadcast(myResponse, true);
+	<%- api.name %>_proxy->OnPlayFabResponse.Broadcast(myResponse, true);
 }
 
 void UPlayFab<%- api.name %>API::Activate()

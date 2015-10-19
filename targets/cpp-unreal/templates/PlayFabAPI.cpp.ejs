@@ -99,9 +99,13 @@ for(var subgroup in api.subgroups)
 						if(properties[z].name == "TitleId") break;
 						if(properties[z].hasOwnProperty('collection'))
 						{
-							if(properties[z].collection == "array" || properties[z].collection == "map") 
+							if(properties[z].collection == "array") 
 							{
 								functionParams[z] = "TArray<FString> " + properties[z].name;
+							}
+							if(properties[z].collection == "map") 
+							{
+								functionParams[z] = "UPlayFabJsonObject* " + properties[z].name;
 							}
 						}
 						else if(properties[z].actualtype == "UserDataPermission")
@@ -285,9 +289,14 @@ UPlayFab<%- api.name %>API* UPlayFab<%- api.name %>API::<%- apiCall.name %>(<%- 
 				}
 				if(properties[z].hasOwnProperty('collection'))
 				{
-					if(properties[z].collection == "array" || properties[z].collection == "map") 
+					if(properties[z].collection == "array") 
 					{
 						%>OutRestJsonObj->SetStringArrayField(TEXT("<%- properties[z].name %>"), <%- properties[z].name %>);
+	<%
+					}
+					if(properties[z].collection == "map") 
+					{
+						%>OutRestJsonObj->SetObjectField(TEXT("<%- properties[z].name %>"), <%- properties[z].name %>);
 	<%
 					}
 				}
@@ -413,7 +422,8 @@ void UPlayFab<%- api.name %>API::OnProcessRequestComplete(FHttpRequestPtr Reques
 	}
 
 	myResponse.responseCode = ResponseJsonObj->GetNumberField("code");
-	myResponse.responseData = ResponseJsonObj->GetObjectField("data");
+	if (myResponse.responseCode == 200) { myResponse.responseData = ResponseJsonObj->GetObjectField("data"); }
+	else { myResponse.responseData = ResponseJsonObj; }
 
 	// Broadcast the result event
 	g_proxy->OnPlayFabResponse.Broadcast(myResponse, true);

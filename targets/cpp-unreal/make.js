@@ -85,6 +85,7 @@ function makeUnrealAPI(apis, apiOutputDir, sourceDir, libname) {
     }
     versionLocals.sdkVersion = sdkVersion;
     versionLocals.libname = libname;
+    versionLocals.apis = apis;
 
     var generatedUplugin = apiUpluginTemplate(versionLocals);
     writeFile(path.resolve(apiOutputDir, "PluginFiles/PlayFab/PlayFab.uplugin"), generatedUplugin);

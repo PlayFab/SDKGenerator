@@ -37,10 +37,88 @@ else
 	IPlayFab::Get().CloudScriptVersion = CloudScriptVersion;
 }
 
+void UPlayFabUtilities::setCloudScriptVersion(int32 CloudScriptVersion)
+{
+	// Set the CloudScriptVersion
+	IPlayFab::Get().CloudScriptVersion = CloudScriptVersion;
+}
+
+FString UPlayFabUtilities::getPhotonAppId(bool Realtime, bool Chat, bool Turnbased)
+{
+	if (Realtime) {return IPlayFab::Get().PhotonRealtimeAppId;}
+	else if (Chat) {return IPlayFab::Get().PhotonChatAppId;}
+	else if (Turnbased) {return IPlayFab::Get().PhotonTurnbasedAppId;}
+	else { return ""; }
+}
+
 <%
 }
 %>void UPlayFabUtilities::setSessionTicket(FString SessionTicket)
 {
 	// Set the SessionTicket
 	IPlayFab::Get().SessionTicket = SessionTicket;
+}
+
+FString UPlayFabUtilities::getErrorText(int32 code)
+{
+	// Variable to hold the return text
+	FString returnText = "";
+
+	// Switch on the code
+	switch  (code)
+	{
+<%		// Now we loop through the apis and create the list
+		
+		// Check if apis is an array if so then we loop through each api if not then we loop through client only
+		if (Array.isArray(apis))
+		{
+			// Now loop through the error list for this api to find the error name
+			var errorString = apis[0].errorList.toString();
+			var errorList = errorString.split(',');
+			for(var z in errorList)
+			{
+				var errorName = apis[0].errorList[z];
+				for (var error in apis[0].errors)
+				{
+					if (apis[0].errors[error].name == errorName) 
+					{
+						var errorCode = apis[0].errors[error].id; 
+
+						// Now that we have the error code and name lets create the switch test
+						%>		case <%-errorCode %>:
+<%						%>			returnText = "<%- errorName %>";
+<%						%>			break;
+
+<%					}
+				}
+			}
+		}
+		else
+		{
+			// Now loop through the error list for this api to find the error name
+			var errorString = apis.errorList.toString();
+			var errorList = errorString.split(',');
+			for(var z in errorList)
+			{
+				var errorName = apis.errorList[z];
+				for (var error in apis.errors)
+				{
+					if (apis.errors[error].name == errorName) 
+					{
+						var errorCode = apis.errors[error].id; 
+
+						// Now that we have the error code and name lets create the switch test
+						%>		case <%-errorCode %>:
+<%						%>			returnText = "<%- errorName %>";
+<%						%>			break;
+
+<%					}
+				}
+			}
+		}
+
+%>	}
+
+	// Return the text
+	return returnText;
 }

@@ -89,9 +89,13 @@ public:
 							if(properties[z].name == "TitleId") break;
 							if(properties[z].hasOwnProperty('collection'))
 							{
-								if(properties[z].collection == "array" || properties[z].collection == "map") 
+								if(properties[z].collection == "array") 
 								{
 									functionParams[z] = "TArray<FString> " + properties[z].name;
+								}
+								if(properties[z].collection == "map") 
+								{
+									functionParams[z] = "UPlayFabJsonObject* " + properties[z].name;
 								}
 							}
 							else if(properties[z].actualtype == "UserDataPermission")

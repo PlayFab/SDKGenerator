@@ -170,6 +170,13 @@ function generate(args) {
             continue;
         }
         
+        // It would probably be better to pass these into the functions, but I don't want to change all the make___Api parameters for all projects today.
+        //   For now, just change the global variables in each with the data loaded from SdkManualNotes.json
+        targetMaker.apiNotes = require(path.resolve(specLocation, 'SdkManualNotes.json'));
+        targetMaker.sdkVersion = targetMaker.apiNotes.sdkVersion[target.name];
+        if (targetMaker.sdkVersion == null)
+            throw "Could not find sdkVersion for " + target.name;
+        
         if (targetMaker.makeClientAPI) {
             var apiOutputDir = sdkOutputDir;
             console.log(" + Generating Client to " + apiOutputDir);
@@ -188,8 +195,8 @@ function generate(args) {
             var apiOutputDir = sdkOutputDir;
             console.log(" + Generating Server to " + apiOutputDir);
             if (!targetMaker.putInRoot)
-            var apiOutputDir = path.resolve(sdkOutputDir, 'PlayFabServerSDK');
-			
+                var apiOutputDir = path.resolve(sdkOutputDir, 'PlayFabServerSDK');
+            
             if (!fs.existsSync(apiOutputDir))
                 mkdirParentsSync(apiOutputDir);
             
@@ -220,6 +227,8 @@ function generate(args) {
             }
         }
     }
+
+    console.log("\n\nDONE!\n");
 }
 
 function preprocessTests(testData, apiLookup) {
@@ -270,7 +279,6 @@ function preprocessTests(testData, apiLookup) {
         
         testNames[name] = test;
         test.name = name;
-        
     }
     
     if (error)
@@ -367,7 +375,6 @@ GLOBAL.copyFile = function (source, dest) {
     }
     fs.closeSync(fdr);
     fs.closeSync(fdw);
-    
 }
 
 GLOBAL.mkdirParentsSync = function (dirname) {

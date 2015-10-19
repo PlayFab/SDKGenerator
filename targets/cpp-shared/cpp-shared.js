@@ -1,6 +1,4 @@
-
 var path = require('path');
-
 
 var makeAPI = exports.makeAPI = function (api, apiOutputDir, subdir) {
     var sourceDir = __dirname;
@@ -152,7 +150,7 @@ var getPropertyDefaultValue = exports.getPropertyDefaultValue = function (proper
 
 var getPropertyCopyValue = exports.getPropertyCopyValue = function (property, datatype) {
     var safePropName = getPropertySafeName(property);
-
+    
     if (property.isclass && property.optional && !property.collection) {
         return "src." + safePropName + " ? new " + property.actualtype + "(*src." + safePropName + ") : NULL";
     }

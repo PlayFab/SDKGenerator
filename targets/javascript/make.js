@@ -4,11 +4,11 @@ exports.putInRoot = true;
 
 exports.makeCombinedAPI = function (apis, sourceDir, apiOutputDir) {
     console.log("Generating JavaScript Combined SDK to " + apiOutputDir);
-
+    
     var templateDir = path.resolve(sourceDir, "templates");
-
+    
     var apiTemplate = ejs.compile(readFile(path.resolve(templateDir, "playfab.js.ejs")));
-
+    
     for (var i in apis) {
         var apiLocals = {};
         apiLocals.api = apis[i];
@@ -52,7 +52,7 @@ function getResultActions(apiCall, api) {
 
 function getUrl(apiCall, api) {
     if (api.name == "Client" && apiCall.name == "RunCloudScript")
-        return "PlayFab._internalSettings.getLogicServerUrl()";
+        return "PlayFab._internalSettings.getLogicServerUrl() + \"" + apiCall.url + "\"";
     return "PlayFab._internalSettings.getServerUrl() + \"" + apiCall.url + "\"";
 }
 

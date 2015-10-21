@@ -51,8 +51,9 @@ if(!PlayFab._internalSettings) {
                 if (callback == null)
                     return;
 
-                var result = null;                
-                try {    
+                var result = null;
+                try {
+                    // window.console.log("parsing json result: " + xhr.responseText);
                     result = JSON.parse(xhr.responseText);
                 } catch (e) {
                     result = {
@@ -76,8 +77,8 @@ if(!PlayFab._internalSettings) {
                 if (callback == null)
                     return;
 
-                var result = null;                
-                try {    
+                var result = null;
+                try {
                     result = JSON.parse(xhr.responseText);
                 } catch (e) {
                     result = {

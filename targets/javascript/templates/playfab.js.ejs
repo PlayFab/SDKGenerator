@@ -1,87 +1,115 @@
-var PlayFabClientSDK = new function(){
-	
-	var internalSettings = {
-		session_ticket: null,
-		sdk_version: "1.1.0",
-		api_version: "1.1.0",
-		production_environment_url: ".playfabapi.com"
-	}
+var PlayFab = typeof PlayFab != 'undefined' ? PlayFab : {};
 
-    var getServerUrl = function () {
-        return "https://" + PlayFabClientSDK.settings.title_id + internalSettings.production_environment_url;
+if(!PlayFab.settings) {
+    PlayFab.settings = {
+        titleID: null,
+        developerSecretKey: null // For security reasons you must never expose this value to the client or players
     }
+}
 
-     var getLogicServerUrl = function () {
-        throw "Not Implemented!";
-    }
+if(!PlayFab._internalSettings) {
+    PlayFab._internalSettings = {
+        sessionTicket: null,
+        sdkVersion: "<%- sdkVersion %>",
+        apiVersion: "<%- apiVersion %>",
+        productionServerUrl: ".playfabapi.com",
+        logicServerUrl: null,
 
-    var executeRequest = function (url, data, callback) {
-		if(callback != null && typeof (callback) != "function"){
-			throw "Callback must be null of a function";
-		}
-	
-        if (data == null){
-            data = {};
-		}
-		
-		var startTime = new Date();
-		
-		var requestBody = JSON.stringify(data);
-		
-        var xhr = new XMLHttpRequest();
-        xhr.open("POST", getServerUrl() + url, true);
+        getServerUrl: function () {
+            return "https://" + PlayFab.settings.titleId + PlayFab._internalSettings.productionServerUrl;
+        },
 
-        xhr.setRequestHeader('Content-Type', 'application/json');
+        getLogicServerUrl: function () {
+            return PlayFab._internalSettings.logicServerUrl;
+        },
 
-        if (internalSettings.session_ticket != null) {
-            xhr.setRequestHeader("X-Authorization", internalSettings.session_ticket);
-        }
-
-        xhr.setRequestHeader('X-PlayFabSDK', "JavaScriptSDK-" + internalSettings.sdk_version + "-" + internalSettings.api_version);
-
-        xhr.onloadend = function () {
-            if (callback != null) {
-				var result = JSON.parse(xhr.responseText);
-				
-				result.CallBackTimeMS = new Date() - startTime;
-				
-                callback(result);
+        executeRequest: function (completeUrl, data, callback) {
+            if (callback != null && typeof (callback) != "function") {
+                throw "Callback must be null of a function";
             }
-        }
 
-        xhr.onerror = function () {
-            if (callback != null) {
-                var result = JSON.parse(xhr.responseText);
-				
-				result.CallBackTimeMS = new Date() - startTime;
-				
-                callback(result);
+            if (data == null) {
+                data = {};
             }
-        }
 
-        xhr.send(requestBody);
+            var startTime = new Date();
+
+            var requestBody = JSON.stringify(data);
+
+            var xhr = new XMLHttpRequest();completeUrl
+            // window.console.log("URL: " + completeUrl);
+            xhr.open("POST", completeUrl, true);
+
+            xhr.setRequestHeader('Content-Type', 'application/json');
+
+            if (PlayFab._internalSettings.sessionTicket != null) {
+                xhr.setRequestHeader("X-Authorization", PlayFab._internalSettings.sessionTicket);
+            }
+
+            xhr.setRequestHeader('X-PlayFabSDK', "JavaScriptSDK-" + PlayFab._internalSettings.sdkVersion + "-" + PlayFab._internalSettings.apiVersion);
+
+            xhr.onloadend = function () {
+                if (callback == null)
+                    return;
+
+                var result = null;                
+                try {    
+                    result = JSON.parse(xhr.responseText);
+                } catch (e) {
+                    result = {
+                        code: 503, // Service Unavailable
+                        status: "Service Unavailable",
+                        error: "Connection error",
+                        errorCode: 2, // PlayFabErrorCode.ConnectionError
+                        errorMessage: xhr.responseText
+                    };
+                }
+
+                result.CallBackTimeMS = new Date() - startTime;
+
+                if (result.code == 200)
+                    callback(result.data, null);
+                else
+                    callback(null, result);
+            }
+
+            xhr.onerror = function () {
+                if (callback == null)
+                    return;
+
+                var result = null;                
+                try {    
+                    result = JSON.parse(xhr.responseText);
+                } catch (e) {
+                    result = {
+                        code: 503, // Service Unavailable
+                        status: "Service Unavailable",
+                        error: "Connection error",
+                        errorCode: 2, // PlayFabErrorCode.ConnectionError
+                        errorMessage: xhr.responseText
+                    };
+                }
+
+                result.CallBackTimeMS = new Date() - startTime;
+                callback(null, result);
+            }
+
+            xhr.send(requestBody);
+        }
     }
-	
-	return {
-	    settings: {
-			title_id: null,
-		},
-	
-	<% for(var a in apis){ var api = apis[a];  var apiName = api.name.toLowerCase();  if( api.name==="Client"){ %><% for(var i in api.calls) { var apiCall = api.calls[i]; %>
-	<%- apiCall.name %>: function(request, callback)
-	{
-		<%- getRequestActions(apiCall, api) %>
-		
-		<% if(apiCall.result == "LoginResult" || apiCall.result == "RegisterPlayFabUserResult"){ %>
-		var overloadCallback = function(result){
-			<%- getResultActions(apiCall, api) %>
-			if (callback != null && typeof (callback) == "function") {
-				callback(result);
-			}
-		};
-		
-		executeRequest("<%- apiCall.url %>", request, overloadCallback);<% }else{ %>executeRequest("<%- apiCall.url %>", request, callback);<% } %>
-	},
-	<% } %><% } %><% } %>
-	}
-}();
+}
+
+PlayFab.<%- api.name %>Api = {<% for(var i in api.calls) { var apiCall = api.calls[i]; %>
+    <%- apiCall.name %>: function (request, callback) {
+        <%- getRequestActions(apiCall, api) %>
+        <% if (hasResultActions(apiCall, api)) { %>var overloadCallback = function (result, error) {
+            <%- getResultActions(apiCall, api) %>
+            if (callback != null && typeof (callback) == "function")
+                callback(result, error);
+        };
+        PlayFab._internalSettings.executeRequest(<%- getUrl(apiCall, api) %>, request, overloadCallback);<% }else{ %>PlayFab._internalSettings.executeRequest(<%- getUrl(apiCall, api) %>, request, callback);<% } %>
+    },
+<% } %>
+};
+
+var PlayFab<%- api.name %>SDK = PlayFab.<%- api.name %>Api;

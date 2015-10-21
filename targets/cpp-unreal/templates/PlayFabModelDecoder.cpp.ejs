@@ -1,18 +1,13 @@
-#pragma once
-
 ////////////////////////////////////////////////////////////////////////////////////////////// 
-// Automatically generated model file for the UE4 PlayFab plugin.
-// This model file contains the request and response USTRUCTS
+// Automatically generated cpp file for the play fab models
 //
 // API: <%- api.name %>
 // API Version: <%- apiRevision %>
 // SDK Version: <%- sdkVersion %>
 //////////////////////////////////////////////////////////////////////////////////////////////
 
-#include "Kismet/BlueprintFunctionLibrary.h"
-#include "PlayFab<%- api.name %>Models.generated.h"
-
-class UPlayFabJsonObject;
+#include "PlayFabPrivatePCH.h"
+#include "PlayFab<%- api.name %>ModelDecoder.h"
 
 //////////////////////////////////////////////////////////////////////////
 // Generated PlayFab <%- api.name %> API Functions
@@ -21,6 +16,7 @@ class UPlayFabJsonObject;
 
 // This loop goes through the subgroups of the api and orders the functions in groups.
 // It makes it a little easier to navigate.
+
 // Array to hold already printed models. That way we dont duplicate
 var modelsArray = [];
 for(var subgroup in api.subgroups) 
@@ -43,12 +39,12 @@ for(var subgroup in api.subgroups)
 		var apiCall = api.calls[i];
 		if(apiCall.subgroup == api.subgroups[subgroup].name)
 		{ 
+			// This loop goes through the datatypes and creates code for the decode functions
 
-			// This loop goes through the datatypes and creates UStructsfor each
-			
 			for(var i in api.datatypes) 
 			{ 
 				var datatype = api.datatypes[i];
+
 				if(datatype.name != apiCall.request)
 				{
 					if (datatype.name != apiCall.result)
@@ -62,60 +58,50 @@ for(var subgroup in api.subgroups)
 
 				// Add datatype name to array
 				modelsArray.push(datatype.name.toString());
-					
-				%>USTRUCT(BlueprintType)
-<%				%>struct F<%- api.name %><%- datatype.name %>
+
+				if(datatype.name.substr(datatype.name.length - 7) == "Request") {continue;} // go to next model if it is a request
+	
+				// Create the start of the functions
+				%>F<%- api.name %><%- datatype.name %> UPlayFab<%- api.name %>ModelDecoder::decode<%- datatype.name %>Response(UPlayFabJsonObject* response)	
 <%				%>{
-<%				%>	GENERATED_USTRUCT_BODY()
+<%				%>	// Temp ustruct
+<%				%>	F<%- api.name %><%- datatype.name %> tempStruct;
 
-<%				%>public:
-
-<%		
-				// Now loop through all the properties to create the variables for the struct
-
+<%				// Now loop through all the properties to create the variables for the struct
 				for(var z in datatype.properties)
 				{
 		
 					var property = datatype.properties[z];
-					if(property.name == "TitleId") 
-					{
-						if(datatype.name.substr(datatype.name.length - 7) == "Request")
-						{
-							continue;
-						}
-					}
-					
-				%>	/** <%- property.description %> */
-<%				%>	UPROPERTY(EditAnywhere, BlueprintReadWrite, Category = "PlayFab | <%- api.name %> | <%- api.subgroups[subgroup].name %> | Models")
-<%		
+					%>	/** <%- property.description %> */
+<%					
 					switch(property.jsontype)
 					{
 						case "String":
-							//if(property.name == "TitleId") {break;}
 							if(property.hasOwnProperty('collection'))
 							{
 								if(property.collection == "array") 
 								{
-								%>	TArray<FString> <%- property.name %>;
+								%>	tempStruct.<%- property.name %> = response->GetStringArrayField("<%- property.name %>");
 
 <%
 								}
-								else
+								if(property.collection == "map")
 								{
-								%>	UPlayFabJsonObject* <%- property.name %>;
+								%>	tempStruct.<%- property.name %> = response->GetObjectField("<%- property.name %>");
 
 <%
 								}
 							}
 							else if(property.actualtype == "UserDataPermission")
 							{
-							%>	EPermissionEnum <%- property.name %>;
+								%>	if (response->GetStringField("<%- property.name %>") == "Public") tempStruct.<%- property.name %> = EPermissionEnum::PUBLIC;
+<%								%>	if (response->GetStringField("<%- property.name %>") == "Private") tempStruct.<%- property.name %> = EPermissionEnum::PRIVATE;
 
 <%
 							}
 							else
 							{
-							%>	FString <%- property.name %>;
+								%>	tempStruct.<%- property.name %> = response->GetStringField("<%- property.name %>");
 
 <%
 							}
@@ -126,20 +112,21 @@ for(var subgroup in api.subgroups)
 							{
 								if(property.collection == "array") 
 								{
-								%>	TArray<bool> <%- property.name %>;
+								%>	tempStruct.<%- property.name %> = response->GetBoolArrayField("<%- property.name %>");
 
 <%
 								}
 								else
 								{
-								%>	UPlayFabJsonObject* <%- property.name %>;
+								%>	tempStruct.<%- property.name %> = response->GetObjectField("<%- property.name %>");
 
 <%
 								}
 							}
 							else
 							{
-								%>	bool <%- property.name %>;
+								%>	tempStruct.<%- property.name %> = response->GetBoolField("<%- property.name %>");
+
 <%
 							}
 							break;
@@ -149,20 +136,21 @@ for(var subgroup in api.subgroups)
 							{
 								if(property.collection == "array") 
 								{
-								%>	TArray<int32> <%- property.name %>;
+								%>	tempStruct.<%- property.name %> = response->GetNumberArrayField("<%- property.name %>");
 
 <%
 								}
 								else
 								{
-								%>	UPlayFabJsonObject* <%- property.name %>;
+								%>	tempStruct.<%- property.name %> = response->GetObjectField("<%- property.name %>");
 
 <%
 								}
 							}
 							else
 							{
-								%>	int32 <%- property.name %>;
+								%>	tempStruct.<%- property.name %> = response->GetNumberField("<%- property.name %>");
+
 <%
 							}
 							break;
@@ -172,31 +160,33 @@ for(var subgroup in api.subgroups)
 							{
 								if(property.collection == "array") 
 								{
-								%>	TArray<UPlayFabJsonObject*> <%- property.name %>;
+								%>	tempStruct.<%- property.name %> = response->GetObjectArrayField("<%- property.name %>");
 
 <%
 								}
 								else
 								{
-								%>	UPlayFabJsonObject* <%- property.name %>;
+								%>	tempStruct.<%- property.name %> = response->GetObjectField("<%- property.name %>");
 
 <%
 								}
 							}
 							else
 							{
-								%>	UPlayFabJsonObject* <%- property.name %>;
+								%>	tempStruct.<%- property.name %> = response->GetObjectField("<%- property.name %>");
+
 <%
 							}
-							break;
-		
+							break;	
 					}
 				}
-				%>};
 
-<%		
+				%>	return tempStruct;
+<%			%>}
+
+<%
 			}
 		}
 	}
-}
-%>
+}%>
+

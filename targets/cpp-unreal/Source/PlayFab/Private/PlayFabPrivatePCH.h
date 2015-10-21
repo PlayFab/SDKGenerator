@@ -16,14 +16,12 @@
 
 // Enum for the UserDataPermission
 UENUM(BlueprintType)
-namespace EUserDataPermision
+enum class EPermissionEnum : uint8
 {
-	enum Type
-	{
-		PRIVATE,
-		PUBLIC
-	};
-}
+		PRIVATE		UMETA(DisplayName = "Private"),
+		PUBLIC		UMETA(DisplayName = "Public")
+};
+
 
 // Enum for Region
 UENUM(BlueprintType)

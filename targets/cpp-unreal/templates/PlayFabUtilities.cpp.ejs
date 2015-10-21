@@ -15,7 +15,7 @@
 	FString PhotonTurnbasedAppId, FString PhotonChatAppId, int32 CloudScriptVersion)
 {
 	// Set the settings
-	IPlayFab::Get().GameTitleId = GameTitleId;
+	IPlayFab::Get().setGameTitleId(GameTitleId);
 	IPlayFab::Get().PhotonRealtimeAppId = PhotonRealtimeAppId;
 	IPlayFab::Get().PhotonTurnbasedAppId = PhotonTurnbasedAppId;
 	IPlayFab::Get().PhotonChatAppId = PhotonChatAppId;
@@ -29,13 +29,16 @@ else
 	FString PhotonTurnbasedAppId, FString PhotonChatAppId, int32 CloudScriptVersion)
 {
 	// Set the settings
-	IPlayFab::Get().GameTitleId = GameTitleId;
-	IPlayFab::Get().PlayFabApiSecretKey = PlayFabSecretApiKey;
+	IPlayFab::Get().setGameTitleId(GameTitleId);
+	IPlayFab::Get().setApiSecretKey(PlayFabSecretApiKey);
 	IPlayFab::Get().PhotonRealtimeAppId = PhotonRealtimeAppId;
 	IPlayFab::Get().PhotonTurnbasedAppId = PhotonTurnbasedAppId;
 	IPlayFab::Get().PhotonChatAppId = PhotonChatAppId;
 	IPlayFab::Get().CloudScriptVersion = CloudScriptVersion;
 }
+<%
+}
+%>
 
 void UPlayFabUtilities::setCloudScriptVersion(int32 CloudScriptVersion)
 {
@@ -51,12 +54,10 @@ FString UPlayFabUtilities::getPhotonAppId(bool Realtime, bool Chat, bool Turnbas
 	else { return ""; }
 }
 
-<%
-}
-%>void UPlayFabUtilities::setSessionTicket(FString SessionTicket)
+void UPlayFabUtilities::setSessionTicket(FString SessionTicket)
 {
 	// Set the SessionTicket
-	IPlayFab::Get().SessionTicket = SessionTicket;
+	IPlayFab::Get().setSessionTicket(SessionTicket);
 }
 
 FString UPlayFabUtilities::getErrorText(int32 code)
@@ -122,3 +123,4 @@ FString UPlayFabUtilities::getErrorText(int32 code)
 	// Return the text
 	return returnText;
 }
+

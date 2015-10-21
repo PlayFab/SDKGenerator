@@ -83,284 +83,185 @@ for(var subgroup in api.subgroups)
 		var apiCall = api.calls[i];
 		if(apiCall.subgroup == api.subgroups[subgroup].name)
 		{ 
-			var functionParamsString = "";
-			var functionParams = [];
-			var properties = api.datatypes[apiCall.request].properties;
+			
+			%>/** <%- apiCall.summary %> */
+<%			%>UPlayFab<%- api.name %>API* UPlayFab<%- api.name %>API::<%- apiCall.name %>(F<%- api.name %><%- apiCall.request %> request)
+<%			%>{
+<%			%>	// Objects containing request data
+<%			%>	UPlayFab<%- api.name %>API* manager = NewObject<UPlayFab<%- api.name %>API>();
+<%			%>	UPlayFabJsonObject* OutRestJsonObj = NewObject<UPlayFabJsonObject>();
 
-			// This loop goes through each property of the call and creates a correct parameter for UE4.
-			// We have to break it down into types so we know what cpp type to give it.
-			// Also, UE4 has a few custom types.
+<%			%>	// Setup the request
+<%			%>	manager->PlayFabRequestURL = "<%- apiCall.url %>";
+<% 
+	
+			// If the api requires a sessionticket we add it, if not then leave it blank
 
-			for(var z in properties)
+			if(apiCall.auth == "SessionTicket") 
 			{
-				switch(properties[z].jsontype)
-				{
-					case "String":
-						if(properties[z].name == "TitleId") break;
-						if(properties[z].hasOwnProperty('collection'))
-						{
-							if(properties[z].collection == "array") 
-							{
-								functionParams[z] = "TArray<FString> " + properties[z].name;
-							}
-							if(properties[z].collection == "map") 
-							{
-								functionParams[z] = "UPlayFabJsonObject* " + properties[z].name;
-							}
-						}
-						else if(properties[z].actualtype == "UserDataPermission")
-						{
-							functionParams[z] = "EUserDataPermision::Type " + properties[z].name;
-						}
-						else
-						{
-							if(properties[z].optional) 
-							{ 
-								functionParams[z] = "FString " + properties[z].name + " = \"\"";
-							}
-							else 
-							{
-								functionParams[z] = "FString " + properties[z].name; 
-							}	
-						}
-						break;
-
-					case "Boolean": 
-						if(properties[z].hasOwnProperty('collection'))
-						{
-							if(properties[z].collection == "array" || properties[z].collection == "map") 
-							{
-								functionParams[z] = "TArray<bool> " + properties[z].name;
-							}
-						}
-						else
-						{
-							if(properties[z].optional) { functionParams[z] = "bool " + properties[z].name + " = false "; }
-							else { functionParams[z] = "bool " + properties[z].name; }
-						}
-						break;	
-
-					case "Number":
-						if(properties[z].hasOwnProperty('collection'))
-						{
-							if(properties[z].collection == "array" || properties[z].collection == "map") 
-							{
-								functionParams[z] = "TArray<float> " + properties[z].name;
-							}
-						}
-						else
-						{
-							if(properties[z].optional) { functionParams[z] = "int32 " + properties[z].name + " = 0"; }
-							else { functionParams[z] = "int32 " + properties[z].name; }
-						}
-						break;
-
-					case "Object":
-						if(properties[z].hasOwnProperty('collection'))
-						{
-							if(properties[z].collection == "array" || properties[z].collection == "map") 
-							{
-								functionParams[z] = "TArray<UPlayFabJsonObject*> " + properties[z].name;
-							}
-						}
-						else
-						{
-							functionParams[z] = "UPlayFabJsonObject* " + properties[z].name;
-						}
-						break;
-				}								
+			%>	manager->useSessionTicket = true;
+<%
+			}
+			else
+			{
+			%>	manager->useSessionTicket = false;
+<%
 			}
 
-			// Now the interesting part. Because we have to have any optional parameters last we have to sort them.
-			// Cpp doesn't like having parameters with defaults before non optional ones.
+			// If the api requires the secret key we say true so it pulls from the PlayFab Module
+			// However if this is the client SDK we don't include the secret key.
 
-			functionParams.sort(
-				function(a, b)
+			if(libname != "Client")
+			{
+				if(apiCall.auth == "SecretKey") 
 				{
-					// We search for the "=" symbol which means its optional with a default
-					if(a.indexOf("=") != -1)
+				%>	manager->useSecretKey = true;
+<%
+				}
+				else
+				{
+				%>	manager->useSecretKey = false;
+<%
+				}
+			}
+
+			// If this deals with cloud script set the cloudscript bool
+			if(apiCall.name == "RunCloudScript")
+			{
+			%>	manager->cloudScript = true;
+<%
+			}
+
+			// If call is a login call set loginRequest true
+			if (apiCall.result == "LoginResult") 
+			{
+			%>	manager->isLoginRequest = true;
+<%
+			}
+		%>	
+
+<%	%>	// Setup request object
+<%
+
+		// Now this is where the magic really happens.
+		// Certain api calls require certain things, so we loop through each call to determine what it wants.
+		// Then we just add that code that is related to that api call and presto.
+
+		var properties = api.datatypes[apiCall.request].properties;
+
+		for(var z in properties)
+		{
+			var objectRequestString = "";
+			var property = properties[z];
+
+			switch(property.jsontype)
+			{
+				case "String":
+					if(property.name == "ParamsEncoded")
 					{
-						if(b.indexOf("=") != -1) { return -1; }
-						else { return -1; }
+					%>	if (request.ParamsEncoded != "") OutRestJsonObj->SetStringField(TEXT("<%- property.name %>"), request.<%- property.name %>);
+<%						break;
+					}
+					if(property.name == "TitleId")
+					{
+					%>	OutRestJsonObj->SetStringField(TEXT("<%- property.name %>"), IPlayFab::Get().getGameTitleId());
+<%						break;
+					}
+					if(property.hasOwnProperty('collection'))
+					{
+						if(property.collection == "array") 
+						{
+						%>	OutRestJsonObj->SetStringArrayField(TEXT("<%- property.name %>"), request.<%- property.name %>);
+<%
+						}	
+						else
+						{
+						%>	OutRestJsonObj->SetObjectField(TEXT("<%- property.name %>"), request.<%- property.name %>);
+<%
+						}
+					}
+					else if(property.actualtype == "UserDataPermission")
+					{
+					%>	if (request.<%- property.name %> == EPermissionEnum::PUBLIC) OutRestJsonObj->SetStringField(TEXT("<%- property.name %>"), TEXT("Public"));
+<%					%>	if (request.<%- property.name %> == EPermissionEnum::PRIVATE) OutRestJsonObj->SetStringField(TEXT("<%- property.name %>"), TEXT("Private"));
+<%
 					}
 					else
 					{
-						if(b.indexOf("=") != -1) { return 1; }
-						else { return 1; }
+					%>	OutRestJsonObj->SetStringField(TEXT("<%- property.name %>"), request.<%- property.name %>);
+<%
 					}
-				}
-			);
+					break;
 
-			// The sort above oders the array backwards from what we want so we just reverse.
+				case "Number":
+					if(property.hasOwnProperty('collection'))
+					{
+						if(property.collection == "array") 
+						{
+						%>	// Copy int array to float
+<%						%>	TArray<float> tempArray;
+<%						%>	for (int32 i = 0; i < request.<%- property.name %>.Num(); ++i)
+<%						%>	{
+<%						%>		tempArray.Add(float(request.<%- property.name %>[i]));
+<%						%>	}
+<%						%>	OutRestJsonObj->SetNumberArrayField(TEXT("<%- property.name %>"), tempArray);
+<%
+						}
+						else
+						{
+						%>	OutRestJsonObj->SetObjectField(TEXT("<%- property.name %>"), request.<%- property.name %>);
+<%
+						}
+					}
+					else
+					{
+					%>	OutRestJsonObj->SetNumberField(TEXT("<%- property.name %>"), request.<%- property.name %>);
+<%
+					}
+					break;
 
-			functionParams.reverse();
+				case "Object":
+					if(property.hasOwnProperty('collection'))
+					{
+						if(property.collection == "array") 
+						{
+						%>	OutRestJsonObj->SetObjectArrayField(TEXT("<%- property.name %>"), request.<%- property.name %>);
+<%
+						}
+						else
+						{
+						%>	OutRestJsonObj->SetObjectField(TEXT("<%- property.name %>"), request.<%- property.name %>);
+<%
+						}
+					}
+					else
+					{
+					%>	OutRestJsonObj->SetObjectField(TEXT("<%- property.name %>"), request.<%- property.name %>);
+<%
+					}
+					break;
 
-			// Because this is the cpp file and we do not want to redefine the defaults we remove them
-
-			for(var z in functionParams)
-			{
-				if(functionParams[z].indexOf("=") != -1)
-				{
-					functionParams[z] = functionParams[z].substring(0, functionParams[z].indexOf("=") - 1)
-				}
+				case "Boolean":
+					if(property.hasOwnProperty('collection'))
+					{
+						if(property.collection == "array") 
+						{
+						%>	OutRestJsonObj->SetBoolArrayField(TEXT("<%- property.name %>"), request.<%- property.name %>);
+<%
+						}
+						else
+						{
+						%>	OutRestJsonObj->SetObjectField(TEXT("<%- property.name %>"), request.<%- property.name %>);
+<%
+						}
+					}
+					else
+					{
+					%>	OutRestJsonObj->SetBoolField(TEXT("<%- property.name %>"), request.<%- property.name %>);
+<%
+					}
+					break;
 			}
-
-			// This loop adds the paramaters to one main parameters string
-
-			for(var z in functionParams)
-			{
-				if(z == functionParams.length - 1) { functionParamsString = functionParamsString + functionParams[z]; }
-				else { functionParamsString = functionParamsString + functionParams[z] + ", "; }
-			}
-%>
-/** <%- apiCall.summary %> */
-UPlayFab<%- api.name %>API* UPlayFab<%- api.name %>API::<%- apiCall.name %>(<%- functionParamsString %>)
-{
-	// Objects containing request data
-	UPlayFab<%- api.name %>API* manager = NewObject<UPlayFab<%- api.name %>API>();
-	UPlayFabJsonObject* OutRestJsonObj = NewObject<UPlayFabJsonObject>();
-
-	// Setup the request
-	manager->PlayFabRequestURL = "<%- apiCall.url %>";
-	<% 
-	
-	// If the api requires a sessionticket we add it, if not then leave it blank
-
-	if(apiCall.auth == "SessionTicket") 
-	{
-		%>manager->useSessionTicket = true;
-	<%
-	}
-	else
-	{
-		%>manager->useSessionTicket = false;
-	<%
-	}
-
-	// If the api requires the secret key we say true so it pulls from the PlayFab Module
-	// However if this is the client SDK we don't include the secret key.
-
-	if(libname != "Client")
-	{
-		if(apiCall.auth == "SecretKey") 
-		{
-			%>manager->useSecretKey = true;
-	<%
-		}
-		else
-		{
-			%>manager->useSecretKey = false;
-	<%
-		}
-	}
-
-	// If this deals with cloud script set the cloudscript bool
-	if(apiCall.name == "RunCloudScript")
-	{
-		%>manager->cloudScript = true;
-	<%
-	}
-
-	%>
-	
-	// Setup request object
-	<%
-
-	// Now this is where the magic really happens.
-	// Certain api calls require certain things, so we loop through each call to determine what it wants.
-	// Then we just add that code that is related to that api call and presto.
-
-	for(var z in properties)
-	{
-		var objectRequestString = "";
-
-		switch(properties[z].jsontype)
-		{
-			case "String":
-				if(properties[z].name == "ParamsEncoded")
-				{
-					%>if (ParamsEncoded != "") OutRestJsonObj->SetStringField(TEXT("<%- properties[z].name %>"), <%- properties[z].name %>);
-	<%				break;
-				}
-				if(properties[z].name == "TitleId")
-				{
-					%>OutRestJsonObj->SetStringField(TEXT("<%- properties[z].name %>"), IPlayFab::Get().GameTitleId);
-	<%				break;
-				}
-				if(properties[z].hasOwnProperty('collection'))
-				{
-					if(properties[z].collection == "array") 
-					{
-						%>OutRestJsonObj->SetStringArrayField(TEXT("<%- properties[z].name %>"), <%- properties[z].name %>);
-	<%
-					}
-					if(properties[z].collection == "map") 
-					{
-						%>OutRestJsonObj->SetObjectField(TEXT("<%- properties[z].name %>"), <%- properties[z].name %>);
-	<%
-					}
-				}
-				else if(properties[z].actualtype == "UserDataPermission")
-				{
-					%>if (Permission == EUserDataPermision::Type::PUBLIC) OutRestJsonObj->SetStringField(TEXT("<%- properties[z].name %>"), TEXT("Public"));
-	<%				%>if (Permission == EUserDataPermision::Type::PRIVATE) OutRestJsonObj->SetStringField(TEXT("<%- properties[z].name %>"), TEXT("Private"));
-	<%
-				}
-				else
-				{
-					%>OutRestJsonObj->SetStringField(TEXT("<%- properties[z].name %>"), <%- properties[z].name %>);
-	<%
-				}
-				break;
-
-			case "Number":
-				if(properties[z].hasOwnProperty('collection'))
-				{
-					if(properties[z].collection == "array" || properties[z].collection == "map") 
-					{
-						%>OutRestJsonObj->SetNumberArrayField(TEXT("<%- properties[z].name %>"), <%- properties[z].name %>);
-	<%
-					}
-				}
-				else
-				{
-					%>OutRestJsonObj->SetNumberField(TEXT("<%- properties[z].name %>"), <%- properties[z].name %>);
-	<%
-				}
-				break;
-
-			case "Object":
-				if(properties[z].hasOwnProperty('collection'))
-				{
-					if(properties[z].collection == "array" || properties[z].collection == "map") 
-					{
-						%>OutRestJsonObj->SetObjectArrayField(TEXT("<%- properties[z].name %>"), <%- properties[z].name %>);
-	<%
-					}
-				}
-				else
-				{
-					%>OutRestJsonObj->SetObjectField(TEXT("<%- properties[z].name %>"), <%- properties[z].name %>);
-	<%
-				}
-				break;
-
-			case "Boolean":
-				if(properties[z].hasOwnProperty('collection'))
-				{
-					if(properties[z].collection == "array" || properties[z].collection == "map") 
-					{
-						%>OutRestJsonObj->SetBoolArrayField(TEXT("<%- properties[z].name %>"), <%- properties[z].name %>);
-	<%
-					}
-				}
-				else
-				{
-					%>OutRestJsonObj->SetBoolField(TEXT("<%- properties[z].name %>"), <%- properties[z].name %>);
-	<%
-				}
-				break;
-		}
 	}%>
 
 	// Add Request to manager
@@ -377,7 +278,7 @@ void UPlayFab<%- api.name %>API::OnProcessRequestComplete(FHttpRequestPtr Reques
 	// Be sure that we have no data from previous response
 	ResetResponseData();
 
-	FPlayFab<%- api.name %>Response myResponse;
+	FPlayFabBaseModel myResponse;
 
 	// Check we have result to process futher
 	if (!bWasSuccessful)
@@ -385,7 +286,9 @@ void UPlayFab<%- api.name %>API::OnProcessRequestComplete(FHttpRequestPtr Reques
 		UE_LOG(LogPlayFab, Error, TEXT("Request failed: %s"), *Request->GetURL());
 
 		// Broadcast the result event
-		myResponse.responseCode = 500;
+		myResponse.responseError.ErrorCode = 500;
+		myResponse.responseError.ErrorName = "Request Error";
+		myResponse.responseError.ErrorMessage = "HTTP Request Error";
 		
 		myResponse.responseData = ResponseJsonObj;
 
@@ -421,9 +324,10 @@ void UPlayFab<%- api.name %>API::OnProcessRequestComplete(FHttpRequestPtr Reques
 		}
 	}
 
-	myResponse.responseCode = ResponseJsonObj->GetNumberField("code");
-	if (myResponse.responseCode == 200) { myResponse.responseData = ResponseJsonObj->GetObjectField("data"); }
-	else { myResponse.responseData = ResponseJsonObj; }
+	myResponse.responseError.decodeError(ResponseJsonObj);
+	myResponse.responseData = ResponseJsonObj->GetObjectField("data");
+
+	if (isLoginRequest) IPlayFab::Get().setSessionTicket(myResponse.responseData->GetStringField("SessionTicket"));
 
 	// Broadcast the result event
 	<%- api.name %>_proxy->OnPlayFabResponse.Broadcast(myResponse, true);
@@ -431,12 +335,12 @@ void UPlayFab<%- api.name %>API::OnProcessRequestComplete(FHttpRequestPtr Reques
 
 void UPlayFab<%- api.name %>API::Activate()
 {
-	FString RequestUrl = TEXT("https://") + IPlayFab::Get().GameTitleId + IPlayFab::PlayFabURL;
+	FString RequestUrl = TEXT("https://") + IPlayFab::Get().getGameTitleId() + IPlayFab::PlayFabURL;
 
 	// Build the full request url
 	if (cloudScript)
 	{
-		RequestUrl = TEXT("https://") + IPlayFab::Get().GameTitleId + IPlayFab::PlayFabLogicURL + FString::FromInt(IPlayFab::Get().CloudScriptVersion) + TEXT("/prod");
+		RequestUrl = TEXT("https://") + IPlayFab::Get().getGameTitleId() + IPlayFab::PlayFabLogicURL + FString::FromInt(IPlayFab::Get().CloudScriptVersion) + TEXT("/prod");
 	}
 
 	RequestUrl = RequestUrl + PlayFabRequestURL;
@@ -446,11 +350,11 @@ void UPlayFab<%- api.name %>API::Activate()
 
 	if (useSessionTicket)
 	{
-		HttpRequest->SetHeader("X-Authentication", IPlayFab::Get().SessionTicket);
+		HttpRequest->SetHeader("X-Authentication", IPlayFab::Get().getSessionTicket());
 	}
 	if (useSecretKey)
 	{
-		HttpRequest->SetHeader("X-SecretKey", IPlayFab::Get().PlayFabApiSecretKey);
+		HttpRequest->SetHeader("X-SecretKey", IPlayFab::Get().getSecretApiKey());
 	}
 
 	// Set verb

@@ -70,8 +70,11 @@ function makeUnrealAPI(apis, apiOutputDir, sourceDir, libname) {
     var apiUpluginTemplate = ejs.compile(readFile(path.resolve(sourceDir, "templates/PlayFab.uplugin.ejs")));
     var apiPlayFabCppTemplate = ejs.compile(readFile(path.resolve(sourceDir, "templates/PlayFab.cpp.ejs")));
     var apiPlayFabModelTemplate = ejs.compile(readFile(path.resolve(sourceDir, "templates/PlayFabModels.h.ejs")));
+    var apiPlayFabModelCppTemplate = ejs.compile(readFile(path.resolve(sourceDir, "templates/PlayFabModels.cpp.ejs")));
     var apiPlayFabUtilitiesHTemplate = ejs.compile(readFile(path.resolve(sourceDir, "templates/PlayFabUtilities.h.ejs")));
     var apiPlayFabUtilitiesCppTemplate = ejs.compile(readFile(path.resolve(sourceDir, "templates/PlayFabUtilities.cpp.ejs")));
+    var apiPlayFabModelDecoderHTemplate = ejs.compile(readFile(path.resolve(sourceDir, "templates/PlayFabModelDecoder.h.ejs")));
+    var apiPlayFabModelDecoderCppTemplate = ejs.compile(readFile(path.resolve(sourceDir, "templates/PlayFabModelDecoder.cpp.ejs")));
     
     // Create the uplugin file
     var versionLocals = {};
@@ -144,8 +147,17 @@ function makeUnrealAPI(apis, apiOutputDir, sourceDir, libname) {
             var generatedBody = apiCppTemplate(apiLocals);
             writeFile(path.resolve(apiOutputDir, "PluginFiles/PlayFab/Source/PlayFab/Private/PlayFab" + api.name + "API.cpp"), generatedBody);
 
-            var generatedBody = apiPlayFabModelTemplate(apiLocals);
-            writeFile(path.resolve(apiOutputDir, "PluginFiles/PlayFab/Source/PlayFab/Classes/PlayFab" + api.name + "Models.h"), generatedBody);
+            var generatedHeader = apiPlayFabModelTemplate(apiLocals);
+            writeFile(path.resolve(apiOutputDir, "PluginFiles/PlayFab/Source/PlayFab/Classes/PlayFab" + api.name + "Models.h"), generatedHeader);
+
+            var generatedBody = apiPlayFabModelCppTemplate(apiLocals);
+            writeFile(path.resolve(apiOutputDir, "PluginFiles/PlayFab/Source/PlayFab/Private/PlayFab" + api.name + "Models.cpp"), generatedBody);
+
+            var generatedHeader = apiPlayFabModelDecoderHTemplate(apiLocals);
+            writeFile(path.resolve(apiOutputDir, "PluginFiles/PlayFab/Source/PlayFab/Classes/PlayFab" + api.name + "ModelDecoder.h"), generatedHeader);
+
+            var generatedBody = apiPlayFabModelDecoderCppTemplate(apiLocals);
+            writeFile(path.resolve(apiOutputDir, "PluginFiles/PlayFab/Source/PlayFab/Private/PlayFab" + api.name + "ModelDecoder.cpp"), generatedBody);
         }
     }
     else
@@ -163,8 +175,17 @@ function makeUnrealAPI(apis, apiOutputDir, sourceDir, libname) {
         var generatedBody = apiCppTemplate(apiLocals);
         writeFile(path.resolve(apiOutputDir, "PluginFiles/PlayFab/Source/PlayFab/Private/PlayFab" + api.name + "API.cpp"), generatedBody);
 
-        var generatedBody = apiPlayFabModelTemplate(apiLocals);
-        writeFile(path.resolve(apiOutputDir, "PluginFiles/PlayFab/Source/PlayFab/Classes/PlayFab" + api.name + "Models.h"), generatedBody);
+        var generatedHeader = apiPlayFabModelTemplate(apiLocals);
+        writeFile(path.resolve(apiOutputDir, "PluginFiles/PlayFab/Source/PlayFab/Classes/PlayFab" + api.name + "Models.h"), generatedHeader);
+
+        var generatedBody = apiPlayFabModelCppTemplate(apiLocals);
+        writeFile(path.resolve(apiOutputDir, "PluginFiles/PlayFab/Source/PlayFab/Private/PlayFab" + api.name + "Models.cpp"), generatedBody);
+
+        var generatedHeader = apiPlayFabModelDecoderHTemplate(apiLocals);
+        writeFile(path.resolve(apiOutputDir, "PluginFiles/PlayFab/Source/PlayFab/Classes/PlayFab" + api.name + "ModelDecoder.h"), generatedHeader);
+
+        var generatedBody = apiPlayFabModelDecoderCppTemplate(apiLocals);
+        writeFile(path.resolve(apiOutputDir, "PluginFiles/PlayFab/Source/PlayFab/Private/PlayFab" + api.name + "ModelDecoder.cpp"), generatedBody);
     }
 
     

@@ -16,6 +16,7 @@ exports.makeCombinedAPI = function (apis, sourceDir, apiOutputDir) {
         apiLocals.getRequestActions = getRequestActions;
         apiLocals.getResultActions = getResultActions;
         apiLocals.getUrl = getUrl;
+        apiLocals.getAuthParams = getAuthParams;
         apiLocals.apiVersion = apis[0].revision;
         apiLocals.sdkVersion = exports.sdkVersion;
         var generatedApi = apiTemplate(apiLocals);
@@ -53,4 +54,13 @@ function getUrl(apiCall, api) {
     if (api.name == "Client" && apiCall.name == "RunCloudScript")
         return "PlayFab._internalSettings.getLogicServerUrl()";
     return "PlayFab._internalSettings.getServerUrl() + \"" + apiCall.url + "\"";
+}
+
+function getAuthParams(apiCall) {
+    if (apiCall.auth == 'SecretKey')
+        return "\"X-SecretKey\", PlayFab.settings.developerSecretKey";
+    else if (apiCall.auth == 'SessionTicket')
+        return "\"X-Authorization\", PlayFab._internalSettings.sessionTicket";
+    
+    return "null, null";
 }

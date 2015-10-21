@@ -23,7 +23,7 @@ if(!PlayFab._internalSettings) {
             return PlayFab._internalSettings.logicServerUrl;
         },
 
-        executeRequest: function (completeUrl, data, callback) {
+        executeRequest: function (completeUrl, data, authkey, authValue, callback) {
             if (callback != null && typeof (callback) != "function") {
                 throw "Callback must be null of a function";
             }
@@ -42,9 +42,8 @@ if(!PlayFab._internalSettings) {
 
             xhr.setRequestHeader('Content-Type', 'application/json');
 
-            if (PlayFab._internalSettings.sessionTicket != null) {
-                xhr.setRequestHeader("X-Authorization", PlayFab._internalSettings.sessionTicket);
-            }
+            if (authkey != null)
+                xhr.setRequestHeader(authkey, authValue);
 
             xhr.setRequestHeader('X-PlayFabSDK', "JavaScriptSDK-" + PlayFab._internalSettings.sdkVersion + "-" + PlayFab._internalSettings.apiVersion);
 
@@ -107,7 +106,7 @@ PlayFab.<%- api.name %>Api = {<% for(var i in api.calls) { var apiCall = api.cal
             if (callback != null && typeof (callback) == "function")
                 callback(result, error);
         };
-        PlayFab._internalSettings.executeRequest(<%- getUrl(apiCall, api) %>, request, overloadCallback);<% }else{ %>PlayFab._internalSettings.executeRequest(<%- getUrl(apiCall, api) %>, request, callback);<% } %>
+        PlayFab._internalSettings.executeRequest(<%- getUrl(apiCall, api) %>, request, <%- getAuthParams(apiCall) %>, overloadCallback);<% }else{ %>PlayFab._internalSettings.executeRequest(<%- getUrl(apiCall, api) %>, request, <%- getAuthParams(apiCall) %>, callback);<% } %>
     },
 <% } %>
 };

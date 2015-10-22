@@ -75,7 +75,7 @@ public:
 					if(datatype.name.substr(datatype.name.length - 7) == "Request") {continue;} // go to next model if it is a request
 
 				%>	/** Decode the <%- datatype.name %> response object*/
-<%				%>	UFUNCTION(BlueprintCallable, Category = "PlayFab | <%- api.name %> | <%- api.subgroups[subgroup].name %> | Models")
+<%				%>	UFUNCTION(BlueprintCallable, Category = "PlayFab | <%- api.name %> | <%- api.subgroups[subgroup].name %> Models")
 <%				%>		static F<%- api.name %><%- datatype.name %> decode<%- datatype.name %>Response(UPlayFabJsonObject* response);	
 
 <%

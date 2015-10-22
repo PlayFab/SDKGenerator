@@ -1,5 +1,9 @@
-// Copyright 1998-2014 Epic Games, Inc. All Rights Reserved.
-// Copyright 2014 Vladimir Alyamkin. All Rights Reserved.
+////////////////////////////////////////////////////////////
+// JSon Objects
+// These are used as a wrapper for the internal json objects.
+// Originally wriiten by Vladimir Alyamkin.
+// Updated by Joshua Lyons to include null values
+////////////////////////////////////////////////////////////
 
 #pragma once
 
@@ -64,6 +68,10 @@ class PLAYFAB_API UPlayFabJsonObject : public UObject
 	/** Add a field named FieldName with a Value */
 	UFUNCTION(BlueprintCallable, Category = "PlayFab | Json")
 	void SetField(const FString& FieldName, UPlayFabJsonValue* JsonValue);
+
+	/** Add a field named FieldName with a null value */
+	UFUNCTION(BlueprintCallable, Category = "PlayFab | Json")
+	void SetFieldNull(const FString& FieldName);
 
 	/** Get the field named FieldName as a Json Array */
 	UFUNCTION(BlueprintCallable, Category = "PlayFab | Json")

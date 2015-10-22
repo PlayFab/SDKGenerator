@@ -1,5 +1,8 @@
-// Copyright 1998-2014 Epic Games, Inc. All Rights Reserved.
-// Copyright 2014 Vladimir Alyamkin. All Rights Reserved.
+////////////////////////////////////////////////////////////
+// JSonValue Objects
+// These are used as a wrapper for the internal json values.
+// Originally wriiten by Vladimir Alyamkin.
+////////////////////////////////////////////////////////////
 
 #pragma once
 

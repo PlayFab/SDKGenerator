@@ -1,4 +1,8 @@
-// Copyright 2014 Vladimir Alyamkin. All Rights Reserved.
+////////////////////////////////////////////////////////////
+// JSon Values
+// These are used as a wrapper for the internal json values.
+// Originally wriiten by Vladimir Alyamkin.
+////////////////////////////////////////////////////////////
 
 #include "PlayFabPrivatePCH.h"
 

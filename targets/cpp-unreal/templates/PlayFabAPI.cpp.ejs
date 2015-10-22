@@ -95,181 +95,201 @@ for(var subgroup in api.subgroups)
 <%			%>	manager->PlayFabRequestURL = "<%- apiCall.url %>";
 <% 
 	
-			// If the api requires a sessionticket we add it, if not then leave it blank
+				// If the api requires a sessionticket we add it, if not then leave it blank
 
-			if(apiCall.auth == "SessionTicket") 
-			{
-			%>	manager->useSessionTicket = true;
-<%
-			}
-			else
-			{
-			%>	manager->useSessionTicket = false;
-<%
-			}
-
-			// If the api requires the secret key we say true so it pulls from the PlayFab Module
-			// However if this is the client SDK we don't include the secret key.
-
-			if(libname != "Client")
-			{
-				if(apiCall.auth == "SecretKey") 
+				if(apiCall.auth == "SessionTicket") 
 				{
-				%>	manager->useSecretKey = true;
+				%>	manager->useSessionTicket = true;
 <%
 				}
 				else
 				{
-				%>	manager->useSecretKey = false;
+				%>	manager->useSessionTicket = false;
 <%
 				}
-			}
 
-			// If this deals with cloud script set the cloudscript bool
-			if(apiCall.name == "RunCloudScript")
-			{
-			%>	manager->cloudScript = true;
-<%
-			}
+				// If the api requires the secret key we say true so it pulls from the PlayFab Module
+				// However if this is the client SDK we don't include the secret key.
 
-			// If call is a login call set loginRequest true
-			if (apiCall.result == "LoginResult") 
-			{
-			%>	manager->isLoginRequest = true;
-<%
-			}
-		%>	
-
-<%	%>	// Setup request object
-<%
-
-		// Now this is where the magic really happens.
-		// Certain api calls require certain things, so we loop through each call to determine what it wants.
-		// Then we just add that code that is related to that api call and presto.
-
-		var properties = api.datatypes[apiCall.request].properties;
-
-		for(var z in properties)
-		{
-			var objectRequestString = "";
-			var property = properties[z];
-
-			switch(property.jsontype)
-			{
-				case "String":
-					if(property.name == "ParamsEncoded")
+				if(libname != "Client")
+				{
+					if(apiCall.auth == "SecretKey") 
 					{
-					%>	if (request.ParamsEncoded != "") OutRestJsonObj->SetStringField(TEXT("<%- property.name %>"), request.<%- property.name %>);
-<%						break;
-					}
-					if(property.name == "TitleId")
-					{
-					%>	OutRestJsonObj->SetStringField(TEXT("<%- property.name %>"), IPlayFab::Get().getGameTitleId());
-<%						break;
-					}
-					if(property.hasOwnProperty('collection'))
-					{
-						if(property.collection == "array") 
-						{
-						%>	OutRestJsonObj->SetStringArrayField(TEXT("<%- property.name %>"), request.<%- property.name %>);
-<%
-						}	
-						else
-						{
-						%>	OutRestJsonObj->SetObjectField(TEXT("<%- property.name %>"), request.<%- property.name %>);
-<%
-						}
-					}
-					else if(property.actualtype == "UserDataPermission")
-					{
-					%>	if (request.<%- property.name %> == EPermissionEnum::PUBLIC) OutRestJsonObj->SetStringField(TEXT("<%- property.name %>"), TEXT("Public"));
-<%					%>	if (request.<%- property.name %> == EPermissionEnum::PRIVATE) OutRestJsonObj->SetStringField(TEXT("<%- property.name %>"), TEXT("Private"));
+					%>	manager->useSecretKey = true;
 <%
 					}
 					else
 					{
-					%>	OutRestJsonObj->SetStringField(TEXT("<%- property.name %>"), request.<%- property.name %>);
+					%>	manager->useSecretKey = false;
 <%
 					}
-					break;
+				}
 
-				case "Number":
-					if(property.hasOwnProperty('collection'))
-					{
-						if(property.collection == "array") 
+				// If this deals with cloud script set the cloudscript bool
+				if(apiCall.name == "RunCloudScript")
+				{
+				%>	manager->cloudScript = true;
+<%
+				}
+
+				// If call is a login call set loginRequest true
+				if (apiCall.result == "LoginResult") 
+				{
+				%>	manager->isLoginRequest = true;
+<%
+				}
+			%>	
+
+<%		%>	// Setup request object
+<%
+
+			// Now this is where the magic really happens.
+			// Certain api calls require certain things, so we loop through each call to determine what it wants.
+			// Then we just add that code that is related to that api call and presto.
+
+			var properties = api.datatypes[apiCall.request].properties;
+
+			for(var z in properties)
+			{
+				var objectRequestString = "";
+				var property = properties[z];
+
+				switch(property.jsontype)
+				{
+					case "String":
+						if(property.name == "ParamsEncoded")
 						{
-						%>	// Copy int array to float
-<%						%>	TArray<float> tempArray;
-<%						%>	for (int32 i = 0; i < request.<%- property.name %>.Num(); ++i)
+						%>	if (request.ParamsEncoded != "") OutRestJsonObj->SetStringField(TEXT("<%- property.name %>"), request.<%- property.name %>);
+<%							break;
+						}
+						if(property.name == "TitleId")
+						{
+						%>	OutRestJsonObj->SetStringField(TEXT("<%- property.name %>"), IPlayFab::Get().getGameTitleId());
+<%							break;
+						}
+						if(property.hasOwnProperty('collection'))
+						{
+							if(property.collection == "array") 
+							{
+							%>	// Check to see if string is empty
+<%							%>	if (request.<%- property.name %>.IsEmpty() || request.<%- property.name %> == "")
+<%							%>	{
+<%							%>		OutRestJsonObj->SetFieldNull(TEXT("<%- property.name %>"));
+<%							%>	}
+<%							%>	else
+<%							%>	{
+<%							%>		TArray<FString> <%- property.name %>Array;
+<%							%>		FString(request.<%- property.name %>).ParseIntoArray(<%- property.name %>Array, TEXT(","), false);
+<%							%>		OutRestJsonObj->SetStringArrayField(TEXT("<%- property.name %>"), <%- property.name %>Array);
+<%							%>	}
+
+<%
+							}	
+							else
+							{
+							%>	OutRestJsonObj->SetObjectField(TEXT("<%- property.name %>"), request.<%- property.name %>);
+<%
+							}
+						}
+						else if(property.actualtype == "UserDataPermission")
+						{
+						%>	if (request.<%- property.name %> == EPermissionEnum::PUBLIC) OutRestJsonObj->SetStringField(TEXT("<%- property.name %>"), TEXT("Public"));
+<%						%>	if (request.<%- property.name %> == EPermissionEnum::PRIVATE) OutRestJsonObj->SetStringField(TEXT("<%- property.name %>"), TEXT("Private"));
+<%
+						}
+						else
+						{
+						%>	if (request.<%- property.name %>.IsEmpty() || request.<%- property.name %> == "")
 <%						%>	{
-<%						%>		tempArray.Add(float(request.<%- property.name %>[i]));
+<%						%>		OutRestJsonObj->SetFieldNull(TEXT("<%- property.name %>"));
 <%						%>	}
-<%						%>	OutRestJsonObj->SetNumberArrayField(TEXT("<%- property.name %>"), tempArray);
+<%						%>	else
+<%						%>	{
+<%						%>		OutRestJsonObj->SetStringField(TEXT("<%- property.name %>"), request.<%- property.name %>);
+<%						%>	}
+
 <%
+						}
+						break;
+
+					case "Number":
+						if(property.hasOwnProperty('collection'))
+						{
+							if(property.collection == "array") 
+							{
+							%>	// Copy int array to float
+<%							%>	TArray<float> tempArray;
+<%							%>	for (int32 i = 0; i < request.<%- property.name %>.Num(); ++i)
+<%							%>	{
+<%							%>		tempArray.Add(float(request.<%- property.name %>[i]));
+<%							%>	}
+<%							%>	OutRestJsonObj->SetNumberArrayField(TEXT("<%- property.name %>"), tempArray);
+
+<%
+							}
+							else
+							{
+							%>	OutRestJsonObj->SetObjectField(TEXT("<%- property.name %>"), request.<%- property.name %>);
+<%
+							}
+						}
+						else
+						{
+						%>	OutRestJsonObj->SetNumberField(TEXT("<%- property.name %>"), request.<%- property.name %>);
+<%
+						}
+						break;
+
+					case "Object":
+						if(property.hasOwnProperty('collection'))
+						{
+							if(property.collection == "array") 
+							{
+							%>	OutRestJsonObj->SetObjectArrayField(TEXT("<%- property.name %>"), request.<%- property.name %>);
+<%
+							}
+							else
+							{
+							%>	OutRestJsonObj->SetObjectField(TEXT("<%- property.name %>"), request.<%- property.name %>);
+<%
+							}
 						}
 						else
 						{
 						%>	OutRestJsonObj->SetObjectField(TEXT("<%- property.name %>"), request.<%- property.name %>);
 <%
 						}
-					}
-					else
-					{
-					%>	OutRestJsonObj->SetNumberField(TEXT("<%- property.name %>"), request.<%- property.name %>);
-<%
-					}
-					break;
+						break;
 
-				case "Object":
-					if(property.hasOwnProperty('collection'))
-					{
-						if(property.collection == "array") 
+					case "Boolean":
+						if(property.hasOwnProperty('collection'))
 						{
-						%>	OutRestJsonObj->SetObjectArrayField(TEXT("<%- property.name %>"), request.<%- property.name %>);
+							if(property.collection == "array") 
+							{
+							%>	OutRestJsonObj->SetBoolArrayField(TEXT("<%- property.name %>"), request.<%- property.name %>);
 <%
+							}
+							else
+							{
+							%>	OutRestJsonObj->SetObjectField(TEXT("<%- property.name %>"), request.<%- property.name %>);
+<%
+							}
 						}
 						else
 						{
-						%>	OutRestJsonObj->SetObjectField(TEXT("<%- property.name %>"), request.<%- property.name %>);
+						%>	OutRestJsonObj->SetBoolField(TEXT("<%- property.name %>"), request.<%- property.name %>);
 <%
 						}
-					}
-					else
-					{
-					%>	OutRestJsonObj->SetObjectField(TEXT("<%- property.name %>"), request.<%- property.name %>);
-<%
-					}
-					break;
+						break;
+				}
+		}%>
 
-				case "Boolean":
-					if(property.hasOwnProperty('collection'))
-					{
-						if(property.collection == "array") 
-						{
-						%>	OutRestJsonObj->SetBoolArrayField(TEXT("<%- property.name %>"), request.<%- property.name %>);
-<%
-						}
-						else
-						{
-						%>	OutRestJsonObj->SetObjectField(TEXT("<%- property.name %>"), request.<%- property.name %>);
-<%
-						}
-					}
-					else
-					{
-					%>	OutRestJsonObj->SetBoolField(TEXT("<%- property.name %>"), request.<%- property.name %>);
-<%
-					}
-					break;
-			}
-	}%>
+		// Add Request to manager
+		manager->SetRequestObject(OutRestJsonObj);
 
-	// Add Request to manager
-	manager->SetRequestObject(OutRestJsonObj);
-
-	return manager;
-}
-		<%}		
+		return manager;
+	}
+	<%}		
 	}
 } %>
 
@@ -303,9 +323,6 @@ void UPlayFab<%- api.name %>API::OnProcessRequestComplete(FHttpRequestPtr Reques
 	// Save response code as int32
 	ResponseCode = Response->GetResponseCode();
 
-	// Log response state
-	UE_LOG(LogPlayFab, Log, TEXT("Response (%d): %s"), Response->GetResponseCode(), *Response->GetContentAsString());
-
 	// Try to deserialize data to JSON
 	TSharedRef<TJsonReader<TCHAR>> JsonReader = TJsonReaderFactory<TCHAR>::Create(ResponseContent);
 	FJsonSerializer::Deserialize(JsonReader, ResponseJsonObj->GetRootObject());
@@ -324,10 +341,18 @@ void UPlayFab<%- api.name %>API::OnProcessRequestComplete(FHttpRequestPtr Reques
 		}
 	}
 
-	myResponse.responseError.decodeError(ResponseJsonObj);
-	myResponse.responseData = ResponseJsonObj->GetObjectField("data");
+	// Serialize data to json string
+	FString InputString;
+	TSharedRef< TJsonWriter<> > Writer = TJsonWriterFactory<>::Create(&InputString);
+	FJsonSerializer::Serialize(ResponseJsonObj->GetRootObject().ToSharedRef(), Writer);
 
-	if (isLoginRequest) IPlayFab::Get().setSessionTicket(myResponse.responseData->GetStringField("SessionTicket"));
+	// Log response state
+	UE_LOG(LogPlayFab, Log, TEXT("Response : %s"), *InputString);
+
+	myResponse.responseError.decodeError(ResponseJsonObj);
+	myResponse.responseData = ResponseJsonObj;
+
+	if (isLoginRequest) IPlayFab::Get().setSessionTicket(myResponse.responseData->GetObjectField("data")->GetStringField("SessionTicket"));
 
 	// Broadcast the result event
 	<%- api.name %>_proxy->OnPlayFabResponse.Broadcast(myResponse, true);

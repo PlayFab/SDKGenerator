@@ -76,7 +76,7 @@ public:
 			{ 
 				
 			%>	/** <%- apiCall.summary %> */
-<%			%>	UFUNCTION(BlueprintCallable, Category = "PlayFab | <%- api.name %> | <%- api.subgroups[subgroup].name %>", meta = (BlueprintInternalUseOnly = "true"))
+<%			%>	UFUNCTION(BlueprintCallable, Category = "PlayFab | <%- api.name %> | <%- api.subgroups[subgroup].name %> ", meta = (BlueprintInternalUseOnly = "true"))
 <%			%>		static UPlayFab<%- api.name %>API* <%- apiCall.name %>(F<%- api.name %><%- apiCall.request %> request);
 
 		<%

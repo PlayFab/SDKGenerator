@@ -1,4 +1,9 @@
-// Copyright 2014 Vladimir Alyamkin. All Rights Reserved.
+////////////////////////////////////////////////////////////
+// JSon Objects
+// These are used as a wrapper for the internal json objects.
+// Originally wriiten by Vladimir Alyamkin.
+// Updated by Joshua Lyons to include null values
+////////////////////////////////////////////////////////////
 
 #include "PlayFabPrivatePCH.h"
 
@@ -133,6 +138,17 @@ void UPlayFabJsonObject::SetField(const FString& FieldName, UPlayFabJsonValue* J
 	JsonObj->SetField(FieldName, JsonValue->GetRootValue());
 }
 
+void UPlayFabJsonObject::SetFieldNull(const FString& FieldName)
+{
+	if (!JsonObj.IsValid())
+	{
+		return;
+	}
+
+	TSharedPtr<FJsonValue> myNull = MakeShareable(new FJsonValueNull());
+
+	JsonObj->SetField(FieldName, myNull);
+}
 
 //////////////////////////////////////////////////////////////////////////
 // FJsonObject API Helpers (easy to use with simple Json objects)

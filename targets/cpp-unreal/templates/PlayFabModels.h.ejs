@@ -86,17 +86,16 @@ for(var subgroup in api.subgroups)
 					}
 					
 				%>	/** <%- property.description %> */
-<%				%>	UPROPERTY(EditAnywhere, BlueprintReadWrite, Category = "PlayFab | <%- api.name %> | <%- api.subgroups[subgroup].name %> | Models")
+<%				%>	UPROPERTY(EditAnywhere, BlueprintReadWrite, Category = "PlayFab | <%- api.name %> | <%- api.subgroups[subgroup].name %> Models")
 <%		
 					switch(property.jsontype)
 					{
 						case "String":
-							//if(property.name == "TitleId") {break;}
 							if(property.hasOwnProperty('collection'))
 							{
 								if(property.collection == "array") 
 								{
-								%>	TArray<FString> <%- property.name %>;
+								%>	FString <%- property.name %>;
 
 <%
 								}

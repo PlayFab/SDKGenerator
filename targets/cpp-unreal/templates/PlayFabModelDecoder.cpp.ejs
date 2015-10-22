@@ -81,27 +81,27 @@ for(var subgroup in api.subgroups)
 							{
 								if(property.collection == "array") 
 								{
-								%>	tempStruct.<%- property.name %> = response->GetStringArrayField("<%- property.name %>");
+								%>	tempStruct.<%- property.name %> = FString::Join(response->GetObjectField("data")->GetStringArrayField("<%- property.name %>"), TEXT(","));
 
 <%
 								}
 								if(property.collection == "map")
 								{
-								%>	tempStruct.<%- property.name %> = response->GetObjectField("<%- property.name %>");
+								%>	tempStruct.<%- property.name %> = response->GetObjectField("data")->GetObjectField("<%- property.name %>");
 
 <%
 								}
 							}
 							else if(property.actualtype == "UserDataPermission")
 							{
-								%>	if (response->GetStringField("<%- property.name %>") == "Public") tempStruct.<%- property.name %> = EPermissionEnum::PUBLIC;
-<%								%>	if (response->GetStringField("<%- property.name %>") == "Private") tempStruct.<%- property.name %> = EPermissionEnum::PRIVATE;
+								%>	if (response->GetObjectField("data")->GetStringField("<%- property.name %>") == "Public") tempStruct.<%- property.name %> = EPermissionEnum::PUBLIC;
+<%								%>	if (response->GetObjectField("data")->GetStringField("<%- property.name %>") == "Private") tempStruct.<%- property.name %> = EPermissionEnum::PRIVATE;
 
 <%
 							}
 							else
 							{
-								%>	tempStruct.<%- property.name %> = response->GetStringField("<%- property.name %>");
+								%>	tempStruct.<%- property.name %> = response->GetObjectField("data")->GetStringField("<%- property.name %>");
 
 <%
 							}
@@ -112,20 +112,20 @@ for(var subgroup in api.subgroups)
 							{
 								if(property.collection == "array") 
 								{
-								%>	tempStruct.<%- property.name %> = response->GetBoolArrayField("<%- property.name %>");
+								%>	tempStruct.<%- property.name %> = response->GetObjectField("data")->GetBoolArrayField("<%- property.name %>");
 
 <%
 								}
 								else
 								{
-								%>	tempStruct.<%- property.name %> = response->GetObjectField("<%- property.name %>");
+								%>	tempStruct.<%- property.name %> = response->GetObjectField("data")->GetObjectField("<%- property.name %>");
 
 <%
 								}
 							}
 							else
 							{
-								%>	tempStruct.<%- property.name %> = response->GetBoolField("<%- property.name %>");
+								%>	tempStruct.<%- property.name %> = response->GetObjectField("data")->GetBoolField("<%- property.name %>");
 
 <%
 							}
@@ -136,20 +136,26 @@ for(var subgroup in api.subgroups)
 							{
 								if(property.collection == "array") 
 								{
-								%>	tempStruct.<%- property.name %> = response->GetNumberArrayField("<%- property.name %>");
+								%>	// Copy int array to float
+<%								%>	TArray<int32> tempArray;
+<%								%>	for (int32 i = 0; i < response->GetObjectField("data")->GetNumberArrayField("<%- property.name %>"); ++i)
+<%								%>	{
+<%								%>		tempArray.Add(int(response->GetObjectField("data")->GetNumberArrayField("<%- property.name %>")[i]));
+<%								%>	}
+<%								%>	tempStruct.<%- property.name %> = tempArray;
 
 <%
 								}
 								else
 								{
-								%>	tempStruct.<%- property.name %> = response->GetObjectField("<%- property.name %>");
+								%>	tempStruct.<%- property.name %> = response->GetObjectField("data")->GetObjectField("<%- property.name %>");
 
 <%
 								}
 							}
 							else
 							{
-								%>	tempStruct.<%- property.name %> = response->GetNumberField("<%- property.name %>");
+								%>	tempStruct.<%- property.name %> = int(response->GetObjectField("data")->GetNumberField("<%- property.name %>"));
 
 <%
 							}
@@ -160,20 +166,20 @@ for(var subgroup in api.subgroups)
 							{
 								if(property.collection == "array") 
 								{
-								%>	tempStruct.<%- property.name %> = response->GetObjectArrayField("<%- property.name %>");
+								%>	tempStruct.<%- property.name %> = response->GetObjectField("data")->GetObjectArrayField("<%- property.name %>");
 
 <%
 								}
 								else
 								{
-								%>	tempStruct.<%- property.name %> = response->GetObjectField("<%- property.name %>");
+								%>	tempStruct.<%- property.name %> = response->GetObjectField("data")->GetObjectField("<%- property.name %>");
 
 <%
 								}
 							}
 							else
 							{
-								%>	tempStruct.<%- property.name %> = response->GetObjectField("<%- property.name %>");
+								%>	tempStruct.<%- property.name %> = response->GetObjectField("data")->GetObjectField("<%- property.name %>");
 
 <%
 							}

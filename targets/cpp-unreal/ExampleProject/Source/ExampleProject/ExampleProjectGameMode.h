@@ -6,14 +6,14 @@
 #include "ExampleProjectGameMode.generated.h"
 
 /**
- * 
+ *
  */
 UCLASS()
 class EXAMPLEPROJECT_API AExampleProjectGameMode : public AGameMode
 {
-	GENERATED_BODY()
-	
-	
-	
-	
+    GENERATED_BODY()
+
+
+
+
 };

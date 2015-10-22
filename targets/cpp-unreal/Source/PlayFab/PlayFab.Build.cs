@@ -20,21 +20,21 @@ namespace UnrealBuildTool.Rules
         {
             PrivateIncludePaths.AddRange(
                 new string[] {
-					"PlayFab/Private",
-					// ... add other private include paths required here ...
-				});
+                    "PlayFab/Private",
+                    // ... add other private include paths required here ...
+                });
 
             PublicDependencyModuleNames.AddRange(
                 new string[]
-				{
-					"Core",
-					"CoreUObject",
-					"Engine",
+                {
+                    "Core",
+                    "CoreUObject",
+                    "Engine",
                     "HTTP",
                     "Json",
                     "OnlineSubsystemUtils"
-					// ... add other public dependencies that you statically link with here ...
-				});
+                    // ... add other public dependencies that you statically link with here ...
+                });
 
         }
 

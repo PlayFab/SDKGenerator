@@ -1,4 +1,4 @@
-////////////////////////////////////////////////////////////////////////////////////////////// 
+//////////////////////////////////////////////////////////////////////////////////////////////
 // Automatically generated cpp file for the play fab models
 //
 // API: <%- api.name %>
@@ -19,8 +19,8 @@
 
 // Array to hold already printed models. That way we dont duplicate
 var modelsArray = [];
-for(var subgroup in api.subgroups) 
-{ 
+for(var subgroup in api.subgroups)
+{
 %>
 
 ///////////////////////////////////////////////////////
@@ -29,170 +29,170 @@ for(var subgroup in api.subgroups)
 
 <%
 
-	// This loop goes through all the api calls.
-	// It checks to see if the subgroup is the correct subgroup we are currently on.
-	// If so it creates the function definition with the summary text.
-	// This allows us to see the summary in UE4 when we hover over a node.
-		 
-	for(var i in api.calls) 
-	{
-		var apiCall = api.calls[i];
-		if(apiCall.subgroup == api.subgroups[subgroup].name)
-		{ 
-			// This loop goes through the datatypes and creates code for the decode functions
+    // This loop goes through all the api calls.
+    // It checks to see if the subgroup is the correct subgroup we are currently on.
+    // If so it creates the function definition with the summary text.
+    // This allows us to see the summary in UE4 when we hover over a node.
 
-			for(var i in api.datatypes) 
-			{ 
-				var datatype = api.datatypes[i];
+    for(var i in api.calls)
+    {
+        var apiCall = api.calls[i];
+        if(apiCall.subgroup == api.subgroups[subgroup].name)
+        {
+            // This loop goes through the datatypes and creates code for the decode functions
 
-				if(datatype.name != apiCall.request)
-				{
-					if (datatype.name != apiCall.result)
-					{
-						continue;
-					}
-				}
+            for(var i in api.datatypes)
+            {
+                var datatype = api.datatypes[i];
 
-				//Check if datatype has been made already
-				if (modelsArray.indexOf(datatype.name.toString()) > -1) {continue;}
+                if(datatype.name != apiCall.request)
+                {
+                    if (datatype.name != apiCall.result)
+                    {
+                        continue;
+                    }
+                }
 
-				// Add datatype name to array
-				modelsArray.push(datatype.name.toString());
+                //Check if datatype has been made already
+                if (modelsArray.indexOf(datatype.name.toString()) > -1) {continue;}
 
-				if(datatype.name.substr(datatype.name.length - 7) == "Request") {continue;} // go to next model if it is a request
-	
-				// Create the start of the functions
-				%>F<%- api.name %><%- datatype.name %> UPlayFab<%- api.name %>ModelDecoder::decode<%- datatype.name %>Response(UPlayFabJsonObject* response)	
-<%				%>{
-<%				%>	// Temp ustruct
-<%				%>	F<%- api.name %><%- datatype.name %> tempStruct;
+                // Add datatype name to array
+                modelsArray.push(datatype.name.toString());
 
-<%				// Now loop through all the properties to create the variables for the struct
-				for(var z in datatype.properties)
-				{
-		
-					var property = datatype.properties[z];
-					%>	/** <%- property.description %> */
-<%					
-					switch(property.jsontype)
-					{
-						case "String":
-							if(property.hasOwnProperty('collection'))
-							{
-								if(property.collection == "array") 
-								{
-								%>	tempStruct.<%- property.name %> = FString::Join(response->GetObjectField("data")->GetStringArrayField("<%- property.name %>"), TEXT(","));
+                if(datatype.name.substr(datatype.name.length - 7) == "Request") {continue;} // go to next model if it is a request
+
+                // Create the start of the functions
+                %>F<%- api.name %><%- datatype.name %> UPlayFab<%- api.name %>ModelDecoder::decode<%- datatype.name %>Response(UPlayFabJsonObject* response)
+<%                %>{
+<%                %>    // Temp ustruct
+<%                %>    F<%- api.name %><%- datatype.name %> tempStruct;
+
+<%                // Now loop through all the properties to create the variables for the struct
+                for(var z in datatype.properties)
+                {
+
+                    var property = datatype.properties[z];
+                    %>    /** <%- property.description %> */
+<%
+                    switch(property.jsontype)
+                    {
+                        case "String":
+                            if(property.hasOwnProperty('collection'))
+                            {
+                                if(property.collection == "array")
+                                {
+                                %>    tempStruct.<%- property.name %> = FString::Join(response->GetObjectField("data")->GetStringArrayField("<%- property.name %>"), TEXT(","));
 
 <%
-								}
-								if(property.collection == "map")
-								{
-								%>	tempStruct.<%- property.name %> = response->GetObjectField("data")->GetObjectField("<%- property.name %>");
+                                }
+                                if(property.collection == "map")
+                                {
+                                %>    tempStruct.<%- property.name %> = response->GetObjectField("data")->GetObjectField("<%- property.name %>");
 
 <%
-								}
-							}
-							else if(property.actualtype == "UserDataPermission")
-							{
-								%>	if (response->GetObjectField("data")->GetStringField("<%- property.name %>") == "Public") tempStruct.<%- property.name %> = EPermissionEnum::PUBLIC;
-<%								%>	if (response->GetObjectField("data")->GetStringField("<%- property.name %>") == "Private") tempStruct.<%- property.name %> = EPermissionEnum::PRIVATE;
+                                }
+                            }
+                            else if(property.actualtype == "UserDataPermission")
+                            {
+                                %>    if (response->GetObjectField("data")->GetStringField("<%- property.name %>") == "Public") tempStruct.<%- property.name %> = EPermissionEnum::PUBLIC;
+<%                                %>    if (response->GetObjectField("data")->GetStringField("<%- property.name %>") == "Private") tempStruct.<%- property.name %> = EPermissionEnum::PRIVATE;
 
 <%
-							}
-							else
-							{
-								%>	tempStruct.<%- property.name %> = response->GetObjectField("data")->GetStringField("<%- property.name %>");
+                            }
+                            else
+                            {
+                                %>    tempStruct.<%- property.name %> = response->GetObjectField("data")->GetStringField("<%- property.name %>");
 
 <%
-							}
-							break;
+                            }
+                            break;
 
-						case "Boolean":
-							if(property.hasOwnProperty('collection'))
-							{
-								if(property.collection == "array") 
-								{
-								%>	tempStruct.<%- property.name %> = response->GetObjectField("data")->GetBoolArrayField("<%- property.name %>");
-
-<%
-								}
-								else
-								{
-								%>	tempStruct.<%- property.name %> = response->GetObjectField("data")->GetObjectField("<%- property.name %>");
+                        case "Boolean":
+                            if(property.hasOwnProperty('collection'))
+                            {
+                                if(property.collection == "array")
+                                {
+                                %>    tempStruct.<%- property.name %> = response->GetObjectField("data")->GetBoolArrayField("<%- property.name %>");
 
 <%
-								}
-							}
-							else
-							{
-								%>	tempStruct.<%- property.name %> = response->GetObjectField("data")->GetBoolField("<%- property.name %>");
+                                }
+                                else
+                                {
+                                %>    tempStruct.<%- property.name %> = response->GetObjectField("data")->GetObjectField("<%- property.name %>");
 
 <%
-							}
-							break;
-
-						case "Number":
-							if(property.hasOwnProperty('collection'))
-							{
-								if(property.collection == "array") 
-								{
-								%>	// Copy int array to float
-<%								%>	TArray<int32> tempArray;
-<%								%>	for (int32 i = 0; i < response->GetObjectField("data")->GetNumberArrayField("<%- property.name %>"); ++i)
-<%								%>	{
-<%								%>		tempArray.Add(int(response->GetObjectField("data")->GetNumberArrayField("<%- property.name %>")[i]));
-<%								%>	}
-<%								%>	tempStruct.<%- property.name %> = tempArray;
+                                }
+                            }
+                            else
+                            {
+                                %>    tempStruct.<%- property.name %> = response->GetObjectField("data")->GetBoolField("<%- property.name %>");
 
 <%
-								}
-								else
-								{
-								%>	tempStruct.<%- property.name %> = response->GetObjectField("data")->GetObjectField("<%- property.name %>");
+                            }
+                            break;
+
+                        case "Number":
+                            if(property.hasOwnProperty('collection'))
+                            {
+                                if(property.collection == "array")
+                                {
+                                %>    // Copy int array to float
+<%                                %>    TArray<int32> tempArray;
+<%                                %>    for (int32 i = 0; i < response->GetObjectField("data")->GetNumberArrayField("<%- property.name %>"); ++i)
+<%                                %>    {
+<%                                %>        tempArray.Add(int(response->GetObjectField("data")->GetNumberArrayField("<%- property.name %>")[i]));
+<%                                %>    }
+<%                                %>    tempStruct.<%- property.name %> = tempArray;
 
 <%
-								}
-							}
-							else
-							{
-								%>	tempStruct.<%- property.name %> = int(response->GetObjectField("data")->GetNumberField("<%- property.name %>"));
+                                }
+                                else
+                                {
+                                %>    tempStruct.<%- property.name %> = response->GetObjectField("data")->GetObjectField("<%- property.name %>");
 
 <%
-							}
-							break;
-
-						case "Object":
-							if(property.hasOwnProperty('collection'))
-							{
-								if(property.collection == "array") 
-								{
-								%>	tempStruct.<%- property.name %> = response->GetObjectField("data")->GetObjectArrayField("<%- property.name %>");
+                                }
+                            }
+                            else
+                            {
+                                %>    tempStruct.<%- property.name %> = int(response->GetObjectField("data")->GetNumberField("<%- property.name %>"));
 
 <%
-								}
-								else
-								{
-								%>	tempStruct.<%- property.name %> = response->GetObjectField("data")->GetObjectField("<%- property.name %>");
+                            }
+                            break;
+
+                        case "Object":
+                            if(property.hasOwnProperty('collection'))
+                            {
+                                if(property.collection == "array")
+                                {
+                                %>    tempStruct.<%- property.name %> = response->GetObjectField("data")->GetObjectArrayField("<%- property.name %>");
 
 <%
-								}
-							}
-							else
-							{
-								%>	tempStruct.<%- property.name %> = response->GetObjectField("data")->GetObjectField("<%- property.name %>");
+                                }
+                                else
+                                {
+                                %>    tempStruct.<%- property.name %> = response->GetObjectField("data")->GetObjectField("<%- property.name %>");
 
 <%
-							}
-							break;	
-					}
-				}
-
-				%>	return tempStruct;
-<%			%>}
+                                }
+                            }
+                            else
+                            {
+                                %>    tempStruct.<%- property.name %> = response->GetObjectField("data")->GetObjectField("<%- property.name %>");
 
 <%
-			}
-		}
-	}
+                            }
+                            break;
+                    }
+                }
+
+                %>    return tempStruct;
+<%            %>}
+
+<%
+            }
+        }
+    }
 }%>
 

@@ -20,8 +20,8 @@
 UENUM(BlueprintType)
 enum class EPermissionEnum : uint8
 {
-		PRIVATE		UMETA(DisplayName = "Private"),
-		PUBLIC		UMETA(DisplayName = "Public")
+    PRIVATE UMETA(DisplayName = "Private"),
+    PUBLIC UMETA(DisplayName = "Public")
 };
 
 
@@ -29,17 +29,17 @@ enum class EPermissionEnum : uint8
 UENUM(BlueprintType)
 namespace ERegion
 {
-	enum Type
-	{
-		ANY,
-		USCENTRAL,
-		USEAST,
-		EUWEST,
-		SINGAPORE,
-		JAPAN,
-		BRAZIL,
-		AUSTRALIA
-	};
+    enum Type
+    {
+        ANY,
+        USCENTRAL,
+        USEAST,
+        EUWEST,
+        SINGAPORE,
+        JAPAN,
+        BRAZIL,
+        AUSTRALIA
+    };
 }
 
 DECLARE_LOG_CATEGORY_EXTERN(LogPlayFab, Log, All);

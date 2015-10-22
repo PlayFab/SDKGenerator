@@ -1,6 +1,6 @@
 #pragma once
 
-////////////////////////////////////////////////////////////////////////////////////////////// 
+//////////////////////////////////////////////////////////////////////////////////////////////
 // Automatically generated model file for the UE4 PlayFab plugin.
 // This model file contains the request and response USTRUCTS
 //
@@ -23,8 +23,8 @@ class UPlayFabJsonObject;
 // It makes it a little easier to navigate.
 // Array to hold already printed models. That way we dont duplicate
 var modelsArray = [];
-for(var subgroup in api.subgroups) 
-{ 
+for(var subgroup in api.subgroups)
+{
 %>
 
 ///////////////////////////////////////////////////////
@@ -33,169 +33,169 @@ for(var subgroup in api.subgroups)
 
 <%
 
-	// This loop goes through all the api calls.
-	// It checks to see if the subgroup is the correct subgroup we are currently on.
-	// If so it creates the function definition with the summary text.
-	// This allows us to see the summary in UE4 when we hover over a node.
-		 
-	for(var i in api.calls) 
-	{
-		var apiCall = api.calls[i];
-		if(apiCall.subgroup == api.subgroups[subgroup].name)
-		{ 
+    // This loop goes through all the api calls.
+    // It checks to see if the subgroup is the correct subgroup we are currently on.
+    // If so it creates the function definition with the summary text.
+    // This allows us to see the summary in UE4 when we hover over a node.
 
-			// This loop goes through the datatypes and creates UStructsfor each
-			
-			for(var i in api.datatypes) 
-			{ 
-				var datatype = api.datatypes[i];
-				if(datatype.name != apiCall.request)
-				{
-					if (datatype.name != apiCall.result)
-					{
-						continue;
-					}
-				}
+    for(var i in api.calls)
+    {
+        var apiCall = api.calls[i];
+        if(apiCall.subgroup == api.subgroups[subgroup].name)
+        {
 
-				//Check if datatype has been made already
-				if (modelsArray.indexOf(datatype.name.toString()) > -1) {continue;}
+            // This loop goes through the datatypes and creates UStructsfor each
 
-				// Add datatype name to array
-				modelsArray.push(datatype.name.toString());
-					
-				%>USTRUCT(BlueprintType)
-<%				%>struct F<%- api.name %><%- datatype.name %>
-<%				%>{
-<%				%>	GENERATED_USTRUCT_BODY()
+            for(var i in api.datatypes)
+            {
+                var datatype = api.datatypes[i];
+                if(datatype.name != apiCall.request)
+                {
+                    if (datatype.name != apiCall.result)
+                    {
+                        continue;
+                    }
+                }
 
-<%				%>public:
+                //Check if datatype has been made already
+                if (modelsArray.indexOf(datatype.name.toString()) > -1) {continue;}
 
-<%		
-				// Now loop through all the properties to create the variables for the struct
+                // Add datatype name to array
+                modelsArray.push(datatype.name.toString());
 
-				for(var z in datatype.properties)
-				{
-		
-					var property = datatype.properties[z];
-					if(property.name == "TitleId") 
-					{
-						if(datatype.name.substr(datatype.name.length - 7) == "Request")
-						{
-							continue;
-						}
-					}
-					
-				%>	/** <%- property.description %> */
-<%				%>	UPROPERTY(EditAnywhere, BlueprintReadWrite, Category = "PlayFab | <%- api.name %> | <%- api.subgroups[subgroup].name %> Models")
-<%		
-					switch(property.jsontype)
-					{
-						case "String":
-							if(property.hasOwnProperty('collection'))
-							{
-								if(property.collection == "array") 
-								{
-								%>	FString <%- property.name %>;
+                %>USTRUCT(BlueprintType)
+<%                %>struct F<%- api.name %><%- datatype.name %>
+<%                %>{
+<%                %>    GENERATED_USTRUCT_BODY()
+
+<%                %>public:
 
 <%
-								}
-								else
-								{
-								%>	UPlayFabJsonObject* <%- property.name %>;
+                // Now loop through all the properties to create the variables for the struct
+
+                for(var z in datatype.properties)
+                {
+
+                    var property = datatype.properties[z];
+                    if(property.name == "TitleId")
+                    {
+                        if(datatype.name.substr(datatype.name.length - 7) == "Request")
+                        {
+                            continue;
+                        }
+                    }
+
+                %>    /** <%- property.description %> */
+<%                %>    UPROPERTY(EditAnywhere, BlueprintReadWrite, Category = "PlayFab | <%- api.name %> | <%- api.subgroups[subgroup].name %> Models")
+<%
+                    switch(property.jsontype)
+                    {
+                        case "String":
+                            if(property.hasOwnProperty('collection'))
+                            {
+                                if(property.collection == "array")
+                                {
+                                %>        FString <%- property.name %>;
 
 <%
-								}
-							}
-							else if(property.actualtype == "UserDataPermission")
-							{
-							%>	EPermissionEnum <%- property.name %>;
+                                }
+                                else
+                                {
+                                %>        UPlayFabJsonObject* <%- property.name %>;
 
 <%
-							}
-							else
-							{
-							%>	FString <%- property.name %>;
+                                }
+                            }
+                            else if(property.actualtype == "UserDataPermission")
+                            {
+                            %>        EPermissionEnum <%- property.name %>;
 
 <%
-							}
-							break;
-
-						case "Boolean":
-							if(property.hasOwnProperty('collection'))
-							{
-								if(property.collection == "array") 
-								{
-								%>	TArray<bool> <%- property.name %>;
+                            }
+                            else
+                            {
+                            %>        FString <%- property.name %>;
 
 <%
-								}
-								else
-								{
-								%>	UPlayFabJsonObject* <%- property.name %>;
+                            }
+                            break;
+
+                        case "Boolean":
+                            if(property.hasOwnProperty('collection'))
+                            {
+                                if(property.collection == "array")
+                                {
+                                %>        TArray<bool> <%- property.name %>;
 
 <%
-								}
-							}
-							else
-							{
-								%>	bool <%- property.name %>;
-<%
-							}
-							break;
-
-						case "Number":
-							if(property.hasOwnProperty('collection'))
-							{
-								if(property.collection == "array") 
-								{
-								%>	TArray<int32> <%- property.name %>;
+                                }
+                                else
+                                {
+                                %>        UPlayFabJsonObject* <%- property.name %>;
 
 <%
-								}
-								else
-								{
-								%>	UPlayFabJsonObject* <%- property.name %>;
+                                }
+                            }
+                            else
+                            {
+                                %>        bool <%- property.name %>;
+<%
+                            }
+                            break;
+
+                        case "Number":
+                            if(property.hasOwnProperty('collection'))
+                            {
+                                if(property.collection == "array")
+                                {
+                                %>        TArray<int32> <%- property.name %>;
 
 <%
-								}
-							}
-							else
-							{
-								%>	int32 <%- property.name %>;
-<%
-							}
-							break;
-
-						case "Object":
-							if(property.hasOwnProperty('collection'))
-							{
-								if(property.collection == "array") 
-								{
-								%>	TArray<UPlayFabJsonObject*> <%- property.name %>;
+                                }
+                                else
+                                {
+                                %>        UPlayFabJsonObject* <%- property.name %>;
 
 <%
-								}
-								else
-								{
-								%>	UPlayFabJsonObject* <%- property.name %>;
+                                }
+                            }
+                            else
+                            {
+                                %>        int32 <%- property.name %>;
+<%
+                            }
+                            break;
+
+                        case "Object":
+                            if(property.hasOwnProperty('collection'))
+                            {
+                                if(property.collection == "array")
+                                {
+                                %>        TArray<UPlayFabJsonObject*> <%- property.name %>;
 
 <%
-								}
-							}
-							else
-							{
-								%>	UPlayFabJsonObject* <%- property.name %>;
-<%
-							}
-							break;
-		
-					}
-				}
-				%>};
+                                }
+                                else
+                                {
+                                %>        UPlayFabJsonObject* <%- property.name %>;
 
-<%		
-			}
-		}
-	}
+<%
+                                }
+                            }
+                            else
+                            {
+                                %>        UPlayFabJsonObject* <%- property.name %>;
+<%
+                            }
+                            break;
+
+                    }
+                }
+                %>};
+
+<%
+            }
+        }
+    }
 }
 %>

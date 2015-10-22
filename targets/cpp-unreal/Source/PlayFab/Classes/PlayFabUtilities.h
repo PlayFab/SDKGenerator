@@ -1,6 +1,6 @@
 #pragma once
 
-////////////////////////////////////////////////////////////////////////////////////////////// 
+//////////////////////////////////////////////////////////////////////////////////////////////
 // This is the utility functions for the PlayFab plugin
 //////////////////////////////////////////////////////////////////////////////////////////////
 
@@ -12,14 +12,14 @@ class UPlayFabJsonObject;
 UCLASS()
 class UPlayFabUtilities : public UBlueprintFunctionLibrary
 {
-	GENERATED_BODY()
+    GENERATED_BODY()
 
 public:
 
-	/** Setup the PlayFab settings used throughout the plugin. */
-	UFUNCTION(BlueprintCallable, Category = "PlayFab | Settings")
-	static void setPlayFabSettings(FString GameTitleId, FString PlayFabSecretApiKey = "", FString PhotonRealtimeAppId = "",
-		FString PhotonTurnbasedAppId = "", FString PhotonChatAppId = "", int32 CloudScriptVersionInt = 1);
+    /** Setup the PlayFab settings used throughout the plugin. */
+    UFUNCTION(BlueprintCallable, Category = "PlayFab | Settings")
+    static void setPlayFabSettings(FString GameTitleId, FString PlayFabSecretApiKey = "", FString PhotonRealtimeAppId = "",
+        FString PhotonTurnbasedAppId = "", FString PhotonChatAppId = "", int32 CloudScriptVersionInt = 1);
 
 
 };

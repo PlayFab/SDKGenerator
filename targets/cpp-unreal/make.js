@@ -1,8 +1,6 @@
 
 var path = require('path');
 
-var sdkVersion = "1.0.1";
-
 exports.makeClientAPI = function (api, sourceDir, apiOutputDir) {
     var libname = "Client";
 
@@ -64,7 +62,7 @@ exports.makeCombinedAPI = function (apis, sourceDir, apiOutputDir) {
 
 
 function makeUnrealAPI(apis, apiOutputDir, sourceDir, libname) {
-        
+
     var apiHeaderTemplate = ejs.compile(readFile(path.resolve(sourceDir, "templates/PlayFabAPI.h.ejs")));
     var apiCppTemplate = ejs.compile(readFile(path.resolve(sourceDir, "templates/PlayFabAPI.cpp.ejs")));
     var apiUpluginTemplate = ejs.compile(readFile(path.resolve(sourceDir, "templates/PlayFab.uplugin.ejs")));
@@ -75,7 +73,7 @@ function makeUnrealAPI(apis, apiOutputDir, sourceDir, libname) {
     var apiPlayFabUtilitiesCppTemplate = ejs.compile(readFile(path.resolve(sourceDir, "templates/PlayFabUtilities.cpp.ejs")));
     var apiPlayFabModelDecoderHTemplate = ejs.compile(readFile(path.resolve(sourceDir, "templates/PlayFabModelDecoder.h.ejs")));
     var apiPlayFabModelDecoderCppTemplate = ejs.compile(readFile(path.resolve(sourceDir, "templates/PlayFabModelDecoder.cpp.ejs")));
-    
+
     // Create the uplugin file
     var versionLocals = {};
     if (Array.isArray(apis))
@@ -86,7 +84,7 @@ function makeUnrealAPI(apis, apiOutputDir, sourceDir, libname) {
     {
         versionLocals.apiRevision = apis.revision;
     }
-    versionLocals.sdkVersion = sdkVersion;
+    versionLocals.sdkVersion = exports.sdkVersion;
     versionLocals.libname = libname;
     versionLocals.apis = apis;
 
@@ -118,9 +116,9 @@ function makeUnrealAPI(apis, apiOutputDir, sourceDir, libname) {
         apiLocals.names[0] = {};
         apiLocals.names[0].name = api.name;
     }
-    
 
-    apiLocals.sdkVersion = sdkVersion;
+
+    apiLocals.sdkVersion = exports.sdkVersion;
     apiLocals.apiRevision = api.revision;
 
     var generatedPlayFabCpp = apiPlayFabCppTemplate(apiLocals);
@@ -137,7 +135,7 @@ function makeUnrealAPI(apis, apiOutputDir, sourceDir, libname) {
             apiLocals.api = api;
 
             apiLocals.authKey = api.name == "Client";
-            apiLocals.sdkVersion = sdkVersion;
+            apiLocals.sdkVersion = exports.sdkVersion;
             apiLocals.apiRevision = api.revision;
             apiLocals.libname = libname;
 
@@ -165,7 +163,7 @@ function makeUnrealAPI(apis, apiOutputDir, sourceDir, libname) {
         apiLocals.api = apis;
 
         apiLocals.authKey = api.name == "Client";
-        apiLocals.sdkVersion = sdkVersion;
+        apiLocals.sdkVersion = exports.sdkVersion;
         apiLocals.apiRevision = api.revision;
         apiLocals.libname = libname;
 
@@ -188,8 +186,8 @@ function makeUnrealAPI(apis, apiOutputDir, sourceDir, libname) {
         writeFile(path.resolve(apiOutputDir, "PluginFiles/PlayFab/Source/PlayFab/Private/PlayFab" + api.name + "ModelDecoder.cpp"), generatedBody);
     }
 
-    
-    
+
+
 
 }
 

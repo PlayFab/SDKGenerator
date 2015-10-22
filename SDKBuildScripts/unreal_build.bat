@@ -1,4 +1,4 @@
 pushd ..
-rem === BUILDING UnrealEngineSDK ===
-node generate.js ..\API_Specs cpp-unreal=..\sdks\UnrealEngineSDK
+rem === BUILDING UnrealBlueprintSDK ===
+node generate.js ..\API_Specs cpp-unreal=..\sdks\UnrealBlueprintSDK
 popd

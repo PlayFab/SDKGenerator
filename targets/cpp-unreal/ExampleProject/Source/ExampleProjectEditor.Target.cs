@@ -5,21 +5,21 @@ using System.Collections.Generic;
 
 public class ExampleProjectEditorTarget : TargetRules
 {
-	public ExampleProjectEditorTarget(TargetInfo Target)
-	{
-		Type = TargetType.Editor;
-	}
+    public ExampleProjectEditorTarget(TargetInfo Target)
+    {
+        Type = TargetType.Editor;
+    }
 
-	//
-	// TargetRules interface.
-	//
+    //
+    // TargetRules interface.
+    //
 
-	public override void SetupBinaries(
-		TargetInfo Target,
-		ref List<UEBuildBinaryConfiguration> OutBuildBinaryConfigurations,
-		ref List<string> OutExtraModuleNames
-		)
-	{
-		OutExtraModuleNames.AddRange( new string[] { "ExampleProject" } );
-	}
+    public override void SetupBinaries(
+        TargetInfo Target,
+        ref List<UEBuildBinaryConfiguration> OutBuildBinaryConfigurations,
+        ref List<string> OutExtraModuleNames
+        )
+    {
+        OutExtraModuleNames.AddRange( new string[] { "ExampleProject" } );
+    }
 }

@@ -44,9 +44,9 @@ function hasResultActions(apiCall, api) {
 
 function getResultActions(apiCall, api) {
     if (api.name == "Client" && (apiCall.result == "LoginResult" || apiCall.result == "RegisterPlayFabUserResult"))
-        return "if (result != null && result.SessionTicket != null) { PlayFab._internalSettings.sessionTicket = result.SessionTicket; }";
+        return "if (result != null && result.data.SessionTicket != null) { PlayFab._internalSettings.sessionTicket = result.data.SessionTicket; }";
     else if (api.name == "Client" && apiCall.result == "GetCloudScriptUrlResult")
-        return "PlayFab._internalSettings.logicServerUrl = result.Url;";
+        return "PlayFab._internalSettings.logicServerUrl = result.data.Url;";
     return "";
 }
 

@@ -68,7 +68,7 @@ exports.MakeRequest = function (urlStr, request, authType, authValue, callback) 
             if (replyEnvelope.hasOwnProperty("error") || !replyEnvelope.hasOwnProperty("data"))
                 callback(replyEnvelope, null);
             else
-                callback(null, replyEnvelope.data);
+                callback(null, replyEnvelope);
         });
     });
 

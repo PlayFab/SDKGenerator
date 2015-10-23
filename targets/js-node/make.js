@@ -65,9 +65,9 @@ function getRequestActions(numSpaces, apiCall, api) {
 function getResultActions(numSpaces, apiCall, api) {
     var output = "";
     if (api.name == "Client" && (apiCall.result == "LoginResult" || apiCall.result == "RegisterPlayFabUserResult"))
-        output = "PlayFab.settings.sessionTicket = result != null && result.hasOwnProperty(\"SessionTicket\") ? result.SessionTicket : PlayFab.settings.sessionTicket;\n";
+        output = "PlayFab.settings.sessionTicket = result != null && result.data.hasOwnProperty(\"SessionTicket\") ? result.data.SessionTicket : PlayFab.settings.sessionTicket;\n";
     else if (api.name == "Client" && apiCall.result == "GetCloudScriptUrlResult")
-        output = "PlayFab.settings.logicServerUrl = result != null && result.hasOwnProperty(\"Url\") ? result.Url : PlayFab.settings.logicServerUrl;\n";
+        output = "PlayFab.settings.logicServerUrl = result != null && result.data.hasOwnProperty(\"Url\") ? result.data.Url : PlayFab.settings.logicServerUrl;\n";
     
     if (output.length > 0) {
         spaces = "";

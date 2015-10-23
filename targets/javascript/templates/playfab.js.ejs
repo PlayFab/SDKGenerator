@@ -2,7 +2,7 @@ var PlayFab = typeof PlayFab != 'undefined' ? PlayFab : {};
 
 if(!PlayFab.settings) {
     PlayFab.settings = {
-        titleID: null,
+        titleId: null,
         developerSecretKey: null // For security reasons you must never expose this value to the client or players
     }
 }
@@ -68,7 +68,7 @@ if(!PlayFab._internalSettings) {
                 result.CallBackTimeMS = new Date() - startTime;
 
                 if (result.code == 200)
-                    callback(result.data, null);
+                    callback(result, null);
                 else
                     callback(null, result);
             }

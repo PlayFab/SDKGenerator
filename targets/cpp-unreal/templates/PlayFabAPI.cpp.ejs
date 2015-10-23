@@ -187,7 +187,7 @@ for(var subgroup in api.subgroups)
                             }
                             else
                             {
-                            %>    OutRestJsonObj->SetObjectField(TEXT("<%- property.name %>"), request.<%- property.name %>);
+                            %>    if (request.<%- property.name %> != NULL) OutRestJsonObj->SetObjectField(TEXT("<%- property.name %>"), request.<%- property.name %>);
 <%
                             }
                         }
@@ -229,7 +229,7 @@ for(var subgroup in api.subgroups)
                             }
                             else
                             {
-                            %>    OutRestJsonObj->SetObjectField(TEXT("<%- property.name %>"), request.<%- property.name %>);
+                            %>    if (request.<%- property.name %> != NULL) OutRestJsonObj->SetObjectField(TEXT("<%- property.name %>"), request.<%- property.name %>);
 <%
                             }
                         }
@@ -250,13 +250,13 @@ for(var subgroup in api.subgroups)
                             }
                             else
                             {
-                            %>    OutRestJsonObj->SetObjectField(TEXT("<%- property.name %>"), request.<%- property.name %>);
+                            %>    if (request.<%- property.name %> != NULL) OutRestJsonObj->SetObjectField(TEXT("<%- property.name %>"), request.<%- property.name %>);
 <%
                             }
                         }
                         else
                         {
-                        %>    OutRestJsonObj->SetObjectField(TEXT("<%- property.name %>"), request.<%- property.name %>);
+                        %>    if (request.<%- property.name %> != NULL) OutRestJsonObj->SetObjectField(TEXT("<%- property.name %>"), request.<%- property.name %>);
 <%
                         }
                         break;
@@ -271,7 +271,7 @@ for(var subgroup in api.subgroups)
                             }
                             else
                             {
-                            %>    OutRestJsonObj->SetObjectField(TEXT("<%- property.name %>"), request.<%- property.name %>);
+                            %>    if (request.<%- property.name %> != NULL) OutRestJsonObj->SetObjectField(TEXT("<%- property.name %>"), request.<%- property.name %>);
 <%
                             }
                         }

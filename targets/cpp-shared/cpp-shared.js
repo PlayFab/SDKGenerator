@@ -235,7 +235,7 @@ var getPropertySerializer = exports.getPropertySerializer = function (property, 
     }
     
     if (isOptional) {
-        return "if(" + tester + ") { writer.String(\"" + propName + "\"); " + writer + " }";
+        return "if (" + tester + ") { writer.String(\"" + propName + "\"); " + writer + " }";
     }
     else {
         return "writer.String(\"" + propName + "\"); " + writer;
@@ -296,16 +296,16 @@ var getArrayPropertySerializer = exports.getArrayPropertySerializer = function (
     }
     
     
-    var collectionWriter = "writer.StartArray();\n\t";
-    collectionWriter += "for (std::list<" + cppType + ">::iterator iter = " + propName + ".begin(); iter != " + propName + ".end(); iter++) {\n\t\t";
-    collectionWriter += writer + "\n\t}\n\t";
-    collectionWriter += "writer.EndArray();\n\t";
+    var collectionWriter = "writer.StartArray();\n    ";
+    collectionWriter += "for (std::list<" + cppType + ">::iterator iter = " + propName + ".begin(); iter != " + propName + ".end(); iter++) {\n        ";
+    collectionWriter += writer + "\n    }\n    ";
+    collectionWriter += "writer.EndArray();\n    ";
     
     if (isOptional) {
-        return "if(!" + propName + ".empty()) {\n\twriter.String(\"" + propName + "\");\n\t" + collectionWriter + " }";
+        return "if (!" + propName + ".empty()) {\n    writer.String(\"" + propName + "\");\n    " + collectionWriter + " }";
     }
     else {
-        return "writer.String(\"" + propName + "\");\n\t" + collectionWriter;
+        return "writer.String(\"" + propName + "\");\n    " + collectionWriter;
     }
 }
 
@@ -363,16 +363,16 @@ var getMapPropertySerializer = exports.getMapPropertySerializer = function (prop
         throw "Unknown property type: " + property.actualtype + " for " + propName + " in " + datatype.name;
     }
     
-    var collectionWriter = "writer.StartObject();\n\t";
-    collectionWriter += "for (std::map<std::string, " + cppType + ">::iterator iter = " + propName + ".begin(); iter != " + propName + ".end(); ++iter) {\n\t\t";
-    collectionWriter += "writer.String(iter->first.c_str()); " + writer + "\n\t}\n\t";
-    collectionWriter += "writer.EndObject();\n\t";
+    var collectionWriter = "writer.StartObject();\n    ";
+    collectionWriter += "for (std::map<std::string, " + cppType + ">::iterator iter = " + propName + ".begin(); iter != " + propName + ".end(); ++iter) {\n        ";
+    collectionWriter += "writer.String(iter->first.c_str()); " + writer + "\n    }\n    ";
+    collectionWriter += "writer.EndObject();\n    ";
     
     if (isOptional) {
-        return "if(!" + propName + ".empty()) {\n\twriter.String(\"" + propName + "\");\n\t" + collectionWriter + "}";
+        return "if (!" + propName + ".empty()) {\n    writer.String(\"" + propName + "\");\n    " + collectionWriter + " }";
     }
     else {
-        return "writer.String(\"" + propName + "\");\n\t" + collectionWriter;
+        return "writer.String(\"" + propName + "\");\n    " + collectionWriter;
     }
 }
 
@@ -440,7 +440,7 @@ var getPropertyDeserializer = exports.getPropertyDeserializer = function (proper
     }
     
     var val = "const Value::Member* " + propName + "_member = obj.FindMember(\"" + propName + "\");\n";
-    val += "\tif (" + propName + "_member != NULL && !" + propName + "_member->value.IsNull()) " + safePropName + " = " + getter + ";"
+    val += "    if (" + propName + "_member != NULL && !" + propName + "_member->value.IsNull()) " + safePropName + " = " + getter + ";"
     
     return val;
 }
@@ -495,10 +495,10 @@ var getArrayPropertyDeserializer = exports.getArrayPropertyDeserializer = functi
     }
     
     var val = "const Value::Member* " + property.name + "_member = obj.FindMember(\"" + property.name + "\");\n";
-    val += "\tif (" + property.name + "_member != NULL) {\n";
-    val += "\t\tconst rapidjson::Value& memberList = " + property.name + "_member->value;\n";
-    val += "\t\tfor (SizeType i = 0; i < memberList.Size(); i++) {\n";
-    val += "\t\t\t" + property.name + ".push_back(" + getter + ");\n\t\t}\n\t}";
+    val += "    if (" + property.name + "_member != NULL) {\n";
+    val += "        const rapidjson::Value& memberList = " + property.name + "_member->value;\n";
+    val += "        for (SizeType i = 0; i < memberList.Size(); i++) {\n";
+    val += "            " + property.name + ".push_back(" + getter + ");\n        }\n    }";
     
     return val;
 }
@@ -553,9 +553,9 @@ var getMapPropertyDeserializer = exports.getMapPropertyDeserializer = function (
     }
     
     var val = "const Value::Member* " + property.name + "_member = obj.FindMember(\"" + property.name + "\");\n";
-    val += "\tif (" + property.name + "_member != NULL) {\n";
-    val += "\t\tfor (Value::ConstMemberIterator iter = " + property.name + "_member->value.MemberBegin(); iter != " + property.name + "_member->value.MemberEnd(); ++iter) {\n"
-    val += "\t\t\t" + property.name + "[iter->name.GetString()] = " + getter + ";\n\t\t}\n\t}"
+    val += "    if (" + property.name + "_member != NULL) {\n";
+    val += "        for (Value::ConstMemberIterator iter = " + property.name + "_member->value.MemberBegin(); iter != " + property.name + "_member->value.MemberEnd(); ++iter) {\n"
+    val += "            " + property.name + "[iter->name.GetString()] = " + getter + ";\n        }\n    }"
     
     return val;
 }
@@ -638,15 +638,15 @@ var getAuthParams = exports.getAuthParams = function (apiCall) {
 
 var getRequestActions = exports.getRequestActions = function (apiCall, api) {
     if (api.name == "Client" && (apiCall.result == "LoginResult" || apiCall.request == "RegisterPlayFabUserRequest"))
-        return "if (PlayFabSettings::titleId.length() > 0)\n\t\trequest.TitleId = PlayFabSettings::titleId;";
+        return "if (PlayFabSettings::titleId.length() > 0)\n        request.TitleId = PlayFabSettings::titleId;";
     return "";
 }
 
 var getResultActions = exports.getResultActions = function (apiCall, api) {
     if (api.name == "Client" && (apiCall.result == "LoginResult" || apiCall.result == "RegisterPlayFabUserResult"))
-        return "if (outResult.SessionTicket.length() > 0)\n\t\t\t(static_cast<PlayFab" + api.name + "API*>(userData))->mUserSessionTicket = outResult.SessionTicket;";
+        return "if (outResult.SessionTicket.length() > 0)\n            (static_cast<PlayFab" + api.name + "API*>(userData))->mUserSessionTicket = outResult.SessionTicket;";
     else if (api.name == "Client" && apiCall.result == "GetCloudScriptUrlResult")
-        return "if (outResult.Url.length() > 0)\n\t\t\tPlayFabSettings::logicServerURL = outResult.Url;";
+        return "if (outResult.Url.length() > 0)\n            PlayFabSettings::logicServerURL = outResult.Url;";
     return "";
 }
 

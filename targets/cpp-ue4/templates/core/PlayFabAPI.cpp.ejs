@@ -10,7 +10,7 @@ using namespace PlayFab::<%- api.name %>Models;
 
 UPlayFab<%- api.name %>API::UPlayFab<%- api.name %>API()
 {
-   
+
 }
 
 UPlayFab<%- api.name %>API::~UPlayFab<%- api.name %>API()
@@ -19,13 +19,13 @@ UPlayFab<%- api.name %>API::~UPlayFab<%- api.name %>API()
 
 <% if(api.name == "Client") { %>bool UPlayFabClientAPI::IsClientLoggedIn()
 {
-	return !mUserSessionTicket.IsEmpty();
+    return !mUserSessionTicket.IsEmpty();
 }<% } %>
 
-<% 
-	for(var i in api.calls)
-	{
-		var apiCall = api.calls[i]; 
+<%
+    for(var i in api.calls)
+    {
+        var apiCall = api.calls[i];
 %>
 bool UPlayFab<%- api.name %>API::<%- apiCall.name %>(
     <% if(hasRequest(apiCall, api)) { %><%- api.name %>Models::F<%- apiCall.request %>& request,<% } %>
@@ -33,14 +33,9 @@ bool UPlayFab<%- api.name %>API::<%- apiCall.name %>(
     const FPlayFabErrorDelegate& ErrorDelegate)
 {
     <%- getRequestActions(apiCall, api) %>
-	TSharedRef<IHttpRequest> HttpRequest = FHttpModule::Get().CreateRequest();
-	HttpRequest->SetVerb(TEXT("POST"));
-	HttpRequest->SetURL(<%- getUrlAccessor(apiCall) %>);
-	HttpRequest->SetHeader(TEXT("Content-Type"), TEXT("application/json; charset=utf-8"));
-	HttpRequest->SetHeader(TEXT("X-PlayFabSDK"), PlayFabVersionString);
-	<%- getAuthParams(apiCall) %>
-    <% if(hasRequest(apiCall, api)) { %>HttpRequest->SetContentAsString(request.toJSONString());<% } else { %>HttpRequest->SetContentAsString(TEXT("{}"));<% } %>
-	HttpRequest->OnProcessRequestComplete().BindRaw(this, &UPlayFab<%- api.name %>API::On<%- apiCall.name %>Result, SuccessDelegate, ErrorDelegate);
+    auto HttpRequest = PlayFabRequestHandler::SendRequest(<%- getUrlAccessor(apiCall) %>, <% if(hasRequest(apiCall, api)) { %>request.toJSONString()<% } else { %>TEXT("{}")<% } %>,
+        <%- getAuthParams(apiCall) %>);
+    HttpRequest->OnProcessRequestComplete().BindRaw(this, &UPlayFab<%- api.name %>API::On<%- apiCall.name %>Result, SuccessDelegate, ErrorDelegate);
     return HttpRequest->ProcessRequest();
 }
 
@@ -48,17 +43,14 @@ void UPlayFab<%- api.name %>API::On<%- apiCall.name %>Result(FHttpRequestPtr Htt
 {
     <%- api.name %>Models::F<%- apiCall.result%> outResult;
     FPlayFabError errorResult;
-	if (PlayFabRequestHandler::DecodeRequest(HttpRequest, HttpResponse, bSucceeded, outResult, errorResult))
-	{
-		<%- getResultActions(apiCall, api) %>
-		SuccessDelegate.ExecuteIfBound(outResult);
-	}
-	else
-	{
-		ErrorDelegate.ExecuteIfBound(errorResult);
-	}
+    if (PlayFabRequestHandler::DecodeRequest(HttpRequest, HttpResponse, bSucceeded, outResult, errorResult))
+    {
+        <%- getResultActions(apiCall, api) %>
+        SuccessDelegate.ExecuteIfBound(outResult);
+    }
+    else
+    {
+        ErrorDelegate.ExecuteIfBound(errorResult);
+    }
 }
-
 <% } %>
-
-

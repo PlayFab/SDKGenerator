@@ -7,23 +7,23 @@ var sdkVersion = "1.0.3";
 
 exports.makeCombinedAPI = function (apis, sourceDir, apiOutputDir) {
     var libname = "All";
-    
+
     var PluginOutputDir = path.resolve(apiOutputDir, "Plugins");
     var OutputCodeDir = path.resolve(PluginOutputDir, "PlayFab/Source/PlayFab");
     var BlueprintCodeDir = path.resolve(PluginOutputDir, "PlayFab/Source/PlayFabProxy");
-    
+
     console.log("Generating UE4 C++ combined SDK to " + apiOutputDir);
-    
+
     // copy the base plugins files, resource, uplugin, etc
     copyTree(path.resolve(sourceDir, 'Plugins'), PluginOutputDir);
-    
+
     //copyTree(path.resolve(sourceDir, 'UnittestRunner'), path.resolve(apiOutputDir, 'build/VC12/UnittestRunner'));
 
     for (var i in apis) {
         var api = apis[i];
 
         shared.makeAPI(api, OutputCodeDir, "Core/");
-        
+
         // generate blueprint boilerplate
         blueprint.makeBP(api, BlueprintCodeDir, "Proxy/");
     }
@@ -36,8 +36,8 @@ exports.makeCombinedAPI = function (apis, sourceDir, apiOutputDir) {
     // TODO: generate uplugin
     //makeAPIProject(apis, sourceDir, apiOutputDir, libname);
 
-    
-    
+
+
 }
 
 function generateVersion(api, sourceDir, apiOutputDir, subDir) {

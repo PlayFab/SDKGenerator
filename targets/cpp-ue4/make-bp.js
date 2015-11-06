@@ -3,13 +3,13 @@ var assert = require('assert');
 
 var makeBP = exports.makeBP = function (api, apiOutputDir, subdir) {
     var sourceDir = __dirname;
-    
+
     var proxyApiHeaderTemplate = ejs.compile(readFile(path.resolve(sourceDir, "templates/blueprint/PlayFabProxyAPI.h.ejs")));
     var proxyApiBodyTemplate = ejs.compile(readFile(path.resolve(sourceDir, "templates/blueprint/PlayFabProxyAPI.cpp.ejs")));
-    
+
     for (var i in api.calls) {
-        var apiCall = api.calls[i]; 
-        
+        var apiCall = api.calls[i];
+
         //var datatype = api.datatypes[i];
 
         var apiLocals = {};
@@ -19,17 +19,17 @@ var makeBP = exports.makeBP = function (api, apiOutputDir, subdir) {
         apiLocals.hasResult = hasResult;
         apiLocals.getDatatypeSignatureInputParameters = getDatatypeSignatureInputParameters;
         apiLocals.generateProxyPropertyCopy = generateProxyPropertyCopy;
- 
+
         var generatedHeader = proxyApiHeaderTemplate(apiLocals);
         writeFile(path.resolve(apiOutputDir, "Public/" + subdir + api.name +"/" + "PF" + api.name + apiCall.name + ".h"), generatedHeader);
 
         var generatedBody = proxyApiBodyTemplate(apiLocals);
         writeFile(path.resolve(apiOutputDir, "Private/" + subdir + api.name + "/" + "PF" + api.name + apiCall.name + ".cpp"), generatedBody);
     }
-    
+
     // generate BP library
     generateBPLibrary(api, apiOutputDir, subdir);
- 
+
     // generate BP data models
     generateBPDataModels(api, apiOutputDir, subdir);
 }
@@ -37,7 +37,7 @@ var makeBP = exports.makeBP = function (api, apiOutputDir, subdir) {
 var makeBPAll = exports.makeBPAll = function (apis, apiOutputDir, subdir)
 {
     var sourceDir = __dirname;
-    
+
     var mergedDataTypes = {};
     mergeDatatypes(apis, mergedDataTypes);
 }
@@ -47,7 +47,7 @@ var generateBPDataModels = exports.generateBPDataModels = function (api, apiOutp
     var sourceDir = __dirname;
 
     var proxyBPModelHeaderTemplate = ejs.compile(readFile(path.resolve(sourceDir, "templates/blueprint/PlayFabProxyDataModelsAPI.h.ejs")));
-        
+
     var BPModelsLocal = {};
     BPModelsLocal.api = api;
 
@@ -64,13 +64,13 @@ var generateBPLibrary = exports.generateBPLibrary = function (api, apiOutputDir,
     //BPLibraryLocal.getResponseSignatureParameters = getResponseSignatureParameters;
     BPLibraryLocal.getDatatypeSignatureParameters = getDatatypeSignatureParameters;
     BPLibraryLocal.generateProxyPropertyRead = generateProxyPropertyRead;
-    
+
     var proxyBPLibraryHeaderTemplate = ejs.compile(readFile(path.resolve(sourceDir, "templates/blueprint/PlayFabProxyAPIBlueprintLibrary.h.ejs")));
     var proxyBPLibraryBodyTemplate = ejs.compile(readFile(path.resolve(sourceDir, "templates/blueprint/PlayFabProxyAPIBlueprintLibrary.cpp.ejs")));
-    
+
     var generatedBPHeader = proxyBPLibraryHeaderTemplate(BPLibraryLocal);
     writeFile(path.resolve(apiOutputDir, "Public/" + subdir + "/" + "PlayFab" + api.name + "BPLibrary.h"), generatedBPHeader);
-    
+
     var generatedBPBody = proxyBPLibraryBodyTemplate(BPLibraryLocal);
     writeFile(path.resolve(apiOutputDir, "Private/" + subdir + "/" + "PlayFab" + api.name + "BPLibrary.cpp"), generatedBPBody);
 }
@@ -79,21 +79,21 @@ var generateBPLibrary = exports.generateBPLibrary = function (api, apiOutputDir,
 
 
 // merge data types for all API
-var mergeDatatypes = function (apis, outDatatypes) 
+var mergeDatatypes = function (apis, outDatatypes)
 {
     for (var apiIndex in apis) {
         var api = apis[apiIndex];
-       
+
         for (var dataTypeIndex in api.datatypes) {
-            
+
             var datatype = api.datatypes[dataTypeIndex];
-            
+
             if (outDatatypes.hasOwnProperty(dataTypeIndex) == false) {
                 // assign
                 outDatatypes[dataTypeIndex] = datatype;
             }
             else {
-                // just to make sure, deep compare 
+                // just to make sure, deep compare
                 assert.deepEqual(outDatatypes[dataTypeIndex], datatype);
             }
         }
@@ -112,16 +112,16 @@ var hasRequest = exports.hasRequest = function (apiCall, api) {
 
 var getDatatypeSignatureInputParameters = exports.getDatatypeSignatureInputParameters = function (apiCall, api) {
     var result = "";
-    
+
     if (hasRequest(apiCall, api) == false) {
         return result;
     }
-    
+
     var datatype = api.datatypes[apiCall.request];
 
     for (var p in datatype.properties) {
         var property = datatype.properties[p];
-            
+
         if (property.isenum || property.actualtype == "object") {
         // TODO: handle enum properly
         }
@@ -129,7 +129,7 @@ var getDatatypeSignatureInputParameters = exports.getDatatypeSignatureInputParam
             result += ", const " + getBPPropertyDefinition(property, api) + "& In" + property.name;
         }
     }
-    
+
     return result;
 }
 
@@ -139,10 +139,10 @@ var getDatatypeSignatureInputParameters = exports.getDatatypeSignatureInputParam
 var getDatatypeSignatureParameters = exports.getDatatypeSignatureParameters = function (datatype, api)
 {
     var result = "";
-    
+
     for (var p in datatype.properties) {
         var property = datatype.properties[p];
-        
+
         if (property.isenum || property.actualtype == "object") {
             // TODO: handle enum properly
         }
@@ -150,10 +150,10 @@ var getDatatypeSignatureParameters = exports.getDatatypeSignatureParameters = fu
             // TODO: handle map properly
         }
         else {
-            result += "\t\t," + getBPPropertyDefinition(property, api) + "& Out" + property.name + "\n";
+            result += "        ," + getBPPropertyDefinition(property, api) + "& Out" + property.name + "\n";
         }
     }
-    
+
     return result;
 }
 
@@ -163,12 +163,12 @@ var getResponseSignatureParameters = exports.getResponseSignatureParameters = fu
 {
     var resultType = api.datatypes[apiCall.result];
     var dataType = api.datatypes[resultType.name];
-    
+
     var result = "";
 
     for (var p in dataType.properties) {
         var property = dataType.properties[p];
-        result += "\t\t," + getBPPropertyDefinition(property, api) + "& Out" + property.name + "\n";
+        result += "        ," + getBPPropertyDefinition(property, api) + "& Out" + property.name + "\n";
     }
 
     return result;
@@ -180,19 +180,19 @@ var getResponseSignatureParameters = exports.getResponseSignatureParameters = fu
 var generateArrayClassProxyRead = function (property, api) {
 
     var inValue = "In.Data." + property.name;
-    
+
     var result = "";
     result += "for (const " + getProperyUE4ToNativeType(property, api) + "& elem : " + inValue + ")\n"
-    result += "\t{\n";
+    result += "    {\n";
     if (!property.isclass) {
-        result += "\t\tOut" + property.name + ".Add(static_cast<" + property.actualtype + ">(elem));\n"
+        result += "        Out" + property.name + ".Add(static_cast<" + property.actualtype + ">(elem));\n"
     }
     else {
-        result += "\t\t"+ getPropertyUE4ToOpaqueType(property, api) + " result;\n";
-        result += "\t\t"+ "result.Data = elem;\n"
-        result += "\t\tOut" + property.name + ".Add(result);\n"
+        result += "        "+ getPropertyUE4ToOpaqueType(property, api) + " result;\n";
+        result += "        "+ "result.Data = elem;\n"
+        result += "        Out" + property.name + ".Add(result);\n"
     }
-    result += "\t}\n"
+    result += "    }\n"
     return result;
 }
 
@@ -204,11 +204,11 @@ var generateProxyPropertyRead = exports.generateProxyPropertyRead = function (pr
     if (property.isclass && property.optional && !property.collection) {
         var result = "";
         result += "if (In.Data." + property.name + ".IsValid()) {";
-        result += "\t"+ "Out" + property.name + ".Data = *In.Data."+ property.name+";"
+        result += "    "+ "Out" + property.name + ".Data = *In.Data."+ property.name+";"
         result += "}";
         return result;
     }
-    
+
     if (property.collection == "array" && (property.isclass || property.actualtype == 'uint64')) {
         return generateArrayClassProxyRead(property, api);
     }
@@ -225,7 +225,7 @@ var generateProxyPropertyRead = exports.generateProxyPropertyRead = function (pr
     else if (property.actualtype == "object") {
         return ""; // TODO: handle FMultiVar properly
     }
-    
+
     var result = "Out" + property.name + " = In.Data." + property.name + ";";
     return result;
 }
@@ -237,17 +237,17 @@ var generateProxyPropertyRead = exports.generateProxyPropertyRead = function (pr
 
 var generateArrayClassProxyCopy = function (property, api) {
     var inValue = "In" + property.name;
-    
+
     var result = "";
     result += "for (const " + getPropertyUE4ToOpaqueType(property, api) + "& elem : " + inValue + ")\n"
-    result += "\t{\n";
+    result += "    {\n";
     if (!property.isclass) {
-        result += "\t\tProxy->Request." + property.name + ".Add(static_cast<" + property.actualtype + ">(elem));\n"
+        result += "        Proxy->Request." + property.name + ".Add(static_cast<" + property.actualtype + ">(elem));\n"
     }
     else {
-        result += "\t\tProxy->Request." + property.name + ".Add(elem.Data);\n"
+        result += "        Proxy->Request." + property.name + ".Add(elem.Data);\n"
     }
-    result += "\t}\n"
+    result += "    }\n"
     return result;
 }
 
@@ -270,8 +270,8 @@ var generateProxyPropertyCopy = exports.generateProxyPropertyCopy = function (pr
     else if (property.actualtype == "object") {
         return ""; // TODO: handle FMultiVar properly
     }
-    
-    
+
+
 
 
     var result = "Proxy->Request." + property.name + " = In" + property.name + ";"
@@ -289,7 +289,7 @@ var getBPPropertyDefinition = function (property, api)
         //return "TMap<FString, " + getProperyUE4Type(property, api) + ">";
         //return ""; // TODO: handle map properly, by wrapping it into a structure somehow
     }
-    
+
     return getPropertyUE4ToOpaqueType(property, api);
 }
 
@@ -297,7 +297,7 @@ var getBPPropertyDefinition = function (property, api)
 var getPropertyUE4ToOpaqueType = function (property, api)
 {
     var propertyUE4Type = "";
-    
+
     if (property.actualtype == 'String') {
         propertyUE4Type = "FString";
     }
@@ -343,7 +343,7 @@ var getPropertyUE4ToOpaqueType = function (property, api)
     else {
         throw "Unknown property type: " + property.actualtype + " for " + property.name + " in " + datatype.name;
     }
-    
+
     return propertyUE4Type;
 
 
@@ -351,7 +351,7 @@ var getPropertyUE4ToOpaqueType = function (property, api)
 
 var getProperyUE4ToNativeType = function (property, api) {
     var propertyUE4Type = "";
-    
+
     if (property.actualtype == 'String') {
         propertyUE4Type = "FString";
     }
@@ -389,7 +389,7 @@ var getProperyUE4ToNativeType = function (property, api) {
         propertyUE4Type = "PlayFab::"+ api.name+"Models::F" + property.actualtype;
     }
     else if (property.isenum) {
-        propertyUE4Type = property.actualtype; 
+        propertyUE4Type = property.actualtype;
     }
     else if (property.actualtype == "object") {
         propertyUE4Type = "FMultitypeVar";

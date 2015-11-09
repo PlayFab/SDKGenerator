@@ -1,18 +1,15 @@
-
 #include "playfab/PlayFab<%- api.name %>DataModels.h"
 
 using namespace PlayFab;
 using namespace PlayFab::<%- api.name %>Models;
 using namespace rapidjson;
 
-
-<% for(var i in datatypes) { var datatype = datatypes[i]; if(datatype.isenum) { %>
-void PlayFab::<%- api.name %>Models::write<%- datatype.name %>EnumJSON(<%- datatype.name %> enumVal, PFStringJsonWriter& writer)
+<% for(var i in datatypes) { var datatype = datatypes[i]; if (datatype.isenum) { %>void PlayFab::<%- api.name %>Models::write<%- datatype.name %>EnumJSON(<%- datatype.name %> enumVal, PFStringJsonWriter& writer)
 {
-    switch(enumVal)
+    switch (enumVal)
     {
-        <% for(var i=0; i<datatype.enumvalues.length; i++) { var enumval = datatype.enumvalues[i] %>
-        case <%- datatype.name %><%- enumval.name %>: writer.String("<%- enumval.name %>"); break;<% } %>
+<% for(var i=0; i<datatype.enumvalues.length; i++) { var enumval = datatype.enumvalues[i] %>    case <%- datatype.name %><%- enumval.name %>: writer.String("<%- enumval.name %>"); break;
+<% } %>
     }
 }
 
@@ -32,35 +29,26 @@ void PlayFab::<%- api.name %>Models::write<%- datatype.name %>EnumJSON(<%- datat
 
     return <%- datatype.name %><%- datatype.enumvalues[0].name %>; // Basically critical fail
 }
-
 <% } else { %>
 <%- datatype.name %>::~<%- datatype.name %>()
 {
-    <% for(var p in datatype.properties) { var property = datatype.properties[p];
-    if(!property.collection && property.isclass && property.optional) { %>if(<%- property.name %> != NULL) delete <%- property.name %>;
-    <% } } %>
+<% for(var p in datatype.properties) { var property = datatype.properties[p]; if (!property.collection && property.isclass && property.optional) { %>    if (<%- property.name %> != NULL) delete <%- property.name %>;
+<% } } %>
 }
 
 void <%- datatype.name %>::writeJSON(PFStringJsonWriter& writer)
 {
     writer.StartObject();
 
-    <% for(var p in datatype.properties) { var property = datatype.properties[p]; %>
-    <%- getPropertySerializer(property, datatype) %>
-    <% } %>
-    
+<% for(var p in datatype.properties) { var property = datatype.properties[p]; %>    <%- getPropertySerializer(property, datatype) %>
+<% } %>
     writer.EndObject();
 }
 
 bool <%- datatype.name %>::readFromValue(const rapidjson::Value& obj)
 {
-    <% for(var p in datatype.properties) { var property = datatype.properties[p]; %>
-    <%- getPropertyDeserializer(property, datatype) %>
-    <% } %>
-    
+<% for(var p in datatype.properties) { var property = datatype.properties[p]; %>    <%- getPropertyDeserializer(property, datatype) %>
+<% } %>
     return true;
 }
-
 <% } } %>
-
-

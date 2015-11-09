@@ -17,6 +17,11 @@ UPlayFab<%- api.name %>API::~UPlayFab<%- api.name %>API()
 {
 }
 
+int UPlayFabClientAPI::GetPendingCalls()
+{
+    return PlayFab::PlayFabRequestHandler::GetPendingCalls();
+}
+
 <% if(api.name == "Client") { %>bool UPlayFabClientAPI::IsClientLoggedIn()
 {
     return !mUserSessionTicket.IsEmpty();

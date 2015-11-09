@@ -20,6 +20,8 @@ namespace PlayFab
         UPlayFab<%- api.name %>API();
         ~UPlayFab<%- api.name %>API();
 
+        int GetPendingCalls();
+
 		<% if(api.name == "Client") { %>bool IsClientLoggedIn();<% } %>
 
         // ------------ Generated API calls

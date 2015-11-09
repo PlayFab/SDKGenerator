@@ -5,8 +5,17 @@
 
 using namespace PlayFab;
 
+int PlayFabRequestHandler::pendingCalls = 0;
+
+int PlayFabRequestHandler::GetPendingCalls()
+{
+    return PlayFabRequestHandler::pendingCalls;
+}
+
 TSharedRef<IHttpRequest> PlayFabRequestHandler::SendRequest(const FString& url, const FString& callBody, const FString& authKey, const FString& authValue)
 {
+    PlayFabRequestHandler::pendingCalls += 1;
+
     TSharedRef<IHttpRequest> HttpRequest = FHttpModule::Get().CreateRequest();
     HttpRequest->SetVerb(TEXT("POST"));
     HttpRequest->SetURL(url);
@@ -22,76 +31,78 @@ TSharedRef<IHttpRequest> PlayFabRequestHandler::SendRequest(const FString& url, 
 
 bool PlayFabRequestHandler::DecodeRequest(FHttpRequestPtr HttpRequest, FHttpResponsePtr HttpResponse, bool bSucceeded, PlayFab::FPlayFabBaseModel& OutResult, PlayFab::FPlayFabError& OutError)
 {
-	FString ResponseStr, ErrorStr;
-	if (bSucceeded && HttpResponse.IsValid())
-	{
-		if (EHttpResponseCodes::IsOk(HttpResponse->GetResponseCode()))
-		{
-			// Create the Json parser
-			ResponseStr = HttpResponse->GetContentAsString();
-			TSharedPtr<FJsonObject> JsonObject;
-			TSharedRef<TJsonReader<> > JsonReader = TJsonReaderFactory<>::Create(ResponseStr);
+    PlayFabRequestHandler::pendingCalls -= 1;
 
-			if (FJsonSerializer::Deserialize(JsonReader, JsonObject) && JsonObject.IsValid())
-			{
-				if (PlayFabRequestHandler::DecodeError(JsonObject, OutError))
-				{
-					return false;
-				}
+    FString ResponseStr, ErrorStr;
+    if (bSucceeded && HttpResponse.IsValid())
+    {
+        if (EHttpResponseCodes::IsOk(HttpResponse->GetResponseCode()))
+        {
+            // Create the Json parser
+            ResponseStr = HttpResponse->GetContentAsString();
+            TSharedPtr<FJsonObject> JsonObject;
+            TSharedRef<TJsonReader<> > JsonReader = TJsonReaderFactory<>::Create(ResponseStr);
 
-				const TSharedPtr<FJsonObject>* DataJsonObject;
-				if (JsonObject->TryGetObjectField(TEXT("data"), DataJsonObject))
-				{
-					return OutResult.readFromValue(*DataJsonObject);
-				}
-			}
-		}
-		else
-		{
-			// Create the Json parser
-			ResponseStr = HttpResponse->GetContentAsString();
-			TSharedPtr<FJsonObject> JsonObject;
-			TSharedRef<TJsonReader<> > JsonReader = TJsonReaderFactory<>::Create(ResponseStr);
+            if (FJsonSerializer::Deserialize(JsonReader, JsonObject) && JsonObject.IsValid())
+            {
+                if (PlayFabRequestHandler::DecodeError(JsonObject, OutError))
+                {
+                    return false;
+                }
 
-			if (FJsonSerializer::Deserialize(JsonReader, JsonObject) && JsonObject.IsValid())
-			{
-				if (PlayFabRequestHandler::DecodeError(JsonObject, OutError))
-				{
-					return false;
-				}
-			}
-		}
-	}
+                const TSharedPtr<FJsonObject>* DataJsonObject;
+                if (JsonObject->TryGetObjectField(TEXT("data"), DataJsonObject))
+                {
+                    return OutResult.readFromValue(*DataJsonObject);
+                }
+            }
+        }
+        else
+        {
+            // Create the Json parser
+            ResponseStr = HttpResponse->GetContentAsString();
+            TSharedPtr<FJsonObject> JsonObject;
+            TSharedRef<TJsonReader<> > JsonReader = TJsonReaderFactory<>::Create(ResponseStr);
 
-	// If we get here, we failed to connect meaningfully to the server - Assume a timeout
-	OutError.HttpCode = 408;
-	OutError.ErrorCode = PlayFabErrorConnectionTimeout;
-	// For text returns, use the non-json response if possible, else default to no response
-	OutError.ErrorName = OutError.ErrorMessage = OutError.HttpStatus = TEXT("Request Timeout or null response");
+            if (FJsonSerializer::Deserialize(JsonReader, JsonObject) && JsonObject.IsValid())
+            {
+                if (PlayFabRequestHandler::DecodeError(JsonObject, OutError))
+                {
+                    return false;
+                }
+            }
+        }
+    }
 
-	return false;
+    // If we get here, we failed to connect meaningfully to the server - Assume a timeout
+    OutError.HttpCode = 408;
+    OutError.ErrorCode = PlayFabErrorConnectionTimeout;
+    // For text returns, use the non-json response if possible, else default to no response
+    OutError.ErrorName = OutError.ErrorMessage = OutError.HttpStatus = TEXT("Request Timeout or null response");
+
+    return false;
 }
 
 bool PlayFabRequestHandler::DecodeError(TSharedPtr<FJsonObject> JsonObject, PlayFab::FPlayFabError& OutError)
 {
-	// check if returned json indicates an error
-	if (JsonObject->HasField(TEXT("errorCode")))
-	{
-		// deserialize the FPlayFabError object 
-		JsonObject->TryGetNumberField(TEXT("errorCode"), OutError.ErrorCode);
-		JsonObject->TryGetNumberField(TEXT("code"), OutError.HttpCode);
-		JsonObject->TryGetStringField(TEXT("status"), OutError.HttpStatus);
-		JsonObject->TryGetStringField(TEXT("error"), OutError.ErrorName);
-		JsonObject->TryGetStringField(TEXT("errorMessage"), OutError.ErrorMessage);
+    // check if returned json indicates an error
+    if (JsonObject->HasField(TEXT("errorCode")))
+    {
+        // deserialize the FPlayFabError object 
+        JsonObject->TryGetNumberField(TEXT("errorCode"), OutError.ErrorCode);
+        JsonObject->TryGetNumberField(TEXT("code"), OutError.HttpCode);
+        JsonObject->TryGetStringField(TEXT("status"), OutError.HttpStatus);
+        JsonObject->TryGetStringField(TEXT("error"), OutError.ErrorName);
+        JsonObject->TryGetStringField(TEXT("errorMessage"), OutError.ErrorMessage);
 
-		// TODO: handle error details properly
-		//"errorDetails"
+        // TODO: handle error details properly
+        //"errorDetails"
 
-		// TODO: handle global error delegate here
+        // TODO: handle global error delegate here
 
-		// We encountered no errors parsing the error
-		return true;
-	}
+        // We encountered no errors parsing the error
+        return true;
+    }
 
-	return false;
+    return false;
 }

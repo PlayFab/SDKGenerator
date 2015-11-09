@@ -259,8 +259,8 @@ namespace UnittestRunner
             Assert::IsTrue(testMessageReturn.compare("GetData_Success") == 0, L"Check that GetUserData was successful");
             int testCounterValueExpected = (testMessageInt + 1) % 100; // This test is about the expected value changing - but not testing more complicated issues like bounds
 
-            updateRequest1.Data[TEST_DATA_KEY_1] = new std::string(itoa(testCounterValueExpected, buffer, 10));
-            updateRequest1.Data[TEST_DATA_KEY_2] = new std::string("This is trash");
+            updateRequest1.Data[TEST_DATA_KEY_1] = std::string(itoa(testCounterValueExpected, buffer, 10));
+            updateRequest1.Data[TEST_DATA_KEY_2] = std::string("This is trash");
             auto updateJson1 = updateRequest1.toJSONString();
             clientApi.UpdateUserData(updateRequest1, &UpdateDataCallback, &SharedFailedCallback, NULL);
             ClientApiWait();
@@ -274,7 +274,7 @@ namespace UnittestRunner
             Assert::IsTrue(testMessageBool, L"Check if TEST_DATA_KEY_2 exists"); // TEST_DATA_KEY_2 is created
 
             // Check for, and remove TEST_DATA_KEY_2
-            updateRequest2.Data[TEST_DATA_KEY_2] = NULL;
+            updateRequest2.KeysToRemove.emplace_back(TEST_DATA_KEY_2);
             auto updateJson2 = updateRequest2.toJSONString();
             clientApi.UpdateUserData(updateRequest2, &UpdateDataCallback, &SharedFailedCallback, NULL);
             ClientApiWait();

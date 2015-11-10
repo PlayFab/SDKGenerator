@@ -17,22 +17,20 @@ UPlayFab<%- api.name %>API::~UPlayFab<%- api.name %>API()
 {
 }
 
-int UPlayFabClientAPI::GetPendingCalls()
+int UPlayFab<%- api.name %>API::GetPendingCalls()
 {
     return PlayFab::PlayFabRequestHandler::GetPendingCalls();
 }
-
-<% if(api.name == "Client") { %>bool UPlayFabClientAPI::IsClientLoggedIn()
+<% if(api.name == "Client") { %>
+bool UPlayFabClientAPI::IsClientLoggedIn()
 {
     return !mUserSessionTicket.IsEmpty();
-}<% } %>
-
-<%
+}<%
+}
     for(var i in api.calls)
     {
         var apiCall = api.calls[i];
-%>
-bool UPlayFab<%- api.name %>API::<%- apiCall.name %>(
+%>bool UPlayFab<%- api.name %>API::<%- apiCall.name %>(
     <% if(hasRequest(apiCall, api)) { %><%- api.name %>Models::F<%- apiCall.request %>& request,<% } %>
     const F<%- apiCall.name %>Delegate& SuccessDelegate,
     const FPlayFabErrorDelegate& ErrorDelegate)

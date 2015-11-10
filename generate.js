@@ -175,7 +175,7 @@ function generate(args) {
         targetMaker.apiNotes = require(path.resolve(specLocation, 'SdkManualNotes.json'));
         targetMaker.sdkVersion = targetMaker.apiNotes.sdkVersion[target.name];
         if (targetMaker.sdkVersion == null)
-            throw "Could not find sdkVersion for " + target.name;
+            throw "SdkManualNotes does not contain sdkVersion for " + target.name;
         
         if (targetMaker.makeClientAPI) {
             var apiOutputDir = sdkOutputDir;

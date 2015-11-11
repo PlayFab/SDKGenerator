@@ -51,11 +51,13 @@ namespace UnittestRunner
     const string TEST_STAT_NAME = "str";
     const string CHAR_TEST_TYPE = "Test";
     const string TEST_TITLE_DATA_LOC = "C:/depot/pf-main/tools/SDKBuildScripts/testTitleData.json"; // TODO: Convert hard coded path to a relative path that always works (harder than it sounds when the unittests are run from multiple working directories)
-    const string TEST_DATA_KEY = "testCounter";
+    const string TEST_DATA_KEY_1 = "testCounter";
+    const string TEST_DATA_KEY_2 = "deleteCounter";
 
     // Variables for specific tests
     string testMessageReturn;
     Int32 testMessageInt;
+    bool testMessageBool;
 
     TEST_CLASS(PlayFabApiTest)
     {
@@ -226,8 +228,8 @@ namespace UnittestRunner
             clientApi.RegisterPlayFabUser(registerRequest, &RegisterCallback, &SharedFailedCallback, NULL);
             ClientApiWait();
 
-            Assert::IsTrue(testMessageReturn.compare("Register_Success") == 0);
-            Assert::IsTrue(clientApi.IsClientLoggedIn());
+            Assert::IsTrue(testMessageReturn.compare("Register_Success") == 0, L"Check that RegisterPlayFabUser was successful");
+            Assert::IsTrue(clientApi.IsClientLoggedIn(), L"Check that a user is logged in");
         }
         static void RegisterCallback(RegisterPlayFabUserResult& result, void* userData)
         {
@@ -246,32 +248,51 @@ namespace UnittestRunner
         {
             LoginOrRegister(); // C++ Environment is nicely secluded, but also means that we have to manually handle sequential requirements
 
+            // Define some of the containers we use in this test
             PlayFab::ClientModels::GetUserDataRequest getRequest;
+            PlayFab::ClientModels::UpdateUserDataRequest updateRequest1, updateRequest2;
+            char buffer[12];
+            int testCounterValueActual;
+
             clientApi.GetUserData(getRequest, &GetDataCallback, &SharedFailedCallback, NULL);
             ClientApiWait();
-            Assert::IsTrue(testMessageReturn.compare("GetData_Success") == 0);
+            Assert::IsTrue(testMessageReturn.compare("GetData_Success") == 0, L"Check that GetUserData was successful");
             int testCounterValueExpected = (testMessageInt + 1) % 100; // This test is about the expected value changing - but not testing more complicated issues like bounds
 
-            PlayFab::ClientModels::UpdateUserDataRequest updateRequest;
-            char buffer[12];
-            updateRequest.Data[TEST_DATA_KEY] = itoa(testCounterValueExpected, buffer, 10);
-            clientApi.UpdateUserData(updateRequest, &UpdateDataCallback, &SharedFailedCallback, NULL);
+            updateRequest1.Data[TEST_DATA_KEY_1] = std::string(itoa(testCounterValueExpected, buffer, 10));
+            updateRequest1.Data[TEST_DATA_KEY_2] = std::string("This is trash");
+            auto updateJson1 = updateRequest1.toJSONString();
+            clientApi.UpdateUserData(updateRequest1, &UpdateDataCallback, &SharedFailedCallback, NULL);
             ClientApiWait();
-            Assert::IsTrue(testMessageReturn.compare("UpdateData_Success") == 0);
+            Assert::IsTrue(testMessageReturn.compare("UpdateData_Success") == 0, L"Check that UpdateUserData was successful");
 
             clientApi.GetUserData(getRequest, &GetDataCallback, &SharedFailedCallback, NULL);
             ClientApiWait();
-            Assert::IsTrue(testMessageReturn.compare("GetData_Success") == 0);
-            int testCounterValueActual = testMessageInt;
+            Assert::IsTrue(testMessageReturn.compare("GetData_Success") == 0, L"Check that GetUserData was successful");
+            testCounterValueActual = testMessageInt;
+            Assert::AreEqual(testCounterValueExpected, testCounterValueActual, L"Check that the userData counter was incremented as expected");
+            Assert::IsTrue(testMessageBool, L"Check if TEST_DATA_KEY_2 exists"); // TEST_DATA_KEY_2 is created
 
-            Assert::AreEqual(testCounterValueExpected, testCounterValueActual);
+            // Check for, and remove TEST_DATA_KEY_2
+            updateRequest2.KeysToRemove.emplace_back(TEST_DATA_KEY_2);
+            auto updateJson2 = updateRequest2.toJSONString();
+            clientApi.UpdateUserData(updateRequest2, &UpdateDataCallback, &SharedFailedCallback, NULL);
+            ClientApiWait();
+            Assert::IsTrue(testMessageReturn.compare("UpdateData_Success") == 0, L"Check that UpdateUserData was successful");
+
+            clientApi.GetUserData(getRequest, &GetDataCallback, &SharedFailedCallback, NULL);
+            ClientApiWait();
+            Assert::IsTrue(testMessageReturn.compare("GetData_Success") == 0, L"Check that GetUserData was successful");
+            Assert::IsFalse(testMessageBool, L"Check if TEST_DATA_KEY_2 is removed"); // TEST_DATA_KEY_2 is removed
         }
         static void GetDataCallback(PlayFab::ClientModels::GetUserDataResult& result, void* userData)
         {
             testMessageReturn = "GetData_Success";
-            std::map<string, PlayFab::ClientModels::UserDataRecord>::iterator it = result.Data.find(TEST_DATA_KEY);
-            if (it != result.Data.end())
-                testMessageInt = atoi(it->second.Value.c_str());
+            std::map<string, PlayFab::ClientModels::UserDataRecord>::iterator it1 = result.Data.find(TEST_DATA_KEY_1);
+            if (it1 != result.Data.end())
+                testMessageInt = atoi(it1->second.Value.c_str());
+            std::map<string, PlayFab::ClientModels::UserDataRecord>::iterator it2 = result.Data.find(TEST_DATA_KEY_2);
+            testMessageBool = (it2 != result.Data.end());
         }
         static void UpdateDataCallback(PlayFab::ClientModels::UpdateUserDataResult& result, void* userData)
         {

@@ -404,7 +404,7 @@ function getAuthParams(apiCall) {
 
 function getRequestActions(apiCall, api) {
     if (api.name == "Client" && (apiCall.result == "LoginResult" || apiCall.request == "RegisterPlayFabUserRequest"))
-        return "request.TitleId = PlayFabSettings.TitleId ?? request.TitleId;\n\t\t\tif(request.TitleId == null) throw new Exception (\"Must be have PlayFabSettings.TitleId set to call this method\");\n";
+        return "request.TitleId = PlayFabSettings.TitleId ?? request.TitleId;\n            if (request.TitleId == null) throw new Exception (\"Must be have PlayFabSettings.TitleId set to call this method\");\n";
     if (api.name == "Client" && apiCall.auth == 'SessionTicket')
         return "if (AuthKey == null) throw new Exception (\"Must be logged in to call this method\");\n"
     if (apiCall.auth == 'SecretKey')

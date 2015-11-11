@@ -32,7 +32,7 @@
 			"descriptionFormat": "html",
 			"currentHelper": "normal",
 			"folder": "PlayFabPostmanSDK-<%- apiName %>Folder",
-			"rawModeData": "{\n<% var props = apis[a].datatypes[apiCall.request].properties; for(var p in props) { %>    \"<%- props[p].name %>\":<%- getPostBodyPropertyValue(apiName, apiCall.name, props[p], propertyReplacements) %><% if(parseInt(p) + 1 < props.length){ %>,<% } %>\n<% } %>}"
+			"rawModeData": <%- getRequestExample(api, apiCall, propertyReplacements) %>
 		}<% if(parseInt(i) + 1 < api.calls.length || parseInt(a) + 1 < apis.length){ %>,<% } %><% } %><% } %>
 	]
 }

@@ -9,8 +9,7 @@
             "TitleId": "\"{{TitleId}}\""
         },
         "UpdateUserData": {
-            "_info": "Allows replacements for parameter-values within the post body (of a specific API-Call: Client.UpdateUserData).  All breaklines in json-strings are currently removed, rather than parsed.  (Known issue)",
-            "Data": "{\n    \"Class\": \"Fighter\",\n    \"Gender\": \"Female\",\n    \"Icon\": \"Guard 3\",\n    \"Theme\": \"Colorful\"\n  }"
+            "_info": "Allows replacements for parameter-values within the post body (of a specific API-Call: Client.UpdateUserData).  All breaklines in json-strings are currently removed, rather than parsed.  (Known issue)"
         }
     },
     "server": {

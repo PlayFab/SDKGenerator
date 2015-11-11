@@ -12,7 +12,7 @@
     <ProjectTypeGuids>{3AF33F2E-1136-4D97-BBB7-1795711AC8B8};{349c5851-65df-11da-9384-00065b846f21};{9092AA53-FB77-4645-B42D-1CCCA6BD08BD}</ProjectTypeGuids>
     <VisualStudioVersion Condition="'$(VisualStudioVersion)' == ''">11.0</VisualStudioVersion>
     <VSToolsPath Condition="'$(VSToolsPath)' == ''">$(MSBuildExtensionsPath32)\Microsoft\VisualStudio\v$(VisualStudioVersion)</VSToolsPath>
-    <ScriptArguments>..\API_Specs cpp-ue4=..\sdks\UnrealCppSdk</ScriptArguments>
+    <ScriptArguments>..\API_Specs PostmanSDK=..\sdks\PostmanSDK</ScriptArguments>
     <StartWebBrowser>False</StartWebBrowser>
   </PropertyGroup>
   <PropertyGroup Condition="'$(Configuration)' == 'Debug'" />
@@ -33,6 +33,23 @@
     <Compile Include="targets\javascript\make.js" />
     <Compile Include="targets\java\make.js" />
     <Compile Include="targets\js-node\make.js" />
+    <Content Include="SDKBuildScripts\actionscript_build.bat" />
+    <Content Include="SDKBuildScripts\buildAll.bat" />
+    <Content Include="SDKBuildScripts\cocos_build.bat" />
+    <Content Include="SDKBuildScripts\cocos_example1build.bat" />
+    <Content Include="SDKBuildScripts\csharp_build.bat" />
+    <Content Include="SDKBuildScripts\java_build.bat" />
+    <Content Include="SDKBuildScripts\js_build.bat" />
+    <Content Include="SDKBuildScripts\node_build.bat" />
+    <Content Include="SDKBuildScripts\postman_build.bat" />
+    <Content Include="SDKBuildScripts\ue4_build.bat" />
+    <Content Include="SDKBuildScripts\unity_build.bat" />
+    <Content Include="SDKBuildScripts\unreal_build.bat" />
+    <Content Include="SDKBuildScripts\win_build.bat" />
+    <Content Include="SDKBuildScripts\win_compile_client.bat" />
+    <Content Include="SDKBuildScripts\win_compile_server.bat" />
+    <Content Include="SDKBuildScripts\win_compile_shared.bat" />
+    <Content Include="SDKBuildScripts\win_unittest.bat" />
     <Content Include="targets\cpp-ue4\Plugins\PlayFab\PlayFab.uplugin" />
     <Content Include="targets\cpp-ue4\Plugins\PlayFab\Resources\Icon128.png" />
     <Content Include="targets\cpp-ue4\Plugins\PlayFab\Source\OnlineSubsystemPlayFab\OnlineSubsystemPlayFab.Build.cs" />

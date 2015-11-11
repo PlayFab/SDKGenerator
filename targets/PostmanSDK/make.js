@@ -31,6 +31,7 @@ exports.makeCombinedAPI = function (apis, sourceDir, apiOutputDir) {
     apiLocals.getPostmanHeader = getPostmanHeader;
     apiLocals.getPostmanDescription = getPostmanDescription;
     apiLocals.getPostBodyPropertyValue = getPostBodyPropertyValue;
+    apiLocals.getRequestExample = getRequestExample;
     var generatedApi = apiTemplate(apiLocals);
     
     var outputFile = path.resolve(apiOutputDir, "playfab.json");
@@ -87,7 +88,7 @@ function getPostmanHeader(auth) {
 }
 
 function jsonEscape(input) {
-    input = input.replace(/\n/g, "\\n").replace(/"/g, "\\\"");
+    input = input.replace(/\r/g, "").replace(/\n/g, "\\n").replace(/"/g, "\\\"");
     return input;
 }
 
@@ -127,8 +128,33 @@ function getPostBodyPropertyValue(apiName, apiCall, prop, propertyReplacements) 
         }
     }
     
-    output = jsonEscape(output);
-    console.log(apiName + "," + apiCall + "," + prop.name + "=" + output);
+    return jsonEscape(output);
+}
+
+function getRequestExample(api, apiCall, propertyReplacements) {
+    var msg = null;
+    if (apiCall.requestExample.length > 0 && apiCall.requestExample.indexOf("{") >= 0) {
+        if (apiCall.requestExample.indexOf("\\\"") == -1) // I can't handle json in a string in json in a string...
+            return "\"" + jsonEscape(apiCall.requestExample) + "\"";
+        else
+            msg = "CANNOT PARSE EXAMPLE BODY: "
+    }
     
+    var apiNameLC = api.name.toLowerCase();
+    
+    var props = api.datatypes[apiCall.request].properties;
+    var output = "\"{"
+    for (var p in props) {
+        output += "\\\"" + props[p].name + "\\\": ";
+        output += getPostBodyPropertyValue(apiNameLC, apiCall.name, props[p], propertyReplacements);
+        if (parseInt(p) + 1 < props.length)
+            output += ","
+    }
+    output += "}\""
+    
+    if (msg == null)
+        msg = "AUTO GENERATED BODY FOR: "
+    console.log(msg + api.name + "." + apiCall.name);
+    // console.log("    " + output);
     return output;
 }

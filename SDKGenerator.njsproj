@@ -12,12 +12,13 @@
     <ProjectTypeGuids>{3AF33F2E-1136-4D97-BBB7-1795711AC8B8};{349c5851-65df-11da-9384-00065b846f21};{9092AA53-FB77-4645-B42D-1CCCA6BD08BD}</ProjectTypeGuids>
     <VisualStudioVersion Condition="'$(VisualStudioVersion)' == ''">11.0</VisualStudioVersion>
     <VSToolsPath Condition="'$(VSToolsPath)' == ''">$(MSBuildExtensionsPath32)\Microsoft\VisualStudio\v$(VisualStudioVersion)</VSToolsPath>
-    <ScriptArguments>..\API_Specs PostmanSDK=..\sdks\PostmanSDK</ScriptArguments>
+    <ScriptArguments>..\API_Specs postman=..\sdks\PostmanCollection</ScriptArguments>
     <StartWebBrowser>False</StartWebBrowser>
   </PropertyGroup>
   <PropertyGroup Condition="'$(Configuration)' == 'Debug'" />
   <PropertyGroup Condition="'$(Configuration)' == 'Release'" />
   <ItemGroup>
+    <Compile Include="targets\postman\make.js" />
     <Content Include="README.md" />
     <Compile Include="generate.js" />
     <Compile Include="targets\actionscript\make.js" />
@@ -146,8 +147,6 @@
     <Content Include="targets\java\templates\Models.java.ejs" />
     <Content Include="targets\java\templates\PlayFabVersion.java.ejs" />
     <Content Include="targets\java\templates\Tests.java.ejs" />
-    <Content Include="targets\PostmanSDK\replacements.json" />
-    <Compile Include="targets\PostmanSDK\make.js" />
     <Content Include="targets\actionscript\templates\API.as.ejs" />
     <Content Include="targets\actionscript\templates\Enum.as.ejs" />
     <Content Include="targets\actionscript\templates\Errors.as.ejs" />
@@ -186,7 +185,8 @@
     <Content Include="targets\csharp-unity\templates\PlayFabVersion.cp.ejs" />
     <Content Include="targets\javascript\templates\playfab.js.ejs" />
     <Content Include="targets\js-node\templates\playfab.js.ejs" />
-    <Content Include="targets\PostmanSDK\templates\playfab.json.ejs" />
+    <Content Include="targets\postman\replacements.json" />
+    <Content Include="targets\postman\templates\playfab.json.ejs" />
   </ItemGroup>
   <ItemGroup>
     <Folder Include="SDKBuildScripts" />
@@ -322,8 +322,8 @@
     <Folder Include="targets\java\templates\" />
     <Folder Include="targets\js-node" />
     <Folder Include="targets\js-node\templates" />
-    <Folder Include="targets\PostmanSDK" />
-    <Folder Include="targets\PostmanSDK\templates" />
+    <Folder Include="targets\postman\" />
+    <Folder Include="targets\postman\templates\" />
   </ItemGroup>
   <Import Project="$(MSBuildToolsPath)\Microsoft.Common.targets" Condition="Exists('$(MSBuildExtensionsPath)\$(MSBuildToolsVersion)\Microsoft.Common.props')" />
   <!--Do not delete the following Import Project.  While this appears to do nothing it is a marker for setting TypeScript properties before our import that depends on them.-->

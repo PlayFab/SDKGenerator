@@ -3,7 +3,7 @@ var path = require('path');
 exports.putInRoot = true;
 
 exports.makeCombinedAPI = function (apis, sourceDir, apiOutputDir) {
-    console.log("Generating Postman combined SDK to " + apiOutputDir);
+    console.log("Generating Postman combined Collection to " + apiOutputDir);
     
     var templateDir = path.resolve(sourceDir, "templates");
     
@@ -37,7 +37,7 @@ exports.makeCombinedAPI = function (apis, sourceDir, apiOutputDir) {
     try {
         require(outputFile); // Read the destination file and make sure it is correctly formatted json
     } catch (ex) {
-        throw "The Postman SDK output was not properly formatted JSON:\n" + outputFile;
+        throw "The Postman Collection output was not properly formatted JSON:\n" + outputFile;
     }
 }
 
@@ -93,7 +93,7 @@ function getPostmanDescription(apiCall) {
     if (apiCall.auth == "SecretKey")
         output += "\\n\\nSecretKey - The PlayFab API Secret Key, available in the dashboard of your title (https://developer.playfab.com/title/properties/{{titleId}})";
     if (apiCall.name == "RunCloudScript")
-        output += "\\n\\LogicUrl - You must call GetCloudScriptUrl first, and copy the result into this envrionment variable.";
+        output += "\\n\\nLogicUrl - You must call GetCloudScriptUrl first, and copy the result into this envrionment variable.  ";
     
     output += "\\n\\nTo set up an Environment, click the text next to the eye icon up top in Postman (it should say \"No environment\", if this is your first time using Postman). Select \"Manage environments\", then \"Add\". Type a name for your environment where it says \"New environment\", then enter each variable name above as the \"Key\", with the value as defined for each above.".replace(/"/g, "\\\"");
     

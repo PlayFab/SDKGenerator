@@ -1,0 +1,28 @@
+{
+	"FileVersion": 3,
+	"FriendlyName": "PlayFab",
+	"Version": 1,
+	"VersionName": "1.0",
+	"CreatedBy": "PlayFab",
+	"CreatedByURL": "https://playfab.com/",
+	"Category": "Online",
+	"Description": "Unreal Engine 4 integration of the PlayFab API",
+	"EnabledByDefault": false,
+	"Modules": [
+        {
+            "Name": "PlayFab",
+            "Type": "Runtime",
+            "LoadingPhase": "PreDefault"
+        },
+        {
+            "Name": "PlayFabProxy",
+            "Type": "Runtime",
+            "LoadingPhase": "PreDefault"
+        },
+        {
+			"Name" : "OnlineSubsystemPlayFab",
+            "Type": "Runtime",
+            "LoadingPhase": "PreDefault"
+		}
+	]
+}

@@ -12,7 +12,7 @@
     <ProjectTypeGuids>{3AF33F2E-1136-4D97-BBB7-1795711AC8B8};{349c5851-65df-11da-9384-00065b846f21};{9092AA53-FB77-4645-B42D-1CCCA6BD08BD}</ProjectTypeGuids>
     <VisualStudioVersion Condition="'$(VisualStudioVersion)' == ''">11.0</VisualStudioVersion>
     <VSToolsPath Condition="'$(VSToolsPath)' == ''">$(MSBuildExtensionsPath32)\Microsoft\VisualStudio\v$(VisualStudioVersion)</VSToolsPath>
-    <ScriptArguments>..\API_Specs cpp-windows=..\sdks\WindowsSDK</ScriptArguments>
+    <ScriptArguments>..\API_Specs cpp-ue4=..\sdks\UnrealCppSdk</ScriptArguments>
     <StartWebBrowser>False</StartWebBrowser>
   </PropertyGroup>
   <PropertyGroup Condition="'$(Configuration)' == 'Debug'" />
@@ -23,6 +23,9 @@
     <Compile Include="targets\actionscript\make.js" />
     <Compile Include="targets\cpp-cocos2dx\make.js" />
     <Compile Include="targets\cpp-shared\cpp-shared.js" />
+    <Compile Include="targets\cpp-ue4\cpp-ue4.js" />
+    <Compile Include="targets\cpp-ue4\make-bp.js" />
+    <Compile Include="targets\cpp-ue4\make.js" />
     <Compile Include="targets\cpp-unreal\make.js" />
     <Compile Include="targets\cpp-windows\make.js" />
     <Compile Include="targets\csharp\make.js" />
@@ -30,6 +33,48 @@
     <Compile Include="targets\javascript\make.js" />
     <Compile Include="targets\java\make.js" />
     <Compile Include="targets\js-node\make.js" />
+    <Content Include="targets\cpp-ue4\Plugins\PlayFab\PlayFab.uplugin" />
+    <Content Include="targets\cpp-ue4\Plugins\PlayFab\Resources\Icon128.png" />
+    <Content Include="targets\cpp-ue4\Plugins\PlayFab\Source\OnlineSubsystemPlayFab\OnlineSubsystemPlayFab.Build.cs" />
+    <Content Include="targets\cpp-ue4\Plugins\PlayFab\Source\OnlineSubsystemPlayFab\Private\OnlineSubsystemModulePlayFab.cpp" />
+    <Content Include="targets\cpp-ue4\Plugins\PlayFab\Source\OnlineSubsystemPlayFab\Private\OnlineSubsystemPlayFabPrivatePCH.h" />
+    <Content Include="targets\cpp-ue4\Plugins\PlayFab\Source\OnlineSubsystemPlayFab\Private\OnlineSusbsystemPlayFab.cpp" />
+    <Content Include="targets\cpp-ue4\Plugins\PlayFab\Source\OnlineSubsystemPlayFab\Public\OnlineSubsystemPlayFab.h" />
+    <Content Include="targets\cpp-ue4\Plugins\PlayFab\Source\OnlineSubsystemPlayFab\Public\OnlineSubsystemPlayFabModule.h" />
+    <Content Include="targets\cpp-ue4\Plugins\PlayFab\Source\OnlineSubsystemPlayFab\Public\OnlineSubsystemPlayFabPackage.h" />
+    <Content Include="targets\cpp-ue4\Plugins\PlayFab\Source\PlayFabProxy\PlayFabProxy.Build.cs" />
+    <Content Include="targets\cpp-ue4\Plugins\PlayFab\Source\PlayFabProxy\Private\PlayFabProxy.cpp" />
+    <Content Include="targets\cpp-ue4\Plugins\PlayFab\Source\PlayFabProxy\Private\PlayFabProxyPrivatePCH.h" />
+    <Content Include="targets\cpp-ue4\Plugins\PlayFab\Source\PlayFabProxy\Public\PlayFabProxy.h" />
+    <Content Include="targets\cpp-ue4\Plugins\PlayFab\Source\PlayFab\Classes\PlayFabRuntimeSettings.h" />
+    <Content Include="targets\cpp-ue4\Plugins\PlayFab\Source\PlayFab\PlayFab.Build.cs" />
+    <Content Include="targets\cpp-ue4\Plugins\PlayFab\Source\PlayFab\Private\Core\PlayFabBaseModel.cpp" />
+    <Content Include="targets\cpp-ue4\Plugins\PlayFab\Source\PlayFab\Private\Core\PlayFabJsonHelpers.cpp" />
+    <Content Include="targets\cpp-ue4\Plugins\PlayFab\Source\PlayFab\Private\Core\PlayFabResultHandler.cpp" />
+    <Content Include="targets\cpp-ue4\Plugins\PlayFab\Source\PlayFab\Private\Core\PlayFabSettings.cpp" />
+    <Content Include="targets\cpp-ue4\Plugins\PlayFab\Source\PlayFab\Private\PlayFab.cpp" />
+    <Content Include="targets\cpp-ue4\Plugins\PlayFab\Source\PlayFab\Private\PlayFabPrivatePCH.h" />
+    <Content Include="targets\cpp-ue4\Plugins\PlayFab\Source\PlayFab\Private\PlayFabRuntimeSettings.cpp" />
+    <Content Include="targets\cpp-ue4\Plugins\PlayFab\Source\PlayFab\Public\Core\PlayFabBaseModel.h" />
+    <Content Include="targets\cpp-ue4\Plugins\PlayFab\Source\PlayFab\Public\Core\PlayFabCore.h" />
+    <Content Include="targets\cpp-ue4\Plugins\PlayFab\Source\PlayFab\Public\Core\PlayFabJsonHelpers.h" />
+    <Content Include="targets\cpp-ue4\Plugins\PlayFab\Source\PlayFab\Public\Core\PlayFabResultHandler.h" />
+    <Content Include="targets\cpp-ue4\Plugins\PlayFab\Source\PlayFab\Public\Core\PlayFabSettings.h" />
+    <Content Include="targets\cpp-ue4\Plugins\PlayFab\Source\PlayFab\Public\Core\PlayFabVersion.h" />
+    <Content Include="targets\cpp-ue4\Plugins\PlayFab\Source\PlayFab\Public\PlayFab.h" />
+    <Content Include="targets\cpp-ue4\templates\blueprint\PlayFabProxyAPI.cpp.ejs" />
+    <Content Include="targets\cpp-ue4\templates\blueprint\PlayFabProxyAPI.h.ejs" />
+    <Content Include="targets\cpp-ue4\templates\blueprint\PlayFabProxyAPIBlueprintLibrary.cpp.ejs" />
+    <Content Include="targets\cpp-ue4\templates\blueprint\PlayFabProxyAPIBlueprintLibrary.h.ejs" />
+    <Content Include="targets\cpp-ue4\templates\blueprint\PlayFabProxyDataModelsAPI.h.ejs" />
+    <Content Include="targets\cpp-ue4\templates\core\PlayFabAPI.cpp.ejs" />
+    <Content Include="targets\cpp-ue4\templates\core\PlayFabAPI.h.ejs" />
+    <Content Include="targets\cpp-ue4\templates\core\PlayFabAPI.vcxproj.ejs" />
+    <Content Include="targets\cpp-ue4\templates\core\PlayFabAPI.vcxproj.filters.ejs" />
+    <Content Include="targets\cpp-ue4\templates\core\PlayFabDataModels.cpp.ejs" />
+    <Content Include="targets\cpp-ue4\templates\core\PlayFabDataModels.h.ejs" />
+    <Content Include="targets\cpp-ue4\templates\core\PlayFabError.h.ejs" />
+    <Content Include="targets\cpp-ue4\templates\core\PlayFabVersion.cpp.ejs" />
     <Content Include="targets\cpp-unreal\ExampleProject\Config\DefaultEditor.ini" />
     <Content Include="targets\cpp-unreal\ExampleProject\Config\DefaultEngine.ini" />
     <Content Include="targets\cpp-unreal\ExampleProject\Config\DefaultGame.ini" />
@@ -149,6 +194,26 @@
     <Folder Include="targets\cpp-shared\source\source\core" />
     <Folder Include="targets\cpp-shared\source\source\curl" />
     <Folder Include="targets\cpp-shared\templates" />
+    <Folder Include="targets\cpp-ue4\" />
+    <Folder Include="targets\cpp-ue4\Plugins\" />
+    <Folder Include="targets\cpp-ue4\Plugins\PlayFab\" />
+    <Folder Include="targets\cpp-ue4\Plugins\PlayFab\Resources\" />
+    <Folder Include="targets\cpp-ue4\Plugins\PlayFab\Source\" />
+    <Folder Include="targets\cpp-ue4\Plugins\PlayFab\Source\OnlineSubsystemPlayFab\" />
+    <Folder Include="targets\cpp-ue4\Plugins\PlayFab\Source\OnlineSubsystemPlayFab\Private\" />
+    <Folder Include="targets\cpp-ue4\Plugins\PlayFab\Source\OnlineSubsystemPlayFab\Public\" />
+    <Folder Include="targets\cpp-ue4\Plugins\PlayFab\Source\PlayFabProxy\" />
+    <Folder Include="targets\cpp-ue4\Plugins\PlayFab\Source\PlayFabProxy\Private\" />
+    <Folder Include="targets\cpp-ue4\Plugins\PlayFab\Source\PlayFabProxy\Public\" />
+    <Folder Include="targets\cpp-ue4\Plugins\PlayFab\Source\PlayFab\" />
+    <Folder Include="targets\cpp-ue4\Plugins\PlayFab\Source\PlayFab\Classes\" />
+    <Folder Include="targets\cpp-ue4\Plugins\PlayFab\Source\PlayFab\Private\" />
+    <Folder Include="targets\cpp-ue4\Plugins\PlayFab\Source\PlayFab\Private\Core\" />
+    <Folder Include="targets\cpp-ue4\Plugins\PlayFab\Source\PlayFab\Public\" />
+    <Folder Include="targets\cpp-ue4\Plugins\PlayFab\Source\PlayFab\Public\Core\" />
+    <Folder Include="targets\cpp-ue4\templates\" />
+    <Folder Include="targets\cpp-ue4\templates\blueprint\" />
+    <Folder Include="targets\cpp-ue4\templates\core\" />
     <Folder Include="targets\cpp-unreal\" />
     <Folder Include="targets\cpp-unreal\ExampleProject\" />
     <Folder Include="targets\cpp-unreal\ExampleProject\Config\" />

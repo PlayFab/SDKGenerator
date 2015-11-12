@@ -626,12 +626,13 @@ var generateErrors = exports.generateErrors = function (api, apiOutputDir) {
 }
 
 
-var getAuthParams = exports.getAuthParams = function (apiCall) {
+function getAuthParams(apiCall) {
     if (apiCall.auth == 'SecretKey')
-        return "TEXT(\"X-SecretKey\"), PlayFabSettings::developerSecretKey"
+        return "httpRequest->SetHeader(\"X-SecretKey\", PlayFabSettings::developerSecretKey);"
     else if (apiCall.auth == 'SessionTicket')
-        return "TEXT(\"X-Authorization\"), mUserSessionTicket"
-    return "TEXT(\"\"), TEXT(\"\")";
+        return "httpRequest->SetHeader(\"X-Authorization\", mUserSessionTicket);"
+    
+    return "";
 }
 
 

@@ -3,7 +3,7 @@ var path = require('path');
 exports.putInRoot = true;
 
 exports.makeCombinedAPI = function (apis, sourceDir, apiOutputDir) {
-    console.log("Generating Postman combined SDK to " + apiOutputDir);
+    console.log("Generating Postman combined Collection to " + apiOutputDir);
     
     var templateDir = path.resolve(sourceDir, "templates");
     
@@ -24,13 +24,11 @@ exports.makeCombinedAPI = function (apis, sourceDir, apiOutputDir) {
     apiLocals.sdkVersion = exports.sdkVersion;
     apiLocals.apis = apis;
     apiLocals.propertyReplacements = propertyReplacements;
-    apiLocals.getAuthParams = getAuthParams;
-    apiLocals.getRequestActions = getRequestActions;
-    apiLocals.getResultActions = getResultActions;
-    apiLocals.getUrlAccessor = getUrlAccessor;
+    apiLocals.getUrl = getUrl;
     apiLocals.getPostmanHeader = getPostmanHeader;
     apiLocals.getPostmanDescription = getPostmanDescription;
     apiLocals.getPostBodyPropertyValue = getPostBodyPropertyValue;
+    apiLocals.getRequestExample = getRequestExample;
     var generatedApi = apiTemplate(apiLocals);
     
     var outputFile = path.resolve(apiOutputDir, "playfab.json");
@@ -39,7 +37,7 @@ exports.makeCombinedAPI = function (apis, sourceDir, apiOutputDir) {
     try {
         require(outputFile); // Read the destination file and make sure it is correctly formatted json
     } catch (ex) {
-        throw "The Postman SDK output was not properly formatted JSON:\n" + outputFile;
+        throw "The Postman Collection output was not properly formatted JSON:\n" + outputFile;
     }
 }
 
@@ -54,20 +52,10 @@ function callSorter(a, b) {
     return 0;
 }
 
-function getAuthParams(apiCall) {
-    return "null, null";
-}
-
-function getRequestActions(apiCall, api) {
-    return "";
-}
-
-function getResultActions(apiCall, api) {
-    return "";
-}
-
-function getUrlAccessor(apiCall) {
-    return "get_server_url()";
+function getUrl(apiCall) {
+    if (apiCall.name != "RunCloudScript")
+        return "https://{{TitleId}}.playfabapi.com" + apiCall.url;
+    return "{{LogicUrl}}" + apiCall.url;
 }
 
 function getPostmanHeader(auth) {
@@ -87,23 +75,25 @@ function getPostmanHeader(auth) {
 }
 
 function jsonEscape(input) {
-    input = input.replace(/\n/g, "\\n").replace(/"/g, "\\\"");
+    input = input.replace(/\r/g, "").replace(/\n/g, "\\n").replace(/"/g, "\\\"");
     return input;
 }
 
-function getPostmanDescription(auth, summary) {
+function getPostmanDescription(apiCall) {
     var output = "";
-    output += jsonEscape(summary); // Make sure quote characters are properly escaped
+    output += jsonEscape(apiCall.summary); // Make sure quote characters are properly escaped
     
     output += "\\n\\nThis is still under development, and is not yet ready for general use.  Experienced users can utilize this if they carefully examine the post-body and ensure the data is properly entered.  By default, the post-body is NOT defaulting to useable values.";
     
     output += "\\n\\nSet the following variables in your Environment (they are case sensitive):";
     output += "\\n\\nTitleId - The Title Id of your game, available in the Game Manager (https://developer.playfab.com)";
     
-    if (auth == "SessionTicket")
-        output += "\\n\\nSessionTicket - The string returned as \"SessionTicket\" in response to any sign in operation".replace(/"/g, "\\\"");
-    if (auth == "SecretKey")
+    if (apiCall.auth == "SessionTicket")
+        output += "\\n\\nSessionTicket - The string returned as \"SessionTicket\" in response to any sign in operation.  ".replace(/"/g, "\\\"");
+    if (apiCall.auth == "SecretKey")
         output += "\\n\\nSecretKey - The PlayFab API Secret Key, available in the dashboard of your title (https://developer.playfab.com/title/properties/{{titleId}})";
+    if (apiCall.name == "RunCloudScript")
+        output += "\\n\\nLogicUrl - You must call GetCloudScriptUrl first, and copy the result into this envrionment variable.  ";
     
     output += "\\n\\nTo set up an Environment, click the text next to the eye icon up top in Postman (it should say \"No environment\", if this is your first time using Postman). Select \"Manage environments\", then \"Add\". Type a name for your environment where it says \"New environment\", then enter each variable name above as the \"Key\", with the value as defined for each above.".replace(/"/g, "\\\"");
     
@@ -127,8 +117,33 @@ function getPostBodyPropertyValue(apiName, apiCall, prop, propertyReplacements) 
         }
     }
     
-    output = jsonEscape(output);
-    console.log(apiName + "," + apiCall + "," + prop.name + "=" + output);
+    return jsonEscape(output);
+}
+
+function getRequestExample(api, apiCall, propertyReplacements) {
+    var msg = null;
+    if (apiCall.requestExample.length > 0 && apiCall.requestExample.indexOf("{") >= 0) {
+        if (apiCall.requestExample.indexOf("\\\"") == -1) // I can't handle json in a string in json in a string...
+            return "\"" + jsonEscape(apiCall.requestExample) + "\"";
+        else
+            msg = "CANNOT PARSE EXAMPLE BODY: "
+    }
     
+    var apiNameLC = api.name.toLowerCase();
+    
+    var props = api.datatypes[apiCall.request].properties;
+    var output = "\"{"
+    for (var p in props) {
+        output += "\\\"" + props[p].name + "\\\": ";
+        output += getPostBodyPropertyValue(apiNameLC, apiCall.name, props[p], propertyReplacements);
+        if (parseInt(p) + 1 < props.length)
+            output += ","
+    }
+    output += "}\""
+    
+    if (msg == null)
+        msg = "AUTO GENERATED BODY FOR: "
+    console.log(msg + api.name + "." + apiCall.name);
+    // console.log("    " + output);
     return output;
 }

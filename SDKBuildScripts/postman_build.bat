@@ -1,4 +1,4 @@
 pushd ..
-rem === BUILDING PostmanSDK ===
-node generate.js ..\API_Specs PostmanSDK=..\sdks\PostmanSDK
+rem === BUILDING PostmanCollection ===
+node generate.js ..\API_Specs postman=..\sdks\PostmanCollection
 popd

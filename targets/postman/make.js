@@ -79,13 +79,16 @@ function jsonEscape(input) {
     return input;
 }
 
-function getPostmanDescription(apiCall) {
+function getPostmanDescription(api, apiCall) {
     var output = "";
     output += jsonEscape(apiCall.summary); // Make sure quote characters are properly escaped
     
-    output += "\\n\\nThis is still under development, and is not yet ready for general use.  Experienced users can utilize this if they carefully examine the post-body and ensure the data is properly entered.  By default, the post-body is NOT defaulting to useable values.";
+    output += "\\n\\nApi Documentation: https://api.playfab.com/Documentation/" + api.name + "/method/" + apiCall.name;
     
-    output += "\\n\\nSet the following variables in your Environment (they are case sensitive):";
+    // TODO: Display this line when it does not have a proper example.
+    // output += "\\n\\nThis is still under development, and is not yet ready for general use.  Experienced users can utilize this if they carefully examine the post-body and ensure the data is properly entered.  By default, the post-body is NOT defaulting to useable values.";
+    
+    output += "\\n\\nThe following case-sensitive environment variables are required for this call:";
     output += "\\n\\nTitleId - The Title Id of your game, available in the Game Manager (https://developer.playfab.com)";
     
     if (apiCall.auth == "SessionTicket")

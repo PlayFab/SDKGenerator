@@ -76,14 +76,6 @@ function makeUnrealAPI(apis, apiOutputDir, sourceDir, libname) {
 
     // Create the uplugin file
     var versionLocals = {};
-    if (Array.isArray(apis))
-    {
-        versionLocals.apiRevision = apis[0].revision;
-    }
-    else
-    {
-        versionLocals.apiRevision = apis.revision;
-    }
     versionLocals.sdkVersion = exports.sdkVersion;
     versionLocals.libname = libname;
     versionLocals.apis = apis;
@@ -119,7 +111,6 @@ function makeUnrealAPI(apis, apiOutputDir, sourceDir, libname) {
 
 
     apiLocals.sdkVersion = exports.sdkVersion;
-    apiLocals.apiRevision = api.revision;
 
     var generatedPlayFabCpp = apiPlayFabCppTemplate(apiLocals);
     writeFile(path.resolve(apiOutputDir, "PluginFiles/PlayFab/Source/PlayFab/Private/PlayFab.cpp"), generatedPlayFabCpp);
@@ -136,7 +127,6 @@ function makeUnrealAPI(apis, apiOutputDir, sourceDir, libname) {
 
             apiLocals.authKey = api.name == "Client";
             apiLocals.sdkVersion = exports.sdkVersion;
-            apiLocals.apiRevision = api.revision;
             apiLocals.libname = libname;
 
             var generatedHeader = apiHeaderTemplate(apiLocals);
@@ -164,7 +154,6 @@ function makeUnrealAPI(apis, apiOutputDir, sourceDir, libname) {
 
         apiLocals.authKey = api.name == "Client";
         apiLocals.sdkVersion = exports.sdkVersion;
-        apiLocals.apiRevision = api.revision;
         apiLocals.libname = libname;
 
         var generatedHeader = apiHeaderTemplate(apiLocals);

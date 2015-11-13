@@ -11,7 +11,6 @@ if(!PlayFab._internalSettings) {
     PlayFab._internalSettings = {
         sessionTicket: null,
         sdkVersion: "<%- sdkVersion %>",
-        apiVersion: "<%- apiVersion %>",
         productionServerUrl: ".playfabapi.com",
         logicServerUrl: null,
 
@@ -45,7 +44,7 @@ if(!PlayFab._internalSettings) {
             if (authkey != null)
                 xhr.setRequestHeader(authkey, authValue);
 
-            xhr.setRequestHeader('X-PlayFabSDK', "JavaScriptSDK-" + PlayFab._internalSettings.sdkVersion + "-" + PlayFab._internalSettings.apiVersion);
+            xhr.setRequestHeader('X-PlayFabSDK', "JavaScriptSDK-" + PlayFab._internalSettings.sdkVersion);
 
             xhr.onloadend = function () {
                 if (callback == null)

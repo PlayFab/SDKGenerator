@@ -17,7 +17,6 @@ exports.makeCombinedAPI = function (apis, sourceDir, apiOutputDir) {
         apiLocals.getResultActions = getResultActions;
         apiLocals.getUrl = getUrl;
         apiLocals.getAuthParams = getAuthParams;
-        apiLocals.apiVersion = apis[0].revision;
         apiLocals.sdkVersion = exports.sdkVersion;
         var generatedApi = apiTemplate(apiLocals);
         writeFile(path.resolve(apiOutputDir, "PlayFab" + apis[i].name + "Api.js"), generatedApi);

@@ -15,7 +15,6 @@ exports.makeCombinedAPI = function (apis, sourceDir, apiOutputDir) {
         
         // Write the core functionality file
         var coreLocals = {};
-        coreLocals.apiVersion = apis[0].revision;
         coreLocals.sdkVersion = exports.sdkVersion;
         var generatedCore = coreTemplate(coreLocals);
         writeFile(path.resolve(eachOutputDir, "PlayFab.js"), generatedCore);

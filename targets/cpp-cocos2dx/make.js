@@ -76,7 +76,6 @@ function generateVersion(api, sourceDir, apiOutputDir) {
     var versionTemplate = ejs.compile(readFile(path.resolve(sourceDir, "templates/PlayFabVersion.cpp.ejs")));
     
     var versionLocals = {};
-    versionLocals.apiRevision = api.revision;
     versionLocals.sdkRevision = exports.sdkVersion;
     var generatedVersion = versionTemplate(versionLocals);
     writeFile(path.resolve(apiOutputDir, "PlayFabSDK/source/PlayFabVersion.cpp"), generatedVersion);

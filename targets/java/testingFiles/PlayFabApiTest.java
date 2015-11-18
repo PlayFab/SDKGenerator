@@ -5,6 +5,9 @@ import java.util.Arrays;
 import java.util.Map;
 import java.util.HashMap;
 import java.util.List;
+import java.util.Date;
+import java.util.Calendar;
+import java.util.TimeZone;
 import java.io.*;
 import java.util.Properties;
 
@@ -152,8 +155,20 @@ public class PlayFabApiTest
         VerifyResult(getDataResult, true);
         tempRecord = getDataResult.Result.Data.get(TEST_DATA_KEY);
         int testCounterValueActual = tempRecord == null ? 0 : Integer.parseInt(tempRecord.Value);
-
         assertEquals(testCounterValueExpected, testCounterValueActual);
+
+        // Get the UTC timestamp for when the record was updated
+        Date timeUpdated = tempRecord.LastUpdated;
+        
+        // Generate utc timestamps within 5 minutes of "now"
+        Date now = new Date();
+        int utcOffset = Calendar.getInstance().getTimeZone().getRawOffset();
+        Date utcnow = new Date(now.getTime() - utcOffset);
+        Date testMin = new Date(utcnow.getTime() - (1000 * 60 * 5));
+        Date testMax = new Date(utcnow.getTime() + (1000 * 60 * 5));
+
+        // Verify that the update time is sufficiently close to now
+        assertTrue(testMin.before(timeUpdated) && timeUpdated.before(testMax));
     }
     
     @Test

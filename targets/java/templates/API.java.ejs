@@ -13,7 +13,7 @@ import com.google.gson.reflect.*;
  * <%- api.description %>
  */<% } %>
 public class PlayFab<%- api.name %>API {
-    private static Gson gson = new GsonBuilder().setDateFormat("YYYY-MM-DD'T'hh:mm:ss.SSS'Z'").create();
+    private static Gson gson = new GsonBuilder().setDateFormat("yyyy-MM-dd'T'HH:mm:ss.SSS'Z'").create();
     <% for(var i in api.calls) { var apiCall = api.calls[i]; %><% if(apiCall.summary) { %>
     /**
      * <%- apiCall.summary %>

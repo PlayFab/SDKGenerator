@@ -48,7 +48,7 @@ package asyncUnitTest
 			{
 				if (i != 0)
 					line += ", ";
-				line += args[0];
+				line += args[i];
 			}
 			line += "\n";
 			trace(line);

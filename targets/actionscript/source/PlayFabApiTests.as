@@ -45,8 +45,6 @@ package
         // Variables for specific tests
         private var testIntExpected:int;
         private var testIntActual:int;
-        private var timeInitial:Date;
-        private var timeUpdated:Date;
 
         public function PlayFabApiTests(titleDataFileName:String, reporter:ASyncUnitTestReporter)
         {
@@ -194,7 +192,6 @@ package
         }
         private function UserDataApi_GetSuccess1(result:com.playfab.ClientModels.GetUserDataResult) : void
         {
-            timeInitial = result.Data[TEST_DATA_KEY].LastUpdated;
             testIntExpected = int(result.Data[TEST_DATA_KEY].Value);
             testIntExpected = (testIntExpected + 1) % 100; // This test is about the expected value changing - but not testing more complicated issues like bounds
 
@@ -210,11 +207,15 @@ package
         }
         private function UserDataApi_GetSuccess2(result:com.playfab.ClientModels.GetUserDataResult) : void
         {
-            timeUpdated = result.Data[TEST_DATA_KEY].LastUpdated;
             testIntActual = int(result.Data[TEST_DATA_KEY].Value);
-
             ASyncAssert.AssertEquals(testIntExpected, testIntActual);
-            ASyncAssert.AssertTrue(timeUpdated > timeInitial);
+
+            var timeUpdated:Date = result.Data[TEST_DATA_KEY].LastUpdated; // This is automatically converted into a local time in AS3
+            var now:Date = new Date();
+            var testMin:Date = new Date(now.getTime() - (5*60*1000));
+            var testMax:Date = new Date(now.getTime() + (5*60*1000));
+            ASyncAssert.AssertTrue(testMin <= timeUpdated && timeUpdated <= testMax);
+            
             FinishTestHandler(new ASyncUnitTestEvent(ASyncUnitTestEvent.FINISH_TEST, ASyncUnitTestEvent.RESULT_PASSED, ""));
         }
 

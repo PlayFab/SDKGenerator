@@ -74,10 +74,11 @@ time_t PlayFab::readDatetime(const rapidjson::Value& obj)
     std::string enumStr = obj.GetString();
 
 	tm timeStruct = {};
-    unsigned int milliseconds = 0;
+    unsigned int milliseconds = 0; // milliseconds are truncated in a standard time_t structure
     sscanf(enumStr.c_str(), "%u-%u-%uT%u:%u%u.%uZ", &timeStruct.tm_year, &timeStruct.tm_mon, &timeStruct.tm_mday,
                        &timeStruct.tm_hour, &timeStruct.tm_min, &timeStruct.tm_sec, &milliseconds);
     timeStruct.tm_year -= 1900;
+    timeStruct.tm_mon -= 1;
     
     time = mktime(&timeStruct);
 

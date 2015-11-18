@@ -6,6 +6,7 @@
 #include "playfab/PlayFabServerAPI.h"
 #include <thread>         // std::this_thread::sleep_for
 #include <chrono>         // std::chrono::seconds
+#include <ctime>
 
 using namespace Microsoft::VisualStudio::CppUnitTestFramework;
 using namespace std;
@@ -57,6 +58,7 @@ namespace UnittestRunner
     // Variables for specific tests
     string testMessageReturn;
     Int32 testMessageInt;
+    time_t testMessageTime;
     bool testMessageBool;
 
     TEST_CLASS(PlayFabApiTest)
@@ -284,13 +286,22 @@ namespace UnittestRunner
             ClientApiWait();
             Assert::IsTrue(testMessageReturn.compare("GetData_Success") == 0, L"Check that GetUserData was successful");
             Assert::IsFalse(testMessageBool, L"Check if TEST_DATA_KEY_2 is removed"); // TEST_DATA_KEY_2 is removed
+
+            time_t now = time(NULL);
+            now = mktime(gmtime(&now));
+            time_t minTime = now - (60 * 5);
+            time_t maxTime = now + (60 * 5);
+            Assert::IsTrue(minTime <= now && now <= maxTime);
         }
         static void GetDataCallback(PlayFab::ClientModels::GetUserDataResult& result, void* userData)
         {
             testMessageReturn = "GetData_Success";
             std::map<string, PlayFab::ClientModels::UserDataRecord>::iterator it1 = result.Data.find(TEST_DATA_KEY_1);
             if (it1 != result.Data.end())
+            {
                 testMessageInt = atoi(it1->second.Value.c_str());
+                testMessageTime = it1->second.LastUpdated;
+            }
             std::map<string, PlayFab::ClientModels::UserDataRecord>::iterator it2 = result.Data.find(TEST_DATA_KEY_2);
             testMessageBool = (it2 != result.Data.end());
         }

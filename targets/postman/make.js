@@ -62,16 +62,11 @@ function getPostmanHeader(auth) {
     if (auth == "SessionTicket")
         return "Content-Type: application/json\\nX-Authentication: {{SessionTicket}}\\n";
     else if (auth == "SecretKey")
-        return "Content-Type: application/json\\nSecretKey: {{SecretKey}}\\n";
+        return "Content-Type: application/json\\nX-SecretKey: {{SecretKey}}\\n";
     else if (auth == "None")
         return "Content-Type: application/json\\n";
     
     return "";
-
-    //<% if(apiCall.auth == "SessionTicket"){ %>			"headers": "Content-Type: application/json\nX-Authentication: {{SessionTicket}}\n",
-    //<% } else if(apiCall.auth == "SecretKey"){ %>			"headers": "Content-Type: application/json\nSecretKey: {{SecretKey}}\n",
-    //<% } else{ %>			"headers": "Content-Type: application/json\n",
-    //<% } %>
 }
 
 function jsonEscape(input) {

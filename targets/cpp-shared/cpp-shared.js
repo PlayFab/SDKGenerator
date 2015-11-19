@@ -2,10 +2,10 @@ var path = require('path');
 
 var makeAPI = exports.makeAPI = function (api, apiOutputDir, subdir) {
     var sourceDir = __dirname;
-    
+   
     var apiHeaderTemplate = ejs.compile(readFile(path.resolve(sourceDir, "templates/PlayFabAPI.h.ejs")));
     var apiBodyTemplate = ejs.compile(readFile(path.resolve(sourceDir, "templates/PlayFabAPI.cpp.ejs")));
-    
+   
     var apiLocals = {};
     apiLocals.api = api;
     apiLocals.getAuthParams = getAuthParams;
@@ -14,10 +14,10 @@ var makeAPI = exports.makeAPI = function (api, apiOutputDir, subdir) {
     apiLocals.getUrlAccessor = getUrlAccessor;
     apiLocals.authKey = api.name == "Client";
     apiLocals.hasRequest = hasRequest;
-    
+   
     var generatedHeader = apiHeaderTemplate(apiLocals);
     writeFile(path.resolve(apiOutputDir, "include/playfab/PlayFab" + api.name + "API.h"), generatedHeader);
-    
+   
     var generatedBody = apiBodyTemplate(apiLocals);
     writeFile(path.resolve(apiOutputDir, "source/" + subdir + "PlayFab" + api.name + "API.cpp"), generatedBody);
 }
@@ -28,11 +28,11 @@ var hasRequest = exports.hasRequest = function (apiCall, api) {
 }
 
 var getPropertyDef = exports.getPropertyDef = function (property, datatype) {
-    
+   
     var propType = property.actualtype;
     var propName = property.name;
     var safePropName = getPropertySafeName(property);
-    
+   
     if (property.collection == "array")
         return "std::list<" + getPropertyCPPType(property, datatype, false) + "> " + safePropName + ";";
     else if (property.collection == "map")
@@ -48,7 +48,7 @@ var getPropertySafeName = exports.getPropertySafeName = function (property) {
 
 var getPropertyCPPType = exports.getPropertyCPPType = function (property, datatype, needOptional) {
     var isOptional = property.optional && needOptional;
-    
+   
     if (property.actualtype == 'String') {
         return 'std::string';
     }
@@ -100,7 +100,7 @@ var getPropertyDefaultValue = exports.getPropertyDefaultValue = function (proper
     var isOptional = property.optional;
     if (property.collection)
         return '';
-    
+   
     if (property.actualtype == 'String') {
         return "";
     }
@@ -150,7 +150,7 @@ var getPropertyDefaultValue = exports.getPropertyDefaultValue = function (proper
 
 var getPropertyCopyValue = exports.getPropertyCopyValue = function (property, datatype) {
     var safePropName = getPropertySafeName(property);
-    
+   
     if (property.isclass && property.optional && !property.collection) {
         return "src." + safePropName + " ? new " + property.actualtype + "(*src." + safePropName + ") : NULL";
     }
@@ -162,15 +162,15 @@ var getPropertySerializer = exports.getPropertySerializer = function (property, 
         return getArrayPropertySerializer(property, datatype);
     else if (property.collection == "map")
         return getMapPropertySerializer(property, datatype);
-    
+   
     var writer = null;
     var tester = null;
-    
+   
     var propType = property.actualtype;
     var propName = property.name;
     var safePropName = getPropertySafeName(property);
     var isOptional = property.optional;
-    
+   
     if (propType == 'String') {
         writer = "writer.String(" + safePropName + ".c_str());";
         tester = safePropName + ".length() > 0";
@@ -233,7 +233,7 @@ var getPropertySerializer = exports.getPropertySerializer = function (property, 
     else {
         throw "Unknown property type: " + propType + " for " + propName + " in " + datatype.name;
     }
-    
+   
     if (isOptional) {
         return "if (" + tester + ") { writer.String(\"" + propName + "\"); " + writer + " }";
     }
@@ -244,11 +244,11 @@ var getPropertySerializer = exports.getPropertySerializer = function (property, 
 
 var getArrayPropertySerializer = exports.getArrayPropertySerializer = function (property, datatype) {
     var writer = null;
-    
+   
     var propName = property.name;
     var isOptional = property.optional;
     var cppType = getPropertyCPPType(property, datatype, false);
-    
+   
     if (property.actualtype == 'String') {
         writer = "writer.String(iter->c_str());";
     }
@@ -294,13 +294,13 @@ var getArrayPropertySerializer = exports.getArrayPropertySerializer = function (
     else {
         throw "Unknown property type: " + property.actualtype + " for " + propName + " in " + datatype.name;
     }
-    
-    
+   
+   
     var collectionWriter = "writer.StartArray();\n    ";
     collectionWriter += "for (std::list<" + cppType + ">::iterator iter = " + propName + ".begin(); iter != " + propName + ".end(); iter++) {\n        ";
     collectionWriter += writer + "\n    }\n    ";
     collectionWriter += "writer.EndArray();\n    ";
-    
+   
     if (isOptional) {
         return "if (!" + propName + ".empty()) {\n    writer.String(\"" + propName + "\");\n    " + collectionWriter + " }";
     }
@@ -312,11 +312,11 @@ var getArrayPropertySerializer = exports.getArrayPropertySerializer = function (
 
 var getMapPropertySerializer = exports.getMapPropertySerializer = function (property, datatype) {
     var writer = null;
-    
+   
     var propName = property.name;
     var isOptional = property.optional;
     var cppType = getPropertyCPPType(property, datatype, false);
-    
+   
     if (property.actualtype == 'String') {
         writer = "writer.String(iter->second.c_str());";
     }
@@ -362,12 +362,12 @@ var getMapPropertySerializer = exports.getMapPropertySerializer = function (prop
     else {
         throw "Unknown property type: " + property.actualtype + " for " + propName + " in " + datatype.name;
     }
-    
+   
     var collectionWriter = "writer.StartObject();\n    ";
     collectionWriter += "for (std::map<std::string, " + cppType + ">::iterator iter = " + propName + ".begin(); iter != " + propName + ".end(); ++iter) {\n        ";
     collectionWriter += "writer.String(iter->first.c_str()); " + writer + "\n    }\n    ";
     collectionWriter += "writer.EndObject();\n    ";
-    
+   
     if (isOptional) {
         return "if (!" + propName + ".empty()) {\n    writer.String(\"" + propName + "\");\n    " + collectionWriter + " }";
     }
@@ -377,19 +377,19 @@ var getMapPropertySerializer = exports.getMapPropertySerializer = function (prop
 }
 
 var getPropertyDeserializer = exports.getPropertyDeserializer = function (property, datatype) {
-    
+   
     var propType = property.actualtype;
     var propName = property.name;
     var safePropName = getPropertySafeName(property);
     var isOptional = property.optional;
-    
+   
     if (property.collection == "array")
         return getArrayPropertyDeserializer(property, datatype);
     else if (property.collection == "map")
         return getMapPropertyDeserializer(property, datatype);
-    
+   
     var getter = null;
-    
+   
     if (propType == 'String') {
         getter = propName + "_member->value.GetString()";
     }
@@ -438,16 +438,16 @@ var getPropertyDeserializer = exports.getPropertyDeserializer = function (proper
     else {
         throw "Unknown property type: " + propType + " for " + propName + " in " + datatype.name;
     }
-    
+   
     var val = "const Value::Member* " + propName + "_member = obj.FindMember(\"" + propName + "\");\n";
     val += "    if (" + propName + "_member != NULL && !" + propName + "_member->value.IsNull()) " + safePropName + " = " + getter + ";"
-    
+   
     return val;
 }
 
 var getArrayPropertyDeserializer = exports.getArrayPropertyDeserializer = function (property, datatype) {
     var getter = null;
-    
+   
     if (property.actualtype == 'String') {
         getter = "memberList[i].GetString()";
     }
@@ -493,19 +493,19 @@ var getArrayPropertyDeserializer = exports.getArrayPropertyDeserializer = functi
     else {
         throw "Unknown property type: " + property.actualtype + " for " + property.name + " in " + datatype.name;
     }
-    
+   
     var val = "const Value::Member* " + property.name + "_member = obj.FindMember(\"" + property.name + "\");\n";
     val += "    if (" + property.name + "_member != NULL) {\n";
     val += "        const rapidjson::Value& memberList = " + property.name + "_member->value;\n";
     val += "        for (SizeType i = 0; i < memberList.Size(); i++) {\n";
     val += "            " + property.name + ".push_back(" + getter + ");\n        }\n    }";
-    
+   
     return val;
 }
 
 var getMapPropertyDeserializer = exports.getMapPropertyDeserializer = function (property, datatype) {
     var getter = null;
-    
+   
     if (property.actualtype == 'String') {
         getter = "iter->value.GetString()";
     }
@@ -551,19 +551,19 @@ var getMapPropertyDeserializer = exports.getMapPropertyDeserializer = function (
     else {
         throw "Unknown property type: " + property.actualtype + " for " + property.name + " in " + datatype.name;
     }
-    
+   
     var val = "const Value::Member* " + property.name + "_member = obj.FindMember(\"" + property.name + "\");\n";
     val += "    if (" + property.name + "_member != NULL) {\n";
     val += "        for (Value::ConstMemberIterator iter = " + property.name + "_member->value.MemberBegin(); iter != " + property.name + "_member->value.MemberEnd(); ++iter) {\n"
     val += "            " + property.name + "[iter->name.GetString()] = " + getter + ";\n        }\n    }"
-    
+   
     return val;
 }
 
 var addTypeAndDependencies = exports.addTypeAndDependencies = function (datatype, datatypes, orderedTypes, addedSet) {
     if (addedSet[datatype.name])
         return;
-    
+   
     for (var p in datatype.properties) {
         var property = datatype.properties[p];
         if (property.isclass || property.isenum) {
@@ -571,29 +571,29 @@ var addTypeAndDependencies = exports.addTypeAndDependencies = function (datatype
             addTypeAndDependencies(dependentType, datatypes, orderedTypes, addedSet)
         }
     }
-    
+   
     orderedTypes.push(datatype);
     addedSet[datatype.name] = datatype;
 }
 
 var generateModels = exports.generateModels = function (apis, apiOutputDir, libraryName, subdir) {
     var sourceDir = __dirname;
-    
+   
     for (var a in apis) {
         var api = apis[a];
-        
+       
         // Order datatypes based on dependency graph
         var orderedTypes = [];
         var addedSet = {};
-        
+       
         for (var i in api.datatypes) {
             var datatype = api.datatypes[i];
             addTypeAndDependencies(datatype, api.datatypes, orderedTypes, addedSet);
         }
-        
+       
         var modelHeaderTemplate = ejs.compile(readFile(path.resolve(sourceDir, "templates/PlayFabDataModels.h.ejs")));
         var modelBodyTemplate = ejs.compile(readFile(path.resolve(sourceDir, "templates/PlayFabDataModels.cpp.ejs")));
-        
+       
         var modelLocals = {};
         modelLocals.api = api;
         modelLocals.datatypes = orderedTypes;
@@ -606,7 +606,7 @@ var generateModels = exports.generateModels = function (apis, apiOutputDir, libr
         modelLocals.libraryName = libraryName;
         var generatedHeader = modelHeaderTemplate(modelLocals);
         writeFile(path.resolve(apiOutputDir, "include/playfab/PlayFab" + api.name + "DataModels.h"), generatedHeader);
-        
+       
         var generatedBody = modelBodyTemplate(modelLocals);
         writeFile(path.resolve(apiOutputDir, "source/" + subdir + "PlayFab" + api.name + "DataModels.cpp"), generatedBody);
     }
@@ -615,9 +615,9 @@ var generateModels = exports.generateModels = function (apis, apiOutputDir, libr
 
 var generateErrors = exports.generateErrors = function (api, apiOutputDir) {
     var sourceDir = __dirname;
-    
+   
     var errorsTemplate = ejs.compile(readFile(path.resolve(sourceDir, "templates/PlayFabError.h.ejs")));
-    
+   
     var errorLocals = {};
     errorLocals.errorList = api.errorList;
     errorLocals.errors = api.errors;
@@ -631,7 +631,7 @@ function getAuthParams(apiCall) {
         return "httpRequest->SetHeader(\"X-SecretKey\", PlayFabSettings::developerSecretKey);"
     else if (apiCall.auth == 'SessionTicket')
         return "httpRequest->SetHeader(\"X-Authorization\", mUserSessionTicket);"
-    
+   
     return "";
 }
 
@@ -653,7 +653,7 @@ var getResultActions = exports.getResultActions = function (apiCall, api) {
 function getUrlAccessor(apiCall) {
     if (apiCall.serverType == 'logic')
         return "PlayFabSettings::getLogicURL(\"" + apiCall.url + "\")";
-    
+   
     return "PlayFabSettings::getURL(\"" + apiCall.url + "\")";
 }
 

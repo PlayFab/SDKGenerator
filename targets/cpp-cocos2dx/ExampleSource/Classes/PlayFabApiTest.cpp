@@ -1,5 +1,6 @@
 #include "PlayFabApiTest.h"
 #include "cocos2d.h"
+#include <ctime>
 
 #define COCOS2D_DEBUG 1
 
@@ -39,6 +40,7 @@ namespace PlayFabApiTest
     // Variables for specific tests
     string testMessageReturn;
     Int32 testMessageInt;
+    time_t testMessageTime;
     int testsRun, testsPassed, testsFailed;
     // Report Generation
     std::list<string> reportDetails;
@@ -230,7 +232,10 @@ namespace PlayFabApiTest
         testMessageReturn = "GetData_Success";
         std::map<string, PlayFab::ClientModels::UserDataRecord>::iterator it = result.Data.find(TEST_DATA_KEY);
         if (it != result.Data.end())
+        {
             testMessageInt = atoi(it->second.Value.c_str());
+            testMessageTime = it->second.LastUpdated;
+        }
     }
     void UpdateDataCallback(PlayFab::ClientModels::UpdateUserDataResult& result, void* userData)
     {
@@ -265,9 +270,15 @@ namespace PlayFabApiTest
         clientApi.GetUserData(getRequest, &GetDataCallback, &SharedFailedCallback, NULL);
         ClientApiWait();
         if (testMessageReturn.compare("GetData_Success") != 0) return false;
-        int testCounterValueActual = testMessageInt;
 
-        return testCounterValueExpected == testCounterValueActual;
+        time_t now = time(NULL);
+        now = mktime(gmtime(&now));
+        time_t minTime = now - (60 * 5);
+        time_t maxTime = now + (60 * 5);
+
+        bool counterMatches = testCounterValueExpected == testMessageInt;
+        bool timeMatches = minTime <= testMessageTime && testMessageTime <= maxTime;
+        return counterMatches && counterMatches;
     }
 
     /// <summary>

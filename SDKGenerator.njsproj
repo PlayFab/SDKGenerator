@@ -12,7 +12,7 @@
     <ProjectTypeGuids>{3AF33F2E-1136-4D97-BBB7-1795711AC8B8};{349c5851-65df-11da-9384-00065b846f21};{9092AA53-FB77-4645-B42D-1CCCA6BD08BD}</ProjectTypeGuids>
     <VisualStudioVersion Condition="'$(VisualStudioVersion)' == ''">11.0</VisualStudioVersion>
     <VSToolsPath Condition="'$(VSToolsPath)' == ''">$(MSBuildExtensionsPath32)\Microsoft\VisualStudio\v$(VisualStudioVersion)</VSToolsPath>
-    <ScriptArguments>..\API_Specs postman=..\sdks\PostmanCollection</ScriptArguments>
+    <ScriptArguments>..\API_Specs cpp-cocos2dx=..\sdks\Cocos2d-xSDK</ScriptArguments>
     <StartWebBrowser>False</StartWebBrowser>
   </PropertyGroup>
   <PropertyGroup Condition="'$(Configuration)' == 'Debug'" />
@@ -51,6 +51,17 @@
     <Content Include="SDKBuildScripts\win_compile_server.bat" />
     <Content Include="SDKBuildScripts\win_compile_shared.bat" />
     <Content Include="SDKBuildScripts\win_unittest.bat" />
+    <Content Include="targets\cpp-cocos2dx\ExampleFiles\Android.mk" />
+    <Content Include="targets\cpp-cocos2dx\ExampleFiles\Application.mk" />
+    <Content Include="targets\cpp-cocos2dx\ExampleFiles\HelloWorldScene.cpp" />
+    <Content Include="targets\cpp-cocos2dx\ExampleFiles\HelloWorldScene.h" />
+    <Content Include="targets\cpp-cocos2dx\ExampleFiles\main.cpp" />
+    <Content Include="targets\cpp-cocos2dx\ExampleFiles\PlayFabApiTest.cpp" />
+    <Content Include="targets\cpp-cocos2dx\ExampleFiles\PlayFabApiTest.h" />
+    <Content Include="targets\cpp-cocos2dx\ExampleFiles\PlayFabSDKExample.sdf" />
+    <Content Include="targets\cpp-cocos2dx\ExampleFiles\PlayFabSDKExample.vcxproj" />
+    <Content Include="targets\cpp-cocos2dx\ExampleFiles\PlayFabSDKExample.vcxproj.filters" />
+    <Content Include="targets\cpp-cocos2dx\ExampleFiles\unistd.h" />
     <Content Include="targets\cpp-ue4\Plugins\PlayFab\PlayFab.uplugin" />
     <Content Include="targets\cpp-ue4\Plugins\PlayFab\Resources\Icon128.png" />
     <Content Include="targets\cpp-ue4\Plugins\PlayFab\Source\OnlineSubsystemPlayFab\OnlineSubsystemPlayFab.Build.cs" />
@@ -194,6 +205,7 @@
     <Folder Include="targets\actionscript" />
     <Folder Include="targets\actionscript\templates" />
     <Folder Include="targets\cpp-cocos2dx" />
+    <Folder Include="targets\cpp-cocos2dx\ExampleFiles\" />
     <Folder Include="targets\cpp-cocos2dx\source" />
     <Folder Include="targets\cpp-cocos2dx\source\PlayFabSDK" />
     <Folder Include="targets\cpp-cocos2dx\source\PlayFabSDK\include" />

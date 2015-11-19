@@ -291,7 +291,7 @@ namespace UnittestRunner
             now = mktime(gmtime(&now));
             time_t minTime = now - (60 * 5);
             time_t maxTime = now + (60 * 5);
-            Assert::IsTrue(minTime <= now && now <= maxTime);
+            Assert::IsTrue(minTime <= testMessageTime && testMessageTime <= maxTime);
         }
         static void GetDataCallback(PlayFab::ClientModels::GetUserDataResult& result, void* userData)
         {

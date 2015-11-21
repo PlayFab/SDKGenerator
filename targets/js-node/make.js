@@ -7,6 +7,7 @@ exports.makeCombinedAPI = function (apis, sourceDir, apiOutputDir) {
     // Load the templates
     var templateDir = path.resolve(sourceDir, "templates");
     var coreTemplate = ejs.compile(readFile(path.resolve(templateDir, "playfab.js.ejs")));
+    var npmTemplate = ejs.compile(readFile(path.resolve(templateDir, "package.json.ejs")));
     var apiTemplate = ejs.compile(readFile(path.resolve(templateDir, "api.js.ejs")));
     
     var destSubFolders = ["PlayFabSdk", "PlayFabTesting"]; // Write both the published folder and the testing folder
@@ -18,6 +19,16 @@ exports.makeCombinedAPI = function (apis, sourceDir, apiOutputDir) {
         coreLocals.sdkVersion = exports.sdkVersion;
         var generatedCore = coreTemplate(coreLocals);
         writeFile(path.resolve(eachOutputDir, "PlayFab.js"), generatedCore);
+        
+        // Write the package file
+        pkgLocals = {}
+        pkgLocals.isTesting = (destSubFolders[folderIndex] == "PlayFabTesting");
+        pkgLocals.sdkVersion = exports.sdkVersion;
+        pkgLocals.projectName = pkgLocals.isTesting ? "playfab-testing" : "playfab-sdk";
+        pkgLocals.description = pkgLocals.isTesting ? "Playfab SDK automated testing example" : "Playfab SDK for node.js applications";
+        pkgLocals.mainFile = pkgLocals.isTesting ? "PlayFabApiTests.js" : "main.js";
+        var generatedPkg = npmTemplate(pkgLocals);
+        writeFile(path.resolve(eachOutputDir, "package.json"), generatedPkg);
         
         // Write the API files
         for (var i in apis) {

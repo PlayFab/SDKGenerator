@@ -1,6 +1,6 @@
-package playfab;
+package com.playfab;
 
-public class PlayFabUtil { 
+public class PlayFabUtil {
     public static @interface Unordered {
         public String value() default "";
     }

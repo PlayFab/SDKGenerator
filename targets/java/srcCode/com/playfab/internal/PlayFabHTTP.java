@@ -1,4 +1,4 @@
-package playfab.internal;
+package com.playfab.internal;
 
 import java.util.*;
 import java.util.concurrent.*;
@@ -6,13 +6,13 @@ import java.net.*;
 import java.io.*;
 import com.google.gson.*;
 
-import playfab.PlayFabErrors.PlayFabError;
-import playfab.PlayFabErrors.PlayFabErrorCode;
-import playfab.PlayFabErrors.PlayFabJsonError;
-import playfab.PlayFabErrors.PlayFabJsonSuccess;
+import com.playfab.PlayFabErrors.PlayFabError;
+import com.playfab.PlayFabErrors.PlayFabErrorCode;
+import com.playfab.PlayFabErrors.PlayFabJsonError;
+import com.playfab.PlayFabErrors.PlayFabJsonSuccess;
 
 public class PlayFabHTTP {
-    private static Gson gson = new GsonBuilder().setDateFormat("YYYY-MM-DD'T'hh:mm:ss.SSS'Z'").create();
+    private static Gson gson = new GsonBuilder().setDateFormat("yyyy-MM-dd'T'HH:mm:ss.SSS'Z'").create();
 
     public static FutureTask<Object> doPost(final String url, final Object request, final String authType, final String authKey) {
         return new FutureTask<Object>(new Callable<Object>() {
@@ -21,10 +21,10 @@ public class PlayFabHTTP {
             }
         });
     }
-        
+
     private static Object doPostPrivate(String url, Object request, String authType, String authKey) throws Exception {
         String bodyString = null;
-        
+
         if(request == null) {
             bodyString = "{}";
         }
@@ -34,9 +34,9 @@ public class PlayFabHTTP {
         else {
             bodyString = gson.toJson(request);
         }
-        
+
         // System.out.println("Sending: " + bodyString);
-            
+
         HttpURLConnection con = (HttpURLConnection) new URL(url).openConnection();
         con.setRequestMethod("POST");
         con.setRequestProperty("Content-Type", "application/json");
@@ -77,7 +77,7 @@ public class PlayFabHTTP {
             } catch(Exception e) {
                 return GeneratePfError(httpCode, PlayFabErrorCode.JsonParseError, "Server response not proper json :" + responseString);
             }
-            
+
             httpCode = errorResult.code;
             return GeneratePfError(httpCode, PlayFabErrorCode.getFromCode(errorResult.errorCode), errorResult.errorMessage);
         }
@@ -88,19 +88,19 @@ public class PlayFabHTTP {
     public static String receive(InputStream in) throws IOException {
         StringBuilder recieved = new StringBuilder();
         BufferedReader reader = new BufferedReader(new InputStreamReader(in));
-            
+
         String line = null;
         while ((line = reader.readLine()) != null) {
             recieved.append(line);
             recieved.append('\n');
         }
-            
+
         return recieved.toString();
     }
 
     public static PlayFabError GeneratePfError(int httpCode, PlayFabErrorCode pfErrorCode, String errorMessage) {
         PlayFabError output =  new PlayFabError();
-        
+
         output.httpCode = httpCode;
         output.httpStatus = "" + httpCode; // TODO: Convert this to the right string-name
         output.pfErrorCode = pfErrorCode;

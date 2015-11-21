@@ -14,12 +14,12 @@ import java.util.Properties;
 import com.google.gson.*;
 import com.google.gson.reflect.*;
 
-import playfab.PlayFabErrors.*;
-import playfab.PlayFabSettings;
-import playfab.PlayFabClientModels;
-import playfab.PlayFabServerModels;
-import playfab.PlayFabClientAPI;
-import playfab.PlayFabServerAPI;
+import com.playfab.PlayFabErrors.*;
+import com.playfab.PlayFabSettings;
+import com.playfab.PlayFabClientModels;
+import com.playfab.PlayFabServerModels;
+import com.playfab.PlayFabClientAPI;
+import com.playfab.PlayFabServerAPI;
 
 public class PlayFabApiTest
 {

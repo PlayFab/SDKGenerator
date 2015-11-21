@@ -1,52 +1,54 @@
 var path = require('path');
 
 exports.makeClientAPI = function (api, sourceDir, apiOutputDir) {
-    console.log("Generating Java client SDK to " + apiOutputDir);
+    var srcOutputLoc = ["src", "../AndroidStudioExample/app/src/main/java"];
+    var libOutputLoc = ["src", "../AndroidStudioExample/app/libs"];
     
-    copyTree(path.resolve(sourceDir, 'src/'), apiOutputDir);
-    
-    makeDatatypes([api], sourceDir, apiOutputDir);
-    
-    makeAPI(api, sourceDir, apiOutputDir);
-    
-    generateErrors(api, sourceDir, apiOutputDir);
-    generateVersion(api, sourceDir, apiOutputDir);
+    for (var i in srcOutputLoc) {
+        var srcOutputDir = path.resolve(apiOutputDir, srcOutputLoc[i]);
+        var libOutputDir = path.resolve(apiOutputDir, libOutputLoc[i]);
+        
+        console.log("Generating Java client SDK to " + srcOutputDir);
+        copyTree(path.resolve(sourceDir, 'srcCode'), srcOutputDir);
+        copyTree(path.resolve(sourceDir, 'srcLibs'), libOutputDir);
+        makeDatatypes([api], sourceDir, srcOutputDir);
+        makeAPI(api, sourceDir, srcOutputDir);
+        generateErrors(api, sourceDir, srcOutputDir);
+        generateVersion(api, sourceDir, srcOutputDir);
+        generateSettings(api, sourceDir, srcOutputDir);
+    }
 }
 
 exports.makeServerAPI = function (apis, sourceDir, apiOutputDir) {
+    apiOutputDir = path.resolve(apiOutputDir, 'src');
     console.log("Generating Java server SDK to " + apiOutputDir);
     
-    copyTree(path.resolve(sourceDir, 'src/'), apiOutputDir);
-    
+    copyTree(path.resolve(sourceDir, 'srcCode'), apiOutputDir);
+    copyTree(path.resolve(sourceDir, 'srcLibs'), apiOutputDir);
     makeDatatypes(apis, sourceDir, apiOutputDir);
-    
-    for (var i in apis) {
-        var api = apis[i];
-        makeAPI(api, sourceDir, apiOutputDir);
-    }
-    
+    for (var i in apis)
+        makeAPI(apis[i], sourceDir, apiOutputDir);
     generateErrors(apis[0], sourceDir, apiOutputDir);
     generateVersion(apis[0], sourceDir, apiOutputDir);
+    generateSettings(apis[0], sourceDir, apiOutputDir);
 }
 
 exports.makeCombinedAPI = function (apis, sourceDir, apiOutputDir) {
+    apiOutputDir = path.resolve(apiOutputDir, 'src');
     console.log("Generating Java combined SDK to " + apiOutputDir);
     
-    copyTree(path.resolve(sourceDir, 'src/'), apiOutputDir);
-    
+    copyTree(path.resolve(sourceDir, 'srcCode'), apiOutputDir);
+    copyTree(path.resolve(sourceDir, 'srcLibs'), apiOutputDir);
     makeDatatypes(apis, sourceDir, apiOutputDir);
-    
-    for (var i in apis) {
-        var api = apis[i];
-        makeAPI(api, sourceDir, apiOutputDir);
-    }
-    
+    for (var i in apis)
+        makeAPI(apis[i], sourceDir, apiOutputDir);
     generateErrors(apis[0], sourceDir, apiOutputDir);
     generateVersion(apis[0], sourceDir, apiOutputDir);
+    generateSettings(apis[0], sourceDir, apiOutputDir);
     
     // Copy testing files
-    copyFile(path.resolve(sourceDir, 'testingfiles/PlayFabApiTest.java'), path.resolve(apiOutputDir, 'src/PlayFabApiTest.java'));
-    copyFile(path.resolve(sourceDir, 'testingfiles/RunPfTests.bat'), path.resolve(apiOutputDir, 'src/RunPfTests.bat'));
+    copyFile(path.resolve(sourceDir, 'testingfiles/PlayFabApiTest.java'), path.resolve(apiOutputDir, 'PlayFabApiTest.java'));
+    copyFile(path.resolve(sourceDir, 'testingfiles/RunPfTests.bat'), path.resolve(apiOutputDir, 'RunPfTests.bat'));
 }
 
 function getJsonString(input) {
@@ -90,13 +92,11 @@ function makeDatatypes(apis, sourceDir, apiOutputDir) {
     };
     
     for (var a in apis) {
-        var api = apis[a];
-        
         var modelsLocal = {};
-        modelsLocal.api = api;
+        modelsLocal.api = apis[a];
         modelsLocal.makeDatatype = makeDatatype;
         var generatedModels = modelsTemplate(modelsLocal);
-        writeFile(path.resolve(apiOutputDir, "src/playfab/PlayFab" + api.name + "Models.java"), generatedModels);
+        writeFile(path.resolve(apiOutputDir, "com/playfab/PlayFab" + apis[a].name + "Models.java"), generatedModels);
     }
 }
 
@@ -117,7 +117,7 @@ function makeAPI(api, sourceDir, apiOutputDir) {
     apiLocals.getUrlAccessor = getUrlAccessor;
     apiLocals.authKey = api.name == "Client";
     var generatedApi = apiTemplate(apiLocals);
-    writeFile(path.resolve(apiOutputDir, "src/playfab/PlayFab" + api.name + "API.java"), generatedApi);
+    writeFile(path.resolve(apiOutputDir, "com/playfab/PlayFab" + api.name + "API.java"), generatedApi);
 }
 
 function generateErrors(api, sourceDir, apiOutputDir) {
@@ -127,7 +127,7 @@ function generateErrors(api, sourceDir, apiOutputDir) {
     errorLocals.errorList = api.errorList;
     errorLocals.errors = api.errors;
     var generatedErrors = errorsTemplate(errorLocals);
-    writeFile(path.resolve(apiOutputDir, "src/playfab/PlayFabErrors.java"), generatedErrors);
+    writeFile(path.resolve(apiOutputDir, "com/playfab/PlayFabErrors.java"), generatedErrors);
 }
 
 function generateVersion(api, sourceDir, apiOutputDir) {
@@ -136,7 +136,16 @@ function generateVersion(api, sourceDir, apiOutputDir) {
     var versionLocals = {};
     versionLocals.sdkRevision = exports.sdkVersion;
     var generatedVersion = versionTemplate(versionLocals);
-    writeFile(path.resolve(apiOutputDir, "src/playfab/internal/PlayFabVersion.java"), generatedVersion);
+    writeFile(path.resolve(apiOutputDir, "com/playfab/internal/PlayFabVersion.java"), generatedVersion);
+}
+
+function generateSettings(api, sourceDir, apiOutputDir) {
+    var settingsTemplate = ejs.compile(readFile(path.resolve(sourceDir, "templates/PlayFabSettings.java.ejs")));
+    
+    var settingLocals = {};
+    settingLocals.hasSecretKey = api.name != "Client";
+    var generatedSettings = settingsTemplate(settingLocals);
+    writeFile(path.resolve(apiOutputDir, "com/playfab/PlayFabSettings.java"), generatedSettings);
 }
 
 function getModelPropertyDef(property, datatype) {

@@ -1,5 +1,5 @@
 rem === Cleaning existing files from ActionScriptSDK ===
-pushd ../../sdks/ActionScriptSDK/PfApiTest/com/playfab
+pushd ..\..\sdks\ActionScriptSDK\PfApiTest\com\playfab
 pushd AdminModels
 del *.as >nul 2>&1
 popd

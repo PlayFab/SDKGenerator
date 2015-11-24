@@ -1,0 +1,28 @@
+using System.Collections.Generic;
+
+namespace PlayFab
+{
+#if !UNITY_IOS
+    /// <summary>
+    /// Error codes returned by PlayFabAPIs
+    /// </summary>
+    public enum PlayFabErrorCode
+    {
+        Unknown = 1,
+        <% for(var i=0; i<errorList.length-1; i++) { var errorProps = errors[errorList[i]] %><%- errorProps.name %> = <%- errorProps.id %>,
+        <% } %><% var errorProps = errors[errorList[errorList.length-1]] %><%- errorProps.name %> = <%- errorProps.id %>
+    }
+
+    public class PlayFabError
+    {
+        public int HttpCode;
+        public string HttpStatus;
+        public PlayFabErrorCode Error;
+        public string ErrorMessage;
+        public Dictionary<string, List<string> > ErrorDetails;
+    };
+
+    public delegate void ErrorCallback(PlayFabError error);
+
+#endif
+}

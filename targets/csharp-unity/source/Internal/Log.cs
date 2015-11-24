@@ -20,8 +20,6 @@ namespace PlayFab.Internal
             }
         }
 
-
-
         public static void Warning(string text, params object[] args)
         {
             if ((PlayFabSettings.LogLevel & PlayFabLogLevel.Warning) != 0)

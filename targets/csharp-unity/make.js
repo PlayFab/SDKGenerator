@@ -71,9 +71,9 @@ function getIsResultHandler(datatype) {
 function makeDatatypes(apis, sourceDir, apiOutputDir) {
     var templateDir = path.resolve(sourceDir, "templates");
 
-    var modelTemplate = ejs.compile(readFile(path.resolve(templateDir, "Model.cp.ejs")));
-    var modelsTemplate = ejs.compile(readFile(path.resolve(templateDir, "Models.cp.ejs")));
-    var enumTemplate = ejs.compile(readFile(path.resolve(templateDir, "Enum.cp.ejs")));
+    var modelTemplate = ejs.compile(readFile(path.resolve(templateDir, "Model.cs.ejs")));
+    var modelsTemplate = ejs.compile(readFile(path.resolve(templateDir, "Models.cs.ejs")));
+    var enumTemplate = ejs.compile(readFile(path.resolve(templateDir, "Enum.cs.ejs")));
 
     var makeDatatype = function (datatype) {
         var modelLocals = {};
@@ -110,7 +110,7 @@ function makeAPI(api, sourceDir, apiOutputDir) {
 
     var templateDir = path.resolve(sourceDir, "templates");
 
-    var apiTemplate = ejs.compile(readFile(path.resolve(templateDir, "API.cp.ejs")));
+    var apiTemplate = ejs.compile(readFile(path.resolve(templateDir, "API.cs.ejs")));
 
 
     var apiLocals = {};
@@ -125,7 +125,7 @@ function makeAPI(api, sourceDir, apiOutputDir) {
 }
 
 function generateErrors(api, sourceDir, apiOutputDir) {
-    var errorsTemplate = ejs.compile(readFile(path.resolve(sourceDir, "templates/Errors.cp.ejs")));
+    var errorsTemplate = ejs.compile(readFile(path.resolve(sourceDir, "templates/Errors.cs.ejs")));
 
     var errorLocals = {};
     errorLocals.errorList = api.errorList;
@@ -135,7 +135,7 @@ function generateErrors(api, sourceDir, apiOutputDir) {
 }
 
 function generateVersion(api, sourceDir, apiOutputDir) {
-    var versionTemplate = ejs.compile(readFile(path.resolve(sourceDir, "templates/PlayFabVersion.cp.ejs")));
+    var versionTemplate = ejs.compile(readFile(path.resolve(sourceDir, "templates/PlayFabVersion.cs.ejs")));
 
     var versionLocals = {};
     versionLocals.sdkRevision = exports.sdkVersion;

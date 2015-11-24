@@ -6,7 +6,7 @@ using PlayFab.Json.Converters;
 
 namespace PlayFab.<%- api.name %>Models
 {
-	<% for(var d in api.datatypes) { var datatype = api.datatypes[d] %>
-	<%- makeDatatype(datatype) %>
-	<% } %>
+    <% for(var d in api.datatypes) { var datatype = api.datatypes[d] %>
+    <%- makeDatatype(datatype) %>
+    <% } %>
 }

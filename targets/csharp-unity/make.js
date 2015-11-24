@@ -403,7 +403,7 @@ function getAuthParams(apiCall) {
 
 function getRequestActions(apiCall, api) {
     if (api.name == "Client" && (apiCall.result == "LoginResult" || apiCall.request == "RegisterPlayFabUserRequest"))
-        return "request.TitleId = PlayFabSettings.TitleId ?? request.TitleId;\n            if (request.TitleId == null) throw new Exception (\"Must be have PlayFabSettings.TitleId set to call this method\");\n";
+        return "request.TitleId = request.TitleId ?? PlayFabSettings.TitleId;\n            if (request.TitleId == null) throw new Exception (\"Must be have PlayFabSettings.TitleId set to call this method\");\n";
     if (api.name == "Client" && apiCall.auth == 'SessionTicket')
         return "if (AuthKey == null) throw new Exception (\"Must be logged in to call this method\");\n"
     if (apiCall.auth == 'SecretKey')
@@ -413,7 +413,7 @@ function getRequestActions(apiCall, api) {
 
 function getResultActions(apiCall, api) {
     if (api.name == "Client" && (apiCall.result == "LoginResult" || apiCall.result == "RegisterPlayFabUserResult"))
-        return "AuthKey = result.SessionTicket ?? AuthKey;\n";
+        return "AuthKey = result.SessionTicket ?? AuthKey;\n"; // "                    "
     else if (api.name == "Client" && apiCall.result == "GetCloudScriptUrlResult")
         return "PlayFabSettings.LogicServerURL = result.Url;\n";
     return "";

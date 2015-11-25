@@ -169,7 +169,6 @@
     <Content Include="targets\csharp-unity\source\Internal\Testing\UtilTest.cs" />
     <Content Include="targets\csharp-unity\source\Internal\Util.cs" />
     <Content Include="targets\csharp-unity\source\link.xml" />
-    <Content Include="targets\csharp-unity\source\Public\PlayFabSettings.cs" />
     <Content Include="targets\csharp-unity\source\Uunit\Editor\UUnitTestRunner.cs" />
     <Content Include="targets\csharp-unity\source\Uunit\UnityIncrementalTestRunner.cs" />
     <Content Include="targets\csharp-unity\source\Uunit\UUnitAssert.cs" />
@@ -177,6 +176,13 @@
     <Content Include="targets\csharp-unity\source\Uunit\UUnitTestCase.cs" />
     <Content Include="targets\csharp-unity\source\Uunit\UUnitTestResult.cs" />
     <Content Include="targets\csharp-unity\source\Uunit\UUnitTestSuite.cs" />
+    <Content Include="targets\csharp-unity\templates\API.cs.ejs" />
+    <Content Include="targets\csharp-unity\templates\Enum.cs.ejs" />
+    <Content Include="targets\csharp-unity\templates\Errors.cs.ejs" />
+    <Content Include="targets\csharp-unity\templates\Model.cs.ejs" />
+    <Content Include="targets\csharp-unity\templates\Models.cs.ejs" />
+    <Content Include="targets\csharp-unity\templates\PlayFabSettings.cs.ejs" />
+    <Content Include="targets\csharp-unity\templates\PlayFabVersion.cs.ejs" />
     <Content Include="targets\java\srcCode\com\google\gson\annotations\Expose.java" />
     <Content Include="targets\java\srcCode\com\google\gson\annotations\JsonAdapter.java" />
     <Content Include="targets\java\srcCode\com\google\gson\annotations\package-info.java" />
@@ -286,12 +292,6 @@
     <Content Include="targets\csharp\source\packages\Newtonsoft.Json.6.0.3\lib\netcore45\Newtonsoft.Json.xml" />
     <Content Include="targets\csharp\source\packages\Newtonsoft.Json.6.0.3\lib\portable-net40+sl4+wp7+win8\Newtonsoft.Json.xml" />
     <Content Include="targets\csharp\source\packages\Newtonsoft.Json.6.0.3\lib\portable-net45+wp80+win8+wpa81\Newtonsoft.Json.xml" />
-    <Content Include="targets\csharp-unity\templates\API.cp.ejs" />
-    <Content Include="targets\csharp-unity\templates\Enum.cp.ejs" />
-    <Content Include="targets\csharp-unity\templates\Errors.cp.ejs" />
-    <Content Include="targets\csharp-unity\templates\Model.cp.ejs" />
-    <Content Include="targets\csharp-unity\templates\Models.cp.ejs" />
-    <Content Include="targets\csharp-unity\templates\PlayFabVersion.cp.ejs" />
     <Content Include="targets\javascript\templates\playfab.js.ejs" />
     <Content Include="targets\java\testingFiles\PlayFabApiTest.java" />
     <Content Include="targets\java\testingFiles\RunPfTests.bat" />
@@ -388,9 +388,9 @@
     <Folder Include="targets\csharp-unity\source\" />
     <Folder Include="targets\csharp-unity\source\Internal\" />
     <Folder Include="targets\csharp-unity\source\Internal\Testing\" />
-    <Folder Include="targets\csharp-unity\source\Public\" />
     <Folder Include="targets\csharp-unity\source\Uunit\" />
     <Folder Include="targets\csharp-unity\source\Uunit\Editor\" />
+    <Folder Include="targets\csharp-unity\templates\" />
     <Folder Include="targets\csharp\source" />
     <Folder Include="targets\csharp\source\packages" />
     <Folder Include="targets\csharp\source\packages\Newtonsoft.Json.6.0.3" />
@@ -410,7 +410,6 @@
     <Folder Include="targets\csharp\UnittestRunner" />
     <Folder Include="targets\csharp\UnittestRunner\Properties" />
     <Folder Include="targets\csharp-unity" />
-    <Folder Include="targets\csharp-unity\templates" />
     <Folder Include="targets\javascript" />
     <Folder Include="targets\javascript\templates" />
     <Folder Include="targets\java\" />

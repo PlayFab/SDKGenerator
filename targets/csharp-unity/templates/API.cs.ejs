@@ -47,7 +47,24 @@ namespace PlayFab
         public static bool IsClientLoggedIn()
         {
             return !string.IsNullOrEmpty(AuthKey);
+        }
+
+        public static void MultiStepClientLogin(LoginResult result) // TODO: This will be a sub-object inside the result, but for now, to ensure it's being called correctly
+        {
+            // Stub for automatically sequencing another API-call after every login call.
+            UnityEngine.Debug.Log("TODO: Send ASI value when appropriate: " + PlayFab.PlayFabSettings.advertisingIdType + "=" + PlayFab.PlayFabSettings.advertisingIdValue);
+            if (!string.IsNullOrEmpty(PlayFab.PlayFabSettings.advertisingIdType) && !string.IsNullOrEmpty(PlayFab.PlayFabSettings.advertisingIdType))
+            {
+            }
+        }
+
+        public static void MultiStepClientLogin(RegisterPlayFabUserResult result) // TODO: This will be a sub-object inside the result, but for now, to ensure it's being called correctly
+        {
+            // Stub for automatically sequencing another API-call after every login call.
+            UnityEngine.Debug.Log("TODO: Send ASI value when appropriate: " + PlayFab.PlayFabSettings.advertisingIdType + "=" + PlayFab.PlayFabSettings.advertisingIdValue);
+            if (!string.IsNullOrEmpty(PlayFab.PlayFabSettings.advertisingIdType) && !string.IsNullOrEmpty(PlayFab.PlayFabSettings.advertisingIdType))
+            {
+            }
         }<% } %>
     }
 }
-

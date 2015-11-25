@@ -3,61 +3,39 @@ var path = require('path');
 exports.putInRoot = true;
 
 exports.makeClientAPI = function (api, sourceDir, apiOutputDir) {
-    // Make the Client Unity Sample Project
     apiOutputDir = path.resolve(apiOutputDir, 'PlayFabClientSample/Assets/PlayFabSDK');
-
     console.log("  - Generating C-sharp Unity client SDK sample proj to\n  - " + apiOutputDir);
-
+    
     copyTree(path.resolve(sourceDir, 'source'), apiOutputDir);
-
     makeDatatypes([api], sourceDir, apiOutputDir);
-
     makeAPI(api, sourceDir, apiOutputDir);
-
-    generateErrors(api, sourceDir, apiOutputDir);
-
-    generateVersion(api, sourceDir, apiOutputDir);
+    generateSimpleFiles([api], sourceDir, apiOutputDir);
 }
 
 exports.makeServerAPI = function (apis, sourceDir, apiOutputDir) {
-    // Make the Server Unity Sample Project
     apiOutputDir = path.resolve(apiOutputDir, 'PlayFabServerSample/Assets/PlayFabSDK');
-
     console.log("  - Generating C-sharp Unity server SDK sample proj to\n  - " + apiOutputDir);
-
+    
     copyTree(path.resolve(sourceDir, 'source'), apiOutputDir);
-
     makeDatatypes(apis, sourceDir, apiOutputDir);
-
     for (var i in apis) {
         var api = apis[i];
         makeAPI(api, sourceDir, apiOutputDir);
     }
-
-    generateErrors(apis[0], sourceDir, apiOutputDir);
-
-    generateVersion(apis[0], sourceDir, apiOutputDir);
+    generateSimpleFiles(apis, sourceDir, apiOutputDir);
 }
 
 exports.makeCombinedAPI = function (apis, sourceDir, apiOutputDir) {
-    // Make the Combined Unity Testing Project
     apiOutputDir = path.resolve(apiOutputDir, 'PlayFabCombinedTestingSample/Assets/PlayFabSDK');
-
     console.log("  - Generating C-sharp Unity combined SDK sample proj to\n  - " + apiOutputDir);
-
+    
     copyTree(path.resolve(sourceDir, 'source'), apiOutputDir);
-
     makeDatatypes(apis, sourceDir, apiOutputDir);
-
     for (var i in apis) {
         var api = apis[i];
         makeAPI(api, sourceDir, apiOutputDir);
     }
-
-    generateErrors(apis[0], sourceDir, apiOutputDir);
-
-    generateVersion(apis[0], sourceDir, apiOutputDir);
-
+    generateSimpleFiles(apis, sourceDir, apiOutputDir);
     copyFile(path.resolve(sourceDir, 'PlayFabApiTest.cs'), path.resolve(apiOutputDir, 'Internal/Testing/PlayFabApiTest.cs'));
 }
 
@@ -70,11 +48,11 @@ function getIsResultHandler(datatype) {
 
 function makeDatatypes(apis, sourceDir, apiOutputDir) {
     var templateDir = path.resolve(sourceDir, "templates");
-
+    
     var modelTemplate = ejs.compile(readFile(path.resolve(templateDir, "Model.cs.ejs")));
     var modelsTemplate = ejs.compile(readFile(path.resolve(templateDir, "Models.cs.ejs")));
     var enumTemplate = ejs.compile(readFile(path.resolve(templateDir, "Enum.cs.ejs")));
-
+    
     var makeDatatype = function (datatype) {
         var modelLocals = {};
         modelLocals.datatype = datatype;
@@ -83,36 +61,31 @@ function makeDatatypes(apis, sourceDir, apiOutputDir) {
         modelLocals.getPropertyJsonReader = getPropertyJsonReader;
         modelLocals.isResultHandler = getIsResultHandler;
         var generatedModel = null;
-
+        
         if (datatype.isenum) {
             generatedModel = enumTemplate(modelLocals);
         }
         else {
             generatedModel = modelTemplate(modelLocals);
         }
-
+        
         return generatedModel;
     };
-
+    
     for (var a in apis) {
-        var api = apis[a];
-
         var modelsLocal = {};
-        modelsLocal.api = api;
+        modelsLocal.api = apis[a];
         modelsLocal.makeDatatype = makeDatatype;
         var generatedModels = modelsTemplate(modelsLocal);
-        writeFile(path.resolve(apiOutputDir, "Public/PlayFab" + api.name + "Models.cs"), generatedModels);
+        writeFile(path.resolve(apiOutputDir, "Public/PlayFab" + apis[a].name + "Models.cs"), generatedModels);
     }
 }
 
 function makeAPI(api, sourceDir, apiOutputDir) {
     console.log("   - Generating C# " + api.name + " library to\n   - " + apiOutputDir);
-
+    
     var templateDir = path.resolve(sourceDir, "templates");
-
     var apiTemplate = ejs.compile(readFile(path.resolve(templateDir, "API.cs.ejs")));
-
-
     var apiLocals = {};
     apiLocals.api = api;
     apiLocals.getAuthParams = getAuthParams;
@@ -124,29 +97,38 @@ function makeAPI(api, sourceDir, apiOutputDir) {
     writeFile(path.resolve(apiOutputDir, "Public/PlayFab" + api.name + "API.cs"), generatedApi);
 }
 
-function generateErrors(api, sourceDir, apiOutputDir) {
+function generateSimpleFiles(apis, sourceDir, apiOutputDir) {
     var errorsTemplate = ejs.compile(readFile(path.resolve(sourceDir, "templates/Errors.cs.ejs")));
-
     var errorLocals = {};
-    errorLocals.errorList = api.errorList;
-    errorLocals.errors = api.errors;
+    errorLocals.errorList = apis[0].errorList;
+    errorLocals.errors = apis[0].errors;
     var generatedErrors = errorsTemplate(errorLocals);
     writeFile(path.resolve(apiOutputDir, "Public/PlayFabErrors.cs"), generatedErrors);
-}
-
-function generateVersion(api, sourceDir, apiOutputDir) {
+    
     var versionTemplate = ejs.compile(readFile(path.resolve(sourceDir, "templates/PlayFabVersion.cs.ejs")));
-
     var versionLocals = {};
     versionLocals.sdkRevision = exports.sdkVersion;
     var generatedVersion = versionTemplate(versionLocals);
     writeFile(path.resolve(apiOutputDir, "Internal/PlayFabVersion.cs"), generatedVersion);
+    
+    var settingsTemplate = ejs.compile(readFile(path.resolve(sourceDir, "templates/PlayFabSettings.cs.ejs")));
+    var settingsLocals = {};
+    settingsLocals.hasDevKey = false;
+    settingsLocals.hasAdvertId = false;
+    for (var i in apis) {
+        if (apis[i].name == "Client")
+            settingsLocals.hasAdvertId = true;
+        else
+            settingsLocals.hasDevKey = true;
+    }
+    var generatedSettings = settingsTemplate(settingsLocals);
+    writeFile(path.resolve(apiOutputDir, "Public/PlayFabSettings.cs"), generatedSettings);
 }
 
 function getModelPropertyDef(property, datatype) {
     if (property.collection) {
         var basicType = getPropertyCSType(property, datatype, false);
-
+        
         if (property.collection == 'array') {
             return 'List<' + basicType + '> ' + property.name;
         }
@@ -169,7 +151,7 @@ function getPropertyAttribs(property, datatype, api) {
 
 function getPropertyCSType(property, datatype, needOptional) {
     var optional = (needOptional && property.optional) ? '?' : '';
-
+    
     if (property.actualtype == 'String') {
         return 'string';
     }
@@ -222,7 +204,7 @@ function getPropertyCSType(property, datatype, needOptional) {
 
 function getPropertyJSType(property, datatype, needOptional) {
     var optional = (needOptional && property.optional) ? '?' : '';
-
+    
     if (property.actualtype == 'String') {
         return 'string';
     }
@@ -359,7 +341,7 @@ function getPropertyJsonReader(property, datatype) {
     var csOptionalType = getPropertyCSType(property, datatype, true);
     var jsType = getPropertyJSType(property, datatype, false);
     var jsOptionalType = getPropertyJSType(property, datatype, true);
-
+    
     if (property.isclass) {
         if (property.collection == "map") {
             return property.name + " = JsonUtil.GetObjectDictionary<" + csType + ">(json, \"" + property.name + "\");";
@@ -397,7 +379,7 @@ function getAuthParams(apiCall) {
         return "\"X-SecretKey\", PlayFabSettings.DeveloperSecretKey";
     else if (apiCall.auth == 'SessionTicket')
         return "\"X-Authorization\", AuthKey";
-
+    
     return "null, null";
 }
 
@@ -413,7 +395,7 @@ function getRequestActions(apiCall, api) {
 
 function getResultActions(apiCall, api) {
     if (api.name == "Client" && (apiCall.result == "LoginResult" || apiCall.result == "RegisterPlayFabUserResult"))
-        return "AuthKey = result.SessionTicket ?? AuthKey;\n"; // "                    "
+        return "AuthKey = result.SessionTicket ?? AuthKey;\n                    MultiStepClientLogin(result);\n";
     else if (api.name == "Client" && apiCall.result == "GetCloudScriptUrlResult")
         return "PlayFabSettings.LogicServerURL = result.Url;\n";
     return "";
@@ -422,6 +404,6 @@ function getResultActions(apiCall, api) {
 function getUrlAccessor(apiCall) {
     if (apiCall.serverType == 'logic')
         return "PlayFabSettings.GetLogicURL()";
-
+    
     return "PlayFabSettings.GetURL()";
 }

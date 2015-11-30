@@ -152,11 +152,11 @@ function getModelPropertyDef(property, datatype) {
     if (property.collection) {
         var basicType = getPropertyJavaType(property, datatype, false);
         
-        if (property.collection == 'array') {
-            return 'ArrayList<' + basicType + '> ' + property.name;
+        if (property.collection === "array") {
+            return "ArrayList<" + basicType + "> " + property.name;
         }
-        else if (property.collection == 'map') {
-            return 'Map<String,' + basicType + '> ' + property.name;
+        else if (property.collection === "map") {
+            return "Map<String," + basicType + "> " + property.name;
         }
         else {
             throw "Unknown collection type: " + property.collection + " for " + property.name + " in " + datatype.name;
@@ -164,7 +164,7 @@ function getModelPropertyDef(property, datatype) {
     }
     else {
         var basicType = getPropertyJavaType(property, datatype, true);
-        return basicType + ' ' + property.name;
+        return basicType + " " + property.name;
     }
 }
 
@@ -184,40 +184,40 @@ function getPropertyAttribs(property, datatype, api) {
 
 
 function getPropertyJavaType(property, datatype, needOptional) {
-    var optional = '';
+    var optional = "";
     
-    if (property.actualtype == 'String') {
-        return 'String';
+    if (property.actualtype === "String") {
+        return "String";
     }
-    else if (property.actualtype == 'Boolean') {
-        return 'Boolean' + optional;
+    else if (property.actualtype === "Boolean") {
+        return "Boolean" + optional;
     }
-    else if (property.actualtype == 'int16') {
-        return 'Short' + optional;
+    else if (property.actualtype === "int16") {
+        return "Short" + optional;
     }
-    else if (property.actualtype == 'uint16') {
-        return 'Integer' + optional;
+    else if (property.actualtype === "uint16") {
+        return "Integer" + optional;
     }
-    else if (property.actualtype == 'int32') {
-        return 'Integer' + optional;
+    else if (property.actualtype === "int32") {
+        return "Integer" + optional;
     }
-    else if (property.actualtype == 'uint32') {
-        return 'Long' + optional;
+    else if (property.actualtype === "uint32") {
+        return "Long" + optional;
     }
-    else if (property.actualtype == 'int64') {
-        return 'Long' + optional;
+    else if (property.actualtype === "int64") {
+        return "Long" + optional;
     }
-    else if (property.actualtype == 'uint64') {
-        return 'Long' + optional;
+    else if (property.actualtype === "uint64") {
+        return "Long" + optional;
     }
-    else if (property.actualtype == 'float') {
-        return 'Float' + optional;
+    else if (property.actualtype === "float") {
+        return "Float" + optional;
     }
-    else if (property.actualtype == 'double') {
-        return 'Double' + optional;
+    else if (property.actualtype === "double") {
+        return "Double" + optional;
     }
-    else if (property.actualtype == 'DateTime') {
-        return 'Date' + optional;
+    else if (property.actualtype === "DateTime") {
+        return "Date" + optional;
     }
     else if (property.isclass) {
         return property.actualtype;
@@ -225,8 +225,8 @@ function getPropertyJavaType(property, datatype, needOptional) {
     else if (property.isenum) {
         return property.actualtype + optional;
     }
-    else if (property.actualtype == "object") {
-        return 'Object';
+    else if (property.actualtype === "object") {
+        return "Object";
     }
     else {
         throw "Unknown property type: " + property.actualtype + " for " + property.name + " in " + datatype.name;

@@ -47,7 +47,7 @@ function makeDatatypes(api, sourceDir, apiOutputDir) {
 function needsPlayFabUtil(datatype) {
     for (var i in datatype.properties) {
         var property = datatype.properties[i];
-        if (property.actualtype == 'DateTime')
+        if (property.actualtype === "DateTime")
             return true;
     }
     
@@ -122,40 +122,40 @@ function getModelPropertyDef(property, datatype) {
 
 function getPropertyASType(property, datatype) {
     
-    if (property.actualtype == 'String') {
+    if (property.actualtype === "String") {
         return 'String';
     }
-    else if (property.actualtype == 'Boolean') {
+    else if (property.actualtype === "Boolean") {
         return 'Boolean';
     }
-    else if (property.actualtype == 'int16') {
+    else if (property.actualtype === "int16") {
         return 'int';
     }
-    else if (property.actualtype == 'uint16') {
+    else if (property.actualtype === "uint16") {
         return 'uint';
     }
-    else if (property.actualtype == 'int32') {
+    else if (property.actualtype === "int32") {
         return 'int';
     }
-    else if (property.actualtype == 'uint32') {
+    else if (property.actualtype === "uint32") {
         return 'uint';
     }
-    else if (property.actualtype == 'int64') {
+    else if (property.actualtype === "int64") {
         return 'Number';
     }
-    else if (property.actualtype == 'uint64') {
+    else if (property.actualtype === "uint64") {
         return 'Number';
     }
-    else if (property.actualtype == 'float') {
+    else if (property.actualtype === "float") {
         return 'Number';
     }
-    else if (property.actualtype == 'double') {
+    else if (property.actualtype === "double") {
         return 'Number';
     }
-    else if (property.actualtype == 'decimal') {
+    else if (property.actualtype === "decimal") {
         return 'Number';
     }
-    else if (property.actualtype == 'DateTime') {
+    else if (property.actualtype === "DateTime") {
         return 'Date';
     }
     else if (property.isclass) {
@@ -164,7 +164,7 @@ function getPropertyASType(property, datatype) {
     else if (property.isenum) {
         return 'String'
     }
-    else if (property.actualtype == "object") {
+    else if (property.actualtype === "object") {
         return 'Object';
     }
     else {
@@ -202,7 +202,7 @@ function getModelPropertyInit(property, datatype) {
             throw "Unknown collection type: " + property.collection + " for " + property.name + " in " + datatype.name;
         }
     }
-    else if (property.actualtype == 'DateTime') {
+    else if (property.actualtype === "DateTime") {
         return property.name + " = PlayFabUtil.parseDate(data." + property.name + ");";
     }
     else {

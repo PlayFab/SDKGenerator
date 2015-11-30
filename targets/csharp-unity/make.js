@@ -129,11 +129,11 @@ function getModelPropertyDef(property, datatype) {
     if (property.collection) {
         var basicType = getPropertyCSType(property, datatype, false);
         
-        if (property.collection == 'array') {
-            return 'List<' + basicType + '> ' + property.name;
+        if (property.collection === "array") {
+            return "List<" + basicType + "> " + property.name;
         }
-        else if (property.collection == 'map') {
-            return 'Dictionary<string,' + basicType + '> ' + property.name;
+        else if (property.collection === "map") {
+            return "Dictionary<string," + basicType + "> " + property.name;
         }
         else {
             throw "Unknown collection type: " + property.collection + " for " + property.name + " in " + datatype.name;
@@ -141,7 +141,7 @@ function getModelPropertyDef(property, datatype) {
     }
     else {
         var basicType = getPropertyCSType(property, datatype, true);
-        return basicType + ' ' + property.name;
+        return basicType + " " + property.name;
     }
 }
 
@@ -150,43 +150,43 @@ function getPropertyAttribs(property, datatype, api) {
 }
 
 function getPropertyCSType(property, datatype, needOptional) {
-    var optional = (needOptional && property.optional) ? '?' : '';
+    var optional = (needOptional && property.optional) ? "?" : "";
     
-    if (property.actualtype == 'String') {
-        return 'string';
+    if (property.actualtype === "String") {
+        return "string";
     }
-    else if (property.actualtype == 'Boolean') {
-        return 'bool' + optional;
+    else if (property.actualtype === "Boolean") {
+        return "bool" + optional;
     }
-    else if (property.actualtype == 'int16') {
-        return 'short' + optional;
+    else if (property.actualtype === "int16") {
+        return "short" + optional;
     }
-    else if (property.actualtype == 'uint16') {
-        return 'ushort' + optional;
+    else if (property.actualtype === "uint16") {
+        return "ushort" + optional;
     }
-    else if (property.actualtype == 'int32') {
-        return 'int' + optional;
+    else if (property.actualtype === "int32") {
+        return "int" + optional;
     }
-    else if (property.actualtype == 'uint32') {
-        return 'uint' + optional;
+    else if (property.actualtype === "uint32") {
+        return "uint" + optional;
     }
-    else if (property.actualtype == 'int64') {
-        return 'long' + optional;
+    else if (property.actualtype === "int64") {
+        return "long" + optional;
     }
-    else if (property.actualtype == 'uint64') {
-        return 'ulong' + optional;
+    else if (property.actualtype === "uint64") {
+        return "ulong" + optional;
     }
-    else if (property.actualtype == 'float') {
-        return 'float' + optional;
+    else if (property.actualtype === "float") {
+        return "float" + optional;
     }
-    else if (property.actualtype == 'double') {
-        return 'double' + optional;
+    else if (property.actualtype === "double") {
+        return "double" + optional;
     }
-    else if (property.actualtype == 'decimal') {
-        return 'decimal' + optional;
+    else if (property.actualtype === "decimal") {
+        return "decimal" + optional;
     }
-    else if (property.actualtype == 'DateTime') {
-        return 'DateTime' + optional;
+    else if (property.actualtype === "DateTime") {
+        return "DateTime" + optional;
     }
     else if (property.isclass) {
         return property.actualtype;
@@ -194,8 +194,8 @@ function getPropertyCSType(property, datatype, needOptional) {
     else if (property.isenum) {
         return property.actualtype + optional;
     }
-    else if (property.actualtype == "object") {
-        return 'object';
+    else if (property.actualtype === "object") {
+        return "object";
     }
     else {
         throw "Unknown property type: " + property.actualtype + " for " + property.name + " in " + datatype.name;
@@ -203,52 +203,52 @@ function getPropertyCSType(property, datatype, needOptional) {
 }
 
 function getPropertyJSType(property, datatype, needOptional) {
-    var optional = (needOptional && property.optional) ? '?' : '';
+    var optional = (needOptional && property.optional) ? "?" : "";
     
-    if (property.actualtype == 'String') {
-        return 'string';
+    if (property.actualtype === "String") {
+        return "string";
     }
-    else if (property.actualtype == 'Boolean') {
-        return 'bool' + optional;
+    else if (property.actualtype === "Boolean") {
+        return "bool" + optional;
     }
-    else if (property.actualtype == 'int16') {
-        return 'double' + optional;
+    else if (property.actualtype === "int16") {
+        return "double" + optional;
     }
-    else if (property.actualtype == 'uint16') {
-        return 'double' + optional;
+    else if (property.actualtype === "uint16") {
+        return "double" + optional;
     }
-    else if (property.actualtype == 'int32') {
-        return 'double' + optional;
+    else if (property.actualtype === "int32") {
+        return "double" + optional;
     }
-    else if (property.actualtype == 'uint32') {
-        return 'double' + optional;
+    else if (property.actualtype === "uint32") {
+        return "double" + optional;
     }
-    else if (property.actualtype == 'int64') {
-        return 'double' + optional;
+    else if (property.actualtype === "int64") {
+        return "double" + optional;
     }
-    else if (property.actualtype == 'uint64') {
-        return 'double' + optional;
+    else if (property.actualtype === "uint64") {
+        return "double" + optional;
     }
-    else if (property.actualtype == 'float') {
-        return 'double' + optional;
+    else if (property.actualtype === "float") {
+        return "double" + optional;
     }
-    else if (property.actualtype == 'double') {
-        return 'double' + optional;
+    else if (property.actualtype === "double") {
+        return "double" + optional;
     }
-    else if (property.actualtype == 'decimal') {
-        return 'double' + optional;
+    else if (property.actualtype === "decimal") {
+        return "double" + optional;
     }
-    else if (property.actualtype == 'DateTime') {
-        return 'string';
+    else if (property.actualtype === "DateTime") {
+        return "string";
     }
     else if (property.isclass) {
-        return 'object';
+        return "object";
     }
     else if (property.isenum) {
-        return 'string';
+        return "string";
     }
-    else if (property.actualtype == "object") {
-        return 'object';
+    else if (property.actualtype === "object") {
+        return "object";
     }
     else {
         throw "Unknown property type: " + property.actualtype + " for " + property.name + " in " + datatype.name;
@@ -256,37 +256,37 @@ function getPropertyJSType(property, datatype, needOptional) {
 }
 
 function getMapDeserializer(property, datatype) {
-    if (property.actualtype == 'String') {
+    if (property.actualtype === "String") {
         return "JsonUtil.GetDictionary<string>(json, \"" + property.name + "\");";
     }
-    else if (property.actualtype == 'Boolean') {
+    else if (property.actualtype === "Boolean") {
         return "JsonUtil.GetDictionary<bool>(json, \"" + property.name + "\");";
     }
-    else if (property.actualtype == 'int16') {
+    else if (property.actualtype === "int16") {
         return "JsonUtil.GetDictionaryInt16(json, \"" + property.name + "\");";
     }
-    else if (property.actualtype == 'uint16') {
+    else if (property.actualtype === "uint16") {
         return "JsonUtil.GetDictionaryUInt16(json, \"" + property.name + "\");";
     }
-    else if (property.actualtype == 'int32') {
+    else if (property.actualtype === "int32") {
         return "JsonUtil.GetDictionaryInt32(json, \"" + property.name + "\");";
     }
-    else if (property.actualtype == 'uint32') {
+    else if (property.actualtype === "uint32") {
         return "JsonUtil.GetDictionaryUInt32(json, \"" + property.name + "\");";
     }
-    else if (property.actualtype == 'int64') {
+    else if (property.actualtype === "int64") {
         return "JsonUtil.GetDictionaryInt64(json, \"" + property.name + "\");";
     }
-    else if (property.actualtype == 'uint64') {
+    else if (property.actualtype === "uint64") {
         return "JsonUtil.GetDictionaryUint64(json, \"" + property.name + "\");";
     }
-    else if (property.actualtype == 'float') {
+    else if (property.actualtype === "float") {
         return "JsonUtil.GetDictionaryFloat(json, \"" + property.name + "\");";
     }
-    else if (property.actualtype == 'double') {
+    else if (property.actualtype === "double") {
         return "JsonUtil.GetDictionaryDouble(json, \"" + property.name + "\");";
     }
-    else if (property.actualtype == "object") {
+    else if (property.actualtype === "object") {
         return "JsonUtil.GetDictionary<object>(json, \"" + property.name + "\");";
     }
     else {
@@ -295,37 +295,37 @@ function getMapDeserializer(property, datatype) {
 }
 
 function getListDeserializer(property, api) {
-    if (property.actualtype == 'String') {
+    if (property.actualtype === "String") {
         return "JsonUtil.GetList<string>(json, \"" + property.name + "\");";
     }
-    else if (property.actualtype == 'Boolean') {
+    else if (property.actualtype === "Boolean") {
         return "JsonUtil.GetList<bool>(json, \"" + property.name + "\");";
     }
-    else if (property.actualtype == 'int16') {
+    else if (property.actualtype === "int16") {
         return "JsonUtil.GetListInt16(json, \"" + property.name + "\");";
     }
-    else if (property.actualtype == 'uint16') {
+    else if (property.actualtype === "uint16") {
         return "JsonUtil.GetListUInt16(json, \"" + property.name + "\");";
     }
-    else if (property.actualtype == 'int32') {
+    else if (property.actualtype === "int32") {
         return "JsonUtil.GetListInt32(json, \"" + property.name + "\");";
     }
-    else if (property.actualtype == 'uint32') {
+    else if (property.actualtype === "uint32") {
         return "JsonUtil.GetListUInt32(json, \"" + property.name + "\");";
     }
-    else if (property.actualtype == 'int64') {
+    else if (property.actualtype === "int64") {
         return "JsonUtil.GetListInt64(json, \"" + property.name + "\");";
     }
-    else if (property.actualtype == 'uint64') {
+    else if (property.actualtype === "uint64") {
         return "JsonUtil.GetListUint64(json, \"" + property.name + "\");";
     }
-    else if (property.actualtype == 'float') {
+    else if (property.actualtype === "float") {
         return "JsonUtil.GetListFloat(json, \"" + property.name + "\");";
     }
-    else if (property.actualtype == 'double') {
+    else if (property.actualtype === "double") {
         return "JsonUtil.GetListDouble(json, \"" + property.name + "\");";
     }
-    else if (property.actualtype == "object") {
+    else if (property.actualtype === "object") {
         return "JsonUtil.GetList<object>(json, \"" + property.name + "\");";
     }
     else if (property.isenum) {
@@ -343,29 +343,29 @@ function getPropertyJsonReader(property, datatype) {
     var jsOptionalType = getPropertyJSType(property, datatype, true);
     
     if (property.isclass) {
-        if (property.collection == "map") {
+        if (property.collection === "map") {
             return property.name + " = JsonUtil.GetObjectDictionary<" + csType + ">(json, \"" + property.name + "\");";
         }
-        else if (property.collection == "array") {
+        else if (property.collection === "array") {
             return property.name + " = JsonUtil.GetObjectList<" + csType + ">(json, \"" + property.name + "\");";
         }
         else {
             return property.name + " = JsonUtil.GetObject<" + csType + ">(json, \"" + property.name + "\");";
         }
     }
-    else if (property.collection == "map") {
+    else if (property.collection === "map") {
         return property.name + " = " + getMapDeserializer(property, datatype);
     }
-    else if (property.collection == "array") {
+    else if (property.collection === "array") {
         return property.name + " = " + getListDeserializer(property, datatype);
     }
     else if (property.isenum) {
         return property.name + " = (" + csOptionalType + ")JsonUtil.GetEnum<" + csType + ">(json, \"" + property.name + "\");";
     }
-    else if (property.actualtype == "DateTime") {
+    else if (property.actualtype === "DateTime") {
         return property.name + " = (" + csOptionalType + ")JsonUtil.GetDateTime(json, \"" + property.name + "\");";
     }
-    else if (property.actualtype == "object") {
+    else if (property.actualtype === "object") {
         return property.name + " = JsonUtil.GetObjectRaw(json, \"" + property.name + "\");";
     }
     else {

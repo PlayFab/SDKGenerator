@@ -12,7 +12,7 @@
     <ProjectTypeGuids>{3AF33F2E-1136-4D97-BBB7-1795711AC8B8};{349c5851-65df-11da-9384-00065b846f21};{9092AA53-FB77-4645-B42D-1CCCA6BD08BD}</ProjectTypeGuids>
     <VisualStudioVersion Condition="'$(VisualStudioVersion)' == ''">11.0</VisualStudioVersion>
     <VSToolsPath Condition="'$(VSToolsPath)' == ''">$(MSBuildExtensionsPath32)\Microsoft\VisualStudio\v$(VisualStudioVersion)</VSToolsPath>
-    <ScriptArguments>..\API_Specs actionscript=..\sdks\ActionScriptSDK\PfApiTest</ScriptArguments>
+    <ScriptArguments>..\API_Specs csharp=..\sdks\CSharpSDK</ScriptArguments>
     <StartWebBrowser>False</StartWebBrowser>
   </PropertyGroup>
   <PropertyGroup Condition="'$(Configuration)' == 'Debug'" />
@@ -183,6 +183,41 @@
     <Content Include="targets\csharp-unity\templates\Models.cs.ejs" />
     <Content Include="targets\csharp-unity\templates\PlayFabSettings.cs.ejs" />
     <Content Include="targets\csharp-unity\templates\PlayFabVersion.cs.ejs" />
+    <Content Include="targets\csharp\build+unit.bat" />
+    <Content Include="targets\csharp\source\build.bat" />
+    <Content Include="targets\csharp\source\packages.config" />
+    <Content Include="targets\csharp\source\packages\Newtonsoft.Json.6.0.3\lib\net20\Newtonsoft.Json.dll" />
+    <Content Include="targets\csharp\source\packages\Newtonsoft.Json.6.0.3\lib\net20\Newtonsoft.Json.xml" />
+    <Content Include="targets\csharp\source\packages\Newtonsoft.Json.6.0.3\lib\net35\Newtonsoft.Json.dll" />
+    <Content Include="targets\csharp\source\packages\Newtonsoft.Json.6.0.3\lib\net35\Newtonsoft.Json.xml" />
+    <Content Include="targets\csharp\source\packages\Newtonsoft.Json.6.0.3\lib\net40\Newtonsoft.Json.dll" />
+    <Content Include="targets\csharp\source\packages\Newtonsoft.Json.6.0.3\lib\net40\Newtonsoft.Json.xml" />
+    <Content Include="targets\csharp\source\packages\Newtonsoft.Json.6.0.3\lib\net45\Newtonsoft.Json.dll" />
+    <Content Include="targets\csharp\source\packages\Newtonsoft.Json.6.0.3\lib\net45\Newtonsoft.Json.xml" />
+    <Content Include="targets\csharp\source\packages\Newtonsoft.Json.6.0.3\lib\netcore45\Newtonsoft.Json.dll" />
+    <Content Include="targets\csharp\source\packages\Newtonsoft.Json.6.0.3\lib\netcore45\Newtonsoft.Json.xml" />
+    <Content Include="targets\csharp\source\packages\Newtonsoft.Json.6.0.3\lib\portable-net40+sl4+wp7+win8\Newtonsoft.Json.dll" />
+    <Content Include="targets\csharp\source\packages\Newtonsoft.Json.6.0.3\lib\portable-net40+sl4+wp7+win8\Newtonsoft.Json.xml" />
+    <Content Include="targets\csharp\source\packages\Newtonsoft.Json.6.0.3\lib\portable-net45+wp80+win8+wpa81\Newtonsoft.Json.dll" />
+    <Content Include="targets\csharp\source\packages\Newtonsoft.Json.6.0.3\lib\portable-net45+wp80+win8+wpa81\Newtonsoft.Json.xml" />
+    <Content Include="targets\csharp\source\packages\Newtonsoft.Json.6.0.3\Newtonsoft.Json.6.0.3.nupkg" />
+    <Content Include="targets\csharp\source\packages\Newtonsoft.Json.6.0.3\tools\install.ps1" />
+    <Content Include="targets\csharp\source\packages\repositories.config" />
+    <Content Include="targets\csharp\source\Properties\AssemblyInfo.cs" />
+    <Content Include="targets\csharp\source\source\PlayFabHTTP.cs" />
+    <Content Include="targets\csharp\source\source\PlayFabUtil.cs" />
+    <Content Include="targets\csharp\source\source\PlayFabVersion.cs" />
+    <Content Include="targets\csharp\source\source\Uunit\UUnitAssert.cs" />
+    <Content Include="targets\csharp\source\source\Uunit\UUnitAssertException.cs" />
+    <Content Include="targets\csharp\source\source\Uunit\UUnitTestCase.cs" />
+    <Content Include="targets\csharp\source\source\Uunit\UUnitTestResult.cs" />
+    <Content Include="targets\csharp\source\source\Uunit\UUnitTestSuite.cs" />
+    <Content Include="targets\csharp\templates\PlayFabSettings.cs.ejs" />
+    <Content Include="targets\csharp\UnittestRunner\App.config" />
+    <Content Include="targets\csharp\UnittestRunner\PlayFabApiTest.cs" />
+    <Content Include="targets\csharp\UnittestRunner\Properties\AssemblyInfo.cs" />
+    <Content Include="targets\csharp\UnittestRunner\UnittestRunner.csproj" />
+    <Content Include="targets\csharp\UnittestRunner\UUnitTestRunner.cs" />
     <Content Include="targets\java\srcCode\com\google\gson\annotations\Expose.java" />
     <Content Include="targets\java\srcCode\com\google\gson\annotations\JsonAdapter.java" />
     <Content Include="targets\java\srcCode\com\google\gson\annotations\package-info.java" />
@@ -285,13 +320,6 @@
     <Content Include="targets\csharp\templates\PlayFabSDK.csproj.ejs" />
     <Content Include="targets\csharp\templates\PlayFabVersion.cs.ejs" />
     <Content Include="targets\csharp\templates\Tests.cs.ejs" />
-    <Content Include="targets\csharp\source\packages\Newtonsoft.Json.6.0.3\lib\net20\Newtonsoft.Json.xml" />
-    <Content Include="targets\csharp\source\packages\Newtonsoft.Json.6.0.3\lib\net35\Newtonsoft.Json.xml" />
-    <Content Include="targets\csharp\source\packages\Newtonsoft.Json.6.0.3\lib\net40\Newtonsoft.Json.xml" />
-    <Content Include="targets\csharp\source\packages\Newtonsoft.Json.6.0.3\lib\net45\Newtonsoft.Json.xml" />
-    <Content Include="targets\csharp\source\packages\Newtonsoft.Json.6.0.3\lib\netcore45\Newtonsoft.Json.xml" />
-    <Content Include="targets\csharp\source\packages\Newtonsoft.Json.6.0.3\lib\portable-net40+sl4+wp7+win8\Newtonsoft.Json.xml" />
-    <Content Include="targets\csharp\source\packages\Newtonsoft.Json.6.0.3\lib\portable-net45+wp80+win8+wpa81\Newtonsoft.Json.xml" />
     <Content Include="targets\javascript\templates\playfab.js.ejs" />
     <Content Include="targets\java\testingFiles\PlayFabApiTest.java" />
     <Content Include="targets\java\testingFiles\RunPfTests.bat" />
@@ -392,25 +420,25 @@
     <Folder Include="targets\csharp-unity\source\Uunit\" />
     <Folder Include="targets\csharp-unity\source\Uunit\Editor\" />
     <Folder Include="targets\csharp-unity\templates\" />
-    <Folder Include="targets\csharp\source" />
-    <Folder Include="targets\csharp\source\packages" />
-    <Folder Include="targets\csharp\source\packages\Newtonsoft.Json.6.0.3" />
-    <Folder Include="targets\csharp\source\packages\Newtonsoft.Json.6.0.3\lib" />
-    <Folder Include="targets\csharp\source\packages\Newtonsoft.Json.6.0.3\lib\net20" />
-    <Folder Include="targets\csharp\source\packages\Newtonsoft.Json.6.0.3\lib\net35" />
-    <Folder Include="targets\csharp\source\packages\Newtonsoft.Json.6.0.3\lib\net40" />
-    <Folder Include="targets\csharp\source\packages\Newtonsoft.Json.6.0.3\lib\net45" />
-    <Folder Include="targets\csharp\source\packages\Newtonsoft.Json.6.0.3\lib\netcore45" />
-    <Folder Include="targets\csharp\source\packages\Newtonsoft.Json.6.0.3\lib\portable-net40+sl4+wp7+win8" />
-    <Folder Include="targets\csharp\source\packages\Newtonsoft.Json.6.0.3\lib\portable-net45+wp80+win8+wpa81" />
-    <Folder Include="targets\csharp\source\packages\Newtonsoft.Json.6.0.3\tools" />
-    <Folder Include="targets\csharp\source\Properties" />
-    <Folder Include="targets\csharp\source\source" />
-    <Folder Include="targets\csharp\source\source\Uunit" />
+    <Folder Include="targets\csharp\source\" />
+    <Folder Include="targets\csharp\source\packages\" />
+    <Folder Include="targets\csharp\source\packages\Newtonsoft.Json.6.0.3\" />
+    <Folder Include="targets\csharp\source\packages\Newtonsoft.Json.6.0.3\lib\" />
+    <Folder Include="targets\csharp\source\packages\Newtonsoft.Json.6.0.3\lib\net20\" />
+    <Folder Include="targets\csharp\source\packages\Newtonsoft.Json.6.0.3\lib\net35\" />
+    <Folder Include="targets\csharp\source\packages\Newtonsoft.Json.6.0.3\lib\net40\" />
+    <Folder Include="targets\csharp\source\packages\Newtonsoft.Json.6.0.3\lib\net45\" />
+    <Folder Include="targets\csharp\source\packages\Newtonsoft.Json.6.0.3\lib\netcore45\" />
+    <Folder Include="targets\csharp\source\packages\Newtonsoft.Json.6.0.3\lib\portable-net40+sl4+wp7+win8\" />
+    <Folder Include="targets\csharp\source\packages\Newtonsoft.Json.6.0.3\lib\portable-net45+wp80+win8+wpa81\" />
+    <Folder Include="targets\csharp\source\packages\Newtonsoft.Json.6.0.3\tools\" />
+    <Folder Include="targets\csharp\source\Properties\" />
+    <Folder Include="targets\csharp\source\source\" />
+    <Folder Include="targets\csharp\source\source\Uunit\" />
     <Folder Include="targets\csharp\templates" />
-    <Folder Include="targets\csharp\UnittestRunner" />
-    <Folder Include="targets\csharp\UnittestRunner\Properties" />
     <Folder Include="targets\csharp-unity" />
+    <Folder Include="targets\csharp\UnittestRunner\" />
+    <Folder Include="targets\csharp\UnittestRunner\Properties\" />
     <Folder Include="targets\javascript" />
     <Folder Include="targets\javascript\templates" />
     <Folder Include="targets\java\" />

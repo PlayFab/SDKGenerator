@@ -43,52 +43,52 @@ var getPropertyDef = exports.getPropertyDef = function (property, datatype) {
 
 // PFWORKBIN-445 & PFWORKBIN-302 - variable names can't be the same as the variable type when compiling for android
 var getPropertySafeName = exports.getPropertySafeName = function (property) {
-    return (property.actualType === property.name) ? "pf" + property.name : property.name;
+    return (property.actualtype === property.name) ? "pf" + property.name : property.name;
 }
 
 var getPropertyCPPType = exports.getPropertyCPPType = function (property, datatype, needOptional) {
     var isOptional = property.optional && needOptional;
    
-    if (property.actualtype == 'String') {
-        return 'std::string';
+    if (property.actualtype === "String") {
+        return "std::string";
     }
-    else if (property.actualtype == 'Boolean') {
-        return isOptional ? 'OptionalBool' : 'bool';
+    else if (property.actualtype === "Boolean") {
+        return isOptional ? "OptionalBool" : "bool";
     }
-    else if (property.actualtype == 'int16') {
-        return isOptional ? 'OptionalInt16' : 'Int16';
+    else if (property.actualtype === "int16") {
+        return isOptional ? "OptionalInt16" : "Int16";
     }
-    else if (property.actualtype == 'uint16') {
-        return isOptional ? 'OptionalUint16' : 'Uint16';
+    else if (property.actualtype === "uint16") {
+        return isOptional ? "OptionalUint16" : "Uint16";
     }
-    else if (property.actualtype == 'int32') {
-        return isOptional ? 'OptionalInt32' : 'Int32';
+    else if (property.actualtype === "int32") {
+        return isOptional ? "OptionalInt32" : "Int32";
     }
-    else if (property.actualtype == 'uint32') {
-        return isOptional ? 'OptionalUint32' : 'Uint32';
+    else if (property.actualtype === "uint32") {
+        return isOptional ? "OptionalUint32" : "Uint32";
     }
-    else if (property.actualtype == 'int64') {
-        return isOptional ? 'OptionalInt64' : 'Int64';
+    else if (property.actualtype === "int64") {
+        return isOptional ? "OptionalInt64" : "Int64";
     }
-    else if (property.actualtype == 'uint64') {
-        return isOptional ? 'OptionalInt64' : 'Uint64';
+    else if (property.actualtype === "uint64") {
+        return isOptional ? "OptionalInt64" : "Uint64";
     }
-    else if (property.actualtype == 'float') {
-        return isOptional ? 'OptionalFloat' : 'float';
+    else if (property.actualtype === "float") {
+        return isOptional ? "OptionalFloat" : "float";
     }
-    else if (property.actualtype == 'double') {
-        return isOptional ? 'OptionalDouble' : 'double';
+    else if (property.actualtype === "double") {
+        return isOptional ? "OptionalDouble" : "double";
     }
-    else if (property.actualtype == 'DateTime') {
-        return isOptional ? 'OptionalTime' : 'time_t';
+    else if (property.actualtype === "DateTime") {
+        return isOptional ? "OptionalTime" : "time_t";
     }
     else if (property.isclass) {
-        return isOptional ? property.actualtype + '*' : property.actualtype; // sub object
+        return isOptional ? property.actualtype + "*" : property.actualtype; // sub object
     }
     else if (property.isenum) {
-        return isOptional ? ('Boxed<' + property.actualtype + '>') : property.actualtype; // enum
+        return isOptional ? ("Boxed<" + property.actualtype + ">") : property.actualtype; // enum
     }
-    else if (property.actualtype == "object") {
+    else if (property.actualtype === "object") {
         return "MultitypeVar";
     }
     else {
@@ -99,49 +99,49 @@ var getPropertyCPPType = exports.getPropertyCPPType = function (property, dataty
 var getPropertyDefaultValue = exports.getPropertyDefaultValue = function (property, datatype) {
     var isOptional = property.optional;
     if (property.collection)
-        return '';
+        return "";
    
-    if (property.actualtype == 'String') {
+    if (property.actualtype === "String") {
         return "";
     }
-    else if (property.actualtype == 'Boolean') {
-        return isOptional ? '' : 'false';
+    else if (property.actualtype === "Boolean") {
+        return isOptional ? "" : "false";
     }
-    else if (property.actualtype == 'int16') {
-        return isOptional ? '' : '0';
+    else if (property.actualtype === "int16") {
+        return isOptional ? "" : "0";
     }
-    else if (property.actualtype == 'uint16') {
-        return isOptional ? '' : '0';
+    else if (property.actualtype === "uint16") {
+        return isOptional ? "" : "0";
     }
-    else if (property.actualtype == 'int32') {
-        return isOptional ? '' : '0';
+    else if (property.actualtype === "int32") {
+        return isOptional ? "" : "0";
     }
-    else if (property.actualtype == 'uint32') {
-        return isOptional ? '' : '0';
+    else if (property.actualtype === "uint32") {
+        return isOptional ? "" : "0";
     }
-    else if (property.actualtype == 'int64') {
-        return isOptional ? '' : '0';
+    else if (property.actualtype === "int64") {
+        return isOptional ? "" : "0";
     }
-    else if (property.actualtype == 'uint64') {
-        return isOptional ? '' : '0';
+    else if (property.actualtype === "uint64") {
+        return isOptional ? "" : "0";
     }
-    else if (property.actualtype == 'float') {
-        return isOptional ? '' : '0';
+    else if (property.actualtype === "float") {
+        return isOptional ? "" : "0";
     }
-    else if (property.actualtype == 'double') {
-        return isOptional ? '' : '0';
+    else if (property.actualtype === "double") {
+        return isOptional ? "" : "0";
     }
-    else if (property.actualtype == 'DateTime') {
-        return isOptional ? '' : '0';
+    else if (property.actualtype === "DateTime") {
+        return isOptional ? "" : "0";
     }
     else if (property.isclass) {
-        return isOptional ? 'NULL' : ''; // sub object
+        return isOptional ? "NULL" : ""; // sub object
     }
     else if (property.isenum) {
-        return isOptional ? '' : ''; // enum
+        return isOptional ? "" : ""; // enum
     }
-    else if (property.actualtype == "object") {
-        return '';
+    else if (property.actualtype === "object") {
+        return "";
     }
     else {
         throw "Unknown property type: " + property.actualtype + " for " + property.name + " in " + datatype.name;
@@ -158,9 +158,9 @@ var getPropertyCopyValue = exports.getPropertyCopyValue = function (property, da
 }
 
 var getPropertySerializer = exports.getPropertySerializer = function (property, datatype) {
-    if (property.collection == "array")
+    if (property.collection === "array")
         return getArrayPropertySerializer(property, datatype);
-    else if (property.collection == "map")
+    else if (property.collection === "map")
         return getMapPropertySerializer(property, datatype);
    
     var writer = null;
@@ -171,47 +171,47 @@ var getPropertySerializer = exports.getPropertySerializer = function (property, 
     var safePropName = getPropertySafeName(property);
     var isOptional = property.optional;
    
-    if (propType == 'String') {
+    if (propType === "String") {
         writer = "writer.String(" + safePropName + ".c_str());";
         tester = safePropName + ".length() > 0";
     }
-    else if (propType == 'Boolean') {
+    else if (propType === "Boolean") {
         writer = "writer.Bool(" + safePropName + ");";
         tester = safePropName + ".notNull()";
     }
-    else if (propType == 'int16') {
+    else if (propType === "int16") {
         writer = "writer.Int(" + safePropName + ");";
         tester = safePropName + ".notNull()";
     }
-    else if (propType == 'uint16') {
+    else if (propType === "uint16") {
         writer = "writer.Uint(" + safePropName + ");";
         tester = safePropName + ".notNull()";
     }
-    else if (propType == 'int32') {
+    else if (propType === "int32") {
         writer = "writer.Int(" + safePropName + ");";
         tester = safePropName + ".notNull()";
     }
-    else if (propType == 'uint32') {
+    else if (propType === "uint32") {
         writer = "writer.Uint(" + safePropName + ");";
         tester = safePropName + ".notNull()";
     }
-    else if (propType == 'int64') {
+    else if (propType === "int64") {
         writer = "writer.Int64(" + safePropName + ");";
         tester = safePropName + ".notNull()";
     }
-    else if (propType == 'uint64') {
+    else if (propType === "uint64") {
         writer = "writer.Uint64(" + safePropName + ");";
         tester = safePropName + ".notNull()";
     }
-    else if (propType == 'float') {
+    else if (propType === "float") {
         writer = "writer.Double(" + safePropName + ");";
         tester = safePropName + ".notNull()";
     }
-    else if (propType == 'double') {
+    else if (propType === "double") {
         writer = "writer.Double(" + safePropName + ");";
         tester = safePropName + ".notNull()";
     }
-    else if (propType == 'DateTime') {
+    else if (propType === "DateTime") {
         writer = "writeDatetime(" + safePropName + ", writer);";
         tester = safePropName + ".notNull()";
     }
@@ -226,7 +226,7 @@ var getPropertySerializer = exports.getPropertySerializer = function (property, 
         writer = "write" + propType + "EnumJSON(" + safePropName + ", writer);";
         tester = safePropName + ".notNull()";
     }
-    else if (propType == "object") {
+    else if (propType === "object") {
         writer = safePropName + ".writeJSON(writer);";
         tester = safePropName + ".notNull()";
     }
@@ -249,37 +249,37 @@ var getArrayPropertySerializer = exports.getArrayPropertySerializer = function (
     var isOptional = property.optional;
     var cppType = getPropertyCPPType(property, datatype, false);
    
-    if (property.actualtype == 'String') {
+    if (property.actualtype === "String") {
         writer = "writer.String(iter->c_str());";
     }
-    else if (property.actualtype == 'Boolean') {
+    else if (property.actualtype === "Boolean") {
         writer = "writer.Bool(*iter);";
     }
-    else if (property.actualtype == 'int16') {
+    else if (property.actualtype === "int16") {
         writer = "writer.Int(*iter);";
     }
-    else if (property.actualtype == 'uint16') {
+    else if (property.actualtype === "uint16") {
         writer = "writer.Uint(*iter);";
     }
-    else if (property.actualtype == 'int32') {
+    else if (property.actualtype === "int32") {
         writer = "writer.Int(*iter);";
     }
-    else if (property.actualtype == 'uint32') {
+    else if (property.actualtype === "uint32") {
         writer = "writer.Uint(*iter);";
     }
-    else if (property.actualtype == 'int64') {
+    else if (property.actualtype === "int64") {
         writer = "writer.Int64(*iter);";
     }
-    else if (property.actualtype == 'uint64') {
+    else if (property.actualtype === "uint64") {
         writer = "writer.Uint64(*iter);";
     }
-    else if (property.actualtype == 'float') {
+    else if (property.actualtype === "float") {
         writer = "writer.Double(*iter);";
     }
-    else if (property.actualtype == 'double') {
+    else if (property.actualtype === "double") {
         writer = "writer.Double(*iter);";
     }
-    else if (property.actualtype == 'DateTime') {
+    else if (property.actualtype === "DateTime") {
         writer = "writeDatetime(*iter, writer);";
     }
     else if (property.isclass) {
@@ -288,7 +288,7 @@ var getArrayPropertySerializer = exports.getArrayPropertySerializer = function (
     else if (property.isenum) {
         writer = "write" + property.actualtype + "EnumJSON(*iter, writer);";
     }
-    else if (property.actualtype == "object") {
+    else if (property.actualtype === "object") {
         writer = "iter->writeJSON(writer);";
     }
     else {
@@ -317,37 +317,37 @@ var getMapPropertySerializer = exports.getMapPropertySerializer = function (prop
     var isOptional = property.optional;
     var cppType = getPropertyCPPType(property, datatype, false);
    
-    if (property.actualtype == 'String') {
+    if (property.actualtype === "String") {
         writer = "writer.String(iter->second.c_str());";
     }
-    else if (property.actualtype == 'Boolean') {
+    else if (property.actualtype === "Boolean") {
         writer = "writer.Bool(iter->second);";
     }
-    else if (property.actualtype == 'int16') {
+    else if (property.actualtype === "int16") {
         writer = "writer.Int(iter->second);";
     }
-    else if (property.actualtype == 'uint16') {
+    else if (property.actualtype === "uint16") {
         writer = "writer.Uint(iter->second);";
     }
-    else if (property.actualtype == 'int32') {
+    else if (property.actualtype === "int32") {
         writer = "writer.Int(iter->second);";
     }
-    else if (property.actualtype == 'uint32') {
+    else if (property.actualtype === "uint32") {
         writer = "writer.Uint(iter->second);";
     }
-    else if (property.actualtype == 'int64') {
+    else if (property.actualtype === "int64") {
         writer = "writer.Int64(iter->second);";
     }
-    else if (property.actualtype == 'uint64') {
+    else if (property.actualtype === "uint64") {
         writer = "writer.Uint64(iter->second);";
     }
-    else if (property.actualtype == 'float') {
+    else if (property.actualtype === "float") {
         writer = "writer.Double(iter->second);";
     }
-    else if (property.actualtype == 'double') {
+    else if (property.actualtype === "double") {
         writer = "writer.Double(iter->second);";
     }
-    else if (property.actualtype == 'DateTime') {
+    else if (property.actualtype === "DateTime") {
         writer = "writeDatetime(iter->second, writer);";
     }
     else if (property.isclass) {
@@ -356,7 +356,7 @@ var getMapPropertySerializer = exports.getMapPropertySerializer = function (prop
     else if (property.isenum) {
         writer = "write" + property.actualtype + "EnumJSON(iter->second, writer);";
     }
-    else if (property.actualtype == "object") {
+    else if (property.actualtype === "object") {
         writer = "iter->second.writeJSON(writer);";
     }
     else {
@@ -383,44 +383,44 @@ var getPropertyDeserializer = exports.getPropertyDeserializer = function (proper
     var safePropName = getPropertySafeName(property);
     var isOptional = property.optional;
    
-    if (property.collection == "array")
+    if (property.collection === "array")
         return getArrayPropertyDeserializer(property, datatype);
-    else if (property.collection == "map")
+    else if (property.collection === "map")
         return getMapPropertyDeserializer(property, datatype);
    
     var getter = null;
    
-    if (propType == 'String') {
+    if (propType === "String") {
         getter = propName + "_member->value.GetString()";
     }
-    else if (propType == 'Boolean') {
+    else if (propType === "Boolean") {
         getter = propName + "_member->value.GetBool()";
     }
-    else if (propType == 'int16') {
+    else if (propType === "int16") {
         getter = propName + "_member->value.GetInt()";
     }
-    else if (propType == 'uint16') {
+    else if (propType === "uint16") {
         getter = propName + "_member->value.GetUint()";
     }
-    else if (propType == 'int32') {
+    else if (propType === "int32") {
         getter = propName + "_member->value.GetInt()";
     }
-    else if (propType == 'uint32') {
+    else if (propType === "uint32") {
         getter = propName + "_member->value.GetUint()";
     }
-    else if (propType == 'int64') {
+    else if (propType === "int64") {
         getter = propName + "_member->value.GetInt64()";
     }
-    else if (propType == 'uint64') {
+    else if (propType === "uint64") {
         getter = propName + "_member->value.GetUint64()";
     }
-    else if (propType == 'float') {
+    else if (propType === "float") {
         getter = "(float)" + propName + "_member->value.GetDouble()";
     }
-    else if (propType == 'double') {
+    else if (propType === "double") {
         getter = propName + "_member->value.GetDouble()";
     }
-    else if (propType == 'DateTime') {
+    else if (propType === "DateTime") {
         getter = "readDatetime(" + propName + "_member->value)";
     }
     else if (property.isclass) {
@@ -432,7 +432,7 @@ var getPropertyDeserializer = exports.getPropertyDeserializer = function (proper
     else if (property.isenum) {
         getter = "read" + propType + "FromValue(" + propName + "_member->value)";
     }
-    else if (propType == "object") {
+    else if (propType === "object") {
         getter = "MultitypeVar(" + propName + "_member->value)";
     }
     else {
@@ -448,37 +448,37 @@ var getPropertyDeserializer = exports.getPropertyDeserializer = function (proper
 var getArrayPropertyDeserializer = exports.getArrayPropertyDeserializer = function (property, datatype) {
     var getter = null;
    
-    if (property.actualtype == 'String') {
+    if (property.actualtype === "String") {
         getter = "memberList[i].GetString()";
     }
-    else if (property.actualtype == 'Boolean') {
+    else if (property.actualtype === "Boolean") {
         getter = "memberList[i].GetBool()";
     }
-    else if (property.actualtype == 'int16') {
+    else if (property.actualtype === "int16") {
         getter = "memberList[i].GetInt()";
     }
-    else if (property.actualtype == 'uint16') {
+    else if (property.actualtype === "uint16") {
         getter = "memberList[i].GetUint()";
     }
-    else if (property.actualtype == 'int32') {
+    else if (property.actualtype === "int32") {
         getter = "memberList[i].GetInt()";
     }
-    else if (property.actualtype == 'uint32') {
+    else if (property.actualtype === "uint32") {
         getter = "memberList[i].GetUint()";
     }
-    else if (property.actualtype == 'int64') {
+    else if (property.actualtype === "int64") {
         getter = "memberList[i].GetInt64()";
     }
-    else if (property.actualtype == 'uint64') {
+    else if (property.actualtype === "uint64") {
         getter = "memberList[i].GetUint64()";
     }
-    else if (property.actualtype == 'float') {
+    else if (property.actualtype === "float") {
         getter = "(float)memberList[i].GetDouble()";
     }
-    else if (property.actualtype == 'double') {
+    else if (property.actualtype === "double") {
         getter = "memberList[i].GetDouble()";
     }
-    else if (property.actualtype == 'DateTime') {
+    else if (property.actualtype === "DateTime") {
         getter = "readDatetime(memberList[i])";
     }
     else if (property.isclass) {
@@ -487,7 +487,7 @@ var getArrayPropertyDeserializer = exports.getArrayPropertyDeserializer = functi
     else if (property.isenum) {
         getter = "read" + property.actualtype + "FromValue(memberList[i])";
     }
-    else if (property.actualtype == "object") {
+    else if (property.actualtype === "object") {
         getter = "MultitypeVar(memberList[i])";
     }
     else {
@@ -506,37 +506,37 @@ var getArrayPropertyDeserializer = exports.getArrayPropertyDeserializer = functi
 var getMapPropertyDeserializer = exports.getMapPropertyDeserializer = function (property, datatype) {
     var getter = null;
    
-    if (property.actualtype == 'String') {
+    if (property.actualtype === "String") {
         getter = "iter->value.GetString()";
     }
-    else if (property.actualtype == 'Boolean') {
+    else if (property.actualtype === "Boolean") {
         getter = "iter->value.GetBool()";
     }
-    else if (property.actualtype == 'int16') {
+    else if (property.actualtype === "int16") {
         getter = "iter->value.GetInt()";
     }
-    else if (property.actualtype == 'uint16') {
+    else if (property.actualtype === "uint16") {
         getter = "iter->value.GetUint()";
     }
-    else if (property.actualtype == 'int32') {
+    else if (property.actualtype === "int32") {
         getter = "iter->value.GetInt()";
     }
-    else if (property.actualtype == 'uint32') {
+    else if (property.actualtype === "uint32") {
         getter = "iter->value.GetUint()";
     }
-    else if (property.actualtype == 'int64') {
+    else if (property.actualtype === "int64") {
         getter = "iter->value.GetInt64()";
     }
-    else if (property.actualtype == 'uint64') {
+    else if (property.actualtype === "uint64") {
         getter = "iter->value.GetUint64()";
     }
-    else if (property.actualtype == 'float') {
+    else if (property.actualtype === "float") {
         getter = "(float)iter->value.GetDouble()";
     }
-    else if (property.actualtype == 'double') {
+    else if (property.actualtype === "double") {
         getter = "iter->value.GetDouble()";
     }
-    else if (property.actualtype == 'DateTime') {
+    else if (property.actualtype === "DateTime") {
         getter = "readDatetime(iter->value)";
     }
     else if (property.isclass) {
@@ -545,7 +545,7 @@ var getMapPropertyDeserializer = exports.getMapPropertyDeserializer = function (
     else if (property.isenum) {
         getter = "read" + property.actualtype + "FromValue(iter->value)";
     }
-    else if (property.actualtype == "object") {
+    else if (property.actualtype === "object") {
         getter = "MultitypeVar(iter->value)";
     }
     else {

@@ -122,7 +122,7 @@ var getDatatypeSignatureInputParameters = exports.getDatatypeSignatureInputParam
     for (var p in datatype.properties) {
         var property = datatype.properties[p];
 
-        if (property.isenum || property.actualType === "object") {
+        if (property.isenum || property.actualtype === "object") {
         // TODO: handle enum properly
         }
         else {
@@ -143,7 +143,7 @@ var getDatatypeSignatureParameters = exports.getDatatypeSignatureParameters = fu
     for (var p in datatype.properties) {
         var property = datatype.properties[p];
 
-        if (property.isenum || property.actualType === "object") {
+        if (property.isenum || property.actualtype === "object") {
             // TODO: handle enum properly
         }
         else if (property.collection === "map") {
@@ -209,20 +209,20 @@ var generateProxyPropertyRead = exports.generateProxyPropertyRead = function (pr
         return result;
     }
 
-    if (property.collection === "array" && (property.isclass || property.actualType === "uint64")) {
+    if (property.collection === "array" && (property.isclass || property.actualtype === "uint64")) {
         return generateArrayClassProxyRead(property, api);
     }
     else if (property.collection === "map") {
         //return "TMap<FString, " + getProperyUE4Type(property, api) + ">";
         return ""; // TODO: handle map properly, by wrapping it into a structure somehow
     }
-    else if (property.actualType === "DateTime") {
+    else if (property.actualtype === "DateTime") {
         return ""; // TODO: handle DateTime properly
     }
     else if (property.isenum) {
         return ""; // TODO: handle enums properly
     }
-    else if (property.actualType === "object") {
+    else if (property.actualtype === "object") {
         return ""; // TODO: handle FMultiVar properly
     }
 
@@ -254,20 +254,20 @@ var generateArrayClassProxyCopy = function (property, api) {
 var generateProxyPropertyCopy = exports.generateProxyPropertyCopy = function (property, api)
 {
 
-    if (property.collection === "array" && (property.isclass || property.actualType === "uint64")) {
+    if (property.collection === "array" && (property.isclass || property.actualtype === "uint64")) {
         return generateArrayClassProxyCopy(property, api);
     }
     else if (property.collection === "map") {
         //return "TMap<FString, " + getProperyUE4Type(property, api) + ">";
         return ""; // TODO: handle map properly, by wrapping it into a structure somehow
     }
-    else if (property.actualType === "DateTime") {
+    else if (property.actualtype === "DateTime") {
         return ""; // TODO: handle DateTime properly
     }
     else if (property.isenum) {
         return ""; // TODO: handle enums properly
     }
-    else if (property.actualType === "object") {
+    else if (property.actualtype === "object") {
         return ""; // TODO: handle FMultiVar properly
     }
 
@@ -298,37 +298,37 @@ var getPropertyUE4ToOpaqueType = function (property, api)
 {
     var propertyUE4Type = "";
 
-    if (property.actualType === "String") {
+    if (property.actualtype === "String") {
         propertyUE4Type = "FString";
     }
-    else if (property.actualType === "Boolean") {
+    else if (property.actualtype === "Boolean") {
         propertyUE4Type = "bool";
     }
-    else if (property.actualType === "int16") {
+    else if (property.actualtype === "int16") {
         propertyUE4Type = "int32";
     }
-    else if (property.actualType === "uint16") {
+    else if (property.actualtype === "uint16") {
         propertyUE4Type = "uint32";
     }
-    else if (property.actualType === "int32") {
+    else if (property.actualtype === "int32") {
         propertyUE4Type = "int32";
     }
-    else if (property.actualType === "uint32") {
+    else if (property.actualtype === "uint32") {
         propertyUE4Type = "int32"; // uint32 not supported in BP
     }
-    else if (property.actualType === "int64") {
+    else if (property.actualtype === "int64") {
         propertyUE4Type = "int32"; // int64 not supported in BP
     }
-    else if (property.actualType === "uint64") {
+    else if (property.actualtype === "uint64") {
         propertyUE4Type = "int32"; // uint64 not supported in BP
     }
-    else if (property.actualType === "float") {
+    else if (property.actualtype === "float") {
         propertyUE4Type = "float";
     }
-    else if (property.actualType === "double") {
+    else if (property.actualtype === "double") {
         propertyUE4Type = "float"; // double not supported in BP
     }
-    else if (property.actualType === "DateTime") {
+    else if (property.actualtype === "DateTime") {
         propertyUE4Type = "FDateTime";
     }
     else if (property.isclass) {
@@ -337,7 +337,7 @@ var getPropertyUE4ToOpaqueType = function (property, api)
     else if (property.isenum) {
         propertyUE4Type = property.actualtype;
     }
-    else if (property.actualType === "object") {
+    else if (property.actualtype === "object") {
         propertyUE4Type = "FMultitypeVar";
     }
     else {
@@ -352,37 +352,37 @@ var getPropertyUE4ToOpaqueType = function (property, api)
 var getProperyUE4ToNativeType = function (property, api) {
     var propertyUE4Type = "";
 
-    if (property.actualType === "String") {
+    if (property.actualtype === "String") {
         propertyUE4Type = "FString";
     }
-    else if (property.actualType === "Boolean") {
+    else if (property.actualtype === "Boolean") {
         propertyUE4Type = "bool";
     }
-    else if (property.actualType === "int16") {
+    else if (property.actualtype === "int16") {
         propertyUE4Type = "int32";
     }
-    else if (property.actualType === "uint16") {
+    else if (property.actualtype === "uint16") {
         propertyUE4Type = "uint32";
     }
-    else if (property.actualType === "int32") {
+    else if (property.actualtype === "int32") {
         propertyUE4Type = "int32";
     }
-    else if (property.actualType === "uint32") {
+    else if (property.actualtype === "uint32") {
         propertyUE4Type = "int32"; // uint32 not supported in BP
     }
-    else if (property.actualType === "int64") {
+    else if (property.actualtype === "int64") {
         propertyUE4Type = "int32"; // int64 not supported in BP
     }
-    else if (property.actualType === "uint64") {
+    else if (property.actualtype === "uint64") {
         propertyUE4Type = "int32"; // uint64 not supported in BP
     }
-    else if (property.actualType === "float") {
+    else if (property.actualtype === "float") {
         propertyUE4Type = "float";
     }
-    else if (property.actualType === "double") {
+    else if (property.actualtype === "double") {
         propertyUE4Type = "float"; // double not supported in BP
     }
-    else if (property.actualType === "DateTime") {
+    else if (property.actualtype === "DateTime") {
         propertyUE4Type = "FDateTime";
     }
     else if (property.isclass) {
@@ -391,7 +391,7 @@ var getProperyUE4ToNativeType = function (property, api) {
     else if (property.isenum) {
         propertyUE4Type = property.actualtype;
     }
-    else if (property.actualType === "object") {
+    else if (property.actualtype === "object") {
         propertyUE4Type = "FMultitypeVar";
     }
     else {

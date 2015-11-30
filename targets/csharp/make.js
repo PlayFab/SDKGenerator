@@ -157,7 +157,7 @@ function generateSimpleFiles(apis, sourceDir, apiOutputDir) {
     versionLocals.sdkRevision = exports.sdkVersion;
     var generatedVersion = versionTemplate(versionLocals);
     writeFile(path.resolve(apiOutputDir, "source/PlayFabVersion.cs"), generatedVersion);
-
+    
     var settingsTemplate = ejs.compile(readFile(path.resolve(sourceDir, "templates/PlayFabSettings.cs.ejs")));
     var settingsLocals = {};
     settingsLocals.hasDevKey = false;
@@ -226,10 +226,9 @@ function getPropertyAttribs(property, datatype, api) {
     return attribs;
 }
 
-
 function getPropertyCSType(property, datatype, needOptional) {
     var optional = (needOptional && property.optional) ? "?" : "";
-
+    
     if (property.actualtype === "String") {
         return "string";
     }

@@ -11,9 +11,7 @@ exports.makeClientAPI = function (api, sourceDir, apiOutputDir) {
     
     makeAPI(api, sourceDir, apiOutputDir);
     
-    generateErrors(api, sourceDir, apiOutputDir);
-    generateVersion(api, sourceDir, apiOutputDir);
-    
+    generateSimpleFiles([api], sourceDir, apiOutputDir);
     generateProject([api], sourceDir, apiOutputDir, libname);
 }
 
@@ -31,9 +29,7 @@ exports.makeServerAPI = function (apis, sourceDir, apiOutputDir) {
         makeAPI(api, sourceDir, apiOutputDir);
     }
     
-    generateErrors(apis[0], sourceDir, apiOutputDir);
-    generateVersion(apis[0], sourceDir, apiOutputDir);
-    
+    generateSimpleFiles(apis, sourceDir, apiOutputDir);
     generateProject(apis, sourceDir, apiOutputDir, libname);
 }
 
@@ -49,14 +45,10 @@ exports.makeCombinedAPI = function (apis, sourceDir, apiOutputDir) {
     
     makeDatatypes(apis, sourceDir, apiOutputDir);
     
-    for (var i in apis) {
-        var api = apis[i];
-        makeAPI(api, sourceDir, apiOutputDir);
-    }
+    for (var i in apis)
+        makeAPI(apis[i], sourceDir, apiOutputDir);
     
-    generateErrors(apis[0], sourceDir, apiOutputDir);
-    generateVersion(apis[0], sourceDir, apiOutputDir);
-    
+    generateSimpleFiles(apis, sourceDir, apiOutputDir);
     generateProject(apis, sourceDir, apiOutputDir, libname);
 }
 
@@ -64,8 +56,6 @@ exports.makeTests = function (testData, apiLookup, sourceDir, testOutputLocation
     var templateDir = path.resolve(sourceDir, "templates");
     
     var testsTemplate = ejs.compile(readFile(path.resolve(templateDir, "Tests.cs.ejs")));
-    
-    
     var testsLocals = {};
     testsLocals.testData = testData;
     testsLocals.apiLookup = apiLookup;
@@ -106,7 +96,6 @@ function escapeForString(input) {
     return input;
 }
 
-
 function makeDatatypes(apis, sourceDir, apiOutputDir) {
     var templateDir = path.resolve(sourceDir, "templates");
     
@@ -135,7 +124,6 @@ function makeDatatypes(apis, sourceDir, apiOutputDir) {
     }
 }
 
-
 function makeAPI(api, sourceDir, apiOutputDir) {
     console.log("Generating C# " + api.name + " library to " + apiOutputDir);
     
@@ -156,23 +144,32 @@ function makeAPI(api, sourceDir, apiOutputDir) {
     writeFile(path.resolve(apiOutputDir, "source/PlayFab" + api.name + "API.cs"), generatedApi);
 }
 
-function generateErrors(api, sourceDir, apiOutputDir) {
+function generateSimpleFiles(apis, sourceDir, apiOutputDir) {
     var errorsTemplate = ejs.compile(readFile(path.resolve(sourceDir, "templates/Errors.cs.ejs")));
-    
     var errorLocals = {};
-    errorLocals.errorList = api.errorList;
-    errorLocals.errors = api.errors;
+    errorLocals.errorList = apis[0].errorList;
+    errorLocals.errors = apis[0].errors;
     var generatedErrors = errorsTemplate(errorLocals);
     writeFile(path.resolve(apiOutputDir, "source/PlayFabErrors.cs"), generatedErrors);
-}
-
-function generateVersion(api, sourceDir, apiOutputDir) {
-    var versionTemplate = ejs.compile(readFile(path.resolve(sourceDir, "templates/PlayFabVersion.cs.ejs")));
     
+    var versionTemplate = ejs.compile(readFile(path.resolve(sourceDir, "templates/PlayFabVersion.cs.ejs")));
     var versionLocals = {};
     versionLocals.sdkRevision = exports.sdkVersion;
     var generatedVersion = versionTemplate(versionLocals);
     writeFile(path.resolve(apiOutputDir, "source/PlayFabVersion.cs"), generatedVersion);
+
+    var settingsTemplate = ejs.compile(readFile(path.resolve(sourceDir, "templates/PlayFabSettings.cs.ejs")));
+    var settingsLocals = {};
+    settingsLocals.hasDevKey = false;
+    settingsLocals.hasAdvertId = false;
+    for (var i in apis) {
+        if (apis[i].name === "Client")
+            settingsLocals.hasAdvertId = true;
+        else
+            settingsLocals.hasDevKey = true;
+    }
+    var generatedSettings = settingsTemplate(settingsLocals);
+    writeFile(path.resolve(apiOutputDir, "source/PlayFabSettings.cs"), generatedSettings);
 }
 
 function generateProject(apis, sourceDir, apiOutputDir, libname) {
@@ -232,38 +229,38 @@ function getPropertyAttribs(property, datatype, api) {
 
 function getPropertyCSType(property, datatype, needOptional) {
     var optional = (needOptional && property.optional) ? "?" : "";
-    
-    if (property.actualType === "String") {
+
+    if (property.actualtype === "String") {
         return "string";
     }
-    else if (property.actualType === "Boolean") {
+    else if (property.actualtype === "Boolean") {
         return "bool" + optional;
     }
-    else if (property.actualType === "int16") {
+    else if (property.actualtype === "int16") {
         return "short" + optional;
     }
-    else if (property.actualType === "uint16") {
+    else if (property.actualtype === "uint16") {
         return "ushort" + optional;
     }
-    else if (property.actualType === "int32") {
+    else if (property.actualtype === "int32") {
         return "int" + optional;
     }
-    else if (property.actualType === "uint32") {
+    else if (property.actualtype === "uint32") {
         return "uint" + optional;
     }
-    else if (property.actualType === "int64") {
+    else if (property.actualtype === "int64") {
         return "long" + optional;
     }
-    else if (property.actualType === "uint64") {
+    else if (property.actualtype === "uint64") {
         return "ulong" + optional;
     }
-    else if (property.actualType === "float") {
+    else if (property.actualtype === "float") {
         return "float" + optional;
     }
-    else if (property.actualType === "double") {
+    else if (property.actualtype === "double") {
         return "double" + optional;
     }
-    else if (property.actualType === "DateTime") {
+    else if (property.actualtype === "DateTime") {
         return "DateTime" + optional;
     }
     else if (property.isclass) {
@@ -272,7 +269,7 @@ function getPropertyCSType(property, datatype, needOptional) {
     else if (property.isenum) {
         return property.actualtype + optional;
     }
-    else if (property.actualType === "object") {
+    else if (property.actualtype === "object") {
         return "object";
     }
     else {
@@ -289,7 +286,6 @@ function getAuthParams(apiCall) {
     
     return "null, null";
 }
-
 
 function getRequestActions(apiCall, api) {
     if (api.name === "Client" && (apiCall.result === "LoginResult" || apiCall.request === "RegisterPlayFabUserRequest"))
@@ -315,5 +311,3 @@ function getUrlAccessor(apiCall) {
     
     return "PlayFabSettings.GetURL()";
 }
-
-

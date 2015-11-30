@@ -1,4 +1,4 @@
-var path = require('path');
+var path = require("path");
 
 exports.putInRoot = true;
 
@@ -24,41 +24,41 @@ exports.makeCombinedAPI = function (apis, sourceDir, apiOutputDir) {
 }
 
 function getRequestActions(apiCall, api) {
-    if (api.name == "Client" && (apiCall.result == "LoginResult" || apiCall.request == "RegisterPlayFabUserRequest"))
+    if (api.name === "Client" && (apiCall.result === "LoginResult" || apiCall.request === "RegisterPlayFabUserRequest"))
         return "request.TitleId = PlayFab.settings.titleId != null ? PlayFab.settings.titleId : request.TitleId; if (request.TitleId == null) throw \"Must be have PlayFab.settings.titleId set to call this method\";\n";
-    if (api.name == "Client" && apiCall.auth == 'SessionTicket')
-        return "if (PlayFab._internalSettings.sessionTicket == null) throw \"Must be logged in to call this method\";\n"
-    if (apiCall.auth == 'SecretKey')
-        return "if (PlayFab.settings.developerSecretKey == null) throw \"Must have PlayFab.settings.developerSecretKey set to call this method\";\n"
+    if (api.name === "Client" && apiCall.auth === "SessionTicket")
+        return "if (PlayFab._internalSettings.sessionTicket == null) throw \"Must be logged in to call this method\";\n";
+    if (apiCall.auth === "SecretKey")
+        return "if (PlayFab.settings.developerSecretKey == null) throw \"Must have PlayFab.settings.developerSecretKey set to call this method\";\n";
     return "";
 }
 
 function hasResultActions(apiCall, api) {
-    if (apiCall.result == "LoginResult" || apiCall.result == "RegisterPlayFabUserResult")
+    if (apiCall.result === "LoginResult" || apiCall.result === "RegisterPlayFabUserResult")
         return true;
-    if (api.name == "Client" && apiCall.result == "GetCloudScriptUrlResult")
+    if (api.name === "Client" && apiCall.result === "GetCloudScriptUrlResult")
         return true;
     return false;
 }
 
 function getResultActions(apiCall, api) {
-    if (api.name == "Client" && (apiCall.result == "LoginResult" || apiCall.result == "RegisterPlayFabUserResult"))
+    if (api.name === "Client" && (apiCall.result === "LoginResult" || apiCall.result === "RegisterPlayFabUserResult"))
         return "if (result != null && result.data.SessionTicket != null) { PlayFab._internalSettings.sessionTicket = result.data.SessionTicket; }";
-    else if (api.name == "Client" && apiCall.result == "GetCloudScriptUrlResult")
+    else if (api.name === "Client" && apiCall.result === "GetCloudScriptUrlResult")
         return "PlayFab._internalSettings.logicServerUrl = result.data.Url;";
     return "";
 }
 
 function getUrl(apiCall, api) {
-    if (api.name == "Client" && apiCall.name == "RunCloudScript")
+    if (api.name === "Client" && apiCall.name === "RunCloudScript")
         return "PlayFab._internalSettings.getLogicServerUrl() + \"" + apiCall.url + "\"";
     return "PlayFab._internalSettings.getServerUrl() + \"" + apiCall.url + "\"";
 }
 
 function getAuthParams(apiCall) {
-    if (apiCall.auth == 'SecretKey')
+    if (apiCall.auth === "SecretKey")
         return "\"X-SecretKey\", PlayFab.settings.developerSecretKey";
-    else if (apiCall.auth == 'SessionTicket')
+    else if (apiCall.auth === "SessionTicket")
         return "\"X-Authorization\", PlayFab._internalSettings.sessionTicket";
     
     return "null, null";

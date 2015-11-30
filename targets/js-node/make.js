@@ -1,4 +1,4 @@
-var path = require('path');
+var path = require("path");
 exports.putInRoot = true;
 
 exports.makeCombinedAPI = function (apis, sourceDir, apiOutputDir) {
@@ -12,7 +12,7 @@ exports.makeCombinedAPI = function (apis, sourceDir, apiOutputDir) {
     
     var destSubFolders = ["PlayFabSdk", "PlayFabTesting"]; // Write both the published folder and the testing folder
     for (var folderIndex in destSubFolders) {
-        var eachOutputDir = path.resolve(apiOutputDir, destSubFolders[folderIndex])
+        var eachOutputDir = path.resolve(apiOutputDir, destSubFolders[folderIndex]);
         
         // Write the core functionality file
         var coreLocals = {};
@@ -21,8 +21,8 @@ exports.makeCombinedAPI = function (apis, sourceDir, apiOutputDir) {
         writeFile(path.resolve(eachOutputDir, "PlayFab.js"), generatedCore);
         
         // Write the package file
-        pkgLocals = {}
-        pkgLocals.isTesting = (destSubFolders[folderIndex] == "PlayFabTesting");
+        var pkgLocals = {}
+        pkgLocals.isTesting = (destSubFolders[folderIndex] === "PlayFabTesting");
         pkgLocals.sdkVersion = exports.sdkVersion;
         pkgLocals.projectName = pkgLocals.isTesting ? "playfab-testing" : "playfab-sdk";
         pkgLocals.description = pkgLocals.isTesting ? "Playfab SDK automated testing example" : "Playfab SDK for node.js applications";
@@ -45,9 +45,9 @@ exports.makeCombinedAPI = function (apis, sourceDir, apiOutputDir) {
 }
 
 function getAuthParams(apiCall) {
-    if (apiCall.auth == 'SecretKey')
+    if (apiCall.auth === 'SecretKey')
         return "\"X-SecretKey\", PlayFab.settings.developerSecretKey";
-    else if (apiCall.auth == 'SessionTicket')
+    else if (apiCall.auth === 'SessionTicket')
         return "\"X-Authorization\", PlayFab.settings.sessionTicket";
     
     return "null, null";
@@ -55,15 +55,15 @@ function getAuthParams(apiCall) {
 
 function getRequestActions(numSpaces, apiCall, api) {
     var output = "";
-    if (api.name == "Client" && (apiCall.result == "LoginResult" || apiCall.request == "RegisterPlayFabUserRequest"))
+    if (api.name === "Client" && (apiCall.result === "LoginResult" || apiCall.request === "RegisterPlayFabUserRequest"))
         output = "request.TitleId = PlayFab.settings.titleId != null ? PlayFab.settings.titleId : request.TitleId;\n    if (request.TitleId == null) throw \"Must be have PlayFab.settings.titleId set to call this method\";\n";
-    if (api.name == "Client" && apiCall.auth == 'SessionTicket')
-        output = "if (PlayFab.settings.sessionTicket == null) throw \"Must be logged in to call this method\";\n"
-    if (apiCall.auth == 'SecretKey')
-        output = "if (PlayFab.settings.developerSecretKey == null) throw \"Must have PlayFab.settings.DeveloperSecretKey set to call this method\";\n"
+    if (api.name === "Client" && apiCall.auth === 'SessionTicket')
+        output = "if (PlayFab.settings.sessionTicket == null) throw \"Must be logged in to call this method\";\n";
+    if (apiCall.auth === 'SecretKey')
+        output = "if (PlayFab.settings.developerSecretKey == null) throw \"Must have PlayFab.settings.DeveloperSecretKey set to call this method\";\n";
     
     if (output.length > 0) {
-        spaces = "";
+        var spaces = "";
         for (var i = 0; i < numSpaces; i++)
             spaces += " ";
         output = spaces + output;
@@ -74,13 +74,13 @@ function getRequestActions(numSpaces, apiCall, api) {
 
 function getResultActions(numSpaces, apiCall, api) {
     var output = "";
-    if (api.name == "Client" && (apiCall.result == "LoginResult" || apiCall.result == "RegisterPlayFabUserResult"))
+    if (api.name === "Client" && (apiCall.result === "LoginResult" || apiCall.result === "RegisterPlayFabUserResult"))
         output = "PlayFab.settings.sessionTicket = result != null && result.data.hasOwnProperty(\"SessionTicket\") ? result.data.SessionTicket : PlayFab.settings.sessionTicket;\n";
-    else if (api.name == "Client" && apiCall.result == "GetCloudScriptUrlResult")
+    else if (api.name === "Client" && apiCall.result === "GetCloudScriptUrlResult")
         output = "PlayFab.settings.logicServerUrl = result != null && result.data.hasOwnProperty(\"Url\") ? result.data.Url : PlayFab.settings.logicServerUrl;\n";
     
     if (output.length > 0) {
-        spaces = "";
+        var spaces = "";
         for (var i = 0; i < numSpaces; i++)
             spaces += " ";
         output = spaces + output;
@@ -90,7 +90,7 @@ function getResultActions(numSpaces, apiCall, api) {
 }
 
 function getUrlAccessor(apiCall) {
-    if (apiCall.serverType == 'logic')
+    if (apiCall.serverType === "logic")
         return "PlayFab.GetLogicServerUrl()";
     return "PlayFab.GetServerUrl()";
 }

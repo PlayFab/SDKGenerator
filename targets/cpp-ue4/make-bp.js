@@ -1,5 +1,5 @@
-var path = require('path');
-var assert = require('assert');
+var path = require("path");
+var assert = require("assert");
 
 var makeBP = exports.makeBP = function (api, apiOutputDir, subdir) {
     var sourceDir = __dirname;
@@ -46,33 +46,33 @@ var generateBPDataModels = exports.generateBPDataModels = function (api, apiOutp
 {
     var sourceDir = __dirname;
 
-    var proxyBPModelHeaderTemplate = ejs.compile(readFile(path.resolve(sourceDir, "templates/blueprint/PlayFabProxyDataModelsAPI.h.ejs")));
+    var proxyBpModelHeaderTemplate = ejs.compile(readFile(path.resolve(sourceDir, "templates/blueprint/PlayFabProxyDataModelsAPI.h.ejs")));
 
-    var BPModelsLocal = {};
-    BPModelsLocal.api = api;
+    var bpModelsLocal = {};
+    bpModelsLocal.api = api;
 
-    var generatedBPHeader = proxyBPModelHeaderTemplate(BPModelsLocal);
-    writeFile(path.resolve(apiOutputDir, "Public/" + subdir + "/" + "PlayFab" + api.name + "BPDataModels.h"), generatedBPHeader);
+    var generatedBpHeader = proxyBpModelHeaderTemplate(bpModelsLocal);
+    writeFile(path.resolve(apiOutputDir, "Public/" + subdir + "/" + "PlayFab" + api.name + "BPDataModels.h"), generatedBpHeader);
 }
 
 var generateBPLibrary = exports.generateBPLibrary = function (api, apiOutputDir, subdir)
 {
     var sourceDir = __dirname;
 
-    var BPLibraryLocal = {};
-    BPLibraryLocal.api = api;
-    //BPLibraryLocal.getResponseSignatureParameters = getResponseSignatureParameters;
-    BPLibraryLocal.getDatatypeSignatureParameters = getDatatypeSignatureParameters;
-    BPLibraryLocal.generateProxyPropertyRead = generateProxyPropertyRead;
+    var bpLibraryLocal = {};
+    bpLibraryLocal.api = api;
+    //bpLibraryLocal.getResponseSignatureParameters = getResponseSignatureParameters;
+    bpLibraryLocal.getDatatypeSignatureParameters = getDatatypeSignatureParameters;
+    bpLibraryLocal.generateProxyPropertyRead = generateProxyPropertyRead;
 
-    var proxyBPLibraryHeaderTemplate = ejs.compile(readFile(path.resolve(sourceDir, "templates/blueprint/PlayFabProxyAPIBlueprintLibrary.h.ejs")));
-    var proxyBPLibraryBodyTemplate = ejs.compile(readFile(path.resolve(sourceDir, "templates/blueprint/PlayFabProxyAPIBlueprintLibrary.cpp.ejs")));
+    var proxyBpLibraryHeaderTemplate = ejs.compile(readFile(path.resolve(sourceDir, "templates/blueprint/PlayFabProxyAPIBlueprintLibrary.h.ejs")));
+    var proxyBpLibraryBodyTemplate = ejs.compile(readFile(path.resolve(sourceDir, "templates/blueprint/PlayFabProxyAPIBlueprintLibrary.cpp.ejs")));
 
-    var generatedBPHeader = proxyBPLibraryHeaderTemplate(BPLibraryLocal);
-    writeFile(path.resolve(apiOutputDir, "Public/" + subdir + "/" + "PlayFab" + api.name + "BPLibrary.h"), generatedBPHeader);
+    var generatedBpHeader = proxyBpLibraryHeaderTemplate(bpLibraryLocal);
+    writeFile(path.resolve(apiOutputDir, "Public/" + subdir + "/" + "PlayFab" + api.name + "BPLibrary.h"), generatedBpHeader);
 
-    var generatedBPBody = proxyBPLibraryBodyTemplate(BPLibraryLocal);
-    writeFile(path.resolve(apiOutputDir, "Private/" + subdir + "/" + "PlayFab" + api.name + "BPLibrary.cpp"), generatedBPBody);
+    var generatedBpBody = proxyBpLibraryBodyTemplate(bpLibraryLocal);
+    writeFile(path.resolve(apiOutputDir, "Private/" + subdir + "/" + "PlayFab" + api.name + "BPLibrary.cpp"), generatedBpBody);
 }
 
 
@@ -88,7 +88,7 @@ var mergeDatatypes = function (apis, outDatatypes)
 
             var datatype = api.datatypes[dataTypeIndex];
 
-            if (outDatatypes.hasOwnProperty(dataTypeIndex) == false) {
+            if (outDatatypes.hasOwnProperty(dataTypeIndex) === false) {
                 // assign
                 outDatatypes[dataTypeIndex] = datatype;
             }
@@ -113,7 +113,7 @@ var hasRequest = exports.hasRequest = function (apiCall, api) {
 var getDatatypeSignatureInputParameters = exports.getDatatypeSignatureInputParameters = function (apiCall, api) {
     var result = "";
 
-    if (hasRequest(apiCall, api) == false) {
+    if (hasRequest(apiCall, api) === false) {
         return result;
     }
 
@@ -122,7 +122,7 @@ var getDatatypeSignatureInputParameters = exports.getDatatypeSignatureInputParam
     for (var p in datatype.properties) {
         var property = datatype.properties[p];
 
-        if (property.isenum || property.actualtype == "object") {
+        if (property.isenum || property.actualType === "object") {
         // TODO: handle enum properly
         }
         else {
@@ -143,10 +143,10 @@ var getDatatypeSignatureParameters = exports.getDatatypeSignatureParameters = fu
     for (var p in datatype.properties) {
         var property = datatype.properties[p];
 
-        if (property.isenum || property.actualtype == "object") {
+        if (property.isenum || property.actualType === "object") {
             // TODO: handle enum properly
         }
-        else if (property.collection == "map") {
+        else if (property.collection === "map") {
             // TODO: handle map properly
         }
         else {
@@ -182,17 +182,17 @@ var generateArrayClassProxyRead = function (property, api) {
     var inValue = "In.Data." + property.name;
 
     var result = "";
-    result += "for (const " + getProperyUE4ToNativeType(property, api) + "& elem : " + inValue + ")\n"
+    result += "for (const " + getProperyUE4ToNativeType(property, api) + "& elem : " + inValue + ")\n";
     result += "    {\n";
     if (!property.isclass) {
-        result += "        Out" + property.name + ".Add(static_cast<" + property.actualtype + ">(elem));\n"
+        result += "        Out" + property.name + ".Add(static_cast<" + property.actualtype + ">(elem));\n";
     }
     else {
         result += "        "+ getPropertyUE4ToOpaqueType(property, api) + " result;\n";
-        result += "        "+ "result.Data = elem;\n"
-        result += "        Out" + property.name + ".Add(result);\n"
+        result += "        "+ "result.Data = elem;\n";
+        result += "        Out" + property.name + ".Add(result);\n";
     }
-    result += "    }\n"
+    result += "    }\n";
     return result;
 }
 
@@ -204,25 +204,25 @@ var generateProxyPropertyRead = exports.generateProxyPropertyRead = function (pr
     if (property.isclass && property.optional && !property.collection) {
         var result = "";
         result += "if (In.Data." + property.name + ".IsValid()) {";
-        result += "    "+ "Out" + property.name + ".Data = *In.Data."+ property.name+";"
+        result += "    "+ "Out" + property.name + ".Data = *In.Data."+ property.name+";";
         result += "}";
         return result;
     }
 
-    if (property.collection == "array" && (property.isclass || property.actualtype == 'uint64')) {
+    if (property.collection === "array" && (property.isclass || property.actualType === "uint64")) {
         return generateArrayClassProxyRead(property, api);
     }
-    else if (property.collection == "map") {
+    else if (property.collection === "map") {
         //return "TMap<FString, " + getProperyUE4Type(property, api) + ">";
         return ""; // TODO: handle map properly, by wrapping it into a structure somehow
     }
-    else if (property.actualtype == 'DateTime') {
+    else if (property.actualType === "DateTime") {
         return ""; // TODO: handle DateTime properly
     }
     else if (property.isenum) {
         return ""; // TODO: handle enums properly
     }
-    else if (property.actualtype == "object") {
+    else if (property.actualType === "object") {
         return ""; // TODO: handle FMultiVar properly
     }
 
@@ -239,42 +239,42 @@ var generateArrayClassProxyCopy = function (property, api) {
     var inValue = "In" + property.name;
 
     var result = "";
-    result += "for (const " + getPropertyUE4ToOpaqueType(property, api) + "& elem : " + inValue + ")\n"
+    result += "for (const " + getPropertyUE4ToOpaqueType(property, api) + "& elem : " + inValue + ")\n";
     result += "    {\n";
     if (!property.isclass) {
-        result += "        Proxy->Request." + property.name + ".Add(static_cast<" + property.actualtype + ">(elem));\n"
+        result += "        Proxy->Request." + property.name + ".Add(static_cast<" + property.actualtype + ">(elem));\n";
     }
     else {
-        result += "        Proxy->Request." + property.name + ".Add(elem.Data);\n"
+        result += "        Proxy->Request." + property.name + ".Add(elem.Data);\n";
     }
-    result += "    }\n"
+    result += "    }\n";
     return result;
 }
 
 var generateProxyPropertyCopy = exports.generateProxyPropertyCopy = function (property, api)
 {
 
-    if (property.collection == "array" && (property.isclass || property.actualtype == 'uint64')) {
+    if (property.collection === "array" && (property.isclass || property.actualType === "uint64")) {
         return generateArrayClassProxyCopy(property, api);
     }
-    else if (property.collection == "map") {
+    else if (property.collection === "map") {
         //return "TMap<FString, " + getProperyUE4Type(property, api) + ">";
         return ""; // TODO: handle map properly, by wrapping it into a structure somehow
     }
-    else if (property.actualtype == 'DateTime') {
+    else if (property.actualType === "DateTime") {
         return ""; // TODO: handle DateTime properly
     }
     else if (property.isenum) {
         return ""; // TODO: handle enums properly
     }
-    else if (property.actualtype == "object") {
+    else if (property.actualType === "object") {
         return ""; // TODO: handle FMultiVar properly
     }
 
 
 
 
-    var result = "Proxy->Request." + property.name + " = In" + property.name + ";"
+    var result = "Proxy->Request." + property.name + " = In" + property.name + ";";
 
     return result;
 }
@@ -282,10 +282,10 @@ var generateProxyPropertyCopy = exports.generateProxyPropertyCopy = function (pr
 
 var getBPPropertyDefinition = function (property, api)
 {
-    if (property.collection == "array") {
+    if (property.collection === "array") {
         return "TArray<" + getPropertyUE4ToOpaqueType(property, api) + ">";
     }
-    else if (property.collection == "map") {
+    else if (property.collection === "map") {
         //return "TMap<FString, " + getProperyUE4Type(property, api) + ">";
         //return ""; // TODO: handle map properly, by wrapping it into a structure somehow
     }
@@ -298,37 +298,37 @@ var getPropertyUE4ToOpaqueType = function (property, api)
 {
     var propertyUE4Type = "";
 
-    if (property.actualtype == 'String') {
+    if (property.actualType === "String") {
         propertyUE4Type = "FString";
     }
-    else if (property.actualtype == 'Boolean') {
+    else if (property.actualType === "Boolean") {
         propertyUE4Type = "bool";
     }
-    else if (property.actualtype == 'int16') {
+    else if (property.actualType === "int16") {
         propertyUE4Type = "int32";
     }
-    else if (property.actualtype == 'uint16') {
+    else if (property.actualType === "uint16") {
         propertyUE4Type = "uint32";
     }
-    else if (property.actualtype == 'int32') {
+    else if (property.actualType === "int32") {
         propertyUE4Type = "int32";
     }
-    else if (property.actualtype == 'uint32') {
+    else if (property.actualType === "uint32") {
         propertyUE4Type = "int32"; // uint32 not supported in BP
     }
-    else if (property.actualtype == 'int64') {
+    else if (property.actualType === "int64") {
         propertyUE4Type = "int32"; // int64 not supported in BP
     }
-    else if (property.actualtype == 'uint64') {
+    else if (property.actualType === "uint64") {
         propertyUE4Type = "int32"; // uint64 not supported in BP
     }
-    else if (property.actualtype == 'float') {
+    else if (property.actualType === "float") {
         propertyUE4Type = "float";
     }
-    else if (property.actualtype == 'double') {
+    else if (property.actualType === "double") {
         propertyUE4Type = "float"; // double not supported in BP
     }
-    else if (property.actualtype == 'DateTime') {
+    else if (property.actualType === "DateTime") {
         propertyUE4Type = "FDateTime";
     }
     else if (property.isclass) {
@@ -337,7 +337,7 @@ var getPropertyUE4ToOpaqueType = function (property, api)
     else if (property.isenum) {
         propertyUE4Type = property.actualtype;
     }
-    else if (property.actualtype == "object") {
+    else if (property.actualType === "object") {
         propertyUE4Type = "FMultitypeVar";
     }
     else {
@@ -352,37 +352,37 @@ var getPropertyUE4ToOpaqueType = function (property, api)
 var getProperyUE4ToNativeType = function (property, api) {
     var propertyUE4Type = "";
 
-    if (property.actualtype == 'String') {
+    if (property.actualType === "String") {
         propertyUE4Type = "FString";
     }
-    else if (property.actualtype == 'Boolean') {
+    else if (property.actualType === "Boolean") {
         propertyUE4Type = "bool";
     }
-    else if (property.actualtype == 'int16') {
+    else if (property.actualType === "int16") {
         propertyUE4Type = "int32";
     }
-    else if (property.actualtype == 'uint16') {
+    else if (property.actualType === "uint16") {
         propertyUE4Type = "uint32";
     }
-    else if (property.actualtype == 'int32') {
+    else if (property.actualType === "int32") {
         propertyUE4Type = "int32";
     }
-    else if (property.actualtype == 'uint32') {
+    else if (property.actualType === "uint32") {
         propertyUE4Type = "int32"; // uint32 not supported in BP
     }
-    else if (property.actualtype == 'int64') {
+    else if (property.actualType === "int64") {
         propertyUE4Type = "int32"; // int64 not supported in BP
     }
-    else if (property.actualtype == 'uint64') {
+    else if (property.actualType === "uint64") {
         propertyUE4Type = "int32"; // uint64 not supported in BP
     }
-    else if (property.actualtype == 'float') {
+    else if (property.actualType === "float") {
         propertyUE4Type = "float";
     }
-    else if (property.actualtype == 'double') {
+    else if (property.actualType === "double") {
         propertyUE4Type = "float"; // double not supported in BP
     }
-    else if (property.actualtype == 'DateTime') {
+    else if (property.actualType === "DateTime") {
         propertyUE4Type = "FDateTime";
     }
     else if (property.isclass) {
@@ -391,7 +391,7 @@ var getProperyUE4ToNativeType = function (property, api) {
     else if (property.isenum) {
         propertyUE4Type = property.actualtype;
     }
-    else if (property.actualtype == "object") {
+    else if (property.actualType === "object") {
         propertyUE4Type = "FMultitypeVar";
     }
     else {

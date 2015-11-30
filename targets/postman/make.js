@@ -1,4 +1,4 @@
-var path = require('path');
+var path = require("path");
 
 exports.putInRoot = true;
 
@@ -53,17 +53,17 @@ function callSorter(a, b) {
 }
 
 function getUrl(apiCall) {
-    if (apiCall.name != "RunCloudScript")
+    if (apiCall.name !== "RunCloudScript")
         return "https://{{TitleId}}.playfabapi.com" + apiCall.url;
     return "{{LogicUrl}}" + apiCall.url;
 }
 
 function getPostmanHeader(auth) {
-    if (auth == "SessionTicket")
+    if (auth === "SessionTicket")
         return "Content-Type: application/json\\nX-Authentication: {{SessionTicket}}\\n";
-    else if (auth == "SecretKey")
+    else if (auth === "SecretKey")
         return "Content-Type: application/json\\nX-SecretKey: {{SecretKey}}\\n";
-    else if (auth == "None")
+    else if (auth === "None")
         return "Content-Type: application/json\\n";
     
     return "";
@@ -86,11 +86,11 @@ function getPostmanDescription(api, apiCall) {
     
     output += "\\n\\n**The following case-sensitive environment variables are required for this call:**";
     output += "\\n\\n\\\"TitleId\\\" - The Title Id of your game, available in the Game Manager (https://developer.playfab.com)";
-    if (apiCall.auth == "SessionTicket")
+    if (apiCall.auth === "SessionTicket")
         output += "\\n\\n\\\"SessionTicket\\\" - The string returned as \\\"SessionTicket\\\" in response to any sign in operation.";
-    if (apiCall.auth == "SecretKey")
+    if (apiCall.auth === "SecretKey")
         output += "\\n\\n\\\"SecretKey\\\" - The PlayFab API Secret Key, available in the dashboard of your title (https://developer.playfab.com/title/properties/{{titleId}})";
-    if (apiCall.name == "RunCloudScript")
+    if (apiCall.name === "RunCloudScript")
         output += "\\n\\n\\\"LogicUrl\\\" - You must call GetCloudScriptUrl first, and copy the result into this envrionment variable.  ";
     
     var props = api.datatypes[apiCall.request].properties;
@@ -128,23 +128,23 @@ function getPostBodyPropertyValue(apiName, apiCall, prop, propertyReplacements) 
 function getRequestExample(api, apiCall, propertyReplacements) {
     var msg = null;
     if (apiCall.requestExample.length > 0 && apiCall.requestExample.indexOf("{") >= 0) {
-        if (apiCall.requestExample.indexOf("\\\"") == -1) // I can't handle json in a string in json in a string...
+        if (apiCall.requestExample.indexOf("\\\"") === -1) // I can't handle json in a string in json in a string...
             return "\"" + jsonEscape(apiCall.requestExample) + "\"";
         else
-            msg = "CANNOT PARSE EXAMPLE BODY: "
+            msg = "CANNOT PARSE EXAMPLE BODY: ";
     }
     
-    var apiNameLC = api.name.toLowerCase();
+    var apiNameLc = api.name.toLowerCase();
     
     var props = api.datatypes[apiCall.request].properties;
-    var output = "\"{"
+    var output = "\"{";
     for (var p in props) {
         output += "\\\"" + props[p].name + "\\\": ";
-        output += getPostBodyPropertyValue(apiNameLC, apiCall.name, props[p], propertyReplacements);
+        output += getPostBodyPropertyValue(apiNameLc, apiCall.name, props[p], propertyReplacements);
         if (parseInt(p) + 1 < props.length)
-            output += ","
+            output += ",";
     }
-    output += "}\""
+    output += "}\"";
     
     if (msg == null)
         msg = "AUTO GENERATED BODY FOR: "

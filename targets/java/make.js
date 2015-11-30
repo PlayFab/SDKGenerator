@@ -1,4 +1,4 @@
-var path = require('path');
+var path = require("path");
 
 exports.makeClientAPI = function (api, sourceDir, apiOutputDir) {
     var srcOutputLoc = ["src", "../AndroidStudioExample/app/src/main/java"];
@@ -9,8 +9,8 @@ exports.makeClientAPI = function (api, sourceDir, apiOutputDir) {
         var libOutputDir = path.resolve(apiOutputDir, libOutputLoc[i]);
         
         console.log("Generating Java client SDK to " + srcOutputDir);
-        copyTree(path.resolve(sourceDir, 'srcCode'), srcOutputDir);
-        copyTree(path.resolve(sourceDir, 'srcLibs'), libOutputDir);
+        copyTree(path.resolve(sourceDir, "srcCode"), srcOutputDir);
+        copyTree(path.resolve(sourceDir, "srcLibs"), libOutputDir);
         makeDatatypes([api], sourceDir, srcOutputDir);
         makeAPI(api, sourceDir, srcOutputDir);
         generateErrors(api, sourceDir, srcOutputDir);
@@ -20,11 +20,11 @@ exports.makeClientAPI = function (api, sourceDir, apiOutputDir) {
 }
 
 exports.makeServerAPI = function (apis, sourceDir, apiOutputDir) {
-    apiOutputDir = path.resolve(apiOutputDir, 'src');
+    apiOutputDir = path.resolve(apiOutputDir, "src");
     console.log("Generating Java server SDK to " + apiOutputDir);
     
-    copyTree(path.resolve(sourceDir, 'srcCode'), apiOutputDir);
-    copyTree(path.resolve(sourceDir, 'srcLibs'), apiOutputDir);
+    copyTree(path.resolve(sourceDir, "srcCode"), apiOutputDir);
+    copyTree(path.resolve(sourceDir, "srcLibs"), apiOutputDir);
     makeDatatypes(apis, sourceDir, apiOutputDir);
     for (var i in apis)
         makeAPI(apis[i], sourceDir, apiOutputDir);
@@ -34,11 +34,11 @@ exports.makeServerAPI = function (apis, sourceDir, apiOutputDir) {
 }
 
 exports.makeCombinedAPI = function (apis, sourceDir, apiOutputDir) {
-    apiOutputDir = path.resolve(apiOutputDir, 'src');
+    apiOutputDir = path.resolve(apiOutputDir, "src");
     console.log("Generating Java combined SDK to " + apiOutputDir);
     
-    copyTree(path.resolve(sourceDir, 'srcCode'), apiOutputDir);
-    copyTree(path.resolve(sourceDir, 'srcLibs'), apiOutputDir);
+    copyTree(path.resolve(sourceDir, "srcCode"), apiOutputDir);
+    copyTree(path.resolve(sourceDir, "srcLibs"), apiOutputDir);
     makeDatatypes(apis, sourceDir, apiOutputDir);
     for (var i in apis)
         makeAPI(apis[i], sourceDir, apiOutputDir);
@@ -47,8 +47,8 @@ exports.makeCombinedAPI = function (apis, sourceDir, apiOutputDir) {
     generateSettings(apis[0], sourceDir, apiOutputDir);
     
     // Copy testing files
-    copyFile(path.resolve(sourceDir, 'testingfiles/PlayFabApiTest.java'), path.resolve(apiOutputDir, 'PlayFabApiTest.java'));
-    copyFile(path.resolve(sourceDir, 'testingfiles/RunPfTests.bat'), path.resolve(apiOutputDir, 'RunPfTests.bat'));
+    copyFile(path.resolve(sourceDir, "testingfiles/PlayFabApiTest.java"), path.resolve(apiOutputDir, "PlayFabApiTest.java"));
+    copyFile(path.resolve(sourceDir, "testingfiles/RunPfTests.bat"), path.resolve(apiOutputDir, "RunPfTests.bat"));
 }
 
 function getJsonString(input) {
@@ -115,7 +115,7 @@ function makeAPI(api, sourceDir, apiOutputDir) {
     apiLocals.getRequestActions = getRequestActions;
     apiLocals.getResultActions = getResultActions;
     apiLocals.getUrlAccessor = getUrlAccessor;
-    apiLocals.authKey = api.name == "Client";
+    apiLocals.authKey = api.name === "Client";
     var generatedApi = apiTemplate(apiLocals);
     writeFile(path.resolve(apiOutputDir, "com/playfab/PlayFab" + api.name + "API.java"), generatedApi);
 }
@@ -235,9 +235,9 @@ function getPropertyJavaType(property, datatype, needOptional) {
 
 
 function getAuthParams(apiCall) {
-    if (apiCall.auth == 'SecretKey')
+    if (apiCall.auth === "SecretKey")
         return "\"X-SecretKey\", PlayFabSettings.DeveloperSecretKey";
-    else if (apiCall.auth == 'SessionTicket')
+    else if (apiCall.auth === "SessionTicket")
         return "\"X-Authorization\", AuthKey";
     
     return "null, null";
@@ -245,25 +245,25 @@ function getAuthParams(apiCall) {
 
 
 function getRequestActions(apiCall, api) {
-    if (api.name == "Client" && (apiCall.result == "LoginResult" || apiCall.request == "RegisterPlayFabUserRequest"))
+    if (api.name === "Client" && (apiCall.result === "LoginResult" || apiCall.request === "RegisterPlayFabUserRequest"))
         return "request.TitleId = PlayFabSettings.TitleId != null ? PlayFabSettings.TitleId : request.TitleId;\n\t\t\tif(request.TitleId == null) throw new Exception (\"Must be have PlayFabSettings.TitleId set to call this method\");\n";
-    if (api.name == "Client" && apiCall.auth == 'SessionTicket')
-        return "if (AuthKey == null) throw new Exception (\"Must be logged in to call this method\");\n"
-    if (apiCall.auth == 'SecretKey')
-        return "if (PlayFabSettings.DeveloperSecretKey == null) throw new Exception (\"Must have PlayFabSettings.DeveloperSecretKey set to call this method\");\n"
+    if (api.name === "Client" && apiCall.auth === "SessionTicket")
+        return "if (AuthKey == null) throw new Exception (\"Must be logged in to call this method\");\n";
+    if (apiCall.auth === "SecretKey")
+        return "if (PlayFabSettings.DeveloperSecretKey == null) throw new Exception (\"Must have PlayFabSettings.DeveloperSecretKey set to call this method\");\n";
     return "";
 }
 
 function getResultActions(apiCall, api) {
-    if (api.name == "Client" && (apiCall.result == "LoginResult" || apiCall.result == "RegisterPlayFabUserResult"))
+    if (api.name === "Client" && (apiCall.result === "LoginResult" || apiCall.result === "RegisterPlayFabUserResult"))
         return "AuthKey = result.SessionTicket != null ? result.SessionTicket : AuthKey;\n";
-    else if (api.name == "Client" && apiCall.result == "GetCloudScriptUrlResult")
+    else if (api.name === "Client" && apiCall.result === "GetCloudScriptUrlResult")
         return "PlayFabSettings.LogicServerURL = result.Url;\n";
     return "";
 }
 
 function getUrlAccessor(apiCall) {
-    if (apiCall.serverType == 'logic')
+    if (apiCall.serverType === "logic")
         return "PlayFabSettings.GetLogicURL()";
     
     return "PlayFabSettings.GetURL()";

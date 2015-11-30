@@ -1,11 +1,11 @@
-var path = require('path');
+var path = require("path");
 
 exports.makeClientAPI = function (api, sourceDir, apiOutputDir) {
     console.log("Generating C-sharp client SDK to " + apiOutputDir);
     
     var libname = "Client";
     
-    copyTree(path.resolve(sourceDir, 'source'), apiOutputDir);
+    copyTree(path.resolve(sourceDir, "source"), apiOutputDir);
     
     makeDatatypes([api], sourceDir, apiOutputDir);
     
@@ -22,7 +22,7 @@ exports.makeServerAPI = function (apis, sourceDir, apiOutputDir) {
     
     var libname = "Server";
     
-    copyTree(path.resolve(sourceDir, 'source'), apiOutputDir);
+    copyTree(path.resolve(sourceDir, "source"), apiOutputDir);
     
     makeDatatypes(apis, sourceDir, apiOutputDir);
     
@@ -42,10 +42,10 @@ exports.makeCombinedAPI = function (apis, sourceDir, apiOutputDir) {
     
     var libname = "All";
     
-    copyTree(path.resolve(sourceDir, 'source'), apiOutputDir);
-    copyTree(path.resolve(sourceDir, 'UnittestRunner'), path.resolve(apiOutputDir, 'UnittestRunner')); // Copy the actual unittest project in the CombinedAPI
-    copyFile(path.resolve(sourceDir, 'build+unit.bat'), path.resolve(apiOutputDir, 'build+unit.bat'));
-    copyFile(path.resolve(sourceDir, 'PlayFabSDK+Unit.sln'), path.resolve(apiOutputDir, 'PlayFabSDK+Unit.sln'));
+    copyTree(path.resolve(sourceDir, "source"), apiOutputDir);
+    copyTree(path.resolve(sourceDir, "UnittestRunner"), path.resolve(apiOutputDir, "UnittestRunner")); // Copy the actual unittest project in the CombinedAPI
+    copyFile(path.resolve(sourceDir, "build+unit.bat"), path.resolve(apiOutputDir, "build+unit.bat"));
+    copyFile(path.resolve(sourceDir, "PlayFabSDK+Unit.sln"), path.resolve(apiOutputDir, "PlayFabSDK+Unit.sln"));
     
     makeDatatypes(apis, sourceDir, apiOutputDir);
     
@@ -77,15 +77,15 @@ exports.makeTests = function (testData, apiLookup, sourceDir, testOutputLocation
 }
 
 function makeTestInstruction(action) {
-    if (typeof action == 'string') {
+    if (typeof action === "string") {
         action = action.trim().toLowerCase();
-        if (action == "clearcache")
+        if (action === "clearcache")
             return "ClearServerCache();";
-        else if (action == "wait")
+        else if (action === "wait")
             return "Wait();";
-        else if (action == "reset")
+        else if (action === "reset")
             return "ResetServer();";
-        else if (action == "abort")
+        else if (action === "abort")
             return "return;";
         throw "Unknown test action " + action;
     }
@@ -121,16 +121,7 @@ function makeDatatypes(apis, sourceDir, apiOutputDir) {
         modelLocals.getPropertyAttribs = getPropertyAttribs;
         modelLocals.api = api;
         
-        var generatedModel = null;
-        
-        if (datatype.isenum) {
-            generatedModel = enumTemplate(modelLocals);
-        }
-        else {
-            generatedModel = modelTemplate(modelLocals);
-        }
-        
-        return generatedModel;
+        return (datatype.isenum) ? enumTemplate(modelLocals) : modelTemplate(modelLocals);
     };
     
     for (var a in apis) {
@@ -160,7 +151,7 @@ function makeAPI(api, sourceDir, apiOutputDir) {
     apiLocals.getRequestActions = getRequestActions;
     apiLocals.getResultActions = getResultActions;
     apiLocals.getUrlAccessor = getUrlAccessor;
-    apiLocals.authKey = api.name == "Client";
+    apiLocals.authKey = api.name === "Client";
     var generatedApi = apiTemplate(apiLocals);
     writeFile(path.resolve(apiOutputDir, "source/PlayFab" + api.name + "API.cs"), generatedApi);
 }
@@ -196,22 +187,23 @@ function generateProject(apis, sourceDir, apiOutputDir, libname) {
 }
 
 function getModelPropertyDef(property, datatype) {
+    var basicType;
     if (property.collection) {
-        var basicType = getPropertyCSType(property, datatype, false);
+        basicType = getPropertyCSType(property, datatype, false);
         
-        if (property.collection == 'array') {
-            return 'List<' + basicType + '> ' + property.name;
+        if (property.collection === "array") {
+            return "List<" + basicType + "> " + property.name;
         }
-        else if (property.collection == 'map') {
-            return 'Dictionary<string,' + basicType + '> ' + property.name;
+        else if (property.collection === "map") {
+            return "Dictionary<string," + basicType + "> " + property.name;
         }
         else {
             throw "Unknown collection type: " + property.collection + " for " + property.name + " in " + datatype.name;
         }
     }
     else {
-        var basicType = getPropertyCSType(property, datatype, true);
-        return basicType + ' ' + property.name;
+        basicType = getPropertyCSType(property, datatype, true);
+        return basicType + " " + property.name;
     }
 }
 
@@ -239,40 +231,40 @@ function getPropertyAttribs(property, datatype, api) {
 
 
 function getPropertyCSType(property, datatype, needOptional) {
-    var optional = (needOptional && property.optional) ? '?' : '';
+    var optional = (needOptional && property.optional) ? "?" : "";
     
-    if (property.actualtype == 'String') {
-        return 'string';
+    if (property.actualType === "String") {
+        return "string";
     }
-    else if (property.actualtype == 'Boolean') {
-        return 'bool' + optional;
+    else if (property.actualType === "Boolean") {
+        return "bool" + optional;
     }
-    else if (property.actualtype == 'int16') {
-        return 'short' + optional;
+    else if (property.actualType === "int16") {
+        return "short" + optional;
     }
-    else if (property.actualtype == 'uint16') {
-        return 'ushort' + optional;
+    else if (property.actualType === "uint16") {
+        return "ushort" + optional;
     }
-    else if (property.actualtype == 'int32') {
-        return 'int' + optional;
+    else if (property.actualType === "int32") {
+        return "int" + optional;
     }
-    else if (property.actualtype == 'uint32') {
-        return 'uint' + optional;
+    else if (property.actualType === "uint32") {
+        return "uint" + optional;
     }
-    else if (property.actualtype == 'int64') {
-        return 'long' + optional;
+    else if (property.actualType === "int64") {
+        return "long" + optional;
     }
-    else if (property.actualtype == 'uint64') {
-        return 'ulong' + optional;
+    else if (property.actualType === "uint64") {
+        return "ulong" + optional;
     }
-    else if (property.actualtype == 'float') {
-        return 'float' + optional;
+    else if (property.actualType === "float") {
+        return "float" + optional;
     }
-    else if (property.actualtype == 'double') {
-        return 'double' + optional;
+    else if (property.actualType === "double") {
+        return "double" + optional;
     }
-    else if (property.actualtype == 'DateTime') {
-        return 'DateTime' + optional;
+    else if (property.actualType === "DateTime") {
+        return "DateTime" + optional;
     }
     else if (property.isclass) {
         return property.actualtype;
@@ -280,8 +272,8 @@ function getPropertyCSType(property, datatype, needOptional) {
     else if (property.isenum) {
         return property.actualtype + optional;
     }
-    else if (property.actualtype == "object") {
-        return 'object';
+    else if (property.actualType === "object") {
+        return "object";
     }
     else {
         throw "Unknown property type: " + property.actualtype + " for " + property.name + " in " + datatype.name;
@@ -290,9 +282,9 @@ function getPropertyCSType(property, datatype, needOptional) {
 
 
 function getAuthParams(apiCall) {
-    if (apiCall.auth == 'SecretKey')
+    if (apiCall.auth === "SecretKey")
         return "\"X-SecretKey\", PlayFabSettings.DeveloperSecretKey";
-    else if (apiCall.auth == 'SessionTicket')
+    else if (apiCall.auth === "SessionTicket")
         return "\"X-Authorization\", AuthKey";
     
     return "null, null";
@@ -300,25 +292,25 @@ function getAuthParams(apiCall) {
 
 
 function getRequestActions(apiCall, api) {
-    if (api.name == "Client" && (apiCall.result == "LoginResult" || apiCall.request == "RegisterPlayFabUserRequest"))
+    if (api.name === "Client" && (apiCall.result === "LoginResult" || apiCall.request === "RegisterPlayFabUserRequest"))
         return "request.TitleId = PlayFabSettings.TitleId ?? request.TitleId;\n\t\t\tif(request.TitleId == null) throw new Exception (\"Must be have PlayFabSettings.TitleId set to call this method\");\n";
-    if (api.name == "Client" && apiCall.auth == 'SessionTicket')
-        return "if (AuthKey == null) throw new Exception (\"Must be logged in to call this method\");\n"
-    if (apiCall.auth == 'SecretKey')
-        return "if (PlayFabSettings.DeveloperSecretKey == null) throw new Exception (\"Must have PlayFabSettings.DeveloperSecretKey set to call this method\");\n"
+    if (api.name === "Client" && apiCall.auth === "SessionTicket")
+        return "if (AuthKey == null) throw new Exception (\"Must be logged in to call this method\");\n";
+    if (apiCall.auth === "SecretKey")
+        return "if (PlayFabSettings.DeveloperSecretKey == null) throw new Exception (\"Must have PlayFabSettings.DeveloperSecretKey set to call this method\");\n";
     return "";
 }
 
 function getResultActions(apiCall, api) {
-    if (api.name == "Client" && (apiCall.result == "LoginResult" || apiCall.result == "RegisterPlayFabUserResult"))
+    if (api.name === "Client" && (apiCall.result === "LoginResult" || apiCall.result === "RegisterPlayFabUserResult"))
         return "AuthKey = result.SessionTicket ?? AuthKey;\n";
-    else if (api.name == "Client" && apiCall.result == "GetCloudScriptUrlResult")
+    else if (api.name === "Client" && apiCall.result === "GetCloudScriptUrlResult")
         return "PlayFabSettings.LogicServerURL = result.Url;\n";
     return "";
 }
 
 function getUrlAccessor(apiCall) {
-    if (apiCall.serverType == 'logic')
+    if (apiCall.serverType === "logic")
         return "PlayFabSettings.GetLogicURL()";
     
     return "PlayFabSettings.GetURL()";

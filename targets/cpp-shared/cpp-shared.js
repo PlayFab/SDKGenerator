@@ -1,4 +1,4 @@
-var path = require('path');
+var path = require("path");
 
 var makeAPI = exports.makeAPI = function (api, apiOutputDir, subdir) {
     var sourceDir = __dirname;
@@ -12,7 +12,7 @@ var makeAPI = exports.makeAPI = function (api, apiOutputDir, subdir) {
     apiLocals.getRequestActions = getRequestActions;
     apiLocals.getResultActions = getResultActions;
     apiLocals.getUrlAccessor = getUrlAccessor;
-    apiLocals.authKey = api.name == "Client";
+    apiLocals.authKey = api.name === "Client";
     apiLocals.hasRequest = hasRequest;
    
     var generatedHeader = apiHeaderTemplate(apiLocals);
@@ -33,9 +33,9 @@ var getPropertyDef = exports.getPropertyDef = function (property, datatype) {
     var propName = property.name;
     var safePropName = getPropertySafeName(property);
    
-    if (property.collection == "array")
+    if (property.collection === "array")
         return "std::list<" + getPropertyCPPType(property, datatype, false) + "> " + safePropName + ";";
-    else if (property.collection == "map")
+    else if (property.collection === "map")
         return "std::map<std::string, " + getPropertyCPPType(property, datatype, false) + "> " + safePropName + ";";
     else
         return getPropertyCPPType(property, datatype, true) + " " + safePropName + ";";
@@ -43,7 +43,7 @@ var getPropertyDef = exports.getPropertyDef = function (property, datatype) {
 
 // PFWORKBIN-445 & PFWORKBIN-302 - variable names can't be the same as the variable type when compiling for android
 var getPropertySafeName = exports.getPropertySafeName = function (property) {
-    return (property.actualtype == property.name) ? "pf" + property.name : property.name;
+    return (property.actualType === property.name) ? "pf" + property.name : property.name;
 }
 
 var getPropertyCPPType = exports.getPropertyCPPType = function (property, datatype, needOptional) {
@@ -554,8 +554,8 @@ var getMapPropertyDeserializer = exports.getMapPropertyDeserializer = function (
    
     var val = "const Value::Member* " + property.name + "_member = obj.FindMember(\"" + property.name + "\");\n";
     val += "    if (" + property.name + "_member != NULL) {\n";
-    val += "        for (Value::ConstMemberIterator iter = " + property.name + "_member->value.MemberBegin(); iter != " + property.name + "_member->value.MemberEnd(); ++iter) {\n"
-    val += "            " + property.name + "[iter->name.GetString()] = " + getter + ";\n        }\n    }"
+    val += "        for (Value::ConstMemberIterator iter = " + property.name + "_member->value.MemberBegin(); iter != " + property.name + "_member->value.MemberEnd(); ++iter) {\n";
+    val += "            " + property.name + "[iter->name.GetString()] = " + getter + ";\n        }\n    }";
    
     return val;
 }
@@ -627,31 +627,31 @@ var generateErrors = exports.generateErrors = function (api, apiOutputDir) {
 
 
 function getAuthParams(apiCall) {
-    if (apiCall.auth == 'SecretKey')
-        return "httpRequest->SetHeader(\"X-SecretKey\", PlayFabSettings::developerSecretKey);"
-    else if (apiCall.auth == 'SessionTicket')
-        return "httpRequest->SetHeader(\"X-Authorization\", mUserSessionTicket);"
+    if (apiCall.auth === "SecretKey")
+        return "httpRequest->SetHeader(\"X-SecretKey\", PlayFabSettings::developerSecretKey);";
+    else if (apiCall.auth === "SessionTicket")
+        return "httpRequest->SetHeader(\"X-Authorization\", mUserSessionTicket);";
    
     return "";
 }
 
 
 var getRequestActions = exports.getRequestActions = function (apiCall, api) {
-    if (api.name == "Client" && (apiCall.result == "LoginResult" || apiCall.request == "RegisterPlayFabUserRequest"))
+    if (api.name === "Client" && (apiCall.result === "LoginResult" || apiCall.request === "RegisterPlayFabUserRequest"))
         return "if (PlayFabSettings::titleId.length() > 0)\n        request.TitleId = PlayFabSettings::titleId;";
     return "";
 }
 
 var getResultActions = exports.getResultActions = function (apiCall, api) {
-    if (api.name == "Client" && (apiCall.result == "LoginResult" || apiCall.result == "RegisterPlayFabUserResult"))
+    if (api.name === "Client" && (apiCall.result === "LoginResult" || apiCall.result === "RegisterPlayFabUserResult"))
         return "if (outResult.SessionTicket.length() > 0)\n            (static_cast<PlayFab" + api.name + "API*>(userData))->mUserSessionTicket = outResult.SessionTicket;";
-    else if (api.name == "Client" && apiCall.result == "GetCloudScriptUrlResult")
+    else if (api.name === "Client" && apiCall.result === "GetCloudScriptUrlResult")
         return "if (outResult.Url.length() > 0)\n            PlayFabSettings::logicServerURL = outResult.Url;";
     return "";
 }
 
 function getUrlAccessor(apiCall) {
-    if (apiCall.serverType == 'logic')
+    if (apiCall.serverType === "logic")
         return "PlayFabSettings::getLogicURL(\"" + apiCall.url + "\")";
    
     return "PlayFabSettings::getURL(\"" + apiCall.url + "\")";

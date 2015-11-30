@@ -1,13 +1,13 @@
-var path = require('path');
-var shared = require('../cpp-shared/cpp-shared');
+var path = require("path");
+var shared = require("../cpp-shared/cpp-shared");
 
 exports.makeClientAPI = function (api, sourceDir, apiOutputDir) {
     var libname = "Client";
 
     console.log("Generating Windows C++ client SDK to " + apiOutputDir);
 
-    copyTree(path.resolve(sourceDir, '../cpp-shared/source'), apiOutputDir);
-    copyTree(path.resolve(sourceDir, 'source'), apiOutputDir);
+    copyTree(path.resolve(sourceDir, "../cpp-shared/source"), apiOutputDir);
+    copyTree(path.resolve(sourceDir, "source"), apiOutputDir);
 
     shared.makeAPI(api, apiOutputDir, "core/");
 
@@ -24,8 +24,8 @@ exports.makeServerAPI = function (apis, sourceDir, apiOutputDir) {
 
     console.log("Generating Windows C++ server SDK to " + apiOutputDir);
 
-    copyTree(path.resolve(sourceDir, '../cpp-shared/source'), apiOutputDir);
-    copyTree(path.resolve(sourceDir, 'source'), apiOutputDir);
+    copyTree(path.resolve(sourceDir, "../cpp-shared/source"), apiOutputDir);
+    copyTree(path.resolve(sourceDir, "source"), apiOutputDir);
 
     for (var i in apis) {
         var api = apis[i];
@@ -46,9 +46,9 @@ exports.makeCombinedAPI = function (apis, sourceDir, apiOutputDir) {
 
     console.log("Generating Windows C++ combined SDK to " + apiOutputDir);
 
-    copyTree(path.resolve(sourceDir, '../cpp-shared/source'), apiOutputDir);
-    copyTree(path.resolve(sourceDir, 'source'), apiOutputDir);
-    copyTree(path.resolve(sourceDir, 'UnittestRunner'), path.resolve(apiOutputDir, 'build/VC12/UnittestRunner'));
+    copyTree(path.resolve(sourceDir, "../cpp-shared/source"), apiOutputDir);
+    copyTree(path.resolve(sourceDir, "source"), apiOutputDir);
+    copyTree(path.resolve(sourceDir, "UnittestRunner"), path.resolve(apiOutputDir, "build/VC12/UnittestRunner"));
 
     for (var i in apis) {
         var api = apis[i];

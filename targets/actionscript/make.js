@@ -1,11 +1,11 @@
-var path = require('path');
+var path = require("path");
 
 exports.putInRoot = true;
 
 exports.makeCombinedAPI = function (apis, sourceDir, apiOutputDir) {
     console.log("Generating ActionScript3 combined SDK to " + apiOutputDir);
     
-    copyTree(path.resolve(sourceDir, 'source'), apiOutputDir);
+    copyTree(path.resolve(sourceDir, "source"), apiOutputDir);
     
     for (var i in apis) {
         makeDatatypes(apis[i], sourceDir, apiOutputDir);
@@ -13,7 +13,6 @@ exports.makeCombinedAPI = function (apis, sourceDir, apiOutputDir) {
     }
     
     generateErrors(apis[0], sourceDir, apiOutputDir);
-    
     generateVersion(apis[0], sourceDir, apiOutputDir);
 }
 
@@ -43,7 +42,6 @@ function makeDatatypes(api, sourceDir, apiOutputDir) {
         
         writeFile(path.resolve(apiOutputDir, "com/playfab/" + api.name + "Models/" + datatype.name + ".as"), generatedModel);
     }
-
 }
 
 function needsPlayFabUtil(datatype) {
@@ -71,7 +69,7 @@ function makeAPI(api, sourceDir, apiOutputDir) {
     apiLocals.getRequestActions = getRequestActions;
     apiLocals.getResultActions = getResultActions;
     apiLocals.getUrlAccessor = getUrlAccessor;
-    apiLocals.authKey = api.name == "Client";
+    apiLocals.authKey = api.name === "Client";
     var generatedApi = apiTemplate(apiLocals);
     writeFile(path.resolve(apiOutputDir, "com/playfab/PlayFab" + api.name + "API.as"), generatedApi);
 }
@@ -178,10 +176,10 @@ function getPropertyASType(property, datatype) {
 function getModelPropertyInit(property, datatype) {
     if (property.isclass) {
         if (property.collection) {
-            if (property.collection == 'array') {
+            if (property.collection === "array") {
                 return "if(data." + property.name + ") { " + property.name + " = new Vector.<" + property.actualtype + ">(); for(var " + property.name + "_iter:int = 0; " + property.name + "_iter < data." + property.name + ".length; " + property.name + "_iter++) { " + property.name + "[" + property.name + "_iter] = new " + property.actualtype + "(data." + property.name + "[" + property.name + "_iter]); }}";
             }
-            else if (property.collection == 'map') {
+            else if (property.collection === "map") {
                 return "if(data." + property.name + ") { " + property.name + " = {}; for(var " + property.name + "_iter:String in data." + property.name + ") { " + property.name + "[" + property.name + "_iter] = new " + property.actualtype + "(data." + property.name + "[" + property.name + "_iter]); }}";
             }
             else {
@@ -193,11 +191,11 @@ function getModelPropertyInit(property, datatype) {
         }
     }
     else if (property.collection) {
-        if (property.collection == 'array') {
+        if (property.collection === "array") {
             var asType = getPropertyASType(property, datatype);
             return property.name + " = data." + property.name + " ? Vector.<" + asType + ">(data." + property.name + ") : null;";
         }
-        else if (property.collection == 'map') {
+        else if (property.collection === "map") {
             return property.name + " = data." + property.name + ";";
         }
         else {
@@ -214,9 +212,9 @@ function getModelPropertyInit(property, datatype) {
 }
 
 function getAuthParams(apiCall) {
-    if (apiCall.auth == 'SecretKey')
+    if (apiCall.auth === "SecretKey")
         return "\"X-SecretKey\", PlayFabSettings.DeveloperSecretKey";
-    else if (apiCall.auth == 'SessionTicket')
+    else if (apiCall.auth === "SessionTicket")
         return "\"X-Authorization\", SessionTicket";
     
     return "null, null";
@@ -224,25 +222,25 @@ function getAuthParams(apiCall) {
 
 
 function getRequestActions(apiCall, api) {
-    if (api.name == "Client" && (apiCall.result == "LoginResult" || apiCall.request == "RegisterPlayFabUserRequest"))
+    if (api.name === "Client" && (apiCall.result === "LoginResult" || apiCall.request === "RegisterPlayFabUserRequest"))
         return "request.TitleId = PlayFabSettings.TitleId != null ? PlayFabSettings.TitleId : request.TitleId;\n\t\t\tif(request.TitleId == null) throw new Error (\"Must be have PlayFabSettings.TitleId set to call this method\");\n";
-    if (api.name == "Client" && apiCall.auth == 'SessionTicket')
-        return "if (SessionTicket == null) throw new Error(\"Must be logged in to call this method\");\n"
-    if (apiCall.auth == 'SecretKey')
-        return "if (PlayFabSettings.DeveloperSecretKey == null) throw new Error (\"Must have PlayFabSettings.DeveloperSecretKey set to call this method\");\n"
+    if (api.name === "Client" && apiCall.auth === "SessionTicket")
+        return "if (SessionTicket == null) throw new Error(\"Must be logged in to call this method\");\n";
+    if (apiCall.auth === "SecretKey")
+        return "if (PlayFabSettings.DeveloperSecretKey == null) throw new Error (\"Must have PlayFabSettings.DeveloperSecretKey set to call this method\");\n";
     return "";
 }
 
 function getResultActions(apiCall, api) {
-    if (api.name == "Client" && (apiCall.result == "LoginResult" || apiCall.result == "RegisterPlayFabUserResult"))
+    if (api.name === "Client" && (apiCall.result === "LoginResult" || apiCall.result === "RegisterPlayFabUserResult"))
         return "SessionTicket = result.SessionTicket != null ? result.SessionTicket : SessionTicket;\n";
-    else if (api.name == "Client" && apiCall.result == "GetCloudScriptUrlResult")
+    else if (api.name === "Client" && apiCall.result === "GetCloudScriptUrlResult")
         return "PlayFabSettings.LogicServerURL = result.Url;\n";
     return "";
 }
 
 function getUrlAccessor(apiCall) {
-    if (apiCall.serverType == 'logic')
+    if (apiCall.serverType === "logic")
         return "PlayFabSettings.GetLogicURL()";
     
     return "PlayFabSettings.GetURL()";

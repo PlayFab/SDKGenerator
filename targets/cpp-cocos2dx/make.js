@@ -1,11 +1,11 @@
-var path = require('path');
-var shared = require('../cpp-shared/cpp-shared');
+var path = require("path");
+var shared = require("../cpp-shared/cpp-shared");
 
 function copyBaseFiles(sourceDir, apiOutputDir) {
-    copyTree(path.resolve(sourceDir, '../cpp-shared/source/dependencies/include/rapidjson'), path.resolve(apiOutputDir, 'include/rapidjson'));
-    copyTree(path.resolve(sourceDir, '../cpp-shared/source/include'), path.resolve(apiOutputDir, 'include'));
-    copyTree(path.resolve(sourceDir, '../cpp-shared/source/source/core'), path.resolve(apiOutputDir, 'source'));
-    copyTree(path.resolve(sourceDir, '../cpp-shared/source/source/curl'), path.resolve(apiOutputDir, 'source'));
+    copyTree(path.resolve(sourceDir, "../cpp-shared/source/dependencies/include/rapidjson"), path.resolve(apiOutputDir, "include/rapidjson"));
+    copyTree(path.resolve(sourceDir, "../cpp-shared/source/include"), path.resolve(apiOutputDir, "include"));
+    copyTree(path.resolve(sourceDir, "../cpp-shared/source/source/core"), path.resolve(apiOutputDir, "source"));
+    copyTree(path.resolve(sourceDir, "../cpp-shared/source/source/curl"), path.resolve(apiOutputDir, "source"));
 }
 
 exports.makeClientAPI = function (api, sourceDir, apiOutputDir) {
@@ -14,7 +14,7 @@ exports.makeClientAPI = function (api, sourceDir, apiOutputDir) {
     console.log("Generating Cocos2d-x C++ client SDK to " + apiOutputDir);
     
     copyBaseFiles(sourceDir, apiOutputDir);
-    copyTree(path.resolve(sourceDir, 'source'), apiOutputDir);
+    copyTree(path.resolve(sourceDir, "source"), apiOutputDir);
     
     shared.makeAPI(api, apiOutputDir, "");
     
@@ -30,7 +30,7 @@ exports.makeServerAPI = function (apis, sourceDir, apiOutputDir) {
     console.log("Generating Cocos2d-x C++ server SDK to " + apiOutputDir);
     
     copyBaseFiles(sourceDir, apiOutputDir);
-    copyTree(path.resolve(sourceDir, 'source'), apiOutputDir);
+    copyTree(path.resolve(sourceDir, "source"), apiOutputDir);
     
     for (var i in apis)
         shared.makeAPI(apis[i], apiOutputDir, "");
@@ -47,7 +47,7 @@ exports.makeCombinedAPI = function (apis, sourceDir, apiOutputDir) {
     console.log("Generating Cocos2d-x C++ combined SDK to " + apiOutputDir);
     
     copyBaseFiles(sourceDir, apiOutputDir);
-    copyTree(path.resolve(sourceDir, 'source'), apiOutputDir);
+    copyTree(path.resolve(sourceDir, "source"), apiOutputDir);
     
     for (var i in apis)
         shared.makeAPI(apis[i], apiOutputDir, "");
@@ -75,7 +75,7 @@ function generateSettings(apis, sourceDir, apiOutputDir) {
     versionLocals.hasLogicServer = false;
     versionLocals.hasSecretKey = false;
     for (var i in apis) {
-        if (apis[i].name == "Client")
+        if (apis[i].name === "Client")
             versionLocals.hasLogicServer = true;
         else
             versionLocals.hasSecretKey = true;

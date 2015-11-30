@@ -1,22 +1,22 @@
-var path = require('path');
+var path = require("path");
 
 exports.putInRoot = true;
 
 exports.makeClientAPI = function (api, sourceDir, apiOutputDir) {
-    apiOutputDir = path.resolve(apiOutputDir, 'PlayFabClientSample/Assets/PlayFabSDK');
+    apiOutputDir = path.resolve(apiOutputDir, "PlayFabClientSample/Assets/PlayFabSDK");
     console.log("  - Generating C-sharp Unity client SDK sample proj to\n  - " + apiOutputDir);
     
-    copyTree(path.resolve(sourceDir, 'source'), apiOutputDir);
+    copyTree(path.resolve(sourceDir, "source"), apiOutputDir);
     makeDatatypes([api], sourceDir, apiOutputDir);
     makeAPI(api, sourceDir, apiOutputDir);
     generateSimpleFiles([api], sourceDir, apiOutputDir);
 }
 
 exports.makeServerAPI = function (apis, sourceDir, apiOutputDir) {
-    apiOutputDir = path.resolve(apiOutputDir, 'PlayFabServerSample/Assets/PlayFabSDK');
+    apiOutputDir = path.resolve(apiOutputDir, "PlayFabServerSample/Assets/PlayFabSDK");
     console.log("  - Generating C-sharp Unity server SDK sample proj to\n  - " + apiOutputDir);
     
-    copyTree(path.resolve(sourceDir, 'source'), apiOutputDir);
+    copyTree(path.resolve(sourceDir, "source"), apiOutputDir);
     makeDatatypes(apis, sourceDir, apiOutputDir);
     for (var i in apis) {
         var api = apis[i];
@@ -26,17 +26,17 @@ exports.makeServerAPI = function (apis, sourceDir, apiOutputDir) {
 }
 
 exports.makeCombinedAPI = function (apis, sourceDir, apiOutputDir) {
-    apiOutputDir = path.resolve(apiOutputDir, 'PlayFabCombinedTestingSample/Assets/PlayFabSDK');
+    apiOutputDir = path.resolve(apiOutputDir, "PlayFabCombinedTestingSample/Assets/PlayFabSDK");
     console.log("  - Generating C-sharp Unity combined SDK sample proj to\n  - " + apiOutputDir);
     
-    copyTree(path.resolve(sourceDir, 'source'), apiOutputDir);
+    copyTree(path.resolve(sourceDir, "source"), apiOutputDir);
     makeDatatypes(apis, sourceDir, apiOutputDir);
     for (var i in apis) {
         var api = apis[i];
         makeAPI(api, sourceDir, apiOutputDir);
     }
     generateSimpleFiles(apis, sourceDir, apiOutputDir);
-    copyFile(path.resolve(sourceDir, 'PlayFabApiTest.cs'), path.resolve(apiOutputDir, 'Internal/Testing/PlayFabApiTest.cs'));
+    copyFile(path.resolve(sourceDir, "PlayFabApiTest.cs"), path.resolve(apiOutputDir, "Internal/Testing/PlayFabApiTest.cs"));
 }
 
 function getIsResultHandler(datatype) {
@@ -92,7 +92,7 @@ function makeAPI(api, sourceDir, apiOutputDir) {
     apiLocals.getRequestActions = getRequestActions;
     apiLocals.getResultActions = getResultActions;
     apiLocals.getUrlAccessor = getUrlAccessor;
-    apiLocals.authKey = api.name == "Client";
+    apiLocals.authKey = api.name === "Client";
     var generatedApi = apiTemplate(apiLocals);
     writeFile(path.resolve(apiOutputDir, "Public/PlayFab" + api.name + "API.cs"), generatedApi);
 }
@@ -116,7 +116,7 @@ function generateSimpleFiles(apis, sourceDir, apiOutputDir) {
     settingsLocals.hasDevKey = false;
     settingsLocals.hasAdvertId = false;
     for (var i in apis) {
-        if (apis[i].name == "Client")
+        if (apis[i].name === "Client")
             settingsLocals.hasAdvertId = true;
         else
             settingsLocals.hasDevKey = true;
@@ -375,34 +375,34 @@ function getPropertyJsonReader(property, datatype) {
 }
 
 function getAuthParams(apiCall) {
-    if (apiCall.auth == 'SecretKey')
+    if (apiCall.auth === "SecretKey")
         return "\"X-SecretKey\", PlayFabSettings.DeveloperSecretKey";
-    else if (apiCall.auth == 'SessionTicket')
+    else if (apiCall.auth === "SessionTicket")
         return "\"X-Authorization\", AuthKey";
     
     return "null, null";
 }
 
 function getRequestActions(apiCall, api) {
-    if (api.name == "Client" && (apiCall.result == "LoginResult" || apiCall.request == "RegisterPlayFabUserRequest"))
+    if (api.name === "Client" && (apiCall.result === "LoginResult" || apiCall.request === "RegisterPlayFabUserRequest"))
         return "request.TitleId = request.TitleId ?? PlayFabSettings.TitleId;\n            if (request.TitleId == null) throw new Exception (\"Must be have PlayFabSettings.TitleId set to call this method\");\n";
-    if (api.name == "Client" && apiCall.auth == 'SessionTicket')
-        return "if (AuthKey == null) throw new Exception (\"Must be logged in to call this method\");\n"
-    if (apiCall.auth == 'SecretKey')
-        return "if (PlayFabSettings.DeveloperSecretKey == null) throw new Exception (\"Must have PlayFabSettings.DeveloperSecretKey set to call this method\");\n"
+    if (api.name === "Client" && apiCall.auth === "SessionTicket")
+        return "if (AuthKey == null) throw new Exception (\"Must be logged in to call this method\");\n";
+    if (apiCall.auth === "SecretKey")
+        return "if (PlayFabSettings.DeveloperSecretKey == null) throw new Exception (\"Must have PlayFabSettings.DeveloperSecretKey set to call this method\");\n";
     return "";
 }
 
 function getResultActions(apiCall, api) {
-    if (api.name == "Client" && (apiCall.result == "LoginResult" || apiCall.result == "RegisterPlayFabUserResult"))
+    if (api.name === "Client" && (apiCall.result === "LoginResult" || apiCall.result === "RegisterPlayFabUserResult"))
         return "AuthKey = result.SessionTicket ?? AuthKey;\n                    MultiStepClientLogin(result);\n";
-    else if (api.name == "Client" && apiCall.result == "GetCloudScriptUrlResult")
+    else if (api.name === "Client" && apiCall.result === "GetCloudScriptUrlResult")
         return "PlayFabSettings.LogicServerURL = result.Url;\n";
     return "";
 }
 
 function getUrlAccessor(apiCall) {
-    if (apiCall.serverType == 'logic')
+    if (apiCall.serverType === "logic")
         return "PlayFabSettings.GetLogicURL()";
     
     return "PlayFabSettings.GetURL()";

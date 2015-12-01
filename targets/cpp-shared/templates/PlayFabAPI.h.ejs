@@ -5,52 +5,39 @@
 #include "playfab/PlayFabError.h"
 #include "playfab/PlayFab<%- api.name %>DataModels.h"
 #include "playfab/PlayFabSettings.h"
-
 #include <string>
-
 
 namespace PlayFab
 {
-	
-    
     class PlayFab<%- api.name %>API
     {
     public:
-		
-		<% for(var i in api.calls) { var apiCall = api.calls[i]; %>typedef void(*<%- apiCall.name %>Callback)(<%- api.name %>Models::<%- apiCall.result%>& result, void* userData);
-		<% } %>
-	
+<% for(var i in api.calls) { var apiCall = api.calls[i]; %>        typedef void(*<%- apiCall.name %>Callback)(<%- api.name %>Models::<%- apiCall.result%>& result, void* userData);
+<% } %>
         PlayFab<%- api.name %>API();
         PlayFab<%- api.name %>API(IHttpRequester* requester, bool ownRequester);
         ~PlayFab<%- api.name %>API();
 
         IHttpRequester* GetRequester(bool relinquishOwnership = false);
-        size_t Update();
-
-		<% if(api.name == "Client") { %>bool IsClientLoggedIn();<% } %>
-
+        size_t Update() const;
+<% if(api.name == "Client") { %>
+		bool IsClientLoggedIn() const;
+<% } %>
         // ------------ Generated API calls
-		<% for(var i in api.calls) { var apiCall = api.calls[i]; if(hasRequest(apiCall, api)) { %>
-		void <%- apiCall.name %>(<%- api.name %>Models::<%- apiCall.request %>& request, <%- apiCall.name %>Callback callback, ErrorCallback errorCallback = NULL, void* userData = NULL);
-		<% } else {%>
-		void <%- apiCall.name %>(<%- apiCall.name %>Callback callback, ErrorCallback errorCallback = NULL, void* userData = NULL);
-		<% } } %>
-
+<% for(var i in api.calls) { var apiCall = api.calls[i]; if(hasRequest(apiCall, api)) {
+%>		void <%- apiCall.name %>(<%- api.name %>Models::<%- apiCall.request %>& request, <%- apiCall.name %>Callback callback, ErrorCallback errorCallback = nullptr, void* userData = nullptr);
+<% } else
+{%>		void <%- apiCall.name %>(<%- apiCall.name %>Callback callback, ErrorCallback errorCallback = nullptr, void* userData = nullptr);
+<% } } %>
     private:
-
         // ------------ Generated result handlers
-		<% for(var i in api.calls) { var apiCall = api.calls[i]; %>
-		static void On<%- apiCall.name %>Result(int httpStatus, HttpRequest* request, void* userData);
-		<% } %>
- 
+<% for(var i in api.calls) { var apiCall = api.calls[i];
+%>		static void On<%- apiCall.name %>Result(int httpStatus, HttpRequest* request, void* userData);
+<% } %>
         bool mOwnsRequester;
         IHttpRequester* mHttpRequester;
-		
-		<% if(authKey) { %>
+<% if(hasClientOptions) { %>
         std::string mUserSessionTicket;
-		<% } %>
-    };
-
+<% } %>    };
 };
-
 #endif

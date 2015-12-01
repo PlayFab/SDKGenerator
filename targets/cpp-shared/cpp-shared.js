@@ -12,7 +12,7 @@ var makeAPI = exports.makeAPI = function (api, apiOutputDir, subdir) {
     apiLocals.getRequestActions = getRequestActions;
     apiLocals.getResultActions = getResultActions;
     apiLocals.getUrlAccessor = getUrlAccessor;
-    apiLocals.authKey = api.name === "Client";
+    apiLocals.hasClientOptions = api.name === "Client";
     apiLocals.hasRequest = hasRequest;
    
     var generatedHeader = apiHeaderTemplate(apiLocals);

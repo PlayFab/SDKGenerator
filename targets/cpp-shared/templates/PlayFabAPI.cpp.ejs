@@ -4,43 +4,36 @@
 #include "playfab/PlayFabResultHandler.h"
 #include "playfab/HttpRequesterCURL.h"
 #include "playfab/PlayFabVersion.h"
-
 #include <string>
-
 
 using namespace PlayFab;
 using namespace PlayFab::<%- api.name %>Models;
 
 PlayFab<%- api.name %>API::PlayFab<%- api.name %>API()
-    : PlayFab<%- api.name %>API(NULL, false)
+    : PlayFab<%- api.name %>API(nullptr, false)
 {
    
 }
 
 PlayFab<%- api.name %>API::PlayFab<%- api.name %>API(IHttpRequester* requester, bool ownRequester)
-    : mHttpRequester(requester), mOwnsRequester(ownRequester)
+    : mOwnsRequester(ownRequester), mHttpRequester(requester)
 {
-    if(mHttpRequester == NULL)
+    if(mHttpRequester == nullptr)
     {
         mOwnsRequester = true;
         mHttpRequester = new HttpRequesterCURL();
     }
-
 }
-
-
 
 PlayFab<%- api.name %>API::~PlayFab<%- api.name %>API()
 {
-    if(mOwnsRequester && mHttpRequester != NULL)
+    if(mOwnsRequester && mHttpRequester != nullptr)
     {
         delete mHttpRequester;
         mOwnsRequester = false;
-        mHttpRequester = NULL;
+        mHttpRequester = nullptr;
     }
 }
-
-
 
 IHttpRequester* PlayFab<%- api.name %>API::GetRequester(bool relinquishOwnership /* = false*/)
 {
@@ -51,9 +44,9 @@ IHttpRequester* PlayFab<%- api.name %>API::GetRequester(bool relinquishOwnership
     return mHttpRequester;
 }
 
-size_t PlayFab<%- api.name %>API::Update()
+size_t PlayFab<%- api.name %>API::Update() const
 {
-    if(mHttpRequester != NULL)
+    if(mHttpRequester != nullptr)
     {
         return mHttpRequester->UpdateRequests();
     }
@@ -61,7 +54,7 @@ size_t PlayFab<%- api.name %>API::Update()
 	return 0;
 }
 
-<% if(api.name == "Client") { %>bool PlayFabClientAPI::IsClientLoggedIn()
+<% if(api.name == "Client") { %>bool PlayFabClientAPI::IsClientLoggedIn() const
 {
 	return !mUserSessionTicket.empty();
 }<% } %>
@@ -80,7 +73,7 @@ void PlayFab<%- api.name %>API::<%- apiCall.name %>(
 	httpRequest->SetHeader("X-PlayFabSDK", PlayFabVersionString);
 	<%- getAuthParams(apiCall) %>
 	
-    httpRequest->SetResultCallback((void*)callback);
+    httpRequest->SetResultCallback(static_cast<void*>(callback));
     httpRequest->SetErrorCallback(errorCallback);
     httpRequest->SetUserData(userData);
 
@@ -101,20 +94,20 @@ void PlayFab<%- api.name %>API::On<%- apiCall.name %>Result(int httpStatus, Http
     {
         <%- getResultActions(apiCall, api) %>
 
-        if (request->GetResultCallback() != NULL)
+        if (request->GetResultCallback() != nullptr)
         {
-            <%- apiCall.name %>Callback successCallback = (<%- apiCall.name %>Callback)(request->GetResultCallback());
+            <%- apiCall.name %>Callback successCallback = static_cast<<%- apiCall.name %>Callback>(request->GetResultCallback());
             successCallback(outResult, request->GetUserData());
         }
     }
     else
     {
-        if (PlayFabSettings::globalErrorHandler != NULL)
+        if (PlayFabSettings::globalErrorHandler != nullptr)
         {
             PlayFabSettings::globalErrorHandler(errorResult, request->GetUserData());
         }
 
-        if (request->GetErrorCallback() != NULL)
+        if (request->GetErrorCallback() != nullptr)
         {
             request->GetErrorCallback()(errorResult, request->GetUserData());
         }
@@ -122,7 +115,4 @@ void PlayFab<%- api.name %>API::On<%- apiCall.name %>Result(int httpStatus, Http
 
     delete request;
 }
-
 <% } %>
-
-

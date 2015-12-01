@@ -30,6 +30,11 @@ package com.playfab
             PlayFabHTTP.post(<%- getUrlAccessor(apiCall) %>+"<%- apiCall.url %>", requetJson, <%- getAuthParams(apiCall) %>, onPostComplete);
         }
 
-<% } %><% if (hasClientOptions) { %>        private static var authKey:String = null;
+<% } %><% if (hasClientOptions) { %>        public static function MultiStepClientLogin(request:Boolean):void
+        {
+            // TODO: Call AdAttributionNotification once it exists.
+        }
+
+        private static var authKey:String = null;
 <% } %>    }
 }

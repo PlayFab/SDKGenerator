@@ -53,7 +53,6 @@ function needsPlayFabUtil(datatype) {
     return false;
 }
 
-
 function makeAPI(api, sourceDir, apiOutputDir) {
     console.log("Generating AcionScript " + api.name + " library to " + apiOutputDir);
     
@@ -99,7 +98,6 @@ function generateSimpleFiles(apis, sourceDir, apiOutputDir) {
     writeFile(path.resolve(apiOutputDir, "com/playfab/PlayFabSettings.as"), generatedsettings);
 }
 
-
 function getModelPropertyDef(property, datatype) {
     var basicType = getPropertyASType(property, datatype);
     
@@ -123,8 +121,6 @@ function getModelPropertyDef(property, datatype) {
         return property.name + ":" + basicType;
     }
 }
-
-
 
 function getPropertyASType(property, datatype) {
     
@@ -178,7 +174,6 @@ function getPropertyASType(property, datatype) {
     }
 }
 
-
 function getModelPropertyInit(property, datatype) {
     if (property.isclass) {
         if (property.collection) {
@@ -226,10 +221,10 @@ function getAuthParams(apiCall) {
     return "null, null";
 }
 
-
 function getRequestActions(apiCall, api) {
     if (api.name === "Client" && (apiCall.result === "LoginResult" || apiCall.request === "RegisterPlayFabUserRequest"))
-        return "            request.TitleId = PlayFabSettings.TitleId != null ? PlayFabSettings.TitleId : request.TitleId;\n            if(request.TitleId == null) throw new Error (\"Must be have PlayFabSettings.TitleId set to call this method\");";
+        return "            request.TitleId = PlayFabSettings.TitleId != null ? PlayFabSettings.TitleId : request.TitleId;\n" 
+            + "            if(request.TitleId == null) throw new Error (\"Must be have PlayFabSettings.TitleId set to call this method\");";
     if (api.name === "Client" && apiCall.auth === "SessionTicket")
         return "            if (authKey == null) throw new Error(\"Must be logged in to call this method\");";
     if (apiCall.auth === "SecretKey")
@@ -239,7 +234,8 @@ function getRequestActions(apiCall, api) {
 
 function getResultActions(apiCall, api) {
     if (api.name === "Client" && (apiCall.result === "LoginResult" || apiCall.result === "RegisterPlayFabUserResult"))
-        return "                    authKey = result.SessionTicket != null ? result.SessionTicket : authKey;\n";
+        return "                    authKey = result.SessionTicket != null ? result.SessionTicket : authKey;\n"
+            + "                    MultiStepClientLogin(result.SettingsForUser.NeedsAttribution);\n";
     else if (api.name === "Client" && apiCall.result === "GetCloudScriptUrlResult")
         return "                    PlayFabSettings.LogicServerURL = result.Url;\n";
     return "";
@@ -248,6 +244,5 @@ function getResultActions(apiCall, api) {
 function getUrlAccessor(apiCall) {
     if (apiCall.serverType === "logic")
         return "PlayFabSettings.GetLogicURL()";
-    
     return "PlayFabSettings.GetURL()";
 }

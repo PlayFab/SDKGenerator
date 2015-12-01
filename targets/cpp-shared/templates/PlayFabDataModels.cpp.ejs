@@ -32,7 +32,7 @@ using namespace rapidjson;
 <% } else { %>
 <%- datatype.name %>::~<%- datatype.name %>()
 {
-<% for(var p in datatype.properties) { var property = datatype.properties[p]; if (!property.collection && property.isclass && property.optional) { %>    if (<%- property.name %> != NULL) delete <%- property.name %>;
+<% for(var p in datatype.properties) { var property = datatype.properties[p]; if (!property.collection && property.isclass && property.optional) { %>    if (<%- getPropertySafeName(property) %> != NULL) delete <%- getPropertySafeName(property) %>;
 <% } } %>
 }
 

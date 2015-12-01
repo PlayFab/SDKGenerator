@@ -10,11 +10,14 @@ exports.settings = {
     logicServerUrl: null,
     titleId: null,
     sessionTicket: null,
-    developerSecretKey: null,
-    advertisingIdType: null,
-    advertisingIdValue: null,
     globalErrorHandler: null,
-};
+<% if (hasDevKey) {
+%>    developerSecretKey: null,
+<% }
+if (hasAdvertId) {
+%>    advertisingIdType: null,
+    advertisingIdValue: null,
+<% } %>};
 
 exports.GetServerUrl = function () {
     var baseUrl = exports.settings.useDevEnv ? exports.settings.devEnvUrl : exports.settings.liveUrl;

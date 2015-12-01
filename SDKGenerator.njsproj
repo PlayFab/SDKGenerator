@@ -60,13 +60,13 @@
     <Content Include="targets\actionscript\source\asyncUnitTest\ASyncUnitTestTraceReporter.as" />
     <Content Include="targets\actionscript\source\buildTests.bat" />
     <Content Include="targets\actionscript\source\com\playfab\PlayFabHTTP.as" />
-    <Content Include="targets\actionscript\source\com\playfab\PlayFabSettings.as" />
     <Content Include="targets\actionscript\source\com\playfab\PlayFabUtil.as" />
     <Content Include="targets\actionscript\source\flexcfg.xml" />
     <Content Include="targets\actionscript\source\How to make this example documentation.txt" />
     <Content Include="targets\actionscript\source\PfApiTest.as" />
     <Content Include="targets\actionscript\source\PfApiTest.xml" />
     <Content Include="targets\actionscript\source\PlayFabApiTests.as" />
+    <Content Include="targets\actionscript\templates\PlayFabSettings.as.ejs" />
     <Content Include="targets\cpp-cocos2dx\ExampleFiles\Android.mk" />
     <Content Include="targets\cpp-cocos2dx\ExampleFiles\Application.mk" />
     <Content Include="targets\cpp-cocos2dx\ExampleFiles\HelloWorldScene.cpp" />

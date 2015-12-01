@@ -71,8 +71,6 @@ public class PlayFab<%- api.name %>API {
         pfResult.Result = result;
         return pfResult;
     }<% } %>
-
-    <% if(authKey) { %>
+<% if(hasClientOptions) { %>
     private static String _authKey = null;
-    <% } %>
-}
+<% } %>}

@@ -42,7 +42,7 @@ namespace PlayFab
             PlayFabHTTP.Post(<%- getUrlAccessor(apiCall) %>+"<%- apiCall.url %>", serializedJson, <%- getAuthParams(apiCall) %>, callback);
         }
 
-<% } %><% if(authKey) { %>        private static string _authKey = null;
+<% } %><% if(hasClientOptions) { %>        private static string _authKey = null;
         // Determine if the _authKey is set, without actually making it public
         public static bool IsClientLoggedIn()
         {

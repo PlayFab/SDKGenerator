@@ -5,9 +5,14 @@ package com.playfab
         public static var ProductionEnvironmentURL:String = ".playfabapi.com";
         public static var LogicServerURL:String = null;
         public static var TitleId:String = null;
-        public static var DeveloperSecretKey:String = null;
         public static var GlobalErrorHandler:Function;
-
+<% if (hasDevKey) {
+%>        public static var DeveloperSecretKey:String = null;
+<% }
+if (hasAdvertId) {
+%>        public static var AdvertisingIdType = null;
+        public static var AdvertisingIdValue = null;
+<% } %>
         public static function GetURL():String
         {
             var baseUrl:String = ProductionEnvironmentURL;

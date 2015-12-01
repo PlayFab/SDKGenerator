@@ -12,8 +12,7 @@ exports.makeCombinedAPI = function (apis, sourceDir, apiOutputDir) {
         makeAPI(apis[i], sourceDir, apiOutputDir);
     }
     
-    generateErrors(apis[0], sourceDir, apiOutputDir);
-    generateVersion(apis[0], sourceDir, apiOutputDir);
+    generateSimpleFiles(apis, sourceDir, apiOutputDir);
 }
 
 function makeDatatypes(api, sourceDir, apiOutputDir) {
@@ -61,8 +60,6 @@ function makeAPI(api, sourceDir, apiOutputDir) {
     var templateDir = path.resolve(sourceDir, "templates");
     
     var apiTemplate = ejs.compile(readFile(path.resolve(templateDir, "API.as.ejs")));
-    
-    
     var apiLocals = {};
     apiLocals.api = api;
     apiLocals.getAuthParams = getAuthParams;
@@ -74,23 +71,32 @@ function makeAPI(api, sourceDir, apiOutputDir) {
     writeFile(path.resolve(apiOutputDir, "com/playfab/PlayFab" + api.name + "API.as"), generatedApi);
 }
 
-function generateErrors(api, sourceDir, apiOutputDir) {
+function generateSimpleFiles(apis, sourceDir, apiOutputDir) {
     var errorsTemplate = ejs.compile(readFile(path.resolve(sourceDir, "templates/Errors.as.ejs")));
-    
     var errorLocals = {};
-    errorLocals.errorList = api.errorList;
-    errorLocals.errors = api.errors;
+    errorLocals.errorList = apis[0].errorList;
+    errorLocals.errors = apis[0].errors;
     var generatedErrors = errorsTemplate(errorLocals);
     writeFile(path.resolve(apiOutputDir, "com/playfab/PlayFabError.as"), generatedErrors);
-}
-
-function generateVersion(api, sourceDir, apiOutputDir) {
-    var versionTemplate = ejs.compile(readFile(path.resolve(sourceDir, "templates/PlayFabVersion.as.ejs")));
     
+    var versionTemplate = ejs.compile(readFile(path.resolve(sourceDir, "templates/PlayFabVersion.as.ejs")));
     var versionLocals = {};
     versionLocals.sdkRevision = exports.sdkVersion;
     var generatedVersion = versionTemplate(versionLocals);
     writeFile(path.resolve(apiOutputDir, "com/playfab/PlayFabVersion.as"), generatedVersion);
+
+    var settingsTemplate = ejs.compile(readFile(path.resolve(sourceDir, "templates/PlayFabSettings.as.ejs")));
+    var settingsLocals = {};
+    settingsLocals.hasDevKey = false;
+    settingsLocals.hasAdvertId = false;
+    for (var i in apis) {
+        if (apis[i].name === "Client")
+            settingsLocals.hasAdvertId = true;
+        else
+            settingsLocals.hasDevKey = true;
+    }
+    var generatedsettings = settingsTemplate(settingsLocals);
+    writeFile(path.resolve(apiOutputDir, "com/playfab/PlayFabSettings.as"), generatedsettings);
 }
 
 

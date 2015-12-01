@@ -7,15 +7,15 @@ exports.settings = {
     useDevEnv: false,
     devEnvUrl: ".playfabsandbox.com",
     liveUrl: ".playfabapi.com",
-    logicServerUrl: null,
     titleId: null,
     sessionTicket: null,
     globalErrorHandler: null,
-<% if (hasDevKey) {
+<% if (hasServerOptions) {
 %>    developerSecretKey: null,
 <% }
-if (hasAdvertId) {
-%>    advertisingIdType: null,
+if (hasClientOptions) {
+%>    logicServerUrl: null,
+    advertisingIdType: null,
     advertisingIdValue: null,
 <% } %>};
 

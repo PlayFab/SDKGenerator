@@ -71,18 +71,17 @@ function generateSettings(apis, sourceDir, apiOutputDir) {
     var settingsTemplateh = ejs.compile(readFile(path.resolve(sourceDir, "templates/PlayFabSettings.h.ejs")));
     var settingsTemplateCpp = ejs.compile(readFile(path.resolve(sourceDir, "templates/PlayFabSettings.cpp.ejs")));
     
-    var versionLocals = {};
-    versionLocals.hasLogicServer = false;
-    versionLocals.hasSecretKey = false;
+    var settingsLocals = {};
+    settingsLocals.hasClientOptions = false;
+    settingsLocals.hasServerOptions = false;
     for (var i in apis) {
         if (apis[i].name === "Client")
-            versionLocals.hasLogicServer = true;
+            settingsLocals.hasClientOptions = true;
         else
-            versionLocals.hasSecretKey = true;
+            settingsLocals.hasServerOptions = true;
     }
-    
-    var generatedSettingsH = settingsTemplateh(versionLocals);
-    var generatedSettingsCpp = settingsTemplateCpp(versionLocals);
+    var generatedSettingsH = settingsTemplateh(settingsLocals);
+    var generatedSettingsCpp = settingsTemplateCpp(settingsLocals);
     writeFile(path.resolve(apiOutputDir, "include/playfab/PlayFabSettings.h"), generatedSettingsH);
     writeFile(path.resolve(apiOutputDir, "source/core/PlayFabSettings.cpp"), generatedSettingsCpp);
 }

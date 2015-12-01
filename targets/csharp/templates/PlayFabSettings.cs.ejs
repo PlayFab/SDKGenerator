@@ -15,15 +15,20 @@ namespace PlayFab
         public static bool UseDevelopmentEnvironment = false;
         public static string DevelopmentEnvironmentURL = ".playfabsandbox.com";
         public static string ProductionEnvironmentURL = ".playfabapi.com";
-        public static string LogicServerURL = null;
         public static string TitleId;
         public static ErrorCallback GlobalErrorHandler;
-<% if (hasDevKey) {
+<% if (hasServerOptions) {
 %>        public static string DeveloperSecretKey = null;
 <% }
-if (hasAdvertId) {
-%>        public static string AdvertisingIdType = null;
+if (hasClientOptions) {
+%>        public static string LogicServerURL = null;
+        public static string AdvertisingIdType = null;
         public static string AdvertisingIdValue = null;
+
+        public static string GetLogicURL()
+        {
+            return LogicServerURL;
+        }
 <% } %>
         public static string GetURL()
         {
@@ -31,11 +36,6 @@ if (hasAdvertId) {
             if (baseUrl.StartsWith("http"))
                 return baseUrl;
             return "https://" + TitleId + baseUrl;
-        }
-
-        public static string GetLogicURL()
-        {
-            return LogicServerURL;
         }
     }
 }

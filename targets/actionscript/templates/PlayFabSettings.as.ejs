@@ -3,15 +3,20 @@ package com.playfab
     public class PlayFabSettings
     {
         public static var ProductionEnvironmentURL:String = ".playfabapi.com";
-        public static var LogicServerURL:String = null;
         public static var TitleId:String = null;
         public static var GlobalErrorHandler:Function;
-<% if (hasDevKey) {
+<% if (hasServerOptions) {
 %>        public static var DeveloperSecretKey:String = null;
 <% }
-if (hasAdvertId) {
-%>        public static var AdvertisingIdType = null;
+if (hasClientOptions) {
+%>        public static var LogicServerURL:String = null;
+        public static var AdvertisingIdType = null;
         public static var AdvertisingIdValue = null;
+
+        public static function GetLogicURL():String
+        {
+            return LogicServerURL;
+        }
 <% } %>
         public static function GetURL():String
         {
@@ -20,11 +25,5 @@ if (hasAdvertId) {
                 return baseUrl;
             return "https://"+TitleId+baseUrl;
         }
-
-        public static function GetLogicURL():String
-        {
-            return LogicServerURL;
-        }
-
     }
 }

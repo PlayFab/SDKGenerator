@@ -87,13 +87,13 @@ function generateSimpleFiles(apis, sourceDir, apiOutputDir) {
 
     var settingsTemplate = ejs.compile(readFile(path.resolve(sourceDir, "templates/PlayFabSettings.as.ejs")));
     var settingsLocals = {};
-    settingsLocals.hasDevKey = false;
-    settingsLocals.hasAdvertId = false;
+    settingsLocals.hasServerOptions = false;
+    settingsLocals.hasClientOptions = false;
     for (var i in apis) {
         if (apis[i].name === "Client")
-            settingsLocals.hasAdvertId = true;
+            settingsLocals.hasClientOptions = true;
         else
-            settingsLocals.hasDevKey = true;
+            settingsLocals.hasServerOptions = true;
     }
     var generatedsettings = settingsTemplate(settingsLocals);
     writeFile(path.resolve(apiOutputDir, "com/playfab/PlayFabSettings.as"), generatedsettings);
@@ -104,23 +104,23 @@ function getModelPropertyDef(property, datatype) {
     var basicType = getPropertyASType(property, datatype);
     
     if (property.collection) {
-        if (property.collection == 'array') {
-            return property.name + ':Vector.<' + basicType + '>';
+        if (property.collection === "array") {
+            return property.name + ":Vector.<" + basicType + ">";
         }
-        else if (property.collection == 'map') {
-            return property.name + ':Object';
+        else if (property.collection === "map") {
+            return property.name + ":Object";
         }
         else {
             throw "Unknown collection type: " + property.collection + " for " + property.name + " in " + datatype.name;
         }
     }
     else {
-        if (property.optional && (basicType == 'Boolean' 
-            || basicType == 'int' 
-            || basicType == 'uint' 
-            || basicType == 'Number'))
-            basicType = '*';
-        return property.name + ':' + basicType;
+        if (property.optional && (basicType === "Boolean" 
+            || basicType === "int" 
+            || basicType === "uint" 
+            || basicType === "Number"))
+            basicType = "*";
+        return property.name + ":" + basicType;
     }
 }
 
@@ -129,49 +129,49 @@ function getModelPropertyDef(property, datatype) {
 function getPropertyASType(property, datatype) {
     
     if (property.actualtype === "String") {
-        return 'String';
+        return "String";
     }
     else if (property.actualtype === "Boolean") {
-        return 'Boolean';
+        return "Boolean";
     }
     else if (property.actualtype === "int16") {
-        return 'int';
+        return "int";
     }
     else if (property.actualtype === "uint16") {
-        return 'uint';
+        return "uint";
     }
     else if (property.actualtype === "int32") {
-        return 'int';
+        return "int";
     }
     else if (property.actualtype === "uint32") {
-        return 'uint';
+        return "uint";
     }
     else if (property.actualtype === "int64") {
-        return 'Number';
+        return "Number";
     }
     else if (property.actualtype === "uint64") {
-        return 'Number';
+        return "Number";
     }
     else if (property.actualtype === "float") {
-        return 'Number';
+        return "Number";
     }
     else if (property.actualtype === "double") {
-        return 'Number';
+        return "Number";
     }
     else if (property.actualtype === "decimal") {
-        return 'Number';
+        return "Number";
     }
     else if (property.actualtype === "DateTime") {
-        return 'Date';
+        return "Date";
     }
     else if (property.isclass) {
         return property.actualtype;
     }
     else if (property.isenum) {
-        return 'String'
+        return "String";
     }
     else if (property.actualtype === "object") {
-        return 'Object';
+        return "Object";
     }
     else {
         throw "Unknown property type: " + property.actualtype + " for " + property.name + " in " + datatype.name;

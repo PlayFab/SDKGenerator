@@ -13,9 +13,7 @@ exports.makeClientAPI = function (api, sourceDir, apiOutputDir) {
         copyTree(path.resolve(sourceDir, "srcLibs"), libOutputDir);
         makeDatatypes([api], sourceDir, srcOutputDir);
         makeAPI(api, sourceDir, srcOutputDir);
-        generateErrors(api, sourceDir, srcOutputDir);
-        generateVersion(api, sourceDir, srcOutputDir);
-        generateSettings(api, sourceDir, srcOutputDir);
+        generateSimpleFiles([api], sourceDir, srcOutputDir);
     }
 }
 
@@ -28,9 +26,7 @@ exports.makeServerAPI = function (apis, sourceDir, apiOutputDir) {
     makeDatatypes(apis, sourceDir, apiOutputDir);
     for (var i in apis)
         makeAPI(apis[i], sourceDir, apiOutputDir);
-    generateErrors(apis[0], sourceDir, apiOutputDir);
-    generateVersion(apis[0], sourceDir, apiOutputDir);
-    generateSettings(apis[0], sourceDir, apiOutputDir);
+    generateSimpleFiles(apis, sourceDir, apiOutputDir);
 }
 
 exports.makeCombinedAPI = function (apis, sourceDir, apiOutputDir) {
@@ -42,9 +38,7 @@ exports.makeCombinedAPI = function (apis, sourceDir, apiOutputDir) {
     makeDatatypes(apis, sourceDir, apiOutputDir);
     for (var i in apis)
         makeAPI(apis[i], sourceDir, apiOutputDir);
-    generateErrors(apis[0], sourceDir, apiOutputDir);
-    generateVersion(apis[0], sourceDir, apiOutputDir);
-    generateSettings(apis[0], sourceDir, apiOutputDir);
+    generateSimpleFiles(apis, sourceDir, apiOutputDir);
     
     // Copy testing files
     copyFile(path.resolve(sourceDir, "testingfiles/PlayFabApiTest.java"), path.resolve(apiOutputDir, "PlayFabApiTest.java"));
@@ -63,7 +57,6 @@ function escapeForString(input) {
     input = input.replace(new RegExp('\"', "g"), '\\"');
     return input;
 }
-
 
 function makeDatatypes(apis, sourceDir, apiOutputDir) {
     var templateDir = path.resolve(sourceDir, "templates");
@@ -100,7 +93,6 @@ function makeDatatypes(apis, sourceDir, apiOutputDir) {
     }
 }
 
-
 function makeAPI(api, sourceDir, apiOutputDir) {
     console.log("Generating Java " + api.name + " library to " + apiOutputDir);
     
@@ -120,31 +112,31 @@ function makeAPI(api, sourceDir, apiOutputDir) {
     writeFile(path.resolve(apiOutputDir, "com/playfab/PlayFab" + api.name + "API.java"), generatedApi);
 }
 
-function generateErrors(api, sourceDir, apiOutputDir) {
+function generateSimpleFiles(apis, sourceDir, apiOutputDir) {
     var errorsTemplate = ejs.compile(readFile(path.resolve(sourceDir, "templates/Errors.java.ejs")));
-    
     var errorLocals = {};
-    errorLocals.errorList = api.errorList;
-    errorLocals.errors = api.errors;
+    errorLocals.errorList = apis[0].errorList;
+    errorLocals.errors = apis[0].errors;
     var generatedErrors = errorsTemplate(errorLocals);
     writeFile(path.resolve(apiOutputDir, "com/playfab/PlayFabErrors.java"), generatedErrors);
-}
-
-function generateVersion(api, sourceDir, apiOutputDir) {
-    var versionTemplate = ejs.compile(readFile(path.resolve(sourceDir, "templates/PlayFabVersion.java.ejs")));
     
+    var versionTemplate = ejs.compile(readFile(path.resolve(sourceDir, "templates/PlayFabVersion.java.ejs")));
     var versionLocals = {};
     versionLocals.sdkRevision = exports.sdkVersion;
     var generatedVersion = versionTemplate(versionLocals);
     writeFile(path.resolve(apiOutputDir, "com/playfab/internal/PlayFabVersion.java"), generatedVersion);
-}
-
-function generateSettings(api, sourceDir, apiOutputDir) {
-    var settingsTemplate = ejs.compile(readFile(path.resolve(sourceDir, "templates/PlayFabSettings.java.ejs")));
     
-    var settingLocals = {};
-    settingLocals.hasSecretKey = api.name != "Client";
-    var generatedSettings = settingsTemplate(settingLocals);
+    var settingsTemplate = ejs.compile(readFile(path.resolve(sourceDir, "templates/PlayFabSettings.java.ejs")));
+    var settingsLocals = {};
+    settingsLocals.hasClientOptions = false;
+    settingsLocals.hasServerOptions = false;
+    for (var i in apis) {
+        if (apis[i].name === "Client")
+            settingsLocals.hasClientOptions = true;
+        else
+            settingsLocals.hasServerOptions = true;
+    }
+    var generatedSettings = settingsTemplate(settingsLocals);
     writeFile(path.resolve(apiOutputDir, "com/playfab/PlayFabSettings.java"), generatedSettings);
 }
 

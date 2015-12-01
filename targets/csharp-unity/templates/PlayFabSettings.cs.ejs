@@ -19,23 +19,28 @@ namespace PlayFab
 
     public class PlayFabSettings
     {
+        public static ErrorCallback GlobalErrorHandler { get; set; }
+
         public static string ProductionEnvironmentURL = ".playfabapi.com";
-        public static string LogicServerURL = null;
         public static string TitleId = null;
         public static PlayFabLogLevel LogLevel = PlayFabLogLevel.Warning | PlayFabLogLevel.Error;
         public static bool IsTesting = false;
         public static WebRequestType RequestType = WebRequestType.UnityWWW;
         public static int RequestTimeout = 2000;
         public static bool RequestKeepAlive = true;
-<% if (hasDevKey) {
+<% if (hasServerOptions) {
 %>        public static string DeveloperSecretKey = null;
 <% }
-if (hasAdvertId) {
-%>        public static string AdvertisingIdType = null;
+if (hasClientOptions) {
+%>        public static string LogicServerURL = null;
+        public static string AdvertisingIdType = null;
         public static string AdvertisingIdValue = null;
-<% } %>
-        public static ErrorCallback GlobalErrorHandler { get; set; }
 
+        public static string GetLogicURL()
+        {
+            return LogicServerURL;
+        }
+<% } %>
         public static string GetURL()
         {
             if (!IsTesting)
@@ -49,11 +54,6 @@ if (hasAdvertId) {
             {
                 return "http://localhost:11289/";
             }
-        }
-
-        public static string GetLogicURL()
-        {
-            return LogicServerURL;
         }
     }
 }

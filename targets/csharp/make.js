@@ -160,13 +160,13 @@ function generateSimpleFiles(apis, sourceDir, apiOutputDir) {
     
     var settingsTemplate = ejs.compile(readFile(path.resolve(sourceDir, "templates/PlayFabSettings.cs.ejs")));
     var settingsLocals = {};
-    settingsLocals.hasDevKey = false;
-    settingsLocals.hasAdvertId = false;
+    settingsLocals.hasServerOptions = false;
+    settingsLocals.hasClientOptions = false;
     for (var i in apis) {
         if (apis[i].name === "Client")
-            settingsLocals.hasAdvertId = true;
+            settingsLocals.hasClientOptions = true;
         else
-            settingsLocals.hasDevKey = true;
+            settingsLocals.hasServerOptions = true;
     }
     var generatedSettings = settingsTemplate(settingsLocals);
     writeFile(path.resolve(apiOutputDir, "source/PlayFabSettings.cs"), generatedSettings);

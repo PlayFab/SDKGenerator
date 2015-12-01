@@ -17,13 +17,13 @@ exports.makeCombinedAPI = function (apis, sourceDir, apiOutputDir) {
         // Write the core functionality file
         var coreLocals = {};
         coreLocals.sdkVersion = exports.sdkVersion;
-        coreLocals.hasDevKey = false;
-        coreLocals.hasAdvertId = false;
+        coreLocals.hasServerOptions = false;
+        coreLocals.hasClientOptions = false;
         for (var i in apis) {
             if (apis[i].name === "Client")
-                coreLocals.hasAdvertId = true;
+                coreLocals.hasClientOptions = true;
             else
-                coreLocals.hasDevKey = true;
+                coreLocals.hasServerOptions = true;
         }
         var generatedCore = coreTemplate(coreLocals);
         writeFile(path.resolve(eachOutputDir, "PlayFab.js"), generatedCore);

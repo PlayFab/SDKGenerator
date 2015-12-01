@@ -3,7 +3,9 @@ var PlayFab = typeof PlayFab != 'undefined' ? PlayFab : {};
 if(!PlayFab.settings) {
     PlayFab.settings = {
         titleId: null,
-        developerSecretKey: null // For security reasons you must never expose this value to the client or players
+        developerSecretKey: null, // For security reasons you must never expose this value to the client or players
+        advertisingIdType: null,
+        advertisingIdValue: null
     }
 }
 

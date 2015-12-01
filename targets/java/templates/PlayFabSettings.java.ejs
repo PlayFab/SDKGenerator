@@ -6,14 +6,17 @@ public class PlayFabSettings {
 
     public static String TitleId = null;
     public static ErrorCallback GlobalErrorHandler;
-    public static String LogicServerURL = null;
-<% if (hasSecretKey) { %>    public static String DeveloperSecretKey = null;
-<% } %>
+<% if (hasServerOptions) { %>    public static String DeveloperSecretKey = null;
+<% }
+if (hasClientOptions) {
+%>    public static String LogicServerURL = null;
+    public static String AdvertisingIdType = null;
+    public static String AdvertisingIdValue = null;
 
     public static String GetLogicURL() {
         return LogicServerURL;
     }
-
+<% } %>
     public static String GetURL() {
         return "https://" + TitleId + ".playfabapi.com";
     }

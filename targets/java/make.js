@@ -230,7 +230,7 @@ function getAuthParams(apiCall) {
     if (apiCall.auth === "SecretKey")
         return "\"X-SecretKey\", PlayFabSettings.DeveloperSecretKey";
     else if (apiCall.auth === "SessionTicket")
-        return "\"X-Authorization\", AuthKey";
+        return "\"X-Authorization\", _authKey";
     
     return "null, null";
 }
@@ -240,7 +240,7 @@ function getRequestActions(apiCall, api) {
     if (api.name === "Client" && (apiCall.result === "LoginResult" || apiCall.request === "RegisterPlayFabUserRequest"))
         return "request.TitleId = PlayFabSettings.TitleId != null ? PlayFabSettings.TitleId : request.TitleId;\n\t\t\tif(request.TitleId == null) throw new Exception (\"Must be have PlayFabSettings.TitleId set to call this method\");\n";
     if (api.name === "Client" && apiCall.auth === "SessionTicket")
-        return "if (AuthKey == null) throw new Exception (\"Must be logged in to call this method\");\n";
+        return "if (_authKey == null) throw new Exception (\"Must be logged in to call this method\");\n";
     if (apiCall.auth === "SecretKey")
         return "if (PlayFabSettings.DeveloperSecretKey == null) throw new Exception (\"Must have PlayFabSettings.DeveloperSecretKey set to call this method\");\n";
     return "";
@@ -248,7 +248,7 @@ function getRequestActions(apiCall, api) {
 
 function getResultActions(apiCall, api) {
     if (api.name === "Client" && (apiCall.result === "LoginResult" || apiCall.result === "RegisterPlayFabUserResult"))
-        return "AuthKey = result.SessionTicket != null ? result.SessionTicket : AuthKey;\n";
+        return "_authKey = result.SessionTicket != null ? result.SessionTicket : _authKey;\n";
     else if (api.name === "Client" && apiCall.result === "GetCloudScriptUrlResult")
         return "PlayFabSettings.LogicServerURL = result.Url;\n";
     return "";
@@ -260,5 +260,3 @@ function getUrlAccessor(apiCall) {
     
     return "PlayFabSettings.GetURL()";
 }
-
-

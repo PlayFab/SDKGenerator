@@ -51,11 +51,11 @@ namespace PlayFab
         }<% } %>
 
         <% if(authKey) { %>
-		private static string AuthKey = null;
-        // Determine if the AuthKey is set, without actually making it public
+		private static string _authKey = null;
+        // Determine if the _authKey is set, without actually making it public
         public static bool IsClientLoggedIn()
         {
-            return !string.IsNullOrEmpty(AuthKey);
+            return !string.IsNullOrEmpty(_authKey);
         }
 		<% } %>
     }

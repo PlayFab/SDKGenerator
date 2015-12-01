@@ -19,10 +19,10 @@ namespace PlayFab
 <% } %>        public static void <%- apiCall.name %>(<%- apiCall.request %> request, <%- apiCall.name %>Callback resultCallback, ErrorCallback errorCallback, object customData = null)
         {
             <%- getRequestActions(apiCall, api) %>
-            string serializedJSON = JsonConvert.SerializeObject(request, Util.JsonFormatting, Util.JsonSettings);
+            string serializedJson = JsonConvert.SerializeObject(request, Util.JsonFormatting, Util.JsonSettings);
             Action<string,PlayFabError> callback = delegate(string responseStr, PlayFabError pfError)
             {
-                <%- apiCall.result %> result = null;
+                <%- apiCall.result %> result;
                 ResultContainer<<%- apiCall.result %>>.HandleResults(responseStr, ref pfError, out result);
                 if(pfError != null && errorCallback != null)
                 {
@@ -39,31 +39,21 @@ namespace PlayFab
                     }
                 }
             };
-            PlayFabHTTP.Post(<%- getUrlAccessor(apiCall) %>+"<%- apiCall.url %>", serializedJSON, <%- getAuthParams(apiCall) %>, callback);
+            PlayFabHTTP.Post(<%- getUrlAccessor(apiCall) %>+"<%- apiCall.url %>", serializedJson, <%- getAuthParams(apiCall) %>, callback);
         }
 
-<% } %><% if(authKey) { %>        private static string AuthKey = null;
-        // Determine if the AuthKey is set, without actually making it public
+<% } %><% if(authKey) { %>        private static string _authKey = null;
+        // Determine if the _authKey is set, without actually making it public
         public static bool IsClientLoggedIn()
         {
-            return !string.IsNullOrEmpty(AuthKey);
+            return !string.IsNullOrEmpty(_authKey);
         }
 
-        public static void MultiStepClientLogin(LoginResult result) // TODO: This will be a sub-object inside the result, but for now, to ensure it's being called correctly
+        public static void MultiStepClientLogin(bool needsAttribution)
         {
-            // Stub for automatically sequencing another API-call after every login call.
-            UnityEngine.Debug.Log("TODO: Send ASI value when appropriate: " + PlayFab.PlayFabSettings.AdvertisingIdType + "=" + PlayFab.PlayFabSettings.AdvertisingIdValue);
-            if (!string.IsNullOrEmpty(PlayFab.PlayFabSettings.AdvertisingIdType) && !string.IsNullOrEmpty(PlayFab.PlayFabSettings.AdvertisingIdType))
+            if (needsAttribution && !string.IsNullOrEmpty(PlayFab.PlayFabSettings.AdvertisingIdType) && !string.IsNullOrEmpty(PlayFab.PlayFabSettings.AdvertisingIdType))
             {
-            }
-        }
-
-        public static void MultiStepClientLogin(RegisterPlayFabUserResult result) // TODO: This will be a sub-object inside the result, but for now, to ensure it's being called correctly
-        {
-            // Stub for automatically sequencing another API-call after every login call.
-            UnityEngine.Debug.Log("TODO: Send ASI value when appropriate: " + PlayFab.PlayFabSettings.AdvertisingIdType + "=" + PlayFab.PlayFabSettings.AdvertisingIdValue);
-            if (!string.IsNullOrEmpty(PlayFab.PlayFabSettings.AdvertisingIdType) && !string.IsNullOrEmpty(PlayFab.PlayFabSettings.AdvertisingIdType))
-            {
+                // TODO: Call AdAttributionNotification once it exists.
             }
         }<% } %>
     }

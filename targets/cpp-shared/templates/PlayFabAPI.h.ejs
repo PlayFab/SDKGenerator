@@ -20,23 +20,26 @@ namespace PlayFab
 
         IHttpRequester* GetRequester(bool relinquishOwnership = false);
         size_t Update() const;
-<% if(api.name == "Client") { %>
-		bool IsClientLoggedIn() const;
+<% if(hasClientOptions) { %>
+        // Public, Client-Specific
+        void MultiStepClientLogin(bool needsAttribution);
+        bool IsClientLoggedIn() const;
 <% } %>
         // ------------ Generated API calls
 <% for(var i in api.calls) { var apiCall = api.calls[i]; if(hasRequest(apiCall, api)) {
-%>		void <%- apiCall.name %>(<%- api.name %>Models::<%- apiCall.request %>& request, <%- apiCall.name %>Callback callback, ErrorCallback errorCallback = nullptr, void* userData = nullptr);
+%>        void <%- apiCall.name %>(<%- api.name %>Models::<%- apiCall.request %>& request, <%- apiCall.name %>Callback callback, ErrorCallback errorCallback = nullptr, void* userData = nullptr);
 <% } else
-{%>		void <%- apiCall.name %>(<%- apiCall.name %>Callback callback, ErrorCallback errorCallback = nullptr, void* userData = nullptr);
+{%>        void <%- apiCall.name %>(<%- apiCall.name %>Callback callback, ErrorCallback errorCallback = nullptr, void* userData = nullptr);
 <% } } %>
     private:
         // ------------ Generated result handlers
 <% for(var i in api.calls) { var apiCall = api.calls[i];
-%>		static void On<%- apiCall.name %>Result(int httpStatus, HttpRequest* request, void* userData);
+%>        static void On<%- apiCall.name %>Result(int httpStatus, HttpRequest* request, void* userData);
 <% } %>
         bool mOwnsRequester;
         IHttpRequester* mHttpRequester;
 <% if(hasClientOptions) { %>
+        // Private, Client-Specific
         std::string mUserSessionTicket;
 <% } %>    };
 };

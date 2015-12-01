@@ -29,8 +29,6 @@ var hasRequest = exports.hasRequest = function (apiCall, api) {
 
 var getPropertyDef = exports.getPropertyDef = function (property, datatype) {
    
-    var propType = property.actualtype;
-    var propName = property.name;
     var safePropName = getPropertySafeName(property);
    
     if (property.collection === "array")
@@ -138,7 +136,7 @@ var getPropertyDefaultValue = exports.getPropertyDefaultValue = function (proper
         return isOptional ? "NULL" : ""; // sub object
     }
     else if (property.isenum) {
-        return isOptional ? "" : ""; // enum
+        return ""; // enum
     }
     else if (property.actualtype === "object") {
         return "";
@@ -243,8 +241,7 @@ var getPropertySerializer = exports.getPropertySerializer = function (property, 
 }
 
 var getArrayPropertySerializer = exports.getArrayPropertySerializer = function (property, datatype) {
-    var writer = null;
-   
+    var writer;
     var propName = property.name;
     var isOptional = property.optional;
     var cppType = getPropertyCPPType(property, datatype, false);
@@ -311,8 +308,7 @@ var getArrayPropertySerializer = exports.getArrayPropertySerializer = function (
 
 
 var getMapPropertySerializer = exports.getMapPropertySerializer = function (property, datatype) {
-    var writer = null;
-   
+    var writer;
     var propName = property.name;
     var isOptional = property.optional;
     var cppType = getPropertyCPPType(property, datatype, false);
@@ -381,7 +377,6 @@ var getPropertyDeserializer = exports.getPropertyDeserializer = function (proper
     var propType = property.actualtype;
     var propName = property.name;
     var safePropName = getPropertySafeName(property);
-    var isOptional = property.optional;
    
     if (property.collection === "array")
         return getArrayPropertyDeserializer(property, datatype);
@@ -440,13 +435,13 @@ var getPropertyDeserializer = exports.getPropertyDeserializer = function (proper
     }
    
     var val = "const Value::Member* " + propName + "_member = obj.FindMember(\"" + propName + "\");\n";
-    val += "    if (" + propName + "_member != NULL && !" + propName + "_member->value.IsNull()) " + safePropName + " = " + getter + ";"
+    val += "    if (" + propName + "_member != NULL && !" + propName + "_member->value.IsNull()) " + safePropName + " = " + getter + ";";
    
     return val;
 }
 
 var getArrayPropertyDeserializer = exports.getArrayPropertyDeserializer = function (property, datatype) {
-    var getter = null;
+    var getter;
    
     if (property.actualtype === "String") {
         getter = "memberList[i].GetString()";
@@ -504,7 +499,7 @@ var getArrayPropertyDeserializer = exports.getArrayPropertyDeserializer = functi
 }
 
 var getMapPropertyDeserializer = exports.getMapPropertyDeserializer = function (property, datatype) {
-    var getter = null;
+    var getter;
    
     if (property.actualtype === "String") {
         getter = "iter->value.GetString()";
@@ -568,7 +563,7 @@ var addTypeAndDependencies = exports.addTypeAndDependencies = function (datatype
         var property = datatype.properties[p];
         if (property.isclass || property.isenum) {
             var dependentType = datatypes[property.actualtype];
-            addTypeAndDependencies(dependentType, datatypes, orderedTypes, addedSet)
+            addTypeAndDependencies(dependentType, datatypes, orderedTypes, addedSet);
         }
     }
    
@@ -644,16 +639,17 @@ var getRequestActions = exports.getRequestActions = function (apiCall, api) {
 
 var getResultActions = exports.getResultActions = function (apiCall, api) {
     if (api.name === "Client" && (apiCall.result === "LoginResult" || apiCall.result === "RegisterPlayFabUserResult"))
-        return "if (outResult.SessionTicket.length() > 0)\n            (static_cast<PlayFab" + api.name + "API*>(userData))->mUserSessionTicket = outResult.SessionTicket;";
+        return "        if (outResult.SessionTicket.length() > 0)\n"
+            + "            (static_cast<PlayFab" + api.name + "API*>(userData))->mUserSessionTicket = outResult.SessionTicket;\n"
+            + "        // MultiStepClientLogin(outResult.SettingsForUser.NeedsAttribution);\n";
     else if (api.name === "Client" && apiCall.result === "GetCloudScriptUrlResult")
-        return "if (outResult.Url.length() > 0)\n            PlayFabSettings::logicServerURL = outResult.Url;";
+        return "if (outResult.Url.length() > 0)\n            PlayFabSettings::logicServerURL = outResult.Url;\n";
     return "";
 }
 
 function getUrlAccessor(apiCall) {
     if (apiCall.serverType === "logic")
         return "PlayFabSettings::getLogicURL(\"" + apiCall.url + "\")";
-   
     return "PlayFabSettings::getURL(\"" + apiCall.url + "\")";
 }
 

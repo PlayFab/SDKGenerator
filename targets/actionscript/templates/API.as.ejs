@@ -30,9 +30,19 @@ package com.playfab
             PlayFabHTTP.post(<%- getUrlAccessor(apiCall) %>+"<%- apiCall.url %>", requetJson, <%- getAuthParams(apiCall) %>, onPostComplete);
         }
 
-<% } %><% if (hasClientOptions) { %>        public static function MultiStepClientLogin(request:Boolean):void
+<% } %><% if (hasClientOptions) { %>        public static function MultiStepClientLogin(needsAttribution:Boolean):void
         {
-            // TODO: Call AdAttributionNotification once it exists.
+            if (needsAttribution && !PlayFabSettings.DisableAdvertising && (PlayFabSettings.AdvertisingIdType as Boolean) && (PlayFabSettings.AdvertisingIdValue as Boolean))
+            {
+                var request:AttributeInstallRequest = new AttributeInstallRequest();
+                if (PlayFabSettings.AdvertisingIdType == PlayFabSettings.AD_TYPE_IDFA)
+                    request.Idfa = PlayFabSettings.AdvertisingIdValue;
+                else if (PlayFabSettings.AdvertisingIdType == PlayFabSettings.AD_TYPE_ANDROID_ID)
+                    request.Android_Id = PlayFabSettings.AdvertisingIdValue;
+                else
+                    return;
+                AttributeInstall(request, null, null);
+            }
         }
 
         private static var authKey:String = null;

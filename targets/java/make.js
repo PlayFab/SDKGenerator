@@ -41,8 +41,8 @@ exports.makeCombinedAPI = function (apis, sourceDir, apiOutputDir) {
     generateSimpleFiles(apis, sourceDir, apiOutputDir);
     
     // Copy testing files
-    copyFile(path.resolve(sourceDir, "testingfiles/PlayFabApiTest.java"), path.resolve(apiOutputDir, "PlayFabApiTest.java"));
-    copyFile(path.resolve(sourceDir, "testingfiles/RunPfTests.bat"), path.resolve(apiOutputDir, "RunPfTests.bat"));
+    copyFile(path.resolve(sourceDir, "testingFiles/PlayFabApiTest.java"), path.resolve(apiOutputDir, "PlayFabApiTest.java"));
+    copyFile(path.resolve(sourceDir, "testingFiles/RunPfTests.bat"), path.resolve(apiOutputDir, "RunPfTests.bat"));
 }
 
 function getJsonString(input) {

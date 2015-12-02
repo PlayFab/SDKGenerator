@@ -50,13 +50,16 @@ exports.makeCombinedAPI = function (apis, sourceDir, apiOutputDir) {
             writeFile(path.resolve(eachOutputDir, "PlayFab" + apis[i].name + ".js"), generatedApi);
         }
     }
+
+    // Copy testing files
+    copyFile(path.resolve(sourceDir, "testingFiles/PlayFabApiTests.js"), path.resolve(apiOutputDir, "PlayFabTesting/PlayFabApiTests.js"));
 }
 
 function getAuthParams(apiCall) {
     if (apiCall.auth === "SecretKey")
         return "\"X-SecretKey\", PlayFab.settings.developerSecretKey";
     else if (apiCall.auth === "SessionTicket")
-        return "\"X-Authorization\", PlayFab.settings.sessionTicket";
+        return "\"X-Authorization\", PlayFab._internalSettings.sessionTicket";
     
     return "null, null";
 }
@@ -66,7 +69,7 @@ function getRequestActions(numSpaces, apiCall, api) {
     if (api.name === "Client" && (apiCall.result === "LoginResult" || apiCall.request === "RegisterPlayFabUserRequest"))
         output = "request.TitleId = PlayFab.settings.titleId != null ? PlayFab.settings.titleId : request.TitleId;\n    if (request.TitleId == null) throw \"Must be have PlayFab.settings.titleId set to call this method\";\n";
     if (api.name === "Client" && apiCall.auth === "SessionTicket")
-        output = "if (PlayFab.settings.sessionTicket == null) throw \"Must be logged in to call this method\";\n";
+        output = "if (PlayFab._internalSettings.sessionTicket == null) throw \"Must be logged in to call this method\";\n";
     if (apiCall.auth === "SecretKey")
         output = "if (PlayFab.settings.developerSecretKey == null) throw \"Must have PlayFab.settings.DeveloperSecretKey set to call this method\";\n";
     
@@ -83,9 +86,9 @@ function getRequestActions(numSpaces, apiCall, api) {
 function getResultActions(numSpaces, apiCall, api) {
     var output = "";
     if (api.name === "Client" && (apiCall.result === "LoginResult" || apiCall.result === "RegisterPlayFabUserResult"))
-        output = "PlayFab.settings.sessionTicket = result != null && result.data.hasOwnProperty(\"SessionTicket\") ? result.data.SessionTicket : PlayFab.settings.sessionTicket;\n";
+        output = "PlayFab._internalSettings.sessionTicket = result != null && result.data.hasOwnProperty(\"SessionTicket\") ? result.data.SessionTicket : PlayFab._internalSettings.sessionTicket;\n";
     else if (api.name === "Client" && apiCall.result === "GetCloudScriptUrlResult")
-        output = "PlayFab.settings.logicServerUrl = result != null && result.data.hasOwnProperty(\"Url\") ? result.data.Url : PlayFab.settings.logicServerUrl;\n";
+        output = "PlayFab._internalSettings.logicServerUrl = result != null && result.data.hasOwnProperty(\"Url\") ? result.data.Url : PlayFab._internalSettings.logicServerUrl;\n";
     
     if (output.length > 0) {
         var spaces = "";

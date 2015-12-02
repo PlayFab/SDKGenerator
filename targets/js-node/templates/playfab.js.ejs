@@ -5,27 +5,37 @@ exports.sdk_version = "<%- sdkVersion %>";
 
 exports.settings = {
     useDevEnv: false,
-    devEnvUrl: ".playfabsandbox.com",
-    liveUrl: ".playfabapi.com",
-    titleId: null,
-    sessionTicket: null,
+    titleId: null, // You must set this value PlayFabSdk to work properly (Found in the Game Manager for your title, at the PlayFab Website)
     globalErrorHandler: null,
 <% if (hasServerOptions) {
-%>    developerSecretKey: null,
+%>    developerSecretKey: null, // You must set this value PlayFabSdk to work properly (Found in the Game Manager for your title, at the PlayFab Website)
 <% }
 if (hasClientOptions) {
-%>    logicServerUrl: null,
-    advertisingIdType: null,
-    advertisingIdValue: null,
+%>    advertisingIdType: null, // Set this to the appropriate AD_TYPE_X constant below
+    advertisingIdValue: null, // Set this to corresponding device value
+
+    // DisableAdvertising is provided for completeness, but changing it is not suggested
+    // Disabling this may prevent your advertising-related PlayFab marketplace partners from working correctly
+    disableAdvertising: false,
+    AD_TYPE_IDFA: "Idfa",
+    AD_TYPE_ANDROID_ID: "Android_Id",
+<% } %>};
+
+exports._internalSettings = {
+    devEnvUrl: ".playfabsandbox.com",
+    liveUrl: ".playfabapi.com",
+    sessionTicket: null,
+<% if (hasClientOptions) {
+%>    logicServerUrl: null, // Assigned by GetCloudScriptUrl, used by RunCloudScript
 <% } %>};
 
 exports.GetServerUrl = function () {
-    var baseUrl = exports.settings.useDevEnv ? exports.settings.devEnvUrl : exports.settings.liveUrl;
+    var baseUrl = exports.settings.useDevEnv ? exports._internalSettings.devEnvUrl : exports._internalSettings.liveUrl;
     return "https://" + exports.settings.titleId + baseUrl;
 }
 
 exports.GetLogicServerUrl = function () {
-    return exports.settings.logicServerUrl;
+    return exports._internalSettings.logicServerUrl;
 }
 
 exports.MakeRequest = function (urlStr, request, authType, authValue, callback) {
@@ -36,12 +46,12 @@ exports.MakeRequest = function (urlStr, request, authType, authValue, callback) 
     var options = url.parse(urlStr);
     if (options.protocol != "https:")
         throw "Unsupported protocol: " + urlInfo.protocol;
-    options.method = 'POST';
+    options.method = "POST";
     options.port = 443;
     options.headers = {
-        'Content-Type': 'application/json',
-        'Content-Length': requestBody.length,
-        'X-PlayFabSDK': "NodeSDK-" + exports.sdk_version + "-" + exports.api_version
+        "Content-Type": "application/json",
+        "Content-Length": requestBody.length,
+        "X-PlayFabSDK": "NodeSDK-" + exports.sdk_version + "-" + exports.api_version
     };
 
     if (authType)
@@ -49,9 +59,9 @@ exports.MakeRequest = function (urlStr, request, authType, authValue, callback) 
 
     var post_req = https.request(options, function (res) {
         var rawReply = "";
-        res.setEncoding('utf8');
-        res.on('data', function (chunk) { rawReply += chunk; });
-        res.on('end', function () {
+        res.setEncoding("utf8");
+        res.on("data", function (chunk) { rawReply += chunk; });
+        res.on("end", function () {
             if (callback == null)
                 return; // No need to bother decoding results
 
@@ -76,7 +86,7 @@ exports.MakeRequest = function (urlStr, request, authType, authValue, callback) 
         });
     });
 
-    post_req.on('error', function (e) {
+    post_req.on("error", function (e) {
         if (callback == null)
             return; // No need to bother decoding results
 

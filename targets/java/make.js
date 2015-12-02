@@ -60,7 +60,6 @@ function escapeForString(input) {
 
 function makeDatatypes(apis, sourceDir, apiOutputDir) {
     var templateDir = path.resolve(sourceDir, "templates");
-    
     var modelTemplate = ejs.compile(readFile(path.resolve(templateDir, "Model.java.ejs")));
     var modelsTemplate = ejs.compile(readFile(path.resolve(templateDir, "Models.java.ejs")));
     var enumTemplate = ejs.compile(readFile(path.resolve(templateDir, "Enum.java.ejs")));
@@ -71,17 +70,7 @@ function makeDatatypes(apis, sourceDir, apiOutputDir) {
         modelLocals.getPropertyDef = getModelPropertyDef;
         modelLocals.getPropertyAttribs = getPropertyAttribs;
         modelLocals.api = api;
-        
-        var generatedModel = null;
-        
-        if (datatype.isenum) {
-            generatedModel = enumTemplate(modelLocals);
-        }
-        else {
-            generatedModel = modelTemplate(modelLocals);
-        }
-        
-        return generatedModel;
+        return datatype.isenum ? enumTemplate(modelLocals) : modelTemplate(modelLocals);
     };
     
     for (var a in apis) {
@@ -96,11 +85,7 @@ function makeDatatypes(apis, sourceDir, apiOutputDir) {
 function makeAPI(api, sourceDir, apiOutputDir) {
     console.log("Generating Java " + api.name + " library to " + apiOutputDir);
     
-    
-    var templateDir = path.resolve(sourceDir, "templates");
-    
-    var apiTemplate = ejs.compile(readFile(path.resolve(templateDir, "API.java.ejs")));
-    
+    var apiTemplate = ejs.compile(readFile(path.resolve(path.resolve(sourceDir, "templates"), "API.java.ejs")));
     var apiLocals = {};
     apiLocals.api = api;
     apiLocals.getAuthParams = getAuthParams;
@@ -155,8 +140,7 @@ function getModelPropertyDef(property, datatype) {
         }
     }
     else {
-        var basicType = getPropertyJavaType(property, datatype, true);
-        return basicType + " " + property.name;
+        return getPropertyJavaType(property, datatype, true) + " " + property.name;
     }
 }
 
@@ -166,14 +150,13 @@ function getPropertyAttribs(property, datatype, api) {
     if (property.isUnordered) {
         var listDatatype = api.datatypes[property.actualtype];
         if (listDatatype && listDatatype.sortKey)
-            attribs += "@Unordered(\"" + listDatatype.sortKey + "\")\n\t\t";
+            attribs += "@Unordered(\"" + listDatatype.sortKey + "\")\n        ";
         else
-            attribs += "@Unordered\n\t\t";
+            attribs += "@Unordered\n        ";
     }
     
     return attribs;
 }
-
 
 function getPropertyJavaType(property, datatype, needOptional) {
     var optional = "";
@@ -225,38 +208,35 @@ function getPropertyJavaType(property, datatype, needOptional) {
     }
 }
 
-
 function getAuthParams(apiCall) {
     if (apiCall.auth === "SecretKey")
         return "\"X-SecretKey\", PlayFabSettings.DeveloperSecretKey";
     else if (apiCall.auth === "SessionTicket")
         return "\"X-Authorization\", _authKey";
-    
     return "null, null";
 }
 
-
 function getRequestActions(apiCall, api) {
     if (api.name === "Client" && (apiCall.result === "LoginResult" || apiCall.request === "RegisterPlayFabUserRequest"))
-        return "request.TitleId = PlayFabSettings.TitleId != null ? PlayFabSettings.TitleId : request.TitleId;\n\t\t\tif(request.TitleId == null) throw new Exception (\"Must be have PlayFabSettings.TitleId set to call this method\");\n";
+        return "        request.TitleId = PlayFabSettings.TitleId != null ? PlayFabSettings.TitleId : request.TitleId;\n        if(request.TitleId == null) throw new Exception (\"Must be have PlayFabSettings.TitleId set to call this method\");\n";
     if (api.name === "Client" && apiCall.auth === "SessionTicket")
-        return "if (_authKey == null) throw new Exception (\"Must be logged in to call this method\");\n";
+        return "        if (_authKey == null) throw new Exception (\"Must be logged in to call this method\");\n";
     if (apiCall.auth === "SecretKey")
-        return "if (PlayFabSettings.DeveloperSecretKey == null) throw new Exception (\"Must have PlayFabSettings.DeveloperSecretKey set to call this method\");\n";
+        return "        if (PlayFabSettings.DeveloperSecretKey == null) throw new Exception (\"Must have PlayFabSettings.DeveloperSecretKey set to call this method\");\n";
     return "";
 }
 
 function getResultActions(apiCall, api) {
     if (api.name === "Client" && (apiCall.result === "LoginResult" || apiCall.result === "RegisterPlayFabUserResult"))
-        return "_authKey = result.SessionTicket != null ? result.SessionTicket : _authKey;\n";
+        return "        _authKey = result.SessionTicket != null ? result.SessionTicket : _authKey;\n"
+            + "        MultiStepClientLogin(resultData.data.SettingsForUser.NeedsAttribution);\n";
     else if (api.name === "Client" && apiCall.result === "GetCloudScriptUrlResult")
-        return "PlayFabSettings.LogicServerURL = result.Url;\n";
+        return "        PlayFabSettings.LogicServerURL = result.Url;\n";
     return "";
 }
 
 function getUrlAccessor(apiCall) {
     if (apiCall.serverType === "logic")
         return "PlayFabSettings.GetLogicURL()";
-    
     return "PlayFabSettings.GetURL()";
 }

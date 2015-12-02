@@ -1,7 +1,6 @@
-
 var path = require("path");
-var shared = require('./cpp-ue4');
-var blueprint = require('./make-bp.js');
+var shared = require("./cpp-ue4");
+var blueprint = require("./make-bp.js");
 
 exports.putInRoot = true;
 
@@ -18,7 +17,7 @@ exports.makeCombinedAPI = function (apis, sourceDir, apiOutputDir) {
         console.log("Generating UE4 C++ combined SDK to " + eachApiOutputDir);
         
         // copy the base plugins files, resource, uplugin, etc
-        copyTree(path.resolve(sourceDir, 'Plugins'), PluginOutputDir);
+        copyTree(path.resolve(sourceDir, "Plugins"), PluginOutputDir);
         
         for (var i in apis) {
             var api = apis[i];

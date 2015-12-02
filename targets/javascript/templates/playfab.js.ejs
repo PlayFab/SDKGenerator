@@ -16,25 +16,29 @@ if(!PlayFab._internalSettings) {
         productionServerUrl: ".playfabapi.com",
         logicServerUrl: null,
 
-        getServerUrl: function () {
+        GetServerUrl: function () {
             return "https://" + PlayFab.settings.titleId + PlayFab._internalSettings.productionServerUrl;
         },
 
-        getLogicServerUrl: function () {
+        GetLogicServerUrl: function () {
             return PlayFab._internalSettings.logicServerUrl;
         },
 
-        executeRequest: function (completeUrl, data, authkey, authValue, callback) {
-            if (callback != null && typeof (callback) != "function") {
-                throw "Callback must be null of a function";
+        MultiStepClientLogin: function (needsAttribution) {
+            if (needsAttribution && PlayFab.settings.advertisingIdType !== null && PlayFab.settings.advertisingIdValue !== null)
+            {
+                // TODO: Call AdAttributionNotification once it exists.
             }
+        },
 
-            if (data == null) {
+        ExecuteRequest: function (completeUrl, data, authkey, authValue, callback) {
+            if (callback != null && typeof (callback) != "function")
+                throw "Callback must be null of a function";
+
+            if (data == null)
                 data = {};
-            }
 
             var startTime = new Date();
-
             var requestBody = JSON.stringify(data);
 
             var xhr = new XMLHttpRequest();completeUrl
@@ -102,13 +106,13 @@ if(!PlayFab._internalSettings) {
 
 PlayFab.<%- api.name %>Api = {<% for(var i in api.calls) { var apiCall = api.calls[i]; %>
     <%- apiCall.name %>: function (request, callback) {
-        <%- getRequestActions(apiCall, api) %>
+<%- getRequestActions(apiCall, api) %>
         <% if (hasResultActions(apiCall, api)) { %>var overloadCallback = function (result, error) {
-            <%- getResultActions(apiCall, api) %>
+<%- getResultActions(apiCall, api) %>
             if (callback != null && typeof (callback) == "function")
                 callback(result, error);
         };
-        PlayFab._internalSettings.executeRequest(<%- getUrl(apiCall, api) %>, request, <%- getAuthParams(apiCall) %>, overloadCallback);<% }else{ %>PlayFab._internalSettings.executeRequest(<%- getUrl(apiCall, api) %>, request, <%- getAuthParams(apiCall) %>, callback);<% } %>
+        PlayFab._internalSettings.ExecuteRequest(<%- getUrl(apiCall, api) %>, request, <%- getAuthParams(apiCall) %>, overloadCallback);<% }else{ %>PlayFab._internalSettings.ExecuteRequest(<%- getUrl(apiCall, api) %>, request, <%- getAuthParams(apiCall) %>, callback);<% } %>
     },
 <% } %>
 };

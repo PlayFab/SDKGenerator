@@ -6,7 +6,6 @@ exports.makeCombinedAPI = function (apis, sourceDir, apiOutputDir) {
     console.log("Generating JavaScript Combined SDK to " + apiOutputDir);
     
     var templateDir = path.resolve(sourceDir, "templates");
-    
     var apiTemplate = ejs.compile(readFile(path.resolve(templateDir, "playfab.js.ejs")));
     
     for (var i in apis) {
@@ -25,11 +24,11 @@ exports.makeCombinedAPI = function (apis, sourceDir, apiOutputDir) {
 
 function getRequestActions(apiCall, api) {
     if (api.name === "Client" && (apiCall.result === "LoginResult" || apiCall.request === "RegisterPlayFabUserRequest"))
-        return "request.TitleId = PlayFab.settings.titleId != null ? PlayFab.settings.titleId : request.TitleId; if (request.TitleId == null) throw \"Must be have PlayFab.settings.titleId set to call this method\";\n";
+        return "        request.TitleId = PlayFab.settings.titleId != null ? PlayFab.settings.titleId : request.TitleId; if (request.TitleId == null) throw \"Must be have PlayFab.settings.titleId set to call this method\";\n";
     if (api.name === "Client" && apiCall.auth === "SessionTicket")
-        return "if (PlayFab._internalSettings.sessionTicket == null) throw \"Must be logged in to call this method\";\n";
+        return "        if (PlayFab._internalSettings.sessionTicket == null) throw \"Must be logged in to call this method\";\n";
     if (apiCall.auth === "SecretKey")
-        return "if (PlayFab.settings.developerSecretKey == null) throw \"Must have PlayFab.settings.developerSecretKey set to call this method\";\n";
+        return "        if (PlayFab.settings.developerSecretKey == null) throw \"Must have PlayFab.settings.developerSecretKey set to call this method\";\n";
     return "";
 }
 
@@ -43,16 +42,19 @@ function hasResultActions(apiCall, api) {
 
 function getResultActions(apiCall, api) {
     if (api.name === "Client" && (apiCall.result === "LoginResult" || apiCall.result === "RegisterPlayFabUserResult"))
-        return "if (result != null && result.data.SessionTicket != null) { PlayFab._internalSettings.sessionTicket = result.data.SessionTicket; }";
+        return "            if (result != null && result.data.SessionTicket != null) {\n"
+            + "                PlayFab._internalSettings.sessionTicket = result.data.SessionTicket;\n"
+            + "                PlayFab._internalSettings.MultiStepClientLogin(result.data.SettingsForUser.NeedsAttribution);\n"
+            + "            }";
     else if (api.name === "Client" && apiCall.result === "GetCloudScriptUrlResult")
-        return "PlayFab._internalSettings.logicServerUrl = result.data.Url;";
+        return "            PlayFab._internalSettings.logicServerUrl = result.data.Url;";
     return "";
 }
 
 function getUrl(apiCall, api) {
     if (api.name === "Client" && apiCall.name === "RunCloudScript")
-        return "PlayFab._internalSettings.getLogicServerUrl() + \"" + apiCall.url + "\"";
-    return "PlayFab._internalSettings.getServerUrl() + \"" + apiCall.url + "\"";
+        return "PlayFab._internalSettings.GetLogicServerUrl() + \"" + apiCall.url + "\"";
+    return "PlayFab._internalSettings.GetServerUrl() + \"" + apiCall.url + "\"";
 }
 
 function getAuthParams(apiCall) {
@@ -60,6 +62,5 @@ function getAuthParams(apiCall) {
         return "\"X-SecretKey\", PlayFab.settings.developerSecretKey";
     else if (apiCall.auth === "SessionTicket")
         return "\"X-Authorization\", PlayFab._internalSettings.sessionTicket";
-    
     return "null, null";
 }

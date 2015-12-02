@@ -110,7 +110,7 @@ void PlayFab<%- api.name %>API::On<%- apiCall.name %>Result(int httpStatus, Http
 
 void PlayFabClientAPI::MultiStepClientLogin(bool needsAttribution)
 {
-    if (needsAttribution && PlayFabSettings::advertisingIdType.length() > 0 && PlayFabSettings::advertisingIdType.length() > 0)
+    if (needsAttribution && PlayFabSettings::advertisingIdType.length() > 0 && PlayFabSettings::advertisingIdValue.length() > 0)
     {
         // TODO: Call AdAttributionNotification once it exists.
     }

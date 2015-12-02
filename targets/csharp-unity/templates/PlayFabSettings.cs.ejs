@@ -32,7 +32,7 @@ namespace PlayFab
 %>        public static string DeveloperSecretKey = null; // You must set this value PlayFabSdk to work properly (Found in the Game Manager for your title, at the PlayFab Website)
 <% }
 if (hasClientOptions) {
-%>        internal static string LogicServerURL = null; // Set by GetCloudScriptUrl, used by RunCloudScript
+%>        internal static string LogicServerURL = null; // Assigned by GetCloudScriptUrl, used by RunCloudScript
         public static string AdvertisingIdType = null; // Set this to the appropriate AD_TYPE_X constant below
         public static string AdvertisingIdValue = null; // Set this to corresponding device value
 

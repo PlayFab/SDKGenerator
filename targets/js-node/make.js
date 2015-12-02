@@ -53,9 +53,9 @@ exports.makeCombinedAPI = function (apis, sourceDir, apiOutputDir) {
 }
 
 function getAuthParams(apiCall) {
-    if (apiCall.auth === 'SecretKey')
+    if (apiCall.auth === "SecretKey")
         return "\"X-SecretKey\", PlayFab.settings.developerSecretKey";
-    else if (apiCall.auth === 'SessionTicket')
+    else if (apiCall.auth === "SessionTicket")
         return "\"X-Authorization\", PlayFab.settings.sessionTicket";
     
     return "null, null";
@@ -65,9 +65,9 @@ function getRequestActions(numSpaces, apiCall, api) {
     var output = "";
     if (api.name === "Client" && (apiCall.result === "LoginResult" || apiCall.request === "RegisterPlayFabUserRequest"))
         output = "request.TitleId = PlayFab.settings.titleId != null ? PlayFab.settings.titleId : request.TitleId;\n    if (request.TitleId == null) throw \"Must be have PlayFab.settings.titleId set to call this method\";\n";
-    if (api.name === "Client" && apiCall.auth === 'SessionTicket')
+    if (api.name === "Client" && apiCall.auth === "SessionTicket")
         output = "if (PlayFab.settings.sessionTicket == null) throw \"Must be logged in to call this method\";\n";
-    if (apiCall.auth === 'SecretKey')
+    if (apiCall.auth === "SecretKey")
         output = "if (PlayFab.settings.developerSecretKey == null) throw \"Must have PlayFab.settings.DeveloperSecretKey set to call this method\";\n";
     
     if (output.length > 0) {

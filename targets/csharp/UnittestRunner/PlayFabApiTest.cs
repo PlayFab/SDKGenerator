@@ -351,14 +351,14 @@ namespace PlayFab.UUnit
         [UUnitTest]
         public void CloudScript()
         {
-            if (string.IsNullOrEmpty(PlayFabSettings.LogicServerURL))
+            if (string.IsNullOrEmpty(PlayFabSettings.GetLogicURL()))
             {
                 var getUrlTask = PlayFabClientAPI.GetCloudScriptUrlAsync(new ClientModels.GetCloudScriptUrlRequest());
                 getUrlTask.Wait();
                 UUnitAssert.Null(getUrlTask.Result.Error, "Failed to get LogicServerURL");
                 UUnitAssert.NotNull(getUrlTask.Result.Result, "Failed to get LogicServerURL");
                 UUnitAssert.False(string.IsNullOrEmpty(getUrlTask.Result.Result.Url), "Failed to get LogicServerURL");
-                UUnitAssert.False(string.IsNullOrEmpty(PlayFabSettings.LogicServerURL), "Failed to get LogicServerURL");
+                UUnitAssert.False(string.IsNullOrEmpty(PlayFabSettings.GetLogicURL()), "Failed to get LogicServerURL");
             }
 
             var request = new ClientModels.RunCloudScriptRequest();

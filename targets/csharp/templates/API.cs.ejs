@@ -49,9 +49,17 @@ namespace PlayFab
 
         private static void MultiStepClientLogin(bool needsAttribution)
         {
-            if (needsAttribution && PlayFabSettings.AdvertisingIdType != null && PlayFabSettings.AdvertisingIdValue != null)
+            if (needsAttribution && !PlayFabSettings.DisableAdvertising && !string.IsNullOrEmpty(PlayFabSettings.AdvertisingIdType) && !string.IsNullOrEmpty(PlayFabSettings.AdvertisingIdValue))
             {
-                // TODO: Call AdAttributionNotification once it exists.
+                AttributeInstallRequest request = new AttributeInstallRequest();
+                if (PlayFabSettings.AdvertisingIdType == PlayFabSettings.AD_TYPE_IDFA)
+                    request.Idfa = PlayFabSettings.AdvertisingIdValue;
+                else if (PlayFabSettings.AdvertisingIdType == PlayFabSettings.AD_TYPE_ANDROID_ID)
+                    request.Android_Id = PlayFabSettings.AdvertisingIdValue;
+                else
+                    return;
+                var task = AttributeInstallAsync(request);
+                task.Start();
             }
         }
 <% } %>    }

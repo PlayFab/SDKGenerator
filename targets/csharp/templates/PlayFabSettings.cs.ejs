@@ -15,10 +15,10 @@ namespace PlayFab
         public static bool UseDevelopmentEnvironment = false;
         public static string DevelopmentEnvironmentURL = ".playfabsandbox.com";
         public static string ProductionEnvironmentURL = ".playfabapi.com";
-        public static string TitleId; // You must set this value PlayFabSdk to work properly (Found in the Game Manager for your title, at the PlayFab Website)
+        public static string TitleId; // You must set this value for PlayFabSdk to work properly (Found in the Game Manager for your title, at the PlayFab Website)
         public static ErrorCallback GlobalErrorHandler;
 <% if (hasServerOptions) {
-%>        public static string DeveloperSecretKey = null; // You must set this value PlayFabSdk to work properly (Found in the Game Manager for your title, at the PlayFab Website)
+%>        public static string DeveloperSecretKey = null; // You must set this value for PlayFabSdk to work properly (Found in the Game Manager for your title, at the PlayFab Website)
 <% }
 if (hasClientOptions) {
 %>        internal static string LogicServerURL = null; // Assigned by GetCloudScriptUrl, used by RunCloudScript

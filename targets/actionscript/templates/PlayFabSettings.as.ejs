@@ -3,10 +3,10 @@ package com.playfab
     public class PlayFabSettings
     {
         public static var ProductionEnvironmentURL:String = ".playfabapi.com";
-        public static var TitleId:String = null; // You must set this value PlayFabSdk to work properly (Found in the Game Manager for your title, at the PlayFab Website)
+        public static var TitleId:String = null; // You must set this value for PlayFabSdk to work properly (Found in the Game Manager for your title, at the PlayFab Website)
         public static var GlobalErrorHandler:Function;
 <% if (hasServerOptions) {
-%>        public static var DeveloperSecretKey:String = null; // You must set this value PlayFabSdk to work properly (Found in the Game Manager for your title, at the PlayFab Website)
+%>        public static var DeveloperSecretKey:String = null; // You must set this value for PlayFabSdk to work properly (Found in the Game Manager for your title, at the PlayFab Website)
 <% }
 if (hasClientOptions) {
 %>        public static var LogicServerURL:String = null; // Assigned by GetCloudScriptUrl, used by RunCloudScript

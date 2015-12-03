@@ -8,15 +8,18 @@ exports.makeCombinedAPI = function (apis, sourceDir, apiOutputDir) {
     var templateDir = path.resolve(sourceDir, "templates");
     var apiTemplate = ejs.compile(readFile(path.resolve(templateDir, "playfab.js.ejs")));
     
+    var apiLocals = {};
+    apiLocals.hasResultActions = hasResultActions;
+    apiLocals.getRequestActions = getRequestActions;
+    apiLocals.getResultActions = getResultActions;
+    apiLocals.getUrl = getUrl;
+    apiLocals.getAuthParams = getAuthParams;
+    apiLocals.sdkVersion = exports.sdkVersion;
     for (var i in apis) {
-        var apiLocals = {};
         apiLocals.api = apis[i];
-        apiLocals.hasResultActions = hasResultActions;
-        apiLocals.getRequestActions = getRequestActions;
-        apiLocals.getResultActions = getResultActions;
-        apiLocals.getUrl = getUrl;
-        apiLocals.getAuthParams = getAuthParams;
-        apiLocals.sdkVersion = exports.sdkVersion;
+        apiLocals.api = apis[i];
+        apiLocals.hasServerOptions = apis[i].name !== "Client"; // NOTE FOR THE EJS FILE: PlayFab.settings and PlayFab._internalSettings and are still global/shared - Only utilize this within the api-specific section
+        apiLocals.hasClientOptions = apis[i].name === "Client"; // NOTE FOR THE EJS FILE: PlayFab.settings and PlayFab._internalSettings and are still global/shared - Only utilize this within the api-specific section
         var generatedApi = apiTemplate(apiLocals);
         writeFile(path.resolve(apiOutputDir, "PlayFab" + apis[i].name + "Api.js"), generatedApi);
     }
@@ -44,7 +47,7 @@ function getResultActions(apiCall, api) {
     if (api.name === "Client" && (apiCall.result === "LoginResult" || apiCall.result === "RegisterPlayFabUserResult"))
         return "            if (result != null && result.data.SessionTicket != null) {\n"
             + "                PlayFab._internalSettings.sessionTicket = result.data.SessionTicket;\n"
-            + "                PlayFab._internalSettings.MultiStepClientLogin(result.data.SettingsForUser.NeedsAttribution);\n"
+            + "                PlayFab.ClientApi._MultiStepClientLogin(result.data.SettingsForUser.NeedsAttribution);\n"
             + "            }";
     else if (api.name === "Client" && apiCall.result === "GetCloudScriptUrlResult")
         return "            PlayFab._internalSettings.logicServerUrl = result.data.Url;";

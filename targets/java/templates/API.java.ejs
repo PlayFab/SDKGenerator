@@ -3,6 +3,7 @@ package com.playfab;
 import com.playfab.internal.*;
 import com.playfab.PlayFab<%- api.name %>Models.*;
 import com.playfab.PlayFabErrors.*;
+import com.playfab.PlayFabSettings;
 import java.util.concurrent.*;
 import java.util.*;
 import com.google.gson.*;
@@ -73,9 +74,17 @@ public class PlayFab<%- api.name %>API {
     }
 <% } %><% if(hasClientOptions) { %>
     public static void MultiStepClientLogin(Boolean needsAttribution) {
-        if (needsAttribution && PlayFabSettings.AdvertisingIdType != null && PlayFabSettings.AdvertisingIdValue != null)
+        if (needsAttribution && !PlayFabSettings.DisableAdvertising && PlayFabSettings.AdvertisingIdType != null && PlayFabSettings.AdvertisingIdValue != null)
         {
-            // TODO: Call AdAttributionNotification once it exists.
+            PlayFabClientModels.AttributeInstallRequest request = new PlayFabClientModels.AttributeInstallRequest();
+            if (PlayFabSettings.AdvertisingIdType == PlayFabSettings.AD_TYPE_IDFA)
+                request.Idfa = PlayFabSettings.AdvertisingIdValue;
+            else if (PlayFabSettings.AdvertisingIdType == PlayFabSettings.AD_TYPE_ANDROID_ID)
+                request.Android_Id = PlayFabSettings.AdvertisingIdValue;
+            else
+                return;
+            FutureTask<PlayFabResult<AttributeInstallResult>> task = AttributeInstallAsync(request);
+            task.run();
         }
     }
 

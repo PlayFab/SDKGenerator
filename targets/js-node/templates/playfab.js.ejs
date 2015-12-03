@@ -3,7 +3,7 @@ var https = require("https");
 
 exports.sdk_version = "<%- sdkVersion %>";
 
-exports.settings = {
+var settings = exports.settings = {
     useDevEnv: false,
     titleId: null, // You must set this value PlayFabSdk to work properly (Found in the Game Manager for your title, at the PlayFab Website)
     globalErrorHandler: null,
@@ -21,7 +21,7 @@ if (hasClientOptions) {
     AD_TYPE_ANDROID_ID: "Android_Id",
 <% } %>};
 
-exports._internalSettings = {
+var _internalSettings = exports._internalSettings = {
     devEnvUrl: ".playfabsandbox.com",
     liveUrl: ".playfabapi.com",
     sessionTicket: null,
@@ -44,7 +44,7 @@ exports.MakeRequest = function (urlStr, request, authType, authValue, callback) 
     var requestBody = JSON.stringify(request);
 
     var options = url.parse(urlStr);
-    if (options.protocol != "https:")
+    if (options.protocol !== "https:")
         throw "Unsupported protocol: " + urlInfo.protocol;
     options.method = "POST";
     options.port = 443;
@@ -57,7 +57,7 @@ exports.MakeRequest = function (urlStr, request, authType, authValue, callback) 
     if (authType)
         options.headers[authType] = authValue;
 
-    var post_req = https.request(options, function (res) {
+    var postReq = https.request(options, function (res) {
         var rawReply = "";
         res.setEncoding("utf8");
         res.on("data", function (chunk) { rawReply += chunk; });
@@ -86,7 +86,7 @@ exports.MakeRequest = function (urlStr, request, authType, authValue, callback) 
         });
     });
 
-    post_req.on("error", function (e) {
+    postReq.on("error", function (e) {
         if (callback == null)
             return; // No need to bother decoding results
 
@@ -99,6 +99,6 @@ exports.MakeRequest = function (urlStr, request, authType, authValue, callback) 
         }, null);
     });
 
-    post_req.write(requestBody);
-    post_req.end();
+    postReq.write(requestBody);
+    postReq.end();
 }

@@ -39,20 +39,22 @@ exports.makeCombinedAPI = function (apis, sourceDir, apiOutputDir) {
         writeFile(path.resolve(eachOutputDir, "package.json"), generatedPkg);
         
         // Write the API files
+        var apiLocals = {};
+        apiLocals.getAuthParams = getAuthParams;
+        apiLocals.getRequestActions = getRequestActions;
+        apiLocals.getResultActions = getResultActions;
+        apiLocals.getUrlAccessor = getUrlAccessor;
         for (var i in apis) {
-            var apiLocals = {};
             apiLocals.api = apis[i];
-            apiLocals.getAuthParams = getAuthParams;
-            apiLocals.getRequestActions = getRequestActions;
-            apiLocals.getResultActions = getResultActions;
-            apiLocals.getUrlAccessor = getUrlAccessor;
+            apiLocals.hasServerOptions = apis[i].name !== "Client";
+            apiLocals.hasClientOptions = apis[i].name === "Client";
             var generatedApi = apiTemplate(apiLocals);
             writeFile(path.resolve(eachOutputDir, "PlayFab" + apis[i].name + ".js"), generatedApi);
         }
     }
-
+    
     // Copy testing files
-    copyFile(path.resolve(sourceDir, "testingFiles/PlayFabApiTests.js"), path.resolve(apiOutputDir, "PlayFabTesting/PlayFabApiTests.js"));
+    copyTree(path.resolve(sourceDir, "testingFiles"), path.resolve(apiOutputDir, "PlayFabTesting"));
 }
 
 function getAuthParams(apiCall) {
@@ -67,9 +69,9 @@ function getAuthParams(apiCall) {
 function getRequestActions(numSpaces, apiCall, api) {
     var output = "";
     if (api.name === "Client" && (apiCall.result === "LoginResult" || apiCall.request === "RegisterPlayFabUserRequest"))
-        output = "request.TitleId = PlayFab.settings.titleId != null ? PlayFab.settings.titleId : request.TitleId;\n    if (request.TitleId == null) throw \"Must be have PlayFab.settings.titleId set to call this method\";\n";
+        output = "request.TitleId = PlayFab.settings.titleId != null ? PlayFab.settings.titleId : request.TitleId;\n    if (request.TitleId == null) throw \"Must be have PlayFab.settings.titleId set to call this method\";";
     if (api.name === "Client" && apiCall.auth === "SessionTicket")
-        output = "if (PlayFab._internalSettings.sessionTicket == null) throw \"Must be logged in to call this method\";\n";
+        output = "if (PlayFab._internalSettings.sessionTicket == null) throw \"Must be logged in to call this method\";";
     if (apiCall.auth === "SecretKey")
         output = "if (PlayFab.settings.developerSecretKey == null) throw \"Must have PlayFab.settings.DeveloperSecretKey set to call this method\";\n";
     
@@ -84,18 +86,18 @@ function getRequestActions(numSpaces, apiCall, api) {
 }
 
 function getResultActions(numSpaces, apiCall, api) {
+    var spaces = "";
+    for (var i = 0; i < numSpaces; i++)
+        spaces += " ";
+    
     var output = "";
     if (api.name === "Client" && (apiCall.result === "LoginResult" || apiCall.result === "RegisterPlayFabUserResult"))
-        output = "PlayFab._internalSettings.sessionTicket = result != null && result.data.hasOwnProperty(\"SessionTicket\") ? result.data.SessionTicket : PlayFab._internalSettings.sessionTicket;\n";
+        output = spaces + "if (result != null && result.data != null) {\n"
+            + spaces + "    PlayFab._internalSettings.sessionTicket = result.data.hasOwnProperty(\"SessionTicket\") ? result.data.SessionTicket : PlayFab._internalSettings.sessionTicket;\n"
+            + spaces + "    exports._MultiStepClientLogin(result.data.SettingsForUser.NeedsAttribution);\n"
+            + spaces + "}";
     else if (api.name === "Client" && apiCall.result === "GetCloudScriptUrlResult")
-        output = "PlayFab._internalSettings.logicServerUrl = result != null && result.data.hasOwnProperty(\"Url\") ? result.data.Url : PlayFab._internalSettings.logicServerUrl;\n";
-    
-    if (output.length > 0) {
-        var spaces = "";
-        for (var i = 0; i < numSpaces; i++)
-            spaces += " ";
-        output = spaces + output;
-    }
+        output = spaces + "PlayFab._internalSettings.logicServerUrl = result != null && result.data.hasOwnProperty(\"Url\") ? result.data.Url : PlayFab._internalSettings.logicServerUrl;\n";
     
     return output;
 }

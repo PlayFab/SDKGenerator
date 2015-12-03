@@ -12,12 +12,12 @@ exports.<%- apiCall.name %> = function (request, callback) {
 };
 <% } if (hasClientOptions) { %>
 exports._MultiStepClientLogin = function (needsAttribution) {
-    if (needsAttribution && !PlayFab.settings.DisableAdvertising && Boolean(PlayFab.settings.advertisingIdType) && Boolean(PlayFab.settings.advertisingIdValue))
+    if (needsAttribution && !PlayFab.settings.disableAdvertising && Boolean(PlayFab.settings.advertisingIdType) && Boolean(PlayFab.settings.advertisingIdValue))
     {
         var request = {};
-        if (PlayFab.settings.AdvertisingIdType === PlayFab.settings.AD_TYPE_IDFA)
+        if (PlayFab.settings.advertisingIdType === PlayFab.settings.AD_TYPE_IDFA)
             request.Idfa = PlayFab.settings.advertisingIdValue;
-        else if (PlayFab.settings.AdvertisingIdType === PlayFab.settings.AD_TYPE_ANDROID_ID)
+        else if (PlayFab.settings.advertisingIdType === PlayFab.settings.AD_TYPE_ANDROID_ID)
             request.Android_Id = PlayFab.settings.advertisingIdValue;
         else
             return;

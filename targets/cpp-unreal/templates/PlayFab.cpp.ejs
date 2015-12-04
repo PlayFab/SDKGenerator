@@ -11,6 +11,10 @@
 const FString IPlayFab::PlayFabURL(TEXT(".playfabapi.com"));
 const FString IPlayFab::PlayFabLogicURL(TEXT(".playfablogic.com/"));
 
+const FString IPlayFab::AD_TYPE_IDFA(TEXT("Idfa"));
+const FString IPlayFab::AD_TYPE_ANDROID_ID(TEXT("Android_Id"));
+
+
 class FPlayFab : public IPlayFab
 {
     /** IModuleInterface implementation */

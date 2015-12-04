@@ -2,16 +2,13 @@
 
 #include "ModuleManager.h"
 
-
 /**
 * The public interface to this module.  In most cases, this interface is only public to sibling modules
 * within this plugin.
 */
 class IPlayFab : public IModuleInterface
 {
-
 public:
-
     /**
     * Singleton-like access to this module's interface.  This is just for convenience!
     * Beware of calling this during the shutdown phase, though.  Your module might have been unloaded already.
@@ -24,6 +21,16 @@ public:
     FString PhotonTurnbasedAppId;
     FString PhotonChatAppId;
     int32 CloudScriptVersion;
+
+    // PlayFab Advertising-related values
+    FString AdvertisingIdType; // Set this to the appropriate AD_TYPE_X constant below
+    FString AdvertisingIdValue; // Set this to corresponding device value
+
+    // DisableAdvertising is provided for completeness, but changing it is not suggested
+    // Disabling this may prevent your advertising-related PlayFab marketplace partners from working correctly
+    bool DisableAdvertising = false;
+    static const FString AD_TYPE_IDFA;// = "Idfa";
+    static const FString AD_TYPE_ANDROID_ID;// = "Android_Id";
 
     /** PlayFab URL */
     static const FString PlayFabURL;
@@ -75,13 +82,7 @@ public:
     }
 
 private:
-    /** PlayFab App Id */
-    FString GameTitleId;
-
-    /** Session Ticket */
-    FString SessionTicket;
-
-    /** PlayFab Api Key */
-    FString PlayFabApiSecretKey;
+    FString GameTitleId; // PlayFab TitleId
+    FString SessionTicket; // PlayFab client session ticket
+    FString PlayFabApiSecretKey; // PlayFab DeveloperSecretKey
 };
-

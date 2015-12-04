@@ -12,7 +12,7 @@
     <ProjectTypeGuids>{3AF33F2E-1136-4D97-BBB7-1795711AC8B8};{349c5851-65df-11da-9384-00065b846f21};{9092AA53-FB77-4645-B42D-1CCCA6BD08BD}</ProjectTypeGuids>
     <VisualStudioVersion Condition="'$(VisualStudioVersion)' == ''">11.0</VisualStudioVersion>
     <VSToolsPath Condition="'$(VSToolsPath)' == ''">$(MSBuildExtensionsPath32)\Microsoft\VisualStudio\v$(VisualStudioVersion)</VSToolsPath>
-    <ScriptArguments>..\API_Specs cpp-ue4=..\sdks\UnrealCppSdk</ScriptArguments>
+    <ScriptArguments>..\API_Specs cpp-windows=..\sdks\WindowsSDK</ScriptArguments>
     <StartWebBrowser>False</StartWebBrowser>
   </PropertyGroup>
   <PropertyGroup Condition="'$(Configuration)' == 'Debug'" />
@@ -43,9 +43,11 @@
     <Content Include="SDKBuildScripts\js_build.bat" />
     <Content Include="SDKBuildScripts\node_build.bat" />
     <Content Include="SDKBuildScripts\postman_build.bat" />
+    <Content Include="SDKBuildScripts\ue4_build.bat" />
     <Content Include="SDKBuildScripts\ue4_CPP_build.bat" />
     <Content Include="SDKBuildScripts\unity_build.bat" />
     <Content Include="SDKBuildScripts\ue4_BP_build.bat" />
+    <Content Include="SDKBuildScripts\unreal_build.bat" />
     <Content Include="SDKBuildScripts\win_build.bat" />
     <Content Include="SDKBuildScripts\win_compile_client.bat" />
     <Content Include="SDKBuildScripts\win_compile_server.bat" />
@@ -310,6 +312,12 @@
     <Content Include="targets\cpp-windows\source\source\curl\HttpRequesterCURL.cpp" />
     <Content Include="targets\cpp-windows\templates\PlayFabSettings.cpp.ejs" />
     <Content Include="targets\cpp-windows\templates\PlayFabSettings.h.ejs" />
+    <Content Include="targets\cpp-windows\UnittestRunner\BugfixTest.cpp" />
+    <Content Include="targets\cpp-windows\UnittestRunner\PlayFabApiTest.cpp" />
+    <Content Include="targets\cpp-windows\UnittestRunner\targetver.h" />
+    <Content Include="targets\cpp-windows\UnittestRunner\unittest.bat" />
+    <Content Include="targets\cpp-windows\UnittestRunner\UnittestRunner.vcxproj" />
+    <Content Include="targets\cpp-windows\UnittestRunner\UnittestRunner.vcxproj.filters" />
     <Content Include="targets\csharp-unity\PlayFabApiTest.cs" />
     <Content Include="targets\csharp-unity\source\Internal\Log.cs" />
     <Content Include="targets\csharp-unity\source\Internal\PlayFabHTTP.cs" />
@@ -564,7 +572,7 @@
     <Folder Include="targets\cpp-windows\source\source\core\" />
     <Folder Include="targets\cpp-windows\source\source\curl\" />
     <Folder Include="targets\cpp-windows\templates" />
-    <Folder Include="targets\cpp-windows\UnittestRunner" />
+    <Folder Include="targets\cpp-windows\UnittestRunner\" />
     <Folder Include="targets\csharp" />
     <Folder Include="targets\csharp-unity\source\" />
     <Folder Include="targets\csharp-unity\source\Internal\" />

@@ -160,17 +160,14 @@ PlayFabErrorCode HttpRequesterCURL::AddRequest(HttpRequest* request, RequestComp
 size_t HttpRequesterCURL::UpdateRequests()
 {
     size_t numActiveRequests = mHandles.size();
-    if( numActiveRequests > 0 )
+    if (numActiveRequests > 0)
     {
         curl_multi_perform(mHandle, (int*)&numActiveRequests);
-    
-        if(numActiveRequests < mHandles.size())
-        {
+        if (numActiveRequests < mHandles.size())
             FinalizeRequests();
-        }
     }
 
-    return numActiveRequests;
+    return mHandles.size(); // mHandles can change during FinalizeRequests
 }
 
 void HttpRequesterCURL::FinalizeRequests()

@@ -194,11 +194,18 @@ package
             loginRequest.Email = USER_EMAIL;
             loginRequest.Password = USER_PASSWORD;
             // Try to login, but if we fail, just fall-back and try to create character
-            PlayFabClientAPI.LoginWithEmailAddress(loginRequest, Wrap(LoginOrRegister_LoginSuccess, "Login1"), Wrap(LoginOrRegister_AcceptableFailure, "Fail1"));
-            CheckAdvertIdSuccess(-1);
+            PlayFabClientAPI.LoginWithEmailAddress(loginRequest, Wrap(LoginWithAdvertisingId_LoginSuccess, "Login1"), Wrap(LoginOrRegister_AcceptableFailure, "Fail1"));
+            function RecursiveWrap():void { CheckAdvertIdSuccess(-1); }
+            Wrap(RecursiveWrap, "RecursiveWrap_First");
+        }
+        private function LoginWithAdvertisingId_LoginSuccess(result:com.playfab.ClientModels.LoginResult) : void
+        {
+            // Typical success
+            playFabId = result.PlayFabId;
         }
         private function CheckAdvertIdSuccess(count:Number) : void
         {
+            TickTestHandler();
             if (count > 10) // Base case, fail out
             {
                 ASyncAssert.Fail("AdvertisingId not sent properly: " + PlayFabSettings.AdvertisingIdType);
@@ -209,8 +216,10 @@ package
             }
             else
             {
-                var timer:Timer = new Timer(200);
-                timer.addEventListener(TimerEvent.TIMER, CheckAdvertIdSuccess, count + 1);
+                function RecursiveWrap():void { CheckAdvertIdSuccess(count + 1); }
+
+                var timer:Timer = new Timer(200, 1);
+                timer.addEventListener(TimerEvent.TIMER, Wrap(RecursiveWrap, "RecursiveWrap_" + count));
                 timer.start();
             }
         }

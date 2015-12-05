@@ -496,19 +496,19 @@ function getAuthParams(apiCall) {
     return "";
 }
 
-var getRequestActions = exports.getRequestActions = function (apiCall, api) {
+var getRequestActions = function (apiCall, api) {
     if (api.name === "Client" && (apiCall.result === "LoginResult" || apiCall.request === "RegisterPlayFabUserRequest"))
         return "if (PlayFabSettings::titleId.length() > 0)\n        request.TitleId = PlayFabSettings::titleId;";
     return "";
 }
 
-var getResultActions = exports.getResultActions = function (apiCall, api) {
+var getResultActions = function (apiCall, api) {
     if (api.name === "Client" && (apiCall.result === "LoginResult" || apiCall.result === "RegisterPlayFabUserResult"))
         return "        if (outResult.SessionTicket.length() > 0)\n" 
             + "            (static_cast<PlayFab" + api.name + "API*>(userData))->mUserSessionTicket = outResult.SessionTicket;\n" 
-            + "        // MultiStepClientLogin(outResult.SettingsForUser.NeedsAttribution);\n";
+            + "        PlayFabClientAPI::MultiStepClientLogin(outResult.SettingsForUser->NeedsAttribution);\n";
     else if (api.name === "Client" && apiCall.result === "GetCloudScriptUrlResult")
-        return "if (outResult.Url.length() > 0)\n            PlayFabSettings::logicServerURL = outResult.Url;\n";
+        return "if (outResult.Url.length() > 0) PlayFabSettings::logicServerURL = outResult.Url;\n";
     return "";
 }
 

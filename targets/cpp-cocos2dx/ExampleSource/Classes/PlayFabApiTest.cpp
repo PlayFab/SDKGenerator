@@ -236,8 +236,9 @@ namespace PlayFabApiTest
         PlayFabClientAPI::LoginWithEmailAddress(loginRequest, &LoginCallback, &LoginFailedCallback, NULL);
         ClientApiWait();
 
-        std::string targetValue = PlayFabSettings::AD_TYPE_ANDROID_ID + "_Successful";
-        return PlayFabSettings::advertisingIdType.compare(targetValue) == 0;
+        string targetValue = PlayFabSettings::AD_TYPE_ANDROID_ID + "_Successful";
+        string actualValue = PlayFabSettings::advertisingIdType;
+        return actualValue.compare(targetValue) == 0;
     }
 
     /// <summary>

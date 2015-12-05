@@ -156,20 +156,16 @@ for(var subgroup in api.subgroups)
                 switch(property.jsontype)
                 {
                     case "String":
-                        if(property.name == "ParamsEncoded")
-                        {
+                        if(property.name == "ParamsEncoded") {
                         %>    if (request.ParamsEncoded != "") OutRestJsonObj->SetStringField(TEXT("<%- property.name %>"), request.<%- property.name %>);
 <%                            break;
                         }
-                        if(property.name == "TitleId")
-                        {
+                        if(property.name == "TitleId") {
                         %>    OutRestJsonObj->SetStringField(TEXT("<%- property.name %>"), IPlayFab::Get().getGameTitleId());
 <%                            break;
                         }
-                        if(property.hasOwnProperty('collection'))
-                        {
-                            if(property.collection == "array")
-                            {
+                        if(property.hasOwnProperty('collection')) {
+                            if(property.collection == "array") {
                             %>    // Check to see if string is empty
 <%                            %>    if (request.<%- property.name %>.IsEmpty() || request.<%- property.name %> == "")
 <%                            %>    {
@@ -190,8 +186,7 @@ for(var subgroup in api.subgroups)
 <%
                             }
                         }
-                        else if(property.actualtype == "UserDataPermission")
-                        {
+                        else if(property.actualtype == "UserDataPermission") {
                         %>    if (request.<%- property.name %> == EPermissionEnum::PUBLIC) OutRestJsonObj->SetStringField(TEXT("<%- property.name %>"), TEXT("Public"));
 <%                        %>    if (request.<%- property.name %> == EPermissionEnum::PRIVATE) OutRestJsonObj->SetStringField(TEXT("<%- property.name %>"), TEXT("Private"));
 <%
@@ -214,8 +209,7 @@ for(var subgroup in api.subgroups)
                     case "Number":
                         if(property.hasOwnProperty('collection'))
                         {
-                            if(property.collection == "array")
-                            {
+                            if(property.collection == "array") {
                             %>    // Copy int array to float
 <%                            %>    TArray<float> tempArray;
 <%                            %>    for (int32 i = 0; i < request.<%- property.name %>.Num(); ++i)
@@ -240,42 +234,31 @@ for(var subgroup in api.subgroups)
                         break;
 
                     case "Object":
-                        if(property.hasOwnProperty('collection'))
-                        {
+                        if(property.hasOwnProperty('collection')) {
                             if(property.collection == "array")
                             {
                             %>    OutRestJsonObj->SetObjectArrayField(TEXT("<%- property.name %>"), request.<%- property.name %>);
 <%
-                            }
-                            else
-                            {
+                            } else {
                             %>    if (request.<%- property.name %> != NULL) OutRestJsonObj->SetObjectField(TEXT("<%- property.name %>"), request.<%- property.name %>);
 <%
                             }
-                        }
-                        else
-                        {
+                        } else {
                         %>    if (request.<%- property.name %> != NULL) OutRestJsonObj->SetObjectField(TEXT("<%- property.name %>"), request.<%- property.name %>);
 <%
                         }
                         break;
 
                     case "Boolean":
-                        if(property.hasOwnProperty('collection'))
-                        {
-                            if(property.collection == "array")
-                            {
+                        if(property.hasOwnProperty('collection')) {
+                            if(property.collection == "array") {
                             %>    OutRestJsonObj->SetBoolArrayField(TEXT("<%- property.name %>"), request.<%- property.name %>);
 <%
-                            }
-                            else
-                            {
+                            } else {
                             %>    if (request.<%- property.name %> != NULL) OutRestJsonObj->SetObjectField(TEXT("<%- property.name %>"), request.<%- property.name %>);
 <%
                             }
-                        }
-                        else
-                        {
+                        } else {
                         %>    OutRestJsonObj->SetBoolField(TEXT("<%- property.name %>"), request.<%- property.name %>);
 <%
                         }
@@ -352,9 +335,33 @@ void UPlayFab<%- api.name %>API::OnProcessRequestComplete(FHttpRequestPtr Reques
     myResponse.responseError.decodeError(ResponseJsonObj);
     myResponse.responseData = ResponseJsonObj;
 
-    if (isLoginRequest) IPlayFab::Get().setSessionTicket(myResponse.responseData->GetObjectField("data")->GetStringField("SessionTicket"));
+<% if (hasClientOptions) {
+%>    if (isLoginRequest)
+    {
+        auto pfSettings = IPlayFab::Get();
+        pfSettings.setSessionTicket(myResponse.responseData->GetObjectField("data")->GetStringField("SessionTicket"));
+        bool needsAttribution = myResponse.responseData->GetObjectField("data")->GetBoolField("SessionTicket");
+        if (needsAttribution && !pfSettings.DisableAdvertising && !pfSettings.AdvertisingIdType.IsEmpty() && !pfSettings.AdvertisingIdValue.IsEmpty())
+        {
+            FClientAttributeInstallRequest request;
+            bool makeAttrCall = true;
+            if (pfSettings.AdvertisingIdType == IPlayFab::AD_TYPE_IDFA)
+                request.Idfa = pfSettings.AdvertisingIdValue;
+            else if (pfSettings.AdvertisingIdType == IPlayFab::AD_TYPE_ANDROID_ID)
+                request.Android_Id = pfSettings.AdvertisingIdValue;
+            else
+                makeAttrCall = false;
+            if (makeAttrCall)
+            {
+                auto callObj = AttributeInstall(request);
+                callObj->Activate();
+                if (callObj->IsValidLowLevel())
+                    callObj->ConditionalBeginDestroy();
+            }
+        }
+    }
 
-    // Broadcast the result event
+<% } %>    // Broadcast the result event
     <%- api.name %>_proxy->OnPlayFabResponse.Broadcast(myResponse, true);
 }
 

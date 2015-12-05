@@ -5,52 +5,39 @@
 #include "playfab/PlayFabError.h"
 #include "playfab/PlayFab<%- api.name %>DataModels.h"
 #include "playfab/PlayFabSettings.h"
-
 #include <string>
-
 
 namespace PlayFab
 {
-	
-    
     class PlayFab<%- api.name %>API
     {
     public:
-		
-		<% for(var i in api.calls) { var apiCall = api.calls[i]; %>typedef void(*<%- apiCall.name %>Callback)(<%- api.name %>Models::<%- apiCall.result%>& result, void* userData);
-		<% } %>
-	
-        PlayFab<%- api.name %>API();
-        PlayFab<%- api.name %>API(IHttpRequester* requester, bool ownRequester);
-        ~PlayFab<%- api.name %>API();
-
-        IHttpRequester* GetRequester(bool relinquishOwnership = false);
-        size_t Update();
-
-		<% if(api.name == "Client") { %>bool IsClientLoggedIn();<% } %>
-
+<% for(var i in api.calls) { var apiCall = api.calls[i]; %>        typedef void(*<%- apiCall.name %>Callback)(<%- api.name %>Models::<%- apiCall.result%>& result, void* userData);
+<% } %>
+        static size_t Update();
+<% if(hasClientOptions) { %>
+        // Public, Client-Specific
+        static void MultiStepClientLogin(bool needsAttribution);
+        static bool IsClientLoggedIn();
+<% } %>
         // ------------ Generated API calls
-		<% for(var i in api.calls) { var apiCall = api.calls[i]; if(hasRequest(apiCall, api)) { %>
-		void <%- apiCall.name %>(<%- api.name %>Models::<%- apiCall.request %>& request, <%- apiCall.name %>Callback callback, ErrorCallback errorCallback = NULL, void* userData = NULL);
-		<% } else {%>
-		void <%- apiCall.name %>(<%- apiCall.name %>Callback callback, ErrorCallback errorCallback = NULL, void* userData = NULL);
-		<% } } %>
-
+<% for(var i in api.calls) { var apiCall = api.calls[i]; if(hasRequest(apiCall, api)) {
+%>        static void <%- apiCall.name %>(<%- api.name %>Models::<%- apiCall.request %>& request, <%- apiCall.name %>Callback callback, ErrorCallback errorCallback = nullptr, void* userData = nullptr);
+<% } else
+{%>        static void <%- apiCall.name %>(<%- apiCall.name %>Callback callback, ErrorCallback errorCallback = nullptr, void* userData = nullptr);
+<% } } %>
     private:
+        // ------------ Private constructor, to enforce all-static class
+        PlayFab<%- api.name %>API();
 
         // ------------ Generated result handlers
-		<% for(var i in api.calls) { var apiCall = api.calls[i]; %>
-		static void On<%- apiCall.name %>Result(int httpStatus, HttpRequest* request, void* userData);
-		<% } %>
- 
-        bool mOwnsRequester;
-        IHttpRequester* mHttpRequester;
-		
-		<% if(authKey) { %>
-        std::string mUserSessionTicket;
-		<% } %>
-    };
-
+<% for(var i in api.calls) { var apiCall = api.calls[i];
+%>        static void On<%- apiCall.name %>Result(int httpStatus, HttpRequest* request, void* userData);
+<% } %>
+        static IHttpRequester* mHttpRequester;
+<% if(hasClientOptions) { %>
+        // Private, Client-Specific
+        static std::string mUserSessionTicket;
+<% } %>    };
 };
-
 #endif

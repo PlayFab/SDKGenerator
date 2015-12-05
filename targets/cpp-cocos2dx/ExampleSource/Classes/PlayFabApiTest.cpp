@@ -33,8 +33,6 @@ namespace PlayFabApiTest
     const string TEST_DATA_KEY = "testCounter";
 
     // Variables for all tests
-    PlayFabClientAPI clientApi;
-    PlayFabServerAPI serverApi;
     string playFabId;
     string characterId;
     // Variables for specific tests
@@ -115,7 +113,7 @@ namespace PlayFabApiTest
         int count = 1, sleepCount = 0;
         while (count != 0)
         {
-            count = clientApi.Update();
+            count = PlayFabClientAPI::Update();
             sleepCount++;
             this_thread::sleep_for(chrono::milliseconds(1));
         }
@@ -129,7 +127,7 @@ namespace PlayFabApiTest
         int count = 1, sleepCount = 0;
         while (count != 0)
         {
-            count = serverApi.Update();
+            count = PlayFabServerAPI::Update();
             sleepCount++;
             this_thread::sleep_for(chrono::milliseconds(1));
         }
@@ -172,7 +170,7 @@ namespace PlayFabApiTest
         request.Email = USER_EMAIL;
         request.Password = USER_PASSWORD + "INVALID";
 
-        clientApi.LoginWithEmailAddress(request, &LoginCallback, &LoginFailedCallback, NULL);
+        PlayFabClientAPI::LoginWithEmailAddress(request, &LoginCallback, &LoginFailedCallback, NULL);
         ClientApiWait();
 
         return testMessageReturn.compare("Login_Failed - Password") == 0; // This call is supposed to return as an error
@@ -191,18 +189,18 @@ namespace PlayFabApiTest
     bool LoginOrRegister()
     {
         CCLOG("%s", "LoginOrRegister");
-        if (!clientApi.IsClientLoggedIn()) // If we haven't already logged in...
+        if (!PlayFabClientAPI::IsClientLoggedIn()) // If we haven't already logged in...
         {
             LoginWithEmailAddressRequest loginRequest;
             loginRequest.TitleId = PlayFabSettings::titleId;
             loginRequest.Email = USER_EMAIL;
             loginRequest.Password = USER_PASSWORD;
 
-            clientApi.LoginWithEmailAddress(loginRequest, &LoginCallback, &LoginFailedCallback, NULL);
+            PlayFabClientAPI::LoginWithEmailAddress(loginRequest, &LoginCallback, &LoginFailedCallback, NULL);
             ClientApiWait();
         }
 
-        if (testMessageReturn.compare("Login_Success") == 0 && clientApi.IsClientLoggedIn())
+        if (testMessageReturn.compare("Login_Success") == 0 && PlayFabClientAPI::IsClientLoggedIn())
             return true;
 
         // If the setup failed to log in a user, we need to create one.
@@ -212,11 +210,11 @@ namespace PlayFabApiTest
         registerRequest.Email = USER_EMAIL;
         registerRequest.Password = USER_PASSWORD;
 
-        clientApi.RegisterPlayFabUser(registerRequest, &RegisterCallback, &SharedFailedCallback, NULL);
+        PlayFabClientAPI::RegisterPlayFabUser(registerRequest, &RegisterCallback, &SharedFailedCallback, NULL);
         ClientApiWait();
 
         return testMessageReturn.compare("Register_Success") == 0
-            && clientApi.IsClientLoggedIn();
+            && PlayFabClientAPI::IsClientLoggedIn();
     }
 
     /// <summary>
@@ -249,7 +247,7 @@ namespace PlayFabApiTest
         LoginOrRegister(); // C++ Environment is nicely secluded, but also means that we have to manually handle sequential requirements
 
         PlayFab::ClientModels::GetUserDataRequest getRequest;
-        clientApi.GetUserData(getRequest, &GetDataCallback, &SharedFailedCallback, NULL);
+        PlayFabClientAPI::GetUserData(getRequest, &GetDataCallback, &SharedFailedCallback, NULL);
         ClientApiWait();
         if (testMessageReturn.compare("GetData_Success") != 0) return false;
         int testCounterValueExpected = (testMessageInt + 1) % 100; // This test is about the expected value changing - but not testing more complicated issues like bounds
@@ -263,11 +261,11 @@ namespace PlayFabApiTest
         temp.append(buffer);
 
         updateRequest.Data[TEST_DATA_KEY] = temp;
-        clientApi.UpdateUserData(updateRequest, &UpdateDataCallback, &SharedFailedCallback, NULL);
+        PlayFabClientAPI::UpdateUserData(updateRequest, &UpdateDataCallback, &SharedFailedCallback, NULL);
         ClientApiWait();
         if (testMessageReturn.compare("UpdateData_Success") != 0) return false;
 
-        clientApi.GetUserData(getRequest, &GetDataCallback, &SharedFailedCallback, NULL);
+        PlayFabClientAPI::GetUserData(getRequest, &GetDataCallback, &SharedFailedCallback, NULL);
         ClientApiWait();
         if (testMessageReturn.compare("GetData_Success") != 0) return false;
 
@@ -307,18 +305,18 @@ namespace PlayFabApiTest
         CCLOG("%s", "UserStatisticsApi");
         LoginOrRegister(); // C++ Environment is nicely secluded, but also means that we have to manually handle sequential requirements
 
-        clientApi.GetUserStatistics(&GetStatsCallback, &SharedFailedCallback, NULL);
+        PlayFabClientAPI::GetUserStatistics(&GetStatsCallback, &SharedFailedCallback, NULL);
         ClientApiWait();
         if (testMessageReturn.compare("GetStats_Success") != 0) return false;
         Int32 testStatValueExpected = (testMessageInt + 1) % 100; // This test is about the expected value changing (incrementing through from TEST_STAT_BASE to TEST_STAT_BASE * 2 - 1)
 
         PlayFab::ClientModels::UpdateUserStatisticsRequest updateRequest;
         updateRequest.UserStatistics[TEST_STAT_NAME] = testStatValueExpected;
-        clientApi.UpdateUserStatistics(updateRequest, &UpdateStatsCallback, &SharedFailedCallback, NULL);
+        PlayFabClientAPI::UpdateUserStatistics(updateRequest, &UpdateStatsCallback, &SharedFailedCallback, NULL);
         ClientApiWait();
         if (testMessageReturn.compare("UpdateStats_Success") != 0) return false;
 
-        clientApi.GetUserStatistics(&GetStatsCallback, &SharedFailedCallback, NULL);
+        PlayFabClientAPI::GetUserStatistics(&GetStatsCallback, &SharedFailedCallback, NULL);
         ClientApiWait();
         Int32 testStatValueActual = testMessageInt;
 
@@ -358,9 +356,9 @@ namespace PlayFabApiTest
         CCLOG("%s", "UserCharacter");
         LoginOrRegister(); // C++ Environment is nicely secluded, but also means that we have to manually handle sequential requirements
 
-        ServerModels::ListUsersCharactersRequest request;
-        request.PlayFabId = playFabId;
-        serverApi.GetAllUsersCharacters(request, &GetCharsCallback, &SharedFailedCallback, NULL);
+        ServerModels::ListUsersCharactersRequest request1;
+        request1.PlayFabId = playFabId;
+        PlayFabServerAPI::GetAllUsersCharacters(request1, &GetCharsCallback, &SharedFailedCallback, NULL);
         ServerApiWait();
         if (testMessageReturn.compare("GetChars_Success") != 0) return false;
 
@@ -371,14 +369,14 @@ namespace PlayFabApiTest
             grantRequest.PlayFabId = playFabId;
             grantRequest.CharacterName = CHAR_NAME;
             grantRequest.CharacterType = CHAR_TEST_TYPE;
-            serverApi.GrantCharacterToUser(grantRequest, &GrantCharCallback, &SharedFailedCallback, NULL);
+            PlayFabServerAPI::GrantCharacterToUser(grantRequest, &GrantCharCallback, &SharedFailedCallback, NULL);
             ServerApiWait();
             if (testMessageReturn.compare("GrantChar_Success") != 0) return false;
             if (characterId.empty()) return false;
 
-            ServerModels::ListUsersCharactersRequest request;
-            request.PlayFabId = playFabId;
-            serverApi.GetAllUsersCharacters(request, &GetCharsCallback, &SharedFailedCallback, NULL);
+            ServerModels::ListUsersCharactersRequest request2;
+            request2.PlayFabId = playFabId;
+            PlayFabServerAPI::GetAllUsersCharacters(request2, &GetCharsCallback, &SharedFailedCallback, NULL);
             ServerApiWait();
             if (testMessageReturn.compare("GetChars_Success") != 0) return false;
         }
@@ -413,7 +411,7 @@ namespace PlayFabApiTest
         GetLeaderboardAroundCurrentUserRequest clientRequest;
         clientRequest.MaxResultsCount = 3;
         clientRequest.StatisticName = TEST_STAT_NAME;
-        clientApi.GetLeaderboardAroundCurrentUser(clientRequest, &ClientLeaderboardCallback, &SharedFailedCallback, NULL);
+        PlayFabClientAPI::GetLeaderboardAroundCurrentUser(clientRequest, &ClientLeaderboardCallback, &SharedFailedCallback, NULL);
         ClientApiWait();
         if (testMessageReturn.compare("GetClientLB_Success") != 0) return false;
         if (testMessageInt <= 0) return false;
@@ -423,7 +421,7 @@ namespace PlayFabApiTest
         serverRequest.StatisticName = TEST_STAT_NAME;
         serverRequest.CharacterId = characterId;
         serverRequest.PlayFabId = playFabId;
-        serverApi.GetLeaderboardAroundCharacter(serverRequest, &ServerLeaderboardCallback, &SharedFailedCallback, NULL);
+        PlayFabServerAPI::GetLeaderboardAroundCharacter(serverRequest, &ServerLeaderboardCallback, &SharedFailedCallback, NULL);
         ServerApiWait();
         return testMessageReturn.compare("GetServerLB_Success") == 0
             && testMessageInt > 0;
@@ -454,7 +452,7 @@ namespace PlayFabApiTest
 
         GetAccountInfoRequest request;
         request.PlayFabId = playFabId;
-        clientApi.GetAccountInfo(request, &AcctInfoCallback, &SharedFailedCallback, NULL);
+        PlayFabClientAPI::GetAccountInfo(request, &AcctInfoCallback, &SharedFailedCallback, NULL);
         ClientApiWait();
         return testMessageReturn.compare("Enums tested") == 0;
     }
@@ -491,7 +489,7 @@ namespace PlayFabApiTest
         if (PlayFabSettings::logicServerURL.length() == 0)
         {
             GetCloudScriptUrlRequest urlRequest;
-            clientApi.GetCloudScriptUrl(urlRequest, &CloudUrlCallback, &SharedFailedCallback, NULL);
+            PlayFabClientAPI::GetCloudScriptUrl(urlRequest, &CloudUrlCallback, &SharedFailedCallback, NULL);
             ClientApiWait();
             if (testMessageReturn.compare("CloudUrl retrieved") != 0)
                 return false;
@@ -499,7 +497,7 @@ namespace PlayFabApiTest
 
         RunCloudScriptRequest hwRequest;
         hwRequest.ActionId = "helloWorld";
-        clientApi.RunCloudScript(hwRequest, &CloudHelloWorldCallback, &SharedFailedCallback, NULL);
+        PlayFabClientAPI::RunCloudScript(hwRequest, &CloudHelloWorldCallback, &SharedFailedCallback, NULL);
         ClientApiWait();
         return testMessageReturn.compare("Hello " + playFabId + "!") == 0;
     }

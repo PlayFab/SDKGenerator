@@ -19,10 +19,10 @@ namespace PlayFab
 <% } %>        public static void <%- apiCall.name %>(<%- apiCall.request %> request, <%- apiCall.name %>Callback resultCallback, ErrorCallback errorCallback, object customData = null)
         {
             <%- getRequestActions(apiCall, api) %>
-            string serializedJSON = JsonConvert.SerializeObject(request, Util.JsonFormatting, Util.JsonSettings);
+            string serializedJson = JsonConvert.SerializeObject(request, Util.JsonFormatting, Util.JsonSettings);
             Action<string,PlayFabError> callback = delegate(string responseStr, PlayFabError pfError)
             {
-                <%- apiCall.result %> result = null;
+                <%- apiCall.result %> result;
                 ResultContainer<<%- apiCall.result %>>.HandleResults(responseStr, ref pfError, out result);
                 if(pfError != null && errorCallback != null)
                 {
@@ -39,15 +39,29 @@ namespace PlayFab
                     }
                 }
             };
-            PlayFabHTTP.Post(<%- getUrlAccessor(apiCall) %>+"<%- apiCall.url %>", serializedJSON, <%- getAuthParams(apiCall) %>, callback);
+            PlayFabHTTP.Post(<%- getUrlAccessor(apiCall) %>+"<%- apiCall.url %>", serializedJson, <%- getAuthParams(apiCall) %>, callback);
         }
 
-<% } %><% if(authKey) { %>        private static string AuthKey = null;
-        // Determine if the AuthKey is set, without actually making it public
+<% } %><% if(hasClientOptions) { %>        private static string _authKey = null;
+        // Determine if the _authKey is set, without actually making it public
         public static bool IsClientLoggedIn()
         {
-            return !string.IsNullOrEmpty(AuthKey);
+            return !string.IsNullOrEmpty(_authKey);
+        }
+
+        public static void MultiStepClientLogin(bool needsAttribution)
+        {
+            if (needsAttribution && !PlayFab.PlayFabSettings.DisableAdvertising && !string.IsNullOrEmpty(PlayFab.PlayFabSettings.AdvertisingIdType) && !string.IsNullOrEmpty(PlayFab.PlayFabSettings.AdvertisingIdValue))
+            {
+                AttributeInstallRequest request = new AttributeInstallRequest();
+                if (PlayFab.PlayFabSettings.AdvertisingIdType == PlayFab.PlayFabSettings.AD_TYPE_IDFA)
+                    request.Idfa = PlayFab.PlayFabSettings.AdvertisingIdValue;
+                else if (PlayFab.PlayFabSettings.AdvertisingIdType == PlayFab.PlayFabSettings.AD_TYPE_ANDROID_ID)
+                    request.Android_Id = PlayFab.PlayFabSettings.AdvertisingIdValue;
+                else
+                    return;
+                AttributeInstall(request, null, null);
+            }
         }<% } %>
     }
 }
-

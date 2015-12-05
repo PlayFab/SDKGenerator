@@ -4,7 +4,7 @@ package asyncUnitTest
 	{
 		public function ReportTestResult(testDuration:Number, testName:String, testResult:int, testMessage:String) : void
 		{
-			var line:String = '';
+			var line:String = "";
 			line += testDuration;
 			while (line.length < 12)
 				line = " " + line;
@@ -31,7 +31,7 @@ package asyncUnitTest
 			ReportTestResult(cumulativeTearDownTime, suiteName + ".CumulativeTearDownTime", ASyncUnitTestEvent.RESULT_PASSED, "")
 			ReportTestResult(suiteTearDownDuration, suiteName + ".SuiteTearDown", ASyncUnitTestEvent.RESULT_PASSED, "")
 
-			var line:String = '';
+			var line:String = "";
 			line += "Tests Run: " + testsRun + ", ";
 			line += "Tests Passed: " + testsPassed + ", ";
 			line += "Tests Failed: " + testsFailed + ", ";

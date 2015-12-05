@@ -3,6 +3,7 @@ package com.playfab;
 import com.playfab.internal.*;
 import com.playfab.PlayFab<%- api.name %>Models.*;
 import com.playfab.PlayFabErrors.*;
+import com.playfab.PlayFabSettings;
 import java.util.concurrent.*;
 import java.util.*;
 import com.google.gson.*;
@@ -50,7 +51,7 @@ public class PlayFab<%- api.name %>API {
      */<% } %>
     @SuppressWarnings("unchecked")
     private static PlayFabResult<<%- apiCall.result %>> private<%- apiCall.name %>Async(final <%- apiCall.request %> request) throws Exception {
-        <%- getRequestActions(apiCall, api) %>
+<%- getRequestActions(apiCall, api) %>
         FutureTask<Object> task = PlayFabHTTP.doPost(<%- getUrlAccessor(apiCall) %> + "<%- apiCall.url %>", request, <%- getAuthParams(apiCall) %>);
         task.run();
         Object httpResult = task.get();
@@ -66,13 +67,26 @@ public class PlayFab<%- api.name %>API {
 
         PlayFabJsonSuccess<<%- apiCall.result %>> resultData = gson.fromJson(resultRawJson, new TypeToken<PlayFabJsonSuccess<<%- apiCall.result %>>>(){}.getType());
         <%- apiCall.result %> result = resultData.data;
-        <%- getResultActions(apiCall, api) %>
+<%- getResultActions(apiCall, api) %>
         PlayFabResult<<%- apiCall.result %>> pfResult = new PlayFabResult<<%- apiCall.result %>>();
         pfResult.Result = result;
         return pfResult;
-    }<% } %>
+    }
+<% } %><% if(hasClientOptions) { %>
+    public static void MultiStepClientLogin(Boolean needsAttribution) {
+        if (needsAttribution && !PlayFabSettings.DisableAdvertising && PlayFabSettings.AdvertisingIdType != null && PlayFabSettings.AdvertisingIdValue != null)
+        {
+            PlayFabClientModels.AttributeInstallRequest request = new PlayFabClientModels.AttributeInstallRequest();
+            if (PlayFabSettings.AdvertisingIdType == PlayFabSettings.AD_TYPE_IDFA)
+                request.Idfa = PlayFabSettings.AdvertisingIdValue;
+            else if (PlayFabSettings.AdvertisingIdType == PlayFabSettings.AD_TYPE_ANDROID_ID)
+                request.Android_Id = PlayFabSettings.AdvertisingIdValue;
+            else
+                return;
+            FutureTask<PlayFabResult<AttributeInstallResult>> task = AttributeInstallAsync(request);
+            task.run();
+        }
+    }
 
-    <% if(authKey) { %>
-    private static String AuthKey = null;
-    <% } %>
-}
+    private static String _authKey = null;
+<% } %>}

@@ -1,11 +1,11 @@
-var path = require('path');
-var shared = require('../cpp-shared/cpp-shared');
+var path = require("path");
+var shared = require("../cpp-shared/cpp-shared");
 
 function copyBaseFiles(sourceDir, apiOutputDir) {
-    copyTree(path.resolve(sourceDir, '../cpp-shared/source/dependencies/include/rapidjson'), path.resolve(apiOutputDir, 'include/rapidjson'));
-    copyTree(path.resolve(sourceDir, '../cpp-shared/source/include'), path.resolve(apiOutputDir, 'include'));
-    copyTree(path.resolve(sourceDir, '../cpp-shared/source/source/core'), path.resolve(apiOutputDir, 'source'));
-    copyTree(path.resolve(sourceDir, '../cpp-shared/source/source/curl'), path.resolve(apiOutputDir, 'source'));
+    copyTree(path.resolve(sourceDir, "../cpp-shared/source/dependencies/include/rapidjson"), path.resolve(apiOutputDir, "include/rapidjson"));
+    copyTree(path.resolve(sourceDir, "../cpp-shared/source/include"), path.resolve(apiOutputDir, "include"));
+    copyTree(path.resolve(sourceDir, "../cpp-shared/source/source/core"), path.resolve(apiOutputDir, "source"));
+    copyTree(path.resolve(sourceDir, "../cpp-shared/source/source/curl"), path.resolve(apiOutputDir, "source"));
 }
 
 exports.makeClientAPI = function (api, sourceDir, apiOutputDir) {
@@ -14,7 +14,7 @@ exports.makeClientAPI = function (api, sourceDir, apiOutputDir) {
     console.log("Generating Cocos2d-x C++ client SDK to " + apiOutputDir);
     
     copyBaseFiles(sourceDir, apiOutputDir);
-    copyTree(path.resolve(sourceDir, 'source'), apiOutputDir);
+    copyTree(path.resolve(sourceDir, "source"), apiOutputDir);
     
     shared.makeAPI(api, apiOutputDir, "");
     
@@ -30,7 +30,7 @@ exports.makeServerAPI = function (apis, sourceDir, apiOutputDir) {
     console.log("Generating Cocos2d-x C++ server SDK to " + apiOutputDir);
     
     copyBaseFiles(sourceDir, apiOutputDir);
-    copyTree(path.resolve(sourceDir, 'source'), apiOutputDir);
+    copyTree(path.resolve(sourceDir, "source"), apiOutputDir);
     
     for (var i in apis)
         shared.makeAPI(apis[i], apiOutputDir, "");
@@ -47,7 +47,7 @@ exports.makeCombinedAPI = function (apis, sourceDir, apiOutputDir) {
     console.log("Generating Cocos2d-x C++ combined SDK to " + apiOutputDir);
     
     copyBaseFiles(sourceDir, apiOutputDir);
-    copyTree(path.resolve(sourceDir, 'source'), apiOutputDir);
+    copyTree(path.resolve(sourceDir, "source"), apiOutputDir);
     
     for (var i in apis)
         shared.makeAPI(apis[i], apiOutputDir, "");
@@ -71,18 +71,17 @@ function generateSettings(apis, sourceDir, apiOutputDir) {
     var settingsTemplateh = ejs.compile(readFile(path.resolve(sourceDir, "templates/PlayFabSettings.h.ejs")));
     var settingsTemplateCpp = ejs.compile(readFile(path.resolve(sourceDir, "templates/PlayFabSettings.cpp.ejs")));
     
-    var versionLocals = {};
-    versionLocals.hasLogicServer = false;
-    versionLocals.hasSecretKey = false;
+    var settingsLocals = {};
+    settingsLocals.hasClientOptions = false;
+    settingsLocals.hasServerOptions = false;
     for (var i in apis) {
-        if (apis[i].name == "Client")
-            versionLocals.hasLogicServer = true;
+        if (apis[i].name === "Client")
+            settingsLocals.hasClientOptions = true;
         else
-            versionLocals.hasSecretKey = true;
+            settingsLocals.hasServerOptions = true;
     }
-    
-    var generatedSettingsH = settingsTemplateh(versionLocals);
-    var generatedSettingsCpp = settingsTemplateCpp(versionLocals);
+    var generatedSettingsH = settingsTemplateh(settingsLocals);
+    var generatedSettingsCpp = settingsTemplateCpp(settingsLocals);
     writeFile(path.resolve(apiOutputDir, "include/playfab/PlayFabSettings.h"), generatedSettingsH);
     writeFile(path.resolve(apiOutputDir, "source/core/PlayFabSettings.cpp"), generatedSettingsCpp);
 }

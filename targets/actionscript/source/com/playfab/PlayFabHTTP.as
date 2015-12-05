@@ -19,7 +19,7 @@ package com.playfab
 
             //Object data?
             if( requestBody != null ) {
-                request.contentType = 'application/json';
+                request.contentType = "application/json";
                 request.data = requestBody;
             }
 

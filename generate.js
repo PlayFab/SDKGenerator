@@ -1,5 +1,5 @@
-var fs = require('fs');
-var path = require('path');
+var fs = require("fs");
+var path = require("path");
 
 function getTargetsList() {
     var targetList = [];
@@ -9,7 +9,7 @@ function getTargetsList() {
     var targets = fs.readdirSync(targetsDir);
     for (var i in targets) {
         var target = targets[i];
-        if (target[0] == '.')
+        if (target[0] === ".")
             continue;
         
         var targetSourceDir = path.resolve(targetsDir, target);
@@ -50,7 +50,7 @@ function generate(args) {
     var testData = null;
     
     var firstTargetIndex = 3;
-    if (args[3] == "-t") {
+    if (args[3] === "-t") {
         if (args.length < 5) {
             console.log(syntax);
             process.exit();
@@ -60,7 +60,7 @@ function generate(args) {
             console.log("Test plan file not found: " + testLocation);
             process.exit();
         }
-        var testData = (JSON.parse(fs.readFileSync(testLocation)));
+        testData = (JSON.parse(fs.readFileSync(testLocation)));
         //testData = require(testLocation);
         if (!testData) {
             console.log("Couldn't load test input data at " + testLocation);
@@ -304,9 +304,9 @@ GLOBAL.copyTree = function (source, dest) {
         var filesInDir = fs.readdirSync(source);
         for (var i in filesInDir) {
             var filename = filesInDir[i];
-            var file = source + '/' + filename;
+            var file = source + "/" + filename;
             if (fs.lstatSync(file).isDirectory()) {
-                copyTree(file, dest + '/' + filename);
+                copyTree(file, dest + "/" + filename);
             }
             else {
                 copyFile(file, dest);
@@ -339,11 +339,11 @@ GLOBAL.copyFile = function (source, dest) {
     
     if (fs.existsSync(dest)) {
         if (fs.lstatSync(dest).isDirectory()) {
-            dest += '/' + filename;
+            dest += "/" + filename;
         }
     }
     else {
-        if (dest[dest.length - 1] == '/' || dest[dest.length - 1] == '\\') {
+        if (dest[dest.length - 1] === "/" || dest[dest.length - 1] === "\\") {
             mkdirParentsSync(dest);
             dest += filename;
         }

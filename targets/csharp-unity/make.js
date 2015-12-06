@@ -134,7 +134,7 @@ function getModelPropertyDef(property, datatype) {
     else if (property.collection)
         throw "Unknown collection type: " + property.collection + " for " + property.name + " in " + datatype.name;
     
-    var basicType = getPropertyCSType(property, datatype, true);
+    basicType = getPropertyCSType(property, datatype, true);
     return basicType + " " + property.name;
 }
 

@@ -8,7 +8,7 @@ namespace PlayFab
 <% if(api.description) { %>    /// <summary>
     /// <%- api.description %>
     /// </summary>
-<% } %>    public class PlayFab<%- api.name %>API
+<% } %>    public static class PlayFab<%- api.name %>API
     {
 <% for(var i in api.calls) { var apiCall = api.calls[i]; %>        public delegate void <%- apiCall.name %>Callback(<%- apiCall.result%> result);
 <% } %>
@@ -49,7 +49,7 @@ namespace PlayFab
             return !string.IsNullOrEmpty(_authKey);
         }
 
-        public static void MultiStepClientLogin(bool needsAttribution)
+        private static void MultiStepClientLogin(bool needsAttribution)
         {
             if (needsAttribution && !PlayFab.PlayFabSettings.DisableAdvertising && !string.IsNullOrEmpty(PlayFab.PlayFabSettings.AdvertisingIdType) && !string.IsNullOrEmpty(PlayFab.PlayFabSettings.AdvertisingIdValue))
             {

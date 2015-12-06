@@ -96,6 +96,8 @@ function getResultActions(numSpaces, apiCall, api) {
             + spaces + "    PlayFab._internalSettings.sessionTicket = result.data.hasOwnProperty(\"SessionTicket\") ? result.data.SessionTicket : PlayFab._internalSettings.sessionTicket;\n"
             + spaces + "    exports._MultiStepClientLogin(result.data.SettingsForUser.NeedsAttribution);\n"
             + spaces + "}";
+    else if (api.name === "Client" && apiCall.result === "AttributeInstallResult")
+        output = spaces + "PlayFab.settings.advertisingIdType += \"_Successful\";\n";
     else if (api.name === "Client" && apiCall.result === "GetCloudScriptUrlResult")
         output = spaces + "PlayFab._internalSettings.logicServerUrl = result != null && result.data.hasOwnProperty(\"Url\") ? result.data.Url : PlayFab._internalSettings.logicServerUrl;\n";
     

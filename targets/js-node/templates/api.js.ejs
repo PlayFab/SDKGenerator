@@ -21,7 +21,6 @@ exports._MultiStepClientLogin = function (needsAttribution) {
             request.Android_Id = PlayFab.settings.advertisingIdValue;
         else
             return;
-        var task = exports.AttributeInstall(request);
-        task.Start();
+        exports.AttributeInstall(request);
     }
 }<% } %>

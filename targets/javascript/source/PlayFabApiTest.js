@@ -211,7 +211,7 @@ var PlayFabApiTests = {
 
     /// <summary>
     /// CLIENT API
-    /// Log in or create a user, track their PlayFabId
+    /// Test that the login call sequence sends the AdvertisingId when set
     /// </summary>
     LoginWithAdvertisingId: function (assert) {
         PlayFab.settings.advertisingIdType = PlayFab.settings.AD_TYPE_ANDROID_ID;

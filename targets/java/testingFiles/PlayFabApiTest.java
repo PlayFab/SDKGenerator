@@ -55,7 +55,7 @@ public class PlayFabApiTest
             assertNotNull(result.Error);
         }
     }
-    
+
     private class TitleData
     {
         public String titleId;
@@ -66,7 +66,7 @@ public class PlayFabApiTest
         public String userPassword;
         public String characterName;
     }
-    
+
     @BeforeClass
     public static void oneTimeSetUp() {
         String testTitleDataFile = System.getProperty("testTitleData");
@@ -91,10 +91,10 @@ public class PlayFabApiTest
             return;
         }
         Gson gson = new GsonBuilder().create();
-        TitleData resultData = gson.fromJson(testTitleJson, new TypeToken<TitleData>(){}.getType()); 
+        TitleData resultData = gson.fromJson(testTitleJson, new TypeToken<TitleData>(){}.getType());
         PlayFabSettings.TitleId = resultData.titleId;
         PlayFabSettings.DeveloperSecretKey = resultData.developerSecretKey;
-        TITLE_CAN_UPDATE_SETTINGS = Boolean.parseBoolean(resultData.titleCanUpdateSettings); 
+        TITLE_CAN_UPDATE_SETTINGS = Boolean.parseBoolean(resultData.titleCanUpdateSettings);
         USER_NAME = resultData.userName;
         USER_EMAIL = resultData.userEmail;
         USER_PASSWORD = resultData.userPassword;
@@ -106,7 +106,6 @@ public class PlayFabApiTest
     public void InvalidLogin()
     {
         PlayFabClientModels.LoginWithEmailAddressRequest request = new PlayFabClientModels.LoginWithEmailAddressRequest();
-
         request.TitleId = PlayFabSettings.TitleId;
         request.Email = USER_EMAIL;
         request.Password = USER_PASSWORD + "invalid";
@@ -115,12 +114,11 @@ public class PlayFabApiTest
         VerifyResult(result, false);
         assertTrue(result.Error.errorMessage.contains("password"));
     }
-    
+
     @Test
     public void LoginOrRegister()
     {
         PlayFabClientModels.LoginWithEmailAddressRequest request = new PlayFabClientModels.LoginWithEmailAddressRequest();
-
         request.TitleId = PlayFabSettings.TitleId;
         request.Email = USER_EMAIL;
         request.Password = USER_PASSWORD;
@@ -132,12 +130,31 @@ public class PlayFabApiTest
 
         // TODO: Register if the login failed
     }
-    
+
+    /// <summary>
+    /// CLIENT API
+    /// Test that the login call sequence sends the AdvertisingId when set
+    /// </summary>
+    @Test
+    public void LoginWithAdvertisingId()
+    {
+        PlayFabSettings.AdvertisingIdType = PlayFabSettings.AD_TYPE_ANDROID_ID;
+        PlayFabSettings.AdvertisingIdValue = "PlayFabTestId";
+
+        PlayFabClientModels.LoginWithEmailAddressRequest request = new PlayFabClientModels.LoginWithEmailAddressRequest();
+        request.TitleId = PlayFabSettings.TitleId;
+        request.Email = USER_EMAIL;
+        request.Password = USER_PASSWORD;
+        PlayFabResult<PlayFabClientModels.LoginResult> result = PlayFabClientAPI.LoginWithEmailAddress(request);
+
+        assertEquals(PlayFabSettings.AD_TYPE_ANDROID_ID + "_Successful", PlayFabSettings.AdvertisingIdType);
+    }
+
     @Test
     public void UserDataApi()
     {
         LoginOrRegister();
-        
+
         PlayFabClientModels.GetUserDataRequest getRequest = new PlayFabClientModels.GetUserDataRequest();
         PlayFabResult<PlayFabClientModels.GetUserDataResult> getDataResult = PlayFabClientAPI.GetUserData(getRequest);
         VerifyResult(getDataResult, true);
@@ -159,7 +176,7 @@ public class PlayFabApiTest
 
         // Get the UTC timestamp for when the record was updated
         Date timeUpdated = tempRecord.LastUpdated;
-        
+
         // Generate utc timestamps within 5 minutes of "now"
         Date now = new Date();
         int utcOffset = Calendar.getInstance().getTimeZone().getRawOffset();
@@ -170,42 +187,42 @@ public class PlayFabApiTest
         // Verify that the update time is sufficiently close to now
         assertTrue(testMin.before(timeUpdated) && timeUpdated.before(testMax));
     }
-    
+
     @Test
     public void UserStatisticsApi()
     {
         LoginOrRegister();
-        
+
         PlayFabClientModels.GetUserStatisticsRequest getRequest = new PlayFabClientModels.GetUserStatisticsRequest();
         PlayFabResult<PlayFabClientModels.GetUserStatisticsResult> getStatsResult = PlayFabClientAPI.GetUserStatistics(getRequest);
         VerifyResult(getStatsResult, true);
         int testStatExpected = getStatsResult.Result.UserStatistics == null ? 0 : getStatsResult.Result.UserStatistics.get(TEST_STAT_NAME);
         testStatExpected = (testStatExpected + 1) % 100; // This test is about the expected value changing - but not testing more complicated issues like bounds
-        
+
         PlayFabClientModels.UpdateUserStatisticsRequest updateRequest = new PlayFabClientModels.UpdateUserStatisticsRequest();
         updateRequest.UserStatistics = new HashMap<String,Integer>();
         updateRequest.UserStatistics.put(TEST_STAT_NAME, testStatExpected);
         PlayFabResult<PlayFabClientModels.UpdateUserStatisticsResult> updateStatsResult = PlayFabClientAPI.UpdateUserStatistics(updateRequest);
         VerifyResult(updateStatsResult, true);
-        
+
         getStatsResult = PlayFabClientAPI.GetUserStatistics(getRequest);
         VerifyResult(getStatsResult, true);
         int testStatActual = getStatsResult.Result.UserStatistics == null ? 0 : getStatsResult.Result.UserStatistics.get(TEST_STAT_NAME);
 
         assertEquals(testStatExpected, testStatActual);
     }
-    
+
     @Test
     public void UserCharacter()
     {
         LoginOrRegister();
-        
+
         PlayFabServerModels.ListUsersCharactersRequest getRequest = new PlayFabServerModels.ListUsersCharactersRequest();
         getRequest.PlayFabId = playFabId;
         PlayFabResult<PlayFabServerModels.ListUsersCharactersResult> getCharsResult = PlayFabServerAPI.GetAllUsersCharacters(getRequest);
         VerifyResult(getCharsResult, true);
         SaveCharacterId(getCharsResult.Result.Characters);
-        
+
         if (getCharsResult.Result.Characters == null || getCharsResult.Result.Characters.size() == 0)
         {
             PlayFabServerModels.GrantCharacterToUserRequest grantRequest = new PlayFabServerModels.GrantCharacterToUserRequest();
@@ -221,7 +238,7 @@ public class PlayFabApiTest
             VerifyResult(getCharsResult, true);
             SaveCharacterId(getCharsResult.Result.Characters);
         }
-        
+
         assertTrue(characterId != null && characterId.length() > 0);
     }
     private void SaveCharacterId(List<PlayFabServerModels.CharacterResult> characters)
@@ -230,23 +247,23 @@ public class PlayFabApiTest
         {
             PlayFabServerModels.CharacterResult eachChar = characters.get(i);
             if (eachChar.CharacterName.equals(CHAR_NAME))
-                characterId = eachChar.CharacterId; 
+                characterId = eachChar.CharacterId;
         }
     }
-    
+
     @Test
     public void LeaderBoard()
     {
         LoginOrRegister();
         UserStatisticsApi();
-        
+
         PlayFabClientModels.GetLeaderboardAroundCurrentUserRequest clientRequest = new PlayFabClientModels.GetLeaderboardAroundCurrentUserRequest();
         clientRequest.MaxResultsCount = 3;
         clientRequest.StatisticName = TEST_STAT_NAME;
         PlayFabResult<PlayFabClientModels.GetLeaderboardAroundCurrentUserResult> clientResult = PlayFabClientAPI.GetLeaderboardAroundCurrentUser(clientRequest);
         VerifyResult(clientResult, true);
         assertTrue(GetClLbCount(clientResult.Result.Leaderboard) > 0);
-        
+
         PlayFabServerModels.GetLeaderboardAroundUserRequest serverRequest = new PlayFabServerModels.GetLeaderboardAroundUserRequest();
         serverRequest.MaxResultsCount = 3;
         serverRequest.StatisticName = TEST_STAT_NAME;
@@ -269,7 +286,7 @@ public class PlayFabApiTest
             count = lb.size();
         return count;
     }
-    
+
     /// <summary>
     /// CLIENT API
     /// Test that AccountInfo can be requested
@@ -279,7 +296,7 @@ public class PlayFabApiTest
     public void AccountInfo()
     {
         LoginOrRegister();
-        
+
         PlayFabClientModels.GetAccountInfoRequest request = new PlayFabClientModels.GetAccountInfoRequest();
         request.PlayFabId = playFabId;
         PlayFabResult<PlayFabClientModels.GetAccountInfoResult> result = PlayFabClientAPI.GetAccountInfo(request);

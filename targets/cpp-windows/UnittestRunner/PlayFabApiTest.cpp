@@ -243,7 +243,7 @@ namespace UnittestRunner
 
         /// <summary>
         /// CLIENT API
-        /// Log in or create a user, track their PlayFabId
+        /// Test that the login call sequence sends the AdvertisingId when set
         /// </summary>
         TEST_METHOD(LoginWithAdvertisingId)
         {

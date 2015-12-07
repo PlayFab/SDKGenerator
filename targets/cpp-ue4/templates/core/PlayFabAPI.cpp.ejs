@@ -12,12 +12,34 @@ UPlayFab<%- api.name %>API::UPlayFab<%- api.name %>API() {}
 
 UPlayFab<%- api.name %>API::~UPlayFab<%- api.name %>API() {}
 
-int UPlayFab<%- api.name %>API::GetPendingCalls()
+int UPlayFab<%- api.name %>API::GetPendingCalls() const
 {
-    return PlayFab::PlayFabRequestHandler::GetPendingCalls();
+    return PlayFabRequestHandler::GetPendingCalls();
 }
-<% if(api.name == "Client") { %>
-bool UPlayFabClientAPI::IsClientLoggedIn()
+
+void UPlayFab<%- api.name %>API::SetTitleId(const FString& titleId)
+{
+    PlayFabSettings::titleId = titleId;
+}
+<% if(hasClientOptions) { %>
+bool UPlayFabClientAPI::SetAdvertId(const FString& advertisingIdType, const FString& advertisingIdValue)
+{
+    // TODO: Work on exposing PlayFabSettings::AD_TYPE_X vars, for now, just validate against them
+    bool valid = advertisingIdType == PlayFabSettings::AD_TYPE_IDFA || advertisingIdType == PlayFabSettings::AD_TYPE_ANDROID_ID;
+    if (valid)
+    {
+        PlayFabSettings::advertisingIdType = advertisingIdType;
+        PlayFabSettings::advertisingIdValue = advertisingIdValue;
+    }
+    return valid;
+}
+
+bool UPlayFabClientAPI::AdvertIdSuccessful()
+{
+    return PlayFabSettings::advertisingIdType.EndsWith("_Successful");
+}
+
+bool UPlayFabClientAPI::IsClientLoggedIn() const
 {
     return !mUserSessionTicket.IsEmpty();
 }
@@ -36,11 +58,14 @@ void UPlayFabClientAPI::MultiStepClientLogin(bool needsAttribution)
         AttributeInstall(request);
     }
 }
-<%
+<% } else if (hasServerOptions) {
+%>
+void UPlayFab<%- api.name %>API::SetDevSecretKey(const FString& developerSecretKey)
+{
+    PlayFabSettings::developerSecretKey = developerSecretKey;
 }
-    for(var i in api.calls)
-    {
-        var apiCall = api.calls[i];
+<% }
+for(var i in api.calls) { var apiCall = api.calls[i];
 %>
 bool UPlayFab<%- api.name %>API::<%- apiCall.name %>(
     <% if(hasRequest(apiCall, api)) { %><%- api.name %>Models::F<%- apiCall.request %>& request,<% } %>
@@ -60,7 +85,7 @@ void UPlayFab<%- api.name %>API::On<%- apiCall.name %>Result(FHttpRequestPtr Htt
     FPlayFabError errorResult;
     if (PlayFabRequestHandler::DecodeRequest(HttpRequest, HttpResponse, bSucceeded, outResult, errorResult))
     {
-        <%- getResultActions(apiCall, api) %>
+<%- getResultActions(apiCall, api) %>
         SuccessDelegate.ExecuteIfBound(outResult);
     }
     else

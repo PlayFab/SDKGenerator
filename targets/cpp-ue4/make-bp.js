@@ -10,8 +10,6 @@ var makeBP = exports.makeBP = function (api, apiOutputDir, subdir) {
     for (var i in api.calls) {
         var apiCall = api.calls[i];
         
-        //var datatype = api.datatypes[i];
-        
         var apiLocals = {};
         apiLocals.api = api;
         apiLocals.apiCall = apiCall;
@@ -35,8 +33,6 @@ var makeBP = exports.makeBP = function (api, apiOutputDir, subdir) {
 }
 
 var makeBPAll = exports.makeBPAll = function (apis, apiOutputDir, subdir) {
-    var sourceDir = __dirname;
-    
     var mergedDataTypes = {};
     mergeDatatypes(apis, mergedDataTypes);
 }
@@ -98,7 +94,7 @@ var hasResult = exports.hasResult = function (apiCall, api) {
     return requestType.properties.length > 0;
 }
 
-var hasRequest = exports.hasRequest = function (apiCall, api) {
+var hasRequest = function (apiCall, api) {
     var requestType = api.datatypes[apiCall.request];
     return requestType.properties.length > 0;
 }
@@ -146,8 +142,6 @@ var getDatatypeSignatureParameters = exports.getDatatypeSignatureParameters = fu
     return result;
 }
 
-
-
 var getResponseSignatureParameters = exports.getResponseSignatureParameters = function (apiCall, api) {
     var resultType = api.datatypes[apiCall.result];
     var dataType = api.datatypes[resultType.name];
@@ -192,25 +186,18 @@ var generateProxyPropertyRead = exports.generateProxyPropertyRead = function (pr
         return result;
     }
     
-    if (property.collection === "array" && (property.isclass || property.actualtype === "uint64")) {
+    if (property.collection === "array" && (property.isclass || property.actualtype === "uint64"))
         return generateArrayClassProxyRead(property, api);
-    }
-    else if (property.collection === "map") {
-        //return "TMap<FString, " + getProperyUE4Type(property, api) + ">";
+    else if (property.collection === "map")
         return ""; // TODO: handle map properly, by wrapping it into a structure somehow
-    }
-    else if (property.actualtype === "DateTime") {
+    else if (property.actualtype === "DateTime")
         return ""; // TODO: handle DateTime properly
-    }
-    else if (property.isenum) {
+    else if (property.isenum)
         return ""; // TODO: handle enums properly
-    }
-    else if (property.actualtype === "object") {
+    else if (property.actualtype === "object")
         return ""; // TODO: handle FMultiVar properly
-    }
     
-    var result = "Out" + property.name + " = In.Data." + property.name + ";";
-    return result;
+    return "Out" + property.name + " = In.Data." + property.name + ";";
 }
 
 //////////////////////////////////////////////////////////////////////////
@@ -218,37 +205,28 @@ var generateProxyPropertyRead = exports.generateProxyPropertyRead = function (pr
 var generateArrayClassProxyCopy = function (property, api) {
     var inValue = "In" + property.name;
     
-    var result = "";
-    result += "for (const " + getPropertyUE4ToOpaqueType(property, api) + "& elem : " + inValue + ")\n";
+    var result = "for (const " + getPropertyUE4ToOpaqueType(property, api) + "& elem : " + inValue + ")\n";
     result += "    {\n";
-    if (!property.isclass) {
+    if (!property.isclass)
         result += "        Proxy->Request." + property.name + ".Add(static_cast<" + property.actualtype + ">(elem));\n";
-    }
-    else {
+    else
         result += "        Proxy->Request." + property.name + ".Add(elem.Data);\n";
-    }
     result += "    }\n";
     return result;
 }
 
 var generateProxyPropertyCopy = exports.generateProxyPropertyCopy = function (property, api) {
     
-    if (property.collection === "array" && (property.isclass || property.actualtype === "uint64")) {
+    if (property.collection === "array" && (property.isclass || property.actualtype === "uint64"))
         return generateArrayClassProxyCopy(property, api);
-    }
-    else if (property.collection === "map") {
-        //return "TMap<FString, " + getProperyUE4Type(property, api) + ">";
+    else if (property.collection === "map")
         return ""; // TODO: handle map properly, by wrapping it into a structure somehow
-    }
-    else if (property.actualtype === "DateTime") {
+    else if (property.actualtype === "DateTime")
         return ""; // TODO: handle DateTime properly
-    }
-    else if (property.isenum) {
+    else if (property.isenum)
         return ""; // TODO: handle enums properly
-    }
-    else if (property.actualtype === "object") {
+    else if (property.actualtype === "object")
         return ""; // TODO: handle FMultiVar properly
-    }
     
     return "Proxy->Request." + property.name + " = In" + property.name + ";";
 }

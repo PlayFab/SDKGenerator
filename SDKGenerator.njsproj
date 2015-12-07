@@ -12,12 +12,14 @@
     <ProjectTypeGuids>{3AF33F2E-1136-4D97-BBB7-1795711AC8B8};{349c5851-65df-11da-9384-00065b846f21};{9092AA53-FB77-4645-B42D-1CCCA6BD08BD}</ProjectTypeGuids>
     <VisualStudioVersion Condition="'$(VisualStudioVersion)' == ''">11.0</VisualStudioVersion>
     <VSToolsPath Condition="'$(VSToolsPath)' == ''">$(MSBuildExtensionsPath32)\Microsoft\VisualStudio\v$(VisualStudioVersion)</VSToolsPath>
-    <ScriptArguments>..\API_Specs cpp-windows=..\sdks\WindowsSDK</ScriptArguments>
+    <ScriptArguments>..\API_Specs cpp-ue4=..\sdks\UnrealCppSdk</ScriptArguments>
     <StartWebBrowser>False</StartWebBrowser>
   </PropertyGroup>
   <PropertyGroup Condition="'$(Configuration)' == 'Debug'" />
   <PropertyGroup Condition="'$(Configuration)' == 'Release'" />
   <ItemGroup>
+    <Compile Include="targets\javascript\source\PlayFabApiTest.js" />
+    <Compile Include="targets\js-node\testingFiles\PlayFabApiTests.js" />
     <Compile Include="targets\postman\make.js" />
     <Content Include="README.md" />
     <Compile Include="generate.js" />
@@ -151,6 +153,8 @@
     <Content Include="targets\cpp-ue4\templates\core\PlayFabDataModels.h.ejs" />
     <Content Include="targets\cpp-ue4\templates\core\PlayFabError.h.ejs" />
     <Content Include="targets\cpp-ue4\templates\core\PlayFabVersion.cpp.ejs" />
+    <Content Include="targets\cpp-ue4\testingFiles\PlayFabApiTests.cpp" />
+    <Content Include="targets\cpp-ue4\testingFiles\PlayFabApiTests.h" />
     <Content Include="targets\cpp-unreal\ExampleProject\Config\DefaultEditor.ini" />
     <Content Include="targets\cpp-unreal\ExampleProject\Config\DefaultEngine.ini" />
     <Content Include="targets\cpp-unreal\ExampleProject\Config\DefaultGame.ini" />
@@ -375,6 +379,7 @@
     <Content Include="targets\csharp\UnittestRunner\Properties\AssemblyInfo.cs" />
     <Content Include="targets\csharp\UnittestRunner\UnittestRunner.csproj" />
     <Content Include="targets\csharp\UnittestRunner\UUnitTestRunner.cs" />
+    <Content Include="targets\javascript\source\PlayFabApiTest.html" />
     <Content Include="targets\java\srcCode\com\google\gson\annotations\Expose.java" />
     <Content Include="targets\java\srcCode\com\google\gson\annotations\JsonAdapter.java" />
     <Content Include="targets\java\srcCode\com\google\gson\annotations\package-info.java" />
@@ -483,6 +488,7 @@
     <Content Include="targets\js-node\templates\api.js.ejs" />
     <Content Include="targets\js-node\templates\package.json.ejs" />
     <Content Include="targets\js-node\templates\playfab.js.ejs" />
+    <Content Include="targets\js-node\testingFiles\PlayFabTesting.njsproj" />
     <Content Include="targets\postman\replacements.json" />
     <Content Include="targets\postman\templates\playfab.json.ejs" />
   </ItemGroup>
@@ -537,6 +543,7 @@
     <Folder Include="targets\cpp-ue4\templates\" />
     <Folder Include="targets\cpp-ue4\templates\blueprint\" />
     <Folder Include="targets\cpp-ue4\templates\core\" />
+    <Folder Include="targets\cpp-ue4\testingFiles\" />
     <Folder Include="targets\cpp-unreal\" />
     <Folder Include="targets\cpp-unreal\ExampleProject\" />
     <Folder Include="targets\cpp-unreal\ExampleProject\Config\" />
@@ -600,6 +607,7 @@
     <Folder Include="targets\csharp\UnittestRunner\" />
     <Folder Include="targets\csharp\UnittestRunner\Properties\" />
     <Folder Include="targets\javascript" />
+    <Folder Include="targets\javascript\source\" />
     <Folder Include="targets\javascript\templates" />
     <Folder Include="targets\java\" />
     <Folder Include="targets\java\srcCode\" />
@@ -618,6 +626,7 @@
     <Folder Include="targets\java\testingFiles\" />
     <Folder Include="targets\js-node" />
     <Folder Include="targets\js-node\templates" />
+    <Folder Include="targets\js-node\testingFiles\" />
     <Folder Include="targets\postman\" />
     <Folder Include="targets\postman\templates\" />
   </ItemGroup>

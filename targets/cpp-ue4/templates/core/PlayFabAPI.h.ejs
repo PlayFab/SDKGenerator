@@ -16,12 +16,15 @@ namespace PlayFab
         UPlayFab<%- api.name %>API();
         ~UPlayFab<%- api.name %>API();
 
-        int GetPendingCalls();
-
-<% if(api.name == "Client") { %>        bool IsClientLoggedIn();
+        int GetPendingCalls() const;
+        void SetTitleId(const FString& titleId);
+<% if(hasClientOptions) { %>        bool SetAdvertId(const FString& typeId, const FString& advertisingIdValue);
+        bool AdvertIdSuccessful();
+        bool IsClientLoggedIn() const;
         void MultiStepClientLogin(bool needsAttribution);
-
-<% } %>        // ------------ Generated API calls
+<% } else if (hasServerOptions) { %>        void SetDevSecretKey(const FString& developerSecretKey);
+<% } %>
+        // ------------ Generated API calls
 <%    for(var i in api.calls) {
 var apiCall = api.calls[i];
 if(hasRequest(apiCall, api))

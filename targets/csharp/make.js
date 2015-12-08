@@ -253,7 +253,9 @@ function getRequestActions(apiCall, api) {
 function getResultActions(apiCall, api) {
     if (api.name === "Client" && (apiCall.result === "LoginResult" || apiCall.result === "RegisterPlayFabUserResult"))
         return "            _authKey = result.SessionTicket ?? _authKey;\n"
-            + "            MultiStepClientLogin(result.SettingsForUser.NeedsAttribution);\n";
+            + "            await MultiStepClientLogin(result.SettingsForUser.NeedsAttribution);\n";
+    else if (api.name === "Client" && apiCall.result === "AttributeInstallResult")
+        return "            PlayFabSettings.AdvertisingIdType += \"_Successful\";\n";
     else if (api.name === "Client" && apiCall.result === "GetCloudScriptUrlResult")
         return "            PlayFabSettings.LogicServerURL = result.Url;\n";
     return "";

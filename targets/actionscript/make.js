@@ -124,68 +124,48 @@ function getModelPropertyDef(property, datatype) {
 
 function getPropertyASType(property, datatype) {
     
-    if (property.actualtype === "String") {
+    if (property.actualtype === "String")
         return "String";
-    }
-    else if (property.actualtype === "Boolean") {
+    else if (property.actualtype === "Boolean")
         return "Boolean";
-    }
-    else if (property.actualtype === "int16") {
+    else if (property.actualtype === "int16")
         return "int";
-    }
-    else if (property.actualtype === "uint16") {
+    else if (property.actualtype === "uint16")
         return "uint";
-    }
-    else if (property.actualtype === "int32") {
+    else if (property.actualtype === "int32")
         return "int";
-    }
-    else if (property.actualtype === "uint32") {
+    else if (property.actualtype === "uint32")
         return "uint";
-    }
-    else if (property.actualtype === "int64") {
+    else if (property.actualtype === "int64")
         return "Number";
-    }
-    else if (property.actualtype === "uint64") {
+    else if (property.actualtype === "uint64")
         return "Number";
-    }
-    else if (property.actualtype === "float") {
+    else if (property.actualtype === "float")
         return "Number";
-    }
-    else if (property.actualtype === "double") {
+    else if (property.actualtype === "double")
         return "Number";
-    }
-    else if (property.actualtype === "decimal") {
+    else if (property.actualtype === "decimal")
         return "Number";
-    }
-    else if (property.actualtype === "DateTime") {
+    else if (property.actualtype === "DateTime")
         return "Date";
-    }
-    else if (property.isclass) {
+    else if (property.isclass)
         return property.actualtype;
-    }
-    else if (property.isenum) {
+    else if (property.isenum)
         return "String";
-    }
-    else if (property.actualtype === "object") {
+    else if (property.actualtype === "object")
         return "Object";
-    }
-    else {
-        throw "Unknown property type: " + property.actualtype + " for " + property.name + " in " + datatype.name;
-    }
+    throw "Unknown property type: " + property.actualtype + " for " + property.name + " in " + datatype.name;
 }
 
 function getModelPropertyInit(property, datatype) {
     if (property.isclass) {
         if (property.collection) {
-            if (property.collection === "array") {
+            if (property.collection === "array")
                 return "if(data." + property.name + ") { " + property.name + " = new Vector.<" + property.actualtype + ">(); for(var " + property.name + "_iter:int = 0; " + property.name + "_iter < data." + property.name + ".length; " + property.name + "_iter++) { " + property.name + "[" + property.name + "_iter] = new " + property.actualtype + "(data." + property.name + "[" + property.name + "_iter]); }}";
-            }
-            else if (property.collection === "map") {
+            else if (property.collection === "map")
                 return "if(data." + property.name + ") { " + property.name + " = {}; for(var " + property.name + "_iter:String in data." + property.name + ") { " + property.name + "[" + property.name + "_iter] = new " + property.actualtype + "(data." + property.name + "[" + property.name + "_iter]); }}";
-            }
-            else {
+            else
                 throw "Unknown collection type: " + property.collection + " for " + property.name + " in " + datatype.name;
-            }
         }
         else {
             return property.name + " = new " + property.actualtype + "(data." + property.name + ");";
@@ -209,7 +189,6 @@ function getModelPropertyInit(property, datatype) {
     else {
         return property.name + " = data." + property.name + ";";
     }
-	
 }
 
 function getAuthParams(apiCall) {
@@ -217,7 +196,6 @@ function getAuthParams(apiCall) {
         return "\"X-SecretKey\", PlayFabSettings.DeveloperSecretKey";
     else if (apiCall.auth === "SessionTicket")
         return "\"X-Authorization\", authKey";
-    
     return "null, null";
 }
 
@@ -234,8 +212,10 @@ function getRequestActions(apiCall, api) {
 
 function getResultActions(apiCall, api) {
     if (api.name === "Client" && (apiCall.result === "LoginResult" || apiCall.result === "RegisterPlayFabUserResult"))
-        return "                    authKey = result.SessionTicket != null ? result.SessionTicket : authKey;\n"
+        return "                    authKey = result.SessionTicket != null ? result.SessionTicket : authKey;\n" 
             + "                    MultiStepClientLogin(result.SettingsForUser.NeedsAttribution);\n";
+    else if (api.name === "Client" && apiCall.result === "AttributeInstallResult")
+        return "                    PlayFabSettings.AdvertisingIdType += \"_Successful\";\n";
     else if (api.name === "Client" && apiCall.result === "GetCloudScriptUrlResult")
         return "                    PlayFabSettings.LogicServerURL = result.Url;\n";
     return "";

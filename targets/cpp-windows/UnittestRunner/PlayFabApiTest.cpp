@@ -243,6 +243,28 @@ namespace UnittestRunner
 
         /// <summary>
         /// CLIENT API
+        /// Test that the login call sequence sends the AdvertisingId when set
+        /// </summary>
+        TEST_METHOD(LoginWithAdvertisingId)
+        {
+            PlayFabSettings::advertisingIdType = PlayFabSettings::AD_TYPE_ANDROID_ID;
+            PlayFabSettings::advertisingIdValue = "PlayFabTestId";
+
+            LoginWithEmailAddressRequest loginRequest;
+            loginRequest.TitleId = PlayFabSettings::titleId;
+            loginRequest.Email = USER_EMAIL;
+            loginRequest.Password = USER_PASSWORD;
+
+            PlayFabClientAPI::LoginWithEmailAddress(loginRequest, &LoginCallback, &LoginFailedCallback, NULL);
+            ClientApiWait();
+
+            string targetValue = PlayFabSettings::AD_TYPE_ANDROID_ID + "_Successful";
+            string actualValue = PlayFabSettings::advertisingIdType;
+            Assert::IsTrue(actualValue.compare(targetValue) == 0, L"Check that advertisingId was sent.");
+        }
+
+        /// <summary>
+        /// CLIENT API
         /// Test a sequence of calls that modifies saved data,
         ///   and verifies that the next sequential API call contains updated data.
         /// Verify that the data is correctly modified on the next call.

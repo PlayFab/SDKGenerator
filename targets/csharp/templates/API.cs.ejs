@@ -47,7 +47,7 @@ namespace PlayFab
             return !string.IsNullOrEmpty(_authKey);
         }
 
-        private static void MultiStepClientLogin(bool needsAttribution)
+        private static async Task<PlayFabResult<AttributeInstallResult>> MultiStepClientLogin(bool needsAttribution)
         {
             if (needsAttribution && !PlayFabSettings.DisableAdvertising && !string.IsNullOrEmpty(PlayFabSettings.AdvertisingIdType) && !string.IsNullOrEmpty(PlayFabSettings.AdvertisingIdValue))
             {
@@ -57,10 +57,11 @@ namespace PlayFab
                 else if (PlayFabSettings.AdvertisingIdType == PlayFabSettings.AD_TYPE_ANDROID_ID)
                     request.Android_Id = PlayFabSettings.AdvertisingIdValue;
                 else
-                    return;
-                var task = AttributeInstallAsync(request);
-                task.Start();
+                    return null;
+                var output = await AttributeInstallAsync(request);
+                return output;
             }
+            return null;
         }
 <% } %>    }
 }

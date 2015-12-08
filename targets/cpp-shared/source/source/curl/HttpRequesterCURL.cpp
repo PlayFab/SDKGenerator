@@ -161,14 +161,11 @@ size_t HttpRequesterCURL::UpdateRequests()
     if (numActiveRequests > 0)
     {
         curl_multi_perform(mHandle, (int*)&numActiveRequests);
-
         if (numActiveRequests < mHandles.size())
-        {
             FinalizeRequests();
-        }
     }
 
-    return numActiveRequests;
+    return mHandles.size(); // mHandles can change during FinalizeRequests
 }
 
 void HttpRequesterCURL::FinalizeRequests()

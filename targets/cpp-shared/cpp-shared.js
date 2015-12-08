@@ -506,7 +506,9 @@ var getResultActions = function (apiCall, api) {
     if (api.name === "Client" && (apiCall.result === "LoginResult" || apiCall.result === "RegisterPlayFabUserResult"))
         return "        if (outResult.SessionTicket.length() > 0)\n" 
             + "            (static_cast<PlayFab" + api.name + "API*>(userData))->mUserSessionTicket = outResult.SessionTicket;\n" 
-            + "        PlayFabClientAPI::MultiStepClientLogin(outResult.SettingsForUser->NeedsAttribution);\n";
+            + "        MultiStepClientLogin(outResult.SettingsForUser->NeedsAttribution);\n";
+    else if (api.name === "Client" && apiCall.result === "AttributeInstallResult")
+        return "        PlayFabSettings::advertisingIdType += \"_Successful\";\n";
     else if (api.name === "Client" && apiCall.result === "GetCloudScriptUrlResult")
         return "if (outResult.Url.length() > 0) PlayFabSettings::logicServerURL = outResult.Url;\n";
     return "";

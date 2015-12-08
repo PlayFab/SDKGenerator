@@ -126,22 +126,16 @@ function generateSimpleFiles(apis, sourceDir, apiOutputDir) {
 }
 
 function getModelPropertyDef(property, datatype) {
-    if (property.collection) {
-        var basicType = getPropertyJavaType(property, datatype, false);
-        
-        if (property.collection === "array") {
-            return "ArrayList<" + basicType + "> " + property.name;
-        }
-        else if (property.collection === "map") {
-            return "Map<String," + basicType + "> " + property.name;
-        }
-        else {
-            throw "Unknown collection type: " + property.collection + " for " + property.name + " in " + datatype.name;
-        }
-    }
-    else {
-        return getPropertyJavaType(property, datatype, true) + " " + property.name;
-    }
+    var basicType = getPropertyJavaType(property, datatype, false);
+    if (property.collection && property.collection === "array")
+        return "ArrayList<" + basicType + "> " + property.name;
+    else if (property.collection && property.collection === "map")
+        return "Map<String," + basicType + "> " + property.name;
+    else if (property.collection)
+        throw "Unknown collection type: " + property.collection + " for " + property.name + " in " + datatype.name;
+    
+    basicType = getPropertyJavaType(property, datatype, true);
+    return getPropertyJavaType(property, datatype, true) + " " + property.name;
 }
 
 function getPropertyAttribs(property, datatype, api) {
@@ -161,51 +155,35 @@ function getPropertyAttribs(property, datatype, api) {
 function getPropertyJavaType(property, datatype, needOptional) {
     var optional = "";
     
-    if (property.actualtype === "String") {
+    if (property.actualtype === "String")
         return "String";
-    }
-    else if (property.actualtype === "Boolean") {
+    else if (property.actualtype === "Boolean")
         return "Boolean" + optional;
-    }
-    else if (property.actualtype === "int16") {
+    else if (property.actualtype === "int16")
         return "Short" + optional;
-    }
-    else if (property.actualtype === "uint16") {
+    else if (property.actualtype === "uint16")
         return "Integer" + optional;
-    }
-    else if (property.actualtype === "int32") {
+    else if (property.actualtype === "int32")
         return "Integer" + optional;
-    }
-    else if (property.actualtype === "uint32") {
+    else if (property.actualtype === "uint32")
         return "Long" + optional;
-    }
-    else if (property.actualtype === "int64") {
+    else if (property.actualtype === "int64")
         return "Long" + optional;
-    }
-    else if (property.actualtype === "uint64") {
+    else if (property.actualtype === "uint64")
         return "Long" + optional;
-    }
-    else if (property.actualtype === "float") {
+    else if (property.actualtype === "float")
         return "Float" + optional;
-    }
-    else if (property.actualtype === "double") {
+    else if (property.actualtype === "double")
         return "Double" + optional;
-    }
-    else if (property.actualtype === "DateTime") {
+    else if (property.actualtype === "DateTime")
         return "Date" + optional;
-    }
-    else if (property.isclass) {
+    else if (property.isclass)
         return property.actualtype;
-    }
-    else if (property.isenum) {
+    else if (property.isenum)
         return property.actualtype + optional;
-    }
-    else if (property.actualtype === "object") {
+    else if (property.actualtype === "object")
         return "Object";
-    }
-    else {
-        throw "Unknown property type: " + property.actualtype + " for " + property.name + " in " + datatype.name;
-    }
+    throw "Unknown property type: " + property.actualtype + " for " + property.name + " in " + datatype.name;
 }
 
 function getAuthParams(apiCall) {
@@ -230,6 +208,8 @@ function getResultActions(apiCall, api) {
     if (api.name === "Client" && (apiCall.result === "LoginResult" || apiCall.result === "RegisterPlayFabUserResult"))
         return "        _authKey = result.SessionTicket != null ? result.SessionTicket : _authKey;\n"
             + "        MultiStepClientLogin(resultData.data.SettingsForUser.NeedsAttribution);\n";
+    else if (api.name === "Client" && apiCall.result === "AttributeInstallResult")
+        return "        PlayFabSettings.AdvertisingIdType += \"_Successful\";\n";
     else if (api.name === "Client" && apiCall.result === "GetCloudScriptUrlResult")
         return "        PlayFabSettings.LogicServerURL = result.Url;\n";
     return "";

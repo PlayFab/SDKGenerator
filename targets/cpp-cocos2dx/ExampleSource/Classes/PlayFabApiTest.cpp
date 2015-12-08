@@ -219,6 +219,30 @@ namespace PlayFabApiTest
 
     /// <summary>
     /// CLIENT API
+    /// Test that the login call sequence sends the AdvertisingId when set
+    /// </summary>
+    bool LoginWithAdvertisingId()
+    {
+        CCLOG("%s", "LoginWithAdvertisingId");
+
+        PlayFabSettings::advertisingIdType = PlayFabSettings::AD_TYPE_ANDROID_ID;
+        PlayFabSettings::advertisingIdValue = "PlayFabTestId";
+
+        LoginWithEmailAddressRequest loginRequest;
+        loginRequest.TitleId = PlayFabSettings::titleId;
+        loginRequest.Email = USER_EMAIL;
+        loginRequest.Password = USER_PASSWORD;
+
+        PlayFabClientAPI::LoginWithEmailAddress(loginRequest, &LoginCallback, &LoginFailedCallback, NULL);
+        ClientApiWait();
+
+        string targetValue = PlayFabSettings::AD_TYPE_ANDROID_ID + "_Successful";
+        string actualValue = PlayFabSettings::advertisingIdType;
+        return actualValue.compare(targetValue) == 0;
+    }
+
+    /// <summary>
+    /// CLIENT API
     /// Test a sequence of calls that modifies saved data,
     ///   and verifies that the next sequential API call contains updated data.
     /// Verify that the data is correctly modified on the next call.
@@ -555,6 +579,7 @@ namespace PlayFabApiTest
         // Not sure if it's possible to do this part more dynamically in C++
         ReportTestOutput(&InvalidLogin, "InvalidLogin");
         ReportTestOutput(&LoginOrRegister, "LoginOrRegister");
+        ReportTestOutput(&LoginWithAdvertisingId, "LoginWithAdvertisingId");
         ReportTestOutput(&UserDataApi, "UserDataApi");
         ReportTestOutput(&UserStatisticsApi, "UserStatisticsApi");
         ReportTestOutput(&UserCharacter, "UserCharacter");

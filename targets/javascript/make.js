@@ -7,6 +7,7 @@ exports.makeCombinedAPI = function (apis, sourceDir, apiOutputDir) {
     
     var templateDir = path.resolve(sourceDir, "templates");
     var apiTemplate = ejs.compile(readFile(path.resolve(templateDir, "playfab.js.ejs")));
+    copyTree(path.resolve(sourceDir, "source"), path.resolve(apiOutputDir, ".."));
     
     var apiLocals = {};
     apiLocals.hasResultActions = hasResultActions;
@@ -38,6 +39,8 @@ function getRequestActions(apiCall, api) {
 function hasResultActions(apiCall, api) {
     if (apiCall.result === "LoginResult" || apiCall.result === "RegisterPlayFabUserResult")
         return true;
+    else if (api.name === "Client" && apiCall.result === "AttributeInstallResult")
+        return true;
     if (api.name === "Client" && apiCall.result === "GetCloudScriptUrlResult")
         return true;
     return false;
@@ -49,6 +52,8 @@ function getResultActions(apiCall, api) {
             + "                PlayFab._internalSettings.sessionTicket = result.data.SessionTicket;\n"
             + "                PlayFab.ClientApi._MultiStepClientLogin(result.data.SettingsForUser.NeedsAttribution);\n"
             + "            }";
+    else if (api.name === "Client" && apiCall.result === "AttributeInstallResult")
+        return "            PlayFab.settings.advertisingIdType += \"_Successful\";\n";
     else if (api.name === "Client" && apiCall.result === "GetCloudScriptUrlResult")
         return "            PlayFab._internalSettings.logicServerUrl = result.data.Url;";
     return "";

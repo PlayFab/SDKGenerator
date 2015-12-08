@@ -3,6 +3,7 @@ package
     import flash.net.*;
     import flash.errors.*;
     import flash.events.*;
+    import flash.utils.Timer;
 
     import com.playfab.ClientModels.*;
     import com.playfab.ServerModels.*;
@@ -53,6 +54,7 @@ package
 
             AddTest("InvalidLogin", InvalidLogin);
             AddTest("LoginOrRegister", LoginOrRegister);
+            AddTest("LoginWithAdvertisingId", LoginWithAdvertisingId);
             AddTest("UserDataApi", UserDataApi);
             AddTest("UserStatisticsApi", UserStatisticsApi);
             AddTest("UserCharacter", UserCharacter);
@@ -176,6 +178,50 @@ package
             loginRequest.Password = USER_PASSWORD;
             // Try again, but this time, error on failure
             PlayFabClientAPI.LoginWithEmailAddress(loginRequest, Wrap(LoginOrRegister_LoginSuccess, "Login2"), Wrap(Shared_ApiCallFailure, "Fail3"));
+        }
+
+        /// <summary>
+        /// CLIENT API
+        /// Test that the login call sequence sends the AdvertisingId when set
+        /// </summary>
+        private function LoginWithAdvertisingId() : void
+        {
+            PlayFabSettings.AdvertisingIdType = PlayFabSettings.AD_TYPE_ANDROID_ID;
+            PlayFabSettings.AdvertisingIdValue = "PlayFabTestId";
+
+            var loginRequest:com.playfab.ClientModels.LoginWithEmailAddressRequest = new com.playfab.ClientModels.LoginWithEmailAddressRequest();
+            loginRequest.TitleId = PlayFabSettings.TitleId;
+            loginRequest.Email = USER_EMAIL;
+            loginRequest.Password = USER_PASSWORD;
+            // Try to login, but if we fail, just fall-back and try to create character
+            PlayFabClientAPI.LoginWithEmailAddress(loginRequest, Wrap(LoginWithAdvertisingId_LoginSuccess, "Login1"), Wrap(LoginOrRegister_AcceptableFailure, "Fail1"));
+            function RecursiveWrap():void { CheckAdvertIdSuccess(-1); }
+            Wrap(RecursiveWrap, "RecursiveWrap_First");
+        }
+        private function LoginWithAdvertisingId_LoginSuccess(result:com.playfab.ClientModels.LoginResult) : void
+        {
+            // Typical success
+            playFabId = result.PlayFabId;
+        }
+        private function CheckAdvertIdSuccess(count:Number) : void
+        {
+            TickTestHandler();
+            if (count > 10) // Base case, fail out
+            {
+                ASyncAssert.Fail("AdvertisingId not sent properly: " + PlayFabSettings.AdvertisingIdType);
+            }
+            else if (PlayFabSettings.AdvertisingIdType == PlayFabSettings.AD_TYPE_ANDROID_ID + "_Successful") // Base case, success!
+            {
+                FinishTestHandler(new ASyncUnitTestEvent(ASyncUnitTestEvent.FINISH_TEST, ASyncUnitTestEvent.RESULT_PASSED, ""));
+            }
+            else
+            {
+                function RecursiveWrap():void { CheckAdvertIdSuccess(count + 1); }
+
+                var timer:Timer = new Timer(200, 1);
+                timer.addEventListener(TimerEvent.TIMER, Wrap(RecursiveWrap, "RecursiveWrap_" + count));
+                timer.start();
+            }
         }
 
         /// <summary>

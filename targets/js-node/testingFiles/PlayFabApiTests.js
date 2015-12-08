@@ -55,10 +55,24 @@ function TestWrapper(testFunc) {
 function CallbackWrapper(callback, test) {
     // Wrap PlayFab result callbacks so that exceptions in callbacks report into the test as failures
     // This is is specific to catching exceptions in the PlayFab callbacks, since they're async,
-    //   they don 't share the same stacktrace as the function that calls them
+    //   they don't share the same stacktrace as the function that calls them
     return function (error, result) {
         try {
             callback(error, result);
+        } catch (e) {
+            test.ok(false, "Exception thrown during test callback: " + e.toString());
+            test.done(); // This is required to display the error above, and abort the test
+        }
+    };
+}
+
+function SimpleCallbackWrapper(callback, test) {
+    // Wrap no-parameter callbacks so that exceptions in callbacks report into the test as failures
+    // This is is specific to catching exceptions in the PlayFab callbacks, since they're async,
+    //   they don't share the same stacktrace as the function that calls them
+    return function () {
+        try {
+            callback();
         } catch (e) {
             test.ok(false, "Exception thrown during test callback: " + e.toString());
             test.done(); // This is required to display the error above, and abort the test
@@ -97,6 +111,12 @@ exports.PlayFabApiTests = {
     tearDown: function (callback) {
         callback();
     },
+    
+    /// <summary>
+    /// CLIENT API
+    /// Try to deliberately log in with an inappropriate password,
+    ///   and verify that the error displays as expected.
+    /// </summary>
     InvalidLogin: TestWrapper(function (test) {
         var invalidRequest = {
             TitleId: PlayFab.settings.titleId,
@@ -112,6 +132,11 @@ exports.PlayFabApiTests = {
         };
         PlayFabClient.LoginWithEmailAddress(invalidRequest, CallbackWrapper(InvalidLoginCallback, test));
     }),
+    
+    /// <summary>
+    /// CLIENT API
+    /// Log in or create a user, track their PlayFabId
+    /// </summary>
     LoginOrRegister: TestWrapper(function (test) {
         var loginRequest = {
             // Currently, you need to look up the correct format for this object in the API-docs:
@@ -158,6 +183,44 @@ exports.PlayFabApiTests = {
         };
         PlayFabClient.LoginWithEmailAddress(loginRequest, CallbackWrapper(OptionalLoginCallback, test));
     }),
+    
+    /// <summary>
+    /// CLIENT API
+    /// Test that the login call sequence sends the AdvertisingId when set
+    /// </summary>
+    LoginWithAdvertisingId: TestWrapper(function (test) {
+        PlayFab.settings.advertisingIdType = PlayFab.settings.AD_TYPE_ANDROID_ID;
+        PlayFab.settings.advertisingIdValue = "PlayFabTestId";
+
+        var count = -1;
+        var FinishAdvertId = function () {
+            count += 1;
+            if (count > 10) {
+                test.ok(false, "The advertisingId was not submitted properly");
+                test.done();
+            } else if (PlayFab.settings.advertisingIdType === PlayFab.settings.AD_TYPE_ANDROID_ID + "_Successful")
+                test.done();
+            else
+                setTimeout(SimpleCallbackWrapper(FinishAdvertId, test), 200);
+        };
+        var AdvertLoginCallback = function (error, result) {
+            setTimeout(SimpleCallbackWrapper(FinishAdvertId, test), 200);
+        };
+        var loginRequest = {
+            TitleId: PlayFab.settings.titleId,
+            Email: titleData.userEmail,
+            Password: titleData.userPassword
+        };
+        PlayFabClient.LoginWithEmailAddress(loginRequest, CallbackWrapper(AdvertLoginCallback, test));
+    }),
+    
+    /// <summary>
+    /// CLIENT API
+    /// Test a sequence of calls that modifies saved data,
+    ///   and verifies that the next sequential API call contains updated data.
+    /// Verify that the data is correctly modified on the next call.
+    /// Parameter types tested: string, Dictionary<string, string>, DateTime
+    /// </summary>
     UserDataApi: TestWrapper(function (test) {
         var getDataRequest = {}; // null also works
         
@@ -206,6 +269,14 @@ exports.PlayFabApiTests = {
         // Kick off this test process
         PlayFabClient.GetUserData(getDataRequest, CallbackWrapper(GetDataCallback1, test));
     }),
+    
+    /// <summary>
+    /// CLIENT API
+    /// Test a sequence of calls that modifies saved data,
+    ///   and verifies that the next sequential API call contains updated data.
+    /// Verify that the data is saved correctly, and that specific types are tested
+    /// Parameter types tested: Dictionary<string, int> 
+    /// </summary>
     UserStatisticsApi: TestWrapper(function (test) {
         var getStatsRequest = {}; // null also works
         
@@ -243,6 +314,12 @@ exports.PlayFabApiTests = {
         // Kick off this test process
         PlayFabClient.GetUserStatistics(getStatsRequest, CallbackWrapper(GetStatsCallback1, test));
     }),
+    
+    /// <summary>
+    /// SERVER API
+    /// Get or create the given test character for the given user
+    /// Parameter types tested: Contained-Classes, string
+    /// </summary>
     UserCharacter: TestWrapper(function (test) {
         var getCharsRequest = {};
         var grantCharRequest = {
@@ -285,6 +362,12 @@ exports.PlayFabApiTests = {
         };
         PlayFabClient.GetAllUsersCharacters(getCharsRequest, CallbackWrapper(OptionalGetCharsCallback, test));
     }),
+    
+    /// <summary>
+    /// CLIENT AND SERVER API
+    /// Test that leaderboard results can be requested
+    /// Parameter types tested: List of contained-classes
+    /// </summary>
     LeaderBoard: TestWrapper(function (test) {
         var clientRequest = {
             MaxResultsCount: 3,
@@ -314,6 +397,12 @@ exports.PlayFabApiTests = {
         PlayFabClient.GetLeaderboardAroundCurrentUser(clientRequest, CallbackWrapper(GetLeaderboardCallback, test));
         PlayFabServer.GetLeaderboardAroundCharacter(serverRequest, CallbackWrapper(GetLeaderboardCallback, test));
     }),
+    
+    /// <summary>
+    /// CLIENT API
+    /// Test that AccountInfo can be requested
+    /// Parameter types tested: List of enum-as-strings converted to list of enums
+    /// </summary>
     AccountInfo: TestWrapper(function (test) {
         var GetAccountInfoCallback = function (error, result) {
             test.ok(error == null, "GetAccountInfo failed");
@@ -327,6 +416,11 @@ exports.PlayFabApiTests = {
         
         PlayFabClient.GetAccountInfo({}, CallbackWrapper(GetAccountInfoCallback, test));
     }),
+    
+    /// <summary>
+    /// CLIENT API
+    /// Test that CloudScript can be properly set up and invoked
+    /// </summary>
     CloudScript: TestWrapper(function (test) {
         if (PlayFab._internalSettings.logicServerUrl == null) {
             var getCloudUrlRequest = {};

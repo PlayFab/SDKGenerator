@@ -72,11 +72,12 @@ namespace PlayFab
 
         public static void GetAdvertisingId(out string advertisingIdType, out string advertisingIdValue, out bool disableAdvertising)
         {
-            advertisingIdType = "";
+            advertisingIdType = "undefined";
             advertisingIdValue = "";
             disableAdvertising = true;
 
-            try {
+            try
+            {
 #if UNITY_ANDROID && !UNITY_EDITOR
                 AndroidJavaClass advertIdGetter = new AndroidJavaClass("com.playfab.unityplugin.PlayFabGetAdvertId");
 
@@ -93,11 +94,16 @@ namespace PlayFab
                     disableAdvertising = adInfo.Get<bool>("limitAdTrackingEnabled");
                 }
 #elif UNITY_IOS && !UNITY_EDITOR
-            // TODO
+                    advertisingIdType = PlayFab.PlayFabSettings.AD_TYPE_IDFA;
+                    advertisingIdValue = PlayFabiOSPlugin.getIdfa();
+                    disableAdvertising = PlayFabiOSPlugin.getAdvertisingDisabled();
 #endif
             }
             catch (Exception e)
             {
+                advertisingIdType = "error";
+                advertisingIdValue = "";
+                disableAdvertising = true;
                 Debug.LogException(e);
             }
         }<% } %>

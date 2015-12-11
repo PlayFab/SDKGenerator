@@ -32,7 +32,7 @@ package com.playfab
 
 <% } %><% if (hasClientOptions) { %>        public static function MultiStepClientLogin(needsAttribution:Boolean):void
         {
-            if (needsAttribution && !PlayFabSettings.DisableAdvertising && (PlayFabSettings.AdvertisingIdType as Boolean) && (PlayFabSettings.AdvertisingIdValue as Boolean))
+            if (needsAttribution && !PlayFabSettings.DisableAdvertising && (PlayFabSettings.AdvertisingIdType != null && PlayFabSettings.AdvertisingIdType != "") && (PlayFabSettings.AdvertisingIdValue != null && PlayFabSettings.AdvertisingIdValue != ""))
             {
                 var request:AttributeInstallRequest = new AttributeInstallRequest();
                 if (PlayFabSettings.AdvertisingIdType == PlayFabSettings.AD_TYPE_IDFA)

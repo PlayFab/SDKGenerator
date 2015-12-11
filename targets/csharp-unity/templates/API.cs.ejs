@@ -54,7 +54,7 @@ namespace PlayFab
         {
             // Automatically try to fetch the ID
             if (needsAttribution && !PlayFab.PlayFabSettings.DisableAdvertising && string.IsNullOrEmpty(PlayFab.PlayFabSettings.AdvertisingIdType) && string.IsNullOrEmpty(PlayFab.PlayFabSettings.AdvertisingIdValue))
-                GetAdvertisingId(out PlayFab.PlayFabSettings.AdvertisingIdType, out PlayFab.PlayFabSettings.AdvertisingIdValue, out PlayFab.PlayFabSettings.DisableAdvertising);
+                GetAdvertisingId(out PlayFab.PlayFabSettings.AdvertisingIdType, out PlayFab.PlayFabSettings.AdvertisingIdValue, ref PlayFab.PlayFabSettings.DisableAdvertising);
 
             // Send the ID when appropriate
             if (needsAttribution && !PlayFab.PlayFabSettings.DisableAdvertising && !string.IsNullOrEmpty(PlayFab.PlayFabSettings.AdvertisingIdType) && !string.IsNullOrEmpty(PlayFab.PlayFabSettings.AdvertisingIdValue))
@@ -70,11 +70,10 @@ namespace PlayFab
             }
         }
 
-        public static void GetAdvertisingId(out string advertisingIdType, out string advertisingIdValue, out bool disableAdvertising)
+        public static void GetAdvertisingId(out string advertisingIdType, out string advertisingIdValue, ref bool disableAdvertising)
         {
             advertisingIdType = "undefined";
             advertisingIdValue = "";
-            disableAdvertising = true;
 
             try
             {

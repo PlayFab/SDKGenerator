@@ -53,7 +53,8 @@ function getResultActions(apiCall, api) {
             + "                PlayFab.ClientApi._MultiStepClientLogin(result.data.SettingsForUser.NeedsAttribution);\n"
             + "            }";
     else if (api.name === "Client" && apiCall.result === "AttributeInstallResult")
-        return "            PlayFab.settings.advertisingIdType += \"_Successful\";\n";
+        return "            // Modify advertisingIdType:  Prevents us from sending the id multiple times, and allows automated tests to determine id was sent successfully\n"
+            + "            PlayFab.settings.advertisingIdType += \"_Successful\";\n";
     else if (api.name === "Client" && apiCall.result === "GetCloudScriptUrlResult")
         return "            PlayFab._internalSettings.logicServerUrl = result.data.Url;";
     return "";

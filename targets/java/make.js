@@ -7,13 +7,14 @@ exports.makeClientAPI = function (api, sourceDir, apiOutputDir) {
     for (var i in srcOutputLoc) {
         var srcOutputDir = path.resolve(apiOutputDir, srcOutputLoc[i]);
         var libOutputDir = path.resolve(apiOutputDir, libOutputLoc[i]);
+        var isAndroid = srcOutputDir.indexOf("AndroidStudioExample") >= 0;
         
         console.log("Generating Java client SDK to " + srcOutputDir);
         copyTree(path.resolve(sourceDir, "srcCode"), srcOutputDir);
         copyTree(path.resolve(sourceDir, "srcLibs"), libOutputDir);
         makeDatatypes([api], sourceDir, srcOutputDir);
-        makeAPI(api, sourceDir, srcOutputDir);
-        generateSimpleFiles([api], sourceDir, srcOutputDir);
+        makeAPI(api, sourceDir, srcOutputDir, isAndroid);
+        generateSimpleFiles([api], sourceDir, srcOutputDir, isAndroid);
     }
 }
 
@@ -25,7 +26,7 @@ exports.makeServerAPI = function (apis, sourceDir, apiOutputDir) {
     copyTree(path.resolve(sourceDir, "srcLibs"), apiOutputDir);
     makeDatatypes(apis, sourceDir, apiOutputDir);
     for (var i in apis)
-        makeAPI(apis[i], sourceDir, apiOutputDir);
+        makeAPI(apis[i], sourceDir, apiOutputDir, false);
     generateSimpleFiles(apis, sourceDir, apiOutputDir);
 }
 
@@ -37,7 +38,7 @@ exports.makeCombinedAPI = function (apis, sourceDir, apiOutputDir) {
     copyTree(path.resolve(sourceDir, "srcLibs"), apiOutputDir);
     makeDatatypes(apis, sourceDir, apiOutputDir);
     for (var i in apis)
-        makeAPI(apis[i], sourceDir, apiOutputDir);
+        makeAPI(apis[i], sourceDir, apiOutputDir, false);
     generateSimpleFiles(apis, sourceDir, apiOutputDir);
     
     // Copy testing files
@@ -82,12 +83,13 @@ function makeDatatypes(apis, sourceDir, apiOutputDir) {
     }
 }
 
-function makeAPI(api, sourceDir, apiOutputDir) {
+function makeAPI(api, sourceDir, apiOutputDir, isAndroid) {
     console.log("Generating Java " + api.name + " library to " + apiOutputDir);
     
     var apiTemplate = ejs.compile(readFile(path.resolve(path.resolve(sourceDir, "templates"), "API.java.ejs")));
     var apiLocals = {};
     apiLocals.api = api;
+    apiLocals.isAndroid = isAndroid;
     apiLocals.getAuthParams = getAuthParams;
     apiLocals.getRequestActions = getRequestActions;
     apiLocals.getResultActions = getResultActions;
@@ -97,7 +99,7 @@ function makeAPI(api, sourceDir, apiOutputDir) {
     writeFile(path.resolve(apiOutputDir, "com/playfab/PlayFab" + api.name + "API.java"), generatedApi);
 }
 
-function generateSimpleFiles(apis, sourceDir, apiOutputDir) {
+function generateSimpleFiles(apis, sourceDir, apiOutputDir, isAndroid) {
     var errorsTemplate = ejs.compile(readFile(path.resolve(sourceDir, "templates/Errors.java.ejs")));
     var errorLocals = {};
     errorLocals.errorList = apis[0].errorList;
@@ -113,6 +115,7 @@ function generateSimpleFiles(apis, sourceDir, apiOutputDir) {
     
     var settingsTemplate = ejs.compile(readFile(path.resolve(sourceDir, "templates/PlayFabSettings.java.ejs")));
     var settingsLocals = {};
+    settingsLocals.isAndroid = isAndroid;
     settingsLocals.hasClientOptions = false;
     settingsLocals.hasServerOptions = false;
     for (var i in apis) {

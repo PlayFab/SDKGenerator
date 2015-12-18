@@ -101,7 +101,11 @@ public class PlayFabApiTest
         CHAR_NAME = resultData.characterName;
     }
 
-    // Tests
+    /// <summary>
+    /// CLIENT API
+    /// Try to deliberately log in with an inappropriate password,
+    ///   and verify that the error displays as expected.
+    /// </summary>
     @Test
     public void InvalidLogin()
     {
@@ -115,6 +119,10 @@ public class PlayFabApiTest
         assertTrue(result.Error.errorMessage.contains("password"));
     }
 
+    /// <summary>
+    /// CLIENT API
+    /// Log in or create a user, track their PlayFabId
+    /// </summary>
     @Test
     public void LoginOrRegister()
     {
@@ -150,6 +158,13 @@ public class PlayFabApiTest
         assertEquals(PlayFabSettings.AD_TYPE_ANDROID_ID + "_Successful", PlayFabSettings.AdvertisingIdType);
     }
 
+    /// <summary>
+    /// CLIENT API
+    /// Test a sequence of calls that modifies saved data,
+    ///   and verifies that the next sequential API call contains updated data.
+    /// Verify that the data is correctly modified on the next call.
+    /// Parameter types tested: string, Dictionary<string, string>, DateTime
+    /// </summary>
     @Test
     public void UserDataApi()
     {
@@ -188,6 +203,13 @@ public class PlayFabApiTest
         assertTrue(testMin.before(timeUpdated) && timeUpdated.before(testMax));
     }
 
+    /// <summary>
+    /// CLIENT API
+    /// Test a sequence of calls that modifies saved data,
+    ///   and verifies that the next sequential API call contains updated data.
+    /// Verify that the data is saved correctly, and that specific types are tested
+    /// Parameter types tested: Dictionary<string, int> 
+    /// </summary>
     @Test
     public void UserStatisticsApi()
     {
@@ -212,6 +234,11 @@ public class PlayFabApiTest
         assertEquals(testStatExpected, testStatActual);
     }
 
+    /// <summary>
+    /// SERVER API
+    /// Get or create the given test character for the given user
+    /// Parameter types tested: Contained-Classes, string
+    /// </summary>
     @Test
     public void UserCharacter()
     {
@@ -251,6 +278,11 @@ public class PlayFabApiTest
         }
     }
 
+    /// <summary>
+    /// CLIENT AND SERVER API
+    /// Test that leaderboard results can be requested
+    /// Parameter types tested: List of contained-classes
+    /// </summary>
     @Test
     public void LeaderBoard()
     {

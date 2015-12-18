@@ -238,7 +238,7 @@ package
         }
         private function UserDataApi_GetSuccess1(result:com.playfab.ClientModels.GetUserDataResult) : void
         {
-            testIntExpected = int(result.Data[TEST_DATA_KEY].Value);
+            testIntExpected = result.Data.hasOwnProperty(TEST_DATA_KEY) ? int(result.Data[TEST_DATA_KEY].Value) : 1;
             testIntExpected = (testIntExpected + 1) % 100; // This test is about the expected value changing - but not testing more complicated issues like bounds
 
             var updateRequest:com.playfab.ClientModels.UpdateUserDataRequest = new com.playfab.ClientModels.UpdateUserDataRequest();

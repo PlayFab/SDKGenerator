@@ -1,7 +1,7 @@
 package com.playfab;
 
-import android.util.Log;
-import com.playfab.internal.*;
+<% if(isAndroid) { %>import android.util.Log;
+<% } %>import com.playfab.internal.*;
 import com.playfab.PlayFab<%- api.name %>Models.*;
 import com.playfab.PlayFabErrors.*;
 import com.playfab.PlayFabSettings;

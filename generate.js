@@ -1,10 +1,14 @@
 var fs = require("fs");
 var path = require("path");
 
+function stringStartsWith(value, prefix) {
+    return value.slice(0, prefix.length) === prefix;
+}
+
 function getTargetsList() {
     var targetList = [];
     
-    var targetsDir = path.resolve(__dirname, 'targets');
+    var targetsDir = path.resolve(__dirname, "targets");
     
     var targets = fs.readdirSync(targetsDir);
     for (var i in targets) {
@@ -13,11 +17,9 @@ function getTargetsList() {
             continue;
         
         var targetSourceDir = path.resolve(targetsDir, target);
-        var targetMain = path.resolve(targetSourceDir, 'make.js');
-        if (!fs.existsSync(targetMain))
-            continue;
-        
-        targetList.push(target);
+        var targetMain = path.resolve(targetSourceDir, "make.js"); // search for make.js in each subdirectory within "targets"
+        if (fs.existsSync(targetMain))
+            targetList.push(target);
     }
     
     return targetList;
@@ -26,263 +28,116 @@ function getTargetsList() {
 function generate(args) {
     var targetList = getTargetsList();
     
-    var syntax = "Synatax: node generate.js <apiSpecLocation> [-t <testFilePath>] [<targetName>=<targetOutputLocation>] ...\n" +
+    var syntax = "Synatax: node generate.js <apiSpecLocation> <targetName>=<targetOutputLocation> [-beta]\n" +
                 "\t<apiSpecLocation> : Directory where the *.api.json files are\n" +
-                "\tYou must list one or more target=outputLocation arguments. Warning, put no spaces around the =\n";
+                "\tYou must list one or more target=outputLocation arguments. Warning, there can be no spaces in the target-specification";
     
-    if (args.length < 4) {
+    if (args.length < 3) { // If missing mandatory arguments, display syntax and exit
         console.log(syntax);
-        console.log("Possible targetNames:\n");
-        for (var i in targetList) {
-            console.log("\t" + targetList[i]);
-        }
-        
+        console.log("Possible targetNames:");
+        console.log("\t" + targetList.join(", "));
         process.exit();
     }
     
-    var targetLookup = {};
-    for (var t in targetList) {
-        targetLookup[targetList[t]] = true;
-    }
-    
-    var specLocation = path.normalize(args[2]);
-    var testLocation = null;
-    var testData = null;
-    
-    var firstTargetIndex = 3;
-    if (args[3] === "-t") {
-        if (args.length < 5) {
+    var isBeta = false;
+    var targetOutputLocationList = []; // A list of objects that describe an sdk target
+    for (var i = 3; i < args.length; i++) {
+        if (stringStartsWith(args[i], "-t")) {
+            console.log("The -t option in SdkGenerator has been removed.  The new Jenkins testing is more thorough and replaces this old functionality.");
+            console.log(syntax);
+            process.exit();
+        } else if (args[i] === "-beta") {
+            isBeta = true;
+        } else if (args[i].indexOf("=") !== -1) { // any parameter with an "=" is assumed to be a target specification
+            var argPair = args[i].split("=", 2);
+            var targetOutput = {};
+            targetOutput.name = argPair[0];
+            targetOutput.dest = path.normalize(argPair[1]);
+            if (fs.existsSync(targetOutput.dest) && !fs.lstatSync(targetOutput.dest).isDirectory()) {
+                console.log("Invalid target output path: " + targetOutput.dest);
+                process.exit();
+            }
+            targetOutputLocationList.push(targetOutput);
+        } else {
+            console.log("Cannot parse parameter: " + args[i]);
             console.log(syntax);
             process.exit();
         }
-        testLocation = path.normalize(args[4]);
-        if (!fs.existsSync(testLocation)) {
-            console.log("Test plan file not found: " + testLocation);
-            process.exit();
-        }
-        testData = (JSON.parse(fs.readFileSync(testLocation)));
-        //testData = require(testLocation);
-        if (!testData) {
-            console.log("Couldn't load test input data at " + testLocation);
-            process.exit();
-        }
-        
-        firstTargetIndex = 5;
     }
     
-    if (firstTargetIndex >= args.length) {
-        console.log(syntax);
-        console.log("Possible targetNames:\n");
-        for (var i in targetList) {
-            console.log("\t" + targetList[i]);
-        }
-        
-        process.exit();
-    }
-    
-    var targetOutputLocationList = [];
-    
-    for (var a = firstTargetIndex; a < args.length; a++) {
-        var argPair = args[a].split('=');
-        if (argPair.length != 2) {
-            console.error(syntax);
-            process.exit();
-        }
-        var targetOutput = {};
-        targetOutput.name = argPair[0];
-        targetOutput.dest = path.normalize(argPair[1]);
-        if (!targetLookup[targetOutput.name]) {
-            console.log("Unknown SDK target name: " + targetOutput.name);
-            console.log("Possible targetNames:");
-            for (var i in targetList) {
-                console.log("\t" + targetList[i]);
-            }
-            
-            process.exit();
-        }
-        if (!testData && fs.existsSync(targetOutput.dest) && !fs.lstatSync(targetOutput.dest).isDirectory()) {
-            console.log("Invalid target output path: " + targetOutput.dest);
-            process.exit();
-        }
-        
-        targetOutputLocationList.push(targetOutput);
-    }
-    
-    var clientApi = require(path.resolve(specLocation, 'Client.api.json'));
+    var specLocation = path.normalize(args[2]);
+    var clientApi = GetApiDefinition(specLocation, "Client.api.json", isBeta);
     var serverApis = [
-        require(path.resolve(specLocation, 'Admin.api.json')),
-        require(path.resolve(specLocation, 'Matchmaker.api.json')),
-        require(path.resolve(specLocation, 'Server.api.json'))
+        GetApiDefinition(specLocation, "Admin.api.json", isBeta),
+        GetApiDefinition(specLocation, "Matchmaker.api.json", isBeta),
+        GetApiDefinition(specLocation, "Server.api.json", isBeta)
     ];
     var allApis = serverApis.concat(clientApi);
     
-    var apiLookup = {};
-    
-    if (testData) {
-        // Add all the extra lookups needed by the test generators
-        for (var a in allApis) {
-            var api = allApis[a];
-            apiLookup[api.name] = api;
-            
-            api.callLookup = {};
-            for (var c in api.calls) {
-                var call = api.calls[c];
-                api.callLookup[call.name] = call;
-            }
-            
-            for (var d in api.datatypes) {
-                var datatype = api.datatypes[d];
-                var propLookup = {};
-                datatype.propLookup = propLookup;
-                for (var p in datatype.properties) {
-                    var property = datatype.properties[p];
-                    propLookup[property.name] = property;
-                }
-            }
-        }
-        
-        preprocessTests(testData, apiLookup);
-    }
-    
     console.log("Generating PlayFab APIs from specs at " + specLocation);
     
-    var targetsDir = path.resolve(__dirname, 'targets');
+    var targetsDir = path.resolve(__dirname, "targets");
     
-    var targets = fs.readdirSync(targetsDir);
     for (var t in targetOutputLocationList) {
         var target = targetOutputLocationList[t];
         
         var sdkOutputDir = target.dest;
         
         var targetSourceDir = path.resolve(targetsDir, target.name);
-        var targetMain = path.resolve(targetSourceDir, 'make.js');
+        var targetMain = path.resolve(targetSourceDir, "make.js");
         
         console.log("Making target " + target.name + " to location " + sdkOutputDir);
         var targetMaker = require(targetMain);
         
-        if (testData) {
-            if (targetMaker.makeTests) {
-                targetMaker.makeTests(testData, apiLookup, targetSourceDir, sdkOutputDir);
-            }
-            else {
-                console.log("Target " + target.name + " can't make tests");
-            }
-            continue;
-        }
-        
         // It would probably be better to pass these into the functions, but I don't want to change all the make___Api parameters for all projects today.
         //   For now, just change the global variables in each with the data loaded from SdkManualNotes.json
-        targetMaker.apiNotes = require(path.resolve(specLocation, 'SdkManualNotes.json'));
+        targetMaker.apiNotes = require(path.resolve(specLocation, "SdkManualNotes.json"));
         targetMaker.sdkVersion = targetMaker.apiNotes.sdkVersion[target.name];
         if (targetMaker.sdkVersion == null)
             throw "SdkManualNotes does not contain sdkVersion for " + target.name;
         
+        var apiOutputDir = "";
+        
         if (targetMaker.makeClientAPI) {
-            var apiOutputDir = sdkOutputDir;
+            apiOutputDir = targetMaker.putInRoot ? sdkOutputDir : path.resolve(sdkOutputDir, "PlayFabClientSDK");
             console.log(" + Generating Client to " + apiOutputDir);
-            if (!targetMaker.putInRoot)
-                apiOutputDir = path.resolve(sdkOutputDir, 'PlayFabClientSDK');
-            
-            console.log("Now generating to " + apiOutputDir);
-            
             if (!fs.existsSync(apiOutputDir))
                 mkdirParentsSync(apiOutputDir);
-            
             targetMaker.makeClientAPI(clientApi, targetSourceDir, apiOutputDir);
         }
         
         if (targetMaker.makeServerAPI) {
-            var apiOutputDir = sdkOutputDir;
+            apiOutputDir = targetMaker.putInRoot ? sdkOutputDir : path.resolve(sdkOutputDir, "PlayFabServerSDK");
             console.log(" + Generating Server to " + apiOutputDir);
-            if (!targetMaker.putInRoot)
-                var apiOutputDir = path.resolve(sdkOutputDir, 'PlayFabServerSDK');
-            
             if (!fs.existsSync(apiOutputDir))
                 mkdirParentsSync(apiOutputDir);
-            
             targetMaker.makeServerAPI(serverApis, targetSourceDir, apiOutputDir);
         }
         
         if (targetMaker.makeCombinedAPI) {
-            var apiOutputDir = sdkOutputDir;
+            apiOutputDir = targetMaker.putInRoot ? sdkOutputDir : path.resolve(sdkOutputDir, "PlayFabSDK");
             console.log(" + Generating Combined to " + apiOutputDir);
-            if (!targetMaker.putInRoot)
-                apiOutputDir = path.resolve(sdkOutputDir, 'PlayFabSDK');
-            
             if (!fs.existsSync(apiOutputDir))
                 mkdirParentsSync(apiOutputDir);
-            
             targetMaker.makeCombinedAPI(allApis, targetSourceDir, apiOutputDir);
         }
-        
-        if (targetMaker.makeEachAPI) {
-            for (var i in allApis) {
-                var api = allApis[i];
-                
-                var apiOutputDir = path.resolve(sdkOutputDir, 'PlayFab' + api.name + 'SDK');
-                if (!fs.existsSync(apiOutputDir))
-                    mkdirParentsSync(apiOutputDir);
-                
-                targetMaker.makeCombinedAPI(api, targetSourceDir, apiOutputDir);
-            }
-        }
     }
-
+    
     console.log("\n\nDONE!\n");
 }
 
-function preprocessTests(testData, apiLookup) {
-    var testNames = {};
-    var error = false;
+var GetApiDefinition = function (specLocation, apiFileName, isBeta) {
+    var api = require(path.resolve(specLocation, apiFileName));
+    if (isBeta)
+        return api; // Return the full API un-filtered
     
-    for (var t in testData.tests) {
-        var test = testData.tests[t];
-        if (typeof test == 'string')
-            continue;
-        
-        var api = apiLookup[test.api];
-        if (!api) {
-            console.log("Test refers to unknown API " + test.api);
-            error = true;
-        }
-        
-        if (!api.callLookup[test.call]) {
-            console.log("Test refers to unknown API call " + test.api + "/" + test.call);
-            error = true;
-        }
-        
-        if (test.result && test.error) {
-            console.log("Test expects both an error and a result " + test.api + "/" + test.call);
-            error = true;
-        }
-        
-        if (test.error && !api.errors[test.error]) {
-            console.log("Test " + test.api + "/" + test.call + " expects unknown error code " + test.error);
-            error = true;
-        }
-        
-        var baseName = test.name;
-        if (!baseName)
-            baseName = test.api + "_" + test.call;
-        var name = baseName;
-        
-        if (testNames[name]) {
-            // Name already used
-            for (var incr = 1; incr < 1000; incr++) {
-                name = baseName + incr;
-                if (!testNames[name]) {
-                    break;
-                }
-            }
-        }
-        
-        
-        testNames[name] = test;
-        test.name = name;
-    }
-    
-    if (error)
-        process.exit();
+    // Otherwise, filter all beta calls out of the API before returning it
+    var filteredCalls = [];
+    for (var a in api.calls)
+        if (!api.calls[a].hasOwnProperty("beta") || api.calls[a].beta !== true)
+            filteredCalls.push(api.calls[a]);
+    api.calls = filteredCalls;
+    return api;
 }
 
 GLOBAL.copyTree = function (source, dest) {
@@ -361,15 +216,15 @@ GLOBAL.copyFile = function (source, dest) {
         //}
     }
     
-    var BUF_LENGTH = 64 * 1024;
-    var buff = new Buffer(BUF_LENGTH);
+    var bufLength = 64 * 1024;
+    var buff = new Buffer(bufLength);
     
-    var fdr = fs.openSync(source, 'r');
-    var fdw = fs.openSync(dest, 'w');
+    var fdr = fs.openSync(source, "r");
+    var fdw = fs.openSync(dest, "w");
     var bytesRead = 1;
     var pos = 0;
     while (bytesRead > 0) {
-        bytesRead = fs.readSync(fdr, buff, 0, BUF_LENGTH, pos);
+        bytesRead = fs.readSync(fdr, buff, 0, bufLength, pos);
         fs.writeSync(fdw, buff, 0, bytesRead);
         pos += bytesRead;
     }
@@ -402,4 +257,3 @@ GLOBAL.writeFile = function (filename, data) {
 GLOBAL.ejs = require("ejs");
 
 generate(process.argv);
-

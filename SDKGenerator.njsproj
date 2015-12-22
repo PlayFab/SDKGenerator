@@ -45,11 +45,9 @@
     <Content Include="SDKBuildScripts\js_build.bat" />
     <Content Include="SDKBuildScripts\node_build.bat" />
     <Content Include="SDKBuildScripts\postman_build.bat" />
-    <Content Include="SDKBuildScripts\ue4_build.bat" />
     <Content Include="SDKBuildScripts\ue4_CPP_build.bat" />
     <Content Include="SDKBuildScripts\unity_build.bat" />
     <Content Include="SDKBuildScripts\ue4_BP_build.bat" />
-    <Content Include="SDKBuildScripts\unreal_build.bat" />
     <Content Include="SDKBuildScripts\win_build.bat" />
     <Content Include="SDKBuildScripts\win_compile_client.bat" />
     <Content Include="SDKBuildScripts\win_compile_server.bat" />

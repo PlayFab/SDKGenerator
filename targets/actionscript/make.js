@@ -54,7 +54,7 @@ function needsPlayFabUtil(datatype) {
 }
 
 function makeAPI(api, sourceDir, apiOutputDir) {
-    console.log("Generating AcionScript " + api.name + " library to " + apiOutputDir);
+    console.log("Generating ActionScript " + api.name + " library to " + apiOutputDir);
     
     var templateDir = path.resolve(sourceDir, "templates");
     

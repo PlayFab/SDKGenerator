@@ -40,7 +40,7 @@ namespace PlayFab
                     }
                 }
             };
-            PlayFabHTTP.Post(<%- getUrlAccessor(apiCall) %>+"<%- apiCall.url %>", serializedJson, <%- getAuthParams(apiCall) %>, callback);
+            PlayFabHTTP.Post("<%- apiCall.url %>", serializedJson, <%- getAuthParams(apiCall) %>, callback);
         }
 
 <% } %><% if(hasClientOptions) { %>        private static string _authKey = null;

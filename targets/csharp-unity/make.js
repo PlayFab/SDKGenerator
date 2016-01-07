@@ -91,7 +91,6 @@ function makeAPI(api, sourceDir, apiOutputDir) {
     apiLocals.getAuthParams = getAuthParams;
     apiLocals.getRequestActions = getRequestActions;
     apiLocals.getResultActions = getResultActions;
-    apiLocals.getUrlAccessor = getUrlAccessor;
     apiLocals.hasClientOptions = api.name === "Client";
     var generatedApi = apiTemplate(apiLocals);
     writeFile(path.resolve(apiOutputDir, "Public/PlayFab" + api.name + "API.cs"), generatedApi);
@@ -320,12 +319,6 @@ function getResultActions(apiCall, api) {
         return "// Modify AdvertisingIdType:  Prevents us from sending the id multiple times, and allows automated tests to determine id was sent successfully\n"
             + "                    PlayFabSettings.AdvertisingIdType += \"_Successful\";\n";
     else if (api.name === "Client" && apiCall.result === "GetCloudScriptUrlResult")
-        return "PlayFabSettings.LogicServerURL = result.Url;\n";
+        return "PlayFabSettings.LogicServerUrl = result.Url;\n";
     return "";
-}
-
-function getUrlAccessor(apiCall) {
-    if (apiCall.serverType === "logic")
-        return "PlayFabSettings.GetLogicURL()";
-    return "PlayFabSettings.GetURL()";
 }

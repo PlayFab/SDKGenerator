@@ -9,7 +9,7 @@ exports.makeClientAPI = function (api, sourceDir, apiOutputDir) {
     copyTree(path.resolve(sourceDir, "source"), apiOutputDir);
     makeDatatypes([api], sourceDir, apiOutputDir);
     makeAPI(api, sourceDir, apiOutputDir);
-    generateSimpleFiles([api], sourceDir, apiOutputDir);
+    generateSimpleFiles([api], sourceDir, apiOutputDir, true);
 }
 
 exports.makeServerAPI = function (apis, sourceDir, apiOutputDir) {
@@ -22,7 +22,7 @@ exports.makeServerAPI = function (apis, sourceDir, apiOutputDir) {
         var api = apis[i];
         makeAPI(api, sourceDir, apiOutputDir);
     }
-    generateSimpleFiles(apis, sourceDir, apiOutputDir);
+    generateSimpleFiles(apis, sourceDir, apiOutputDir, false);
 }
 
 exports.makeCombinedAPI = function (apis, sourceDir, apiOutputDir) {
@@ -35,7 +35,7 @@ exports.makeCombinedAPI = function (apis, sourceDir, apiOutputDir) {
         var api = apis[i];
         makeAPI(api, sourceDir, apiOutputDir);
     }
-    generateSimpleFiles(apis, sourceDir, apiOutputDir);
+    generateSimpleFiles(apis, sourceDir, apiOutputDir, false);
     copyFile(path.resolve(sourceDir, "PlayFabApiTest.cs"), path.resolve(apiOutputDir, "Internal/Testing/PlayFabApiTest.cs"));
 }
 
@@ -96,13 +96,16 @@ function makeAPI(api, sourceDir, apiOutputDir) {
     writeFile(path.resolve(apiOutputDir, "Public/PlayFab" + api.name + "API.cs"), generatedApi);
 }
 
-function generateSimpleFiles(apis, sourceDir, apiOutputDir) {
+function generateSimpleFiles(apis, sourceDir, apiOutputDir, isClient) {
     var errorsTemplate = ejs.compile(readFile(path.resolve(sourceDir, "templates/Errors.cs.ejs")));
     var errorLocals = {};
     errorLocals.errorList = apis[0].errorList;
     errorLocals.errors = apis[0].errors;
     var generatedErrors = errorsTemplate(errorLocals);
-    writeFile(path.resolve(apiOutputDir, "Public/PlayFabErrors.cs"), generatedErrors);
+    if (isClient)
+        writeFile(path.resolve(apiOutputDir, "../Plugins/PlayFabErrors.cs"), generatedErrors);
+    else
+        writeFile(path.resolve(apiOutputDir, "Public/PlayFabErrors.cs"), generatedErrors);
     
     var versionTemplate = ejs.compile(readFile(path.resolve(sourceDir, "templates/PlayFabVersion.cs.ejs")));
     var versionLocals = {};

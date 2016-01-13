@@ -320,7 +320,6 @@
     <Content Include="targets\cpp-windows\UnittestRunner\unittest.bat" />
     <Content Include="targets\cpp-windows\UnittestRunner\UnittestRunner.vcxproj" />
     <Content Include="targets\cpp-windows\UnittestRunner\UnittestRunner.vcxproj.filters" />
-    <Content Include="targets\csharp-unity\PlayFabApiTest.cs" />
     <Content Include="targets\csharp-unity\source\Internal\Log.cs" />
     <Content Include="targets\csharp-unity\source\Internal\PlayFabHTTP.cs" />
     <Content Include="targets\csharp-unity\source\Internal\ResultContainer.cs" />
@@ -342,6 +341,13 @@
     <Content Include="targets\csharp-unity\templates\Models.cs.ejs" />
     <Content Include="targets\csharp-unity\templates\PlayFabSettings.cs.ejs" />
     <Content Include="targets\csharp-unity\templates\PlayFabVersion.cs.ejs" />
+    <Content Include="targets\csharp-unity\testing\DemoScene\DemoScene.unity" />
+    <Content Include="targets\csharp-unity\testing\DemoScene\ExampleApiLog.cs" />
+    <Content Include="targets\csharp-unity\testing\DemoScene\PlayFabManager.cs" />
+    <Content Include="targets\csharp-unity\testing\DemoScene\PlayFabManager.prefab" />
+    <Content Include="targets\csharp-unity\testing\DemoScene\ScreenOutput.cs" />
+    <Content Include="targets\csharp-unity\testing\PlayFabApiTest.cs" />
+    <Content Include="targets\csharp-unity\testing\PlayFabApiTest_Client.cs" />
     <Content Include="targets\csharp\build+unit.bat" />
     <Content Include="targets\csharp\source\build.bat" />
     <Content Include="targets\csharp\source\packages.config" />
@@ -585,6 +591,8 @@
     <Folder Include="targets\csharp-unity\source\Uunit\" />
     <Folder Include="targets\csharp-unity\source\Uunit\Editor\" />
     <Folder Include="targets\csharp-unity\templates\" />
+    <Folder Include="targets\csharp-unity\testing\" />
+    <Folder Include="targets\csharp-unity\testing\DemoScene\" />
     <Folder Include="targets\csharp\source\" />
     <Folder Include="targets\csharp\source\packages\" />
     <Folder Include="targets\csharp\source\packages\Newtonsoft.Json.6.0.3\" />

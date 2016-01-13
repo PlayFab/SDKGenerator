@@ -14,7 +14,7 @@ exports.makeClientAPI = function (api, sourceDir, apiOutputDir) {
     var testingOutputDir = path.resolve(apiOutputDir, "_ClientTesting");
     console.log("  - Copying client SDK to\n  -> " + testingOutputDir);
     copyTree(path.resolve(apiOutputDir, "PlayFabClientSample"), testingOutputDir);
-    copyTree(path.resolve(sourceDir, "testing/DemoScene"), path.resolve(testingOutputDir, "Assets/PlayFabSDK"));
+    copyTree(path.resolve(sourceDir, "testing/DemoScene"), path.resolve(testingOutputDir, "Assets/PlayFabSDK/DemoScene"));
 }
 
 exports.makeServerAPI = function (apis, sourceDir, apiOutputDir) {

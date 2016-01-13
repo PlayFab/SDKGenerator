@@ -340,8 +340,8 @@ var getPropertyDeserializer = exports.getPropertyDeserializer = function (proper
     else
         throw "Unknown property type: " + propType + " for " + propName + " in " + datatype.name;
     
-    var val = "const Value::Member* " + propName + "_member = obj.FindMember(\"" + propName + "\");\n";
-    val += "    if (" + propName + "_member != NULL && !" + propName + "_member->value.IsNull()) " + safePropName + " = " + getter + ";";
+    var val = "const Value::ConstMemberIterator " + propName + "_member = obj.FindMember(\"" + propName + "\");\n";
+    val += "    if (" + propName + "_member != obj.MemberEnd() && !" + propName + "_member->value.IsNull()) " + safePropName + " = " + getter + ";";
     return val;
 }
 
@@ -378,8 +378,8 @@ var getArrayPropertyDeserializer = exports.getArrayPropertyDeserializer = functi
     else
         throw "Unknown property type: " + property.actualtype + " for " + property.name + " in " + datatype.name;
     
-    var val = "const Value::Member* " + property.name + "_member = obj.FindMember(\"" + property.name + "\");\n";
-    val += "    if (" + property.name + "_member != NULL) {\n";
+    var val = "const Value::ConstMemberIterator " + property.name + "_member = obj.FindMember(\"" + property.name + "\");\n";
+    val += "    if (" + property.name + "_member != obj.MemberEnd()) {\n";
     val += "        const rapidjson::Value& memberList = " + property.name + "_member->value;\n";
     val += "        for (SizeType i = 0; i < memberList.Size(); i++) {\n";
     val += "            " + property.name + ".push_back(" + getter + ");\n        }\n    }";
@@ -419,8 +419,8 @@ var getMapPropertyDeserializer = exports.getMapPropertyDeserializer = function (
     else
         throw "Unknown property type: " + property.actualtype + " for " + property.name + " in " + datatype.name;
     
-    var val = "const Value::Member* " + property.name + "_member = obj.FindMember(\"" + property.name + "\");\n";
-    val += "    if (" + property.name + "_member != NULL) {\n";
+    var val = "const Value::ConstMemberIterator " + property.name + "_member = obj.FindMember(\"" + property.name + "\");\n";
+    val += "    if (" + property.name + "_member != obj.MemberEnd()) {\n";
     val += "        for (Value::ConstMemberIterator iter = " + property.name + "_member->value.MemberBegin(); iter != " + property.name + "_member->value.MemberEnd(); ++iter) {\n";
     val += "            " + property.name + "[iter->name.GetString()] = " + getter + ";\n        }\n    }";
     return val;

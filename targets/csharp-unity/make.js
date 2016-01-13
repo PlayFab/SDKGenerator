@@ -3,13 +3,18 @@ var path = require("path");
 exports.putInRoot = true;
 
 exports.makeClientAPI = function (api, sourceDir, apiOutputDir) {
-    apiOutputDir = path.resolve(apiOutputDir, "PlayFabClientSample/Assets/PlayFabSDK");
-    console.log("  - Generating C-sharp Unity client SDK sample proj to\n  - " + apiOutputDir);
-    
-    copyTree(path.resolve(sourceDir, "source"), apiOutputDir);
-    makeDatatypes([api], sourceDir, apiOutputDir);
-    makeAPI(api, sourceDir, apiOutputDir);
-    generateSimpleFiles([api], sourceDir, apiOutputDir, true);
+    var clientFolders = ["PlayFabClientSample", "_ClientTesting"];
+
+    for (var i in clientFolders) {
+        var eachApiOutputDir = path.resolve(apiOutputDir, clientFolders[i], "Assets/PlayFabSDK");
+        console.log("  - Generating C-sharp Unity client SDK sample proj to\n  - " + eachApiOutputDir);
+
+        copyTree(path.resolve(sourceDir, "source"), eachApiOutputDir);
+        makeDatatypes([api], sourceDir, eachApiOutputDir);
+        makeAPI(api, sourceDir, eachApiOutputDir);
+        generateSimpleFiles([api], sourceDir, eachApiOutputDir, true);
+        copyFile(path.resolve(sourceDir, "PlayFabApiTest_Client.cs"), path.resolve(eachApiOutputDir, "Internal/Testing/PlayFabApiTest_Client.cs"));
+    }
 }
 
 exports.makeServerAPI = function (apis, sourceDir, apiOutputDir) {

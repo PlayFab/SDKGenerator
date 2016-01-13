@@ -3,23 +3,23 @@ var path = require("path");
 exports.putInRoot = true;
 
 exports.makeClientAPI = function (api, sourceDir, apiOutputDir) {
-    var clientFolders = ["PlayFabClientSample", "_ClientTesting"];
+    var baseApiOutputDir = path.resolve(apiOutputDir, "PlayFabClientSample/Assets/PlayFabSDK");
+    console.log("  - Generating C-sharp Unity client SDK sample proj to\n  -> " + baseApiOutputDir);
+    copyTree(path.resolve(sourceDir, "source"), baseApiOutputDir);
+    makeDatatypes([api], sourceDir, baseApiOutputDir);
+    makeAPI(api, sourceDir, baseApiOutputDir);
+    generateSimpleFiles([api], sourceDir, baseApiOutputDir, true);
+    copyFile(path.resolve(sourceDir, "testing/PlayFabApiTest_Client.cs"), path.resolve(baseApiOutputDir, "Internal/Testing/PlayFabApiTest_Client.cs"));
 
-    for (var i in clientFolders) {
-        var eachApiOutputDir = path.resolve(apiOutputDir, clientFolders[i], "Assets/PlayFabSDK");
-        console.log("  - Generating C-sharp Unity client SDK sample proj to\n  - " + eachApiOutputDir);
-
-        copyTree(path.resolve(sourceDir, "source"), eachApiOutputDir);
-        makeDatatypes([api], sourceDir, eachApiOutputDir);
-        makeAPI(api, sourceDir, eachApiOutputDir);
-        generateSimpleFiles([api], sourceDir, eachApiOutputDir, true);
-        copyFile(path.resolve(sourceDir, "PlayFabApiTest_Client.cs"), path.resolve(eachApiOutputDir, "Internal/Testing/PlayFabApiTest_Client.cs"));
-    }
+    var testingOutputDir = path.resolve(apiOutputDir, "_ClientTesting");
+    console.log("  - Copying client SDK to\n  -> " + testingOutputDir);
+    copyTree(path.resolve(apiOutputDir, "PlayFabClientSample"), testingOutputDir);
+    copyTree(path.resolve(sourceDir, "testing/DemoScene"), path.resolve(testingOutputDir, "Assets/PlayFabSDK"));
 }
 
 exports.makeServerAPI = function (apis, sourceDir, apiOutputDir) {
     apiOutputDir = path.resolve(apiOutputDir, "PlayFabServerSample/Assets/PlayFabSDK");
-    console.log("  - Generating C-sharp Unity server SDK sample proj to\n  - " + apiOutputDir);
+    console.log("  - Generating C-sharp Unity server SDK sample proj to\n  -> " + apiOutputDir);
     
     copyTree(path.resolve(sourceDir, "source"), apiOutputDir);
     makeDatatypes(apis, sourceDir, apiOutputDir);
@@ -32,7 +32,7 @@ exports.makeServerAPI = function (apis, sourceDir, apiOutputDir) {
 
 exports.makeCombinedAPI = function (apis, sourceDir, apiOutputDir) {
     apiOutputDir = path.resolve(apiOutputDir, "PlayFabCombinedTestingSample/Assets/PlayFabSDK");
-    console.log("  - Generating C-sharp Unity combined SDK sample proj to\n  - " + apiOutputDir);
+    console.log("  - Generating C-sharp Unity combined SDK sample proj to\n  -> " + apiOutputDir);
     
     copyTree(path.resolve(sourceDir, "source"), apiOutputDir);
     makeDatatypes(apis, sourceDir, apiOutputDir);
@@ -41,7 +41,7 @@ exports.makeCombinedAPI = function (apis, sourceDir, apiOutputDir) {
         makeAPI(api, sourceDir, apiOutputDir);
     }
     generateSimpleFiles(apis, sourceDir, apiOutputDir, false);
-    copyFile(path.resolve(sourceDir, "PlayFabApiTest.cs"), path.resolve(apiOutputDir, "Internal/Testing/PlayFabApiTest.cs"));
+    copyFile(path.resolve(sourceDir, "testing/PlayFabApiTest.cs"), path.resolve(apiOutputDir, "Internal/Testing/PlayFabApiTest.cs"));
 }
 
 function getIsResultHandler(datatype) {
@@ -87,7 +87,7 @@ function makeDatatypes(apis, sourceDir, apiOutputDir) {
 }
 
 function makeAPI(api, sourceDir, apiOutputDir) {
-    console.log("   - Generating C# " + api.name + " library to\n   - " + apiOutputDir);
+    console.log("   - Generating C# " + api.name + " library to\n   -> " + apiOutputDir);
     
     var templateDir = path.resolve(sourceDir, "templates");
     var apiTemplate = ejs.compile(readFile(path.resolve(templateDir, "API.cs.ejs")));
@@ -321,10 +321,10 @@ function getRequestActions(apiCall, api) {
 
 function getResultActions(apiCall, api) {
     if (api.name === "Client" && (apiCall.result === "LoginResult" || apiCall.result === "RegisterPlayFabUserResult"))
-        return "_authKey = result.SessionTicket ?? _authKey;\n"
+        return "_authKey = result.SessionTicket ?? _authKey;\n" 
             + "                    MultiStepClientLogin(result.SettingsForUser.NeedsAttribution);\n";
     else if (api.name === "Client" && apiCall.result === "AttributeInstallResult")
-        return "// Modify AdvertisingIdType:  Prevents us from sending the id multiple times, and allows automated tests to determine id was sent successfully\n"
+        return "// Modify AdvertisingIdType:  Prevents us from sending the id multiple times, and allows automated tests to determine id was sent successfully\n" 
             + "                    PlayFabSettings.AdvertisingIdType += \"_Successful\";\n";
     else if (api.name === "Client" && apiCall.result === "GetCloudScriptUrlResult")
         return "PlayFabSettings.LogicServerUrl = result.Url;\n";

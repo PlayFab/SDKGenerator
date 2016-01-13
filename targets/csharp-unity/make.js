@@ -311,22 +311,22 @@ function getAuthParams(apiCall) {
 
 function getRequestActions(apiCall, api) {
     if (api.name === "Client" && (apiCall.result === "LoginResult" || apiCall.request === "RegisterPlayFabUserRequest"))
-        return "request.TitleId = request.TitleId ?? PlayFabSettings.TitleId;\n            if (request.TitleId == null) throw new Exception (\"Must be have PlayFabSettings.TitleId set to call this method\");\n";
+        return "request.TitleId = request.TitleId ?? PlayFabSettings.TitleId;\n            if (request.TitleId == null) throw new Exception(\"Must be have PlayFabSettings.TitleId set to call this method\");\n";
     if (api.name === "Client" && apiCall.auth === "SessionTicket")
-        return "if (_authKey == null) throw new Exception (\"Must be logged in to call this method\");\n";
+        return "if (_authKey == null) throw new Exception(\"Must be logged in to call this method\");\n";
     if (apiCall.auth === "SecretKey")
-        return "if (PlayFabSettings.DeveloperSecretKey == null) throw new Exception (\"Must have PlayFabSettings.DeveloperSecretKey set to call this method\");\n";
+        return "if (PlayFabSettings.DeveloperSecretKey == null) throw new Exception(\"Must have PlayFabSettings.DeveloperSecretKey set to call this method\");\n";
     return "";
 }
 
 function getResultActions(apiCall, api) {
     if (api.name === "Client" && (apiCall.result === "LoginResult" || apiCall.result === "RegisterPlayFabUserResult"))
-        return "_authKey = result.SessionTicket ?? _authKey;\n" 
+        return "                    _authKey = result.SessionTicket ?? _authKey;\n" 
             + "                    MultiStepClientLogin(result.SettingsForUser.NeedsAttribution);\n";
     else if (api.name === "Client" && apiCall.result === "AttributeInstallResult")
-        return "// Modify AdvertisingIdType:  Prevents us from sending the id multiple times, and allows automated tests to determine id was sent successfully\n" 
+        return "                    // Modify AdvertisingIdType:  Prevents us from sending the id multiple times, and allows automated tests to determine id was sent successfully\n" 
             + "                    PlayFabSettings.AdvertisingIdType += \"_Successful\";\n";
     else if (api.name === "Client" && apiCall.result === "GetCloudScriptUrlResult")
-        return "PlayFabSettings.LogicServerUrl = result.Url;\n";
+        return "                    PlayFabSettings.LogicServerUrl = result.Url;\n";
     return "";
 }

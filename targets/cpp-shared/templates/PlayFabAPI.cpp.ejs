@@ -33,7 +33,7 @@ size_t PlayFab<%- api.name %>API::Update()
     httpRequest->SetHeader("X-PlayFabSDK", PlayFabVersionString);
     <%- getAuthParams(apiCall) %>
 
-    httpRequest->SetResultCallback(static_cast<void*>(callback));
+    httpRequest->SetResultCallback(reinterpret_cast<void*>(callback));
     httpRequest->SetErrorCallback(errorCallback);
     httpRequest->SetUserData(userData);
 
@@ -53,7 +53,7 @@ void PlayFab<%- api.name %>API::On<%- apiCall.name %>Result(int httpStatus, Http
 <%- getResultActions(apiCall, api) %>
         if (request->GetResultCallback() != nullptr)
         {
-            <%- apiCall.name %>Callback successCallback = static_cast<<%- apiCall.name %>Callback>(request->GetResultCallback());
+            <%- apiCall.name %>Callback successCallback = reinterpret_cast<<%- apiCall.name %>Callback>(request->GetResultCallback());
             successCallback(outResult, request->GetUserData());
         }
     }

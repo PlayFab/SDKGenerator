@@ -2,7 +2,6 @@ var path = require("path");
 var shared = require("../cpp-shared/cpp-shared");
 
 function copyBaseFiles(sourceDir, apiOutputDir) {
-    copyTree(path.resolve(sourceDir, "../cpp-shared/source/dependencies/include/rapidjson"), path.resolve(apiOutputDir, "include/rapidjson"));
     copyTree(path.resolve(sourceDir, "../cpp-shared/source/include"), path.resolve(apiOutputDir, "include"));
     copyTree(path.resolve(sourceDir, "../cpp-shared/source/source/core"), path.resolve(apiOutputDir, "source"));
     copyTree(path.resolve(sourceDir, "../cpp-shared/source/source/curl"), path.resolve(apiOutputDir, "source"));

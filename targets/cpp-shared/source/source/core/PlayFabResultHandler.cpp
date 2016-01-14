@@ -1,5 +1,5 @@
 
-#include "rapidjson/document.h"
+#include "json/document.h"
 #include "playfab/PlayFabResultHandler.h"
 #include "playfab/PlayFabError.h"
 #include "playfab/PlayFabSettings.h"
@@ -17,7 +17,7 @@ bool PlayFabRequestHandler::DecodeRequest(int httpStatus, HttpRequest* request, 
 
 	// Check for bad responses
 	if (response.length() == 0 // Null response
-		|| rawResult.GetParseError() != NULL) // Non-Json response
+		|| rawResult.GetParseError() != kParseErrorNone) // Non-Json response
 	{
 		// If we get here, we failed to connect meaningfully to the server - Assume a timeout
 		outError.HttpCode = 408;
@@ -28,8 +28,8 @@ bool PlayFabRequestHandler::DecodeRequest(int httpStatus, HttpRequest* request, 
 	}
 
 	// Check if the returned json indicates an error
-	const Value::Member* errorCodeJson = rawResult.FindMember("errorCode");
-	if (errorCodeJson != NULL)
+	const Value::MemberIterator errorCodeJson = rawResult.FindMember("errorCode");
+	if (errorCodeJson != rawResult.MemberEnd())
 	{
 		// There was an error, BUMMER
 		if (!errorCodeJson->value.IsNumber())
@@ -44,24 +44,24 @@ bool PlayFabRequestHandler::DecodeRequest(int httpStatus, HttpRequest* request, 
 		// TODO: what happens when the error is not in the enum?
 		outError.ErrorCode = static_cast<PlayFabErrorCode>(errorCodeJson->value.GetInt());
 
-		const Value::Member* codeJson = rawResult.FindMember("code");
-		if (codeJson != NULL && codeJson->value.IsNumber())
+		const Value::MemberIterator codeJson = rawResult.FindMember("code");
+		if (codeJson != rawResult.MemberEnd() && codeJson->value.IsNumber())
 			outError.HttpCode = codeJson->value.GetInt();
 
-		const Value::Member* statusJson = rawResult.FindMember("status");
-		if (statusJson != NULL && statusJson->value.IsString())
+		const Value::MemberIterator statusJson = rawResult.FindMember("status");
+		if (statusJson != rawResult.MemberEnd() && statusJson->value.IsString())
 			outError.HttpStatus = statusJson->value.GetString();
 
-		const Value::Member* errorNameJson = rawResult.FindMember("error");
-		if (errorNameJson != NULL && errorNameJson->value.IsString())
+		const Value::MemberIterator errorNameJson = rawResult.FindMember("error");
+		if (errorNameJson != rawResult.MemberEnd() && errorNameJson->value.IsString())
 			outError.ErrorName = errorNameJson->value.GetString();
 
-		const Value::Member* errorMessageJson = rawResult.FindMember("errorMessage");
-		if (errorMessageJson != NULL && errorMessageJson->value.IsString())
+		const Value::MemberIterator errorMessageJson = rawResult.FindMember("errorMessage");
+		if (errorMessageJson != rawResult.MemberEnd() && errorMessageJson->value.IsString())
 			outError.ErrorMessage = errorMessageJson->value.GetString();
 
-		const Value::Member* errorDetailsJson = rawResult.FindMember("errorDetails");
-		if (errorDetailsJson != NULL && errorDetailsJson->value.IsObject())
+		const Value::MemberIterator errorDetailsJson = rawResult.FindMember("errorDetails");
+		if (errorDetailsJson != rawResult.MemberEnd() && errorDetailsJson->value.IsObject())
 		{
 			const Value& errorDetailsObj = errorDetailsJson->value;
 
@@ -79,8 +79,8 @@ bool PlayFabRequestHandler::DecodeRequest(int httpStatus, HttpRequest* request, 
 		return false;
 	}
 
-	const Value::Member* data = rawResult.FindMember("data");
-	if (data == NULL || !data->value.IsObject())
+	const Value::MemberIterator data = rawResult.FindMember("data");
+	if (data == rawResult.MemberEnd() || !data->value.IsObject())
 		return false;
 
 	return outResult.readFromValue(data->value);

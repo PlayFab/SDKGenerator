@@ -11,10 +11,10 @@ exports.makeClientAPI = function (api, sourceDir, apiOutputDir) {
     generateSimpleFiles([api], sourceDir, baseApiOutputDir, true);
     copyFile(path.resolve(sourceDir, "testing/PlayFabApiTest_Client.cs"), path.resolve(baseApiOutputDir, "Internal/Testing/PlayFabApiTest_Client.cs"));
 
-    var testingOutputDir = path.resolve(apiOutputDir, "_ClientTesting");
-    console.log("  - Copying client SDK to\n  -> " + testingOutputDir);
-    copyTree(path.resolve(apiOutputDir, "PlayFabClientSample"), testingOutputDir);
-    copyTree(path.resolve(sourceDir, "testing/DemoScene"), path.resolve(testingOutputDir, "Assets/PlayFabSDK/DemoScene"));
+    //var testingOutputDir = path.resolve(apiOutputDir, "_ClientTesting");
+    //console.log("  - Copying client SDK to\n  -> " + testingOutputDir);
+    //copyTree(path.resolve(apiOutputDir, "PlayFabClientSample"), testingOutputDir);
+    //copyTree(path.resolve(sourceDir, "testing/DemoScene"), path.resolve(testingOutputDir, "Assets/PlayFabSDK/DemoScene"));
 }
 
 exports.makeServerAPI = function (apis, sourceDir, apiOutputDir) {

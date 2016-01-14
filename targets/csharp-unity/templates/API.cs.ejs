@@ -21,23 +21,12 @@ namespace PlayFab
         {
             <%- getRequestActions(apiCall, api) %>
             string serializedJson = JsonConvert.SerializeObject(request, Util.JsonFormatting, Util.JsonSettings);
-            Action<string, PlayFabError> callback = delegate(string responseStr, PlayFabError pfError)
+            Action<CallRequestContainer> callback = delegate(CallRequestContainer requestContainer)
             {
-                <%- apiCall.result %> result;
-                ResultContainer<<%- apiCall.result %>>.HandleResults(responseStr, ref pfError, out result);
-                if (pfError != null && errorCallback != null)
-                {
-                    errorCallback(pfError);
-                }
+                <%- apiCall.result %> result = ResultContainer<<%- apiCall.result %>>.HandleResults(requestContainer, resultCallback, errorCallback);
                 if (result != null)
                 {
 <%- getResultActions(apiCall, api) %>
-                    result.CustomData = customData;
-                    result.Request = request;
-                    if (resultCallback != null)
-                    {
-                        resultCallback(result);
-                    }
                 }
             };
             PlayFabHTTP.Post("<%- apiCall.url %>", serializedJson, <%- getAuthParams(apiCall) %>, callback, request, customData);

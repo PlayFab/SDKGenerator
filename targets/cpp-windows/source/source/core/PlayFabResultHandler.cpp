@@ -1,5 +1,5 @@
 
-#include "rapidjson/document.h"
+#include "json/document.h"
 #include "playfab/PlayFabResultHandler.h"
 #include "playfab/PlayFabError.h"
 #include "playfab/PlayFabSettings.h"

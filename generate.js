@@ -94,7 +94,7 @@ function generate(args) {
         targetMaker.apiNotes = require(path.resolve(specLocation, "SdkManualNotes.json"));
         targetMaker.sdkVersion = targetMaker.apiNotes.sdkVersion[target.name];
         if (targetMaker.sdkVersion == null)
-            throw "SdkManualNotes does not contain sdkVersion for " + target.name;
+            throw "SdkManualNotes does not contain sdkVersion for " + target.name; // The point of this error is to force you to add a line to sdkManualNotes.json, to describe the version and date when this sdk/collection is built
         
         var apiOutputDir = "";
         

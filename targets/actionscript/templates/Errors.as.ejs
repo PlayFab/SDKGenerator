@@ -17,6 +17,7 @@ package com.playfab
             error = data.error;
             errorCode = data.errorCode;
             errorMessage = data.errorMessage;
+            errorDetails = data.errorDetails;
         }
 
         public var httpCode:int; // HTTP return code
@@ -24,5 +25,6 @@ package com.playfab
         public var error:String; // PlayFab error enum-string
         public var errorCode:int; // PlayFab error code
         public var errorMessage:String; // PlayFab specific error message
+        public var errorDetails:Object; // Additional error details: frequently null, but if errorMessage is vague, this may contain more information
     }
 }

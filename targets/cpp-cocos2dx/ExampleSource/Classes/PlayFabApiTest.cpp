@@ -51,28 +51,28 @@ namespace PlayFabApiTest
     bool SetTitleInfo(Document &testInputs)
     {
         CCLOG("%s", "SetTitleInfo");
-        const Value::Member* each;
 
         // Parse all the inputs
-        each = testInputs.FindMember("titleId");
-        if (each != NULL) PlayFabSettings::titleId = each->value.GetString(); else return false;
+        auto end = testInputs.MemberEnd();
+        auto each = testInputs.FindMember("titleId");
+        if (each != end) PlayFabSettings::titleId = each->value.GetString(); else return false;
         each = testInputs.FindMember("developerSecretKey");
-        if (each != NULL) PlayFabSettings::developerSecretKey = each->value.GetString(); else return false;
+        if (each != end) PlayFabSettings::developerSecretKey = each->value.GetString(); else return false;
 
         string blah;
         each = testInputs.FindMember("titleCanUpdateSettings");
-        if (each != NULL) blah = each->value.GetString(); else return false;
+        if (each != end) blah = each->value.GetString(); else return false;
         TITLE_CAN_UPDATE_SETTINGS = (blah.compare("true") == 0 || blah.compare("True") == 0 || blah.compare("TRUE") == 0);
 
         each = testInputs.FindMember("userName");
-        if (each != NULL) USER_NAME = each->value.GetString(); else return false;
+        if (each != end) USER_NAME = each->value.GetString(); else return false;
         each = testInputs.FindMember("userEmail");
-        if (each != NULL) USER_EMAIL = each->value.GetString(); else return false;
+        if (each != end) USER_EMAIL = each->value.GetString(); else return false;
         each = testInputs.FindMember("userPassword");
-        if (each != NULL) USER_PASSWORD = each->value.GetString(); else return false;
+        if (each != end) USER_PASSWORD = each->value.GetString(); else return false;
 
         each = testInputs.FindMember("characterName");
-        if (each != NULL) CHAR_NAME = each->value.GetString(); else return false;
+        if (each != end) CHAR_NAME = each->value.GetString(); else return false;
 
         // Verify all the inputs won't cause crashes in the tests
         return !PlayFabSettings::titleId.empty()

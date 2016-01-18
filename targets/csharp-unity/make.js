@@ -95,7 +95,7 @@ function makeAPI(api, sourceDir, apiOutputDir) {
     apiLocals.api = api;
     apiLocals.getAuthParams = getAuthParams;
     apiLocals.getRequestActions = getRequestActions;
-    apiLocals.hasRequestActions = hasRequestActions;
+    apiLocals.hasResultActions = hasResultActions;
     apiLocals.getResultActions = getResultActions;
     apiLocals.hasClientOptions = api.name === "Client";
     var generatedApi = apiTemplate(apiLocals);

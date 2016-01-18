@@ -6,10 +6,10 @@
 #include <list>
 #include <map>
 
-#include "rapidjson/document.h"
-#include "rapidjson/writer.h"
-#include "rapidjson/encodings.h"
-#include "rapidjson/stringbuffer.h"
+#include "json/document.h"
+#include "json/writer.h"
+#include "json/encodings.h"
+#include "json/stringbuffer.h"
 
 
 namespace PlayFab
@@ -17,12 +17,23 @@ namespace PlayFab
 
 	typedef rapidjson::Writer< rapidjson::GenericStringBuffer< rapidjson::UTF8<> > > PFStringJsonWriter;
 
-	typedef unsigned short Uint16;
-	typedef short Int16;
-	typedef unsigned long Uint32;
-	typedef long Int32;
-	typedef unsigned long long Uint64;
-	typedef long long Int64;
+#ifdef WIN32
+    typedef signed __int64 Int64;
+    typedef signed __int32 Int32;
+    typedef signed __int16 Int16;
+    
+    typedef unsigned __int64 Uint64;
+    typedef unsigned __int32 Uint32;
+    typedef unsigned __int16 Uint16;
+#else
+    typedef int64_t Int64;
+    typedef int32_t Int32;
+    typedef int16_t Int16;
+    
+    typedef uint64_t Uint64;
+    typedef uint32_t Uint32;
+    typedef uint16_t Uint16;
+#endif
 
     template <typename BoxedType>
     class Boxed

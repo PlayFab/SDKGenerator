@@ -182,6 +182,7 @@ void HttpRequesterCURL::FinalizeRequests()
                 CurlRequest request = mHandles[i];
 
                 CURLcode curlCode = curl_easy_getinfo(request.handle, CURLINFO_RESPONSE_CODE, &httpResponseStatus);
+                (void)curlCode;
                 // TODO: utilize the curlCode
 
                 if (request.callback != NULL)

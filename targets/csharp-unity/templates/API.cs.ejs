@@ -23,15 +23,18 @@ namespace PlayFab
             string serializedJson = JsonConvert.SerializeObject(request, Util.JsonFormatting, Util.JsonSettings);
             Action<CallRequestContainer> callback = delegate(CallRequestContainer requestContainer)
             {
-                <%- apiCall.result %> result = ResultContainer<<%- apiCall.result %>>.HandleResults(requestContainer, resultCallback, errorCallback);
-                if (result != null)
-                {
-<%- getResultActions(apiCall, api) %>
-                }
-            };
+<% if (hasResultActions(apiCall, api)) {
+%>                ResultContainer<<%- apiCall.result %>>.HandleResults(requestContainer, resultCallback, errorCallback, <%- apiCall.name %>ResultAction);
+<% } else {
+%>                ResultContainer<<%- apiCall.result %>>.HandleResults(requestContainer, resultCallback, errorCallback, null);
+<% } %>            };
             PlayFabHTTP.Post("<%- apiCall.url %>", serializedJson, <%- getAuthParams(apiCall) %>, callback, request, customData);
         }
-
+<% if (hasResultActions(apiCall, api)) { %>        public static void <%- apiCall.name %>ResultAction(<%- apiCall.result %> result, CallRequestContainer requestContainer)
+        {
+<%- getResultActions(apiCall, api) %>
+        }
+<% } %>
 <% } %><% if (hasClientOptions) { %>        private static string _authKey = null;
         // Determine if the _authKey is set, without actually making it public
         public static bool IsClientLoggedIn()

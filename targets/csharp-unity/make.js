@@ -95,6 +95,7 @@ function makeAPI(api, sourceDir, apiOutputDir) {
     apiLocals.api = api;
     apiLocals.getAuthParams = getAuthParams;
     apiLocals.getRequestActions = getRequestActions;
+    apiLocals.hasRequestActions = hasRequestActions;
     apiLocals.getResultActions = getResultActions;
     apiLocals.hasClientOptions = api.name === "Client";
     var generatedApi = apiTemplate(apiLocals);
@@ -319,14 +320,24 @@ function getRequestActions(apiCall, api) {
     return "";
 }
 
+function hasResultActions(apiCall, api) {
+    if (api.name === "Client" && (apiCall.result === "LoginResult" || apiCall.result === "RegisterPlayFabUserResult"))
+        return true;
+    else if (api.name === "Client" && apiCall.result === "AttributeInstallResult")
+        return true;
+    else if (api.name === "Client" && apiCall.result === "GetCloudScriptUrlResult")
+        return true;
+    return false;
+}
+
 function getResultActions(apiCall, api) {
     if (api.name === "Client" && (apiCall.result === "LoginResult" || apiCall.result === "RegisterPlayFabUserResult"))
-        return "                    _authKey = result.SessionTicket ?? _authKey;\n" 
-            + "                    MultiStepClientLogin(result.SettingsForUser.NeedsAttribution);\n";
+        return "            _authKey = result.SessionTicket ?? _authKey;\n" 
+            + "            MultiStepClientLogin(result.SettingsForUser.NeedsAttribution);\n";
     else if (api.name === "Client" && apiCall.result === "AttributeInstallResult")
-        return "                    // Modify AdvertisingIdType:  Prevents us from sending the id multiple times, and allows automated tests to determine id was sent successfully\n" 
-            + "                    PlayFabSettings.AdvertisingIdType += \"_Successful\";\n";
+        return "            // Modify AdvertisingIdType:  Prevents us from sending the id multiple times, and allows automated tests to determine id was sent successfully\n" 
+            + "            PlayFabSettings.AdvertisingIdType += \"_Successful\";\n";
     else if (api.name === "Client" && apiCall.result === "GetCloudScriptUrlResult")
-        return "                    PlayFabSettings.LogicServerUrl = result.Url;\n";
+        return "            PlayFabSettings.LogicServerUrl = result.Url;\n";
     return "";
 }

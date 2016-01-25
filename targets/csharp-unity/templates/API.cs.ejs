@@ -11,13 +11,12 @@ namespace PlayFab
     /// </summary>
 <% } %>    public static class PlayFab<%- api.name %>API
     {
-<% for(var i in api.calls) { var apiCall = api.calls[i]; %>        public delegate void <%- apiCall.name %>Callback(<%- apiCall.result%> result);
-<% } %>
+        public delegate void ProcessApiCallback<in TResult>(TResult result) where TResult : PlayFabResultCommon;
 
 <% for(var i in api.calls) { var apiCall = api.calls[i]; %><% if (apiCall.summary) { %>        /// <summary>
         /// <%- apiCall.summary %>
         /// </summary>
-<% } %>        public static void <%- apiCall.name %>(<%- apiCall.request %> request, <%- apiCall.name %>Callback resultCallback, ErrorCallback errorCallback, object customData = null)
+<% } %>        public static void <%- apiCall.name %>(<%- apiCall.request %> request, ProcessApiCallback<<%- apiCall.result %>> resultCallback, ErrorCallback errorCallback, object customData = null)
         {
             <%- getRequestActions(apiCall, api) %>
             string serializedJson = JsonConvert.SerializeObject(request, Util.JsonFormatting, Util.JsonSettings);

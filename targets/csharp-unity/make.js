@@ -11,10 +11,8 @@ exports.makeClientAPI = function (api, sourceDir, apiOutputDir) {
     generateSimpleFiles([api], sourceDir, baseApiOutputDir, true);
     copyFile(path.resolve(sourceDir, "testing/PlayFabApiTest_Client.cs"), path.resolve(baseApiOutputDir, "Internal/Testing/PlayFabApiTest_Client.cs"));
 
-    //var testingOutputDir = path.resolve(apiOutputDir, "_ClientTesting");
-    //console.log("  - Copying client SDK to\n  -> " + testingOutputDir);
-    //copyTree(path.resolve(apiOutputDir, "PlayFabClientSample"), testingOutputDir);
-    //copyTree(path.resolve(sourceDir, "testing/DemoScene"), path.resolve(testingOutputDir, "Assets/PlayFabSDK/DemoScene"));
+    // Add the DemoScene to the clientSDK - TODO: A command line parameter that decides when to add it or not, TODO: GitIgnore the DemoScene folder?
+    // copyTree(path.resolve(sourceDir, "testing/DemoScene"), path.resolve(baseApiOutputDir, "DemoScene"));
 }
 
 exports.makeServerAPI = function (apis, sourceDir, apiOutputDir) {

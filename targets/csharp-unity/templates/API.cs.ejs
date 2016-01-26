@@ -13,7 +13,10 @@ namespace PlayFab
     {
         public delegate void ProcessApiCallback<in TResult>(TResult result) where TResult : PlayFabResultCommon;
 
-<% for(var i in api.calls) { var apiCall = api.calls[i]; %><% if (apiCall.summary) { %>        /// <summary>
+<% for(var i in api.calls) { var apiCall = api.calls[i]; %>        public delegate void <%- apiCall.name %>RequestCallback(string urlPath, int callId, <%- apiCall.request %> request, object customData);
+        public delegate void <%- apiCall.name %>ResponseCallback(string urlPath, int callId, <%- apiCall.request %> request, <%- apiCall.result %> result, PlayFabError error, object customData);
+<% } %>
+<% for(var i in api.calls) { var apiCall = api.calls[i]; if (apiCall.summary) { %>        /// <summary>
         /// <%- apiCall.summary %>
         /// </summary>
 <% } %>        public static void <%- apiCall.name %>(<%- apiCall.request %> request, ProcessApiCallback<<%- apiCall.result %>> resultCallback, ErrorCallback errorCallback, object customData = null)

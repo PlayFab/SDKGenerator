@@ -338,17 +338,17 @@ void UPlayFab<%- api.name %>API::OnProcessRequestComplete(FHttpRequestPtr Reques
 <% if (hasClientOptions) {
 %>    if (isLoginRequest)
     {
-        auto pfSettings = IPlayFab::Get();
-        pfSettings.setSessionTicket(myResponse.responseData->GetObjectField("data")->GetStringField("SessionTicket"));
+        IPlayFab* pfSettings = &(IPlayFab::Get());
+        pfSettings->setSessionTicket(myResponse.responseData->GetObjectField("data")->GetStringField("SessionTicket"));
         bool needsAttribution = myResponse.responseData->GetObjectField("data")->GetBoolField("SessionTicket");
-        if (needsAttribution && !pfSettings.DisableAdvertising && !pfSettings.AdvertisingIdType.IsEmpty() && !pfSettings.AdvertisingIdValue.IsEmpty())
+        if (needsAttribution && !pfSettings->DisableAdvertising && !pfSettings->AdvertisingIdType.IsEmpty() && !pfSettings->AdvertisingIdValue.IsEmpty())
         {
             FClientAttributeInstallRequest request;
             bool makeAttrCall = true;
-            if (pfSettings.AdvertisingIdType == IPlayFab::AD_TYPE_IDFA)
-                request.Idfa = pfSettings.AdvertisingIdValue;
-            else if (pfSettings.AdvertisingIdType == IPlayFab::AD_TYPE_ANDROID_ID)
-                request.Android_Id = pfSettings.AdvertisingIdValue;
+            if (pfSettings->AdvertisingIdType == IPlayFab::AD_TYPE_IDFA)
+                request.Idfa = pfSettings->AdvertisingIdValue;
+            else if (pfSettings->AdvertisingIdType == IPlayFab::AD_TYPE_ANDROID_ID)
+                request.Android_Id = pfSettings->AdvertisingIdValue;
             else
                 makeAttrCall = false;
             if (makeAttrCall)

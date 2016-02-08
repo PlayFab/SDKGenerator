@@ -107,7 +107,7 @@ function generateSimpleFiles(apis, sourceDir, apiOutputDir, isClient) {
     errorLocals.errors = apis[0].errors;
     var generatedErrors = errorsTemplate(errorLocals);
     if (isClient)
-        writeFile(path.resolve(apiOutputDir, "../Plugins/PlayFabErrors.cs"), generatedErrors);
+        writeFile(path.resolve(apiOutputDir, "../Plugins/PlayFabShared/PlayFabErrors.cs"), generatedErrors);
     else
         writeFile(path.resolve(apiOutputDir, "Public/PlayFabErrors.cs"), generatedErrors);
     

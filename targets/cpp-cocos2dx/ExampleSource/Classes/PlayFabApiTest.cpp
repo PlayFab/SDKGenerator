@@ -248,18 +248,18 @@ namespace PlayFabApiTest
     /// Verify that the data is correctly modified on the next call.
     /// Parameter types tested: string, Dictionary<string, string>, DateTime
     /// </summary>
-    void GetDataCallback(PlayFab::ClientModels::GetUserDataResult& result, void* userData)
+    void GetDataCallback(ClientModels::GetUserDataResult& result, void* userData)
     {
         CCLOG("%s", "GetDataCallback");
         testMessageReturn = "GetData_Success";
-        std::map<string, PlayFab::ClientModels::UserDataRecord>::iterator it = result.Data.find(TEST_DATA_KEY);
+        std::map<string, ClientModels::UserDataRecord>::iterator it = result.Data.find(TEST_DATA_KEY);
         if (it != result.Data.end())
         {
             testMessageInt = atoi(it->second.Value.c_str());
             testMessageTime = it->second.LastUpdated;
         }
     }
-    void UpdateDataCallback(PlayFab::ClientModels::UpdateUserDataResult& result, void* userData)
+    void UpdateDataCallback(ClientModels::UpdateUserDataResult& result, void* userData)
     {
         CCLOG("%s", "UpdateDataCallback");
         // The update result doesn't contain anything interesting.  It's better to just re-call GetUserData again to verify the update
@@ -270,13 +270,13 @@ namespace PlayFabApiTest
         CCLOG("%s", "UserDataApi");
         LoginOrRegister(); // C++ Environment is nicely secluded, but also means that we have to manually handle sequential requirements
 
-        PlayFab::ClientModels::GetUserDataRequest getRequest;
+        ClientModels::GetUserDataRequest getRequest;
         PlayFabClientAPI::GetUserData(getRequest, &GetDataCallback, &SharedFailedCallback, NULL);
         ClientApiWait();
         if (testMessageReturn.compare("GetData_Success") != 0) return false;
         int testCounterValueExpected = (testMessageInt + 1) % 100; // This test is about the expected value changing - but not testing more complicated issues like bounds
 
-        PlayFab::ClientModels::UpdateUserDataRequest updateRequest;
+        ClientModels::UpdateUserDataRequest updateRequest;
 
         // itoa is not avaialable in android
         char buffer[16];
@@ -310,7 +310,7 @@ namespace PlayFabApiTest
     /// Verify that the data is saved correctly, and that specific types are tested
     /// Parameter types tested: Dictionary<string, int> 
     /// </summary>
-    void GetStatsCallback(PlayFab::ClientModels::GetUserStatisticsResult& result, void* userData)
+    void GetStatsCallback(ClientModels::GetUserStatisticsResult& result, void* userData)
     {
         CCLOG("%s", "GetStatsCallback");
         testMessageReturn = "GetStats_Success";
@@ -318,7 +318,7 @@ namespace PlayFabApiTest
         if (it != result.UserStatistics.end())
             testMessageInt = it->second;
     }
-    void UpdateStatsCallback(PlayFab::ClientModels::UpdateUserStatisticsResult& result, void* userData)
+    void UpdateStatsCallback(ClientModels::UpdateUserStatisticsResult& result, void* userData)
     {
         CCLOG("%s", "UpdateStatsCallback");
         // The update result doesn't contain anything interesting.  It's better to just re-call GetUserData again to verify the update
@@ -334,7 +334,7 @@ namespace PlayFabApiTest
         if (testMessageReturn.compare("GetStats_Success") != 0) return false;
         Int32 testStatValueExpected = (testMessageInt + 1) % 100; // This test is about the expected value changing (incrementing through from TEST_STAT_BASE to TEST_STAT_BASE * 2 - 1)
 
-        PlayFab::ClientModels::UpdateUserStatisticsRequest updateRequest;
+        ClientModels::UpdateUserStatisticsRequest updateRequest;
         updateRequest.UserStatistics[TEST_STAT_NAME] = testStatValueExpected;
         PlayFabClientAPI::UpdateUserStatistics(updateRequest, &UpdateStatsCallback, &SharedFailedCallback, NULL);
         ClientApiWait();
@@ -369,7 +369,7 @@ namespace PlayFabApiTest
             }
         }
     }
-    void GrantCharCallback(PlayFab::ServerModels::GrantCharacterToUserResult& result, void* userData)
+    void GrantCharCallback(ServerModels::GrantCharacterToUserResult& result, void* userData)
     {
         CCLOG("%s", "GrantCharCallback");
         testMessageReturn = "GrantChar_Success";
@@ -389,7 +389,7 @@ namespace PlayFabApiTest
         if (characterId.empty())
         {
             // Character doesn't exist, try to create it
-            PlayFab::ServerModels::GrantCharacterToUserRequest grantRequest;
+            ServerModels::GrantCharacterToUserRequest grantRequest;
             grantRequest.PlayFabId = playFabId;
             grantRequest.CharacterName = CHAR_NAME;
             grantRequest.CharacterType = CHAR_TEST_TYPE;
@@ -413,13 +413,13 @@ namespace PlayFabApiTest
     /// Test that leaderboard results can be requested
     /// Parameter types tested: List of contained-classes
     /// </summary>
-    void ClientLeaderboardCallback(GetLeaderboardAroundCurrentUserResult& result, void* userData)
+    void ClientLeaderboardCallback(ClientModels::GetLeaderboardResult& result, void* userData)
     {
         CCLOG("%s", "ClientLeaderboardCallback");
         testMessageReturn = "GetClientLB_Success";
         testMessageInt = result.Leaderboard.size();
     }
-    void ServerLeaderboardCallback(PlayFab::ServerModels::GetLeaderboardAroundCharacterResult& result, void* userData)
+    void ServerLeaderboardCallback(ServerModels::GetLeaderboardResult& result, void* userData)
     {
         CCLOG("%s", "ServerLeaderboardCallback");
         testMessageReturn = "GetServerLB_Success";
@@ -432,20 +432,18 @@ namespace PlayFabApiTest
         LoginOrRegister();
         UserCharacter();
 
-        GetLeaderboardAroundCurrentUserRequest clientRequest;
+        ClientModels::GetLeaderboardRequest clientRequest;
         clientRequest.MaxResultsCount = 3;
         clientRequest.StatisticName = TEST_STAT_NAME;
-        PlayFabClientAPI::GetLeaderboardAroundCurrentUser(clientRequest, &ClientLeaderboardCallback, &SharedFailedCallback, NULL);
+        PlayFabClientAPI::GetLeaderboard(clientRequest, &ClientLeaderboardCallback, &SharedFailedCallback, NULL);
         ClientApiWait();
         if (testMessageReturn.compare("GetClientLB_Success") != 0) return false;
         if (testMessageInt <= 0) return false;
 
-        PlayFab::ServerModels::GetLeaderboardAroundCharacterRequest serverRequest;
+        ServerModels::GetLeaderboardRequest serverRequest;
         serverRequest.MaxResultsCount = 3;
         serverRequest.StatisticName = TEST_STAT_NAME;
-        serverRequest.CharacterId = characterId;
-        serverRequest.PlayFabId = playFabId;
-        PlayFabServerAPI::GetLeaderboardAroundCharacter(serverRequest, &ServerLeaderboardCallback, &SharedFailedCallback, NULL);
+        PlayFabServerAPI::GetLeaderboard(serverRequest, &ServerLeaderboardCallback, &SharedFailedCallback, NULL);
         ServerApiWait();
         return testMessageReturn.compare("GetServerLB_Success") == 0
             && testMessageInt > 0;

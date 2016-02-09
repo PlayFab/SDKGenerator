@@ -375,8 +375,6 @@ exports.PlayFabApiTests = {
         };
         var serverRequest = {
             MaxResultsCount: 3,
-            PlayFabId: testData.playFabId,
-            CharacterId: testData.characterId,
             StatisticName: testConstants.TEST_STAT_NAME
         };
         
@@ -394,8 +392,8 @@ exports.PlayFabApiTests = {
                 test.done();
         };
         
-        PlayFabClient.GetLeaderboardAroundCurrentUser(clientRequest, CallbackWrapper(GetLeaderboardCallback, test));
-        PlayFabServer.GetLeaderboardAroundCharacter(serverRequest, CallbackWrapper(GetLeaderboardCallback, test));
+        PlayFabClient.GetLeaderboard(clientRequest, CallbackWrapper(GetLeaderboardCallback, test));
+        PlayFabServer.GetLeaderboard(serverRequest, CallbackWrapper(GetLeaderboardCallback, test));
     }),
     
     /// <summary>

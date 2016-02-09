@@ -1,7 +1,7 @@
 if (typeof PlayFabClientSDK == 'undefined')
-    Console.error("PlayFabApiTest requires PlayFabClientApi.js to be pre-loaded.");
+    console.log("PlayFabApiTest requires PlayFabClientApi.js to be pre-loaded.");
 if (typeof PlayFabServerSDK == 'undefined')
-    Console.error("PlayFabApiTest requires PlayFabServerApi.js to be pre-loaded.");
+    console.log("PlayFabApiTest requires PlayFabServerApi.js to be pre-loaded.");
 
 var PlayFabApiTests = {
     testTitleDataFilename: "testTitleData.json", // TODO: Do not hard code the location of this file (javascript can't really do relative paths either)
@@ -45,7 +45,6 @@ var PlayFabApiTests = {
         QUnit.test("LoginWithAdvertisingId", PlayFabApiTests.LoginWithAdvertisingId);
 
         setTimeout(function () { PlayFabApiTests.PostLoginTests(0); }, 200);
-        setTimeout(function () { PlayFabApiTests.PostCharacterTests(0); }, 200);
     },
 
     PostLoginTests: function (count) {
@@ -60,20 +59,9 @@ var PlayFabApiTests = {
             QUnit.test("UserDataApi", PlayFabApiTests.UserDataApi);
             QUnit.test("UserStatisticsApi", PlayFabApiTests.UserStatisticsApi);
             QUnit.test("UserCharacter", PlayFabApiTests.UserCharacter);
+            QUnit.test("LeaderBoard", PlayFabApiTests.LeaderBoard);
             QUnit.test("AccountInfo", PlayFabApiTests.AccountInfo);
             QUnit.test("CloudScript", PlayFabApiTests.CloudScript);
-        }
-    },
-
-    PostCharacterTests: function (count) {
-        if (count > 5)
-            return;
-
-        if (PlayFabApiTests.testData.characterId == null) {
-            // Wait for characterId
-            setTimeout(function () { PlayFabApiTests.PostCharacterTests(count + 1); }, 200);
-        } else {
-            QUnit.test("LeaderBoard", PlayFabApiTests.LeaderBoard);
         }
     },
 
@@ -90,7 +78,7 @@ var PlayFabApiTests = {
         if (titleDataValid)
             PlayFabApiTests.titleData = inputTitleData;
         else
-            window.console.error("testTitleData input file did not parse correctly");
+            console.log("testTitleData input file did not parse correctly");
 
         PlayFab.settings.titleId = PlayFabApiTests.titleData.titleId;
         PlayFab.settings.developerSecretKey = PlayFabApiTests.titleData.developerSecretKey;
@@ -103,7 +91,7 @@ var PlayFabApiTests = {
             try {
                 Callback(result, error);
             } catch (e) {
-                window.console.error("Exception thrown during " + callbackName + " callback: " + e.toString() + "\n" + e.stack); // Very irritatingly, qunit doesn't report failure results until all async callbacks return, which doesn't always happen when there's an exception
+                console.log("Exception thrown during " + callbackName + " callback: " + e.toString() + "\n" + e.stack); // Very irritatingly, qunit doesn't report failure results until all async callbacks return, which doesn't always happen when there's an exception
                 assert.ok(false, "Exception thrown during " + callbackName + " callback: " + e.toString() + "\n" + e.stack);
             }
         };
@@ -114,7 +102,7 @@ var PlayFabApiTests = {
             try {
                 Callback();
             } catch (e) {
-                window.console.error("Exception thrown during " + callbackName + " callback: " + e.toString() + "\n" + e.stack); // Very irritatingly, qunit doesn't report failure results until all async callbacks return, which doesn't always happen when there's an exception
+                console.log("Exception thrown during " + callbackName + " callback: " + e.toString() + "\n" + e.stack); // Very irritatingly, qunit doesn't report failure results until all async callbacks return, which doesn't always happen when there's an exception
                 assert.ok(false, "Exception thrown during " + callbackName + " callback: " + e.toString() + "\n" + e.stack);
             }
         };
@@ -411,34 +399,32 @@ var PlayFabApiTests = {
         };
         var serverRequest = {
             MaxResultsCount: 3,
-            PlayFabId: PlayFabApiTests.testData.playFabId,
-            CharacterId: PlayFabApiTests.testData.characterId,
             StatisticName: PlayFabApiTests.testConstants.TEST_STAT_NAME,
         };
+        var lbDoneC = assert.async();
+        var lbDoneS = assert.async();
 
-        var GetLeaderboardCallback_C = function (result, error) {
+        var getLeaderboardCallbackC = function (result, error) {
             PlayFabApiTests.VerifyNullError(result, error, assert, "Testing GetLeaderboard result");
             if (result != null) {
                 assert.ok(result.data.Leaderboard != null, "Testing GetLeaderboard content");
                 assert.ok(result.data.Leaderboard.length > 0, "Testing GetLeaderboard content-length");
             }
 
-            lbDone_C();
+            lbDoneC();
         };
-        var GetLeaderboardCallback_S = function (result, error) {
+        var getLeaderboardCallbackS = function (result, error) {
             PlayFabApiTests.VerifyNullError(result, error, assert, "Testing GetLeaderboard result");
             if (result != null) {
                 assert.ok(result.data.Leaderboard != null, "Testing GetLeaderboard content");
                 assert.ok(result.data.Leaderboard.length > 0, "Testing GetLeaderboard content-length");
             }
 
-            lbDone_S();
+            lbDoneS();
         };
 
-        var lbDone_C = assert.async();
-        PlayFabClientSDK.GetLeaderboardAroundCurrentUser(clientRequest, PlayFabApiTests.CallbackWrapper("GetLeaderboardCallback_C", GetLeaderboardCallback_C, assert));
-        var lbDone_S = assert.async();
-        PlayFabServerSDK.GetLeaderboardAroundCharacter(serverRequest, PlayFabApiTests.CallbackWrapper("GetLeaderboardCallback_S", GetLeaderboardCallback_S, assert));
+        PlayFabClientSDK.GetLeaderboard(clientRequest, PlayFabApiTests.CallbackWrapper("getLeaderboardCallbackC", getLeaderboardCallbackC, assert));
+        PlayFabServerSDK.GetLeaderboard(serverRequest, PlayFabApiTests.CallbackWrapper("getLeaderboardCallbackS", getLeaderboardCallbackS, assert));
     },
 
     /// <summary>

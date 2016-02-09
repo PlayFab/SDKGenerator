@@ -299,7 +299,6 @@ public class PlayFabApiTest
         PlayFabServerModels.GetLeaderboardRequest serverRequest = new PlayFabServerModels.GetLeaderboardRequest();
         serverRequest.MaxResultsCount = 3;
         serverRequest.StatisticName = TEST_STAT_NAME;
-        serverRequest.PlayFabId = playFabId;
         PlayFabResult<PlayFabServerModels.GetLeaderboardResult> serverResult = PlayFabServerAPI.GetLeaderboard(serverRequest);
         VerifyResult(serverResult, true);
         assertTrue(GetSvLbCount(serverResult.Result.Leaderboard) > 0);

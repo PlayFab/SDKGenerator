@@ -30,7 +30,6 @@ namespace PlayFab.UUnit
 
         // Information fetched by appropriate API calls
         private static string playFabId;
-        private static string characterId;
 
         /// <summary>
         /// PlayFab Title cannot be created from SDK tests, so you must provide your titleId to run unit tests.
@@ -310,7 +309,6 @@ namespace PlayFab.UUnit
 
             // Save the requested character
             UUnitAssert.NotNull(targetCharacter, "The test character did not exist, and was not successfully created");
-            characterId = targetCharacter.CharacterId;
         }
 
         /// <summary>
@@ -321,22 +319,20 @@ namespace PlayFab.UUnit
         [UUnitTest]
         public void LeaderBoard()
         {
-            var clientRequest = new ClientModels.GetLeaderboardAroundCurrentUserRequest();
+            var clientRequest = new ClientModels.GetLeaderboardRequest();
             clientRequest.MaxResultsCount = 3;
             clientRequest.StatisticName = TEST_STAT_NAME;
-            var clientTask = PlayFabClientAPI.GetLeaderboardAroundCurrentUserAsync(clientRequest);
+            var clientTask = PlayFabClientAPI.GetLeaderboardAsync(clientRequest);
             clientTask.Wait();
             UUnitAssert.Null(clientTask.Result.Error, "Failed to get client leaderboard");
             UUnitAssert.NotNull(clientTask.Result.Result, "Failed to get client leaderboard");
             UUnitAssert.NotNull(clientTask.Result.Result.Leaderboard, "Failed to get client leaderboard");
             UUnitAssert.True(clientTask.Result.Result.Leaderboard.Count > 0, "Leaderboard does not contain enough entries.");
 
-            var serverRequest = new ServerModels.GetLeaderboardAroundCharacterRequest();
+            var serverRequest = new ServerModels.GetLeaderboardRequest();
             serverRequest.MaxResultsCount = 3;
             serverRequest.StatisticName = TEST_STAT_NAME;
-            serverRequest.CharacterId = characterId;
-            serverRequest.PlayFabId = playFabId;
-            var serverTask = PlayFabServerAPI.GetLeaderboardAroundCharacterAsync(serverRequest);
+            var serverTask = PlayFabServerAPI.GetLeaderboardAsync(serverRequest);
             clientTask.Wait();
             UUnitAssert.Null(serverTask.Result.Error, "Failed to get server leaderboard");
             UUnitAssert.NotNull(serverTask.Result.Result, "Failed to get server leaderboard");

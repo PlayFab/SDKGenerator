@@ -166,7 +166,7 @@ package
 
             // Find and verify each expected error detail message
             var expectedEmailMsg:String = "Email address is not valid.";
-            var expectedPasswordMsg:String = "Password must be between 6 and 30 characters.";
+            var expectedPasswordMsg:String = "Password must be between";
             var foundEmailMsg:Boolean = false;
             var foundPasswordMsg:Boolean = false;
             var allMessages:String = "";

@@ -23,9 +23,11 @@ class UPlayFab<%- api.name %>API : public UOnlineBlueprintCallProxyBase
 
 public:
 
+	DECLARE_DYNAMIC_DELEGATE_OneParam(FDelegateOnFailurePlayFabError, FPlayFabError, error);
+
     UPROPERTY(BlueprintAssignable)
     FOnPlayFab<%- api.name %>RequestCompleted OnPlayFabResponse;
-
+	
     /** Set the Request Json object */
     //UFUNCTION(BlueprintCallable, Category = "PlayFab")
         void SetRequestObject(UPlayFabJsonObject* JsonObject);
@@ -74,10 +76,23 @@ public:
             if(apiCall.subgroup == api.subgroups[subgroup].name)
             {
 
-            %>    /** <%- apiCall.summary %> */
-<%            %>    UFUNCTION(BlueprintCallable, Category = "PlayFab | <%- api.name %> | <%- api.subgroups[subgroup].name %> ", meta = (BlueprintInternalUseOnly = "true"))
+              %>    /** <%- apiCall.summary %> */
+<%            %>    UFUNCTION(BlueprintCallable, Category = "PlayFab | <%- api.name %> | <%- api.subgroups[subgroup].name %> ", meta = (BlueprintInternalUseOnly = "true", DeprecatedFunction))
 <%            %>        static UPlayFab<%- api.name %>API* <%- apiCall.name %>(F<%- api.name %><%- apiCall.request %> request);
-
+<%            %>
+<%            %>    // callbacks
+<%            %>    DECLARE_DYNAMIC_DELEGATE_OneParam(FDelegateOnSuccess<%- apiCall.name %>, F<%- api.name %><%- apiCall.result %>, result);
+<%            %>
+<%            %>    /** <%- apiCall.summary %> */
+<%            %>	UFUNCTION(BlueprintCallable, Category = "PlayFab | <%- api.name %> | <%- api.subgroups[subgroup].name %> ", meta = (BlueprintInternalUseOnly = "true"))
+<%            %>	static UPlayFab<%- api.name %>API* PlayFab<%- apiCall.name %>(F<%- api.name %><%- apiCall.request %> request,
+<%            %>		FDelegateOnSuccess<%- apiCall.name %> onSuccess,
+<%            %>    	FDelegateOnFailurePlayFabError onFailure);
+<%            %>
+<%            %>	// Implements FOnPlayFabClientRequestCompleted
+<%            %>	UFUNCTION(BlueprintCallable, Category = "PlayFab | <%- api.name %> | <%- api.subgroups[subgroup].name %> ", meta = (BlueprintInternalUseOnly = "true"))
+<%            %>	void Helper<%- apiCall.name %>(FPlayFabBaseModel response, bool successful);
+<%            %>
 <%
             }
         }
@@ -98,7 +113,26 @@ public:
 private:
     /** Internal bind function for the IHTTPRequest::OnProcessRequestCompleted() event */
     void OnProcessRequestComplete(FHttpRequestPtr Request, FHttpResponsePtr Response, bool bWasSuccessful);
-
+	
+	FDelegateOnFailurePlayFabError OnFailure;
+<%
+    for(var subgroup in api.subgroups)
+    {
+        for(var i in api.calls)
+        {
+            var apiCall = api.calls[i];
+            if(apiCall.subgroup == api.subgroups[subgroup].name)
+            {
+				var apiCall = api.calls[i];
+				if(apiCall.subgroup == api.subgroups[subgroup].name)
+				{
+  						%>	FDelegateOnSuccess<%- apiCall.name %> OnSuccess<%- apiCall.name %>;
+<%
+				}
+			}
+		}
+	}
+%>
 protected:
 
     /** Internal request data stored as JSON */

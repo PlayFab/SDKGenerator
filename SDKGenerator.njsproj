@@ -323,7 +323,10 @@
     <Content Include="targets\csharp-unity\source\Internal\Log.cs" />
     <Content Include="targets\csharp-unity\source\Internal\PlayFabHTTP.cs" />
     <Content Include="targets\csharp-unity\source\Internal\ResultContainer.cs" />
+    <Content Include="targets\csharp-unity\source\Internal\SimpleJson.cs" />
     <Content Include="targets\csharp-unity\source\Internal\SingletonMonoBehaviour.cs" />
+    <Content Include="targets\csharp-unity\source\Internal\Testing\EventTest.cs" />
+    <Content Include="targets\csharp-unity\source\Internal\Testing\JsonUnitTests.cs" />
     <Content Include="targets\csharp-unity\source\Internal\Testing\UtilTest.cs" />
     <Content Include="targets\csharp-unity\source\Internal\Util.cs" />
     <Content Include="targets\csharp-unity\source\link.xml" />

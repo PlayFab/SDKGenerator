@@ -64,6 +64,8 @@ FString UPlayFab<%- api.name %>API::PercentEncode(const FString& Text)
 // This loop goes through the subgroups of the api and orders the functions in groups.
 // It makes it a little easier to navigate.
 
+// Array to hold already printed models. That way we dont duplicate
+var modelsArray = [];
 for(var subgroup in api.subgroups)
 {
 %>
@@ -83,7 +85,7 @@ for(var subgroup in api.subgroups)
         if(apiCall.subgroup == api.subgroups[subgroup].name)
         {
 
-            %>/** <%- apiCall.summary %> */
+              %>/** <%- apiCall.summary %> */
 <%            %>UPlayFab<%- api.name %>API* UPlayFab<%- api.name %>API::<%- apiCall.name %>(F<%- api.name %><%- apiCall.request %> request)
 <%            %>{
 <%            %>    // Objects containing request data
@@ -264,14 +266,269 @@ for(var subgroup in api.subgroups)
                         }
                         break;
                 }
-        }%>
+        }
+              %>
+<%            %>	// Add Request to manager
+<%            %>	manager->SetRequestObject(OutRestJsonObj);
+<%            %>
+<%            %>	return manager;
+<%            %>}
+<%            %>
+<%            %>/** <%- apiCall.summary %> */
+<%            %>UPlayFab<%- api.name %>API* UPlayFab<%- api.name %>API::PlayFab<%- apiCall.name %>(F<%- api.name %><%- apiCall.request %> request,
+<%            %>	FDelegateOnSuccess<%- apiCall.name %> onSuccess,
+<%            %>    FDelegateOnFailurePlayFabError onFailure)
+<%            %>{
+<%            %>    // Objects containing request data
+<%            %>    UPlayFab<%- api.name %>API* manager = NewObject<UPlayFab<%- api.name %>API>();
+<%            %>    UPlayFabJsonObject* OutRestJsonObj = NewObject<UPlayFabJsonObject>();
+<%            %>
+<%            %>	// Assign delegates
+<%            %>	manager->OnSuccess<%- apiCall.name %> = onSuccess;
+<%            %>	manager->OnFailure = onFailure;
+<%            %>	manager->OnPlayFabResponse.AddDynamic(manager, &UPlayFab<%- api.name %>API::Helper<%- apiCall.name %>);
+<%            %>
+<%            %>    // Setup the request
+<%            %>    manager->PlayFabRequestURL = "<%- apiCall.url %>";
+<%
 
-    // Add Request to manager
-    manager->SetRequestObject(OutRestJsonObj);
+                // If the api requires a sessionticket we add it, if not then leave it blank
 
-    return manager;
-}
+                if(apiCall.auth == "SessionTicket")
+                {
+                %>    manager->useSessionTicket = true;
+<%
+                }
+                else
+                {
+                %>    manager->useSessionTicket = false;
+<%
+                }
 
+                // If the api requires the secret key we say true so it pulls from the PlayFab Module
+                // However if this is the client SDK we don't include the secret key.
+
+                if(libname != "Client")
+                {
+                    if(apiCall.auth == "SecretKey")
+                    {
+                    %>    manager->useSecretKey = true;
+<%
+                    }
+                    else
+                    {
+                    %>    manager->useSecretKey = false;
+<%
+                    }
+                }
+
+                // If this deals with cloud script set the cloudscript bool
+                if(apiCall.name == "RunCloudScript")
+                {
+                %>    manager->cloudScript = true;
+<%
+                }
+
+                // If call is a login call set loginRequest true
+                if (apiCall.result == "LoginResult")
+                {
+                %>    manager->isLoginRequest = true;
+<%
+                }
+            %>
+
+<%        %>    // Setup request object
+<%
+
+            // Now this is where the magic really happens.
+            // Certain api calls require certain things, so we loop through each call to determine what it wants.
+            // Then we just add that code that is related to that api call and presto.
+
+            var properties = api.datatypes[apiCall.request].properties;
+
+            for(var z in properties)
+            {
+                var objectRequestString = "";
+                var property = properties[z];
+
+                switch(property.jsontype)
+                {
+                    case "String":
+                        if(property.name == "ParamsEncoded") {
+                        %>    if (request.ParamsEncoded != "") OutRestJsonObj->SetStringField(TEXT("<%- property.name %>"), request.<%- property.name %>);
+<%                            break;
+                        }
+                        if(property.name == "TitleId") {
+                        %>    OutRestJsonObj->SetStringField(TEXT("<%- property.name %>"), IPlayFab::Get().getGameTitleId());
+<%                            break;
+                        }
+                        if(property.hasOwnProperty('collection')) {
+                            if(property.collection == "array") {
+                            %>    // Check to see if string is empty
+<%                            %>    if (request.<%- property.name %>.IsEmpty() || request.<%- property.name %> == "")
+<%                            %>    {
+<%                            %>        OutRestJsonObj->SetFieldNull(TEXT("<%- property.name %>"));
+<%                            %>    }
+<%                            %>    else
+<%                            %>    {
+<%                            %>        TArray<FString> <%- property.name %>Array;
+<%                            %>        FString(request.<%- property.name %>).ParseIntoArray(<%- property.name %>Array, TEXT(","), false);
+<%                            %>        OutRestJsonObj->SetStringArrayField(TEXT("<%- property.name %>"), <%- property.name %>Array);
+<%                            %>    }
+
+<%
+                            }
+                            else
+                            {
+                            %>    if (request.<%- property.name %> != NULL) OutRestJsonObj->SetObjectField(TEXT("<%- property.name %>"), request.<%- property.name %>);
+<%
+                            }
+                        }
+                        else if(property.actualtype == "UserDataPermission") {
+                        %>    if (request.<%- property.name %> == EPermissionEnum::PUBLIC) OutRestJsonObj->SetStringField(TEXT("<%- property.name %>"), TEXT("Public"));
+<%                        %>    if (request.<%- property.name %> == EPermissionEnum::PRIVATE) OutRestJsonObj->SetStringField(TEXT("<%- property.name %>"), TEXT("Private"));
+<%
+                        }
+                        else
+                        {
+                        %>    if (request.<%- property.name %>.IsEmpty() || request.<%- property.name %> == "")
+<%                        %>    {
+<%                        %>        OutRestJsonObj->SetFieldNull(TEXT("<%- property.name %>"));
+<%                        %>    }
+<%                        %>    else
+<%                        %>    {
+<%                        %>        OutRestJsonObj->SetStringField(TEXT("<%- property.name %>"), request.<%- property.name %>);
+<%                        %>    }
+
+<%
+                        }
+                        break;
+
+                    case "Number":
+                        if(property.hasOwnProperty('collection'))
+                        {
+                            if(property.collection == "array") {
+                            %>    // Copy int array to float
+<%                            %>    TArray<float> tempArray;
+<%                            %>    for (int32 i = 0; i < request.<%- property.name %>.Num(); ++i)
+<%                            %>    {
+<%                            %>        tempArray.Add(float(request.<%- property.name %>[i]));
+<%                            %>    }
+<%                            %>    OutRestJsonObj->SetNumberArrayField(TEXT("<%- property.name %>"), tempArray);
+
+<%
+                            }
+                            else
+                            {
+                            %>    if (request.<%- property.name %> != NULL) OutRestJsonObj->SetObjectField(TEXT("<%- property.name %>"), request.<%- property.name %>);
+<%
+                            }
+                        }
+                        else
+                        {
+                        %>    OutRestJsonObj->SetNumberField(TEXT("<%- property.name %>"), request.<%- property.name %>);
+<%
+                        }
+                        break;
+
+                    case "Object":
+                        if(property.hasOwnProperty('collection')) {
+                            if(property.collection == "array")
+                            {
+                            %>    OutRestJsonObj->SetObjectArrayField(TEXT("<%- property.name %>"), request.<%- property.name %>);
+<%
+                            } else {
+                            %>    if (request.<%- property.name %> != NULL) OutRestJsonObj->SetObjectField(TEXT("<%- property.name %>"), request.<%- property.name %>);
+<%
+                            }
+                        } else {
+                        %>    if (request.<%- property.name %> != NULL) OutRestJsonObj->SetObjectField(TEXT("<%- property.name %>"), request.<%- property.name %>);
+<%
+                        }
+                        break;
+
+                    case "Boolean":
+                        if(property.hasOwnProperty('collection')) {
+                            if(property.collection == "array") {
+                            %>    OutRestJsonObj->SetBoolArrayField(TEXT("<%- property.name %>"), request.<%- property.name %>);
+<%
+                            } else {
+                            %>    if (request.<%- property.name %> != NULL) OutRestJsonObj->SetObjectField(TEXT("<%- property.name %>"), request.<%- property.name %>);
+<%
+                            }
+                        } else {
+                        %>    OutRestJsonObj->SetBoolField(TEXT("<%- property.name %>"), request.<%- property.name %>);
+<%
+                        }
+                        break;
+                }
+        }
+              %>
+<%            %>	// Add Request to manager
+<%            %>	manager->SetRequestObject(OutRestJsonObj);
+<%            %>
+<%            %>	return manager;
+<%            %>}
+<%            %>
+<%            %>// Implements FOnPlayFab<%- api.name %>RequestCompleted
+<%            %>void UPlayFab<%- api.name %>API::Helper<%- apiCall.name %>(FPlayFabBaseModel response, bool successful)
+<%            %>{
+<%            %>	FPlayFabError error = response.responseError;
+<%            %>	if (error.hasError)
+<%            %>	{
+<%            %>		if (OnFailure.IsBound())
+<%            %>		{
+<%            %>			OnFailure.Execute(error);
+<%            %>		}
+<%            %>	}
+<%            %>	else
+<%            %>	{
+<%
+				var found = false;
+                for(var i2 in api.datatypes)
+                {
+                    var datatype = api.datatypes[i2];
+                    if(datatype.name != apiCall.request)
+                    {
+                        if (datatype.name != apiCall.result)
+                        {
+                            continue;
+                        }
+                    }
+
+                    //Check if datatype has been made already
+                    if (modelsArray.indexOf(datatype.name.toString()) > -1) {continue;}
+
+                    // Add datatype name to array
+                    modelsArray.push(datatype.name.toString());
+
+                    if(datatype.name.substr(datatype.name.length - 7) == "Request") {continue;} // go to next model if it is a request
+					
+					if (datatype.name == apiCall.result) {
+						found = true;
+
+              %>		F<%- api.name %><%- apiCall.result %> result = UPlayFab<%- api.name %>ModelDecoder::decode<%- datatype.name %>Response(response.responseData);
+<%            %>		if (OnSuccess<%- apiCall.name %>.IsBound())
+<%            %>		{
+<%            %>			OnSuccess<%- apiCall.name %>.Execute(result);
+<%            %>		}
+<%
+						break;
+					}
+				}
+				
+				if (!found) {
+              %>		F<%- api.name %><%- apiCall.result %> result = UPlayFab<%- api.name %>ModelDecoder::decode<%- apiCall.result %>Response(response.responseData);
+<%            %>		if (OnSuccess<%- apiCall.name %>.IsBound())
+<%            %>		{
+<%            %>			OnSuccess<%- apiCall.name %>.Execute(result);
+<%            %>		}
+<%
+				}
+				
+              %>	}
+<%            %>}
+<%            %>
 <%}
     }
 } %>

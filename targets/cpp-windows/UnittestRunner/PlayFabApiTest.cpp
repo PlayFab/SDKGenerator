@@ -508,23 +508,23 @@ namespace UnittestRunner
 
             if (PlayFabSettings::logicServerURL.length() == 0)
             {
-                GetCloudScriptUrlRequest urlRequest;
+                ClientModels::GetCloudScriptUrlRequest urlRequest;
                 PlayFabClientAPI::GetCloudScriptUrl(urlRequest, &CloudUrlCallback, &SharedFailedCallback, NULL);
                 ClientApiWait();
                 Assert::IsTrue(testMessageReturn.compare("CloudUrl retrieved") == 0);
             }
 
-            RunCloudScriptRequest hwRequest;
+            ClientModels::RunCloudScriptRequest hwRequest;
             hwRequest.ActionId = "helloWorld";
             PlayFabClientAPI::RunCloudScript(hwRequest, &CloudHelloWorldCallback, &SharedFailedCallback, NULL);
             ClientApiWait();
             Assert::IsTrue(testMessageReturn.compare("Hello " + playFabId + "!") == 0);
         }
-        static void CloudUrlCallback(GetCloudScriptUrlResult& result, void* userData)
+        static void CloudUrlCallback(ClientModels::GetCloudScriptUrlResult& result, void* userData)
         {
             testMessageReturn = (result.Url.length() > 0) ? "CloudUrl retrieved" : "CloudUrl failed";
         }
-        static void CloudHelloWorldCallback(RunCloudScriptResult& result, void* userData)
+        static void CloudHelloWorldCallback(ClientModels::RunCloudScriptResult& result, void* userData)
         {
             // KNOWN ISSUE: result.Results does not get populated/decoded correctly!!!
             //if (result.Results.isNull())

@@ -3,9 +3,13 @@
 using namespace PlayFab;
 
 HttpRequest::HttpRequest(std::string method, std::string url)
-    : mMethod(method), mUrl(url), mCompression(0), mAcceptGZip(true)
+: mMethod(method), mUrl(url), mCompression(0), mAcceptGZip(true)
 {
-
+    
+}
+HttpRequest::~HttpRequest()
+{
+    
 }
 
 std::string HttpRequest::GetMethod() const
@@ -61,7 +65,7 @@ bool HttpRequest::GetHeader(size_t index, std::string& header) const
         header = mHeaders[index];
         res = true;
     }
-
+    
     return res;
 }
 

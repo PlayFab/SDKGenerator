@@ -75,17 +75,13 @@ public:
             var apiCall = api.calls[i];
             if(apiCall.subgroup == api.subgroups[subgroup].name)
             {
-
-              %>    /** <%- apiCall.summary %> */
-<%            %>    UFUNCTION(BlueprintCallable, Category = "PlayFab | <%- api.name %> | <%- api.subgroups[subgroup].name %> ", meta = (BlueprintInternalUseOnly = "true", DeprecatedFunction))
-<%            %>        static UPlayFab<%- api.name %>API* <%- apiCall.name %>(F<%- api.name %><%- apiCall.request %> request);
-<%            %>
-<%            %>    // callbacks
+			
+              %>    // callbacks
 <%            %>    DECLARE_DYNAMIC_DELEGATE_OneParam(FDelegateOnSuccess<%- apiCall.name %>, F<%- api.name %><%- apiCall.result %>, result);
 <%            %>
 <%            %>    /** <%- apiCall.summary %> */
 <%            %>	UFUNCTION(BlueprintCallable, Category = "PlayFab | <%- api.name %> | <%- api.subgroups[subgroup].name %> ", meta = (BlueprintInternalUseOnly = "true"))
-<%            %>	static UPlayFab<%- api.name %>API* PlayFab<%- apiCall.name %>(F<%- api.name %><%- apiCall.request %> request,
+<%            %>	static UPlayFab<%- api.name %>API* <%- apiCall.name %>(F<%- api.name %><%- apiCall.request %> request,
 <%            %>		FDelegateOnSuccess<%- apiCall.name %> onSuccess,
 <%            %>    	FDelegateOnFailurePlayFabError onFailure);
 <%            %>

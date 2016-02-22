@@ -87,17 +87,17 @@ for(var subgroup in api.subgroups)
 
               %>/** <%- apiCall.summary %> */
 <%            %>UPlayFab<%- api.name %>API* UPlayFab<%- api.name %>API::<%- apiCall.name %>(F<%- api.name %><%- apiCall.request %> request,
-<%            %>	FDelegateOnSuccess<%- apiCall.name %> onSuccess,
+<%            %>    FDelegateOnSuccess<%- apiCall.name %> onSuccess,
 <%            %>    FDelegateOnFailurePlayFabError onFailure)
 <%            %>{
 <%            %>    // Objects containing request data
 <%            %>    UPlayFab<%- api.name %>API* manager = NewObject<UPlayFab<%- api.name %>API>();
 <%            %>    UPlayFabJsonObject* OutRestJsonObj = NewObject<UPlayFabJsonObject>();
 <%            %>
-<%            %>	// Assign delegates
-<%            %>	manager->OnSuccess<%- apiCall.name %> = onSuccess;
-<%            %>	manager->OnFailure = onFailure;
-<%            %>	manager->OnPlayFabResponse.AddDynamic(manager, &UPlayFab<%- api.name %>API::Helper<%- apiCall.name %>);
+<%            %>    // Assign delegates
+<%            %>    manager->OnSuccess<%- apiCall.name %> = onSuccess;
+<%            %>    manager->OnFailure = onFailure;
+<%            %>    manager->OnPlayFabResponse.AddDynamic(manager, &UPlayFab<%- api.name %>API::Helper<%- apiCall.name %>);
 <%            %>
 <%            %>    // Setup the request
 <%            %>    manager->PlayFabRequestURL = "<%- apiCall.url %>";
@@ -275,27 +275,27 @@ for(var subgroup in api.subgroups)
                 }
         }
               %>
-<%            %>	// Add Request to manager
-<%            %>	manager->SetRequestObject(OutRestJsonObj);
+<%            %>    // Add Request to manager
+<%            %>    manager->SetRequestObject(OutRestJsonObj);
 <%            %>
-<%            %>	return manager;
+<%            %>    return manager;
 <%            %>}
 <%            %>
 <%            %>// Implements FOnPlayFab<%- api.name %>RequestCompleted
 <%            %>void UPlayFab<%- api.name %>API::Helper<%- apiCall.name %>(FPlayFabBaseModel response, bool successful)
 <%            %>{
-<%            %>	FPlayFabError error = response.responseError;
-<%            %>	if (error.hasError)
-<%            %>	{
-<%            %>		if (OnFailure.IsBound())
-<%            %>		{
-<%            %>			OnFailure.Execute(error);
-<%            %>		}
-<%            %>	}
-<%            %>	else
-<%            %>	{
+<%            %>    FPlayFabError error = response.responseError;
+<%            %>    if (error.hasError)
+<%            %>    {
+<%            %>        if (OnFailure.IsBound())
+<%            %>        {
+<%            %>            OnFailure.Execute(error);
+<%            %>        }
+<%            %>    }
+<%            %>    else
+<%            %>    {
 <%
-				var found = false;
+                var found = false;
                 for(var i2 in api.datatypes)
                 {
                     var datatype = api.datatypes[i2];
@@ -314,30 +314,30 @@ for(var subgroup in api.subgroups)
                     modelsArray.push(datatype.name.toString());
 
                     if(datatype.name.substr(datatype.name.length - 7) == "Request") {continue;} // go to next model if it is a request
-					
-					if (datatype.name == apiCall.result) {
-						found = true;
+                    
+                    if (datatype.name == apiCall.result) {
+                        found = true;
 
-              %>		F<%- api.name %><%- apiCall.result %> result = UPlayFab<%- api.name %>ModelDecoder::decode<%- datatype.name %>Response(response.responseData);
-<%            %>		if (OnSuccess<%- apiCall.name %>.IsBound())
-<%            %>		{
-<%            %>			OnSuccess<%- apiCall.name %>.Execute(result);
-<%            %>		}
+              %>        F<%- api.name %><%- apiCall.result %> result = UPlayFab<%- api.name %>ModelDecoder::decode<%- datatype.name %>Response(response.responseData);
+<%            %>        if (OnSuccess<%- apiCall.name %>.IsBound())
+<%            %>        {
+<%            %>            OnSuccess<%- apiCall.name %>.Execute(result);
+<%            %>        }
 <%
-						break;
-					}
-				}
-				
-				if (!found) {
-              %>		F<%- api.name %><%- apiCall.result %> result = UPlayFab<%- api.name %>ModelDecoder::decode<%- apiCall.result %>Response(response.responseData);
-<%            %>		if (OnSuccess<%- apiCall.name %>.IsBound())
-<%            %>		{
-<%            %>			OnSuccess<%- apiCall.name %>.Execute(result);
-<%            %>		}
+                        break;
+                    }
+                }
+                
+                if (!found) {
+              %>        F<%- api.name %><%- apiCall.result %> result = UPlayFab<%- api.name %>ModelDecoder::decode<%- apiCall.result %>Response(response.responseData);
+<%            %>        if (OnSuccess<%- apiCall.name %>.IsBound())
+<%            %>        {
+<%            %>            OnSuccess<%- apiCall.name %>.Execute(result);
+<%            %>        }
 <%
-				}
-				
-              %>	}
+                }
+                
+              %>    }
 <%            %>}
 <%            %>
 <%}
@@ -421,8 +421,8 @@ void UPlayFab<%- api.name %>API::OnProcessRequestComplete(FHttpRequestPtr Reques
                 makeAttrCall = false;
             if (makeAttrCall)
             {
-				FDelegateOnSuccessAttributeInstall onSuccess;
-				FDelegateOnFailurePlayFabError onFailure;
+                FDelegateOnSuccessAttributeInstall onSuccess;
+                FDelegateOnFailurePlayFabError onFailure;
                 auto callObj = AttributeInstall(request, onSuccess, onFailure);
                 callObj->Activate();
                 if (callObj->IsValidLowLevel())

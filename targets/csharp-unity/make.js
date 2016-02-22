@@ -10,6 +10,7 @@ exports.makeClientAPI = function (api, sourceDir, apiOutputDir) {
     makeAPI(api, sourceDir, baseApiOutputDir);
     generateSimpleFiles([api], sourceDir, baseApiOutputDir, true);
     copyFile(path.resolve(sourceDir, "testing/PlayFabApiTest_Client.cs"), path.resolve(baseApiOutputDir, "Internal/Testing/PlayFabApiTest_Client.cs"));
+    copyFile(path.resolve(sourceDir, "testing/EventTest.cs"), path.resolve(baseApiOutputDir, "Internal/Testing/EventTest.cs"));
 
     // Add the DemoScene to the clientSDK - TODO: A command line parameter that decides when to add it or not, TODO: GitIgnore the DemoScene folder?
     // copyTree(path.resolve(sourceDir, "testing/DemoScene"), path.resolve(baseApiOutputDir, "DemoScene"));
@@ -40,6 +41,7 @@ exports.makeCombinedAPI = function (apis, sourceDir, apiOutputDir) {
     }
     generateSimpleFiles(apis, sourceDir, apiOutputDir, false);
     copyFile(path.resolve(sourceDir, "testing/PlayFabApiTest.cs"), path.resolve(apiOutputDir, "Internal/Testing/PlayFabApiTest.cs"));
+    copyFile(path.resolve(sourceDir, "testing/EventTest.cs"), path.resolve(apiOutputDir, "Internal/Testing/EventTest.cs"));
 }
 
 function getIsResultHandler(datatype) {

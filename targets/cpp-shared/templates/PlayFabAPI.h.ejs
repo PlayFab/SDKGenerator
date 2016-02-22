@@ -13,8 +13,8 @@ namespace PlayFab
     {
     public:
 <% for(var i in api.calls) { var apiCall = api.calls[i]; %>        typedef void(*<%- apiCall.name %>Callback)(<%- api.name %>Models::<%- apiCall.result%>& result, void* userData);
-<% } %>
-<% if(hasClientOptions) { %>
+<% }
+if(hasClientOptions) { %>
         // Public, Client-Specific
         static void MultiStepClientLogin(bool needsAttribution);
         static bool IsClientLoggedIn();

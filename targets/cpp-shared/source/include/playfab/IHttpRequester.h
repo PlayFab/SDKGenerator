@@ -7,18 +7,18 @@
 
 namespace PlayFab
 {
-    
+
     typedef void (*RequestCompleteCallback)(int httpStatus, HttpRequest* request, void* userData);
-    
+
     class IHttpRequester
     {
     public:
         virtual PlayFabErrorCode AddRequest(HttpRequest* request, RequestCompleteCallback callback, void* callbackData) = 0;
         virtual ~IHttpRequester() {}
-        
+
     protected:
         //std::vector<HttpRequest*> mRequests;
     };
-    
+
 }
 #endif

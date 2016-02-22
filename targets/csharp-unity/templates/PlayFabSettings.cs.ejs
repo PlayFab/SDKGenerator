@@ -57,11 +57,13 @@ if (hasClientOptions) {
 <% } %>
         public static string GetFullUrl(string apiCall)
         {
-            if (apiCall == "/Client/RunCloudScript")
+<% if (hasClientOptions) {
+%>            if (apiCall == "/Client/RunCloudScript")
             {
                 return GetLogicUrl(apiCall);
             }
-            else if (!IsTesting)
+            else
+<% } %>            if (!IsTesting)
             {
                 string baseUrl = ProductionEnvironmentUrl;
                 if (baseUrl.StartsWith("http"))

@@ -1,11 +1,21 @@
 using System;
 using System.Collections.Generic;
-using PlayFab.ClientModels;
 using PlayFab.Internal;
 using PlayFab.UUnit;
 
 namespace PlayFab.UUnit
 {
+    public enum Region
+    {
+        USCentral,
+        USEast,
+        EUWest,
+        Singapore,
+        Japan,
+        Brazil,
+        Australia
+    }
+
     internal class ObjNumFieldTest
     {
         public sbyte SbyteValue; public byte ByteValue;
@@ -222,7 +232,7 @@ namespace PlayFab.Json
             var expectedObj = new JsonTest { TestBool = true };
             var actualJson = PlayFab.Json.JsonConvert.SerializeObject(expectedObj);
             JsonTest actualObj = PlayFab.Json.JsonConvert.DeserializeObject<JsonTest>(actualJson);
-            object actualGeneric = PlayFab.Json.JsonConvert.DeserializeObject(actualJson);
+            PlayFab.Json.JsonConvert.DeserializeObject(actualJson);
             UUnitAssert.True(actualObj.TestBool);
 #pragma warning restore 0618
         }

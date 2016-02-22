@@ -15,9 +15,6 @@ namespace PlayFab
     public:
         virtual PlayFabErrorCode AddRequest(HttpRequest* request, RequestCompleteCallback callback, void* callbackData) = 0;
         virtual ~IHttpRequester() {}
-
-    protected:
-        //std::vector<HttpRequest*> mRequests;
     };
 
 }

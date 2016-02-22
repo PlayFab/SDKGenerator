@@ -41,7 +41,7 @@ exports.makeCombinedAPI = function (apis, sourceDir, apiOutputDir) {
     }
     generateSimpleFiles(apis, sourceDir, apiOutputDir, false);
     copyFile(path.resolve(sourceDir, "testing/PlayFabApiTest.cs"), path.resolve(apiOutputDir, "Internal/Testing/PlayFabApiTest.cs"));
-    copyFile(path.resolve(sourceDir, "testing/EventTest.cs"), path.resolve(baseApiOutputDir, "Internal/Testing/EventTest.cs"));
+    copyFile(path.resolve(sourceDir, "testing/EventTest.cs"), path.resolve(apiOutputDir, "Internal/Testing/EventTest.cs"));
 }
 
 function getIsResultHandler(datatype) {

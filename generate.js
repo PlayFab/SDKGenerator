@@ -29,7 +29,7 @@ function generate(args) {
     var targetList = getTargetsList();
     
     var syntax = "Synatax: node generate.js <apiSpecLocation> <targetName>=<targetOutputLocation> [-flags <flag>[ <flag> ...]]\n" +
-                "\tExample: node generate.js C:/depot/API_Specs csharp-unity=..\sdks\UnitySDK -flags xbox playstation\n" +
+                "\tExample: node generate.js C:/depot/API_Specs csharp-unity=../sdks/UnitySDK -flags xbox playstation\n" +
                 "\t\tThis should build the UnitySDK, from the given Api-specs folder, with a bunch of optional console APIs included\n" +
                 "\t<apiSpecLocation> : Directory where the *.api.json files are\n" +
                 "\tYou must list one or more target=outputLocation arguments. Warning, there can be no spaces in the target-specification";

@@ -1,14 +1,15 @@
 #if UNITY_EDITOR
 #elif UNITY_ANDROID
-#define PLAYFAB_ANDROID
+#define PLAYFAB_ANDROID_PLUGIN
 #elif UNITY_IOS
-#define PLAYFAB_IOS
+#define PLAYFAB_IOS_PLUGIN
+#elif UNITY_WP8
+#define PLAYFAB_WP8
 #endif
 
 using PlayFab;
 using PlayFab.ClientModels;
 using PlayFab.Internal;
-using PlayFab.Json;
 using System.Collections.Generic;
 using System.IO;
 using UnityEngine;
@@ -43,12 +44,17 @@ public class PlayFabManager : MonoBehaviour
 			AndroidDevice = SystemInfo.deviceModel,
 			CreateAccount = true
 		}, OnLoginSuccess, OnLoginError, "LoginWithAndroidDeviceID");
+#elif PLAYFAB_WP8
+        PlayFabClientAPI.LoginWithCustomID(new LoginWithCustomIDRequest
+        {
+            CustomId = SystemInfo.deviceUniqueIdentifier,
+            CreateAccount = true
+        }, OnLoginSuccess, OnLoginError, "LoginWithCustomID");
 #else
         if (File.Exists(filename))
         {
-            string testInputsFile = File.ReadAllText(filename);
-            var serializer = JsonSerializer.Create(Util.JsonSettings);
-            var testInputs = serializer.Deserialize<Dictionary<string, string>>(new JsonTextReader(new StringReader(testInputsFile)));
+            string testInputsFile = Util.ReadAllFileText(filename);
+            var testInputs = PlayFab.SimpleJson.DeserializeObject<Dictionary<string, string>>(testInputsFile);
 
             string eachValue, email, password;
             PlayFabHTTP.instance.Awake();

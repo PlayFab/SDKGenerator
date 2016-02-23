@@ -150,10 +150,10 @@ var GetApiDefinition = function (specLocation, apiFileName, buildFlags) {
     api.calls = filteredCalls;
     
     // Filter datatypes out of the API before returning it
-    var filteredTypes = [];
+    var filteredTypes = {};
     for (var i in api.datatypes)
         if (IsVisibleWithFlags(buildFlags, api.datatypes[i]))
-            filteredTypes.push(api.datatypes[i]);
+            filteredTypes[api.datatypes[i].name] = api.datatypes[i];
     api.datatypes = filteredTypes;
     return api;
 }

@@ -45,15 +45,16 @@ namespace PlayFab
         public async <%- getReturnType(apiCall, api) %> <%- apiCall.name %>Async(<% if(getCallRequestsData(apiCall, api)) { %><%- apiCall.request %> request<% } %>)
         {
             <%- getRequestActions(apiCall, api) %>
-            object httpResult = await Settings.DoPost(<%- getUrlAccessor(apiCall) %> + "<%- apiCall.url %>", <% if(getCallRequestsData(apiCall, api)) { %>request<% } else {%>null<% } %>, <%- getAuthParams(apiCall) %>);
-            string resultRawJson = (string)httpResult;
+            object httpResult = await Settings.DoPost("<%- apiCall.name %>", <%- getUrlAccessor(apiCall) %> + "<%- apiCall.url %>", <% if(getCallRequestsData(apiCall, api)) { %>request<% } else {%>null<% } %>, <%- getAuthParams(apiCall) %>);
+
+            <% if(getCallReturnsData(apiCall, api)) {%>string resultRawJson = (string)httpResult;
 
             var serializer = JsonSerializer.Create(Settings.JsonSettings);
             var resultData = serializer.Deserialize<PlayFabJsonSuccess<<%- apiCall.result %>>>(new JsonTextReader(new StringReader(resultRawJson)));
 
             <%- apiCall.result %> result = resultData.data;
             <%- getResultActions(apiCall, api) %>
-            <%- getReturnAction(apiCall, api) %>
+            <%- getReturnAction(apiCall, api) %><% } %>
         }
         <% if(getCallRequestsData(apiCall, api)) { %>
         <% if(apiCall.summary) {%>/// <summary>
@@ -95,7 +96,7 @@ namespace PlayFab
         /// </summary>
         public async Task UploadBuildAsync(string uploadUrl, Stream build)
         {
-            string httpResult = await Settings.DoPut(uploadUrl, "application/x-zip-compressed", build);
+            await Settings.DoPut("UploadBuild", uploadUrl, "application/x-zip-compressed", build);
         }
 
 <% } %>    }

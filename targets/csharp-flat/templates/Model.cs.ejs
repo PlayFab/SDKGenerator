@@ -1,4 +1,4 @@
-<% if(datatype.properties.length > 0 || !datatype.name.endsWith("Request")) { %>
+<% if(datatype.properties.length > 0 || !(datatype.name.endsWith("Request") || datatype.name.endsWith("Result"))) { %>
 	<% if(datatype.description) { %>
 	/// <summary>
 	/// <%- getDescriptionClean(datatype.description) %>

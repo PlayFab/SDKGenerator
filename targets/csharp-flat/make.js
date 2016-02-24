@@ -289,10 +289,17 @@ function getDescriptionClean(description) {
 function getPropertyAttribs(property, datatype, api) {
     var attribs = "";
     
+    var optionalHandled = false;
     if (property.isenum) {
-        if (property.collection)
-            attribs += "[JsonProperty(ItemConverterType = typeof(StringEnumConverter))]\n\t\t";
-        else
+        if (property.collection) {
+            if(property.optional)
+                attribs += "[JsonProperty(ItemConverterType = typeof(StringEnumConverter))]\n\t\t";
+            else
+                attribs += "[JsonProperty(Required = Required.Always, ItemConverterType = typeof(StringEnumConverter))]\n\t\t";
+    
+            optionalHandled = true;
+        }
+        else 
             attribs += "[JsonConverter(typeof(StringEnumConverter))]\n\t\t";
     }
     
@@ -303,6 +310,9 @@ function getPropertyAttribs(property, datatype, api) {
         else
             attribs += "[Unordered]\n\t\t";
     }
+
+    if(!optionalHandled && !property.optional)
+        attribs += "[JsonProperty(Required = Required.Always)]\n\t\t";
     
     return attribs;
 }

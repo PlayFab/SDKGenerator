@@ -79,7 +79,7 @@ namespace PlayFab.Internal
             return client;
         }
 
-        internal static async Task<string> DoPost(this PlayFabSettings settings, string url, object request, string authType, string authKey)
+        internal static async Task<string> DoPost(this PlayFabSettings settings, string apiName, string url, object request, string authType, string authKey)
         {
             string bodyString = null;
 			var serializer = JsonSerializer.Create(settings.JsonSettings);
@@ -102,6 +102,11 @@ namespace PlayFab.Internal
                 }
             }
 
+            if(settings.ApiCallback != null)
+            {
+                settings.ApiCallback(PlayFabApiEvent.SendingRequest, settings, apiName, "POST", url, bodyString);
+            }
+
             HttpResponseMessage httpResponse = null;
             String httpResponseString = null;
 
@@ -120,11 +125,16 @@ namespace PlayFab.Internal
                 httpResponseString = await httpResponse.Content.ReadAsStringAsync();
             }
 
+            if(settings.ApiCallback != null)
+            {
+                settings.ApiCallback(PlayFabApiEvent.ReceivedReply, settings, apiName, "POST", url, httpResponseString);
+            }
+
             if(!httpResponse.IsSuccessStatusCode)
             {
                 if (String.IsNullOrEmpty(httpResponseString) || httpResponse.StatusCode == HttpStatusCode.NotFound)
                 {
-                    throw new PlayFabHttpException(httpResponse.StatusCode, httpResponse.StatusCode.ToString());
+                    throw new PlayFabHttpException(httpResponse.StatusCode, httpResponse.ReasonPhrase);
                 }
 
                 PlayFabJsonError errorResult = null;
@@ -142,10 +152,14 @@ namespace PlayFab.Internal
             return httpResponseString;
         }
 
-        internal static async Task<string> DoPut(this PlayFabSettings settings, string url, string contentType, Stream data)
+        internal static async Task DoPut(this PlayFabSettings settings, string apiName, string url, string contentType, Stream data)
         {
             HttpResponseMessage httpResponse = null;
-            String httpResponseString = null;
+
+            if(settings.ApiCallback != null)
+            {
+                settings.ApiCallback(PlayFabApiEvent.SendingRequest, settings, apiName, "PUT", url, null);
+            }
 
             using(HttpClient client = settings.CreateClient())
             using(StreamContent body = new StreamContent(data))
@@ -154,15 +168,25 @@ namespace PlayFab.Internal
                 body.Headers.Add("Content-Type", contentType);
 
                 httpResponse = await client.PutAsync(url, body);
-                httpResponseString = await httpResponse.Content.ReadAsStringAsync();
+                var httpResponseStream = await httpResponse.Content.ReadAsStreamAsync();
+                bool hasData = true;
+                var buffer = new byte[4096];
+                do
+                {
+                    int read = await httpResponseStream.ReadAsync(buffer, 0, buffer.Length);
+                    hasData = read != 0;
+                } while (hasData);
+
+                if(settings.ApiCallback != null)
+                {
+                    settings.ApiCallback(PlayFabApiEvent.ReceivedReply, settings, apiName, "PUT", url, null);
+                }
             }
 
             if(!httpResponse.IsSuccessStatusCode)
             {
-                throw new PlayFabHttpException(httpResponse.StatusCode, httpResponse.StatusCode.ToString());
+                throw new PlayFabHttpException(httpResponse.StatusCode, httpResponse.ReasonPhrase);
             }
-            
-            return httpResponseString;
         }    
     }
 }

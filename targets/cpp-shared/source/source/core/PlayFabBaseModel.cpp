@@ -1,5 +1,6 @@
 
 #include "playfab/PlayFabBaseModel.h"
+#include <ctime>
 
 using namespace PlayFab;
 using namespace rapidjson;
@@ -62,25 +63,21 @@ bool MultitypeVar::readFromValue(const rapidjson::Value& obj)
 
 void PlayFab::writeDatetime(time_t datetime, PFStringJsonWriter& writer)
 {
-	char buff[40];
-	strftime(buff, 40, "%Y-%m-%dT%H:%M:%S.000Z", gmtime (&datetime));
-	writer.String(buff);
+    char buff[40];
+    strftime(buff, 40, "%Y-%m-%dT%H:%M:%S.000Z", gmtime(&datetime));
+    writer.String(buff);
 }
 
 time_t PlayFab::readDatetime(const rapidjson::Value& obj)
 {
-    time_t time = (time_t)0;
-
     std::string enumStr = obj.GetString();
 
-	tm timeStruct = {};
+    tm timeStruct = {};
     unsigned int milliseconds = 0; // milliseconds are truncated in a standard time_t structure
     sscanf(enumStr.c_str(), "%u-%u-%uT%u:%u%u.%uZ", &timeStruct.tm_year, &timeStruct.tm_mon, &timeStruct.tm_mday,
-                       &timeStruct.tm_hour, &timeStruct.tm_min, &timeStruct.tm_sec, &milliseconds);
+        &timeStruct.tm_hour, &timeStruct.tm_min, &timeStruct.tm_sec, &milliseconds);
     timeStruct.tm_year -= 1900;
     timeStruct.tm_mon -= 1;
-    
-    time = mktime(&timeStruct);
 
-    return time;
+    return mktime(&timeStruct);
 }

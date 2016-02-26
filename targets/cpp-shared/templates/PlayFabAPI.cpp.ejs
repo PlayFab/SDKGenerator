@@ -22,7 +22,7 @@ size_t PlayFab<%- api.name %>API::Update()
 <% for(var i in api.calls) { var apiCall = api.calls[i];
 %>void PlayFab<%- api.name %>API::<%- apiCall.name %>(
     <% if(hasRequest(apiCall, api)) { %><%- apiCall.request %>& request,<% } %>
-    <%- apiCall.name %>Callback callback,
+    ProcessApiCallback<<%- apiCall.result %>> callback,
     ErrorCallback errorCallback,
     void* userData
     )
@@ -45,7 +45,7 @@ size_t PlayFab<%- api.name %>API::Update()
 
 void PlayFab<%- api.name %>API::On<%- apiCall.name %>Result(int httpStatus, HttpRequest* request, void* userData)
 {
-    <%- apiCall.result%> outResult;
+    <%- apiCall.result %> outResult;
     PlayFabError errorResult;
 
     if (PlayFabRequestHandler::DecodeRequest(httpStatus, request, userData, outResult, errorResult))
@@ -53,7 +53,7 @@ void PlayFab<%- api.name %>API::On<%- apiCall.name %>Result(int httpStatus, Http
 <%- getResultActions(apiCall, api) %>
         if (request->GetResultCallback() != nullptr)
         {
-            <%- apiCall.name %>Callback successCallback = reinterpret_cast<<%- apiCall.name %>Callback>(request->GetResultCallback());
+            ProcessApiCallback<<%- apiCall.result %>> successCallback = reinterpret_cast<ProcessApiCallback<<%- apiCall.result %>>>(request->GetResultCallback());
             successCallback(outResult, request->GetUserData());
         }
     }

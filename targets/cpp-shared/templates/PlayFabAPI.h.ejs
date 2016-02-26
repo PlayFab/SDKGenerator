@@ -4,7 +4,6 @@
 #include "playfab/IHttpRequester.h"
 #include "playfab/PlayFabError.h"
 #include "playfab/PlayFab<%- api.name %>DataModels.h"
-#include "playfab/PlayFabSettings.h"
 #include <string>
 
 namespace PlayFab
@@ -12,8 +11,8 @@ namespace PlayFab
     class PlayFab<%- api.name %>API
     {
     public:
-<% for(var i in api.calls) { var apiCall = api.calls[i]; %>        typedef void(*<%- apiCall.name %>Callback)(<%- api.name %>Models::<%- apiCall.result%>& result, void* userData);
-<% } %>
+        template<typename ResType> using ProcessApiCallback = void(*)(ResType& result, void* userData);
+
         static size_t Update();
 <% if(hasClientOptions) { %>
         // Public, Client-Specific
@@ -22,9 +21,9 @@ namespace PlayFab
 <% } %>
         // ------------ Generated API calls
 <% for(var i in api.calls) { var apiCall = api.calls[i]; if(hasRequest(apiCall, api)) {
-%>        static void <%- apiCall.name %>(<%- api.name %>Models::<%- apiCall.request %>& request, <%- apiCall.name %>Callback callback, ErrorCallback errorCallback = nullptr, void* userData = nullptr);
+%>        static void <%- apiCall.name %>(<%- api.name %>Models::<%- apiCall.request %>& request, ProcessApiCallback<<%- api.name %>Models::<%- apiCall.result%>> callback, ErrorCallback errorCallback = nullptr, void* userData = nullptr);
 <% } else
-{%>        static void <%- apiCall.name %>(<%- apiCall.name %>Callback callback, ErrorCallback errorCallback = nullptr, void* userData = nullptr);
+{%>        static void <%- apiCall.name %>(ProcessApiCallback<<%- api.name %>Models::<%- apiCall.result%>> callback, ErrorCallback errorCallback = nullptr, void* userData = nullptr);
 <% } } %>
     private:
         // ------------ Private constructor, to enforce all-static class

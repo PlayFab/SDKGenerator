@@ -2,7 +2,6 @@
 #define PLAYFAB_BASE_MODEL_H_
 
 #include <string>
-#include <ctime>
 #include <list>
 #include <map>
 
@@ -14,14 +13,13 @@
 
 namespace PlayFab
 {
-
-	typedef rapidjson::Writer< rapidjson::GenericStringBuffer< rapidjson::UTF8<> > > PFStringJsonWriter;
+    typedef rapidjson::Writer< rapidjson::GenericStringBuffer< rapidjson::UTF8<> > > PFStringJsonWriter;
 
 #ifdef WIN32
     typedef signed __int64 Int64;
     typedef signed __int32 Int32;
     typedef signed __int16 Int16;
-    
+
     typedef unsigned __int64 Uint64;
     typedef unsigned __int32 Uint32;
     typedef unsigned __int16 Uint16;
@@ -29,7 +27,7 @@ namespace PlayFab
     typedef int64_t Int64;
     typedef int32_t Int32;
     typedef int16_t Int16;
-    
+
     typedef uint64_t Uint64;
     typedef uint32_t Uint32;
     typedef uint16_t Uint16;
@@ -48,8 +46,8 @@ namespace PlayFab
         operator BoxedType() { return mValue; }
 
         void setNull() { mIsSet = false; }
-        bool notNull() { return mIsSet; }
-        bool isNull() { return !mIsSet; }
+        bool notNull() const { return mIsSet; }
+        bool isNull() const { return !mIsSet; }
     private:
         bool mIsSet;
     };
@@ -92,15 +90,15 @@ namespace PlayFab
 
     public:
 
-        MultitypeVar() : mType(MultitypeNull) {}
-        MultitypeVar(bool val) : mType(MultitypeBool), mBool(val) {}
-        MultitypeVar(Uint16 val) : mType(MultitypeNumber), mNumber(val) {}
-        MultitypeVar(Int16 val) : mType(MultitypeNumber), mNumber(val) {}
-        MultitypeVar(Uint32 val) : mType(MultitypeNumber), mNumber(val) {}
-        MultitypeVar(Int32 val) : mType(MultitypeNumber), mNumber(val) {}
-        MultitypeVar(float val) : mType(MultitypeNumber), mNumber(val) {}
-        MultitypeVar(double val) : mType(MultitypeNumber), mNumber(val) {}
-        MultitypeVar(std::string val) : mType(MultitypeString), mString(val) {}
+        MultitypeVar() : mType(MultitypeNull), mString(), mBool(), mNumber() {}
+        MultitypeVar(bool val) : mType(MultitypeBool), mString(), mBool(val), mNumber() {}
+        MultitypeVar(Uint16 val) : mType(MultitypeNumber), mString(), mBool(), mNumber(val) {}
+        MultitypeVar(Int16 val) : mType(MultitypeNumber), mString(), mBool(), mNumber(val) {}
+        MultitypeVar(Uint32 val) : mType(MultitypeNumber), mString(), mBool(), mNumber(val) {}
+        MultitypeVar(Int32 val) : mType(MultitypeNumber), mString(), mBool(), mNumber(val) {}
+        MultitypeVar(float val) : mType(MultitypeNumber), mString(), mBool(), mNumber(val) {}
+        MultitypeVar(double val) : mType(MultitypeNumber), mString(), mBool(), mNumber(val) {}
+        MultitypeVar(std::string val) : mType(MultitypeString), mString(val), mBool(), mNumber() {}
 
         MultitypeVar(const rapidjson::Value& obj)
         {
@@ -108,9 +106,9 @@ namespace PlayFab
         }
 
         void setNull() { mType = MultitypeNull; }
-        bool notNull() { return mType != MultitypeNull; }
-        bool isNull() { return mType == MultitypeNull; }
-        MultitypeVarTypes getType() { return mType; }
+        bool notNull() const { return mType != MultitypeNull; }
+        bool isNull() const { return mType == MultitypeNull; }
+        MultitypeVarTypes getType() const { return mType; }
 
         MultitypeVar& operator=(bool val) { mBool = val; mType = MultitypeBool; return *this; }
         MultitypeVar& operator=(Uint16 val) { mNumber = val; mType = MultitypeNumber; return *this; }
@@ -121,22 +119,21 @@ namespace PlayFab
         MultitypeVar& operator=(double val) { mNumber = val; mType = MultitypeNumber; return *this; }
         MultitypeVar& operator=(std::string val) { mString = val; mType = MultitypeString; return *this; }
 
-        operator bool() { return mBool; }
-        operator Uint16() { return (Uint16)mNumber; }
-        operator Int16() { return (Int16)mNumber; }
-        operator Uint32() { return (Uint32)mNumber; }
-        operator Int32() { return (Int32)mNumber; }
-        operator float() { return (float)mNumber; }
-        operator double() { return mNumber; }
-        operator std::string() { return mString; }
+        operator bool() const { return mBool; }
+        operator Uint16() const { return (Uint16)mNumber; }
+        operator Int16() const { return (Int16)mNumber; }
+        operator Uint32() const { return (Uint32)mNumber; }
+        operator Int32() const { return (Int32)mNumber; }
+        operator float() const { return (float)mNumber; }
+        operator double() const { return mNumber; }
+        operator std::string() const { return mString; }
 
         ~MultitypeVar() {}
-        void writeJSON(PFStringJsonWriter& writer);
-        bool readFromValue(const rapidjson::Value& obj);
+        void writeJSON(PFStringJsonWriter& writer) override;
+        bool readFromValue(const rapidjson::Value& obj) override;
     };
 
-	
-	void writeDatetime(time_t datetime, PFStringJsonWriter& writer);
+    void writeDatetime(time_t datetime, PFStringJsonWriter& writer);
     time_t readDatetime(const rapidjson::Value& obj);
 }
 

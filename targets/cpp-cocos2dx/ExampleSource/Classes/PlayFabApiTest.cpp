@@ -1,14 +1,14 @@
 #include "PlayFabApiTest.h"
 #include "cocos2d.h"
-#include <ctime>
+#include <playfab/PlayFabSettings.h>
 
 #define COCOS2D_DEBUG 1
 
 using namespace std;
 using namespace rapidjson;
 using namespace PlayFab;
-using namespace PlayFab::ClientModels;
-using namespace PlayFab::ServerModels;
+using namespace ClientModels;
+using namespace ServerModels;
 
 #pragma comment(lib, "wldap32.lib")
 #pragma comment(lib, "ws2_32.lib")
@@ -483,12 +483,12 @@ namespace PlayFabApiTest
     /// CLIENT API
     /// Test that CloudScript can be properly set up and invoked
     /// </summary>
-    void CloudUrlCallback(GetCloudScriptUrlResult& result, void* userData)
+    void CloudUrlCallback(ClientModels::GetCloudScriptUrlResult& result, void* userData)
     {
         CCLOG("%s", "CloudUrlCallback");
         testMessageReturn = (result.Url.length() > 0) ? "CloudUrl retrieved" : "CloudUrl failed";
     }
-    void CloudHelloWorldCallback(RunCloudScriptResult& result, void* userData)
+    void CloudHelloWorldCallback(ClientModels::RunCloudScriptResult& result, void* userData)
     {
         CCLOG("%s", "CloudHelloWorldCallback");
 
@@ -510,8 +510,8 @@ namespace PlayFabApiTest
 
         if (PlayFabSettings::logicServerURL.length() == 0)
         {
-            GetCloudScriptUrlRequest urlRequest;
-            PlayFabClientAPI::GetCloudScriptUrl(urlRequest, &CloudUrlCallback, &SharedFailedCallback, NULL);
+            ClientModels::GetCloudScriptUrlRequest urlRequest;
+            PlayFabClientAPI::GetCloudScriptUrl(urlRequest, &CloudUrlCallback, &SharedFailedCallback, nullptr);
             ClientApiWait();
             if (testMessageReturn.compare("CloudUrl retrieved") != 0)
                 return false;
@@ -519,7 +519,7 @@ namespace PlayFabApiTest
 
         RunCloudScriptRequest hwRequest;
         hwRequest.ActionId = "helloWorld";
-        PlayFabClientAPI::RunCloudScript(hwRequest, &CloudHelloWorldCallback, &SharedFailedCallback, NULL);
+        PlayFabClientAPI::RunCloudScript(hwRequest, &CloudHelloWorldCallback, &SharedFailedCallback, nullptr);
         ClientApiWait();
         return testMessageReturn.compare("Hello " + playFabId + "!") == 0;
     }

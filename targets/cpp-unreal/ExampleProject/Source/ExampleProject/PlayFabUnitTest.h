@@ -1,7 +1,5 @@
 #pragma once
 
-class UPlayFabClientAPI;
-
 #include "OnlineBlueprintCallProxyBase.h"
 #include "PlayFabClientAPI.h"
 #include "PlayFabClientModels.h"

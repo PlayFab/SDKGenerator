@@ -16,14 +16,6 @@
 // add includes for headers that are used in most of your module's source files though.
 #include "ModuleManager.h"
 
-// Enum for the UserDataPermission
-UENUM(BlueprintType)
-enum class EPermissionEnum : uint8
-{
-    PRIVATE UMETA(DisplayName = "Private"),
-    PUBLIC UMETA(DisplayName = "Public")
-};
-
 
 // Enum for Region
 UENUM(BlueprintType)

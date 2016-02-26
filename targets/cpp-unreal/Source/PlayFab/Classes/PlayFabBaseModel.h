@@ -4,10 +4,17 @@
 // PlayFab Base Model Header. This file holds the base ustruct for the playfab models.
 //////////////////////////////////////////////////////////////////////////////////////////////
 
-#include "PlayFabPrivatePCH.h"
 #include "PlayFabBaseModel.generated.h"
 
 class UPlayFabJsonObject;
+
+// Enum for the UserDataPermission
+UENUM(BlueprintType)
+enum class EPermissionEnum : uint8
+{
+    PRIVATE UMETA(DisplayName = "Private"),
+    PUBLIC UMETA(DisplayName = "Public")
+};
 
 USTRUCT(BlueprintType)
 struct FPlayFabError

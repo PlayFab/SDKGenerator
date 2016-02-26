@@ -8,16 +8,16 @@
 // SDK Version: <%- sdkVersion %>
 //////////////////////////////////////////////////////////////////////////////////////////////
 
+#include "IHttpRequest.h"
 #include "OnlineBlueprintCallProxyBase.h"
 #include "PlayFabBaseModel.h"
 #include "PlayFab<%- api.name %>Models.h"
-#include "PlayFabPrivatePCH.h"
 #include "PlayFab<%- api.name %>API.generated.h"
 
 DECLARE_DYNAMIC_MULTICAST_DELEGATE_TwoParams(FOnPlayFab<%- api.name %>RequestCompleted, FPlayFabBaseModel, response, bool, successful);
 
 UCLASS(Blueprintable, BlueprintType)
-class UPlayFab<%- api.name %>API : public UOnlineBlueprintCallProxyBase
+class PLAYFAB_API UPlayFab<%- api.name %>API : public UOnlineBlueprintCallProxyBase
 {
     GENERATED_UCLASS_BODY()
 

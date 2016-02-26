@@ -6,7 +6,7 @@ public class ExampleProject : ModuleRules
 {
     public ExampleProject(TargetInfo Target)
     {
-        PublicDependencyModuleNames.AddRange(new string[] { "Core", "CoreUObject", "Engine", "InputCore", "PlayFab" });
+        PublicDependencyModuleNames.AddRange(new string[] { "Core", "CoreUObject", "Engine", "InputCore", "PlayFab", "OnlineSubsystemUtils" });
 
         PrivateDependencyModuleNames.AddRange(new string[] {  });
 

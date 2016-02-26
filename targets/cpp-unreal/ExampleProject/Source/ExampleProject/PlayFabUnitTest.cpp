@@ -93,6 +93,8 @@ UPlayFabUnitTest* UPlayFabUnitTest::UnitTestRunCloudScript()
 {
 	FClientRunCloudScriptRequest request;
 	request.ActionId = "testMe";
+	request.Params = NULL;
+	request.ParamsEncoded = "";
 	UPlayFabUnitTest* proxy = NewObject<UPlayFabUnitTest>();
 	UPlayFabClientAPI::FDelegateOnSuccessRunCloudScript onSuccess;
 	onSuccess.BindUFunction(proxy, TEXT("OnSuccessRunCloudScript"));

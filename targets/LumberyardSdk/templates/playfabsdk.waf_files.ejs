@@ -1,0 +1,32 @@
+{
+    "NoUberFile": {
+        "Root": [
+            "Source/StdAfx.cpp",
+            "Source/StdAfx.h"
+        ]
+    },
+    "none": {
+        "Interface": [<% for (var i in apis) { %>
+            "Include/PlayFab<%- apis[i].name %>API.h",<% } %>
+            "Include/IPlayFabSdkGem.h"
+        ],
+        "Implementation": [
+            "Source/PlayFabSdkGem.h",
+            "Source/PlayFabSdkGem.cpp",
+<% for (var i in apis) { %>
+            "Source/PlayFab<%- apis[i].name %>DataModels.h",
+            "Source/PlayFab<%- apis[i].name %>DataModels.cpp",
+            "Source/PlayFab<%- apis[i].name %>API.cpp",<% } %>
+
+            "Source/PlayFabBaseModel.h",
+            "Source/PlayFabError.h",
+            "Source/PlayFabHttp.h",
+            "Source/PlayFabSettings.h",
+
+            "Source/PlayFabBaseModel.cpp",
+            "Source/PlayFabFlowNode.cpp",
+            "Source/PlayFabHttp.cpp",
+            "Source/PlayFabSettings.cpp"
+        ]
+    }
+}

@@ -7,6 +7,7 @@ var path = require("path");
 exports.makeClientAPI = function (api, sourceDir, apiOutputDir) {
     console.log("Generating Lumberyard C++ client SDK to " + apiOutputDir);
     
+    copyTree(path.resolve(sourceDir, "source"), apiOutputDir);
     makeAPI(api, apiOutputDir);
     generateModels([api], apiOutputDir, "Client");
     generateErrors(api, apiOutputDir);
@@ -47,16 +48,34 @@ function makeAPIProject(apis, sourceDir, apiOutputDir, libname) {
     var projLocals = {};
     projLocals.apis = apis;
     projLocals.libname = libname;
-    
 }
 
 function generateSimpleFiles(apis, sourceDir, apiOutputDir) {
     var locals = {};
     locals.sdkVersion = exports.sdkVersion;
-    
+    locals.apis = apis;
+    locals.hasClientOptions = false;
+    locals.hasServerOptions = false;
+    for (var i in apis) {
+        if (apis[i].name === "Client") locals.hasClientOptions = true;
+        if (apis[i].name !== "Client") locals.hasServerOptions = true;
+    }
+
     var vcProjTemplate = ejs.compile(readFile(path.resolve(sourceDir, "templates/gem.json.ejs")));
     var generatedProject = vcProjTemplate(locals);
     writeFile(path.resolve(apiOutputDir, "gem.json"), generatedProject);
+
+    var wafTemplate = ejs.compile(readFile(path.resolve(sourceDir, "templates/playfabsdk.waf_files.ejs")));
+    var generatedWaf = wafTemplate(locals);
+    writeFile(path.resolve(apiOutputDir, "Code/playfabsdk.waf_files"), generatedWaf);
+
+    var hSettingTemplate = ejs.compile(readFile(path.resolve(sourceDir, "templates/PlayFabSettings.h.ejs")));
+    var generatedSettingH = hSettingTemplate(locals);
+    writeFile(path.resolve(apiOutputDir, "Code/Source/PlayFabSettings.h"), generatedSettingH);
+
+    var cppSettingTemplate = ejs.compile(readFile(path.resolve(sourceDir, "templates/PlayFabSettings.cpp.ejs")));
+    var generatedSettingCpp = cppSettingTemplate(locals);
+    writeFile(path.resolve(apiOutputDir, "Code/Source/PlayFabSettings.cpp"), generatedSettingCpp);
 }
 
 var makeAPI = function (api, apiOutputDir) {

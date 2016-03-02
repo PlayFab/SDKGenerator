@@ -1,0 +1,46 @@
+#pragma once
+
+#include "PlayFabBaseModel.h"
+#include "aws\core\utils\json\JsonSerializer.h"
+
+namespace PlayFab
+{
+    namespace <%- api.name %>Models
+    {
+<% for(var i in datatypes) { var datatype = datatypes[i]; if(datatype.isenum) { %>        enum <%- datatype.name %>
+        {
+            <% for(var i=0; i<datatype.enumvalues.length-1; i++) { var enumval = datatype.enumvalues[i] %><%- datatype.name %><%- enumval.name %>,
+            <% } %><%- datatype.name %><%- datatype.enumvalues[datatype.enumvalues.length-1].name %>
+        };
+
+        void write<%- datatype.name %>EnumJSON(<%- datatype.name %> enumVal, PFStringJsonWriter& writer);
+        <%- datatype.name %> read<%- datatype.name %>FromValue(const rapidjson::Value& obj);
+
+<% } else { %>        struct <%- datatype.name %> : public PlayFabBaseModel
+        {
+<% for(var i in datatype.properties) { var property = datatype.properties[i] %>            <%- getPropertyDef(property, datatype) %>
+<% } %>
+            <%- datatype.name %>() :
+                PlayFabBaseModel()<% for(var i in datatype.properties) { var property = datatype.properties[i] %>,
+                <%- getPropertySafeName(property) %>(<%- getPropertyDefaultValue(property, datatype) %>)<% } %>
+            {}
+
+            <%- datatype.name %>(const <%- datatype.name %>& src) :
+                PlayFabBaseModel()<% for(var i in datatype.properties) { var property = datatype.properties[i] %>,
+                <%- getPropertySafeName(property) %>(<%- getPropertyCopyValue(property, datatype) %>)<% } %>
+            {}
+
+            <%- datatype.name %>(const rapidjson::Value& obj) : <%- datatype.name %>()
+            {
+                readFromValue(obj);
+            }
+
+            ~<%- datatype.name %>();
+
+            void writeJSON(PFStringJsonWriter& writer) override;
+            bool readFromValue(const rapidjson::Value& obj) override;
+        };
+
+<% } } %>
+    }
+}

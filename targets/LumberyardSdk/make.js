@@ -9,45 +9,31 @@ exports.makeClientAPI = function (api, sourceDir, apiOutputDir) {
     
     copyTree(path.resolve(sourceDir, "source"), apiOutputDir);
     makeAPI(api, apiOutputDir);
-    generateModels([api], apiOutputDir, "Client");
+    generateModels([api], apiOutputDir);
     generateErrors(api, apiOutputDir);
     generateSimpleFiles([api], sourceDir, apiOutputDir);
-    makeAPIProject([api], sourceDir, apiOutputDir, "Client");
 }
 
-//exports.makeServerAPI = function (apis, sourceDir, apiOutputDir) {
-//    console.log("Generating Windows C++ server SDK to " + apiOutputDir);
+exports.makeServerAPI = function (apis, sourceDir, apiOutputDir) {
+    console.log("Generating Lumberyard C++ server SDK to " + apiOutputDir);
 
-//    copyTree(path.resolve(sourceDir, "../cpp-shared/source"), apiOutputDir);
-//    copyTree(path.resolve(sourceDir, "source"), apiOutputDir);
+    copyTree(path.resolve(sourceDir, "source"), apiOutputDir);
+    for (var i in apis)
+        makeAPI(apis[i], apiOutputDir);
+    generateModels(apis, apiOutputDir);
+    generateErrors(apis[0], apiOutputDir);
+    generateSimpleFiles(apis, sourceDir, apiOutputDir);
+}
 
-//    for (var i in apis)
-//        shared.makeAPI(apis[i], apiOutputDir, "core/");
-//    shared.generateModels(apis, apiOutputDir, "Server", "core/");
-//    shared.generateErrors(apis[0], apiOutputDir);
-//    generateSimpleFiles(apis, sourceDir, apiOutputDir);
-//    makeAPIProject(apis, sourceDir, apiOutputDir, "Server");
-//}
+exports.makeCombinedAPI = function (apis, sourceDir, apiOutputDir) {
+    console.log("Generating Lumberyard C++ combined SDK to " + apiOutputDir);
 
-//exports.makeCombinedAPI = function (apis, sourceDir, apiOutputDir) {
-//    console.log("Generating Windows C++ combined SDK to " + apiOutputDir);
-
-//    copyTree(path.resolve(sourceDir, "../cpp-shared/source"), apiOutputDir);
-//    copyTree(path.resolve(sourceDir, "source"), apiOutputDir);
-//    copyTree(path.resolve(sourceDir, "UnittestRunner"), path.resolve(apiOutputDir, "build/VC12/UnittestRunner"));
-
-//    for (var i in apis)
-//        shared.makeAPI(apis[i], apiOutputDir, "core/");
-//    shared.generateModels(apis, apiOutputDir, "All", "core/");
-//    shared.generateErrors(apis[0], apiOutputDir);
-//    generateSimpleFiles(apis, sourceDir, apiOutputDir);
-//    makeAPIProject(apis, sourceDir, apiOutputDir, "All");
-//}
-
-function makeAPIProject(apis, sourceDir, apiOutputDir, libname) {
-    var projLocals = {};
-    projLocals.apis = apis;
-    projLocals.libname = libname;
+    copyTree(path.resolve(sourceDir, "source"), apiOutputDir);
+    for (var i in apis)
+        makeAPI(apis[i], apiOutputDir);
+    generateModels(apis, apiOutputDir);
+    generateErrors(apis[0], apiOutputDir);
+    generateSimpleFiles(apis, sourceDir, apiOutputDir);
 }
 
 function generateSimpleFiles(apis, sourceDir, apiOutputDir) {
@@ -519,7 +505,7 @@ var addTypeAndDependencies = function (datatype, datatypes, orderedTypes, addedS
     addedSet[datatype.name] = datatype;
 }
 
-var generateModels = function (apis, apiOutputDir, libraryName, subdir) {
+var generateModels = function (apis, apiOutputDir, libraryName) {
     var sourceDir = __dirname;
     
     for (var a in apis) {

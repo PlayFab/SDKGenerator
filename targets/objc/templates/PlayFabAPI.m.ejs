@@ -1,0 +1,129 @@
+#import "PlayFab<%- api.name %>API.h"
+#import "PlayFabConnection.h"
+//#import "PlayFabSettings.h"
+//#import "PlayFabVersion.h"
+
+#import "JAGPropertyConverter.h"
+
+
+@implementation PlayFab<%- api.name %>API
+
++(NSString*)GetURL
+{
+return [NSString stringWithFormat:@"https://%@%@", PlayFabSettings.TitleId, PlayFabSettings.ProductionEnvironmentURL];
+}
+
+static PlayFabClientAPI* PlayFabInstance;
+
++ (PlayFabClientAPI*) GetInstance {
+if(PlayFabInstance == NULL){
+PlayFabInstance = [PlayFabClientAPI new];
+}
+return PlayFabInstance;
+}
+
+
+
+<% if(api.name == "Client") { %>+(bool)IsClientLoggedIn
+{
+	return !([[PlayFab<%- api.name -%>API GetInstance].mUserSessionTicket length]==0);
+}
+
+#ifdef USE_IDFA
++(void) MultiStepClientLogin:(bool) needsAttribution
+{
+
+[PlayFabSettings setAdvertisingIdValue:[PlayFabSettings identifierForAdvertising]];
+// Automatically try to fetch the ID
+if (needsAttribution && [PlayFabSettings.AdvertisingIdValue length] != 0){
+[PlayFabSettings setAdvertisingIdValue:[PlayFabSettings identifierForAdvertising]];
+}
+//GetAdvertisingId(out PlayFab.PlayFabSettings.AdvertisingIdType, out PlayFab.PlayFabSettings.AdvertisingIdValue, ref PlayFab.PlayFabSettings.DisableAdvertising);
+
+// Send the ID when appropriate
+if (needsAttribution && [PlayFabSettings.AdvertisingIdValue length] != 0){
+
+
+AttributeInstallRequest* install_request = [AttributeInstallRequest new];
+install_request.Idfa = PlayFabSettings.AdvertisingIdValue;
+
+
+[[PlayFabClientAPI GetInstance] AttributeInstall:install_request
+success:^(AttributeInstallResult* result, NSObject* userData) {
+// Modify AdvertisingIdType:  Prevents us from sending the id multiple times, and allows automated tests to determine id was sent successfully
+[PlayFabSettings setAdvertisingIdType:[NSString stringWithFormat:@"%@%@",PlayFabSettings.AdvertisingIdType,@"_Successful"]];
+}
+failure:^(PlayFabError *error, NSObject *userData) {
+//Request errored or failed to connect.
+} withUserData:nil];
+}
+}
+#endif
+<% } %>
+
+
+
+<% for(var i in api.calls) { var apiCall = api.calls[i];
+if(hasRequest(apiCall, api)) { %>
+-(void) <%- apiCall.name %>:(<%- apiCall.request %>*)request success:(<%- apiCall.name %>Callback)callback failure:(ErrorCallback)errorCallback withUserData:(NSObject*)userData
+<% } else {%>
+-(void) <%- apiCall.name %>:(<%- apiCall.name %>Callback)callback failure:(ErrorCallback)errorCallback withUserData:(NSObject*) userData
+<% } %>
+{
+    <%- getRequestActions(apiCall, api) %>
+    <% if(hasRequest(apiCall, api)) { %>
+    NSString *jsonString = [request JSONStringWithClass:[<%- apiCall.request %> class]];
+    <% } else {%>
+    NSString *jsonString = @"{}";
+    <% } %>
+
+    PlayFabConnection * connection = [PlayFabConnection new];//[[MyConnection alloc]initWithRequest:req];
+    [connection setCompletionBlock:^(id obj, NSError *err) {
+        NSData * data = obj;
+        if (!err) {
+        //NSLog(@"connection success response: %@",(NSString*)data);
+        NSError *e = nil;
+        NSDictionary *JSON = [NSJSONSerialization JSONObjectWithData:data options:0 error: &e];
+
+
+        NSString* playfab_error = [JSON valueForKey:@"error"];
+        if (playfab_error != nil) //if there was an "error" object in the JSON:
+        {
+        PlayFabError *playfab_error_object = [[PlayFabError new] initWithDictionary:JSON];
+
+        errorCallback (playfab_error_object, userData);
+        }
+        else{
+        NSDictionary *class_data = [JSON valueForKey:@"data"];
+
+        <%- apiCall.result%> *model = [[<%- apiCall.result%> new] initWithDictionary:class_data];
+        <%- getResultActions(apiCall, api) %>
+        callback (model, userData);
+        }
+        } else { //Connection Error:
+        NSError *e = nil;
+        NSLog(@"connection error response: %@",data);
+        PlayFabError *model;
+        if(data!=nil){
+        NSDictionary *JSON = [NSJSONSerialization JSONObjectWithData:data options: NSJSONReadingMutableContainers error: &e];
+
+        JAGPropertyConverter *converter = [JAGPropertyConverter new];
+        model = [converter composeModelFromObject:JSON];
+        }
+        else{
+        model = [PlayFabError new];
+        model.error = @"unknown, data empty.";
+        }
+        errorCallback (model, userData);
+        }
+
+    }];
+
+
+    [connection postURL:[NSString stringWithFormat:@"%@%@",[PlayFabClientAPI GetURL],@"<%- apiCall.url %>"] body:jsonString <%- getAuthParams(apiCall) %>];
+}
+
+<% } %>
+
+@end
+

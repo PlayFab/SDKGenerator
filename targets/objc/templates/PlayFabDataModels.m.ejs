@@ -1,0 +1,22 @@
+#import "PlayFab<%- api.name %>DataModels.h"
+
+
+<% for(var d in api.datatypes) { var datatype = api.datatypes[d]; if(!datatype.isenum) {%>
+@implementation <%- datatype.name %>
+<% if(isResultHandler(datatype)){ var className = datatype.name.split('Result')[0];} %>
+
+-(id)initWithDictionary:(NSDictionary*)properties
+{
+self = [super init];
+if (!self) {
+return nil;
+}
+
+<% for(var p in datatype.properties) { var property = datatype.properties[p]; %>
+<%- getPropertyDeserializer(property, datatype) %>
+<% } %>
+
+return self;
+}
+@end<% } %><% } %>
+

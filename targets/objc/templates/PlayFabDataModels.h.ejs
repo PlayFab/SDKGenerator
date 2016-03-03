@@ -1,0 +1,43 @@
+
+#import <Foundation/Foundation.h>
+#import "PlayFabBaseModel.h"
+
+
+	<% for(var i in datatypes) { var datatype = datatypes[i]; if(datatype.isenum) { %>
+	typedef enum
+	{
+		<% for(var i=0; i<datatype.enumvalues.length-1; i++) { var enumval = datatype.enumvalues[i] %><%- datatype.name %><%- enumval.name %>,
+		<% } %><%- datatype.name %><%- datatype.enumvalues[datatype.enumvalues.length-1].name %>
+	} <%- datatype.name %>;
+
+<% } %>
+<% } %>
+
+
+//predeclare all non-enum classes
+<% for(var d in api.datatypes) { var datatype = api.datatypes[d]; if(!datatype.isenum) { %>
+@class <%- datatype.name %>;
+<%}%>
+<% } %>
+
+<% for(var d in api.datatypes) { var datatype = api.datatypes[d]; if(!datatype.isenum) { %>
+
+<% if(datatype.description) { %>
+/// <summary>
+/// <%- datatype.description %>
+/// </summary><% } %>
+@interface <%- datatype.name %> : PlayFabBaseModel
+<% for(var i in datatype.properties) { var property = datatype.properties[i] %>
+<% if(property.description) { %>
+/// <summary>
+/// <%- property.description %>
+/// </summary><% } %><%- getPropertyAttribs(property, datatype) %>
+@property <%- getPropertyDef(property, datatype) %> <% } %>
+
+/*<% if(isResultHandler(datatype)){ var className = datatype.name.split('Result')[0]; %>
+@property NSObject* Request;
+@property NSObject* CustomData;
+<%}%>*/
+<% if(!datatype.isenum) {%>-(id)initWithDictionary:(NSDictionary*)properties;<% } %>
+
+@end<% } %><% } %>

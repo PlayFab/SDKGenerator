@@ -1,0 +1,32 @@
+//#ifndef PLAYFAB_PLAYFABERROR_H_
+//#define PLAYFAB_PLAYFABERROR_H_
+
+//#include <string>
+//#include <map>
+
+#import "PlayFabBaseModel.h"
+//namespace PlayFab
+//{
+
+    typedef enum 
+    {
+        PlayFabErrorHostnameNotFound=1,
+        PlayFabErrorConnectionTimeout,
+        PlayFabErrorConnectionRefused,
+        PlayFabErrorSocketError,
+		<% for(var i=0; i<errorList.length-1; i++) { var errorProps = errors[errorList[i]] %>PlayFabError<%- errorProps.name %> = <%- errorProps.id %>,
+		<% } %>PlayFabError<% var errorProps = errors[errorList[errorList.length-1]] %><%- errorProps.name %> = <%- errorProps.id %>
+    } PlayFabErrorCode;
+
+    @interface PlayFabError : PlayFabBaseModel
+        @property NSNumber* code;
+        @property NSString* status;
+        @property NSNumber* errorCode;
+        @property NSString* error;
+        @property NSString* errorMessage;
+        @property NSDictionary* errorDetails;
+    @end
+
+    typedef void(^ErrorCallback)(PlayFabError* error, NSObject* userData);
+//}
+//#endif

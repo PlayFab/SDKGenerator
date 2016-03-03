@@ -16,7 +16,7 @@ using namespace rapidjson;
 
 <%- datatype.name %> PlayFab::<%- api.name %>Models::read<%- datatype.name %>FromValue(const rapidjson::Value& obj)
 {
-    static std::map<std::string, <%- datatype.name %>> _<%- datatype.name %>Map;
+    static std::map<Aws::String, <%- datatype.name %>> _<%- datatype.name %>Map;
     if (_<%- datatype.name %>Map.size() == 0)
     {
         // Auto-generate the map on the first use

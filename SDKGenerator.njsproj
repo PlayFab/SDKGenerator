@@ -12,7 +12,7 @@
     <ProjectTypeGuids>{3AF33F2E-1136-4D97-BBB7-1795711AC8B8};{349c5851-65df-11da-9384-00065b846f21};{9092AA53-FB77-4645-B42D-1CCCA6BD08BD}</ProjectTypeGuids>
     <VisualStudioVersion Condition="'$(VisualStudioVersion)' == ''">11.0</VisualStudioVersion>
     <VSToolsPath Condition="'$(VSToolsPath)' == ''">$(MSBuildExtensionsPath32)\Microsoft\VisualStudio\v$(VisualStudioVersion)</VSToolsPath>
-    <ScriptArguments>..\API_Specs csharp-unity=..\sdks\UnitySDK</ScriptArguments>
+    <ScriptArguments>..\API_Specs LumberyardSdk=..\sdks\LumberyardSdk</ScriptArguments>
     <StartWebBrowser>False</StartWebBrowser>
   </PropertyGroup>
   <PropertyGroup Condition="'$(Configuration)' == 'Debug'" />
@@ -20,6 +20,7 @@
   <ItemGroup>
     <Compile Include="targets\javascript\source\PlayFabApiTest.js" />
     <Compile Include="targets\js-node\testingFiles\PlayFabApiTests.js" />
+    <Compile Include="targets\LumberyardSdk\make.js" />
     <Compile Include="targets\postman\make.js" />
     <Content Include="README.md" />
     <Compile Include="generate.js" />
@@ -43,6 +44,7 @@
     <Content Include="SDKBuildScripts\csharp_build.bat" />
     <Content Include="SDKBuildScripts\java_build.bat" />
     <Content Include="SDKBuildScripts\js_build.bat" />
+    <Content Include="SDKBuildScripts\Lumberyard_build.bat" />
     <Content Include="SDKBuildScripts\node_build.bat" />
     <Content Include="SDKBuildScripts\postman_build.bat" />
     <Content Include="SDKBuildScripts\ue4_CPP_build.bat" />
@@ -496,6 +498,29 @@
     <Content Include="targets\js-node\templates\package.json.ejs" />
     <Content Include="targets\js-node\templates\playfab.js.ejs" />
     <Content Include="targets\js-node\testingFiles\PlayFabTesting.njsproj" />
+    <Content Include="targets\LumberyardSdk\source\Code\Include\IPlayFabSdkGem.h" />
+    <Content Include="targets\LumberyardSdk\source\Code\PlayFabSdk_tests.waf_files" />
+    <Content Include="targets\LumberyardSdk\source\Code\Source\PlayFabBaseModel.cpp" />
+    <Content Include="targets\LumberyardSdk\source\Code\Source\PlayFabBaseModel.h" />
+    <Content Include="targets\LumberyardSdk\source\Code\Source\PlayFabFlowNode.cpp" />
+    <Content Include="targets\LumberyardSdk\source\Code\Source\PlayFabHttp.cpp" />
+    <Content Include="targets\LumberyardSdk\source\Code\Source\PlayFabHttp.h" />
+    <Content Include="targets\LumberyardSdk\source\Code\Source\PlayFabSdkGem.cpp" />
+    <Content Include="targets\LumberyardSdk\source\Code\Source\PlayFabSdkGem.h" />
+    <Content Include="targets\LumberyardSdk\source\Code\Source\StdAfx.cpp" />
+    <Content Include="targets\LumberyardSdk\source\Code\Source\StdAfx.h" />
+    <Content Include="targets\LumberyardSdk\source\Code\Tests\PlayFabSdkTest.cpp" />
+    <Content Include="targets\LumberyardSdk\source\Code\wscript" />
+    <Content Include="targets\LumberyardSdk\source\preview.png" />
+    <Content Include="targets\LumberyardSdk\templates\gem.json.ejs" />
+    <Content Include="targets\LumberyardSdk\templates\PlayFabAPI.cpp.ejs" />
+    <Content Include="targets\LumberyardSdk\templates\PlayFabAPI.h.ejs" />
+    <Content Include="targets\LumberyardSdk\templates\PlayFabDataModels.cpp.ejs" />
+    <Content Include="targets\LumberyardSdk\templates\PlayFabDataModels.h.ejs" />
+    <Content Include="targets\LumberyardSdk\templates\PlayFabError.h.ejs" />
+    <Content Include="targets\LumberyardSdk\templates\playfabsdk.waf_files.ejs" />
+    <Content Include="targets\LumberyardSdk\templates\PlayFabSettings.cpp.ejs" />
+    <Content Include="targets\LumberyardSdk\templates\PlayFabSettings.h.ejs" />
     <Content Include="targets\postman\replacements.json" />
     <Content Include="targets\postman\templates\playfab.json.ejs" />
   </ItemGroup>
@@ -636,6 +661,13 @@
     <Folder Include="targets\js-node" />
     <Folder Include="targets\js-node\templates" />
     <Folder Include="targets\js-node\testingFiles\" />
+    <Folder Include="targets\LumberyardSdk\" />
+    <Folder Include="targets\LumberyardSdk\source\" />
+    <Folder Include="targets\LumberyardSdk\source\Code\" />
+    <Folder Include="targets\LumberyardSdk\source\Code\Include\" />
+    <Folder Include="targets\LumberyardSdk\source\Code\Source\" />
+    <Folder Include="targets\LumberyardSdk\source\Code\Tests\" />
+    <Folder Include="targets\LumberyardSdk\templates\" />
     <Folder Include="targets\postman\" />
     <Folder Include="targets\postman\templates\" />
   </ItemGroup>

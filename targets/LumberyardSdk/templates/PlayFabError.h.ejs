@@ -1,0 +1,29 @@
+#pragma once
+
+#include <map>
+#include <aws/core/utils/memory/stl/AWSString.h>
+
+namespace PlayFab
+{
+    enum PlayFabErrorCode
+    {
+        PlayFabErrorHostnameNotFound = 1,
+        PlayFabErrorConnectionTimeout,
+        PlayFabErrorConnectionRefused,
+        PlayFabErrorSocketError,
+        <% for(var i=0; i<errorList.length-1; i++) { var errorProps = errors[errorList[i]] %>PlayFabError<%- errorProps.name %> = <%- errorProps.id %>,
+        <% } %>PlayFabError<% var errorProps = errors[errorList[errorList.length-1]] %><%- errorProps.name %> = <%- errorProps.id %>
+    };
+
+    struct PlayFabError
+    {
+        int HttpCode; // Http status code
+        Aws::String HttpStatus; // Http status code description
+        PlayFabErrorCode ErrorCode; // Playfab error
+        Aws::String ErrorName; // PlayFab error name
+        Aws::String ErrorMessage; // PlayFab error message
+        std::map< Aws::String, Aws::String > ErrorDetails; // More specific details about failures (when present)
+    };
+
+    typedef void(*ErrorCallback)(const PlayFabError& error, void* customData);
+}

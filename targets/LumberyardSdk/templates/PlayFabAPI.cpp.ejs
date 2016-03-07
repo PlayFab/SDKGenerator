@@ -1,0 +1,69 @@
+#include "StdAfx.h"
+#include "PlayFab<%- api.name %>API.h"
+#include "PlayFabSettings.h"
+#include "PlayFabSdkGem.h"
+
+using namespace PlayFab;
+using namespace PlayFab::<%- api.name %>Models;
+<% if(hasClientOptions) { %>
+// Client-Specific
+Aws::String PlayFabClientAPI::mUserSessionTicket;
+
+bool PlayFabClientAPI::IsClientLoggedIn()
+{
+    return mUserSessionTicket.length() != 0;
+}
+
+void PlayFabClientAPI::MultiStepClientLogin(bool needsAttribution)
+{
+    if (needsAttribution && !PlayFabSettings::disableAdvertising && PlayFabSettings::advertisingIdType.length() > 0 && PlayFabSettings::advertisingIdValue.length() > 0)
+    {
+        AttributeInstallRequest request;
+        if (PlayFabSettings::advertisingIdType == PlayFabSettings::AD_TYPE_IDFA)
+            request.Idfa = PlayFabSettings::advertisingIdValue;
+        else if (PlayFabSettings::advertisingIdType == PlayFabSettings::AD_TYPE_ANDROID_ID)
+            request.Android_Id = PlayFabSettings::advertisingIdValue;
+        else
+            return;
+        AttributeInstall(request, nullptr, nullptr);
+    }
+}
+<% } %>
+// PlayFab<%- api.name %> API
+PlayFab<%- api.name %>API::PlayFab<%- api.name %>API() {}
+
+<% for(var i in api.calls) { var apiCall = api.calls[i];
+%>void PlayFab<%- api.name %>API::<%- apiCall.name %>(
+    <% if(hasRequest(apiCall, api)) { %><%- apiCall.request %>& request,<% } %>
+    ProcessApiCallback<<%- apiCall.result %>> callback,
+    ErrorCallback errorCallback,
+    void* customData
+    )
+{
+<%- getRequestActions(apiCall, api) %>
+<% if(hasRequest(apiCall, api)) {
+%>    PlayFabRequest* newRequest = new PlayFabRequest(PlayFabSettings::getURL("<%- apiCall.url %>"), Aws::Http::HttpMethod::HTTP_<%- apiCall.method %>, <%- getAuthParams(apiCall) %>, request.toJSONString(), customData, callback, errorCallback, On<%- apiCall.name %>Result);
+<% } else {
+%>    PlayFabRequest* newRequest = new PlayFabRequest(PlayFabSettings::getURL("<%- apiCall.url %>"), Aws::Http::HttpMethod::HTTP_<%- apiCall.method %>, <%- getAuthParams(apiCall) %>, "", customData, callback, errorCallback, On<%- apiCall.name %>Result);
+<% } %>    PlayFabRequestManager::playFabHttp.AddRequest(newRequest);
+}
+
+void PlayFab<%- api.name %>API::On<%- apiCall.name %>Result(PlayFabRequest* request)
+{
+    if (PlayFabBaseModel::DecodeRequest(request))
+    {
+        <%- apiCall.result %>* outResult = new <%- apiCall.result %>;
+        outResult->readFromValue(request->mResponseJson->FindMember("data")->value);
+
+<%- getResultActions(apiCall, api) %>
+        if (request->mResultCallback != nullptr)
+        {
+            ProcessApiCallback<<%- apiCall.result %>> successCallback = reinterpret_cast<ProcessApiCallback<<%- apiCall.result %>>>(request->mResultCallback);
+            successCallback(*outResult, request->mCustomData);
+        }
+        delete outResult;
+        delete request;
+    }
+}
+
+<% } %>

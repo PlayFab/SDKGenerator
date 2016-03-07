@@ -5,7 +5,6 @@
 #include "aws/core/http/HttpTypes.h"
 #include "aws/core/http/HttpResponse.h"
 #include <aws/core/http/HttpClientFactory.h>
-#include <AZCore/std/containers/queue.h>
 #include <AZCore/std/parallel/atomic.h>
 #include <AZCore/std/parallel/mutex.h>
 #include <AZCore/std/parallel/conditional_variable.h>
@@ -38,6 +37,7 @@ namespace PlayFab
         void* mCustomData;
 
         // Everything about the response
+        std::shared_ptr<Aws::Http::HttpResponse> httpResponse;
         char* mResponseText; // If the server responded, this will be the raw text returned
         int mResponseSize; // If the server responded, this will be the size of the response
         rapidjson::Document* mResponseJson; // If the server responded with json text, this will be a json Document describing the result from the server
@@ -63,11 +63,10 @@ namespace PlayFab
         PlayFabRequestManager();
         ~PlayFabRequestManager();
 
-        static std::shared_ptr<PlayFabRequestManager> CreateInstance();
-
         // see IHttpRequestManager::AddRequest
         // Add these parameters to a queue of request parameters to send off as an HTTP request as soon as they reach the head of the queue
         void AddRequest(PlayFabRequest* httpRequestParameters);
+        int GetPendingCalls();
 
     private:
         // PlayFabRequestManager thread loop. 
@@ -76,15 +75,17 @@ namespace PlayFab
         // Called by ThreadFunction. Waits for timeout or until notified and processes any requests queued up.
         void HandleRequestBatch(const Aws::UniquePtr<Aws::Http::HttpClientFactory>& httpClientFactory);
 
-        // Perform an HTTP request, block until a response is received, then give the returned JSON to the callback to parse. Returns the HTTPResponseCode to the callback to handle any errors.
-        static void HandleRequest(PlayFabRequest* httpRequestParameters, const Aws::UniquePtr<Aws::Http::HttpClientFactory>& factory);
+        // Perform an HTTP request.  Not sure if this one blocks, but if it does, it's very short
+        void HandleRequest(PlayFabRequest* httpRequestParameters, const Aws::UniquePtr<Aws::Http::HttpClientFactory>& factory);
+        // For the request, block until a response is received, then give the returned JSON to the callback to parse.
+        void PlayFabRequestManager::HandleResponse(PlayFabRequest* requestContainer);
 
-        // Queue of requests that will be made in order of time received
-        AZStd::queue<PlayFabRequest*> m_requestsToHandle;
+        // Collection of requests
+        int m_pendingCalls;
+        std::list<PlayFabRequest*> m_requestsToHandle;
 
         // Member variables for synchronization
         AZStd::mutex m_requestMutex;
-        AZStd::condition_variable m_requestConditionVar;
 
         // Run flag used to signal the worker thread
         AZStd::atomic<bool> m_runThread;

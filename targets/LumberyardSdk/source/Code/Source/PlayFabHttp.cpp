@@ -61,10 +61,9 @@ void PlayFabRequest::HandleErrorReport()
         if (errorDetailsJson != end && errorDetailsJson->value.IsObject())
         {
             const Value& errorDetailsObj = errorDetailsJson->value;
-
             for (Value::ConstMemberIterator itr = errorDetailsObj.MemberBegin(); itr != errorDetailsObj.MemberEnd(); ++itr)
             {
-                if (!itr->name.IsString() || !itr->value.IsArray())
+                if (itr->name.IsString() && itr->value.IsArray())
                 {
                     const Value& errorList = itr->value;
                     for (Value::ConstValueIterator erroListIter = errorList.Begin(); erroListIter != errorList.End(); ++erroListIter)
@@ -104,23 +103,26 @@ PlayFabRequestManager::PlayFabRequestManager()
 PlayFabRequestManager::~PlayFabRequestManager()
 {
     m_runThread = false;
-    m_requestConditionVar.notify_all();
     m_thread->Join();
+}
+
+int PlayFabRequestManager::GetPendingCalls()
+{
+    int temp;
+    {
+        AZStd::lock_guard<AZStd::mutex> lock(m_requestMutex);
+        temp = m_pendingCalls;
+    }
+    return temp;
 }
 
 void PlayFabRequestManager::AddRequest(PlayFabRequest* requestContainer)
 {
     {
         AZStd::lock_guard<AZStd::mutex> lock(m_requestMutex);
-        m_requestsToHandle.push(AZStd::move(requestContainer));
+        m_requestsToHandle.insert(m_requestsToHandle.end(), AZStd::move(requestContainer));
+        m_pendingCalls++;
     }
-    m_requestConditionVar.notify_all();
-}
-
-std::shared_ptr<PlayFabRequestManager> PlayFabRequestManager::CreateInstance()
-{
-    auto ptr = std::make_shared<PlayFabRequestManager>();
-    return ptr;
 }
 
 void PlayFabRequestManager::ThreadFunction()
@@ -129,26 +131,28 @@ void PlayFabRequestManager::ThreadFunction()
     while (m_runThread)
     {
         HandleRequestBatch(httpClientFactory);
+        CrySleep(33);
     }
 }
 
 void PlayFabRequestManager::HandleRequestBatch(const Aws::UniquePtr<Aws::Http::HttpClientFactory>& httpClientFactory)
 {
-    AZStd::unique_lock<AZStd::mutex> lock(m_requestMutex);
-    m_requestConditionVar.wait(lock);
+    std::list<PlayFabRequest*> requestsToHandle;
 
-    // Swap queues
-    AZStd::queue<PlayFabRequest*> requestsToHandle;
-    requestsToHandle.swap(m_requestsToHandle);
-
-    // Release lock
-    lock.unlock();
+    {
+        AZStd::lock_guard<AZStd::mutex> lock(m_requestMutex);
+        requestsToHandle.swap(m_requestsToHandle);
+    }
 
     // Handle requests
     while (!requestsToHandle.empty())
     {
-        HandleRequest(requestsToHandle.front(), httpClientFactory);
-        requestsToHandle.pop();
+        // Spam send all the requests, these don't really wait (much if at all)
+        for (auto it = requestsToHandle.begin(); it != requestsToHandle.end(); ++it)
+            HandleRequest(*it, httpClientFactory);
+
+        HandleResponse(requestsToHandle.front());
+        requestsToHandle.remove(requestsToHandle.front());
     }
 }
 
@@ -166,11 +170,13 @@ void PlayFabRequestManager::HandleRequest(PlayFabRequest* requestContainer, cons
     *sharedStream << requestContainer->mRequestJsonBody;
     httpRequest->AddContentBody(sharedStream);
     httpRequest->SetContentLength(std::to_string(requestContainer->mRequestJsonBody.length()).c_str());
+    requestContainer->httpResponse = httpClient->MakeRequest(*httpRequest);
+}
 
-    std::shared_ptr<Aws::Http::HttpResponse> httpResponse = httpClient->MakeRequest(*httpRequest);
-
-    requestContainer->mHttpCode = httpResponse->GetResponseCode();
-    Aws::IOStream& responseStream = httpResponse->GetResponseBody();
+void PlayFabRequestManager::HandleResponse(PlayFabRequest* requestContainer)
+{
+    requestContainer->mHttpCode = requestContainer->httpResponse->GetResponseCode();
+    Aws::IOStream& responseStream = requestContainer->httpResponse->GetResponseBody();
     responseStream.seekg(0, SEEK_END);
     requestContainer->mResponseSize = responseStream.tellg();
     responseStream.seekg(0, SEEK_SET);
@@ -180,4 +186,8 @@ void PlayFabRequestManager::HandleRequest(PlayFabRequest* requestContainer, cons
     requestContainer->mResponseJson = new rapidjson::Document;
     requestContainer->mResponseJson->Parse<0>(requestContainer->mResponseText);
     requestContainer->mInternalCallback(requestContainer);
+    {
+        AZStd::lock_guard<AZStd::mutex> lock(m_requestMutex);
+        m_pendingCalls--;
+    }
 }

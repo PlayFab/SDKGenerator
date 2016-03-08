@@ -17,14 +17,17 @@
             "Source/PlayFab<%- apis[i].name %>DataModels.h",
             "Source/PlayFab<%- apis[i].name %>DataModels.cpp",
             "Source/PlayFab<%- apis[i].name %>API.cpp",<% } %>
-
+<% if (hasClientOptions && hasServerOptions) { %>
+            "Source/PlayFabApiTestNode.cpp",
+<% } else if (hasClientOptions) { %>
+            "Source/PlayFabApiTestNode_Client.cpp",
+<% } %>
             "Source/PlayFabBaseModel.h",
             "Source/PlayFabError.h",
             "Source/PlayFabHttp.h",
             "Source/PlayFabSettings.h",
 
             "Source/PlayFabBaseModel.cpp",
-            "Source/PlayFabFlowNode.cpp",
             "Source/PlayFabHttp.cpp",
             "Source/PlayFabSettings.cpp"
         ]

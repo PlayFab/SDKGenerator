@@ -12,6 +12,7 @@ exports.makeClientAPI = function (api, sourceDir, apiOutputDir) {
     generateModels([api], apiOutputDir);
     generateErrors(api, apiOutputDir);
     generateSimpleFiles([api], sourceDir, apiOutputDir);
+    copyFile(path.resolve(sourceDir, "testing/PlayFabApiTestNode_Client.cpp"), path.resolve(apiOutputDir, "Code/Source/PlayFabApiTestNode_Client.cpp"));
 }
 
 exports.makeServerAPI = function (apis, sourceDir, apiOutputDir) {
@@ -34,6 +35,7 @@ exports.makeCombinedAPI = function (apis, sourceDir, apiOutputDir) {
     generateModels(apis, apiOutputDir);
     generateErrors(apis[0], apiOutputDir);
     generateSimpleFiles(apis, sourceDir, apiOutputDir);
+    copyFile(path.resolve(sourceDir, "testing/PlayFabApiTestNode.cpp"), path.resolve(apiOutputDir, "Code/Source/PlayFabApiTestNode.cpp"));
 }
 
 function generateSimpleFiles(apis, sourceDir, apiOutputDir) {

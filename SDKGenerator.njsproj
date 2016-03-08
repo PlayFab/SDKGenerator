@@ -502,7 +502,6 @@
     <Content Include="targets\LumberyardSdk\source\Code\PlayFabSdk_tests.waf_files" />
     <Content Include="targets\LumberyardSdk\source\Code\Source\PlayFabBaseModel.cpp" />
     <Content Include="targets\LumberyardSdk\source\Code\Source\PlayFabBaseModel.h" />
-    <Content Include="targets\LumberyardSdk\source\Code\Source\PlayFabFlowNode.cpp" />
     <Content Include="targets\LumberyardSdk\source\Code\Source\PlayFabHttp.cpp" />
     <Content Include="targets\LumberyardSdk\source\Code\Source\PlayFabHttp.h" />
     <Content Include="targets\LumberyardSdk\source\Code\Source\PlayFabSdkGem.cpp" />
@@ -521,6 +520,8 @@
     <Content Include="targets\LumberyardSdk\templates\playfabsdk.waf_files.ejs" />
     <Content Include="targets\LumberyardSdk\templates\PlayFabSettings.cpp.ejs" />
     <Content Include="targets\LumberyardSdk\templates\PlayFabSettings.h.ejs" />
+    <Content Include="targets\LumberyardSdk\testing\PlayFabApiTestNode.cpp" />
+    <Content Include="targets\LumberyardSdk\testing\PlayFabApiTestNode_Client.cpp" />
     <Content Include="targets\postman\replacements.json" />
     <Content Include="targets\postman\templates\playfab.json.ejs" />
   </ItemGroup>
@@ -668,6 +669,7 @@
     <Folder Include="targets\LumberyardSdk\source\Code\Source\" />
     <Folder Include="targets\LumberyardSdk\source\Code\Tests\" />
     <Folder Include="targets\LumberyardSdk\templates\" />
+    <Folder Include="targets\LumberyardSdk\testing\" />
     <Folder Include="targets\postman\" />
     <Folder Include="targets\postman\templates\" />
   </ItemGroup>

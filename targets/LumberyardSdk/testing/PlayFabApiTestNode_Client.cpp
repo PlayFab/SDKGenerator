@@ -1,7 +1,6 @@
 #include "StdAfx.h"
 #include "FlowBaseNode.h"
 #include "PlayFabClientAPI.h"
-#include "PlayFabServerAPI.h"
 #include "PlayFabSettings.h"
 #include "PlayFabSdkGem.h"
 
@@ -158,7 +157,6 @@ private:
 
     // A bunch of constants: TODO: load these from testTitleData.json
     static Aws::String titleId;
-    static Aws::String developerSecretKey;
     static Aws::String titleCanUpdateSettings;
     static Aws::String userName;
     static Aws::String userEmail;
@@ -175,7 +173,6 @@ private:
     {
         // TODO: Read from testTitleData.json here
         titleId = "6195";
-        developerSecretKey = "TKHKZYUQF1AFKYOKPKAZJ1HRNQY61KJZC6E79ZF9YYXR9Q74CT";
         titleCanUpdateSettings = "true";
         userName = "paul";
         userEmail = "paul@playfab.com";
@@ -183,7 +180,6 @@ private:
         characterName = "Ragnar";
 
         PlayFabSettings::titleId = titleId;
-        PlayFabSettings::developerSecretKey = developerSecretKey;
     }
 
     // Start a test, and block until the threaded response arrives
@@ -436,7 +432,7 @@ private:
     }
 
     /// <summary>
-    /// SERVER API
+    /// CLIENT API
     /// Get or create the given test character for the given user
     /// Parameter types tested: Contained-Classes, string
     /// </summary>
@@ -460,7 +456,7 @@ private:
     }
 
     /// <summary>
-    /// CLIENT AND SERVER API
+    /// CLIENT API
     /// Test that leaderboard results can be requested
     /// Parameter types tested: List of contained-classes
     /// </summary>
@@ -471,10 +467,6 @@ private:
         clientRequest.MaxResultsCount = 3;
         clientRequest.StatisticName = TEST_STAT_NAME;
         PlayFabClientAPI::GetLeaderboard(clientRequest, OnClientLeaderBoard, OnSharedError, &testContext);
-        ServerModels::GetLeaderboardRequest serverRequest;
-        serverRequest.MaxResultsCount = 3;
-        serverRequest.StatisticName = TEST_STAT_NAME;
-        PlayFabServerAPI::GetLeaderboard(serverRequest, OnServerLeaderBoard, OnSharedError, &testContext);
     }
     static void OnClientLeaderBoard(const ClientModels::GetLeaderboardResult& result, void* customData)
     {
@@ -482,23 +474,11 @@ private:
         for (auto it = result.Leaderboard.begin(); it != result.Leaderboard.end(); ++it)
             if (it->PlayFabId == playFabId)
                 foundEntry++;
-        if (foundEntry)
-            testMessageInt++;
         PfTestContext* testContext = reinterpret_cast<PfTestContext*>(customData);
-        if (testMessageInt == 2)
-            EndTest(*testContext, PASSED, "");
-    }
-    static void OnServerLeaderBoard(const ServerModels::GetLeaderboardResult& result, void* customData)
-    {
-        bool foundEntry = false;
-        for (auto it = result.Leaderboard.begin(); it != result.Leaderboard.end(); ++it)
-            if (it->PlayFabId == playFabId)
-                foundEntry++;
         if (foundEntry)
-            testMessageInt++;
-        PfTestContext* testContext = reinterpret_cast<PfTestContext*>(customData);
-        if (testMessageInt == 2)
             EndTest(*testContext, PASSED, "");
+        else
+            EndTest(*testContext, FAILED, "Leaderboard entry not found.");
     }
 
     /// <summary>
@@ -552,7 +532,6 @@ private:
 // C++ Static vars
 Aws::String PlayFabApiTests::_outputSummary;
 Aws::String PlayFabApiTests::titleId;
-Aws::String PlayFabApiTests::developerSecretKey;
 Aws::String PlayFabApiTests::titleCanUpdateSettings;
 Aws::String PlayFabApiTests::userName;
 Aws::String PlayFabApiTests::userEmail;

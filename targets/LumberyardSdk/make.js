@@ -64,6 +64,14 @@ function generateSimpleFiles(apis, sourceDir, apiOutputDir) {
     var cppSettingTemplate = ejs.compile(readFile(path.resolve(sourceDir, "templates/PlayFabSettings.cpp.ejs")));
     var generatedSettingCpp = cppSettingTemplate(locals);
     writeFile(path.resolve(apiOutputDir, "Code/Source/PlayFabSettings.cpp"), generatedSettingCpp);
+
+    // Set the PlayFab Gem version in the sample project - This is outside of the sdk itself
+    var gemFilePath = "C:/dev/Lumberyard/dev/SamplesProject/gems.json";
+    var gemsJson = require(gemFilePath);
+    for (var i in gemsJson.Gems)
+        if (gemsJson.Gems[i].Path === "Gems/PlayFabSdk")
+            gemsJson.Gems[i].Version = exports.sdkVersion;
+    writeFile(gemFilePath, JSON.stringify(gemsJson, null, 4));
 }
 
 var makeAPI = function (api, apiOutputDir) {

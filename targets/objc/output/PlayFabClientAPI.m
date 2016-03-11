@@ -3,6 +3,9 @@
 //#import "PlayFabSettings.h"
 //#import "PlayFabVersion.h"
 
+#import <UIKit/UIKit.h>
+#include <sys/sysctl.h>
+
 #import "JAGPropertyConverter.h"
 
 
@@ -22,6 +25,15 @@ PlayFabInstance = [PlayFabClientAPI new];
 return PlayFabInstance;
 }
 
++ (NSString *)getModel {
+size_t size;
+sysctlbyname("hw.machine", NULL, &size, NULL, 0);
+char *model = malloc(size);
+sysctlbyname("hw.machine", model, &size, NULL, 0);
+NSString *deviceModel = [NSString stringWithCString:model encoding:NSUTF8StringEncoding];
+free(model);
+return deviceModel;
+}
 
 
 +(bool)IsClientLoggedIn
@@ -29,11 +41,8 @@ return PlayFabInstance;
 	return !([[PlayFabClientAPI GetInstance].mUserSessionTicket length]==0);}
 
 #ifdef USE_IDFA
-+(void) MultiStepClientLogin:(bool) needsAttribution
+-(void) MultiStepClientLogin:(bool) needsAttribution
 {
-
-[PlayFabSettings setAdvertisingIdValue:[PlayFabSettings identifierForAdvertising]];
-// Automatically try to fetch the ID
 if (needsAttribution && [PlayFabSettings.AdvertisingIdValue length] != 0){
 [PlayFabSettings setAdvertisingIdValue:[PlayFabSettings identifierForAdvertising]];
 }
@@ -51,8 +60,10 @@ install_request.Idfa = PlayFabSettings.AdvertisingIdValue;
 success:^(AttributeInstallResult* result, NSObject* userData) {
 // Modify AdvertisingIdType:  Prevents us from sending the id multiple times, and allows automated tests to determine id was sent successfully
 [PlayFabSettings setAdvertisingIdType:[NSString stringWithFormat:@"%@%@",PlayFabSettings.AdvertisingIdType,@"_Successful"]];
+NSLog(@"playfab adid %@", PlayFabSettings.AdvertisingIdType);
 }
 failure:^(PlayFabError *error, NSObject *userData) {
+NSLog(@"attribute install fail");
 //Request errored or failed to connect.
 } withUserData:nil];
 }
@@ -123,6 +134,7 @@ failure:^(PlayFabError *error, NSObject *userData) {
 {
     if ([PlayFabSettings.TitleId length] > 0)
 		request.TitleId = PlayFabSettings.TitleId;
+
     
     NSString *jsonString = [request JSONStringWithClass:[LoginWithAndroidDeviceIDRequest class]];
     
@@ -151,7 +163,7 @@ failure:^(PlayFabError *error, NSObject *userData) {
 			self.mUserSessionTicket = [class_data valueForKey:@"SessionTicket"];
 #ifdef USE_IDFA
 if(model.SettingsForUser.NeedsAttribution)
-   [[PlayFabClientAPI getInstance] MultiStepClientLogin];
+   [[PlayFabClientAPI GetInstance] MultiStepClientLogin:model.SettingsForUser.NeedsAttribution];
 #endif
 
         callback (model, userData);
@@ -185,6 +197,7 @@ if(model.SettingsForUser.NeedsAttribution)
 {
     if ([PlayFabSettings.TitleId length] > 0)
 		request.TitleId = PlayFabSettings.TitleId;
+
     
     NSString *jsonString = [request JSONStringWithClass:[LoginWithCustomIDRequest class]];
     
@@ -213,7 +226,7 @@ if(model.SettingsForUser.NeedsAttribution)
 			self.mUserSessionTicket = [class_data valueForKey:@"SessionTicket"];
 #ifdef USE_IDFA
 if(model.SettingsForUser.NeedsAttribution)
-   [[PlayFabClientAPI getInstance] MultiStepClientLogin];
+   [[PlayFabClientAPI GetInstance] MultiStepClientLogin:model.SettingsForUser.NeedsAttribution];
 #endif
 
         callback (model, userData);
@@ -247,6 +260,7 @@ if(model.SettingsForUser.NeedsAttribution)
 {
     if ([PlayFabSettings.TitleId length] > 0)
 		request.TitleId = PlayFabSettings.TitleId;
+
     
     NSString *jsonString = [request JSONStringWithClass:[LoginWithEmailAddressRequest class]];
     
@@ -275,7 +289,7 @@ if(model.SettingsForUser.NeedsAttribution)
 			self.mUserSessionTicket = [class_data valueForKey:@"SessionTicket"];
 #ifdef USE_IDFA
 if(model.SettingsForUser.NeedsAttribution)
-   [[PlayFabClientAPI getInstance] MultiStepClientLogin];
+   [[PlayFabClientAPI GetInstance] MultiStepClientLogin:model.SettingsForUser.NeedsAttribution];
 #endif
 
         callback (model, userData);
@@ -309,6 +323,7 @@ if(model.SettingsForUser.NeedsAttribution)
 {
     if ([PlayFabSettings.TitleId length] > 0)
 		request.TitleId = PlayFabSettings.TitleId;
+
     
     NSString *jsonString = [request JSONStringWithClass:[LoginWithFacebookRequest class]];
     
@@ -337,7 +352,7 @@ if(model.SettingsForUser.NeedsAttribution)
 			self.mUserSessionTicket = [class_data valueForKey:@"SessionTicket"];
 #ifdef USE_IDFA
 if(model.SettingsForUser.NeedsAttribution)
-   [[PlayFabClientAPI getInstance] MultiStepClientLogin];
+   [[PlayFabClientAPI GetInstance] MultiStepClientLogin:model.SettingsForUser.NeedsAttribution];
 #endif
 
         callback (model, userData);
@@ -371,6 +386,7 @@ if(model.SettingsForUser.NeedsAttribution)
 {
     if ([PlayFabSettings.TitleId length] > 0)
 		request.TitleId = PlayFabSettings.TitleId;
+
     
     NSString *jsonString = [request JSONStringWithClass:[LoginWithGameCenterRequest class]];
     
@@ -399,7 +415,7 @@ if(model.SettingsForUser.NeedsAttribution)
 			self.mUserSessionTicket = [class_data valueForKey:@"SessionTicket"];
 #ifdef USE_IDFA
 if(model.SettingsForUser.NeedsAttribution)
-   [[PlayFabClientAPI getInstance] MultiStepClientLogin];
+   [[PlayFabClientAPI GetInstance] MultiStepClientLogin:model.SettingsForUser.NeedsAttribution];
 #endif
 
         callback (model, userData);
@@ -433,6 +449,7 @@ if(model.SettingsForUser.NeedsAttribution)
 {
     if ([PlayFabSettings.TitleId length] > 0)
 		request.TitleId = PlayFabSettings.TitleId;
+
     
     NSString *jsonString = [request JSONStringWithClass:[LoginWithGoogleAccountRequest class]];
     
@@ -461,7 +478,7 @@ if(model.SettingsForUser.NeedsAttribution)
 			self.mUserSessionTicket = [class_data valueForKey:@"SessionTicket"];
 #ifdef USE_IDFA
 if(model.SettingsForUser.NeedsAttribution)
-   [[PlayFabClientAPI getInstance] MultiStepClientLogin];
+   [[PlayFabClientAPI GetInstance] MultiStepClientLogin:model.SettingsForUser.NeedsAttribution];
 #endif
 
         callback (model, userData);
@@ -495,6 +512,12 @@ if(model.SettingsForUser.NeedsAttribution)
 {
     if ([PlayFabSettings.TitleId length] > 0)
 		request.TitleId = PlayFabSettings.TitleId;
+//Get iOS device and os information:
+NSOperatingSystemVersion version = [[NSProcessInfo processInfo] operatingSystemVersion];
+request.OS = [NSString stringWithFormat:@"%d.%d.%d", version.majorVersion, version.minorVersion, version.patchVersion];
+request.DeviceId = [[[UIDevice currentDevice] identifierForVendor] UUIDString];
+request.DeviceModel = [PlayFabClientAPI getModel];
+
     
     NSString *jsonString = [request JSONStringWithClass:[LoginWithIOSDeviceIDRequest class]];
     
@@ -523,7 +546,7 @@ if(model.SettingsForUser.NeedsAttribution)
 			self.mUserSessionTicket = [class_data valueForKey:@"SessionTicket"];
 #ifdef USE_IDFA
 if(model.SettingsForUser.NeedsAttribution)
-   [[PlayFabClientAPI getInstance] MultiStepClientLogin];
+   [[PlayFabClientAPI GetInstance] MultiStepClientLogin:model.SettingsForUser.NeedsAttribution];
 #endif
 
         callback (model, userData);
@@ -557,6 +580,7 @@ if(model.SettingsForUser.NeedsAttribution)
 {
     if ([PlayFabSettings.TitleId length] > 0)
 		request.TitleId = PlayFabSettings.TitleId;
+
     
     NSString *jsonString = [request JSONStringWithClass:[LoginWithKongregateRequest class]];
     
@@ -585,7 +609,7 @@ if(model.SettingsForUser.NeedsAttribution)
 			self.mUserSessionTicket = [class_data valueForKey:@"SessionTicket"];
 #ifdef USE_IDFA
 if(model.SettingsForUser.NeedsAttribution)
-   [[PlayFabClientAPI getInstance] MultiStepClientLogin];
+   [[PlayFabClientAPI GetInstance] MultiStepClientLogin:model.SettingsForUser.NeedsAttribution];
 #endif
 
         callback (model, userData);
@@ -619,6 +643,7 @@ if(model.SettingsForUser.NeedsAttribution)
 {
     if ([PlayFabSettings.TitleId length] > 0)
 		request.TitleId = PlayFabSettings.TitleId;
+
     
     NSString *jsonString = [request JSONStringWithClass:[LoginWithPlayFabRequest class]];
     
@@ -647,7 +672,7 @@ if(model.SettingsForUser.NeedsAttribution)
 			self.mUserSessionTicket = [class_data valueForKey:@"SessionTicket"];
 #ifdef USE_IDFA
 if(model.SettingsForUser.NeedsAttribution)
-   [[PlayFabClientAPI getInstance] MultiStepClientLogin];
+   [[PlayFabClientAPI GetInstance] MultiStepClientLogin:model.SettingsForUser.NeedsAttribution];
 #endif
 
         callback (model, userData);
@@ -681,6 +706,7 @@ if(model.SettingsForUser.NeedsAttribution)
 {
     if ([PlayFabSettings.TitleId length] > 0)
 		request.TitleId = PlayFabSettings.TitleId;
+
     
     NSString *jsonString = [request JSONStringWithClass:[LoginWithPSNRequest class]];
     
@@ -709,7 +735,7 @@ if(model.SettingsForUser.NeedsAttribution)
 			self.mUserSessionTicket = [class_data valueForKey:@"SessionTicket"];
 #ifdef USE_IDFA
 if(model.SettingsForUser.NeedsAttribution)
-   [[PlayFabClientAPI getInstance] MultiStepClientLogin];
+   [[PlayFabClientAPI GetInstance] MultiStepClientLogin:model.SettingsForUser.NeedsAttribution];
 #endif
 
         callback (model, userData);
@@ -743,6 +769,7 @@ if(model.SettingsForUser.NeedsAttribution)
 {
     if ([PlayFabSettings.TitleId length] > 0)
 		request.TitleId = PlayFabSettings.TitleId;
+
     
     NSString *jsonString = [request JSONStringWithClass:[LoginWithSteamRequest class]];
     
@@ -771,7 +798,7 @@ if(model.SettingsForUser.NeedsAttribution)
 			self.mUserSessionTicket = [class_data valueForKey:@"SessionTicket"];
 #ifdef USE_IDFA
 if(model.SettingsForUser.NeedsAttribution)
-   [[PlayFabClientAPI getInstance] MultiStepClientLogin];
+   [[PlayFabClientAPI GetInstance] MultiStepClientLogin:model.SettingsForUser.NeedsAttribution];
 #endif
 
         callback (model, userData);
@@ -805,6 +832,7 @@ if(model.SettingsForUser.NeedsAttribution)
 {
     if ([PlayFabSettings.TitleId length] > 0)
 		request.TitleId = PlayFabSettings.TitleId;
+
     
     NSString *jsonString = [request JSONStringWithClass:[LoginWithXboxRequest class]];
     
@@ -833,7 +861,7 @@ if(model.SettingsForUser.NeedsAttribution)
 			self.mUserSessionTicket = [class_data valueForKey:@"SessionTicket"];
 #ifdef USE_IDFA
 if(model.SettingsForUser.NeedsAttribution)
-   [[PlayFabClientAPI getInstance] MultiStepClientLogin];
+   [[PlayFabClientAPI GetInstance] MultiStepClientLogin:model.SettingsForUser.NeedsAttribution];
 #endif
 
         callback (model, userData);
@@ -867,6 +895,7 @@ if(model.SettingsForUser.NeedsAttribution)
 {
     if ([PlayFabSettings.TitleId length] > 0)
 		request.TitleId = PlayFabSettings.TitleId;
+
     
     NSString *jsonString = [request JSONStringWithClass:[RegisterPlayFabUserRequest class]];
     
@@ -895,7 +924,7 @@ if(model.SettingsForUser.NeedsAttribution)
 			self.mUserSessionTicket = [class_data valueForKey:@"SessionTicket"];
 #ifdef USE_IDFA
 if(model.SettingsForUser.NeedsAttribution)
-   [[PlayFabClientAPI getInstance] MultiStepClientLogin];
+   [[PlayFabClientAPI GetInstance] MultiStepClientLogin:model.SettingsForUser.NeedsAttribution];
 #endif
 
         callback (model, userData);

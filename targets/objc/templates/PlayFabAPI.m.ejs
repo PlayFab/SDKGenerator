@@ -3,6 +3,9 @@
 //#import "PlayFabSettings.h"
 //#import "PlayFabVersion.h"
 
+#import <UIKit/UIKit.h>
+#include <sys/sysctl.h>
+
 #import "JAGPropertyConverter.h"
 
 
@@ -22,6 +25,15 @@ PlayFabInstance = [PlayFabClientAPI new];
 return PlayFabInstance;
 }
 
++ (NSString *)getModel {
+size_t size;
+sysctlbyname("hw.machine", NULL, &size, NULL, 0);
+char *model = malloc(size);
+sysctlbyname("hw.machine", model, &size, NULL, 0);
+NSString *deviceModel = [NSString stringWithCString:model encoding:NSUTF8StringEncoding];
+free(model);
+return deviceModel;
+}
 
 
 <% if(api.name == "Client") { %>+(bool)IsClientLoggedIn
@@ -30,11 +42,8 @@ return PlayFabInstance;
 }
 
 #ifdef USE_IDFA
-+(void) MultiStepClientLogin:(bool) needsAttribution
+-(void) MultiStepClientLogin:(bool) needsAttribution
 {
-
-[PlayFabSettings setAdvertisingIdValue:[PlayFabSettings identifierForAdvertising]];
-// Automatically try to fetch the ID
 if (needsAttribution && [PlayFabSettings.AdvertisingIdValue length] != 0){
 [PlayFabSettings setAdvertisingIdValue:[PlayFabSettings identifierForAdvertising]];
 }
@@ -52,8 +61,10 @@ install_request.Idfa = PlayFabSettings.AdvertisingIdValue;
 success:^(AttributeInstallResult* result, NSObject* userData) {
 // Modify AdvertisingIdType:  Prevents us from sending the id multiple times, and allows automated tests to determine id was sent successfully
 [PlayFabSettings setAdvertisingIdType:[NSString stringWithFormat:@"%@%@",PlayFabSettings.AdvertisingIdType,@"_Successful"]];
+NSLog(@"playfab adid %@", PlayFabSettings.AdvertisingIdType);
 }
 failure:^(PlayFabError *error, NSObject *userData) {
+NSLog(@"attribute install fail");
 //Request errored or failed to connect.
 } withUserData:nil];
 }

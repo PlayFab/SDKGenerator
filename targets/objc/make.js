@@ -807,8 +807,19 @@ var generateErrors = exports.generateErrors = function (api, apiOutputDir) {
 
 
 var getRequestActions = exports.getRequestActions = function (apiCall, api) {
-    if (api.name == "Client" && (apiCall.result == "LoginResult" || apiCall.request == "RegisterPlayFabUserRequest"))
-        return "if ([PlayFabSettings.TitleId length] > 0)\n\t\trequest.TitleId = PlayFabSettings.TitleId;";
+    if (api.name == "Client" && (apiCall.result == "LoginResult" || apiCall.request == "RegisterPlayFabUserRequest")){
+        var val = "if ([PlayFabSettings.TitleId length] > 0)\n\t\trequest.TitleId = PlayFabSettings.TitleId;\n";
+
+        if(apiCall.request == "LoginWithIOSDeviceIDRequest"){
+            val += "//Get iOS device and os information:\n";
+            val += "NSOperatingSystemVersion version = [[NSProcessInfo processInfo] operatingSystemVersion];\n";
+            val += "request.OS = [NSString stringWithFormat:@\"%d.%d.%d\", version.majorVersion, version.minorVersion, version.patchVersion];\n";
+            val += "request.DeviceId = [[[UIDevice currentDevice] identifierForVendor] UUIDString];\n";
+            val += "request.DeviceModel = [PlayFabClientAPI getModel];\n";
+        }
+
+        return val;
+    }
     return "";
 }
 
@@ -817,7 +828,7 @@ var getResultActions = exports.getResultActions = function (apiCall, api) {
         var val = "if ([class_data valueForKey:@\"SessionTicket\"])\n\t\t\tself.mUserSessionTicket = [class_data valueForKey:@\"SessionTicket\"];\n"
         val+= "#ifdef USE_IDFA\n"
         val+= "if(model.SettingsForUser.NeedsAttribution)\n";
-        val+= "   [[PlayFab"+api.name+"API getInstance] MultiStepClientLogin];\n";
+        val+= "   [[PlayFab"+api.name+"API GetInstance] MultiStepClientLogin:model.SettingsForUser.NeedsAttribution];\n";
         val+= "#endif\n"
         return val;
     }

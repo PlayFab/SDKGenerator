@@ -1,0 +1,6 @@
+def build(bld):
+    bld.DefineGem(
+        includes = [Path('Code/CryEngine/CryAction'),
+                    Path('Code/CryEngine/CryAction/FlowSystem/Nodes')],
+        win_features = ['AWSNativeSDK'],
+    )

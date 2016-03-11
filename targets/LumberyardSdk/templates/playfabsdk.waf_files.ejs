@@ -7,28 +7,24 @@
     },
     "none": {
         "Interface": [<% for (var i in apis) { %>
-            "Include/PlayFab<%- apis[i].name %>API.h",<% } %>
-            "Include/IPlayFabSdkGem.h"
-        ],
-        "Implementation": [
-            "Source/PlayFabSdkGem.h",
-            "Source/PlayFabSdkGem.cpp",
-<% for (var i in apis) { %>
-            "Source/PlayFab<%- apis[i].name %>DataModels.h",
-            "Source/PlayFab<%- apis[i].name %>DataModels.cpp",
-            "Source/PlayFab<%- apis[i].name %>API.cpp",<% } %>
-<% if (hasClientOptions && hasServerOptions) { %>
-            "Source/PlayFabApiTestNode.cpp",
-<% } else if (hasClientOptions) { %>
-            "Source/PlayFabApiTestNode_Client.cpp",
-<% } %>
-            "Source/PlayFabBaseModel.h",
-            "Source/PlayFabError.h",
-            "Source/PlayFabHttp.h",
-            "Source/PlayFabSettings.h",
+            "Include/PlayFab<%- apis[i].name %>DataModels.h",
+            "Include/IPlayFab<%- apis[i].name %>Api.h",<% } %>
 
-            "Source/PlayFabBaseModel.cpp",
+            "Include/IPlayFabSdkGem.h",
+            "Include/PlayFabBaseModel.h",
+            "Include/PlayFabError.h",
+            "Include/PlayFabHttp.h",
+            "Include/PlayFabSettings.h"
+        ],
+        "Implementation": [<% for (var i in apis) { %>
+            "Source/PlayFab<%- apis[i].name %>Api.h",
+            "Source/PlayFab<%- apis[i].name %>Api.cpp",
+            "Source/PlayFab<%- apis[i].name %>ApiWrapper.h",
+            "Source/PlayFab<%- apis[i].name %>ApiWrapper.cpp",<% } %>
+
             "Source/PlayFabHttp.cpp",
+            "Source/PlayFabSdkGem.cpp",
+            "Source/PlayFabSdkGem.h",
             "Source/PlayFabSettings.cpp"
         ]
     }

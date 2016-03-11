@@ -1,18 +1,16 @@
 #include "StdAfx.h"
-
+#include <platform_impl.h>
+#include "PlayFabApiTestGem.h"
 #include <FlowSystem/Nodes/FlowBaseNode.h>
-#include <platform_impl.h> // Resharper says this is unused, but it's still required in some less direct way
 
-#include "PlayFabSdkGem.h"
+Aws::String PlayFabApiTest::PlayFabApiTestGem::lastDebugMessage;
 
-Aws::String PlayFabSdk::PlayFabSdkGem::lastDebugMessage;
+PlayFabApiTest::PlayFabApiTestGem::PlayFabApiTestGem() { }
+PlayFabApiTest::PlayFabApiTestGem::~PlayFabApiTestGem() { }
 
-PlayFabSdk::PlayFabSdkGem::PlayFabSdkGem() { }
-PlayFabSdk::PlayFabSdkGem::~PlayFabSdkGem() { }
-
-void PlayFabSdk::PlayFabSdkGem::OnSystemEvent(ESystemEvent event, UINT_PTR wparam, UINT_PTR lparam)
+void PlayFabApiTest::PlayFabApiTestGem::OnSystemEvent(ESystemEvent event, UINT_PTR wparam, UINT_PTR lparam)
 {
-    using namespace PlayFabSdk;
+    using namespace PlayFabApiTest;
 
     switch (event)
     {
@@ -33,7 +31,7 @@ void PlayFabSdk::PlayFabSdkGem::OnSystemEvent(ESystemEvent event, UINT_PTR wpara
     }
 }
 
-void PlayFabSdk::PlayFabSdkGem::OnPostUpdate(float fDeltaTime)
+void PlayFabApiTest::PlayFabApiTestGem::OnPostUpdate(float fDeltaTime)
 {
     if (lastDebugMessage.length() > 0)
     {
@@ -42,4 +40,4 @@ void PlayFabSdk::PlayFabSdkGem::OnPostUpdate(float fDeltaTime)
     }
 }
 
-GEM_REGISTER(PlayFabSdk::PlayFabSdkGem)
+GEM_REGISTER(PlayFabApiTest::PlayFabApiTestGem)

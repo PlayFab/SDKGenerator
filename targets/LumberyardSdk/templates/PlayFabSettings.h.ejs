@@ -7,28 +7,32 @@ namespace PlayFab
     class PlayFabSettings
     {
     public:
-        static const Aws::String playFabSDKVersion;
-        static const Aws::String playFabVersionString;
+        static PlayFabSettings playFabSettings; // Global settings for all Apis
 
-        static bool useDevelopmentEnvironment;
-        static Aws::String developmentEnvironmentURL;
-        static Aws::String productionEnvironmentURL;
-        static Aws::String titleId; // You must set this value for PlayFabSdk to work properly (Found in the Game Manager for your title, at the PlayFab Website)
-        static ErrorCallback globalErrorHandler;
-<% if (hasServerOptions) { %>        static Aws::String developerSecretKey; // You must set this value for PlayFabSdk to work properly (Found in the Game Manager for your title, at the PlayFab Website)
+        const Aws::String playFabSDKVersion;
+        const Aws::String playFabVersionString;
+
+        bool useDevelopmentEnvironment;
+        Aws::String developmentEnvironmentURL;
+        Aws::String productionEnvironmentURL;
+        Aws::String titleId; // You must set this value for PlayFabSdk to work properly (Found in the Game Manager for your title, at the PlayFab Website)
+        ErrorCallback globalErrorHandler;
+<% if (hasServerOptions) { %>        Aws::String developerSecretKey; // You must set this value for PlayFabSdk to work properly (Found in the Game Manager for your title, at the PlayFab Website)
 <% }
 if (hasClientOptions) {
-%>        static Aws::String logicServerURL; // Assigned by GetCloudScriptUrl, used by RunCloudScript
-        static Aws::String advertisingIdType; // Set this to the appropriate AD_TYPE_X constant below
-        static Aws::String advertisingIdValue; // Set this to corresponding device value
+%>        Aws::String logicServerURL; // Assigned by GetCloudScriptUrl, used by RunCloudScript
+        Aws::String advertisingIdType; // Set this to the appropriate AD_TYPE_X constant below
+        Aws::String advertisingIdValue; // Set this to corresponding device value
 
         // DisableAdvertising is provided for completeness, but changing it is not suggested
         // Disabling this may prevent your advertising-related PlayFab marketplace partners from working correctly
-        static bool disableAdvertising;
-        static const Aws::String AD_TYPE_IDFA;
-        static const Aws::String AD_TYPE_ANDROID_ID;
+        bool disableAdvertising;
+        const Aws::String AD_TYPE_IDFA;
+        const Aws::String AD_TYPE_ANDROID_ID;
 <% } %>
-        static Aws::String getURL(const Aws::String& callPath)
+        PlayFabSettings();
+
+        Aws::String getURL(const Aws::String& callPath)
         {
 <% if (hasClientOptions) {
 %>            if (callPath == "/Client/RunCloudScript")
@@ -39,9 +43,9 @@ if (hasClientOptions) {
         }
 
     private:
-        static Aws::String serverURL; // A cache of the constructed url string
+        Aws::String serverURL; // A cache of the constructed url string
 <% if (hasClientOptions) { %>
-        static Aws::String getLogicURL(const Aws::String& callPath)
+        Aws::String getLogicURL(const Aws::String& callPath)
         {
             return logicServerURL + callPath;
         }

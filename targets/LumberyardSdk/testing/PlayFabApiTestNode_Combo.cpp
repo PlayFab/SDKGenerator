@@ -1,9 +1,8 @@
 #include "StdAfx.h"
+
+#include <IPlayFabSdkGem.h>
 #include "FlowBaseNode.h"
-#include "PlayFabClientAPI.h"
-#include "PlayFabServerAPI.h"
-#include "PlayFabSettings.h"
-#include "PlayFabSdkGem.h"
+#include "PlayFabApiTestGem.h"
 
 using namespace PlayFab;
 
@@ -77,6 +76,13 @@ class PlayFabApiTests
 public:
     static void InitializeTestSuite()
     {
+        playFabSdkGem = GetISystem()->GetGemManager()->GetGem<IPlayFabSdkGem>();
+        if (!playFabSdkGem)
+            return;
+        playFabSettings = playFabSdkGem->GetPlayFabSettings();
+        clientApi = playFabSdkGem->GetClientApi();
+        serverApi = playFabSdkGem->GetServerApi();
+
         ClassSetup();
 
         // Reset testContexts if this has already been run (The results are kept for later viewing)
@@ -98,7 +104,9 @@ public:
 
     static bool TickTestSuite()
     {
-        if (PlayFabRequestManager::playFabHttp.GetPendingCalls() > 0)
+        if (!playFabSdkGem)
+            return true; // Can't continue if we can't access the PlayFabSdkGem
+        if (playFabSdkGem->GetPendingCalls() > 0)
             return false; // The active test won't advance until all outstanding calls return
 
         int unfinishedTests = 0;
@@ -154,6 +162,10 @@ public:
     }
 
 private:
+    static IPlayFabSdkGem* playFabSdkGem;
+    static PlayFabSettings* playFabSettings;
+    static IPlayFabClientApi* clientApi;
+    static IPlayFabServerApi* serverApi;
     static Aws::String _outputSummary; // Basically a temp variable so I don't reallocate this constantly
 
     // A bunch of constants: TODO: load these from testTitleData.json
@@ -182,8 +194,8 @@ private:
         userPassword = "testPassword";
         characterName = "Ragnar";
 
-        PlayFabSettings::titleId = titleId;
-        PlayFabSettings::developerSecretKey = developerSecretKey;
+        playFabSettings->titleId = titleId;
+        playFabSettings->developerSecretKey = developerSecretKey;
     }
 
     // Start a test, and block until the threaded response arrives
@@ -230,7 +242,7 @@ private:
         ClientModels::LoginWithEmailAddressRequest request;
         request.Email = userEmail;
         request.Password = userPassword + "INVALID";
-        PlayFabClientAPI::LoginWithEmailAddress(request, InvalidLoginSuccess, InvalidLoginFail, &testContext);
+        clientApi->LoginWithEmailAddress(request, InvalidLoginSuccess, InvalidLoginFail, &testContext);
     }
     static void InvalidLoginSuccess(const ClientModels::LoginResult& result, void* customData)
     {
@@ -257,7 +269,7 @@ private:
         request.Username = userName;
         request.Email = "x";
         request.Password = "x";
-        PlayFabClientAPI::RegisterPlayFabUser(request, InvalidRegistrationSuccess, InvalidRegistrationFail, &testContext);
+        clientApi->RegisterPlayFabUser(request, InvalidRegistrationSuccess, InvalidRegistrationFail, &testContext);
     }
     static void InvalidRegistrationSuccess(const ClientModels::RegisterPlayFabUserResult& result, void* customData)
     {
@@ -295,7 +307,7 @@ private:
         ClientModels::LoginWithEmailAddressRequest request;
         request.Email = userEmail;
         request.Password = userPassword;
-        PlayFabClientAPI::LoginWithEmailAddress(request, OnLoginOrRegister, OnSharedError, &testContext);
+        clientApi->LoginWithEmailAddress(request, OnLoginOrRegister, OnSharedError, &testContext);
     }
     static void OnLoginOrRegister(const ClientModels::LoginResult& result, void* customData)
     {
@@ -310,13 +322,13 @@ private:
     /// </summary>
     static void LoginWithAdvertisingId(PfTestContext& testContext)
     {
-        PlayFabSettings::advertisingIdType = PlayFabSettings::AD_TYPE_ANDROID_ID;
-        PlayFabSettings::advertisingIdValue = "PlayFabTestId";
+        playFabSettings->advertisingIdType = playFabSettings->AD_TYPE_ANDROID_ID;
+        playFabSettings->advertisingIdValue = "PlayFabTestId";
 
         ClientModels::LoginWithEmailAddressRequest request;
         request.Email = userEmail;
         request.Password = userPassword;
-        PlayFabClientAPI::LoginWithEmailAddress(request, OnLoginWithAdvertisingId, OnSharedError, &testContext);
+        clientApi->LoginWithEmailAddress(request, OnLoginWithAdvertisingId, OnSharedError, &testContext);
     }
     static void OnLoginWithAdvertisingId(const ClientModels::LoginResult& result, void* customData)
     {
@@ -334,14 +346,14 @@ private:
     /// </summary>
     static void UserDataApi(PfTestContext& testContext)
     {
-        if (!PlayFabClientAPI::IsClientLoggedIn())
+        if (!clientApi->IsClientLoggedIn())
         {
             EndTest(testContext, SKIPPED, "Earlier tests failed to log in");
             return;
         }
 
         ClientModels::GetUserDataRequest request;
-        PlayFabClientAPI::GetUserData(request, OnUserDataApiGet1, OnSharedError, &testContext);
+        clientApi->GetUserData(request, OnUserDataApiGet1, OnSharedError, &testContext);
     }
     static void OnUserDataApiGet1(const ClientModels::GetUserDataResult& result, void* customData)
     {
@@ -359,12 +371,12 @@ private:
         temp.append(buffer);
 
         updateRequest.Data[TEST_DATA_KEY] = temp;
-        PlayFabClientAPI::UpdateUserData(updateRequest, OnUserDataApiUpdate, OnSharedError, customData);
+        clientApi->UpdateUserData(updateRequest, OnUserDataApiUpdate, OnSharedError, customData);
     }
     static void OnUserDataApiUpdate(const ClientModels::UpdateUserDataResult& result, void* customData)
     {
         ClientModels::GetUserDataRequest request;
-        PlayFabClientAPI::GetUserData(request, OnUserDataApiGet2, OnSharedError, customData);
+        clientApi->GetUserData(request, OnUserDataApiGet2, OnSharedError, customData);
     }
     static void OnUserDataApiGet2(const ClientModels::GetUserDataResult& result, void* customData)
     {
@@ -397,13 +409,13 @@ private:
     /// </summary>
     static void UserStatisticsApi(PfTestContext& testContext)
     {
-        if (!PlayFabClientAPI::IsClientLoggedIn())
+        if (!clientApi->IsClientLoggedIn())
         {
             EndTest(testContext, SKIPPED, "Earlier tests failed to log in");
             return;
         }
 
-        PlayFabClientAPI::GetUserStatistics(OnUserStatisticsApiGet1, OnSharedError, &testContext);
+        clientApi->GetUserStatistics(OnUserStatisticsApiGet1, OnSharedError, &testContext);
     }
     static void OnUserStatisticsApiGet1(const ClientModels::GetUserStatisticsResult& result, void* customData)
     {
@@ -415,11 +427,11 @@ private:
         ClientModels::UpdateUserStatisticsRequest updateRequest;
 
         updateRequest.UserStatistics[TEST_STAT_NAME] = testMessageInt;
-        PlayFabClientAPI::UpdateUserStatistics(updateRequest, OnUserStatisticsApiUpdate, OnSharedError, customData);
+        clientApi->UpdateUserStatistics(updateRequest, OnUserStatisticsApiUpdate, OnSharedError, customData);
     }
     static void OnUserStatisticsApiUpdate(const ClientModels::UpdateUserStatisticsResult& result, void* customData)
     {
-        PlayFabClientAPI::GetUserStatistics(OnUserStatisticsApiGet2, OnSharedError, customData);
+        clientApi->GetUserStatistics(OnUserStatisticsApiGet2, OnSharedError, customData);
     }
     static void OnUserStatisticsApiGet2(const ClientModels::GetUserStatisticsResult& result, void* customData)
     {
@@ -443,7 +455,7 @@ private:
     static void UserCharacter(PfTestContext& testContext)
     {
         ClientModels::ListUsersCharactersRequest request;
-        PlayFabClientAPI::GetAllUsersCharacters(request, OnUserCharacter, OnSharedError, &testContext);
+        clientApi->GetAllUsersCharacters(request, OnUserCharacter, OnSharedError, &testContext);
     }
     static void OnUserCharacter(const ClientModels::ListUsersCharactersResult& result, void* customData)
     {
@@ -470,11 +482,11 @@ private:
         ClientModels::GetLeaderboardRequest clientRequest;
         clientRequest.MaxResultsCount = 3;
         clientRequest.StatisticName = TEST_STAT_NAME;
-        PlayFabClientAPI::GetLeaderboard(clientRequest, OnClientLeaderBoard, OnSharedError, &testContext);
+        clientApi->GetLeaderboard(clientRequest, OnClientLeaderBoard, OnSharedError, &testContext);
         ServerModels::GetLeaderboardRequest serverRequest;
         serverRequest.MaxResultsCount = 3;
         serverRequest.StatisticName = TEST_STAT_NAME;
-        PlayFabServerAPI::GetLeaderboard(serverRequest, OnServerLeaderBoard, OnSharedError, &testContext);
+        serverApi->GetLeaderboard(serverRequest, OnServerLeaderBoard, OnSharedError, &testContext);
     }
     static void OnClientLeaderBoard(const ClientModels::GetLeaderboardResult& result, void* customData)
     {
@@ -509,7 +521,7 @@ private:
     static void AccountInfo(PfTestContext& testContext)
     {
         ClientModels::GetAccountInfoRequest request;
-        PlayFabClientAPI::GetAccountInfo(request, OnAccountInfo, OnSharedError, &testContext);
+        clientApi->GetAccountInfo(request, OnAccountInfo, OnSharedError, &testContext);
     }
     static void OnAccountInfo(const ClientModels::GetAccountInfoResult& result, void* customData)
     {
@@ -531,13 +543,13 @@ private:
     static void CloudScript(PfTestContext& testContext)
     {
         ClientModels::GetCloudScriptUrlRequest request;
-        PlayFabClientAPI::GetCloudScriptUrl(request, OnCloudUrl, OnSharedError, &testContext);
+        clientApi->GetCloudScriptUrl(request, OnCloudUrl, OnSharedError, &testContext);
     }
     static void OnCloudUrl(const ClientModels::GetCloudScriptUrlResult& result, void* customData)
     {
         ClientModels::RunCloudScriptRequest request;
         request.ActionId = "helloWorld";
-        PlayFabClientAPI::RunCloudScript(request, OnHelloWorldCloudScript, OnSharedError, customData);
+        clientApi->RunCloudScript(request, OnHelloWorldCloudScript, OnSharedError, customData);
     }
     static void OnHelloWorldCloudScript(const ClientModels::RunCloudScriptResult& result, void* customData)
     {
@@ -550,6 +562,10 @@ private:
     }
 };
 // C++ Static vars
+IPlayFabSdkGem* PlayFabApiTests::playFabSdkGem;
+PlayFabSettings* PlayFabApiTests::playFabSettings;
+IPlayFabClientApi* PlayFabApiTests::clientApi;
+IPlayFabServerApi* PlayFabApiTests::serverApi;
 Aws::String PlayFabApiTests::_outputSummary;
 Aws::String PlayFabApiTests::titleId;
 Aws::String PlayFabApiTests::developerSecretKey;
@@ -616,7 +632,7 @@ public:
             break;
             //case eFE_FinalActivate:
         }
-        PlayFabSdk::PlayFabSdkGem::lastDebugMessage = PlayFabApiTests::GenerateSummary();
+        PlayFabApiTest::PlayFabApiTestGem::lastDebugMessage = PlayFabApiTests::GenerateSummary();
     }
 };
 

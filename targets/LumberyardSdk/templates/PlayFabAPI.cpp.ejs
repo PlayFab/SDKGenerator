@@ -1,40 +1,38 @@
 #include "StdAfx.h"
-#include "PlayFab<%- api.name %>API.h"
+#include "PlayFab<%- api.name %>Api.h"
 #include "PlayFabSettings.h"
-#include "PlayFabSdkGem.h"
 
 using namespace PlayFab;
-using namespace PlayFab::<%- api.name %>Models;
+using namespace <%- api.name %>Models;
 <% if(hasClientOptions) { %>
 // Client-Specific
-Aws::String PlayFabClientAPI::mUserSessionTicket;
+Aws::String PlayFabClientApi::mUserSessionTicket;
 
-bool PlayFabClientAPI::IsClientLoggedIn()
+bool PlayFabClientApi::IsClientLoggedIn()
 {
     return mUserSessionTicket.length() != 0;
 }
 
-void PlayFabClientAPI::MultiStepClientLogin(bool needsAttribution)
+void PlayFabClientApi::MultiStepClientLogin(bool needsAttribution)
 {
-    if (needsAttribution && !PlayFabSettings::disableAdvertising && PlayFabSettings::advertisingIdType.length() > 0 && PlayFabSettings::advertisingIdValue.length() > 0)
+    if (needsAttribution && !PlayFabSettings::playFabSettings.disableAdvertising && PlayFabSettings::playFabSettings.advertisingIdType.length() > 0 && PlayFabSettings::playFabSettings.advertisingIdValue.length() > 0)
     {
         AttributeInstallRequest request;
-        if (PlayFabSettings::advertisingIdType == PlayFabSettings::AD_TYPE_IDFA)
-            request.Idfa = PlayFabSettings::advertisingIdValue;
-        else if (PlayFabSettings::advertisingIdType == PlayFabSettings::AD_TYPE_ANDROID_ID)
-            request.Android_Id = PlayFabSettings::advertisingIdValue;
+        if (PlayFabSettings::playFabSettings.advertisingIdType == PlayFabSettings::playFabSettings.AD_TYPE_IDFA)
+            request.Idfa = PlayFabSettings::playFabSettings.advertisingIdValue;
+        else if (PlayFabSettings::playFabSettings.advertisingIdType == PlayFabSettings::playFabSettings.AD_TYPE_ANDROID_ID)
+            request.Android_Id = PlayFabSettings::playFabSettings.advertisingIdValue;
         else
             return;
         AttributeInstall(request, nullptr, nullptr);
     }
 }
 <% } %>
-// PlayFab<%- api.name %> API
-PlayFab<%- api.name %>API::PlayFab<%- api.name %>API() {}
-
-<% for(var i in api.calls) { var apiCall = api.calls[i];
-%>void PlayFab<%- api.name %>API::<%- apiCall.name %>(
-    <% if(hasRequest(apiCall, api)) { %><%- apiCall.request %>& request,<% } %>
+// PlayFab<%- api.name %> Api
+PlayFab<%- api.name %>Api::PlayFab<%- api.name %>Api() {}
+<% for(var i in api.calls) { var apiCall = api.calls[i]; %>
+void PlayFab<%- api.name %>Api::<%- apiCall.name %>(
+<% if(hasRequest(apiCall, api)) { %>    <%- apiCall.request %>& request,<% } %>
     ProcessApiCallback<<%- apiCall.result %>> callback,
     ErrorCallback errorCallback,
     void* customData
@@ -42,13 +40,13 @@ PlayFab<%- api.name %>API::PlayFab<%- api.name %>API() {}
 {
 <%- getRequestActions(apiCall, api) %>
 <% if(hasRequest(apiCall, api)) {
-%>    PlayFabRequest* newRequest = new PlayFabRequest(PlayFabSettings::getURL("<%- apiCall.url %>"), Aws::Http::HttpMethod::HTTP_<%- apiCall.method %>, <%- getAuthParams(apiCall) %>, request.toJSONString(), customData, callback, errorCallback, On<%- apiCall.name %>Result);
+%>    PlayFabRequest* newRequest = new PlayFabRequest(PlayFabSettings::playFabSettings.getURL("<%- apiCall.url %>"), Aws::Http::HttpMethod::HTTP_<%- apiCall.method %>, <%- getAuthParams(apiCall) %>, request.toJSONString(), customData, callback, errorCallback, On<%- apiCall.name %>Result);
 <% } else {
-%>    PlayFabRequest* newRequest = new PlayFabRequest(PlayFabSettings::getURL("<%- apiCall.url %>"), Aws::Http::HttpMethod::HTTP_<%- apiCall.method %>, <%- getAuthParams(apiCall) %>, "", customData, callback, errorCallback, On<%- apiCall.name %>Result);
+%>    PlayFabRequest* newRequest = new PlayFabRequest(PlayFabSettings::playFabSettings.getURL("<%- apiCall.url %>"), Aws::Http::HttpMethod::HTTP_<%- apiCall.method %>, <%- getAuthParams(apiCall) %>, "", customData, callback, errorCallback, On<%- apiCall.name %>Result);
 <% } %>    PlayFabRequestManager::playFabHttp.AddRequest(newRequest);
 }
 
-void PlayFab<%- api.name %>API::On<%- apiCall.name %>Result(PlayFabRequest* request)
+void PlayFab<%- api.name %>Api::On<%- apiCall.name %>Result(PlayFabRequest* request)
 {
     if (PlayFabBaseModel::DecodeRequest(request))
     {
@@ -65,5 +63,4 @@ void PlayFab<%- api.name %>API::On<%- apiCall.name %>Result(PlayFabRequest* requ
         delete request;
     }
 }
-
 <% } %>

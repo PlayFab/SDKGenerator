@@ -2,20 +2,18 @@
 
 #include "PlayFabError.h"
 #include "PlayFabHttp.h"
+#include "IPlayFab<%- api.name %>Api.h"
 #include "PlayFab<%- api.name %>DataModels.h"
 
 namespace PlayFab
 {
-    class PlayFab<%- api.name %>API
+    class PlayFab<%- api.name %>Api
     {
-    public:
-        template<typename ResType> using ProcessApiCallback = void(*)(const ResType& result, void* customData);
-<% if(hasClientOptions) { %>
+    public:<% if(hasClientOptions) { %>
         // Public, Client-Specific
-        static void MultiStepClientLogin(bool needsAttribution);
         static bool IsClientLoggedIn();
-<% } %>
-        // ------------ Generated API calls
+
+<% } %>        // ------------ Generated Api calls
 <% for(var i in api.calls) { var apiCall = api.calls[i]; if(hasRequest(apiCall, api)) {
 %>        static void <%- apiCall.name %>(<%- api.name %>Models::<%- apiCall.request %>& request, ProcessApiCallback<<%- api.name %>Models::<%- apiCall.result%>> callback = nullptr, ErrorCallback errorCallback = nullptr, void* customData = nullptr);
 <% } else
@@ -23,13 +21,14 @@ namespace PlayFab
 <% } } %>
     private:
         // ------------ Private constructor, to enforce all-static class
-        PlayFab<%- api.name %>API();
+        PlayFab<%- api.name %>Api();
 
         // ------------ Generated result handlers
 <% for(var i in api.calls) { var apiCall = api.calls[i];
 %>        static void On<%- apiCall.name %>Result(PlayFabRequest* request);
 <% } %><% if(hasClientOptions) { %>
         // Private, Client-Specific
+        static void MultiStepClientLogin(bool needsAttribution);
         static Aws::String mUserSessionTicket;
 <% } %>    };
 };

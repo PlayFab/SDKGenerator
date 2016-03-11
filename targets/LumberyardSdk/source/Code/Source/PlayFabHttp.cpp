@@ -7,6 +7,7 @@
 #include <aws/core/http/HttpResponse.h>
 #include <aws/core/client/ClientConfiguration.h>
 #include <aws/core/utils/memory/stl/AWSStringStream.h>
+#include <AZCore/std/parallel/lock.h>
 
 using namespace PlayFab;
 using namespace rapidjson;
@@ -84,8 +85,8 @@ void PlayFabRequest::HandleErrorReport()
     }
 
     // Send the error callbacks
-    if (PlayFabSettings::globalErrorHandler != nullptr)
-        PlayFabSettings::globalErrorHandler(*mError, mCustomData);
+    if (PlayFabSettings::playFabSettings.globalErrorHandler != nullptr)
+        PlayFabSettings::playFabSettings.globalErrorHandler(*mError, mCustomData);
     if (mErrorCallback != nullptr)
         mErrorCallback(*mError, mCustomData);
 }
@@ -162,7 +163,7 @@ void PlayFabRequestManager::HandleRequest(PlayFabRequest* requestContainer, cons
 
     auto httpRequest = httpClientFactory->CreateHttpRequest(requestContainer->mURI, requestContainer->mMethod, Aws::Utils::Stream::DefaultResponseStreamFactoryMethod);
     httpRequest->SetContentType("application/json");
-    httpRequest->SetHeaderValue("X-PlayFabSDK", PlayFab::PlayFabSettings::playFabVersionString);
+    httpRequest->SetHeaderValue("X-PlayFabSDK", PlayFabSettings::playFabSettings.playFabVersionString);
     if (requestContainer->mAuthKey.length() > 0)
         httpRequest->SetHeaderValue(requestContainer->mAuthKey, requestContainer->mAuthValue);
 

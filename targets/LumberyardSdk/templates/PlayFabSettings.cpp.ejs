@@ -3,23 +3,26 @@
 
 using namespace PlayFab;
 
-const Aws::String PlayFabSettings::playFabSDKVersion = "<%- sdkVersion %>";
-const Aws::String PlayFabSettings::playFabVersionString = "LumberyardSDK-<%- sdkVersion %>";
+PlayFabSettings PlayFabSettings::playFabSettings; // Global settings for all Apis
 
-bool PlayFabSettings::useDevelopmentEnvironment = false;
-Aws::String PlayFabSettings::serverURL;
-Aws::String PlayFabSettings::developmentEnvironmentURL = ".playfabsandbox.com";
-Aws::String PlayFabSettings::productionEnvironmentURL = ".playfabapi.com";
-Aws::String PlayFabSettings::titleId;
-ErrorCallback PlayFabSettings::globalErrorHandler = nullptr;
-<% if (hasServerOptions) { %>Aws::String PlayFabSettings::developerSecretKey;
-<% }
-if (hasClientOptions) {
-%>Aws::String PlayFabSettings::logicServerURL = "";
-Aws::String PlayFabSettings::advertisingIdType = "";
-Aws::String PlayFabSettings::advertisingIdValue = "";
-
-bool PlayFabSettings::disableAdvertising = false;
-const Aws::String PlayFabSettings::AD_TYPE_IDFA = "Idfa";
-const Aws::String PlayFabSettings::AD_TYPE_ANDROID_ID = "Android_Id";
-<% } %>
+PlayFabSettings::PlayFabSettings() :
+playFabSDKVersion("0.0.160302"),
+playFabVersionString("LumberyardSDK-0.0.160302"),
+useDevelopmentEnvironment(false),
+developmentEnvironmentURL(".playfabsandbox.com"),
+productionEnvironmentURL(".playfabapi.com"),
+titleId(), // You must set this value for PlayFabSdk to work properly (Found in the Game Manager for your title, at the PlayFab Website)
+globalErrorHandler(nullptr),
+<% if (hasServerOptions) {
+%>developerSecretKey(), // You must set this value for PlayFabSdk to work properly (Found in the Game Manager for your title, at the PlayFab Website)
+<% } if (hasClientOptions) {
+%>logicServerURL(), // Assigned by GetCloudScriptUrl, used by RunCloudScript
+advertisingIdType(), // Set this to the appropriate AD_TYPE_X constant below
+advertisingIdValue(), // Set this to corresponding device value
+// DisableAdvertising is provided for completeness, but changing it is not suggested
+// Disabling this may prevent your advertising-related PlayFab marketplace partners from working correctly
+disableAdvertising(false),
+AD_TYPE_IDFA("Idfa"),
+AD_TYPE_ANDROID_ID("Android_Id"),
+<% } %>serverURL()
+{};

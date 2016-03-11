@@ -7,7 +7,6 @@
 #include <aws/core/http/HttpClientFactory.h>
 #include <AZCore/std/parallel/atomic.h>
 #include <AZCore/std/parallel/mutex.h>
-#include <AZCore/std/parallel/conditional_variable.h>
 #include <AzCore/JSON/document.h>
 #include <CrySimpleManagedThread.h>
 

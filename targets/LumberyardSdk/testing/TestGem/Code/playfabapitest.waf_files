@@ -1,0 +1,18 @@
+{
+    "NoUberFile": {
+        "Root": [
+            "Source/StdAfx.cpp",
+            "Source/StdAfx.h"
+        ]
+    },
+    "none": {
+        "Interface": [
+            "Include/IPlayFabApiTestGem.h"
+        ],
+        "Implementation": [
+            "Source/PlayFabApiTestNode.cpp",
+            "Source/PlayFabApiTestGem.h",
+            "Source/PlayFabApiTestGem.cpp"
+        ]
+    }
+}

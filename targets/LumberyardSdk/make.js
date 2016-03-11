@@ -8,34 +8,47 @@ exports.makeClientAPI = function (api, sourceDir, apiOutputDir) {
     console.log("Generating Lumberyard C++ client SDK to " + apiOutputDir);
     
     copyTree(path.resolve(sourceDir, "source"), apiOutputDir);
-    makeAPI(api, apiOutputDir);
+    makeGem([api], apiOutputDir);
+    makeApi(api, apiOutputDir);
     generateModels([api], apiOutputDir);
     generateErrors(api, apiOutputDir);
     generateSimpleFiles([api], sourceDir, apiOutputDir);
-    copyFile(path.resolve(sourceDir, "testing/PlayFabApiTestNode_Client.cpp"), path.resolve(apiOutputDir, "Code/Source/PlayFabApiTestNode_Client.cpp"));
+
+    // Test Gem
+    copyTree(path.resolve(sourceDir, "testing/TestGem"), path.resolve(apiOutputDir, "TestGemClient"));
+    copyFile(path.resolve(sourceDir, "testing/PlayFabApiTestNode_Client.cpp"), path.resolve(apiOutputDir, "TestGemCombo/Code/Source/PlayFabApiTestNode.cpp"));
 }
 
 exports.makeServerAPI = function (apis, sourceDir, apiOutputDir) {
     console.log("Generating Lumberyard C++ server SDK to " + apiOutputDir);
-
+    
     copyTree(path.resolve(sourceDir, "source"), apiOutputDir);
+    makeGem(apis, apiOutputDir);
     for (var i in apis)
-        makeAPI(apis[i], apiOutputDir);
+        makeApi(apis[i], apiOutputDir);
     generateModels(apis, apiOutputDir);
     generateErrors(apis[0], apiOutputDir);
     generateSimpleFiles(apis, sourceDir, apiOutputDir);
+    
+    // Test Gem
+    copyTree(path.resolve(sourceDir, "testing/TestGem"), path.resolve(apiOutputDir, "TestGemServer"));
+    copyFile(path.resolve(sourceDir, "testing/PlayFabApiTestNode_Server.cpp"), path.resolve(apiOutputDir, "TestGemCombo/Code/Source/PlayFabApiTestNode.cpp"));
 }
 
 exports.makeCombinedAPI = function (apis, sourceDir, apiOutputDir) {
     console.log("Generating Lumberyard C++ combined SDK to " + apiOutputDir);
-
+    
     copyTree(path.resolve(sourceDir, "source"), apiOutputDir);
+    makeGem(apis, apiOutputDir);
     for (var i in apis)
-        makeAPI(apis[i], apiOutputDir);
+        makeApi(apis[i], apiOutputDir);
     generateModels(apis, apiOutputDir);
     generateErrors(apis[0], apiOutputDir);
     generateSimpleFiles(apis, sourceDir, apiOutputDir);
-    copyFile(path.resolve(sourceDir, "testing/PlayFabApiTestNode.cpp"), path.resolve(apiOutputDir, "Code/Source/PlayFabApiTestNode.cpp"));
+    
+    // Test Gem
+    copyTree(path.resolve(sourceDir, "testing/TestGem"), path.resolve(apiOutputDir, "TestGemCombo"));
+    copyFile(path.resolve(sourceDir, "testing/PlayFabApiTestNode_Combo.cpp"), path.resolve(apiOutputDir, "TestGemCombo/Code/Source/PlayFabApiTestNode.cpp"));
 }
 
 function generateSimpleFiles(apis, sourceDir, apiOutputDir) {
@@ -48,23 +61,23 @@ function generateSimpleFiles(apis, sourceDir, apiOutputDir) {
         if (apis[i].name === "Client") locals.hasClientOptions = true;
         if (apis[i].name !== "Client") locals.hasServerOptions = true;
     }
-
+    
     var vcProjTemplate = ejs.compile(readFile(path.resolve(sourceDir, "templates/gem.json.ejs")));
     var generatedProject = vcProjTemplate(locals);
     writeFile(path.resolve(apiOutputDir, "gem.json"), generatedProject);
-
+    
     var wafTemplate = ejs.compile(readFile(path.resolve(sourceDir, "templates/playfabsdk.waf_files.ejs")));
     var generatedWaf = wafTemplate(locals);
     writeFile(path.resolve(apiOutputDir, "Code/playfabsdk.waf_files"), generatedWaf);
-
+    
     var hSettingTemplate = ejs.compile(readFile(path.resolve(sourceDir, "templates/PlayFabSettings.h.ejs")));
     var generatedSettingH = hSettingTemplate(locals);
-    writeFile(path.resolve(apiOutputDir, "Code/Source/PlayFabSettings.h"), generatedSettingH);
-
+    writeFile(path.resolve(apiOutputDir, "Code/Include/PlayFabSettings.h"), generatedSettingH);
+    
     var cppSettingTemplate = ejs.compile(readFile(path.resolve(sourceDir, "templates/PlayFabSettings.cpp.ejs")));
     var generatedSettingCpp = cppSettingTemplate(locals);
     writeFile(path.resolve(apiOutputDir, "Code/Source/PlayFabSettings.cpp"), generatedSettingCpp);
-
+    
     // Set the PlayFab Gem version in the sample project - This is outside of the sdk itself
     var gemFilePath = "C:/dev/Lumberyard/dev/SamplesProject/gems.json";
     var gemsJson = require(gemFilePath);
@@ -74,7 +87,26 @@ function generateSimpleFiles(apis, sourceDir, apiOutputDir) {
     writeFile(gemFilePath, JSON.stringify(gemsJson, null, 4));
 }
 
-var makeAPI = function (api, apiOutputDir) {
+var makeGem = function (apis, apiOutputDir) {
+    var sourceDir = __dirname;
+    
+    var apiLocals = {};
+    apiLocals.apis = apis;
+    
+    var iGemH = ejs.compile(readFile(path.resolve(sourceDir, "templates/IPlayFabSdkGem.h.ejs")));
+    var GenIGemH = iGemH(apiLocals);
+    writeFile(path.resolve(apiOutputDir, "Code/Include/IPlayFabSdkGem.h"), GenIGemH);
+    
+    var gemH = ejs.compile(readFile(path.resolve(sourceDir, "templates/PlayFabSdkGem.h.ejs")));
+    var genGemH = gemH(apiLocals);
+    writeFile(path.resolve(apiOutputDir, "Code/Source/PlayFabSdkGem.h"), genGemH);
+    
+    var gemCpp = ejs.compile(readFile(path.resolve(sourceDir, "templates/PlayFabSdkGem.cpp.ejs")));
+    var genGemCpp = gemCpp(apiLocals);
+    writeFile(path.resolve(apiOutputDir, "Code/Source/PlayFabSdkGem.cpp"), genGemCpp);
+}
+
+var makeApi = function (api, apiOutputDir) {
     var sourceDir = __dirname;
     
     var apiLocals = {};
@@ -85,13 +117,25 @@ var makeAPI = function (api, apiOutputDir) {
     apiLocals.getRequestActions = getRequestActions;
     apiLocals.hasClientOptions = api.name === "Client";
     
-    var apiHeaderTemplate = ejs.compile(readFile(path.resolve(sourceDir, "templates/PlayFabAPI.h.ejs")));
-    var generatedHeader = apiHeaderTemplate(apiLocals);
-    writeFile(path.resolve(apiOutputDir, "Code/Include/PlayFab" + api.name + "API.h"), generatedHeader);
+    var interfaceH = ejs.compile(readFile(path.resolve(sourceDir, "templates/IPlayFabApi.h.ejs")));
+    var genInterfaceH = interfaceH(apiLocals);
+    writeFile(path.resolve(apiOutputDir, "Code/Include/IPlayFab" + api.name + "Api.h"), genInterfaceH);
     
-    var apiBodyTemplate = ejs.compile(readFile(path.resolve(sourceDir, "templates/PlayFabAPI.cpp.ejs")));
-    var generatedBody = apiBodyTemplate(apiLocals);
-    writeFile(path.resolve(apiOutputDir, "Code/Source/PlayFab" + api.name + "API.cpp"), generatedBody);
+    var wrapperH = ejs.compile(readFile(path.resolve(sourceDir, "templates/PlayFabApiWrapper.h.ejs")));
+    var genWrapperH = wrapperH(apiLocals);
+    writeFile(path.resolve(apiOutputDir, "Code/Source/PlayFab" + api.name + "ApiWrapper.h"), genWrapperH);
+    
+    var wrapperCpp = ejs.compile(readFile(path.resolve(sourceDir, "templates/PlayFabApiWrapper.cpp.ejs")));
+    var genWrapperCpp = wrapperCpp(apiLocals);
+    writeFile(path.resolve(apiOutputDir, "Code/Source/PlayFab" + api.name + "ApiWrapper.cpp"), genWrapperCpp);
+    
+    var apiH = ejs.compile(readFile(path.resolve(sourceDir, "templates/PlayFabApi.h.ejs")));
+    var genApiH = apiH(apiLocals);
+    writeFile(path.resolve(apiOutputDir, "Code/Source/PlayFab" + api.name + "Api.h"), genApiH);
+    
+    var apiCpp = ejs.compile(readFile(path.resolve(sourceDir, "templates/PlayFabApi.cpp.ejs")));
+    var genApiCpp = apiCpp(apiLocals);
+    writeFile(path.resolve(apiOutputDir, "Code/Source/PlayFab" + api.name + "Api.cpp"), genApiCpp);
 }
 
 var hasRequest = function (apiCall, api) {
@@ -414,7 +458,7 @@ var getPropertyDeserializer = function (property, datatype) {
         throw "Unknown property type: " + propType + " for " + propName + " in " + datatype.name;
     
     var val = "const Value::ConstMemberIterator " + propName + "_member = obj.FindMember(\"" + propName + "\");\n";
-    val += "    if (" + propName + "_member != obj.MemberEnd() && !" + propName + "_member->value.IsNull()) " + safePropName + " = " + getter + ";";
+    val += "                if (" + propName + "_member != obj.MemberEnd() && !" + propName + "_member->value.IsNull()) " + safePropName + " = " + getter + ";";
     return val;
 }
 
@@ -528,9 +572,6 @@ var generateModels = function (apis, apiOutputDir, libraryName) {
         for (var i in api.datatypes)
             addTypeAndDependencies(api.datatypes[i], api.datatypes, orderedTypes, addedSet);
         
-        var modelHeaderTemplate = ejs.compile(readFile(path.resolve(sourceDir, "templates/PlayFabDataModels.h.ejs")));
-        var modelBodyTemplate = ejs.compile(readFile(path.resolve(sourceDir, "templates/PlayFabDataModels.cpp.ejs")));
-        
         var modelLocals = {};
         modelLocals.api = api;
         modelLocals.datatypes = orderedTypes;
@@ -541,11 +582,10 @@ var generateModels = function (apis, apiOutputDir, libraryName) {
         modelLocals.getPropertyCopyValue = getPropertyCopyValue;
         modelLocals.getPropertySafeName = getPropertySafeName;
         modelLocals.libraryName = libraryName;
-        var generatedHeader = modelHeaderTemplate(modelLocals);
-        writeFile(path.resolve(apiOutputDir, "Code/Source/PlayFab" + api.name + "DataModels.h"), generatedHeader);
         
-        var generatedBody = modelBodyTemplate(modelLocals);
-        writeFile(path.resolve(apiOutputDir, "Code/Source/PlayFab" + api.name + "DataModels.cpp"), generatedBody);
+        var modelHeaderTemplate = ejs.compile(readFile(path.resolve(sourceDir, "templates/PlayFabDataModels.h.ejs")));
+        var generatedHeader = modelHeaderTemplate(modelLocals);
+        writeFile(path.resolve(apiOutputDir, "Code/Include/PlayFab" + api.name + "DataModels.h"), generatedHeader);
     }
 }
 
@@ -556,12 +596,12 @@ var generateErrors = function (api, apiOutputDir) {
     errorLocals.errorList = api.errorList;
     errorLocals.errors = api.errors;
     var generatedErrors = errorsTemplate(errorLocals);
-    writeFile(path.resolve(apiOutputDir, "Code/Source/PlayFabError.h"), generatedErrors);
+    writeFile(path.resolve(apiOutputDir, "Code/Include/PlayFabError.h"), generatedErrors);
 }
 
 function getAuthParams(apiCall) {
     if (apiCall.auth === "SecretKey")
-        return "\"X-SecretKey\", PlayFab::PlayFabSettings::developerSecretKey";
+        return "\"X-SecretKey\", PlayFabSettings::playFabSettings.developerSecretKey";
     else if (apiCall.auth === "SessionTicket")
         return "\"X-Authorization\", mUserSessionTicket";
     return "\"\", \"\"";
@@ -569,19 +609,19 @@ function getAuthParams(apiCall) {
 
 var getRequestActions = function (apiCall, api) {
     if (api.name === "Client" && (apiCall.result === "LoginResult" || apiCall.request === "RegisterPlayFabUserRequest"))
-        return "    if (PlayFabSettings::titleId.length() > 0)\n        request.TitleId = PlayFabSettings::titleId;\n";
+        return "    if (PlayFabSettings::playFabSettings.titleId.length() > 0)\n        request.TitleId = PlayFabSettings::playFabSettings.titleId;\n";
     return "";
 }
 
 var getResultActions = function (apiCall, api) {
     if (api.name === "Client" && (apiCall.result === "LoginResult" || apiCall.result === "RegisterPlayFabUserResult"))
         return "        if (outResult->SessionTicket.length() > 0)\n" 
-            + "            PlayFabClientAPI::mUserSessionTicket = outResult->SessionTicket;\n" 
+            + "            PlayFabClientApi::mUserSessionTicket = outResult->SessionTicket;\n" 
             + "        MultiStepClientLogin(outResult->SettingsForUser->NeedsAttribution);\n";
     else if (api.name === "Client" && apiCall.result === "AttributeInstallResult")
         return "        // Modify advertisingIdType:  Prevents us from sending the id multiple times, and allows automated tests to determine id was sent successfully\n" 
-            + "        PlayFabSettings::advertisingIdType += \"_Successful\";\n";
+            + "        PlayFabSettings::playFabSettings.advertisingIdType += \"_Successful\";\n";
     else if (api.name === "Client" && apiCall.result === "GetCloudScriptUrlResult")
-        return "if (outResult->Url.length() > 0) PlayFabSettings::logicServerURL = outResult->Url;\n";
+        return "if (outResult->Url.length() > 0) PlayFabSettings::playFabSettings.logicServerURL = outResult->Url;\n";
     return "";
 }

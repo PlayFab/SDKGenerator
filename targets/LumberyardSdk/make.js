@@ -15,8 +15,8 @@ exports.makeClientAPI = function (api, sourceDir, apiOutputDir) {
     generateSimpleFiles([api], sourceDir, apiOutputDir);
 
     // Test Gem
-    copyTree(path.resolve(sourceDir, "testing/TestGem"), path.resolve(apiOutputDir, "TestGemClient"));
-    copyFile(path.resolve(sourceDir, "testing/PlayFabApiTestNode_Client.cpp"), path.resolve(apiOutputDir, "TestGemCombo/Code/Source/PlayFabApiTestNode.cpp"));
+    copyTree(path.resolve(sourceDir, "testing/TestGem"), path.resolve(apiOutputDir, "../TestGemClient"));
+    copyFile(path.resolve(sourceDir, "testing/PlayFabApiTestNode_Client.cpp"), path.resolve(apiOutputDir, "../TestGemClient/Code/Source/PlayFabApiTestNode.cpp"));
 }
 
 exports.makeServerAPI = function (apis, sourceDir, apiOutputDir) {
@@ -31,8 +31,8 @@ exports.makeServerAPI = function (apis, sourceDir, apiOutputDir) {
     generateSimpleFiles(apis, sourceDir, apiOutputDir);
     
     // Test Gem
-    copyTree(path.resolve(sourceDir, "testing/TestGem"), path.resolve(apiOutputDir, "TestGemServer"));
-    copyFile(path.resolve(sourceDir, "testing/PlayFabApiTestNode_Server.cpp"), path.resolve(apiOutputDir, "TestGemCombo/Code/Source/PlayFabApiTestNode.cpp"));
+    copyTree(path.resolve(sourceDir, "testing/TestGem"), path.resolve(apiOutputDir, "../TestGemServer"));
+    copyFile(path.resolve(sourceDir, "testing/PlayFabApiTestNode_Server.cpp"), path.resolve(apiOutputDir, "../TestGemServer/Code/Source/PlayFabApiTestNode.cpp"));
 }
 
 exports.makeCombinedAPI = function (apis, sourceDir, apiOutputDir) {
@@ -47,8 +47,8 @@ exports.makeCombinedAPI = function (apis, sourceDir, apiOutputDir) {
     generateSimpleFiles(apis, sourceDir, apiOutputDir);
     
     // Test Gem
-    copyTree(path.resolve(sourceDir, "testing/TestGem"), path.resolve(apiOutputDir, "TestGemCombo"));
-    copyFile(path.resolve(sourceDir, "testing/PlayFabApiTestNode_Combo.cpp"), path.resolve(apiOutputDir, "TestGemCombo/Code/Source/PlayFabApiTestNode.cpp"));
+    copyTree(path.resolve(sourceDir, "testing/TestGem"), path.resolve(apiOutputDir, "../TestGemCombo"));
+    copyFile(path.resolve(sourceDir, "testing/PlayFabApiTestNode_Combo.cpp"), path.resolve(apiOutputDir, "../TestGemCombo/Code/Source/PlayFabApiTestNode.cpp"));
 }
 
 function generateSimpleFiles(apis, sourceDir, apiOutputDir) {

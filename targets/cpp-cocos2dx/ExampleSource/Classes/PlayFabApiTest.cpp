@@ -1,6 +1,6 @@
 #include "PlayFabApiTest.h"
 #include "cocos2d.h"
-#include <playfab/PlayFabSettings.h>
+#include "PlayFabSettings.h"
 
 #define COCOS2D_DEBUG 1
 

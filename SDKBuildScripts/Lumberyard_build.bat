@@ -30,6 +30,11 @@ popd
 popd
 
 pushd ..
+if [%1] == [] (
 rem === BUILDING LumberyardSdk ===
 node generate.js ..\API_Specs LumberyardSdk=..\sdks\LumberyardSdk
+) else (
+rem === BUILDING LumberyardSdk with params %* ===
+node generate.js ..\API_Specs LumberyardSdk=..\sdks\LumberyardSdk %*
+)
 popd

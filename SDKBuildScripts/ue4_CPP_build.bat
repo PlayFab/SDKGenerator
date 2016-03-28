@@ -27,6 +27,11 @@ popd
 popd
 
 pushd ..
-rem === BUILDING UnrealEngineSDK ===
+if [%1] == [] (
+rem === BUILDING UnrealCppSdk ===
 node generate.js ..\API_Specs cpp-ue4=..\sdks\UnrealCppSdk
+) else (
+rem === BUILDING UnrealCppSdk with params %* ===
+node generate.js ..\API_Specs cpp-ue4=..\sdks\UnrealCppSdk %*
+)
 popd

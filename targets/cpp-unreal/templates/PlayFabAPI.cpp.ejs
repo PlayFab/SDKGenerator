@@ -64,6 +64,8 @@ FString UPlayFab<%- api.name %>API::PercentEncode(const FString& Text)
 // This loop goes through the subgroups of the api and orders the functions in groups.
 // It makes it a little easier to navigate.
 
+// Array to hold already printed models. That way we dont duplicate
+var modelsArray = [];
 for(var subgroup in api.subgroups)
 {
 %>
@@ -83,13 +85,20 @@ for(var subgroup in api.subgroups)
         if(apiCall.subgroup == api.subgroups[subgroup].name)
         {
 
-            %>/** <%- apiCall.summary %> */
-<%            %>UPlayFab<%- api.name %>API* UPlayFab<%- api.name %>API::<%- apiCall.name %>(F<%- api.name %><%- apiCall.request %> request)
+              %>/** <%- apiCall.summary %> */
+<%            %>UPlayFab<%- api.name %>API* UPlayFab<%- api.name %>API::<%- apiCall.name %>(F<%- api.name %><%- apiCall.request %> request,
+<%            %>    FDelegateOnSuccess<%- apiCall.name %> onSuccess,
+<%            %>    FDelegateOnFailurePlayFabError onFailure)
 <%            %>{
 <%            %>    // Objects containing request data
 <%            %>    UPlayFab<%- api.name %>API* manager = NewObject<UPlayFab<%- api.name %>API>();
 <%            %>    UPlayFabJsonObject* OutRestJsonObj = NewObject<UPlayFabJsonObject>();
-
+<%            %>
+<%            %>    // Assign delegates
+<%            %>    manager->OnSuccess<%- apiCall.name %> = onSuccess;
+<%            %>    manager->OnFailure = onFailure;
+<%            %>    manager->OnPlayFabResponse.AddDynamic(manager, &UPlayFab<%- api.name %>API::Helper<%- apiCall.name %>);
+<%            %>
 <%            %>    // Setup the request
 <%            %>    manager->PlayFabRequestURL = "<%- apiCall.url %>";
 <%
@@ -264,14 +273,73 @@ for(var subgroup in api.subgroups)
                         }
                         break;
                 }
-        }%>
+        }
+              %>
+<%            %>    // Add Request to manager
+<%            %>    manager->SetRequestObject(OutRestJsonObj);
+<%            %>
+<%            %>    return manager;
+<%            %>}
+<%            %>
+<%            %>// Implements FOnPlayFab<%- api.name %>RequestCompleted
+<%            %>void UPlayFab<%- api.name %>API::Helper<%- apiCall.name %>(FPlayFabBaseModel response, bool successful)
+<%            %>{
+<%            %>    FPlayFabError error = response.responseError;
+<%            %>    if (error.hasError)
+<%            %>    {
+<%            %>        if (OnFailure.IsBound())
+<%            %>        {
+<%            %>            OnFailure.Execute(error);
+<%            %>        }
+<%            %>    }
+<%            %>    else
+<%            %>    {
+<%
+                var found = false;
+                for(var i2 in api.datatypes)
+                {
+                    var datatype = api.datatypes[i2];
+                    if(datatype.name != apiCall.request)
+                    {
+                        if (datatype.name != apiCall.result)
+                        {
+                            continue;
+                        }
+                    }
 
-    // Add Request to manager
-    manager->SetRequestObject(OutRestJsonObj);
+                    //Check if datatype has been made already
+                    if (modelsArray.indexOf(datatype.name.toString()) > -1) {continue;}
 
-    return manager;
-}
+                    // Add datatype name to array
+                    modelsArray.push(datatype.name.toString());
 
+                    if(datatype.name.substr(datatype.name.length - 7) == "Request") {continue;} // go to next model if it is a request
+                    
+                    if (datatype.name == apiCall.result) {
+                        found = true;
+
+              %>        F<%- api.name %><%- apiCall.result %> result = UPlayFab<%- api.name %>ModelDecoder::decode<%- datatype.name %>Response(response.responseData);
+<%            %>        if (OnSuccess<%- apiCall.name %>.IsBound())
+<%            %>        {
+<%            %>            OnSuccess<%- apiCall.name %>.Execute(result);
+<%            %>        }
+<%
+                        break;
+                    }
+                }
+                
+                if (!found) {
+              %>        F<%- api.name %><%- apiCall.result %> result = UPlayFab<%- api.name %>ModelDecoder::decode<%- apiCall.result %>Response(response.responseData);
+<%            %>        if (OnSuccess<%- apiCall.name %>.IsBound())
+<%            %>        {
+<%            %>            OnSuccess<%- apiCall.name %>.Execute(result);
+<%            %>        }
+<%
+                }
+                
+              %>    }
+<%            %>}
+<%            %>
 <%}
     }
 } %>
@@ -338,22 +406,24 @@ void UPlayFab<%- api.name %>API::OnProcessRequestComplete(FHttpRequestPtr Reques
 <% if (hasClientOptions) {
 %>    if (isLoginRequest)
     {
-        auto pfSettings = IPlayFab::Get();
-        pfSettings.setSessionTicket(myResponse.responseData->GetObjectField("data")->GetStringField("SessionTicket"));
+        IPlayFab* pfSettings = &(IPlayFab::Get());
+        pfSettings->setSessionTicket(myResponse.responseData->GetObjectField("data")->GetStringField("SessionTicket"));
         bool needsAttribution = myResponse.responseData->GetObjectField("data")->GetBoolField("SessionTicket");
-        if (needsAttribution && !pfSettings.DisableAdvertising && !pfSettings.AdvertisingIdType.IsEmpty() && !pfSettings.AdvertisingIdValue.IsEmpty())
+        if (needsAttribution && !pfSettings->DisableAdvertising && !pfSettings->AdvertisingIdType.IsEmpty() && !pfSettings->AdvertisingIdValue.IsEmpty())
         {
             FClientAttributeInstallRequest request;
             bool makeAttrCall = true;
-            if (pfSettings.AdvertisingIdType == IPlayFab::AD_TYPE_IDFA)
-                request.Idfa = pfSettings.AdvertisingIdValue;
-            else if (pfSettings.AdvertisingIdType == IPlayFab::AD_TYPE_ANDROID_ID)
-                request.Android_Id = pfSettings.AdvertisingIdValue;
+            if (pfSettings->AdvertisingIdType == IPlayFab::AD_TYPE_IDFA)
+                request.Idfa = pfSettings->AdvertisingIdValue;
+            else if (pfSettings->AdvertisingIdType == IPlayFab::AD_TYPE_ANDROID_ID)
+                request.Android_Id = pfSettings->AdvertisingIdValue;
             else
                 makeAttrCall = false;
             if (makeAttrCall)
             {
-                auto callObj = AttributeInstall(request);
+                FDelegateOnSuccessAttributeInstall onSuccess;
+                FDelegateOnFailurePlayFabError onFailure;
+                auto callObj = AttributeInstall(request, onSuccess, onFailure);
                 callObj->Activate();
                 if (callObj->IsValidLowLevel())
                     callObj->ConditionalBeginDestroy();

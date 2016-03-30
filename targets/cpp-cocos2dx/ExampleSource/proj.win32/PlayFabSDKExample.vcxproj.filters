@@ -63,7 +63,7 @@
     <ClCompile Include="..\Classes\HttpRequesterCURL.cpp">
       <Filter>src</Filter>
     </ClCompile>
-    <ClCompile Include="..\Classes\core\PlayFabSettings.cpp">
+    <ClCompile Include="..\Classes\PlayFabSettings.cpp">
       <Filter>src</Filter>
     </ClCompile>
   </ItemGroup>

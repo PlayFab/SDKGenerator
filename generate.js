@@ -28,7 +28,9 @@ function getTargetsList() {
 function generate(args) {
     var targetList = getTargetsList();
     
-    var syntax = "Synatax: node generate.js <apiSpecLocation> <targetName>=<targetOutputLocation> [-beta]\n" +
+    var syntax = "Synatax: node generate.js <apiSpecLocation> <targetName>=<targetOutputLocation> [-flags <flag>[ <flag> ...]]\n" +
+                "\tExample: node generate.js C:/depot/API_Specs csharp-unity=../sdks/UnitySDK -flags xbox playstation\n" +
+                "\t\tThis should build the UnitySDK, from the given Api-specs folder, with a bunch of optional console APIs included\n" +
                 "\t<apiSpecLocation> : Directory where the *.api.json files are\n" +
                 "\tYou must list one or more target=outputLocation arguments. Warning, there can be no spaces in the target-specification";
     
@@ -39,15 +41,25 @@ function generate(args) {
         process.exit();
     }
     
-    var isBeta = false;
+    var buildFlags = [];
     var targetOutputLocationList = []; // A list of objects that describe an sdk target
+    var collectingFlags = false;
     for (var i = 3; i < args.length; i++) {
+        // Process mode changes
+        if (collectingFlags && args[i].indexOf("-") === 0)
+            collectingFlags = false;
+        
+        // Process the effect of individual arg commands
         if (stringStartsWith(args[i], "-t")) {
             console.log("The -t option in SdkGenerator has been removed.  The new Jenkins testing is more thorough and replaces this old functionality.");
             console.log(syntax);
             process.exit();
-        } else if (args[i] === "-beta") {
-            isBeta = true;
+        } else if (args[i] === "-flags") {
+            collectingFlags = true;
+        } else if (args[i] === "-beta") { // LEGACY OPTION - TODO: Remove this one when Jenkins is fully converted
+            buildFlags.push("beta");
+        } else if (collectingFlags) {
+            buildFlags.push(args[i]);
         } else if (args[i].indexOf("=") !== -1) { // any parameter with an "=" is assumed to be a target specification
             var argPair = args[i].split("=", 2);
             var targetOutput = {};
@@ -65,12 +77,13 @@ function generate(args) {
         }
     }
     
+    buildFlags = LowercaseFlagsList(buildFlags);
     var specLocation = path.normalize(args[2]);
-    var clientApi = GetApiDefinition(specLocation, "Client.api.json", isBeta);
+    var clientApi = GetApiDefinition(specLocation, "Client.api.json", buildFlags);
     var serverApis = [
-        GetApiDefinition(specLocation, "Admin.api.json", isBeta),
-        GetApiDefinition(specLocation, "Matchmaker.api.json", isBeta),
-        GetApiDefinition(specLocation, "Server.api.json", isBeta)
+        GetApiDefinition(specLocation, "Admin.api.json", buildFlags),
+        GetApiDefinition(specLocation, "Matchmaker.api.json", buildFlags),
+        GetApiDefinition(specLocation, "Server.api.json", buildFlags)
     ];
 
     var gameServerApis = [
@@ -100,10 +113,7 @@ function generate(args) {
         targetMaker.apiNotes = require(path.resolve(specLocation, "SdkManualNotes.json"));
         targetMaker.sdkVersion = targetMaker.apiNotes.sdkVersion[target.name];
         if (targetMaker.sdkVersion == null) {
-            //don't throw; just set version to 0.00
-            //throw "SdkManualNotes does not contain sdkVersion for " + target.name;
-            targetMaker.sdkVersion = 0.00;
-        }
+            throw "SdkManualNotes does not contain sdkVersion for " + target.name; // The point of this error is to force you to add a line to sdkManualNotes.json, to describe the version and date when this sdk/collection is built
         
         var apiOutputDir = "";
         
@@ -151,18 +161,60 @@ function generate(args) {
     console.log("\n\nDONE!\n");
 }
 
-var GetApiDefinition = function (specLocation, apiFileName, isBeta) {
+var GetApiDefinition = function (specLocation, apiFileName, buildFlags) {
     var api = require(path.resolve(specLocation, apiFileName));
-    if (isBeta)
-        return api; // Return the full API un-filtered
     
-    // Otherwise, filter all beta calls out of the API before returning it
+    // Filter calls out of the API before returning it
     var filteredCalls = [];
-    for (var a in api.calls)
-        if (!api.calls[a].hasOwnProperty("beta") || api.calls[a].beta !== true)
-            filteredCalls.push(api.calls[a]);
+    for (var i in api.calls)
+        if (IsVisibleWithFlags(buildFlags, api.calls[i]))
+            filteredCalls.push(api.calls[i]);
     api.calls = filteredCalls;
+    
+    // Filter datatypes out of the API before returning it
+    var filteredTypes = {};
+    for (var i in api.datatypes)
+        if (IsVisibleWithFlags(buildFlags, api.datatypes[i]))
+            filteredTypes[api.datatypes[i].name] = api.datatypes[i];
+    api.datatypes = filteredTypes;
     return api;
+}
+
+var IsVisibleWithFlags = function (buildFlags, apiObj) {
+    // It's pretty easy to exclude (Api calls and datatypes)
+    var exclusiveFlags = [];
+    if (apiObj.hasOwnProperty("ExclusiveFlags"))
+        exclusiveFlags = LowercaseFlagsList(apiObj.ExclusiveFlags);
+    for (var i in buildFlags)
+        if (exclusiveFlags.indexOf(buildFlags[i]) !== -1)
+            return false;
+    
+    // All Inclusive flags must match if present (Api calls only)
+    var allInclusiveFlags = [];
+    if (apiObj.hasOwnProperty("AllInclusiveFlags"))
+        allInclusiveFlags = LowercaseFlagsList(apiObj.AllInclusiveFlags);
+    if (allInclusiveFlags.length !== 0) // If there's no flags, it is always included
+        for (var i in allInclusiveFlags)
+            if (buildFlags.indexOf(allInclusiveFlags[i]) === -1)
+                return false; // If a required flag is missing, fail out
+    
+    // Any Inclusive flags must match at least one if present (Api calls and datatypes)
+    var anyInclusiveFlags = [];
+    if (apiObj.hasOwnProperty("AnyInclusiveFlags"))
+        anyInclusiveFlags = LowercaseFlagsList(apiObj.AnyInclusiveFlags);
+    if (anyInclusiveFlags.length === 0)
+        return true; // If there's no flags, it is always included
+    for (var i in anyInclusiveFlags)
+        if (buildFlags.indexOf(anyInclusiveFlags[i]) !== -1)
+            return true; // Otherwise at least one flag must be present
+    return false;
+}
+
+var LowercaseFlagsList = function (flags) {
+    var output = [];
+    for (var i in flags)
+        output.push(flags[i].toLowerCase());
+    return output;
 }
 
 GLOBAL.copyTree = function (source, dest) {

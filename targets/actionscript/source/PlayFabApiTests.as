@@ -53,6 +53,7 @@ package
             TITLE_DATA_FILENAME = titleDataFileName;
 
             AddTest("InvalidLogin", InvalidLogin);
+            AddTest("InvalidRegistration", InvalidRegistration);
             AddTest("LoginOrRegister", LoginOrRegister);
             AddTest("LoginWithAdvertisingId", LoginWithAdvertisingId);
             AddTest("UserDataApi", UserDataApi);
@@ -112,7 +113,6 @@ package
         /// </summary>
         private function InvalidLogin() : void
         {
-            // If the setup failed to log in a user, we need to create one.
             var request:com.playfab.ClientModels.LoginWithEmailAddressRequest = new com.playfab.ClientModels.LoginWithEmailAddressRequest();
             request.TitleId = PlayFabSettings.TitleId;
             request.Email = USER_EMAIL;
@@ -136,6 +136,53 @@ package
         private function Shared_ApiCallFailure(error:com.playfab.PlayFabError) : void
         {
             ASyncAssert.Fail(error.errorMessage);
+        }
+
+        /// <summary>
+        /// CLIENT API
+        /// Try to deliberately register a character with an invalid email and password.
+        ///   Verify that errorDetails are populated correctly.
+        /// </summary>
+        private function InvalidRegistration() : void
+        {
+            var registerRequest:com.playfab.ClientModels.RegisterPlayFabUserRequest = new com.playfab.ClientModels.RegisterPlayFabUserRequest();
+            registerRequest.TitleId = PlayFabSettings.TitleId;
+            registerRequest.Username = USER_NAME; // A username that is already taken
+            registerRequest.Email = "invalidEmail"; // An improperly formatted email
+            registerRequest.Password = "x"; // A password that is too short
+            PlayFabClientAPI.RegisterPlayFabUser(registerRequest, Wrap(InvalidRegistration_Success, "Register"), Wrap(InvalidRegistration_Failure, "RegisterFail"));
+        }
+        private function InvalidRegistration_Success(result:com.playfab.ClientModels.LoginResult) : void
+        {
+            reporter.Debug("InvalidRegistration_Success");
+            ASyncAssert.Fail("Registration unexpectedly succeeded.");
+        }
+        private function InvalidRegistration_Failure(error:com.playfab.PlayFabError) : void
+        {
+            ASyncAssert.AssertNotNull(error.errorMessage);
+            ASyncAssert.AssertNotNull(error.errorDetails); // This is one of the few messages that actually provide errorDetails
+            if(error.errorMessage.toLowerCase().indexOf("invalid input parameters") == -1)
+                ASyncAssert.Fail("Unexpected error result: " + error.errorMessage);
+
+            // Find and verify each expected error detail message
+            var expectedEmailMsg:String = "Email address is not valid.";
+            var expectedPasswordMsg:String = "Password must be between";
+            var foundEmailMsg:Boolean = false;
+            var foundPasswordMsg:Boolean = false;
+            var allMessages:String = "";
+            for (var key:String in error.errorDetails) {
+                var eachArray:Array = error.errorDetails[key];
+                for (var eachIndex:int in eachArray) {
+                    if(eachArray[eachIndex].indexOf(expectedEmailMsg) >= 0)
+                        foundEmailMsg = true;
+                    if(eachArray[eachIndex].indexOf(expectedPasswordMsg) >= 0)
+                        foundPasswordMsg = true;
+                    allMessages += eachArray[eachIndex];
+                }
+            }
+            ASyncAssert.AssertTrue(foundEmailMsg, "\"" + expectedEmailMsg + "\" not found in: " + allMessages);
+            ASyncAssert.AssertTrue(foundPasswordMsg, "\"" + expectedPasswordMsg + "\" not found in: " + allMessages);
+            FinishTestHandler(new ASyncUnitTestEvent(ASyncUnitTestEvent.FINISH_TEST, ASyncUnitTestEvent.RESULT_PASSED, ""));
         }
 
         /// <summary>
@@ -356,23 +403,22 @@ package
         /// </summary>
         private function LeaderBoard() : void
         {
-            var clientRequest:com.playfab.ClientModels.GetLeaderboardAroundCurrentUserRequest = new com.playfab.ClientModels.GetLeaderboardAroundCurrentUserRequest();
+            var clientRequest:com.playfab.ClientModels.GetLeaderboardRequest = new com.playfab.ClientModels.GetLeaderboardRequest();
             clientRequest.MaxResultsCount = 3;
             clientRequest.StatisticName = TEST_STAT_NAME;
-            PlayFabClientAPI.GetLeaderboardAroundCurrentUser(clientRequest, Wrap(GetClientLbCallback, "ClientLB"), Wrap(Shared_ApiCallFailure, "ClientLB_Fail"));
+            PlayFabClientAPI.GetLeaderboard(clientRequest, Wrap(GetClientLbCallback, "ClientLB"), Wrap(Shared_ApiCallFailure, "ClientLB_Fail"));
         }
-        private function GetClientLbCallback(result:com.playfab.ClientModels.GetLeaderboardAroundCurrentUserResult) : void
+        private function GetClientLbCallback(result:com.playfab.ClientModels.GetLeaderboardResult) : void
         {
             if (result.Leaderboard.length == 0)
                 ASyncAssert.Fail("Client leaderboard results not found");
 
-            var serverRequest:com.playfab.ServerModels.GetLeaderboardAroundUserRequest = new com.playfab.ServerModels.GetLeaderboardAroundUserRequest();
+            var serverRequest:com.playfab.ServerModels.GetLeaderboardRequest = new com.playfab.ServerModels.GetLeaderboardRequest();
             serverRequest.MaxResultsCount = 3;
             serverRequest.StatisticName = TEST_STAT_NAME;
-            serverRequest.PlayFabId = playFabId;
-            PlayFabServerAPI.GetLeaderboardAroundUser(serverRequest, Wrap(GetServerLbCallback, "ServerLB"), Wrap(Shared_ApiCallFailure, "ServerLB_Fail"));
+            PlayFabServerAPI.GetLeaderboard(serverRequest, Wrap(GetServerLbCallback, "ServerLB"), Wrap(Shared_ApiCallFailure, "ServerLB_Fail"));
         }
-        private function GetServerLbCallback(result:com.playfab.ServerModels.GetLeaderboardAroundUserResult) : void
+        private function GetServerLbCallback(result:com.playfab.ServerModels.GetLeaderboardResult) : void
         {
             if (result.Leaderboard.length == 0)
                 ASyncAssert.Fail("Server leaderboard results not found");

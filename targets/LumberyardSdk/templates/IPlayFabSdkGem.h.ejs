@@ -1,0 +1,18 @@
+#pragma once
+
+#include "IGem.h"
+#include "StdAfx.h"
+#include "PlayFabSettings.h"
+<% for (var i in apis) { var api = apis[i]; %>#include "IPlayFab<%- api.name %>Api.h"
+<% } %>
+namespace PlayFab
+{
+    class IPlayFabSdkGem : public IGem
+    {
+        CRYINTERFACE_DECLARE(IPlayFabSdkGem, 0xcb5bfd1042a143b3, 0xa674e3649c8aca23);
+    public:
+        virtual int GetPendingCalls() = 0;
+        virtual PlayFabSettings* GetPlayFabSettings() = 0;
+<% for (var i in apis) { var api = apis[i]; %>        virtual IPlayFab<%- api.name %>Api* Get<%- api.name %>Api() = 0;
+<% } %>    };
+} // namespace PlayFab

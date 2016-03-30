@@ -1,8 +1,8 @@
 #include <fstream>
-#include "playfab/PlayFabClientDataModels.h"
-#include "playfab/PlayFabServerDataModels.h"
-#include "playfab/PlayFabClientAPI.h"
-#include "playfab/PlayFabServerAPI.h"
+#include "PlayFabClientDataModels.h"
+#include "PlayFabServerDataModels.h"
+#include "PlayFabClientAPI.h"
+#include "PlayFabServerAPI.h"
 #include <thread>         // std::this_thread::sleep_for
 #include <chrono>         // std::chrono::seconds
 

@@ -145,7 +145,7 @@ xcopy "$(ProjectDir)..\Resources" "$(OutDir)" /D /E /I /F /Y
   </ItemDefinitionGroup>
   <ItemGroup>
     <ClCompile Include="..\Classes\AppDelegate.cpp" />
-    <ClCompile Include="..\Classes\core\PlayFabSettings.cpp" />
+    <ClCompile Include="..\Classes\PlayFabSettings.cpp" />
     <ClCompile Include="..\Classes\HelloWorldScene.cpp" />
     <ClCompile Include="..\Classes\HttpRequest.cpp" />
     <ClCompile Include="..\Classes\HttpRequesterCURL.cpp" />

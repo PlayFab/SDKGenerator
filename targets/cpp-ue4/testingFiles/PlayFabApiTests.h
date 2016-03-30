@@ -156,14 +156,14 @@ private:
 /*
 * ==== GetLeaderboard ====
 */
-class PlayFabApiTest_GetLeaderboardAroundCurrentUser : public IAutomationLatentCommand
+class PlayFabApiTest_GetLeaderboardC : public IAutomationLatentCommand
 {
 public:
-    PlayFabApiTest_GetLeaderboardAroundCurrentUser(const FString& TEST_STAT_NAME);
+    PlayFabApiTest_GetLeaderboardC(const FString& TEST_STAT_NAME);
 
     bool Update() override;
 private:
-    void OnSuccess(const PlayFab::ClientModels::FGetLeaderboardAroundCurrentUserResult& Result) const;
+    void OnSuccess(const PlayFab::ClientModels::FGetLeaderboardResult& Result) const;
     void OnError(const PlayFab::FPlayFabError& ErrorResult) const;
 
     FString TEST_STAT_NAME;
@@ -172,17 +172,16 @@ private:
     PlayFabClientPtr clientAPI = nullptr;
 };
 
-class PlayFabApiTest_GetLeaderboardAroundUser : public IAutomationLatentCommand
+class PlayFabApiTest_GetLeaderboardS : public IAutomationLatentCommand
 {
 public:
-    PlayFabApiTest_GetLeaderboardAroundUser(const FString& playFabId, const FString& TEST_STAT_NAME);
+    PlayFabApiTest_GetLeaderboardS(const FString& TEST_STAT_NAME);
 
     bool Update() override;
 private:
-    void OnSuccess(const PlayFab::ServerModels::FGetLeaderboardAroundUserResult& Result) const;
+    void OnSuccess(const PlayFab::ServerModels::FGetLeaderboardResult& Result) const;
     void OnError(const PlayFab::FPlayFabError& ErrorResult) const;
 
-    FString playFabId;
     FString TEST_STAT_NAME;
 
     PlayFabServerPtr serverAPI = nullptr;
@@ -437,8 +436,8 @@ protected:
     bool LeaderBoard() const
     {
         // These are both read-only, and don't interfere, so they can be run in parallel
-        ADD_LATENT_AUTOMATION_COMMAND(PlayFabApiTest_GetLeaderboardAroundCurrentUser(TEST_STAT_NAME));
-        ADD_LATENT_AUTOMATION_COMMAND(PlayFabApiTest_GetLeaderboardAroundUser(PlayFabApiTestSuite::playFabId, TEST_STAT_NAME));
+        ADD_LATENT_AUTOMATION_COMMAND(PlayFabApiTest_GetLeaderboardC(TEST_STAT_NAME));
+        ADD_LATENT_AUTOMATION_COMMAND(PlayFabApiTest_GetLeaderboardS(TEST_STAT_NAME));
 
         return true;
     };

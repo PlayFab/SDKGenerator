@@ -486,27 +486,27 @@ void PlayFabApiTest_GrantCharacterToUser::OnError(const PlayFab::FPlayFabError& 
 }
 
 /*
-* ==== GetLeaderboardAroundCurrentUser ====
+* ==== GetLeaderboard Client ====
 */
-PlayFabApiTest_GetLeaderboardAroundCurrentUser::PlayFabApiTest_GetLeaderboardAroundCurrentUser(const FString& TEST_STAT_NAME)
+PlayFabApiTest_GetLeaderboardC::PlayFabApiTest_GetLeaderboardC(const FString& TEST_STAT_NAME)
 {
     this->TEST_STAT_NAME = TEST_STAT_NAME;
 }
 
-bool PlayFabApiTest_GetLeaderboardAroundCurrentUser::Update()
+bool PlayFabApiTest_GetLeaderboardC::Update()
 {
     // Initialize, setup the call, and wait for the result
     if (!clientAPI.IsValid())
     {
         clientAPI = IPlayFabModuleInterface::Get().GetClientAPI();
 
-        PlayFab::ClientModels::FGetLeaderboardAroundCurrentUserRequest request;
+        PlayFab::ClientModels::FGetLeaderboardRequest request;
         request.MaxResultsCount = 3;
         request.StatisticName = TEST_STAT_NAME;
 
-        clientAPI->GetLeaderboardAroundCurrentUser(request
-            , PlayFab::UPlayFabClientAPI::FGetLeaderboardAroundCurrentUserDelegate::CreateRaw(this, &PlayFabApiTest_GetLeaderboardAroundCurrentUser::OnSuccess)
-            , PlayFab::FPlayFabErrorDelegate::CreateRaw(this, &PlayFabApiTest_GetLeaderboardAroundCurrentUser::OnError)
+        clientAPI->GetLeaderboard(request
+            , PlayFab::UPlayFabClientAPI::FGetLeaderboardDelegate::CreateRaw(this, &PlayFabApiTest_GetLeaderboardC::OnSuccess)
+            , PlayFab::FPlayFabErrorDelegate::CreateRaw(this, &PlayFabApiTest_GetLeaderboardC::OnError)
             );
     }
 
@@ -514,49 +514,47 @@ bool PlayFabApiTest_GetLeaderboardAroundCurrentUser::Update()
     return clientAPI->GetPendingCalls() == 0;
 }
 
-void PlayFabApiTest_GetLeaderboardAroundCurrentUser::OnSuccess(const PlayFab::ClientModels::FGetLeaderboardAroundCurrentUserResult& Result) const
+void PlayFabApiTest_GetLeaderboardC::OnSuccess(const PlayFab::ClientModels::FGetLeaderboardResult& Result) const
 {
     int count = Result.Leaderboard.Num();
 
     if (count > 0)
     {
-        UE_LOG(LogTemp, Log, TEXT("GetLeaderboardAroundCurrentUser Succeeded"));
+        UE_LOG(LogTemp, Log, TEXT("GetLeaderboard Succeeded"));
     }
     else
     {
-        UE_LOG(LogTemp, Error, TEXT("GetLeaderboardAroundCurrentUser found zero results."));
+        UE_LOG(LogTemp, Error, TEXT("GetLeaderboard found zero results."));
     }
 }
 
-void PlayFabApiTest_GetLeaderboardAroundCurrentUser::OnError(const PlayFab::FPlayFabError& ErrorResult) const
+void PlayFabApiTest_GetLeaderboardC::OnError(const PlayFab::FPlayFabError& ErrorResult) const
 {
-    UE_LOG(LogTemp, Error, TEXT("GetLeaderboardAroundCurrentUser Failed: %s"), *(ErrorResult.ErrorMessage));
+    UE_LOG(LogTemp, Error, TEXT("GetLeaderboard Failed: %s"), *(ErrorResult.ErrorMessage));
 }
 
 /*
-* ==== GetLeaderboardAroundUser ====
+* ==== GetLeaderboard Server ====
 */
-PlayFabApiTest_GetLeaderboardAroundUser::PlayFabApiTest_GetLeaderboardAroundUser(const FString& playFabId, const FString& TEST_STAT_NAME)
+PlayFabApiTest_GetLeaderboardS::PlayFabApiTest_GetLeaderboardS(const FString& TEST_STAT_NAME)
 {
-    this->playFabId = playFabId;
     this->TEST_STAT_NAME = TEST_STAT_NAME;
 }
 
-bool PlayFabApiTest_GetLeaderboardAroundUser::Update()
+bool PlayFabApiTest_GetLeaderboardS::Update()
 {
     // Initialize, setup the call, and wait for the result
     if (!serverAPI.IsValid())
     {
         serverAPI = IPlayFabModuleInterface::Get().GetServerAPI();
 
-        PlayFab::ServerModels::FGetLeaderboardAroundUserRequest request;
-        request.PlayFabId = playFabId;
+        PlayFab::ServerModels::FGetLeaderboardRequest request;
         request.MaxResultsCount = 3;
         request.StatisticName = TEST_STAT_NAME;
 
-        serverAPI->GetLeaderboardAroundUser(request
-            , PlayFab::UPlayFabServerAPI::FGetLeaderboardAroundUserDelegate::CreateRaw(this, &PlayFabApiTest_GetLeaderboardAroundUser::OnSuccess)
-            , PlayFab::FPlayFabErrorDelegate::CreateRaw(this, &PlayFabApiTest_GetLeaderboardAroundUser::OnError)
+        serverAPI->GetLeaderboard(request
+            , PlayFab::UPlayFabServerAPI::FGetLeaderboardDelegate::CreateRaw(this, &PlayFabApiTest_GetLeaderboardS::OnSuccess)
+            , PlayFab::FPlayFabErrorDelegate::CreateRaw(this, &PlayFabApiTest_GetLeaderboardS::OnError)
             );
     }
 
@@ -564,23 +562,23 @@ bool PlayFabApiTest_GetLeaderboardAroundUser::Update()
     return serverAPI->GetPendingCalls() == 0;
 }
 
-void PlayFabApiTest_GetLeaderboardAroundUser::OnSuccess(const PlayFab::ServerModels::FGetLeaderboardAroundUserResult& Result) const
+void PlayFabApiTest_GetLeaderboardS::OnSuccess(const PlayFab::ServerModels::FGetLeaderboardResult& Result) const
 {
     int count = Result.Leaderboard.Num();
 
     if (count > 0)
     {
-        UE_LOG(LogTemp, Log, TEXT("GetLeaderboardAroundUser Succeeded"));
+        UE_LOG(LogTemp, Log, TEXT("GetLeaderboard Succeeded"));
     }
     else
     {
-        UE_LOG(LogTemp, Error, TEXT("GetLeaderboardAroundUser found zero results."));
+        UE_LOG(LogTemp, Error, TEXT("GetLeaderboard found zero results."));
     }
 }
 
-void PlayFabApiTest_GetLeaderboardAroundUser::OnError(const PlayFab::FPlayFabError& ErrorResult) const
+void PlayFabApiTest_GetLeaderboardS::OnError(const PlayFab::FPlayFabError& ErrorResult) const
 {
-    UE_LOG(LogTemp, Error, TEXT("GetLeaderboardAroundUser Failed: %s"), *(ErrorResult.ErrorMessage));
+    UE_LOG(LogTemp, Error, TEXT("GetLeaderboard Failed: %s"), *(ErrorResult.ErrorMessage));
 }
 
 /*

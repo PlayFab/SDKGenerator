@@ -72,6 +72,12 @@ function generate(args) {
         GetApiDefinition(specLocation, "Matchmaker.api.json", isBeta),
         GetApiDefinition(specLocation, "Server.api.json", isBeta)
     ];
+
+    var gameServerApis = [
+        GetApiDefinition(specLocation, "Matchmaker.api.json", isBeta),
+        GetApiDefinition(specLocation, "Server.api.json", isBeta)
+    ];
+
     var allApis = serverApis.concat(clientApi);
     
     console.log("Generating PlayFab APIs from specs at " + specLocation);
@@ -93,8 +99,11 @@ function generate(args) {
         //   For now, just change the global variables in each with the data loaded from SdkManualNotes.json
         targetMaker.apiNotes = require(path.resolve(specLocation, "SdkManualNotes.json"));
         targetMaker.sdkVersion = targetMaker.apiNotes.sdkVersion[target.name];
-        if (targetMaker.sdkVersion == null)
-            throw "SdkManualNotes does not contain sdkVersion for " + target.name;
+        if (targetMaker.sdkVersion == null) {
+            //don't throw; just set version to 0.00
+            //throw "SdkManualNotes does not contain sdkVersion for " + target.name;
+            targetMaker.sdkVersion = 0.00;
+        }
         
         var apiOutputDir = "";
         
@@ -120,6 +129,22 @@ function generate(args) {
             if (!fs.existsSync(apiOutputDir))
                 mkdirParentsSync(apiOutputDir);
             targetMaker.makeCombinedAPI(allApis, targetSourceDir, apiOutputDir);
+        }
+
+        if (targetMaker.makeGameServerAPI) {
+            apiOutputDir = targetMaker.putInRoot ? sdkOutputDir : path.resolve(sdkOutputDir, "PlayFabSDK");
+            console.log(" + Generating GameServer to " + apiOutputDir);
+            if (!fs.existsSync(apiOutputDir))
+                mkdirParentsSync(apiOutputDir);
+            targetMaker.makeGameServerAPI(gameServerApis, targetSourceDir, apiOutputDir);
+        }
+
+        if (targetMaker.makeStrangeIoC) {
+            apiOutputDir = targetMaker.putInRoot ? sdkOutputDir : path.resolve(sdkOutputDir, "PlayFabSDK");
+            console.log(" + Generating GameServer to " + apiOutputDir);
+            if (!fs.existsSync(apiOutputDir))
+                mkdirParentsSync(apiOutputDir);
+            targetMaker.makeStrangeIoC(gameServerApis, targetSourceDir, apiOutputDir);
         }
     }
     

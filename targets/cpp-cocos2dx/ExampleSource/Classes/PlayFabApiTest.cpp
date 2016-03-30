@@ -94,8 +94,8 @@ namespace PlayFabApiTest
         return false;
         // TODO: Put the info for your title here (Fallback in case it can't read from the file)
 
-        PlayFabSettings::titleId == "TODO: TitleID";
-        PlayFabSettings::developerSecretKey == "TODO: A big long secret key that you should NEVER publish with your client";
+        PlayFabSettings::titleId = "TODO: TitleID";
+        PlayFabSettings::developerSecretKey = "TODO: A big long secret key that you should NEVER publish with your client";
         TITLE_CAN_UPDATE_SETTINGS = false; // TODO: Set to true if you've enabled this in your title.
         USER_NAME = "TODO: a test username (make this up for yourself)";
         USER_EMAIL = "TODO: a test email (use your own)";

@@ -87,8 +87,8 @@ function generate(args) {
     ];
 
     var gameServerApis = [
-        GetApiDefinition(specLocation, "Matchmaker.api.json", isBeta),
-        GetApiDefinition(specLocation, "Server.api.json", isBeta)
+        GetApiDefinition(specLocation, "Matchmaker.api.json", buildFlags),
+        GetApiDefinition(specLocation, "Server.api.json", buildFlags)
     ];
 
     var allApis = serverApis.concat(clientApi);
@@ -114,7 +114,8 @@ function generate(args) {
         targetMaker.sdkVersion = targetMaker.apiNotes.sdkVersion[target.name];
         if (targetMaker.sdkVersion == null) {
             throw "SdkManualNotes does not contain sdkVersion for " + target.name; // The point of this error is to force you to add a line to sdkManualNotes.json, to describe the version and date when this sdk/collection is built
-        
+        }
+
         var apiOutputDir = "";
         
         if (targetMaker.makeClientAPI) {

@@ -1,5 +1,4 @@
 using System;
-using PlayFab.Json;
 using PlayFab.<%- api.name %>Models;
 using PlayFab.Internal;
 using UnityEngine;
@@ -11,27 +10,32 @@ namespace PlayFab
     /// </summary>
 <% } %>    public static class PlayFab<%- api.name %>API
     {
-<% for(var i in api.calls) { var apiCall = api.calls[i]; %>        public delegate void <%- apiCall.name %>Callback(<%- apiCall.result%> result);
-<% } %>
+        public delegate void ProcessApiCallback<in TResult>(TResult result) where TResult : PlayFabResultCommon;
 
-<% for(var i in api.calls) { var apiCall = api.calls[i]; %><% if (apiCall.summary) { %>        /// <summary>
+<% for(var i in api.calls) { var apiCall = api.calls[i]; %>        public delegate void <%- apiCall.name %>RequestCallback(string urlPath, int callId, <%- apiCall.request %> request, object customData);
+        public delegate void <%- apiCall.name %>ResponseCallback(string urlPath, int callId, <%- apiCall.request %> request, <%- apiCall.result %> result, PlayFabError error, object customData);
+<% } %>
+<% for(var i in api.calls) { var apiCall = api.calls[i]; if (apiCall.summary) { %>        /// <summary>
         /// <%- apiCall.summary %>
         /// </summary>
-<% } %>        public static void <%- apiCall.name %>(<%- apiCall.request %> request, <%- apiCall.name %>Callback resultCallback, ErrorCallback errorCallback, object customData = null)
+<% } %>        public static void <%- apiCall.name %>(<%- apiCall.request %> request, ProcessApiCallback<<%- apiCall.result %>> resultCallback, ErrorCallback errorCallback, object customData = null)
         {
             <%- getRequestActions(apiCall, api) %>
-            string serializedJson = JsonConvert.SerializeObject(request, Util.JsonFormatting, Util.JsonSettings);
+            string serializedJson = SimpleJson.SerializeObject(request, Util.ApiSerializerStrategy);
             Action<CallRequestContainer> callback = delegate(CallRequestContainer requestContainer)
             {
-                <%- apiCall.result %> result = ResultContainer<<%- apiCall.result %>>.HandleResults(requestContainer, resultCallback, errorCallback);
-                if (result != null)
-                {
-<%- getResultActions(apiCall, api) %>
-                }
-            };
+<% if (hasResultActions(apiCall, api)) {
+%>                ResultContainer<<%- apiCall.result %>>.HandleResults(requestContainer, resultCallback, errorCallback, <%- apiCall.name %>ResultAction);
+<% } else {
+%>                ResultContainer<<%- apiCall.result %>>.HandleResults(requestContainer, resultCallback, errorCallback, null);
+<% } %>            };
             PlayFabHTTP.Post("<%- apiCall.url %>", serializedJson, <%- getAuthParams(apiCall) %>, callback, request, customData);
         }
-
+<% if (hasResultActions(apiCall, api)) { %>        public static void <%- apiCall.name %>ResultAction(<%- apiCall.result %> result, CallRequestContainer requestContainer)
+        {
+<%- getResultActions(apiCall, api) %>
+        }
+<% } %>
 <% } %><% if (hasClientOptions) { %>        private static string _authKey = null;
         // Determine if the _authKey is set, without actually making it public
         public static bool IsClientLoggedIn()

@@ -9,19 +9,17 @@ exports.makeClientAPI = function (api, sourceDir, apiOutputDir) {
     makeDatatypes([api], sourceDir, baseApiOutputDir);
     makeAPI(api, sourceDir, baseApiOutputDir);
     generateSimpleFiles([api], sourceDir, baseApiOutputDir, true);
+    copyFile(path.resolve(sourceDir, "testing/PlayFabApiTest_Client.cs"), path.resolve(baseApiOutputDir, "Internal/Testing/PlayFabApiTest_Client.cs"));
+    copyFile(path.resolve(sourceDir, "testing/EventTest.cs"), path.resolve(baseApiOutputDir, "Internal/Testing/EventTest.cs"));
 
-    //copyFile(path.resolve(sourceDir, "testing/PlayFabApiTest_Client.cs"), path.resolve(baseApiOutputDir, "Internal/Testing/PlayFabApiTest_Client.cs"));
-
-    //var testingOutputDir = path.resolve(apiOutputDir, "_ClientTesting");
-    //console.log("  - Copying client SDK to\n  -> " + testingOutputDir);
-    //copyTree(path.resolve(apiOutputDir, "PlayFabClientSample"), testingOutputDir);
-    //copyTree(path.resolve(sourceDir, "testing/DemoScene"), path.resolve(testingOutputDir, "Assets/PlayFabSDK/DemoScene"));
+    // Add the DemoScene to the clientSDK - TODO: A command line parameter that decides when to add it or not, TODO: GitIgnore the DemoScene folder?
+    // copyTree(path.resolve(sourceDir, "testing/DemoScene"), path.resolve(baseApiOutputDir, "DemoScene"));
 }
 
 exports.makeServerAPI = function (apis, sourceDir, apiOutputDir) {
     apiOutputDir = path.resolve(apiOutputDir, "PlayFabServerSample/Assets/PlayFabSDK");
     console.log("  - Generating C-sharp Unity server SDK sample proj to\n  -> " + apiOutputDir);
-
+    
     copyTree(path.resolve(sourceDir, "source"), apiOutputDir);
     makeDatatypes(apis, sourceDir, apiOutputDir);
     for (var i in apis) {
@@ -34,7 +32,7 @@ exports.makeServerAPI = function (apis, sourceDir, apiOutputDir) {
 exports.makeCombinedAPI = function (apis, sourceDir, apiOutputDir) {
     apiOutputDir = path.resolve(apiOutputDir, "PlayFabCombinedTestingSample/Assets/PlayFabSDK");
     console.log("  - Generating C-sharp Unity combined SDK sample proj to\n  -> " + apiOutputDir);
-
+    
     copyTree(path.resolve(sourceDir, "source"), apiOutputDir);
     makeDatatypes(apis, sourceDir, apiOutputDir);
     for (var i in apis) {
@@ -43,6 +41,7 @@ exports.makeCombinedAPI = function (apis, sourceDir, apiOutputDir) {
     }
     generateSimpleFiles(apis, sourceDir, apiOutputDir, false);
     copyFile(path.resolve(sourceDir, "testing/PlayFabApiTest.cs"), path.resolve(apiOutputDir, "Internal/Testing/PlayFabApiTest.cs"));
+    copyFile(path.resolve(sourceDir, "testing/EventTest.cs"), path.resolve(apiOutputDir, "Internal/Testing/EventTest.cs"));
 }
 */
 
@@ -207,6 +206,23 @@ function makeDatatypes(apis, sourceDir, apiOutputDir) {
         writeFile(path.resolve(apiOutputDir, "Public/PlayFab" + apis[a].name + "Models.cs"), generatedModels);
     }
 }
+
+function makeAPI(api, sourceDir, apiOutputDir) {
+    console.log("   - Generating C# " + api.name + " library to\n   -> " + apiOutputDir);
+    
+    var templateDir = path.resolve(sourceDir, "templates");
+    var apiTemplate = ejs.compile(readFile(path.resolve(templateDir, "API.cs.ejs")));
+    var apiLocals = {};
+    apiLocals.api = api;
+    apiLocals.getAuthParams = getAuthParams;
+    apiLocals.getRequestActions = getRequestActions;
+    apiLocals.hasResultActions = hasResultActions;
+    apiLocals.getResultActions = getResultActions;
+    apiLocals.hasClientOptions = api.name === "Client";
+    var generatedApi = apiTemplate(apiLocals);
+    writeFile(path.resolve(apiOutputDir, "Public/PlayFab" + api.name + "API.cs"), generatedApi);
+}
+
 function generateSimpleFiles(apis, sourceDir, apiOutputDir, isClient) {
     var errorsTemplate = ejs.compile(readFile(path.resolve(sourceDir, "templates/Errors.cs.ejs")));
     var errorLocals = {};
@@ -214,7 +230,7 @@ function generateSimpleFiles(apis, sourceDir, apiOutputDir, isClient) {
     errorLocals.errors = apis[0].errors;
     var generatedErrors = errorsTemplate(errorLocals);
     if (isClient)
-        writeFile(path.resolve(apiOutputDir, "../Plugins/PlayFabErrors.cs"), generatedErrors);
+        writeFile(path.resolve(apiOutputDir, "../Plugins/PlayFabShared/PlayFabErrors.cs"), generatedErrors);
     else
         writeFile(path.resolve(apiOutputDir, "Public/PlayFabErrors.cs"), generatedErrors);
     
@@ -425,14 +441,24 @@ function getRequestActions(apiCall, api) {
     return "";
 }
 
+function hasResultActions(apiCall, api) {
+    if (api.name === "Client" && (apiCall.result === "LoginResult" || apiCall.result === "RegisterPlayFabUserResult"))
+        return true;
+    else if (api.name === "Client" && apiCall.result === "AttributeInstallResult")
+        return true;
+    else if (api.name === "Client" && apiCall.result === "GetCloudScriptUrlResult")
+        return true;
+    return false;
+}
+
 function getResultActions(apiCall, api) {
     if (api.name === "Client" && (apiCall.result === "LoginResult" || apiCall.result === "RegisterPlayFabUserResult"))
-        return "                    _authKey = result.SessionTicket ?? _authKey;\n" 
-            + "                    MultiStepClientLogin(result.SettingsForUser.NeedsAttribution);\n";
+        return "            _authKey = result.SessionTicket ?? _authKey;\n" 
+            + "            MultiStepClientLogin(result.SettingsForUser.NeedsAttribution);\n";
     else if (api.name === "Client" && apiCall.result === "AttributeInstallResult")
-        return "                    // Modify AdvertisingIdType:  Prevents us from sending the id multiple times, and allows automated tests to determine id was sent successfully\n" 
-            + "                    PlayFabSettings.AdvertisingIdType += \"_Successful\";\n";
+        return "            // Modify AdvertisingIdType:  Prevents us from sending the id multiple times, and allows automated tests to determine id was sent successfully\n" 
+            + "            PlayFabSettings.AdvertisingIdType += \"_Successful\";\n";
     else if (api.name === "Client" && apiCall.result === "GetCloudScriptUrlResult")
-        return "                    PlayFabSettings.LogicServerUrl = result.Url;\n";
+        return "            PlayFabSettings.LogicServerUrl = result.Url;\n";
     return "";
 }

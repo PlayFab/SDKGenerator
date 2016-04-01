@@ -14,6 +14,7 @@
 using System;
 using System.Globalization;
 using System.IO;
+using PlayFab.Json;
 
 namespace PlayFab.Internal
 {

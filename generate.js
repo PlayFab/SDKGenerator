@@ -86,11 +86,6 @@ function generate(args) {
         GetApiDefinition(specLocation, "Server.api.json", buildFlags)
     ];
 
-    var gameServerApis = [
-        GetApiDefinition(specLocation, "Matchmaker.api.json", buildFlags),
-        GetApiDefinition(specLocation, "Server.api.json", buildFlags)
-    ];
-
     var allApis = serverApis.concat(clientApi);
     
     console.log("Generating PlayFab APIs from specs at " + specLocation);
@@ -140,22 +135,6 @@ function generate(args) {
             if (!fs.existsSync(apiOutputDir))
                 mkdirParentsSync(apiOutputDir);
             targetMaker.makeCombinedAPI(allApis, targetSourceDir, apiOutputDir);
-        }
-
-        if (targetMaker.makeGameServerAPI) {
-            apiOutputDir = targetMaker.putInRoot ? sdkOutputDir : path.resolve(sdkOutputDir, "PlayFabSDK");
-            console.log(" + Generating GameServer to " + apiOutputDir);
-            if (!fs.existsSync(apiOutputDir))
-                mkdirParentsSync(apiOutputDir);
-            targetMaker.makeGameServerAPI(gameServerApis, targetSourceDir, apiOutputDir);
-        }
-
-        if (targetMaker.makeStrangeIoC) {
-            apiOutputDir = targetMaker.putInRoot ? sdkOutputDir : path.resolve(sdkOutputDir, "PlayFabSDK");
-            console.log(" + Generating GameServer to " + apiOutputDir);
-            if (!fs.existsSync(apiOutputDir))
-                mkdirParentsSync(apiOutputDir);
-            targetMaker.makeStrangeIoC(gameServerApis, targetSourceDir, apiOutputDir);
         }
     }
     

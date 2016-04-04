@@ -1,51 +1,21 @@
 var path = require("path");
 
 exports.putInRoot = true;
-/*
-exports.makeClientAPI = function (api, sourceDir, apiOutputDir) {
-    var baseApiOutputDir = path.resolve(apiOutputDir, "PlayFabClientSample/Assets/PlayFabSDK");
-    console.log("  - Generating C-sharp Unity GameServer SDK  to\n  -> " + baseApiOutputDir);
-    copyTree(path.resolve(sourceDir, "source"), baseApiOutputDir);
-    makeDatatypes([api], sourceDir, baseApiOutputDir);
-    makeAPI(api, sourceDir, baseApiOutputDir);
-    generateSimpleFiles([api], sourceDir, baseApiOutputDir, true);
-    copyFile(path.resolve(sourceDir, "testing/PlayFabApiTest_Client.cs"), path.resolve(baseApiOutputDir, "Internal/Testing/PlayFabApiTest_Client.cs"));
-    copyFile(path.resolve(sourceDir, "testing/EventTest.cs"), path.resolve(baseApiOutputDir, "Internal/Testing/EventTest.cs"));
-
-    // Add the DemoScene to the clientSDK - TODO: A command line parameter that decides when to add it or not, TODO: GitIgnore the DemoScene folder?
-    // copyTree(path.resolve(sourceDir, "testing/DemoScene"), path.resolve(baseApiOutputDir, "DemoScene"));
-}
-
 exports.makeServerAPI = function (apis, sourceDir, apiOutputDir) {
-    apiOutputDir = path.resolve(apiOutputDir, "PlayFabServerSample/Assets/PlayFabSDK");
-    console.log("  - Generating C-sharp Unity server SDK sample proj to\n  -> " + apiOutputDir);
-    
-    copyTree(path.resolve(sourceDir, "source"), apiOutputDir);
-    makeDatatypes(apis, sourceDir, apiOutputDir);
-    for (var i in apis) {
+    var gameServerApis = [];
+    for(var i=0; i<apis.length; i++){
         var api = apis[i];
-        makeAPI(api, sourceDir, apiOutputDir);
+        if(apis.name != "Admin"){
+            gameServerApis.push(api);
+        }
     }
-    generateSimpleFiles(apis, sourceDir, apiOutputDir, false);
+
+    makeGameServerAPI(gameServerApis,sourceDir,apiOutputDir);
+    makeStrangeIoC(gameServerApis,sourceDir,apiOutputDir);
 }
 
-exports.makeCombinedAPI = function (apis, sourceDir, apiOutputDir) {
-    apiOutputDir = path.resolve(apiOutputDir, "PlayFabCombinedTestingSample/Assets/PlayFabSDK");
-    console.log("  - Generating C-sharp Unity combined SDK sample proj to\n  -> " + apiOutputDir);
-    
-    copyTree(path.resolve(sourceDir, "source"), apiOutputDir);
-    makeDatatypes(apis, sourceDir, apiOutputDir);
-    for (var i in apis) {
-        var api = apis[i];
-        makeAPI(api, sourceDir, apiOutputDir);
-    }
-    generateSimpleFiles(apis, sourceDir, apiOutputDir, false);
-    copyFile(path.resolve(sourceDir, "testing/PlayFabApiTest.cs"), path.resolve(apiOutputDir, "Internal/Testing/PlayFabApiTest.cs"));
-    copyFile(path.resolve(sourceDir, "testing/EventTest.cs"), path.resolve(apiOutputDir, "Internal/Testing/EventTest.cs"));
-}
-*/
 
-exports.makeStrangeIoC = function (apis, sourceDir, apiOutputDir) {
+makeStrangeIoC = function (apis, sourceDir, apiOutputDir) {
     var baseApiOutputDir = path.resolve(apiOutputDir, "Contexts/PlayFabContext/");
     console.log("  - Generating C-sharp Unity StrangeIoC Wrapper client to\n  -> " + baseApiOutputDir);
     makeSignals(apis, sourceDir, baseApiOutputDir);
@@ -56,7 +26,7 @@ exports.makeStrangeIoC = function (apis, sourceDir, apiOutputDir) {
     makeMediator(sourceDir,baseApiOutputDir);
 }
 
-exports.makeGameServerAPI = function (apis, sourceDir, apiOutputDir) {
+makeGameServerAPI = function (apis, sourceDir, apiOutputDir) {
     apiOutputDir = path.resolve(apiOutputDir, "PlayFabSDK/");
     console.log("  - Generating C-sharp Unity combined SDK sample proj to\n  -> " + apiOutputDir);
 
@@ -68,22 +38,7 @@ exports.makeGameServerAPI = function (apis, sourceDir, apiOutputDir) {
     }
     generateSimpleFiles(apis, sourceDir, apiOutputDir, false);
     //copyFile(path.resolve(sourceDir, "testing/PlayFabApiTest.cs"), path.resolve(apiOutputDir, "Internal/Testing/PlayFabApiTest.cs"));
-}
-
-
-function makeAPI(api, sourceDir, apiOutputDir) {
-    console.log("   - Generating C# " + api.name + " library to\n   -> " + apiOutputDir);
-
-    var templateDir = path.resolve(sourceDir, "templates");
-    var apiTemplate = ejs.compile(readFile(path.resolve(templateDir, "API.cs.ejs")));
-    var apiLocals = {};
-    apiLocals.api = api;
-    apiLocals.getAuthParams = getAuthParams;
-    apiLocals.getRequestActions = getRequestActions;
-    apiLocals.getResultActions = getResultActions;
-    apiLocals.hasClientOptions = api.name === "Client";
-    var generatedApi = apiTemplate(apiLocals);
-    writeFile(path.resolve(apiOutputDir, "Public/PlayFab" + api.name + "API.cs"), generatedApi);
+    makeStrangeIoC(apis,sourceDir, apiOutputDir);
 }
 
 function makeErrorHandler(sourceDir, apiOutputDir) {

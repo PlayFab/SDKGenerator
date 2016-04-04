@@ -39,6 +39,7 @@ public enum LoginLinkType {
     Steam,
     Google,
     GameCenter,
+    Email,
     Custom
 }
 

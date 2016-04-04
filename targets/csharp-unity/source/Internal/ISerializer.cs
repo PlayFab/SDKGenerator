@@ -13,6 +13,9 @@
     {
         private static ISerializer _instance = new SimpleJsonInstance();
 
+        /// <summary>
+        /// Use this property to override the Serialization for the SDK.
+        /// </summary>
         public static ISerializer Instance
         {
             get { return _instance; }

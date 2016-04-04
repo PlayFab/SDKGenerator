@@ -85,6 +85,7 @@ function generate(args) {
         GetApiDefinition(specLocation, "Matchmaker.api.json", buildFlags),
         GetApiDefinition(specLocation, "Server.api.json", buildFlags)
     ];
+
     var allApis = serverApis.concat(clientApi);
     
     console.log("Generating PlayFab APIs from specs at " + specLocation);
@@ -106,9 +107,10 @@ function generate(args) {
         //   For now, just change the global variables in each with the data loaded from SdkManualNotes.json
         targetMaker.apiNotes = require(path.resolve(specLocation, "SdkManualNotes.json"));
         targetMaker.sdkVersion = targetMaker.apiNotes.sdkVersion[target.name];
-        if (targetMaker.sdkVersion == null)
+        if (targetMaker.sdkVersion == null) {
             throw "SdkManualNotes does not contain sdkVersion for " + target.name; // The point of this error is to force you to add a line to sdkManualNotes.json, to describe the version and date when this sdk/collection is built
-        
+        }
+
         var apiOutputDir = "";
         
         if (targetMaker.makeClientAPI) {

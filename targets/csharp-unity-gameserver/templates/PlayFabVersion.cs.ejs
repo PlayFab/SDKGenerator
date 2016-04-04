@@ -1,0 +1,14 @@
+
+namespace PlayFab.Internal
+{
+    public class PlayFabVersion
+    {
+        public static string SdkRevision = "<%- sdkRevision %>";
+
+        public static string getVersionString()
+        {
+            return "UnitySDK-" + SdkRevision;
+        }
+    }
+}
+

@@ -1,0 +1,48 @@
+using strange.extensions.command.api;
+using strange.extensions.command.impl;
+
+public class PlayFabBindingsFactory {
+
+    public static void Create(ICommandBinder commandBinder){<% for(var i=0; i< api.subgroups.length; i++){ %><% var subgroup = api.subgroups[i]; %>
+//<%-subgroup.name%>
+#region <%-subgroup.name%>
+<% for(var x=0; x<subgroup.methods.length; x++){ %><% var apiCall = api.calls.filter(function(el){ return el.name === subgroup.methods[x]; })[0];%><% if( !apiCall ) { %><% continue; %><% } %>
+    ///<summary>
+    ///<%- apiCall.summary%>
+    ///</summary>
+    commandBinder.Bind<<%-apiCall.name%>Signal>().To<<%-apiCall.name%>Command>();
+    commandBinder.Bind<<%-apiCall.name%>ResponseSignal>(); //Create empty overrideable binding.
+<%}%>
+#endregion
+<%}%>
+    }
+
+    public static void CreateLoginResponseGeneric<T>(ICommandBinder commandBinder)
+    {
+        commandBinder.Bind<LoginWithAndroidDeviceIDResponseSignal>().To<T>();
+        commandBinder.Bind<LoginWithIOSDeviceIDResponseSignal>().To<T>();
+        commandBinder.Bind<LoginWithCustomIDResponseSignal>().To<T>();
+        commandBinder.Bind<LoginWithEmailAddressResponseSignal>().To<T>();
+        commandBinder.Bind<LoginWithFacebookResponseSignal>().To<T>();
+        commandBinder.Bind<LoginWithGoogleAccountResponseSignal>().To<T>();
+        commandBinder.Bind<LoginWithKongregateResponseSignal>().To<T>();
+        commandBinder.Bind<LoginWithPlayFabResponseSignal>().To<T>();
+        commandBinder.Bind<LoginWithSteamResponseSignal>().To<T>();
+        commandBinder.Bind<LoginWithGameCenterResponseSignal>().To<T>();
+    }
+
+    public static void GenericResponseBinder<T>(ICommandBinder commandBinder)
+    {
+        commandBinder.Bind<T>().To<GenericEmptyResponseCommand>();
+    }
+
+    public class GenericEmptyResponseCommand : Command
+    {
+        public override void Execute()
+        {
+            Release();
+            //Do Nothing, because we are here just to not produce errors.
+        }
+    }
+
+}

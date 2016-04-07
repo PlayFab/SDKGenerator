@@ -103,6 +103,9 @@ public:
             testContexts.insert(testContexts.end(), new PfTestContext("LeaderBoard", LeaderBoard));
             testContexts.insert(testContexts.end(), new PfTestContext("AccountInfo", AccountInfo));
             testContexts.insert(testContexts.end(), new PfTestContext("CloudScript", CloudScript));
+#ifdef BETA
+            testContexts.insert(testContexts.end(), new PfTestContext("WritePlayerEvent", WritePlayerEvent));
+#endif
         }
     }
 
@@ -633,6 +636,31 @@ private:
         else
             EndTest(*testContext, PASSED, "");
     }
+#ifdef BETA
+    /// <summary>
+    /// CLIENT API
+    /// Test that the client can publish custom PlayStream events
+    /// </summary>
+    static void WritePlayerEvent(PfTestContext& testContext)
+    {
+        ClientModels::WritePlayerClientEventRequest request;
+        ClientModels::PlayerCustomEventData* forumEvent = new ClientModels::PlayerCustomEventData();
+        forumEvent->EventName = "forum_post_event";
+        forumEvent->EventNamespace = "com.mygame.forums";
+        forumEvent->EntityType = "player";
+        forumEvent->Timestamp = time(nullptr);
+        forumEvent->CustomTags["Region"] = "US-East";
+        forumEvent->CustomTags["Subject"] = "My First Post";
+        forumEvent->CustomTags["Body"] = "My is my awesome post.";
+        request.Event = forumEvent;
+        clientApi->WritePlayerEvent(request, OnWritePlayerEvent, OnSharedError, &testContext);
+    }
+    static void OnWritePlayerEvent(const ClientModels::WriteEventResponse& result, void* customData)
+    {
+        PfTestContext* testContext = reinterpret_cast<PfTestContext*>(customData);
+        EndTest(*testContext, PASSED, "");
+    }
+#endif
 };
 // C++ Static vars
 IPlayFabSdkGem* PlayFabApiTests::playFabSdkGem;

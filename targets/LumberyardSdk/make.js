@@ -6,14 +6,15 @@ var path = require("path");
 
 exports.makeClientAPI = function (api, sourceDir, apiOutputDir) {
     console.log("Generating Lumberyard C++ client SDK to " + apiOutputDir);
-    
-    copyTree(path.resolve(sourceDir, "source"), apiOutputDir);
-    makeGem([api], apiOutputDir);
-    makeApi(api, apiOutputDir);
-    generateModels([api], apiOutputDir);
-    generateErrors(api, apiOutputDir);
-    generateSimpleFiles([api], sourceDir, apiOutputDir);
 
+    sortDatatypes(api);
+    copyTree(path.resolve(sourceDir, "source"), apiOutputDir);
+    makeGem([api], sourceDir, apiOutputDir);
+    makeApi(api, sourceDir, apiOutputDir);
+    generateModels([api], sourceDir, apiOutputDir);
+    generateErrors(api, sourceDir, apiOutputDir);
+    generateSimpleFiles([api], sourceDir, apiOutputDir);
+    
     // Test Gem
     copyTree(path.resolve(sourceDir, "testing/TestGem"), path.resolve(apiOutputDir, "../TestGemClient"));
     copyFile(path.resolve(sourceDir, "testing/PlayFabApiTestNode_Client.cpp"), path.resolve(apiOutputDir, "../TestGemClient/Code/Source/PlayFabApiTestNode.cpp"));
@@ -23,11 +24,13 @@ exports.makeServerAPI = function (apis, sourceDir, apiOutputDir) {
     console.log("Generating Lumberyard C++ server SDK to " + apiOutputDir);
     
     copyTree(path.resolve(sourceDir, "source"), apiOutputDir);
-    makeGem(apis, apiOutputDir);
-    for (var i in apis)
-        makeApi(apis[i], apiOutputDir);
-    generateModels(apis, apiOutputDir);
-    generateErrors(apis[0], apiOutputDir);
+    makeGem(apis, sourceDir, apiOutputDir);
+    for (var i in apis) {
+        sortDatatypes(apis[i]);
+        makeApi(apis[i], sourceDir, apiOutputDir);
+    }
+    generateModels(apis, sourceDir, apiOutputDir);
+    generateErrors(apis[0], sourceDir, apiOutputDir);
     generateSimpleFiles(apis, sourceDir, apiOutputDir);
     
     // Test Gem
@@ -39,16 +42,51 @@ exports.makeCombinedAPI = function (apis, sourceDir, apiOutputDir) {
     console.log("Generating Lumberyard C++ combined SDK to " + apiOutputDir);
     
     copyTree(path.resolve(sourceDir, "source"), apiOutputDir);
-    makeGem(apis, apiOutputDir);
-    for (var i in apis)
-        makeApi(apis[i], apiOutputDir);
-    generateModels(apis, apiOutputDir);
-    generateErrors(apis[0], apiOutputDir);
+    makeGem(apis, sourceDir, apiOutputDir);
+    for (var i in apis) {
+        sortDatatypes(apis[i]);
+        makeApi(apis[i], sourceDir, apiOutputDir);
+    }
+    generateModels(apis, sourceDir, apiOutputDir);
+    generateErrors(apis[0], sourceDir, apiOutputDir);
     generateSimpleFiles(apis, sourceDir, apiOutputDir);
     
     // Test Gem
     copyTree(path.resolve(sourceDir, "testing/TestGem"), path.resolve(apiOutputDir, "../TestGemCombo"));
     copyFile(path.resolve(sourceDir, "testing/PlayFabApiTestNode_Combo.cpp"), path.resolve(apiOutputDir, "../TestGemCombo/Code/Source/PlayFabApiTestNode.cpp"));
+}
+
+// Most of our code is relying on the fact that properties on an object are "accidentally" ordered
+// This is not a contractual feature of node/js, and if that ever changes, we'll need to rebuild Api-Specs as a list
+// For now, just re-order the keys of the datatypes object in a way that is suitable for compilation in C++
+function sortDatatypes(api) {
+    var sortedDatatypes = {};
+    var unsortedDatatypes = [];
+
+    for (var i in api.datatypes) {
+        if (!api.datatypes[i].hasOwnProperty("inheritsFrom") || sortedDatatypes.hasOwnProperty(api.datatypes[i].inheritsFrom))
+            sortedDatatypes[api.datatypes[i].name] = api.datatypes[i];
+        else
+            unsortedDatatypes.push(api.datatypes[i]);
+    }
+
+    var unsortedCount;
+    do {
+        unsortedCount = unsortedDatatypes.length;
+        var tempDatatypes = unsortedDatatypes;
+        unsortedDatatypes = [];
+        for (var j in tempDatatypes) {
+            if (sortedDatatypes.hasOwnProperty(tempDatatypes[j].inheritsFrom))
+                sortedDatatypes[tempDatatypes[j].name] = tempDatatypes[j];
+            else
+                unsortedDatatypes.push(tempDatatypes[j]);
+        }
+    } while (unsortedDatatypes.length > 0 && unsortedCount > unsortedDatatypes.length);
+
+    if (unsortedDatatypes.length > 0)
+        throw unsortedDatatypes.length + " object(s) with unknown or Circular inheritance defined in Api-Specs: " + JSON.stringify(unsortedDatatypes, null, 4);
+
+    api.datatypes = sortedDatatypes;
 }
 
 function generateSimpleFiles(apis, sourceDir, apiOutputDir) {
@@ -87,15 +125,13 @@ function generateSimpleFiles(apis, sourceDir, apiOutputDir) {
     writeFile(gemFilePath, JSON.stringify(gemsJson, null, 4));
 }
 
-var makeGem = function (apis, apiOutputDir) {
-    var sourceDir = __dirname;
-    
+function makeGem(apis, sourceDir, apiOutputDir) {
     var apiLocals = {};
     apiLocals.apis = apis;
     
     var iGemH = ejs.compile(readFile(path.resolve(sourceDir, "templates/IPlayFabSdkGem.h.ejs")));
-    var GenIGemH = iGemH(apiLocals);
-    writeFile(path.resolve(apiOutputDir, "Code/Include/IPlayFabSdkGem.h"), GenIGemH);
+    var genIGemH = iGemH(apiLocals);
+    writeFile(path.resolve(apiOutputDir, "Code/Include/IPlayFabSdkGem.h"), genIGemH);
     
     var gemH = ejs.compile(readFile(path.resolve(sourceDir, "templates/PlayFabSdkGem.h.ejs")));
     var genGemH = gemH(apiLocals);
@@ -106,9 +142,7 @@ var makeGem = function (apis, apiOutputDir) {
     writeFile(path.resolve(apiOutputDir, "Code/Source/PlayFabSdkGem.cpp"), genGemCpp);
 }
 
-var makeApi = function (api, apiOutputDir) {
-    var sourceDir = __dirname;
-    
+function makeApi(api, sourceDir, apiOutputDir) {
     var apiLocals = {};
     apiLocals.api = api;
     apiLocals.hasRequest = hasRequest;
@@ -138,12 +172,18 @@ var makeApi = function (api, apiOutputDir) {
     writeFile(path.resolve(apiOutputDir, "Code/Source/PlayFab" + api.name + "Api.cpp"), genApiCpp);
 }
 
-var hasRequest = function (apiCall, api) {
+function hasRequest(apiCall, api) {
     var requestType = api.datatypes[apiCall.request];
     return requestType.properties.length > 0;
 }
 
-var getPropertyDef = function (property, datatype) {
+function getDatatypeBaseType(datatype) {
+    if (datatype.inheritsFrom)
+        return datatype.inheritsFrom;
+    return "PlayFabBaseModel"; // Everything is a base-model unless it's not
+}
+
+function getPropertyDef(property, datatype) {
     
     var safePropName = getPropertySafeName(property);
     
@@ -151,16 +191,21 @@ var getPropertyDef = function (property, datatype) {
         return "std::list<" + getPropertyCPPType(property, datatype, false) + "> " + safePropName + ";";
     else if (property.collection === "map")
         return "std::map<Aws::String, " + getPropertyCPPType(property, datatype, false) + "> " + safePropName + ";";
-    else
-        return getPropertyCPPType(property, datatype, true) + " " + safePropName + ";";
+    return getPropertyCPPType(property, datatype, true) + " " + safePropName + ";";
+}
+
+function getPropertyDestructor(property) {
+    if ((!property.collection && property.isclass && property.optional) || property.hasOwnProperty("implementingTypes"))
+        return "                if (" + getPropertySafeName(property) + " != nullptr) delete " + getPropertySafeName(property) + ";\n";
+    return "";
 }
 
 // PFWORKBIN-445 & PFWORKBIN-302 - variable names can't be the same as the variable type when compiling for android
-var getPropertySafeName = function (property) {
+function getPropertySafeName(property) {
     return (property.actualtype === property.name) ? "pf" + property.name : property.name;
 }
 
-var getPropertyCPPType = function (property, datatype, needOptional) {
+function getPropertyCPPType(property, datatype, needOptional) {
     var isOptional = property.optional && needOptional;
     
     if (property.actualtype === "String")
@@ -185,7 +230,7 @@ var getPropertyCPPType = function (property, datatype, needOptional) {
         return isOptional ? "OptionalDouble" : "double";
     else if (property.actualtype === "DateTime")
         return isOptional ? "OptionalTime" : "time_t";
-    else if (property.isclass)
+    else if (property.isclass || property.hasOwnProperty("implementingTypes"))
         return isOptional ? property.actualtype + "*" : property.actualtype; // sub object
     else if (property.isenum)
         return isOptional ? ("Boxed<" + property.actualtype + ">") : property.actualtype; // enum
@@ -194,7 +239,7 @@ var getPropertyCPPType = function (property, datatype, needOptional) {
     throw "Unknown property type: " + property.actualtype + " for " + property.name + " in " + datatype.name;
 }
 
-var getPropertyDefaultValue = function (property, datatype) {
+function getPropertyDefaultValue(property, datatype) {
     var isOptional = property.optional;
     if (property.collection)
         return "";
@@ -222,22 +267,22 @@ var getPropertyDefaultValue = function (property, datatype) {
     else if (property.actualtype === "DateTime")
         return isOptional ? "" : "0";
     else if (property.isclass)
-        return isOptional ? "NULL" : ""; // sub object
+        return isOptional ? "nullptr" : ""; // sub object
     else if (property.isenum)
         return ""; // enum
     else if (property.actualtype === "object")
-        return "";
+        return property.hasOwnProperty("implementingtypes") ? "nullptr" : "";
     throw "Unknown property type: " + property.actualtype + " for " + property.name + " in " + datatype.name;
 }
 
-var getPropertyCopyValue = function (property, datatype) {
+function getPropertyCopyValue(property, datatype) {
     var safePropName = getPropertySafeName(property);
-    if (property.isclass && property.optional && !property.collection)
-        return "src." + safePropName + " ? new " + property.actualtype + "(*src." + safePropName + ") : NULL";
+    if ((property.isclass && property.optional && !property.collection) || property.hasOwnProperty("implementingTypes"))
+        return "src." + safePropName + " ? new " + property.actualtype + "(*src." + safePropName + ") : nullptr";
     return "src." + safePropName;
 }
 
-var getPropertySerializer = function (property, datatype) {
+function getPropertySerializer(property, datatype) {
     if (property.collection === "array")
         return getArrayPropertySerializer(property, datatype);
     else if (property.collection === "map")
@@ -296,11 +341,11 @@ var getPropertySerializer = function (property, datatype) {
         tester = safePropName + ".notNull()";
     }
     else if (property.isclass) {
-        if (isOptional)
+        if (isOptional || property.hasOwnProperty("implementingTypes"))
             writer = safePropName + "->writeJSON(writer);";
         else
             writer = safePropName + ".writeJSON(writer);";
-        tester = safePropName + " != NULL";
+        tester = safePropName + " != nullptr";
     }
     else if (property.isenum) {
         writer = "write" + propType + "EnumJSON(" + safePropName + ", writer);";
@@ -319,7 +364,7 @@ var getPropertySerializer = function (property, datatype) {
     return "writer.String(\"" + propName + "\"); " + writer;
 }
 
-var getArrayPropertySerializer = function (property, datatype) {
+function getArrayPropertySerializer(property, datatype) {
     var writer;
     var propName = property.name;
     var isOptional = property.optional;
@@ -366,7 +411,7 @@ var getArrayPropertySerializer = function (property, datatype) {
     return "writer.String(\"" + propName + "\");\n    " + collectionWriter;
 }
 
-var getMapPropertySerializer = function (property, datatype) {
+function getMapPropertySerializer(property, datatype) {
     var writer;
     var propName = property.name;
     var isOptional = property.optional;
@@ -413,7 +458,7 @@ var getMapPropertySerializer = function (property, datatype) {
     return "writer.String(\"" + propName + "\");\n    " + collectionWriter;
 }
 
-var getPropertyDeserializer = function (property, datatype) {
+function getPropertyDeserializer(property, datatype) {
     var propType = property.actualtype;
     var propName = property.name;
     var safePropName = getPropertySafeName(property);
@@ -446,7 +491,7 @@ var getPropertyDeserializer = function (property, datatype) {
         getter = propName + "_member->value.GetDouble()";
     else if (propType === "DateTime")
         getter = "readDatetime(" + propName + "_member->value)";
-    else if (property.isclass && property.optional)
+    else if (property.isclass && property.optional || property.hasOwnProperty("implementingTypes"))
         getter = "new " + propType + "(" + propName + "_member->value)";
     else if (property.isclass && !property.optional)
         getter = propType + "(" + propName + "_member->value)";
@@ -462,7 +507,7 @@ var getPropertyDeserializer = function (property, datatype) {
     return val;
 }
 
-var getArrayPropertyDeserializer = function (property, datatype) {
+function getArrayPropertyDeserializer(property, datatype) {
     var getter;
     if (property.actualtype === "String")
         getter = "memberList[i].GetString()";
@@ -503,7 +548,7 @@ var getArrayPropertyDeserializer = function (property, datatype) {
     return val;
 }
 
-var getMapPropertyDeserializer = function (property, datatype) {
+function getMapPropertyDeserializer(property, datatype) {
     var getter;
     if (property.actualtype === "String")
         getter = "iter->value.GetString()";
@@ -543,7 +588,7 @@ var getMapPropertyDeserializer = function (property, datatype) {
     return val;
 }
 
-var addTypeAndDependencies = function (datatype, datatypes, orderedTypes, addedSet) {
+function addTypeAndDependencies(datatype, datatypes, orderedTypes, addedSet) {
     if (addedSet[datatype.name])
         return;
     
@@ -559,9 +604,7 @@ var addTypeAndDependencies = function (datatype, datatypes, orderedTypes, addedS
     addedSet[datatype.name] = datatype;
 }
 
-var generateModels = function (apis, apiOutputDir, libraryName) {
-    var sourceDir = __dirname;
-    
+function generateModels(apis, sourceDir, apiOutputDir, libraryName) {
     for (var a in apis) {
         var api = apis[a];
         
@@ -575,12 +618,14 @@ var generateModels = function (apis, apiOutputDir, libraryName) {
         var modelLocals = {};
         modelLocals.api = api;
         modelLocals.datatypes = orderedTypes;
+        modelLocals.getDatatypeBaseType = getDatatypeBaseType;
         modelLocals.getPropertyDef = getPropertyDef;
         modelLocals.getPropertySerializer = getPropertySerializer;
         modelLocals.getPropertyDeserializer = getPropertyDeserializer;
         modelLocals.getPropertyDefaultValue = getPropertyDefaultValue;
         modelLocals.getPropertyCopyValue = getPropertyCopyValue;
         modelLocals.getPropertySafeName = getPropertySafeName;
+        modelLocals.getPropertyDestructor = getPropertyDestructor;
         modelLocals.libraryName = libraryName;
         
         var modelHeaderTemplate = ejs.compile(readFile(path.resolve(sourceDir, "templates/PlayFabDataModels.h.ejs")));
@@ -589,8 +634,7 @@ var generateModels = function (apis, apiOutputDir, libraryName) {
     }
 }
 
-var generateErrors = function (api, apiOutputDir) {
-    var sourceDir = __dirname;
+function generateErrors(api, sourceDir, apiOutputDir) {
     var errorsTemplate = ejs.compile(readFile(path.resolve(sourceDir, "templates/PlayFabError.h.ejs")));
     var errorLocals = {};
     errorLocals.errorList = api.errorList;
@@ -607,13 +651,13 @@ function getAuthParams(apiCall) {
     return "\"\", \"\"";
 }
 
-var getRequestActions = function (apiCall, api) {
+function getRequestActions(apiCall, api) {
     if (api.name === "Client" && (apiCall.result === "LoginResult" || apiCall.request === "RegisterPlayFabUserRequest"))
         return "    if (PlayFabSettings::playFabSettings.titleId.length() > 0)\n        request.TitleId = PlayFabSettings::playFabSettings.titleId;\n";
     return "";
 }
 
-var getResultActions = function (apiCall, api) {
+function getResultActions(apiCall, api) {
     if (api.name === "Client" && (apiCall.result === "LoginResult" || apiCall.result === "RegisterPlayFabUserResult"))
         return "        if (outResult->SessionTicket.length() > 0)\n" 
             + "            PlayFabClientApi::mUserSessionTicket = outResult->SessionTicket;\n" 

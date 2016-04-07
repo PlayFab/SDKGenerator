@@ -9,7 +9,9 @@ namespace PlayFab
 {
     namespace <%- api.name %>Models
     {
-<% for(var i in datatypes) { var datatype = datatypes[i]; if(datatype.isenum) { %>        enum <%- datatype.name %>
+<% for(var i in datatypes) { var datatype = datatypes[i]; // ========= BEGIN FOR-EACH DATATYPE DEFN =========
+if(datatype.isenum) { // ========= BEGIN EACH ENUM =========
+%>        enum <%- datatype.name %>
         {
             <% for(var i=0; i<datatype.enumvalues.length-1; i++) { var enumval = datatype.enumvalues[i] %><%- datatype.name %><%- enumval.name %>,
             <% } %><%- datatype.name %><%- datatype.enumvalues[datatype.enumvalues.length-1].name %>
@@ -43,17 +45,20 @@ namespace PlayFab
             return <%- datatype.name %><%- datatype.enumvalues[0].name %>; // Basically critical fail
         }
 
-<% } else { %>        struct <%- datatype.name %> : public PlayFabBaseModel
+<% } // ========= END EACH ENUM =========
+else { // ========= BEGIN EACH OBJECT =========
+%>        struct <%- datatype.name %> : public <%- getDatatypeBaseType(datatype) %>
         {
-<% for(var i in datatype.properties) { var property = datatype.properties[i] %>            <%- getPropertyDef(property, datatype) %>
+<% for(var i in datatype.properties) { var property = datatype.properties[i]
+%>            <%- getPropertyDef(property, datatype) %>
 <% } %>
             <%- datatype.name %>() :
-                PlayFabBaseModel()<% for(var i in datatype.properties) { var property = datatype.properties[i] %>,
+                <%- getDatatypeBaseType(datatype) %>()<% for(var i in datatype.properties) { var property = datatype.properties[i] %>,
                 <%- getPropertySafeName(property) %>(<%- getPropertyDefaultValue(property, datatype) %>)<% } %>
             {}
 
             <%- datatype.name %>(const <%- datatype.name %>& src) :
-                PlayFabBaseModel()<% for(var i in datatype.properties) { var property = datatype.properties[i] %>,
+                <%- getDatatypeBaseType(datatype) %>()<% for(var i in datatype.properties) { var property = datatype.properties[i] %>,
                 <%- getPropertySafeName(property) %>(<%- getPropertyCopyValue(property, datatype) %>)<% } %>
             {}
 
@@ -64,10 +69,8 @@ namespace PlayFab
 
             ~<%- datatype.name %>()
             {
-<% for(var p in datatype.properties) { var property = datatype.properties[p]; if (!property.collection && property.isclass && property.optional) {
-%>                if (<%- getPropertySafeName(property) %> != NULL) delete <%- getPropertySafeName(property) %>;
-<% } } %>
-            }
+<% for(var p in datatype.properties) { %><%- getPropertyDestructor(datatype.properties[p]) %><% }
+%>            }
 
             void writeJSON(PFStringJsonWriter& writer) override
             {
@@ -87,6 +90,7 @@ namespace PlayFab
             }
         };
 
-<% } } %>
+<% } // ========= END EACH OBJECT =========
+} // ========= END FOR-EACH DATATYPE DEFN ========= %>
     }
 }

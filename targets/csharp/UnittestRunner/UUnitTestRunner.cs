@@ -4,7 +4,6 @@ using System.Reflection;
 using System;
 using System.IO;
 using Newtonsoft.Json;
-using Newtonsoft.Json.Converters;
 using System.Collections.Generic;
 
 namespace UnittestRunner

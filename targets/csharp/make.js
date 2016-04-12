@@ -79,6 +79,20 @@ function escapeForString(input) {
     return input;
 }
 
+function getBaseTypeSyntax(datatype) {
+    if (datatype.inheritsFrom && datatype.sortKey)
+        return " : " + datatype.inheritsFrom + ", IComparable<" + datatype.name + ">";
+    if (datatype.inheritsFrom)
+        return " : " + datatype.inheritsFrom;
+    if ((datatype.name.toLowerCase().indexOf("result") > -1 || datatype.name.toLowerCase().indexOf("response") > -1) && datatype.sortKey)
+        return " : PlayFabResultCommon" + ", IComparable<" + datatype.name + ">";
+    if (datatype.name.toLowerCase().indexOf("result") > -1 || datatype.name.toLowerCase().indexOf("response") > -1)
+        return " : PlayFabResultCommon";
+    if (datatype.sortKey)
+        return " : IComparable<" + datatype.name + ">";
+    return "";
+}
+
 function makeDatatypes(apis, sourceDir, apiOutputDir) {
     var modelTemplate = ejs.compile(readFile(path.resolve(sourceDir, "templates/Model.cs.ejs")));
     var modelsTemplate = ejs.compile(readFile(path.resolve(sourceDir, "templates/Models.cs.ejs")));
@@ -86,10 +100,11 @@ function makeDatatypes(apis, sourceDir, apiOutputDir) {
     
     var makeDatatype = function (datatype, api) {
         var modelLocals = {};
+        modelLocals.api = api;
         modelLocals.datatype = datatype;
         modelLocals.getPropertyDef = getModelPropertyDef;
         modelLocals.getPropertyAttribs = getPropertyAttribs;
-        modelLocals.api = api;
+        modelLocals.getBaseTypeSyntax = getBaseTypeSyntax;
         
         return (datatype.isenum) ? enumTemplate(modelLocals) : modelTemplate(modelLocals);
     };
@@ -112,7 +127,6 @@ function makeAPI(api, sourceDir, apiOutputDir) {
     apiLocals.getAuthParams = getAuthParams;
     apiLocals.getRequestActions = getRequestActions;
     apiLocals.getResultActions = getResultActions;
-    apiLocals.getUrlAccessor = getUrlAccessor;
     apiLocals.authKey = api.name === "Client";
     var generatedApi = apiTemplate(apiLocals);
     writeFile(path.resolve(apiOutputDir, "source/PlayFab" + api.name + "API.cs"), generatedApi);
@@ -126,16 +140,11 @@ function generateSimpleFiles(apis, sourceDir, apiOutputDir) {
     var generatedErrors = errorsTemplate(errorLocals);
     writeFile(path.resolve(apiOutputDir, "source/PlayFabErrors.cs"), generatedErrors);
     
-    var versionTemplate = ejs.compile(readFile(path.resolve(sourceDir, "templates/PlayFabVersion.cs.ejs")));
-    var versionLocals = {};
-    versionLocals.sdkRevision = exports.sdkVersion;
-    var generatedVersion = versionTemplate(versionLocals);
-    writeFile(path.resolve(apiOutputDir, "source/PlayFabVersion.cs"), generatedVersion);
-    
     var settingsTemplate = ejs.compile(readFile(path.resolve(sourceDir, "templates/PlayFabSettings.cs.ejs")));
     var settingsLocals = {};
     settingsLocals.hasServerOptions = false;
     settingsLocals.hasClientOptions = false;
+    settingsLocals.sdkVersion = exports.sdkVersion;
     for (var i in apis) {
         if (apis[i].name === "Client")
             settingsLocals.hasClientOptions = true;
@@ -258,12 +267,6 @@ function getResultActions(apiCall, api) {
         return "            // Modify AdvertisingIdType:  Prevents us from sending the id multiple times, and allows automated tests to determine id was sent successfully\n"
             + "            PlayFabSettings.AdvertisingIdType += \"_Successful\";\n";
     else if (api.name === "Client" && apiCall.result === "GetCloudScriptUrlResult")
-        return "            PlayFabSettings.LogicServerURL = result.Url;\n";
+        return "            PlayFabSettings.LogicServerUrl = result.Url;\n";
     return "";
-}
-
-function getUrlAccessor(apiCall) {
-    if (apiCall.serverType === "logic")
-        return "PlayFabSettings.GetLogicURL()";
-    return "PlayFabSettings.GetURL()";
 }

@@ -43,8 +43,6 @@ exports.makeCombinedAPI = function (apis, sourceDir, apiOutputDir) {
 }
 
 function getBaseTypeSyntax(datatype) {
-    if (datatype.inheritsFrom)
-        return " : " + datatype.inheritsFrom;
     if (datatype.name.toLowerCase().indexOf("result") > -1 || datatype.name.toLowerCase().indexOf("response") > -1)
         return " : PlayFabResultCommon";
     return "";

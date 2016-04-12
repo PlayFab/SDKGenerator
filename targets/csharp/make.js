@@ -80,10 +80,6 @@ function escapeForString(input) {
 }
 
 function getBaseTypeSyntax(datatype) {
-    if (datatype.inheritsFrom && datatype.sortKey)
-        return " : " + datatype.inheritsFrom + ", IComparable<" + datatype.name + ">";
-    if (datatype.inheritsFrom)
-        return " : " + datatype.inheritsFrom;
     if ((datatype.name.toLowerCase().indexOf("result") > -1 || datatype.name.toLowerCase().indexOf("response") > -1) && datatype.sortKey)
         return " : PlayFabResultCommon" + ", IComparable<" + datatype.name + ">";
     if (datatype.name.toLowerCase().indexOf("result") > -1 || datatype.name.toLowerCase().indexOf("response") > -1)

@@ -7,7 +7,6 @@ var path = require("path");
 exports.makeClientAPI = function (api, sourceDir, apiOutputDir) {
     console.log("Generating Lumberyard C++ client SDK to " + apiOutputDir);
 
-    sortDatatypes(api);
     copyTree(path.resolve(sourceDir, "source"), apiOutputDir);
     makeGem([api], sourceDir, apiOutputDir);
     makeApi(api, sourceDir, apiOutputDir);
@@ -26,7 +25,6 @@ exports.makeServerAPI = function (apis, sourceDir, apiOutputDir) {
     copyTree(path.resolve(sourceDir, "source"), apiOutputDir);
     makeGem(apis, sourceDir, apiOutputDir);
     for (var i in apis) {
-        sortDatatypes(apis[i]);
         makeApi(apis[i], sourceDir, apiOutputDir);
     }
     generateModels(apis, sourceDir, apiOutputDir);
@@ -44,7 +42,6 @@ exports.makeCombinedAPI = function (apis, sourceDir, apiOutputDir) {
     copyTree(path.resolve(sourceDir, "source"), apiOutputDir);
     makeGem(apis, sourceDir, apiOutputDir);
     for (var i in apis) {
-        sortDatatypes(apis[i]);
         makeApi(apis[i], sourceDir, apiOutputDir);
     }
     generateModels(apis, sourceDir, apiOutputDir);
@@ -54,39 +51,6 @@ exports.makeCombinedAPI = function (apis, sourceDir, apiOutputDir) {
     // Test Gem
     copyTree(path.resolve(sourceDir, "testing/TestGem"), path.resolve(apiOutputDir, "../TestGemCombo"));
     copyFile(path.resolve(sourceDir, "testing/PlayFabApiTestNode_Combo.cpp"), path.resolve(apiOutputDir, "../TestGemCombo/Code/Source/PlayFabApiTestNode.cpp"));
-}
-
-// Most of our code is relying on the fact that properties on an object are "accidentally" ordered
-// This is not a contractual feature of node/js, and if that ever changes, we'll need to rebuild Api-Specs as a list
-// For now, just re-order the keys of the datatypes object in a way that is suitable for compilation in C++
-function sortDatatypes(api) {
-    var sortedDatatypes = {};
-    var unsortedDatatypes = [];
-
-    for (var i in api.datatypes) {
-        if (!api.datatypes[i].hasOwnProperty("inheritsFrom") || sortedDatatypes.hasOwnProperty(api.datatypes[i].inheritsFrom))
-            sortedDatatypes[api.datatypes[i].name] = api.datatypes[i];
-        else
-            unsortedDatatypes.push(api.datatypes[i]);
-    }
-
-    var unsortedCount;
-    do {
-        unsortedCount = unsortedDatatypes.length;
-        var tempDatatypes = unsortedDatatypes;
-        unsortedDatatypes = [];
-        for (var j in tempDatatypes) {
-            if (sortedDatatypes.hasOwnProperty(tempDatatypes[j].inheritsFrom))
-                sortedDatatypes[tempDatatypes[j].name] = tempDatatypes[j];
-            else
-                unsortedDatatypes.push(tempDatatypes[j]);
-        }
-    } while (unsortedDatatypes.length > 0 && unsortedCount > unsortedDatatypes.length);
-
-    if (unsortedDatatypes.length > 0)
-        throw unsortedDatatypes.length + " object(s) with unknown or Circular inheritance defined in Api-Specs: " + JSON.stringify(unsortedDatatypes, null, 4);
-
-    api.datatypes = sortedDatatypes;
 }
 
 function generateSimpleFiles(apis, sourceDir, apiOutputDir) {
@@ -178,13 +142,13 @@ function hasRequest(apiCall, api) {
 }
 
 function getDatatypeBaseType(datatype) {
-    if (datatype.inheritsFrom)
-        return datatype.inheritsFrom;
+    // The model-inheritance feature was removed.
+    // However in the future, we may still use some inheritance links for request/result baseclasses, for other sdk features
+    // Specifically, we also have PlayFabResultCommon, which may become a more widely-used pattern
     return "PlayFabBaseModel"; // Everything is a base-model unless it's not
 }
 
 function getPropertyDef(property, datatype) {
-    
     var safePropName = getPropertySafeName(property);
     
     if (property.collection === "array")

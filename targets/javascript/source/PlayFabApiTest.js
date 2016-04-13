@@ -563,8 +563,7 @@ var PlayFabApiTests = {
     
     /// <summary>
     /// CLIENT API
-    /// Try to deliberately register a character with an invalid email and password.
-    ///   Verify that errorDetails are populated correctly.
+    /// Test that the client can publish custom PlayStream events
     /// </summary>
     WriteEvent: function (assert) {
         var writeEventDone = assert.async();

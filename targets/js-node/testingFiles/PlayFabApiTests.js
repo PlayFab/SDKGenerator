@@ -82,7 +82,7 @@ function SimpleCallbackWrapper(callbackName, callback, test) {
 function VerifyNullError(result, error, test, message) {
     var success = (result !== null && error == null);
     if (error != null) {
-        test.ok(false, "PlayFab error message: " + PlayFabApiTests.CompileErrorReport(error));
+        test.ok(false, "PlayFab error message: " + CompileErrorReport(error));
     } else {
         test.ok(success, message);
     }
@@ -506,4 +506,25 @@ exports.PlayFabApiTests = {
             PlayFabClient.RunCloudScript(helloWorldRequest, CallbackWrapper("helloWorldCallback", helloWorldCallback, test));
         }
     }),
+    
+    /// <summary>
+    /// CLIENT API
+    /// Test that the client can publish custom PlayStream events
+    /// </summary>
+    WriteEvent: function (test) {
+        var writeEventRequest = {
+            // Currently, you need to look up the correct format for this object in the API-docs:
+            //   https://api.playfab.com/Documentation/Client/method/WritePlayerEvent
+            "EventName": "ForumPostEvent",
+            "Subject": "My First Post",
+            "Body": "This is my awesome post."
+        };
+        
+        var writeEventCallback = function (error, result) {
+            VerifyNullError(result, error, test, "Testing WriteEvent result");
+            test.done();
+        };
+        
+        PlayFabClient.WritePlayerEvent(writeEventRequest, CallbackWrapper("writeEventCallback", writeEventCallback, test));
+    },
 };

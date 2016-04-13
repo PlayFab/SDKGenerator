@@ -62,6 +62,7 @@ package
             AddTest("LeaderBoard", LeaderBoard);
             AddTest("AccountInfo", AccountInfo);
             AddTest("CloudScript", CloudScript);
+            AddTest("WriteEvent", WriteEvent);
 
             KickOffTests();
         }
@@ -487,5 +488,30 @@ package
 
             FinishTestHandler(new ASyncUnitTestEvent(ASyncUnitTestEvent.FINISH_TEST, ASyncUnitTestEvent.RESULT_PASSED, ""));
 		}
+
+        /// <summary>
+        /// CLIENT API
+        /// Test that the client can publish custom PlayStream events
+        /// </summary>
+        private function WriteEvent() : void
+        {
+            var request:TestForumEventRequest = new TestForumEventRequest();
+            request.EventName = "ForumPostEvent";
+            request.Subject = "My First Post";
+            request.Body = "My is my awesome post.";
+
+            PlayFabClientAPI.WritePlayerEvent(request, Wrap(WriteEventCallback, "WriteEventCallback"), Wrap(Shared_ApiCallFailure, "WriteEventCallback"));
+        }
+        private function WriteEventCallback(result:com.playfab.ClientModels.WriteEventResponse) : void
+        {
+            FinishTestHandler(new ASyncUnitTestEvent(ASyncUnitTestEvent.FINISH_TEST, ASyncUnitTestEvent.RESULT_PASSED, ""));
+        }
     }
+}
+
+import com.playfab.ClientModels.*;
+class TestForumEventRequest extends com.playfab.ClientModels.WriteClientPlayerEventRequest
+{
+    public var Subject:String;
+    public var Body:String;
 }

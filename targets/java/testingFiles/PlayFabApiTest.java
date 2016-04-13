@@ -408,4 +408,28 @@ public class PlayFabApiTest
         Map<String, String> arbitraryResults = (Map<String, String>)hwResult.Result.Results;
         assertEquals(arbitraryResults.get("messageValue"), "Hello " + playFabId + "!");
     }
+
+    /// <summary>
+    /// CLIENT API
+    /// Test that the client can publish custom PlayStream events
+    /// </summary>
+    @Test
+    public void WriteEvent()
+    {
+        LoginOrRegister();
+
+        TestForumEventRequest request = new TestForumEventRequest();
+        request.EventName = "ForumPostEvent";
+        request.Timestamp = new Date();
+        request.Subject = "My First Post";
+        request.Body = "My is my awesome post.";
+        PlayFabResult<PlayFabClientModels.WriteEventResponse> result = PlayFabClientAPI.WritePlayerEvent(request);
+        VerifyResult(result, true);
+    }
+}
+
+class TestForumEventRequest extends PlayFabClientModels.WriteClientPlayerEventRequest
+{
+    public String Subject;
+    public String Body;
 }

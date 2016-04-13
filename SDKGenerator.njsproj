@@ -511,7 +511,6 @@
     <Content Include="targets\java\srcCode\com\google\LICENSE" />
     <Content Include="targets\java\srcCode\com\google\README" />
     <Content Include="targets\java\srcCode\com\playfab\internal\PlayFabHTTP.java" />
-    <Content Include="targets\java\srcCode\com\playfab\PlayFabSettings.java" />
     <Content Include="targets\java\srcCode\com\playfab\PlayFabUtil.java" />
     <Content Include="targets\java\srcLibs\hamcrest-core-1.3.jar" />
     <Content Include="targets\java\srcLibs\junit-4.12.jar" />

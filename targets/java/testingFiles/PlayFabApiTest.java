@@ -43,17 +43,32 @@ public class PlayFabApiTest
     private <RT> void VerifyResult(PlayFabResult<RT> result, boolean expectSuccess)
     {
         assertNotNull(result);
+        String errorMessage = CompileErrorsFromResult(result);
         if (expectSuccess)
         {
-            String errorMessage = (result.Error == null) ? "" : "\nPlayFab Error Message: " + result.Error.errorMessage + "\n";
             assertNull(errorMessage, result.Error);
-            assertNotNull(result.Result);
+            assertNotNull(errorMessage, result.Result);
         }
         else
         {
-            assertNull(result.Result);
-            assertNotNull(result.Error);
+            assertNull(errorMessage, result.Result);
+            assertNotNull(errorMessage, result.Error);
         }
+    }
+
+    private <RT> String CompileErrorsFromResult(PlayFabResult<RT> result)
+    {
+        if (result == null || result.Error == null)
+            return null;
+
+        String errorMessage = "";
+        if (result.Error.errorMessage != null)
+            errorMessage += result.Error.errorMessage;
+        if (result.Error.errorDetails != null)
+            for (Map.Entry<String, List<String>> pair : result.Error.errorDetails.entrySet() )
+                for (String msg : pair.getValue())
+                    errorMessage += "\n" + pair.getKey() + ": " + msg;
+        return errorMessage;
     }
 
     private class TitleData
@@ -117,6 +132,30 @@ public class PlayFabApiTest
         PlayFabResult<PlayFabClientModels.LoginResult> result = PlayFabClientAPI.LoginWithEmailAddress(request);
         VerifyResult(result, false);
         assertTrue(result.Error.errorMessage.contains("password"));
+    }
+
+    /// <summary>
+    /// CLIENT API
+    /// Try to deliberately register a character with an invalid email and password.
+    ///   Verify that errorDetails are populated correctly.
+    /// </summary>
+    @Test
+    public void InvalidRegistration()
+    {
+        PlayFabClientModels.RegisterPlayFabUserRequest request = new PlayFabClientModels.RegisterPlayFabUserRequest();
+        request.TitleId = PlayFabSettings.TitleId;
+        request.Username = "x"; // Provide invalid inputs for multiple parameters, which will show up in errorDetails
+        request.Email = "x"; // Provide invalid inputs for multiple parameters, which will show up in errorDetails
+        request.Password = "x"; // Provide invalid inputs for multiple parameters, which will show up in errorDetails
+
+        PlayFabResult<PlayFabClientModels.RegisterPlayFabUserResult> result = PlayFabClientAPI.RegisterPlayFabUser(request);
+        VerifyResult(result, false);
+
+        String expectedEmailMsg = "email address is not valid.";
+        String expectedPasswordMsg = "password must be between";
+        String errorDetails = CompileErrorsFromResult(result);
+        assertTrue("Expected an error about email: " + errorDetails, errorDetails.toLowerCase().contains(expectedEmailMsg));
+        assertTrue("Expected an error about password: " + errorDetails, errorDetails.toLowerCase().contains(expectedPasswordMsg));
     }
 
     /// <summary>

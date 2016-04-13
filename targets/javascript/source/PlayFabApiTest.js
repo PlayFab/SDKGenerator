@@ -570,15 +570,9 @@ var PlayFabApiTests = {
         
         var writeEventRequest = {
             // Currently, you need to look up the correct format for this object in the API-docs:
-            //   https://api.playfab.com/Documentation/Client/method/WriteEvent
+            //   https://api.playfab.com/Documentation/Client/method/WritePlayerEvent
             "Event": {
-                "EventName": "forum_post_event",
-                "EventNamespace": "com.mygame.forums",
-                "EntityType": "player",
-                "Timestamp": "2014-03-07T00:00:00Z", // TODO: Write a current timestamp-string in the correct format
-                "CustomTags": {
-                    "Region": "US-East"
-                },
+                "EventName": "ForumPostEvent",
                 "Subject": "My First Post",
                 "Body": "This is my awesome post."
             }

@@ -102,9 +102,7 @@ public:
             testContexts.insert(testContexts.end(), new PfTestContext("LeaderBoard", LeaderBoard));
             testContexts.insert(testContexts.end(), new PfTestContext("AccountInfo", AccountInfo));
             testContexts.insert(testContexts.end(), new PfTestContext("CloudScript", CloudScript));
-#ifdef BETA
-            testContexts.insert(testContexts.end(), new PfTestContext("WritePlayerEvent", WritePlayerEvent));
-#endif
+            testContexts.insert(testContexts.end(), new PfTestContext("WriteEvent", WriteEvent));
         }
     }
 
@@ -614,23 +612,25 @@ private:
         else
             EndTest(*testContext, PASSED, "");
     }
-#ifdef BETA
+
+    struct TestForumEventRequest : public ClientModels::WriteClientPlayerEventRequest
+    {
+        // THIS IS NOT SUFFICIENT: These parameters are not being serialized properly because C++ does not have reflection
+        Aws::String Subject;
+        Aws::String Body;
+    };
+
     /// <summary>
     /// CLIENT API
     /// Test that the client can publish custom PlayStream events
     /// </summary>
-    static void WritePlayerEvent(PfTestContext& testContext)
+    static void WriteEvent(PfTestContext& testContext)
     {
-        ClientModels::WritePlayerClientEventRequest request;
-        ClientModels::PlayerCustomEventData* forumEvent = new ClientModels::PlayerCustomEventData();
-        forumEvent->EventName = "forum_post_event";
-        forumEvent->EventNamespace = "com.mygame.forums";
-        forumEvent->EntityType = "player";
-        forumEvent->Timestamp = time(nullptr);
-        forumEvent->CustomTags["Region"] = "US-East";
-        forumEvent->CustomTags["Subject"] = "My First Post";
-        forumEvent->CustomTags["Body"] = "My is my awesome post.";
-        request.Event = forumEvent;
+        TestForumEventRequest request;
+        request.EventName = "ForumPostEvent";
+        request.Timestamp = time(nullptr);
+        request.Subject = "My First Post";
+        request.Body = "My is my awesome post.";
         clientApi->WritePlayerEvent(request, OnWritePlayerEvent, OnSharedError, &testContext);
     }
     static void OnWritePlayerEvent(const ClientModels::WriteEventResponse& result, void* customData)
@@ -638,7 +638,6 @@ private:
         PfTestContext* testContext = reinterpret_cast<PfTestContext*>(customData);
         EndTest(*testContext, PASSED, "");
     }
-#endif
 };
 // C++ Static vars
 IPlayFabSdkGem* PlayFabApiTests::playFabSdkGem;

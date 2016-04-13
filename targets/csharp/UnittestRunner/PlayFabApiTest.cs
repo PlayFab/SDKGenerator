@@ -382,7 +382,13 @@ namespace PlayFab.UUnit
             string actualMessage = jval.Value as string;
             UUnitAssert.StringEquals("Hello " + playFabId + "!", actualMessage);
         }
-#if BETA
+
+        private class TestForumEventRequest : WriteClientPlayerEventRequest
+        {
+            public string Subject;
+            public string Body;
+        }
+
         /// <summary>
         /// CLIENT API
         /// Test that the client can publish custom PlayStream events
@@ -390,21 +396,14 @@ namespace PlayFab.UUnit
         [UUnitTest]
         public void WriteEvent()
         {
-            var request = new WritePlayerClientEventRequest();
-            var forumPostEvent = new PlayerCustomEventData();
-            forumPostEvent.EventName = "forum_post_event";
-            forumPostEvent.EventNamespace = "com.mygame.forums";
-            forumPostEvent.EntityType = "player";
-            forumPostEvent.Timestamp = DateTime.UtcNow;
-            forumPostEvent.CustomTags = new Dictionary<string, string>();
-            forumPostEvent.CustomTags["Region"] = "US-East";
-            forumPostEvent.CustomTags["Subject"] = "My First Post";
-            forumPostEvent.CustomTags["Body"] = "My is my awesome post.";
-            request.Event = forumPostEvent;
+            var request = new TestForumEventRequest();
+            request.EventName = "ForumPostEvent";
+            request.Timestamp = DateTime.UtcNow;
+            request.Subject = "My First Post";
+            request.Body = "My is my awesome post.";
 
             var writeTask = PlayFabClientAPI.WritePlayerEventAsync(request);
             WaitForResultSuccess(writeTask, "PlayStream WriteEvent failed");
         }
-#endif
     }
 }

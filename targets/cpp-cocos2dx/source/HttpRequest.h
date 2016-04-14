@@ -13,6 +13,7 @@ namespace PlayFab
     {
     public:
         HttpRequest(std::string method, std::string url);
+        ~HttpRequest();
 
         std::string GetMethod() const;
         std::string GetUrl() const;

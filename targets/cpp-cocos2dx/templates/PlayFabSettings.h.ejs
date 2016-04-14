@@ -3,12 +3,15 @@
 
 #include <string>
 #include "PlayFabError.h"
+#include "IHttpRequester.h"
 
 namespace PlayFab
 {
     class PlayFabSettings
     {
     public:
+        static IHttpRequester* httpRequester;
+
         static bool useDevelopmentEnvironment;
         static std::string serverURL;
         static std::string developmentEnvironmentURL;

@@ -14,6 +14,11 @@ IHttpRequester* PlayFab<%- api.name %>API::mHttpRequester = new HttpRequesterCUR
 <% } %>
 PlayFab<%- api.name %>API::PlayFab<%- api.name %>API() {}
 
+size_t PlayFab<%- api.name %>API::Update()
+{
+    return mHttpRequester->UpdateRequests();
+}
+
 <% for(var i in api.calls) { var apiCall = api.calls[i];
 %>void PlayFab<%- api.name %>API::<%- apiCall.name %>(
     <% if(hasRequest(apiCall, api)) { %><%- apiCall.request %>& request,<% } %>

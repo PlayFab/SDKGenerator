@@ -7,10 +7,6 @@ HttpRequest::HttpRequest(std::string method, std::string url)
 {
 
 }
-HttpRequest::~HttpRequest()
-{
-
-}
 
 std::string HttpRequest::GetMethod() const
 {

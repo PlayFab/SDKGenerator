@@ -8,6 +8,11 @@ HttpRequest::HttpRequest(std::string method, std::string url)
 
 }
 
+HttpRequest::~HttpRequest()
+{
+
+}
+
 std::string HttpRequest::GetMethod() const
 {
     return mMethod;
@@ -50,13 +55,13 @@ int HttpRequest::GetCompressionLevel()
 
 void HttpRequest::SetHeader(std::string key, std::string value)
 {
-    mHeaders.push_back( key + ": " + value );
+    mHeaders.push_back(key + ": " + value);
 }
 
 bool HttpRequest::GetHeader(size_t index, std::string& header) const
 {
     bool res = false;
-    if( index < mHeaders.size())
+    if (index < mHeaders.size())
     {
         header = mHeaders[index];
         res = true;

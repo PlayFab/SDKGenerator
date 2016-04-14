@@ -383,12 +383,6 @@ namespace PlayFab.UUnit
             UUnitAssert.StringEquals("Hello " + playFabId + "!", actualMessage);
         }
 
-        private class TestForumEventRequest : WriteClientPlayerEventRequest
-        {
-            public string Subject;
-            public string Body;
-        }
-
         /// <summary>
         /// CLIENT API
         /// Test that the client can publish custom PlayStream events
@@ -396,11 +390,12 @@ namespace PlayFab.UUnit
         [UUnitTest]
         public void WriteEvent()
         {
-            var request = new TestForumEventRequest();
+            var request = new WriteClientPlayerEventRequest();
             request.EventName = "ForumPostEvent";
             request.Timestamp = DateTime.UtcNow;
-            request.Subject = "My First Post";
-            request.Body = "My is my awesome post.";
+            request.Body = new Dictionary<string, object>();
+            request.Body["Subject"] = "My First Post";
+            request.Body["Body"] = "My awesome post.";
 
             var writeTask = PlayFabClientAPI.WritePlayerEventAsync(request);
             WaitForResultSuccess(writeTask, "PlayStream WriteEvent failed");

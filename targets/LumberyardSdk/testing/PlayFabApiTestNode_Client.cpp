@@ -613,24 +613,17 @@ private:
             EndTest(*testContext, PASSED, "");
     }
 
-    struct TestForumEventRequest : public ClientModels::WriteClientPlayerEventRequest
-    {
-        // THIS IS NOT SUFFICIENT: These parameters are not being serialized properly because C++ does not have reflection
-        Aws::String Subject;
-        Aws::String Body;
-    };
-
     /// <summary>
     /// CLIENT API
     /// Test that the client can publish custom PlayStream events
     /// </summary>
     static void WriteEvent(PfTestContext& testContext)
     {
-        TestForumEventRequest request;
+        ClientModels::WriteClientPlayerEventRequest request;
         request.EventName = "ForumPostEvent";
         request.Timestamp = time(nullptr);
-        request.Subject = "My First Post";
-        request.Body = "My is my awesome post.";
+        request.Body["Subject"] = "My First Post";
+        request.Body["Body"] = "My awesome post.";
         clientApi->WritePlayerEvent(request, OnWritePlayerEvent, OnSharedError, &testContext);
     }
     static void OnWritePlayerEvent(const ClientModels::WriteEventResponse& result, void* customData)

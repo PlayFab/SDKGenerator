@@ -418,18 +418,14 @@ public class PlayFabApiTest
     {
         LoginOrRegister();
 
-        TestForumEventRequest request = new TestForumEventRequest();
+        PlayFabClientModels.WriteClientPlayerEventRequest request = new PlayFabClientModels.WriteClientPlayerEventRequest();
         request.EventName = "ForumPostEvent";
         request.Timestamp = new Date();
-        request.Subject = "My First Post";
-        request.Body = "My is my awesome post.";
+        request.Body = new HashMap<String,Object>();
+        request.Body.put("Subject", "My First Post");
+        request.Body.put("Body", "My awesome post.");
         PlayFabResult<PlayFabClientModels.WriteEventResponse> result = PlayFabClientAPI.WritePlayerEvent(request);
         VerifyResult(result, true);
     }
 }
 
-class TestForumEventRequest extends PlayFabClientModels.WriteClientPlayerEventRequest
-{
-    public String Subject;
-    public String Body;
-}

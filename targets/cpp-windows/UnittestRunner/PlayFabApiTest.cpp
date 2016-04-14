@@ -593,7 +593,7 @@ namespace UnittestRunner
             request.EventName = "ForumPostEvent";
             request.Timestamp = time(nullptr);
             request.Subject = "My First Post";
-            request.Body = "My is my awesome post.";
+            request.Body = "My awesome post.";
             PlayFabClientAPI::WritePlayerEvent(request, &OnWritePlayerEvent, &SharedFailedCallback, nullptr);
             ClientApiWait();
             Assert::IsTrue(testMessageReturn.compare("WriteEvent tested") == 0);

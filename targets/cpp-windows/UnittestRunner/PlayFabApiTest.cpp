@@ -4,16 +4,16 @@
 #include "playfab/PlayFabServerDataModels.h"
 #include "playfab/PlayFabClientAPI.h"
 #include "playfab/PlayFabServerAPI.h"
+#include "playfab/PlayFabSettings.h"
 #include <thread>         // std::this_thread::sleep_for
 #include <chrono>         // std::chrono::seconds
-#include <ctime>
 
 using namespace Microsoft::VisualStudio::CppUnitTestFramework;
 using namespace std;
 using namespace rapidjson;
 using namespace PlayFab;
-using namespace PlayFab::ClientModels;
-using namespace PlayFab::ServerModels;
+using namespace ClientModels;
+using namespace ServerModels;
 
 #pragma comment(lib, "wldap32.lib")
 #pragma comment(lib, "ws2_32.lib")

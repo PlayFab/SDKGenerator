@@ -23,8 +23,7 @@ exports.makeServerAPI = function (apis, sourceDir, apiOutputDir) {
     copyTree(path.resolve(sourceDir, "source"), apiOutputDir);
     makeDatatypes(apis, sourceDir, apiOutputDir);
     for (var i in apis) {
-        var api = apis[i];
-        makeAPI(api, sourceDir, apiOutputDir);
+        makeAPI(apis[i], sourceDir, apiOutputDir);
     }
     generateSimpleFiles(apis, sourceDir, apiOutputDir, false);
 }
@@ -36,19 +35,17 @@ exports.makeCombinedAPI = function (apis, sourceDir, apiOutputDir) {
     copyTree(path.resolve(sourceDir, "source"), apiOutputDir);
     makeDatatypes(apis, sourceDir, apiOutputDir);
     for (var i in apis) {
-        var api = apis[i];
-        makeAPI(api, sourceDir, apiOutputDir);
+        makeAPI(apis[i], sourceDir, apiOutputDir);
     }
     generateSimpleFiles(apis, sourceDir, apiOutputDir, false);
     copyFile(path.resolve(sourceDir, "testing/PlayFabApiTest.cs"), path.resolve(apiOutputDir, "Internal/Testing/PlayFabApiTest.cs"));
     copyFile(path.resolve(sourceDir, "testing/EventTest.cs"), path.resolve(apiOutputDir, "Internal/Testing/EventTest.cs"));
 }
 
-function getIsResultHandler(datatype) {
-    if (datatype.name.toLowerCase().indexOf("result") > -1 || datatype.name.toLowerCase().indexOf("response") > -1) {
-        return true;
-    }
-    return false;
+function getBaseTypeSyntax(datatype) {
+    if (datatype.name.toLowerCase().indexOf("result") > -1 || datatype.name.toLowerCase().indexOf("response") > -1)
+        return " : PlayFabResultCommon";
+    return "";
 }
 
 function makeDatatypes(apis, sourceDir, apiOutputDir) {
@@ -64,17 +61,11 @@ function makeDatatypes(apis, sourceDir, apiOutputDir) {
         modelLocals.getPropertyDef = getModelPropertyDef;
         modelLocals.getPropertyAttribs = getPropertyAttribs;
         modelLocals.getPropertyJsonReader = getPropertyJsonReader;
-        modelLocals.isResultHandler = getIsResultHandler;
-        var generatedModel = null;
-        
+        modelLocals.getBaseTypeSyntax = getBaseTypeSyntax;
         if (datatype.isenum) {
-            generatedModel = enumTemplate(modelLocals);
+            return enumTemplate(modelLocals);
         }
-        else {
-            generatedModel = modelTemplate(modelLocals);
-        }
-        
-        return generatedModel;
+        return modelTemplate(modelLocals);
     };
     
     for (var a in apis) {

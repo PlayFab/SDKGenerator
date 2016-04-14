@@ -62,6 +62,7 @@ package
             AddTest("LeaderBoard", LeaderBoard);
             AddTest("AccountInfo", AccountInfo);
             AddTest("CloudScript", CloudScript);
+            AddTest("WriteEvent", WriteEvent);
 
             KickOffTests();
         }
@@ -117,7 +118,7 @@ package
             request.TitleId = PlayFabSettings.TitleId;
             request.Email = USER_EMAIL;
             request.Password = USER_PASSWORD + "INVALID";
-            PlayFabClientAPI.LoginWithEmailAddress(request, Wrap(InvalidLogin_Success, "Success"), Wrap(InvalidLogin_Failure, "Fail"));
+            PlayFabClientAPI.LoginWithEmailAddress(request, Wrap(InvalidLogin_Success, "InvalidLogin_Success"), Wrap(InvalidLogin_Failure, "InvalidLogin_Success"));
         }
         private function InvalidLogin_Success(result:com.playfab.ClientModels.LoginResult) : void
         {
@@ -135,7 +136,12 @@ package
 
         private function Shared_ApiCallFailure(error:com.playfab.PlayFabError) : void
         {
-            ASyncAssert.Fail(error.errorMessage);
+            var fullMessage:String = error.errorMessage;
+            for (var key:String in error.errorDetails) {
+                fullMessage += "\n";
+                fullMessage += key + ": " + error.errorDetails[key];
+            }
+            ASyncAssert.Fail(fullMessage);
         }
 
         /// <summary>
@@ -150,7 +156,7 @@ package
             registerRequest.Username = USER_NAME; // A username that is already taken
             registerRequest.Email = "invalidEmail"; // An improperly formatted email
             registerRequest.Password = "x"; // A password that is too short
-            PlayFabClientAPI.RegisterPlayFabUser(registerRequest, Wrap(InvalidRegistration_Success, "Register"), Wrap(InvalidRegistration_Failure, "RegisterFail"));
+            PlayFabClientAPI.RegisterPlayFabUser(registerRequest, Wrap(InvalidRegistration_Success, "InvalidRegistration_Success"), Wrap(InvalidRegistration_Failure, "InvalidRegistration_Success"));
         }
         private function InvalidRegistration_Success(result:com.playfab.ClientModels.LoginResult) : void
         {
@@ -199,7 +205,7 @@ package
             loginRequest.Email = USER_EMAIL;
             loginRequest.Password = USER_PASSWORD;
             // Try to login, but if we fail, just fall-back and try to create character
-            PlayFabClientAPI.LoginWithEmailAddress(loginRequest, Wrap(LoginOrRegister_LoginSuccess, "Login1"), Wrap(LoginOrRegister_AcceptableFailure, "Fail1"));
+            PlayFabClientAPI.LoginWithEmailAddress(loginRequest, Wrap(LoginOrRegister_LoginSuccess, "LoginOrRegister_LoginSuccess"), Wrap(LoginOrRegister_AcceptableFailure, "LoginOrRegister_LoginSuccess"));
         }
         private function LoginOrRegister_LoginSuccess(result:com.playfab.ClientModels.LoginResult) : void
         {
@@ -215,7 +221,7 @@ package
             registerRequest.Username = USER_NAME;
             registerRequest.Email = USER_EMAIL;
             registerRequest.Password = USER_PASSWORD;
-            PlayFabClientAPI.RegisterPlayFabUser(registerRequest, Wrap(LoginOrRegister_RegisterSuccess, "Register"), Wrap(Shared_ApiCallFailure, "Fail2"));
+            PlayFabClientAPI.RegisterPlayFabUser(registerRequest, Wrap(LoginOrRegister_RegisterSuccess, "LoginOrRegister_RegisterSuccess"), Wrap(Shared_ApiCallFailure, "LoginOrRegister_RegisterSuccess"));
         }
         private function LoginOrRegister_RegisterSuccess(result:com.playfab.ClientModels.LoginResult) : void
         {
@@ -224,7 +230,7 @@ package
             loginRequest.Email = USER_EMAIL;
             loginRequest.Password = USER_PASSWORD;
             // Try again, but this time, error on failure
-            PlayFabClientAPI.LoginWithEmailAddress(loginRequest, Wrap(LoginOrRegister_LoginSuccess, "Login2"), Wrap(Shared_ApiCallFailure, "Fail3"));
+            PlayFabClientAPI.LoginWithEmailAddress(loginRequest, Wrap(LoginOrRegister_LoginSuccess, "LoginOrRegister_LoginSuccess"), Wrap(Shared_ApiCallFailure, "LoginOrRegister_LoginSuccess"));
         }
 
         /// <summary>
@@ -241,7 +247,7 @@ package
             loginRequest.Email = USER_EMAIL;
             loginRequest.Password = USER_PASSWORD;
             // Try to login, but if we fail, just fall-back and try to create character
-            PlayFabClientAPI.LoginWithEmailAddress(loginRequest, Wrap(LoginWithAdvertisingId_LoginSuccess, "LoginWithAdvertisingId"), Wrap(Shared_ApiCallFailure, "LoginWithAdvertisingId"));
+            PlayFabClientAPI.LoginWithEmailAddress(loginRequest, Wrap(LoginWithAdvertisingId_LoginSuccess, "LoginWithAdvertisingId_LoginSuccess"), Wrap(Shared_ApiCallFailure, "LoginWithAdvertisingId_LoginSuccess"));
             function RecursiveWrap():void { CheckAdvertIdSuccess(-1); }
             Wrap(RecursiveWrap, "RecursiveWrap_First")(); // ODD SYNTAX HERE: Wrap returns a function, which we then need to call.  Normally the wrap-return is passed in as a callback, which gets called by the sdk, or a utility.
         }
@@ -281,7 +287,7 @@ package
         private function UserDataApi() : void
         {
             var getRequest:com.playfab.ClientModels.GetUserDataRequest = new com.playfab.ClientModels.GetUserDataRequest();
-            PlayFabClientAPI.GetUserData(getRequest, Wrap(UserDataApi_GetSuccess1, "GetSuccess1"), Wrap(Shared_ApiCallFailure, "Fail1"));
+            PlayFabClientAPI.GetUserData(getRequest, Wrap(UserDataApi_GetSuccess1, "UserDataApi_GetSuccess1"), Wrap(Shared_ApiCallFailure, "UserDataApi_GetSuccess1"));
         }
         private function UserDataApi_GetSuccess1(result:com.playfab.ClientModels.GetUserDataResult) : void
         {
@@ -291,12 +297,12 @@ package
             var updateRequest:com.playfab.ClientModels.UpdateUserDataRequest = new com.playfab.ClientModels.UpdateUserDataRequest();
             updateRequest.Data = new Object();
             updateRequest.Data[TEST_DATA_KEY] = String(testIntExpected);
-            PlayFabClientAPI.UpdateUserData(updateRequest, Wrap(UserDataApi_UpdateSuccess, "UpdateSuccess"), Wrap(Shared_ApiCallFailure, "Fail2"));
+            PlayFabClientAPI.UpdateUserData(updateRequest, Wrap(UserDataApi_UpdateSuccess, "UserDataApi_UpdateSuccess"), Wrap(Shared_ApiCallFailure, "UserDataApi_UpdateSuccess"));
         }
         private function UserDataApi_UpdateSuccess(result:com.playfab.ClientModels.UpdateUserDataResult) : void
         {
             var getRequest:com.playfab.ClientModels.GetUserDataRequest = new com.playfab.ClientModels.GetUserDataRequest();
-            PlayFabClientAPI.GetUserData(getRequest, Wrap(UserDataApi_GetSuccess2, "GetSuccess2"), Wrap(Shared_ApiCallFailure, "Fail3"));
+            PlayFabClientAPI.GetUserData(getRequest, Wrap(UserDataApi_GetSuccess2, "UserDataApi_GetSuccess2"), Wrap(Shared_ApiCallFailure, "UserDataApi_GetSuccess2"));
         }
         private function UserDataApi_GetSuccess2(result:com.playfab.ClientModels.GetUserDataResult) : void
         {
@@ -322,7 +328,7 @@ package
         private function UserStatisticsApi() : void
         {
             var getRequest:com.playfab.ClientModels.GetUserStatisticsRequest = new com.playfab.ClientModels.GetUserStatisticsRequest();
-            PlayFabClientAPI.GetUserStatistics(getRequest, Wrap(UserStatisticsApi_GetSuccess1, "GetSuccess1"), Wrap(Shared_ApiCallFailure, "Fail1"));
+            PlayFabClientAPI.GetUserStatistics(getRequest, Wrap(UserStatisticsApi_GetSuccess1, "UserStatisticsApi_GetSuccess1"), Wrap(Shared_ApiCallFailure, "UserStatisticsApi_GetSuccess1"));
         }
         private function UserStatisticsApi_GetSuccess1(result:com.playfab.ClientModels.GetUserStatisticsResult) : void
         {
@@ -332,12 +338,12 @@ package
             var updateRequest:com.playfab.ClientModels.UpdateUserStatisticsRequest = new com.playfab.ClientModels.UpdateUserStatisticsRequest();
             updateRequest.UserStatistics = new Object();
             updateRequest.UserStatistics[TEST_STAT_NAME] = testIntExpected;
-            PlayFabClientAPI.UpdateUserStatistics(updateRequest, Wrap(UserStatisticsApi_UpdateSuccess, "UpdateSuccess"), Wrap(Shared_ApiCallFailure, "Fail2"));
+            PlayFabClientAPI.UpdateUserStatistics(updateRequest, Wrap(UserStatisticsApi_UpdateSuccess, "UserStatisticsApi_UpdateSuccess"), Wrap(Shared_ApiCallFailure, "UserStatisticsApi_UpdateSuccess"));
         }
         private function UserStatisticsApi_UpdateSuccess(result:com.playfab.ClientModels.UpdateUserStatisticsResult) : void
         {
             var getRequest:com.playfab.ClientModels.GetUserStatisticsRequest = new com.playfab.ClientModels.GetUserStatisticsRequest();
-            PlayFabClientAPI.GetUserStatistics(getRequest, Wrap(UserStatisticsApi_GetSuccess2, "GetSuccess2"), Wrap(Shared_ApiCallFailure, "Fail3"));
+            PlayFabClientAPI.GetUserStatistics(getRequest, Wrap(UserStatisticsApi_GetSuccess2, "UserStatisticsApi_GetSuccess2"), Wrap(Shared_ApiCallFailure, "UserStatisticsApi_GetSuccess2"));
         }
         private function UserStatisticsApi_GetSuccess2(result:com.playfab.ClientModels.GetUserStatisticsResult) : void
         {
@@ -356,7 +362,7 @@ package
         {
             var getRequest:com.playfab.ServerModels.ListUsersCharactersRequest = new com.playfab.ServerModels.ListUsersCharactersRequest();
             getRequest.PlayFabId = playFabId;
-            PlayFabServerAPI.GetAllUsersCharacters(getRequest, Wrap(UserCharacter_GetSuccess1, "GetSuccess1"), Wrap(Shared_ApiCallFailure, "Fail1"));
+            PlayFabServerAPI.GetAllUsersCharacters(getRequest, Wrap(UserCharacter_GetSuccess1, "UserCharacter_GetSuccess1"), Wrap(Shared_ApiCallFailure, "UserCharacter_GetSuccess1"));
         }
         private function UserCharacter_GetSuccess1(result:com.playfab.ServerModels.ListUsersCharactersResult) : void
         {
@@ -376,14 +382,14 @@ package
                 grantRequest.PlayFabId = playFabId;
                 grantRequest.CharacterName = CHAR_NAME;
                 grantRequest.CharacterType = CHAR_TEST_TYPE;
-                PlayFabServerAPI.GrantCharacterToUser(grantRequest, Wrap(UserCharacter_RegisterSuccess, "RegisterSuccess"), Wrap(Shared_ApiCallFailure, "Fail2"));
+                PlayFabServerAPI.GrantCharacterToUser(grantRequest, Wrap(UserCharacter_RegisterSuccess, "UserCharacter_RegisterSuccess"), Wrap(Shared_ApiCallFailure, "UserCharacter_RegisterSuccess"));
             }
         }
         private function UserCharacter_RegisterSuccess(result:com.playfab.ServerModels.GrantCharacterToUserResult) : void
         {
             var getRequest:com.playfab.ServerModels.ListUsersCharactersRequest = new com.playfab.ServerModels.ListUsersCharactersRequest();
             getRequest.PlayFabId = playFabId;
-            PlayFabServerAPI.GetAllUsersCharacters(getRequest, Wrap(UserCharacter_GetSuccess2, "GetSuccess2"), Wrap(Shared_ApiCallFailure, "Fail3"));
+            PlayFabServerAPI.GetAllUsersCharacters(getRequest, Wrap(UserCharacter_GetSuccess2, "UserCharacter_GetSuccess2"), Wrap(Shared_ApiCallFailure, "UserCharacter_GetSuccess2"));
         }
         private function UserCharacter_GetSuccess2(result:com.playfab.ServerModels.ListUsersCharactersResult) : void
         {
@@ -406,7 +412,7 @@ package
             var clientRequest:com.playfab.ClientModels.GetLeaderboardRequest = new com.playfab.ClientModels.GetLeaderboardRequest();
             clientRequest.MaxResultsCount = 3;
             clientRequest.StatisticName = TEST_STAT_NAME;
-            PlayFabClientAPI.GetLeaderboard(clientRequest, Wrap(GetClientLbCallback, "ClientLB"), Wrap(Shared_ApiCallFailure, "ClientLB_Fail"));
+            PlayFabClientAPI.GetLeaderboard(clientRequest, Wrap(GetClientLbCallback, "GetClientLbCallback"), Wrap(Shared_ApiCallFailure, "GetClientLbCallback"));
         }
         private function GetClientLbCallback(result:com.playfab.ClientModels.GetLeaderboardResult) : void
         {
@@ -416,7 +422,7 @@ package
             var serverRequest:com.playfab.ServerModels.GetLeaderboardRequest = new com.playfab.ServerModels.GetLeaderboardRequest();
             serverRequest.MaxResultsCount = 3;
             serverRequest.StatisticName = TEST_STAT_NAME;
-            PlayFabServerAPI.GetLeaderboard(serverRequest, Wrap(GetServerLbCallback, "ServerLB"), Wrap(Shared_ApiCallFailure, "ServerLB_Fail"));
+            PlayFabServerAPI.GetLeaderboard(serverRequest, Wrap(GetServerLbCallback, "GetServerLbCallback"), Wrap(Shared_ApiCallFailure, "GetServerLbCallback"));
         }
         private function GetServerLbCallback(result:com.playfab.ServerModels.GetLeaderboardResult) : void
         {
@@ -434,7 +440,7 @@ package
         private function AccountInfo() : void
         {
             var request:com.playfab.ClientModels.GetAccountInfoRequest = new com.playfab.ClientModels.GetAccountInfoRequest();
-            PlayFabClientAPI.GetAccountInfo(request, Wrap(GetInfoCallback, "ServerLB"), Wrap(Shared_ApiCallFailure, "Fail"));
+            PlayFabClientAPI.GetAccountInfo(request, Wrap(GetInfoCallback, "GetInfoCallback"), Wrap(Shared_ApiCallFailure, "GetInfoCallback"));
         }
         private function GetInfoCallback(result:com.playfab.ClientModels.GetAccountInfoResult) : void
         {
@@ -455,7 +461,7 @@ package
             if (!PlayFabSettings.LogicServerURL)
             {
 				var urlRequest:com.playfab.ClientModels.GetCloudScriptUrlRequest = new com.playfab.ClientModels.GetCloudScriptUrlRequest();
-                PlayFabClientAPI.GetCloudScriptUrl(urlRequest, Wrap(GetCloudUrlCallback, "CloudUrl"), Wrap(Shared_ApiCallFailure, "Fail"));
+                PlayFabClientAPI.GetCloudScriptUrl(urlRequest, Wrap(GetCloudUrlCallback, "GetCloudUrlCallback"), Wrap(Shared_ApiCallFailure, "GetCloudUrlCallback"));
             }
 			else
 			{
@@ -471,7 +477,7 @@ package
 		{
 			var hwRequest:com.playfab.ClientModels.RunCloudScriptRequest = new com.playfab.ClientModels.RunCloudScriptRequest();
             hwRequest.ActionId = "helloWorld";
-            PlayFabClientAPI.RunCloudScript(hwRequest, Wrap(CloudScriptHWCallback, "CloudUrl"), Wrap(Shared_ApiCallFailure, "Fail"));
+            PlayFabClientAPI.RunCloudScript(hwRequest, Wrap(CloudScriptHWCallback, "CloudScriptHWCallback"), Wrap(Shared_ApiCallFailure, "CloudScriptHWCallback"));
 			
             //UUnitAssert.Equals("Hello " + playFabId + "!", lastReceivedMessage);
 		}
@@ -482,5 +488,30 @@ package
 
             FinishTestHandler(new ASyncUnitTestEvent(ASyncUnitTestEvent.FINISH_TEST, ASyncUnitTestEvent.RESULT_PASSED, ""));
 		}
+
+        /// <summary>
+        /// CLIENT API
+        /// Test that the client can publish custom PlayStream events
+        /// </summary>
+        private function WriteEvent() : void
+        {
+            var request:TestForumEventRequest = new TestForumEventRequest();
+            request.EventName = "ForumPostEvent";
+            request.Subject = "My First Post";
+            request.Body = "My is my awesome post.";
+
+            PlayFabClientAPI.WritePlayerEvent(request, Wrap(WriteEventCallback, "WriteEventCallback"), Wrap(Shared_ApiCallFailure, "WriteEventCallback"));
+        }
+        private function WriteEventCallback(result:com.playfab.ClientModels.WriteEventResponse) : void
+        {
+            FinishTestHandler(new ASyncUnitTestEvent(ASyncUnitTestEvent.FINISH_TEST, ASyncUnitTestEvent.RESULT_PASSED, ""));
+        }
     }
+}
+
+import com.playfab.ClientModels.*;
+class TestForumEventRequest extends com.playfab.ClientModels.WriteClientPlayerEventRequest
+{
+    public var Subject:String;
+    public var Body:String;
 }

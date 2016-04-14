@@ -1,0 +1,18 @@
+{
+    "GemFormatVersion": 2,
+    "Uuid": "583e7840c5554c69a67187ae479ae910",
+    "Name": "PlayFabApiTest",
+    "DisplayName": "PlayFabApiTest",
+    "Version": "0.1.0",
+    "LinkType": "Dynamic",
+    "Summary": "PlayFab test gem.  Demonstrates the usage of the API from outside the PlayFab Gem, and verifies that the apis work.",
+    "Tags": ["Untagged"],
+    "IconPath": "preview.png",
+    "Dependencies": [
+        {
+            "Uuid": "9a81e5573c13455b850560486e4e7d05",
+            "VersionConstraints": [ ">=0.0.160302" ],
+            "_comment": "PlayFab Lumberyard Gem"
+        }
+    ]
+}

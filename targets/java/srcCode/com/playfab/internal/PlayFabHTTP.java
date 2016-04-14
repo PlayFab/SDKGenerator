@@ -55,7 +55,7 @@ public class PlayFabHTTP {
             writer.close();
             httpCode = con.getResponseCode();
         } catch(Exception e) {
-            return GeneratePfError(httpCode, PlayFabErrorCode.ServiceUnavailable, "Failed to post to server: " + url);
+            return GeneratePfError(httpCode, PlayFabErrorCode.ServiceUnavailable, "Failed to post to server: " + url, null);
         }
 
         // Get the response string
@@ -69,17 +69,17 @@ public class PlayFabHTTP {
         // Check for normal error results
         if(httpCode != 200 || responseString == null || responseString.isEmpty()) {
             if(responseString == null || responseString.isEmpty() || httpCode == 404 )
-                return GeneratePfError(httpCode, PlayFabErrorCode.ServiceUnavailable, "Empty server response");
+                return GeneratePfError(httpCode, PlayFabErrorCode.ServiceUnavailable, "Empty server response", null);
 
             PlayFabJsonError errorResult = null;
             try {
                 errorResult = gson.fromJson(responseString, PlayFabJsonError.class);
             } catch(Exception e) {
-                return GeneratePfError(httpCode, PlayFabErrorCode.JsonParseError, "Server response not proper json :" + responseString);
+                return GeneratePfError(httpCode, PlayFabErrorCode.JsonParseError, "Server response not proper json :" + responseString, null);
             }
 
             httpCode = errorResult.code;
-            return GeneratePfError(httpCode, PlayFabErrorCode.getFromCode(errorResult.errorCode), errorResult.errorMessage);
+            return GeneratePfError(httpCode, PlayFabErrorCode.getFromCode(errorResult.errorCode), errorResult.errorMessage, errorResult.errorDetails);
         }
 
         return responseString;
@@ -98,13 +98,14 @@ public class PlayFabHTTP {
         return recieved.toString();
     }
 
-    public static PlayFabError GeneratePfError(int httpCode, PlayFabErrorCode pfErrorCode, String errorMessage) {
+    public static PlayFabError GeneratePfError(int httpCode, PlayFabErrorCode pfErrorCode, String errorMessage, Map<String, List<String>> errorDetails) {
         PlayFabError output =  new PlayFabError();
 
         output.httpCode = httpCode;
         output.httpStatus = "" + httpCode; // TODO: Convert this to the right string-name
         output.pfErrorCode = pfErrorCode;
         output.errorMessage = errorMessage;
+        output.errorDetails = errorDetails;
 
         return output;
     }

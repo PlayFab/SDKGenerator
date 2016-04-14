@@ -54,14 +54,10 @@ bool HelloWorld::init()
     /////////////////////////////
     // 3. add your codes below...
 
-    // add a label shows "Hello World"
-    // create and initialize a label
-    
-	string testReport;
-	int exitCode = PlayFabApiTest::HackishManualTestExecutor();
+    int exitCode = PlayFabApiTest::HackishManualTestExecutor();
+    string testReport = PlayFabApiTest::GetTestReport();
+    auto label = Label::createWithTTF(testReport, "fonts/Marker Felt.ttf", 14);
 
-	auto label = Label::createWithTTF(PlayFabApiTest::GetTestReport(), "fonts/Marker Felt.ttf", 24);
-    
     // position the label on the center of the screen
     label->setPosition(Vec2(origin.x + visibleSize.width/2,
                             origin.y + visibleSize.height - label->getContentSize().height));

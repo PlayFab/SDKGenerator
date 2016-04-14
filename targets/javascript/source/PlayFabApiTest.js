@@ -572,8 +572,10 @@ var PlayFabApiTests = {
             // Currently, you need to look up the correct format for this object in the API-docs:
             //   https://api.playfab.com/Documentation/Client/method/WritePlayerEvent
             "EventName": "ForumPostEvent",
-            "Subject": "My First Post",
-            "Body": "This is my awesome post."
+            "Body": {
+                "Subject": "My First Post",
+                "Body": "This is my awesome post."
+            }
         };
         
         var writeEventCallback = function (result, error) {

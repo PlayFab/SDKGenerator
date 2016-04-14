@@ -495,10 +495,11 @@ package
         /// </summary>
         private function WriteEvent() : void
         {
-            var request:TestForumEventRequest = new TestForumEventRequest();
+            var request:com.playfab.ClientModels.WriteClientPlayerEventRequest = new com.playfab.ClientModels.WriteClientPlayerEventRequest();
             request.EventName = "ForumPostEvent";
-            request.Subject = "My First Post";
-            request.Body = "My is my awesome post.";
+            request.Body = new Object();
+            request.Body["Subject"] = "My First Post";
+            request.Body["Body"] = "My awesome post.";
 
             PlayFabClientAPI.WritePlayerEvent(request, Wrap(WriteEventCallback, "WriteEventCallback"), Wrap(Shared_ApiCallFailure, "WriteEventCallback"));
         }
@@ -507,11 +508,4 @@ package
             FinishTestHandler(new ASyncUnitTestEvent(ASyncUnitTestEvent.FINISH_TEST, ASyncUnitTestEvent.RESULT_PASSED, ""));
         }
     }
-}
-
-import com.playfab.ClientModels.*;
-class TestForumEventRequest extends com.playfab.ClientModels.WriteClientPlayerEventRequest
-{
-    public var Subject:String;
-    public var Body:String;
 }

@@ -137,7 +137,7 @@ namespace UnittestRunner
         {
         }
 
-        void ClientApiWait()
+        static void ClientApiWait()
         {
             testMessageReturn = "pending";
             int count = 1, sleepCount = 0;
@@ -150,7 +150,7 @@ namespace UnittestRunner
             // Assert::IsTrue(sleepCount < 20); // The API call shouldn't take too long
         }
 
-        void ServerApiWait()
+        static void ServerApiWait()
         {
             testMessageReturn = "pending";
             int count = 1, sleepCount = 0;

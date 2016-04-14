@@ -105,7 +105,7 @@ var getPropertyDefaultValue = exports.getPropertyDefaultValue = function (proper
     else if (property.actualtype === "DateTime")
         return isOptional ? "" : "0";
     else if (property.isclass)
-        return isOptional ? "NULL" : ""; // sub object
+        return isOptional ? "nullptr" : ""; // sub object
     else if (property.isenum)
         return ""; // enum
     else if (property.actualtype === "object")
@@ -116,7 +116,7 @@ var getPropertyDefaultValue = exports.getPropertyDefaultValue = function (proper
 var getPropertyCopyValue = exports.getPropertyCopyValue = function (property, datatype) {
     var safePropName = getPropertySafeName(property);
     if (property.isclass && property.optional && !property.collection)
-        return "src." + safePropName + " ? new " + property.actualtype + "(*src." + safePropName + ") : NULL";
+        return "src." + safePropName + " ? new " + property.actualtype + "(*src." + safePropName + ") : nullptr";
     return "src." + safePropName;
 }
 
@@ -183,7 +183,7 @@ var getPropertySerializer = exports.getPropertySerializer = function (property, 
             writer = safePropName + "->writeJSON(writer);";
         else
             writer = safePropName + ".writeJSON(writer);";
-        tester = safePropName + " != NULL";
+        tester = safePropName + " != nullptr";
     }
     else if (property.isenum) {
         writer = "write" + propType + "EnumJSON(" + safePropName + ", writer);";
@@ -240,7 +240,7 @@ var getArrayPropertySerializer = exports.getArrayPropertySerializer = function (
         throw "Unknown property type: " + property.actualtype + " for " + propName + " in " + datatype.name;
     
     var collectionWriter = "writer.StartArray();\n    ";
-    collectionWriter += "for (std::list<" + cppType + ">::iterator iter = " + propName + ".begin(); iter != " + propName + ".end(); iter++) {\n        ";
+    collectionWriter += "for (std::list<" + cppType + ">::iterator iter = " + propName + ".begin(); iter != " + propName + ".end(); ++iter) {\n        ";
     collectionWriter += writer + "\n    }\n    ";
     collectionWriter += "writer.EndArray();\n    ";
     

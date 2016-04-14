@@ -3,8 +3,10 @@
 using namespace PlayFab;
 using namespace PlayFab::<%- api.name %>Models;
 using namespace rapidjson;
-
-<% for(var i in datatypes) { var datatype = datatypes[i]; if (datatype.isenum) { %>void PlayFab::<%- api.name %>Models::write<%- datatype.name %>EnumJSON(<%- datatype.name %> enumVal, PFStringJsonWriter& writer)
+<% for(var i in datatypes) { // ========= BEGIN FOR-EACH DATATYPE DEFN =========
+var datatype = datatypes[i]; if (datatype.isenum) { // ========= BEGIN EACH ENUM =========
+%>
+void PlayFab::<%- api.name %>Models::write<%- datatype.name %>EnumJSON(<%- datatype.name %> enumVal, PFStringJsonWriter& writer)
 {
     switch (enumVal)
     {
@@ -19,7 +21,8 @@ using namespace rapidjson;
     if (_<%- datatype.name %>Map.size() == 0)
     {
         // Auto-generate the map on the first use
-<% for(var i=0; i<datatype.enumvalues.length; i++) { var enumval = datatype.enumvalues[i] %>        _<%- datatype.name %>Map["<%- datatype.enumvalues[i].name %>"] = <%- datatype.name %><%- datatype.enumvalues[i].name %>;
+<% for(var i=0; i<datatype.enumvalues.length; i++) { var enumval = datatype.enumvalues[i]
+%>        _<%- datatype.name %>Map["<%- datatype.enumvalues[i].name %>"] = <%- datatype.name %><%- datatype.enumvalues[i].name %>;
 <% } %>
     }
 
@@ -29,10 +32,13 @@ using namespace rapidjson;
 
     return <%- datatype.name %><%- datatype.enumvalues[0].name %>; // Basically critical fail
 }
-<% } else { %>
+<% } // ========= END EACH ENUM =========
+else { // ========= BEGIN EACH OBJECT =========
+%>
 <%- datatype.name %>::~<%- datatype.name %>()
 {
-<% for(var p in datatype.properties) { var property = datatype.properties[p]; if (!property.collection && property.isclass && property.optional) { %>    if (<%- getPropertySafeName(property) %> != NULL) delete <%- getPropertySafeName(property) %>;
+<% for(var p in datatype.properties) { var property = datatype.properties[p]; if (!property.collection && property.isclass && property.optional) {
+%>    if (<%- getPropertySafeName(property) %> != nullptr) delete <%- getPropertySafeName(property) %>;
 <% } } %>
 }
 
@@ -51,4 +57,5 @@ bool <%- datatype.name %>::readFromValue(const rapidjson::Value& obj)
 <% } %>
     return true;
 }
-<% } } %>
+<% } // ========= END EACH OBJECT =========
+} // ========= END FOR-EACH DATATYPE DEFN ========= %>

@@ -37,8 +37,8 @@ namespace PlayFab
 
             ~<%- datatype.name %>();
 
-            void writeJSON(PFStringJsonWriter& writer);
-            bool readFromValue(const rapidjson::Value& obj);
+            void writeJSON(PFStringJsonWriter& writer) override;
+            bool readFromValue(const rapidjson::Value& obj) override;
         };
 
 <% } } %>

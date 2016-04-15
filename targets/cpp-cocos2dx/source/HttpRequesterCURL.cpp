@@ -1,6 +1,21 @@
 #include "HttpRequesterCURL.h"
 #include "HttpRequest.h"
 
+#if CC_TARGET_PLATFORM == CC_PLATFORM_ANDROID
+#include <string>
+#include <sstream>
+
+namespace std {
+    template <typename T>
+    string to_string(T value)
+    {
+        ostringstream os;
+        os << value;
+        return os.str();
+    }
+}
+#endif
+
 using namespace PlayFab;
 USING_NS_CC;
 

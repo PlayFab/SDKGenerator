@@ -2,7 +2,7 @@
 #define PLAYFAB_HTTPREQUESTERCURL_H_
 
 #include "IHttpRequester.h"
-#include <cocos2d/cocos/network/HttpClient.h>
+#include <cocos/network/HttpClient.h>
 
 namespace PlayFab
 {

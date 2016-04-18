@@ -12,7 +12,7 @@ namespace PlayFab
         HttpRequesterCURL();
         ~HttpRequesterCURL();
 
-        PlayFabErrorCode AddRequest(HttpRequest* request, RequestCompleteCallback callback, void* callbackData) override;
+        void AddRequest(HttpRequest* request, RequestCompleteCallback callback, void* callbackData) override;
         int GetPendingCalls() const override;
 
     private:
@@ -28,8 +28,7 @@ namespace PlayFab
         void onRequestFinished(cocos2d::network::HttpClient* pCCHttpClient, cocos2d::network::HttpResponse* pCCHttpResponse);
         static std::string getDataFromResponse(cocos2d::network::HttpResponse* pResponse);
 
-        std::map<std::string, std::pair<HttpRequest*, RequestCompleteCallback>> m_rMapRequests;
-        int requestTagGen;
+        std::map<cocos2d::network::HttpClient*, std::pair<HttpRequest*, RequestCompleteCallback>> m_rMapRequests;
     };
 }
 

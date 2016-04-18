@@ -3,7 +3,7 @@
 using namespace PlayFab;
 
 HttpRequest::HttpRequest(std::string method, std::string url)
-    : mMethod(method), mUrl(url), mCompression(0), mAcceptGZip(true)
+    : mMethod(cocos2d::network::HttpRequest::Type::POST), mUrl(url), mCompression(0), mAcceptGZip(true)
 {
 
 }
@@ -13,24 +13,9 @@ HttpRequest::~HttpRequest()
 
 }
 
-std::string HttpRequest::GetMethod() const
-{
-    return mMethod;
-}
-
-std::string HttpRequest::GetUrl() const
-{
-    return mUrl;
-}
-
 void HttpRequest::SetBody(std::string body)
 {
     mBody = body;
-}
-
-std::string HttpRequest::GetBody() const
-{
-    return mBody;
 }
 
 void HttpRequest::CompressBody(int level /* = -1*/)
@@ -43,12 +28,12 @@ void HttpRequest::AcceptGZip(bool accept /* = true*/)
     mAcceptGZip = accept;
 }
 
-bool HttpRequest::GetAcceptGZip()
+bool HttpRequest::GetAcceptGZip() const
 {
     return mAcceptGZip;
 }
 
-int HttpRequest::GetCompressionLevel()
+int HttpRequest::GetCompressionLevel() const
 {
     return mCompression;
 }
@@ -80,7 +65,7 @@ void HttpRequest::SetResultCallback(void* callback)
     mResultCallback = callback;
 }
 
-void* HttpRequest::GetResultCallback()
+void* HttpRequest::GetResultCallback() const
 {
     return mResultCallback;
 }
@@ -90,7 +75,7 @@ void HttpRequest::SetErrorCallback(ErrorCallback callback)
     mErrorCallback = callback;
 }
 
-ErrorCallback HttpRequest::GetErrorCallback()
+ErrorCallback HttpRequest::GetErrorCallback() const
 {
     return mErrorCallback;
 }
@@ -100,7 +85,7 @@ void HttpRequest::SetUserData(void* data)
     mUserData = data;
 }
 
-void* HttpRequest::GetUserData()
+void* HttpRequest::GetUserData() const
 {
     return mUserData;
 }

@@ -20,7 +20,6 @@ using namespace PlayFab;
 USING_NS_CC;
 
 HttpRequesterCURL::HttpRequesterCURL()
-    : requestTagGen(0)
 {
 }
 
@@ -33,26 +32,11 @@ int HttpRequesterCURL::GetPendingCalls() const
     return m_rMapRequests.size();
 }
 
-PlayFabErrorCode HttpRequesterCURL::AddRequest(HttpRequest* request, RequestCompleteCallback callback, void* callbackData)
+void HttpRequesterCURL::AddRequest(HttpRequest* request, RequestCompleteCallback callback, void* callbackData)
 {
-    std::string sURL = request->GetUrl();
-    std::string sMethod = request->GetMethod();
-    std::string sTag = std::to_string(++requestTagGen);
-    std::string sBody = request->GetBody();
+    std::string sURL = request->mUrl;
+    std::string sBody = request->mBody;
     std::vector<std::string> rArrHeaders;
-
-    m_rMapRequests[sTag] = std::make_pair(request, callback);
-
-    network::HttpRequest::Type eType = network::HttpRequest::Type::UNKNOWN;
-
-    if (sMethod.compare("GET") == 0)
-        eType = network::HttpRequest::Type::GET;
-    else if (sMethod.compare("POST") == 0)
-        eType = network::HttpRequest::Type::POST;
-    else if (sMethod.compare("PUT") == 0)
-        eType = network::HttpRequest::Type::PUT;
-    else if (sMethod.compare("DELETE") == 0)
-        eType = network::HttpRequest::Type::DELETE;
 
     std::string sHeader;
     for (ssize_t tIndex = 0; tIndex < request->GetHeaderCount(); tIndex++)
@@ -65,23 +49,20 @@ PlayFabErrorCode HttpRequesterCURL::AddRequest(HttpRequest* request, RequestComp
     pRequest->setRequestData(sBody.c_str(), sBody.length());
     pRequest->setHeaders(rArrHeaders);
     pRequest->setUrl(sURL.c_str());
-    pRequest->setRequestType(eType);
+    pRequest->setRequestType(request->mMethod);
     pRequest->setResponseCallback(CC_CALLBACK_2(HttpRequesterCURL::onRequestFinished, this));
-    pRequest->setTag(sTag.c_str());
 
-    network::HttpClient::getInstance()->send(pRequest);
+    network::HttpClient* httpClient = network::HttpClient::getInstance();
+    m_rMapRequests[httpClient] = std::make_pair(request, callback);
+    httpClient->send(pRequest);
     pRequest->release();
-
-    return PlayFabErrorSuccess;
 }
 
 void HttpRequesterCURL::onRequestFinished(network::HttpClient* pCCHttpClient, network::HttpResponse* pCCHttpResponse)
 {
-    std::string sTag = pCCHttpResponse->getHttpRequest()->getTag();
-
-    if (m_rMapRequests.find(sTag) != m_rMapRequests.end())
+    if (m_rMapRequests.find(pCCHttpClient) != m_rMapRequests.end())
     {
-        const auto& rPair = m_rMapRequests[sTag];
+        const auto& rPair = m_rMapRequests[pCCHttpClient];
 
         if (rPair.second)
         {
@@ -92,7 +73,12 @@ void HttpRequesterCURL::onRequestFinished(network::HttpClient* pCCHttpClient, ne
         else
             delete rPair.first; // Request is released in callback, but not in this case.
 
-        m_rMapRequests.erase(sTag);
+        m_rMapRequests.erase(pCCHttpClient);
+    }
+    else
+    {
+        // This is super bad.  There's a bunch of memory leaks, and the call never returns, etc etc.
+        CCLOG("%s", "Critical error, HttpClient callback did not match a pending request.");
     }
 }
 

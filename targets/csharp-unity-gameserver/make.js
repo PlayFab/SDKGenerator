@@ -5,7 +5,7 @@ exports.makeServerAPI = function (apis, sourceDir, apiOutputDir) {
     var gameServerApis = [];
     for(var i=0; i<apis.length; i++){
         var api = apis[i];
-        if(apis.name != "Admin"){
+        if(api.name.toLowerCase().indexOf('admin') == -1){
             gameServerApis.push(api);
         }
     }
@@ -38,7 +38,7 @@ makeGameServerAPI = function (apis, sourceDir, apiOutputDir) {
     }
     generateSimpleFiles(apis, sourceDir, apiOutputDir, false);
     //copyFile(path.resolve(sourceDir, "testing/PlayFabApiTest.cs"), path.resolve(apiOutputDir, "Internal/Testing/PlayFabApiTest.cs"));
-    makeStrangeIoC(apis,sourceDir, apiOutputDir);
+    //makeStrangeIoC(apis,sourceDir, apiOutputDir);
 }
 
 function makeErrorHandler(sourceDir, apiOutputDir) {

@@ -91,10 +91,9 @@ for(var subgroup in api.subgroups)
 <%
                                 }
                             }
-                            else if(property.actualtype == "UserDataPermission")
+                            else if(property.isenum)
                             {
-                                %>    if (response->GetObjectField("data")->GetStringField("<%- property.name %>") == "Public") tempStruct.<%- property.name %> = EPermissionEnum::PUBLIC;
-<%                                %>    if (response->GetObjectField("data")->GetStringField("<%- property.name %>") == "Private") tempStruct.<%- property.name %> = EPermissionEnum::PRIVATE;
+                                %>    tempStruct.<%- property.name %> = GetEnumValueFromString<E<%- property.actualtype %>>(TEXT("E<%- property.actualtype %>"), response->GetObjectField("data")->GetStringField("<%- property.name %>"));
 
 <%
                             }

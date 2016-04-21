@@ -11,7 +11,7 @@ namespace PlayFab
     class PlayFab<%- api.name %>API
     {
     public:
-        template<typename ResType> using ProcessApiCallback = void(*)(ResType& result, void* userData);
+        template<typename ResType> using ProcessApiCallback = void(*)(const ResType& result, void* userData);
 <% if(hasClientOptions) { %>
         // Public, Client-Specific
         static void MultiStepClientLogin(bool needsAttribution);

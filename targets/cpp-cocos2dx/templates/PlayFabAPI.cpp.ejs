@@ -34,7 +34,7 @@ PlayFab<%- api.name %>API::PlayFab<%- api.name %>API() {}
     <% if(hasRequest(apiCall, api)) { %>httpRequest->SetBody(request.toJSONString());<% } else { %>httpRequest->SetBody("{}");<% } %>
     httpRequest->CompressBody();
 
-    PlayFabSettings::httpRequester->AddRequest(httpRequest, On<%- apiCall.name %>Result, nullptr);
+    PlayFabSettings::httpRequester->AddRequest(httpRequest, On<%- apiCall.name %>Result, userData);
 }
 
 void PlayFab<%- api.name %>API::On<%- apiCall.name %>Result(int httpStatus, HttpRequest* request, void* userData)

@@ -9,6 +9,7 @@
 //////////////////////////////////////////////////////////////////////////////////////////////
 
 #include "Kismet/BlueprintFunctionLibrary.h"
+#include "PlayFabEnums.h"
 #include "PlayFab<%- api.name %>Models.generated.h"
 
 class UPlayFabJsonObject;
@@ -105,9 +106,9 @@ for(var subgroup in api.subgroups)
 <%
                                 }
                             }
-                            else if(property.actualtype == "UserDataPermission")
+                            else if(property.isenum)
                             {
-                            %>        EPermissionEnum <%- property.name %>;
+                            %>        E<%- property.actualtype %> <%- property.name %>;
 
 <%
                             }

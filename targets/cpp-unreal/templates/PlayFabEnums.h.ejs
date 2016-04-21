@@ -1,0 +1,32 @@
+#include "PlayFabPrivatePCH.h"
+#include "PlayFabJsonObject.h"
+#include "PlayFabEnums.generated.h"
+
+#pragma once
+
+template <typename EnumType>
+static FORCEINLINE EnumType GetEnumValueFromString(const FString& EnumName, const FString& String)
+{ 
+	UEnum* Enum = FindObject<UEnum>(ANY_PACKAGE, *EnumName, true);
+	if(!Enum) 
+        return EnumType(0);
+	return (EnumType)Enum->FindEnumIndex(FName(*String));
+}
+
+template<typename EnumType>
+static FORCEINLINE FString GetEnumValueToString(const FString& Name, EnumType Value)
+{
+    const UEnum* enumPtr = FindObject<UEnum>(ANY_PACKAGE, *Name, true);
+    if (!enumPtr)
+        return FString("0");
+    return enumPtr->GetEnumName((int32)Value);
+}
+<% for(var i in enumTypes) { var enumType = enumTypes[i]; %>
+// Enum for <%- enumType.name %>
+UENUM(BlueprintType)
+enum class E<%- enumType.name %> : uint8
+{
+<% for(var j in enumType.enumvalues) {
+%>    <%- enumType.enumvalues[j].name %> UMETA(DisplayName = "<%- enumType.enumvalues[j].name %>"),
+<% } %>};
+<% } %>

@@ -20,6 +20,7 @@
   <ItemGroup>
     <Compile Include="targets\cpp-cocos2dx\cpp-shared.js" />
     <Compile Include="targets\cpp-cocos2dx\make.js" />
+    <Compile Include="targets\cpp-unreal\make.js" />
     <Compile Include="targets\cpp-WinShared\cpp-shared.js" />
     <Compile Include="targets\csharp-unity-gameserver\make.js" />
     <Compile Include="targets\csharp-unity-strangeioc\make.js" />
@@ -33,7 +34,6 @@
     <Compile Include="targets\cpp-ue4\cpp-ue4.js" />
     <Compile Include="targets\cpp-ue4\make-bp.js" />
     <Compile Include="targets\cpp-ue4\make.js" />
-    <Compile Include="targets\cpp-unreal\make.js" />
     <Compile Include="targets\cpp-windows\make.js" />
     <Compile Include="targets\csharp\make.js" />
     <Compile Include="targets\csharp-unity\make.js" />
@@ -186,6 +186,7 @@
     <Content Include="targets\cpp-unreal\templates\PlayFab.uplugin.ejs" />
     <Content Include="targets\cpp-unreal\templates\PlayFabAPI.cpp.ejs" />
     <Content Include="targets\cpp-unreal\templates\PlayFabAPI.h.ejs" />
+    <Content Include="targets\cpp-unreal\templates\PlayFabEnums.h.ejs" />
     <Content Include="targets\cpp-unreal\templates\PlayFabModelDecoder.cpp.ejs" />
     <Content Include="targets\cpp-unreal\templates\PlayFabModelDecoder.h.ejs" />
     <Content Include="targets\cpp-unreal\templates\PlayFabModels.cpp.ejs" />

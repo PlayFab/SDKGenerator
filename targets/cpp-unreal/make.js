@@ -8,7 +8,7 @@ exports.makeClientAPI = function (api, sourceDir, apiOutputDir) {
     // Copy over the standard plugin files including resources, content, and readme
     copyTree(path.resolve(sourceDir, "StandardPluginFiles"), path.resolve(apiOutputDir, "PluginFiles/PlayFab"));
     // Make the variable api files
-    makeUnrealAPI(api, apiOutputDir, sourceDir, "Client");
+    makeUnrealAPI([api], apiOutputDir, sourceDir, "Client");
     
     // Now copy over the example project and then put the plugin folder in the right spot
     copyTree(path.resolve(sourceDir, "ExampleProject"), path.resolve(apiOutputDir, "ExampleProject"));
@@ -67,25 +67,38 @@ function makeUnrealAPI(apis, apiOutputDir, sourceDir, libname) {
     var pfcppLocals = {};
     pfcppLocals.sdkVersion = exports.sdkVersion;
     pfcppLocals.names = [];
-    if (Array.isArray(apis)) {
-        for (var i in apis) {
-            pfcppLocals.names[i] = {};
-            pfcppLocals.names[i].name = apis[i].name;
-        }
-    }
-    else {
-        pfcppLocals.names[0] = {};
-        pfcppLocals.names[0].name = apis.name;
+    for (var i in apis) {
+        pfcppLocals.names[i] = {};
+        pfcppLocals.names[i].name = apis[i].name;
     }
     var apiPlayFabCppTemplate = ejs.compile(readFile(path.resolve(sourceDir, "templates/PlayFab.cpp.ejs")));
     var generatedPlayFabCpp = apiPlayFabCppTemplate(pfcppLocals);
     writeFile(path.resolve(apiOutputDir, "PluginFiles/PlayFab/Source/PlayFab/Private/PlayFab.cpp"), generatedPlayFabCpp);
     
-    if (Array.isArray(apis))
-        for (var i in apis)
-            makeApiFiles(apis[i], apiOutputDir, sourceDir, libname);
-    else
-        makeApiFiles(apis, apiOutputDir, sourceDir, libname);
+    for (var i in apis)
+        makeApiFiles(apis[i], apiOutputDir, sourceDir, libname);
+    makeEnums(apis, apiOutputDir, sourceDir);
+}
+
+// Create Enums, .h file
+function makeEnums(apis, apiOutputDir, sourceDir) {
+    var enumLocals = {
+        "enumTypes": collectEnumsFromApis(apis)
+    }
+
+    var enumTemplate = ejs.compile(readFile(path.resolve(sourceDir, "templates/PlayFabEnums.h.ejs")));
+    var genEnums = enumTemplate(enumLocals);
+    writeFile(path.resolve(apiOutputDir, "PluginFiles/PlayFab/Source/PlayFab/Classes/PlayFabEnums.h"), genEnums);
+}
+
+// Pull all the enums out of all the apis, and collect them into a single collection of just the enum types and filter duplicates
+function collectEnumsFromApis(apis) {
+    var enumTypes = {};
+    for (var i in apis)
+        for (var dataTypeName in apis[i].datatypes)
+            if (apis[i].datatypes[dataTypeName].isenum)
+                enumTypes[dataTypeName] = apis[i].datatypes[dataTypeName];
+    return enumTypes;
 }
 
 // Create Models, .h and .cpp files

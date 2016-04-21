@@ -6,6 +6,7 @@
 //////////////////////////////////////////////////////////////////////////////////////////////
 
 #include "PlayFabPrivatePCH.h"
+#include "PlayFabEnums.h"
 #include "PlayFab<%- api.name %>API.h"
 
 UPlayFab<%- api.name %>API* <%- api.name %>_proxy = NULL;
@@ -195,9 +196,8 @@ for(var subgroup in api.subgroups)
 <%
                             }
                         }
-                        else if(property.actualtype == "UserDataPermission") {
-                        %>    if (request.<%- property.name %> == EPermissionEnum::PUBLIC) OutRestJsonObj->SetStringField(TEXT("<%- property.name %>"), TEXT("Public"));
-<%                        %>    if (request.<%- property.name %> == EPermissionEnum::PRIVATE) OutRestJsonObj->SetStringField(TEXT("<%- property.name %>"), TEXT("Private"));
+                        else if(property.isenum) {
+                        %>    OutRestJsonObj->SetStringField(TEXT("<%- property.name %>"), GetEnumValueToString<E<%- property.actualtype %>>(TEXT("E<%- property.actualtype %>"), request.<%- property.name %>));
 <%
                         }
                         else

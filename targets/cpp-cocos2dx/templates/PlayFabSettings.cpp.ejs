@@ -1,8 +1,10 @@
 #include "PlayFabSettings.h"
-#include <string>
+#include <HttpRequesterCURL.h>
 
 namespace PlayFab
 {
+    IHttpRequester* PlayFabSettings::httpRequester = new HttpRequesterCURL();
+
     bool PlayFabSettings::useDevelopmentEnvironment = false;
     std::string PlayFabSettings::serverURL;
     std::string PlayFabSettings::developmentEnvironmentURL = ".playfabsandbox.com";

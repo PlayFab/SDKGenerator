@@ -11,8 +11,8 @@ namespace PlayFab
     class IHttpRequester
     {
     public:
-        virtual PlayFabErrorCode AddRequest(HttpRequest* request, RequestCompleteCallback callback, void* callbackData) = 0;
-        virtual size_t UpdateRequests() = 0;
+        virtual void AddRequest(HttpRequest* request, RequestCompleteCallback callback, void* callbackData) = 0;
+        virtual int GetPendingCalls() const = 0;
         virtual ~IHttpRequester() {}
     };
 }

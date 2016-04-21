@@ -1,23 +1,17 @@
-#include "PlayFab<%- api.name %>API.h"
 #include "HttpRequest.h"
-#include "PlayFabSettings.h"
-#include "PlayFabResultHandler.h"
 #include "HttpRequesterCURL.h"
+#include "PlayFabResultHandler.h"
+#include "PlayFabSettings.h"
 #include "PlayFabVersion.h"
+#include "PlayFab<%- api.name %>API.h"
 #include <string>
 
 using namespace PlayFab;
 using namespace PlayFab::<%- api.name %>Models;
-
-IHttpRequester* PlayFab<%- api.name %>API::mHttpRequester = new HttpRequesterCURL();
-<% if(hasClientOptions) { %>std::string PlayFab<%- api.name %>API::mUserSessionTicket; // Private, Client-Specific
+<% if(hasClientOptions) { %>
+std::string PlayFab<%- api.name%>API::mUserSessionTicket; // Private, Client-Specific
 <% } %>
 PlayFab<%- api.name %>API::PlayFab<%- api.name %>API() {}
-
-size_t PlayFab<%- api.name %>API::Update()
-{
-    return mHttpRequester->UpdateRequests();
-}
 
 <% for(var i in api.calls) { var apiCall = api.calls[i];
 %>void PlayFab<%- api.name %>API::<%- apiCall.name %>(
@@ -40,7 +34,7 @@ size_t PlayFab<%- api.name %>API::Update()
     <% if(hasRequest(apiCall, api)) { %>httpRequest->SetBody(request.toJSONString());<% } else { %>httpRequest->SetBody("{}");<% } %>
     httpRequest->CompressBody();
 
-    mHttpRequester->AddRequest(httpRequest, On<%- apiCall.name %>Result, nullptr);
+    PlayFabSettings::httpRequester->AddRequest(httpRequest, On<%- apiCall.name %>Result, userData);
 }
 
 void PlayFab<%- api.name %>API::On<%- apiCall.name %>Result(int httpStatus, HttpRequest* request, void* userData)

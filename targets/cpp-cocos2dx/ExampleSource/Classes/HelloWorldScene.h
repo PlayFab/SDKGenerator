@@ -6,18 +6,12 @@
 class HelloWorld : public cocos2d::Layer
 {
 public:
-	static std::string cmdLine;
-
-    // there's no 'id' in cpp, so we recommend returning the class instance pointer
+    static std::string cmdLine;
     static cocos2d::Scene* createScene();
-
-    // Here's a difference. Method 'init' in cocos2d-x returns bool, instead of returning 'id' in cocos2d-iphone
+    static cocos2d::Label* testReportLabel;
     virtual bool init();
-    
-    // a selector callback
+    void update(float) override;
     void menuCloseCallback(cocos2d::Ref* pSender);
-    
-    // implement the "static create()" method manually
     CREATE_FUNC(HelloWorld);
 };
 

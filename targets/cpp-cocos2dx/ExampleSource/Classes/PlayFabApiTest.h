@@ -287,7 +287,7 @@ namespace PlayFabApiTest
         {
             time_t now = clock();
             if (testContext.activeState != READY // Not finished
-                && (now - testContext.startTime) < 10000) // Not timed out
+                && (now - testContext.startTime) < 3000) // Not timed out
                 return;
 
             testContext.endTime = now;

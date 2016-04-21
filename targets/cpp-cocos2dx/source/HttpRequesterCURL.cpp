@@ -1,21 +1,6 @@
 #include "HttpRequesterCURL.h"
 #include "HttpRequest.h"
 
-#if CC_TARGET_PLATFORM == CC_PLATFORM_ANDROID
-#include <string>
-#include <sstream>
-
-namespace std {
-    template <typename T>
-    string to_string(T value)
-    {
-        ostringstream os;
-        os << value;
-        return os.str();
-    }
-}
-#endif
-
 using namespace PlayFab;
 USING_NS_CC;
 
@@ -45,24 +30,25 @@ void HttpRequesterCURL::AddRequest(HttpRequest* request, RequestCompleteCallback
             rArrHeaders.push_back(sHeader);
     }
 
-    network::HttpRequest* pRequest = new network::HttpRequest();
-    pRequest->setRequestData(sBody.c_str(), sBody.length());
-    pRequest->setHeaders(rArrHeaders);
-    pRequest->setUrl(sURL.c_str());
-    pRequest->setRequestType(request->mMethod);
-    pRequest->setResponseCallback(CC_CALLBACK_2(HttpRequesterCURL::onRequestFinished, this));
+    network::HttpRequest* httpRequest = new network::HttpRequest();
+    httpRequest->setRequestData(sBody.c_str(), sBody.length());
+    httpRequest->setHeaders(rArrHeaders);
+    httpRequest->setUrl(sURL.c_str());
+    httpRequest->setRequestType(request->mMethod);
+    httpRequest->setResponseCallback(CC_CALLBACK_2(HttpRequesterCURL::onRequestFinished, this));
+    m_rMapRequests[httpRequest] = std::make_pair(request, callback);
 
     network::HttpClient* httpClient = network::HttpClient::getInstance();
-    m_rMapRequests[httpClient] = std::make_pair(request, callback);
-    httpClient->send(pRequest);
-    pRequest->release();
+    httpClient->send(httpRequest);
+    httpRequest->release();
 }
 
 void HttpRequesterCURL::onRequestFinished(network::HttpClient* pCCHttpClient, network::HttpResponse* pCCHttpResponse)
 {
-    if (m_rMapRequests.find(pCCHttpClient) != m_rMapRequests.end())
+    auto httpRequest = pCCHttpResponse->getHttpRequest();
+    if (m_rMapRequests.find(httpRequest) != m_rMapRequests.end())
     {
-        const auto& rPair = m_rMapRequests[pCCHttpClient];
+        const auto& rPair = m_rMapRequests[httpRequest];
 
         if (rPair.second)
         {
@@ -73,7 +59,7 @@ void HttpRequesterCURL::onRequestFinished(network::HttpClient* pCCHttpClient, ne
         else
             delete rPair.first; // Request is released in callback, but not in this case.
 
-        m_rMapRequests.erase(pCCHttpClient);
+        m_rMapRequests.erase(httpRequest);
     }
     else
     {

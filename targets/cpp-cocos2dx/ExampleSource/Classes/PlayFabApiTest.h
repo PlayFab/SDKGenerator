@@ -1,17 +1,30 @@
 #include <fstream>
+#include "cocos2d.h"
+#include "PlayFabSettings.h"
 #include "PlayFabClientDataModels.h"
 #include "PlayFabServerDataModels.h"
 #include "PlayFabClientAPI.h"
 #include "PlayFabServerAPI.h"
-#include "cocos2d.h"
-#include "PlayFabSettings.h"
-#include <fstream>
 
-using namespace std;
 using namespace rapidjson;
 using namespace PlayFab;
 using namespace ClientModels;
 using namespace ServerModels;
+
+#if CC_TARGET_PLATFORM == CC_PLATFORM_ANDROID
+#include <string>
+#include <sstream>
+
+namespace std {
+    template <typename T>
+    string to_string(T value)
+    {
+        ostringstream os;
+        os << value;
+        return os.str();
+    }
+}
+#endif
 
 typedef bool(*unittest_pointer)(void);
 
@@ -142,7 +155,7 @@ namespace PlayFabApiTest
         static std::string GenerateSummary()
         {
             _outputSummary = "";
-            _outputSummary._Grow(10000, false);
+            // _outputSummary._Grow(10000, false); Doesn't exist on android *sigh*
 
             time_t now = clock();
             int numPassed = 0;
@@ -246,7 +259,7 @@ namespace PlayFabApiTest
             auto each = testInputs.FindMember("titleId");
             if (each != end) playFabSettings->titleId = each->value.GetString();
 
-            string blah;
+            std::string blah;
             each = testInputs.FindMember("titleCanUpdateSettings");
             if (each != end) blah = each->value.GetString();
             TITLE_CAN_UPDATE_SETTINGS = (blah.compare("true") == 0 || blah.compare("True") == 0 || blah.compare("TRUE") == 0);
@@ -274,7 +287,7 @@ namespace PlayFabApiTest
         {
             time_t now = clock();
             if (testContext.activeState != READY // Not finished
-                && (now - testContext.startTime) < 3000) // Not timed out
+                && (now - testContext.startTime) < 10000) // Not timed out
                 return;
 
             testContext.endTime = now;

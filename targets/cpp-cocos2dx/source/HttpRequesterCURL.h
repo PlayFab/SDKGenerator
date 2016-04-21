@@ -28,7 +28,7 @@ namespace PlayFab
         void onRequestFinished(cocos2d::network::HttpClient* pCCHttpClient, cocos2d::network::HttpResponse* pCCHttpResponse);
         static std::string getDataFromResponse(cocos2d::network::HttpResponse* pResponse);
 
-        std::map<cocos2d::network::HttpClient*, std::pair<HttpRequest*, RequestCompleteCallback>> m_rMapRequests;
+        std::map<cocos2d::network::HttpRequest*, std::pair<HttpRequest*, RequestCompleteCallback>> m_rMapRequests;
     };
 }
 

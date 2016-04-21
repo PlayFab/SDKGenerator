@@ -3,7 +3,7 @@
 
 USING_NS_CC;
 
-string HelloWorld::cmdLine;
+std::string HelloWorld::cmdLine;
 cocos2d::Label* HelloWorld::testReportLabel;
 
 Scene* HelloWorld::createScene()
@@ -85,6 +85,6 @@ void HelloWorld::update(float delta)
     testReportLabel->setPosition(Vec2(origin.x + visibleSize.width / 2, origin.y + visibleSize.height / 2));
     testReportLabel->setString(testReport);
 
-    if (finished && HelloWorld::cmdLine.find("-exit") != string::npos)
+    if (finished && HelloWorld::cmdLine.find("-exit") != std::string::npos)
         exit(0);
 }

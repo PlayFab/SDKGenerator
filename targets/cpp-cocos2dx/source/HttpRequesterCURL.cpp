@@ -1,226 +1,83 @@
 #include "HttpRequesterCURL.h"
 #include "HttpRequest.h"
 
-#include <curl/curl.h>
-
-#include "PlayFabZlib.h"
-
-#define CHUNK 0x4000
-
 using namespace PlayFab;
-
-unsigned long GetMaxCompressedLen(unsigned long nLenSrc)
-{
-    unsigned long n16kBlocks = (nLenSrc + 16383) / 16384;
-    return  (nLenSrc + 6 + (n16kBlocks * 5));
-}
-
+USING_NS_CC;
 
 HttpRequesterCURL::HttpRequesterCURL()
 {
-    mHandle = curl_multi_init();
 }
 
 HttpRequesterCURL::~HttpRequesterCURL()
 {
-    for (size_t i = 0; i < mHandles.size(); ++i)
-    {
-        CleanupRequest(mHandles[i]);
-    }
-
-
-    curl_multi_cleanup(mHandle);
 }
 
-PlayFabErrorCode HttpRequesterCURL::AddRequest(HttpRequest* request, RequestCompleteCallback callback, void* callbackData)
+int HttpRequesterCURL::GetPendingCalls() const
 {
-    PlayFabErrorCode res = PlayFabErrorSuccess;
-
-    curl_slist* headers = NULL;
-
-    CURL* handle = curl_easy_init();
-    if (handle != NULL)
-    {
-        for (size_t i = 0; i < request->GetHeaderCount(); ++i)
-        {
-            std::string header;
-            if (request->GetHeader(i, header))
-            {
-                headers = curl_slist_append(headers, header.c_str());
-            }
-        }
-
-
-        std::string body = request->GetBody();
-        char* buffer = NULL;
-        size_t bodyLen = 0;
-        int compressionLevel = 0; //request->GetCompressionLevel(); Temporarily disabled due to mobile problems
-        if (compressionLevel != 0)
-        {
-            unsigned long ret = 0;
-            if (body.length() > 0)
-            {
-                std::string tempString;
-                unsigned char out_buffer[CHUNK];
-
-                z_stream zStream;
-                zStream.zalloc = Z_NULL;
-                zStream.zfree = Z_NULL;
-                zStream.opaque = Z_NULL;
-                ret = deflateInit2(&zStream, compressionLevel, Z_DEFLATED, 15 | 16, 8, Z_DEFAULT_STRATEGY);
-                if (ret == Z_OK)
-                {
-
-                    zStream.next_in = (Bytef*)body.c_str();
-                    zStream.avail_in = (uInt)body.length();
-
-                    do
-                    {
-                        zStream.next_out = (Bytef*)out_buffer;
-                        zStream.avail_out = CHUNK;
-
-                        ret = deflate(&zStream, Z_FINISH);
-                        int have = CHUNK - zStream.avail_out;
-                        tempString.append((const char*)out_buffer, have);
-                        /*if(ret == Z_STREAM_END)
-                        {
-                        ret = zStream.total_out;
-                        }*/
-                    } while (zStream.avail_out == 0);
-                }
-                deflateEnd(&zStream);
-
-                bodyLen = tempString.length();
-                buffer = new char[bodyLen + 1];
-                sprintf(buffer, "%s", tempString.c_str());
-                buffer[bodyLen] = 0;
-
-                headers = curl_slist_append(headers, "Content-Encoding: gzip");
-
-            }
-        }
-        else if (body.length() > 0)
-        {
-            bodyLen = body.length();
-            buffer = new char[bodyLen + 1];
-            sprintf(buffer, "%s", body.c_str());
-            buffer[body.length()] = 0;
-        }
-
-#if LOCALHOST_PROXY
-        curl_easy_setopt(handle, CURLOPT_PROXY, "127.0.0.1:8888");
-#endif
-        //Accept-Encoding: gzip
-        if (request->GetAcceptGZip())
-        {
-            curl_easy_setopt(handle, CURLOPT_ENCODING, "gzip");
-        }
-
-        curl_easy_setopt(handle, CURLOPT_URL, request->GetUrl().c_str());
-        curl_easy_setopt(handle, CURLOPT_CUSTOMREQUEST, request->GetMethod().c_str());
-
-        if (headers != NULL)
-        {
-            curl_easy_setopt(handle, CURLOPT_HTTPHEADER, headers);
-        }
-
-        if (buffer != NULL)
-        {
-            curl_easy_setopt(handle, CURLOPT_POSTFIELDSIZE, bodyLen);
-            curl_easy_setopt(handle, CURLOPT_POSTFIELDS, buffer);
-        }
-
-        //Note: Peer certifcates were not validating in early tests.
-        curl_easy_setopt(handle, CURLOPT_SSL_VERIFYPEER, 0L);
-
-        curl_easy_setopt(handle, CURLOPT_WRITEFUNCTION, HttpRequesterCURL::Write);
-        curl_easy_setopt(handle, CURLOPT_WRITEDATA, request);
-
-        CurlRequest curlRequest =
-        {
-            handle,
-            headers,
-            buffer,
-            callback,
-            request,
-            callbackData
-        };
-        mHandles.push_back(curlRequest);
-
-        curl_multi_add_handle(mHandle, handle);
-
-        //IHttpRequester::AddRequest(request, callback, callbackData);
-    }
-
-    return res;
+    return m_rMapRequests.size();
 }
 
-size_t HttpRequesterCURL::UpdateRequests()
+void HttpRequesterCURL::AddRequest(HttpRequest* request, RequestCompleteCallback callback, void* callbackData)
 {
-    size_t numActiveRequests = mHandles.size();
-    if (numActiveRequests > 0)
+    std::string sURL = request->mUrl;
+    std::string sBody = request->mBody;
+    std::vector<std::string> rArrHeaders;
+
+    std::string sHeader;
+    for (ssize_t tIndex = 0; tIndex < request->GetHeaderCount(); tIndex++)
     {
-        curl_multi_perform(mHandle, (int*)&numActiveRequests);
-        if (numActiveRequests < mHandles.size())
-            FinalizeRequests();
+        if (request->GetHeader(tIndex, sHeader))
+            rArrHeaders.push_back(sHeader);
     }
 
-    return mHandles.size(); // mHandles can change during FinalizeRequests
+    network::HttpRequest* httpRequest = new network::HttpRequest();
+    httpRequest->setRequestData(sBody.c_str(), sBody.length());
+    httpRequest->setHeaders(rArrHeaders);
+    httpRequest->setUrl(sURL.c_str());
+    httpRequest->setRequestType(request->mMethod);
+    httpRequest->setResponseCallback(CC_CALLBACK_2(HttpRequesterCURL::onRequestFinished, this));
+    m_rMapRequests[httpRequest] = std::make_pair(request, callback);
+
+    network::HttpClient* httpClient = network::HttpClient::getInstance();
+    httpClient->send(httpRequest);
+    httpRequest->release();
 }
 
-void HttpRequesterCURL::FinalizeRequests()
+void HttpRequesterCURL::onRequestFinished(network::HttpClient* pCCHttpClient, network::HttpResponse* pCCHttpResponse)
 {
-    long httpResponseStatus = 0;
-    int queuedMessages = 0;
-    CURLMsg* msg = NULL;
-    while ((msg = curl_multi_info_read(mHandle, &queuedMessages)))
+    auto httpRequest = pCCHttpResponse->getHttpRequest();
+    if (m_rMapRequests.find(httpRequest) != m_rMapRequests.end())
     {
-        for (size_t i = 0; i < mHandles.size(); ++i)
+        const auto& rPair = m_rMapRequests[httpRequest];
+
+        if (rPair.second)
         {
-            if (mHandles[i].handle == msg->easy_handle)
-            {
-                CurlRequest request = mHandles[i];
-
-                CURLcode curlCode = curl_easy_getinfo(request.handle, CURLINFO_RESPONSE_CODE, &httpResponseStatus);
-                (void)curlCode;
-                // TODO: utilize the curlCode
-
-                if (request.callback != NULL)
-                {
-                    request.callback((int)httpResponseStatus, request.request, request.callbackData);
-                }
-
-                CleanupRequest(request);
-                mHandles.erase(mHandles.begin() + i);
-                break;
-            }
+            std::string sResponse = getDataFromResponse(pCCHttpResponse);
+            rPair.first->AppendToResponse(sResponse);
+            rPair.second(static_cast<int>(pCCHttpResponse->getResponseCode()), rPair.first, nullptr);
         }
+        else
+            delete rPair.first; // Request is released in callback, but not in this case.
+
+        m_rMapRequests.erase(httpRequest);
+    }
+    else
+    {
+        // This is super bad.  There's a bunch of memory leaks, and the call never returns, etc etc.
+        CCLOG("%s", "Critical error, HttpClient callback did not match a pending request.");
     }
 }
 
-void HttpRequesterCURL::CleanupRequest(CurlRequest request)
+std::string HttpRequesterCURL::getDataFromResponse(cocos2d::network::HttpResponse* pResponse)
 {
-    if (request.headers != NULL)
-    {
-        curl_slist_free_all((curl_slist*)request.headers);
-    }
+    std::string sRetValue;
 
-    curl_easy_cleanup(request.handle);
+    size_t tSize = pResponse->getResponseData()->size();
+    char* pData = reinterpret_cast<char*>(malloc(sizeof(char*) * (tSize + 1))); // +1 for the extra \0 character
+    memcpy(pData, &(*pResponse->getResponseData())[0], tSize);
+    pData[tSize] = 0;
+    sRetValue = pData;
+    free(pData);
 
-    if (request.body != NULL)
-    {
-        delete request.body;
-        request.body = NULL;
-    }
-}
-
-size_t HttpRequesterCURL::Write(void* responseData, size_t dataSize, size_t dataLength, void* customData)
-{
-    HttpRequest* request = (HttpRequest*)customData;
-    char* data = (char*)responseData;
-    data[dataSize * dataLength] = '\0';
-
-    request->AppendToResponse((char*)responseData);
-
-    return dataSize * dataLength;
+    return sRetValue;
 }

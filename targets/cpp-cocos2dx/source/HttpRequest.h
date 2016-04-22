@@ -3,36 +3,32 @@
 
 #include <string>
 #include <vector>
+#include <cocos/network/HttpClient.h>
 
 #include "PlayFabError.h"
 
 namespace PlayFab
 {
-
-    class HttpRequest
+    struct HttpRequest // TODO: Rename to CallRequestContainer to match other sdks
     {
-    public:
         HttpRequest(std::string method, std::string url);
-
-        std::string GetMethod() const;
-        std::string GetUrl() const;
+        ~HttpRequest();
 
         void SetBody(std::string body);
-        std::string GetBody() const;
         void CompressBody(int level = -1);
-        int GetCompressionLevel();
+        int GetCompressionLevel() const;
 
         void SetResultCallback(void* callback);
-        void* GetResultCallback();
+        void* GetResultCallback() const;
 
         void SetErrorCallback(ErrorCallback callback);
-        ErrorCallback GetErrorCallback();
+        ErrorCallback GetErrorCallback() const;
 
         void SetUserData(void* data);
-        void* GetUserData();
+        void* GetUserData() const;
 
         void AcceptGZip(bool accept = true);
-        bool GetAcceptGZip();
+        bool GetAcceptGZip() const;
 
         void SetHeader(std::string key, std::string value);
         bool GetHeader(size_t index, std::string& header) const;
@@ -41,11 +37,10 @@ namespace PlayFab
         void AppendToResponse(std::string text);
         std::string GetReponse() const;
 
-    private:
         bool mAcceptGZip;
         int mCompression;
         std::string mUrl;
-        std::string mMethod;
+        cocos2d::network::HttpRequest::Type mMethod;
         std::string mBody;
         std::vector<std::string> mHeaders;
 

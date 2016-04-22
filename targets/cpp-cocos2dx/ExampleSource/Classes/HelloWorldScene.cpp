@@ -3,13 +3,14 @@
 
 USING_NS_CC;
 
-string HelloWorld::cmdLine;
+std::string HelloWorld::cmdLine;
+cocos2d::Label* HelloWorld::testReportLabel;
 
 Scene* HelloWorld::createScene()
 {
     // 'scene' is an autorelease object
     auto scene = Scene::create();
-    
+
     // 'layer' is an autorelease object
     auto layer = HelloWorld::create();
 
@@ -25,11 +26,11 @@ bool HelloWorld::init()
 {
     //////////////////////////////
     // 1. super init first
-    if ( !Layer::init() )
+    if (!Layer::init())
     {
         return false;
     }
-    
+
     Size visibleSize = Director::getInstance()->getVisibleSize();
     Vec2 origin = Director::getInstance()->getVisibleOrigin();
 
@@ -39,51 +40,31 @@ bool HelloWorld::init()
 
     // add a "close" icon to exit the progress. it's an autorelease object
     auto closeItem = MenuItemImage::create(
-                                           "CloseNormal.png",
-                                           "CloseSelected.png",
-                                           CC_CALLBACK_1(HelloWorld::menuCloseCallback, this));
-    
-	closeItem->setPosition(Vec2(origin.x + visibleSize.width - closeItem->getContentSize().width/2 ,
-                                origin.y + closeItem->getContentSize().height/2));
+        "CloseNormal.png",
+        "CloseSelected.png",
+        CC_CALLBACK_1(HelloWorld::menuCloseCallback, this));
+
+    closeItem->setPosition(Vec2(origin.x + visibleSize.width - closeItem->getContentSize().width / 2,
+        origin.y + closeItem->getContentSize().height / 2));
 
     // create menu, it's an autorelease object
     auto menu = Menu::create(closeItem, NULL);
     menu->setPosition(Vec2::ZERO);
     this->addChild(menu, 1);
+    this->scheduleUpdate();
 
     /////////////////////////////
     // 3. add your codes below...
 
-    // add a label shows "Hello World"
-    // create and initialize a label
-    
-	string testReport;
-	int exitCode = PlayFabApiTest::HackishManualTestExecutor();
+    // Test suite setup
+    PlayFabApiTest::PlayFabApiTests::InitializeTestSuite();
 
-	auto label = Label::createWithTTF(PlayFabApiTest::GetTestReport(), "fonts/Marker Felt.ttf", 24);
-    
-    // position the label on the center of the screen
-    label->setPosition(Vec2(origin.x + visibleSize.width/2,
-                            origin.y + visibleSize.height - label->getContentSize().height));
-
-    // add the label as a child to this layer
-    this->addChild(label, 1);
-
-    // add "HelloWorld" splash screen"
-    auto sprite = Sprite::create("HelloWorld.png");
-
-    // position the sprite on the center of the screen
-    sprite->setPosition(Vec2(visibleSize.width/2 + origin.x, visibleSize.height/2 + origin.y));
-
-    // add the sprite as a child to this layer
-    this->addChild(sprite, 0);
-
-	if (HelloWorld::cmdLine.find("-exit") != string::npos)
-		exit(exitCode);
+    // Test output setup
+    testReportLabel = Label::createWithTTF("", "fonts/Marker Felt.ttf", 14);
+    this->addChild(testReportLabel, 1);
 
     return true;
 }
-
 
 void HelloWorld::menuCloseCallback(Ref* pSender)
 {
@@ -92,4 +73,18 @@ void HelloWorld::menuCloseCallback(Ref* pSender)
 #if (CC_TARGET_PLATFORM == CC_PLATFORM_IOS)
     exit(0);
 #endif
+}
+
+void HelloWorld::update(float delta)
+{
+    Size visibleSize = Director::getInstance()->getVisibleSize();
+    Vec2 origin = Director::getInstance()->getVisibleOrigin();
+
+    bool finished = PlayFabApiTest::PlayFabApiTests::TickTestSuite();
+    std::string testReport = PlayFabApiTest::PlayFabApiTests::GenerateSummary();
+    testReportLabel->setPosition(Vec2(origin.x + visibleSize.width / 2, origin.y + visibleSize.height / 2));
+    testReportLabel->setString(testReport);
+
+    if (finished && HelloWorld::cmdLine.find("-exit") != std::string::npos)
+        exit(0);
 }

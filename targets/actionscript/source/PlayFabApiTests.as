@@ -313,7 +313,7 @@ package
             var now:Date = new Date();
             var testMin:Date = new Date(now.getTime() - (5*60*1000));
             var testMax:Date = new Date(now.getTime() + (5*60*1000));
-            ASyncAssert.AssertTrue(testMin <= timeUpdated && timeUpdated <= testMax);
+            ASyncAssert.AssertTrue(testMin <= timeUpdated && timeUpdated <= testMax, testMin.toString() + " !< " + timeUpdated.toString() + " !< " + testMax.toString());
             
             FinishTestHandler(new ASyncUnitTestEvent(ASyncUnitTestEvent.FINISH_TEST, ASyncUnitTestEvent.RESULT_PASSED, ""));
         }

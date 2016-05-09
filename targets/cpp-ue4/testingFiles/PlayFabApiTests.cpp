@@ -4,6 +4,8 @@
 #include "PlayFabApiTests.h"
 #include "Core/PlayFabSettings.h"
 
+DEFINE_LOG_CATEGORY(LogPlayFab); // This is a separate project from the PlayFab plugin, so this has to be re-defined in this project - This is not standard, but these tests should log as playfab, even from another project
+
 /*
 * ==== Test Suite ====
 */
@@ -48,11 +50,11 @@ void PlayFabApiTest_LoginWithEmail::OnSuccess(const PlayFab::ClientModels::FLogi
 {
     if (!successExpected)
     {
-        UE_LOG(LogTemp, Error, TEXT("LoginWithEmailAddress Succeeded where it should have failed"));
+        UE_LOG(LogPlayFab, Error, TEXT("LoginWithEmailAddress Succeeded where it should have failed"));
     }
     else // Mandatory or not, the test succeeded
     {
-        UE_LOG(LogTemp, Log, TEXT("LoginWithEmailAddress Success"));
+        UE_LOG(LogPlayFab, Log, TEXT("LoginWithEmailAddress Success"));
         PlayFabApiTestSuite::playFabId = Result.PlayFabId;
     }
 }
@@ -61,7 +63,7 @@ void PlayFabApiTest_LoginWithEmail::OnError(const PlayFab::FPlayFabError& ErrorR
 {
     if (successExpected && successMandatory) // Check for success, or ...
     {
-        UE_LOG(LogTemp, Error, TEXT("LoginWithEmailAddress Failed: %s"), *(ErrorResult.ErrorMessage));
+        UE_LOG(LogPlayFab, Error, TEXT("LoginWithEmailAddress Failed: %s"), *(ErrorResult.ErrorMessage));
     }
     else if (successExpected && !successMandatory)
     {
@@ -69,7 +71,7 @@ void PlayFabApiTest_LoginWithEmail::OnError(const PlayFab::FPlayFabError& ErrorR
     }
     else if (ErrorResult.ErrorMessage.Find(TEXT("password")) == -1) // Check that we correctly received a notice about invalid password
     {
-        UE_LOG(LogTemp, Error, TEXT("Non-password error with login"));
+        UE_LOG(LogPlayFab, Error, TEXT("Non-password error with login"));
     }
 }
 
@@ -107,13 +109,13 @@ bool PlayFabApiTest_RegisterPlayFabUser::Update()
 
 void PlayFabApiTest_RegisterPlayFabUser::OnSuccess(const PlayFab::ClientModels::FRegisterPlayFabUserResult& Result) const
 {
-    UE_LOG(LogTemp, Log, TEXT("RegisterPlayFabUser Success"));
+    UE_LOG(LogPlayFab, Log, TEXT("RegisterPlayFabUser Success"));
     ADD_LATENT_AUTOMATION_COMMAND(PlayFabApiTest_LoginWithEmail(true, true, username, email, password));
 }
 
 void PlayFabApiTest_RegisterPlayFabUser::OnError(const PlayFab::FPlayFabError& ErrorResult) const
 {
-    UE_LOG(LogTemp, Error, TEXT("RegisterPlayFabUser Failed: %s"), *(ErrorResult.ErrorMessage));
+    UE_LOG(LogPlayFab, Error, TEXT("RegisterPlayFabUser Failed: %s"), *(ErrorResult.ErrorMessage));
 }
 
 /*
@@ -147,7 +149,7 @@ bool PlayFabApiTest_LoginWithAdvertisingId::Update()
     bool success = clientAPI->AdvertIdSuccessful();
     bool failure = tickCounter > 300 && !success;
     if (failure)
-        UE_LOG(LogTemp, Error, TEXT("advertisingId not submitted properly"));
+        UE_LOG(LogPlayFab, Error, TEXT("advertisingId not submitted properly"));
 
     // Return when the api call is resolved
     return clientAPI->GetPendingCalls() == 0 && (failure || success);
@@ -155,12 +157,12 @@ bool PlayFabApiTest_LoginWithAdvertisingId::Update()
 
 void PlayFabApiTest_LoginWithAdvertisingId::OnSuccess(const PlayFab::ClientModels::FLoginResult& Result) const
 {
-    UE_LOG(LogTemp, Log, TEXT("RegisterPlayFabUser Success"));
+    UE_LOG(LogPlayFab, Log, TEXT("RegisterPlayFabUser Success"));
 }
 
 void PlayFabApiTest_LoginWithAdvertisingId::OnError(const PlayFab::FPlayFabError& ErrorResult) const
 {
-    UE_LOG(LogTemp, Error, TEXT("LoginWithAdvertisingId Failed: %s"), *(ErrorResult.ErrorMessage));
+    UE_LOG(LogPlayFab, Error, TEXT("LoginWithAdvertisingId Failed: %s"), *(ErrorResult.ErrorMessage));
 }
 
 /*
@@ -204,13 +206,13 @@ void PlayFabApiTest_GetUserData::OnSuccess(const PlayFab::ClientModels::FGetUser
     if (expectedValue != -1 && expectedValue != actualValue)
     {
         // If I know what value I'm expecting, and I did not get it, log an error
-        UE_LOG(LogTemp, Error, TEXT("GetUserData: Update value did not match new value %d!=%d"), expectedValue, actualValue);
+        UE_LOG(LogPlayFab, Error, TEXT("GetUserData: Update value did not match new value %d!=%d"), expectedValue, actualValue);
     }
     else if (expectedValue != -1 && expectedValue == actualValue)
     {
         // If I know what value I'm expecting, and I got it, test passed, exit
         CheckTimestamp(target->LastUpdated); // If the value was updated correctly, check the timestamp
-        UE_LOG(LogTemp, Log, TEXT("GetUserData Success"));
+        UE_LOG(LogPlayFab, Log, TEXT("GetUserData Success"));
     }
     else if (expectedValue == -1)
     {
@@ -229,17 +231,17 @@ void PlayFabApiTest_GetUserData::CheckTimestamp(const FDateTime& updateTime) con
 
     if (minTest <= updateTime && updateTime <= maxTest)
     {
-        UE_LOG(LogTemp, Log, TEXT("GetUserData: LastUpdated timestamp parsed as expected"));
+        UE_LOG(LogPlayFab, Log, TEXT("GetUserData: LastUpdated timestamp parsed as expected"));
     }
     else
     {
-        UE_LOG(LogTemp, Error, TEXT("GetUserData: LastUpdated timestamp was not parsed correctly"));
+        UE_LOG(LogPlayFab, Error, TEXT("GetUserData: LastUpdated timestamp was not parsed correctly"));
     }
 }
 
 void PlayFabApiTest_GetUserData::OnError(const PlayFab::FPlayFabError& ErrorResult) const
 {
-    UE_LOG(LogTemp, Error, TEXT("GetUserData Failed: %s"), *(ErrorResult.ErrorMessage));
+    UE_LOG(LogPlayFab, Error, TEXT("GetUserData Failed: %s"), *(ErrorResult.ErrorMessage));
 }
 
 /*
@@ -284,7 +286,7 @@ void PlayFabApiTest_UpdateUserData::OnSuccess(const PlayFab::ClientModels::FUpda
 
 void PlayFabApiTest_UpdateUserData::OnError(const PlayFab::FPlayFabError& ErrorResult) const
 {
-    UE_LOG(LogTemp, Error, TEXT("UpdateUserData Failed: %s"), *(ErrorResult.ErrorMessage));
+    UE_LOG(LogPlayFab, Error, TEXT("UpdateUserData Failed: %s"), *(ErrorResult.ErrorMessage));
 }
 
 /*
@@ -320,11 +322,11 @@ void PlayFabApiTest_GetUserStatistics::OnSuccess(const PlayFab::ClientModels::FG
 
     if (expectedValue != -1 && expectedValue != actualValue)
     {
-        UE_LOG(LogTemp, Error, TEXT("GetUserStatistics: Update value did not match new value"));
+        UE_LOG(LogPlayFab, Error, TEXT("GetUserStatistics: Update value did not match new value"));
     }
     else if (expectedValue != -1 && expectedValue == actualValue)
     {
-        UE_LOG(LogTemp, Log, TEXT("GetUserStatistics Success"));
+        UE_LOG(LogPlayFab, Log, TEXT("GetUserStatistics Success"));
     }
     else if (expectedValue == -1)
     {
@@ -336,7 +338,7 @@ void PlayFabApiTest_GetUserStatistics::OnSuccess(const PlayFab::ClientModels::FG
 
 void PlayFabApiTest_GetUserStatistics::OnError(const PlayFab::FPlayFabError& ErrorResult) const
 {
-    UE_LOG(LogTemp, Error, TEXT("GetUserStatistics Failed: %s"), *(ErrorResult.ErrorMessage));
+    UE_LOG(LogPlayFab, Error, TEXT("GetUserStatistics Failed: %s"), *(ErrorResult.ErrorMessage));
 }
 
 /*
@@ -377,7 +379,7 @@ void PlayFabApiTest_UpdateUserStatistics::OnSuccess(const PlayFab::ClientModels:
 
 void PlayFabApiTest_UpdateUserStatistics::OnError(const PlayFab::FPlayFabError& ErrorResult) const
 {
-    UE_LOG(LogTemp, Error, TEXT("UpdateUserStatistics Failed: %s"), *(ErrorResult.ErrorMessage));
+    UE_LOG(LogPlayFab, Error, TEXT("UpdateUserStatistics Failed: %s"), *(ErrorResult.ErrorMessage));
 }
 
 /*
@@ -425,11 +427,11 @@ void PlayFabApiTest_GetAllUsersCharacters::OnSuccess(const PlayFab::ClientModels
 
     if (!characterFound && expectSuccess)
     {
-        UE_LOG(LogTemp, Error, TEXT("GetAllUsersCharacters: Could not find required character"));
+        UE_LOG(LogPlayFab, Error, TEXT("GetAllUsersCharacters: Could not find required character"));
     }
     else if (characterFound)
     {
-        UE_LOG(LogTemp, Log, TEXT("GetAllUsersCharacters Success"));
+        UE_LOG(LogPlayFab, Log, TEXT("GetAllUsersCharacters Success"));
     }
     else if (!characterFound)
     {
@@ -439,7 +441,7 @@ void PlayFabApiTest_GetAllUsersCharacters::OnSuccess(const PlayFab::ClientModels
 
 void PlayFabApiTest_GetAllUsersCharacters::OnError(const PlayFab::FPlayFabError& ErrorResult) const
 {
-    UE_LOG(LogTemp, Error, TEXT("GetAllUsersCharacters Failed: %s"), *(ErrorResult.ErrorMessage));
+    UE_LOG(LogPlayFab, Error, TEXT("GetAllUsersCharacters Failed: %s"), *(ErrorResult.ErrorMessage));
 }
 
 /*
@@ -482,7 +484,7 @@ void PlayFabApiTest_GrantCharacterToUser::OnSuccess(const PlayFab::ServerModels:
 
 void PlayFabApiTest_GrantCharacterToUser::OnError(const PlayFab::FPlayFabError& ErrorResult) const
 {
-    UE_LOG(LogTemp, Error, TEXT("GrantCharacterToUser Failed: %s"), *(ErrorResult.ErrorMessage));
+    UE_LOG(LogPlayFab, Error, TEXT("GrantCharacterToUser Failed: %s"), *(ErrorResult.ErrorMessage));
 }
 
 /*
@@ -520,17 +522,17 @@ void PlayFabApiTest_GetLeaderboardC::OnSuccess(const PlayFab::ClientModels::FGet
 
     if (count > 0)
     {
-        UE_LOG(LogTemp, Log, TEXT("GetLeaderboard Succeeded"));
+        UE_LOG(LogPlayFab, Log, TEXT("GetLeaderboard Succeeded"));
     }
     else
     {
-        UE_LOG(LogTemp, Error, TEXT("GetLeaderboard found zero results."));
+        UE_LOG(LogPlayFab, Error, TEXT("GetLeaderboard found zero results."));
     }
 }
 
 void PlayFabApiTest_GetLeaderboardC::OnError(const PlayFab::FPlayFabError& ErrorResult) const
 {
-    UE_LOG(LogTemp, Error, TEXT("GetLeaderboard Failed: %s"), *(ErrorResult.ErrorMessage));
+    UE_LOG(LogPlayFab, Error, TEXT("GetLeaderboard Failed: %s"), *(ErrorResult.ErrorMessage));
 }
 
 /*
@@ -568,17 +570,17 @@ void PlayFabApiTest_GetLeaderboardS::OnSuccess(const PlayFab::ServerModels::FGet
 
     if (count > 0)
     {
-        UE_LOG(LogTemp, Log, TEXT("GetLeaderboard Succeeded"));
+        UE_LOG(LogPlayFab, Log, TEXT("GetLeaderboard Succeeded"));
     }
     else
     {
-        UE_LOG(LogTemp, Error, TEXT("GetLeaderboard found zero results."));
+        UE_LOG(LogPlayFab, Error, TEXT("GetLeaderboard found zero results."));
     }
 }
 
 void PlayFabApiTest_GetLeaderboardS::OnError(const PlayFab::FPlayFabError& ErrorResult) const
 {
-    UE_LOG(LogTemp, Error, TEXT("GetLeaderboard Failed: %s"), *(ErrorResult.ErrorMessage));
+    UE_LOG(LogPlayFab, Error, TEXT("GetLeaderboard Failed: %s"), *(ErrorResult.ErrorMessage));
 }
 
 /*
@@ -610,12 +612,12 @@ bool PlayFabApiTest_GetAccountInfo::Update()
 void PlayFabApiTest_GetAccountInfo::OnSuccess(const PlayFab::ClientModels::FGetAccountInfoResult& Result) const
 {
     auto origination = Result.AccountInfo->TitleInfo->Origination.mValue; // C++ can't really do anything with this once fetched
-    UE_LOG(LogTemp, Log, TEXT("GetAccountInfo Succeeded"));
+    UE_LOG(LogPlayFab, Log, TEXT("GetAccountInfo Succeeded"));
 }
 
 void PlayFabApiTest_GetAccountInfo::OnError(const PlayFab::FPlayFabError& ErrorResult) const
 {
-    UE_LOG(LogTemp, Error, TEXT("GetAccountInfo Failed: %s"), *(ErrorResult.ErrorMessage));
+    UE_LOG(LogPlayFab, Error, TEXT("GetAccountInfo Failed: %s"), *(ErrorResult.ErrorMessage));
 }
 
 /*
@@ -647,13 +649,13 @@ bool PlayFabApiTest_GetCloudScriptUrl::Update()
 
 void PlayFabApiTest_GetCloudScriptUrl::OnSuccess(const PlayFab::ClientModels::FGetCloudScriptUrlResult& Result) const
 {
-    UE_LOG(LogTemp, Log, TEXT("GetCloudScriptUrl Succeeded"));
+    UE_LOG(LogPlayFab, Log, TEXT("GetCloudScriptUrl Succeeded"));
     ADD_LATENT_AUTOMATION_COMMAND(PlayFabApiTest_RunCloudScript(actionId));
 }
 
 void PlayFabApiTest_GetCloudScriptUrl::OnError(const PlayFab::FPlayFabError& ErrorResult) const
 {
-    UE_LOG(LogTemp, Error, TEXT("GetCloudScriptUrl Failed: %s"), *(ErrorResult.ErrorMessage));
+    UE_LOG(LogPlayFab, Error, TEXT("GetCloudScriptUrl Failed: %s"), *(ErrorResult.ErrorMessage));
 }
 
 
@@ -687,10 +689,10 @@ bool PlayFabApiTest_RunCloudScript::Update()
 
 void PlayFabApiTest_RunCloudScript::OnSuccess(const PlayFab::ClientModels::FRunCloudScriptResult& Result) const
 {
-    UE_LOG(LogTemp, Log, TEXT("RunCloudScript Succeeded"));
+    UE_LOG(LogPlayFab, Log, TEXT("RunCloudScript Succeeded"));
 }
 
 void PlayFabApiTest_RunCloudScript::OnError(const PlayFab::FPlayFabError& ErrorResult) const
 {
-    UE_LOG(LogTemp, Error, TEXT("RunCloudScript Failed: %s"), *(ErrorResult.ErrorMessage));
+    UE_LOG(LogPlayFab, Error, TEXT("RunCloudScript Failed: %s"), *(ErrorResult.ErrorMessage));
 }

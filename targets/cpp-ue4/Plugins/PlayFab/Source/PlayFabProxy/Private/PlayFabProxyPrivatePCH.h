@@ -16,7 +16,4 @@
 #include "UnrealEd.h"
 #endif
 
-#include "PlayFab.h"
 #include "PlayFabProxy.h"
-
-DECLARE_LOG_CATEGORY_EXTERN(LogPlayFabProxy, Log, All);

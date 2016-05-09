@@ -3,6 +3,7 @@
 #pragma once
 
 #include "CoreMisc.h"
+#include "Runtime/Launch/Resources/Version.h"
 
 #include "PlayFab.h"
 #include "Core/PlayFabClientDataModels.h"
@@ -327,7 +328,11 @@ public:
         ADD_TEST(CloudScript);
     }
 
+#if (ENGINE_MAJOR_VERSION == 4 && ENGINE_MINOR_VERSION >= 11)
+    virtual uint32 GetTestFlags() const override { return EAutomationTestFlags::EditorContext | EAutomationTestFlags::EngineFilter; }
+#elif (ENGINE_MAJOR_VERSION == 4 && ENGINE_MINOR_VERSION == 9)
     virtual uint32 GetTestFlags() const override { return EAutomationTestFlags::ATF_Editor; }
+#endif
     virtual bool IsStressTest() const { return false; }
     virtual uint32 GetRequiredDeviceNum() const override { return 1; }
 

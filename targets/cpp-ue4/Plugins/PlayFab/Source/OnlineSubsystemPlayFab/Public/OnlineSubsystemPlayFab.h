@@ -5,6 +5,7 @@
 #include "OnlineSubsystem.h"
 #include "OnlineSubsystemImpl.h"
 #include "OnlineSubsystemPlayFabPackage.h"
+#include "Runtime/Launch/Resources/Version.h"
 
 /** Forward declarations of all interface classes */
 // typedef TSharedPtr<class FOnlineSessionNull, ESPMode::ThreadSafe> FOnlineSessionNullPtr;

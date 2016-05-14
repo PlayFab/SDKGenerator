@@ -65,7 +65,9 @@ for(var subgroup in api.subgroups)
 <%                %>{
 <%                %>    // Temp ustruct
 <%                %>    F<%- api.name %><%- datatype.name %> tempStruct;
-
+<% if (datatype.properties.length > 0) {
+                  %>    UPlayFabJsonObject* dataObj = !(response->HasField("data")) ? nullptr : response->GetObjectField("data");
+<% } %>
 <%                // Now loop through all the properties to create the variables for the struct
                 for(var z in datatype.properties)
                 {
@@ -80,26 +82,26 @@ for(var subgroup in api.subgroups)
                             {
                                 if(property.collection == "array")
                                 {
-                                %>    tempStruct.<%- property.name %> = FString::Join(response->GetObjectField("data")->GetStringArrayField("<%- property.name %>"), TEXT(","));
+                                %>    tempStruct.<%- property.name %> = !(dataObj->HasField("<%- property.name %>")) ? TEXT("") : FString::Join(dataObj->GetStringArrayField("<%- property.name %>"), TEXT(","));
 
 <%
                                 }
                                 if(property.collection == "map")
                                 {
-                                %>    tempStruct.<%- property.name %> = response->GetObjectField("data")->GetObjectField("<%- property.name %>");
+                                %>    tempStruct.<%- property.name %> = !(dataObj->HasField("<%- property.name %>")) ? nullptr : dataObj->GetObjectField("<%- property.name %>");
 
 <%
                                 }
                             }
                             else if(property.isenum)
                             {
-                                %>    tempStruct.<%- property.name %> = GetEnumValueFromString<E<%- property.actualtype %>>(TEXT("E<%- property.actualtype %>"), response->GetObjectField("data")->GetStringField("<%- property.name %>"));
+                                %>    GetEnumValueFromString<E<%- property.actualtype %>>(TEXT("E<%- property.actualtype %>"), dataObj->GetStringField("<%- property.name %>"), tempStruct.<%- property.name %>);
 
 <%
                             }
                             else
                             {
-                                %>    tempStruct.<%- property.name %> = response->GetObjectField("data")->GetStringField("<%- property.name %>");
+                                %>    tempStruct.<%- property.name %> = !(dataObj->HasField("<%- property.name %>")) ? TEXT("") : dataObj->GetStringField("<%- property.name %>");
 
 <%
                             }
@@ -110,20 +112,20 @@ for(var subgroup in api.subgroups)
                             {
                                 if(property.collection == "array")
                                 {
-                                %>    tempStruct.<%- property.name %> = response->GetObjectField("data")->GetBoolArrayField("<%- property.name %>");
+                                %>    tempStruct.<%- property.name %> = !(dataObj->HasField("<%- property.name %>")) ? TArray<UPlayFabJsonObject*>() : dataObj->GetBoolArrayField("<%- property.name %>");
 
 <%
                                 }
                                 else
                                 {
-                                %>    tempStruct.<%- property.name %> = response->GetObjectField("data")->GetObjectField("<%- property.name %>");
+                                %>    tempStruct.<%- property.name %> = !(dataObj->HasField("<%- property.name %>")) ? nullptr : dataObj->GetObjectField("<%- property.name %>");
 
 <%
                                 }
                             }
                             else
                             {
-                                %>    tempStruct.<%- property.name %> = response->GetObjectField("data")->GetBoolField("<%- property.name %>");
+                                %>    tempStruct.<%- property.name %> = !(dataObj->HasField("<%- property.name %>")) ? false : dataObj->GetBoolField("<%- property.name %>");
 
 <%
                             }
@@ -136,9 +138,9 @@ for(var subgroup in api.subgroups)
                                 {
                                 %>    // Copy int array to float
 <%                                %>    TArray<int32> tempArray;
-<%                                %>    for (int32 i = 0; i < response->GetObjectField("data")->GetNumberArrayField("<%- property.name %>"); ++i)
+<%                                %>    for (int32 i = 0; i < dataObj->GetNumberArrayField("<%- property.name %>"); ++i)
 <%                                %>    {
-<%                                %>        tempArray.Add(int(response->GetObjectField("data")->GetNumberArrayField("<%- property.name %>")[i]));
+<%                                %>        tempArray.Add(int(dataObj->GetNumberArrayField("<%- property.name %>")[i]));
 <%                                %>    }
 <%                                %>    tempStruct.<%- property.name %> = tempArray;
 
@@ -146,14 +148,14 @@ for(var subgroup in api.subgroups)
                                 }
                                 else
                                 {
-                                %>    tempStruct.<%- property.name %> = response->GetObjectField("data")->GetObjectField("<%- property.name %>");
+                                %>    tempStruct.<%- property.name %> = !(dataObj->HasField("<%- property.name %>")) ? nullptr : dataObj->GetObjectField("<%- property.name %>");
 
 <%
                                 }
                             }
                             else
                             {
-                                %>    tempStruct.<%- property.name %> = int(response->GetObjectField("data")->GetNumberField("<%- property.name %>"));
+                                %>    tempStruct.<%- property.name %> = !(dataObj->HasField("<%- property.name %>")) ? 0 : int(dataObj->GetNumberField("<%- property.name %>"));
 
 <%
                             }
@@ -164,20 +166,20 @@ for(var subgroup in api.subgroups)
                             {
                                 if(property.collection == "array")
                                 {
-                                %>    tempStruct.<%- property.name %> = response->GetObjectField("data")->GetObjectArrayField("<%- property.name %>");
+                                %>    tempStruct.<%- property.name %> = !(dataObj->HasField("<%- property.name %>")) ? TArray<UPlayFabJsonObject*>() : dataObj->GetObjectArrayField("<%- property.name %>");
 
 <%
                                 }
                                 else
                                 {
-                                %>    tempStruct.<%- property.name %> = response->GetObjectField("data")->GetObjectField("<%- property.name %>");
+                                %>    tempStruct.<%- property.name %> = !(dataObj->HasField("<%- property.name %>")) ? nullptr : dataObj->GetObjectField("<%- property.name %>");
 
 <%
                                 }
                             }
                             else
                             {
-                                %>    tempStruct.<%- property.name %> = response->GetObjectField("data")->GetObjectField("<%- property.name %>");
+                                %>    tempStruct.<%- property.name %> = !(dataObj->HasField("<%- property.name %>")) ? nullptr : dataObj->GetObjectField("<%- property.name %>");
 
 <%
                             }
@@ -193,4 +195,3 @@ for(var subgroup in api.subgroups)
         }
     }
 }%>
-

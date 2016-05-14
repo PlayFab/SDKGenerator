@@ -117,7 +117,7 @@ UPlayFabJsonValue* UPlayFabJsonObject::GetField(const FString& FieldName) const
 {
     if (!JsonObj.IsValid())
     {
-        return NULL;
+        return nullptr;
     }
 
     TSharedPtr<FJsonValue> NewVal = JsonObj->TryGetField(FieldName);
@@ -303,7 +303,7 @@ UPlayFabJsonObject* UPlayFabJsonObject::GetObjectField(const FString& FieldName)
 {
     if (!JsonObj.IsValid())
     {
-        return NULL;
+        return nullptr;
     }
 
     TSharedPtr<FJsonObject> JsonObjField = JsonObj->GetObjectField(FieldName);

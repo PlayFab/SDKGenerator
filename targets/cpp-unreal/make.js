@@ -11,6 +11,7 @@ exports.makeClientAPI = function (api, sourceDir, apiOutputDir) {
     makeUnrealAPI([api], apiOutputDir, sourceDir, "Client");
     
     // Now copy over the example project and then put the plugin folder in the right spot
+    makePfTestActor([api], apiOutputDir, sourceDir);
     copyTree(path.resolve(sourceDir, "ExampleProject"), path.resolve(apiOutputDir, "ExampleProject"));
     copyTree(path.resolve(apiOutputDir, "PluginFiles"), path.resolve(apiOutputDir, "ExampleProject/Plugins"));
 }
@@ -26,6 +27,7 @@ exports.makeServerAPI = function (apis, sourceDir, apiOutputDir) {
     makeUnrealAPI(apis, apiOutputDir, sourceDir, "Server");
     
     // Now copy over the example project and then put the plugin folder in the right spot
+    makePfTestActor(apis, apiOutputDir, sourceDir);
     copyTree(path.resolve(sourceDir, "ExampleProject"), path.resolve(apiOutputDir, "ExampleProject"));
     copyTree(path.resolve(apiOutputDir, "PluginFiles"), path.resolve(apiOutputDir, "ExampleProject/Plugins"));
 }
@@ -41,27 +43,28 @@ exports.makeCombinedAPI = function (apis, sourceDir, apiOutputDir) {
     makeUnrealAPI(apis, apiOutputDir, sourceDir, "All");
     
     // Now copy over the example project and then put the plugin folder in the right spot
+    makePfTestActor(apis, apiOutputDir, sourceDir);
     copyTree(path.resolve(sourceDir, "ExampleProject"), path.resolve(apiOutputDir, "ExampleProject"));
     copyTree(path.resolve(apiOutputDir, "PluginFiles"), path.resolve(apiOutputDir, "ExampleProject/Plugins"));
 }
 
 function makeUnrealAPI(apis, apiOutputDir, sourceDir, libname) {
     // Create the uplugin file
-    var versionLocals = {};
-    versionLocals.sdkVersion = exports.sdkVersion;
-    versionLocals.libname = libname;
-    versionLocals.apis = apis;
+    var apiLocals = {};
+    apiLocals.sdkVersion = exports.sdkVersion;
+    apiLocals.libname = libname;
+    apiLocals.apis = apis;
     
     var apiUpluginTemplate = ejs.compile(readFile(path.resolve(sourceDir, "templates/PlayFab.uplugin.ejs")));
-    var generatedUplugin = apiUpluginTemplate(versionLocals);
+    var generatedUplugin = apiUpluginTemplate(apiLocals);
     writeFile(path.resolve(apiOutputDir, "PluginFiles/PlayFab/PlayFab.uplugin"), generatedUplugin);
     
     var apiPlayFabUtilitiesHTemplate = ejs.compile(readFile(path.resolve(sourceDir, "templates/PlayFabUtilities.h.ejs")));
-    var generatedUtilitiesH = apiPlayFabUtilitiesHTemplate(versionLocals);
+    var generatedUtilitiesH = apiPlayFabUtilitiesHTemplate(apiLocals);
     writeFile(path.resolve(apiOutputDir, "PluginFiles/PlayFab/Source/PlayFab/Classes/PlayFabUtilities.h"), generatedUtilitiesH);
     
     var apiPlayFabUtilitiesCppTemplate = ejs.compile(readFile(path.resolve(sourceDir, "templates/PlayFabUtilities.cpp.ejs")));
-    var generatedUtilitiesCpp = apiPlayFabUtilitiesCppTemplate(versionLocals);
+    var generatedUtilitiesCpp = apiPlayFabUtilitiesCppTemplate(apiLocals);
     writeFile(path.resolve(apiOutputDir, "PluginFiles/PlayFab/Source/PlayFab/Private/PlayFabUtilities.cpp"), generatedUtilitiesCpp);
     
     var pfcppLocals = {};
@@ -80,12 +83,32 @@ function makeUnrealAPI(apis, apiOutputDir, sourceDir, libname) {
     makeEnums(apis, apiOutputDir, sourceDir);
 }
 
+function makePfTestActor(apis, apiOutputDir, sourceDir) {
+    var testLocals = {};
+    testLocals.hasServerOptions = false;
+    testLocals.hasClientOptions = false;
+    testLocals.sdkVersion = exports.sdkVersion;
+    for (var i in apis) {
+        if (apis[i].name === "Client")
+            testLocals.hasClientOptions = true;
+        else
+            testLocals.hasServerOptions = true;
+    }
+    var testTemplateH = ejs.compile(readFile(path.resolve(sourceDir, "templates/PfTestActor.h.ejs")));
+    var generatedH = testTemplateH(testLocals);
+    writeFile(path.resolve(apiOutputDir, "ExampleProject/Plugins/PlayFab/Source/PlayFab/Classes/PfTestActor.h"), generatedH);
+
+    var testTemplateCpp = ejs.compile(readFile(path.resolve(sourceDir, "templates/PfTestActor.cpp.ejs")));
+    var generatedCPP = testTemplateCpp(testLocals);
+    writeFile(path.resolve(apiOutputDir, "ExampleProject/Plugins/PlayFab/Source/PlayFab/Private/PfTestActor.cpp"), generatedCPP);
+}
+
 // Create Enums, .h file
 function makeEnums(apis, apiOutputDir, sourceDir) {
     var enumLocals = {
         "enumTypes": collectEnumsFromApis(apis)
     }
-
+    
     var enumTemplate = ejs.compile(readFile(path.resolve(sourceDir, "templates/PlayFabEnums.h.ejs")));
     var genEnums = enumTemplate(enumLocals);
     writeFile(path.resolve(apiOutputDir, "PluginFiles/PlayFab/Source/PlayFab/Classes/PlayFabEnums.h"), genEnums);

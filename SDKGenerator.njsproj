@@ -12,7 +12,7 @@
     <ProjectTypeGuids>{3AF33F2E-1136-4D97-BBB7-1795711AC8B8};{349c5851-65df-11da-9384-00065b846f21};{9092AA53-FB77-4645-B42D-1CCCA6BD08BD}</ProjectTypeGuids>
     <VisualStudioVersion Condition="'$(VisualStudioVersion)' == ''">11.0</VisualStudioVersion>
     <VSToolsPath Condition="'$(VSToolsPath)' == ''">$(MSBuildExtensionsPath32)\Microsoft\VisualStudio\v$(VisualStudioVersion)</VSToolsPath>
-    <ScriptArguments>..\API_Specs csharp-unity=..\sdks\UnitySDK</ScriptArguments>
+    <ScriptArguments>..\API_Specs cpp-unreal=..\sdks\UnrealBlueprintSDK</ScriptArguments>
     <StartWebBrowser>False</StartWebBrowser>
   </PropertyGroup>
   <PropertyGroup Condition="'$(Configuration)' == 'Debug'" />
@@ -156,14 +156,14 @@
     <Content Include="targets\cpp-unreal\ExampleProject\Config\DefaultEngine.ini" />
     <Content Include="targets\cpp-unreal\ExampleProject\Config\DefaultGame.ini" />
     <Content Include="targets\cpp-unreal\ExampleProject\Content\Maps\Test.umap" />
+    <Content Include="targets\cpp-unreal\ExampleProject\Content\PfTestOutput.uasset" />
+    <Content Include="targets\cpp-unreal\ExampleProject\Content\PfTestWidget.uasset" />
     <Content Include="targets\cpp-unreal\ExampleProject\ExampleProject.uproject" />
     <Content Include="targets\cpp-unreal\ExampleProject\Source\ExampleProject.Target.cs" />
     <Content Include="targets\cpp-unreal\ExampleProject\Source\ExampleProjectEditor.Target.cs" />
     <Content Include="targets\cpp-unreal\ExampleProject\Source\ExampleProject\ExampleProject.Build.cs" />
     <Content Include="targets\cpp-unreal\ExampleProject\Source\ExampleProject\ExampleProject.cpp" />
     <Content Include="targets\cpp-unreal\ExampleProject\Source\ExampleProject\ExampleProject.h" />
-    <Content Include="targets\cpp-unreal\ExampleProject\Source\ExampleProject\ExampleProjectGameMode.cpp" />
-    <Content Include="targets\cpp-unreal\ExampleProject\Source\ExampleProject\ExampleProjectGameMode.h" />
     <Content Include="targets\cpp-unreal\Source\PlayFab\Classes\PlayFabBaseModel.h" />
     <Content Include="targets\cpp-unreal\Source\PlayFab\Classes\PlayFabJsonObject.h" />
     <Content Include="targets\cpp-unreal\Source\PlayFab\Classes\PlayFabJsonValue.h" />
@@ -182,6 +182,8 @@
     <Content Include="targets\cpp-unreal\StandardPluginFiles\PlayFabBluePrintMenu.jpg" />
     <Content Include="targets\cpp-unreal\StandardPluginFiles\README.md" />
     <Content Include="targets\cpp-unreal\StandardPluginFiles\Resources\Icon128.png" />
+    <Content Include="targets\cpp-unreal\templates\PfTestActor.cpp.ejs" />
+    <Content Include="targets\cpp-unreal\templates\PfTestActor.h.ejs" />
     <Content Include="targets\cpp-unreal\templates\PlayFab.cpp.ejs" />
     <Content Include="targets\cpp-unreal\templates\PlayFab.uplugin.ejs" />
     <Content Include="targets\cpp-unreal\templates\PlayFabAPI.cpp.ejs" />
@@ -640,6 +642,13 @@
     <Folder Include="targets\cpp-unreal\ExampleProject\Config\" />
     <Folder Include="targets\cpp-unreal\ExampleProject\Content\" />
     <Folder Include="targets\cpp-unreal\ExampleProject\Content\Maps\" />
+    <Folder Include="targets\cpp-unreal\ExampleProject\Plugins\" />
+    <Folder Include="targets\cpp-unreal\ExampleProject\Plugins\PlayFab\" />
+    <Folder Include="targets\cpp-unreal\ExampleProject\Plugins\PlayFab\Content\" />
+    <Folder Include="targets\cpp-unreal\ExampleProject\Plugins\PlayFab\Source\" />
+    <Folder Include="targets\cpp-unreal\ExampleProject\Plugins\PlayFab\Source\PlayFab\" />
+    <Folder Include="targets\cpp-unreal\ExampleProject\Plugins\PlayFab\Source\PlayFab\Classes\" />
+    <Folder Include="targets\cpp-unreal\ExampleProject\Plugins\PlayFab\Source\PlayFab\Private\" />
     <Folder Include="targets\cpp-unreal\ExampleProject\Source\" />
     <Folder Include="targets\cpp-unreal\ExampleProject\Source\ExampleProject\" />
     <Folder Include="targets\cpp-unreal\Source\" />

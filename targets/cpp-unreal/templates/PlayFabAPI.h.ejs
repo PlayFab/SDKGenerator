@@ -13,7 +13,7 @@
 #include "PlayFab<%- api.name %>Models.h"
 #include "PlayFab<%- api.name %>API.generated.h"
 
-DECLARE_DYNAMIC_MULTICAST_DELEGATE_TwoParams(FOnPlayFab<%- api.name %>RequestCompleted, FPlayFabBaseModel, response, bool, successful);
+DECLARE_DYNAMIC_MULTICAST_DELEGATE_ThreeParams(FOnPlayFab<%- api.name %>RequestCompleted, FPlayFabBaseModel, response, UObject*, customData, bool, successful);
 
 UCLASS(Blueprintable, BlueprintType)
 class UPlayFab<%- api.name %>API : public UOnlineBlueprintCallProxyBase
@@ -21,27 +21,22 @@ class UPlayFab<%- api.name %>API : public UOnlineBlueprintCallProxyBase
     GENERATED_UCLASS_BODY()
 
 public:
-
-    DECLARE_DYNAMIC_DELEGATE_OneParam(FDelegateOnFailurePlayFabError, FPlayFabError, error);
+    DECLARE_DYNAMIC_DELEGATE_TwoParams(FDelegateOnFailurePlayFabError, FPlayFabError, error, UObject*, customData);
 
     UPROPERTY(BlueprintAssignable)
-    FOnPlayFab<%- api.name %>RequestCompleted OnPlayFabResponse;
-    
+        FOnPlayFab<%- api.name %>RequestCompleted OnPlayFabResponse;
+
     /** Set the Request Json object */
-    //UFUNCTION(BlueprintCallable, Category = "PlayFab")
-        void SetRequestObject(UPlayFabJsonObject* JsonObject);
+    void SetRequestObject(UPlayFabJsonObject* JsonObject);
 
     /** Get the Response Json object */
-    //UFUNCTION(BlueprintCallable, Category = "PlayFab")
-        UPlayFabJsonObject* GetResponseObject();
+    UPlayFabJsonObject* GetResponseObject();
 
     /** Applies percent-encoding to text */
-    //UFUNCTION(BlueprintCallable, Category = "PlayFab")
-        static FString PercentEncode(const FString& Text);
+    static FString PercentEncode(const FString& Text);
 
     /** Reset saved response data */
-    //UFUNCTION(BlueprintCallable, Category = "PlayFab")
-        void ResetResponseData();
+    void ResetResponseData();
 
     /** UOnlineBlueprintCallProxyBase interface */
     virtual void Activate() override;
@@ -49,16 +44,12 @@ public:
     //////////////////////////////////////////////////////////////////////////
     // Generated PlayFab <%- api.name %> API Functions
     //////////////////////////////////////////////////////////////////////////
-
-    <%
-
+<%
     // This loop goes through the subgroups of the api and orders the functions in groups.
     // It makes it a little easier to navigate.
-
     for(var subgroup in api.subgroups)
     {
     %>
-
     ///////////////////////////////////////////////////////
     // <%- api.subgroups[subgroup].name %>
     //////////////////////////////////////////////////////
@@ -74,19 +65,19 @@ public:
             var apiCall = api.calls[i];
             if(apiCall.subgroup == api.subgroups[subgroup].name)
             {
-            
+
               %>    // callbacks
-<%            %>    DECLARE_DYNAMIC_DELEGATE_OneParam(FDelegateOnSuccess<%- apiCall.name %>, F<%- api.name %><%- apiCall.result %>, result);
+<%            %>    DECLARE_DYNAMIC_DELEGATE_TwoParams(FDelegateOnSuccess<%- apiCall.name %>, F<%- api.name %><%- apiCall.result %>, result, UObject*, customData);
 <%            %>
 <%            %>    /** <%- apiCall.summary %> */
 <%            %>    UFUNCTION(BlueprintCallable, Category = "PlayFab | <%- api.name %> | <%- api.subgroups[subgroup].name %> ", meta = (BlueprintInternalUseOnly = "true"))
-<%            %>    static UPlayFab<%- api.name %>API* <%- apiCall.name %>(F<%- api.name %><%- apiCall.request %> request,
-<%            %>        FDelegateOnSuccess<%- apiCall.name %> onSuccess,
-<%            %>        FDelegateOnFailurePlayFabError onFailure);
+<%            %>        static UPlayFab<%- api.name %>API* <%- apiCall.name %>(F<%- api.name %><%- apiCall.request %> request,
+<%            %>            FDelegateOnSuccess<%- apiCall.name %> onSuccess,
+<%            %>            FDelegateOnFailurePlayFabError onFailure, UObject* customData);
 <%            %>
-<%            %>    // Implements FOnPlayFabClientRequestCompleted
+<%            %>    // Implements FOnPlayFab<%- api.name %>RequestCompleted
 <%            %>    UFUNCTION(BlueprintCallable, Category = "PlayFab | <%- api.name %> | <%- api.subgroups[subgroup].name %> ", meta = (BlueprintInternalUseOnly = "true"))
-<%            %>    void Helper<%- apiCall.name %>(FPlayFabBaseModel response, bool successful);
+<%            %>        void Helper<%- apiCall.name %>(FPlayFabBaseModel response, UObject* customData, bool successful);
 <%            %>
 <%
             }
@@ -104,11 +95,8 @@ public:
     bool bIsValidJsonResponse;
     FString ResponseContent;
     int32 ResponseCode;
+    UObject* customData;
 
-private:
-    /** Internal bind function for the IHTTPRequest::OnProcessRequestCompleted() event */
-    void OnProcessRequestComplete(FHttpRequestPtr Request, FHttpResponsePtr Response, bool bWasSuccessful);
-    
     FDelegateOnFailurePlayFabError OnFailure;
 <%
     for(var subgroup in api.subgroups)
@@ -128,8 +116,11 @@ private:
         }
     }
 %>
-protected:
+private:
+    /** Internal bind function for the IHTTPRequest::OnProcessRequestCompleted() event */
+    void OnProcessRequestComplete(FHttpRequestPtr Request, FHttpResponsePtr Response, bool bWasSuccessful);
 
+protected:
     /** Internal request data stored as JSON */
     UPROPERTY()
         UPlayFabJsonObject* RequestJsonObj;

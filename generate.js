@@ -56,8 +56,6 @@ function generate(args) {
             process.exit();
         } else if (args[i] === "-flags") {
             collectingFlags = true;
-        } else if (args[i] === "-beta") { // LEGACY OPTION - TODO: Remove this one when Jenkins is fully converted
-            buildFlags.push("beta");
         } else if (collectingFlags) {
             buildFlags.push(args[i]);
         } else if (args[i].indexOf("=") !== -1) { // any parameter with an "=" is assumed to be a target specification

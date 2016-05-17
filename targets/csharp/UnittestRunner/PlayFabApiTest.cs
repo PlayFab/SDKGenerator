@@ -1,7 +1,9 @@
-using PlayFab;
+using Newtonsoft.Json.Linq;
+using PlayFab.ClientModels;
+using PlayFab.Internal;
 using System;
 using System.Collections.Generic;
-using Newtonsoft.Json.Linq;
+using System.Threading.Tasks;
 
 namespace PlayFab.UUnit
 {
@@ -30,7 +32,6 @@ namespace PlayFab.UUnit
 
         // Information fetched by appropriate API calls
         private static string playFabId;
-        private static string characterId;
 
         /// <summary>
         /// PlayFab Title cannot be created from SDK tests, so you must provide your titleId to run unit tests.
@@ -77,6 +78,23 @@ namespace PlayFab.UUnit
             // TODO: Destroy any characters
         }
 
+        private static void WaitForResultSuccess<TResult>(Task<PlayFabResult<TResult>> task, string failMessage) where TResult : PlayFabResultCommon
+        {
+            task.Wait();
+            UUnitAssert.NotNull(task.Result, failMessage);
+            UUnitAssert.IsNull(task.Result.Error, failMessage);
+            UUnitAssert.NotNull(task.Result.Result, failMessage);
+        }
+
+        private static string CompileErrorReport(PlayFabError error)
+        {
+            string fullReport = error.ErrorMessage;
+            foreach (var detailPair in error.ErrorDetails)
+                foreach (var msg in detailPair.Value)
+                    fullReport += "\n" + detailPair.Key + ": " + msg;
+            return fullReport;
+        }
+
         /// <summary>
         /// CLIENT API
         /// Try to deliberately log in with an inappropriate password,
@@ -86,16 +104,42 @@ namespace PlayFab.UUnit
         public void InvalidLogin()
         {
             // If the setup failed to log in a user, we need to create one.
-            var request = new ClientModels.LoginWithEmailAddressRequest();
+            var request = new LoginWithEmailAddressRequest();
             request.TitleId = PlayFabSettings.TitleId;
             request.Email = USER_EMAIL;
             request.Password = USER_PASSWORD + "INVALID";
             var task = PlayFabClientAPI.LoginWithEmailAddressAsync(request);
             task.Wait();
             UUnitAssert.NotNull(task.Result);
-            UUnitAssert.Null(task.Result.Result);
+            UUnitAssert.IsNull(task.Result.Result);
             UUnitAssert.NotNull(task.Result.Error);
-            UUnitAssert.True(task.Result.Error.ErrorMessage.Contains("password"));
+            UUnitAssert.True(task.Result.Error.ErrorMessage.Contains("password"), task.Result.Error.ErrorMessage);
+        }
+
+        /// <summary>
+        /// CLIENT API
+        /// Try to deliberately register a character with an invalid email and password.
+        ///   Verify that errorDetails are populated correctly.
+        /// </summary>
+        [UUnitTest]
+        public void InvalidRegistration()
+        {
+            var registerRequest = new RegisterPlayFabUserRequest();
+            registerRequest.TitleId = PlayFabSettings.TitleId;
+            registerRequest.Username = "x";
+            registerRequest.Email = "x";
+            registerRequest.Password = "x";
+            var registerTask = PlayFabClientAPI.RegisterPlayFabUserAsync(registerRequest);
+            UUnitAssert.NotNull(registerTask.Result);
+            UUnitAssert.IsNull(registerTask.Result.Result);
+            UUnitAssert.NotNull(registerTask.Result.Error);
+
+            var expectedEmailMsg = "email address is not valid.";
+            var expectedPasswordMsg = "password must be between";
+            var fullReport = CompileErrorReport(registerTask.Result.Error);
+
+            UUnitAssert.True(fullReport.ToLower().Contains(expectedEmailMsg), "Expected an error about bad email address: " + fullReport);
+            UUnitAssert.True(fullReport.ToLower().Contains(expectedPasswordMsg), "Expected an error about bad password: " + fullReport);
         }
 
         /// <summary>
@@ -107,12 +151,12 @@ namespace PlayFab.UUnit
         {
             if (!PlayFabClientAPI.IsClientLoggedIn()) // If we haven't already logged in...
             {
-                var loginRequest = new ClientModels.LoginWithEmailAddressRequest();
+                var loginRequest = new LoginWithEmailAddressRequest();
                 loginRequest.Email = USER_EMAIL;
                 loginRequest.Password = USER_PASSWORD;
                 loginRequest.TitleId = PlayFabSettings.TitleId;
                 var loginTask = PlayFabClientAPI.LoginWithEmailAddressAsync(loginRequest);
-                loginTask.Wait();
+                loginTask.Wait(); // We don't care about success or fail here
 
                 if (loginTask.Result != null && loginTask.Result.Result != null) // If successful, track playFabId
                     playFabId = loginTask.Result.Result.PlayFabId; // Needed for subsequent tests
@@ -122,20 +166,37 @@ namespace PlayFab.UUnit
                 return; // Success, already logged in
 
             // If the setup failed to log in a user, we need to create one.
-            var registerRequest = new ClientModels.RegisterPlayFabUserRequest();
+            var registerRequest = new RegisterPlayFabUserRequest();
             registerRequest.TitleId = PlayFabSettings.TitleId;
             registerRequest.Username = USER_NAME;
             registerRequest.Email = USER_EMAIL;
             registerRequest.Password = USER_PASSWORD;
             var registerTask = PlayFabClientAPI.RegisterPlayFabUserAsync(registerRequest);
-            registerTask.Wait();
-            UUnitAssert.NotNull(registerTask.Result);
-            UUnitAssert.Null(registerTask.Result.Error);
-            UUnitAssert.NotNull(registerTask.Result.Result);
+            WaitForResultSuccess(registerTask, "User registration failed");
 
             playFabId = registerTask.Result.Result.PlayFabId; // Needed for subsequent tests
 
             UUnitAssert.True(PlayFabClientAPI.IsClientLoggedIn(), "User login failed");
+        }
+
+        /// <summary>
+        /// CLIENT API
+        /// Test that the login call sequence sends the AdvertisingId when set
+        /// </summary>
+        [UUnitTest]
+        public void LoginWithAdvertisingId()
+        {
+            PlayFabSettings.AdvertisingIdType = PlayFabSettings.AD_TYPE_ANDROID_ID;
+            PlayFabSettings.AdvertisingIdValue = "PlayFabTestId";
+
+            var loginRequest = new LoginWithEmailAddressRequest();
+            loginRequest.Email = USER_EMAIL;
+            loginRequest.Password = USER_PASSWORD;
+            loginRequest.TitleId = PlayFabSettings.TitleId;
+            var loginTask = PlayFabClientAPI.LoginWithEmailAddressAsync(loginRequest);
+            WaitForResultSuccess(loginTask, "Login with advertId failed");
+
+            UUnitAssert.StringEquals(PlayFabSettings.AD_TYPE_ANDROID_ID + "_Successful", PlayFabSettings.AdvertisingIdType);
         }
 
         /// <summary>
@@ -150,45 +211,38 @@ namespace PlayFab.UUnit
         {
             string TEST_KEY = "testCounter";
 
-            ClientModels.UserDataRecord testCounter;
+            UserDataRecord testCounter;
             int testCounterValueExpected, testCounterValueActual;
-            DateTime timeInitial, timeUpdated;
 
-            var getRequest = new ClientModels.GetUserDataRequest();
+            var getRequest = new GetUserDataRequest();
             var getDataTask1 = PlayFabClientAPI.GetUserDataAsync(getRequest);
-            getDataTask1.Wait();
-            UUnitAssert.Null(getDataTask1.Result.Error, "UserData should have been retrieved from Api call");
-            UUnitAssert.NotNull(getDataTask1.Result.Result, "UserData should have been retrieved from Api call");
-            UUnitAssert.NotNull(getDataTask1.Result.Result.Data, "UserData should have been retrieved from Api call");
+            WaitForResultSuccess(getDataTask1, "UserData should have been retrieved from Api call");
             if (!getDataTask1.Result.Result.Data.TryGetValue(TEST_KEY, out testCounter))
             {
-                testCounter = new ClientModels.UserDataRecord();
+                testCounter = new UserDataRecord();
                 testCounter.Value = "0";
             }
             int.TryParse(testCounter.Value, out testCounterValueExpected);
-            timeInitial = testCounter.LastUpdated;
             testCounterValueExpected = (testCounterValueExpected + 1) % 100; // This test is about the expected value changing - but not testing more complicated issues like bounds
 
-            var updateRequest = new ClientModels.UpdateUserDataRequest();
+            var updateRequest = new UpdateUserDataRequest();
             updateRequest.Data = new Dictionary<string, string>();
             updateRequest.Data[TEST_KEY] = testCounterValueExpected.ToString();
             var updateTask = PlayFabClientAPI.UpdateUserDataAsync(updateRequest);
-            updateTask.Wait(); // The update doesn't return anything interesting except versionID.  It's better to just re-call GetUserData again below to verify the update
-            UUnitAssert.Null(updateTask.Result.Error, "UpdateUserData call failed");
-            UUnitAssert.NotNull(updateTask.Result.Result, "UpdateUserData call failed");
+            WaitForResultSuccess(updateTask, "UpdateUserData call failed"); // The update doesn't return anything interesting except versionID.  It's better to just re-call GetUserData again below to verify the update
 
-            getRequest = new ClientModels.GetUserDataRequest();
+            getRequest = new GetUserDataRequest();
             var getDataTask2 = PlayFabClientAPI.GetUserDataAsync(getRequest);
-            getDataTask2.Wait();
-            UUnitAssert.Null(getDataTask2.Result.Error, "UserData should have been retrieved from Api call");
-            UUnitAssert.NotNull(getDataTask2.Result.Result, "UserData should have been retrieved from Api call");
-            UUnitAssert.NotNull(getDataTask2.Result.Result.Data, "UserData should have been retrieved from Api call");
+            WaitForResultSuccess(getDataTask2, "UserData should have been retrieved from Api call");
             getDataTask2.Result.Result.Data.TryGetValue(TEST_KEY, out testCounter);
             UUnitAssert.NotNull(testCounter, "The updated UserData was not found in the Api results");
             int.TryParse(testCounter.Value, out testCounterValueActual);
-            timeUpdated = testCounter.LastUpdated;
-            UUnitAssert.Equals(testCounterValueExpected, testCounterValueActual);
-            UUnitAssert.True(timeUpdated > timeInitial);
+            UUnitAssert.IntEquals(testCounterValueExpected, testCounterValueActual);
+
+            var timeUpdated = testCounter.LastUpdated;
+            var testMin = DateTime.UtcNow - TimeSpan.FromMinutes(5);
+            var testMax = testMin + TimeSpan.FromMinutes(10);
+            UUnitAssert.True(testMin <= timeUpdated && timeUpdated <= testMax);
         }
 
         /// <summary>
@@ -203,43 +257,24 @@ namespace PlayFab.UUnit
         {
             int testStatExpected, testStatActual;
 
-            var getRequest = new ClientModels.GetUserStatisticsRequest();
+            var getRequest = new GetUserStatisticsRequest();
             var getStatTask1 = PlayFabClientAPI.GetUserStatisticsAsync(getRequest);
-            getStatTask1.Wait();
-            UUnitAssert.Null(getStatTask1.Result.Error, "UserStatistics should have been retrieved from Api call");
-            UUnitAssert.NotNull(getStatTask1.Result.Result, "UserStatistics should have been retrieved from Api call");
-            UUnitAssert.NotNull(getStatTask1.Result.Result.UserStatistics, "UserStatistics should have been retrieved from Api call");
+            WaitForResultSuccess(getStatTask1, "UserStatistics should have been retrieved from Api call");
             if (!getStatTask1.Result.Result.UserStatistics.TryGetValue(TEST_STAT_NAME, out testStatExpected))
                 testStatExpected = TEST_STAT_BASE;
             testStatExpected = ((testStatExpected + 1) % TEST_STAT_BASE) + TEST_STAT_BASE; // This test is about the expected value changing (incrementing through from TEST_STAT_BASE to TEST_STAT_BASE * 2 - 1)
 
-            var updateRequest = new ClientModels.UpdateUserStatisticsRequest();
+            var updateRequest = new UpdateUserStatisticsRequest();
             updateRequest.UserStatistics = new Dictionary<string, int>();
             updateRequest.UserStatistics[TEST_STAT_NAME] = testStatExpected;
             var updateTask = PlayFabClientAPI.UpdateUserStatisticsAsync(updateRequest);
-            updateTask.Wait(); // The update doesn't return anything, so can't test anything other than failure
+            WaitForResultSuccess(updateTask, "UpdateUserStatistics failed");
 
-            // Test update result - no data returned, so error or no error, based on Title settings
-            if (!TITLE_CAN_UPDATE_SETTINGS)
-            {
-                UUnitAssert.Null(updateTask.Result.Result, "UpdateStatistics should have failed");
-                UUnitAssert.NotNull(updateTask.Result.Error, "UpdateStatistics should have failed");
-                return; // The rest of this tests changing settings - Which we verified we cannot do
-            }
-            else // if (CAN_UPDATE_SETTINGS)
-            {
-                UUnitAssert.Null(updateTask.Result.Error, "UpdateStatistics call failed");
-                UUnitAssert.NotNull(updateTask.Result.Result, "UpdateStatistics call failed");
-            }
-
-            getRequest = new ClientModels.GetUserStatisticsRequest();
+            getRequest = new GetUserStatisticsRequest();
             var getStatTask2 = PlayFabClientAPI.GetUserStatisticsAsync(getRequest);
-            getStatTask2.Wait();
-            UUnitAssert.Null(getStatTask2.Result.Error, "UserStatistics should have been retrieved from Api call");
-            UUnitAssert.NotNull(getStatTask2.Result.Result, "UserStatistics should have been retrieved from Api call");
-            UUnitAssert.NotNull(getStatTask2.Result.Result.UserStatistics, "UserStatistics should have been retrieved from Api call");
+            WaitForResultSuccess(getStatTask2, "UserStatistics should have been retrieved from Api call");
             getStatTask2.Result.Result.UserStatistics.TryGetValue(TEST_STAT_NAME, out testStatActual);
-            UUnitAssert.Equals(testStatExpected, testStatActual);
+            UUnitAssert.IntEquals(testStatExpected, testStatActual);
         }
 
         /// <summary>
@@ -253,10 +288,7 @@ namespace PlayFab.UUnit
             var request = new ServerModels.ListUsersCharactersRequest();
             request.PlayFabId = playFabId; // Received from client upon login
             var getCharsTask = PlayFabServerAPI.GetAllUsersCharactersAsync(request);
-            getCharsTask.Wait();
-            UUnitAssert.Null(getCharsTask.Result.Error, "Failed to GetChars");
-            UUnitAssert.NotNull(getCharsTask.Result.Result, "Failed to GetChars");
-            UUnitAssert.NotNull(getCharsTask.Result.Result.Characters, "Failed to GetChars");
+            WaitForResultSuccess(getCharsTask, "Failed to GetChars");
 
             ServerModels.CharacterResult targetCharacter = null;
             foreach (var eachCharacter in getCharsTask.Result.Result.Characters)
@@ -271,17 +303,11 @@ namespace PlayFab.UUnit
                 grantRequest.CharacterName = CHAR_NAME;
                 grantRequest.CharacterType = CHAR_TEST_TYPE;
                 var grantTask = PlayFabServerAPI.GrantCharacterToUserAsync(grantRequest);
-                grantTask.Wait();
-                UUnitAssert.Null(grantTask.Result.Error, "Grant character failed");
-                UUnitAssert.NotNull(grantTask.Result.Result, "Grant character failed");
-                UUnitAssert.NotNull(grantTask.Result.Result.CharacterId, "Grant character failed");
+                WaitForResultSuccess(grantTask, "Grant character failed");
 
                 // Attempt to get characters again
                 getCharsTask = PlayFabServerAPI.GetAllUsersCharactersAsync(request);
-                getCharsTask.Wait();
-                UUnitAssert.Null(getCharsTask.Result.Error, "Failed to GetChars");
-                UUnitAssert.NotNull(getCharsTask.Result.Result, "Failed to GetChars");
-                UUnitAssert.NotNull(getCharsTask.Result.Result.Characters, "Failed to GetChars");
+                WaitForResultSuccess(getCharsTask, "Failed to GetChars");
                 foreach (var eachCharacter in getCharsTask.Result.Result.Characters)
                     if (eachCharacter.CharacterName == CHAR_NAME)
                         targetCharacter = eachCharacter;
@@ -289,7 +315,6 @@ namespace PlayFab.UUnit
 
             // Save the requested character
             UUnitAssert.NotNull(targetCharacter, "The test character did not exist, and was not successfully created");
-            characterId = targetCharacter.CharacterId;
         }
 
         /// <summary>
@@ -300,26 +325,18 @@ namespace PlayFab.UUnit
         [UUnitTest]
         public void LeaderBoard()
         {
-            var clientRequest = new ClientModels.GetLeaderboardAroundCurrentUserRequest();
+            var clientRequest = new GetLeaderboardRequest();
             clientRequest.MaxResultsCount = 3;
             clientRequest.StatisticName = TEST_STAT_NAME;
-            var clientTask = PlayFabClientAPI.GetLeaderboardAroundCurrentUserAsync(clientRequest);
-            clientTask.Wait();
-            UUnitAssert.Null(clientTask.Result.Error, "Failed to get client leaderboard");
-            UUnitAssert.NotNull(clientTask.Result.Result, "Failed to get client leaderboard");
-            UUnitAssert.NotNull(clientTask.Result.Result.Leaderboard, "Failed to get client leaderboard");
+            var clientTask = PlayFabClientAPI.GetLeaderboardAsync(clientRequest);
+            WaitForResultSuccess(clientTask, "Failed to get client leaderboard");
             UUnitAssert.True(clientTask.Result.Result.Leaderboard.Count > 0, "Leaderboard does not contain enough entries.");
 
-            var serverRequest = new ServerModels.GetLeaderboardAroundCharacterRequest();
+            var serverRequest = new ServerModels.GetLeaderboardRequest();
             serverRequest.MaxResultsCount = 3;
             serverRequest.StatisticName = TEST_STAT_NAME;
-            serverRequest.CharacterId = characterId;
-            serverRequest.PlayFabId = playFabId;
-            var serverTask = PlayFabServerAPI.GetLeaderboardAroundCharacterAsync(serverRequest);
-            clientTask.Wait();
-            UUnitAssert.Null(serverTask.Result.Error, "Failed to get server leaderboard");
-            UUnitAssert.NotNull(serverTask.Result.Result, "Failed to get server leaderboard");
-            UUnitAssert.NotNull(serverTask.Result.Result.Leaderboard, "Failed to get server leaderboard");
+            var serverTask = PlayFabServerAPI.GetLeaderboardAsync(serverRequest);
+            WaitForResultSuccess(serverTask, "Failed to get server leaderboard");
             UUnitAssert.True(serverTask.Result.Result.Leaderboard.Count > 0, "Leaderboard does not contain enough entries.");
         }
 
@@ -331,16 +348,11 @@ namespace PlayFab.UUnit
         [UUnitTest]
         public void AccountInfo()
         {
-            ClientModels.GetAccountInfoRequest request = new ClientModels.GetAccountInfoRequest();
+            GetAccountInfoRequest request = new GetAccountInfoRequest();
             request.PlayFabId = playFabId;
             var task = PlayFabClientAPI.GetAccountInfoAsync(request);
-            task.Wait();
-            UUnitAssert.Null(task.Result.Error, "Failed to get accountInfo");
-            UUnitAssert.NotNull(task.Result.Result, "Failed to get accountInfo");
-            UUnitAssert.NotNull(task.Result.Result.AccountInfo, "Failed to get accountInfo");
-            UUnitAssert.NotNull(task.Result.Result.AccountInfo.TitleInfo, "Failed to get accountInfo");
-            UUnitAssert.NotNull(task.Result.Result.AccountInfo.TitleInfo.Origination, "Failed to get Origination Enum");
-            UUnitAssert.True(Enum.IsDefined(typeof(ClientModels.UserOrigination), task.Result.Result.AccountInfo.TitleInfo.Origination.Value), "Origination Enum not valid");
+            WaitForResultSuccess(task, "Failed to get accountInfo");
+            UUnitAssert.True(Enum.IsDefined(typeof(UserOrigination), task.Result.Result.AccountInfo.TitleInfo.Origination.Value), "Origination Enum not valid");
         }
 
         /// <summary>
@@ -350,22 +362,13 @@ namespace PlayFab.UUnit
         [UUnitTest]
         public void CloudScript()
         {
-            if (string.IsNullOrEmpty(PlayFabSettings.LogicServerURL))
-            {
-                var getUrlTask = PlayFabClientAPI.GetCloudScriptUrlAsync(new ClientModels.GetCloudScriptUrlRequest());
-                getUrlTask.Wait();
-                UUnitAssert.Null(getUrlTask.Result.Error, "Failed to get LogicServerURL");
-                UUnitAssert.NotNull(getUrlTask.Result.Result, "Failed to get LogicServerURL");
-                UUnitAssert.False(string.IsNullOrEmpty(getUrlTask.Result.Result.Url), "Failed to get LogicServerURL");
-                UUnitAssert.False(string.IsNullOrEmpty(PlayFabSettings.LogicServerURL), "Failed to get LogicServerURL");
-            }
+            var getUrlTask = PlayFabClientAPI.GetCloudScriptUrlAsync(new GetCloudScriptUrlRequest());
+            WaitForResultSuccess(getUrlTask, "Failed to get LogicServerURL");
 
-            var request = new ClientModels.RunCloudScriptRequest();
+            var request = new RunCloudScriptRequest();
             request.ActionId = "helloWorld";
             var cloudTask = PlayFabClientAPI.RunCloudScriptAsync(request);
-            cloudTask.Wait();
-            UUnitAssert.Null(cloudTask.Result.Error, "Failed to Execute CloudScript");
-            UUnitAssert.NotNull(cloudTask.Result.Result, "Failed to Execute CloudScript");
+            WaitForResultSuccess(cloudTask, "Failed to Execute CloudScript");
             UUnitAssert.False(string.IsNullOrEmpty(cloudTask.Result.Result.ResultsEncoded), "Failed to Execute CloudScript");
 
             // Get the helloWorld return message
@@ -377,7 +380,25 @@ namespace PlayFab.UUnit
             JValue jval = jtok as JValue;
             UUnitAssert.NotNull(jval);
             string actualMessage = jval.Value as string;
-            UUnitAssert.Equals("Hello " + playFabId + "!", actualMessage);
+            UUnitAssert.StringEquals("Hello " + playFabId + "!", actualMessage);
+        }
+
+        /// <summary>
+        /// CLIENT API
+        /// Test that the client can publish custom PlayStream events
+        /// </summary>
+        [UUnitTest]
+        public void WriteEvent()
+        {
+            var request = new WriteClientPlayerEventRequest();
+            request.EventName = "ForumPostEvent";
+            request.Timestamp = DateTime.UtcNow;
+            request.Body = new Dictionary<string, object>();
+            request.Body["Subject"] = "My First Post";
+            request.Body["Body"] = "My awesome post.";
+
+            var writeTask = PlayFabClientAPI.WritePlayerEventAsync(request);
+            WaitForResultSuccess(writeTask, "PlayStream WriteEvent failed");
         }
     }
 }

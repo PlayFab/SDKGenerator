@@ -1,5 +1,6 @@
 #include "PlayFabPrivatePCH.h"
 #include "PlayFabBaseModel.h"
+#include "PlayFab.h"
 
 using namespace PlayFab;
 

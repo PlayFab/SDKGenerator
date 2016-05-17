@@ -5,11 +5,11 @@
 // This model file contains the request and response USTRUCTS
 //
 // API: <%- api.name %>
-// API Version: <%- apiRevision %>
 // SDK Version: <%- sdkVersion %>
 //////////////////////////////////////////////////////////////////////////////////////////////
 
 #include "Kismet/BlueprintFunctionLibrary.h"
+#include "PlayFabEnums.h"
 #include "PlayFab<%- api.name %>Models.generated.h"
 
 class UPlayFabJsonObject;
@@ -106,9 +106,9 @@ for(var subgroup in api.subgroups)
 <%
                                 }
                             }
-                            else if(property.actualtype == "UserDataPermission")
+                            else if(property.isenum)
                             {
-                            %>        EPermissionEnum <%- property.name %>;
+                            %>        E<%- property.actualtype %> <%- property.name %>;
 
 <%
                             }

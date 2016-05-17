@@ -43,7 +43,7 @@ void PlayFab::<%- api.name %>Models::write<%- datatype.name %>EnumJSON(<%- datat
 PlayFab::<%- api.name %>Models::F<%- datatype.name %>::~F<%- datatype.name %>()
 {
     <% for(var p in datatype.properties) { var property = datatype.properties[p];
-    if(!property.collection && property.isclass && property.optional) { %>//if(<%- property.name %> != NULL) delete <%- property.name %>;
+    if(!property.collection && property.isclass && property.optional) { %>//if(<%- property.name %> != nullptr) delete <%- property.name %>;
     <% } } %>
 }
 

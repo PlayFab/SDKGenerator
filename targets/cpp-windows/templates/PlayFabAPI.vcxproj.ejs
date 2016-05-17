@@ -1,4 +1,4 @@
-﻿<?xml version="1.0" encoding="utf-8"?>
+<?xml version="1.0" encoding="utf-8"?>
 <Project DefaultTargets="Build" ToolsVersion="12.0" xmlns="http://schemas.microsoft.com/developer/msbuild/2003">
   <ItemGroup Label="ProjectConfigurations">
     <ProjectConfiguration Include="Debug|Win32">
@@ -19,27 +19,27 @@
     </ProjectConfiguration>
   </ItemGroup>
   <ItemGroup>
-    <% for(var i in apis) { var api = apis[i]; %><ClCompile Include="..\..\..\source\core\PlayFab<%- api.name %>API.cpp" />
-	<ClCompile Include="..\..\..\source\core\PlayFab<%- api.name %>DataModels.cpp" />
-	<% } %><ClCompile Include="..\..\..\source\core\HttpRequest.cpp" />
+<% for(var i in apis) { var api = apis[i]; %>    <ClCompile Include="..\..\..\source\core\PlayFab<%- api.name %>API.cpp" />
+    <ClCompile Include="..\..\..\source\core\PlayFab<%- api.name %>DataModels.cpp" />
+<% } %>    <ClCompile Include="..\..\..\source\core\HttpRequest.cpp" />
     <ClCompile Include="..\..\..\source\core\PlayFabBaseModel.cpp" />
     <ClCompile Include="..\..\..\source\core\PlayFabSettings.cpp" />
     <ClCompile Include="..\..\..\source\core\PlayFabResultHandler.cpp" />
     <ClCompile Include="..\..\..\source\curl\HttpRequesterCURL.cpp" />
-	<ClCompile Include="..\..\..\source\core\PlayFabVersion.cpp" />
+    <ClCompile Include="..\..\..\source\core\PlayFabVersion.cpp" />
   </ItemGroup>
   <ItemGroup>
     <ClInclude Include="..\..\..\include\playfab\HttpRequest.h" />
     <ClInclude Include="..\..\..\include\playfab\IHttpRequester.h" />
     <ClInclude Include="..\..\..\include\playfab\PlayFabBaseModel.h" />
-    <% for(var i in apis) { var api = apis[i]; %><ClInclude Include="..\..\..\include\playfab\PlayFab<%- api.name %>API.h" />
-	<ClInclude Include="..\..\..\include\playfab\PlayFab<%- api.name %>DataModels.h" />
-	<% } %><ClInclude Include="..\..\..\include\playfab\PlayFabDataModels.h" />
+<% for(var i in apis) { var api = apis[i]; %>    <ClInclude Include="..\..\..\include\playfab\PlayFab<%- api.name %>API.h" />
+    <ClInclude Include="..\..\..\include\playfab\PlayFab<%- api.name %>DataModels.h" />
+<% } %>    <ClInclude Include="..\..\..\include\playfab\PlayFabDataModels.h" />
     <ClInclude Include="..\..\..\include\playfab\PlayFabError.h" />
     <ClInclude Include="..\..\..\include\playfab\PlayFabResultHandler.h" />
     <ClInclude Include="..\..\..\include\playfab\PlayFabSettings.h" />
     <ClInclude Include="..\..\..\include\playfab\HttpRequesterCURL.h" />
-	<ClInclude Include="..\..\..\include\playfab\PlayFabVersion.h" />
+    <ClInclude Include="..\..\..\include\playfab\PlayFabVersion.h" />
   </ItemGroup>
   <PropertyGroup Label="Globals">
     <ProjectGuid>{3F59DDF6-0BAE-4F81-BC48-2659A1706826}</ProjectGuid>

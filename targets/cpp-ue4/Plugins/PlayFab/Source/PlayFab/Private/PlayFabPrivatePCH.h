@@ -17,6 +17,3 @@
 #endif
 
 #include "PlayFabClasses.h"
-#include "PlayFab.h"
-
-DECLARE_LOG_CATEGORY_EXTERN(LogPlayFab, Log, All);

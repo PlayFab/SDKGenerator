@@ -1,4 +1,3 @@
-
 package com.playfab
 {
     import com.playfab.<%- api.name %>Models.*;
@@ -7,9 +6,9 @@ package com.playfab
     {
 <% for(var i in api.calls) { var apiCall = api.calls[i]; %>        public static function <%- apiCall.name %>(request:<%- apiCall.request %>, onComplete:Function, onError:Function):void
         {
-            <%- getRequestActions(apiCall, api) %>
+<%- getRequestActions(apiCall, api) %>
             var requetJson:String = JSON.stringify( request );
-            
+
             var onPostComplete:Function = function(resultData:Object, error:PlayFabError):void
             {
                 if(error)
@@ -22,9 +21,7 @@ package com.playfab
                 else
                 {
                     var result:<%- apiCall.result %> = new <%- apiCall.result %>(resultData);
-                    
-                    <%- getResultActions(apiCall, api) %>
-
+<%- getResultActions(apiCall, api) %>
                     if(onComplete != null)
                         onComplete(result);
                 }
@@ -33,7 +30,21 @@ package com.playfab
             PlayFabHTTP.post(<%- getUrlAccessor(apiCall) %>+"<%- apiCall.url %>", requetJson, <%- getAuthParams(apiCall) %>, onPostComplete);
         }
 
-<% } %>
-        public static var SessionTicket:String = null;
-    }
+<% } %><% if (hasClientOptions) { %>        public static function MultiStepClientLogin(needsAttribution:Boolean):void
+        {
+            if (needsAttribution && !PlayFabSettings.DisableAdvertising && (PlayFabSettings.AdvertisingIdType != null && PlayFabSettings.AdvertisingIdType != "") && (PlayFabSettings.AdvertisingIdValue != null && PlayFabSettings.AdvertisingIdValue != ""))
+            {
+                var request:AttributeInstallRequest = new AttributeInstallRequest();
+                if (PlayFabSettings.AdvertisingIdType == PlayFabSettings.AD_TYPE_IDFA)
+                    request.Idfa = PlayFabSettings.AdvertisingIdValue;
+                else if (PlayFabSettings.AdvertisingIdType == PlayFabSettings.AD_TYPE_ANDROID_ID)
+                    request.Android_Id = PlayFabSettings.AdvertisingIdValue;
+                else
+                    return;
+                AttributeInstall(request, null, null);
+            }
+        }
+
+        private static var authKey:String = null;
+<% } %>    }
 }

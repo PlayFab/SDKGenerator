@@ -1,6 +1,7 @@
 // Some copyright should be here...
 
 #include "PlayFabPrivatePCH.h"
+#include "PlayFab.h"
 
 // Settings
 #include "PlayFabRuntimeSettings.h"

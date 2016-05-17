@@ -1,4 +1,4 @@
-﻿using Newtonsoft.Json;
+using Newtonsoft.Json;
 using System;
 using System.Collections.Generic;
 using System.IO;
@@ -8,6 +8,15 @@ using System.Threading.Tasks;
 
 namespace PlayFab.Internal
 {
+    /// <summary>
+    /// This is a base-class for all Api-result objects.
+    /// It is currently unfinished, but we will add result-specific properties,
+    ///   and add template where-conditions to make some code easier to follow
+    /// </summary>
+    public class PlayFabResultCommon
+    {
+    }
+
     public class PlayFabJsonError
     {
         public int code;
@@ -18,17 +27,18 @@ namespace PlayFab.Internal
         public Dictionary<string, string[]> errorDetails = null;
     }
 
-    public class PlayFabJsonSuccess<ResultT>
+    public class PlayFabJsonSuccess<TResult> where TResult : PlayFabResultCommon
     {
         public int code;
         public string status;
-        public ResultT data;
+        public TResult data;
     }
 
     public class PlayFabHTTP
     {
-        public static async Task<object> DoPost(string url, object request, string authType, string authKey)
+        public static async Task<object> DoPost(string urlPath, object request, string authType, string authKey)
         {
+            string fullUrl = PlayFabSettings.GetFullUrl(urlPath);
             string bodyString = null;
 			var serializer = JsonSerializer.Create(PlayFabSettings.JsonSettings);
 			
@@ -53,13 +63,13 @@ namespace PlayFab.Internal
             postBody.Headers.Add("Content-Type", "application/json");
             if (authType != null)
                 postBody.Headers.Add(authType, authKey);
-            postBody.Headers.Add("X-PlayFabSDK", PlayFabVersion.getVersionString());
+            postBody.Headers.Add("X-PlayFabSDK", PlayFabSettings.SdkVersionString);
 
             HttpResponseMessage httpResponse = null;
             String httpResponseString = null;
             try
             {
-                httpResponse = await client.PostAsync(url, postBody);
+                httpResponse = await client.PostAsync(fullUrl, postBody);
                 httpResponseString = await httpResponse.Content.ReadAsStringAsync();
             }
             catch (HttpRequestException e)

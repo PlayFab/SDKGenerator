@@ -1,9 +1,10 @@
-package playfab;
+package com.playfab;
 
 import java.util.Map;
+import java.util.List;
 
 public class PlayFabErrors {
-    /** 
+    /**
      * Error codes returned by PlayFabAPIs
      */
     public static enum PlayFabErrorCode {
@@ -13,17 +14,17 @@ public class PlayFabErrors {
         JsonParseError(3),
         <% for(var i=1; i<errorList.length-1; i++) { var errorProps = errors[errorList[i]] %><%- errorProps.name %>(<%- errorProps.id %>),
         <% } %><% var errorProps = errors[errorList[errorList.length-1]] %><%- errorProps.name %>(<%- errorProps.id %>);
-        
+
         public int id;
-        
+
         private PlayFabErrorCode(int id) {
             this.id = id;
         }
-        
+
         public boolean equals(int i) {
             return i == id;
         }
-        
+
         public boolean equals(PlayFabErrorCode o) {
             return equals(o.id);
         }
@@ -36,22 +37,26 @@ public class PlayFabErrors {
             }
             return PlayFabErrorCode.Unknown;
         }
-        
+
     }
 
+    // This is the external definition of an error as exposed to the developer
     public static class PlayFabError {
         public int httpCode;
         public String httpStatus;
         public PlayFabErrorCode pfErrorCode;
         public String errorMessage;
+        public Map<String, List<String>> errorDetails;
     }
 
+    // This is the internal definition of an error, that matches the json we receive
     public static class PlayFabJsonError {
         public int code;
         public String status;
         public String error;
         public int errorCode;
         public String errorMessage;
+        public Map<String, List<String>> errorDetails;
     }
 
     public static class PlayFabJsonSuccess<E> {
@@ -64,7 +69,7 @@ public class PlayFabErrors {
         public PlayFabError Error;
         public ResultT Result;
     }
-    
+
     public static interface ErrorCallback {
         public void callback(PlayFabError error);
     }

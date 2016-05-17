@@ -10,13 +10,13 @@ namespace PlayFab
         {
             Console.WriteLine("Starting <%- testData.name %> tests");
             SetupTestData();
-            
+
             ResetServer();
-            
+
             <% for(var t in testData.tests) { var test = testData.tests[t] %>
             <%- makeTestInstruction(test) %>
             <% } %>Done();
-            
+
         }
 
         public void SetupTestData()
@@ -31,7 +31,7 @@ namespace PlayFab
         public void <%- test.name %>()
         {
             Console.WriteLine("Running test <%- test.name %>");
-        
+
             var req = Deserialize<<%- test.api %>Models.<%- apiLookup[test.api].callLookup[test.call].request %>>("<%- getJsonString( test.request ) %>");
             var task = PlayFab<%- test.api %>API.<%- test.call %>Async(req);
             task.Wait(<%- test.timeout || "2000" %>);
@@ -58,10 +58,10 @@ namespace PlayFab
             JToken expected = (JToken)Deserialize("<%- getJsonString( test.result ) %>");
             ValidateResults(expected, actual);
             <% } %>
-            
+
             Console.WriteLine("Passed!");
         }
         <% } %>
-        
+
     }
 }

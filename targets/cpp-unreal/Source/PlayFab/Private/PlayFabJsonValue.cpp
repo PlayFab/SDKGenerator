@@ -233,7 +233,7 @@ UPlayFabJsonObject* UPlayFabJsonValue::AsObject()
     if (!JsonVal.IsValid())
     {
         ErrorMessage(TEXT("Object"));
-        return NULL;
+        return nullptr;
     }
 
     TSharedPtr<FJsonObject> NewObj = JsonVal->AsObject();

@@ -1,62 +1,67 @@
+using Newtonsoft.Json;
+using PlayFab.Internal;
+using PlayFab.<%- api.name %>Models;
 using System;
 using System.IO;
 using System.Threading.Tasks;
 
-using Newtonsoft.Json;
-
-using PlayFab.Internal;
-using PlayFab.<%- api.name %>Models;
-
-
 namespace PlayFab
 {
-
-	<% if(api.description) { %>
-	/// <summary>
-	/// <%- api.description %>
-	/// </summary><% } %>
+<% if(api.description) { %>
+    /// <summary>
+    /// <%- api.description %>
+    /// </summary><% } %>
     public class PlayFab<%- api.name %>API
     {
-		<% for(var i in api.calls) { var apiCall = api.calls[i]; %>
-		<% if(apiCall.summary) { %>
-		/// <summary>
-		/// <%- apiCall.summary %>
-		/// </summary><% } %>
+<% for(var i in api.calls) { var apiCall = api.calls[i]; %><% if(apiCall.summary) {
+%>        /// <summary>
+        /// <%- apiCall.summary %>
+        /// </summary><% } %>
         public static async Task<PlayFabResult<<%- apiCall.result %>>> <%- apiCall.name %>Async(<%- apiCall.request %> request)
         {
-            <%- getRequestActions(apiCall, api) %>
-            object httpResult = await PlayFabHTTP.DoPost(<%- getUrlAccessor(apiCall) %> + "<%- apiCall.url %>", request, <%- getAuthParams(apiCall) %>);
+<%- getRequestActions(apiCall, api) %>
+            object httpResult = await PlayFabHTTP.DoPost("<%- apiCall.url %>", request, <%- getAuthParams(apiCall) %>);
             if(httpResult is PlayFabError)
             {
                 PlayFabError error = (PlayFabError)httpResult;
                 if (PlayFabSettings.GlobalErrorHandler != null)
                     PlayFabSettings.GlobalErrorHandler(error);
-                return new PlayFabResult<<%- apiCall.result %>>
-                {
-                    Error = error,
-                };
+                return new PlayFabResult<<%- apiCall.result %>> { Error = error, };
             }
             string resultRawJson = (string)httpResult;
 
             var serializer = JsonSerializer.Create(PlayFabSettings.JsonSettings);
             var resultData = serializer.Deserialize<PlayFabJsonSuccess<<%- apiCall.result %>>>(new JsonTextReader(new StringReader(resultRawJson)));
-			
-			<%- apiCall.result %> result = resultData.data;
-			<%- getResultActions(apiCall, api) %>
-			
-            return new PlayFabResult<<%- apiCall.result %>>
-                {
-                    Result = result
-                };
-        }<% } %>
 
-        <% if(authKey) { %>
-		private static string AuthKey = null;
-        // Determine if the AuthKey is set, without actually making it public
+            <%- apiCall.result %> result = resultData.data;
+<%- getResultActions(apiCall, api) %>
+            return new PlayFabResult<<%- apiCall.result %>> { Result = result };
+        }
+
+<% } %><% if(authKey) {
+%>        private static string _authKey = null;
+
+        // Determine if the _authKey is set, without actually making it public
         public static bool IsClientLoggedIn()
         {
-            return !string.IsNullOrEmpty(AuthKey);
+            return !string.IsNullOrEmpty(_authKey);
         }
-		<% } %>
-    }
+
+        private static async Task<PlayFabResult<AttributeInstallResult>> MultiStepClientLogin(bool needsAttribution)
+        {
+            if (needsAttribution && !PlayFabSettings.DisableAdvertising && !string.IsNullOrEmpty(PlayFabSettings.AdvertisingIdType) && !string.IsNullOrEmpty(PlayFabSettings.AdvertisingIdValue))
+            {
+                AttributeInstallRequest request = new AttributeInstallRequest();
+                if (PlayFabSettings.AdvertisingIdType == PlayFabSettings.AD_TYPE_IDFA)
+                    request.Idfa = PlayFabSettings.AdvertisingIdValue;
+                else if (PlayFabSettings.AdvertisingIdType == PlayFabSettings.AD_TYPE_ANDROID_ID)
+                    request.Android_Id = PlayFabSettings.AdvertisingIdValue;
+                else
+                    return null;
+                var output = await AttributeInstallAsync(request);
+                return output;
+            }
+            return null;
+        }
+<% } %>    }
 }

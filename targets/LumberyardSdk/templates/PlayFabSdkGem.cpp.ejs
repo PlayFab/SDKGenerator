@@ -1,0 +1,56 @@
+#include "StdAfx.h"
+
+#include <FlowSystem/Nodes/FlowBaseNode.h>
+#include <platform_impl.h> // Resharper says this is unused, but it's still required in some less direct way
+
+
+#include "PlayFabHttp.h"
+#include "PlayFabSdkGem.h"
+<% for (var i in apis) { var api = apis[i]; %>#include "PlayFab<%- api.name %>ApiWrapper.h"
+<% } %>
+using namespace PlayFab;
+
+PlayFabSdkGem::PlayFabSdkGem() { }
+PlayFabSdkGem::~PlayFabSdkGem() { }
+
+void PlayFabSdkGem::OnSystemEvent(ESystemEvent event, UINT_PTR wparam, UINT_PTR lparam)
+{
+    switch (event)
+    {
+    case ESYSTEM_EVENT_FLOW_SYSTEM_REGISTER_EXTERNAL_NODES:
+        RegisterFlowNodes();
+        break;
+
+    case ESYSTEM_EVENT_GAME_POST_INIT:
+        if (gEnv->pGame->GetIGameFramework())
+            gEnv->pGame->GetIGameFramework()->RegisterListener(this, "PlayFabSdk Gem", FRAMEWORKLISTENERPRIORITY_HUD);
+        break;
+
+    case ESYSTEM_EVENT_FULL_SHUTDOWN:
+    case ESYSTEM_EVENT_FAST_SHUTDOWN:
+        // Put your shutdown code here
+        // Other Gems may have been shutdown already, but none will have destructed
+        break;
+    }
+}
+
+void PlayFabSdkGem::OnPostUpdate(float fDeltaTime)
+{
+}
+
+int PlayFabSdkGem::GetPendingCalls()
+{
+    return PlayFabRequestManager::playFabHttp.GetPendingCalls();
+}
+
+PlayFabSettings* PlayFabSdkGem::GetPlayFabSettings()
+{
+    return &PlayFabSettings::playFabSettings;
+}
+<% for (var i in apis) { var api = apis[i]; %>
+IPlayFab<%- api.name %>Api* PlayFabSdkGem::Get<%- api.name %>Api()
+{
+    return &PlayFab<%- api.name %>ApiWrapper::globalWrapper;
+}
+<% } %>
+GEM_REGISTER(PlayFabSdkGem)

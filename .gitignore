@@ -1,5 +1,7 @@
 **/bin/
 **/obj/
+**/.idea/
+.idea/
 
 .project
 .classpath

@@ -6,8 +6,6 @@
 #include "ISettingsModule.h"
 #include "ISettingsSection.h"
 
-DEFINE_LOG_CATEGORY(LogPlayFabProxy);
-
 #define LOCTEXT_NAMESPACE "FPlayFabProxyModule"
 
 class FPlayFabProxyModule : public IPlayFabProxyModuleInterface

@@ -1,193 +1,158 @@
-
-var path = require('path');
+var path = require("path");
 
 exports.makeClientAPI = function (api, sourceDir, apiOutputDir) {
-    var libname = "Client";
-
-    console.log("Generating Unreal Engine " + libname + " SDK to " + apiOutputDir);
-
+    console.log("Generating Unreal Engine Client SDK to " + apiOutputDir);
+    
     // Copy over the standard source files to the plugin destination
-    copyTree(path.resolve(sourceDir, 'Source'), path.resolve(apiOutputDir, 'PluginFiles/PlayFab/Source'));
-
+    copyTree(path.resolve(sourceDir, "Source"), path.resolve(apiOutputDir, "PluginFiles/PlayFab/Source"));
     // Copy over the standard plugin files including resources, content, and readme
-    copyTree(path.resolve(sourceDir, 'StandardPluginFiles'), path.resolve(apiOutputDir, 'PluginFiles/PlayFab'));
-
+    copyTree(path.resolve(sourceDir, "StandardPluginFiles"), path.resolve(apiOutputDir, "PluginFiles/PlayFab"));
     // Make the variable api files
-    makeUnrealAPI(api, apiOutputDir, sourceDir, libname);
-
+    makeUnrealAPI([api], apiOutputDir, sourceDir, "Client");
+    
     // Now copy over the example project and then put the plugin folder in the right spot
-    copyTree(path.resolve(sourceDir, 'ExampleProject'), path.resolve(apiOutputDir, 'ExampleProject'));
-    copyTree(path.resolve(apiOutputDir, 'PluginFiles'), path.resolve(apiOutputDir, 'ExampleProject/Plugins'));
-
+    makePfTestActor([api], apiOutputDir, sourceDir);
+    copyTree(path.resolve(sourceDir, "ExampleProject"), path.resolve(apiOutputDir, "ExampleProject"));
+    copyTree(path.resolve(apiOutputDir, "PluginFiles"), path.resolve(apiOutputDir, "ExampleProject/Plugins"));
 }
 
 exports.makeServerAPI = function (apis, sourceDir, apiOutputDir) {
-    var libname = "Server";
-
-    console.log("Generating Unreal Engine " + libname + " SDK to " + apiOutputDir);
-
+    console.log("Generating Unreal Engine Server SDK to " + apiOutputDir);
+    
     // Copy over the standard source files to the plugin destination
-    copyTree(path.resolve(sourceDir, 'Source'), path.resolve(apiOutputDir, 'PluginFiles/PlayFab/Source'));
-
+    copyTree(path.resolve(sourceDir, "Source"), path.resolve(apiOutputDir, "PluginFiles/PlayFab/Source"));
     // Copy over the standard plugin files including resources, content, and readme
-    copyTree(path.resolve(sourceDir, 'StandardPluginFiles'), path.resolve(apiOutputDir, 'PluginFiles/PlayFab'));
-
+    copyTree(path.resolve(sourceDir, "StandardPluginFiles"), path.resolve(apiOutputDir, "PluginFiles/PlayFab"));
     // Make the variable api files
-    makeUnrealAPI(apis, apiOutputDir, sourceDir, libname);
-
+    makeUnrealAPI(apis, apiOutputDir, sourceDir, "Server");
+    
     // Now copy over the example project and then put the plugin folder in the right spot
-    copyTree(path.resolve(sourceDir, 'ExampleProject'), path.resolve(apiOutputDir, 'ExampleProject'));
-    copyTree(path.resolve(apiOutputDir, 'PluginFiles'), path.resolve(apiOutputDir, 'ExampleProject/Plugins'));
-
+    makePfTestActor(apis, apiOutputDir, sourceDir);
+    copyTree(path.resolve(sourceDir, "ExampleProject"), path.resolve(apiOutputDir, "ExampleProject"));
+    copyTree(path.resolve(apiOutputDir, "PluginFiles"), path.resolve(apiOutputDir, "ExampleProject/Plugins"));
 }
 
 exports.makeCombinedAPI = function (apis, sourceDir, apiOutputDir) {
-    var libname = "All";
-
-    console.log("Generating Unreal Engine " + libname + " SDK to " + apiOutputDir);
-
+    console.log("Generating Unreal Engine Combined SDK to " + apiOutputDir);
+    
     // Copy over the standard source files to the plugin destination
-    copyTree(path.resolve(sourceDir, 'Source'), path.resolve(apiOutputDir, 'PluginFiles/PlayFab/Source'));
-
+    copyTree(path.resolve(sourceDir, "Source"), path.resolve(apiOutputDir, "PluginFiles/PlayFab/Source"));
     // Copy over the standard plugin files including resources, content, and readme
-    copyTree(path.resolve(sourceDir, 'StandardPluginFiles'), path.resolve(apiOutputDir, 'PluginFiles/PlayFab'));
-
+    copyTree(path.resolve(sourceDir, "StandardPluginFiles"), path.resolve(apiOutputDir, "PluginFiles/PlayFab"));
     // Make the variable api files
-    makeUnrealAPI(apis, apiOutputDir, sourceDir, libname);
-
+    makeUnrealAPI(apis, apiOutputDir, sourceDir, "All");
+    
     // Now copy over the example project and then put the plugin folder in the right spot
-    copyTree(path.resolve(sourceDir, 'ExampleProject'), path.resolve(apiOutputDir, 'ExampleProject'));
-    copyTree(path.resolve(apiOutputDir, 'PluginFiles'), path.resolve(apiOutputDir, 'ExampleProject/Plugins'));
+    makePfTestActor(apis, apiOutputDir, sourceDir);
+    copyTree(path.resolve(sourceDir, "ExampleProject"), path.resolve(apiOutputDir, "ExampleProject"));
+    copyTree(path.resolve(apiOutputDir, "PluginFiles"), path.resolve(apiOutputDir, "ExampleProject/Plugins"));
 }
-
 
 function makeUnrealAPI(apis, apiOutputDir, sourceDir, libname) {
-
-    var apiHeaderTemplate = ejs.compile(readFile(path.resolve(sourceDir, "templates/PlayFabAPI.h.ejs")));
-    var apiCppTemplate = ejs.compile(readFile(path.resolve(sourceDir, "templates/PlayFabAPI.cpp.ejs")));
-    var apiUpluginTemplate = ejs.compile(readFile(path.resolve(sourceDir, "templates/PlayFab.uplugin.ejs")));
-    var apiPlayFabCppTemplate = ejs.compile(readFile(path.resolve(sourceDir, "templates/PlayFab.cpp.ejs")));
-    var apiPlayFabModelTemplate = ejs.compile(readFile(path.resolve(sourceDir, "templates/PlayFabModels.h.ejs")));
-    var apiPlayFabModelCppTemplate = ejs.compile(readFile(path.resolve(sourceDir, "templates/PlayFabModels.cpp.ejs")));
-    var apiPlayFabUtilitiesHTemplate = ejs.compile(readFile(path.resolve(sourceDir, "templates/PlayFabUtilities.h.ejs")));
-    var apiPlayFabUtilitiesCppTemplate = ejs.compile(readFile(path.resolve(sourceDir, "templates/PlayFabUtilities.cpp.ejs")));
-    var apiPlayFabModelDecoderHTemplate = ejs.compile(readFile(path.resolve(sourceDir, "templates/PlayFabModelDecoder.h.ejs")));
-    var apiPlayFabModelDecoderCppTemplate = ejs.compile(readFile(path.resolve(sourceDir, "templates/PlayFabModelDecoder.cpp.ejs")));
-
     // Create the uplugin file
-    var versionLocals = {};
-    if (Array.isArray(apis))
-    {
-        versionLocals.apiRevision = apis[0].revision;
-    }
-    else
-    {
-        versionLocals.apiRevision = apis.revision;
-    }
-    versionLocals.sdkVersion = exports.sdkVersion;
-    versionLocals.libname = libname;
-    versionLocals.apis = apis;
-
-    var generatedUplugin = apiUpluginTemplate(versionLocals);
-    writeFile(path.resolve(apiOutputDir, "PluginFiles/PlayFab/PlayFab.uplugin"), generatedUplugin);
-
-    var generatedUtilitiesH = apiPlayFabUtilitiesHTemplate(versionLocals);
-    writeFile(path.resolve(apiOutputDir, "PluginFiles/PlayFab/Source/PlayFab/Classes/PlayFabUtilities.h"), generatedUtilitiesH);
-
-    var generatedUtilitiesCpp = apiPlayFabUtilitiesCppTemplate(versionLocals);
-    writeFile(path.resolve(apiOutputDir, "PluginFiles/PlayFab/Source/PlayFab/Private/PlayFabUtilities.cpp"), generatedUtilitiesCpp);
-
     var apiLocals = {};
-    apiLocals.names = [];
-    var api;
-
-    if (Array.isArray(apis))
-    {
-        for (var i in apis)
-        {
-            api = apis[i];
-            apiLocals.names[i] = {};
-            apiLocals.names[i].name = api.name;
-        }
-    }
-    else
-    {
-        api = apis;
-        apiLocals.names[0] = {};
-        apiLocals.names[0].name = api.name;
-    }
-
-
     apiLocals.sdkVersion = exports.sdkVersion;
-    apiLocals.apiRevision = api.revision;
-
-    var generatedPlayFabCpp = apiPlayFabCppTemplate(apiLocals);
+    apiLocals.libname = libname;
+    apiLocals.apis = apis;
+    
+    var apiUpluginTemplate = ejs.compile(readFile(path.resolve(sourceDir, "templates/PlayFab.uplugin.ejs")));
+    var generatedUplugin = apiUpluginTemplate(apiLocals);
+    writeFile(path.resolve(apiOutputDir, "PluginFiles/PlayFab/PlayFab.uplugin"), generatedUplugin);
+    
+    var apiPlayFabUtilitiesHTemplate = ejs.compile(readFile(path.resolve(sourceDir, "templates/PlayFabUtilities.h.ejs")));
+    var generatedUtilitiesH = apiPlayFabUtilitiesHTemplate(apiLocals);
+    writeFile(path.resolve(apiOutputDir, "PluginFiles/PlayFab/Source/PlayFab/Classes/PlayFabUtilities.h"), generatedUtilitiesH);
+    
+    var apiPlayFabUtilitiesCppTemplate = ejs.compile(readFile(path.resolve(sourceDir, "templates/PlayFabUtilities.cpp.ejs")));
+    var generatedUtilitiesCpp = apiPlayFabUtilitiesCppTemplate(apiLocals);
+    writeFile(path.resolve(apiOutputDir, "PluginFiles/PlayFab/Source/PlayFab/Private/PlayFabUtilities.cpp"), generatedUtilitiesCpp);
+    
+    var pfcppLocals = {};
+    pfcppLocals.sdkVersion = exports.sdkVersion;
+    pfcppLocals.names = [];
+    for (var i in apis) {
+        pfcppLocals.names[i] = {};
+        pfcppLocals.names[i].name = apis[i].name;
+    }
+    var apiPlayFabCppTemplate = ejs.compile(readFile(path.resolve(sourceDir, "templates/PlayFab.cpp.ejs")));
+    var generatedPlayFabCpp = apiPlayFabCppTemplate(pfcppLocals);
     writeFile(path.resolve(apiOutputDir, "PluginFiles/PlayFab/Source/PlayFab/Private/PlayFab.cpp"), generatedPlayFabCpp);
-
-    // Create Models, .h and .cpp files
-    var apiLocals = {};
-    if (Array.isArray(apis))
-    {
-        for (var i in apis)
-        {
-            var api = apis[i];
-
-            apiLocals.api = api;
-
-            apiLocals.authKey = api.name == "Client";
-            apiLocals.sdkVersion = exports.sdkVersion;
-            apiLocals.apiRevision = api.revision;
-            apiLocals.libname = libname;
-
-            var generatedHeader = apiHeaderTemplate(apiLocals);
-            writeFile(path.resolve(apiOutputDir, "PluginFiles/PlayFab/Source/PlayFab/Classes/PlayFab" + api.name + "API.h"), generatedHeader);
-
-            var generatedBody = apiCppTemplate(apiLocals);
-            writeFile(path.resolve(apiOutputDir, "PluginFiles/PlayFab/Source/PlayFab/Private/PlayFab" + api.name + "API.cpp"), generatedBody);
-
-            var generatedHeader = apiPlayFabModelTemplate(apiLocals);
-            writeFile(path.resolve(apiOutputDir, "PluginFiles/PlayFab/Source/PlayFab/Classes/PlayFab" + api.name + "Models.h"), generatedHeader);
-
-            var generatedBody = apiPlayFabModelCppTemplate(apiLocals);
-            writeFile(path.resolve(apiOutputDir, "PluginFiles/PlayFab/Source/PlayFab/Private/PlayFab" + api.name + "Models.cpp"), generatedBody);
-
-            var generatedHeader = apiPlayFabModelDecoderHTemplate(apiLocals);
-            writeFile(path.resolve(apiOutputDir, "PluginFiles/PlayFab/Source/PlayFab/Classes/PlayFab" + api.name + "ModelDecoder.h"), generatedHeader);
-
-            var generatedBody = apiPlayFabModelDecoderCppTemplate(apiLocals);
-            writeFile(path.resolve(apiOutputDir, "PluginFiles/PlayFab/Source/PlayFab/Private/PlayFab" + api.name + "ModelDecoder.cpp"), generatedBody);
-        }
-    }
-    else
-    {
-        apiLocals.api = apis;
-
-        apiLocals.authKey = api.name == "Client";
-        apiLocals.sdkVersion = exports.sdkVersion;
-        apiLocals.apiRevision = api.revision;
-        apiLocals.libname = libname;
-
-        var generatedHeader = apiHeaderTemplate(apiLocals);
-        writeFile(path.resolve(apiOutputDir, "PluginFiles/PlayFab/Source/PlayFab/Classes/PlayFab" + api.name + "API.h"), generatedHeader);
-
-        var generatedBody = apiCppTemplate(apiLocals);
-        writeFile(path.resolve(apiOutputDir, "PluginFiles/PlayFab/Source/PlayFab/Private/PlayFab" + api.name + "API.cpp"), generatedBody);
-
-        var generatedHeader = apiPlayFabModelTemplate(apiLocals);
-        writeFile(path.resolve(apiOutputDir, "PluginFiles/PlayFab/Source/PlayFab/Classes/PlayFab" + api.name + "Models.h"), generatedHeader);
-
-        var generatedBody = apiPlayFabModelCppTemplate(apiLocals);
-        writeFile(path.resolve(apiOutputDir, "PluginFiles/PlayFab/Source/PlayFab/Private/PlayFab" + api.name + "Models.cpp"), generatedBody);
-
-        var generatedHeader = apiPlayFabModelDecoderHTemplate(apiLocals);
-        writeFile(path.resolve(apiOutputDir, "PluginFiles/PlayFab/Source/PlayFab/Classes/PlayFab" + api.name + "ModelDecoder.h"), generatedHeader);
-
-        var generatedBody = apiPlayFabModelDecoderCppTemplate(apiLocals);
-        writeFile(path.resolve(apiOutputDir, "PluginFiles/PlayFab/Source/PlayFab/Private/PlayFab" + api.name + "ModelDecoder.cpp"), generatedBody);
-    }
-
-
-
-
+    
+    for (var i in apis)
+        makeApiFiles(apis[i], apiOutputDir, sourceDir, libname);
+    makeEnums(apis, apiOutputDir, sourceDir);
 }
 
+function makePfTestActor(apis, apiOutputDir, sourceDir) {
+    var testLocals = {};
+    testLocals.hasServerOptions = false;
+    testLocals.hasClientOptions = false;
+    testLocals.sdkVersion = exports.sdkVersion;
+    for (var i in apis) {
+        if (apis[i].name === "Client")
+            testLocals.hasClientOptions = true;
+        else
+            testLocals.hasServerOptions = true;
+    }
+    var testTemplateH = ejs.compile(readFile(path.resolve(sourceDir, "templates/PfTestActor.h.ejs")));
+    var generatedH = testTemplateH(testLocals);
+    writeFile(path.resolve(apiOutputDir, "ExampleProject/Plugins/PlayFab/Source/PlayFab/Classes/PfTestActor.h"), generatedH);
+
+    var testTemplateCpp = ejs.compile(readFile(path.resolve(sourceDir, "templates/PfTestActor.cpp.ejs")));
+    var generatedCPP = testTemplateCpp(testLocals);
+    writeFile(path.resolve(apiOutputDir, "ExampleProject/Plugins/PlayFab/Source/PlayFab/Private/PfTestActor.cpp"), generatedCPP);
+}
+
+// Create Enums, .h file
+function makeEnums(apis, apiOutputDir, sourceDir) {
+    var enumLocals = {
+        "enumTypes": collectEnumsFromApis(apis)
+    }
+    
+    var enumTemplate = ejs.compile(readFile(path.resolve(sourceDir, "templates/PlayFabEnums.h.ejs")));
+    var genEnums = enumTemplate(enumLocals);
+    writeFile(path.resolve(apiOutputDir, "PluginFiles/PlayFab/Source/PlayFab/Classes/PlayFabEnums.h"), genEnums);
+}
+
+// Pull all the enums out of all the apis, and collect them into a single collection of just the enum types and filter duplicates
+function collectEnumsFromApis(apis) {
+    var enumTypes = {};
+    for (var i in apis)
+        for (var dataTypeName in apis[i].datatypes)
+            if (apis[i].datatypes[dataTypeName].isenum)
+                enumTypes[dataTypeName] = apis[i].datatypes[dataTypeName];
+    return enumTypes;
+}
+
+// Create Models, .h and .cpp files
+function makeApiFiles(api, apiOutputDir, sourceDir, libname) {
+    var apiHeaderTemplate = ejs.compile(readFile(path.resolve(sourceDir, "templates/PlayFabAPI.h.ejs")));
+    var apiCppTemplate = ejs.compile(readFile(path.resolve(sourceDir, "templates/PlayFabAPI.cpp.ejs")));
+    var apiPlayFabModelTemplate = ejs.compile(readFile(path.resolve(sourceDir, "templates/PlayFabModels.h.ejs")));
+    var apiPlayFabModelCppTemplate = ejs.compile(readFile(path.resolve(sourceDir, "templates/PlayFabModels.cpp.ejs")));
+    var apiPlayFabModelDecoderHTemplate = ejs.compile(readFile(path.resolve(sourceDir, "templates/PlayFabModelDecoder.h.ejs")));
+    var apiPlayFabModelDecoderCppTemplate = ejs.compile(readFile(path.resolve(sourceDir, "templates/PlayFabModelDecoder.cpp.ejs")));
+    
+    var generatedHeader;
+    var generatedBody;
+    var apiLocals = {};
+    apiLocals.api = api;
+    apiLocals.hasClientOptions = api.name === "Client";
+    apiLocals.sdkVersion = exports.sdkVersion;
+    apiLocals.libname = libname;
+    
+    generatedHeader = apiHeaderTemplate(apiLocals);
+    writeFile(path.resolve(apiOutputDir, "PluginFiles/PlayFab/Source/PlayFab/Classes/PlayFab" + api.name + "API.h"), generatedHeader);
+    generatedBody = apiCppTemplate(apiLocals);
+    writeFile(path.resolve(apiOutputDir, "PluginFiles/PlayFab/Source/PlayFab/Private/PlayFab" + api.name + "API.cpp"), generatedBody);
+    
+    generatedHeader = apiPlayFabModelTemplate(apiLocals);
+    writeFile(path.resolve(apiOutputDir, "PluginFiles/PlayFab/Source/PlayFab/Classes/PlayFab" + api.name + "Models.h"), generatedHeader);
+    generatedBody = apiPlayFabModelCppTemplate(apiLocals);
+    writeFile(path.resolve(apiOutputDir, "PluginFiles/PlayFab/Source/PlayFab/Private/PlayFab" + api.name + "Models.cpp"), generatedBody);
+    
+    generatedHeader = apiPlayFabModelDecoderHTemplate(apiLocals);
+    writeFile(path.resolve(apiOutputDir, "PluginFiles/PlayFab/Source/PlayFab/Classes/PlayFab" + api.name + "ModelDecoder.h"), generatedHeader);
+    generatedBody = apiPlayFabModelDecoderCppTemplate(apiLocals);
+    writeFile(path.resolve(apiOutputDir, "PluginFiles/PlayFab/Source/PlayFab/Private/PlayFab" + api.name + "ModelDecoder.cpp"), generatedBody);
+}

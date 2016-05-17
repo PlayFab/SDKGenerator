@@ -60,7 +60,7 @@ namespace PlayFab
         MultitypeString
     };
 
-    struct FMultitypeVar : public FPlayFabBaseModel
+    struct PLAYFAB_API FMultitypeVar : public FPlayFabBaseModel
     {
     private:
         MultitypeVarTypes mType;

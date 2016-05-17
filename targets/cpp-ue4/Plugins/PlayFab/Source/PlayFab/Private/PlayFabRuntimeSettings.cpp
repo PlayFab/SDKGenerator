@@ -12,6 +12,5 @@ UPlayFabRuntimeSettings::UPlayFabRuntimeSettings(const FObjectInitializer& Objec
 	, DevelopmentEnvironmentURL(TEXT(".playfabsandbox.com"))
 	, ProductionEnvironmentURL(TEXT(".playfabapi.com"))
 	, TitleId()
-	, DeveloperSecretKey()
 {
 }

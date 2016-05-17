@@ -2,6 +2,7 @@ using PlayFab;
 using System;
 using System.Collections.Generic;
 using Newtonsoft.Json.Linq;
+using PlayFab.Internal;
 
 namespace PlayFab.UUnit
 {
@@ -92,16 +93,53 @@ namespace PlayFab.UUnit
         public void InvalidLogin()
         {
             // If the setup failed to log in a user, we need to create one.
-            var task = Client.LoginWithEmailAddressAsync(Client.Settings.TitleId, USER_EMAIL, USER_PASSWORD);
+            var task = Client.LoginWithEmailAddressAsync(Client.Settings.TitleId, USER_EMAIL, USER_PASSWORD + "INVALID");
             try
             {
                 task.Wait();
             }
             catch (Exception ex)
             {
-                UUnitAssert.True(ex.Message.Contains("password"));
+                var inner = ex.InnerException as PlayFabException;
+                if (inner != null)
+                {
+                    UUnitAssert.True(inner.Error == PlayFabErrorCode.AccountNotFound
+                        || inner.Error == PlayFabErrorCode.InvalidUsernameOrPassword
+                        || inner.Error == PlayFabErrorCode.InvalidPassword
+                        || inner.Error == PlayFabErrorCode.InvalidEmailOrPassword);
+                }
+                else
+                {
+                    UUnitAssert.True(ex.Message.Contains("password"));
+                }
+                return;
             }
             UUnitAssert.False(true, "This should be unreachable");
+        }
+
+        /// <summary>
+        /// CLIENT API
+        /// Try to deliberately register a character with an invalid email and password.
+        ///   Verify that errorDetails are populated correctly.
+        /// </summary>
+        [UUnitTest]
+        public void InvalidRegistration()
+        {
+            var registerTask = Client.RegisterPlayFabUserAsync(Client.Settings.TitleId, "x", "x", "x");
+            try
+            {
+                registerTask.Wait();
+            }
+            catch (Exception ex)
+            {
+                var inner = ex.InnerException as PlayFabException;
+                if (inner != null)
+                {
+                    UUnitAssert.True(inner.Error == PlayFabErrorCode.InvalidParams);
+                    return;
+                }
+                throw;
+            }
         }
 
         /// <summary>
@@ -118,32 +156,37 @@ namespace PlayFab.UUnit
                 try
                 {
                     loginTask.Wait();
+                    playFabId = loginTask.Result.PlayFabId; // Needed for subsequent tests
                 }
                 catch (Exception ex)
                 {
-                    UUnitAssert.True(false, ex.Message);
+                    var inner = ex.InnerException as PlayFabException;
+                    if (inner != null)
+                    {
+                        UUnitAssert.True(inner.Error == PlayFabErrorCode.AccountNotFound);
+                    }
+                    else
+                    {
+                        UUnitAssert.True(false, ex.Message);
+                    }
                 }
-                UUnitAssert.True(true);
-
-                playFabId = loginTask.Result.PlayFabId; // Needed for subsequent tests
             }
 
             if (Client.IsClientLoggedIn())
                 return; // Success, already logged in
 
             // If the setup failed to log in a user, we need to create one.
-            var registerTask = Client.RegisterPlayFabUserAsync(Client.Settings.TitleId, USER_NAME, USER_EMAIL, USER_PASSWORD, null, null, null);
+            var registerTask = Client.RegisterPlayFabUserAsync(Client.Settings.TitleId, USER_PASSWORD, USER_NAME, USER_EMAIL);
             try
             {
                 registerTask.Wait();
+                playFabId = registerTask.Result.PlayFabId; // Needed for subsequent tests
+
             }
             catch (Exception ex)
             {
                 UUnitAssert.True(false, ex.Message);
             }
-            UUnitAssert.True(true);
-
-            playFabId = registerTask.Result.PlayFabId; // Needed for subsequent tests
 
             UUnitAssert.True(Client.IsClientLoggedIn(), "User login failed");
         }

@@ -54,7 +54,8 @@ namespace PlayFab
 
             <%- apiCall.result %> result = resultData.data;
             <%- getResultActions(apiCall, api) %>
-            <%- getReturnAction(apiCall, api) %><% } %>
+            <%- getReturnAction(apiCall, api) %><% } else { %>
+			<%- getResultActions(apiCall, api) %><% } %>
         }
         <% if(getCallRequestsData(apiCall, api)) { %>
         <% if(apiCall.summary) {%>/// <summary>

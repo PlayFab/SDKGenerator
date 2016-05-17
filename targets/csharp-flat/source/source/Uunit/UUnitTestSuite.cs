@@ -49,7 +49,7 @@ namespace PlayFab.UUnit
             doneTesting = lastTestIndex >= tests.Count;
             if (!doneTesting)
             {
-                tests[lastTestIndex].Run(testResult);
+                tests[lastTestIndex].Run(testResult).Wait();
             }
             return doneTesting;
         }

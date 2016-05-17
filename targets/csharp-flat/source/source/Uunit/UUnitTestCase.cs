@@ -9,12 +9,15 @@
 using System;
 using System.Diagnostics;
 using System.Reflection;
+using System.Threading.Tasks;
 
 namespace PlayFab.UUnit
 {
     public class UUnitTestCase
     {
         private delegate void UUnitTestDelegate();
+        private delegate Task UUnitAsyncTestDelegate();
+
         private static Type[] EMPTY_PARAMETER_TYPES = new Type[0];
         private static object[] EMPTY_PARAMETERS = new object[0];
 
@@ -28,7 +31,7 @@ namespace PlayFab.UUnit
             this.testMethodName = testMethodName;
         }
 
-        public void Run(UUnitTestResult testResult)
+        public async Task Run(UUnitTestResult testResult)
         {
             UUnitTestResult.TestState testState = UUnitTestResult.TestState.FAILED;
             string message = null;
@@ -48,7 +51,14 @@ namespace PlayFab.UUnit
                 MethodInfo method = type.GetRuntimeMethod(testMethodName, EMPTY_PARAMETER_TYPES); // Test methods must contain no parameters
                 UUnitAssert.NotNull(method, "Could not execute: " + testMethodName + ", it's probably not public."); // Limited access to loaded assemblies
                 eachTestStopwatch.Start();
-                ((UUnitTestDelegate)method.CreateDelegate(typeof(UUnitTestDelegate), this))(); // This creates a delegate of the test function, and calls it
+                if (method.ReturnType == typeof(Task))
+                {
+                    await ((UUnitAsyncTestDelegate)method.CreateDelegate(typeof(UUnitAsyncTestDelegate), this))(); // This creates a delegate of the test function, and calls it, waiting for completion
+                }
+                else
+                {
+                    ((UUnitTestDelegate)method.CreateDelegate(typeof(UUnitTestDelegate), this))(); // This creates a delegate of the test function, and calls it
+                }
                 testState = UUnitTestResult.TestState.PASSED;
             }
             catch (UUnitAssertException e)

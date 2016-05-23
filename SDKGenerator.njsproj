@@ -1,7 +1,6 @@
 ﻿<?xml version="1.0" encoding="utf-8"?>
 <Project DefaultTargets="Build" xmlns="http://schemas.microsoft.com/developer/msbuild/2003">
   <PropertyGroup>
-    <Configuration Condition=" '$(Configuration)' == '' ">Debug</Configuration>
     <SchemaVersion>2.0</SchemaVersion>
     <ProjectGuid>{2ba807ef-310c-43b5-8d42-1abcfff39be9}</ProjectGuid>
     <ProjectHome />
@@ -12,11 +11,44 @@
     <ProjectTypeGuids>{3AF33F2E-1136-4D97-BBB7-1795711AC8B8};{349c5851-65df-11da-9384-00065b846f21};{9092AA53-FB77-4645-B42D-1CCCA6BD08BD}</ProjectTypeGuids>
     <VisualStudioVersion Condition="'$(VisualStudioVersion)' == ''">11.0</VisualStudioVersion>
     <VSToolsPath Condition="'$(VSToolsPath)' == ''">$(MSBuildExtensionsPath32)\Microsoft\VisualStudio\v$(VisualStudioVersion)</VSToolsPath>
-    <ScriptArguments>..\API_Specs cpp-unreal=..\sdks\UnrealBlueprintSDK</ScriptArguments>
     <StartWebBrowser>False</StartWebBrowser>
   </PropertyGroup>
-  <PropertyGroup Condition="'$(Configuration)' == 'Debug'" />
-  <PropertyGroup Condition="'$(Configuration)' == 'Release'" />
+  <PropertyGroup Condition=" '$(Configuration)' == 'ActionScriptSDK' ">
+    <ScriptArguments>..\API_Specs actionscript=..\sdks\ActionScriptSDK\PfApiTest</ScriptArguments>
+  </PropertyGroup>
+  <PropertyGroup Condition=" '$(Configuration)' == 'CocosSDK' ">
+    <ScriptArguments>..\API_Specs cpp-cocos2dx=..\sdks\Cocos2d-xSDK</ScriptArguments>
+  </PropertyGroup>
+  <PropertyGroup Condition=" '$(Configuration)' == 'CSharpSDK' ">
+    <ScriptArguments>..\API_Specs csharp=..\sdks\CSharpSDK</ScriptArguments>
+  </PropertyGroup>
+  <PropertyGroup Condition=" '$(Configuration)' == 'JavaSDK' ">
+    <ScriptArguments>..\API_Specs java=..\sdks\JavaSDK</ScriptArguments>
+  </PropertyGroup>
+  <PropertyGroup Condition=" '$(Configuration)' == 'JavaScriptSDK' ">
+    <ScriptArguments>..\API_Specs javascript=..\sdks\JavaScriptSDK\PlayFabSDK</ScriptArguments>
+  </PropertyGroup>
+  <PropertyGroup Condition=" '$(Configuration)' == 'LumberyardSdk' ">
+    <ScriptArguments>..\API_Specs LumberyardSdk=..\sdks\LumberyardSdk</ScriptArguments>
+  </PropertyGroup>
+  <PropertyGroup Condition=" '$(Configuration)' == 'NodeSDK' ">
+    <ScriptArguments>..\API_Specs js-node=..\sdks\NodeSDK</ScriptArguments>
+  </PropertyGroup>
+  <PropertyGroup Condition=" '$(Configuration)' == 'PostmanCollection' ">
+    <ScriptArguments>..\API_Specs postman=..\sdks\PostmanCollection</ScriptArguments>
+  </PropertyGroup>
+  <PropertyGroup Condition=" '$(Configuration)' == 'UnitySDK' ">
+    <ScriptArguments>..\API_Specs csharp-unity=..\sdks\UnitySDK</ScriptArguments>
+  </PropertyGroup>
+  <PropertyGroup Condition="'$(Configuration)' == 'UnrealBlueprintSDK'">
+    <ScriptArguments>..\API_Specs cpp-unreal=..\sdks\UnrealBlueprintSDK</ScriptArguments>
+  </PropertyGroup>
+  <PropertyGroup Condition=" '$(Configuration)' == 'UnrealCppSdk' ">
+    <ScriptArguments>..\API_Specs cpp-ue4=..\sdks\UnrealCppSdk</ScriptArguments>
+  </PropertyGroup>
+  <PropertyGroup Condition=" '$(Configuration)' == 'WindowsSDK' ">
+    <ScriptArguments>..\API_Specs cpp-windows=..\sdks\WindowsSDK</ScriptArguments>
+  </PropertyGroup>
   <ItemGroup>
     <Compile Include="targets\cpp-cocos2dx\cpp-shared.js" />
     <Compile Include="targets\cpp-cocos2dx\make.js" />

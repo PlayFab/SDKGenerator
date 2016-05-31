@@ -6,7 +6,7 @@ namespace JenkinsConsoleUtility.Commands
 {
     class KillTaskCommand : ICommand
     {
-        public string commandKey => "kill";
+        public string commandKey { get { return "kill"; } }
 
         public int Execute(Dictionary<string, string> inputs)
         {

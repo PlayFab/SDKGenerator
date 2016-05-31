@@ -20,7 +20,7 @@ namespace JenkinsConsoleUtility.Commands
 
     public class CloudScriptListener : ICommand
     {
-        public string commandKey => "ListenCS";
+        public string commandKey { get { return "ListenCS"; } }
 
         public const string CSfunc_TestDataExists = "TestDataExists";
         public const string CSfunc_GetTestData = "GetTestData";

@@ -6,7 +6,7 @@ namespace JenkinsConsoleUtility.Commands
 {
     public class TestingCommand : ICommand
     {
-        public string commandKey => "RunTests";
+        public string commandKey { get { return "RunTests"; } }
 
         public int Execute(Dictionary<string, string> inputs)
         {

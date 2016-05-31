@@ -19,6 +19,7 @@ if(!PlayFab._internalSettings) {
     PlayFab._internalSettings = {
         sessionTicket: null,
         sdkVersion: "<%- sdkVersion %>",
+        buildIdentifier: "<%- buildIdentifier %>",
         productionServerUrl: ".playfabapi.com",
         logicServerUrl: null,
 
@@ -103,7 +104,12 @@ if(!PlayFab._internalSettings) {
     }
 }
 
-PlayFab.<%- api.name %>Api = {<% for(var i in api.calls) { var apiCall = api.calls[i]; %>
+PlayFab.<%- api.name %>Api = {
+<% if (hasClientOptions) { %>
+    IsClientLoggedIn: function () {
+        return PlayFab._internalSettings.sessionTicket != null && PlayFab._internalSettings.sessionTicket.length > 0;
+    },
+<% } %><% for(var i in api.calls) { var apiCall = api.calls[i]; %>
     <%- apiCall.name %>: function (request, callback) {
 <%- getRequestActions(apiCall, api) %>
         <% if (hasResultActions(apiCall, api)) { %>var overloadCallback = function (result, error) {

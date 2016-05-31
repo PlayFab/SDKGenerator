@@ -40,7 +40,9 @@ namespace JenkinsConsoleUtility
             }
             catch (Exception)
             {
-                FancyWriteToConsole("Run a sequence of ordered commands [--command --command ...] [-argKey argValue ...]\nValid commands:", commandLookup.Keys, ConsoleColor.Yellow);
+                FancyWriteToConsole("Run a sequence of ordered commands --<command> [--<command> ...] [-<argKey> <argValue> ...]\nValid commands:", commandLookup.Keys, ConsoleColor.Yellow);
+                FancyWriteToConsole("argValues can have spaces.  Dashes in argValues can cause problems, and are not recommended.", null, ConsoleColor.Yellow);
+                FancyWriteToConsole("Quotes are considered part of the argKey or argValue, and are not parsed as tokens.", null, ConsoleColor.Yellow);
                 // TODO: Report valid/required args for commands
                 return Pause(1);
             }

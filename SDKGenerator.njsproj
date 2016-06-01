@@ -129,6 +129,7 @@
     <Content Include="SDKBuildScripts\win_compile_shared.bat" />
     <Content Include="SDKBuildScripts\win_unittest.bat" />
     <Content Include="targets\actionscript\source\asyncUnitTest\ASyncAssert.as" />
+    <Content Include="targets\actionscript\source\asyncUnitTest\ASyncUnitTestCloudScriptReporter.as" />
     <Content Include="targets\actionscript\source\asyncUnitTest\ASyncUnitTestEvent.as" />
     <Content Include="targets\actionscript\source\asyncUnitTest\ASyncUnitTestFailError.as" />
     <Content Include="targets\actionscript\source\asyncUnitTest\ASyncUnitTestFileReporter.as" />

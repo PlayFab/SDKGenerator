@@ -17,7 +17,6 @@ package
     import asyncUnitTest.ASyncUnitTestSuite;
     import asyncUnitTest.ASyncUnitTestEvent;
     import asyncUnitTest.ASyncAssert;
-    import asyncUnitTest.ASyncUnitTestReporter;
     import asyncUnitTest.ASyncUnitTestFileReporter;
 
     public class PlayFabApiTests extends ASyncUnitTestSuite
@@ -48,9 +47,9 @@ package
         private var testIntExpected:int;
         private var testIntActual:int;
 
-        public function PlayFabApiTests(titleDataFileName:String, reporter:ASyncUnitTestReporter)
+        public function PlayFabApiTests(titleDataFileName:String, reporters:Array)
         {
-            super(reporter);
+            super(reporters);
             TITLE_DATA_FILENAME = titleDataFileName;
 
             AddTest("InvalidLogin", InvalidLogin);
@@ -137,7 +136,7 @@ package
         }
         private function InvalidLogin_Success(result:com.playfab.ClientModels.LoginResult) : void
         {
-            reporter.Debug("InvalidLogin_Success");
+            Debug("InvalidLogin_Success");
             ASyncAssert.Fail("Login unexpectedly succeeded.");
         }
         private function InvalidLogin_Failure(error:com.playfab.PlayFabError) : void
@@ -165,7 +164,7 @@ package
         }
         private function InvalidRegistration_Success(result:com.playfab.ClientModels.LoginResult) : void
         {
-            reporter.Debug("InvalidRegistration_Success");
+            Debug("InvalidRegistration_Success");
             ASyncAssert.Fail("Registration unexpectedly succeeded.");
         }
         private function InvalidRegistration_Failure(error:com.playfab.PlayFabError) : void
@@ -411,18 +410,18 @@ package
         /// Test that CloudScript can be properly set up and invoked
         /// </summary>
         private function CloudScript() : void
-		{
-			var hwRequest:com.playfab.ClientModels.ExecuteCloudScriptRequest = new com.playfab.ClientModels.ExecuteCloudScriptRequest();
+        {
+            var hwRequest:com.playfab.ClientModels.ExecuteCloudScriptRequest = new com.playfab.ClientModels.ExecuteCloudScriptRequest();
             hwRequest.FunctionName = "helloWorld";
             PlayFabClientAPI.ExecuteCloudScript(hwRequest, Wrap(CloudScriptHWCallback, "CloudScript"), Wrap(Shared_ApiCallFailure, "CloudScript"));
-		}
-		private function CloudScriptHWCallback(result:com.playfab.ClientModels.ExecuteCloudScriptResult) : void
-		{
-			ASyncAssert.AssertTrue(result.FunctionResult.messageValue.length > 0);
-			ASyncAssert.AssertEquals(result.FunctionResult.messageValue, "Hello " + playFabId + "!");
+        }
+        private function CloudScriptHWCallback(result:com.playfab.ClientModels.ExecuteCloudScriptResult) : void
+        {
+            ASyncAssert.AssertTrue(result.FunctionResult.messageValue.length > 0);
+            ASyncAssert.AssertEquals(result.FunctionResult.messageValue, "Hello " + playFabId + "!");
 
             FinishTestHandler(new ASyncUnitTestEvent(ASyncUnitTestEvent.FINISH_TEST, ASyncUnitTestEvent.RESULT_PASSED, ""));
-		}
+        }
 
         /// <summary>
         /// CLIENT API

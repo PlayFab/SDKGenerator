@@ -15,7 +15,7 @@ using System.Net;
 using System.Text;
 using System.Threading;
 using UnityEngine;
-
+        
 namespace PlayFab.Internal
 {
     public class PlayFabHTTP : SingletonMonoBehaviour<PlayFabHTTP>
@@ -29,7 +29,7 @@ namespace PlayFab.Internal
         private static readonly Queue<CallRequestContainer> ResultQueue = new Queue<CallRequestContainer>();
         private static int _pendingWwwMessages = 0;
 
-        public void Awake()
+        public override void Awake()
         {
 #if !UNITY_WP8
             // These are performance Optimizations for HttpWebRequests.
@@ -40,6 +40,7 @@ namespace PlayFab.Internal
             var rcvc = new System.Net.Security.RemoteCertificateValidationCallback(AcceptAllCertifications);
             ServicePointManager.ServerCertificateValidationCallback = rcvc;
 #endif
+            base.Awake();
         }
 
         #region Public API to call PlayFab API Calls.

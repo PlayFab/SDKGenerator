@@ -488,45 +488,25 @@ var PlayFabApiTests = {
     /// Test that CloudScript can be properly set up and invoked
     /// </summary>
     CloudScript: function (assert) {
-        var urlDone = null;
-        var hwDone = null;
+        var hwDone = assert.async();
         
-        if (PlayFab._internalSettings.logicServerUrl == null) {
-            var getCloudUrlRequest = {};
-            
-            var getCloudScriptUrlCallback = function (result, error) {
-                PlayFabApiTests.VerifyNullError(result, error, assert, "Testing GetCloudUrl result");
-                
-                if (PlayFab._internalSettings.logicServerUrl != null)
-                    PlayFabApiTests.CloudScript(assert); // Recursively call this test to get the case below
-                else
-                    assert.ok(false, "GetCloudScriptUrl did not retrieve the logicServerUrl");
-                
-                urlDone();
-            };
-            
-            urlDone = assert.async();
-            PlayFabClientSDK.GetCloudScriptUrl(getCloudUrlRequest, PlayFabApiTests.CallbackWrapper("getCloudScriptUrlCallback", getCloudScriptUrlCallback, assert));
-        } else {
-            var helloWorldRequest = {
-                // Currently, you need to look up the correct format for this object in the API-docs:
-                //   https://api.playfab.com/Documentation/Client/method/RunCloudScript
-                ActionId: "helloWorld"
-            };
-            
-            var helloWorldCallback = function (result, error) {
-                PlayFabApiTests.VerifyNullError(result, error, assert, "Testing HelloWorld result");
-                if (result != null) {
-                    assert.ok(result.data.Results != null, "Testing HelloWorld result");
-                    assert.ok(result.data.Results.messageValue != null, "Testing HelloWorld result message");
-                    assert.equal(result.data.Results.messageValue, "Hello " + PlayFabApiTests.testData.playFabId + "!", "HelloWorld cloudscript result: " + result.data.Results.messageValue);
-                }
-                hwDone();
-            };
-            
-            hwDone = assert.async();
-            PlayFabClientSDK.RunCloudScript(helloWorldRequest, PlayFabApiTests.CallbackWrapper("helloWorldCallback", helloWorldCallback, assert));
-        }
+        var helloWorldRequest = {
+            // Currently, you need to look up the correct format for this object in the API-docs:
+            //   https://api.playfab.com/Documentation/Client/method/ExecuteCloudScript
+            FunctionName: "helloWorld"
+        };
+        
+        var helloWorldCallback = function (result, error) {
+            PlayFabApiTests.VerifyNullError(result, error, assert, "Testing HelloWorld result");
+            if (result != null) {
+                assert.ok(result.data.FunctionResult != null, "Testing HelloWorld result");
+                assert.ok(result.data.FunctionResult.messageValue != null, "Testing HelloWorld result message");
+                assert.equal(result.data.FunctionResult.messageValue, "Hello " + PlayFabApiTests.testData.playFabId + "!", "HelloWorld cloudscript result: " + result.data.FunctionResult.messageValue);
+            }
+            hwDone();
+        };
+        
+        PlayFabClientSDK.ExecuteCloudScript(helloWorldRequest, PlayFabApiTests.CallbackWrapper("helloWorldCallback", helloWorldCallback, assert));
     },
     
     /// <summary>

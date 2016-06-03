@@ -75,7 +75,6 @@ namespace PlayFab.UUnit
 
         protected override void TearDown()
         {
-            // TODO: Destroy any characters
         }
 
         private static void WaitForResultSuccess<TResult>(Task<PlayFabResult<TResult>> task, string failMessage) where TResult : PlayFabResultCommon
@@ -149,32 +148,17 @@ namespace PlayFab.UUnit
         [UUnitTest]
         public void LoginOrRegister()
         {
-            if (!PlayFabClientAPI.IsClientLoggedIn()) // If we haven't already logged in...
+            var loginRequest = new LoginWithCustomIDRequest
             {
-                var loginRequest = new LoginWithEmailAddressRequest();
-                loginRequest.Email = USER_EMAIL;
-                loginRequest.Password = USER_PASSWORD;
-                loginRequest.TitleId = PlayFabSettings.TitleId;
-                var loginTask = PlayFabClientAPI.LoginWithEmailAddressAsync(loginRequest);
-                loginTask.Wait(); // We don't care about success or fail here
+                TitleId = PlayFabSettings.TitleId,
+                CustomId = PlayFabSettings.BuildIdentifier,
+                CreateAccount = true
+            };
+            var loginTask = PlayFabClientAPI.LoginWithCustomIDAsync(loginRequest);
+            WaitForResultSuccess(loginTask, "Login with advertId failed");
+            loginTask.Wait(); // We don't care about success or fail here
 
-                if (loginTask.Result != null && loginTask.Result.Result != null) // If successful, track playFabId
-                    playFabId = loginTask.Result.Result.PlayFabId; // Needed for subsequent tests
-            }
-
-            if (PlayFabClientAPI.IsClientLoggedIn())
-                return; // Success, already logged in
-
-            // If the setup failed to log in a user, we need to create one.
-            var registerRequest = new RegisterPlayFabUserRequest();
-            registerRequest.TitleId = PlayFabSettings.TitleId;
-            registerRequest.Username = USER_NAME;
-            registerRequest.Email = USER_EMAIL;
-            registerRequest.Password = USER_PASSWORD;
-            var registerTask = PlayFabClientAPI.RegisterPlayFabUserAsync(registerRequest);
-            WaitForResultSuccess(registerTask, "User registration failed");
-
-            playFabId = registerTask.Result.Result.PlayFabId; // Needed for subsequent tests
+            playFabId = loginTask.Result.Result.PlayFabId; // Needed for subsequent tests
 
             UUnitAssert.True(PlayFabClientAPI.IsClientLoggedIn(), "User login failed");
         }
@@ -189,12 +173,15 @@ namespace PlayFab.UUnit
             PlayFabSettings.AdvertisingIdType = PlayFabSettings.AD_TYPE_ANDROID_ID;
             PlayFabSettings.AdvertisingIdValue = "PlayFabTestId";
 
-            var loginRequest = new LoginWithEmailAddressRequest();
-            loginRequest.Email = USER_EMAIL;
-            loginRequest.Password = USER_PASSWORD;
-            loginRequest.TitleId = PlayFabSettings.TitleId;
-            var loginTask = PlayFabClientAPI.LoginWithEmailAddressAsync(loginRequest);
+            var loginRequest = new LoginWithCustomIDRequest
+            {
+                TitleId = PlayFabSettings.TitleId,
+                CustomId = PlayFabSettings.BuildIdentifier,
+                CreateAccount = true
+            };
+            var loginTask = PlayFabClientAPI.LoginWithCustomIDAsync(loginRequest);
             WaitForResultSuccess(loginTask, "Login with advertId failed");
+            loginTask.Wait(); // We don't care about success or fail here
 
             UUnitAssert.StringEquals(PlayFabSettings.AD_TYPE_ANDROID_ID + "_Successful", PlayFabSettings.AdvertisingIdType);
         }
@@ -362,17 +349,13 @@ namespace PlayFab.UUnit
         [UUnitTest]
         public void CloudScript()
         {
-            var getUrlTask = PlayFabClientAPI.GetCloudScriptUrlAsync(new GetCloudScriptUrlRequest());
-            WaitForResultSuccess(getUrlTask, "Failed to get LogicServerURL");
-
-            var request = new RunCloudScriptRequest();
-            request.ActionId = "helloWorld";
-            var cloudTask = PlayFabClientAPI.RunCloudScriptAsync(request);
+            var request = new ExecuteCloudScriptRequest();
+            request.FunctionName = "helloWorld";
+            var cloudTask = PlayFabClientAPI.ExecuteCloudScriptAsync(request);
             WaitForResultSuccess(cloudTask, "Failed to Execute CloudScript");
-            UUnitAssert.False(string.IsNullOrEmpty(cloudTask.Result.Result.ResultsEncoded), "Failed to Execute CloudScript");
 
             // Get the helloWorld return message
-            JObject jobj = cloudTask.Result.Result.Results as JObject;
+            JObject jobj = cloudTask.Result.Result.FunctionResult as JObject;
             UUnitAssert.NotNull(jobj);
             JToken jtok;
             jobj.TryGetValue("messageValue", out jtok);

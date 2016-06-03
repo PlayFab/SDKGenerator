@@ -28,17 +28,17 @@ namespace PlayFab.UUnit
             this.testMethodName = testMethodName;
         }
 
-        public void Run(UUnitTestResult testResult)
+        public void Run(UUnitTestResults testResults)
         {
-            UUnitTestResult.TestState testState = UUnitTestResult.TestState.FAILED;
-            string message = null;
+            TestFinishState testFinishState = TestFinishState.FAILED;
+            string message = null, stacktrace = null;
             eachTestStopwatch.Reset();
             setUpStopwatch.Reset();
             tearDownStopwatch.Reset();
 
             try
             {
-                testResult.TestStarted();
+                testResults.TestStarted();
 
                 setUpStopwatch.Start();
                 SetUp();
@@ -49,33 +49,36 @@ namespace PlayFab.UUnit
                 UUnitAssert.NotNull(method, "Could not execute: " + testMethodName + ", it's probably not public."); // Limited access to loaded assemblies
                 eachTestStopwatch.Start();
                 ((UUnitTestDelegate)method.CreateDelegate(typeof(UUnitTestDelegate), this))(); // This creates a delegate of the test function, and calls it
-                testState = UUnitTestResult.TestState.PASSED;
+                testFinishState = TestFinishState.PASSED;
             }
             catch (UUnitAssertException e)
             {
-                message = e.ToString();
-                testState = UUnitTestResult.TestState.FAILED;
+                message = e.message;
+                stacktrace = e.StackTrace;
+                testFinishState = TestFinishState.FAILED;
             }
             catch (UUnitSkipException)
             {
                 // message remains null
-                testState = UUnitTestResult.TestState.SKIPPED;
+                testFinishState = TestFinishState.SKIPPED;
             }
             catch (TargetInvocationException e)
             {
-                message = e.InnerException.ToString();
-                testState = UUnitTestResult.TestState.FAILED;
+                message = e.InnerException.Message;
+                stacktrace = e.InnerException.StackTrace;
+                testFinishState = TestFinishState.FAILED;
             }
             catch (Exception e)
             {
-                message = e.ToString();
-                testState = UUnitTestResult.TestState.FAILED;
+                message = e.Message;
+                stacktrace = e.StackTrace;
+                testFinishState = TestFinishState.FAILED;
             }
             finally
             {
                 eachTestStopwatch.Stop();
 
-                if (testState != UUnitTestResult.TestState.SKIPPED)
+                if (testFinishState != TestFinishState.SKIPPED)
                 {
                     try
                     {
@@ -85,13 +88,14 @@ namespace PlayFab.UUnit
                     }
                     catch (Exception e)
                     {
-                        message = e.ToString();
-                        testState = UUnitTestResult.TestState.FAILED;
+                        message = e.Message;
+                        stacktrace = e.StackTrace;
+                        testFinishState = TestFinishState.FAILED;
                     }
                 }
             }
 
-            testResult.TestComplete(testMethodName, testState, eachTestStopwatch.ElapsedMilliseconds, message);
+            testResults.TestComplete(testMethodName, testFinishState, eachTestStopwatch.ElapsedMilliseconds, message, stacktrace);
         }
 
         protected virtual void SetUp()

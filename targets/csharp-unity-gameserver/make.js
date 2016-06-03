@@ -191,7 +191,7 @@ function generateSimpleFiles(apis, sourceDir, apiOutputDir, isClient) {
     
     var versionTemplate = ejs.compile(readFile(path.resolve(sourceDir, "templates/PlayFabVersion.cs.ejs")));
     var versionLocals = {};
-    versionLocals.sdkRevision = exports.sdkVersion;
+    versionLocals.sdkVersion = exports.sdkVersion;
     var generatedVersion = versionTemplate(versionLocals);
     writeFile(path.resolve(apiOutputDir, "Internal/PlayFabVersion.cs"), generatedVersion);
     

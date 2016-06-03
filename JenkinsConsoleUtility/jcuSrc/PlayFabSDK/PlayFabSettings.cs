@@ -5,23 +5,9 @@ namespace PlayFab
 {
     public class PlayFabSettings
     {
-        public static readonly string[] DATETIME_PARSE_FORMATS = {
-             // All parseable ISO 8601 formats for DateTime.[Try]ParseExact
-            "yyyy'-'MM'-'dd'T'HH':'mm':'ss.FFF'Z'", // ISO 8601 format for IsoDateTimeConverter
-            "yyyy-MM-ddTHH:mm:ss.FFZ",
-            "yyyy-MM-ddTHH:mm:ss.FFFZ",
-            "yyyy-MM-ddTHH:mm:ss.FF", // The output that JUnit XML examples seem to prefer
-            "yyyy-MM-ddTHH:mm:ss.FFF",
-        };
-        public static JsonSerializerSettings JsonSettings = new JsonSerializerSettings()
-        {
-            NullValueHandling = NullValueHandling.Ignore,
-            Converters = { new IsoDateTimeConverter() { DateTimeFormat = DATETIME_PARSE_FORMATS[0] } },
-        };
-        public static Formatting JsonFormatting = Formatting.None;
-
-        public static string SdkVersion = "0.25.160502";
-        public static string SdkVersionString = "CSharpSDK-0.25.160502";
+        public static string SdkVersion = "0.26.160523";
+        public static string BuildIdentifier = "pg_csharpsdk_134";
+        public static string SdkVersionString = "CSharpSDK-0.26.160523";
 
         public static bool UseDevelopmentEnvironment = false;
         public static string DevelopmentEnvironmentUrl = ".playfabsandbox.com";

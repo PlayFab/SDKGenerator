@@ -50,8 +50,10 @@ function generate(args) {
             console.log(errorMessages[i]);
         process.exit(1);
     }
-    
-    var buildFlags = LowercaseFlagsList(argsByName);
+
+    var buildFlags = [];
+    if (argsByName.hasOwnProperty("flags"))
+        buildFlags = LowercaseFlagsList(argsByName.flags.split(" "));
     var specLocation = path.normalize(args[2]);
     var clientApi = GetApiDefinition(specLocation, "Client.api.json", buildFlags);
     var serverApis = [
@@ -192,13 +194,10 @@ var IsVisibleWithFlags = function (buildFlags, apiObj) {
     return false;
 }
 
-var LowercaseFlagsList = function (argsByName) {
+var LowercaseFlagsList = function (flags) {
     var output = [];
-    if (!argsByName.hasOwnProperty("flags"))
-        return output;
-    
-    for (var eachFlag in argsByName.flags.split(" "))
-        output.push(eachFlag.toLowerCase());
+    for (var i in flags)
+        output.push(flags[i].toLowerCase());
     return output;
 }
 

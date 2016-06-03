@@ -6,68 +6,145 @@
  * http://creativecommons.org/licenses/by-sa/3.0/
 */
 
+using System;
 using System.Collections.Generic;
 using System.Text;
+using Newtonsoft.Json;
 
 namespace PlayFab.UUnit
 {
-    public class UUnitTestResult
+    public enum TestFinishState
     {
-        public enum TestState
-        {
-            PASSED,
-            FAILED,
-            SKIPPED,
-        }
+        PASSED,
+        FAILED,
+        SKIPPED,
+        TIMEDOUT
+    }
 
-        private int runCount = 0, successCount = 0, failedCount = 0, skippedCount = 0;
-
+    /// <summary>
+    /// This is a wrapper around TestSuiteReport with the callbacks that let UUnitTestSuite manipulate/append results, and UUnitTestRunner display them
+    /// </summary>
+    public class UUnitTestResults
+    {
+        private const int TIME_ALIGNMENT_WIDTH = 10;
         private static StringBuilder sb = new StringBuilder();
-        List<string> messages = new List<string>();
+        public readonly TestSuiteReport InternalReport = new TestSuiteReport();
+
+        public UUnitTestResults(string classname)
+        {
+            InternalReport.name = InternalReport.buildIdentifier = classname;
+            InternalReport.timestamp = DateTime.UtcNow;
+        }
 
         public void TestStarted()
         {
-            runCount += 1;
+            InternalReport.tests += 1;
         }
 
-        public void TestComplete(string testName, TestState success, long stopwatchMS, string message) // TODO: Separate the message and the stack-trace for improved formatting
+        public void TestComplete(string testName, TestFinishState finishState, long stopwatchMs, string message, string stacktrace)
         {
-            sb.Length = 0;
-            sb.Append(stopwatchMS);
-            while (sb.Length < 10)
-                sb.Insert(0, ' ');
-            sb.Append(" ms - ").Append(success.ToString());
-            sb.Append(" - ").Append(testName);
-            if (!string.IsNullOrEmpty(message))
-                sb.Append(" - ").Append(message);
-            messages.Add(sb.ToString());
-            sb.Length = 0;
-
-            switch (success)
+            TestCaseReport report = new TestCaseReport
             {
-                case (TestState.PASSED):
-                    successCount += 1; break;
-                case (TestState.FAILED):
-                    failedCount += 1; break;
-                case (TestState.SKIPPED):
-                    skippedCount += 1; break;
+                message = message,
+                classname = InternalReport.name,
+                failureText = finishState.ToString(),
+                finishState = finishState,
+                name = testName,
+                time = TimeSpan.FromMilliseconds(stopwatchMs)
+            };
+            if (InternalReport.testResults == null)
+                InternalReport.testResults = new List<TestCaseReport>();
+            InternalReport.testResults.Add(report);
+
+            switch (finishState)
+            {
+                case (TestFinishState.PASSED):
+                    InternalReport.passed += 1; break;
+                case (TestFinishState.FAILED):
+                    InternalReport.failures += 1; break;
+                case (TestFinishState.SKIPPED):
+                    InternalReport.skipped += 1; break;
             }
+
+            // TODO: Add hooks for SuiteSetUp and SuiteTearDown, so this can be estimated more accurately
+            InternalReport.time = DateTime.UtcNow - InternalReport.timestamp; // For now, update the duration on every test complete - the last one will be essentially correct
         }
 
         public string Summary()
         {
             sb.Length = 0;
-            sb.AppendFormat("Testing complete:  {0} test run, {1} tests passed, {2} tests failed.", runCount, successCount, failedCount);
-            messages.Add(sb.ToString());
-            return string.Join("\n", messages.ToArray());
+
+            foreach (var eachReport in InternalReport.testResults)
+            {
+                if (sb.Length != 0)
+                    sb.Append("\n");
+                string ms = eachReport.time.TotalMilliseconds.ToString("0.###");
+                for (int i = ms.Length; i < TIME_ALIGNMENT_WIDTH; i++)
+                    sb.Append(' ');
+                sb.Append(ms).Append(" ms - ").Append(eachReport.finishState);
+                sb.Append(" - ").Append(eachReport.name);
+                if (!string.IsNullOrEmpty(eachReport.message))
+                {
+                    sb.Append(" - ").Append(eachReport.message);
+                    if (!string.IsNullOrEmpty(eachReport.stacktrace))
+                        sb.Append("\n").Append(eachReport.stacktrace);
+                }
+            }
+
+            sb.AppendFormat("\nTesting complete:  {0} test run, {1} tests passed, {2} tests failed.", InternalReport.tests, InternalReport.passed, InternalReport.failures);
+
+            return sb.ToString();
         }
 
         /// <summary>
-        /// Return that tests were run, and all of them reported success
+        /// Return that tests were run, and all of them reported finishState
         /// </summary>
         public bool AllTestsPassed()
         {
-            return runCount > 0 && runCount == (successCount + skippedCount) && failedCount == 0;
+            return InternalReport.tests > 0 && InternalReport.tests == (InternalReport.passed + InternalReport.skipped) && InternalReport.failures == 0;
         }
+    }
+
+    /// <summary>
+    /// Data container defining the test-suite data saved to JUnit XML format
+    /// </summary>
+    public class TestSuiteReport
+    {
+        // Part of the XML spec
+        public List<TestCaseReport> testResults;
+        public string name;
+        public int tests;
+        public int failures;
+        public int errors;
+        public int skipped;
+        [JsonConverter(typeof(PlayFabUtil.TimeSpanFloatSeconds))]
+        public TimeSpan time;
+        public DateTime timestamp;
+        public Dictionary<string, string> properties;
+        // Jenkernaught Extras
+        public string buildIdentifier;
+        // Useful for debugging but not part of the serialized format
+        [JsonIgnore]
+        public int passed; // Could be calculated from the others, but sometimes knowing if they don't add up means something
+    }
+
+    /// <summary>
+    /// Data container defining the test-case data saved to JUnit XML format
+    /// </summary>
+    public class TestCaseReport
+    {
+        public string classname;
+        public string name;
+        [JsonConverter(typeof(PlayFabUtil.TimeSpanFloatSeconds))]
+        public TimeSpan time;
+        // Sub-Fields in the XML spec
+        /// <summary> message is the descriptive text used to debug the test failure </summary>
+        public string message;
+        /// <summary> The xml spec allows failureText to be an arbitrary string.  When possible it should match finishState (But not required) </summary>
+        public string failureText;
+        public TestFinishState finishState;
+        // Other parameters not part of the xml spec, used for internal debugging
+        [JsonIgnore]
+        public string stacktrace;
     }
 }

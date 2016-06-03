@@ -46,9 +46,9 @@ namespace JenkinsConsoleUtility.Testing
         [UUnitTest]
         public void XmlReadWriteSequence()
         {
-            List<JUnitXml.TestSuite> xmlReport = JUnitXml.ParseXmlFile(tempFileFullPath);
+            List<TestSuiteReport> xmlReport = JUnitXml.ParseXmlFile(tempFileFullPath);
             JUnitXml.WriteXmlFile(tempFileFullPath, xmlReport, true);
-            List<JUnitXml.TestSuite> xmlReport2 = JUnitXml.ParseXmlFile(tempFileFullPath);
+            List<TestSuiteReport> xmlReport2 = JUnitXml.ParseXmlFile(tempFileFullPath);
         }
     }
 }

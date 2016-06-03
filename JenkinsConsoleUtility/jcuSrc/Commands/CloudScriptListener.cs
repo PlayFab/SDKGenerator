@@ -5,6 +5,7 @@ using System.Collections.Generic;
 using System.IO;
 using System.Threading;
 using Newtonsoft.Json;
+using PlayFab.UUnit;
 
 namespace JenkinsConsoleUtility.Commands
 {
@@ -15,7 +16,7 @@ namespace JenkinsConsoleUtility.Commands
     public class CsSaveRequest
     {
         public string customId;
-        public JUnitXml.TestSuite[] testReport;
+        public TestSuiteReport[] testReport;
     }
 
     public class CloudScriptListener : ICommand
@@ -110,7 +111,7 @@ namespace JenkinsConsoleUtility.Commands
         /// </summary>
         private static int FetchTestResult(string buildIdentifier, string workspacePath)
         {
-            List<JUnitXml.TestSuite> testResults;
+            List<TestSuiteReport> testResults;
             string errorReport;
             bool callResult = ExecuteCloudScript(CSfunc_GetTestData, _getRequest, out testResults, out errorReport);
 
@@ -131,7 +132,7 @@ namespace JenkinsConsoleUtility.Commands
             };
             var task = PlayFabClientAPI.ExecuteCloudScriptAsync(request);
             task.Wait();
-            errorReport = Util.GetErrorReport(task.Result.Error) ?? "";
+            errorReport = PlayFabUtil.GetErrorReport(task.Result.Error) ?? "";
 
             if (task.Result.Result != null && task.Result.Result.Error != null)
                 errorReport += task.Result.Result.Error.Error + task.Result.Result.Error.Message + "\n" + task.Result.Result.Error.StackTrace;
@@ -166,7 +167,7 @@ namespace JenkinsConsoleUtility.Commands
                 string json = JsonConvert.SerializeObject(task.Result.Result.FunctionResult, Formatting.Indented);
                 try
                 {
-                    result = JsonConvert.DeserializeObject<TOut>(json, PlayFabSettings.JsonSettings);
+                    result = JsonConvert.DeserializeObject<TOut>(json, PlayFabUtil.JsonSettings);
                 }
                 catch (Exception)
                 {

@@ -1,6 +1,8 @@
 using PlayFab.UUnit;
 using System;
 using System.Collections.Generic;
+using PlayFab;
+using System.Reflection;
 
 namespace JenkinsConsoleUtility.Commands
 {
@@ -10,11 +12,12 @@ namespace JenkinsConsoleUtility.Commands
 
         public int Execute(Dictionary<string, string> inputs)
         {
-            UUnitTestSuite suite = new UUnitTestSuite();
-            suite.FindAndAddAllTestCases(typeof(UUnitTestCase));
+            UUnitTestSuite suite = new UUnitTestSuite(PlayFabSettings.BuildIdentifier);
+            foreach (Assembly assembly in AppDomain.CurrentDomain.GetAssemblies())
+                suite.FindAndAddAllTestCases(assembly, typeof(UUnitTestCase));
 
             suite.RunAllTests();
-            UUnitTestResult result = suite.GetResults();
+            UUnitTestResults result = suite.GetResults();
             Console.WriteLine(result.Summary());
             Console.WriteLine();
             return result.AllTestsPassed() ? 0 : 1;

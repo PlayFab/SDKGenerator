@@ -10,7 +10,7 @@ namespace JenkinsConsoleUtility.Testing
         private const string TITLE_ID = "6195";
         private const string TEST_CUSTOM_ID = "pg_unity_1337";
         private CsGetRequest getRequest = new CsGetRequest { customId = TEST_CUSTOM_ID };
-        private CsSaveRequest saveRequest = new CsSaveRequest { customId = TEST_CUSTOM_ID, testReport = new JUnitXml.TestSuite[0]};
+        private CsSaveRequest saveRequest = new CsSaveRequest { customId = TEST_CUSTOM_ID, testReport = new TestSuiteReport[0]};
 
         protected override void SetUp()
         {
@@ -18,7 +18,7 @@ namespace JenkinsConsoleUtility.Testing
             var task = PlayFabClientAPI.LoginWithCustomIDAsync(new LoginWithCustomIDRequest { CreateAccount = true, CustomId = TEST_CUSTOM_ID, TitleId = TITLE_ID});
             task.Wait();
 
-            UUnitAssert.True(PlayFabClientAPI.IsClientLoggedIn(), "User login not successful: " + Util.GetErrorReport(task.Result.Error));
+            UUnitAssert.True(PlayFabClientAPI.IsClientLoggedIn(), "User login not successful: " + PlayFabUtil.GetErrorReport(task.Result.Error));
         }
 
         /// <summary>
@@ -32,7 +32,7 @@ namespace JenkinsConsoleUtility.Testing
         {
             bool functionResult, callResult;
             string getErrorReport, saveErrorReport, fetchErrorReport;
-            JUnitXml.TestSuite[] testResults;
+            TestSuiteReport[] testResults;
             object nullReturn;
 
             // Reset a previous test if relevant

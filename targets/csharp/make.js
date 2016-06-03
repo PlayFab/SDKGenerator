@@ -141,6 +141,7 @@ function generateSimpleFiles(apis, sourceDir, apiOutputDir) {
     settingsLocals.hasServerOptions = false;
     settingsLocals.hasClientOptions = false;
     settingsLocals.sdkVersion = exports.sdkVersion;
+    settingsLocals.buildIdentifier = exports.buildIdentifier;
     for (var i in apis) {
         if (apis[i].name === "Client")
             settingsLocals.hasClientOptions = true;

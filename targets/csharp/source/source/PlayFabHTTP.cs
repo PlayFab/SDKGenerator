@@ -40,7 +40,7 @@ namespace PlayFab.Internal
         {
             string fullUrl = PlayFabSettings.GetFullUrl(urlPath);
             string bodyString = null;
-			var serializer = JsonSerializer.Create(PlayFabSettings.JsonSettings);
+			var serializer = JsonSerializer.Create(PlayFabUtil.JsonSettings);
 			
             if(request == null)
             {
@@ -53,7 +53,7 @@ namespace PlayFab.Internal
             else
             {
                 StringWriter jsonString = new StringWriter();
-                var writer = new JsonTextWriter(jsonString) { Formatting = PlayFabSettings.JsonFormatting };
+                var writer = new JsonTextWriter(jsonString) { Formatting = PlayFabUtil.JsonFormatting };
                 serializer.Serialize(writer, request);
                 bodyString = jsonString.ToString();
             }

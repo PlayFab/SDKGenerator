@@ -32,6 +32,15 @@ namespace PlayFab.Internal
         public override void Awake()
         {
 #if !UNITY_WP8
+            SetupCertificates();
+#endif
+            base.Awake();
+        }
+
+#if !UNITY_WP8
+        // This is public for the unit tests - don't call or change this unless you know what you're doing
+        public void SetupCertificates()
+        {
             // These are performance Optimizations for HttpWebRequests.
             ServicePointManager.DefaultConnectionLimit = 10;
             ServicePointManager.Expect100Continue = false;
@@ -39,9 +48,8 @@ namespace PlayFab.Internal
             //Support for SSL
             var rcvc = new System.Net.Security.RemoteCertificateValidationCallback(AcceptAllCertifications);
             ServicePointManager.ServerCertificateValidationCallback = rcvc;
-#endif
-            base.Awake();
         }
+#endif
 
         #region Public API to call PlayFab API Calls.
         /// <summary>

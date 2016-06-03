@@ -1,19 +1,8 @@
-#if UNITY_EDITOR
-#elif UNITY_ANDROID
-#define PLAYFAB_ANDROID
-#elif UNITY_IOS
-#define PLAYFAB_IOS
-#elif UNITY_WP8 || UNITY_WP8_1
-#define PLAYFAB_WP
-#elif UNITY_PS3 || UNITY_PS4
-#define PLAYFAB_PS
-#elif UNITY_WSA || UNITY_WSA_8_0 || UNITY_WSA_8_1 || UNITY_WSA_10_0
-#define PLAYFAB_WIN_STORE
-#endif
-
+using PlayFab.Json;
 using System;
 using System.Globalization;
 using System.IO;
+using System.Text;
 
 namespace PlayFab.Internal
 {

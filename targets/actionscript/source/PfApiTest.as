@@ -5,6 +5,7 @@ package
     import flash.events.*;
     import flash.filesystem.*;
     import flash.text.*;
+    import flash.utils.Timer;
 
     import asyncUnitTest.ASyncUnitTestEvent;
     import asyncUnitTest.ASyncUnitTestFileReporter;
@@ -16,6 +17,7 @@ package
     {
         private var textField:TextField = new TextField();
         private var testSuite:PlayFabApiTests;
+        private var exitCode:int;
 
         public function PfApiTest()
         {
@@ -53,9 +55,18 @@ package
             textField.text = "Tests finished";
             testSuite.removeEventListener(ASyncUnitTestEvent.SUITE_TEARDOWN_COMPLETE, OnTestsComplete);
 
-            var exitCode:int = 0;
+            exitCode = 0;
             if (event.testsErrored > 0 || event.testsSkipped > 0 || event.testsFailed > 0 || event.testsTimedOut > 0)
                 exitCode = 1000 + event.testsErrored + event.testsSkipped + event.testsFailed + event.testsTimedOut;
+
+            // Jenkernaught hack: Don't shut down until the results are submitted to CloudScript - TODO: Track the actual completion rather than a hard coded timer
+            var timer:Timer = new Timer(15, 15);
+            timer.addEventListener(TimerEvent.TIMER, ExitProgram);
+            timer.start();
+        }
+
+        private function ExitProgram(e:TimerEvent) : void
+        {
             NativeApplication.nativeApplication.exit(exitCode);
         }
     }

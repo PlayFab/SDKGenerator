@@ -79,7 +79,13 @@ namespace JenkinsConsoleUtility.Commands
             PlayFabSettings.TitleId = titleId;
             var task = PlayFabClientAPI.LoginWithCustomIDAsync(new LoginWithCustomIDRequest { TitleId = titleId, CustomId = buildIdentifier, CreateAccount = true });
             task.Wait();
-            return PlayFabClientAPI.IsClientLoggedIn() ? 0 : 1;
+            int returnCode = PlayFabClientAPI.IsClientLoggedIn() ? 0 : 1;
+            if (returnCode != 0)
+            {
+                JenkinsConsoleUtility.FancyWriteToConsole("Failed to log in using CustomID: " + titleId + ", " + buildIdentifier, null, ConsoleColor.Red);
+                JenkinsConsoleUtility.FancyWriteToConsole(PlayFabUtil.GetErrorReport(task.Result.Error), null, ConsoleColor.Red);
+            }
+            return returnCode;
         }
 
         /// <summary>

@@ -621,6 +621,7 @@
     <Content Include="targets\js-node\templates\package.json.ejs" />
     <Content Include="targets\js-node\templates\playfab.js.ejs" />
     <Content Include="targets\js-node\testingFiles\PlayFabTesting.njsproj" />
+    <Content Include="targets\js-node\testingFiles\test.bat" />
     <Content Include="targets\LumberyardSdk\source\Code\Include\PlayFabBaseModel.h" />
     <Content Include="targets\LumberyardSdk\source\Code\Include\PlayFabHttp.h" />
     <Content Include="targets\LumberyardSdk\source\Code\PlayFabSdk_tests.waf_files" />

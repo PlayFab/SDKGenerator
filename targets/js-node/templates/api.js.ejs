@@ -1,7 +1,12 @@
 var PlayFab = require("./PlayFab.js");
 
 exports.settings = PlayFab.settings;
-<% for(var i in api.calls) { var apiCall = api.calls[i]; %>
+<% if (hasClientOptions) { %>
+exports.IsClientLoggedIn = function () {
+    return PlayFab._internalSettings.sessionTicket != null || PlayFab._internalSettings.sessionTicket.length > 0
+}
+<% }
+for(var i in api.calls) { var apiCall = api.calls[i]; %>
 exports.<%- apiCall.name %> = function (request, callback) {
 <%- getRequestActions(4, apiCall, api) %>
     PlayFab.MakeRequest(<%- getUrlAccessor(apiCall) %> + "<%- apiCall.url %>", request, <%- getAuthParams(apiCall) %>, function (error, result) {

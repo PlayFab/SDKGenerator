@@ -7,15 +7,18 @@ var fs = require("fs");
 
 // These tests require that you have installed nodeunit
 try {
-    var reporter = require("nodeunit").reporters.minimal;
+    var nodeunit = require("nodeunit");
+    var reporter = nodeunit.reporters.PlayFabMinimal;
+    reporter.PfTestReport[0].name = PlayFab.buildIdentifier;
 }
 catch (e) {
-    console.log("Cannot find nodeunit module.");
+    console.log(JSON.stringify(nodeunit.reporters));
+    console.log("Could not load nodeunit module: " + e.message);
     console.log("Install via Command line: npm install nodeunit -g");
     process.exit();
 }
 
-var titleData = {
+var TitleData = {
     // You can set default values for testing here
     // Or you can provide the same structure in a json-file and load with LoadTitleData
     titleId: "",
@@ -27,12 +30,13 @@ var titleData = {
     characterName: ""
 };
 
-var testConstants = {
+var TestConstants = {
     TEST_KEY: "testCounter",
-    TEST_STAT_NAME: "str"
+    TEST_STAT_NAME: "str",
+    CHAR_TEST_TYPE: "Fighter"
 };
 
-var testData = {
+var TestData = {
     playFabId: null,
     characterId: null,
     testNumber: null
@@ -108,7 +112,7 @@ exports.PlayFabApiTests = {
         if (filename != null && fs.existsSync(filename)) {
             var inputTitleData = require(filename);
             
-            // All of these must exist for the titleData load to be successful
+            // All of these must exist for the TitleData load to be successful
             var titleDataValid = inputTitleData.hasOwnProperty("titleId") 
             && inputTitleData.hasOwnProperty("developerSecretKey") 
             && inputTitleData.hasOwnProperty("titleCanUpdateSettings") 
@@ -118,12 +122,12 @@ exports.PlayFabApiTests = {
             && inputTitleData.hasOwnProperty("characterName");
             
             if (titleDataValid)
-                titleData = inputTitleData;
+                TitleData = inputTitleData;
             else
                 console.log("testTitleData input file did not parse correctly");
         }
-        PlayFab.settings.titleId = titleData.titleId;
-        PlayFab.settings.developerSecretKey = titleData.developerSecretKey;
+        PlayFab.settings.titleId = TitleData.titleId;
+        PlayFab.settings.developerSecretKey = TitleData.developerSecretKey;
         callback();
     },
     tearDown: function (callback) {
@@ -138,8 +142,8 @@ exports.PlayFabApiTests = {
     InvalidLogin: TestWrapper(function (test) {
         var invalidRequest = {
             TitleId: PlayFab.settings.titleId,
-            Email: titleData.userEmail,
-            Password: titleData.userPassword + "INVALID"
+            Email: TitleData.userEmail,
+            Password: TitleData.userPassword + "INVALID"
         };
         
         var invalidLoginCallback = function (error, result) {
@@ -188,46 +192,19 @@ exports.PlayFabApiTests = {
     LoginOrRegister: TestWrapper(function (test) {
         var loginRequest = {
             // Currently, you need to look up the correct format for this object in the API-docs:
-            //   https://api.playfab.com/Documentation/Client/method/LoginWithEmailAddress
+            //   https://api.playfab.com/Documentation/Client/method/LoginWithCustomID
             TitleId: PlayFab.settings.titleId,
-            Email: titleData.userEmail,
-            Password: titleData.userPassword
-        };
-        var registerRequest = {
-            // Currently, you need to look up the correct format for this object in the API-docs:
-            //   https://api.playfab.com/Documentation/Client/method/RegisterPlayFabUser
-            TitleId: PlayFab.settings.titleId,
-            Username: titleData.userName,
-            Email: titleData.userEmail,
-            Password: titleData.userPassword
+            CustomId: PlayFab.buildIdentifier,
+            CreateAccount: true
         };
         
-        var mandatoryLoginCallback = function (error, result) {
-            // Login MUST succeed at some point during this test
+        var loginCallback = function (error, result) {
             VerifyNullError(result, error, test, "Testing Valid login result");
             test.ok(PlayFab._internalSettings.sessionTicket != null, "Testing Login credentials cache");
-            testData.playFabId = result.data.PlayFabId; // Save the PlayFabId, it will be used in other tests
+            TestData.playFabId = result.data.PlayFabId; // Save the PlayFabId, it will be used in other tests
             test.done();
         };
-        var registerCallback = function (error, result) {
-            // Second login MUST succeed
-            VerifyNullError(result, error, test, "Testing Registration result");
-            
-            // Log in again, this time with the newly registered account
-            PlayFabClient.LoginWithEmailAddress(loginRequest, CallbackWrapper("mandatoryLoginCallback", mandatoryLoginCallback, test));
-        };
-        var optionalLoginCallback = function (error, result) {
-            // First login falls back upon registration if login failed
-            if (result == null) {
-                // Register the character and try again
-                PlayFabClient.RegisterPlayFabUser(registerRequest, CallbackWrapper("registerCallback", registerCallback, test));
-            }
-            else {
-                // Confirm the successful login
-                mandatoryLoginCallback(error, result);
-            }
-        };
-        PlayFabClient.LoginWithEmailAddress(loginRequest, CallbackWrapper("optionalLoginCallback", optionalLoginCallback, test));
+        PlayFabClient.LoginWithCustomID(loginRequest, CallbackWrapper("loginCallback", loginCallback, test));
     }),
     
     /// <summary>
@@ -255,12 +232,12 @@ exports.PlayFabApiTests = {
         };
         var loginRequest = {
             // Currently, you need to look up the correct format for this object in the API-docs:
-            //   https://api.playfab.com/Documentation/Client/method/LoginWithEmailAddress
+            //   https://api.playfab.com/Documentation/Client/method/LoginWithCustomID
             TitleId: PlayFab.settings.titleId,
-            Email: titleData.userEmail,
-            Password: titleData.userPassword
+            CustomId: PlayFab.buildIdentifier,
+            CreateAccount: true
         };
-        PlayFabClient.LoginWithEmailAddress(loginRequest, CallbackWrapper("advertLoginCallback", advertLoginCallback, test));
+        PlayFabClient.LoginWithCustomID(loginRequest, CallbackWrapper("advertLoginCallback", advertLoginCallback, test));
     }),
     
     /// <summary>
@@ -276,12 +253,12 @@ exports.PlayFabApiTests = {
         var getDataCallback2 = function (error, result) {
             VerifyNullError(result, error, test, "Testing GetUserData result");
             test.ok(result.data.Data != null, "GetUserData failed");
-            test.ok(result.data.Data.hasOwnProperty(testConstants.TEST_KEY), "GetUserData failed");
+            test.ok(result.data.Data.hasOwnProperty(TestConstants.TEST_KEY), "GetUserData failed");
             
-            var actualtestNumber = parseInt(result.data.Data[testConstants.TEST_KEY].Value, 10);
-            var actualTimeStamp = new Date(result.data.Data[testConstants.TEST_KEY].LastUpdated);
+            var actualtestNumber = parseInt(result.data.Data[TestConstants.TEST_KEY].Value, 10);
+            var actualTimeStamp = new Date(result.data.Data[TestConstants.TEST_KEY].LastUpdated);
             
-            test.equal(testData.testNumber, actualtestNumber, "" + testData.testNumber + "!=" + actualtestNumber);
+            test.equal(TestData.testNumber, actualtestNumber, "" + TestData.testNumber + "!=" + actualtestNumber);
             
             var now = Date.now();
             var testMin = now - (1000 * 60 * 5);
@@ -298,19 +275,16 @@ exports.PlayFabApiTests = {
             VerifyNullError(result, error, test, "Testing GetUserData result");
             test.ok(result.data.Data != null, "GetUserData failed");
             
-            if (result.data.Data.hasOwnProperty(testConstants.TEST_KEY)) {
-                testData.testNumber = parseInt(result.data.Data[testConstants.TEST_KEY].Value, 10);
-            } else {
-                testData.testNumber = 1;
-            }
-            testData.testNumber = (testData.testNumber + 1) % 100; // This test is about the expected value changing - but not testing more complicated issues like bounds
+            var hasData = result.data.Data.hasOwnProperty(TestConstants.TEST_KEY);
+            TestData.testNumber = !hasData ? 1 : parseInt(result.data.Data[TestConstants.TEST_KEY].Value, 10);
+            TestData.testNumber = (TestData.testNumber + 1) % 100; // This test is about the expected value changing - but not testing more complicated issues like bounds
             
             var updateDataRequest = {
                 // Currently, you need to look up the correct format for this object in the API-docs:
                 //   https://api.playfab.com/Documentation/Client/method/UpdateUserData
                 Data: {} // Can't pre-define properties because the param-name is in a string
             };
-            updateDataRequest.Data[testConstants.TEST_KEY] = testData.testNumber;
+            updateDataRequest.Data[TestConstants.TEST_KEY] = TestData.testNumber;
             PlayFabClient.UpdateUserData(updateDataRequest, CallbackWrapper("updateDataCallback", updateDataCallback, test));
         };
         
@@ -331,11 +305,11 @@ exports.PlayFabApiTests = {
         var getStatsCallback2 = function (error, result) {
             VerifyNullError(result, error, test, "Testing GetUserStats result");
             test.ok(result.data.UserStatistics != null, "GetUserStats failed");
-            test.ok(result.data.UserStatistics.hasOwnProperty(testConstants.TEST_STAT_NAME), "GetUserStats failed");
+            test.ok(result.data.UserStatistics.hasOwnProperty(TestConstants.TEST_STAT_NAME), "GetUserStats failed");
             
-            var actualtestNumber = result.data.UserStatistics[testConstants.TEST_STAT_NAME];
+            var actualtestNumber = result.data.UserStatistics[TestConstants.TEST_STAT_NAME];
             
-            test.equal(testData.testNumber, actualtestNumber, "" + testData.testNumber + "!=" + actualtestNumber);
+            test.equal(TestData.testNumber, actualtestNumber, "" + TestData.testNumber + "!=" + actualtestNumber);
             test.done();
         };
         var updateStatsCallback = function (error, result) {
@@ -345,17 +319,17 @@ exports.PlayFabApiTests = {
         var getStatsCallback1 = function (error, result) {
             VerifyNullError(result, error, test, "Testing GetUserStats result");
             test.ok(result.data.UserStatistics != null, "GetUserStats failed");
-            test.ok(result.data.UserStatistics.hasOwnProperty(testConstants.TEST_STAT_NAME), "GetUserStats failed");
             
-            testData.testNumber = result.data.UserStatistics[testConstants.TEST_STAT_NAME];
-            testData.testNumber = (testData.testNumber + 1) % 100; // This test is about the expected value changing - but not testing more complicated issues like bounds
+            var hasData = result.data.UserStatistics.hasOwnProperty(TestConstants.TEST_STAT_NAME);
+            TestData.testNumber = !hasData ? 1 : result.data.UserStatistics[TestConstants.TEST_STAT_NAME];
+            TestData.testNumber = (TestData.testNumber + 1) % 100; // This test is about the expected value changing - but not testing more complicated issues like bounds
             
             var updateStatsRequest = {
                 // Currently, you need to look up the correct format for this object in the API-docs:
                 //   https://api.playfab.com/Documentation/Client/method/UpdateUserStatistics
                 UserStatistics: {} // Can't pre-define properties because the param-name is in a string
             };
-            updateStatsRequest.UserStatistics[testConstants.TEST_STAT_NAME] = testData.testNumber;
+            updateStatsRequest.UserStatistics[TestConstants.TEST_STAT_NAME] = TestData.testNumber;
             PlayFabClient.UpdateUserStatistics(updateStatsRequest, CallbackWrapper("updateStatsCallback", updateStatsCallback, test));
         };
         
@@ -373,10 +347,10 @@ exports.PlayFabApiTests = {
         var grantCharRequest = {
             // Currently, you need to look up the correct format for this object in the API-docs:
             //   https://api.playfab.com/Documentation/Server/method/GrantCharacterToUser
-            TitleId: titleData.titleId,
-            PlayFabId: testData.playFabId,
-            CharacterName: titleData.CHAR_NAME,
-            CharacterType: titleData.CHAR_TEST_TYPE
+            TitleId: TitleData.titleId,
+            PlayFabId: TestData.playFabId,
+            CharacterName: TitleData.characterName,
+            CharacterType: TestConstants.CHAR_TEST_TYPE
         };
         
         var mandatoryGetCharsCallback = function (error, result) {
@@ -384,10 +358,10 @@ exports.PlayFabApiTests = {
             VerifyNullError(result, error, test, "Testing GetChars result");
             
             for (var i in result.data.Characters)
-                if (result.data.Characters[i].CharacterName === titleData.characterName)
-                    testData.characterId = result.data.Characters[i].CharacterId; // Save the characterId, it will be used in other tests
+                if (result.data.Characters[i].CharacterName === TitleData.characterName)
+                    TestData.characterId = result.data.Characters[i].CharacterId; // Save the characterId, it will be used in other tests
             
-            test.ok(testData.characterId != null, "Cannot find " + titleData.characterName + " on this account.");
+            test.ok(TestData.characterId != null, "Cannot find " + TitleData.characterName + " on this account.");
             test.done();
         };
         var grantCharCallback = function (error, result) {
@@ -399,7 +373,7 @@ exports.PlayFabApiTests = {
         };
         var optionalGetCharsCallback = function (error, result) {
             // First get chars falls back upon grant-char if target character not present
-            if (result == null) {
+            if (result == null || result.data.Characters.length === 0) {
                 // Register the character and try again
                 PlayFabServer.GrantCharacterToUser(grantCharRequest, CallbackWrapper("grantCharCallback", grantCharCallback, test));
             }
@@ -421,13 +395,13 @@ exports.PlayFabApiTests = {
             // Currently, you need to look up the correct format for this object in the API-docs:
             //   https://api.playfab.com/Documentation/Client/method/GetLeaderboard
             MaxResultsCount: 3,
-            StatisticName: testConstants.TEST_STAT_NAME
+            StatisticName: TestConstants.TEST_STAT_NAME
         };
         var serverRequest = {
             // Currently, you need to look up the correct format for this object in the API-docs:
             //   https://api.playfab.com/Documentation/Server/method/GetLeaderboard
             MaxResultsCount: 3,
-            StatisticName: testConstants.TEST_STAT_NAME
+            StatisticName: TestConstants.TEST_STAT_NAME
         };
         
         var callsCompleted = 0;
@@ -472,39 +446,23 @@ exports.PlayFabApiTests = {
     /// Test that CloudScript can be properly set up and invoked
     /// </summary>
     CloudScript: TestWrapper(function (test) {
-        if (PlayFab._internalSettings.logicServerUrl == null) {
-            var getCloudUrlRequest = {};
-            
-            var getCloudScriptUrlCallback = function (error, result) {
-                VerifyNullError(result, error, test, "Testing GetCloudUrl result");
-                
-                if (PlayFab._internalSettings.logicServerUrl != null) {
-                    exports.PlayFabApiTests.CloudScript(test); // Recursively call this test to get the case below
-                }
-                else
-                    test.ok(false, "GetCloudScriptUrl did not retrieve the logicServerUrl");
-            };
-            
-            PlayFabClient.GetCloudScriptUrl(getCloudUrlRequest, CallbackWrapper("getCloudScriptUrlCallback", getCloudScriptUrlCallback, test));
-        } else {
-            var helloWorldRequest = {
-                // Currently, you need to look up the correct format for this object in the API-docs:
-                //   https://api.playfab.com/Documentation/Client/method/RunCloudScript
-                ActionId: "helloWorld"
-            };
-            
-            var helloWorldCallback = function (error, result) {
-                VerifyNullError(result, error, test, "Testing HelloWorld result");
-                if (result != null) {
-                    test.ok(result.data.Results != null, "HelloWorld failed");
-                    test.ok(result.data.Results.messageValue != null, "HelloWorld failed");
-                    test.equal(result.data.Results.messageValue, "Hello " + testData.playFabId + "!", "Unexpected HelloWorld cloudscript result: " + result.data.Results.messageValue);
-                }
-                test.done();
-            };
-            
-            PlayFabClient.RunCloudScript(helloWorldRequest, CallbackWrapper("helloWorldCallback", helloWorldCallback, test));
-        }
+        var helloWorldRequest = {
+            // Currently, you need to look up the correct format for this object in the API-docs:
+            //   https://api.playfab.com/Documentation/Client/method/ExecuteCloudScript
+            FunctionName: "helloWorld"
+        };
+        
+        var helloWorldCallback = function (error, result) {
+            VerifyNullError(result, error, test, "Testing HelloWorld result");
+            if (result != null) {
+                test.ok(result.data.FunctionResult != null, "HelloWorld failed");
+                test.ok(result.data.FunctionResult.messageValue != null, "HelloWorld failed");
+                test.equal(result.data.FunctionResult.messageValue, "Hello " + TestData.playFabId + "!", "Unexpected HelloWorld cloudscript result: " + result.data.FunctionResult.messageValue);
+            }
+            test.done();
+        };
+        
+        PlayFabClient.ExecuteCloudScript(helloWorldRequest, CallbackWrapper("helloWorldCallback", helloWorldCallback, test));
     }),
     
     /// <summary>
@@ -530,3 +488,20 @@ exports.PlayFabApiTests = {
         PlayFabClient.WritePlayerEvent(writeEventRequest, CallbackWrapper("writeEventCallback", writeEventCallback, test));
     },
 };
+
+nodeunit.on('complete', function () {
+    var saveResultsRequest = {
+        // Currently, you need to look up the correct format for this object in the API-docs:
+        //   https://api.playfab.com/Documentation/Client/method/ExecuteCloudScript
+        FunctionName: "SaveTestData",
+        FunctionParameter: { customId: PlayFab.buildIdentifier, testReport: reporter.PfTestReport }
+    };
+    if (PlayFabClient.IsClientLoggedIn()) {
+        PlayFabClient.ExecuteCloudScript(saveResultsRequest, null);
+        console.log(TestData.playFabId, ", Test report saved to CloudScript: ", PlayFab.buildIdentifier);//, "\n", JSON.stringify(reporter.PfTestReport, null, 4));
+    } else {
+        console.log(TestData.playFabId, ", Failed to save test report to CloudScript: ", PlayFab.buildIdentifier);//, "\n", JSON.stringify(reporter.PfTestReport, null, 4));
+    }
+});
+
+reporter.run(["PlayFabApiTests.js"]);

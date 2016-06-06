@@ -1,2 +1,2 @@
-call node_modules\.bin\nodeunit.cmd PlayFabApiTests.js
+node PlayFabApiTests.js
 pause

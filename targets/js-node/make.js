@@ -17,6 +17,7 @@ exports.makeCombinedAPI = function (apis, sourceDir, apiOutputDir) {
         // Write the core functionality file
         var coreLocals = {};
         coreLocals.sdkVersion = exports.sdkVersion;
+        coreLocals.buildIdentifier = exports.buildIdentifier;
         coreLocals.hasServerOptions = false;
         coreLocals.hasClientOptions = false;
         for (var i in apis) {

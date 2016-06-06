@@ -133,7 +133,7 @@ namespace JenkinsConsoleUtility
                 }
                 else
                 {
-                    argsByName[activeKey] = argsByName[activeKey] + eachArg;
+                    argsByName[activeKey] = argsByName[activeKey] + " " + eachArg;
                 }
             }
         }

@@ -4,6 +4,8 @@
 
 #include "ModuleManager.h"
 
+DECLARE_LOG_CATEGORY_EXTERN(LogPlayFab, Log, All);
+
 // forward declaration of classes
 namespace PlayFab
 {
@@ -51,5 +53,4 @@ public:
 	virtual PlayFabServerPtr GetServerAPI() const = 0;
 	virtual PlayFabMatchmakerPtr GetMatchmakerAPI() const = 0;
 	virtual PlayFabAdminPtr GetAdminAPI() const = 0;
-	
 };

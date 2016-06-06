@@ -1,35 +1,109 @@
 ﻿<?xml version="1.0" encoding="utf-8"?>
-<Project DefaultTargets="Build" xmlns="http://schemas.microsoft.com/developer/msbuild/2003">
+<Project DefaultTargets="Build" xmlns="http://schemas.microsoft.com/developer/msbuild/2003" ToolsVersion="4.0">
+  <PropertyGroup>
+    <VisualStudioVersion Condition="'$(VisualStudioVersion)' == ''">11.0</VisualStudioVersion>
+    <VSToolsPath Condition="'$(VSToolsPath)' == ''">$(MSBuildExtensionsPath32)\Microsoft\VisualStudio\v$(VisualStudioVersion)</VSToolsPath>
+    <Name>SdkGenerator</Name>
+    <RootNamespace>SdkGenerator</RootNamespace>
+    <DebuggerPort>5858</DebuggerPort>
+  </PropertyGroup>
+  <Import Project="$(MSBuildExtensionsPath)\$(MSBuildToolsVersion)\Microsoft.Common.props" Condition="Exists('$(MSBuildExtensionsPath)\$(MSBuildToolsVersion)\Microsoft.Common.props')" />
   <PropertyGroup>
     <Configuration Condition=" '$(Configuration)' == '' ">Debug</Configuration>
     <SchemaVersion>2.0</SchemaVersion>
     <ProjectGuid>{2ba807ef-310c-43b5-8d42-1abcfff39be9}</ProjectGuid>
-    <ProjectHome />
+    <ProjectHome>.</ProjectHome>
     <ProjectView>ShowAllFiles</ProjectView>
     <StartupFile>generate.js</StartupFile>
     <WorkingDirectory>.</WorkingDirectory>
     <OutputPath>.</OutputPath>
-    <ProjectTypeGuids>{3AF33F2E-1136-4D97-BBB7-1795711AC8B8};{349c5851-65df-11da-9384-00065b846f21};{9092AA53-FB77-4645-B42D-1CCCA6BD08BD}</ProjectTypeGuids>
-    <VisualStudioVersion Condition="'$(VisualStudioVersion)' == ''">11.0</VisualStudioVersion>
-    <VSToolsPath Condition="'$(VSToolsPath)' == ''">$(MSBuildExtensionsPath32)\Microsoft\VisualStudio\v$(VisualStudioVersion)</VSToolsPath>
-    <ScriptArguments>..\API_Specs csharp-unity=..\sdks\UnitySDK</ScriptArguments>
+    <TargetFrameworkVersion>v4.0</TargetFrameworkVersion>
+    <ProjectTypeGuids>{3AF33F2E-1136-4D97-BBB7-1795711AC8B8};{9092AA53-FB77-4645-B42D-1CCCA6BD08BD}</ProjectTypeGuids>
     <StartWebBrowser>False</StartWebBrowser>
   </PropertyGroup>
-  <PropertyGroup Condition="'$(Configuration)' == 'Debug'" />
-  <PropertyGroup Condition="'$(Configuration)' == 'Release'" />
+  <PropertyGroup Condition=" '$(Configuration)' == 'Debug' ">
+    <DebugSymbols>true</DebugSymbols>
+  </PropertyGroup>
+  <PropertyGroup Condition=" '$(Configuration)' == 'Release' ">
+    <DebugSymbols>true</DebugSymbols>
+  </PropertyGroup>
+  <PropertyGroup Condition=" '$(Configuration)' == 'ActionScriptSDK' ">
+    <DebugSymbols>true</DebugSymbols>
+    <OutputPath>bin\</OutputPath>
+    <ScriptArguments>..\API_Specs actionscript=..\sdks\ActionScriptSDK\PfApiTest -buildIdentifier pg_ActionScriptSDK_manual</ScriptArguments>
+  </PropertyGroup>
+  <PropertyGroup Condition=" '$(Configuration)' == 'CSharpSDK' ">
+    <DebugSymbols>true</DebugSymbols>
+    <OutputPath>bin\</OutputPath>
+    <ScriptArguments>..\API_Specs csharp=..\sdks\CSharpSDK -buildIdentifier pg_CSharpSDK_manual</ScriptArguments>
+  </PropertyGroup>
+  <PropertyGroup Condition=" '$(Configuration)' == 'CocosSDK' ">
+    <DebugSymbols>true</DebugSymbols>
+    <OutputPath>bin\</OutputPath>
+    <ScriptArguments>..\API_Specs cpp-cocos2dx=..\sdks\Cocos2d-xSDK -buildIdentifier pg_CocosSDK_manual</ScriptArguments>
+  </PropertyGroup>
+  <PropertyGroup Condition=" '$(Configuration)' == 'JavaSDK' ">
+    <DebugSymbols>true</DebugSymbols>
+    <OutputPath>bin\</OutputPath>
+    <ScriptArguments>..\API_Specs java=..\sdks\JavaSDK -buildIdentifier pg_JavaSDK_manual</ScriptArguments>
+  </PropertyGroup>
+  <PropertyGroup Condition=" '$(Configuration)' == 'JavaScriptSDK' ">
+    <DebugSymbols>true</DebugSymbols>
+    <OutputPath>bin\</OutputPath>
+    <ScriptArguments>..\API_Specs javascript=..\sdks\JavaScriptSDK\PlayFabSDK -buildIdentifier pg_JavaScriptSDK_manual</ScriptArguments>
+  </PropertyGroup>
+  <PropertyGroup Condition=" '$(Configuration)' == 'LumberyardSdk' ">
+    <DebugSymbols>true</DebugSymbols>
+    <OutputPath>bin\</OutputPath>
+    <ScriptArguments>..\API_Specs LumberyardSdk=..\sdks\LumberyardSDK -buildIdentifier pg_LumberyardSdk_manual</ScriptArguments>
+  </PropertyGroup>
+  <PropertyGroup Condition=" '$(Configuration)' == 'NodeSDK' ">
+    <DebugSymbols>true</DebugSymbols>
+    <OutputPath>bin\</OutputPath>
+    <ScriptArguments>..\API_Specs js-node=..\sdks\NodeSDK -buildIdentifier pg_NodeSDK_manual</ScriptArguments>
+  </PropertyGroup>
+  <PropertyGroup Condition=" '$(Configuration)' == 'PostmanCollection' ">
+    <DebugSymbols>true</DebugSymbols>
+    <OutputPath>bin\</OutputPath>
+    <ScriptArguments>..\API_Specs postman=..\sdks\PostmanCollection -buildIdentifier pg_PostmanCollection_manual</ScriptArguments>
+  </PropertyGroup>
+  <PropertyGroup Condition=" '$(Configuration)' == 'UnitySDK' ">
+    <DebugSymbols>true</DebugSymbols>
+    <OutputPath>bin\</OutputPath>
+    <ScriptArguments>..\API_Specs csharp-unity=..\sdks\UnitySDK -buildIdentifier pg_UnitySDK_manual</ScriptArguments>
+  </PropertyGroup>
+  <PropertyGroup Condition=" '$(Configuration)' == 'UnrealBlueprintSDK' ">
+    <DebugSymbols>true</DebugSymbols>
+    <OutputPath>bin\</OutputPath>
+    <ScriptArguments>..\API_Specs cpp-unreal=..\sdks\UnrealBlueprintSDK -buildIdentifier pg_UnrealBlueprintSDK_manual</ScriptArguments>
+  </PropertyGroup>
+  <PropertyGroup Condition=" '$(Configuration)' == 'UnrealCppSdk' ">
+    <DebugSymbols>true</DebugSymbols>
+    <OutputPath>bin\</OutputPath>
+    <ScriptArguments>..\API_Specs cpp-ue4=..\sdks\UnrealCppSDK -buildIdentifier pg_UnrealCppSdk_manual</ScriptArguments>
+  </PropertyGroup>
+  <PropertyGroup Condition=" '$(Configuration)' == 'WindowsSDK' ">
+    <DebugSymbols>true</DebugSymbols>
+    <OutputPath>bin\</OutputPath>
+    <ScriptArguments>..\API_Specs cpp-windows=..\sdks\WindowsSDK -buildIdentifier pg_WindowsSDK_manual</ScriptArguments>
+  </PropertyGroup>
   <ItemGroup>
+    <Compile Include="targets\cpp-cocos2dx\cpp-shared.js" />
+    <Compile Include="targets\cpp-cocos2dx\make.js" />
+    <Compile Include="targets\cpp-unreal\make.js" />
+    <Compile Include="targets\cpp-WinShared\cpp-shared.js" />
+    <Compile Include="targets\csharp-unity-gameserver\make.js" />
+    <Compile Include="targets\csharp-unity-strangeioc\make.js" />
     <Compile Include="targets\javascript\source\PlayFabApiTest.js" />
     <Compile Include="targets\js-node\testingFiles\PlayFabApiTests.js" />
+    <Compile Include="targets\LumberyardSdk\make.js" />
     <Compile Include="targets\postman\make.js" />
     <Content Include="README.md" />
     <Compile Include="generate.js" />
     <Compile Include="targets\actionscript\make.js" />
-    <Compile Include="targets\cpp-cocos2dx\make.js" />
-    <Compile Include="targets\cpp-shared\cpp-shared.js" />
     <Compile Include="targets\cpp-ue4\cpp-ue4.js" />
     <Compile Include="targets\cpp-ue4\make-bp.js" />
     <Compile Include="targets\cpp-ue4\make.js" />
-    <Compile Include="targets\cpp-unreal\make.js" />
     <Compile Include="targets\cpp-windows\make.js" />
     <Compile Include="targets\csharp\make.js" />
     <Compile Include="targets\csharp-unity\make.js" />
@@ -43,6 +117,7 @@
     <Content Include="SDKBuildScripts\csharp_build.bat" />
     <Content Include="SDKBuildScripts\java_build.bat" />
     <Content Include="SDKBuildScripts\js_build.bat" />
+    <Content Include="SDKBuildScripts\Lumberyard_build.bat" />
     <Content Include="SDKBuildScripts\node_build.bat" />
     <Content Include="SDKBuildScripts\postman_build.bat" />
     <Content Include="SDKBuildScripts\ue4_CPP_build.bat" />
@@ -54,6 +129,7 @@
     <Content Include="SDKBuildScripts\win_compile_shared.bat" />
     <Content Include="SDKBuildScripts\win_unittest.bat" />
     <Content Include="targets\actionscript\source\asyncUnitTest\ASyncAssert.as" />
+    <Content Include="targets\actionscript\source\asyncUnitTest\ASyncUnitTestCloudScriptReporter.as" />
     <Content Include="targets\actionscript\source\asyncUnitTest\ASyncUnitTestEvent.as" />
     <Content Include="targets\actionscript\source\asyncUnitTest\ASyncUnitTestFailError.as" />
     <Content Include="targets\actionscript\source\asyncUnitTest\ASyncUnitTestFileReporter.as" />
@@ -74,41 +150,35 @@
     <Content Include="targets\cpp-cocos2dx\ExampleSource\Classes\PlayFabApiTest.cpp" />
     <Content Include="targets\cpp-cocos2dx\ExampleSource\Classes\PlayFabApiTest.h" />
     <Content Include="targets\cpp-cocos2dx\ExampleSource\Classes\unistd.h" />
+    <Content Include="targets\cpp-cocos2dx\ExampleSource\proj.android-studio\app\jni\Android.mk" />
+    <Content Include="targets\cpp-cocos2dx\ExampleSource\proj.android-studio\app\jni\Application.mk" />
+    <Content Include="targets\cpp-cocos2dx\ExampleSource\proj.android-studio\app\res\values\strings.xml" />
     <Content Include="targets\cpp-cocos2dx\ExampleSource\proj.android\jni\Android.mk" />
     <Content Include="targets\cpp-cocos2dx\ExampleSource\proj.android\jni\Application.mk" />
+    <Content Include="targets\cpp-cocos2dx\ExampleSource\proj.ios_mac\PlayFabSDKExample.xcodeproj\project.pbxproj" />
     <Content Include="targets\cpp-cocos2dx\ExampleSource\proj.win32\main.cpp" />
     <Content Include="targets\cpp-cocos2dx\ExampleSource\proj.win32\PlayFabSDKExample.vcxproj" />
     <Content Include="targets\cpp-cocos2dx\ExampleSource\proj.win32\PlayFabSDKExample.vcxproj.filters" />
-    <Content Include="targets\cpp-cocos2dx\source\include\playfab\PlayFabZlib.h" />
+    <Content Include="targets\cpp-cocos2dx\source\HttpRequest.cpp" />
+    <Content Include="targets\cpp-cocos2dx\source\HttpRequest.h" />
+    <Content Include="targets\cpp-cocos2dx\source\HttpRequesterCURL.cpp" />
+    <Content Include="targets\cpp-cocos2dx\source\HttpRequesterCURL.h" />
+    <Content Include="targets\cpp-cocos2dx\source\IHttpRequester.h" />
+    <Content Include="targets\cpp-cocos2dx\source\PlayFabBaseModel.cpp" />
+    <Content Include="targets\cpp-cocos2dx\source\PlayFabBaseModel.h" />
+    <Content Include="targets\cpp-cocos2dx\source\PlayFabCore.h" />
+    <Content Include="targets\cpp-cocos2dx\source\PlayFabResultHandler.cpp" />
+    <Content Include="targets\cpp-cocos2dx\source\PlayFabResultHandler.h" />
+    <Content Include="targets\cpp-cocos2dx\source\PlayFabVersion.h" />
+    <Content Include="targets\cpp-cocos2dx\source\PlayFabZlib.h" />
+    <Content Include="targets\cpp-cocos2dx\templates\PlayFabAPI.cpp.ejs" />
+    <Content Include="targets\cpp-cocos2dx\templates\PlayFabAPI.h.ejs" />
+    <Content Include="targets\cpp-cocos2dx\templates\PlayFabDataModels.cpp.ejs" />
+    <Content Include="targets\cpp-cocos2dx\templates\PlayFabDataModels.h.ejs" />
+    <Content Include="targets\cpp-cocos2dx\templates\PlayFabError.h.ejs" />
     <Content Include="targets\cpp-cocos2dx\templates\PlayFabSettings.cpp.ejs" />
     <Content Include="targets\cpp-cocos2dx\templates\PlayFabSettings.h.ejs" />
     <Content Include="targets\cpp-cocos2dx\templates\PlayFabVersion.cpp.ejs" />
-    <Content Include="targets\cpp-shared\source\dependencies\include\rapidjson\allocators.h" />
-    <Content Include="targets\cpp-shared\source\dependencies\include\rapidjson\document.h" />
-    <Content Include="targets\cpp-shared\source\dependencies\include\rapidjson\encodedstream.h" />
-    <Content Include="targets\cpp-shared\source\dependencies\include\rapidjson\encodings.h" />
-    <Content Include="targets\cpp-shared\source\dependencies\include\rapidjson\filereadstream.h" />
-    <Content Include="targets\cpp-shared\source\dependencies\include\rapidjson\filestream.h" />
-    <Content Include="targets\cpp-shared\source\dependencies\include\rapidjson\filewritestream.h" />
-    <Content Include="targets\cpp-shared\source\dependencies\include\rapidjson\internal\pow10.h" />
-    <Content Include="targets\cpp-shared\source\dependencies\include\rapidjson\internal\stack.h" />
-    <Content Include="targets\cpp-shared\source\dependencies\include\rapidjson\internal\strfunc.h" />
-    <Content Include="targets\cpp-shared\source\dependencies\include\rapidjson\prettywriter.h" />
-    <Content Include="targets\cpp-shared\source\dependencies\include\rapidjson\rapidjson.h" />
-    <Content Include="targets\cpp-shared\source\dependencies\include\rapidjson\reader.h" />
-    <Content Include="targets\cpp-shared\source\dependencies\include\rapidjson\stringbuffer.h" />
-    <Content Include="targets\cpp-shared\source\dependencies\include\rapidjson\writer.h" />
-    <Content Include="targets\cpp-shared\source\include\playfab\HttpRequest.h" />
-    <Content Include="targets\cpp-shared\source\include\playfab\HttpRequesterCURL.h" />
-    <Content Include="targets\cpp-shared\source\include\playfab\IHttpRequester.h" />
-    <Content Include="targets\cpp-shared\source\include\playfab\PlayFabBaseModel.h" />
-    <Content Include="targets\cpp-shared\source\include\playfab\PlayFabCore.h" />
-    <Content Include="targets\cpp-shared\source\include\playfab\PlayFabResultHandler.h" />
-    <Content Include="targets\cpp-shared\source\include\playfab\PlayFabVersion.h" />
-    <Content Include="targets\cpp-shared\source\source\core\HttpRequest.cpp" />
-    <Content Include="targets\cpp-shared\source\source\core\PlayFabBaseModel.cpp" />
-    <Content Include="targets\cpp-shared\source\source\core\PlayFabResultHandler.cpp" />
-    <Content Include="targets\cpp-shared\source\source\curl\HttpRequesterCURL.cpp" />
     <Content Include="targets\cpp-ue4\Plugins\PlayFab\PlayFab.uplugin" />
     <Content Include="targets\cpp-ue4\Plugins\PlayFab\Resources\Icon128.png" />
     <Content Include="targets\cpp-ue4\Plugins\PlayFab\Source\OnlineSubsystemPlayFab\OnlineSubsystemPlayFab.Build.cs" />
@@ -157,14 +227,14 @@
     <Content Include="targets\cpp-unreal\ExampleProject\Config\DefaultEngine.ini" />
     <Content Include="targets\cpp-unreal\ExampleProject\Config\DefaultGame.ini" />
     <Content Include="targets\cpp-unreal\ExampleProject\Content\Maps\Test.umap" />
+    <Content Include="targets\cpp-unreal\ExampleProject\Content\PfTestOutput.uasset" />
+    <Content Include="targets\cpp-unreal\ExampleProject\Content\PfTestWidget.uasset" />
     <Content Include="targets\cpp-unreal\ExampleProject\ExampleProject.uproject" />
     <Content Include="targets\cpp-unreal\ExampleProject\Source\ExampleProject.Target.cs" />
     <Content Include="targets\cpp-unreal\ExampleProject\Source\ExampleProjectEditor.Target.cs" />
     <Content Include="targets\cpp-unreal\ExampleProject\Source\ExampleProject\ExampleProject.Build.cs" />
     <Content Include="targets\cpp-unreal\ExampleProject\Source\ExampleProject\ExampleProject.cpp" />
     <Content Include="targets\cpp-unreal\ExampleProject\Source\ExampleProject\ExampleProject.h" />
-    <Content Include="targets\cpp-unreal\ExampleProject\Source\ExampleProject\ExampleProjectGameMode.cpp" />
-    <Content Include="targets\cpp-unreal\ExampleProject\Source\ExampleProject\ExampleProjectGameMode.h" />
     <Content Include="targets\cpp-unreal\Source\PlayFab\Classes\PlayFabBaseModel.h" />
     <Content Include="targets\cpp-unreal\Source\PlayFab\Classes\PlayFabJsonObject.h" />
     <Content Include="targets\cpp-unreal\Source\PlayFab\Classes\PlayFabJsonValue.h" />
@@ -183,10 +253,13 @@
     <Content Include="targets\cpp-unreal\StandardPluginFiles\PlayFabBluePrintMenu.jpg" />
     <Content Include="targets\cpp-unreal\StandardPluginFiles\README.md" />
     <Content Include="targets\cpp-unreal\StandardPluginFiles\Resources\Icon128.png" />
+    <Content Include="targets\cpp-unreal\templates\PfTestActor.cpp.ejs" />
+    <Content Include="targets\cpp-unreal\templates\PfTestActor.h.ejs" />
     <Content Include="targets\cpp-unreal\templates\PlayFab.cpp.ejs" />
     <Content Include="targets\cpp-unreal\templates\PlayFab.uplugin.ejs" />
     <Content Include="targets\cpp-unreal\templates\PlayFabAPI.cpp.ejs" />
     <Content Include="targets\cpp-unreal\templates\PlayFabAPI.h.ejs" />
+    <Content Include="targets\cpp-unreal\templates\PlayFabEnums.h.ejs" />
     <Content Include="targets\cpp-unreal\templates\PlayFabModelDecoder.cpp.ejs" />
     <Content Include="targets\cpp-unreal\templates\PlayFabModelDecoder.h.ejs" />
     <Content Include="targets\cpp-unreal\templates\PlayFabModels.cpp.ejs" />
@@ -320,6 +393,66 @@
     <Content Include="targets\cpp-windows\UnittestRunner\unittest.bat" />
     <Content Include="targets\cpp-windows\UnittestRunner\UnittestRunner.vcxproj" />
     <Content Include="targets\cpp-windows\UnittestRunner\UnittestRunner.vcxproj.filters" />
+    <Content Include="targets\cpp-WinShared\source\dependencies\include\rapidjson\allocators.h" />
+    <Content Include="targets\cpp-WinShared\source\dependencies\include\rapidjson\document.h" />
+    <Content Include="targets\cpp-WinShared\source\dependencies\include\rapidjson\encodedstream.h" />
+    <Content Include="targets\cpp-WinShared\source\dependencies\include\rapidjson\encodings.h" />
+    <Content Include="targets\cpp-WinShared\source\dependencies\include\rapidjson\filereadstream.h" />
+    <Content Include="targets\cpp-WinShared\source\dependencies\include\rapidjson\filestream.h" />
+    <Content Include="targets\cpp-WinShared\source\dependencies\include\rapidjson\filewritestream.h" />
+    <Content Include="targets\cpp-WinShared\source\dependencies\include\rapidjson\internal\pow10.h" />
+    <Content Include="targets\cpp-WinShared\source\dependencies\include\rapidjson\internal\stack.h" />
+    <Content Include="targets\cpp-WinShared\source\dependencies\include\rapidjson\internal\strfunc.h" />
+    <Content Include="targets\cpp-WinShared\source\dependencies\include\rapidjson\prettywriter.h" />
+    <Content Include="targets\cpp-WinShared\source\dependencies\include\rapidjson\rapidjson.h" />
+    <Content Include="targets\cpp-WinShared\source\dependencies\include\rapidjson\reader.h" />
+    <Content Include="targets\cpp-WinShared\source\dependencies\include\rapidjson\stringbuffer.h" />
+    <Content Include="targets\cpp-WinShared\source\dependencies\include\rapidjson\writer.h" />
+    <Content Include="targets\cpp-WinShared\source\include\playfab\HttpRequest.h" />
+    <Content Include="targets\cpp-WinShared\source\include\playfab\HttpRequesterCURL.h" />
+    <Content Include="targets\cpp-WinShared\source\include\playfab\IHttpRequester.h" />
+    <Content Include="targets\cpp-WinShared\source\include\playfab\PlayFabBaseModel.h" />
+    <Content Include="targets\cpp-WinShared\source\include\playfab\PlayFabCore.h" />
+    <Content Include="targets\cpp-WinShared\source\include\playfab\PlayFabResultHandler.h" />
+    <Content Include="targets\cpp-WinShared\source\include\playfab\PlayFabVersion.h" />
+    <Content Include="targets\cpp-WinShared\source\source\core\HttpRequest.cpp" />
+    <Content Include="targets\cpp-WinShared\source\source\core\PlayFabBaseModel.cpp" />
+    <Content Include="targets\cpp-WinShared\source\source\core\PlayFabResultHandler.cpp" />
+    <Content Include="targets\cpp-WinShared\source\source\curl\HttpRequesterCURL.cpp" />
+    <Content Include="targets\cpp-WinShared\templates\PlayFabAPI.cpp.ejs" />
+    <Content Include="targets\cpp-WinShared\templates\PlayFabAPI.h.ejs" />
+    <Content Include="targets\cpp-WinShared\templates\PlayFabDataModels.cpp.ejs" />
+    <Content Include="targets\cpp-WinShared\templates\PlayFabDataModels.h.ejs" />
+    <Content Include="targets\cpp-WinShared\templates\PlayFabError.h.ejs" />
+    <Content Include="targets\csharp-unity-gameserver\source\Internal\Log.cs" />
+    <Content Include="targets\csharp-unity-gameserver\source\Internal\PlayFabHTTP.cs" />
+    <Content Include="targets\csharp-unity-gameserver\source\Internal\ResultContainer.cs" />
+    <Content Include="targets\csharp-unity-gameserver\source\Internal\SimpleJson.cs" />
+    <Content Include="targets\csharp-unity-gameserver\source\Internal\SingletonMonoBehaviour.cs" />
+    <Content Include="targets\csharp-unity-gameserver\source\Internal\Util.cs" />
+    <Content Include="targets\csharp-unity-gameserver\source\link.xml" />
+    <Content Include="targets\csharp-unity-gameserver\templates\API.cs.ejs" />
+    <Content Include="targets\csharp-unity-gameserver\templates\Enum.cs.ejs" />
+    <Content Include="targets\csharp-unity-gameserver\templates\Errors.cs.ejs" />
+    <Content Include="targets\csharp-unity-gameserver\templates\Model.cs.ejs" />
+    <Content Include="targets\csharp-unity-gameserver\templates\Models.cs.ejs" />
+    <Content Include="targets\csharp-unity-gameserver\templates\PlayFabSettings.cs.ejs" />
+    <Content Include="targets\csharp-unity-gameserver\templates\PlayFabVersion.cs.ejs" />
+    <Content Include="targets\csharp-unity-gameserver\templates\strangeioc-playfab-commands.ejs" />
+    <Content Include="targets\csharp-unity-gameserver\templates\strangeioc-playfab-context.ejs" />
+    <Content Include="targets\csharp-unity-gameserver\templates\strangeioc-playfab-contextbindings.ejs" />
+    <Content Include="targets\csharp-unity-gameserver\templates\strangeioc-playfab-errorhandler.ejs" />
+    <Content Include="targets\csharp-unity-gameserver\templates\strangeioc-playfab-mediator.ejs" />
+    <Content Include="targets\csharp-unity-gameserver\templates\strangeioc-playfab-signals.ejs" />
+    <Content Include="targets\csharp-unity-strangeioc\source\ErrorHandler\PlayFabErrorHandler.cs" />
+    <Content Include="targets\csharp-unity-strangeioc\source\ErrorHandler\PlayFabErrorHandler.cs.meta" />
+    <Content Include="targets\csharp-unity-strangeioc\source\Mediators\PlayFabContextMediator.cs" />
+    <Content Include="targets\csharp-unity-strangeioc\source\Models\PlayFabDataStore.cs" />
+    <Content Include="targets\csharp-unity-strangeioc\templates\strangeioc-playfab-commands.ejs" />
+    <Content Include="targets\csharp-unity-strangeioc\templates\strangeioc-playfab-context.ejs" />
+    <Content Include="targets\csharp-unity-strangeioc\templates\strangeioc-playfab-contextbindings.ejs" />
+    <Content Include="targets\csharp-unity-strangeioc\templates\strangeioc-playfab-signals.ejs" />
+    <Content Include="targets\csharp-unity\source\Internal\ISerializer.cs" />
     <Content Include="targets\csharp-unity\source\Internal\Log.cs" />
     <Content Include="targets\csharp-unity\source\Internal\PlayFabHTTP.cs" />
     <Content Include="targets\csharp-unity\source\Internal\ResultContainer.cs" />
@@ -374,7 +507,6 @@
     <Content Include="targets\csharp\source\Properties\AssemblyInfo.cs" />
     <Content Include="targets\csharp\source\source\PlayFabHTTP.cs" />
     <Content Include="targets\csharp\source\source\PlayFabUtil.cs" />
-    <Content Include="targets\csharp\source\source\PlayFabVersion.cs" />
     <Content Include="targets\csharp\source\source\Uunit\UUnitAssert.cs" />
     <Content Include="targets\csharp\source\source\Uunit\UUnitAssertException.cs" />
     <Content Include="targets\csharp\source\source\Uunit\UUnitTestCase.cs" />
@@ -456,7 +588,6 @@
     <Content Include="targets\java\srcCode\com\google\LICENSE" />
     <Content Include="targets\java\srcCode\com\google\README" />
     <Content Include="targets\java\srcCode\com\playfab\internal\PlayFabHTTP.java" />
-    <Content Include="targets\java\srcCode\com\playfab\PlayFabSettings.java" />
     <Content Include="targets\java\srcCode\com\playfab\PlayFabUtil.java" />
     <Content Include="targets\java\srcLibs\hamcrest-core-1.3.jar" />
     <Content Include="targets\java\srcLibs\junit-4.12.jar" />
@@ -473,11 +604,6 @@
     <Content Include="targets\actionscript\templates\Errors.as.ejs" />
     <Content Include="targets\actionscript\templates\Model.as.ejs" />
     <Content Include="targets\actionscript\templates\PlayFabVersion.as.ejs" />
-    <Content Include="targets\cpp-shared\templates\PlayFabAPI.cpp.ejs" />
-    <Content Include="targets\cpp-shared\templates\PlayFabAPI.h.ejs" />
-    <Content Include="targets\cpp-shared\templates\PlayFabDataModels.cpp.ejs" />
-    <Content Include="targets\cpp-shared\templates\PlayFabDataModels.h.ejs" />
-    <Content Include="targets\cpp-shared\templates\PlayFabError.h.ejs" />
     <Content Include="targets\cpp-windows\templates\PlayFabAPI.vcxproj.ejs" />
     <Content Include="targets\cpp-windows\templates\PlayFabAPI.vcxproj.filters.ejs" />
     <Content Include="targets\cpp-windows\templates\PlayFabVersion.cpp.ejs" />
@@ -487,7 +613,6 @@
     <Content Include="targets\csharp\templates\Model.cs.ejs" />
     <Content Include="targets\csharp\templates\Models.cs.ejs" />
     <Content Include="targets\csharp\templates\PlayFabSDK.csproj.ejs" />
-    <Content Include="targets\csharp\templates\PlayFabVersion.cs.ejs" />
     <Content Include="targets\csharp\templates\Tests.cs.ejs" />
     <Content Include="targets\javascript\templates\playfab.js.ejs" />
     <Content Include="targets\java\testingFiles\PlayFabApiTest.java" />
@@ -496,6 +621,45 @@
     <Content Include="targets\js-node\templates\package.json.ejs" />
     <Content Include="targets\js-node\templates\playfab.js.ejs" />
     <Content Include="targets\js-node\testingFiles\PlayFabTesting.njsproj" />
+    <Content Include="targets\LumberyardSdk\source\Code\Include\PlayFabBaseModel.h" />
+    <Content Include="targets\LumberyardSdk\source\Code\Include\PlayFabHttp.h" />
+    <Content Include="targets\LumberyardSdk\source\Code\PlayFabSdk_tests.waf_files" />
+    <Content Include="targets\LumberyardSdk\source\Code\Source\PlayFabHttp.cpp" />
+    <Content Include="targets\LumberyardSdk\source\Code\Source\PlayFabSdkGem.cpp" />
+    <Content Include="targets\LumberyardSdk\source\Code\Source\PlayFabSdkGem.h" />
+    <Content Include="targets\LumberyardSdk\source\Code\Source\StdAfx.cpp" />
+    <Content Include="targets\LumberyardSdk\source\Code\Source\StdAfx.h" />
+    <Content Include="targets\LumberyardSdk\source\Code\Tests\PlayFabSdkTest.cpp" />
+    <Content Include="targets\LumberyardSdk\source\Code\wscript" />
+    <Content Include="targets\LumberyardSdk\source\preview.png" />
+    <Content Include="targets\LumberyardSdk\templates\gem.json.ejs" />
+    <Content Include="targets\LumberyardSdk\templates\IPlayFabApi.h.ejs" />
+    <Content Include="targets\LumberyardSdk\templates\IPlayFabSdkGem.h.ejs" />
+    <Content Include="targets\LumberyardSdk\templates\PlayFabAPI.cpp.ejs" />
+    <Content Include="targets\LumberyardSdk\templates\PlayFabAPI.h.ejs" />
+    <Content Include="targets\LumberyardSdk\templates\PlayFabApiWrapper.cpp.ejs" />
+    <Content Include="targets\LumberyardSdk\templates\PlayFabApiWrapper.h.ejs" />
+    <Content Include="targets\LumberyardSdk\templates\PlayFabDataModels.h.ejs" />
+    <Content Include="targets\LumberyardSdk\templates\PlayFabError.h.ejs" />
+    <Content Include="targets\LumberyardSdk\templates\playfabsdk.waf_files.ejs" />
+    <Content Include="targets\LumberyardSdk\templates\PlayFabSdkGem.cpp.ejs" />
+    <Content Include="targets\LumberyardSdk\templates\PlayFabSdkGem.h.ejs" />
+    <Content Include="targets\LumberyardSdk\templates\PlayFabSettings.cpp.ejs" />
+    <Content Include="targets\LumberyardSdk\templates\PlayFabSettings.h.ejs" />
+    <Content Include="targets\LumberyardSdk\testing\PlayFabApiTestNode_Client.cpp" />
+    <Content Include="targets\LumberyardSdk\testing\PlayFabApiTestNode_Combo.cpp" />
+    <Content Include="targets\LumberyardSdk\testing\PlayFabApiTestNode_Server.cpp" />
+    <Content Include="targets\LumberyardSdk\testing\TestGem\Code\Include\IPlayFabApiTestGem.h" />
+    <Content Include="targets\LumberyardSdk\testing\TestGem\Code\playfabapitest.waf_files" />
+    <Content Include="targets\LumberyardSdk\testing\TestGem\Code\PlayFabApiTest_tests.waf_files" />
+    <Content Include="targets\LumberyardSdk\testing\TestGem\Code\Source\PlayFabApiTestGem.cpp" />
+    <Content Include="targets\LumberyardSdk\testing\TestGem\Code\Source\PlayFabApiTestGem.h" />
+    <Content Include="targets\LumberyardSdk\testing\TestGem\Code\Source\StdAfx.cpp" />
+    <Content Include="targets\LumberyardSdk\testing\TestGem\Code\Source\StdAfx.h" />
+    <Content Include="targets\LumberyardSdk\testing\TestGem\Code\Tests\PlayFabApiTestTest.cpp" />
+    <Content Include="targets\LumberyardSdk\testing\TestGem\Code\wscript" />
+    <Content Include="targets\LumberyardSdk\testing\TestGem\gem.json" />
+    <Content Include="targets\LumberyardSdk\testing\TestGem\preview.png" />
     <Content Include="targets\postman\replacements.json" />
     <Content Include="targets\postman\templates\playfab.json.ejs" />
   </ItemGroup>
@@ -508,28 +672,21 @@
     <Folder Include="targets\actionscript\source\com\" />
     <Folder Include="targets\actionscript\source\com\playfab\" />
     <Folder Include="targets\actionscript\templates" />
-    <Folder Include="targets\cpp-cocos2dx" />
+    <Folder Include="targets\cpp-cocos2dx\" />
     <Folder Include="targets\cpp-cocos2dx\ExampleSource\" />
     <Folder Include="targets\cpp-cocos2dx\ExampleSource\Classes\" />
+    <Folder Include="targets\cpp-cocos2dx\ExampleSource\proj.android-studio\" />
+    <Folder Include="targets\cpp-cocos2dx\ExampleSource\proj.android-studio\app\" />
+    <Folder Include="targets\cpp-cocos2dx\ExampleSource\proj.android-studio\app\jni\" />
+    <Folder Include="targets\cpp-cocos2dx\ExampleSource\proj.android-studio\app\res\" />
+    <Folder Include="targets\cpp-cocos2dx\ExampleSource\proj.android-studio\app\res\values\" />
     <Folder Include="targets\cpp-cocos2dx\ExampleSource\proj.android\" />
     <Folder Include="targets\cpp-cocos2dx\ExampleSource\proj.android\jni\" />
+    <Folder Include="targets\cpp-cocos2dx\ExampleSource\proj.ios_mac\" />
+    <Folder Include="targets\cpp-cocos2dx\ExampleSource\proj.ios_mac\PlayFabSDKExample.xcodeproj\" />
     <Folder Include="targets\cpp-cocos2dx\ExampleSource\proj.win32\" />
     <Folder Include="targets\cpp-cocos2dx\source\" />
-    <Folder Include="targets\cpp-cocos2dx\source\include\" />
-    <Folder Include="targets\cpp-cocos2dx\source\include\playfab\" />
     <Folder Include="targets\cpp-cocos2dx\templates\" />
-    <Folder Include="targets\cpp-shared" />
-    <Folder Include="targets\cpp-shared\source\" />
-    <Folder Include="targets\cpp-shared\source\dependencies\" />
-    <Folder Include="targets\cpp-shared\source\dependencies\include\" />
-    <Folder Include="targets\cpp-shared\source\dependencies\include\rapidjson\" />
-    <Folder Include="targets\cpp-shared\source\dependencies\include\rapidjson\internal\" />
-    <Folder Include="targets\cpp-shared\source\include\" />
-    <Folder Include="targets\cpp-shared\source\include\playfab\" />
-    <Folder Include="targets\cpp-shared\source\source\" />
-    <Folder Include="targets\cpp-shared\source\source\core\" />
-    <Folder Include="targets\cpp-shared\source\source\curl\" />
-    <Folder Include="targets\cpp-shared\templates" />
     <Folder Include="targets\cpp-ue4\" />
     <Folder Include="targets\cpp-ue4\Plugins\" />
     <Folder Include="targets\cpp-ue4\Plugins\PlayFab\" />
@@ -556,6 +713,13 @@
     <Folder Include="targets\cpp-unreal\ExampleProject\Config\" />
     <Folder Include="targets\cpp-unreal\ExampleProject\Content\" />
     <Folder Include="targets\cpp-unreal\ExampleProject\Content\Maps\" />
+    <Folder Include="targets\cpp-unreal\ExampleProject\Plugins\" />
+    <Folder Include="targets\cpp-unreal\ExampleProject\Plugins\PlayFab\" />
+    <Folder Include="targets\cpp-unreal\ExampleProject\Plugins\PlayFab\Content\" />
+    <Folder Include="targets\cpp-unreal\ExampleProject\Plugins\PlayFab\Source\" />
+    <Folder Include="targets\cpp-unreal\ExampleProject\Plugins\PlayFab\Source\PlayFab\" />
+    <Folder Include="targets\cpp-unreal\ExampleProject\Plugins\PlayFab\Source\PlayFab\Classes\" />
+    <Folder Include="targets\cpp-unreal\ExampleProject\Plugins\PlayFab\Source\PlayFab\Private\" />
     <Folder Include="targets\cpp-unreal\ExampleProject\Source\" />
     <Folder Include="targets\cpp-unreal\ExampleProject\Source\ExampleProject\" />
     <Folder Include="targets\cpp-unreal\Source\" />
@@ -587,7 +751,29 @@
     <Folder Include="targets\cpp-windows\source\source\curl\" />
     <Folder Include="targets\cpp-windows\templates" />
     <Folder Include="targets\cpp-windows\UnittestRunner\" />
+    <Folder Include="targets\cpp-WinShared\" />
+    <Folder Include="targets\cpp-WinShared\source\" />
+    <Folder Include="targets\cpp-WinShared\source\dependencies\" />
+    <Folder Include="targets\cpp-WinShared\source\dependencies\include\" />
+    <Folder Include="targets\cpp-WinShared\source\dependencies\include\rapidjson\" />
+    <Folder Include="targets\cpp-WinShared\source\dependencies\include\rapidjson\internal\" />
+    <Folder Include="targets\cpp-WinShared\source\include\" />
+    <Folder Include="targets\cpp-WinShared\source\include\playfab\" />
+    <Folder Include="targets\cpp-WinShared\source\source\" />
+    <Folder Include="targets\cpp-WinShared\source\source\core\" />
+    <Folder Include="targets\cpp-WinShared\source\source\curl\" />
+    <Folder Include="targets\cpp-WinShared\templates\" />
     <Folder Include="targets\csharp" />
+    <Folder Include="targets\csharp-unity-gameserver\" />
+    <Folder Include="targets\csharp-unity-gameserver\source\" />
+    <Folder Include="targets\csharp-unity-gameserver\source\Internal\" />
+    <Folder Include="targets\csharp-unity-gameserver\templates\" />
+    <Folder Include="targets\csharp-unity-strangeioc\" />
+    <Folder Include="targets\csharp-unity-strangeioc\source\" />
+    <Folder Include="targets\csharp-unity-strangeioc\source\ErrorHandler\" />
+    <Folder Include="targets\csharp-unity-strangeioc\source\Mediators\" />
+    <Folder Include="targets\csharp-unity-strangeioc\source\Models\" />
+    <Folder Include="targets\csharp-unity-strangeioc\templates\" />
     <Folder Include="targets\csharp-unity\source\" />
     <Folder Include="targets\csharp-unity\source\Internal\" />
     <Folder Include="targets\csharp-unity\source\Internal\Testing\" />
@@ -636,49 +822,23 @@
     <Folder Include="targets\js-node" />
     <Folder Include="targets\js-node\templates" />
     <Folder Include="targets\js-node\testingFiles\" />
+    <Folder Include="targets\LumberyardSdk\" />
+    <Folder Include="targets\LumberyardSdk\source\" />
+    <Folder Include="targets\LumberyardSdk\source\Code\" />
+    <Folder Include="targets\LumberyardSdk\source\Code\Include\" />
+    <Folder Include="targets\LumberyardSdk\source\Code\Source\" />
+    <Folder Include="targets\LumberyardSdk\source\Code\Tests\" />
+    <Folder Include="targets\LumberyardSdk\templates\" />
+    <Folder Include="targets\LumberyardSdk\testing\" />
+    <Folder Include="targets\LumberyardSdk\testing\TestGem\" />
+    <Folder Include="targets\LumberyardSdk\testing\TestGem\Code\" />
+    <Folder Include="targets\LumberyardSdk\testing\TestGem\Code\Include\" />
+    <Folder Include="targets\LumberyardSdk\testing\TestGem\Code\Source\" />
+    <Folder Include="targets\LumberyardSdk\testing\TestGem\Code\Tests\" />
     <Folder Include="targets\postman\" />
     <Folder Include="targets\postman\templates\" />
   </ItemGroup>
-  <Import Project="$(MSBuildToolsPath)\Microsoft.Common.targets" Condition="Exists('$(MSBuildExtensionsPath)\$(MSBuildToolsVersion)\Microsoft.Common.props')" />
-  <!--Do not delete the following Import Project.  While this appears to do nothing it is a marker for setting TypeScript properties before our import that depends on them.-->
+  <!-- Do not delete the following Import Project.  While this appears to do nothing it is a marker for setting TypeScript properties before our import that depends on them. -->
   <Import Project="$(MSBuildExtensionsPath32)\Microsoft\VisualStudio\v$(VisualStudioVersion)\TypeScript\Microsoft.TypeScript.targets" Condition="False" />
   <Import Project="$(VSToolsPath)\Node.js Tools\Microsoft.NodejsTools.targets" />
-  <ProjectExtensions>
-    <VisualStudio>
-      <FlavorProperties GUID="{349c5851-65df-11da-9384-00065b846f21}">
-        <WebProjectProperties>
-          <UseIIS>False</UseIIS>
-          <AutoAssignPort>True</AutoAssignPort>
-          <DevelopmentServerPort>0</DevelopmentServerPort>
-          <DevelopmentServerVPath>/</DevelopmentServerVPath>
-          <IISUrl>http://localhost:48022/</IISUrl>
-          <NTLMAuthentication>False</NTLMAuthentication>
-          <UseCustomServer>True</UseCustomServer>
-          <CustomServerUrl>http://localhost:1337</CustomServerUrl>
-          <SaveServerSettingsInUserFile>False</SaveServerSettingsInUserFile>
-        </WebProjectProperties>
-      </FlavorProperties>
-      <FlavorProperties GUID="{349c5851-65df-11da-9384-00065b846f21}" User="">
-        <WebProjectProperties>
-          <StartPageUrl>
-          </StartPageUrl>
-          <StartAction>CurrentPage</StartAction>
-          <AspNetDebugging>True</AspNetDebugging>
-          <SilverlightDebugging>False</SilverlightDebugging>
-          <NativeDebugging>False</NativeDebugging>
-          <SQLDebugging>False</SQLDebugging>
-          <ExternalProgram>
-          </ExternalProgram>
-          <StartExternalURL>
-          </StartExternalURL>
-          <StartCmdLineArguments>
-          </StartCmdLineArguments>
-          <StartWorkingDirectory>
-          </StartWorkingDirectory>
-          <EnableENC>False</EnableENC>
-          <AlwaysStartWebServerOnDebug>False</AlwaysStartWebServerOnDebug>
-        </WebProjectProperties>
-      </FlavorProperties>
-    </VisualStudio>
-  </ProjectExtensions>
 </Project>

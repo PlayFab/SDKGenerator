@@ -1,26 +1,18 @@
-#if UNITY_EDITOR
-#elif UNITY_ANDROID
-#define PLAYFAB_ANDROID_PLUGIN
-#elif UNITY_IOS
-#define PLAYFAB_IOS_PLUGIN
-#elif UNITY_WP8
-#define PLAYFAB_WP8
-#endif
-
+using PlayFab.Json;
 using System;
 using System.Globalization;
 using System.IO;
+using System.Text;
 
 namespace PlayFab.Internal
 {
     internal static class Util
     {
-        public static readonly string[] _defaultDateTimeFormats = new string[]{ // All possible input time formats
-
+        public static readonly string[] _defaultDateTimeFormats = new string[]{ // All parseable ISO 8601 formats for DateTime.[Try]ParseExact - Lets us deserialize any legacy timestamps in one of these formats
             // These are the standard format with ISO 8601 UTC markers (T/Z)
-            "yyyy-MM-ddTHH:mm:ss.FFFFFFZ", // DEFAULT_UTC_OUTPUT_INDEX
+            "yyyy-MM-ddTHH:mm:ss.FFFFFFZ",
             "yyyy-MM-ddTHH:mm:ss.FFFFZ",
-            "yyyy-MM-ddTHH:mm:ss.FFFZ",
+            "yyyy-MM-ddTHH:mm:ss.FFFZ", // DEFAULT_UTC_OUTPUT_INDEX
             "yyyy-MM-ddTHH:mm:ss.FFZ",
             "yyyy-MM-ddTHH:mm:ssZ",
 
@@ -37,8 +29,8 @@ namespace PlayFab.Internal
             "yyyy-MM-dd HH:mm.ss.FF",
             "yyyy-MM-dd HH:mm.ss",
         };
-        public const int DEFAULT_UTC_OUTPUT_INDEX = 0;
-        public const int DEFAULT_LOCAL_OUTPUT_INDEX = 8;
+        public const int DEFAULT_UTC_OUTPUT_INDEX = 2; // The default format everybody should use
+        public const int DEFAULT_LOCAL_OUTPUT_INDEX = 8; // The default format if you want to use local time (This doesn't have universal support in all PlayFab code)
         private static DateTimeStyles _dateTimeStyles = DateTimeStyles.RoundtripKind;
 
         public static string timeStamp
@@ -114,13 +106,30 @@ namespace PlayFab.Internal
             }
         }
 
+        [ThreadStatic]
+        private static StringBuilder _sb;
+        /// <summary>
+        /// A threadsafe way to block and load a text file
+        /// 
+        /// For PlayFab internal testing
+        /// Load a text file, and return the file as text.
+        /// Used for small (usually json) files.
+        /// 
+        /// Doing this in a platform-independent way is surprisingly difficult
+        /// If your environment/build reports an error in this function, feel free to delete it locally, and file a bug report with your environment/build information
+        /// </summary>
         public static string ReadAllFileText(string filename)
         {
-#if PLAYFAB_WP8
-            return ""; // Don't have a solution for this on win-phone right now
-#else
-            return File.ReadAllText(filename);
-#endif
+            if (_sb == null)
+                _sb = new StringBuilder();
+            _sb.Length = 0;
+
+            var fs = new FileStream(filename, FileMode.Open);
+            BinaryReader br = new BinaryReader(fs);
+            while (br.BaseStream.Position != br.BaseStream.Length)
+                _sb.Append(br.ReadChar());
+
+            return _sb.ToString();
         }
     }
 }

@@ -137,7 +137,7 @@ namespace UnittestRunner
         {
         }
 
-        void ClientApiWait()
+        static void ClientApiWait()
         {
             testMessageReturn = "pending";
             int count = 1, sleepCount = 0;
@@ -150,7 +150,7 @@ namespace UnittestRunner
             // Assert::IsTrue(sleepCount < 20); // The API call shouldn't take too long
         }
 
-        void ServerApiWait()
+        static void ServerApiWait()
         {
             testMessageReturn = "pending";
             int count = 1, sleepCount = 0;
@@ -183,7 +183,7 @@ namespace UnittestRunner
             request.Email = USER_EMAIL;
             request.Password = USER_PASSWORD + "INVALID";
 
-            PlayFabClientAPI::LoginWithEmailAddress(request, &LoginCallback, &LoginFailedCallback, NULL);
+            PlayFabClientAPI::LoginWithEmailAddress(request, &LoginCallback, &LoginFailedCallback, nullptr);
             ClientApiWait();
 
             Assert::IsTrue(testMessageReturn.compare("Login_Failed - Password") == 0); // This call is supposed to return as an error
@@ -195,10 +195,48 @@ namespace UnittestRunner
         }
         static void LoginFailedCallback(PlayFabError& error, void* userData)
         {
-            if (error.ErrorMessage.find("password") != std::string::npos)
+            if (error.ErrorMessage.find("password") != string::npos)
                 testMessageReturn = "Login_Failed - Password";
             else
                 testMessageReturn = "Login_Failed - " + error.ErrorMessage;
+        }
+
+        /// <summary>
+        /// CLIENT API
+        /// Try to deliberately register a character with an invalid email and password.
+        ///   Verify that errorDetails are populated correctly.
+        /// </summary>
+        TEST_METHOD(InvalidRegistration)
+        {
+            RegisterPlayFabUserRequest request;
+            request.Username = "x";
+            request.Email = "x";
+            request.Password = "x";
+            PlayFabClientAPI::RegisterPlayFabUser(request, InvalidRegistrationSuccess, InvalidRegistrationFail, nullptr);
+            ClientApiWait();
+
+            Assert::IsTrue(testMessageReturn.compare("InvalidRegistration errorDetails correctly reported") == 0); // This call is supposed to return as an error
+        }
+        static void InvalidRegistrationSuccess(RegisterPlayFabUserResult& result, void* customData)
+        {
+            testMessageReturn = "InvalidRegistration was expected to fail";
+        }
+        static void InvalidRegistrationFail(PlayFabError& error, void* customData)
+        {
+            bool foundEmailMsg, foundPasswordMsg;
+            string expectedEmailMsg = "Email address is not valid.";
+            string expectedPasswordMsg = "Password must be between";
+            string errorConcat;
+
+            for (auto it = error.ErrorDetails.begin(); it != error.ErrorDetails.end(); ++it)
+                errorConcat += it->second;
+            foundEmailMsg = (errorConcat.find(expectedEmailMsg) != -1);
+            foundPasswordMsg = (errorConcat.find(expectedPasswordMsg) != -1);
+
+            if (foundEmailMsg && foundPasswordMsg)
+                testMessageReturn = "InvalidRegistration errorDetails correctly reported";
+            else
+                testMessageReturn = "All error details: " + errorConcat;
         }
 
         /// <summary>
@@ -215,7 +253,7 @@ namespace UnittestRunner
             loginRequest.Email = USER_EMAIL;
             loginRequest.Password = USER_PASSWORD;
 
-            PlayFabClientAPI::LoginWithEmailAddress(loginRequest, &LoginCallback, &LoginFailedCallback, NULL);
+            PlayFabClientAPI::LoginWithEmailAddress(loginRequest, &LoginCallback, &LoginFailedCallback, nullptr);
             ClientApiWait();
 
             if (testMessageReturn.compare("Login_Success") == 0 && PlayFabClientAPI::IsClientLoggedIn())
@@ -228,7 +266,7 @@ namespace UnittestRunner
             registerRequest.Email = USER_EMAIL;
             registerRequest.Password = USER_PASSWORD;
 
-            PlayFabClientAPI::RegisterPlayFabUser(registerRequest, &RegisterCallback, &SharedFailedCallback, NULL);
+            PlayFabClientAPI::RegisterPlayFabUser(registerRequest, &RegisterCallback, &SharedFailedCallback, nullptr);
             ClientApiWait();
 
             Assert::IsTrue(testMessageReturn.compare("Register_Success") == 0, L"Check that RegisterPlayFabUser was successful");
@@ -254,7 +292,7 @@ namespace UnittestRunner
             loginRequest.Email = USER_EMAIL;
             loginRequest.Password = USER_PASSWORD;
 
-            PlayFabClientAPI::LoginWithEmailAddress(loginRequest, &LoginCallback, &LoginFailedCallback, NULL);
+            PlayFabClientAPI::LoginWithEmailAddress(loginRequest, &LoginCallback, &LoginFailedCallback, nullptr);
             ClientApiWait();
 
             string targetValue = PlayFabSettings::AD_TYPE_ANDROID_ID + "_Successful";
@@ -279,19 +317,19 @@ namespace UnittestRunner
             char buffer[12];
             int testCounterValueActual;
 
-            PlayFabClientAPI::GetUserData(getRequest, &GetDataCallback, &SharedFailedCallback, NULL);
+            PlayFabClientAPI::GetUserData(getRequest, &GetDataCallback, &SharedFailedCallback, nullptr);
             ClientApiWait();
             Assert::IsTrue(testMessageReturn.compare("GetData_Success") == 0, L"Check that GetUserData was successful");
             int testCounterValueExpected = (testMessageInt + 1) % 100; // This test is about the expected value changing - but not testing more complicated issues like bounds
 
-            updateRequest1.Data[TEST_DATA_KEY_1] = std::string(itoa(testCounterValueExpected, buffer, 10));
-            updateRequest1.Data[TEST_DATA_KEY_2] = std::string("This is trash");
+            updateRequest1.Data[TEST_DATA_KEY_1] = string(itoa(testCounterValueExpected, buffer, 10));
+            updateRequest1.Data[TEST_DATA_KEY_2] = string("This is trash");
             auto updateJson1 = updateRequest1.toJSONString();
-            PlayFabClientAPI::UpdateUserData(updateRequest1, &UpdateDataCallback, &SharedFailedCallback, NULL);
+            PlayFabClientAPI::UpdateUserData(updateRequest1, &UpdateDataCallback, &SharedFailedCallback, nullptr);
             ClientApiWait();
             Assert::IsTrue(testMessageReturn.compare("UpdateData_Success") == 0, L"Check that UpdateUserData was successful");
 
-            PlayFabClientAPI::GetUserData(getRequest, &GetDataCallback, &SharedFailedCallback, NULL);
+            PlayFabClientAPI::GetUserData(getRequest, &GetDataCallback, &SharedFailedCallback, nullptr);
             ClientApiWait();
             Assert::IsTrue(testMessageReturn.compare("GetData_Success") == 0, L"Check that GetUserData was successful");
             testCounterValueActual = testMessageInt;
@@ -301,16 +339,16 @@ namespace UnittestRunner
             // Check for, and remove TEST_DATA_KEY_2
             updateRequest2.KeysToRemove.emplace_back(TEST_DATA_KEY_2);
             auto updateJson2 = updateRequest2.toJSONString();
-            PlayFabClientAPI::UpdateUserData(updateRequest2, &UpdateDataCallback, &SharedFailedCallback, NULL);
+            PlayFabClientAPI::UpdateUserData(updateRequest2, &UpdateDataCallback, &SharedFailedCallback, nullptr);
             ClientApiWait();
             Assert::IsTrue(testMessageReturn.compare("UpdateData_Success") == 0, L"Check that UpdateUserData was successful");
 
-            PlayFabClientAPI::GetUserData(getRequest, &GetDataCallback, &SharedFailedCallback, NULL);
+            PlayFabClientAPI::GetUserData(getRequest, &GetDataCallback, &SharedFailedCallback, nullptr);
             ClientApiWait();
             Assert::IsTrue(testMessageReturn.compare("GetData_Success") == 0, L"Check that GetUserData was successful");
             Assert::IsFalse(testMessageBool, L"Check if TEST_DATA_KEY_2 is removed"); // TEST_DATA_KEY_2 is removed
 
-            time_t now = time(NULL);
+            time_t now = time(nullptr);
             now = mktime(gmtime(&now));
             time_t minTime = now - (60 * 5);
             time_t maxTime = now + (60 * 5);
@@ -345,18 +383,18 @@ namespace UnittestRunner
         {
             LoginOrRegister(); // C++ Environment is nicely secluded, but also means that we have to manually handle sequential requirements
 
-            PlayFabClientAPI::GetUserStatistics(&GetStatsCallback, &SharedFailedCallback, NULL);
+            PlayFabClientAPI::GetUserStatistics(&GetStatsCallback, &SharedFailedCallback, nullptr);
             ClientApiWait();
             Assert::IsTrue(testMessageReturn.compare("GetStats_Success") == 0);
             Int32 testStatValueExpected = (testMessageInt + 1) % 100; // This test is about the expected value changing (incrementing through from TEST_STAT_BASE to TEST_STAT_BASE * 2 - 1)
 
             ClientModels::UpdateUserStatisticsRequest updateRequest;
             updateRequest.UserStatistics[TEST_STAT_NAME] = testStatValueExpected;
-            PlayFabClientAPI::UpdateUserStatistics(updateRequest, &UpdateStatsCallback, &SharedFailedCallback, NULL);
+            PlayFabClientAPI::UpdateUserStatistics(updateRequest, &UpdateStatsCallback, &SharedFailedCallback, nullptr);
             ClientApiWait();
             Assert::IsTrue(testMessageReturn.compare("UpdateStats_Success") == 0);
 
-            PlayFabClientAPI::GetUserStatistics(&GetStatsCallback, &SharedFailedCallback, NULL);
+            PlayFabClientAPI::GetUserStatistics(&GetStatsCallback, &SharedFailedCallback, nullptr);
             ClientApiWait();
             Assert::IsTrue(testMessageReturn.compare("GetStats_Success") == 0);
             Int32 testStatValueActual = testMessageInt;
@@ -387,7 +425,7 @@ namespace UnittestRunner
 
             ServerModels::ListUsersCharactersRequest request1;
             request1.PlayFabId = playFabId;
-            PlayFabServerAPI::GetAllUsersCharacters(request1, &GetCharsCallback, &SharedFailedCallback, NULL);
+            PlayFabServerAPI::GetAllUsersCharacters(request1, &GetCharsCallback, &SharedFailedCallback, nullptr);
             ServerApiWait();
             Assert::IsTrue(testMessageReturn.compare("GetChars_Success") == 0);
 
@@ -398,14 +436,14 @@ namespace UnittestRunner
                 grantRequest.PlayFabId = playFabId;
                 grantRequest.CharacterName = CHAR_NAME;
                 grantRequest.CharacterType = CHAR_TEST_TYPE;
-                PlayFabServerAPI::GrantCharacterToUser(grantRequest, &GrantCharCallback, &SharedFailedCallback, NULL);
+                PlayFabServerAPI::GrantCharacterToUser(grantRequest, &GrantCharCallback, &SharedFailedCallback, nullptr);
                 ServerApiWait();
                 Assert::IsTrue(testMessageReturn.compare("GrantChar_Success") == 0);
                 Assert::IsTrue(!characterId.empty());
 
                 ServerModels::ListUsersCharactersRequest request2;
                 request2.PlayFabId = playFabId;
-                PlayFabServerAPI::GetAllUsersCharacters(request2, &GetCharsCallback, &SharedFailedCallback, NULL);
+                PlayFabServerAPI::GetAllUsersCharacters(request2, &GetCharsCallback, &SharedFailedCallback, nullptr);
                 ServerApiWait();
                 Assert::IsTrue(testMessageReturn.compare("GetChars_Success") == 0);
             }
@@ -447,7 +485,7 @@ namespace UnittestRunner
             ClientModels::GetLeaderboardRequest clientRequest;
             clientRequest.MaxResultsCount = 3;
             clientRequest.StatisticName = TEST_STAT_NAME;
-            PlayFabClientAPI::GetLeaderboard(clientRequest, &ClientLeaderboardCallback, &SharedFailedCallback, NULL);
+            PlayFabClientAPI::GetLeaderboard(clientRequest, &ClientLeaderboardCallback, &SharedFailedCallback, nullptr);
             ClientApiWait();
             Assert::IsTrue(testMessageReturn.compare("GetClientLB_Success") == 0);
             Assert::IsTrue(testMessageInt != 0);
@@ -455,7 +493,7 @@ namespace UnittestRunner
             ServerModels::GetLeaderboardRequest serverRequest;
             serverRequest.MaxResultsCount = 3;
             serverRequest.StatisticName = TEST_STAT_NAME;
-            PlayFabServerAPI::GetLeaderboard(serverRequest, &ServerLeaderboardCallback, &SharedFailedCallback, NULL);
+            PlayFabServerAPI::GetLeaderboard(serverRequest, &ServerLeaderboardCallback, &SharedFailedCallback, nullptr);
             ServerApiWait();
             Assert::IsTrue(testMessageReturn.compare("GetServerLB_Success") == 0);
             Assert::IsTrue(testMessageInt != 0);
@@ -482,13 +520,13 @@ namespace UnittestRunner
 
             GetAccountInfoRequest request;
             request.PlayFabId = playFabId;
-            PlayFabClientAPI::GetAccountInfo(request, &AcctInfoCallback, &SharedFailedCallback, NULL);
+            PlayFabClientAPI::GetAccountInfo(request, &AcctInfoCallback, &SharedFailedCallback, nullptr);
             ClientApiWait();
             Assert::IsTrue(testMessageReturn.compare("Enums tested") == 0);
         }
         static void AcctInfoCallback(GetAccountInfoResult& result, void* userData)
         {
-            if (result.AccountInfo == NULL || result.AccountInfo->TitleInfo == NULL || result.AccountInfo->TitleInfo->Origination.isNull())
+            if (result.AccountInfo == nullptr || result.AccountInfo->TitleInfo == nullptr || result.AccountInfo->TitleInfo->Origination.isNull())
             {
                 testMessageReturn = "Enums not properly tested";
                 return;
@@ -508,23 +546,23 @@ namespace UnittestRunner
 
             if (PlayFabSettings::logicServerURL.length() == 0)
             {
-                ClientModels::GetCloudScriptUrlRequest urlRequest;
-                PlayFabClientAPI::GetCloudScriptUrl(urlRequest, &CloudUrlCallback, &SharedFailedCallback, NULL);
+                GetCloudScriptUrlRequest urlRequest;
+                PlayFabClientAPI::GetCloudScriptUrl(urlRequest, &CloudUrlCallback, &SharedFailedCallback, nullptr);
                 ClientApiWait();
                 Assert::IsTrue(testMessageReturn.compare("CloudUrl retrieved") == 0);
             }
 
-            ClientModels::RunCloudScriptRequest hwRequest;
+            RunCloudScriptRequest hwRequest;
             hwRequest.ActionId = "helloWorld";
-            PlayFabClientAPI::RunCloudScript(hwRequest, &CloudHelloWorldCallback, &SharedFailedCallback, NULL);
+            PlayFabClientAPI::RunCloudScript(hwRequest, &CloudHelloWorldCallback, &SharedFailedCallback, nullptr);
             ClientApiWait();
             Assert::IsTrue(testMessageReturn.compare("Hello " + playFabId + "!") == 0);
         }
-        static void CloudUrlCallback(ClientModels::GetCloudScriptUrlResult& result, void* userData)
+        static void CloudUrlCallback(GetCloudScriptUrlResult& result, void* userData)
         {
             testMessageReturn = (result.Url.length() > 0) ? "CloudUrl retrieved" : "CloudUrl failed";
         }
-        static void CloudHelloWorldCallback(ClientModels::RunCloudScriptResult& result, void* userData)
+        static void CloudHelloWorldCallback(RunCloudScriptResult& result, void* userData)
         {
             // KNOWN ISSUE: result.Results does not get populated/decoded correctly!!!
             //if (result.Results.isNull())
@@ -536,6 +574,33 @@ namespace UnittestRunner
                 (result.ResultsEncoded.find("Hello " + playFabId + "!") == string::npos)
                 ? "CloudCall failed"
                 : "Hello " + playFabId + "!";
+        }
+
+        struct TestForumEventRequest : public WriteClientPlayerEventRequest
+        {
+            // THIS IS NOT SUFFICIENT: These parameters are not being serialized properly because C++ does not have reflection
+            string Subject;
+            string Body;
+        };
+
+        /// <summary>
+        /// CLIENT API
+        /// Test that the client can publish custom PlayStream events
+        /// </summary>
+        TEST_METHOD(WriteEvent)
+        {
+            TestForumEventRequest request;
+            request.EventName = "ForumPostEvent";
+            request.Timestamp = time(nullptr);
+            request.Subject = "My First Post";
+            request.Body = "My awesome post.";
+            PlayFabClientAPI::WritePlayerEvent(request, &OnWritePlayerEvent, &SharedFailedCallback, nullptr);
+            ClientApiWait();
+            Assert::IsTrue(testMessageReturn.compare("WriteEvent tested") == 0);
+        }
+        static void OnWritePlayerEvent(ClientModels::WriteEventResponse& result, void* userData)
+        {
+            testMessageReturn = "WriteEvent tested";
         }
     };
 }

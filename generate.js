@@ -1,10 +1,6 @@
 var fs = require("fs");
 var path = require("path");
 
-function stringStartsWith(value, prefix) {
-    return value.slice(0, prefix.length) === prefix;
-}
-
 function getTargetsList() {
     var targetList = [];
     
@@ -41,43 +37,23 @@ function generate(args) {
         process.exit();
     }
     
-    var buildFlags = [];
+    var argsByName = {}; // Args compiled into KVP's
+    var errorMessages = []; // Errors during ExtractArgs
     var targetOutputLocationList = []; // A list of objects that describe an sdk target
-    var collectingFlags = false;
-    for (var i = 3; i < args.length; i++) {
-        // Process mode changes
-        if (collectingFlags && args[i].indexOf("-") === 0)
-            collectingFlags = false;
-        
-        // Process the effect of individual arg commands
-        if (stringStartsWith(args[i], "-t")) {
-            console.log("The -t option in SdkGenerator has been removed.  The new Jenkins testing is more thorough and replaces this old functionality.");
-            console.log(syntax);
-            process.exit();
-        } else if (args[i] === "-flags") {
-            collectingFlags = true;
-        } else if (args[i] === "-beta") { // LEGACY OPTION - TODO: Remove this one when Jenkins is fully converted
-            buildFlags.push("beta");
-        } else if (collectingFlags) {
-            buildFlags.push(args[i]);
-        } else if (args[i].indexOf("=") !== -1) { // any parameter with an "=" is assumed to be a target specification
-            var argPair = args[i].split("=", 2);
-            var targetOutput = {};
-            targetOutput.name = argPair[0];
-            targetOutput.dest = path.normalize(argPair[1]);
-            if (fs.existsSync(targetOutput.dest) && !fs.lstatSync(targetOutput.dest).isDirectory()) {
-                console.log("Invalid target output path: " + targetOutput.dest);
-                process.exit();
-            }
-            targetOutputLocationList.push(targetOutput);
-        } else {
-            console.log("Cannot parse parameter: " + args[i]);
-            console.log(syntax);
-            process.exit();
-        }
+    ExtractArgs(args, argsByName, targetOutputLocationList, errorMessages);
+
+    if (!argsByName.buildidentifier) {
+        errorMessages.push("'buildIdentifier' is a new, mandatory parameter.  Ex: -buildIdentifier Jenkins_eachSDK_1337");
     }
-    
-    buildFlags = LowercaseFlagsList(buildFlags);
+    if (errorMessages.length !== 0) {
+        for (var i in errorMessages)
+            console.log(errorMessages[i]);
+        process.exit(1);
+    }
+
+    var buildFlags = [];
+    if (argsByName.hasOwnProperty("flags"))
+        buildFlags = LowercaseFlagsList(argsByName.flags.split(" "));
     var specLocation = path.normalize(args[2]);
     var clientApi = GetApiDefinition(specLocation, "Client.api.json", buildFlags);
     var serverApis = [
@@ -85,6 +61,7 @@ function generate(args) {
         GetApiDefinition(specLocation, "Matchmaker.api.json", buildFlags),
         GetApiDefinition(specLocation, "Server.api.json", buildFlags)
     ];
+    
     var allApis = serverApis.concat(clientApi);
     
     console.log("Generating PlayFab APIs from specs at " + specLocation);
@@ -106,8 +83,10 @@ function generate(args) {
         //   For now, just change the global variables in each with the data loaded from SdkManualNotes.json
         targetMaker.apiNotes = require(path.resolve(specLocation, "SdkManualNotes.json"));
         targetMaker.sdkVersion = targetMaker.apiNotes.sdkVersion[target.name];
-        if (targetMaker.sdkVersion == null)
+        targetMaker.buildIdentifier = argsByName.buildidentifier;
+        if (targetMaker.sdkVersion == null) {
             throw "SdkManualNotes does not contain sdkVersion for " + target.name; // The point of this error is to force you to add a line to sdkManualNotes.json, to describe the version and date when this sdk/collection is built
+        }
         
         var apiOutputDir = "";
         
@@ -137,6 +116,33 @@ function generate(args) {
     }
     
     console.log("\n\nDONE!\n");
+}
+
+var ExtractArgs = function (args, argsByName, targetOutputLocationList, errorMessages) {
+
+    var cmdArgs = args.slice(3, args.length);
+    var activeKey = null;
+    for (var i in cmdArgs) {
+        var lcArg = cmdArgs[i].toLowerCase();
+        if (lcArg.indexOf("-") === 0) {
+            activeKey = lcArg.substring(1);
+            argsByName[activeKey] = "";
+        } else if (lcArg.indexOf("=") !== -1) { // any parameter with an "=" is assumed to be a target specification
+            var argPair = lcArg.split("=", 2);
+            var targetOutput = {};
+            targetOutput.name = argPair[0];
+            targetOutput.dest = path.normalize(argPair[1]);
+            if (fs.existsSync(targetOutput.dest) && !fs.lstatSync(targetOutput.dest).isDirectory()) {
+                errorMessages.push("Invalid target output path: " + targetOutput.dest);
+            } else {
+                targetOutputLocationList.push(targetOutput);
+            }
+        } else if (activeKey == null) {
+            errorMessages.push("Unexpected token: " + lcArg);
+        } else {
+            argsByName[activeKey] = argsByName[activeKey] + lcArg;
+        }
+    }
 }
 
 var GetApiDefinition = function (specLocation, apiFileName, buildFlags) {

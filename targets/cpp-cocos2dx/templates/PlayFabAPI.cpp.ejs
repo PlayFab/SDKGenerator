@@ -1,0 +1,83 @@
+#include "HttpRequest.h"
+#include "HttpRequesterCURL.h"
+#include "PlayFabResultHandler.h"
+#include "PlayFabSettings.h"
+#include "PlayFabVersion.h"
+#include "PlayFab<%- api.name %>API.h"
+#include <string>
+
+using namespace PlayFab;
+using namespace PlayFab::<%- api.name %>Models;
+<% if(hasClientOptions) { %>
+std::string PlayFab<%- api.name%>API::mUserSessionTicket; // Private, Client-Specific
+<% } %>
+PlayFab<%- api.name %>API::PlayFab<%- api.name %>API() {}
+
+<% for(var i in api.calls) { var apiCall = api.calls[i];
+%>void PlayFab<%- api.name %>API::<%- apiCall.name %>(
+    <% if(hasRequest(apiCall, api)) { %><%- apiCall.request %>& request,<% } %>
+    ProcessApiCallback<<%- apiCall.result %>> callback,
+    ErrorCallback errorCallback,
+    void* userData
+    )
+{
+    <%- getRequestActions(apiCall, api) %>
+    HttpRequest* httpRequest = new HttpRequest("POST", <%- getUrlAccessor(apiCall) %>);
+    httpRequest->SetHeader("Content-Type", "application/json");
+    httpRequest->SetHeader("X-PlayFabSDK", PlayFabVersionString);
+    <%- getAuthParams(apiCall) %>
+
+    httpRequest->SetResultCallback(reinterpret_cast<void*>(callback));
+    httpRequest->SetErrorCallback(errorCallback);
+    httpRequest->SetUserData(userData);
+
+    <% if(hasRequest(apiCall, api)) { %>httpRequest->SetBody(request.toJSONString());<% } else { %>httpRequest->SetBody("{}");<% } %>
+    httpRequest->CompressBody();
+
+    PlayFabSettings::httpRequester->AddRequest(httpRequest, On<%- apiCall.name %>Result, userData);
+}
+
+void PlayFab<%- api.name %>API::On<%- apiCall.name %>Result(int httpStatus, HttpRequest* request, void* userData)
+{
+    <%- apiCall.result %> outResult;
+    PlayFabError errorResult;
+
+    if (PlayFabRequestHandler::DecodeRequest(httpStatus, request, userData, outResult, errorResult))
+    {
+<%- getResultActions(apiCall, api) %>
+        if (request->GetResultCallback() != nullptr)
+        {
+            ProcessApiCallback<<%- apiCall.result %>> successCallback = reinterpret_cast<ProcessApiCallback<<%- apiCall.result %>>>(request->GetResultCallback());
+            successCallback(outResult, request->GetUserData());
+        }
+    }
+    else
+    {
+        if (PlayFabSettings::globalErrorHandler != nullptr)
+            PlayFabSettings::globalErrorHandler(errorResult, request->GetUserData());
+        if (request->GetErrorCallback() != nullptr)
+            request->GetErrorCallback()(errorResult, request->GetUserData());
+    }
+
+    delete request;
+}
+
+<% } %><% if(hasClientOptions) { %>bool PlayFabClientAPI::IsClientLoggedIn()
+{
+    return !mUserSessionTicket.empty();
+}
+
+void PlayFabClientAPI::MultiStepClientLogin(bool needsAttribution)
+{
+    if (needsAttribution && !PlayFabSettings::disableAdvertising && PlayFabSettings::advertisingIdType.length() > 0 && PlayFabSettings::advertisingIdValue.length() > 0)
+    {
+        AttributeInstallRequest request;
+        if (PlayFabSettings::advertisingIdType == PlayFabSettings::AD_TYPE_IDFA)
+            request.Idfa = PlayFabSettings::advertisingIdValue;
+        else if (PlayFabSettings::advertisingIdType == PlayFabSettings::AD_TYPE_ANDROID_ID)
+            request.Android_Id = PlayFabSettings::advertisingIdValue;
+        else
+            return;
+        AttributeInstall(request, nullptr, nullptr);
+    }
+}<% } %>

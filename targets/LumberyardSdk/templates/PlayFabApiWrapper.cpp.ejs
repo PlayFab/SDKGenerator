@@ -1,0 +1,25 @@
+#include "StdAfx.h"
+#include "PlayFab<%- api.name %>Api.h"
+#include "PlayFab<%- api.name %>ApiWrapper.h"
+
+using namespace PlayFab;
+PlayFab<%- api.name %>ApiWrapper PlayFab<%- api.name %>ApiWrapper::globalWrapper;
+<% if(hasClientOptions) { %>
+// Client-Specific
+bool PlayFabClientApiWrapper::IsClientLoggedIn()
+{
+    return PlayFabClientApi::IsClientLoggedIn();
+}
+<% } %>
+// ------------ Generated API call wrappers
+<% for(var i in api.calls) { var apiCall = api.calls[i]; if(hasRequest(apiCall, api)) { %>
+void PlayFab<%- api.name %>ApiWrapper::<%- apiCall.name %>(<%- api.name %>Models::<%- apiCall.request %>& request, ProcessApiCallback<<%- api.name %>Models::<%- apiCall.result %>> callback, ErrorCallback errorCallback, void* customData)
+{
+    PlayFab<%- api.name %>Api::<%- apiCall.name %>(request, callback, errorCallback, customData);
+}
+<% } else { %>
+void PlayFab<%- api.name %>ApiWrapper::<%- apiCall.name %>(ProcessApiCallback<<%- api.name %>Models::<%- apiCall.result %>> callback, ErrorCallback errorCallback, void* customData)
+{
+    PlayFab<%- api.name %>Api::<%- apiCall.name %>(callback, errorCallback, customData);
+}
+<% } } %>

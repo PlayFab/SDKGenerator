@@ -3,11 +3,12 @@ package com.playfab
 {
     public class PlayFabVersion
     {
-        public static const SdkRevision:String = "<%- sdkRevision %>";
+        public static const SdkVersion:String = "<%- sdkVersion %>";
+        public static const BuildIdentifier:String = "<%- buildIdentifier %>";
         
         public static function getVersionString():String
         {
-            return "ActionScript-" + SdkRevision;
+            return "ActionScript-" + SdkVersion;
         }
     }
 }

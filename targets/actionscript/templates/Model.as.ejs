@@ -3,16 +3,17 @@ package com.playfab.<%- api.name %>Models
 {
 <% if(needsPlayFabUtil) { %>    import com.playfab.PlayFabUtil;
 
-<% } %>    public class <%- datatype.name %>
+<% } %>    public class <%- datatype.name %><%- getBaseTypeSyntax(datatype) %>
     {
-<% for(var i in datatype.properties) { var property = datatype.properties[i] %>        public var <%- getPropertyDef(property, datatype) %>;
+<% for(var i in datatype.properties) { var property = datatype.properties[i]
+%>        public var <%- getPropertyDef(property, datatype) %>;
 <% } %>
         public function <%- datatype.name %>(data:Object=null)
         {
             if(data == null)
                 return;
-
-<% for(var i in datatype.properties) { var property = datatype.properties[i] %>            <%- getPropertyInit(property, datatype) %>
+<% for(var i in datatype.properties) { var property = datatype.properties[i]
+%>            <%- getPropertyInit(property, datatype) %>
 <% } %>
         }
     }

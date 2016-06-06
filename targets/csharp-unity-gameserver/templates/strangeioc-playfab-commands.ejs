@@ -1,0 +1,32 @@
+using PlayFab;
+using PlayFab.MatchmakerModels;
+using PlayFab.ServerModels;
+using strange.extensions.command.impl;
+using Object = UnityEngine.Object;
+
+<% for(var a=0; a<apis.length; a++){ %>
+<% var api = apis[a]; %>
+
+<% for(var i=0; i< api.subgroups.length; i++){ %><% var subgroup = api.subgroups[i]; %>
+//<%-subgroup.name%>
+#region <%-subgroup.name%>
+<% for(var x=0; x<subgroup.methods.length; x++){ %><% var apiCall = api.calls.filter(function(el){ return el.name === subgroup.methods[x]; })[0];%><% if( !apiCall ) { %><% continue; %><% } %>
+///<summary>
+///<%- apiCall.summary%>
+///</summary>
+public class <%-apiCall.name%>Command : Command {
+    [Inject] public <%-apiCall.name%>ResponseSignal ResponseSignal {get; set;}
+    [Inject] public <%-apiCall.request%> Request {get; set;}
+    public override void Execute(){
+        Retain();
+        PlayFab<%-api.name%>API.<%-apiCall.name%>(Request,(result)=>{
+            //TODO: Map Result data to PlayFabDataStore.
+            Release();
+            ResponseSignal.Dispatch(result);
+        }, PlayFabErrorHandler.HandlePlayFabError);
+    }
+}
+<%}%>
+#endregion<%}%>
+
+<% } %>

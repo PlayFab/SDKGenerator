@@ -15,6 +15,12 @@ exports.makeCombinedAPI = function (apis, sourceDir, apiOutputDir) {
     generateSimpleFiles(apis, sourceDir, apiOutputDir);
 }
 
+function getBaseTypeSyntax(datatype) {
+    // The model-inheritance feature was removed.
+    // However in the future, we may still use some inheritance links for request/result baseclasses, for other sdk features
+    return "";
+}
+
 function makeDatatypes(api, sourceDir, apiOutputDir) {
     var templateDir = path.resolve(sourceDir, "templates");
     
@@ -29,8 +35,9 @@ function makeDatatypes(api, sourceDir, apiOutputDir) {
         modelLocals.datatype = datatype;
         modelLocals.getPropertyDef = getModelPropertyDef;
         modelLocals.getPropertyInit = getModelPropertyInit;
-        var generatedModel = null;
+        modelLocals.getBaseTypeSyntax = getBaseTypeSyntax;
         
+        var generatedModel;
         if (datatype.isenum) {
             generatedModel = enumTemplate(modelLocals);
         }
@@ -43,13 +50,11 @@ function makeDatatypes(api, sourceDir, apiOutputDir) {
     }
 }
 
+// A datatype needs util if it contains a DateTime
 function needsPlayFabUtil(datatype) {
-    for (var i in datatype.properties) {
-        var property = datatype.properties[i];
-        if (property.actualtype === "DateTime")
+    for (var i in datatype.properties)
+        if (datatype.properties[i].actualtype === "DateTime")
             return true;
-    }
-    
     return false;
 }
 
@@ -80,10 +85,11 @@ function generateSimpleFiles(apis, sourceDir, apiOutputDir) {
     
     var versionTemplate = ejs.compile(readFile(path.resolve(sourceDir, "templates/PlayFabVersion.as.ejs")));
     var versionLocals = {};
-    versionLocals.sdkRevision = exports.sdkVersion;
+    versionLocals.sdkVersion = exports.sdkVersion;
+    versionLocals.buildIdentifier = exports.buildIdentifier;
     var generatedVersion = versionTemplate(versionLocals);
     writeFile(path.resolve(apiOutputDir, "com/playfab/PlayFabVersion.as"), generatedVersion);
-
+    
     var settingsTemplate = ejs.compile(readFile(path.resolve(sourceDir, "templates/PlayFabSettings.as.ejs")));
     var settingsLocals = {};
     settingsLocals.hasServerOptions = false;

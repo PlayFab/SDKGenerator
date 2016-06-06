@@ -1,3 +1,4 @@
+using PlayFab.Internal;
 using System.Collections.Generic;
 
 namespace PlayFab
@@ -24,10 +25,10 @@ namespace PlayFab
 		public Dictionary<string, string[] > ErrorDetails;
     };
 
-    public class PlayFabResult<ResultT>
+    public class PlayFabResult<TResult> where TResult : PlayFabResultCommon
     {
         public PlayFabError Error;
-        public ResultT Result;
+        public TResult Result;
     }
 	
 	public delegate void ErrorCallback(PlayFabError error);

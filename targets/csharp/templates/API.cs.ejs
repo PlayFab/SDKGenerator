@@ -20,7 +20,7 @@ namespace PlayFab
         public static async Task<PlayFabResult<<%- apiCall.result %>>> <%- apiCall.name %>Async(<%- apiCall.request %> request)
         {
 <%- getRequestActions(apiCall, api) %>
-            object httpResult = await PlayFabHTTP.DoPost(<%- getUrlAccessor(apiCall) %> + "<%- apiCall.url %>", request, <%- getAuthParams(apiCall) %>);
+            object httpResult = await PlayFabHTTP.DoPost("<%- apiCall.url %>", request, <%- getAuthParams(apiCall) %>);
             if(httpResult is PlayFabError)
             {
                 PlayFabError error = (PlayFabError)httpResult;
@@ -30,7 +30,7 @@ namespace PlayFab
             }
             string resultRawJson = (string)httpResult;
 
-            var serializer = JsonSerializer.Create(PlayFabSettings.JsonSettings);
+            var serializer = JsonSerializer.Create(PlayFabUtil.JsonSettings);
             var resultData = serializer.Deserialize<PlayFabJsonSuccess<<%- apiCall.result %>>>(new JsonTextReader(new StringReader(resultRawJson)));
 
             <%- apiCall.result %> result = resultData.data;

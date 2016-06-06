@@ -1,10 +1,10 @@
 var path = require("path");
-var shared = require("../cpp-shared/cpp-shared");
+var shared = require("../cpp-WinShared/cpp-shared");
 
 exports.makeClientAPI = function (api, sourceDir, apiOutputDir) {
     console.log("Generating Windows C++ client SDK to " + apiOutputDir);
     
-    copyTree(path.resolve(sourceDir, "../cpp-shared/source"), apiOutputDir);
+    copyTree(path.resolve(sourceDir, "../cpp-WinShared/source"), apiOutputDir);
     copyTree(path.resolve(sourceDir, "source"), apiOutputDir);
     
     shared.makeAPI(api, apiOutputDir, "core/");
@@ -17,7 +17,7 @@ exports.makeClientAPI = function (api, sourceDir, apiOutputDir) {
 exports.makeServerAPI = function (apis, sourceDir, apiOutputDir) {
     console.log("Generating Windows C++ server SDK to " + apiOutputDir);
     
-    copyTree(path.resolve(sourceDir, "../cpp-shared/source"), apiOutputDir);
+    copyTree(path.resolve(sourceDir, "../cpp-WinShared/source"), apiOutputDir);
     copyTree(path.resolve(sourceDir, "source"), apiOutputDir);
     
     for (var i in apis)
@@ -31,7 +31,7 @@ exports.makeServerAPI = function (apis, sourceDir, apiOutputDir) {
 exports.makeCombinedAPI = function (apis, sourceDir, apiOutputDir) {
     console.log("Generating Windows C++ combined SDK to " + apiOutputDir);
     
-    copyTree(path.resolve(sourceDir, "../cpp-shared/source"), apiOutputDir);
+    copyTree(path.resolve(sourceDir, "../cpp-WinShared/source"), apiOutputDir);
     copyTree(path.resolve(sourceDir, "source"), apiOutputDir);
     copyTree(path.resolve(sourceDir, "UnittestRunner"), path.resolve(apiOutputDir, "build/VC12/UnittestRunner"));
     
@@ -60,7 +60,7 @@ function makeAPIProject(apis, sourceDir, apiOutputDir, libname) {
 function generateSimpleFiles(apis, sourceDir, apiOutputDir) {
     var versionTemplate = ejs.compile(readFile(path.resolve(sourceDir, "templates/PlayFabVersion.cpp.ejs")));
     var versionLocals = {};
-    versionLocals.sdkRevision = exports.sdkVersion;
+    versionLocals.sdkVersion = exports.sdkVersion;
     var generatedVersion = versionTemplate(versionLocals);
     writeFile(path.resolve(apiOutputDir, "source/core/PlayFabVersion.cpp"), generatedVersion);
     

@@ -6,11 +6,11 @@ package asyncUnitTest
     {
         private var outputStream:FileStream = new FileStream();
 
-        public function ASyncUnitTestFileReporter(testOutputFileName:String)
+        public function ASyncUnitTestFileReporter(testOutputFileName:String, buildIdentifier:String)
         {
             var outputFile:File = new File(testOutputFileName);
             outputStream.open(outputFile, FileMode.WRITE);
-            outputStream.writeUTFBytes("Unit Test Output for ActionScript SDK:\n\n");
+            outputStream.writeUTFBytes("Unit Test Output for ActionScript SDK, build:" + buildIdentifier + "\n\n");
         }
 
         public function ReportTestResult(testDuration:Number, testName:String, testResult:int, testMessage:String) : void

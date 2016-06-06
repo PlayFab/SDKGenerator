@@ -10,6 +10,8 @@ package
     import asyncUnitTest.ASyncUnitTestFileReporter;
     import asyncUnitTest.ASyncUnitTestCloudScriptReporter;
 
+    import com.playfab.PlayFabVersion;
+
     public class PfApiTest extends Sprite
     {
         private var textField:TextField = new TextField();
@@ -38,7 +40,7 @@ package
             textField.text += "Saving test results to: " + outputFile.nativePath;
 
             var reporters:Array = new Array();
-            reporters.unshift(new ASyncUnitTestFileReporter(outputFile.nativePath));
+            reporters.unshift(new ASyncUnitTestFileReporter(outputFile.nativePath, PlayFabVersion.BuildIdentifier));
             reporters.unshift(new ASyncUnitTestCloudScriptReporter());
 
             testSuite = new PlayFabApiTests(titleDataFileName, reporters);

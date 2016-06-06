@@ -17,7 +17,6 @@ package
     import asyncUnitTest.ASyncUnitTestSuite;
     import asyncUnitTest.ASyncUnitTestEvent;
     import asyncUnitTest.ASyncAssert;
-    import asyncUnitTest.ASyncUnitTestFileReporter;
 
     public class PlayFabApiTests extends ASyncUnitTestSuite
     {

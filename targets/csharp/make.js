@@ -136,7 +136,6 @@ function generateSimpleFiles(apis, sourceDir, apiOutputDir) {
     var generatedErrors = errorsTemplate(errorLocals);
     writeFile(path.resolve(apiOutputDir, "source/PlayFabErrors.cs"), generatedErrors);
     
-    var settingsTemplate = ejs.compile(readFile(path.resolve(sourceDir, "templates/PlayFabSettings.cs.ejs")));
     var settingsLocals = {};
     settingsLocals.hasServerOptions = false;
     settingsLocals.hasClientOptions = false;
@@ -148,6 +147,12 @@ function generateSimpleFiles(apis, sourceDir, apiOutputDir) {
         else
             settingsLocals.hasServerOptions = true;
     }
+    
+    var utilTemplate = ejs.compile(readFile(path.resolve(sourceDir, "templates/PlayFabUtil.cs.ejs")));
+    var generatedTemplate = utilTemplate(settingsLocals);
+    writeFile(path.resolve(apiOutputDir, "source/PlayFabUtil.cs"), generatedTemplate);
+
+    var settingsTemplate = ejs.compile(readFile(path.resolve(sourceDir, "templates/PlayFabSettings.cs.ejs")));
     var generatedSettings = settingsTemplate(settingsLocals);
     writeFile(path.resolve(apiOutputDir, "source/PlayFabSettings.cs"), generatedSettings);
 }

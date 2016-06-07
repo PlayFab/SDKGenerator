@@ -506,13 +506,13 @@
     <Content Include="targets\csharp\source\packages\repositories.config" />
     <Content Include="targets\csharp\source\Properties\AssemblyInfo.cs" />
     <Content Include="targets\csharp\source\source\PlayFabHTTP.cs" />
-    <Content Include="targets\csharp\source\source\PlayFabUtil.cs" />
     <Content Include="targets\csharp\source\source\Uunit\UUnitAssert.cs" />
     <Content Include="targets\csharp\source\source\Uunit\UUnitAssertException.cs" />
     <Content Include="targets\csharp\source\source\Uunit\UUnitTestCase.cs" />
     <Content Include="targets\csharp\source\source\Uunit\UUnitTestResult.cs" />
     <Content Include="targets\csharp\source\source\Uunit\UUnitTestSuite.cs" />
     <Content Include="targets\csharp\templates\PlayFabSettings.cs.ejs" />
+    <Content Include="targets\csharp\templates\PlayFabUtil.cs.ejs" />
     <Content Include="targets\csharp\UnittestRunner\App.config" />
     <Content Include="targets\csharp\UnittestRunner\PlayFabApiTest.cs" />
     <Content Include="targets\csharp\UnittestRunner\Properties\AssemblyInfo.cs" />

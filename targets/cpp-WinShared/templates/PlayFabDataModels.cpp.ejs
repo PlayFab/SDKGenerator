@@ -1,7 +1,7 @@
 #include "playfab/PlayFab<%- api.name %>DataModels.h"
 
 using namespace PlayFab;
-using namespace PlayFab::<%- api.name %>Models;
+using namespace <%- api.name %>Models;
 using namespace rapidjson;
 <% for(var i in datatypes) { // ========= BEGIN FOR-EACH DATATYPE DEFN =========
 var datatype = datatypes[i]; if (datatype.isenum) { // ========= BEGIN EACH ENUM =========

@@ -9,6 +9,10 @@ namespace PlayFab
     class PlayFabSettings
     {
     public:
+        static const std::string sdkVersion;
+        static const std::string buildIdentifier;
+        static const std::string versionString;
+
         static bool useDevelopmentEnvironment;
         static std::string serverURL;
         static std::string developmentEnvironmentURL;

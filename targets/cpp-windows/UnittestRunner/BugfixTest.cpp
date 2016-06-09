@@ -6,7 +6,7 @@ using namespace Microsoft::VisualStudio::CppUnitTestFramework;
 using namespace std;
 using namespace rapidjson;
 using namespace PlayFab;
-using namespace PlayFab::AdminModels;
+using namespace AdminModels;
 
 #pragma comment(lib, "wldap32.lib")
 #pragma comment(lib, "ws2_32.lib")

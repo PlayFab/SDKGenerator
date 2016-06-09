@@ -3,11 +3,10 @@
 #include "playfab/PlayFabSettings.h"
 #include "playfab/PlayFabResultHandler.h"
 #include "playfab/HttpRequesterCURL.h"
-#include "playfab/PlayFabVersion.h"
 #include <string>
 
 using namespace PlayFab;
-using namespace PlayFab::<%- api.name %>Models;
+using namespace <%- api.name %>Models;
 
 IHttpRequester* PlayFab<%- api.name %>API::mHttpRequester = new HttpRequesterCURL();
 <% if(hasClientOptions) { %>std::string PlayFab<%- api.name %>API::mUserSessionTicket; // Private, Client-Specific
@@ -30,7 +29,7 @@ size_t PlayFab<%- api.name %>API::Update()
     <%- getRequestActions(apiCall, api) %>
     HttpRequest* httpRequest = new HttpRequest("POST", <%- getUrlAccessor(apiCall) %>);
     httpRequest->SetHeader("Content-Type", "application/json");
-    httpRequest->SetHeader("X-PlayFabSDK", PlayFabVersionString);
+    httpRequest->SetHeader("X-PlayFabSDK", PlayFabSettings::versionString);
     <%- getAuthParams(apiCall) %>
 
     httpRequest->SetResultCallback(reinterpret_cast<void*>(callback));

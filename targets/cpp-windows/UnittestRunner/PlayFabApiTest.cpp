@@ -248,28 +248,12 @@ namespace UnittestRunner
             if (PlayFabClientAPI::IsClientLoggedIn())
                 return; // This test has to have passed at least once for this case to happen
 
-            LoginWithEmailAddressRequest loginRequest;
-            loginRequest.TitleId = PlayFabSettings::titleId;
-            loginRequest.Email = USER_EMAIL;
-            loginRequest.Password = USER_PASSWORD;
+            LoginWithCustomIDRequest loginRequest;
+            loginRequest.CustomId = PlayFabSettings::buildIdentifier;
+            loginRequest.CreateAccount = true;
 
-            PlayFabClientAPI::LoginWithEmailAddress(loginRequest, &LoginCallback, &LoginFailedCallback, nullptr);
+            PlayFabClientAPI::LoginWithCustomID(loginRequest, &LoginCallback, &LoginFailedCallback, nullptr);
             ClientApiWait();
-
-            if (testMessageReturn.compare("Login_Success") == 0 && PlayFabClientAPI::IsClientLoggedIn())
-                return;
-
-            // If the setup failed to log in a user, we need to create one.
-            RegisterPlayFabUserRequest registerRequest;
-            registerRequest.TitleId = PlayFabSettings::titleId;
-            registerRequest.Username = USER_NAME;
-            registerRequest.Email = USER_EMAIL;
-            registerRequest.Password = USER_PASSWORD;
-
-            PlayFabClientAPI::RegisterPlayFabUser(registerRequest, &RegisterCallback, &SharedFailedCallback, nullptr);
-            ClientApiWait();
-
-            Assert::IsTrue(testMessageReturn.compare("Register_Success") == 0, L"Check that RegisterPlayFabUser was successful");
             Assert::IsTrue(PlayFabClientAPI::IsClientLoggedIn(), L"Check that a user is logged in");
         }
         static void RegisterCallback(RegisterPlayFabUserResult& result, void* userData)
@@ -287,12 +271,11 @@ namespace UnittestRunner
             PlayFabSettings::advertisingIdType = PlayFabSettings::AD_TYPE_ANDROID_ID;
             PlayFabSettings::advertisingIdValue = "PlayFabTestId";
 
-            LoginWithEmailAddressRequest loginRequest;
-            loginRequest.TitleId = PlayFabSettings::titleId;
-            loginRequest.Email = USER_EMAIL;
-            loginRequest.Password = USER_PASSWORD;
+            LoginWithCustomIDRequest loginRequest;
+            loginRequest.CustomId = PlayFabSettings::buildIdentifier;
+            loginRequest.CreateAccount = true;
 
-            PlayFabClientAPI::LoginWithEmailAddress(loginRequest, &LoginCallback, &LoginFailedCallback, nullptr);
+            PlayFabClientAPI::LoginWithCustomID(loginRequest, &LoginCallback, &LoginFailedCallback, nullptr);
             ClientApiWait();
 
             string targetValue = PlayFabSettings::AD_TYPE_ANDROID_ID + "_Successful";

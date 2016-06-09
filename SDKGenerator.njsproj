@@ -606,7 +606,6 @@
     <Content Include="targets\actionscript\templates\PlayFabVersion.as.ejs" />
     <Content Include="targets\cpp-windows\templates\PlayFabAPI.vcxproj.ejs" />
     <Content Include="targets\cpp-windows\templates\PlayFabAPI.vcxproj.filters.ejs" />
-    <Content Include="targets\cpp-windows\templates\PlayFabVersion.cpp.ejs" />
     <Content Include="targets\csharp\templates\API.cs.ejs" />
     <Content Include="targets\csharp\templates\Enum.cs.ejs" />
     <Content Include="targets\csharp\templates\Errors.cs.ejs" />

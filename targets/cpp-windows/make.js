@@ -58,13 +58,9 @@ function makeAPIProject(apis, sourceDir, apiOutputDir, libname) {
 }
 
 function generateSimpleFiles(apis, sourceDir, apiOutputDir) {
-    var versionTemplate = ejs.compile(readFile(path.resolve(sourceDir, "templates/PlayFabVersion.cpp.ejs")));
-    var versionLocals = {};
-    versionLocals.sdkVersion = exports.sdkVersion;
-    var generatedVersion = versionTemplate(versionLocals);
-    writeFile(path.resolve(apiOutputDir, "source/core/PlayFabVersion.cpp"), generatedVersion);
-    
     var settingsLocals = {};
+    settingsLocals.sdkVersion = exports.sdkVersion;
+    settingsLocals.buildIdentifier = exports.buildIdentifier;
     settingsLocals.hasClientOptions = false;
     settingsLocals.hasServerOptions = false;
     for (var i in apis) {

@@ -18,7 +18,7 @@ namespace PlayFab
 <% if (hasServerOptions) { %>        static std::string developerSecretKey; // You must set this value for PlayFabSdk to work properly (Found in the Game Manager for your title, at the PlayFab Website)
 <% }
 if (hasClientOptions) {
-%>        static std::string logicServerURL; // Assigned by GetCloudScriptUrl, used by RunCloudScript
+%>        static std::string logicServerURL; // Deprecated
         static std::string advertisingIdType; // Set this to the appropriate AD_TYPE_X constant below
         static std::string advertisingIdValue; // Set this to corresponding device value
 

@@ -44,60 +44,27 @@ public class ScreenOutput : MonoBehaviour
         }
     }
 
-    /// <summary>
-    /// Get the cloud script endpoint and callback after
-    /// </summary>
-    /// <returns><c>true</c>, if cloud script endpoint was gotten, <c>false</c> otherwise.</returns>
-    /// <param name="cb">Cb.</param>
-    public void GetCloudScriptEndpoint(UnityAction callback = null)
-    {
-        // quick check to verify that we have an endpoint. This should only need to be ran once.
-        if (string.IsNullOrEmpty(PlayFabSettings.LogicServerUrl))
-        {
-            PlayFabClientAPI.GetCloudScriptUrl(new GetCloudScriptUrlRequest(), (GetCloudScriptUrlResult result) =>
-            {
-                if (callback != null)
-                {
-                    callback();
-                }
-            },
-            OnPlayFabError);
-        }
-        else
-        {
-            callback();
-        }
-    }
-
     // An example of how to access Cloud Script methods.
     void TestCloudScript()
     {
-        // this will be called after we have an API endpoint
-        UnityAction RunAfterEndpoint = () =>
+        ExecuteCloudScriptRequest request = new ExecuteCloudScriptRequest();
+        request.FunctionName = "helloWorld";
+
+        PlayFabClientAPI.ExecuteCloudScript(request, (ExecuteCloudScriptResult result) =>
         {
-            RunCloudScriptRequest request = new RunCloudScriptRequest();
-            request.ActionId = "helloWorld";
+            // we are expecting a string,string keyvaluepair, so here we are capturing the kvp with a dictionary due to it being easier to work with.
+            Dictionary<string, string> deserializedResults = result.FunctionResult as Dictionary<string, string>;
 
-            PlayFabClientAPI.RunCloudScript(request, (RunCloudScriptResult result) =>
+            string message = string.Empty;
+            if (deserializedResults.TryGetValue("messageValue", out message))
             {
-                // we are expecting a string,string keyvaluepair, so here we are capturing the kvp with a dictionary due to it being easier to work with.
-                Dictionary<string, string> deserializedResults = new Dictionary<string, string>();
-                deserializedResults = PlayFab.SimpleJson.DeserializeObject<Dictionary<string, string>>(result.ResultsEncoded);
-
-                string message = string.Empty;
-                if (deserializedResults.TryGetValue("messageValue", out message))
-                {
-                    cloudScriptResponse.text = string.Format("Cloud Script -- Version: {0}, Revision: {1} \nResponse: {2}", result.Version, result.Revision, message);
-                }
-                else
-                {
-                    cloudScriptResponse.text = "Cloud Script call was successful, but there was an error deserializing the messageValue";
-                }
-            }, OnPlayFabError);
-        };
-
-        // we need to supply the SDK with the endpoint before our RunCloudScriptRequests will succeed
-        GetCloudScriptEndpoint(RunAfterEndpoint);
+                cloudScriptResponse.text = string.Format("Cloud Script -- Revision: {1} \nResponse: {2}", result.Revision, message);
+            }
+            else
+            {
+                cloudScriptResponse.text = "Cloud Script call was successful, but there was an error deserializing the messageValue";
+            }
+        }, OnPlayFabError);
     }
 
     // A standard error callback that prints out any errors to the screen and to the console.

@@ -245,32 +245,17 @@ private:
 /*
 * ==== CloudScript ====
 */
-class PlayFabApiTest_GetCloudScriptUrl : public IAutomationLatentCommand
+class PlayFabApiTest_ExecuteCloudScript : public IAutomationLatentCommand
 {
 public:
-    PlayFabApiTest_GetCloudScriptUrl(const FString& actionId);
+    PlayFabApiTest_ExecuteCloudScript(const FString& functionName);
 
     bool Update() override;
 private:
-    void OnSuccess(const PlayFab::ClientModels::FGetCloudScriptUrlResult& Result) const;
+    void OnSuccess(const PlayFab::ClientModels::FExecuteCloudScriptResult& Result) const;
     void OnError(const PlayFab::FPlayFabError& ErrorResult) const;
 
-    FString actionId;
-
-    PlayFabClientPtr clientAPI = nullptr;
-};
-
-class PlayFabApiTest_RunCloudScript : public IAutomationLatentCommand
-{
-public:
-    PlayFabApiTest_RunCloudScript(const FString& actionId);
-
-    bool Update() override;
-private:
-    void OnSuccess(const PlayFab::ClientModels::FRunCloudScriptResult& Result) const;
-    void OnError(const PlayFab::FPlayFabError& ErrorResult) const;
-
-    FString actionId;
+    FString functionName;
 
     PlayFabClientPtr clientAPI = nullptr;
 };
@@ -305,7 +290,7 @@ public:
     FString TEST_STAT_NAME = TEXT("str");
     FString INVALID_PASSWORD = TEXT("INVALID_PASSWORD");
     FString CHAR_TEST_TYPE = TEXT("Test");
-    FString CLOUD_ACTION_ID = TEXT("helloWorld");
+    FString CLOUD_FUNCTION_NAME = TEXT("helloWorld");
 
     // Input from TestTitleData.json
     TestTitleData testTitleData;
@@ -456,7 +441,7 @@ protected:
 
     bool CloudScript() const
     {
-        ADD_LATENT_AUTOMATION_COMMAND(PlayFabApiTest_GetCloudScriptUrl(CLOUD_ACTION_ID));
+        ADD_LATENT_AUTOMATION_COMMAND(PlayFabApiTest_ExecuteCloudScript(CLOUD_FUNCTION_NAME));
 
         return true;
     };

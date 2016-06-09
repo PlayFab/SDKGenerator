@@ -388,24 +388,12 @@ public class PlayFabApiTest
     {
         LoginOrRegister();
 
-        //if (PlayFabSettings.LogicServerURL == null || PlayFabSettings.LogicServerURL.length() == 0)
-        {
-            PlayFabClientModels.GetCloudScriptUrlRequest urlRequest = new PlayFabClientModels.GetCloudScriptUrlRequest();
-            PlayFabResult<PlayFabClientModels.GetCloudScriptUrlResult> urlResult = PlayFabClientAPI.GetCloudScriptUrl(urlRequest);
-            VerifyResult(urlResult, true);
-            assertNotNull(urlResult.Result.Url);
-            assertTrue(urlResult.Result.Url.length() > 0);
-        }
-
-        PlayFabClientModels.RunCloudScriptRequest hwRequest = new PlayFabClientModels.RunCloudScriptRequest();
-        hwRequest.ActionId = "helloWorld";
-        PlayFabResult<PlayFabClientModels.RunCloudScriptResult> hwResult = PlayFabClientAPI.RunCloudScript(hwRequest);
+        PlayFabClientModels.ExecuteCloudScriptRequest hwRequest = new PlayFabClientModels.ExecuteCloudScriptRequest();
+        hwRequest.FunctionName = "helloWorld";
+        PlayFabResult<PlayFabClientModels.ExecuteCloudScriptResult> hwResult = PlayFabClientAPI.ExecuteCloudScript(hwRequest);
         VerifyResult(hwResult, true);
-        assertNotNull(hwResult.Result.ResultsEncoded);
-        assertTrue(hwResult.Result.ResultsEncoded.length() > 0);
-        //assertTrue(hwResult.Result.ResultsEncoded, false);
-
-        Map<String, String> arbitraryResults = (Map<String, String>)hwResult.Result.Results;
+        assertNotNull(hwResult.Result.FunctionResult);
+        Map<String, String> arbitraryResults = (Map<String, String>)hwResult.Result.FunctionResult;
         assertEquals(arbitraryResults.get("messageValue"), "Hello " + playFabId + "!");
     }
 

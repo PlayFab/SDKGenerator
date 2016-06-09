@@ -620,26 +620,28 @@ void PlayFabApiTest_GetAccountInfo::OnError(const PlayFab::FPlayFabError& ErrorR
     UE_LOG(LogPlayFab, Error, TEXT("GetAccountInfo Failed: %s"), *(ErrorResult.ErrorMessage));
 }
 
+
 /*
-* ==== GetCloudScriptUrl ====
+* ==== ExecuteCloudScript ====
 */
-PlayFabApiTest_GetCloudScriptUrl::PlayFabApiTest_GetCloudScriptUrl(const FString& actionId)
+PlayFabApiTest_ExecuteCloudScript::PlayFabApiTest_ExecuteCloudScript(const FString& functionName)
 {
-    this->actionId = actionId;
+    this->functionName = functionName;
 }
 
-bool PlayFabApiTest_GetCloudScriptUrl::Update()
+bool PlayFabApiTest_ExecuteCloudScript::Update()
 {
     // Initialize, setup the call, and wait for the result
     if (!clientAPI.IsValid())
     {
         clientAPI = IPlayFabModuleInterface::Get().GetClientAPI();
 
-        PlayFab::ClientModels::FGetCloudScriptUrlRequest request;
+        PlayFab::ClientModels::FExecuteCloudScriptRequest request;
+        request.FunctionName = functionName;
 
-        clientAPI->GetCloudScriptUrl(request
-            , PlayFab::UPlayFabClientAPI::FGetCloudScriptUrlDelegate::CreateRaw(this, &PlayFabApiTest_GetCloudScriptUrl::OnSuccess)
-            , PlayFab::FPlayFabErrorDelegate::CreateRaw(this, &PlayFabApiTest_GetCloudScriptUrl::OnError)
+        clientAPI->ExecuteCloudScript(request
+            , PlayFab::UPlayFabClientAPI::FExecuteCloudScriptDelegate::CreateRaw(this, &PlayFabApiTest_ExecuteCloudScript::OnSuccess)
+            , PlayFab::FPlayFabErrorDelegate::CreateRaw(this, &PlayFabApiTest_ExecuteCloudScript::OnError)
             );
     }
 
@@ -647,52 +649,12 @@ bool PlayFabApiTest_GetCloudScriptUrl::Update()
     return clientAPI->GetPendingCalls() == 0;
 }
 
-void PlayFabApiTest_GetCloudScriptUrl::OnSuccess(const PlayFab::ClientModels::FGetCloudScriptUrlResult& Result) const
+void PlayFabApiTest_ExecuteCloudScript::OnSuccess(const PlayFab::ClientModels::FExecuteCloudScriptResult& Result) const
 {
-    UE_LOG(LogPlayFab, Log, TEXT("GetCloudScriptUrl Succeeded"));
-    ADD_LATENT_AUTOMATION_COMMAND(PlayFabApiTest_RunCloudScript(actionId));
+    UE_LOG(LogPlayFab, Log, TEXT("ExecuteCloudScript Succeeded"));
 }
 
-void PlayFabApiTest_GetCloudScriptUrl::OnError(const PlayFab::FPlayFabError& ErrorResult) const
+void PlayFabApiTest_ExecuteCloudScript::OnError(const PlayFab::FPlayFabError& ErrorResult) const
 {
-    UE_LOG(LogPlayFab, Error, TEXT("GetCloudScriptUrl Failed: %s"), *(ErrorResult.ErrorMessage));
-}
-
-
-/*
-* ==== RunCloudScript ====
-*/
-PlayFabApiTest_RunCloudScript::PlayFabApiTest_RunCloudScript(const FString& actionId)
-{
-    this->actionId = actionId;
-}
-
-bool PlayFabApiTest_RunCloudScript::Update()
-{
-    // Initialize, setup the call, and wait for the result
-    if (!clientAPI.IsValid())
-    {
-        clientAPI = IPlayFabModuleInterface::Get().GetClientAPI();
-
-        PlayFab::ClientModels::FRunCloudScriptRequest request;
-        request.ActionId = actionId;
-
-        clientAPI->RunCloudScript(request
-            , PlayFab::UPlayFabClientAPI::FRunCloudScriptDelegate::CreateRaw(this, &PlayFabApiTest_RunCloudScript::OnSuccess)
-            , PlayFab::FPlayFabErrorDelegate::CreateRaw(this, &PlayFabApiTest_RunCloudScript::OnError)
-            );
-    }
-
-    // Return when the api call is resolved
-    return clientAPI->GetPendingCalls() == 0;
-}
-
-void PlayFabApiTest_RunCloudScript::OnSuccess(const PlayFab::ClientModels::FRunCloudScriptResult& Result) const
-{
-    UE_LOG(LogPlayFab, Log, TEXT("RunCloudScript Succeeded"));
-}
-
-void PlayFabApiTest_RunCloudScript::OnError(const PlayFab::FPlayFabError& ErrorResult) const
-{
-    UE_LOG(LogPlayFab, Error, TEXT("RunCloudScript Failed: %s"), *(ErrorResult.ErrorMessage));
+    UE_LOG(LogPlayFab, Error, TEXT("ExecuteCloudScript Failed: %s"), *(ErrorResult.ErrorMessage));
 }

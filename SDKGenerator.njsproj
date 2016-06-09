@@ -267,7 +267,6 @@
     <Content Include="targets\cpp-unreal\templates\PlayFabUtilities.cpp.ejs" />
     <Content Include="targets\cpp-unreal\templates\PlayFabUtilities.h.ejs" />
     <Content Include="targets\cpp-unreal\Tutorial.docx" />
-    <Content Include="targets\cpp-windows\source\build\VC12\build.bat" />
     <Content Include="targets\cpp-windows\source\build\VC12\PlayFabAPI\PlayFabAPI.vcxproj.user" />
     <Content Include="targets\cpp-windows\source\dependencies\include\curl\curl.h" />
     <Content Include="targets\cpp-windows\source\dependencies\include\curl\curlbuild.h" />
@@ -484,8 +483,6 @@
     <Content Include="targets\csharp-unity\testing\EventTest.cs" />
     <Content Include="targets\csharp-unity\testing\PlayFabApiTest.cs" />
     <Content Include="targets\csharp-unity\testing\PlayFabApiTest_Client.cs" />
-    <Content Include="targets\csharp\build+unit.bat" />
-    <Content Include="targets\csharp\source\build.bat" />
     <Content Include="targets\csharp\source\packages.config" />
     <Content Include="targets\csharp\source\packages\Newtonsoft.Json.6.0.3\lib\net20\Newtonsoft.Json.dll" />
     <Content Include="targets\csharp\source\packages\Newtonsoft.Json.6.0.3\lib\net20\Newtonsoft.Json.xml" />

@@ -138,7 +138,7 @@ namespace PlayFabApiTest
     {
     public:
         std::string customId;
-        const int REPORT_DEFAULT_SIZE = 1;
+        static const int REPORT_DEFAULT_SIZE = 1;
         TestSuiteReport testReport[REPORT_DEFAULT_SIZE]; // The expected format is a list of TestSuiteReports, but this framework only submits one
 
         void writeJSON(PFStringJsonWriter& writer) override

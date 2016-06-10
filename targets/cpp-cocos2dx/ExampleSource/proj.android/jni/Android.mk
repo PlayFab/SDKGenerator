@@ -26,8 +26,7 @@ LOCAL_SRC_FILES := hellocpp/main.cpp \
                    ../../Classes/PlayFabResultHandler.cpp \
                    ../../Classes/PlayFabServerAPI.cpp \
                    ../../Classes/PlayFabServerDataModels.cpp \
-                   ../../Classes/PlayFabSettings.cpp \
-                   ../../Classes/PlayFabVersion.cpp
+                   ../../Classes/PlayFabSettings.cpp
 
 LOCAL_C_INCLUDES := $(LOCAL_PATH)/../../Classes
 

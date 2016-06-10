@@ -70,6 +70,7 @@
     <Compile Include="jcuSrc\PlayFabSDK\Uunit\UUnitTestSuite.cs" />
     <Compile Include="jcuSrc\Testing\CloudScriptTests.cs" />
     <Compile Include="jcuSrc\Commands\TestingCommand.cs" />
+    <Compile Include="jcuSrc\Testing\TestJsonReportSyntax.cs" />
     <Compile Include="jcuSrc\Testing\XmlTests.cs" />
   </ItemGroup>
   <ItemGroup>

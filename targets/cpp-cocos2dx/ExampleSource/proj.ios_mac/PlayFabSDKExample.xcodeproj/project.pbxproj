@@ -95,8 +95,6 @@
 		DA94C2A21CA6008300982ABC /* PlayFabServerDataModels.cpp in Sources */ = {isa = PBXBuildFile; fileRef = DA94C27E1CA6008300982ABC /* PlayFabServerDataModels.cpp */; };
 		DA94C2A31CA6008300982ABC /* PlayFabSettings.cpp in Sources */ = {isa = PBXBuildFile; fileRef = DA94C2801CA6008300982ABC /* PlayFabSettings.cpp */; };
 		DA94C2A41CA6008300982ABC /* PlayFabSettings.cpp in Sources */ = {isa = PBXBuildFile; fileRef = DA94C2801CA6008300982ABC /* PlayFabSettings.cpp */; };
-		DA94C2A51CA6008300982ABC /* PlayFabVersion.cpp in Sources */ = {isa = PBXBuildFile; fileRef = DA94C2821CA6008300982ABC /* PlayFabVersion.cpp */; };
-		DA94C2A61CA6008300982ABC /* PlayFabVersion.cpp in Sources */ = {isa = PBXBuildFile; fileRef = DA94C2821CA6008300982ABC /* PlayFabVersion.cpp */; };
 		ED545A7C1B68A1F400C3958E /* libiconv.dylib in Frameworks */ = {isa = PBXBuildFile; fileRef = ED545A7B1B68A1F400C3958E /* libiconv.dylib */; };
 		ED545A7E1B68A1FA00C3958E /* libiconv.dylib in Frameworks */ = {isa = PBXBuildFile; fileRef = ED545A7D1B68A1FA00C3958E /* libiconv.dylib */; };
 /* End PBXBuildFile section */
@@ -222,8 +220,6 @@
 		DA94C27F1CA6008300982ABC /* PlayFabServerDataModels.h */ = {isa = PBXFileReference; fileEncoding = 4; lastKnownFileType = sourcecode.c.h; path = PlayFabServerDataModels.h; sourceTree = "<group>"; };
 		DA94C2801CA6008300982ABC /* PlayFabSettings.cpp */ = {isa = PBXFileReference; fileEncoding = 4; lastKnownFileType = sourcecode.cpp.cpp; path = PlayFabSettings.cpp; sourceTree = "<group>"; };
 		DA94C2811CA6008300982ABC /* PlayFabSettings.h */ = {isa = PBXFileReference; fileEncoding = 4; lastKnownFileType = sourcecode.c.h; path = PlayFabSettings.h; sourceTree = "<group>"; };
-		DA94C2821CA6008300982ABC /* PlayFabVersion.cpp */ = {isa = PBXFileReference; fileEncoding = 4; lastKnownFileType = sourcecode.cpp.cpp; path = PlayFabVersion.cpp; sourceTree = "<group>"; };
-		DA94C2831CA6008300982ABC /* PlayFabVersion.h */ = {isa = PBXFileReference; fileEncoding = 4; lastKnownFileType = sourcecode.c.h; path = PlayFabVersion.h; sourceTree = "<group>"; };
 		DA94C2841CA6008300982ABC /* PlayFabZlib.h */ = {isa = PBXFileReference; fileEncoding = 4; lastKnownFileType = sourcecode.c.h; path = PlayFabZlib.h; sourceTree = "<group>"; };
 		ED545A7B1B68A1F400C3958E /* libiconv.dylib */ = {isa = PBXFileReference; lastKnownFileType = "compiled.mach-o.dylib"; name = libiconv.dylib; path = Platforms/iPhoneOS.platform/Developer/SDKs/iPhoneOS8.4.sdk/usr/lib/libiconv.dylib; sourceTree = DEVELOPER_DIR; };
 		ED545A7D1B68A1FA00C3958E /* libiconv.dylib */ = {isa = PBXFileReference; lastKnownFileType = "compiled.mach-o.dylib"; name = libiconv.dylib; path = usr/lib/libiconv.dylib; sourceTree = SDKROOT; };
@@ -396,8 +392,6 @@
 				DA94C27F1CA6008300982ABC /* PlayFabServerDataModels.h */,
 				DA94C2801CA6008300982ABC /* PlayFabSettings.cpp */,
 				DA94C2811CA6008300982ABC /* PlayFabSettings.h */,
-				DA94C2821CA6008300982ABC /* PlayFabVersion.cpp */,
-				DA94C2831CA6008300982ABC /* PlayFabVersion.h */,
 				DA94C2841CA6008300982ABC /* PlayFabZlib.h */,
 			);
 			name = Classes;
@@ -608,7 +602,6 @@
 				DA94C2911CA6008300982ABC /* PlayFabApiTest.cpp in Sources */,
 				DA94C29F1CA6008300982ABC /* PlayFabServerAPI.cpp in Sources */,
 				DA94C2A11CA6008300982ABC /* PlayFabServerDataModels.cpp in Sources */,
-				DA94C2A51CA6008300982ABC /* PlayFabVersion.cpp in Sources */,
 				DA94C2991CA6008300982ABC /* PlayFabMatchmakerAPI.cpp in Sources */,
 				503AE10117EB989F00D1A890 /* main.m in Sources */,
 				DA94C2971CA6008300982ABC /* PlayFabClientDataModels.cpp in Sources */,
@@ -631,7 +624,6 @@
 				DA94C2921CA6008300982ABC /* PlayFabApiTest.cpp in Sources */,
 				DA94C29A1CA6008300982ABC /* PlayFabMatchmakerAPI.cpp in Sources */,
 				DA94C29C1CA6008300982ABC /* PlayFabMatchmakerDataModels.cpp in Sources */,
-				DA94C2A61CA6008300982ABC /* PlayFabVersion.cpp in Sources */,
 				DA94C28E1CA6008300982ABC /* PlayFabAdminAPI.cpp in Sources */,
 				DA94C2961CA6008300982ABC /* PlayFabClientAPI.cpp in Sources */,
 				DA94C2A41CA6008300982ABC /* PlayFabSettings.cpp in Sources */,

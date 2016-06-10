@@ -5,6 +5,10 @@ namespace PlayFab
 {
     IHttpRequester* PlayFabSettings::httpRequester = new HttpRequesterCURL();
 
+    const std::string PlayFabSettings::sdkVersion = "<%- sdkVersion %>";
+    const std::string PlayFabSettings::buildIdentifier = "<%- buildIdentifier %>";
+    const std::string PlayFabSettings::versionString = "Cocos2d-xSDK-<%- sdkVersion %>";
+
     bool PlayFabSettings::useDevelopmentEnvironment = false;
     std::string PlayFabSettings::serverURL;
     std::string PlayFabSettings::developmentEnvironmentURL = ".playfabsandbox.com";

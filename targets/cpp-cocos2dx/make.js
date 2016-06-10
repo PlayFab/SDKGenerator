@@ -12,8 +12,7 @@ exports.makeClientAPI = function (api, sourceDir, apiOutputDir) {
     
     shared.generateModels([api], apiOutputDir, libname);
     shared.generateErrors(api, apiOutputDir);
-    generateVersion(api, sourceDir, apiOutputDir);
-    generateSettings([api], sourceDir, apiOutputDir);
+    GenerateSettings([api], sourceDir, apiOutputDir);
 }
 
 exports.makeServerAPI = function (apis, sourceDir, apiOutputDir) {
@@ -28,8 +27,7 @@ exports.makeServerAPI = function (apis, sourceDir, apiOutputDir) {
     
     shared.generateModels(apis, apiOutputDir, libname);
     shared.generateErrors(apis[0], apiOutputDir);
-    generateVersion(apis[0], sourceDir, apiOutputDir);
-    generateSettings(apis, sourceDir, apiOutputDir);
+    GenerateSettings(apis, sourceDir, apiOutputDir);
 }
 
 exports.makeCombinedAPI = function (apis, sourceDir, apiOutputDir) {
@@ -44,24 +42,16 @@ exports.makeCombinedAPI = function (apis, sourceDir, apiOutputDir) {
     
     shared.generateModels(apis, apiOutputDir, libname);
     shared.generateErrors(apis[0], apiOutputDir);
-    generateVersion(apis[0], sourceDir, apiOutputDir);
-    generateSettings(apis, sourceDir, apiOutputDir);
+    GenerateSettings(apis, sourceDir, apiOutputDir);
 }
 
-function generateVersion(api, sourceDir, apiOutputDir) {
-    var versionTemplate = ejs.compile(readFile(path.resolve(sourceDir, "templates/PlayFabVersion.cpp.ejs")));
-    
-    var versionLocals = {};
-    versionLocals.sdkVersion = exports.sdkVersion;
-    var generatedVersion = versionTemplate(versionLocals);
-    writeFile(path.resolve(apiOutputDir, "PlayFabVersion.cpp"), generatedVersion);
-}
-
-function generateSettings(apis, sourceDir, apiOutputDir) {
+function GenerateSettings(apis, sourceDir, apiOutputDir) {
     var settingsTemplateh = ejs.compile(readFile(path.resolve(sourceDir, "templates/PlayFabSettings.h.ejs")));
     var settingsTemplateCpp = ejs.compile(readFile(path.resolve(sourceDir, "templates/PlayFabSettings.cpp.ejs")));
     
     var settingsLocals = {};
+    settingsLocals.sdkVersion = exports.sdkVersion;
+    settingsLocals.buildIdentifier = exports.buildIdentifier;
     settingsLocals.hasClientOptions = false;
     settingsLocals.hasServerOptions = false;
     for (var i in apis) {

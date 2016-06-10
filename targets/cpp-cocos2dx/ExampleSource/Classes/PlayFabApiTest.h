@@ -2,14 +2,13 @@
 #include "cocos2d.h"
 #include "PlayFabSettings.h"
 #include "PlayFabClientDataModels.h"
-#include "PlayFabServerDataModels.h"
 #include "PlayFabClientAPI.h"
-#include "PlayFabServerAPI.h"
+
+#pragma once
 
 using namespace rapidjson;
 using namespace PlayFab;
 using namespace ClientModels;
-using namespace ServerModels;
 
 #if CC_TARGET_PLATFORM == CC_PLATFORM_ANDROID
 #include <string>
@@ -47,6 +46,118 @@ namespace PlayFabApiTest
         TIMEDOUT
     };
 
+    inline const char* PlayFabApiTestFinishState_ToString(PlayFabApiTestFinishState val)
+    {
+        switch (val)
+        {
+        case PASSED: return "PASSED";
+        case FAILED: return "FAILED";
+        case SKIPPED: return "SKIPPED";
+        case TIMEDOUT: return "TIMEDOUT";
+        default: return "ERROR";
+        }
+    }
+
+    class TestCaseReport : public PlayFabBaseModel
+    {
+    public:
+        std::string classname; // suite class name
+        std::string name; // test name
+        double time; // Duration in seconds
+        // Sub-Fields in the XML spec
+        /// <summary> message is the descriptive text used to debug the test failure </summary>
+        std::string message;
+        /// <summary> The xml spec allows failureText to be an arbitrary string.  When possible it should match finishState (But not required) </summary>
+        std::string failureText;
+        PlayFabApiTestFinishState finishState;
+
+        void writeJSON(PFStringJsonWriter& writer) override
+        {
+            writer.StartObject();
+            writer.String("classname"); writer.String(classname.c_str());
+            writer.String("name"); writer.String(name.c_str());
+            writer.String("time"); writer.Double(time);
+            writer.String("message"); writer.String(message.c_str());
+            writer.String("failureText"); writer.String(failureText.c_str());
+            writer.String("finishState"); writer.String(PlayFabApiTestFinishState_ToString(finishState));
+            writer.EndObject();
+        }
+
+        bool readFromValue(const rapidjson::Value& obj) override
+        {
+            return false; // We only intend to write to Cloud Script, but not read
+        }
+    };
+
+    class TestSuiteReport : public PlayFabBaseModel
+    {
+    public:
+        std::string name = "default"; // suite class name
+        int tests = 0; // total test count
+        int failures = 0; // count tests in state
+        int errors = 0; // count tests in state
+        int skipped = 0; // count tests in state
+        double time = 0; // Duration in seconds
+        time_t timestamp = 0;
+        // std::map<std::string, std::string> properties; // Probably going to avoid using this unless it's absolutely necessary
+        // Useful for debugging but not part of the serialized format (ignored by writeJSON)
+        int passed;
+        std::list<TestCaseReport*> testResults;
+
+        ~TestSuiteReport()
+        {
+            for (auto it = testResults.begin(); it != testResults.end(); ++it)
+                delete (*it);
+        }
+
+        void writeJSON(PFStringJsonWriter& writer) override
+        {
+            writer.StartObject();
+            writer.String("name"); writer.String(name.c_str());
+            writer.String("tests"); writer.Int(tests);
+            writer.String("failures"); writer.Int(failures);
+            writer.String("errors"); writer.Int(errors);
+            writer.String("skipped"); writer.Int(skipped);
+            writer.String("time"); writer.Double(time);
+            writer.String("timestamp"); PlayFab::writeDatetime(timestamp, writer);
+
+            writer.String("testResults"); writer.StartArray();
+            for (std::list<TestCaseReport*>::iterator it = testResults.begin(); it != testResults.end(); ++it)
+                (*it)->writeJSON(writer);
+            writer.EndArray();
+            writer.EndObject();
+        }
+
+        bool readFromValue(const rapidjson::Value& obj) override
+        {
+            return false; // We only intend to write to Cloud Script, but not read
+        }
+    };
+
+    class CsSaveRequest : public PlayFabBaseModel
+    {
+    public:
+        std::string customId;
+        const int REPORT_DEFAULT_SIZE = 1;
+        TestSuiteReport testReport[REPORT_DEFAULT_SIZE]; // The expected format is a list of TestSuiteReports, but this framework only submits one
+
+        void writeJSON(PFStringJsonWriter& writer) override
+        {
+            writer.StartObject();
+            writer.String("customId"); writer.String(customId.c_str());
+            writer.String("testReport"); writer.StartArray();
+            for (int i = 0; i < REPORT_DEFAULT_SIZE; i++)
+                testReport[i].writeJSON(writer);
+            writer.EndArray();
+            writer.EndObject();
+        }
+
+        bool readFromValue(const rapidjson::Value& obj) override
+        {
+            return false; // We only intend to write to Cloud Script, but not read
+        }
+    };
+
     struct PfTestContext
     {
         PfTestContext(std::string name, void(*func)(PfTestContext& context)) :
@@ -74,7 +185,7 @@ namespace PlayFabApiTest
             time_t tempStartTime = (startTime != 0) ? startTime : now;
 
             std::string temp;
-            temp = std::to_string(tempEndTime - tempStartTime).c_str();
+            temp = std::to_string((tempEndTime - tempStartTime) * 1000 / CLOCKS_PER_SEC).c_str();
             while (temp.length() < 12)
                 temp = " " + temp;
             temp += " ms, ";
@@ -100,6 +211,8 @@ namespace PlayFabApiTest
     public:
         static void InitializeTestSuite()
         {
+            suiteState = ACTIVE;
+            suiteStartTime = clock();
             bool setupSuccessful = ClassSetup();
 
             // Reset testContexts if this has already been run (The results are kept for later viewing)
@@ -125,6 +238,8 @@ namespace PlayFabApiTest
 
         static bool TickTestSuite()
         {
+            if (suiteState == COMPLETE)
+                return true;
             if (PlayFabSettings::httpRequester->GetPendingCalls() > 0)
                 return false; // The active test won't advance until all outstanding calls return
 
@@ -149,11 +264,19 @@ namespace PlayFabApiTest
                 TickTest(*nextTest);
 
             bool result = unfinishedTests == 0; // Return whether tests are complete
+            if (result && suiteState == ACTIVE)
+            {
+                suiteState = READY;
+                PostTestResultsToCloudScript();
+            }
             return result;
         }
 
         static std::string GenerateSummary()
         {
+            if (suiteState == COMPLETE)
+                return _outputSummary;
+
             _outputSummary = "";
             // _outputSummary._Grow(10000, false); Doesn't exist on android *sigh*
 
@@ -181,10 +304,13 @@ namespace PlayFabApiTest
         }
 
     private:
-        static PlayFabSettings* playFabSettings;
+        static PlayFabApiTestActiveState suiteState;
+        static time_t suiteStartTime;
         static std::string _outputSummary; // Basically a temp variable so I don't reallocate this constantly
 
-        // A bunch of constants: TODO: load these from testTitleData.json
+        static PlayFabSettings* playFabSettings;
+
+        // A bunch of constants loaded from testTitleData.json
         static const std::string TEST_TITLE_DATA_LOC;
         static std::string userName;
         static std::string userEmail;
@@ -248,6 +374,65 @@ namespace PlayFabApiTest
                 && !characterName.empty();
         }
 
+        static void PostTestResultsToCloudScript()
+        {
+            // Construct the test results - The expected format is a list of TestSuiteReports, but this framework only submits one, hence the testReport[0] everywhere 
+            CsSaveRequest saveRequest;
+            saveRequest.customId = PlayFabSettings::buildIdentifier;
+            saveRequest.testReport[0].name = PlayFabSettings::buildIdentifier;
+            saveRequest.testReport[0].timestamp = clock();
+            saveRequest.testReport[0].time = static_cast<double>(saveRequest.testReport[0].timestamp - suiteStartTime) / CLOCKS_PER_SEC;
+
+            for (auto it = testContexts.begin(); it != testContexts.end(); ++it)
+            {
+                switch ((*it)->finishState)
+                {
+                case PASSED:
+                    saveRequest.testReport[0].passed++; break;
+                case FAILED:
+                    saveRequest.testReport[0].failures++; break;
+                default:
+                    saveRequest.testReport[0].skipped++; break;
+                }
+
+                TestCaseReport* eachTest = new TestCaseReport();
+                eachTest->classname = PlayFabSettings::buildIdentifier;
+                eachTest->name = (*it)->testName;
+                eachTest->time = static_cast<double>((*it)->endTime - (*it)->startTime) / CLOCKS_PER_SEC;
+                eachTest->message = (*it)->testResultMsg;
+                eachTest->failureText = PlayFabApiTestFinishState_ToString((*it)->finishState);
+                eachTest->finishState = (*it)->finishState;
+                saveRequest.testReport[0].testResults.push_back(eachTest);
+            }
+
+            // Save the test results to Cloud Script
+            ExecuteCloudScriptRequest request;
+            request.FunctionName = "SaveTestData";
+            request.FunctionParameter = &saveRequest;
+            request.GeneratePlayStreamEvent = true;
+            PlayFabClientAPI::ExecuteCloudScript(request, OnPostResultsToCloudScript, OnPostResultsError);
+        }
+        static void OnPostResultsToCloudScript(const ExecuteCloudScriptResult& result, void* customData)
+        {
+            bool success = result.Error == nullptr;
+            GenerateSummary();
+
+            if (success)
+                _outputSummary += "\nTest report submitted to Cloud Script: " + PlayFabSettings::buildIdentifier + ", " + playFabId;
+            else
+                _outputSummary += "\nFailed to submit to Cloud Script:\n" + result.Error->Error + ": " + result.Error->Message;
+            //for (auto it = result.Logs.begin(); it != result.Logs.end(); ++it)
+            //    _outputSummary += "\n" + (*it).Message;
+
+            suiteState = COMPLETE;
+        }
+        static void OnPostResultsError(const PlayFabError& error, void* customData)
+        {
+            GenerateSummary();
+            _outputSummary += "\nFailed to submit to Cloud Script: " + error.GenerateErrorReport();
+            suiteState = COMPLETE;
+        }
+
         /// <summary>
         /// PlayFab Title cannot be created from SDK tests, so you must provide your titleId to run unit tests.
         /// (Also, we don't want lots of excess unused titles)
@@ -305,7 +490,7 @@ namespace PlayFabApiTest
         static void OnSharedError(const PlayFabError& error, void* customData)
         {
             PfTestContext* testContext = reinterpret_cast<PfTestContext*>(customData);
-            EndTest(*testContext, FAILED, "Unexpected error: " + error.ErrorMessage);
+            EndTest(*testContext, FAILED, "Unexpected error: " + error.GenerateErrorReport());
         }
 
         /// <summary>
@@ -315,12 +500,12 @@ namespace PlayFabApiTest
         /// </summary>
         static void InvalidLogin(PfTestContext& testContext)
         {
-            ClientModels::LoginWithEmailAddressRequest request;
+            LoginWithEmailAddressRequest request;
             request.Email = userEmail;
             request.Password = userPassword + "INVALID";
             PlayFabClientAPI::LoginWithEmailAddress(request, InvalidLoginSuccess, InvalidLoginFail, &testContext);
         }
-        static void InvalidLoginSuccess(const ClientModels::LoginResult& result, void* customData)
+        static void InvalidLoginSuccess(const LoginResult& result, void* customData)
         {
             PfTestContext* testContext = reinterpret_cast<PfTestContext*>(customData);
             EndTest(*testContext, FAILED, "Expected login to fail");
@@ -341,13 +526,13 @@ namespace PlayFabApiTest
         /// </summary>
         static void InvalidRegistration(PfTestContext& testContext)
         {
-            ClientModels::RegisterPlayFabUserRequest request;
+            RegisterPlayFabUserRequest request;
             request.Username = userName;
             request.Email = "x";
             request.Password = "x";
             PlayFabClientAPI::RegisterPlayFabUser(request, InvalidRegistrationSuccess, InvalidRegistrationFail, &testContext);
         }
-        static void InvalidRegistrationSuccess(const ClientModels::RegisterPlayFabUserResult& result, void* customData)
+        static void InvalidRegistrationSuccess(const RegisterPlayFabUserResult& result, void* customData)
         {
             PfTestContext* testContext = reinterpret_cast<PfTestContext*>(customData);
             EndTest(*testContext, FAILED, "Expected registration to fail");
@@ -380,12 +565,12 @@ namespace PlayFabApiTest
         /// </summary>
         static void LoginOrRegister(PfTestContext& testContext)
         {
-            ClientModels::LoginWithEmailAddressRequest request;
-            request.Email = userEmail;
-            request.Password = userPassword;
-            PlayFabClientAPI::LoginWithEmailAddress(request, OnLoginOrRegister, OnSharedError, &testContext);
+            LoginWithCustomIDRequest request;
+            request.CustomId = PlayFabSettings::buildIdentifier;
+            request.CreateAccount = true;
+            PlayFabClientAPI::LoginWithCustomID(request, OnLoginOrRegister, OnSharedError, &testContext);
         }
-        static void OnLoginOrRegister(const ClientModels::LoginResult& result, void* customData)
+        static void OnLoginOrRegister(const LoginResult& result, void* customData)
         {
             playFabId = result.PlayFabId;
             PfTestContext* testContext = reinterpret_cast<PfTestContext*>(customData);
@@ -401,12 +586,12 @@ namespace PlayFabApiTest
             playFabSettings->advertisingIdType = playFabSettings->AD_TYPE_ANDROID_ID;
             playFabSettings->advertisingIdValue = "PlayFabTestId";
 
-            ClientModels::LoginWithEmailAddressRequest request;
-            request.Email = userEmail;
-            request.Password = userPassword;
-            PlayFabClientAPI::LoginWithEmailAddress(request, OnLoginWithAdvertisingId, OnSharedError, &testContext);
+            LoginWithCustomIDRequest request;
+            request.CustomId = PlayFabSettings::buildIdentifier;
+            request.CreateAccount = true;
+            PlayFabClientAPI::LoginWithCustomID(request, OnLoginWithAdvertisingId, OnSharedError, &testContext);
         }
-        static void OnLoginWithAdvertisingId(const ClientModels::LoginResult& result, void* customData)
+        static void OnLoginWithAdvertisingId(const LoginResult& result, void* customData)
         {
             // TODO: Need to wait for the NEXT api call to complete, and then test PlayFabSettings::advertisingIdType
             PfTestContext* testContext = reinterpret_cast<PfTestContext*>(customData);
@@ -428,17 +613,17 @@ namespace PlayFabApiTest
                 return;
             }
 
-            ClientModels::GetUserDataRequest request;
+            GetUserDataRequest request;
             PlayFabClientAPI::GetUserData(request, OnUserDataApiGet1, OnSharedError, &testContext);
         }
-        static void OnUserDataApiGet1(const ClientModels::GetUserDataResult& result, void* customData)
+        static void OnUserDataApiGet1(const GetUserDataResult& result, void* customData)
         {
             auto it = result.Data.find(TEST_DATA_KEY);
             testMessageInt = (it == result.Data.end()) ? 1 : atoi(it->second.Value.c_str());
             // testMessageTime = it->second.LastUpdated; // Don't need the first time
 
             testMessageInt = (testMessageInt + 1) % 100;
-            ClientModels::UpdateUserDataRequest updateRequest;
+            UpdateUserDataRequest updateRequest;
 
             // itoa is not avaialable in android
             char buffer[16];
@@ -449,12 +634,12 @@ namespace PlayFabApiTest
             updateRequest.Data[TEST_DATA_KEY] = temp;
             PlayFabClientAPI::UpdateUserData(updateRequest, OnUserDataApiUpdate, OnSharedError, customData);
         }
-        static void OnUserDataApiUpdate(const ClientModels::UpdateUserDataResult& result, void* customData)
+        static void OnUserDataApiUpdate(const UpdateUserDataResult& result, void* customData)
         {
-            ClientModels::GetUserDataRequest request;
+            GetUserDataRequest request;
             PlayFabClientAPI::GetUserData(request, OnUserDataApiGet2, OnSharedError, customData);
         }
-        static void OnUserDataApiGet2(const ClientModels::GetUserDataResult& result, void* customData)
+        static void OnUserDataApiGet2(const GetUserDataResult& result, void* customData)
         {
             auto it = result.Data.find(TEST_DATA_KEY);
             int actualDataValue = (it == result.Data.end()) ? -1 : atoi(it->second.Value.c_str());
@@ -498,23 +683,23 @@ namespace PlayFabApiTest
 
             PlayFabClientAPI::GetUserStatistics(OnUserStatisticsApiGet1, OnSharedError, &testContext);
         }
-        static void OnUserStatisticsApiGet1(const ClientModels::GetUserStatisticsResult& result, void* customData)
+        static void OnUserStatisticsApiGet1(const GetUserStatisticsResult& result, void* customData)
         {
             auto it = result.UserStatistics.find(TEST_STAT_NAME);
             testMessageInt = (it == result.UserStatistics.end()) ? 1 : it->second;
             // testMessageTime = it->second.LastUpdated; // Don't need the first time
 
             testMessageInt = (testMessageInt + 1) % 100;
-            ClientModels::UpdateUserStatisticsRequest updateRequest;
+            UpdateUserStatisticsRequest updateRequest;
 
             updateRequest.UserStatistics[TEST_STAT_NAME] = testMessageInt;
             PlayFabClientAPI::UpdateUserStatistics(updateRequest, OnUserStatisticsApiUpdate, OnSharedError, customData);
         }
-        static void OnUserStatisticsApiUpdate(const ClientModels::UpdateUserStatisticsResult& result, void* customData)
+        static void OnUserStatisticsApiUpdate(const UpdateUserStatisticsResult& result, void* customData)
         {
             PlayFabClientAPI::GetUserStatistics(OnUserStatisticsApiGet2, OnSharedError, customData);
         }
-        static void OnUserStatisticsApiGet2(const ClientModels::GetUserStatisticsResult& result, void* customData)
+        static void OnUserStatisticsApiGet2(const GetUserStatisticsResult& result, void* customData)
         {
             auto it = result.UserStatistics.find(TEST_STAT_NAME);
             int actualStatValue = (it == result.UserStatistics.end()) ? 1 : it->second;
@@ -535,21 +720,14 @@ namespace PlayFabApiTest
         /// </summary>
         static void UserCharacter(PfTestContext& testContext)
         {
-            ClientModels::ListUsersCharactersRequest request;
+            ListUsersCharactersRequest request;
             PlayFabClientAPI::GetAllUsersCharacters(request, OnUserCharacter, OnSharedError, &testContext);
         }
-        static void OnUserCharacter(const ClientModels::ListUsersCharactersResult& result, void* customData)
+        static void OnUserCharacter(const ListUsersCharactersResult& result, void* customData)
         {
-            bool charFound = false;
-            for (auto it = result.Characters.begin(); it != result.Characters.end(); ++it)
-                if (it->CharacterName == characterName)
-                    charFound = true;
-
+            // We aren't adding a character to this account, so there's nothing really to test here
             PfTestContext* testContext = reinterpret_cast<PfTestContext*>(customData);
-            if (charFound)
-                EndTest(*testContext, PASSED, "");
-            else
-                EndTest(*testContext, FAILED, "Character not found");
+            EndTest(*testContext, PASSED, "");
         }
 
         /// <summary>
@@ -560,19 +738,15 @@ namespace PlayFabApiTest
         static void LeaderBoard(PfTestContext& testContext)
         {
             testMessageInt = 0;
-            ClientModels::GetLeaderboardRequest clientRequest;
+            GetLeaderboardRequest clientRequest;
             clientRequest.MaxResultsCount = 3;
             clientRequest.StatisticName = TEST_STAT_NAME;
             PlayFabClientAPI::GetLeaderboard(clientRequest, OnClientLeaderBoard, OnSharedError, &testContext);
         }
-        static void OnClientLeaderBoard(const ClientModels::GetLeaderboardResult& result, void* customData)
+        static void OnClientLeaderBoard(const GetLeaderboardResult& result, void* customData)
         {
-            bool foundEntry = false;
-            for (auto it = result.Leaderboard.begin(); it != result.Leaderboard.end(); ++it)
-                if (it->PlayFabId == playFabId)
-                    foundEntry++;
             PfTestContext* testContext = reinterpret_cast<PfTestContext*>(customData);
-            if (foundEntry)
+            if (result.Leaderboard.size() > 0) // We added too many users and stats to test for a specific user, so we just have to test for "any number of results" now
                 EndTest(*testContext, PASSED, "");
             else
                 EndTest(*testContext, FAILED, "Leaderboard entry not found.");
@@ -585,17 +759,15 @@ namespace PlayFabApiTest
         /// </summary>
         static void AccountInfo(PfTestContext& testContext)
         {
-            ClientModels::GetAccountInfoRequest request;
+            GetAccountInfoRequest request;
             PlayFabClientAPI::GetAccountInfo(request, OnAccountInfo, OnSharedError, &testContext);
         }
-        static void OnAccountInfo(const ClientModels::GetAccountInfoResult& result, void* customData)
+        static void OnAccountInfo(const GetAccountInfoResult& result, void* customData)
         {
             PfTestContext* testContext = reinterpret_cast<PfTestContext*>(customData);
             // Enums-by-name can't really be tested in C++, the way they can in other languages
             if (result.AccountInfo == nullptr || result.AccountInfo->TitleInfo == nullptr || result.AccountInfo->TitleInfo->Origination.isNull())
                 EndTest(*testContext, FAILED, "The Origination data is not present to test");
-            else if (result.AccountInfo->TitleInfo->Origination.mValue != ClientModels::UserOriginationOrganic)
-                EndTest(*testContext, FAILED, "The Origination does not match expected value");
             else // Received data-format as expected
                 EndTest(*testContext, PASSED, "");
             auto output = result.AccountInfo->TitleInfo->Origination.mValue; // TODO: Basic verification of this value (range maybe?)
@@ -607,21 +779,22 @@ namespace PlayFabApiTest
         /// </summary>
         static void CloudScript(PfTestContext& testContext)
         {
-            ClientModels::GetCloudScriptUrlRequest request;
-            PlayFabClientAPI::GetCloudScriptUrl(request, OnCloudUrl, OnSharedError, &testContext);
+            ExecuteCloudScriptRequest request;
+            request.FunctionName = "helloWorld";
+            PlayFabClientAPI::ExecuteCloudScript(request, OnHelloWorldCloudScript, OnSharedError, &testContext);
         }
-        static void OnCloudUrl(const ClientModels::GetCloudScriptUrlResult& result, void* customData)
+        static void OnHelloWorldCloudScript(const ExecuteCloudScriptResult& result, void* customData)
         {
-            ClientModels::RunCloudScriptRequest request;
-            request.ActionId = "helloWorld";
-            PlayFabClientAPI::RunCloudScript(request, OnHelloWorldCloudScript, OnSharedError, customData);
-        }
-        static void OnHelloWorldCloudScript(const ClientModels::RunCloudScriptResult& result, void* customData)
-        {
-            bool success = (result.ResultsEncoded.find("Hello " + playFabId + "!") != -1);
             PfTestContext* testContext = reinterpret_cast<PfTestContext*>(customData);
+            std::string cloudScriptLogReport = "";
+            if (result.Error != nullptr)
+                cloudScriptLogReport = result.Error->Error + ": " + result.Error->Message;
+            for (auto it = result.Logs.begin(); it != result.Logs.end(); ++it)
+                cloudScriptLogReport += "\n" + (*it).Message;
+
+            bool success = (cloudScriptLogReport.find("Hello " + playFabId + "!") != -1);
             if (!success)
-                EndTest(*testContext, FAILED, result.ResultsEncoded);
+                EndTest(*testContext, FAILED, cloudScriptLogReport);
             else
                 EndTest(*testContext, PASSED, "");
         }
@@ -632,23 +805,25 @@ namespace PlayFabApiTest
         /// </summary>
         static void WriteEvent(PfTestContext& testContext)
         {
-            ClientModels::WriteClientPlayerEventRequest request;
+            WriteClientPlayerEventRequest request;
             request.EventName = "ForumPostEvent";
             request.Timestamp = time(nullptr);
             request.Body["Subject"] = "My First Post";
             request.Body["Body"] = "My awesome post.";
             PlayFabClientAPI::WritePlayerEvent(request, OnWritePlayerEvent, OnSharedError, &testContext);
         }
-        static void OnWritePlayerEvent(const ClientModels::WriteEventResponse& result, void* customData)
+        static void OnWritePlayerEvent(const WriteEventResponse& result, void* customData)
         {
             PfTestContext* testContext = reinterpret_cast<PfTestContext*>(customData);
             EndTest(*testContext, PASSED, "");
         }
     };
     // C++ Static vars
+    PlayFabApiTestActiveState PlayFabApiTests::suiteState;
+    time_t PlayFabApiTests::suiteStartTime;
+    std::string PlayFabApiTests::_outputSummary;
     PlayFabSettings* PlayFabApiTests::playFabSettings;
     const std::string PlayFabApiTests::TEST_TITLE_DATA_LOC = "C:/depot/pf-main/tools/SDKBuildScripts/testTitleData.json";
-    std::string PlayFabApiTests::_outputSummary;
     std::string PlayFabApiTests::userName;
     std::string PlayFabApiTests::userEmail;
     std::string PlayFabApiTests::userPassword;

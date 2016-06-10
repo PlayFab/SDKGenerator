@@ -178,7 +178,6 @@
     <Content Include="targets\cpp-cocos2dx\templates\PlayFabError.h.ejs" />
     <Content Include="targets\cpp-cocos2dx\templates\PlayFabSettings.cpp.ejs" />
     <Content Include="targets\cpp-cocos2dx\templates\PlayFabSettings.h.ejs" />
-    <Content Include="targets\cpp-cocos2dx\templates\PlayFabVersion.cpp.ejs" />
     <Content Include="targets\cpp-ue4\Plugins\PlayFab\PlayFab.uplugin" />
     <Content Include="targets\cpp-ue4\Plugins\PlayFab\Resources\Icon128.png" />
     <Content Include="targets\cpp-ue4\Plugins\PlayFab\Source\OnlineSubsystemPlayFab\OnlineSubsystemPlayFab.Build.cs" />

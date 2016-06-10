@@ -157,7 +157,7 @@ private:
     static IPlayFabServerApi* serverApi;
     static Aws::String _outputSummary; // Basically a temp variable so I don't reallocate this constantly
 
-    // A bunch of constants: TODO: load these from testTitleData.json
+    // A bunch of constants loaded from testTitleData.json
     static Aws::String titleId;
     static Aws::String developerSecretKey;
     static Aws::String titleCanUpdateSettings;

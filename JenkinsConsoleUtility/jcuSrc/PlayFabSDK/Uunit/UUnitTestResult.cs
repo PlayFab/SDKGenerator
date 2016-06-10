@@ -32,7 +32,7 @@ namespace PlayFab.UUnit
 
         public UUnitTestResults(string classname)
         {
-            InternalReport.name = InternalReport.buildIdentifier = classname;
+            InternalReport.name = classname;
             InternalReport.timestamp = DateTime.UtcNow;
         }
 
@@ -121,8 +121,6 @@ namespace PlayFab.UUnit
         public TimeSpan time;
         public DateTime timestamp;
         public Dictionary<string, string> properties;
-        // Jenkernaught Extras
-        public string buildIdentifier;
         // Useful for debugging but not part of the serialized format
         [JsonIgnore]
         public int passed; // Could be calculated from the others, but sometimes knowing if they don't add up means something

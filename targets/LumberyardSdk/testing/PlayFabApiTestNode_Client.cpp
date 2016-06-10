@@ -171,7 +171,7 @@ private:
     static IPlayFabClientApi* clientApi;
     static Aws::String _outputSummary; // Basically a temp variable so I don't reallocate this constantly
 
-    // A bunch of constants: TODO: load these from testTitleData.json
+    // A bunch of constants loaded from testTitleData.json
     static const std::string TEST_TITLE_DATA_LOC;
     static Aws::String userName;
     static Aws::String userEmail;

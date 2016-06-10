@@ -43,7 +43,6 @@ namespace JenkinsConsoleUtility.Commands
             returnCode = Login(titleId, buildIdentifier);
             if (returnCode != 0)
                 return returnCode;
-            JenkinsConsoleUtility.FancyWriteToConsole("Login successful", null, ConsoleColor.Gray);
             returnCode = WaitForTestResult(timeout);
             if (returnCode != 0)
                 return returnCode;
@@ -84,6 +83,10 @@ namespace JenkinsConsoleUtility.Commands
             {
                 JenkinsConsoleUtility.FancyWriteToConsole("Failed to log in using CustomID: " + titleId + ", " + buildIdentifier, null, ConsoleColor.Red);
                 JenkinsConsoleUtility.FancyWriteToConsole(PlayFabUtil.GetErrorReport(task.Result.Error), null, ConsoleColor.Red);
+            }
+            else
+            {
+                JenkinsConsoleUtility.FancyWriteToConsole("Login successful, PlayFabId: " + task.Result.Result.PlayFabId, null, ConsoleColor.Gray);
             }
             return returnCode;
         }
@@ -134,7 +137,8 @@ namespace JenkinsConsoleUtility.Commands
             var request = new ExecuteCloudScriptRequest
             {
                 FunctionName = functionName,
-                FunctionParameter = functionParameter
+                FunctionParameter = functionParameter,
+                GeneratePlayStreamEvent = true
             };
             var task = PlayFabClientAPI.ExecuteCloudScriptAsync(request);
             task.Wait();

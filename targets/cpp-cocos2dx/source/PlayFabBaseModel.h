@@ -77,28 +77,33 @@ namespace PlayFab
         MultitypeNull,
         MultitypeBool,
         MultitypeNumber,
-        MultitypeString
+        MultitypeString,
+        MultitypeJsonObject,
+
+        MultitypeError
     };
 
     struct MultitypeVar : public PlayFabBaseModel
     {
-    private:
+    protected:
         MultitypeVarTypes mType;
         std::string mString;
         bool mBool;
         double mNumber;
+        PlayFabBaseModel* mObj;
 
     public:
 
-        MultitypeVar() : mType(MultitypeNull), mString(), mBool(), mNumber() {}
-        MultitypeVar(bool val) : mType(MultitypeBool), mString(), mBool(val), mNumber() {}
-        MultitypeVar(Uint16 val) : mType(MultitypeNumber), mString(), mBool(), mNumber(val) {}
-        MultitypeVar(Int16 val) : mType(MultitypeNumber), mString(), mBool(), mNumber(val) {}
-        MultitypeVar(Uint32 val) : mType(MultitypeNumber), mString(), mBool(), mNumber(val) {}
-        MultitypeVar(Int32 val) : mType(MultitypeNumber), mString(), mBool(), mNumber(val) {}
-        MultitypeVar(float val) : mType(MultitypeNumber), mString(), mBool(), mNumber(val) {}
-        MultitypeVar(double val) : mType(MultitypeNumber), mString(), mBool(), mNumber(val) {}
-        MultitypeVar(std::string val) : mType(MultitypeString), mString(val), mBool(), mNumber() {}
+        MultitypeVar() : mType(MultitypeNull), mString(), mBool(), mNumber(), mObj(nullptr) {}
+        MultitypeVar(bool val) : mType(MultitypeBool), mString(), mBool(val), mNumber(), mObj(nullptr) {}
+        MultitypeVar(Uint16 val) : mType(MultitypeNumber), mString(), mBool(), mNumber(val), mObj(nullptr) {}
+        MultitypeVar(Int16 val) : mType(MultitypeNumber), mString(), mBool(), mNumber(val), mObj(nullptr) {}
+        MultitypeVar(Uint32 val) : mType(MultitypeNumber), mString(), mBool(), mNumber(val), mObj(nullptr) {}
+        MultitypeVar(Int32 val) : mType(MultitypeNumber), mString(), mBool(), mNumber(val), mObj(nullptr) {}
+        MultitypeVar(float val) : mType(MultitypeNumber), mString(), mBool(), mNumber(val), mObj(nullptr) {}
+        MultitypeVar(double val) : mType(MultitypeNumber), mString(), mBool(), mNumber(val), mObj(nullptr) {}
+        MultitypeVar(std::string val) : mType(MultitypeString), mString(val), mBool(), mNumber(), mObj(nullptr) {}
+        MultitypeVar(PlayFabBaseModel* val) : mType(MultitypeJsonObject), mString(), mBool(), mNumber(), mObj(val) {}
 
         MultitypeVar(const rapidjson::Value& obj)
         {
@@ -118,6 +123,7 @@ namespace PlayFab
         MultitypeVar& operator=(float val) { mNumber = val; mType = MultitypeNumber; return *this; }
         MultitypeVar& operator=(double val) { mNumber = val; mType = MultitypeNumber; return *this; }
         MultitypeVar& operator=(std::string val) { mString = val; mType = MultitypeString; return *this; }
+        MultitypeVar& operator=(PlayFabBaseModel* val) { mObj = val; mType = MultitypeJsonObject; return *this; }
 
         operator bool() const { return mBool; }
         operator Uint16() const { return (Uint16)mNumber; }
@@ -127,6 +133,7 @@ namespace PlayFab
         operator float() const { return (float)mNumber; }
         operator double() const { return mNumber; }
         operator std::string() const { return mString; }
+        operator PlayFabBaseModel*() const { return mObj; }
 
         ~MultitypeVar() {}
         void writeJSON(PFStringJsonWriter& writer) override;

@@ -3,6 +3,7 @@
 ///////////////////////////////////////////////
 
 var TEST_TITLE_ID = "6195"; // NOTE: Replace this with your own titleID - DeleteUsers has an additional security check to avoid accidents
+var TEST_DATA_KEY = "TEST_DATA_KEY"; // Used to reuse args.customId, but it was kindof a pain, and made things fragile
 
 handlers.helloWorld = function (args) {
     var message = "Hello " + currentPlayerId + "!";
@@ -19,9 +20,9 @@ handlers.TestDataExists = function (args)
 {
     var playerData = server.GetUserInternalData({
         PlayFabId: currentPlayerId,
-        Keys: [args.customId]
+        Keys: [TEST_DATA_KEY]
     });
-    return playerData.Data.hasOwnProperty(args.customId);
+    return playerData.Data.hasOwnProperty(TEST_DATA_KEY);
 }
 
 handlers.GetTestData = function (args)
@@ -29,12 +30,12 @@ handlers.GetTestData = function (args)
     var testResults = null;
     var playerData = server.GetUserInternalData({
         PlayFabId: currentPlayerId,
-        Keys: [args.customId]
+        Keys: [TEST_DATA_KEY]
     });
-    if (playerData.Data.hasOwnProperty(args.customId))
+    if (playerData.Data.hasOwnProperty(TEST_DATA_KEY))
     {
-        log.info("Returning Data: " + playerData.Data[args.customId].Value);
-        testResults = JSON.parse(playerData.Data[args.customId].Value);
+        log.info("Returning Data: " + playerData.Data[TEST_DATA_KEY].Value);
+        testResults = JSON.parse(playerData.Data[TEST_DATA_KEY].Value);
         server.DeleteUsers({
             TitleId: TEST_TITLE_ID,
             PlayFabIds: [currentPlayerId]
@@ -48,8 +49,8 @@ handlers.GetTestData = function (args)
 
 handlers.SaveTestData = function (args) {
     var data = {};
-    data[args.customId] = JSON.stringify(args.testReport);
-    log.info("Saving Data: " + JSON.stringify(data));
+    data[TEST_DATA_KEY] = JSON.stringify(args.testReport);
+    log.info("Saving Data (" + currentPlayerId + "): " + JSON.stringify(data));
     server.UpdateUserInternalData({
         PlayFabId: currentPlayerId,
         Data: data

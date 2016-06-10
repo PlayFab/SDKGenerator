@@ -12,6 +12,10 @@ namespace PlayFab
     public:
         static IHttpRequester* httpRequester;
 
+        static const std::string sdkVersion;
+        static const std::string buildIdentifier;
+        static const std::string versionString;
+
         static bool useDevelopmentEnvironment;
         static std::string serverURL;
         static std::string developmentEnvironmentURL;

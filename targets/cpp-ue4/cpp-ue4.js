@@ -38,8 +38,6 @@ var hasRequest = function (apiCall, api) {
 }
 
 var getPropertyDef = exports.getPropertyDef = function (property, datatype) {
-    var propType = property.actualtype;
-    var propName = property.name;
     var safePropName = getPropertySafeName(property);
     
     if (property.collection === "array")

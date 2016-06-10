@@ -90,6 +90,9 @@
   <ItemGroup>
     <Compile Include="targets\cpp-cocos2dx\cpp-shared.js" />
     <Compile Include="targets\cpp-cocos2dx\make.js" />
+    <Compile Include="targets\cpp-ue4\cpp-ue4.js" />
+    <Compile Include="targets\cpp-ue4\make-bp.js" />
+    <Compile Include="targets\cpp-ue4\make.js" />
     <Compile Include="targets\cpp-unreal\make.js" />
     <Compile Include="targets\cpp-WinShared\cpp-shared.js" />
     <Compile Include="targets\csharp-unity-gameserver\make.js" />
@@ -101,9 +104,6 @@
     <Content Include="README.md" />
     <Compile Include="generate.js" />
     <Compile Include="targets\actionscript\make.js" />
-    <Compile Include="targets\cpp-ue4\cpp-ue4.js" />
-    <Compile Include="targets\cpp-ue4\make-bp.js" />
-    <Compile Include="targets\cpp-ue4\make.js" />
     <Compile Include="targets\cpp-windows\make.js" />
     <Compile Include="targets\csharp\make.js" />
     <Compile Include="targets\csharp-unity\make.js" />
@@ -169,7 +169,6 @@
     <Content Include="targets\cpp-cocos2dx\source\PlayFabCore.h" />
     <Content Include="targets\cpp-cocos2dx\source\PlayFabResultHandler.cpp" />
     <Content Include="targets\cpp-cocos2dx\source\PlayFabResultHandler.h" />
-    <Content Include="targets\cpp-cocos2dx\source\PlayFabVersion.h" />
     <Content Include="targets\cpp-cocos2dx\source\PlayFabZlib.h" />
     <Content Include="targets\cpp-cocos2dx\templates\PlayFabAPI.cpp.ejs" />
     <Content Include="targets\cpp-cocos2dx\templates\PlayFabAPI.h.ejs" />
@@ -196,7 +195,6 @@
     <Content Include="targets\cpp-ue4\Plugins\PlayFab\Source\PlayFab\Private\Core\PlayFabBaseModel.cpp" />
     <Content Include="targets\cpp-ue4\Plugins\PlayFab\Source\PlayFab\Private\Core\PlayFabJsonHelpers.cpp" />
     <Content Include="targets\cpp-ue4\Plugins\PlayFab\Source\PlayFab\Private\Core\PlayFabResultHandler.cpp" />
-    <Content Include="targets\cpp-ue4\Plugins\PlayFab\Source\PlayFab\Private\Core\PlayFabSettings.cpp" />
     <Content Include="targets\cpp-ue4\Plugins\PlayFab\Source\PlayFab\Private\PlayFab.cpp" />
     <Content Include="targets\cpp-ue4\Plugins\PlayFab\Source\PlayFab\Private\PlayFabPrivatePCH.h" />
     <Content Include="targets\cpp-ue4\Plugins\PlayFab\Source\PlayFab\Private\PlayFabRuntimeSettings.cpp" />
@@ -205,7 +203,6 @@
     <Content Include="targets\cpp-ue4\Plugins\PlayFab\Source\PlayFab\Public\Core\PlayFabJsonHelpers.h" />
     <Content Include="targets\cpp-ue4\Plugins\PlayFab\Source\PlayFab\Public\Core\PlayFabResultHandler.h" />
     <Content Include="targets\cpp-ue4\Plugins\PlayFab\Source\PlayFab\Public\Core\PlayFabSettings.h" />
-    <Content Include="targets\cpp-ue4\Plugins\PlayFab\Source\PlayFab\Public\Core\PlayFabVersion.h" />
     <Content Include="targets\cpp-ue4\Plugins\PlayFab\Source\PlayFab\Public\PlayFab.h" />
     <Content Include="targets\cpp-ue4\templates\blueprint\PlayFabProxyAPI.cpp.ejs" />
     <Content Include="targets\cpp-ue4\templates\blueprint\PlayFabProxyAPI.h.ejs" />
@@ -219,7 +216,7 @@
     <Content Include="targets\cpp-ue4\templates\core\PlayFabDataModels.cpp.ejs" />
     <Content Include="targets\cpp-ue4\templates\core\PlayFabDataModels.h.ejs" />
     <Content Include="targets\cpp-ue4\templates\core\PlayFabError.h.ejs" />
-    <Content Include="targets\cpp-ue4\templates\core\PlayFabVersion.cpp.ejs" />
+    <Content Include="targets\cpp-ue4\templates\core\PlayFabSettings.cpp.ejs" />
     <Content Include="targets\cpp-ue4\testingFiles\PlayFabApiTests.cpp" />
     <Content Include="targets\cpp-ue4\testingFiles\PlayFabApiTests.h" />
     <Content Include="targets\cpp-unreal\ExampleProject\Config\DefaultEditor.ini" />
@@ -412,7 +409,6 @@
     <Content Include="targets\cpp-WinShared\source\include\playfab\PlayFabBaseModel.h" />
     <Content Include="targets\cpp-WinShared\source\include\playfab\PlayFabCore.h" />
     <Content Include="targets\cpp-WinShared\source\include\playfab\PlayFabResultHandler.h" />
-    <Content Include="targets\cpp-WinShared\source\include\playfab\PlayFabVersion.h" />
     <Content Include="targets\cpp-WinShared\source\source\core\HttpRequest.cpp" />
     <Content Include="targets\cpp-WinShared\source\source\core\PlayFabBaseModel.cpp" />
     <Content Include="targets\cpp-WinShared\source\source\core\PlayFabResultHandler.cpp" />
@@ -422,6 +418,7 @@
     <Content Include="targets\cpp-WinShared\templates\PlayFabDataModels.cpp.ejs" />
     <Content Include="targets\cpp-WinShared\templates\PlayFabDataModels.h.ejs" />
     <Content Include="targets\cpp-WinShared\templates\PlayFabError.h.ejs" />
+    <Content Include="targets\csharp-unity-gameserver\source\Internal\ISerializer.cs" />
     <Content Include="targets\csharp-unity-gameserver\source\Internal\Log.cs" />
     <Content Include="targets\csharp-unity-gameserver\source\Internal\PlayFabHTTP.cs" />
     <Content Include="targets\csharp-unity-gameserver\source\Internal\ResultContainer.cs" />

@@ -3,6 +3,10 @@
 
 namespace PlayFab
 {
+    const FString PlayFabSettings::sdkVersion = "<%- sdkVersion %>";
+    const FString PlayFabSettings::buildIdentifier = "<%- buildIdentifier %>";
+    const FString PlayFabSettings::versionString = "UE4SDK-<%- sdkVersion %>";
+
     bool PlayFabSettings::useDevelopmentEnvironment = false;
 	FString PlayFabSettings::serverURL;
 	FString PlayFabSettings::developmentEnvironmentURL = ".playfabsandbox.com";

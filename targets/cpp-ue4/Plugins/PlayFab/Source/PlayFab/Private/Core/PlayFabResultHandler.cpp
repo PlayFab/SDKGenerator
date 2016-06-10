@@ -1,7 +1,6 @@
 #include "PlayFabPrivatePCH.h"
 #include "PlayFabResultHandler.h"
 #include "PlayFabSettings.h"
-#include "Core/PlayFabVersion.h"
 
 using namespace PlayFab;
 
@@ -20,7 +19,7 @@ TSharedRef<IHttpRequest> PlayFabRequestHandler::SendRequest(const FString& url, 
     HttpRequest->SetVerb(TEXT("POST"));
     HttpRequest->SetURL(url);
     HttpRequest->SetHeader(TEXT("Content-Type"), TEXT("application/json; charset=utf-8"));
-    HttpRequest->SetHeader(TEXT("X-PlayFabSDK"), PlayFab::PlayFabVersionString);
+    HttpRequest->SetHeader(TEXT("X-PlayFabSDK"), PlayFabSettings::versionString);
 
     if (authKey != TEXT(""))
         HttpRequest->SetHeader(authKey, authValue);

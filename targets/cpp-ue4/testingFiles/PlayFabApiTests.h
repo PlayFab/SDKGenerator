@@ -26,34 +26,16 @@ namespace PlayFab
 }
 
 /*
-* ==== Login/Register ====
+* ==== LoginWithEmail ====
 */
 class PlayFabApiTest_LoginWithEmail : public IAutomationLatentCommand
 {
 public:
-    PlayFabApiTest_LoginWithEmail(bool successExpected, bool successMandatory, const FString& username, const FString& email, const FString& password);
+    PlayFabApiTest_LoginWithEmail(const FString& username, const FString& email, const FString& password);
 
     bool Update() override;
 private:
     void OnSuccess(const PlayFab::ClientModels::FLoginResult& Result) const;
-    void OnError(const PlayFab::FPlayFabError& ErrorResult) const;
-
-    FString username;
-    FString email;
-    FString password;
-    bool successExpected = false;
-    bool successMandatory = false;
-    PlayFabClientPtr clientAPI = nullptr;
-};
-
-class PlayFabApiTest_RegisterPlayFabUser : public IAutomationLatentCommand
-{
-public:
-    PlayFabApiTest_RegisterPlayFabUser(const FString& username, const FString& email, const FString& password);
-
-    bool Update() override;
-private:
-    void OnSuccess(const PlayFab::ClientModels::FRegisterPlayFabUserResult& Result) const;
     void OnError(const PlayFab::FPlayFabError& ErrorResult) const;
 
     FString username;
@@ -63,12 +45,29 @@ private:
 };
 
 /*
+* ==== LoginWithCustomID ====
+*/
+class PlayFabApiTest_LoginWithCustomID : public IAutomationLatentCommand
+{
+public:
+    PlayFabApiTest_LoginWithCustomID(const FString& customId);
+
+    bool Update() override;
+private:
+    void OnSuccess(const PlayFab::ClientModels::FLoginResult& Result) const;
+    void OnError(const PlayFab::FPlayFabError& ErrorResult) const;
+
+    FString customId;
+    PlayFabClientPtr clientAPI = nullptr;
+};
+
+/*
 * ==== LoginWithAdvertisingId ====
 */
 class PlayFabApiTest_LoginWithAdvertisingId : public IAutomationLatentCommand
 {
 public:
-    PlayFabApiTest_LoginWithAdvertisingId(const FString& email, const FString& password);
+    PlayFabApiTest_LoginWithAdvertisingId(const FString& customId);
 
     bool Update() override;
 private:
@@ -76,8 +75,7 @@ private:
     void OnError(const PlayFab::FPlayFabError& ErrorResult) const;
 
     int tickCounter = 0;
-    FString email;
-    FString password;
+    FString customId;
     PlayFabClientPtr clientAPI = nullptr;
 };
 
@@ -194,14 +192,13 @@ private:
 class PlayFabApiTest_GetAllUsersCharacters : public IAutomationLatentCommand
 {
 public:
-    PlayFabApiTest_GetAllUsersCharacters(const FString& playFabId, const FString& CHAR_NAME, const FString& CHAR_TEST_TYPE, bool expectSuccess);
+    PlayFabApiTest_GetAllUsersCharacters(const FString& CHAR_NAME, const FString& CHAR_TEST_TYPE, bool expectSuccess);
 
     bool Update() override;
 private:
     void OnSuccess(const PlayFab::ClientModels::FListUsersCharactersResult& Result) const;
     void OnError(const PlayFab::FPlayFabError& ErrorResult) const;
 
-    FString playFabId;
     FString CHAR_NAME;
     FString CHAR_TEST_TYPE;
     bool expectSuccess = false;
@@ -212,14 +209,13 @@ private:
 class PlayFabApiTest_GrantCharacterToUser : public IAutomationLatentCommand
 {
 public:
-    PlayFabApiTest_GrantCharacterToUser(const FString& playFabId, const FString& CHAR_NAME, const FString& CHAR_TEST_TYPE);
+    PlayFabApiTest_GrantCharacterToUser(const FString& CHAR_NAME, const FString& CHAR_TEST_TYPE);
 
     bool Update() override;
 private:
     void OnSuccess(const PlayFab::ServerModels::FGrantCharacterToUserResult& Result) const;
     void OnError(const PlayFab::FPlayFabError& ErrorResult) const;
 
-    FString playFabId;
     FString CHAR_NAME;
     FString CHAR_TEST_TYPE;
 
@@ -284,7 +280,7 @@ public:
     static FString playFabId; // Set by PlayFabApiTest_LoginWithEmail upon successful login
     static FString characterId; // Set by PlayFabApiTest_GetAllUsersCharacters upon successfully finding target character
 
-    // TEST CONSTANTS
+                                // TEST CONSTANTS
     FString TEST_DATA_KEY_1 = TEXT("testCounter");
     FString TEST_DATA_KEY_2 = TEXT("deleteCounter");
     FString TEST_STAT_NAME = TEXT("str");
@@ -383,21 +379,21 @@ protected:
 
     bool InvalidLogin() const
     {
-        ADD_LATENT_AUTOMATION_COMMAND(PlayFabApiTest_LoginWithEmail(false, false, testTitleData.userName, testTitleData.userEmail, INVALID_PASSWORD));
+        ADD_LATENT_AUTOMATION_COMMAND(PlayFabApiTest_LoginWithEmail(testTitleData.userName, testTitleData.userEmail, INVALID_PASSWORD));
 
         return true;
     };
 
     bool LoginOrRegister() const
     {
-        ADD_LATENT_AUTOMATION_COMMAND(PlayFabApiTest_LoginWithEmail(true, false, testTitleData.userName, testTitleData.userEmail, testTitleData.userPassword));
+        ADD_LATENT_AUTOMATION_COMMAND(PlayFabApiTest_LoginWithCustomID(clientAPI->GetBuildIdentifier()));
 
         return true;
     };
 
     bool LoginWithAdvertisingId() const
     {
-        ADD_LATENT_AUTOMATION_COMMAND(PlayFabApiTest_LoginWithAdvertisingId(testTitleData.userEmail, testTitleData.userPassword));
+        ADD_LATENT_AUTOMATION_COMMAND(PlayFabApiTest_LoginWithAdvertisingId(clientAPI->GetBuildIdentifier()));
 
         return true;
     };
@@ -418,7 +414,7 @@ protected:
 
     bool UserCharacter() const
     {
-        ADD_LATENT_AUTOMATION_COMMAND(PlayFabApiTest_GetAllUsersCharacters(PlayFabApiTestSuite::playFabId, testTitleData.characterName, CHAR_TEST_TYPE, false));
+        ADD_LATENT_AUTOMATION_COMMAND(PlayFabApiTest_GetAllUsersCharacters(testTitleData.characterName, CHAR_TEST_TYPE, false));
 
         return true;
     };

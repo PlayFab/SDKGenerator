@@ -22,6 +22,16 @@ namespace PlayFab
         FString ErrorName;
         FString ErrorMessage;
         TMultiMap< FString, FString > ErrorDetails;
+
+        FString GenerateErrorReport() const
+        {
+            FString output = TEXT("");
+            if (ErrorMessage.Len() > 0)
+                output += ErrorMessage;
+            for (auto& Elem : ErrorDetails)
+                output += TEXT(" - ") + Elem.Key + TEXT(": ") + Elem.Value;
+            return output;
+        }
     };
 
 	DECLARE_DELEGATE_OneParam(FPlayFabErrorDelegate, const FPlayFabError&);

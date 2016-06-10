@@ -5,7 +5,7 @@ var blueprint = require("./make-bp.js");
 exports.putInRoot = true;
 
 exports.makeCombinedAPI = function (apis, sourceDir, apiOutputDir) {
-    var subFolders = ["PlayFabSDK", "ExampleProject"]// Two copies, one for example project, and one as the raw plugin
+    var subFolders = ["PlayFabSDK", "ExampleProject"]; // Two copies, one for example project, and one as the raw plugin
     for (i in subFolders) {
         var eachApiOutputDir = path.resolve(apiOutputDir, subFolders[i]);
         var pluginOutputDir = path.resolve(eachApiOutputDir, "Plugins");
@@ -25,17 +25,18 @@ exports.makeCombinedAPI = function (apis, sourceDir, apiOutputDir) {
         
         shared.generateModels(apis, outputCodeDir, "All", "Core/");
         shared.generateErrors(apis[0], outputCodeDir, "Core/");
-        generateVersion(apis[0], sourceDir, outputCodeDir, "Core/");
+        GenerateSettings(apis, sourceDir, outputCodeDir, "Core/");
     }
 
     copyTree(path.resolve(sourceDir, "testingFiles"), path.resolve(apiOutputDir, "ExampleProject/Source/ExampleProject"));
 }
 
-function generateVersion(api, sourceDir, apiOutputDir, subDir) {
-    var versionTemplate = ejs.compile(readFile(path.resolve(sourceDir, "templates/core/PlayFabVersion.cpp.ejs")));
+function GenerateSettings(apis, sourceDir, apiOutputDir, subDir) {
+    var settingsTemplate = ejs.compile(readFile(path.resolve(sourceDir, "templates/core/PlayFabSettings.cpp.ejs")));
     
-    var versionLocals = {};
-    versionLocals.sdkVersion = exports.sdkVersion;
-    var generatedVersion = versionTemplate(versionLocals);
-    writeFile(path.resolve(apiOutputDir, "Private/" + subDir + "PlayFabVersion.cpp"), generatedVersion);
+    var settingsLocals = {};
+    settingsLocals.sdkVersion = exports.sdkVersion;
+    settingsLocals.buildIdentifier = exports.buildIdentifier;
+    var generatedSettings = settingsTemplate(settingsLocals);
+    writeFile(path.resolve(apiOutputDir, "Private/" + subDir + "PlayFabSettings.cpp"), generatedSettings);
 }

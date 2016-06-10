@@ -7,6 +7,10 @@ namespace PlayFab
     class PlayFabSettings
     {
     public:
+        static const FString sdkVersion;
+        static const FString buildIdentifier;
+        static const FString versionString;
+
         static bool useDevelopmentEnvironment;
         static FString serverURL;
         static FString developmentEnvironmentURL;

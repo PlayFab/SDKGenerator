@@ -165,12 +165,12 @@ public class PlayFabApiTest
     @Test
     public void LoginOrRegister()
     {
-        PlayFabClientModels.LoginWithEmailAddressRequest request = new PlayFabClientModels.LoginWithEmailAddressRequest();
+        PlayFabClientModels.LoginWithCustomIDRequest request = new PlayFabClientModels.LoginWithCustomIDRequest();
         request.TitleId = PlayFabSettings.TitleId;
-        request.Email = USER_EMAIL;
-        request.Password = USER_PASSWORD;
+        request.CustomId = PlayFabSettings.BuildIdentifier;
+        request.CreateAccount = true;
 
-        PlayFabResult<PlayFabClientModels.LoginResult> result = PlayFabClientAPI.LoginWithEmailAddress(request);
+        PlayFabResult<PlayFabClientModels.LoginResult> result = PlayFabClientAPI.LoginWithCustomID(request);
         VerifyResult(result, true);
         assertNotNull(result.Result.PlayFabId);
         playFabId = result.Result.PlayFabId;
@@ -188,11 +188,11 @@ public class PlayFabApiTest
         PlayFabSettings.AdvertisingIdType = PlayFabSettings.AD_TYPE_ANDROID_ID;
         PlayFabSettings.AdvertisingIdValue = "PlayFabTestId";
 
-        PlayFabClientModels.LoginWithEmailAddressRequest request = new PlayFabClientModels.LoginWithEmailAddressRequest();
+        PlayFabClientModels.LoginWithCustomIDRequest request = new PlayFabClientModels.LoginWithCustomIDRequest();
         request.TitleId = PlayFabSettings.TitleId;
-        request.Email = USER_EMAIL;
-        request.Password = USER_PASSWORD;
-        PlayFabResult<PlayFabClientModels.LoginResult> result = PlayFabClientAPI.LoginWithEmailAddress(request);
+        request.CustomId = PlayFabSettings.BuildIdentifier;
+        request.CreateAccount = true;
+        PlayFabResult<PlayFabClientModels.LoginResult> result = PlayFabClientAPI.LoginWithCustomID(request);
 
         assertEquals(PlayFabSettings.AD_TYPE_ANDROID_ID + "_Successful", PlayFabSettings.AdvertisingIdType);
     }
@@ -258,7 +258,8 @@ public class PlayFabApiTest
         PlayFabClientModels.GetUserStatisticsRequest getRequest = new PlayFabClientModels.GetUserStatisticsRequest();
         PlayFabResult<PlayFabClientModels.GetUserStatisticsResult> getStatsResult = PlayFabClientAPI.GetUserStatistics(getRequest);
         VerifyResult(getStatsResult, true);
-        int testStatExpected = getStatsResult.Result.UserStatistics == null ? 0 : getStatsResult.Result.UserStatistics.get(TEST_STAT_NAME);
+        boolean hasStat = getStatsResult.Result.UserStatistics != null && getStatsResult.Result.UserStatistics.containsKey(TEST_STAT_NAME);
+        int testStatExpected = !hasStat ? 0 : getStatsResult.Result.UserStatistics.get(TEST_STAT_NAME);
         testStatExpected = (testStatExpected + 1) % 100; // This test is about the expected value changing - but not testing more complicated issues like bounds
 
         PlayFabClientModels.UpdateUserStatisticsRequest updateRequest = new PlayFabClientModels.UpdateUserStatisticsRequest();
@@ -269,7 +270,9 @@ public class PlayFabApiTest
 
         getStatsResult = PlayFabClientAPI.GetUserStatistics(getRequest);
         VerifyResult(getStatsResult, true);
-        int testStatActual = getStatsResult.Result.UserStatistics == null ? 0 : getStatsResult.Result.UserStatistics.get(TEST_STAT_NAME);
+        hasStat = getStatsResult.Result.UserStatistics != null && getStatsResult.Result.UserStatistics.containsKey(TEST_STAT_NAME);
+        assertTrue(hasStat);
+        int testStatActual = getStatsResult.Result.UserStatistics.get(TEST_STAT_NAME);
 
         assertEquals(testStatExpected, testStatActual);
     }

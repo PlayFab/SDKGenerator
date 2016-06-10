@@ -107,14 +107,10 @@ function generateSimpleFiles(apis, sourceDir, apiOutputDir, isAndroid) {
     var generatedErrors = errorsTemplate(errorLocals);
     writeFile(path.resolve(apiOutputDir, "com/playfab/PlayFabErrors.java"), generatedErrors);
     
-    var versionTemplate = ejs.compile(readFile(path.resolve(sourceDir, "templates/PlayFabVersion.java.ejs")));
-    var versionLocals = {};
-    versionLocals.sdkVersion = exports.sdkVersion;
-    var generatedVersion = versionTemplate(versionLocals);
-    writeFile(path.resolve(apiOutputDir, "com/playfab/internal/PlayFabVersion.java"), generatedVersion);
-    
     var settingsTemplate = ejs.compile(readFile(path.resolve(sourceDir, "templates/PlayFabSettings.java.ejs")));
     var settingsLocals = {};
+    settingsLocals.sdkVersion = exports.sdkVersion;
+    settingsLocals.buildIdentifier = exports.buildIdentifier;
     settingsLocals.isAndroid = isAndroid;
     settingsLocals.hasClientOptions = false;
     settingsLocals.hasServerOptions = false;

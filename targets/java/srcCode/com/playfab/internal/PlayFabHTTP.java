@@ -6,6 +6,7 @@ import java.net.*;
 import java.io.*;
 import com.google.gson.*;
 
+import com.playfab.PlayFabSettings;
 import com.playfab.PlayFabErrors.PlayFabError;
 import com.playfab.PlayFabErrors.PlayFabErrorCode;
 import com.playfab.PlayFabErrors.PlayFabJsonError;
@@ -43,7 +44,7 @@ public class PlayFabHTTP {
         if(authType != null) {
             con.setRequestProperty(authType, authKey);
         }
-        con.setRequestProperty("X-PlayFabSDK", PlayFabVersion.getVersionString());
+        con.setRequestProperty("X-PlayFabSDK", PlayFabSettings.SdkVersionString);
         con.setDoOutput(true);
         con.setDoInput(true);
 

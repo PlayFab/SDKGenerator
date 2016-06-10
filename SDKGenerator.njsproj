@@ -594,7 +594,6 @@
     <Content Include="targets\java\templates\Model.java.ejs" />
     <Content Include="targets\java\templates\Models.java.ejs" />
     <Content Include="targets\java\templates\PlayFabSettings.java.ejs" />
-    <Content Include="targets\java\templates\PlayFabVersion.java.ejs" />
     <Content Include="targets\java\templates\Tests.java.ejs" />
     <Content Include="targets\actionscript\templates\API.as.ejs" />
     <Content Include="targets\actionscript\templates\Enum.as.ejs" />

@@ -241,7 +241,6 @@
     <Content Include="targets\cpp-unreal\Source\PlayFab\Private\PlayFabJsonValue.cpp" />
     <Content Include="targets\cpp-unreal\Source\PlayFab\Private\PlayFabPrivatePCH.h" />
     <Content Include="targets\cpp-unreal\Source\PlayFab\Private\PlayFabUtilities.cpp" />
-    <Content Include="targets\cpp-unreal\Source\PlayFab\Public\IPlayFab.h" />
     <Content Include="targets\cpp-unreal\StandardPluginFiles\Content\pf_icon.uasset" />
     <Content Include="targets\cpp-unreal\StandardPluginFiles\CppSetup.jpg" />
     <Content Include="targets\cpp-unreal\StandardPluginFiles\LevelBlueprint.jpg" />
@@ -249,6 +248,7 @@
     <Content Include="targets\cpp-unreal\StandardPluginFiles\PlayFabBluePrintMenu.jpg" />
     <Content Include="targets\cpp-unreal\StandardPluginFiles\README.md" />
     <Content Include="targets\cpp-unreal\StandardPluginFiles\Resources\Icon128.png" />
+    <Content Include="targets\cpp-unreal\templates\IPlayFab.h.ejs" />
     <Content Include="targets\cpp-unreal\templates\PfTestActor.cpp.ejs" />
     <Content Include="targets\cpp-unreal\templates\PfTestActor.h.ejs" />
     <Content Include="targets\cpp-unreal\templates\PlayFab.cpp.ejs" />
@@ -718,7 +718,6 @@
     <Folder Include="targets\cpp-unreal\Source\PlayFab\" />
     <Folder Include="targets\cpp-unreal\Source\PlayFab\Classes\" />
     <Folder Include="targets\cpp-unreal\Source\PlayFab\Private\" />
-    <Folder Include="targets\cpp-unreal\Source\PlayFab\Public\" />
     <Folder Include="targets\cpp-unreal\StandardPluginFiles\" />
     <Folder Include="targets\cpp-unreal\StandardPluginFiles\Content\" />
     <Folder Include="targets\cpp-unreal\StandardPluginFiles\Resources\" />

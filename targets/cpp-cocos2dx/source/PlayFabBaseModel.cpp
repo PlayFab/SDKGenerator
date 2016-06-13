@@ -10,7 +10,6 @@ std::string PlayFabBaseModel::toJSONString()
     GenericStringBuffer< UTF8<> > buffer;
     PFStringJsonWriter writer(buffer);
     writeJSON(writer);
-    auto temp = buffer.GetString();
     return buffer.GetString();
 }
 

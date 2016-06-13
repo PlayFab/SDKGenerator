@@ -207,7 +207,6 @@ package
             loginRequest.TitleId = PlayFabSettings.TitleId;
             loginRequest.CustomId = PlayFabVersion.BuildIdentifier;
             loginRequest.CreateAccount = true;
-            // Try to login, but if we fail, just fall-back and try to create character
             PlayFabClientAPI.LoginWithCustomID(loginRequest, Wrap(OnLoginOrRegisterSuccess, "LoginOrRegister"), Wrap(Shared_ApiCallFailure, "LoginOrRegister"));
         }
         private function OnLoginOrRegisterSuccess(result:com.playfab.ClientModels.LoginResult) : void

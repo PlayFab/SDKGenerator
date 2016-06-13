@@ -470,7 +470,6 @@
     <Content Include="targets\csharp-unity\templates\Model.cs.ejs" />
     <Content Include="targets\csharp-unity\templates\Models.cs.ejs" />
     <Content Include="targets\csharp-unity\templates\PlayFabSettings.cs.ejs" />
-    <Content Include="targets\csharp-unity\templates\PlayFabVersion.cs.ejs" />
     <Content Include="targets\csharp-unity\testing\DemoScene\DemoScene.unity" />
     <Content Include="targets\csharp-unity\testing\DemoScene\ExampleApiLog.cs" />
     <Content Include="targets\csharp-unity\testing\DemoScene\PlayFabManager.cs" />

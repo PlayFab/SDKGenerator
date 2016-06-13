@@ -18,6 +18,10 @@ namespace PlayFab
 
     public static class PlayFabSettings
     {
+        public const string SdkVersion = "<%- sdkVersion %>";
+        public const string BuildIdentifier = "<%- buildIdentifier %>";
+        public const string VersionString = "UnitySDK-<%- sdkVersion %>";
+
         internal static bool HideCallbackErrors = false; // This should only be used by unit-tests that test deliberately throwing errors
         private const string GLOBAL_KEY = "GLOBAL";
         public static ErrorCallback GlobalErrorHandler;

@@ -104,14 +104,10 @@ function generateSimpleFiles(apis, sourceDir, apiOutputDir, isClient) {
     else
         writeFile(path.resolve(apiOutputDir, "Public/PlayFabErrors.cs"), generatedErrors);
     
-    var versionTemplate = ejs.compile(readFile(path.resolve(sourceDir, "templates/PlayFabVersion.cs.ejs")));
-    var versionLocals = {};
-    versionLocals.sdkVersion = exports.sdkVersion;
-    var generatedVersion = versionTemplate(versionLocals);
-    writeFile(path.resolve(apiOutputDir, "Internal/PlayFabVersion.cs"), generatedVersion);
-    
     var settingsTemplate = ejs.compile(readFile(path.resolve(sourceDir, "templates/PlayFabSettings.cs.ejs")));
     var settingsLocals = {};
+    settingsLocals.sdkVersion = exports.sdkVersion;
+    settingsLocals.buildIdentifier = exports.buildIdentifier;
     settingsLocals.hasServerOptions = false;
     settingsLocals.hasClientOptions = false;
     for (var i in apis) {

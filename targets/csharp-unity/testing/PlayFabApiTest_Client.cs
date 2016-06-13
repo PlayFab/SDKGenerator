@@ -186,32 +186,11 @@ namespace PlayFab.UUnit
         [UUnitTest]
         public void LoginOrRegister()
         {
-            if (!PlayFabClientAPI.IsClientLoggedIn()) // If we haven't already logged in...
-            {
-                var loginRequest = new LoginWithEmailAddressRequest();
-                loginRequest.Email = USER_EMAIL;
-                loginRequest.Password = USER_PASSWORD;
-                loginRequest.TitleId = PlayFabSettings.TitleId;
-                PlayFabClientAPI.LoginWithEmailAddress(loginRequest, LoginCallback, SharedErrorCallback);
-                WaitForApiCalls();
-
-                // We don't do any test here, because the user may not exist, and thus login might fail, but the test should not
-            }
-
-            if (PlayFabClientAPI.IsClientLoggedIn())
-                return; // Success, already logged in
-
-            // If the setup failed to log in a user, we need to create one.
-            var registerRequest = new RegisterPlayFabUserRequest();
-            registerRequest.TitleId = PlayFabSettings.TitleId;
-            registerRequest.Username = USER_NAME;
-            registerRequest.Email = USER_EMAIL;
-            registerRequest.Password = USER_PASSWORD;
-            PlayFabClientAPI.RegisterPlayFabUser(registerRequest, RegisterCallback, SharedErrorCallback);
+            var loginRequest = new LoginWithCustomIDRequest();
+            loginRequest.CustomId = PlayFabSettings.BuildIdentifier;
+            loginRequest.CreateAccount = true;
+            PlayFabClientAPI.LoginWithCustomID(loginRequest, SharedLoginCallback, SharedErrorCallback);
             WaitForApiCalls();
-
-            UUnitAssert.StringEquals("User Registration Successful", lastReceivedMessage); // If we get here, we definitely registered a new user, and we definitely want to verify success
-
             UUnitAssert.True(PlayFabClientAPI.IsClientLoggedIn(), "User login failed");
         }
         private void RegisterCallback(RegisterPlayFabUserResult result)
@@ -230,11 +209,10 @@ namespace PlayFab.UUnit
             PlayFabSettings.AdvertisingIdType = PlayFabSettings.AD_TYPE_ANDROID_ID;
             PlayFabSettings.AdvertisingIdValue = "PlayFabTestId";
 
-            var loginRequest = new LoginWithEmailAddressRequest();
-            loginRequest.Email = USER_EMAIL;
-            loginRequest.Password = USER_PASSWORD;
-            loginRequest.TitleId = PlayFabSettings.TitleId;
-            PlayFabClientAPI.LoginWithEmailAddress(loginRequest, LoginCallback, SharedErrorCallback);
+            var loginRequest = new LoginWithCustomIDRequest();
+            loginRequest.CustomId = PlayFabSettings.BuildIdentifier;
+            loginRequest.CreateAccount = true;
+            PlayFabClientAPI.LoginWithCustomID(loginRequest, SharedLoginCallback, SharedErrorCallback);
             WaitForApiCalls();
 
             UUnitAssert.StringEquals(PlayFabSettings.AD_TYPE_ANDROID_ID + "_Successful", PlayFabSettings.AdvertisingIdType);

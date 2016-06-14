@@ -42,7 +42,6 @@ namespace PlayFab.UUnit
         private string lastReceivedMessage;
         private UserDataRecord testCounterReturn;
         private int testStatReturn;
-        ServerModels.CharacterResult targetCharacter = null;
 
         /// <summary>
         /// PlayFab Title cannot be created from SDK tests, so you must provide your titleId to run unit tests.
@@ -91,7 +90,7 @@ namespace PlayFab.UUnit
                     string testInputsFile = Util.ReadAllFileText(filename);
 
                     var testInputs = SimpleJson.DeserializeObject<Dictionary<string, string>>(testInputsFile, Util.ApiSerializerStrategy);
-                    PlayFabApiTest.SetTitleInfo(testInputs);
+                    SetTitleInfo(testInputs);
                 }
                 else
                 {
@@ -340,46 +339,16 @@ namespace PlayFab.UUnit
         [UUnitTest]
         public void UserCharacter()
         {
-            var request = new ServerModels.ListUsersCharactersRequest();
+            var request = new ListUsersCharactersRequest();
             request.PlayFabId = playFabId; // Received from client upon login
-            PlayFabServerAPI.GetAllUsersCharacters(request, GetCharsCallback, SharedErrorCallback);
+            PlayFabClientAPI.GetAllUsersCharacters(request, GetCharsCallback, SharedErrorCallback);
             WaitForApiCalls();
 
-            UUnitAssert.StringEquals("Get Chars Successful", lastReceivedMessage);
-            // The target character may not exist, but we don't fail, since we can create it below
-
-            if (targetCharacter == null)
-            {
-                // Create the targetCharacter since it doesn't exist
-                var grantRequest = new ServerModels.GrantCharacterToUserRequest();
-                grantRequest.PlayFabId = playFabId;
-                grantRequest.CharacterName = CHAR_NAME;
-                grantRequest.CharacterType = CHAR_TEST_TYPE;
-                PlayFabServerAPI.GrantCharacterToUser(grantRequest, GrantCharCallback, SharedErrorCallback);
-                WaitForApiCalls();
-
-                UUnitAssert.StringEquals("Grant Char Successful", lastReceivedMessage);
-
-                // Attempt to get characters again
-                PlayFabServerAPI.GetAllUsersCharacters(request, GetCharsCallback, SharedErrorCallback);
-                WaitForApiCalls();
-
-                UUnitAssert.StringEquals("Get Chars Successful", lastReceivedMessage);
-            }
-
-            // Save the requested character
-            UUnitAssert.NotNull(targetCharacter, "The test character did not exist, and was not successfully created");
+            UUnitAssert.Equals("Get Chars Successful", lastReceivedMessage);
         }
-        private void GetCharsCallback(ServerModels.ListUsersCharactersResult result)
+        private void GetCharsCallback(ListUsersCharactersResult result)
         {
             lastReceivedMessage = "Get Chars Successful";
-            foreach (var eachCharacter in result.Characters)
-                if (eachCharacter.CharacterName == CHAR_NAME)
-                    targetCharacter = eachCharacter;
-        }
-        private void GrantCharCallback(ServerModels.GrantCharacterToUserResult result)
-        {
-            lastReceivedMessage = "Grant Char Successful";
         }
 
         /// <summary>

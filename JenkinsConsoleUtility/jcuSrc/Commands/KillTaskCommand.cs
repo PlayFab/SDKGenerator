@@ -18,7 +18,7 @@ namespace JenkinsConsoleUtility.Commands
             foreach (var process in processes)
             {
                 JenkinsConsoleUtility.FancyWriteToConsole("Killing task: " + process.ProcessName, null, ConsoleColor.Magenta);
-                process.Kill();
+                process.CloseMainWindow(); // Gently close the target so they don't throw error codes 
             }
 
             return processes.Length > 0 ? 0 : 1;

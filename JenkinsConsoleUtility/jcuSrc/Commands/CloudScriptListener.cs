@@ -184,7 +184,7 @@ namespace JenkinsConsoleUtility.Commands
                     throw new Exception("Could not serialize text: \"" + json + "\" as " + typeof(TOut).Name);
                 }
             }
-            return task.Result.Error == null && task.Result.Result.Error == null;
+            return task.Result.Error == null && task.Result.Result.Error == null && result != null;
         }
     }
 }

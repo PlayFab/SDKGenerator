@@ -10,18 +10,16 @@ namespace PlayFab
     /// </summary>
 <% } %>    public static class PlayFab<%- api.name %>API
     {
-        public delegate void ProcessApiCallback<in TResult>(TResult result) where TResult : PlayFabResultCommon;
-
 <% for(var i in api.calls) { var apiCall = api.calls[i]; %>        public delegate void <%- apiCall.name %>RequestCallback(string urlPath, int callId, <%- apiCall.request %> request, object customData);
         public delegate void <%- apiCall.name %>ResponseCallback(string urlPath, int callId, <%- apiCall.request %> request, <%- apiCall.result %> result, PlayFabError error, object customData);
 <% } %>
 <% for(var i in api.calls) { var apiCall = api.calls[i]; if (apiCall.summary) { %>        /// <summary>
         /// <%- apiCall.summary %>
         /// </summary>
-<% } %>        public static void <%- apiCall.name %>(<%- apiCall.request %> request, ProcessApiCallback<<%- apiCall.result %>> resultCallback, ErrorCallback errorCallback, object customData = null)
+<% } %>        public static void <%- apiCall.name %>(<%- apiCall.request %> request, PlayFabResultCommon.ProcessApiCallback<<%- apiCall.result %>> resultCallback, ErrorCallback errorCallback, object customData = null)
         {
             <%- getRequestActions(apiCall, api) %>
-            string serializedJson = SimpleJson.SerializeObject(request, Util.ApiSerializerStrategy);
+            string serializedJson = SimpleJson.SerializeObject(request, PlayFabUtil.ApiSerializerStrategy);
             Action<CallRequestContainer> callback = delegate(CallRequestContainer requestContainer)
             {
 <% if (hasResultActions(apiCall, api)) {
@@ -29,7 +27,7 @@ namespace PlayFab
 <% } else {
 %>                ResultContainer<<%- apiCall.result %>>.HandleResults(requestContainer, resultCallback, errorCallback, null);
 <% } %>            };
-            PlayFabHTTP.Post("<%- apiCall.url %>", serializedJson, <%- getAuthParams(apiCall) %>, callback, request, customData);
+            PlayFabHttp.Post("<%- apiCall.url %>", serializedJson, <%- getAuthParams(apiCall) %>, callback, request, customData);
         }
 <% if (hasResultActions(apiCall, api)) { %>        public static void <%- apiCall.name %>ResultAction(<%- apiCall.result %> result, CallRequestContainer requestContainer)
         {

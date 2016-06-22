@@ -21,7 +21,7 @@ namespace PlayFab
 <% } %>        public static void <%- apiCall.name %>(<%- apiCall.request %> request, ProcessApiCallback<<%- apiCall.result %>> resultCallback, ErrorCallback errorCallback, object customData = null)
         {
             <%- getRequestActions(apiCall, api) %>
-            string serializedJson = SimpleJson.SerializeObject(request, Util.ApiSerializerStrategy);
+            string serializedJson = SimpleJson.SerializeObject(request, PlayFabUtil.ApiSerializerStrategy);
             Action<CallRequestContainer> callback = delegate(CallRequestContainer requestContainer)
             {
 <% if (hasResultActions(apiCall, api)) {

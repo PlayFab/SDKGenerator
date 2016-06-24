@@ -1,6 +1,7 @@
 using System;
 using PlayFab.<%- api.name %>Models;
 using PlayFab.Internal;
+using PlayFab.Json;
 using UnityEngine;
 
 namespace PlayFab
@@ -21,7 +22,7 @@ namespace PlayFab
 <% } %>        public static void <%- apiCall.name %>(<%- apiCall.request %> request, ProcessApiCallback<<%- apiCall.result %>> resultCallback, ErrorCallback errorCallback, object customData = null)
         {
             <%- getRequestActions(apiCall, api) %>
-            string serializedJson = SimpleJson.SerializeObject(request, PlayFabUtil.ApiSerializerStrategy);
+            string serializedJson = JsonWrapper.SerializeObject(request, PlayFabUtil.ApiSerializerStrategy);
             Action<CallRequestContainer> callback = delegate(CallRequestContainer requestContainer)
             {
 <% if (hasResultActions(apiCall, api)) {

@@ -54,7 +54,7 @@ public class PlayFabManager : MonoBehaviour
         if (File.Exists(filename))
         {
             string testInputsFile = PlayFabUtil.ReadAllFileText(filename);
-            var testInputs = PlayFab.SimpleJson.DeserializeObject<Dictionary<string, string>>(testInputsFile);
+            var testInputs = PlayFab.Json.JsonWrapper.DeserializeObject<Dictionary<string, string>>(testInputsFile);
 
             string eachValue, email, password;
             PlayFabHTTP.instance.Awake();

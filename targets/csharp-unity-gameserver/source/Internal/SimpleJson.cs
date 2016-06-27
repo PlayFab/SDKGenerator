@@ -36,10 +36,12 @@
 
 // NOTE: uncomment the following line if you are compiling under Window Metro style application/library.
 // usually already defined in properties
-//#define NETFX_CORE;
+#if UNITY_WSA && UNITY_WP8
+#define NETFX_CORE
+#endif
 
 // If you are targetting WinStore, WP8 and NET4.5+ PCL make sure to
-#if UNITY_WP8 || UNITY_WP8_1
+#if UNITY_WP8 || UNITY_WP8_1 || UNITY_WSA
 // #define SIMPLE_JSON_TYPEINFO
 #endif
 
@@ -69,6 +71,12 @@ using System.Text;
 // ReSharper disable SuggestUseVarKeywordEvident
 namespace PlayFab.Json
 {
+    // [AttributeUsage(AttributeTargets.Property | AttributeTargets.Field)]
+    // public class JsonProperty : Attribute
+    // {
+    //     public string PropertyName;
+    // }
+
     /// <summary>
     /// Represents the json array.
     /// </summary>

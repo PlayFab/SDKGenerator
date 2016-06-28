@@ -2,11 +2,11 @@
     /// <summary>
     /// <%- datatype.description %>
     /// </summary><% } %>
-    public class <%- datatype.name %><% if(isResultHandler(datatype)) {  %> : PlayFabResultCommon<% } %>
+    public class <%- datatype.name %><% if(GetIsResultHandler(datatype)) {  %> : PlayFabResultCommon<% } %>
     {<% for(var i in datatype.properties) { var property = datatype.properties[i] %>
 <% if(property.description) { %>
         /// <summary>
         /// <%- property.description %>
-        /// </summary><% } %><%- getPropertyAttribs(property, datatype) %>
-        public <%- getPropertyDef(property, datatype) %> { get; set;}<% } %>
+        /// </summary><% } %><%- GetPropertyAttribs(property, datatype) %>
+        public <%- GetModelPropertyDef(property, datatype) %> { get; set;}<% } %>
     }

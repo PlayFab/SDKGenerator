@@ -21,20 +21,20 @@ namespace PlayFab
         /// </summary>
 <% } %>        public static void <%- apiCall.name %>(<%- apiCall.request %> request, ProcessApiCallback<<%- apiCall.result %>> resultCallback, ErrorCallback errorCallback, object customData = null)
         {
-            <%- getRequestActions(apiCall, api) %>
+            <%- GetRequestActions(apiCall, api) %>
             string serializedJson = JsonWrapper.SerializeObject(request, PlayFabUtil.ApiSerializerStrategy);
             Action<CallRequestContainer> callback = delegate(CallRequestContainer requestContainer)
             {
-<% if (hasResultActions(apiCall, api)) {
+<% if (HasResultActions(apiCall, api)) {
 %>                ResultContainer<<%- apiCall.result %>>.HandleResults(requestContainer, resultCallback, errorCallback, <%- apiCall.name %>ResultAction);
 <% } else {
 %>                ResultContainer<<%- apiCall.result %>>.HandleResults(requestContainer, resultCallback, errorCallback, null);
 <% } %>            };
-            PlayFabHTTP.Post("<%- apiCall.url %>", serializedJson, <%- getAuthParams(apiCall) %>, callback, request, customData);
+            PlayFabHTTP.Post("<%- apiCall.url %>", serializedJson, <%- GetAuthParams(apiCall) %>, callback, request, customData);
         }
-<% if (hasResultActions(apiCall, api)) { %>        public static void <%- apiCall.name %>ResultAction(<%- apiCall.result %> result, CallRequestContainer requestContainer)
+<% if (HasResultActions(apiCall, api)) { %>        public static void <%- apiCall.name %>ResultAction(<%- apiCall.result %> result, CallRequestContainer requestContainer)
         {
-<%- getResultActions(apiCall, api) %>
+<%- GetResultActions(apiCall, api) %>
         }
 <% } %>
 <% } %><% if (hasClientOptions) { %>        private static string _authKey = null;
@@ -87,9 +87,9 @@ namespace PlayFab
                     disableAdvertising = adInfo.Get<bool>("limitAdTrackingEnabled");
                 }
 #elif UNITY_IOS && !UNITY_EDITOR
-                    advertisingIdType = PlayFab.PlayFabSettings.AD_TYPE_IDFA;
-                    advertisingIdValue = PlayFabiOSPlugin.getIdfa();
-                    disableAdvertising = PlayFabiOSPlugin.getAdvertisingDisabled();
+                advertisingIdType = PlayFab.PlayFabSettings.AD_TYPE_IDFA;
+                advertisingIdValue = PlayFabiOSPlugin.getIdfa();
+                disableAdvertising = PlayFabiOSPlugin.getAdvertisingDisabled();
 #endif
             }
             catch (Exception e)

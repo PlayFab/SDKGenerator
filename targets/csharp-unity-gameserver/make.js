@@ -1,51 +1,53 @@
 var path = require("path");
+var ejs = require("ejs");
 
 exports.putInRoot = true;
+
+exports.makeClientAPI = function (api, sourceDir, apiOutputDir) {
+    MakeGameServerAPI([api], sourceDir, path.resolve(apiOutputDir, "PlayFabGameServerClientExample/Assets/PlayFabSDK"), true);
+}
+
 exports.makeServerAPI = function (apis, sourceDir, apiOutputDir) {
     var gameServerApis = [];
-    for(var i=0; i<apis.length; i++){
+    for (var i = 0; i < apis.length; i++) {
         var api = apis[i];
-        if(api.name.toLowerCase().indexOf('admin') == -1){
+        if (api.name.toLowerCase().indexOf('admin') === -1) {
             gameServerApis.push(api);
         }
     }
-
-    makeGameServerAPI(gameServerApis,sourceDir,apiOutputDir);
-    makeStrangeIoC(gameServerApis,sourceDir,apiOutputDir);
+    
+    MakeGameServerAPI(gameServerApis, sourceDir, path.resolve(apiOutputDir, "GameServerSource/Assets/PlayFabSDK"), false);
+    MakeStrangeIoC(gameServerApis, sourceDir, path.resolve(apiOutputDir, "GameServerSource/Assets/Contexts/PlayFabContext/"));
 }
 
-
-makeStrangeIoC = function (apis, sourceDir, apiOutputDir) {
-    var baseApiOutputDir = path.resolve(apiOutputDir, "Contexts/PlayFabContext/");
-    console.log("  - Generating C-sharp Unity StrangeIoC Wrapper client to\n  -> " + baseApiOutputDir);
-    makeSignals(apis, sourceDir, baseApiOutputDir);
-    makeCommands(apis, sourceDir, baseApiOutputDir);
-    makeBindingsFactory(apis, sourceDir, baseApiOutputDir);
-    makeContext(apis, sourceDir, baseApiOutputDir);
-    makeErrorHandler(sourceDir,baseApiOutputDir);
-    makeMediator(sourceDir,baseApiOutputDir);
-}
-
-makeGameServerAPI = function (apis, sourceDir, apiOutputDir) {
-    apiOutputDir = path.resolve(apiOutputDir, "PlayFabSDK/");
+MakeGameServerAPI = function (apis, sourceDir, apiOutputDir, isClient) {
     console.log("  - Generating C-sharp Unity combined SDK sample proj to\n  -> " + apiOutputDir);
-
+    
     copyTree(path.resolve(sourceDir, "source"), apiOutputDir);
-    makeDatatypes(apis, sourceDir, apiOutputDir);
-    for (var i in apis) {
+    MakeDatatypes(apis, sourceDir, apiOutputDir);
+    for (var i = 0; i < apis.length; i++) {
         var api = apis[i];
-        makeAPI(api, sourceDir, apiOutputDir);
+        MakeApi(api, sourceDir, apiOutputDir);
     }
-    generateSimpleFiles(apis, sourceDir, apiOutputDir, false);
+    GenerateSimpleFiles(apis, sourceDir, apiOutputDir, isClient);
     //copyFile(path.resolve(sourceDir, "testing/PlayFabApiTest.cs"), path.resolve(apiOutputDir, "Internal/Testing/PlayFabApiTest.cs"));
-    //makeStrangeIoC(apis,sourceDir, apiOutputDir);
 }
 
-function makeErrorHandler(sourceDir, apiOutputDir) {
+MakeStrangeIoC = function (apis, sourceDir, apiOutputDir) {
+    console.log("  - Generating C-sharp Unity StrangeIoC Wrapper client to\n  -> " + apiOutputDir);
+    MakeSignals(apis, sourceDir, apiOutputDir);
+    MakeCommands(apis, sourceDir, apiOutputDir);
+    MakeBindingsFactory(apis, sourceDir, apiOutputDir);
+    MakeContext(apis, sourceDir, apiOutputDir);
+    MakeErrorHandler(sourceDir, apiOutputDir);
+    MakeMediator(sourceDir, apiOutputDir);
+}
+
+function MakeErrorHandler(sourceDir, apiOutputDir) {
     console.log("   - Generating C# Error Handler library to\n   -> " + apiOutputDir);
-
+    
     var templateDir = path.resolve(sourceDir, "templates");
-
+    
     //Write Signals
     var apiTemplate = ejs.compile(readFile(path.resolve(templateDir, "strangeioc-playfab-errorhandler.ejs")));
     var apiLocals = {};
@@ -53,81 +55,78 @@ function makeErrorHandler(sourceDir, apiOutputDir) {
     writeFile(path.resolve(apiOutputDir, "ErrorHandler/PlayFabErrorHandler.cs"), generatedApi);
 }
 
-function makeMediator(sourceDir, apiOutputDir) {
+function MakeMediator(sourceDir, apiOutputDir) {
     console.log("   - Generating C# Mediator library to\n   -> " + apiOutputDir);
-
+    
     var templateDir = path.resolve(sourceDir, "templates");
-
+    
     //Write Signals
     var apiTemplate = ejs.compile(readFile(path.resolve(templateDir, "strangeioc-playfab-mediator.ejs")));
     var apiLocals = {};
     var generatedApi = apiTemplate(apiLocals);
     writeFile(path.resolve(apiOutputDir, "Mediators/PlayFabContextMediator.cs"), generatedApi);
-
 }
 
-function makeSignals(apis, sourceDir, apiOutputDir) {
+function MakeSignals(apis, sourceDir, apiOutputDir) {
     console.log("   - Generating C# Signals library to\n   -> " + apiOutputDir);
-
+    
     var templateDir = path.resolve(sourceDir, "templates");
-
+    
     //Write Signals
     var apiTemplate = ejs.compile(readFile(path.resolve(templateDir, "strangeioc-playfab-signals.ejs")));
     var apiLocals = {};
     apiLocals.apis = apis;
     var generatedApi = apiTemplate(apiLocals);
     writeFile(path.resolve(apiOutputDir, "Signals/PlayFabSignals.cs"), generatedApi);
-
 }
 
-function makeCommands(apis, sourceDir, apiOutputDir) {
+function MakeCommands(apis, sourceDir, apiOutputDir) {
     console.log("   - Generating C# Commands library to\n   -> " + apiOutputDir);
-
+    
     var templateDir = path.resolve(sourceDir, "templates");
-
+    
     //Write Signals
     var apiTemplate = ejs.compile(readFile(path.resolve(templateDir, "strangeioc-playfab-commands.ejs")));
     var apiLocals = {};
     apiLocals.apis = apis;
     var generatedApi = apiTemplate(apiLocals);
     writeFile(path.resolve(apiOutputDir, "Commands/PlayFabCommands.cs"), generatedApi);
-
 }
-function makeContext(apis, sourceDir, apiOutputDir) {
+
+function MakeContext(apis, sourceDir, apiOutputDir) {
     console.log("   - Generating C# Context library to\n   -> " + apiOutputDir);
-
+    
     var templateDir = path.resolve(sourceDir, "templates");
-
+    
     //Write Signals
     var apiTemplate = ejs.compile(readFile(path.resolve(templateDir, "strangeioc-playfab-context.ejs")));
     var apiLocals = {};
     apiLocals.apis = apis;
     var generatedApi = apiTemplate(apiLocals);
     writeFile(path.resolve(apiOutputDir, "PlayFabContext.cs"), generatedApi);
-
 }
-function makeBindingsFactory(apis, sourceDir, apiOutputDir) {
+
+function MakeBindingsFactory(apis, sourceDir, apiOutputDir) {
     console.log("   - Generating C# BindingsFactory library to\n   -> " + apiOutputDir);
-
+    
     var templateDir = path.resolve(sourceDir, "templates");
-
+    
     //Write Signals
     var apiTemplate = ejs.compile(readFile(path.resolve(templateDir, "strangeioc-playfab-contextbindings.ejs")));
     var apiLocals = {};
     apiLocals.apis = apis;
     var generatedApi = apiTemplate(apiLocals);
     writeFile(path.resolve(apiOutputDir, "Factory/PlayFabBindingsFactory.cs"), generatedApi);
-
 }
 
-function getIsResultHandler(datatype) {
+function GetIsResultHandler(datatype) {
     if (datatype.name.toLowerCase().indexOf("result") > -1 || datatype.name.toLowerCase().indexOf("response") > -1) {
         return true;
     }
     return false;
 }
 
-function makeDatatypes(apis, sourceDir, apiOutputDir) {
+function MakeDatatypes(apis, sourceDir, apiOutputDir) {
     var templateDir = path.resolve(sourceDir, "templates");
     
     var modelTemplate = ejs.compile(readFile(path.resolve(templateDir, "Model.cs.ejs")));
@@ -137,11 +136,11 @@ function makeDatatypes(apis, sourceDir, apiOutputDir) {
     var makeDatatype = function (datatype) {
         var modelLocals = {};
         modelLocals.datatype = datatype;
-        modelLocals.getPropertyDef = getModelPropertyDef;
-        modelLocals.getPropertyAttribs = getPropertyAttribs;
-        modelLocals.getPropertyJsonReader = getPropertyJsonReader;
-        modelLocals.isResultHandler = getIsResultHandler;
-        var generatedModel = null;
+        modelLocals.GetModelPropertyDef = GetModelPropertyDef;
+        modelLocals.GetPropertyAttribs = GetPropertyAttribs;
+        modelLocals.GetPropertyJsonReader = GetPropertyJsonReader;
+        modelLocals.GetIsResultHandler = GetIsResultHandler;
+        var generatedModel;
         
         if (datatype.isenum) {
             generatedModel = enumTemplate(modelLocals);
@@ -153,32 +152,32 @@ function makeDatatypes(apis, sourceDir, apiOutputDir) {
         return generatedModel;
     };
     
-    for (var a in apis) {
+    for (var i = 0; i < apis.length; i++) {
         var modelsLocal = {};
-        modelsLocal.api = apis[a];
+        modelsLocal.api = apis[i];
         modelsLocal.makeDatatype = makeDatatype;
         var generatedModels = modelsTemplate(modelsLocal);
-        writeFile(path.resolve(apiOutputDir, "Public/PlayFab" + apis[a].name + "Models.cs"), generatedModels);
+        writeFile(path.resolve(apiOutputDir, "Public/PlayFab" + apis[i].name + "Models.cs"), generatedModels);
     }
 }
 
-function makeAPI(api, sourceDir, apiOutputDir) {
+function MakeApi(api, sourceDir, apiOutputDir) {
     console.log("   - Generating C# " + api.name + " library to\n   -> " + apiOutputDir);
     
     var templateDir = path.resolve(sourceDir, "templates");
     var apiTemplate = ejs.compile(readFile(path.resolve(templateDir, "API.cs.ejs")));
     var apiLocals = {};
     apiLocals.api = api;
-    apiLocals.getAuthParams = getAuthParams;
-    apiLocals.getRequestActions = getRequestActions;
-    apiLocals.hasResultActions = hasResultActions;
-    apiLocals.getResultActions = getResultActions;
+    apiLocals.GetAuthParams = GetAuthParams;
+    apiLocals.GetRequestActions = GetRequestActions;
+    apiLocals.HasResultActions = HasResultActions;
+    apiLocals.GetResultActions = GetResultActions;
     apiLocals.hasClientOptions = api.name === "Client";
     var generatedApi = apiTemplate(apiLocals);
     writeFile(path.resolve(apiOutputDir, "Public/PlayFab" + api.name + "API.cs"), generatedApi);
 }
 
-function generateSimpleFiles(apis, sourceDir, apiOutputDir, isClient) {
+function GenerateSimpleFiles(apis, sourceDir, apiOutputDir, isClient) {
     var errorsTemplate = ejs.compile(readFile(path.resolve(sourceDir, "templates/Errors.cs.ejs")));
     var errorLocals = {};
     errorLocals.errorList = apis[0].errorList;
@@ -199,7 +198,7 @@ function generateSimpleFiles(apis, sourceDir, apiOutputDir, isClient) {
     var settingsLocals = {};
     settingsLocals.hasServerOptions = false;
     settingsLocals.hasClientOptions = false;
-    for (var i in apis) {
+    for (var i = 0; i < apis.length; i++) {
         if (apis[i].name === "Client")
             settingsLocals.hasClientOptions = true;
         else
@@ -209,8 +208,8 @@ function generateSimpleFiles(apis, sourceDir, apiOutputDir, isClient) {
     writeFile(path.resolve(apiOutputDir, "Public/PlayFabSettings.cs"), generatedSettings);
 }
 
-function getModelPropertyDef(property, datatype) {
-    var basicType = getPropertyCSType(property, datatype, false);
+function GetModelPropertyDef(property, datatype) {
+    var basicType = GetPropertyCsType(property, datatype, false);
     if (property.collection && property.collection === "array")
         return "List<" + basicType + "> " + property.name;
     else if (property.collection && property.collection === "map")
@@ -218,15 +217,15 @@ function getModelPropertyDef(property, datatype) {
     else if (property.collection)
         throw "Unknown collection type: " + property.collection + " for " + property.name + " in " + datatype.name;
     
-    basicType = getPropertyCSType(property, datatype, true);
+    basicType = GetPropertyCsType(property, datatype, true);
     return basicType + " " + property.name;
 }
 
-function getPropertyAttribs(property, datatype, api) {
+function GetPropertyAttribs(property, datatype, api) {
     return "";
 }
 
-function getPropertyCSType(property, datatype, needOptional) {
+function GetPropertyCsType(property, datatype, needOptional) {
     var optional = (needOptional && property.optional) ? "?" : "";
     
     if (property.actualtype === "String")
@@ -262,7 +261,7 @@ function getPropertyCSType(property, datatype, needOptional) {
     throw "Unknown property type: " + property.actualtype + " for " + property.name + " in " + datatype.name;
 }
 
-function getPropertyJSType(property, datatype, needOptional) {
+function GetPropertyJsType(property, datatype, needOptional) {
     var optional = (needOptional && property.optional) ? "?" : "";
     
     if (property.actualtype === "String")
@@ -298,7 +297,7 @@ function getPropertyJSType(property, datatype, needOptional) {
     throw "Unknown property type: " + property.actualtype + " for " + property.name + " in " + datatype.name;
 }
 
-function getMapDeserializer(property, datatype) {
+function GetMapDeserializer(property, datatype) {
     if (property.actualtype === "String")
         return "JsonUtil.GetDictionary<string>(json, \"" + property.name + "\");";
     else if (property.actualtype === "Boolean")
@@ -324,7 +323,7 @@ function getMapDeserializer(property, datatype) {
     throw "Unknown property type: " + property.actualtype + " for " + property.name + " in " + datatype.name;
 }
 
-function getListDeserializer(property, api) {
+function GetListDeserializer(property, api) {
     if (property.actualtype === "String")
         return "JsonUtil.GetList<string>(json, \"" + property.name + "\");";
     else if (property.actualtype === "Boolean")
@@ -352,11 +351,10 @@ function getListDeserializer(property, api) {
     throw "Unknown property type: " + property.actualtype + " for " + property.name;
 }
 
-function getPropertyJsonReader(property, datatype) {
-    var csType = getPropertyCSType(property, datatype, false);
-    var csOptionalType = getPropertyCSType(property, datatype, true);
-    var jsType = getPropertyJSType(property, datatype, false);
-    var jsOptionalType = getPropertyJSType(property, datatype, true);
+function GetPropertyJsonReader(property, datatype) {
+    var csType = GetPropertyCsType(property, datatype, false);
+    var csOptionalType = GetPropertyCsType(property, datatype, true);
+    var jsOptionalType = GetPropertyJsType(property, datatype, true);
     
     if (property.isclass && property.collection === "map")
         return property.name + " = JsonUtil.GetObjectDictionary<" + csType + ">(json, \"" + property.name + "\");";
@@ -365,9 +363,9 @@ function getPropertyJsonReader(property, datatype) {
     else if (property.isclass)
         return property.name + " = JsonUtil.GetObject<" + csType + ">(json, \"" + property.name + "\");";
     else if (property.collection === "map")
-        return property.name + " = " + getMapDeserializer(property, datatype);
+        return property.name + " = " + GetMapDeserializer(property, datatype);
     else if (property.collection === "array")
-        return property.name + " = " + getListDeserializer(property, datatype);
+        return property.name + " = " + GetListDeserializer(property, datatype);
     else if (property.isenum)
         return property.name + " = (" + csOptionalType + ")JsonUtil.GetEnum<" + csType + ">(json, \"" + property.name + "\");";
     else if (property.actualtype === "DateTime")
@@ -377,7 +375,7 @@ function getPropertyJsonReader(property, datatype) {
     return property.name + " = (" + csOptionalType + ")JsonUtil.Get<" + jsOptionalType + ">(json, \"" + property.name + "\");";
 }
 
-function getAuthParams(apiCall) {
+function GetAuthParams(apiCall) {
     if (apiCall.auth === "SecretKey")
         return "\"X-SecretKey\", PlayFabSettings.DeveloperSecretKey";
     else if (apiCall.auth === "SessionTicket")
@@ -386,7 +384,7 @@ function getAuthParams(apiCall) {
     return "null, null";
 }
 
-function getRequestActions(apiCall, api) {
+function GetRequestActions(apiCall, api) {
     if (api.name === "Client" && (apiCall.result === "LoginResult" || apiCall.request === "RegisterPlayFabUserRequest"))
         return "request.TitleId = request.TitleId ?? PlayFabSettings.TitleId;\n            if (request.TitleId == null) throw new Exception(\"Must be have PlayFabSettings.TitleId set to call this method\");\n";
     if (api.name === "Client" && apiCall.auth === "SessionTicket")
@@ -396,7 +394,7 @@ function getRequestActions(apiCall, api) {
     return "";
 }
 
-function hasResultActions(apiCall, api) {
+function HasResultActions(apiCall, api) {
     if (api.name === "Client" && (apiCall.result === "LoginResult" || apiCall.result === "RegisterPlayFabUserResult"))
         return true;
     else if (api.name === "Client" && apiCall.result === "AttributeInstallResult")
@@ -406,7 +404,7 @@ function hasResultActions(apiCall, api) {
     return false;
 }
 
-function getResultActions(apiCall, api) {
+function GetResultActions(apiCall, api) {
     if (api.name === "Client" && (apiCall.result === "LoginResult" || apiCall.result === "RegisterPlayFabUserResult"))
         return "            _authKey = result.SessionTicket ?? _authKey;\n" 
             + "            MultiStepClientLogin(result.SettingsForUser.NeedsAttribution);\n";

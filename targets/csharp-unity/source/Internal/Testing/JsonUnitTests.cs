@@ -17,13 +17,16 @@ namespace PlayFab.UUnit
         Australia
     }
 
-    //internal class JsonPropertyAttrTestClass
-    //{
-    //    [JsonProperty(PropertyName = "GoodField")]
-    //    public string InvalidField;
-    //    [JsonProperty(PropertyName = "GoodField")]
-    //    public string InvalidProperty { get; set; }
-    //}
+    internal class JsonPropertyAttrTestClass
+    {
+        [JsonProperty(PropertyName = "GoodField")]
+        public string InvalidField;
+        [JsonProperty(PropertyName = "GoodProperty")]
+        public string InvalidProperty { get; set; }
+        [JsonProperty(NullValueHandling = NullValueHandling.Ignore)]
+        public object HideNull = null;
+        public object ShowNull = null;
+    }
 
     internal class ObjNumFieldTest
     {
@@ -96,21 +99,23 @@ namespace PlayFab.UUnit
 
     public class JsonFeatureTests : UUnitTestCase
     {
-        //[UUnitTest]
-        //public void JsonPropertyTest(UUnitTestContext testContext)
-        //{
-        //    var expectedObject = new JsonPropertyAttrTestClass { InvalidField = "asdf", InvalidProperty = "fdsa" };
-        //    string json = JsonWrapper.SerializeObject(expectedObject);
-        //    // Verify that the field names have been transformed by the JsonProperty attribute
-        //    testContext.False(json.ToLower().Contains("invalid"));
+        [UUnitTest]
+        public void JsonPropertyTest(UUnitTestContext testContext)
+        {
+            var expectedObject = new JsonPropertyAttrTestClass { InvalidField = "asdf", InvalidProperty = "fdsa" };
+            string json = JsonWrapper.SerializeObject(expectedObject);
+            // Verify that the field names have been transformed by the JsonProperty attribute
+            testContext.False(json.ToLower().Contains("invalid"), json);
+            testContext.False(json.ToLower().Contains("hidenull"), json);
+            testContext.True(json.ToLower().Contains("shownull"), json);
 
-        //    // Verify that the fields are re-serialized into the proper locations by the JsonProperty attribute
-        //    var actualObject = JsonWrapper.DeserializeObject<JsonPropertyAttrTestClass>(json);
-        //    testContext.StringEquals(expectedObject.InvalidField, actualObject.InvalidField, actualObject.InvalidField);
-        //    testContext.StringEquals(expectedObject.InvalidProperty, actualObject.InvalidProperty, actualObject.InvalidProperty);
+            // Verify that the fields are re-serialized into the proper locations by the JsonProperty attribute
+            var actualObject = JsonWrapper.DeserializeObject<JsonPropertyAttrTestClass>(json);
+            testContext.StringEquals(expectedObject.InvalidField, actualObject.InvalidField, actualObject.InvalidField);
+            testContext.StringEquals(expectedObject.InvalidProperty, actualObject.InvalidProperty, actualObject.InvalidProperty);
 
-        //    testContext.EndTest(UUnitFinishState.PASSED, null);
-        //}
+            testContext.EndTest(UUnitFinishState.PASSED, null);
+        }
 
         [UUnitTest]
         public void TestObjNumField(UUnitTestContext testContext)

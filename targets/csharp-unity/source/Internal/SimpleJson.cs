@@ -291,7 +291,7 @@ namespace PlayFab.Json
         {
             if (array == null) throw new ArgumentNullException("array");
             int num = Count;
-            foreach (KeyValuePair<string, object> kvp in this)
+            foreach (KeyValuePair<string, object> kvp in _members)
             {
                 array[arrayIndex++] = kvp;
                 if (--num <= 0)
@@ -357,7 +357,7 @@ namespace PlayFab.Json
         /// </returns>
         public override string ToString()
         {
-            return PlayFabSimpleJson.SerializeObject(this);
+            return PlayFabSimpleJson.SerializeObject(_members);
         }
 
 #if SIMPLE_JSON_DYNAMIC
@@ -598,9 +598,9 @@ namespace PlayFab.Json
         public static object DeserializeObject(string json, Type type, IJsonSerializerStrategy jsonSerializerStrategy)
         {
             object jsonObject = DeserializeObject(json);
-            return type == null || jsonObject != null && ReflectionUtils.IsAssignableFrom(jsonObject.GetType(), type)
-                       ? jsonObject
-                       : (jsonSerializerStrategy ?? CurrentJsonSerializerStrategy).DeserializeObject(jsonObject, type);
+            if (type == null || jsonObject != null && ReflectionUtils.IsAssignableFrom(jsonObject.GetType(), type))
+                return jsonObject;
+            return (jsonSerializerStrategy ?? CurrentJsonSerializerStrategy).DeserializeObject(jsonObject, type);
         }
 
         public static object DeserializeObject(string json, Type type)
@@ -1500,10 +1500,15 @@ namespace PlayFab.Json
                         foreach (object o in jsonObject)
                             list[i++] = DeserializeObject(o, type.GetElementType());
                     }
-                    else if (ReflectionUtils.IsTypeGenericeCollectionInterface(type) || ReflectionUtils.IsAssignableFrom(typeof(IList), type))
+                    else if (ReflectionUtils.IsTypeGenericeCollectionInterface(type) || ReflectionUtils.IsAssignableFrom(typeof(IList), type) || type == typeof(object))
                     {
                         Type innerType = ReflectionUtils.GetGenericListElementType(type);
-                        list = (IList)(ConstructorCache[type] ?? ConstructorCache[typeof(List<>).MakeGenericType(innerType)])();
+                        ReflectionUtils.ConstructorDelegate ctrDelegate = null;
+                        if (type != typeof(object))
+                            ctrDelegate = ConstructorCache[type];
+                        if (ctrDelegate == null)
+                            ctrDelegate = ConstructorCache[typeof(List<>).MakeGenericType(innerType)];
+                        list = (IList)ctrDelegate();
                         foreach (object o in jsonObject)
                             list.Add(DeserializeObject(o, innerType));
                     }
@@ -1701,6 +1706,9 @@ namespace PlayFab.Json
 
         public static Type GetGenericListElementType(Type type)
         {
+            if (type == typeof(object))
+                return type;
+
             IEnumerable<Type> interfaces;
 #if SIMPLE_JSON_TYPEINFO
             interfaces = type.GetTypeInfo().ImplementedInterfaces;

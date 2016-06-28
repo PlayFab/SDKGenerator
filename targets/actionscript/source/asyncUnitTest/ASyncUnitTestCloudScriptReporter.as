@@ -58,6 +58,7 @@
             hwRequest.FunctionName = "SaveTestData";
             hwRequest.FunctionParameter = { customId: PlayFabVersion.BuildIdentifier, testReport: new Array() };
             hwRequest.FunctionParameter.testReport.unshift(report);
+            hwRequest.GeneratePlayStreamEvent = true;
             PlayFabClientAPI.ExecuteCloudScript(hwRequest, null, null);
         }
 

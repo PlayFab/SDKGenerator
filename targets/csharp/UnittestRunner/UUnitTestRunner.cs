@@ -54,7 +54,8 @@ namespace UnittestRunner
             ExecuteCloudScriptRequest request = new ExecuteCloudScriptRequest
             {
                 FunctionName = "SaveTestData",
-                FunctionParameter = new CsSaveRequest { customId = PlayFabSettings.BuildIdentifier, testReport = new[] { results.InternalReport } }
+                FunctionParameter = new CsSaveRequest { customId = PlayFabSettings.BuildIdentifier, testReport = new[] { results.InternalReport } },
+                GeneratePlayStreamEvent = true
             };
 
             var task = PlayFabClientAPI.ExecuteCloudScriptAsync(request);

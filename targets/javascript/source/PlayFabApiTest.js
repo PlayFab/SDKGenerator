@@ -580,7 +580,8 @@ QUnit.done(function (details) {
         // Currently, you need to look up the correct format for this object in the API-docs:
         //   https://api.playfab.com/Documentation/Client/method/ExecuteCloudScript
         FunctionName: "SaveTestData",
-        FunctionParameter: { customId: PlayFab._internalSettings.buildIdentifier, testReport: PfTestReport }
+        FunctionParameter: { customId: PlayFab._internalSettings.buildIdentifier, testReport: PfTestReport },
+        GeneratePlayStreamEvent: true
     };
     if (PlayFabClientSDK.IsClientLoggedIn()) {
         PlayFabClientSDK.ExecuteCloudScript(saveResultsRequest, null);

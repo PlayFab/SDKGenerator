@@ -2,6 +2,7 @@
     /// <summary>
     /// <%- datatype.description %>
     /// </summary><% } %>
+    [Serializable]
     public<% if(datatype.isAbstract) { %> abstract<% } %> class <%- datatype.name %><%- getBaseTypeSyntax(datatype) %>
     {<% for(var i in datatype.properties) { var property = datatype.properties[i] %>
 <% if(property.description) { %>

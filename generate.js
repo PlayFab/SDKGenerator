@@ -42,7 +42,7 @@ function generate(args) {
     var targetOutputLocationList = []; // A list of objects that describe an sdk target
     ExtractArgs(args, argsByName, targetOutputLocationList, errorMessages);
 
-    if (!argsByName.buildidentifier) {
+    if (!argsByName.hasOwnProperty("buildidentifier")) {
         errorMessages.push("'buildIdentifier' is a new, mandatory parameter.  Ex: -buildIdentifier Jenkins_eachSDK_1337");
     }
     if (errorMessages.length !== 0) {
@@ -56,6 +56,9 @@ function generate(args) {
         buildFlags = LowercaseFlagsList(argsByName.flags.split(" "));
     var specLocation = path.normalize(args[2]);
     var clientApi = GetApiDefinition(specLocation, "Client.api.json", buildFlags);
+    var adminApis = [
+        GetApiDefinition(specLocation, "Admin.api.json", buildFlags)
+    ];
     var serverApis = [
         GetApiDefinition(specLocation, "Admin.api.json", buildFlags),
         GetApiDefinition(specLocation, "Matchmaker.api.json", buildFlags),
@@ -105,7 +108,15 @@ function generate(args) {
                 mkdirParentsSync(apiOutputDir);
             targetMaker.makeServerAPI(serverApis, targetSourceDir, apiOutputDir);
         }
-        
+
+        if (targetMaker.makeAdminAPI) {
+            apiOutputDir = targetMaker.putInRoot ? sdkOutputDir : path.resolve(sdkOutputDir, "PlayFabServerSDK");
+            console.log(" + Generating Server to " + apiOutputDir);
+            if (!fs.existsSync(apiOutputDir))
+                mkdirParentsSync(apiOutputDir);
+            targetMaker.makeAdminAPI(adminApis, targetSourceDir, apiOutputDir);
+        }
+
         if (targetMaker.makeCombinedAPI) {
             apiOutputDir = targetMaker.putInRoot ? sdkOutputDir : path.resolve(sdkOutputDir, "PlayFabSDK");
             console.log(" + Generating Combined to " + apiOutputDir);

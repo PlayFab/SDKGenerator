@@ -1,0 +1,89 @@
+using PlayFab.SharedModels;
+#if !DISABLE_PLAYFABCLIENT_API
+using PlayFab.ClientModels;
+#endif
+#if ENABLE_PLAYFABADMIN_API
+using PlayFab.AdminModels;
+#endif
+#if ENABLE_PLAYFABSERVER_API
+using PlayFab.ServerModels;
+using PlayFab.MatchmakerModels;
+#endif
+using PlayFab.Internal;
+
+namespace PlayFab.Events
+{
+    public partial class PlayFabEvents
+    {
+        public delegate void PlayFabErrorEvent(PlayFabError error);
+        public delegate void PlayFabResultEvent<in TResultType>(TResultType result);
+        public delegate void PlayFabRequestEvent<in TRequestType>(TRequestType request);
+        public event PlayFabErrorEvent OnGlobalErrorEvent;
+
+        private static PlayFabEvents _instance;
+        /// <summary>
+        /// Private constructor because we call PlayFabEvents.init();
+        /// </summary>
+        private PlayFabEvents(){}
+
+        public static PlayFabEvents Init()
+        {
+            if (_instance == null)
+            {
+                _instance = new PlayFabEvents();
+            }
+            PlayFabHttp.ApiProcessingEventHandler += _instance.OnProcessingEvent;
+            PlayFabHttp.ApiProcessingErrorEventHandler += _instance.OnProcessingErrorEvent;
+            return _instance;
+        }
+
+        public void UnregisterInstance(object instance)
+        {
+#if !DISABLE_PLAYFABCLIENT_API
+            if (OnLoginResultEvent != null) { foreach (var each in OnLoginResultEvent.GetInvocationList()) { if (ReferenceEquals(each.Target, instance)) { OnLoginResultEvent -= (PlayFabResultEvent<LoginResult>) each; } } }
+#endif
+            <%for(var x in apis){ var api = apis[x]; %>
+<% if(api.name == "Admin"){%>#if ENABLE_PLAYFABADMIN_API<%}else if(api.name == "Server" || api.name == "Matchmaker"){%>#if ENABLE_PLAYFABSERVER_API<%}else{%>#if !DISABLE_PLAYFABCLIENT_API<%}%>
+            <% for(var i in api.calls) { var apiCall = api.calls[i]; var prefix = ""; if(api.name != "Client"){ prefix=api.name } %>
+            if (On<%- prefix %><%- apiCall.name %>RequestEvent != null) { foreach (var each in On<%- prefix%><%- apiCall.name %>RequestEvent.GetInvocationList()) { if (ReferenceEquals(each.Target, instance)) { On<%- prefix%><%- apiCall.name %>RequestEvent -= (PlayFabRequestEvent<PlayFab.<%-api.name%>Models.<%- apiCall.request %>>) each; } } }
+            <% if (apiCall.result != "LoginResult") {%>if (On<%- prefix%><%- apiCall.name %>ResultEvent != null) { foreach (var each in On<%- prefix%><%- apiCall.name %>ResultEvent.GetInvocationList()) { if (ReferenceEquals(each.Target, instance)) { On<%- prefix%><%- apiCall.name %>ResultEvent -= (PlayFabResultEvent<PlayFab.<%-api.name%>Models.<%- apiCall.result %>>) each; } } }<%}%>
+            <% } %>
+#endif<%}%>
+        }
+
+        private void OnProcessingErrorEvent(PlayFabError error)
+        {
+            //This just forwards the event.
+            if (_instance.OnGlobalErrorEvent != null)
+            {
+                _instance.OnGlobalErrorEvent(error);
+            }
+        }
+
+        private void OnProcessingEvent(ApiProcessingEventArgs e)
+        {
+
+            if (e.EventType == ApiProcessingEventType.Pre)
+            {
+                var type = e.Request.GetType();
+                <%for(var x in apis){ var api = apis[x]; %>
+<% if(api.name == "Admin"){%>#if ENABLE_PLAYFABADMIN_API<%}else if(api.name == "Server" || api.name == "Matchmaker"){%>#if ENABLE_PLAYFABSERVER_API<%}else{%>#if !DISABLE_PLAYFABCLIENT_API<%}%>
+                <% for(var i in api.calls) { var apiCall = api.calls[i]; var prefix = ""; if(api.name != "Client"){ prefix=api.name } %>
+                    if (type == typeof (PlayFab.<%-api.name%>Models.<%- apiCall.request %>)) { if (_instance.On<%- prefix%><%- apiCall.name %>RequestEvent != null) { _instance.On<%- prefix%><%- apiCall.name %>RequestEvent((PlayFab.<%-api.name%>Models.<%- apiCall.request %>) e.Request); return; } }<% } %>
+#endif<%}%>
+            }
+            else
+            {
+                var type = e.Result.GetType();
+                <%for(var x in apis){ var api = apis[x]; %>
+<% if(api.name == "Admin"){%>#if ENABLE_PLAYFABADMIN_API<%}else if(api.name == "Server" || api.name == "Matchmaker"){%>#if ENABLE_PLAYFABSERVER_API<%}else{%>#if !DISABLE_PLAYFABCLIENT_API<%}%>
+                <%if(api.name=="Client"){%>if (type == typeof (LoginResult)) { if (_instance.OnLoginResultEvent != null) { _instance.OnLoginResultEvent((LoginResult) e.Result); return; } }<%}%>
+                <% for(var i in api.calls) { var apiCall = api.calls[i]; var prefix = ""; if(api.name != "Client"){ prefix=api.name } %><% if (apiCall.result != "LoginResult") {%>
+                if (type == typeof(PlayFab.<%-api.name%>Models.<%- apiCall.result %>)) { if(_instance.On<%- prefix%><%- apiCall.name %>ResultEvent != null) { _instance.On<%- prefix%><%- apiCall.name %>ResultEvent((PlayFab.<%-api.name%>Models.<%- apiCall.result %>)e.Result); return; } }<% } %><% } %>
+#endif<%}%>
+            }
+
+        }
+
+    }
+}

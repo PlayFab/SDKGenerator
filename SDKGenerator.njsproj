@@ -62,6 +62,11 @@
     <OutputPath>bin\</OutputPath>
     <ScriptArguments>..\API_Specs js-node=..\sdks\NodeSDK -buildIdentifier pg_NodeSDK_manual</ScriptArguments>
   </PropertyGroup>
+  <PropertyGroup Condition=" '$(Configuration)' == 'ObjCSdk' ">
+    <DebugSymbols>true</DebugSymbols>
+    <OutputPath>bin\</OutputPath>
+    <ScriptArguments>..\API_Specs objc=..\sdks\Objective_C_SDK -buildIdentifier pg_ObjCSdk_manual</ScriptArguments>
+  </PropertyGroup>
   <PropertyGroup Condition=" '$(Configuration)' == 'PostmanCollection' ">
     <DebugSymbols>true</DebugSymbols>
     <OutputPath>bin\</OutputPath>
@@ -105,6 +110,7 @@
     <Compile Include="targets\javascript\source\PlayFabApiTest.js" />
     <Compile Include="targets\js-node\testingFiles\PlayFabApiTests.js" />
     <Compile Include="targets\LumberyardSdk\make.js" />
+    <Compile Include="targets\objc\make.js" />
     <Compile Include="targets\postman\make.js" />
     <Content Include="README.md" />
     <Compile Include="generate.js" />
@@ -658,6 +664,30 @@
     <Content Include="targets\LumberyardSdk\testing\TestGem\Code\wscript" />
     <Content Include="targets\LumberyardSdk\testing\TestGem\gem.json" />
     <Content Include="targets\LumberyardSdk\testing\TestGem\preview.png" />
+    <Content Include="targets\objc\source\JAGPropertyConverter\JAGProperty.h" />
+    <Content Include="targets\objc\source\JAGPropertyConverter\JAGProperty.m" />
+    <Content Include="targets\objc\source\JAGPropertyConverter\JAGPropertyConverter-Prefix.pch" />
+    <Content Include="targets\objc\source\JAGPropertyConverter\JAGPropertyConverter.h" />
+    <Content Include="targets\objc\source\JAGPropertyConverter\JAGPropertyConverter.m" />
+    <Content Include="targets\objc\source\JAGPropertyConverter\JAGPropertyFinder.h" />
+    <Content Include="targets\objc\source\JAGPropertyConverter\JAGPropertyFinder.m" />
+    <Content Include="targets\objc\source\PlayFabBaseModel.h" />
+    <Content Include="targets\objc\source\PlayFabBaseModel.m" />
+    <Content Include="targets\objc\source\PlayFabConnection.h" />
+    <Content Include="targets\objc\source\PlayFabConnection.m" />
+    <Content Include="targets\objc\source\PlayFabError.m" />
+    <Content Include="targets\objc\source\PlayFabSDK.h" />
+    <Content Include="targets\objc\source\PlayFabSDK.m" />
+    <Content Include="targets\objc\source\PlayFabSettings.h" />
+    <Content Include="targets\objc\source\PlayFabSettings.m" />
+    <Content Include="targets\objc\source\PlayFabVersion.h" />
+    <Content Include="targets\objc\templates\Model.m.ejs" />
+    <Content Include="targets\objc\templates\PlayFabAPI.h.ejs" />
+    <Content Include="targets\objc\templates\PlayFabAPI.m.ejs" />
+    <Content Include="targets\objc\templates\PlayFabDataModels.h.ejs" />
+    <Content Include="targets\objc\templates\PlayFabDataModels.m.ejs" />
+    <Content Include="targets\objc\templates\PlayFabError.h.ejs" />
+    <Content Include="targets\objc\templates\PlayFabVersion.m.ejs" />
     <Content Include="targets\postman\replacements.json" />
     <Content Include="targets\postman\templates\playfab.json.ejs" />
   </ItemGroup>
@@ -832,6 +862,10 @@
     <Folder Include="targets\LumberyardSdk\testing\TestGem\Code\Include\" />
     <Folder Include="targets\LumberyardSdk\testing\TestGem\Code\Source\" />
     <Folder Include="targets\LumberyardSdk\testing\TestGem\Code\Tests\" />
+    <Folder Include="targets\objc\" />
+    <Folder Include="targets\objc\source\" />
+    <Folder Include="targets\objc\source\JAGPropertyConverter\" />
+    <Folder Include="targets\objc\templates\" />
     <Folder Include="targets\postman\" />
     <Folder Include="targets\postman\templates\" />
   </ItemGroup>

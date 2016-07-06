@@ -4,8 +4,6 @@
 
 #include "ModuleManager.h"
 
-DECLARE_LOG_CATEGORY_EXTERN(LogPlayFab, Log, All);
-
 // forward declaration of classes
 namespace PlayFab
 {
@@ -19,6 +17,32 @@ typedef TSharedPtr<class PlayFab::UPlayFabClientAPI> PlayFabClientPtr;
 typedef TSharedPtr<class PlayFab::UPlayFabServerAPI> PlayFabServerPtr;
 typedef TSharedPtr<class PlayFab::UPlayFabMatchmakerAPI> PlayFabMatchmakerPtr;
 typedef TSharedPtr<class PlayFab::UPlayFabAdminAPI> PlayFabAdminPtr;
+
+// a helper for dedicated server command line parsing
+class FPlayFabInstanceParameters
+{
+public:
+	// PLAYFAB_GAME_ID =>  a unique numeric identifier for the server instance being created
+	// PLAYFAB_GAME_BUILD_VERSION => a string specifying the build version (the same string you specified for the Build ID in PlayFab)
+	// PLAYFAB_GAMEMODE => a string value for the specific game mode being started – defined in ModifyMatchmakerGameModes
+	// PLAYFAB_SERVER_HOST_DOMAIN => a string value of the URI of the AWS host
+	// PLAYFAB_SERVER_HOST_PORT => a numeric value of the port for communication with this game instance
+	// PLAYFAB_SERVER_HOST_REGION => a string value of the region in which this instance is operating
+	// PLAYFAB_API_ENDPOINT => a string value of the base URI for the endpoint this instance must use for any API calls to the PlayFab service – as described in the Web API documentation
+	// PLAYFAB_TITLE_SECRET_KEY => a string value of the title secret key the server must use for PlayFab API calls which use the secret key for authentication
+
+	void Parse();
+
+	FString GameID;
+	FString GameBuildVersion;
+	FString GameMode;
+	FString ServerHostDomain;
+	FString ServerHostPort;
+	FString ServerHostRegion;
+	FString APIEndpoint;
+	FString TitleSecretKey;
+};
+
 
 /**
 * The public interface to this module.  In most cases, this interface is only public to sibling modules
@@ -53,4 +77,7 @@ public:
 	virtual PlayFabServerPtr GetServerAPI() const = 0;
 	virtual PlayFabMatchmakerPtr GetMatchmakerAPI() const = 0;
 	virtual PlayFabAdminPtr GetAdminAPI() const = 0;
+	// get the command line parameters from the dedicated server instance
+	virtual const FPlayFabInstanceParameters& GetInstanceParameters() const = 0;
+	
 };

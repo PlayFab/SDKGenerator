@@ -27,8 +27,4 @@ class PLAYFAB_API UPlayFabRuntimeSettings : public UObject
 	// Game Title ID 
 	UPROPERTY(EditAnywhere, config, Category = Settings)
 	FString TitleId;
-
-	// Secret Key, Do not add this to the clients!
-	UPROPERTY(EditAnywhere, config, Category = Settings)
-	FString DeveloperSecretKey;
 };

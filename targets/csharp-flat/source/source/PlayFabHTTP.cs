@@ -17,6 +17,21 @@ namespace PlayFab.Internal
         public int errorCode = 0;
         public string errorMessage = string.Empty;
         public Dictionary<string, string[]> errorDetails = null;
+
+        [ThreadStatic]
+        private static StringBuilder _tempSb;
+        public string GenerateErrorReport()
+        {
+            if (_tempSb == null)
+                _tempSb = new StringBuilder();
+            _tempSb.Length = 0;
+            _tempSb.Append(errorMessage);
+            if (errorDetails != null)
+                foreach (var pair in errorDetails)
+                    foreach (var msg in pair.Value)
+                        _tempSb.Append("\n").Append(pair.Key).Append(": ").Append(msg);
+            return _tempSb.ToString();
+        }
     }
 
     public class PlayFabException : Exception
@@ -27,7 +42,7 @@ namespace PlayFab.Internal
         public Dictionary<string, string[] > ErrorDetails { get; private set; }
 
         internal PlayFabException(PlayFabJsonError jsonError)
-            : base(jsonError.errorMessage)
+            : base(jsonError.GenerateErrorReport())
         {
             HttpCode = jsonError.code;
             HttpStatus = jsonError.status;
@@ -43,7 +58,7 @@ namespace PlayFab.Internal
             Error = errorCode;
             ErrorDetails = null;
         }
-    };
+    }
 
     public class PlayFabHttpException : Exception
     {
@@ -88,9 +103,9 @@ namespace PlayFab.Internal
             {
                 bodyString = "{}";
             }
-            else if (request is String)
+            else if (request is string)
             {
-                bodyString = (String)request;
+                bodyString = (string)request;
             }
             else
             {
@@ -108,7 +123,7 @@ namespace PlayFab.Internal
             }
 
             HttpResponseMessage httpResponse = null;
-            String httpResponseString = null;
+            string httpResponseString = null;
 
             using(HttpClient client = settings.CreateClient())
             using(ByteArrayContent postBody = new ByteArrayContent(Encoding.UTF8.GetBytes(bodyString)))
@@ -119,7 +134,7 @@ namespace PlayFab.Internal
                 {
                     postBody.Headers.Add(authType, authKey);
                 }
-                postBody.Headers.Add("X-PlayFabSDK", PlayFabVersion.getVersionString());
+                postBody.Headers.Add("X-PlayFabSDK", PlayFabVersion.VersionString);
 
                 httpResponse = await client.PostAsync(url, postBody);
                 httpResponseString = await httpResponse.Content.ReadAsStringAsync();
@@ -132,19 +147,16 @@ namespace PlayFab.Internal
 
             if(!httpResponse.IsSuccessStatusCode)
             {
-                if (String.IsNullOrEmpty(httpResponseString) || httpResponse.StatusCode == HttpStatusCode.NotFound)
+                if (string.IsNullOrEmpty(httpResponseString) || httpResponse.StatusCode == HttpStatusCode.NotFound)
                 {
                     throw new PlayFabHttpException(httpResponse.StatusCode, httpResponse.ReasonPhrase);
                 }
 
-                PlayFabJsonError errorResult = null;
-
-                errorResult = serializer.Deserialize<PlayFabJsonError>(new JsonTextReader(new StringReader(httpResponseString)));
-                
+                PlayFabJsonError errorResult = serializer.Deserialize<PlayFabJsonError>(new JsonTextReader(new StringReader(httpResponseString)));
                 throw new PlayFabException(errorResult);
             }
 			
-			if(String.IsNullOrEmpty(httpResponseString))
+			if(string.IsNullOrEmpty(httpResponseString))
             {
                 throw new PlayFabException(PlayFabErrorCode.Unknown, "Internal server error");
             }

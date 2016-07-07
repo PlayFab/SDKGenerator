@@ -80,7 +80,6 @@ namespace PlayFab.UUnit
 
         protected override void TearDown()
         {
-            // TODO: Destroy any characters
         }
 
         /// <summary>
@@ -92,14 +91,15 @@ namespace PlayFab.UUnit
         public void InvalidLogin()
         {
             // If the setup failed to log in a user, we need to create one.
-            var task = Client.LoginWithEmailAddressAsync(Client.Settings.TitleId, USER_EMAIL, USER_PASSWORD);
+            var task = Client.LoginWithEmailAddressAsync(Client.Settings.TitleId, USER_EMAIL, USER_PASSWORD + "_INVALID");
             try
             {
                 task.Wait();
             }
             catch (Exception ex)
             {
-                UUnitAssert.True(ex.Message.Contains("password"));
+                UUnitAssert.True(ex.InnerException.Message.Contains("password"));
+                return;
             }
             UUnitAssert.False(true, "This should be unreachable");
         }
@@ -392,7 +392,7 @@ namespace PlayFab.UUnit
             {
                 clientTask.Wait();
             }
-            catch(Exception ex)
+            catch (Exception ex)
             {
                 UUnitAssert.True(false, ex.Message);
             }
@@ -433,7 +433,7 @@ namespace PlayFab.UUnit
             {
                 task.Wait();
             }
-            catch(Exception ex)
+            catch (Exception ex)
             {
                 UUnitAssert.True(false, ex.Message);
             }

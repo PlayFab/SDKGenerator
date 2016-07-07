@@ -40,38 +40,36 @@ namespace PlayFab
 
 <% for(var i in api.calls) { var apiCall = api.calls[i]; %>
         <% if(apiCall.summary) {%>/// <summary>
-        /// <%- getDescriptionClean(apiCall.summary) %>
-        /// </summary><%- getReturnComment(apiCall, api) %><% } %>
-        public async <%- getReturnType(apiCall, api) %> <%- apiCall.name %>Async(<% if(getCallRequestsData(apiCall, api)) { %><%- apiCall.request %> request<% } %>)
+        /// <%- GetDescriptionClean(apiCall.summary) %>
+        /// </summary><%- GetReturnComment(apiCall, api) %><% } %>
+        public async <%- GetReturnType(apiCall, api) %> <%- apiCall.name %>Async(<% if(GetCallRequestsData(apiCall, api)) { %><%- apiCall.request %> request<% } %>)
         {
-            <%- getRequestActions(apiCall, api) %>
-            object httpResult = await Settings.DoPost("<%- apiCall.name %>", <%- getUrlAccessor(apiCall) %> + "<%- apiCall.url %>", <% if(getCallRequestsData(apiCall, api)) { %>request<% } else {%>null<% } %>, <%- getAuthParams(apiCall) %>);
-
-            <% if(getCallReturnsData(apiCall, api)) {%>string resultRawJson = (string)httpResult;
-
+<%- GetRequestActions(apiCall, api)
+%>            string resultRawJson = await Settings.DoPost("<%- apiCall.name %>", <%- GetUrlAccessor(apiCall) %> + "<%- apiCall.url %>", <% if(GetCallRequestsData(apiCall, api)) { %>request<% } else {%>null<% } %>, <%- GetAuthParams(apiCall) %>);
+<% if(GetCallReturnsData(apiCall, api)) { %>
             var serializer = JsonSerializer.Create(Settings.JsonSettings);
             var resultData = serializer.Deserialize<PlayFabJsonSuccess<<%- apiCall.result %>>>(new JsonTextReader(new StringReader(resultRawJson)));
 
-            <%- apiCall.result %> result = resultData.data;
-            <%- getResultActions(apiCall, api) %>
-            <%- getReturnAction(apiCall, api) %><% } %>
+            <%- apiCall.result %> result = resultData.data;<% } %>
+<%- GetResultActions(apiCall, api)
+%><%- GetReturnAction(apiCall, api)
+%>
         }
-        <% if(getCallRequestsData(apiCall, api)) { %>
-        <% if(apiCall.summary) {%>/// <summary>
-        /// <%- getDescriptionClean(apiCall.summary) %>
-        /// </summary><%- getParamsCommentForCall(apiCall, api) %><%- getReturnComment(apiCall, api) %><% } %>
-        public async <%- getReturnType(apiCall, api) %> <%- apiCall.name %>Async(<%- joinParamsForCall(api, apiCall, true, true, true) %>)
+        <% if(GetCallRequestsData(apiCall, api)) { if(apiCall.summary) {%>/// <summary>
+        /// <%- GetDescriptionClean(apiCall.summary) %>
+        /// </summary><%- GetParamsCommentForCall(apiCall, api) %><%- GetReturnComment(apiCall, api) %><% } %>
+        public async <%- GetReturnType(apiCall, api) %> <%- apiCall.name %>Async(<%- JoinParamsForCall(api, apiCall, true, true, true) %>)
         {
-            var request = new <%- apiCall.request %>(<%- joinParamsForCall(api, apiCall, false, true, false) %>);
-            <% if(getCallReturnsData(apiCall, api)) { %>return <% } %>await <%- apiCall.name %>Async(request);
+            var request = new <%- apiCall.request %>(<%- JoinParamsForCall(api, apiCall, false, true, false) %>);
+            <% if(GetCallReturnsData(apiCall, api)) { %>return <% } %>await <%- apiCall.name %>Async(request);
         }
 <% } %><% } %><% if(authKey) {
-%>        private string AuthKey = null;
+%>        private string _authKey = null;
 
-        // Determine if the AuthKey is set, without actually making it public
+        // Determine if the _authKey is set, without actually making it public
         public bool IsClientLoggedIn()
         {
-            return !string.IsNullOrEmpty(AuthKey);
+            return !string.IsNullOrEmpty(_authKey);
         }
 
         private async Task MultiStepClientLogin(bool needsAttribution)

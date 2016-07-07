@@ -32,6 +32,11 @@
     <OutputPath>bin\</OutputPath>
     <ScriptArguments>..\API_Specs actionscript=..\sdks\ActionScriptSDK\PfApiTest -buildIdentifier pg_ActionScriptSDK_manual</ScriptArguments>
   </PropertyGroup>
+  <PropertyGroup Condition=" '$(Configuration)' == 'CSharpFlat' ">
+    <DebugSymbols>true</DebugSymbols>
+    <OutputPath>bin\</OutputPath>
+    <ScriptArguments>..\API_Specs csharp-flat=..\sdks\PxCsFlat -buildIdentifier pg_CsFlat_manual</ScriptArguments>
+  </PropertyGroup>
   <PropertyGroup Condition=" '$(Configuration)' == 'CSharpSDK' ">
     <DebugSymbols>true</DebugSymbols>
     <OutputPath>bin\</OutputPath>
@@ -105,6 +110,7 @@
     <Compile Include="targets\cpp-ue4\make.js" />
     <Compile Include="targets\cpp-unreal\make.js" />
     <Compile Include="targets\cpp-WinShared\cpp-shared.js" />
+    <Compile Include="targets\csharp-flat\make.js" />
     <Compile Include="targets\csharp-unity-gameserver\make.js" />
     <Compile Include="targets\csharp-unity-strangeioc\make.js" />
     <Compile Include="targets\javascript\source\PlayFabApiTest.js" />
@@ -429,6 +435,48 @@
     <Content Include="targets\cpp-WinShared\templates\PlayFabDataModels.cpp.ejs" />
     <Content Include="targets\cpp-WinShared\templates\PlayFabDataModels.h.ejs" />
     <Content Include="targets\cpp-WinShared\templates\PlayFabError.h.ejs" />
+    <Content Include="targets\csharp-flat\build+unit.bat" />
+    <Content Include="targets\csharp-flat\source\build.bat" />
+    <Content Include="targets\csharp-flat\source\packages.config" />
+    <Content Include="targets\csharp-flat\source\packages\Newtonsoft.Json.6.0.3\lib\net20\Newtonsoft.Json.dll" />
+    <Content Include="targets\csharp-flat\source\packages\Newtonsoft.Json.6.0.3\lib\net20\Newtonsoft.Json.xml" />
+    <Content Include="targets\csharp-flat\source\packages\Newtonsoft.Json.6.0.3\lib\net35\Newtonsoft.Json.dll" />
+    <Content Include="targets\csharp-flat\source\packages\Newtonsoft.Json.6.0.3\lib\net35\Newtonsoft.Json.xml" />
+    <Content Include="targets\csharp-flat\source\packages\Newtonsoft.Json.6.0.3\lib\net40\Newtonsoft.Json.dll" />
+    <Content Include="targets\csharp-flat\source\packages\Newtonsoft.Json.6.0.3\lib\net40\Newtonsoft.Json.xml" />
+    <Content Include="targets\csharp-flat\source\packages\Newtonsoft.Json.6.0.3\lib\net45\Newtonsoft.Json.dll" />
+    <Content Include="targets\csharp-flat\source\packages\Newtonsoft.Json.6.0.3\lib\net45\Newtonsoft.Json.xml" />
+    <Content Include="targets\csharp-flat\source\packages\Newtonsoft.Json.6.0.3\lib\netcore45\Newtonsoft.Json.dll" />
+    <Content Include="targets\csharp-flat\source\packages\Newtonsoft.Json.6.0.3\lib\netcore45\Newtonsoft.Json.xml" />
+    <Content Include="targets\csharp-flat\source\packages\Newtonsoft.Json.6.0.3\lib\portable-net40+sl4+wp7+win8\Newtonsoft.Json.dll" />
+    <Content Include="targets\csharp-flat\source\packages\Newtonsoft.Json.6.0.3\lib\portable-net40+sl4+wp7+win8\Newtonsoft.Json.xml" />
+    <Content Include="targets\csharp-flat\source\packages\Newtonsoft.Json.6.0.3\lib\portable-net45+wp80+win8+wpa81\Newtonsoft.Json.dll" />
+    <Content Include="targets\csharp-flat\source\packages\Newtonsoft.Json.6.0.3\lib\portable-net45+wp80+win8+wpa81\Newtonsoft.Json.xml" />
+    <Content Include="targets\csharp-flat\source\packages\Newtonsoft.Json.6.0.3\Newtonsoft.Json.6.0.3.nupkg" />
+    <Content Include="targets\csharp-flat\source\packages\Newtonsoft.Json.6.0.3\tools\install.ps1" />
+    <Content Include="targets\csharp-flat\source\packages\repositories.config" />
+    <Content Include="targets\csharp-flat\source\Properties\AssemblyInfo.cs" />
+    <Content Include="targets\csharp-flat\source\source\PlayFabHTTP.cs" />
+    <Content Include="targets\csharp-flat\source\source\PlayFabSettings.cs" />
+    <Content Include="targets\csharp-flat\source\source\PlayFabUtil.cs" />
+    <Content Include="targets\csharp-flat\source\source\Uunit\UUnitAssert.cs" />
+    <Content Include="targets\csharp-flat\source\source\Uunit\UUnitAssertException.cs" />
+    <Content Include="targets\csharp-flat\source\source\Uunit\UUnitTestCase.cs" />
+    <Content Include="targets\csharp-flat\source\source\Uunit\UUnitTestResult.cs" />
+    <Content Include="targets\csharp-flat\source\source\Uunit\UUnitTestSuite.cs" />
+    <Content Include="targets\csharp-flat\templates\API.cs.ejs" />
+    <Content Include="targets\csharp-flat\templates\Enum.cs.ejs" />
+    <Content Include="targets\csharp-flat\templates\Errors.cs.ejs" />
+    <Content Include="targets\csharp-flat\templates\Model.cs.ejs" />
+    <Content Include="targets\csharp-flat\templates\Models.cs.ejs" />
+    <Content Include="targets\csharp-flat\templates\PlayFabSDK.csproj.ejs" />
+    <Content Include="targets\csharp-flat\templates\PlayFabVersion.cs.ejs" />
+    <Content Include="targets\csharp-flat\templates\Tests.cs.ejs" />
+    <Content Include="targets\csharp-flat\UnittestRunner\App.config" />
+    <Content Include="targets\csharp-flat\UnittestRunner\PlayFabApiTest.cs" />
+    <Content Include="targets\csharp-flat\UnittestRunner\Properties\AssemblyInfo.cs" />
+    <Content Include="targets\csharp-flat\UnittestRunner\UnittestRunner.csproj" />
+    <Content Include="targets\csharp-flat\UnittestRunner\UUnitTestRunner.cs" />
     <Content Include="targets\csharp-unity-gameserver\source\Internal\ISerializer.cs" />
     <Content Include="targets\csharp-unity-gameserver\source\Internal\Log.cs" />
     <Content Include="targets\csharp-unity-gameserver\source\Internal\PlayFabHTTP.cs" />
@@ -791,6 +839,25 @@
     <Folder Include="targets\cpp-WinShared\source\source\curl\" />
     <Folder Include="targets\cpp-WinShared\templates\" />
     <Folder Include="targets\csharp" />
+    <Folder Include="targets\csharp-flat\" />
+    <Folder Include="targets\csharp-flat\source\" />
+    <Folder Include="targets\csharp-flat\source\packages\" />
+    <Folder Include="targets\csharp-flat\source\packages\Newtonsoft.Json.6.0.3\" />
+    <Folder Include="targets\csharp-flat\source\packages\Newtonsoft.Json.6.0.3\lib\" />
+    <Folder Include="targets\csharp-flat\source\packages\Newtonsoft.Json.6.0.3\lib\net20\" />
+    <Folder Include="targets\csharp-flat\source\packages\Newtonsoft.Json.6.0.3\lib\net35\" />
+    <Folder Include="targets\csharp-flat\source\packages\Newtonsoft.Json.6.0.3\lib\net40\" />
+    <Folder Include="targets\csharp-flat\source\packages\Newtonsoft.Json.6.0.3\lib\net45\" />
+    <Folder Include="targets\csharp-flat\source\packages\Newtonsoft.Json.6.0.3\lib\netcore45\" />
+    <Folder Include="targets\csharp-flat\source\packages\Newtonsoft.Json.6.0.3\lib\portable-net40+sl4+wp7+win8\" />
+    <Folder Include="targets\csharp-flat\source\packages\Newtonsoft.Json.6.0.3\lib\portable-net45+wp80+win8+wpa81\" />
+    <Folder Include="targets\csharp-flat\source\packages\Newtonsoft.Json.6.0.3\tools\" />
+    <Folder Include="targets\csharp-flat\source\Properties\" />
+    <Folder Include="targets\csharp-flat\source\source\" />
+    <Folder Include="targets\csharp-flat\source\source\Uunit\" />
+    <Folder Include="targets\csharp-flat\templates\" />
+    <Folder Include="targets\csharp-flat\UnittestRunner\" />
+    <Folder Include="targets\csharp-flat\UnittestRunner\Properties\" />
     <Folder Include="targets\csharp-unity-gameserver\" />
     <Folder Include="targets\csharp-unity-gameserver\source\" />
     <Folder Include="targets\csharp-unity-gameserver\source\Internal\" />

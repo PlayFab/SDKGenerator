@@ -1,23 +1,23 @@
 <% if(datatype.properties.length > 0 || !(datatype.name.endsWith("Request") || datatype.name.endsWith("Result"))) { %>
 	<% if(datatype.description) { %>
 	/// <summary>
-	/// <%- getDescriptionClean(datatype.description) %>
+	/// <%- GetDescriptionClean(datatype.description) %>
 	/// </summary><% } %>
-	<%- getModelAccessibility(datatype) %> class <%- datatype.name %><% if(datatype.sortKey) { %> : IComparable<<%- datatype.name %>><% } %>
+	<%- GetModelAccessibility(datatype) %> class <%- datatype.name %><% if(datatype.sortKey) { %> : IComparable<<%- datatype.name %>><% } %>
 	{	<% if(datatype.properties.length > 0 && datatype.name.endsWith("Request")) { %>
 		public <%- datatype.name %>()
 		{
 		}
 
-		public <%- datatype.name %>(<%- joinParams(datatype, true, true, false) %>)
+		public <%- datatype.name %>(<%- JoinParams(datatype, true, true, false) %>)
 		{<% for(var i in datatype.properties) { var property = datatype.properties[i] %>
 			<%- property.name %> = in<%- property.name %>; <% } %>
 		}<% } %><% for(var i in datatype.properties) { var property = datatype.properties[i] %>
 		<% if(property.description) { %>
 		/// <summary>
-		/// <%- getDescriptionClean(property.description) %>
+		/// <%- GetDescriptionClean(property.description) %>
 		/// </summary><% } %>
-		<%- getPropertyAttribs(property, datatype, api) %>public <%- getPropertyDef(property, datatype) %> { get; set;}<% } %>
+		<%- GetPropertyAttribs(property, datatype, api) %>public <%- getPropertyDef(property, datatype) %> { get; set;}<% } %>
 		<% if(datatype.sortKey) { %>
 		public int CompareTo(<%- datatype.name %> other)
         {

@@ -1,0 +1,67 @@
+using System;
+using Newtonsoft.Json.Linq;
+
+namespace PlayFab
+{
+	public class <%- testData.name %> : PlayFabTestBase
+	{
+
+        public void Start()
+        {
+			Console.WriteLine("Starting <%- testData.name %> tests");
+            SetupTestData();
+			
+            ResetServer();
+			
+			<% for(var t in testData.tests) { var test = testData.tests[t] %>
+			<%- MakeTestInstruction(test) %>
+			<% } %>Done();
+			
+        }
+
+        public void SetupTestData()
+        {
+			<% for(var t in testData.testdata) { var testdataVal = testData.testdata[t] %>
+			TestData["<%- t.toLowerCase() %>"] = "<%- GetJsonString( testdataVal ) %>";
+			<% } %>
+        }
+
+
+		<% for(var t in testData.tests) { var test = testData.tests[t]; if(typeof test == 'string') continue; %>
+		public void <%- test.name %>()
+		{
+			Console.WriteLine("Running test <%- test.name %>");
+		
+			var req = Deserialize<<%- test.api %>Models.<%- apiLookup[test.api].callLookup[test.call].request %>>("<%- GetJsonString( test.request ) %>");
+			var task = PlayFab<%- test.api %>API.<%- test.call %>Async(req);
+            task.Wait(<%- test.timeout || "2000" %>);
+            var result = task.Result;
+			PlayFabError error = result.Error;
+			<% if(test.error) { %>
+			if(error == null)
+            {
+                Error("Expected an error here");
+				return;
+            }
+			if(error.Error != PlayFabErrorCode.<%- test.error %>)
+			{
+				Error("Expected a different error here");
+				return;
+			}
+			<% } if(test.result) { %>
+			if(error != null)
+            {
+                Error(error);
+				return;
+            }
+			var actual = result.Result;
+			JToken expected = (JToken)Deserialize("<%- GetJsonString( test.result ) %>");
+			ValidateResults(expected, actual);
+			<% } %>
+			
+			Console.WriteLine("Passed!");
+		}
+		<% } %>
+		
+	}
+}

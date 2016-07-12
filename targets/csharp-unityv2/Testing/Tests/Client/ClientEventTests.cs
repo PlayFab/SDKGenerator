@@ -1,9 +1,11 @@
+#if !DISABLE_PLAYFABCLIENT_API
 using System;
 using System.Collections.Generic;
 using System.Linq;
 using System.Threading;
 using PlayFab.UUnit;
 using PlayFab.ClientModels;
+using PlayFab.SharedModels;
 using PlayFab.Events;
 using UnityEngine;
 
@@ -63,22 +65,9 @@ namespace PlayFab.Internal
         public override void SetUp(UUnitTestContext testContext)
         {
             PlayFabSettings.TitleId = "6195";
-            //PlayFabSettings.ForceUnregisterAll(); //TODO
 
             _listener = new EventInstanceListener();
             callbacks.Clear();
-
-            //if (!PlayFabClientAPI.IsClientLoggedIn())
-            //{
-            //    // A few tests just need any valid auth token
-            //    LoginWithCustomIDRequest loginRequest = new LoginWithCustomIDRequest
-            //    {
-            //        CreateAccount = true,
-            //        CustomId = SystemInfo.deviceUniqueIdentifier
-            //    };
-            //    PlayFabClientAPI.LoginWithCustomID(loginRequest, null, null, testContext);
-            //    // NOTE: Async callback needs to occcur before those tests run.  Probably need to upgrade the SetUp to be async-capable...
-            //}
         }
 
         public override void Tick(UUnitTestContext testContext)
@@ -208,3 +197,4 @@ namespace PlayFab.Internal
     }
 
 }
+#endif

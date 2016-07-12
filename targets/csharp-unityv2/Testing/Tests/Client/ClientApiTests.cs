@@ -1,3 +1,4 @@
+#if !DISABLE_PLAYFABCLIENT_API
 using UnityEngine;
 using PlayFab.ClientModels;
 using PlayFab.Internal;
@@ -453,3 +454,4 @@ namespace PlayFab.UUnit
         }
     }
 }
+#endif

@@ -1,15 +1,8 @@
 ﻿using UnityEngine;
 using System.Collections;
+using PlayFab.UUnit;
 
-public class AdminEventTests : MonoBehaviour {
-
-	// Use this for initialization
-	void Start () {
-	
-	}
-	
-	// Update is called once per frame
-	void Update () {
-	
-	}
+public class AdminEventTests : UUnitTestCase
+{
+    
 }

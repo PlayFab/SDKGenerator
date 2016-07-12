@@ -1,4 +1,5 @@
 var path = require("path");
+var ejs = require("ejs");
 
 // Lumberyard has pretty significantly different imports from the other C++ sdks
 // It is also more closely structured like UnitySDK, and should hopefully be closer to implementing the
@@ -8,11 +9,11 @@ exports.makeClientAPI = function (api, sourceDir, apiOutputDir) {
     console.log("Generating Lumberyard C++ client SDK to " + apiOutputDir);
 
     copyTree(path.resolve(sourceDir, "source"), apiOutputDir);
-    makeGem([api], sourceDir, apiOutputDir);
-    makeApi(api, sourceDir, apiOutputDir);
-    generateModels([api], sourceDir, apiOutputDir);
-    generateErrors(api, sourceDir, apiOutputDir);
-    generateSimpleFiles([api], sourceDir, apiOutputDir);
+    MakeGem([api], sourceDir, apiOutputDir);
+    MakeApi(api, sourceDir, apiOutputDir);
+    GenerateModels([api], sourceDir, apiOutputDir);
+    GenerateErrors(api, sourceDir, apiOutputDir);
+    GenerateSimpleFiles([api], sourceDir, apiOutputDir);
     
     // Test Gem
     copyTree(path.resolve(sourceDir, "testing/TestGem"), path.resolve(apiOutputDir, "../TestGemClient"));
@@ -23,13 +24,13 @@ exports.makeServerAPI = function (apis, sourceDir, apiOutputDir) {
     console.log("Generating Lumberyard C++ server SDK to " + apiOutputDir);
     
     copyTree(path.resolve(sourceDir, "source"), apiOutputDir);
-    makeGem(apis, sourceDir, apiOutputDir);
-    for (var i in apis) {
-        makeApi(apis[i], sourceDir, apiOutputDir);
+    MakeGem(apis, sourceDir, apiOutputDir);
+    for (var i = 0; i < apis.length; i++) {
+        MakeApi(apis[i], sourceDir, apiOutputDir);
     }
-    generateModels(apis, sourceDir, apiOutputDir);
-    generateErrors(apis[0], sourceDir, apiOutputDir);
-    generateSimpleFiles(apis, sourceDir, apiOutputDir);
+    GenerateModels(apis, sourceDir, apiOutputDir);
+    GenerateErrors(apis[0], sourceDir, apiOutputDir);
+    GenerateSimpleFiles(apis, sourceDir, apiOutputDir);
     
     // Test Gem
     copyTree(path.resolve(sourceDir, "testing/TestGem"), path.resolve(apiOutputDir, "../TestGemServer"));
@@ -40,26 +41,26 @@ exports.makeCombinedAPI = function (apis, sourceDir, apiOutputDir) {
     console.log("Generating Lumberyard C++ combined SDK to " + apiOutputDir);
     
     copyTree(path.resolve(sourceDir, "source"), apiOutputDir);
-    makeGem(apis, sourceDir, apiOutputDir);
-    for (var i in apis) {
-        makeApi(apis[i], sourceDir, apiOutputDir);
+    MakeGem(apis, sourceDir, apiOutputDir);
+    for (var i = 0; i < apis.length; i++) {
+        MakeApi(apis[i], sourceDir, apiOutputDir);
     }
-    generateModels(apis, sourceDir, apiOutputDir);
-    generateErrors(apis[0], sourceDir, apiOutputDir);
-    generateSimpleFiles(apis, sourceDir, apiOutputDir);
+    GenerateModels(apis, sourceDir, apiOutputDir);
+    GenerateErrors(apis[0], sourceDir, apiOutputDir);
+    GenerateSimpleFiles(apis, sourceDir, apiOutputDir);
     
     // Test Gem
     copyTree(path.resolve(sourceDir, "testing/TestGem"), path.resolve(apiOutputDir, "../TestGemCombo"));
     copyFile(path.resolve(sourceDir, "testing/PlayFabApiTestNode_Combo.cpp"), path.resolve(apiOutputDir, "../TestGemCombo/Code/Source/PlayFabApiTestNode.cpp"));
 }
 
-function generateSimpleFiles(apis, sourceDir, apiOutputDir) {
+function GenerateSimpleFiles(apis, sourceDir, apiOutputDir) {
     var locals = {};
     locals.sdkVersion = exports.sdkVersion;
     locals.apis = apis;
     locals.hasClientOptions = false;
     locals.hasServerOptions = false;
-    for (var i in apis) {
+    for (var i = 0; i < apis.length; i++) {
         if (apis[i].name === "Client") locals.hasClientOptions = true;
         if (apis[i].name !== "Client") locals.hasServerOptions = true;
     }
@@ -80,16 +81,28 @@ function generateSimpleFiles(apis, sourceDir, apiOutputDir) {
     var generatedSettingCpp = cppSettingTemplate(locals);
     writeFile(path.resolve(apiOutputDir, "Code/Source/PlayFabSettings.cpp"), generatedSettingCpp);
     
-    // Set the PlayFab Gem version in the sample project - This is outside of the sdk itself
-    var gemFilePath = "C:/dev/Lumberyard/dev/SamplesProject/gems.json";
-    var gemsJson = require(gemFilePath);
-    for (var i in gemsJson.Gems)
-        if (gemsJson.Gems[i].Path === "Gems/PlayFabSdk")
-            gemsJson.Gems[i].Version = exports.sdkVersion;
-    writeFile(gemFilePath, JSON.stringify(gemsJson, null, 4));
+    // Set the PlayFab Gem version in the 1.0 sample project - This is outside of the sdk itself
+    try {
+        var gemFilePath10 = "C:/dev/Lumberyard1.0/dev/SamplesProject/gems.json";
+        var gemsJson10 = require(gemFilePath10);
+        for (var a in gemsJson10.Gems)
+            if (gemsJson10.Gems[a].Path === "Gems/PlayFabSdk")
+                gemsJson10.Gems[a].Version = exports.sdkVersion;
+        writeFile(gemFilePath10, JSON.stringify(gemsJson10, null, 4));
+    } catch(err) {}
+
+    // Set the PlayFab Gem version in the 1.3 sample project - This is outside of the sdk itself
+    try {
+        var gemFilePath13 = "C:/dev/Lumberyard1.3/dev/PlayFabTestProj/gems.json";
+        var gemsJson13 = require(gemFilePath13);
+        for (var b in gemsJson13.Gems)
+            if (gemsJson13.Gems[b].Path === "Gems/PlayFabSdk")
+                gemsJson13.Gems[b].Version = exports.sdkVersion;
+        writeFile(gemFilePath13, JSON.stringify(gemsJson13, null, 4));
+    } catch (err) { }
 }
 
-function makeGem(apis, sourceDir, apiOutputDir) {
+function MakeGem(apis, sourceDir, apiOutputDir) {
     var apiLocals = {};
     apiLocals.apis = apis;
     
@@ -106,13 +119,13 @@ function makeGem(apis, sourceDir, apiOutputDir) {
     writeFile(path.resolve(apiOutputDir, "Code/Source/PlayFabSdkGem.cpp"), genGemCpp);
 }
 
-function makeApi(api, sourceDir, apiOutputDir) {
+function MakeApi(api, sourceDir, apiOutputDir) {
     var apiLocals = {};
     apiLocals.api = api;
-    apiLocals.hasRequest = hasRequest;
-    apiLocals.getAuthParams = getAuthParams;
-    apiLocals.getResultActions = getResultActions;
-    apiLocals.getRequestActions = getRequestActions;
+    apiLocals.HasRequest = HasRequest;
+    apiLocals.GetAuthParams = GetAuthParams;
+    apiLocals.GetResultActions = GetResultActions;
+    apiLocals.GetRequestActions = GetRequestActions;
     apiLocals.hasClientOptions = api.name === "Client";
     
     var interfaceH = ejs.compile(readFile(path.resolve(sourceDir, "templates/IPlayFabApi.h.ejs")));
@@ -136,40 +149,40 @@ function makeApi(api, sourceDir, apiOutputDir) {
     writeFile(path.resolve(apiOutputDir, "Code/Source/PlayFab" + api.name + "Api.cpp"), genApiCpp);
 }
 
-function hasRequest(apiCall, api) {
+function HasRequest(apiCall, api) {
     var requestType = api.datatypes[apiCall.request];
     return requestType.properties.length > 0;
 }
 
-function getDatatypeBaseType(datatype) {
+function GetDatatypeBaseType(datatype) {
     // The model-inheritance feature was removed.
     // However in the future, we may still use some inheritance links for request/result baseclasses, for other sdk features
     // Specifically, we also have PlayFabResultCommon, which may become a more widely-used pattern
     return "PlayFabBaseModel"; // Everything is a base-model unless it's not
 }
 
-function getPropertyDef(property, datatype) {
-    var safePropName = getPropertySafeName(property);
+function GetPropertyDef(property, datatype) {
+    var safePropName = GetPropertySafeName(property);
     
     if (property.collection === "array")
-        return "std::list<" + getPropertyCPPType(property, datatype, false) + "> " + safePropName + ";";
+        return "std::list<" + GetPropertyCppType(property, datatype, false) + "> " + safePropName + ";";
     else if (property.collection === "map")
-        return "std::map<Aws::String, " + getPropertyCPPType(property, datatype, false) + "> " + safePropName + ";";
-    return getPropertyCPPType(property, datatype, true) + " " + safePropName + ";";
+        return "std::map<Aws::String, " + GetPropertyCppType(property, datatype, false) + "> " + safePropName + ";";
+    return GetPropertyCppType(property, datatype, true) + " " + safePropName + ";";
 }
 
-function getPropertyDestructor(property) {
+function GetPropertyDestructor(property) {
     if ((!property.collection && property.isclass && property.optional) || property.hasOwnProperty("implementingTypes"))
-        return "                if (" + getPropertySafeName(property) + " != nullptr) delete " + getPropertySafeName(property) + ";\n";
+        return "                if (" + GetPropertySafeName(property) + " != nullptr) delete " + GetPropertySafeName(property) + ";\n";
     return "";
 }
 
 // PFWORKBIN-445 & PFWORKBIN-302 - variable names can't be the same as the variable type when compiling for android
-function getPropertySafeName(property) {
+function GetPropertySafeName(property) {
     return (property.actualtype === property.name) ? "pf" + property.name : property.name;
 }
 
-function getPropertyCPPType(property, datatype, needOptional) {
+function GetPropertyCppType(property, datatype, needOptional) {
     var isOptional = property.optional && needOptional;
     
     if (property.actualtype === "String")
@@ -203,7 +216,7 @@ function getPropertyCPPType(property, datatype, needOptional) {
     throw "Unknown property type: " + property.actualtype + " for " + property.name + " in " + datatype.name;
 }
 
-function getPropertyDefaultValue(property, datatype) {
+function GetPropertyDefaultValue(property, datatype) {
     var isOptional = property.optional;
     if (property.collection)
         return "";
@@ -239,25 +252,25 @@ function getPropertyDefaultValue(property, datatype) {
     throw "Unknown property type: " + property.actualtype + " for " + property.name + " in " + datatype.name;
 }
 
-function getPropertyCopyValue(property, datatype) {
-    var safePropName = getPropertySafeName(property);
+function GetPropertyCopyValue(property, datatype) {
+    var safePropName = GetPropertySafeName(property);
     if ((property.isclass && property.optional && !property.collection) || property.hasOwnProperty("implementingTypes"))
         return "src." + safePropName + " ? new " + property.actualtype + "(*src." + safePropName + ") : nullptr";
     return "src." + safePropName;
 }
 
-function getPropertySerializer(property, datatype) {
+function GetPropertySerializer(property, datatype) {
     if (property.collection === "array")
-        return getArrayPropertySerializer(property, datatype);
+        return GetArrayPropertySerializer(property, datatype);
     else if (property.collection === "map")
-        return getMapPropertySerializer(property, datatype);
+        return GetMapPropertySerializer(property, datatype);
     
     var writer = null;
     var tester = null;
     
     var propType = property.actualtype;
     var propName = property.name;
-    var safePropName = getPropertySafeName(property);
+    var safePropName = GetPropertySafeName(property);
     var isOptional = property.optional;
     
     if (propType === "String") {
@@ -328,11 +341,11 @@ function getPropertySerializer(property, datatype) {
     return "writer.String(\"" + propName + "\"); " + writer;
 }
 
-function getArrayPropertySerializer(property, datatype) {
+function GetArrayPropertySerializer(property, datatype) {
     var writer;
     var propName = property.name;
     var isOptional = property.optional;
-    var cppType = getPropertyCPPType(property, datatype, false);
+    var cppType = GetPropertyCppType(property, datatype, false);
     
     if (property.actualtype === "String")
         writer = "writer.String(iter->c_str());";
@@ -375,11 +388,11 @@ function getArrayPropertySerializer(property, datatype) {
     return "writer.String(\"" + propName + "\");\n    " + collectionWriter;
 }
 
-function getMapPropertySerializer(property, datatype) {
+function GetMapPropertySerializer(property, datatype) {
     var writer;
     var propName = property.name;
     var isOptional = property.optional;
-    var cppType = getPropertyCPPType(property, datatype, false);
+    var cppType = GetPropertyCppType(property, datatype, false);
     
     if (property.actualtype === "String")
         writer = "writer.String(iter->second.c_str());";
@@ -422,15 +435,15 @@ function getMapPropertySerializer(property, datatype) {
     return "writer.String(\"" + propName + "\");\n    " + collectionWriter;
 }
 
-function getPropertyDeserializer(property, datatype) {
+function GetPropertyDeserializer(property, datatype) {
     var propType = property.actualtype;
     var propName = property.name;
-    var safePropName = getPropertySafeName(property);
+    var safePropName = GetPropertySafeName(property);
     
     if (property.collection === "array")
-        return getArrayPropertyDeserializer(property, datatype);
+        return GetArrayPropertyDeserializer(property, datatype);
     else if (property.collection === "map")
-        return getMapPropertyDeserializer(property, datatype);
+        return GetMapPropertyDeserializer(property, datatype);
     
     var getter;
     if (propType === "String")
@@ -471,7 +484,7 @@ function getPropertyDeserializer(property, datatype) {
     return val;
 }
 
-function getArrayPropertyDeserializer(property, datatype) {
+function GetArrayPropertyDeserializer(property, datatype) {
     var getter;
     if (property.actualtype === "String")
         getter = "memberList[i].GetString()";
@@ -512,7 +525,7 @@ function getArrayPropertyDeserializer(property, datatype) {
     return val;
 }
 
-function getMapPropertyDeserializer(property, datatype) {
+function GetMapPropertyDeserializer(property, datatype) {
     var getter;
     if (property.actualtype === "String")
         getter = "iter->value.GetString()";
@@ -552,7 +565,7 @@ function getMapPropertyDeserializer(property, datatype) {
     return val;
 }
 
-function addTypeAndDependencies(datatype, datatypes, orderedTypes, addedSet) {
+function AddTypeAndDependencies(datatype, datatypes, orderedTypes, addedSet) {
     if (addedSet[datatype.name])
         return;
     
@@ -560,7 +573,7 @@ function addTypeAndDependencies(datatype, datatypes, orderedTypes, addedSet) {
         var property = datatype.properties[p];
         if (property.isclass || property.isenum) {
             var dependentType = datatypes[property.actualtype];
-            addTypeAndDependencies(dependentType, datatypes, orderedTypes, addedSet);
+            AddTypeAndDependencies(dependentType, datatypes, orderedTypes, addedSet);
         }
     }
     
@@ -568,8 +581,8 @@ function addTypeAndDependencies(datatype, datatypes, orderedTypes, addedSet) {
     addedSet[datatype.name] = datatype;
 }
 
-function generateModels(apis, sourceDir, apiOutputDir, libraryName) {
-    for (var a in apis) {
+function GenerateModels(apis, sourceDir, apiOutputDir, libraryName) {
+    for (var a = 0; a < apis.length; a++) {
         var api = apis[a];
         
         // Order datatypes based on dependency graph
@@ -577,19 +590,19 @@ function generateModels(apis, sourceDir, apiOutputDir, libraryName) {
         var addedSet = {};
         
         for (var i in api.datatypes)
-            addTypeAndDependencies(api.datatypes[i], api.datatypes, orderedTypes, addedSet);
+            AddTypeAndDependencies(api.datatypes[i], api.datatypes, orderedTypes, addedSet);
         
         var modelLocals = {};
         modelLocals.api = api;
         modelLocals.datatypes = orderedTypes;
-        modelLocals.getDatatypeBaseType = getDatatypeBaseType;
-        modelLocals.getPropertyDef = getPropertyDef;
-        modelLocals.getPropertySerializer = getPropertySerializer;
-        modelLocals.getPropertyDeserializer = getPropertyDeserializer;
-        modelLocals.getPropertyDefaultValue = getPropertyDefaultValue;
-        modelLocals.getPropertyCopyValue = getPropertyCopyValue;
-        modelLocals.getPropertySafeName = getPropertySafeName;
-        modelLocals.getPropertyDestructor = getPropertyDestructor;
+        modelLocals.GetDatatypeBaseType = GetDatatypeBaseType;
+        modelLocals.GetPropertyDef = GetPropertyDef;
+        modelLocals.GetPropertySerializer = GetPropertySerializer;
+        modelLocals.GetPropertyDeserializer = GetPropertyDeserializer;
+        modelLocals.GetPropertyDefaultValue = GetPropertyDefaultValue;
+        modelLocals.GetPropertyCopyValue = GetPropertyCopyValue;
+        modelLocals.GetPropertySafeName = GetPropertySafeName;
+        modelLocals.GetPropertyDestructor = GetPropertyDestructor;
         modelLocals.libraryName = libraryName;
         
         var modelHeaderTemplate = ejs.compile(readFile(path.resolve(sourceDir, "templates/PlayFabDataModels.h.ejs")));
@@ -598,7 +611,7 @@ function generateModels(apis, sourceDir, apiOutputDir, libraryName) {
     }
 }
 
-function generateErrors(api, sourceDir, apiOutputDir) {
+function GenerateErrors(api, sourceDir, apiOutputDir) {
     var errorsTemplate = ejs.compile(readFile(path.resolve(sourceDir, "templates/PlayFabError.h.ejs")));
     var errorLocals = {};
     errorLocals.errorList = api.errorList;
@@ -607,7 +620,7 @@ function generateErrors(api, sourceDir, apiOutputDir) {
     writeFile(path.resolve(apiOutputDir, "Code/Include/PlayFabError.h"), generatedErrors);
 }
 
-function getAuthParams(apiCall) {
+function GetAuthParams(apiCall) {
     if (apiCall.auth === "SecretKey")
         return "\"X-SecretKey\", PlayFabSettings::playFabSettings.developerSecretKey";
     else if (apiCall.auth === "SessionTicket")
@@ -615,13 +628,13 @@ function getAuthParams(apiCall) {
     return "\"\", \"\"";
 }
 
-function getRequestActions(apiCall, api) {
+function GetRequestActions(apiCall, api) {
     if (api.name === "Client" && (apiCall.result === "LoginResult" || apiCall.request === "RegisterPlayFabUserRequest"))
         return "    if (PlayFabSettings::playFabSettings.titleId.length() > 0)\n        request.TitleId = PlayFabSettings::playFabSettings.titleId;\n";
     return "";
 }
 
-function getResultActions(apiCall, api) {
+function GetResultActions(apiCall, api) {
     if (api.name === "Client" && (apiCall.result === "LoginResult" || apiCall.result === "RegisterPlayFabUserResult"))
         return "        if (outResult->SessionTicket.length() > 0)\n" 
             + "            PlayFabClientApi::mUserSessionTicket = outResult->SessionTicket;\n" 

@@ -12,7 +12,7 @@ bool PlayFabClientApiWrapper::IsClientLoggedIn()
 }
 <% } %>
 // ------------ Generated API call wrappers
-<% for(var i in api.calls) { var apiCall = api.calls[i]; if(hasRequest(apiCall, api)) { %>
+<% for(var i in api.calls) { var apiCall = api.calls[i]; if(HasRequest(apiCall, api)) { %>
 void PlayFab<%- api.name %>ApiWrapper::<%- apiCall.name %>(<%- api.name %>Models::<%- apiCall.request %>& request, ProcessApiCallback<<%- api.name %>Models::<%- apiCall.result %>> callback, ErrorCallback errorCallback, void* customData)
 {
     PlayFab<%- api.name %>Api::<%- apiCall.name %>(request, callback, errorCallback, customData);

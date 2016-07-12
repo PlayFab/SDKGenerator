@@ -14,7 +14,7 @@ namespace PlayFab
         static bool IsClientLoggedIn();
 
 <% } %>        // ------------ Generated Api calls
-<% for(var i in api.calls) { var apiCall = api.calls[i]; if(hasRequest(apiCall, api)) {
+<% for(var i in api.calls) { var apiCall = api.calls[i]; if(HasRequest(apiCall, api)) {
 %>        static void <%- apiCall.name %>(<%- api.name %>Models::<%- apiCall.request %>& request, ProcessApiCallback<<%- api.name %>Models::<%- apiCall.result%>> callback = nullptr, ErrorCallback errorCallback = nullptr, void* customData = nullptr);
 <% } else
 {%>        static void <%- apiCall.name %>(ProcessApiCallback<<%- api.name %>Models::<%- apiCall.result%>> callback = nullptr, ErrorCallback errorCallback = nullptr, void* customData = nullptr);

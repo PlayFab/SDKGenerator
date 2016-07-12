@@ -47,19 +47,19 @@ if(datatype.isenum) { // ========= BEGIN EACH ENUM =========
 
 <% } // ========= END EACH ENUM =========
 else { // ========= BEGIN EACH OBJECT =========
-%>        struct <%- datatype.name %> : public <%- getDatatypeBaseType(datatype) %>
+%>        struct <%- datatype.name %> : public <%- GetDatatypeBaseType(datatype) %>
         {
 <% for(var i in datatype.properties) { var property = datatype.properties[i]
-%>            <%- getPropertyDef(property, datatype) %>
+%>            <%- GetPropertyDef(property, datatype) %>
 <% } %>
             <%- datatype.name %>() :
-                <%- getDatatypeBaseType(datatype) %>()<% for(var i in datatype.properties) { var property = datatype.properties[i] %>,
-                <%- getPropertySafeName(property) %>(<%- getPropertyDefaultValue(property, datatype) %>)<% } %>
+                <%- GetDatatypeBaseType(datatype) %>()<% for(var i in datatype.properties) { var property = datatype.properties[i] %>,
+                <%- GetPropertySafeName(property) %>(<%- GetPropertyDefaultValue(property, datatype) %>)<% } %>
             {}
 
             <%- datatype.name %>(const <%- datatype.name %>& src) :
-                <%- getDatatypeBaseType(datatype) %>()<% for(var i in datatype.properties) { var property = datatype.properties[i] %>,
-                <%- getPropertySafeName(property) %>(<%- getPropertyCopyValue(property, datatype) %>)<% } %>
+                <%- GetDatatypeBaseType(datatype) %>()<% for(var i in datatype.properties) { var property = datatype.properties[i] %>,
+                <%- GetPropertySafeName(property) %>(<%- GetPropertyCopyValue(property, datatype) %>)<% } %>
             {}
 
             <%- datatype.name %>(const rapidjson::Value& obj) : <%- datatype.name %>()
@@ -69,14 +69,14 @@ else { // ========= BEGIN EACH OBJECT =========
 
             ~<%- datatype.name %>()
             {
-<% for(var p in datatype.properties) { %><%- getPropertyDestructor(datatype.properties[p]) %><% }
+<% for(var p in datatype.properties) { %><%- GetPropertyDestructor(datatype.properties[p]) %><% }
 %>            }
 
             void writeJSON(PFStringJsonWriter& writer) override
             {
                 writer.StartObject();
 <% for(var p in datatype.properties) { var property = datatype.properties[p];
-%>                <%- getPropertySerializer(property, datatype) %>
+%>                <%- GetPropertySerializer(property, datatype) %>
 <% }
 %>                writer.EndObject();
             }
@@ -84,7 +84,7 @@ else { // ========= BEGIN EACH OBJECT =========
             bool readFromValue(const rapidjson::Value& obj) override
             {
 <% for(var p in datatype.properties) { var property = datatype.properties[p];
-%>                <%- getPropertyDeserializer(property, datatype) %>
+%>                <%- GetPropertyDeserializer(property, datatype) %>
 <% } %>
                 return true;
             }

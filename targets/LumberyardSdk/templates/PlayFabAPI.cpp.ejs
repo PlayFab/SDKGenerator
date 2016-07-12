@@ -32,17 +32,17 @@ void PlayFabClientApi::MultiStepClientLogin(bool needsAttribution)
 PlayFab<%- api.name %>Api::PlayFab<%- api.name %>Api() {}
 <% for(var i in api.calls) { var apiCall = api.calls[i]; %>
 void PlayFab<%- api.name %>Api::<%- apiCall.name %>(
-<% if(hasRequest(apiCall, api)) { %>    <%- apiCall.request %>& request,<% } %>
+<% if(HasRequest(apiCall, api)) { %>    <%- apiCall.request %>& request,<% } %>
     ProcessApiCallback<<%- apiCall.result %>> callback,
     ErrorCallback errorCallback,
     void* customData
     )
 {
-<%- getRequestActions(apiCall, api) %>
-<% if(hasRequest(apiCall, api)) {
-%>    PlayFabRequest* newRequest = new PlayFabRequest(PlayFabSettings::playFabSettings.getURL("<%- apiCall.url %>"), Aws::Http::HttpMethod::HTTP_<%- apiCall.method %>, <%- getAuthParams(apiCall) %>, request.toJSONString(), customData, callback, errorCallback, On<%- apiCall.name %>Result);
+<%- GetRequestActions(apiCall, api) %>
+<% if(HasRequest(apiCall, api)) {
+%>    PlayFabRequest* newRequest = new PlayFabRequest(PlayFabSettings::playFabSettings.getURL("<%- apiCall.url %>"), Aws::Http::HttpMethod::HTTP_<%- apiCall.method %>, <%- GetAuthParams(apiCall) %>, request.toJSONString(), customData, callback, errorCallback, On<%- apiCall.name %>Result);
 <% } else {
-%>    PlayFabRequest* newRequest = new PlayFabRequest(PlayFabSettings::playFabSettings.getURL("<%- apiCall.url %>"), Aws::Http::HttpMethod::HTTP_<%- apiCall.method %>, <%- getAuthParams(apiCall) %>, "", customData, callback, errorCallback, On<%- apiCall.name %>Result);
+%>    PlayFabRequest* newRequest = new PlayFabRequest(PlayFabSettings::playFabSettings.getURL("<%- apiCall.url %>"), Aws::Http::HttpMethod::HTTP_<%- apiCall.method %>, <%- GetAuthParams(apiCall) %>, "", customData, callback, errorCallback, On<%- apiCall.name %>Result);
 <% } %>    PlayFabRequestManager::playFabHttp.AddRequest(newRequest);
 }
 
@@ -53,7 +53,7 @@ void PlayFab<%- api.name %>Api::On<%- apiCall.name %>Result(PlayFabRequest* requ
         <%- apiCall.result %>* outResult = new <%- apiCall.result %>;
         outResult->readFromValue(request->mResponseJson->FindMember("data")->value);
 
-<%- getResultActions(apiCall, api) %>
+<%- GetResultActions(apiCall, api) %>
         if (request->mResultCallback != nullptr)
         {
             ProcessApiCallback<<%- apiCall.result %>> successCallback = reinterpret_cast<ProcessApiCallback<<%- apiCall.result %>>>(request->mResultCallback);

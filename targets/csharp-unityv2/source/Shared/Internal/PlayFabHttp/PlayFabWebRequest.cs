@@ -224,7 +224,7 @@ namespace PlayFab.Internal
                 // Prevents hitting a proxy if no proxy is available. TODO: Add support for proxy's.
                 requestState.Request.Headers.Add("X-ReportErrorAsSuccess", "true");
                 // Without this, we have to catch WebException instead, and manually decode the result
-                requestState.Request.Headers.Add("X-PlayFabSDK", PlayFabVersion.getVersionString());
+                requestState.Request.Headers.Add("X-PlayFabSDK", PlayFabSettings.VersionString);
 
                 if (authType != null)
                 {

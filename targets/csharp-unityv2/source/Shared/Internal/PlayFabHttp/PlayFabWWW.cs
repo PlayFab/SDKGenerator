@@ -47,7 +47,7 @@ namespace PlayFab.Internal
             }
 
             headers.Add("X-ReportErrorAsSuccess", "true");
-            headers.Add("X-PlayFabSDK", PlayFabVersion.getVersionString());
+            headers.Add("X-PlayFabSDK", PlayFabSettings.VersionString);
 
             //Encode Payload
             var payload = System.Text.Encoding.UTF8.GetBytes(req.Trim());

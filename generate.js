@@ -42,7 +42,7 @@ function generate(args) {
     var targetOutputLocationList = []; // A list of objects that describe an sdk target
     ExtractArgs(args, argsByName, targetOutputLocationList, errorMessages);
 
-    if (!argsByName.hasOwnProperty("buildidentifier")) {
+    if (!argsByName.buildidentifier) {
         errorMessages.push("'buildIdentifier' is a new, mandatory parameter.  Ex: -buildIdentifier Jenkins_eachSDK_1337");
     }
     if (errorMessages.length !== 0) {
@@ -154,6 +154,13 @@ var ExtractArgs = function (args, argsByName, targetOutputLocationList, errorMes
             argsByName[activeKey] = argsByName[activeKey] + lcArg;
         }
     }
+}
+
+var GetApiDefinition = function (specLocation, apiFileName, buildFlags) {
+    var api = require(path.resolve(specLocation, apiFileName));
+    var type = api.ParentTypes.filter(function(pt){return pt.Group == specLocation});
+
+    return type;
 }
 
 var GetApiDefinition = function (specLocation, apiFileName, buildFlags) {

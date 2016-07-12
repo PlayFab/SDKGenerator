@@ -17,7 +17,6 @@ using PlayFab.Json;
 
 namespace PlayFab.Internal
 {
-    // Http & ThreadPooling Implementation: https://msdn.microsoft.com/en-us/library/system.net.httpwebrequest.begingetresponse%28v=vs.110%29.aspx?f=255&MSPPError=-2147217396
     public class PlayFabWebRequest : IPlayFabHttp
     {
         private static readonly Queue<Action> ResultQueue = new Queue<Action>();

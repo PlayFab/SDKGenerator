@@ -102,6 +102,9 @@ namespace PlayFab.Internal
         /// </summary>
         public override void Awake()
         {
+#if ENABLE_PLAYFABADMIN_API || ENABLE_PLAYFABSERVER_API
+            _devKey = PlayFabSettings.DeveloperSecretKey ?? _devKey;
+#endif
             _gatherer.GatherData();
             base.Awake();
         }
@@ -136,11 +139,6 @@ namespace PlayFab.Internal
         public void Update()
         {
             _internalHttp.Update();
-            if (!_systemInfoLogged && PlayFabSettings.EnableRealTimeLogging)
-            {
-                _gatherer.EnqueueToLogger(_logMessageQueue);
-                _systemInfoLogged = true;
-            }
         }
 
         /// <summary>
@@ -148,6 +146,11 @@ namespace PlayFab.Internal
         /// </summary>
         void FixedUpdate()
         {
+            if (!_systemInfoLogged && PlayFabSettings.EnableRealTimeLogging)
+            {
+                _gatherer.EnqueueToLogger(_logMessageQueue);
+                _systemInfoLogged = true;
+            }
 
             lock (_logMessageLock)
             {

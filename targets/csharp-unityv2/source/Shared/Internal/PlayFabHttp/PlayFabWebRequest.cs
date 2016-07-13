@@ -31,6 +31,8 @@ namespace PlayFab.Internal
         private static int _activeCallCount;
 
         private static string _UnityVersion;
+        public string AuthKey { get; set; }
+        public string DevKey { get; set; }
 
         public void Awake()
         {
@@ -91,7 +93,7 @@ namespace PlayFab.Internal
             {
                 //serialize the request;
                 var req = JsonWrapper.SerializeObject(request, PlayFabUtil.ApiSerializerStrategy);
-                Post(requestState, url, req, authType, PlayFabHttp._authKey, request, resultCallback, errorCallback);
+                Post(requestState, url, req, authType, AuthKey, request, resultCallback, errorCallback);
             };
 
             lock (ActiveRequests)
@@ -230,11 +232,11 @@ namespace PlayFab.Internal
                 {
                     if (authType == "X-SecretKey")
                     {
-                        requestState.Request.Headers.Add("X-SecretKey", PlayFabHttp._devKey);
+                        requestState.Request.Headers.Add("X-SecretKey", DevKey);
                     }
                     else
                     {
-                        requestState.Request.Headers.Add(authType, PlayFabHttp._authKey);
+                        requestState.Request.Headers.Add(authType, AuthKey);
                     }
                 }
 
@@ -415,16 +417,17 @@ namespace PlayFab.Internal
                 if (res != null)
                 {
                     userSettings = res.SettingsForUser;
-                    PlayFabHttp._authKey = res.SessionTicket;
+                    AuthKey = res.SessionTicket;
                 }
                 else if (regRes != null)
                 {
                     userSettings = res.SettingsForUser;
-                    PlayFabHttp._authKey = regRes.SessionTicket;
+                    AuthKey = regRes.SessionTicket;
                 }
 
                 if (userSettings != null)
                 {
+                    AuthKey = res.SessionTicket;
                     #region Track IDFA
 
 #if !DISABLE_IDFA

@@ -19,6 +19,8 @@ namespace PlayFab.Internal
     {
         private readonly object _eventLock = new object();
         private int _pendingWwwMessages = 0;
+        public string AuthKey { get; set; }
+        public string DevKey { get; set; }
 
         public void Awake() { }
         public void Update() { }
@@ -38,11 +40,11 @@ namespace PlayFab.Internal
             {
                 if (authType == "X-SecretKey")
                 {
-                    headers.Add("X-SecretKey", PlayFabHttp._devKey);
+                    headers.Add("X-SecretKey", DevKey);
                 }
                 else
                 {
-                    headers.Add(authType, PlayFabHttp._authKey);
+                    headers.Add(authType, AuthKey);
                 }
             }
 
@@ -112,17 +114,17 @@ namespace PlayFab.Internal
                         if (res != null)
                         {
                             userSettings = res.SettingsForUser;
-                            PlayFabHttp._authKey = res.SessionTicket;
+                             AuthKey = res.SessionTicket;
                         }
                         else if (regRes != null)
                         {
                             userSettings = res.SettingsForUser;
-                            PlayFabHttp._authKey = regRes.SessionTicket;
+                            AuthKey = regRes.SessionTicket;
                         }
 
                         if (userSettings != null )
                         {
-                            PlayFabHttp._authKey = res.SessionTicket;
+                            AuthKey = res.SessionTicket;
                             #region Track IDFA
 
 #if !DISABLE_IDFA

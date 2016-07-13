@@ -13,8 +13,6 @@ namespace PlayFab.Internal
     public class PlayFabHttp : SingletonMonoBehaviour<PlayFabHttp>
     {
         private static IPlayFabHttp _internalHttp; //This is the default;
-        protected internal static string _authKey;
-        protected internal static string _devKey;
         public delegate void ApiProcessingEvent<in TEventArgs>(TEventArgs e);
         public delegate void ApiProcessErrorEvent(PlayFabError error);
         public static event ApiProcessingEvent<ApiProcessingEventArgs> ApiProcessingEventHandler;
@@ -58,6 +56,15 @@ namespace PlayFab.Internal
         }
 
         /// <summary>
+        /// Optional redirect to allow mocking of AuthKey
+        /// </summary>
+        /// <param name="AuthKey"></param>
+        public static void SetAuthKey(string AuthKey)
+        {
+            _internalHttp.AuthKey = AuthKey;
+        }
+
+        /// <summary>
         /// This initializes the GameObject and ensures it is in the scene.
         /// </summary>
         public static void InitializeHttp()
@@ -73,6 +80,10 @@ namespace PlayFab.Internal
 #endif
             if (_internalHttp == null)
                 _internalHttp = new PlayFabWWW();
+
+#if ENABLE_PLAYFABADMIN_API || ENABLE_PLAYFABSERVER_API
+            _internalHttp.DevKey = PlayFabSettings.DeveloperSecretKey;
+#endif
             _internalHttp.Awake();
         }
 
@@ -178,7 +189,7 @@ namespace PlayFab.Internal
             }
         }
 
-        #region Helpers
+#region Helpers
         /// <summary>
         /// helper class to register the logger.
         /// </summary>
@@ -222,7 +233,7 @@ namespace PlayFab.Internal
 
         public static bool IsClientLoggedIn()
         {
-            return !string.IsNullOrEmpty(_authKey);
+            return !string.IsNullOrEmpty(_internalHttp.AuthKey);
         }
 
         [Serializable]
@@ -311,10 +322,10 @@ namespace PlayFab.Internal
             }
         }
 #endif
-        #endregion
+#endregion
     }
 
-    #region Event Classes
+#region Event Classes
     public enum ApiProcessingEventType
     {
         Pre,
@@ -336,5 +347,5 @@ namespace PlayFab.Internal
             return default(T);
         }
     }
-    #endregion
+#endregion
 }

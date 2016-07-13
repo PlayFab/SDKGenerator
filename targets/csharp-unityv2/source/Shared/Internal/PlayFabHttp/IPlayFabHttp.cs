@@ -5,6 +5,8 @@ namespace PlayFab.Internal
 
     public interface IPlayFabHttp
     {
+        string AuthKey { get; set; }
+        string DevKey { get; set; }
         void Awake();
         void Update();
 

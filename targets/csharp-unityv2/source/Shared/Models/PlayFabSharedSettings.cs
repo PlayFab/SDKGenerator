@@ -13,7 +13,7 @@ public class PlayFabSharedSettings : ScriptableObject
     public WebRequestType RequestType = WebRequestType.UnityWww;
     public int RequestTimeout = 2000;
     public bool RequestKeepAlive = true;
-    public bool CompressApiData = false;
+    public bool CompressApiData = true;
 
     public PlayFabLogLevel LogLevel = PlayFabLogLevel.Warning | PlayFabLogLevel.Error;
     public string LoggerHost = "";

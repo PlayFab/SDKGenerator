@@ -2,12 +2,10 @@
 using System;
 using System.Collections.Generic;
 using System.Linq;
-using System.Threading;
 using PlayFab.UUnit;
 using PlayFab.ClientModels;
 using PlayFab.SharedModels;
 using PlayFab.Events;
-using UnityEngine;
 
 namespace PlayFab.Internal
 {
@@ -23,7 +21,6 @@ namespace PlayFab.Internal
             {
                 _PlayFabEvents = PlayFabEvents.Init();
                 //Forcing initialization
-                PlayFabSettings.RequestType = WebRequestType.HttpWebRequest;
                 PlayFabHttp.instance.Awake();
                 PlayFabHttp.InitializeHttp();
 
@@ -65,7 +62,6 @@ namespace PlayFab.Internal
         public override void SetUp(UUnitTestContext testContext)
         {
             PlayFabSettings.TitleId = "6195";
-
             _listener = new EventInstanceListener();
             callbacks.Clear();
         }
@@ -84,6 +80,7 @@ namespace PlayFab.Internal
 
         private void SharedErrorCallback(PlayFabError error)
         {
+            // This error was not expected.  Report it and fail.
             ((UUnitTestContext)error.CustomData).Fail(error.GenerateErrorReport());
         }
 
@@ -97,7 +94,7 @@ namespace PlayFab.Internal
         {
             _listener.Register();
 
-            PlayFabClientAPI.LoginWithCustomID(new LoginWithCustomIDRequest { CreateAccount = true, CustomId = "UnitySdk-UnitTest", TitleId = "6195" }, PlayFabUUnitUtils.ApiActionWrapper<LoginResult>(testContext, TestInstCallbacks_GeneralOnlyCallback), null, testContext);
+            PlayFabClientAPI.LoginWithCustomID(new LoginWithCustomIDRequest { CreateAccount = true, CustomId = "UnitySdk-UnitTest", TitleId = "6195" }, PlayFabUUnitUtils.ApiActionWrapper<LoginResult>(testContext, TestInstCallbacks_GeneralOnlyCallback), PlayFabUUnitUtils.ApiActionWrapper<PlayFabError>(testContext, SharedErrorCallback), testContext);
             testContext.True(callbacks.Contains("OnRequest_InstGl"), string.Join(", ", callbacks.ToArray()));
             testContext.True(callbacks.Contains("OnRequest_InstLogin"), string.Join(", ", callbacks.ToArray()));
             testContext.IntEquals(2, callbacks.Count, string.Join(", ", callbacks.ToArray()));
@@ -119,7 +116,7 @@ namespace PlayFab.Internal
         {
             _listener.Register();
 
-            PlayFabClientAPI.LoginWithCustomID(new LoginWithCustomIDRequest { CreateAccount = true, CustomId = "UnitySdk-UnitTest", TitleId = "6195" }, PlayFabUUnitUtils.ApiActionWrapper<LoginResult>(testContext, TestInstCallbacks_LocalCallback), null, testContext);
+            PlayFabClientAPI.LoginWithCustomID(new LoginWithCustomIDRequest { CreateAccount = true, CustomId = "UnitySdk-UnitTest", TitleId = "6195" }, PlayFabUUnitUtils.ApiActionWrapper<LoginResult>(testContext, TestInstCallbacks_LocalCallback), PlayFabUUnitUtils.ApiActionWrapper<PlayFabError>(testContext, SharedErrorCallback), testContext);
             CheckCallbacks(testContext, "OnRequest_InstGl", callbacks);
             CheckCallbacks(testContext, "OnRequest_InstLogin", callbacks);
             testContext.IntEquals(2, callbacks.Count, string.Join(", ", callbacks.ToArray()));
@@ -145,7 +142,7 @@ namespace PlayFab.Internal
         public void TestCallbackFailuresGlobal(UUnitTestContext testContext)
         {
             GetCatalogItemsRequest catalogRequest = new GetCatalogItemsRequest();
-            PlayFabClientAPI.GetCatalogItems(catalogRequest, PlayFabUUnitUtils.ApiActionWrapper<GetCatalogItemsResult>(testContext, GetCatalogItemsCallback_Single), SharedErrorCallback, testContext);
+            PlayFabClientAPI.GetCatalogItems(catalogRequest, PlayFabUUnitUtils.ApiActionWrapper<GetCatalogItemsResult>(testContext, GetCatalogItemsCallback_Single), PlayFabUUnitUtils.ApiActionWrapper<PlayFabError>(testContext, SharedErrorCallback), testContext);
         }
         private static void SuccessCallback_Global(string urlPath, int callId, object request, PlayFabResultCommon result, PlayFabError error, object customData)
         {
@@ -174,7 +171,6 @@ namespace PlayFab.Internal
             //PlayFabSettings.HideCallbackErrors = true;
             //PlayFabSettings.GlobalErrorHandler += SharedError_Global; TODO: ask Paul.
 
-
             RegisterPlayFabUserRequest registerRequest = new RegisterPlayFabUserRequest(); // A bad request that will fail
             PlayFabClientAPI.RegisterPlayFabUser(registerRequest, null, PlayFabUUnitUtils.ApiActionWrapper<PlayFabError>(testContext, SharedError_Single), testContext);
         }
@@ -195,6 +191,5 @@ namespace PlayFab.Internal
             testContext.EndTest(UUnitFinishState.PASSED, "");
         }
     }
-
 }
 #endif

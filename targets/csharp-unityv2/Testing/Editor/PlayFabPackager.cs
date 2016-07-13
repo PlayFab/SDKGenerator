@@ -1,22 +1,23 @@
 using UnityEngine;
 using UnityEditor;
 
-public class PlayFabPackager : MonoBehaviour {
+public class PlayFabPackager : MonoBehaviour
+{
 
-	private static string[] SDKAssets = {
-		"Assets/PlayFabSDK",
-		"Assets/Plugins"
-	};
+    private static string[] SDKAssets = {
+        "Assets/PlayFabSDK",
+        "Assets/Plugins"
+    };
     private static readonly string[] TEST_SCENES = {
-        "Assets/PlayFabSDK/Internal/PlayFabTestScene.unity"
+        "assets/Testing/scenes/testscene.unity"
     };
     private const string BUILD_PATH = "C:/depot/sdks/UnitySDK/testBuilds/";
 
-	[MenuItem ("PlayFab/Package SDK")]
-	public static void PackagePlayFabSDK()
-	{
-		AssetDatabase.ExportPackage (SDKAssets, "../PlayFabClientSDK.unitypackage", ExportPackageOptions.Recurse);
-	}
+    [MenuItem("PlayFab/Package SDK")]
+    public static void PackagePlayFabSDK()
+    {
+        AssetDatabase.ExportPackage(SDKAssets, "../PlayFabClientSDK.unitypackage", ExportPackageOptions.Recurse);
+    }
 
     private static void MkDir(string path)
     {
@@ -27,6 +28,7 @@ public class PlayFabPackager : MonoBehaviour {
     [MenuItem("PlayFab/Testing/AndroidTestBuild")]
     public static void MakeAndroidBuild()
     {
+        PlayerSettings.SetPropertyInt("ScriptingBackend", (int)ScriptingImplementation.Mono2x, BuildTargetGroup.Android); // Ideal setting for Android
         PlayerSettings.bundleIdentifier = "com.PlayFab.PlayFabTest";
         string ANDROID_PACKAGE = System.IO.Path.Combine(BUILD_PATH, "PlayFabAndroid.apk");
         MkDir(BUILD_PATH);
@@ -36,6 +38,7 @@ public class PlayFabPackager : MonoBehaviour {
     [MenuItem("PlayFab/Testing/iPhoneTestBuild")]
     public static void MakeIPhoneBuild()
     {
+        PlayerSettings.SetPropertyInt("ScriptingBackend", (int)ScriptingImplementation.IL2CPP, BuildTargetGroup.iOS); // ScriptingImplementation.Mono2x not supported for ios/PlayFabSdkV1
         string IOS_PATH = System.IO.Path.Combine(BUILD_PATH, "PlayFabIOS");
         MkDir(BUILD_PATH);
         MkDir(IOS_PATH);
@@ -58,6 +61,7 @@ public class PlayFabPackager : MonoBehaviour {
     [MenuItem("PlayFab/Testing/Win32TestBuild")]
     public static void MakeWin32TestingBuild()
     {
+        PlayerSettings.SetPropertyInt("ScriptingBackend", (int)ScriptingImplementation.Mono2x, BuildTargetGroup.Standalone); // Ideal setting for Windows
         PlayerSettings.defaultIsFullScreen = false;
         PlayerSettings.defaultScreenHeight = 768;
         PlayerSettings.defaultScreenWidth = 1024;

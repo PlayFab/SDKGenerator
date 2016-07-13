@@ -77,6 +77,11 @@
     <OutputPath>bin\</OutputPath>
     <ScriptArguments>..\API_Specs csharp-unity=..\sdks\UnitySDK -buildIdentifier pg_UnitySDK_manual</ScriptArguments>
   </PropertyGroup>
+  <PropertyGroup Condition=" '$(Configuration)' == 'UnitySDKV2' ">
+    <DebugSymbols>true</DebugSymbols>
+    <OutputPath>bin\</OutputPath>
+    <ScriptArguments>..\API_Specs csharp-unityv2=..\sdks\UnitySDKV2Beta -buildIdentifier pg_UnitySDK_manual</ScriptArguments>
+  </PropertyGroup>
   <PropertyGroup Condition=" '$(Configuration)' == 'UnrealBlueprintSDK' ">
     <DebugSymbols>true</DebugSymbols>
     <OutputPath>bin\</OutputPath>
@@ -102,6 +107,7 @@
     <Compile Include="targets\cpp-WinShared\cpp-shared.js" />
     <Compile Include="targets\csharp-unity-gameserver\make.js" />
     <Compile Include="targets\csharp-unity-strangeioc\make.js" />
+    <Compile Include="targets\csharp-unityv2\make.js" />
     <Compile Include="targets\javascript\source\PlayFabApiTest.js" />
     <Compile Include="targets\js-node\testingFiles\PlayFabApiTests.js" />
     <Compile Include="targets\LumberyardSdk\make.js" />
@@ -452,6 +458,70 @@
     <Content Include="targets\csharp-unity-strangeioc\templates\strangeioc-playfab-context.ejs" />
     <Content Include="targets\csharp-unity-strangeioc\templates\strangeioc-playfab-contextbindings.ejs" />
     <Content Include="targets\csharp-unity-strangeioc\templates\strangeioc-playfab-signals.ejs" />
+    <Content Include="targets\csharp-unityv2\Settings\Admin\PlayFabSettings.cs" />
+    <Content Include="targets\csharp-unityv2\Settings\Client\PlayFabSettings.cs" />
+    <Content Include="targets\csharp-unityv2\Settings\Server\PlayFabSettings.cs" />
+    <Content Include="targets\csharp-unityv2\source\Shared\Editor\AndroidManifestManager.cs" />
+    <Content Include="targets\csharp-unityv2\source\Shared\Editor\PlayFabHelp.cs" />
+    <Content Include="targets\csharp-unityv2\source\Shared\Editor\PlayFablogo.png" />
+    <Content Include="targets\csharp-unityv2\source\Shared\Internal\ISerializer.cs" />
+    <Content Include="targets\csharp-unityv2\source\Shared\Internal\Log.cs" />
+    <Content Include="targets\csharp-unityv2\source\Shared\Internal\PlayFabHttp\IPlayFabHttp.cs" />
+    <Content Include="targets\csharp-unityv2\source\Shared\Internal\PlayFabHttp\PlayFabHTTP.cs" />
+    <Content Include="targets\csharp-unityv2\source\Shared\Internal\PlayFabHttp\PlayFabWebRequest.cs" />
+    <Content Include="targets\csharp-unityv2\source\Shared\Internal\PlayFabHttp\PlayFabWWW.cs" />
+    <Content Include="targets\csharp-unityv2\source\Shared\Internal\SimpleJson.cs" />
+    <Content Include="targets\csharp-unityv2\source\Shared\Internal\SingletonMonoBehaviour.cs" />
+    <Content Include="targets\csharp-unityv2\source\Shared\Internal\Util.cs" />
+    <Content Include="targets\csharp-unityv2\source\Shared\Ionic.Zlib\CRC32.cs" />
+    <Content Include="targets\csharp-unityv2\source\Shared\Ionic.Zlib\Deflate.cs" />
+    <Content Include="targets\csharp-unityv2\source\Shared\Ionic.Zlib\DeflateStream.cs" />
+    <Content Include="targets\csharp-unityv2\source\Shared\Ionic.Zlib\GZipStream.cs" />
+    <Content Include="targets\csharp-unityv2\source\Shared\Ionic.Zlib\Inflate.cs" />
+    <Content Include="targets\csharp-unityv2\source\Shared\Ionic.Zlib\InfTree.cs" />
+    <Content Include="targets\csharp-unityv2\source\Shared\Ionic.Zlib\ParallelDeflateOutputStream.cs" />
+    <Content Include="targets\csharp-unityv2\source\Shared\Ionic.Zlib\Zlib.cs" />
+    <Content Include="targets\csharp-unityv2\source\Shared\Ionic.Zlib\ZlibBaseStream.cs" />
+    <Content Include="targets\csharp-unityv2\source\Shared\Ionic.Zlib\ZlibCodec.cs" />
+    <Content Include="targets\csharp-unityv2\source\Shared\Ionic.Zlib\ZlibConstants.cs" />
+    <Content Include="targets\csharp-unityv2\source\Shared\Ionic.Zlib\ZlibStream.cs" />
+    <Content Include="targets\csharp-unityv2\source\Shared\Ionic.Zlib\ZTree.cs" />
+    <Content Include="targets\csharp-unityv2\source\Shared\Models\PlayFabSharedSettings.cs" />
+    <Content Include="targets\csharp-unityv2\source\Shared\Models\SharedModels.cs" />
+    <Content Include="targets\csharp-unityv2\source\Shared\Public\PlayFabDataGatherer.cs" />
+    <Content Include="targets\csharp-unityv2\source\Shared\Public\PlayFabEvents.cs" />
+    <Content Include="targets\csharp-unityv2\source\Shared\Public\PlayFabLogger.cs" />
+    <Content Include="targets\csharp-unityv2\source\Shared\Public\PlayFabSettings.cs" />
+    <Content Include="targets\csharp-unityv2\source\Shared\Public\PlayFabTailLogger.cs" />
+    <Content Include="targets\csharp-unityv2\source\Shared\Public\Resources\PlayFabSharedSettings.asset" />
+    <Content Include="targets\csharp-unityv2\source\Shared\Public\Resources\PlayFabSharedSettings.asset.meta" />
+    <Content Include="targets\csharp-unityv2\templates\API.cs.ejs" />
+    <Content Include="targets\csharp-unityv2\templates\ApiEvent.cs.ejs" />
+    <Content Include="targets\csharp-unityv2\templates\Enum.cs.ejs" />
+    <Content Include="targets\csharp-unityv2\templates\Errors.cs.ejs" />
+    <Content Include="targets\csharp-unityv2\templates\Events.cs.ejs" />
+    <Content Include="targets\csharp-unityv2\templates\Model.cs.ejs" />
+    <Content Include="targets\csharp-unityv2\templates\Models.cs.ejs" />
+    <Content Include="targets\csharp-unityv2\templates\PlayFabSettings.cs.ejs" />
+    <Content Include="targets\csharp-unityv2\Testing\Editor\PlayFabPackager.cs" />
+    <Content Include="targets\csharp-unityv2\Testing\Tests\Admin\AdminApiTests.cs" />
+    <Content Include="targets\csharp-unityv2\Testing\Tests\Admin\AdminEventTests.cs" />
+    <Content Include="targets\csharp-unityv2\Testing\Tests\Client\ClientApiTests.cs" />
+    <Content Include="targets\csharp-unityv2\Testing\Tests\Client\ClientEventTests.cs" />
+    <Content Include="targets\csharp-unityv2\Testing\Tests\Server\ServerApiTests.cs" />
+    <Content Include="targets\csharp-unityv2\Testing\Tests\Server\ServerEventTests.cs" />
+    <Content Include="targets\csharp-unityv2\Testing\Tests\Shared\Uunit\Editor\UUnitTestRunner.cs" />
+    <Content Include="targets\csharp-unityv2\Testing\Tests\Shared\Uunit\PlayFabUUnitUtils.cs" />
+    <Content Include="targets\csharp-unityv2\Testing\Tests\Shared\Uunit\UUnitAssertException.cs" />
+    <Content Include="targets\csharp-unityv2\Testing\Tests\Shared\Uunit\UUnitIncrementalTestRunner.cs" />
+    <Content Include="targets\csharp-unityv2\Testing\Tests\Shared\Uunit\UUnitTestCase.cs" />
+    <Content Include="targets\csharp-unityv2\Testing\Tests\Shared\Uunit\UUnitTestContext.cs" />
+    <Content Include="targets\csharp-unityv2\Testing\Tests\Shared\Uunit\UUnitTestReport.cs" />
+    <Content Include="targets\csharp-unityv2\Testing\Tests\Shared\Uunit\UUnitTestSuite.cs" />
+    <Content Include="targets\csharp-unityv2\Testing\Tests\Utility\JsonUnitTests.cs" />
+    <Content Include="targets\csharp-unityv2\Testing\Tests\Utility\JsonUnitTests.cs.meta" />
+    <Content Include="targets\csharp-unityv2\Testing\Tests\Utility\UtilTest.cs" />
+    <Content Include="targets\csharp-unityv2\Testing\Tests\Utility\UtilTest.cs.meta" />
     <Content Include="targets\csharp-unity\source\Internal\ISerializer.cs" />
     <Content Include="targets\csharp-unity\source\Internal\Log.cs" />
     <Content Include="targets\csharp-unity\source\Internal\PlayFabHTTP.cs" />
@@ -771,6 +841,31 @@
     <Folder Include="targets\csharp-unity-strangeioc\source\Mediators\" />
     <Folder Include="targets\csharp-unity-strangeioc\source\Models\" />
     <Folder Include="targets\csharp-unity-strangeioc\templates\" />
+    <Folder Include="targets\csharp-unityv2\" />
+    <Folder Include="targets\csharp-unityv2\Settings\" />
+    <Folder Include="targets\csharp-unityv2\Settings\Admin\" />
+    <Folder Include="targets\csharp-unityv2\Settings\Client\" />
+    <Folder Include="targets\csharp-unityv2\Settings\Server\" />
+    <Folder Include="targets\csharp-unityv2\source\" />
+    <Folder Include="targets\csharp-unityv2\source\Shared\" />
+    <Folder Include="targets\csharp-unityv2\source\Shared\Editor\" />
+    <Folder Include="targets\csharp-unityv2\source\Shared\Internal\" />
+    <Folder Include="targets\csharp-unityv2\source\Shared\Internal\PlayFabHttp\" />
+    <Folder Include="targets\csharp-unityv2\source\Shared\Ionic.Zlib\" />
+    <Folder Include="targets\csharp-unityv2\source\Shared\Models\" />
+    <Folder Include="targets\csharp-unityv2\source\Shared\Public\" />
+    <Folder Include="targets\csharp-unityv2\source\Shared\Public\Resources\" />
+    <Folder Include="targets\csharp-unityv2\templates\" />
+    <Folder Include="targets\csharp-unityv2\Testing\" />
+    <Folder Include="targets\csharp-unityv2\Testing\Editor\" />
+    <Folder Include="targets\csharp-unityv2\Testing\Tests\" />
+    <Folder Include="targets\csharp-unityv2\Testing\Tests\Admin\" />
+    <Folder Include="targets\csharp-unityv2\Testing\Tests\Client\" />
+    <Folder Include="targets\csharp-unityv2\Testing\Tests\Server\" />
+    <Folder Include="targets\csharp-unityv2\Testing\Tests\Shared\" />
+    <Folder Include="targets\csharp-unityv2\Testing\Tests\Shared\Uunit\" />
+    <Folder Include="targets\csharp-unityv2\Testing\Tests\Shared\Uunit\Editor\" />
+    <Folder Include="targets\csharp-unityv2\Testing\Tests\Utility\" />
     <Folder Include="targets\csharp-unity\source\" />
     <Folder Include="targets\csharp-unity\source\Internal\" />
     <Folder Include="targets\csharp-unity\source\Internal\Testing\" />

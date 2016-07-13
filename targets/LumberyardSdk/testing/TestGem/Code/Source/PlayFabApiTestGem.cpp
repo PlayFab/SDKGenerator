@@ -20,7 +20,7 @@ void PlayFabApiTest::PlayFabApiTestGem::OnSystemEvent(ESystemEvent event, UINT_P
 
     case ESYSTEM_EVENT_GAME_POST_INIT:
         if (gEnv->pGame->GetIGameFramework())
-            gEnv->pGame->GetIGameFramework()->RegisterListener(this, "PlayFabSdk Gem", FRAMEWORKLISTENERPRIORITY_HUD);
+            gEnv->pGame->GetIGameFramework()->RegisterListener(this, "PlayFabApiTestGem Gem", FRAMEWORKLISTENERPRIORITY_HUD);
         break;
 
     case ESYSTEM_EVENT_FULL_SHUTDOWN:

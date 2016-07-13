@@ -1,11 +1,9 @@
 {
-    "NoUberFile": {
+    "none": {
         "Root": [
             "Source/StdAfx.cpp",
             "Source/StdAfx.h"
-        ]
-    },
-    "none": {
+        ],
         "Interface": [<% for (var i in apis) { %>
             "Include/PlayFab<%- apis[i].name %>DataModels.h",
             "Include/IPlayFab<%- apis[i].name %>Api.h",<% } %>

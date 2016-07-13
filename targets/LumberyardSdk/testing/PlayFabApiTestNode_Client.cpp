@@ -554,12 +554,8 @@ private:
     }
     static void OnClientLeaderBoard(const ClientModels::GetLeaderboardResult& result, void* customData)
     {
-        bool foundEntry = false;
-        for (auto it = result.Leaderboard.begin(); it != result.Leaderboard.end(); ++it)
-            if (it->PlayFabId == playFabId)
-                foundEntry++;
         PfTestContext* testContext = reinterpret_cast<PfTestContext*>(customData);
-        if (foundEntry)
+        if (result.Leaderboard.size() > 0)
             EndTest(*testContext, PASSED, "");
         else
             EndTest(*testContext, FAILED, "Leaderboard entry not found.");
@@ -657,17 +653,17 @@ public:
     {
     }
 
-    virtual IFlowNodePtr Clone(SActivationInfo *pActInfo) override
+    IFlowNodePtr Clone(SActivationInfo *pActInfo) override
     {
         return new CFlowNode_PlayFabApiTests(pActInfo);
     }
 
-    virtual void GetMemoryUsage(ICrySizer* s) const override
+    void GetMemoryUsage(ICrySizer* s) const override
     {
         s->Add(*this);
     }
 
-    virtual void GetConfiguration(SFlowNodeConfig& config) override
+    void GetConfiguration(SFlowNodeConfig& config) override
     {
         static const SInputPortConfig in_config[] = {
             InputPortConfig<SFlowSystemVoid>("Activate", _HELP("Run the PlayFabApiTests")),
@@ -684,7 +680,7 @@ public:
         config.SetCategory(EFLN_APPROVED);
     }
 
-    virtual void ProcessEvent(EFlowEvent event, SActivationInfo* pActInfo) override
+    void ProcessEvent(EFlowEvent event, SActivationInfo* pActInfo) override
     {
         switch (event)
         {

@@ -1,5 +1,6 @@
 #include "StdAfx.h"
 
+#include <fstream>
 #include <IPlayFabSdkGem.h>
 #include "FlowBaseNode.h"
 #include "PlayFabApiTestGem.h"
@@ -172,21 +173,82 @@ private:
     static time_t testMessageTime;
     static std::list<PfTestContext*> testContexts;
 
-    static void ClassSetup()
+    static bool ClassSetup()
     {
-        // TODO: Read from testTitleData.json here
-        titleId = "6195";
-        developerSecretKey = "TKHKZYUQF1AFKYOKPKAZJ1HRNQY61KJZC6E79ZF9YYXR9Q74CT";
-        titleCanUpdateSettings = "true";
-        userName = "paul";
-        userEmail = "paul@playfab.com";
-        userPassword = "testPassword";
-        characterName = "Ragnar";
+        // README:
+        // modify the TEST_TITLE_DATA_LOC to a location of a testTitleData.json file
+        // The format of this file is described in the sdk readme
+        //  - OR -
+        // Comment the "return false;" below, and
+        //   Fill in all the variables under: POPULATE THIS SECTION WITH REAL INFORMATION
 
-        playFabSettings->titleId = titleId;
-        playFabSettings->developerSecretKey = developerSecretKey;
+        std::ifstream titleInput;
+        titleInput.open(TEST_TITLE_DATA_LOC, std::ios::binary | std::ios::in);
+        if (titleInput)
+        {
+            int begin = titleInput.tellg();
+            titleInput.seekg(0, std::ios::end);
+            int end = titleInput.tellg();
+            char* titleData = new char[end - begin];
+            titleInput.seekg(0, std::ios::beg);
+            titleInput.read(titleData, end - begin);
+            titleData[end - begin] = '\0';
+
+            Document testInputs;
+            testInputs.Parse<0>(titleData);
+            SetTitleInfo(testInputs);
+
+            titleInput.close();
+        }
+        else
+        {
+            return false;
+            // TODO: Put the info for your title here (Fallback in case it can't read from the file)
+
+            // POPULATE THIS SECTION WITH REAL INFORMATION
+            playFabSettings->titleId = ""; // The titleId for your title, found in the "Settings" section of PlayFab Game Manager
+            TITLE_CAN_UPDATE_SETTINGS = true; // Make sure this is enabled in your title, found in the "Settings" section, "API Features" section of PlayFab Game Manager
+            userName = ""; // This is an arbitrary user name, which will be utilized for this test
+            userEmail = ""; // This is the email for the user
+            userPassword = ""; // This is the password for the user
+            characterName = ""; // This should be a valid character on the given user's account
+        }
+
+        // Verify all the inputs won't cause crashes in the tests
+        return static_cast<bool>(titleInput)
+            && !playFabSettings->titleId.empty()
+            && !userName.empty()
+            && !userEmail.empty()
+            && !userPassword.empty()
+            && !characterName.empty();
     }
 
+    /// <summary>
+    /// PlayFab Title cannot be created from SDK tests, so you must provide your titleId to run unit tests.
+    /// (Also, we don't want lots of excess unused titles)
+    /// </summary>
+    static void SetTitleInfo(Document &testInputs)
+    {
+        // Parse all the inputs
+        auto end = testInputs.MemberEnd();
+        auto each = testInputs.FindMember("titleId");
+        if (each != end) playFabSettings->titleId = each->value.GetString();
+
+        string blah;
+        each = testInputs.FindMember("titleCanUpdateSettings");
+        if (each != end) blah = each->value.GetString();
+        TITLE_CAN_UPDATE_SETTINGS = (blah.compare("true") == 0 || blah.compare("True") == 0 || blah.compare("TRUE") == 0);
+
+        each = testInputs.FindMember("userName");
+        if (each != end) userName = each->value.GetString();
+        each = testInputs.FindMember("userEmail");
+        if (each != end) userEmail = each->value.GetString();
+        each = testInputs.FindMember("userPassword");
+        if (each != end) userPassword = each->value.GetString();
+
+        each = testInputs.FindMember("characterName");
+        if (each != end) characterName = each->value.GetString();
+    }
     // Start a test, and block until the threaded response arrives
     static void StartTest(PfTestContext& testContext)
     {
@@ -236,16 +298,15 @@ private:
 IPlayFabSdkGem* PlayFabApiTests::playFabSdkGem;
 PlayFabSettings* PlayFabApiTests::playFabSettings;
 IPlayFabServerApi* PlayFabApiTests::serverApi;
+const std::string PlayFabApiTests::TEST_TITLE_DATA_LOC = "C:/depot/pf-main/tools/SDKBuildScripts/testTitleData.json";
 Aws::String PlayFabApiTests::_outputSummary;
-Aws::String PlayFabApiTests::titleId;
-Aws::String PlayFabApiTests::developerSecretKey;
-Aws::String PlayFabApiTests::titleCanUpdateSettings;
 Aws::String PlayFabApiTests::userName;
 Aws::String PlayFabApiTests::userEmail;
 Aws::String PlayFabApiTests::userPassword;
 Aws::String PlayFabApiTests::characterName;
-Aws::String PlayFabApiTests::TEST_DATA_KEY = "testCounter";
-Aws::String PlayFabApiTests::TEST_STAT_NAME = "str";
+bool PlayFabApiTests::TITLE_CAN_UPDATE_SETTINGS = false;
+const Aws::String PlayFabApiTests::TEST_DATA_KEY = "testCounter";
+const Aws::String PlayFabApiTests::TEST_STAT_NAME = "str";
 std::list<PfTestContext*> PlayFabApiTests::testContexts;
 Aws::String PlayFabApiTests::playFabId;
 int PlayFabApiTests::testMessageInt;
@@ -258,17 +319,17 @@ public:
     {
     }
 
-    virtual IFlowNodePtr Clone(SActivationInfo *pActInfo) override
+    IFlowNodePtr Clone(SActivationInfo *pActInfo) override
     {
         return new CFlowNode_PlayFabApiTests(pActInfo);
     }
 
-    virtual void GetMemoryUsage(ICrySizer* s) const override
+    void GetMemoryUsage(ICrySizer* s) const override
     {
         s->Add(*this);
     }
 
-    virtual void GetConfiguration(SFlowNodeConfig& config) override
+    void GetConfiguration(SFlowNodeConfig& config) override
     {
         static const SInputPortConfig in_config[] = {
             InputPortConfig<SFlowSystemVoid>("Activate", _HELP("Run the PlayFabApiTests")),
@@ -285,7 +346,7 @@ public:
         config.SetCategory(EFLN_APPROVED);
     }
 
-    virtual void ProcessEvent(EFlowEvent event, SActivationInfo* pActInfo) override
+    void ProcessEvent(EFlowEvent event, SActivationInfo* pActInfo) override
     {
         switch (event)
         {

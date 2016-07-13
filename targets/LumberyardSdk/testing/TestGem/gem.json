@@ -1,6 +1,6 @@
 {
     "GemFormatVersion": 2,
-    "Uuid": "583e7840c5554c69a67187ae479ae910",
+    "Uuid": "9a7579845dd84bd6b8c486837766939c",
     "Name": "PlayFabApiTest",
     "DisplayName": "PlayFabApiTest",
     "Version": "0.1.0",
@@ -10,7 +10,7 @@
     "IconPath": "preview.png",
     "Dependencies": [
         {
-            "Uuid": "9a81e5573c13455b850560486e4e7d05",
+            "Uuid": "ca11198cd2904c539c29d22409fbb628",
             "VersionConstraints": [ ">=0.0.160302" ],
             "_comment": "PlayFab Lumberyard Gem"
         }

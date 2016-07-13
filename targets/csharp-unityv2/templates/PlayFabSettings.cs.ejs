@@ -5,6 +5,13 @@ using System.Reflection;
 
 namespace PlayFab
 {
+    public enum WebRequestType
+    {
+        UnityWww, // High compatability Unity api calls
+        HttpWebRequest, // High performance multi-threaded api calls
+        CustomHttp //If this is used, you must set the Http to an IPlayFabHttp object.
+    }
+
     [Flags]
     public enum PlayFabLogLevel
     {

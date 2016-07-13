@@ -491,7 +491,6 @@
     <Content Include="targets\csharp-unityv2\source\Shared\Public\PlayFabDataGatherer.cs" />
     <Content Include="targets\csharp-unityv2\source\Shared\Public\PlayFabEvents.cs" />
     <Content Include="targets\csharp-unityv2\source\Shared\Public\PlayFabLogger.cs" />
-    <Content Include="targets\csharp-unityv2\source\Shared\Public\PlayFabSettings.cs" />
     <Content Include="targets\csharp-unityv2\source\Shared\Public\PlayFabTailLogger.cs" />
     <Content Include="targets\csharp-unityv2\source\Shared\Public\Resources\PlayFabSharedSettings.asset" />
     <Content Include="targets\csharp-unityv2\source\Shared\Public\Resources\PlayFabSharedSettings.asset.meta" />

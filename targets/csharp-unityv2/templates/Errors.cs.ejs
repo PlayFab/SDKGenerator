@@ -1,0 +1,56 @@
+using System;
+using System.Collections.Generic;
+using System.Text;
+
+namespace PlayFab
+{
+    /// <summary>
+    /// Error codes returned by PlayFabAPIs
+    /// </summary>
+    public enum PlayFabErrorCode
+    {
+        Unknown = 1,
+        <% for(var i=0; i<errorList.length-1; i++) { var errorProps = errors[errorList[i]] %><%- errorProps.name %> = <%- errorProps.id %>,
+        <% } %><% var errorProps = errors[errorList[errorList.length-1]] %><%- errorProps.name %> = <%- errorProps.id %>
+    }
+
+    public delegate void ErrorCallback(PlayFabError error);
+
+    public class PlayFabError
+    {
+        public int HttpCode;
+        public string HttpStatus;
+        public PlayFabErrorCode Error;
+        public string ErrorMessage;
+        public Dictionary<string, List<string> > ErrorDetails;
+        public object CustomData;
+
+        public override string ToString() {
+            var sb = new System.Text.StringBuilder();
+            if (ErrorDetails != null) {
+                foreach (var kv in ErrorDetails) {
+                    sb.Append(kv.Key);
+                    sb.Append(": ");
+                    sb.Append(string.Join(", ", kv.Value.ToArray()));
+                    sb.Append(" | ");
+                }
+            }
+            return string.Format("PlayFabError({0}, {1}, {2} {3}", Error, ErrorMessage, HttpCode, HttpStatus) + (sb.Length > 0 ? " - Details: " + sb.ToString() + ")" : ")");
+        }
+
+        [ThreadStatic]
+        private static StringBuilder _tempSb;
+        public string GenerateErrorReport()
+        {
+            if (_tempSb == null)
+                _tempSb = new StringBuilder();
+            _tempSb.Length = 0;
+            _tempSb.Append(ErrorMessage);
+            if (ErrorDetails != null)
+                foreach (var pair in ErrorDetails)
+                    foreach (var msg in pair.Value)
+                        _tempSb.Append("\n").Append(pair.Key).Append(": ").Append(msg);
+            return _tempSb.ToString();
+        }
+    }
+}

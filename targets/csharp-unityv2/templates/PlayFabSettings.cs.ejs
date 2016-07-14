@@ -1,7 +1,7 @@
 using PlayFab.Internal;
 using System;
-using System.Collections.Generic;
-using System.Reflection;
+using UnityEngine;
+
 
 namespace PlayFab
 {
@@ -25,51 +25,110 @@ namespace PlayFab
 
     public static partial class PlayFabSettings
     {
+        public static PlayFabSharedSettings PlayFabShared = GetSharedSettingsObject();
         public const string SdkVersion = "<%- sdkVersion %>";
         public const string BuildIdentifier = "<%- buildIdentifier %>";
         public const string VersionString = "UnitySDK-<%- sdkVersion %>";
 
+        public static PlayFabSharedSettings GetSharedSettingsObject()
+        {
+            var settingsList = Resources.LoadAll<PlayFabSharedSettings>("PlayFabSharedSettings");
+            if (settingsList.Length != 1)
+            {
+                throw new Exception("Either Missing PlayFabSharedSettings data file or multiple data files exist.");
+            }
+            return settingsList[0];
+        } 
+
+
 #if ENABLE_PLAYFABSERVER_API || ENABLE_PLAYFABADMIN_API
         public static string DeveloperSecretKey
         {
-            set { PlayFabHttp._devKey = value; }
-            internal get { return PlayFabHttp._devKey; }
+            set { PlayFabShared.DeveloperSecretKey = value;}
+            internal get { return PlayFabShared.DeveloperSecretKey; }
         }
 #endif
 
+        public static string ProductionEnvironmentUrl
+        {
+            get { return PlayFabShared.ProductionEnvironmentUrl; }
+            set { PlayFabShared.ProductionEnvironmentUrl = value; }
+        }
 
-        public static string ProductionEnvironmentUrl = ".playfabapi.com";
-        public static string TitleId = null; // You must set this value for PlayFabSdk to work properly (Found in the Game Manager for your title, at the PlayFab Website)
-        public static PlayFabLogLevel LogLevel = PlayFabLogLevel.Warning | PlayFabLogLevel.Error;
-        public static WebRequestType RequestType = WebRequestType.UnityWww;
-        public static int RequestTimeout = 2000;
-        public static bool RequestKeepAlive = true;
-        public static bool CompressApiData = true;
-        public static bool IsTesting = false; //TODO: get rid of this.
+        // You must set this value for PlayFabSdk to work properly (Found in the Game Manager for your title, at the PlayFab Website)
+        public static string TitleId
+        {
+            get { return PlayFabShared.TitleId; }
+            set { PlayFabShared.TitleId = value; }
+        }
+
+        public static PlayFabLogLevel LogLevel
+        {
+            get { return PlayFabShared.LogLevel; }
+            set { PlayFabShared.LogLevel = value; }
+        }
+
+        public static WebRequestType RequestType
+        {
+            get { return PlayFabShared.RequestType; }
+            set { PlayFabShared.RequestType = value; }
+        }
+
+        public static int RequestTimeout
+        {
+            get { return PlayFabShared.RequestTimeout; }
+            set { PlayFabShared.RequestTimeout = value; }
+
+        }
+
+        public static bool RequestKeepAlive
+        {
+            get { return PlayFabShared.RequestKeepAlive; }
+            set { PlayFabShared.RequestKeepAlive = value; }
+        }
+
+        public static bool CompressApiData
+        {
+            get { return PlayFabShared.CompressApiData; }
+            set { PlayFabShared.CompressApiData = value; }
+        }
+
+        public static bool IsTesting
+        {
+            get { return PlayFabShared.IsTesting; }
+            set { PlayFabShared.IsTesting = value; }
+        }
 
         //For realtime logging.
         public static IPlayFabTailLogger Logger;
-        public static string LoggerHost = "";
-        public static int LoggerPort = 0;
-        public static bool EnableRealTimeLogging = false;
-        public static int LogCapLimit = 30;
 
-#if !DISABLE_PLAYFABCLIENT_API
-        private static string GetLogicUrl(string apiCall)
+        public static string LoggerHost
         {
-            return LogicServerUrl + apiCall;
+            get { return PlayFabShared.LoggerHost; }
+            set { PlayFabShared.LoggerHost = value; }
+
         }
-#endif
+
+        public static int LoggerPort
+        {
+            get { return PlayFabShared.LoggerPort; }
+            set { PlayFabShared.LoggerPort = value; }
+        }
+
+        public static bool EnableRealTimeLogging
+        {
+            get { return PlayFabShared.EnableRealTimeLogging; }
+            set { PlayFabShared.EnableRealTimeLogging = value; }
+        }
+
+        public static int LogCapLimit
+        {
+            get { return PlayFabShared.LogCapLimit; }
+            set { PlayFabShared.LogCapLimit = value; }
+        }
 
         public static string GetFullUrl(string apiCall)
         {
-#if !DISABLE_PLAYFABCLIENT_API
-            if (apiCall == "/Client/RunCloudScript")
-            {
-                return GetLogicUrl(apiCall);
-            }
-            else
-#endif
             if (!IsTesting)
             {
                 string baseUrl = ProductionEnvironmentUrl;

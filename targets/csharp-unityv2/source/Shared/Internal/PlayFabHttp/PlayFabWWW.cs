@@ -1,4 +1,4 @@
-using System;
+﻿using System;
 using UnityEngine;
 using System.Collections;
 using System.Collections.Generic;
@@ -31,10 +31,11 @@ namespace PlayFab.Internal
         {
             //serialize the request;
             var req = JsonWrapper.SerializeObject(request, PlayFabUtil.ApiSerializerStrategy);
+                //JsonUtility.ToJson(request);
             var url = PlayFabSettings.GetFullUrl(apiEndpoint);
 
             //Set headers
-            var headers = new Dictionary<string, string> { { "Content-Type", "application/json" } };
+            var headers = new Dictionary<string, string> {{"Content-Type", "application/json"}};
             if (authType != null)
             {
                 if (authType == "X-SecretKey")
@@ -61,7 +62,9 @@ namespace PlayFab.Internal
 
                 using (var stream = new MemoryStream())
                 {
-                    using (GZipStream zipstream = new GZipStream(stream, CompressionMode.Compress, CompressionLevel.BestCompression))
+                    using (
+                        GZipStream zipstream = new GZipStream(stream, CompressionMode.Compress,
+                            CompressionLevel.BestCompression))
                     {
                         zipstream.Write(payload, 0, payload.Length);
                     }
@@ -111,7 +114,7 @@ namespace PlayFab.Internal
                         if (res != null)
                         {
                             userSettings = res.SettingsForUser;
-                            AuthKey = res.SessionTicket;
+                             AuthKey = res.SessionTicket;
                         }
                         else if (regRes != null)
                         {
@@ -119,7 +122,7 @@ namespace PlayFab.Internal
                             AuthKey = regRes.SessionTicket;
                         }
 
-                        if (userSettings != null)
+                        if (userSettings != null )
                         {
                             AuthKey = res.SessionTicket;
                             #region Track IDFA

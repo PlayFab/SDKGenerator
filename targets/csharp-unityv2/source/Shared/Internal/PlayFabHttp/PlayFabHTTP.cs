@@ -14,7 +14,7 @@ namespace PlayFab.Internal
     {
         private static IPlayFabHttp _internalHttp; //This is the default;
         public delegate void ApiProcessingEvent<in TEventArgs>(TEventArgs e);
-        public delegate void ApiProcessErrorEvent(PlayFabError error);
+        public delegate void ApiProcessErrorEvent(object sender, PlayFabError error);
         public static event ApiProcessingEvent<ApiProcessingEventArgs> ApiProcessingEventHandler;
         public static event ApiProcessErrorEvent ApiProcessingErrorEventHandler;
 
@@ -294,11 +294,18 @@ namespace PlayFab.Internal
             };
         }
 
-        protected internal static void SendErrorEvent(PlayFabError error)
+        protected internal static void SendErrorEvent(object sender, PlayFabError error)
         {
             if (ApiProcessingErrorEventHandler != null)
             {
-                ApiProcessingErrorEventHandler(error);
+                try
+                {
+                    ApiProcessingErrorEventHandler(sender, error);
+                }
+                catch (Exception e)
+                {
+                    Debug.LogException(e);
+                }
             }
         }
 

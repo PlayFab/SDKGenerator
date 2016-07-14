@@ -1,6 +1,3 @@
-﻿using UnityEngine;
-using System.Collections;
-
 namespace PlayFab.SharedModels
 {
     public class PlayFabResultCommon
@@ -8,5 +5,4 @@ namespace PlayFab.SharedModels
         public object Request;
         public object CustomData;
     }
-
 }

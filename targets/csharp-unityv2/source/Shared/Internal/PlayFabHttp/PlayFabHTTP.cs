@@ -1,4 +1,4 @@
-﻿using UnityEngine;
+using UnityEngine;
 using System;
 using System.Collections;
 using System.Collections.Generic;
@@ -14,7 +14,7 @@ namespace PlayFab.Internal
     {
         private static IPlayFabHttp _internalHttp; //This is the default;
         public delegate void ApiProcessingEvent<in TEventArgs>(TEventArgs e);
-        public delegate void ApiProcessErrorEvent(object sender, PlayFabError error);
+        public delegate void ApiProcessErrorEvent(object request, PlayFabError error);
         public static event ApiProcessingEvent<ApiProcessingEventArgs> ApiProcessingEventHandler;
         public static event ApiProcessErrorEvent ApiProcessingErrorEventHandler;
 
@@ -149,7 +149,10 @@ namespace PlayFab.Internal
         /// </summary>
         public void Update()
         {
-            _internalHttp.Update();
+            if (_internalHttp != null)
+            {
+                _internalHttp.Update();
+            }
         }
 
         /// <summary>
@@ -189,7 +192,7 @@ namespace PlayFab.Internal
             }
         }
 
-#region Helpers
+        #region Helpers
         /// <summary>
         /// helper class to register the logger.
         /// </summary>
@@ -294,32 +297,44 @@ namespace PlayFab.Internal
             };
         }
 
-        protected internal static void SendErrorEvent(object sender, PlayFabError error)
+        protected internal static void SendErrorEvent(object request, PlayFabError error)
         {
-            if (ApiProcessingErrorEventHandler != null)
+            if (ApiProcessingErrorEventHandler == null)
+                return;
+
+            try
             {
-                try
-                {
-                    ApiProcessingErrorEventHandler(sender, error);
-                }
-                catch (Exception e)
-                {
-                    Debug.LogException(e);
-                }
+                ApiProcessingErrorEventHandler(request, error);
+            }
+            catch (Exception e)
+            {
+                Debug.LogException(e);
             }
         }
 
         protected internal static void SendEvent(object request, object result, ApiProcessingEventType eventType)
         {
-            if (ApiProcessingEventHandler != null)
+            if (ApiProcessingEventHandler == null)
+                return;
+            try
             {
-                ApiProcessingEventHandler(new ApiProcessingEventArgs()
+                ApiProcessingEventHandler(new ApiProcessingEventArgs
                 {
                     EventType = eventType,
                     Request = request,
                     Result = result
                 });
             }
+            catch (Exception e)
+            {
+                Debug.LogException(e);
+            }
+        }
+
+        protected internal static void ClearAllEvents()
+        {
+            ApiProcessingEventHandler = null;
+            ApiProcessingErrorEventHandler = null;
         }
 
 #if PLAYFAB_REQUEST_TIMING
@@ -329,10 +344,10 @@ namespace PlayFab.Internal
             }
         }
 #endif
-#endregion
+        #endregion
     }
 
-#region Event Classes
+    #region Event Classes
     public enum ApiProcessingEventType
     {
         Pre,
@@ -354,5 +369,5 @@ namespace PlayFab.Internal
             return default(T);
         }
     }
-#endregion
+    #endregion
 }

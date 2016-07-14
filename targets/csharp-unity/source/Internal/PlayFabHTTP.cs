@@ -64,7 +64,9 @@ namespace PlayFab.Internal
         public void Update()
         {
             if (_internalHttp != null)
+            {
                 _internalHttp.Update();
+            }
         }
 
         internal static PlayFabError GeneratePfError(HttpStatusCode httpCode, PlayFabErrorCode pfErrorCode, string errorMessage)

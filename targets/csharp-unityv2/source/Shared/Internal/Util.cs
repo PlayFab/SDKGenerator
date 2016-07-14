@@ -3,6 +3,9 @@ using System;
 using System.Globalization;
 using System.IO;
 using System.Text;
+#if NETFX_CORE
+using System.Reflection;
+#endif
 
 namespace PlayFab.Internal
 {

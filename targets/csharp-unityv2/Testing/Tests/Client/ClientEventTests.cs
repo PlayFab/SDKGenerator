@@ -4,66 +4,48 @@ using System.Collections.Generic;
 using System.Linq;
 using PlayFab.UUnit;
 using PlayFab.ClientModels;
-using PlayFab.SharedModels;
 using PlayFab.Events;
 
 namespace PlayFab.Internal
 {
     public class ClientEventTest : UUnitTestCase
     {
-        private static HashSet<string> callbacks = new HashSet<string>();
-        private static PlayFabEvents _PlayFabEvents;
+        private static readonly HashSet<string> Callbacks = new HashSet<string>();
+        private static PlayFabEvents _playFabEvents;
         private EventInstanceListener _listener;
 
         private class EventInstanceListener
         {
             public void Register()
             {
-                _PlayFabEvents = PlayFabEvents.Init();
-                //Forcing initialization
-                PlayFabHttp.instance.Awake();
-                PlayFabHttp.InitializeHttp();
+                _playFabEvents = PlayFabEvents.Init();
 
-                _PlayFabEvents.OnLoginWithCustomIDRequestEvent += OnLoginWithCustomId;
-                _PlayFabEvents.OnLoginResultEvent += OnLoginResult;
-                _PlayFabEvents.OnGlobalErrorEvent += error => { callbacks.Add(error.ErrorMessage); };
-
-                PlayFabHttp.ApiProcessingEventHandler += OnGlobalEventHandler;
-            }
-
-            private void OnGlobalEventHandler(ApiProcessingEventArgs eventArgs)
-            {
-                if (eventArgs.EventType == ApiProcessingEventType.Pre)
-                {
-                    callbacks.Add("OnRequest_InstGl");
-                }
-                else
-                {
-                    callbacks.Add("OnResponse_InstGl");
-                }
+                _playFabEvents.OnLoginWithCustomIDRequestEvent += OnLoginWithCustomId;
+                _playFabEvents.OnLoginResultEvent += OnLoginResult;
             }
 
             public void Unregister()
             {
-                _PlayFabEvents.UnregisterInstance(this);
+                _playFabEvents.UnregisterInstance(this);
             }
 
             private void OnLoginResult(LoginResult result)
             {
-                callbacks.Add("OnResponse_InstLogin");
+                Callbacks.Add("OnResponse_InstLogin");
             }
 
             private void OnLoginWithCustomId(LoginWithCustomIDRequest request)
             {
-                callbacks.Add("OnRequest_InstLogin");
+                Callbacks.Add("OnRequest_InstLogin");
             }
         }
 
         public override void SetUp(UUnitTestContext testContext)
         {
             PlayFabSettings.TitleId = "6195";
+
             _listener = new EventInstanceListener();
-            callbacks.Clear();
+            Callbacks.Clear();
         }
 
         public override void Tick(UUnitTestContext testContext)
@@ -73,14 +55,13 @@ namespace PlayFab.Internal
 
         public override void TearDown(UUnitTestContext testContext)
         {
-            callbacks.Clear();
-            //PlayFabSettings.HideCallbackErrors = false;
-            //PlayFabSettings.ForceUnregisterAll();  //TODO: ForceUnregisterAll();
+            Callbacks.Clear();
+            _listener.Unregister();
+            PlayFabHttp.ClearAllEvents();
         }
 
         private void SharedErrorCallback(PlayFabError error)
         {
-            // This error was not expected.  Report it and fail.
             ((UUnitTestContext)error.CustomData).Fail(error.GenerateErrorReport());
         }
 
@@ -93,42 +74,35 @@ namespace PlayFab.Internal
         public void TestInstCallbacks_GeneralOnly(UUnitTestContext testContext)
         {
             _listener.Register();
+            PlayFabHttp.ApiProcessingEventHandler += TestInstCallbacks_GeneralOnly_OnGlobalEventHandler;
 
-            PlayFabClientAPI.LoginWithCustomID(new LoginWithCustomIDRequest { CreateAccount = true, CustomId = "UnitySdk-UnitTest", TitleId = "6195" }, PlayFabUUnitUtils.ApiActionWrapper<LoginResult>(testContext, TestInstCallbacks_GeneralOnlyCallback), PlayFabUUnitUtils.ApiActionWrapper<PlayFabError>(testContext, SharedErrorCallback), testContext);
-            testContext.True(callbacks.Contains("OnRequest_InstGl"), string.Join(", ", callbacks.ToArray()));
-            testContext.True(callbacks.Contains("OnRequest_InstLogin"), string.Join(", ", callbacks.ToArray()));
-            testContext.IntEquals(2, callbacks.Count, string.Join(", ", callbacks.ToArray()));
-            callbacks.Clear();
+            var request = new LoginWithCustomIDRequest { CreateAccount = true, CustomId = "UnitySdk-UnitTest", TitleId = "6195" };
+            PlayFabClientAPI.LoginWithCustomID(request,
+                PlayFabUUnitUtils.ApiActionWrapper<LoginResult>(testContext, TestInstCallbacks_GeneralOnlyCallback),
+                PlayFabUUnitUtils.ApiActionWrapper<PlayFabError>(testContext, SharedErrorCallback), testContext);
+            CheckCallbacks(testContext, "OnRequest_InstGl", Callbacks);
+            CheckCallbacks(testContext, "OnRequest_InstLogin", Callbacks);
+            testContext.IntEquals(2, Callbacks.Count, string.Join(", ", Callbacks.ToArray()));
+            Callbacks.Clear();
+        }
+        private void TestInstCallbacks_GeneralOnly_OnGlobalEventHandler(ApiProcessingEventArgs eventArgs)
+        {
+            if (eventArgs.EventType == ApiProcessingEventType.Pre)
+            {
+                Callbacks.Add("OnRequest_InstGl");
+            }
+            else if (eventArgs.EventType == ApiProcessingEventType.Post)
+            {
+                Callbacks.Add("OnResponse_InstGl");
+            }
         }
         private void TestInstCallbacks_GeneralOnlyCallback(LoginResult result)
         {
             var testContext = (UUnitTestContext)result.CustomData;
-            testContext.True(callbacks.Contains("OnResponse_InstGl"), string.Join(", ", callbacks.ToArray())); // NOTE: This depends on the global callbacks happening before the local callback
-            testContext.True(callbacks.Contains("OnResponse_InstLogin"), string.Join(", ", callbacks.ToArray())); // NOTE: This depends on the global callbacks happening before the local callback
-            testContext.IntEquals(2, callbacks.Count, string.Join(", ", callbacks.ToArray()));
-            testContext.EndTest(UUnitFinishState.PASSED, null);
-
-            _listener.Unregister();
-        }
-
-        [UUnitTest]
-        public void TestInstCallbacks_Local(UUnitTestContext testContext)
-        {
-            _listener.Register();
-
-            PlayFabClientAPI.LoginWithCustomID(new LoginWithCustomIDRequest { CreateAccount = true, CustomId = "UnitySdk-UnitTest", TitleId = "6195" }, PlayFabUUnitUtils.ApiActionWrapper<LoginResult>(testContext, TestInstCallbacks_LocalCallback), PlayFabUUnitUtils.ApiActionWrapper<PlayFabError>(testContext, SharedErrorCallback), testContext);
-            CheckCallbacks(testContext, "OnRequest_InstGl", callbacks);
-            CheckCallbacks(testContext, "OnRequest_InstLogin", callbacks);
-            testContext.IntEquals(2, callbacks.Count, string.Join(", ", callbacks.ToArray()));
-            callbacks.Clear();
-        }
-        private void TestInstCallbacks_LocalCallback(LoginResult result)
-        {
-            var testContext = (UUnitTestContext)result.CustomData;
             // NOTE: This depends on the global callbacks happening before the local callback
-            CheckCallbacks(testContext, "OnResponse_InstGl", callbacks);
-            CheckCallbacks(testContext, "OnResponse_InstLogin", callbacks);
-            testContext.IntEquals(2, callbacks.Count, string.Join(", ", callbacks.ToArray()));
+            CheckCallbacks(testContext, "OnResponse_InstGl", Callbacks);
+            CheckCallbacks(testContext, "OnResponse_InstLogin", Callbacks);
+            testContext.IntEquals(2, Callbacks.Count, string.Join(", ", Callbacks.ToArray()));
             testContext.EndTest(UUnitFinishState.PASSED, null);
 
             _listener.Unregister();
@@ -141,23 +115,28 @@ namespace PlayFab.Internal
         [UUnitTest]
         public void TestCallbackFailuresGlobal(UUnitTestContext testContext)
         {
+            PlayFabHttp.ApiProcessingEventHandler += TestCallbackFailuresGlobal_OnGlobalEventHandler;
+
             GetCatalogItemsRequest catalogRequest = new GetCatalogItemsRequest();
-            PlayFabClientAPI.GetCatalogItems(catalogRequest, PlayFabUUnitUtils.ApiActionWrapper<GetCatalogItemsResult>(testContext, GetCatalogItemsCallback_Single), PlayFabUUnitUtils.ApiActionWrapper<PlayFabError>(testContext, SharedErrorCallback), testContext);
+            PlayFabClientAPI.GetCatalogItems(catalogRequest,
+                PlayFabUUnitUtils.ApiActionWrapper<GetCatalogItemsResult>(testContext, GetCatalogItemsCallback_Single),
+                PlayFabUUnitUtils.ApiActionWrapper<PlayFabError>(testContext, SharedErrorCallback),
+                testContext);
         }
-        private static void SuccessCallback_Global(string urlPath, int callId, object request, PlayFabResultCommon result, PlayFabError error, object customData)
+        private void TestCallbackFailuresGlobal_OnGlobalEventHandler(ApiProcessingEventArgs eventArgs)
         {
-            callbacks.Add("SuccessCallback_Global");
+            Callbacks.Add("SuccessCallback_Global");
             throw new Exception("Non-PlayFab callback error");
         }
         private static void GetCatalogItemsCallback_Single(GetCatalogItemsResult result)
         {
-            callbacks.Add("GetCatalogItemsCallback_Single");
+            Callbacks.Add("GetCatalogItemsCallback_Single");
 
             var testContext = (UUnitTestContext)result.CustomData;
             // NOTE: This depends on the global callbacks happening before the local callback
-            CheckCallbacks(testContext, "GetCatalogItemsCallback_Single", callbacks);
-            CheckCallbacks(testContext, "SuccessCallback_Global", callbacks);
-            testContext.IntEquals(2, callbacks.Count, string.Join(",", callbacks.ToArray()));
+            CheckCallbacks(testContext, "GetCatalogItemsCallback_Single", Callbacks);
+            CheckCallbacks(testContext, "SuccessCallback_Global", Callbacks);
+            testContext.IntEquals(2, Callbacks.Count, string.Join(",", Callbacks.ToArray()));
             testContext.EndTest(UUnitFinishState.PASSED, "");
         }
 
@@ -168,26 +147,24 @@ namespace PlayFab.Internal
         [UUnitTest]
         public void TestCallbackFailuresLocal(UUnitTestContext testContext)
         {
-            //PlayFabSettings.HideCallbackErrors = true;
-            //PlayFabSettings.GlobalErrorHandler += SharedError_Global; TODO: ask Paul.
+            PlayFabHttp.ApiProcessingErrorEventHandler += SharedError_Global;
 
             RegisterPlayFabUserRequest registerRequest = new RegisterPlayFabUserRequest(); // A bad request that will fail
             PlayFabClientAPI.RegisterPlayFabUser(registerRequest, null, PlayFabUUnitUtils.ApiActionWrapper<PlayFabError>(testContext, SharedError_Single), testContext);
         }
-        private static void SharedError_Global(PlayFabError error)
+        private static void SharedError_Global(object request, PlayFabError error)
         {
-            callbacks.Add("SharedError_Global");
+            Callbacks.Add("SharedError_Global");
             throw new Exception("Non-PlayFab callback error");
         }
         private static void SharedError_Single(PlayFabError error)
         {
-            callbacks.Add("SharedError_Single");
+            Callbacks.Add("SharedError_Single");
 
             var testContext = (UUnitTestContext)error.CustomData;
-            // NOTE: This depends on the global callbacks happening before the local callback
-            CheckCallbacks(testContext, "SharedError_Single", callbacks);
-            CheckCallbacks(testContext, "SharedError_Global", callbacks);
-            testContext.IntEquals(2, callbacks.Count, string.Join(",", callbacks.ToArray()));
+            CheckCallbacks(testContext, "SharedError_Single", Callbacks);
+            CheckCallbacks(testContext, "SharedError_Global", Callbacks);
+            testContext.IntEquals(2, Callbacks.Count, string.Join(",", Callbacks.ToArray()));
             testContext.EndTest(UUnitFinishState.PASSED, "");
         }
     }

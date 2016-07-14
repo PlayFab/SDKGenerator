@@ -1,8 +1,7 @@
-﻿using UnityEngine;
-using System.Collections;
+using UnityEngine;
 using PlayFab;
 
-[CreateAssetMenu(fileName = "PlayFabSharedSettings" , menuName = "PlayFab/CreateSharedSettings", order = 1)]
+[CreateAssetMenu(fileName = "PlayFabSharedSettings", menuName = "PlayFab/CreateSharedSettings", order = 1)]
 public class PlayFabSharedSettings : ScriptableObject
 {
     public string TitleId;

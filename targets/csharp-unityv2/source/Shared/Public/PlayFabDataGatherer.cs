@@ -1,9 +1,9 @@
-﻿using UnityEngine;
-using System.Collections;
+using UnityEngine;
 using System.Collections.Generic;
-using System.Reflection;
-using System.Text;
 using UnityEngine.Rendering;
+#if NETFX_CORE
+using System.Reflection;
+#endif
 
 namespace PlayFab
 {

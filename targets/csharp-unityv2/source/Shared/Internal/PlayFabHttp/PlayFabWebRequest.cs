@@ -219,7 +219,7 @@ namespace PlayFab.Internal
             {
                 var payload = Encoding.UTF8.GetBytes(data);
 
-                requestState.Request = (HttpWebRequest) WebRequest.Create(urlPath);
+                requestState.Request = (HttpWebRequest)WebRequest.Create(urlPath);
                 requestState.Request.UserAgent = "UnityEngine-Unity; Version: " + _UnityVersion;
                 requestState.Request.SendChunked = false;
                 requestState.Request.Proxy = null;
@@ -446,13 +446,13 @@ namespace PlayFab.Internal
 #if UNITY_ANDROID
                                         attribRequest.Android_Id = advertisingId;
 #elif UNITY_IOS
-                                    attribRequest.Idfa = advertisingId;
+                                        attribRequest.Idfa = advertisingId;
 #endif
                                         PlayFabClientAPI.AttributeInstall(attribRequest, (attribResult) =>
-                                {
-                                //This is for internal testing tools.
-                                PlayFabSettings.AdvertisingIdType += "_Successful";
-                                }, null);
+                                        {
+                                            //This is for internal testing tools.
+                                            PlayFabSettings.AdvertisingIdType += "_Successful";
+                                        }, null);
                                     }
                                 });
                         });
@@ -469,23 +469,13 @@ namespace PlayFab.Internal
                     PlayFabSettings.LogicServerUrl = cloudScriptUrl.Url;
                 }
 #endif
-                try
-                {
-                    //Send our post event.  //TODO: maybe we want this Enqueued also?
-                    PlayFabHttp.SendEvent(request, result, ApiProcessingEventType.Post);
-                }
-                catch (Exception e)
-                {
-                    Debug.LogException(e);
-                }
-
-
                 if (callBack != null)
                 {
                     lock (ResultQueue)
                     {
                         //Queue The result callbacks to run on the main thread.
-                        ResultQueue.Enqueue(() => {
+                        ResultQueue.Enqueue(() =>
+                        {
 #if PLAYFAB_REQUEST_TIMING
                             state.Stopwatch.Stop();
                             state.Timing.MainThreadRequestMs = (int)state.Stopwatch.ElapsedMilliseconds;
@@ -493,6 +483,7 @@ namespace PlayFab.Internal
 #endif
                             try
                             {
+                                PlayFabHttp.SendEvent(request, result, ApiProcessingEventType.Post);
                                 callBack(result);
                             }
                             catch (Exception e)
@@ -512,7 +503,7 @@ namespace PlayFab.Internal
 
         }
 
-        
+
         public void Update()
         {
             lock (ResultQueue)

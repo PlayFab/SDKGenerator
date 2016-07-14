@@ -1,4 +1,4 @@
-﻿#if !UNITY_WSA && !UNITY_WP8
+#if !UNITY_WSA && !UNITY_WP8
 using System;
 using UnityEngine;
 using System.Collections;
@@ -273,7 +273,8 @@ namespace PlayFab.Internal
                 }
                 else
                 {
-                    Debug.LogException(e);
+                    var enhancedError = new WebException("Exception making http request to :" + urlPath, e);
+                    Debug.LogException(enhancedError);
                     requestState.RetryTimeoutCounter = 0;
                     requestState.State = HttpRequestState.Error;
                 }

@@ -233,7 +233,7 @@ namespace PlayFab.Internal
 
         public static bool IsClientLoggedIn()
         {
-            return !string.IsNullOrEmpty(_internalHttp.AuthKey);
+            return _internalHttp != null && !string.IsNullOrEmpty(_internalHttp.AuthKey);
         }
 
         [Serializable]

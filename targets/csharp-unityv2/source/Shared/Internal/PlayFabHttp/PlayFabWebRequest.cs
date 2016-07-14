@@ -320,7 +320,7 @@ namespace PlayFab.Internal
                             //Queue The result callbacks to run on the main thread.
                             ResultQueue.Enqueue(() =>
                             {
-                                PlayFabHttp.SendErrorEvent(playFabError);
+                                PlayFabHttp.SendErrorEvent(request, playFabError);
                                 errorCallback(playFabError);
                             });
                         }
@@ -372,7 +372,7 @@ namespace PlayFab.Internal
                         {
                             ResultQueue.Enqueue(() =>
                             {
-                                PlayFabHttp.SendErrorEvent(playFabError);
+                                PlayFabHttp.SendErrorEvent(request, playFabError);
                                 errorCallback(playFabError);
                             });
                         }
@@ -391,7 +391,7 @@ namespace PlayFab.Internal
                         {
                             ResultQueue.Enqueue(() =>
                             {
-                                PlayFabHttp.SendErrorEvent(playFabError);
+                                PlayFabHttp.SendErrorEvent(request, playFabError);
                                 errorCallback(playFabError);
                             });
                         }
@@ -468,8 +468,16 @@ namespace PlayFab.Internal
                     PlayFabSettings.LogicServerUrl = cloudScriptUrl.Url;
                 }
 #endif
-                //Send our post event.  //TODO: maybe we want this Enqueued also?
-                PlayFabHttp.SendEvent(request, result, ApiProcessingEventType.Post);
+                try
+                {
+                    //Send our post event.  //TODO: maybe we want this Enqueued also?
+                    PlayFabHttp.SendEvent(request, result, ApiProcessingEventType.Post);
+                }
+                catch (Exception e)
+                {
+                    Debug.LogException(e);
+                }
+
 
                 if (callBack != null)
                 {
@@ -482,7 +490,14 @@ namespace PlayFab.Internal
                             state.Timing.MainThreadRequestMs = (int)state.Stopwatch.ElapsedMilliseconds;
                             PlayFabHttp.SendRequestTiming(state.Timing);
 #endif
-                            callBack(result);
+                            try
+                            {
+                                callBack(result);
+                            }
+                            catch (Exception e)
+                            {
+                                Debug.LogException(e);
+                            }
                         });
                     }
                 }

@@ -161,7 +161,14 @@ namespace PlayFab.Internal
 #endif
                         lock (_eventLock)
                         {
-                            PlayFabHttp.SendEvent(request, result, ApiProcessingEventType.Post);
+                            try
+                            {
+                                PlayFabHttp.SendEvent(request, result, ApiProcessingEventType.Post);
+                            }
+                            catch (Exception e)
+                            {
+                                Debug.LogException(e);
+                            }
                         }
 
 #if PLAYFAB_REQUEST_TIMING
@@ -177,7 +184,15 @@ namespace PlayFab.Internal
 
                         if (resultCallback != null)
                         {
-                            resultCallback(result);
+                            try
+                            {
+                                resultCallback(result);
+                            }
+                            catch (Exception e)
+                            {
+                                Debug.LogException(e);
+                            }
+                            
                         }
                     }
                     else
@@ -185,7 +200,7 @@ namespace PlayFab.Internal
                         if (errorCallback != null)
                         {
                             var playFabError = PlayFabHttp.GeneratePlayFabError(response, customData);
-                            PlayFabHttp.SendErrorEvent(playFabError);
+                            PlayFabHttp.SendErrorEvent(request, playFabError);
                             errorCallback(playFabError);
                         }
                     }
@@ -200,7 +215,7 @@ namespace PlayFab.Internal
                 if (errorCallback != null)
                 {
                     var playFabError = PlayFabHttp.GeneratePlayFabErrorGeneric(errorCb, null, customData);
-                    PlayFabHttp.SendErrorEvent(playFabError);
+                    PlayFabHttp.SendErrorEvent(request, playFabError);
                     errorCallback(playFabError);
                 }
             }));

@@ -114,7 +114,7 @@ namespace PlayFab.Internal
         public override void Awake()
         {
 #if ENABLE_PLAYFABADMIN_API || ENABLE_PLAYFABSERVER_API
-            _devKey = PlayFabSettings.DeveloperSecretKey ?? _devKey;
+            _internalHttp.DevKey = PlayFabSettings.DeveloperSecretKey ?? _internalHttp.DevKey;
 #endif
             _gatherer.GatherData();
             base.Awake();

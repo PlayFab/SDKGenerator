@@ -1,7 +1,7 @@
 var fs = require("fs");
 var path = require("path");
 
-function getTargetsList() {
+function GetTargetsList() {
     var targetList = [];
     
     var targetsDir = path.resolve(__dirname, "targets");
@@ -21,8 +21,8 @@ function getTargetsList() {
     return targetList;
 }
 
-function generate(args) {
-    var targetList = getTargetsList();
+function Generate(args) {
+    var targetList = GetTargetsList();
     
     var syntax = "Synatax: node generate.js <apiSpecLocation> <targetName>=<targetOutputLocation> [-flags <flag>[ <flag> ...]]\n" +
                 "\tExample: node generate.js C:/depot/API_Specs csharp-unity=../sdks/UnitySDK -flags xbox playstation\n" +
@@ -41,16 +41,16 @@ function generate(args) {
     var errorMessages = []; // Errors during ExtractArgs
     var targetOutputLocationList = []; // A list of objects that describe an sdk target
     ExtractArgs(args, argsByName, targetOutputLocationList, errorMessages);
-
+    
     if (!argsByName.buildidentifier) {
-        errorMessages.push("'buildIdentifier' is a new, mandatory parameter.  Ex: -buildIdentifier Jenkins_eachSDK_1337");
+        argsByName.buildidentifier = "default_manual_build";
     }
     if (errorMessages.length !== 0) {
-        for (var i in errorMessages)
+        for (var i = 0; i < errorMessages.length; i++)
             console.log(errorMessages[i]);
         process.exit(1);
     }
-
+    
     var buildFlags = [];
     if (argsByName.hasOwnProperty("flags"))
         buildFlags = LowercaseFlagsList(argsByName.flags.split(" "));
@@ -71,11 +71,12 @@ function generate(args) {
     
     var targetsDir = path.resolve(__dirname, "targets");
     
-    for (var t in targetOutputLocationList) {
+    for (var t = 0; t < targetOutputLocationList.length; t++) {
         var target = targetOutputLocationList[t];
         
         var sdkOutputDir = target.dest;
         
+        console.log("Target: " + targetsDir + ", and " + target.name);
         var targetSourceDir = path.resolve(targetsDir, target.name);
         var targetMain = path.resolve(targetSourceDir, "make.js");
         
@@ -108,7 +109,7 @@ function generate(args) {
                 mkdirParentsSync(apiOutputDir);
             targetMaker.makeServerAPI(serverApis, targetSourceDir, apiOutputDir);
         }
-
+        
         if (targetMaker.makeAdminAPI) {
             apiOutputDir = targetMaker.putInRoot ? sdkOutputDir : path.resolve(sdkOutputDir, "PlayFabServerSDK");
             console.log(" + Generating Server to " + apiOutputDir);
@@ -116,7 +117,7 @@ function generate(args) {
                 mkdirParentsSync(apiOutputDir);
             targetMaker.makeAdminAPI(adminApis, targetSourceDir, apiOutputDir);
         }
-
+        
         if (targetMaker.makeCombinedAPI) {
             apiOutputDir = targetMaker.putInRoot ? sdkOutputDir : path.resolve(sdkOutputDir, "PlayFabSDK");
             console.log(" + Generating Combined to " + apiOutputDir);
@@ -129,41 +130,42 @@ function generate(args) {
     console.log("\n\nDONE!\n");
 }
 
-var ExtractArgs = function (args, argsByName, targetOutputLocationList, errorMessages) {
-
+function ExtractArgs(args, argsByName, targetOutputLocationList, errorMessages) {
     var cmdArgs = args.slice(3, args.length);
     var activeKey = null;
-    for (var i in cmdArgs) {
+    for (var i = 0; i < cmdArgs.length; i++) {
         var lcArg = cmdArgs[i].toLowerCase();
         if (lcArg.indexOf("-") === 0) {
             activeKey = lcArg.substring(1);
             argsByName[activeKey] = "";
         } else if (lcArg.indexOf("=") !== -1) { // any parameter with an "=" is assumed to be a target specification
             var argPair = lcArg.split("=", 2);
-            var targetOutput = {};
-            targetOutput.name = argPair[0];
-            targetOutput.dest = path.normalize(argPair[1]);
-            if (fs.existsSync(targetOutput.dest) && !fs.lstatSync(targetOutput.dest).isDirectory()) {
-                errorMessages.push("Invalid target output path: " + targetOutput.dest);
-            } else {
-                targetOutputLocationList.push(targetOutput);
-            }
+            CheckTarget(argPair[0], argPair[1], targetOutputLocationList, errorMessages);
         } else if (activeKey == null) {
             errorMessages.push("Unexpected token: " + lcArg);
         } else {
             argsByName[activeKey] = argsByName[activeKey] + lcArg;
         }
     }
+    
+    // Pull from environment variables if there's no console-defined targets
+    if (targetOutputLocationList.length === 0 && process.env.hasOwnProperty("SdkSource") && process.env.hasOwnProperty("SdkName")) {
+        CheckTarget(process.env.hasOwnProperty("SdkSource"), process.env.hasOwnProperty("SdkName"), targetOutputLocationList, errorMessages);
+    }
 }
 
-var GetApiDefinition = function (specLocation, apiFileName, buildFlags) {
-    var api = require(path.resolve(specLocation, apiFileName));
-    var type = api.ParentTypes.filter(function(pt){return pt.Group == specLocation});
-
-    return type;
+function CheckTarget(sdkSource, sdkDestination, targetOutputLocationList, errorMessages) {
+    var targetOutput = {};
+    targetOutput.name = sdkSource;
+    targetOutput.dest = path.normalize(sdkDestination);
+    if (fs.existsSync(targetOutput.dest) && !fs.lstatSync(targetOutput.dest).isDirectory()) {
+        errorMessages.push("Invalid target output path: " + targetOutput.dest);
+    } else {
+        targetOutputLocationList.push(targetOutput);
+    }
 }
 
-var GetApiDefinition = function (specLocation, apiFileName, buildFlags) {
+function GetApiDefinition(specLocation, apiFileName, buildFlags) {
     var api = require(path.resolve(specLocation, apiFileName));
     
     // Filter calls out of the API before returning it
@@ -182,7 +184,7 @@ var GetApiDefinition = function (specLocation, apiFileName, buildFlags) {
     return api;
 }
 
-var IsVisibleWithFlags = function (buildFlags, apiObj) {
+function IsVisibleWithFlags(buildFlags, apiObj) {
     // It's pretty easy to exclude (Api calls and datatypes)
     var exclusiveFlags = [];
     if (apiObj.hasOwnProperty("ExclusiveFlags"))
@@ -212,7 +214,7 @@ var IsVisibleWithFlags = function (buildFlags, apiObj) {
     return false;
 }
 
-var LowercaseFlagsList = function (flags) {
+function LowercaseFlagsList(flags) {
     var output = [];
     for (var i in flags)
         output.push(flags[i].toLowerCase());
@@ -254,18 +256,18 @@ GLOBAL.copyTree = function (source, dest) {
 
 GLOBAL.copyFile = function (source, dest) {
     if (!source || !dest) {
-        console.error("Invalid copy file parameters: " + source + " " + dest);
+        console.error("ERROR: Invalid copy file parameters: " + source + " " + dest);
         return;
     }
     
     if (!fs.existsSync(source)) {
-        console.error("copyFile source doesn't exist: " + source);
+        console.error("ERROR: copyFile source doesn't exist: " + source);
         return;
     }
     var sourceStat = fs.lstatSync(source);
     
     if (sourceStat.isDirectory()) {
-        console.error("copyFile source is a directory: " + source);
+        console.error("ERROR: copyFile source is a directory: " + source);
         return;
     }
     
@@ -335,4 +337,4 @@ GLOBAL.writeFile = function (filename, data) {
 
 GLOBAL.ejs = require("ejs");
 
-generate(process.argv);
+Generate(process.argv);

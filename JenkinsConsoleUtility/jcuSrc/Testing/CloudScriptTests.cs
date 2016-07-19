@@ -37,7 +37,7 @@ namespace JenkinsConsoleUtility.Testing
 
             // Reset a previous test if relevant
             callResult = CloudScriptListener.ExecuteCloudScript(CloudScriptListener.CSfunc_GetTestData, getRequest, out testResults, out fetchErrorReport);
-            UUnitAssert.True(callResult, fetchErrorReport);
+            //UUnitAssert.True(callResult, fetchErrorReport);
 
             // Verify that no data pre-exists
             callResult = CloudScriptListener.ExecuteCloudScript(CloudScriptListener.CSfunc_TestDataExists, getRequest, out functionResult, out getErrorReport);

@@ -26,8 +26,8 @@ namespace PlayFab
         /// </summary>
 <% } %>        public static void <%- apiCall.name %>(<%- apiCall.request %> request, Action<<%- apiCall.result %>> resultCallback, Action<PlayFabError> errorCallback, object customData = null)
         {
-            <%- getRequestActions(apiCall, api) %>
-            PlayFabHttp.MakeApiCall<<%- apiCall.request %>, <%- apiCall.result %>>("<%- api.name %>", "/<%- api.name %>/<%- apiCall.name %>", request , <%- getAuthParams(apiCall) %>, resultCallback, errorCallback, customData);
+            <%- GetRequestActions(apiCall, api) %>
+            PlayFabHttp.MakeApiCall<<%- apiCall.request %>, <%- apiCall.result %>>("<%- api.name %>", "/<%- api.name %>/<%- apiCall.name %>", request , <%- GetAuthParams(apiCall) %>, resultCallback, errorCallback, customData);
         }
 
 <% } %>

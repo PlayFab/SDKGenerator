@@ -3,11 +3,11 @@
     /// <%- datatype.description %>
     /// </summary><% } %>
     [Serializable]
-    public<% if(datatype.isAbstract) { %> abstract<% } %> class <%- datatype.name %><%- getBaseTypeSyntax(datatype) %>
+    public<% if(datatype.isAbstract) { %> abstract<% } %> class <%- datatype.name %><%- GetBaseTypeSyntax(datatype) %>
     {<% for(var i in datatype.properties) { var property = datatype.properties[i] %>
 <% if(property.description) { %>
         /// <summary>
         /// <%- property.description %>
-        /// </summary><% } %><%- getPropertyAttribs(property, datatype) %>
+        /// </summary><% } %><%- GetPropertyAttribs(property, datatype) %>
         public <%- getPropertyDef(property, datatype) %> { get; set;}<% } %>
     }

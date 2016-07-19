@@ -30,7 +30,9 @@ namespace PlayFab.Internal
         [MenuItem("PlayFab/Package SDK")]
         public static void PackagePlayFabSdk()
         {
-            AssetDatabase.ExportPackage(SdkAssets, "C:/depot/sdks/UnitySDK/Packages/PlayFabSDK.unitypackage", ExportPackageOptions.Recurse);
+            var packagePath = "C:/depot/sdks/UnitySDK/Packages/UnitySDK.unitypackage";
+            AssetDatabase.ExportPackage(SdkAssets, packagePath, ExportPackageOptions.Recurse);
+            Debug.Log("Package built: " + packagePath);
         }
 
         [MenuItem("PlayFab/Testing/AndroidTestBuild")]
@@ -46,7 +48,8 @@ namespace PlayFab.Internal
         [MenuItem("PlayFab/Testing/iPhoneTestBuild")]
         public static void MakeIPhoneBuild()
         {
-            PlayerSettings.SetPropertyInt("ScriptingBackend", (int)ScriptingImplementation.IL2CPP, BuildTargetGroup.iOS); // ScriptingImplementation.Mono2x not supported for ios/PlayFabSdkV1
+            // PlayerSettings.SetPropertyInt("ScriptingBackend", (int)ScriptingImplementation.IL2CPP, BuildTargetGroup.iOS); // Ideally we should be testing both at some point, but ...
+            PlayerSettings.SetPropertyInt("ScriptingBackend", (int)ScriptingImplementation.Mono2x, BuildTargetGroup.iOS); // Mono2x is traditionally the one with issues, and it's a lot faster to build/test
             var iosPath = Path.Combine(GetBuildPath(), "PlayFabIOS");
             MkDir(GetBuildPath());
             MkDir(iosPath);

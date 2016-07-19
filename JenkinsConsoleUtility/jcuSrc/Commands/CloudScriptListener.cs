@@ -133,6 +133,8 @@ namespace JenkinsConsoleUtility.Commands
 
         public static bool ExecuteCloudScript<TIn, TOut>(string functionName, TIn functionParameter, out TOut result, out string errorReport)
         {
+            string json = null;
+
             // Perform the request
             var request = new ExecuteCloudScriptRequest
             {
@@ -156,7 +158,7 @@ namespace JenkinsConsoleUtility.Commands
                     if (eachLog.Data != null)
                     {
                         // Api failure within cloudscript log
-                        string json = JsonConvert.SerializeObject(eachLog.Data, Formatting.Indented);
+                        json = JsonConvert.SerializeObject(eachLog.Data, Formatting.Indented);
                         errorReport += eachLog.Level + ": " + eachLog.Message + "\n" + json;
                     }
                     else
@@ -174,7 +176,7 @@ namespace JenkinsConsoleUtility.Commands
             else
             {
                 // Re-serialize as the target type
-                string json = JsonConvert.SerializeObject(task.Result.Result.FunctionResult, Formatting.Indented);
+                json = JsonConvert.SerializeObject(task.Result.Result.FunctionResult, Formatting.Indented);
                 try
                 {
                     result = JsonConvert.DeserializeObject<TOut>(json, PlayFabUtil.JsonSettings);
@@ -184,7 +186,7 @@ namespace JenkinsConsoleUtility.Commands
                     throw new Exception("Could not serialize text: \"" + json + "\" as " + typeof(TOut).Name);
                 }
             }
-            return task.Result.Error == null && task.Result.Result.Error == null && result != null;
+            return task.Result.Error == null && task.Result.Result.Error == null && (result != null || json == "null");
         }
     }
 }

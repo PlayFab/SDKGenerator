@@ -78,6 +78,11 @@ namespace PlayFab.UUnit
             return sb.ToString();
         }
 
+        public TestSuiteReport GetInternalReport()
+        {
+            return _testReport.InternalReport;
+        }
+
         public void FindAndAddAllTestCases(Type parent, string filter = null)
         {
             if (_suiteState != UUnitActiveState.PENDING)
@@ -222,7 +227,6 @@ namespace PlayFab.UUnit
             if (testsDone && _suiteState == UUnitActiveState.ACTIVE)
             {
                 _suiteState = UUnitActiveState.READY;
-                // PostTestResultsToCloudScript();
                 ManageInstance(null, activeTestInstance); // Ensure that the final test is cleaned up
             }
             return _suiteState == UUnitActiveState.READY;

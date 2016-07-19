@@ -11,13 +11,11 @@ handlers.helloWorld = function (args) {
     return { messageValue: message };
 }
 
-handlers.easyLogEvent = function (args)
-{
+handlers.easyLogEvent = function (args) {
     log.info(JSON.stringify(args.logMessage));
 }
 
-handlers.TestDataExists = function (args)
-{
+handlers.TestDataExists = function (args) {
     var playerData = server.GetUserInternalData({
         PlayFabId: currentPlayerId,
         Keys: [TEST_DATA_KEY]
@@ -25,20 +23,20 @@ handlers.TestDataExists = function (args)
     return playerData.Data.hasOwnProperty(TEST_DATA_KEY);
 }
 
-handlers.GetTestData = function (args)
-{
+handlers.GetTestData = function (args) {
     var testResults = null;
     var playerData = server.GetUserInternalData({
         PlayFabId: currentPlayerId,
         Keys: [TEST_DATA_KEY]
     });
-    if (playerData.Data.hasOwnProperty(TEST_DATA_KEY))
-    {
+    if (playerData.Data.hasOwnProperty(TEST_DATA_KEY)) {
         log.info("Returning Data: " + playerData.Data[TEST_DATA_KEY].Value);
         testResults = JSON.parse(playerData.Data[TEST_DATA_KEY].Value);
-        server.DeleteUsers({
-            TitleId: TEST_TITLE_ID,
-            PlayFabIds: [currentPlayerId]
+        var data = {};
+        data[TEST_DATA_KEY] = null;
+        server.UpdateUserInternalData({
+            PlayFabId: currentPlayerId,
+            Data: data
         });
     } else {
         log.info("Expected data not found in: " + JSON.stringify(playerData));

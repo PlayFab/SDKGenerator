@@ -1,78 +1,70 @@
+var ejs = require("ejs");
 var path = require("path");
 
 exports.putInRoot = true;
 
-exports.makeCombinedAPI = function(apis, sourceDir, apiOutputDir){
+exports.makeCombinedAPI = function (apis, sourceDir, apiOutputDir) {
     apiOutputDir = path.resolve(apiOutputDir, "Source/PlayFabSDK");
     console.log("  - Generating C-sharp Unity Events to\n  -> " + apiOutputDir);
     var templateDir = path.resolve(sourceDir, "templates");
-    var apiTemplate = ejs.compile(readFile(path.resolve(templateDir,"Events.cs.ejs")));
+    var apiTemplate = ejs.compile(readFile(path.resolve(templateDir, "Events.cs.ejs")));
     var apiLocals = {};
     apiLocals.apis = apis;
     var generatedApi = apiTemplate(apiLocals);
     writeFile(path.resolve(apiOutputDir, "Shared/Public/PlayFabEvents.cs"), generatedApi);
-
-    for (var i=0; i<apis.length; i++) {
-        makeEvent(apis[i], sourceDir, apiOutputDir);
+    
+    for (var i = 0; i < apis.length; i++) {
+        MakeEvent(apis[i], sourceDir, apiOutputDir);
     }
-
 }
 
 exports.makeClientAPI = function (api, sourceDir, apiOutputDir) {
     var baseApiOutputDir = path.resolve(apiOutputDir, "Source/PlayFabSDK");
-    var baseTestingOutputDir = path.resolve(apiOutputDir,"Testing");
+    var baseTestingOutputDir = path.resolve(apiOutputDir, "Testing");
     console.log("  - Generating C-sharp Unity client SDK sample proj to\n  -> " + baseApiOutputDir);
     copyTree(path.resolve(sourceDir, "source"), baseApiOutputDir);
-    copyTree(path.resolve(sourceDir,"Testing"), baseTestingOutputDir);
-    makeDatatypes([api], sourceDir, baseApiOutputDir);
-    makeAPI(api, sourceDir, baseApiOutputDir);
-    generateSimpleFiles([api], sourceDir, baseApiOutputDir, true);
-    copyFile(path.resolve(sourceDir, "Testing/Tests/Client/ClientApiTests.cs"), path.resolve(baseTestingOutputDir, "Tests/Client/ClientApiTests.cs"));
-    copyFile(path.resolve(sourceDir, "Testing/Tests/Client/ClientEventTest.cs"), path.resolve(baseTestingOutputDir, "Tests/Client/ClientEventTest.cs"));
-
-    copyFile(path.resolve(sourceDir, "Settings/Client/PlayFabSettings.cs"), path.resolve(baseApiOutputDir, "Client/PlayFabSettings.cs"));
-    // Add the DemoScene to the clientSDK - TODO: A command line parameter that decides when to add it or not, TODO: GitIgnore the DemoScene folder?
-    // copyTree(path.resolve(sourceDir, "testing/DemoScene"), path.resolve(baseApiOutputDir, "DemoScene"));
+    copyTree(path.resolve(sourceDir, "Testing"), baseTestingOutputDir);
+    MakeDatatypes([api], sourceDir, baseApiOutputDir);
+    MakeApi(api, sourceDir, baseApiOutputDir);
+    GenerateSimpleFiles([api], sourceDir, baseApiOutputDir);
 }
 
 exports.makeServerAPI = function (apis, sourceDir, apiOutputDir) {
     apiOutputDir = path.resolve(apiOutputDir, "Source/PlayFabSDK");
     console.log("  - Generating C-sharp Unity server SDK sample proj to\n  -> " + apiOutputDir);
-    var filteredApis = apis.filter(function(el){ return el.name != "Admin"; });
-    makeDatatypes(filteredApis, sourceDir, apiOutputDir);
-    for (var i in filteredApis) {
-        makeAPI(filteredApis[i], sourceDir, apiOutputDir);
+    var filteredApis = apis.filter(function (el) { return el.name !== "Admin"; });
+    MakeDatatypes(filteredApis, sourceDir, apiOutputDir);
+    for (var i = 0; i < filteredApis.length; i++) {
+        MakeApi(filteredApis[i], sourceDir, apiOutputDir);
     }
-    copyFile(path.resolve(sourceDir, "Settings/Server/PlayFabSettings.cs"), path.resolve(apiOutputDir, "Server/PlayFabSettings.cs"));
 }
 
 exports.makeAdminAPI = function (apis, sourceDir, apiOutputDir) {
     apiOutputDir = path.resolve(apiOutputDir, "Source/PlayFabSDK");
     console.log("  - Generating C-sharp Unity server SDK sample proj to\n  -> " + apiOutputDir);
-
-    makeDatatypes(apis, sourceDir, apiOutputDir);
-    for (var i in apis) {
-        makeAPI(apis[i], sourceDir, apiOutputDir);
+    
+    MakeDatatypes(apis, sourceDir, apiOutputDir);
+    for (var i = 0; i < apis.length; i++) {
+        MakeApi(apis[i], sourceDir, apiOutputDir);
     }
-    copyFile(path.resolve(sourceDir, "Settings/Admin/PlayFabSettings.cs"), path.resolve(apiOutputDir, "Admin/PlayFabSettings.cs"));
 }
 
-function makeEvent(api,sourceDir,apiOutputDir){
+function MakeEvent(api, sourceDir, apiOutputDir) {
     var templateDir = path.resolve(sourceDir, "templates");
     var apiTemplate = ejs.compile(readFile(path.resolve(templateDir, "ApiEvent.cs.ejs")));
     var apiLocals = {};
     apiLocals.api = api;
     var generatedApi = apiTemplate(apiLocals);
-    writeFile(path.resolve(apiOutputDir,api.name +  "/PlayFabEvents.cs"), generatedApi);
+    writeFile(path.resolve(apiOutputDir, api.name + "/PlayFabEvents.cs"), generatedApi);
 }
 
-function getBaseTypeSyntax(datatype) {
+function GetBaseTypeSyntax(datatype) {
     if (datatype.name.toLowerCase().indexOf("result") > -1 || datatype.name.toLowerCase().indexOf("response") > -1)
         return " : PlayFabResultCommon";
     return "";
 }
 
-function makeDatatypes(apis, sourceDir, apiOutputDir) {
+function MakeDatatypes(apis, sourceDir, apiOutputDir) {
     var templateDir = path.resolve(sourceDir, "templates");
     
     var modelTemplate = ejs.compile(readFile(path.resolve(templateDir, "Model.cs.ejs")));
@@ -82,17 +74,17 @@ function makeDatatypes(apis, sourceDir, apiOutputDir) {
     var makeDatatype = function (datatype) {
         var modelLocals = {};
         modelLocals.datatype = datatype;
-        modelLocals.getPropertyDef = getModelPropertyDef;
-        modelLocals.getPropertyAttribs = getPropertyAttribs;
-        modelLocals.getPropertyJsonReader = getPropertyJsonReader;
-        modelLocals.getBaseTypeSyntax = getBaseTypeSyntax;
+        modelLocals.getPropertyDef = GetModelPropertyDef;
+        modelLocals.GetPropertyAttribs = GetPropertyAttribs;
+        modelLocals.GetPropertyJsonReader = GetPropertyJsonReader;
+        modelLocals.GetBaseTypeSyntax = GetBaseTypeSyntax;
         if (datatype.isenum) {
             return enumTemplate(modelLocals);
         }
         return modelTemplate(modelLocals);
     };
     
-    for (var a in apis) {
+    for (var a = 0; a < apis.length; a++) {
         var modelsLocal = {};
         modelsLocal.api = apis[a];
         modelsLocal.makeDatatype = makeDatatype;
@@ -101,35 +93,35 @@ function makeDatatypes(apis, sourceDir, apiOutputDir) {
     }
 }
 
-function makeAPI(api, sourceDir, apiOutputDir) {
+function MakeApi(api, sourceDir, apiOutputDir) {
     console.log("   - Generating C# " + api.name + " library to\n   -> " + apiOutputDir);
     
     var templateDir = path.resolve(sourceDir, "templates");
     var apiTemplate = ejs.compile(readFile(path.resolve(templateDir, "API.cs.ejs")));
     var apiLocals = {};
     apiLocals.api = api;
-    apiLocals.getAuthParams = getAuthParams;
-    apiLocals.getRequestActions = getRequestActions;
+    apiLocals.GetAuthParams = GetAuthParams;
+    apiLocals.GetRequestActions = GetRequestActions;
     apiLocals.hasClientOptions = api.name === "Client";
     var generatedApi = apiTemplate(apiLocals);
     writeFile(path.resolve(apiOutputDir, api.name + "/PlayFab" + api.name + "API.cs"), generatedApi);
 }
 
-function generateSimpleFiles(apis, sourceDir, apiOutputDir, isClient) {
+function GenerateSimpleFiles(apis, sourceDir, apiOutputDir) {
     var errorsTemplate = ejs.compile(readFile(path.resolve(sourceDir, "templates/Errors.cs.ejs")));
     var errorLocals = {};
     errorLocals.errorList = apis[0].errorList;
     errorLocals.errors = apis[0].errors;
     var generatedErrors = errorsTemplate(errorLocals);
     writeFile(path.resolve(apiOutputDir, "../Plugins/PlayFabShared/PlayFabErrors.cs"), generatedErrors);
-
+    
     var settingsTemplate = ejs.compile(readFile(path.resolve(sourceDir, "templates/PlayFabSettings.cs.ejs")));
     var settingsLocals = {};
     settingsLocals.sdkVersion = exports.sdkVersion;
     settingsLocals.buildIdentifier = exports.buildIdentifier;
     settingsLocals.hasServerOptions = false;
     settingsLocals.hasClientOptions = false;
-    for (var i in apis) {
+    for (var i = 0; i < apis.length; i++) {
         if (apis[i].name === "Client")
             settingsLocals.hasClientOptions = true;
         else
@@ -139,8 +131,8 @@ function generateSimpleFiles(apis, sourceDir, apiOutputDir, isClient) {
     writeFile(path.resolve(apiOutputDir, "Shared/Public/PlayFabSettings.cs"), generatedSettings);
 }
 
-function getModelPropertyDef(property, datatype) {
-    var basicType = getPropertyCSType(property, datatype, false);
+function GetModelPropertyDef(property, datatype) {
+    var basicType = GetPropertyCsType(property, datatype, false);
     if (property.collection && property.collection === "array")
         return "List<" + basicType + "> " + property.name;
     else if (property.collection && property.collection === "map")
@@ -148,15 +140,15 @@ function getModelPropertyDef(property, datatype) {
     else if (property.collection)
         throw "Unknown collection type: " + property.collection + " for " + property.name + " in " + datatype.name;
     
-    basicType = getPropertyCSType(property, datatype, true);
+    basicType = GetPropertyCsType(property, datatype, true);
     return basicType + " " + property.name;
 }
 
-function getPropertyAttribs(property, datatype, api) {
+function GetPropertyAttribs(property, datatype, api) {
     return "";
 }
 
-function getPropertyCSType(property, datatype, needOptional) {
+function GetPropertyCsType(property, datatype, needOptional) {
     var optional = (needOptional && property.optional) ? "?" : "";
     
     if (property.actualtype === "String")
@@ -192,7 +184,7 @@ function getPropertyCSType(property, datatype, needOptional) {
     throw "Unknown property type: " + property.actualtype + " for " + property.name + " in " + datatype.name;
 }
 
-function getPropertyJSType(property, datatype, needOptional) {
+function GetPropertyJsType(property, datatype, needOptional) {
     var optional = (needOptional && property.optional) ? "?" : "";
     
     if (property.actualtype === "String")
@@ -228,7 +220,7 @@ function getPropertyJSType(property, datatype, needOptional) {
     throw "Unknown property type: " + property.actualtype + " for " + property.name + " in " + datatype.name;
 }
 
-function getMapDeserializer(property, datatype) {
+function GetMapDeserializer(property, datatype) {
     if (property.actualtype === "String")
         return "JsonUtil.GetDictionary<string>(json, \"" + property.name + "\");";
     else if (property.actualtype === "Boolean")
@@ -254,7 +246,7 @@ function getMapDeserializer(property, datatype) {
     throw "Unknown property type: " + property.actualtype + " for " + property.name + " in " + datatype.name;
 }
 
-function getListDeserializer(property, api) {
+function GetListDeserializer(property, api) {
     if (property.actualtype === "String")
         return "JsonUtil.GetList<string>(json, \"" + property.name + "\");";
     else if (property.actualtype === "Boolean")
@@ -282,11 +274,11 @@ function getListDeserializer(property, api) {
     throw "Unknown property type: " + property.actualtype + " for " + property.name;
 }
 
-function getPropertyJsonReader(property, datatype) {
-    var csType = getPropertyCSType(property, datatype, false);
-    var csOptionalType = getPropertyCSType(property, datatype, true);
-    var jsType = getPropertyJSType(property, datatype, false);
-    var jsOptionalType = getPropertyJSType(property, datatype, true);
+function GetPropertyJsonReader(property, datatype) {
+    var csType = GetPropertyCsType(property, datatype, false);
+    var csOptionalType = GetPropertyCsType(property, datatype, true);
+    //var jsType = GetPropertyJsType(property, datatype, false);
+    var jsOptionalType = GetPropertyJsType(property, datatype, true);
     
     if (property.isclass && property.collection === "map")
         return property.name + " = JsonUtil.GetObjectDictionary<" + csType + ">(json, \"" + property.name + "\");";
@@ -295,9 +287,9 @@ function getPropertyJsonReader(property, datatype) {
     else if (property.isclass)
         return property.name + " = JsonUtil.GetObject<" + csType + ">(json, \"" + property.name + "\");";
     else if (property.collection === "map")
-        return property.name + " = " + getMapDeserializer(property, datatype);
+        return property.name + " = " + GetMapDeserializer(property, datatype);
     else if (property.collection === "array")
-        return property.name + " = " + getListDeserializer(property, datatype);
+        return property.name + " = " + GetListDeserializer(property, datatype);
     else if (property.isenum)
         return property.name + " = (" + csOptionalType + ")JsonUtil.GetEnum<" + csType + ">(json, \"" + property.name + "\");";
     else if (property.actualtype === "DateTime")
@@ -307,7 +299,7 @@ function getPropertyJsonReader(property, datatype) {
     return property.name + " = (" + csOptionalType + ")JsonUtil.Get<" + jsOptionalType + ">(json, \"" + property.name + "\");";
 }
 
-function getAuthParams(apiCall) {
+function GetAuthParams(apiCall) {
     if (apiCall.auth === "SecretKey")
         return "\"X-SecretKey\"";
     else if (apiCall.auth === "SessionTicket")
@@ -316,7 +308,7 @@ function getAuthParams(apiCall) {
     return "null";
 }
 
-function getRequestActions(apiCall, api) {
+function GetRequestActions(apiCall, api) {
     if (api.name === "Client" && (apiCall.result === "LoginResult" || apiCall.request === "RegisterPlayFabUserRequest"))
         return "request.TitleId = request.TitleId ?? PlayFabSettings.TitleId;\n            if (request.TitleId == null) throw new Exception(\"Must be have PlayFabSettings.TitleId set to call this method\");\n";
     if (api.name === "Client" && apiCall.auth === "SessionTicket")

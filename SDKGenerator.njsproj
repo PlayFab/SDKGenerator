@@ -785,6 +785,7 @@
     <Content Include="targets\unity-v2\source\Shared\Internal\SingletonMonoBehaviour.cs.meta" />
     <Content Include="targets\unity-v2\source\Shared\Internal\Util.cs" />
     <Content Include="targets\unity-v2\source\Shared\Internal\Util.cs.meta" />
+    <Content Include="targets\unity-v2\source\Shared\Internal\wsaReflectionExtensions.cs" />
     <Content Include="targets\unity-v2\source\Shared\Ionic.Zlib.meta" />
     <Content Include="targets\unity-v2\source\Shared\Ionic.Zlib\CRC32.cs" />
     <Content Include="targets\unity-v2\source\Shared\Ionic.Zlib\CRC32.cs.meta" />

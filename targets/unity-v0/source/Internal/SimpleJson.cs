@@ -1797,7 +1797,7 @@ namespace PlayFab.Json
                 return false;
 
             Type genericDefinition = type.GetGenericTypeDefinition();
-            return genericDefinition == typeof(IDictionary<,>);
+            return genericDefinition == typeof(IDictionary<,>) || genericDefinition == typeof(Dictionary<,>);
         }
 
         public static bool IsNullableType(Type type)

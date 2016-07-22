@@ -20,7 +20,7 @@ namespace PlayFab.UUnit
         /// If there are unhandled exceptions in those tests, make sure it gets reported to the test as a failure
         /// This is ONLY meant to be used by the PlayFab UUnit test framework
         /// </summary>
-        public static PlayFabResultCommon.ProcessApiCallback<TResult> ApiCallbackWrapper<TResult>(UUnitTestContext testContext, PlayFabResultCommon.ProcessApiCallback<TResult> myfunc) where TResult : PlayFabResultCommon
+        public static PlayFabResultCommon.ProcessApiCallback<TResult> ApiCallbackWrapper<TResult>(UUnitTestContext testContext, PlayFabResultCommon.ProcessApiCallback<TResult> myfunc) where TRequest : PlayFabRequestCommon where TResult : PlayFabResultCommon
         {
             PlayFabResultCommon.ProcessApiCallback<TResult> subWrapper = (TResult response) =>
             {

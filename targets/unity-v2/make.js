@@ -61,6 +61,8 @@ function MakeEvent(api, sourceDir, apiOutputDir) {
 function GetBaseTypeSyntax(datatype) {
     if (datatype.name.toLowerCase().indexOf("result") > -1 || datatype.name.toLowerCase().indexOf("response") > -1)
         return " : PlayFabResultCommon";
+    if (datatype.name.toLowerCase().indexOf("request") > -1 )
+        return " : PlayFabRequestCommon";
     return "";
 }
 

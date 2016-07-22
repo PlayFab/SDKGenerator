@@ -13,19 +13,19 @@ namespace PlayFab.Internal
         public object CustomData;
     }
 
-    internal class ResultContainer<TResultType> where TResultType : PlayFabResultCommon
+    internal class ResultContainer<TResult> where TResult : PlayFabResultCommon
     {
         public int code;
         public string status;
         public int? errorCode;
         public string errorMessage;
         public Dictionary<string, List<string>> errorDetails;
-        public TResultType data;
+        public TResult data;
 
-        private static ResultContainer<TResultType> KillWarnings()
+        private static ResultContainer<TResult> KillWarnings()
         {
             // Unity doesn't recognize decoding json as assigning variables, so we have to assign them here
-            return new ResultContainer<TResultType>
+            return new ResultContainer<TResult>
             {
                 code = (int)HttpStatusCode.OK,
                 status = "",
@@ -36,13 +36,13 @@ namespace PlayFab.Internal
             };
         }
 
-        public static TResultType HandleResults(CallRequestContainer callRequest, Delegate resultCallback, ErrorCallback errorCallback, Action<TResultType, CallRequestContainer> resultAction)
+        public static TResult HandleResults(CallRequestContainer callRequest, Delegate resultCallback, ErrorCallback errorCallback, Action<TResult, CallRequestContainer> resultAction)
         {
             if (callRequest.Error == null) // Some other error earlier in the process, just report it below
             {
                 try
                 {
-                    ResultContainer<TResultType> resultEnvelope = JsonWrapper.DeserializeObject<ResultContainer<TResultType>>(callRequest.ResultStr, PlayFabUtil.ApiSerializerStrategy);
+                    ResultContainer<TResult> resultEnvelope = JsonWrapper.DeserializeObject<ResultContainer<TResult>>(callRequest.ResultStr, PlayFabUtil.ApiSerializerStrategy);
                     if (!resultEnvelope.errorCode.HasValue || resultEnvelope.errorCode.Value == (int)PlayFabErrorCode.Success)
                     {
                         resultEnvelope.data.Request = callRequest.Request;

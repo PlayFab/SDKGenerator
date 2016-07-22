@@ -72,7 +72,6 @@ namespace PlayFab.Internal
             if (_internalHttp != null)
                 return;
 
-            CreateInstance(); // Invoke the SingletonMonoBehaviour
             Application.runInBackground = true; // Http requests respond even if you lose focus
 #if !UNITY_WSA && !UNITY_WP8
             if (PlayFabSettings.RequestType == WebRequestType.HttpWebRequest)
@@ -84,6 +83,7 @@ namespace PlayFab.Internal
 #if ENABLE_PLAYFABADMIN_API || ENABLE_PLAYFABSERVER_API
             _internalHttp.DevKey = PlayFabSettings.DeveloperSecretKey;
 #endif
+            CreateInstance(); // Invoke the SingletonMonoBehaviour
             _internalHttp.Awake();
         }
 

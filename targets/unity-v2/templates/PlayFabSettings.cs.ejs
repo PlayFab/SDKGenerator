@@ -50,7 +50,7 @@ namespace PlayFab
 
         public static string ProductionEnvironmentUrl
         {
-            get { return PlayFabShared.ProductionEnvironmentUrl; }
+            get { return !string.IsNullOrEmpty(PlayFabShared.ProductionEnvironmentUrl) ? PlayFabShared.ProductionEnvironmentUrl : ".playfabapi.com"; }
             set { PlayFabShared.ProductionEnvironmentUrl = value; }
         }
 

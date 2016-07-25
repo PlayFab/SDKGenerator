@@ -823,8 +823,6 @@
     <Content Include="targets\unity-v2\source\Shared\Public\PlayFabLogger.cs" />
     <Content Include="targets\unity-v2\source\Shared\Public\PlayFabLogger.cs.meta" />
     <Content Include="targets\unity-v2\source\Shared\Public\PlayFabSettings.cs.meta" />
-    <Content Include="targets\unity-v2\source\Shared\Public\PlayFabTailLogger.cs" />
-    <Content Include="targets\unity-v2\source\Shared\Public\PlayFabTailLogger.cs.meta" />
     <Content Include="targets\unity-v2\source\Shared\Public\Resources.meta" />
     <Content Include="targets\unity-v2\source\Shared\Public\Resources\PlayFabSharedSettings.asset" />
     <Content Include="targets\unity-v2\source\Shared\Public\Resources\PlayFabSharedSettings.asset.meta" />

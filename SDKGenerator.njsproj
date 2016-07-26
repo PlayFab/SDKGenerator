@@ -756,6 +756,10 @@
     <Content Include="targets\unity-v2\Settings\Admin\PlayFabSettings.cs" />
     <Content Include="targets\unity-v2\Settings\Client\PlayFabSettings.cs" />
     <Content Include="targets\unity-v2\Settings\Server\PlayFabSettings.cs" />
+    <Content Include="targets\unity-v2\source\Admin\PlayFabSettings.cs" />
+    <Content Include="targets\unity-v2\source\Client\PlayFabIdfa.cs" />
+    <Content Include="targets\unity-v2\source\Client\PlayFabSettings.cs" />
+    <Content Include="targets\unity-v2\source\Server\PlayFabSettings.cs" />
     <Content Include="targets\unity-v2\source\Shared\Editor.meta" />
     <Content Include="targets\unity-v2\source\Shared\Editor\AndroidManifestManager.cs" />
     <Content Include="targets\unity-v2\source\Shared\Editor\AndroidManifestManager.cs.meta" />
@@ -812,6 +816,7 @@
     <Content Include="targets\unity-v2\source\Shared\Ionic.Zlib\ZTree.cs" />
     <Content Include="targets\unity-v2\source\Shared\Ionic.Zlib\ZTree.cs.meta" />
     <Content Include="targets\unity-v2\source\Shared\Models.meta" />
+    <Content Include="targets\unity-v2\source\Shared\Models\Editor\MakeSharedSettingsObj.cs" />
     <Content Include="targets\unity-v2\source\Shared\Models\PlayFabSharedSettings.cs" />
     <Content Include="targets\unity-v2\source\Shared\Models\PlayFabSharedSettings.cs.meta" />
     <Content Include="targets\unity-v2\source\Shared\Models\SharedModels.cs" />
@@ -1052,12 +1057,16 @@
     <Folder Include="targets\unity-v2\Settings\Client\" />
     <Folder Include="targets\unity-v2\Settings\Server\" />
     <Folder Include="targets\unity-v2\source\" />
+    <Folder Include="targets\unity-v2\source\Admin\" />
+    <Folder Include="targets\unity-v2\source\Client\" />
+    <Folder Include="targets\unity-v2\source\Server\" />
     <Folder Include="targets\unity-v2\source\Shared\" />
     <Folder Include="targets\unity-v2\source\Shared\Editor\" />
     <Folder Include="targets\unity-v2\source\Shared\Internal\" />
     <Folder Include="targets\unity-v2\source\Shared\Internal\PlayFabHttp\" />
     <Folder Include="targets\unity-v2\source\Shared\Ionic.Zlib\" />
     <Folder Include="targets\unity-v2\source\Shared\Models\" />
+    <Folder Include="targets\unity-v2\source\Shared\Models\Editor\" />
     <Folder Include="targets\unity-v2\source\Shared\Public\" />
     <Folder Include="targets\unity-v2\source\Shared\Public\Resources\" />
     <Folder Include="targets\unity-v2\templates\" />

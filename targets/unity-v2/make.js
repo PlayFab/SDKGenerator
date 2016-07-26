@@ -59,11 +59,15 @@ function MakeEvent(api, sourceDir, apiOutputDir) {
 }
 
 function GetBaseTypeSyntax(datatype) {
-    if (datatype.name.toLowerCase().indexOf("result") > -1 || datatype.name.toLowerCase().indexOf("response") > -1)
+	// Some apis have both words in the classname, so we need the word that appears last, IE the greatest index
+	var resultIndex = Math.max(datatype.name.toLowerCase().indexOf("result"), datatype.name.toLowerCase().indexOf("response"));
+	var requestIndex = datatype.name.toLowerCase().indexOf("request");
+	
+	if (resultIndex > requestIndex)
         return " : PlayFabResultCommon";
-    if (datatype.name.toLowerCase().indexOf("request") > -1 )
+    if (requestIndex > resultIndex)
         return " : PlayFabRequestCommon";
-    return "";
+    return ""; // If both are -1, then neither is greater
 }
 
 function MakeDatatypes(apis, sourceDir, apiOutputDir) {
@@ -303,11 +307,10 @@ function GetPropertyJsonReader(property, datatype) {
 
 function GetAuthParams(apiCall) {
     if (apiCall.auth === "SecretKey")
-        return "\"X-SecretKey\"";
+        return "AuthType.DevSecretKey";
     else if (apiCall.auth === "SessionTicket")
-        return "\"X-Authorization\"";
-    
-    return "null";
+        return "AuthType.LoginSession";
+    return "AuthType.None";
 }
 
 function GetRequestActions(apiCall, api) {

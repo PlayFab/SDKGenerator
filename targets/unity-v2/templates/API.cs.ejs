@@ -11,7 +11,7 @@ namespace PlayFab
     /// </summary>
 <% } %>    public static class PlayFab<%- api.name %>API
     {
-<%if(api.name == "Client"){%>
+<%if(api.name == "Client") { %>
         /// <summary>
         /// Check to See if the client is logged in.
         /// </summary>
@@ -27,7 +27,7 @@ namespace PlayFab
 <% } %>        public static void <%- apiCall.name %>(<%- apiCall.request %> request, Action<<%- apiCall.result %>> resultCallback, Action<PlayFabError> errorCallback, object customData = null)
         {
             <%- GetRequestActions(apiCall, api) %>
-            PlayFabHttp.MakeApiCall("<%- api.name %>", "/<%- api.name %>/<%- apiCall.name %>", request , <%- GetAuthParams(apiCall) %>, resultCallback, errorCallback, customData);
+            PlayFabHttp.MakeApiCall("/<%- api.name %>/<%- apiCall.name %>", request, <%- GetAuthParams(apiCall) %>, resultCallback, errorCallback, customData);
         }
 
 <% } %>

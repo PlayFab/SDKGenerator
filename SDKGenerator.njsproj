@@ -127,6 +127,7 @@
     <Compile Include="targets\js-node\make.js" />
     <Compile Include="targets\js-node\testingFiles\PlayFabApiTests.js" />
     <Compile Include="targets\LumberyardSdk\make.js" />
+    <Compile Include="targets\newTarget\make.js" />
     <Compile Include="targets\objc\make.js" />
     <Compile Include="targets\postman\make.js" />
     <Compile Include="targets\unity-v0\make.js" />
@@ -681,6 +682,8 @@
     <Content Include="targets\LumberyardSdk\testing\TestGem\Code\wscript" />
     <Content Include="targets\LumberyardSdk\testing\TestGem\gem.json" />
     <Content Include="targets\LumberyardSdk\testing\TestGem\preview.png" />
+    <Content Include="targets\newTarget\source\exampleSourceFile.txt" />
+    <Content Include="targets\newTarget\templates\exampleTemplate.txt.ejs" />
     <Content Include="targets\objc\source\JAGPropertyConverter\JAGProperty.h" />
     <Content Include="targets\objc\source\JAGPropertyConverter\JAGProperty.m" />
     <Content Include="targets\objc\source\JAGPropertyConverter\JAGPropertyConverter-Prefix.pch" />
@@ -1032,6 +1035,9 @@
     <Folder Include="targets\LumberyardSdk\testing\TestGem\Code\Include\" />
     <Folder Include="targets\LumberyardSdk\testing\TestGem\Code\Source\" />
     <Folder Include="targets\LumberyardSdk\testing\TestGem\Code\Tests\" />
+    <Folder Include="targets\newTarget\" />
+    <Folder Include="targets\newTarget\templates\" />
+    <Folder Include="targets\newTarget\source\" />
     <Folder Include="targets\objc\" />
     <Folder Include="targets\objc\source\" />
     <Folder Include="targets\objc\source\JAGPropertyConverter\" />

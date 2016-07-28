@@ -51,7 +51,7 @@ exports.makeAdminAPI = function (apis, sourceDir, apiOutputDir) {
 
 function MakeEvent(api, sourceDir, apiOutputDir) {
     var templateDir = path.resolve(sourceDir, "templates");
-    var apiTemplate = ejs.compile(readFile(path.resolve(templateDir, "ApiEvent.cs.ejs")));
+    var apiTemplate = ejs.compile(readFile(path.resolve(templateDir, "PlayFabEvents.cs.ejs")));
     var apiLocals = {};
     apiLocals.api = api;
     var generatedApi = apiTemplate(apiLocals);

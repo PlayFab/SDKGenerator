@@ -753,9 +753,6 @@
     <Content Include="targets\unity-v0\testing\EventTest.cs" />
     <Content Include="targets\unity-v0\testing\PlayFabApiTest.cs" />
     <Content Include="targets\unity-v0\testing\PlayFabApiTest_Client.cs" />
-    <Content Include="targets\unity-v2\Settings\Admin\PlayFabSettings.cs" />
-    <Content Include="targets\unity-v2\Settings\Client\PlayFabSettings.cs" />
-    <Content Include="targets\unity-v2\Settings\Server\PlayFabSettings.cs" />
     <Content Include="targets\unity-v2\source\Admin\PlayFabSettings.cs" />
     <Content Include="targets\unity-v2\source\Client\PlayFabIdfa.cs" />
     <Content Include="targets\unity-v2\source\Client\PlayFabSettings.cs" />
@@ -832,7 +829,7 @@
     <Content Include="targets\unity-v2\source\Shared\Public\Resources\PlayFabSharedSettings.asset" />
     <Content Include="targets\unity-v2\source\Shared\Public\Resources\PlayFabSharedSettings.asset.meta" />
     <Content Include="targets\unity-v2\templates\API.cs.ejs" />
-    <Content Include="targets\unity-v2\templates\ApiEvent.cs.ejs" />
+    <Content Include="targets\unity-v2\templates\PlayFabEvents.cs.ejs" />
     <Content Include="targets\unity-v2\templates\Enum.cs.ejs" />
     <Content Include="targets\unity-v2\templates\Errors.cs.ejs" />
     <Content Include="targets\unity-v2\templates\Events.cs.ejs" />
@@ -1052,10 +1049,6 @@
     <Folder Include="targets\unity-v0\testing\" />
     <Folder Include="targets\unity-v0\testing\DemoScene\" />
     <Folder Include="targets\unity-v2\" />
-    <Folder Include="targets\unity-v2\Settings\" />
-    <Folder Include="targets\unity-v2\Settings\Admin\" />
-    <Folder Include="targets\unity-v2\Settings\Client\" />
-    <Folder Include="targets\unity-v2\Settings\Server\" />
     <Folder Include="targets\unity-v2\source\" />
     <Folder Include="targets\unity-v2\source\Admin\" />
     <Folder Include="targets\unity-v2\source\Client\" />

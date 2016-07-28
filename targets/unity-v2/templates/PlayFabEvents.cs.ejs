@@ -1,0 +1,17 @@
+<% if(api.name == "Admin"){ %>#if ENABLE_PLAYFABADMIN_API<% }else if(api.name == "Server" || api.name == "Matchmaker"){ %>#if ENABLE_PLAYFABSERVER_API<% }else{ %>#if !DISABLE_PLAYFABCLIENT_API<% } %>
+<% if(api.name == "Admin"){ %>using PlayFab.AdminModels;<% }else if(api.name == "Server"){ %>using PlayFab.ServerModels;<% }else if(api.name == "Matchmaker"){ %>using PlayFab.MatchmakerModels;<% }else{ %>using PlayFab.ClientModels;<% } %>
+
+namespace PlayFab.Events
+{
+    public partial class PlayFabEvents
+    {
+<% if(api.name =="Client"){ %>        public event PlayFabResultEvent<LoginResult> OnLoginResultEvent;
+
+<% } for(var i in api.calls) { var apiCall = api.calls[i]; var prefix = ""; if(api.name != "Client"){ prefix=api.name } if (apiCall.result == "LoginResult") {
+%>        public event PlayFabRequestEvent<<%- apiCall.request %>> On<%- prefix %><%- apiCall.name %>RequestEvent;
+<% } else {
+%>        public event PlayFabRequestEvent<<%- apiCall.request %>> On<%- prefix %><%- apiCall.name %>RequestEvent;
+        public event PlayFabResultEvent<<%- apiCall.result %>> On<%- prefix %><%- apiCall.name %>ResultEvent;
+<% } } %>    }
+}
+#endif

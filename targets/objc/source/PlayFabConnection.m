@@ -19,7 +19,7 @@ static NSMutableArray *sharedConnectionList = nil;
     
     [myRequest addValue: @"application/json" forHTTPHeaderField:@"Content-Type"];
     [myRequest addValue: sMessageLength forHTTPHeaderField:@"Content-Length"];
-    [myRequest addValue: PlayFabVersionString forHTTPHeaderField:@"X-PlayFabSDK"];
+    [myRequest addValue: versionString forHTTPHeaderField:@"X-PlayFabSDK"];
     if ([authType length] != 0)
     {
         [myRequest addValue: authKey forHTTPHeaderField:authType];

@@ -235,7 +235,7 @@ function getMapDeserializer(property, datatype) {
     throw "Unknown property type: " + property.actualtype + " for " + property.name + " in " + datatype.name;
 }
 
-function getListDeserializer(property, api) {
+function getListDeserializer(property) {
     if (property.actualtype === "String")
         return "JsonUtil.GetList<string>(json, \"" + property.name + "\");";
     else if (property.actualtype === "Boolean")
@@ -278,7 +278,7 @@ function getPropertyJsonReader(property, datatype) {
     else if (property.collection === "map")
         return property.name + " = " + getMapDeserializer(property, datatype);
     else if (property.collection === "array")
-        return property.name + " = " + getListDeserializer(property, datatype);
+        return property.name + " = " + getListDeserializer(property);
     else if (property.isenum)
         return property.name + " = (" + csOptionalType + ")JsonUtil.GetEnum<" + csType + ">(json, \"" + property.name + "\");";
     else if (property.actualtype === "DateTime")

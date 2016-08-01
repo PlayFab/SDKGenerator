@@ -1,5 +1,6 @@
 var fs = require("fs");
 var path = require("path");
+var specLocation = null;
 
 function GetTargetsList() {
     var targetList = [];
@@ -7,7 +8,7 @@ function GetTargetsList() {
     var targetsDir = path.resolve(__dirname, "targets");
     
     var targets = fs.readdirSync(targetsDir);
-    for (var i in targets) {
+    for (var i = 0; i < targets.length; i++) {
         var target = targets[i];
         if (target[0] === ".")
             continue;
@@ -54,15 +55,15 @@ function Generate(args) {
     var buildFlags = [];
     if (argsByName.hasOwnProperty("flags"))
         buildFlags = LowercaseFlagsList(argsByName.flags.split(" "));
-    var specLocation = path.normalize(args[2]);
-    var clientApi = GetApiDefinition(specLocation, "Client.api.json", buildFlags);
+    specLocation = path.normalize(args[2]);
+    var clientApi = GetApiDefinition("Client.api.json", buildFlags);
     var adminApis = [
-        GetApiDefinition(specLocation, "Admin.api.json", buildFlags)
+        GetApiDefinition("Admin.api.json", buildFlags)
     ];
     var serverApis = [
-        GetApiDefinition(specLocation, "Admin.api.json", buildFlags),
-        GetApiDefinition(specLocation, "Matchmaker.api.json", buildFlags),
-        GetApiDefinition(specLocation, "Server.api.json", buildFlags)
+        GetApiDefinition("Admin.api.json", buildFlags),
+        GetApiDefinition("Matchmaker.api.json", buildFlags),
+        GetApiDefinition("Server.api.json", buildFlags)
     ];
     
     var allApis = serverApis.concat(clientApi);
@@ -85,7 +86,7 @@ function Generate(args) {
         
         // It would probably be better to pass these into the functions, but I don't want to change all the make___Api parameters for all projects today.
         //   For now, just change the global variables in each with the data loaded from SdkManualNotes.json
-        targetMaker.apiNotes = require(path.resolve(specLocation, "SdkManualNotes.json"));
+        targetMaker.apiNotes = GetApiJson("SdkManualNotes.json");
         targetMaker.sdkVersion = targetMaker.apiNotes.sdkVersion[target.name];
         targetMaker.buildIdentifier = argsByName.buildidentifier;
         if (targetMaker.sdkVersion == null) {
@@ -165,21 +166,25 @@ function CheckTarget(sdkSource, sdkDestination, targetOutputLocationList, errorM
     }
 }
 
-function GetApiDefinition(specLocation, apiFileName, buildFlags) {
-    var api = require(path.resolve(specLocation, apiFileName));
+GLOBAL.GetApiJson = function (apiFileName) {
+    return require(path.resolve(specLocation, apiFileName));
+}
+
+function GetApiDefinition(apiFileName, buildFlags) {
+    var api = GetApiJson(apiFileName);
     
     // Filter calls out of the API before returning it
     var filteredCalls = [];
-    for (var i in api.calls)
-        if (IsVisibleWithFlags(buildFlags, api.calls[i]))
-            filteredCalls.push(api.calls[i]);
+    for (var cIdx in api.calls)
+        if (IsVisibleWithFlags(buildFlags, api.calls[cIdx]))
+            filteredCalls.push(api.calls[cIdx]);
     api.calls = filteredCalls;
     
     // Filter datatypes out of the API before returning it
     var filteredTypes = {};
-    for (var i in api.datatypes)
-        if (IsVisibleWithFlags(buildFlags, api.datatypes[i]))
-            filteredTypes[api.datatypes[i].name] = api.datatypes[i];
+    for (var dIdx in api.datatypes)
+        if (IsVisibleWithFlags(buildFlags, api.datatypes[dIdx]))
+            filteredTypes[api.datatypes[dIdx].className] = api.datatypes[dIdx];
     api.datatypes = filteredTypes;
     return api;
 }
@@ -189,8 +194,8 @@ function IsVisibleWithFlags(buildFlags, apiObj) {
     var exclusiveFlags = [];
     if (apiObj.hasOwnProperty("ExclusiveFlags"))
         exclusiveFlags = LowercaseFlagsList(apiObj.ExclusiveFlags);
-    for (var i in buildFlags)
-        if (exclusiveFlags.indexOf(buildFlags[i]) !== -1)
+    for (var bIdx = 0; bIdx < buildFlags.length; bIdx++)
+        if (exclusiveFlags.indexOf(buildFlags[bIdx]) !== -1)
             return false;
     
     // All Inclusive flags must match if present (Api calls only)
@@ -198,8 +203,8 @@ function IsVisibleWithFlags(buildFlags, apiObj) {
     if (apiObj.hasOwnProperty("AllInclusiveFlags"))
         allInclusiveFlags = LowercaseFlagsList(apiObj.AllInclusiveFlags);
     if (allInclusiveFlags.length !== 0) // If there's no flags, it is always included
-        for (var i in allInclusiveFlags)
-            if (buildFlags.indexOf(allInclusiveFlags[i]) === -1)
+        for (var alIdx = 0; alIdx < allInclusiveFlags.length; alIdx++)
+            if (buildFlags.indexOf(allInclusiveFlags[alIdx]) === -1)
                 return false; // If a required flag is missing, fail out
     
     // Any Inclusive flags must match at least one if present (Api calls and datatypes)
@@ -208,15 +213,15 @@ function IsVisibleWithFlags(buildFlags, apiObj) {
         anyInclusiveFlags = LowercaseFlagsList(apiObj.AnyInclusiveFlags);
     if (anyInclusiveFlags.length === 0)
         return true; // If there's no flags, it is always included
-    for (var i in anyInclusiveFlags)
-        if (buildFlags.indexOf(anyInclusiveFlags[i]) !== -1)
+    for (var anIdx = 0; anIdx < anyInclusiveFlags.length; anIdx++)
+        if (buildFlags.indexOf(anyInclusiveFlags[anIdx]) !== -1)
             return true; // Otherwise at least one flag must be present
     return false;
 }
 
 function LowercaseFlagsList(flags) {
     var output = [];
-    for (var i in flags)
+    for (var i = 0; i < flags.length; i++)
         output.push(flags[i].toLowerCase());
     return output;
 }
@@ -238,7 +243,7 @@ GLOBAL.copyTree = function (source, dest) {
         
         
         var filesInDir = fs.readdirSync(source);
-        for (var i in filesInDir) {
+        for (var i = 0; i < filesInDir.length; i++) {
             var filename = filesInDir[i];
             var file = source + "/" + filename;
             if (fs.lstatSync(file).isDirectory()) {

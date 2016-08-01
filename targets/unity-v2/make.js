@@ -6,15 +6,10 @@ exports.putInRoot = true;
 exports.makeCombinedAPI = function (apis, sourceDir, apiOutputDir) {
     apiOutputDir = path.resolve(apiOutputDir, "Source/PlayFabSDK");
     console.log("  - Generating C-sharp Unity Events to\n  -> " + apiOutputDir);
-    var templateDir = path.resolve(sourceDir, "templates");
-    var apiTemplate = ejs.compile(readFile(path.resolve(templateDir, "Events.cs.ejs")));
-    var apiLocals = {};
-    apiLocals.apis = apis;
-    var generatedApi = apiTemplate(apiLocals);
-    writeFile(path.resolve(apiOutputDir, "Shared/Public/PlayFabEvents.cs"), generatedApi);
     
+    MakeSharedEventFiles(apis, sourceDir, apiOutputDir);
     for (var i = 0; i < apis.length; i++) {
-        MakeEvent(apis[i], sourceDir, apiOutputDir);
+        MakeApiEventFiles(apis[i], sourceDir, apiOutputDir);
     }
 }
 
@@ -49,21 +44,58 @@ exports.makeAdminAPI = function (apis, sourceDir, apiOutputDir) {
     }
 }
 
-function MakeEvent(api, sourceDir, apiOutputDir) {
-    var templateDir = path.resolve(sourceDir, "templates");
-    var apiTemplate = ejs.compile(readFile(path.resolve(templateDir, "PlayFabEvents.cs.ejs")));
+function MakeApiEventFiles(api, sourceDir, apiOutputDir) {
     var apiLocals = {};
     apiLocals.api = api;
+    
+    var apiTemplate = ejs.compile(readFile(path.resolve(sourceDir, "templates", "PlayFabEvents.cs.ejs")));
     var generatedApi = apiTemplate(apiLocals);
     writeFile(path.resolve(apiOutputDir, api.name + "/PlayFabEvents.cs"), generatedApi);
 }
 
+function MakeSharedEventFiles(apis, sourceDir, apiOutputDir) {
+    var playStreamEventModels = GetApiJson("PlayStreamEventModels.json");
+    var eventLocals = {};
+    eventLocals.apis = apis;
+    eventLocals.sourceDir = sourceDir;
+    eventLocals.psParentTypes = playStreamEventModels.ParentTypes;
+    eventLocals.psChildTypes = playStreamEventModels.ChildTypes;
+    eventLocals.GetModelPropertyDef = GetModelPropertyDef;
+    eventLocals.MakeDatatype = MakePlayStreamDatatype;
+    
+    // Events for api-callbacks
+    var eventTemplate = ejs.compile(readFile(path.resolve(sourceDir, "templates", "Events.cs.ejs")));
+    var generatedEvents = eventTemplate(eventLocals);
+    writeFile(path.resolve(apiOutputDir, "Shared/Public/PlayFabEvents.cs"), generatedEvents);
+    
+    // PlayStream event models
+    var psTemplate = ejs.compile(readFile(path.resolve(sourceDir, "templates", "PlayStreamEventDataModels.cs.ejs")));
+    var generatedPsEvents = psTemplate(eventLocals);
+    writeFile(path.resolve(apiOutputDir, "Shared/Public/PlayStream/PlayStreamEventDataModels.cs"), generatedPsEvents);
+}
+
+function MakePlayStreamDatatype(datatype, sourceDir) {
+    var templateDir = path.resolve(sourceDir, "templates");
+    var modelTemplate = ejs.compile(readFile(path.resolve(templateDir, "Model.cs.ejs")));
+    var enumTemplate = ejs.compile(readFile(path.resolve(templateDir, "Enum.cs.ejs")));
+    
+    var modelLocals = {};
+    modelLocals.datatype = datatype;
+    modelLocals.getPropertyDef = GetModelPropertyDef;
+    modelLocals.GetPropertyJsonReader = GetPropertyJsonReader;
+    modelLocals.GetBaseTypeSyntax = function (datatype) { return ""; }; // No base types in PlayStream
+    if (datatype.isenum) {
+        return enumTemplate(modelLocals);
+    }
+    return modelTemplate(modelLocals);
+};
+
 function GetBaseTypeSyntax(datatype) {
-	// Some apis have both words in the classname, so we need the word that appears last, IE the greatest index
-	var resultIndex = Math.max(datatype.name.toLowerCase().indexOf("result"), datatype.name.toLowerCase().indexOf("response"));
-	var requestIndex = datatype.name.toLowerCase().indexOf("request");
-	
-	if (resultIndex > requestIndex)
+    // Some apis have both words in the classname, so we need the word that appears last, IE the greatest index
+    var resultIndex = Math.max(datatype.className.toLowerCase().indexOf("result"), datatype.className.toLowerCase().indexOf("response"));
+    var requestIndex = datatype.className.toLowerCase().indexOf("request");
+    
+    if (resultIndex > requestIndex)
         return " : PlayFabResultCommon";
     if (requestIndex > resultIndex)
         return " : PlayFabRequestCommon";
@@ -72,32 +104,33 @@ function GetBaseTypeSyntax(datatype) {
 
 function MakeDatatypes(apis, sourceDir, apiOutputDir) {
     var templateDir = path.resolve(sourceDir, "templates");
-    
-    var modelTemplate = ejs.compile(readFile(path.resolve(templateDir, "Model.cs.ejs")));
     var modelsTemplate = ejs.compile(readFile(path.resolve(templateDir, "Models.cs.ejs")));
-    var enumTemplate = ejs.compile(readFile(path.resolve(templateDir, "Enum.cs.ejs")));
-    
-    var makeDatatype = function (datatype) {
-        var modelLocals = {};
-        modelLocals.datatype = datatype;
-        modelLocals.getPropertyDef = GetModelPropertyDef;
-        modelLocals.GetPropertyAttribs = GetPropertyAttribs;
-        modelLocals.GetPropertyJsonReader = GetPropertyJsonReader;
-        modelLocals.GetBaseTypeSyntax = GetBaseTypeSyntax;
-        if (datatype.isenum) {
-            return enumTemplate(modelLocals);
-        }
-        return modelTemplate(modelLocals);
-    };
     
     for (var a = 0; a < apis.length; a++) {
         var modelsLocal = {};
         modelsLocal.api = apis[a];
-        modelsLocal.makeDatatype = makeDatatype;
+        modelsLocal.MakeDatatype = MakeApiDatatype;
+        modelsLocal.sourceDir = sourceDir;
         var generatedModels = modelsTemplate(modelsLocal);
         writeFile(path.resolve(apiOutputDir, apis[a].name + "/PlayFab" + apis[a].name + "Models.cs"), generatedModels);
     }
 }
+
+function MakeApiDatatype(datatype, sourceDir) {
+    var templateDir = path.resolve(sourceDir, "templates");
+    var modelTemplate = ejs.compile(readFile(path.resolve(templateDir, "Model.cs.ejs")));
+    var enumTemplate = ejs.compile(readFile(path.resolve(templateDir, "Enum.cs.ejs")));
+    
+    var modelLocals = {};
+    modelLocals.datatype = datatype;
+    modelLocals.getPropertyDef = GetModelPropertyDef;
+    modelLocals.GetPropertyJsonReader = GetPropertyJsonReader;
+    modelLocals.GetBaseTypeSyntax = GetBaseTypeSyntax;
+    if (datatype.isenum) {
+        return enumTemplate(modelLocals);
+    }
+    return modelTemplate(modelLocals);
+};
 
 function MakeApi(api, sourceDir, apiOutputDir) {
     console.log("   - Generating C# " + api.name + " library to\n   -> " + apiOutputDir);
@@ -144,14 +177,10 @@ function GetModelPropertyDef(property, datatype) {
     else if (property.collection && property.collection === "map")
         return "Dictionary<string," + basicType + "> " + property.name;
     else if (property.collection)
-        throw "Unknown collection type: " + property.collection + " for " + property.name + " in " + datatype.name;
+        throw "Unknown collection type: " + property.collection + " for " + property.name + " in " + datatype.className;
     
     basicType = GetPropertyCsType(property, datatype, true);
     return basicType + " " + property.name;
-}
-
-function GetPropertyAttribs(property, datatype, api) {
-    return "";
 }
 
 function GetPropertyCsType(property, datatype, needOptional) {
@@ -187,7 +216,7 @@ function GetPropertyCsType(property, datatype, needOptional) {
         return property.actualtype + optional;
     else if (property.actualtype === "object")
         return "object";
-    throw "Unknown property type: " + property.actualtype + " for " + property.name + " in " + datatype.name;
+    throw "Unknown property type: " + property.actualtype + " for " + property.name + " in " + datatype.className;
 }
 
 function GetPropertyJsType(property, datatype, needOptional) {
@@ -223,7 +252,7 @@ function GetPropertyJsType(property, datatype, needOptional) {
         return "string";
     else if (property.actualtype === "object")
         return "object";
-    throw "Unknown property type: " + property.actualtype + " for " + property.name + " in " + datatype.name;
+    throw "Unknown property type: " + property.actualtype + " for " + property.name + " in " + datatype.className;
 }
 
 function GetMapDeserializer(property, datatype) {
@@ -249,10 +278,10 @@ function GetMapDeserializer(property, datatype) {
         return "JsonUtil.GetDictionaryDouble(json, \"" + property.name + "\");";
     else if (property.actualtype === "object")
         return "JsonUtil.GetDictionary<object>(json, \"" + property.name + "\");";
-    throw "Unknown property type: " + property.actualtype + " for " + property.name + " in " + datatype.name;
+    throw "Unknown property type: " + property.actualtype + " for " + property.name + " in " + datatype.className;
 }
 
-function GetListDeserializer(property, api) {
+function GetListDeserializer(property) {
     if (property.actualtype === "String")
         return "JsonUtil.GetList<string>(json, \"" + property.name + "\");";
     else if (property.actualtype === "Boolean")
@@ -295,7 +324,7 @@ function GetPropertyJsonReader(property, datatype) {
     else if (property.collection === "map")
         return property.name + " = " + GetMapDeserializer(property, datatype);
     else if (property.collection === "array")
-        return property.name + " = " + GetListDeserializer(property, datatype);
+        return property.name + " = " + GetListDeserializer(property);
     else if (property.isenum)
         return property.name + " = (" + csOptionalType + ")JsonUtil.GetEnum<" + csType + ">(json, \"" + property.name + "\");";
     else if (property.actualtype === "DateTime")
@@ -322,3 +351,8 @@ function GetRequestActions(apiCall, api) {
         return "if (PlayFabSettings.DeveloperSecretKey == null) throw new Exception(\"Must have PlayFabSettings.DeveloperSecretKey set to call this method\");\n";
     return "";
 }
+
+String.prototype.replaceAll = function (search, replacement) {
+    var target = this;
+    return target.replace(new RegExp(search, 'g'), replacement);
+};

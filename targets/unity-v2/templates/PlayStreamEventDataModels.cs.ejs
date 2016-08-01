@@ -1,0 +1,34 @@
+﻿using System;
+using System.Collections.Generic;
+
+namespace PlayFab.PlayStreamModels
+{
+    /// <summary>
+    /// The base type for all PlayStream events.
+    /// See https://api.playfab.com/playstream/docs/PlayStreamEventModels for more information
+    /// </summary>
+    public abstract class PlayStreamEventBase
+    {
+        public string Source;
+        public string EventId;
+        public string EntityId;
+        public string EntityType;
+        public string EventNamespace;
+        public string EventName;
+        public DateTime Timestamp;
+        public Dictionary<string, string> CustomTags;
+        public List<object> History;
+        public object Reserved;
+    }
+<% for (var gIdx in psParentTypes) { var eachGroup = psParentTypes[gIdx]; %>
+    #region <%- eachGroup.Group %>
+<% for (var cIdx in eachGroup.Classes) { var eachClass = eachGroup.Classes[cIdx];
+%>    public class <%- eachClass.className %> : PlayStreamEventBase
+    {
+<% for (var pIdx in eachClass.properties) { var eachProperty = eachClass.properties[pIdx];
+%>        public <%- GetModelPropertyDef(eachProperty, eachClass) %>;
+<% } %>    }
+<% } %>    #endregion <%- eachGroup.Group %>
+<% }
+for (var chIdx in psChildTypes) { var datatype = psChildTypes[chIdx] %><%- MakeDatatype(datatype, sourceDir) %><% } %>
+}

@@ -913,8 +913,6 @@
     <Content Include="targets\unity-v2\source\Shared\SignalR.NET20\NegotiationResponse.cs" />
     <Content Include="targets\unity-v2\source\Shared\SignalR.NET20\NegotiationResponse.cs.meta" />
     <Content Include="targets\unity-v2\source\Shared\SignalR.NET20\Properties.meta" />
-    <Content Include="targets\unity-v2\source\Shared\SignalR.NET20\Properties\AssemblyInfo.cs" />
-    <Content Include="targets\unity-v2\source\Shared\SignalR.NET20\Properties\AssemblyInfo.cs.meta" />
     <Content Include="targets\unity-v2\source\Shared\SignalR.NET20\README.md" />
     <Content Include="targets\unity-v2\source\Shared\SignalR.NET20\README.md.meta" />
     <Content Include="targets\unity-v2\source\Shared\SignalR.NET20\Transports.meta" />
@@ -1184,7 +1182,6 @@
     <Folder Include="targets\unity-v2\source\Shared\SignalR.NET20\Http\" />
     <Folder Include="targets\unity-v2\source\Shared\SignalR.NET20\Hubs\" />
     <Folder Include="targets\unity-v2\source\Shared\SignalR.NET20\Infrastructure\" />
-    <Folder Include="targets\unity-v2\source\Shared\SignalR.NET20\Properties\" />
     <Folder Include="targets\unity-v2\source\Shared\SignalR.NET20\Transports\" />
     <Folder Include="targets\unity-v2\templates\" />
     <Folder Include="targets\unity-v2\Testing\" />

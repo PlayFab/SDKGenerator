@@ -4,42 +4,18 @@ var path = require("path");
 exports.putInRoot = true;
 
 exports.makeCombinedAPI = function (apis, sourceDir, apiOutputDir) {
+    var testingOutputDir = path.resolve(apiOutputDir, "Testing");
     apiOutputDir = path.resolve(apiOutputDir, "Source/PlayFabSDK");
     console.log("  - Generating C-sharp Unity Events to\n  -> " + apiOutputDir);
     
+    copyTree(path.resolve(sourceDir, "source"), apiOutputDir);
+    copyTree(path.resolve(sourceDir, "Testing"), testingOutputDir);
+    
     MakeSharedEventFiles(apis, sourceDir, apiOutputDir);
+    MakeDatatypes(apis, sourceDir, apiOutputDir);
+    GenerateSimpleFiles(apis, sourceDir, apiOutputDir);
     for (var i = 0; i < apis.length; i++) {
         MakeApiEventFiles(apis[i], sourceDir, apiOutputDir);
-    }
-}
-
-exports.makeClientAPI = function (api, sourceDir, apiOutputDir) {
-    var baseApiOutputDir = path.resolve(apiOutputDir, "Source/PlayFabSDK");
-    var baseTestingOutputDir = path.resolve(apiOutputDir, "Testing");
-    console.log("  - Generating C-sharp Unity client SDK sample proj to\n  -> " + baseApiOutputDir);
-    copyTree(path.resolve(sourceDir, "source"), baseApiOutputDir);
-    copyTree(path.resolve(sourceDir, "Testing"), baseTestingOutputDir);
-    MakeDatatypes([api], sourceDir, baseApiOutputDir);
-    MakeApi(api, sourceDir, baseApiOutputDir);
-    GenerateSimpleFiles([api], sourceDir, baseApiOutputDir);
-}
-
-exports.makeServerAPI = function (apis, sourceDir, apiOutputDir) {
-    apiOutputDir = path.resolve(apiOutputDir, "Source/PlayFabSDK");
-    console.log("  - Generating C-sharp Unity server SDK sample proj to\n  -> " + apiOutputDir);
-    var filteredApis = apis.filter(function (el) { return el.name !== "Admin"; });
-    MakeDatatypes(filteredApis, sourceDir, apiOutputDir);
-    for (var i = 0; i < filteredApis.length; i++) {
-        MakeApi(filteredApis[i], sourceDir, apiOutputDir);
-    }
-}
-
-exports.makeAdminAPI = function (apis, sourceDir, apiOutputDir) {
-    apiOutputDir = path.resolve(apiOutputDir, "Source/PlayFabSDK");
-    console.log("  - Generating C-sharp Unity server SDK sample proj to\n  -> " + apiOutputDir);
-    
-    MakeDatatypes(apis, sourceDir, apiOutputDir);
-    for (var i = 0; i < apis.length; i++) {
         MakeApi(apis[i], sourceDir, apiOutputDir);
     }
 }
@@ -351,8 +327,3 @@ function GetRequestActions(apiCall, api) {
         return "if (PlayFabSettings.DeveloperSecretKey == null) throw new Exception(\"Must have PlayFabSettings.DeveloperSecretKey set to call this method\");\n";
     return "";
 }
-
-String.prototype.replaceAll = function (search, replacement) {
-    var target = this;
-    return target.replace(new RegExp(search, 'g'), replacement);
-};

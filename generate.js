@@ -2,6 +2,12 @@ var fs = require("fs");
 var path = require("path");
 var specLocation = null;
 
+// Global utility
+String.prototype.replaceAll = function (search, replacement) {
+    var target = this;
+    return target.replace(new RegExp(search, 'g'), replacement);
+};
+
 function GetTargetsList() {
     var targetList = [];
     

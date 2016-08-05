@@ -142,13 +142,13 @@
     <Content Include="SDKBuildScripts\java_build.bat" />
     <Content Include="SDKBuildScripts\js_build.bat" />
     <Content Include="SDKBuildScripts\Lumberyard_build.bat" />
+    <Content Include="SDKBuildScripts\NewTarget.bat" />
     <Content Include="SDKBuildScripts\node_build.bat" />
     <Content Include="SDKBuildScripts\objc_build.bat" />
     <Content Include="SDKBuildScripts\postman_build.bat" />
     <Content Include="SDKBuildScripts\ue4_CPP_build.bat" />
     <Content Include="SDKBuildScripts\ue4_BP_build.bat" />
     <Content Include="SDKBuildScripts\unity_build_strangeIoC.bat" />
-    <Content Include="SDKBuildScripts\unity_customRepo.bat" />
     <Content Include="SDKBuildScripts\unity_gameserver.bat" />
     <Content Include="SDKBuildScripts\unity_v0_build.bat" />
     <Content Include="SDKBuildScripts\unity_v2_build.bat" />

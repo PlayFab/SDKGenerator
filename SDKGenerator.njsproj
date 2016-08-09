@@ -759,6 +759,7 @@
     <Content Include="targets\unity-v2\source\Admin\PlayFabSettings.cs" />
     <Content Include="targets\unity-v2\source\Client\PlayFabIdfa.cs" />
     <Content Include="targets\unity-v2\source\Client\PlayFabSettings.cs" />
+    <Content Include="targets\unity-v2\source\link.xml" />
     <Content Include="targets\unity-v2\source\Server\PlayFabSettings.cs" />
     <Content Include="targets\unity-v2\source\Server\PlayStream\PlayFabPlayStreamAPI.cs" />
     <Content Include="targets\unity-v2\source\Server\PlayStream\PlayFabPlayStreamAPI.cs.meta" />

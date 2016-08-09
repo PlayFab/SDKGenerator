@@ -3,17 +3,18 @@ var path = require("path");
 exports.putInRoot = true;
 
 exports.makeClientAPI = function (api, sourceDir, apiOutputDir) {
-    var baseApiOutputDir = path.resolve(apiOutputDir, "PlayFabClientSample/Assets/PlayFabSDK");
-    console.log("  - Generating C-sharp Unity client SDK sample proj to\n  -> " + baseApiOutputDir);
-    copyTree(path.resolve(sourceDir, "source"), baseApiOutputDir);
-    makeDatatypes([api], sourceDir, baseApiOutputDir);
-    makeAPI(api, sourceDir, baseApiOutputDir);
-    generateSimpleFiles([api], sourceDir, baseApiOutputDir, true);
-    copyFile(path.resolve(sourceDir, "testing/PlayFabApiTest_Client.cs"), path.resolve(baseApiOutputDir, "Internal/Testing/PlayFabApiTest_Client.cs"));
-    copyFile(path.resolve(sourceDir, "testing/EventTest.cs"), path.resolve(baseApiOutputDir, "Internal/Testing/EventTest.cs"));
+    apiOutputDir = path.resolve(apiOutputDir, "PlayFabClientSample/Assets/PlayFabSDK");
+    console.log("  - Generating C-sharp Unity client SDK sample proj to\n  -> " + apiOutputDir);
+    copyTree(path.resolve(sourceDir, "source"), apiOutputDir);
+    makeDatatypes([api], sourceDir, apiOutputDir);
+    makeAPI(api, sourceDir, apiOutputDir);
+    generateSimpleFiles([api], sourceDir, apiOutputDir, true);
+    copyFile(path.resolve(sourceDir, "testing/PlayFabApiTest_Client.cs"), path.resolve(apiOutputDir, "Internal/Testing/PlayFabApiTest_Client.cs"));
+    copyFile(path.resolve(sourceDir, "testing/EventTest.cs"), path.resolve(apiOutputDir, "Internal/Testing/EventTest.cs"));
+    copyFile(path.resolve(sourceDir, "testing/UUnitIncrementalTestRunner.cs"), path.resolve(apiOutputDir, "Uunit/UUnitIncrementalTestRunner.cs"));
 
     // Add the DemoScene to the clientSDK - TODO: A command line parameter that decides when to add it or not, TODO: GitIgnore the DemoScene folder?
-    // copyTree(path.resolve(sourceDir, "testing/DemoScene"), path.resolve(baseApiOutputDir, "DemoScene"));
+    // copyTree(path.resolve(sourceDir, "testing/DemoScene"), path.resolve(apiOutputDir, "DemoScene"));
 }
 
 exports.makeServerAPI = function (apis, sourceDir, apiOutputDir) {
@@ -26,6 +27,7 @@ exports.makeServerAPI = function (apis, sourceDir, apiOutputDir) {
         makeAPI(apis[i], sourceDir, apiOutputDir);
     }
     generateSimpleFiles(apis, sourceDir, apiOutputDir, false);
+    copyFile(path.resolve(sourceDir, "testing/UUnitIncrementalTestRunner.server.cs"), path.resolve(apiOutputDir, "Uunit/UUnitIncrementalTestRunner.cs"));
 }
 
 exports.makeCombinedAPI = function (apis, sourceDir, apiOutputDir) {
@@ -40,6 +42,7 @@ exports.makeCombinedAPI = function (apis, sourceDir, apiOutputDir) {
     generateSimpleFiles(apis, sourceDir, apiOutputDir, false);
     copyFile(path.resolve(sourceDir, "testing/PlayFabApiTest.cs"), path.resolve(apiOutputDir, "Internal/Testing/PlayFabApiTest.cs"));
     copyFile(path.resolve(sourceDir, "testing/EventTest.cs"), path.resolve(apiOutputDir, "Internal/Testing/EventTest.cs"));
+    copyFile(path.resolve(sourceDir, "testing/UUnitIncrementalTestRunner.cs"), path.resolve(apiOutputDir, "Uunit/UUnitIncrementalTestRunner.cs"));
 }
 
 function getBaseTypeSyntax(datatype) {

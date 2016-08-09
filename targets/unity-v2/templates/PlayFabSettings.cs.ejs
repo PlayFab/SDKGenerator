@@ -48,6 +48,14 @@ namespace PlayFab
         }
 #endif
 
+        private static string _uniqueId;
+        public static string DeviceUniqueIdentifier
+        {
+            get { return _uniqueId; }
+            set { _uniqueId = value; }
+        }
+
+
         public static string ProductionEnvironmentUrl
         {
             get { return !string.IsNullOrEmpty(PlayFabShared.ProductionEnvironmentUrl) ? PlayFabShared.ProductionEnvironmentUrl : ".playfabapi.com"; }

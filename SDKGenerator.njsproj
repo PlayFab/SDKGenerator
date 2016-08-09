@@ -85,7 +85,7 @@
   <PropertyGroup Condition=" '$(Configuration)' == 'UnitySdkV0' ">
     <DebugSymbols>true</DebugSymbols>
     <OutputPath>bin\</OutputPath>
-    <ScriptArguments>..\API_Specs unity-v0=..\sdks\UnitySDK -buildIdentifier pg_UnitySDK_manual</ScriptArguments>
+    <ScriptArguments>..\API_Specs unity-v0=..\sdks\UnitySDKV0 -buildIdentifier pg_UnitySDK_manual</ScriptArguments>
   </PropertyGroup>
   <PropertyGroup Condition=" '$(Configuration)' == 'UnitySdkV2' ">
     <DebugSymbols>true</DebugSymbols>

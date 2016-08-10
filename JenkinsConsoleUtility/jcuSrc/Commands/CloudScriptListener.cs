@@ -144,34 +144,13 @@ namespace JenkinsConsoleUtility.Commands
             };
             var task = PlayFabClientAPI.ExecuteCloudScriptAsync(request);
             task.Wait();
-            errorReport = PlayFabUtil.GetErrorReport(task.Result.Error) ?? "";
-
-            if (task.Result.Result != null && task.Result.Result.Error != null)
-                errorReport += task.Result.Result.Error.Error + task.Result.Result.Error.Message + "\n" + task.Result.Result.Error.StackTrace;
-
-            if (task.Result.Result != null && task.Result.Result.Logs != null)
-            {
-                foreach (var eachLog in task.Result.Result.Logs)
-                {
-                    if (errorReport.Length != 0)
-                        errorReport += "\n";
-                    if (eachLog.Data != null)
-                    {
-                        // Api failure within cloudscript log
-                        json = JsonConvert.SerializeObject(eachLog.Data, Formatting.Indented);
-                        errorReport += eachLog.Level + ": " + eachLog.Message + "\n" + json;
-                    }
-                    else
-                    {
-                        // Normal cloudscript log
-                        errorReport += eachLog.Level + ": " + eachLog.Message;
-                    }
-                }
-            }
+            errorReport = PlayFabUtil.GetCloudScriptErrorReport(task.Result);
 
             if (task.Result.Error != null)
             {
                 result = default(TOut);
+                Console.WriteLine();
+                return false;
             }
             else
             {

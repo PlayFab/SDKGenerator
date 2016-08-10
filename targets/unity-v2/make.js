@@ -36,7 +36,9 @@ function MakeSharedEventFiles(apis, sourceDir, apiOutputDir) {
     eventLocals.sourceDir = sourceDir;
     eventLocals.psParentTypes = playStreamEventModels.ParentTypes;
     eventLocals.psChildTypes = playStreamEventModels.ChildTypes;
-    eventLocals.GetModelPropertyDef = GetModelPropertyDef;
+    eventLocals.GenerateSummary = GenerateSummary;
+    eventLocals.GetDeprecationAttribute = GetDeprecationAttribute;
+    eventLocals.GetPropertyDef = GetModelPropertyDef;
     eventLocals.MakeDatatype = MakePlayStreamDatatype;
     
     // Events for api-callbacks
@@ -57,7 +59,9 @@ function MakePlayStreamDatatype(datatype, sourceDir) {
     
     var modelLocals = {};
     modelLocals.datatype = datatype;
-    modelLocals.getPropertyDef = GetModelPropertyDef;
+    modelLocals.GenerateSummary = GenerateSummary;
+    modelLocals.GetDeprecationAttribute = GetDeprecationAttribute;
+    modelLocals.GetPropertyDef = GetModelPropertyDef;
     modelLocals.GetPropertyJsonReader = GetPropertyJsonReader;
     modelLocals.GetBaseTypeSyntax = function (datatype) { return ""; }; // No base types in PlayStream
     if (datatype.isenum) {
@@ -99,7 +103,9 @@ function MakeApiDatatype(datatype, sourceDir) {
     
     var modelLocals = {};
     modelLocals.datatype = datatype;
-    modelLocals.getPropertyDef = GetModelPropertyDef;
+    modelLocals.GenerateSummary = GenerateSummary;
+    modelLocals.GetDeprecationAttribute = GetDeprecationAttribute;
+    modelLocals.GetPropertyDef = GetModelPropertyDef;
     modelLocals.GetPropertyJsonReader = GetPropertyJsonReader;
     modelLocals.GetBaseTypeSyntax = GetBaseTypeSyntax;
     if (datatype.isenum) {
@@ -116,6 +122,8 @@ function MakeApi(api, sourceDir, apiOutputDir) {
     var apiLocals = {};
     apiLocals.api = api;
     apiLocals.GetAuthParams = GetAuthParams;
+    apiLocals.GenerateSummary = GenerateSummary;
+    apiLocals.GetDeprecationAttribute = GetDeprecationAttribute;
     apiLocals.GetRequestActions = GetRequestActions;
     apiLocals.hasClientOptions = api.name === "Client";
     var generatedApi = apiTemplate(apiLocals);
@@ -318,12 +326,33 @@ function GetAuthParams(apiCall) {
     return "AuthType.None";
 }
 
-function GetRequestActions(apiCall, api) {
+function GetRequestActions(tabbing, apiCall, api) {
     if (api.name === "Client" && (apiCall.result === "LoginResult" || apiCall.request === "RegisterPlayFabUserRequest"))
-        return "request.TitleId = request.TitleId ?? PlayFabSettings.TitleId;\n            if (request.TitleId == null) throw new Exception(\"Must be have PlayFabSettings.TitleId set to call this method\");\n";
+        return tabbing + "request.TitleId = request.TitleId ?? PlayFabSettings.TitleId;\n" 
+            + tabbing + "if (request.TitleId == null) throw new Exception(\"Must be have PlayFabSettings.TitleId set to call this method\");\n";
     if (api.name === "Client" && apiCall.auth === "SessionTicket")
-        return "if (!IsClientLoggedIn()) throw new Exception(\"Must be logged in to call this method\");\n";
+        return tabbing + "if (!IsClientLoggedIn()) throw new Exception(\"Must be logged in to call this method\");\n";
     if (apiCall.auth === "SecretKey")
-        return "if (PlayFabSettings.DeveloperSecretKey == null) throw new Exception(\"Must have PlayFabSettings.DeveloperSecretKey set to call this method\");\n";
+        return tabbing + "if (PlayFabSettings.DeveloperSecretKey == null) throw new Exception(\"Must have PlayFabSettings.DeveloperSecretKey set to call this method\");\n";
     return "";
 }
+
+function GenerateSummary(tabbing, element, summaryParam) {
+    if (!element.hasOwnProperty(summaryParam)) {
+        return "";
+    }
+    
+    return tabbing + "/// <summary>\n" 
+        + tabbing + "/// " + element[summaryParam] + "\n" 
+        + tabbing + "/// </summary>\n";
+}
+
+function GetDeprecationAttribute(tabbing, element) {
+    // TODO: 2nd obsolete parameter: false for Proposed, true for Deprecated
+    if (element.deprecated && element.deprecatedBy)
+        return tabbing + "[Obsolete(\"Use '" + element.deprecatedBy + "' instead\", false)]\n";
+    else if (element.deprecated)
+        return tabbing + "[Obsolete]\n";
+    return "";
+}
+

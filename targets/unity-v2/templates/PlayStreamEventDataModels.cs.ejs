@@ -26,7 +26,7 @@ namespace PlayFab.PlayStreamModels
 %>    public class <%- eachClass.className %> : PlayStreamEventBase
     {
 <% for (var pIdx in eachClass.properties) { var eachProperty = eachClass.properties[pIdx];
-%>        public <%- GetModelPropertyDef(eachProperty, eachClass) %>;
+%>        public <%- GetPropertyDef(eachProperty, eachClass) %>;
 <% } %>    }
 <% } %>    #endregion <%- eachGroup.Group %>
 <% }

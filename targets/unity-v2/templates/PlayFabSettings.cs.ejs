@@ -54,11 +54,11 @@ namespace PlayFab
             {
                 var deviceId = "";
 #if UNITY_ANDROID && !UNITY_EDITOR
-                 AndroidJavaClass up = new AndroidJavaClass ("com.unity3d.player.UnityPlayer");
-                 AndroidJavaObject currentActivity = up.GetStatic<AndroidJavaObject> ("currentActivity");
-                 AndroidJavaObject contentResolver = currentActivity.Call<AndroidJavaObject> ("getContentResolver");
-                 AndroidJavaClass secure = new AndroidJavaClass ("android.provider.Settings$Secure");
-                 string deviceId = secure.CallStatic<string> ("getString", contentResolver, "android_id");
+                AndroidJavaClass up = new AndroidJavaClass ("com.unity3d.player.UnityPlayer");
+                AndroidJavaObject currentActivity = up.GetStatic<AndroidJavaObject> ("currentActivity");
+                AndroidJavaObject contentResolver = currentActivity.Call<AndroidJavaObject> ("getContentResolver");
+                AndroidJavaClass secure = new AndroidJavaClass ("android.provider.Settings$Secure");
+                deviceId = secure.CallStatic<string> ("getString", contentResolver, "android_id");
 #else
                 deviceId = SystemInfo.deviceUniqueIdentifier;
 #endif

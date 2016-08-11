@@ -1,0 +1,32 @@
+using UnityEngine;
+using strange.extensions.command.api;
+using strange.extensions.injector.api;
+using strange.extensions.mediation.api;
+
+public class PlayFabContextManager : StrangePackage
+{
+    public override void MapBindings(ICommandBinder commandBinder, ICrossContextInjectionBinder injectionBinder,
+        IMediationBinder mediationBinder)
+    {
+        // Bind Signals Cross Context<% for(var a=0; a<apis.length; a++){ %><% var api = apis[a]; %><% for(var i=0; i< api.subgroups.length; i++){ %><% var subgroup = api.subgroups[i]; %>
+
+        #region <%- subgroup.name %><% for(var x=0; x<subgroup.methods.length; x++){ %><% var apiCall = api.calls.filter(function(el){ return el.name === subgroup.methods[x]; })[0]; %><% if( !apiCall ) { %><% continue; %><% } %>
+        injectionBinder.Bind<<%- apiCall.name %>Signal>();
+        injectionBinder.Bind<<%- apiCall.name %>ResponseSignal>();<% } %>
+        #endregion<% } %><% } %>
+
+        // Bind Commands<% for(var a=0; a<apis.length; a++){ %><% var api = apis[a]; %><% for(var i=0; i< api.subgroups.length; i++){ %><% var subgroup = api.subgroups[i]; %>
+
+        #region <%- subgroup.name %><% for(var x=0; x<subgroup.methods.length; x++){ %><% var apiCall = api.calls.filter(function(el){ return el.name === subgroup.methods[x]; })[0]; %><% if( !apiCall ) { %><% continue; %><% } %>
+<%-  GenerateSummary("        ", apiCall, "summary")
+%>        commandBinder.Bind<<%- apiCall.name %>Signal>().To<<%- apiCall.name %>Command>();
+        commandBinder.Bind<<%- apiCall.name %>ResponseSignal>(); //Create empty overrideable binding.
+<% } %>
+        #endregion<% } %><% } %>
+    }
+
+    public override void PostBindings(ICommandBinder commandBinder, ICrossContextInjectionBinder injectionBinder,
+        IMediationBinder mediationBinder)
+    {
+    }
+}

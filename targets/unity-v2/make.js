@@ -3,14 +3,16 @@ var path = require("path");
 
 exports.putInRoot = true;
 
+// Automatically called by generate.js
 exports.makeCombinedAPI = function (apis, sourceDir, apiOutputDir) {
-    var testingOutputDir = path.resolve(apiOutputDir, "Testing");
     apiOutputDir = path.resolve(apiOutputDir, "Source/PlayFabSDK");
-    console.log("  - Generating C-sharp Unity Events to\n  -> " + apiOutputDir);
-    
+    exports.MakeUnityV2Sdk(apis, sourceDir, apiOutputDir);
+    MakeTestingFiles(apis, sourceDir, apiOutputDir);
+}
+
+// This function is additionally called from the csharp-unity-gameserver target
+exports.MakeUnityV2Sdk = function (apis, sourceDir, apiOutputDir) {
     copyTree(path.resolve(sourceDir, "source"), apiOutputDir);
-    copyTree(path.resolve(sourceDir, "Testing"), testingOutputDir);
-    
     MakeSharedEventFiles(apis, sourceDir, apiOutputDir);
     MakeDatatypes(apis, sourceDir, apiOutputDir);
     GenerateSimpleFiles(apis, sourceDir, apiOutputDir);
@@ -18,6 +20,11 @@ exports.makeCombinedAPI = function (apis, sourceDir, apiOutputDir) {
         MakeApiEventFiles(apis[i], sourceDir, apiOutputDir);
         MakeApi(apis[i], sourceDir, apiOutputDir);
     }
+}
+
+function MakeTestingFiles(apis, sourceDir, apiOutputDir) {
+    var testingOutputDir = path.resolve(apiOutputDir, "Testing");
+    copyTree(path.resolve(sourceDir, "Testing"), testingOutputDir);
 }
 
 function MakeApiEventFiles(api, sourceDir, apiOutputDir) {

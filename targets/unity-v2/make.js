@@ -5,8 +5,7 @@ exports.putInRoot = true;
 
 // Automatically called by generate.js
 exports.makeCombinedAPI = function (apis, sourceDir, apiOutputDir) {
-    apiOutputDir = path.resolve(apiOutputDir, "Source/PlayFabSDK");
-    exports.MakeUnityV2Sdk(apis, sourceDir, apiOutputDir);
+    exports.MakeUnityV2Sdk(apis, sourceDir, path.resolve(apiOutputDir, "Source/PlayFabSDK"));
     MakeTestingFiles(apis, sourceDir, apiOutputDir);
 }
 

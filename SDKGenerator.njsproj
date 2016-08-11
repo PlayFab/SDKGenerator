@@ -943,6 +943,7 @@
     <Content Include="targets\unity-v2\Testing\Tests\Shared\Uunit\PlayFabUUnitUtils.cs" />
     <Content Include="targets\unity-v2\Testing\Tests\Shared\Uunit\UUnitAssertException.cs" />
     <Content Include="targets\unity-v2\Testing\Tests\Shared\Uunit\UUnitIncrementalTestRunner.cs" />
+    <Content Include="targets\unity-v2\Testing\Tests\Shared\Uunit\UUnitIncrementalTestRunner.cs.meta" />
     <Content Include="targets\unity-v2\Testing\Tests\Shared\Uunit\UUnitTestCase.cs" />
     <Content Include="targets\unity-v2\Testing\Tests\Shared\Uunit\UUnitTestContext.cs" />
     <Content Include="targets\unity-v2\Testing\Tests\Shared\Uunit\UUnitTestReport.cs" />

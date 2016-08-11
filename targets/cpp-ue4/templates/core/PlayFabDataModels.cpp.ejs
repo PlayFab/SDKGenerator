@@ -51,7 +51,7 @@ void PlayFab::<%- api.name %>Models::F<%- datatype.name %>::writeJSON(JsonWriter
 {
     writer->WriteObjectStart();
     <% for(var p in datatype.properties) { var property = datatype.properties[p]; %>
-    <%- getPropertySerializer(property, datatype) %>
+    <%- GetPropertySerializer(property, datatype) %>
 	<% } %>
     
     writer->WriteObjectEnd();
@@ -63,7 +63,7 @@ bool PlayFab::<%- api.name %>Models::F<%- datatype.name %>::readFromValue(const 
 	<%	for(var p in datatype.properties)
 		{ 
 			var property = datatype.properties[p];	%>
-    <%- getPropertyDeserializer(property, datatype) %>
+    <%- GetPropertyDeserializer(property, datatype) %>
     <%	} %>
     
     return HasSucceeded;

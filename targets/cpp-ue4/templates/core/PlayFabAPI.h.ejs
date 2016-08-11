@@ -28,13 +28,13 @@ namespace PlayFab
         // ------------ Generated API calls
 <%    for(var i in api.calls) {
 var apiCall = api.calls[i];
-if(hasRequest(apiCall, api))
+if(HasRequest(apiCall, api))
 { %>        /**
-         * <%- getApiCallSummary(apiCall, api) %>
+         * <%- GetApiCallSummary(apiCall) %>
          */
         bool <%- apiCall.name %>(<%- api.name %>Models::F<%- apiCall.request %>& request, const F<%- apiCall.name %>Delegate& SuccessDelegate = F<%- apiCall.name %>Delegate(), const FPlayFabErrorDelegate& ErrorDelegate = FPlayFabErrorDelegate());
 <%    } else  {%>        /**
-         * <%- getApiCallSummary(apiCall, api) %>
+         * <%- GetApiCallSummary(apiCall) %>
          */
         bool <%- apiCall.name %>(const F<%- apiCall.name %>Delegate& SuccessDelegate = F<%- apiCall.name %>Delegate(), const FPlayFabErrorDelegate& ErrorDelegate = FPlayFabErrorDelegate());
 <% } } %>

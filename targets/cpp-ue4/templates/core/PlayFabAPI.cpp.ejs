@@ -72,13 +72,13 @@ void UPlayFab<%- api.name %>API::SetDevSecretKey(const FString& developerSecretK
 for(var i in api.calls) { var apiCall = api.calls[i];
 %>
 bool UPlayFab<%- api.name %>API::<%- apiCall.name %>(
-    <% if(hasRequest(apiCall, api)) { %><%- api.name %>Models::F<%- apiCall.request %>& request,<% } %>
+    <% if(HasRequest(apiCall, api)) { %><%- api.name %>Models::F<%- apiCall.request %>& request,<% } %>
     const F<%- apiCall.name %>Delegate& SuccessDelegate,
     const FPlayFabErrorDelegate& ErrorDelegate)
 {
-    <%- getRequestActions(apiCall, api) %>
-    auto HttpRequest = PlayFabRequestHandler::SendRequest(<%- getUrlAccessor(apiCall) %>, <% if(hasRequest(apiCall, api)) { %>request.toJSONString()<% } else { %>TEXT("{}")<% } %>,
-        <%- getAuthParams(apiCall) %>);
+    <%- GetRequestActions(apiCall, api) %>
+    auto HttpRequest = PlayFabRequestHandler::SendRequest(<%- GetUrlAccessor(apiCall) %>, <% if(HasRequest(apiCall, api)) { %>request.toJSONString()<% } else { %>TEXT("{}")<% } %>,
+        <%- GetAuthParams(apiCall) %>);
     HttpRequest->OnProcessRequestComplete().BindRaw(this, &UPlayFab<%- api.name %>API::On<%- apiCall.name %>Result, SuccessDelegate, ErrorDelegate);
     return HttpRequest->ProcessRequest();
 }
@@ -89,7 +89,7 @@ void UPlayFab<%- api.name %>API::On<%- apiCall.name %>Result(FHttpRequestPtr Htt
     FPlayFabError errorResult;
     if (PlayFabRequestHandler::DecodeRequest(HttpRequest, HttpResponse, bSucceeded, outResult, errorResult))
     {
-<%- getResultActions(apiCall, api) %>
+<%- GetResultActions(apiCall, api) %>
         SuccessDelegate.ExecuteIfBound(outResult);
     }
     else

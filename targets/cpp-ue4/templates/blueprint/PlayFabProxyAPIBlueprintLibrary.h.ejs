@@ -17,7 +17,7 @@ class UPF<%- api.name %>ProxyLibrary : public UBlueprintFunctionLibrary
 	UFUNCTION(BlueprintPure, Category = "PlayFab|<%- api.name%>", meta = (NativeBreakFunc))
 	static void BreakBP<%- api.name%><%- datatype.name %>(
 		const FBP<%- api.name%><%- datatype.name %>& In
-<%- getDatatypeSignatureParameters(datatype, api) %>	);
+<%- GetDatatypeSignatureParameters(datatype, api) %>	);
 	<%}%>
 
 

@@ -14,20 +14,20 @@ class PLAYFABPROXY_API UPF<%- api.name %><%- apiCall.name %> : public UOnlineBlu
 public:
 
 	UPROPERTY(BlueprintAssignable)
-	<% if(hasResult(apiCall, api)) {
+	<% if(HasResult(apiCall, api)) {
 	%>FBP<%- api.name%><%- apiCall.result %>Delegate OnSuccess;<% 
 	 } else 
 	 {%>FEmptyOnlineDelegate OnSuccess; <% }%>
 
 	UPROPERTY(BlueprintAssignable)
-	<% if(hasResult(apiCall, api)) {
+	<% if(HasResult(apiCall, api)) {
 	%>FBP<%- api.name%><%- apiCall.result %>Delegate OnFailure;<% 
 	 } else 
 	 {%>FEmptyOnlineDelegate OnFailure; <% }%>
 	
 	// <%- apiCall.summary %>
 	UFUNCTION(BlueprintCallable, meta = (BlueprintInternalUseOnly = "true", WorldContext = "WorldContextObject"), Category = "PlayFab|<%- api.name%>|<%- apiCall.subgroup%>")
-	static UPF<%- api.name %><%- apiCall.name %>* <%- apiCall.name %>(UObject* WorldContextObject, class APlayerController* PlayerController<%- getDatatypeSignatureInputParameters(apiCall, api) %>);
+	static UPF<%- api.name %><%- apiCall.name %>* <%- apiCall.name %>(UObject* WorldContextObject, class APlayerController* PlayerController<%- GetDatatypeSignatureInputParameters(apiCall, api) %>);
 
 	// UOnlineBlueprintCallProxyBase interface
 	virtual void Activate() override;
@@ -35,7 +35,7 @@ public:
 
 private:
 
-	<% if(hasRequest(apiCall, api)) { %>PlayFab::<%- api.name %>Models::F<%- apiCall.request %> Request;<% } %>
+	<% if(HasRequest(apiCall, api)) { %>PlayFab::<%- api.name %>Models::F<%- apiCall.request %> Request;<% } %>
 
 	PlayFab::UPlayFab<%- api.name %>API::F<%- apiCall.name %>Delegate	SuccessDelegate;
 	PlayFab::FPlayFabErrorDelegate							ErrorDelegate;

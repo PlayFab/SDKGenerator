@@ -1,4 +1,5 @@
 var path = require("path");
+var ejs = require("ejs");
 var shared = require("./cpp-ue4");
 var blueprint = require("./make-bp.js");
 
@@ -6,7 +7,7 @@ exports.putInRoot = true;
 
 exports.makeCombinedAPI = function (apis, sourceDir, apiOutputDir) {
     var subFolders = ["PlayFabSDK", "ExampleProject"]; // Two copies, one for example project, and one as the raw plugin
-    for (i in subFolders) {
+    for (var i = 0; i < subFolders.length; i++) {
         var eachApiOutputDir = path.resolve(apiOutputDir, subFolders[i]);
         var pluginOutputDir = path.resolve(eachApiOutputDir, "Plugins");
         var outputCodeDir = path.resolve(pluginOutputDir, "PlayFab/Source/PlayFab");
@@ -17,14 +18,14 @@ exports.makeCombinedAPI = function (apis, sourceDir, apiOutputDir) {
         // copy the base plugins files, resource, uplugin, etc
         copyTree(path.resolve(sourceDir, "Plugins"), pluginOutputDir);
         
-        for (var i in apis) {
-            shared.makeAPI(apis[i], outputCodeDir, "Core/");
+        for (var a = 0; a < apis.length; a++) {
+            shared.makeAPI(apis[a], outputCodeDir, "Core/");
             // generate blueprint boilerplate
-            blueprint.makeBP(apis[i], blueprintCodeDir, "Proxy/");
+            blueprint.MakeBp(apis[a], blueprintCodeDir, "Proxy/");
         }
         
-        shared.generateModels(apis, outputCodeDir, "All", "Core/");
-        shared.generateErrors(apis[0], outputCodeDir, "Core/");
+        shared.GenerateModels(apis, outputCodeDir, "All", "Core/");
+        shared.GenerateErrors(apis[0], outputCodeDir, "Core/");
         GenerateSettings(apis, sourceDir, outputCodeDir, "Core/");
     }
 

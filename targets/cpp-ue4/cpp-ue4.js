@@ -1,5 +1,5 @@
 var path = require("path");
-var assert = require("assert");
+var ejs = require("ejs");
 
 exports.makeAPI = function (api, apiOutputDir, subdir) {
     var sourceDir = __dirname;
@@ -9,14 +9,14 @@ exports.makeAPI = function (api, apiOutputDir, subdir) {
     
     var apiLocals = {};
     apiLocals.api = api;
-    apiLocals.getAuthParams = getAuthParams;
-    apiLocals.getRequestActions = getRequestActions;
-    apiLocals.getResultActions = getResultActions;
-    apiLocals.getUrlAccessor = getUrlAccessor;
+    apiLocals.GetAuthParams = GetAuthParams;
+    apiLocals.GetRequestActions = GetRequestActions;
+    apiLocals.GetResultActions = GetResultActions;
+    apiLocals.GetUrlAccessor = GetUrlAccessor;
     apiLocals.hasClientOptions = api.name === "Client";
     apiLocals.hasServerOptions = api.name !== "Client";
-    apiLocals.hasRequest = hasRequest;
-    apiLocals.getApiCallSummary = getApiCallSummary;
+    apiLocals.HasRequest = HasRequest;
+    apiLocals.GetApiCallSummary = GetApiCallSummary;
     
     var generatedHeader = apiHeaderTemplate(apiLocals);
     writeFile(path.resolve(apiOutputDir, "Public/" + subdir + "PlayFab" + api.name + "API.h"), generatedHeader);
@@ -25,35 +25,83 @@ exports.makeAPI = function (api, apiOutputDir, subdir) {
     writeFile(path.resolve(apiOutputDir, "Private/" + subdir + "PlayFab" + api.name + "API.cpp"), generatedBody);
 }
 
-var getApiCallSummary = function (apiCall, api) {
+exports.GenerateErrors = function (api, apiOutputDir, subDir) {
+    var sourceDir = __dirname;
+    
+    var errorsTemplate = ejs.compile(readFile(path.resolve(sourceDir, "templates/core/PlayFabError.h.ejs")));
+    var errorLocals = {};
+    errorLocals.errorList = api.errorList;
+    errorLocals.errors = api.errors;
+    var generatedErrors = errorsTemplate(errorLocals);
+    writeFile(path.resolve(apiOutputDir, "Public/" + subDir + "PlayFabError.h"), generatedErrors);
+}
+
+exports.GenerateModels = function (apis, apiOutputDir, libraryName, subdir) {
+    var sourceDir = __dirname;
+    
+    for (var a = 0; a < apis.length; a++) {
+        var api = apis[a];
+        
+        // Order datatypes based on dependency graph
+        var orderedTypes = [];
+        var addedSet = {};
+        
+        for (var i in api.datatypes) {
+            var datatype = api.datatypes[i];
+            AddTypeAndDependencies(datatype, api.datatypes, orderedTypes, addedSet);
+        }
+        
+        var modelHeaderTemplate = ejs.compile(readFile(path.resolve(sourceDir, "templates/core/PlayFabDataModels.h.ejs")));
+        var modelBodyTemplate = ejs.compile(readFile(path.resolve(sourceDir, "templates/core/PlayFabDataModels.cpp.ejs")));
+        
+        var modelLocals = {};
+        modelLocals.api = api;
+        modelLocals.datatypes = orderedTypes;
+        modelLocals.GetPropertyDef = GetPropertyDef;
+        modelLocals.GetPropertySerializer = GetPropertySerializer;
+        modelLocals.GetPropertyDeserializer = GetPropertyDeserializer;
+        modelLocals.GetPropertyDefaultValue = GetPropertyDefaultValue;
+        modelLocals.GetPropertyCopyValue = GetPropertyCopyValue;
+        modelLocals.GetPropertySafeName = GetPropertySafeName;
+        modelLocals.GetPropertyDescription = GetPropertyDescription;
+        modelLocals.libraryName = libraryName;
+        var generatedHeader = modelHeaderTemplate(modelLocals);
+        writeFile(path.resolve(apiOutputDir, "Public/" + subdir + "/PlayFab" + api.name + "DataModels.h"), generatedHeader);
+        
+        var generatedBody = modelBodyTemplate(modelLocals);
+        writeFile(path.resolve(apiOutputDir, "Private/" + subdir + "PlayFab" + api.name + "DataModels.cpp"), generatedBody);
+    }
+}
+
+function GetApiCallSummary(apiCall) {
     var summary = apiCall.summary;
     if (apiCall.hasOwnProperty("requestDetails"))
         summary += "\n         * " + apiCall.requestDetails;
     return summary;
 }
 
-var hasRequest = function (apiCall, api) {
+function HasRequest(apiCall, api) {
     var requestType = api.datatypes[apiCall.request];
     return requestType.properties.length > 0;
 }
 
-var getPropertyDef = exports.getPropertyDef = function (property, datatype) {
-    var safePropName = getPropertySafeName(property);
+function GetPropertyDef(property, datatype) {
+    var safePropName = GetPropertySafeName(property);
     
     if (property.collection === "array")
-        return "TArray<" + getPropertyCPPType(property, datatype, false) + "> " + safePropName + ";";
+        return "TArray<" + GetPropertyCppType(property, datatype, false) + "> " + safePropName + ";";
     else if (property.collection === "map")
-        return "TMap<FString, " + getPropertyCPPType(property, datatype, false) + "> " + safePropName + ";";
+        return "TMap<FString, " + GetPropertyCppType(property, datatype, false) + "> " + safePropName + ";";
     else
-        return getPropertyCPPType(property, datatype, true) + " " + safePropName + ";";
+        return GetPropertyCppType(property, datatype, true) + " " + safePropName + ";";
 }
 
 // PFWORKBIN-445 & PFWORKBIN-302 - variable names can't be the same as the variable type when compiling for android
-var getPropertySafeName = exports.getPropertySafeName = function (property) {
+function GetPropertySafeName(property) {
     return (property.actualtype === property.name) ? "pf" + property.name : property.name;
 }
 
-var getPropertyCPPType = exports.getPropertyCPPType = function (property, datatype, needOptional) {
+function GetPropertyCppType(property, datatype, needOptional) {
     var isOptional = property.optional && needOptional;
     
     if (property.actualtype === "String")
@@ -87,7 +135,7 @@ var getPropertyCPPType = exports.getPropertyCPPType = function (property, dataty
     throw "Unknown property type: " + property.actualtype + " for " + property.name + " in " + datatype.name;
 }
 
-var getPropertyDefaultValue = exports.getPropertyDefaultValue = function (property, datatype) {
+function GetPropertyDefaultValue(property, datatype) {
     var isOptional = property.optional;
     if (property.collection)
         return "";
@@ -117,14 +165,14 @@ var getPropertyDefaultValue = exports.getPropertyDefaultValue = function (proper
     else if (property.isclass)
         return isOptional ? "nullptr" : ""; // sub object
     else if (property.isenum)
-        return isOptional ? "" : ""; // enum
+        return ""; // isOptional ? "" : ""; // enum
     else if (property.actualtype === "object")
         return "";
     throw "Unknown property type: " + property.actualtype + " for " + property.name + " in " + datatype.name;
 }
 
-var getPropertyCopyValue = exports.getPropertyCopyValue = function (property, datatype) {
-    var safePropName = getPropertySafeName(property);
+function GetPropertyCopyValue(property) {
+    var safePropName = GetPropertySafeName(property);
     
     if (property.isclass && property.optional && !property.collection) {
         return "src." + safePropName + ".IsValid() ? MakeShareable(new F" + property.actualtype + "(*src." + safePropName + ")) : nullptr";
@@ -132,18 +180,18 @@ var getPropertyCopyValue = exports.getPropertyCopyValue = function (property, da
     return "src." + safePropName;
 }
 
-var getPropertySerializer = exports.getPropertySerializer = function (property, datatype) {
+function GetPropertySerializer(property, datatype) {
     if (property.collection === "array")
-        return getArrayPropertySerializer(property, datatype);
+        return GetArrayPropertySerializer(property, datatype);
     else if (property.collection === "map")
-        return getMapPropertySerializer(property, datatype);
+        return GetMapPropertySerializer(property, datatype);
     
     var writer = null;
     var tester = null;
     
     var propType = property.actualtype;
     var propName = property.name;
-    var safePropName = getPropertySafeName(property);
+    var safePropName = GetPropertySafeName(property);
     var isOptional = property.optional;
     
     if (propType === "String") {
@@ -214,10 +262,10 @@ var getPropertySerializer = exports.getPropertySerializer = function (property, 
     return "writer->WriteIdentifierPrefix(TEXT(\"" + propName + "\")); " + writer;
 }
 
-var getArrayPropertySerializer = exports.getArrayPropertySerializer = function (property, datatype) {
+function GetArrayPropertySerializer(property, datatype) {
     var propName = property.name;
     var isOptional = property.optional;
-    var cppType = getPropertyCPPType(property, datatype, false);
+    var cppType = GetPropertyCppType(property, datatype, false);
     
     var writer = "writer->WriteValue(item);";
     if (property.actualtype === "uint64")
@@ -243,11 +291,11 @@ var getArrayPropertySerializer = exports.getArrayPropertySerializer = function (
     return "\n    " + collectionWriter;
 }
 
-var getMapPropertySerializer = exports.getMapPropertySerializer = function (property, datatype) {
+function GetMapPropertySerializer(property, datatype) {
     
     var propName = property.name;
     var isOptional = property.optional;
-    var cppType = getPropertyCPPType(property, datatype, false);
+    var cppType = GetPropertyCppType(property, datatype, false);
     
     var writer = "writer->WriteValue((*It).Value);";
     if (property.actualtype === "uint32")
@@ -275,9 +323,9 @@ var getMapPropertySerializer = exports.getMapPropertySerializer = function (prop
 }
 
 // custom deserializer for readDatetime
-var getDateTimeDeserializer = exports.getDateTimeDeserializer = function (property, datatype) {
+function GetDateTimeDeserializer(property) {
     var propName = property.name;
-    var safePropName = getPropertySafeName(property);
+    var safePropName = GetPropertySafeName(property);
     var propNameValue = propName + "Value";
     
     var result = "";
@@ -289,15 +337,15 @@ var getDateTimeDeserializer = exports.getDateTimeDeserializer = function (proper
     return result;
 }
 
-var getPropertyDeserializer = exports.getPropertyDeserializer = function (property, datatype) {
+function GetPropertyDeserializer(property, datatype) {
     var propType = property.actualtype;
     var propName = property.name;
-    var safePropName = getPropertySafeName(property);
+    var safePropName = GetPropertySafeName(property);
     
     if (property.collection === "array")
-        return getArrayPropertyDeserializer(property, datatype);
+        return GetArrayPropertyDeserializer(property, datatype);
     else if (property.collection === "map")
-        return getMapPropertyDeserializer(property, datatype);
+        return GetMapPropertyDeserializer(property, datatype);
     
     var getter = null;
     var temporary = "";
@@ -344,7 +392,7 @@ var getPropertyDeserializer = exports.getPropertyDeserializer = function (proper
         getter = "TryGetNumber(TmpValue)";
     }
     else if (propType === "DateTime") {
-        return getDateTimeDeserializer(property, datatype);
+        return GetDateTimeDeserializer(property);
     }
     else if (property.isclass && property.optional) {
         getter = "MakeShareable(new " + "F" + propType + "(" + propNameFieldValue + "->AsObject()));";
@@ -381,7 +429,7 @@ var getPropertyDeserializer = exports.getPropertyDeserializer = function (proper
 }
 
 // specialization for array of strings
-var getArrayStringPropertyDeserializer = exports.getArrayStringPropertyDeserializer = function (property, datatype) {
+function GetArrayStringPropertyDeserializer(property, datatype) {
     var isOptional = property.optional;
     var optionalOption = "";
     
@@ -393,12 +441,12 @@ var getArrayStringPropertyDeserializer = exports.getArrayStringPropertyDeseriali
     throw "Unknown property type: " + property.actualtype + " for " + property.name + " in " + datatype.name;
 }
 
-var getArrayPropertyDeserializer = exports.getArrayPropertyDeserializer = function (property, datatype) {
+function GetArrayPropertyDeserializer(property, datatype) {
     var getter = null; // represent the getter call function
     var temporary = ""; // represent the
     
     if (property.actualtype === "String") {
-        return getArrayStringPropertyDeserializer(property, datatype);
+        return GetArrayStringPropertyDeserializer(property, datatype);
     }
     else if (property.actualtype === "Boolean") {
         getter = "CurrentItem->AsBool()";
@@ -474,7 +522,7 @@ var getArrayPropertyDeserializer = exports.getArrayPropertyDeserializer = functi
     return val;
 }
 
-var getMapPropertyDeserializer = exports.getMapPropertyDeserializer = function (property, datatype) {
+function GetMapPropertyDeserializer(property, datatype) {
     var getter = null;
     var temporary = "";
     
@@ -547,15 +595,17 @@ var getMapPropertyDeserializer = exports.getMapPropertyDeserializer = function (
     return val;
 }
 
-var addTypeAndDependencies = exports.addTypeAndDependencies = function (datatype, datatypes, orderedTypes, addedSet) {
+function AddTypeAndDependencies(datatype, datatypes, orderedTypes, addedSet) {
     if (addedSet[datatype.name])
         return;
     
-    for (var p in datatype.properties) {
-        var property = datatype.properties[p];
-        if (property.isclass || property.isenum) {
-            var dependentType = datatypes[property.actualtype];
-            addTypeAndDependencies(dependentType, datatypes, orderedTypes, addedSet)
+    if (datatype.properties) {
+        for (var p = 0; p < datatype.properties.length; p++) {
+            var property = datatype.properties[p];
+            if (property.isclass || property.isenum) {
+                var dependentType = datatypes[property.actualtype];
+                AddTypeAndDependencies(dependentType, datatypes, orderedTypes, addedSet);
+            }
         }
     }
     
@@ -563,99 +613,12 @@ var addTypeAndDependencies = exports.addTypeAndDependencies = function (datatype
     addedSet[datatype.name] = datatype;
 }
 
-// merge data types for all API
-var mergeDatatypes = function (apis, outDatatypes) {
-    var uniques = 0;
-    var shared = 0;
-    
-    outDatatypes["Shared"] = {};
-    
-    for (var apiIndex = 0; apiIndex < apis.length; apiIndex++) {
-        var api = apis[apiIndex];
-        for (var dataTypeIndex in api.datatypes) {
-            var datatype = api.datatypes[dataTypeIndex];
-            
-            if (outDatatypes["Shared"].hasOwnProperty(dataTypeIndex) == false) {
-                // assign
-                outDatatypes["Shared"][dataTypeIndex] = datatype;
-                shared++;
-            }
-            else {
-                try {
-                    // just to make sure, deep compare
-                    assert.deepEqual(outDatatypes["Shared"][dataTypeIndex], datatype);
-                }
-                catch (e) {
-                    if (outDatatypes.hasOwnProperty(api.name) === false) {
-                        outDatatypes[api.name] = {};
-                    }
-                    
-                    outDatatypes[api.name][dataTypeIndex] = datatype;
-                    uniques++;
-                }
-            }
-        }
-    }
-    
-    console.log(">> mergeDatatypes");
-    console.log("Found %d shared datatypes", shared);
-    console.log("Found %d unique datatypes", uniques);
-}
-
-var generateModels = exports.generateModels = function (apis, apiOutputDir, libraryName, subdir) {
-    var sourceDir = __dirname;
-    
-    for (var a in apis) {
-        var api = apis[a];
-        
-        // Order datatypes based on dependency graph
-        var orderedTypes = [];
-        var addedSet = {};
-        
-        for (var i in api.datatypes) {
-            var datatype = api.datatypes[i];
-            addTypeAndDependencies(datatype, api.datatypes, orderedTypes, addedSet);
-        }
-        
-        var modelHeaderTemplate = ejs.compile(readFile(path.resolve(sourceDir, "templates/core/PlayFabDataModels.h.ejs")));
-        var modelBodyTemplate = ejs.compile(readFile(path.resolve(sourceDir, "templates/core/PlayFabDataModels.cpp.ejs")));
-        
-        var modelLocals = {};
-        modelLocals.api = api;
-        modelLocals.datatypes = orderedTypes;
-        modelLocals.getPropertyDef = getPropertyDef;
-        modelLocals.getPropertySerializer = getPropertySerializer;
-        modelLocals.getPropertyDeserializer = getPropertyDeserializer;
-        modelLocals.getPropertyDefaultValue = getPropertyDefaultValue;
-        modelLocals.getPropertyCopyValue = getPropertyCopyValue;
-        modelLocals.getPropertySafeName = getPropertySafeName;
-        modelLocals.getPropertyDescription = getPropertyDescription;
-        modelLocals.libraryName = libraryName;
-        var generatedHeader = modelHeaderTemplate(modelLocals);
-        writeFile(path.resolve(apiOutputDir, "Public/" + subdir + "/PlayFab" + api.name + "DataModels.h"), generatedHeader);
-        
-        var generatedBody = modelBodyTemplate(modelLocals);
-        writeFile(path.resolve(apiOutputDir, "Private/" + subdir + "PlayFab" + api.name + "DataModels.cpp"), generatedBody);
-    }
-}
-
-var getPropertyDescription = function (property) {
-    var optional = property.optional == true ? "[optional] ": "";
+function GetPropertyDescription(property) {
+    var optional = property.optional ? "[optional] ": "";
     return "// " + optional + property.description;
 }
 
-var generateErrors = exports.generateErrors = function (api, apiOutputDir, subDir) {
-    var sourceDir = __dirname;
-    
-    var errorsTemplate = ejs.compile(readFile(path.resolve(sourceDir, "templates/core/PlayFabError.h.ejs")));
-    var errorLocals = {};
-    errorLocals.errorList = api.errorList;
-    errorLocals.errors = api.errors;
-    var generatedErrors = errorsTemplate(errorLocals);
-    writeFile(path.resolve(apiOutputDir, "Public/" + subDir + "PlayFabError.h"), generatedErrors);
-}
-
-var getAuthParams = exports.getAuthParams = function (apiCall) {
+function GetAuthParams(apiCall) {
     if (apiCall.auth === "SecretKey")
         return "TEXT(\"X-SecretKey\"), PlayFabSettings::developerSecretKey";
     else if (apiCall.auth === "SessionTicket")
@@ -663,28 +626,28 @@ var getAuthParams = exports.getAuthParams = function (apiCall) {
     return "TEXT(\"\"), TEXT(\"\")";
 }
 
-var getRequestActions = exports.getRequestActions = function (apiCall, api) {
+function GetRequestActions(apiCall, api) {
     if (api.name === "Client" && (apiCall.result === "LoginResult" || apiCall.request === "RegisterPlayFabUserRequest"))
         return "if (PlayFabSettings::titleId.Len() > 0)\n        request.TitleId = PlayFabSettings::titleId;";
     return "";
 }
 
-var getResultActions = function (apiCall, api) {
+function GetResultActions(apiCall, api) {
     if (api.name === "Client" && (apiCall.result === "LoginResult" || apiCall.result === "RegisterPlayFabUserResult"))
         return "        if (outResult.SessionTicket.Len() > 0)\n" 
-            + "        {\n"
+            + "        {\n" 
             + "            mUserSessionTicket = outResult.SessionTicket;\n" 
-            + "            MultiStepClientLogin(outResult.SettingsForUser->NeedsAttribution);\n"
+            + "            MultiStepClientLogin(outResult.SettingsForUser->NeedsAttribution);\n" 
             + "        }";
     else if (api.name === "Client" && apiCall.result === "AttributeInstallResult")
-        return "        // Modify advertisingIdType:  Prevents us from sending the id multiple times, and allows automated tests to determine id was sent successfully\n"
+        return "        // Modify advertisingIdType:  Prevents us from sending the id multiple times, and allows automated tests to determine id was sent successfully\n" 
             + "        PlayFabSettings::advertisingIdType += \"_Successful\";";
     else if (api.name === "Client" && apiCall.result === "GetCloudScriptUrlResult")
         return "        if (outResult.Url.Len() > 0) PlayFabSettings::logicServerURL = outResult.Url;";
     return "";
 }
 
-function getUrlAccessor(apiCall) {
+function GetUrlAccessor(apiCall) {
     if (apiCall.serverType === "logic")
         return "PlayFabSettings::getLogicURL(TEXT(\"" + apiCall.url + "\"))";
     return "PlayFabSettings::getURL(TEXT(\"" + apiCall.url + "\"))";

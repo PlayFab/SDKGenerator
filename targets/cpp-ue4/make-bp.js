@@ -155,7 +155,8 @@ function GenerateProxyPropertyRead(property, api, datatype) {
         return ""; // TODO: handle enums properly
     else if (property.actualtype === "object")
         return ""; // TODO: handle FMultiVar properly
-    
+    else if (property.isclass)
+        return "Out" + property.name + ".Data = In.Data." + property.name + ";";
     return "Out" + property.name + " = In.Data." + property.name + ";";
 }
 
@@ -185,7 +186,10 @@ function GenerateProxyPropertyCopy(property, api, datatype) {
         return ""; // TODO: handle enums properly
     else if (property.actualtype === "object")
         return ""; // TODO: handle FMultiVar properly
-    
+    else if (property.isclass && property.optional)
+        return "*Proxy->Request." + property.name + " = In" + property.name + ".Data;";
+    else if (property.isclass)
+        return "Proxy->Request." + property.name + " = In" + property.name + ".Data;";
     return "Proxy->Request." + property.name + " = In" + property.name + ";";
 }
 

@@ -6,17 +6,15 @@ namespace UnrealBuildTool.Rules
 {
     public class PlayFab : ModuleRules
     {
-        // NOTE: Please remove this section for Unreal 4.11
         private string ModulePath
         {
-            get { return Path.GetDirectoryName(RulesCompiler.GetModuleFilename(this.GetType().Name)); }
+            get { return Path.GetDirectoryName(ModuleDirectory); }
         }
 
         private string ThirdPartyPath
         {
             get { return Path.GetFullPath(Path.Combine(ModulePath, "../../ThirdParty/")); }
         }
-        // NOTE: Please remove this section for Unreal 4.11
 
         public PlayFab(TargetInfo Target)
         {

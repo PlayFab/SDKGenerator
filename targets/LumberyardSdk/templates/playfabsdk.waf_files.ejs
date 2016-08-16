@@ -4,7 +4,7 @@
             "Source/StdAfx.cpp",
             "Source/StdAfx.h"
         ],
-        "Interface": [<% for (var i in apis) { %>
+        "Interface": [<% for (var i = 0; i < apis.length; i++) { %>
             "Include/PlayFab<%- apis[i].name %>DataModels.h",
             "Include/IPlayFab<%- apis[i].name %>Api.h",<% } %>
 
@@ -14,7 +14,7 @@
             "Include/PlayFabHttp.h",
             "Include/PlayFabSettings.h"
         ],
-        "Implementation": [<% for (var i in apis) { %>
+        "Implementation": [<% for (var i = 0; i < apis.length; i++) { %>
             "Source/PlayFab<%- apis[i].name %>Api.h",
             "Source/PlayFab<%- apis[i].name %>Api.cpp",
             "Source/PlayFab<%- apis[i].name %>ApiWrapper.h",

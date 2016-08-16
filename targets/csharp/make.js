@@ -15,7 +15,7 @@ exports.makeServerAPI = function (apis, sourceDir, apiOutputDir) {
     
     copyTree(path.resolve(sourceDir, "source"), apiOutputDir);
     makeDatatypes(apis, sourceDir, apiOutputDir);
-    for (var i in apis) {
+    for (var i = 0; i < apis.length; i++) {
         var api = apis[i];
         makeAPI(api, sourceDir, apiOutputDir);
     }
@@ -34,48 +34,6 @@ exports.makeCombinedAPI = function (apis, sourceDir, apiOutputDir) {
         makeAPI(apis[i], sourceDir, apiOutputDir);
     generateSimpleFiles(apis, sourceDir, apiOutputDir);
     generateProject(apis, sourceDir, apiOutputDir, "All");
-}
-
-exports.makeTests = function (testData, apiLookup, sourceDir, testOutputLocation) {
-    var testsTemplate = ejs.compile(readFile(path.resolve(sourceDir, "templates/Tests.cs.ejs")));
-    var testsLocals = {};
-    testsLocals.testData = testData;
-    testsLocals.apiLookup = apiLookup;
-    testsLocals.getJsonString = getJsonString;
-    testsLocals.escapeForString = escapeForString;
-    testsLocals.makeTestInstruction = makeTestInstruction;
-    var generatedTests = testsTemplate(testsLocals);
-    writeFile(testOutputLocation, generatedTests);
-}
-
-function makeTestInstruction(action) {
-    if (typeof action === "string") {
-        action = action.trim().toLowerCase();
-        if (action === "clearcache")
-            return "ClearServerCache();";
-        else if (action === "wait")
-            return "Wait();";
-        else if (action === "reset")
-            return "ResetServer();";
-        else if (action === "abort")
-            return "return;";
-        throw "Unknown test action " + action;
-    }
-    
-    return action.name + "();";
-}
-
-function getJsonString(input) {
-    if (!input)
-        return "{}";
-    var json = JSON.stringify(input);
-    return escapeForString(json);
-}
-
-function escapeForString(input) {
-    input = input.replace(new RegExp('\\\\', "g"), '\\\\');
-    input = input.replace(new RegExp('\"', "g"), '\\"');
-    return input;
 }
 
 function getBaseTypeSyntax(datatype) {
@@ -104,7 +62,7 @@ function makeDatatypes(apis, sourceDir, apiOutputDir) {
         return (datatype.isenum) ? enumTemplate(modelLocals) : modelTemplate(modelLocals);
     };
     
-    for (var a in apis) {
+    for (var a = 0; a < apis.length; a++) {
         var modelsLocal = {};
         modelsLocal.api = apis[a];
         modelsLocal.makeDatatype = makeDatatype;
@@ -140,7 +98,7 @@ function generateSimpleFiles(apis, sourceDir, apiOutputDir) {
     settingsLocals.hasClientOptions = false;
     settingsLocals.sdkVersion = exports.sdkVersion;
     settingsLocals.buildIdentifier = exports.buildIdentifier;
-    for (var i in apis) {
+    for (var i = 0; i < apis.length; i++) {
         if (apis[i].name === "Client")
             settingsLocals.hasClientOptions = true;
         else

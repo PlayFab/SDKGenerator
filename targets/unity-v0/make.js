@@ -23,7 +23,7 @@ exports.makeServerAPI = function (apis, sourceDir, apiOutputDir) {
     
     copyTree(path.resolve(sourceDir, "source"), apiOutputDir);
     makeDatatypes(apis, sourceDir, apiOutputDir);
-    for (var i in apis) {
+    for (var i = 0; i < apis.length; i++) {
         makeAPI(apis[i], sourceDir, apiOutputDir);
     }
     generateSimpleFiles(apis, sourceDir, apiOutputDir, false);
@@ -36,7 +36,7 @@ exports.makeCombinedAPI = function (apis, sourceDir, apiOutputDir) {
     
     copyTree(path.resolve(sourceDir, "source"), apiOutputDir);
     makeDatatypes(apis, sourceDir, apiOutputDir);
-    for (var i in apis) {
+    for (var i = 0; i < apis.length; i++) {
         makeAPI(apis[i], sourceDir, apiOutputDir);
     }
     generateSimpleFiles(apis, sourceDir, apiOutputDir, false);
@@ -71,7 +71,7 @@ function makeDatatypes(apis, sourceDir, apiOutputDir) {
         return modelTemplate(modelLocals);
     };
     
-    for (var a in apis) {
+    for (var a = 0; a < apis.length; a++) {
         var modelsLocal = {};
         modelsLocal.api = apis[a];
         modelsLocal.makeDatatype = makeDatatype;
@@ -113,7 +113,7 @@ function generateSimpleFiles(apis, sourceDir, apiOutputDir, isClient) {
     settingsLocals.buildIdentifier = exports.buildIdentifier;
     settingsLocals.hasServerOptions = false;
     settingsLocals.hasClientOptions = false;
-    for (var i in apis) {
+    for (var i = 0; i < apis.length; i++) {
         if (apis[i].name === "Client")
             settingsLocals.hasClientOptions = true;
         else

@@ -3,7 +3,7 @@
 #include "IGem.h"
 #include "StdAfx.h"
 #include "PlayFabSettings.h"
-<% for (var i in apis) { var api = apis[i]; %>#include "IPlayFab<%- api.name %>Api.h"
+<% for (var i = 0; i < apis.length; i++) { var api = apis[i]; %>#include "IPlayFab<%- api.name %>Api.h"
 <% } %>
 namespace PlayFab
 {
@@ -13,6 +13,6 @@ namespace PlayFab
     public:
         virtual int GetPendingCalls() = 0;
         virtual PlayFabSettings* GetPlayFabSettings() = 0;
-<% for (var i in apis) { var api = apis[i]; %>        virtual IPlayFab<%- api.name %>Api* Get<%- api.name %>Api() = 0;
+<% for (var i = 0; i < apis.length; i++) { var api = apis[i]; %>        virtual IPlayFab<%- api.name %>Api* Get<%- api.name %>Api() = 0;
 <% } %>    };
 } // namespace PlayFab

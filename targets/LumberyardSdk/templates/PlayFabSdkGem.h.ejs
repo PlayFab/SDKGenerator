@@ -15,6 +15,6 @@ namespace PlayFab
 
         int GetPendingCalls() override;
         PlayFabSettings* GetPlayFabSettings() override;
-<% for (var i in apis) { var api = apis[i]; %>        IPlayFab<%- api.name %>Api* Get<%- api.name %>Api() override;
+<% for (var i = 0; i < apis.length; i++) { var api = apis[i]; %>        IPlayFab<%- api.name %>Api* Get<%- api.name %>Api() override;
 <% } %>    };
 } // namespace PlayFab

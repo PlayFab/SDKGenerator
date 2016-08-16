@@ -71,7 +71,7 @@ function MakeUnrealAPI(apis, apiOutputDir, sourceDir, libname) {
     var pfcppLocals = {};
     pfcppLocals.sdkVersion = exports.sdkVersion;
     pfcppLocals.names = [];
-    for (var i in apis) {
+    for (var i = 0; i < apis.length; i++) {
         pfcppLocals.names[i] = {};
         pfcppLocals.names[i].name = apis[i].name;
     }
@@ -89,7 +89,7 @@ function MakePfTestActor(apis, apiOutputDir, sourceDir) {
     testLocals.hasServerOptions = false;
     testLocals.hasClientOptions = false;
     testLocals.sdkVersion = exports.sdkVersion;
-    for (var i in apis) {
+    for (var i = 0; i < apis.length; i++) {
         if (apis[i].name === "Client")
             testLocals.hasClientOptions = true;
         else

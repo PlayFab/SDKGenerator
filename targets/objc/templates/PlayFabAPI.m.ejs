@@ -36,7 +36,7 @@ return deviceModel;
 
 
 <% if(api.name == "Client") { %>+(bool)IsClientLoggedIn {
-	return !([[PlayFab<%- api.name -%>API GetInstance].mUserSessionTicket length]==0);
+    return !([[PlayFab<%- api.name -%>API GetInstance].mUserSessionTicket length]==0);
 }
 
 #ifdef USE_IDFA

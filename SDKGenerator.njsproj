@@ -483,7 +483,6 @@
     <Content Include="targets\csharp-flat\templates\Models.cs.ejs" />
     <Content Include="targets\csharp-flat\templates\PlayFabSDK.csproj.ejs" />
     <Content Include="targets\csharp-flat\templates\PlayFabVersion.cs.ejs" />
-    <Content Include="targets\csharp-flat\templates\Tests.cs.ejs" />
     <Content Include="targets\csharp-flat\UnittestRunner\App.config" />
     <Content Include="targets\csharp-flat\UnittestRunner\PlayFabApiTest.cs" />
     <Content Include="targets\csharp-flat\UnittestRunner\Properties\AssemblyInfo.cs" />
@@ -534,7 +533,6 @@
     <Content Include="targets\csharp\templates\PlayFabSDK.csproj.ejs" />
     <Content Include="targets\csharp\templates\PlayFabSettings.cs.ejs" />
     <Content Include="targets\csharp\templates\PlayFabUtil.cs.ejs" />
-    <Content Include="targets\csharp\templates\Tests.cs.ejs" />
     <Content Include="targets\csharp\UnittestRunner\App.config" />
     <Content Include="targets\csharp\UnittestRunner\PlayFabApiTest.cs" />
     <Content Include="targets\csharp\UnittestRunner\Properties\AssemblyInfo.cs" />

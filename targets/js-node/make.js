@@ -20,7 +20,7 @@ exports.makeCombinedAPI = function (apis, sourceDir, apiOutputDir) {
         coreLocals.buildIdentifier = exports.buildIdentifier;
         coreLocals.hasServerOptions = false;
         coreLocals.hasClientOptions = false;
-        for (var i in apis) {
+        for (var i = 0; i < apis.length; i++) {
             if (apis[i].name === "Client")
                 coreLocals.hasClientOptions = true;
             else
@@ -45,7 +45,7 @@ exports.makeCombinedAPI = function (apis, sourceDir, apiOutputDir) {
         apiLocals.getRequestActions = getRequestActions;
         apiLocals.getResultActions = getResultActions;
         apiLocals.getUrlAccessor = getUrlAccessor;
-        for (var i in apis) {
+        for (var i = 0; i < apis.length; i++) {
             apiLocals.api = apis[i];
             apiLocals.hasServerOptions = apis[i].name !== "Client";
             apiLocals.hasClientOptions = apis[i].name === "Client";

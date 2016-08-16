@@ -7,7 +7,7 @@ exports.makeCombinedAPI = function (apis, sourceDir, apiOutputDir) {
     
     copyTree(path.resolve(sourceDir, "source"), apiOutputDir);
     
-    for (var i in apis) {
+    for (var i = 0; i < apis.length; i++) {
         makeDatatypes(apis[i], sourceDir, apiOutputDir);
         makeAPI(apis[i], sourceDir, apiOutputDir);
     }
@@ -94,7 +94,7 @@ function generateSimpleFiles(apis, sourceDir, apiOutputDir) {
     var settingsLocals = {};
     settingsLocals.hasServerOptions = false;
     settingsLocals.hasClientOptions = false;
-    for (var i in apis) {
+    for (var i = 0; i < apis.length; i++) {
         if (apis[i].name === "Client")
             settingsLocals.hasClientOptions = true;
         else

@@ -25,7 +25,7 @@ exports.makeServerAPI = function (apis, sourceDir, apiOutputDir) {
     
     copyTree(path.resolve(sourceDir, "source"), apiOutputDir);
     MakeAllDatatypes(apis, sourceDir, apiOutputDir);
-    for (var i in apis) {
+    for (var i = 0; i < apis.length; i++) {
         var api = apis[i];
         MakeApi(api, sourceDir, apiOutputDir);
     }
@@ -50,49 +50,6 @@ exports.makeCombinedAPI = function (apis, sourceDir, apiOutputDir) {
     GenerateErrors(apis[0], sourceDir, apiOutputDir);
     GenerateVersion(apis[0], sourceDir, apiOutputDir);
     GenerateProject(apis, sourceDir, apiOutputDir, libname);
-}
-
-exports.makeTests = function (testData, apiLookup, sourceDir, testOutputLocation) {
-    var templateDir = path.resolve(sourceDir, "templates");
-    var testsTemplate = ejs.compile(readFile(path.resolve(templateDir, "Tests.cs.ejs")));
-    var testsLocals = {};
-    testsLocals.testData = testData;
-    testsLocals.apiLookup = apiLookup;
-    testsLocals.GetJsonString = GetJsonString;
-    testsLocals.EscapeForString = EscapeForString;
-    testsLocals.MakeTestInstruction = MakeTestInstruction;
-    var generatedTests = testsTemplate(testsLocals);
-    writeFile(testOutputLocation, generatedTests);
-}
-
-function MakeTestInstruction(action) {
-    if (typeof action === "string") {
-        action = action.trim().toLowerCase();
-        if (action === "clearcache")
-            return "ClearServerCache();";
-        else if (action === "wait")
-            return "Wait();";
-        else if (action === "reset")
-            return "ResetServer();";
-        else if (action === "abort")
-            return "return;";
-        throw "Unknown test action " + action;
-    }
-    
-    return action.name + "();";
-}
-
-function GetJsonString(input) {
-    if (!input)
-        return "{}";
-    var json = JSON.stringify(input);
-    return EscapeForString(json);
-}
-
-function EscapeForString(input) {
-    input = input.replace(new RegExp('\\\\', "g"), '\\\\');
-    input = input.replace(new RegExp('\"', "g"), '\\"');
-    return input;
 }
 
 function MakeAllDatatypes(apis, sourceDir, apiOutputDir) {

@@ -74,7 +74,7 @@ function makeDatatypes(apis, sourceDir, apiOutputDir) {
         return datatype.isenum ? enumTemplate(modelLocals) : modelTemplate(modelLocals);
     };
     
-    for (var a in apis) {
+    for (var a = 0; a < apis.length; a++) {
         var modelsLocal = {};
         modelsLocal.api = apis[a];
         modelsLocal.makeDatatype = makeDatatype;
@@ -114,7 +114,7 @@ function generateSimpleFiles(apis, sourceDir, apiOutputDir, isAndroid) {
     settingsLocals.isAndroid = isAndroid;
     settingsLocals.hasClientOptions = false;
     settingsLocals.hasServerOptions = false;
-    for (var i in apis) {
+    for (var i = 0; i < apis.length; i++) {
         if (apis[i].name === "Client")
             settingsLocals.hasClientOptions = true;
         else

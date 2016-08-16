@@ -29,21 +29,21 @@ public class PlayFabManager : MonoBehaviour
     {
         Debug.Log("Starting Auto-login Process");
 #if PLAYFAB_IOS
-		PlayFabClientAPI.LoginWithIOSDeviceID (new LoginWithIOSDeviceIDRequest
-		{
-			DeviceId = SystemInfo.deviceUniqueIdentifier,
-			OS = SystemInfo.operatingSystem,
-			DeviceModel = SystemInfo.deviceModel,
-			CreateAccount = true
-		}, OnLoginSuccess, OnLoginError, "LoginWithIOSDeviceID");
+        PlayFabClientAPI.LoginWithIOSDeviceID (new LoginWithIOSDeviceIDRequest
+        {
+            DeviceId = SystemInfo.deviceUniqueIdentifier,
+            OS = SystemInfo.operatingSystem,
+            DeviceModel = SystemInfo.deviceModel,
+            CreateAccount = true
+        }, OnLoginSuccess, OnLoginError, "LoginWithIOSDeviceID");
 #elif PLAYFAB_ANDROID
-		PlayFabClientAPI.LoginWithAndroidDeviceID (new LoginWithAndroidDeviceIDRequest
-		{
-			AndroidDeviceId = SystemInfo.deviceUniqueIdentifier,
-			OS = SystemInfo.operatingSystem,
-			AndroidDevice = SystemInfo.deviceModel,
-			CreateAccount = true
-		}, OnLoginSuccess, OnLoginError, "LoginWithAndroidDeviceID");
+        PlayFabClientAPI.LoginWithAndroidDeviceID (new LoginWithAndroidDeviceIDRequest
+        {
+            AndroidDeviceId = SystemInfo.deviceUniqueIdentifier,
+            OS = SystemInfo.operatingSystem,
+            AndroidDevice = SystemInfo.deviceModel,
+            CreateAccount = true
+        }, OnLoginSuccess, OnLoginError, "LoginWithAndroidDeviceID");
 #elif PLAYFAB_WP8
         PlayFabClientAPI.LoginWithCustomID(new LoginWithCustomIDRequest
         {

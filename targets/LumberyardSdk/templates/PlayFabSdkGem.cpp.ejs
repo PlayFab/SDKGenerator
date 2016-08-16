@@ -6,7 +6,7 @@
 #include <FlowSystem/Nodes/FlowBaseNode.h>
 
 #include "PlayFabHttp.h"
-<% for (var i in apis) { var api = apis[i]; %>#include "PlayFab<%- api.name %>ApiWrapper.h"
+<% for (var i = 0; i < apis.length; i++) { var api = apis[i]; %>#include "PlayFab<%- api.name %>ApiWrapper.h"
 <% } %>
 using namespace PlayFab;
 
@@ -47,7 +47,7 @@ PlayFabSettings* PlayFabSdkGem::GetPlayFabSettings()
 {
     return &PlayFabSettings::playFabSettings;
 }
-<% for (var i in apis) { var api = apis[i]; %>
+<% for (var i = 0; i < apis.length; i++) { var api = apis[i]; %>
 IPlayFab<%- api.name %>Api* PlayFabSdkGem::Get<%- api.name %>Api()
 {
     return &PlayFab<%- api.name %>ApiWrapper::globalWrapper;

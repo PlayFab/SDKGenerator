@@ -445,7 +445,7 @@ var addTypeAndDependencies = exports.addTypeAndDependencies = function (datatype
 var generateModels = exports.generateModels = function (apis, apiOutputDir, libraryName) {
     var sourceDir = __dirname;
     
-    for (var a in apis) {
+    for (var a = 0; a < apis.length; a++) {
         var api = apis[a];
         
         // Order datatypes based on dependency graph

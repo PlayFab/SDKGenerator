@@ -17,7 +17,7 @@ exports.makeCombinedAPI = function (apis, sourceDir, apiOutputDir) {
     apiLocals.getAuthParams = getAuthParams;
     apiLocals.sdkVersion = exports.sdkVersion;
     apiLocals.buildIdentifier = exports.buildIdentifier;
-    for (var i in apis) {
+    for (var i = 0; i < apis.length; i++) {
         apiLocals.api = apis[i];
         apiLocals.hasServerOptions = apis[i].name !== "Client"; // NOTE FOR THE EJS FILE: PlayFab.settings and PlayFab._internalSettings and are still global/shared - Only utilize this within the api-specific section
         apiLocals.hasClientOptions = apis[i].name === "Client"; // NOTE FOR THE EJS FILE: PlayFab.settings and PlayFab._internalSettings and are still global/shared - Only utilize this within the api-specific section

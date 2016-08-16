@@ -1,4 +1,5 @@
 var path = require("path");
+var ejs = require("ejs");
 
 exports.putInRoot = true;
 
@@ -9,26 +10,26 @@ exports.makeCombinedAPI = function (apis, sourceDir, apiOutputDir) {
     
     var apiTemplate = ejs.compile(readFile(path.resolve(templateDir, "playfab.json.ejs")));
     
-    var propertyReplacements = null;
+    var propertyReplacements;
     try {
         propertyReplacements = require(path.resolve(sourceDir, "replacements.json"));
     } catch (ex) {
         throw "The file: replacements.json was not properly formatted JSON";
     }
     
-    for (var a in apis) {
-        apis[a].calls.sort(callSorter);
+    for (var a = 0; a < apis.length; a++) {
+        apis[a].calls.sort(CallSorter);
     }
     
     var apiLocals = {};
     apiLocals.sdkVersion = exports.sdkVersion;
     apiLocals.apis = apis;
     apiLocals.propertyReplacements = propertyReplacements;
-    apiLocals.getUrl = getUrl;
-    apiLocals.getPostmanHeader = getPostmanHeader;
-    apiLocals.getPostmanDescription = getPostmanDescription;
-    apiLocals.getPostBodyPropertyValue = getPostBodyPropertyValue;
-    apiLocals.getRequestExample = getRequestExample;
+    apiLocals.GetUrl = GetUrl;
+    apiLocals.GetPostmanHeader = GetPostmanHeader;
+    apiLocals.GetPostmanDescription = GetPostmanDescription;
+    apiLocals.GetPostBodyPropertyValue = GetPostBodyPropertyValue;
+    apiLocals.GetRequestExample = GetRequestExample;
     var generatedApi = apiTemplate(apiLocals);
     
     var outputFile = path.resolve(apiOutputDir, "playfab.json");
@@ -41,7 +42,7 @@ exports.makeCombinedAPI = function (apis, sourceDir, apiOutputDir) {
     }
 }
 
-function callSorter(a, b) {
+function CallSorter(a, b) {
     if (a.name > b.name) {
         return 1;
     }
@@ -52,32 +53,32 @@ function callSorter(a, b) {
     return 0;
 }
 
-function getUrl(apiCall) {
+function GetUrl(apiCall) {
     if (apiCall.name !== "RunCloudScript")
         return "https://{{TitleId}}.playfabapi.com" + apiCall.url;
     return "{{LogicUrl}}" + apiCall.url;
 }
 
-function getPostmanHeader(auth) {
+function GetPostmanHeader(auth) {
     if (auth === "SessionTicket")
-        return "Content-Type: application/json\\nX-Authentication: {{SessionTicket}}\\n";
+        return "X-PlayFabSDK: PostmanCollection-" + exports.sdkVersion + "\\nContent-Type: application/json\\nX-Authentication: {{SessionTicket}}\\n";
     else if (auth === "SecretKey")
-        return "Content-Type: application/json\\nX-SecretKey: {{SecretKey}}\\n";
+        return "X-PlayFabSDK: PostmanCollection-" + exports.sdkVersion + "\\nContent-Type: application/json\\nX-SecretKey: {{SecretKey}}\\n";
     else if (auth === "None")
-        return "Content-Type: application/json\\n";
+        return "X-PlayFabSDK: PostmanCollection-" + exports.sdkVersion + "\\nContent-Type: application/json\\n";
     
     return "";
 }
 
-function jsonEscape(input) {
+function JsonEscape(input) {
     if (input != null)
         input = input.replace(/\r/g, "").replace(/\n/g, "\\n").replace(/"/g, "\\\"");
     return input;
 }
 
-function getPostmanDescription(api, apiCall) {
+function GetPostmanDescription(api, apiCall) {
     var output = "";
-    output += jsonEscape(apiCall.summary); // Make sure quote characters are properly escaped
+    output += JsonEscape(apiCall.summary); // Make sure quote characters are properly escaped
     
     output += "\\n\\nApi Documentation: https://api.playfab.com/Documentation/" + api.name + "/method/" + apiCall.name;
     
@@ -96,8 +97,8 @@ function getPostmanDescription(api, apiCall) {
     var props = api.datatypes[apiCall.request].properties;
     if (props.length > 0)
         output += "\\n\\n**The body of this api-call should be proper json-format.  The api-body accepts the following case-sensitive parameters:**";
-    for (var p in props) {
-        output += "\\n\\n\\\"" + props[p].name + "\\\": " + jsonEscape(props[p].description);
+    for (var p = 0; p < props.length; p++) {
+        output += "\\n\\n\\\"" + props[p].name + "\\\": " + JsonEscape(props[p].description);
     }
     
     output += "\\n\\nTo set up an Environment, click the text next to the eye icon up top in Postman (it should say \"No environment\", if this is your first time using Postman). Select \"Manage environments\", then \"Add\". Type a name for your environment where it says \"New environment\", then enter each variable name above as the \"Key\", with the value as defined for each above.".replace(/"/g, "\\\"");
@@ -105,7 +106,7 @@ function getPostmanDescription(api, apiCall) {
     return output;
 }
 
-function getPostBodyPropertyValue(apiName, apiCall, prop, propertyReplacements) {
+function GetPostBodyPropertyValue(apiName, apiCall, prop, propertyReplacements) {
     var output = "\"" + prop.jsontype + "\""; // The default output if there are no replacements
     
     if (propertyReplacements != null) {
@@ -122,14 +123,14 @@ function getPostBodyPropertyValue(apiName, apiCall, prop, propertyReplacements) 
         }
     }
     
-    return jsonEscape(output);
+    return JsonEscape(output);
 }
 
-function getRequestExample(api, apiCall, propertyReplacements) {
+function GetRequestExample(api, apiCall, propertyReplacements) {
     var msg = null;
     if (apiCall.requestExample.length > 0 && apiCall.requestExample.indexOf("{") >= 0) {
         if (apiCall.requestExample.indexOf("\\\"") === -1) // I can't handle json in a string in json in a string...
-            return "\"" + jsonEscape(apiCall.requestExample) + "\"";
+            return "\"" + JsonEscape(apiCall.requestExample) + "\"";
         else
             msg = "CANNOT PARSE EXAMPLE BODY: ";
     }
@@ -138,16 +139,16 @@ function getRequestExample(api, apiCall, propertyReplacements) {
     
     var props = api.datatypes[apiCall.request].properties;
     var output = "\"{";
-    for (var p in props) {
+    for (var p = 0; p < props.length; p++) {
         output += "\\\"" + props[p].name + "\\\": ";
-        output += getPostBodyPropertyValue(apiNameLc, apiCall.name, props[p], propertyReplacements);
+        output += GetPostBodyPropertyValue(apiNameLc, apiCall.name, props[p], propertyReplacements);
         if (parseInt(p) + 1 < props.length)
             output += ",";
     }
     output += "}\"";
     
     if (msg == null)
-        msg = "AUTO GENERATED BODY FOR: "
+        msg = "AUTO GENERATED BODY FOR: ";
     console.log(msg + api.name + "." + apiCall.name);
     // console.log("    " + output);
     return output;

@@ -1,5 +1,5 @@
 {
-	"id": "PlayFabPostmanSDK-<%- sdkVersion %>",
+	"id": "PlayFabPostmanSDK",
 	"name": "PlayFab Postman SDK <%- sdkVersion %>",
 	"description": "PlayFab API SDK for Postman.\n\nThis is still under development, and is not yet ready for general use.  Experienced users can utilize this if they carefully examine the post-body and ensure the data is properly entered.  By default, the post-body is NOT defaulting to useable values.",
 	"order": [],
@@ -12,9 +12,7 @@
 			"order": [
 <% for(var i in api.calls) { var apiCall = api.calls[i]; %>
 				"<%- apiName %>-<%- apiCall.name %>"<% if(parseInt(i) + 1 < api.calls.length){ %>,<% } %><% } %>
-			],
-			"collection_name": "PlayFab Postman SDK",
-			"collection_id": "PlayFabPostmanSDK-<%- sdkVersion %>"
+			]
 		}<% if(parseInt(a) + 1 < apis.length){ %>,<% } %><% } %>
 	],
 	"requests": [
@@ -22,17 +20,17 @@
 <% for(var i in api.calls) { var apiCall = api.calls[i]; %>
 		{
 			"id": "<%- apiName %>-<%- apiCall.name %>",
-			"headers": "<%- getPostmanHeader(apiCall.auth) %>",
-			"url": "<%- getUrl(apiCall) %>",
+			"headers": "<%- GetPostmanHeader(apiCall.auth) %>",
+			"url": "<%- GetUrl(apiCall) %>",
 			"method": "POST",
-			"collectionId": "PlayFabPostmanSDK-<%- sdkVersion %>",
+			"collectionId": "PlayFabPostmanSDK",
 			"dataMode": "raw",
 			"name": "<%- apiCall.name %>",
-			"description": "<%- getPostmanDescription(api, apiCall) %>",
+			"description": "<%- GetPostmanDescription(api, apiCall) %>",
 			"descriptionFormat": "html",
 			"currentHelper": "normal",
 			"folder": "PlayFabPostmanSDK-<%- apiName %>Folder",
-			"rawModeData": <%- getRequestExample(api, apiCall, propertyReplacements) %>
+			"rawModeData": <%- GetRequestExample(api, apiCall, propertyReplacements) %>
 		}<% if(parseInt(i) + 1 < api.calls.length || parseInt(a) + 1 < apis.length){ %>,<% } %><% } %><% } %>
 	]
 }

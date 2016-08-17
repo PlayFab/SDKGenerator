@@ -353,12 +353,16 @@ function GenerateSummary(tabbing, element, summaryParam) {
         + tabbing + "/// </summary>\n";
 }
 
-function GetDeprecationAttribute(tabbing, element) {
-    // TODO: 2nd obsolete parameter: false for Proposed, true for Deprecated
-    if (element.deprecated && element.deprecatedBy)
-        return tabbing + "[Obsolete(\"Use '" + element.deprecatedBy + "' instead\", false)]\n";
-    else if (element.deprecated)
-        return tabbing + "[Obsolete]\n";
+function GetDeprecationAttribute(tabbing, apiObj) {
+    var isDeprecated = apiObj.hasOwnProperty("deprecation");
+    var deprecationTime = null;
+    if (isDeprecated)
+        deprecationTime = new Date(apiObj.deprecation.DeprecatedAfter);
+    var isError = isDeprecated && (Date.now() > deprecationTime) ? "true": "false";
+    
+    if (isDeprecated && apiObj.deprecation.ReplacedBy != null)
+        return tabbing + "[Obsolete(\"Use '" + apiObj.deprecation.ReplacedBy + "' instead\", " + isError + ")]\n";
+    else if (isDeprecated)
+        return tabbing + "[Obsolete(\"No longer available\", " + isError + ")]\n";
     return "";
 }
-

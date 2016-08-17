@@ -5,7 +5,7 @@ var specLocation = null;
 // Global utility
 String.prototype.replaceAll = function (search, replacement) {
     var target = this;
-    return target.replace(new RegExp(search, 'g'), replacement);
+    return target.replace(new RegExp(search, "g"), replacement);
 };
 
 function GetTargetsList() {
@@ -179,23 +179,46 @@ GLOBAL.GetApiJson = function (apiFileName) {
 function GetApiDefinition(apiFileName, buildFlags) {
     var api = GetApiJson(apiFileName);
     
+    // Special case, "obsolete" is treated as an SdkGenerator flag, but is not an actual flag in pf-main
+    var obsoleteFlaged = false;
+    for (var b = 0; b < buildFlags.length; b++)
+        if (buildFlags[b].indexOf("obsolete") !== -1)
+            obsoleteFlaged = true;
+    
     // Filter calls out of the API before returning it
     var filteredCalls = [];
     for (var cIdx in api.calls)
-        if (IsVisibleWithFlags(buildFlags, api.calls[cIdx]))
+        if (IsVisibleWithFlags(buildFlags, api.calls[cIdx], obsoleteFlaged))
             filteredCalls.push(api.calls[cIdx]);
     api.calls = filteredCalls;
     
     // Filter datatypes out of the API before returning it
     var filteredTypes = {};
-    for (var dIdx in api.datatypes)
-        if (IsVisibleWithFlags(buildFlags, api.datatypes[dIdx]))
-            filteredTypes[api.datatypes[dIdx].className] = api.datatypes[dIdx];
+    for (var dIdx in api.datatypes) {
+        if (IsVisibleWithFlags(buildFlags, api.datatypes[dIdx], obsoleteFlaged)) {
+            var eachType = api.datatypes[dIdx];
+            var filteredProperties = [];
+            if (eachType.properties) {
+                for (var pIdx = 0; pIdx < eachType.properties.length; pIdx++)
+                    if (IsVisibleWithFlags(buildFlags, eachType.properties[pIdx], obsoleteFlaged))
+                        filteredProperties.push(eachType.properties[pIdx]);
+                eachType.properties = filteredProperties;
+            }
+            filteredTypes[api.datatypes[dIdx].className] = eachType;
+        }
+    }
     api.datatypes = filteredTypes;
     return api;
 }
 
-function IsVisibleWithFlags(buildFlags, apiObj) {
+function IsVisibleWithFlags(buildFlags, apiObj, obsoleteFlaged) {
+    // Filter obsolete elements
+    if (!obsoleteFlaged && apiObj.hasOwnProperty("deprecation")) {
+        var obsoleteTime = new Date(apiObj.deprecation.ObsoleteAfter);
+        if (Date.now() > obsoleteTime)
+            return false;
+    }
+    
     // It's pretty easy to exclude (Api calls and datatypes)
     var exclusiveFlags = [];
     if (apiObj.hasOwnProperty("ExclusiveFlags"))

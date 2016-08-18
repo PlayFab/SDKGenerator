@@ -4,7 +4,7 @@
     /// </summary><% } %>
     [Serializable]
     public<% if (datatype.isAbstract) { %> abstract<% } %> class <%- datatype.className %><%- GetBaseTypeSyntax(datatype) %>
-    {<% for (var i in datatype.properties) { var property = datatype.properties[i] %>
+    {<% for (var i = 0; i < datatype.properties.length; i++) { var property = datatype.properties[i] %>
 <%- GenerateSummary("        ", property, "description") %><%- GetDeprecationAttribute("        ", property)
 %>        public <%- GetPropertyDef(property, datatype) %> { get; set;}<% } %>
     }

@@ -2,16 +2,16 @@ MS Windows 10
 
 Install the Adobe Air SDK
 http://www.adobe.com/devnet/air/air-sdk-download.html
-I installed Air 18, to C:\dev\AirSdk
+I installed Air 22, to C:/dev/AirSdk
 Add the air-bin path to your path environment variable:
-C:\dev\AirSdk\bin (in my case)
+C:/dev/AirSdk/bin (in my case)
 
 Install the Adobe Flex SDK
 http://www.adobe.com/devnet/flex/flex-sdk-download.html
-I installed Flex 4.6, to C:\dev\flex_sdk_4.6
-Create a new environment variable: FLEX_HOME=C:\dev\flex_sdk_4.6 (in my case)
+I installed Flex 4.6, to C:/dev/flex_sdk_4.6
+Create a new environment variable: FLEX_HOME=C:/dev/flex_sdk_4.6 (in my case)
 Add the flex-bin path to your path environment variable:
-C:\dev\flex_sdk_4.6\bin (in my case)
+C:/dev/flex_sdk_4.6/bin (in my case)
 
 Creating the Example Project, starting with the most useful help page:
 
@@ -23,7 +23,7 @@ All the instructions here are good, save one line in HelloWorld.xml.  Replace:
 
 With:
 
-    <application xmlns="http://ns.adobe.com/air/application/18.0">
+    <application xmlns="http://ns.adobe.com/air/application/22.0">
 
 Presumably this should match the version of AirSDK that you have installed above.  This document is already out of date, as the AirSDK link at the top is now version 19.0
 
@@ -42,6 +42,7 @@ I put the full path to my local AirSDK:
     <path-element>C:/dev/AirSdk/frameworks/libs</path-element>
 
 This path will be unique to your installation of the AirSDK.  Once again, there will be several of these, fix all of them, scattered in the file.
+UPDATE: With Air 22, there's a lot more of these paths, and they all need full paths to either a file in the flex SDK, or the air SDK.
 
 --------
 
@@ -105,7 +106,7 @@ and later in the same file:
 HelloWorld.xml is almost copy paste of the one from help.adobe.com, but here it is:
 
     <?xml version="1.0" encoding="UTF-8"?>
-    <application xmlns="http://ns.adobe.com/air/application/18.0">
+    <application xmlns="http://ns.adobe.com/air/application/22.0">
     	<id>samples.android.HelloWorld</id>
     	<versionNumber>0.0.1</versionNumber>
     	<filename>HelloWorld</filename>

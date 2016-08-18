@@ -20,7 +20,7 @@ exports.makeServerAPI = function (apis, sourceDir, apiOutputDir) {
     copyTree(path.resolve(sourceDir, "../cpp-WinShared/source"), apiOutputDir);
     copyTree(path.resolve(sourceDir, "source"), apiOutputDir);
     
-    for (var i in apis)
+    for (var i = 0; i < apis.length; i++)
         shared.makeAPI(apis[i], apiOutputDir, "core/");
     shared.generateModels(apis, apiOutputDir, "Server", "core/");
     shared.generateErrors(apis[0], apiOutputDir);
@@ -35,7 +35,7 @@ exports.makeCombinedAPI = function (apis, sourceDir, apiOutputDir) {
     copyTree(path.resolve(sourceDir, "source"), apiOutputDir);
     copyTree(path.resolve(sourceDir, "UnittestRunner"), path.resolve(apiOutputDir, "build/VC12/UnittestRunner"));
     
-    for (var i in apis)
+    for (var i = 0; i < apis.length; i++)
         shared.makeAPI(apis[i], apiOutputDir, "core/");
     shared.generateModels(apis, apiOutputDir, "All", "core/");
     shared.generateErrors(apis[0], apiOutputDir);

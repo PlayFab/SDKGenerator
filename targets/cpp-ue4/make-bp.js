@@ -81,7 +81,7 @@ function GetDatatypeSignatureInputParameters(apiCall, api) {
     
     var datatype = api.datatypes[apiCall.request];
     
-    for (var p in datatype.properties) {
+    for (var p = 0; p < datatype.properties.length; p++) {
         var property = datatype.properties[p];
         
         if (property.isenum || property.actualtype === "object") {
@@ -98,7 +98,7 @@ function GetDatatypeSignatureInputParameters(apiCall, api) {
 function GetDatatypeSignatureParameters(datatype, api) {
     var result = "";
     
-    for (var p in datatype.properties) {
+    for (var p = 0; p < datatype.properties.length; p++) {
         var property = datatype.properties[p];
         
         if (property.isenum || property.actualtype === "object") {

@@ -79,7 +79,7 @@ function MakeUnrealAPI(apis, apiOutputDir, sourceDir, libname) {
     var generatedPlayFabCpp = apiPlayFabCppTemplate(pfcppLocals);
     writeFile(path.resolve(apiOutputDir, "PluginFiles/PlayFab/Source/PlayFab/Private/PlayFab.cpp"), generatedPlayFabCpp);
     
-    for (var i in apis)
+    for (var i = 0; i < apis.length; i++)
         MakeApiFiles(apis[i], apiOutputDir, sourceDir, libname);
     MakeSimpleFiles(apis, apiOutputDir, sourceDir);
 }
@@ -125,7 +125,7 @@ function MakeSimpleFiles(apis, apiOutputDir, sourceDir) {
 // Pull all the enums out of all the apis, and collect them into a single collection of just the enum types and filter duplicates
 function CollectEnumsFromApis(apis) {
     var enumTypes = {};
-    for (var i in apis)
+    for (var i = 0; i < apis.length; i++)
         for (var dataTypeName in apis[i].datatypes)
             if (apis[i].datatypes[dataTypeName].isenum)
                 enumTypes[dataTypeName] = apis[i].datatypes[dataTypeName];

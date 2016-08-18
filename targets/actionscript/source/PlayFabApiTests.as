@@ -56,7 +56,7 @@ package
             AddTest("LoginOrRegister", LoginOrRegister);
             AddTest("LoginWithAdvertisingId", LoginWithAdvertisingId);
             AddTest("UserDataApi", UserDataApi);
-            AddTest("UserStatisticsApi", UserStatisticsApi);
+            AddTest("PlayerStatisticsApi", PlayerStatisticsApi);
             AddTest("UserCharacter", UserCharacter);
             AddTest("LeaderBoard", LeaderBoard);
             AddTest("AccountInfo", AccountInfo);
@@ -83,7 +83,7 @@ package
         /// PlayFab Title cannot be created from SDK tests, so you must provide your titleId to run unit tests.
         /// (Also, we don't want lots of excess unused titles)
         /// </summary>
-        private static function SetTitleInfo(titleDataString):Boolean
+        private static function SetTitleInfo(titleDataString:String):Boolean
         {
             var testTitleData:Object = JSON.parse(titleDataString);
 
@@ -181,7 +181,7 @@ package
             var allMessages:String = "";
             for (var key:String in error.errorDetails) {
                 var eachArray:Array = error.errorDetails[key];
-                for (var eachIndex:int in eachArray) {
+                for (var eachIndex:String in eachArray) {
                     if(eachArray[eachIndex].indexOf(expectedEmailMsg) >= 0)
                         foundEmailMsg = true;
                     if(eachArray[eachIndex].indexOf(expectedPasswordMsg) >= 0)
@@ -308,29 +308,38 @@ package
         /// Verify that the data is saved correctly, and that specific types are tested
         /// Parameter types tested: Dictionary<string, int>
         /// </summary>
-        private function UserStatisticsApi() : void
+        private function PlayerStatisticsApi() : void
         {
-            var getRequest:com.playfab.ClientModels.GetUserStatisticsRequest = new com.playfab.ClientModels.GetUserStatisticsRequest();
-            PlayFabClientAPI.GetUserStatistics(getRequest, Wrap(UserStatisticsApi_GetSuccess1, "UserStatisticsApi_GetSuccess1"), Wrap(Shared_ApiCallFailure, "UserStatisticsApi_GetSuccess1"));
+            var getRequest:com.playfab.ClientModels.GetPlayerStatisticsRequest = new com.playfab.ClientModels.GetPlayerStatisticsRequest();
+            PlayFabClientAPI.GetPlayerStatistics(getRequest, Wrap(PlayerStatisticsApi_GetSuccess1, "PlayerStatisticsApi_GetSuccess1"), Wrap(Shared_ApiCallFailure, "PlayerStatisticsApi_GetSuccess1"));
         }
-        private function UserStatisticsApi_GetSuccess1(result:com.playfab.ClientModels.GetUserStatisticsResult) : void
+        private function PlayerStatisticsApi_GetSuccess1(result:com.playfab.ClientModels.GetPlayerStatisticsResult) : void
         {
-            testIntExpected = int(result.UserStatistics[TEST_STAT_NAME]);
+            testIntExpected = 0;
+            for each (var eachStat:com.playfab.ClientModels.StatisticValue in result.Statistics)
+                if (eachStat.StatisticName == TEST_STAT_NAME)
+                    testIntExpected = eachStat.Value;
             testIntExpected = (testIntExpected + 1) % 100; // This test is about the expected value changing - but not testing more complicated issues like bounds
 
-            var updateRequest:com.playfab.ClientModels.UpdateUserStatisticsRequest = new com.playfab.ClientModels.UpdateUserStatisticsRequest();
-            updateRequest.UserStatistics = new Object();
-            updateRequest.UserStatistics[TEST_STAT_NAME] = testIntExpected;
-            PlayFabClientAPI.UpdateUserStatistics(updateRequest, Wrap(UserStatisticsApi_UpdateSuccess, "UserStatisticsApi_UpdateSuccess"), Wrap(Shared_ApiCallFailure, "UserStatisticsApi_UpdateSuccess"));
+            var updateRequest:com.playfab.ClientModels.UpdatePlayerStatisticsRequest = new com.playfab.ClientModels.UpdatePlayerStatisticsRequest();
+            updateRequest.Statistics = new Vector.<com.playfab.ClientModels.StatisticUpdate>();
+            var statUpdate:com.playfab.ClientModels.StatisticUpdate = new com.playfab.ClientModels.StatisticUpdate();
+            statUpdate.StatisticName = TEST_STAT_NAME;
+            statUpdate.Value = testIntExpected;
+            updateRequest.Statistics.push(statUpdate);
+            PlayFabClientAPI.UpdatePlayerStatistics(updateRequest, Wrap(PlayerStatisticsApi_UpdateSuccess, "PlayerStatisticsApi_UpdateSuccess"), Wrap(Shared_ApiCallFailure, "PlayerStatisticsApi_UpdateSuccess"));
         }
-        private function UserStatisticsApi_UpdateSuccess(result:com.playfab.ClientModels.UpdateUserStatisticsResult) : void
+        private function PlayerStatisticsApi_UpdateSuccess(result:com.playfab.ClientModels.UpdatePlayerStatisticsResult) : void
         {
-            var getRequest:com.playfab.ClientModels.GetUserStatisticsRequest = new com.playfab.ClientModels.GetUserStatisticsRequest();
-            PlayFabClientAPI.GetUserStatistics(getRequest, Wrap(UserStatisticsApi_GetSuccess2, "UserStatisticsApi_GetSuccess2"), Wrap(Shared_ApiCallFailure, "UserStatisticsApi_GetSuccess2"));
+            var getRequest:com.playfab.ClientModels.GetPlayerStatisticsRequest = new com.playfab.ClientModels.GetPlayerStatisticsRequest();
+            PlayFabClientAPI.GetPlayerStatistics(getRequest, Wrap(PlayerStatisticsApi_GetSuccess2, "PlayerStatisticsApi_GetSuccess2"), Wrap(Shared_ApiCallFailure, "PlayerStatisticsApi_GetSuccess2"));
         }
-        private function UserStatisticsApi_GetSuccess2(result:com.playfab.ClientModels.GetUserStatisticsResult) : void
+        private function PlayerStatisticsApi_GetSuccess2(result:com.playfab.ClientModels.GetPlayerStatisticsResult) : void
         {
-            testIntActual = int(result.UserStatistics[TEST_STAT_NAME]);
+            testIntActual = -1000; // a value that shouldn't actually occur in this test
+            for each (var eachStat:com.playfab.ClientModels.StatisticValue in result.Statistics)
+                if (eachStat.StatisticName == TEST_STAT_NAME)
+                    testIntActual = eachStat.Value;
 
             ASyncAssert.AssertEquals(testIntExpected, testIntActual);
             FinishTestHandler(new ASyncUnitTestEvent(ASyncUnitTestEvent.FINISH_TEST, ASyncUnitTestEvent.RESULT_PASSED, ""));

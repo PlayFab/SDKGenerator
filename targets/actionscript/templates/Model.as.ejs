@@ -1,19 +1,20 @@
 
 package com.playfab.<%- api.name %>Models
 {
-<% if(needsPlayFabUtil) { %>    import com.playfab.PlayFabUtil;
+<% if(NeedsPlayFabUtil) { %>    import com.playfab.PlayFabUtil;
 
-<% } %>    public class <%- datatype.name %><%- getBaseTypeSyntax(datatype) %>
+<% } %><%- GetDeprecationComment("    ", datatype)
+%>    public class <%- datatype.name %><%- GetBaseTypeSyntax(datatype) %>
     {
-<% for(var i in datatype.properties) { var property = datatype.properties[i]
-%>        public var <%- getPropertyDef(property, datatype) %>;
+<% for(var i in datatype.properties) { var property = datatype.properties[i] %><%- GetDeprecationComment("        ", property)
+%>        public var <%- GetModelPropertyDef(property, datatype) %>;
 <% } %>
         public function <%- datatype.name %>(data:Object=null)
         {
             if(data == null)
                 return;
 <% for(var i in datatype.properties) { var property = datatype.properties[i]
-%>            <%- getPropertyInit(property, datatype) %>
+%><%- GetModelPropertyInit("            ", property, datatype) %>
 <% } %>
         }
     }

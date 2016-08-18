@@ -430,7 +430,7 @@ var addTypeAndDependencies = exports.addTypeAndDependencies = function (datatype
     if (addedSet[datatype.name])
         return;
     
-    for (var p in datatype.properties) {
+    for (var p = 0; p < datatype.properties.length; p++) {
         var property = datatype.properties[p];
         if (property.isclass || property.isenum) {
             var dependentType = datatypes[property.actualtype];

@@ -105,7 +105,7 @@ function Generate(args) {
             apiOutputDir = targetMaker.putInRoot ? sdkOutputDir : path.resolve(sdkOutputDir, "PlayFabClientSDK");
             console.log(" + Generating Client to " + apiOutputDir);
             if (!fs.existsSync(apiOutputDir))
-                mkdirParentsSync(apiOutputDir);
+                MkdirParentsSync(apiOutputDir);
             targetMaker.makeClientAPI(clientApi, targetSourceDir, apiOutputDir);
         }
         
@@ -113,7 +113,7 @@ function Generate(args) {
             apiOutputDir = targetMaker.putInRoot ? sdkOutputDir : path.resolve(sdkOutputDir, "PlayFabServerSDK");
             console.log(" + Generating Server to " + apiOutputDir);
             if (!fs.existsSync(apiOutputDir))
-                mkdirParentsSync(apiOutputDir);
+                MkdirParentsSync(apiOutputDir);
             targetMaker.makeServerAPI(serverApis, targetSourceDir, apiOutputDir);
         }
         
@@ -121,7 +121,7 @@ function Generate(args) {
             apiOutputDir = targetMaker.putInRoot ? sdkOutputDir : path.resolve(sdkOutputDir, "PlayFabServerSDK");
             console.log(" + Generating Server to " + apiOutputDir);
             if (!fs.existsSync(apiOutputDir))
-                mkdirParentsSync(apiOutputDir);
+                MkdirParentsSync(apiOutputDir);
             targetMaker.makeAdminAPI(adminApis, targetSourceDir, apiOutputDir);
         }
         
@@ -129,7 +129,7 @@ function Generate(args) {
             apiOutputDir = targetMaker.putInRoot ? sdkOutputDir : path.resolve(sdkOutputDir, "PlayFabSDK");
             console.log(" + Generating Combined to " + apiOutputDir);
             if (!fs.existsSync(apiOutputDir))
-                mkdirParentsSync(apiOutputDir);
+                MkdirParentsSync(apiOutputDir);
             targetMaker.makeCombinedAPI(allApis, targetSourceDir, apiOutputDir);
         }
     }
@@ -263,7 +263,7 @@ GLOBAL.copyTree = function (source, dest) {
     
     if (fs.lstatSync(source).isDirectory()) {
         if (!fs.existsSync(dest)) {
-            mkdirParentsSync(dest);
+            MkdirParentsSync(dest);
         }
         else if (!fs.lstatSync(dest).isDirectory()) {
             console.error("Can't copy a directory onto a file: " + source + " " + dest);
@@ -314,12 +314,12 @@ GLOBAL.copyFile = function (source, dest) {
     }
     else {
         if (dest[dest.length - 1] === "/" || dest[dest.length - 1] === "\\") {
-            mkdirParentsSync(dest);
+            MkdirParentsSync(dest);
             dest += filename;
         }
         else {
             var dirname = path.dirname(dest);
-            mkdirParentsSync(dirname);
+            MkdirParentsSync(dirname);
         }
     }
     
@@ -347,12 +347,12 @@ GLOBAL.copyFile = function (source, dest) {
     fs.closeSync(fdw);
 }
 
-GLOBAL.mkdirParentsSync = function (dirname) {
+function MkdirParentsSync(dirname) {
     if (fs.existsSync(dirname))
         return;
     
     var parentName = path.dirname(dirname);
-    mkdirParentsSync(parentName);
+    MkdirParentsSync(parentName);
     
     fs.mkdirSync(dirname);
 }
@@ -364,7 +364,7 @@ GLOBAL.readFile = function (filename) {
 GLOBAL.writeFile = function (filename, data) {
     var dirname = path.dirname(filename);
     if (!fs.existsSync(dirname))
-        mkdirParentsSync(dirname);
+        MkdirParentsSync(dirname);
     
     return fs.writeFileSync(filename, data);
 }

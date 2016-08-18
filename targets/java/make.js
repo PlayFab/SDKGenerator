@@ -4,7 +4,7 @@ exports.makeClientAPI = function (api, sourceDir, apiOutputDir) {
     var srcOutputLoc = ["src", "../AndroidStudioExample/app/src/main/java"];
     var libOutputLoc = ["src", "../AndroidStudioExample/app/libs"];
     
-    for (var i in srcOutputLoc) {
+    for (var i = 0; i < srcOutputLoc.length; i++) {
         var srcOutputDir = path.resolve(apiOutputDir, srcOutputLoc[i]);
         var libOutputDir = path.resolve(apiOutputDir, libOutputLoc[i]);
         var isAndroid = srcOutputDir.indexOf("AndroidStudioExample") >= 0;
@@ -25,7 +25,7 @@ exports.makeServerAPI = function (apis, sourceDir, apiOutputDir) {
     copyTree(path.resolve(sourceDir, "srcCode"), apiOutputDir);
     copyTree(path.resolve(sourceDir, "srcLibs"), apiOutputDir);
     makeDatatypes(apis, sourceDir, apiOutputDir);
-    for (var i in apis)
+    for (var i = 0; i < apis.length; i++)
         makeAPI(apis[i], sourceDir, apiOutputDir, false);
     generateSimpleFiles(apis, sourceDir, apiOutputDir);
 }
@@ -37,7 +37,7 @@ exports.makeCombinedAPI = function (apis, sourceDir, apiOutputDir) {
     copyTree(path.resolve(sourceDir, "srcCode"), apiOutputDir);
     copyTree(path.resolve(sourceDir, "srcLibs"), apiOutputDir);
     makeDatatypes(apis, sourceDir, apiOutputDir);
-    for (var i in apis)
+    for (var i = 0; i < apis.length; i++)
         makeAPI(apis[i], sourceDir, apiOutputDir, false);
     generateSimpleFiles(apis, sourceDir, apiOutputDir);
     

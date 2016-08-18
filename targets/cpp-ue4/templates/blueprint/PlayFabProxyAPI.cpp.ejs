@@ -17,7 +17,7 @@ UPF<%- api.name %><%- apiCall.name %>* UPF<%- api.name %><%- apiCall.name %>::<%
 	<% if(HasRequest(apiCall, api)) { 
 	var datatype = api.datatypes[apiCall.request];
 
-    for (var p in datatype.properties) {
+    for (var p = 0; p < datatype.properties.length; p++) {
         var property = datatype.properties[p];
 	%><%- GenerateProxyPropertyCopy(property, api, datatype) 
 	%>

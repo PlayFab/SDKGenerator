@@ -4,9 +4,10 @@ package com.playfab
 
     public class PlayFab<%- api.name %>API
     {
-<% for(var i in api.calls) { var apiCall = api.calls[i]; %>        public static function <%- apiCall.name %>(request:<%- apiCall.request %>, onComplete:Function, onError:Function):void
+<% for(var i in api.calls) { var apiCall = api.calls[i]; %><%- GetDeprecationAttribute("        ", apiCall)
+%>        public static function <%- apiCall.name %>(request:<%- apiCall.request %>, onComplete:Function, onError:Function):void
         {
-<%- getRequestActions(apiCall, api) %>
+<%- GetRequestActions(apiCall, api) %>
             var requetJson:String = JSON.stringify( request );
 
             var onPostComplete:Function = function(resultData:Object, error:PlayFabError):void
@@ -21,13 +22,13 @@ package com.playfab
                 else
                 {
                     var result:<%- apiCall.result %> = new <%- apiCall.result %>(resultData);
-<%- getResultActions(apiCall, api) %>
+<%- GetResultActions(apiCall, api) %>
                     if(onComplete != null)
                         onComplete(result);
                 }
             }
 
-            PlayFabHTTP.post(<%- getUrlAccessor(apiCall) %>+"<%- apiCall.url %>", requetJson, <%- getAuthParams(apiCall) %>, onPostComplete);
+            PlayFabHTTP.post(<%- GetUrlAccessor(apiCall) %>+"<%- apiCall.url %>", requetJson, <%- GetAuthParams(apiCall) %>, onPostComplete);
         }
 
 <% } %><% if (hasClientOptions) { %>        public static function MultiStepClientLogin(needsAttribution:Boolean):void

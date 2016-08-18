@@ -22,7 +22,7 @@ exports.makeServerAPI = function (apis, sourceDir, apiOutputDir) {
     
     copyTree(path.resolve(sourceDir, "source"), apiOutputDir);
     
-    for (var i in apis)
+    for (var i = 0; i < apis.length; i++)
         shared.makeAPI(apis[i], apiOutputDir);
     
     shared.generateModels(apis, apiOutputDir, libname);
@@ -37,7 +37,7 @@ exports.makeCombinedAPI = function (apis, sourceDir, apiOutputDir) {
     
     copyTree(path.resolve(sourceDir, "source"), apiOutputDir);
     
-    for (var i in apis)
+    for (var i = 0; i < apis.length; i++)
         shared.makeAPI(apis[i], apiOutputDir);
     
     shared.generateModels(apis, apiOutputDir, libname);

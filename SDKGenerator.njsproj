@@ -109,7 +109,6 @@
   </PropertyGroup>
   <ItemGroup>
     <Compile Include="targets\actionscript\make.js" />
-    <Compile Include="targets\cpp-cocos2dx\cpp-shared.js" />
     <Compile Include="targets\cpp-cocos2dx\make.js" />
     <Compile Include="targets\cpp-ue4\cpp-ue4.js" />
     <Compile Include="targets\cpp-ue4\make-bp.js" />

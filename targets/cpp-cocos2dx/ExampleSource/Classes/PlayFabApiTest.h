@@ -366,8 +366,7 @@ namespace PlayFabApiTest
             }
 
             // Verify all the inputs won't cause crashes in the tests
-            return static_cast<bool>(titleInput)
-                && !playFabSettings->titleId.empty()
+            return !playFabSettings->titleId.empty()
                 && !userName.empty()
                 && !userEmail.empty()
                 && !userPassword.empty()

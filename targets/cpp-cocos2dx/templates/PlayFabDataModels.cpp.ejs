@@ -32,7 +32,7 @@ using namespace rapidjson;
 <% } else { %>
 <%- datatype.name %>::~<%- datatype.name %>()
 {
-<% for(var p in datatype.properties) { var property = datatype.properties[p]; if (!property.collection && property.isclass && property.optional) { %>    if (<%- getPropertySafeName(property) %> != NULL) delete <%- getPropertySafeName(property) %>;
+<% for(var p in datatype.properties) { var property = datatype.properties[p]; if (!property.collection && property.isclass && property.optional) { %>    if (<%- GetPropertySafeName(property) %> != NULL) delete <%- GetPropertySafeName(property) %>;
 <% } } %>
 }
 
@@ -40,14 +40,14 @@ void <%- datatype.name %>::writeJSON(PFStringJsonWriter& writer)
 {
     writer.StartObject();
 
-<% for(var p in datatype.properties) { var property = datatype.properties[p]; %>    <%- getPropertySerializer(property, datatype) %>
+<% for(var p in datatype.properties) { var property = datatype.properties[p]; %>    <%- GetPropertySerializer(property, datatype) %>
 <% } %>
     writer.EndObject();
 }
 
 bool <%- datatype.name %>::readFromValue(const rapidjson::Value& obj)
 {
-<% for(var p in datatype.properties) { var property = datatype.properties[p]; %>    <%- getPropertyDeserializer(property, datatype) %>
+<% for(var p in datatype.properties) { var property = datatype.properties[p]; %>    <%- GetPropertyDeserializer(property, datatype) %>
 <% } %>
     return true;
 }

@@ -5,5 +5,5 @@ using Newtonsoft.Json.Converters;
 
 namespace PlayFab.<%- api.name %>Models
 {
-	<% for(var d in api.datatypes) { var datatype = api.datatypes[d] %><%- MakeDatatype(datatype, api, sourceDir) %><% } %>
+    <% for(var d in api.datatypes) { var datatype = api.datatypes[d] %><%- MakeDatatype(datatype, api, sourceDir) %><% } %>
 }

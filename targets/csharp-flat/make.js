@@ -1,10 +1,6 @@
 var path = require("path");
 var ejs = require("ejs");
 
-String.prototype.endsWith = function (suffix) {
-    return this.indexOf(suffix, this.length - suffix.length) !== -1;
-};
-
 exports.makeClientAPI = function (api, sourceDir, apiOutputDir) {
     console.log("Generating C-sharp client SDK to " + apiOutputDir);
     
@@ -78,6 +74,7 @@ function MakeDatatype(datatype, api, sourceDir) {
     modelLocals.GetPropertyAttribs = GetPropertyAttribs;
     modelLocals.GetDescriptionClean = GetDescriptionClean;
     modelLocals.GetModelAccessibility = GetModelAccessibility;
+    modelLocals.GetDeprecationAttribute = GetDeprecationAttribute;
     modelLocals.JoinParams = JoinParams;
     modelLocals.true = true;
     modelLocals.api = api;
@@ -107,6 +104,7 @@ function MakeApi(api, sourceDir, apiOutputDir) {
     apiLocals.GetCallRequestsData = GetCallRequestsData;
     apiLocals.GetReturnType = GetReturnType;
     apiLocals.GetDescriptionClean = GetDescriptionClean;
+    apiLocals.GetDeprecationAttribute = GetDeprecationAttribute;
     apiLocals.authKey = api.name === "Client";
     apiLocals.hasServerOptions = false;
     apiLocals.hasClientOptions = false;
@@ -134,6 +132,7 @@ function GenerateVersion(api, sourceDir, apiOutputDir) {
     var versionTemplate = ejs.compile(readFile(path.resolve(sourceDir, "templates/PlayFabVersion.cs.ejs")));
     var versionLocals = {};
     versionLocals.sdkRevision = exports.sdkVersion;
+    versionLocals.buildIdentifier = exports.buildIdentifier;
     var generatedVersion = versionTemplate(versionLocals);
     writeFile(path.resolve(apiOutputDir, "source/PlayFabVersion.cs"), generatedVersion);
 }
@@ -478,4 +477,18 @@ function GetUrlAccessor(apiCall) {
     if (apiCall.serverType === "logic")
         return "Settings.GetLogicURL()";
     return "Settings.GetURL()";
+}
+
+function GetDeprecationAttribute(tabbing, apiObj) {
+    var isDeprecated = apiObj.hasOwnProperty("deprecation");
+    var deprecationTime = null;
+    if (isDeprecated)
+        deprecationTime = new Date(apiObj.deprecation.DeprecatedAfter);
+    var isError = isDeprecated && (Date.now() > deprecationTime) ? "true": "false";
+    
+    if (isDeprecated && apiObj.deprecation.ReplacedBy != null)
+        return tabbing + "[Obsolete(\"Use '" + apiObj.deprecation.ReplacedBy + "' instead\", " + isError + ")]\n";
+    else if (isDeprecated)
+        return tabbing + "[Obsolete(\"No longer available\", " + isError + ")]\n";
+    return "";
 }

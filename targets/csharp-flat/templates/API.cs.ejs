@@ -42,7 +42,8 @@ namespace PlayFab
         <% if(apiCall.summary) {%>/// <summary>
         /// <%- GetDescriptionClean(apiCall.summary) %>
         /// </summary><%- GetReturnComment(apiCall, api) %><% } %>
-        public async <%- GetReturnType(apiCall, api) %> <%- apiCall.name %>Async(<% if(GetCallRequestsData(apiCall, api)) { %><%- apiCall.request %> request<% } %>)
+<%- GetDeprecationAttribute("        ", apiCall)
+%>        public async <%- GetReturnType(apiCall, api) %> <%- apiCall.name %>Async(<% if(GetCallRequestsData(apiCall, api)) { %><%- apiCall.request %> request<% } %>)
         {
 <%- GetRequestActions(apiCall, api)
 %>            string resultRawJson = await Settings.DoPost("<%- apiCall.name %>", <%- GetUrlAccessor(apiCall) %> + "<%- apiCall.url %>", <% if(GetCallRequestsData(apiCall, api)) { %>request<% } else {%>null<% } %>, <%- GetAuthParams(apiCall) %>);
@@ -58,7 +59,8 @@ namespace PlayFab
         <% if(GetCallRequestsData(apiCall, api)) { if(apiCall.summary) {%>/// <summary>
         /// <%- GetDescriptionClean(apiCall.summary) %>
         /// </summary><%- GetParamsCommentForCall(apiCall, api) %><%- GetReturnComment(apiCall, api) %><% } %>
-        public async <%- GetReturnType(apiCall, api) %> <%- apiCall.name %>Async(<%- JoinParamsForCall(api, apiCall, true, true, true) %>)
+<%- GetDeprecationAttribute("        ", apiCall)
+%>        public async <%- GetReturnType(apiCall, api) %> <%- apiCall.name %>Async(<%- JoinParamsForCall(api, apiCall, true, true, true) %>)
         {
             var request = new <%- apiCall.request %>(<%- JoinParamsForCall(api, apiCall, false, true, false) %>);
             <% if(GetCallReturnsData(apiCall, api)) { %>return <% } %>await <%- apiCall.name %>Async(request);

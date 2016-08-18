@@ -1,13 +1,15 @@
 <% if(datatype.description) { %>
-	/// <summary>
-	/// <%- datatype.description %>
-	/// </summary><% } %>
-	public<% if(datatype.isAbstract) { %> abstract<% } %> class <%- datatype.name %><%- getBaseTypeSyntax(datatype) %>
-	{<% for(var i in datatype.properties) { var property = datatype.properties[i];%><% if(property.description) { %>
-		/// <summary>
-		/// <%- property.description %>
-		/// </summary><% } %>
-        <%- getPropertyAttribs(property, datatype, api) %>public <%- getPropertyDef(property, datatype) %> { get; set;}
+    /// <summary>
+    /// <%- datatype.description %>
+    /// </summary><% } %>
+<%- GetDeprecationAttribute("    ", datatype)
+%>    public<% if(datatype.isAbstract) { %> abstract<% } %> class <%- datatype.name %><%- GetBaseTypeSyntax(datatype) %>
+    {<% for(var i in datatype.properties) { var property = datatype.properties[i];%><% if(property.description) { %>
+        /// <summary>
+        /// <%- property.description %>
+        /// </summary><% } %>
+<%- GetDeprecationAttribute("        ", property)
+%>        <%- GetPropertyAttribs(property, datatype, api) %>public <%- GetModelPropertyDef(property, datatype) %>;
 <% } %><% if(datatype.sortKey) { %>
         public int CompareTo(<%- datatype.name %> other)
         {
@@ -16,4 +18,4 @@
             return <%- datatype.sortKey%>.CompareTo(other.<%- datatype.sortKey%>);
         }
 <% } %>
-	}
+    }

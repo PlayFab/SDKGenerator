@@ -718,7 +718,6 @@
     <Content Include="targets\unity-v0\source\Uunit\Editor\UUnitTestRunner.cs" />
     <Content Include="targets\unity-v0\source\Uunit\PlayFabUUnitUtils.cs" />
     <Content Include="targets\unity-v0\source\Uunit\UUnitAssertException.cs" />
-    <Content Include="targets\unity-v0\source\Uunit\UUnitIncrementalTestRunner.cs" />
     <Content Include="targets\unity-v0\source\Uunit\UUnitTestCase.cs" />
     <Content Include="targets\unity-v0\source\Uunit\UUnitTestContext.cs" />
     <Content Include="targets\unity-v0\source\Uunit\UUnitTestReport.cs" />
@@ -737,6 +736,8 @@
     <Content Include="targets\unity-v0\testing\EventTest.cs" />
     <Content Include="targets\unity-v0\testing\PlayFabApiTest.cs" />
     <Content Include="targets\unity-v0\testing\PlayFabApiTest_Client.cs" />
+    <Content Include="targets\unity-v0\testing\UUnitIncrementalTestRunner.cs" />
+    <Content Include="targets\unity-v0\testing\UUnitIncrementalTestRunner.server.cs" />
     <Content Include="targets\unity-v2\source\Admin\PlayFabSettings.cs" />
     <Content Include="targets\unity-v2\source\Client\PlayFabIdfa.cs" />
     <Content Include="targets\unity-v2\source\Client\PlayFabSettings.cs" />

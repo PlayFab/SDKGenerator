@@ -3,26 +3,26 @@ using System.Collections.Generic;
 
 namespace PlayFab
 {
-	/// <summary>
-	/// Error codes returned by PlayFabAPIs
-	/// </summary>
-	public enum PlayFabErrorCode
-	{
-		Success = 0,
-		Unknown = 1,
-		ConnectionError = 2,
+    /// <summary>
+    /// Error codes returned by PlayFabAPIs
+    /// </summary>
+    public enum PlayFabErrorCode
+    {
+        Success = 0,
+        Unknown = 1,
+        ConnectionError = 2,
         JsonParseError = 3,
-		<% for(var i=1; i<errorList.length-1; i++) { var errorProps = errors[errorList[i]] %><%- errorProps.name %> = <%- errorProps.id %>,
-		<% } %><% var errorProps = errors[errorList[errorList.length-1]] %><%- errorProps.name %> = <%- errorProps.id %>
-	}
-	
-	public class PlayFabError
+        <% for(var i=1; i<errorList.length-1; i++) { var errorProps = errors[errorList[i]] %><%- errorProps.name %> = <%- errorProps.id %>,
+        <% } %><% var errorProps = errors[errorList[errorList.length-1]] %><%- errorProps.name %> = <%- errorProps.id %>
+    }
+    
+    public class PlayFabError
     {
         public int HttpCode;
-		public string HttpStatus;
-		public PlayFabErrorCode Error;
-		public string ErrorMessage;
-		public Dictionary<string, string[] > ErrorDetails;
+        public string HttpStatus;
+        public PlayFabErrorCode Error;
+        public string ErrorMessage;
+        public Dictionary<string, string[] > ErrorDetails;
     };
 
     public class PlayFabResult<TResult> where TResult : PlayFabResultCommon
@@ -30,6 +30,6 @@ namespace PlayFab
         public PlayFabError Error;
         public TResult Result;
     }
-	
-	public delegate void ErrorCallback(PlayFabError error);
+    
+    public delegate void ErrorCallback(PlayFabError error);
 }

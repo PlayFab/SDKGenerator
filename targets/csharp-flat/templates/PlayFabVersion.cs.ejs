@@ -1,9 +1,10 @@
 
 namespace PlayFab.Internal
 {
-	public class PlayFabVersion
-	{
-		public static string SdkRevision = "<%- sdkRevision %>";
+    public class PlayFabVersion
+    {
+        public static string SdkVersion = "<%- sdkRevision %>";
+        public static string BuildIdentifier = "<%- buildIdentifier %>";
         public static string VersionString = "CSharpFlat-<%- sdkRevision %>";
-	}
+    }
 }

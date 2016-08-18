@@ -7,9 +7,9 @@ void UPF<%- api.name %>ProxyLibrary::BreakBP<%- api.name%><%- datatype.name %>(
 		const FBP<%- api.name%><%- datatype.name %>& In
 <%- GetDatatypeSignatureParameters(datatype, api) %>	)
 {
-    <% for (var p = 0; p < datatype.properties.length; p++) {
+    <% if (datatype.properties) { for (var p = 0; p < datatype.properties.length; p++) {
         var property = datatype.properties[p]; 
 	%><%- GenerateProxyPropertyRead(property, api, datatype) %>
-	<% } %>
+	<% } } %>
 }
 <%}%>

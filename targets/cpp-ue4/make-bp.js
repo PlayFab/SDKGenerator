@@ -98,17 +98,17 @@ function GetDatatypeSignatureInputParameters(apiCall, api) {
 function GetDatatypeSignatureParameters(datatype, api) {
     var result = "";
     
-    for (var p = 0; p < datatype.properties.length; p++) {
-        var property = datatype.properties[p];
-        
-        if (property.isenum || property.actualtype === "object") {
-            // TODO: handle enum properly
-        }
-        else if (property.collection === "map") {
-            // TODO: handle map properly
-        }
-        else {
-            result += "        ," + GetBpPropertyDefinition(property, api) + "& Out" + property.name + "\n";
+    if (datatype.properties) {
+        for (var p = 0; p < datatype.properties.length; p++) {
+            var property = datatype.properties[p];
+            
+            if (property.isenum || property.actualtype === "object") {
+                // TODO: handle enum properly
+            } else if (property.collection === "map") {
+                // TODO: handle map properly
+            } else {
+                result += "        ," + GetBpPropertyDefinition(property, api) + "& Out" + property.name + "\n";
+            }
         }
     }
     

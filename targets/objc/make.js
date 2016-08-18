@@ -25,7 +25,7 @@ exports.makeClientAPI = function (api, sourceDir, apiOutputDir) {
     var apiBodyTemplate = ejs.compile(readFile(path.resolve(sourceDir, "templates/PlayFabAPI.m.ejs")));
     var generatedBody = apiBodyTemplate(apiLocals);
     writeFile(path.resolve(apiOutputDir, "PlayFabSDK/PlayFab" + api.name + "API.m"), generatedBody);
-
+    
     copyTree(path.resolve(sourceDir, "source"), path.resolve(apiOutputDir, "PlayFabSDK"));
 }
 
@@ -365,11 +365,13 @@ function AddTypeAndDependencies(datatype, datatypes, orderedTypes, addedSet) {
     if (addedSet[datatype.name])
         return;
     
-    for (var p = 0; p < datatype.properties.length; p++) {
-        var property = datatype.properties[p];
-        if (property.isclass || property.isenum) {
-            var dependentType = datatypes[property.actualtype];
-            AddTypeAndDependencies(dependentType, datatypes, orderedTypes, addedSet);
+    if (datatype.properties) {
+        for (var p = 0; p < datatype.properties.length; p++) {
+            var property = datatype.properties[p];
+            if (property.isclass || property.isenum) {
+                var dependentType = datatypes[property.actualtype];
+                AddTypeAndDependencies(dependentType, datatypes, orderedTypes, addedSet);
+            }
         }
     }
     

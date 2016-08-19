@@ -18,16 +18,16 @@ namespace PlayFab
 
 <% } else { %>        struct <%- datatype.name %> : public PlayFabBaseModel
         {
-<% for(var i in datatype.properties) { var property = datatype.properties[i] %>            <%- getPropertyDef(property, datatype) %>
+<% for(var i in datatype.properties) { var property = datatype.properties[i] %>            <%- GetPropertyDef(property, datatype) %>
 <% } %>
             <%- datatype.name %>() :
                 PlayFabBaseModel()<% for(var i in datatype.properties) { var property = datatype.properties[i] %>,
-                <%- getPropertySafeName(property) %>(<%- getPropertyDefaultValue(property, datatype) %>)<% } %>
+                <%- GetPropertySafeName(property) %>(<%- GetPropertyDefaultValue(property, datatype) %>)<% } %>
             {}
 
             <%- datatype.name %>(const <%- datatype.name %>& src) :
                 PlayFabBaseModel()<% for(var i in datatype.properties) { var property = datatype.properties[i] %>,
-                <%- getPropertySafeName(property) %>(<%- getPropertyCopyValue(property, datatype) %>)<% } %>
+                <%- GetPropertySafeName(property) %>(<%- GetPropertyCopyValue(property, datatype) %>)<% } %>
             {}
 
             <%- datatype.name %>(const rapidjson::Value& obj) : <%- datatype.name %>()

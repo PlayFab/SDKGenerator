@@ -20,23 +20,23 @@ size_t PlayFab<%- api.name %>API::Update()
 
 <% for(var i in api.calls) { var apiCall = api.calls[i];
 %>void PlayFab<%- api.name %>API::<%- apiCall.name %>(
-    <% if(hasRequest(apiCall, api)) { %><%- apiCall.request %>& request,<% } %>
+    <% if(HasRequest(apiCall, api)) { %><%- apiCall.request %>& request,<% } %>
     ProcessApiCallback<<%- apiCall.result %>> callback,
     ErrorCallback errorCallback,
     void* userData
     )
 {
-    <%- getRequestActions(apiCall, api) %>
-    HttpRequest* httpRequest = new HttpRequest("POST", <%- getUrlAccessor(apiCall) %>);
+    <%- GetRequestActions(apiCall, api) %>
+    HttpRequest* httpRequest = new HttpRequest("POST", <%- GetUrlAccessor(apiCall) %>);
     httpRequest->SetHeader("Content-Type", "application/json");
     httpRequest->SetHeader("X-PlayFabSDK", PlayFabSettings::versionString);
-    <%- getAuthParams(apiCall) %>
+    <%- GetAuthParams(apiCall) %>
 
     httpRequest->SetResultCallback(reinterpret_cast<void*>(callback));
     httpRequest->SetErrorCallback(errorCallback);
     httpRequest->SetUserData(userData);
 
-    <% if(hasRequest(apiCall, api)) { %>httpRequest->SetBody(request.toJSONString());<% } else { %>httpRequest->SetBody("{}");<% } %>
+    <% if(HasRequest(apiCall, api)) { %>httpRequest->SetBody(request.toJSONString());<% } else { %>httpRequest->SetBody("{}");<% } %>
     httpRequest->CompressBody();
 
     mHttpRequester->AddRequest(httpRequest, On<%- apiCall.name %>Result, nullptr);
@@ -49,7 +49,7 @@ void PlayFab<%- api.name %>API::On<%- apiCall.name %>Result(int httpStatus, Http
 
     if (PlayFabRequestHandler::DecodeRequest(httpStatus, request, userData, outResult, errorResult))
     {
-<%- getResultActions(apiCall, api) %>
+<%- GetResultActions(apiCall, api) %>
         if (request->GetResultCallback() != nullptr)
         {
             ProcessApiCallback<<%- apiCall.result %>> successCallback = reinterpret_cast<ProcessApiCallback<<%- apiCall.result %>>>(request->GetResultCallback());

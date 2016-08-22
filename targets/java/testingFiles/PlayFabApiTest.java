@@ -1,13 +1,7 @@
 import static org.junit.Assert.*;
 import org.junit.*;
 
-import java.util.Arrays;
-import java.util.Map;
-import java.util.HashMap;
-import java.util.List;
-import java.util.Date;
-import java.util.Calendar;
-import java.util.TimeZone;
+import java.util.*;
 import java.io.*;
 import java.util.Properties;
 
@@ -248,33 +242,40 @@ public class PlayFabApiTest
     /// Test a sequence of calls that modifies saved data,
     ///   and verifies that the next sequential API call contains updated data.
     /// Verify that the data is saved correctly, and that specific types are tested
-    /// Parameter types tested: Dictionary<string, int> 
+    /// Parameter types tested: Dictionary<string, int>
     /// </summary>
     @Test
-    public void UserStatisticsApi()
+    public void PlayerStatisticsApi()
     {
         LoginOrRegister();
+        Gson gson = new GsonBuilder().create();
 
-        PlayFabClientModels.GetUserStatisticsRequest getRequest = new PlayFabClientModels.GetUserStatisticsRequest();
-        PlayFabResult<PlayFabClientModels.GetUserStatisticsResult> getStatsResult = PlayFabClientAPI.GetUserStatistics(getRequest);
-        VerifyResult(getStatsResult, true);
-        boolean hasStat = getStatsResult.Result.UserStatistics != null && getStatsResult.Result.UserStatistics.containsKey(TEST_STAT_NAME);
-        int testStatExpected = !hasStat ? 0 : getStatsResult.Result.UserStatistics.get(TEST_STAT_NAME);
+        PlayFabClientModels.GetPlayerStatisticsRequest getRequest = new PlayFabClientModels.GetPlayerStatisticsRequest();
+        PlayFabResult<PlayFabClientModels.GetPlayerStatisticsResult> getStatsResult1 = PlayFabClientAPI.GetPlayerStatistics(getRequest);
+        VerifyResult(getStatsResult1, true);
+        int testStatExpected = 0;
+        for(PlayFabClientModels.StatisticValue eachStat : getStatsResult1.Result.Statistics)
+            if (eachStat.StatisticName.equals(TEST_STAT_NAME))
+                testStatExpected = eachStat.Value;
         testStatExpected = (testStatExpected + 1) % 100; // This test is about the expected value changing - but not testing more complicated issues like bounds
 
-        PlayFabClientModels.UpdateUserStatisticsRequest updateRequest = new PlayFabClientModels.UpdateUserStatisticsRequest();
-        updateRequest.UserStatistics = new HashMap<String,Integer>();
-        updateRequest.UserStatistics.put(TEST_STAT_NAME, testStatExpected);
-        PlayFabResult<PlayFabClientModels.UpdateUserStatisticsResult> updateStatsResult = PlayFabClientAPI.UpdateUserStatistics(updateRequest);
+        PlayFabClientModels.UpdatePlayerStatisticsRequest updateRequest = new PlayFabClientModels.UpdatePlayerStatisticsRequest();
+        updateRequest.Statistics = new ArrayList<PlayFabClientModels.StatisticUpdate>();
+        PlayFabClientModels.StatisticUpdate statUpdate = new PlayFabClientModels.StatisticUpdate();
+        statUpdate.StatisticName = TEST_STAT_NAME;
+        statUpdate.Value = testStatExpected;
+        updateRequest.Statistics.add(statUpdate);
+        PlayFabResult<PlayFabClientModels.UpdatePlayerStatisticsResult> updateStatsResult = PlayFabClientAPI.UpdatePlayerStatistics(updateRequest);
         VerifyResult(updateStatsResult, true);
 
-        getStatsResult = PlayFabClientAPI.GetUserStatistics(getRequest);
-        VerifyResult(getStatsResult, true);
-        hasStat = getStatsResult.Result.UserStatistics != null && getStatsResult.Result.UserStatistics.containsKey(TEST_STAT_NAME);
-        assertTrue(hasStat);
-        int testStatActual = getStatsResult.Result.UserStatistics.get(TEST_STAT_NAME);
-
-        assertEquals(testStatExpected, testStatActual);
+        PlayFabResult<PlayFabClientModels.GetPlayerStatisticsResult> getStatsResult2 = PlayFabClientAPI.GetPlayerStatistics(getRequest);
+        VerifyResult(getStatsResult2, true);
+        int testStatActual = -1000;
+        for(PlayFabClientModels.StatisticValue eachStat : getStatsResult2.Result.Statistics)
+            if (eachStat.StatisticName.equals(TEST_STAT_NAME))
+                testStatActual = eachStat.Value;
+        assertTrue(String.format("Stat not found: %d, Actual: %d", testStatExpected, testStatActual), testStatActual != -1000);
+        assertEquals(String.format("Stats were not updated.  Expected: %d, Actual: %d", testStatExpected, testStatActual), testStatExpected, testStatActual);
     }
 
     /// <summary>
@@ -330,7 +331,7 @@ public class PlayFabApiTest
     public void LeaderBoard()
     {
         LoginOrRegister();
-        UserStatisticsApi();
+        PlayerStatisticsApi();
 
         PlayFabClientModels.GetLeaderboardRequest clientRequest = new PlayFabClientModels.GetLeaderboardRequest();
         clientRequest.MaxResultsCount = 3;

@@ -67,7 +67,7 @@ var PlayFabApiTests = {
         } else {
             // Continue with other tests that require login
             QUnit.test("UserDataApi", PlayFabApiTests.UserDataApi);
-            QUnit.test("UserStatisticsApi", PlayFabApiTests.UserStatisticsApi);
+            QUnit.test("PlayerStatisticsApi", PlayFabApiTests.PlayerStatisticsApi);
             QUnit.test("UserCharacter", PlayFabApiTests.UserCharacter);
             QUnit.test("LeaderBoard", PlayFabApiTests.LeaderBoard);
             QUnit.test("AccountInfo", PlayFabApiTests.AccountInfo);
@@ -317,7 +317,7 @@ var PlayFabApiTests = {
     /// Verify that the data is saved correctly, and that specific types are tested
     /// Parameter types tested: Dictionary<string, int> 
     /// </summary>
-    UserStatisticsApi: function (assert) {
+    PlayerStatisticsApi: function (assert) {
         var getStatsRequest = {}; // null also works
         
         // This test is always exactly 3 async calls
@@ -326,40 +326,43 @@ var PlayFabApiTests = {
         var get2Done = assert.async();
         
         var getStatsCallback2 = function (result, error) {
-            PlayFabApiTests.VerifyNullError(result, error, assert, "Testing GetUserStats result");
-            assert.ok(result.data.UserStatistics != null, "Testing GetUserData Stats");
-            assert.ok(result.data.UserStatistics.hasOwnProperty(PlayFabApiTests.testConstants.TEST_STAT_NAME), "Testing GetUserData Stat-value");
+            PlayFabApiTests.VerifyNullError(result, error, assert, "Testing GetPlayerStats result");
+            assert.ok(result.data.Statistics != null, "Testing GetUserData Stats");
             
-            var actualtestNumber = result.data.UserStatistics[PlayFabApiTests.testConstants.TEST_STAT_NAME];
+            var actualtestNumber = -1000;
+            for (var i = 0; i < result.data.Statistics.length; i++)
+                if (result.data.Statistics[i].StatisticName === PlayFabApiTests.testConstants.TEST_STAT_NAME)
+                    actualtestNumber = result.data.Statistics[i].Value;
             
             assert.equal(PlayFabApiTests.testData.testNumber, actualtestNumber, "Testing incrementing stat: " + PlayFabApiTests.testData.testNumber + "==" + actualtestNumber);
             get2Done();
         };
         var updateStatsCallback = function (result, error) {
-            PlayFabApiTests.VerifyNullError(result, error, assert, "Testing UpdateUserStats result");
-            PlayFabClientSDK.GetUserStatistics(getStatsRequest, PlayFabApiTests.CallbackWrapper("getStatsCallback2", getStatsCallback2, assert));
+            PlayFabApiTests.VerifyNullError(result, error, assert, "Testing UpdatePlayerStats result");
+            PlayFabClientSDK.GetPlayerStatistics(getStatsRequest, PlayFabApiTests.CallbackWrapper("getStatsCallback2", getStatsCallback2, assert));
             updateDone();
         };
         var getStatsCallback1 = function (result, error) {
-            PlayFabApiTests.VerifyNullError(result, error, assert, "Testing GetUserStats result");
-            assert.ok(result.data.UserStatistics != null, "Testing GetUserData Stats");
+            PlayFabApiTests.VerifyNullError(result, error, assert, "Testing GetPlayerStats result");
+            assert.ok(result.data.Statistics != null, "Testing GetUserData Stats");
             
-            var hasData = result.data.UserStatistics.hasOwnProperty(PlayFabApiTests.testConstants.TEST_STAT_NAME);
-            PlayFabApiTests.testData.testNumber = !hasData ? 1 : result.data.UserStatistics[PlayFabApiTests.testConstants.TEST_STAT_NAME];
+            PlayFabApiTests.testData.testNumber = 0;
+            for (var i = 0; i < result.data.Statistics.length; i++)
+                if (result.data.Statistics[i].StatisticName === PlayFabApiTests.testConstants.TEST_STAT_NAME)
+                    PlayFabApiTests.testData.testNumber = result.data.Statistics[i].Value;
             PlayFabApiTests.testData.testNumber = (PlayFabApiTests.testData.testNumber + 1) % 100; // This test is about the expected value changing - but not testing more complicated issues like bounds
             
             var updateStatsRequest = {
                 // Currently, you need to look up the correct format for this object in the API-docs:
-                //   https://api.playfab.com/Documentation/Client/method/UpdateUserStatistics
-                UserStatistics: {} // Can't pre-define properties because the param-name is in a string
+                //   https://api.playfab.com/Documentation/Client/method/UpdatePlayerStatistics
+                Statistics: [{ StatisticName: PlayFabApiTests.testConstants.TEST_STAT_NAME, Value: PlayFabApiTests.testData.testNumber }]
             };
-            updateStatsRequest.UserStatistics[PlayFabApiTests.testConstants.TEST_STAT_NAME] = PlayFabApiTests.testData.testNumber;
-            PlayFabClientSDK.UpdateUserStatistics(updateStatsRequest, PlayFabApiTests.CallbackWrapper("updateStatsCallback", updateStatsCallback, assert));
+            PlayFabClientSDK.UpdatePlayerStatistics(updateStatsRequest, PlayFabApiTests.CallbackWrapper("updateStatsCallback", updateStatsCallback, assert));
             get1Done();
         };
         
         // Kick off this test process
-        PlayFabClientSDK.GetUserStatistics(getStatsRequest, PlayFabApiTests.CallbackWrapper("getStatsCallback1", getStatsCallback1, assert));
+        PlayFabClientSDK.GetPlayerStatistics(getStatsRequest, PlayFabApiTests.CallbackWrapper("getStatsCallback1", getStatsCallback1, assert));
     },
     
     /// <summary>

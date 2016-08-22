@@ -272,25 +272,27 @@ void PlayFabApiTest_UpdateUserData::OnError(const PlayFab::FPlayFabError& ErrorR
 }
 
 /*
-* ==== GetUserStatistics ====
+* ==== GetPlayerStatistics ====
 */
-PlayFabApiTest_GetUserStatistics::PlayFabApiTest_GetUserStatistics(const FString& TEST_STAT_NAME, int expectedValue = -1)
+PlayFabApiTest_GetPlayerStatistics::PlayFabApiTest_GetPlayerStatistics(const FString& TEST_STAT_NAME, int expectedValue = -1)
 {
     this->TEST_STAT_NAME = TEST_STAT_NAME;
 
     this->expectedValue = expectedValue;
 }
 
-bool PlayFabApiTest_GetUserStatistics::Update()
+bool PlayFabApiTest_GetPlayerStatistics::Update()
 {
     // Initialize, setup the call, and wait for the result
     if (!clientAPI.IsValid())
     {
         clientAPI = IPlayFabModuleInterface::Get().GetClientAPI();
 
-        clientAPI->GetUserStatistics(
-            PlayFab::UPlayFabClientAPI::FGetUserStatisticsDelegate::CreateRaw(this, &PlayFabApiTest_GetUserStatistics::OnSuccess)
-            , PlayFab::FPlayFabErrorDelegate::CreateRaw(this, &PlayFabApiTest_GetUserStatistics::OnError)
+        PlayFab::ClientModels::FGetPlayerStatisticsRequest request;
+        clientAPI->GetPlayerStatistics(
+            request,
+            PlayFab::UPlayFabClientAPI::FGetPlayerStatisticsDelegate::CreateRaw(this, &PlayFabApiTest_GetPlayerStatistics::OnSuccess)
+            , PlayFab::FPlayFabErrorDelegate::CreateRaw(this, &PlayFabApiTest_GetPlayerStatistics::OnError)
         );
     }
 
@@ -298,54 +300,60 @@ bool PlayFabApiTest_GetUserStatistics::Update()
     return clientAPI->GetPendingCalls() == 0;
 }
 
-void PlayFabApiTest_GetUserStatistics::OnSuccess(const PlayFab::ClientModels::FGetUserStatisticsResult& Result) const
+void PlayFabApiTest_GetPlayerStatistics::OnSuccess(const PlayFab::ClientModels::FGetPlayerStatisticsResult& Result) const
 {
-    int actualValue = *(Result.UserStatistics.Find(TEST_STAT_NAME));
+    int actualValue = -1000;
+    for (int i = 0; i < Result.Statistics.Num(); i++)
+        if (Result.Statistics[i].StatisticName == TEST_STAT_NAME)
+            actualValue = Result.Statistics[i].Value;
 
     if (expectedValue != -1 && expectedValue != actualValue)
     {
-        UE_LOG(LogPlayFab, Error, TEXT("GetUserStatistics: Update value did not match new value"));
+        UE_LOG(LogPlayFab, Error, TEXT("GetPlayerStatistics: Update value did not match new value"));
     }
     else if (expectedValue != -1 && expectedValue == actualValue)
     {
-        UE_LOG(LogPlayFab, Log, TEXT("GetUserStatistics Success"));
+        UE_LOG(LogPlayFab, Log, TEXT("GetPlayerStatistics Success"));
     }
     else if (expectedValue == -1)
     {
         // Call Update with (actualValue + 1)
         actualValue = (actualValue + 1) % 100;
-        ADD_LATENT_AUTOMATION_COMMAND(PlayFabApiTest_UpdateUserStatistics(TEST_STAT_NAME, actualValue));
+        ADD_LATENT_AUTOMATION_COMMAND(PlayFabApiTest_UpdatePlayerStatistics(TEST_STAT_NAME, actualValue));
     }
 }
 
-void PlayFabApiTest_GetUserStatistics::OnError(const PlayFab::FPlayFabError& ErrorResult) const
+void PlayFabApiTest_GetPlayerStatistics::OnError(const PlayFab::FPlayFabError& ErrorResult) const
 {
-    UE_LOG(LogPlayFab, Error, TEXT("GetUserStatistics Failed: %s"), *(ErrorResult.ErrorMessage));
+    UE_LOG(LogPlayFab, Error, TEXT("GetPlayerStatistics Failed: %s"), *(ErrorResult.ErrorMessage));
 }
 
 /*
-* ==== UpdateUserStatistics ====
+* ==== UpdatePlayerStatistics ====
 */
-PlayFabApiTest_UpdateUserStatistics::PlayFabApiTest_UpdateUserStatistics(const FString& TEST_STAT_NAME, int updateValue)
+PlayFabApiTest_UpdatePlayerStatistics::PlayFabApiTest_UpdatePlayerStatistics(const FString& TEST_STAT_NAME, int updateValue)
 {
     this->TEST_STAT_NAME = TEST_STAT_NAME;
 
     this->updateValue = updateValue;
 }
 
-bool PlayFabApiTest_UpdateUserStatistics::Update()
+bool PlayFabApiTest_UpdatePlayerStatistics::Update()
 {
     // Initialize, setup the call, and wait for the result
     if (!clientAPI.IsValid())
     {
         clientAPI = IPlayFabModuleInterface::Get().GetClientAPI();
 
-        PlayFab::ClientModels::FUpdateUserStatisticsRequest request;
-        request.UserStatistics.Add(TEST_STAT_NAME, updateValue);
+        PlayFab::ClientModels::FUpdatePlayerStatisticsRequest request;
+        PlayFab::ClientModels::FStatisticUpdate statUpdate;
+        statUpdate.StatisticName = TEST_STAT_NAME;
+        statUpdate.Value = updateValue;
+        request.Statistics.Add(statUpdate);
 
-        clientAPI->UpdateUserStatistics(request
-            , PlayFab::UPlayFabClientAPI::FUpdateUserStatisticsDelegate::CreateRaw(this, &PlayFabApiTest_UpdateUserStatistics::OnSuccess)
-            , PlayFab::FPlayFabErrorDelegate::CreateRaw(this, &PlayFabApiTest_UpdateUserStatistics::OnError)
+        clientAPI->UpdatePlayerStatistics(request
+            , PlayFab::UPlayFabClientAPI::FUpdatePlayerStatisticsDelegate::CreateRaw(this, &PlayFabApiTest_UpdatePlayerStatistics::OnSuccess)
+            , PlayFab::FPlayFabErrorDelegate::CreateRaw(this, &PlayFabApiTest_UpdatePlayerStatistics::OnError)
         );
     }
 
@@ -353,15 +361,15 @@ bool PlayFabApiTest_UpdateUserStatistics::Update()
     return clientAPI->GetPendingCalls() == 0;
 }
 
-void PlayFabApiTest_UpdateUserStatistics::OnSuccess(const PlayFab::ClientModels::FUpdateUserStatisticsResult& Result) const
+void PlayFabApiTest_UpdatePlayerStatistics::OnSuccess(const PlayFab::ClientModels::FUpdatePlayerStatisticsResult& Result) const
 {
     // Update is always followed by another get w/ verification
-    ADD_LATENT_AUTOMATION_COMMAND(PlayFabApiTest_GetUserStatistics(TEST_STAT_NAME, updateValue));
+    ADD_LATENT_AUTOMATION_COMMAND(PlayFabApiTest_GetPlayerStatistics(TEST_STAT_NAME, updateValue));
 }
 
-void PlayFabApiTest_UpdateUserStatistics::OnError(const PlayFab::FPlayFabError& ErrorResult) const
+void PlayFabApiTest_UpdatePlayerStatistics::OnError(const PlayFab::FPlayFabError& ErrorResult) const
 {
-    UE_LOG(LogPlayFab, Error, TEXT("UpdateUserStatistics Failed: %s"), *(ErrorResult.ErrorMessage));
+    UE_LOG(LogPlayFab, Error, TEXT("UpdatePlayerStatistics Failed: %s"), *(ErrorResult.ErrorMessage));
 }
 
 /*

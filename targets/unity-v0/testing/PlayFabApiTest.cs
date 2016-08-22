@@ -294,7 +294,7 @@ namespace PlayFab.UUnit
         /// Parameter types tested: Dictionary<string, int>
         /// </summary>
         [UUnitTest]
-        public void UserStatisticsApi(UUnitTestContext testContext)
+        public void PlayerStatisticsApi(UUnitTestContext testContext)
         {
             if (!TITLE_CAN_UPDATE_SETTINGS)
             {
@@ -302,40 +302,42 @@ namespace PlayFab.UUnit
                 return;
             }
 
-            var getRequest = new GetUserStatisticsRequest();
-            PlayFabClientAPI.GetUserStatistics(getRequest, PlayFabUUnitUtils.ApiCallbackWrapper<GetUserStatisticsResult>(testContext, GetUserStatsCallback1), SharedErrorCallback, testContext);
+            var getRequest = new GetPlayerStatisticsRequest();
+            PlayFabClientAPI.GetPlayerStatistics(getRequest, PlayFabUUnitUtils.ApiCallbackWrapper<GetPlayerStatisticsResult>(testContext, GetPlayerStatsCallback1), PlayFabUUnitUtils.ApiErrorWrapper(testContext, SharedErrorCallback), testContext);
         }
-        private void GetUserStatsCallback1(GetUserStatisticsResult result)
+        private void GetPlayerStatsCallback1(GetPlayerStatisticsResult result)
         {
             var testContext = (UUnitTestContext)result.CustomData;
-
-            if (!result.UserStatistics.TryGetValue(TEST_DATA_KEY, out _testInteger))
-                _testInteger = 0; // Default if the data isn't present
+            _testInteger = 0;
+            foreach (var eachStat in result.Statistics)
+                if (eachStat.StatisticName == TEST_STAT_NAME)
+                    _testInteger = eachStat.Value;
             _testInteger = (_testInteger + 1) % 100; // This test is about the Expected value changing - but not testing more complicated issues like bounds
 
-            var updateRequest = new UpdateUserStatisticsRequest
+            var updateRequest = new UpdatePlayerStatisticsRequest
             {
-                UserStatistics = new Dictionary<string, int>
+                Statistics = new List<StatisticUpdate>
                 {
-                    { TEST_DATA_KEY, _testInteger }
+                    new StatisticUpdate { StatisticName = TEST_STAT_NAME, Value = _testInteger }
                 }
             };
-            PlayFabClientAPI.UpdateUserStatistics(updateRequest, PlayFabUUnitUtils.ApiCallbackWrapper<UpdateUserStatisticsResult>(testContext, UpdateUserStatsCallback), SharedErrorCallback, testContext);
+            PlayFabClientAPI.UpdatePlayerStatistics(updateRequest, PlayFabUUnitUtils.ApiCallbackWrapper<UpdatePlayerStatisticsResult>(testContext, UpdatePlayerStatsCallback), PlayFabUUnitUtils.ApiErrorWrapper(testContext, SharedErrorCallback), testContext);
         }
-        private void UpdateUserStatsCallback(UpdateUserStatisticsResult result)
+        private void UpdatePlayerStatsCallback(UpdatePlayerStatisticsResult result)
         {
             var testContext = (UUnitTestContext)result.CustomData;
 
-            var getRequest = new GetUserStatisticsRequest();
-            PlayFabClientAPI.GetUserStatistics(getRequest, PlayFabUUnitUtils.ApiCallbackWrapper<GetUserStatisticsResult>(testContext, GetUserStatsCallback2), SharedErrorCallback, testContext);
+            var getRequest = new GetPlayerStatisticsRequest();
+            PlayFabClientAPI.GetPlayerStatistics(getRequest, PlayFabUUnitUtils.ApiCallbackWrapper<GetPlayerStatisticsResult>(testContext, GetPlayerStatsCallback2), PlayFabUUnitUtils.ApiErrorWrapper(testContext, SharedErrorCallback), testContext);
         }
-        private void GetUserStatsCallback2(GetUserStatisticsResult result)
+        private void GetPlayerStatsCallback2(GetPlayerStatisticsResult result)
         {
             var testContext = (UUnitTestContext)result.CustomData;
 
-            int actualValue;
-            if (!result.UserStatistics.TryGetValue(TEST_DATA_KEY, out actualValue))
-                actualValue = 0; // Default if the data isn't present
+            var actualValue = int.MinValue; // a value that shouldn't actually occur in this test
+            foreach (var eachStat in result.Statistics)
+                if (eachStat.StatisticName == TEST_STAT_NAME)
+                    actualValue = eachStat.Value;
             testContext.IntEquals(_testInteger, actualValue);
 
             testContext.EndTest(UUnitFinishState.PASSED, null);

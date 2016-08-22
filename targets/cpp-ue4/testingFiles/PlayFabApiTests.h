@@ -118,16 +118,16 @@ private:
 };
 
 /*
-* ==== UserStatistics ====
+* ==== PlayerStatistics ====
 */
-class PlayFabApiTest_GetUserStatistics : public IAutomationLatentCommand
+class PlayFabApiTest_GetPlayerStatistics : public IAutomationLatentCommand
 {
 public:
-    PlayFabApiTest_GetUserStatistics(const FString& TEST_STAT_NAME, int expectedValue);
+    PlayFabApiTest_GetPlayerStatistics(const FString& TEST_STAT_NAME, int expectedValue);
 
     bool Update() override;
 private:
-    void OnSuccess(const PlayFab::ClientModels::FGetUserStatisticsResult& Result) const;
+    void OnSuccess(const PlayFab::ClientModels::FGetPlayerStatisticsResult& Result) const;
     void OnError(const PlayFab::FPlayFabError& ErrorResult) const;
 
     FString TEST_STAT_NAME;
@@ -136,14 +136,14 @@ private:
     PlayFabClientPtr clientAPI = nullptr;
 };
 
-class PlayFabApiTest_UpdateUserStatistics : public IAutomationLatentCommand
+class PlayFabApiTest_UpdatePlayerStatistics : public IAutomationLatentCommand
 {
 public:
-    PlayFabApiTest_UpdateUserStatistics(const FString& TEST_STAT_NAME, int updateValue);
+    PlayFabApiTest_UpdatePlayerStatistics(const FString& TEST_STAT_NAME, int updateValue);
 
     bool Update() override;
 private:
-    void OnSuccess(const PlayFab::ClientModels::FUpdateUserStatisticsResult& Result) const;
+    void OnSuccess(const PlayFab::ClientModels::FUpdatePlayerStatisticsResult& Result) const;
     void OnError(const PlayFab::FPlayFabError& ErrorResult) const;
 
     FString TEST_STAT_NAME;
@@ -302,7 +302,7 @@ public:
         ADD_TEST(LoginOrRegister);
         ADD_TEST(LoginWithAdvertisingId);
         ADD_TEST(UserDataApi);
-        ADD_TEST(UserStatisticsApi);
+        ADD_TEST(PlayerStatisticsApi);
         ADD_TEST(UserCharacter);
         ADD_TEST(LeaderBoard);
         ADD_TEST(AccountInfo);
@@ -405,9 +405,9 @@ protected:
         return true;
     };
 
-    bool UserStatisticsApi() const
+    bool PlayerStatisticsApi() const
     {
-        ADD_LATENT_AUTOMATION_COMMAND(PlayFabApiTest_UpdateUserStatistics(TEST_STAT_NAME, -1));
+        ADD_LATENT_AUTOMATION_COMMAND(PlayFabApiTest_UpdatePlayerStatistics(TEST_STAT_NAME, -1));
 
         return true;
     };

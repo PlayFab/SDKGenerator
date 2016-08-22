@@ -43,6 +43,8 @@ exports.makeCombinedAPI = function (apis, sourceDir, apiOutputDir) {
     GenerateModels(apis, apiOutputDir, libname);
     GenerateErrors(apis[0], apiOutputDir);
     GenerateSettings(apis, sourceDir, apiOutputDir);
+
+    copyTree(path.resolve(sourceDir, "ExampleSource"), path.resolve(apiOutputDir, "../PlayFabSdkExample"));
 }
 
 function GenerateSettings(apis, sourceDir, apiOutputDir) {

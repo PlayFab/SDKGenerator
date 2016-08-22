@@ -232,13 +232,13 @@ public:
     /// Parameter types tested: Dictionary<string, int>
     /// </summary>
     UFUNCTION()
-        void UserStatisticsApi(UPfTestContext* testContext);
+        void PlayerStatisticsApi(UPfTestContext* testContext);
     UFUNCTION()
-        void OnUserStatisticsApiGet1(FClientGetUserStatisticsResult result, UObject* customData);
+        void OnPlayerStatisticsApiGet1(FClientGetPlayerStatisticsResult result, UObject* customData);
     UFUNCTION()
-        void OnUserStatisticsApiUpdate(FClientUpdateUserStatisticsResult result, UObject* customData);
+        void OnPlayerStatisticsApiUpdate(FClientUpdatePlayerStatisticsResult result, UObject* customData);
     UFUNCTION()
-        void OnUserStatisticsApiGet2(FClientGetUserStatisticsResult result, UObject* customData);
+        void OnPlayerStatisticsApiGet2(FClientGetPlayerStatisticsResult result, UObject* customData);
     bool TryExtractIntFromStats(const UPlayFabJsonObject* jsonObj, const FString& key, int& outValue);
 
     /// <summary>

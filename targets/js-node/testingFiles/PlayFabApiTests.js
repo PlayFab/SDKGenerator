@@ -299,42 +299,45 @@ exports.PlayFabApiTests = {
     /// Verify that the data is saved correctly, and that specific types are tested
     /// Parameter types tested: Dictionary<string, int> 
     /// </summary>
-    UserStatisticsApi: TestWrapper(function (test) {
+    PlayerStatisticsApi: TestWrapper(function (test) {
         var getStatsRequest = {}; // null also works
         
         var getStatsCallback2 = function (error, result) {
-            VerifyNullError(result, error, test, "Testing GetUserStats result");
-            test.ok(result.data.UserStatistics != null, "GetUserStats failed");
-            test.ok(result.data.UserStatistics.hasOwnProperty(TestConstants.TEST_STAT_NAME), "GetUserStats failed");
+            VerifyNullError(result, error, test, "Testing GetPlayerStats result");
+            test.ok(result.data.Statistics != null, "GetPlayerStats failed");
             
-            var actualtestNumber = result.data.UserStatistics[TestConstants.TEST_STAT_NAME];
+            var actualtestNumber = -1000;
+            for (var i = 0; i < result.data.Statistics.length; i++)
+                if (result.data.Statistics[i].StatisticName === TestConstants.TEST_STAT_NAME)
+                    actualtestNumber = result.data.Statistics[i].Value;
             
             test.equal(TestData.testNumber, actualtestNumber, "" + TestData.testNumber + "!=" + actualtestNumber);
             test.done();
         };
         var updateStatsCallback = function (error, result) {
-            VerifyNullError(result, error, test, "Testing UpdateUserStats result");
-            PlayFabClient.GetUserStatistics(getStatsRequest, CallbackWrapper("getStatsCallback2", getStatsCallback2, test));
+            VerifyNullError(result, error, test, "Testing UpdatePlayerStats result");
+            PlayFabClient.GetPlayerStatistics(getStatsRequest, CallbackWrapper("getStatsCallback2", getStatsCallback2, test));
         };
         var getStatsCallback1 = function (error, result) {
-            VerifyNullError(result, error, test, "Testing GetUserStats result");
-            test.ok(result.data.UserStatistics != null, "GetUserStats failed");
+            VerifyNullError(result, error, test, "Testing GetPlayerStats result");
+            test.ok(result.data.Statistics != null, "GetPlayerStats failed");
             
-            var hasData = result.data.UserStatistics.hasOwnProperty(TestConstants.TEST_STAT_NAME);
-            TestData.testNumber = !hasData ? 1 : result.data.UserStatistics[TestConstants.TEST_STAT_NAME];
+            TestData.testNumber = 0;
+            for (var i = 0; i < result.data.Statistics.length; i++)
+                if (result.data.Statistics[i].StatisticName === TestConstants.TEST_STAT_NAME)
+                    TestData.testNumber = result.data.Statistics[i].Value;
             TestData.testNumber = (TestData.testNumber + 1) % 100; // This test is about the expected value changing - but not testing more complicated issues like bounds
             
             var updateStatsRequest = {
                 // Currently, you need to look up the correct format for this object in the API-docs:
-                //   https://api.playfab.com/Documentation/Client/method/UpdateUserStatistics
-                UserStatistics: {} // Can't pre-define properties because the param-name is in a string
+                //   https://api.playfab.com/Documentation/Client/method/UpdatePlayerStatistics
+                Statistics: [{ StatisticName: TestConstants.TEST_STAT_NAME, Value: TestData.testNumber }]
             };
-            updateStatsRequest.UserStatistics[TestConstants.TEST_STAT_NAME] = TestData.testNumber;
-            PlayFabClient.UpdateUserStatistics(updateStatsRequest, CallbackWrapper("updateStatsCallback", updateStatsCallback, test));
+            PlayFabClient.UpdatePlayerStatistics(updateStatsRequest, CallbackWrapper("updateStatsCallback", updateStatsCallback, test));
         };
         
         // Kick off this test process
-        PlayFabClient.GetUserStatistics(getStatsRequest, CallbackWrapper("getStatsCallback1", getStatsCallback1, test));
+        PlayFabClient.GetPlayerStatistics(getStatsRequest, CallbackWrapper("getStatsCallback1", getStatsCallback1, test));
     }),
     
     /// <summary>

@@ -45,7 +45,7 @@ void APfTestActor::InitializeTestSuite()
         AppendTest("LoginOrRegister");
         AppendTest("LoginWithAdvertisingId");
         AppendTest("UserDataApi");
-        AppendTest("UserStatisticsApi");
+        AppendTest("PlayerStatisticsApi");
         AppendTest("UserCharacter");
         AppendTest("LeaderBoard");
         AppendTest("AccountInfo");
@@ -452,7 +452,7 @@ bool APfTestActor::TryExtractIntFromUserData(const UPlayFabJsonObject* jsonObj, 
 /// Verify that the data is saved correctly, and that specific types are tested
 /// Parameter types tested: Dictionary<string, int>
 /// </summary>
-void APfTestActor::UserStatisticsApi(UPfTestContext* testContext)
+void APfTestActor::PlayerStatisticsApi(UPfTestContext* testContext)
 {
     IPlayFab* playFabSettings = &(IPlayFab::Get());
     if (!playFabSettings->IsClientLoggedIn())
@@ -466,57 +466,56 @@ void APfTestActor::UserStatisticsApi(UPfTestContext* testContext)
         return;
     }
 
-    FClientGetUserStatisticsRequest request;
-    UPlayFabClientAPI::FDelegateOnSuccessGetUserStatistics onSuccess; onSuccess.BindUFunction(this, "OnUserStatisticsApiGet1");
+    FClientGetPlayerStatisticsRequest request;
+    UPlayFabClientAPI::FDelegateOnSuccessGetPlayerStatistics onSuccess; onSuccess.BindUFunction(this, "OnPlayerStatisticsApiGet1");
     UPlayFabClientAPI::FDelegateOnFailurePlayFabError onError; onError.BindUFunction(this, "OnSharedError");
-    UPlayFabClientAPI* callObj = UPlayFabClientAPI::GetUserStatistics(request, onSuccess, onError, testContext);
+    UPlayFabClientAPI* callObj = UPlayFabClientAPI::GetPlayerStatistics(request, onSuccess, onError, testContext);
     managedObjects.Add(callObj);
     callObj->Activate();
 }
-void APfTestActor::OnUserStatisticsApiGet1(FClientGetUserStatisticsResult result, UObject* customData)
+void APfTestActor::OnPlayerStatisticsApiGet1(FClientGetPlayerStatisticsResult result, UObject* customData)
 {
-    TryExtractIntFromStats(result.UserStatistics, TEST_STAT_NAME, testMessageInt);
+    testMessageInt = 0;
+    for (int i = 0; i < result.Statistics.Num(); i++)
+        if (result.Statistics[i]->HasField(TEXT("StatisticName"))
+            && result.Statistics[i]->HasField(TEXT("Value"))
+            && result.Statistics[i]->GetStringField(TEXT("StatisticName")) == TEST_STAT_NAME)
+            testMessageInt = result.Statistics[i]->GetNumberField(TEXT("Value"));
     testMessageInt = (testMessageInt + 1) % 100;
 
-    FClientUpdateUserStatisticsRequest updateRequest;
-    updateRequest.UserStatistics = NewObject<UPlayFabJsonObject>();
-    updateRequest.UserStatistics->SetNumberField(TEST_STAT_NAME, testMessageInt);
-    UPlayFabClientAPI::FDelegateOnSuccessUpdateUserStatistics onSuccess; onSuccess.BindUFunction(this, "OnUserStatisticsApiUpdate");
+    FClientUpdatePlayerStatisticsRequest updateRequest;
+    updateRequest.Statistics.Add(NewObject<UPlayFabJsonObject>());
+    updateRequest.Statistics[0]->SetStringField(TEXT("StatisticName"), TEST_STAT_NAME);
+    updateRequest.Statistics[0]->SetNumberField(TEXT("Value"), testMessageInt);
+    UPlayFabClientAPI::FDelegateOnSuccessUpdatePlayerStatistics onSuccess; onSuccess.BindUFunction(this, "OnPlayerStatisticsApiUpdate");
     UPlayFabClientAPI::FDelegateOnFailurePlayFabError onError; onError.BindUFunction(this, "OnSharedError");
-    UPlayFabClientAPI* callObj = UPlayFabClientAPI::UpdateUserStatistics(updateRequest, onSuccess, onError, customData);
+    UPlayFabClientAPI* callObj = UPlayFabClientAPI::UpdatePlayerStatistics(updateRequest, onSuccess, onError, customData);
     managedObjects.Add(callObj);
     callObj->Activate();
 }
-void APfTestActor::OnUserStatisticsApiUpdate(FClientUpdateUserStatisticsResult result, UObject* customData)
+void APfTestActor::OnPlayerStatisticsApiUpdate(FClientUpdatePlayerStatisticsResult result, UObject* customData)
 {
-    FClientGetUserStatisticsRequest request;
-    UPlayFabClientAPI::FDelegateOnSuccessGetUserStatistics onSuccess; onSuccess.BindUFunction(this, "OnUserStatisticsApiGet2");
+    FClientGetPlayerStatisticsRequest request;
+    UPlayFabClientAPI::FDelegateOnSuccessGetPlayerStatistics onSuccess; onSuccess.BindUFunction(this, "OnPlayerStatisticsApiGet2");
     UPlayFabClientAPI::FDelegateOnFailurePlayFabError onError; onError.BindUFunction(this, "OnSharedError");
-    UPlayFabClientAPI* callObj = UPlayFabClientAPI::GetUserStatistics(request, onSuccess, onError, customData);
+    UPlayFabClientAPI* callObj = UPlayFabClientAPI::GetPlayerStatistics(request, onSuccess, onError, customData);
     managedObjects.Add(callObj);
     callObj->Activate();
 }
-void APfTestActor::OnUserStatisticsApiGet2(FClientGetUserStatisticsResult result, UObject* customData)
+void APfTestActor::OnPlayerStatisticsApiGet2(FClientGetPlayerStatisticsResult result, UObject* customData)
 {
-    int actualStatValue;
-    TryExtractIntFromStats(result.UserStatistics, TEST_STAT_NAME, actualStatValue);
+    int actualStatValue = -1000;
+    for (int i = 0; i < result.Statistics.Num(); i++)
+        if (result.Statistics[i]->HasField(TEXT("StatisticName"))
+            && result.Statistics[i]->HasField(TEXT("Value"))
+            && result.Statistics[i]->GetStringField(TEXT("StatisticName")) == TEST_STAT_NAME)
+            actualStatValue = result.Statistics[i]->GetNumberField(TEST_STAT_NAME);
 
     UPfTestContext* testContext = dynamic_cast<UPfTestContext*>(customData);
     if (testMessageInt != actualStatValue)
         EndTest(testContext, PlayFabApiTestFinishState::FAILED, "User statistic not updated as expected, E:" + FString::FromInt(testMessageInt) + " != A:" + FString::FromInt(actualStatValue));
     else
         EndTest(testContext, PlayFabApiTestFinishState::PASSED, "");
-}
-bool APfTestActor::TryExtractIntFromStats(const UPlayFabJsonObject* jsonObj, const FString& key, int& outValue)
-{
-    outValue = 1; // The default if we fail
-
-    if (!jsonObj->HasField(key))
-    {
-        return false;
-    }
-    outValue = jsonObj->GetNumberField(key);
-    return true;
 }
 
 /// <summary>

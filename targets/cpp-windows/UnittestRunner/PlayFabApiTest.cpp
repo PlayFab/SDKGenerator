@@ -362,36 +362,40 @@ namespace UnittestRunner
         /// Verify that the data is saved correctly, and that specific types are tested
         /// Parameter types tested: map<string, Int32>
         /// </summary>
-        TEST_METHOD(UserStatisticsApi)
+        TEST_METHOD(PlayerStatisticsApi)
         {
             LoginOrRegister(); // C++ Environment is nicely secluded, but also means that we have to manually handle sequential requirements
 
-            PlayFabClientAPI::GetUserStatistics(&GetStatsCallback, &SharedFailedCallback, nullptr);
+            ClientModels::GetPlayerStatisticsRequest getRequest;
+            PlayFabClientAPI::GetPlayerStatistics(getRequest, &GetStatsCallback, &SharedFailedCallback, nullptr);
             ClientApiWait();
             Assert::IsTrue(testMessageReturn.compare("GetStats_Success") == 0);
             Int32 testStatValueExpected = (testMessageInt + 1) % 100; // This test is about the expected value changing (incrementing through from TEST_STAT_BASE to TEST_STAT_BASE * 2 - 1)
 
-            ClientModels::UpdateUserStatisticsRequest updateRequest;
-            updateRequest.UserStatistics[TEST_STAT_NAME] = testStatValueExpected;
-            PlayFabClientAPI::UpdateUserStatistics(updateRequest, &UpdateStatsCallback, &SharedFailedCallback, nullptr);
+            ClientModels::UpdatePlayerStatisticsRequest updateRequest;
+            ClientModels::StatisticUpdate statUpdate;
+            statUpdate.StatisticName = TEST_STAT_NAME;
+            statUpdate.Value = testStatValueExpected;
+            updateRequest.Statistics.insert(updateRequest.Statistics.begin(), statUpdate);
+            PlayFabClientAPI::UpdatePlayerStatistics(updateRequest, &UpdateStatsCallback, &SharedFailedCallback, nullptr);
             ClientApiWait();
             Assert::IsTrue(testMessageReturn.compare("UpdateStats_Success") == 0);
 
-            PlayFabClientAPI::GetUserStatistics(&GetStatsCallback, &SharedFailedCallback, nullptr);
+            PlayFabClientAPI::GetPlayerStatistics(getRequest, &GetStatsCallback, &SharedFailedCallback, nullptr);
             ClientApiWait();
             Assert::IsTrue(testMessageReturn.compare("GetStats_Success") == 0);
             Int32 testStatValueActual = testMessageInt;
 
             Assert::AreEqual(testStatValueExpected, testStatValueActual);
         }
-        static void GetStatsCallback(ClientModels::GetUserStatisticsResult& result, void* userData)
+        static void GetStatsCallback(ClientModels::GetPlayerStatisticsResult& result, void* userData)
         {
             testMessageReturn = "GetStats_Success";
-            std::map<string, Int32>::iterator it = result.UserStatistics.find(TEST_STAT_NAME);
-            if (it != result.UserStatistics.end())
-                testMessageInt = it->second;
+            for (auto it = result.Statistics.begin(); it != result.Statistics.end(); ++it)
+                if (it->StatisticName == TEST_STAT_NAME)
+                    testMessageInt = it->Value;
         }
-        static void UpdateStatsCallback(ClientModels::UpdateUserStatisticsResult& result, void* userData)
+        static void UpdateStatsCallback(ClientModels::UpdatePlayerStatisticsResult& result, void* userData)
         {
             // The update result doesn't contain anything interesting.  It's better to just re-call GetUserData again to verify the update
             testMessageReturn = "UpdateStats_Success";
@@ -463,7 +467,7 @@ namespace UnittestRunner
         {
             // C++ Environment is nicely secluded, but also means that we have to manually handle sequential requirements
             LoginOrRegister();
-            UserStatisticsApi();
+            PlayerStatisticsApi();
 
             ClientModels::GetLeaderboardRequest clientRequest;
             clientRequest.MaxResultsCount = 3;

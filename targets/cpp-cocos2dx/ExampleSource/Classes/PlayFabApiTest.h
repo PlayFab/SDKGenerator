@@ -227,7 +227,7 @@ namespace PlayFabApiTest
                 testContexts.insert(testContexts.end(), new PfTestContext("LoginOrRegister", LoginOrRegister));
                 testContexts.insert(testContexts.end(), new PfTestContext("LoginWithAdvertisingId", LoginWithAdvertisingId));
                 testContexts.insert(testContexts.end(), new PfTestContext("UserDataApi", UserDataApi));
-                testContexts.insert(testContexts.end(), new PfTestContext("UserStatisticsApi", UserStatisticsApi));
+                testContexts.insert(testContexts.end(), new PfTestContext("PlayerStatisticsApi", PlayerStatisticsApi));
                 testContexts.insert(testContexts.end(), new PfTestContext("UserCharacter", UserCharacter));
                 testContexts.insert(testContexts.end(), new PfTestContext("LeaderBoard", LeaderBoard));
                 testContexts.insert(testContexts.end(), new PfTestContext("AccountInfo", AccountInfo));
@@ -667,7 +667,7 @@ namespace PlayFabApiTest
         /// Verify that the data is saved correctly, and that specific types are tested
         /// Parameter types tested: Dictionary<string, int>
         /// </summary>
-        static void UserStatisticsApi(PfTestContext& testContext)
+        static void PlayerStatisticsApi(PfTestContext& testContext)
         {
             if (!PlayFabClientAPI::IsClientLoggedIn())
             {
@@ -680,31 +680,39 @@ namespace PlayFabApiTest
                 return;
             }
 
-            PlayFabClientAPI::GetUserStatistics(OnUserStatisticsApiGet1, OnSharedError, &testContext);
+            GetPlayerStatisticsRequest request;
+            PlayFabClientAPI::GetPlayerStatistics(request, OnPlayerStatisticsApiGet1, OnSharedError, &testContext);
         }
-        static void OnUserStatisticsApiGet1(const GetUserStatisticsResult& result, void* customData)
+        static void OnPlayerStatisticsApiGet1(const GetPlayerStatisticsResult& result, void* customData)
         {
-            auto it = result.UserStatistics.find(TEST_STAT_NAME);
-            testMessageInt = (it == result.UserStatistics.end()) ? 1 : it->second;
+            testMessageInt = 0;
+            for (auto it = result.Statistics.begin(); it != result.Statistics.end(); ++it)
+                if (it->StatisticName == TEST_STAT_NAME)
+                    testMessageInt = it->Value;
+            testMessageInt = (testMessageInt + 1) % 100;
             // testMessageTime = it->second.LastUpdated; // Don't need the first time
 
-            testMessageInt = (testMessageInt + 1) % 100;
-            UpdateUserStatisticsRequest updateRequest;
-
-            updateRequest.UserStatistics[TEST_STAT_NAME] = testMessageInt;
-            PlayFabClientAPI::UpdateUserStatistics(updateRequest, OnUserStatisticsApiUpdate, OnSharedError, customData);
+            UpdatePlayerStatisticsRequest updateRequest;
+            StatisticUpdate updateStat;
+            updateStat.StatisticName = TEST_STAT_NAME;
+            updateStat.Value = testMessageInt;
+            updateRequest.Statistics.insert(updateRequest.Statistics.end(), updateStat);
+            PlayFabClientAPI::UpdatePlayerStatistics(updateRequest, OnPlayerStatisticsApiUpdate, OnSharedError, customData);
         }
-        static void OnUserStatisticsApiUpdate(const UpdateUserStatisticsResult& result, void* customData)
+        static void OnPlayerStatisticsApiUpdate(const UpdatePlayerStatisticsResult& result, void* customData)
         {
-            PlayFabClientAPI::GetUserStatistics(OnUserStatisticsApiGet2, OnSharedError, customData);
+            GetPlayerStatisticsRequest request;
+            PlayFabClientAPI::GetPlayerStatistics(request, OnPlayerStatisticsApiGet2, OnSharedError, customData);
         }
-        static void OnUserStatisticsApiGet2(const GetUserStatisticsResult& result, void* customData)
+        static void OnPlayerStatisticsApiGet2(const GetPlayerStatisticsResult& result, void* customData)
         {
-            auto it = result.UserStatistics.find(TEST_STAT_NAME);
-            int actualStatValue = (it == result.UserStatistics.end()) ? 1 : it->second;
+            int actualStatValue = -1000; // A value that is never expected to appear
+            for (auto it = result.Statistics.begin(); it != result.Statistics.end(); ++it)
+                if (it->StatisticName == TEST_STAT_NAME)
+                    actualStatValue = it->Value;
 
             PfTestContext* testContext = reinterpret_cast<PfTestContext*>(customData);
-            if (it == result.UserStatistics.end())
+            if (actualStatValue == -1000)
                 EndTest(*testContext, FAILED, "Expected user statistic not found.");
             else if (testMessageInt != actualStatValue)
                 EndTest(*testContext, FAILED, "User statistic not updated as expected.");

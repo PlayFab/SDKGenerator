@@ -83,8 +83,9 @@ function MakeApi(api, apiOutputDir, subdir) {
     apiLocals.GetRequestActions = GetRequestActions;
     apiLocals.GetResultActions = GetResultActions;
     apiLocals.GetUrlAccessor = GetUrlAccessor;
-    apiLocals.hasClientOptions = api.name === "Client";
     apiLocals.HasRequest = HasRequest;
+    apiLocals.GetDeprecationAttribute = GetDeprecationAttribute;
+    apiLocals.hasClientOptions = api.name === "Client";
     
     var apiHeaderTemplate = ejs.compile(readFile(path.resolve(sourceDir, "templates/PlayFabAPI.h.ejs")));
     var generatedHeader = apiHeaderTemplate(apiLocals);
@@ -100,16 +101,15 @@ function HasRequest(apiCall, api) {
     return requestType.properties.length > 0;
 }
 
-function GetPropertyDef(property, datatype) {
-    
+function GetPropertyDef(tabbing, property, datatype) {
     var safePropName = GetPropertySafeName(property);
     
     if (property.collection === "array")
-        return "std::list<" + GetPropertyCppType(property, datatype, false) + "> " + safePropName + ";";
+        return GetDeprecationAttribute(tabbing, property) + tabbing + "std::list<" + GetPropertyCppType(property, datatype, false) + "> " + safePropName + ";";
     else if (property.collection === "map")
-        return "std::map<std::string, " + GetPropertyCppType(property, datatype, false) + "> " + safePropName + ";";
+        return GetDeprecationAttribute(tabbing, property) + tabbing + "std::map<std::string, " + GetPropertyCppType(property, datatype, false) + "> " + safePropName + ";";
     else
-        return GetPropertyCppType(property, datatype, true) + " " + safePropName + ";";
+        return GetDeprecationAttribute(tabbing, property) + tabbing + GetPropertyCppType(property, datatype, true) + " " + safePropName + ";";
 }
 
 // PFWORKBIN-445 & PFWORKBIN-302 - variable names can't be the same as the variable type when compiling for android
@@ -545,6 +545,7 @@ function GenerateModels(apis, apiOutputDir, libraryName, subdir) {
         modelLocals.GetPropertyDefaultValue = GetPropertyDefaultValue;
         modelLocals.GetPropertyCopyValue = GetPropertyCopyValue;
         modelLocals.GetPropertySafeName = GetPropertySafeName;
+        modelLocals.GetDeprecationAttribute = GetDeprecationAttribute;
         modelLocals.libraryName = libraryName;
         var generatedHeader = modelHeaderTemplate(modelLocals);
         writeFile(path.resolve(apiOutputDir, "include/playfab/PlayFab" + api.name + "DataModels.h"), generatedHeader);
@@ -595,4 +596,15 @@ function GetUrlAccessor(apiCall) {
     if (apiCall.serverType === "logic")
         return "PlayFabSettings::getLogicURL(\"" + apiCall.url + "\")";
     return "PlayFabSettings::getURL(\"" + apiCall.url + "\")";
+}
+
+function GetDeprecationAttribute(tabbing, apiObj) {
+    // In C++ there's all kinds of platform-dependent ways to mark deprecation, and they all seem flaky and unreliable.
+    // After a lot of investigation, a comment just seems like the easiest and most consistent solution.
+    var isDeprecated = apiObj.hasOwnProperty("deprecation");
+    if (isDeprecated && apiObj.deprecation.ReplacedBy != null)
+        return tabbing + "// Deprecated - Use '" + apiObj.deprecation.ReplacedBy + "' instead\n";
+    else if (isDeprecated)
+        return tabbing + "// Deprecated - Do not use\n";
+    return "";
 }

@@ -7,18 +7,33 @@ This is a node.js based program that takes a json description of the PlayFab API
 
 2. Prerequisites:
 ----
+0. Any recent MS-Windows Operating System
 1. You must have Node.js installed: http://nodejs.org/
-2. You must have the PlayFab API spec json files: https://github.com/PlayFab/api_specs
-
+ * The location of node.exe must be in your PATH environment variable.  Default: C:\Program Files (x86)\nodejs\
+ * Highly suggested that you install Node.js tools for Visual Studio: https://beta.visualstudio.com/vs/node-js/
+2. SdkGenerator requires several PlayFab repositories, placed in the same folder.
+ * &lt;parent-folder&gt;/API_Specs = https://github.com/PlayFab/api_specs
+ * &lt;parent-folder&gt;/SdkGenerator = https://github.com/PlayFab/SDKGenerator (you're looking at it)
+ * &lt;parent-folder&gt;/sdks/&lt;targetSDK&gt; - For every sdk you want to generate, you should git-clone the PlayFab repository for that target into the "sdks" subfolder first.  In many cases, there are required files in the repo which are not generated
 
 3. Usage Instructions:
 ----
-To invoke the generator, open a command line at the root of the project and type:
+If you have installed Node.js tools, then you can build any existing SDK from the Visual Studio solution: https://github.com/PlayFab/SDKGenerator/blob/master/SDKGenerator.sln
+* Open the solution
+* Set the Project Configuration to match the sdk you wish to build
+* Build -&gt; Build Solution
+
+There are many prebuilt scripts which can build each SDK automatically: https://github.com/PlayFab/SDKGenerator/tree/master/SDKBuildScripts
+* Find the script that matches the SDK you wish to build (EX unity_v2_build.bat)
+* Double-click that file
+If you wish to build an new sdk, you may need to build a new .bat file using the instrucitons below.
+
+Finally, to manually invoke the generator, open a command line at the root of the project and type:
 ```
-node generate.js <apiSpecLocation> [<targetName>=<targetOutputLocation>] ...
+node generate.js <apiSpecLocation> <targetName>=<targetOutputLocation> -buildIdentifier <arbitraryIdentifier>
 ```
 
-&lt;apiSpecLocation&gt; is the directory containing the api spec json files obtained from the PlayFab api_specs repo.
+&lt;apiSpecLocation&gt; is the directory containing the api spec json files obtained from the PlayFab api_specs repo.  If you followed the folder instructions above, this will be "../API_Specs" (without quotes)
 
 Next you supply a list of targets to generate, and the directory to generate them to. Each target takes the form:
 
@@ -28,9 +43,20 @@ Where &lt;targetName&gt; is one of the supported SDK targets, and &lt;targetOutp
 
 Example:
 
-node generate.js ../api_specs csharp-unity=../sdks/unitySDK
+node generate.js ../API_Specs unity-v2=../sdks/UnitySDK
 
-4. Troubleshooting:
+4. Building a new SDK
+----
+Setting up a new target in the SdkGenerator is fairly simple.  This example has been added to the SdkGenerator for reference: https://github.com/PlayFab/SDKGenerator/tree/master/targets/newTarget
+* Add a new subfolder in [SdkGenerator/Targets](https://github.com/PlayFab/SDKGenerator/tree/master/targets)
+* Add a "make.js" file to your new target
+ * Implement makeClientAPI, makeServerAPI, and/or makeCombinedAPI in the file, as shown in the [NewTarget Example](https://github.com/PlayFab/SDKGenerator/blob/master/targets/newTarget/make.js)
+ * Optionally, you may use template files and source files, as described in the NewTarget example.
+* Add a new bat-file to generate your sdk in [SdkGenerator/SDKBuildScripts](https://github.com/PlayFab/SDKGenerator/tree/master/SDKBuildScripts)
+
+PlayFab somtimes accepts submissions for new SDKs.  This process is extensive, and it has to be integrated with our automated build and testing system.  For more information contact us on the forums.
+
+5. Troubleshooting:
 ----
 For a complete list of available APIs, check out the [online documentation](http://api.playfab.com/Documentation/).
 
@@ -43,7 +69,7 @@ Our Developer Success Team can assist with answering any questions as well as pr
 [Forums, Support and Knowledge Base](https://community.playfab.com/hc/en-us)
 
 
-5. Copyright and Licensing Information:
+6. Copyright and Licensing Information:
 ----
   Apache License -- 
   Version 2.0, January 2004

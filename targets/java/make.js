@@ -1,3 +1,4 @@
+var ejs = require("ejs");
 var path = require("path");
 
 exports.makeClientAPI = function (api, sourceDir, apiOutputDir) {
@@ -12,9 +13,9 @@ exports.makeClientAPI = function (api, sourceDir, apiOutputDir) {
         console.log("Generating Java client SDK to " + srcOutputDir);
         copyTree(path.resolve(sourceDir, "srcCode"), srcOutputDir);
         copyTree(path.resolve(sourceDir, "srcLibs"), libOutputDir);
-        makeDatatypes([api], sourceDir, srcOutputDir);
-        makeAPI(api, sourceDir, srcOutputDir, isAndroid);
-        generateSimpleFiles([api], sourceDir, srcOutputDir, isAndroid);
+        MakeDatatypes([api], sourceDir, srcOutputDir);
+        MakeApi(api, sourceDir, srcOutputDir, isAndroid);
+        GenerateSimpleFiles([api], sourceDir, srcOutputDir, isAndroid);
     }
 }
 
@@ -24,10 +25,10 @@ exports.makeServerAPI = function (apis, sourceDir, apiOutputDir) {
     
     copyTree(path.resolve(sourceDir, "srcCode"), apiOutputDir);
     copyTree(path.resolve(sourceDir, "srcLibs"), apiOutputDir);
-    makeDatatypes(apis, sourceDir, apiOutputDir);
+    MakeDatatypes(apis, sourceDir, apiOutputDir);
     for (var i = 0; i < apis.length; i++)
-        makeAPI(apis[i], sourceDir, apiOutputDir, false);
-    generateSimpleFiles(apis, sourceDir, apiOutputDir);
+        MakeApi(apis[i], sourceDir, apiOutputDir, false);
+    GenerateSimpleFiles(apis, sourceDir, apiOutputDir);
 }
 
 exports.makeCombinedAPI = function (apis, sourceDir, apiOutputDir) {
@@ -36,30 +37,17 @@ exports.makeCombinedAPI = function (apis, sourceDir, apiOutputDir) {
     
     copyTree(path.resolve(sourceDir, "srcCode"), apiOutputDir);
     copyTree(path.resolve(sourceDir, "srcLibs"), apiOutputDir);
-    makeDatatypes(apis, sourceDir, apiOutputDir);
+    MakeDatatypes(apis, sourceDir, apiOutputDir);
     for (var i = 0; i < apis.length; i++)
-        makeAPI(apis[i], sourceDir, apiOutputDir, false);
-    generateSimpleFiles(apis, sourceDir, apiOutputDir);
+        MakeApi(apis[i], sourceDir, apiOutputDir, false);
+    GenerateSimpleFiles(apis, sourceDir, apiOutputDir);
     
     // Copy testing files
     copyFile(path.resolve(sourceDir, "testingFiles/PlayFabApiTest.java"), path.resolve(apiOutputDir, "PlayFabApiTest.java"));
     copyFile(path.resolve(sourceDir, "testingFiles/RunPfTests.bat"), path.resolve(apiOutputDir, "RunPfTests.bat"));
 }
 
-function getJsonString(input) {
-    if (!input)
-        return "{}";
-    var json = JSON.stringify(input);
-    return escapeForString(json);
-}
-
-function escapeForString(input) {
-    input = input.replace(new RegExp('\\\\', "g"), '\\\\');
-    input = input.replace(new RegExp('\"', "g"), '\\"');
-    return input;
-}
-
-function makeDatatypes(apis, sourceDir, apiOutputDir) {
+function MakeDatatypes(apis, sourceDir, apiOutputDir) {
     var templateDir = path.resolve(sourceDir, "templates");
     var modelTemplate = ejs.compile(readFile(path.resolve(templateDir, "Model.java.ejs")));
     var modelsTemplate = ejs.compile(readFile(path.resolve(templateDir, "Models.java.ejs")));
@@ -68,8 +56,9 @@ function makeDatatypes(apis, sourceDir, apiOutputDir) {
     var makeDatatype = function (datatype, api) {
         var modelLocals = {};
         modelLocals.datatype = datatype;
-        modelLocals.getPropertyDef = getModelPropertyDef;
-        modelLocals.getPropertyAttribs = getPropertyAttribs;
+        modelLocals.getPropertyDef = GetModelPropertyDef;
+        modelLocals.GetPropertyAttribs = GetPropertyAttribs;
+        modelLocals.GenerateSummary = GenerateSummary;
         modelLocals.api = api;
         return datatype.isenum ? enumTemplate(modelLocals) : modelTemplate(modelLocals);
     };
@@ -83,23 +72,24 @@ function makeDatatypes(apis, sourceDir, apiOutputDir) {
     }
 }
 
-function makeAPI(api, sourceDir, apiOutputDir, isAndroid) {
+function MakeApi(api, sourceDir, apiOutputDir, isAndroid) {
     console.log("Generating Java " + api.name + " library to " + apiOutputDir);
     
-    var apiTemplate = ejs.compile(readFile(path.resolve(path.resolve(sourceDir, "templates"), "API.java.ejs")));
+    var apiTemplate = ejs.compile(readFile(path.resolve(sourceDir, "templates/API.java.ejs")));
     var apiLocals = {};
     apiLocals.api = api;
     apiLocals.isAndroid = isAndroid;
-    apiLocals.getAuthParams = getAuthParams;
-    apiLocals.getRequestActions = getRequestActions;
-    apiLocals.getResultActions = getResultActions;
-    apiLocals.getUrlAccessor = getUrlAccessor;
+    apiLocals.GetAuthParams = GetAuthParams;
+    apiLocals.GetRequestActions = GetRequestActions;
+    apiLocals.GetResultActions = GetResultActions;
+    apiLocals.GetUrlAccessor = GetUrlAccessor;
+    apiLocals.GenerateSummary = GenerateSummary;
     apiLocals.hasClientOptions = api.name === "Client";
     var generatedApi = apiTemplate(apiLocals);
     writeFile(path.resolve(apiOutputDir, "com/playfab/PlayFab" + api.name + "API.java"), generatedApi);
 }
 
-function generateSimpleFiles(apis, sourceDir, apiOutputDir, isAndroid) {
+function GenerateSimpleFiles(apis, sourceDir, apiOutputDir, isAndroid) {
     var errorsTemplate = ejs.compile(readFile(path.resolve(sourceDir, "templates/Errors.java.ejs")));
     var errorLocals = {};
     errorLocals.errorList = apis[0].errorList;
@@ -124,8 +114,8 @@ function generateSimpleFiles(apis, sourceDir, apiOutputDir, isAndroid) {
     writeFile(path.resolve(apiOutputDir, "com/playfab/PlayFabSettings.java"), generatedSettings);
 }
 
-function getModelPropertyDef(property, datatype) {
-    var basicType = getPropertyJavaType(property, datatype, false);
+function GetModelPropertyDef(property, datatype) {
+    var basicType = GetPropertyJavaType(property, datatype);
     if (property.collection && property.collection === "array")
         return "ArrayList<" + basicType + "> " + property.name;
     else if (property.collection && property.collection === "map")
@@ -133,25 +123,24 @@ function getModelPropertyDef(property, datatype) {
     else if (property.collection)
         throw "Unknown collection type: " + property.collection + " for " + property.name + " in " + datatype.name;
     
-    basicType = getPropertyJavaType(property, datatype, true);
-    return getPropertyJavaType(property, datatype, true) + " " + property.name;
+    return GetPropertyJavaType(property, datatype) + " " + property.name;
 }
 
-function getPropertyAttribs(property, datatype, api) {
+function GetPropertyAttribs(tabbing, property, datatype, api) {
     var attribs = "";
     
     if (property.isUnordered) {
         var listDatatype = api.datatypes[property.actualtype];
         if (listDatatype && listDatatype.sortKey)
-            attribs += "@Unordered(\"" + listDatatype.sortKey + "\")\n        ";
+            attribs += tabbing + "@Unordered(\"" + listDatatype.sortKey + "\")\n";
         else
-            attribs += "@Unordered\n        ";
+            attribs += tabbing + "@Unordered\n";
     }
     
     return attribs;
 }
 
-function getPropertyJavaType(property, datatype, needOptional) {
+function GetPropertyJavaType(property, datatype) {
     var optional = "";
     
     if (property.actualtype === "String")
@@ -185,7 +174,7 @@ function getPropertyJavaType(property, datatype, needOptional) {
     throw "Unknown property type: " + property.actualtype + " for " + property.name + " in " + datatype.name;
 }
 
-function getAuthParams(apiCall) {
+function GetAuthParams(apiCall) {
     if (apiCall.auth === "SecretKey")
         return "\"X-SecretKey\", PlayFabSettings.DeveloperSecretKey";
     else if (apiCall.auth === "SessionTicket")
@@ -193,7 +182,7 @@ function getAuthParams(apiCall) {
     return "null, null";
 }
 
-function getRequestActions(apiCall, api) {
+function GetRequestActions(apiCall, api) {
     if (api.name === "Client" && (apiCall.result === "LoginResult" || apiCall.request === "RegisterPlayFabUserRequest"))
         return "        request.TitleId = PlayFabSettings.TitleId != null ? PlayFabSettings.TitleId : request.TitleId;\n        if(request.TitleId == null) throw new Exception (\"Must be have PlayFabSettings.TitleId set to call this method\");\n";
     if (api.name === "Client" && apiCall.auth === "SessionTicket")
@@ -203,20 +192,43 @@ function getRequestActions(apiCall, api) {
     return "";
 }
 
-function getResultActions(apiCall, api) {
+function GetResultActions(apiCall, api) {
     if (api.name === "Client" && (apiCall.result === "LoginResult" || apiCall.result === "RegisterPlayFabUserResult"))
-        return "        _authKey = result.SessionTicket != null ? result.SessionTicket : _authKey;\n"
+        return "        _authKey = result.SessionTicket != null ? result.SessionTicket : _authKey;\n" 
             + "        MultiStepClientLogin(resultData.data.SettingsForUser.NeedsAttribution);\n";
     else if (api.name === "Client" && apiCall.result === "AttributeInstallResult")
-        return "        // Modify AdvertisingIdType:  Prevents us from sending the id multiple times, and allows automated tests to determine id was sent successfully\n"
+        return "        // Modify AdvertisingIdType:  Prevents us from sending the id multiple times, and allows automated tests to determine id was sent successfully\n" 
             + "        PlayFabSettings.AdvertisingIdType += \"_Successful\";\n";
     else if (api.name === "Client" && apiCall.result === "GetCloudScriptUrlResult")
         return "        PlayFabSettings.LogicServerURL = result.Url;\n";
     return "";
 }
 
-function getUrlAccessor(apiCall) {
+function GetUrlAccessor(apiCall) {
     if (apiCall.serverType === "logic")
         return "PlayFabSettings.GetLogicURL()";
     return "PlayFabSettings.GetURL()";
+}
+
+// In Java, the summary and the deprecation are not distinct, so we need a single function that generates both
+function GenerateSummary(tabbing, apiObj, summaryParam) {
+    var isDeprecated = apiObj.hasOwnProperty("deprecation");
+    var hasSummary = apiObj.hasOwnProperty(summaryParam);
+    
+    if (!isDeprecated && !hasSummary) {
+        return "";
+    }
+    
+    var summaryLine = "";
+    if (isDeprecated && apiObj.deprecation.ReplacedBy != null)
+        summaryLine = tabbing + " * @deprecated Please use " + apiObj.deprecation.ReplacedBy + " instead. \n";
+    else if (isDeprecated)
+        summaryLine = tabbing + " * @deprecated Do not use\n";
+    else if (hasSummary)
+        summaryLine = tabbing + " * " + apiObj[summaryParam] + "\n";
+
+    return tabbing + "/**\n" 
+        + summaryLine
+        + tabbing + " */\n"
+        + (isDeprecated ? tabbing + "@Deprecated\n" : "");
 }

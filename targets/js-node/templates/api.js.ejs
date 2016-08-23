@@ -7,10 +7,11 @@ exports.IsClientLoggedIn = function () {
 }
 <% }
 for(var i in api.calls) { var apiCall = api.calls[i]; %>
-exports.<%- apiCall.name %> = function (request, callback) {
-<%- getRequestActions(4, apiCall, api) %>
-    PlayFab.MakeRequest(<%- getUrlAccessor(apiCall) %> + "<%- apiCall.url %>", request, <%- getAuthParams(apiCall) %>, function (error, result) {
-<%- getResultActions(8, apiCall, api) %>
+<%- GetDeprecationAttribute("", apiCall)
+%>exports.<%- apiCall.name %> = function (request, callback) {
+<%- GetRequestActions(4, apiCall, api) %>
+    PlayFab.MakeRequest(<%- GetUrlAccessor(apiCall) %> + "<%- apiCall.url %>", request, <%- GetAuthParams(apiCall) %>, function (error, result) {
+<%- GetResultActions(8, apiCall, api) %>
         if (callback != null)
             callback(error, result);
     });

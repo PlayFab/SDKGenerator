@@ -4,6 +4,6 @@ import java.util.*;
 import com.playfab.PlayFabUtil.*;
 
 public class PlayFab<%- api.name %>Models {
-<% for(var d in api.datatypes) { var datatype = api.datatypes[d] %><%- makeDatatype(datatype, api) %>
-<% } %>
+<% for(var d in api.datatypes) { var datatype = api.datatypes[d] %>
+<%- makeDatatype(datatype, api) %><% } %>
 }

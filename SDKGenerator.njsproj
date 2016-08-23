@@ -612,7 +612,6 @@
     <Content Include="targets\java\templates\Model.java.ejs" />
     <Content Include="targets\java\templates\Models.java.ejs" />
     <Content Include="targets\java\templates\PlayFabSettings.java.ejs" />
-    <Content Include="targets\java\templates\Tests.java.ejs" />
     <Content Include="targets\java\testingFiles\PlayFabApiTest.java" />
     <Content Include="targets\java\testingFiles\RunPfTests.bat" />
     <Content Include="targets\js-node\templates\api.js.ejs" />

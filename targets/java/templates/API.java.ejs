@@ -16,11 +16,9 @@ import com.google.gson.reflect.*;
  */<% } %>
 public class PlayFab<%- api.name %>API {
     private static Gson gson = new GsonBuilder().setDateFormat("yyyy-MM-dd'T'HH:mm:ss.SSS'Z'").create();
-<% for(var i in api.calls) { var apiCall = api.calls[i]; %><% if(apiCall.summary) { %>
-    /**
-     * <%- apiCall.summary %>
-     */<% } %>
-    @SuppressWarnings("unchecked")
+<% for(var i in api.calls) { var apiCall = api.calls[i]; %>
+<%- GenerateSummary("    ", apiCall, "summary")
+%>    @SuppressWarnings("unchecked")
     public static FutureTask<PlayFabResult<<%- apiCall.result %>>> <%- apiCall.name %>Async(final <%- apiCall.request %> request) {
         return new FutureTask(new Callable<PlayFabResult<<%- apiCall.result %>>>() {
             public PlayFabResult<<%- apiCall.result %>> call() throws Exception {
@@ -29,10 +27,8 @@ public class PlayFab<%- api.name %>API {
         });
     }
 
-    <% if(apiCall.summary) { %>/**
-     * <%- apiCall.summary %>
-     */<% } %>
-    @SuppressWarnings("unchecked")
+<%- GenerateSummary("    ", apiCall, "summary")
+%>    @SuppressWarnings("unchecked")
     public static PlayFabResult<<%- apiCall.result %>> <%- apiCall.name %>(final <%- apiCall.request %> request) {
         FutureTask<PlayFabResult<<%- apiCall.result %>>> task = new FutureTask(new Callable<PlayFabResult<<%- apiCall.result %>>>() {
             public PlayFabResult<<%- apiCall.result %>> call() throws Exception {
@@ -47,13 +43,11 @@ public class PlayFab<%- api.name %>API {
         }
     }
 
-    <% if(apiCall.summary) { %>/**
-     * <%- apiCall.summary %>
-     */<% } %>
-    @SuppressWarnings("unchecked")
+<%- GenerateSummary("    ", apiCall, "summary")
+%>    @SuppressWarnings("unchecked")
     private static PlayFabResult<<%- apiCall.result %>> private<%- apiCall.name %>Async(final <%- apiCall.request %> request) throws Exception {
-<%- getRequestActions(apiCall, api) %>
-        FutureTask<Object> task = PlayFabHTTP.doPost(<%- getUrlAccessor(apiCall) %> + "<%- apiCall.url %>", request, <%- getAuthParams(apiCall) %>);
+<%- GetRequestActions(apiCall, api) %>
+        FutureTask<Object> task = PlayFabHTTP.doPost(<%- GetUrlAccessor(apiCall) %> + "<%- apiCall.url %>", request, <%- GetAuthParams(apiCall) %>);
         task.run();
         Object httpResult = task.get();
         if(httpResult instanceof PlayFabError) {
@@ -68,7 +62,7 @@ public class PlayFab<%- api.name %>API {
 
         PlayFabJsonSuccess<<%- apiCall.result %>> resultData = gson.fromJson(resultRawJson, new TypeToken<PlayFabJsonSuccess<<%- apiCall.result %>>>(){}.getType());
         <%- apiCall.result %> result = resultData.data;
-<%- getResultActions(apiCall, api) %>
+<%- GetResultActions(apiCall, api) %>
         PlayFabResult<<%- apiCall.result %>> pfResult = new PlayFabResult<<%- apiCall.result %>>();
         pfResult.Result = result;
         return pfResult;

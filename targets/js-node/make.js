@@ -1,4 +1,6 @@
+var ejs = require("ejs");
 var path = require("path");
+
 exports.putInRoot = true;
 
 exports.makeCombinedAPI = function (apis, sourceDir, apiOutputDir) {
@@ -11,8 +13,8 @@ exports.makeCombinedAPI = function (apis, sourceDir, apiOutputDir) {
     var apiTemplate = ejs.compile(readFile(path.resolve(templateDir, "api.js.ejs")));
     
     var destSubFolders = ["PlayFabSdk", "PlayFabTesting"]; // Write both the published folder and the testing folder
-    for (var folderIndex in destSubFolders) {
-        var eachOutputDir = path.resolve(apiOutputDir, destSubFolders[folderIndex]);
+    for (var fIdx = 0; fIdx < destSubFolders.length; fIdx++) {
+        var eachOutputDir = path.resolve(apiOutputDir, destSubFolders[fIdx]);
         
         // Write the core functionality file
         var coreLocals = {};
@@ -20,8 +22,8 @@ exports.makeCombinedAPI = function (apis, sourceDir, apiOutputDir) {
         coreLocals.buildIdentifier = exports.buildIdentifier;
         coreLocals.hasServerOptions = false;
         coreLocals.hasClientOptions = false;
-        for (var i = 0; i < apis.length; i++) {
-            if (apis[i].name === "Client")
+        for (var a = 0; a < apis.length; a++) {
+            if (apis[a].name === "Client")
                 coreLocals.hasClientOptions = true;
             else
                 coreLocals.hasServerOptions = true;
@@ -31,7 +33,7 @@ exports.makeCombinedAPI = function (apis, sourceDir, apiOutputDir) {
         
         // Write the package file
         var pkgLocals = {}
-        pkgLocals.isTesting = (destSubFolders[folderIndex] === "PlayFabTesting");
+        pkgLocals.isTesting = (destSubFolders[fIdx] === "PlayFabTesting");
         pkgLocals.sdkVersion = exports.sdkVersion;
         pkgLocals.projectName = pkgLocals.isTesting ? "playfab-testing" : "playfab-sdk";
         pkgLocals.description = pkgLocals.isTesting ? "Playfab SDK automated testing example" : "Playfab SDK for node.js applications";
@@ -41,10 +43,11 @@ exports.makeCombinedAPI = function (apis, sourceDir, apiOutputDir) {
         
         // Write the API files
         var apiLocals = {};
-        apiLocals.getAuthParams = getAuthParams;
-        apiLocals.getRequestActions = getRequestActions;
-        apiLocals.getResultActions = getResultActions;
-        apiLocals.getUrlAccessor = getUrlAccessor;
+        apiLocals.GetAuthParams = GetAuthParams;
+        apiLocals.GetRequestActions = GetRequestActions;
+        apiLocals.GetResultActions = GetResultActions;
+        apiLocals.GetUrlAccessor = GetUrlAccessor;
+        apiLocals.GetDeprecationAttribute = GetDeprecationAttribute;
         for (var i = 0; i < apis.length; i++) {
             apiLocals.api = apis[i];
             apiLocals.hasServerOptions = apis[i].name !== "Client";
@@ -58,7 +61,7 @@ exports.makeCombinedAPI = function (apis, sourceDir, apiOutputDir) {
     copyTree(path.resolve(sourceDir, "testingFiles"), path.resolve(apiOutputDir, "PlayFabTesting"));
 }
 
-function getAuthParams(apiCall) {
+function GetAuthParams(apiCall) {
     if (apiCall.auth === "SecretKey")
         return "\"X-SecretKey\", PlayFab.settings.developerSecretKey";
     else if (apiCall.auth === "SessionTicket")
@@ -67,7 +70,7 @@ function getAuthParams(apiCall) {
     return "null, null";
 }
 
-function getRequestActions(numSpaces, apiCall, api) {
+function GetRequestActions(numSpaces, apiCall, api) {
     var output = "";
     if (api.name === "Client" && (apiCall.result === "LoginResult" || apiCall.request === "RegisterPlayFabUserRequest"))
         output = "request.TitleId = PlayFab.settings.titleId != null ? PlayFab.settings.titleId : request.TitleId;\n    if (request.TitleId == null) throw \"Must be have PlayFab.settings.titleId set to call this method\";";
@@ -86,19 +89,19 @@ function getRequestActions(numSpaces, apiCall, api) {
     return output;
 }
 
-function getResultActions(numSpaces, apiCall, api) {
+function GetResultActions(numSpaces, apiCall, api) {
     var spaces = "";
     for (var i = 0; i < numSpaces; i++)
         spaces += " ";
     
     var output = "";
     if (api.name === "Client" && (apiCall.result === "LoginResult" || apiCall.result === "RegisterPlayFabUserResult"))
-        output = spaces + "if (result != null && result.data != null) {\n"
-            + spaces + "    PlayFab._internalSettings.sessionTicket = result.data.hasOwnProperty(\"SessionTicket\") ? result.data.SessionTicket : PlayFab._internalSettings.sessionTicket;\n"
-            + spaces + "    exports._MultiStepClientLogin(result.data.SettingsForUser.NeedsAttribution);\n"
+        output = spaces + "if (result != null && result.data != null) {\n" 
+            + spaces + "    PlayFab._internalSettings.sessionTicket = result.data.hasOwnProperty(\"SessionTicket\") ? result.data.SessionTicket : PlayFab._internalSettings.sessionTicket;\n" 
+            + spaces + "    exports._MultiStepClientLogin(result.data.SettingsForUser.NeedsAttribution);\n" 
             + spaces + "}";
     else if (api.name === "Client" && apiCall.result === "AttributeInstallResult")
-        output = spaces + "// Modify advertisingIdType:  Prevents us from sending the id multiple times, and allows automated tests to determine id was sent successfully\n"
+        output = spaces + "// Modify advertisingIdType:  Prevents us from sending the id multiple times, and allows automated tests to determine id was sent successfully\n" 
             + spaces + "PlayFab.settings.advertisingIdType += \"_Successful\";\n";
     else if (api.name === "Client" && apiCall.result === "GetCloudScriptUrlResult")
         output = spaces + "PlayFab._internalSettings.logicServerUrl = result != null && result.data.hasOwnProperty(\"Url\") ? result.data.Url : PlayFab._internalSettings.logicServerUrl;\n";
@@ -106,8 +109,22 @@ function getResultActions(numSpaces, apiCall, api) {
     return output;
 }
 
-function getUrlAccessor(apiCall) {
+function GetUrlAccessor(apiCall) {
     if (apiCall.serverType === "logic")
         return "PlayFab.GetLogicServerUrl()";
     return "PlayFab.GetServerUrl()";
+}
+
+function GetDeprecationAttribute(tabbing, apiObj) {
+    var isDeprecated = apiObj.hasOwnProperty("deprecation");
+    
+    if (isDeprecated && apiObj.deprecation.ReplacedBy != null)
+        return tabbing + "/**\n" 
+            + tabbing + " * @deprecated Please use " + apiObj.deprecation.ReplacedBy + " instead. \n" 
+            + tabbing + " */\n";
+    else if (isDeprecated)
+        return tabbing + "/**\n" 
+            + tabbing + " * @deprecated Do not use\n" 
+            + tabbing + " */\n";
+    return "";
 }

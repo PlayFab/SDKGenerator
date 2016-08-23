@@ -1,3 +1,4 @@
+var ejs = require("ejs");
 var path = require("path");
 
 exports.putInRoot = true;
@@ -10,11 +11,12 @@ exports.makeCombinedAPI = function (apis, sourceDir, apiOutputDir) {
     copyTree(path.resolve(sourceDir, "source"), path.resolve(apiOutputDir, ".."));
     
     var apiLocals = {};
-    apiLocals.hasResultActions = hasResultActions;
-    apiLocals.getRequestActions = getRequestActions;
-    apiLocals.getResultActions = getResultActions;
-    apiLocals.getUrl = getUrl;
-    apiLocals.getAuthParams = getAuthParams;
+    apiLocals.HasResultActions = HasResultActions;
+    apiLocals.GetRequestActions = GetRequestActions;
+    apiLocals.GetResultActions = GetResultActions;
+    apiLocals.GetUrl = GetUrl;
+    apiLocals.GetAuthParams = GetAuthParams;
+    apiLocals.GetDeprecationAttribute = GetDeprecationAttribute;
     apiLocals.sdkVersion = exports.sdkVersion;
     apiLocals.buildIdentifier = exports.buildIdentifier;
     for (var i = 0; i < apis.length; i++) {
@@ -26,7 +28,7 @@ exports.makeCombinedAPI = function (apis, sourceDir, apiOutputDir) {
     }
 }
 
-function getRequestActions(apiCall, api) {
+function GetRequestActions(apiCall, api) {
     if (api.name === "Client" && (apiCall.result === "LoginResult" || apiCall.request === "RegisterPlayFabUserRequest"))
         return "        request.TitleId = PlayFab.settings.titleId != null ? PlayFab.settings.titleId : request.TitleId; if (request.TitleId == null) throw \"Must be have PlayFab.settings.titleId set to call this method\";\n";
     if (api.name === "Client" && apiCall.auth === "SessionTicket")
@@ -36,7 +38,7 @@ function getRequestActions(apiCall, api) {
     return "";
 }
 
-function hasResultActions(apiCall, api) {
+function HasResultActions(apiCall, api) {
     if (apiCall.result === "LoginResult" || apiCall.result === "RegisterPlayFabUserResult")
         return true;
     else if (api.name === "Client" && apiCall.result === "AttributeInstallResult")
@@ -46,30 +48,44 @@ function hasResultActions(apiCall, api) {
     return false;
 }
 
-function getResultActions(apiCall, api) {
+function GetResultActions(apiCall, api) {
     if (api.name === "Client" && (apiCall.result === "LoginResult" || apiCall.result === "RegisterPlayFabUserResult"))
-        return "            if (result != null && result.data.SessionTicket != null) {\n"
-            + "                PlayFab._internalSettings.sessionTicket = result.data.SessionTicket;\n"
-            + "                PlayFab.ClientApi._MultiStepClientLogin(result.data.SettingsForUser.NeedsAttribution);\n"
+        return "            if (result != null && result.data.SessionTicket != null) {\n" 
+            + "                PlayFab._internalSettings.sessionTicket = result.data.SessionTicket;\n" 
+            + "                PlayFab.ClientApi._MultiStepClientLogin(result.data.SettingsForUser.NeedsAttribution);\n" 
             + "            }";
     else if (api.name === "Client" && apiCall.result === "AttributeInstallResult")
-        return "            // Modify advertisingIdType:  Prevents us from sending the id multiple times, and allows automated tests to determine id was sent successfully\n"
+        return "            // Modify advertisingIdType:  Prevents us from sending the id multiple times, and allows automated tests to determine id was sent successfully\n" 
             + "            PlayFab.settings.advertisingIdType += \"_Successful\";\n";
     else if (api.name === "Client" && apiCall.result === "GetCloudScriptUrlResult")
         return "            PlayFab._internalSettings.logicServerUrl = result.data.Url;";
     return "";
 }
 
-function getUrl(apiCall, api) {
+function GetUrl(apiCall, api) {
     if (api.name === "Client" && apiCall.name === "RunCloudScript")
         return "PlayFab._internalSettings.GetLogicServerUrl() + \"" + apiCall.url + "\"";
     return "PlayFab._internalSettings.GetServerUrl() + \"" + apiCall.url + "\"";
 }
 
-function getAuthParams(apiCall) {
+function GetAuthParams(apiCall) {
     if (apiCall.auth === "SecretKey")
         return "\"X-SecretKey\", PlayFab.settings.developerSecretKey";
     else if (apiCall.auth === "SessionTicket")
         return "\"X-Authorization\", PlayFab._internalSettings.sessionTicket";
     return "null, null";
+}
+
+function GetDeprecationAttribute(tabbing, apiObj) {
+    var isDeprecated = apiObj.hasOwnProperty("deprecation");
+    
+    if (isDeprecated && apiObj.deprecation.ReplacedBy != null)
+        return tabbing + "/**\n" 
+            + tabbing + " * @deprecated Please use " + apiObj.deprecation.ReplacedBy + " instead. \n" 
+            + tabbing + " */\n";
+    else if (isDeprecated)
+        return tabbing + "/**\n" 
+            + tabbing + " * @deprecated Do not use\n" 
+            + tabbing + " */\n";
+    return "";
 }

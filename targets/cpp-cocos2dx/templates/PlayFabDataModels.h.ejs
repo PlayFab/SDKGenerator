@@ -16,9 +16,11 @@ namespace PlayFab
         void write<%- datatype.name %>EnumJSON(<%- datatype.name %> enumVal, PFStringJsonWriter& writer);
         <%- datatype.name %> read<%- datatype.name %>FromValue(const rapidjson::Value& obj);
 
-<% } else { %>        struct <%- datatype.name %> : public PlayFabBaseModel
+<% } else { %><%- GetDeprecationAttribute("        ", datatype)
+%>        struct <%- datatype.name %> : public PlayFabBaseModel
         {
-<% for(var i in datatype.properties) { var property = datatype.properties[i] %>            <%- GetPropertyDef(property, datatype) %>
+<% for(var i in datatype.properties) { var property = datatype.properties[i]
+%><%- GetPropertyDef("            ", property, datatype) %>
 <% } %>
             <%- datatype.name %>() :
                 PlayFabBaseModel()<% for(var i in datatype.properties) { var property = datatype.properties[i] %>,
@@ -27,7 +29,7 @@ namespace PlayFab
 
             <%- datatype.name %>(const <%- datatype.name %>& src) :
                 PlayFabBaseModel()<% for(var i in datatype.properties) { var property = datatype.properties[i] %>,
-                <%- GetPropertySafeName(property) %>(<%- GetPropertyCopyValue(property, datatype) %>)<% } %>
+                <%- GetPropertySafeName(property) %>(<%- GetPropertyCopyValue(property) %>)<% } %>
             {}
 
             <%- datatype.name %>(const rapidjson::Value& obj) : <%- datatype.name %>()

@@ -8,10 +8,10 @@ exports.makeClientAPI = function (api, sourceDir, apiOutputDir) {
     
     copyTree(path.resolve(sourceDir, "source"), apiOutputDir);
     
-    MakeApi(api, apiOutputDir);
+    MakeApi(api, sourceDir, apiOutputDir);
     
-    GenerateModels([api], apiOutputDir, libname);
-    GenerateErrors(api, apiOutputDir);
+    GenerateModels([api], sourceDir, apiOutputDir, libname);
+    GenerateErrors(api, sourceDir, apiOutputDir);
     GenerateSettings([api], sourceDir, apiOutputDir);
 }
 
@@ -23,10 +23,10 @@ exports.makeServerAPI = function (apis, sourceDir, apiOutputDir) {
     copyTree(path.resolve(sourceDir, "source"), apiOutputDir);
     
     for (var i = 0; i < apis.length; i++)
-        MakeApi(apis[i], apiOutputDir);
+        MakeApi(apis[i], sourceDir, apiOutputDir);
     
-    GenerateModels(apis, apiOutputDir, libname);
-    GenerateErrors(apis[0], apiOutputDir);
+    GenerateModels(apis, sourceDir, apiOutputDir, libname);
+    GenerateErrors(apis[0], sourceDir, apiOutputDir);
     GenerateSettings(apis, sourceDir, apiOutputDir);
 }
 
@@ -38,10 +38,10 @@ exports.makeCombinedAPI = function (apis, sourceDir, apiOutputDir) {
     copyTree(path.resolve(sourceDir, "source"), apiOutputDir);
     
     for (var i = 0; i < apis.length; i++)
-        MakeApi(apis[i], apiOutputDir);
+        MakeApi(apis[i], sourceDir, apiOutputDir);
     
-    GenerateModels(apis, apiOutputDir, libname);
-    GenerateErrors(apis[0], apiOutputDir);
+    GenerateModels(apis, sourceDir, apiOutputDir, libname);
+    GenerateErrors(apis[0], sourceDir, apiOutputDir);
     GenerateSettings(apis, sourceDir, apiOutputDir);
 
     copyTree(path.resolve(sourceDir, "ExampleSource"), path.resolve(apiOutputDir, "../PlayFabSdkExample"));
@@ -68,17 +68,16 @@ function GenerateSettings(apis, sourceDir, apiOutputDir) {
     writeFile(path.resolve(apiOutputDir, "PlayFabSettings.cpp"), generatedSettingsCpp);
 }
 
-function MakeApi(api, apiOutputDir) {
-    var sourceDir = __dirname;
-    
+function MakeApi(api, sourceDir, apiOutputDir) {
     var apiLocals = {};
     apiLocals.api = api;
     apiLocals.GetAuthParams = GetAuthParams;
     apiLocals.GetRequestActions = GetRequestActions;
     apiLocals.GetResultActions = GetResultActions;
     apiLocals.GetUrlAccessor = GetUrlAccessor;
-    apiLocals.hasClientOptions = api.name === "Client";
     apiLocals.HasRequest = HasRequest;
+    apiLocals.GetDeprecationAttribute = GetDeprecationAttribute;
+    apiLocals.hasClientOptions = api.name === "Client";
     
     var apiHeaderTemplate = ejs.compile(readFile(path.resolve(sourceDir, "templates/PlayFabAPI.h.ejs")));
     var generatedHeader = apiHeaderTemplate(apiLocals);
@@ -94,16 +93,16 @@ function HasRequest(apiCall, api) {
     return requestType.properties.length > 0;
 }
 
-function GetPropertyDef(property, datatype) {
+function GetPropertyDef(tabbing, property, datatype) {
     
     var safePropName = GetPropertySafeName(property);
     
     if (property.collection === "array")
-        return "std::list<" + GetPropertyCppType(property, datatype, false) + "> " + safePropName + ";";
+        return GetDeprecationAttribute(tabbing, property) + tabbing + "std::list<" + GetPropertyCppType(property, datatype, false) + "> " + safePropName + ";";
     else if (property.collection === "map")
-        return "std::map<std::string, " + GetPropertyCppType(property, datatype, false) + "> " + safePropName + ";";
+        return GetDeprecationAttribute(tabbing, property) + tabbing + "std::map<std::string, " + GetPropertyCppType(property, datatype, false) + "> " + safePropName + ";";
     else
-        return GetPropertyCppType(property, datatype, true) + " " + safePropName + ";";
+        return GetDeprecationAttribute(tabbing, property) + tabbing + GetPropertyCppType(property, datatype, true) + " " + safePropName + ";";
 }
 
 // PFWORKBIN-445 & PFWORKBIN-302 - variable names can't be the same as the variable type when compiling for android
@@ -181,7 +180,7 @@ function GetPropertyDefaultValue(property, datatype) {
     throw "Unknown property type: " + property.actualtype + " for " + property.name + " in " + datatype.name;
 }
 
-function GetPropertyCopyValue(property, datatype) {
+function GetPropertyCopyValue(property) {
     var safePropName = GetPropertySafeName(property);
     if (property.isclass && property.optional && !property.collection)
         return "src." + safePropName + " ? new " + property.actualtype + "(*src." + safePropName + ") : NULL";
@@ -512,9 +511,7 @@ function AddTypeAndDependencies(datatype, datatypes, orderedTypes, addedSet) {
     addedSet[datatype.name] = datatype;
 }
 
-function GenerateModels(apis, apiOutputDir, libraryName) {
-    var sourceDir = __dirname;
-    
+function GenerateModels(apis, sourceDir, apiOutputDir, libraryName) {
     for (var a = 0; a < apis.length; a++) {
         var api = apis[a];
         
@@ -539,6 +536,7 @@ function GenerateModels(apis, apiOutputDir, libraryName) {
         modelLocals.GetPropertyDefaultValue = GetPropertyDefaultValue;
         modelLocals.GetPropertyCopyValue = GetPropertyCopyValue;
         modelLocals.GetPropertySafeName = GetPropertySafeName;
+        modelLocals.GetDeprecationAttribute = GetDeprecationAttribute;
         modelLocals.libraryName = libraryName;
         var generatedHeader = modelHeaderTemplate(modelLocals);
         writeFile(path.resolve(apiOutputDir, "PlayFab" + api.name + "DataModels.h"), generatedHeader);
@@ -548,8 +546,7 @@ function GenerateModels(apis, apiOutputDir, libraryName) {
     }
 }
 
-function GenerateErrors(api, apiOutputDir) {
-    var sourceDir = __dirname;
+function GenerateErrors(api, sourceDir, apiOutputDir) {
     var errorsTemplate = ejs.compile(readFile(path.resolve(sourceDir, "templates/PlayFabError.h.ejs")));
     var errorLocals = {};
     errorLocals.errorList = api.errorList;
@@ -589,4 +586,15 @@ function GetUrlAccessor(apiCall) {
     if (apiCall.serverType === "logic")
         return "PlayFabSettings::getLogicURL(\"" + apiCall.url + "\")";
     return "PlayFabSettings::getURL(\"" + apiCall.url + "\")";
+}
+
+function GetDeprecationAttribute(tabbing, apiObj) {
+    // In C++ there's all kinds of platform-dependent ways to mark deprecation, and they all seem flaky and unreliable.
+    // After a lot of investigation, a comment just seems like the easiest and most consistent solution.
+    var isDeprecated = apiObj.hasOwnProperty("deprecation");
+    if (isDeprecated && apiObj.deprecation.ReplacedBy != null)
+        return tabbing + "// Deprecated - Use '" + apiObj.deprecation.ReplacedBy + "' instead\n";
+    else if (isDeprecated)
+        return tabbing + "// Deprecated - Do not use\n";
+    return "";
 }

@@ -186,8 +186,7 @@ function GetPropertyDeserializer(property, datatype) {
     else if (property.collection === "map")
         return GetMapPropertyDeserializer(property, datatype);
     
-    var getter = null;
-    
+    var getter;
     if (propType === "String") {
         getter = "[properties valueForKey:@\"" + propName + "\"];";
     }

@@ -40,7 +40,7 @@ exports.makeCombinedAPI = function (apis, sourceDir, apiOutputDir) {
 function MakeExampleTemplateFile(sourceDir, apiOutputDir) {
     // Each template must be given any variables/information that it needs for generation.
     // This might include apis, datatypes, custom functions defined in this make.js file, or anything else you want
-    locals = {};
+    var locals = {};
     locals.GeneratedText = "This is generated text"; // A specific variable we wish to access in exampleTemplate.txt.ejs
     locals.sdkVersion = exports.sdkVersion; // exports.sdkVersion is automatically injected into this file from generate.js, and comes from SdkManualNotes.json - you must provide your target in that file
     

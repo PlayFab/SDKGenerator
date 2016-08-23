@@ -69,7 +69,7 @@ function MakePlayStreamDatatype(datatype, sourceDir) {
     modelLocals.GetDeprecationAttribute = GetDeprecationAttribute;
     modelLocals.GetPropertyDef = GetModelPropertyDef;
     modelLocals.GetPropertyJsonReader = GetPropertyJsonReader;
-    modelLocals.GetBaseTypeSyntax = function (datatype) { return ""; }; // No base types in PlayStream
+    modelLocals.GetBaseTypeSyntax = function (datatype2) { return ""; }; // No base types in PlayStream
     if (datatype.isenum) {
         return enumTemplate(modelLocals);
     }

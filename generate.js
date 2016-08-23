@@ -220,7 +220,7 @@ function IsVisibleWithFlags(buildFlags, apiObj, obsoleteFlaged) {
     // Filter obsolete elements
     if (!obsoleteFlaged && apiObj.hasOwnProperty("deprecation")) {
         var obsoleteTime = new Date(apiObj.deprecation.ObsoleteAfter);
-        if (Date.now() > obsoleteTime)
+        if (new Date() > obsoleteTime)
             return false;
     }
     

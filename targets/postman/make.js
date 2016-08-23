@@ -77,22 +77,30 @@ function JsonEscape(input) {
 }
 
 function GetPostmanDescription(api, apiCall) {
+    var isProposed = apiCall.hasOwnProperty("deprecation");
+    var isDeprecated = isProposed && (new Date() > new Date(apiCall.deprecation.DeprecatedAfter));
+    
     var output = "";
+    if (isProposed && !isDeprecated)
+        output += "As of " + apiCall.deprecation.ProposedAfter + ", this API has been proposed for deprecation. As of " + apiCall.deprecation.DeprecatedAfter + ", it will be officially deprecated and no longer supported.\\n\\n";
+    else if (isProposed && isDeprecated)
+        output += "As of " + apiCall.deprecation.ProposedAfter + ", this API has been deprecated. As of " + apiCall.deprecation.ObsoleteAfter + ", it will be officially obsolete and no longer published in the SDKs.\\n\\n";
+    if (isProposed && apiCall.deprecation.ReplacedBy)
+        output += "Please use the replacement API instead: " + apiCall.deprecation.ReplacedBy + "\\n\\n";
+    
+    if (isDeprecated)
+        return output;
+    
     output += JsonEscape(apiCall.summary); // Make sure quote characters are properly escaped
-    
-    output += "\\n\\nApi Documentation: https://api.playfab.com/Documentation/" + api.name + "/method/" + apiCall.name;
-    
-    // TODO: Display this line when it does not have a proper example.
-    // output += "\\n\\nThis is still under development, and is not yet ready for general use.  Experienced users can utilize this if they carefully examine the post-body and ensure the data is properly entered.  By default, the post-body is NOT defaulting to useable values.";
+    if (!isProposed)
+        output += "\\n\\nApi Documentation: https://api.playfab.com/Documentation/" + api.name + "/method/" + apiCall.name;
     
     output += "\\n\\n**The following case-sensitive environment variables are required for this call:**";
     output += "\\n\\n\\\"TitleId\\\" - The Title Id of your game, available in the Game Manager (https://developer.playfab.com)";
     if (apiCall.auth === "SessionTicket")
-        output += "\\n\\n\\\"SessionTicket\\\" - The string returned as \\\"SessionTicket\\\" in response to any sign in operation.";
+        output += "\\n\\n\\\"SessionTicket\\\" - The string returned as \\\"SessionTicket\\\" in response to any Login API.";
     if (apiCall.auth === "SecretKey")
-        output += "\\n\\n\\\"SecretKey\\\" - The PlayFab API Secret Key, available in the dashboard of your title (https://developer.playfab.com/title/properties/{{titleId}})";
-    if (apiCall.name === "RunCloudScript")
-        output += "\\n\\n\\\"LogicUrl\\\" - You must call GetCloudScriptUrl first, and copy the result into this envrionment variable.  ";
+        output += "\\n\\n\\\"SecretKey\\\" - The PlayFab API Secret Key, available in Game Manager for your title (https://developer.playfab.com/en-us/{{titleId}}/settings/credentials)";
     
     var props = api.datatypes[apiCall.request].properties;
     if (props.length > 0)

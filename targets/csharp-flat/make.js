@@ -484,7 +484,7 @@ function GetDeprecationAttribute(tabbing, apiObj) {
     var deprecationTime = null;
     if (isDeprecated)
         deprecationTime = new Date(apiObj.deprecation.DeprecatedAfter);
-    var isError = isDeprecated && (Date.now() > deprecationTime) ? "true": "false";
+    var isError = isDeprecated && (new Date() > deprecationTime) ? "true": "false";
     
     if (isDeprecated && apiObj.deprecation.ReplacedBy != null)
         return tabbing + "[Obsolete(\"Use '" + apiObj.deprecation.ReplacedBy + "' instead\", " + isError + ")]\n";

@@ -509,7 +509,7 @@ void APfTestActor::OnPlayerStatisticsApiGet2(FClientGetPlayerStatisticsResult re
         if (result.Statistics[i]->HasField(TEXT("StatisticName"))
             && result.Statistics[i]->HasField(TEXT("Value"))
             && result.Statistics[i]->GetStringField(TEXT("StatisticName")) == TEST_STAT_NAME)
-            actualStatValue = result.Statistics[i]->GetNumberField(TEST_STAT_NAME);
+            actualStatValue = result.Statistics[i]->GetNumberField(TEXT("Value"));
 
     UPfTestContext* testContext = dynamic_cast<UPfTestContext*>(customData);
     if (testMessageInt != actualStatValue)

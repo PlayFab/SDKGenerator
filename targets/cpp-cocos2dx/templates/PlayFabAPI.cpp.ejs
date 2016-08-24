@@ -26,7 +26,8 @@ PlayFab<%- api.name %>API::PlayFab<%- api.name %>API() {}
     httpRequest->SetHeader("X-PlayFabSDK", PlayFabSettings::versionString);
     <%- GetAuthParams(apiCall) %>
 
-    httpRequest->SetResultCallback(reinterpret_cast<void*>(callback));
+    if (callback != nullptr)
+        httpRequest->SetResultCallback(SharedVoidPointer(new ProcessApiCallback<<%- apiCall.result %>>(callback)));
     httpRequest->SetErrorCallback(errorCallback);
     httpRequest->SetUserData(userData);
 
@@ -46,8 +47,7 @@ void PlayFab<%- api.name %>API::On<%- apiCall.name %>Result(int httpStatus, Http
 <%- GetResultActions(apiCall, api) %>
         if (request->GetResultCallback() != nullptr)
         {
-            ProcessApiCallback<<%- apiCall.result %>> successCallback = reinterpret_cast<ProcessApiCallback<<%- apiCall.result %>>>(request->GetResultCallback());
-            successCallback(outResult, request->GetUserData());
+            (*static_cast<ProcessApiCallback<<%- apiCall.result %>> *>(request->GetResultCallback().get()))(outResult, request->GetUserData());
         }
     }
     else

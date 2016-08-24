@@ -60,14 +60,14 @@ size_t HttpRequest::GetHeaderCount() const
     return mHeaders.size();
 }
 
-void HttpRequest::SetResultCallback(void* callback)
+void HttpRequest::SetResultCallback(SharedVoidPointer callback)
 {
-    mResultCallback = callback;
+    mResultCallbackFunc = callback;
 }
 
-void* HttpRequest::GetResultCallback() const
+PlayFab::SharedVoidPointer HttpRequest::GetResultCallback() const
 {
-    return mResultCallback;
+    return mResultCallbackFunc;
 }
 
 void HttpRequest::SetErrorCallback(ErrorCallback callback)

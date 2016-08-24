@@ -6,9 +6,12 @@
 #include <cocos/network/HttpClient.h>
 
 #include "PlayFabError.h"
+#include "PlayFabBaseModel.h"
 
 namespace PlayFab
 {
+    typedef std::shared_ptr<void> SharedVoidPointer;
+
     struct HttpRequest // TODO: Rename to CallRequestContainer to match other sdks
     {
         HttpRequest(std::string method, std::string url);
@@ -18,8 +21,8 @@ namespace PlayFab
         void CompressBody(int level = -1);
         int GetCompressionLevel() const;
 
-        void SetResultCallback(void* callback);
-        void* GetResultCallback() const;
+        void SetResultCallback(SharedVoidPointer callback);
+        SharedVoidPointer GetResultCallback() const;
 
         void SetErrorCallback(ErrorCallback callback);
         ErrorCallback GetErrorCallback() const;
@@ -44,7 +47,7 @@ namespace PlayFab
         std::string mBody;
         std::vector<std::string> mHeaders;
 
-        void* mResultCallback;
+        SharedVoidPointer mResultCallbackFunc = nullptr;
         ErrorCallback mErrorCallback;
         void* mUserData;
 

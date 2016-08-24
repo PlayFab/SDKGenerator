@@ -3,6 +3,7 @@
 
 #include <string>
 #include <map>
+#include <functional>
 
 namespace PlayFab
 {
@@ -40,6 +41,6 @@ namespace PlayFab
         }
     };
 
-    typedef void(*ErrorCallback)(const PlayFabError& error, void* userData);
+    typedef std::function<void(const PlayFabError& error, void* userData)> ErrorCallback;
 }
 #endif

@@ -15,6 +15,7 @@ namespace JenkinsConsoleUtility.Commands
     }
     public class CsSaveRequest
     {
+        // IGNORE RESHARPER HERE - These names are used in every sdk
         public string customId;
         public TestSuiteReport[] testReport;
     }
@@ -23,24 +24,22 @@ namespace JenkinsConsoleUtility.Commands
     {
         public string commandKey { get { return "ListenCS"; } }
 
-        public const string CSfunc_TestDataExists = "TestDataExists";
-        public const string CSfunc_GetTestData = "GetTestData";
-        public const string CSfunc_SaveTestData = "SaveTestData";
+        public const string CsFuncTestDataExists = "TestDataExists";
+        public const string CsFuncGetTestData = "GetTestData";
+        public const string CsFuncSaveTestData = "SaveTestData";
 
-        private static CsGetRequest _getRequest = null;
+        private static CsGetRequest _getRequest;
 
         public int Execute(Dictionary<string, string> args)
         {
-            string titleId = GetArgVar(args, "titleId");
-            string buildIdentifier = GetArgVar(args, "buildidentifier");
-            string workspacePath = GetArgVar(args, "workspacePath", Environment.GetEnvironmentVariable("TEMP"));
-            TimeSpan timeout = TimeSpan.FromSeconds(int.Parse(GetArgVar(args, "timeout", "30")));
+            var titleId = GetArgVar(args, "titleId");
+            var buildIdentifier = GetArgVar(args, "buildidentifier");
+            var workspacePath = GetArgVar(args, "workspacePath", Environment.GetEnvironmentVariable("TEMP"));
+            var timeout = TimeSpan.FromSeconds(int.Parse(GetArgVar(args, "timeout", "30")));
             _getRequest = new CsGetRequest { customId = buildIdentifier };
 
-            int returnCode;
-
             JenkinsConsoleUtility.FancyWriteToConsole("Begin CloudScriptListener", null, ConsoleColor.Gray);
-            returnCode = Login(titleId, buildIdentifier);
+            var returnCode = Login(titleId, buildIdentifier);
             if (returnCode != 0)
                 return returnCode;
             returnCode = WaitForTestResult(timeout);
@@ -58,7 +57,7 @@ namespace JenkinsConsoleUtility.Commands
         private static string GetArgVar(Dictionary<string, string> args, string key, string getDefault = null)
         {
             string output;
-            bool found = args.TryGetValue(key.ToLower(), out output);
+            var found = args.TryGetValue(key.ToLower(), out output);
             if (found)
                 return output;
 
@@ -68,7 +67,7 @@ namespace JenkinsConsoleUtility.Commands
                 return getDefault;
             }
 
-            string msg = "ERROR: Required parameter: " + key + " not found";
+            var msg = "ERROR: Required parameter: " + key + " not found";
             JenkinsConsoleUtility.FancyWriteToConsole(msg, null, ConsoleColor.Red);
             throw new Exception(msg);
         }
@@ -78,7 +77,7 @@ namespace JenkinsConsoleUtility.Commands
             PlayFabSettings.TitleId = titleId;
             var task = PlayFabClientAPI.LoginWithCustomIDAsync(new LoginWithCustomIDRequest { TitleId = titleId, CustomId = buildIdentifier, CreateAccount = true });
             task.Wait();
-            int returnCode = PlayFabClientAPI.IsClientLoggedIn() ? 0 : 1;
+            var returnCode = PlayFabClientAPI.IsClientLoggedIn() ? 0 : 1;
             if (returnCode != 0)
             {
                 JenkinsConsoleUtility.FancyWriteToConsole("Failed to log in using CustomID: " + titleId + ", " + buildIdentifier, null, ConsoleColor.Red);
@@ -96,14 +95,14 @@ namespace JenkinsConsoleUtility.Commands
         /// </summary>
         private static int WaitForTestResult(TimeSpan timeout)
         {
-            DateTime now = DateTime.UtcNow;
-            DateTime expireTime = now + timeout;
-            bool resultsReady = false;
+            var now = DateTime.UtcNow;
+            var expireTime = now + timeout;
+            var resultsReady = false;
 
             while (now < expireTime && !resultsReady)
             {
                 string errorReport;
-                bool callResult = ExecuteCloudScript(CSfunc_TestDataExists, _getRequest, out resultsReady, out errorReport);
+                var callResult = ExecuteCloudScript(CsFuncTestDataExists, _getRequest, out resultsReady, out errorReport);
                 if (callResult == false)
                     return 1; // The cloudscript call failed
                 Thread.Sleep(1000);
@@ -122,10 +121,10 @@ namespace JenkinsConsoleUtility.Commands
         {
             List<TestSuiteReport> testResults;
             string errorReport;
-            bool callResult = ExecuteCloudScript(CSfunc_GetTestData, _getRequest, out testResults, out errorReport);
+            var callResult = ExecuteCloudScript(CsFuncGetTestData, _getRequest, out testResults, out errorReport);
 
-            string tempFilename = buildIdentifier + ".xml";
-            string tempFileFullPath = Path.Combine(workspacePath, tempFilename);
+            var tempFilename = buildIdentifier + ".xml";
+            var tempFileFullPath = Path.Combine(workspacePath, tempFilename);
 
             JUnitXml.WriteXmlFile(tempFileFullPath, testResults, true);
             return callResult && testResults != null ? 0 : 1;
@@ -133,8 +132,6 @@ namespace JenkinsConsoleUtility.Commands
 
         public static bool ExecuteCloudScript<TIn, TOut>(string functionName, TIn functionParameter, out TOut result, out string errorReport)
         {
-            string json = null;
-
             // Perform the request
             var request = new ExecuteCloudScriptRequest
             {
@@ -148,22 +145,22 @@ namespace JenkinsConsoleUtility.Commands
 
             if (task.Result.Error != null)
             {
+                Console.WriteLine(PlayFabUtil.GetErrorReport(task.Result.Error));
                 result = default(TOut);
-                Console.WriteLine();
                 return false;
             }
-            else
+
+            // Re-serialize as the target type
+            var json = JsonConvert.SerializeObject(task.Result.Result.FunctionResult, Formatting.Indented);
+            try
             {
-                // Re-serialize as the target type
-                json = JsonConvert.SerializeObject(task.Result.Result.FunctionResult, Formatting.Indented);
-                try
-                {
-                    result = JsonConvert.DeserializeObject<TOut>(json, PlayFabUtil.JsonSettings);
-                }
-                catch (Exception)
-                {
-                    throw new Exception("Could not serialize text: \"" + json + "\" as " + typeof(TOut).Name);
-                }
+                result = JsonConvert.DeserializeObject<TOut>(json, PlayFabUtil.JsonSettings);
+            }
+            catch (Exception)
+            {
+                Console.WriteLine("Could not serialize text: \"" + json + "\" as " + typeof(TOut).Name);
+                result = default(TOut);
+                return false;
             }
             return task.Result.Error == null && task.Result.Result.Error == null && (result != null || json == "null");
         }

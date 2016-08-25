@@ -36,30 +36,30 @@ namespace JenkinsConsoleUtility.Testing
             object nullReturn;
 
             // Reset a previous test if relevant
-            callResult = CloudScriptListener.ExecuteCloudScript(CloudScriptListener.CSfunc_GetTestData, getRequest, out testResults, out fetchErrorReport);
+            callResult = CloudScriptListener.ExecuteCloudScript(CloudScriptListener.CsFuncGetTestData, getRequest, out testResults, out fetchErrorReport);
             //UUnitAssert.True(callResult, fetchErrorReport);
 
             // Verify that no data pre-exists
-            callResult = CloudScriptListener.ExecuteCloudScript(CloudScriptListener.CSfunc_TestDataExists, getRequest, out functionResult, out getErrorReport);
+            callResult = CloudScriptListener.ExecuteCloudScript(CloudScriptListener.CsFuncTestDataExists, getRequest, out functionResult, out getErrorReport);
             UUnitAssert.True(callResult, getErrorReport);
             UUnitAssert.False(functionResult, getErrorReport);
 
             // Save some data
-            callResult = CloudScriptListener.ExecuteCloudScript(CloudScriptListener.CSfunc_SaveTestData, saveRequest, out nullReturn, out saveErrorReport);
+            callResult = CloudScriptListener.ExecuteCloudScript(CloudScriptListener.CsFuncSaveTestData, saveRequest, out nullReturn, out saveErrorReport);
             UUnitAssert.True(callResult, saveErrorReport);
 
             // Verify that the saved data exists
-            callResult = CloudScriptListener.ExecuteCloudScript(CloudScriptListener.CSfunc_TestDataExists, getRequest, out functionResult, out getErrorReport);
+            callResult = CloudScriptListener.ExecuteCloudScript(CloudScriptListener.CsFuncTestDataExists, getRequest, out functionResult, out getErrorReport);
             UUnitAssert.True(callResult, getErrorReport);
             UUnitAssert.True(functionResult, saveErrorReport);
 
             // Fetch that data
-            callResult = CloudScriptListener.ExecuteCloudScript(CloudScriptListener.CSfunc_GetTestData, getRequest, out testResults, out fetchErrorReport);
+            callResult = CloudScriptListener.ExecuteCloudScript(CloudScriptListener.CsFuncGetTestData, getRequest, out testResults, out fetchErrorReport);
             UUnitAssert.True(callResult, fetchErrorReport);
             UUnitAssert.NotNull(testResults, fetchErrorReport);
 
             // Verify that it was consumed
-            callResult = CloudScriptListener.ExecuteCloudScript(CloudScriptListener.CSfunc_TestDataExists, getRequest, out functionResult, out getErrorReport);
+            callResult = CloudScriptListener.ExecuteCloudScript(CloudScriptListener.CsFuncTestDataExists, getRequest, out functionResult, out getErrorReport);
             UUnitAssert.True(callResult, getErrorReport);
             UUnitAssert.False(functionResult, getErrorReport);
         }

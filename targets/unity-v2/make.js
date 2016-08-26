@@ -77,14 +77,10 @@ function MakePlayStreamDatatype(datatype, sourceDir) {
 };
 
 function GetBaseTypeSyntax(datatype) {
-    // Some apis have both words in the classname, so we need the word that appears last, IE the greatest index
-    var resultIndex = Math.max(datatype.className.toLowerCase().indexOf("result"), datatype.className.toLowerCase().indexOf("response"));
-    var requestIndex = datatype.className.toLowerCase().indexOf("request");
-    
-    if (resultIndex > requestIndex)
-        return " : PlayFabResultCommon";
-    if (requestIndex > resultIndex)
+    if (datatype.className.toLowerCase().endsWith("request"))
         return " : PlayFabRequestCommon";
+    if (datatype.className.toLowerCase().endsWith("response") || datatype.className.toLowerCase().endsWith("result"))
+        return " : PlayFabResultCommon";
     return ""; // If both are -1, then neither is greater
 }
 

@@ -131,9 +131,34 @@ function MakeApi(api, sourceDir, apiOutputDir) {
     apiLocals.GenerateSummary = GenerateSummary;
     apiLocals.GetDeprecationAttribute = GetDeprecationAttribute;
     apiLocals.GetRequestActions = GetRequestActions;
+    apiLocals.GetCustomApiFunction = GetCustomApiFunction;
     apiLocals.hasClientOptions = api.name === "Client";
     var generatedApi = apiTemplate(apiLocals);
     writeFile(path.resolve(apiOutputDir, api.name + "/PlayFab" + api.name + "API.cs"), generatedApi);
+}
+
+// Some apis have entirely custom built functions to augment apis in ways that aren't generate-able
+function GetCustomApiFunction(tabbing, apiCall) {
+    if (apiCall.name === "ExecuteCloudScript") {
+        return "\n\n" + tabbing + "public static void " + apiCall.name + "<TOut>(" + apiCall.request + " request, Action<" + apiCall.result + "> resultCallback, Action<PlayFabError> errorCallback, object customData = null)\n" 
+            + tabbing + "{\n" 
+            + tabbing + "Action<" + apiCall.result + "> wrappedResultCallback = (wrappedResult) =>\n" 
+            + tabbing + "{\n" 
+            + tabbing + "    var wrappedJson = JsonWrapper.SerializeObject(wrappedResult.FunctionResult, PlayFabUtil.ApiSerializerStrategy);\n" 
+            + tabbing + "    try {\n" 
+            + tabbing + "        wrappedResult.FunctionResult = JsonWrapper.DeserializeObject<TOut>(wrappedJson, PlayFabUtil.ApiSerializerStrategy);\n" 
+            + tabbing + "    }\n" 
+            + tabbing + "    catch (Exception)\n" 
+            + tabbing + "    {\n" 
+            + tabbing + "        wrappedResult.FunctionResult = wrappedJson;\n" 
+            + tabbing + "        wrappedResult.Logs.Add(new LogStatement{ Level = \"Warning\", Data = wrappedJson, Message = \"Sdk Message: Could not deserialize result as: \" + typeof (TOut).Name });\n" 
+            + tabbing + "    }\n" 
+            + tabbing + "    resultCallback(wrappedResult);\n" 
+            + tabbing + "};\n" 
+            + tabbing + "" + apiCall.name + "(request, wrappedResultCallback, errorCallback, customData);\n" 
+            + tabbing + "}";
+    }
+    return ""; // Most apis don't have a custom alternate
 }
 
 function GenerateSimpleFiles(apis, sourceDir, apiOutputDir) {

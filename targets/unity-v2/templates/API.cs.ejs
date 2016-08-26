@@ -2,6 +2,7 @@
 using System;
 using PlayFab.<%- api.name %>Models;
 using PlayFab.Internal;
+using PlayFab.Json;
 
 namespace PlayFab
 {
@@ -23,7 +24,7 @@ namespace PlayFab
         {
 <%- GetRequestActions("            ", apiCall, api) %>
             PlayFabHttp.MakeApiCall("/<%- api.name %>/<%- apiCall.name %>", request, <%- GetAuthParams(apiCall) %>, resultCallback, errorCallback, customData);
-        }
+        }<%- GetCustomApiFunction("        ", apiCall) %>
 
 <% } %>
     }

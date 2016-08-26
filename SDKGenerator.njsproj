@@ -813,7 +813,6 @@
     <Content Include="targets\unity-v2\source\Shared\Public\PlayFabLogger.cs" />
     <Content Include="targets\unity-v2\source\Shared\Public\PlayFabLogger.cs.meta" />
     <Content Include="targets\unity-v2\source\Shared\Public\PlayFabSettings.cs.meta" />
-    <Content Include="targets\unity-v2\templates\PlayStreamEventDataModels.cs.ejs" />
     <Content Include="targets\unity-v2\source\Shared\Public\PlayStream\PlayStreamEventDataModels.cs.meta" />
     <Content Include="targets\unity-v2\source\Shared\Public\Resources.meta" />
     <Content Include="targets\unity-v2\source\Shared\Public\Resources\PlayFabSharedSettings.asset" />
@@ -915,13 +914,14 @@
     <Content Include="targets\unity-v2\source\Shared\SignalR.NET20\Transports\SseEvent.cs" />
     <Content Include="targets\unity-v2\source\Shared\SignalR.NET20\Transports\SseEvent.cs.meta" />
     <Content Include="targets\unity-v2\templates\API.cs.ejs" />
-    <Content Include="targets\unity-v2\templates\PlayFabEvents.cs.ejs" />
     <Content Include="targets\unity-v2\templates\Enum.cs.ejs" />
     <Content Include="targets\unity-v2\templates\Errors.cs.ejs" />
     <Content Include="targets\unity-v2\templates\Events.cs.ejs" />
     <Content Include="targets\unity-v2\templates\Model.cs.ejs" />
     <Content Include="targets\unity-v2\templates\Models.cs.ejs" />
+    <Content Include="targets\unity-v2\templates\PlayFabEvents.cs.ejs" />
     <Content Include="targets\unity-v2\templates\PlayFabSettings.cs.ejs" />
+    <Content Include="targets\unity-v2\templates\PlayStreamEventDataModels.cs.ejs" />
     <Content Include="targets\unity-v2\Testing\Editor\PlayFabPackager.cs" />
     <Content Include="targets\unity-v2\Testing\scenes\testscene.unity" />
     <Content Include="targets\unity-v2\Testing\scenes\testscene.unity.meta" />
@@ -929,6 +929,7 @@
     <Content Include="targets\unity-v2\Testing\Tests\Admin\AdminEventTests.cs" />
     <Content Include="targets\unity-v2\Testing\Tests\Client\ClientApiTests.cs" />
     <Content Include="targets\unity-v2\Testing\Tests\Client\ClientEventTests.cs" />
+    <Content Include="targets\unity-v2\Testing\Tests\Server\PlayStream\PlayStreamApiTests.cs" />
     <Content Include="targets\unity-v2\Testing\Tests\Server\ServerApiTests.cs" />
     <Content Include="targets\unity-v2\Testing\Tests\Server\ServerEventTests.cs" />
     <Content Include="targets\unity-v2\Testing\Tests\Shared\Uunit\Editor\UUnitTestRunner.cs" />
@@ -1156,6 +1157,7 @@
     <Folder Include="targets\unity-v2\Testing\Tests\Admin\" />
     <Folder Include="targets\unity-v2\Testing\Tests\Client\" />
     <Folder Include="targets\unity-v2\Testing\Tests\Server\" />
+    <Folder Include="targets\unity-v2\Testing\Tests\Server\PlayStream\" />
     <Folder Include="targets\unity-v2\Testing\Tests\Shared\" />
     <Folder Include="targets\unity-v2\Testing\Tests\Shared\Uunit\" />
     <Folder Include="targets\unity-v2\Testing\Tests\Shared\Uunit\Editor\" />

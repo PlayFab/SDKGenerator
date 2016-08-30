@@ -147,6 +147,8 @@ var PlayFabApiTests = {
         var invalidDone = assert.async();
         
         var invalidRequest = {
+            // Currently, you need to look up the correct format for this object in the API-docs:
+            //   https://api.playfab.com/Documentation/Client/method/LoginWithEmailAddress
             TitleId: PlayFab.settings.titleId,
             Email: PlayFabApiTests.titleData.userEmail,
             Password: PlayFabApiTests.titleData.userPassword + "INVALID"

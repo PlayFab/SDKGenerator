@@ -144,32 +144,43 @@ namespace JenkinsConsoleUtility
         /// Write XML JUnit results file to destinationFile
         /// If the file already exists, merge the results
         /// </summary>
-        public static void WriteXmlFile(string destinationFile, List<TestSuiteReport> newReport, bool clearPrevFile)
+        public static int WriteXmlFile(string destinationFile, List<TestSuiteReport> newReport, bool clearPrevFile)
         {
-            if (File.Exists(destinationFile) && !clearPrevFile)
+            try
             {
-                List<TestSuiteReport> oldReport = ParseXmlFile(destinationFile);
-                oldReport.AddRange(newReport);
-                newReport = oldReport;
-            }
+                if (File.Exists(destinationFile) && !clearPrevFile)
+                {
+                    List<TestSuiteReport> oldReport = ParseXmlFile(destinationFile);
+                    oldReport.AddRange(newReport);
+                    newReport = oldReport;
+                }
 
-            StringBuilder sb = new StringBuilder();
-            string tabbing = "";
-            sb.Append(tabbing).Append("<?xml version=\"1.0\" encoding=\"UTF-8\"?>\n");
-            sb.Append(tabbing).Append("<testsuites>\n");
-            tabbing += "  ";
-            foreach (var testSuite in newReport)
+                StringBuilder sb = new StringBuilder();
+                string tabbing = "";
+                sb.Append(tabbing).Append("<?xml version=\"1.0\" encoding=\"UTF-8\"?>\n");
+                sb.Append(tabbing).Append("<testsuites>\n");
+                tabbing += "  ";
+                foreach (var testSuite in newReport)
+                {
+                    testSuite.AppendAsXml(ref sb, tabbing);
+                }
+                tabbing = tabbing.Substring(2);
+                sb.Append(tabbing).Append("</testsuites>\n");
+
+                JenkinsConsoleUtility.FancyWriteToConsole("Write test results: " + destinationFile, null, ConsoleColor.Gray);
+                using (var output = File.Open(destinationFile, FileMode.Create))
+                {
+                    byte[] buffer = Encoding.UTF8.GetBytes(sb.ToString());
+                    output.Write(buffer, 0, buffer.Length);
+                    output.Close();
+                }
+            }
+            catch (Exception e)
             {
-                testSuite.AppendAsXml(ref sb, tabbing);
+                JenkinsConsoleUtility.FancyWriteToConsole("Failure writing xml:\n" + e, null, ConsoleColor.Red);
+                return 1; // Fail
             }
-            tabbing = tabbing.Substring(2);
-            sb.Append(tabbing).Append("</testsuites>\n");
-
-            JenkinsConsoleUtility.FancyWriteToConsole("Write test results: " + destinationFile, null, ConsoleColor.Gray);
-            var output = File.Open(destinationFile, FileMode.Create);
-            byte[] buffer = Encoding.UTF8.GetBytes(sb.ToString());
-            output.Write(buffer, 0, buffer.Length);
-            output.Close();
+            return 0; // Success
         }
 
         #region ===== Extension methods for writing test reports to XML =====

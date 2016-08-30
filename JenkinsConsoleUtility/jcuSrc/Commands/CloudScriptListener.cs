@@ -22,6 +22,12 @@ namespace JenkinsConsoleUtility.Commands
 
     public class CloudScriptListener : ICommand
     {
+        /// <summary>
+        /// How long to wait between each CloudScript call to check for test data
+        /// 1000 was hitting the server pretty hard, causing API-Call limits to be hit
+        /// </summary>
+        private const int TestDataExistsSleepTime = 4500;
+
         public string commandKey { get { return "ListenCS"; } }
 
         public const string CsFuncTestDataExists = "TestDataExists";
@@ -105,7 +111,7 @@ namespace JenkinsConsoleUtility.Commands
                 var callResult = ExecuteCloudScript(CsFuncTestDataExists, _getRequest, out resultsReady, out errorReport);
                 if (callResult == false)
                     return 1; // The cloudscript call failed
-                Thread.Sleep(1000);
+                Thread.Sleep(TestDataExistsSleepTime);
                 now = DateTime.UtcNow;
                 JenkinsConsoleUtility.FancyWriteToConsole("Test results ready: " + resultsReady, null, ConsoleColor.Gray);
             }
@@ -126,8 +132,9 @@ namespace JenkinsConsoleUtility.Commands
             var tempFilename = buildIdentifier + ".xml";
             var tempFileFullPath = Path.Combine(workspacePath, tempFilename);
 
-            JUnitXml.WriteXmlFile(tempFileFullPath, testResults, true);
-            return callResult && testResults != null ? 0 : 1;
+            if (!callResult || testResults == null)
+                return 1;
+            return JUnitXml.WriteXmlFile(tempFileFullPath, testResults, true);
         }
 
         public static bool ExecuteCloudScript<TIn, TOut>(string functionName, TIn functionParameter, out TOut result, out string errorReport)

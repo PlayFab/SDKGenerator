@@ -1,0 +1,24 @@
+-- This example loads a text-gui node called "PfTestOutput",
+--   and then runs the internal PlayFab test-suite (not required)
+--   and displays the results of those tests to the text-node
+-- It is designed to be a Script for a Defold Gui
+
+local PlayFabApiTestSuite = require("PlayFabTesting.PlayFabApiTestSuite")
+local PlayFabSettings = require("PlayFab.PlayFabSettings")
+local IPlayFabHttps = require("PlayFab.IPlayFabHttps")
+local PlayFabHttps_Defold = require("PlayFab.PlayFabHttps_Defold")
+
+PlayFabSettings.titleId = "6195"
+IPlayFabHttps.SetHttp(PlayFabHttps_Defold) -- The auto import magic doens't work if you set the name, so you have to set the reference
+
+local pfTestOutput = nil
+
+function init(self)
+    PlayFabApiTestSuite.Start()
+    pfTestOutput = gui.get_node("PfTestOutput")
+end
+
+function update(self, dt)
+    PlayFabApiTestSuite.Update()
+	gui.set_text(pfTestOutput, PlayFabApiTestSuite.GenerateTestSummary())
+end

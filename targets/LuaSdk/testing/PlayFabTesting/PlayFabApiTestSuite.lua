@@ -1,0 +1,382 @@
+-- This is a test suite for testing all the basic APIs and edge cases on the PlayFab API
+-- This is not intended to be a robust testing suite for use outside of the PlayFab LuaSdk
+
+local json = require("PlayFab.json")
+local PlayFabClientApi = require("PlayFab.PlayFabClientApi")
+-- Most users won't need to import PlayFabSettings, as the public settings are available via PlayFabClientApi.settings
+local PlayFabSettings = require("PlayFab.PlayFabSettings")
+local AsyncTestSuite = require("PlayFabTesting.AsyncTestSuite")
+
+-- Always set your titleId first, before making any API calls
+PlayFabClientApi.settings.titleId = "6195" -- TODO: Load this from testTitleData.json
+local buildIdentifier = PlayFabSettings._internalSettings.buildIdentifier
+
+local PlayFabApiTestSuite = {
+    -- TEST CONSTANTS
+    TEST_DATA_KEY = "testCounter",
+    TEST_STAT_NAME = "str",
+
+    -- TEST VARIABLES
+    playFabId = nil,
+    testDataValue = nil,
+    testStatValue = nil,
+}
+
+-- HELPER FUNCTIONS
+function PlayFabApiTestSuite.OnInvalidSuccess(result)
+    AsyncTestSuite.EndTest("FAILED", "Unexpected api success: " .. json.encode(result))
+end
+
+function PlayFabApiTestSuite.OnSharedError(error)
+    AsyncTestSuite.EndTest("FAILED", "Unexpected api failure: " .. json.encode(error))
+end
+
+-- TESTING SECTION
+--- <summary>
+--- CLIENT API
+--- Try to deliberately log in with an inappropriate password,
+---   and verify that the error displays as expected.
+--- </summary>
+function PlayFabApiTestSuite.InvalidLoginTest()
+    local invalidRequest = {
+        -- Currently, you need to look up the correct format for this object in the API-docs:
+        --   https://api.playfab.com/Documentation/Client/method/LoginWithEmailAddress
+        Email = "paul@playfab.com",
+        Password = "INVALID"
+    }
+    PlayFabClientApi.LoginWithEmailAddress(invalidRequest, AsyncTestSuite.WrapCallback("OnInvalidSuccess", PlayFabApiTestSuite.OnInvalidSuccess), AsyncTestSuite.WrapCallback("InvalidLoginError", PlayFabApiTestSuite.InvalidLoginError))
+end
+function PlayFabApiTestSuite.InvalidLoginError(error)
+    if (string.find(string.lower(error.errorMessage), "password")) then
+        AsyncTestSuite.EndTest("PASSED", nil)
+    else
+        AsyncTestSuite.EndTest("FAILED", "Invalid login did not report about invalid password: " .. json.encode(error))
+    end
+end
+
+--- <summary>
+--- CLIENT API
+--- Try to deliberately register a user with an invalid email and password
+---   Verify that errorDetails are populated correctly.
+--- </summary>
+function PlayFabApiTestSuite.InvalidRegistrationTest()
+    local invalidRequest = {
+        -- Currently, you need to look up the correct format for this object in the API-docs:
+        --   https://api.playfab.com/Documentation/Client/method/RegisterPlayFabUser
+        Username = "x",
+        Email = "x",
+        Password = "x"
+    }
+    PlayFabClientApi.RegisterPlayFabUser(invalidRequest, AsyncTestSuite.WrapCallback("OnInvalidSuccess", PlayFabApiTestSuite.OnInvalidSuccess), AsyncTestSuite.WrapCallback("InvalidRegistrationError", PlayFabApiTestSuite.InvalidRegistrationError))
+end
+function PlayFabApiTestSuite.InvalidRegistrationError(error)
+    local fullJson = string.lower(json.encode(error))
+
+    local expectedEmailMsg = "email address is not valid."
+    if (not string.find(fullJson, expectedEmailMsg)) then
+        AsyncTestSuite.EndTest("FAILED", "Invalid registration did not find target log-string: " .. json.encode(error) .. " missing: " .. expectedEmailMsg)
+        return
+    end
+
+    local expectedPasswordMsg = "password must be between"
+    if (not string.find(fullJson, expectedPasswordMsg)) then
+        AsyncTestSuite.EndTest("FAILED", "Invalid registration did not find target log-string: " .. json.encode(error) .. " missing: " .. expectedPasswordMsg)
+        return
+    end
+
+    AsyncTestSuite.EndTest("PASSED", nil)
+end
+
+--- <summary>
+--- CLIENT API
+--- Log in or create a user, track their PlayFabId
+--- </summary>
+function PlayFabApiTestSuite.LoginOrRegisterTest()
+    local loginRequest = {
+        -- Currently, you need to look up the correct format for this object in the API-docs:
+        --   https://api.playfab.com/Documentation/Client/method/LoginWithCustomID
+        CustomId = buildIdentifier,
+        CreateAccount = true
+    }
+    PlayFabClientApi.LoginWithCustomID(loginRequest, AsyncTestSuite.WrapCallback("OnLoginSuccess", PlayFabApiTestSuite.OnLoginSuccess), PlayFabApiTestSuite.OnSharedError)
+end
+function PlayFabApiTestSuite.OnLoginSuccess(result)
+    if (result.PlayFabId) then 
+        PlayFabApiTestSuite.playFabId = result.PlayFabId
+        AsyncTestSuite.EndTest("PASSED", nil)
+    else
+        AsyncTestSuite.EndTest("FAILED", "PlayFabId not found in login result" .. json.encode(result))
+    end
+end
+
+--- <summary>
+--- CLIENT API
+--- Test that the login call sequence sends the AdvertisingId when set
+--- </summary>
+function PlayFabApiTestSuite.LoginWithAdvertisingId()
+    PlayFabSettings.settings.advertisingIdType = PlayFabSettings.settings.AD_TYPE_ANDROID_ID
+    PlayFabSettings.settings.advertisingIdValue = "PlayFabTestId"
+
+    local loginRequest = {
+        -- Currently, you need to look up the correct format for this object in the API-docs:
+        --   https://api.playfab.com/Documentation/Client/method/LoginWithCustomID
+        CustomId = buildIdentifier,
+        CreateAccount = true
+    }
+    PlayFabClientApi.LoginWithCustomID(loginRequest, AsyncTestSuite.WrapCallback("OnAdvertLoginSuccess", PlayFabApiTestSuite.OnAdvertLoginSuccess), PlayFabApiTestSuite.OnSharedError)
+end
+function PlayFabApiTestSuite.OnAdvertLoginSuccess(result)
+    if (not result.PlayFabId) then 
+        AsyncTestSuite.EndTest("FAILED", "PlayFabId not found in login result" .. json.encode(result))
+        return
+    end
+
+    PlayFabApiTestSuite.playFabId = result.PlayFabId
+    -- Schedule a coroutine which will check for the IDFA result later
+    local co = coroutine.create(PlayFabApiTestSuite.WaitForIdfa)
+    AsyncTestSuite.ScheduleCoroutine("LoginWithAdvertisingId", co)
+end
+function PlayFabApiTestSuite.WaitForIdfa()
+    for i=1,100000 do
+        if (PlayFabSettings.settings.advertisingIdType == (PlayFabSettings.settings.AD_TYPE_ANDROID_ID .. "_Successful")) then
+            AsyncTestSuite.EndTest("PASSED", nil)
+            return
+        end
+        coroutine.yield()
+    end
+    AsyncTestSuite.EndTest("FAILED", "Submission of IDFA never succeeded" .. json.encode(PlayFabSettings.settings.advertisingIdType))
+end
+
+--- <summary>
+--- CLIENT API
+--- Test a sequence of calls that modifies saved data,
+---   and verifies that the next sequential API call contains updated data.
+--- Verify that the data is correctly modified on the next call.
+--- Parameter types tested: string, Dictionary<string, string>, DateTime
+--- </summary>
+function PlayFabApiTestSuite.UserDataApi()
+    local getDataRequest = {} -- null also works
+    PlayFabClientApi.GetUserData(getDataRequest, AsyncTestSuite.WrapCallback("OnGetUserData1", PlayFabApiTestSuite.OnGetUserData1), PlayFabApiTestSuite.OnSharedError)
+end
+function PlayFabApiTestSuite.OnGetUserData1(result)
+    PlayFabApiTestSuite.testDataValue = 0
+    if (result.Data and result.Data[PlayFabApiTestSuite.TEST_DATA_KEY]) then
+        PlayFabApiTestSuite.testDataValue = tonumber(result.Data[PlayFabApiTestSuite.TEST_DATA_KEY].Value)
+    end
+    PlayFabApiTestSuite.testDataValue = (PlayFabApiTestSuite.testDataValue + 1) % 100 -- This test is about the expected value changing - but not testing more complicated issues like bounds
+
+    local updateRequest = {
+        -- Currently, you need to look up the correct format for this object in the API-docs:
+        --   https://api.playfab.com/Documentation/Client/method/UpdateUserData
+        Data = {}
+    }
+    updateRequest.Data[PlayFabApiTestSuite.TEST_DATA_KEY] = tostring(PlayFabApiTestSuite.testDataValue)
+    PlayFabClientApi.UpdateUserData(updateRequest, AsyncTestSuite.WrapCallback("OnUpdateUserData", PlayFabApiTestSuite.OnUpdateUserData), PlayFabApiTestSuite.OnSharedError)
+end
+function PlayFabApiTestSuite.OnUpdateUserData(result)
+    local getDataRequest = {} -- null also works
+    PlayFabClientApi.GetUserData(getDataRequest, AsyncTestSuite.WrapCallback("OnGetUserData2", PlayFabApiTestSuite.OnGetUserData2), PlayFabApiTestSuite.OnSharedError)
+end
+function PlayFabApiTestSuite.OnGetUserData2(result)
+    local actualValue = -1000
+    if (result.Data and result.Data[PlayFabApiTestSuite.TEST_DATA_KEY]) then
+        actualValue = tonumber(result.Data[PlayFabApiTestSuite.TEST_DATA_KEY].Value)
+    end
+    
+    if (actualValue == PlayFabApiTestSuite.testDataValue) then
+        AsyncTestSuite.EndTest("PASSED", nil)
+    else
+        AsyncTestSuite.EndTest("FAILED", "UserDataApi failed: " .. tostring(PlayFabApiTestSuite.testDataValue) .. " != " .. tostring(actualValue) .. " Json: " .. json.encode(result))
+    end
+end
+
+--- <summary>
+--- CLIENT API
+--- Test a sequence of calls that modifies saved data,
+---   and verifies that the next sequential API call contains updated data.
+--- Verify that the data is saved correctly, and that specific types are tested
+--- Parameter types tested: Dictionary<string, int> 
+--- </summary>
+function PlayFabApiTestSuite.PlayerStatisticsApi()
+    local getStatRequest = {}
+    PlayFabClientApi.GetPlayerStatistics(getStatRequest, AsyncTestSuite.WrapCallback("OnGetStat1", PlayFabApiTestSuite.OnGetStat1), PlayFabApiTestSuite.OnSharedError)
+end
+function PlayFabApiTestSuite.OnGetStat1(result)
+    PlayFabApiTestSuite.testStatValue = 0
+    for index, eachStat in pairs(result.Statistics) do
+        if (eachStat.StatisticName == PlayFabApiTestSuite.TEST_STAT_NAME) then
+            PlayFabApiTestSuite.testStatValue = eachStat.Value
+        end
+    end
+    PlayFabApiTestSuite.testStatValue = (PlayFabApiTestSuite.testStatValue + 1) % 100 -- This test is about the expected value changing - but not testing more complicated issues like bounds
+
+    local updateRequest = {
+        -- Currently, you need to look up the correct format for this object in the API-docs:
+        --   https://api.playfab.com/Documentation/Client/method/UpdateUserData
+        Statistics = {{ StatisticName = PlayFabApiTestSuite.TEST_STAT_NAME, Value = PlayFabApiTestSuite.testStatValue }}
+    }
+    PlayFabClientApi.UpdatePlayerStatistics(updateRequest, AsyncTestSuite.WrapCallback("OnUpdateStat", PlayFabApiTestSuite.OnUpdateStat), PlayFabApiTestSuite.OnSharedError)
+end
+function PlayFabApiTestSuite.OnUpdateStat(result)
+    local getStatRequest = {}
+    PlayFabClientApi.GetPlayerStatistics(getStatRequest, AsyncTestSuite.WrapCallback("OnGetStat2", PlayFabApiTestSuite.OnGetStat2), PlayFabApiTestSuite.OnSharedError)
+end
+function PlayFabApiTestSuite.OnGetStat2(result)
+    local actualValue = -1000
+    for index, eachStat in pairs(result.Statistics) do
+        if (eachStat.StatisticName == PlayFabApiTestSuite.TEST_STAT_NAME) then
+            actualValue = eachStat.Value
+        end
+    end
+    
+    if (actualValue == PlayFabApiTestSuite.testStatValue) then
+        AsyncTestSuite.EndTest("PASSED", nil)
+    else
+        AsyncTestSuite.EndTest("FAILED", "PlayerStatisticsApi failed: " .. tostring(PlayFabApiTestSuite.testStatValue) .. " != " .. tostring(actualValue) .. " Json: " .. json.encode(result))
+    end
+end
+
+--- <summary>
+--- SERVER API
+--- Get or create the given test character for the given user
+--- Parameter types tested: Contained-Classes, string
+--- </summary>
+function PlayFabApiTestSuite.UserCharacter()
+    getCharsRequest = {}
+    PlayFabClientApi.GetAllUsersCharacters(getCharsRequest, AsyncTestSuite.WrapCallback("OnGetChars", PlayFabApiTestSuite.OnGetChars), PlayFabApiTestSuite.OnSharedError)
+end
+function PlayFabApiTestSuite.OnGetChars(result)
+    -- This test has lost its usefulness as we can't actually expect characters to be there now (We don't create them in this test)
+    AsyncTestSuite.EndTest("PASSED", nil)
+end
+
+--- <summary>
+--- CLIENT AND SERVER API
+--- Test that leaderboard results can be requested
+--- Parameter types tested: List of contained-classes
+--- </summary>
+function PlayFabApiTestSuite.LeaderBoard()
+    local clientRequest = {
+        -- Currently, you need to look up the correct format for this object in the API-docs:
+        --   https://api.playfab.com/Documentation/Client/method/GetLeaderboard
+        MaxResultsCount = 3,
+        StatisticName = PlayFabApiTestSuite.TEST_STAT_NAME
+    }
+    PlayFabClientApi.GetLeaderboard(clientRequest, AsyncTestSuite.WrapCallback("OnLeaderboard", PlayFabApiTestSuite.OnLeaderboard), PlayFabApiTestSuite.OnSharedError)
+end
+function PlayFabApiTestSuite.OnLeaderboard(result)
+    if (table.getn(result.Leaderboard) > 0) then
+        AsyncTestSuite.EndTest("PASSED", nil)
+    else
+        AsyncTestSuite.EndTest("FAILED", "LeaderBoard results not found, Json: " .. json.encode(result))
+    end
+end
+
+--- <summary>
+--- CLIENT API
+--- Test that AccountInfo can be requested
+--- Parameter types tested: List of enum-as-strings converted to list of enums
+--- </summary>
+function PlayFabApiTestSuite.AccountInfo()
+    PlayFabClientApi.GetAccountInfo({}, AsyncTestSuite.WrapCallback("OnAccountInfo", PlayFabApiTestSuite.OnAccountInfo), PlayFabApiTestSuite.OnSharedError)
+end
+function PlayFabApiTestSuite.OnAccountInfo(result)
+    if (result.AccountInfo.TitleInfo.Origination) then
+        AsyncTestSuite.EndTest("PASSED", nil)
+    else
+        AsyncTestSuite.EndTest("FAILED", "OnAccountInfo origination not found: " .. json.encode(result))
+    end
+end
+
+--- <summary>
+--- CLIENT API
+--- Test that CloudScript can be properly set up and invoked
+--- </summary>
+function PlayFabApiTestSuite.CloudScript()
+    local helloWorldRequest = {
+        -- Currently, you need to look up the correct format for this object in the API-docs:
+        --   https://api.playfab.com/Documentation/Client/method/ExecuteCloudScript
+        FunctionName = "helloWorld"
+    }
+    PlayFabClientApi.ExecuteCloudScript(helloWorldRequest, AsyncTestSuite.WrapCallback("OnHelloWorld", PlayFabApiTestSuite.OnHelloWorld), PlayFabApiTestSuite.OnSharedError)
+end
+function PlayFabApiTestSuite.OnHelloWorld(result)
+    if (result.FunctionResult.messageValue == "Hello " .. PlayFabApiTestSuite.playFabId .. "!") then
+        AsyncTestSuite.EndTest("PASSED", nil)
+    else
+        AsyncTestSuite.EndTest("FAILED", "HelloWorld response not found: " .. json.encode(result))
+    end
+end
+
+--- <summary>
+--- CLIENT API
+--- Test that the client can publish custom PlayStream events
+--- </summary>
+function PlayFabApiTestSuite.WriteEvent()
+    local writeEventRequest = {
+        -- Currently, you need to look up the correct format for this object in the API-docs:
+        --   https://api.playfab.com/Documentation/Client/method/WritePlayerEvent
+        EventName = "ForumPostEvent",
+        Body = {
+            Subject = "My First Post",
+            Body = "This is my awesome post."
+        }
+    }
+    PlayFabClientApi.WritePlayerEvent(writeEventRequest, AsyncTestSuite.WrapCallback("OnLeaderboard", PlayFabApiTestSuite.OnLeaderboard), PlayFabApiTestSuite.OnSharedError)
+end
+function PlayFabApiTestSuite.OnLeaderboard(result)
+    AsyncTestSuite.EndTest("PASSED", nil)
+end
+
+-- TEST SUITE MANAGEMENT SECTION
+function PlayFabApiTestSuite.Start()
+    AsyncTestSuite.Init(buildIdentifier)
+    AsyncTestSuite.AddTest("InvalidLoginTest", PlayFabApiTestSuite.InvalidLoginTest)
+    AsyncTestSuite.AddTest("InvalidRegistrationTest", PlayFabApiTestSuite.InvalidRegistrationTest)
+    AsyncTestSuite.AddTest("LoginOrRegisterTest", PlayFabApiTestSuite.LoginOrRegisterTest)
+    AsyncTestSuite.AddTest("LoginWithAdvertisingId", PlayFabApiTestSuite.LoginWithAdvertisingId)
+    AsyncTestSuite.AddTest("UserDataApi", PlayFabApiTestSuite.UserDataApi)
+    AsyncTestSuite.AddTest("PlayerStatisticsApi", PlayFabApiTestSuite.PlayerStatisticsApi)
+    AsyncTestSuite.AddTest("UserCharacter", PlayFabApiTestSuite.UserCharacter)
+    AsyncTestSuite.AddTest("LeaderBoard", PlayFabApiTestSuite.LeaderBoard)
+    AsyncTestSuite.AddTest("AccountInfo", PlayFabApiTestSuite.AccountInfo)
+    AsyncTestSuite.AddTest("CloudScript", PlayFabApiTestSuite.CloudScript)
+    AsyncTestSuite.AddTest("WriteEvent", PlayFabApiTestSuite.WriteEvent)
+    AsyncTestSuite.BeginTesting()
+end
+
+function PlayFabApiTestSuite.GenerateTestSummary()
+    return AsyncTestSuite.GenerateTestSummary()
+end
+
+function PlayFabApiTestSuite.SendJenkernaughtReport()
+    local pfTestReport = AsyncTestSuite.GetJenkernaughtReport()
+
+    local saveResultsRequest = {
+        -- Currently, you need to look up the correct format for this object in the API-docs:
+        --   https://api.playfab.com/Documentation/Client/method/ExecuteCloudScript
+        FunctionName = "SaveTestData",
+        FunctionParameter = {
+            customId = buildIdentifier,
+            testReport = {pfTestReport}
+        },
+        GeneratePlayStreamEvent = true
+    }
+    if (PlayFabClientApi.IsClientLoggedIn()) then
+        PlayFabClientApi.ExecuteCloudScript(saveResultsRequest, nil, nil)
+        -- This only works without a callback if the suite is running in LuaSec
+        print(PlayFabApiTestSuite.playFabId .. ", Test report saved to CloudScript: " .. buildIdentifier .. "\n" .. json.encode(saveResultsRequest.FunctionParameter))
+    else
+        print(PlayFabApiTestSuite.playFabId .. ", Failed to save test report to CloudScript: " .. buildIdentifier .. "\n" .. json.encode(saveResultsRequest.FunctionParameter))
+    end
+end
+
+function PlayFabApiTestSuite.IsFinished()
+    return AsyncTestSuite.IsFinished()
+end
+
+function PlayFabApiTestSuite.Update()
+    AsyncTestSuite.Tick()
+end
+
+return PlayFabApiTestSuite

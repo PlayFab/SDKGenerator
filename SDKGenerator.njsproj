@@ -30,82 +30,87 @@
   <PropertyGroup Condition=" '$(Configuration)' == 'ActionScriptSDK' ">
     <DebugSymbols>true</DebugSymbols>
     <OutputPath>bin\</OutputPath>
-    <ScriptArguments>..\API_Specs actionscript=..\sdks\ActionScriptSDK\PfApiTest -buildIdentifier pg_ActionScriptSDK_manual</ScriptArguments>
+    <ScriptArguments>..\API_Specs actionscript=..\sdks\ActionScriptSDK\PfApiTest -buildIdentifier ActionScriptSDK_manual</ScriptArguments>
   </PropertyGroup>
   <PropertyGroup Condition=" '$(Configuration)' == 'CSharpFlat' ">
     <DebugSymbols>true</DebugSymbols>
     <OutputPath>bin\</OutputPath>
-    <ScriptArguments>..\API_Specs csharp-flat=..\sdks\PxCsFlat -buildIdentifier pg_CsFlat_manual</ScriptArguments>
+    <ScriptArguments>..\API_Specs csharp-flat=..\sdks\PxCsFlat -buildIdentifier CsFlat_manual</ScriptArguments>
   </PropertyGroup>
   <PropertyGroup Condition=" '$(Configuration)' == 'CSharpSDK' ">
     <DebugSymbols>true</DebugSymbols>
     <OutputPath>bin\</OutputPath>
-    <ScriptArguments>..\API_Specs csharp=..\sdks\CSharpSDK -buildIdentifier pg_CSharpSDK_manual</ScriptArguments>
+    <ScriptArguments>..\API_Specs csharp=..\sdks\CSharpSDK -buildIdentifier CSharpSDK_manual</ScriptArguments>
   </PropertyGroup>
   <PropertyGroup Condition=" '$(Configuration)' == 'CocosSDK' ">
     <DebugSymbols>true</DebugSymbols>
     <OutputPath>bin\</OutputPath>
-    <ScriptArguments>..\API_Specs cpp-cocos2dx=..\sdks\Cocos2d-xSDK -buildIdentifier pg_CocosSDK_manual</ScriptArguments>
+    <ScriptArguments>..\API_Specs cpp-cocos2dx=..\sdks\Cocos2d-xSDK -buildIdentifier CocosSDK_manual</ScriptArguments>
   </PropertyGroup>
   <PropertyGroup Condition=" '$(Configuration)' == 'JavaSDK' ">
     <DebugSymbols>true</DebugSymbols>
     <OutputPath>bin\</OutputPath>
-    <ScriptArguments>..\API_Specs java=..\sdks\JavaSDK -buildIdentifier pg_JavaSDK_manual</ScriptArguments>
+    <ScriptArguments>..\API_Specs java=..\sdks\JavaSDK -buildIdentifier JavaSDK_manual</ScriptArguments>
+  </PropertyGroup>
+  <PropertyGroup Condition=" '$(Configuration)' == 'LuaSdk' ">
+    <DebugSymbols>true</DebugSymbols>
+    <OutputPath>bin\</OutputPath>
+    <ScriptArguments>..\API_Specs LuaSdk=..\sdks\LuaSdk -buildIdentifier LuaSdk_manual</ScriptArguments>
   </PropertyGroup>
   <PropertyGroup Condition=" '$(Configuration)' == 'JavaScriptSDK' ">
     <DebugSymbols>true</DebugSymbols>
     <OutputPath>bin\</OutputPath>
-    <ScriptArguments>..\API_Specs javascript=..\sdks\JavaScriptSDK\PlayFabSDK -buildIdentifier pg_JavaScriptSDK_manual</ScriptArguments>
+    <ScriptArguments>..\API_Specs javascript=..\sdks\JavaScriptSDK\PlayFabSDK -buildIdentifier JavaScriptSDK_manual</ScriptArguments>
   </PropertyGroup>
   <PropertyGroup Condition=" '$(Configuration)' == 'LumberyardSdk' ">
     <DebugSymbols>true</DebugSymbols>
     <OutputPath>bin\</OutputPath>
-    <ScriptArguments>..\API_Specs LumberyardSdk=..\sdks\LumberyardSDK -buildIdentifier pg_LumberyardSdk_manual</ScriptArguments>
+    <ScriptArguments>..\API_Specs LumberyardSdk=..\sdks\LumberyardSDK -buildIdentifier LumberyardSdk_manual</ScriptArguments>
   </PropertyGroup>
   <PropertyGroup Condition=" '$(Configuration)' == 'NodeSDK' ">
     <DebugSymbols>true</DebugSymbols>
     <OutputPath>bin\</OutputPath>
-    <ScriptArguments>..\API_Specs js-node=..\sdks\NodeSDK -buildIdentifier pg_NodeSDK_manual</ScriptArguments>
+    <ScriptArguments>..\API_Specs js-node=..\sdks\NodeSDK -buildIdentifier NodeSDK_manual</ScriptArguments>
   </PropertyGroup>
   <PropertyGroup Condition=" '$(Configuration)' == 'ObjCSdk' ">
     <DebugSymbols>true</DebugSymbols>
     <OutputPath>bin\</OutputPath>
-    <ScriptArguments>..\API_Specs objc=..\sdks\Objective_C_SDK -buildIdentifier pg_ObjCSdk_manual</ScriptArguments>
+    <ScriptArguments>..\API_Specs objc=..\sdks\Objective_C_SDK -buildIdentifier ObjCSdk_manual</ScriptArguments>
   </PropertyGroup>
   <PropertyGroup Condition=" '$(Configuration)' == 'PostmanCollection' ">
     <DebugSymbols>true</DebugSymbols>
     <OutputPath>bin\</OutputPath>
-    <ScriptArguments>..\API_Specs postman=..\sdks\PostmanCollection -buildIdentifier pg_PostmanCollection_manual</ScriptArguments>
+    <ScriptArguments>..\API_Specs postman=..\sdks\PostmanCollection -buildIdentifier PostmanCollection_manual</ScriptArguments>
   </PropertyGroup>
   <PropertyGroup Condition=" '$(Configuration)' == 'PlayFabGameServer' ">
     <DebugSymbols>true</DebugSymbols>
     <OutputPath>bin\</OutputPath>
-    <ScriptArguments>..\API_Specs csharp-unity-gameserver=..\sdks\PlayFabGameServer -buildIdentifier pg_UnitySDK_manual</ScriptArguments>
+    <ScriptArguments>..\API_Specs csharp-unity-gameserver=..\sdks\PlayFabGameServer -buildIdentifier UnitySDK_manual</ScriptArguments>
   </PropertyGroup>
   <PropertyGroup Condition=" '$(Configuration)' == 'UnitySdkV0' ">
     <DebugSymbols>true</DebugSymbols>
     <OutputPath>bin\</OutputPath>
-    <ScriptArguments>..\API_Specs unity-v0=..\sdks\UnitySDKV0 -buildIdentifier pg_UnitySDK_manual</ScriptArguments>
+    <ScriptArguments>..\API_Specs unity-v0=..\sdks\UnitySDKV0 -buildIdentifier UnitySDK_manual</ScriptArguments>
   </PropertyGroup>
   <PropertyGroup Condition=" '$(Configuration)' == 'UnitySdkV2' ">
     <DebugSymbols>true</DebugSymbols>
     <OutputPath>bin\</OutputPath>
-    <ScriptArguments>..\API_Specs unity-v2=..\sdks\UnitySDK -buildIdentifier pg_UnitySDK_manual</ScriptArguments>
+    <ScriptArguments>..\API_Specs unity-v2=..\sdks\UnitySDK -buildIdentifier UnitySDK_manual</ScriptArguments>
   </PropertyGroup>
   <PropertyGroup Condition=" '$(Configuration)' == 'UnrealBlueprintSDK' ">
     <DebugSymbols>true</DebugSymbols>
     <OutputPath>bin\</OutputPath>
-    <ScriptArguments>..\API_Specs cpp-unreal=..\sdks\UnrealBlueprintSDK -buildIdentifier pg_UnrealBlueprintSDK_manual</ScriptArguments>
+    <ScriptArguments>..\API_Specs cpp-unreal=..\sdks\UnrealBlueprintSDK -buildIdentifier UnrealBlueprintSDK_manual</ScriptArguments>
   </PropertyGroup>
   <PropertyGroup Condition=" '$(Configuration)' == 'UnrealCppSdk' ">
     <DebugSymbols>true</DebugSymbols>
     <OutputPath>bin\</OutputPath>
-    <ScriptArguments>..\API_Specs cpp-ue4=..\sdks\UnrealCppSDK -buildIdentifier pg_UnrealCppSdk_manual</ScriptArguments>
+    <ScriptArguments>..\API_Specs cpp-ue4=..\sdks\UnrealCppSDK -buildIdentifier UnrealCppSdk_manual</ScriptArguments>
   </PropertyGroup>
   <PropertyGroup Condition=" '$(Configuration)' == 'WindowsSDK' ">
     <DebugSymbols>true</DebugSymbols>
     <OutputPath>bin\</OutputPath>
-    <ScriptArguments>..\API_Specs cpp-windows=..\sdks\WindowsSDK -buildIdentifier pg_WindowsSDK_manual</ScriptArguments>
+    <ScriptArguments>..\API_Specs cpp-windows=..\sdks\WindowsSDK -buildIdentifier WindowsSDK_manual</ScriptArguments>
   </PropertyGroup>
   <ItemGroup>
     <Compile Include="targets\actionscript\make.js" />
@@ -124,6 +129,7 @@
     <Compile Include="targets\java\make.js" />
     <Compile Include="targets\js-node\make.js" />
     <Compile Include="targets\js-node\testingFiles\PlayFabApiTests.js" />
+    <Compile Include="targets\LuaSdk\make.js" />
     <Compile Include="targets\LumberyardSdk\make.js" />
     <Compile Include="targets\newTarget\make.js" />
     <Compile Include="targets\objc\make.js" />
@@ -139,6 +145,7 @@
     <Content Include="SDKBuildScripts\csharp_build.bat" />
     <Content Include="SDKBuildScripts\java_build.bat" />
     <Content Include="SDKBuildScripts\js_build.bat" />
+    <Content Include="SDKBuildScripts\lua_build.bat" />
     <Content Include="SDKBuildScripts\Lumberyard_build.bat" />
     <Content Include="SDKBuildScripts\NewTarget.bat" />
     <Content Include="SDKBuildScripts\node_build.bat" />
@@ -619,6 +626,19 @@
     <Content Include="targets\js-node\templates\playfab.js.ejs" />
     <Content Include="targets\js-node\testingFiles\PlayFabTesting.njsproj" />
     <Content Include="targets\js-node\testingFiles\test.bat" />
+    <Content Include="targets\LuaSdk\DefoldBuild\_Build\Defold\BuildDefoldZips.bat" />
+    <Content Include="targets\LuaSdk\Defold\PlayFab\PlayFabHttps_Defold.lua" />
+    <Content Include="targets\LuaSdk\source\PlayFab\IPlayFabHttps.lua" />
+    <Content Include="targets\LuaSdk\source\PlayFab\json.lua" />
+    <Content Include="targets\LuaSdk\LuaDist\PlayFab\PlayFabHttps_LuaSec.lua" />
+    <Content Include="targets\LuaSdk\templates\PlayFabApi.lua.ejs" />
+    <Content Include="targets\LuaSdk\templates\Defold\PlayFabSdk.project.ejs" />
+    <Content Include="targets\LuaSdk\templates\PlayFabSettings.lua.ejs" />
+    <Content Include="targets\LuaSdk\templates\Defold\PlayFabTestExample.project.ejs" />
+    <Content Include="targets\LuaSdk\testing\PlayFabTesting\AsyncTestSuite.lua" />
+    <Content Include="targets\LuaSdk\testing\PlayFabTesting\PlayFabApiTestSuite.lua" />
+    <Content Include="targets\LuaSdk\testing\PlayFabTesting\TestPlayFabConsole.lua" />
+    <Content Include="targets\LuaSdk\testing\PlayFabTesting\TestPlayFabDefold.gui_script" />
     <Content Include="targets\LumberyardSdk\source\Code\Include\PlayFabBaseModel.h" />
     <Content Include="targets\LumberyardSdk\source\Code\Include\PlayFabHttp.h" />
     <Content Include="targets\LumberyardSdk\source\Code\PlayFabSdk_test.waf_files" />
@@ -1095,6 +1115,20 @@
     <Folder Include="targets\js-node\" />
     <Folder Include="targets\js-node\templates\" />
     <Folder Include="targets\js-node\testingFiles\" />
+    <Folder Include="targets\LuaSdk\" />
+    <Folder Include="targets\LuaSdk\DefoldBuild\_Build\" />
+    <Folder Include="targets\LuaSdk\DefoldBuild\_Build\Defold\" />
+    <Folder Include="targets\LuaSdk\Defold\" />
+    <Folder Include="targets\LuaSdk\Defold\PlayFab\" />
+    <Folder Include="targets\LuaSdk\LuaDist\" />
+    <Folder Include="targets\LuaSdk\LuaDist\PlayFab\" />
+    <Folder Include="targets\LuaSdk\DefoldBuild\" />
+    <Folder Include="targets\LuaSdk\source\" />
+    <Folder Include="targets\LuaSdk\source\PlayFab\" />
+    <Folder Include="targets\LuaSdk\templates\" />
+    <Folder Include="targets\LuaSdk\templates\Defold\" />
+    <Folder Include="targets\LuaSdk\testing\" />
+    <Folder Include="targets\LuaSdk\testing\PlayFabTesting\" />
     <Folder Include="targets\LumberyardSdk\" />
     <Folder Include="targets\LumberyardSdk\source\" />
     <Folder Include="targets\LumberyardSdk\source\Code\" />

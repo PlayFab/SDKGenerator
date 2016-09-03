@@ -13,6 +13,7 @@ Global
 		CSharpSDK|Any CPU = CSharpSDK|Any CPU
 		JavaScriptSDK|Any CPU = JavaScriptSDK|Any CPU
 		JavaSDK|Any CPU = JavaSDK|Any CPU
+		LuaSdk|Any CPU = LuaSdk|Any CPU
 		LumberyardSdk|Any CPU = LumberyardSdk|Any CPU
 		NodeSDK|Any CPU = NodeSDK|Any CPU
 		ObjCSdk|Any CPU = ObjCSdk|Any CPU
@@ -37,6 +38,8 @@ Global
 		{2BA807EF-310C-43B5-8D42-1ABCFFF39BE9}.JavaScriptSDK|Any CPU.Build.0 = JavaScriptSDK|Any CPU
 		{2BA807EF-310C-43B5-8D42-1ABCFFF39BE9}.JavaSDK|Any CPU.ActiveCfg = JavaSDK|Any CPU
 		{2BA807EF-310C-43B5-8D42-1ABCFFF39BE9}.JavaSDK|Any CPU.Build.0 = JavaSDK|Any CPU
+		{2BA807EF-310C-43B5-8D42-1ABCFFF39BE9}.LuaSdk|Any CPU.ActiveCfg = LuaSdk|Any CPU
+		{2BA807EF-310C-43B5-8D42-1ABCFFF39BE9}.LuaSdk|Any CPU.Build.0 = LuaSdk|Any CPU
 		{2BA807EF-310C-43B5-8D42-1ABCFFF39BE9}.LumberyardSdk|Any CPU.ActiveCfg = LumberyardSdk|Any CPU
 		{2BA807EF-310C-43B5-8D42-1ABCFFF39BE9}.LumberyardSdk|Any CPU.Build.0 = LumberyardSdk|Any CPU
 		{2BA807EF-310C-43B5-8D42-1ABCFFF39BE9}.NodeSDK|Any CPU.ActiveCfg = NodeSDK|Any CPU

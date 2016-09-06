@@ -9,7 +9,7 @@ local IPlayFabHttps = require("PlayFab.IPlayFabHttps")
 local PlayFabHttps_Defold = require("PlayFab.PlayFabHttps_Defold")
 
 PlayFabSettings.titleId = "6195"
-IPlayFabHttps.SetHttp(PlayFabHttps_Defold) -- The auto import magic doens't work if you set the name, so you have to set the reference
+IPlayFabHttps.SetHttp(PlayFabHttps_Defold) -- Assign the Defold-specific IHttps wrapper
 
 local pfTestOutput = nil
 

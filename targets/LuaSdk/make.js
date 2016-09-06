@@ -6,11 +6,15 @@ exports.putInRoot = true;
 exports.makeClientAPI = function (api, sourceDir, baseOutputDir) {
     var apiOutputDir = path.resolve(baseOutputDir, "PlayFabClientSdk");
     MakeLuaDistSdk([api], sourceDir, apiOutputDir, "Client");
-    copyTree(path.resolve(sourceDir, "testing"), apiOutputDir);
+    copyTree(path.resolve(sourceDir, "SharedTesting"), apiOutputDir); // SharedTesting in Client only
     
     apiOutputDir = path.resolve(baseOutputDir, "_Build/Defold/PlayFabClientSdk");
-    MakeDefoldSdk([api], sourceDir, apiOutputDir, "DefoldClient");
-    copyTree(path.resolve(sourceDir, "testing"), apiOutputDir);
+    MakeDefold([api], sourceDir, apiOutputDir, "DefoldClient");
+    copyTree(path.resolve(sourceDir, "SharedTesting"), apiOutputDir); // SharedTesting in Client only
+
+    apiOutputDir = path.resolve(baseOutputDir, "_Build/Corona/PlayFabClientSdk");
+    MakeCorona([api], sourceDir, apiOutputDir, "CoronaClient");
+    copyTree(path.resolve(sourceDir, "SharedTesting"), apiOutputDir); // SharedTesting in Client only
 }
 
 exports.makeServerAPI = function (apis, sourceDir, baseOutputDir) {
@@ -18,7 +22,10 @@ exports.makeServerAPI = function (apis, sourceDir, baseOutputDir) {
     MakeLuaDistSdk(apis, sourceDir, apiOutputDir, "Server");
     
     apiOutputDir = path.resolve(baseOutputDir, "_Build/Defold/PlayFabServerSdk");
-    MakeDefoldSdk(apis, sourceDir, apiOutputDir, "DefoldServer");
+    MakeDefold(apis, sourceDir, apiOutputDir, "DefoldServer");
+    
+    apiOutputDir = path.resolve(baseOutputDir, "_Build/Corona/PlayFabServerSdk");
+    MakeCorona(apis, sourceDir, apiOutputDir, "CoronaServer");
 }
 
 exports.makeCombinedAPI = function (apis, sourceDir, baseOutputDir) {
@@ -26,8 +33,12 @@ exports.makeCombinedAPI = function (apis, sourceDir, baseOutputDir) {
     MakeLuaDistSdk(apis, sourceDir, apiOutputDir, "Combined");
     
     apiOutputDir = path.resolve(baseOutputDir, "_Build/Defold/PlayFabSdk");
-    MakeDefoldSdk(apis, sourceDir, apiOutputDir, "DefoldCombined");
-    copyTree(path.resolve(sourceDir, "DefoldBuild"), baseOutputDir);
+    MakeDefold(apis, sourceDir, apiOutputDir, "DefoldCombined");
+    
+    apiOutputDir = path.resolve(baseOutputDir, "_Build/Corona/PlayFabSdk");
+    MakeCorona(apis, sourceDir, apiOutputDir, "CoronaCombined");
+    
+    copyTree(path.resolve(sourceDir, "GlobalFiles"), baseOutputDir);
 }
 
 function MakeCoreSdk(apis, sourceDir, apiOutputDir, sdkDescriptor) {
@@ -43,22 +54,27 @@ function MakeLuaDistSdk(apis, sourceDir, apiOutputDir, sdkDescriptor) {
     copyTree(path.resolve(sourceDir, "LuaDist"), apiOutputDir);
 }
 
-function MakeDefoldSdk(apis, sourceDir, apiOutputDir, sdkDescriptor) {
+function MakeDefold(apis, sourceDir, apiOutputDir, sdkDescriptor) {
     MakeCoreSdk(apis, sourceDir, apiOutputDir, sdkDescriptor);
-    copyTree(path.resolve(sourceDir, "Defold"), apiOutputDir);
+    copyTree(path.resolve(sourceDir, "EachDefold"), apiOutputDir);
     
-    var defoldLocals = {}
-    defoldLocals.sdkVersion = exports.sdkVersion;
-    defoldLocals.sdkDescriptor = sdkDescriptor;
+    var customLocals = {}
+    customLocals.sdkVersion = exports.sdkVersion;
+    customLocals.sdkDescriptor = sdkDescriptor;
     
     var projTemplate = ejs.compile(readFile(path.resolve(sourceDir, "templates/Defold/PlayFabSdk.project.ejs")));
-    var projGenerated = projTemplate(defoldLocals);
+    var projGenerated = projTemplate(customLocals);
     writeFile(path.resolve(apiOutputDir, "PlayFabSdk.project"), projGenerated);
     if (sdkDescriptor.indexOf("Client") > -1) {
         var testTemplate = ejs.compile(readFile(path.resolve(sourceDir, "templates/Defold/PlayFabTestExample.project.ejs")));
-        var testGenerated = testTemplate(defoldLocals);
+        var testGenerated = testTemplate(customLocals);
         writeFile(path.resolve(apiOutputDir, "PlayFabTestExample.project"), testGenerated);
     }
+}
+
+function MakeCorona(apis, sourceDir, apiOutputDir, sdkDescriptor) {
+    MakeCoreSdk(apis, sourceDir, apiOutputDir, sdkDescriptor);
+    copyTree(path.resolve(sourceDir, "EachCorona"), apiOutputDir);
 }
 
 function MakeApi(api, sourceDir, apiOutputDir) {

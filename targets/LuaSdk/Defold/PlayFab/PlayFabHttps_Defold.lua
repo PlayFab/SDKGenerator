@@ -10,8 +10,8 @@ local PlayFabHttps_Defold = {
 }
 
 local function InternalCallbackWrapper(onSuccess, onError)
-	return function(_, _, httpResponse)
-		if (httpResponse.status == 200) then
+    return function(_, _, httpResponse)
+        if (httpResponse.status == 200) then
             local _, response = pcall(json.decode, httpResponse.response or "null")
             if (response and response.code == 200 and response.data and onSuccess) then
                 onSuccess(response.data)
@@ -35,14 +35,14 @@ local function InternalCallbackWrapper(onSuccess, onError)
                 errorMessage = "Could not deserialize reseponse from server: " .. tostring(httpResponse.response)
             })
         end
-	end
+    end
 end
 
 function PlayFabHttps_Defold.MakePlayFabApiCall(urlPath, request, authKey, authValue, onSuccess, onError)
-	local ok, requestJson = pcall(json.encode, request)
-	if not ok then
-		error(requestJson or "request could not be converted to json")
-	end
+    local ok, requestJson = pcall(json.encode, request)
+    if not ok then
+        error(requestJson or "request could not be converted to json")
+    end
 
     local requestHeaders = {
         ["X-ReportErrorAsSuccess"] = "true",
@@ -54,16 +54,16 @@ function PlayFabHttps_Defold.MakePlayFabApiCall(urlPath, request, authKey, authV
         requestHeaders[authKey] = authValue
     end
 
-	local fullUrl = "https://" .. PlayFabSettings.settings.titleId .. ".playfabapi.com/" .. urlPath
+    local fullUrl = "https://" .. PlayFabSettings.settings.titleId .. ".playfabapi.com/" .. urlPath
 
-	http.request(
-		fullUrl,
-		"POST", -- All PlayFab APIs are POST
-		InternalCallbackWrapper(onSuccess, onError),
-		requestHeaders,
-		requestJson,
-		{} -- options
-	)
+    http.request(
+        fullUrl,
+        "POST", -- All PlayFab APIs are POST
+        InternalCallbackWrapper(onSuccess, onError),
+        requestHeaders,
+        requestJson,
+        {} -- options
+    )
 end
 
 return PlayFabHttps_Defold

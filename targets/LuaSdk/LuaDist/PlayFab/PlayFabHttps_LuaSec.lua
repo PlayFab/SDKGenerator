@@ -16,7 +16,7 @@ local PlayFabHttps_LuaSec = {
 }
 
 function PlayFabHttps_LuaSec.MakePlayFabApiCall(urlPath, request, authKey, authValue, onSuccess, onError)
-	local requestJson = json.encode(request)
+    local requestJson = json.encode(request)
     local requestHeaders = {
         ["X-ReportErrorAsSuccess"] = "true",
         ["X-PlayFabSDK"] = PlayFabSettings._internalSettings.sdkVersionString,

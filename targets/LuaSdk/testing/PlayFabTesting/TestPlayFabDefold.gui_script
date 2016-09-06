@@ -20,5 +20,5 @@ end
 
 function update(self, dt)
     PlayFabApiTestSuite.Update()
-	gui.set_text(pfTestOutput, PlayFabApiTestSuite.GenerateTestSummary())
+    gui.set_text(pfTestOutput, PlayFabApiTestSuite.GenerateTestSummary())
 end

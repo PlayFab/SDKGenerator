@@ -28,7 +28,7 @@ var PlayFabApiTests = {
         testNumber: null // Used by several tests
     },
     testConstants: {
-        TEST_KEY: "testCounter",
+        TEST_DATA_KEY: "testCounter",
         TEST_STAT_NAME: "str",
         CHAR_TEST_TYPE: "Fighter"
     },
@@ -44,7 +44,7 @@ var PlayFabApiTests = {
     },
     
     LoginTests: function () {
-        // All tests run completely synchronously, which is a bit tricky.
+        // All tests run in parallel, which is a bit tricky.
         //   Some test rely on data loaded from other tests, and there's no super easy to force tests to be sequential/dependent
         //   In fact, most of the tests return here before they're done, and report back success/fail in some arbitrary future
         
@@ -272,10 +272,10 @@ var PlayFabApiTests = {
         var getDataCallback2 = function (result, error) {
             PlayFabApiTests.VerifyNullError(result, error, assert, "Testing GetUserData result");
             assert.ok(result.data.Data != null, "Testing GetUserData Data");
-            assert.ok(result.data.Data.hasOwnProperty(PlayFabApiTests.testConstants.TEST_KEY), "Testing GetUserData DataKey");
+            assert.ok(result.data.Data.hasOwnProperty(PlayFabApiTests.testConstants.TEST_DATA_KEY), "Testing GetUserData DataKey");
             
-            var actualtestNumber = parseInt(result.data.Data[PlayFabApiTests.testConstants.TEST_KEY].Value, 10);
-            var timeUpdated = new Date(result.data.Data[PlayFabApiTests.testConstants.TEST_KEY].LastUpdated);
+            var actualtestNumber = parseInt(result.data.Data[PlayFabApiTests.testConstants.TEST_DATA_KEY].Value, 10);
+            var timeUpdated = new Date(result.data.Data[PlayFabApiTests.testConstants.TEST_DATA_KEY].LastUpdated);
             
             var now = Date.now();
             var testMin = now - (1000 * 60 * 5);
@@ -294,8 +294,8 @@ var PlayFabApiTests = {
             PlayFabApiTests.VerifyNullError(result, error, assert, "Testing GetUserData result");
             assert.ok(result.data.Data != null, "Testing GetUserData Data");
             
-            var hasData = result.data.Data.hasOwnProperty(PlayFabApiTests.testConstants.TEST_KEY);
-            PlayFabApiTests.testData.testNumber = !hasData ? 1 : parseInt(result.data.Data[PlayFabApiTests.testConstants.TEST_KEY].Value, 10);
+            var hasData = result.data.Data.hasOwnProperty(PlayFabApiTests.testConstants.TEST_DATA_KEY);
+            PlayFabApiTests.testData.testNumber = !hasData ? 1 : parseInt(result.data.Data[PlayFabApiTests.testConstants.TEST_DATA_KEY].Value, 10);
             PlayFabApiTests.testData.testNumber = (PlayFabApiTests.testData.testNumber + 1) % 100; // This test is about the expected value changing - but not testing more complicated issues like bounds
             
             var updateDataRequest = {
@@ -303,7 +303,7 @@ var PlayFabApiTests = {
                 //   https://api.playfab.com/Documentation/Client/method/UpdateUserData
                 Data: {} // Can't pre-define properties because the param-name is in a string
             };
-            updateDataRequest.Data[PlayFabApiTests.testConstants.TEST_KEY] = PlayFabApiTests.testData.testNumber;
+            updateDataRequest.Data[PlayFabApiTests.testConstants.TEST_DATA_KEY] = PlayFabApiTests.testData.testNumber;
             PlayFabClientSDK.UpdateUserData(updateDataRequest, PlayFabApiTests.CallbackWrapper("updateDataCallback", updateDataCallback, assert));
             get1Done();
         };

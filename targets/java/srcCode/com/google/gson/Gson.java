@@ -124,7 +124,7 @@ public final class Gson {
 
   final JsonDeserializationContext deserializationContext = new JsonDeserializationContext() {
     @SuppressWarnings("unchecked")
-	public <T> T deserialize(JsonElement json, Type typeOfT) throws JsonParseException {
+    public <T> T deserialize(JsonElement json, Type typeOfT) throws JsonParseException {
       return (T) fromJson(json, typeOfT);
     }
   };

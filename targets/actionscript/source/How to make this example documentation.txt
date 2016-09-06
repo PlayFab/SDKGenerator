@@ -68,52 +68,52 @@ The final version of HelloWorld.as looks like this:
 
     package
     {
-    	import flash.display.Sprite;
-    	import flash.text.*;
-    	import flash.filesystem.*;
+        import flash.display.Sprite;
+        import flash.text.*;
+        import flash.filesystem.*;
 
-    	public class HelloWorld extends Sprite
-    	{
-    		public function HelloWorld()
-    		{
-    			var textField:TextField = new TextField();
-    			stage.addChild( textField );
-    			textField.text = "Hello, World!";
+        public class HelloWorld extends Sprite
+        {
+            public function HelloWorld()
+            {
+                var textField:TextField = new TextField();
+                stage.addChild( textField );
+                textField.text = "Hello, World!";
 
-    			var outputFile:File = new File("C:/depot/sdks/ActionScriptSDK/HelloWorld/output.txt");
-    			var stream:FileStream = new FileStream();
-    			stream.open(outputFile, FileMode.WRITE);
-    			stream.writeUTFBytes("Hello, File World!");
-    			stream.close();
-    		}
-    	}
+                var outputFile:File = new File("C:/depot/sdks/ActionScriptSDK/HelloWorld/output.txt");
+                var stream:FileStream = new FileStream();
+                stream.open(outputFile, FileMode.WRITE);
+                stream.writeUTFBytes("Hello, File World!");
+                stream.close();
+            }
+        }
     }
 
 flexcfg.xml is MOSTLY generated automatically.  It's a long file, I won't share it all, but I will share some relevant lines:
 
     <external-library-path>
-    	<path-element>C:/dev/AirSdk/frameworks/libs/player/{targetPlayerMajorVersion}.{targetPlayerMinorVersion}/playerglobal.swc</path-element>
-    	<path-element>C:/dev/AirSdk/frameworks/libs/air/airglobal.swc</path-element>
+        <path-element>C:/dev/AirSdk/frameworks/libs/player/{targetPlayerMajorVersion}.{targetPlayerMinorVersion}/playerglobal.swc</path-element>
+        <path-element>C:/dev/AirSdk/frameworks/libs/air/airglobal.swc</path-element>
     </external-library-path>
 
 and later in the same file:
 
     <library-path>
-    	<path-element>C:/dev/AirSdk/frameworks/libs</path-element>
-    	<path-element>C:/dev/AirSdk/frameworks/locale/{locale}</path-element>
+        <path-element>C:/dev/AirSdk/frameworks/libs</path-element>
+        <path-element>C:/dev/AirSdk/frameworks/locale/{locale}</path-element>
     </library-path>
 
 HelloWorld.xml is almost copy paste of the one from help.adobe.com, but here it is:
 
     <?xml version="1.0" encoding="UTF-8"?>
     <application xmlns="http://ns.adobe.com/air/application/22.0">
-    	<id>samples.android.HelloWorld</id>
-    	<versionNumber>0.0.1</versionNumber>
-    	<filename>HelloWorld</filename>
-    	<initialWindow>
-    		<content>HelloWorld.swf</content>
-    	</initialWindow>
-    	<supportedProfiles>mobileDevice</supportedProfiles>
+        <id>samples.android.HelloWorld</id>
+        <versionNumber>0.0.1</versionNumber>
+        <filename>HelloWorld</filename>
+        <initialWindow>
+            <content>HelloWorld.swf</content>
+        </initialWindow>
+        <supportedProfiles>mobileDevice</supportedProfiles>
     </application>
 
 Finally, to wrap it up into one step, go.bat:

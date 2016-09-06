@@ -40,8 +40,8 @@ namespace PlayFab.Internal
         {
             string fullUrl = PlayFabSettings.GetFullUrl(urlPath);
             string bodyString = null;
-			var serializer = JsonSerializer.Create(PlayFabUtil.JsonSettings);
-			
+            var serializer = JsonSerializer.Create(PlayFabUtil.JsonSettings);
+            
             if(request == null)
             {
                 bodyString = "{}";
@@ -122,8 +122,8 @@ namespace PlayFab.Internal
                 error.ErrorDetails = errorResult.errorDetails;
                 return error;
             }
-			
-			if(String.IsNullOrEmpty(httpResponseString))
+            
+            if(String.IsNullOrEmpty(httpResponseString))
             {
                 PlayFabError error = new PlayFabError();
                 error.Error = PlayFabErrorCode.Unknown;

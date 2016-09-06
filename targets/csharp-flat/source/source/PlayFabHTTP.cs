@@ -97,8 +97,8 @@ namespace PlayFab.Internal
         internal static async Task<string> DoPost(this PlayFabSettings settings, string apiName, string url, object request, string authType, string authKey)
         {
             string bodyString = null;
-			var serializer = JsonSerializer.Create(settings.JsonSettings);
-			
+            var serializer = JsonSerializer.Create(settings.JsonSettings);
+            
             if(request == null)
             {
                 bodyString = "{}";
@@ -155,8 +155,8 @@ namespace PlayFab.Internal
                 PlayFabJsonError errorResult = serializer.Deserialize<PlayFabJsonError>(new JsonTextReader(new StringReader(httpResponseString)));
                 throw new PlayFabException(errorResult);
             }
-			
-			if(string.IsNullOrEmpty(httpResponseString))
+            
+            if(string.IsNullOrEmpty(httpResponseString))
             {
                 throw new PlayFabException(PlayFabErrorCode.Unknown, "Internal server error");
             }

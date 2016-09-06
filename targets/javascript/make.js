@@ -41,7 +41,7 @@ function GetRequestActions(apiCall, api) {
 function HasResultActions(apiCall, api) {
     if (apiCall.result === "LoginResult" || apiCall.result === "RegisterPlayFabUserResult")
         return true;
-    else if (api.name === "Client" && apiCall.result === "AttributeInstallResult")
+    if (api.name === "Client" && apiCall.result === "AttributeInstallResult")
         return true;
     if (api.name === "Client" && apiCall.result === "GetCloudScriptUrlResult")
         return true;
@@ -54,10 +54,10 @@ function GetResultActions(apiCall, api) {
             + "                PlayFab._internalSettings.sessionTicket = result.data.SessionTicket;\n" 
             + "                PlayFab.ClientApi._MultiStepClientLogin(result.data.SettingsForUser.NeedsAttribution);\n" 
             + "            }";
-    else if (api.name === "Client" && apiCall.result === "AttributeInstallResult")
+    if (api.name === "Client" && apiCall.result === "AttributeInstallResult")
         return "            // Modify advertisingIdType:  Prevents us from sending the id multiple times, and allows automated tests to determine id was sent successfully\n" 
             + "            PlayFab.settings.advertisingIdType += \"_Successful\";\n";
-    else if (api.name === "Client" && apiCall.result === "GetCloudScriptUrlResult")
+    if (api.name === "Client" && apiCall.result === "GetCloudScriptUrlResult")
         return "            PlayFab._internalSettings.logicServerUrl = result.data.Url;";
     return "";
 }
@@ -71,7 +71,7 @@ function GetUrl(apiCall, api) {
 function GetAuthParams(apiCall) {
     if (apiCall.auth === "SecretKey")
         return "\"X-SecretKey\", PlayFab.settings.developerSecretKey";
-    else if (apiCall.auth === "SessionTicket")
+    if (apiCall.auth === "SessionTicket")
         return "\"X-Authorization\", PlayFab._internalSettings.sessionTicket";
     return "null, null";
 }
@@ -83,7 +83,7 @@ function GetDeprecationAttribute(tabbing, apiObj) {
         return tabbing + "/**\n" 
             + tabbing + " * @deprecated Please use " + apiObj.deprecation.ReplacedBy + " instead. \n" 
             + tabbing + " */\n";
-    else if (isDeprecated)
+    if (isDeprecated)
         return tabbing + "/**\n" 
             + tabbing + " * @deprecated Do not use\n" 
             + tabbing + " */\n";

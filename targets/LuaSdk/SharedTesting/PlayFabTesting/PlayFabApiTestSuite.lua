@@ -349,7 +349,7 @@ function PlayFabApiTestSuite.GenerateTestSummary()
     return AsyncTestSuite.GenerateTestSummary()
 end
 
-function PlayFabApiTestSuite.SendJenkernaughtReport()
+function PlayFabApiTestSuite.SendJenkernaughtReport(OnSaveSuccess, OnSaveFail)
     local pfTestReport = AsyncTestSuite.GetJenkernaughtReport()
 
     local saveResultsRequest = {
@@ -363,11 +363,9 @@ function PlayFabApiTestSuite.SendJenkernaughtReport()
         GeneratePlayStreamEvent = true
     }
     if (PlayFabClientApi.IsClientLoggedIn()) then
-        PlayFabClientApi.ExecuteCloudScript(saveResultsRequest, nil, nil)
-        -- This only works without a callback if the suite is running in LuaSec
-        print(PlayFabApiTestSuite.playFabId .. ", Test report saved to CloudScript: " .. buildIdentifier .. "\n" .. json.encode(saveResultsRequest.FunctionParameter))
+        PlayFabClientApi.ExecuteCloudScript(saveResultsRequest, OnSaveSuccess, OnSaveFail)
     else
-        print(PlayFabApiTestSuite.playFabId .. ", Failed to save test report to CloudScript: " .. buildIdentifier .. "\n" .. json.encode(saveResultsRequest.FunctionParameter))
+        OnSaveFail(nil) -- Could not save the test results
     end
 end
 

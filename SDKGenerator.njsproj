@@ -628,9 +628,9 @@
     <Content Include="targets\js-node\testingFiles\test.bat" />
     <Content Include="targets\LuaSdk\EachCorona\PlayFab\PlayFabHttps_Corona.lua" />
     <Content Include="targets\LuaSdk\GlobalFiles\_Build\Corona\PlayFabClientSDK\BackGround.png" />
-    <Content Include="targets\LuaSdk\GlobalFiles\_Build\Corona\PlayFabClientSDK\PlayFabTesting\TestCorona.lua" />
     <Content Include="targets\LuaSdk\GlobalFiles\_Build\Defold\BuildDefoldZips.bat" />
     <Content Include="targets\LuaSdk\EachDefold\PlayFab\PlayFabHttps_Defold.lua" />
+    <Content Include="targets\LuaSdk\GlobalFiles\_Build\Defold\PlayFabClientSDK\PlayFabTesting\TestOutput.gui" />
     <Content Include="targets\LuaSdk\source\PlayFab\IPlayFabHttps.lua" />
     <Content Include="targets\LuaSdk\source\PlayFab\json.lua" />
     <Content Include="targets\LuaSdk\LuaDist\PlayFab\PlayFabHttps_LuaSec.lua" />

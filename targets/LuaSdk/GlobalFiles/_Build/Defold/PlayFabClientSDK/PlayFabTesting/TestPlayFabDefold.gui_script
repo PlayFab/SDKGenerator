@@ -12,7 +12,24 @@ PlayFabSettings.titleId = "6195"
 IPlayFabHttps.SetHttp(PlayFabHttps_Defold) -- Assign the Defold-specific IHttps wrapper
 
 local pfTestOutput = nil
+local jenkernaughtReportSent = false
 
+-- When finished, Save the report and exit
+local function OnSaveSuccess(result)
+    print(PlayFabApiTestSuite.playFabId .. ", Test report saved to CloudScript: " .. PlayFabSettings._internalSettings.buildIdentifier)
+    msg.post("@system:", "exit", {code = 0})
+end
+local function OnSaveFail(result)
+    print(PlayFabApiTestSuite.playFabId .. ", Failed to save test report to CloudScript: " .. PlayFabSettings._internalSettings.buildIdentifier)
+    msg.post("@system:", "exit", {code = 1})
+end
+local function SendJenkernaughtReport()
+    jenkernaughtReportSent = true
+    print("Sending Jenkernaught Report...")
+    PlayFabApiTestSuite.SendJenkernaughtReport(OnSaveSuccess, OnSaveFail)
+end
+
+-- GUI functions
 function init(self)
     PlayFabApiTestSuite.Start()
     pfTestOutput = gui.get_node("PfTestOutput")
@@ -21,4 +38,8 @@ end
 function update(self, dt)
     PlayFabApiTestSuite.Update()
     gui.set_text(pfTestOutput, PlayFabApiTestSuite.GenerateTestSummary())
+
+    if (not jenkernaughtReportSent and PlayFabApiTestSuite.IsFinished()) then
+        SendJenkernaughtReport()
+    end
 end

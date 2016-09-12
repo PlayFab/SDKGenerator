@@ -6,6 +6,7 @@ exports.putInRoot = true;
 
 // Build the SDK into the gameserver and example-client, as they'd appear if taken from nightly
 exports.makeCombinedAPI = function (apis, sourceDir, apiOutputDir) {
+
     MakeSdk(apis, sourceDir, path.resolve(apiOutputDir, "GameServerSource/Assets/PlayFabSDK")); // GameServer
     MakeSdk(apis, sourceDir, path.resolve(apiOutputDir, "PlayFabGameServerClientExample/Assets/PlayFabSDK")); // Client Example
 }

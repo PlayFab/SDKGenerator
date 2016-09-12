@@ -362,6 +362,21 @@ function MkdirParentsSync(dirname) {
     fs.mkdirSync(dirname);
 }
 
+// Returns one of: Null, "Proposed", "Deprecated", "Obsolete"
+GLOBAL.GetDeprecationStatus =  function (apiObj) {
+    var deprecation = apiObj.hasOwnProperty("deprecation");
+    if (!deprecation)
+        return null;
+
+    var deprecationTime = new Date(apiObj.deprecation.DeprecatedAfter);
+    var obsoleteTime = new Date(apiObj.deprecation.ObsoleteAfter);
+    if (new Date() > obsoleteTime)
+        return "Obsolete";
+    if (new Date() > deprecationTime)
+        return "Deprecated";
+    return "Proposed";
+}
+
 GLOBAL.readFile = function (filename) {
     return fs.readFileSync(filename, "utf8");
 }

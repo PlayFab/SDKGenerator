@@ -16,7 +16,10 @@ namespace JenkinsConsoleUtility.Commands
         {
             string taskName;
             if (!inputs.TryGetValue("taskname", out taskName))
+            {
+                JenkinsConsoleUtility.FancyWriteToConsole("Cannot find the process to kill", null, ConsoleColor.Red);
                 return 1;
+            }
 
             List<Process> hitList = new List<Process>();
             hitList.AddRange(Process.GetProcessesByName(taskName));
@@ -50,6 +53,8 @@ namespace JenkinsConsoleUtility.Commands
                 eachProcess.Kill(); // If it didn't close gently, then close it better.
             }
 
+            if (hitList.Count == 0)
+                JenkinsConsoleUtility.FancyWriteToConsole("No tasks to kill: " + taskName, null, ConsoleColor.Red);
             return hitList.Count > 0 ? 0 : 1;
         }
     }

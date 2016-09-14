@@ -52,6 +52,7 @@ function MakeSignals(apis, templateDir, apiOutputDir) {
     
     var apiTemplate = ejs.compile(readFile(path.resolve(templateDir, "PlayFabSignals.cs.ejs")));
     var locals = {};
+    locals.GenerateSummary = GenerateSummary;
     locals.apis = apis;
     var generatedApi = apiTemplate(locals);
     writeFile(path.resolve(apiOutputDir, "Signals/PlayFabSignals.cs"), generatedApi);
@@ -62,6 +63,7 @@ function MakeCommands(apis, templateDir, apiOutputDir) {
     
     var apiTemplate = ejs.compile(readFile(path.resolve(templateDir, "PlayFabCommands.cs.ejs")));
     var locals = {};
+    locals.GenerateSummary = GenerateSummary;
     locals.apis = apis;
     var generatedApi = apiTemplate(locals);
     writeFile(path.resolve(apiOutputDir, "Commands/PlayFabCommands.cs"), generatedApi);

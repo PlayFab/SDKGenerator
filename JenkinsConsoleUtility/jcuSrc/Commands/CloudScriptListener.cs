@@ -152,7 +152,8 @@ namespace JenkinsConsoleUtility.Commands
 
             if (task.Result.Error != null)
             {
-                Console.WriteLine(PlayFabUtil.GetErrorReport(task.Result.Error));
+                Console.WriteLine("Execute Cloudscript failure: " + functionName + ":\n" + JsonConvert.SerializeObject(functionParameter));
+                Console.WriteLine(errorReport);
                 result = default(TOut);
                 return false;
             }

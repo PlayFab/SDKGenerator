@@ -45,7 +45,7 @@ namespace PlayFab
         };
         public static Formatting JsonFormatting = Formatting.None;
 
-        private readonly static StringBuilder Sb = new StringBuilder();
+        private static readonly StringBuilder Sb = new StringBuilder();
         public static string GetErrorReport(PlayFabError error)
         {
             if (error == null)
@@ -57,10 +57,8 @@ namespace PlayFab
                 return Sb.ToString();
 
             foreach (var pair in error.ErrorDetails)
-            {
                 foreach (var eachMsg in pair.Value)
-                    Sb.Append(pair.Key).Append(": ").Append(eachMsg);
-            }
+                    Sb.Append("\n").Append(pair.Key).Append(": ").Append(eachMsg);
             return Sb.ToString();
         }
 

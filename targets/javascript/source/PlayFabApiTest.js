@@ -588,11 +588,17 @@ QUnit.done(function (details) {
         FunctionParameter: { customId: PlayFab._internalSettings.buildIdentifier, testReport: PfTestReport },
         GeneratePlayStreamEvent: true
     };
+    var onSaveResultsFinal = function (result, error) {
+        if (result && !error) {
+            console.log(PlayFabApiTests.testData.playFabId, ", Test report saved to CloudScript: ", PlayFab._internalSettings.buildIdentifier, "\n", JSON.stringify(PfTestReport, null, 4));
+        } else {
+            console.log(PlayFabApiTests.testData.playFabId, ", Failed to save test report to CloudScript (CS Error): ", PlayFab._internalSettings.buildIdentifier, "\n", JSON.stringify(PfTestReport, null, 4));
+        }
+    };
     if (PlayFabClientSDK.IsClientLoggedIn()) {
-        PlayFabClientSDK.ExecuteCloudScript(saveResultsRequest, null);
-        console.log(PlayFabApiTests.testData.playFabId, ", Test report saved to CloudScript: ", PlayFab._internalSettings.buildIdentifier, "\n", JSON.stringify(PfTestReport, null, 4));
+        PlayFabClientSDK.ExecuteCloudScript(saveResultsRequest, onSaveResultsFinal);
     } else {
-        console.log(PlayFabApiTests.testData.playFabId, ", Failed to save test report to CloudScript: ", PlayFab._internalSettings.buildIdentifier, "\n", JSON.stringify(PfTestReport, null, 4));
+        console.log(PlayFabApiTests.testData.playFabId, ", Failed to save test report to CloudScript (Login): ", PlayFab._internalSettings.buildIdentifier, "\n", JSON.stringify(PfTestReport, null, 4));
     }
 });
 

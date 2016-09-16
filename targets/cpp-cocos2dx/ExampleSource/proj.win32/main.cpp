@@ -15,7 +15,7 @@ std::string utf8_encode(const std::wstring &wstr)
 	return strTo;
 }
 
-int APIENTRY _tWinMain(HINSTANCE hInstance,
+int WINAPI _tWinMain(HINSTANCE hInstance,
                        HINSTANCE hPrevInstance,
                        LPTSTR    lpCmdLine,
                        int       nCmdShow)

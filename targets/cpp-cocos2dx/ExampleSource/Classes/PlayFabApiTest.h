@@ -312,10 +312,7 @@ namespace PlayFabApiTest
 
         // A bunch of constants loaded from testTitleData.json
         static const std::string TEST_TITLE_DATA_LOC;
-        static std::string userName;
         static std::string userEmail;
-        static std::string userPassword;
-        static std::string characterName;
         static bool TITLE_CAN_UPDATE_SETTINGS;
         const static std::string TEST_DATA_KEY;
         const static std::string TEST_STAT_NAME;
@@ -359,18 +356,12 @@ namespace PlayFabApiTest
                 // POPULATE THIS SECTION WITH REAL INFORMATION
                 playFabSettings->titleId = ""; // The titleId for your title, found in the "Settings" section of PlayFab Game Manager
                 TITLE_CAN_UPDATE_SETTINGS = true; // Make sure this is enabled in your title, found in the "Settings" section, "API Features" section of PlayFab Game Manager
-                userName = ""; // This is an arbitrary user name, which will be utilized for this test
                 userEmail = ""; // This is the email for the user
-                userPassword = ""; // This is the password for the user
-                characterName = ""; // This should be a valid character on the given user's account
             }
 
             // Verify all the inputs won't cause crashes in the tests
             return !playFabSettings->titleId.empty()
-                && !userName.empty()
-                && !userEmail.empty()
-                && !userPassword.empty()
-                && !characterName.empty();
+                && !userEmail.empty();
         }
 
         static void PostTestResultsToCloudScript()
@@ -448,15 +439,8 @@ namespace PlayFabApiTest
             if (each != end) blah = each->value.GetString();
             TITLE_CAN_UPDATE_SETTINGS = (blah.compare("true") == 0 || blah.compare("True") == 0 || blah.compare("TRUE") == 0);
 
-            each = testInputs.FindMember("userName");
-            if (each != end) userName = each->value.GetString();
             each = testInputs.FindMember("userEmail");
             if (each != end) userEmail = each->value.GetString();
-            each = testInputs.FindMember("userPassword");
-            if (each != end) userPassword = each->value.GetString();
-
-            each = testInputs.FindMember("characterName");
-            if (each != end) characterName = each->value.GetString();
         }
         // Start a test, and block until the threaded response arrives
         static void StartTest(PfTestContext& testContext)
@@ -501,7 +485,7 @@ namespace PlayFabApiTest
         {
             LoginWithEmailAddressRequest request;
             request.Email = userEmail;
-            request.Password = userPassword + "INVALID";
+            request.Password = "INVALID";
             PlayFabClientAPI::LoginWithEmailAddress(request, InvalidLoginSuccess, InvalidLoginFail, &testContext);
         }
         static void InvalidLoginSuccess(const LoginResult& result, void* customData)
@@ -526,7 +510,7 @@ namespace PlayFabApiTest
         static void InvalidRegistration(PfTestContext& testContext)
         {
             RegisterPlayFabUserRequest request;
-            request.Username = userName;
+            request.Username = "x";
             request.Email = "x";
             request.Password = "x";
             PlayFabClientAPI::RegisterPlayFabUser(request, InvalidRegistrationSuccess, InvalidRegistrationFail, &testContext);
@@ -831,10 +815,7 @@ namespace PlayFabApiTest
     std::string PlayFabApiTests::_outputSummary;
     PlayFabSettings* PlayFabApiTests::playFabSettings;
     const std::string PlayFabApiTests::TEST_TITLE_DATA_LOC = "C:/depot/pf-main/tools/SDKBuildScripts/testTitleData.json";
-    std::string PlayFabApiTests::userName;
     std::string PlayFabApiTests::userEmail;
-    std::string PlayFabApiTests::userPassword;
-    std::string PlayFabApiTests::characterName;
     bool PlayFabApiTests::TITLE_CAN_UPDATE_SETTINGS = false;
     const std::string PlayFabApiTests::TEST_DATA_KEY = "testCounter";
     const std::string PlayFabApiTests::TEST_STAT_NAME = "str";

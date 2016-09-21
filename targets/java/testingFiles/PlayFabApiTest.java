@@ -23,9 +23,7 @@ public class PlayFabApiTest
     private static final String CHAR_TEST_TYPE = "Test";
 
     // Fixed values provided from testInputs
-    private static String USER_NAME;
     private static String USER_EMAIL;
-    private static String USER_PASSWORD;
     private static String CHAR_NAME;
     private static boolean TITLE_CAN_UPDATE_SETTINGS;
 
@@ -70,9 +68,7 @@ public class PlayFabApiTest
         public String titleId;
         public String developerSecretKey;
         public String titleCanUpdateSettings;
-        public String userName;
         public String userEmail;
-        public String userPassword;
         public String characterName;
     }
 
@@ -93,9 +89,7 @@ public class PlayFabApiTest
             //PlayFabSettings.TitleId = "TODO: TitleID";
             //PlayFabSettings.DeveloperSecretKey = "TODO: A big long secret key that you should NEVER publish with your client";
             //TITLE_CAN_UPDATE_SETTINGS = false; // TODO: Set to true if you've enabled this in your title.
-            //USER_NAME = "TODO: a test username (make this up for yourself)";
-            //USER_EMAIL = "TODO: a test email (use your own)";
-            //USER_PASSWORD = "TODO: a test password (this is the existing password for the user above, or the new password if the user doesn't exist yet)";
+            //USER_EMAIL = "TODO: an email associated with an existing account on your title";
             //CHAR_NAME = "TODO: a test character (make this up for yourself)";
             return;
         }
@@ -104,9 +98,7 @@ public class PlayFabApiTest
         PlayFabSettings.TitleId = resultData.titleId;
         PlayFabSettings.DeveloperSecretKey = resultData.developerSecretKey;
         TITLE_CAN_UPDATE_SETTINGS = Boolean.parseBoolean(resultData.titleCanUpdateSettings);
-        USER_NAME = resultData.userName;
         USER_EMAIL = resultData.userEmail;
-        USER_PASSWORD = resultData.userPassword;
         CHAR_NAME = resultData.characterName;
     }
 
@@ -121,7 +113,7 @@ public class PlayFabApiTest
         PlayFabClientModels.LoginWithEmailAddressRequest request = new PlayFabClientModels.LoginWithEmailAddressRequest();
         request.TitleId = PlayFabSettings.TitleId;
         request.Email = USER_EMAIL;
-        request.Password = USER_PASSWORD + "invalid";
+        request.Password = "INVALID";
 
         PlayFabResult<PlayFabClientModels.LoginResult> result = PlayFabClientAPI.LoginWithEmailAddress(request);
         VerifyResult(result, false);
@@ -168,8 +160,6 @@ public class PlayFabApiTest
         VerifyResult(result, true);
         assertNotNull(result.Result.PlayFabId);
         playFabId = result.Result.PlayFabId;
-
-        // TODO: Register if the login failed
     }
 
     /// <summary>

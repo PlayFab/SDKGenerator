@@ -17,10 +17,8 @@ var PlayFabApiTests = {
         titleId: null, // put titleId here
         developerSecretKey: null, // put secretKey here
         titleCanUpdateSettings: "true",
-        userName: "put test username here",
-        userEmail: "put valid email for userName here",
-        userPassword: "put valid password for userName here",
-        characterName: "put valid characterName for userName here"
+        userEmail: "put valid email associated with an existing account here",
+        characterName: "put any character name here"
     },
     testData: {
         playFabId: null, // Filled during login
@@ -81,9 +79,7 @@ var PlayFabApiTests = {
         var titleDataValid = inputTitleData.hasOwnProperty("titleId") && inputTitleData.titleId != null 
         && inputTitleData.hasOwnProperty("developerSecretKey") && inputTitleData.developerSecretKey != null 
         && inputTitleData.hasOwnProperty("titleCanUpdateSettings") 
-        && inputTitleData.hasOwnProperty("userName") 
         && inputTitleData.hasOwnProperty("userEmail") 
-        && inputTitleData.hasOwnProperty("userPassword") 
         && inputTitleData.hasOwnProperty("characterName");
         
         if (titleDataValid)
@@ -151,7 +147,7 @@ var PlayFabApiTests = {
             //   https://api.playfab.com/Documentation/Client/method/LoginWithEmailAddress
             TitleId: PlayFab.settings.titleId,
             Email: PlayFabApiTests.titleData.userEmail,
-            Password: PlayFabApiTests.titleData.userPassword + "INVALID"
+            Password: "INVALID"
         };
         
         var invalidLoginCallback = function (result, error) {

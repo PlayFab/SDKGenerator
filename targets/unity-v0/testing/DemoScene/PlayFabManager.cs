@@ -66,7 +66,6 @@ public class PlayFabManager : MonoBehaviour
             PlayFabSettings.TitleId = TitleId = eachValue;
 
             loadedTitleInfo &= testInputs.TryGetValue("userEmail", out email);
-            loadedTitleInfo &= testInputs.TryGetValue("userPassword", out password);
 
             if (loadedTitleInfo)
                 PlayFabClientAPI.LoginWithEmailAddress(new LoginWithEmailAddressRequest { Email = email, Password = password, TitleId = TitleId }, OnLoginSuccess, OnLoginError, "LoginWithEmailAddress");

@@ -24,9 +24,7 @@ namespace PlayFab.UUnit
         private static bool TITLE_CAN_UPDATE_SETTINGS = false;
 
         // Fixed values provided from testInputs
-        private static string USER_NAME;
         private static string USER_EMAIL;
-        private static string USER_PASSWORD;
         private static string CHAR_NAME;
 
         // Information fetched by appropriate API calls
@@ -51,18 +49,14 @@ namespace PlayFab.UUnit
             TITLE_INFO_SET &= testInputs.TryGetValue("titleCanUpdateSettings", out eachValue);
             TITLE_INFO_SET &= bool.TryParse(eachValue, out TITLE_CAN_UPDATE_SETTINGS);
 
-            TITLE_INFO_SET &= testInputs.TryGetValue("userName", out USER_NAME);
             TITLE_INFO_SET &= testInputs.TryGetValue("userEmail", out USER_EMAIL);
-            TITLE_INFO_SET &= testInputs.TryGetValue("userPassword", out USER_PASSWORD);
 
             TITLE_INFO_SET &= testInputs.TryGetValue("characterName", out CHAR_NAME);
 
             // Verify all the inputs won't cause crashes in the tests
             TITLE_INFO_SET &= !string.IsNullOrEmpty(PlayFabSettings.TitleId)
                 && !string.IsNullOrEmpty(PlayFabSettings.DeveloperSecretKey)
-                && !string.IsNullOrEmpty(USER_NAME)
                 && !string.IsNullOrEmpty(USER_EMAIL)
-                && !string.IsNullOrEmpty(USER_PASSWORD)
                 && !string.IsNullOrEmpty(CHAR_NAME);
         }
 
@@ -106,7 +100,7 @@ namespace PlayFab.UUnit
             {
                 TitleId = PlayFabSettings.TitleId,
                 Email = USER_EMAIL,
-                Password = USER_PASSWORD + "INVALID",
+                Password = "INVALID",
             };
             var task = PlayFabClientAPI.LoginWithEmailAddressAsync(request);
             task.Wait();
@@ -132,6 +126,7 @@ namespace PlayFab.UUnit
                 Password = "x",
             };
             var registerTask = PlayFabClientAPI.RegisterPlayFabUserAsync(registerRequest);
+            registerTask.Wait();
             UUnitAssert.NotNull(registerTask.Result);
             UUnitAssert.IsNull(registerTask.Result.Result);
             UUnitAssert.NotNull(registerTask.Result.Error);
@@ -158,11 +153,9 @@ namespace PlayFab.UUnit
                 CreateAccount = true
             };
             var loginTask = PlayFabClientAPI.LoginWithCustomIDAsync(loginRequest);
-            WaitForResultSuccess(loginTask, "Login with advertId failed");
-            loginTask.Wait(); // We don't care about success or fail here
+            WaitForResultSuccess(loginTask, "Login failed");
 
             _playFabId = loginTask.Result.Result.PlayFabId; // Needed for subsequent tests
-
             UUnitAssert.True(PlayFabClientAPI.IsClientLoggedIn(), "User login failed");
         }
 
@@ -184,7 +177,9 @@ namespace PlayFab.UUnit
             };
             var loginTask = PlayFabClientAPI.LoginWithCustomIDAsync(loginRequest);
             WaitForResultSuccess(loginTask, "Login with advertId failed");
-            loginTask.Wait(); // We don't care about success or fail here
+
+            _playFabId = loginTask.Result.Result.PlayFabId; // Needed for subsequent tests
+            UUnitAssert.True(PlayFabClientAPI.IsClientLoggedIn(), "User login failed");
 
             UUnitAssert.StringEquals(PlayFabSettings.AD_TYPE_ANDROID_ID + "_Successful", PlayFabSettings.AdvertisingIdType);
         }

@@ -39,9 +39,7 @@ namespace UnittestRunner
     bool TITLE_CAN_UPDATE_SETTINGS = false;
 
     // Fixed values provided from testInputs
-    string USER_NAME;
     string USER_EMAIL;
-    string USER_PASSWORD;
     string CHAR_NAME;
 
     // Information fetched by appropriate API calls
@@ -84,12 +82,8 @@ namespace UnittestRunner
             if (each != end) blah = each->value.GetString(); else TITLE_INFO_SET = false;
             TITLE_CAN_UPDATE_SETTINGS = (blah.compare("true") == 0 || blah.compare("True") == 0 || blah.compare("TRUE") == 0);
 
-            each = testInputs.FindMember("userName");
-            if (each != end) USER_NAME = each->value.GetString(); else TITLE_INFO_SET = false;
             each = testInputs.FindMember("userEmail");
             if (each != end) USER_EMAIL = each->value.GetString(); else TITLE_INFO_SET = false;
-            each = testInputs.FindMember("userPassword");
-            if (each != end) USER_PASSWORD = each->value.GetString(); else TITLE_INFO_SET = false;
 
             each = testInputs.FindMember("characterName");
             if (each != end) CHAR_NAME = each->value.GetString(); else TITLE_INFO_SET = false;
@@ -97,9 +91,7 @@ namespace UnittestRunner
             // Verify all the inputs won't cause crashes in the tests
             TITLE_INFO_SET &= !PlayFabSettings::titleId.empty()
                 && !PlayFabSettings::developerSecretKey.empty()
-                && !USER_NAME.empty()
                 && !USER_EMAIL.empty()
-                && !USER_PASSWORD.empty()
                 && !CHAR_NAME.empty();
         }
 
@@ -181,7 +173,7 @@ namespace UnittestRunner
             LoginWithEmailAddressRequest request;
             request.TitleId = PlayFabSettings::titleId;
             request.Email = USER_EMAIL;
-            request.Password = USER_PASSWORD + "INVALID";
+            request.Password = "INVALID";
 
             PlayFabClientAPI::LoginWithEmailAddress(request, &LoginCallback, &LoginFailedCallback, nullptr);
             ClientApiWait();

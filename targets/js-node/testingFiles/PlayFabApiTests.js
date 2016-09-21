@@ -24,9 +24,7 @@ var TitleData = {
     titleId: "",
     developerSecretKey: "",
     titleCanUpdateSettings: "",
-    userName: "",
     userEmail: "",
-    userPassword: "",
     characterName: ""
 };
 
@@ -116,9 +114,7 @@ exports.PlayFabApiTests = {
             var titleDataValid = inputTitleData.hasOwnProperty("titleId") 
             && inputTitleData.hasOwnProperty("developerSecretKey") 
             && inputTitleData.hasOwnProperty("titleCanUpdateSettings") 
-            && inputTitleData.hasOwnProperty("userName") 
             && inputTitleData.hasOwnProperty("userEmail") 
-            && inputTitleData.hasOwnProperty("userPassword") 
             && inputTitleData.hasOwnProperty("characterName");
             
             if (titleDataValid)
@@ -143,7 +139,7 @@ exports.PlayFabApiTests = {
         var invalidRequest = {
             TitleId: PlayFab.settings.titleId,
             Email: TitleData.userEmail,
-            Password: TitleData.userPassword + "INVALID"
+            Password: "INVALID"
         };
         
         var invalidLoginCallback = function (error, result) {

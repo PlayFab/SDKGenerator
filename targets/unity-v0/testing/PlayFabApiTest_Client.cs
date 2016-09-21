@@ -27,9 +27,7 @@ namespace PlayFab.UUnit
         private static bool TITLE_CAN_UPDATE_SETTINGS = false;
 
         // Fixed values provided from testInputs
-        private static string USER_NAME;
         private static string USER_EMAIL;
-        private static string USER_PASSWORD;
 
         // Information fetched by appropriate API calls
         private string _playFabId;
@@ -53,15 +51,11 @@ namespace PlayFab.UUnit
             TITLE_INFO_SET &= testInputs.TryGetValue("titleCanUpdateSettings", out eachValue);
             TITLE_INFO_SET &= bool.TryParse(eachValue, out TITLE_CAN_UPDATE_SETTINGS);
 
-            TITLE_INFO_SET &= testInputs.TryGetValue("userName", out USER_NAME);
             TITLE_INFO_SET &= testInputs.TryGetValue("userEmail", out USER_EMAIL);
-            TITLE_INFO_SET &= testInputs.TryGetValue("userPassword", out USER_PASSWORD);
 
             // Verify all the inputs won't cause crashes in the tests
             TITLE_INFO_SET &= !string.IsNullOrEmpty(PlayFabSettings.TitleId)
-                && !string.IsNullOrEmpty(USER_NAME)
-                && !string.IsNullOrEmpty(USER_EMAIL)
-                && !string.IsNullOrEmpty(USER_PASSWORD);
+                && !string.IsNullOrEmpty(USER_EMAIL);
         }
 
         public override void SetUp(UUnitTestContext testContext)
@@ -82,9 +76,7 @@ namespace PlayFab.UUnit
                     testInputs = new Dictionary<String, String>();
                     testInputs["titleId"] = "6195";
                     testInputs["titleCanUpdateSettings"] = "true";
-                    testInputs["userName"] = "paul";
                     testInputs["userEmail"] = "paul@playfab.com";
-                    testInputs["userPassword"] = "testPassword";
                 }
                 SetTitleInfo(testInputs);
                 EXEC_ONCE = false;
@@ -121,7 +113,7 @@ namespace PlayFab.UUnit
             var request = new LoginWithEmailAddressRequest();
             request.TitleId = PlayFabSettings.TitleId;
             request.Email = USER_EMAIL;
-            request.Password = USER_PASSWORD + "INVALID";
+            request.Password = "INVALID";
             PlayFabClientAPI.LoginWithEmailAddress(request, PlayFabUUnitUtils.ApiCallbackWrapper<LoginResult>(testContext, InvalidLoginCallback), PlayFabUUnitUtils.ApiErrorWrapper(testContext, ExpectedLoginErrorCallback), testContext);
         }
         private void InvalidLoginCallback(LoginResult result)

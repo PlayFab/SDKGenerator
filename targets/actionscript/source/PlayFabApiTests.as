@@ -33,10 +33,7 @@ package
         private static var TITLE_CAN_UPDATE_SETTINGS:Boolean = false;
 
         // Fixed values provided from testInputs
-        private static var USER_NAME:String;
         private static var USER_EMAIL:String;
-        private static var USER_PASSWORD:String;
-        private static var CHAR_NAME:String;
 
         // Information fetched by appropriate API calls
         private static var playFabId:String;
@@ -90,19 +87,13 @@ package
             PlayFabSettings.TitleId = testTitleData.titleId;
             PlayFabSettings.DeveloperSecretKey = testTitleData.developerSecretKey;
             TITLE_CAN_UPDATE_SETTINGS = testTitleData.titleCanUpdateSettings.toLowerCase() == "true";
-            USER_NAME = testTitleData.userName;
             USER_EMAIL = testTitleData.userEmail;
-            USER_PASSWORD = testTitleData.userPassword;
-            CHAR_NAME = testTitleData.characterName;
 
             TITLE_INFO_SET = Boolean(PlayFabSettings.TitleId)
                 || Boolean(PlayFabSettings.TitleId)
                 || Boolean(PlayFabSettings.DeveloperSecretKey)
                 || Boolean(TITLE_CAN_UPDATE_SETTINGS)
-                || Boolean(USER_NAME)
-                || Boolean(USER_EMAIL)
-                || Boolean(USER_PASSWORD)
-                || Boolean(CHAR_NAME);
+                || Boolean(USER_EMAIL);
             return TITLE_INFO_SET;
         }
 
@@ -122,7 +113,7 @@ package
 
         /// <summary>
         /// CLIENT API
-        /// Try to deliberately log in with an inappropriate password,
+        /// Deliberately log in with an inappropriate password,
         ///   and verify that the error displays as expected.
         /// </summary>
         private function InvalidLogin() : void
@@ -130,7 +121,7 @@ package
             var request:com.playfab.ClientModels.LoginWithEmailAddressRequest = new com.playfab.ClientModels.LoginWithEmailAddressRequest();
             request.TitleId = PlayFabSettings.TitleId;
             request.Email = USER_EMAIL;
-            request.Password = USER_PASSWORD + "INVALID";
+            request.Password = "INVALID";
             PlayFabClientAPI.LoginWithEmailAddress(request, Wrap(InvalidLogin_Success, "InvalidLogin_Success"), Wrap(InvalidLogin_Failure, "InvalidLogin_Success"));
         }
         private function InvalidLogin_Success(result:com.playfab.ClientModels.LoginResult) : void

@@ -2,6 +2,7 @@ using System;
 using System.Collections.Generic;
 using Newtonsoft.Json.Linq;
 using PlayFab.ClientModels;
+using PlayFab.Internal;
 
 namespace PlayFab.UUnit
 {
@@ -25,9 +26,7 @@ namespace PlayFab.UUnit
         private static bool TITLE_CAN_UPDATE_SETTINGS = false;
 
         // Fixed values provided from testInputs
-        private static string USER_NAME;
         private static string USER_EMAIL;
-        private static string USER_PASSWORD;
         private static string CHAR_NAME;
 
         // Information fetched by appropriate API calls
@@ -52,18 +51,14 @@ namespace PlayFab.UUnit
             TITLE_INFO_SET &= testInputs.TryGetValue("titleCanUpdateSettings", out eachValue);
             TITLE_INFO_SET &= bool.TryParse(eachValue, out TITLE_CAN_UPDATE_SETTINGS);
 
-            TITLE_INFO_SET &= testInputs.TryGetValue("userName", out USER_NAME);
             TITLE_INFO_SET &= testInputs.TryGetValue("userEmail", out USER_EMAIL);
-            TITLE_INFO_SET &= testInputs.TryGetValue("userPassword", out USER_PASSWORD);
 
             TITLE_INFO_SET &= testInputs.TryGetValue("characterName", out CHAR_NAME);
 
             // Verify all the inputs won't cause crashes in the tests
             TITLE_INFO_SET &= !string.IsNullOrEmpty(PlayFabDefaultSettings.TitleId)
                 && !string.IsNullOrEmpty(PlayFabDefaultSettings.DeveloperSecretKey)
-                && !string.IsNullOrEmpty(USER_NAME)
                 && !string.IsNullOrEmpty(USER_EMAIL)
-                && !string.IsNullOrEmpty(USER_PASSWORD)
                 && !string.IsNullOrEmpty(CHAR_NAME);
 
             Client = new PlayFabClientAPI();
@@ -89,7 +84,7 @@ namespace PlayFab.UUnit
         public void InvalidLogin()
         {
             // If the setup failed to log in a user, we need to create one.
-            var task = Client.LoginWithEmailAddressAsync(Client.Settings.TitleId, USER_EMAIL, USER_PASSWORD + "_INVALID");
+            var task = Client.LoginWithEmailAddressAsync(Client.Settings.TitleId, USER_EMAIL, "INVALID");
             try
             {
                 task.Wait();
@@ -109,40 +104,16 @@ namespace PlayFab.UUnit
         [UUnitTest]
         public void LoginOrRegister()
         {
-            if (!Client.IsClientLoggedIn()) // If we haven't already logged in...
-            {
-                var loginTask = Client.LoginWithEmailAddressAsync(Client.Settings.TitleId, USER_EMAIL, USER_PASSWORD);
-
-                try
-                {
-                    loginTask.Wait();
-                }
-                catch (Exception ex)
-                {
-                    UUnitAssert.True(false, ex.Message);
-                }
-                UUnitAssert.True(true);
-
-                _playFabId = loginTask.Result.PlayFabId; // Needed for subsequent tests
-            }
-
-            if (Client.IsClientLoggedIn())
-                return; // Success, already logged in
-
-            // If the setup failed to log in a user, we need to create one.
-            var registerTask = Client.RegisterPlayFabUserAsync(Client.Settings.TitleId, USER_NAME, USER_EMAIL, USER_PASSWORD);
+            var loginTask = Client.LoginWithCustomIDAsync(Client.Settings.TitleId, PlayFabVersion.BuildIdentifier, true);
             try
             {
-                registerTask.Wait();
+                loginTask.Wait();
             }
             catch (Exception ex)
             {
                 UUnitAssert.True(false, ex.Message);
             }
-            UUnitAssert.True(true);
-
-            _playFabId = registerTask.Result.PlayFabId; // Needed for subsequent tests
-
+            _playFabId = loginTask.Result.PlayFabId; // Needed for subsequent tests
             UUnitAssert.True(Client.IsClientLoggedIn(), "User login failed");
         }
 
@@ -156,7 +127,7 @@ namespace PlayFab.UUnit
             Client.Settings.AdvertisingIdType = PlayFabDefaultSettings.AD_TYPE_ANDROID_ID;
             Client.Settings.AdvertisingIdValue = "PlayFabTestId";
 
-            var loginTask = Client.LoginWithEmailAddressAsync(Client.Settings.TitleId, USER_EMAIL, USER_PASSWORD);
+            var loginTask = Client.LoginWithCustomIDAsync(Client.Settings.TitleId, PlayFabVersion.BuildIdentifier, true);
             try
             {
                 loginTask.Wait();
@@ -165,6 +136,8 @@ namespace PlayFab.UUnit
             {
                 UUnitAssert.True(false, ex.Message);
             }
+            _playFabId = loginTask.Result.PlayFabId; // Needed for subsequent tests
+            UUnitAssert.True(Client.IsClientLoggedIn(), "User login failed");
             UUnitAssert.StringEquals(PlayFabDefaultSettings.AD_TYPE_ANDROID_ID + "_Successful", Client.Settings.AdvertisingIdType);
         }
 

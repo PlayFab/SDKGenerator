@@ -31,14 +31,13 @@ namespace PlayFab
 class PlayFabApiTest_LoginWithEmail : public IAutomationLatentCommand
 {
 public:
-    PlayFabApiTest_LoginWithEmail(const FString& username, const FString& email, const FString& password);
+    PlayFabApiTest_LoginWithEmail(const FString& email, const FString& password);
 
     bool Update() override;
 private:
     void OnSuccess(const PlayFab::ClientModels::FLoginResult& Result) const;
     void OnError(const PlayFab::FPlayFabError& ErrorResult) const;
 
-    FString username;
     FString email;
     FString password;
     PlayFabClientPtr clientAPI = nullptr;
@@ -265,9 +264,7 @@ struct TestTitleData
 public:
     FString titleId = TEXT("Your titleID");
     FString developerSecretKey = TEXT("For the security of your title, keep your secret key private!");
-    FString userName = TEXT("your userName");
-    FString userEmail = TEXT("valid email for userName");
-    FString userPassword = TEXT("valid password for userName");
+    FString userEmail = TEXT("An email associated with an existing user");
     FString characterName = TEXT("arbitrary character name");
 };
 
@@ -335,9 +332,7 @@ protected:
 
         if (success) success &= jsonParsed->TryGetStringField("titleId", testTitleData.titleId);
         if (success) success &= jsonParsed->TryGetStringField("developerSecretKey", testTitleData.developerSecretKey);
-        if (success) success &= jsonParsed->TryGetStringField("userName", testTitleData.userName);
         if (success) success &= jsonParsed->TryGetStringField("userEmail", testTitleData.userEmail);
-        if (success) success &= jsonParsed->TryGetStringField("userPassword", testTitleData.userPassword);
         if (success) success &= jsonParsed->TryGetStringField("characterName", testTitleData.characterName);
 
         return success;
@@ -379,7 +374,7 @@ protected:
 
     bool InvalidLogin() const
     {
-        ADD_LATENT_AUTOMATION_COMMAND(PlayFabApiTest_LoginWithEmail(testTitleData.userName, testTitleData.userEmail, INVALID_PASSWORD));
+        ADD_LATENT_AUTOMATION_COMMAND(PlayFabApiTest_LoginWithEmail(testTitleData.userEmail, INVALID_PASSWORD));
 
         return true;
     };

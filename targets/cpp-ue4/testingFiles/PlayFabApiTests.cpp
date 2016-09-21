@@ -15,9 +15,8 @@ FString PlayFabApiTestSuite::characterId;
 /*
 * ==== LoginWithEmailAddress ====
 */
-PlayFabApiTest_LoginWithEmail::PlayFabApiTest_LoginWithEmail(const FString& username, const FString& email, const FString& password)
+PlayFabApiTest_LoginWithEmail::PlayFabApiTest_LoginWithEmail(const FString& email, const FString& password)
 {
-    this->username = username;
     this->email = email;
     this->password = password;
 }

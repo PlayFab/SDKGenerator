@@ -160,10 +160,7 @@ bool APfTestActor::ClassSetup()
         playFabSettings->setGameTitleId(JsonObject->GetStringField(TEXT("titleId")));
         playFabSettings->setApiSecretKey(JsonObject->GetStringField(TEXT("developerSecretKey")));
         TITLE_CAN_UPDATE_SETTINGS = JsonObject->GetStringField(TEXT("titleCanUpdateSettings")).ToLower().Contains("true");
-        userName = JsonObject->GetStringField(TEXT("userName"));
         userEmail = JsonObject->GetStringField(TEXT("userEmail"));
-        userPassword = JsonObject->GetStringField(TEXT("userPassword"));
-        characterName = JsonObject->GetStringField(TEXT("characterName"));
     }
     else
     {
@@ -174,18 +171,12 @@ bool APfTestActor::ClassSetup()
         playFabSettings->setGameTitleId(TEXT("")); // Without a titleId, your game will do terrible things (usually crash)
         playFabSettings->setApiSecretKey(TEXT("")); // Non-client api calls will all crash without a secret key
         TITLE_CAN_UPDATE_SETTINGS = true; // Make sure this is enabled in your title, found in the "Settings" section, "API Features" section of PlayFab Game Manager
-        userName = "yourUsername"; // This is an arbitrary user name, which will be utilized for this test
         userEmail = "yourEmail"; // This is the email for the user
-        userPassword = "yourPassword"; // This is the password for the user
-        characterName = "yourCharName"; // This should be a valid character on the given user's account
     }
 
     // Verify all the inputs won't cause crashes in the tests
     return playFabSettings->getGameTitleId().Len() > 0
-        && (userName.Len() > 0)
-        && (userEmail.Len() > 0)
-        && (userPassword.Len() > 0)
-        && (characterName.Len() > 0);
+        && (userEmail.Len() > 0);
 }
 
 // Start a test, and block until the threaded response arrives
@@ -232,7 +223,8 @@ void APfTestActor::InvalidLogin(UPfTestContext* testContext)
 {
     FClientLoginWithEmailAddressRequest request;
     request.Email = userEmail;
-    request.Password = userPassword + "INVALID";
+    request.Password = "INVALID";
+    request.InfoRequestParameters = nullptr;
     UPlayFabClientAPI::FDelegateOnSuccessLoginWithEmailAddress onSuccess; onSuccess.BindUFunction(this, "InvalidLoginSuccess");
     UPlayFabClientAPI::FDelegateOnFailurePlayFabError onError; onError.BindUFunction(this, "InvalidLoginFail");
     UPlayFabClientAPI* callObj = UPlayFabClientAPI::LoginWithEmailAddress(request, onSuccess, onError, testContext);
@@ -261,7 +253,7 @@ void APfTestActor::InvalidLoginFail(FPlayFabError error, UObject* customData)
 void APfTestActor::InvalidRegistration(UPfTestContext* testContext)
 {
     FClientRegisterPlayFabUserRequest request;
-    request.Username = userName;
+    request.Username = "x";
     request.Email = "x";
     request.Password = "x";
     UPlayFabClientAPI::FDelegateOnSuccessRegisterPlayFabUser onSuccess; onSuccess.BindUFunction(this, "InvalidRegistrationSuccess");

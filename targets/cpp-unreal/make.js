@@ -169,44 +169,50 @@ function MakeApiFiles(api, apiOutputDir, sourceDir, libname) {
     writeFile(path.resolve(apiOutputDir, "PluginFiles/PlayFab/Source/PlayFab/Private/PlayFab" + api.name + "ModelDecoder.cpp"), generatedBody);
 }
 
+function GetPropertySafeName(property) {
+    // Turns out we didn't need this at the time it was added, but it's a good pattern
+    return property.name;
+}
+
 function GetPropertyCppType(property, datatype) {
+    var propSafeName = GetPropertySafeName(property);
     var isCollection = property.hasOwnProperty("collection");
     var isArray = isCollection && property.collection === "array";
     
     switch (property.jsontype) {
         case "String":
             if (isCollection && isArray) {
-                return "FString " + property.name + ";";
+                return "FString " + propSafeName + ";";
             } else if (isCollection) {
-                return "UPlayFabJsonObject* " + property.name + ";";
+                return "UPlayFabJsonObject* " + propSafeName + ";";
             } else if (property.isenum) {
-                return "E" + property.actualtype + " " + property.name + ";";
+                return "E" + property.actualtype + " " + propSafeName + ";";
             } else {
-                return "FString " + property.name + ";";
+                return "FString " + propSafeName + ";";
             }
         case "Boolean":
             if (isCollection && isArray) {
-                return "TArray<bool> " + property.name + ";";
+                return "TArray<bool> " + propSafeName + ";";
             } else if (isCollection) {
-                return "UPlayFabJsonObject* " + property.name + ";";
+                return "UPlayFabJsonObject* " + propSafeName + ";";
             } else {
-                return "bool " + property.name + ";";
+                return "bool " + propSafeName + ";";
             }
         case "Number":
             if (isCollection && isArray) {
-                return "TArray<int32> " + property.name + ";";
+                return "TArray<int32> " + propSafeName + ";";
             } else if (isCollection) {
-                return "UPlayFabJsonObject* " + property.name + ";";
+                return "UPlayFabJsonObject* " + propSafeName + ";";
             } else {
-                return "int32 " + property.name + ";";
+                return "int32 " + propSafeName + ";";
             }
         case "Object":
             if (isCollection && isArray) {
-                return "TArray<UPlayFabJsonObject*> " + property.name + ";";
+                return "TArray<UPlayFabJsonObject*> " + propSafeName + ";";
             } else if (isCollection) {
-                return "UPlayFabJsonObject* " + property.name + ";";
+                return "UPlayFabJsonObject* " + propSafeName + ";";
             } else {
-                return "UPlayFabJsonObject* " + property.name + ";";
+                return "UPlayFabJsonObject* " + propSafeName + ";";
             }
     }
     
@@ -214,45 +220,46 @@ function GetPropertyCppType(property, datatype) {
 }
 
 function GetPropertySerialization(tabbing, property, datatype) {
+    var propSafeName = GetPropertySafeName(property);
     var isCollection = property.hasOwnProperty("collection");
     var isArray = isCollection && property.collection === "array";
     
     switch (property.jsontype) {
         case "String":
-            if (property.name === "ParamsEncoded") {
-                return tabbing + "if (request.ParamsEncoded != \"\") OutRestJsonObj->SetStringField(TEXT(\"" + property.name + "\"), request." + property.name + ");\n";
+            if (propSafeName === "ParamsEncoded") {
+                return tabbing + "if (request.ParamsEncoded != \"\") OutRestJsonObj->SetStringField(TEXT(\"" + property.name + "\"), request." + propSafeName + ");\n";
             }
             if (property.name === "TitleId") {
                 return tabbing + "OutRestJsonObj->SetStringField(TEXT(\"" + property.name + "\"), IPlayFab::Get().getGameTitleId());\n";
             }
             if (isCollection && isArray) {
                 return tabbing + "// Check to see if string is empty\n" 
-                    + tabbing + "if (request." + property.name + ".IsEmpty() || request." + property.name + " == \"\") {\n" 
+                    + tabbing + "if (request." + propSafeName + ".IsEmpty() || request." + propSafeName + " == \"\") {\n" 
                     + tabbing + "    OutRestJsonObj->SetFieldNull(TEXT(\"" + property.name + "\"));\n" 
                     + tabbing + "} else {\n" 
-                    + tabbing + "    TArray<FString> " + property.name + "Array;\n" 
-                    + tabbing + "    FString(request." + property.name + ").ParseIntoArray(" + property.name + "Array, TEXT(\",\"), false);\n" 
-                    + tabbing + "    OutRestJsonObj->SetStringArrayField(TEXT(\"" + property.name + "\"), " + property.name + "Array);\n" 
+                    + tabbing + "    TArray<FString> " + propSafeName + "Array;\n" 
+                    + tabbing + "    FString(request." + propSafeName + ").ParseIntoArray(" + propSafeName + "Array, TEXT(\",\"), false);\n" 
+                    + tabbing + "    OutRestJsonObj->SetStringArrayField(TEXT(\"" + property.name + "\"), " + propSafeName + "Array);\n" 
                     + tabbing + "}\n";
             } else if (isCollection) {
-                return tabbing + "if (request." + property.name + " != nullptr) OutRestJsonObj->SetObjectField(TEXT(\"" + property.name + "\"), request." + property.name + ");\n";
+                return tabbing + "if (request." + propSafeName + " != nullptr) OutRestJsonObj->SetObjectField(TEXT(\"" + property.name + "\"), request." + propSafeName + ");\n";
             } else if (property.isenum) {
-                return tabbing + "FString temp_" + property.name + ";\n" 
-                    + tabbing + "if (GetEnumValueToString<E" + property.actualtype + ">(TEXT(\"E" + property.actualtype + "\"), request." + property.name + ", temp_" + property.name + "))\n" 
-                    + tabbing + "    OutRestJsonObj->SetStringField(TEXT(\"" + property.name + "\"), temp_" + property.name + ");\n";
+                return tabbing + "FString temp_" + propSafeName + ";\n" 
+                    + tabbing + "if (GetEnumValueToString<E" + property.actualtype + ">(TEXT(\"E" + property.actualtype + "\"), request." + propSafeName + ", temp_" + propSafeName + "))\n" 
+                    + tabbing + "    OutRestJsonObj->SetStringField(TEXT(\"" + property.name + "\"), temp_" + propSafeName + ");\n";
             } else {
-                return tabbing + "if (request." + property.name + ".IsEmpty() || request." + property.name + " == \"\") {\n" 
+                return tabbing + "if (request." + propSafeName + ".IsEmpty() || request." + propSafeName + " == \"\") {\n" 
                     + tabbing + "    OutRestJsonObj->SetFieldNull(TEXT(\"" + property.name + "\"));\n" 
                     + tabbing + "} else {\n" 
-                    + tabbing + "    OutRestJsonObj->SetStringField(TEXT(\"" + property.name + "\"), request." + property.name + ");\n" 
+                    + tabbing + "    OutRestJsonObj->SetStringField(TEXT(\"" + property.name + "\"), request." + propSafeName + ");\n" 
                     + tabbing + "}\n";
             }
         case "Number":
             if (isCollection && isArray) {
                 return tabbing + "// Copy int array to float\n" 
                     + tabbing + "TArray<float> tempArray;\n" 
-                    + tabbing + "for (int32 i = 0; i < request." + property.name + ".Num(); ++i) {\n" 
-                    + tabbing + "    tempArray.Add(float(request." + property.name + "[i]));\n" 
+                    + tabbing + "for (int32 i = 0; i < request." + propSafeName + ".Num(); ++i) {\n" 
+                    + tabbing + "    tempArray.Add(float(request." + propSafeName + "[i]));\n" 
                     + tabbing + "}\n" 
                     + tabbing + "if (tempArray.Num() == 0) {\n" 
                     + tabbing + "    OutRestJsonObj->SetFieldNull(TEXT(\"" + property.name + "\"));\n" 
@@ -260,39 +267,40 @@ function GetPropertySerialization(tabbing, property, datatype) {
                     + tabbing + "    OutRestJsonObj->SetNumberArrayField(TEXT(\"" + property.name + "\"), tempArray);\n" 
                     + tabbing + "}\n";
             } else if (isCollection) {
-                return tabbing + "if (request." + property.name + " != nullptr) OutRestJsonObj->SetObjectField(TEXT(\"" + property.name + "\"), request." + property.name + ");\n";
+                return tabbing + "if (request." + propSafeName + " != nullptr) OutRestJsonObj->SetObjectField(TEXT(\"" + property.name + "\"), request." + propSafeName + ");\n";
             } else {
-                return tabbing + "OutRestJsonObj->SetNumberField(TEXT(\"" + property.name + "\"), request." + property.name + ");\n";
+                return tabbing + "OutRestJsonObj->SetNumberField(TEXT(\"" + property.name + "\"), request." + propSafeName + ");\n";
             }
         case "Object":
             if (isCollection && isArray) {
-                return tabbing + "if (request." + property.name + ".Num() == 0) {\n" 
+                return tabbing + "if (request." + propSafeName + ".Num() == 0) {\n" 
                     + tabbing + "    OutRestJsonObj->SetFieldNull(TEXT(\"" + property.name + "\"));\n" 
                     + tabbing + "} else {\n" 
-                    + tabbing + "    OutRestJsonObj->SetObjectArrayField(TEXT(\"" + property.name + "\"), request." + property.name + ");\n" 
+                    + tabbing + "    OutRestJsonObj->SetObjectArrayField(TEXT(\"" + property.name + "\"), request." + propSafeName + ");\n" 
                     + tabbing + "}\n";
             } else if (isCollection) {
-                return tabbing + "if (request." + property.name + " != nullptr) OutRestJsonObj->SetObjectField(TEXT(\"" + property.name + "\"), request." + property.name + ");\n";
+                return tabbing + "if (request." + propSafeName + " != nullptr) OutRestJsonObj->SetObjectField(TEXT(\"" + property.name + "\"), request." + propSafeName + ");\n";
             } else {
-                return tabbing + "if (request." + property.name + " != nullptr) OutRestJsonObj->SetObjectField(TEXT(\"" + property.name + "\"), request." + property.name + ");\n";
+                return tabbing + "if (request." + propSafeName + " != nullptr) OutRestJsonObj->SetObjectField(TEXT(\"" + property.name + "\"), request." + propSafeName + ");\n";
             }
         case "Boolean":
             if (isCollection && isArray) {
-                return tabbing + "if (request." + property.name + ".Num() == 0) {\n" 
+                return tabbing + "if (request." + propSafeName + ".Num() == 0) {\n" 
                     + tabbing + "    OutRestJsonObj->SetFieldNull(TEXT(\"" + property.name + "\"));\n" 
                     + tabbing + "} else {\n" 
-                    + tabbing + "    OutRestJsonObj->SetBoolArrayField(TEXT(\"" + property.name + "\"), request." + property.name + ");\n" 
+                    + tabbing + "    OutRestJsonObj->SetBoolArrayField(TEXT(\"" + property.name + "\"), request." + propSafeName + ");\n" 
                     + tabbing + "}\n";
             } else if (isCollection) {
-                return tabbing + "if (request." + property.name + " != nullptr) OutRestJsonObj->SetObjectField(TEXT(\"" + property.name + "\"), request." + property.name + ");\n";
+                return tabbing + "if (request." + propSafeName + " != nullptr) OutRestJsonObj->SetObjectField(TEXT(\"" + property.name + "\"), request." + propSafeName + ");\n";
             } else {
-                return tabbing + "OutRestJsonObj->SetBoolField(TEXT(\"" + property.name + "\"), request." + property.name + ");\n";
+                return tabbing + "OutRestJsonObj->SetBoolField(TEXT(\"" + property.name + "\"), request." + propSafeName + ");\n";
             }
     }
     throw "Cannot parse property: " + datatype.name + "." + property.name;
 }
 
 function GetPropertyDeserialization(tabbing, property, datatype) {
+    var propSafeName = GetPropertySafeName(property);
     var isCollection = property.hasOwnProperty("collection");
     var isArray = isCollection && property.collection === "array";
     var isMap = isCollection && property.collection === "map";
@@ -300,21 +308,21 @@ function GetPropertyDeserialization(tabbing, property, datatype) {
     switch (property.jsontype) {
         case "String":
             if (isCollection && isArray) {
-                return tabbing + "tempStruct." + property.name + " = !(dataObj->HasField(\"" + property.name + "\")) ? TEXT(\"\") : FString::Join(dataObj->GetStringArrayField(\"" + property.name + "\"), TEXT(\",\"));";
+                return tabbing + "tempStruct." + propSafeName + " = !(dataObj->HasField(\"" + property.name + "\")) ? TEXT(\"\") : FString::Join(dataObj->GetStringArrayField(\"" + property.name + "\"), TEXT(\",\"));";
             } else if (isCollection && isMap) {
-                return tabbing + "tempStruct." + property.name + " = !(dataObj->HasField(\"" + property.name + "\")) ? nullptr : dataObj->GetObjectField(\"" + property.name + "\");";
+                return tabbing + "tempStruct." + propSafeName + " = !(dataObj->HasField(\"" + property.name + "\")) ? nullptr : dataObj->GetObjectField(\"" + property.name + "\");";
             } else if (property.isenum) {
-                return tabbing + "GetEnumValueFromString<E" + property.actualtype + ">(TEXT(\"E" + property.actualtype + "\"), dataObj->GetStringField(\"" + property.name + "\"), tempStruct." + property.name + ");";
+                return tabbing + "GetEnumValueFromString<E" + property.actualtype + ">(TEXT(\"E" + property.actualtype + "\"), dataObj->GetStringField(\"" + property.name + "\"), tempStruct." + propSafeName + ");";
             } else {
-                return tabbing + "tempStruct." + property.name + " = !(dataObj->HasField(\"" + property.name + "\")) ? TEXT(\"\") : dataObj->GetStringField(\"" + property.name + "\");";
+                return tabbing + "tempStruct." + propSafeName + " = !(dataObj->HasField(\"" + property.name + "\")) ? TEXT(\"\") : dataObj->GetStringField(\"" + property.name + "\");";
             }
         case "Boolean":
             if (isCollection && isArray) {
-                return tabbing + "tempStruct." + property.name + " = !(dataObj->HasField(\"" + property.name + "\")) ? TArray<UPlayFabJsonObject*>() : dataObj->GetBoolArrayField(\"" + property.name + "\");";
+                return tabbing + "tempStruct." + propSafeName + " = !(dataObj->HasField(\"" + property.name + "\")) ? TArray<UPlayFabJsonObject*>() : dataObj->GetBoolArrayField(\"" + property.name + "\");";
             } else if (isCollection) {
-                return tabbing + "tempStruct." + property.name + " = !(dataObj->HasField(\"" + property.name + "\")) ? nullptr : dataObj->GetObjectField(\"" + property.name + "\");";
+                return tabbing + "tempStruct." + propSafeName + " = !(dataObj->HasField(\"" + property.name + "\")) ? nullptr : dataObj->GetObjectField(\"" + property.name + "\");";
             } else {
-                return tabbing + "tempStruct." + property.name + " = !(dataObj->HasField(\"" + property.name + "\")) ? false : dataObj->GetBoolField(\"" + property.name + "\");";
+                return tabbing + "tempStruct." + propSafeName + " = !(dataObj->HasField(\"" + property.name + "\")) ? false : dataObj->GetBoolField(\"" + property.name + "\");";
             }
         case "Number":
             if (isCollection && isArray) {
@@ -323,19 +331,19 @@ function GetPropertyDeserialization(tabbing, property, datatype) {
                     + tabbing + "for (int32 i = 0; i < dataObj->GetNumberArrayField(\"" + property.name + "\"); ++i) {" 
                     + tabbing + "    tempArray.Add(int(dataObj->GetNumberArrayField(\"" + property.name + "\")[i]));" 
                     + tabbing + "}" 
-                    + tabbing + "tempStruct." + property.name + " = tempArray;";
+                    + tabbing + "tempStruct." + propSafeName + " = tempArray;";
             } else if (isCollection) {
-                return tabbing + "tempStruct." + property.name + " = !(dataObj->HasField(\"" + property.name + "\")) ? nullptr : dataObj->GetObjectField(\"" + property.name + "\");";
+                return tabbing + "tempStruct." + propSafeName + " = !(dataObj->HasField(\"" + property.name + "\")) ? nullptr : dataObj->GetObjectField(\"" + property.name + "\");";
             } else {
-                return tabbing + "tempStruct." + property.name + " = !(dataObj->HasField(\"" + property.name + "\")) ? 0 : int(dataObj->GetNumberField(\"" + property.name + "\"));";
+                return tabbing + "tempStruct." + propSafeName + " = !(dataObj->HasField(\"" + property.name + "\")) ? 0 : int(dataObj->GetNumberField(\"" + property.name + "\"));";
             }
         case "Object":
             if (isCollection && isArray) {
-                return tabbing + "tempStruct." + property.name + " = !(dataObj->HasField(\"" + property.name + "\")) ? TArray<UPlayFabJsonObject*>() : dataObj->GetObjectArrayField(\"" + property.name + "\");";
+                return tabbing + "tempStruct." + propSafeName + " = !(dataObj->HasField(\"" + property.name + "\")) ? TArray<UPlayFabJsonObject*>() : dataObj->GetObjectArrayField(\"" + property.name + "\");";
             } else if (isCollection) {
-                return tabbing + "tempStruct." + property.name + " = !(dataObj->HasField(\"" + property.name + "\")) ? nullptr : dataObj->GetObjectField(\"" + property.name + "\");";
+                return tabbing + "tempStruct." + propSafeName + " = !(dataObj->HasField(\"" + property.name + "\")) ? nullptr : dataObj->GetObjectField(\"" + property.name + "\");";
             } else {
-                return tabbing + "tempStruct." + property.name + " = !(dataObj->HasField(\"" + property.name + "\")) ? nullptr : dataObj->GetObjectField(\"" + property.name + "\");";
+                return tabbing + "tempStruct." + propSafeName + " = !(dataObj->HasField(\"" + property.name + "\")) ? nullptr : dataObj->GetObjectField(\"" + property.name + "\");";
             }
     }
     throw "Cannot parse property: " + datatype.name + "." + property.name;

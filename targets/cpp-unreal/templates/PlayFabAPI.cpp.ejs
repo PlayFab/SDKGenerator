@@ -91,7 +91,7 @@ for(var subgroup in api.subgroups)
 <%            %>    // Objects containing request data
 <%            %>    UPlayFab<%- api.name %>API* manager = NewObject<UPlayFab<%- api.name %>API>();
 <%            %>    UPlayFabJsonObject* OutRestJsonObj = NewObject<UPlayFabJsonObject>();
-<%            %>    manager->customData = customData;
+<%            %>    manager->mCustomData = customData;
 <%            %>
 <%            %>    // Assign delegates
 <%            %>    manager->OnSuccess<%- apiCall.name %> = onSuccess;
@@ -196,7 +196,7 @@ for(var subgroup in api.subgroups)
               %>        F<%- api.name %><%- apiCall.result %> result = UPlayFab<%- api.name %>ModelDecoder::decode<%- datatype.name %>Response(response.responseData);
 <%            %>        if (OnSuccess<%- apiCall.name %>.IsBound())
 <%            %>        {
-<%            %>            OnSuccess<%- apiCall.name %>.Execute(result, customData);
+<%            %>            OnSuccess<%- apiCall.name %>.Execute(result, mCustomData);
 <%            %>        }
 <%
                         break;
@@ -207,7 +207,7 @@ for(var subgroup in api.subgroups)
               %>        F<%- api.name %><%- apiCall.result %> result = UPlayFab<%- api.name %>ModelDecoder::decode<%- apiCall.result %>Response(response.responseData);
 <%            %>        if (OnSuccess<%- apiCall.name %>.IsBound())
 <%            %>        {
-<%            %>            OnSuccess<%- apiCall.name %>.Execute(result, customData);
+<%            %>            OnSuccess<%- apiCall.name %>.Execute(result, mCustomData);
 <%            %>        }
 <%
                 }
@@ -247,7 +247,7 @@ void UPlayFab<%- api.name %>API::OnProcessRequestComplete(FHttpRequestPtr Reques
         myResponse.responseError.ErrorName = "Unable to contact server";
         myResponse.responseError.ErrorMessage = "Unable to contact server";
 
-        OnPlayFabResponse.Broadcast(myResponse, customData, false);
+        OnPlayFabResponse.Broadcast(myResponse, mCustomData, false);
 
         return;
     }
@@ -297,14 +297,14 @@ void UPlayFab<%- api.name %>API::OnProcessRequestComplete(FHttpRequestPtr Reques
                 // TODO: This request might be getting memory collected before it's complete...
                 FDelegateOnSuccessAttributeInstall onSuccess;
                 FDelegateOnFailurePlayFabError onFailure;
-                UPlayFabClientAPI* callObj = AttributeInstall(request, onSuccess, onFailure, customData);
+                UPlayFabClientAPI* callObj = AttributeInstall(request, onSuccess, onFailure, mCustomData);
                 callObj->Activate();
             }
         }
     }
 <% } %>
     // Broadcast the result event
-    OnPlayFabResponse.Broadcast(myResponse, customData, myResponse.responseError.hasError);
+    OnPlayFabResponse.Broadcast(myResponse, mCustomData, myResponse.responseError.hasError);
     pfSettings->ModifyPendingCallCount(-1);
 }
 

@@ -1,6 +1,6 @@
 {
     "contact": "devrel@playfab.com",
     "url": "http://playfab.com/",
-    "pluginName": "plugin.PlayFab",
-    "publisherId": "com.PlayFab"
+    "pluginName": "plugin.playfab.combo",
+    "publisherId": "com.playfab"
 }

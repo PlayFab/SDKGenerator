@@ -115,7 +115,6 @@
   <ItemGroup>
     <Compile Include="targets\actionscript\make.js" />
     <Compile Include="targets\cpp-cocos2dx\make.js" />
-    <Compile Include="targets\cpp-ue4\cpp-ue4.js" />
     <Compile Include="targets\cpp-ue4\make-bp.js" />
     <Compile Include="targets\cpp-ue4\make.js" />
     <Compile Include="targets\cpp-unreal\make.js" />
@@ -212,7 +211,7 @@
     <Content Include="targets\cpp-cocos2dx\templates\PlayFabError.h.ejs" />
     <Content Include="targets\cpp-cocos2dx\templates\PlayFabSettings.cpp.ejs" />
     <Content Include="targets\cpp-cocos2dx\templates\PlayFabSettings.h.ejs" />
-    <Content Include="targets\cpp-ue4\Plugins\PlayFab\PlayFab.uplugin" />
+    <Content Include="targets\cpp-ue4\templates\PlayFab.uplugin.ejs" />
     <Content Include="targets\cpp-ue4\Plugins\PlayFab\Resources\Icon128.png" />
     <Content Include="targets\cpp-ue4\Plugins\PlayFab\Source\OnlineSubsystemPlayFab\OnlineSubsystemPlayFab.Build.cs" />
     <Content Include="targets\cpp-ue4\Plugins\PlayFab\Source\OnlineSubsystemPlayFab\Private\OnlineSubsystemModulePlayFab.cpp" />

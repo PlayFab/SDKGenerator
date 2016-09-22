@@ -1,21 +1,30 @@
 {
     "FileVersion": 3,
-    "FriendlyName": "PlayFab<%- libname %>SDK",
+    "FriendlyName": "<%- friendlyName %>",
     "Version": 0,
     "VersionName": "<%- sdkVersion %>",
-    "CreatedBy": "PlayFab and Joshua Lyons",
+    "CreatedBy": "PlayFab and Phoenix Labs",
     "CreatedByURL": "https://playfab.com/",
     "DocsURL": "https://api.playfab.com/",
     "SupportURL": "https://community.playfab.com/index.html",
     "Category": "PlayFab",
     "Description": "PlayFab Blueprint SDK for Unreal Engine 4. Current API version: <%- sdkVersion %>",
     "WhitelistPlatforms": [ "Win64", "Win32", "Mac", "IOS", "Android" ],
-    "Modules" :
-    [
+    "Modules": [
         {
             "Name": "PlayFab",
             "Type": "Runtime",
             "LoadingPhase": "PreDefault"
         },
+        {
+            "Name": "PlayFabProxy",
+            "Type": "Runtime",
+            "LoadingPhase": "PreDefault"
+        },
+        {
+            "Name" : "OnlineSubsystemPlayFab",
+            "Type": "Runtime",
+            "LoadingPhase": "PreDefault"
+        }
     ]
 }

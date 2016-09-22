@@ -1,9 +1,7 @@
 var path = require("path");
 var ejs = require("ejs");
 
-exports.MakeBp = function (api, apiOutputDir, subdir) {
-    var sourceDir = __dirname;
-    
+exports.MakeBp = function (api, sourceDir, apiOutputDir, subdir) {
     var proxyApiHeaderTemplate = ejs.compile(readFile(path.resolve(sourceDir, "templates/blueprint/PlayFabProxyAPI.h.ejs")));
     var proxyApiBodyTemplate = ejs.compile(readFile(path.resolve(sourceDir, "templates/blueprint/PlayFabProxyAPI.cpp.ejs")));
     
@@ -26,15 +24,13 @@ exports.MakeBp = function (api, apiOutputDir, subdir) {
     }
     
     // generate BP library
-    GenerateBpLibrary(api, apiOutputDir, subdir);
+    GenerateBpLibrary(api, sourceDir, apiOutputDir, subdir);
     
     // generate BP data models
-    GenerateBpDataModels(api, apiOutputDir, subdir);
+    GenerateBpDataModels(api, sourceDir, apiOutputDir, subdir);
 }
 
-function GenerateBpDataModels(api, apiOutputDir, subdir) {
-    var sourceDir = __dirname;
-    
+function GenerateBpDataModels(api, sourceDir, apiOutputDir, subdir) {
     var proxyBpModelHeaderTemplate = ejs.compile(readFile(path.resolve(sourceDir, "templates/blueprint/PlayFabProxyDataModelsAPI.h.ejs")));
     
     var bpModelsLocal = {};
@@ -44,9 +40,7 @@ function GenerateBpDataModels(api, apiOutputDir, subdir) {
     writeFile(path.resolve(apiOutputDir, "Public/" + subdir + "/" + "PlayFab" + api.name + "BPDataModels.h"), generatedBpHeader);
 }
 
-function GenerateBpLibrary(api, apiOutputDir, subdir) {
-    var sourceDir = __dirname;
-    
+function GenerateBpLibrary(api, sourceDir, apiOutputDir, subdir) {
     var bpLibraryLocal = {};
     bpLibraryLocal.api = api;
     bpLibraryLocal.GetDatatypeSignatureParameters = GetDatatypeSignatureParameters;

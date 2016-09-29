@@ -2,12 +2,12 @@
 -- This is the main file you should require in your game
 -- All api calls are documented here: https://api.playfab.com/Documentation/<%- api.name %>
 -- Example code:
--- local PlayFab<%- api.name %>Api = require("PlayFab.PlayFab<%- api.name %>Api")
+-- local PlayFab<%- api.name %>Api = require("<%- requirePrefix %>PlayFab<%- api.name %>Api")
 -- PlayFab<%- api.name %>Api.<<%- api.name %>ApiCall>(request, successCallbackFunc, errorCallbackFunc)
 
-local json = require("PlayFab.json")
-local IPlayFabHttps = require("PlayFab.IPlayFabHttps")
-local PlayFabSettings = require("PlayFab.PlayFabSettings")
+local json = require("<%- requirePrefix %>json")
+local IPlayFabHttps = require("<%- requirePrefix %>IPlayFabHttps")
+local PlayFabSettings = require("<%- requirePrefix %>PlayFabSettings")
 
 local PlayFab<%- api.name %>Api = {
     settings = PlayFabSettings.settings

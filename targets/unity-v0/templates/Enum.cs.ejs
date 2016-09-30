@@ -1,9 +1,0 @@
-<% if(datatype.description) { %>
-    /// <summary>
-    /// <%- datatype.description %>
-    /// </summary><% } %>
-    public enum <%- datatype.name %>
-    {
-        <% for(var i=0; i<datatype.enumvalues.length-1; i++) { var enumprops = datatype.enumvalues[i] %><%- enumprops.name %>,
-        <% } %><%- datatype.enumvalues[datatype.enumvalues.length-1].name %>
-    }

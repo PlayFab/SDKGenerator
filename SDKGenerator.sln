@@ -19,8 +19,7 @@ Global
 		ObjCSdk|Any CPU = ObjCSdk|Any CPU
 		PlayFabGameServer|Any CPU = PlayFabGameServer|Any CPU
 		PostmanCollection|Any CPU = PostmanCollection|Any CPU
-		UnitySdkV0|Any CPU = UnitySdkV0|Any CPU
-		UnitySdkV2|Any CPU = UnitySdkV2|Any CPU
+		UnitySdk|Any CPU = UnitySdk|Any CPU
 		UnrealBlueprintSDK|Any CPU = UnrealBlueprintSDK|Any CPU
 		UnrealCppSdk|Any CPU = UnrealCppSdk|Any CPU
 		WindowsSDK|Any CPU = WindowsSDK|Any CPU
@@ -50,10 +49,8 @@ Global
 		{2BA807EF-310C-43B5-8D42-1ABCFFF39BE9}.PlayFabGameServer|Any CPU.Build.0 = PlayFabGameServer|Any CPU
 		{2BA807EF-310C-43B5-8D42-1ABCFFF39BE9}.PostmanCollection|Any CPU.ActiveCfg = PostmanCollection|Any CPU
 		{2BA807EF-310C-43B5-8D42-1ABCFFF39BE9}.PostmanCollection|Any CPU.Build.0 = PostmanCollection|Any CPU
-		{2BA807EF-310C-43B5-8D42-1ABCFFF39BE9}.UnitySdkV0|Any CPU.ActiveCfg = UnitySdkV0|Any CPU
-		{2BA807EF-310C-43B5-8D42-1ABCFFF39BE9}.UnitySdkV0|Any CPU.Build.0 = UnitySdkV0|Any CPU
-		{2BA807EF-310C-43B5-8D42-1ABCFFF39BE9}.UnitySdkV2|Any CPU.ActiveCfg = UnitySdkV2|Any CPU
-		{2BA807EF-310C-43B5-8D42-1ABCFFF39BE9}.UnitySdkV2|Any CPU.Build.0 = UnitySdkV2|Any CPU
+		{2BA807EF-310C-43B5-8D42-1ABCFFF39BE9}.UnitySdk|Any CPU.ActiveCfg = UnitySdk|Any CPU
+		{2BA807EF-310C-43B5-8D42-1ABCFFF39BE9}.UnitySdk|Any CPU.Build.0 = UnitySdk|Any CPU
 		{2BA807EF-310C-43B5-8D42-1ABCFFF39BE9}.UnrealBlueprintSDK|Any CPU.ActiveCfg = UnrealBlueprintSDK|Any CPU
 		{2BA807EF-310C-43B5-8D42-1ABCFFF39BE9}.UnrealBlueprintSDK|Any CPU.Build.0 = UnrealBlueprintSDK|Any CPU
 		{2BA807EF-310C-43B5-8D42-1ABCFFF39BE9}.UnrealCppSdk|Any CPU.ActiveCfg = UnrealCppSdk|Any CPU

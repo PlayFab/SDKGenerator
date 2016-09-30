@@ -1,6 +1,0 @@
-using PlayFab.Internal;
-using System;
-using System.Collections.Generic;
-
-namespace PlayFab.<%- api.name %>Models
-{<% for(var d in api.datatypes) { var datatype = api.datatypes[d] %><%- makeDatatype(datatype) %><% } %>}

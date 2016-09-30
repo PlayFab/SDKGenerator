@@ -87,12 +87,7 @@
     <OutputPath>bin\</OutputPath>
     <ScriptArguments>..\API_Specs csharp-unity-gameserver=..\sdks\PlayFabGameServer -buildIdentifier UnitySDK_manual</ScriptArguments>
   </PropertyGroup>
-  <PropertyGroup Condition=" '$(Configuration)' == 'UnitySdkV0' ">
-    <DebugSymbols>true</DebugSymbols>
-    <OutputPath>bin\</OutputPath>
-    <ScriptArguments>..\API_Specs unity-v0=..\sdks\UnitySDKV0 -buildIdentifier UnitySDK_manual</ScriptArguments>
-  </PropertyGroup>
-  <PropertyGroup Condition=" '$(Configuration)' == 'UnitySdkV2' ">
+  <PropertyGroup Condition=" '$(Configuration)' == 'UnitySdk' ">
     <DebugSymbols>true</DebugSymbols>
     <OutputPath>bin\</OutputPath>
     <ScriptArguments>..\API_Specs unity-v2=..\sdks\UnitySDK -buildIdentifier UnitySDK_manual</ScriptArguments>
@@ -133,7 +128,6 @@
     <Compile Include="targets\newTarget\make.js" />
     <Compile Include="targets\objc\make.js" />
     <Compile Include="targets\postman\make.js" />
-    <Compile Include="targets\unity-v0\make.js" />
     <Compile Include="targets\unity-v2\make.js" />
     <Content Include="README.md" />
     <Compile Include="generate.js" />
@@ -154,7 +148,6 @@
     <Content Include="SDKBuildScripts\ue4_BP_build.bat" />
     <Content Include="SDKBuildScripts\unity_build_strangeIoC.bat" />
     <Content Include="SDKBuildScripts\unity_gameserver.bat" />
-    <Content Include="SDKBuildScripts\unity_v0_build.bat" />
     <Content Include="SDKBuildScripts\unity_v2_build.bat" />
     <Content Include="SDKBuildScripts\win_build.bat" />
     <Content Include="targets\actionscript\source\asyncUnitTest\ASyncAssert.as" />
@@ -753,53 +746,6 @@
     <Content Include="targets\objc\templates\PlayFabVersion.m.ejs" />
     <Content Include="targets\postman\replacements.json" />
     <Content Include="targets\postman\templates\playfab.json.ejs" />
-    <Content Include="targets\unity-v0\source\Internal\ISerializer.cs" />
-    <Content Include="targets\unity-v0\source\Internal\Log.cs" />
-    <Content Include="targets\unity-v0\source\Internal\PlayFabHTTP.cs" />
-    <Content Include="targets\unity-v0\source\Internal\PlayFabWebRequest.cs" />
-    <Content Include="targets\unity-v0\source\Internal\PlayFabWww.cs" />
-    <Content Include="targets\unity-v0\source\Internal\ResultContainer.cs" />
-    <Content Include="targets\unity-v0\source\Internal\SimpleJson.cs" />
-    <Content Include="targets\unity-v0\source\Internal\SingletonMonoBehaviour.cs" />
-    <Content Include="targets\unity-v0\source\Internal\Testing\JsonUnitTests.cs" />
-    <Content Include="targets\unity-v0\source\Internal\Testing\UtilTest.cs" />
-    <Content Include="targets\unity-v0\source\Internal\Util.cs" />
-    <Content Include="targets\unity-v0\source\Ionic.Zlib\CRC32.cs" />
-    <Content Include="targets\unity-v0\source\Ionic.Zlib\Deflate.cs" />
-    <Content Include="targets\unity-v0\source\Ionic.Zlib\DeflateStream.cs" />
-    <Content Include="targets\unity-v0\source\Ionic.Zlib\GZipStream.cs" />
-    <Content Include="targets\unity-v0\source\Ionic.Zlib\Inflate.cs" />
-    <Content Include="targets\unity-v0\source\Ionic.Zlib\InfTree.cs" />
-    <Content Include="targets\unity-v0\source\Ionic.Zlib\ParallelDeflateOutputStream.cs" />
-    <Content Include="targets\unity-v0\source\Ionic.Zlib\Zlib.cs" />
-    <Content Include="targets\unity-v0\source\Ionic.Zlib\ZlibBaseStream.cs" />
-    <Content Include="targets\unity-v0\source\Ionic.Zlib\ZlibCodec.cs" />
-    <Content Include="targets\unity-v0\source\Ionic.Zlib\ZlibConstants.cs" />
-    <Content Include="targets\unity-v0\source\Ionic.Zlib\ZlibStream.cs" />
-    <Content Include="targets\unity-v0\source\Ionic.Zlib\ZTree.cs" />
-    <Content Include="targets\unity-v0\source\Uunit\Editor\UUnitTestRunner.cs" />
-    <Content Include="targets\unity-v0\source\Uunit\PlayFabUUnitUtils.cs" />
-    <Content Include="targets\unity-v0\source\Uunit\UUnitAssertException.cs" />
-    <Content Include="targets\unity-v0\source\Uunit\UUnitTestCase.cs" />
-    <Content Include="targets\unity-v0\source\Uunit\UUnitTestContext.cs" />
-    <Content Include="targets\unity-v0\source\Uunit\UUnitTestReport.cs" />
-    <Content Include="targets\unity-v0\source\Uunit\UUnitTestSuite.cs" />
-    <Content Include="targets\unity-v0\templates\API.cs.ejs" />
-    <Content Include="targets\unity-v0\templates\Enum.cs.ejs" />
-    <Content Include="targets\unity-v0\templates\Errors.cs.ejs" />
-    <Content Include="targets\unity-v0\templates\Model.cs.ejs" />
-    <Content Include="targets\unity-v0\templates\Models.cs.ejs" />
-    <Content Include="targets\unity-v0\templates\PlayFabSettings.cs.ejs" />
-    <Content Include="targets\unity-v0\testing\DemoScene\DemoScene.unity" />
-    <Content Include="targets\unity-v0\testing\DemoScene\ExampleApiLog.cs" />
-    <Content Include="targets\unity-v0\testing\DemoScene\PlayFabManager.cs" />
-    <Content Include="targets\unity-v0\testing\DemoScene\PlayFabManager.prefab" />
-    <Content Include="targets\unity-v0\testing\DemoScene\ScreenOutput.cs" />
-    <Content Include="targets\unity-v0\testing\EventTest.cs" />
-    <Content Include="targets\unity-v0\testing\PlayFabApiTest.cs" />
-    <Content Include="targets\unity-v0\testing\PlayFabApiTest_Client.cs" />
-    <Content Include="targets\unity-v0\testing\UUnitIncrementalTestRunner.cs" />
-    <Content Include="targets\unity-v0\testing\UUnitIncrementalTestRunner.server.cs" />
     <Content Include="targets\unity-v2\source\Admin\PlayFabSettings.cs" />
     <Content Include="targets\unity-v2\source\Client\PlayFabIdfa.cs" />
     <Content Include="targets\unity-v2\source\Client\PlayFabSettings.cs" />
@@ -1225,16 +1171,6 @@
     <Folder Include="targets\objc\templates\" />
     <Folder Include="targets\postman\" />
     <Folder Include="targets\postman\templates\" />
-    <Folder Include="targets\unity-v0\" />
-    <Folder Include="targets\unity-v0\source\" />
-    <Folder Include="targets\unity-v0\source\Internal\" />
-    <Folder Include="targets\unity-v0\source\Internal\Testing\" />
-    <Folder Include="targets\unity-v0\source\Ionic.Zlib\" />
-    <Folder Include="targets\unity-v0\source\Uunit\" />
-    <Folder Include="targets\unity-v0\source\Uunit\Editor\" />
-    <Folder Include="targets\unity-v0\templates\" />
-    <Folder Include="targets\unity-v0\testing\" />
-    <Folder Include="targets\unity-v0\testing\DemoScene\" />
     <Folder Include="targets\unity-v2\" />
     <Folder Include="targets\unity-v2\source\" />
     <Folder Include="targets\unity-v2\source\Admin\" />

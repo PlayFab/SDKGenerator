@@ -17,6 +17,8 @@ namespace PlayFab.UUnit
     /// </summary>
     public class ClientApiTests : UUnitTestCase
     {
+        private Action tickAction = null;
+
         // Test-data constants
         private const string TEST_STAT_NAME = "str";
         private const string TEST_DATA_KEY = "testCounter";
@@ -89,11 +91,13 @@ namespace PlayFab.UUnit
 
         public override void Tick(UUnitTestContext testContext)
         {
-            // No async work needed
+            if (tickAction != null)
+                tickAction();
         }
 
         public override void TearDown(UUnitTestContext testContext)
         {
+            tickAction = null;
         }
 
         private void SharedErrorCallback(PlayFabError error)
@@ -191,12 +195,16 @@ namespace PlayFab.UUnit
         [UUnitTest]
         public void LoginWithAdvertisingId(UUnitTestContext testContext)
         {
-            //PlayFabSettings.AdvertisingIdType = PlayFabSettings.AD_TYPE_ANDROID_ID;  //TODO: Evaluate why we would need to set this.
+#if (!UNITY_IOS && !UNITY_ANDROID) || (!UNITY_5_3 && !UNITY_5_4 && !UNITY_5_5)
+            PlayFabSettings.AdvertisingIdType = PlayFabSettings.AD_TYPE_ANDROID_ID;
             PlayFabSettings.AdvertisingIdValue = "PlayFabTestId";
+#endif
 
-            var loginRequest = new LoginWithCustomIDRequest();
-            loginRequest.CustomId = PlayFabSettings.BuildIdentifier;
-            loginRequest.CreateAccount = true;
+            var loginRequest = new LoginWithCustomIDRequest
+            {
+                CustomId = PlayFabSettings.BuildIdentifier,
+                CreateAccount = true,
+            };
             PlayFabClientAPI.LoginWithCustomID(loginRequest, PlayFabUUnitUtils.ApiActionWrapper<LoginResult>(testContext, AdvertLoginCallback), PlayFabUUnitUtils.ApiActionWrapper<PlayFabError>(testContext, SharedErrorCallback), testContext);
         }
         private void AdvertLoginCallback(LoginResult result)
@@ -205,9 +213,14 @@ namespace PlayFab.UUnit
             var testContext = (UUnitTestContext)result.CustomData;
             testContext.True(PlayFabClientAPI.IsClientLoggedIn(), "User login failed");
 
-            // TODO:
-            // testContext.StringEquals(PlayFabSettings.AD_TYPE_ANDROID_ID + "_Successful", PlayFabSettings.AdvertisingIdType);
-            testContext.EndTest(UUnitFinishState.PASSED, null);
+            var target = PlayFabSettings.AD_TYPE_ANDROID_ID + "_Successful";
+            var failTime = DateTime.UtcNow + TimeSpan.FromSeconds(10);
+            tickAction = () => {
+                if (target == PlayFabSettings.AdvertisingIdType)
+                    testContext.EndTest(UUnitFinishState.PASSED, PlayFabSettings.AdvertisingIdValue);
+                if (DateTime.UtcNow > failTime)
+                    testContext.EndTest(UUnitFinishState.FAILED, "Timed out waiting for advertising attribution confirmation");
+            };
         }
 
         /// <summary>
@@ -215,7 +228,7 @@ namespace PlayFab.UUnit
         /// Test a sequence of calls that modifies saved data,
         ///   and verifies that the next sequential API call contains updated data.
         /// Verify that the data is correctly modified on the next call.
-        /// Parameter types tested: string, Dictionary<string, string>, DateTime
+        /// Parameter types tested: string, Dictionary&lt;string, string>, DateTime
         /// </summary>
         [UUnitTest]
         public void UserDataApi(UUnitTestContext testContext)
@@ -280,7 +293,7 @@ namespace PlayFab.UUnit
         /// Test a sequence of calls that modifies saved data,
         ///   and verifies that the next sequential API call contains updated data.
         /// Verify that the data is saved correctly, and that specific types are tested
-        /// Parameter types tested: Dictionary<string, int>
+        /// Parameter types tested: Dictionary&lt;string, int>
         /// </summary>
         [UUnitTest]
         public void PlayerStatisticsApi(UUnitTestContext testContext)

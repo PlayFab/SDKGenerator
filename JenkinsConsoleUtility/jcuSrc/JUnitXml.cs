@@ -2,6 +2,7 @@ using System;
 using System.Collections.Generic;
 using System.IO;
 using System.Text;
+using System.Web;
 using System.Xml;
 using PlayFab;
 using PlayFab.UUnit;
@@ -232,8 +233,10 @@ namespace JenkinsConsoleUtility
 
         public static void AppendAsXml(this TestCaseReport self, ref StringBuilder sb, string tabbing)
         {
-            bool isSingleLine = string.IsNullOrEmpty(self.message)
-                                && self.finishState == TestFinishState.PASSED;
+            bool isSingleLine = string.IsNullOrEmpty(self.message) && self.finishState == TestFinishState.PASSED;
+
+            // Escape HTML Characters
+            self.message = HttpUtility.HtmlEncode(self.message);
 
             self.AppendTestCaseLine(ref sb, isSingleLine, tabbing);
             if (isSingleLine)

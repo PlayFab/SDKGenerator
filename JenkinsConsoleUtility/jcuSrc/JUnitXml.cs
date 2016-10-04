@@ -12,22 +12,22 @@ namespace JenkinsConsoleUtility
     public static class JUnitXml
     {
         // Temp internal vars - not threadsafe
-        private static List<TestSuiteReport> outputReport;
-        private static List<TestSuiteReport> curReport;
+        private static List<TestSuiteReport> _outputReport;
+        private static List<TestSuiteReport> _curReport;
         private static TestSuiteReport _curSuiteReport;
         private static TestCaseReport _curTestCaseReport;
 
         public static List<TestSuiteReport> ParseXmlFile(string filename)
         {
             if (!File.Exists(filename))
-                return outputReport;
+                return _outputReport;
 
-            string xmlString = File.ReadAllText(filename);
+            var xmlString = File.ReadAllText(filename);
 
-            using (XmlReader reader = XmlReader.Create(new StringReader(xmlString)))
+            using (var reader = XmlReader.Create(new StringReader(xmlString)))
             {
-                outputReport = null;
-                curReport = null;
+                _outputReport = null;
+                _curReport = null;
                 _curSuiteReport = null;
                 _curTestCaseReport = null;
 
@@ -40,12 +40,14 @@ namespace JenkinsConsoleUtility
                         case XmlNodeType.Whitespace:
                             break; // We simply accept that this exists, but otherwise don't really process it
                         case XmlNodeType.Element:
-                            bool isEmptyElement = reader.IsEmptyElement;
+                            var isEmptyElement = reader.IsEmptyElement;
                             ParseElementStart(reader, isEmptyElement);
                             if (isEmptyElement)
-                                ParseElementEnd(reader, true);
+                                ParseElementEnd(reader);
                             break;
                         case XmlNodeType.Text:
+                            if (_curTestCaseReport == null)
+                                throw new Exception("This shouldn't happen, I'm just making Resharper happy.");
                             TestFinishState tempState;
                             if (Enum.TryParse(reader.Value, true, out tempState))
                                 _curTestCaseReport.finishState = tempState;
@@ -53,7 +55,7 @@ namespace JenkinsConsoleUtility
                                 _curTestCaseReport.failureText = reader.Value;
                             break;
                         case XmlNodeType.EndElement:
-                            ParseElementEnd(reader, false);
+                            ParseElementEnd(reader);
                             break;
                         default:
                             throw new Exception("Unexpected xml node: " + reader.NodeType);
@@ -61,7 +63,7 @@ namespace JenkinsConsoleUtility
                 }
             }
 
-            return outputReport;
+            return _outputReport;
         }
 
         private static void ParseElementStart(XmlReader reader, bool isEmptyElement)
@@ -71,11 +73,13 @@ namespace JenkinsConsoleUtility
             switch (reader.Name)
             {
                 case ("testsuites"):
-                    curReport = new List<TestSuiteReport>();
+                    _curReport = new List<TestSuiteReport>();
                     break;
                 case ("testsuite"):
-                    _curSuiteReport = new TestSuiteReport();
-                    _curSuiteReport.name = reader.GetAttribute("name");
+                    _curSuiteReport = new TestSuiteReport
+                    {
+                        name = reader.GetAttribute("name")
+                    };
                     int.TryParse(reader.GetAttribute("errors"), out _curSuiteReport.errors);
                     int.TryParse(reader.GetAttribute("tests"), out _curSuiteReport.tests);
                     int.TryParse(reader.GetAttribute("failures"), out _curSuiteReport.failures);
@@ -91,10 +95,12 @@ namespace JenkinsConsoleUtility
                     _curSuiteReport.properties[reader.GetAttribute("name")] = reader.GetAttribute("value");
                     break;
                 case ("testcase"):
-                    _curTestCaseReport = new TestCaseReport();
-                    _curTestCaseReport.classname = reader.GetAttribute("classname");
-                    _curTestCaseReport.name = reader.GetAttribute("name");
-                    _curTestCaseReport.finishState = isEmptyElement ? TestFinishState.PASSED : TestFinishState.FAILED; // Empty element means no notes about failure, non-empty will almost certainly override this value
+                    _curTestCaseReport = new TestCaseReport
+                    {
+                        classname = reader.GetAttribute("classname"),
+                        name = reader.GetAttribute("name"),
+                        finishState = isEmptyElement ? TestFinishState.PASSED : TestFinishState.FAILED, // Empty element means no notes about failure, non-empty will almost certainly override this value
+                    };
                     double.TryParse(reader.GetAttribute("time"), out tempSeconds);
                     _curTestCaseReport.time = TimeSpan.FromSeconds(tempSeconds);
                     break;
@@ -111,15 +117,15 @@ namespace JenkinsConsoleUtility
             }
         }
 
-        private static void ParseElementEnd(XmlReader reader, bool isEmptyElement)
+        private static void ParseElementEnd(XmlReader reader)
         {
             switch (reader.Name)
             {
                 case ("testsuites"):
-                    outputReport = curReport;
+                    _outputReport = _curReport;
                     break;
                 case ("testsuite"):
-                    curReport.Add(_curSuiteReport);
+                    _curReport.Add(_curSuiteReport);
                     _curSuiteReport = null;
                     break;
                 case ("properties"):
@@ -156,8 +162,8 @@ namespace JenkinsConsoleUtility
                     newReport = oldReport;
                 }
 
-                StringBuilder sb = new StringBuilder();
-                string tabbing = "";
+                var sb = new StringBuilder();
+                var tabbing = "";
                 sb.Append(tabbing).Append("<?xml version=\"1.0\" encoding=\"UTF-8\"?>\n");
                 sb.Append(tabbing).Append("<testsuites>\n");
                 tabbing += "  ";
@@ -187,7 +193,7 @@ namespace JenkinsConsoleUtility
         #region ===== Extension methods for writing test reports to XML =====
         public static void AppendAsXml(this TestSuiteReport self, ref StringBuilder sb, string tabbing)
         {
-            bool isSingleLine = (self.properties == null || self.properties.Count == 0)
+            var isSingleLine = (self.properties == null || self.properties.Count == 0)
                                 && (self.testResults == null || self.testResults.Count == 0)
                                 && self.tests == 0
                                 && self.failures == 0;
@@ -205,7 +211,7 @@ namespace JenkinsConsoleUtility
 
         private static void AppendTestSuiteLine(this TestSuiteReport self, ref StringBuilder sb, bool isSingleLine, string tabbing)
         {
-            string suffix = isSingleLine ? " /" : "";
+            var suffix = isSingleLine ? " /" : "";
             if (self.skipped == 0)
                 sb.Append(tabbing).AppendFormat("<testsuite name=\"{0}\" errors=\"{1}\" tests=\"{2}\" failures=\"{3}\" time=\"{4}\" timestamp=\"{5}\"{6}>\n", self.name, self.errors, self.tests, self.failures, self.time.TotalSeconds.ToString("0.###"), self.timestamp.ToString(PlayFabUtil.DefaultDateTimeFormats[PlayFabUtil.DEFAULT_UTC_OUTPUT_INDEX]), suffix);
             else
@@ -227,13 +233,14 @@ namespace JenkinsConsoleUtility
 
         private static void AppendTestCases(this TestSuiteReport self, ref StringBuilder sb, string tabbing)
         {
-            foreach (TestCaseReport testCase in self.testResults)
+            foreach (var testCase in self.testResults)
                 testCase.AppendAsXml(ref sb, tabbing);
         }
 
         public static void AppendAsXml(this TestCaseReport self, ref StringBuilder sb, string tabbing)
         {
-            bool isSingleLine = string.IsNullOrEmpty(self.message) && self.finishState == TestFinishState.PASSED;
+            // We used to check self.message, but some tests write a message on passing tests. Despite this being against the standard, we've decided it's ok (because we can test other things with that feedback)
+            var isSingleLine = string.IsNullOrEmpty(self.failureText) && self.finishState == TestFinishState.PASSED;
 
             // Escape HTML Characters
             self.message = HttpUtility.HtmlEncode(self.message);
@@ -255,7 +262,7 @@ namespace JenkinsConsoleUtility
 
         private static void AppendTestCaseLine(this TestCaseReport self, ref StringBuilder sb, bool isSingleLine, string tabbing)
         {
-            string suffix = isSingleLine ? " /" : "";
+            var suffix = isSingleLine ? " /" : "";
             sb.Append(tabbing).AppendFormat("<testcase classname=\"{0}\" name=\"{1}\" time=\"{2}\"{3}>\n", self.classname, self.name, self.time.TotalSeconds.ToString("0.###"), suffix);
 
         }

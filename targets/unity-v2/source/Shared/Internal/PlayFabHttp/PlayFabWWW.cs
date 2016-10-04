@@ -110,7 +110,7 @@ namespace PlayFab.Internal
 #endif
                         try
                         {
-                            PlayFabHttp.SendEvent(reqContainer.ApiRequest, reqContainer.ApiResult, ApiProcessingEventType.Post);
+                            PlayFabHttp.SendEvent(reqContainer.ApiEndpoint, reqContainer.ApiRequest, reqContainer.ApiResult, ApiProcessingEventType.Post);
                         }
                         catch (Exception e)
                         {

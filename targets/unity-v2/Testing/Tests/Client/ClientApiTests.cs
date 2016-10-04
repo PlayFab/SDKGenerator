@@ -97,6 +97,8 @@ namespace PlayFab.UUnit
 
         public override void TearDown(UUnitTestContext testContext)
         {
+            PlayFabSettings.AdvertisingIdType = null;
+            PlayFabSettings.AdvertisingIdValue = null;
             tickAction = null;
         }
 

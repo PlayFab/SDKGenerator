@@ -144,7 +144,7 @@ namespace PlayFab.Internal
             where TResult : PlayFabResultCommon
         {
             InitializeHttp();
-            SendEvent(request, null, ApiProcessingEventType.Pre);
+            SendEvent(apiEndpoint, request, null, ApiProcessingEventType.Pre);
 
             var reqContainer = new CallRequestContainer();
 #if PLAYFAB_REQUEST_TIMING
@@ -299,7 +299,7 @@ namespace PlayFab.Internal
             }
         }
 
-        protected internal static void SendEvent(PlayFabRequestCommon request, PlayFabResultCommon result, ApiProcessingEventType eventType)
+        protected internal static void SendEvent(string apiEndpoint, PlayFabRequestCommon request, PlayFabResultCommon result, ApiProcessingEventType eventType)
         {
             if (ApiProcessingEventHandler == null)
                 return;
@@ -307,6 +307,7 @@ namespace PlayFab.Internal
             {
                 ApiProcessingEventHandler(new ApiProcessingEventArgs
                 {
+                    ApiEndpoint = apiEndpoint,
                     EventType = eventType,
                     Request = request,
                     Result = result
@@ -341,11 +342,12 @@ namespace PlayFab.Internal
         Post
     }
 
-    public class ApiProcessingEventArgs : EventArgs
+    public class ApiProcessingEventArgs
     {
-        public ApiProcessingEventType EventType { get; set; }
-        public PlayFabRequestCommon Request { get; set; }
-        public PlayFabResultCommon Result { get; set; }
+        public string ApiEndpoint;
+        public ApiProcessingEventType EventType;
+        public PlayFabRequestCommon Request;
+        public PlayFabResultCommon Result;
 
         public TRequest GetRequest<TRequest>() where TRequest : PlayFabRequestCommon
         {

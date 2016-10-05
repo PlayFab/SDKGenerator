@@ -2,6 +2,7 @@ using System;
 using System.Collections.Generic;
 using System.IO;
 using System.Text;
+using Newtonsoft.Json;
 using PlayFab.UUnit;
 
 namespace JenkinsConsoleUtility.Testing
@@ -30,14 +31,14 @@ namespace JenkinsConsoleUtility.Testing
             "  </testsuite>\n" +
             "</testsuites>\n";
 
-        private string tempFileFullPath;
+        private string _tempFileFullPath;
 
         protected override void SetUp()
         {
-            string tempFolderPath = Environment.GetEnvironmentVariable("TEMP"); // Get the Windows 10 user temp folder
-            tempFileFullPath = Path.Combine(tempFolderPath, tempFilename);
+            var tempFolderPath = Environment.GetEnvironmentVariable("TEMP") ?? ""; // Get the Windows 10 user temp folder
+            _tempFileFullPath = Path.Combine(tempFolderPath, tempFilename);
 
-            var outfile = File.Open(tempFileFullPath, FileMode.Create);
+            var outfile = File.Open(_tempFileFullPath, FileMode.Create);
             byte[] buffer = Encoding.UTF8.GetBytes(EXAMPLE_XML);
             outfile.Write(buffer, 0, buffer.Length);
             outfile.Close();
@@ -46,9 +47,46 @@ namespace JenkinsConsoleUtility.Testing
         [UUnitTest]
         public void XmlReadWriteSequence()
         {
-            List<TestSuiteReport> xmlReport = JUnitXml.ParseXmlFile(tempFileFullPath);
-            JUnitXml.WriteXmlFile(tempFileFullPath, xmlReport, true);
-            List<TestSuiteReport> xmlReport2 = JUnitXml.ParseXmlFile(tempFileFullPath);
+            List<TestSuiteReport> xmlReport = JUnitXml.ParseXmlFile(_tempFileFullPath);
+            JUnitXml.WriteXmlFile(_tempFileFullPath, xmlReport, true);
+            List<TestSuiteReport> xmlReport2 = JUnitXml.ParseXmlFile(_tempFileFullPath);
+            UUnitAssert.IntEquals(xmlReport.Count, xmlReport2.Count);
+        }
+
+        [UUnitTest]
+        public void PassWithMessageXml()
+        {
+            var readFileName = "../../testPassWithMessage.xml";
+            List<TestSuiteReport> inputReport = JUnitXml.ParseXmlFile(readFileName);
+            JUnitXml.WriteXmlFile(_tempFileFullPath, inputReport, true);
+            List<TestSuiteReport> testReport = JUnitXml.ParseXmlFile(_tempFileFullPath);
+            UUnitAssert.IntEquals(1, testReport.Count);
+            foreach (var eachReport in testReport)
+            {
+                UUnitAssert.IntEquals(0, eachReport.failures);
+                UUnitAssert.IntEquals(0, eachReport.skipped);
+                UUnitAssert.NotNull(eachReport.testResults);
+                foreach (var eachTest in eachReport.testResults)
+                    UUnitAssert.True(eachTest.IsXmlSingleLine());
+            }
+        }
+
+        [UUnitTest]
+        public void PassWithMessageJson()
+        {
+            var readFileName = "../../testPassWithMessage.json";
+            UUnitAssert.True(File.Exists(readFileName));
+            var json = File.ReadAllText(readFileName);
+            List<TestSuiteReport> testReport = JsonConvert.DeserializeObject<List<TestSuiteReport>>(json);
+            UUnitAssert.IntEquals(1, testReport.Count);
+            foreach (var eachReport in testReport)
+            {
+                UUnitAssert.IntEquals(0, eachReport.failures);
+                UUnitAssert.IntEquals(0, eachReport.skipped);
+                UUnitAssert.NotNull(eachReport.testResults);
+                foreach (var eachTest in eachReport.testResults)
+                    UUnitAssert.True(eachTest.IsXmlSingleLine());
+            }
         }
     }
 }

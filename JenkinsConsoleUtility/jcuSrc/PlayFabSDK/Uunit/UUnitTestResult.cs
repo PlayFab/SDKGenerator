@@ -46,6 +46,7 @@ namespace PlayFab.UUnit
             TestCaseReport report = new TestCaseReport
             {
                 message = message,
+                stacktrace = stacktrace,
                 classname = InternalReport.name,
                 failureText = finishState.ToString(),
                 finishState = finishState,

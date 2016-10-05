@@ -1,0 +1,99 @@
+<?xml version="1.0" encoding="UTF-8"?>
+<!-- This is an xml file that was produced, which was deemed as erroneous output, but now it serves as an INPUT that should be re-interpreted as all-passing tests -->
+<testsuites>
+  <testsuite name="jbuild_unitysdk_0" errors="0" tests="31" failures="0" time="4.217" timestamp="2016-10-04T10:37:48.466Z">
+    <testcase classname="jbuild_unitysdk_0" name="ClientApiTests.InvalidLogin" time="1.195">
+      <failure message="">PASSED</failure>
+    </testcase>
+    <testcase classname="jbuild_unitysdk_0" name="ClientApiTests.InvalidRegistration" time="0.05">
+      <failure message="">PASSED</failure>
+    </testcase>
+    <testcase classname="jbuild_unitysdk_0" name="ClientApiTests.LoginOrRegister" time="0.181">
+      <failure message="">PASSED</failure>
+    </testcase>
+    <testcase classname="jbuild_unitysdk_0" name="ClientApiTests.LoginWithAdvertisingId" time="0.315">
+      <failure message="PlayFabTestId">PASSED</failure>
+    </testcase>
+    <testcase classname="jbuild_unitysdk_0" name="ClientApiTests.UserDataApi" time="0.313">
+      <failure message="">PASSED</failure>
+    </testcase>
+    <testcase classname="jbuild_unitysdk_0" name="ClientApiTests.PlayerStatisticsApi" time="0.264">
+      <failure message="">PASSED</failure>
+    </testcase>
+    <testcase classname="jbuild_unitysdk_0" name="ClientApiTests.UserCharacter" time="0.066">
+      <failure message="">PASSED</failure>
+    </testcase>
+    <testcase classname="jbuild_unitysdk_0" name="ClientApiTests.ClientLeaderBoard" time="0.099">
+      <failure message="">PASSED</failure>
+    </testcase>
+    <testcase classname="jbuild_unitysdk_0" name="ClientApiTests.AccountInfo" time="0.083">
+      <failure message="">PASSED</failure>
+    </testcase>
+    <testcase classname="jbuild_unitysdk_0" name="ClientApiTests.CloudScript" time="0.182">
+      <failure message="">PASSED</failure>
+    </testcase>
+    <testcase classname="jbuild_unitysdk_0" name="ClientApiTests.CloudScriptGeneric" time="0.131">
+      <failure message="">PASSED</failure>
+    </testcase>
+    <testcase classname="jbuild_unitysdk_0" name="ClientApiTests.WriteEvent" time="0.082">
+      <failure message="">PASSED</failure>
+    </testcase>
+    <testcase classname="jbuild_unitysdk_0" name="ClientEventTest.TestInstCallbacks_GeneralOnly" time="0.216">
+      <failure message="">PASSED</failure>
+    </testcase>
+    <testcase classname="jbuild_unitysdk_0" name="ClientEventTest.TestCallbackFailuresGlobal" time="0.116">
+      <failure message="">PASSED</failure>
+    </testcase>
+    <testcase classname="jbuild_unitysdk_0" name="ClientEventTest.TestCallbackFailuresLocal" time="0.065">
+      <failure message="">PASSED</failure>
+    </testcase>
+    <testcase classname="jbuild_unitysdk_0" name="JsonFeatureTests.JsonPropertyTest" time="0.017">
+      <failure message="">PASSED</failure>
+    </testcase>
+    <testcase classname="jbuild_unitysdk_0" name="JsonFeatureTests.TestObjNumField" time="0.015">
+      <failure message="">PASSED</failure>
+    </testcase>
+    <testcase classname="jbuild_unitysdk_0" name="JsonFeatureTests.TestObjNumProp" time="0.016">
+      <failure message="">PASSED</failure>
+    </testcase>
+    <testcase classname="jbuild_unitysdk_0" name="JsonFeatureTests.TestStructNumField" time="0.017">
+      <failure message="">PASSED</failure>
+    </testcase>
+    <testcase classname="jbuild_unitysdk_0" name="JsonFeatureTests.TestObjOptNumField" time="0.016">
+      <failure message="">PASSED</failure>
+    </testcase>
+    <testcase classname="jbuild_unitysdk_0" name="JsonFeatureTests.OtherSpecificDatatypes" time="0.017">
+      <failure message="">PASSED</failure>
+    </testcase>
+    <testcase classname="jbuild_unitysdk_0" name="JsonFeatureTests.ArrayAsObject" time="0.017">
+      <failure message="">PASSED</failure>
+    </testcase>
+    <testcase classname="jbuild_unitysdk_0" name="JsonFeatureTests.TimeSpanJson" time="0.016">
+      <failure message="">PASSED</failure>
+    </testcase>
+    <testcase classname="jbuild_unitysdk_0" name="JsonFeatureTests.ArrayOfObjects" time="0.016">
+      <failure message="">PASSED</failure>
+    </testcase>
+    <testcase classname="jbuild_unitysdk_0" name="JsonFeatureTests.NullableJson" time="0.016">
+      <failure message="">PASSED</failure>
+    </testcase>
+    <testcase classname="jbuild_unitysdk_0" name="JsonFeatureTests.TestDeserializeToObject" time="0.016">
+      <failure message="">PASSED</failure>
+    </testcase>
+    <testcase classname="jbuild_unitysdk_0" name="GMFB_327.TimeStampHandlesAllFormats" time="0.016">
+      <failure message="">PASSED</failure>
+    </testcase>
+    <testcase classname="jbuild_unitysdk_0" name="GMFB_327.JsonTimeStampHandlesAllFormats" time="0.015">
+      <failure message="">PASSED</failure>
+    </testcase>
+    <testcase classname="jbuild_unitysdk_0" name="GMFB_327.EnumConversionTest_Serialize" time="0.016">
+      <failure message="">PASSED</failure>
+    </testcase>
+    <testcase classname="jbuild_unitysdk_0" name="GMFB_327.EnumConversionTest_Deserialize" time="0.015">
+      <failure message="">PASSED</failure>
+    </testcase>
+    <testcase classname="jbuild_unitysdk_0" name="GMFB_327.EnumConversionTest_OptionalEnum" time="0.015">
+      <failure message="">PASSED</failure>
+    </testcase>
+  </testsuite>
+</testsuites>

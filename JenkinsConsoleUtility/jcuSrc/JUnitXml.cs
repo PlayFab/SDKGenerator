@@ -20,7 +20,7 @@ namespace JenkinsConsoleUtility
         public static List<TestSuiteReport> ParseXmlFile(string filename)
         {
             if (!File.Exists(filename))
-                return _outputReport;
+                return null;
 
             var xmlString = File.ReadAllText(filename);
 
@@ -38,6 +38,7 @@ namespace JenkinsConsoleUtility
                     {
                         case XmlNodeType.XmlDeclaration:
                         case XmlNodeType.Whitespace:
+                        case XmlNodeType.Comment:
                             break; // We simply accept that this exists, but otherwise don't really process it
                         case XmlNodeType.Element:
                             var isEmptyElement = reader.IsEmptyElement;
@@ -240,14 +241,14 @@ namespace JenkinsConsoleUtility
         public static void AppendAsXml(this TestCaseReport self, ref StringBuilder sb, string tabbing)
         {
             // We used to check self.message, but some tests write a message on passing tests. Despite this being against the standard, we've decided it's ok (because we can test other things with that feedback)
-            var isSingleLine = string.IsNullOrEmpty(self.failureText) && self.finishState == TestFinishState.PASSED;
-
-            // Escape HTML Characters
-            self.message = HttpUtility.HtmlEncode(self.message);
-
+            var isSingleLine = self.IsXmlSingleLine();
             self.AppendTestCaseLine(ref sb, isSingleLine, tabbing);
             if (isSingleLine)
                 return; // Nothing else is written if it's a single line
+
+            // Escape HTML Characters
+            self.message = HttpUtility.HtmlEncode(self.message);
+            self.failureText = HttpUtility.HtmlEncode(self.failureText);
 
             tabbing += "  ";
             if (self.finishState == TestFinishState.SKIPPED)
@@ -258,6 +259,11 @@ namespace JenkinsConsoleUtility
                 sb.Append(tabbing).AppendFormat("<failure message=\"{0}\">{1}</failure>\n", self.message, self.failureText);
             tabbing = tabbing.Substring(2);
             sb.Append(tabbing).Append("</testcase>\n");
+        }
+
+        public static bool IsXmlSingleLine(this TestCaseReport self)
+        {
+            return self.finishState == TestFinishState.PASSED;
         }
 
         private static void AppendTestCaseLine(this TestCaseReport self, ref StringBuilder sb, bool isSingleLine, string tabbing)

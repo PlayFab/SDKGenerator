@@ -41,25 +41,28 @@ exports.makeCombinedAPI = function (apis, sourceDir, baseOutputDir) {
     copyTree(path.resolve(sourceDir, "GlobalFiles"), baseOutputDir);
 }
 
-function MakeCoreSdk(apis, sourceDir, apiOutputDir, sdkDescriptor, requirePrefix) {
+function MakeCoreSdk(apis, sourceDir, apiOutputDir, sdkDescriptor, requirePrefix, sdkVersionString) {
     console.log("Generating " + sdkDescriptor + " api\n    from: " + sourceDir + "\n    to: " + apiOutputDir);
     copyTree(path.resolve(sourceDir, "source"), apiOutputDir);
-    MakeSimpleFiles(apis, sourceDir, apiOutputDir, requirePrefix);
+    MakeSimpleFiles(apis, sourceDir, apiOutputDir, requirePrefix, sdkVersionString);
     for (var a = 0; a < apis.length; a++)
         MakeApi(apis[a], sourceDir, apiOutputDir, requirePrefix);
 }
 
 function MakeLuaDistSdk(apis, sourceDir, apiOutputDir, sdkDescriptor) {
-    MakeCoreSdk(apis, sourceDir, path.resolve(apiOutputDir, "PlayFab"), sdkDescriptor, "PlayFab.");
+    var sdkVersionString = "LuaSdk_" + exports.sdkVersion;
+    MakeCoreSdk(apis, sourceDir, path.resolve(apiOutputDir, "PlayFab"), sdkDescriptor, "PlayFab.", sdkVersionString);
     copyTree(path.resolve(sourceDir, "LuaDist"), apiOutputDir);
 }
 
 function MakeDefold(apis, sourceDir, apiOutputDir, sdkDescriptor) {
-    MakeCoreSdk(apis, sourceDir, path.resolve(apiOutputDir, "PlayFab"), sdkDescriptor, "PlayFab.");
+    var sdkVersionString = "DefoldSdk_" + exports.sdkVersion;
+    MakeCoreSdk(apis, sourceDir, path.resolve(apiOutputDir, "PlayFab"), sdkDescriptor, "PlayFab.", sdkVersionString);
     copyTree(path.resolve(sourceDir, "EachDefold"), apiOutputDir);
     
-    var customLocals = {}
-    customLocals.sdkVersion = exports.sdkVersion;
+    var customLocals = {
+        sdkVersion: exports.sdkVersion
+    }
     customLocals.sdkDescriptor = sdkDescriptor; // sdkDescriptor is only used in Defold Templates
     
     var projTemplate = ejs.compile(readFile(path.resolve(sourceDir, "templates/Defold/PlayFabSdk.project.ejs")));
@@ -80,7 +83,8 @@ function MakeCorona(apis, sourceDir, apiOutputDir, sdkDescriptor, requirePrefix)
     var httpsGenerated = httpsTemplate(customLocals);
     writeFile(path.resolve(apiOutputDir, "PlayFabHttpsCorona.lua"), httpsGenerated);
     
-    MakeCoreSdk(apis, sourceDir, apiOutputDir, sdkDescriptor, requirePrefix); // requirePrefix is mostly for Corona
+    var sdkVersionString = "CoronaSdk_" + exports.sdkVersion;
+    MakeCoreSdk(apis, sourceDir, apiOutputDir, sdkDescriptor, requirePrefix, sdkVersionString); // requirePrefix is mostly for Corona
     copyTree(path.resolve(sourceDir, "EachCorona"), apiOutputDir);
 }
 
@@ -98,10 +102,10 @@ function MakeApi(api, sourceDir, apiOutputDir, requirePrefix) {
     writeFile(path.resolve(apiOutputDir, "PlayFab" + api.name + "Api.lua"), generatedTemplateText);
 }
 
-function MakeSimpleFiles(apis, sourceDir, apiOutputDir, requirePrefix) {
+function MakeSimpleFiles(apis, sourceDir, apiOutputDir, requirePrefix, sdkVersionString) {
     var locals = {};
-    locals.sdkVersion = exports.sdkVersion;
     locals.buildIdentifier = exports.buildIdentifier;
+    locals.sdkVersionString = sdkVersionString;
     locals.hasServerOptions = false;
     locals.hasClientOptions = false;
     locals.requirePrefix = requirePrefix; // Corona is in a top-level subfolder which is not present in any other sdk

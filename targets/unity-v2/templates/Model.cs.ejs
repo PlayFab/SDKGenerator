@@ -6,5 +6,5 @@
     public<% if (datatype.isAbstract) { %> abstract<% } %> class <%- datatype.className %><%- GetBaseTypeSyntax(datatype) %>
     {<% for (var i = 0; i < datatype.properties.length; i++) { var property = datatype.properties[i] %>
 <%- GenerateSummary("        ", property, "description") %><%- GetDeprecationAttribute("        ", property)
-%>        public <%- GetPropertyDef(property, datatype) %> { get; set;}<% } %>
+%>        public <%- GetPropertyDef(property, datatype) %>;<% } %>
     }

@@ -329,12 +329,6 @@ namespace PlayFab.Internal
                         ResultQueue.Enqueue(PlayFabIdfa.OnPlayFabLogin);
                     }
                 }
-
-                var cloudScriptUrl = reqContainer.ApiResult as ClientModels.GetCloudScriptUrlResult;
-                if (cloudScriptUrl != null)
-                {
-                    PlayFabSettings.LogicServerUrl = cloudScriptUrl.Url;
-                }
 #endif
                 lock (ResultQueue)
                 {

@@ -50,6 +50,7 @@ void APfTestActor::InitializeTestSuite()
         AppendTest("LeaderBoard");
         AppendTest("AccountInfo");
         AppendTest("CloudScript");
+        AppendTest("CloudScriptError");
         AppendTest("WriteEvent");
 <% }
 if (hasServerOptions) { %>
@@ -662,6 +663,51 @@ void APfTestActor::OnHelloWorldCloudScript(FClientExecuteCloudScriptResult resul
         EndTest(testContext, PlayFabApiTestFinishState::FAILED, message);
     else
         EndTest(testContext, PlayFabApiTestFinishState::PASSED, "");
+}
+
+/// <summary>
+/// CLIENT API
+/// Test that CloudScript errors can be deciphered
+/// </summary>
+void APfTestActor::CloudScriptError(UPfTestContext* testContext)
+{
+    IPlayFab* playFabSettings = &(IPlayFab::Get());
+    if (!playFabSettings->IsClientLoggedIn())
+    {
+        EndTest(testContext, PlayFabApiTestFinishState::SKIPPED, "Earlier tests failed to log in");
+        return;
+    }
+
+    FClientExecuteCloudScriptRequest request;
+    request.FunctionName = "throwError";
+    request.FunctionParameter = nullptr;
+    request.RevisionSelection = ECloudScriptRevisionOption::pfenum_Live;
+    request.SpecificRevision = 0;
+    UPlayFabClientAPI::FDelegateOnSuccessExecuteCloudScript onSuccess; onSuccess.BindUFunction(this, "OnCloudScriptError");
+    UPlayFabClientAPI::FDelegateOnFailurePlayFabError onError; onError.BindUFunction(this, "OnSharedError");
+    UPlayFabClientAPI* callObj = UPlayFabClientAPI::ExecuteCloudScript(request, onSuccess, onError, testContext);
+    managedObjects.Add(callObj);
+    callObj->Activate();
+}
+void APfTestActor::OnCloudScriptError(FClientExecuteCloudScriptResult result, UObject* customData)
+{
+    UPfTestContext* testContext = dynamic_cast<UPfTestContext*>(customData);
+
+    if (!result.FunctionResult->IsNull())
+    {
+        EndTest(testContext, PlayFabApiTestFinishState::FAILED, "FunctionResult should be null");
+        return;
+    }
+    if (result.Error->IsNull())
+    {
+        EndTest(testContext, PlayFabApiTestFinishState::FAILED, "Cloud Script error not found");
+        return;
+    }
+
+    if (result.Error->Error.Find("JavascriptException") == 0)
+        EndTest(testContext, PlayFabApiTestFinishState::PASSED, "");
+    else
+        EndTest(testContext, PlayFabApiTestFinishState::FAILED, "Can't find Cloud Script failure details.");
 }
 
 /// <summary>

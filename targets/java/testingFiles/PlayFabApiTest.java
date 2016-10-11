@@ -393,6 +393,24 @@ public class PlayFabApiTest
 
     /// <summary>
     /// CLIENT API
+    /// Test that CloudScript errors can be deciphered
+    /// </summary>
+    @Test
+    public void CloudScriptError()
+    {
+        LoginOrRegister();
+
+        PlayFabClientModels.ExecuteCloudScriptRequest errRequest = new PlayFabClientModels.ExecuteCloudScriptRequest();
+        errRequest.FunctionName = "throwError";
+        PlayFabResult<PlayFabClientModels.ExecuteCloudScriptResult> errResult = PlayFabClientAPI.ExecuteCloudScript(errRequest);
+        VerifyResult(errResult, true);
+        assertTrue(errResult.Result.FunctionResult == null);
+        assertNotNull(errResult.Result.Error);
+        assertEquals(errResult.Result.Error.Error, "JavascriptException");
+    }
+
+    /// <summary>
+    /// CLIENT API
     /// Test that the client can publish custom PlayStream events
     /// </summary>
     @Test

@@ -99,6 +99,31 @@ namespace PlayFab.UUnit
 
         /// <summary>
         /// CLIENT API
+        /// Try to deliberately register a user with an invalid email and password
+        ///   Verify that errorDetails are populated correctly.
+        /// </summary>
+        [UUnitTest]
+        public void InvalidRegistration()
+        {
+            var expectedEmailMsg = "email address is not valid.";
+            var expectedPasswordMsg = "password must be between";
+
+            var registerTask = Client.RegisterPlayFabUserAsync(Client.Settings.TitleId, "x", "x", "x");
+            try
+            {
+                registerTask.Wait();
+            }
+            catch (Exception ex)
+            {
+                UUnitAssert.True(ex.InnerException.Message.ToLower().Contains(expectedEmailMsg), "Expected an error about bad email address: " + ex.InnerException.Message);
+                UUnitAssert.True(ex.InnerException.Message.ToLower().Contains(expectedPasswordMsg), "Expected an error about bad password: " + ex.InnerException.Message);
+                return;
+            }
+            UUnitAssert.False(true, "This should be unreachable");
+        }
+
+        /// <summary>
+        /// CLIENT API
         /// Log in or create a user, track their PlayFabId
         /// </summary>
         [UUnitTest]
@@ -421,6 +446,50 @@ namespace PlayFab.UUnit
             UUnitAssert.NotNull(jval);
             var actualMessage = jval.Value as string;
             UUnitAssert.StringEquals("Hello " + _playFabId + "!", actualMessage);
+        }
+
+        /// <summary>
+        /// CLIENT API
+        /// Test that CloudScript errors can be deciphered
+        /// </summary>
+        [UUnitTest]
+        public void CloudScriptError()
+        {
+            var cloudTask = Client.ExecuteCloudScriptAsync("throwError");
+            try
+            {
+                cloudTask.Wait();
+            }
+            catch (Exception ex)
+            {
+                UUnitAssert.True(false, ex.Message);
+            }
+            // Get the JavascriptException result
+            UUnitAssert.IsNull(cloudTask.Result.FunctionResult);
+            UUnitAssert.NotNull(cloudTask.Result.Error);
+            UUnitAssert.StringEquals(cloudTask.Result.Error.Error, "JavascriptException");
+        }
+
+        /// <summary>
+        /// CLIENT API
+        /// Test that the client can publish custom PlayStream events
+        /// </summary>
+        [UUnitTest]
+        public void WriteEvent()
+        {
+            var writeTask = Client.WritePlayerEventAsync("ForumPostEvent", DateTime.UtcNow, new Dictionary<string, object> {
+                    { "Subject", "My First Post" },
+                    { "Body", "My awesome Post." },
+                });
+            try
+            {
+                writeTask.Wait();
+            }
+            catch (Exception ex)
+            {
+                UUnitAssert.True(false, ex.Message);
+            }
+            // ATM there's nothing we can check after this thing executes.
         }
     }
 }

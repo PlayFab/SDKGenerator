@@ -466,6 +466,30 @@ exports.PlayFabApiTests = {
     
     /// <summary>
     /// CLIENT API
+    /// Test that CloudScript errors can be deciphered
+    /// </summary>
+    CloudScriptError: TestWrapper(function (test) {
+        var errRequest = {
+            // Currently, you need to look up the correct format for this object in the API-docs:
+            //   https://api.playfab.com/Documentation/Client/method/ExecuteCloudScript
+            FunctionName: "throwError"
+        };
+        
+        var errCallback = function (error, result) {
+            VerifyNullError(result, error, test, "Testing Cloud Script Error result");
+            if (result != null) {
+                test.ok(result.data.FunctionResult == null, "Cloud Script Error failed");
+                test.ok(result.data.Error != null, "Cloud Script Error failed");
+                test.equal(result.data.Error.Error, "JavascriptException", "Cloud Script Error failed");
+            }
+            test.done();
+        };
+        
+        PlayFabClient.ExecuteCloudScript(errRequest, CallbackWrapper("errCallback", errCallback, test));
+    }),
+    
+    /// <summary>
+    /// CLIENT API
     /// Test that the client can publish custom PlayStream events
     /// </summary>
     WriteEvent: function (test) {

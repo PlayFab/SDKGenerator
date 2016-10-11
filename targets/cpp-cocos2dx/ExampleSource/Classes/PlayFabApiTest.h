@@ -232,6 +232,7 @@ namespace PlayFabApiTest
                 testContexts.insert(testContexts.end(), new PfTestContext("LeaderBoard", LeaderBoard));
                 testContexts.insert(testContexts.end(), new PfTestContext("AccountInfo", AccountInfo));
                 testContexts.insert(testContexts.end(), new PfTestContext("CloudScript", CloudScript));
+                testContexts.insert(testContexts.end(), new PfTestContext("CloudScriptError", CloudScriptError));
                 testContexts.insert(testContexts.end(), new PfTestContext("WriteEvent", WriteEvent));
             }
         }
@@ -786,6 +787,29 @@ namespace PlayFabApiTest
             bool success = (cloudScriptLogReport.find("Hello " + playFabId + "!") != -1);
             if (!success)
                 EndTest(*testContext, FAILED, cloudScriptLogReport);
+            else
+                EndTest(*testContext, PASSED, "");
+        }
+
+        /// <summary>
+        /// CLIENT API
+        /// Test that CloudScript errors can be deciphered
+        /// </summary>
+        static void CloudScriptError(PfTestContext& testContext)
+        {
+            ExecuteCloudScriptRequest request;
+            request.FunctionName = "throwError";
+            PlayFabClientAPI::ExecuteCloudScript(request, OnCloudScriptError, OnSharedError, &testContext);
+        }
+        static void OnCloudScriptError(const ExecuteCloudScriptResult& result, void* customData)
+        {
+            PfTestContext* testContext = reinterpret_cast<PfTestContext*>(customData);
+            bool success = true;
+            success &= result.FunctionResult == nullptr;
+            success &= result.Error != nullptr;
+            success &= result.Error->Error.compare("JavascriptException") == 0;
+            if (!success)
+                EndTest(*testContext, FAILED, "Expected Cloud Script error was not present.");
             else
                 EndTest(*testContext, PASSED, "");
         }

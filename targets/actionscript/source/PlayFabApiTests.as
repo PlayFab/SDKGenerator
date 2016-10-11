@@ -58,6 +58,7 @@ package
             AddTest("LeaderBoard", LeaderBoard);
             AddTest("AccountInfo", AccountInfo);
             AddTest("CloudScript", CloudScript);
+            AddTest("CloudScriptError", CloudScriptError);
             AddTest("WriteEvent", WriteEvent);
 
             KickOffTests();
@@ -417,6 +418,25 @@ package
         {
             ASyncAssert.AssertTrue(result.FunctionResult.messageValue.length > 0);
             ASyncAssert.AssertEquals(result.FunctionResult.messageValue, "Hello " + playFabId + "!");
+
+            FinishTestHandler(new ASyncUnitTestEvent(ASyncUnitTestEvent.FINISH_TEST, ASyncUnitTestEvent.RESULT_PASSED, ""));
+        }
+
+        /// <summary>
+        /// CLIENT API
+        /// Test that CloudScript errors can be deciphered
+        /// </summary>
+        private function CloudScriptError() : void
+        {
+            var cloudRequest:com.playfab.ClientModels.ExecuteCloudScriptRequest = new com.playfab.ClientModels.ExecuteCloudScriptRequest();
+            cloudRequest.FunctionName = "throwError";
+            PlayFabClientAPI.ExecuteCloudScript(cloudRequest, Wrap(CloudScriptErrorCallback, "CloudScriptError"), Wrap(Shared_ApiCallFailure, "CloudScriptError"));
+        }
+        private function CloudScriptErrorCallback(result:com.playfab.ClientModels.ExecuteCloudScriptResult) : void
+        {
+            ASyncAssert.AssertNull(result.FunctionResult);
+            ASyncAssert.AssertNotNull(result.Error);
+            ASyncAssert.AssertEquals(result.Error.Error, "JavascriptException");
 
             FinishTestHandler(new ASyncUnitTestEvent(ASyncUnitTestEvent.FINISH_TEST, ASyncUnitTestEvent.RESULT_PASSED, ""));
         }

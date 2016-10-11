@@ -365,6 +365,23 @@ namespace PlayFab.UUnit
 
         /// <summary>
         /// CLIENT API
+        /// Test that CloudScript errors can be deciphered
+        /// </summary>
+        [UUnitTest]
+        public void CloudScriptError()
+        {
+            var request = new ExecuteCloudScriptRequest { FunctionName = "throwError" };
+            var cloudTask = PlayFabClientAPI.ExecuteCloudScriptAsync(request);
+            WaitForResultSuccess(cloudTask, "Failed to Execute CloudScript");
+
+            // Get the JavascriptException result
+            UUnitAssert.IsNull(cloudTask.Result.Result.FunctionResult);
+            UUnitAssert.NotNull(cloudTask.Result.Result.Error);
+            UUnitAssert.StringEquals(cloudTask.Result.Result.Error.Error, "JavascriptException");
+        }
+
+        /// <summary>
+        /// CLIENT API
         /// Test that the client can publish custom PlayStream events
         /// </summary>
         [UUnitTest]

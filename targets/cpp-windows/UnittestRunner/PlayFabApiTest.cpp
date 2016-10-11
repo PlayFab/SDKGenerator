@@ -552,6 +552,32 @@ namespace UnittestRunner
                 : "Hello " + playFabId + "!";
         }
 
+        /// <summary>
+        /// CLIENT API
+        /// Test that CloudScript errors can be deciphered
+        /// </summary>
+        TEST_METHOD(CloudScriptError)
+        {
+            LoginOrRegister();
+
+            ExecuteCloudScriptRequest errRequest;
+            errRequest.FunctionName = "throwError";
+            PlayFabClientAPI::ExecuteCloudScript(errRequest, &CloudErrorCallback, &SharedFailedCallback, nullptr);
+            ClientApiWait();
+
+            Assert::IsTrue(testMessageReturn.find("JavascriptException") == 0);
+        }
+        static void CloudErrorCallback(ClientModels::ExecuteCloudScriptResult& result, void* userData)
+        {
+            testMessageReturn = "";
+            if (!result.FunctionResult.isNull())
+                testMessageReturn = "FunctionResult was unexpectedly defined.";
+            else if (result.Error == nullptr)
+                testMessageReturn = "Cloud Script error not found.";
+            else
+                testMessageReturn = result.Error->Error;
+        }
+
         struct TestForumEventRequest : public WriteClientPlayerEventRequest
         {
             // THIS IS NOT SUFFICIENT: These parameters are not being serialized properly because C++ does not have reflection

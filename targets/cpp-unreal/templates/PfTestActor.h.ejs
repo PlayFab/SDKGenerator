@@ -275,6 +275,15 @@ public:
         void CloudScript(UPfTestContext* testContext);
     UFUNCTION()
         void OnHelloWorldCloudScript(FClientExecuteCloudScriptResult result, UObject* customData);
+        
+    /// <summary>
+    /// CLIENT API
+    /// Test that CloudScript errors can be deciphered
+    /// </summary>
+    UFUNCTION()
+        void CloudScriptError(UPfTestContext* testContext);
+    UFUNCTION()
+        void OnCloudScriptError(FClientExecuteCloudScriptResult result, UObject* customData);
 
     /// <summary>
     /// CLIENT API

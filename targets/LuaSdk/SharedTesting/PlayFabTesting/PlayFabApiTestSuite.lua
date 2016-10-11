@@ -310,6 +310,30 @@ end
 
 --- <summary>
 --- CLIENT API
+--- Test that CloudScript errors can be deciphered
+--- </summary>
+function PlayFabApiTestSuite.CloudScriptError()
+    local errRequest = {
+        -- Currently, you need to look up the correct format for this object in the API-docs:
+        --   https://api.playfab.com/Documentation/Client/method/ExecuteCloudScript
+        FunctionName = "throwError"
+    }
+    PlayFabClientApi.ExecuteCloudScript(errRequest, AsyncTestSuite.WrapCallback("OnCloudScriptError", PlayFabApiTestSuite.OnCloudScriptError), PlayFabApiTestSuite.OnSharedError)
+end
+function PlayFabApiTestSuite.OnCloudScriptError(result)
+    local passed = true
+    passed = passed and (result.FunctionResult == nil)
+    passed = passed and not (result.Error == nil)
+    passed = passed and (result.Error.Error == "JavascriptException")
+    if (passed) then
+        AsyncTestSuite.EndTest("PASSED", nil)
+    else
+        AsyncTestSuite.EndTest("FAILED", "Cloud Script failure did not report correctly.")
+    end
+end
+
+--- <summary>
+--- CLIENT API
 --- Test that the client can publish custom PlayStream events
 --- </summary>
 function PlayFabApiTestSuite.WriteEvent()
@@ -341,6 +365,7 @@ function PlayFabApiTestSuite.Start()
     AsyncTestSuite.AddTest("LeaderBoard", PlayFabApiTestSuite.LeaderBoard)
     AsyncTestSuite.AddTest("AccountInfo", PlayFabApiTestSuite.AccountInfo)
     AsyncTestSuite.AddTest("CloudScript", PlayFabApiTestSuite.CloudScript)
+    AsyncTestSuite.AddTest("CloudScriptError", PlayFabApiTestSuite.CloudScriptError)
     AsyncTestSuite.AddTest("WriteEvent", PlayFabApiTestSuite.WriteEvent)
     AsyncTestSuite.BeginTesting()
 end

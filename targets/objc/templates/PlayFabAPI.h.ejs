@@ -10,7 +10,6 @@
 <% if(authKey) { %>
 @property (nonatomic) NSString* mUserSessionTicket;
 <% } %>
-@property (nonatomic) NSString* logicServerURL;
 		<% for(var i in api.calls) { var apiCall = api.calls[i]; %>
 typedef void(^<%- apiCall.name %>Callback)(<%- apiCall.result%>* result, NSObject* userData);
 		<% } %>

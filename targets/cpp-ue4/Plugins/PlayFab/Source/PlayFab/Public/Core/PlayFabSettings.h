@@ -15,7 +15,6 @@ namespace PlayFab
         static FString serverURL;
         static FString developmentEnvironmentURL;
         static FString productionEnvironmentURL;
-        static FString logicServerURL; // Deprecated
         static FString titleId; // You must set this value for PlayFabSdk to work properly (Found in the Game Manager for your title, at the PlayFab Website)
         static FString developerSecretKey; // You must set this value for PlayFabSdk to work properly (Found in the Game Manager for your title, at the PlayFab Website)
         static FString advertisingIdType; // Set this to the appropriate AD_TYPE_X constant below
@@ -32,11 +31,6 @@ namespace PlayFab
             if (serverURL.Len() == 0)
                 serverURL = TEXT("https://") + titleId + (useDevelopmentEnvironment ? developmentEnvironmentURL : productionEnvironmentURL);
             return serverURL + callPath;
-        }
-
-        static FString getLogicURL(const FString& callPath)
-        {
-            return logicServerURL + callPath;
         }
     };
 }

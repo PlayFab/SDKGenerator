@@ -102,7 +102,7 @@ public:
             testContexts.insert(testContexts.end(), new PfTestContext("UserCharacter", UserCharacter));
             testContexts.insert(testContexts.end(), new PfTestContext("LeaderBoard", LeaderBoard));
             testContexts.insert(testContexts.end(), new PfTestContext("AccountInfo", AccountInfo));
-            testContexts.insert(testContexts.end(), new PfTestContext("CloudScript", CloudScript));
+            // testContexts.insert(testContexts.end(), new PfTestContext("CloudScript", CloudScript));
             testContexts.insert(testContexts.end(), new PfTestContext("WriteEvent", WriteEvent));
         }
     }
@@ -602,30 +602,26 @@ private:
         auto output = result.AccountInfo->TitleInfo->Origination.mValue; // TODO: Basic verification of this value (range maybe?)
     }
 
-    /// <summary>
-    /// CLIENT API
-    /// Test that CloudScript can be properly set up and invoked
-    /// </summary>
-    static void CloudScript(PfTestContext& testContext)
-    {
-        ClientModels::GetCloudScriptUrlRequest request;
-        clientApi->GetCloudScriptUrl(request, OnCloudUrl, OnSharedError, &testContext);
-    }
-    static void OnCloudUrl(const ClientModels::GetCloudScriptUrlResult& result, void* customData)
-    {
-        ClientModels::RunCloudScriptRequest request;
-        request.ActionId = "helloWorld";
-        clientApi->RunCloudScript(request, OnHelloWorldCloudScript, OnSharedError, customData);
-    }
-    static void OnHelloWorldCloudScript(const ClientModels::RunCloudScriptResult& result, void* customData)
-    {
-        bool success = (result.ResultsEncoded.find("Hello " + playFabId + "!") != -1);
-        PfTestContext* testContext = reinterpret_cast<PfTestContext*>(customData);
-        if (!success)
-            EndTest(*testContext, FAILED, result.ResultsEncoded);
-        else
-            EndTest(*testContext, PASSED, "");
-    }
+    // Disabling this until we properly test the conversion to ExecuteCloudScript
+    ///// <summary>
+    ///// CLIENT API
+    ///// Test that CloudScript can be properly set up and invoked
+    ///// </summary>
+    //static void CloudScript(PfTestContext& testContext)
+    //{
+    //    ClientModels::ExecuteCloudScriptRequest request;
+    //    request.FunctionName = "helloWorld";
+    //    clientApi->ExecuteCloudScript(request, OnHelloWorldCloudScript, OnSharedError, customData);
+    //}
+    //static void OnHelloWorldCloudScript(const ClientModels::ExecuteCloudScriptResult& result, void* customData)
+    //{
+    //    bool success = (result.ResultsEncoded.find("Hello " + playFabId + "!") != -1);
+    //    PfTestContext* testContext = reinterpret_cast<PfTestContext*>(customData);
+    //    if (!success)
+    //        EndTest(*testContext, FAILED, result.ResultsEncoded);
+    //    else
+    //        EndTest(*testContext, PASSED, "");
+    //}
 
     /// <summary>
     /// CLIENT API

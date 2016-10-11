@@ -6,7 +6,6 @@
 #include "PlayFabPrivatePCH.h"
 
 const FString IPlayFab::PlayFabURL(TEXT(".playfabapi.com"));
-const FString IPlayFab::PlayFabLogicURL(TEXT(".playfablogic.com/"));
 
 class FPlayFab : public IPlayFab
 {

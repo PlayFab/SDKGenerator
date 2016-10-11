@@ -15,8 +15,8 @@ namespace PlayFab
     ErrorCallback PlayFabSettings::globalErrorHandler = nullptr;
 <% if (hasServerOptions) { %>    std::string PlayFabSettings::developerSecretKey;
 <% }
-if (hasClientOptions) { %>    std::string PlayFabSettings::logicServerURL = "";
-    std::string PlayFabSettings::advertisingIdType = "";
+if (hasClientOptions) {
+%>    std::string PlayFabSettings::advertisingIdType = "";
     std::string PlayFabSettings::advertisingIdValue = "";
 
     bool PlayFabSettings::disableAdvertising = false;

@@ -644,7 +644,5 @@ function GetResultActions(apiCall, api) {
     else if (api.name === "Client" && apiCall.result === "AttributeInstallResult")
         return "        // Modify advertisingIdType:  Prevents us from sending the id multiple times, and allows automated tests to determine id was sent successfully\n" 
             + "        PlayFabSettings::playFabSettings.advertisingIdType += \"_Successful\";\n";
-    else if (api.name === "Client" && apiCall.result === "GetCloudScriptUrlResult")
-        return "if (outResult->Url.length() > 0) PlayFabSettings::playFabSettings.logicServerURL = outResult->Url;\n";
     return "";
 }

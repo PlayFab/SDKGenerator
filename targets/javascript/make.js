@@ -43,8 +43,6 @@ function HasResultActions(apiCall, api) {
         return true;
     if (api.name === "Client" && apiCall.result === "AttributeInstallResult")
         return true;
-    if (api.name === "Client" && apiCall.result === "GetCloudScriptUrlResult")
-        return true;
     return false;
 }
 
@@ -57,14 +55,10 @@ function GetResultActions(apiCall, api) {
     if (api.name === "Client" && apiCall.result === "AttributeInstallResult")
         return "            // Modify advertisingIdType:  Prevents us from sending the id multiple times, and allows automated tests to determine id was sent successfully\n" 
             + "            PlayFab.settings.advertisingIdType += \"_Successful\";\n";
-    if (api.name === "Client" && apiCall.result === "GetCloudScriptUrlResult")
-        return "            PlayFab._internalSettings.logicServerUrl = result.data.Url;";
     return "";
 }
 
 function GetUrl(apiCall, api) {
-    if (api.name === "Client" && apiCall.name === "RunCloudScript")
-        return "PlayFab._internalSettings.GetLogicServerUrl() + \"" + apiCall.url + "\"";
     return "PlayFab._internalSettings.GetServerUrl() + \"" + apiCall.url + "\"";
 }
 

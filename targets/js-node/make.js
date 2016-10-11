@@ -103,15 +103,11 @@ function GetResultActions(numSpaces, apiCall, api) {
     else if (api.name === "Client" && apiCall.result === "AttributeInstallResult")
         output = spaces + "// Modify advertisingIdType:  Prevents us from sending the id multiple times, and allows automated tests to determine id was sent successfully\n" 
             + spaces + "PlayFab.settings.advertisingIdType += \"_Successful\";\n";
-    else if (api.name === "Client" && apiCall.result === "GetCloudScriptUrlResult")
-        output = spaces + "PlayFab._internalSettings.logicServerUrl = result != null && result.data.hasOwnProperty(\"Url\") ? result.data.Url : PlayFab._internalSettings.logicServerUrl;\n";
     
     return output;
 }
 
 function GetUrlAccessor(apiCall) {
-    if (apiCall.serverType === "logic")
-        return "PlayFab.GetLogicServerUrl()";
     return "PlayFab.GetServerUrl()";
 }
 

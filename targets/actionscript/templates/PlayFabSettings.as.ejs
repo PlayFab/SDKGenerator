@@ -9,8 +9,7 @@ package com.playfab
 %>        public static var DeveloperSecretKey:String = null; // You must set this value for PlayFabSdk to work properly (Found in the Game Manager for your title, at the PlayFab Website)
 <% }
 if (hasClientOptions) {
-%>        public static var LogicServerURL:String = null; // Deprecated
-        public static var AdvertisingIdType:String = null; // Set this to the appropriate AD_TYPE_X constant below
+%>        public static var AdvertisingIdType:String = null; // Set this to the appropriate AD_TYPE_X constant below
         public static var AdvertisingIdValue:String = null; // Set this to corresponding device value
 
         // DisableAdvertising is provided for completeness, but changing it is not suggested
@@ -18,11 +17,6 @@ if (hasClientOptions) {
         public static var DisableAdvertising:Boolean = false;
         public static const AD_TYPE_IDFA:String = "Idfa";
         public static const AD_TYPE_ANDROID_ID:String = "Android_Id";
-
-        public static function GetLogicURL():String
-        {
-            return LogicServerURL;
-        }
 <% } %>
         public static function GetURL():String
         {

@@ -452,8 +452,6 @@ function GetResultActions(apiCall, api) {
         return "            _authKey = result.SessionTicket ?? _authKey;\n            await MultiStepClientLogin(result.SettingsForUser.NeedsAttribution);\n";
     if (api.name === "Client" && (apiCall.name === "AttributeInstall"))
         return "            Settings.AdvertisingIdType += \"_Successful\";\n";
-    else if (api.name === "Client" && apiCall.result === "GetCloudScriptUrlResult")
-        return "            Settings.LogicServerURL = result.Url;\n";
     return "";
 }
 
@@ -474,8 +472,6 @@ function GetReturnAction(apiCall, api) {
 }
 
 function GetUrlAccessor(apiCall) {
-    if (apiCall.serverType === "logic")
-        return "Settings.GetLogicURL()";
     return "Settings.GetURL()";
 }
 

@@ -463,8 +463,5 @@ function GetResultActions(apiCall, api) {
         val += "#endif\n";
         return val;
     }
-    else if (api.name === "Client" && apiCall.result === "GetCloudScriptUrlResult") {
-        return "if ([class_data valueForKey:@\"Url\"])\n            self.logicServerURL = [class_data valueForKey:@\"Url\"];";
-    }
     return "";
 }

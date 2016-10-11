@@ -26,17 +26,11 @@ var _internalSettings = exports._internalSettings = {
     devEnvUrl: ".playfabsandbox.com",
     liveUrl: ".playfabapi.com",
     sessionTicket: null,
-<% if (hasClientOptions) {
-%>    logicServerUrl: null, // Deprecated
-<% } %>};
+};
 
 exports.GetServerUrl = function () {
     var baseUrl = exports.settings.useDevEnv ? exports._internalSettings.devEnvUrl : exports._internalSettings.liveUrl;
     return "https://" + exports.settings.titleId + baseUrl;
-}
-
-exports.GetLogicServerUrl = function () {
-    return exports._internalSettings.logicServerUrl;
 }
 
 exports.MakeRequest = function (urlStr, request, authType, authValue, callback) {

@@ -69,10 +69,6 @@ namespace PlayFab
         public static string DeveloperSecretKey = null;
 
         /// <summary>
-        /// Assigned by GetCloudScriptUrl, used by RunCloudScript
-        /// </summary>
-        internal static string LogicServerURL = null;
-        /// <summary>
         /// Set this to the appropriate AD_TYPE_X constant below
         /// </summary>
         public static string AdvertisingIdType = null;
@@ -145,10 +141,6 @@ namespace PlayFab
         public string DeveloperSecretKey = PlayFabDefaultSettings.DeveloperSecretKey;
 
         /// <summary>
-        /// Assigned by GetCloudScriptUrl, used by RunCloudScript
-        /// </summary>
-        internal string LogicServerURL = PlayFabDefaultSettings.LogicServerURL;
-        /// <summary>
         /// Set this to the appropriate AD_TYPE_X constant below
         /// </summary>
         public string AdvertisingIdType = PlayFabDefaultSettings.AdvertisingIdType;
@@ -162,11 +154,6 @@ namespace PlayFab
         /// Disabling this may prevent your advertising-related PlayFab marketplace partners from working correctly
         /// </summary>
         public bool DisableAdvertising = PlayFabDefaultSettings.DisableAdvertising;
-
-        public string GetLogicURL()
-        {
-            return LogicServerURL;
-        }
 
         public string GetURL()
         {

@@ -54,9 +54,7 @@ function CallSorter(a, b) {
 }
 
 function GetUrl(apiCall) {
-    if (apiCall.name !== "RunCloudScript")
-        return "https://{{TitleId}}.playfabapi.com" + apiCall.url;
-    return "{{LogicUrl}}" + apiCall.url;
+    return "https://{{TitleId}}.playfabapi.com" + apiCall.url;
 }
 
 function GetPostmanHeader(auth) {

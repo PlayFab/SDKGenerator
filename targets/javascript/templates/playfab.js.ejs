@@ -21,14 +21,9 @@ if(!PlayFab._internalSettings) {
         sdkVersion: "<%- sdkVersion %>",
         buildIdentifier: "<%- buildIdentifier %>",
         productionServerUrl: ".playfabapi.com",
-        logicServerUrl: null,
 
         GetServerUrl: function () {
             return "https://" + PlayFab.settings.titleId + PlayFab._internalSettings.productionServerUrl;
-        },
-
-        GetLogicServerUrl: function () {
-            return PlayFab._internalSettings.logicServerUrl;
         },
 
         ExecuteRequest: function (completeUrl, data, authkey, authValue, callback) {

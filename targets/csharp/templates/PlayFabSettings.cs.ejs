@@ -24,9 +24,7 @@ namespace PlayFab
         public static string TitleId;
         public static ErrorCallback GlobalErrorHandler;
 <% if (hasClientOptions) {
-%>        /// <summary> Deprecated </summary>
-        internal static string LogicServerUrl = null;
-        /// <summary> Set this to the appropriate AD_TYPE_X constant below </summary>
+%>        /// <summary> Set this to the appropriate AD_TYPE_X constant below </summary>
         public static string AdvertisingIdType = null;
         /// <summary> Set this to corresponding device value </summary>
         public static string AdvertisingIdValue = null;
@@ -36,26 +34,13 @@ namespace PlayFab
         public static bool DisableAdvertising = false;
         public static readonly string AD_TYPE_IDFA = "Idfa";
         public static readonly string AD_TYPE_ANDROID_ID = "Android_Id";
-
-        public static string GetLogicUrl(string apiCall)
-        {
-            return LogicServerUrl + apiCall;
-        }
 <% } %>
         public static string GetFullUrl(string apiCall)
         {
-<% if (hasClientOptions) {
-%>            if (apiCall == "/Client/RunCloudScript")
-            {
-                return GetLogicUrl(apiCall);
-            }
-            else
-<% } %>            {
-                string baseUrl = UseDevelopmentEnvironment ? DevelopmentEnvironmentUrl : ProductionEnvironmentUrl;
-                if (baseUrl.StartsWith("http"))
-                    return baseUrl;
-                return "https://" + TitleId + baseUrl + apiCall;
-            }
+            string baseUrl = UseDevelopmentEnvironment ? DevelopmentEnvironmentUrl : ProductionEnvironmentUrl;
+            if (baseUrl.StartsWith("http"))
+                return baseUrl;
+            return "https://" + TitleId + baseUrl + apiCall;
         }
     }
 }

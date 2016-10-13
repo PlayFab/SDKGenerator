@@ -88,14 +88,14 @@ namespace PlayFab.Internal
 
         /// <summary>
         /// This initializes the GameObject and ensures it is in the scene.
-        /// TODO: Allow redirecting to a custom logger.
         /// </summary>
-        public static void InitializeLogger()
+        public static void InitializeLogger(IPlayFabLogger setLogger = null)
         {
             if (_logger != null)
-                return;
-
-            _logger = new PlayFabLogger();
+                throw new Exception("Once initialized, the logger cannot be reset.");
+            if (setLogger == null)
+                setLogger = new PlayFabLogger();
+            _logger = setLogger;
         }
 
 #if ENABLE_PLAYFABPLAYSTREAM_API && ENABLE_PLAYFABSERVER_API

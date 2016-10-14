@@ -23,7 +23,7 @@ function PlayFabClientApi._MultiStepClientLogin(needsAttribution)
         if (PlayFabSettings.settings.advertisingIdType == PlayFabSettings.settings.AD_TYPE_IDFA) then
             request.Idfa = PlayFabSettings.settings.advertisingIdValue
         elseif (PlayFabSettings.settings.advertisingIdType == PlayFabSettings.settings.AD_TYPE_ANDROID_ID) then
-            request.Android_Id = PlayFabSettings.settings.advertisingIdValue
+            request.Adid = PlayFabSettings.settings.advertisingIdValue
         else
             return
         end

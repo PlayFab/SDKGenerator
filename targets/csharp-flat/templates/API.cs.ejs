@@ -82,7 +82,7 @@ namespace PlayFab
                 if (Settings.AdvertisingIdType == PlayFabDefaultSettings.AD_TYPE_IDFA)
                     request.Idfa = Settings.AdvertisingIdValue;
                 else if (Settings.AdvertisingIdType == PlayFabDefaultSettings.AD_TYPE_ANDROID_ID)
-                    request.Android_Id = Settings.AdvertisingIdValue;
+                    request.Adid = Settings.AdvertisingIdValue;
                 else
                     return;
                 await AttributeInstallAsync(request);

@@ -282,7 +282,7 @@ void UPlayFab<%- api.name %>API::OnProcessRequestComplete(FHttpRequestPtr Reques
             if (pfSettings->AdvertisingIdType == pfSettings->AD_TYPE_IDFA)
                 request.Idfa = pfSettings->AdvertisingIdValue;
             else if (pfSettings->AdvertisingIdType == pfSettings->AD_TYPE_ANDROID_ID)
-                request.Android_Id = pfSettings->AdvertisingIdValue;
+                request.Adid = pfSettings->AdvertisingIdValue;
             else
                 makeAttrCall = false;
             if (makeAttrCall)

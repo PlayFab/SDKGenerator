@@ -21,7 +21,7 @@ void PlayFabClientApi::MultiStepClientLogin(bool needsAttribution)
         if (PlayFabSettings::playFabSettings.advertisingIdType == PlayFabSettings::playFabSettings.AD_TYPE_IDFA)
             request.Idfa = PlayFabSettings::playFabSettings.advertisingIdValue;
         else if (PlayFabSettings::playFabSettings.advertisingIdType == PlayFabSettings::playFabSettings.AD_TYPE_ANDROID_ID)
-            request.Android_Id = PlayFabSettings::playFabSettings.advertisingIdValue;
+            request.Adid = PlayFabSettings::playFabSettings.advertisingIdValue;
         else
             return;
         AttributeInstall(request, nullptr, nullptr);

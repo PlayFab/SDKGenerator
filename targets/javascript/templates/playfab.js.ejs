@@ -11,7 +11,7 @@ if(!PlayFab.settings) {
         // Disabling this may prevent your advertising-related PlayFab marketplace partners from working correctly
         disableAdvertising: false,
         AD_TYPE_IDFA: "Idfa",
-        AD_TYPE_ANDROID_ID: "Android_Id"
+        AD_TYPE_ANDROID_ID: "Adid"
     }
 }
 
@@ -122,7 +122,7 @@ PlayFab.<%- api.name %>Api = {
             if (PlayFab.settings.advertisingIdType === PlayFab.settings.AD_TYPE_IDFA)
                 request.Idfa = PlayFab.settings.advertisingIdValue;
             else if (PlayFab.settings.advertisingIdType === PlayFab.settings.AD_TYPE_ANDROID_ID)
-                request.Android_Id = PlayFab.settings.advertisingIdValue;
+                request.Adid = PlayFab.settings.advertisingIdValue;
             else
                 return;
             PlayFab.ClientApi.AttributeInstall(request, null);

@@ -84,7 +84,7 @@ namespace PlayFab
         public static bool DisableAdvertising = false;
 
         public static readonly string AD_TYPE_IDFA = "Idfa";
-        public static readonly string AD_TYPE_ANDROID_ID = "Android_Id";
+        public static readonly string AD_TYPE_ANDROID_ID = "Adid";
     }
 
     /// <summary>

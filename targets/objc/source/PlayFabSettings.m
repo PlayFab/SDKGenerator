@@ -19,7 +19,7 @@ static NSString * DeveloperSecretKey = @"";
 static NSString * ProductionEnvironmentURL = @".playfabapi.com";
 
 NSString * const AD_TYPE_IDFA = @"Idfa";
-NSString * const AD_TYPE_ANDROID_ID = @"Android_Id";
+NSString * const AD_TYPE_ANDROID_ID = @"Adid";
 static NSString * AdvertisingIdType;
 static NSString * AdvertisingIdValue;
 

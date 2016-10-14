@@ -433,10 +433,10 @@ function GetRequestActions(apiCall, api) {
         return "            request.TitleId = Settings.TitleId ?? request.TitleId;\n\t\t\tif(request.TitleId == null) throw new Exception (\"Must be have PlayFabSettings.TitleId set to call this method\");\n";
     if (api.name === "Client" && (apiCall.name === "AttributeInstall"))
         return "            if (_authKey == null) throw new Exception (\"Must be logged in to call this method\");\n" +
-                "            if (string.IsNullOrEmpty(request.Android_Id) && string.IsNullOrEmpty(request.Idfa))\n" +
+                "            if (string.IsNullOrEmpty(request.Adid) && string.IsNullOrEmpty(request.Idfa))\n" +
                 "            {\n" +
                 "                if (Settings.AdvertisingIdType == PlayFabDefaultSettings.AD_TYPE_ANDROID_ID)\n" +
-                "                    request.Android_Id = Settings.AdvertisingIdValue;\n" +
+                "                    request.Adid = Settings.AdvertisingIdValue;\n" +
                 "                if (Settings.AdvertisingIdType == PlayFabDefaultSettings.AD_TYPE_IDFA)\n" +
                 "                    request.Idfa = Settings.AdvertisingIdValue;\n" +
                 "            }\n";

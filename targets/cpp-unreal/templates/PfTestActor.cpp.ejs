@@ -693,18 +693,18 @@ void APfTestActor::OnCloudScriptError(FClientExecuteCloudScriptResult result, UO
 {
     UPfTestContext* testContext = dynamic_cast<UPfTestContext*>(customData);
 
-    if (!result.FunctionResult->IsNull())
+    if (result.FunctionResult != nullptr)
     {
         EndTest(testContext, PlayFabApiTestFinishState::FAILED, "FunctionResult should be null");
         return;
     }
-    if (result.Error->IsNull())
+    if (result.Error == nullptr)
     {
         EndTest(testContext, PlayFabApiTestFinishState::FAILED, "Cloud Script error not found");
         return;
     }
 
-    if (result.Error->Error.Find("JavascriptException") == 0)
+    if (result.Error->GetStringField(TEXT("Error")).Find("JavascriptException") == 0)
         EndTest(testContext, PlayFabApiTestFinishState::PASSED, "");
     else
         EndTest(testContext, PlayFabApiTestFinishState::FAILED, "Can't find Cloud Script failure details.");

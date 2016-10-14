@@ -95,7 +95,7 @@ public class PlayFab<%- api.name %>API {
             if (PlayFabSettings.AdvertisingIdType == PlayFabSettings.AD_TYPE_IDFA)
                 request.Idfa = PlayFabSettings.AdvertisingIdValue;
             else if (PlayFabSettings.AdvertisingIdType == PlayFabSettings.AD_TYPE_ANDROID_ID)
-                request.Android_Id = PlayFabSettings.AdvertisingIdValue;
+                request.Adid = PlayFabSettings.AdvertisingIdValue;
             else
                 return;
             FutureTask<PlayFabResult<AttributeInstallResult>> task = AttributeInstallAsync(request);

@@ -112,7 +112,7 @@ bool PlayFabApiTest_LoginWithAdvertisingId::Update()
     if (!clientAPI.IsValid())
     {
         clientAPI = IPlayFabModuleInterface::Get().GetClientAPI();
-        clientAPI->SetAdvertId("Android_Id", "PlayFabTestId");
+        clientAPI->SetAdvertId(TEXT("Adid"), TEXT("PlayFabTestId"));
 
         PlayFab::ClientModels::FLoginWithCustomIDRequest request;
         request.CustomId = customId;

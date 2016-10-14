@@ -1,17 +1,139 @@
 var fs = require("fs");
+var https = require("https");
 var path = require("path");
-var specLocation = null;
 
-// Global utility
-String.prototype.replaceAll = function (search, replacement) {
-    var target = this;
-    return target.replace(new RegExp(search, "g"), replacement);
+var SdkGeneratorGlobals = {
+    // Frequently, these are passed by reference to avoid over-use of global variables. Unfortunately, the async nature of loading api files required some global references
+    
+    // Internal note: We lowercase the argsByName-keys, targetNames, buildIdentifier, and the flags.  Case is maintained for all other argsByName-values, and targets
+    argsByName: {}, // Command line args compiled into KVP's
+    errorMessages: [], // String list of errors during parsing and loading steps
+    targetOutputPathList: [], // A list of objects that describe sdk targets to build
+    buildFlags: [], // The sdkBuildFlags which modify the list of APIs available in this build of the SDK
+    apiSrcDescription: "INVALID", // Assigned if/when the api-spec source is fetched properly
+    apiCache: {} // We have to pre-cache the api-spec files, because latter steps (like ejs) can't run asynchronously
 };
 
+var DefaultApiSpecFilePath = "C:/depot/API_Specs";
+var DefaultApiSpecGitHubUrl = "https://raw.githubusercontent.com/PlayFab/API_Specs/master/";
+var DefaultApiSpecPlayFabUrl = "https://www.playfabapi.com/apispec/";
 
-String.prototype.endsWith = function (suffix) {
-    return this.indexOf(suffix, this.length - suffix.length) !== -1;
-};
+/////////////////////////////////// The main build sequence for this program ///////////////////////////////////
+function ParseAndLoadApis() {
+    // Step 1
+    ParseCommandInputs(process.argv, SdkGeneratorGlobals.argsByName, SdkGeneratorGlobals.errorMessages, SdkGeneratorGlobals.targetOutputPathList);
+    ReportErrorsAndExit(SdkGeneratorGlobals.errorMessages);
+    
+    // Kick off Step 2
+    LoadAndCacheApis(SdkGeneratorGlobals.argsByName, SdkGeneratorGlobals.apiCache);
+}
+
+// Wrapper function for Step 3
+function GenerateSdks() {
+    GenerateApis(SdkGeneratorGlobals.argsByName.buildidentifier, SdkGeneratorGlobals.targetOutputPathList, SdkGeneratorGlobals.buildFlags, SdkGeneratorGlobals.apiSrcDescription);
+}
+
+function ReportErrorsAndExit(errorMessages) {
+    if (errorMessages.length === 0)
+        return; // No errors to report, so continue
+    
+    // Else, report all errors and exit the program
+    console.log("Synatax: node generate.js\n" +
+            "\t\t<targetName>=<targetOutputPath>\n" +
+            "\t\t-(apiSpecPath|apiSpecGitUrl|apiSpecPfUrl)[ (<apiSpecPath>|<apiSpecGitUrl>|<apiSpecPfUrl>)]\n" +
+            "\t\t[ -flags <flag>[ <flag> ...]]\n\n" +
+            "\tExample: node generate.js unity-v2=../sdks/UnitySDK -apiSpecPath C:/depot/API_Specs -flags xbox playstation\n" +
+            "\t\tThis builds the UnitySDK, from C:/depot/API_Specs, with some console APIs included\n" +
+            "\t<apiSpecPath> : Directory or url containing the *.api.json files\n" +
+            "\tYou must list one or more <targetName>=<targetOutputPath> arguments.\n" +
+            "\tWarning, there can be no spaces in the target-specification\n");
+    
+    console.log("\nError Log:");
+    for (var i = 0; i < errorMessages.length; i++)
+        console.log(errorMessages[i]);
+    
+    console.log("\nPossible targetNames:");
+    var targetList = GetTargetsList();
+    console.log("\t" + targetList.join(", "));
+    process.exit(1);
+}
+
+/////////////////////////////////// Major step 1 - Parse and validate command-line inputs ///////////////////////////////////
+function ParseCommandInputs(args, argsByName, errorMessages, targetOutputPathList) {
+    // Parse the command line arguments into key-value-pairs
+    ExtractArgs(args, argsByName, targetOutputPathList, errorMessages);
+    
+    // Apply defaults 
+    if (!argsByName.hasOwnProperty("apispecpath") && !argsByName.hasOwnProperty("apigitspecurl") && !argsByName.hasOwnProperty("apispecpfurl"))
+        argsByName.apigitspecurl = ""; // If nothing is defined, default to GitHub
+    // A source key set, with no value means use the default for that input format
+    if (argsByName.apispecpath === "")
+        argsByName.apispecpath = DefaultApiSpecFilePath;
+    if (argsByName.apigitspecurl === "")
+        argsByName.apigitspecurl = DefaultApiSpecGitHubUrl;
+    if (argsByName.apispecpfurl === "")
+        argsByName.apispecpfurl = DefaultApiSpecPlayFabUrl;
+    
+    // Output an error if no targets are defined
+    if (targetOutputPathList.length === 0)
+        errorMessages.push("No targets defined, you must define at least one.");
+    
+    // Output an error if there's any problems with the api-spec source    
+    var specCount = 0;
+    if (argsByName.apispecpath) specCount++;
+    if (argsByName.apigitspecurl) specCount++;
+    if (argsByName.apispecpfurl) specCount++;
+    if (specCount > 1)
+        errorMessages.push("Cannot define more than one of: apiSpecPath, apiSpecGitUrl, or apiSpecPfUrl.  Pick one and remove the other(s).");
+    
+    // Parse some other values and defaults
+    if (!argsByName.buildidentifier)
+        argsByName.buildidentifier = "default_manual_build";
+    argsByName.buildidentifier = argsByName.buildidentifier.toLowerCase(); // lowercase the buildIdentifier
+    if (argsByName.hasOwnProperty("flags"))
+        SdkGeneratorGlobals.buildFlags = LowercaseFlagsList(argsByName.flags.split(" "));
+}
+
+function ExtractArgs(args, argsByName, targetOutputPathList, errorMessages) {
+    var cmdArgs = args.slice(2, args.length); // remove "node.exe generate.js"
+    var activeKey = null;
+    for (var i = 0; i < cmdArgs.length; i++) {
+        var lcArg = cmdArgs[i].toLowerCase();
+        if (cmdArgs[i].indexOf("-") === 0) {
+            activeKey = lcArg.substring(1); // remove the "-", lowercase the argsByName-key
+            argsByName[activeKey] = "";
+        } else if (lcArg.indexOf("=") !== -1) { // any parameter with an "=" is assumed to be a target specification, lowercase the targetName
+            var argPair = cmdArgs[i].split("=", 2);
+            CheckTarget(argPair[0].toLowerCase(), argPair[1], targetOutputPathList, errorMessages);
+        } else if ((lcArg === "c:\\depot\\api_specs" || lcArg === "..\\api_specs") && activeKey == null && !argsByName.hasOwnProperty("apispecpath")) { // Special case to handle old API-Spec path as fixed 3rd parameter - DEPRECATED
+            argsByName["apispecpath"] = cmdArgs[i];
+        } else if (activeKey == null) {
+            errorMessages.push("Unexpected token: " + cmdArgs[i]);
+        } else {
+            var temp = argsByName[activeKey];
+            if (temp.length > 0)
+                argsByName[activeKey] = argsByName[activeKey] + " " + cmdArgs[i];
+            else
+                argsByName[activeKey] = cmdArgs[i];
+        }
+    }
+    
+    // Pull from environment variables if there's no console-defined targets
+    if (targetOutputPathList.length === 0 && process.env.hasOwnProperty("SdkSource") && process.env.hasOwnProperty("SdkName")) {
+        CheckTarget(process.env.hasOwnProperty("SdkSource"), process.env.hasOwnProperty("SdkName"), targetOutputPathList, errorMessages);
+    }
+}
+
+function CheckTarget(sdkSource, sdkDestination, targetOutputPathList, errorMessages) {
+    var targetOutput = {};
+    targetOutput.name = sdkSource;
+    targetOutput.dest = path.normalize(sdkDestination);
+    if (fs.existsSync(targetOutput.dest) && !fs.lstatSync(targetOutput.dest).isDirectory()) {
+        errorMessages.push("Invalid target output path: " + targetOutput.dest);
+    } else {
+        targetOutputPathList.push(targetOutput);
+    }
+}
 
 function GetTargetsList() {
     var targetList = [];
@@ -33,40 +155,111 @@ function GetTargetsList() {
     return targetList;
 }
 
-function Generate(args) {
-    var targetList = GetTargetsList();
+/////////////////////////////////// Major step 2 - Load and cache the API files ///////////////////////////////////
+function LoadAndCacheApis(argsByName, apiCache) {
+    // GenerateSdks is the function that begins the next step
     
-    var syntax = "Synatax: node generate.js <apiSpecLocation> <targetName>=<targetOutputLocation> [-flags <flag>[ <flag> ...]]\n" +
-                "\tExample: node generate.js C:/depot/API_Specs csharp-unity=../sdks/UnitySDK -flags xbox playstation\n" +
-                "\t\tThis should build the UnitySDK, from the given Api-specs folder, with a bunch of optional console APIs included\n" +
-                "\t<apiSpecLocation> : Directory where the *.api.json files are\n" +
-                "\tYou must list one or more target=outputLocation arguments. Warning, there can be no spaces in the target-specification";
-    
-    if (args.length < 3) { // If missing mandatory arguments, display syntax and exit
-        console.log(syntax);
-        console.log("Possible targetNames:");
-        console.log("\t" + targetList.join(", "));
-        process.exit();
+    if (argsByName.apispecpath) {
+        LoadApisFromLocalFiles(argsByName, apiCache, argsByName.apispecpath, GenerateSdks);
+    } else if (argsByName.apigitspecurl) {
+        LoadApisFromGitHub(argsByName, apiCache, argsByName.apigitspecurl, GenerateSdks);
+    } else if (argsByName.apispecpfurl) {
+        LoadApisFromPlayFabServer(argsByName, apiCache, argsByName.apispecpfurl, GenerateSdks);
+    }
+}
+
+function LoadApisFromLocalFiles(argsByName, apiCache, apiSpecPath, onComplete) {
+    function loadEachFile(filename) {
+        var fullPath = path.resolve(apiSpecPath, filename);
+        console.log("Begin reading: " + fullPath);
+        apiCache[filename] = require(fullPath);
+        console.log("Finished reading: " + fullPath);
     }
     
-    var argsByName = {}; // Args compiled into KVP's
-    var errorMessages = []; // Errors during ExtractArgs
-    var targetOutputLocationList = []; // A list of objects that describe an sdk target
-    ExtractArgs(args, argsByName, targetOutputLocationList, errorMessages);
+    loadEachFile("Admin.api.json");
+    loadEachFile("Client.api.json");
+    loadEachFile("Matchmaker.api.json");
+    loadEachFile("Server.api.json");
+    loadEachFile("PlayStreamEventModels.json");
+    loadEachFile("PlayStreamCommonEventModels.json");
+    loadEachFile("PlayStreamProfileModels.json");
+    loadEachFile("SdkManualNotes.json");
     
-    if (!argsByName.buildidentifier) {
-        argsByName.buildidentifier = "default_manual_build";
-    }
-    if (errorMessages.length !== 0) {
-        for (var i = 0; i < errorMessages.length; i++)
-            console.log(errorMessages[i]);
-        process.exit(1);
+    SdkGeneratorGlobals.apiSrcDescription = argsByName.apispecpath;
+    onComplete();
+}
+
+function LoadApisFromGitHub(argsByName, apiCache, apiGitSpecUrl, onComplete) {
+    var finishCountdown = 8;
+    function onEachComplete() {
+        finishCountdown -= 1;
+        if (finishCountdown === 0) {
+            console.log("Finished loading files from GitHub");
+            SdkGeneratorGlobals.apiSrcDescription = argsByName.apigitspecurl;
+            onComplete();
+        }
     }
     
-    var buildFlags = [];
-    if (argsByName.hasOwnProperty("flags"))
-        buildFlags = LowercaseFlagsList(argsByName.flags.split(" "));
-    specLocation = path.normalize(args[2]);
+    DownloadFromUrl(apiGitSpecUrl, "Admin.api.json", apiCache, "Admin.api.json", onEachComplete);
+    DownloadFromUrl(apiGitSpecUrl, "Client.api.json", apiCache, "Client.api.json", onEachComplete);
+    DownloadFromUrl(apiGitSpecUrl, "Matchmaker.api.json", apiCache, "Matchmaker.api.json", onEachComplete);
+    DownloadFromUrl(apiGitSpecUrl, "Server.api.json", apiCache, "Server.api.json", onEachComplete);
+    DownloadFromUrl(apiGitSpecUrl, "PlayStreamEventModels.json", apiCache, "PlayStreamEventModels.json", onEachComplete);
+    DownloadFromUrl(apiGitSpecUrl, "PlayStreamCommonEventModels.json", apiCache, "PlayStreamCommonEventModels.json", onEachComplete);
+    DownloadFromUrl(apiGitSpecUrl, "PlayStreamProfileModels.json", apiCache, "PlayStreamProfileModels.json", onEachComplete);
+    DownloadFromUrl(apiGitSpecUrl, "SdkManualNotes.json", apiCache, "SdkManualNotes.json", onEachComplete);
+}
+
+function LoadApisFromPlayFabServer(argsByName, apiCache, apiSpecPfUrl, onComplete) {
+    var finishCountdown = 8;
+    function onEachComplete() {
+        finishCountdown -= 1;
+        if (finishCountdown === 0) {
+            console.log("Finished loading files from PlayFab Server");
+            SdkGeneratorGlobals.apiSrcDescription = argsByName.apispecpfurl;
+            onComplete();
+        }
+    }
+    
+    DownloadFromUrl(apiSpecPfUrl, "AdminAPI", apiCache, "Admin.api.json", onEachComplete);
+    DownloadFromUrl(apiSpecPfUrl, "ClientAPI", apiCache, "Client.api.json", onEachComplete);
+    DownloadFromUrl(apiSpecPfUrl, "MatchmakerAPI", apiCache, "Matchmaker.api.json", onEachComplete);
+    DownloadFromUrl(apiSpecPfUrl, "ServerAPI", apiCache, "Server.api.json", onEachComplete);
+    DownloadFromUrl(apiSpecPfUrl, "PlayStreamEventModels", apiCache, "PlayStreamEventModels.json", onEachComplete);
+    DownloadFromUrl(apiSpecPfUrl, "PlayStreamCommonEventModels", apiCache, "PlayStreamCommonEventModels.json", onEachComplete);
+    DownloadFromUrl(apiSpecPfUrl, "PlayStreamProfileModel", apiCache, "PlayStreamProfileModels.json", onEachComplete);
+    // This file isn't on the pf-server, and it couldn't be accurate there either way
+    DownloadFromUrl(DefaultApiSpecGitHubUrl, "SdkManualNotes.json", apiCache, "SdkManualNotes.json", onEachComplete);
+}
+
+function DownloadFromUrl(srcUrl, appendUrl, apiCache, cacheKey, onEachComplete) {
+    var fullUrl = srcUrl + appendUrl;
+    console.log("Begin reading: " + fullUrl);
+    var rawResponse = "";
+    https.get(fullUrl, function (request) {
+        request.setEncoding("utf8");
+        request.on("data", function (chunk) { rawResponse += chunk; });
+        request.on("end", function () {
+            console.log("Finished reading: " + fullUrl);
+            try {
+                apiCache[cacheKey] = JSON.parse(rawResponse);
+            } catch (jsonErr) {
+                console.log("Failed to parse json on: " + fullUrl);
+                throw jsonErr;
+            }
+            onEachComplete();
+        });
+        request.on('error', function (reqErr) {
+            console.log("Request failed on: " + fullUrl);
+            console.log(reqErr);
+        });
+    });
+}
+
+/////////////////////////////////// Major step 3 - Generate the indicated ouptut files ///////////////////////////////////
+function GenerateApis(buildIdentifier, targetOutputPathList, buildFlags, apiSrcDescription) {
+    console.log("Generating PlayFab APIs from specs: " + apiSrcDescription);
+    
     var clientApi = GetApiDefinition("Client.api.json", buildFlags);
     var adminApis = [
         GetApiDefinition("Admin.api.json", buildFlags)
@@ -79,12 +272,10 @@ function Generate(args) {
     
     var allApis = serverApis.concat(clientApi);
     
-    console.log("Generating PlayFab APIs from specs at " + specLocation);
-    
     var targetsDir = path.resolve(__dirname, "targets");
     
-    for (var t = 0; t < targetOutputLocationList.length; t++) {
-        var target = targetOutputLocationList[t];
+    for (var t = 0; t < targetOutputPathList.length; t++) {
+        var target = targetOutputPathList[t];
         
         var sdkOutputDir = target.dest;
         
@@ -99,7 +290,7 @@ function Generate(args) {
         //   For now, just change the global variables in each with the data loaded from SdkManualNotes.json
         targetMaker.apiNotes = GetApiJson("SdkManualNotes.json");
         targetMaker.sdkVersion = targetMaker.apiNotes.sdkVersion[target.name];
-        targetMaker.buildIdentifier = argsByName.buildidentifier;
+        targetMaker.buildIdentifier = buildIdentifier;
         if (targetMaker.sdkVersion == null) {
             throw "SdkManualNotes does not contain sdkVersion for " + target.name; // The point of this error is to force you to add a line to sdkManualNotes.json, to describe the version and date when this sdk/collection is built
         }
@@ -140,45 +331,6 @@ function Generate(args) {
     }
     
     console.log("\n\nDONE!\n");
-}
-
-function ExtractArgs(args, argsByName, targetOutputLocationList, errorMessages) {
-    var cmdArgs = args.slice(3, args.length);
-    var activeKey = null;
-    for (var i = 0; i < cmdArgs.length; i++) {
-        var lcArg = cmdArgs[i].toLowerCase();
-        if (lcArg.indexOf("-") === 0) {
-            activeKey = lcArg.substring(1);
-            argsByName[activeKey] = "";
-        } else if (lcArg.indexOf("=") !== -1) { // any parameter with an "=" is assumed to be a target specification
-            var argPair = lcArg.split("=", 2);
-            CheckTarget(argPair[0], argPair[1], targetOutputLocationList, errorMessages);
-        } else if (activeKey == null) {
-            errorMessages.push("Unexpected token: " + lcArg);
-        } else {
-            argsByName[activeKey] = argsByName[activeKey] + lcArg;
-        }
-    }
-    
-    // Pull from environment variables if there's no console-defined targets
-    if (targetOutputLocationList.length === 0 && process.env.hasOwnProperty("SdkSource") && process.env.hasOwnProperty("SdkName")) {
-        CheckTarget(process.env.hasOwnProperty("SdkSource"), process.env.hasOwnProperty("SdkName"), targetOutputLocationList, errorMessages);
-    }
-}
-
-function CheckTarget(sdkSource, sdkDestination, targetOutputLocationList, errorMessages) {
-    var targetOutput = {};
-    targetOutput.name = sdkSource;
-    targetOutput.dest = path.normalize(sdkDestination);
-    if (fs.existsSync(targetOutput.dest) && !fs.lstatSync(targetOutput.dest).isDirectory()) {
-        errorMessages.push("Invalid target output path: " + targetOutput.dest);
-    } else {
-        targetOutputLocationList.push(targetOutput);
-    }
-}
-
-GLOBAL.GetApiJson = function (apiFileName) {
-    return require(path.resolve(specLocation, apiFileName));
 }
 
 function GetApiDefinition(apiFileName, buildFlags) {
@@ -253,6 +405,8 @@ function IsVisibleWithFlags(buildFlags, apiObj, obsoleteFlaged) {
     return false;
 }
 
+/////////////////////////////////// RANDOM INTERNAL UTILITIES used locally ///////////////////////////////////
+
 function LowercaseFlagsList(flags) {
     var output = [];
     for (var i = 0; i < flags.length; i++)
@@ -260,6 +414,32 @@ function LowercaseFlagsList(flags) {
     return output;
 }
 
+function MkdirParentsSync(dirname) {
+    if (fs.existsSync(dirname))
+        return;
+    
+    var parentName = path.dirname(dirname);
+    MkdirParentsSync(parentName);
+    fs.mkdirSync(dirname);
+}
+
+/////////////////////////////////// GLOBAL UTILITIES used by make.js and other target-specific files ///////////////////////////////////
+
+// String utilities
+String.prototype.replaceAll = function (search, replacement) {
+    var target = this;
+    return target.replace(new RegExp(search, "g"), replacement);
+};
+
+String.prototype.endsWith = function (suffix) {
+    return this.indexOf(suffix, this.length - suffix.length) !== -1;
+};
+
+String.prototype.contains = function (search) {
+    return this.indexOf(search) > -1;
+}
+
+// SDK generation utilities
 GLOBAL.copyTree = function (source, dest) {
     if (!fs.existsSync(source)) {
         console.error("Copy tree source doesn't exist: " + source);
@@ -352,22 +532,12 @@ GLOBAL.copyFile = function (source, dest) {
     fs.closeSync(fdw);
 }
 
-function MkdirParentsSync(dirname) {
-    if (fs.existsSync(dirname))
-        return;
-    
-    var parentName = path.dirname(dirname);
-    MkdirParentsSync(parentName);
-    
-    fs.mkdirSync(dirname);
-}
-
 // Returns one of: Null, "Proposed", "Deprecated", "Obsolete"
-GLOBAL.GetDeprecationStatus =  function (apiObj) {
+GLOBAL.GetDeprecationStatus = function (apiObj) {
     var deprecation = apiObj.hasOwnProperty("deprecation");
     if (!deprecation)
         return null;
-
+    
     var deprecationTime = new Date(apiObj.deprecation.DeprecatedAfter);
     var obsoleteTime = new Date(apiObj.deprecation.ObsoleteAfter);
     if (new Date() > obsoleteTime)
@@ -389,6 +559,10 @@ GLOBAL.writeFile = function (filename, data) {
     return fs.writeFileSync(filename, data);
 }
 
-GLOBAL.ejs = require("ejs");
+// Fetch the object parsed from an api-file, from the cache (can't load synchronously from URL-options, so we have to pre-cache them)
+GLOBAL.GetApiJson = function (apiFileName) {
+    return SdkGeneratorGlobals.apiCache[apiFileName];
+}
 
-Generate(process.argv);
+// Kick everything off
+ParseAndLoadApis();

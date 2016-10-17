@@ -12,7 +12,7 @@ if (typeof QUnit == "undefined") {
 }
 
 var PlayFabApiTests = {
-    testTitleDataFilename: "testTitleData.json", // TODO: Do not hard code the location of this file (javascript can't really do relative paths either)
+    testTitleDataFilename: "testTitleData.json", // Since you never want this to be public, a web page can ONLY load this if it's a local file in the same directory (Also can't convert to environment variable)
     titleData: {
         titleId: null, // put titleId here
         developerSecretKey: null, // put secretKey here

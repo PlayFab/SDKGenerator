@@ -102,7 +102,10 @@ function CompileErrorReport(error) {
 
 exports.PlayFabApiTests = {
     setUp: function (callback) {
-        var filename = "C:/depot/pf-main/tools/SDKBuildScripts/testTitleData.json"; // TODO: Do not hard code the location of this file
+
+        var filename = process.env.PF_TEST_TITLE_DATA_JSON; // Set the PF_TEST_TITLE_DATA_JSON env-var to the path of a testTitleData.json file (described here: https://github.com/PlayFab/SDKGenerator/blob/master/JenkinsConsoleUtility/testTitleData.md)
+        if (!filename)
+            throw "testTitleData.json file location not defined.";
         var prefix = "testTitleData=";
         for (var arg in process.argv)
             if (arg.toLowerCase().indexOf(prefix) === 0)

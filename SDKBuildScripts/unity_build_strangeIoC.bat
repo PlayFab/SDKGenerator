@@ -1,4 +1,4 @@
 pushd ..
 rem === BUILDING UnitySDK ===
-node generate.js ..\API_Specs csharp-unity-strangeioc=..\sdks\UnityStrangeIoC -buildIdentifier test_manual_build
+node generate.js csharp-unity-strangeioc=..\sdks\UnityStrangeIoC -apiSpecPath
 popd

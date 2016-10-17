@@ -1,9 +1,9 @@
 pushd ..
 if [%1] == [] (
 rem === BUILDING LuaSdk ===
-node generate.js ..\API_Specs LuaSdk=..\sdks\LuaSdk -buildIdentifier test_manual_build
+node generate.js LuaSdk=..\sdks\LuaSdk -apiSpecPath
 ) else (
 rem === BUILDING LuaSdk with params %* ===
-node generate.js ..\API_Specs LuaSdk=..\sdks\LuaSdk %*
+node generate.js LuaSdk=..\sdks\LuaSdk %*
 )
 popd

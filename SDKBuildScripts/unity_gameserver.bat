@@ -5,10 +5,10 @@ popd
 pushd ..
 if [%1] == [] (
 rem === BUILDING Unity PlayFabGameServer ===
-node generate.js ..\API_Specs csharp-unity-gameserver=..\sdks\PlayFabGameServer -buildIdentifier test_manual_build
+node generate.js csharp-unity-gameserver=..\sdks\PlayFabGameServer -apiSpecPath
 ) else (
 rem === BUILDING Unity PlayFabGameServer with params %* ===
-node generate.js ..\API_Specs csharp-unity-gameserver=..\sdks\PlayFabGameServer %*
+node generate.js csharp-unity-gameserver=..\sdks\PlayFabGameServer %*
 )
 popd
 

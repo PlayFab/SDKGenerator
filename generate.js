@@ -14,7 +14,7 @@ var SdkGeneratorGlobals = {
     apiCache: {} // We have to pre-cache the api-spec files, because latter steps (like ejs) can't run asynchronously
 };
 
-var DefaultApiSpecFilePath = "C:/depot/API_Specs";
+var DefaultApiSpecFilePath = "../API_Specs"; // Relative path to Generate.js
 var DefaultApiSpecGitHubUrl = "https://raw.githubusercontent.com/PlayFab/API_Specs/master/";
 var DefaultApiSpecPlayFabUrl = "https://www.playfabapi.com/apispec/";
 
@@ -42,8 +42,8 @@ function ReportErrorsAndExit(errorMessages) {
             "\t\t<targetName>=<targetOutputPath>\n" +
             "\t\t-(apiSpecPath|apiSpecGitUrl|apiSpecPfUrl)[ (<apiSpecPath>|<apiSpecGitUrl>|<apiSpecPfUrl>)]\n" +
             "\t\t[ -flags <flag>[ <flag> ...]]\n\n" +
-            "\tExample: node generate.js unity-v2=../sdks/UnitySDK -apiSpecPath C:/depot/API_Specs -flags xbox playstation\n" +
-            "\t\tThis builds the UnitySDK, from C:/depot/API_Specs, with some console APIs included\n" +
+            "\tExample: node generate.js unity-v2=../sdks/UnitySDK -apiSpecPath ../API_Specs -flags xbox playstation\n" +
+            "\t\tThis builds the UnitySDK, from Specs at relative path ../API_Specs, with console APIs included\n" +
             "\t<apiSpecPath> : Directory or url containing the *.api.json files\n" +
             "\tYou must list one or more <targetName>=<targetOutputPath> arguments.\n" +
             "\tWarning, there can be no spaces in the target-specification\n");

@@ -1,9 +1,9 @@
 pushd ..
 if [%1] == [] (
 rem === BUILDING UnitySDK ===
-node generate.js ..\API_Specs unity-v2=..\sdks\UnitySDK -buildIdentifier test_manual_build
+node generate.js unity-v2=..\sdks\UnitySDK -apiSpecPath
 ) else (
 rem === BUILDING UnitySDK with params %* ===
-node generate.js ..\API_Specs unity-v2=..\sdks\UnitySDK %*
+node generate.js unity-v2=..\sdks\UnitySDK %*
 )
 popd

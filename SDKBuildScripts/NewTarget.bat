@@ -1,10 +1,10 @@
 pushd ..
 if [%1] == [] (
 rem === BUILDING NewTarget ===
-node generate.js ..\API_Specs newTarget=..\sdks\NewTarget -buildIdentifier test_manual_build
+node generate.js newTarget=..\sdks\NewTarget -apiSpecPath
 ) else (
 rem === BUILDING NewTarget with params %* ===
-node generate.js ..\API_Specs newTarget=..\sdks\NewTarget %*
+node generate.js newTarget=..\sdks\NewTarget %*
 )
 popd
 

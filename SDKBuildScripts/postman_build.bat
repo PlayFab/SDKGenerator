@@ -1,9 +1,9 @@
 pushd ..
 if [%1] == [] (
 rem === BUILDING PostmanCollection ===
-node generate.js ..\API_Specs postman=..\sdks\PostmanCollection -buildIdentifier test_manual_build
+node generate.js postman=..\sdks\PostmanCollection -apiSpecPath
 ) else (
 rem === BUILDING PostmanCollection with params %* ===
-node generate.js ..\API_Specs postman=..\sdks\PostmanCollection %*
+node generate.js postman=..\sdks\PostmanCollection %*
 )
 popd

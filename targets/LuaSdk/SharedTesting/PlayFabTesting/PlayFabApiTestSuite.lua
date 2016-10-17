@@ -7,8 +7,23 @@ local PlayFabClientApi = require("PlayFab.PlayFabClientApi")
 local PlayFabSettings = require("PlayFab.PlayFabSettings")
 local AsyncTestSuite = require("PlayFabTesting.AsyncTestSuite")
 
+local function read_file(path)
+    local file = io.open(path, "rb") -- r read mode and b binary mode
+    if not file then return nil end
+    local content = file:read "*a" -- *a or *all reads the whole file
+    file:close()
+    return content
+end
+
 -- Always set your titleId first, before making any API calls
-PlayFabClientApi.settings.titleId = "6195" -- TODO: Load this from testTitleData.json
+local testTitleDataFilename = os.getenv("PF_TEST_TITLE_DATA_JSON") -- Set the PF_TEST_TITLE_DATA_JSON env-var to the path of a testTitleData.json file (described here: https://github.com/PlayFab/SDKGenerator/blob/master/JenkinsConsoleUtility/testTitleData.md)
+if (testTitleDataFilename) then
+    local testData = json.decode(read_file(testTitleDataFilename))
+    PlayFabClientApi.settings.titleId = testData.titleId
+else
+    error("PF_TEST_TITLE_DATA_JSON environment variable not set")
+end
+
 local buildIdentifier = PlayFabSettings._internalSettings.buildIdentifier
 
 local PlayFabApiTestSuite = {

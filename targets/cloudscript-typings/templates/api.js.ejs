@@ -1,0 +1,52 @@
+/** Static object you add your CloudScript endpoints to*/
+declare var handlers: any;
+/** The playfab id for the user who called into CloudScript*/
+declare var currentPlayerId: string;
+
+/** Static object containing cloudscript logging functions
+  debug (message:string, exc?:any) : void,
+  error (message:string, exc?:any) : void,
+  info  (message:string, exc?:any) : void
+*/
+declare var log: Logger;
+interface Logger{
+  debug (message:string, exc?:any) : void,
+  error (message:string, exc?:any) : void,
+  info  (message:string, exc?:any) : void
+}
+
+/** Static object containing cloudscript external request functions
+  request(url:string, method?:string, content?:string, contentType?:string) : string
+*/
+declare var http : Http;
+/** */
+interface Http{
+  request(url:string, method?:string, content?:string, contentType?:string) : string
+}
+
+//server api data interfaces
+<% for(var i in api.datatypes ) {
+    var datatype = api.datatypes[i];
+%>
+  /** <%- datatype.description %>*/
+  <% if(datatype.isenum) { %> type <%- datatype.name %> = <% var iter = 0; for(var j in datatype.enumvalues ) { var enumval = datatype.enumvalues[j]; var prefix = " "; if(iter !== 0) prefix = "\n | "; %> <%- prefix %> "<%- enumval.name %>" <% iter += 1; } %> ;
+  <% } else {  %> interface <%- datatype.name %> {
+    <% for( var j in datatype.properties) { var property = datatype.properties[j]; var optionalStr = ""; if(property.optional) optionalStr = "?"; var typeStr = property.jsontype.toLowerCase(); if(typeStr === "object") typeStr = "any"; if(property.isenum || property.isclass) typeStr = property.actualtype;  %>
+    /** <%- property.description %>*/
+    <% if(property.collection === "array") { %> <%- property.name %><%-optionalStr%> : <%-typeStr%>[], <% } else if(property.collection === "map") { %> <%- property.name %><%-optionalStr%> : { [key:string] : <%-typeStr%> }, <% } else { %> <%- property.name %><%-optionalStr%> : <%-typeStr%>, <% } } %>
+  }
+  <% } } %>
+
+
+//server api functions
+
+declare var server: PlayFabServerAPI
+
+interface PlayFabServerAPI {
+<% for(var i in api.calls ) {
+  var call = api.calls[i];
+%>
+  /** <%- call.summary %>*/
+  <%- call.name %> ( request: <%- call.request %>) : <%- call.result %>
+<% } %>
+}

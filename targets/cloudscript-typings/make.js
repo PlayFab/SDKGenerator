@@ -28,13 +28,17 @@ exports.makeServerAPI = function (apis, sourceDir, apiOutputDir) {
 
 }
 
+/**
+  Handles selecting the correct datatype template to use for a datatype.
+  enum, interface
+*/
 function MakeDatatype(datatype, api, sourceDir) {
   var stringLiteralTemplate = compileTemplate(sourceDir,"StringLiteral");
   var interfaceTemplate = compileTemplate(sourceDir,"Interface");
 
   var locals = {
     name: datatype.name,
-    description: datatype.description
+    description: prettifyDescriptionText(datatype.description)
   };
 
   if(datatype.isenum) {
@@ -51,6 +55,10 @@ function MakeDatatype(datatype, api, sourceDir) {
 
 }
 
+/**
+  Handles selecting the correct property template to use for an interface property
+  normal, array, map
+ */
 function MakeProperty(property, api, sourceDir) {
   var propertyTemplate = compileTemplate(sourceDir, "Property");
   var arrayPropertyTemplate = compileTemplate(sourceDir, "ArrayProperty");
@@ -60,7 +68,7 @@ function MakeProperty(property, api, sourceDir) {
     name: property.name,
     optionalStr: "",
     typeStr: property.jsontype.toLowerCase(),
-    description: property.description
+    description: prettifyDescriptionText(property.description)
   };
 
   if(property.optional)
@@ -83,6 +91,45 @@ function MakeProperty(property, api, sourceDir) {
 
 }
 
+/**
+  Inserts newlines every 80 characters in description text.
+  This helps accomadate tools such as atom-typescript
+*/
+function prettifyDescriptionText(descriptionText) {
+  return foldDescription(descriptionText);
+}
+
+function foldDescription(text, textArray) {
+  var lineLength = 80;
+  textArray = textArray || [];
+
+  if(text == null) {
+    return textArray;
+  }
+
+  //If less then lineLength of characters add to array and return done splitting
+  if(text.length <= lineLength) {
+    textArray.push(text);
+    return textArray;
+  }
+  var line = text.substring(0, lineLength);
+
+  //Look for spaces in the line substring for better line breaks
+  var lastSpaceRgx = /\s(?!.*\s)/;
+  var index = line.search(lastSpaceRgx)
+  var nextIndex = lineLength;
+  if(index > 0) {
+    line = line.substring(0,index);
+    nextIndex = index;
+  }
+
+  textArray.push(line);
+  return foldDescription(text.substring(nextIndex), textArray)
+}
+
+
+
+/** Wrapper function for boilerplate of compiling templates */
 function compileTemplate(sourceDir, templateName) {
   var templateDir = path.resolve(sourceDir, "templates")
   var filename = templateName+".d.ts.ejs";

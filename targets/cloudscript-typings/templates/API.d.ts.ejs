@@ -25,17 +25,8 @@ interface Http{
 }
 
 //server api data interfaces
-<% for(var i in api.datatypes ) {
-    var datatype = api.datatypes[i];
-%>
-  /** <%- datatype.description %>*/
-  <% if(datatype.isenum) { %> type <%- datatype.name %> = <% var iter = 0; for(var j in datatype.enumvalues ) { var enumval = datatype.enumvalues[j]; var prefix = " "; if(iter !== 0) prefix = "\n | "; %> <%- prefix %> "<%- enumval.name %>" <% iter += 1; } %> ;
-  <% } else {  %> interface <%- datatype.name %> {
-    <% for( var j in datatype.properties) { var property = datatype.properties[j]; var optionalStr = ""; if(property.optional) optionalStr = "?"; var typeStr = property.jsontype.toLowerCase(); if(typeStr === "object") typeStr = "any"; if(property.isenum || property.isclass) typeStr = property.actualtype;  %>
-    /** <%- property.description %>*/
-    <% if(property.collection === "array") { %> <%- property.name %><%-optionalStr%> : <%-typeStr%>[], <% } else if(property.collection === "map") { %> <%- property.name %><%-optionalStr%> : { [key:string] : <%-typeStr%> }, <% } else { %> <%- property.name %><%-optionalStr%> : <%-typeStr%>, <% } } %>
-  }
-  <% } } %>
+<% for(var i in api.datatypes ) { %> <%- MakeDatatype(api.datatypes[i], api, sourceDir) %> <% }%>
+
 
 
 //server api functions

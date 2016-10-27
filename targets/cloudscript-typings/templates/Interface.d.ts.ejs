@@ -1,4 +1,3 @@
-/** <%- description %> */
 interface <%- name %> {
-<% for( var i in properties) { %><%-MakeProperty(properties[i], api, sourceDir)%><% } %>
+<% for( var i in properties) { %><%-GetProperty(properties[i], api, sourceDir)%><% } -%>
 }

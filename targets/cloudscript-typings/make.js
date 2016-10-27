@@ -18,7 +18,8 @@ exports.makeServerAPI = function (apis, sourceDir, apiOutputDir) {
     var apiLocals = {
       api : serverAPI,
       sourceDir: sourceDir,
-      MakeDatatype: MakeDatatype
+      MakeDatatype: MakeDatatype,
+      GetDescription: GetDescription
     };
     var generatedApi = apiTemplate(apiLocals);
 
@@ -38,19 +39,18 @@ function MakeDatatype(datatype, api, sourceDir) {
 
   var locals = {
     name: datatype.name,
-    description: prettifyDescriptionText(datatype.description)
   };
 
   if(datatype.isenum) {
     locals.enumvalues = datatype.enumvalues;
-    return stringLiteralTemplate(locals);
+    return  GetDescription(datatype.description, "")+ stringLiteralTemplate(locals);
   }
   else {
     locals.properties = datatype.properties;
     locals.sourceDir = sourceDir;
     locals.api = api;
-    locals.MakeProperty = MakeProperty;
-    return interfaceTemplate(locals);
+    locals.GetProperty = GetProperty;
+    return  GetDescription(datatype.description, "") + interfaceTemplate(locals);
   }
 
 }
@@ -59,11 +59,7 @@ function MakeDatatype(datatype, api, sourceDir) {
   Handles selecting the correct property template to use for an interface property
   normal, array, map
  */
-function MakeProperty(property, api, sourceDir) {
-  var propertyTemplate = compileTemplate(sourceDir, "Property");
-  var arrayPropertyTemplate = compileTemplate(sourceDir, "ArrayProperty");
-  var mapPropertyTemplate = compileTemplate(sourceDir, "MapProperty");
-
+function GetProperty(property, api, sourceDir) {
   var locals = {
     name: property.name,
     optionalStr: "",
@@ -71,25 +67,46 @@ function MakeProperty(property, api, sourceDir) {
     description: prettifyDescriptionText(property.description)
   };
 
-  if(property.optional)
-    locals.optionalStr = "?";
+  var type = property.jsontype.toLowerCase();
 
-  if(locals.typeStr === "object")
-    locals.typeStr = "any";
-  if(property.isenum || property.isclass)
-    locals.typeStr = property.actualtype;
+  if(type === "object") {
+    type = "any";
+  }
+  if(property.isenum || property.isclass) {
+    type = property.actualtype;
+  }
+
+  var preColon = property.name + (property.optional?"?":"");
+  var postColon = type;
+
+  if(property.collection === "map") {
+    postColon = "{ [key:string] : "+ type +"}";
+  }
+  if(property.collection === "array") {
+    postColon += "[]";
+  }
+
+  return GetDescription(property.description, "   ") + "   "+ preColon + " : " + postColon + ",\n";
+
+}
 
 
-  switch(property.collection) {
-    case "array":
-      return arrayPropertyTemplate(locals);
-    case "map":
-      return mapPropertyTemplate(locals);
-    default:
-      return propertyTemplate(locals);
+function GetDescription(rawDescription, indentSpaces) {
+  var prettyDescription = prettifyDescriptionText(rawDescription);
+
+  if(prettyDescription.length < 1) {
+    return "";
+  }
+  else if(prettyDescription.length > 1) {
+    return indentSpaces+"/** \n"+indentSpaces +" * " + prettyDescription.join("\n"+indentSpaces+" * ") + "\n"+indentSpaces+" */\n";
+  }
+  else { // prettyDescription.length === 1
+    return indentSpaces+"/** " + prettyDescription[0] + " */\n";
   }
 
 }
+
+
 
 /**
   Inserts newlines every 80 characters in description text.
@@ -109,7 +126,7 @@ function foldDescription(text, textArray) {
 
   //If less then lineLength of characters add to array and return done splitting
   if(text.length <= lineLength) {
-    textArray.push(text);
+    textArray.push(text.trim());
     return textArray;
   }
   var line = text.substring(0, lineLength);
@@ -123,7 +140,7 @@ function foldDescription(text, textArray) {
     nextIndex = index;
   }
 
-  textArray.push(line);
+  textArray.push(line.trim());
   return foldDescription(text.substring(nextIndex), textArray)
 }
 

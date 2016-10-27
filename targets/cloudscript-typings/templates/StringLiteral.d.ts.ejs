@@ -1,6 +1,5 @@
-/** <%- description %> */
 type <%- name -%> = "<%- enumvalues[0].name %>"
 
 <% for(var i=1; i<enumvalues.length; i++) { -%>
-  | "<%- enumvalues[i].name %>"
-<% } -%> ;
+  | "<%- enumvalues[i].name %>"<%if(i==enumvalues.length-1){%>;<% } %>
+<% } %>

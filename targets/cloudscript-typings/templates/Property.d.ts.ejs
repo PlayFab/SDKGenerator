@@ -1,9 +1,0 @@
-<% if(description.length == 1){ -%>
-/** <%- description[0] %> */
-<% } -%>
-<% if(description.length > 1){ -%>
-/**
-<% for(var i=0; i<description.length; i++) { %> * <%- description[i] %>
-<% } %> */
-<% } -%>
-<%- name %><%- optionalStr %> : <%- typeStr %>,

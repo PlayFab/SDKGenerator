@@ -55,17 +55,8 @@ function MakeDatatype(datatype, api, sourceDir) {
 
 }
 
-/**
-  Handles selecting the correct property template to use for an interface property
-  normal, array, map
- */
+/** Handles generating a property field for inside an interface */
 function GetProperty(property, api, sourceDir) {
-  var locals = {
-    name: property.name,
-    optionalStr: "",
-    typeStr: property.jsontype.toLowerCase(),
-    description: prettifyDescriptionText(property.description)
-  };
 
   var type = property.jsontype.toLowerCase();
 
@@ -116,6 +107,8 @@ function prettifyDescriptionText(descriptionText) {
   return foldDescription(descriptionText);
 }
 
+
+/** Recursive function used to break up description into list of lines */
 function foldDescription(text, textArray) {
   var lineLength = 80;
   textArray = textArray || [];
@@ -124,14 +117,16 @@ function foldDescription(text, textArray) {
     return textArray;
   }
 
-  //If less then lineLength of characters add to array and return done splitting
+  //If last bit of text just add it to list.
   if(text.length <= lineLength) {
     textArray.push(text.trim());
     return textArray;
   }
+
+  //Get substring the at max line break length
   var line = text.substring(0, lineLength);
 
-  //Look for spaces in the line substring for better line breaks
+  //Search for the last spaces in the max line break substring for nicer lines
   var lastSpaceRgx = /\s(?!.*\s)/;
   var index = line.search(lastSpaceRgx)
   var nextIndex = lineLength;

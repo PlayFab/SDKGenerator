@@ -42,28 +42,21 @@ for(var subgroup in api.subgroups)
             for(var i in api.datatypes)
             {
                 var datatype = api.datatypes[i];
-
-                if(datatype.name != apiCall.request)
+                if ((datatype.name != apiCall.request && datatype.name != apiCall.result) // Skip my request and my result
+                    || datatype.name.endsWith("Request") // Requests are done separately
+                    || modelsArray.indexOf(datatype.name) > -1) // Check if datatype has been made already
                 {
-                    if (datatype.name != apiCall.result)
-                    {
-                        continue;
-                    }
+                    continue;
                 }
 
-                //Check if datatype has been made already
-                if (modelsArray.indexOf(datatype.name.toString()) > -1) {continue;}
-
                 // Add datatype name to array
-                modelsArray.push(datatype.name.toString());
-
-                if(datatype.name.substr(datatype.name.length - 7) == "Request") {continue;} // go to next model if it is a request
+                modelsArray.push(datatype.name);
 
                 // Create the start of the functions
-                %>F<%- api.name %><%- datatype.name %> UPlayFab<%- api.name %>ModelDecoder::decode<%- datatype.name %>Response(UPlayFabJsonObject* response)
+                %>F<%- api.name %><%- GetDatatypeSafeName(datatype, "name") %> UPlayFab<%- api.name %>ModelDecoder::decode<%- GetDatatypeSafeName(datatype, "name") %>Response(UPlayFabJsonObject* response)
 <%                %>{
 <%                %>    // Temp ustruct
-<%                %>    F<%- api.name %><%- datatype.name %> tempStruct;
+<%                %>    F<%- api.name %><%- GetDatatypeSafeName(datatype, "name") %> tempStruct;
 <% if (datatype.properties.length > 0) {
                   %>    UPlayFabJsonObject* dataObj = !(response->HasField("data")) ? nullptr : response->GetObjectField("data");
 <% } %>

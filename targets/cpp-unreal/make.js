@@ -107,7 +107,8 @@ function MakePfTestActor(apis, apiOutputDir, sourceDir) {
 // Create Enums, .h file
 function MakeSimpleFiles(apis, apiOutputDir, sourceDir) {
     var enumLocals = {
-        "enumTypes": CollectEnumsFromApis(apis)
+        "enumTypes": CollectEnumsFromApis(apis),
+        "GetDatatypeSafeName": GetDatatypeSafeName
     }
     var enumTemplate = ejs.compile(readFile(path.resolve(sourceDir, "templates/PlayFabEnums.h.ejs")));
     var genEnums = enumTemplate(enumLocals);
@@ -148,6 +149,7 @@ function MakeApiFiles(api, apiOutputDir, sourceDir, libname) {
     apiLocals.GenerateSummary = GenerateSummary;
     apiLocals.GetPropertySerialization = GetPropertySerialization;
     apiLocals.GetPropertyDeserialization = GetPropertyDeserialization;
+    apiLocals.GetDatatypeSafeName = GetDatatypeSafeName;
     apiLocals.api = api;
     apiLocals.hasClientOptions = api.name === "Client";
     apiLocals.sdkVersion = exports.sdkVersion;
@@ -169,6 +171,14 @@ function MakeApiFiles(api, apiOutputDir, sourceDir, libname) {
     writeFile(path.resolve(apiOutputDir, "PluginFiles/PlayFab/Source/PlayFab/Private/PlayFab" + api.name + "ModelDecoder.cpp"), generatedBody);
 }
 
+// Any playfab datatype names that conflict with Unreal datatype names need to be prefixed with "Pf-"
+function GetDatatypeSafeName(apiElement, attrName) {
+    var pfTypeName = apiElement[attrName];
+    if (pfTypeName === "SourceType") // In Unreal, the Enum ESourceType exists in the Android builder and conflicts with our ESourceType enum
+        return "PfSourceType";
+    return pfTypeName;
+}
+
 function GetPropertySafeName(property) {
     // Turns out we didn't need this at the time it was added, but it's a good pattern
     return property.name;
@@ -186,7 +196,7 @@ function GetPropertyCppType(property, datatype) {
             } else if (isCollection) {
                 return "UPlayFabJsonObject* " + propSafeName + ";";
             } else if (property.isenum) {
-                return "E" + property.actualtype + " " + propSafeName + ";";
+                return "E" + GetDatatypeSafeName(property, "actualtype") + " " + propSafeName + ";";
             } else {
                 return "FString " + propSafeName + ";";
             }
@@ -245,7 +255,7 @@ function GetPropertySerialization(tabbing, property, datatype) {
                 return tabbing + "if (request." + propSafeName + " != nullptr) OutRestJsonObj->SetObjectField(TEXT(\"" + property.name + "\"), request." + propSafeName + ");\n";
             } else if (property.isenum) {
                 return tabbing + "FString temp_" + propSafeName + ";\n" 
-                    + tabbing + "if (GetEnumValueToString<E" + property.actualtype + ">(TEXT(\"E" + property.actualtype + "\"), request." + propSafeName + ", temp_" + propSafeName + "))\n" 
+                    + tabbing + "if (GetEnumValueToString<E" + GetDatatypeSafeName(property, "actualtype") + ">(TEXT(\"E" + GetDatatypeSafeName(property, "actualtype") + "\"), request." + propSafeName + ", temp_" + propSafeName + "))\n" 
                     + tabbing + "    OutRestJsonObj->SetStringField(TEXT(\"" + property.name + "\"), temp_" + propSafeName + ");\n";
             } else {
                 return tabbing + "if (request." + propSafeName + ".IsEmpty() || request." + propSafeName + " == \"\") {\n" 
@@ -312,7 +322,7 @@ function GetPropertyDeserialization(tabbing, property, datatype) {
             } else if (isCollection && isMap) {
                 return tabbing + "tempStruct." + propSafeName + " = !(dataObj->HasField(\"" + property.name + "\")) ? nullptr : dataObj->GetObjectField(\"" + property.name + "\");";
             } else if (property.isenum) {
-                return tabbing + "GetEnumValueFromString<E" + property.actualtype + ">(TEXT(\"E" + property.actualtype + "\"), dataObj->GetStringField(\"" + property.name + "\"), tempStruct." + propSafeName + ");";
+                return tabbing + "GetEnumValueFromString<E" + GetDatatypeSafeName(property, "actualtype") + ">(TEXT(\"E" + GetDatatypeSafeName(property, "actualtype") + "\"), dataObj->GetStringField(\"" + property.name + "\"), tempStruct." + propSafeName + ");";
             } else {
                 return tabbing + "tempStruct." + propSafeName + " = !(dataObj->HasField(\"" + property.name + "\")) ? TEXT(\"\") : dataObj->GetStringField(\"" + property.name + "\");";
             }

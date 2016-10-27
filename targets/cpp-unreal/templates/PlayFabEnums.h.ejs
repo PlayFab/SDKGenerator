@@ -42,9 +42,9 @@ static FORCEINLINE bool GetEnumValueToString(const FString& enumTypeName, const 
     return true;
 }
 <% for(var i in enumTypes) { var enumType = enumTypes[i]; %>
-// Enum for <%- enumType.name %>
+// Enum for <%- GetDatatypeSafeName(enumType, "name") %>
 UENUM(BlueprintType)
-enum class E<%- enumType.name %> : uint8
+enum class E<%- GetDatatypeSafeName(enumType, "name") %> : uint8
 {
 <% for(var j in enumType.enumvalues) {
 %>    pfenum_<%- enumType.enumvalues[j].name %> UMETA(DisplayName = "<%- enumType.enumvalues[j].name %>"),

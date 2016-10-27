@@ -42,17 +42,18 @@ for(var subgroup in api.subgroups)
         for(var i in api.datatypes)
         {
             var datatype = api.datatypes[i];
-            if(datatype.name != apiCall.request && datatype.name != apiCall.result) continue;
-
-            //Check if datatype has been made already
-            if (modelsArray.indexOf(datatype.name.toString()) > -1) {continue;}
+            if ((datatype.name != apiCall.request && datatype.name != apiCall.result) // Skip my request and my result
+                || modelsArray.indexOf(datatype.name) > -1) // Check if datatype has been made already
+            {
+                continue;
+            }
 
             // Add datatype name to array
-            modelsArray.push(datatype.name.toString());
+            modelsArray.push(datatype.name);
 
 %>
 USTRUCT(BlueprintType)
-struct F<%- api.name %><%- datatype.name %>
+struct F<%- api.name %><%- GetDatatypeSafeName(datatype, "name") %>
 {
     GENERATED_USTRUCT_BODY()
 public:

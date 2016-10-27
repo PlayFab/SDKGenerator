@@ -164,29 +164,23 @@ for(var subgroup in api.subgroups)
 <%            %>    {
 <%
                 var found = false;
-                for(var i2 in api.datatypes)
+                for(var datatypeIndex in api.datatypes)
                 {
-                    var datatype = api.datatypes[i2];
-                    if(datatype.name != apiCall.request)
+                    var datatype = api.datatypes[datatypeIndex];
+                    if ((datatype.name != apiCall.request && datatype.name != apiCall.result) // Skip my request and my result
+                      || datatype.name.endsWith("Request") // Requests are done separately
+                      || modelsArray.indexOf(datatype.name) > -1) // Check if datatype has been made already
                     {
-                        if (datatype.name != apiCall.result)
-                        {
-                            continue;
-                        }
+                        continue;
                     }
 
-                    //Check if datatype has been made already
-                    if (modelsArray.indexOf(datatype.name.toString()) > -1) {continue;}
-
                     // Add datatype name to array
-                    modelsArray.push(datatype.name.toString());
-
-                    if(datatype.name.substr(datatype.name.length - 7) == "Request") {continue;} // go to next model if it is a request
+                    modelsArray.push(datatype.name);
 
                     if (datatype.name == apiCall.result) {
                         found = true;
 
-              %>        F<%- api.name %><%- apiCall.result %> result = UPlayFab<%- api.name %>ModelDecoder::decode<%- datatype.name %>Response(response.responseData);
+              %>        F<%- api.name %><%- apiCall.result %> result = UPlayFab<%- api.name %>ModelDecoder::decode<%- GetDatatypeSafeName(datatype, "name") %>Response(response.responseData);
 <%            %>        if (OnSuccess<%- apiCall.name %>.IsBound())
 <%            %>        {
 <%            %>            OnSuccess<%- apiCall.name %>.Execute(result, mCustomData);
@@ -236,6 +230,7 @@ void UPlayFab<%- api.name %>API::OnProcessRequestComplete(FHttpRequestPtr Reques
         UE_LOG(LogPlayFab, Error, TEXT("Request failed: %s"), *Request->GetURL());
 
         // Broadcast the result event
+        myResponse.responseError.hasError = true;
         myResponse.responseError.ErrorCode = 503;
         myResponse.responseError.ErrorName = "Unable to contact server";
         myResponse.responseError.ErrorMessage = "Unable to contact server";

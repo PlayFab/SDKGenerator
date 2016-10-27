@@ -57,25 +57,19 @@ public:
                 for(var i in api.datatypes)
                 {
                     var datatype = api.datatypes[i];
-                    if(datatype.name != apiCall.request)
+                    if ((datatype.name != apiCall.request && datatype.name != apiCall.result) // Skip my request and my result
+                        || datatype.name.endsWith("Request") // Requests are done separately
+                        || modelsArray.indexOf(datatype.name) > -1) // Check if datatype has been made already
                     {
-                        if (datatype.name != apiCall.result)
-                        {
-                            continue;
-                        }
+                        continue;
                     }
 
-                    //Check if datatype has been made already
-                    if (modelsArray.indexOf(datatype.name.toString()) > -1) {continue;}
-
                     // Add datatype name to array
-                    modelsArray.push(datatype.name.toString());
+                    modelsArray.push(datatype.name);
 
-                    if(datatype.name.substr(datatype.name.length - 7) == "Request") {continue;} // go to next model if it is a request
-
-                %>    /** Decode the <%- datatype.name %> response object*/
+                %>    /** Decode the <%- GetDatatypeSafeName(datatype, "name") %> response object*/
 <%                %>    UFUNCTION(BlueprintCallable, Category = "PlayFab | <%- api.name %> | <%- api.subgroups[subgroup].name %> Models")
-<%                %>        static F<%- api.name %><%- datatype.name %> decode<%- datatype.name %>Response(UPlayFabJsonObject* response);
+<%                %>        static F<%- api.name %><%- GetDatatypeSafeName(datatype, "name") %> decode<%- GetDatatypeSafeName(datatype, "name") %>Response(UPlayFabJsonObject* response);
 
 <%
                 }

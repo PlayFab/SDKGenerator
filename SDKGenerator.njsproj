@@ -132,6 +132,7 @@
     <Content Include="README.md" />
     <Compile Include="generate.js" />
     <Content Include="SDKBuildScripts\actionscript_build.bat" />
+    <Content Include="SDKBuildScripts\cloudscript_ts_build.bat" />
     <Content Include="SDKBuildScripts\cocos_build.bat" />
     <Content Include="SDKBuildScripts\cocos_example1build.bat" />
     <Content Include="SDKBuildScripts\csflat.bat" />
@@ -146,9 +147,9 @@
     <Content Include="SDKBuildScripts\postman_build.bat" />
     <Content Include="SDKBuildScripts\ue4_CPP_build.bat" />
     <Content Include="SDKBuildScripts\ue4_BP_build.bat" />
+    <Content Include="SDKBuildScripts\unity_build.bat" />
     <Content Include="SDKBuildScripts\unity_build_strangeIoC.bat" />
     <Content Include="SDKBuildScripts\unity_gameserver.bat" />
-    <Content Include="SDKBuildScripts\unity_v2_build.bat" />
     <Content Include="SDKBuildScripts\win_build.bat" />
     <Content Include="targets\actionscript\source\asyncUnitTest\ASyncAssert.as" />
     <Content Include="targets\actionscript\source\asyncUnitTest\ASyncUnitTestCloudScriptReporter.as" />

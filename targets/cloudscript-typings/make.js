@@ -56,7 +56,7 @@ function MakeDatatype(datatype, api, sourceDir) {
 }
 
 /** Handles generating a property field for inside an interface */
-function GetProperty(property, api, sourceDir) {
+function GetProperty(property, indentSpaces) {
 
   var type = property.jsontype.toLowerCase();
 
@@ -77,7 +77,7 @@ function GetProperty(property, api, sourceDir) {
     postColon += "[]";
   }
 
-  return GetDescription(property.description, "   ") + "   "+ preColon + " : " + postColon + ",\n";
+  return GetDescription(property.description, indentSpaces) + indentSpaces+ preColon + " : " + postColon + ",\n";
 
 }
 
@@ -140,10 +140,17 @@ function foldDescription(text, textArray) {
 }
 
 
-
 /** Wrapper function for boilerplate of compiling templates */
 function compileTemplate(sourceDir, templateName) {
-  var templateDir = path.resolve(sourceDir, "templates")
-  var filename = templateName+".d.ts.ejs";
-  return ejs.compile(readFile(path.resolve(templateDir, filename)));
+  if(!this.compiledTemplates){
+    this.compiledTemplates = {};
+  }
+
+
+  if(!compiledTemplates.hasOwnProperty(templateName)) {
+    var templateDir = path.resolve(sourceDir, "templates")
+    var filename = templateName+".d.ts.ejs";
+    this.compiledTemplates[templateName] = ejs.compile(readFile(path.resolve(templateDir, filename)));
+  }
+  return this.compiledTemplates[templateName];
 }

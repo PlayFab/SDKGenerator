@@ -1,5 +1,3 @@
-using Newtonsoft.Json;
-using Newtonsoft.Json.Converters;
 
 namespace PlayFab
 {
@@ -37,7 +35,7 @@ namespace PlayFab
 <% } %>
         public static string GetFullUrl(string apiCall)
         {
-            string baseUrl = UseDevelopmentEnvironment ? DevelopmentEnvironmentUrl : ProductionEnvironmentUrl;
+            var baseUrl = UseDevelopmentEnvironment ? DevelopmentEnvironmentUrl : ProductionEnvironmentUrl;
             if (baseUrl.StartsWith("http"))
                 return baseUrl;
             return "https://" + TitleId + baseUrl + apiCall;

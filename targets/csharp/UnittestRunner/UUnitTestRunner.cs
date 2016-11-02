@@ -1,35 +1,36 @@
 using PlayFab;
 using PlayFab.UUnit;
-using System.Reflection;
 using System;
 using System.IO;
-using Newtonsoft.Json;
 using System.Collections.Generic;
+using System.Threading;
 using PlayFab.ClientModels;
+using PlayFab.Json;
 
 namespace UnittestRunner
 {
     static class UUnitTestRunner
     {
+        private static bool _onCompleted = false;
         public class CsSaveRequest
         {
             public string customId;
             public TestSuiteReport[] testReport;
         }
 
-        static int Main(string[] args)
+        private static int Main(string[] args)
         {
-            for (int i = 0; i < args.Length; i++)
+            Dictionary<string, string> testInputs = null;
+
+            for (var i = 0; i < args.Length; i++)
             {
                 if (args[i] == "-testInputsFile" && (i + 1) < args.Length)
                 {
-                    string filename = args[i + 1];
+                    var filename = args[i + 1];
                     if (File.Exists(filename))
                     {
-                        string testInputsFile = File.ReadAllText(filename);
-                        var serializer = JsonSerializer.Create(PlayFabUtil.JsonSettings);
-                        var testInputs = serializer.Deserialize<Dictionary<string, string>>(new JsonTextReader(new StringReader(testInputsFile)));
-                        PlayFabApiTest.SetTitleInfo(testInputs);
+                        var testInputsFile = File.ReadAllText(filename);
+                        testInputs = JsonWrapper.DeserializeObject<Dictionary<string, string>>(testInputsFile);
                     }
                     else
                     {
@@ -39,34 +40,33 @@ namespace UnittestRunner
                 }
             }
 
-            UUnitTestSuite suite = new UUnitTestSuite(PlayFab.PlayFabSettings.BuildIdentifier);
-            // With this call, we should only expect the unittests within PlayFabSDK to run - This could be expanded by adding other assemblies manually
-            foreach (Assembly assembly in AppDomain.CurrentDomain.GetAssemblies())
-                suite.FindAndAddAllTestCases(assembly, typeof(UUnitTestCase));
+            UUnitIncrementalTestRunner.Start(true, null, testInputs, OnComplete);
+            while (!UUnitIncrementalTestRunner.SuiteFinished)
+                UUnitIncrementalTestRunner.Tick();
 
-            // Display the test results
-            suite.RunAllTests();
-            UUnitTestResults results = suite.GetResults();
-            Console.WriteLine(results.Summary());
+            Console.WriteLine(UUnitIncrementalTestRunner.Summary);
             Console.WriteLine();
 
-            // Submit the test results to CloudScript
-            ExecuteCloudScriptRequest request = new ExecuteCloudScriptRequest
+            // Wait for OnComplete
+            DateTime timeout = DateTime.UtcNow + TimeSpan.FromSeconds(30);
+            while (!_onCompleted && DateTime.UtcNow < timeout)
+                Thread.Sleep(100);
+
+            return UUnitIncrementalTestRunner.AllTestsPassed ? 0 : 1;
+        }
+
+        private static void OnComplete(PlayFabResult<ExecuteCloudScriptResult> result)
+        {
+            Console.WriteLine("Save to CloudScript result for: " + PlayFabSettings.BuildIdentifier + " => " + PlayFabApiTest.PlayFabId);
+            if (result.Error != null)
             {
-                FunctionName = "SaveTestData",
-                FunctionParameter = new CsSaveRequest { customId = PlayFabSettings.BuildIdentifier, testReport = new[] { results.InternalReport } },
-                GeneratePlayStreamEvent = true
-            };
-
-            var task = PlayFabClientAPI.ExecuteCloudScriptAsync(request);
-            task.Wait();
-            if (task.Result.Error != null || task.Result.Result.Error != null)
-                Console.WriteLine("Error posting results to cloudscript:" + PlayFabUtil.GetCloudScriptErrorReport(task.Result));
-            else
-                Console.WriteLine("Results posted to cloudscript successfully: " + PlayFabSettings.BuildIdentifier);
-            Console.WriteLine("Debugging: " + PlayFabUtil.GetCloudScriptErrorReport(task.Result));
-
-            return results.AllTestsPassed() ? 0 : 1;
+                Console.WriteLine(result.Error.GenerateErrorReport());
+            }
+            else if (result.Result != null)
+            {
+                Console.WriteLine("Successful!");
+            }
+            _onCompleted = true;
         }
     }
 }

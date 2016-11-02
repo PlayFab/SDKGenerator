@@ -8,7 +8,7 @@ exports.makeClientAPI = function (api, sourceDir, apiOutputDir) {
     MakeDatatypes([api], sourceDir, apiOutputDir);
     MakeApi(api, sourceDir, apiOutputDir);
     GenerateSimpleFiles([api], sourceDir, apiOutputDir);
-    GenerateProject([api], sourceDir, apiOutputDir, "Client");
+    GenerateProject([api], sourceDir, apiOutputDir, "Client", "");
 }
 
 exports.makeServerAPI = function (apis, sourceDir, apiOutputDir) {
@@ -21,7 +21,7 @@ exports.makeServerAPI = function (apis, sourceDir, apiOutputDir) {
         MakeApi(api, sourceDir, apiOutputDir);
     }
     GenerateSimpleFiles(apis, sourceDir, apiOutputDir);
-    GenerateProject(apis, sourceDir, apiOutputDir, "Server");
+    GenerateProject(apis, sourceDir, apiOutputDir, "Server", ";DISABLE_PLAYFABCLIENT_API");
 }
 
 exports.makeCombinedAPI = function (apis, sourceDir, apiOutputDir) {
@@ -34,7 +34,7 @@ exports.makeCombinedAPI = function (apis, sourceDir, apiOutputDir) {
     for (var i = 0; i < apis.length; i++)
         MakeApi(apis[i], sourceDir, apiOutputDir);
     GenerateSimpleFiles(apis, sourceDir, apiOutputDir);
-    GenerateProject(apis, sourceDir, apiOutputDir, "All");
+    GenerateProject(apis, sourceDir, apiOutputDir, "All", "");
 }
 
 function GetBaseTypeSyntax(datatype) {
@@ -82,7 +82,8 @@ function MakeApi(api, sourceDir, apiOutputDir) {
     apiLocals.GetAuthParams = GetAuthParams;
     apiLocals.GetRequestActions = GetRequestActions;
     apiLocals.GetResultActions = GetResultActions;
-    apiLocals.GetDeprecationAttribute = GetDeprecationAttribute;
+	apiLocals.GetDeprecationAttribute = GetDeprecationAttribute;
+	apiLocals.GenerateSummary = GenerateSummary;
 
     apiLocals.authKey = api.name === "Client";
     var generatedApi = apiTemplate(apiLocals);
@@ -118,12 +119,13 @@ function GenerateSimpleFiles(apis, sourceDir, apiOutputDir) {
     writeFile(path.resolve(apiOutputDir, "source/PlayFabSettings.cs"), generatedSettings);
 }
 
-function GenerateProject(apis, sourceDir, apiOutputDir, libname) {
+function GenerateProject(apis, sourceDir, apiOutputDir, libname, extraDefines) {
     var vcProjTemplate = ejs.compile(readFile(path.resolve(sourceDir, "templates/PlayFabSDK.csproj.ejs")));
     
     var projLocals = {};
     projLocals.apis = apis;
-    projLocals.libname = libname;
+	projLocals.libname = libname;
+	projLocals.extraDefines = ";NETFX_CORE;SIMPLE_JSON_TYPEINFO" + extraDefines;
     
     var generatedProject = vcProjTemplate(projLocals);
     writeFile(path.resolve(apiOutputDir, "PlayFabSDK.csproj"), generatedProject);
@@ -149,13 +151,6 @@ function GetModelPropertyDef(property, datatype) {
 
 function GetPropertyAttribs(property, datatype, api) {
     var attribs = "";
-    
-    if (property.isenum) {
-        if (property.collection)
-            attribs += "[JsonProperty(ItemConverterType = typeof(StringEnumConverter))]\n        ";
-        else
-            attribs += "[JsonConverter(typeof(StringEnumConverter))]\n        ";
-    }
     
     if (property.isUnordered) {
         var listDatatype = api.datatypes[property.actualtype];
@@ -244,4 +239,14 @@ function GetDeprecationAttribute(tabbing, apiObj) {
     else if (isDeprecated)
         return tabbing + "[Obsolete(\"No longer available\", " + isError + ")]\n";
     return "";
+}
+
+function GenerateSummary(tabbing, element, summaryParam) {
+	if (!element.hasOwnProperty(summaryParam)) {
+		return "";
+	}
+	
+	return tabbing + "/// <summary>\n" 
+        + tabbing + "/// " + element[summaryParam] + "\n" 
+        + tabbing + "/// </summary>\n";
 }

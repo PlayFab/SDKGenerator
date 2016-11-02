@@ -1,5 +1,6 @@
 using PlayFab.Internal;
 using System.Collections.Generic;
+using System.Text;
 
 namespace PlayFab
 {
@@ -23,6 +24,23 @@ namespace PlayFab
         public PlayFabErrorCode Error;
         public string ErrorMessage;
         public Dictionary<string, string[] > ErrorDetails;
+
+        private static readonly StringBuilder Sb = new StringBuilder();
+        public string GenerateErrorReport()
+        {
+            Sb.Length = 0;
+            if (ErrorMessage != null)
+                Sb.Append(ErrorMessage);
+            if (ErrorDetails == null)
+                return Sb.ToString();
+
+            foreach (var pair in ErrorDetails)
+            {
+                foreach (var eachMsg in pair.Value)
+                    Sb.Append(pair.Key).Append(": ").Append(eachMsg);
+            }
+            return Sb.ToString();
+        }
     };
 
     public class PlayFabResult<TResult> where TResult : PlayFabResultCommon

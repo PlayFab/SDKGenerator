@@ -12,7 +12,7 @@ namespace PlayFab
 <% for(var i in api.calls) { var apiCall = api.calls[i];
 %><%- GenerateSummary("        ", apiCall, "summary")
 %><%- GetDeprecationAttribute("        ", apiCall)
-%>        public static async Task<PlayFabResult<<%- apiCall.result %>>> <%- apiCall.name %>Async(<%- apiCall.request %> request)
+%>        public static async Task<PlayFabResult<<%- apiCall.result %>>> <%- apiCall.name %>Async(<%- apiCall.request %> request, object customData = null)
         {
 <%- GetRequestActions(apiCall, api) %>
             var httpResult = await PlayFabHttp.DoPost("<%- apiCall.url %>", request, <%- GetAuthParams(apiCall) %>);
@@ -21,14 +21,14 @@ namespace PlayFab
                 var error = (PlayFabError)httpResult;
                 if (PlayFabSettings.GlobalErrorHandler != null)
                     PlayFabSettings.GlobalErrorHandler(error);
-                return new PlayFabResult<<%- apiCall.result %>> { Error = error, };
+                return new PlayFabResult<<%- apiCall.result %>> { Error = error, CustomData = customData };
             }
 
             var resultRawJson = (string)httpResult;
             var resultData = JsonWrapper.DeserializeObject<PlayFabJsonSuccess<<%- apiCall.result %>>>(resultRawJson);
             var result = resultData.data;
 <%- GetResultActions(apiCall, api) %>
-            return new PlayFabResult<<%- apiCall.result %>> { Result = result };
+            return new PlayFabResult<<%- apiCall.result %>> { Result = result, CustomData = customData };
         }
 
 <% } %><% if(authKey) {

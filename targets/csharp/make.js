@@ -38,13 +38,25 @@ exports.makeCombinedAPI = function (apis, sourceDir, apiOutputDir) {
 }
 
 function GetBaseTypeSyntax(datatype) {
-    if ((datatype.name.toLowerCase().indexOf("result") > -1 || datatype.name.toLowerCase().indexOf("response") > -1) && datatype.sortKey)
-        return " : PlayFabResultCommon" + ", IComparable<" + datatype.name + ">";
-    if (datatype.name.toLowerCase().indexOf("result") > -1 || datatype.name.toLowerCase().indexOf("response") > -1)
-        return " : PlayFabResultCommon";
+    var parents = [];
+    
+    if (datatype.className.toLowerCase().endsWith("request"))
+        parents.push("PlayFabRequestCommon");
+    if (datatype.className.toLowerCase().endsWith("response") || datatype.className.toLowerCase().endsWith("result"))
+        parents.push("PlayFabResultCommon");
     if (datatype.sortKey)
-        return " : IComparable<" + datatype.name + ">";
-    return "";
+        parents.push("IComparable<" + datatype.name + ">");
+    
+    var output = "";
+    if (parents.length > 0) {
+        output = " : ";
+        for (var i = 0; i < parents.length; i++) {
+            if (i !== 0)
+                output += ", ";
+            output += parents[i];
+        }
+    }
+    return output;
 }
 
 function MakeDatatypes(apis, sourceDir, apiOutputDir) {
@@ -82,9 +94,9 @@ function MakeApi(api, sourceDir, apiOutputDir) {
     apiLocals.GetAuthParams = GetAuthParams;
     apiLocals.GetRequestActions = GetRequestActions;
     apiLocals.GetResultActions = GetResultActions;
-	apiLocals.GetDeprecationAttribute = GetDeprecationAttribute;
-	apiLocals.GenerateSummary = GenerateSummary;
-
+    apiLocals.GetDeprecationAttribute = GetDeprecationAttribute;
+    apiLocals.GenerateSummary = GenerateSummary;
+    
     apiLocals.authKey = api.name === "Client";
     var generatedApi = apiTemplate(apiLocals);
     writeFile(path.resolve(apiOutputDir, "source/PlayFab" + api.name + "API.cs"), generatedApi);
@@ -113,7 +125,7 @@ function GenerateSimpleFiles(apis, sourceDir, apiOutputDir) {
     var utilTemplate = ejs.compile(readFile(path.resolve(sourceDir, "templates/PlayFabUtil.cs.ejs")));
     var generatedTemplate = utilTemplate(settingsLocals);
     writeFile(path.resolve(apiOutputDir, "source/PlayFabUtil.cs"), generatedTemplate);
-
+    
     var settingsTemplate = ejs.compile(readFile(path.resolve(sourceDir, "templates/PlayFabSettings.cs.ejs")));
     var generatedSettings = settingsTemplate(settingsLocals);
     writeFile(path.resolve(apiOutputDir, "source/PlayFabSettings.cs"), generatedSettings);
@@ -124,8 +136,8 @@ function GenerateProject(apis, sourceDir, apiOutputDir, libname, extraDefines) {
     
     var projLocals = {};
     projLocals.apis = apis;
-	projLocals.libname = libname;
-	projLocals.extraDefines = ";NETFX_CORE;SIMPLE_JSON_TYPEINFO" + extraDefines;
+    projLocals.libname = libname;
+    projLocals.extraDefines = ";NETFX_CORE;SIMPLE_JSON_TYPEINFO" + extraDefines;
     
     var generatedProject = vcProjTemplate(projLocals);
     writeFile(path.resolve(apiOutputDir, "PlayFabSDK.csproj"), generatedProject);
@@ -219,10 +231,10 @@ function GetRequestActions(apiCall, api) {
 
 function GetResultActions(apiCall, api) {
     if (api.name === "Client" && (apiCall.result === "LoginResult" || apiCall.result === "RegisterPlayFabUserResult"))
-        return "            _authKey = result.SessionTicket ?? _authKey;\n"
+        return "            _authKey = result.SessionTicket ?? _authKey;\n" 
             + "            await MultiStepClientLogin(result.SettingsForUser.NeedsAttribution);\n";
     else if (api.name === "Client" && apiCall.result === "AttributeInstallResult")
-        return "            // Modify AdvertisingIdType:  Prevents us from sending the id multiple times, and allows automated tests to determine id was sent successfully\n"
+        return "            // Modify AdvertisingIdType:  Prevents us from sending the id multiple times, and allows automated tests to determine id was sent successfully\n" 
             + "            PlayFabSettings.AdvertisingIdType += \"_Successful\";\n";
     return "";
 }
@@ -242,11 +254,11 @@ function GetDeprecationAttribute(tabbing, apiObj) {
 }
 
 function GenerateSummary(tabbing, element, summaryParam) {
-	if (!element.hasOwnProperty(summaryParam)) {
-		return "";
-	}
-	
-	return tabbing + "/// <summary>\n" 
+    if (!element.hasOwnProperty(summaryParam)) {
+        return "";
+    }
+    
+    return tabbing + "/// <summary>\n" 
         + tabbing + "/// " + element[summaryParam] + "\n" 
         + tabbing + "/// </summary>\n";
 }

@@ -10,7 +10,7 @@ namespace PlayFab.Internal
 {
     public class PlayFabWinHttp : IPlayFabHttp
     {
-        public async Task<object> DoPost(string urlPath, object request, string authType, string authKey)
+        public async Task<object> DoPost(string urlPath, PlayFabRequestCommon request, string authType, string authKey)
         {
             var fullUrl = PlayFabSettings.GetFullUrl(urlPath);
             string bodyString;
@@ -18,10 +18,6 @@ namespace PlayFab.Internal
             if (request == null)
             {
                 bodyString = "{}";
-            }
-            else if (request is string)
-            {
-                bodyString = (string)request;
             }
             else
             {

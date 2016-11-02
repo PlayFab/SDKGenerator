@@ -48,7 +48,7 @@ namespace UnittestRunner
             Console.WriteLine();
 
             // Wait for OnComplete
-            DateTime timeout = DateTime.UtcNow + TimeSpan.FromSeconds(30);
+            var timeout = DateTime.UtcNow + TimeSpan.FromSeconds(30);
             while (!_onCompleted && DateTime.UtcNow < timeout)
                 Thread.Sleep(100);
 

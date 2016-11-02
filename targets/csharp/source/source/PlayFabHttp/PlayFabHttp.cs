@@ -5,6 +5,15 @@ using System.Threading.Tasks;
 namespace PlayFab.Internal
 {
     /// <summary>
+    /// This is a base-class for all Api-request objects.
+    /// It is currently unfinished, but we will add result-specific properties,
+    ///   and add template where-conditions to make some code easier to follow
+    /// </summary>
+    public class PlayFabRequestCommon
+    {
+    }
+
+    /// <summary>
     /// This is a base-class for all Api-result objects.
     /// It is currently unfinished, but we will add result-specific properties,
     ///   and add template where-conditions to make some code easier to follow
@@ -49,7 +58,7 @@ namespace PlayFab.Internal
             throw new Exception("Cannot find a valid IPlayFabHttp type");
         }
 
-        public static async Task<object> DoPost(string urlPath, object request, string authType, string authKey)
+        public static async Task<object> DoPost(string urlPath, PlayFabRequestCommon request, string authType, string authKey)
         {
             if (PlayFabSettings.TitleId == null)
                 throw new Exception("You must set your titleId before making an api call");

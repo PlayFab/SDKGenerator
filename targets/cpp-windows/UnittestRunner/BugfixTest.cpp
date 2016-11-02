@@ -27,48 +27,48 @@ using namespace AdminModels;
 
 namespace UnittestRunner
 {
-	// These tests are not useful for SDK-Users
-	// Feel free to ignore or delete this file
-	// Specifically, they test specific internal workings in the SDK which have need of testing,
-	//   or are related to bugs that have been found and fixed.
-	TEST_CLASS(PlayFabInternalTests)
-	{
-	public:
-		TEST_CLASS_INITIALIZE(ClassInitialize)
-		{
-		}
-		TEST_CLASS_CLEANUP(ClassCleanup)
-		{
-		}
+    // These tests are not useful for SDK-Users
+    // Feel free to ignore or delete this file
+    // Specifically, they test specific internal workings in the SDK which have need of testing,
+    //   or are related to bugs that have been found and fixed.
+    TEST_CLASS(PlayFabInternalTests)
+    {
+    public:
+        TEST_CLASS_INITIALIZE(ClassInitialize)
+        {
+        }
+        TEST_CLASS_CLEANUP(ClassCleanup)
+        {
+        }
 
-		// BUGFIX: PFWORKBIN-293
-		TEST_METHOD(ReadUserDataObj)
-		{
-			UserDataRecord record;
+        // BUGFIX: PFWORKBIN-293
+        TEST_METHOD(ReadUserDataObj)
+        {
+            UserDataRecord record;
 
-			{
-				// Test that the member fields exist, but are null, instead of the expected datatype
-				char* testinput = "{\"test\": {\"Value\": null, \"LastUpdated\": null, \"Permission\": null}}";
-				Document testDoc;
-				testDoc.Parse<0>(testinput);
-				Assert::IsTrue(testDoc.GetParseError() == NULL);
-				auto testvalue = testDoc.FindMember("test");
-				record.readFromValue(testvalue->value);
-				// Assert::IsFalse(record.readFromValue(testvalue->value)); // TODO: At some point I'd like this output to be useful
-			}
+            {
+                // Test that the member fields exist, but are null, instead of the expected datatype
+                char* testinput = "{\"test\": {\"Value\": null, \"LastUpdated\": null, \"Permission\": null}}";
+                Document testDoc;
+                testDoc.Parse<0>(testinput);
+                Assert::IsTrue(testDoc.GetParseError() == NULL);
+                auto testvalue = testDoc.FindMember("test");
+                record.readFromValue(testvalue->value);
+                // Assert::IsFalse(record.readFromValue(testvalue->value)); // TODO: At some point I'd like this output to be useful
+            }
 
-			{
-				// Test that normal expected data parses correctly
-				char* testinput = "{\"test\": {\"Value\": \"asdf\", \"LastUpdated\": \"2015-08-11 12:00.00.00\", \"Permission\": \"Public\"}}";
-				Document testDoc;
-				testDoc.Parse<0>(testinput);
-				Assert::IsTrue(testDoc.GetParseError() == NULL);
-				auto testvalue = testDoc.FindMember("test");
-				record.readFromValue(testvalue->value);
-				// Assert::IsTrue(record.readFromValue(testvalue->value)); // TODO: At some point I'd like this output to be useful
-			}
-		}
+            {
+                // Test that normal expected data parses correctly
+                char* testinput = "{\"test\": {\"Value\": \"asdf\", \"LastUpdated\": \"2015-08-11 12:00.00.00\", \"Permission\": \"Public\"}}";
+                Document testDoc;
+                testDoc.Parse<0>(testinput);
+                Assert::IsTrue(testDoc.GetParseError() == NULL);
+                auto testvalue = testDoc.FindMember("test");
+                record.readFromValue(testvalue->value);
+                // Assert::IsTrue(record.readFromValue(testvalue->value)); // TODO: At some point I'd like this output to be useful
+            }
+        }
 
-	private:
-	};
+    private:
+    };
 }

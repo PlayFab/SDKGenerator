@@ -13,8 +13,8 @@ namespace PlayFab
         PlayFabErrorConnectionTimeout,
         PlayFabErrorConnectionRefused,
         PlayFabErrorSocketError,
-		<% for(var i=0; i<errorList.length-1; i++) { var errorProps = errors[errorList[i]] %>PlayFabError<%- errorProps.name %> = <%- errorProps.id %>,
-		<% } %>PlayFabError<% var errorProps = errors[errorList[errorList.length-1]] %><%- errorProps.name %> = <%- errorProps.id %>
+        <% for(var i=0; i<errorList.length-1; i++) { var errorProps = errors[errorList[i]] %>PlayFabError<%- errorProps.name %> = <%- errorProps.id %>,
+        <% } %>PlayFabError<% var errorProps = errors[errorList[errorList.length-1]] %><%- errorProps.name %> = <%- errorProps.id %>
     };
 
     struct PlayFabError

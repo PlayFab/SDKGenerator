@@ -42,7 +42,9 @@ namespace PlayFab
 
         public static string GetErrorReport(PlayFabError error)
         {
-            return error?.GenerateErrorReport();
+            if (error == null)
+                return null;
+            return error.GenerateErrorReport();
         }
 
         private static readonly StringBuilder Sb = new StringBuilder();

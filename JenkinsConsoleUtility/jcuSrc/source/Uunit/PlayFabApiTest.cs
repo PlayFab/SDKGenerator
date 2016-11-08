@@ -86,7 +86,8 @@ namespace PlayFab.UUnit
                         testContext.IsNull(task.Result.Error, PlayFabUtil.GetErrorReport(task.Result.Error));
                         testContext.NotNull(task.Result.Result, failMessage);
                     }
-                    continueAction?.Invoke(task.Result, testContext, failMessage);
+                    if (continueAction != null)
+                        continueAction.Invoke(task.Result, testContext, failMessage);
                     failed = false;
                 }
                 catch (UUnitSkipException uu)

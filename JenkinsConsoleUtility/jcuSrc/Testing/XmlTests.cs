@@ -58,7 +58,8 @@ namespace JenkinsConsoleUtility.Testing
         [UUnitTest]
         public void PassWithMessageXml(UUnitTestContext testContext)
         {
-            var readFileName = "../../testPassWithMessage.xml";
+            var readFileName = Path.GetFullPath("../../testPassWithMessage.xml");
+            testContext.True(File.Exists(readFileName), readFileName);
             List<TestSuiteReport> inputReport = JUnitXml.ParseXmlFile(readFileName);
             JUnitXml.WriteXmlFile(_tempFileFullPath, inputReport, true);
             List<TestSuiteReport> testReport = JUnitXml.ParseXmlFile(_tempFileFullPath);
@@ -78,8 +79,8 @@ namespace JenkinsConsoleUtility.Testing
         [UUnitTest]
         public void PassWithMessageJson(UUnitTestContext testContext)
         {
-            var readFileName = "../../testPassWithMessage.json";
-            testContext.True(File.Exists(readFileName));
+            var readFileName = Path.GetFullPath("../../testPassWithMessage.json");
+            testContext.True(File.Exists(readFileName), readFileName);
             var json = File.ReadAllText(readFileName);
             List<TestSuiteReport> testReport = JsonWrapper.DeserializeObject<List<TestSuiteReport>>(json);
             testContext.IntEquals(1, testReport.Count);

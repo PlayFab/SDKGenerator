@@ -28,7 +28,7 @@ namespace JenkinsConsoleUtility.Testing
             TestSuiteReport[] actualSuites = JsonWrapper.DeserializeObject<TestSuiteReport[]>(EXAMPLE_JSON);
             testContext.NotNull(actualSuites);
 
-            foreach (string expectedTestName in EXPECTED_TESTS)
+            foreach (var expectedTestName in EXPECTED_TESTS)
             {
                 var testFound = false;
                 foreach (var suite in actualSuites)

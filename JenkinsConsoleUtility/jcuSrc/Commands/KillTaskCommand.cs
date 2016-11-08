@@ -30,8 +30,8 @@ namespace JenkinsConsoleUtility.Commands
             }
 
             // Sleep for a while and wait for the programs to close safely
-            int openCount = hitList.Count;
-            for (int i = 0; i < TASK_KILL_DELAY_MS; i += TASK_KILL_SLEEP_MS)
+            var openCount = hitList.Count;
+            for (var i = 0; i < TASK_KILL_DELAY_MS; i += TASK_KILL_SLEEP_MS)
             {
                 Thread.Sleep(TASK_KILL_SLEEP_MS);
                 openCount = 0;

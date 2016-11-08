@@ -41,7 +41,7 @@ namespace PlayFab.Internal
 
     public static class PlayFabHttp
     {
-        private static IPlayFabHttp _http;
+        private static readonly IPlayFabHttp _http;
 
         static PlayFabHttp()
         {

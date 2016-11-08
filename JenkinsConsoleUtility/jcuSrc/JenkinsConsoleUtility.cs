@@ -23,7 +23,7 @@ namespace JenkinsConsoleUtility
             {
                 ExtractArgs(args, out orderedCommands, out argsByName);
 
-                bool success = true;
+                var success = true;
                 foreach (var key in orderedCommands)
                 {
                     if (!commandLookup.TryGetValue(key, out tempCommand))
@@ -47,7 +47,7 @@ namespace JenkinsConsoleUtility
                 return Pause(1);
             }
 
-            int returnCode = 0;
+            var returnCode = 0;
             foreach (var key in orderedCommands)
             {
                 if (returnCode == 0 && commandLookup.TryGetValue(key, out tempCommand))
@@ -87,7 +87,7 @@ namespace JenkinsConsoleUtility
             return code;
         }
 
-        public static Dictionary<string, ICommand> FindICommands()
+        private static Dictionary<string, ICommand> FindICommands()
         {
             // Just hard code the list for now
             var commandLookup = new Dictionary<string, ICommand>();
@@ -114,9 +114,9 @@ namespace JenkinsConsoleUtility
             argsByName = new Dictionary<string, string>();
 
             string activeKey = null;
-            foreach (string eachArgCased in args)
+            foreach (var eachArgCased in args)
             {
-                string eachArg = eachArgCased.ToLower();
+                var eachArg = eachArgCased.ToLower();
                 if (eachArg.StartsWith("--"))
                 {
                     activeKey = eachArg.Substring(2);

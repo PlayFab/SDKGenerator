@@ -6,7 +6,6 @@ using System;
 using System.Collections.Generic;
 using System.IO;
 using System.Threading;
-using System.Xml;
 
 namespace JenkinsConsoleUtility.Commands
 {
@@ -29,13 +28,17 @@ namespace JenkinsConsoleUtility.Commands
         /// </summary>
         private const int TestDataExistsSleepTime = 4500;
 
-        public string commandKey { get { return "ListenCS"; } }
+        private static readonly string[] MyCommandKeys = { "ListenCS" };
+        public string[] CommandKeys { get { return MyCommandKeys; } }
+        private static readonly string[] MyMandatoryArgKeys = { "titleId", "buildidentifier" };
+        public string[] MandatoryArgKeys { get { return MyMandatoryArgKeys; } }
 
         public const string CsFuncTestDataExists = "TestDataExists";
         public const string CsFuncGetTestData = "GetTestData";
         public const string CsFuncSaveTestData = "SaveTestData";
 
         private static CsGetRequest _getRequest;
+        private static bool verbose;
 
         public int Execute(Dictionary<string, string> args)
         {
@@ -43,6 +46,7 @@ namespace JenkinsConsoleUtility.Commands
             var buildIdentifier = GetArgVar(args, "buildidentifier");
             var workspacePath = GetArgVar(args, "workspacePath", Environment.GetEnvironmentVariable("TEMP"));
             var timeout = TimeSpan.FromSeconds(int.Parse(GetArgVar(args, "timeout", "30")));
+            verbose = bool.Parse(GetArgVar(args, "verbose", "false"));
             _getRequest = new CsGetRequest { customId = buildIdentifier };
 
             JenkinsConsoleUtility.FancyWriteToConsole("Begin CloudScriptListener", null, ConsoleColor.Gray);
@@ -161,6 +165,12 @@ namespace JenkinsConsoleUtility.Commands
 
             // Re-serialize as the target type
             var json = JsonWrapper.SerializeObject(task.Result.Result.FunctionResult);
+            if (verbose)
+            {
+                Console.WriteLine("===== Verbose ExecuteCloudScript Json: =====");
+                Console.WriteLine(json);
+                Console.WriteLine("===== End =====");
+            }
             try
             {
                 result = JsonWrapper.DeserializeObject<TOut>(json);

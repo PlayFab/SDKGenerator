@@ -1,10 +1,10 @@
-using JenkinsConsoleUtility.Commands;
 using System;
 using System.Collections.Generic;
 
 public interface ICommand
 {
-    string commandKey { get; }
+    string[] CommandKeys { get; }
+    string[] MandatoryArgKeys { get; }
     int Execute(Dictionary<string, string> inputs);
 }
 
@@ -50,6 +50,7 @@ namespace JenkinsConsoleUtility
             var returnCode = 0;
             foreach (var key in orderedCommands)
             {
+                // TODO: Verify MandatoryArgKeys
                 if (returnCode == 0 && commandLookup.TryGetValue(key, out tempCommand))
                     returnCode = tempCommand.Execute(argsByName);
                 if (returnCode != 0)
@@ -91,17 +92,20 @@ namespace JenkinsConsoleUtility
         {
             // Just hard code the list for now
             var commandLookup = new Dictionary<string, ICommand>();
-            ICommand each;
 
-            each = new CloudScriptListener();
-            commandLookup.Add(each.commandKey.ToLower(), each);
+            var iCommands = typeof(ICommand);
+            List<Type> cmdTypes = new List<Type>();
+            foreach (var eachAssembly in AppDomain.CurrentDomain.GetAssemblies())
+                foreach (var eachType in eachAssembly.GetTypes())
+                    if (iCommands.IsAssignableFrom(eachType) && eachType.Name != iCommands.Name)
+                        cmdTypes.Add(eachType);
 
-            each = new KillTaskCommand();
-            commandLookup.Add(each.commandKey.ToLower(), each);
-
-            each = new TestingCommand();
-            commandLookup.Add(each.commandKey.ToLower(), each);
-
+            foreach (var eachPkgType in cmdTypes)
+            {
+                var eachInstance = (ICommand)Activator.CreateInstance(eachPkgType);
+                foreach (var eachCmdKey in eachInstance.CommandKeys)
+                    commandLookup.Add(eachCmdKey.ToLower(), eachInstance);
+            }
             return commandLookup;
         }
 

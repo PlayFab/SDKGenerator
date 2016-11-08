@@ -10,7 +10,10 @@ namespace JenkinsConsoleUtility.Commands
         private const int TASK_KILL_DELAY_MS = 15000;
         private const int TASK_KILL_SLEEP_MS = 500;
 
-        public string commandKey { get { return "kill"; } }
+        private static readonly string[] MyCommandKeys = { "kill" };
+        public string[] CommandKeys { get { return MyCommandKeys; } }
+        private static readonly string[] MyMandatoryArgKeys = { "taskname" };
+        public string[] MandatoryArgKeys { get { return MyMandatoryArgKeys; } }
 
         public int Execute(Dictionary<string, string> inputs)
         {

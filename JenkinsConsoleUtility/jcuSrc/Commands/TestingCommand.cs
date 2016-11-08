@@ -1,14 +1,15 @@
 using PlayFab.UUnit;
 using System;
 using System.Collections.Generic;
-using PlayFab;
-using System.Reflection;
 
 namespace JenkinsConsoleUtility.Commands
 {
     public class TestingCommand : ICommand
     {
-        public string commandKey { get { return "RunTests"; } }
+        private static readonly string[] MyCommandKeys = { "RunTests" };
+        public string[] CommandKeys { get { return MyCommandKeys; } }
+        private static readonly string[] MyMandatoryArgKeys = { };
+        public string[] MandatoryArgKeys { get { return MyMandatoryArgKeys; } }
 
         public int Execute(Dictionary<string, string> inputs)
         {

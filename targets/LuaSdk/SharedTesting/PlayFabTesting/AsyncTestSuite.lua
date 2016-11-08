@@ -44,7 +44,7 @@ function AsyncTestSuite.AddTest(testName, testFunc)
         time = 0.0,
         _startTime = 0.0, -- Internal temp var
         message = "Test Pending ...",
-        failureText = "PENDING",
+        finishState = "PENDING",
     }
     AsyncTestSuite._suiteTestList[AsyncTestSuite._pfTestReport.tests] = testFunc
 end
@@ -124,8 +124,9 @@ function AsyncTestSuite.EndTest(endState, message)
         print("Test has unexpectedly ended multiple times:\n" .. message .. "\n" .. AsyncTestSuite._pfTestReport.testResults[AsyncTestSuite._activeTestIndex].message)
     end
     AsyncTestSuite._pfTestReport.testResults[AsyncTestSuite._activeTestIndex].message = message
-    AsyncTestSuite._pfTestReport.testResults[AsyncTestSuite._activeTestIndex].failureText = endState
+    AsyncTestSuite._pfTestReport.testResults[AsyncTestSuite._activeTestIndex].finishState = endState
     if (not (endState == "PASSED")) then
+        AsyncTestSuite._pfTestReport.testResults[AsyncTestSuite._activeTestIndex].failureText = message
         AsyncTestSuite._pfTestReport.failures = AsyncTestSuite._pfTestReport.failures + 1
     end
     AsyncTestSuite._advanceToNextTest = true
@@ -143,7 +144,7 @@ function AsyncTestSuite.GenerateTestSummary()
         while (string.len(eachLine) < 8) do
             eachLine = " " .. eachLine
         end
-        eachLine = eachLine .. " - " .. eachTest.name .. ": " .. eachTest.failureText
+        eachLine = eachLine .. " - " .. eachTest.name .. ": " .. eachTest.finishState
         if (eachTest.message) then
             eachLine = eachLine .. " - " .. eachTest.message
         end

@@ -122,6 +122,7 @@
     <Compile Include="targets\javascript\source\PlayFabApiTest.js" />
     <Compile Include="targets\java\make.js" />
     <Compile Include="targets\js-node\make.js" />
+    <Compile Include="targets\js-node\testingFiles\node_modules\nodeunit\lib\reporters\PlayFabMinimal.js" />
     <Compile Include="targets\js-node\testingFiles\PlayFabApiTests.js" />
     <Compile Include="targets\LuaSdk\make.js" />
     <Compile Include="targets\LumberyardSdk\make.js" />
@@ -1122,6 +1123,10 @@
     <Folder Include="targets\js-node\" />
     <Folder Include="targets\js-node\templates\" />
     <Folder Include="targets\js-node\testingFiles\" />
+    <Folder Include="targets\js-node\testingFiles\node_modules\" />
+    <Folder Include="targets\js-node\testingFiles\node_modules\nodeunit\" />
+    <Folder Include="targets\js-node\testingFiles\node_modules\nodeunit\lib\" />
+    <Folder Include="targets\js-node\testingFiles\node_modules\nodeunit\lib\reporters\" />
     <Folder Include="targets\LuaSdk\" />
     <Folder Include="targets\LuaSdk\EachCorona\" />
     <Folder Include="targets\LuaSdk\EachDefold\" />

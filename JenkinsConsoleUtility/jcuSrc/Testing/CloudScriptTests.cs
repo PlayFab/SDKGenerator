@@ -12,13 +12,13 @@ namespace JenkinsConsoleUtility.Testing
         private CsGetRequest getRequest = new CsGetRequest { customId = TEST_CUSTOM_ID };
         private CsSaveRequest saveRequest = new CsSaveRequest { customId = TEST_CUSTOM_ID, testReport = new TestSuiteReport[0]};
 
-        protected override void SetUp()
+        public override void SetUp(UUnitTestContext testContext)
         {
             PlayFabSettings.TitleId = TITLE_ID;
             var task = PlayFabClientAPI.LoginWithCustomIDAsync(new LoginWithCustomIDRequest { CreateAccount = true, CustomId = TEST_CUSTOM_ID, TitleId = TITLE_ID});
             task.Wait();
 
-            UUnitAssert.True(PlayFabClientAPI.IsClientLoggedIn(), "User login not successful: " + PlayFabUtil.GetErrorReport(task.Result.Error));
+            testContext.True(PlayFabClientAPI.IsClientLoggedIn(), "User login not successful: " + PlayFabUtil.GetErrorReport(task.Result.Error));
         }
 
         /// <summary>
@@ -28,7 +28,7 @@ namespace JenkinsConsoleUtility.Testing
         ///   CSfunc_TestDataExists can correctly verify both states
         /// </summary>
         [UUnitTest]
-        public void WriteTestSequence()
+        public void WriteTestSequence(UUnitTestContext testContext)
         {
             bool functionResult, callResult;
             string getErrorReport, saveErrorReport, fetchErrorReport;
@@ -41,27 +41,29 @@ namespace JenkinsConsoleUtility.Testing
 
             // Verify that no data pre-exists
             callResult = CloudScriptListener.ExecuteCloudScript(CloudScriptListener.CsFuncTestDataExists, getRequest, out functionResult, out getErrorReport);
-            UUnitAssert.True(callResult, getErrorReport);
-            UUnitAssert.False(functionResult, getErrorReport);
+            testContext.True(callResult, getErrorReport);
+            testContext.False(functionResult, getErrorReport);
 
             // Save some data
             callResult = CloudScriptListener.ExecuteCloudScript(CloudScriptListener.CsFuncSaveTestData, saveRequest, out nullReturn, out saveErrorReport);
-            UUnitAssert.True(callResult, saveErrorReport);
+            testContext.True(callResult, saveErrorReport);
 
             // Verify that the saved data exists
             callResult = CloudScriptListener.ExecuteCloudScript(CloudScriptListener.CsFuncTestDataExists, getRequest, out functionResult, out getErrorReport);
-            UUnitAssert.True(callResult, getErrorReport);
-            UUnitAssert.True(functionResult, saveErrorReport);
+            testContext.True(callResult, getErrorReport);
+            testContext.True(functionResult, saveErrorReport);
 
             // Fetch that data
             callResult = CloudScriptListener.ExecuteCloudScript(CloudScriptListener.CsFuncGetTestData, getRequest, out testResults, out fetchErrorReport);
-            UUnitAssert.True(callResult, fetchErrorReport);
-            UUnitAssert.NotNull(testResults, fetchErrorReport);
+            testContext.True(callResult, fetchErrorReport);
+            testContext.NotNull(testResults, fetchErrorReport);
 
             // Verify that it was consumed
             callResult = CloudScriptListener.ExecuteCloudScript(CloudScriptListener.CsFuncTestDataExists, getRequest, out functionResult, out getErrorReport);
-            UUnitAssert.True(callResult, getErrorReport);
-            UUnitAssert.False(functionResult, getErrorReport);
+            testContext.True(callResult, getErrorReport);
+            testContext.False(functionResult, getErrorReport);
+
+            testContext.EndTest(UUnitFinishState.PASSED, null);
         }
     }
 }

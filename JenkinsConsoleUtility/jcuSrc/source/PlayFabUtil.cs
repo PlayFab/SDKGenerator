@@ -1,12 +1,13 @@
+using PlayFab.Json;
 using System;
+using System.IO;
 using System.Text;
-using Newtonsoft.Json;
-using Newtonsoft.Json.Converters;
+using System.Threading.Tasks;
 using PlayFab.ClientModels;
 
 namespace PlayFab
 {
-    [AttributeUsage(AttributeTargets.Property, AllowMultiple = false)]
+    [AttributeUsage(AttributeTargets.Field, AllowMultiple = false)]
     public class Unordered : Attribute
     {
         public string SortProperty { get; set; }
@@ -19,7 +20,7 @@ namespace PlayFab
         }
     }
 
-    public static class PlayFabUtil
+    public static partial class PlayFabUtil
     {
         public static readonly string[] DefaultDateTimeFormats = { // All parseable ISO 8601 formats for DateTime.[Try]ParseExact - Lets us deserialize any legacy timestamps in one of these formats
             // These are the standard format with ISO 8601 UTC markers (T/Z)
@@ -38,30 +39,13 @@ namespace PlayFab
         };
         public const int DEFAULT_UTC_OUTPUT_INDEX = 2; // The default format everybody should use
         public const int DEFAULT_LOCAL_OUTPUT_INDEX = 7; // The default format if you want to use local time (This doesn't have universal support in all PlayFab code)
-        public static JsonSerializerSettings JsonSettings = new JsonSerializerSettings
-        {
-            NullValueHandling = NullValueHandling.Ignore,
-            Converters = { new IsoDateTimeConverter { DateTimeFormat = DefaultDateTimeFormats[0] } },
-        };
-        public static Formatting JsonFormatting = Formatting.None;
 
-        private static readonly StringBuilder Sb = new StringBuilder();
         public static string GetErrorReport(PlayFabError error)
         {
-            if (error == null)
-                return null;
-            Sb.Length = 0;
-            if (error.ErrorMessage != null)
-                Sb.Append(error.ErrorMessage);
-            if (error.ErrorDetails == null)
-                return Sb.ToString();
-
-            foreach (var pair in error.ErrorDetails)
-                foreach (var eachMsg in pair.Value)
-                    Sb.Append("\n").Append(pair.Key).Append(": ").Append(eachMsg);
-            return Sb.ToString();
+            return error?.GenerateErrorReport();
         }
 
+        private static readonly StringBuilder Sb = new StringBuilder();
         public static string GetCloudScriptErrorReport(PlayFabResult<ExecuteCloudScriptResult> result)
         {
             if (result.Error != null)
@@ -70,8 +54,8 @@ namespace PlayFab
                 return null;
 
             Sb.Length = 0;
-            bool hasError = !string.IsNullOrEmpty(result.Result.Error.Error);
-            bool hasMsg = !string.IsNullOrEmpty(result.Result.Error.Message);
+            var hasError = !string.IsNullOrEmpty(result.Result.Error.Error);
+            var hasMsg = !string.IsNullOrEmpty(result.Result.Error.Message);
             if (hasError)
                 Sb.Append(result.Result.Error.Error);
             if (hasError && hasMsg)
@@ -87,28 +71,9 @@ namespace PlayFab
                 if (!string.IsNullOrEmpty(eachLog.Message))
                     Sb.Append(" - ").Append(eachLog.Message);
                 if (eachLog.Data != null)
-                    Sb.Append("\n").Append(JsonConvert.SerializeObject(eachLog.Data, Formatting.Indented));
+                    Sb.Append("\n").Append(JsonWrapper.SerializeObject(eachLog.Data));
             }
             return Sb.ToString();
-        }
-
-        public class TimeSpanFloatSeconds : JsonConverter
-        {
-            public override void WriteJson(JsonWriter writer, object value, JsonSerializer serializer)
-            {
-                TimeSpan timeSpan = (TimeSpan)value;
-                serializer.Serialize(writer, timeSpan.TotalSeconds);
-            }
-
-            public override object ReadJson(JsonReader reader, Type objectType, object existingValue, JsonSerializer serializer)
-            {
-                return TimeSpan.FromSeconds(serializer.Deserialize<float>(reader));
-            }
-
-            public override bool CanConvert(Type objectType)
-            {
-                return objectType == typeof(TimeSpan);
-            }
         }
     }
 }

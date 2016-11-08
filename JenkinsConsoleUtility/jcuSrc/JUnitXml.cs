@@ -1,11 +1,11 @@
+using PlayFab;
+using PlayFab.UUnit;
 using System;
 using System.Collections.Generic;
 using System.IO;
 using System.Text;
 using System.Web;
 using System.Xml;
-using PlayFab;
-using PlayFab.UUnit;
 
 namespace JenkinsConsoleUtility
 {
@@ -49,7 +49,7 @@ namespace JenkinsConsoleUtility
                         case XmlNodeType.Text:
                             if (_curTestCaseReport == null)
                                 throw new Exception("This shouldn't happen, I'm just making Resharper happy.");
-                            TestFinishState tempState;
+                            UUnitFinishState tempState;
                             if (Enum.TryParse(reader.Value, true, out tempState))
                                 _curTestCaseReport.finishState = tempState;
                             else
@@ -100,17 +100,17 @@ namespace JenkinsConsoleUtility
                     {
                         classname = reader.GetAttribute("classname"),
                         name = reader.GetAttribute("name"),
-                        finishState = isEmptyElement ? TestFinishState.PASSED : TestFinishState.FAILED, // Empty element means no notes about failure, non-empty will almost certainly override this value
+                        finishState = isEmptyElement ? UUnitFinishState.PASSED : UUnitFinishState.FAILED, // Empty element means no notes about failure, non-empty will almost certainly override this value
                     };
                     double.TryParse(reader.GetAttribute("time"), out tempSeconds);
                     _curTestCaseReport.time = TimeSpan.FromSeconds(tempSeconds);
                     break;
                 case ("failure"):
-                    _curTestCaseReport.finishState = TestFinishState.FAILED;
+                    _curTestCaseReport.finishState = UUnitFinishState.FAILED;
                     _curTestCaseReport.message = reader.GetAttribute("message");
                     break;
                 case ("skipped"):
-                    _curTestCaseReport.finishState = TestFinishState.SKIPPED;
+                    _curTestCaseReport.finishState = UUnitFinishState.SKIPPED;
                     _curTestCaseReport.message = reader.GetAttribute("message");
                     break;
                 default:
@@ -251,7 +251,7 @@ namespace JenkinsConsoleUtility
             self.failureText = HttpUtility.HtmlEncode(self.failureText);
 
             tabbing += "  ";
-            if (self.finishState == TestFinishState.SKIPPED)
+            if (self.finishState == UUnitFinishState.SKIPPED)
                 sb.Append(tabbing).Append("<skipped />\n");
             else if (string.IsNullOrEmpty(self.failureText))
                 sb.Append(tabbing).AppendFormat("<failure message=\"{0}\">{1}</failure>\n", self.message, self.finishState.ToString());
@@ -263,7 +263,7 @@ namespace JenkinsConsoleUtility
 
         public static bool IsXmlSingleLine(this TestCaseReport self)
         {
-            return self.finishState == TestFinishState.PASSED;
+            return self.finishState == UUnitFinishState.PASSED;
         }
 
         private static void AppendTestCaseLine(this TestCaseReport self, ref StringBuilder sb, bool isSingleLine, string tabbing)

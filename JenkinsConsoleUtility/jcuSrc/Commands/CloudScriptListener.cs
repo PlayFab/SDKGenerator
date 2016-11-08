@@ -1,11 +1,12 @@
 using PlayFab;
 using PlayFab.ClientModels;
+using PlayFab.Json;
+using PlayFab.UUnit;
 using System;
 using System.Collections.Generic;
 using System.IO;
 using System.Threading;
-using Newtonsoft.Json;
-using PlayFab.UUnit;
+using System.Xml;
 
 namespace JenkinsConsoleUtility.Commands
 {
@@ -152,17 +153,17 @@ namespace JenkinsConsoleUtility.Commands
 
             if (task.Result.Error != null)
             {
-                Console.WriteLine("Execute Cloudscript failure: " + functionName + ":\n" + JsonConvert.SerializeObject(functionParameter));
+                Console.WriteLine("Execute Cloudscript failure: " + functionName + ":\n" + JsonWrapper.SerializeObject(functionParameter));
                 Console.WriteLine(errorReport);
                 result = default(TOut);
                 return false;
             }
 
             // Re-serialize as the target type
-            var json = JsonConvert.SerializeObject(task.Result.Result.FunctionResult, Formatting.Indented);
+            var json = JsonWrapper.SerializeObject(task.Result.Result.FunctionResult);
             try
             {
-                result = JsonConvert.DeserializeObject<TOut>(json, PlayFabUtil.JsonSettings);
+                result = JsonWrapper.DeserializeObject<TOut>(json);
             }
             catch (Exception)
             {

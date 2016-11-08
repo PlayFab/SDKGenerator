@@ -37,10 +37,6 @@
     <StartupObject>JenkinsConsoleUtility.JenkinsConsoleUtility</StartupObject>
   </PropertyGroup>
   <ItemGroup>
-    <Reference Include="Newtonsoft.Json, Version=8.0.0.0, Culture=neutral, PublicKeyToken=30ad4fe6b2a6aeed, processorArchitecture=MSIL">
-      <HintPath>packages\Newtonsoft.Json.8.0.3\lib\net45\Newtonsoft.Json.dll</HintPath>
-      <Private>True</Private>
-    </Reference>
     <Reference Include="System" />
     <Reference Include="System.Core" />
     <Reference Include="System.Web" />
@@ -57,18 +53,27 @@
     <Compile Include="jcuSrc\Commands\KillTaskCommand.cs" />
     <Compile Include="jcuSrc\JenkinsConsoleUtility.cs" />
     <Compile Include="jcuSrc\JUnitXml.cs" />
-    <Compile Include="jcuSrc\PlayFabSDK\PlayFabClientAPI.cs" />
-    <Compile Include="jcuSrc\PlayFabSDK\PlayFabClientModels.cs" />
-    <Compile Include="jcuSrc\PlayFabSDK\PlayFabErrors.cs" />
-    <Compile Include="jcuSrc\PlayFabSDK\PlayFabHTTP.cs" />
-    <Compile Include="jcuSrc\PlayFabSDK\PlayFabSettings.cs" />
-    <Compile Include="jcuSrc\PlayFabSDK\PlayFabUtil.cs" />
-    <Compile Include="jcuSrc\PlayFabSDK\PlayFabVersion.cs" />
-    <Compile Include="jcuSrc\PlayFabSDK\Uunit\UUnitAssert.cs" />
-    <Compile Include="jcuSrc\PlayFabSDK\Uunit\UUnitAssertException.cs" />
-    <Compile Include="jcuSrc\PlayFabSDK\Uunit\UUnitTestCase.cs" />
-    <Compile Include="jcuSrc\PlayFabSDK\Uunit\UUnitTestResult.cs" />
-    <Compile Include="jcuSrc\PlayFabSDK\Uunit\UUnitTestSuite.cs" />
+    <Compile Include="jcuSrc\source\Json\ISerializer.cs" />
+    <Compile Include="jcuSrc\source\Json\NewtonsoftWrapper.cs" />
+    <Compile Include="jcuSrc\source\Json\SimpleJson.cs" />
+    <Compile Include="jcuSrc\source\PlayFabClientAPI.cs" />
+    <Compile Include="jcuSrc\source\PlayFabClientModels.cs" />
+    <Compile Include="jcuSrc\source\PlayFabErrors.cs" />
+    <Compile Include="jcuSrc\source\PlayFabFileUtil.cs" />
+    <Compile Include="jcuSrc\source\PlayFabHttp\IPlayFabHttp.cs" />
+    <Compile Include="jcuSrc\source\PlayFabHttp\PlayFabHttp.cs" />
+    <Compile Include="jcuSrc\source\PlayFabHttp\PlayFabSysHttp.cs" />
+    <Compile Include="jcuSrc\source\PlayFabHttp\PlayFabWinHttp.cs" />
+    <Compile Include="jcuSrc\source\PlayFabSettings.cs" />
+    <Compile Include="jcuSrc\source\PlayFabUtil.cs" />
+    <Compile Include="jcuSrc\source\Uunit\PlayFabApiTest.cs" />
+    <Compile Include="jcuSrc\source\Uunit\UUnitAssertException.cs" />
+    <Compile Include="jcuSrc\source\Uunit\UUnitIncrementalTestRunner.cs" />
+    <Compile Include="jcuSrc\source\Uunit\UUnitTestCase.cs" />
+    <Compile Include="jcuSrc\source\Uunit\UUnitTestContext.cs" />
+    <Compile Include="jcuSrc\source\Uunit\UUnitTestReport.cs" />
+    <Compile Include="jcuSrc\source\Uunit\UUnitTestSuite.cs" />
+    <Compile Include="jcuSrc\source\wsaReflectionExtensions.cs" />
     <Compile Include="jcuSrc\Testing\CloudScriptTests.cs" />
     <Compile Include="jcuSrc\Commands\TestingCommand.cs" />
     <Compile Include="jcuSrc\Testing\TestJsonReportSyntax.cs" />
@@ -76,7 +81,6 @@
   </ItemGroup>
   <ItemGroup>
     <None Include="app.config" />
-    <None Include="packages.config" />
     <None Include="jcuSrc\App.config" />
   </ItemGroup>
   <ItemGroup>

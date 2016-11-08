@@ -1,9 +1,9 @@
+using PlayFab.Json;
+using PlayFab.UUnit;
 using System;
 using System.Collections.Generic;
 using System.IO;
 using System.Text;
-using Newtonsoft.Json;
-using PlayFab.UUnit;
 
 namespace JenkinsConsoleUtility.Testing
 {
@@ -33,7 +33,7 @@ namespace JenkinsConsoleUtility.Testing
 
         private string _tempFileFullPath;
 
-        protected override void SetUp()
+        public override void SetUp(UUnitTestContext testContext)
         {
             var tempFolderPath = Environment.GetEnvironmentVariable("TEMP") ?? ""; // Get the Windows 10 user temp folder
             _tempFileFullPath = Path.Combine(tempFolderPath, tempFilename);
@@ -45,48 +45,54 @@ namespace JenkinsConsoleUtility.Testing
         }
 
         [UUnitTest]
-        public void XmlReadWriteSequence()
+        public void XmlReadWriteSequence(UUnitTestContext testContext)
         {
             List<TestSuiteReport> xmlReport = JUnitXml.ParseXmlFile(_tempFileFullPath);
             JUnitXml.WriteXmlFile(_tempFileFullPath, xmlReport, true);
             List<TestSuiteReport> xmlReport2 = JUnitXml.ParseXmlFile(_tempFileFullPath);
-            UUnitAssert.IntEquals(xmlReport.Count, xmlReport2.Count);
+            testContext.IntEquals(xmlReport.Count, xmlReport2.Count);
+
+            testContext.EndTest(UUnitFinishState.PASSED, null);
         }
 
         [UUnitTest]
-        public void PassWithMessageXml()
+        public void PassWithMessageXml(UUnitTestContext testContext)
         {
             var readFileName = "../../testPassWithMessage.xml";
             List<TestSuiteReport> inputReport = JUnitXml.ParseXmlFile(readFileName);
             JUnitXml.WriteXmlFile(_tempFileFullPath, inputReport, true);
             List<TestSuiteReport> testReport = JUnitXml.ParseXmlFile(_tempFileFullPath);
-            UUnitAssert.IntEquals(1, testReport.Count);
+            testContext.IntEquals(1, testReport.Count);
             foreach (var eachReport in testReport)
             {
-                UUnitAssert.IntEquals(0, eachReport.failures);
-                UUnitAssert.IntEquals(0, eachReport.skipped);
-                UUnitAssert.NotNull(eachReport.testResults);
+                testContext.IntEquals(0, eachReport.failures);
+                testContext.IntEquals(0, eachReport.skipped);
+                testContext.NotNull(eachReport.testResults);
                 foreach (var eachTest in eachReport.testResults)
-                    UUnitAssert.True(eachTest.IsXmlSingleLine());
+                    testContext.True(eachTest.IsXmlSingleLine());
             }
+
+            testContext.EndTest(UUnitFinishState.PASSED, null);
         }
 
         [UUnitTest]
-        public void PassWithMessageJson()
+        public void PassWithMessageJson(UUnitTestContext testContext)
         {
             var readFileName = "../../testPassWithMessage.json";
-            UUnitAssert.True(File.Exists(readFileName));
+            testContext.True(File.Exists(readFileName));
             var json = File.ReadAllText(readFileName);
-            List<TestSuiteReport> testReport = JsonConvert.DeserializeObject<List<TestSuiteReport>>(json);
-            UUnitAssert.IntEquals(1, testReport.Count);
+            List<TestSuiteReport> testReport = JsonWrapper.DeserializeObject<List<TestSuiteReport>>(json);
+            testContext.IntEquals(1, testReport.Count);
             foreach (var eachReport in testReport)
             {
-                UUnitAssert.IntEquals(0, eachReport.failures);
-                UUnitAssert.IntEquals(0, eachReport.skipped);
-                UUnitAssert.NotNull(eachReport.testResults);
+                testContext.IntEquals(0, eachReport.failures);
+                testContext.IntEquals(0, eachReport.skipped);
+                testContext.NotNull(eachReport.testResults);
                 foreach (var eachTest in eachReport.testResults)
-                    UUnitAssert.True(eachTest.IsXmlSingleLine());
+                    testContext.True(eachTest.IsXmlSingleLine());
             }
+
+            testContext.EndTest(UUnitFinishState.PASSED, null);
         }
     }
 }

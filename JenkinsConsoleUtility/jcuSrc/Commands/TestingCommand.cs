@@ -12,15 +12,13 @@ namespace JenkinsConsoleUtility.Commands
 
         public int Execute(Dictionary<string, string> inputs)
         {
-            UUnitTestSuite suite = new UUnitTestSuite(PlayFabSettings.BuildIdentifier);
-            foreach (Assembly assembly in AppDomain.CurrentDomain.GetAssemblies())
-                suite.FindAndAddAllTestCases(assembly, typeof(UUnitTestCase));
+            UUnitIncrementalTestRunner.Start(false, null, null, null);
+            while (!UUnitIncrementalTestRunner.SuiteFinished)
+                UUnitIncrementalTestRunner.Tick();
 
-            suite.RunAllTests();
-            UUnitTestResults result = suite.GetResults();
-            Console.WriteLine(result.Summary());
+            Console.WriteLine(UUnitIncrementalTestRunner.Summary);
             Console.WriteLine();
-            return result.AllTestsPassed() ? 0 : 1;
+            return UUnitIncrementalTestRunner.AllTestsPassed ? 0 : 1;
         }
     }
 }

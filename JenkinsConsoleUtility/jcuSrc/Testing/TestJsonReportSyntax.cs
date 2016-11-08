@@ -1,4 +1,4 @@
-using Newtonsoft.Json;
+using PlayFab.Json;
 using PlayFab.UUnit;
 
 namespace JenkinsConsoleUtility.Testing
@@ -23,14 +23,14 @@ namespace JenkinsConsoleUtility.Testing
         };
 
         [UUnitTest]
-        public void SerializeExample()
+        public void SerializeExample(UUnitTestContext testContext)
         {
-            TestSuiteReport[] actualSuites = JsonConvert.DeserializeObject<TestSuiteReport[]>(EXAMPLE_JSON);
-            UUnitAssert.NotNull(actualSuites);
+            TestSuiteReport[] actualSuites = JsonWrapper.DeserializeObject<TestSuiteReport[]>(EXAMPLE_JSON);
+            testContext.NotNull(actualSuites);
 
             foreach (string expectedTestName in EXPECTED_TESTS)
             {
-                bool testFound = false;
+                var testFound = false;
                 foreach (var suite in actualSuites)
                 {
                     foreach (var test in suite.testResults)
@@ -41,10 +41,12 @@ namespace JenkinsConsoleUtility.Testing
                             break;
                         }
                     }
-                    UUnitAssert.IntEquals(suite.tests, EXPECTED_TESTS.Length, "Total tests does not match expected {0}, {1}");
+                    testContext.IntEquals(suite.tests, EXPECTED_TESTS.Length, "Total tests does not match expected {0}, {1}");
                 }
-                UUnitAssert.True(testFound, "Test not found: " + expectedTestName);
+                testContext.True(testFound, "Test not found: " + expectedTestName);
             }
+
+            testContext.EndTest(UUnitFinishState.PASSED, null);
         }
     }
 }

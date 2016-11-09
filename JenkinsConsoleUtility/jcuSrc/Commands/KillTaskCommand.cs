@@ -5,7 +5,7 @@ using System.Threading;
 
 namespace JenkinsConsoleUtility.Commands
 {
-    class KillTaskCommand : ICommand
+    public class KillTaskCommand : ICommand
     {
         private const int TASK_KILL_DELAY_MS = 15000;
         private const int TASK_KILL_SLEEP_MS = 500;

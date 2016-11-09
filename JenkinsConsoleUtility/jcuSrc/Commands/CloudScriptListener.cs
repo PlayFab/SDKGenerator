@@ -42,11 +42,11 @@ namespace JenkinsConsoleUtility.Commands
 
         public int Execute(Dictionary<string, string> args)
         {
-            var titleId = GetArgVar(args, "titleId");
-            var buildIdentifier = GetArgVar(args, "buildidentifier");
-            var workspacePath = GetArgVar(args, "workspacePath", Environment.GetEnvironmentVariable("TEMP"));
-            var timeout = TimeSpan.FromSeconds(int.Parse(GetArgVar(args, "timeout", "30")));
-            verbose = bool.Parse(GetArgVar(args, "verbose", "false"));
+            var titleId = JenkinsConsoleUtility.GetArgVar(args, "titleId");
+            var buildIdentifier = JenkinsConsoleUtility.GetArgVar(args, "buildidentifier");
+            var workspacePath = JenkinsConsoleUtility.GetArgVar(args, "workspacePath", Environment.GetEnvironmentVariable("TEMP"));
+            var timeout = TimeSpan.FromSeconds(int.Parse(JenkinsConsoleUtility.GetArgVar(args, "timeout", "30")));
+            verbose = bool.Parse(JenkinsConsoleUtility.GetArgVar(args, "verbose", "false"));
             _getRequest = new CsGetRequest { customId = buildIdentifier };
 
             JenkinsConsoleUtility.FancyWriteToConsole("Begin CloudScriptListener", null, ConsoleColor.Gray);
@@ -63,24 +63,6 @@ namespace JenkinsConsoleUtility.Commands
             JenkinsConsoleUtility.FancyWriteToConsole("Test data received", null, ConsoleColor.Green);
 
             return 0;
-        }
-
-        private static string GetArgVar(Dictionary<string, string> args, string key, string getDefault = null)
-        {
-            string output;
-            var found = args.TryGetValue(key.ToLower(), out output);
-            if (found)
-                return output;
-
-            if (getDefault != null)
-            {
-                JenkinsConsoleUtility.FancyWriteToConsole("WARNING: " + key + " not found, reverting to: " + getDefault, null, ConsoleColor.DarkYellow);
-                return getDefault;
-            }
-
-            var msg = "ERROR: Required parameter: " + key + " not found";
-            JenkinsConsoleUtility.FancyWriteToConsole(msg, null, ConsoleColor.Red);
-            throw new Exception(msg);
         }
 
         private static int Login(string titleId, string buildIdentifier)

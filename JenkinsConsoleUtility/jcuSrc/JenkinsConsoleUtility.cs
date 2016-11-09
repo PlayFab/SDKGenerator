@@ -14,7 +14,7 @@ namespace JenkinsConsoleUtility
     {
         public static int Main(string[] args)
         {
-            Dictionary<string, ICommand> commandLookup = FindICommands();
+            var commandLookup = FindICommands();
             List<string> orderedCommands;
             Dictionary<string, string> argsByName;
             ICommand tempCommand;
@@ -43,16 +43,19 @@ namespace JenkinsConsoleUtility
                 FancyWriteToConsole("Run a sequence of ordered commands --<command> [--<command> ...] [-<argKey> <argValue> ...]\nValid commands:", commandLookup.Keys, ConsoleColor.Yellow);
                 FancyWriteToConsole("argValues can have spaces.  Dashes in argValues can cause problems, and are not recommended.", null, ConsoleColor.Yellow);
                 FancyWriteToConsole("Quotes are considered part of the argKey or argValue, and are not parsed as tokens.", null, ConsoleColor.Yellow);
-                // TODO: Report valid/required args for commands
+                // TODO: Report list of available commands and valid/required args for commands
                 return Pause(1);
             }
 
             var returnCode = 0;
             foreach (var key in orderedCommands)
             {
-                // TODO: Verify MandatoryArgKeys
                 if (returnCode == 0 && commandLookup.TryGetValue(key, out tempCommand))
-                    returnCode = tempCommand.Execute(argsByName);
+                {
+                    returnCode = VerifyKeys(tempCommand, argsByName);
+                    if (returnCode == 0)
+                        returnCode = tempCommand.Execute(argsByName);
+                }
                 if (returnCode != 0)
                 {
                     FancyWriteToConsole(key + " command returned error code: " + returnCode, null, ConsoleColor.Yellow);
@@ -61,6 +64,38 @@ namespace JenkinsConsoleUtility
             }
 
             return Pause(0);
+        }
+
+        public static string GetArgVar(Dictionary<string, string> args, string key, string getDefault = null)
+        {
+            string output;
+            var found = args.TryGetValue(key.ToLower(), out output);
+            if (found)
+                return output;
+
+            if (getDefault != null)
+            {
+                FancyWriteToConsole("WARNING: " + key + " not found, reverting to: " + getDefault, null, ConsoleColor.DarkYellow);
+                return getDefault;
+            }
+
+            var msg = "ERROR: Required parameter: " + key + " not found";
+            FancyWriteToConsole(msg, null, ConsoleColor.Red);
+            throw new Exception(msg);
+        }
+
+        private static int VerifyKeys(ICommand cmd, Dictionary<string, string> argsByName)
+        {
+            var output = 0;
+            foreach (var eachCmdKey in cmd.MandatoryArgKeys)
+            {
+                if (!argsByName.ContainsKey(eachCmdKey.ToLower()))
+                {
+                    FancyWriteToConsole(cmd.CommandKeys[0] + " - Missing argument: " + eachCmdKey, null, ConsoleColor.Yellow);
+                    output = 1;
+                }
+            }
+            return output;
         }
 
         public static void FancyWriteToConsole(string msg = null, ICollection<string> multiLineMsg = null, ConsoleColor textColor = ConsoleColor.White)
@@ -94,7 +129,7 @@ namespace JenkinsConsoleUtility
             var commandLookup = new Dictionary<string, ICommand>();
 
             var iCommands = typeof(ICommand);
-            List<Type> cmdTypes = new List<Type>();
+            var cmdTypes = new List<Type>();
             foreach (var eachAssembly in AppDomain.CurrentDomain.GetAssemblies())
                 foreach (var eachType in eachAssembly.GetTypes())
                     if (iCommands.IsAssignableFrom(eachType) && eachType.Name != iCommands.Name)

@@ -51,6 +51,7 @@
     <Compile Include="jcuSrc\AssemblyInfo.cs" />
     <Compile Include="jcuSrc\Commands\CloudScriptListener.cs" />
     <Compile Include="jcuSrc\Commands\KillTaskCommand.cs" />
+    <Compile Include="jcuSrc\Commands\VersionVarWriter.cs" />
     <Compile Include="jcuSrc\JenkinsConsoleUtility.cs" />
     <Compile Include="jcuSrc\JUnitXml.cs" />
     <Compile Include="jcuSrc\source\Json\ISerializer.cs" />

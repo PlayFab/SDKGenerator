@@ -56,7 +56,7 @@ bool FMultitypeVar::readFromValue(const TSharedPtr<FJsonValue>& value)
 	}
 	else if (value->Type == EJson::String)
 	{
-		mType = MultitypeNumber;
+		mType = MultitypeString;
 		mString = value->AsString();
 	}
 	else

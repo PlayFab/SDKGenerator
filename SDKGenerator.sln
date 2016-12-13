@@ -23,6 +23,7 @@ Global
 		UnrealBlueprintSDK|Any CPU = UnrealBlueprintSDK|Any CPU
 		UnrealCppSdk|Any CPU = UnrealCppSdk|Any CPU
 		WindowsSDK|Any CPU = WindowsSDK|Any CPU
+		WindowsSDKV1|Any CPU = WindowsSDKV1|Any CPU
 	EndGlobalSection
 	GlobalSection(ProjectConfigurationPlatforms) = postSolution
 		{2BA807EF-310C-43B5-8D42-1ABCFFF39BE9}.ActionScriptSDK|Any CPU.ActiveCfg = ActionScriptSDK|Any CPU
@@ -57,6 +58,8 @@ Global
 		{2BA807EF-310C-43B5-8D42-1ABCFFF39BE9}.UnrealCppSdk|Any CPU.Build.0 = UnrealCppSdk|Any CPU
 		{2BA807EF-310C-43B5-8D42-1ABCFFF39BE9}.WindowsSDK|Any CPU.ActiveCfg = WindowsSDK|Any CPU
 		{2BA807EF-310C-43B5-8D42-1ABCFFF39BE9}.WindowsSDK|Any CPU.Build.0 = WindowsSDK|Any CPU
+		{2BA807EF-310C-43B5-8D42-1ABCFFF39BE9}.WindowsSDKV1|Any CPU.ActiveCfg = WindowsSDKV1|Any CPU
+		{2BA807EF-310C-43B5-8D42-1ABCFFF39BE9}.WindowsSDKV1|Any CPU.Build.0 = WindowsSDKV1|Any CPU
 	EndGlobalSection
 	GlobalSection(SolutionProperties) = preSolution
 		HideSolutionNode = FALSE

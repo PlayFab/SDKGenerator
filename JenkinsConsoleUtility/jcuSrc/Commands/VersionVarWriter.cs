@@ -119,6 +119,7 @@ namespace JenkinsConsoleUtility.Commands
                 case "playfabgameserver": return "csharp-unity-gameserver";
                 case "unrealblueprintsdk": return "cpp-unreal";
                 case "unrealcppsdk": return "cpp-ue4";
+                case "windowssdkv1": return "windowssdk";
             }
             return null;
         }

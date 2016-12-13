@@ -1,0 +1,75 @@
+#pragma once
+<% if (api.name === "Client") { %>
+#ifndef <%- GetApiDefine(api) %>
+<% } else { %>
+#ifdef <%- GetApiDefine(api) %>
+<% } %>
+#include "playfab/PlayFabBaseModel.h"
+
+namespace PlayFab
+{
+    namespace <%- api.name %>Models
+    {
+        // <%- api.name %> Enums<%
+for (var enumIdx = 0; enumIdx < enumtypes.length; enumIdx++) { var enumtype = enumtypes[enumIdx]; %>
+        enum <%- enumtype.name %>
+        {
+            <% for(var i=0; i<enumtype.enumvalues.length-1; i++) { var enumval = enumtype.enumvalues[i] %><%- enumtype.name %><%- enumval.name %>,
+            <% } %><%- enumtype.name %><%- enumtype.enumvalues[enumtype.enumvalues.length-1].name %>
+        };
+
+        inline void ToJsonEnum(const <%- enumtype.name %> input, web::json::value& output)
+        {
+<% for(var i=0; i<enumtype.enumvalues.length; i++) { var enumval = enumtype.enumvalues[i]
+%>            if (input == <%- enumtype.name %><%- enumval.name %>) output = web::json::value(U("<%- enumval.name %>"));
+<% } %>        }
+        inline void FromJsonEnum(const web::json::value& input, <%- enumtype.name %>& output)
+        {
+            if (!input.is_string()) return;
+            const utility::string_t& inputStr = input.as_string();
+<% for(var i=0; i<enumtype.enumvalues.length; i++) { var enumval = enumtype.enumvalues[i]
+%>            if (inputStr == U("<%- enumval.name %>")) output = <%- enumtype.name %><%- enumval.name %>;
+<% } %>        }
+<% } %>
+        // <%- api.name %> Classes<%
+for (var typeIdx = 0; typeIdx < sortedClasses.length; typeIdx++) { var datatype = sortedClasses[typeIdx]; %>
+        struct <%- datatype.name %> : public <%- GetBaseType(datatype) %>
+        {
+<% for (var propIdx = 0; propIdx < datatype.properties.length; propIdx++) { var property = datatype.properties[propIdx];
+%><%- GetPropertyDefinition("            ", property, datatype) %>
+<% } %>
+            <%- datatype.name %>() :
+                <%- GetBaseType(datatype) %>()<%
+for (var propIdx = 0; propIdx < datatype.properties.length; propIdx++) { var property = datatype.properties[propIdx];
+%>,
+                <%- GetPropertySafeName(property) %>()<% } %>
+            {}
+
+            <%- datatype.name %>(const <%- datatype.name %>& src) :
+                <%- GetBaseType(datatype) %>()<%
+for (var propIdx = 0; propIdx < datatype.properties.length; propIdx++) { var property = datatype.properties[propIdx];
+%>,
+                <%- GetPropertySafeName(property) %>(src.<%- GetPropertySafeName(property) %>)<% } %>
+            {}
+
+            ~<%- datatype.name %>() { }
+
+            void FromJson(web::json::value& input) override
+            {
+<% for (var propIdx = 0; propIdx < datatype.properties.length; propIdx++) { var property = datatype.properties[propIdx];
+%><%- GetPropertyFromJson("                ", property, datatype) %>
+<% } %>            }
+
+            web::json::value ToJson() const override
+            {
+                web::json::value output;
+<% for (var propIdx = 0; propIdx < datatype.properties.length; propIdx++) { var property = datatype.properties[propIdx];
+%><%- GetPropertyToJson("                ", property, datatype) %>
+<% } %>                return output;
+            }
+        };
+<% } %>
+    }
+}
+
+#endif

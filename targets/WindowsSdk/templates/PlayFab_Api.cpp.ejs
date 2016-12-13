@@ -1,0 +1,71 @@
+<% if (api.name === "Client") { %>
+#ifndef <%- GetApiDefine(api) %>
+<% } else { %>
+#ifdef <%- GetApiDefine(api) %>
+<% } %>
+#include "playfab/PlayFab<%- api.name %>Api.h"
+#include "playfab/PlayFabHttp.h"
+#include "playfab/PlayFabSettings.h"
+
+namespace PlayFab
+{
+    using namespace <%- api.name %>Models;
+
+    size_t PlayFab<%- api.name %>API::Update()
+    {
+        return PlayFabHttp::Get().Update();
+    }
+
+    // PlayFab<%- api.name %> APIs
+<% for (var callIdx = 0; callIdx < api.calls.length; callIdx++) { var apiCall = api.calls[callIdx]; %>
+    void PlayFab<%- api.name %>API::<%- apiCall.name %>(
+        <%- apiCall.request %>& request,
+        ProcessApiCallback<<%- apiCall.result %>> callback,
+        ErrorCallback errorCallback,
+        void* customData
+    )
+    {
+<%- GetRequestActions("        ", apiCall, api) %>
+        IPlayFabHttp& http = IPlayFabHttp::Get();
+        auto requestJson = request.ToJson();
+        http.AddRequest(U("<%- apiCall.url %>"), <%- GetAuthParams(apiCall) %>, requestJson, On<%- apiCall.name %>Result, callback, errorCallback, customData);
+    }
+
+    void PlayFab<%- api.name %>API::On<%- apiCall.name %>Result(CallRequestContainer& request)
+    {
+        <%- apiCall.result %> outResult;
+        outResult.FromJson(request.errorWrapper.Data);
+<%- GetResultActions("        ", apiCall, api) %>
+        if (request.successCallback != nullptr)
+        {
+            ProcessApiCallback<<%- apiCall.result %>> successCallback = reinterpret_cast<ProcessApiCallback<<%- apiCall.result %>>>(request.successCallback);
+            successCallback(outResult, request.customData);
+        }
+    }
+<% } %><% if (api.name === "Client") { %>
+    // Private PlayFabClientAPI specific
+
+    utility::string_t PlayFabClientAPI::mUserSessionTicket;
+
+    bool PlayFabClientAPI::IsClientLoggedIn()
+    {
+        return !mUserSessionTicket.empty();
+    }
+
+    void PlayFabClientAPI::MultiStepClientLogin(bool needsAttribution)
+    {
+        if (needsAttribution && !PlayFabSettings::disableAdvertising && PlayFabSettings::advertisingIdType.length() > 0 && PlayFabSettings::advertisingIdValue.length() > 0)
+        {
+            AttributeInstallRequest request;
+            if (PlayFabSettings::advertisingIdType == PlayFabSettings::AD_TYPE_IDFA)
+                request.Idfa = ShortenString(PlayFabSettings::advertisingIdValue);
+            else if (PlayFabSettings::advertisingIdType == PlayFabSettings::AD_TYPE_ANDROID_ID)
+                request.Adid = ShortenString(PlayFabSettings::advertisingIdValue);
+            else
+                return;
+            AttributeInstall(request, nullptr, nullptr);
+        }
+    }
+<% } %>}
+
+#endif

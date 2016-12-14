@@ -4,6 +4,7 @@
 #include "playfab/PlayFabServerDataModels.h"
 #include "playfab/PlayFabServerApi.h"
 #include "playfab/PlayFabSettings.h"
+#include "Windows.h"
 
 using namespace Microsoft::VisualStudio::CppUnitTestFramework;
 using namespace std;
@@ -14,40 +15,22 @@ namespace UnittestRunner
 {
     TEST_CLASS(PlayFabServerTest)
     {
-        // Functional
         static bool TITLE_INFO_SET;
-
-        // Fixed values provided from testInputs
-        static string USER_EMAIL;
-
-        // Information fetched by appropriate API calls
-        static string playFabId;
-
-        static const int TEST_STAT_BASE;
-        static const string TEST_STAT_NAME;
-        static const string TEST_TITLE_DATA_LOC;
-        static const string TEST_DATA_KEY_1;
-        static const string TEST_DATA_KEY_2;
-
-        // Variables for specific tests
+        static string TEST_TITLE_DATA_LOC;
         static string testMessageReturn;
-        static Int32 testMessageInt;
-        static time_t testMessageTime;
-        static bool testMessageBool;
 
     public:
         /// <summary>
         /// PlayFab Title cannot be created from SDK tests, so you must provide your titleId to run unit tests.
         /// (Also, we don't want lots of excess unused titles)
         /// </summary>
-        static void SetTitleInfo()
+        static void SetTitleInfo(web::json::value titleData)
         {
             TITLE_INFO_SET = true;
 
             // Parse all the inputs
-            PlayFabSettings::titleId = WidenString("6195");
-            PlayFabSettings::developerSecretKey = WidenString("asdf");
-            USER_EMAIL = "paul@playfab.com";
+            PlayFabSettings::titleId = titleData[U("titleId")].as_string();
+            PlayFabSettings::developerSecretKey = titleData[U("developerSecretKey")].as_string();
 
             // Verify all the inputs won't cause crashes in the tests
             TITLE_INFO_SET = true;
@@ -55,7 +38,32 @@ namespace UnittestRunner
 
         TEST_CLASS_INITIALIZE(ClassInitialize)
         {
-            SetTitleInfo();
+            if (TITLE_INFO_SET)
+                return;
+
+            // Prefer to load path from environment variable, if present
+            char* envPath = getenv("PF_TEST_TITLE_DATA_JSON");
+            if (envPath != nullptr)
+                TEST_TITLE_DATA_LOC = envPath;
+
+            ifstream titleInput;
+            titleInput.open(TEST_TITLE_DATA_LOC, ios::binary | ios::in);
+            if (titleInput)
+            {
+                auto begin = titleInput.tellg();
+                titleInput.seekg(0, ios::end);
+                auto end = titleInput.tellg();
+                int size = static_cast<int>(end - begin);
+                char* titleJson = new char[size + 1];
+                titleInput.seekg(0, ios::beg);
+                titleInput.read(titleJson, size);
+                titleJson[size] = '\0';
+
+                auto titleData = web::json::value::parse(WidenString(titleJson));
+                SetTitleInfo(titleData);
+
+                delete[] titleJson;
+            }
         }
         TEST_CLASS_CLEANUP(ClassCleanup)
         {
@@ -64,12 +72,12 @@ namespace UnittestRunner
         static void PlayFabApiWait()
         {
             testMessageReturn = "pending";
-            int count = 1, sleepCount = 0;
+            size_t count = 1, sleepCount = 0;
             while (count != 0)
             {
                 count = PlayFabServerAPI::Update();
                 sleepCount++;
-                _sleep(1);
+                Sleep(1);
             }
             // Assert::IsTrue(sleepCount < 20); // The API call shouldn't take too long
         }
@@ -95,7 +103,7 @@ namespace UnittestRunner
         {
             ExecuteCloudScriptServerRequest hwRequest;
             hwRequest.FunctionName = "helloWorld";
-            playFabId = hwRequest.PlayFabId = "1337D00D";
+            string playFabId = hwRequest.PlayFabId = "1337D00D";
             PlayFabServerAPI::ExecuteCloudScript(hwRequest, &CloudHelloWorldCallback, &SharedFailedCallback, nullptr);
             PlayFabApiWait();
 
@@ -116,23 +124,10 @@ namespace UnittestRunner
 
     bool PlayFabServerTest::TITLE_INFO_SET = false;
 
-    // Fixed values provided from testInputs
-    string PlayFabServerTest::USER_EMAIL;
-
-    // Information fetched by appropriate API calls
-    string PlayFabServerTest::playFabId;
-
-    const int PlayFabServerTest::TEST_STAT_BASE = 10;
-    const string PlayFabServerTest::TEST_STAT_NAME = "str";
-    const string PlayFabServerTest::TEST_TITLE_DATA_LOC = "C:/depot/pf-main/tools/SDKBuildScripts/testTitleData.json"; // TODO: Convert hard coded path to a relative path that always works (harder than it sounds when the unittests are run from multiple working directories)
-    const string PlayFabServerTest::TEST_DATA_KEY_1 = "testCounter";
-    const string PlayFabServerTest::TEST_DATA_KEY_2 = "deleteCounter";
+    string PlayFabServerTest::TEST_TITLE_DATA_LOC = "C:/depot/pf-main/tools/SDKBuildScripts/testTitleData.json"; // TODO: Convert hard coded path to a relative path that always works (harder than it sounds when the unittests are run from multiple working directories)
 
     // Variables for specific tests
     string PlayFabServerTest::testMessageReturn;
-    Int32 PlayFabServerTest::testMessageInt;
-    time_t PlayFabServerTest::testMessageTime;
-    bool PlayFabServerTest::testMessageBool;
 }
 
 #endif

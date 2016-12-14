@@ -1,6 +1,10 @@
 #ifndef DISABLE_PLAYFABCLIENT_API
 
 #include "CppUnitTest.h"
+#include <Windows.h>
+#include <stdlib.h>
+#include <fstream>
+
 #include "playfab/PlayFabClientDataModels.h"
 #include "playfab/PlayFabClientApi.h"
 #include "playfab/PlayFabSettings.h"
@@ -25,7 +29,7 @@ namespace UnittestRunner
 
         static const int TEST_STAT_BASE;
         static const string TEST_STAT_NAME;
-        static const string TEST_TITLE_DATA_LOC;
+        static string TEST_TITLE_DATA_LOC;
         static const string TEST_DATA_KEY_1;
         static const string TEST_DATA_KEY_2;
 
@@ -40,13 +44,11 @@ namespace UnittestRunner
         /// PlayFab Title cannot be created from SDK tests, so you must provide your titleId to run unit tests.
         /// (Also, we don't want lots of excess unused titles)
         /// </summary>
-        static void SetTitleInfo()
+        static void SetTitleInfo(web::json::value titleData)
         {
-            TITLE_INFO_SET = true;
-
             // Parse all the inputs
-            PlayFabSettings::titleId = WidenString("6195");
-            USER_EMAIL = "paul@playfab.com";
+            PlayFabSettings::titleId = titleData[U("titleId")].as_string();
+            USER_EMAIL = ShortenString(titleData[U("userEmail")].as_string());
 
             // Verify all the inputs won't cause crashes in the tests
             TITLE_INFO_SET = true;
@@ -54,7 +56,32 @@ namespace UnittestRunner
 
         TEST_CLASS_INITIALIZE(ClassInitialize)
         {
-            SetTitleInfo();
+            if (TITLE_INFO_SET)
+                return;
+
+            // Prefer to load path from environment variable, if present
+            char* envPath = getenv("PF_TEST_TITLE_DATA_JSON");
+            if (envPath != nullptr)
+                TEST_TITLE_DATA_LOC = envPath;
+
+            ifstream titleInput;
+            titleInput.open(TEST_TITLE_DATA_LOC, ios::binary | ios::in);
+            if (titleInput)
+            {
+                auto begin = titleInput.tellg();
+                titleInput.seekg(0, ios::end);
+                auto end = titleInput.tellg();
+                int size = static_cast<int>(end - begin);
+                char* titleJson = new char[size + 1];
+                titleInput.seekg(0, ios::beg);
+                titleInput.read(titleJson, size);
+                titleJson[size] = '\0';
+
+                auto titleData = web::json::value::parse(WidenString(titleJson));
+                SetTitleInfo(titleData);
+
+                delete[] titleJson;
+            }
         }
         TEST_CLASS_CLEANUP(ClassCleanup)
         {
@@ -63,12 +90,12 @@ namespace UnittestRunner
         static void PlayFabApiWait()
         {
             testMessageReturn = "pending";
-            int count = 1, sleepCount = 0;
+            size_t count = 1, sleepCount = 0;
             while (count != 0)
             {
                 count = PlayFabClientAPI::Update();
                 sleepCount++;
-                _sleep(1);
+                Sleep(1);
             }
             // Assert::IsTrue(sleepCount < 20); // The API call shouldn't take too long
         }
@@ -208,7 +235,6 @@ namespace UnittestRunner
                                // Define some of the containers we use in this test
             GetUserDataRequest getRequest;
             UpdateUserDataRequest updateRequest1, updateRequest2;
-            char buffer[12];
             int testCounterValueActual;
 
             PlayFabClientAPI::GetUserData(getRequest, &GetDataCallback, &SharedFailedCallback, nullptr);
@@ -216,7 +242,7 @@ namespace UnittestRunner
             Assert::IsTrue(testMessageReturn.compare("GetData_Success") == 0, L"Check that GetUserData was successful");
             int testCounterValueExpected = (testMessageInt + 1) % 100; // This test is about the expected value changing - but not testing more complicated issues like bounds
 
-            updateRequest1.Data[TEST_DATA_KEY_1] = string(itoa(testCounterValueExpected, buffer, 10));
+            updateRequest1.Data[TEST_DATA_KEY_1] = to_string(testCounterValueExpected);
             updateRequest1.Data[TEST_DATA_KEY_2] = string("This is trash");
             PlayFabClientAPI::UpdateUserData(updateRequest1, &UpdateDataCallback, &SharedFailedCallback, nullptr);
             PlayFabApiWait();
@@ -241,7 +267,9 @@ namespace UnittestRunner
             Assert::IsFalse(testMessageBool, L"Check if TEST_DATA_KEY_2 is removed"); // TEST_DATA_KEY_2 is removed
 
             time_t now = time(nullptr);
-            now = mktime(gmtime(&now));
+            struct tm timeInfo;
+            gmtime_s(&timeInfo, &now);
+            now = mktime(&timeInfo);
             time_t minTime = now - (60 * 5);
             time_t maxTime = now + (60 * 5);
             Assert::IsTrue(minTime <= testMessageTime && testMessageTime <= maxTime);
@@ -475,7 +503,7 @@ namespace UnittestRunner
 
     const int PlayFabClientTest::TEST_STAT_BASE = 10;
     const string PlayFabClientTest::TEST_STAT_NAME = "str";
-    const string PlayFabClientTest::TEST_TITLE_DATA_LOC = "C:/depot/pf-main/tools/SDKBuildScripts/testTitleData.json"; // TODO: Convert hard coded path to a relative path that always works (harder than it sounds when the unittests are run from multiple working directories)
+    string PlayFabClientTest::TEST_TITLE_DATA_LOC = "C:/depot/pf-main/tools/SDKBuildScripts/testTitleData.json"; // TODO: Convert hard coded path to a relative path that always works (harder than it sounds when the unittests are run from multiple working directories)
     const string PlayFabClientTest::TEST_DATA_KEY_1 = "testCounter";
     const string PlayFabClientTest::TEST_DATA_KEY_2 = "deleteCounter";
 

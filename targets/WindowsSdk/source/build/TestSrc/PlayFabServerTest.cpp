@@ -97,7 +97,7 @@ namespace UnittestRunner
             testMessageReturn += "\n";
             testMessageReturn += error.GenerateReport();
             testMessageReturn += "\n";
-            testMessageReturn += ShortenString(error.Request.to_string());
+            testMessageReturn += ShortenString(error.Request.serialize());
         }
 
         /// <summary>

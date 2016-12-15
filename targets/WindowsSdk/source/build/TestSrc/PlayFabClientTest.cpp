@@ -1,9 +1,8 @@
 #ifndef DISABLE_PLAYFABCLIENT_API
 
 #include "CppUnitTest.h"
-#include <Windows.h>
-#include <stdlib.h>
-#include <fstream>
+#include <stdlib.h> // _dupenv_s
+#include <Windows.h> // Sleep()
 
 #include "playfab/PlayFabClientDataModels.h"
 #include "playfab/PlayFabClientApi.h"
@@ -60,9 +59,12 @@ namespace UnittestRunner
                 return;
 
             // Prefer to load path from environment variable, if present
-            char* envPath = getenv("PF_TEST_TITLE_DATA_JSON");
-            if (envPath != nullptr)
+            char* envPath = nullptr;
+            size_t envPathStrLen;
+            errno_t err = _dupenv_s(&envPath, &envPathStrLen, "PF_TEST_TITLE_DATA_JSON");
+            if (err == 0)
                 TEST_TITLE_DATA_LOC = envPath;
+            free(envPath); // It's OK to call free with NULL
 
             ifstream titleInput;
             titleInput.open(TEST_TITLE_DATA_LOC, ios::binary | ios::in);

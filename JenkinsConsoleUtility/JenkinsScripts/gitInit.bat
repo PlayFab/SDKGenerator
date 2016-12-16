@@ -1,0 +1,25 @@
+echo off
+setlocal
+if "%1"=="" (
+    set gitTarget=%AUTOMATED_GIT_REPO%
+) ELSE (
+    set gitTarget=%1
+)
+
+rem === Clean the %gitTarget% branch for %SdkName% ===
+cd C:\depot\sdks\%SdkName%
+git checkout master
+git pull origin master
+
+IF "%gitTarget%" NEQ "master" (
+    IF "%PublishToGit%"=="true" (
+        git branch -D %gitTarget%
+        git checkout -b %gitTarget%
+        git push origin %gitTarget% -f -u
+    ) else (
+        git checkout -b %gitTarget%
+        git checkout %gitTarget%
+    )
+)
+
+endlocal

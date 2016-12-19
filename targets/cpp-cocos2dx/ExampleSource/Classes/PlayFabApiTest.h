@@ -330,13 +330,15 @@ namespace PlayFabApiTest
             // Comment the "return false;" below, and
             //   Fill in all the variables under: POPULATE THIS SECTION WITH REAL INFORMATION
 
+#if (CC_TARGET_PLATFORM == CC_PLATFORM_WIN32) // Env vars are only available on Win32
             // Prefer to load path from environment variable, if present
             char* envPath = nullptr;
             size_t envPathStrLen;
             errno_t err = _dupenv_s(&envPath, &envPathStrLen, "PF_TEST_TITLE_DATA_JSON");
             if (err == 0)
-                TEST_TITLE_DATA_LOC = envPath;
+                TEST_TITLE_DATA_LOC = envPath; // If exists, reset path to env var
             free(envPath); // It's OK to call free with NULL
+#endif
 
             std::ifstream titleInput;
             titleInput.open(TEST_TITLE_DATA_LOC, std::ios::binary | std::ios::in);

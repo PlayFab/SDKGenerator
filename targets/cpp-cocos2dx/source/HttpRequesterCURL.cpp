@@ -24,7 +24,7 @@ void HttpRequesterCURL::AddRequest(HttpRequest* request, RequestCompleteCallback
     std::vector<std::string> rArrHeaders;
 
     std::string sHeader;
-    for (ssize_t tIndex = 0; tIndex < request->GetHeaderCount(); tIndex++)
+    for (size_t tIndex = 0; tIndex < request->GetHeaderCount(); tIndex++)
     {
         if (request->GetHeader(tIndex, sHeader))
             rArrHeaders.push_back(sHeader);
@@ -74,7 +74,8 @@ std::string HttpRequesterCURL::getDataFromResponse(cocos2d::network::HttpRespons
 
     size_t tSize = pResponse->getResponseData()->size();
     char* pData = reinterpret_cast<char*>(malloc(sizeof(char*) * (tSize + 1))); // +1 for the extra \0 character
-    memcpy(pData, &(*pResponse->getResponseData())[0], tSize);
+    if (tSize)
+        memcpy(pData, &(*pResponse->getResponseData())[0], tSize);
     pData[tSize] = 0;
     sRetValue = pData;
     free(pData);

@@ -29,16 +29,17 @@
                 name: testName,
                 time: testDuration / 1000.0,
                 message: testMessage,
-                failureText: null
+                failureText: null,
+                finishState: null
             };
 
             switch (testResult)
             {
-                case ASyncUnitTestEvent.RESULT_SKIPPED: testReport.failureText = "SKIPPED"; break;
-                case ASyncUnitTestEvent.RESULT_ERROR: testReport.failureText = "ERROR"; break;
-                case ASyncUnitTestEvent.RESULT_FAILED: testReport.failureText = "FAILED"; break;
-                case ASyncUnitTestEvent.RESULT_TIMED_OUT: testReport.failureText = "TIMED_OUT"; break;
-                case ASyncUnitTestEvent.RESULT_PASSED: testReport.failureText = null; break;
+                case ASyncUnitTestEvent.RESULT_SKIPPED: testReport.finishState = testReport.failureText = "SKIPPED"; break;
+                case ASyncUnitTestEvent.RESULT_ERROR: testReport.finishState = testReport.failureText = "ERROR"; break;
+                case ASyncUnitTestEvent.RESULT_FAILED: testReport.finishState = testReport.failureText = "FAILED"; break;
+                case ASyncUnitTestEvent.RESULT_TIMED_OUT: testReport.finishState = testReport.failureText = "TIMED_OUT"; break;
+                case ASyncUnitTestEvent.RESULT_PASSED: testReport.finishState = "PASSED"; testReport.failureText = null; break;
             }
 
             report.testResults.unshift(testReport);

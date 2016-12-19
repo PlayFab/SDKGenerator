@@ -1,13 +1,26 @@
+setlocal
+echo off
+goto :DoWork
+
+:BuildExample
 pushd ..\..\sdks\Cocos2d-xSDK
-rem === BUILDING Example Project for Cocos2d-xSDK ===
+echo === BUILDING Example Project for Cocos2d-xSDK ===
 rmdir /s /q PlayFabSDKExample
 call cocos new PlayFabSDKExample -l cpp
-
-pushd PlayFabSDKExample
-xcopy ..\PlayFabSDK\* Classes\ /c /f /s /y
-xcopy ..\..\..\SDKGenerator\targets\cpp-cocos2dx\ExampleSource\* . /c /f /s /y
-
+rem --- Fail quickly if the cocos example couldn't be built ---
+set BuildResult=%errorlevel%
+if %BuildResult% EQU 0 (
+    pushd PlayFabSDKExample
+    xcopy ..\PlayFabSDK\* Classes\ /c /f /s /y
+    xcopy ..\..\..\SDKGenerator\targets\cpp-cocos2dx\ExampleSource\* . /c /f /s /y
+)
 popd
 popd
+exit /b %BuildResult%
+
+:DoWork
+call :BuildExample
+rem --- If it failed, try one more time ---
+if %errorlevel% NEQ 0 (call :BuildExample)
 
 pause

@@ -69,6 +69,12 @@ namespace UnittestRunner
 
                 delete[] titleJson;
             }
+            else
+            {
+                // TODO: POPULATE THIS SECTION WITH REAL INFORMATION (or set up a testTitleData file, and set your PF_TEST_TITLE_DATA_JSON to the path for that file)
+                PlayFabSettings::titleId = U(""); // The titleId for your title, found in the "Settings" section of PlayFab Game Manager
+                PlayFabSettings::developerSecretKey = U(""); // The titleId for your title, found in the "Settings" section of PlayFab Game Manager
+            }
         }
         TEST_CLASS_CLEANUP(ClassCleanup)
         {
@@ -129,7 +135,7 @@ namespace UnittestRunner
 
     bool PlayFabServerTest::TITLE_INFO_SET = false;
 
-    string PlayFabServerTest::TEST_TITLE_DATA_LOC = "C:/depot/pf-main/tools/SDKBuildScripts/testTitleData.json"; // TODO: Convert hard coded path to a relative path that always works (harder than it sounds when the unittests are run from multiple working directories)
+    string PlayFabServerTest::TEST_TITLE_DATA_LOC = "testTitleData.json"; // default to local file if PF_TEST_TITLE_DATA_JSON env-var does not exist
 
     // Variables for specific tests
     string PlayFabServerTest::testMessageReturn;

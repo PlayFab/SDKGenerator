@@ -84,6 +84,12 @@ namespace UnittestRunner
 
                 delete[] titleJson;
             }
+            else
+            {
+                // TODO: POPULATE THIS SECTION WITH REAL INFORMATION (or set up a testTitleData file, and set your PF_TEST_TITLE_DATA_JSON to the path for that file)
+                PlayFabSettings::titleId = U(""); // The titleId for your title, found in the "Settings" section of PlayFab Game Manager
+                USER_EMAIL = ""; // This is the email for a valid user (test tries to log into it with an invalid password, and verifies error result)
+            }
         }
         TEST_CLASS_CLEANUP(ClassCleanup)
         {
@@ -505,7 +511,7 @@ namespace UnittestRunner
 
     const int PlayFabClientTest::TEST_STAT_BASE = 10;
     const string PlayFabClientTest::TEST_STAT_NAME = "str";
-    string PlayFabClientTest::TEST_TITLE_DATA_LOC = "C:/depot/pf-main/tools/SDKBuildScripts/testTitleData.json"; // TODO: Convert hard coded path to a relative path that always works (harder than it sounds when the unittests are run from multiple working directories)
+    string PlayFabClientTest::TEST_TITLE_DATA_LOC = "testTitleData.json"; // default to local file if PF_TEST_TITLE_DATA_JSON env-var does not exist
     const string PlayFabClientTest::TEST_DATA_KEY_1 = "testCounter";
     const string PlayFabClientTest::TEST_DATA_KEY_2 = "deleteCounter";
 

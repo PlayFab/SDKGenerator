@@ -24,11 +24,11 @@ namespace PlayFab.UUnit
         private const string TEST_DATA_KEY = "testCounter";
 
         // Functional
-        private static bool EXEC_ONCE = true;
-        private static bool TITLE_INFO_SET = false;
+        private static bool _execOnce = true;
+        private static bool _titleInfoSet = false;
 
         // Fixed values provided from testInputs
-        private static string USER_EMAIL;
+        private static string userEmail;
 
         // Information fetched by appropriate API calls
         public static string PlayFabId;
@@ -44,43 +44,51 @@ namespace PlayFab.UUnit
         {
             string eachValue;
 
-            TITLE_INFO_SET = true;
+            _titleInfoSet = true;
             // Parse all the inputs
-            TITLE_INFO_SET &= testInputs.TryGetValue("titleId", out eachValue);
+            _titleInfoSet &= testInputs.TryGetValue("titleId", out eachValue);
             PlayFabSettings.TitleId = eachValue;
 
-            TITLE_INFO_SET &= testInputs.TryGetValue("userEmail", out USER_EMAIL);
+            _titleInfoSet &= testInputs.TryGetValue("userEmail", out userEmail);
 
             // Verify all the inputs won't cause crashes in the tests
-            TITLE_INFO_SET &= !string.IsNullOrEmpty(PlayFabSettings.TitleId)
-                && !string.IsNullOrEmpty(USER_EMAIL);
+            _titleInfoSet &= !string.IsNullOrEmpty(PlayFabSettings.TitleId)
+                && !string.IsNullOrEmpty(userEmail);
         }
 
         public override void SetUp(UUnitTestContext testContext)
         {
-            if (EXEC_ONCE)
+            if (_execOnce)
             {
                 Dictionary<string, string> testInputs;
-                string filename = "C:/depot/pf-main/tools/SDKBuildScripts/testTitleData.json"; // TODO: Figure out how to not hard code this
+                var filename = "testTitleData.json"; // default to local file if PF_TEST_TITLE_DATA_JSON env-var does not exist
+
+#if UNITY_STANDALONE_WIN
+                // Prefer to load path from environment variable, if present
+                var tempFilename = Environment.GetEnvironmentVariable("PF_TEST_TITLE_DATA_JSON");
+                if (!string.IsNullOrEmpty(tempFilename))
+                    filename = tempFilename;
+#endif
+
                 if (File.Exists(filename))
                 {
-                    string testInputsFile = PlayFabUtil.ReadAllFileText(filename);
+                    var testInputsFile = PlayFabUtil.ReadAllFileText(filename);
 
                     testInputs = JsonWrapper.DeserializeObject<Dictionary<string, string>>(testInputsFile, PlayFabUtil.ApiSerializerStrategy);
                 }
                 else
                 {
-                    // NOTE FOR DEVELOPERS: if you want to run these tests, provide useful defaults, and uncomment this section, or provide a valid path to a "testTitleData.json" file above
+                    // NOTE FOR DEVELOPERS: POPULATE THIS SECTION WITH REAL INFORMATION (or set up a testTitleData file, and set your PF_TEST_TITLE_DATA_JSON to the path for that file)
                     testInputs = new Dictionary<string, string>();
                     //Debug.LogError("Loading testSettings file failed: " + filename + ", loading defaults.");
                     //testInputs["titleId"] = "your title id here";
                     //testInputs["userEmail"] = "yourTest@email.com";
                 }
                 SetTitleInfo(testInputs);
-                EXEC_ONCE = false;
+                _execOnce = false;
             }
 
-            if (!TITLE_INFO_SET)
+            if (!_titleInfoSet)
                 testContext.Skip(); // We cannot do client tests if the titleId is not given
         }
 
@@ -114,7 +122,7 @@ namespace PlayFab.UUnit
             // If the setup failed to log in a user, we need to create one.
             var request = new LoginWithEmailAddressRequest();
             request.TitleId = PlayFabSettings.TitleId;
-            request.Email = USER_EMAIL;
+            request.Email = userEmail;
             request.Password = "INVALID";
             PlayFabClientAPI.LoginWithEmailAddress(request, PlayFabUUnitUtils.ApiActionWrapper<LoginResult>(testContext, InvalidLoginCallback), PlayFabUUnitUtils.ApiActionWrapper<PlayFabError>(testContext, ExpectedLoginErrorCallback), testContext);
         }

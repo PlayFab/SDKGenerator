@@ -23,7 +23,6 @@ var TitleData = {
     // Or you can provide the same structure in a json-file and load with LoadTitleData
     titleId: "",
     developerSecretKey: "",
-    titleCanUpdateSettings: "",
     userEmail: "",
     characterName: ""
 };
@@ -116,7 +115,6 @@ exports.PlayFabApiTests = {
             // All of these must exist for the TitleData load to be successful
             var titleDataValid = inputTitleData.hasOwnProperty("titleId") 
             && inputTitleData.hasOwnProperty("developerSecretKey") 
-            && inputTitleData.hasOwnProperty("titleCanUpdateSettings") 
             && inputTitleData.hasOwnProperty("userEmail") 
             && inputTitleData.hasOwnProperty("characterName");
             

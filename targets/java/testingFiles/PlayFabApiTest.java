@@ -25,7 +25,6 @@ public class PlayFabApiTest
     // Fixed values provided from testInputs
     private static String USER_EMAIL;
     private static String CHAR_NAME;
-    private static boolean TITLE_CAN_UPDATE_SETTINGS;
 
     // Cached values
     private static String playFabId = null;
@@ -67,7 +66,6 @@ public class PlayFabApiTest
     {
         public String titleId;
         public String developerSecretKey;
-        public String titleCanUpdateSettings;
         public String userEmail;
         public String characterName;
     }
@@ -88,7 +86,6 @@ public class PlayFabApiTest
             // NOTE: Un-Comment and put your title-specific information here to test your title, or use PF_TEST_TITLE_DATA_JSON above
             //PlayFabSettings.TitleId = "TODO: TitleID";
             //PlayFabSettings.DeveloperSecretKey = "TODO: A big long secret key that you should NEVER publish with your client";
-            //TITLE_CAN_UPDATE_SETTINGS = false; // TODO: Set to true if you've enabled this in your title.
             //USER_EMAIL = "TODO: an email associated with an existing account on your title";
             //CHAR_NAME = "TODO: a test character (make this up for yourself)";
             return;
@@ -97,7 +94,6 @@ public class PlayFabApiTest
         TitleData resultData = gson.fromJson(testTitleJson, new TypeToken<TitleData>(){}.getType());
         PlayFabSettings.TitleId = resultData.titleId;
         PlayFabSettings.DeveloperSecretKey = resultData.developerSecretKey;
-        TITLE_CAN_UPDATE_SETTINGS = Boolean.parseBoolean(resultData.titleCanUpdateSettings);
         USER_EMAIL = resultData.userEmail;
         CHAR_NAME = resultData.characterName;
     }

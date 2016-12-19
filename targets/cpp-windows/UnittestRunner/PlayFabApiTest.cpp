@@ -36,7 +36,6 @@ namespace UnittestRunner
 {
     // Functional
     bool TITLE_INFO_SET = false;
-    bool TITLE_CAN_UPDATE_SETTINGS = false;
 
     // Fixed values provided from testInputs
     string USER_EMAIL;
@@ -76,11 +75,6 @@ namespace UnittestRunner
             if (each != end) PlayFabSettings::titleId = each->value.GetString(); else TITLE_INFO_SET = false;
             each = testInputs.FindMember("developerSecretKey");
             if (each != end) PlayFabSettings::developerSecretKey = each->value.GetString(); else TITLE_INFO_SET = false;
-
-            string blah;
-            each = testInputs.FindMember("titleCanUpdateSettings");
-            if (each != end) blah = each->value.GetString(); else TITLE_INFO_SET = false;
-            TITLE_CAN_UPDATE_SETTINGS = (blah.compare("true") == 0 || blah.compare("True") == 0 || blah.compare("TRUE") == 0);
 
             each = testInputs.FindMember("userEmail");
             if (each != end) USER_EMAIL = each->value.GetString(); else TITLE_INFO_SET = false;

@@ -161,7 +161,6 @@ private:
     // A bunch of constants loaded from testTitleData.json
     static Aws::String titleId;
     static Aws::String developerSecretKey;
-    static Aws::String titleCanUpdateSettings;
     static Aws::String userName;
     static Aws::String userEmail;
     static Aws::String userPassword;
@@ -207,7 +206,6 @@ private:
 
             // POPULATE THIS SECTION WITH REAL INFORMATION
             playFabSettings->titleId = ""; // The titleId for your title, found in the "Settings" section of PlayFab Game Manager
-            TITLE_CAN_UPDATE_SETTINGS = true; // Make sure this is enabled in your title, found in the "Settings" section, "API Features" section of PlayFab Game Manager
             userName = ""; // This is an arbitrary user name, which will be utilized for this test
             userEmail = ""; // This is the email for the user
             userPassword = ""; // This is the password for the user
@@ -233,11 +231,6 @@ private:
         auto end = testInputs.MemberEnd();
         auto each = testInputs.FindMember("titleId");
         if (each != end) playFabSettings->titleId = each->value.GetString();
-
-        string blah;
-        each = testInputs.FindMember("titleCanUpdateSettings");
-        if (each != end) blah = each->value.GetString();
-        TITLE_CAN_UPDATE_SETTINGS = (blah.compare("true") == 0 || blah.compare("True") == 0 || blah.compare("TRUE") == 0);
 
         each = testInputs.FindMember("userName");
         if (each != end) userName = each->value.GetString();
@@ -304,7 +297,6 @@ Aws::String PlayFabApiTests::userName;
 Aws::String PlayFabApiTests::userEmail;
 Aws::String PlayFabApiTests::userPassword;
 Aws::String PlayFabApiTests::characterName;
-bool PlayFabApiTests::TITLE_CAN_UPDATE_SETTINGS = false;
 const Aws::String PlayFabApiTests::TEST_DATA_KEY = "testCounter";
 const Aws::String PlayFabApiTests::TEST_STAT_NAME = "str";
 std::list<PfTestContext*> PlayFabApiTests::testContexts;

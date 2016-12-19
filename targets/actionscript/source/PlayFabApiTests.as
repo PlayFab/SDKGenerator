@@ -30,7 +30,6 @@ package
         // Functional
         private static var EXEC_ONCE:Boolean = true;
         private static var TITLE_INFO_SET:Boolean = false;
-        private static var TITLE_CAN_UPDATE_SETTINGS:Boolean = false;
 
         // Fixed values provided from testInputs
         private static var USER_EMAIL:String;
@@ -87,13 +86,11 @@ package
 
             PlayFabSettings.TitleId = testTitleData.titleId;
             PlayFabSettings.DeveloperSecretKey = testTitleData.developerSecretKey;
-            TITLE_CAN_UPDATE_SETTINGS = testTitleData.titleCanUpdateSettings.toLowerCase() == "true";
             USER_EMAIL = testTitleData.userEmail;
 
             TITLE_INFO_SET = Boolean(PlayFabSettings.TitleId)
                 || Boolean(PlayFabSettings.TitleId)
                 || Boolean(PlayFabSettings.DeveloperSecretKey)
-                || Boolean(TITLE_CAN_UPDATE_SETTINGS)
                 || Boolean(USER_EMAIL);
             return TITLE_INFO_SET;
         }

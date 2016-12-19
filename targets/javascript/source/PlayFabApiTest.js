@@ -16,7 +16,6 @@ var PlayFabApiTests = {
     titleData: {
         titleId: null, // put titleId here
         developerSecretKey: null, // put secretKey here
-        titleCanUpdateSettings: "true",
         userEmail: "put valid email associated with an existing account here",
         characterName: "put any character name here"
     },
@@ -79,7 +78,6 @@ var PlayFabApiTests = {
         // All of these must exist for the titleData load to be successful
         var titleDataValid = inputTitleData.hasOwnProperty("titleId") && inputTitleData.titleId != null 
         && inputTitleData.hasOwnProperty("developerSecretKey") && inputTitleData.developerSecretKey != null 
-        && inputTitleData.hasOwnProperty("titleCanUpdateSettings") 
         && inputTitleData.hasOwnProperty("userEmail") 
         && inputTitleData.hasOwnProperty("characterName");
         

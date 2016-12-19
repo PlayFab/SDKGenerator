@@ -26,7 +26,6 @@ namespace PlayFab.UUnit
         // Functional
         private static bool EXEC_ONCE = true;
         private static bool TITLE_INFO_SET = false;
-        private static bool TITLE_CAN_UPDATE_SETTINGS = false;
 
         // Fixed values provided from testInputs
         private static string USER_EMAIL;
@@ -49,9 +48,6 @@ namespace PlayFab.UUnit
             // Parse all the inputs
             TITLE_INFO_SET &= testInputs.TryGetValue("titleId", out eachValue);
             PlayFabSettings.TitleId = eachValue;
-
-            TITLE_INFO_SET &= testInputs.TryGetValue("titleCanUpdateSettings", out eachValue);
-            TITLE_INFO_SET &= bool.TryParse(eachValue, out TITLE_CAN_UPDATE_SETTINGS);
 
             TITLE_INFO_SET &= testInputs.TryGetValue("userEmail", out USER_EMAIL);
 
@@ -78,7 +74,6 @@ namespace PlayFab.UUnit
                     testInputs = new Dictionary<string, string>();
                     //Debug.LogError("Loading testSettings file failed: " + filename + ", loading defaults.");
                     //testInputs["titleId"] = "your title id here";
-                    //testInputs["titleCanUpdateSettings"] = "true"; // These tests require a GameManager setting: clients must be able to set stats and userData
                     //testInputs["userEmail"] = "yourTest@email.com";
                 }
                 SetTitleInfo(testInputs);
@@ -235,12 +230,6 @@ namespace PlayFab.UUnit
         [UUnitTest]
         public void UserDataApi(UUnitTestContext testContext)
         {
-            if (!TITLE_CAN_UPDATE_SETTINGS)
-            {
-                testContext.EndTest(UUnitFinishState.SKIPPED, "This title cannot update statistics from the client");
-                return;
-            }
-
             var getRequest = new GetUserDataRequest();
             PlayFabClientAPI.GetUserData(getRequest, PlayFabUUnitUtils.ApiActionWrapper<GetUserDataResult>(testContext, GetUserDataCallback1), PlayFabUUnitUtils.ApiActionWrapper<PlayFabError>(testContext, SharedErrorCallback), testContext);
         }
@@ -300,12 +289,6 @@ namespace PlayFab.UUnit
         [UUnitTest]
         public void PlayerStatisticsApi(UUnitTestContext testContext)
         {
-            if (!TITLE_CAN_UPDATE_SETTINGS)
-            {
-                testContext.EndTest(UUnitFinishState.SKIPPED, "This title cannot update statistics from the client");
-                return;
-            }
-
             var getRequest = new GetPlayerStatisticsRequest();
             PlayFabClientAPI.GetPlayerStatistics(getRequest, PlayFabUUnitUtils.ApiActionWrapper<GetPlayerStatisticsResult>(testContext, GetPlayerStatsCallback1), PlayFabUUnitUtils.ApiActionWrapper<PlayFabError>(testContext, SharedErrorCallback), testContext);
         }

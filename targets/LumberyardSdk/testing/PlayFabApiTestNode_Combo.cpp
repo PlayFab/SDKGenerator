@@ -179,7 +179,6 @@ private:
     static Aws::String userEmail;
     static Aws::String userPassword;
     static Aws::String characterName;
-    static bool TITLE_CAN_UPDATE_SETTINGS;
     const static Aws::String TEST_DATA_KEY;
     const static Aws::String TEST_STAT_NAME;
     static Aws::String playFabId;
@@ -222,7 +221,6 @@ private:
             // POPULATE THIS SECTION WITH REAL INFORMATION
             playFabSettings->titleId = ""; // The titleId for your title, found in the "Settings" section of PlayFab Game Manager
             playFabSettings->developerSecretKey = ""; // The titleId for your title, found in the "Settings" section of PlayFab Game Manager
-            TITLE_CAN_UPDATE_SETTINGS = true; // Make sure this is enabled in your title, found in the "Settings" section, "API Features" section of PlayFab Game Manager
             userName = ""; // This is an arbitrary user name, which will be utilized for this test
             userEmail = ""; // This is the email for the user
             userPassword = ""; // This is the password for the user
@@ -251,11 +249,6 @@ private:
         if (each != end) playFabSettings->titleId = each->value.GetString();
         each = testInputs.FindMember("developerSecretKey");
         if (each != end) playFabSettings->developerSecretKey = each->value.GetString();
-
-        string blah;
-        each = testInputs.FindMember("titleCanUpdateSettings");
-        if (each != end) blah = each->value.GetString();
-        TITLE_CAN_UPDATE_SETTINGS = (blah.compare("true") == 0 || blah.compare("True") == 0 || blah.compare("TRUE") == 0);
 
         each = testInputs.FindMember("userName");
         if (each != end) userName = each->value.GetString();
@@ -483,11 +476,6 @@ private:
             EndTest(testContext, SKIPPED, "Earlier tests failed to log in");
             return;
         }
-        if (!TITLE_CAN_UPDATE_SETTINGS)
-        {
-            EndTest(testContext, SKIPPED, "Can't modify stats from the client");
-            return;
-        }
 
         clientApi->GetUserStatistics(OnUserStatisticsApiGet1, OnSharedError, &testContext);
     }
@@ -653,7 +641,6 @@ Aws::String PlayFabApiTests::userName;
 Aws::String PlayFabApiTests::userEmail;
 Aws::String PlayFabApiTests::userPassword;
 Aws::String PlayFabApiTests::characterName;
-bool PlayFabApiTests::TITLE_CAN_UPDATE_SETTINGS = false;
 const Aws::String PlayFabApiTests::TEST_DATA_KEY = "testCounter";
 const Aws::String PlayFabApiTests::TEST_STAT_NAME = "str";
 std::list<PfTestContext*> PlayFabApiTests::testContexts;

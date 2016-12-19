@@ -23,7 +23,6 @@ namespace PlayFab.UUnit
 
         // Functional
         private static bool TITLE_INFO_SET = false;
-        private static bool TITLE_CAN_UPDATE_SETTINGS = false;
 
         // Fixed values provided from testInputs
         private static string USER_EMAIL;
@@ -47,9 +46,6 @@ namespace PlayFab.UUnit
             PlayFabDefaultSettings.TitleId = eachValue;
             TITLE_INFO_SET &= testInputs.TryGetValue("developerSecretKey", out eachValue);
             PlayFabDefaultSettings.DeveloperSecretKey = eachValue;
-
-            TITLE_INFO_SET &= testInputs.TryGetValue("titleCanUpdateSettings", out eachValue);
-            TITLE_INFO_SET &= bool.TryParse(eachValue, out TITLE_CAN_UPDATE_SETTINGS);
 
             TITLE_INFO_SET &= testInputs.TryGetValue("userEmail", out USER_EMAIL);
 
@@ -273,16 +269,6 @@ namespace PlayFab.UUnit
             {
                 failed = true;
                 failedMessage = ex.Message;
-            }
-
-            // Test update result - no data returned, so error or no error, based on Title settings
-            if (!TITLE_CAN_UPDATE_SETTINGS)
-            {
-                UUnitAssert.True(failed, failedMessage);
-            }
-            else
-            {
-                UUnitAssert.False(failed, failedMessage);
             }
 
             var getStatTask2 = Client.GetPlayerStatisticsAsync();

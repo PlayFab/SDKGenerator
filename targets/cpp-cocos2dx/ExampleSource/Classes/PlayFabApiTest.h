@@ -223,6 +223,7 @@ namespace PlayFabApiTest
             if (setupSuccessful)
             {
                 testContexts.insert(testContexts.end(), new PfTestContext("InvalidLogin", InvalidLogin));
+                testContexts.insert(testContexts.end(), new PfTestContext("InvalidLoginLambda", InvalidLoginLambda));
                 testContexts.insert(testContexts.end(), new PfTestContext("InvalidRegistration", InvalidRegistration));
                 testContexts.insert(testContexts.end(), new PfTestContext("LoginOrRegister", LoginOrRegister));
                 testContexts.insert(testContexts.end(), new PfTestContext("LoginWithAdvertisingId", LoginWithAdvertisingId));
@@ -231,6 +232,7 @@ namespace PlayFabApiTest
                 testContexts.insert(testContexts.end(), new PfTestContext("UserCharacter", UserCharacter));
                 testContexts.insert(testContexts.end(), new PfTestContext("LeaderBoard", LeaderBoard));
                 testContexts.insert(testContexts.end(), new PfTestContext("AccountInfo", AccountInfo));
+                testContexts.insert(testContexts.end(), new PfTestContext("CloudScriptLambda", CloudScriptLambda));
                 testContexts.insert(testContexts.end(), new PfTestContext("CloudScript", CloudScript));
                 testContexts.insert(testContexts.end(), new PfTestContext("CloudScriptError", CloudScriptError));
                 testContexts.insert(testContexts.end(), new PfTestContext("WriteEvent", WriteEvent));
@@ -503,6 +505,19 @@ namespace PlayFabApiTest
                 EndTest(*testContext, PASSED, "");
             else
                 EndTest(*testContext, FAILED, "Password error message not found: " + error.ErrorMessage);
+        }
+
+        /// <summary>
+        /// CLIENT API
+        /// Test that a lambda error callback can be successfully invoked
+        /// </summary>
+        static void InvalidLoginLambda(PfTestContext& testContext)
+        {
+            LoginWithEmailAddressRequest request;
+            request.Email = userEmail;
+            request.Password = "INVALID";
+
+            PlayFabClientAPI::LoginWithEmailAddress(request, nullptr, [](const PlayFabError& error, void* customData) { PfTestContext* testContext = reinterpret_cast<PfTestContext*>(customData); EndTest(*testContext, PASSED, ""); }, &testContext);
         }
 
         /// <summary>
@@ -786,6 +801,17 @@ namespace PlayFabApiTest
                 EndTest(*testContext, FAILED, cloudScriptLogReport);
             else
                 EndTest(*testContext, PASSED, "");
+        }
+
+        /// <summary>
+        /// CLIENT API
+        /// Test that a lambda success callback can be successfully invoked
+        /// </summary>
+        static void CloudScriptLambda(PfTestContext& testContext)
+        {
+            ExecuteCloudScriptRequest hwRequest;
+            hwRequest.FunctionName = "helloWorld";
+            PlayFabClientAPI::ExecuteCloudScript(hwRequest, [](const ExecuteCloudScriptResult& constResult, void* customData) { OnHelloWorldCloudScript(constResult, customData); }, OnSharedError, &testContext);
         }
 
         /// <summary>

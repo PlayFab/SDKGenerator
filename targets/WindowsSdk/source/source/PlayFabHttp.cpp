@@ -36,7 +36,7 @@ namespace PlayFab
             httpInstance = new PlayFabHttp;
     }
 
-    void PlayFabHttp::AddRequest(const utility::string_t& urlPath, const utility::string_t& authKey, const utility::string_t& authValue, const web::json::value& requestBody, RequestCompleteCallback internalCallback, void* successCallback, ErrorCallback errorCallback, void* customData)
+    void PlayFabHttp::AddRequest(const utility::string_t& urlPath, const utility::string_t& authKey, const utility::string_t& authValue, const web::json::value& requestBody, RequestCompleteCallback internalCallback, SharedVoidPointer successCallback, ErrorCallback errorCallback, void* customData)
     {
         CallRequestContainer* reqContainer = new CallRequestContainer();
         reqContainer->request = requestBody;

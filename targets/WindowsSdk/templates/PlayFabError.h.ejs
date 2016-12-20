@@ -38,5 +38,5 @@ namespace PlayFab
         std::string GenerateReport() const;
     };
 
-    typedef void(*ErrorCallback)(const PlayFabError& error, void* customData);
+    typedef std::function<void(const PlayFabError& error, void* customData)> ErrorCallback;
 }

@@ -115,7 +115,7 @@ namespace UnittestRunner
             ExecuteCloudScriptServerRequest hwRequest;
             hwRequest.FunctionName = "helloWorld";
             string playFabId = hwRequest.PlayFabId = "1337D00D";
-            PlayFabServerAPI::ExecuteCloudScript(hwRequest, &CloudHelloWorldCallback, &SharedFailedCallback, nullptr);
+            PlayFabServerAPI::ExecuteCloudScript(hwRequest, CloudHelloWorldCallback, SharedFailedCallback, nullptr);
             PlayFabApiWait();
 
             bool success = (testMessageReturn.find("Hello " + playFabId + "!") != -1);

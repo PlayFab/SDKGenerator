@@ -1,9 +1,10 @@
 #pragma once
 
 #include "cpprest/json.h"
-#include <map>
-#include <list>
 #include <ctime>
+#include <functional>
+#include <list>
+#include <map>
 
 namespace PlayFab
 {
@@ -60,7 +61,7 @@ namespace PlayFab
         bool mIsSet;
     };
 
-    template <typename ResType> using ProcessApiCallback = void(*)(const ResType& result, void* customData);
+    template<typename ResType> using ProcessApiCallback = std::function<void(const ResType& result, void* customData)>;
 
     /// <summary>
     /// Base class for all PlayFab Models

@@ -18,7 +18,7 @@ git checkout -- .
 git clean -df
 git checkout master
 git pull origin master
-arc patch %DIFF_NUMBER% --conduit-token %JENKINS_PHAB_TOKEN%
+call arc patch %DIFF_NUMBER% --conduit-token %JENKINS_PHAB_TOKEN%
 popd
 
 pushd API_Specs

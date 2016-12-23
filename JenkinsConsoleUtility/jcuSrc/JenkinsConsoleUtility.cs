@@ -70,10 +70,10 @@ namespace JenkinsConsoleUtility
         {
             string output;
             var found = args.TryGetValue(key.ToLower(), out output);
-            if (found)
+            if (found && !string.IsNullOrEmpty(output))
                 return output;
 
-            if (getDefault != null)
+            if (!string.IsNullOrEmpty(getDefault))
             {
                 FancyWriteToConsole("WARNING: " + key + " not found, reverting to: " + getDefault, null, ConsoleColor.DarkYellow);
                 return getDefault;

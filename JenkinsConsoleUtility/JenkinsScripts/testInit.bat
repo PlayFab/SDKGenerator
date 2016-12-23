@@ -1,6 +1,6 @@
-rem echo off
+@echo off
 setlocal
-if "%1"=="" (
+if [%1]==[] (
     set gitTarget=%AUTOMATED_GIT_REPO%
 ) ELSE (
     set gitTarget=%1
@@ -49,4 +49,3 @@ git pull origin master
 popd
 
 endlocal
-exit /b 0

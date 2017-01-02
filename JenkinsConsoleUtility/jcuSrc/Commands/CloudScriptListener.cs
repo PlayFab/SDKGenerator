@@ -9,6 +9,10 @@ using System.Threading;
 
 namespace JenkinsConsoleUtility.Commands
 {
+    public class TestTitleData
+    {
+        public string titleId;
+    }
     public class CsGetRequest
     {
         public string customId;
@@ -30,7 +34,7 @@ namespace JenkinsConsoleUtility.Commands
 
         private static readonly string[] MyCommandKeys = { "ListenCS" };
         public string[] CommandKeys { get { return MyCommandKeys; } }
-        private static readonly string[] MyMandatoryArgKeys = { "titleId", "buildidentifier" };
+        private static readonly string[] MyMandatoryArgKeys = { "buildidentifier" };
         public string[] MandatoryArgKeys { get { return MyMandatoryArgKeys; } }
 
         public const string CsFuncTestDataExists = "TestDataExists";
@@ -42,7 +46,7 @@ namespace JenkinsConsoleUtility.Commands
 
         public int Execute(Dictionary<string, string> args)
         {
-            var titleId = JenkinsConsoleUtility.GetArgVar(args, "titleId");
+            var titleId = GetTitleId(args);
             var buildIdentifier = JenkinsConsoleUtility.GetArgVar(args, "buildidentifier");
             var workspacePath = JenkinsConsoleUtility.GetArgVar(args, "workspacePath", Environment.GetEnvironmentVariable("TEMP"));
             var timeout = TimeSpan.FromSeconds(int.Parse(JenkinsConsoleUtility.GetArgVar(args, "timeout", "30")));
@@ -63,6 +67,40 @@ namespace JenkinsConsoleUtility.Commands
             JenkinsConsoleUtility.FancyWriteToConsole("Test data received", null, ConsoleColor.Green);
 
             return 0;
+        }
+
+        private static string GetTitleId(Dictionary<string, string> args)
+        {
+            // If titleId is provided directly, use it
+            string temp; 
+            if (JenkinsConsoleUtility.TryGetArgVar(out temp, args, "titleId") && !string.IsNullOrEmpty(temp))
+                return temp;
+            // If testTitleData path is provided, try to load the file
+            if (JenkinsConsoleUtility.TryGetArgVar(out temp, args, "testTitleData") && !string.IsNullOrEmpty(temp))
+                return GetTitleIdFromTestTitleData(temp);
+            // If PF_TEST_TITLE_DATA_JSON exists, get testTitleData path from it, and try to load the file
+            temp = Environment.GetEnvironmentVariable("PF_TEST_TITLE_DATA_JSON");
+            if (!string.IsNullOrEmpty(temp))
+                return GetTitleIdFromTestTitleData(temp);
+
+            return null;
+        }
+
+        private static string GetTitleIdFromTestTitleData(string filepath)
+        {
+            if (!File.Exists(filepath))
+                return null;
+
+            var json = File.ReadAllText(filepath);
+            try
+            {
+                var titleData = JsonWrapper.DeserializeObject<TestTitleData>(json);
+                return titleData.titleId;
+            }
+            catch
+            {
+                return null;
+            }
         }
 
         private static int Login(string titleId, string buildIdentifier)

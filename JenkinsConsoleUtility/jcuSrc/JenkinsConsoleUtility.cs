@@ -84,6 +84,15 @@ namespace JenkinsConsoleUtility
             throw new Exception(msg);
         }
 
+        public static bool TryGetArgVar(out string output, Dictionary<string, string> args, string key, string getDefault = null)
+        {
+            var found = args.TryGetValue(key.ToLower(), out output);
+            if (found && !string.IsNullOrEmpty(output))
+                return true;
+            output = getDefault;
+            return false;
+        }
+
         private static int VerifyKeys(ICommand cmd, Dictionary<string, string> argsByName)
         {
             var output = 0;

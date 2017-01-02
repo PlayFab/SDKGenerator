@@ -70,8 +70,8 @@ namespace JenkinsConsoleUtility
         {
             string output;
             var found = args.TryGetValue(key.ToLower(), out output);
-            if (found && !string.IsNullOrEmpty(output))
-                return output;
+            if (found && output != null) // Don't use string.IsNullOrEmpty() here, because there's a distinction between "undefined" and "empty"
+                return output; 
 
             if (!string.IsNullOrEmpty(getDefault))
             {
@@ -87,7 +87,7 @@ namespace JenkinsConsoleUtility
         public static bool TryGetArgVar(out string output, Dictionary<string, string> args, string key, string getDefault = null)
         {
             var found = args.TryGetValue(key.ToLower(), out output);
-            if (found && !string.IsNullOrEmpty(output))
+            if (found && output != null) // Don't use string.IsNullOrEmpty() here, because there's a distinction between "undefined" and "empty"
                 return true;
             output = getDefault;
             return false;

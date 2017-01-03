@@ -1,8 +1,11 @@
-rem @echo off
+@echo off
 setlocal
 cd %WORKSPACE%
 
 call :syncRepo pf-main %PatchRepoName%
+pushd pf-main\Server
+nuget restore Server.sln
+popd
 call :syncRepo SDKGenerator %PatchRepoName%
 call :syncRepo API_Specs %PatchRepoName%
 call :forcePushD sdks

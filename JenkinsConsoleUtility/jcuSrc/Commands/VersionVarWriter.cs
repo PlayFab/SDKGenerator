@@ -113,13 +113,12 @@ namespace JenkinsConsoleUtility.Commands
                 case "nodesdk": return "js-node";
                 case "postmancollection": return "postman";
                 case "unitysdk": return "unity-v2";
-                case "windowssdk": return "cpp-windows";
                 case "lumberyardsdk": return "lumberyardsdk";
                 case "objective_c_sdk": return "objc";
                 case "playfabgameserver": return "csharp-unity-gameserver";
                 case "unrealblueprintsdk": return "cpp-unreal";
                 case "unrealcppsdk": return "cpp-ue4";
-                case "windowssdkv1": return "windowssdk";
+                case "windowssdk": return "windowssdk";
             }
             return null;
         }

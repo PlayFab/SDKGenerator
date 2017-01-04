@@ -5,12 +5,12 @@ if [%SHARED_WORKSPACE%]==[] (
     set SHARED_WORKSPACE=%WORKSPACE%\..\shared\%EXECUTOR_NUMBER%
 )
 
-call :forceCD %SHARED_WORKSPACE%
+call :forceCD "%SHARED_WORKSPACE%"
 call :syncRepo pf-main
 pushd pf-main\Server
 nuget restore Server.sln
 popd
-call :forceCD %WORKSPACE%
+call :forceCD "%WORKSPACE%"
 call :syncRepo SDKGenerator
 call :syncRepo API_Specs
 call :forcePushD sdks

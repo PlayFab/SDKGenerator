@@ -84,7 +84,7 @@ namespace PlayFab
             get { return !string.IsNullOrEmpty(PlayFabSharedPrivate.ProductionEnvironmentUrl) ? PlayFabSharedPrivate.ProductionEnvironmentUrl : DefaultPlayFabApiUrlPrivate; }
             set { PlayFabSharedPrivate.ProductionEnvironmentUrl = value; }
         }
-        [Obsolete("We would like to make this field private", false)]
+        [Obsolete("This field will become private after Mar 1, 2017", false)]
         public static string ProductionEnvironmentUrl
         {
             get { return ProductionEnvironmentUrlPrivate; }

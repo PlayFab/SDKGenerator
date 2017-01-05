@@ -5,15 +5,29 @@
 var TEST_TITLE_ID = "6195"; // NOTE: Replace this with your own titleID - DeleteUsers has an additional security check to avoid accidents
 var TEST_DATA_KEY = "TEST_DATA_KEY"; // Used to reuse args.customId, but it was kindof a pain, and made things fragile
 
-handlers.helloWorld = function (args) {
+handlers.helloWorld = function (args, context) {
     var message = "Hello " + currentPlayerId + "!";
     log.info(message);
+    var inputValue = null;
+    if (args && args.hasOwnProperty("inputValue"))
+        inputValue = args.inputValue;
+    log.debug("helloWorld:", { input: inputValue });
     return { messageValue: message };
+}
+
+handlers.throwError = function (args) {
+	var testObject;
+    var failureObj = testObj.doesnotexist.doesnotexist;
+	return failureObj; // Can't get to here
 }
 
 handlers.easyLogEvent = function (args) {
     log.info(JSON.stringify(args.logMessage));
 }
+
+///////////////////////////////////////////////
+// JenkinsConsoleUtility CloudScript functions
+///////////////////////////////////////////////
 
 handlers.TestDataExists = function (args) {
     var playerData = server.GetUserInternalData({

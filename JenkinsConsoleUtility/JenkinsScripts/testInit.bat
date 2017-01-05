@@ -75,21 +75,21 @@ rem USAGE: call :applyArcPatch
 echo ==== applyArcPatch %PatchRepoName% %SdkName% ====
 if [%PatchRepoName%]==[pf-main] (
     cd %SHARED_WORKSPACE%\%PatchRepoName%
-    echo ==== applyArcPatch %cd% %PatchRepoName% ====
+    echo ==== arc patching pf-main ====
     @echo on
     call arc patch %DIFF_NUMBER% --conduit-token %JENKINS_PHAB_TOKEN%
     echo ==== applyArcPatch Done ====
 )
 if [%PatchRepoName%]==[SDKGenerator] (
     cd %WORKSPACE%\%PatchRepoName%
-    echo ==== applyArcPatch %cd% %PatchRepoName% ====
+    echo ==== arc patching SDKGenerator ====
     @echo on
     call arc patch %DIFF_NUMBER% --conduit-token %JENKINS_PHAB_TOKEN%
     echo ==== applyArcPatch Done ====
 )
 if [%PatchRepoName%]==[%SdkName%] (
     cd %WORKSPACE%\sdks\%PatchRepoName%
-    echo ==== applyArcPatch %cd% %PatchRepoName% ====
+    echo ==== arc patching %SdkName% ====
     @echo on
     call arc patch %DIFF_NUMBER% --conduit-token %JENKINS_PHAB_TOKEN%
     echo ==== applyArcPatch Done ====

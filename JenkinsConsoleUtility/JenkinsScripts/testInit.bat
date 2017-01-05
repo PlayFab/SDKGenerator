@@ -72,6 +72,7 @@ goto :EOF
 
 rem USAGE: call :applyArcPatch
 :applyArcPatch
+echo ==== applyArcPatch %PatchRepoName% %SdkName% ====
 if [%PatchRepoName%]==[pf-main] (
     cd %SHARED_WORKSPACE%\%PatchRepoName%
     echo ==== applyArcPatch %cd% %PatchRepoName% ====

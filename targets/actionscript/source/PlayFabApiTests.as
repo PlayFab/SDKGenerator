@@ -202,7 +202,7 @@ package
         {
             // Typical success
             playFabId = result.PlayFabId;
-            FinishTestHandler(new ASyncUnitTestEvent(ASyncUnitTestEvent.FINISH_TEST, ASyncUnitTestEvent.RESULT_PASSED, ""));
+            FinishTestHandler(new ASyncUnitTestEvent(ASyncUnitTestEvent.FINISH_TEST, ASyncUnitTestEvent.RESULT_PASSED, result.PlayFabId));
         }
 
         /// <summary>

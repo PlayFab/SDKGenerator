@@ -72,18 +72,25 @@ goto :EOF
 
 rem USAGE: call :applyArcPatch
 :applyArcPatch
-echo ==== applyArcPatch %cd% %PatchRepoName% ====
 if [%PatchRepoName%]==[pf-main] (
     cd %SHARED_WORKSPACE%\%PatchRepoName%
+    echo ==== applyArcPatch %cd% %PatchRepoName% ====
+    @echo on
     call arc patch %DIFF_NUMBER% --conduit-token %JENKINS_PHAB_TOKEN%
+    echo ==== applyArcPatch Done ====
 )
 if [%PatchRepoName%]==[SDKGenerator] (
     cd %WORKSPACE%\%PatchRepoName%
+    echo ==== applyArcPatch %cd% %PatchRepoName% ====
+    @echo on
     call arc patch %DIFF_NUMBER% --conduit-token %JENKINS_PHAB_TOKEN%
+    echo ==== applyArcPatch Done ====
 )
 if [%PatchRepoName%]==[%SdkName%] (
     cd %WORKSPACE%\sdks\%PatchRepoName%
+    echo ==== applyArcPatch %cd% %PatchRepoName% ====
+    @echo on
     call arc patch %DIFF_NUMBER% --conduit-token %JENKINS_PHAB_TOKEN%
+    echo ==== applyArcPatch Done ====
 )
-echo ==== applyArcPatch Done ====
 goto :EOF

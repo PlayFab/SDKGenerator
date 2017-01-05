@@ -6,6 +6,7 @@ exports.putInRoot = true;
 exports.makeCombinedAPI = function (apis, sourceDir, apiOutputDir) {
     console.log("Generating ActionScript3 combined SDK to " + apiOutputDir);
     
+    apiOutputDir = path.resolve(apiOutputDir, "PfApiTest"); // This is an oddity in the ActionScriptSDK which we shouldn't resolve until we do a major revision number change
     copyTree(path.resolve(sourceDir, "source"), apiOutputDir);
     
     for (var i = 0; i < apis.length; i++) {

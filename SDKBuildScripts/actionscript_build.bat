@@ -17,9 +17,9 @@ popd
 pushd ..
 if [%1] == [] (
 rem === BUILDING ActionScriptSDK ===
-node generate.js actionscript=..\sdks\ActionScriptSDK\PfApiTest -apiSpecPath
+node generate.js actionscript=..\sdks\ActionScriptSDK -apiSpecPath
 ) else (
 rem === BUILDING ActionScriptSDK with params %* ===
-node generate.js actionscript=..\sdks\ActionScriptSDK\PfApiTest %*
+node generate.js actionscript=..\sdks\ActionScriptSDK %*
 )
 popd

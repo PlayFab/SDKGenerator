@@ -320,8 +320,17 @@ protected:
         bool success = true;
 
         FString jsonInput;
-        TCHAR* filename = TEXT("C:\\depot\\pf-main\\tools\\SDKBuildScripts\\testTitleData.json");
-        success &= FFileHelper::LoadFileToString(jsonInput, filename);
+        FString filename = TEXT("testTitleData.json");
+
+        // Prefer to load path from environment variable, if present
+        char* envPath = nullptr;
+        size_t envPathStrLen;
+        errno_t err = _dupenv_s(&envPath, &envPathStrLen, "PF_TEST_TITLE_DATA_JSON");
+        if (err == 0)
+            filename = FString(ANSI_TO_TCHAR(envPath));
+        free(envPath); // It's OK to call free with NULL
+
+        success &= FFileHelper::LoadFileToString(jsonInput, *filename);
 
         TSharedPtr<FJsonObject> jsonParsed = nullptr;
         if (success)
@@ -341,10 +350,10 @@ protected:
     virtual FString GetBeautifiedTestName() const override { return "PlayFabApiTests"; }
     virtual void GetTests(TArray<FString>& OutBeautifiedNames, TArray <FString>& OutTestCommands) const override
     {
-        for (const FString& TestName : TestFunctionNames)
+        for (const FString& pfTestName : TestFunctionNames)
         {
-            OutBeautifiedNames.Add(TestName);
-            OutTestCommands.Add(TestName);
+            OutBeautifiedNames.Add(pfTestName);
+            OutTestCommands.Add(pfTestName);
         }
     }
 

@@ -1,12 +1,15 @@
-var path = require("path");
+var fs = require("fs");
 var ejs = require("ejs");
+var path = require("path");
 
 exports.putInRoot = true;
 
 exports.makeCombinedAPI = function (apis, sourceDir, apiOutputDir) {
-    console.log("Generating ActionScript3 combined SDK to " + apiOutputDir);
-    
     apiOutputDir = path.resolve(apiOutputDir, "PfApiTest"); // This is an oddity in the ActionScriptSDK which we shouldn't resolve until we do a major revision number change
+
+    console.log("Generating ActionScript3 combined SDK to " + apiOutputDir);
+
+    RemoveExcessFiles(apiOutputDir);
     copyTree(path.resolve(sourceDir, "source"), apiOutputDir);
     
     for (var i = 0; i < apis.length; i++) {
@@ -15,6 +18,25 @@ exports.makeCombinedAPI = function (apis, sourceDir, apiOutputDir) {
     }
     
     GenerateSimpleFiles(apis, sourceDir, apiOutputDir);
+}
+
+function RemoveFilesInDir(dirPath, searchFilter) {
+    var files;
+    try { files = fs.readdirSync(dirPath); }
+      catch (e) { return; }
+    if (files.length > 0)
+        for (var i = 0; i < files.length; i++) {
+            var filePath = path.resolve(dirPath, files[i]);
+            if (fs.statSync(filePath).isFile() && (!searchFilter || filePath.contains(searchFilter)))
+                fs.unlinkSync(filePath);
+        }
+};
+
+function RemoveExcessFiles(apiOutputDir) {
+    RemoveFilesInDir(path.resolve(apiOutputDir, "com/playfab/AdminModels"), ".as");
+    RemoveFilesInDir(path.resolve(apiOutputDir, "com/playfab/ClientModels"), ".as");
+    RemoveFilesInDir(path.resolve(apiOutputDir, "com/playfab/MatchmakerModels"), ".as");
+    RemoveFilesInDir(path.resolve(apiOutputDir, "com/playfab/ServerModels"), ".as");
 }
 
 function GetBaseTypeSyntax(datatype) {

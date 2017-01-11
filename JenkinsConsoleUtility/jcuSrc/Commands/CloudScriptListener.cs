@@ -44,13 +44,13 @@ namespace JenkinsConsoleUtility.Commands
         private static CsGetRequest _getRequest;
         private static bool verbose;
 
-        public int Execute(Dictionary<string, string> args)
+        public int Execute(Dictionary<string, string> argsLc, Dictionary<string, string> argsCased)
         {
-            var titleId = GetTitleId(args);
-            var buildIdentifier = JenkinsConsoleUtility.GetArgVar(args, "buildidentifier");
-            var workspacePath = JenkinsConsoleUtility.GetArgVar(args, "workspacePath", Environment.GetEnvironmentVariable("TEMP"));
-            var timeout = TimeSpan.FromSeconds(int.Parse(JenkinsConsoleUtility.GetArgVar(args, "timeout", "30")));
-            verbose = bool.Parse(JenkinsConsoleUtility.GetArgVar(args, "verbose", "false"));
+            var titleId = GetTitleId(argsLc);
+            var buildIdentifier = JenkinsConsoleUtility.GetArgVar(argsLc, "buildidentifier");
+            var workspacePath = JenkinsConsoleUtility.GetArgVar(argsLc, "workspacePath", Environment.GetEnvironmentVariable("TEMP"));
+            var timeout = TimeSpan.FromSeconds(int.Parse(JenkinsConsoleUtility.GetArgVar(argsLc, "timeout", "30")));
+            verbose = bool.Parse(JenkinsConsoleUtility.GetArgVar(argsLc, "verbose", "false"));
             _getRequest = new CsGetRequest { customId = buildIdentifier };
 
             JenkinsConsoleUtility.FancyWriteToConsole("Begin CloudScriptListener", null, ConsoleColor.Gray);

@@ -8,21 +8,29 @@ namespace JenkinsConsoleUtility.Commands
 {
     public class VersionVarWriter : ICommand
     {
-        private const string DefaultApiSpecFilePath = "../../../../API_Specs"; // Relative path to Generate.js
+        private const string DefaultApiSpecFilePath = "../../../../API_Specs"; // Relative path from default VS output folder
         private const string DefaultApiSpecGitHubUrl = "https://raw.githubusercontent.com/PlayFab/API_Specs/master/";
         private const string DefaultApiSpecPlayFabUrl = "https://www.playfabapi.com/apispec/";
-        private static string _apiSpecPath, _apiSpecGitUrl, _apiSpecPfUrl; // Exactly one of these is expected to be set
+        private string _apiSpecPath, _apiSpecGitUrl, _apiSpecPfUrl; // Exactly one of these is expected to be set
 
         private static readonly string[] MyCommandKeys = { "versionVarWriter", "version" };
         public string[] CommandKeys { get { return MyCommandKeys; } }
-        private static readonly string[] MyMandatoryArgKeys = { "workspacePath", "destFile", "sdkName" };
+        private static readonly string[] MyMandatoryArgKeys = { "sdkName" };
         public string[] MandatoryArgKeys { get { return MyMandatoryArgKeys; } }
 
-        public int Execute(Dictionary<string, string> args)
+        // If this command runs, make the results accessible to other modules
+        public static string sdkVersionString;
+        public static string major;
+        public static string minor;
+        public static string date;
+        public static bool set = false;
+
+        public int Execute(Dictionary<string, string> argsLc, Dictionary<string, string> argsCased)
         {
-            var destFile = JenkinsConsoleUtility.GetArgVar(args, "destFile");
-            var workspacePath = JenkinsConsoleUtility.GetArgVar(args, "workspacePath");
-            var sdkName = JenkinsConsoleUtility.GetArgVar(args, "sdkName");
+            string destFile, workspacePath;
+            JenkinsConsoleUtility.TryGetArgVar(out destFile, argsLc, "destFile");
+            JenkinsConsoleUtility.TryGetArgVar(out workspacePath, argsLc, "workspacePath");
+            var sdkName = JenkinsConsoleUtility.GetArgVar(argsLc, "sdkName");
             var sdkGenKey = GetSdkGenKey(sdkName);
 
             if (string.IsNullOrEmpty(sdkGenKey))
@@ -31,12 +39,12 @@ namespace JenkinsConsoleUtility.Commands
                 return 1;
             }
 
-            if (args.ContainsKey("apispecpath"))
-                _apiSpecPath = JenkinsConsoleUtility.GetArgVar(args, "apiSpecPath");
-            else if (args.ContainsKey("apispecgiturl"))
-                _apiSpecGitUrl = JenkinsConsoleUtility.GetArgVar(args, "apiSpecGitUrl");
-            else if (args.ContainsKey("apispecpfurl"))
-                _apiSpecPfUrl = JenkinsConsoleUtility.GetArgVar(args, "apiSpecPfUrl");
+            if (argsLc.ContainsKey("apispecpath"))
+                _apiSpecPath = JenkinsConsoleUtility.GetArgVar(argsLc, "apiSpecPath");
+            else if (argsLc.ContainsKey("apispecgiturl"))
+                _apiSpecGitUrl = JenkinsConsoleUtility.GetArgVar(argsLc, "apiSpecGitUrl");
+            else if (argsLc.ContainsKey("apispecpfurl"))
+                _apiSpecPfUrl = JenkinsConsoleUtility.GetArgVar(argsLc, "apiSpecPfUrl");
             else
             {
                 JenkinsConsoleUtility.FancyWriteToConsole("Api-Spec input not defined.  Please input one of: apiSpecPath, apiSpecGitUrl, apiSpecPfUrl");
@@ -45,7 +53,6 @@ namespace JenkinsConsoleUtility.Commands
 
             var versionJson = GetApiJson("SdkManualNotes.json");
             var sdkNotes = JsonWrapper.DeserializeObject<SdkManualNotes>(versionJson);
-            string sdkVersionString;
             if (!sdkNotes.sdkVersion.TryGetValue(sdkGenKey, out sdkVersionString))
             {
                 JenkinsConsoleUtility.FancyWriteToConsole("SdkManualNotes.json does not contain: " + sdkGenKey);
@@ -54,12 +61,19 @@ namespace JenkinsConsoleUtility.Commands
             }
 
             var sdkPieces = sdkVersionString.Split('.');
-            using (var outputFile = new StreamWriter(Path.Combine(workspacePath, destFile)))
+            major = sdkPieces[0]; minor = sdkPieces[1]; date = sdkPieces[sdkPieces.Length - 1];
+            set = true;
+
+            // Write this to a Jenkins environment variable file, if defined
+            if (!string.IsNullOrEmpty(destFile))
             {
-                outputFile.WriteLine("sdkVersion = " + sdkVersionString);
-                outputFile.WriteLine("sdkDate = " + sdkPieces[sdkPieces.Length - 1]);
-                JenkinsConsoleUtility.FancyWriteToConsole("sdkVersion = " + sdkVersionString);
-                JenkinsConsoleUtility.FancyWriteToConsole("sdkDate = " + sdkPieces[sdkPieces.Length - 1]);
+                using (var outputFile = new StreamWriter(Path.Combine(workspacePath, destFile)))
+                {
+                    outputFile.WriteLine("sdkVersion = " + sdkVersionString);
+                    outputFile.WriteLine("sdkDate = " + date);
+                    JenkinsConsoleUtility.FancyWriteToConsole("sdkVersion = " + sdkVersionString);
+                    JenkinsConsoleUtility.FancyWriteToConsole("sdkDate = " + date);
+                }
             }
             return 0;
         }
@@ -67,7 +81,7 @@ namespace JenkinsConsoleUtility.Commands
         /// <summary>
         /// Fetch the given file based on the input settings (_apiSpecPath, _apiSpecGitUrl, or _apiSpecPfUrl)
         /// </summary>
-        private static string GetApiJson(string filename)
+        private string GetApiJson(string filename)
         {
             if (_apiSpecPath != null)
             {
@@ -100,7 +114,7 @@ namespace JenkinsConsoleUtility.Commands
         /// This bit of hard coding is particularly bad, because it's arbitrary, and historically not entirely reliable
         /// We need a better resolution for this
         /// </summary>
-        private static string GetSdkGenKey(string sdkName)
+        private string GetSdkGenKey(string sdkName)
         {
             switch (sdkName.ToLower())
             {
@@ -127,7 +141,7 @@ namespace JenkinsConsoleUtility.Commands
         /// Convert a filename to a URL on the PlayFab API server
         ///  - If Possible, else use GitHub.
         /// </summary>
-        private static string GetPfServerUrl(string filename)
+        private string GetPfServerUrl(string filename)
         {
             switch (filename.ToLower())
             {
@@ -155,7 +169,7 @@ namespace JenkinsConsoleUtility.Commands
         /// Wrap and synchronize a HTTPS-get call
         /// Converts a url into the corresponding string-file-contents
         /// </summary>
-        private static async Task<string> SimpleHttpGet(string fullUrl)
+        private async Task<string> SimpleHttpGet(string fullUrl)
         {
             if (string.IsNullOrEmpty(fullUrl))
                 return "";

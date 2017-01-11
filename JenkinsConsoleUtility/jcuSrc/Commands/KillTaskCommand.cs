@@ -12,17 +12,12 @@ namespace JenkinsConsoleUtility.Commands
 
         private static readonly string[] MyCommandKeys = { "kill" };
         public string[] CommandKeys { get { return MyCommandKeys; } }
-        private static readonly string[] MyMandatoryArgKeys = { "taskname" };
+        private static readonly string[] MyMandatoryArgKeys = { "taskName" };
         public string[] MandatoryArgKeys { get { return MyMandatoryArgKeys; } }
 
-        public int Execute(Dictionary<string, string> inputs)
+        public int Execute(Dictionary<string, string> argsLc, Dictionary<string, string> argsCased)
         {
-            string taskName;
-            if (!inputs.TryGetValue("taskname", out taskName))
-            {
-                JenkinsConsoleUtility.FancyWriteToConsole("Cannot find the process to kill", null, ConsoleColor.Red);
-                return 1;
-            }
+            var taskName = JenkinsConsoleUtility.GetArgVar(argsLc, "taskName");
 
             List<Process> hitList = new List<Process>();
             hitList.AddRange(Process.GetProcessesByName(taskName));

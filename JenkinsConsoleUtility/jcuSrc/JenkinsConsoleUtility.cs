@@ -5,7 +5,7 @@ public interface ICommand
 {
     string[] CommandKeys { get; }
     string[] MandatoryArgKeys { get; }
-    int Execute(Dictionary<string, string> inputs);
+    int Execute(Dictionary<string, string> argsLc, Dictionary<string, string> argsCased);
 }
 
 namespace JenkinsConsoleUtility
@@ -16,12 +16,12 @@ namespace JenkinsConsoleUtility
         {
             var commandLookup = FindICommands();
             List<string> orderedCommands;
-            Dictionary<string, string> argsByName;
+            Dictionary<string, string> lcArgsByName, casedArgsByName;
             ICommand tempCommand;
 
             try
             {
-                ExtractArgs(args, out orderedCommands, out argsByName);
+                ExtractArgs(args, out orderedCommands, out lcArgsByName, out casedArgsByName);
 
                 var success = true;
                 foreach (var key in orderedCommands)
@@ -52,9 +52,9 @@ namespace JenkinsConsoleUtility
             {
                 if (returnCode == 0 && commandLookup.TryGetValue(key, out tempCommand))
                 {
-                    returnCode = VerifyKeys(tempCommand, argsByName);
+                    returnCode = VerifyKeys(tempCommand, lcArgsByName);
                     if (returnCode == 0)
-                        returnCode = tempCommand.Execute(argsByName);
+                        returnCode = tempCommand.Execute(lcArgsByName, casedArgsByName);
                 }
                 if (returnCode != 0)
                 {
@@ -66,14 +66,20 @@ namespace JenkinsConsoleUtility
             return Pause(0);
         }
 
+        /// <summary>
+        /// Try to find the given (lowercased) key in the command line arguments, or the environment variables.
+        /// If it is present, return it
+        /// Else getDefault (if defined), else throw an exception
+        /// Defined as empty string is considered a successful result
+        /// </summary>
+        /// <returns>The string associated with this key</returns>
         public static string GetArgVar(Dictionary<string, string> args, string key, string getDefault = null)
         {
             string output;
-            var found = args.TryGetValue(key.ToLower(), out output);
-            if (found && output != null) // Don't use string.IsNullOrEmpty() here, because there's a distinction between "undefined" and "empty"
-                return output; 
+            if (TryGetArgVar(out output, args, key, getDefault))
+                return output;
 
-            if (!string.IsNullOrEmpty(getDefault))
+            if (getDefault != null) // Don't use string.IsNullOrEmpty() here, because there's a distinction between "undefined" and "empty"
             {
                 FancyWriteToConsole("WARNING: " + key + " not found, reverting to: " + getDefault, null, ConsoleColor.DarkYellow);
                 return getDefault;
@@ -84,27 +90,60 @@ namespace JenkinsConsoleUtility
             throw new Exception(msg);
         }
 
+        /// <summary>
+        /// Try to find the given key in the command line arguments, or the environment variables.
+        /// If it is present, return it.
+        /// Defined as empty string returns true
+        /// Falling through to getDefault always returns false
+        /// </summary>
+        /// <returns>True if the key is found</returns>
         public static bool TryGetArgVar(out string output, Dictionary<string, string> args, string key, string getDefault = null)
         {
-            var found = args.TryGetValue(key.ToLower(), out output);
-            if (found && output != null) // Don't use string.IsNullOrEmpty() here, because there's a distinction between "undefined" and "empty"
+            var lcKey = key.ToLower();
+
+            // Check in args (not guaranteed to be lc-keys)
+            output = null;
+            foreach (var eachArgKey in args.Keys)
+                if (eachArgKey.ToLower() == lcKey)
+                    output = args[eachArgKey];
+            if (output != null) // Don't use string.IsNullOrEmpty() here, because there's a distinction between "undefined" and "empty"
                 return true;
+
+            // Check in env-vars - Definitely not lc-keys
+            var allEnvVars = Environment.GetEnvironmentVariables();
+            foreach (string eachEnvKey in allEnvVars.Keys)
+                if (eachEnvKey.ToLower() == lcKey)
+                    output = allEnvVars[eachEnvKey] as string;
+            if (output != null) // Don't use string.IsNullOrEmpty() here, because there's a distinction between "undefined" and "empty"
+                return true;
+
             output = getDefault;
             return false;
         }
 
         private static int VerifyKeys(ICommand cmd, Dictionary<string, string> argsByName)
         {
-            var output = 0;
+            if (cmd.MandatoryArgKeys == null || cmd.MandatoryArgKeys.Length == 0)
+                return 0;
+
+            var allEnvVars = Environment.GetEnvironmentVariables();
+            List<string> missingArgKeys = new List<string>();
+
             foreach (var eachCmdKey in cmd.MandatoryArgKeys)
             {
-                if (!argsByName.ContainsKey(eachCmdKey.ToLower()))
-                {
-                    FancyWriteToConsole(cmd.CommandKeys[0] + " - Missing argument: " + eachCmdKey, null, ConsoleColor.Yellow);
-                    output = 1;
-                }
+                var expectedKey = eachCmdKey.ToLower();
+                var found = argsByName.ContainsKey(expectedKey);
+                if (!found)
+                    foreach (string envKey in allEnvVars.Keys)
+                        if (envKey.ToLower() == expectedKey)
+                            found = true;
+                if (!found)
+                    missingArgKeys.Add(expectedKey);
             }
-            return output;
+
+            foreach (var eachCmdKey in missingArgKeys)
+                FancyWriteToConsole(cmd.CommandKeys[0] + " - Missing argument: " + eachCmdKey, null, ConsoleColor.Yellow);
+            return missingArgKeys.Count;
         }
 
         public static void FancyWriteToConsole(string msg = null, ICollection<string> multiLineMsg = null, ConsoleColor textColor = ConsoleColor.White)
@@ -156,32 +195,38 @@ namespace JenkinsConsoleUtility
         /// <summary>
         /// Extract command line arguments into target information
         /// </summary>
-        private static void ExtractArgs(string[] args, out List<string> orderedCommands, out Dictionary<string, string> argsByName)
+        private static void ExtractArgs(string[] args, out List<string> orderedCommands, out Dictionary<string, string> lcArgsByName, out Dictionary<string, string> casedArgsByName)
         {
             orderedCommands = new List<string>();
-            argsByName = new Dictionary<string, string>();
+            lcArgsByName = new Dictionary<string, string>();
+            casedArgsByName = new Dictionary<string, string>();
 
-            string activeKey = null;
+            string activeKeyLc = null;
+            string activeKeyCased = null;
             foreach (var eachArgCased in args)
             {
-                var eachArg = eachArgCased.ToLower();
-                if (eachArg.StartsWith("--"))
+                var eachArgLc = eachArgCased.ToLower();
+                if (eachArgLc.StartsWith("--"))
                 {
-                    activeKey = eachArg.Substring(2);
-                    orderedCommands.Add(activeKey);
+                    activeKeyLc = eachArgLc.Substring(2);
+                    activeKeyCased = eachArgCased.Substring(2);
+                    orderedCommands.Add(activeKeyLc);
                 }
-                else if (eachArg.StartsWith("-"))
+                else if (eachArgLc.StartsWith("-"))
                 {
-                    activeKey = eachArg.Substring(1);
-                    argsByName[activeKey] = "";
+                    activeKeyLc = eachArgLc.Substring(1);
+                    activeKeyCased = eachArgCased.Substring(1);
+                    lcArgsByName[activeKeyLc] = "";
+                    casedArgsByName[activeKeyCased] = "";
                 }
-                else if (activeKey == null)
+                else if (activeKeyCased == null)
                 {
-                    throw new Exception("Unexpected token: " + eachArg);
+                    throw new Exception("Unexpected token: " + eachArgCased);
                 }
                 else
                 {
-                    argsByName[activeKey] = (argsByName[activeKey] + " " + eachArg).Trim();
+                    lcArgsByName[activeKeyLc] = (lcArgsByName[activeKeyLc] + " " + eachArgLc).Trim();
+                    casedArgsByName[activeKeyCased] = (casedArgsByName[activeKeyCased] + " " + eachArgCased).Trim();
                 }
             }
         }

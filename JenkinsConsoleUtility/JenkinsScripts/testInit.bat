@@ -12,6 +12,9 @@ nuget restore Server.sln
 popd
 call :forceCD "%WORKSPACE%"
 call :syncRepo SDKGenerator
+pushd SDKGenerator\JenkinsConsoleUtility
+nuget restore JenkinsConsoleUtility.sln
+popd
 call :syncRepo API_Specs
 call :forcePushD sdks
 call :syncRepo %SdkName%

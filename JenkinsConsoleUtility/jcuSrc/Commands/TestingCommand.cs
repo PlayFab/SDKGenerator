@@ -11,7 +11,7 @@ namespace JenkinsConsoleUtility.Commands
         private static readonly string[] MyMandatoryArgKeys = { };
         public string[] MandatoryArgKeys { get { return MyMandatoryArgKeys; } }
 
-        public int Execute(Dictionary<string, string> inputs)
+        public int Execute(Dictionary<string, string> argsLc, Dictionary<string, string> argsCased)
         {
             UUnitIncrementalTestRunner.Start(false, null, null, null);
             while (!UUnitIncrementalTestRunner.SuiteFinished)

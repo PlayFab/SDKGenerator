@@ -30,82 +30,87 @@
   <PropertyGroup Condition=" '$(Configuration)' == 'ActionScriptSDK' ">
     <DebugSymbols>true</DebugSymbols>
     <OutputPath>bin\</OutputPath>
-    <ScriptArguments>actionscript=..\sdks\ActionScriptSDK -buildIdentifier ActionScriptSDK_manual</ScriptArguments>
+    <ScriptArguments>actionscript=..\sdks\ActionScriptSDK -apiSpecPath -buildIdentifier ActionScriptSDK_manual</ScriptArguments>
   </PropertyGroup>
   <PropertyGroup Condition=" '$(Configuration)' == 'CSharpFlat' ">
     <DebugSymbols>true</DebugSymbols>
     <OutputPath>bin\</OutputPath>
-    <ScriptArguments>csharp-flat=..\sdks\PxCsFlat -buildIdentifier CsFlat_manual</ScriptArguments>
+    <ScriptArguments>csharp-flat=..\sdks\PxCsFlat -apiSpecPath -buildIdentifier CsFlat_manual</ScriptArguments>
   </PropertyGroup>
   <PropertyGroup Condition=" '$(Configuration)' == 'CSharpSDK' ">
     <DebugSymbols>true</DebugSymbols>
     <OutputPath>bin\</OutputPath>
-    <ScriptArguments>csharp=..\sdks\CSharpSDK -buildIdentifier CSharpSDK_manual</ScriptArguments>
+    <ScriptArguments>csharp=..\sdks\CSharpSDK -apiSpecPath -buildIdentifier CSharpSDK_manual</ScriptArguments>
   </PropertyGroup>
   <PropertyGroup Condition=" '$(Configuration)' == 'CocosSDK' ">
     <DebugSymbols>true</DebugSymbols>
     <OutputPath>bin\</OutputPath>
-    <ScriptArguments>cpp-cocos2dx=..\sdks\Cocos2d-xSDK -buildIdentifier CocosSDK_manual</ScriptArguments>
+    <ScriptArguments>cpp-cocos2dx=..\sdks\Cocos2d-xSDK -apiSpecPath -buildIdentifier CocosSDK_manual</ScriptArguments>
   </PropertyGroup>
   <PropertyGroup Condition=" '$(Configuration)' == 'JavaSDK' ">
     <DebugSymbols>true</DebugSymbols>
     <OutputPath>bin\</OutputPath>
-    <ScriptArguments>java=..\sdks\JavaSDK -buildIdentifier JavaSDK_manual</ScriptArguments>
+    <ScriptArguments>java=..\sdks\JavaSDK -apiSpecPath -buildIdentifier JavaSDK_manual</ScriptArguments>
   </PropertyGroup>
   <PropertyGroup Condition=" '$(Configuration)' == 'LuaSdk' ">
     <DebugSymbols>true</DebugSymbols>
     <OutputPath>bin\</OutputPath>
-    <ScriptArguments>LuaSdk=..\sdks\LuaSdk -buildIdentifier LuaSdk_manual</ScriptArguments>
+    <ScriptArguments>LuaSdk=..\sdks\LuaSdk -apiSpecPath -buildIdentifier LuaSdk_manual</ScriptArguments>
   </PropertyGroup>
   <PropertyGroup Condition=" '$(Configuration)' == 'JavaScriptSDK' ">
     <DebugSymbols>true</DebugSymbols>
     <OutputPath>bin\</OutputPath>
-    <ScriptArguments>javascript=..\sdks\JavaScriptSDK\PlayFabSDK -buildIdentifier JavaScriptSDK_manual</ScriptArguments>
+    <ScriptArguments>javascript=..\sdks\JavaScriptSDK\PlayFabSDK -apiSpecPath -buildIdentifier JavaScriptSDK_manual</ScriptArguments>
   </PropertyGroup>
   <PropertyGroup Condition=" '$(Configuration)' == 'LumberyardSdk' ">
     <DebugSymbols>true</DebugSymbols>
     <OutputPath>bin\</OutputPath>
-    <ScriptArguments>LumberyardSdk=..\sdks\LumberyardSDK -buildIdentifier LumberyardSdk_manual</ScriptArguments>
+    <ScriptArguments>LumberyardSdk=..\sdks\LumberyardSDK -apiSpecPath -buildIdentifier LumberyardSdk_manual</ScriptArguments>
   </PropertyGroup>
   <PropertyGroup Condition=" '$(Configuration)' == 'NodeSDK' ">
     <DebugSymbols>true</DebugSymbols>
     <OutputPath>bin\</OutputPath>
-    <ScriptArguments>js-node=..\sdks\NodeSDK -buildIdentifier NodeSDK_manual</ScriptArguments>
+    <ScriptArguments>js-node=..\sdks\NodeSDK -apiSpecPath -buildIdentifier NodeSDK_manual</ScriptArguments>
   </PropertyGroup>
   <PropertyGroup Condition=" '$(Configuration)' == 'ObjCSdk' ">
     <DebugSymbols>true</DebugSymbols>
     <OutputPath>bin\</OutputPath>
-    <ScriptArguments>objc=..\sdks\Objective_C_SDK -buildIdentifier ObjCSdk_manual</ScriptArguments>
+    <ScriptArguments>objc=..\sdks\Objective_C_SDK -apiSpecPath -buildIdentifier ObjCSdk_manual</ScriptArguments>
+  </PropertyGroup>
+  <PropertyGroup Condition=" '$(Configuration)' == 'PhpSdk' ">
+    <DebugSymbols>true</DebugSymbols>
+    <OutputPath>bin\</OutputPath>
+    <ScriptArguments>PhpSdk=..\sdks\PhpSdk -apiSpecPath -buildIdentifier PhpSdk_manual</ScriptArguments>
   </PropertyGroup>
   <PropertyGroup Condition=" '$(Configuration)' == 'PostmanCollection' ">
     <DebugSymbols>true</DebugSymbols>
     <OutputPath>bin\</OutputPath>
-    <ScriptArguments>postman=..\sdks\PostmanCollection -buildIdentifier PostmanCollection_manual</ScriptArguments>
+    <ScriptArguments>postman=..\sdks\PostmanCollection -apiSpecPath -buildIdentifier PostmanCollection_manual</ScriptArguments>
   </PropertyGroup>
   <PropertyGroup Condition=" '$(Configuration)' == 'PlayFabGameServer' ">
     <DebugSymbols>true</DebugSymbols>
     <OutputPath>bin\</OutputPath>
-    <ScriptArguments>csharp-unity-gameserver=..\sdks\PlayFabGameServer -buildIdentifier UnitySDK_manual</ScriptArguments>
+    <ScriptArguments>csharp-unity-gameserver=..\sdks\PlayFabGameServer -apiSpecPath -buildIdentifier UnitySDK_manual</ScriptArguments>
   </PropertyGroup>
   <PropertyGroup Condition=" '$(Configuration)' == 'UnitySdk' ">
     <DebugSymbols>true</DebugSymbols>
     <OutputPath>bin\</OutputPath>
-    <ScriptArguments>unity-v2=..\sdks\UnitySDK -buildIdentifier UnitySDK_manual</ScriptArguments>
+    <ScriptArguments>unity-v2=..\sdks\UnitySDK -apiSpecPath -buildIdentifier UnitySDK_manual</ScriptArguments>
   </PropertyGroup>
   <PropertyGroup Condition=" '$(Configuration)' == 'UnrealBlueprintSDK' ">
     <DebugSymbols>true</DebugSymbols>
     <OutputPath>bin\</OutputPath>
-    <ScriptArguments>cpp-unreal=..\sdks\UnrealBlueprintSDK -buildIdentifier UnrealBlueprintSDK_manual</ScriptArguments>
+    <ScriptArguments>cpp-unreal=..\sdks\UnrealBlueprintSDK -apiSpecPath -buildIdentifier UnrealBlueprintSDK_manual</ScriptArguments>
   </PropertyGroup>
   <PropertyGroup Condition=" '$(Configuration)' == 'UnrealCppSdk' ">
     <DebugSymbols>true</DebugSymbols>
     <OutputPath>bin\</OutputPath>
-    <ScriptArguments>cpp-ue4=..\sdks\UnrealCppSDK -buildIdentifier UnrealCppSdk_manual</ScriptArguments>
+    <ScriptArguments>cpp-ue4=..\sdks\UnrealCppSDK -apiSpecPath -buildIdentifier UnrealCppSdk_manual</ScriptArguments>
   </PropertyGroup>
   <PropertyGroup Condition=" '$(Configuration)' == 'WindowsSDK' ">
     <DebugSymbols>true</DebugSymbols>
     <OutputPath>bin\</OutputPath>
-    <ScriptArguments>windowssdk=..\sdks\WindowsSdk -buildIdentifier WindowsSdk_manual</ScriptArguments>
+    <ScriptArguments>windowssdk=..\sdks\WindowsSdk -apiSpecPath -buildIdentifier WindowsSdk_manual</ScriptArguments>
   </PropertyGroup>
   <ItemGroup>
     <Compile Include="targets\actionscript\make.js" />
@@ -129,6 +134,7 @@
     <Compile Include="targets\LumberyardSdk\make.js" />
     <Compile Include="targets\newTarget\make.js" />
     <Compile Include="targets\objc\make.js" />
+    <Compile Include="targets\PhpSdk\make.js" />
     <Compile Include="targets\postman\make.js" />
     <Compile Include="targets\unity-v2\make.js" />
     <Compile Include="targets\WindowsSdk\make.js" />
@@ -756,6 +762,8 @@
     <Content Include="targets\objc\templates\PlayFabDataModels.m.ejs" />
     <Content Include="targets\objc\templates\PlayFabError.h.ejs" />
     <Content Include="targets\objc\templates\PlayFabVersion.m.ejs" />
+    <Content Include="targets\PhpSdk\source\PlayFabHttp.php" />
+    <Content Include="targets\PhpSdk\templates\PlayFabApi.php.ejs" />
     <Content Include="targets\postman\replacements.json" />
     <Content Include="targets\postman\templates\playfab.json.ejs" />
     <Content Include="targets\unity-v2\source\Admin\PlayFabSettings.cs" />
@@ -1211,6 +1219,9 @@
     <Folder Include="targets\objc\source\" />
     <Folder Include="targets\objc\source\JAGPropertyConverter\" />
     <Folder Include="targets\objc\templates\" />
+    <Folder Include="targets\PhpSdk\" />
+    <Folder Include="targets\PhpSdk\source\" />
+    <Folder Include="targets\PhpSdk\templates\" />
     <Folder Include="targets\postman\" />
     <Folder Include="targets\postman\templates\" />
     <Folder Include="targets\unity-v2\" />

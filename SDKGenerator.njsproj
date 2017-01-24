@@ -60,7 +60,7 @@
   <PropertyGroup Condition=" '$(Configuration)' == 'JavaScriptSDK' ">
     <DebugSymbols>true</DebugSymbols>
     <OutputPath>bin\</OutputPath>
-    <ScriptArguments>javascript=..\sdks\JavaScriptSDK\PlayFabSDK -apiSpecPath -buildIdentifier JavaScriptSDK_manual</ScriptArguments>
+    <ScriptArguments>javascript=..\sdks\JavaScriptSDK -apiSpecPath -buildIdentifier JavaScriptSDK_manual</ScriptArguments>
   </PropertyGroup>
   <PropertyGroup Condition=" '$(Configuration)' == 'LumberyardSdk' ">
     <DebugSymbols>true</DebugSymbols>
@@ -550,7 +550,9 @@
     <Content Include="targets\csharp\UnittestRunner\UnittestRunner.csproj" />
     <Content Include="targets\csharp\UnittestRunner\UUnitTestRunner.cs" />
     <Content Include="targets\javascript\source\PlayFabApiTest.html" />
-    <Content Include="targets\javascript\templates\playfab.js.ejs" />
+    <Content Include="targets\javascript\templates\PlayFab.d.ts.ejs" />
+    <Content Include="targets\javascript\templates\PlayFab_Api.d.ts.ejs" />
+    <Content Include="targets\javascript\templates\PlayFab_Api.js.ejs" />
     <Content Include="targets\java\srcCode\com\google\gson\annotations\Expose.java" />
     <Content Include="targets\java\srcCode\com\google\gson\annotations\JsonAdapter.java" />
     <Content Include="targets\java\srcCode\com\google\gson\annotations\package-info.java" />

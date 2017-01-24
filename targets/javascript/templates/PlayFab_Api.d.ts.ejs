@@ -1,0 +1,22 @@
+declare module PlayFab<%- api.name %>Api {
+    export interface IPlayFab<%- api.name %>Api {
+<% if (hasClientOptions) { %>        IsClientLoggedIn(): boolean;
+
+<% } %><% for(var cIdx in api.calls) { var apiCall = api.calls[cIdx];
+%><%- GenerateSummary("        ", apiCall, "summary", "https://api.playfab.com/Documentation/" + api.name + "/method/" + apiCall.name)
+%>        <%- apiCall.name %>(request: PlayFab<%- api.name %>Models.<%- apiCall.request %>, callback: PlayFabApi.ApiCallback<PlayFab<%- api.name %>Models.<%- apiCall.result %>>): void;
+<% } %>
+    }
+}
+
+declare module PlayFab<%- api.name %>Models {
+<% for(var dIdx in api.datatypes) { var datatype = api.datatypes[dIdx];
+%><%- GenerateSummary("    ", datatype, "summary", "https://api.playfab.com/Documentation/" + api.name + "/datatype/" + datatype.classNameSpace + "/" + datatype.classNameSpace + "." + datatype.name)
+%>    export class <%- datatype.name %><%- GetBaseTypeSyntax(datatype) %> {
+<% if (datatype.properties) { for (var i = 0; i < datatype.properties.length; i++) { var property = datatype.properties[i]
+%><%- GenerateSummary("        ", property, "description")
+%>        <%- property.name %>: <%- GetPropertyTsType(property, datatype) %>;
+<% } } %>
+    }
+<% } %>
+}

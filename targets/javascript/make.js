@@ -7,25 +7,43 @@ exports.makeCombinedAPI = function (apis, sourceDir, apiOutputDir) {
     console.log("Generating JavaScript Combined SDK to " + apiOutputDir);
     
     var templateDir = path.resolve(sourceDir, "templates");
-    var apiTemplate = ejs.compile(readFile(path.resolve(templateDir, "playfab.js.ejs")));
-    copyTree(path.resolve(sourceDir, "source"), path.resolve(apiOutputDir, ".."));
+    var apiTemplate = ejs.compile(readFile(path.resolve(templateDir, "PlayFab_Api.js.ejs")));
+    var apiTypingTemplate = ejs.compile(readFile(path.resolve(templateDir, "PlayFab_Api.d.ts.ejs")));
     
-    var apiLocals = {};
-    apiLocals.HasResultActions = HasResultActions;
-    apiLocals.GetRequestActions = GetRequestActions;
-    apiLocals.GetResultActions = GetResultActions;
-    apiLocals.GetUrl = GetUrl;
-    apiLocals.GetAuthParams = GetAuthParams;
-    apiLocals.GetDeprecationAttribute = GetDeprecationAttribute;
-    apiLocals.sdkVersion = exports.sdkVersion;
-    apiLocals.buildIdentifier = exports.buildIdentifier;
+    copyTree(path.resolve(sourceDir, "source"), path.resolve(apiOutputDir, ".."));
+    MakeSimpleTemplates(apis, templateDir, apiOutputDir);
+    
+    var apiLocals = {
+        GenerateSummary: GenerateSummary,
+        GetAuthParams: GetAuthParams,
+        GetBaseTypeSyntax: GetBaseTypeSyntax,
+        GetDeprecationAttribute: GetDeprecationAttribute,
+        GetPropertyTsType: GetPropertyTsType,
+        GetRequestActions: GetRequestActions,
+        GetResultActions: GetResultActions,
+        GetUrl: GetUrl,
+        HasResultActions: HasResultActions,
+        buildIdentifier: exports.buildIdentifier,
+        sdkVersion: exports.sdkVersion
+    };
     for (var i = 0; i < apis.length; i++) {
         apiLocals.api = apis[i];
         apiLocals.hasServerOptions = apis[i].name !== "Client"; // NOTE FOR THE EJS FILE: PlayFab.settings and PlayFab._internalSettings and are still global/shared - Only utilize this within the api-specific section
         apiLocals.hasClientOptions = apis[i].name === "Client"; // NOTE FOR THE EJS FILE: PlayFab.settings and PlayFab._internalSettings and are still global/shared - Only utilize this within the api-specific section
         var generatedApi = apiTemplate(apiLocals);
-        writeFile(path.resolve(apiOutputDir, "PlayFab" + apis[i].name + "Api.js"), generatedApi);
+        writeFile(path.resolve(apiOutputDir, "PlayFabSDK/PlayFab" + apis[i].name + "Api.js"), generatedApi);
+        var generatedTypings = apiTypingTemplate(apiLocals);
+        writeFile(path.resolve(apiOutputDir, "TsTypings/PlayFab" + apis[i].name + "Api.d.ts"), generatedTypings);
     }
+}
+
+function MakeSimpleTemplates(apis, templateDir, apiOutputDir) {
+    var apiLocals = {
+        apis: apis
+    };
+    var coreTyping = ejs.compile(readFile(path.resolve(templateDir, "PlayFab.d.ts.ejs")));
+    var genCoreTypings = coreTyping(apiLocals);
+    writeFile(path.resolve(apiOutputDir, "TsTypings/Playfab.d.ts"), genCoreTypings);
 }
 
 function GetRequestActions(apiCall, api) {
@@ -82,4 +100,57 @@ function GetDeprecationAttribute(tabbing, apiObj) {
             + tabbing + " * @deprecated Do not use\n" 
             + tabbing + " */\n";
     return "";
+}
+
+function GenerateSummary(tabbing, element, summaryParam, extraLine) {
+    var hasSummary = element.hasOwnProperty(summaryParam);
+    if (!hasSummary && !extraLine) {
+        return "";
+    }
+    
+    var output = tabbing + "/// <summary>\n";
+    if (hasSummary)
+        output += tabbing + "/// " + element[summaryParam] + "\n";
+    if (extraLine)
+        output += tabbing + "/// " + extraLine + "\n";
+    output += tabbing + "/// </summary>\n";
+    return output;
+}
+
+function GetBaseTypeSyntax(datatype) {
+    if (datatype.className.toLowerCase().endsWith("request"))
+        return " extends PlayFabApi.PlayFabRequestCommon";
+    if (datatype.className.toLowerCase().endsWith("response") || datatype.className.toLowerCase().endsWith("result"))
+        return " extends PlayFabApi.PlayFabResultCommon ";
+    return ""; // If both are -1, then neither is greater
+}
+
+function GetPropertyTsType(property, datatype) {
+    var output = undefined;
+    
+    if (property.actualtype === "String")
+        output = "string";
+    else if (property.actualtype === "Boolean")
+        output = "boolean";
+    else if (property.actualtype.contains("int") || property.actualtype === "float" || property.actualtype === "double" || property.actualtype === "decimal")
+        output = "number";
+    else if (property.actualtype === "DateTime")
+        output = "string";
+    else if (property.isclass)
+        output = property.actualtype;
+    else if (property.isenum)
+        output = "string";
+    else if (property.actualtype === "object")
+        output = "any";
+    else
+        throw "Unknown property type: " + property.actualtype + " for " + property.name + " in " + datatype.className;
+    
+    if (property.collection === "array")
+        output += "[]";
+    else if (property.collection === "map")
+        output = "{ [key: string]: " + output + " };";
+    else if (property.collection)
+        throw "Unknown collection type: " + property.collection + " for " + property.name + " in " + datatype.className;
+    
+    return output;
 }

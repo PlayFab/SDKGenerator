@@ -1,0 +1,37 @@
+declare module PlayFabApi {
+    export class Settings {
+        titleId: string;
+        developerSecretKey: string;
+        advertisingIdType: string;
+        advertisingIdValue: string;
+        disableAdvertising: boolean;
+        AD_TYPE_IDFA: string;
+        AD_TYPE_ANDROID_ID: string;
+    }
+    export class PlayFabRequestCommon { }
+    export class PlayFabError {
+        code: number;
+        status: string;
+        error: string;
+        errorCode: number;
+        errorMessage: string;
+        errorDetails: { [key: string]: string };
+    }
+    export class PlayFabSuccessContainer<TResult extends PlayFabResultCommon> extends PlayFabError {
+        data: TResult;
+    }
+    export class PlayFabResultCommon extends PlayFabError { }
+
+    export interface ApiCallback<TResult extends PlayFabResultCommon> { (result: PlayFabSuccessContainer<TResult>, error: PlayFabError): void }
+}
+
+declare var PlayFab: {
+    settings: PlayFabApi.Settings;
+<% for (var i = 0; i < apis.length; i++) { api = apis[i];
+%>    <%- api.name %>Api: PlayFab<%- api.name %>Api.IPlayFab<%- api.name %>Api;
+<% } %>
+};
+// Continue to support older usage
+<% for (var i = 0; i < apis.length; i++) { api = apis[i];
+%>declare var PlayFab<%- api.name %>SDK: PlayFab<%- api.name %>Api.IPlayFab<%- api.name %>Api;
+<% } %>

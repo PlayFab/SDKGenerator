@@ -108,12 +108,12 @@ function GenerateSummary(tabbing, element, summaryParam, extraLine) {
         return "";
     }
     
-    var output = tabbing + "/// <summary>\n";
+    var output = tabbing + "/**\n";
     if (hasSummary)
-        output += tabbing + "/// " + element[summaryParam] + "\n";
+        output += tabbing + " / " + element[summaryParam] + "\n";
     if (extraLine)
-        output += tabbing + "/// " + extraLine + "\n";
-    output += tabbing + "/// </summary>\n";
+        output += tabbing + " / " + extraLine + "\n";
+    output += tabbing + " */\n";
     return output;
 }
 

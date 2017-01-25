@@ -1,0 +1,3 @@
+<%- tabbing %>interface <%- name %> {
+<% for( var i in properties) { %><%-GetProperty(properties[i], tabbing + "    ")%><% } -%>
+<%- tabbing %>}

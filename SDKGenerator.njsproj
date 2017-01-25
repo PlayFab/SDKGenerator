@@ -32,6 +32,11 @@
     <OutputPath>bin\</OutputPath>
     <ScriptArguments>actionscript=..\sdks\ActionScriptSDK -apiSpecPath -buildIdentifier ActionScriptSDK_manual</ScriptArguments>
   </PropertyGroup>
+  <PropertyGroup Condition=" '$(Configuration)' == 'CloudScript' ">
+    <DebugSymbols>true</DebugSymbols>
+    <OutputPath>bin\</OutputPath>
+    <ScriptArguments>SdkTestingCloudScript=..\sdks\SdkTestingCloudScript -apiSpecPath -buildIdentifier CloudTS_manual</ScriptArguments>
+  </PropertyGroup>
   <PropertyGroup Condition=" '$(Configuration)' == 'CSharpFlat' ">
     <DebugSymbols>true</DebugSymbols>
     <OutputPath>bin\</OutputPath>
@@ -114,7 +119,6 @@
   </PropertyGroup>
   <ItemGroup>
     <Compile Include="targets\actionscript\make.js" />
-    <Compile Include="targets\cloudscript-typings\make.js" />
     <Compile Include="targets\cpp-cocos2dx\make.js" />
     <Compile Include="targets\cpp-ue4\make-bp.js" />
     <Compile Include="targets\cpp-ue4\make.js" />
@@ -136,14 +140,15 @@
     <Compile Include="targets\objc\make.js" />
     <Compile Include="targets\PhpSdk\make.js" />
     <Compile Include="targets\postman\make.js" />
+    <Compile Include="targets\SdkTestingCloudScript\make.js" />
     <Compile Include="targets\unity-v2\make.js" />
     <Compile Include="targets\WindowsSdk\make.js" />
     <Content Include="README.md" />
     <Compile Include="generate.js" />
     <Content Include="SDKBuildScripts\actionscript_build.bat" />
-    <Content Include="SDKBuildScripts\cloudscript_ts_build.bat" />
     <Content Include="SDKBuildScripts\cocos_build.bat" />
     <Content Include="SDKBuildScripts\cocos_example1build.bat" />
+    <Content Include="SDKBuildScripts\CoudScriptExample_build.bat" />
     <Content Include="SDKBuildScripts\csflat.bat" />
     <Content Include="SDKBuildScripts\csharp_build.bat" />
     <Content Include="SDKBuildScripts\java_build.bat" />
@@ -154,12 +159,13 @@
     <Content Include="SDKBuildScripts\node_build.bat" />
     <Content Include="SDKBuildScripts\objc_build.bat" />
     <Content Include="SDKBuildScripts\postman_build.bat" />
-    <Content Include="SDKBuildScripts\ue4_CPP_build.bat" />
     <Content Include="SDKBuildScripts\ue4_BP_build.bat" />
+    <Content Include="SDKBuildScripts\ue4_CPP_build.bat" />
     <Content Include="SDKBuildScripts\unity_build.bat" />
     <Content Include="SDKBuildScripts\unity_build_strangeIoC.bat" />
     <Content Include="SDKBuildScripts\unity_gameserver.bat" />
-    <Content Include="SDKBuildScripts\winV0_build.bat" />
+    <Content Include="SDKBuildScripts\unity_RunAutoTests.bat" />
+    <Content Include="SDKBuildScripts\unity_SetupTestProjects.sh" />
     <Content Include="SDKBuildScripts\winV1_build.bat" />
     <Content Include="targets\actionscript\source\asyncUnitTest\ASyncAssert.as" />
     <Content Include="targets\actionscript\source\asyncUnitTest\ASyncUnitTestCloudScriptReporter.as" />
@@ -183,9 +189,6 @@
     <Content Include="targets\actionscript\templates\Model.as.ejs" />
     <Content Include="targets\actionscript\templates\PlayFabSettings.as.ejs" />
     <Content Include="targets\actionscript\templates\PlayFabVersion.as.ejs" />
-    <Content Include="targets\cloudscript-typings\templates\API.d.ts.ejs" />
-    <Content Include="targets\cloudscript-typings\templates\Interface.d.ts.ejs" />
-    <Content Include="targets\cloudscript-typings\templates\StringLiteral.d.ts.ejs" />
     <Content Include="targets\cpp-cocos2dx\ExampleSource\Classes\HelloWorldScene.cpp" />
     <Content Include="targets\cpp-cocos2dx\ExampleSource\Classes\HelloWorldScene.h" />
     <Content Include="targets\cpp-cocos2dx\ExampleSource\Classes\PlayFabApiTest.cpp" />
@@ -768,6 +771,9 @@
     <Content Include="targets\PhpSdk\templates\PlayFabApi.php.ejs" />
     <Content Include="targets\postman\replacements.json" />
     <Content Include="targets\postman\templates\playfab.json.ejs" />
+    <Content Include="targets\SdkTestingCloudScript\templates\API.d.ts.ejs" />
+    <Content Include="targets\SdkTestingCloudScript\templates\Interface.d.ts.ejs" />
+    <Content Include="targets\SdkTestingCloudScript\templates\StringLiteral.d.ts.ejs" />
     <Content Include="targets\unity-v2\source\Admin\PlayFabSettings.cs" />
     <Content Include="targets\unity-v2\source\Client\PlayFabIdfa.cs" />
     <Content Include="targets\unity-v2\source\Client\PlayFabSettings.cs" />
@@ -1006,7 +1012,7 @@
     <Content Include="targets\WindowsSdk\templates\PlayFab_DataModels.h.ejs" />
   </ItemGroup>
   <ItemGroup>
-    <Folder Include="SDKBuildScripts" />
+    <Folder Include="SDKBuildScripts\" />
     <Folder Include="targets\" />
     <Folder Include="targets\actionscript\" />
     <Folder Include="targets\actionscript\source\" />
@@ -1014,8 +1020,6 @@
     <Folder Include="targets\actionscript\source\com\" />
     <Folder Include="targets\actionscript\source\com\playfab\" />
     <Folder Include="targets\actionscript\templates\" />
-    <Folder Include="targets\cloudscript-typings\" />
-    <Folder Include="targets\cloudscript-typings\templates\" />
     <Folder Include="targets\cpp-cocos2dx\" />
     <Folder Include="targets\cpp-cocos2dx\ExampleSource\" />
     <Folder Include="targets\cpp-cocos2dx\ExampleSource\Classes\" />
@@ -1226,6 +1230,8 @@
     <Folder Include="targets\PhpSdk\templates\" />
     <Folder Include="targets\postman\" />
     <Folder Include="targets\postman\templates\" />
+    <Folder Include="targets\SdkTestingCloudScript\" />
+    <Folder Include="targets\SdkTestingCloudScript\templates\" />
     <Folder Include="targets\unity-v2\" />
     <Folder Include="targets\unity-v2\source\" />
     <Folder Include="targets\unity-v2\source\Admin\" />

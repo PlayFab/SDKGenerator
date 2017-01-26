@@ -1,5 +1,4 @@
 var path = require("path");
-var ejs = require("ejs");
 var unityV2 = require("../unity-v2/make.js");
 
 exports.putInRoot = true;
@@ -41,7 +40,7 @@ function MakeStrangeIoC(apis, sourceDir, apiOutputDir) {
 function MakeErrorHandler(templateDir, apiOutputDir) {
     console.log("   - Generating C# Error Handler library to\n   -> " + apiOutputDir);
     
-    var apiTemplate = ejs.compile(readFile(path.resolve(templateDir, "PlayFabErrorHandler.cs.ejs")));
+    var apiTemplate = GetCompiledTemplate(path.resolve(templateDir, "PlayFabErrorHandler.cs.ejs"));
     var locals = {};
     var generatedApi = apiTemplate(locals);
     writeFile(path.resolve(apiOutputDir, "ErrorHandler/PlayFabErrorHandler.cs"), generatedApi);
@@ -50,7 +49,7 @@ function MakeErrorHandler(templateDir, apiOutputDir) {
 function MakeSignals(apis, templateDir, apiOutputDir) {
     console.log("   - Generating C# Signals library to\n   -> " + apiOutputDir);
     
-    var apiTemplate = ejs.compile(readFile(path.resolve(templateDir, "PlayFabSignals.cs.ejs")));
+    var apiTemplate = GetCompiledTemplate(path.resolve(templateDir, "PlayFabSignals.cs.ejs"));
     var locals = {};
     locals.GenerateSummary = GenerateSummary;
     locals.apis = apis;
@@ -61,7 +60,7 @@ function MakeSignals(apis, templateDir, apiOutputDir) {
 function MakeCommands(apis, templateDir, apiOutputDir) {
     console.log("   - Generating C# Commands library to\n   -> " + apiOutputDir);
     
-    var apiTemplate = ejs.compile(readFile(path.resolve(templateDir, "PlayFabCommands.cs.ejs")));
+    var apiTemplate = GetCompiledTemplate(path.resolve(templateDir, "PlayFabCommands.cs.ejs"));
     var locals = {};
     locals.GenerateSummary = GenerateSummary;
     locals.apis = apis;
@@ -72,7 +71,7 @@ function MakeCommands(apis, templateDir, apiOutputDir) {
 function MakeContext(apis, templateDir, apiOutputDir) {
     console.log("   - Generating C# Context library to\n   -> " + apiOutputDir);
     
-    var apiTemplate = ejs.compile(readFile(path.resolve(templateDir, "PlayFabContextManager.cs.ejs")));
+    var apiTemplate = GetCompiledTemplate(path.resolve(templateDir, "PlayFabContextManager.cs.ejs"));
     var locals = {};
     locals.apis = apis;
     locals.GenerateSummary = GenerateSummary;

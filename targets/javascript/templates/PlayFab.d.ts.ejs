@@ -1,5 +1,5 @@
 declare module PlayFabApi {
-    export class Settings {
+    export interface Settings {
         titleId: string;
         developerSecretKey: string;
         advertisingIdType: string;
@@ -8,19 +8,19 @@ declare module PlayFabApi {
         AD_TYPE_IDFA: string;
         AD_TYPE_ANDROID_ID: string;
     }
-    export class PlayFabRequestCommon { }
-    export class PlayFabError {
+    export interface PlayFabRequestCommon { }
+    export interface PlayFabError {
         code: number;
         status: string;
         error: string;
         errorCode: number;
         errorMessage: string;
-        errorDetails: { [key: string]: string };
+        errorDetails?: { [key: string]: string };
     }
-    export class PlayFabSuccessContainer<TResult extends PlayFabResultCommon> extends PlayFabError {
+    export interface PlayFabSuccessContainer<TResult extends PlayFabResultCommon> extends PlayFabError {
         data: TResult;
     }
-    export class PlayFabResultCommon extends PlayFabError { }
+    export interface PlayFabResultCommon extends PlayFabError { }
 
     export interface ApiCallback<TResult extends PlayFabResultCommon> { (result: PlayFabSuccessContainer<TResult>, error: PlayFabError): void }
 }

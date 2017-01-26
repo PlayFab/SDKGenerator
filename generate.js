@@ -1,3 +1,4 @@
+var ejs = require("ejs");
 var fs = require("fs");
 var https = require("https");
 var path = require("path");
@@ -562,6 +563,18 @@ GLOBAL.writeFile = function (filename, data) {
 // Fetch the object parsed from an api-file, from the cache (can't load synchronously from URL-options, so we have to pre-cache them)
 GLOBAL.GetApiJson = function (apiFileName) {
     return SdkGeneratorGlobals.apiCache[apiFileName];
+}
+
+/**
+ * Wrapper function for boilerplate of compiling templates
+ * Also Caches the Templates to avoid reloading and recompiling
+ * */
+GLOBAL.GetCompiledTemplate = function (templatePath) {
+    if (!this.compiledTemplates) 
+        this.compiledTemplates = {};
+    if (!compiledTemplates.hasOwnProperty(templatePath))
+        this.compiledTemplates[templatePath] = ejs.compile(readFile(templatePath));
+    return this.compiledTemplates[templatePath];
 }
 
 // Kick everything off

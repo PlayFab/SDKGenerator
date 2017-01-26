@@ -1,5 +1,4 @@
 var path = require("path");
-var ejs = require("ejs");
 
 exports.makeCombinedAPI = function (apis, sourceDir, apiOutputDir) {
     console.log("Generating Combined api from: " + sourceDir + " to: " + apiOutputDir);
@@ -17,19 +16,19 @@ function MakeSimpleTemplates(apis, sourceDir, apiOutputDir) {
         sdkYear: exports.sdkVersion.split(".")[2].substr(0, 2)
     };
 
-    var errTemplate = ejs.compile(readFile(path.resolve(sourceDir, "templates/PlayFabError.h.ejs")));
+    var errTemplate = GetCompiledTemplate(path.resolve(sourceDir, "templates/PlayFabError.h.ejs"));;
     var generatedErr = errTemplate(locals);
     writeFile(path.resolve(apiOutputDir, "include/playfab", "PlayFabError.h"), generatedErr);
     
     locals.vsVer = "v120";
     locals.vsYear = "2013";
-    var pkg13Template = ejs.compile(readFile(path.resolve(sourceDir, "templates/com.playfab.windowssdk.v1x0.autopkg.ejs")));
+    var pkg13Template = GetCompiledTemplate(path.resolve(sourceDir, "templates/com.playfab.windowssdk.v1x0.autopkg.ejs"));;
     var generatedPkg13 = pkg13Template(locals);
     writeFile(path.resolve(apiOutputDir, "build", "com.playfab.windowssdk.v120.autopkg"), generatedPkg13);
 
     locals.vsVer = "v140";
     locals.vsYear = "2015";
-    var pkg15Template = ejs.compile(readFile(path.resolve(sourceDir, "templates/com.playfab.windowssdk.v1x0.autopkg.ejs")));
+    var pkg15Template = GetCompiledTemplate(path.resolve(sourceDir, "templates/com.playfab.windowssdk.v1x0.autopkg.ejs"));;
     var generatedPkg15 = pkg15Template(locals);
     writeFile(path.resolve(apiOutputDir, "build", "com.playfab.windowssdk.v140.autopkg"), generatedPkg15);
 }
@@ -51,15 +50,15 @@ function MakeApiFiles(api, sourceDir, apiOutputDir) {
         GetResultActions: GetResultActions
     };
     
-    var apihTemplate = ejs.compile(readFile(path.resolve(sourceDir, "templates/PlayFab_Api.h.ejs")));
+    var apihTemplate = GetCompiledTemplate(path.resolve(sourceDir, "templates/PlayFab_Api.h.ejs"));;
     var generatedApiH = apihTemplate(locals);
     writeFile(path.resolve(apiOutputDir, "include/playfab", "PlayFab" + api.name + "Api.h"), generatedApiH);
     
-    var apiCppTemplate = ejs.compile(readFile(path.resolve(sourceDir, "templates/PlayFab_Api.cpp.ejs")));
+    var apiCppTemplate = GetCompiledTemplate(path.resolve(sourceDir, "templates/PlayFab_Api.cpp.ejs"));;
     var generatedApiCpp = apiCppTemplate(locals);
     writeFile(path.resolve(apiOutputDir, "source", "PlayFab" + api.name + "Api.cpp"), generatedApiCpp);
     
-    var dataModelTemplate = ejs.compile(readFile(path.resolve(sourceDir, "templates/PlayFab_DataModels.h.ejs")));
+    var dataModelTemplate = GetCompiledTemplate(path.resolve(sourceDir, "templates/PlayFab_DataModels.h.ejs"));;
     var generatedDataModel = dataModelTemplate(locals);
     writeFile(path.resolve(apiOutputDir, "include/playfab", "PlayFab" + api.name + "DataModels.h"), generatedDataModel);
 }

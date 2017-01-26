@@ -1,5 +1,4 @@
 var path = require("path");
-var ejs = require("ejs");
 
 exports.makeClientAPI = function (api, sourceDir, apiOutputDir) {
     console.log("Generating C-sharp client SDK to " + apiOutputDir);
@@ -50,7 +49,7 @@ exports.makeCombinedAPI = function (apis, sourceDir, apiOutputDir) {
 
 function MakeAllDatatypes(apis, sourceDir, apiOutputDir) {
     var templateDir = path.resolve(sourceDir, "templates");
-    var modelsTemplate = ejs.compile(readFile(path.resolve(templateDir, "Models.cs.ejs")));
+    var modelsTemplate = GetCompiledTemplate(path.resolve(templateDir, "Models.cs.ejs"));
     
     for (var a = 0; a < apis.length; a++) {
         var api = apis[a];
@@ -65,8 +64,8 @@ function MakeAllDatatypes(apis, sourceDir, apiOutputDir) {
 
 function MakeDatatype(datatype, api, sourceDir) {
     var templateDir = path.resolve(sourceDir, "templates");
-    var modelTemplate = ejs.compile(readFile(path.resolve(templateDir, "Model.cs.ejs")));
-    var enumTemplate = ejs.compile(readFile(path.resolve(templateDir, "Enum.cs.ejs")));
+    var modelTemplate = GetCompiledTemplate(path.resolve(templateDir, "Model.cs.ejs"));
+    var enumTemplate = GetCompiledTemplate(path.resolve(templateDir, "Enum.cs.ejs"));
     
     var modelLocals = {};
     modelLocals.datatype = datatype;
@@ -88,7 +87,7 @@ function MakeApi(api, sourceDir, apiOutputDir) {
     console.log("Generating C# " + api.name + " library to " + apiOutputDir);
     
     var templateDir = path.resolve(sourceDir, "templates");
-    var apiTemplate = ejs.compile(readFile(path.resolve(templateDir, "API.cs.ejs")));
+    var apiTemplate = GetCompiledTemplate(path.resolve(templateDir, "API.cs.ejs"));
     
     var apiLocals = {};
     apiLocals.api = api;
@@ -120,7 +119,7 @@ function MakeApi(api, sourceDir, apiOutputDir) {
 }
 
 function GenerateErrors(api, sourceDir, apiOutputDir) {
-    var errorsTemplate = ejs.compile(readFile(path.resolve(sourceDir, "templates/Errors.cs.ejs")));
+    var errorsTemplate = GetCompiledTemplate(path.resolve(sourceDir, "templates/Errors.cs.ejs"));
     var errorLocals = {};
     errorLocals.errorList = api.errorList;
     errorLocals.errors = api.errors;
@@ -129,7 +128,7 @@ function GenerateErrors(api, sourceDir, apiOutputDir) {
 }
 
 function GenerateVersion(api, sourceDir, apiOutputDir) {
-    var versionTemplate = ejs.compile(readFile(path.resolve(sourceDir, "templates/PlayFabVersion.cs.ejs")));
+    var versionTemplate = GetCompiledTemplate(path.resolve(sourceDir, "templates/PlayFabVersion.cs.ejs"));
     var versionLocals = {};
     versionLocals.sdkRevision = exports.sdkVersion;
     versionLocals.buildIdentifier = exports.buildIdentifier;
@@ -138,7 +137,7 @@ function GenerateVersion(api, sourceDir, apiOutputDir) {
 }
 
 function GenerateProject(apis, sourceDir, apiOutputDir, libname) {
-    var vcProjTemplate = ejs.compile(readFile(path.resolve(sourceDir, "templates/PlayFabSDK.csproj.ejs")));
+    var vcProjTemplate = GetCompiledTemplate(path.resolve(sourceDir, "templates/PlayFabSDK.csproj.ejs"));
     
     var projLocals = {};
     projLocals.apis = apis;

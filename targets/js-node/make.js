@@ -1,4 +1,3 @@
-var ejs = require("ejs");
 var path = require("path");
 
 exports.putInRoot = true;
@@ -8,9 +7,9 @@ exports.makeCombinedAPI = function (apis, sourceDir, apiOutputDir) {
     
     // Load the templates
     var templateDir = path.resolve(sourceDir, "templates");
-    var coreTemplate = ejs.compile(readFile(path.resolve(templateDir, "playfab.js.ejs")));
-    var npmTemplate = ejs.compile(readFile(path.resolve(templateDir, "package.json.ejs")));
-    var apiTemplate = ejs.compile(readFile(path.resolve(templateDir, "api.js.ejs")));
+    var coreTemplate = GetCompiledTemplate(path.resolve(templateDir, "playfab.js.ejs"));
+    var npmTemplate = GetCompiledTemplate(path.resolve(templateDir, "package.json.ejs"));
+    var apiTemplate = GetCompiledTemplate(path.resolve(templateDir, "api.js.ejs"));
     
     var destSubFolders = ["PlayFabSdk", "PlayFabTesting"]; // Write both the published folder and the testing folder
     for (var fIdx = 0; fIdx < destSubFolders.length; fIdx++) {

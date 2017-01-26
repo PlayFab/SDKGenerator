@@ -1,4 +1,3 @@
-var ejs = require("ejs");
 var path = require("path");
 var blueprint = require("./make-bp.js");
 
@@ -31,8 +30,8 @@ exports.makeCombinedAPI = function (apis, sourceDir, apiOutputDir) {
 }
 
 function MakeApi(api, sourceDir, apiOutputDir, subdir) {
-    var apiHeaderTemplate = ejs.compile(readFile(path.resolve(sourceDir, "templates/core/PlayFabAPI.h.ejs")));
-    var apiBodyTemplate = ejs.compile(readFile(path.resolve(sourceDir, "templates/core/PlayFabAPI.cpp.ejs")));
+    var apiHeaderTemplate = GetCompiledTemplate(path.resolve(sourceDir, "templates/core/PlayFabAPI.h.ejs"));
+    var apiBodyTemplate = GetCompiledTemplate(path.resolve(sourceDir, "templates/core/PlayFabAPI.cpp.ejs"));
     
     var apiLocals = {};
     apiLocals.api = api;
@@ -61,17 +60,17 @@ function GenerateSimpleFiles(api, sourceDir, apiOutputDir, outputCodeDir, subDir
     sharedLocals.errors = api.errors;
 
     // Errors Definition
-    var errorsTemplate = ejs.compile(readFile(path.resolve(sourceDir, "templates/core/PlayFabError.h.ejs")));
+    var errorsTemplate = GetCompiledTemplate(path.resolve(sourceDir, "templates/core/PlayFabError.h.ejs"));
     var generatedErrors = errorsTemplate(sharedLocals);
     writeFile(path.resolve(outputCodeDir, "Public", subDir, "PlayFabError.h"), generatedErrors);
     
     // Settings and constants
-    var settingsTemplate = ejs.compile(readFile(path.resolve(sourceDir, "templates/core/PlayFabSettings.cpp.ejs")));
+    var settingsTemplate = GetCompiledTemplate(path.resolve(sourceDir, "templates/core/PlayFabSettings.cpp.ejs"));
     var generatedSettings = settingsTemplate(sharedLocals);
     writeFile(path.resolve(outputCodeDir, "Private", subDir, "PlayFabSettings.cpp"), generatedSettings);
     
     // uplugin file
-    var upluginTemplate = ejs.compile(readFile(path.resolve(sourceDir, "templates/PlayFab.uplugin.ejs")));
+    var upluginTemplate = GetCompiledTemplate(path.resolve(sourceDir, "templates/PlayFab.uplugin.ejs"));
     var generatedUplugin = upluginTemplate(sharedLocals);
     writeFile(path.resolve(apiOutputDir, "Plugins/PlayFab/PlayFab.uplugin"), generatedUplugin);
 }
@@ -89,8 +88,8 @@ function GenerateModels(apis, sourceDir, apiOutputDir, libraryName, subdir) {
             AddTypeAndDependencies(datatype, api.datatypes, orderedTypes, addedSet);
         }
         
-        var modelHeaderTemplate = ejs.compile(readFile(path.resolve(sourceDir, "templates/core/PlayFabDataModels.h.ejs")));
-        var modelBodyTemplate = ejs.compile(readFile(path.resolve(sourceDir, "templates/core/PlayFabDataModels.cpp.ejs")));
+        var modelHeaderTemplate = GetCompiledTemplate(path.resolve(sourceDir, "templates/core/PlayFabDataModels.h.ejs"));
+        var modelBodyTemplate = GetCompiledTemplate(path.resolve(sourceDir, "templates/core/PlayFabDataModels.cpp.ejs"));
         
         var modelLocals = {};
         modelLocals.api = api;

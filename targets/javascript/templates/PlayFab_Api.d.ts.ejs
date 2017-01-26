@@ -10,13 +10,8 @@ declare module PlayFab<%- api.name %>Api {
 }
 
 declare module PlayFab<%- api.name %>Models {
-<% for(var dIdx in api.datatypes) { var datatype = api.datatypes[dIdx];
-%><%- GenerateSummary("    ", datatype, "summary", "https://api.playfab.com/Documentation/" + api.name + "/datatype/" + datatype.classNameSpace + "/" + datatype.classNameSpace + "." + datatype.name)
-%>    export class <%- datatype.name %><%- GetBaseTypeSyntax(datatype) %> {
-<% if (datatype.properties) { for (var i = 0; i < datatype.properties.length; i++) { var property = datatype.properties[i]
-%><%- GenerateSummary("        ", property, "description")
-%>        <%- property.name %>: <%- GetPropertyTsType(property, datatype) %>;
-<% } } %>
-    }
-<% } %>
+<% for(var dIdx in api.datatypes) {
+var datatype = api.datatypes[dIdx];
+%><%- GenerateDatatype(datatype, sourceDir) %><%
+} %>
 }

@@ -1,5 +1,4 @@
 var path = require("path");
-var ejs = require("ejs");
 
 exports.makeCombinedAPI = function (apis, sourceDir, apiOutputDir) {
     console.log("Generating Combined api from: " + sourceDir + " to: " + apiOutputDir);
@@ -20,7 +19,7 @@ function MakeApi(api, sourceDir, apiOutputDir) {
         GetRequestActions: GetRequestActions
     };
     
-    var template = ejs.compile(readFile(path.resolve(sourceDir, "templates/PlayFabApi.php.ejs")));
+    var template = GetCompiledTemplate(path.resolve(sourceDir, "templates/PlayFabApi.php.ejs"));
     var generatedTemplateText = template(locals);
     writeFile(path.resolve(apiOutputDir, "PlayFab" + api.name + "Api.php"), generatedTemplateText);
 }

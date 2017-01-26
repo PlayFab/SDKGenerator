@@ -1,5 +1,4 @@
 var path = require("path");
-var ejs = require("ejs");
 
 exports.putInRoot = true;
 
@@ -8,7 +7,7 @@ exports.makeCombinedAPI = function (apis, sourceDir, apiOutputDir) {
     
     var templateDir = path.resolve(sourceDir, "templates");
     
-    var apiTemplate = ejs.compile(readFile(path.resolve(templateDir, "playfab.json.ejs")));
+    var apiTemplate = GetCompiledTemplate(path.resolve(templateDir, "playfab.json.ejs"));
     
     var propertyReplacements;
     try {

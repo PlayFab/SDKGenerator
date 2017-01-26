@@ -1,5 +1,4 @@
 var path = require("path");
-var ejs = require("ejs");
 
 exports.makeClientAPI = function (api, sourceDir, apiOutputDir) {
     console.log("Generating C-sharp client SDK to " + apiOutputDir);
@@ -60,9 +59,9 @@ function GetBaseTypeSyntax(datatype) {
 }
 
 function MakeDatatypes(apis, sourceDir, apiOutputDir) {
-    var modelTemplate = ejs.compile(readFile(path.resolve(sourceDir, "templates/Model.cs.ejs")));
-    var modelsTemplate = ejs.compile(readFile(path.resolve(sourceDir, "templates/Models.cs.ejs")));
-    var enumTemplate = ejs.compile(readFile(path.resolve(sourceDir, "templates/Enum.cs.ejs")));
+    var modelTemplate = GetCompiledTemplate(path.resolve(sourceDir, "templates/Model.cs.ejs"));
+    var modelsTemplate = GetCompiledTemplate(path.resolve(sourceDir, "templates/Models.cs.ejs"));
+    var enumTemplate = GetCompiledTemplate(path.resolve(sourceDir, "templates/Enum.cs.ejs"));
     
     var makeDatatype = function (datatype, api) {
         var modelLocals = {};
@@ -88,7 +87,7 @@ function MakeDatatypes(apis, sourceDir, apiOutputDir) {
 function MakeApi(api, sourceDir, apiOutputDir) {
     console.log("Generating C# " + api.name + " library to " + apiOutputDir);
     
-    var apiTemplate = ejs.compile(readFile(path.resolve(sourceDir, "templates/API.cs.ejs")));
+    var apiTemplate = GetCompiledTemplate(path.resolve(sourceDir, "templates/API.cs.ejs"));
     var apiLocals = {};
     apiLocals.api = api;
     apiLocals.GetAuthParams = GetAuthParams;
@@ -103,7 +102,7 @@ function MakeApi(api, sourceDir, apiOutputDir) {
 }
 
 function GenerateSimpleFiles(apis, sourceDir, apiOutputDir) {
-    var errorsTemplate = ejs.compile(readFile(path.resolve(sourceDir, "templates/Errors.cs.ejs")));
+    var errorsTemplate = GetCompiledTemplate(path.resolve(sourceDir, "templates/Errors.cs.ejs"));
     var errorLocals = {};
     errorLocals.errorList = apis[0].errorList;
     errorLocals.errors = apis[0].errors;
@@ -122,17 +121,17 @@ function GenerateSimpleFiles(apis, sourceDir, apiOutputDir) {
             settingsLocals.hasServerOptions = true;
     }
     
-    var utilTemplate = ejs.compile(readFile(path.resolve(sourceDir, "templates/PlayFabUtil.cs.ejs")));
+    var utilTemplate = GetCompiledTemplate(path.resolve(sourceDir, "templates/PlayFabUtil.cs.ejs"));
     var generatedTemplate = utilTemplate(settingsLocals);
     writeFile(path.resolve(apiOutputDir, "source/PlayFabUtil.cs"), generatedTemplate);
     
-    var settingsTemplate = ejs.compile(readFile(path.resolve(sourceDir, "templates/PlayFabSettings.cs.ejs")));
+    var settingsTemplate = GetCompiledTemplate(path.resolve(sourceDir, "templates/PlayFabSettings.cs.ejs"));
     var generatedSettings = settingsTemplate(settingsLocals);
     writeFile(path.resolve(apiOutputDir, "source/PlayFabSettings.cs"), generatedSettings);
 }
 
 function GenerateProject(apis, sourceDir, apiOutputDir, libname, extraDefines) {
-    var vcProjTemplate = ejs.compile(readFile(path.resolve(sourceDir, "templates/PlayFabSDK.csproj.ejs")));
+    var vcProjTemplate = GetCompiledTemplate(path.resolve(sourceDir, "templates/PlayFabSDK.csproj.ejs"));
     
     var projLocals = {};
     projLocals.apis = apis;

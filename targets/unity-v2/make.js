@@ -1,4 +1,3 @@
-var ejs = require("ejs");
 var path = require("path");
 
 exports.putInRoot = true;
@@ -30,7 +29,7 @@ function MakeApiEventFiles(api, sourceDir, apiOutputDir) {
     var apiLocals = {};
     apiLocals.api = api;
     
-    var apiTemplate = ejs.compile(readFile(path.resolve(sourceDir, "templates", "PlayFabEvents.cs.ejs")));
+    var apiTemplate = GetCompiledTemplate(path.resolve(sourceDir, "templates", "PlayFabEvents.cs.ejs"));
     var generatedApi = apiTemplate(apiLocals);
     writeFile(path.resolve(apiOutputDir, api.name + "/PlayFabEvents.cs"), generatedApi);
 }
@@ -48,20 +47,20 @@ function MakeSharedEventFiles(apis, sourceDir, apiOutputDir) {
     eventLocals.MakeDatatype = MakePlayStreamDatatype;
     
     // Events for api-callbacks
-    var eventTemplate = ejs.compile(readFile(path.resolve(sourceDir, "templates", "Events.cs.ejs")));
+    var eventTemplate = GetCompiledTemplate(path.resolve(sourceDir, "templates", "Events.cs.ejs"));
     var generatedEvents = eventTemplate(eventLocals);
     writeFile(path.resolve(apiOutputDir, "Shared/Public/PlayFabEvents.cs"), generatedEvents);
     
     // PlayStream event models
-    var psTemplate = ejs.compile(readFile(path.resolve(sourceDir, "templates", "PlayStreamEventDataModels.cs.ejs")));
+    var psTemplate = GetCompiledTemplate(path.resolve(sourceDir, "templates", "PlayStreamEventDataModels.cs.ejs"));
     var generatedPsEvents = psTemplate(eventLocals);
     writeFile(path.resolve(apiOutputDir, "Shared/Public/PlayStream/PlayStreamEventDataModels.cs"), generatedPsEvents);
 }
 
 function MakePlayStreamDatatype(datatype, sourceDir) {
     var templateDir = path.resolve(sourceDir, "templates");
-    var modelTemplate = ejs.compile(readFile(path.resolve(templateDir, "Model.cs.ejs")));
-    var enumTemplate = ejs.compile(readFile(path.resolve(templateDir, "Enum.cs.ejs")));
+    var modelTemplate = GetCompiledTemplate(path.resolve(templateDir, "Model.cs.ejs"));
+    var enumTemplate = GetCompiledTemplate(path.resolve(templateDir, "Enum.cs.ejs"));
     
     var modelLocals = {};
     modelLocals.datatype = datatype;
@@ -86,7 +85,7 @@ function GetBaseTypeSyntax(datatype) {
 
 function MakeDatatypes(apis, sourceDir, apiOutputDir) {
     var templateDir = path.resolve(sourceDir, "templates");
-    var modelsTemplate = ejs.compile(readFile(path.resolve(templateDir, "Models.cs.ejs")));
+    var modelsTemplate = GetCompiledTemplate(path.resolve(templateDir, "Models.cs.ejs"));
     
     for (var a = 0; a < apis.length; a++) {
         var modelsLocal = {};
@@ -100,8 +99,8 @@ function MakeDatatypes(apis, sourceDir, apiOutputDir) {
 
 function MakeApiDatatype(datatype, sourceDir) {
     var templateDir = path.resolve(sourceDir, "templates");
-    var modelTemplate = ejs.compile(readFile(path.resolve(templateDir, "Model.cs.ejs")));
-    var enumTemplate = ejs.compile(readFile(path.resolve(templateDir, "Enum.cs.ejs")));
+    var modelTemplate = GetCompiledTemplate(path.resolve(templateDir, "Model.cs.ejs"));
+    var enumTemplate = GetCompiledTemplate(path.resolve(templateDir, "Enum.cs.ejs"));
     
     var modelLocals = {};
     modelLocals.datatype = datatype;
@@ -120,7 +119,7 @@ function MakeApi(api, sourceDir, apiOutputDir) {
     console.log("   - Generating C# " + api.name + " library to\n   -> " + apiOutputDir);
     
     var templateDir = path.resolve(sourceDir, "templates");
-    var apiTemplate = ejs.compile(readFile(path.resolve(templateDir, "API.cs.ejs")));
+    var apiTemplate = GetCompiledTemplate(path.resolve(templateDir, "API.cs.ejs"));
     var apiLocals = {};
     apiLocals.api = api;
     apiLocals.GetAuthParams = GetAuthParams;
@@ -158,14 +157,14 @@ function GetCustomApiFunction(tabbing, apiCall) {
 }
 
 function GenerateSimpleFiles(apis, sourceDir, apiOutputDir) {
-    var errorsTemplate = ejs.compile(readFile(path.resolve(sourceDir, "templates/Errors.cs.ejs")));
+    var errorsTemplate = GetCompiledTemplate(path.resolve(sourceDir, "templates/Errors.cs.ejs"));
     var errorLocals = {};
     errorLocals.errorList = apis[0].errorList;
     errorLocals.errors = apis[0].errors;
     var generatedErrors = errorsTemplate(errorLocals);
     writeFile(path.resolve(apiOutputDir, "../Plugins/PlayFabShared/PlayFabErrors.cs"), generatedErrors);
     
-    var settingsTemplate = ejs.compile(readFile(path.resolve(sourceDir, "templates/PlayFabSettings.cs.ejs")));
+    var settingsTemplate = GetCompiledTemplate(path.resolve(sourceDir, "templates/PlayFabSettings.cs.ejs"));
     var settingsLocals = {};
     settingsLocals.sdkVersion = exports.sdkVersion;
     settingsLocals.buildIdentifier = exports.buildIdentifier;

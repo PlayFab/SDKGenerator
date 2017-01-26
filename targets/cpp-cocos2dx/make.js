@@ -1,4 +1,3 @@
-var ejs = require("ejs");
 var path = require("path");
 
 exports.makeClientAPI = function (api, sourceDir, apiOutputDir) {
@@ -48,8 +47,8 @@ exports.makeCombinedAPI = function (apis, sourceDir, apiOutputDir) {
 }
 
 function GenerateSettings(apis, sourceDir, apiOutputDir) {
-    var settingsTemplateh = ejs.compile(readFile(path.resolve(sourceDir, "templates/PlayFabSettings.h.ejs")));
-    var settingsTemplateCpp = ejs.compile(readFile(path.resolve(sourceDir, "templates/PlayFabSettings.cpp.ejs")));
+    var settingsTemplateh = GetCompiledTemplate(path.resolve(sourceDir, "templates/PlayFabSettings.h.ejs"));;
+    var settingsTemplateCpp = GetCompiledTemplate(path.resolve(sourceDir, "templates/PlayFabSettings.cpp.ejs"));;
     
     var settingsLocals = {};
     settingsLocals.sdkVersion = exports.sdkVersion;
@@ -79,11 +78,11 @@ function MakeApi(api, sourceDir, apiOutputDir) {
     apiLocals.GetDeprecationAttribute = GetDeprecationAttribute;
     apiLocals.hasClientOptions = api.name === "Client";
     
-    var apiHeaderTemplate = ejs.compile(readFile(path.resolve(sourceDir, "templates/PlayFabAPI.h.ejs")));
+    var apiHeaderTemplate = GetCompiledTemplate(path.resolve(sourceDir, "templates/PlayFabAPI.h.ejs"));;
     var generatedHeader = apiHeaderTemplate(apiLocals);
     writeFile(path.resolve(apiOutputDir, "PlayFab" + api.name + "API.h"), generatedHeader);
     
-    var apiBodyTemplate = ejs.compile(readFile(path.resolve(sourceDir, "templates/PlayFabAPI.cpp.ejs")));
+    var apiBodyTemplate = GetCompiledTemplate(path.resolve(sourceDir, "templates/PlayFabAPI.cpp.ejs"));;
     var generatedBody = apiBodyTemplate(apiLocals);
     writeFile(path.resolve(apiOutputDir, "PlayFab" + api.name + "API.cpp"), generatedBody);
 }
@@ -524,8 +523,8 @@ function GenerateModels(apis, sourceDir, apiOutputDir, libraryName) {
             AddTypeAndDependencies(datatype, api.datatypes, orderedTypes, addedSet);
         }
         
-        var modelHeaderTemplate = ejs.compile(readFile(path.resolve(sourceDir, "templates/PlayFabDataModels.h.ejs")));
-        var modelBodyTemplate = ejs.compile(readFile(path.resolve(sourceDir, "templates/PlayFabDataModels.cpp.ejs")));
+        var modelHeaderTemplate = GetCompiledTemplate(path.resolve(sourceDir, "templates/PlayFabDataModels.h.ejs"));
+        var modelBodyTemplate = GetCompiledTemplate(path.resolve(sourceDir, "templates/PlayFabDataModels.cpp.ejs"));
         
         var modelLocals = {};
         modelLocals.api = api;
@@ -547,7 +546,7 @@ function GenerateModels(apis, sourceDir, apiOutputDir, libraryName) {
 }
 
 function GenerateErrors(api, sourceDir, apiOutputDir) {
-    var errorsTemplate = ejs.compile(readFile(path.resolve(sourceDir, "templates/PlayFabError.h.ejs")));
+    var errorsTemplate = GetCompiledTemplate(path.resolve(sourceDir, "templates/PlayFabError.h.ejs"));
     var errorLocals = {};
     errorLocals.errorList = api.errorList;
     errorLocals.errors = api.errors;

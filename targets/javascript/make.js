@@ -1,4 +1,3 @@
-var ejs = require("ejs");
 var path = require("path");
 
 exports.putInRoot = true;
@@ -7,8 +6,8 @@ exports.makeCombinedAPI = function (apis, sourceDir, apiOutputDir) {
     console.log("Generating JavaScript Combined SDK to " + apiOutputDir);
     
     var templateDir = path.resolve(sourceDir, "templates");
-    var apiTemplate = ejs.compile(readFile(path.resolve(templateDir, "PlayFab_Api.js.ejs")));
-    var apiTypingTemplate = ejs.compile(readFile(path.resolve(templateDir, "PlayFab_Api.d.ts.ejs")));
+    var apiTemplate = GetCompiledTemplate(path.resolve(templateDir, "PlayFab_Api.js.ejs"));
+    var apiTypingTemplate = GetCompiledTemplate(path.resolve(templateDir, "PlayFab_Api.d.ts.ejs"));
     
     copyTree(path.resolve(sourceDir, "source"), path.resolve(apiOutputDir, ".."));
     MakeSimpleTemplates(apis, templateDir, apiOutputDir);
@@ -16,15 +15,15 @@ exports.makeCombinedAPI = function (apis, sourceDir, apiOutputDir) {
     var apiLocals = {
         GenerateSummary: GenerateSummary,
         GetAuthParams: GetAuthParams,
-        GetBaseTypeSyntax: GetBaseTypeSyntax,
         GetDeprecationAttribute: GetDeprecationAttribute,
-        GetPropertyTsType: GetPropertyTsType,
         GetRequestActions: GetRequestActions,
         GetResultActions: GetResultActions,
         GetUrl: GetUrl,
+        GenerateDatatype: GenerateDatatype,
         HasResultActions: HasResultActions,
         buildIdentifier: exports.buildIdentifier,
-        sdkVersion: exports.sdkVersion
+        sdkVersion: exports.sdkVersion,
+        sourceDir: sourceDir
     };
     for (var i = 0; i < apis.length; i++) {
         apiLocals.api = apis[i];
@@ -41,7 +40,7 @@ function MakeSimpleTemplates(apis, templateDir, apiOutputDir) {
     var apiLocals = {
         apis: apis
     };
-    var coreTyping = ejs.compile(readFile(path.resolve(templateDir, "PlayFab.d.ts.ejs")));
+    var coreTyping = GetCompiledTemplate(path.resolve(templateDir, "PlayFab.d.ts.ejs"));
     var genCoreTypings = coreTyping(apiLocals);
     writeFile(path.resolve(apiOutputDir, "TsTypings/Playfab.d.ts"), genCoreTypings);
 }
@@ -117,6 +116,22 @@ function GenerateSummary(tabbing, element, summaryParam, extraLine) {
     return output;
 }
 
+function GenerateDatatype(datatype, sourceDir) {
+    var templateDir = path.resolve(sourceDir, "templates");
+    var interfaceTemplate = GetCompiledTemplate(path.resolve(templateDir, "Interface.ejs"));
+    var enumTemplate = GetCompiledTemplate(path.resolve(templateDir, "Enum.ejs"));
+    
+    var locals = {
+        GenerateSummary: GenerateSummary,
+        GetBaseTypeSyntax: GetBaseTypeSyntax,
+        GetPropertyTsType: GetPropertyTsType,
+        datatype: datatype
+    };
+    if (datatype.isenum)
+        return enumTemplate(locals);
+    return interfaceTemplate(locals);
+}
+
 function GetBaseTypeSyntax(datatype) {
     if (datatype.className.toLowerCase().endsWith("request"))
         return " extends PlayFabApi.PlayFabRequestCommon";
@@ -148,9 +163,9 @@ function GetPropertyTsType(property, datatype) {
     if (property.collection === "array")
         output += "[]";
     else if (property.collection === "map")
-        output = "{ [key: string]: " + output + " };";
+        output = "{ [key: string]: " + output + " }";
     else if (property.collection)
         throw "Unknown collection type: " + property.collection + " for " + property.name + " in " + datatype.className;
     
-    return output;
+    return (property.optional ? "?" : "") + ": " + output;
 }

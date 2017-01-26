@@ -1,9 +1,8 @@
 var path = require("path");
-var ejs = require("ejs");
 
 exports.MakeBp = function (api, sourceDir, apiOutputDir, subdir) {
-    var proxyApiHeaderTemplate = ejs.compile(readFile(path.resolve(sourceDir, "templates/blueprint/PlayFabProxyAPI.h.ejs")));
-    var proxyApiBodyTemplate = ejs.compile(readFile(path.resolve(sourceDir, "templates/blueprint/PlayFabProxyAPI.cpp.ejs")));
+    var proxyApiHeaderTemplate = GetCompiledTemplate(path.resolve(sourceDir, "templates/blueprint/PlayFabProxyAPI.h.ejs"));
+    var proxyApiBodyTemplate = GetCompiledTemplate(path.resolve(sourceDir, "templates/blueprint/PlayFabProxyAPI.cpp.ejs"));
     
     for (var i in api.calls) {
         var apiCall = api.calls[i];
@@ -31,7 +30,7 @@ exports.MakeBp = function (api, sourceDir, apiOutputDir, subdir) {
 }
 
 function GenerateBpDataModels(api, sourceDir, apiOutputDir, subdir) {
-    var proxyBpModelHeaderTemplate = ejs.compile(readFile(path.resolve(sourceDir, "templates/blueprint/PlayFabProxyDataModelsAPI.h.ejs")));
+    var proxyBpModelHeaderTemplate = GetCompiledTemplate(path.resolve(sourceDir, "templates/blueprint/PlayFabProxyDataModelsAPI.h.ejs"));
     
     var bpModelsLocal = {};
     bpModelsLocal.api = api;
@@ -46,8 +45,8 @@ function GenerateBpLibrary(api, sourceDir, apiOutputDir, subdir) {
     bpLibraryLocal.GetDatatypeSignatureParameters = GetDatatypeSignatureParameters;
     bpLibraryLocal.GenerateProxyPropertyRead = GenerateProxyPropertyRead;
     
-    var proxyBpLibraryHeaderTemplate = ejs.compile(readFile(path.resolve(sourceDir, "templates/blueprint/PlayFabProxyAPIBlueprintLibrary.h.ejs")));
-    var proxyBpLibraryBodyTemplate = ejs.compile(readFile(path.resolve(sourceDir, "templates/blueprint/PlayFabProxyAPIBlueprintLibrary.cpp.ejs")));
+    var proxyBpLibraryHeaderTemplate = GetCompiledTemplate(path.resolve(sourceDir, "templates/blueprint/PlayFabProxyAPIBlueprintLibrary.h.ejs"));
+    var proxyBpLibraryBodyTemplate = GetCompiledTemplate(path.resolve(sourceDir, "templates/blueprint/PlayFabProxyAPIBlueprintLibrary.cpp.ejs"));
     
     var generatedBpHeader = proxyBpLibraryHeaderTemplate(bpLibraryLocal);
     writeFile(path.resolve(apiOutputDir, "Public/" + subdir + "/" + "PlayFab" + api.name + "BPLibrary.h"), generatedBpHeader);

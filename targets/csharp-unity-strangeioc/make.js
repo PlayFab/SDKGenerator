@@ -30,7 +30,7 @@ function makeSignals(api, sourceDir, apiOutputDir) {
     var templateDir = path.resolve(sourceDir, "templates");
 
     //Write Signals
-    var apiTemplate = ejs.compile(readFile(path.resolve(templateDir, "strangeioc-playfab-signals.ejs")));
+    var apiTemplate = GetCompiledTemplate(path.resolve(templateDir, "strangeioc-playfab-signals.ejs"));
     var apiLocals = {};
     apiLocals.api = api;
     var generatedApi = apiTemplate(apiLocals);
@@ -44,7 +44,7 @@ function makeCommands(api, sourceDir, apiOutputDir) {
     var templateDir = path.resolve(sourceDir, "templates");
 
     //Write Signals
-    var apiTemplate = ejs.compile(readFile(path.resolve(templateDir, "strangeioc-playfab-commands.ejs")));
+    var apiTemplate = GetCompiledTemplate(path.resolve(templateDir, "strangeioc-playfab-commands.ejs"));
     var apiLocals = {};
     apiLocals.api = api;
     var generatedApi = apiTemplate(apiLocals);
@@ -57,7 +57,7 @@ function makeContext(api, sourceDir, apiOutputDir) {
     var templateDir = path.resolve(sourceDir, "templates");
 
     //Write Signals
-    var apiTemplate = ejs.compile(readFile(path.resolve(templateDir, "strangeioc-playfab-context.ejs")));
+    var apiTemplate = GetCompiledTemplate(path.resolve(templateDir, "strangeioc-playfab-context.ejs"));
     var apiLocals = {};
     apiLocals.api = api;
     var generatedApi = apiTemplate(apiLocals);
@@ -70,7 +70,7 @@ function makeBindingsFactory(api, sourceDir, apiOutputDir) {
     var templateDir = path.resolve(sourceDir, "templates");
 
     //Write Signals
-    var apiTemplate = ejs.compile(readFile(path.resolve(templateDir, "strangeioc-playfab-contextbindings.ejs")));
+    var apiTemplate = GetCompiledTemplate(path.resolve(templateDir, "strangeioc-playfab-contextbindings.ejs"));
     var apiLocals = {};
     apiLocals.api = api;
     var generatedApi = apiTemplate(apiLocals);

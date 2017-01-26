@@ -1,5 +1,4 @@
 var path = require("path");
-var ejs = require("ejs");
 
 exports.putInRoot = true;
 
@@ -65,11 +64,11 @@ function MakeDefold(apis, sourceDir, apiOutputDir, sdkDescriptor) {
     }
     customLocals.sdkDescriptor = sdkDescriptor; // sdkDescriptor is only used in Defold Templates
     
-    var projTemplate = ejs.compile(readFile(path.resolve(sourceDir, "templates/Defold/PlayFabSdk.project.ejs")));
+    var projTemplate = GetCompiledTemplate(path.resolve(sourceDir, "templates/Defold/PlayFabSdk.project.ejs"));
     var projGenerated = projTemplate(customLocals);
     writeFile(path.resolve(apiOutputDir, "PlayFabSdk.project"), projGenerated);
     if (sdkDescriptor.indexOf("Client") > -1) {
-        var testTemplate = ejs.compile(readFile(path.resolve(sourceDir, "templates/Defold/PlayFabTestExample.project.ejs")));
+        var testTemplate = GetCompiledTemplate(path.resolve(sourceDir, "templates/Defold/PlayFabTestExample.project.ejs"));
         var testGenerated = testTemplate(customLocals);
         writeFile(path.resolve(apiOutputDir, "PlayFabTestExample.project"), testGenerated);
     }
@@ -79,7 +78,7 @@ function MakeCorona(apis, sourceDir, apiOutputDir, sdkDescriptor, requirePrefix)
     var customLocals = {}
     customLocals.requirePrefix = requirePrefix;
     
-    var httpsTemplate = ejs.compile(readFile(path.resolve(sourceDir, "templates/Corona/PlayFabHttpsCorona.lua.ejs")));
+    var httpsTemplate = GetCompiledTemplate(path.resolve(sourceDir, "templates/Corona/PlayFabHttpsCorona.lua.ejs"));
     var httpsGenerated = httpsTemplate(customLocals);
     writeFile(path.resolve(apiOutputDir, "PlayFabHttpsCorona.lua"), httpsGenerated);
     
@@ -97,7 +96,7 @@ function MakeApi(api, sourceDir, apiOutputDir, requirePrefix) {
     locals.hasClientOptions = api.name === "Client";
     locals.requirePrefix = requirePrefix; // Corona is in a top-level subfolder which is not present in any other sdk
     
-    var template = ejs.compile(readFile(path.resolve(sourceDir, "templates/PlayFabApi.lua.ejs")));
+    var template = GetCompiledTemplate(path.resolve(sourceDir, "templates/PlayFabApi.lua.ejs"));
     var generatedTemplateText = template(locals);
     writeFile(path.resolve(apiOutputDir, "PlayFab" + api.name + "Api.lua"), generatedTemplateText);
 }
@@ -116,11 +115,11 @@ function MakeSimpleFiles(apis, sourceDir, apiOutputDir, requirePrefix, sdkVersio
             locals.hasServerOptions = true;
     }
     
-    var settingsTemplate = ejs.compile(readFile(path.resolve(sourceDir, "templates/PlayFabSettings.lua.ejs")));
+    var settingsTemplate = GetCompiledTemplate(path.resolve(sourceDir, "templates/PlayFabSettings.lua.ejs"));
     var genSettings = settingsTemplate(locals);
     writeFile(path.resolve(apiOutputDir, "PlayFabSettings.lua"), genSettings);
     
-    var ihttpTemplate = ejs.compile(readFile(path.resolve(sourceDir, "templates/IPlayFabHttps.lua.ejs")));
+    var ihttpTemplate = GetCompiledTemplate(path.resolve(sourceDir, "templates/IPlayFabHttps.lua.ejs"));
     var genIHttp = ihttpTemplate(locals);
     writeFile(path.resolve(apiOutputDir, "IPlayFabHttps.lua"), genIHttp);
 }

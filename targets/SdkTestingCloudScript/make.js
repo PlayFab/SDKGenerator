@@ -1,5 +1,4 @@
 var path = require("path");
-var ejs = require("ejs");
 
 exports.putInRoot = true;
 
@@ -17,7 +16,7 @@ exports.makeServerAPI = function (apis, sourceDir, apiOutputDir) {
     console.log("Test api is: " + serverApi.name);
     
     // Load API template
-    var apiTemplate = CompileTemplate(sourceDir, "API");
+    var apiTemplate = GetCompiledTemplate(path.resolve(sourceDir, "templates/API.d.ts.ejs"));
     
     // Generate the api against the template
     var apiLocals = {
@@ -38,8 +37,8 @@ exports.makeServerAPI = function (apis, sourceDir, apiOutputDir) {
   enum, interface
 */
 function MakeDatatype(datatype, api, sourceDir, tabbing) {
-    var stringLiteralTemplate = CompileTemplate(sourceDir, "StringLiteral");
-    var interfaceTemplate = CompileTemplate(sourceDir, "Interface");
+    var stringLiteralTemplate = GetCompiledTemplate(path.resolve(sourceDir, "templates/StringLiteral.d.ts.ejs"));
+    var interfaceTemplate = GetCompiledTemplate(path.resolve(sourceDir, "templates/Interface.d.ts.ejs"));
     
     var locals = {
         name: datatype.name,
@@ -134,18 +133,4 @@ function FoldDescription(text, textArray) {
     
     textArray.push(line.trim());
     return FoldDescription(text.substring(nextIndex), textArray);
-}
-
-/** Wrapper function for boilerplate of compiling templates */
-function CompileTemplate(sourceDir, templateName) {
-    if (!this.compiledTemplates) {
-        this.compiledTemplates = {};
-    }
-    
-    if (!compiledTemplates.hasOwnProperty(templateName)) {
-        var templateDir = path.resolve(sourceDir, "templates");
-        var filename = templateName + ".d.ts.ejs";
-        this.compiledTemplates[templateName] = ejs.compile(readFile(path.resolve(templateDir, filename)));
-    }
-    return this.compiledTemplates[templateName];
 }

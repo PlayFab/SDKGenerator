@@ -1,5 +1,4 @@
 var path = require("path");
-var ejs = require("ejs");
 
 // Lumberyard has pretty significantly different imports from the other C++ sdks
 // It is also more closely structured like UnitySDK, and should hopefully be closer to implementing the
@@ -65,19 +64,19 @@ function GenerateSimpleFiles(apis, sourceDir, apiOutputDir) {
         if (apis[i].name !== "Client") locals.hasServerOptions = true;
     }
     
-    var vcProjTemplate = ejs.compile(readFile(path.resolve(sourceDir, "templates/gem.json.ejs")));
+    var vcProjTemplate = GetCompiledTemplate(path.resolve(sourceDir, "templates/gem.json.ejs"));
     var generatedProject = vcProjTemplate(locals);
     writeFile(path.resolve(apiOutputDir, "gem.json"), generatedProject);
     
-    var wafTemplate = ejs.compile(readFile(path.resolve(sourceDir, "templates/playfabsdk.waf_files.ejs")));
+    var wafTemplate = GetCompiledTemplate(path.resolve(sourceDir, "templates/playfabsdk.waf_files.ejs"));
     var generatedWaf = wafTemplate(locals);
     writeFile(path.resolve(apiOutputDir, "Code/playfabsdk.waf_files"), generatedWaf);
     
-    var hSettingTemplate = ejs.compile(readFile(path.resolve(sourceDir, "templates/PlayFabSettings.h.ejs")));
+    var hSettingTemplate = GetCompiledTemplate(path.resolve(sourceDir, "templates/PlayFabSettings.h.ejs"));
     var generatedSettingH = hSettingTemplate(locals);
     writeFile(path.resolve(apiOutputDir, "Code/Include/PlayFabSettings.h"), generatedSettingH);
     
-    var cppSettingTemplate = ejs.compile(readFile(path.resolve(sourceDir, "templates/PlayFabSettings.cpp.ejs")));
+    var cppSettingTemplate = GetCompiledTemplate(path.resolve(sourceDir, "templates/PlayFabSettings.cpp.ejs"));
     var generatedSettingCpp = cppSettingTemplate(locals);
     writeFile(path.resolve(apiOutputDir, "Code/Source/PlayFabSettings.cpp"), generatedSettingCpp);
     
@@ -106,15 +105,15 @@ function MakeGem(apis, sourceDir, apiOutputDir) {
     var apiLocals = {};
     apiLocals.apis = apis;
     
-    var iGemH = ejs.compile(readFile(path.resolve(sourceDir, "templates/IPlayFabSdkGem.h.ejs")));
+    var iGemH = GetCompiledTemplate(path.resolve(sourceDir, "templates/IPlayFabSdkGem.h.ejs"));
     var genIGemH = iGemH(apiLocals);
     writeFile(path.resolve(apiOutputDir, "Code/Include/IPlayFabSdkGem.h"), genIGemH);
     
-    var gemH = ejs.compile(readFile(path.resolve(sourceDir, "templates/PlayFabSdkGem.h.ejs")));
+    var gemH = GetCompiledTemplate(path.resolve(sourceDir, "templates/PlayFabSdkGem.h.ejs"));
     var genGemH = gemH(apiLocals);
     writeFile(path.resolve(apiOutputDir, "Code/Source/PlayFabSdkGem.h"), genGemH);
     
-    var gemCpp = ejs.compile(readFile(path.resolve(sourceDir, "templates/PlayFabSdkGem.cpp.ejs")));
+    var gemCpp = GetCompiledTemplate(path.resolve(sourceDir, "templates/PlayFabSdkGem.cpp.ejs"));
     var genGemCpp = gemCpp(apiLocals);
     writeFile(path.resolve(apiOutputDir, "Code/Source/PlayFabSdkGem.cpp"), genGemCpp);
 }
@@ -128,23 +127,23 @@ function MakeApi(api, sourceDir, apiOutputDir) {
     apiLocals.GetRequestActions = GetRequestActions;
     apiLocals.hasClientOptions = api.name === "Client";
     
-    var interfaceH = ejs.compile(readFile(path.resolve(sourceDir, "templates/IPlayFabApi.h.ejs")));
+    var interfaceH = GetCompiledTemplate(path.resolve(sourceDir, "templates/IPlayFabApi.h.ejs"));
     var genInterfaceH = interfaceH(apiLocals);
     writeFile(path.resolve(apiOutputDir, "Code/Include/IPlayFab" + api.name + "Api.h"), genInterfaceH);
     
-    var wrapperH = ejs.compile(readFile(path.resolve(sourceDir, "templates/PlayFabApiWrapper.h.ejs")));
+    var wrapperH = GetCompiledTemplate(path.resolve(sourceDir, "templates/PlayFabApiWrapper.h.ejs"));
     var genWrapperH = wrapperH(apiLocals);
     writeFile(path.resolve(apiOutputDir, "Code/Source/PlayFab" + api.name + "ApiWrapper.h"), genWrapperH);
     
-    var wrapperCpp = ejs.compile(readFile(path.resolve(sourceDir, "templates/PlayFabApiWrapper.cpp.ejs")));
+    var wrapperCpp = GetCompiledTemplate(path.resolve(sourceDir, "templates/PlayFabApiWrapper.cpp.ejs"));
     var genWrapperCpp = wrapperCpp(apiLocals);
     writeFile(path.resolve(apiOutputDir, "Code/Source/PlayFab" + api.name + "ApiWrapper.cpp"), genWrapperCpp);
     
-    var apiH = ejs.compile(readFile(path.resolve(sourceDir, "templates/PlayFabApi.h.ejs")));
+    var apiH = GetCompiledTemplate(path.resolve(sourceDir, "templates/PlayFabApi.h.ejs"));
     var genApiH = apiH(apiLocals);
     writeFile(path.resolve(apiOutputDir, "Code/Source/PlayFab" + api.name + "Api.h"), genApiH);
     
-    var apiCpp = ejs.compile(readFile(path.resolve(sourceDir, "templates/PlayFabApi.cpp.ejs")));
+    var apiCpp = GetCompiledTemplate(path.resolve(sourceDir, "templates/PlayFabApi.cpp.ejs"));
     var genApiCpp = apiCpp(apiLocals);
     writeFile(path.resolve(apiOutputDir, "Code/Source/PlayFab" + api.name + "Api.cpp"), genApiCpp);
 }
@@ -607,14 +606,14 @@ function GenerateModels(apis, sourceDir, apiOutputDir, libraryName) {
         modelLocals.GetPropertyDestructor = GetPropertyDestructor;
         modelLocals.libraryName = libraryName;
         
-        var modelHeaderTemplate = ejs.compile(readFile(path.resolve(sourceDir, "templates/PlayFabDataModels.h.ejs")));
+        var modelHeaderTemplate = GetCompiledTemplate(path.resolve(sourceDir, "templates/PlayFabDataModels.h.ejs"));
         var generatedHeader = modelHeaderTemplate(modelLocals);
         writeFile(path.resolve(apiOutputDir, "Code/Include/PlayFab" + api.name + "DataModels.h"), generatedHeader);
     }
 }
 
 function GenerateErrors(api, sourceDir, apiOutputDir) {
-    var errorsTemplate = ejs.compile(readFile(path.resolve(sourceDir, "templates/PlayFabError.h.ejs")));
+    var errorsTemplate = GetCompiledTemplate(path.resolve(sourceDir, "templates/PlayFabError.h.ejs"));
     var errorLocals = {};
     errorLocals.errorList = api.errorList;
     errorLocals.errors = api.errors;

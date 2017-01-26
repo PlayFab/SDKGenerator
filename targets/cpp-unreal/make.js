@@ -1,5 +1,4 @@
 var path = require("path");
-var ejs = require("ejs");
 
 exports.makeClientAPI = function (api, sourceDir, apiOutputDir) {
     console.log("Generating Unreal Engine Client SDK to " + apiOutputDir);
@@ -56,15 +55,15 @@ function MakeUnrealApi(apis, apiOutputDir, sourceDir, libname) {
     apiLocals.libname = libname;
     apiLocals.apis = apis;
     
-    var apiUpluginTemplate = ejs.compile(readFile(path.resolve(sourceDir, "templates/PlayFab.uplugin.ejs")));
+    var apiUpluginTemplate = GetCompiledTemplate(path.resolve(sourceDir, "templates/PlayFab.uplugin.ejs"));
     var generatedUplugin = apiUpluginTemplate(apiLocals);
     writeFile(path.resolve(apiOutputDir, "PluginFiles/PlayFab/PlayFab.uplugin"), generatedUplugin);
     
-    var apiPlayFabUtilitiesHTemplate = ejs.compile(readFile(path.resolve(sourceDir, "templates/PlayFabUtilities.h.ejs")));
+    var apiPlayFabUtilitiesHTemplate = GetCompiledTemplate(path.resolve(sourceDir, "templates/PlayFabUtilities.h.ejs"));
     var generatedUtilitiesH = apiPlayFabUtilitiesHTemplate(apiLocals);
     writeFile(path.resolve(apiOutputDir, "PluginFiles/PlayFab/Source/PlayFab/Classes/PlayFabUtilities.h"), generatedUtilitiesH);
     
-    var apiPlayFabUtilitiesCppTemplate = ejs.compile(readFile(path.resolve(sourceDir, "templates/PlayFabUtilities.cpp.ejs")));
+    var apiPlayFabUtilitiesCppTemplate = GetCompiledTemplate(path.resolve(sourceDir, "templates/PlayFabUtilities.cpp.ejs"));
     var generatedUtilitiesCpp = apiPlayFabUtilitiesCppTemplate(apiLocals);
     writeFile(path.resolve(apiOutputDir, "PluginFiles/PlayFab/Source/PlayFab/Private/PlayFabUtilities.cpp"), generatedUtilitiesCpp);
     
@@ -75,7 +74,7 @@ function MakeUnrealApi(apis, apiOutputDir, sourceDir, libname) {
         pfcppLocals.names[a1] = {};
         pfcppLocals.names[a1].name = apis[a1].name;
     }
-    var apiPlayFabCppTemplate = ejs.compile(readFile(path.resolve(sourceDir, "templates/PlayFab.cpp.ejs")));
+    var apiPlayFabCppTemplate = GetCompiledTemplate(path.resolve(sourceDir, "templates/PlayFab.cpp.ejs"));
     var generatedPlayFabCpp = apiPlayFabCppTemplate(pfcppLocals);
     writeFile(path.resolve(apiOutputDir, "PluginFiles/PlayFab/Source/PlayFab/Private/PlayFab.cpp"), generatedPlayFabCpp);
     
@@ -95,11 +94,11 @@ function MakePfTestActor(apis, apiOutputDir, sourceDir) {
         else
             testLocals.hasServerOptions = true;
     }
-    var testTemplateH = ejs.compile(readFile(path.resolve(sourceDir, "templates/PfTestActor.h.ejs")));
+    var testTemplateH = GetCompiledTemplate(path.resolve(sourceDir, "templates/PfTestActor.h.ejs"));
     var generatedH = testTemplateH(testLocals);
     writeFile(path.resolve(apiOutputDir, "ExampleProject/Plugins/PlayFab/Source/PlayFab/Classes/PfTestActor.h"), generatedH);
     
-    var testTemplateCpp = ejs.compile(readFile(path.resolve(sourceDir, "templates/PfTestActor.cpp.ejs")));
+    var testTemplateCpp = GetCompiledTemplate(path.resolve(sourceDir, "templates/PfTestActor.cpp.ejs"));
     var generatedCpp = testTemplateCpp(testLocals);
     writeFile(path.resolve(apiOutputDir, "ExampleProject/Plugins/PlayFab/Source/PlayFab/Private/PfTestActor.cpp"), generatedCpp);
 }
@@ -110,7 +109,7 @@ function MakeSimpleFiles(apis, apiOutputDir, sourceDir) {
         "enumTypes": CollectEnumsFromApis(apis),
         "GetDatatypeSafeName": GetDatatypeSafeName
     }
-    var enumTemplate = ejs.compile(readFile(path.resolve(sourceDir, "templates/PlayFabEnums.h.ejs")));
+    var enumTemplate = GetCompiledTemplate(path.resolve(sourceDir, "templates/PlayFabEnums.h.ejs"));
     var genEnums = enumTemplate(enumLocals);
     writeFile(path.resolve(apiOutputDir, "PluginFiles/PlayFab/Source/PlayFab/Classes/PlayFabEnums.h"), genEnums);
     
@@ -118,7 +117,7 @@ function MakeSimpleFiles(apis, apiOutputDir, sourceDir) {
         "sdkVersion": exports.sdkVersion,
         "buildIdentifier": exports.buildIdentifier
     }
-    var settingsTemplate = ejs.compile(readFile(path.resolve(sourceDir, "templates/IPlayFab.h.ejs")));
+    var settingsTemplate = GetCompiledTemplate(path.resolve(sourceDir, "templates/IPlayFab.h.ejs"));
     var genSettings = settingsTemplate(settingLocals);
     writeFile(path.resolve(apiOutputDir, "PluginFiles/PlayFab/Source/PlayFab/Public/IPlayFab.h"), genSettings);
 }
@@ -135,12 +134,12 @@ function CollectEnumsFromApis(apis) {
 
 // Create Models, .h and .cpp files
 function MakeApiFiles(api, apiOutputDir, sourceDir, libname) {
-    var apiHeaderTemplate = ejs.compile(readFile(path.resolve(sourceDir, "templates/PlayFabAPI.h.ejs")));
-    var apiCppTemplate = ejs.compile(readFile(path.resolve(sourceDir, "templates/PlayFabAPI.cpp.ejs")));
-    var apiPlayFabModelTemplate = ejs.compile(readFile(path.resolve(sourceDir, "templates/PlayFabModels.h.ejs")));
-    var apiPlayFabModelCppTemplate = ejs.compile(readFile(path.resolve(sourceDir, "templates/PlayFabModels.cpp.ejs")));
-    var apiPlayFabModelDecoderHTemplate = ejs.compile(readFile(path.resolve(sourceDir, "templates/PlayFabModelDecoder.h.ejs")));
-    var apiPlayFabModelDecoderCppTemplate = ejs.compile(readFile(path.resolve(sourceDir, "templates/PlayFabModelDecoder.cpp.ejs")));
+    var apiHeaderTemplate = GetCompiledTemplate(path.resolve(sourceDir, "templates/PlayFabAPI.h.ejs"));
+    var apiCppTemplate = GetCompiledTemplate(path.resolve(sourceDir, "templates/PlayFabAPI.cpp.ejs"));
+    var apiPlayFabModelTemplate = GetCompiledTemplate(path.resolve(sourceDir, "templates/PlayFabModels.h.ejs"));
+    var apiPlayFabModelCppTemplate = GetCompiledTemplate(path.resolve(sourceDir, "templates/PlayFabModels.cpp.ejs"));
+    var apiPlayFabModelDecoderHTemplate = GetCompiledTemplate(path.resolve(sourceDir, "templates/PlayFabModelDecoder.h.ejs"));
+    var apiPlayFabModelDecoderCppTemplate = GetCompiledTemplate(path.resolve(sourceDir, "templates/PlayFabModelDecoder.cpp.ejs"));
     
     var generatedHeader;
     var generatedBody;

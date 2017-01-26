@@ -27,7 +27,7 @@ namespace JenkinsConsoleUtility.Testing
         ///   CSfunc_SaveTestData adds test data
         ///   CSfunc_TestDataExists can correctly verify both states
         /// </summary>
-        [UUnitTest]
+        // [UUnitTest]
         public void WriteTestSequence(UUnitTestContext testContext)
         {
             bool functionResult, callResult;

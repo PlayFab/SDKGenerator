@@ -134,9 +134,9 @@ function GenerateDatatype(datatype, sourceDir) {
 
 function GetBaseTypeSyntax(datatype) {
     if (datatype.className.toLowerCase().endsWith("request"))
-        return " extends PlayFabApi.PlayFabRequestCommon";
+        return " extends PlayFabModule.PlayFabRequestCommon";
     if (datatype.className.toLowerCase().endsWith("response") || datatype.className.toLowerCase().endsWith("result"))
-        return " extends PlayFabApi.PlayFabResultCommon ";
+        return " extends PlayFabModule.PlayFabResultCommon ";
     return ""; // If both are -1, then neither is greater
 }
 

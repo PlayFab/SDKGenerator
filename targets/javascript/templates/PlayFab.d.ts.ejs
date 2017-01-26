@@ -1,4 +1,4 @@
-declare module PlayFabApi {
+declare module PlayFabModule {
     export interface Settings {
         titleId: string;
         developerSecretKey: string;
@@ -15,23 +15,23 @@ declare module PlayFabApi {
         error: string;
         errorCode: number;
         errorMessage: string;
-        errorDetails?: { [key: string]: string };
+        errorDetails?: { [key: string]: string[] };
     }
-    export interface PlayFabSuccessContainer<TResult extends PlayFabResultCommon> extends PlayFabError {
+    export interface SuccessContainer<TResult extends PlayFabResultCommon> extends PlayFabError {
         data: TResult;
     }
     export interface PlayFabResultCommon extends PlayFabError { }
 
-    export interface ApiCallback<TResult extends PlayFabResultCommon> { (result: PlayFabSuccessContainer<TResult>, error: PlayFabError): void }
+    export interface ApiCallback<TResult extends PlayFabResultCommon> { (result: SuccessContainer<TResult>, error: PlayFabError): void }
 }
 
 declare var PlayFab: {
-    settings: PlayFabApi.Settings;
+    settings: PlayFabModule.Settings;
 <% for (var i = 0; i < apis.length; i++) { api = apis[i];
-%>    <%- api.name %>Api: PlayFab<%- api.name %>Api.IPlayFab<%- api.name %>Api;
+%>    <%- api.name %>Api: PlayFab<%- api.name %>Module.IPlayFab<%- api.name %>;
 <% } %>
 };
 // Continue to support older usage
 <% for (var i = 0; i < apis.length; i++) { api = apis[i];
-%>declare var PlayFab<%- api.name %>SDK: PlayFab<%- api.name %>Api.IPlayFab<%- api.name %>Api;
+%>declare var PlayFab<%- api.name %>SDK: PlayFab<%- api.name %>Module.IPlayFab<%- api.name %>;
 <% } %>

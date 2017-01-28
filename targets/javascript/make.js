@@ -9,31 +9,38 @@ exports.makeCombinedAPI = function (apis, sourceDir, apiOutputDir) {
     var apiTemplate = GetCompiledTemplate(path.resolve(templateDir, "PlayFab_Api.js.ejs"));
     var apiTypingTemplate = GetCompiledTemplate(path.resolve(templateDir, "PlayFab_Api.d.ts.ejs"));
     
-    copyTree(path.resolve(sourceDir, "source"), path.resolve(apiOutputDir, ".."));
-    MakeSimpleTemplates(apis, templateDir, apiOutputDir);
-    
-    var apiLocals = {
-        GenerateSummary: GenerateSummary,
-        GetAuthParams: GetAuthParams,
-        GetDeprecationAttribute: GetDeprecationAttribute,
-        GetRequestActions: GetRequestActions,
-        GetResultActions: GetResultActions,
-        GetUrl: GetUrl,
-        GenerateDatatype: GenerateDatatype,
-        HasResultActions: HasResultActions,
-        buildIdentifier: exports.buildIdentifier,
-        sdkVersion: exports.sdkVersion,
-        sourceDir: sourceDir
-    };
-    for (var i = 0; i < apis.length; i++) {
-        apiLocals.api = apis[i];
-        apiLocals.hasServerOptions = apis[i].name !== "Client"; // NOTE FOR THE EJS FILE: PlayFab.settings and PlayFab._internalSettings and are still global/shared - Only utilize this within the api-specific section
-        apiLocals.hasClientOptions = apis[i].name === "Client"; // NOTE FOR THE EJS FILE: PlayFab.settings and PlayFab._internalSettings and are still global/shared - Only utilize this within the api-specific section
-        var generatedApi = apiTemplate(apiLocals);
-        writeFile(path.resolve(apiOutputDir, "PlayFabSDK/PlayFab" + apis[i].name + "Api.js"), generatedApi);
-        var generatedTypings = apiTypingTemplate(apiLocals);
-        writeFile(path.resolve(apiOutputDir, "TsTypings/PlayFab" + apis[i].name + "Api.d.ts"), generatedTypings);
+    var destSubFolders = ["PlayFabSdk", "PlayFabTestingExample"]; // Write both the published folder and the testing folder
+    for (var fIdx = 0; fIdx < destSubFolders.length; fIdx++) {
+        var eachOutputDir = path.resolve(apiOutputDir, destSubFolders[fIdx]);
+        
+        MakeSimpleTemplates(apis, templateDir, eachOutputDir);
+        
+        var apiLocals = {
+            GenerateSummary: GenerateSummary,
+            GetAuthParams: GetAuthParams,
+            GetDeprecationAttribute: GetDeprecationAttribute,
+            GetRequestActions: GetRequestActions,
+            GetResultActions: GetResultActions,
+            GetUrl: GetUrl,
+            GenerateDatatype: GenerateDatatype,
+            HasResultActions: HasResultActions,
+            buildIdentifier: exports.buildIdentifier,
+            sdkVersion: exports.sdkVersion,
+            sourceDir: sourceDir
+        };
+        for (var i = 0; i < apis.length; i++) {
+            apiLocals.api = apis[i];
+            apiLocals.hasServerOptions = apis[i].name !== "Client"; // NOTE FOR THE EJS FILE: PlayFab.settings and PlayFab._internalSettings and are still global/shared - Only utilize this within the api-specific section
+            apiLocals.hasClientOptions = apis[i].name === "Client"; // NOTE FOR THE EJS FILE: PlayFab.settings and PlayFab._internalSettings and are still global/shared - Only utilize this within the api-specific section
+            var generatedApi = apiTemplate(apiLocals);
+            writeFile(path.resolve(eachOutputDir, "src/PlayFab/PlayFab" + apis[i].name + "Api.js"), generatedApi);
+            var generatedTypings = apiTypingTemplate(apiLocals);
+            writeFile(path.resolve(eachOutputDir, "src/Typings/PlayFab/PlayFab" + apis[i].name + "Api.d.ts"), generatedTypings);
+        }
     }
+    
+    // Copy testing files
+    copyTree(path.resolve(sourceDir, "testingFiles"), path.resolve(apiOutputDir, "PlayFabTestingExample"));
 }
 
 function MakeSimpleTemplates(apis, templateDir, apiOutputDir) {
@@ -42,7 +49,7 @@ function MakeSimpleTemplates(apis, templateDir, apiOutputDir) {
     };
     var coreTyping = GetCompiledTemplate(path.resolve(templateDir, "PlayFab.d.ts.ejs"));
     var genCoreTypings = coreTyping(apiLocals);
-    writeFile(path.resolve(apiOutputDir, "TsTypings/Playfab.d.ts"), genCoreTypings);
+    writeFile(path.resolve(apiOutputDir, "src/Typings/PlayFab/Playfab.d.ts"), genCoreTypings);
 }
 
 function GetRequestActions(apiCall, api) {
@@ -134,9 +141,9 @@ function GenerateDatatype(datatype, sourceDir) {
 
 function GetBaseTypeSyntax(datatype) {
     if (datatype.className.toLowerCase().endsWith("request"))
-        return " extends PlayFabModule.PlayFabRequestCommon";
+        return " extends PlayFabModule.IPlayFabRequestCommon";
     if (datatype.className.toLowerCase().endsWith("response") || datatype.className.toLowerCase().endsWith("result"))
-        return " extends PlayFabModule.PlayFabResultCommon ";
+        return " extends PlayFabModule.IPlayFabResultCommon ";
     return ""; // If both are -1, then neither is greater
 }
 
@@ -167,5 +174,10 @@ function GetPropertyTsType(property, datatype) {
     else if (property.collection)
         throw "Unknown collection type: " + property.collection + " for " + property.name + " in " + datatype.className;
     
-    return (property.optional ? "?" : "") + ": " + output;
+    var isOptional = property.optional;
+    var isLoginRequest = ((datatype.name.contains("Login") && datatype.name.contains("Request")) || datatype.name === "RegisterPlayFabUserRequest");
+    if (isLoginRequest && property.name === "TitleId")
+        isOptional = true;
+    
+    return (isOptional ? "?" : "") + ": " + output;
 }

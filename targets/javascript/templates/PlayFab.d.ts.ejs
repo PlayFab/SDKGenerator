@@ -1,5 +1,5 @@
 declare module PlayFabModule {
-    export interface Settings {
+    export interface ISettings {
         titleId: string;
         developerSecretKey: string;
         advertisingIdType: string;
@@ -8,8 +8,8 @@ declare module PlayFabModule {
         AD_TYPE_IDFA: string;
         AD_TYPE_ANDROID_ID: string;
     }
-    export interface PlayFabRequestCommon { }
-    export interface PlayFabError {
+    export interface IPlayFabRequestCommon { }
+    export interface IPlayFabError {
         code: number;
         status: string;
         error: string;
@@ -17,16 +17,18 @@ declare module PlayFabModule {
         errorMessage: string;
         errorDetails?: { [key: string]: string[] };
     }
-    export interface SuccessContainer<TResult extends PlayFabResultCommon> extends PlayFabError {
+    export interface SuccessContainer<TResult extends IPlayFabResultCommon> extends IPlayFabError {
         data: TResult;
     }
-    export interface PlayFabResultCommon extends PlayFabError { }
+    export interface IPlayFabResultCommon extends IPlayFabError { }
 
-    export interface ApiCallback<TResult extends PlayFabResultCommon> { (result: SuccessContainer<TResult>, error: PlayFabError): void }
+    export interface ApiCallback<TResult extends IPlayFabResultCommon> { (result: SuccessContainer<TResult>, error: IPlayFabError): void }
 }
 
 declare var PlayFab: {
-    settings: PlayFabModule.Settings;
+    buildIdentifier: string;
+    sdkVersion: string;
+    settings: PlayFabModule.ISettings;
 <% for (var i = 0; i < apis.length; i++) { api = apis[i];
 %>    <%- api.name %>Api: PlayFab<%- api.name %>Module.IPlayFab<%- api.name %>;
 <% } %>

@@ -10,10 +10,13 @@ exports.makeCombinedAPI = function (apis, sourceDir, apiOutputDir) {
     var coreTemplate = GetCompiledTemplate(path.resolve(templateDir, "playfab.js.ejs"));
     var npmTemplate = GetCompiledTemplate(path.resolve(templateDir, "package.json.ejs"));
     var apiTemplate = GetCompiledTemplate(path.resolve(templateDir, "api.js.ejs"));
+    var apiTypingsTemplate = GetCompiledTemplate(path.resolve(templateDir, "PlayFab_Api.d.ts.ejs"));
     
-    var destSubFolders = ["PlayFabSdk", "PlayFabTesting"]; // Write both the published folder and the testing folder
+    var destSubFolders = ["PlayFabSdk", "PlayFabTestingExample"]; // Write both the published folder and the testing folder
     for (var fIdx = 0; fIdx < destSubFolders.length; fIdx++) {
         var eachOutputDir = path.resolve(apiOutputDir, destSubFolders[fIdx]);
+        
+        copyTree(path.resolve(sourceDir, "source"), eachOutputDir);
         
         // Write the core functionality file
         var coreLocals = {};
@@ -27,8 +30,7 @@ exports.makeCombinedAPI = function (apis, sourceDir, apiOutputDir) {
             else
                 coreLocals.hasServerOptions = true;
         }
-        var generatedCore = coreTemplate(coreLocals);
-        writeFile(path.resolve(eachOutputDir, "PlayFab.js"), generatedCore);
+        writeFile(path.resolve(eachOutputDir, "Scripts/PlayFab/PlayFab.js"), coreTemplate(coreLocals));
         
         // Write the package file
         var pkgLocals = {}
@@ -37,27 +39,30 @@ exports.makeCombinedAPI = function (apis, sourceDir, apiOutputDir) {
         pkgLocals.projectName = pkgLocals.isTesting ? "playfab-testing" : "playfab-sdk";
         pkgLocals.description = pkgLocals.isTesting ? "Playfab SDK automated testing example" : "Playfab SDK for node.js applications";
         pkgLocals.mainFile = pkgLocals.isTesting ? "PlayFabApiTests.js" : "main.js";
-        var generatedPkg = npmTemplate(pkgLocals);
-        writeFile(path.resolve(eachOutputDir, "package.json"), generatedPkg);
+        writeFile(path.resolve(eachOutputDir, "package.json"), npmTemplate(pkgLocals));
         
         // Write the API files
-        var apiLocals = {};
-        apiLocals.GetAuthParams = GetAuthParams;
-        apiLocals.GetRequestActions = GetRequestActions;
-        apiLocals.GetResultActions = GetResultActions;
-        apiLocals.GetUrlAccessor = GetUrlAccessor;
-        apiLocals.GetDeprecationAttribute = GetDeprecationAttribute;
+        var apiLocals = {
+            GenerateDatatype: GenerateDatatype,
+            GenerateSummary: GenerateSummary,
+            GetAuthParams: GetAuthParams,
+            GetRequestActions: GetRequestActions,
+            GetResultActions: GetResultActions,
+            GetUrlAccessor: GetUrlAccessor,
+            GetDeprecationAttribute: GetDeprecationAttribute,
+            sourceDir: sourceDir
+        };
         for (var i = 0; i < apis.length; i++) {
             apiLocals.api = apis[i];
             apiLocals.hasServerOptions = apis[i].name !== "Client";
             apiLocals.hasClientOptions = apis[i].name === "Client";
-            var generatedApi = apiTemplate(apiLocals);
-            writeFile(path.resolve(eachOutputDir, "PlayFab" + apis[i].name + ".js"), generatedApi);
+            writeFile(path.resolve(eachOutputDir, "Scripts/PlayFab/PlayFab" + apis[i].name + ".js"), apiTemplate(apiLocals));
+            writeFile(path.resolve(eachOutputDir, "Scripts/typings/PlayFab/PlayFab" + apis[i].name + ".d.ts"), apiTypingsTemplate(apiLocals));
         }
     }
     
     // Copy testing files
-    copyTree(path.resolve(sourceDir, "testingFiles"), path.resolve(apiOutputDir, "PlayFabTesting"));
+    copyTree(path.resolve(sourceDir, "testingFiles"), path.resolve(apiOutputDir, "PlayFabTestingExample"));
 }
 
 function GetAuthParams(apiCall) {
@@ -122,4 +127,79 @@ function GetDeprecationAttribute(tabbing, apiObj) {
             + tabbing + " * @deprecated Do not use\n" 
             + tabbing + " */\n";
     return "";
+}
+
+function GenerateSummary(tabbing, element, summaryParam, extraLine) {
+    var hasSummary = element.hasOwnProperty(summaryParam);
+    if (!hasSummary && !extraLine) {
+        return "";
+    }
+    
+    var output = tabbing + "/**\n";
+    if (hasSummary)
+        output += tabbing + " / " + element[summaryParam] + "\n";
+    if (extraLine)
+        output += tabbing + " / " + extraLine + "\n";
+    output += tabbing + " */\n";
+    return output;
+}
+
+function GenerateDatatype(api, datatype, sourceDir) {
+    var templateDir = path.resolve(sourceDir, "templates");
+    var interfaceTemplate = GetCompiledTemplate(path.resolve(templateDir, "Interface.ejs"));
+    var enumTemplate = GetCompiledTemplate(path.resolve(templateDir, "Enum.ejs"));
+    
+    var locals = {
+        GenerateSummary: GenerateSummary,
+        GetBaseTypeSyntax: GetBaseTypeSyntax,
+        GetPropertyTsType: GetPropertyTsType,
+        api: api,
+        datatype: datatype
+    };
+    if (datatype.isenum)
+        return enumTemplate(locals);
+    return interfaceTemplate(locals);
+}
+
+function GetBaseTypeSyntax(datatype) {
+    if (datatype.className.toLowerCase().endsWith("request"))
+        return " extends PlayFabModule.IPlayFabRequestCommon";
+    if (datatype.className.toLowerCase().endsWith("response") || datatype.className.toLowerCase().endsWith("result"))
+        return " extends PlayFabModule.IPlayFabResultCommon ";
+    return ""; // If both are -1, then neither is greater
+}
+
+function GetPropertyTsType(property, datatype) {
+    var output = undefined;
+    
+    if (property.actualtype === "String")
+        output = "string";
+    else if (property.actualtype === "Boolean")
+        output = "boolean";
+    else if (property.actualtype.contains("int") || property.actualtype === "float" || property.actualtype === "double" || property.actualtype === "decimal")
+        output = "number";
+    else if (property.actualtype === "DateTime")
+        output = "string";
+    else if (property.isclass)
+        output = property.actualtype;
+    else if (property.isenum)
+        output = "string";
+    else if (property.actualtype === "object")
+        output = "any";
+    else
+        throw "Unknown property type: " + property.actualtype + " for " + property.name + " in " + datatype.className;
+    
+    if (property.collection === "array")
+        output += "[]";
+    else if (property.collection === "map")
+        output = "{ [key: string]: " + output + " }";
+    else if (property.collection)
+        throw "Unknown collection type: " + property.collection + " for " + property.name + " in " + datatype.className;
+    
+    var isOptional = property.optional;
+    var isLoginRequest = ((datatype.name.contains("Login") && datatype.name.contains("Request")) || datatype.name === "RegisterPlayFabUserRequest");
+    if (isLoginRequest && property.name === "TitleId")
+        isOptional = true;
+
+    return (isOptional ? "?" : "") + ": " + output;
 }

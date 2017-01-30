@@ -36,13 +36,13 @@ forcePushD () {
 
 # USAGE: deleteCruft
 deleteCruft () {
-    rmdir /S /Q .vs 2> /dev/null
-    rmdir /S /Q bin 2> /dev/null
-    rmdir /S /Q Library 2> /dev/null
-    rmdir /S /Q obj 2> /dev/null
-    rmdir /S /Q ProjectSettings 2> /dev/null
-    rmdir /S /Q Temp 2> /dev/null
-    rmdir /S /Q testBuilds 2> /dev/null
+    rm -rf .vs 2> /dev/null
+    rm -rf bin 2> /dev/null
+    rm -rf Library 2> /dev/null
+    rm -rf obj 2> /dev/null
+    rm -rf ProjectSettings 2> /dev/null
+    rm -rf Temp 2> /dev/null
+    rm -rf testBuilds 2> /dev/null
     mkdir testBuilds
     rm -f *.csproj 2> /dev/null
     rm -f *.sln 2> /dev/null
@@ -141,6 +141,7 @@ mainScript () {
     fi
 
     forceCD "$ProjRootPath"
+    rm -f *.txt 2> /dev/null
     doWorkEditor "${SdkName}_BUP"
     if [ $? -ne 0 ]; then return 1; fi
     doWorkTesting "${SdkName}_TA" "ENABLE_PLAYFABADMIN_API;DISABLE_PLAYFABCLIENT_API"

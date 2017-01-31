@@ -3,7 +3,7 @@ Microsoft Visual Studio Solution File, Format Version 12.00
 # Visual Studio 14
 VisualStudioVersion = 14.0.25420.1
 MinimumVisualStudioVersion = 10.0.40219.1
-Project("{9092AA53-FB77-4645-B42D-1CCCA6BD08BD}") = "PlayFabTesting", "PlayFabTesting.njsproj", "{06A7CAB7-EA97-43C0-A278-089A75D1B0FA}"
+Project("{9092AA53-FB77-4645-B42D-1CCCA6BD08BD}") = "PlayFabTestingExample", "PlayFabTestingExample.njsproj", "{06A7CAB7-EA97-43C0-A278-089A75D1B0FA}"
 EndProject
 Global
 	GlobalSection(SolutionConfigurationPlatforms) = preSolution

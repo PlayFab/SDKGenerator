@@ -34,7 +34,7 @@ exports.makeCombinedAPI = function (apis, sourceDir, apiOutputDir) {
         
         // Write the package file
         var pkgLocals = {}
-        pkgLocals.isTesting = (destSubFolders[fIdx] === "PlayFabTesting");
+        pkgLocals.isTesting = (destSubFolders[fIdx] === "PlayFabTestingExample");
         pkgLocals.sdkVersion = exports.sdkVersion;
         pkgLocals.projectName = pkgLocals.isTesting ? "playfab-testing" : "playfab-sdk";
         pkgLocals.description = pkgLocals.isTesting ? "Playfab SDK automated testing example" : "Playfab SDK for node.js applications";

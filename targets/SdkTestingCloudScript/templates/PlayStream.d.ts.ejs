@@ -1,0 +1,20 @@
+declare namespace PlayStreamModels {
+    interface IBasePlayStreamEvent {
+        EventName: string;
+    }
+
+<% for (var parentIdx in parentTypes) { var group = parentTypes[parentIdx];
+%>    /*
+     * PlayStream Group: <%- group.Group %>
+     */
+
+<% for (var classIdx = 0; classIdx < group.Classes.length; classIdx++) { var pDatatype = group.Classes[classIdx];
+%><%- GenerateSummary("    ", pDatatype, "description", "https://api.playfab.com/playstream/docs/PlayStreamEventModels/" + group.Group + "/" + pDatatype.name)
+%><%- MakeDatatype("    ", pDatatype, sourceDir, " extends IBasePlayStreamEvent") %><% } %><% }
+%>    /*
+     * PlayStream Group: child types
+     */
+
+<% for (var childIdx = 0; childIdx < childTypes.length; childIdx++) { var cDatatype = childTypes[childIdx];
+%><%- GenerateSummary("    ", cDatatype, "description", "https://api.playfab.com/playstream/docs/PlayStreamEventModels/childtypes/" + cDatatype.name)
+%><%- MakeDatatype("    ", cDatatype, sourceDir, "") %><% } %>}

@@ -1,3 +1,6 @@
-<%- tabbing %>interface <%- name %> {
-<% for( var i in properties) { %><%-GetProperty(properties[i], tabbing + "    ")%><% } -%>
+<%- tabbing %>interface <%- datatype.name %><%- extendsFrom %> {
+<% for( var i in properties) {
+%><%- GenerateSummary(tabbing + "    ", properties[i], "description")
+%><%- GetProperty(tabbing + "    ", properties[i])%><% } -%>
 <%- tabbing %>}
+

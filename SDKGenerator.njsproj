@@ -141,6 +141,7 @@
     <Compile Include="targets\PhpSdk\make.js" />
     <Compile Include="targets\postman\make.js" />
     <Compile Include="targets\SdkTestingCloudScript\make.js" />
+    <None Include="targets\SdkTestingCloudScript\source\DefaultCloudScript.ts" />
     <Compile Include="targets\unity-v2\make.js" />
     <Compile Include="targets\WindowsSdk\make.js" />
     <Content Include="README.md" />
@@ -630,9 +631,11 @@
     <Content Include="targets\PhpSdk\templates\PlayFabApi.php.ejs" />
     <Content Include="targets\postman\replacements.json" />
     <Content Include="targets\postman\templates\playfab.json.ejs" />
-    <Content Include="targets\SdkTestingCloudScript\templates\API.d.ts.ejs" />
+    <Content Include="targets\SdkTestingCloudScript\templates\CloudScript.d.ts.ejs" />
     <Content Include="targets\SdkTestingCloudScript\templates\Interface.d.ts.ejs" />
-    <Content Include="targets\SdkTestingCloudScript\templates\StringLiteral.d.ts.ejs" />
+    <Content Include="targets\SdkTestingCloudScript\templates\Enum.d.ts.ejs" />
+    <Content Include="targets\SdkTestingCloudScript\templates\package.json.ejs" />
+    <Content Include="targets\SdkTestingCloudScript\templates\PlayStream.d.ts.ejs" />
     <Content Include="targets\unity-v2\source\Admin\PlayFabSettings.cs" />
     <Content Include="targets\unity-v2\source\Client\PlayFabIdfa.cs" />
     <Content Include="targets\unity-v2\source\Client\PlayFabSettings.cs" />
@@ -1075,6 +1078,7 @@
     <Folder Include="targets\postman\" />
     <Folder Include="targets\postman\templates\" />
     <Folder Include="targets\SdkTestingCloudScript\" />
+    <Folder Include="targets\SdkTestingCloudScript\source\" />
     <Folder Include="targets\SdkTestingCloudScript\templates\" />
     <Folder Include="targets\unity-v2\" />
     <Folder Include="targets\unity-v2\source\" />
@@ -1131,6 +1135,9 @@
   </ItemGroup>
   <ItemGroup>
     <None Include="targets\javascript\testingFiles\PlayFabApiTest.ts" />
+  </ItemGroup>
+  <ItemGroup>
+    <None Include="targets\SdkTestingCloudScript\source\ExampleCloudScript.ts" />
   </ItemGroup>
   <!-- Do not delete the following Import Project.  While this appears to do nothing it is a marker for setting TypeScript properties before our import that depends on them. -->
   <Import Project="$(MSBuildExtensionsPath32)\Microsoft\VisualStudio\v$(VisualStudioVersion)\TypeScript\Microsoft.TypeScript.targets" Condition="False" />

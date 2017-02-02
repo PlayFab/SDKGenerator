@@ -1,4 +1,4 @@
-<%- tabbing %>type <%- name -%> = "<%- enumvalues[0].name %>"
+<%- tabbing %>type <%- datatype.name -%> = "<%- enumvalues[0].name %>"
 
 <% for(var i = 1; i < enumvalues.length; i++) { -%>
 <%- tabbing %>    | "<%- enumvalues[i].name %>"<%if (i === enumvalues.length - 1){%>;<% } %>

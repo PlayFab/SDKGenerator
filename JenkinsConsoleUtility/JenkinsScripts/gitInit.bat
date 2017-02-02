@@ -1,13 +1,18 @@
 echo off
 setlocal
 if "%1"=="" (
-    set gitTarget=%AUTOMATED_GIT_REPO%
+    set gitTarget=%AUTOMATED_GIT_BRANCH%
 ) ELSE (
     set gitTarget=%1
 )
 
 rem === Clean the %gitTarget% branch for %SdkName% ===
-cd C:\depot\sdks\%SdkName%
+if [%SdkName%]==["API_Specs"] (
+    cd C:\depot\%SdkName%
+) else (
+    cd C:\depot\sdks\%SdkName%
+)
+
 git checkout master
 git pull origin master
 

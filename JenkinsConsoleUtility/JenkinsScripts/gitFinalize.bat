@@ -1,7 +1,7 @@
 echo off
 setlocal
 if "%1"=="" (
-    set gitTarget=%AUTOMATED_GIT_REPO%
+    set gitTarget=%AUTOMATED_GIT_BRANCH%
 ) ELSE (
     set gitTarget=%1
 )

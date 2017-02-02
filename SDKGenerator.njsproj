@@ -631,6 +631,8 @@
     <Content Include="targets\PhpSdk\templates\PlayFabApi.php.ejs" />
     <Content Include="targets\postman\replacements.json" />
     <Content Include="targets\postman\templates\playfab.json.ejs" />
+    <Content Include="targets\SdkTestingCloudScript\source\CloudScriptExample.njsproj" />
+    <Content Include="targets\SdkTestingCloudScript\source\CloudScriptExample.sln" />
     <Content Include="targets\SdkTestingCloudScript\templates\CloudScript.d.ts.ejs" />
     <Content Include="targets\SdkTestingCloudScript\templates\Interface.d.ts.ejs" />
     <Content Include="targets\SdkTestingCloudScript\templates\Enum.d.ts.ejs" />

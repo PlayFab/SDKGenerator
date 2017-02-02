@@ -7,12 +7,7 @@ if "%1"=="" (
 )
 
 rem === Clean the %gitTarget% branch for %SdkName% ===
-if [%SdkName%]==["API_Specs"] (
-    cd C:\depot\%SdkName%
-) else (
-    cd C:\depot\sdks\%SdkName%
-)
-
+cd C:\depot\sdks\%SdkName%
 git checkout master
 git pull origin master
 

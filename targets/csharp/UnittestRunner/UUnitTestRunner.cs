@@ -20,7 +20,7 @@ namespace UnittestRunner
 
         private static int Main(string[] args)
         {
-            Dictionary<string, string> testInputs = null;
+            TestTitleData testInputs = null;
 
             for (var i = 0; i < args.Length; i++)
             {
@@ -30,7 +30,7 @@ namespace UnittestRunner
                     if (File.Exists(filename))
                     {
                         var testInputsFile = File.ReadAllText(filename);
-                        testInputs = JsonWrapper.DeserializeObject<Dictionary<string, string>>(testInputsFile);
+                        testInputs = JsonWrapper.DeserializeObject<TestTitleData>(testInputsFile);
                     }
                     else
                     {

@@ -41,17 +41,12 @@ namespace PlayFab.UUnit
         /// PlayFab Title cannot be created from SDK tests, so you must provide your titleId to run unit tests.
         /// (Also, we don't want lots of excess unused titles)
         /// </summary>
-        public static void SetTitleInfo(Dictionary<string, string> testInputs)
+        public static void SetTitleInfo(TestTitleData testInputs)
         {
-            string eachValue;
-
             TITLE_INFO_SET = true;
 
-            // Parse all the inputs
-            TITLE_INFO_SET &= testInputs.TryGetValue("titleId", out eachValue);
-            PlayFabSettings.TitleId = eachValue;
-
-            TITLE_INFO_SET &= testInputs.TryGetValue("userEmail", out USER_EMAIL);
+            PlayFabSettings.TitleId = testInputs.titleId;
+            USER_EMAIL = testInputs.userEmail;
 
             // Verify all the inputs won't cause crashes in the tests
             TITLE_INFO_SET &= !string.IsNullOrEmpty(PlayFabSettings.TitleId)

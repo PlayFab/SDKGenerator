@@ -3,6 +3,7 @@ using System.Collections.Generic;
 using Newtonsoft.Json.Linq;
 using PlayFab.ClientModels;
 using PlayFab.Internal;
+using UnittestRunner;
 
 namespace PlayFab.UUnit
 {
@@ -35,21 +36,15 @@ namespace PlayFab.UUnit
         /// PlayFab Title cannot be created from SDK tests, so you must provide your titleId to run unit tests.
         /// (Also, we don't want lots of excess unused titles)
         /// </summary>
-        public static void SetTitleInfo(Dictionary<string, string> testInputs)
+        public static void SetTitleInfo(TestTitleData testInputs)
         {
-            string eachValue;
-
             TITLE_INFO_SET = true;
 
             // Parse all the inputs
-            TITLE_INFO_SET &= testInputs.TryGetValue("titleId", out eachValue);
-            PlayFabDefaultSettings.TitleId = eachValue;
-            TITLE_INFO_SET &= testInputs.TryGetValue("developerSecretKey", out eachValue);
-            PlayFabDefaultSettings.DeveloperSecretKey = eachValue;
-
-            TITLE_INFO_SET &= testInputs.TryGetValue("userEmail", out USER_EMAIL);
-
-            TITLE_INFO_SET &= testInputs.TryGetValue("characterName", out CHAR_NAME);
+            PlayFabDefaultSettings.TitleId = testInputs.titleId;
+            PlayFabDefaultSettings.DeveloperSecretKey = testInputs.developerSecretKey;
+            USER_EMAIL = testInputs.userEmail;
+            CHAR_NAME = testInputs.characterName;
 
             // Verify all the inputs won't cause crashes in the tests
             TITLE_INFO_SET &= !string.IsNullOrEmpty(PlayFabDefaultSettings.TitleId)

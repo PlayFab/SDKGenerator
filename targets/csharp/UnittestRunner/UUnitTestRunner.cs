@@ -20,26 +20,7 @@ namespace UnittestRunner
 
         private static int Main(string[] args)
         {
-            TestTitleData testInputs = null;
-
-            for (var i = 0; i < args.Length; i++)
-            {
-                if (args[i] == "-testInputsFile" && (i + 1) < args.Length)
-                {
-                    var filename = args[i + 1];
-                    if (File.Exists(filename))
-                    {
-                        var testInputsFile = File.ReadAllText(filename);
-                        testInputs = JsonWrapper.DeserializeObject<TestTitleData>(testInputsFile);
-                    }
-                    else
-                    {
-                        Console.WriteLine("Loading testSettings file failed: " + filename);
-                        Console.WriteLine("From: " + Directory.GetCurrentDirectory());
-                    }
-                }
-            }
-
+            var testInputs = GetTestTitleData(args);
             UUnitIncrementalTestRunner.Start(true, null, testInputs, OnComplete);
             while (!UUnitIncrementalTestRunner.SuiteFinished)
                 UUnitIncrementalTestRunner.Tick();
@@ -53,6 +34,28 @@ namespace UnittestRunner
                 Thread.Sleep(100);
 
             return UUnitIncrementalTestRunner.AllTestsPassed ? 0 : 1;
+        }
+
+        private static TestTitleData GetTestTitleData(string[] args)
+        {
+            TestTitleData testInputs = null;
+            string filename = null;
+            for (var i = 0; i < args.Length; i++)
+                if (args[i] == "-testInputsFile" && (i + 1) < args.Length)
+                    filename = args[i + 1];
+            if (string.IsNullOrEmpty(filename))
+                filename = Environment.GetEnvironmentVariable("PF_TEST_TITLE_DATA_JSON");
+            if (File.Exists(filename))
+            {
+                var testInputsFile = File.ReadAllText(filename);
+                testInputs = JsonWrapper.DeserializeObject<TestTitleData>(testInputsFile);
+            }
+            else
+            {
+                Console.WriteLine("Loading testSettings file failed: " + filename);
+                Console.WriteLine("From: " + Directory.GetCurrentDirectory());
+            }
+            return testInputs;
         }
 
         private static void OnComplete(PlayFabResult<ExecuteCloudScriptResult> result)

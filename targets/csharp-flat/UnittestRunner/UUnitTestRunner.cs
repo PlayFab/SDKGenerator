@@ -8,6 +8,15 @@ using PlayFab.Internal;
 
 namespace UnittestRunner
 {
+    public class TestTitleData
+    {
+        public string titleId;
+        public string developerSecretKey;
+        public string userEmail;
+        public string characterName;
+        public Dictionary<string, string> extraHeaders;
+    }
+
     static class UUnitTestRunner
     {
         public class CsSaveRequest
@@ -18,30 +27,10 @@ namespace UnittestRunner
 
         static int Main(string[] args)
         {
-            for (var i = 0; i < args.Length; i++)
-            {
-                if (args[i] == "-testInputsFile" && (i + 1) < args.Length)
-                {
-                    var filename = args[i + 1];
-                    if (File.Exists(filename))
-                    {
-                        var testInputsFile = File.ReadAllText(filename);
-                        var serializer = JsonSerializer.Create(PlayFabUtil.JsonSettings);
-                        var testInputs = serializer.Deserialize<Dictionary<string, string>>(new JsonTextReader(new StringReader(testInputsFile)));
-                        PlayFabApiTest.SetTitleInfo(testInputs);
-                    }
-                    else
-                    {
-                        Console.WriteLine("Loading testSettings file failed: " + filename);
-                        Console.WriteLine("From: " + Directory.GetCurrentDirectory());
-                    }
-                }
-            }
-
+            var testInputs = GetTestTitleData(args);
+            PlayFabApiTest.SetTitleInfo(testInputs);
             var suite = new UUnitTestSuite(PlayFabVersion.BuildIdentifier);
-            // With this call, we should only expect the unittests within PlayFabSDK to run - This could be expanded by adding other assemblies manually
-            foreach (var assembly in AppDomain.CurrentDomain.GetAssemblies())
-                suite.FindAndAddAllTestCases(assembly, typeof(UUnitTestCase));
+            AddAllTestClasses(suite);
 
             // Display the test results
             suite.RunAllTests();
@@ -50,6 +39,35 @@ namespace UnittestRunner
             Console.WriteLine();
 
             return results.AllTestsPassed() ? 0 : 1;
+        }
+
+        private static void AddAllTestClasses(UUnitTestSuite suite)
+        {
+            foreach (var assembly in AppDomain.CurrentDomain.GetAssemblies())
+                suite.FindAndAddAllTestCases(assembly, typeof(UUnitTestCase));
+        }
+
+        private static TestTitleData GetTestTitleData(string[] args)
+        {
+            TestTitleData testInputs = null;
+            string filename = null;
+            for (var i = 0; i < args.Length; i++)
+                if (args[i] == "-testInputsFile" && (i + 1) < args.Length)
+                    filename = args[i + 1];
+            if (string.IsNullOrEmpty(filename))
+                filename = Environment.GetEnvironmentVariable("PF_TEST_TITLE_DATA_JSON");
+            if (File.Exists(filename))
+            {
+                var testInputsFile = File.ReadAllText(filename);
+                var serializer = JsonSerializer.Create(PlayFabUtil.JsonSettings);
+                testInputs = serializer.Deserialize<TestTitleData>(new JsonTextReader(new StringReader(testInputsFile)));
+            }
+            else
+            {
+                Console.WriteLine("Loading testSettings file failed: " + filename);
+                Console.WriteLine("From: " + Directory.GetCurrentDirectory());
+            }
+            return testInputs;
         }
     }
 }

@@ -11,7 +11,6 @@ namespace PlayFab.UUnit
         public string titleId;
         public string developerSecretKey;
         public string userEmail;
-        public string characterName;
         public Dictionary<string, string> extraHeaders;
     }
 

@@ -1,5 +1,9 @@
 /** Static object you add your CloudScript endpoints to */
-declare var handlers: any;
+declare var handlers: Handlers;
+interface IPlayFabHandlers {
+  [handlerId:string]: (args?:any, context?:IPlayFabContext) => any;
+}
+
 /** The playfab id for the user who called into CloudScript */
 declare var currentPlayerId: string;
 

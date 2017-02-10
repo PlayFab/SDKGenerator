@@ -648,8 +648,6 @@
     <Content Include="targets\unity-v2\source\Server\PlayStream\README.md" />
     <Content Include="targets\unity-v2\source\Server\PlayStream\README.md.meta" />
     <Content Include="targets\unity-v2\source\Shared\Editor.meta" />
-    <Content Include="targets\unity-v2\source\Shared\Editor\AndroidManifestManager.cs" />
-    <Content Include="targets\unity-v2\source\Shared\Editor\AndroidManifestManager.cs.meta" />
     <Content Include="targets\unity-v2\source\Shared\Editor\PlayFabHelp.cs" />
     <Content Include="targets\unity-v2\source\Shared\Editor\PlayFabHelp.cs.meta" />
     <Content Include="targets\unity-v2\source\Shared\Editor\PlayFablogo.png" />

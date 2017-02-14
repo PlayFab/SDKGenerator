@@ -134,6 +134,7 @@ namespace PlayFab.Internal
             Setup();
             // SetScriptingBackend(ScriptingImplementation.IL2CPP, AppleBuildTarget, AppleBuildTargetGroup); // Ideally we should be testing both at some point, but ...
             SetScriptingBackend(ScriptingImplementation.Mono2x, AppleBuildTarget, AppleBuildTargetGroup); // Mono2x is traditionally the one with issues, and it's a lot faster to build/test
+            SetIdentifier("com.PlayFab.PlayFabTest");
             var iosPath = Path.Combine(GetBuildPath(), "PlayFabIOS");
             MkDir(GetBuildPath());
             MkDir(iosPath);

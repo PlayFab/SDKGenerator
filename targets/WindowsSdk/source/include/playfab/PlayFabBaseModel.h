@@ -293,6 +293,9 @@ namespace PlayFab
     inline void FromJsonUtilS(web::json::value& input, std::list<std::string>& output)
     {
         output.clear();
+        if (input.is_null())
+            return;
+
         std::string eachOutput;
         web::json::array& inputArray = input.as_array();
         for (auto iter = inputArray.begin(); iter != inputArray.end(); ++iter)
@@ -371,6 +374,9 @@ namespace PlayFab
     template <typename ObjectType> inline void FromJsonUtilO(web::json::value& input, std::list<ObjectType>& output)
     {
         output.clear();
+        if (input.is_null())
+            return;
+
         ObjectType eachOutput;
         web::json::array& inputArray = input.as_array();
         for (auto iter = inputArray.begin(); iter != inputArray.end(); ++iter)
@@ -392,6 +398,9 @@ namespace PlayFab
     template <typename ObjectType> inline void FromJsonUtilO(web::json::value& input, std::map<std::string, ObjectType>& output)
     {
         output.clear();
+        if (input.is_null())
+            return;
+
         ObjectType eachOutput;
         web::json::object& inputArray = input.as_object();
         for (auto iter = inputArray.begin(); iter != inputArray.end(); ++iter)
@@ -508,6 +517,9 @@ namespace PlayFab
     template <typename PrimitiveType> inline void FromJsonUtilP(web::json::value& input, std::map<std::string, PrimitiveType>& output)
     {
         output.clear();
+        if (input.is_null())
+            return;
+
         PrimitiveType eachOutput;
         web::json::object& inputArray = input.as_object();
         for (auto iter = inputArray.begin(); iter != inputArray.end(); ++iter)
@@ -517,3 +529,4 @@ namespace PlayFab
         }
     }
 }
+

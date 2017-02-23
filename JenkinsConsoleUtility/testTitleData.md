@@ -26,13 +26,14 @@ The format of the testTitleData.json file is as follows:
 	"titleId": "<Found in PlayFab Game Manager>",
 	"developerSecretKey": "<Found in PlayFab Game Manager>",
 	"userEmail": "<your@email.com>",
-	"characterName": "<CharName>"
+	"characterName": "<CharName>",
+	"extraHeaders": {
+		"headerKey": "headerValue", ...
+	}
 }
 ```
 
 Please note characterName is deprecated, and has already been removed from most of the test-examples in our SDKs.  For those few that remain, this can be any valid character name (Those test suites will usually create the character).
-
-Please note, the path to testTitleData.json is hard coded in most of the examples to this: "C:/depot/pf-main/tools/SDKBuildScripts/testTitleData.json"
 
 Our own testTitleData.json is located at this location and contains the secret key for title 6195, and thus we do not publish this file.  You should change this path to your own testTitleData.json location, wherever it may be.
 

@@ -33,12 +33,6 @@ namespace JenkinsConsoleUtility.Commands
             var sdkName = JenkinsConsoleUtility.GetArgVar(argsLc, "sdkName");
             var sdkGenKey = GetSdkGenKey(sdkName);
 
-            if (string.IsNullOrEmpty(sdkGenKey))
-            {
-                JenkinsConsoleUtility.FancyWriteToConsole("Cannot convert sdkName into sdkGenKey: " + sdkName);
-                return 1;
-            }
-
             if (argsLc.ContainsKey("apispecpath"))
                 _apiSpecPath = JenkinsConsoleUtility.GetArgVar(argsLc, "apiSpecPath");
             else if (argsLc.ContainsKey("apispecgiturl"))
@@ -123,18 +117,15 @@ namespace JenkinsConsoleUtility.Commands
                 case "csharpsdk": return "csharp";
                 case "javascriptsdk": return "javascript";
                 case "javasdk": return "java";
-                case "luasdk": return "luasdk";
                 case "nodesdk": return "js-node";
                 case "postmancollection": return "postman";
                 case "unitysdk": return "unity-v2";
-                case "lumberyardsdk": return "lumberyardsdk";
                 case "objective_c_sdk": return "objc";
                 case "playfabgameserver": return "csharp-unity-gameserver";
                 case "unrealblueprintsdk": return "cpp-unreal";
                 case "unrealcppsdk": return "cpp-ue4";
-                case "windowssdk": return "windowssdk";
+                default: return sdkName.ToLower(); // Most new sdks have matching names
             }
-            return null;
         }
 
         /// <summary>

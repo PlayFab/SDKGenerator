@@ -376,15 +376,19 @@ exports.PlayFabApiTests = {
     /// Parameter types tested: List of contained-classes
     /// </summary>
     LeaderBoard: TestWrapper(function (test): void {
-        var clientRequest = {
+        var clientRequest: PlayFabClientModels.GetLeaderboardRequest = {
             MaxResultsCount: 3,
             StartPosition: 0,
-            StatisticName: TestConstants.TEST_STAT_NAME
+            StatisticName: TestConstants.TEST_STAT_NAME,
+            Version: 0,
+            UseSpecificVersion: false
         };
-        var serverRequest = {
+        var serverRequest: PlayFabServerModels.GetLeaderboardRequest = {
             MaxResultsCount: 3,
             StartPosition: 0,
-            StatisticName: TestConstants.TEST_STAT_NAME
+            StatisticName: TestConstants.TEST_STAT_NAME,
+            Version: 0,
+            UseSpecificVersion: false
         };
 
         var callsCompleted = 0;

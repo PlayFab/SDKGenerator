@@ -1,3 +1,5 @@
+/// <reference path="Playfab.d.ts" />
+
 declare module PlayFab<%- api.name %>Module {
     export interface IPlayFab<%- api.name %> {
 <% if (hasClientOptions) { %>        IsClientLoggedIn(): boolean;

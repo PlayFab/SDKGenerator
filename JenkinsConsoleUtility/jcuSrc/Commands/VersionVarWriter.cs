@@ -124,8 +124,8 @@ namespace JenkinsConsoleUtility.Commands
                 case "playfabgameserver": return "csharp-unity-gameserver";
                 case "unrealcppsdk": return "cpp-ue4";
                 // Multiple repos map to the same folder
-                case "unitysdk": case "UnityEditorExtensions": return "unity-v2";
-                case "unrealblueprintsdk": case "UeBpPsnSdk": case "UeBpXboxSdk": return "cpp-unreal";
+                case "unitysdk": case "unityeditorextensions": return "unity-v2";
+                case "unrealblueprintsdk": case "uebppsnsdk": case "uebpxboxsdk": return "cpp-unreal";
 
                 default: return sdkName.ToLower(); // Most new sdks have matching names
             }

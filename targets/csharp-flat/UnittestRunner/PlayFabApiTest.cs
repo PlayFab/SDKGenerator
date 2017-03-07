@@ -254,16 +254,13 @@ namespace PlayFab.UUnit
             testStatExpected = (testStatExpected + 1) % 100; // This test is about the expected value changing (incrementing through from TEST_STAT_BASE to TEST_STAT_BASE * 2 - 1)
 
             var updateTask = Client.UpdatePlayerStatisticsAsync(new List<StatisticUpdate> { new StatisticUpdate { StatisticName = TEST_STAT_NAME, Value = testStatExpected } });
-            var failed = false;
-            var failedMessage = "UpdateStatistics should have failed";
             try
             {
                 updateTask.Wait(); // The update doesn't return anything, so can't test anything other than failure
             }
             catch (Exception ex)
             {
-                failed = true;
-                failedMessage = ex.Message;
+                UUnitAssert.Fail(ex.Message);
             }
 
             var getStatTask2 = Client.GetPlayerStatisticsAsync();
@@ -273,7 +270,7 @@ namespace PlayFab.UUnit
             }
             catch (Exception ex)
             {
-                UUnitAssert.True(false, ex.Message);
+                UUnitAssert.Fail(ex.Message);
             }
             UUnitAssert.NotNull(getStatTask2.Result, "PlayerStatistics should have been retrieved from Api call");
 
@@ -350,7 +347,7 @@ namespace PlayFab.UUnit
         [UUnitTest]
         public void LeaderBoard()
         {
-            var clientTask = Client.GetLeaderboardAsync(TEST_STAT_NAME, 0, 3);
+            var clientTask = Client.GetLeaderboardAsync(TEST_STAT_NAME, 0, 3, false);
             try
             {
                 clientTask.Wait();
@@ -360,9 +357,9 @@ namespace PlayFab.UUnit
                 UUnitAssert.True(false, ex.Message);
             }
             UUnitAssert.NotNull(clientTask.Result, "Failed to get client leaderboard");
-            UUnitAssert.True(clientTask.Result.Count > 0, "Leaderboard does not contain enough entries.");
+            UUnitAssert.True(clientTask.Result.Leaderboard.Count > 0, "Leaderboard does not contain enough entries.");
 
-            var serverTask = Server.GetLeaderboardAsync(TEST_STAT_NAME, 0, 3);
+            var serverTask = Server.GetLeaderboardAsync(TEST_STAT_NAME, 0, 3, 0, false);
             try
             {
                 clientTask.Wait();
@@ -372,7 +369,7 @@ namespace PlayFab.UUnit
                 UUnitAssert.True(false, ex.Message);
             }
             UUnitAssert.NotNull(serverTask.Result, "Failed to get server leaderboard");
-            UUnitAssert.True(serverTask.Result.Count > 0, "Leaderboard does not contain enough entries.");
+            UUnitAssert.True(serverTask.Result.Leaderboard.Count > 0, "Leaderboard does not contain enough entries.");
         }
 
         /// <summary>

@@ -400,7 +400,9 @@ var PlayFabApiTests = {
         var clientRequest = <PlayFabClientModels.GetLeaderboardRequest>{
             MaxResultsCount: 3,
             StartPosition: 0,
-            StatisticName: PlayFabApiTests.testConstants.TEST_STAT_NAME
+            StatisticName: PlayFabApiTests.testConstants.TEST_STAT_NAME,
+            UseSpecificVersion: false,
+            Version: 0
         };
         var serverRequest = <PlayFabServerModels.GetLeaderboardRequest>{
             MaxResultsCount: 3,

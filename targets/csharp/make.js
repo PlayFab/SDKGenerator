@@ -34,6 +34,7 @@ exports.makeCombinedAPI = function (apis, sourceDir, apiOutputDir) {
         MakeApi(apis[i], sourceDir, apiOutputDir);
     GenerateSimpleFiles(apis, sourceDir, apiOutputDir);
     GenerateProject(apis, sourceDir, apiOutputDir, "All", "");
+    GenerateNugetTemplate(sourceDir, apiOutputDir);
 }
 
 function GetBaseTypeSyntax(datatype) {
@@ -64,50 +65,52 @@ function MakeDatatypes(apis, sourceDir, apiOutputDir) {
     var enumTemplate = GetCompiledTemplate(path.resolve(sourceDir, "templates/Enum.cs.ejs"));
     
     var makeDatatype = function (datatype, api) {
-        var modelLocals = {};
-        modelLocals.api = api;
-        modelLocals.datatype = datatype;
-        modelLocals.GetModelPropertyDef = GetModelPropertyDef;
-        modelLocals.GetPropertyAttribs = GetPropertyAttribs;
-        modelLocals.GetBaseTypeSyntax = GetBaseTypeSyntax;
-        modelLocals.GetDeprecationAttribute = GetDeprecationAttribute;
+        var modelLocals = {
+            api: api,
+            datatype: datatype,
+            GetModelPropertyDef: GetModelPropertyDef,
+            GetPropertyAttribs: GetPropertyAttribs,
+            GetBaseTypeSyntax: GetBaseTypeSyntax,
+            GetDeprecationAttribute: GetDeprecationAttribute
+        };
         
         return (datatype.isenum) ? enumTemplate(modelLocals) : modelTemplate(modelLocals);
     };
     
     for (var a = 0; a < apis.length; a++) {
-        var modelsLocal = {};
-        modelsLocal.api = apis[a];
-        modelsLocal.makeDatatype = makeDatatype;
-        var generatedModels = modelsTemplate(modelsLocal);
-        writeFile(path.resolve(apiOutputDir, "source/PlayFab" + apis[a].name + "Models.cs"), generatedModels);
+        var modelsLocal = {
+            api: apis[a],
+            makeDatatype: makeDatatype
+        };
+        
+        writeFile(path.resolve(apiOutputDir, "source/PlayFab" + apis[a].name + "Models.cs"), modelsTemplate(modelsLocal));
     }
 }
 
 function MakeApi(api, sourceDir, apiOutputDir) {
     console.log("Generating C# " + api.name + " library to " + apiOutputDir);
     
-    var apiTemplate = GetCompiledTemplate(path.resolve(sourceDir, "templates/API.cs.ejs"));
-    var apiLocals = {};
-    apiLocals.api = api;
-    apiLocals.GetAuthParams = GetAuthParams;
-    apiLocals.GetRequestActions = GetRequestActions;
-    apiLocals.GetResultActions = GetResultActions;
-    apiLocals.GetDeprecationAttribute = GetDeprecationAttribute;
-    apiLocals.GenerateSummary = GenerateSummary;
+    var apiLocals = {
+        api: api,
+        GetAuthParams: GetAuthParams,
+        GetRequestActions: GetRequestActions,
+        GetResultActions: GetResultActions,
+        GetDeprecationAttribute: GetDeprecationAttribute,
+        GenerateSummary: GenerateSummary,
+        authKey: api.name === "Client"
+    };
     
-    apiLocals.authKey = api.name === "Client";
-    var generatedApi = apiTemplate(apiLocals);
-    writeFile(path.resolve(apiOutputDir, "source/PlayFab" + api.name + "API.cs"), generatedApi);
+    var apiTemplate = GetCompiledTemplate(path.resolve(sourceDir, "templates/API.cs.ejs"));
+    writeFile(path.resolve(apiOutputDir, "source/PlayFab" + api.name + "API.cs"), apiTemplate(apiLocals));
 }
 
 function GenerateSimpleFiles(apis, sourceDir, apiOutputDir) {
-    var errorsTemplate = GetCompiledTemplate(path.resolve(sourceDir, "templates/Errors.cs.ejs"));
     var errorLocals = {};
     errorLocals.errorList = apis[0].errorList;
     errorLocals.errors = apis[0].errors;
-    var generatedErrors = errorsTemplate(errorLocals);
-    writeFile(path.resolve(apiOutputDir, "source/PlayFabErrors.cs"), generatedErrors);
+    
+    var errorsTemplate = GetCompiledTemplate(path.resolve(sourceDir, "templates/Errors.cs.ejs"));
+    writeFile(path.resolve(apiOutputDir, "source/PlayFabErrors.cs"), errorsTemplate(errorLocals));
     
     var settingsLocals = {};
     settingsLocals.hasServerOptions = false;
@@ -122,24 +125,32 @@ function GenerateSimpleFiles(apis, sourceDir, apiOutputDir) {
     }
     
     var utilTemplate = GetCompiledTemplate(path.resolve(sourceDir, "templates/PlayFabUtil.cs.ejs"));
-    var generatedTemplate = utilTemplate(settingsLocals);
-    writeFile(path.resolve(apiOutputDir, "source/PlayFabUtil.cs"), generatedTemplate);
+    writeFile(path.resolve(apiOutputDir, "source/PlayFabUtil.cs"), utilTemplate(settingsLocals));
     
     var settingsTemplate = GetCompiledTemplate(path.resolve(sourceDir, "templates/PlayFabSettings.cs.ejs"));
-    var generatedSettings = settingsTemplate(settingsLocals);
-    writeFile(path.resolve(apiOutputDir, "source/PlayFabSettings.cs"), generatedSettings);
+    writeFile(path.resolve(apiOutputDir, "source/PlayFabSettings.cs"), settingsTemplate(settingsLocals));
 }
 
 function GenerateProject(apis, sourceDir, apiOutputDir, libname, extraDefines) {
+    var projLocals = {
+        apis: apis,
+        libname: libname,
+        extraDefines: ";NETFX_CORE;SIMPLE_JSON_TYPEINFO" + extraDefines,
+    };
+    
     var vcProjTemplate = GetCompiledTemplate(path.resolve(sourceDir, "templates/PlayFabSDK.csproj.ejs"));
+    writeFile(path.resolve(apiOutputDir, "PlayFabSDK.csproj"), vcProjTemplate(projLocals));
+}
+
+function GenerateNugetTemplate(sourceDir, apiOutputDir) {
+    var projLocals = {
+        sdkVersion: exports.sdkVersion,
+        sdkDate: exports.sdkVersion.split(".")[2],
+        sdkYear: exports.sdkVersion.split(".")[2].substr(0, 2)
+    };
     
-    var projLocals = {};
-    projLocals.apis = apis;
-    projLocals.libname = libname;
-    projLocals.extraDefines = ";NETFX_CORE;SIMPLE_JSON_TYPEINFO" + extraDefines;
-    
-    var generatedProject = vcProjTemplate(projLocals);
-    writeFile(path.resolve(apiOutputDir, "PlayFabSDK.csproj"), generatedProject);
+    var vcProjTemplate = GetCompiledTemplate(path.resolve(sourceDir, "templates/PlayFabSDK.nuspec.ejs"));
+    writeFile(path.resolve(apiOutputDir, "PlayFabSDK.nuspec"), vcProjTemplate(projLocals));
 }
 
 function GetModelPropertyDef(property, datatype) {

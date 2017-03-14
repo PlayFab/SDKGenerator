@@ -1,5 +1,3 @@
-// Some copyright should be here...
-
 #pragma once
 
 #include "ModuleManager.h"
@@ -11,5 +9,5 @@
 class IPlayFabProxyModuleInterface : public IModuleInterface
 {
 public:
-	
+
 };

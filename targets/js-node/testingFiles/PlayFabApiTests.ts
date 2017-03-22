@@ -379,16 +379,12 @@ exports.PlayFabApiTests = {
         var clientRequest: PlayFabClientModels.GetLeaderboardRequest = {
             MaxResultsCount: 3,
             StartPosition: 0,
-            StatisticName: TestConstants.TEST_STAT_NAME,
-            Version: 0,
-            UseSpecificVersion: false
+            StatisticName: TestConstants.TEST_STAT_NAME
         };
         var serverRequest: PlayFabServerModels.GetLeaderboardRequest = {
             MaxResultsCount: 3,
             StartPosition: 0,
-            StatisticName: TestConstants.TEST_STAT_NAME,
-            Version: 0,
-            UseSpecificVersion: false
+            StatisticName: TestConstants.TEST_STAT_NAME
         };
 
         var callsCompleted = 0;

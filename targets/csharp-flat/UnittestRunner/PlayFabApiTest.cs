@@ -347,7 +347,7 @@ namespace PlayFab.UUnit
         [UUnitTest]
         public void LeaderBoard()
         {
-            var clientTask = Client.GetLeaderboardAsync(TEST_STAT_NAME, 0, 3, false);
+            var clientTask = Client.GetLeaderboardAsync(TEST_STAT_NAME, 0, 3);
             try
             {
                 clientTask.Wait();
@@ -359,7 +359,7 @@ namespace PlayFab.UUnit
             UUnitAssert.NotNull(clientTask.Result, "Failed to get client leaderboard");
             UUnitAssert.True(clientTask.Result.Leaderboard.Count > 0, "Leaderboard does not contain enough entries.");
 
-            var serverTask = Server.GetLeaderboardAsync(TEST_STAT_NAME, 0, 3, 0, false);
+            var serverTask = Server.GetLeaderboardAsync(TEST_STAT_NAME, 0, 3);
             try
             {
                 clientTask.Wait();

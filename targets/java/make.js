@@ -220,7 +220,7 @@ function GenerateSummary(tabbing, apiObj, summaryParam) {
     else if (isDeprecated)
         summaryLine = tabbing + " * @deprecated Do not use\n";
     else if (hasSummary)
-        summaryLine = tabbing + " * " + apiObj[summaryParam] + "\n";
+        summaryLine = tabbing + " * " + apiObj[summaryParam].replaceAll(">", "&GT;") + "\n";
 
     return tabbing + "/**\n" 
         + summaryLine

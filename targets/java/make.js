@@ -1,49 +1,43 @@
 var path = require("path");
 
 exports.makeClientAPI = function (api, sourceDir, apiOutputDir) {
-    var srcOutputLoc = ["src", "../AndroidStudioExample/app/src/main/java"];
-    var libOutputLoc = ["src", "../AndroidStudioExample/app/libs"];
+    var srcOutputLoc = ["", "../AndroidStudioExample/app/"];
+    var testOutputLoc = ["", "../AndroidStudioExample/app/"];
     
     for (var i = 0; i < srcOutputLoc.length; i++) {
         var srcOutputDir = path.resolve(apiOutputDir, srcOutputLoc[i]);
-        var libOutputDir = path.resolve(apiOutputDir, libOutputLoc[i]);
+        var testOutputDir = path.resolve(apiOutputDir, testOutputLoc[i]);
         var isAndroid = srcOutputDir.indexOf("AndroidStudioExample") >= 0;
         
         console.log("Generating Java client SDK to " + srcOutputDir);
         copyTree(path.resolve(sourceDir, "srcCode"), srcOutputDir);
-        copyTree(path.resolve(sourceDir, "srcLibs"), libOutputDir);
+        copyTree(path.resolve(sourceDir, "testingFiles/client"), testOutputDir);
         MakeDatatypes([api], sourceDir, srcOutputDir);
         MakeApi(api, sourceDir, srcOutputDir, isAndroid);
-        GenerateSimpleFiles([api], sourceDir, srcOutputDir, isAndroid);
+        GenerateSimpleFiles([api], "Client", sourceDir, srcOutputDir, isAndroid);
     }
 }
 
 exports.makeServerAPI = function (apis, sourceDir, apiOutputDir) {
-    apiOutputDir = path.resolve(apiOutputDir, "src");
     console.log("Generating Java server SDK to " + apiOutputDir);
     
     copyTree(path.resolve(sourceDir, "srcCode"), apiOutputDir);
-    copyTree(path.resolve(sourceDir, "srcLibs"), apiOutputDir);
+    copyTree(path.resolve(sourceDir, "testingFiles/server"), apiOutputDir);
     MakeDatatypes(apis, sourceDir, apiOutputDir);
     for (var i = 0; i < apis.length; i++)
         MakeApi(apis[i], sourceDir, apiOutputDir, false);
-    GenerateSimpleFiles(apis, sourceDir, apiOutputDir);
+    GenerateSimpleFiles(apis, "Server", sourceDir, apiOutputDir);
 }
 
 exports.makeCombinedAPI = function (apis, sourceDir, apiOutputDir) {
-    apiOutputDir = path.resolve(apiOutputDir, "src");
     console.log("Generating Java combined SDK to " + apiOutputDir);
     
     copyTree(path.resolve(sourceDir, "srcCode"), apiOutputDir);
-    copyTree(path.resolve(sourceDir, "srcLibs"), apiOutputDir);
+    copyTree(path.resolve(sourceDir, "testingFiles/combo"), apiOutputDir);
     MakeDatatypes(apis, sourceDir, apiOutputDir);
     for (var i = 0; i < apis.length; i++)
         MakeApi(apis[i], sourceDir, apiOutputDir, false);
-    GenerateSimpleFiles(apis, sourceDir, apiOutputDir);
-    
-    // Copy testing files
-    copyFile(path.resolve(sourceDir, "testingFiles/PlayFabApiTest.java"), path.resolve(apiOutputDir, "PlayFabApiTest.java"));
-    copyFile(path.resolve(sourceDir, "testingFiles/RunPfTests.bat"), path.resolve(apiOutputDir, "RunPfTests.bat"));
+    GenerateSimpleFiles(apis, "Combo", sourceDir, apiOutputDir);
 }
 
 function MakeDatatypes(apis, sourceDir, apiOutputDir) {
@@ -63,54 +57,67 @@ function MakeDatatypes(apis, sourceDir, apiOutputDir) {
     };
     
     for (var a = 0; a < apis.length; a++) {
-        var modelsLocal = {};
-        modelsLocal.api = apis[a];
-        modelsLocal.makeDatatype = makeDatatype;
-        var generatedModels = modelsTemplate(modelsLocal);
-        writeFile(path.resolve(apiOutputDir, "com/playfab/PlayFab" + apis[a].name + "Models.java"), generatedModels);
+        var modelsLocal = {
+            api: apis[a],
+            makeDatatype: makeDatatype
+        };
+        writeFile(path.resolve(apiOutputDir, "src/main/java/com/playfab/PlayFab" + apis[a].name + "Models.java"), modelsTemplate(modelsLocal));
     }
 }
 
 function MakeApi(api, sourceDir, apiOutputDir, isAndroid) {
     console.log("Generating Java " + api.name + " library to " + apiOutputDir);
     
+    var apiLocals = {
+        api: api,
+        isAndroid: isAndroid,
+        GetAuthParams: GetAuthParams,
+        GetRequestActions: GetRequestActions,
+        GetResultActions: GetResultActions,
+        GetUrlAccessor: GetUrlAccessor,
+        GenerateSummary: GenerateSummary,
+        hasClientOptions: api.name === "Client"
+    };
+    
     var apiTemplate = GetCompiledTemplate(path.resolve(sourceDir, "templates/API.java.ejs"));
-    var apiLocals = {};
-    apiLocals.api = api;
-    apiLocals.isAndroid = isAndroid;
-    apiLocals.GetAuthParams = GetAuthParams;
-    apiLocals.GetRequestActions = GetRequestActions;
-    apiLocals.GetResultActions = GetResultActions;
-    apiLocals.GetUrlAccessor = GetUrlAccessor;
-    apiLocals.GenerateSummary = GenerateSummary;
-    apiLocals.hasClientOptions = api.name === "Client";
-    var generatedApi = apiTemplate(apiLocals);
-    writeFile(path.resolve(apiOutputDir, "com/playfab/PlayFab" + api.name + "API.java"), generatedApi);
+    writeFile(path.resolve(apiOutputDir, "src/main/java/com/playfab/PlayFab" + api.name + "API.java"), apiTemplate(apiLocals));
 }
 
-function GenerateSimpleFiles(apis, sourceDir, apiOutputDir, isAndroid) {
+function GenerateSimpleFiles(apis, apiName, sourceDir, apiOutputDir, isAndroid) {
     var errorsTemplate = GetCompiledTemplate(path.resolve(sourceDir, "templates/Errors.java.ejs"));
-    var errorLocals = {};
-    errorLocals.errorList = apis[0].errorList;
-    errorLocals.errors = apis[0].errors;
-    var generatedErrors = errorsTemplate(errorLocals);
-    writeFile(path.resolve(apiOutputDir, "com/playfab/PlayFabErrors.java"), generatedErrors);
-    
     var settingsTemplate = GetCompiledTemplate(path.resolve(sourceDir, "templates/PlayFabSettings.java.ejs"));
-    var settingsLocals = {};
-    settingsLocals.sdkVersion = exports.sdkVersion;
-    settingsLocals.buildIdentifier = exports.buildIdentifier;
-    settingsLocals.isAndroid = isAndroid;
-    settingsLocals.hasClientOptions = false;
-    settingsLocals.hasServerOptions = false;
+    var pomTemplate = GetCompiledTemplate(path.resolve(sourceDir, "templates/pom.xml.ejs"));
+    
+    var errorLocals = {
+        errorList: apis[0].errorList,
+        errors: apis[0].errors
+    };
+    
+    writeFile(path.resolve(apiOutputDir, "src/main/java/com/playfab/PlayFabErrors.java"), errorsTemplate(errorLocals));
+    
+    var settingsLocals = {
+        sdkVersion: exports.sdkVersion,
+        buildIdentifier: exports.buildIdentifier,
+        isAndroid: isAndroid,
+        hasClientOptions: false,
+        hasServerOptions: false
+    };
     for (var i = 0; i < apis.length; i++) {
         if (apis[i].name === "Client")
             settingsLocals.hasClientOptions = true;
         else
             settingsLocals.hasServerOptions = true;
     }
-    var generatedSettings = settingsTemplate(settingsLocals);
-    writeFile(path.resolve(apiOutputDir, "com/playfab/PlayFabSettings.java"), generatedSettings);
+    writeFile(path.resolve(apiOutputDir, "src/main/java/com/playfab/PlayFabSettings.java"), settingsTemplate(settingsLocals));
+    
+    if (!isAndroid) {
+        var pomLocals = {
+            apiName: apiName,
+            apiNameLc: apiName.toLowerCase(),
+            sdkVersion: exports.sdkVersion
+        };
+        writeFile(path.resolve(apiOutputDir, "pom.xml"), pomTemplate(pomLocals));
+    }
 }
 
 function GetModelPropertyDef(property, datatype) {
@@ -221,9 +228,9 @@ function GenerateSummary(tabbing, apiObj, summaryParam) {
         summaryLine = tabbing + " * @deprecated Do not use\n";
     else if (hasSummary)
         summaryLine = tabbing + " * " + apiObj[summaryParam].replaceAll(">", "&GT;") + "\n";
-
+    
     return tabbing + "/**\n" 
-        + summaryLine
-        + tabbing + " */\n"
+        + summaryLine 
+        + tabbing + " */\n" 
         + (isDeprecated ? tabbing + "@Deprecated\n" : "");
 }

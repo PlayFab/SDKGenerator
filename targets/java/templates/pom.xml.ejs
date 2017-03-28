@@ -1,0 +1,229 @@
+<?xml version="1.0" encoding="UTF-8"?>
+<project xmlns="http://maven.apache.org/POM/4.0.0" xmlns:xsi="http://www.w3.org/2001/XMLSchema-instance" xsi:schemaLocation="http://maven.apache.org/POM/4.0.0 http://maven.apache.org/xsd/maven-4.0.0.xsd">
+    <modelVersion>4.0.0</modelVersion>
+    <inceptionYear>2016</inceptionYear>
+    <groupId>com.playfab</groupId>
+    <artifactId><%- apiNameLc %>-sdk</artifactId>
+    <version><%- sdkVersion %>-SNAPSHOT</version>
+    <name>PlayFab <%- apiName %> API</name>
+    <description>PlayFab is the unified backend platform for games — everything you need to build and operate your game, all in one place, so you can focus on creating and delivering a great player experience. </description>
+    <url>http://api.playfab.com/</url>
+    <organization>
+        <name>PlayFab Inc.</name>
+        <url>https://PlayFab.com</url>
+    </organization>
+    <licenses>
+        <license>
+            <name>The Apache Software License, Version 2.0</name>
+            <url>http://www.apache.org/licenses/LICENSE-2.0.txt</url>
+            <distribution>repo</distribution>
+        </license>
+    </licenses>
+    <prerequisites>
+        <maven>3.1.9</maven>
+    </prerequisites>
+    <scm>
+        <connection>scm:git:https://github.com/PlayFab/JavaSDK.git</connection>
+        <developerConnection>scm:git:https://github.com/PlayFab/JavaSDK.git</developerConnection>
+        <url>scm:git:https://github.com/PlayFab/JavaSDK.git</url>
+    </scm>
+    <issueManagement>
+        <system>GitHub</system>
+        <url>https://github.com/PlayFab/JavaSDK/issues/</url>
+    </issueManagement>
+    <properties>
+        <!-- Eliminates the file encoding warning. Of course, all of your files should probably be UTF-8 nowadays. -->
+        <project.build.sourceEncoding>UTF-8</project.build.sourceEncoding>
+        <!-- Added to show how the dependency/property report will look at properties -->
+        <javaLanguage.version>1.7</javaLanguage.version>
+    </properties>
+    <dependencyManagement>
+        <dependencies>
+            <dependency>
+                <groupId>com.google.code.gson</groupId>
+                <artifactId>gson</artifactId>
+                <version>2.8.0</version>
+            </dependency>
+            <dependency>
+                <groupId>junit</groupId>
+                <artifactId>junit</artifactId>
+                <version>4.12</version>
+                <scope>test</scope>
+            </dependency>
+            <!-- Excellent assertion library.  Replaces FEST, which is no longer maintained. -->
+            <!-- http://joel-costigliola.github.io/assertj/ -->
+            <dependency>
+                <groupId>org.assertj</groupId>
+                <artifactId>assertj-core</artifactId>
+                <version>3.6.2</version>
+                <scope>test</scope>
+            </dependency>
+        </dependencies>
+    </dependencyManagement>
+    <dependencies>
+        <dependency>
+            <groupId>junit</groupId>
+            <artifactId>junit</artifactId>
+            <version>4.12</version>
+            <scope>test</scope>
+        </dependency>
+        <dependency>
+            <groupId>com.google.code.gson</groupId>
+            <artifactId>gson</artifactId>
+            <version>2.8.0</version>
+        </dependency>
+        <!-- Excellent assertion library.  Replaces FEST, which is no longer maintained. -->
+        <!-- http://joel-costigliola.github.io/assertj/ -->
+        <dependency>
+            <groupId>org.assertj</groupId>
+            <artifactId>assertj-core</artifactId>
+            <version>3.6.2</version>
+            <scope>test</scope>
+        </dependency>
+    </dependencies>
+    <build>
+        <plugins>
+            <plugin>
+                <groupId>org.apache.maven.plugins</groupId>
+                <artifactId>maven-compiler-plugin</artifactId>
+                <version>3.6.1</version>
+                <configuration>
+                    <source>${javaLanguage.version}</source>
+                    <target>${javaLanguage.version}</target>
+                </configuration>
+            </plugin>
+        </plugins>
+    </build>
+    <profiles>
+        <profile>
+            <id>release</id>
+            <build>
+                <plugins>
+                    <plugin>
+                        <groupId>org.apache.maven.plugins</groupId>
+                        <artifactId>maven-gpg-plugin</artifactId>
+                        <version>1.6</version>
+                        <executions>
+                            <execution>
+                                <id>sign-artifacts</id>
+                                <phase>verify</phase>
+                                <goals>
+                                    <goal>sign</goal>
+                                </goals>
+                            </execution>
+                        </executions>
+                    </plugin>
+                    <plugin>
+                        <groupId>org.apache.maven.plugins</groupId>
+                        <artifactId>maven-source-plugin</artifactId>
+                        <version>2.4</version>
+                        <executions>
+                            <execution>
+                                <id>attach-sources</id>
+                                <goals>
+                                    <goal>jar</goal>
+                                </goals>
+                            </execution>
+                        </executions>
+                    </plugin>
+                    <plugin>
+                        <groupId>org.apache.maven.plugins</groupId>
+                        <artifactId>maven-javadoc-plugin</artifactId>
+                        <version>2.10.3</version>
+                        <executions>
+                            <execution>
+                                <id>attach-javadocs</id>
+                                <goals>
+                                    <goal>jar</goal>
+                                </goals>
+                            </execution>
+                        </executions>
+                    </plugin>
+                </plugins>
+            </build>
+        </profile>
+    </profiles>
+    <reporting>
+        <plugins>
+            <!-- Basic report generation. -->
+            <plugin>
+                <groupId>org.apache.maven.plugins</groupId>
+                <artifactId>maven-project-info-reports-plugin</artifactId>
+                <version>2.9</version>
+            </plugin>
+            <!-- Dependency version reporting. Relies on standard version numbering
+                - you should use standard version numbering too!
+                http://mojo.codehaus.org/versions-maven-plugin/version-rules.html -->
+            <plugin>
+                <groupId>org.codehaus.mojo</groupId>
+                <artifactId>versions-maven-plugin</artifactId>
+                <version>2.3</version>
+                <reportSets>
+                    <reportSet>
+                        <reports>
+                            <report>dependency-updates-report</report>
+                            <report>plugin-updates-report</report>
+                            <report>property-updates-report</report>
+                        </reports>
+                    </reportSet>
+                </reportSets>
+            </plugin>
+            <!-- Generates a list of changes from the SCM. You will probably want
+                to restrict this somehow for real projects (e.g. by date).
+                http://maven.apache.org/plugins/maven-changelog-plugin/usage.html -->
+            <plugin>
+                <groupId>org.apache.maven.plugins</groupId>
+                <artifactId>maven-changelog-plugin</artifactId>
+                <version>2.3</version>
+            </plugin>
+            <!-- Generates a narrative list of changes from the issue management system. -->
+            <plugin>
+                <groupId>org.apache.maven.plugins</groupId>
+                <artifactId>maven-changes-plugin</artifactId>
+                <version>2.11</version>
+                <reportSets>
+                    <reportSet>
+                        <reports>
+                            <report>github-report</report>
+                        </reports>
+                    </reportSet>
+                </reportSets>
+            </plugin>
+            <!-- Generates the Javadoc for the report. -->
+            <plugin>
+                <groupId>org.apache.maven.plugins</groupId>
+                <artifactId>maven-javadoc-plugin</artifactId>
+                <version>2.10.4</version>
+                <configuration>
+                    <linksource>true</linksource>
+                    <failOnError>false</failOnError>
+                </configuration>
+            </plugin>
+            <!-- Generates a nice HTML linked source cross-reference. -->
+            <plugin>
+                <groupId>org.apache.maven.plugins</groupId>
+                <artifactId>maven-jxr-plugin</artifactId>
+                <version>2.3</version>
+            </plugin>
+            <plugin>
+                <groupId>org.apache.maven.plugins</groupId>
+                <artifactId>maven-surefire-report-plugin</artifactId>
+                <version>2.19.1</version>
+                <reportSets>
+                    <reportSet>
+                        <reports>
+                            <report>report-only</report>
+                        </reports>
+                    </reportSet>
+                </reportSets>
+            </plugin>
+        </plugins>
+    </reporting>
+    <distributionManagement>
+        <repository>
+            <id>nexus</id>
+            <url>https://oss.sonatype.org/service/local/staging/deploy/maven2/</url><!-- deployment url -->
+            <!--<url>https://oss.sonatype.org/content/repositories/snapshots/</url> staging url -->
+        </repository>
+    </distributionManagement>
+</project>

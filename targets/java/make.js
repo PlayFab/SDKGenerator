@@ -213,7 +213,7 @@ function GetUrlAccessor(apiCall) {
 }
 
 // In Java, the summary and the deprecation are not distinct, so we need a single function that generates both
-function GenerateSummary(tabbing, apiObj, summaryParam) {
+function GenerateSummary(tabbing, apiObj, summaryParam, extraLines) {
     var isDeprecated = apiObj.hasOwnProperty("deprecation");
     var hasSummary = apiObj.hasOwnProperty(summaryParam);
     
@@ -223,14 +223,22 @@ function GenerateSummary(tabbing, apiObj, summaryParam) {
     
     var summaryLine = "";
     if (isDeprecated && apiObj.deprecation.ReplacedBy != null)
-        summaryLine = tabbing + " * @deprecated Please use " + apiObj.deprecation.ReplacedBy + " instead. \n";
+        summaryLine = "@deprecated Please use " + apiObj.deprecation.ReplacedBy + " instead.";
     else if (isDeprecated)
-        summaryLine = tabbing + " * @deprecated Do not use\n";
+        summaryLine = "@deprecated Do not use";
     else if (hasSummary)
-        summaryLine = tabbing + " * " + apiObj[summaryParam].replaceAll(">", "&GT;") + "\n";
+        summaryLine = apiObj[summaryParam].replaceAll("<", "&lt;").replaceAll(">", "&gt;").trim();
     
-    return tabbing + "/**\n" 
-        + summaryLine 
-        + tabbing + " */\n" 
-        + (isDeprecated ? tabbing + "@Deprecated\n" : "");
+    var output = tabbing + "/**\n";
+    if (summaryLine)
+        output += tabbing + " * " + summaryLine + "\n";
+    if ((typeof extraLines) === "string")
+        output += tabbing + " * " + extraLines + "\n";
+    else if (extraLines)
+        for (var i = 0; i < extraLines.length; i++)
+            output += tabbing + " * " + extraLines[i] + "\n";
+    output += tabbing + " */\n";
+    if (isDeprecated)
+        output += tabbing + "@Deprecated\n";
+    return output;
 }

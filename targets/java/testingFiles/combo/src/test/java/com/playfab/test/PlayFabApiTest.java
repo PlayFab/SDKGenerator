@@ -183,7 +183,7 @@ public class PlayFabApiTest
      *  Test a sequence of calls that modifies saved data,
      *    and verifies that the next sequential API call contains updated data.
      *  Verify that the data is correctly modified on the next call.
-     *  Parameter types tested: string, Dictionary<string, string>, DateTime
+     *  Parameter types tested: string, Dictionary(string,string), DateTime
      */
     @Test
     public void UserDataApi()
@@ -229,7 +229,7 @@ public class PlayFabApiTest
      *  Test a sequence of calls that modifies saved data,
      *    and verifies that the next sequential API call contains updated data.
      *  Verify that the data is saved correctly, and that specific types are tested
-     *  Parameter types tested: Dictionary<string, int>
+     *  Parameter types tested: Dictionary(string,int)
      */
     @Test
     public void PlayerStatisticsApi()

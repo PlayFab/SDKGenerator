@@ -135,7 +135,7 @@ function MakeApi(api, sourceDir, apiOutputDir) {
 // Some apis have entirely custom built functions to augment apis in ways that aren't generate-able
 function GetCustomApiFunction(tabbing, apiCall) {
     if (apiCall.name === "ExecuteCloudScript") {
-        return "\n\n" + tabbing + "public static void " + apiCall.name + "<TOut>(" + apiCall.request + " request, Action<" + apiCall.result + "> resultCallback, Action<PlayFabError> errorCallback, object customData = null)\n" 
+        return "\n\n" + tabbing + "public static void " + apiCall.name + "<TOut>(" + apiCall.request + " request, Action<" + apiCall.result + "> resultCallback, Action<PlayFabError> errorCallback, object customData = null, Dictionary<string, string> extraHeaders = null)\n" 
             + tabbing + "{\n" 
             + tabbing + "Action<" + apiCall.result + "> wrappedResultCallback = (wrappedResult) =>\n" 
             + tabbing + "{\n" 
@@ -150,7 +150,7 @@ function GetCustomApiFunction(tabbing, apiCall) {
             + tabbing + "    }\n" 
             + tabbing + "    resultCallback(wrappedResult);\n" 
             + tabbing + "};\n" 
-            + tabbing + "" + apiCall.name + "(request, wrappedResultCallback, errorCallback, customData);\n" 
+            + tabbing + "" + apiCall.name + "(request, wrappedResultCallback, errorCallback, customData, extraHeaders);\n" 
             + tabbing + "}";
     }
     return ""; // Most apis don't have a custom alternate

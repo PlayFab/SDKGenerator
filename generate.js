@@ -441,7 +441,7 @@ String.prototype.contains = function (search) {
 }
 
 // SDK generation utilities
-GLOBAL.copyTree = function (source, dest) {
+global.copyTree = function (source, dest) {
     if (!fs.existsSync(source)) {
         console.error("Copy tree source doesn't exist: " + source);
         return;
@@ -474,7 +474,7 @@ GLOBAL.copyTree = function (source, dest) {
     }
 }
 
-GLOBAL.copyFile = function (source, dest) {
+global.copyFile = function (source, dest) {
     if (!source || !dest) {
         console.error("ERROR: Invalid copy file parameters: " + source + " " + dest);
         return;
@@ -534,7 +534,7 @@ GLOBAL.copyFile = function (source, dest) {
 }
 
 // Returns one of: Null, "Proposed", "Deprecated", "Obsolete"
-GLOBAL.GetDeprecationStatus = function (apiObj) {
+global.GetDeprecationStatus = function (apiObj) {
     var deprecation = apiObj.hasOwnProperty("deprecation");
     if (!deprecation)
         return null;
@@ -548,11 +548,11 @@ GLOBAL.GetDeprecationStatus = function (apiObj) {
     return "Proposed";
 }
 
-GLOBAL.readFile = function (filename) {
+global.readFile = function (filename) {
     return fs.readFileSync(filename, "utf8");
 }
 
-GLOBAL.writeFile = function (filename, data) {
+global.writeFile = function (filename, data) {
     var dirname = path.dirname(filename);
     if (!fs.existsSync(dirname))
         MkdirParentsSync(dirname);
@@ -561,7 +561,7 @@ GLOBAL.writeFile = function (filename, data) {
 }
 
 // Fetch the object parsed from an api-file, from the cache (can't load synchronously from URL-options, so we have to pre-cache them)
-GLOBAL.GetApiJson = function (apiFileName) {
+global.GetApiJson = function (apiFileName) {
     return SdkGeneratorGlobals.apiCache[apiFileName];
 }
 
@@ -569,7 +569,7 @@ GLOBAL.GetApiJson = function (apiFileName) {
  * Wrapper function for boilerplate of compiling templates
  * Also Caches the Templates to avoid reloading and recompiling
  * */
-GLOBAL.GetCompiledTemplate = function (templatePath) {
+global.GetCompiledTemplate = function (templatePath) {
     if (!this.compiledTemplates) 
         this.compiledTemplates = {};
     if (!compiledTemplates.hasOwnProperty(templatePath))

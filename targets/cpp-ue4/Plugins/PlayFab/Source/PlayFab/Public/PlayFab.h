@@ -47,6 +47,7 @@ public:
         return FModuleManager::Get().IsModuleLoaded("PlayFab");
     }
 
+    virtual FString GetTitleId() const = 0;
     virtual PlayFabClientPtr GetClientAPI() const = 0;
     virtual PlayFabServerPtr GetServerAPI() const = 0;
     virtual PlayFabMatchmakerPtr GetMatchmakerAPI() const = 0;

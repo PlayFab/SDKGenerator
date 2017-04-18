@@ -32,6 +32,7 @@ class FPlayFabModule : public IPlayFabModuleInterface
     /** Callback for when the settings were saved. */
     bool HandleSettingsSaved();
 
+    FString GetTitleId() const override { return PlayFab::PlayFabSettings::titleId; };
     PlayFabClientPtr GetClientAPI() const override { return ClientAPI; };
     PlayFabServerPtr GetServerAPI() const override { return ServerAPI; };
     PlayFabMatchmakerPtr GetMatchmakerAPI() const override { return MatchMakerAPI; };

@@ -53,12 +53,14 @@ if %errorLevel% EQU 1 (
     git clone git@github.com:PlayFab/%1.git
     pushd %1
 )
+if [%GITHUB_EMAIL%] NEQ [] (
+    git config user.email "%GITHUB_EMAIL%"
+)
 git reset head .
 git checkout -- .
 git clean -df
 git checkout master
 git pull origin master
-)
 popd
 echo ==== syncRepo Done ====
 goto :EOF

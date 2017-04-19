@@ -8,6 +8,9 @@ if "%1"=="" (
 
 rem === Clean the %gitTarget% branch for %SdkName% ===
 cd C:\depot\sdks\%SdkName%
+if [%GITHUB_EMAIL%] NEQ [] (
+    git config user.email "%GITHUB_EMAIL%"
+)
 git checkout master
 git pull origin master
 

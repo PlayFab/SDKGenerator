@@ -65,13 +65,13 @@ function ParseCommandInputs(args, argsByName, errorMessages, targetOutputPathLis
     ExtractArgs(args, argsByName, targetOutputPathList, errorMessages);
     
     // Apply defaults 
-    if (!argsByName.hasOwnProperty("apispecpath") && !argsByName.hasOwnProperty("apigitspecurl") && !argsByName.hasOwnProperty("apispecpfurl"))
-        argsByName.apigitspecurl = ""; // If nothing is defined, default to GitHub
+    if (!argsByName.hasOwnProperty("apispecpath") && !argsByName.hasOwnProperty("apispecgiturl") && !argsByName.hasOwnProperty("apispecpfurl"))
+        argsByName.apispecgiturl = ""; // If nothing is defined, default to GitHub
     // A source key set, with no value means use the default for that input format
     if (argsByName.apispecpath === "")
         argsByName.apispecpath = DefaultApiSpecFilePath;
-    if (argsByName.apigitspecurl === "")
-        argsByName.apigitspecurl = DefaultApiSpecGitHubUrl;
+    if (argsByName.apispecgiturl === "")
+        argsByName.apispecgiturl = DefaultApiSpecGitHubUrl;
     if (argsByName.apispecpfurl === "")
         argsByName.apispecpfurl = DefaultApiSpecPlayFabUrl;
     
@@ -82,7 +82,7 @@ function ParseCommandInputs(args, argsByName, errorMessages, targetOutputPathLis
     // Output an error if there's any problems with the api-spec source    
     var specCount = 0;
     if (argsByName.apispecpath) specCount++;
-    if (argsByName.apigitspecurl) specCount++;
+    if (argsByName.apispecgiturl) specCount++;
     if (argsByName.apispecpfurl) specCount++;
     if (specCount > 1)
         errorMessages.push("Cannot define more than one of: apiSpecPath, apiSpecGitUrl, or apiSpecPfUrl.  Pick one and remove the other(s).");
@@ -162,8 +162,8 @@ function LoadAndCacheApis(argsByName, apiCache) {
     
     if (argsByName.apispecpath) {
         LoadApisFromLocalFiles(argsByName, apiCache, argsByName.apispecpath, GenerateSdks);
-    } else if (argsByName.apigitspecurl) {
-        LoadApisFromGitHub(argsByName, apiCache, argsByName.apigitspecurl, GenerateSdks);
+    } else if (argsByName.apispecgiturl) {
+        LoadApisFromGitHub(argsByName, apiCache, argsByName.apispecgiturl, GenerateSdks);
     } else if (argsByName.apispecpfurl) {
         LoadApisFromPlayFabServer(argsByName, apiCache, argsByName.apispecpfurl, GenerateSdks);
     }
@@ -190,25 +190,25 @@ function LoadApisFromLocalFiles(argsByName, apiCache, apiSpecPath, onComplete) {
     onComplete();
 }
 
-function LoadApisFromGitHub(argsByName, apiCache, apiGitSpecUrl, onComplete) {
+function LoadApisFromGitHub(argsByName, apiCache, apiSpecGitUrl, onComplete) {
     var finishCountdown = 8;
     function onEachComplete() {
         finishCountdown -= 1;
         if (finishCountdown === 0) {
             console.log("Finished loading files from GitHub");
-            SdkGeneratorGlobals.apiSrcDescription = argsByName.apigitspecurl;
+            SdkGeneratorGlobals.apiSrcDescription = argsByName.apiSpecGitUrl;
             onComplete();
         }
     }
     
-    DownloadFromUrl(apiGitSpecUrl, "Admin.api.json", apiCache, "Admin.api.json", onEachComplete);
-    DownloadFromUrl(apiGitSpecUrl, "Client.api.json", apiCache, "Client.api.json", onEachComplete);
-    DownloadFromUrl(apiGitSpecUrl, "Matchmaker.api.json", apiCache, "Matchmaker.api.json", onEachComplete);
-    DownloadFromUrl(apiGitSpecUrl, "Server.api.json", apiCache, "Server.api.json", onEachComplete);
-    DownloadFromUrl(apiGitSpecUrl, "PlayStreamEventModels.json", apiCache, "PlayStreamEventModels.json", onEachComplete);
-    DownloadFromUrl(apiGitSpecUrl, "PlayStreamCommonEventModels.json", apiCache, "PlayStreamCommonEventModels.json", onEachComplete);
-    DownloadFromUrl(apiGitSpecUrl, "PlayStreamProfileModels.json", apiCache, "PlayStreamProfileModels.json", onEachComplete);
-    DownloadFromUrl(apiGitSpecUrl, "SdkManualNotes.json", apiCache, "SdkManualNotes.json", onEachComplete);
+    DownloadFromUrl(apiSpecGitUrl, "Admin.api.json", apiCache, "Admin.api.json", onEachComplete);
+    DownloadFromUrl(apiSpecGitUrl, "Client.api.json", apiCache, "Client.api.json", onEachComplete);
+    DownloadFromUrl(apiSpecGitUrl, "Matchmaker.api.json", apiCache, "Matchmaker.api.json", onEachComplete);
+    DownloadFromUrl(apiSpecGitUrl, "Server.api.json", apiCache, "Server.api.json", onEachComplete);
+    DownloadFromUrl(apiSpecGitUrl, "PlayStreamEventModels.json", apiCache, "PlayStreamEventModels.json", onEachComplete);
+    DownloadFromUrl(apiSpecGitUrl, "PlayStreamCommonEventModels.json", apiCache, "PlayStreamCommonEventModels.json", onEachComplete);
+    DownloadFromUrl(apiSpecGitUrl, "PlayStreamProfileModels.json", apiCache, "PlayStreamProfileModels.json", onEachComplete);
+    DownloadFromUrl(apiSpecGitUrl, "SdkManualNotes.json", apiCache, "SdkManualNotes.json", onEachComplete);
 }
 
 function LoadApisFromPlayFabServer(argsByName, apiCache, apiSpecPfUrl, onComplete) {

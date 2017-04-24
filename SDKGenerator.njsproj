@@ -113,7 +113,7 @@
   <PropertyGroup Condition=" '$(Configuration)' == 'UnrealCppSdk' ">
     <DebugSymbols>true</DebugSymbols>
     <OutputPath>bin\</OutputPath>
-    <ScriptArguments>cpp-ue4=..\sdks\UnrealCppSDK -apiSpecPath -buildIdentifier UnrealCppSdk_manual</ScriptArguments>
+    <ScriptArguments>cpp-ue4=..\sdks\UnrealCppSdk -apiSpecGitUrl https://raw.githubusercontent.com/PlayFab/API_Specs/automated/  -buildIdentifier JBuild_UnrealCppSdk_0</ScriptArguments>
   </PropertyGroup>
   <PropertyGroup Condition=" '$(Configuration)' == 'WindowsSDK' ">
     <DebugSymbols>true</DebugSymbols>
@@ -133,7 +133,6 @@
     <Compile Include="targets\javascript\make.js" />
     <Compile Include="targets\java\make.js" />
     <Compile Include="targets\js-node\make.js" />
-    <Compile Include="targets\js-node\testingFiles\node_modules\nodeunit\lib\reporters\PlayFabMinimal.js" />
     <Compile Include="targets\LuaSdk\make.js" />
     <Compile Include="targets\LumberyardSdk\make.js" />
     <Compile Include="targets\newTarget\make.js" />
@@ -412,10 +411,6 @@
     <Content Include="targets\js-node\templates\package.json.ejs" />
     <Content Include="targets\js-node\templates\playfab.js.ejs" />
     <Content Include="targets\js-node\templates\PlayFab_Api.d.ts.ejs" />
-    <Content Include="targets\js-node\testingFiles\PlayFabTestingExample.njsproj" />
-    <Content Include="targets\js-node\testingFiles\PlayFabTestingExample.sln" />
-    <Content Include="targets\js-node\testingFiles\test.bat" />
-    <Content Include="targets\js-node\testingFiles\tsconfig.json" />
     <Content Include="targets\LuaSdk\EachCorona\defaults.lua" />
     <Content Include="targets\LuaSdk\EachDefold\PlayFab\PlayFabHttps_Defold.lua" />
     <Content Include="targets\LuaSdk\GlobalFiles\PlayFabClientSDK\PlayFabTesting\TestPlayFabConsole.lua" />
@@ -928,11 +923,6 @@
     <Folder Include="targets\js-node\source\Scripts\typings\node\" />
     <Folder Include="targets\js-node\source\Scripts\typings\PlayFab\" />
     <Folder Include="targets\js-node\templates\" />
-    <Folder Include="targets\js-node\testingFiles\" />
-    <Folder Include="targets\js-node\testingFiles\node_modules\" />
-    <Folder Include="targets\js-node\testingFiles\node_modules\nodeunit\" />
-    <Folder Include="targets\js-node\testingFiles\node_modules\nodeunit\lib\" />
-    <Folder Include="targets\js-node\testingFiles\node_modules\nodeunit\lib\reporters\" />
     <Folder Include="targets\LuaSdk\" />
     <Folder Include="targets\LuaSdk\EachCorona\" />
     <Folder Include="targets\LuaSdk\EachDefold\" />
@@ -1051,7 +1041,6 @@
   <ItemGroup>
     <None Include="targets\js-node\source\Scripts\typings\node\node.d.ts" />
     <None Include="targets\js-node\source\Scripts\typings\PlayFab\PlayFab.d.ts" />
-    <None Include="targets\js-node\testingFiles\PlayFabApiTests.ts" />
   </ItemGroup>
   <ItemGroup>
     <None Include="targets\javascript\testingFiles\PlayFabApiTest.ts" />

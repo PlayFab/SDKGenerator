@@ -20,7 +20,7 @@ popd
 call :cleanArcPatches
 call :applyArcPatch
 
-pushd pf-main\Server
+pushd %SHARED_WORKSPACE%\pf-main\Server
 nuget restore Server.sln
 popd
 

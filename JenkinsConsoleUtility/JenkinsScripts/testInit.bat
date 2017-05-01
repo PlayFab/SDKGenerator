@@ -7,9 +7,6 @@ if [%SHARED_WORKSPACE%]==[] (
 
 call :forceCD "%SHARED_WORKSPACE%"
 call :syncRepo pf-main
-pushd pf-main\Server
-nuget restore Server.sln
-popd
 call :forceCD "%WORKSPACE%"
 call :syncRepo SDKGenerator
 pushd SDKGenerator\JenkinsConsoleUtility
@@ -22,6 +19,10 @@ popd
 
 call :cleanArcPatches
 call :applyArcPatch
+
+pushd %SHARED_WORKSPACE%\pf-main\Server
+nuget restore Server.sln
+popd
 
 endlocal
 exit %errorLevel%

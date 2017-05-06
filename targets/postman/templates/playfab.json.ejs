@@ -30,7 +30,7 @@
             "descriptionFormat": "html",
             "currentHelper": "normal",
             "folder": "PlayFabPostmanSDK-<%- apiName %>Folder",
-            "rawModeData": <%- GetRequestExample(api, apiCall, propertyReplacements) %>
+            "rawModeData": <%- GetRequestExample(api, apiCall) %>
         }<% if(parseInt(i) + 1 < api.calls.length || parseInt(a) + 1 < apis.length){ %>,<% } %><% } %><% } %>
     ]
 }

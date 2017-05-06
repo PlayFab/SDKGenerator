@@ -2,16 +2,13 @@ var path = require("path");
 
 exports.putInRoot = true;
 
+var PropertyReplacements = {};
+
 exports.makeCombinedAPI = function (apis, sourceDir, apiOutputDir) {
     console.log("Generating Postman combined Collection to " + apiOutputDir);
     
-    var templateDir = path.resolve(sourceDir, "templates");
-    
-    var apiTemplate = GetCompiledTemplate(path.resolve(templateDir, "playfab.json.ejs"));
-    
-    var propertyReplacements;
     try {
-        propertyReplacements = require(path.resolve(sourceDir, "replacements.json"));
+        PropertyReplacements = require(path.resolve(sourceDir, "replacements.json"));
     } catch (ex) {
         throw "The file: replacements.json was not properly formatted JSON";
     }
@@ -23,16 +20,15 @@ exports.makeCombinedAPI = function (apis, sourceDir, apiOutputDir) {
     var apiLocals = {};
     apiLocals.sdkVersion = exports.sdkVersion;
     apiLocals.apis = apis;
-    apiLocals.propertyReplacements = propertyReplacements;
     apiLocals.GetUrl = GetUrl;
     apiLocals.GetPostmanHeader = GetPostmanHeader;
     apiLocals.GetPostmanDescription = GetPostmanDescription;
-    apiLocals.GetPostBodyPropertyValue = GetPostBodyPropertyValue;
     apiLocals.GetRequestExample = GetRequestExample;
-    var generatedApi = apiTemplate(apiLocals);
     
     var outputFile = path.resolve(apiOutputDir, "playfab.json");
-    writeFile(outputFile, generatedApi);
+    var templateDir = path.resolve(sourceDir, "templates");
+    var apiTemplate = GetCompiledTemplate(path.resolve(templateDir, "playfab.json.ejs"));
+    writeFile(outputFile, apiTemplate(apiLocals));
     
     try {
         require(outputFile); // Read the destination file and make sure it is correctly formatted json
@@ -111,50 +107,55 @@ function GetPostmanDescription(api, apiCall) {
     return output;
 }
 
-function GetPostBodyPropertyValue(apiName, apiCall, prop, propertyReplacements) {
-    var output = "\"" + prop.jsontype + "\""; // The default output if there are no replacements
-    
-    if (propertyReplacements != null) {
-        if (propertyReplacements["generic"] != null && propertyReplacements["generic"][prop.name] != null) {
-            output = propertyReplacements["generic"][prop.name];
+function GetCorrectedRequestExample(api, apiCall) {
+    var output = JSON.parse(apiCall.requestExample);
+    CheckReplacements(api, output);
+    return "\"" + JsonEscape(JSON.stringify(output, null, 2)) + "\"";
+}
+
+var DoReplace = function (obj, paramName, newValue) {
+    if (obj.hasOwnProperty(paramName)) {
+        console.log("Replaced: " + obj[paramName] + " with " + newValue);
+        obj[paramName] = newValue;
+    }
+};
+
+function CheckReplacements(api, obj) {
+    for (var replaceCategory in PropertyReplacements) {
+        if (replaceCategory === "generic") {
+            for (var genReplaceName1 in PropertyReplacements[replaceCategory])
+                DoReplace(obj, genReplaceName1, PropertyReplacements[replaceCategory][genReplaceName1]);
         }
-        if (propertyReplacements[apiName] != null) {
-            if (propertyReplacements[apiName]["generic"] != null && propertyReplacements[apiName]["generic"][prop.name] != null) {
-                output = propertyReplacements[apiName]["generic"][prop.name];
-            }
-            if (propertyReplacements[apiName][apiCall] != null && propertyReplacements[apiName][apiCall][prop.name] != null) {
-                output = propertyReplacements[apiName][apiCall][prop.name];
+        if (replaceCategory === api.name) {
+            for (var apiReplaceName in PropertyReplacements[replaceCategory]) {
+                if (apiReplaceName === "generic") {
+                    for (var genReplaceName2 in PropertyReplacements[replaceCategory][apiReplaceName])
+                        DoReplace(obj, genReplaceName2, PropertyReplacements[replaceCategory][apiReplaceName][genReplaceName2]);
+                }
+                DoReplace(obj, apiReplaceName, PropertyReplacements[replaceCategory][apiReplaceName]);
             }
         }
     }
-    
-    return JsonEscape(output);
 }
 
-function GetRequestExample(api, apiCall, propertyReplacements) {
+function GetRequestExample(api, apiCall) {
     var msg = null;
     if (apiCall.requestExample.length > 0 && apiCall.requestExample.indexOf("{") >= 0) {
         if (apiCall.requestExample.indexOf("\\\"") === -1) // I can't handle json in a string in json in a string...
-            return "\"" + JsonEscape(apiCall.requestExample) + "\"";
+            return GetCorrectedRequestExample(api, apiCall);
         else
             msg = "CANNOT PARSE EXAMPLE BODY: ";
     }
     
-    var apiNameLc = api.name.toLowerCase();
-    
     var props = api.datatypes[apiCall.request].properties;
-    var output = "\"{";
+    var output = {};
     for (var p = 0; p < props.length; p++) {
-        output += "\\\"" + props[p].name + "\\\": ";
-        output += GetPostBodyPropertyValue(apiNameLc, apiCall.name, props[p], propertyReplacements);
-        if (parseInt(p) + 1 < props.length)
-            output += ",";
+        output[props[p].name] = props[p].jsontype;
     }
-    output += "}\"";
     
     if (msg == null)
         msg = "AUTO GENERATED BODY FOR: ";
     console.log(msg + api.name + "." + apiCall.name);
-    // console.log("    " + output);
-    return output;
+    // console.log("    " + JSON.stringify(output, null, 2));
+    return "\"" + JsonEscape(JSON.stringify(output, null, 2)) + "\"";;
 }

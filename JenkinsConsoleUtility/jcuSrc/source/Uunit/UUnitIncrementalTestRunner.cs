@@ -6,6 +6,14 @@ using PlayFab.ClientModels;
 
 namespace PlayFab.UUnit
 {
+    public class TestTitleData
+    {
+        public string titleId;
+        public string developerSecretKey;
+        public string userEmail;
+        public Dictionary<string, string> extraHeaders;
+    }
+
     public static class UUnitIncrementalTestRunner
     {
         public static bool SuiteFinished { get; private set; }
@@ -17,7 +25,7 @@ namespace PlayFab.UUnit
         private static Action<PlayFabResult<ExecuteCloudScriptResult>> _onComplete;
 #endif
 
-        public static void Start(bool postResultsToCloudscript = true, string filter = null, Dictionary<string, string> testInputs = null
+        public static void Start(bool postResultsToCloudscript = true, string filter = null, TestTitleData testInputs = null
 #if !DISABLE_PLAYFABCLIENT_API
             , Action<PlayFabResult<ExecuteCloudScriptResult>> onComplete = null
 #endif
@@ -25,7 +33,7 @@ namespace PlayFab.UUnit
         {
             // Fall back on hard coded testTitleData if necessary (Put your own data here)
             if (testInputs == null)
-                testInputs = new Dictionary<string, string> { { "titleId", "6195" }, { "userEmail", "paul@playfab.com" } };
+                testInputs = new TestTitleData { titleId = "6195", userEmail = "paul@playfab.com" };
 #if !DISABLE_PLAYFABCLIENT_API
             PlayFabApiTest.SetTitleInfo(testInputs);
 #endif

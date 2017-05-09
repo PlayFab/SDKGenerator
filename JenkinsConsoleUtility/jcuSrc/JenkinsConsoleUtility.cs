@@ -103,9 +103,10 @@ namespace JenkinsConsoleUtility
 
             // Check in args (not guaranteed to be lc-keys)
             output = null;
-            foreach (var eachArgKey in args.Keys)
-                if (eachArgKey.ToLower() == lcKey)
-                    output = args[eachArgKey];
+            if (args != null)
+                foreach (var eachArgKey in args.Keys)
+                    if (eachArgKey.ToLower() == lcKey)
+                        output = args[eachArgKey];
             if (output != null) // Don't use string.IsNullOrEmpty() here, because there's a distinction between "undefined" and "empty"
                 return true;
 

@@ -237,7 +237,7 @@ namespace PlayFab.UUnit
             var gEnum = got.GetEnumerator();
 
             bool wNext, gNext;
-            var count = 0;
+            int count = 0;
             while (true)
             {
                 wNext = wEnum.MoveNext();

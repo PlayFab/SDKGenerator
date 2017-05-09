@@ -1,6 +1,7 @@
 #if !NETFX_CORE || !XAMARIN
 
 using System;
+using System.Collections.Generic;
 using System.IO;
 using System.Net.Http;
 using System.Text;
@@ -11,7 +12,7 @@ namespace PlayFab.Internal
 {
     public class PlayFabSysHttp : IPlayFabHttp
     {
-        public async Task<object> DoPost(string urlPath, PlayFabRequestCommon request, string authType, string authKey)
+        public async Task<object> DoPost(string urlPath, PlayFabRequestCommon request, string authType, string authKey, Dictionary<string, string> extraHeaders)
         {
             var fullUrl = PlayFabSettings.GetFullUrl(urlPath);
             string bodyString;
@@ -34,6 +35,9 @@ namespace PlayFab.Internal
                 if (authType != null)
                     postBody.Headers.Add(authType, authKey);
                 postBody.Headers.Add("X-PlayFabSDK", PlayFabSettings.SdkVersionString);
+                if (extraHeaders != null)
+                    foreach (var headerPair in extraHeaders)
+                        postBody.Headers.Add(headerPair.Key, headerPair.Value);
 
                 try
                 {

@@ -1,12 +1,13 @@
-PlayFab SDK Generator README
-========
-1. Overview:
-----
+# PlayFab SDK Generator README
+
+
+## 1. Overview:
+
 This is a node.js based program that takes a json description of the PlayFab API and uses it to generate out all the different SDKs that must be kept up to date. This project also contains the sources for all PlayFab SDKs on all platforms. If you want to make a change in an SDK, this is where the change has to go.
 
 
-2. Prerequisites:
-----
+## 2. Prerequisites:
+
 0. Any recent MS-Windows Operating System
 1. You must have Node.js installed: http://nodejs.org/
   * The location of node.exe must be in your PATH environment variable.  Default: C:\Program Files (x86)\nodejs\
@@ -18,8 +19,8 @@ This is a node.js based program that takes a json description of the PlayFab API
   * &lt;parent-folder&gt;/API_Specs = https://github.com/PlayFab/api_specs
  
 
-3. Usage Instructions:
-----
+## 3. Usage Instructions:
+
 If you have installed Node.js tools, then you can build any existing SDK from the Visual Studio solution: https://github.com/PlayFab/SDKGenerator/blob/master/SDKGenerator.sln
 * Open the solution
 * Set the Project Configuration to match the sdk you wish to build
@@ -70,8 +71,9 @@ However, if your API_Specs path was different, you may have to convert your old 
   * to:
 * node generate.js unity-v2=../sdks/UnitySDK -apiSpecPath <oldPath> 
 
-4. Building a new SDK
-----
+
+## 4. Building a new SDK
+
 Setting up a new target in the SdkGenerator is fairly simple.  This example has been added to the SdkGenerator for reference: https://github.com/PlayFab/SDKGenerator/tree/master/targets/newTarget
 * Add a new subfolder in [SdkGenerator/Targets](https://github.com/PlayFab/SDKGenerator/tree/master/targets)
 * Add a "make.js" file to your new target
@@ -81,8 +83,9 @@ Setting up a new target in the SdkGenerator is fairly simple.  This example has 
 
 PlayFab somtimes accepts submissions for new SDKs.  This process is extensive, and it has to be integrated with our automated build and testing system.  For more information contact us on the forums.
 
-5. Troubleshooting:
-----
+
+## 5. Troubleshooting:
+
 For a complete list of available APIs, check out the [online documentation](http://api.playfab.com/Documentation/).
 
 #### Contact Us
@@ -94,10 +97,9 @@ Our Developer Success Team can assist with answering any questions as well as pr
 [Forums, Support and Knowledge Base](https://community.playfab.com/hc/en-us)
 
 
-6. Copyright and Licensing Information:
-----
+## 6. Copyright and Licensing Information:
+
   Apache License -- 
   Version 2.0, January 2004
   http://www.apache.org/licenses/
-
   Full details available within the LICENSE file.

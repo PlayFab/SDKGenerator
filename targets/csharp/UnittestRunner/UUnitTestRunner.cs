@@ -2,7 +2,6 @@ using PlayFab;
 using PlayFab.UUnit;
 using System;
 using System.IO;
-using System.Collections.Generic;
 using System.Threading;
 using PlayFab.ClientModels;
 using PlayFab.Json;
@@ -33,7 +32,29 @@ namespace UnittestRunner
             while (!_onCompleted && DateTime.UtcNow < timeout)
                 Thread.Sleep(100);
 
-            return UUnitIncrementalTestRunner.AllTestsPassed ? 0 : 1;
+            return Pause(UUnitIncrementalTestRunner.AllTestsPassed ? 0 : 1);
+        }
+
+        private static void WriteConsoleColor(string msg = null, ConsoleColor textColor = ConsoleColor.White)
+        {
+            Console.ForegroundColor = textColor;
+            if (!string.IsNullOrEmpty(msg))
+                Console.WriteLine(msg);
+            Console.ForegroundColor = ConsoleColor.White;
+        }
+
+        private static int Pause(int code)
+        {
+            WriteConsoleColor("Done! Press any key to close", code == 0 ? ConsoleColor.Green : ConsoleColor.Red);
+            try
+            {
+                Console.ReadKey();
+            }
+            catch (InvalidOperationException)
+            {
+                // ReadKey fails when run from inside of Jenkins, so just ignore it.
+            }
+            return code;
         }
 
         private static TestTitleData GetTestTitleData(string[] args)
@@ -52,23 +73,19 @@ namespace UnittestRunner
             }
             else
             {
-                Console.WriteLine("Loading testSettings file failed: " + filename);
-                Console.WriteLine("From: " + Directory.GetCurrentDirectory());
+                WriteConsoleColor("Loading testSettings file failed: " + filename, ConsoleColor.Red);
+                WriteConsoleColor("From: " + Directory.GetCurrentDirectory(), ConsoleColor.Red);
             }
             return testInputs;
         }
 
         private static void OnComplete(PlayFabResult<ExecuteCloudScriptResult> result)
         {
-            Console.WriteLine("Save to CloudScript result for: " + PlayFabSettings.BuildIdentifier + " => " + PlayFabApiTest.PlayFabId);
+            WriteConsoleColor("Save to CloudScript result for: " + PlayFabSettings.BuildIdentifier + " => " + PlayFabApiTest.PlayFabId, ConsoleColor.Gray);
             if (result.Error != null)
-            {
-                Console.WriteLine(result.Error.GenerateErrorReport());
-            }
+                WriteConsoleColor(result.Error.GenerateErrorReport(), ConsoleColor.Red);
             else if (result.Result != null)
-            {
-                Console.WriteLine("Successful!");
-            }
+                WriteConsoleColor("Successful!", ConsoleColor.Green);
             _onCompleted = true;
         }
     }

@@ -29,6 +29,7 @@ namespace PlayFab.UUnit
 
         // Fixed values provided from testInputs
         private static string USER_EMAIL;
+        private static Dictionary<string, string> extraHeaders;
 
         // Information fetched by appropriate API calls
         public static string PlayFabId;
@@ -47,6 +48,7 @@ namespace PlayFab.UUnit
 
             PlayFabSettings.TitleId = testInputs.titleId;
             USER_EMAIL = testInputs.userEmail;
+            extraHeaders = testInputs.extraHeaders;
 
             // Verify all the inputs won't cause crashes in the tests
             TITLE_INFO_SET &= !string.IsNullOrEmpty(PlayFabSettings.TitleId)
@@ -133,7 +135,7 @@ namespace PlayFab.UUnit
                 Email = USER_EMAIL,
                 Password = "INVALID",
             };
-            var loginTask = PlayFabClientAPI.LoginWithEmailAddressAsync(request);
+            var loginTask = PlayFabClientAPI.LoginWithEmailAddressAsync(request, null, extraHeaders);
             ContinueWithContext(loginTask, testContext, InvalidLoginContinued, false, "Login should fail", true);
         }
         private void InvalidLoginContinued(PlayFabResult<LoginResult> loginResult, UUnitTestContext testContext, string failMessage)
@@ -159,7 +161,7 @@ namespace PlayFab.UUnit
                 Email = "x",
                 Password = "x",
             };
-            var registerTask = PlayFabClientAPI.RegisterPlayFabUserAsync(registerRequest);
+            var registerTask = PlayFabClientAPI.RegisterPlayFabUserAsync(registerRequest, null, extraHeaders);
             ContinueWithContext(registerTask, testContext, InvalidRegistrationContinued, false, "Registration should fail", true);
         }
         private void InvalidRegistrationContinued(PlayFabResult<RegisterPlayFabUserResult> registerResult, UUnitTestContext testContext, string failMessage)
@@ -189,7 +191,7 @@ namespace PlayFab.UUnit
                 CustomId = PlayFabSettings.BuildIdentifier,
                 CreateAccount = true
             };
-            var loginTask = PlayFabClientAPI.LoginWithCustomIDAsync(loginRequest);
+            var loginTask = PlayFabClientAPI.LoginWithCustomIDAsync(loginRequest, null, extraHeaders);
             ContinueWithContext(loginTask, testContext, LoginOrRegisterContinued, true, "User login failed", true);
         }
         private void LoginOrRegisterContinued(PlayFabResult<LoginResult> loginResult, UUnitTestContext testContext, string failMessage)
@@ -214,7 +216,7 @@ namespace PlayFab.UUnit
                 CustomId = PlayFabSettings.BuildIdentifier,
                 CreateAccount = true
             };
-            var loginTask = PlayFabClientAPI.LoginWithCustomIDAsync(loginRequest);
+            var loginTask = PlayFabClientAPI.LoginWithCustomIDAsync(loginRequest, null, extraHeaders);
             ContinueWithContext(loginTask, testContext, LoginWithAdvertisingIdContinued, true, "Login with advertId failed", true);
         }
         private void LoginWithAdvertisingIdContinued(PlayFabResult<LoginResult> loginResult, UUnitTestContext testContext, string failMessage)
@@ -236,7 +238,7 @@ namespace PlayFab.UUnit
         public void UserDataApi(UUnitTestContext testContext)
         {
             var getRequest = new GetUserDataRequest();
-            var getDataTask1 = PlayFabClientAPI.GetUserDataAsync(getRequest);
+            var getDataTask1 = PlayFabClientAPI.GetUserDataAsync(getRequest, null, extraHeaders);
             ContinueWithContext(getDataTask1, testContext, UserDataApiContinued1, true, "GetUserData1 call failed", false);
         }
         private void UserDataApiContinued1(PlayFabResult<GetUserDataResult> getDataResult1, UUnitTestContext testContext, string failMessage)
@@ -248,13 +250,13 @@ namespace PlayFab.UUnit
             _testInteger = (_testInteger + 1) % 100; // This test is about the expected value changing - but not testing more complicated issues like bounds
 
             var updateRequest = new UpdateUserDataRequest { Data = new Dictionary<string, string> { { TEST_DATA_KEY, _testInteger.ToString() } } };
-            var updateTask = PlayFabClientAPI.UpdateUserDataAsync(updateRequest);
+            var updateTask = PlayFabClientAPI.UpdateUserDataAsync(updateRequest, null, extraHeaders);
             ContinueWithContext(updateTask, testContext, UserDataApiContinued2, true, "UpdateUserData call failed", false); // The update doesn't return anything interesting except versionID.  It's better to just re-call GetUserData again below to verify the update
         }
         private void UserDataApiContinued2(PlayFabResult<UpdateUserDataResult> updateResult, UUnitTestContext testContext, string failMessage)
         {
             var getRequest = new GetUserDataRequest();
-            var getDataTask2 = PlayFabClientAPI.GetUserDataAsync(getRequest);
+            var getDataTask2 = PlayFabClientAPI.GetUserDataAsync(getRequest, null, extraHeaders);
             ContinueWithContext(getDataTask2, testContext, UserDataApiContinued3, true, "GetUserData2 call failed", true);
         }
         private void UserDataApiContinued3(PlayFabResult<GetUserDataResult> getDataResult2, UUnitTestContext testContext, string failMessage)
@@ -283,7 +285,7 @@ namespace PlayFab.UUnit
         public void PlayerStatisticsApi(UUnitTestContext testContext)
         {
             var getRequest = new GetPlayerStatisticsRequest();
-            var getStatTask1 = PlayFabClientAPI.GetPlayerStatisticsAsync(getRequest);
+            var getStatTask1 = PlayFabClientAPI.GetPlayerStatisticsAsync(getRequest, null, extraHeaders);
             ContinueWithContext(getStatTask1, testContext, PlayerStatisticsApiContinued1, true, "GetPlayerStatistics1 call failed", false);
         }
         private void PlayerStatisticsApiContinued1(PlayFabResult<GetPlayerStatisticsResult> getStatResult1, UUnitTestContext testContext, string failMessage)
@@ -294,13 +296,13 @@ namespace PlayFab.UUnit
             _testInteger = (_testInteger + 1) % 100; // This test is about the expected value changing (incrementing through from TEST_STAT_BASE to TEST_STAT_BASE * 2 - 1)
 
             var updateRequest = new UpdatePlayerStatisticsRequest { Statistics = new List<StatisticUpdate> { new StatisticUpdate { StatisticName = TEST_STAT_NAME, Value = _testInteger } } };
-            var updateTask = PlayFabClientAPI.UpdatePlayerStatisticsAsync(updateRequest);
+            var updateTask = PlayFabClientAPI.UpdatePlayerStatisticsAsync(updateRequest, null, extraHeaders);
             ContinueWithContext(updateTask, testContext, PlayerStatisticsApiContinued2, true, "UpdatePlayerStatistics call failed", false);
         }
         private void PlayerStatisticsApiContinued2(PlayFabResult<UpdatePlayerStatisticsResult> updateResult, UUnitTestContext testContext, string failMessage)
         {
             var getRequest = new GetPlayerStatisticsRequest();
-            var getStatTask2 = PlayFabClientAPI.GetPlayerStatisticsAsync(getRequest);
+            var getStatTask2 = PlayFabClientAPI.GetPlayerStatisticsAsync(getRequest, null, extraHeaders);
             ContinueWithContext(getStatTask2, testContext, PlayerStatisticsApiContinued3, true, "GetPlayerStatistics2 call failed", true);
         }
         private void PlayerStatisticsApiContinued3(PlayFabResult<GetPlayerStatisticsResult> getStatResult2, UUnitTestContext testContext, string failMessage)
@@ -321,7 +323,7 @@ namespace PlayFab.UUnit
         public void UserCharacter(UUnitTestContext testContext)
         {
             var request = new ListUsersCharactersRequest { PlayFabId = PlayFabId };
-            var getCharsTask = PlayFabClientAPI.GetAllUsersCharactersAsync(request);
+            var getCharsTask = PlayFabClientAPI.GetAllUsersCharactersAsync(request, null, extraHeaders);
             ContinueWithContext(getCharsTask, testContext, null, true, "Failed to GetChars", true);
         }
 
@@ -338,7 +340,7 @@ namespace PlayFab.UUnit
                 MaxResultsCount = 3,
                 StatisticName = TEST_STAT_NAME,
             };
-            var clientTask = PlayFabClientAPI.GetLeaderboardAsync(clientRequest);
+            var clientTask = PlayFabClientAPI.GetLeaderboardAsync(clientRequest, null, extraHeaders);
             ContinueWithContext(clientTask, testContext, LeaderBoardContinued, true, "Failed to get client leaderboard", true);
         }
         private void LeaderBoardContinued(PlayFabResult<GetLeaderboardResult> clientResult, UUnitTestContext testContext, string failMessage)
@@ -355,7 +357,7 @@ namespace PlayFab.UUnit
         public void AccountInfo(UUnitTestContext testContext)
         {
             var request = new GetAccountInfoRequest { PlayFabId = PlayFabId };
-            var accountTask = PlayFabClientAPI.GetAccountInfoAsync(request);
+            var accountTask = PlayFabClientAPI.GetAccountInfoAsync(request, null, extraHeaders);
             ContinueWithContext(accountTask, testContext, LeaderBoardContinued, true, "Failed to get accountInfo", true);
         }
         private void LeaderBoardContinued(PlayFabResult<GetAccountInfoResult> accountResult, UUnitTestContext testContext, string failMessage)
@@ -371,7 +373,7 @@ namespace PlayFab.UUnit
         public void CloudScript(UUnitTestContext testContext)
         {
             var request = new ExecuteCloudScriptRequest { FunctionName = "helloWorld" };
-            var cloudTask = PlayFabClientAPI.ExecuteCloudScriptAsync(request);
+            var cloudTask = PlayFabClientAPI.ExecuteCloudScriptAsync(request, null, extraHeaders);
             ContinueWithContext(cloudTask, testContext, CloudScriptContinued, true, "Failed to Execute CloudScript", true);
         }
         private void CloudScriptContinued(PlayFabResult<ExecuteCloudScriptResult> cloudResult, UUnitTestContext testContext, string failMessage)
@@ -391,7 +393,7 @@ namespace PlayFab.UUnit
         public void CloudScriptError(UUnitTestContext testContext)
         {
             var request = new ExecuteCloudScriptRequest { FunctionName = "throwError" };
-            var cloudTask = PlayFabClientAPI.ExecuteCloudScriptAsync(request);
+            var cloudTask = PlayFabClientAPI.ExecuteCloudScriptAsync(request, null, extraHeaders);
             ContinueWithContext(cloudTask, testContext, CloudScriptErrorContinued, true, "Failed to Execute CloudScript", true);
         }
         private void CloudScriptErrorContinued(PlayFabResult<ExecuteCloudScriptResult> cloudResult, UUnitTestContext testContext, string failMessage)
@@ -419,7 +421,7 @@ namespace PlayFab.UUnit
                 }
             };
 
-            var writeTask = PlayFabClientAPI.WritePlayerEventAsync(request);
+            var writeTask = PlayFabClientAPI.WritePlayerEventAsync(request, null, extraHeaders);
             ContinueWithContext(writeTask, testContext, null, true, "PlayStream WriteEvent failed", true);
         }
     }

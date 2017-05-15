@@ -1,14 +1,16 @@
 #if !DISABLE_PLAYFABCLIENT_API
+using System;
 using PlayFab.ClientModels;
 using UnityEngine;
 
 namespace PlayFab.Internal
 {
-    public static class PlayFabIdfa
+    public static class PlayFabDeviceUtil
     {
-        static PlayFabIdfa() { }
+        private static GameObject _playFabAndroidPushGo;
 
-        public static void DoAttributeInstall()
+        #region Make Attribution API call
+        private static void DoAttributeInstall()
         {
             var attribRequest = new AttributeInstallRequest();
             switch (PlayFabSettings.AdvertisingIdType)
@@ -18,31 +20,42 @@ namespace PlayFab.Internal
             }
             PlayFabClientAPI.AttributeInstall(attribRequest, OnAttributeInstall, null);
         }
-
         private static void OnAttributeInstall(AttributeInstallResult result)
         {
             // This is for internal testing.
             PlayFabSettings.AdvertisingIdType += "_Successful";
         }
+        #endregion Make Attribution API call
 
-#if DISABLE_IDFA || (!UNITY_IOS && !UNITY_ANDROID)
-        public static void OnPlayFabLogin()
+        #region Make Push Registration API call
+        private static void RegisterForPush_Android(string token)
         {
-            if (!PlayFabSettings.DisableAdvertising && PlayFabSettings.AdvertisingIdType != null && PlayFabSettings.AdvertisingIdValue != null)
-                DoAttributeInstall();
+            var request = new AndroidDevicePushNotificationRegistrationRequest
+            {
+                SendPushNotificationConfirmation = true,
+                ConfirmationMessage = "Push Registered",
+                DeviceToken = token
+            };
+            PlayFabClientAPI.AndroidDevicePushNotificationRegistration(request, OnAndroidPushRegister, OnApiFail);
         }
-#elif (!UNITY_5_3 && !UNITY_5_4 && !UNITY_5_5 && !UNITY_5_6) // This section for 5.3 or newer
-        public static void OnPlayFabLogin()
+        private static void OnAndroidPushRegister(AndroidDevicePushNotificationRegistrationResult result)
         {
-            if (PlayFabSettings.DisableAdvertising)
-                return;
-            if (PlayFabSettings.AdvertisingIdType != null && PlayFabSettings.AdvertisingIdValue != null)
-                DoAttributeInstall();
-            // else
-                // TODO: Restore the old Pre-V2 plugin which extracted these ids (RequestAdvertisingIdentifierAsync doesn't exist)
+            Debug.Log("Android Push Registered");
         }
-#else
-        public static void OnPlayFabLogin()
+        private static void OnApiFail(PlayFabError error)
+        {
+            Debug.Log("Android Push Register failed: " + error.GenerateErrorReport());
+        }
+        #endregion Make Push Registration API call
+
+        public static void OnPlayFabLogin(bool needsAttribution)
+        {
+            if (needsAttribution)
+                SetDeviceAttribution();
+            ActivatePush();
+        }
+
+        private static void SetDeviceAttribution()
         {
             if (PlayFabSettings.DisableAdvertising)
                 return;
@@ -50,6 +63,16 @@ namespace PlayFab.Internal
                 DoAttributeInstall();
             else
                 GetAdvertIdFromUnity();
+        }
+
+        private static void ActivatePush()
+        {
+#if UNITY_ANDROID && (!UNITY_EDITOR || TESTING)
+            Debug.Log("Triggering AP OnPlayFabLogin");
+            _playFabAndroidPushGo = GameObject.Find("_PlayFabGO");
+            if (_playFabAndroidPushGo != null)
+                _playFabAndroidPushGo.BroadcastMessage("OnPlayFabLogin", (Action<string>)RegisterForPush_Android);
+#endif // TODO: iOS
         }
 
         private static void GetAdvertIdFromUnity()
@@ -70,7 +93,6 @@ namespace PlayFab.Internal
                 }
             );
         }
-#endif
     }
 }
 #endif

@@ -549,7 +549,7 @@
     <Content Include="targets\SdkTestingCloudScript\templates\package.json.ejs" />
     <Content Include="targets\SdkTestingCloudScript\templates\PlayStream.d.ts.ejs" />
     <Content Include="targets\unity-v2\source\Admin\PlayFabSettings.cs" />
-    <Content Include="targets\unity-v2\source\Client\PlayFabIdfa.cs" />
+    <Content Include="targets\unity-v2\source\Client\PlayFabDeviceUtil.cs" />
     <Content Include="targets\unity-v2\source\Client\PlayFabSettings.cs" />
     <Content Include="targets\unity-v2\source\link.xml" />
     <Content Include="targets\unity-v2\source\Server\PlayFabSettings.cs" />

@@ -103,6 +103,7 @@ namespace PlayFab.Internal
 
         private static void GetAdvertIdFromUnity()
         {
+#if (UNITY_ANDROID || UNITY_IOS) && (!UNITY_EDITOR || TESTING)
             Application.RequestAdvertisingIdentifierAsync(
                 (advertisingId, trackingEnabled, error) =>
                 {
@@ -118,6 +119,7 @@ namespace PlayFab.Internal
                     DoAttributeInstall();
                 }
             );
+#endif
         }
     }
 }

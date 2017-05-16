@@ -1,5 +1,3 @@
-#define TESTING
-
 #if !DISABLE_PLAYFABCLIENT_API
 using System;
 using System.Collections.Generic;

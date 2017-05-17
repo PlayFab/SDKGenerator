@@ -742,6 +742,9 @@
     <Content Include="targets\unity-v2\Testing\scenes\testscene.unity.meta" />
     <Content Include="targets\unity-v2\Testing\Tests\Admin\AdminApiTests.cs" />
     <Content Include="targets\unity-v2\Testing\Tests\Admin\AdminEventTests.cs" />
+    <Content Include="targets\unity-v2\Testing\Tests\Client\Android\AndroidPushTest_ConstSender_AutoLogin.cs" />
+    <Content Include="targets\unity-v2\Testing\Tests\Client\Android\AndroidPushTest_ConstSender_Manual.cs" />
+    <Content Include="targets\unity-v2\Testing\Tests\Client\Android\AndroidPushTest_TitleDataSender_Manual.cs" />
     <Content Include="targets\unity-v2\Testing\Tests\Client\ClientApiTests.cs" />
     <Content Include="targets\unity-v2\Testing\Tests\Client\ClientEventTests.cs" />
     <Content Include="targets\unity-v2\Testing\Tests\Server\PlayStream\PlayStreamApiTests.cs" />
@@ -1019,6 +1022,7 @@
     <Folder Include="targets\unity-v2\Testing\Tests\" />
     <Folder Include="targets\unity-v2\Testing\Tests\Admin\" />
     <Folder Include="targets\unity-v2\Testing\Tests\Client\" />
+    <Folder Include="targets\unity-v2\Testing\Tests\Client\Android\" />
     <Folder Include="targets\unity-v2\Testing\Tests\Server\" />
     <Folder Include="targets\unity-v2\Testing\Tests\Server\PlayStream\" />
     <Folder Include="targets\unity-v2\Testing\Tests\Shared\" />

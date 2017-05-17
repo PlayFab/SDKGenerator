@@ -103,7 +103,7 @@ namespace PlayFab.Internal
 
         private static void GetAdvertIdFromUnity()
         {
-#if (UNITY_ANDROID || UNITY_IOS) && (!UNITY_EDITOR || TESTING)
+#if UNITY_5_3_OR_NEWER && (UNITY_ANDROID || UNITY_IOS) && (!UNITY_EDITOR || TESTING)
             Application.RequestAdvertisingIdentifierAsync(
                 (advertisingId, trackingEnabled, error) =>
                 {

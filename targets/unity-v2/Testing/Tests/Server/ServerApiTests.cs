@@ -25,10 +25,6 @@ namespace PlayFab.UUnit
             // No async work needed
         }
 
-        public override void TearDown(UUnitTestContext testContext)
-        {
-        }
-
         private void SharedErrorCallback(PlayFabError error)
         {
             // This error was not expected.  Report it and fail.

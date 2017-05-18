@@ -40,7 +40,7 @@ namespace PlayFab.UUnit
 
 #if UNITY_STANDALONE_WIN
                 // Prefer to load path from environment variable, if present
-                var tempFilename = Environment.GetEnvironmentVariable("PF_TEST_TITLE_DATA_JSON2");
+                var tempFilename = Environment.GetEnvironmentVariable("PF_TEST_TITLE_DATA_JSON");
                 if (!string.IsNullOrEmpty(tempFilename))
                     filename = tempFilename;
 #endif

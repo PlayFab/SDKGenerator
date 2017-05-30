@@ -35,7 +35,7 @@ namespace JenkinsConsoleUtility.Testing
 
         public override void SetUp(UUnitTestContext testContext)
         {
-            var tempFolderPath = Environment.GetEnvironmentVariable("TEMP") ?? ""; // Get the Windows 10 user temp folder
+            var tempFolderPath = Environment.GetEnvironmentVariable("WORKSPACE") ?? Environment.GetEnvironmentVariable("TEMP") ?? ""; // Get the Windows 10 user temp folder
             _tempFileFullPath = Path.Combine(tempFolderPath, tempFilename);
 
             var outfile = File.Open(_tempFileFullPath, FileMode.Create);

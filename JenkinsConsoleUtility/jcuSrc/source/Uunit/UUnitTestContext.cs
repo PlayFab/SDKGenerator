@@ -219,6 +219,20 @@ namespace PlayFab.UUnit
             Fail(message);
         }
 
+        public void DateTimeEquals(DateTime? wanted, DateTime? got, TimeSpan precision, string message = null)
+        {
+            if (wanted == null && got == null)
+                return;
+            if (wanted != null && got != null
+                && wanted + precision > got
+                && got + precision > wanted)
+                return;
+
+            if (string.IsNullOrEmpty(message))
+                message = "Expected: " + wanted + ", Actual: " + got;
+            Fail(message);
+        }
+
         public void ObjEquals(object wanted, object got, string message = null)
         {
             if (wanted == null && got == null)
@@ -237,7 +251,7 @@ namespace PlayFab.UUnit
             var gEnum = got.GetEnumerator();
 
             bool wNext, gNext;
-            int count = 0;
+            var count = 0;
             while (true)
             {
                 wNext = wEnum.MoveNext();

@@ -52,7 +52,7 @@ namespace PlayFab.UUnit
 
             // Verify all the inputs won't cause crashes in the tests
             TITLE_INFO_SET &= !string.IsNullOrEmpty(PlayFabSettings.TitleId)
-                              && !string.IsNullOrEmpty(USER_EMAIL);
+                && !string.IsNullOrEmpty(USER_EMAIL);
         }
 
         public override void SetUp(UUnitTestContext testContext)
@@ -73,38 +73,38 @@ namespace PlayFab.UUnit
         private static void ContinueWithContext<T>(Task<PlayFabResult<T>> srcTask, UUnitTestContext testContext, Action<PlayFabResult<T>, UUnitTestContext, string> continueAction, bool expectSuccess, string failMessage, bool endTest) where T : PlayFabResultCommon
         {
             srcTask.ContinueWith(task =>
+            {
+                var failed = true;
+                try
                 {
-                    var failed = true;
-                    try
+                    if (expectSuccess)
                     {
-                        if (expectSuccess)
-                        {
-                            testContext.NotNull(task.Result, failMessage);
-                            testContext.IsNull(task.Result.Error, PlayFabUtil.GetErrorReport(task.Result.Error));
-                            testContext.NotNull(task.Result.Result, failMessage);
-                        }
-                        if (continueAction != null)
-                            continueAction.Invoke(task.Result, testContext, failMessage);
-                        failed = false;
+                        testContext.NotNull(task.Result, failMessage);
+                        testContext.IsNull(task.Result.Error, PlayFabUtil.GetErrorReport(task.Result.Error));
+                        testContext.NotNull(task.Result.Result, failMessage);
                     }
-                    catch (UUnitSkipException uu)
-                    {
-                        // Silence the assert and ensure the test is marked as complete - The exception is just to halt the test process
-                        testContext.EndTest(UUnitFinishState.SKIPPED, uu.Message);
-                    }
-                    catch (UUnitException uu)
-                    {
-                        // Silence the assert and ensure the test is marked as complete - The exception is just to halt the test process
-                        testContext.EndTest(UUnitFinishState.FAILED, uu.Message + "\n" + uu.StackTrace);
-                    }
-                    catch (Exception e)
-                    {
-                        // Report this exception as an unhandled failure in the test
-                        testContext.EndTest(UUnitFinishState.FAILED, e.ToString());
-                    }
-                    if (!failed && endTest)
-                        testContext.EndTest(UUnitFinishState.PASSED, null);
+                    if (continueAction != null)
+                        continueAction.Invoke(task.Result, testContext, failMessage);
+                    failed = false;
                 }
+                catch (UUnitSkipException uu)
+                {
+                    // Silence the assert and ensure the test is marked as complete - The exception is just to halt the test process
+                    testContext.EndTest(UUnitFinishState.SKIPPED, uu.Message);
+                }
+                catch (UUnitException uu)
+                {
+                    // Silence the assert and ensure the test is marked as complete - The exception is just to halt the test process
+                    testContext.EndTest(UUnitFinishState.FAILED, uu.Message + "\n" + uu.StackTrace);
+                }
+                catch (Exception e)
+                {
+                    // Report this exception as an unhandled failure in the test
+                    testContext.EndTest(UUnitFinishState.FAILED, e.ToString());
+                }
+                if (!failed && endTest)
+                    testContext.EndTest(UUnitFinishState.PASSED, null);
+            }
             );
         }
 
@@ -115,8 +115,8 @@ namespace PlayFab.UUnit
             _sb.Length = 0;
             _sb.Append(error.ErrorMessage);
             foreach (var detailPair in error.ErrorDetails)
-            foreach (var msg in detailPair.Value)
-                _sb.Append("\n").Append(detailPair.Key).Append(": ").Append(msg);
+                foreach (var msg in detailPair.Value)
+                    _sb.Append("\n").Append(detailPair.Key).Append(": ").Append(msg);
             return _sb.ToString();
         }
 

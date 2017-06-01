@@ -44,6 +44,12 @@ namespace JenkinsConsoleUtility.Testing
             outfile.Close();
         }
 
+        public override void TearDown(UUnitTestContext testContext)
+        {
+            if (Directory.Exists(_tempFileFullPath))
+                Directory.Delete(_tempFileFullPath);
+        }
+
         [UUnitTest]
         public void XmlReadWriteSequence(UUnitTestContext testContext)
         {

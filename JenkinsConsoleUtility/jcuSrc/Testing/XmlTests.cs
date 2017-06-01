@@ -46,8 +46,8 @@ namespace JenkinsConsoleUtility.Testing
 
         public override void TearDown(UUnitTestContext testContext)
         {
-            if (Directory.Exists(_tempFileFullPath))
-                Directory.Delete(_tempFileFullPath);
+            if (File.Exists(_tempFileFullPath))
+                File.Delete(_tempFileFullPath);
         }
 
         [UUnitTest]

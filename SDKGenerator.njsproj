@@ -108,12 +108,12 @@
   <PropertyGroup Condition=" '$(Configuration)' == 'UnrealBlueprintSDK' ">
     <DebugSymbols>true</DebugSymbols>
     <OutputPath>bin\</OutputPath>
-    <ScriptArguments>cpp-unreal=..\sdks\UnrealBlueprintSDK -apiSpecPath -buildIdentifier UnrealBlueprintSDK_manual</ScriptArguments>
+    <ScriptArguments>cpp-unreal=..\sdks\UnrealBlueprintSDK -flags nonnullable -apiSpecPath -buildIdentifier UnrealBlueprintSDK_manual</ScriptArguments>
   </PropertyGroup>
   <PropertyGroup Condition=" '$(Configuration)' == 'UnrealCppSdk' ">
     <DebugSymbols>true</DebugSymbols>
     <OutputPath>bin\</OutputPath>
-    <ScriptArguments>cpp-ue4=..\sdks\UnrealCppSdk -apiSpecGitUrl https://raw.githubusercontent.com/PlayFab/API_Specs/automated/  -buildIdentifier JBuild_UnrealCppSdk_0</ScriptArguments>
+    <ScriptArguments>cpp-ue4=..\sdks\UnrealCppSdk -flags nonnullable -apiSpecGitUrl https://raw.githubusercontent.com/PlayFab/API_Specs/automated/  -buildIdentifier JBuild_UnrealCppSdk_0</ScriptArguments>
   </PropertyGroup>
   <PropertyGroup Condition=" '$(Configuration)' == 'WindowsSDK' ">
     <DebugSymbols>true</DebugSymbols>

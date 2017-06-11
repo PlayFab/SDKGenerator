@@ -5,7 +5,7 @@ var path = require("path");
 
 var SdkGeneratorGlobals = {
     // Frequently, these are passed by reference to avoid over-use of global variables. Unfortunately, the async nature of loading api files required some global references
-    
+
     // Internal note: We lowercase the argsByName-keys, targetNames, buildIdentifier, and the flags.  Case is maintained for all other argsByName-values, and targets
     argsByName: {}, // Command line args compiled into KVP's
     errorMessages: [], // String list of errors during parsing and loading steps
@@ -24,7 +24,7 @@ function ParseAndLoadApis() {
     // Step 1
     ParseCommandInputs(process.argv, SdkGeneratorGlobals.argsByName, SdkGeneratorGlobals.errorMessages, SdkGeneratorGlobals.targetOutputPathList);
     ReportErrorsAndExit(SdkGeneratorGlobals.errorMessages);
-    
+
     // Kick off Step 2
     LoadAndCacheApis(SdkGeneratorGlobals.argsByName, SdkGeneratorGlobals.apiCache);
 }
@@ -37,22 +37,22 @@ function GenerateSdks() {
 function ReportErrorsAndExit(errorMessages) {
     if (errorMessages.length === 0)
         return; // No errors to report, so continue
-    
+
     // Else, report all errors and exit the program
     console.log("Synatax: node generate.js\n" +
-            "\t\t<targetName>=<targetOutputPath>\n" +
-            "\t\t-(apiSpecPath|apiSpecGitUrl|apiSpecPfUrl)[ (<apiSpecPath>|<apiSpecGitUrl>|<apiSpecPfUrl>)]\n" +
-            "\t\t[ -flags <flag>[ <flag> ...]]\n\n" +
-            "\tExample: node generate.js unity-v2=../sdks/UnitySDK -apiSpecPath ../API_Specs -flags xbox playstation\n" +
-            "\t\tThis builds the UnitySDK, from Specs at relative path ../API_Specs, with console APIs included\n" +
-            "\t<apiSpecPath> : Directory or url containing the *.api.json files\n" +
-            "\tYou must list one or more <targetName>=<targetOutputPath> arguments.\n" +
-            "\tWarning, there can be no spaces in the target-specification\n");
-    
+        "\t\t<targetName>=<targetOutputPath>\n" +
+        "\t\t-(apiSpecPath|apiSpecGitUrl|apiSpecPfUrl)[ (<apiSpecPath>|<apiSpecGitUrl>|<apiSpecPfUrl>)]\n" +
+        "\t\t[ -flags <flag>[ <flag> ...]]\n\n" +
+        "\tExample: node generate.js unity-v2=../sdks/UnitySDK -apiSpecPath ../API_Specs -flags xbox playstation\n" +
+        "\t\tThis builds the UnitySDK, from Specs at relative path ../API_Specs, with console APIs included\n" +
+        "\t<apiSpecPath> : Directory or url containing the *.api.json files\n" +
+        "\tYou must list one or more <targetName>=<targetOutputPath> arguments.\n" +
+        "\tWarning, there can be no spaces in the target-specification\n");
+
     console.log("\nError Log:");
     for (var i = 0; i < errorMessages.length; i++)
         console.log(errorMessages[i]);
-    
+
     console.log("\nPossible targetNames:");
     var targetList = GetTargetsList();
     console.log("\t" + targetList.join(", "));
@@ -63,7 +63,7 @@ function ReportErrorsAndExit(errorMessages) {
 function ParseCommandInputs(args, argsByName, errorMessages, targetOutputPathList) {
     // Parse the command line arguments into key-value-pairs
     ExtractArgs(args, argsByName, targetOutputPathList, errorMessages);
-    
+
     // Apply defaults 
     if (!argsByName.hasOwnProperty("apispecpath") && !argsByName.hasOwnProperty("apispecgiturl") && !argsByName.hasOwnProperty("apispecpfurl"))
         argsByName.apispecgiturl = ""; // If nothing is defined, default to GitHub
@@ -74,11 +74,11 @@ function ParseCommandInputs(args, argsByName, errorMessages, targetOutputPathLis
         argsByName.apispecgiturl = DefaultApiSpecGitHubUrl;
     if (argsByName.apispecpfurl === "")
         argsByName.apispecpfurl = DefaultApiSpecPlayFabUrl;
-    
+
     // Output an error if no targets are defined
     if (targetOutputPathList.length === 0)
         errorMessages.push("No targets defined, you must define at least one.");
-    
+
     // Output an error if there's any problems with the api-spec source    
     var specCount = 0;
     if (argsByName.apispecpath) specCount++;
@@ -86,7 +86,7 @@ function ParseCommandInputs(args, argsByName, errorMessages, targetOutputPathLis
     if (argsByName.apispecpfurl) specCount++;
     if (specCount > 1)
         errorMessages.push("Cannot define more than one of: apiSpecPath, apiSpecGitUrl, or apiSpecPfUrl.  Pick one and remove the other(s).");
-    
+
     // Parse some other values and defaults
     if (!argsByName.buildidentifier)
         argsByName.buildidentifier = "default_manual_build";
@@ -118,7 +118,7 @@ function ExtractArgs(args, argsByName, targetOutputPathList, errorMessages) {
                 argsByName[activeKey] = cmdArgs[i];
         }
     }
-    
+
     // Pull from environment variables if there's no console-defined targets
     if (targetOutputPathList.length === 0 && process.env.hasOwnProperty("SdkSource") && process.env.hasOwnProperty("SdkName")) {
         CheckTarget(process.env.hasOwnProperty("SdkSource"), process.env.hasOwnProperty("SdkName"), targetOutputPathList, errorMessages);
@@ -138,28 +138,28 @@ function CheckTarget(sdkSource, sdkDestination, targetOutputPathList, errorMessa
 
 function GetTargetsList() {
     var targetList = [];
-    
+
     var targetsDir = path.resolve(__dirname, "targets");
-    
+
     var targets = fs.readdirSync(targetsDir);
     for (var i = 0; i < targets.length; i++) {
         var target = targets[i];
         if (target[0] === ".")
             continue;
-        
+
         var targetSourceDir = path.resolve(targetsDir, target);
         var targetMain = path.resolve(targetSourceDir, "make.js"); // search for make.js in each subdirectory within "targets"
         if (fs.existsSync(targetMain))
             targetList.push(target);
     }
-    
+
     return targetList;
 }
 
 /////////////////////////////////// Major step 2 - Load and cache the API files ///////////////////////////////////
 function LoadAndCacheApis(argsByName, apiCache) {
     // GenerateSdks is the function that begins the next step
-    
+
     if (argsByName.apispecpath) {
         LoadApisFromLocalFiles(argsByName, apiCache, argsByName.apispecpath, GenerateSdks);
     } else if (argsByName.apispecgiturl) {
@@ -176,7 +176,7 @@ function LoadApisFromLocalFiles(argsByName, apiCache, apiSpecPath, onComplete) {
         apiCache[filename] = require(fullPath);
         console.log("Finished reading: " + fullPath);
     }
-    
+
     loadEachFile("Admin.api.json");
     loadEachFile("Client.api.json");
     loadEachFile("Matchmaker.api.json");
@@ -185,7 +185,7 @@ function LoadApisFromLocalFiles(argsByName, apiCache, apiSpecPath, onComplete) {
     loadEachFile("PlayStreamCommonEventModels.json");
     loadEachFile("PlayStreamProfileModels.json");
     loadEachFile("SdkManualNotes.json");
-    
+
     SdkGeneratorGlobals.apiSrcDescription = argsByName.apispecpath;
     onComplete();
 }
@@ -200,7 +200,7 @@ function LoadApisFromGitHub(argsByName, apiCache, apiSpecGitUrl, onComplete) {
             onComplete();
         }
     }
-    
+
     DownloadFromUrl(apiSpecGitUrl, "Admin.api.json", apiCache, "Admin.api.json", onEachComplete);
     DownloadFromUrl(apiSpecGitUrl, "Client.api.json", apiCache, "Client.api.json", onEachComplete);
     DownloadFromUrl(apiSpecGitUrl, "Matchmaker.api.json", apiCache, "Matchmaker.api.json", onEachComplete);
@@ -221,7 +221,7 @@ function LoadApisFromPlayFabServer(argsByName, apiCache, apiSpecPfUrl, onComplet
             onComplete();
         }
     }
-    
+
     DownloadFromUrl(apiSpecPfUrl, "AdminAPI", apiCache, "Admin.api.json", onEachComplete);
     DownloadFromUrl(apiSpecPfUrl, "ClientAPI", apiCache, "Client.api.json", onEachComplete);
     DownloadFromUrl(apiSpecPfUrl, "MatchmakerAPI", apiCache, "Matchmaker.api.json", onEachComplete);
@@ -260,7 +260,7 @@ function DownloadFromUrl(srcUrl, appendUrl, apiCache, cacheKey, onEachComplete) 
 /////////////////////////////////// Major step 3 - Generate the indicated ouptut files ///////////////////////////////////
 function GenerateApis(buildIdentifier, targetOutputPathList, buildFlags, apiSrcDescription) {
     console.log("Generating PlayFab APIs from specs: " + apiSrcDescription);
-    
+
     var clientApi = GetApiDefinition("Client.api.json", buildFlags);
     var adminApis = [
         GetApiDefinition("Admin.api.json", buildFlags)
@@ -270,23 +270,23 @@ function GenerateApis(buildIdentifier, targetOutputPathList, buildFlags, apiSrcD
         GetApiDefinition("Matchmaker.api.json", buildFlags),
         GetApiDefinition("Server.api.json", buildFlags)
     ];
-    
+
     var allApis = serverApis.concat(clientApi);
-    
+
     var targetsDir = path.resolve(__dirname, "targets");
-    
+
     for (var t = 0; t < targetOutputPathList.length; t++) {
         var target = targetOutputPathList[t];
-        
+
         var sdkOutputDir = target.dest;
-        
+
         console.log("Target: " + targetsDir + ", and " + target.name);
         var targetSourceDir = path.resolve(targetsDir, target.name);
         var targetMain = path.resolve(targetSourceDir, "make.js");
-        
+
         console.log("Making target " + target.name + " to location " + sdkOutputDir);
         var targetMaker = require(targetMain);
-        
+
         // It would probably be better to pass these into the functions, but I don't want to change all the make___Api parameters for all projects today.
         //   For now, just change the global variables in each with the data loaded from SdkManualNotes.json
         targetMaker.apiNotes = GetApiJson("SdkManualNotes.json");
@@ -295,9 +295,9 @@ function GenerateApis(buildIdentifier, targetOutputPathList, buildFlags, apiSrcD
         if (targetMaker.sdkVersion == null) {
             throw "SdkManualNotes does not contain sdkVersion for " + target.name; // The point of this error is to force you to add a line to sdkManualNotes.json, to describe the version and date when this sdk/collection is built
         }
-        
+
         var apiOutputDir = "";
-        
+
         if (targetMaker.makeClientAPI) {
             apiOutputDir = targetMaker.putInRoot ? sdkOutputDir : path.resolve(sdkOutputDir, "PlayFabClientSDK");
             console.log(" + Generating Client to " + apiOutputDir);
@@ -305,7 +305,7 @@ function GenerateApis(buildIdentifier, targetOutputPathList, buildFlags, apiSrcD
                 MkdirParentsSync(apiOutputDir);
             targetMaker.makeClientAPI(clientApi, targetSourceDir, apiOutputDir);
         }
-        
+
         if (targetMaker.makeServerAPI) {
             apiOutputDir = targetMaker.putInRoot ? sdkOutputDir : path.resolve(sdkOutputDir, "PlayFabServerSDK");
             console.log(" + Generating Server to " + apiOutputDir);
@@ -313,7 +313,7 @@ function GenerateApis(buildIdentifier, targetOutputPathList, buildFlags, apiSrcD
                 MkdirParentsSync(apiOutputDir);
             targetMaker.makeServerAPI(serverApis, targetSourceDir, apiOutputDir);
         }
-        
+
         if (targetMaker.makeAdminAPI) {
             apiOutputDir = targetMaker.putInRoot ? sdkOutputDir : path.resolve(sdkOutputDir, "PlayFabServerSDK");
             console.log(" + Generating Server to " + apiOutputDir);
@@ -321,7 +321,7 @@ function GenerateApis(buildIdentifier, targetOutputPathList, buildFlags, apiSrcD
                 MkdirParentsSync(apiOutputDir);
             targetMaker.makeAdminAPI(adminApis, targetSourceDir, apiOutputDir);
         }
-        
+
         if (targetMaker.makeCombinedAPI) {
             apiOutputDir = targetMaker.putInRoot ? sdkOutputDir : path.resolve(sdkOutputDir, "PlayFabSDK");
             console.log(" + Generating Combined to " + apiOutputDir);
@@ -330,35 +330,38 @@ function GenerateApis(buildIdentifier, targetOutputPathList, buildFlags, apiSrcD
             targetMaker.makeCombinedAPI(allApis, targetSourceDir, apiOutputDir);
         }
     }
-    
+
     console.log("\n\nDONE!\n");
 }
 
 function GetApiDefinition(apiFileName, buildFlags) {
     var api = GetApiJson(apiFileName);
-    
+
     // Special case, "obsolete" is treated as an SdkGenerator flag, but is not an actual flag in pf-main
-    var obsoleteFlaged = false;
-    for (var b = 0; b < buildFlags.length; b++)
+    var obsoleteFlaged = false, nonNullableFlagged = false;
+    for (var b = 0; b < buildFlags.length; b++) {
         if (buildFlags[b].indexOf("obsolete") !== -1)
             obsoleteFlaged = true;
-    
+        if (buildFlags[b].indexOf("nonnullable") !== -1)
+            nonNullableFlagged = true;
+    }
+
     // Filter calls out of the API before returning it
     var filteredCalls = [];
     for (var cIdx in api.calls)
-        if (IsVisibleWithFlags(buildFlags, api.calls[cIdx], obsoleteFlaged))
+        if (IsVisibleWithFlags(buildFlags, api.calls[cIdx], obsoleteFlaged, nonNullableFlagged))
             filteredCalls.push(api.calls[cIdx]);
     api.calls = filteredCalls;
-    
+
     // Filter datatypes out of the API before returning it
     var filteredTypes = {};
     for (var dIdx in api.datatypes) {
-        if (IsVisibleWithFlags(buildFlags, api.datatypes[dIdx], obsoleteFlaged)) {
+        if (IsVisibleWithFlags(buildFlags, api.datatypes[dIdx], obsoleteFlaged, nonNullableFlagged)) {
             var eachType = api.datatypes[dIdx];
             var filteredProperties = [];
             if (eachType.properties) {
                 for (var pIdx = 0; pIdx < eachType.properties.length; pIdx++)
-                    if (IsVisibleWithFlags(buildFlags, eachType.properties[pIdx], obsoleteFlaged))
+                    if (IsVisibleWithFlags(buildFlags, eachType.properties[pIdx], obsoleteFlaged, nonNullableFlagged))
                         filteredProperties.push(eachType.properties[pIdx]);
                 eachType.properties = filteredProperties;
             }
@@ -369,14 +372,17 @@ function GetApiDefinition(apiFileName, buildFlags) {
     return api;
 }
 
-function IsVisibleWithFlags(buildFlags, apiObj, obsoleteFlaged) {
+function IsVisibleWithFlags(buildFlags, apiObj, obsoleteFlaged, nonNullableFlagged) {
     // Filter obsolete elements
     if (!obsoleteFlaged && apiObj.hasOwnProperty("deprecation")) {
         var obsoleteTime = new Date(apiObj.deprecation.ObsoleteAfter);
         if (new Date() > obsoleteTime)
             return false;
     }
-    
+    // Filter governing booleans
+    if (!nonNullableFlagged && apiObj.hasOwnProperty("GovernsProperty"))
+        return false;
+
     // It's pretty easy to exclude (Api calls and datatypes)
     var exclusiveFlags = [];
     if (apiObj.hasOwnProperty("ExclusiveFlags"))
@@ -384,7 +390,7 @@ function IsVisibleWithFlags(buildFlags, apiObj, obsoleteFlaged) {
     for (var bIdx = 0; bIdx < buildFlags.length; bIdx++)
         if (exclusiveFlags.indexOf(buildFlags[bIdx]) !== -1)
             return false;
-    
+
     // All Inclusive flags must match if present (Api calls only)
     var allInclusiveFlags = [];
     if (apiObj.hasOwnProperty("AllInclusiveFlags"))
@@ -393,7 +399,7 @@ function IsVisibleWithFlags(buildFlags, apiObj, obsoleteFlaged) {
         for (var alIdx = 0; alIdx < allInclusiveFlags.length; alIdx++)
             if (buildFlags.indexOf(allInclusiveFlags[alIdx]) === -1)
                 return false; // If a required flag is missing, fail out
-    
+
     // Any Inclusive flags must match at least one if present (Api calls and datatypes)
     var anyInclusiveFlags = [];
     if (apiObj.hasOwnProperty("AnyInclusiveFlags"))
@@ -418,7 +424,7 @@ function LowercaseFlagsList(flags) {
 function MkdirParentsSync(dirname) {
     if (fs.existsSync(dirname))
         return;
-    
+
     var parentName = path.dirname(dirname);
     MkdirParentsSync(parentName);
     fs.mkdirSync(dirname);
@@ -446,7 +452,7 @@ global.copyTree = function (source, dest) {
         console.error("Copy tree source doesn't exist: " + source);
         return;
     }
-    
+
     if (fs.lstatSync(source).isDirectory()) {
         if (!fs.existsSync(dest)) {
             MkdirParentsSync(dest);
@@ -455,8 +461,8 @@ global.copyTree = function (source, dest) {
             console.error("Can't copy a directory onto a file: " + source + " " + dest);
             return;
         }
-        
-        
+
+
         var filesInDir = fs.readdirSync(source);
         for (var i = 0; i < filesInDir.length; i++) {
             var filename = filesInDir[i];
@@ -479,20 +485,20 @@ global.copyFile = function (source, dest) {
         console.error("ERROR: Invalid copy file parameters: " + source + " " + dest);
         return;
     }
-    
+
     if (!fs.existsSync(source)) {
         console.error("ERROR: copyFile source doesn't exist: " + source);
         return;
     }
     var sourceStat = fs.lstatSync(source);
-    
+
     if (sourceStat.isDirectory()) {
         console.error("ERROR: copyFile source is a directory: " + source);
         return;
     }
-    
+
     var filename = path.basename(source);
-    
+
     if (fs.existsSync(dest)) {
         if (fs.lstatSync(dest).isDirectory()) {
             dest += "/" + filename;
@@ -508,7 +514,7 @@ global.copyFile = function (source, dest) {
             MkdirParentsSync(dirname);
         }
     }
-    
+
     if (fs.existsSync(dest)) {
         // TODO: Make this an optional flag
         //if(fs.lstatSync(dest).mtime.getTime() >= sourceStat.mtime.getTime())
@@ -516,10 +522,10 @@ global.copyFile = function (source, dest) {
         //    return;
         //}
     }
-    
+
     var bufLength = 64 * 1024;
     var buff = new Buffer(bufLength);
-    
+
     var fdr = fs.openSync(source, "r");
     var fdw = fs.openSync(dest, "w");
     var bytesRead = 1;
@@ -538,7 +544,7 @@ global.GetDeprecationStatus = function (apiObj) {
     var deprecation = apiObj.hasOwnProperty("deprecation");
     if (!deprecation)
         return null;
-    
+
     var deprecationTime = new Date(apiObj.deprecation.DeprecatedAfter);
     var obsoleteTime = new Date(apiObj.deprecation.ObsoleteAfter);
     if (new Date() > obsoleteTime)
@@ -556,7 +562,7 @@ global.writeFile = function (filename, data) {
     var dirname = path.dirname(filename);
     if (!fs.existsSync(dirname))
         MkdirParentsSync(dirname);
-    
+
     return fs.writeFileSync(filename, data);
 }
 
@@ -570,7 +576,7 @@ global.GetApiJson = function (apiFileName) {
  * Also Caches the Templates to avoid reloading and recompiling
  * */
 global.GetCompiledTemplate = function (templatePath) {
-    if (!this.compiledTemplates) 
+    if (!this.compiledTemplates)
         this.compiledTemplates = {};
     if (!compiledTemplates.hasOwnProperty(templatePath))
         this.compiledTemplates[templatePath] = ejs.compile(readFile(templatePath));

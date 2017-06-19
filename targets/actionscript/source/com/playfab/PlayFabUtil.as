@@ -24,7 +24,7 @@ package com.playfab
             var second:Number = parseInt(result[6]);
 
             var milliseconds:Number = 0;
-            if(result.length == 9)
+            if(result.length == 9 && result[8])
                 milliseconds = parseInt(result[8]);
 
             if(data.charAt(data.length-1) == "Z")

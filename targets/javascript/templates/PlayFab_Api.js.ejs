@@ -21,6 +21,9 @@ if(!PlayFab._internalSettings) {
     PlayFab._internalSettings = {
         sessionTicket: null,
         productionServerUrl: ".playfabapi.com",
+        errorTitleId: "Must be have PlayFab.settings.titleId set to call this method",
+        errorLoggedIn: "Must be logged in to call this method",
+        errorSecretKey: "Must have PlayFab.settings.developerSecretKey set to call this method",
 
         GetServerUrl: function () {
             return "https://" + PlayFab.settings.titleId + PlayFab._internalSettings.productionServerUrl;

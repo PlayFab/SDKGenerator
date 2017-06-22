@@ -54,11 +54,11 @@ function MakeSimpleTemplates(apis, templateDir, apiOutputDir) {
 
 function GetRequestActions(apiCall, api) {
     if (api.name === "Client" && (apiCall.result === "LoginResult" || apiCall.request === "RegisterPlayFabUserRequest"))
-        return "        request.TitleId = PlayFab.settings.titleId != null ? PlayFab.settings.titleId : request.TitleId; if (request.TitleId == null) throw \"Must be have PlayFab.settings.titleId set to call this method\";\n";
+        return "        request.TitleId = PlayFab.settings.titleId ? PlayFab.settings.titleId : request.TitleId; if (!request.TitleId) throw PlayFab._internalSettings.errorTitleId;\n";
     if (api.name === "Client" && apiCall.auth === "SessionTicket")
-        return "        if (PlayFab._internalSettings.sessionTicket == null) throw \"Must be logged in to call this method\";\n";
+        return "        if (!PlayFab._internalSettings.sessionTicket) throw PlayFab._internalSettings.errorLoggedIn;\n";
     if (apiCall.auth === "SecretKey")
-        return "        if (PlayFab.settings.developerSecretKey == null) throw \"Must have PlayFab.settings.developerSecretKey set to call this method\";\n";
+        return "        if (!PlayFab.settings.developerSecretKey) throw PlayFab._internalSettings.errorSecretKey;\n";
     return "";
 }
 

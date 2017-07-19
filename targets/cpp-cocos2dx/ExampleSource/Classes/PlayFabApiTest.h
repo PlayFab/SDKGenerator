@@ -337,13 +337,15 @@ namespace PlayFabApiTest
             char* envPath = nullptr;
             size_t envPathStrLen;
             errno_t err = _dupenv_s(&envPath, &envPathStrLen, "PF_TEST_TITLE_DATA_JSON");
-            if (err == 0)
+            if (err == 0 && envPath != nullptr)
                 TEST_TITLE_DATA_LOC = envPath; // If exists, reset path to env var
-            free(envPath); // It's OK to call free with NULL
+            if (envPath != nullptr)
+                free(envPath);
 #endif
 
             std::ifstream titleInput;
-            titleInput.open(TEST_TITLE_DATA_LOC, std::ios::binary | std::ios::in);
+            if (TEST_TITLE_DATA_LOC.length() > 0)
+                titleInput.open(TEST_TITLE_DATA_LOC, std::ios::binary | std::ios::in);
             if (titleInput)
             {
                 auto begin = titleInput.tellg();

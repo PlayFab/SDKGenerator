@@ -326,9 +326,10 @@ protected:
         char* envPath = nullptr;
         size_t envPathStrLen;
         errno_t err = _dupenv_s(&envPath, &envPathStrLen, "PF_TEST_TITLE_DATA_JSON");
-        if (err == 0)
+        if (err == 0 && envPath != nullptr)
             filename = FString(ANSI_TO_TCHAR(envPath));
-        free(envPath); // It's OK to call free with NULL
+        if (envPath != nullptr)
+            free(envPath);
 
         success &= FFileHelper::LoadFileToString(jsonInput, *filename);
 

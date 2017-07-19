@@ -196,7 +196,8 @@ private:
         //   Fill in all the variables under: POPULATE THIS SECTION WITH REAL INFORMATION
 
         std::ifstream titleInput;
-        titleInput.open(TEST_TITLE_DATA_LOC, std::ios::binary | std::ios::in);
+        if (TEST_TITLE_DATA_LOC.length() > 0)
+            titleInput.open(TEST_TITLE_DATA_LOC, std::ios::binary | std::ios::in);
         if (titleInput)
         {
             int begin = titleInput.tellg();

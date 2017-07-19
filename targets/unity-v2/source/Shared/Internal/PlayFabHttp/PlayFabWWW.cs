@@ -76,7 +76,8 @@ namespace PlayFab.Internal
                         else if (regRes != null)
                             AuthKey = regRes.SessionTicket;
 
-                        PlayFabDeviceUtil.OnPlayFabLogin(res, regRes);
+                        if (res != null || regRes != null)
+                            PlayFabDeviceUtil.OnPlayFabLogin(res, regRes);
 #endif
                         try
                         {

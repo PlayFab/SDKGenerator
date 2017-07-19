@@ -62,7 +62,7 @@ namespace PlayFab.Internal
         {
             get
             {
-#if UNITY_5
+#if UNITY_5 || UNITY_2017
                 return BuildTarget.iOS;
 #else
                 return BuildTarget.iPhone;
@@ -73,7 +73,7 @@ namespace PlayFab.Internal
         {
             get
             {
-#if UNITY_5
+#if UNITY_5 || UNITY_2017
                 return BuildTargetGroup.iOS;
 #else
                 return BuildTargetGroup.iPhone;

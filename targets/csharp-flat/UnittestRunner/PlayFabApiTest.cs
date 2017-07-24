@@ -106,8 +106,8 @@ namespace PlayFab.UUnit
             }
             catch (Exception ex)
             {
-                UUnitAssert.True(ex.InnerException.Message.ToLower().Contains(expectedEmailMsg), "Expected an error about bad email address: " + ex.InnerException.Message);
-                UUnitAssert.True(ex.InnerException.Message.ToLower().Contains(expectedPasswordMsg), "Expected an error about bad password: " + ex.InnerException.Message);
+                UUnitAssert.True(ex.InnerException.Message.ToLowerInvariant().Contains(expectedEmailMsg), "Expected an error about bad email address: " + ex.InnerException.Message);
+                UUnitAssert.True(ex.InnerException.Message.ToLowerInvariant().Contains(expectedPasswordMsg), "Expected an error about bad password: " + ex.InnerException.Message);
                 return;
             }
             UUnitAssert.False(true, "This should be unreachable");

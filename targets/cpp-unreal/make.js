@@ -219,9 +219,9 @@ function GetPropertyCppType(property, datatype) {
             if (isCollection && isArray) {
                 return "TArray<UPlayFabJsonObject*> " + propSafeName + ";";
             } else if (isCollection) {
-                return "UPlayFabJsonObject* " + propSafeName + ";";
+                return "UPlayFabJsonObject* " + propSafeName + " = nullptr;";
             } else {
-                return "UPlayFabJsonObject* " + propSafeName + ";";
+                return "UPlayFabJsonObject* " + propSafeName + " = nullptr;";
             }
     }
     

@@ -1,8 +1,9 @@
+#pragma once
+
 #include "PlayFabPrivatePCH.h"
+#include <Runtime/Launch/Resources/Version.h>
 #include "PlayFabJsonObject.h"
 #include "PlayFabEnums.generated.h"
-
-#pragma once
 
 // PlayFab enums start with "pfenum_" in order to avoid code-name conflicts - For JSON, remove that prefix, and send only the expected portion (the display name is not fetchable when compiled)
 static const FString prefix = TEXT("pfenum_");
@@ -22,7 +23,11 @@ static FORCEINLINE bool GetEnumValueFromString(const FString& enumTypeName, cons
         fullInput = prefix + input;
     else
         fullInput = input;
+#if ENGINE_MINOR_VERSION < 16
     output = (EnumType)enumPtr->FindEnumIndex(FName(*fullInput));
+#else
+    output = (EnumType)enumPtr->GetIndexByName(FName(*fullInput));
+#endif
     return true;
 }
 
@@ -36,7 +41,11 @@ static FORCEINLINE bool GetEnumValueToString(const FString& enumTypeName, const 
         return false;
     }
 
+#if ENGINE_MINOR_VERSION < 16
     output = enumPtr->GetEnumName((int32)input);
+#else
+    output = enumPtr->GetNameStringByIndex((int32)input);
+#endif
     if (output.StartsWith(*prefix))
         output.RemoveAt(0, 7, false);
     return true;

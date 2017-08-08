@@ -205,7 +205,7 @@ function GetPropertyCppType(property, datatype) {
             } else if (isCollection) {
                 return "UPlayFabJsonObject* " + propSafeName + ";";
             } else {
-                return "bool " + propSafeName + ";";
+                return "bool " + propSafeName + " = false;";
             }
         case "Number":
             if (isCollection && isArray) {
@@ -213,7 +213,7 @@ function GetPropertyCppType(property, datatype) {
             } else if (isCollection) {
                 return "UPlayFabJsonObject* " + propSafeName + ";";
             } else {
-                return "int32 " + propSafeName + ";";
+                return "int32 " + propSafeName + " = 0;";
             }
         case "Object":
             if (isCollection && isArray) {

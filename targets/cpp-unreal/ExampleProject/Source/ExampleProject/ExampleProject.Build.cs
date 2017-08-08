@@ -1,10 +1,14 @@
-// Fill out your copyright notice in the Description page of Project Settings.
+// #define PF_UNREAL_OLD_4_14_TO_4_15
 
 using UnrealBuildTool;
 
 public class ExampleProject : ModuleRules
 {
+#if PF_UNREAL_OLD_4_14_TO_4_15
     public ExampleProject(TargetInfo Target)
+#else
+    public ExampleProject(ReadOnlyTargetRules ROTargetRules) : base(ROTargetRules)
+#endif
     {
         PublicDependencyModuleNames.AddRange(new string[] { "Core", "CoreUObject", "Engine", "InputCore" });
 

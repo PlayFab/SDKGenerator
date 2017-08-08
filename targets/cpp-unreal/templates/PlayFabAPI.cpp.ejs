@@ -90,6 +90,7 @@ for(var subgroup in api.subgroups)
 <%            %>{
 <%            %>    // Objects containing request data
 <%            %>    UPlayFab<%- api.name %>API* manager = NewObject<UPlayFab<%- api.name %>API>();
+<%            %>    if (manager->IsSafeForRootSet()) manager->AddToRoot();
 <%            %>    UPlayFabJsonObject* OutRestJsonObj = NewObject<UPlayFabJsonObject>();
 <%            %>    manager->mCustomData = customData;
 <%            %>
@@ -153,14 +154,11 @@ for(var subgroup in api.subgroups)
 <%            %>void UPlayFab<%- api.name %>API::Helper<%- apiCall.name %>(FPlayFabBaseModel response, UObject* customData, bool successful)
 <%            %>{
 <%            %>    FPlayFabError error = response.responseError;
-<%            %>    if (error.hasError)
+<%            %>    if (error.hasError && OnFailure.IsBound())
 <%            %>    {
-<%            %>        if (OnFailure.IsBound())
-<%            %>        {
-<%            %>            OnFailure.Execute(error, customData);
-<%            %>        }
+<%            %>        OnFailure.Execute(error, customData);
 <%            %>    }
-<%            %>    else
+<%            %>    else if (!error.hasError && OnSuccess<%- apiCall.name %>.IsBound())
 <%            %>    {
 <%
                 var found = false;
@@ -181,10 +179,7 @@ for(var subgroup in api.subgroups)
                         found = true;
 
               %>        F<%- api.name %><%- apiCall.result %> result = UPlayFab<%- api.name %>ModelDecoder::decode<%- GetDatatypeSafeName(datatype, "name") %>Response(response.responseData);
-<%            %>        if (OnSuccess<%- apiCall.name %>.IsBound())
-<%            %>        {
-<%            %>            OnSuccess<%- apiCall.name %>.Execute(result, mCustomData);
-<%            %>        }
+<%            %>        OnSuccess<%- apiCall.name %>.Execute(result, mCustomData);
 <%
                         break;
                     }
@@ -192,14 +187,12 @@ for(var subgroup in api.subgroups)
 
                 if (!found) {
               %>        F<%- api.name %><%- apiCall.result %> result = UPlayFab<%- api.name %>ModelDecoder::decode<%- apiCall.result %>Response(response.responseData);
-<%            %>        if (OnSuccess<%- apiCall.name %>.IsBound())
-<%            %>        {
-<%            %>            OnSuccess<%- apiCall.name %>.Execute(result, mCustomData);
-<%            %>        }
+<%            %>        OnSuccess<%- apiCall.name %>.Execute(result, mCustomData);
 <%
                 }
 
               %>    }
+<%            %>    this->RemoveFromRoot();
 <%            %>}
 <%            %>
 <%}
@@ -255,9 +248,7 @@ void UPlayFab<%- api.name %>API::OnProcessRequestComplete(FHttpRequestPtr Reques
 
     // Log errors
     if (!bIsValidJsonResponse)
-    {
         UE_LOG(LogPlayFab, Warning, TEXT("JSON could not be decoded!"));
-    }
 
     // Log response state
     UE_LOG(LogPlayFab, Log, TEXT("Response : %s"), *ResponseContent);
@@ -282,7 +273,6 @@ void UPlayFab<%- api.name %>API::OnProcessRequestComplete(FHttpRequestPtr Reques
                 makeAttrCall = false;
             if (makeAttrCall)
             {
-                // TODO: This request might be getting memory collected before it's complete...
                 FDelegateOnSuccessAttributeInstall onSuccess;
                 FDelegateOnFailurePlayFabError onFailure;
                 UPlayFabClientAPI* callObj = AttributeInstall(request, onSuccess, onFailure, mCustomData);
@@ -339,13 +329,8 @@ void UPlayFab<%- api.name %>API::Activate()
 void UPlayFab<%- api.name %>API::ResetResponseData()
 {
     if (ResponseJsonObj != nullptr)
-    {
         ResponseJsonObj->Reset();
-    }
     else
-    {
         ResponseJsonObj = NewObject<UPlayFabJsonObject>();
-    }
-
     bIsValidJsonResponse = false;
 }

@@ -1,10 +1,14 @@
-// Copyright 1998-2014 Epic Games, Inc. All Rights Reserved.
+// #define PF_UNREAL_OLD_4_14_TO_4_15
 
 namespace UnrealBuildTool.Rules
 {
     public class PlayFab : ModuleRules
     {
+#if PF_UNREAL_OLD_4_14_TO_4_15
         public PlayFab(TargetInfo Target)
+#else
+        public PlayFab(ReadOnlyTargetRules ROTargetRules) : base(ROTargetRules)
+#endif
         {
             PrivateIncludePaths.AddRange(
                 new string[] {"PlayFab/Private"}

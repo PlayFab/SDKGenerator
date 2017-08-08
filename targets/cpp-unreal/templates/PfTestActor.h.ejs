@@ -129,10 +129,6 @@ public:
         TArray<UPfTestContext*> testContexts;
     int testMessageInt;
 
-    /* Manual memory management for objects created by this test suite */
-    UPROPERTY()
-        TArray<UObject*> managedObjects;
-
     UFUNCTION()
         void InitializeTestSuite();
     UFUNCTION()

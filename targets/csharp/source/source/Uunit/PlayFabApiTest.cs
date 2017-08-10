@@ -378,10 +378,15 @@ namespace PlayFab.UUnit
         }
         private void CloudScriptContinued(PlayFabResult<ExecuteCloudScriptResult> cloudResult, UUnitTestContext testContext, string failMessage)
         {
+            string messageValue = null;
             // Get the helloWorld return message
             testContext.NotNull(cloudResult.Result.FunctionResult);
-            var jobj = (JsonObject)cloudResult.Result.FunctionResult;
-            var messageValue = jobj["messageValue"] as string;
+            var sjobj = cloudResult.Result.FunctionResult as JsonObject;
+            if (sjobj != null)
+                messageValue = sjobj["messageValue"] as string;
+            //var njobj = cloudResult.Result.FunctionResult as Newtonsoft.Json.Linq.JObject;
+            //if (njobj != null)
+            //    messageValue = njobj["messageValue"].ToObject<string>();
             testContext.StringEquals("Hello " + PlayFabId + "!", messageValue);
         }
 

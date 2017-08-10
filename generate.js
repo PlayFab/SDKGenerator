@@ -454,6 +454,11 @@ var copyFile = function (source, dest) {
         }
     }
     if (fs.existsSync(dest)) {
+        // TODO: Make this an optional flag
+        //if(fs.lstatSync(dest).mtime.getTime() >= sourceStat.mtime.getTime())
+        //{
+        //    return;
+        //}
     }
     var bufLength = 64 * 1024;
     var buff = new Buffer(bufLength);

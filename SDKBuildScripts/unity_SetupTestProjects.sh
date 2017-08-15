@@ -1,5 +1,5 @@
 #!/bin/bash
-# USAGE: unity_SetupTestProjects.bat [<SdkRepoName>] [<SdkFilePath>] [<DestinationPath>]
+# USAGE: unity_SetupTestProjects.sh [<SdkRepoName>] [<SdkFilePath>] [<DestinationPath>]
 # Make folder links from the UnitySdk to this test project
 # Requires mklink which may require administrator
 

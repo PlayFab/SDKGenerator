@@ -2,10 +2,10 @@
 setlocal
 
 if ["%SHARED_WORKSPACE%"]==[""] (
-    set SHARED_WORKSPACE=%WORKSPACE%\..\shared\%EXECUTOR_NUMBER%
+    set SHARED_WORKSPACE=%WORKSPACE%\..\shared
 )
 
-call :forceCD "%SHARED_WORKSPACE%"
+call :forceCD "%SHARED_WORKSPACE%\%EXECUTOR_NUMBER%"
 call :syncRepo pf-main
 call :forceCD "%WORKSPACE%"
 call :syncRepo SDKGenerator
@@ -20,7 +20,7 @@ popd
 call :cleanArcPatches
 call :applyArcPatch
 
-pushd "%SHARED_WORKSPACE%\pf-main\Server"
+pushd "%SHARED_WORKSPACE%\%EXECUTOR_NUMBER%\pf-main\Server"
 nuget restore Server.sln
 popd
 
@@ -70,7 +70,7 @@ rem USAGE: call :cleanArcPatches
 :cleanArcPatches
 echo ==== cleanArcPatches %cd% ====
 pushd SDKGenerator\JenkinsConsoleUtility\JenkinsScripts
-call delArcPatches.sh "%SHARED_WORKSPACE%\pf-main"
+call delArcPatches.sh "%SHARED_WORKSPACE%\%EXECUTOR_NUMBER%\pf-main"
 call delArcPatches.sh "%WORKSPACE%\SDKGenerator"
 call delArcPatches.sh "%WORKSPACE%\sdks\%SdkName%"
 echo ==== cleanArcPatches Done ====
@@ -80,7 +80,7 @@ rem USAGE: call :applyArcPatch
 :applyArcPatch
 echo ==== applyArcPatch %PatchRepoName% %SdkName% ====
 if [%PatchRepoName%]==[pf-main] (
-    cd "%SHARED_WORKSPACE%\%PatchRepoName%"
+    cd "%SHARED_WORKSPACE%\%EXECUTOR_NUMBER%\%PatchRepoName%"
     echo ==== arc patching pf-main ====
     @echo on
     call arc patch %DIFF_NUMBER% --conduit-token %JENKINS_PHAB_TOKEN%

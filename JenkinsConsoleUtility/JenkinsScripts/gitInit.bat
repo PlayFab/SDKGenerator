@@ -7,7 +7,10 @@ if "%1"=="" (
 )
 
 rem === Clean the %gitTarget% branch for %SdkName% ===
-cd C:\depot\sdks\%SdkName%
+if [%SHARED_WORKSPACE%] EQU [] (
+    set SHARED_WORKSPACE=c:/depot
+)
+cd %SHARED_WORKSPACE%\sdks\%SdkName%
 if [%GITHUB_EMAIL%] NEQ [] (
     git config user.email "%GITHUB_EMAIL%"
 )

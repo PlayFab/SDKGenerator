@@ -6,7 +6,10 @@ if "%1"=="" (
     set gitTarget=%1
 )
 
-cd C:\depot\sdks\%SdkName%
+if [%SHARED_WORKSPACE%] EQU [] (
+    set SHARED_WORKSPACE=c:/depot
+)
+cd %SHARED_WORKSPACE%\sdks\%SdkName%
 IF "%PublishToGit%"=="true" (
     echo === Commit to Git ===
     git add -A

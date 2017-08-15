@@ -1,7 +1,7 @@
 @echo off
 setlocal
 
-if [%SHARED_WORKSPACE%]==[] (
+if ["%SHARED_WORKSPACE%"]==[""] (
     set SHARED_WORKSPACE=%WORKSPACE%\..\shared\%EXECUTOR_NUMBER%
 )
 
@@ -20,7 +20,7 @@ popd
 call :cleanArcPatches
 call :applyArcPatch
 
-pushd %SHARED_WORKSPACE%\pf-main\Server
+pushd "%SHARED_WORKSPACE%\pf-main\Server"
 nuget restore Server.sln
 popd
 
@@ -80,21 +80,21 @@ rem USAGE: call :applyArcPatch
 :applyArcPatch
 echo ==== applyArcPatch %PatchRepoName% %SdkName% ====
 if [%PatchRepoName%]==[pf-main] (
-    cd %SHARED_WORKSPACE%\%PatchRepoName%
+    cd "%SHARED_WORKSPACE%\%PatchRepoName%"
     echo ==== arc patching pf-main ====
     @echo on
     call arc patch %DIFF_NUMBER% --conduit-token %JENKINS_PHAB_TOKEN%
     echo ==== applyArcPatch Done ====
 )
 if [%PatchRepoName%]==[SDKGenerator] (
-    cd %WORKSPACE%\%PatchRepoName%
+    cd "%WORKSPACE%\%PatchRepoName%"
     echo ==== arc patching SDKGenerator ====
     @echo on
     call arc patch %DIFF_NUMBER% --conduit-token %JENKINS_PHAB_TOKEN%
     echo ==== applyArcPatch Done ====
 )
 if [%PatchRepoName%]==[%SdkName%] (
-    cd %WORKSPACE%\sdks\%PatchRepoName%
+    cd "%WORKSPACE%\sdks\%PatchRepoName%"
     echo ==== arc patching %SdkName% ====
     @echo on
     call arc patch %DIFF_NUMBER% --conduit-token %JENKINS_PHAB_TOKEN%

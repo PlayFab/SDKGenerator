@@ -751,7 +751,7 @@ function GetAuthParams(apiCall) {
     if (apiCall.auth === "SecretKey")
         return "\"X-SecretKey\", PlayFabSettings::playFabSettings->developerSecretKey";
     else if (apiCall.auth === "SessionTicket")
-        return "\"X-Authorization\", *mUserSessionTicket";
+        return "\"X-Authorization\", mUserSessionTicket";
     return "\"\", \"\"";
 }
 
@@ -765,8 +765,7 @@ function GetResultActions(apiCall, api) {
     if (api.name === "Client" && (apiCall.result === "LoginResult" || apiCall.result === "RegisterPlayFabUserResult"))
         return "        if (outResult->SessionTicket.length() > 0)\n"
             + "        {\n"
-            + "            SAFE_DELETE(PlayFabClientApi::mUserSessionTicket);  // #THIRD_KIND_PLAYFAB_SHUTDOWN_FIXES - Delete the existing ticket before creating a new one.\n"
-            + "            PlayFabClientApi::mUserSessionTicket = new AZStd::string(outResult->SessionTicket);\n"
+            + "            PlayFabClientApi::mUserSessionTicket = outResult->SessionTicket;\n"
             + "        }\n"
             + "        MultiStepClientLogin(outResult->SettingsForUser->NeedsAttribution);\n";
     else if (api.name === "Client" && apiCall.result === "AttributeInstallResult")

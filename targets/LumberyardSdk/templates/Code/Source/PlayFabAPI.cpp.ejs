@@ -5,17 +5,22 @@
 using namespace PlayFab<%- gemName %>Sdk;
 <% if(hasClientOptions) { %>
 // Client-Specific
-AZStd::string* PlayFabClientApi::mUserSessionTicket = nullptr;
+AZStd::string PlayFabClientApi::mUserSessionTicket;
 
 bool PlayFabClientApi::IsClientLoggedIn()
 {
-    return mUserSessionTicket != nullptr && mUserSessionTicket->length() != 0;
+    return mUserSessionTicket.length() != 0;
 }
 
 // #THIRD_KIND_PLAYFAB_SHUTDOWN_FIXES: - Added a logout function so that the statics can be destroyed before the system allocator.
 void PlayFabClientApi::ForgetClientCredentials()
 {
-    SAFE_DELETE(PlayFabClientApi::mUserSessionTicket);
+    // #THIRD_KIND_PLAYFAB_CRASH_WHEN_PC_IS_OFFLINE: szaluga (2017/08/05)
+    // We're taking advantage of the SSO optimization implemented by AZStd::string (and virtually all popular compilers) -
+    // small strings are using an internal buffer instead of the allocator.
+    // Note: This was not possible with Aws::String, as it deliberately disabled SSO to fix some Android/gcc issuses,
+    // but now that PlayFab uses AZStd::string, it should be safe to rely on this behaviour.
+    mUserSessionTicket.set_capacity(0);
 }
 
 void PlayFabClientApi::MultiStepClientLogin(bool needsAttribution)

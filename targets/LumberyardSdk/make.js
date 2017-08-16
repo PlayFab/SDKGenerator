@@ -268,7 +268,7 @@ function GetPropertyDef(property, datatype) {
     var safePropName = GetPropertySafeName(property);
 
     if (property.collection === "array")
-        return "std::list<" + GetPropertyCppType(property, datatype, false) + "> " + safePropName + ";";
+        return "AZStd::vector<" + GetPropertyCppType(property, datatype, false) + "> " + safePropName + "; 	// #THIRD_KIND_PLAYFAB_BEHAVIOUR_CONTEXT: dbowen (2017/08/11) - Change std::list to AZStd::vector because the latter supports reflection to behavior context.";
     else if (property.collection === "map")
         return "std::map<AZStd::string, " + GetPropertyCppType(property, datatype, false) + "> " + safePropName + ";";
     return GetPropertyCppType(property, datatype, true) + " " + safePropName + ";";
@@ -487,7 +487,7 @@ function GetArrayPropertySerializer(tabbing, property, datatype) {
 
     var internalTabbing = isOptional ? tabbing + "    " : tabbing;
     var arrayWriter = internalTabbing + "writer.StartArray();\n";
-    arrayWriter += internalTabbing + "for (std::list<" + cppType + ">::iterator iter = " + propName + ".begin(); iter != " + propName + ".end(); iter++) {\n";
+    arrayWriter += internalTabbing + "for (auto iter = " + propName + ".begin(); iter != " + propName + ".end(); iter++) { 	// #THIRD_KIND_PLAYFAB_BEHAVIOUR_CONTEXT: dbowen (2017/08/11) - Change std::list to AZStd::vector because the latter supports reflection to behavior context. \n";
     arrayWriter += internalTabbing + "    " + writer + "\n";
     arrayWriter += internalTabbing + "}\n";
     arrayWriter += internalTabbing + "writer.EndArray();";

@@ -29,8 +29,5 @@ ResetRepo (){
     fi
 }
 
-ForcePushD "$SHARED_WORKSPACE/sdks/$SdkName"
-ResetRepo
-
 ForcePushD "$WORKSPACE/sdks/$SdkName"
 ResetRepo

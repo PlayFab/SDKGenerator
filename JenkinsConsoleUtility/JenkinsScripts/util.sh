@@ -42,20 +42,32 @@ ForcePushD () {
 
 # USAGE: SetGitHubCreds
 SetGitHubCreds () {
-    if [ -n "$GITHUB_EMAIL" ]; then
-        git config --global user.email "$GITHUB_EMAIL"
+    testEmail=$(git config --global user.email)
+    testName=$(git config --global user.name)
+    if [ -z "$testEmail" ] && [ -z "$testName"]; then
+        if [ -n "$GITHUB_EMAIL" ]; then
+            git config --global user.email "$GITHUB_EMAIL"
+        fi
+        if [ -n "$GITHUB_USERNAME" ]; then
+            git config --global user.name "$GITHUB_USERNAME"
+        fi
     fi
-    if [ -n "$GITHUB_USERNAME" ]; then
-        git config --global user.email "$GITHUB_USERNAME"
-    fi
+    unset testEmail
+    unset testName
 }
 
-# USAGE: NukeCurrentRepo
-NukeCurrentRepo () {
+# USAGE: CleanCurrentRepo <hard-reset if set (to anything)>
+CleanCurrentRepo () {
+    echo === CleanCurrentRepo $PWD, $@ ===
     git fetch --progress origin
-    git reset --hard
-    git checkout master
-    git reset --hard origin/master
+    if [ -n "$1" ]; then
+        git reset --hard
+        git checkout master
+        git reset --hard origin/master
+    else
+        git checkout master
+        git pull --ff-only || CleanCurrentRepo hard
+    fi
     git remote prune origin
 }
 
@@ -72,7 +84,7 @@ SyncGitHubRepo () {
     ForceCD "$1"
     cd $2 || _CloneGitHubRepo "$1" "$2"
     SetGitHubCreds
-    NukeCurrentRepo
+    CleanCurrentRepo
 }
 
 # USAGE: _CloneWorkspaceRepo <fromFolder> <toFolder> <RepoName>
@@ -88,7 +100,7 @@ SyncWorkspaceRepo () {
     ForceCD "$2"
     cd $3 || _CloneWorkspaceRepo "$1" "$2" "$3"
     SetGitHubCreds
-    NukeCurrentRepo
+    CleanCurrentRepo hard
 }
 
 echo util.sh loaded

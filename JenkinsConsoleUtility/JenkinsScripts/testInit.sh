@@ -1,7 +1,7 @@
 #!/bin/bash
 # USAGE: testInit.sh
 
-. $SHARED_WORKSPACE/SDKGenerator/JenkinsConsoleUtility/JenkinsScripts/util.sh
+. $SHARED_WORKSPACE/SDKGenerator/JenkinsConsoleUtility/JenkinsScripts/util.sh || . util.sh
 
 # Defaults for some variables
 CheckDefault SdkName UnitySDK

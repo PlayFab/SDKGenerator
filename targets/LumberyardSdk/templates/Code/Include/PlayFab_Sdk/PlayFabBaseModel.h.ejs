@@ -49,7 +49,7 @@ namespace PlayFab<%- gemName %>Sdk
         Boxed(BoxedType value) : mValue(value), mIsSet(true) {}
 
         Boxed& operator=(BoxedType value) { mValue = value; mIsSet = true; return *this; }
-        operator BoxedType() { return mValue; }
+        operator BoxedType() const { return mValue; }
 
         void setNull() { mIsSet = false; }
         bool notNull() const { return mIsSet; }
@@ -72,10 +72,10 @@ namespace PlayFab<%- gemName %>Sdk
     struct PlayFabBaseModel
     {
         virtual ~PlayFabBaseModel() {}
-        virtual void writeJSON(PFStringJsonWriter& writer) = 0;
+        virtual void writeJSON(PFStringJsonWriter& writer) const = 0;
         virtual bool readFromValue(const rapidjson::Value& obj) = 0;
 
-        AZStd::string toJSONString();
+        AZStd::string toJSONString() const;
 
         static bool DecodeRequest(PlayFabRequest* request);
     };
@@ -137,7 +137,7 @@ namespace PlayFab<%- gemName %>Sdk
         operator AZStd::string() const { return mString; }
 
         ~MultitypeVar() {}
-        void writeJSON(PFStringJsonWriter& writer) override;
+        void writeJSON(PFStringJsonWriter& writer) const override;
         bool readFromValue(const rapidjson::Value& obj) override;
     };
 
@@ -153,7 +153,7 @@ namespace PlayFab<%- gemName %>Sdk
         }
     };
 
-    inline AZStd::string PlayFabBaseModel::toJSONString()
+    inline AZStd::string PlayFabBaseModel::toJSONString() const
     {
         GenericStringBuffer< UTF8<> > buffer;
         PFStringJsonWriter writer(buffer);
@@ -161,7 +161,7 @@ namespace PlayFab<%- gemName %>Sdk
         return buffer.GetString();
     }
 
-    inline void MultitypeVar::writeJSON(PFStringJsonWriter& writer)
+    inline void MultitypeVar::writeJSON(PFStringJsonWriter& writer) const
     {
         switch (mType)
         {

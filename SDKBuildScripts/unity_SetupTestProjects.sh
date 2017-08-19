@@ -1,99 +1,76 @@
 #!/bin/bash
-# USAGE: unity_SetupTestProjects.sh [<SdkRepoName>] [<SdkFilePath>] [<DestinationPath>]
+# USAGE: unity_SetupTestProjects.sh
 # Make folder links from the UnitySdk to this test project
 # Requires mklink which may require administrator
 
-# USAGE: forceCD <path>
-forceCD () {
-    #set -x
-    dirs -c
-    if [ -z "$@" ]; then
-        return 1
-    fi
-    cd "$@" 2> /dev/null
-    if [ $? -ne 0 ]; then
-        mkdir -p "$@"
-        cd "$@"
-    fi
-    #set +x
-    return 0
-}
+. $SHARED_WORKSPACE/SDKGenerator/JenkinsConsoleUtility/JenkinsScripts/util.sh
 
-# USAGE: forcePushD <path>
-forcePushD () {
-    #set -x
-    if [ -z "$@" ]; then
-        return 1
-    fi
-    pushd "$@" 2> /dev/null
-    if [ $? -ne 0 ]; then
-        mkdir -p "$@"
-        pushd "$@"
-    fi
-    #set +x
-    return 0
-}
-
-# USAGE: deleteCruft
-deleteCruft () {
-    rm -rf .vs 2> /dev/null
-    rm -rf bin 2> /dev/null
-    rm -rf Library 2> /dev/null
-    rm -rf obj 2> /dev/null
-    rm -rf ProjectSettings 2> /dev/null
-    rm -rf Temp 2> /dev/null
-    rm -rf testBuilds 2> /dev/null
+# USAGE: DeleteUnityCruft
+DeleteUnityCruft () {
+    echo === DeleteUnityCruft $PWD, $@ ===
+    echo ==== BEGIN: Errors about failure to delete are normal ====
+    rm -rf .vs
+    rm -rf bin
+    rm -rf Library
+    rm -rf obj
+    rm -rf ProjectSettings
+    rm -rf Temp
+    rm -rf testBuilds
     mkdir testBuilds
-    rm -f *.csproj 2> /dev/null
-    rm -f *.sln 2> /dev/null
+    rm -f *.csproj
+    rm -f *.sln
+    echo ==== END: Errors about failure to delete are normal ====
 }
 
 
-# USAGE: doWorkEditor <ProjectSubfolder> <UnityDefineSymbols>
-doWorkEditor () {
-    forcePushD "$1"
-    deleteCruft
-    forcePushD "Assets"
+# USAGE: DoWorkEditor <ProjectSubfolder> <UnityDefineSymbols>
+DoWorkEditor () {
+    echo === DoWorkEditor $PWD, $@ ===
+    ForcePushD "$1"
+    DeleteUnityCruft
+    ForcePushD "Assets"
     cmd <<< "rmdir PlayFabSdk >nul 2>&1"
-    cmd <<< "mklink /D PlayFabSdk \"${SdkPath}\Source\PlayFabSDK\""
+    cmd <<< "mklink /D PlayFabSdk \"$WORKSPACE/sdks/$SdkName/Source/PlayFabSDK\""
     if [ $? -ne 0 ]; then return 1; fi
     cmd <<< "rmdir Plugins >nul 2>&1"
-    cmd <<< "mklink /D Plugins \"${SdkPath}\Source\Plugins\""
+    cmd <<< "mklink /D Plugins \"$WORKSPACE/sdks/$SdkName/Source/Plugins\""
     if [ $? -ne 0 ]; then return 1; fi
     cmd <<< "rmdir Editor >nul 2>&1"
-    cmd <<< "mklink /D Editor \"${SdkPath}/Testing/Editor\""
+    cmd <<< "mklink /D Editor \"$WORKSPACE/sdks/$SdkName/Testing/Editor\""
     if [ $? -ne 0 ]; then return 1; fi
-    writeUnitySettingsFile "PlayFabExample/Editor" "$2"
+    WriteUnitySettingsFile "PlayFabExample/Editor" "$2"
     #set -x
     popd
     popd
     #set +x
 }
 
-# USAGE: doWorkTesting <ProjectSubfolder> <UnityDefineSymbols>
-doWorkTesting () {
-    forcePushD "$1"
-    deleteCruft
-    forcePushD "Assets"
+# USAGE: DoWorkTesting <ProjectSubfolder> <UnityDefineSymbols>
+DoWorkTesting () {
+    echo === DoWorkTesting $PWD, $@ ===
+    ForcePushD "$1"
+    DeleteUnityCruft
+    ForcePushD "Assets"
     cmd <<< "rmdir PlayFabSdk >nul 2>&1"
-    cmd <<< "mklink /D PlayFabSdk \"${SdkPath}\Source\PlayFabSDK\""
+    cmd <<< "mklink /D PlayFabSdk \"$WORKSPACE/sdks/$SdkName/Source/PlayFabSDK\""
     if [ $? -ne 0 ]; then return 1; fi
     cmd <<< "rmdir Plugins >nul 2>&1"
-    cmd <<< "mklink /D Plugins \"${SdkPath}\Source\Plugins\""
+    cmd <<< "mklink /D Plugins \"$WORKSPACE/sdks/$SdkName/Source/Plugins\""
     if [ $? -ne 0 ]; then return 1; fi
     cmd <<< "rmdir Testing >nul 2>&1"
-    cmd <<< "mklink /D Testing \"${SdkPath}\Testing\""
+    cmd <<< "mklink /D Testing \"$WORKSPACE/sdks/$SdkName/Testing\""
     if [ $? -ne 0 ]; then return 1; fi
-    writeUnitySettingsFile "PlayFabExample\Editor" "$2"
+    WriteUnitySettingsFile "PlayFabExample/Editor" "$2"
     #set -x
     popd
     popd
     #set +x
 }
 
-# USAGE: writeUnitySettingsFile <DestinationSubfolder> <UnityDefineSymbols>
-writeUnitySettingsFile () {
-    forcePushD "$1"
+# USAGE: WriteUnitySettingsFile <DestinationSubfolder> <UnityDefineSymbols>
+WriteUnitySettingsFile () {
+    echo === WriteUnitySettingsFile $PWD, $@ ===
+    ForcePushD "$1"
     rm -f SetupPlayFabExample.cs
     echo "using System;" >> SetupPlayFabExample.cs
     echo "using UnityEditor;" >> SetupPlayFabExample.cs
@@ -121,38 +98,29 @@ writeUnitySettingsFile () {
     #set +x
 }
 
-# USAGE: mainScript <all command line args for script>
-# USAGE: mainScript.bat [<SdkRepoName>] [<SdkFilePath>] [<DestinationPath>]
-mainScript () {
-    if [ -z "$1" ]; then
-        SdkName=UnitySDK
-    else
-        SdkName=$1
-    fi
-    if [ -z "$2" ]; then
-        SdkPath=C:/depot/sdks/${SdkName}
-    else
-        SdkPath=$2
-    fi
-    if [ -z "$3" ]; then
-        ProjRootPath=C:/dev/UnityProjects/${UNITY_VERSION}
-    else
-        ProjRootPath=$3
-    fi
-
-    forceCD "$ProjRootPath"
-    rm -f *.txt 2> /dev/null
-    doWorkEditor "${SdkName}_BUP"
+# USAGE: MainScript
+MainScript () {
+    echo == MainScript $PWD, $@ ==
+    ForceCD "$WORKSPACE/$UNITY_VERSION"
+    rm -f *.txt || true
+    DoWorkEditor "${SdkName}_BUP"
     if [ $? -ne 0 ]; then return 1; fi
-    doWorkTesting "${SdkName}_TA" "ENABLE_PLAYFABADMIN_API;DISABLE_PLAYFABCLIENT_API"
+    DoWorkTesting "${SdkName}_TA" "ENABLE_PLAYFABADMIN_API;DISABLE_PLAYFABCLIENT_API"
     if [ $? -ne 0 ]; then return 1; fi
-    doWorkTesting "${SdkName}_TC"
+    DoWorkTesting "${SdkName}_TC"
     if [ $? -ne 0 ]; then return 1; fi
-    doWorkTesting "${SdkName}_TS" "ENABLE_PLAYFABSERVER_API;DISABLE_PLAYFABCLIENT_API"
+    DoWorkTesting "${SdkName}_TS" "ENABLE_PLAYFABSERVER_API;DISABLE_PLAYFABCLIENT_API"
     if [ $? -ne 0 ]; then return 1; fi
-    doWorkTesting "${SdkName}_TZ" "ENABLE_PLAYFABADMIN_API;ENABLE_PLAYFABSERVER_API"
+    DoWorkTesting "${SdkName}_TZ" "ENABLE_PLAYFABADMIN_API;ENABLE_PLAYFABSERVER_API"
     if [ $? -ne 0 ]; then return 1; fi
 }
 
-mainScript "$@"
-#forceCD "c:/depot/SDKGenerator/SDKBuildScripts"
+
+CheckDefault WORKSPACE C:/proj
+CheckDefault SHARED_WORKSPACE C:/depot
+CheckDefault SdkName UnitySDK
+CheckDefault UNITY_VERSION Unity171
+
+# MainScript <all command line args for script>
+MainScript "$@"
+#ForceCD "c:/depot/SDKGenerator/SDKBuildScripts"

@@ -113,10 +113,10 @@ function GenerateSimpleFiles(apis, sourceDir, apiOutputDir, gemName) {
     }
 
     var wafTemplate = GetCompiledTemplate(path.resolve(sourceDir, "templates/Code/playfab_sdk.waf_files.ejs"));
-    writeFile(path.resolve(apiOutputDir, "Code/playfab" + gemName + "sdk.waf_files"), wafTemplate(locals));
+    writeFile(path.resolve(apiOutputDir, "Code/playfab" + gemName.toLowerCase() + "sdk.waf_files"), wafTemplate(locals));
 
     var wafTemplate = GetCompiledTemplate(path.resolve(sourceDir, "templates/Code/playfab_sdk_tests.waf_files.ejs"));
-    writeFile(path.resolve(apiOutputDir, "Code/playfab" + gemName + "sdk_tests.waf_files"), wafTemplate(locals));
+    writeFile(path.resolve(apiOutputDir, "Code/playfab" + gemName.toLowerCase() + "sdk_tests.waf_files"), wafTemplate(locals));
 
     var vcProjTemplate = GetCompiledTemplate(path.resolve(sourceDir, "templates/gem.json.ejs"));
     writeFile(path.resolve(apiOutputDir, "gem.json"), vcProjTemplate(locals));

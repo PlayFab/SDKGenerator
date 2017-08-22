@@ -19,19 +19,19 @@ DelArcPatches (){
 # USAGE: ApplyArcPatch
 ApplyArcPatch (){
     if [ -n "$PatchRepoName" ] && [ "$PatchRepoName" = "pf-main" ]; then
-        cd $WORKSPACE/$PatchRepoName
+        cd "$WORKSPACE/$PatchRepoName"
         echo ==== arc patching pf-main ====
         call arc patch $DIFF_NUMBER --conduit-token $JENKINS_PHAB_TOKEN
         echo ==== applyArcPatch Done ====
     fi
     if [ -n "$PatchRepoName" ] && [ "$PatchRepoName" = "SDKGenerator" ]; then
-        cd $WORKSPACE/$PatchRepoName
+        cd "$WORKSPACE/$PatchRepoName"
         echo ==== arc patching SDKGenerator ====
         call arc patch $DIFF_NUMBER --conduit-token $JENKINS_PHAB_TOKEN
         echo ==== applyArcPatch Done ====
     fi
     if [ -n "$PatchRepoName" ] && [ "$PatchRepoName" = "SdkName" ]; then
-        cd $WORKSPACE/sdks/$PatchRepoName
+        cd "$WORKSPACE/sdks/$PatchRepoName"
         echo ==== arc patching $SdkName ====
         call arc patch $DIFF_NUMBER --conduit-token $JENKINS_PHAB_TOKEN
         echo ==== applyArcPatch Done ====

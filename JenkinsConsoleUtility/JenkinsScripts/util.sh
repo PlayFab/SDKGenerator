@@ -56,17 +56,29 @@ SetGitHubCreds () {
     unset testName
 }
 
-# USAGE: CleanCurrentRepo <hard-reset if set (to anything)>
+# USAGE: CleanCurrentRepo [hard] [sleep] [retryCounter]
 CleanCurrentRepo () {
     echo === CleanCurrentRepo $PWD, $@ ===
-    git fetch --progress origin
+    retryCounter="0"
+    if [ -n "$3" ] && [ "$3" -gt "10" ]; then
+        exit 10 # Timeout
+    elif [ -n "$3" ]; then
+        let retryCounter="$3+1"
+    fi
+
+    if [ -n "$2" ]; then
+        # Sleep for a bit before trying to sync
+        sleep $2
+    fi
+
+    git fetch --progress origin || CleanCurrentRepo hard 3 $retryCounter
     if [ -n "$1" ]; then
-        git reset --hard
-        git checkout master
-        git reset --hard origin/master
+        git reset --hard || CleanCurrentRepo hard 3 $retryCounter
+        git checkout master || CleanCurrentRepo hard 3 $retryCounter
+        git reset --hard origin/master || CleanCurrentRepo hard 3 $retryCounter
     else
-        git checkout master
-        git pull --ff-only || CleanCurrentRepo hard
+        git checkout master || CleanCurrentRepo hard 3 $retryCounter
+        git pull --ff-only || CleanCurrentRepo hard 3 $retryCounter
     fi
     git remote prune origin
 }

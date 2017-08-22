@@ -76,7 +76,7 @@ else { // ========= BEGIN EACH OBJECT =========
 <% for(var p in datatype.properties) { %><%- GetPropertyDestructor("                ", datatype.properties[p]) %><% }
 %>            }
 
-            void writeJSON(PFStringJsonWriter& writer) override
+            void writeJSON(PFStringJsonWriter& writer) const override
             {
                 writer.StartObject();
 <% for(var p in datatype.properties) { var property = datatype.properties[p];

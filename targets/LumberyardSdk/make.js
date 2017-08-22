@@ -113,10 +113,10 @@ function GenerateSimpleFiles(apis, sourceDir, apiOutputDir, gemName) {
     }
 
     var wafTemplate = GetCompiledTemplate(path.resolve(sourceDir, "templates/Code/playfab_sdk.waf_files.ejs"));
-    writeFile(path.resolve(apiOutputDir, "Code/playfab" + gemName + "sdk.waf_files"), wafTemplate(locals));
+    writeFile(path.resolve(apiOutputDir, "Code/playfab" + gemName.toLowerCase() + "sdk.waf_files"), wafTemplate(locals));
 
     var wafTemplate = GetCompiledTemplate(path.resolve(sourceDir, "templates/Code/playfab_sdk_tests.waf_files.ejs"));
-    writeFile(path.resolve(apiOutputDir, "Code/playfab" + gemName + "sdk_tests.waf_files"), wafTemplate(locals));
+    writeFile(path.resolve(apiOutputDir, "Code/playfab" + gemName.toLowerCase() + "sdk_tests.waf_files"), wafTemplate(locals));
 
     var vcProjTemplate = GetCompiledTemplate(path.resolve(sourceDir, "templates/gem.json.ejs"));
     writeFile(path.resolve(apiOutputDir, "gem.json"), vcProjTemplate(locals));
@@ -268,7 +268,7 @@ function GetPropertyDef(property, datatype) {
     var safePropName = GetPropertySafeName(property);
 
     if (property.collection === "array")
-        return "std::list<" + GetPropertyCppType(property, datatype, false) + "> " + safePropName + ";";
+        return "AZStd::vector<" + GetPropertyCppType(property, datatype, false) + "> " + safePropName + "; 	// #THIRD_KIND_PLAYFAB_BEHAVIOUR_CONTEXT: dbowen (2017/08/11) - Change std::list to AZStd::vector because the latter supports reflection to behavior context.";
     else if (property.collection === "map")
         return "std::map<AZStd::string, " + GetPropertyCppType(property, datatype, false) + "> " + safePropName + ";";
     return GetPropertyCppType(property, datatype, true) + " " + safePropName + ";";
@@ -487,7 +487,7 @@ function GetArrayPropertySerializer(tabbing, property, datatype) {
 
     var internalTabbing = isOptional ? tabbing + "    " : tabbing;
     var arrayWriter = internalTabbing + "writer.StartArray();\n";
-    arrayWriter += internalTabbing + "for (std::list<" + cppType + ">::iterator iter = " + propName + ".begin(); iter != " + propName + ".end(); iter++) {\n";
+    arrayWriter += internalTabbing + "for (auto iter = " + propName + ".begin(); iter != " + propName + ".end(); iter++) { 	// #THIRD_KIND_PLAYFAB_BEHAVIOUR_CONTEXT: dbowen (2017/08/11) - Change std::list to AZStd::vector because the latter supports reflection to behavior context. \n";
     arrayWriter += internalTabbing + "    " + writer + "\n";
     arrayWriter += internalTabbing + "}\n";
     arrayWriter += internalTabbing + "writer.EndArray();";
@@ -751,7 +751,7 @@ function GetAuthParams(apiCall) {
     if (apiCall.auth === "SecretKey")
         return "\"X-SecretKey\", PlayFabSettings::playFabSettings->developerSecretKey";
     else if (apiCall.auth === "SessionTicket")
-        return "\"X-Authorization\", *mUserSessionTicket";
+        return "\"X-Authorization\", mUserSessionTicket";
     return "\"\", \"\"";
 }
 
@@ -765,8 +765,7 @@ function GetResultActions(apiCall, api) {
     if (api.name === "Client" && (apiCall.result === "LoginResult" || apiCall.result === "RegisterPlayFabUserResult"))
         return "        if (outResult->SessionTicket.length() > 0)\n"
             + "        {\n"
-            + "            SAFE_DELETE(PlayFabClientApi::mUserSessionTicket);  // #THIRD_KIND_PLAYFAB_SHUTDOWN_FIXES - Delete the existing ticket before creating a new one.\n"
-            + "            PlayFabClientApi::mUserSessionTicket = new AZStd::string(outResult->SessionTicket);\n"
+            + "            PlayFabClientApi::mUserSessionTicket = outResult->SessionTicket;\n"
             + "        }\n"
             + "        MultiStepClientLogin(outResult->SettingsForUser->NeedsAttribution);\n";
     else if (api.name === "Client" && apiCall.result === "AttributeInstallResult")

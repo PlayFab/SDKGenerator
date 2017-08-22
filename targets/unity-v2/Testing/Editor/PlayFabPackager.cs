@@ -164,8 +164,10 @@ namespace PlayFab.Internal
         public static void MakeWp8Build()
         {
             Setup();
-#if UNITY_5_2 || UNITY_5_3_OR_NEWER
+#if (UNITY_5_2 || UNITY_5_3_OR_NEWER) && !UNITY_2017
             EditorUserBuildSettings.wsaSDK = WSASDK.UniversalSDK81;
+#endif
+#if UNITY_5_2 || UNITY_5_3_OR_NEWER
             EditorUserBuildSettings.wsaBuildAndRunDeployTarget = WSABuildAndRunDeployTarget.LocalMachineAndWindowsPhone;
             EditorUserBuildSettings.wsaGenerateReferenceProjects = true;
             PlayerSettings.WSA.SetCapability(PlayerSettings.WSACapability.InternetClient, true);

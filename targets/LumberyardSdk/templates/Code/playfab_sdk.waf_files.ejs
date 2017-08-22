@@ -14,7 +14,7 @@
         ],
         "Implementation": [<% for (var i = 0; i < apis.length; i++) { %>
             "Source/PlayFab<%- apis[i].name %>Api.h",
-            "Source/PlayFab<%- apis[i].name %>API.cpp",
+            "Source/PlayFab<%- apis[i].name %>Api.cpp",
             "Source/PlayFab<%- gemName %>_<%- apis[i].name %>SysComponent.h",
             "Source/PlayFab<%- gemName %>_<%- apis[i].name %>SysComponent.cpp",<% } %>
             "Source/PlayFab<%- gemName %>_SettingsSysComponent.h",

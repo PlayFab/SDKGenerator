@@ -446,7 +446,7 @@
     <Content Include="targets\LumberyardSdk\source\Code\wscript" />
     <Content Include="targets\LumberyardSdk\source\preview.png" />
     <Content Include="targets\LumberyardSdk\templates\gem.json.ejs" />
-    <Content Include="targets\LumberyardSdk\templates\Code\Source\PlayFabAPI.cpp.ejs" />
+    <Content Include="targets\LumberyardSdk\templates\Code\Source\PlayFabApi.cpp.ejs" />
     <Content Include="targets\LumberyardSdk\templates\Code\Source\PlayFabAPI.h.ejs" />
     <Content Include="targets\LumberyardSdk\templates\Code\Include\PlayFab_Sdk\PlayFab_DataModels.h.ejs" />
     <Content Include="targets\LumberyardSdk\templates\Code\Include\PlayFab_Sdk\PlayFabError.h.ejs" />

@@ -58,6 +58,8 @@ MainScript () {
     SyncGitHubRepo "$SHARED_WORKSPACE/sdks" "$SdkName"
 
     # These can be arc-patched or modified
+    # TEMPORARY: API_Specs might already exist, without being a git repo because of previous script versions
+    rm -rf "$WORKSPACE/API_Specs"
     SyncWorkspaceRepo "$SHARED_WORKSPACE" "$WORKSPACE" "API_Specs"
     SyncWorkspaceRepo "$SHARED_WORKSPACE" "$WORKSPACE" "pf-main"
     SyncWorkspaceRepo "$SHARED_WORKSPACE" "$WORKSPACE" "SDKGenerator"

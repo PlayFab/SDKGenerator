@@ -58,6 +58,7 @@ MainScript () {
     SyncGitHubRepo "$SHARED_WORKSPACE/sdks" "$SdkName"
 
     # These can be arc-patched or modified
+    SyncWorkspaceRepo "$SHARED_WORKSPACE" "$WORKSPACE" "API_Specs"
     SyncWorkspaceRepo "$SHARED_WORKSPACE" "$WORKSPACE" "pf-main"
     SyncWorkspaceRepo "$SHARED_WORKSPACE" "$WORKSPACE" "SDKGenerator"
     ForcePushD "$SHARED_WORKSPACE/sdks"

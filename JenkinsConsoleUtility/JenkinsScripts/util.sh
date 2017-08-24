@@ -74,10 +74,10 @@ CleanCurrentRepo () {
     git fetch --progress origin || CleanCurrentRepo hard 3 $retryCounter
     if [ -n "$1" ]; then
         git reset --hard || CleanCurrentRepo hard 3 $retryCounter
-        git checkout master || CleanCurrentRepo hard 3 $retryCounter
+        git checkout master || git checkout -b master || CleanCurrentRepo hard 3 $retryCounter
         git reset --hard origin/master || CleanCurrentRepo hard 3 $retryCounter
     else
-        git checkout master || CleanCurrentRepo hard 3 $retryCounter
+        git checkout master || git checkout -b master || CleanCurrentRepo hard 3 $retryCounter
         git pull --ff-only || CleanCurrentRepo hard 3 $retryCounter
     fi
     git remote prune origin

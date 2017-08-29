@@ -1,7 +1,9 @@
-﻿var ejs = require("ejs");
+var ejs = require("ejs");
 var fs = require("fs");
 var https = require("https");
 var path = require("path");
+
+ejs.delimiter = "\n";
 
 var SdkGeneratorGlobals = {
     // Frequently, these are passed by reference to avoid over-use of global variables. Unfortunately, the async nature of loading api files required some global references
@@ -106,9 +108,9 @@ function ExtractArgs(args, argsByName, targetOutputPathList, errorMessages) {
         } else if (lcArg.indexOf("=") !== -1) { // any parameter with an "=" is assumed to be a target specification, lowercase the targetName
             var argPair = cmdArgs[i].split("=", 2);
             CheckTarget(argPair[0].toLowerCase(), argPair[1], targetOutputPathList, errorMessages);
-        } else if ((lcArg === "c:\\depot\\api_specs" || lcArg === "..\\api_specs") && activeKey == null && !argsByName.hasOwnProperty("apispecpath")) { // Special case to handle old API-Spec path as fixed 3rd parameter - DEPRECATED
+        } else if ((lcArg === "c:\\depot\\api_specs" || lcArg === "..\\api_specs") && activeKey === null && !argsByName.hasOwnProperty("apispecpath")) { // Special case to handle old API-Spec path as fixed 3rd parameter - DEPRECATED
             argsByName["apispecpath"] = cmdArgs[i];
-        } else if (activeKey == null) {
+        } else if (activeKey === null) {
             errorMessages.push("Unexpected token: " + cmdArgs[i]);
         } else {
             var temp = argsByName[activeKey];
@@ -297,7 +299,7 @@ function GenerateApis(buildIdentifier, targetOutputPathList, buildFlags, apiSrcD
         targetMaker.apiNotes = GetApiJson("SdkManualNotes.json");
         targetMaker.sdkVersion = targetMaker.apiNotes.sdkVersion[target.name];
         targetMaker.buildIdentifier = buildIdentifier;
-        if (targetMaker.sdkVersion == null) {
+        if (targetMaker.sdkVersion === null) {
             throw "SdkManualNotes does not contain sdkVersion for " + target.name; // The point of this error is to force you to add a line to sdkManualNotes.json, to describe the version and date when this sdk/collection is built
         }
 
@@ -590,7 +592,7 @@ global.GetApiJson = GetApiJson;
  * Wrapper function for boilerplate of compiling templates
  * Also Caches the Templates to avoid reloading and recompiling
  * */
-global.GetCompiledTemplate = function (templatePath) {
+global.GetCompiledTemplate = function (templatePath) : any {
     if (!this.compiledTemplates)
         this.compiledTemplates = {};
     if (!this.compiledTemplates.hasOwnProperty(templatePath))

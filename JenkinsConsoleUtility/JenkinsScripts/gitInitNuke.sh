@@ -18,6 +18,7 @@ ResetRepo (){
     git pull origin master
 
     if [ "$gitTarget"!="master" ]; then
+        git fetch --progress origin
         if [ "$PublishToGit"!="true" ]; then
             git branch -D $gitTarget || true
             git checkout -b $gitTarget

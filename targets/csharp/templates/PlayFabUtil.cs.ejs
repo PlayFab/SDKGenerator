@@ -43,7 +43,7 @@ namespace PlayFab
         public const int DEFAULT_UTC_OUTPUT_INDEX = 2; // The default format everybody should use
         public const int DEFAULT_LOCAL_OUTPUT_INDEX = 7; // The default format if you want to use local time (This doesn't have universal support in all PlayFab code)
 
-        public static string GetErrorReport(PlayFabError error)
+        public static string GenerateErrorReport(PlayFabError error)
         {
             if (error == null)
                 return null;
@@ -54,7 +54,7 @@ namespace PlayFab
         public static string GetCloudScriptErrorReport(PlayFabResult<ExecuteCloudScriptResult> result)
         {
             if (result.Error != null)
-                return GetErrorReport(result.Error);
+                return result.Error.GenerateErrorReport();
             if (result.Result.Error == null)
                 return null;
 

@@ -5,6 +5,7 @@ declare module PlayFabModule {
     export interface ISettings {
         titleId: string;
         developerSecretKey: string;
+        GlobalHeaderInjection?: { [key: string]: string };
         advertisingIdType: string;
         advertisingIdValue: string;
         disableAdvertising: boolean;
@@ -31,6 +32,7 @@ declare module PlayFabModule {
 declare var PlayFab: {
     buildIdentifier: string;
     sdkVersion: string;
+    GenerateErrorReport(IPlayFabError): string;
     settings: PlayFabModule.ISettings;
 <% for (var i = 0; i < apis.length; i++) { api = apis[i];
 %>    <%- api.name %>Api: PlayFab<%- api.name %>Module.IPlayFab<%- api.name %>;

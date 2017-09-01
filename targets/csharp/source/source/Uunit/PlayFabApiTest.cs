@@ -80,7 +80,7 @@ namespace PlayFab.UUnit
                     if (expectSuccess)
                     {
                         testContext.NotNull(task.Result, failMessage);
-                        testContext.IsNull(task.Result.Error, PlayFabUtil.GetErrorReport(task.Result.Error));
+                        testContext.IsNull(task.Result.Error, PlayFabUtil.GenerateErrorReport(task.Result.Error));
                         testContext.NotNull(task.Result.Result, failMessage);
                     }
                     if (continueAction != null)
@@ -106,18 +106,6 @@ namespace PlayFab.UUnit
                     testContext.EndTest(UUnitFinishState.PASSED, null);
             }
             );
-        }
-
-        private static string CompileErrorReport(PlayFabError error)
-        {
-            if (_sb == null)
-                _sb = new StringBuilder();
-            _sb.Length = 0;
-            _sb.Append(error.ErrorMessage);
-            foreach (var detailPair in error.ErrorDetails)
-                foreach (var msg in detailPair.Value)
-                    _sb.Append("\n").Append(detailPair.Key).Append(": ").Append(msg);
-            return _sb.ToString();
         }
 
         /// <summary>
@@ -172,7 +160,7 @@ namespace PlayFab.UUnit
 
             var expectedEmailMsg = "email address is not valid.";
             var expectedPasswordMsg = "password must be between";
-            var fullReport = CompileErrorReport(registerResult.Error);
+            var fullReport = registerResult.Error.GenerateErrorReport();
 
             testContext.True(fullReport.ToLower().Contains(expectedEmailMsg), "Expected an error about bad email address: " + fullReport);
             testContext.True(fullReport.ToLower().Contains(expectedPasswordMsg), "Expected an error about bad password: " + fullReport);

@@ -3,10 +3,11 @@
 declare module PlayFab<%- api.name %>Module {
     export interface IPlayFab<%- api.name %> {
 <% if (hasClientOptions) { %>        IsClientLoggedIn(): boolean;
+        ForgetClientCredentials(): void;
 
 <% } %><% for(var cIdx in api.calls) { var apiCall = api.calls[cIdx];
 %><%- GenerateSummary("        ", apiCall, "summary", "https://api.playfab.com/Documentation/" + api.name + "/method/" + apiCall.name)
-%>        <%- apiCall.name %>(request: PlayFab<%- api.name %>Models.<%- apiCall.request %>, callback: PlayFabModule.ApiCallback<PlayFab<%- api.name %>Models.<%- apiCall.result %>>): void;
+%>        <%- apiCall.name %>(request: PlayFab<%- api.name %>Models.<%- apiCall.request %>, callback: PlayFabModule.ApiCallback<PlayFab<%- api.name %>Models.<%- apiCall.result %>>, customData?: any, extraHeaders?: { [key: string]: string }): void;
 <% } %>
     }
 }

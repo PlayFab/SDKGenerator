@@ -11,13 +11,11 @@ struct FBP<%- api.name%><%- datatype.name %>
 {
 	GENERATED_USTRUCT_BODY()
 public:
-	<% if(datatype.isenum) 
-	{ %> PlayFab::<%- api.name %>Models::<%- datatype.name %> Data;	<% } 
-	else 
+	<% if(datatype.isenum)
+	{ %> PlayFab::<%- api.name %>Models::<%- datatype.name %> Data; <% } 
+	else
 	{ %> PlayFab::<%- api.name %>Models::F<%- datatype.name %> Data; <% } %>
 };
 
 DECLARE_DYNAMIC_MULTICAST_DELEGATE_OneParam(FBP<%- api.name%><%- datatype.name %>Delegate, const FBP<%- api.name%><%- datatype.name %>&, Result);
 <%}%>
-
-

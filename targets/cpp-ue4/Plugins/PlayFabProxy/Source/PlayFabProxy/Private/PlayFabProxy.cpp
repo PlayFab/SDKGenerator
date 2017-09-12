@@ -1,3 +1,5 @@
+
+#include "PlayFabProxy.h"
 #include "PlayFabProxyPrivatePCH.h"
 
 #define LOCTEXT_NAMESPACE "FPlayFabProxyModule"

@@ -14,10 +14,11 @@ namespace <%- api.name %>Models
 		<% for(var i=0; i<datatype.enumvalues.length-1; i++) { var enumval = datatype.enumvalues[i] %><%- datatype.name %><%- enumval.name %>,
 		<% } %><%- datatype.name %><%- datatype.enumvalues[datatype.enumvalues.length-1].name %>
 	};
-	
-	void write<%- datatype.name %>EnumJSON(<%- datatype.name %> enumVal, JsonWriter& writer);
-	<%- datatype.name %> read<%- datatype.name %>FromValue(const TSharedPtr<FJsonValue>& value);
-	
+
+	PLAYFAB_API void write<%- datatype.name %>EnumJSON(<%- datatype.name %> enumVal, JsonWriter& writer);
+	PLAYFAB_API <%- datatype.name %> read<%- datatype.name %>FromValue(const TSharedPtr<FJsonValue>& value);
+	PLAYFAB_API <%- datatype.name %> read<%- datatype.name %>FromValue(const FString& value);
+
 	<% } else { %>
 	struct PLAYFAB_API F<%- datatype.name %> : public FPlayFabBaseModel
     {

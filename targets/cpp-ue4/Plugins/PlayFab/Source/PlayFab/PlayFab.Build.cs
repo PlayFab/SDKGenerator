@@ -2,8 +2,11 @@ using UnrealBuildTool;
 
 public class PlayFab : ModuleRules
 {
-    public PlayFab(TargetInfo Target)
+    public PlayFab(ReadOnlyTargetRules Target)
+        : base(Target)
     {
+        PCHUsage = PCHUsageMode.UseExplicitOrSharedPCHs;
+
         PublicIncludePaths.AddRange(new string[] {
             "PlayFab/Public"
         });
@@ -12,21 +15,12 @@ public class PlayFab : ModuleRules
             "PlayFab/Private",
         });
 
-        PublicIncludePathModuleNames.AddRange(new string[] { "Json" });
-
         PublicDependencyModuleNames.AddRange(new string[]{
             "Core",
             "CoreUObject",
-            "Engine",
-            "InputCore",
             "HTTP",
-            "Json",
-            "OnlineSubsystemUtils"
+            "Json"
         });
-
-        PrivateDependencyModuleNames.AddRange(new string[] { });
-
-        DynamicallyLoadedModuleNames.AddRange(new string[] { });
 
         if (UEBuildConfiguration.bBuildEditor == true)
         {

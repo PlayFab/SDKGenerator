@@ -191,8 +191,7 @@ function GetBpPropertyDefinition(property, api, datatype) {
         return "TArray<" + GetPropertyUe4ToOpaqueType(property, api, datatype) + ">";
     }
     else if (property.collection === "map") {
-        //return "TMap<FString, " + getProperyUE4Type(property, api) + ">";
-        //return ""; // TODO: handle map properly, by wrapping it into a structure somehow
+        return "TMap<FString, " + GetPropertyUe4ToOpaqueType(property, api, datatype) + ">";
     }
     
     return GetPropertyUe4ToOpaqueType(property, api, datatype);
@@ -228,7 +227,7 @@ function GetPropertyUe4ToOpaqueType(property, api, datatype) {
     else if (property.isenum)
         propertyUe4Type = property.actualtype;
     else if (property.actualtype === "object")
-        propertyUe4Type = "FMultitypeVar";
+        propertyUe4Type = "FJsonKeeper";
     else
         throw "Unknown property type: " + property.actualtype + " for " + property.name + " in " + datatype.name;
     
@@ -265,7 +264,7 @@ function GetProperyUe4ToNativeType(property, api, datatype) {
     else if (property.isenum)
         propertyUe4Type = property.actualtype;
     else if (property.actualtype === "object")
-        propertyUe4Type = "FMultitypeVar";
+        propertyUe4Type = "FJsonKeeper";
     else
         throw "Unknown property type: " + property.actualtype + " for " + property.name + " in " + datatype.name;
     

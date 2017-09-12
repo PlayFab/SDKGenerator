@@ -1,5 +1,5 @@
-#include "PlayFabPrivatePCH.h"
 #include "PlayFab.h"
+#include "PlayFabPrivatePCH.h"
 
 // Settings
 #include "PlayFabRuntimeSettings.h"

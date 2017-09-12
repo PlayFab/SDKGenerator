@@ -37,8 +37,8 @@ private:
 
 	<% if(HasRequest(apiCall, api)) { %>PlayFab::<%- api.name %>Models::F<%- apiCall.request %> Request;<% } %>
 
-	PlayFab::UPlayFab<%- api.name %>API::F<%- apiCall.name %>Delegate	SuccessDelegate;
-	PlayFab::FPlayFabErrorDelegate							ErrorDelegate;
+	PlayFab::UPlayFab<%- api.name %>API::F<%- apiCall.name %>Delegate SuccessDelegate;
+	PlayFab::FPlayFabErrorDelegate ErrorDelegate;
 
 	void OnSuccessCallback(const PlayFab::<%- api.name %>Models::F<%- apiCall.result %>& Result);
 	void OnErrorCallback(const PlayFab::FPlayFabError& Error);

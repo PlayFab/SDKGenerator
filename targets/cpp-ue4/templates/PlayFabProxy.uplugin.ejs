@@ -13,9 +13,15 @@
     "WhitelistPlatforms": [ "Win64", "Win32", "Mac", "IOS", "Android" ],
     "Modules": [
         {
-            "Name": "PlayFab",
+            "Name": "PlayFabProxy",
             "Type": "Runtime",
             "LoadingPhase": "PreDefault"
+        }
+    ],
+    "Plugins": [
+        {
+            "Name": "PlayFab",
+            "Enabled": true
         }
     ]
 }

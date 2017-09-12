@@ -9,8 +9,8 @@ exports.makeCombinedAPI = function (apis, sourceDir, apiOutputDir) {
         var eachApiOutputDir = path.resolve(apiOutputDir, subFolders[i]);
         var pluginOutputDir = path.resolve(eachApiOutputDir, "Plugins");
         var outputCodeDir = path.resolve(pluginOutputDir, "PlayFab/Source/PlayFab");
-        var blueprintCodeDir = path.resolve(pluginOutputDir, "PlayFab/Source/PlayFabProxy");
-        
+        var blueprintCodeDir = path.resolve(pluginOutputDir, "PlayFabProxy/Source/PlayFabProxy");
+
         console.log("Generating UE4 C++ combined SDK to " + eachApiOutputDir);
         
         // copy the base plugins files, resource, uplugin, etc
@@ -73,6 +73,10 @@ function GenerateSimpleFiles(api, sourceDir, apiOutputDir, outputCodeDir, subDir
     var upluginTemplate = GetCompiledTemplate(path.resolve(sourceDir, "templates/PlayFab.uplugin.ejs"));
     var generatedUplugin = upluginTemplate(sharedLocals);
     writeFile(path.resolve(apiOutputDir, "Plugins/PlayFab/PlayFab.uplugin"), generatedUplugin);
+
+    var upluginTemplate = GetCompiledTemplate(path.resolve(sourceDir, "templates/PlayFabProxy.uplugin.ejs"));
+    var generatedUplugin = upluginTemplate(sharedLocals);
+    writeFile(path.resolve(apiOutputDir, "Plugins/PlayFabProxy/PlayFabProxy.uplugin"), generatedUplugin);
 }
 
 function GenerateModels(apis, sourceDir, apiOutputDir, libraryName, subdir) {
@@ -168,7 +172,7 @@ function GetPropertyCppType(property, datatype, needOptional) {
     else if (property.isenum)
         return isOptional ? ("Boxed<" + property.actualtype + ">") : property.actualtype; // enum
     else if (property.actualtype === "object")
-        return "FMultitypeVar";
+        return "FJsonKeeper";
     throw "Unknown property type: " + property.actualtype + " for " + property.name + " in " + datatype.name;
 }
 
@@ -442,7 +446,7 @@ function GetPropertyDeserializer(property, datatype) {
     }
     else if (propType === "object") {
         // implement custom call for this
-        getter = "FMultitypeVar(" + propNameFieldValue + "->AsObject());";
+        getter = "FJsonKeeper(" + propNameFieldValue + ");";
     }
     else {
         throw "Unknown property type: " + propType + " for " + propName + " in " + datatype.name;
@@ -538,7 +542,7 @@ function GetArrayPropertyDeserializer(property, datatype) {
         getter = "read" + property.actualtype + "FromValue(CurrentItem)";
     }
     else if (property.actualtype === "object") {
-        getter = "FMultitypeVar(CurrentItem)";
+        getter = "FJsonKeeper(CurrentItem)";
     }
     else {
         throw "Unknown property type: " + property.actualtype + " for " + property.name + " in " + datatype.name;
@@ -611,7 +615,7 @@ function GetMapPropertyDeserializer(property, datatype) {
         getter = "read" + property.actualtype + "FromValue(It.Value())";
     }
     else if (property.actualtype === "object") {
-        getter = "FMultitypeVar(It.Value()->AsObject())";
+        getter = "FJsonKeeper(It.Value())";
     }
     else {
         throw "Unknown property type: " + property.actualtype + " for " + property.name + " in " + datatype.name;

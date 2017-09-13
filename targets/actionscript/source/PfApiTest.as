@@ -39,7 +39,7 @@ package
 
             var titleDataFileName:String = e.arguments[0];
             textField.text = "Loading the Title Data file: " + titleDataFileName;
-            textField.text += "Saving test results to: " + outputFile.nativePath;
+            textField.appendText("\nSaving test results to: " + outputFile.nativePath);
 
             var reporters:Array = new Array();
             reporters.unshift(new ASyncUnitTestFileReporter(outputFile.nativePath, PlayFabVersion.BuildIdentifier));

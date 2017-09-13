@@ -26,5 +26,15 @@ package com.playfab
         public var errorCode:int; // PlayFab error code
         public var errorMessage:String; // PlayFab specific error message
         public var errorDetails:Object; // Additional error details: frequently null, but if errorMessage is vague, this may contain more information
+
+        public function GenerateErrorReport() : String
+        {
+            var message:String = errorMessage;
+            for (var key:String in errorDetails) {
+                message += "\n";
+                message += key + ": " + errorDetails[key];
+            }
+            return message;
+        }
     }
 }

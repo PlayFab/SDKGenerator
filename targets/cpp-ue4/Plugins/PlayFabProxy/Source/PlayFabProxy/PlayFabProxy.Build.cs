@@ -19,7 +19,8 @@ public class PlayFabProxy : ModuleRules
             "Core",
             "CoreUObject",
             "Engine",
-            "PlayFab"
+            "PlayFab",
+			"Json"
         });
     }
 }

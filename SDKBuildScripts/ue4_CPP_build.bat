@@ -1,28 +1,12 @@
 rem === Cleaning existing files from UnrealCppSdk ===
 pushd ..\..\sdks\UnrealCppSdk
-pushd PlayFabSDK\Plugins\PlayFabProxy\Source\PlayFabProxy\Private\Proxy
-rmdir /S /Q Admin
-rmdir /S /Q Client
-rmdir /S /Q Matchmaker
-rmdir /S /Q Server
+pushd PlayFabSDK\Plugins
+rmdir /S /Q PlayFab
+rmdir /S /Q PlayFabProxy
 popd
-pushd PlayFabSDK\Plugins\PlayFabProxy\Source\PlayFabProxy\Public\Proxy
-rmdir /S /Q Admin
-rmdir /S /Q Client
-rmdir /S /Q Matchmaker
-rmdir /S /Q Server
-popd
-pushd ExampleProject\Plugins\PlayFabProxy\Source\PlayFabProxy\Private\Proxy
-rmdir /S /Q Admin
-rmdir /S /Q Client
-rmdir /S /Q Matchmaker
-rmdir /S /Q Server
-popd
-pushd ExampleProject\Plugins\PlayFabProxy\Source\PlayFabProxy\Public\Proxy
-rmdir /S /Q Admin
-rmdir /S /Q Client
-rmdir /S /Q Matchmaker
-rmdir /S /Q Server
+pushd ExampleProject\Plugins
+rmdir /S /Q PlayFab
+rmdir /S /Q PlayFabProxy
 popd
 popd
 

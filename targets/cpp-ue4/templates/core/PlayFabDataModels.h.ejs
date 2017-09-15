@@ -25,24 +25,24 @@ namespace <%- api.name %>Models
 		<% for(var i in datatype.properties) { var property = datatype.properties[i] %>
 		<%- GetPropertyDescription(property) %>
 		<%- GetPropertyDef(property, datatype) %><% } %>
-	
+
         F<%- datatype.name %>() :
 			FPlayFabBaseModel()<% for(var i in datatype.properties) { var property = datatype.properties[i] %>,
 			<%- GetPropertySafeName(property) %>(<%- GetPropertyDefaultValue(property, datatype) %>)<% } %>
 			{}
-		
+
 		F<%- datatype.name %>(const F<%- datatype.name %>& src) :
 			FPlayFabBaseModel()<% for(var i in datatype.properties) { var property = datatype.properties[i] %>,
 			<%- GetPropertySafeName(property) %>(<%- GetPropertyCopyValue(property) %>)<% } %>
 			{}
-			
+
 		F<%- datatype.name %>(const TSharedPtr<FJsonObject>& obj) : F<%- datatype.name %>()
         {
             readFromValue(obj);
         }
-		
+
 		~F<%- datatype.name %>();
-		
+
         void writeJSON(JsonWriter& writer) const override;
         bool readFromValue(const TSharedPtr<FJsonObject>& obj) override;
     };
@@ -50,4 +50,3 @@ namespace <%- api.name %>Models
 
 }
 }
-

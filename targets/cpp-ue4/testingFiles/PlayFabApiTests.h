@@ -13,6 +13,7 @@
 
 #include "Misc/AutomationTest.h"
 
+DECLARE_LOG_CATEGORY_EXTERN(LogPlayFabTest, Log, All);
 
 // forward declaration
 namespace PlayFab

@@ -1,11 +1,9 @@
 #pragma once
 
 #include "Json.h"
-#include "UnrealString.h"
 
 namespace PlayFab
 {
-
     typedef TSharedRef< TJsonWriter<TCHAR, TPrettyJsonPrintPolicy<TCHAR> > > JsonWriter;
     typedef TSharedRef< TJsonReader<TCHAR> > JsonReader;
 
@@ -31,17 +29,6 @@ namespace PlayFab
         bool mIsSet;
     };
 
-    typedef Boxed<bool> OptionalBool;
-    typedef Boxed<uint16> OptionalUint16;
-    typedef Boxed<int16> OptionalInt16;
-    typedef Boxed<uint32> OptionalUint32;
-    typedef Boxed<int32> OptionalInt32;
-    typedef Boxed<uint64> OptionalUint64;
-    typedef Boxed<int64> OptionalInt64;
-    typedef Boxed<float> OptionalFloat;
-    typedef Boxed<double> OptionalDouble;
-    typedef Boxed<FDateTime> OptionalTime;
-
     struct FPlayFabBaseModel
     {
         virtual ~FPlayFabBaseModel() {}
@@ -55,50 +42,51 @@ namespace PlayFab
 	struct PLAYFAB_API FJsonKeeper : public FPlayFabBaseModel
 	{
 	private:
-		TSharedRef<class FJsonValue> JsonValue;
+		TSharedRef<class FJsonValue> JsonValue; // Reference so that any time this struct is avaiable, the JsonValue is aswell, even if a FJsonValueNull
 
 	public:
-
 		FJsonKeeper() : JsonValue(MakeShareable(new FJsonValueNull())) {}
 		FJsonKeeper(const TSharedPtr<class FJsonValue>& val) : JsonValue(val.ToSharedRef()) {}
-		FJsonKeeper(const TSharedPtr<FJsonObject>& val) : JsonValue(MakeShareable(new FJsonValueObject(val))) {}
+		FJsonKeeper(const TSharedPtr<class FJsonObject>& val) : JsonValue(MakeShareable(new FJsonValueObject(val))) {}
 		FJsonKeeper(const FString& val) : JsonValue(MakeShareable(new FJsonValueString(val))) {}
 		FJsonKeeper(const bool& val) : JsonValue(MakeShareable(new FJsonValueBoolean(val))) {}
 		FJsonKeeper(const int8& val) : JsonValue(MakeShareable(new FJsonValueNumber(val))) {}
 		FJsonKeeper(const int16& val) : JsonValue(MakeShareable(new FJsonValueNumber(val))) {}
 		FJsonKeeper(const int32& val) : JsonValue(MakeShareable(new FJsonValueNumber(val))) {}
+		FJsonKeeper(const int64& val) : JsonValue(MakeShareable(new FJsonValueNumber(val))) {}
 		FJsonKeeper(const uint8& val) : JsonValue(MakeShareable(new FJsonValueNumber(val))) {}
 		FJsonKeeper(const uint16& val) : JsonValue(MakeShareable(new FJsonValueNumber(val))) {}
 		FJsonKeeper(const uint32& val) : JsonValue(MakeShareable(new FJsonValueNumber(val))) {}
+		FJsonKeeper(const uint64& val) : JsonValue(MakeShareable(new FJsonValueNumber(val))) {}
 		FJsonKeeper(const float& val) : JsonValue(MakeShareable(new FJsonValueNumber(val))) {}
 		FJsonKeeper(const double& val) : JsonValue(MakeShareable(new FJsonValueNumber(val))) {}
 
 		bool notNull() const { return !isNull(); }
 		bool isNull() const { return JsonValue->IsNull(); }
 
-		FJsonKeeper& operator=(const TSharedPtr<FJsonValue>& val) { JsonValue = val.ToSharedRef(); return *this; }
-		FJsonKeeper& operator=(const TSharedPtr<FJsonObject>& val) { JsonValue = MakeShareable(new FJsonValueObject(val)); return *this; }
+		FJsonKeeper& operator=(const TSharedPtr<class FJsonValue>& val) { JsonValue = val.ToSharedRef(); return *this; }
+		FJsonKeeper& operator=(const TSharedPtr<class FJsonObject>& val) { JsonValue = MakeShareable(new FJsonValueObject(val)); return *this; }
 		FJsonKeeper& operator=(const FString& val) { JsonValue = MakeShareable(new FJsonValueString(val)); return *this; }
 		FJsonKeeper& operator=(const bool& val) { JsonValue = MakeShareable(new FJsonValueBoolean(val)); return *this; }
 		FJsonKeeper& operator=(const int8& val) { JsonValue = MakeShareable(new FJsonValueNumber(val)); return *this; }
 		FJsonKeeper& operator=(const int16& val) { JsonValue = MakeShareable(new FJsonValueNumber(val)); return *this; }
 		FJsonKeeper& operator=(const int32& val) { JsonValue = MakeShareable(new FJsonValueNumber(val)); return *this; }
+		FJsonKeeper& operator=(const int64& val) { JsonValue = MakeShareable(new FJsonValueNumber(val)); return *this; }
 		FJsonKeeper& operator=(const uint8& val) { JsonValue = MakeShareable(new FJsonValueNumber(val)); return *this; }
 		FJsonKeeper& operator=(const uint16& val) { JsonValue = MakeShareable(new FJsonValueNumber(val)); return *this; }
 		FJsonKeeper& operator=(const uint32& val) { JsonValue = MakeShareable(new FJsonValueNumber(val)); return *this; }
+		FJsonKeeper& operator=(const uint64& val) { JsonValue = MakeShareable(new FJsonValueNumber(val)); return *this; }
 		FJsonKeeper& operator=(const float& val) { JsonValue = MakeShareable(new FJsonValueNumber(val)); return *this; }
 		FJsonKeeper& operator=(const double& val) { JsonValue = MakeShareable(new FJsonValueNumber(val)); return *this; }
 
 		~FJsonKeeper() {}
 		void writeJSON(JsonWriter& writer) const override;
-		bool readFromValue(const TSharedPtr<FJsonObject>& obj) override;
-		bool readFromValue(const TSharedPtr<FJsonValue>& value) override;
+		bool readFromValue(const TSharedPtr<class FJsonObject>& obj) override;
+		bool readFromValue(const TSharedPtr<class FJsonValue>& value) override;
 
 		TSharedPtr<class FJsonValue> GetJsonValue() const { return JsonValue; };
 	};
 
-
     void writeDatetime(FDateTime datetime, JsonWriter& writer);
     FDateTime readDatetime(const TSharedPtr<FJsonValue>& value);
-
 }

@@ -1,39 +1,30 @@
+
 #pragma once
 
+#include "CoreMinimal.h"
+#include "UObject/NoExportTypes.h"
+#include "GameFramework/PlayerController.h"
+#include "Core/PlayFabError.h"
 #include "PlayFabProxyBaseModel.generated.h"
 
-USTRUCT(BlueprintType, meta = (HasNativeBreak = "PlayFabProxy.PFBaseModelProxyLibrary.BreakBPPlayFabError", HasNativeMake = "PlayFabProxy.PFBaseModelProxyLibrary.MakeBPPlayFabError"))
-struct FBPPlayFabError
-{
-	GENERATED_BODY()
-public:
-	FBPPlayFabError() {};
-	FBPPlayFabError(PlayFab::FPlayFabError InData) : Data(InData) {};
-	PlayFab::FPlayFabError Data;
-};
+DECLARE_DYNAMIC_MULTICAST_DELEGATE(FEmptyPlayFabDelegate);
 
-UCLASS()
-class UPFAdminProxyLibrary : public UBlueprintFunctionLibrary
+UCLASS(MinimalAPI)
+class UPlayFabProxyBase : public UObject
 {
-	GENERATED_BODY()
-
+	GENERATED_UCLASS_BODY()
 public:
-	// PlayFabError
-	UFUNCTION(BlueprintPure, Category = "PlayFab|Admin", meta = (NativeMakeFunc))
-	static FBPPlayFabError MakeBPPlayFabError(
-		int32 InHttpCode;
-        , FString InHttpStatus;
-        , int32 InErrorCode;
-        , FString InErrorName;
-        , FString InErrorMessage;
-	);
-	UFUNCTION(BlueprintPure, Category = "PlayFab|Admin", meta = (NativeBreakFunc))
-	static void BreakBPPlayFabError(
-		const FBPPlayFabError& In
-		, int32 OutHttpCode;
-        , FString OutHttpStatus;
-        , int32 OutErrorCode;
-        , FString OutErrorName;
-        , FString OutErrorMessage;
-	);
+	UPROPERTY(BlueprintAssignable)
+		FEmptyPlayFabDelegate OnFailure;
+
+	// Called to trigger the actual action once the delegates have been bound
+	UFUNCTION(BlueprintCallable, meta = (BlueprintInternalUseOnly = "true"), Category = "Play Fab")
+		virtual void Activate();
+
+protected:
+	// The player controller triggering things
+	TWeakObjectPtr<APlayerController> PlayerControllerWeakPtr;
+
+	PlayFab::FPlayFabErrorDelegate ErrorDelegate;
+	void OnErrorCallback(const PlayFab::FPlayFabError& ErrorResult);
 };

@@ -7,6 +7,7 @@
 
 #pragma once
 
+#include "CoreMinimal.h"
 #include "PlayFabJsonObject.generated.h"
 
 class UPlayFabJsonValue;

@@ -1,5 +1,6 @@
 #pragma once
 
+#include "CoreMinimal.h"
 #include "ModuleManager.h"
 
 DECLARE_LOG_CATEGORY_EXTERN(LogPlayFabProxy, Log, All);

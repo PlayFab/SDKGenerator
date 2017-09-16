@@ -1,5 +1,7 @@
 #pragma once
 
+#include "CoreMinimal.h"
+
 class FJsonObject;
 class FJsonValue;
 
@@ -11,7 +13,7 @@ namespace PlayFab
 
 		// Returns the array named Key or nullptr if it is missing or the wrong type
 		static const TArray< TSharedPtr<class FJsonValue> >& ReadArray(TSharedPtr<class FJsonObject> Item, const FString& Key);
-// 
+//
 // 		static void WriteValue(JsonWriter& writer, const FString& Identifier, const bool Value);
 // 		static void WriteValue(JsonWriter& writer, const FString& Identifier, const double Value);
 // 		static void WriteValue(JsonWriter& writer, const FString& Identifier, const int32 Value);

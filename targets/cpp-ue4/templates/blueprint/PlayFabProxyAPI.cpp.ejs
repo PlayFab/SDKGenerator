@@ -7,7 +7,6 @@
 UPF<%- api.name %><%- apiCall.name %>::UPF<%- api.name %><%- apiCall.name %>(const FObjectInitializer& ObjectInitializer)
 	: Super(ObjectInitializer)
 	, SuccessDelegate(PlayFab::UPlayFab<%- api.name %>API::F<%- apiCall.name %>Delegate::CreateUObject(this, &ThisClass::OnSuccessCallback))
-	, ErrorDelegate(PlayFab::FPlayFabErrorDelegate::CreateUObject(this, &ThisClass::OnErrorCallback))
 {
 }
 
@@ -45,9 +44,6 @@ void UPF<%- api.name %><%- apiCall.name %>::Activate()
 	}
 }
 
-
-//////////////////////////////////////////////////////////////////////////
-// Delegate handles
 void UPF<%- api.name %><%- apiCall.name %>::OnSuccessCallback(const PlayFab::<%- api.name %>Models::F<%- apiCall.result %>& Result)
 {
 	<% if(HasResult(apiCall, api)) {
@@ -56,10 +52,4 @@ void UPF<%- api.name %><%- apiCall.name %>::OnSuccessCallback(const PlayFab::<%-
  	OnSuccess.Broadcast(BPResult);<%
 	 } else
 	 {%>OnSuccess.Broadcast();<% }%>
-}
-
-void UPF<%- api.name %><%- apiCall.name %>::OnErrorCallback(const PlayFab::FPlayFabError& ErrorResult)
-{
-	UE_LOG(LogPlayFabProxy, Error, TEXT("%s"), *ErrorResult.ErrorMessage);
-	OnFailure.Broadcast();
 }

@@ -1,39 +1,20 @@
 
 #include "PlayFabProxyBaseModel.h"
-#include "PlayFabProxy.h"
-#include "Core/PlayFabError.h"
 
-FBPPlayFabError UPFAdminProxyLibrary::MakeBPPlayFabError(
-	int32 InHttpCode;
-	, FString InHttpStatus;
-	, int32 InErrorCode;
-	, FString InErrorName;
-	, FString InErrorMessage;
-	)
+UPlayFabProxyBase::UPlayFabProxyBase(const FObjectInitializer& ObjectInitializer)
+	: Super(ObjectInitializer)
+	, ErrorDelegate(PlayFab::FPlayFabErrorDelegate::CreateUObject(this, &ThisClass::OnErrorCallback))
 {
-	FBPPlayFabError Out = FBPPlayFabError();
-    Out.Data.HttpCode = InHttpCode;
-	Out.Data.HttpStatus = InHttpStatus;
-	Out.Data.ErrorCode = InErrorCode;
-	Out.Data.ErrorName = InErrorName;
-	Out.Data.ErrorMessage = InErrorMessage;
-
-	return Out;
+	SetFlags(RF_StrongRefOnFrame);
 }
 
-void UPFAdminProxyLibrary::BreakBPPlayFabError(
-	const FBPPlayFabError& In
-	, int32 OutHttpCode;
-	, FString OutHttpStatus;
-	, int32 OutErrorCode;
-	, FString OutErrorName;
-	, FString OutErrorMessage;
-	)
+void UPlayFabProxyBase::Activate()
 {
-	OutHttpCode = In.Data.HttpCode;
-	OutHttpStatus = In.Data.HttpStatus;
-	OutErrorCode = In.Data.ErrorCode;
-	OutErrorName = In.Data.ErrorName;
-	OutErrorMessage = In.Data.ErrorMessage;
+	
+}
 
+void UPlayFabProxyBase::OnErrorCallback(const PlayFab::FPlayFabError& ErrorResult)
+{
+	UE_LOG(LogPlayFabProxy, Error, TEXT("%s"), *ErrorResult.ErrorMessage);
+	OnFailure.Broadcast();
 }

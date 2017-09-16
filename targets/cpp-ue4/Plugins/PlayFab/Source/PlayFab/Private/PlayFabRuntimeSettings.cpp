@@ -5,9 +5,8 @@
 //////////////////////////////////////////////////////////////////////////
 // UPlayFabRuntimeSettings
 
-UPlayFabRuntimeSettings::UPlayFabRuntimeSettings(const FObjectInitializer& ObjectInitializer)
-	: Super(ObjectInitializer)
-	, bUseDevelopmentEnvironment(false)
+UPlayFabRuntimeSettings::UPlayFabRuntimeSettings()
+	: bUseDevelopmentEnvironment(false)
 	, DevelopmentEnvironmentURL(TEXT(".playfabsandbox.com"))
 	, ProductionEnvironmentURL(TEXT(".playfabapi.com"))
 	, TitleId()

@@ -12,15 +12,18 @@ public class PlayFabProxy : ModuleRules
         });
 
         PrivateIncludePaths.AddRange(new string[] {
-            "PlayFabProxy/Private",
+            "PlayFabProxy/Private"
         });
 
-        PublicDependencyModuleNames.AddRange(new string[]{
-            "Core",
+		PrivateDependencyModuleNames.AddRange(new string[]{
             "CoreUObject",
             "Engine",
             "PlayFab",
 			"Json"
+        });
+
+        PublicDependencyModuleNames.AddRange(new string[]{
+            "Core"
         });
     }
 }

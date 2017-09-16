@@ -2,6 +2,7 @@
 
 #pragma once
 
+#include "CoreMinimal.h"
 #include "PlayFabRuntimeSettings.generated.h"
 
 /**
@@ -10,7 +11,9 @@
 UCLASS(config = Engine, defaultconfig)
 class PLAYFAB_API UPlayFabRuntimeSettings : public UObject
 {
-	GENERATED_UCLASS_BODY()
+	GENERATED_BODY()
+public:
+	UPlayFabRuntimeSettings();
 
 	// Define if we want to use the sandbox URL
 	UPROPERTY(EditAnywhere, config, Category = Settings)
@@ -20,11 +23,11 @@ class PLAYFAB_API UPlayFabRuntimeSettings : public UObject
 	UPROPERTY(EditAnywhere, config, Category = Settings)
 	FString DevelopmentEnvironmentURL;
 
-	// URL endpoint of the PlayFab production environment 
+	// URL endpoint of the PlayFab production environment
 	UPROPERTY(EditAnywhere, config, Category = Settings)
 	FString ProductionEnvironmentURL;
 
-	// Game Title ID 
+	// Game Title ID
 	UPROPERTY(EditAnywhere, config, Category = Settings)
 	FString TitleId;
 

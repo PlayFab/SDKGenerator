@@ -1,25 +1,8 @@
 var path = require("path");
 
 exports.MakeBp = function (api, sourceDir, apiOutputDir, subdir) {
-    var proxyApiHeaderTemplate = GetCompiledTemplate(path.resolve(sourceDir, "templates/blueprint/PlayFabProxyAPI.h.ejs"));
-    var proxyApiBodyTemplate = GetCompiledTemplate(path.resolve(sourceDir, "templates/blueprint/PlayFabProxyAPI.cpp.ejs"));
-
-    for (var i in api.calls) {
-        var apiCall = api.calls[i];
-
-        var apiLocals = {};
-        apiLocals.api = api;
-        apiLocals.apiCall = apiCall;
-        apiLocals.HasRequest = HasRequest;
-        apiLocals.HasResult = HasResult;
-        apiLocals.GetDatatypeSignatureInputParameters = GetDatatypeSignatureInputParameters;
-
-        var generatedHeader = proxyApiHeaderTemplate(apiLocals);
-        writeFile(path.resolve(apiOutputDir, "Public/" + subdir + api.name + "/" + "PF" + api.name + apiCall.name + ".h"), generatedHeader);
-
-        var generatedBody = proxyApiBodyTemplate(apiLocals);
-        writeFile(path.resolve(apiOutputDir, "Private/" + subdir + api.name + "/" + "PF" + api.name + apiCall.name + ".cpp"), generatedBody);
-    }
+	// generate BP proxy
+    GenerateBpProxy(api, sourceDir, apiOutputDir, subdir);
 
     // generate BP library
     GenerateBpLibrary(api, sourceDir, apiOutputDir, subdir);
@@ -28,17 +11,24 @@ exports.MakeBp = function (api, sourceDir, apiOutputDir, subdir) {
     GenerateBpDataModels(api, sourceDir, apiOutputDir, subdir);
 }
 
-function GenerateBpDataModels(api, sourceDir, apiOutputDir, subdir) {
-    var proxyBpModelHeaderTemplate = GetCompiledTemplate(path.resolve(sourceDir, "templates/blueprint/PlayFabProxyDataModelsAPI.h.ejs"));
+function GenerateBpProxy(api, sourceDir, apiOutputDir, subdir) {
+	var proxyApiHeaderTemplate = GetCompiledTemplate(path.resolve(sourceDir, "templates/blueprint/PlayFabProxyAPI.h.ejs"));
+    var proxyApiBodyTemplate = GetCompiledTemplate(path.resolve(sourceDir, "templates/blueprint/PlayFabProxyAPI.cpp.ejs"));
 
-    var bpModelsLocal = {};
-    bpModelsLocal.api = api;
-    bpModelsLocal.NeedsDelegate = NeedsDelegate;
-	bpModelsLocal.IsRequest = IsRequest;
-    bpModelsLocal.IsResult = IsResult;
+	for (var i in api.calls) {
+		var apiLocals = {};
+		apiLocals.api = api;
+		apiLocals.apiCall = api.calls[i];
+		apiLocals.HasRequest = HasRequest;
+		apiLocals.HasResult = HasResult;
+		apiLocals.GetDatatypeSignatureInputParameters = GetDatatypeSignatureInputParameters;
 
-    var generatedBpHeader = proxyBpModelHeaderTemplate(bpModelsLocal);
-    writeFile(path.resolve(apiOutputDir, "Public/" + subdir + "/" + "PlayFab" + api.name + "BPDataModels.h"), generatedBpHeader);
+		var generatedHeader = proxyApiHeaderTemplate(apiLocals);
+		writeFile(path.resolve(apiOutputDir, "Public/" + subdir + api.name + "/" + "PF"  + api.name + api.calls[i].name + ".h"), generatedHeader);
+
+		var generatedBody = proxyApiBodyTemplate(apiLocals);
+		writeFile(path.resolve(apiOutputDir, "Private/" + subdir + api.name + "/" + "PF"  + api.name + api.calls[i].name + ".cpp"), generatedBody);
+	}
 }
 
 function GenerateBpLibrary(api, sourceDir, apiOutputDir, subdir) {
@@ -58,6 +48,19 @@ function GenerateBpLibrary(api, sourceDir, apiOutputDir, subdir) {
 
     var generatedBpBody = proxyBpLibraryBodyTemplate(bpLibraryLocal);
     writeFile(path.resolve(apiOutputDir, "Private/" + subdir + "/" + "PlayFab" + api.name + "BPLibrary.cpp"), generatedBpBody);
+}
+
+function GenerateBpDataModels(api, sourceDir, apiOutputDir, subdir) {
+    var proxyBpModelHeaderTemplate = GetCompiledTemplate(path.resolve(sourceDir, "templates/blueprint/PlayFabProxyDataModelsAPI.h.ejs"));
+
+    var bpModelsLocal = {};
+    bpModelsLocal.api = api;
+    bpModelsLocal.NeedsDelegate = NeedsDelegate;
+	bpModelsLocal.IsRequest = IsRequest;
+    bpModelsLocal.IsResult = IsResult;
+
+    var generatedBpHeader = proxyBpModelHeaderTemplate(bpModelsLocal);
+    writeFile(path.resolve(apiOutputDir, "Public/" + subdir + "/" + "PlayFab" + api.name + "BPDataModels.h"), generatedBpHeader);
 }
 
 function NeedsDelegate(name) {

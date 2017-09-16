@@ -12,21 +12,20 @@ public class PlayFab : ModuleRules
         });
 
         PrivateIncludePaths.AddRange(new string[] {
-            "PlayFab/Private",
+            "PlayFab/Private"
         });
 
         PublicDependencyModuleNames.AddRange(new string[]{
             "Core",
-            "CoreUObject",
-            "HTTP",
+			"CoreUObject",
+			"HTTP",
             "Json"
         });
 
         if (UEBuildConfiguration.bBuildEditor == true)
         {
-            PublicDependencyModuleNames.AddRange(new string[] {
-                "UnrealEd",
-                "Settings",
+            PrivateDependencyModuleNames.AddRange(new string[] {
+                "Settings"
             });
         }
     }

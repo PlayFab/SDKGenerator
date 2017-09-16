@@ -1,11 +1,11 @@
 #include "PlayFab.h"
 
 // Settings
-#include "PlayFabRuntimeSettings.h"
 #if WITH_EDITOR
+#include "PlayFabRuntimeSettings.h"
 #include "ISettingsModule.h"
 #include "ISettingsSection.h"
-#endif
+#endif // WITH_EDITOR
 #include "PlayFabSettings.h"
 
 // Api's
@@ -47,9 +47,7 @@ void FPlayFabModule::StartupModule()
 {
     // This code will execute after your module is loaded into memory; the exact timing is specified in the .uplugin file per-module
     RegisterSettings();
-
-    // copy the settings
-    HandleSettingsSaved();
+	HandleSettingsSaved();
 
     // create the API
     ClientAPI = MakeShareable(new PlayFab::UPlayFabClientAPI());
@@ -84,7 +82,7 @@ void FPlayFabModule::RegisterSettings()
             SettingsSection->OnModified().BindRaw(this, &FPlayFabModule::HandleSettingsSaved);
         }
     }
-#endif
+#endif // WITH_EDITOR
 }
 
 void FPlayFabModule::UnregisterSettings()
@@ -99,13 +97,7 @@ void FPlayFabModule::UnregisterSettings()
 
 bool FPlayFabModule::HandleSettingsSaved()
 {
-    //	UE_LOG(LogPlayFab, Log, TEXT("bUseDevelopmentEnvironment %d"), GetDefault<UPlayFabRuntimeSettings>()->bUseDevelopmentEnvironment);
-    //	UE_LOG(LogPlayFab, Log, TEXT("DevelopmentEnvironmentURL %s"), *GetDefault<UPlayFabRuntimeSettings>()->DevelopmentEnvironmentURL);
-    //	UE_LOG(LogPlayFab, Log, TEXT("ProductionEnvironmentURL %s"), *GetDefault<UPlayFabRuntimeSettings>()->ProductionEnvironmentURL);
-    //	UE_LOG(LogPlayFab, Log, TEXT("TitleId %s"), *GetDefault<UPlayFabRuntimeSettings>()->TitleId);
-    //	UE_LOG(LogPlayFab, Log, TEXT("DeveloperSecretKey %s"), *GetDefault<UPlayFabRuntimeSettings>()->DeveloperSecretKey);
-
-        // copy to the internal structure
+    // copy to the internal structure
     PlayFab::PlayFabSettings::serverURL = FString(); // flush the previous Server URL
     PlayFab::PlayFabSettings::useDevelopmentEnvironment = GetDefault<UPlayFabRuntimeSettings>()->bUseDevelopmentEnvironment;
     PlayFab::PlayFabSettings::developmentEnvironmentURL = GetDefault<UPlayFabRuntimeSettings>()->DevelopmentEnvironmentURL;
@@ -115,7 +107,6 @@ bool FPlayFabModule::HandleSettingsSaved()
 
     return true;
 }
-
 #undef LOCTEXT_NAMESPACE
 
 IMPLEMENT_MODULE(FPlayFabModule, PlayFab)

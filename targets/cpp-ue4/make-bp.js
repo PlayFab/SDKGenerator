@@ -111,6 +111,11 @@ function GetDatatypeSignatureParameters(datatype, api, make) {
         for (var p = 0; p < datatype.properties.length; p++) {
             var property = datatype.properties[p];
 
+			if (property.name === "TitleId") // TitleId is set via PlayFab project settings
+			{
+				continue;
+			}
+
 			if (make) {
 				makeCount = makeCount + 1;
 				if (makeCount != 1)
@@ -169,26 +174,31 @@ function GenerateArrayClassProxyWrite(property, api, datatype) {
 }
 
 function GenerateProxyPropertyWrite(property, api, datatype) {
+	if (property.name === "TitleId") // TitleId is set via PlayFab project settings
+	{
+		return "";
+	}
+
+	var result = "";
     // handle optional classes
     // should this return the pointer instead?
 	var safePropName = GetPropertySafeName(property);
-    if (property.isclass && property.optional && !property.collection) {
-        var result = "";
+    if (property.isclass && property.optional && !property.collection)
         result += "Out.Data." + safePropName + " = MakeShareable(new " + GetProperyUe4ToNativeType(property, api, datatype) + "(In" + property.name + ".Data));";
-        return result;
-    }
-
-    if (property.collection === "array" && (property.isclass || property.isenum || property.actualtype === "uint64"))
-        return GenerateArrayClassProxyWrite(property, api, datatype);
+    else if (property.collection === "array" && (property.isclass || property.isenum || property.actualtype === "uint64"))
+        result += GenerateArrayClassProxyWrite(property, api, datatype);
 	else if (property.collection === "map" && (property.isclass || property.isenum || GetProperyUe4ToNativeType(property, api, datatype) != GetPropertyUe4ToOpaqueType(property, api, datatype)))
-		return GenerateMapClassProxyWrite(property, api, datatype);
+		result += GenerateMapClassProxyWrite(property, api, datatype);
 	else if (property.isenum)
-        return "Out.Data." + safePropName + " = static_cast<" + GetProperyUe4ToNativeType(property, api, datatype) + ">(static_cast<uint8>(In" + property.name + "));";
+        result += "Out.Data." + safePropName + " = static_cast<" + GetProperyUe4ToNativeType(property, api, datatype) + ">(static_cast<uint8>(In" + property.name + "));";
     else if (property.actualtype === "object")
-        return "Out.Data." + safePropName + " = In" + property.name + "->GetRootValue();";
+        result += "Out.Data." + safePropName + " = In" + property.name + "->GetRootValue();";
     else if (property.isclass)
-        return "Out.Data." + safePropName + " = In" + property.name + ".Data;";
-    return "Out.Data." + safePropName + " = In" + property.name + ";";
+        result += "Out.Data." + safePropName + " = In" + property.name + ".Data;";
+	else {
+    	result += "Out.Data." + safePropName + " = In" + property.name + ";";
+	}
+	return result + "\n\t";
 }
 
 //////////////////
@@ -235,38 +245,39 @@ function GenerateArrayClassProxyRead(property, api, datatype) {
 }
 
 function GenerateProxyPropertyRead(property, api, datatype) {
+	if (property.name === "TitleId") // TitleId is set via PlayFab project settings
+	{
+		return "";
+	}
+
+	var result = "";
     // handle optional classes
     // should this return the pointer instead?
 	var safePropName = GetPropertySafeName(property);
     if (property.isclass && property.optional && !property.collection) {
-        var result = "";
         result += "if (In.Data." + safePropName + ".IsValid()) {";
         result += "Out" + property.name + ".Data = *In.Data." + safePropName + ";";
         result += "}";
-        return result;
-    }
-
-    if (property.collection === "array" && (property.isclass || property.isenum || property.actualtype === "uint64"))
-        return GenerateArrayClassProxyRead(property, api, datatype);
-	else if (property.collection === "map" && (property.isclass || property.isenum || GetProperyUe4ToNativeType(property, api, datatype) != GetPropertyUe4ToOpaqueType(property, api, datatype)))
-		return GenerateMapClassProxyRead(property, api, datatype);
-	else if (property.isenum && property.optional) {
-		var result = "";
+    } else if (property.collection === "array" && (property.isclass || property.isenum || property.actualtype === "uint64")) {
+        result += GenerateArrayClassProxyRead(property, api, datatype);
+	} else if (property.collection === "map" && (property.isclass || property.isenum || GetProperyUe4ToNativeType(property, api, datatype) != GetPropertyUe4ToOpaqueType(property, api, datatype))) {
+		result += GenerateMapClassProxyRead(property, api, datatype);
+	} else if (property.isenum && property.optional) {
 		result += "if (In.Data." + safePropName + ".notNull()) {";
 		result += "Out" + property.name + " = static_cast<" + GetPropertyUe4ToOpaqueType(property, api, datatype) + ">(static_cast<uint8>(In.Data." + safePropName + ".mValue));";
 		result += "}";
-        return result;
-	} else if (property.isenum)
-        return "Out" + property.name + " = static_cast<" + GetPropertyUe4ToOpaqueType(property, api, datatype) + ">(static_cast<uint8>(In.Data." + safePropName + "));";
-    else if (property.actualtype === "object") {
-		var result = "";
+	} else if (property.isenum) {
+        result += "Out" + property.name + " = static_cast<" + GetPropertyUe4ToOpaqueType(property, api, datatype) + ">(static_cast<uint8>(In.Data." + safePropName + "));";
+    } else if (property.actualtype === "object") {
 		result += GetPropertyUe4ToOpaqueType(property, api, datatype) + " val = NewObject<UPlayFabJsonValue>();";
 		result += "\n\t" + "val->SetRootValue(In.Data." + safePropName + ".GetJsonValue());";
 		result += "\n\t" + "Out" + property.name + " = val;";
-        return result;
-    } else if (property.isclass)
-        return "Out" + property.name + ".Data = In.Data." + safePropName + ";";
-    return "Out" + property.name + " = In.Data." + safePropName + ";";
+    } else if (property.isclass) {
+        result += "Out" + property.name + ".Data = In.Data." + safePropName + ";";
+	} else {
+		result += "Out" + property.name + " = In.Data." + safePropName + ";";
+	}
+    return result + "\n\t";
 }
 
 //////////////////////////////////////////////////////////////////////////

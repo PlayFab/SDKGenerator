@@ -13,8 +13,7 @@
 	FBP<%- api.name%><%- datatype.name %> Out = FBP<%- api.name%><%- datatype.name %>();
     <% if (datatype.properties) { for (var p = 0; p < datatype.properties.length; p++) {
         var property = datatype.properties[p];
-	%><%- GenerateProxyPropertyWrite(property, api, datatype) %>
-	<% } } %>
+	%><%- GenerateProxyPropertyWrite(property, api, datatype) %><% } } %>
 	return Out;
 }
 <% }
@@ -25,7 +24,6 @@
 {
     <% if (datatype.properties) { for (var p = 0; p < datatype.properties.length; p++) {
         var property = datatype.properties[p];
-	%><%- GenerateProxyPropertyRead(property, api, datatype) %>
-	<% } } %>
+	%><%- GenerateProxyPropertyRead(property, api, datatype) %><% } } %>
 }
 <%}%><%}%>

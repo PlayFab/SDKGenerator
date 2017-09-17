@@ -1,8 +1,8 @@
 #include "PlayFab.h"
 
 // Settings
-#if WITH_EDITOR
 #include "PlayFabRuntimeSettings.h"
+#if WITH_EDITOR
 #include "ISettingsModule.h"
 #include "ISettingsSection.h"
 #endif // WITH_EDITOR

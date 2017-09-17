@@ -111,6 +111,11 @@ function GetDatatypeSignatureParameters(datatype, api, make) {
         for (var p = 0; p < datatype.properties.length; p++) {
             var property = datatype.properties[p];
 
+			if (property.name === "TitleId") // TitleId is set via PlayFab project settings
+			{
+				continue;
+			}
+
 			if (make) {
 				makeCount = makeCount + 1;
 				if (makeCount != 1)

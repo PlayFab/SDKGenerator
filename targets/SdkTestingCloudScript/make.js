@@ -79,7 +79,7 @@ function GetProperty(tabbing, property) {
     var postColon = type;
     
     if (property.collection === "map") {
-        postColon = "{ [key: string]: " + type + " }";
+        postColon = "{ [key: string]: " + type + " }"; // TODO: handle { [key: string]: string | null }
     }
     if (property.collection === "array") {
         postColon += "[]";

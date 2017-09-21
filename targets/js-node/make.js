@@ -192,7 +192,7 @@ function GetPropertyTsType(property, datatype) {
     if (property.collection === "array")
         output += "[]";
     else if (property.collection === "map")
-        output = "{ [key: string]: " + output + " }";
+        output = "{ [key: string]: " + output + " }"; // TODO: handle { [key: string]: string | null }
     else if (property.collection)
         throw "Unknown collection type: " + property.collection + " for " + property.name + " in " + datatype.className;
     

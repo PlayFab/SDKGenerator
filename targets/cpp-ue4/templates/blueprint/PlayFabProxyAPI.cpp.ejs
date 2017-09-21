@@ -5,51 +5,51 @@
 #include "PlayFab.h"
 
 UPF<%- api.name %><%- apiCall.name %>::UPF<%- api.name %><%- apiCall.name %>(const FObjectInitializer& ObjectInitializer)
-	: Super(ObjectInitializer)
-	, SuccessDelegate(PlayFab::UPlayFab<%- api.name %>API::F<%- apiCall.name %>Delegate::CreateUObject(this, &ThisClass::OnSuccessCallback))
+    : Super(ObjectInitializer)
+    , SuccessDelegate(PlayFab::UPlayFab<%- api.name %>API::F<%- apiCall.name %>Delegate::CreateUObject(this, &ThisClass::OnSuccessCallback))
 {
 }
 
 UPF<%- api.name %><%- apiCall.name %>* UPF<%- api.name %><%- apiCall.name %>::<%- apiCall.name %>(class APlayerController* PlayerController<%- GetDatatypeSignatureInputParameters(apiCall, api) %>)
 {
-	UPF<%- api.name %><%- apiCall.name %>* Proxy = NewObject<UPF<%- api.name %><%- apiCall.name %>>();
-	Proxy->PlayerControllerWeakPtr = PlayerController;
-	<% if(HasRequest(apiCall, api)) {
-	var datatype = api.datatypes[apiCall.request];
-	%>Proxy->Request = In<%- datatype.name %>;
-	<% } %>
-	return Proxy;
+    UPF<%- api.name %><%- apiCall.name %>* Proxy = NewObject<UPF<%- api.name %><%- apiCall.name %>>();
+    Proxy->PlayerControllerWeakPtr = PlayerController;
+    <% if(HasRequest(apiCall, api)) {
+    var datatype = api.datatypes[apiCall.request];
+    %>Proxy->Request = In<%- datatype.name %>;
+    <% } %>
+    return Proxy;
 }
 
 void UPF<%- api.name %><%- apiCall.name %>::Activate()
 {
-	// grab the module, so we can get a valid pointer to the client API
-	PlayFab<%- api.name %>Ptr <%- api.name %>API = IPlayFabModuleInterface::Get().Get<%- api.name %>API();
+    // grab the module, so we can get a valid pointer to the client API
+    PlayFab<%- api.name %>Ptr <%- api.name %>API = IPlayFabModuleInterface::Get().Get<%- api.name %>API();
 
-	bool CallResult = false;
+    bool CallResult = false;
 
-	if(<%- api.name %>API.IsValid())
-	{
-		<% if(HasRequest(apiCall, api)) {
-		%>CallResult = <%- api.name %>API-><%- apiCall.name %>(Request.Data, SuccessDelegate, ErrorDelegate);<%
-		}
-		else
-		{ %>CallResult = <%- api.name %>API-><%- apiCall.name %>(SuccessDelegate, ErrorDelegate);<%
-		} %>
-	}
+    if(<%- api.name %>API.IsValid())
+    {
+        <% if(HasRequest(apiCall, api)) {
+        %>CallResult = <%- api.name %>API-><%- apiCall.name %>(Request.Data, SuccessDelegate, ErrorDelegate);<%
+        }
+        else
+        { %>CallResult = <%- api.name %>API-><%- apiCall.name %>(SuccessDelegate, ErrorDelegate);<%
+        } %>
+    }
 
-	if(CallResult == false)
-	{
-		OnFailure.Broadcast();
-	}
+    if(CallResult == false)
+    {
+        OnFailure.Broadcast();
+    }
 }
 
 void UPF<%- api.name %><%- apiCall.name %>::OnSuccessCallback(const PlayFab::<%- api.name %>Models::F<%- apiCall.result %>& Result)
 {
-	<% if(HasResult(apiCall, api)) {
-	%>FBP<%- api.name%><%- apiCall.result %> BPResult;
- 	BPResult.Data = Result;
- 	OnSuccess.Broadcast(BPResult);<%
-	 } else
-	 {%>OnSuccess.Broadcast();<% }%>
+    <% if(HasResult(apiCall, api)) {
+    %>FBP<%- api.name%><%- apiCall.result %> BPResult;
+     BPResult.Data = Result;
+     OnSuccess.Broadcast(BPResult);<%
+     } else
+     {%>OnSuccess.Broadcast();<% }%>
 }

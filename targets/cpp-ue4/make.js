@@ -148,25 +148,25 @@ function GetPropertyCppType(property, datatype, needOptional) {
     if (property.actualtype === "String")
         return "FString";
     else if (property.actualtype === "Boolean")
-		return isOptional ? "Boxed<bool>" : "bool";
-	else if (property.actualtype === "int16")
-		return isOptional ? "Boxed<int16>" : "int16";
-	else if (property.actualtype === "uint16")
-		return isOptional ? "Boxed<uint16>" : "uint16";
-	else if (property.actualtype === "int32")
-		return isOptional ? "Boxed<int32>" : "int32";
-	else if (property.actualtype === "uint32")
-		return isOptional ? "Boxed<uint32>" : "uint32";
-	else if (property.actualtype === "int64")
-		return isOptional ? "Boxed<int64>" : "int64";
-	else if (property.actualtype === "uint64")
-		return isOptional ? "Boxed<uint64>" : "uint64";
-	else if (property.actualtype === "float")
-		return isOptional ? "Boxed<float>" : "float";
-	else if (property.actualtype === "double")
-		return isOptional ? "Boxed<double>" : "double";
-	else if (property.actualtype === "DateTime")
-		return isOptional ? "Boxed<FDateTime>" : "FDateTime";
+        return isOptional ? "Boxed<bool>" : "bool";
+    else if (property.actualtype === "int16")
+        return isOptional ? "Boxed<int16>" : "int16";
+    else if (property.actualtype === "uint16")
+        return isOptional ? "Boxed<uint16>" : "uint16";
+    else if (property.actualtype === "int32")
+        return isOptional ? "Boxed<int32>" : "int32";
+    else if (property.actualtype === "uint32")
+        return isOptional ? "Boxed<uint32>" : "uint32";
+    else if (property.actualtype === "int64")
+        return isOptional ? "Boxed<int64>" : "int64";
+    else if (property.actualtype === "uint64")
+        return isOptional ? "Boxed<uint64>" : "uint64";
+    else if (property.actualtype === "float")
+        return isOptional ? "Boxed<float>" : "float";
+    else if (property.actualtype === "double")
+        return isOptional ? "Boxed<double>" : "double";
+    else if (property.actualtype === "DateTime")
+        return isOptional ? "Boxed<FDateTime>" : "FDateTime";
     else if (property.isclass)
         return isOptional ? "TSharedPtr<F" + property.actualtype + ">" : "F" + property.actualtype; // sub object
     else if (property.isenum)

@@ -15,11 +15,11 @@ public class PlayFabProxy : ModuleRules
             "PlayFabProxy/Private"
         });
 
-		PrivateDependencyModuleNames.AddRange(new string[]{
+        PrivateDependencyModuleNames.AddRange(new string[]{
             "CoreUObject",
             "Engine",
             "PlayFab",
-			"Json"
+            "Json"
         });
 
         PublicDependencyModuleNames.AddRange(new string[]{

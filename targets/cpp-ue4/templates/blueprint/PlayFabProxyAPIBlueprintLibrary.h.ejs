@@ -11,20 +11,20 @@
 UCLASS(MinimalAPI)
 class UPF<%- api.name %>ProxyLibrary : public UBlueprintFunctionLibrary
 {
-	GENERATED_BODY()
+    GENERATED_BODY()
 
 public:
-	<% for(var i in api.datatypes) { var datatype = api.datatypes[i]; if (datatype.isenum) { continue; } %>
-	// <%- datatype.name %>
+    <% for(var i in api.datatypes) { var datatype = api.datatypes[i]; if (datatype.isenum) { continue; } %>
+    // <%- datatype.name %>
 <% if ((!IsResult(datatype.name)&&!IsRequest(datatype.name))||IsRequest(datatype.name)) {
-%>	UFUNCTION(BlueprintPure, Category = "PlayFab|<%- api.name%>", meta = (NativeMakeFunc))
-	static FBP<%- api.name%><%- datatype.name %> MakeBP<%- api.name%><%- datatype.name %>(
-	<%- GetDatatypeSignatureParameters(datatype, api, true) %>);
+%>    UFUNCTION(BlueprintPure, Category = "PlayFab|<%- api.name%>", meta = (NativeMakeFunc))
+    static FBP<%- api.name%><%- datatype.name %> MakeBP<%- api.name%><%- datatype.name %>(
+    <%- GetDatatypeSignatureParameters(datatype, api, true) %>);
 <% }
-	if ((!IsResult(datatype.name)&&!IsRequest(datatype.name))||IsResult(datatype.name)) {
-%>	UFUNCTION(BlueprintPure, Category = "PlayFab|<%- api.name%>", meta = (NativeBreakFunc))
-	static void BreakBP<%- api.name%><%- datatype.name %>(
-	const FBP<%- api.name%><%- datatype.name %>& In
+    if ((!IsResult(datatype.name)&&!IsRequest(datatype.name))||IsResult(datatype.name)) {
+%>    UFUNCTION(BlueprintPure, Category = "PlayFab|<%- api.name%>", meta = (NativeBreakFunc))
+    static void BreakBP<%- api.name%><%- datatype.name %>(
+    const FBP<%- api.name%><%- datatype.name %>& In
 <%- GetDatatypeSignatureParameters(datatype, api) %>);
 <%}%><%}%>
 };

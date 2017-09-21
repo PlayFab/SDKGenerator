@@ -17,8 +17,8 @@ public class PlayFab : ModuleRules
 
         PublicDependencyModuleNames.AddRange(new string[]{
             "Core",
-			"CoreUObject",
-			"HTTP",
+            "CoreUObject",
+            "HTTP",
             "Json"
         });
 

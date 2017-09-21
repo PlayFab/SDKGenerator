@@ -11,8 +11,8 @@ UENUM(BlueprintType)
 enum class EBP<%- api.name %><%- datatype.name %> : uint8
 {
 <% for(var i=0; i<datatype.enumvalues.length-1; i++) { var enumval = datatype.enumvalues[i]
-%>	<%- datatype.name %>_<%- enumval.name %> UMETA(DisplayName = "<%- enumval.name %>"),
-<% } %>	<%- datatype.name %>_<%- datatype.enumvalues[datatype.enumvalues.length-1].name %> UMETA(DisplayName = "<%- datatype.enumvalues[datatype.enumvalues.length-1].name %>")
+%>    <%- datatype.name %>_<%- enumval.name %> UMETA(DisplayName = "<%- enumval.name %>"),
+<% } %>    <%- datatype.name %>_<%- datatype.enumvalues[datatype.enumvalues.length-1].name %> UMETA(DisplayName = "<%- datatype.enumvalues[datatype.enumvalues.length-1].name %>")
 };
 <% } else { %>
 <% if (!IsResult(datatype.name)&&!IsRequest(datatype.name)) {
@@ -24,11 +24,11 @@ enum class EBP<%- api.name %><%- datatype.name %> : uint8
 }%>
 struct FBP<%- api.name %><%- datatype.name %>
 {
-	GENERATED_BODY()
+    GENERATED_BODY()
 public:
-	FBP<%- api.name %><%- datatype.name %>() {};
-	FBP<%- api.name %><%- datatype.name %>(PlayFab::<%- api.name %>Models::F<%- datatype.name %> InData) : Data(InData) {};
-	PlayFab::<%- api.name %>Models::F<%- datatype.name %> Data;
+    FBP<%- api.name %><%- datatype.name %>() {};
+    FBP<%- api.name %><%- datatype.name %>(PlayFab::<%- api.name %>Models::F<%- datatype.name %> InData) : Data(InData) {};
+    PlayFab::<%- api.name %>Models::F<%- datatype.name %> Data;
 };
 <%} }%>
 <% for(var i in api.datatypes) { var datatype = api.datatypes[i]; if(datatype.isenum || !NeedsDelegate(datatype.name)) { continue; }

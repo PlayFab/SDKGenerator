@@ -32,12 +32,12 @@ void PlayFab::<%- api.name %>Models::write<%- datatype.name %>EnumJSON(<%- datat
 <% } %>
     } 
 
-	if(!value.IsEmpty())
-	{
-	    auto output = _<%- datatype.name %>Map.Find(value);
-		if (output != nullptr)
-			return *output;
-	}
+    if(!value.IsEmpty())
+    {
+        auto output = _<%- datatype.name %>Map.Find(value);
+        if (output != nullptr)
+            return *output;
+    }
 
 
     return <%- datatype.name %><%- datatype.enumvalues[0].name %>; // Basically critical fail
@@ -56,19 +56,19 @@ void PlayFab::<%- api.name %>Models::F<%- datatype.name %>::writeJSON(JsonWriter
     writer->WriteObjectStart();
     <% for(var p in datatype.properties) { var property = datatype.properties[p]; %>
     <%- GetPropertySerializer(property, datatype) %>
-	<% } %>
+    <% } %>
     
     writer->WriteObjectEnd();
 }
 
 bool PlayFab::<%- api.name %>Models::F<%- datatype.name %>::readFromValue(const TSharedPtr<FJsonObject>& obj)
 {
-	bool HasSucceeded = true; 
-	<%	for(var p in datatype.properties)
-		{ 
-			var property = datatype.properties[p];	%>
+    bool HasSucceeded = true; 
+    <%    for(var p in datatype.properties)
+        { 
+            var property = datatype.properties[p];    %>
     <%- GetPropertyDeserializer(property, datatype) %>
-    <%	} %>
+    <%    } %>
     
     return HasSucceeded;
 }

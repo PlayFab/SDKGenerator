@@ -11,26 +11,26 @@
 UCLASS(MinimalAPI)
 class UPF<%- api.name %><%- apiCall.name %> : public UPlayFabProxyBase
 {
-	GENERATED_UCLASS_BODY()
+    GENERATED_UCLASS_BODY()
 public:
 
-	UPROPERTY(BlueprintAssignable)
-		<% if(HasResult(apiCall, api)) {
-		%>FBP<%- api.name%><%- apiCall.result %>Delegate OnSuccess;<%
-		 } else
-		 {%>FEmptyPlayFabDelegate OnSuccess; <% }%>
+    UPROPERTY(BlueprintAssignable)
+        <% if(HasResult(apiCall, api)) {
+        %>FBP<%- api.name%><%- apiCall.result %>Delegate OnSuccess;<%
+         } else
+         {%>FEmptyPlayFabDelegate OnSuccess; <% }%>
 
-	// <%- apiCall.summary %>
-	UFUNCTION(BlueprintCallable, meta = (BlueprintInternalUseOnly = "true"), Category = "PlayFab|<%- api.name%>|<%- apiCall.subgroup%>")
-		static UPF<%- api.name %><%- apiCall.name %>* <%- apiCall.name %>(class APlayerController* PlayerController<%- GetDatatypeSignatureInputParameters(apiCall, api) %>);
+    // <%- apiCall.summary %>
+    UFUNCTION(BlueprintCallable, meta = (BlueprintInternalUseOnly = "true"), Category = "PlayFab|<%- api.name%>|<%- apiCall.subgroup%>")
+        static UPF<%- api.name %><%- apiCall.name %>* <%- apiCall.name %>(class APlayerController* PlayerController<%- GetDatatypeSignatureInputParameters(apiCall, api) %>);
 
-	// UOnlineBlueprintCallProxyBase interface
-	virtual void Activate() override;
-	// End of UOnlineBlueprintCallProxyBase interface
+    // UOnlineBlueprintCallProxyBase interface
+    virtual void Activate() override;
+    // End of UOnlineBlueprintCallProxyBase interface
 
 private:
-	<% if(HasRequest(apiCall, api)) { %>FBP<%- api.name%><%- apiCall.request %> Request;<% } %>
-	PlayFab::UPlayFab<%- api.name %>API::F<%- apiCall.name %>Delegate SuccessDelegate;
+    <% if(HasRequest(apiCall, api)) { %>FBP<%- api.name%><%- apiCall.request %> Request;<% } %>
+    PlayFab::UPlayFab<%- api.name %>API::F<%- apiCall.name %>Delegate SuccessDelegate;
 
-	void OnSuccessCallback(const PlayFab::<%- api.name %>Models::F<%- apiCall.result %>& Result);
+    void OnSuccessCallback(const PlayFab::<%- api.name %>Models::F<%- apiCall.result %>& Result);
 };

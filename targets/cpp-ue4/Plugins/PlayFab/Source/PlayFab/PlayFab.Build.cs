@@ -1,9 +1,14 @@
+// #define PF_UNREAL_OLD_4_14_TO_4_15
+
 using UnrealBuildTool;
 
 public class PlayFab : ModuleRules
 {
-    public PlayFab(ReadOnlyTargetRules Target)
-        : base(Target)
+#if PF_UNREAL_OLD_4_14_TO_4_15
+        public PlayFab(TargetInfo Target)
+#else
+    public PlayFab(ReadOnlyTargetRules ROTargetRules) : base(ROTargetRules)
+#endif
     {
         PCHUsage = PCHUsageMode.UseExplicitOrSharedPCHs;
 

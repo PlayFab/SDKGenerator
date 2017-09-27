@@ -23,10 +23,7 @@ The format of the testTitleData.json file is as follows:
 	"titleId": "<Found in PlayFab Game Manager>",
 	"developerSecretKey": "<Found in PlayFab Game Manager>",
 	"userEmail": "<your@email.com>",
-	"characterName": "<CharName>",
-	"extraHeaders": {
-		"headerKey": "headerValue", ...
-	}
+	"characterName": "<CharName>"
 }
 ```
 

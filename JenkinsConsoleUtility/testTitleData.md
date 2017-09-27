@@ -15,9 +15,6 @@ This last portion, "running our tests on your own title" comes with a few requir
 
 * You must specify a testTitleData.json file which tells our tests which title to use
   * For most SDKs, the best way to do this is to set an environment variable called PF_TEST_TITLE_DATA_JSON={the full file path to your testTitleData.json file}
-* In Game-Manager, you must unlock a security setting that allows clients to set player statistics (This setting should NOT be set for a live game which is server-authoritative)
-* NOTE: Some tests have a hard coded titleId="6195" in those tests, which is us being sloppy, and we intend to fix these over time
-  * Generally, it shouldn't hurt anything if you run your tests on our title, but it's better for both of us if you change this to your title when you see it
 
 The format of the testTitleData.json file is as follows:
 
@@ -35,7 +32,7 @@ The format of the testTitleData.json file is as follows:
 
 Please note characterName is deprecated, and has already been removed from most of the test-examples in our SDKs.  For those few that remain, this can be any valid character name (Those test suites will usually create the character).
 
-Our own testTitleData.json is located at this location and contains the secret key for title 6195, and thus we do not publish this file.  You should change this path to your own testTitleData.json location, wherever it may be.
+Our own testTitleData.json contains the secret key for title 6195, and thus we do not publish this file.  You should create your own file using the format above, as we cannot provide ours.
 
 Philosophy
 ====

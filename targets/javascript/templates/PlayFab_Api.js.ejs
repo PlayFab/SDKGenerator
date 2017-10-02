@@ -169,3 +169,14 @@ PlayFab.<%- api.name %>Api = {
 <% } %>};
 
 var PlayFab<%- api.name %>SDK = PlayFab.<%- api.name %>Api;
+<% if (hasClientOptions) { %>
+var Phaser = typeof Phaser !== 'undefined' ? Phaser : {};
+Phaser.Plugin.PlayFab = function (game, parent) {
+    Phaser.Plugin.call(this, game, parent);
+};
+Phaser.Plugin.PlayFab.prototype = Object.create(Phaser.Plugin.prototype);
+Phaser.Plugin.PlayFab.prototype.constructor = Phaser.Plugin.PlayFab;
+Phaser.Plugin.PlayFab.prototype.PlayFab = PlayFab;
+Phaser.Plugin.PlayFab.prototype.settings = PlayFab.settings;
+Phaser.Plugin.PlayFab.prototype.ClientApi = PlayFab.ClientApi;
+<% } %>

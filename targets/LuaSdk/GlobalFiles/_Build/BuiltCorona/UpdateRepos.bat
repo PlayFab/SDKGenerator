@@ -13,11 +13,12 @@ call :doWork combo
 goto :endWithPause
 
 :doWork
-set tempDir=C:\depot\sdks\store-hosted-playfab-%1
-rmdir %tempDir%\plugins /S /Q
+if ["%WORKSPACE%"]==[""] (set WORKSPACE=C:\depot)
+set tempDir=%WORKSPACE%\sdks\store-hosted-playfab-%1
+rmdir "%tempDir%\plugins" /S /Q
 pushd Corona%1Plugin
-7z x -o%tempDir% -y plugin-%1.zip
-pushd %tempDir%
+7z x -o"%tempDir%" -y plugin-%1.zip
+pushd "%tempDir%"
 hg addremove
 hg commit -m "%commitMessage%"
 hg push

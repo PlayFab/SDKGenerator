@@ -504,6 +504,7 @@
     <Content Include="targets\unity-v2\source\Shared\Internal\ISerializer.cs.meta" />
     <Content Include="targets\unity-v2\source\Shared\Internal\Log.cs" />
     <Content Include="targets\unity-v2\source\Shared\Internal\Log.cs.meta" />
+    <Content Include="targets\unity-v2\source\Shared\Internal\PlayFabErrors.cs.meta" />
     <Content Include="targets\unity-v2\source\Shared\Internal\PlayFabHttp.meta" />
     <Content Include="targets\unity-v2\source\Shared\Internal\PlayFabHttp\IPlayFabHttp.cs" />
     <Content Include="targets\unity-v2\source\Shared\Internal\PlayFabHttp\IPlayFabHttp.cs.meta" />

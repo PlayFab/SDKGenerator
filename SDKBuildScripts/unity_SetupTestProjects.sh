@@ -32,9 +32,6 @@ DoWorkEditor () {
     cmd <<< "rmdir PlayFabSdk >nul 2>&1"
     cmd <<< "mklink /D PlayFabSdk \"$WORKSPACE/sdks/$SdkName/Source/PlayFabSDK\""
     if [ $? -ne 0 ]; then return 1; fi
-    cmd <<< "rmdir Plugins >nul 2>&1"
-    cmd <<< "mklink /D Plugins \"$WORKSPACE/sdks/$SdkName/Source/Plugins\""
-    if [ $? -ne 0 ]; then return 1; fi
     cmd <<< "rmdir Editor >nul 2>&1"
     cmd <<< "mklink /D Editor \"$WORKSPACE/sdks/$SdkName/Testing/Editor\""
     if [ $? -ne 0 ]; then return 1; fi
@@ -53,9 +50,6 @@ DoWorkTesting () {
     ForcePushD "Assets"
     cmd <<< "rmdir PlayFabSdk >nul 2>&1"
     cmd <<< "mklink /D PlayFabSdk \"$WORKSPACE/sdks/$SdkName/Source/PlayFabSDK\""
-    if [ $? -ne 0 ]; then return 1; fi
-    cmd <<< "rmdir Plugins >nul 2>&1"
-    cmd <<< "mklink /D Plugins \"$WORKSPACE/sdks/$SdkName/Source/Plugins\""
     if [ $? -ne 0 ]; then return 1; fi
     cmd <<< "rmdir Testing >nul 2>&1"
     cmd <<< "mklink /D Testing \"$WORKSPACE/sdks/$SdkName/Testing\""

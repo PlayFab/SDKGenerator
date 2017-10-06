@@ -7,7 +7,7 @@ using PlayFab.Json;
 
 namespace PlayFab
 {
-<%- GenerateSummary("    ", api, "description")
+<%- generateSummary("    ", api, "description")
 %>    public static class PlayFab<%- api.name %>API
     {
         static PlayFab<%- api.name %>API() {}
@@ -29,12 +29,12 @@ namespace PlayFab
             PlayFabHttp.ForgetClientCredentials();
         }
 <%}%>
-<% for(var i in api.calls) { var apiCall = api.calls[i]; %><%- GenerateSummary("        ", apiCall, "summary") %><%- GetDeprecationAttribute("        ", apiCall)
+<% for(var i in api.calls) { var apiCall = api.calls[i]; %><%- generateSummary("        ", apiCall, "summary") %><%- getDeprecationAttribute("        ", apiCall)
 %>        public static void <%- apiCall.name %>(<%- apiCall.request %> request, Action<<%- apiCall.result %>> resultCallback, Action<PlayFabError> errorCallback, object customData = null, Dictionary<string, string> extraHeaders = null)
         {
-<%- GetRequestActions("            ", apiCall, api) %>
-            PlayFabHttp.MakeApiCall("/<%- api.name %>/<%- apiCall.name %>", request, <%- GetAuthParams(apiCall) %>, resultCallback, errorCallback, customData, extraHeaders);
-        }<%- GetCustomApiFunction("        ", apiCall) %>
+<%- getRequestActions("            ", apiCall, api) %>
+            PlayFabHttp.MakeApiCall("/<%- api.name %>/<%- apiCall.name %>", request, <%- getAuthParams(apiCall) %>, resultCallback, errorCallback, customData, extraHeaders);
+        }<%- getCustomApiFunction("        ", apiCall) %>
 
 <% } %>
     }

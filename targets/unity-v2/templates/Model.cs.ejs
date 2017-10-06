@@ -3,8 +3,8 @@
     /// <%- datatype.description %>
     /// </summary><% } %>
     [Serializable]
-    public<% if (datatype.isAbstract) { %> abstract<% } %> class <%- datatype.className %><%- GetBaseTypeSyntax(datatype) %>
+    public<% if (datatype.isAbstract) { %> abstract<% } %> class <%- datatype.className %><%- getBaseTypeSyntax(datatype) %>
     {<% for (var i = 0; i < datatype.properties.length; i++) { var property = datatype.properties[i] %>
-<%- GenerateSummary("        ", property, "description") %><%- GetDeprecationAttribute("        ", property)
-%>        public <%- GetPropertyDef(property, datatype) %>;<% } %>
+<%- generateSummary("        ", property, "description") %><%- getDeprecationAttribute("        ", property)
+%>        public <%- getPropertyDef(property, datatype) %>;<% } %>
     }

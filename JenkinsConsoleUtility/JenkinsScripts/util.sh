@@ -52,6 +52,8 @@ SetGitHubCreds () {
             git config --global user.name "$GITHUB_USERNAME"
         fi
     fi
+	git config --global core.autocrlf "input"
+	git config core.autocrlf "input"
     unset testEmail
     unset testName
 }

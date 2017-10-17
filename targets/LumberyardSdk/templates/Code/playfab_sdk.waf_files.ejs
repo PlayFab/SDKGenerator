@@ -19,7 +19,9 @@
             "Source/PlayFab<%- gemName %>_<%- apis[i].name %>SysComponent.cpp",<% } %>
             "Source/PlayFab<%- gemName %>_SettingsSysComponent.h",
             "Source/PlayFab<%- gemName %>_SettingsSysComponent.cpp",
-            "Source/PlayFab<%- gemName %>SdkModule.cpp",
+            "Source/PlayFab<%- gemName %>SdkModule.cpp",<% if (hasClientOptions) { %>
+            "Source/PlayFabDataGatherer.h",
+            "Source/PlayFabDataGatherer.cpp",<% } %>
             "Source/PlayFabHttp.cpp",
             "Source/PlayFabSettings.h",
             "Source/PlayFabSettings.cpp"

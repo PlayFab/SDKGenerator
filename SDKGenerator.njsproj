@@ -76,6 +76,17 @@
     <DebugSymbols>true</DebugSymbols>
     <OutputPath>bin\</OutputPath>
     <ScriptArguments>LumberyardSdk=..\sdks\LumberyardSDK -apiSpecPath -buildIdentifier LumberyardSdk_manual</ScriptArguments>
+    <TypeScriptTarget>ES6</TypeScriptTarget>
+    <TypeScriptJSXEmit>None</TypeScriptJSXEmit>
+    <TypeScriptCompileOnSaveEnabled>True</TypeScriptCompileOnSaveEnabled>
+    <TypeScriptNoImplicitAny>False</TypeScriptNoImplicitAny>
+    <TypeScriptRemoveComments>False</TypeScriptRemoveComments>
+    <TypeScriptOutFile />
+    <TypeScriptOutDir />
+    <TypeScriptGeneratesDeclarations>False</TypeScriptGeneratesDeclarations>
+    <TypeScriptNoEmitOnError>True</TypeScriptNoEmitOnError>
+    <TypeScriptMapRoot />
+    <TypeScriptSourceRoot />
   </PropertyGroup>
   <PropertyGroup Condition=" '$(Configuration)' == 'NodeSDK' ">
     <DebugSymbols>true</DebugSymbols>
@@ -433,6 +444,12 @@
     <Content Include="targets\LuaSdk\templates\IPlayFabHttps.lua.ejs" />
     <Content Include="targets\LuaSdk\templates\PlayFabApi.lua.ejs" />
     <Content Include="targets\LuaSdk\templates\PlayFabSettings.lua.ejs" />
+    <Content Include="targets\LumberyardSdk\source\Code\Source\PlayFabDataGatherer.cpp">
+      <SubType>Code</SubType>
+    </Content>
+    <Content Include="targets\LumberyardSdk\templates\Code\Source\PlayFabDataGatherer.h.ejs">
+      <SubType>Code</SubType>
+    </Content>
     <Content Include="targets\LumberyardSdk\templates\Code\Include\PlayFab_Sdk\PlayFabBaseModel.h.ejs" />
     <Content Include="targets\LumberyardSdk\templates\Code\Include\PlayFab_Sdk\PlayFabHttp.h.ejs" />
     <Content Include="targets\LumberyardSdk\templates\Code\Include\PlayFab_Sdk\PlayFab_SettingsBus.h.ejs" />
@@ -447,7 +464,7 @@
     <Content Include="targets\LumberyardSdk\templates\Code\Source\PlayFab_SettingsSysComponent.h.ejs" />
     <Content Include="targets\LumberyardSdk\templates\Code\Source\PlayFab_SysComponent.h.ejs" />
     <Content Include="targets\LumberyardSdk\templates\Code\Tests\PlayFab_SdkTest.cpp.ejs" />
-    <Content Include="targets\LumberyardSdk\source\Code\wscript" />
+    <Content Include="targets\LumberyardSdk\templates\Code\wscript.ejs" />
     <Content Include="targets\LumberyardSdk\source\preview.png" />
     <Content Include="targets\LumberyardSdk\templates\gem.json.ejs" />
     <Content Include="targets\LumberyardSdk\templates\Code\Source\PlayFabApi.cpp.ejs" />

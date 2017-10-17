@@ -1,7 +1,9 @@
 #include "StdAfx.h"
 #include "PlayFab<%- api.name %>Api.h"
 #include "PlayFabSettings.h"
-
+<% if(hasClientOptions) { %>
+#include "PlayFabDataGatherer.h" // #THIRD_KIND_PLAYFAB_DATA_GATHERER: gwatson (2017/09/12) - Added PlayFab data gatherer to send system information events to PlayFab on login
+<% } %>
 using namespace PlayFab<%- gemName %>Sdk;
 <% if(hasClientOptions) { %>
 // Client-Specific
@@ -23,8 +25,57 @@ void PlayFabClientApi::ForgetClientCredentials()
     mUserSessionTicket.set_capacity(0);
 }
 
+struct DeviceInfoRequest : public PlayFabBaseModel
+{
+    PlayFab::PlayFabDataGatherer::DataMap Info;
+
+    DeviceInfoRequest() : Info() {}
+    DeviceInfoRequest(const DeviceInfoRequest& src) : Info(src.Info) {}
+
+    DeviceInfoRequest(const rapidjson::Value& obj) : DeviceInfoRequest() { readFromValue(obj); }
+
+    ~DeviceInfoRequest() {}
+
+    void writeJSON(PFStringJsonWriter& writer) const override
+    {
+        writer.StartObject();
+        if (!Info.empty()) {
+            writer.String("Info");
+            writer.StartObject();
+            for (auto iter = Info.begin(); iter != Info.end(); ++iter) {
+                writer.String(iter->first.c_str());
+                iter->second.writeJSON(writer);
+            }
+            writer.EndObject();
+        }
+        writer.EndObject();
+    }
+
+    bool readFromValue(const rapidjson::Value& obj) override
+    {
+        const Value::ConstMemberIterator Info_member = obj.FindMember("Info");
+        if (Info_member != obj.MemberEnd()) {
+            for (Value::ConstMemberIterator iter = Info_member->value.MemberBegin(); iter != Info_member->value.MemberEnd(); ++iter) {
+                Info[iter->name.GetString()] = iter->value.GetUint();
+            }
+        }
+        return true;
+    }
+};
+
 void PlayFabClientApi::MultiStepClientLogin(bool needsAttribution)
 {
+    // #THIRD_KIND_PLAYFAB_DATA_GATHERER: gwatson (2017/09/12) - Added PlayFab data gatherer to send system information events to PlayFab on login
+    // Output the system information event
+    PlayFab::PlayFabDataGatherer dataGatherer;
+    DeviceInfoRequest request;
+    dataGatherer.GatherData(request.Info);
+    // AZ_TracePrintf("PlayFab", dataGatherer.GenerateReport(request.Info).c_str());
+
+    PlayFabRequest* newRequest = new PlayFabRequest(PlayFabSettings::playFabSettings->getURL("/Client/ReportDeviceInfo"), Aws::Http::HttpMethod::HTTP_POST, "X-Authorization", mUserSessionTicket, request.toJSONString(), nullptr, nullptr, nullptr, nullptr);
+    PlayFabRequestManager::playFabHttp->AddRequest(newRequest);
+    // #THIRD_KIND_PLAYFAB_DATA_GATHERER: gwatson (2017/09/12) - Added PlayFab data gatherer to send system information events to PlayFab on login
+
     if (needsAttribution && !PlayFabSettings::playFabSettings->disableAdvertising && PlayFabSettings::playFabSettings->advertisingIdType.length() > 0 && PlayFabSettings::playFabSettings->advertisingIdValue.length() > 0)
     {
         ClientModels::AttributeInstallRequest request;

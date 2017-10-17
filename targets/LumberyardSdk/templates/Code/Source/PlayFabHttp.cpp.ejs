@@ -212,5 +212,6 @@ void PlayFabRequestManager::HandleResponse(PlayFabRequest* requestContainer)
 #if defined (PLAYFAB_DEBUG_HTTP_LOG)
     AZ_TracePrintf("PlayFab", "*** PlayFab Response - %s %s, Response: %s", Aws::Http::HttpMethodMapper::GetNameForHttpMethod(requestContainer->mMethod), requestContainer->mURI.c_str(), requestContainer->mResponseText);
 #endif
-    requestContainer->mInternalCallback(requestContainer);
+    if (requestContainer->mInternalCallback != nullptr)
+        requestContainer->mInternalCallback(requestContainer);
 }

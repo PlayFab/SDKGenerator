@@ -112,6 +112,9 @@ function GenerateSimpleFiles(apis, sourceDir, apiOutputDir, gemName) {
         if (apis[i].name !== "Client") locals.hasServerOptions = true;
     }
 
+    var wscriptTemplate = GetCompiledTemplate(path.resolve(sourceDir, "templates/Code/wscript.ejs"));
+    writeFile(path.resolve(apiOutputDir, "Code/wscript"), wscriptTemplate(locals));
+
     var wafTemplate = GetCompiledTemplate(path.resolve(sourceDir, "templates/Code/playfab_sdk.waf_files.ejs"));
     writeFile(path.resolve(apiOutputDir, "Code/playfab" + gemName.toLowerCase() + "sdk.waf_files"), wafTemplate(locals));
 
@@ -147,6 +150,9 @@ function GenerateSimpleFiles(apis, sourceDir, apiOutputDir, gemName) {
 
     var settingCmpCpp = GetCompiledTemplate(path.resolve(sourceDir, "templates/Code/Source/PlayFab_SettingsSysComponent.cpp.ejs"));
     writeFile(path.resolve(apiOutputDir, "Code/Source/PlayFab" + gemName + "_SettingsSysComponent.cpp"), settingCmpCpp(locals));
+
+    var gatherH = GetCompiledTemplate(path.resolve(sourceDir, "templates/Code/Source/PlayFabDataGatherer.h.ejs"));
+    writeFile(path.resolve(apiOutputDir, "Code/Source/PlayFabDataGatherer.h"), gatherH(locals));
 
     // Set the PlayFab Gem version in the 1.0 sample project - This is outside of the sdk itself
     try {
@@ -540,7 +546,7 @@ function GetMapPropertySerializer(tabbing, property, datatype) {
 
     var internalTabbing = isOptional ? tabbing + "    " : tabbing;
     var mapWriter = internalTabbing + "writer.StartObject();\n"
-        + internalTabbing + "for (std::map<AZStd::string, " + cppType + ">::iterator iter = " + propName + ".begin(); iter != " + propName + ".end(); ++iter) {\n"
+        + internalTabbing + "for (auto iter = " + propName + ".begin(); iter != " + propName + ".end(); ++iter) {\n"
         + internalTabbing + "    writer.String(iter->first.c_str());\n"
         + internalTabbing + "    " + writer + "\n"
         + internalTabbing + "}\n"

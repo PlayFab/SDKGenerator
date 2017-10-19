@@ -145,7 +145,7 @@ function MakeApiFiles(api, apiOutputDir, sourceDir, libname) {
     var generatedBody;
     var apiLocals = {};
     apiLocals.GetPropertyCppType = GetPropertyCppType;
-    apiLocals.GenerateSummary = GenerateSummary;
+    apiLocals.GenerateApiSummary = GenerateApiSummary;
     apiLocals.GetPropertySerialization = GetPropertySerialization;
     apiLocals.GetPropertyDeserialization = GetPropertyDeserialization;
     apiLocals.GetDatatypeSafeName = GetDatatypeSafeName;
@@ -358,7 +358,7 @@ function GetPropertyDeserialization(tabbing, property, datatype) {
     throw "Cannot parse property: " + datatype.name + "." + property.name;
 }
 
-function GenerateSummary(tabbing, element, summaryParam) {
+function GenerateApiSummary(tabbing, element, summaryParam) {
     if (!element.hasOwnProperty(summaryParam)) {
         return "";
     }

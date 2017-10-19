@@ -51,7 +51,7 @@ function MakeSignals(apis, templateDir, apiOutputDir) {
     
     var apiTemplate = GetCompiledTemplate(path.resolve(templateDir, "PlayFabSignals.cs.ejs"));
     var locals = {};
-    locals.GenerateSummary = GenerateSummary;
+    locals.GenerateApiSummary = GenerateApiSummary;
     locals.apis = apis;
     var generatedApi = apiTemplate(locals);
     writeFile(path.resolve(apiOutputDir, "Signals/PlayFabSignals.cs"), generatedApi);
@@ -62,7 +62,7 @@ function MakeCommands(apis, templateDir, apiOutputDir) {
     
     var apiTemplate = GetCompiledTemplate(path.resolve(templateDir, "PlayFabCommands.cs.ejs"));
     var locals = {};
-    locals.GenerateSummary = GenerateSummary;
+    locals.GenerateApiSummary = GenerateApiSummary;
     locals.apis = apis;
     var generatedApi = apiTemplate(locals);
     writeFile(path.resolve(apiOutputDir, "Commands/PlayFabCommands.cs"), generatedApi);
@@ -74,12 +74,12 @@ function MakeContext(apis, templateDir, apiOutputDir) {
     var apiTemplate = GetCompiledTemplate(path.resolve(templateDir, "PlayFabContextManager.cs.ejs"));
     var locals = {};
     locals.apis = apis;
-    locals.GenerateSummary = GenerateSummary;
+    locals.GenerateApiSummary = GenerateApiSummary;
     var generatedApi = apiTemplate(locals);
     writeFile(path.resolve(apiOutputDir, "PlayFabContextManager.cs"), generatedApi);
 }
 
-function GenerateSummary(tabbing, element, summaryParam) {
+function GenerateApiSummary(tabbing, element, summaryParam) {
     if (!element.hasOwnProperty(summaryParam)) {
         return "";
     }

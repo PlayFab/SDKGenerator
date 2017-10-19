@@ -81,7 +81,7 @@ void HelloWorld::update(float delta)
     Vec2 origin = Director::getInstance()->getVisibleOrigin();
 
     bool finished = PlayFabApiTest::PlayFabApiTests::TickTestSuite();
-    std::string testReport = PlayFabApiTest::PlayFabApiTests::GenerateSummary();
+    std::string testReport = PlayFabApiTest::PlayFabApiTests::GenerateTestSummary();
     testReportLabel->setPosition(Vec2(origin.x + visibleSize.width / 2, origin.y + visibleSize.height / 2));
     testReportLabel->setString(testReport);
 

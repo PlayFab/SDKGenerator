@@ -1,10 +1,10 @@
-﻿declare module PlayFab<%- api.name %>Module {
+declare module PlayFab<%- api.name %>Module {
     export interface IPlayFab<%- api.name %> {
         settings: PlayFabModule.IPlayFabSettings;
 <% if (hasClientOptions) { %>        IsClientLoggedIn(): boolean;
 
 <% } %><% for(var cIdx in api.calls) { var apiCall = api.calls[cIdx];
-%><%- GenerateSummary("        ", apiCall, "summary", "https://api.playfab.com/Documentation/" + api.name + "/method/" + apiCall.name)
+%><%- GenerateApiSummary("        ", apiCall, "summary", "https://api.playfab.com/Documentation/" + api.name + "/method/" + apiCall.name)
 %>        <%- apiCall.name %>(request: PlayFab<%- api.name %>Models.<%- apiCall.request %>, callback: PlayFabModule.ApiCallback<PlayFab<%- api.name %>Models.<%- apiCall.result %>>): void;
 <% } %>
     }

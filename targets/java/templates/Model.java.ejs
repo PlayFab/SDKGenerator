@@ -1,6 +1,6 @@
-<%- GenerateSummary("    ", datatype, "description")
+<%- GenerateApiSummary("    ", datatype, "description")
 %>    public static class <%- datatype.name %><% if(datatype.sortKey) { %> implements Comparable<<%- datatype.name %>><% } %> {<% for(var i in datatype.properties) { var property = datatype.properties[i] %>
-<%- GenerateSummary("        ", property, "description")
+<%- GenerateApiSummary("        ", property, "description")
 %><%- GetPropertyAttribs("        ", property, datatype, api)
 %>        public <%- getPropertyDef(property, datatype) %>;<% } %>
         <% if(datatype.sortKey) { %>

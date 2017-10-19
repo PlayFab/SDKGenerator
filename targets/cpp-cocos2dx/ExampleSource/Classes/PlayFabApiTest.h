@@ -179,7 +179,7 @@ namespace PlayFabApiTest
         time_t startTime;
         time_t endTime;
 
-        std::string GenerateSummary(time_t now)
+        std::string GenerateTestSummary(time_t now)
         {
             time_t tempEndTime = (activeState == COMPLETE) ? endTime : now;
             time_t tempStartTime = (startTime != 0) ? startTime : now;
@@ -275,7 +275,7 @@ namespace PlayFabApiTest
             return result;
         }
 
-        static std::string GenerateSummary()
+        static std::string GenerateTestSummary()
         {
             if (suiteState == COMPLETE)
                 return _outputSummary;
@@ -290,7 +290,7 @@ namespace PlayFabApiTest
             {
                 if (_outputSummary.length() != 0)
                     _outputSummary += '\n';
-                _outputSummary += (*it)->GenerateSummary(now);
+                _outputSummary += (*it)->GenerateTestSummary(now);
                 if ((*it)->finishState == PASSED) numPassed++;
                 else if ((*it)->finishState == FAILED) numFailed++;
             }
@@ -417,7 +417,7 @@ namespace PlayFabApiTest
         static void OnPostResultsToCloudScript(const ExecuteCloudScriptResult& result, void* customData)
         {
             bool success = result.Error == nullptr;
-            GenerateSummary();
+            GenerateTestSummary();
 
             if (success)
                 _outputSummary += "\nTest report submitted to Cloud Script: " + PlayFabSettings::buildIdentifier + ", " + playFabId;
@@ -430,7 +430,7 @@ namespace PlayFabApiTest
         }
         static void OnPostResultsError(const PlayFabError& error, void* customData)
         {
-            GenerateSummary();
+            GenerateTestSummary();
             _outputSummary += "\nFailed to submit to Cloud Script: " + error.GenerateErrorReport();
             suiteState = COMPLETE;
         }

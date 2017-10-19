@@ -14,7 +14,7 @@ function MakeApi(api, sourceDir, apiOutputDir) {
     var locals = {
         api: api,
         sdkVersion: exports.sdkVersion,
-        GenerateSummary: GenerateSummary,
+        GenerateApiSummary: GenerateApiSummary,
         GetAuthKey: GetAuthKey,
         GetRequestActions: GetRequestActions
     };
@@ -44,7 +44,7 @@ function GetRequestActions(tabbing, apiCall, api) {
     return "";
 }
 
-function GenerateSummary(tabbing, element, summaryParam, extraLine) {
+function GenerateApiSummary(tabbing, element, summaryParam, extraLine) {
     if (!element.hasOwnProperty(summaryParam)) {
         return "";
     }

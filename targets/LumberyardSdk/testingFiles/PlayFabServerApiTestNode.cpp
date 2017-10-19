@@ -49,7 +49,7 @@ struct PfTestContext
     time_t startTime;
     time_t endTime;
 
-    AZStd::string GenerateSummary(time_t now)
+    AZStd::string GenerateTestSummary(time_t now)
     {
         time_t tempEndTime = (activeState == COMPLETE) ? endTime : now;
         time_t tempStartTime = (startTime != 0) ? startTime : now;
@@ -122,7 +122,7 @@ public:
         return result;
     }
 
-    static AZStd::string GenerateSummary()
+    static AZStd::string GenerateTestSummary()
     {
         _outputSummary.clear();
 
@@ -133,7 +133,7 @@ public:
         {
             if (_outputSummary.length() != 0)
                 _outputSummary += "\n";
-            _outputSummary += (*it)->GenerateSummary(now);
+            _outputSummary += (*it)->GenerateTestSummary(now);
             if ((*it)->finishState == PASSED) numPassed++;
             else if ((*it)->finishState == FAILED) numFailed++;
         }
@@ -336,7 +336,7 @@ public:
             if (PlayFabApiTests::TickTestSuite())
             {
                 pActInfo->pGraph->SetRegularlyUpdated(pActInfo->myID, false);
-                auto outputSummary = PlayFabApiTests::GenerateSummary();
+                auto outputSummary = PlayFabApiTests::GenerateTestSummary();
                 AZ_TracePrintf("PlayFab", outputSummary.c_str());
                 ActivateOutput(pActInfo, 0, string(outputSummary.c_str()));
             }
@@ -347,7 +347,7 @@ public:
             break;
             //case eFE_FinalActivate:
         }
-        auto lastDebugMessage = PlayFabApiTests::GenerateSummary();
+        auto lastDebugMessage = PlayFabApiTests::GenerateTestSummary();
     }
 };
 

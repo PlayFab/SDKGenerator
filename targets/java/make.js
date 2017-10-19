@@ -51,7 +51,7 @@ function MakeDatatypes(apis, sourceDir, apiOutputDir) {
         modelLocals.datatype = datatype;
         modelLocals.getPropertyDef = GetModelPropertyDef;
         modelLocals.GetPropertyAttribs = GetPropertyAttribs;
-        modelLocals.GenerateSummary = GenerateSummary;
+        modelLocals.GenerateApiSummary = GenerateApiSummary;
         modelLocals.api = api;
         return datatype.isenum ? enumTemplate(modelLocals) : modelTemplate(modelLocals);
     };
@@ -75,7 +75,7 @@ function MakeApi(api, sourceDir, apiOutputDir, isAndroid) {
         GetRequestActions: GetRequestActions,
         GetResultActions: GetResultActions,
         GetUrlAccessor: GetUrlAccessor,
-        GenerateSummary: GenerateSummary,
+        GenerateApiSummary: GenerateApiSummary,
         hasClientOptions: api.name === "Client"
     };
     
@@ -213,7 +213,7 @@ function GetUrlAccessor(apiCall) {
 }
 
 // In Java, the summary and the deprecation are not distinct, so we need a single function that generates both
-function GenerateSummary(tabbing, apiObj, summaryParam, extraLines) {
+function GenerateApiSummary(tabbing, apiObj, summaryParam, extraLines) {
     var isDeprecated = apiObj.hasOwnProperty("deprecation");
     var hasSummary = apiObj.hasOwnProperty(summaryParam);
     

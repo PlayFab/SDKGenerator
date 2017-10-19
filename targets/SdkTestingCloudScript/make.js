@@ -30,7 +30,7 @@ exports.makeServerAPI = function (apis, sourceDir, apiOutputDir) {
         sdkVersion: exports.sdkVersion,
         sourceDir: sourceDir,
         MakeDatatype: MakeDatatype,
-        GenerateSummary: GenerateSummary
+        GenerateApiSummary: GenerateApiSummary
     };
     
     // Write out the template
@@ -58,7 +58,7 @@ function MakeDatatype(tabbing, datatype, sourceDir, extendsFrom) {
     } else {
         locals.extendsFrom = extendsFrom;
         locals.properties = datatype.properties;
-        locals.GenerateSummary = GenerateSummary;
+        locals.GenerateApiSummary = GenerateApiSummary;
         locals.GetProperty = GetProperty;
         return interfaceTemplate(locals);
     }
@@ -88,7 +88,7 @@ function GetProperty(tabbing, property) {
     return tabbing + preColon + ": " + postColon + ",\n";
 }
 
-function GenerateSummary(tabbing, apiElement, summaryParam, extraLine) {
+function GenerateApiSummary(tabbing, apiElement, summaryParam, extraLine) {
     var fullSummary;
     if (!apiElement.hasOwnProperty(summaryParam))
         fullSummary = "";

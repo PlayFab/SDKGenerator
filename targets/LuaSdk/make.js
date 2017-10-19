@@ -90,7 +90,7 @@ function MakeCorona(apis, sourceDir, apiOutputDir, sdkDescriptor, requirePrefix)
 function MakeApi(api, sourceDir, apiOutputDir, requirePrefix) {
     var locals = {};
     locals.api = api;
-    locals.GenerateSummary = GenerateSummary;
+    locals.GenerateApiSummary = GenerateApiSummary;
     locals.GetRequestActions = GetRequestActions;
     locals.GetAuthentication = GetAuthentication;
     locals.hasClientOptions = api.name === "Client";
@@ -124,7 +124,7 @@ function MakeSimpleFiles(apis, sourceDir, apiOutputDir, requirePrefix, sdkVersio
     writeFile(path.resolve(apiOutputDir, "IPlayFabHttps.lua"), genIHttp);
 }
 
-function GenerateSummary(tabbing, element, summaryParam) {
+function GenerateApiSummary(tabbing, element, summaryParam) {
     if (!element.hasOwnProperty(summaryParam)) {
         return "";
     }

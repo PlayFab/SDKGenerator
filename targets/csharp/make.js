@@ -96,7 +96,7 @@ function MakeApi(api, sourceDir, apiOutputDir) {
         GetRequestActions: GetRequestActions,
         GetResultActions: GetResultActions,
         GetDeprecationAttribute: GetDeprecationAttribute,
-        GenerateSummary: GenerateSummary,
+        GenerateApiSummary: GenerateApiSummary,
         authKey: api.name === "Client"
     };
     
@@ -263,7 +263,7 @@ function GetDeprecationAttribute(tabbing, apiObj) {
     return "";
 }
 
-function GenerateSummary(tabbing, element, summaryParam) {
+function GenerateApiSummary(tabbing, element, summaryParam) {
     if (!element.hasOwnProperty(summaryParam)) {
         return "";
     }

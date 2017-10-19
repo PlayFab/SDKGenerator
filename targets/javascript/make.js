@@ -16,7 +16,7 @@ exports.makeCombinedAPI = function (apis, sourceDir, apiOutputDir) {
         MakeSimpleTemplates(apis, templateDir, eachOutputDir);
         
         var apiLocals = {
-            GenerateSummary: GenerateSummary,
+            GenerateApiSummary: GenerateApiSummary,
             GetAuthParams: GetAuthParams,
             GetDeprecationAttribute: GetDeprecationAttribute,
             GetRequestActions: GetRequestActions,
@@ -108,7 +108,7 @@ function GetDeprecationAttribute(tabbing, apiObj) {
     return "";
 }
 
-function GenerateSummary(tabbing, element, summaryParam, extraLine) {
+function GenerateApiSummary(tabbing, element, summaryParam, extraLine) {
     var hasSummary = element.hasOwnProperty(summaryParam);
     if (!hasSummary && !extraLine) {
         return "";
@@ -129,7 +129,7 @@ function GenerateDatatype(datatype, sourceDir) {
     var enumTemplate = GetCompiledTemplate(path.resolve(templateDir, "Enum.ejs"));
     
     var locals = {
-        GenerateSummary: GenerateSummary,
+        GenerateApiSummary: GenerateApiSummary,
         GetBaseTypeSyntax: GetBaseTypeSyntax,
         GetPropertyTsType: GetPropertyTsType,
         datatype: datatype

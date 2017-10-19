@@ -74,6 +74,7 @@ function MakeDatatypes(apis, sourceDir, apiOutputDir) {
         var modelLocals = {
             api: api,
             datatype: datatype,
+            generateApiSummary: generateApiSummary,
             GetModelPropertyDef: GetModelPropertyDef,
             GetPropertyAttribs: GetPropertyAttribs,
             GetBaseTypeSyntax: GetBaseTypeSyntax,

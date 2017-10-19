@@ -1,5 +1,10 @@
 var path = require("path");
 
+// Making resharper less noisy - These are defined in Generate.js
+if (typeof (copyTree) === "undefined") copyTree = function () { };
+if (typeof (generateApiSummaryLines) === "undefined") generateApiSummaryLines = function () { };
+if (typeof (getCompiledTemplate) === "undefined") getCompiledTemplate = function () { };
+
 exports.makeClientAPI = function (api, sourceDir, apiOutputDir) {
     var srcOutputLoc = ["", "../AndroidStudioExample/app/"];
     var testOutputLoc = ["", "../AndroidStudioExample/app/"];
@@ -13,7 +18,7 @@ exports.makeClientAPI = function (api, sourceDir, apiOutputDir) {
         copyTree(path.resolve(sourceDir, "srcCode"), srcOutputDir);
         copyTree(path.resolve(sourceDir, "testingFiles/client"), testOutputDir);
         MakeDatatypes([api], sourceDir, srcOutputDir);
-        MakeApi(api, sourceDir, srcOutputDir, isAndroid);
+        makeApi(api, sourceDir, srcOutputDir, isAndroid);
         GenerateSimpleFiles([api], "Client", sourceDir, srcOutputDir, isAndroid);
     }
 }
@@ -25,7 +30,7 @@ exports.makeServerAPI = function (apis, sourceDir, apiOutputDir) {
     copyTree(path.resolve(sourceDir, "testingFiles/server"), apiOutputDir);
     MakeDatatypes(apis, sourceDir, apiOutputDir);
     for (var i = 0; i < apis.length; i++)
-        MakeApi(apis[i], sourceDir, apiOutputDir, false);
+        makeApi(apis[i], sourceDir, apiOutputDir, false);
     GenerateSimpleFiles(apis, "Server", sourceDir, apiOutputDir);
 }
 
@@ -36,22 +41,22 @@ exports.makeCombinedAPI = function (apis, sourceDir, apiOutputDir) {
     copyTree(path.resolve(sourceDir, "testingFiles/combo"), apiOutputDir);
     MakeDatatypes(apis, sourceDir, apiOutputDir);
     for (var i = 0; i < apis.length; i++)
-        MakeApi(apis[i], sourceDir, apiOutputDir, false);
+        makeApi(apis[i], sourceDir, apiOutputDir, false);
     GenerateSimpleFiles(apis, "Combo", sourceDir, apiOutputDir);
 }
 
 function MakeDatatypes(apis, sourceDir, apiOutputDir) {
     var templateDir = path.resolve(sourceDir, "templates");
-    var modelTemplate = GetCompiledTemplate(path.resolve(templateDir, "Model.java.ejs"));
-    var modelsTemplate = GetCompiledTemplate(path.resolve(templateDir, "Models.java.ejs"));
-    var enumTemplate = GetCompiledTemplate(path.resolve(templateDir, "Enum.java.ejs"));
+    var modelTemplate = getCompiledTemplate(path.resolve(templateDir, "Model.java.ejs"));
+    var modelsTemplate = getCompiledTemplate(path.resolve(templateDir, "Models.java.ejs"));
+    var enumTemplate = getCompiledTemplate(path.resolve(templateDir, "Enum.java.ejs"));
     
     var makeDatatype = function (datatype, api) {
         var modelLocals = {};
         modelLocals.datatype = datatype;
         modelLocals.getPropertyDef = GetModelPropertyDef;
         modelLocals.GetPropertyAttribs = GetPropertyAttribs;
-        modelLocals.GenerateApiSummary = GenerateApiSummary;
+        modelLocals.generateApiSummary = generateApiSummary;
         modelLocals.api = api;
         return datatype.isenum ? enumTemplate(modelLocals) : modelTemplate(modelLocals);
     };
@@ -65,7 +70,7 @@ function MakeDatatypes(apis, sourceDir, apiOutputDir) {
     }
 }
 
-function MakeApi(api, sourceDir, apiOutputDir, isAndroid) {
+function makeApi(api, sourceDir, apiOutputDir, isAndroid) {
     console.log("Generating Java " + api.name + " library to " + apiOutputDir);
     
     var apiLocals = {
@@ -75,18 +80,18 @@ function MakeApi(api, sourceDir, apiOutputDir, isAndroid) {
         GetRequestActions: GetRequestActions,
         GetResultActions: GetResultActions,
         GetUrlAccessor: GetUrlAccessor,
-        GenerateApiSummary: GenerateApiSummary,
+        generateApiSummary: generateApiSummary,
         hasClientOptions: api.name === "Client"
     };
     
-    var apiTemplate = GetCompiledTemplate(path.resolve(sourceDir, "templates/API.java.ejs"));
+    var apiTemplate = getCompiledTemplate(path.resolve(sourceDir, "templates/API.java.ejs"));
     writeFile(path.resolve(apiOutputDir, "src/main/java/com/playfab/PlayFab" + api.name + "API.java"), apiTemplate(apiLocals));
 }
 
 function GenerateSimpleFiles(apis, apiName, sourceDir, apiOutputDir, isAndroid) {
-    var errorsTemplate = GetCompiledTemplate(path.resolve(sourceDir, "templates/Errors.java.ejs"));
-    var settingsTemplate = GetCompiledTemplate(path.resolve(sourceDir, "templates/PlayFabSettings.java.ejs"));
-    var pomTemplate = GetCompiledTemplate(path.resolve(sourceDir, "templates/pom.xml.ejs"));
+    var errorsTemplate = getCompiledTemplate(path.resolve(sourceDir, "templates/Errors.java.ejs"));
+    var settingsTemplate = getCompiledTemplate(path.resolve(sourceDir, "templates/PlayFabSettings.java.ejs"));
+    var pomTemplate = getCompiledTemplate(path.resolve(sourceDir, "templates/pom.xml.ejs"));
     
     var errorLocals = {
         errorList: apis[0].errorList,
@@ -212,33 +217,26 @@ function GetUrlAccessor(apiCall) {
     return "PlayFabSettings.GetURL()";
 }
 
-// In Java, the summary and the deprecation are not distinct, so we need a single function that generates both
-function GenerateApiSummary(tabbing, apiObj, summaryParam, extraLines) {
-    var isDeprecated = apiObj.hasOwnProperty("deprecation");
-    var hasSummary = apiObj.hasOwnProperty(summaryParam);
-    
-    if (!isDeprecated && !hasSummary) {
-        return "";
+function generateApiSummary(tabbing, apiElement, summaryParam, extraLines) {
+    var lines = generateApiSummaryLines(apiElement, summaryParam, extraLines, false, "@deprecated");
+
+    // FILTERING: Java is very picky about the output
+    if (lines)
+        for (var i = 0; i < lines.length; i++)
+            lines[i] = lines[i].replaceAll("<", "&lt;").replaceAll(">", "&gt;");
+
+    var output;
+    if (lines.length === 1 && lines[0]) {
+        output = tabbing + "/** " + lines[0] + " */\n";
+    } else if (lines.length > 1) {
+        output = tabbing + "/**\n" + tabbing + " * " + lines.join("\n" + tabbing + " * ") + "\n" + tabbing + " */\n";
+    } else {
+        output = "";
     }
-    
-    var summaryLine = "";
-    if (isDeprecated && apiObj.deprecation.ReplacedBy != null)
-        summaryLine = "@deprecated Please use " + apiObj.deprecation.ReplacedBy + " instead.";
-    else if (isDeprecated)
-        summaryLine = "@deprecated Do not use";
-    else if (hasSummary)
-        summaryLine = apiObj[summaryParam].replaceAll("<", "&lt;").replaceAll(">", "&gt;").trim();
-    
-    var output = tabbing + "/**\n";
-    if (summaryLine)
-        output += tabbing + " * " + summaryLine + "\n";
-    if ((typeof extraLines) === "string")
-        output += tabbing + " * " + extraLines + "\n";
-    else if (extraLines)
-        for (var i = 0; i < extraLines.length; i++)
-            output += tabbing + " * " + extraLines[i] + "\n";
-    output += tabbing + " */\n";
-    if (isDeprecated)
+
+    // TODO: The deprecation attribute should be a separate GetDeprecationAttribute call like various other SDKS
+    if (apiElement.hasOwnProperty("deprecation"))
         output += tabbing + "@Deprecated\n";
+
     return output;
 }

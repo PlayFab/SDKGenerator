@@ -1,5 +1,9 @@
 var path = require("path");
 
+// Making resharper less noisy - These are defined in Generate.js
+if (typeof (copyTree) === "undefined") copyTree = function () { };
+if (typeof (getCompiledTemplate) === "undefined") getCompiledTemplate = function () { };
+
 // generate.js is our central file, for all generated sdks.  Don't modify that one.
 // For each function below, apiOutputDir is automatically set to include a subfolder, so each make function generates to a different subfolder.
 // You can over-ride this by uncommenting this:
@@ -44,7 +48,7 @@ function MakeExampleTemplateFile(sourceDir, apiOutputDir) {
     locals.sdkVersion = exports.sdkVersion; // exports.sdkVersion is automatically injected into this file from generate.js, and comes from SdkManualNotes.json - you must provide your target in that file
     
     // Compiles the source .ejs file into a template function.
-    var template = GetCompiledTemplate(path.resolve(sourceDir, "templates/exampleTemplate.txt.ejs"));
+    var template = getCompiledTemplate(path.resolve(sourceDir, "templates/exampleTemplate.txt.ejs"));
     // Call the template function, which executes the template, and evaluates all the ejs tags/logic
     var generatedTemplateText = template(locals);
     // generatedTemplateText is an in-memory string of the output file.  At this point, you just write it to the destination:

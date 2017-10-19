@@ -1,5 +1,9 @@
 var path = require("path");
 
+// Making resharper less noisy - These are defined in Generate.js
+if (typeof (copyTree) === "undefined") copyTree = function () { };
+if (typeof (getCompiledTemplate) === "undefined") getCompiledTemplate = function () { };
+
 // Lumberyard has pretty significantly different imports from the other C++ sdks
 // It is also more closely structured like UnitySDK, and should hopefully be closer to implementing the
 //   global callback system.  So for now, there is no shared code between the other C++ sdks and lumberyard.
@@ -54,10 +58,10 @@ var gemSummaries = {
 exports.makeClientAPI = function (api, sourceDir, apiOutputDir) {
     apiOutputDir = apiOutputDir.replaceAll("PlayFabClientSDK", "PlayFabClientSdk");
     console.log("Generating Lumberyard C++ client SDK to " + apiOutputDir);
-    gemName = "Client";
+    var gemName = "Client";
 
     copyTree(path.resolve(sourceDir, "source"), apiOutputDir);
-    MakeApi(api, sourceDir, apiOutputDir, gemName);
+    makeApi(api, sourceDir, apiOutputDir, gemName);
     GenerateModels([api], sourceDir, apiOutputDir, gemName);
     GenerateErrors(api, sourceDir, apiOutputDir, gemName);
     GenerateSimpleFiles([api], sourceDir, apiOutputDir, gemName);
@@ -67,11 +71,11 @@ exports.makeClientAPI = function (api, sourceDir, apiOutputDir) {
 exports.makeServerAPI = function (apis, sourceDir, apiOutputDir) {
     apiOutputDir = apiOutputDir.replaceAll("PlayFabServerSDK", "PlayFabServerSdk");
     console.log("Generating Lumberyard C++ server SDK to " + apiOutputDir);
-    gemName = "Server";
+    var gemName = "Server";
 
     copyTree(path.resolve(sourceDir, "source"), apiOutputDir);
     for (var i = 0; i < apis.length; i++) {
-        MakeApi(apis[i], sourceDir, apiOutputDir, gemName);
+        makeApi(apis[i], sourceDir, apiOutputDir, gemName);
     }
     GenerateModels(apis, sourceDir, apiOutputDir, gemName);
     GenerateErrors(apis[0], sourceDir, apiOutputDir, gemName);
@@ -82,11 +86,11 @@ exports.makeServerAPI = function (apis, sourceDir, apiOutputDir) {
 exports.makeCombinedAPI = function (apis, sourceDir, apiOutputDir) {
     apiOutputDir = apiOutputDir.replaceAll("PlayFabSDK", "PlayFabComboSdk");
     console.log("Generating Lumberyard C++ combined SDK to " + apiOutputDir);
-    gemName = "Combo";
+    var gemName = "Combo";
 
     copyTree(path.resolve(sourceDir, "source"), apiOutputDir);
     for (var i = 0; i < apis.length; i++) {
-        MakeApi(apis[i], sourceDir, apiOutputDir, gemName);
+        makeApi(apis[i], sourceDir, apiOutputDir, gemName);
     }
     GenerateModels(apis, sourceDir, apiOutputDir, gemName);
     GenerateErrors(apis[0], sourceDir, apiOutputDir, gemName);
@@ -112,46 +116,46 @@ function GenerateSimpleFiles(apis, sourceDir, apiOutputDir, gemName) {
         if (apis[i].name !== "Client") locals.hasServerOptions = true;
     }
 
-    var wscriptTemplate = GetCompiledTemplate(path.resolve(sourceDir, "templates/Code/wscript.ejs"));
+    var wscriptTemplate = getCompiledTemplate(path.resolve(sourceDir, "templates/Code/wscript.ejs"));
     writeFile(path.resolve(apiOutputDir, "Code/wscript"), wscriptTemplate(locals));
 
-    var wafTemplate = GetCompiledTemplate(path.resolve(sourceDir, "templates/Code/playfab_sdk.waf_files.ejs"));
+    var wafTemplate = getCompiledTemplate(path.resolve(sourceDir, "templates/Code/playfab_sdk.waf_files.ejs"));
     writeFile(path.resolve(apiOutputDir, "Code/playfab" + gemName.toLowerCase() + "sdk.waf_files"), wafTemplate(locals));
 
-    var wafTemplate = GetCompiledTemplate(path.resolve(sourceDir, "templates/Code/playfab_sdk_tests.waf_files.ejs"));
+    var wafTemplate = getCompiledTemplate(path.resolve(sourceDir, "templates/Code/playfab_sdk_tests.waf_files.ejs"));
     writeFile(path.resolve(apiOutputDir, "Code/playfab" + gemName.toLowerCase() + "sdk_tests.waf_files"), wafTemplate(locals));
 
-    var vcProjTemplate = GetCompiledTemplate(path.resolve(sourceDir, "templates/gem.json.ejs"));
+    var vcProjTemplate = getCompiledTemplate(path.resolve(sourceDir, "templates/gem.json.ejs"));
     writeFile(path.resolve(apiOutputDir, "gem.json"), vcProjTemplate(locals));
 
-    var hHttpTemplate = GetCompiledTemplate(path.resolve(sourceDir, "templates/Code/Include/PlayFab_Sdk/PlayFabHttp.h.ejs"));
+    var hHttpTemplate = getCompiledTemplate(path.resolve(sourceDir, "templates/Code/Include/PlayFab_Sdk/PlayFabHttp.h.ejs"));
     writeFile(path.resolve(apiOutputDir, "Code/Include/PlayFab" + gemName + "Sdk/PlayFabHttp.h"), hHttpTemplate(locals));
 
-    var cppHttpTemplate = GetCompiledTemplate(path.resolve(sourceDir, "templates/Code/Source/PlayFabHttp.cpp.ejs"));
+    var cppHttpTemplate = getCompiledTemplate(path.resolve(sourceDir, "templates/Code/Source/PlayFabHttp.cpp.ejs"));
     writeFile(path.resolve(apiOutputDir, "Code/Source/PlayFabHttp.cpp"), cppHttpTemplate(locals));
 
-    var hSettingTemplate = GetCompiledTemplate(path.resolve(sourceDir, "templates/Code/Source/PlayFabSettings.h.ejs"));
+    var hSettingTemplate = getCompiledTemplate(path.resolve(sourceDir, "templates/Code/Source/PlayFabSettings.h.ejs"));
     writeFile(path.resolve(apiOutputDir, "Code/Source/PlayFabSettings.h"), hSettingTemplate(locals));
 
-    var cppSettingTemplate = GetCompiledTemplate(path.resolve(sourceDir, "templates/Code/Source/PlayFabSettings.cpp.ejs"));
+    var cppSettingTemplate = getCompiledTemplate(path.resolve(sourceDir, "templates/Code/Source/PlayFabSettings.cpp.ejs"));
     writeFile(path.resolve(apiOutputDir, "Code/Source/PlayFabSettings.cpp"), cppSettingTemplate(locals));
 
-    var cppSettingTemplate = GetCompiledTemplate(path.resolve(sourceDir, "templates/Code/Tests/PlayFab_SdkTest.cpp.ejs"));
+    var cppSettingTemplate = getCompiledTemplate(path.resolve(sourceDir, "templates/Code/Tests/PlayFab_SdkTest.cpp.ejs"));
     writeFile(path.resolve(apiOutputDir, "Code/Tests/PlayFab" + gemName + "SdkTest.cpp"), cppSettingTemplate(locals));
 
-    var sdkModuleTemplate = GetCompiledTemplate(path.resolve(sourceDir, "templates/Code/Source/PlayFab_SdkModule.cpp.ejs"));
+    var sdkModuleTemplate = getCompiledTemplate(path.resolve(sourceDir, "templates/Code/Source/PlayFab_SdkModule.cpp.ejs"));
     writeFile(path.resolve(apiOutputDir, "Code/Source/PlayFab" + gemName + "SdkModule.cpp"), sdkModuleTemplate(locals));
 
-    var settingBusCpp = GetCompiledTemplate(path.resolve(sourceDir, "templates/Code/Include/PlayFab_Sdk/PlayFab_SettingsBus.h.ejs"));
+    var settingBusCpp = getCompiledTemplate(path.resolve(sourceDir, "templates/Code/Include/PlayFab_Sdk/PlayFab_SettingsBus.h.ejs"));
     writeFile(path.resolve(apiOutputDir, "Code/Include/PlayFab" + gemName + "Sdk/PlayFab" + gemName + "_SettingsBus.h"), settingBusCpp(locals));
 
-    var settingCmpH = GetCompiledTemplate(path.resolve(sourceDir, "templates/Code/Source/PlayFab_SettingsSysComponent.h.ejs"));
+    var settingCmpH = getCompiledTemplate(path.resolve(sourceDir, "templates/Code/Source/PlayFab_SettingsSysComponent.h.ejs"));
     writeFile(path.resolve(apiOutputDir, "Code/Source/PlayFab" + gemName + "_SettingsSysComponent.h"), settingCmpH(locals));
 
-    var settingCmpCpp = GetCompiledTemplate(path.resolve(sourceDir, "templates/Code/Source/PlayFab_SettingsSysComponent.cpp.ejs"));
+    var settingCmpCpp = getCompiledTemplate(path.resolve(sourceDir, "templates/Code/Source/PlayFab_SettingsSysComponent.cpp.ejs"));
     writeFile(path.resolve(apiOutputDir, "Code/Source/PlayFab" + gemName + "_SettingsSysComponent.cpp"), settingCmpCpp(locals));
 
-    var gatherH = GetCompiledTemplate(path.resolve(sourceDir, "templates/Code/Source/PlayFabDataGatherer.h.ejs"));
+    var gatherH = getCompiledTemplate(path.resolve(sourceDir, "templates/Code/Source/PlayFabDataGatherer.h.ejs"));
     writeFile(path.resolve(apiOutputDir, "Code/Source/PlayFabDataGatherer.h"), gatherH(locals));
 
     // Set the PlayFab Gem version in the 1.0 sample project - This is outside of the sdk itself
@@ -175,7 +179,7 @@ function GenerateSimpleFiles(apis, sourceDir, apiOutputDir, gemName) {
     } catch (err) { }
 }
 
-function MakeApi(api, sourceDir, apiOutputDir, gemName) {
+function makeApi(api, sourceDir, apiOutputDir, gemName) {
     var locals = {
         api: api,
         gemUuid: uuids[gemName],
@@ -188,19 +192,19 @@ function MakeApi(api, sourceDir, apiOutputDir, gemName) {
         GetRequestActions: GetRequestActions,
     };
 
-    var apiH = GetCompiledTemplate(path.resolve(sourceDir, "templates/Code/Source/PlayFabApi.h.ejs"));
+    var apiH = getCompiledTemplate(path.resolve(sourceDir, "templates/Code/Source/PlayFabApi.h.ejs"));
     writeFile(path.resolve(apiOutputDir, "Code/Source/PlayFab" + api.name + "Api.h"), apiH(locals));
 
-    var sysCmpH = GetCompiledTemplate(path.resolve(sourceDir, "templates/Code/Source/PlayFab_SysComponent.h.ejs"));
+    var sysCmpH = getCompiledTemplate(path.resolve(sourceDir, "templates/Code/Source/PlayFab_SysComponent.h.ejs"));
     writeFile(path.resolve(apiOutputDir, "Code/Source/PlayFab" + gemName + "_" + api.name + "SysComponent.h"), sysCmpH(locals));
 
-    var sysCmpCpp = GetCompiledTemplate(path.resolve(sourceDir, "templates/Code/Source/PlayFab_SysComponent.cpp.ejs"));
+    var sysCmpCpp = getCompiledTemplate(path.resolve(sourceDir, "templates/Code/Source/PlayFab_SysComponent.cpp.ejs"));
     writeFile(path.resolve(apiOutputDir, "Code/Source/PlayFab" + gemName + "_" + api.name + "SysComponent.cpp"), sysCmpCpp(locals));
 
-    var apiCpp = GetCompiledTemplate(path.resolve(sourceDir, "templates/Code/Source/PlayFabApi.cpp.ejs"));
+    var apiCpp = getCompiledTemplate(path.resolve(sourceDir, "templates/Code/Source/PlayFabApi.cpp.ejs"));
     writeFile(path.resolve(apiOutputDir, "Code/Source/PlayFab" + api.name + "Api.cpp"), apiCpp(locals));
 
-    var apiCpp = GetCompiledTemplate(path.resolve(sourceDir, "templates/Code/Include/PlayFab_Sdk/PlayFab_Bus.h.ejs"));
+    var apiCpp = getCompiledTemplate(path.resolve(sourceDir, "templates/Code/Include/PlayFab_Sdk/PlayFab_Bus.h.ejs"));
     writeFile(path.resolve(apiOutputDir, "Code/Include/PlayFab" + gemName + "Sdk/PlayFab" + gemName + "_" + api.name + "Bus.h"), apiCpp(locals));
 }
 
@@ -226,28 +230,28 @@ function GenerateTestFiles(apis, sourceDir, apiOutputDir, gemName) {
         if (apis[i].name !== "Client") locals.hasServerOptions = true;
     }
 
-    var gemTemplate = GetCompiledTemplate(path.resolve(sourceDir, "testingTemplate/gem.json.ejs"));
+    var gemTemplate = getCompiledTemplate(path.resolve(sourceDir, "testingTemplate/gem.json.ejs"));
     writeFile(path.resolve(apiOutputDir, "gem.json"), gemTemplate(locals));
 
-    var wafTemplate = GetCompiledTemplate(path.resolve(sourceDir, "testingTemplate/Code/playfab_test.waf_files.ejs"));
+    var wafTemplate = getCompiledTemplate(path.resolve(sourceDir, "testingTemplate/Code/playfab_test.waf_files.ejs"));
     writeFile(path.resolve(apiOutputDir, "Code/playfab" + gemName + "test.waf_files"), wafTemplate(locals));
 
-    var testWafTemplate = GetCompiledTemplate(path.resolve(sourceDir, "testingTemplate/Code/playfab_test_tests.waf_files.ejs"));
+    var testWafTemplate = getCompiledTemplate(path.resolve(sourceDir, "testingTemplate/Code/playfab_test_tests.waf_files.ejs"));
     writeFile(path.resolve(apiOutputDir, "Code/playfab" + gemName + "test_tests.waf_files"), testWafTemplate(locals));
 
-    var busTemplate = GetCompiledTemplate(path.resolve(sourceDir, "testingTemplate/Code/Include/PlayFab_Test/PlayFab_TestBus.h.ejs"));
+    var busTemplate = getCompiledTemplate(path.resolve(sourceDir, "testingTemplate/Code/Include/PlayFab_Test/PlayFab_TestBus.h.ejs"));
     writeFile(path.resolve(apiOutputDir, "Code/Include/PlayFab" + gemName + "Test/playfab" + gemName + "TestBus.h"), busTemplate(locals));
 
-    var moduleTemplate = GetCompiledTemplate(path.resolve(sourceDir, "testingTemplate/Code/Source/PlayFab_TestModule.cpp.ejs"));
+    var moduleTemplate = getCompiledTemplate(path.resolve(sourceDir, "testingTemplate/Code/Source/PlayFab_TestModule.cpp.ejs"));
     writeFile(path.resolve(apiOutputDir, "Code/Source/PlayFab" + gemName + "TestModule.cpp"), moduleTemplate(locals));
 
-    var cppCmpTemplate = GetCompiledTemplate(path.resolve(sourceDir, "testingTemplate/Code/Source/PlayFab_TestSystemComponent.cpp.ejs"));
+    var cppCmpTemplate = getCompiledTemplate(path.resolve(sourceDir, "testingTemplate/Code/Source/PlayFab_TestSystemComponent.cpp.ejs"));
     writeFile(path.resolve(apiOutputDir, "Code/Source/PlayFab" + gemName + "TestSystemComponent.cpp"), cppCmpTemplate(locals));
 
-    var hCmpTemplate = GetCompiledTemplate(path.resolve(sourceDir, "testingTemplate/Code/Source/PlayFab_TestSystemComponent.h.ejs"));
+    var hCmpTemplate = getCompiledTemplate(path.resolve(sourceDir, "testingTemplate/Code/Source/PlayFab_TestSystemComponent.h.ejs"));
     writeFile(path.resolve(apiOutputDir, "Code/Source/PlayFab" + gemName + "TestSystemComponent.h"), hCmpTemplate(locals));
 
-    var testTemplate = GetCompiledTemplate(path.resolve(sourceDir, "testingTemplate/Code/Tests/PlayFab_TestTest.cpp.ejs"));
+    var testTemplate = getCompiledTemplate(path.resolve(sourceDir, "testingTemplate/Code/Tests/PlayFab_TestTest.cpp.ejs"));
     writeFile(path.resolve(apiOutputDir, "Code/Tests/PlayFab" + gemName + "TestTest.cpp"), testTemplate(locals));
 
     if (testGemName === "TestGemClient")
@@ -735,11 +739,11 @@ function GenerateModels(apis, sourceDir, apiOutputDir, gemName) {
             GetPropertyDestructor: GetPropertyDestructor
         };
 
-        var modelHeaderTemplate = GetCompiledTemplate(path.resolve(sourceDir, "templates/Code/Include/PlayFab_Sdk/PlayFab_DataModels.h.ejs"));
+        var modelHeaderTemplate = getCompiledTemplate(path.resolve(sourceDir, "templates/Code/Include/PlayFab_Sdk/PlayFab_DataModels.h.ejs"));
         writeFile(path.resolve(apiOutputDir, "Code/Include/PlayFab" + gemName + "Sdk/PlayFab" + api.name + "DataModels.h"), modelHeaderTemplate(modelLocals));
     }
 
-    var modelHeaderTemplate = GetCompiledTemplate(path.resolve(sourceDir, "templates/Code/Include/PlayFab_Sdk/PlayFabBaseModel.h.ejs"));
+    var modelHeaderTemplate = getCompiledTemplate(path.resolve(sourceDir, "templates/Code/Include/PlayFab_Sdk/PlayFabBaseModel.h.ejs"));
     writeFile(path.resolve(apiOutputDir, "Code/Include/PlayFab" + gemName + "Sdk/PlayFabBaseModel.h"), modelHeaderTemplate(modelLocals));
 }
 
@@ -749,7 +753,7 @@ function GenerateErrors(api, sourceDir, apiOutputDir, gemName) {
         errors: api.errors
     };
 
-    var errorsTemplate = GetCompiledTemplate(path.resolve(sourceDir, "templates/Code/Include/PlayFab_Sdk/PlayFabError.h.ejs"));
+    var errorsTemplate = getCompiledTemplate(path.resolve(sourceDir, "templates/Code/Include/PlayFab_Sdk/PlayFabError.h.ejs"));
     writeFile(path.resolve(apiOutputDir, "Code/Include/PlayFab" + gemName + "Sdk/PlayFabError.h"), errorsTemplate(errorLocals));
 }
 

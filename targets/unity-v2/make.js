@@ -2,8 +2,9 @@ var path = require("path");
 
 // Making resharper less noisy - These are defined in Generate.js
 if (typeof (copyTree) === "undefined") copyTree = function () { };
-if (typeof (GetApiJson) === "undefined") GetApiJson = function () { };
-if (typeof (GetCompiledTemplate) === "undefined") GetCompiledTemplate = function () { };
+if (typeof (getApiJson) === "undefined") getApiJson = function () { };
+if (typeof (getCompiledTemplate) === "undefined") getCompiledTemplate = function () { };
+if (typeof (generateApiSummaryLines) === "undefined") generateApiSummaryLines = function () { };
 
 exports.putInRoot = true;
 
@@ -35,40 +36,40 @@ function makeApiEventFiles(api, sourceDir, apiOutputDir) {
         api: api
     };
 
-    var apiTemplate = GetCompiledTemplate(path.resolve(sourceDir, "templates", "PlayFabEvents.cs.ejs"));
+    var apiTemplate = getCompiledTemplate(path.resolve(sourceDir, "templates", "PlayFabEvents.cs.ejs"));
     writeFile(path.resolve(apiOutputDir, api.name + "/PlayFabEvents.cs"), apiTemplate(apiLocals));
 }
 
 function makeSharedEventFiles(apis, sourceDir, apiOutputDir) {
-    var playStreamEventModels = GetApiJson("PlayStreamEventModels.json");
+    var playStreamEventModels = getApiJson("PlayStreamEventModels.json");
     var eventLocals = {
         apis: apis,
         sourceDir: sourceDir,
         psParentTypes: playStreamEventModels.ParentTypes,
         psChildTypes: playStreamEventModels.ChildTypes,
-        generateSummary: generateSummary,
+        generateApiSummary: generateApiSummary,
         getDeprecationAttribute: getDeprecationAttribute,
         getPropertyDef: getModelPropertyDef,
         makeDatatype: makePlayStreamDatatype
     };
 
     // Events for api-callbacks
-    var eventTemplate = GetCompiledTemplate(path.resolve(sourceDir, "templates", "Events.cs.ejs"));
+    var eventTemplate = getCompiledTemplate(path.resolve(sourceDir, "templates", "Events.cs.ejs"));
     writeFile(path.resolve(apiOutputDir, "Shared/Public/PlayFabEvents.cs"), eventTemplate(eventLocals));
 
     // PlayStream event models
-    var psTemplate = GetCompiledTemplate(path.resolve(sourceDir, "templates", "PlayStreamEventDataModels.cs.ejs"));
+    var psTemplate = getCompiledTemplate(path.resolve(sourceDir, "templates", "PlayStreamEventDataModels.cs.ejs"));
     writeFile(path.resolve(apiOutputDir, "Shared/Public/PlayStream/PlayStreamEventDataModels.cs"), psTemplate(eventLocals));
 }
 
 function makePlayStreamDatatype(datatype, sourceDir) {
     var templateDir = path.resolve(sourceDir, "templates");
-    var modelTemplate = GetCompiledTemplate(path.resolve(templateDir, "Model.cs.ejs"));
-    var enumTemplate = GetCompiledTemplate(path.resolve(templateDir, "Enum.cs.ejs"));
+    var modelTemplate = getCompiledTemplate(path.resolve(templateDir, "Model.cs.ejs"));
+    var enumTemplate = getCompiledTemplate(path.resolve(templateDir, "Enum.cs.ejs"));
 
     var modelLocals = {
         datatype: datatype,
-        generateSummary: generateSummary,
+        generateApiSummary: generateApiSummary,
         getDeprecationAttribute: getDeprecationAttribute,
         getPropertyDef: getModelPropertyDef,
         getPropertyJsonReader: getPropertyJsonReader,
@@ -88,7 +89,7 @@ function getBaseTypeSyntax(datatype) {
 
 function makeDatatypes(apis, sourceDir, apiOutputDir) {
     var templateDir = path.resolve(sourceDir, "templates");
-    var modelsTemplate = GetCompiledTemplate(path.resolve(templateDir, "Models.cs.ejs"));
+    var modelsTemplate = getCompiledTemplate(path.resolve(templateDir, "Models.cs.ejs"));
 
     for (var a = 0; a < apis.length; a++) {
         var modelsLocal = {
@@ -103,12 +104,12 @@ function makeDatatypes(apis, sourceDir, apiOutputDir) {
 
 function makeApiDatatype(datatype, sourceDir) {
     var templateDir = path.resolve(sourceDir, "templates");
-    var modelTemplate = GetCompiledTemplate(path.resolve(templateDir, "Model.cs.ejs"));
-    var enumTemplate = GetCompiledTemplate(path.resolve(templateDir, "Enum.cs.ejs"));
+    var modelTemplate = getCompiledTemplate(path.resolve(templateDir, "Model.cs.ejs"));
+    var enumTemplate = getCompiledTemplate(path.resolve(templateDir, "Enum.cs.ejs"));
 
     var modelLocals = {
         datatype: datatype,
-        generateSummary: generateSummary,
+        generateApiSummary: generateApiSummary,
         getDeprecationAttribute: getDeprecationAttribute,
         getPropertyDef: getModelPropertyDef,
         getPropertyJsonReader: getPropertyJsonReader,
@@ -125,14 +126,14 @@ function makeApi(api, sourceDir, apiOutputDir) {
     var apiLocals = {
         api: api,
         getAuthParams: getAuthParams,
-        generateSummary: generateSummary,
+        generateApiSummary: generateApiSummary,
         getDeprecationAttribute: getDeprecationAttribute,
         getRequestActions: getRequestActions,
         getCustomApiFunction: getCustomApiFunction,
         hasClientOptions: api.name === "Client"
     };
 
-    var apiTemplate = GetCompiledTemplate(path.resolve(templateDir, "API.cs.ejs"));
+    var apiTemplate = getCompiledTemplate(path.resolve(templateDir, "API.cs.ejs"));
     writeFile(path.resolve(apiOutputDir, api.name + "/PlayFab" + api.name + "API.cs"), apiTemplate(apiLocals));
 }
 
@@ -166,7 +167,7 @@ function generateSimpleFiles(apis, sourceDir, apiOutputDir) {
         errors: apis[0].errors
     };
 
-    var errorsTemplate = GetCompiledTemplate(path.resolve(sourceDir, "templates/Errors.cs.ejs"));
+    var errorsTemplate = getCompiledTemplate(path.resolve(sourceDir, "templates/Errors.cs.ejs"));
     writeFile(path.resolve(apiOutputDir, "Shared/Internal/PlayFabErrors.cs"), errorsTemplate(errorLocals));
 
     var settingsLocals = {
@@ -182,7 +183,7 @@ function generateSimpleFiles(apis, sourceDir, apiOutputDir) {
             settingsLocals.hasServerOptions = true;
     }
 
-    var settingsTemplate = GetCompiledTemplate(path.resolve(sourceDir, "templates/PlayFabSettings.cs.ejs"));
+    var settingsTemplate = getCompiledTemplate(path.resolve(sourceDir, "templates/PlayFabSettings.cs.ejs"));
     writeFile(path.resolve(apiOutputDir, "Shared/Public/PlayFabSettings.cs"), settingsTemplate(settingsLocals));
 }
 
@@ -369,14 +370,18 @@ function getRequestActions(tabbing, apiCall, api) {
     return "";
 }
 
-function generateSummary(tabbing, element, summaryParam) {
-    if (!element.hasOwnProperty(summaryParam)) {
-        return "";
-    }
+function generateApiSummary(tabbing, apiElement, summaryParam, extraLines) {
+    var lines = generateApiSummaryLines(apiElement, summaryParam, extraLines);
 
-    return tabbing + "/// <summary>\n"
-        + tabbing + "/// " + element[summaryParam] + "\n"
-        + tabbing + "/// </summary>\n";
+    var output;
+    if (lines.length === 1 && lines[0]) {
+        output = tabbing + "/// <summary>\n" + tabbing + "/// " + lines.join("\n" + tabbing + "/// ") + "\n" + tabbing + "/// </summary>\n";
+    } else if (lines.length > 0) {
+        output = tabbing + "/// <summary>\n" + tabbing + "/// " + lines.join("\n" + tabbing + "/// ") + "\n" + tabbing + "/// </summary>\n";
+    } else {
+        output = "";
+    }
+    return output;
 }
 
 function getDeprecationAttribute(tabbing, apiObj) {

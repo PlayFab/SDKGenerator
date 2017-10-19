@@ -7,11 +7,11 @@ using System.Threading.Tasks;
 
 namespace PlayFab
 {
-<%- GenerateApiSummary("    ", api, "description")
+<%- generateApiSummary("    ", api, "description")
 %>    public class PlayFab<%- api.name %>API
     {
 <% for(var i in api.calls) { var apiCall = api.calls[i];
-%><%- GenerateApiSummary("        ", apiCall, "summary")
+%><%- generateApiSummary("        ", apiCall, "summary")
 %><%- GetDeprecationAttribute("        ", apiCall)
 %>        public static async Task<PlayFabResult<<%- apiCall.result %>>> <%- apiCall.name %>Async(<%- apiCall.request %> request, object customData = null, Dictionary<string, string> extraHeaders = null)
         {

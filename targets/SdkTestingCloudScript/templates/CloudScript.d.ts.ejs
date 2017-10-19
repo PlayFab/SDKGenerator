@@ -52,13 +52,13 @@ declare var server: IPlayFabServerAPI;
 
 declare namespace PlayFabServerModels {
 <% for(var i in api.datatypes ) { var datatype = api.datatypes[i];
-%><%- GenerateApiSummary("    ", datatype, "description", "https://api.playfab.com/Documentation/" + api.name + "/datatype/" + datatype.classNameSpace + "/" + datatype.classNameSpace + "." + datatype.name)
-%><%- MakeDatatype("    ", datatype, sourceDir, "") %><% } %>}
+%><%- generateApiSummary("    ", datatype, "description", "https://api.playfab.com/Documentation/" + api.name + "/datatype/" + datatype.classNameSpace + "/" + datatype.classNameSpace + "." + datatype.name)
+%><%- makeDatatype("    ", datatype, sourceDir, "") %><% } %>}
 
 interface IPlayFabServerAPI {
 <% for(var i in api.calls ) {
     var apiCall = api.calls[i];
-%><%- GenerateApiSummary("    ", apiCall, "summary", "https://api.playfab.com/Documentation/" + api.name + "/method/" + apiCall.name) -%>
+%><%- generateApiSummary("    ", apiCall, "summary", "https://api.playfab.com/Documentation/" + api.name + "/method/" + apiCall.name) -%>
     <%- apiCall.name %>(request: PlayFab<%- api.name %>Models.<%- apiCall.request %>): PlayFab<%- api.name %>Models.<%- apiCall.result %>;
 
 <% } %>

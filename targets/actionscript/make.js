@@ -1,6 +1,10 @@
 var fs = require("fs");
 var path = require("path");
 
+// Making resharper less noisy - These are defined in Generate.js
+if (typeof (copyTree) === "undefined") copyTree = function () { };
+if (typeof (getCompiledTemplate) === "undefined") getCompiledTemplate = function () { };
+
 exports.putInRoot = true;
 
 exports.makeCombinedAPI = function (apis, sourceDir, apiOutputDir) {
@@ -13,7 +17,7 @@ exports.makeCombinedAPI = function (apis, sourceDir, apiOutputDir) {
     
     for (var i = 0; i < apis.length; i++) {
         MakeDatatypes(apis[i], sourceDir, apiOutputDir);
-        MakeApi(apis[i], sourceDir, apiOutputDir);
+        makeApi(apis[i], sourceDir, apiOutputDir);
     }
     
     GenerateSimpleFiles(apis, sourceDir, apiOutputDir);
@@ -47,8 +51,8 @@ function GetBaseTypeSyntax(datatype) {
 function MakeDatatypes(api, sourceDir, apiOutputDir) {
     var templateDir = path.resolve(sourceDir, "templates");
     
-    var modelTemplate = GetCompiledTemplate(path.resolve(templateDir, "Model.as.ejs"));;
-    var enumTemplate = GetCompiledTemplate(path.resolve(templateDir, "Enum.as.ejs"));;
+    var modelTemplate = getCompiledTemplate(path.resolve(templateDir, "Model.as.ejs"));;
+    var enumTemplate = getCompiledTemplate(path.resolve(templateDir, "Enum.as.ejs"));;
     
     for (var d in api.datatypes) {
         var datatype = api.datatypes[d];
@@ -81,12 +85,12 @@ function NeedsPlayFabUtil(datatype) {
     return false;
 }
 
-function MakeApi(api, sourceDir, apiOutputDir) {
+function makeApi(api, sourceDir, apiOutputDir) {
     console.log("Generating ActionScript " + api.name + " library to " + apiOutputDir);
     
     var templateDir = path.resolve(sourceDir, "templates");
     
-    var apiTemplate = GetCompiledTemplate(path.resolve(templateDir, "API.as.ejs"));;
+    var apiTemplate = getCompiledTemplate(path.resolve(templateDir, "API.as.ejs"));;
     var apiLocals = {};
     apiLocals.api = api;
     apiLocals.GetAuthParams = GetAuthParams;
@@ -100,21 +104,21 @@ function MakeApi(api, sourceDir, apiOutputDir) {
 }
 
 function GenerateSimpleFiles(apis, sourceDir, apiOutputDir) {
-    var errorsTemplate = GetCompiledTemplate(path.resolve(sourceDir, "templates/Errors.as.ejs"));;
+    var errorsTemplate = getCompiledTemplate(path.resolve(sourceDir, "templates/Errors.as.ejs"));;
     var errorLocals = {};
     errorLocals.errorList = apis[0].errorList;
     errorLocals.errors = apis[0].errors;
     var generatedErrors = errorsTemplate(errorLocals);
     writeFile(path.resolve(apiOutputDir, "com/playfab/PlayFabError.as"), generatedErrors);
     
-    var versionTemplate = GetCompiledTemplate(path.resolve(sourceDir, "templates/PlayFabVersion.as.ejs"));;
+    var versionTemplate = getCompiledTemplate(path.resolve(sourceDir, "templates/PlayFabVersion.as.ejs"));;
     var versionLocals = {};
     versionLocals.sdkVersion = exports.sdkVersion;
     versionLocals.buildIdentifier = exports.buildIdentifier;
     var generatedVersion = versionTemplate(versionLocals);
     writeFile(path.resolve(apiOutputDir, "com/playfab/PlayFabVersion.as"), generatedVersion);
     
-    var settingsTemplate = GetCompiledTemplate(path.resolve(sourceDir, "templates/PlayFabSettings.as.ejs"));;
+    var settingsTemplate = getCompiledTemplate(path.resolve(sourceDir, "templates/PlayFabSettings.as.ejs"));;
     var settingsLocals = {};
     settingsLocals.hasServerOptions = false;
     settingsLocals.hasClientOptions = false;

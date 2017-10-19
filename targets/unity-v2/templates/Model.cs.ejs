@@ -1,10 +1,8 @@
-<% if (datatype.description) { %>
-    /// <summary>
-    /// <%- datatype.description %>
-    /// </summary><% } %>
-    [Serializable]
+
+<%- generateApiSummary("    ", datatype, "description")
+%>    [Serializable]
     public<% if (datatype.isAbstract) { %> abstract<% } %> class <%- datatype.className %><%- getBaseTypeSyntax(datatype) %>
     {<% for (var i = 0; i < datatype.properties.length; i++) { var property = datatype.properties[i] %>
-<%- generateSummary("        ", property, "description") %><%- getDeprecationAttribute("        ", property)
+<%- generateApiSummary("        ", property, "description") %><%- getDeprecationAttribute("        ", property)
 %>        public <%- getPropertyDef(property, datatype) %>;<% } %>
     }

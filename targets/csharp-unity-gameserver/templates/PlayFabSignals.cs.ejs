@@ -5,7 +5,7 @@ using strange.extensions.signal.impl;
 for(var i = 0; i < api.subgroups.length; i++){ var subgroup = api.subgroups[i]; %>
 #region <%- subgroup.name %>
 <% for(var x = 0; x < subgroup.methods.length; x++){ var apiCall = api.calls.filter(function(el){ return el.name === subgroup.methods[x]; })[0]; if(!apiCall) { continue; } %>
-<%- GenerateApiSummary("", apiCall, "summary")
+<%- generateApiSummary("", apiCall, "summary")
 %>public class <%- apiCall.name %>Signal : Signal<PlayFab.<%- api.name %>Models.<%- apiCall.request %>> { }
 <% } %>
 #endregion
@@ -17,7 +17,7 @@ for(var i = 0; i < api.subgroups.length; i++){ var subgroup = api.subgroups[i]; 
 for(var i = 0; i < api.subgroups.length; i++){ var subgroup = api.subgroups[i]; %>
 #region <%- subgroup.name %>
 <% for(var x = 0; x < subgroup.methods.length; x++){ var apiCall = api.calls.filter(function(el){ return el.name === subgroup.methods[x]; })[0]; if(!apiCall) { continue; } %>
-<%- GenerateApiSummary("", apiCall, "summary")
+<%- generateApiSummary("", apiCall, "summary")
 %>public class <%- apiCall.name %>ResponseSignal : Signal<PlayFab.<%- api.name %>Models.<%- apiCall.result %>> { }
 <% } %>
 #endregion

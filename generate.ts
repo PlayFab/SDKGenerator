@@ -296,7 +296,7 @@ function GenerateApis(buildIdentifier, targetOutputPathList, buildFlags, apiSrcD
 
         // It would probably be better to pass these into the functions, but I don't want to change all the make___Api parameters for all projects today.
         //   For now, just change the global variables in each with the data loaded from SdkManualNotes.json
-        targetMaker.apiNotes = GetApiJson("SdkManualNotes.json");
+        targetMaker.apiNotes = getApiJson("SdkManualNotes.json");
         targetMaker.sdkVersion = targetMaker.apiNotes.sdkVersion[target.name];
         targetMaker.buildIdentifier = buildIdentifier;
         if (targetMaker.sdkVersion === null) {
@@ -342,7 +342,7 @@ function GenerateApis(buildIdentifier, targetOutputPathList, buildFlags, apiSrcD
 }
 
 function GetApiDefinition(apiFileName, buildFlags) {
-    var api = GetApiJson(apiFileName);
+    var api = getApiJson(apiFileName);
 
     // Special case, "obsolete" is treated as an SdkGenerator flag, but is not an actual flag in pf-main
     var obsoleteFlaged = false, nonNullableFlagged = false;
@@ -443,6 +443,7 @@ interface String {
     replaceAll(search: string, replacement: string): string;
     endsWith(search: string): boolean;
     contains(search: string): boolean;
+    wordWrap(width: number, brk: string, cut: boolean): string;
 }
 
 // String utilities
@@ -459,8 +460,35 @@ String.prototype.contains = function (search) {
     return this.indexOf(search) > -1;
 }
 
+/**
+ * Word wraps a string to fit a particular width
+ * @param width Number, default 120
+ * @param brk string, inserted on wrap locations, default newline
+ * @param cut boolean, default false, I think it removes everything after the wordwrap, instead of inserting brk
+ * @returns {string}
+ */
+String.prototype.wordWrap = function (width: number, brk: string, cut: boolean): string {
+    brk = brk || "\n";
+    width = width || 120;
+    cut = cut || false;
+
+    var regex = '.{1,' + width + '}(\\s|$)' + (cut ? '|.{' + width + '}|.+$' : '|\\S+?(\\s|$)');
+    var regres = this.match(RegExp(regex, 'g'));
+    if (regres) {
+        var filtered = [];
+        for (var i = 0; i < regres.length; i++) {
+            if (!regres[i]) continue;
+            var trimmedLine = regres[i].trim();
+            if (trimmedLine.length > 0)
+                filtered.push(trimmedLine);
+        }
+        return filtered.join(brk);
+    }
+    return this;
+};
+
 // SDK generation utilities
-var copyTree = function (source, dest) {
+function copyTree(source, dest) {
     if (!fs.existsSync(source)) {
         console.error("Copy tree source doesn't exist: " + source);
         return;
@@ -494,7 +522,7 @@ var copyTree = function (source, dest) {
 }
 global.copyTree = copyTree;
 
-var copyFile = function (source, dest) {
+function copyFile(source, dest) {
     if (!source || !dest) {
         console.error("ERROR: Invalid copy file parameters: " + source + " " + dest);
         return;
@@ -555,7 +583,7 @@ var copyFile = function (source, dest) {
 global.copyFile = copyFile;
 
 // Returns one of: Null, "Proposed", "Deprecated", "Obsolete"
-global.GetDeprecationStatus = function (apiObj) {
+function getDeprecationStatus(apiObj) {
     var deprecation = apiObj.hasOwnProperty("deprecation");
     if (!deprecation)
         return null;
@@ -568,37 +596,91 @@ global.GetDeprecationStatus = function (apiObj) {
         return "Deprecated";
     return "Proposed";
 }
+global.getDeprecationStatus = getDeprecationStatus;
 
-var readFile = function (filename) {
+function readFile(filename) {
     return fs.readFileSync(filename, "utf8");
 }
 global.readFile = readFile;
 
-global.writeFile = function (filename, data) {
+function writeFile(filename, data) {
     var dirname = path.dirname(filename);
     if (!fs.existsSync(dirname))
         MkdirParentsSync(dirname);
 
     return fs.writeFileSync(filename, data);
 }
+global.writeFile = writeFile;
 
 // Fetch the object parsed from an api-file, from the cache (can't load synchronously from URL-options, so we have to pre-cache them)
-var GetApiJson = function (apiFileName) {
+function getApiJson(apiFileName: string) {
     return SdkGeneratorGlobals.apiCache[apiFileName];
 }
-global.GetApiJson = GetApiJson;
+global.getApiJson = getApiJson;
 
 /**
  * Wrapper function for boilerplate of compiling templates
  * Also Caches the Templates to avoid reloading and recompiling
  * */
-global.GetCompiledTemplate = function (templatePath) : any {
+function getCompiledTemplate(templatePath: string): any {
     if (!this.compiledTemplates)
         this.compiledTemplates = {};
     if (!this.compiledTemplates.hasOwnProperty(templatePath))
         this.compiledTemplates[templatePath] = ejs.compile(readFile(templatePath));
     return this.compiledTemplates[templatePath];
 }
+global.getCompiledTemplate = getCompiledTemplate;
+
+/**
+ * Generate the summary of an API element in a consistent way
+ * TODO: Each usage of this function has a NEARLY copy-paste block of lines, joining it with language specfic comment-tags.
+ *       We should merge those into this function
+ * */
+function generateApiSummaryLines(apiElement: any, summaryParam: string, extraLines: Array<string>, linkToDocs: boolean, deprecationLabel: string): Array<string> {
+    var fullSummary;
+    if (!apiElement.hasOwnProperty(summaryParam))
+        fullSummary = [""];
+    else if (!Array.isArray(apiElement[summaryParam]))
+        fullSummary = [apiElement[summaryParam]];
+    else
+        fullSummary = apiElement[summaryParam];
+
+    var lines;
+    var joinedSummary = fullSummary.join(" ");
+    var wrappedSummary = joinedSummary.wordWrap();
+    if (wrappedSummary && wrappedSummary.length > 0)
+        lines = wrappedSummary.split("\n");
+    else
+        lines = [];
+
+    // Add extra documentation lines about deprecation
+    if (deprecationLabel && apiElement.hasOwnProperty("deprecation")) {
+        if (apiElement.deprecation.ReplacedBy != null)
+            lines.push(deprecationLabel + " Please use " + apiElement.deprecation.ReplacedBy + " instead.");
+        else
+            lines.push(deprecationLabel + " Do not use");
+    }
+
+    // Add extra documentation lines linking to PlayFab documentation
+    if (linkToDocs && apiElement.hasOwnProperty("url")) {
+        var apiName = apiElement.url.split("/")[1];
+        lines.push("API Method Documentation: https://api.playfab.com/Documentation/" + apiName + "/method/" + apiElement.name);
+        if (apiElement.hasOwnProperty("request"))
+            lines.push("Request Documentation: https://api.playfab.com/Documentation/" + apiName + "/datatype/PlayFab." + apiName + ".Models/PlayFab." + apiName + ".Models." + apiElement.request);
+        if (apiElement.hasOwnProperty("result"))
+            lines.push("Result Documentation: https://api.playfab.com/Documentation/" + apiName + "/datatype/PlayFab." + apiName + ".Models/PlayFab." + apiName + ".Models." + apiElement.result);
+    }
+
+    // Add explicit extra lines
+    if (extraLines && Array.isArray(extraLines))
+        for (var i = 0; i < extraLines.length; i++)
+            lines.push(extraLines[i]);
+    else if (extraLines && extraLines.length > 0)
+        lines.push(extraLines);
+
+    return lines;
+}
+global.generateApiSummaryLines = generateApiSummaryLines;
 
 // Kick everything off
 ParseAndLoadApis();

@@ -1,25 +1,30 @@
 var path = require("path");
 
+// Making resharper less noisy - These are defined in Generate.js
+if (typeof (copyTree) === "undefined") copyTree = function () { };
+if (typeof (generateApiSummaryLines) === "undefined") generateApiSummaryLines = function () { };
+if (typeof (getCompiledTemplate) === "undefined") getCompiledTemplate = function () { };
+
 exports.makeCombinedAPI = function (apis, sourceDir, apiOutputDir) {
     console.log("Generating Combined api from: " + sourceDir + " to: " + apiOutputDir);
     copyTree(path.resolve(sourceDir, "source"), apiOutputDir);
     for (var i = 0; i < apis.length; i++)
-        MakeApi(apis[i], sourceDir, apiOutputDir);
+        makeApi(apis[i], sourceDir, apiOutputDir);
 }
 
 //function MakeSimpleFiles(apis, sourceDir, apiOutputDir) {
 //}
 
-function MakeApi(api, sourceDir, apiOutputDir) {
+function makeApi(api, sourceDir, apiOutputDir) {
     var locals = {
         api: api,
         sdkVersion: exports.sdkVersion,
-        GenerateApiSummary: GenerateApiSummary,
+        generateApiSummary: generateApiSummary,
         GetAuthKey: GetAuthKey,
         GetRequestActions: GetRequestActions
     };
     
-    var template = GetCompiledTemplate(path.resolve(sourceDir, "templates/PlayFabApi.php.ejs"));
+    var template = getCompiledTemplate(path.resolve(sourceDir, "templates/PlayFabApi.php.ejs"));
     var generatedTemplateText = template(locals);
     writeFile(path.resolve(apiOutputDir, "PlayFab" + api.name + "Api.php"), generatedTemplateText);
 }
@@ -44,15 +49,16 @@ function GetRequestActions(tabbing, apiCall, api) {
     return "";
 }
 
-function GenerateApiSummary(tabbing, element, summaryParam, extraLine) {
-    if (!element.hasOwnProperty(summaryParam)) {
-        return "";
+function generateApiSummary(tabbing, apiElement, summaryParam, extraLines) {
+    var lines = generateApiSummaryLines(apiElement, summaryParam, extraLines);
+
+    var output;
+    if (lines.length === 1 && lines[0]) {
+        output = tabbing + "/// <summary>\n" + tabbing + "/// " + lines.join("\n" + tabbing + "/// ") + "\n" + tabbing + "/// </summary>\n";
+    } else if (lines.length > 0) {
+        output = tabbing + "/// <summary>\n" + tabbing + "/// " + lines.join("\n" + tabbing + "/// ") + "\n" + tabbing + "/// </summary>\n";
+    } else {
+        output = "";
     }
-    
-    var output = tabbing + "/// <summary>\n";
-    output += tabbing + "/// " + element[summaryParam] + "\n";
-    if (extraLine)
-        output += tabbing + "/// " + extraLine + "\n";
-    output += tabbing + "/// </summary>\n";
     return output;
 }

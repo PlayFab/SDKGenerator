@@ -52,7 +52,8 @@ for(var subgroup in api.subgroups)
             modelsArray.push(datatype.name);
 
 %>
-USTRUCT(BlueprintType)
+<%- generateApiSummary("    ", datatype, "description")
+%>USTRUCT(BlueprintType)
 struct F<%- api.name %><%- GetDatatypeSafeName(datatype, "name") %>
 {
     GENERATED_USTRUCT_BODY()
@@ -62,7 +63,7 @@ public:
             {
                 var property = datatype.properties[z];
                 if(property.name == "TitleId" && datatype.name.endsWith("Request")) continue;
-%><%- GenerateApiSummary("    ", property, "description")
+%><%- generateApiSummary("    ", property, "description")
 %>    UPROPERTY(EditAnywhere, BlueprintReadWrite, Category = "PlayFab | <%- api.name %> | <%- api.subgroups[subgroup].name %> Models")
         <%- GetPropertyCppType(property, datatype) %>
 <% } %>};

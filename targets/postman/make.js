@@ -1,5 +1,8 @@
 var path = require("path");
 
+// Making resharper less noisy - These are defined in Generate.js
+if (typeof (getCompiledTemplate) === "undefined") getCompiledTemplate = function () { };
+
 exports.putInRoot = true;
 
 var PropertyReplacements = {};
@@ -27,7 +30,7 @@ exports.makeCombinedAPI = function (apis, sourceDir, apiOutputDir) {
     
     var outputFile = path.resolve(apiOutputDir, "playfab.json");
     var templateDir = path.resolve(sourceDir, "templates");
-    var apiTemplate = GetCompiledTemplate(path.resolve(templateDir, "playfab.json.ejs"));
+    var apiTemplate = getCompiledTemplate(path.resolve(templateDir, "playfab.json.ejs"));
     writeFile(outputFile, apiTemplate(apiLocals));
     
     try {
@@ -113,7 +116,7 @@ function GetCorrectedRequestExample(api, apiCall) {
     return "\"" + JsonEscape(JSON.stringify(output, null, 2)) + "\"";
 }
 
-var DoReplace = function (obj, paramName, newValue) {
+function DoReplace(obj, paramName, newValue) {
     if (obj.hasOwnProperty(paramName)) {
         console.log("Replaced: " + obj[paramName] + " with " + newValue);
         obj[paramName] = newValue;

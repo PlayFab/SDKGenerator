@@ -1,11 +1,17 @@
 var path = require("path");
 
+// Making resharper less noisy - These are defined in Generate.js
+if (typeof (copyFile) === "undefined") copyFile = function () { };
+if (typeof (copyTree) === "undefined") copyTree = function () { };
+if (typeof (generateApiSummaryLines) === "undefined") generateApiSummaryLines = function () { };
+if (typeof (getCompiledTemplate) === "undefined") getCompiledTemplate = function () { };
+
 exports.makeClientAPI = function (api, sourceDir, apiOutputDir) {
     console.log("Generating C-sharp client SDK to " + apiOutputDir);
     
     copyTree(path.resolve(sourceDir, "source"), apiOutputDir);
     MakeDatatypes([api], sourceDir, apiOutputDir);
-    MakeApi(api, sourceDir, apiOutputDir);
+    makeApi(api, sourceDir, apiOutputDir);
     GenerateSimpleFiles([api], sourceDir, apiOutputDir);
     GenerateProject([api], sourceDir, apiOutputDir, "Client", "");
 }
@@ -17,7 +23,7 @@ exports.makeServerAPI = function (apis, sourceDir, apiOutputDir) {
     MakeDatatypes(apis, sourceDir, apiOutputDir);
     for (var i = 0; i < apis.length; i++) {
         var api = apis[i];
-        MakeApi(api, sourceDir, apiOutputDir);
+        makeApi(api, sourceDir, apiOutputDir);
     }
     GenerateSimpleFiles(apis, sourceDir, apiOutputDir);
     GenerateProject(apis, sourceDir, apiOutputDir, "Server", ";DISABLE_PLAYFABCLIENT_API");
@@ -31,7 +37,7 @@ exports.makeCombinedAPI = function (apis, sourceDir, apiOutputDir) {
     copyFile(path.resolve(sourceDir, "PlayFabSDK+Unit.sln"), path.resolve(apiOutputDir, "PlayFabSDK+Unit.sln"));
     MakeDatatypes(apis, sourceDir, apiOutputDir);
     for (var i = 0; i < apis.length; i++)
-        MakeApi(apis[i], sourceDir, apiOutputDir);
+        makeApi(apis[i], sourceDir, apiOutputDir);
     GenerateSimpleFiles(apis, sourceDir, apiOutputDir);
     GenerateProject(apis, sourceDir, apiOutputDir, "All", "");
     GenerateNugetTemplate(sourceDir, apiOutputDir);
@@ -60,9 +66,9 @@ function GetBaseTypeSyntax(datatype) {
 }
 
 function MakeDatatypes(apis, sourceDir, apiOutputDir) {
-    var modelTemplate = GetCompiledTemplate(path.resolve(sourceDir, "templates/Model.cs.ejs"));
-    var modelsTemplate = GetCompiledTemplate(path.resolve(sourceDir, "templates/Models.cs.ejs"));
-    var enumTemplate = GetCompiledTemplate(path.resolve(sourceDir, "templates/Enum.cs.ejs"));
+    var modelTemplate = getCompiledTemplate(path.resolve(sourceDir, "templates/Model.cs.ejs"));
+    var modelsTemplate = getCompiledTemplate(path.resolve(sourceDir, "templates/Models.cs.ejs"));
+    var enumTemplate = getCompiledTemplate(path.resolve(sourceDir, "templates/Enum.cs.ejs"));
     
     var makeDatatype = function (datatype, api) {
         var modelLocals = {
@@ -87,7 +93,7 @@ function MakeDatatypes(apis, sourceDir, apiOutputDir) {
     }
 }
 
-function MakeApi(api, sourceDir, apiOutputDir) {
+function makeApi(api, sourceDir, apiOutputDir) {
     console.log("Generating C# " + api.name + " library to " + apiOutputDir);
     
     var apiLocals = {
@@ -96,11 +102,11 @@ function MakeApi(api, sourceDir, apiOutputDir) {
         GetRequestActions: GetRequestActions,
         GetResultActions: GetResultActions,
         GetDeprecationAttribute: GetDeprecationAttribute,
-        GenerateApiSummary: GenerateApiSummary,
+        generateApiSummary: generateApiSummary,
         authKey: api.name === "Client"
     };
     
-    var apiTemplate = GetCompiledTemplate(path.resolve(sourceDir, "templates/API.cs.ejs"));
+    var apiTemplate = getCompiledTemplate(path.resolve(sourceDir, "templates/API.cs.ejs"));
     writeFile(path.resolve(apiOutputDir, "source/PlayFab" + api.name + "API.cs"), apiTemplate(apiLocals));
 }
 
@@ -109,7 +115,7 @@ function GenerateSimpleFiles(apis, sourceDir, apiOutputDir) {
     errorLocals.errorList = apis[0].errorList;
     errorLocals.errors = apis[0].errors;
     
-    var errorsTemplate = GetCompiledTemplate(path.resolve(sourceDir, "templates/Errors.cs.ejs"));
+    var errorsTemplate = getCompiledTemplate(path.resolve(sourceDir, "templates/Errors.cs.ejs"));
     writeFile(path.resolve(apiOutputDir, "source/PlayFabErrors.cs"), errorsTemplate(errorLocals));
     
     var settingsLocals = {};
@@ -124,10 +130,10 @@ function GenerateSimpleFiles(apis, sourceDir, apiOutputDir) {
             settingsLocals.hasServerOptions = true;
     }
     
-    var utilTemplate = GetCompiledTemplate(path.resolve(sourceDir, "templates/PlayFabUtil.cs.ejs"));
+    var utilTemplate = getCompiledTemplate(path.resolve(sourceDir, "templates/PlayFabUtil.cs.ejs"));
     writeFile(path.resolve(apiOutputDir, "source/PlayFabUtil.cs"), utilTemplate(settingsLocals));
     
-    var settingsTemplate = GetCompiledTemplate(path.resolve(sourceDir, "templates/PlayFabSettings.cs.ejs"));
+    var settingsTemplate = getCompiledTemplate(path.resolve(sourceDir, "templates/PlayFabSettings.cs.ejs"));
     writeFile(path.resolve(apiOutputDir, "source/PlayFabSettings.cs"), settingsTemplate(settingsLocals));
 }
 
@@ -138,7 +144,7 @@ function GenerateProject(apis, sourceDir, apiOutputDir, libname, extraDefines) {
         extraDefines: ";NETFX_CORE;SIMPLE_JSON_TYPEINFO" + extraDefines,
     };
     
-    var vcProjTemplate = GetCompiledTemplate(path.resolve(sourceDir, "templates/PlayFabSDK.csproj.ejs"));
+    var vcProjTemplate = getCompiledTemplate(path.resolve(sourceDir, "templates/PlayFabSDK.csproj.ejs"));
     writeFile(path.resolve(apiOutputDir, "PlayFabSDK.csproj"), vcProjTemplate(projLocals));
 }
 
@@ -149,7 +155,7 @@ function GenerateNugetTemplate(sourceDir, apiOutputDir) {
         sdkYear: exports.sdkVersion.split(".")[2].substr(0, 2)
     };
     
-    var vcProjTemplate = GetCompiledTemplate(path.resolve(sourceDir, "templates/PlayFabSDK.nuspec.ejs"));
+    var vcProjTemplate = getCompiledTemplate(path.resolve(sourceDir, "templates/PlayFabSDK.nuspec.ejs"));
     writeFile(path.resolve(apiOutputDir, "PlayFabSDK.nuspec"), vcProjTemplate(projLocals));
 }
 
@@ -263,12 +269,16 @@ function GetDeprecationAttribute(tabbing, apiObj) {
     return "";
 }
 
-function GenerateApiSummary(tabbing, element, summaryParam) {
-    if (!element.hasOwnProperty(summaryParam)) {
-        return "";
+function generateApiSummary(tabbing, apiElement, summaryParam, extraLines) {
+    var lines = generateApiSummaryLines(apiElement, summaryParam, extraLines);
+
+    var output;
+    if (lines.length === 1 && lines[0]) {
+        output = tabbing + "/// <summary>\n" + tabbing + "/// " + lines.join("\n" + tabbing + "/// ") + "\n" + tabbing + "/// </summary>\n";
+    } else if (lines.length > 0) {
+        output = tabbing + "/// <summary>\n" + tabbing + "/// " + lines.join("\n" + tabbing + "/// ") + "\n" + tabbing + "/// </summary>\n";
+    } else {
+        output = "";
     }
-    
-    return tabbing + "/// <summary>\n" 
-        + tabbing + "/// " + element[summaryParam] + "\n" 
-        + tabbing + "/// </summary>\n";
+    return output;
 }

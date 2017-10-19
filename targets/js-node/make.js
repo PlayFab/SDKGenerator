@@ -1,5 +1,10 @@
 var path = require("path");
 
+// Making resharper less noisy - These are defined in Generate.js
+if (typeof (copyTree) === "undefined") copyTree = function () { };
+if (typeof (generateApiSummaryLines) === "undefined") generateApiSummaryLines = function () { };
+if (typeof (getCompiledTemplate) === "undefined") getCompiledTemplate = function () { };
+
 exports.putInRoot = true;
 
 exports.makeCombinedAPI = function (apis, sourceDir, apiOutputDir) {
@@ -7,10 +12,10 @@ exports.makeCombinedAPI = function (apis, sourceDir, apiOutputDir) {
     
     // Load the templates
     var templateDir = path.resolve(sourceDir, "templates");
-    var coreTemplate = GetCompiledTemplate(path.resolve(templateDir, "playfab.js.ejs"));
-    var npmTemplate = GetCompiledTemplate(path.resolve(templateDir, "package.json.ejs"));
-    var apiTemplate = GetCompiledTemplate(path.resolve(templateDir, "api.js.ejs"));
-    var apiTypingsTemplate = GetCompiledTemplate(path.resolve(templateDir, "PlayFab_Api.d.ts.ejs"));
+    var coreTemplate = getCompiledTemplate(path.resolve(templateDir, "playfab.js.ejs"));
+    var npmTemplate = getCompiledTemplate(path.resolve(templateDir, "package.json.ejs"));
+    var apiTemplate = getCompiledTemplate(path.resolve(templateDir, "api.js.ejs"));
+    var apiTypingsTemplate = getCompiledTemplate(path.resolve(templateDir, "PlayFab_Api.d.ts.ejs"));
     
     var destSubFolders = ["PlayFabSdk", "PlayFabTestingExample"]; // Write both the published folder and the testing folder
     for (var fIdx = 0; fIdx < destSubFolders.length; fIdx++) {
@@ -44,7 +49,7 @@ exports.makeCombinedAPI = function (apis, sourceDir, apiOutputDir) {
         // Write the API files
         var apiLocals = {
             GenerateDatatype: GenerateDatatype,
-            GenerateApiSummary: GenerateApiSummary,
+            generateApiSummary: generateApiSummary,
             GetAuthParams: GetAuthParams,
             GetRequestActions: GetRequestActions,
             GetResultActions: GetResultActions,
@@ -129,28 +134,27 @@ function GetDeprecationAttribute(tabbing, apiObj) {
     return "";
 }
 
-function GenerateApiSummary(tabbing, element, summaryParam, extraLine) {
-    var hasSummary = element.hasOwnProperty(summaryParam);
-    if (!hasSummary && !extraLine) {
-        return "";
+function generateApiSummary(tabbing, apiElement, summaryParam, extraLines) {
+    var lines = generateApiSummaryLines(apiElement, summaryParam, extraLines);
+
+    var output;
+    if (lines.length === 1 && lines[0]) {
+        output = tabbing + "/** " + lines[0] + " */\n";
+    } else if (lines.length > 1) {
+        output = tabbing + "/**\n" + tabbing + " * " + lines.join("\n" + tabbing + " * ") + "\n" + tabbing + " */\n";
+    } else {
+        output = "";
     }
-    
-    var output = tabbing + "/**\n";
-    if (hasSummary)
-        output += tabbing + " / " + element[summaryParam] + "\n";
-    if (extraLine)
-        output += tabbing + " / " + extraLine + "\n";
-    output += tabbing + " */\n";
     return output;
 }
 
 function GenerateDatatype(api, datatype, sourceDir) {
     var templateDir = path.resolve(sourceDir, "templates");
-    var interfaceTemplate = GetCompiledTemplate(path.resolve(templateDir, "Interface.ejs"));
-    var enumTemplate = GetCompiledTemplate(path.resolve(templateDir, "Enum.ejs"));
+    var interfaceTemplate = getCompiledTemplate(path.resolve(templateDir, "Interface.ejs"));
+    var enumTemplate = getCompiledTemplate(path.resolve(templateDir, "Enum.ejs"));
     
     var locals = {
-        GenerateApiSummary: GenerateApiSummary,
+        generateApiSummary: generateApiSummary,
         GetBaseTypeSyntax: GetBaseTypeSyntax,
         GetPropertyTsType: GetPropertyTsType,
         api: api,
@@ -170,7 +174,7 @@ function GetBaseTypeSyntax(datatype) {
 }
 
 function GetPropertyTsType(property, datatype) {
-    var output = undefined;
+    var output;
     
     if (property.actualtype === "String")
         output = "string";

@@ -10,14 +10,11 @@ import java.util.*;
 import com.google.gson.*;
 import com.google.gson.reflect.*;
 
-<% if(api.description) { %>
-/**
- * <%- api.description %>
- */<% } %>
-public class PlayFab<%- api.name %>API {
+<%- generateApiSummary("    ", api, "description")
+%>public class PlayFab<%- api.name %>API {
     private static Gson gson = new GsonBuilder().setDateFormat("yyyy-MM-dd'T'HH:mm:ss.SSS'Z'").create();
 <% for(var i in api.calls) { var apiCall = api.calls[i]; %>
-<%- GenerateApiSummary("    ", apiCall, "summary", ["@param request " + apiCall.request, "@return Async Task will return " + apiCall.result])
+<%- generateApiSummary("    ", apiCall, "summary", ["@param request " + apiCall.request, "@return Async Task will return " + apiCall.result])
 %>    @SuppressWarnings("unchecked")
     public static FutureTask<PlayFabResult<<%- apiCall.result %>>> <%- apiCall.name %>Async(final <%- apiCall.request %> request) {
         return new FutureTask(new Callable<PlayFabResult<<%- apiCall.result %>>>() {
@@ -27,7 +24,7 @@ public class PlayFab<%- api.name %>API {
         });
     }
 
-<%- GenerateApiSummary("    ", apiCall, "summary", ["@param request " + apiCall.request, "@return " + apiCall.result])
+<%- generateApiSummary("    ", apiCall, "summary", ["@param request " + apiCall.request, "@return " + apiCall.result])
 %>    @SuppressWarnings("unchecked")
     public static PlayFabResult<<%- apiCall.result %>> <%- apiCall.name %>(final <%- apiCall.request %> request) {
         FutureTask<PlayFabResult<<%- apiCall.result %>>> task = new FutureTask(new Callable<PlayFabResult<<%- apiCall.result %>>>() {
@@ -43,7 +40,7 @@ public class PlayFab<%- api.name %>API {
         }
     }
 
-<%- GenerateApiSummary("    ", apiCall, "summary")
+<%- generateApiSummary("    ", apiCall, "summary")
 %>    @SuppressWarnings("unchecked")
     private static PlayFabResult<<%- apiCall.result %>> private<%- apiCall.name %>Async(final <%- apiCall.request %> request) throws Exception {
 <%- GetRequestActions(apiCall, api) %>

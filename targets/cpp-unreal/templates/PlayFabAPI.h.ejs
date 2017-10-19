@@ -68,8 +68,8 @@ public:
               %>    // callbacks
 <%            %>    DECLARE_DYNAMIC_DELEGATE_TwoParams(FDelegateOnSuccess<%- apiCall.name %>, F<%- api.name %><%- apiCall.result %>, result, UObject*, customData);
 <%            %>
-<%            %>    /** <%- apiCall.summary %> */
-<%            %>    UFUNCTION(BlueprintCallable, Category = "PlayFab | <%- api.name %> | <%- api.subgroups[subgroup].name %> ", meta = (BlueprintInternalUseOnly = "true"))
+<%            %><%- generateApiSummary("    ", apiCall, "summary")
+%><%          %>    UFUNCTION(BlueprintCallable, Category = "PlayFab | <%- api.name %> | <%- api.subgroups[subgroup].name %> ", meta = (BlueprintInternalUseOnly = "true"))
 <%            %>        static UPlayFab<%- api.name %>API* <%- apiCall.name %>(F<%- api.name %><%- apiCall.request %> request,
 <%            %>            FDelegateOnSuccess<%- apiCall.name %> onSuccess,
 <%            %>            FDelegateOnFailurePlayFabError onFailure, UObject* customData);

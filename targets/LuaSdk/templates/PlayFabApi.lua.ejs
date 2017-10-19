@@ -31,7 +31,7 @@ function PlayFabClientApi._MultiStepClientLogin(needsAttribution)
 end
 <% }
 for (var c in api.calls) { var apiCall = api.calls[c]; %>
-<%- GenerateApiSummary("", apiCall, "summary")
+<%- generateApiSummary("", apiCall, "summary")
 %>function PlayFab<%- api.name %>Api.<%- apiCall.name %>(request, onSuccess, onError)
 <%- GetRequestActions("    ", apiCall, api)
 %>    IPlayFabHttps.MakePlayFabApiCall("<%- apiCall.url %>", request, <%- GetAuthentication(apiCall) %>, onSuccess, onError)

@@ -4,7 +4,7 @@ include 'PlayFabHttp.php';
 class PlayFab<%- api.name %>Api
 {
 <% for(var i in api.calls) { var apiCall = api.calls[i];
-%><%- GenerateApiSummary("    ", apiCall, "summary", "https://api.playfab.com/Documentation/" + api.name + "/method/" + apiCall.name)
+%><%- generateApiSummary("    ", apiCall, "summary", "https://api.playfab.com/Documentation/" + api.name + "/method/" + apiCall.name)
 %>    public static function <%- apiCall.name %>($titleId, $authValue, $request)
     {
 <%- GetRequestActions("        ", apiCall, api) %>

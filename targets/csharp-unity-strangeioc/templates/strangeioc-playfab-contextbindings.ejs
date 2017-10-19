@@ -7,10 +7,8 @@ public class PlayFabBindingsFactory {
 //<%-subgroup.name%>
 #region <%-subgroup.name%>
 <% for(var x=0; x<subgroup.methods.length; x++){ %><% var apiCall = api.calls.filter(function(el){ return el.name === subgroup.methods[x]; })[0];%><% if( !apiCall ) { %><% continue; %><% } %>
-    ///<summary>
-    ///<%- apiCall.summary%>
-    ///</summary>
-    commandBinder.Bind<<%-apiCall.name%>Signal>().To<<%-apiCall.name%>Command>();
+<%- generateApiSummary("    ", apiCall, "summary")
+%>    commandBinder.Bind<<%-apiCall.name%>Signal>().To<<%-apiCall.name%>Command>();
     commandBinder.Bind<<%-apiCall.name%>ResponseSignal>(); //Create empty overrideable binding.
 <%}%>
 #endregion
@@ -44,5 +42,4 @@ public class PlayFabBindingsFactory {
             //Do Nothing, because we are here just to not produce errors.
         }
     }
-
 }

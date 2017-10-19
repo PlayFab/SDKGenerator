@@ -1,5 +1,8 @@
 var path = require("path");
 
+// Making resharper less noisy - These are defined in Generate.js
+if (typeof (getCompiledTemplate) === "undefined") getCompiledTemplate = function () { };
+
 exports.MakeBp = function (api, sourceDir, apiOutputDir, subdir) {
     // generate BP proxy
     GenerateBpProxy(api, sourceDir, apiOutputDir, subdir);
@@ -12,8 +15,8 @@ exports.MakeBp = function (api, sourceDir, apiOutputDir, subdir) {
 }
 
 function GenerateBpProxy(api, sourceDir, apiOutputDir, subdir) {
-    var proxyApiHeaderTemplate = GetCompiledTemplate(path.resolve(sourceDir, "templates/blueprint/PlayFabProxyAPI.h.ejs"));
-    var proxyApiBodyTemplate = GetCompiledTemplate(path.resolve(sourceDir, "templates/blueprint/PlayFabProxyAPI.cpp.ejs"));
+    var proxyApiHeaderTemplate = getCompiledTemplate(path.resolve(sourceDir, "templates/blueprint/PlayFabProxyAPI.h.ejs"));
+    var proxyApiBodyTemplate = getCompiledTemplate(path.resolve(sourceDir, "templates/blueprint/PlayFabProxyAPI.cpp.ejs"));
 
     for (var i in api.calls) {
         var apiLocals = {};
@@ -40,8 +43,8 @@ function GenerateBpLibrary(api, sourceDir, apiOutputDir, subdir) {
     bpLibraryLocal.IsRequest = IsRequest;
     bpLibraryLocal.IsResult = IsResult;
 
-    var proxyBpLibraryHeaderTemplate = GetCompiledTemplate(path.resolve(sourceDir, "templates/blueprint/PlayFabProxyAPIBlueprintLibrary.h.ejs"));
-    var proxyBpLibraryBodyTemplate = GetCompiledTemplate(path.resolve(sourceDir, "templates/blueprint/PlayFabProxyAPIBlueprintLibrary.cpp.ejs"));
+    var proxyBpLibraryHeaderTemplate = getCompiledTemplate(path.resolve(sourceDir, "templates/blueprint/PlayFabProxyAPIBlueprintLibrary.h.ejs"));
+    var proxyBpLibraryBodyTemplate = getCompiledTemplate(path.resolve(sourceDir, "templates/blueprint/PlayFabProxyAPIBlueprintLibrary.cpp.ejs"));
 
     var generatedBpHeader = proxyBpLibraryHeaderTemplate(bpLibraryLocal);
     writeFile(path.resolve(apiOutputDir, "Public/" + subdir + "/" + "PlayFab" + api.name + "BPLibrary.h"), generatedBpHeader);
@@ -51,7 +54,7 @@ function GenerateBpLibrary(api, sourceDir, apiOutputDir, subdir) {
 }
 
 function GenerateBpDataModels(api, sourceDir, apiOutputDir, subdir) {
-    var proxyBpModelHeaderTemplate = GetCompiledTemplate(path.resolve(sourceDir, "templates/blueprint/PlayFabProxyDataModelsAPI.h.ejs"));
+    var proxyBpModelHeaderTemplate = getCompiledTemplate(path.resolve(sourceDir, "templates/blueprint/PlayFabProxyDataModelsAPI.h.ejs"));
 
     var bpModelsLocal = {};
     bpModelsLocal.api = api;
@@ -118,7 +121,7 @@ function GetDatatypeSignatureParameters(datatype, api, make) {
 
             if (make) {
                 makeCount = makeCount + 1;
-                if (makeCount != 1) {
+                if (makeCount !== 1) {
                     result += "\t, ";
                 }
                 result += GetBpPropertyDefinition(property, api) + " In" + property.name + "\n";
@@ -186,7 +189,7 @@ function GenerateProxyPropertyWrite(property, api, datatype) {
         result += "Out.Data." + safePropName + " = MakeShareable(new " + GetProperyUe4ToNativeType(property, api, datatype) + "(In" + property.name + ".Data));";
     else if (property.collection === "array" && (property.isclass || property.isenum || property.actualtype === "uint64"))
         result += GenerateArrayClassProxyWrite(property, api, datatype);
-    else if (property.collection === "map" && (property.isclass || property.isenum || GetProperyUe4ToNativeType(property, api, datatype) != GetPropertyUe4ToOpaqueType(property, api, datatype)))
+    else if (property.collection === "map" && (property.isclass || property.isenum || GetProperyUe4ToNativeType(property, api, datatype) !== GetPropertyUe4ToOpaqueType(property, api, datatype)))
         result += GenerateMapClassProxyWrite(property, api, datatype);
     else if (property.isenum)
         result += "Out.Data." + safePropName + " = static_cast<" + GetProperyUe4ToNativeType(property, api, datatype) + ">(static_cast<uint8>(In" + property.name + "));";
@@ -259,7 +262,7 @@ function GenerateProxyPropertyRead(property, api, datatype) {
         result += "}";
     } else if (property.collection === "array" && (property.isclass || property.isenum || property.actualtype === "uint64")) {
         result += GenerateArrayClassProxyRead(property, api, datatype);
-    } else if (property.collection === "map" && (property.isclass || property.isenum || GetProperyUe4ToNativeType(property, api, datatype) != GetPropertyUe4ToOpaqueType(property, api, datatype))) {
+    } else if (property.collection === "map" && (property.isclass || property.isenum || GetProperyUe4ToNativeType(property, api, datatype) !== GetPropertyUe4ToOpaqueType(property, api, datatype))) {
         result += GenerateMapClassProxyRead(property, api, datatype);
     } else if (property.isenum && property.optional) {
         result += "if (In.Data." + safePropName + ".notNull()) {";
@@ -289,16 +292,6 @@ function GetBpPropertyDefinition(property, api, datatype) {
     }
 
     return GetPropertyUe4ToOpaqueType(property, api, datatype);
-}
-
-function GetNativePropertyDefinition(property, api, datatype) {
-    if (property.collection === "array") {
-        return "TArray<" + GetProperyUe4ToNativeType(property, api, datatype) + ">";
-    } else if (property.collection === "map") {
-        return "TMap<FString, " + GetProperyUe4ToNativeType(property, api, datatype) + ">";
-    }
-
-    return GetProperyUe4ToNativeType(property, api, datatype);
 }
 
 function GetPropertyUe4ToOpaqueType(property, api, datatype) {

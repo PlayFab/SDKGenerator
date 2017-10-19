@@ -182,6 +182,7 @@ function GenerateSimpleFiles(apis, sourceDir, apiOutputDir, gemName) {
 function makeApi(api, sourceDir, apiOutputDir, gemName) {
     var locals = {
         api: api,
+        gemName: gemName,
         gemUuid: uuids[gemName],
         hasClientOptions: api.name === "Client",
         sysCmpTokens: sysCmpTokens,
@@ -750,7 +751,8 @@ function GenerateModels(apis, sourceDir, apiOutputDir, gemName) {
 function GenerateErrors(api, sourceDir, apiOutputDir, gemName) {
     var errorLocals = {
         errorList: api.errorList,
-        errors: api.errors
+        errors: api.errors,
+        gemName: gemName
     };
 
     var errorsTemplate = getCompiledTemplate(path.resolve(sourceDir, "templates/Code/Include/PlayFab_Sdk/PlayFabError.h.ejs"));

@@ -1,5 +1,9 @@
 var path = require("path");
 
+// Making resharper less noisy - These are defined in Generate.js
+if (typeof (copyTree) === "undefined") copyTree = function () { };
+if (typeof (getCompiledTemplate) === "undefined") getCompiledTemplate = function () { };
+
 exports.putInRoot = true;
 
 exports.makeClientAPI = function (api, sourceDir, apiOutputDir) {
@@ -17,11 +21,11 @@ exports.makeClientAPI = function (api, sourceDir, apiOutputDir) {
     GenerateErrors(api, apiOutputDir, sourceDir);
     GenerateVersion(api, apiOutputDir, sourceDir);
     
-    var apiHeaderTemplate = GetCompiledTemplate(path.resolve(sourceDir, "templates/PlayFabAPI.h.ejs"));
+    var apiHeaderTemplate = getCompiledTemplate(path.resolve(sourceDir, "templates/PlayFabAPI.h.ejs"));
     var generatedHeader = apiHeaderTemplate(apiLocals);
     writeFile(path.resolve(apiOutputDir, "PlayFabSDK/PlayFab" + api.name + "API.h"), generatedHeader);
     
-    var apiBodyTemplate = GetCompiledTemplate(path.resolve(sourceDir, "templates/PlayFabAPI.m.ejs"));
+    var apiBodyTemplate = getCompiledTemplate(path.resolve(sourceDir, "templates/PlayFabAPI.m.ejs"));
     var generatedBody = apiBodyTemplate(apiLocals);
     writeFile(path.resolve(apiOutputDir, "PlayFabSDK/PlayFab" + api.name + "API.m"), generatedBody);
     
@@ -390,8 +394,8 @@ function GenerateModels(apis, apiOutputDir, libraryName, sourceDir, subdir) {
             AddTypeAndDependencies(datatype, api.datatypes, orderedTypes, addedSet);
         }
         
-        var modelHeaderTemplate = GetCompiledTemplate(path.resolve(sourceDir, "templates/PlayFabDataModels.h.ejs"));
-        var modelBodyTemplate = GetCompiledTemplate(path.resolve(sourceDir, "templates/PlayFabDataModels.m.ejs"));
+        var modelHeaderTemplate = getCompiledTemplate(path.resolve(sourceDir, "templates/PlayFabDataModels.h.ejs"));
+        var modelBodyTemplate = getCompiledTemplate(path.resolve(sourceDir, "templates/PlayFabDataModels.m.ejs"));
         
         var modelLocals = {};
         modelLocals.api = api;
@@ -418,7 +422,7 @@ function GetIsResultHandler(datatype) {
 }
 
 function GenerateVersion(api, apiOutputDir, sourceDir) {
-    var versionTemplate = GetCompiledTemplate(path.resolve(sourceDir, "templates/PlayFabVersion.m.ejs"));
+    var versionTemplate = getCompiledTemplate(path.resolve(sourceDir, "templates/PlayFabVersion.m.ejs"));
     
     var versionLocals = {};
     versionLocals.sdkVersion = exports.sdkVersion;
@@ -427,7 +431,7 @@ function GenerateVersion(api, apiOutputDir, sourceDir) {
 }
 
 function GenerateErrors(api, apiOutputDir, sourceDir) {
-    var errorsTemplate = GetCompiledTemplate(path.resolve(sourceDir, "templates/PlayFabError.h.ejs"));
+    var errorsTemplate = getCompiledTemplate(path.resolve(sourceDir, "templates/PlayFabError.h.ejs"));
     
     var errorLocals = {};
     errorLocals.errorList = api.errorList;

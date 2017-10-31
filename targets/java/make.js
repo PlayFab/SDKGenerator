@@ -5,7 +5,7 @@ if (typeof (copyTree) === "undefined") copyTree = function () { };
 if (typeof (generateApiSummaryLines) === "undefined") generateApiSummaryLines = function () { };
 if (typeof (getCompiledTemplate) === "undefined") getCompiledTemplate = function () { };
 
-exports.makeClientAPI = function (api, sourceDir, apiOutputDir) {
+exports.makeClientAPI2 = function (apis, sourceDir, apiOutputDir) {
     var srcOutputLoc = ["", "../AndroidStudioExample/app/"];
     var testOutputLoc = ["", "../AndroidStudioExample/app/"];
     
@@ -17,9 +17,10 @@ exports.makeClientAPI = function (api, sourceDir, apiOutputDir) {
         console.log("Generating Java client SDK to " + srcOutputDir);
         copyTree(path.resolve(sourceDir, "srcCode"), srcOutputDir);
         copyTree(path.resolve(sourceDir, "testingFiles/client"), testOutputDir);
-        MakeDatatypes([api], sourceDir, srcOutputDir);
-        makeApi(api, sourceDir, srcOutputDir, isAndroid);
-        GenerateSimpleFiles([api], "Client", sourceDir, srcOutputDir, isAndroid);
+        MakeDatatypes(apis, sourceDir, srcOutputDir);
+        for (var j = 0; j < apis.length; j++)
+            makeApi(apis[j], sourceDir, apiOutputDir, false);
+        GenerateSimpleFiles(apis, "Client", sourceDir, srcOutputDir, isAndroid);
     }
 }
 

@@ -7,3 +7,4 @@ rem === BUILDING UnitySDK with params %* ===
 node generate.js unity-v2=..\sdks\UnitySDK %*
 )
 popd
+pause

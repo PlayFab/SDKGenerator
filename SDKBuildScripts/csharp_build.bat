@@ -7,3 +7,4 @@ rem === BUILDING CSharpSDK with params %* ===
 node generate.js csharp=..\sdks\CSharpSDK %*
 )
 popd
+pause

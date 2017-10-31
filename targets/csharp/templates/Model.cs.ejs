@@ -1,11 +1,11 @@
 
 <%- generateApiSummary("    ", datatype, "description")
-%><%- GetDeprecationAttribute("    ", datatype)
-%>    public<% if(datatype.isAbstract) { %> abstract<% } %> class <%- datatype.name %><%- GetBaseTypeSyntax(datatype) %>
+%><%- getDeprecationAttribute("    ", datatype)
+%>    public<% if(datatype.isAbstract) { %> abstract<% } %> class <%- datatype.name %><%- getBaseTypeSyntax(datatype) %>
     {<% for(var i in datatype.properties) { var property = datatype.properties[i];%>
 <%- generateApiSummary("        ", property, "description")
-%><%- GetDeprecationAttribute("        ", property)
-%>        <%- GetPropertyAttribs(property, datatype, api) %>public <%- GetModelPropertyDef(property, datatype) %>;
+%><%- getDeprecationAttribute("        ", property)
+%>        <%- getPropertyAttribs(property, datatype, api) %>public <%- getModelPropertyDef(property, datatype) %>;
 <% } %><% if(datatype.sortKey) { %>
         public int CompareTo(<%- datatype.name %> other)
         {

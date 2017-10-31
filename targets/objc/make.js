@@ -6,29 +6,34 @@ if (typeof (getCompiledTemplate) === "undefined") getCompiledTemplate = function
 
 exports.putInRoot = true;
 
-exports.makeClientAPI = function (api, sourceDir, apiOutputDir) {
+exports.makeClientAPI2 = function (apis, sourceDir, apiOutputDir) {
     console.log("Generating client api from: " + sourceDir + " to: " + apiOutputDir);
-    
-    var apiLocals = {};
-    apiLocals.api = api;
-    apiLocals.GetRequestActions = GetRequestActions;
-    apiLocals.GetResultActions = GetResultActions;
-    apiLocals.GetAuthParams = GetAuthParams;
-    apiLocals.authKey = api.name === "Client";
-    apiLocals.HasRequest = HasRequest;
-    
+    for (var i = 0; i < apis.length; i++)
+        makeApiInternal(apis[i], sourceDir, apiOutputDir);
+}
+
+function makeApiInternal(api, sourceDir, apiOutputDir) {
+    var apiLocals = {
+        api: api,
+        authKey: api.name === "Client",
+        GetAuthParams: GetAuthParams,
+        GetRequestActions: GetRequestActions,
+        GetResultActions: GetResultActions,
+        HasRequest: HasRequest,
+    };
+
     GenerateModels([api], apiOutputDir, api.name, sourceDir, "");
     GenerateErrors(api, apiOutputDir, sourceDir);
     GenerateVersion(api, apiOutputDir, sourceDir);
-    
+
     var apiHeaderTemplate = getCompiledTemplate(path.resolve(sourceDir, "templates/PlayFabAPI.h.ejs"));
     var generatedHeader = apiHeaderTemplate(apiLocals);
     writeFile(path.resolve(apiOutputDir, "PlayFabSDK/PlayFab" + api.name + "API.h"), generatedHeader);
-    
+
     var apiBodyTemplate = getCompiledTemplate(path.resolve(sourceDir, "templates/PlayFabAPI.m.ejs"));
     var generatedBody = apiBodyTemplate(apiLocals);
     writeFile(path.resolve(apiOutputDir, "PlayFabSDK/PlayFab" + api.name + "API.m"), generatedBody);
-    
+
     copyTree(path.resolve(sourceDir, "source"), path.resolve(apiOutputDir, "PlayFabSDK"));
 }
 

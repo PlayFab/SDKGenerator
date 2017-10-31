@@ -3,7 +3,7 @@ var fs = require("fs");
 var https = require("https");
 var path = require("path");
 ejs.delimiter = "\n";
-var SdkGeneratorGlobals = {
+var sdkGeneratorGlobals = {
     // Frequently, these are passed by reference to avoid over-use of global variables. Unfortunately, the async nature of loading api files required some global references
     // Internal note: We lowercase the argsByName-keys, targetNames, buildIdentifier, and the flags.  Case is maintained for all other argsByName-values, and targets
     argsByName: {},
@@ -13,22 +13,23 @@ var SdkGeneratorGlobals = {
     apiSrcDescription: "INVALID",
     apiCache: {} // We have to pre-cache the api-spec files, because latter steps (like ejs) can't run asynchronously
 };
-var DefaultApiSpecFilePath = "../API_Specs"; // Relative path to Generate.js
-var DefaultApiSpecGitHubUrl = "https://raw.githubusercontent.com/PlayFab/API_Specs/master/";
-var DefaultApiSpecPlayFabUrl = "https://www.playfabapi.com/apispec/";
+var defaultApiSpecFilePath = "../API_Specs"; // Relative path to Generate.js
+var defaultApiSpecGitHubUrl = "https://raw.githubusercontent.com/PlayFab/API_Specs/master/";
+var defaultApiSpecPlayFabUrl = "https://www.playfabapi.com/apispec/";
 /////////////////////////////////// The main build sequence for this program ///////////////////////////////////
-function ParseAndLoadApis() {
+function parseAndLoadApis() {
+    console.log("My args:" + process.argv.join(" "));
     // Step 1
-    ParseCommandInputs(process.argv, SdkGeneratorGlobals.argsByName, SdkGeneratorGlobals.errorMessages, SdkGeneratorGlobals.targetOutputPathList);
-    ReportErrorsAndExit(SdkGeneratorGlobals.errorMessages);
+    parseCommandInputs(process.argv, sdkGeneratorGlobals.argsByName, sdkGeneratorGlobals.errorMessages, sdkGeneratorGlobals.targetOutputPathList);
+    reportErrorsAndExit(sdkGeneratorGlobals.errorMessages);
     // Kick off Step 2
-    LoadAndCacheApis(SdkGeneratorGlobals.argsByName, SdkGeneratorGlobals.apiCache);
+    loadAndCacheApis(sdkGeneratorGlobals.argsByName, sdkGeneratorGlobals.apiCache);
 }
 // Wrapper function for Step 3
-function GenerateSdks() {
-    GenerateApis(SdkGeneratorGlobals.argsByName["buildidentifier"], SdkGeneratorGlobals.targetOutputPathList, SdkGeneratorGlobals.buildFlags, SdkGeneratorGlobals.apiSrcDescription);
+function generateSdks() {
+    generateApis(sdkGeneratorGlobals.argsByName["buildidentifier"], sdkGeneratorGlobals.targetOutputPathList, sdkGeneratorGlobals.buildFlags, sdkGeneratorGlobals.apiSrcDescription);
 }
-function ReportErrorsAndExit(errorMessages) {
+function reportErrorsAndExit(errorMessages) {
     if (errorMessages.length === 0)
         return; // No errors to report, so continue
     // Else, report all errors and exit the program
@@ -45,24 +46,24 @@ function ReportErrorsAndExit(errorMessages) {
     for (var i = 0; i < errorMessages.length; i++)
         console.log(errorMessages[i]);
     console.log("\nPossible targetNames:");
-    var targetList = GetTargetsList();
+    var targetList = getTargetsList();
     console.log("\t" + targetList.join(", "));
     process.exit(1);
 }
 /////////////////////////////////// Major step 1 - Parse and validate command-line inputs ///////////////////////////////////
-function ParseCommandInputs(args, argsByName, errorMessages, targetOutputPathList) {
+function parseCommandInputs(args, argsByName, errorMessages, targetOutputPathList) {
     // Parse the command line arguments into key-value-pairs
-    ExtractArgs(args, argsByName, targetOutputPathList, errorMessages);
+    extractArgs(args, argsByName, targetOutputPathList, errorMessages);
     // Apply defaults 
     if (!argsByName.hasOwnProperty("apispecpath") && !argsByName.hasOwnProperty("apispecgiturl") && !argsByName.hasOwnProperty("apispecpfurl"))
         argsByName.apispecgiturl = ""; // If nothing is defined, default to GitHub
     // A source key set, with no value means use the default for that input format
     if (argsByName.apispecpath === "")
-        argsByName.apispecpath = DefaultApiSpecFilePath;
+        argsByName.apispecpath = defaultApiSpecFilePath;
     if (argsByName.apispecgiturl === "")
-        argsByName.apispecgiturl = DefaultApiSpecGitHubUrl;
+        argsByName.apispecgiturl = defaultApiSpecGitHubUrl;
     if (argsByName.apispecpfurl === "")
-        argsByName.apispecpfurl = DefaultApiSpecPlayFabUrl;
+        argsByName.apispecpfurl = defaultApiSpecPlayFabUrl;
     // Output an error if no targets are defined
     if (targetOutputPathList.length === 0)
         errorMessages.push("No targets defined, you must define at least one.");
@@ -81,9 +82,9 @@ function ParseCommandInputs(args, argsByName, errorMessages, targetOutputPathLis
         argsByName.buildidentifier = "default_manual_build";
     argsByName.buildidentifier = argsByName.buildidentifier.toLowerCase(); // lowercase the buildIdentifier
     if (argsByName.hasOwnProperty("flags"))
-        SdkGeneratorGlobals.buildFlags = LowercaseFlagsList(argsByName.flags.split(" "));
+        sdkGeneratorGlobals.buildFlags = lowercaseFlagsList(argsByName.flags.split(" "));
 }
-function ExtractArgs(args, argsByName, targetOutputPathList, errorMessages) {
+function extractArgs(args, argsByName, targetOutputPathList, errorMessages) {
     var cmdArgs = args.slice(2, args.length); // remove "node.exe generate.js"
     var activeKey = null;
     for (var i = 0; i < cmdArgs.length; i++) {
@@ -94,7 +95,7 @@ function ExtractArgs(args, argsByName, targetOutputPathList, errorMessages) {
         }
         else if (lcArg.indexOf("=") !== -1) {
             var argPair = cmdArgs[i].split("=", 2);
-            CheckTarget(argPair[0].toLowerCase(), argPair[1], targetOutputPathList, errorMessages);
+            checkTarget(argPair[0].toLowerCase(), argPair[1], targetOutputPathList, errorMessages);
         }
         else if ((lcArg === "c:\\depot\\api_specs" || lcArg === "..\\api_specs") && activeKey === null && !argsByName.hasOwnProperty("apispecpath")) {
             argsByName["apispecpath"] = cmdArgs[i];
@@ -112,10 +113,10 @@ function ExtractArgs(args, argsByName, targetOutputPathList, errorMessages) {
     }
     // Pull from environment variables if there's no console-defined targets
     if (targetOutputPathList.length === 0 && process.env.hasOwnProperty("SdkSource") && process.env.hasOwnProperty("SdkName")) {
-        CheckTarget(process.env.hasOwnProperty("SdkSource"), process.env.hasOwnProperty("SdkName"), targetOutputPathList, errorMessages);
+        checkTarget(process.env.hasOwnProperty("SdkSource"), process.env.hasOwnProperty("SdkName"), targetOutputPathList, errorMessages);
     }
 }
-function CheckTarget(sdkSource, sdkDestination, targetOutputPathList, errorMessages) {
+function checkTarget(sdkSource, sdkDestination, targetOutputPathList, errorMessages) {
     var targetOutput = {
         name: sdkSource,
         dest: path.normalize(sdkDestination)
@@ -127,7 +128,7 @@ function CheckTarget(sdkSource, sdkDestination, targetOutputPathList, errorMessa
         targetOutputPathList.push(targetOutput);
     }
 }
-function GetTargetsList() {
+function getTargetsList() {
     var targetList = [];
     var targetsDir = path.resolve(__dirname, "targets");
     var targets = fs.readdirSync(targetsDir);
@@ -143,78 +144,92 @@ function GetTargetsList() {
     return targetList;
 }
 /////////////////////////////////// Major step 2 - Load and cache the API files ///////////////////////////////////
-function LoadAndCacheApis(argsByName, apiCache) {
-    // GenerateSdks is the function that begins the next step
+function loadAndCacheApis(argsByName, apiCache) {
+    // generateSdks is the function that begins the next step
     if (argsByName.apispecpath) {
-        LoadApisFromLocalFiles(argsByName, apiCache, argsByName.apispecpath, GenerateSdks);
+        loadApisFromLocalFiles(argsByName, apiCache, argsByName.apispecpath, generateSdks);
     }
     else if (argsByName.apispecgiturl) {
-        LoadApisFromGitHub(argsByName, apiCache, argsByName.apispecgiturl, GenerateSdks);
+        loadApisFromGitHub(argsByName, apiCache, argsByName.apispecgiturl, generateSdks);
     }
     else if (argsByName.apispecpfurl) {
-        LoadApisFromPlayFabServer(argsByName, apiCache, argsByName.apispecpfurl, GenerateSdks);
+        loadApisFromPlayFabServer(argsByName, apiCache, argsByName.apispecpfurl, generateSdks);
     }
 }
-function LoadApisFromLocalFiles(argsByName, apiCache, apiSpecPath, onComplete) {
-    function loadEachFile(filename) {
+function loadApisFromLocalFiles(argsByName, apiCache, apiSpecPath, onComplete) {
+    function loadEachFile(filename, optional) {
         var fullPath = path.resolve(apiSpecPath, filename);
-        console.log("Begin reading: " + fullPath);
-        apiCache[filename] = require(fullPath);
+        console.log("Begin reading File: " + fullPath);
+        var fileContents = null;
+        try {
+            fileContents = require(fullPath);
+        }
+        catch (err) {
+            console.log(" ***** Failed to Load: " + fullPath);
+            if (!optional)
+                throw err;
+        }
+        if (fileContents) {
+            apiCache[filename] = fileContents;
+        }
         console.log("Finished reading: " + fullPath);
     }
-    loadEachFile("Admin.api.json");
-    loadEachFile("Client.api.json");
-    loadEachFile("Matchmaker.api.json");
-    loadEachFile("Server.api.json");
-    loadEachFile("PlayStreamEventModels.json");
-    loadEachFile("PlayStreamCommonEventModels.json");
-    loadEachFile("PlayStreamProfileModels.json");
-    loadEachFile("SdkManualNotes.json");
-    SdkGeneratorGlobals.apiSrcDescription = argsByName.apispecpath;
+    loadEachFile("Admin.api.json", false);
+    loadEachFile("Client.api.json", false);
+    loadEachFile("Entity.api.json", true);
+    loadEachFile("Matchmaker.api.json", false);
+    loadEachFile("Server.api.json", false);
+    loadEachFile("PlayStreamEventModels.json", false);
+    loadEachFile("PlayStreamCommonEventModels.json", false);
+    loadEachFile("PlayStreamProfileModels.json", false);
+    loadEachFile("SdkManualNotes.json", false);
+    sdkGeneratorGlobals.apiSrcDescription = argsByName.apispecpath;
     onComplete();
 }
-function LoadApisFromGitHub(argsByName, apiCache, apiSpecGitUrl, onComplete) {
-    var finishCountdown = 8;
+function loadApisFromGitHub(argsByName, apiCache, apiSpecGitUrl, onComplete) {
+    var finishCountdown = 9;
     function onEachComplete() {
         finishCountdown -= 1;
         if (finishCountdown === 0) {
             console.log("Finished loading files from GitHub");
-            SdkGeneratorGlobals.apiSrcDescription = argsByName.apiSpecGitUrl;
+            sdkGeneratorGlobals.apiSrcDescription = argsByName.apiSpecGitUrl;
             onComplete();
         }
     }
-    DownloadFromUrl(apiSpecGitUrl, "Admin.api.json", apiCache, "Admin.api.json", onEachComplete);
-    DownloadFromUrl(apiSpecGitUrl, "Client.api.json", apiCache, "Client.api.json", onEachComplete);
-    DownloadFromUrl(apiSpecGitUrl, "Matchmaker.api.json", apiCache, "Matchmaker.api.json", onEachComplete);
-    DownloadFromUrl(apiSpecGitUrl, "Server.api.json", apiCache, "Server.api.json", onEachComplete);
-    DownloadFromUrl(apiSpecGitUrl, "PlayStreamEventModels.json", apiCache, "PlayStreamEventModels.json", onEachComplete);
-    DownloadFromUrl(apiSpecGitUrl, "PlayStreamCommonEventModels.json", apiCache, "PlayStreamCommonEventModels.json", onEachComplete);
-    DownloadFromUrl(apiSpecGitUrl, "PlayStreamProfileModels.json", apiCache, "PlayStreamProfileModels.json", onEachComplete);
-    DownloadFromUrl(apiSpecGitUrl, "SdkManualNotes.json", apiCache, "SdkManualNotes.json", onEachComplete);
+    downloadFromUrl(apiSpecGitUrl, "Admin.api.json", apiCache, "Admin.api.json", onEachComplete, false);
+    downloadFromUrl(apiSpecGitUrl, "Client.api.json", apiCache, "Client.api.json", onEachComplete, false);
+    downloadFromUrl(apiSpecGitUrl, "Entity.api.json", apiCache, "Entity.api.json", onEachComplete, true);
+    downloadFromUrl(apiSpecGitUrl, "Matchmaker.api.json", apiCache, "Matchmaker.api.json", onEachComplete, false);
+    downloadFromUrl(apiSpecGitUrl, "Server.api.json", apiCache, "Server.api.json", onEachComplete, false);
+    downloadFromUrl(apiSpecGitUrl, "PlayStreamEventModels.json", apiCache, "PlayStreamEventModels.json", onEachComplete, false);
+    downloadFromUrl(apiSpecGitUrl, "PlayStreamCommonEventModels.json", apiCache, "PlayStreamCommonEventModels.json", onEachComplete, false);
+    downloadFromUrl(apiSpecGitUrl, "PlayStreamProfileModels.json", apiCache, "PlayStreamProfileModels.json", onEachComplete, false);
+    downloadFromUrl(apiSpecGitUrl, "SdkManualNotes.json", apiCache, "SdkManualNotes.json", onEachComplete, false);
 }
-function LoadApisFromPlayFabServer(argsByName, apiCache, apiSpecPfUrl, onComplete) {
-    var finishCountdown = 8;
+function loadApisFromPlayFabServer(argsByName, apiCache, apiSpecPfUrl, onComplete) {
+    var finishCountdown = 9;
     function onEachComplete() {
         finishCountdown -= 1;
         if (finishCountdown === 0) {
             console.log("Finished loading files from PlayFab Server");
-            SdkGeneratorGlobals.apiSrcDescription = argsByName.apispecpfurl;
+            sdkGeneratorGlobals.apiSrcDescription = argsByName.apispecpfurl;
             onComplete();
         }
     }
-    DownloadFromUrl(apiSpecPfUrl, "AdminAPI", apiCache, "Admin.api.json", onEachComplete);
-    DownloadFromUrl(apiSpecPfUrl, "ClientAPI", apiCache, "Client.api.json", onEachComplete);
-    DownloadFromUrl(apiSpecPfUrl, "MatchmakerAPI", apiCache, "Matchmaker.api.json", onEachComplete);
-    DownloadFromUrl(apiSpecPfUrl, "ServerAPI", apiCache, "Server.api.json", onEachComplete);
-    DownloadFromUrl(apiSpecPfUrl, "PlayStreamEventModels", apiCache, "PlayStreamEventModels.json", onEachComplete);
-    DownloadFromUrl(apiSpecPfUrl, "PlayStreamCommonEventModels", apiCache, "PlayStreamCommonEventModels.json", onEachComplete);
-    DownloadFromUrl(apiSpecPfUrl, "PlayStreamProfileModel", apiCache, "PlayStreamProfileModels.json", onEachComplete);
+    downloadFromUrl(apiSpecPfUrl, "AdminAPI", apiCache, "Admin.api.json", onEachComplete, false);
+    downloadFromUrl(apiSpecPfUrl, "ClientAPI", apiCache, "Client.api.json", onEachComplete, false);
+    downloadFromUrl(apiSpecPfUrl, "EntityAPI", apiCache, "Entity.api.json", onEachComplete, true);
+    downloadFromUrl(apiSpecPfUrl, "MatchmakerAPI", apiCache, "Matchmaker.api.json", onEachComplete, false);
+    downloadFromUrl(apiSpecPfUrl, "ServerAPI", apiCache, "Server.api.json", onEachComplete, false);
+    downloadFromUrl(apiSpecPfUrl, "PlayStreamEventModels", apiCache, "PlayStreamEventModels.json", onEachComplete, false);
+    downloadFromUrl(apiSpecPfUrl, "PlayStreamCommonEventModels", apiCache, "PlayStreamCommonEventModels.json", onEachComplete, false);
+    downloadFromUrl(apiSpecPfUrl, "PlayStreamProfileModel", apiCache, "PlayStreamProfileModels.json", onEachComplete, false);
     // This file isn't on the pf-server, and it couldn't be accurate there either way
-    DownloadFromUrl(DefaultApiSpecGitHubUrl, "SdkManualNotes.json", apiCache, "SdkManualNotes.json", onEachComplete);
+    downloadFromUrl(defaultApiSpecGitHubUrl, "SdkManualNotes.json", apiCache, "SdkManualNotes.json", onEachComplete, false);
 }
-function DownloadFromUrl(srcUrl, appendUrl, apiCache, cacheKey, onEachComplete) {
+function downloadFromUrl(srcUrl, appendUrl, apiCache, cacheKey, onEachComplete, optional) {
     var fullUrl = srcUrl + appendUrl;
-    console.log("Begin reading: " + fullUrl);
+    console.log("Begin reading URL: " + fullUrl);
     var rawResponse = "";
     https.get(fullUrl, function (request) {
         request.setEncoding("utf8");
@@ -225,30 +240,36 @@ function DownloadFromUrl(srcUrl, appendUrl, apiCache, cacheKey, onEachComplete) 
                 apiCache[cacheKey] = JSON.parse(rawResponse);
             }
             catch (jsonErr) {
-                console.log("Failed to parse json on: " + fullUrl);
-                throw jsonErr;
+                console.log(" ***** Failed to parse json: " + rawResponse.trim());
+                console.log(" ***** Failed to Load: " + fullUrl);
+                if (!optional)
+                    throw jsonErr;
             }
             onEachComplete();
         });
-        request.on('error', function (reqErr) {
-            console.log("Request failed on: " + fullUrl);
+        request.on("error", function (reqErr) {
+            console.log(" ***** Request failed on: " + fullUrl);
             console.log(reqErr);
+            if (!optional)
+                throw reqErr;
         });
     });
 }
 /////////////////////////////////// Major step 3 - Generate the indicated ouptut files ///////////////////////////////////
-function GenerateApis(buildIdentifier, targetOutputPathList, buildFlags, apiSrcDescription) {
+function generateApis(buildIdentifier, targetOutputPathList, buildFlags, apiSrcDescription) {
     console.log("Generating PlayFab APIs from specs: " + apiSrcDescription);
-    var clientApi = GetApiDefinition("Client.api.json", buildFlags);
+    var clientApis = [
+        getApiDefinition("Client.api.json", buildFlags)
+    ];
     var adminApis = [
-        GetApiDefinition("Admin.api.json", buildFlags)
+        getApiDefinition("Admin.api.json", buildFlags)
     ];
     var serverApis = [
-        GetApiDefinition("Admin.api.json", buildFlags),
-        GetApiDefinition("Matchmaker.api.json", buildFlags),
-        GetApiDefinition("Server.api.json", buildFlags)
+        getApiDefinition("Admin.api.json", buildFlags),
+        getApiDefinition("Matchmaker.api.json", buildFlags),
+        getApiDefinition("Server.api.json", buildFlags)
     ];
-    var allApis = serverApis.concat(clientApi);
+    var allApis = serverApis.concat(clientApis);
     var targetsDir = path.resolve(__dirname, "targets");
     for (var t = 0; t < targetOutputPathList.length; t++) {
         var target = targetOutputPathList[t];
@@ -268,37 +289,40 @@ function GenerateApis(buildIdentifier, targetOutputPathList, buildFlags, apiSrcD
         }
         var apiOutputDir = "";
         if (targetMaker.makeClientAPI) {
+            throw "This SDK still defines makeClientAPI, instead of makeClientAPI2, meaning it will not work properly with the Entity API";
+        }
+        if (targetMaker.makeClientAPI2) {
             apiOutputDir = targetMaker.putInRoot ? sdkOutputDir : path.resolve(sdkOutputDir, "PlayFabClientSDK");
             console.log(" + Generating Client to " + apiOutputDir);
             if (!fs.existsSync(apiOutputDir))
-                MkdirParentsSync(apiOutputDir);
-            targetMaker.makeClientAPI(clientApi, targetSourceDir, apiOutputDir);
+                mkdirParentsSync(apiOutputDir);
+            targetMaker.makeClientAPI2(clientApis, targetSourceDir, apiOutputDir);
         }
         if (targetMaker.makeServerAPI) {
             apiOutputDir = targetMaker.putInRoot ? sdkOutputDir : path.resolve(sdkOutputDir, "PlayFabServerSDK");
             console.log(" + Generating Server to " + apiOutputDir);
             if (!fs.existsSync(apiOutputDir))
-                MkdirParentsSync(apiOutputDir);
+                mkdirParentsSync(apiOutputDir);
             targetMaker.makeServerAPI(serverApis, targetSourceDir, apiOutputDir);
         }
         if (targetMaker.makeAdminAPI) {
             apiOutputDir = targetMaker.putInRoot ? sdkOutputDir : path.resolve(sdkOutputDir, "PlayFabServerSDK");
             console.log(" + Generating Server to " + apiOutputDir);
             if (!fs.existsSync(apiOutputDir))
-                MkdirParentsSync(apiOutputDir);
+                mkdirParentsSync(apiOutputDir);
             targetMaker.makeAdminAPI(adminApis, targetSourceDir, apiOutputDir);
         }
         if (targetMaker.makeCombinedAPI) {
             apiOutputDir = targetMaker.putInRoot ? sdkOutputDir : path.resolve(sdkOutputDir, "PlayFabSDK");
             console.log(" + Generating Combined to " + apiOutputDir);
             if (!fs.existsSync(apiOutputDir))
-                MkdirParentsSync(apiOutputDir);
+                mkdirParentsSync(apiOutputDir);
             targetMaker.makeCombinedAPI(allApis, targetSourceDir, apiOutputDir);
         }
     }
     console.log("\n\nDONE!\n");
 }
-function GetApiDefinition(apiFileName, buildFlags) {
+function getApiDefinition(apiFileName, buildFlags) {
     var api = getApiJson(apiFileName);
     // Special case, "obsolete" is treated as an SdkGenerator flag, but is not an actual flag in pf-main
     var obsoleteFlaged = false, nonNullableFlagged = false;
@@ -310,19 +334,19 @@ function GetApiDefinition(apiFileName, buildFlags) {
     }
     // Filter calls out of the API before returning it
     var filteredCalls = [];
-    for (var cIdx in api.calls)
-        if (IsVisibleWithFlags(buildFlags, api.calls[cIdx], obsoleteFlaged, nonNullableFlagged))
+    for (var cIdx = 0; cIdx < api.calls.length; cIdx++)
+        if (isVisibleWithFlags(buildFlags, api.calls[cIdx], obsoleteFlaged, nonNullableFlagged))
             filteredCalls.push(api.calls[cIdx]);
     api.calls = filteredCalls;
     // Filter datatypes out of the API before returning it
     var filteredTypes = {};
     for (var dIdx in api.datatypes) {
-        if (IsVisibleWithFlags(buildFlags, api.datatypes[dIdx], obsoleteFlaged, nonNullableFlagged)) {
+        if (isVisibleWithFlags(buildFlags, api.datatypes[dIdx], obsoleteFlaged, nonNullableFlagged)) {
             var eachType = api.datatypes[dIdx];
             var filteredProperties = [];
             if (eachType.properties) {
                 for (var pIdx = 0; pIdx < eachType.properties.length; pIdx++)
-                    if (IsVisibleWithFlags(buildFlags, eachType.properties[pIdx], obsoleteFlaged, nonNullableFlagged))
+                    if (isVisibleWithFlags(buildFlags, eachType.properties[pIdx], obsoleteFlaged, nonNullableFlagged))
                         filteredProperties.push(eachType.properties[pIdx]);
                 eachType.properties = filteredProperties;
             }
@@ -332,7 +356,7 @@ function GetApiDefinition(apiFileName, buildFlags) {
     api.datatypes = filteredTypes;
     return api;
 }
-function IsVisibleWithFlags(buildFlags, apiObj, obsoleteFlaged, nonNullableFlagged) {
+function isVisibleWithFlags(buildFlags, apiObj, obsoleteFlaged, nonNullableFlagged) {
     // Filter obsolete elements
     if (!obsoleteFlaged && apiObj.hasOwnProperty("deprecation")) {
         var obsoleteTime = new Date(apiObj.deprecation.ObsoleteAfter);
@@ -345,14 +369,14 @@ function IsVisibleWithFlags(buildFlags, apiObj, obsoleteFlaged, nonNullableFlagg
     // It's pretty easy to exclude (Api calls and datatypes)
     var exclusiveFlags = [];
     if (apiObj.hasOwnProperty("ExclusiveFlags"))
-        exclusiveFlags = LowercaseFlagsList(apiObj.ExclusiveFlags);
+        exclusiveFlags = lowercaseFlagsList(apiObj.ExclusiveFlags);
     for (var bIdx = 0; bIdx < buildFlags.length; bIdx++)
         if (exclusiveFlags.indexOf(buildFlags[bIdx]) !== -1)
             return false;
     // All Inclusive flags must match if present (Api calls only)
     var allInclusiveFlags = [];
     if (apiObj.hasOwnProperty("AllInclusiveFlags"))
-        allInclusiveFlags = LowercaseFlagsList(apiObj.AllInclusiveFlags);
+        allInclusiveFlags = lowercaseFlagsList(apiObj.AllInclusiveFlags);
     if (allInclusiveFlags.length !== 0)
         for (var alIdx = 0; alIdx < allInclusiveFlags.length; alIdx++)
             if (buildFlags.indexOf(allInclusiveFlags[alIdx]) === -1)
@@ -360,7 +384,7 @@ function IsVisibleWithFlags(buildFlags, apiObj, obsoleteFlaged, nonNullableFlagg
     // Any Inclusive flags must match at least one if present (Api calls and datatypes)
     var anyInclusiveFlags = [];
     if (apiObj.hasOwnProperty("AnyInclusiveFlags"))
-        anyInclusiveFlags = LowercaseFlagsList(apiObj.AnyInclusiveFlags);
+        anyInclusiveFlags = lowercaseFlagsList(apiObj.AnyInclusiveFlags);
     if (anyInclusiveFlags.length === 0)
         return true; // If there's no flags, it is always included
     for (var anIdx = 0; anIdx < anyInclusiveFlags.length; anIdx++)
@@ -369,17 +393,17 @@ function IsVisibleWithFlags(buildFlags, apiObj, obsoleteFlaged, nonNullableFlagg
     return false;
 }
 /////////////////////////////////// RANDOM INTERNAL UTILITIES used locally ///////////////////////////////////
-function LowercaseFlagsList(flags) {
+function lowercaseFlagsList(flags) {
     var output = [];
     for (var i = 0; i < flags.length; i++)
         output.push(flags[i].toLowerCase());
     return output;
 }
-function MkdirParentsSync(dirname) {
+function mkdirParentsSync(dirname) {
     if (fs.existsSync(dirname))
         return;
     var parentName = path.dirname(dirname);
-    MkdirParentsSync(parentName);
+    mkdirParentsSync(parentName);
     fs.mkdirSync(dirname);
 }
 // String utilities
@@ -427,7 +451,7 @@ function copyTree(source, dest) {
     }
     if (fs.lstatSync(source).isDirectory()) {
         if (!fs.existsSync(dest)) {
-            MkdirParentsSync(dest);
+            mkdirParentsSync(dest);
         }
         else if (!fs.lstatSync(dest).isDirectory()) {
             console.error("Can't copy a directory onto a file: " + source + " " + dest);
@@ -472,12 +496,12 @@ function copyFile(source, dest) {
     }
     else {
         if (dest[dest.length - 1] === "/" || dest[dest.length - 1] === "\\") {
-            MkdirParentsSync(dest);
+            mkdirParentsSync(dest);
             dest += filename;
         }
         else {
             var dirname = path.dirname(dest);
-            MkdirParentsSync(dirname);
+            mkdirParentsSync(dirname);
         }
     }
     if (fs.existsSync(dest)) {
@@ -523,13 +547,13 @@ global.readFile = readFile;
 function writeFile(filename, data) {
     var dirname = path.dirname(filename);
     if (!fs.existsSync(dirname))
-        MkdirParentsSync(dirname);
+        mkdirParentsSync(dirname);
     return fs.writeFileSync(filename, data);
 }
 global.writeFile = writeFile;
 // Fetch the object parsed from an api-file, from the cache (can't load synchronously from URL-options, so we have to pre-cache them)
 function getApiJson(apiFileName) {
-    return SdkGeneratorGlobals.apiCache[apiFileName];
+    return sdkGeneratorGlobals.apiCache[apiFileName];
 }
 global.getApiJson = getApiJson;
 /**
@@ -590,5 +614,5 @@ function generateApiSummaryLines(apiElement, summaryParam, extraLines, linkToDoc
 }
 global.generateApiSummaryLines = generateApiSummaryLines;
 // Kick everything off
-ParseAndLoadApis();
+parseAndLoadApis();
 //# sourceMappingURL=generate.js.map

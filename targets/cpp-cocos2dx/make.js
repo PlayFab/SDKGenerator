@@ -4,45 +4,26 @@ var path = require("path");
 if (typeof (copyTree) === "undefined") copyTree = function () { };
 if (typeof (getCompiledTemplate) === "undefined") getCompiledTemplate = function () { };
 
-exports.makeClientAPI = function (api, sourceDir, apiOutputDir) {
-    var libname = "Client";
-    
-    console.log("Generating Cocos2d-x C++ client SDK to " + apiOutputDir);
-    
-    copyTree(path.resolve(sourceDir, "source"), apiOutputDir);
-    
-    makeApi(api, sourceDir, apiOutputDir);
-    
-    GenerateModels([api], sourceDir, apiOutputDir, libname);
-    GenerateErrors(api, sourceDir, apiOutputDir);
-    GenerateSettings([api], sourceDir, apiOutputDir);
+exports.makeClientAPI2 = function (apis, sourceDir, apiOutputDir) {
+    makeApiInternal(apis, sourceDir, apiOutputDir, "Client");
 }
 
 exports.makeServerAPI = function (apis, sourceDir, apiOutputDir) {
-    var libname = "Server";
-    
-    console.log("Generating Cocos2d-x C++ server SDK to " + apiOutputDir);
-    
-    copyTree(path.resolve(sourceDir, "source"), apiOutputDir);
-    
-    for (var i = 0; i < apis.length; i++)
-        makeApi(apis[i], sourceDir, apiOutputDir);
-    
-    GenerateModels(apis, sourceDir, apiOutputDir, libname);
-    GenerateErrors(apis[0], sourceDir, apiOutputDir);
-    GenerateSettings(apis, sourceDir, apiOutputDir);
+    makeApiInternal(apis, sourceDir, apiOutputDir, "Server");
 }
 
 exports.makeCombinedAPI = function (apis, sourceDir, apiOutputDir) {
-    var libname = "All";
-    
-    console.log("Generating Cocos2d-x C++ combined SDK to " + apiOutputDir);
-    
+    makeApiInternal(apis, sourceDir, apiOutputDir, "All");
+}
+
+function makeApiInternal(apis, sourceDir, apiOutputDir, libname) {
+    console.log("Generating Cocos2d-x C++ " + libname + " SDK to " + apiOutputDir);
+
     copyTree(path.resolve(sourceDir, "source"), apiOutputDir);
-    
+
     for (var i = 0; i < apis.length; i++)
         makeApi(apis[i], sourceDir, apiOutputDir);
-    
+
     GenerateModels(apis, sourceDir, apiOutputDir, libname);
     GenerateErrors(apis[0], sourceDir, apiOutputDir);
     GenerateSettings(apis, sourceDir, apiOutputDir);

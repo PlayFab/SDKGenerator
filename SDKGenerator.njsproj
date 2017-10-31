@@ -26,12 +26,6 @@
     <ProjectTypeGuids>{3AF33F2E-1136-4D97-BBB7-1795711AC8B8};{9092AA53-FB77-4645-B42D-1CCCA6BD08BD}</ProjectTypeGuids>
     <StartWebBrowser>False</StartWebBrowser>
   </PropertyGroup>
-  <PropertyGroup Condition=" '$(Configuration)' == 'Debug' ">
-    <DebugSymbols>true</DebugSymbols>
-  </PropertyGroup>
-  <PropertyGroup Condition=" '$(Configuration)' == 'Release' ">
-    <DebugSymbols>true</DebugSymbols>
-  </PropertyGroup>
   <PropertyGroup Condition=" '$(Configuration)' == 'ActionScriptSDK' ">
     <DebugSymbols>true</DebugSymbols>
     <OutputPath>bin\</OutputPath>
@@ -140,7 +134,6 @@
     <Compile Include="targets\cpp-ue4\make.js" />
     <Compile Include="targets\cpp-unreal\make.js" />
     <Compile Include="targets\csharp-unity-gameserver\make.js" />
-    <Compile Include="targets\csharp-unity-strangeioc\make.js" />
     <Compile Include="targets\csharp\make.js" />
     <Compile Include="targets\javascript\make.js" />
     <Compile Include="targets\java\make.js" />
@@ -315,14 +308,6 @@
     <Content Include="targets\csharp-unity-gameserver\templates\PlayFabContextManager.cs.ejs" />
     <Content Include="targets\csharp-unity-gameserver\templates\PlayFabErrorHandler.cs.ejs" />
     <Content Include="targets\csharp-unity-gameserver\templates\PlayFabSignals.cs.ejs" />
-    <Content Include="targets\csharp-unity-strangeioc\source\ErrorHandler\PlayFabErrorHandler.cs" />
-    <Content Include="targets\csharp-unity-strangeioc\source\ErrorHandler\PlayFabErrorHandler.cs.meta" />
-    <Content Include="targets\csharp-unity-strangeioc\source\Mediators\PlayFabContextMediator.cs" />
-    <Content Include="targets\csharp-unity-strangeioc\source\Models\PlayFabDataStore.cs" />
-    <Content Include="targets\csharp-unity-strangeioc\templates\strangeioc-playfab-commands.ejs" />
-    <Content Include="targets\csharp-unity-strangeioc\templates\strangeioc-playfab-context.ejs" />
-    <Content Include="targets\csharp-unity-strangeioc\templates\strangeioc-playfab-contextbindings.ejs" />
-    <Content Include="targets\csharp-unity-strangeioc\templates\strangeioc-playfab-signals.ejs" />
     <Content Include="targets\csharp\source\Properties\AssemblyInfo.cs" />
     <Content Include="targets\csharp\source\source\Json\ISerializer.cs" />
     <Content Include="targets\csharp\source\source\Json\NewtonsoftWrapper.cs" />
@@ -803,12 +788,6 @@
     <Folder Include="targets\cpp-unreal\templates\" />
     <Folder Include="targets\csharp-unity-gameserver\" />
     <Folder Include="targets\csharp-unity-gameserver\templates\" />
-    <Folder Include="targets\csharp-unity-strangeioc\" />
-    <Folder Include="targets\csharp-unity-strangeioc\source\" />
-    <Folder Include="targets\csharp-unity-strangeioc\source\ErrorHandler\" />
-    <Folder Include="targets\csharp-unity-strangeioc\source\Mediators\" />
-    <Folder Include="targets\csharp-unity-strangeioc\source\Models\" />
-    <Folder Include="targets\csharp-unity-strangeioc\templates\" />
     <Folder Include="targets\csharp\" />
     <Folder Include="targets\csharp\source\" />
     <Folder Include="targets\csharp\source\Properties\" />

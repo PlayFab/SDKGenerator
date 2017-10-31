@@ -2,200 +2,61 @@ var path = require("path");
 
 // Making resharper less noisy - These are defined in Generate.js
 if (typeof (copyTree) === "undefined") copyTree = function () { };
+if (typeof (generateApiSummaryLines) === "undefined") generateApiSummaryLines = function () { };
 if (typeof (getCompiledTemplate) === "undefined") getCompiledTemplate = function () { };
 
 exports.putInRoot = true;
 
-exports.makeClientAPI = function (api, sourceDir, apiOutputDir) {
+exports.makeClientAPI2 = function (apis, sourceDir, apiOutputDir) {
     var baseApiOutputDir = path.resolve(apiOutputDir, "Packages/PlayFabContext/");
     console.log("  - Generating C-sharp Unity StrangeIoC Wrapper client to\n  -> " + baseApiOutputDir);
     copyTree(path.resolve(sourceDir, "source"), baseApiOutputDir);
-    makeSignals(api, sourceDir, baseApiOutputDir + "/Signals/");
-    makeCommands(api, sourceDir, baseApiOutputDir + "/Commands/");
-    makeBindingsFactory(api, sourceDir, baseApiOutputDir + "/Factories/");
-    makeContext(api, sourceDir, baseApiOutputDir);
-    //var testingOutputDir = path.resolve(apiOutputDir, "_ClientTesting");
-    //console.log("  - Copying client SDK to\n  -> " + testingOutputDir);
-    //copyTree(path.resolve(apiOutputDir, "PlayFabClientSample"), testingOutputDir);
-    //copyTree(path.resolve(sourceDir, "testing/DemoScene"), path.resolve(testingOutputDir, "Assets/PlayFabSDK/DemoScene"));
+    for (var i = 0; i < apis.length; i++) {
+        makeSignals(apis[i], sourceDir, baseApiOutputDir + "/Signals/");
+        makeCommands(apis[i], sourceDir, baseApiOutputDir + "/Commands/");
+        makeBindingsFactory(apis[i], sourceDir, baseApiOutputDir + "/Factories/");
+        makeContext(apis[i], sourceDir, baseApiOutputDir);
+    }
 }
 
 function makeSignals(api, sourceDir, apiOutputDir) {
-    console.log("   - Generating C# " + api.name + " library to\n   -> " + apiOutputDir);
-    
     var templateDir = path.resolve(sourceDir, "templates");
-
-    //Write Signals
+    var apiLocals = { api: api, generateApiSummary: generateApiSummary };
     var apiTemplate = getCompiledTemplate(path.resolve(templateDir, "strangeioc-playfab-signals.ejs"));
-    var apiLocals = {};
-    apiLocals.api = api;
-    var generatedApi = apiTemplate(apiLocals);
-    writeFile(path.resolve(apiOutputDir, "PlayFabSignals.cs"), generatedApi);
-
+    writeFile(path.resolve(apiOutputDir, "PlayFabSignals.cs"), apiTemplate(apiLocals));
 }
 
 function makeCommands(api, sourceDir, apiOutputDir) {
-    console.log("   - Generating C# " + api.name + " library to\n   -> " + apiOutputDir);
-
     var templateDir = path.resolve(sourceDir, "templates");
-
-    //Write Signals
+    var apiLocals = { api: api, generateApiSummary: generateApiSummary };
     var apiTemplate = getCompiledTemplate(path.resolve(templateDir, "strangeioc-playfab-commands.ejs"));
-    var apiLocals = {};
-    apiLocals.api = api;
-    var generatedApi = apiTemplate(apiLocals);
-    writeFile(path.resolve(apiOutputDir, "PlayFabCommands.cs"), generatedApi);
-
+    writeFile(path.resolve(apiOutputDir, "PlayFabCommands.cs"), apiTemplate(apiLocals));
 }
+
 function makeContext(api, sourceDir, apiOutputDir) {
-    console.log("   - Generating C# " + api.name + " library to\n   -> " + apiOutputDir);
-
     var templateDir = path.resolve(sourceDir, "templates");
-
-    //Write Signals
+    var apiLocals = { api: api, generateApiSummary: generateApiSummary };
     var apiTemplate = getCompiledTemplate(path.resolve(templateDir, "strangeioc-playfab-context.ejs"));
-    var apiLocals = {};
-    apiLocals.api = api;
-    var generatedApi = apiTemplate(apiLocals);
-    writeFile(path.resolve(apiOutputDir, "PlayFabContext.cs"), generatedApi);
-
+    writeFile(path.resolve(apiOutputDir, "PlayFabContext.cs"), apiTemplate(apiLocals));
 }
+
 function makeBindingsFactory(api, sourceDir, apiOutputDir) {
-    console.log("   - Generating C# " + api.name + " library to\n   -> " + apiOutputDir);
-
     var templateDir = path.resolve(sourceDir, "templates");
-
-    //Write Signals
+    var apiLocals = { api: api, generateApiSummary: generateApiSummary };
     var apiTemplate = getCompiledTemplate(path.resolve(templateDir, "strangeioc-playfab-contextbindings.ejs"));
-    var apiLocals = {};
-    apiLocals.api = api;
-    var generatedApi = apiTemplate(apiLocals);
-    writeFile(path.resolve(apiOutputDir, "PlayFabBindingsFactory.cs"), generatedApi);
-
+    writeFile(path.resolve(apiOutputDir, "PlayFabBindingsFactory.cs"), apiTemplate(apiLocals));
 }
 
-function getPropertyCSType(property, datatype, needOptional) {
-    var optional = (needOptional && property.optional) ? "?" : "";
-    
-    if (property.actualtype === "String")
-        return "string";
-    else if (property.actualtype === "Boolean")
-        return "bool" + optional;
-    else if (property.actualtype === "int16")
-        return "short" + optional;
-    else if (property.actualtype === "uint16")
-        return "ushort" + optional;
-    else if (property.actualtype === "int32")
-        return "int" + optional;
-    else if (property.actualtype === "uint32")
-        return "uint" + optional;
-    else if (property.actualtype === "int64")
-        return "long" + optional;
-    else if (property.actualtype === "uint64")
-        return "ulong" + optional;
-    else if (property.actualtype === "float")
-        return "float" + optional;
-    else if (property.actualtype === "double")
-        return "double" + optional;
-    else if (property.actualtype === "decimal")
-        return "decimal" + optional;
-    else if (property.actualtype === "DateTime")
-        return "DateTime" + optional;
-    else if (property.isclass)
-        return property.actualtype;
-    else if (property.isenum)
-        return property.actualtype + optional;
-    else if (property.actualtype === "object")
-        return "object";
-    throw "Unknown property type: " + property.actualtype + " for " + property.name + " in " + datatype.name;
-}
+function generateApiSummary(tabbing, apiElement, summaryParam, extraLines) {
+    var lines = generateApiSummaryLines(apiElement, summaryParam, extraLines);
 
-function getPropertyJSType(property, datatype, needOptional) {
-    var optional = (needOptional && property.optional) ? "?" : "";
-    
-    if (property.actualtype === "String")
-        return "string";
-    else if (property.actualtype === "Boolean")
-        return "bool" + optional;
-    else if (property.actualtype === "int16")
-        return "double" + optional;
-    else if (property.actualtype === "uint16")
-        return "double" + optional;
-    else if (property.actualtype === "int32")
-        return "double" + optional;
-    else if (property.actualtype === "uint32")
-        return "double" + optional;
-    else if (property.actualtype === "int64")
-        return "double" + optional;
-    else if (property.actualtype === "uint64")
-        return "double" + optional;
-    else if (property.actualtype === "float")
-        return "double" + optional;
-    else if (property.actualtype === "double")
-        return "double" + optional;
-    else if (property.actualtype === "decimal")
-        return "double" + optional;
-    else if (property.actualtype === "DateTime")
-        return "string";
-    else if (property.isclass)
-        return "object";
-    else if (property.isenum)
-        return "string";
-    else if (property.actualtype === "object")
-        return "object";
-    throw "Unknown property type: " + property.actualtype + " for " + property.name + " in " + datatype.name;
-}
-
-function getMapDeserializer(property, datatype) {
-    if (property.actualtype === "String")
-        return "JsonUtil.GetDictionary<string>(json, \"" + property.name + "\");";
-    else if (property.actualtype === "Boolean")
-        return "JsonUtil.GetDictionary<bool>(json, \"" + property.name + "\");";
-    else if (property.actualtype === "int16")
-        return "JsonUtil.GetDictionaryInt16(json, \"" + property.name + "\");";
-    else if (property.actualtype === "uint16")
-        return "JsonUtil.GetDictionaryUInt16(json, \"" + property.name + "\");";
-    else if (property.actualtype === "int32")
-        return "JsonUtil.GetDictionaryInt32(json, \"" + property.name + "\");";
-    else if (property.actualtype === "uint32")
-        return "JsonUtil.GetDictionaryUInt32(json, \"" + property.name + "\");";
-    else if (property.actualtype === "int64")
-        return "JsonUtil.GetDictionaryInt64(json, \"" + property.name + "\");";
-    else if (property.actualtype === "uint64")
-        return "JsonUtil.GetDictionaryUint64(json, \"" + property.name + "\");";
-    else if (property.actualtype === "float")
-        return "JsonUtil.GetDictionaryFloat(json, \"" + property.name + "\");";
-    else if (property.actualtype === "double")
-        return "JsonUtil.GetDictionaryDouble(json, \"" + property.name + "\");";
-    else if (property.actualtype === "object")
-        return "JsonUtil.GetDictionary<object>(json, \"" + property.name + "\");";
-    throw "Unknown property type: " + property.actualtype + " for " + property.name + " in " + datatype.name;
-}
-
-function getListDeserializer(property, api) {
-    if (property.actualtype === "String")
-        return "JsonUtil.GetList<string>(json, \"" + property.name + "\");";
-    else if (property.actualtype === "Boolean")
-        return "JsonUtil.GetList<bool>(json, \"" + property.name + "\");";
-    else if (property.actualtype === "int16")
-        return "JsonUtil.GetListInt16(json, \"" + property.name + "\");";
-    else if (property.actualtype === "uint16")
-        return "JsonUtil.GetListUInt16(json, \"" + property.name + "\");";
-    else if (property.actualtype === "int32")
-        return "JsonUtil.GetListInt32(json, \"" + property.name + "\");";
-    else if (property.actualtype === "uint32")
-        return "JsonUtil.GetListUInt32(json, \"" + property.name + "\");";
-    else if (property.actualtype === "int64")
-        return "JsonUtil.GetListInt64(json, \"" + property.name + "\");";
-    else if (property.actualtype === "uint64")
-        return "JsonUtil.GetListUint64(json, \"" + property.name + "\");";
-    else if (property.actualtype === "float")
-        return "JsonUtil.GetListFloat(json, \"" + property.name + "\");";
-    else if (property.actualtype === "double")
-        return "JsonUtil.GetListDouble(json, \"" + property.name + "\");";
-    else if (property.actualtype === "object")
-        return "JsonUtil.GetList<object>(json, \"" + property.name + "\");";
-    else if (property.isenum)
-        return "JsonUtil.GetListEnum<" + property.actualtype + ">(json, \"" + property.name + "\");";
-    throw "Unknown property type: " + property.actualtype + " for " + property.name;
+    var output;
+    if (lines.length === 1 && lines[0]) {
+        output = tabbing + "/// <summary>\n" + tabbing + "/// " + lines.join("\n" + tabbing + "/// ") + "\n" + tabbing + "/// </summary>\n";
+    } else if (lines.length > 0) {
+        output = tabbing + "/// <summary>\n" + tabbing + "/// " + lines.join("\n" + tabbing + "/// ") + "\n" + tabbing + "/// </summary>\n";
+    } else {
+        output = "";
+    }
+    return output;
 }

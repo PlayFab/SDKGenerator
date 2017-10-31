@@ -11,7 +11,7 @@ if (typeof (getCompiledTemplate) === "undefined") getCompiledTemplate = function
 // BEWARE, you should only implement 1 function if you use this option, or manually define your subfolders in your make functions
 
 // generate.js looks for some specific exported functions in make.js, like:
-exports.makeClientAPI = function (api, sourceDir, apiOutputDir) {
+exports.makeClientAPI2 = function (apis, sourceDir, apiOutputDir) {
     // Builds the client api.  The provided "api" variable is a single object, the API_SPECS/client.api.json as an object
     
     console.log("Generating Client api from: " + sourceDir + " to: " + apiOutputDir);

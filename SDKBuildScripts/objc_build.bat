@@ -7,3 +7,4 @@ rem === BUILDING Objective_C_SDK with params %* ===
 node generate.js objc=..\sdks\Objective_C_SDK %*
 )
 popd
+pause

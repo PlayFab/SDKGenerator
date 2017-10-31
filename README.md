@@ -77,7 +77,7 @@ However, if your API_Specs path was different, you may have to convert your old 
 Setting up a new target in the SdkGenerator is fairly simple.  This example has been added to the SdkGenerator for reference: https://github.com/PlayFab/SDKGenerator/tree/master/targets/newTarget
 * Add a new subfolder in [SdkGenerator/Targets](https://github.com/PlayFab/SDKGenerator/tree/master/targets)
 * Add a "make.js" file to your new target
-  * Implement makeClientAPI, makeServerAPI, and/or makeCombinedAPI in the file, as shown in the [NewTarget Example](https://github.com/PlayFab/SDKGenerator/blob/master/targets/newTarget/make.js)
+  * Implement makeClientAPI2, makeServerAPI, and/or makeCombinedAPI in the file, as shown in the [NewTarget Example](https://github.com/PlayFab/SDKGenerator/blob/master/targets/newTarget/make.js)
   * Optionally, you may use template files and source files, as described in the NewTarget example.
 * Add a new bat-file to generate your sdk in [SdkGenerator/SDKBuildScripts](https://github.com/PlayFab/SDKGenerator/tree/master/SDKBuildScripts)
 

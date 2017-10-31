@@ -55,43 +55,27 @@ var gemSummaries = {
     Combo: "PlayFab Lumberyard Combined SDK can be used for game servers, internal tools, special situations, and testing PlayFab services from a Lumberyard project",
 };
 
-exports.makeClientAPI = function (api, sourceDir, apiOutputDir) {
-    apiOutputDir = apiOutputDir.replaceAll("PlayFabClientSDK", "PlayFabClientSdk");
-    console.log("Generating Lumberyard C++ client SDK to " + apiOutputDir);
-    var gemName = "Client";
+exports.putInRoot = true;
 
-    copyTree(path.resolve(sourceDir, "source"), apiOutputDir);
-    makeApi(api, sourceDir, apiOutputDir, gemName);
-    GenerateModels([api], sourceDir, apiOutputDir, gemName);
-    GenerateErrors(api, sourceDir, apiOutputDir, gemName);
-    GenerateSimpleFiles([api], sourceDir, apiOutputDir, gemName);
-    GenerateTestFiles([api], sourceDir, apiOutputDir, gemName);
+exports.makeClientAPI2 = function (apis, sourceDir, apiOutputDir) {
+    makeApiInternal(apis, sourceDir, apiOutputDir, "Client");
 }
 
 exports.makeServerAPI = function (apis, sourceDir, apiOutputDir) {
-    apiOutputDir = apiOutputDir.replaceAll("PlayFabServerSDK", "PlayFabServerSdk");
-    console.log("Generating Lumberyard C++ server SDK to " + apiOutputDir);
-    var gemName = "Server";
-
-    copyTree(path.resolve(sourceDir, "source"), apiOutputDir);
-    for (var i = 0; i < apis.length; i++) {
-        makeApi(apis[i], sourceDir, apiOutputDir, gemName);
-    }
-    GenerateModels(apis, sourceDir, apiOutputDir, gemName);
-    GenerateErrors(apis[0], sourceDir, apiOutputDir, gemName);
-    GenerateSimpleFiles(apis, sourceDir, apiOutputDir, gemName);
-    GenerateTestFiles(apis, sourceDir, apiOutputDir, gemName);
+    makeApiInternal(apis, sourceDir, apiOutputDir, "Server");
 }
 
 exports.makeCombinedAPI = function (apis, sourceDir, apiOutputDir) {
-    apiOutputDir = apiOutputDir.replaceAll("PlayFabSDK", "PlayFabComboSdk");
-    console.log("Generating Lumberyard C++ combined SDK to " + apiOutputDir);
-    var gemName = "Combo";
+    makeApiInternal(apis, sourceDir, apiOutputDir, "Combo");
+}
+
+function makeApiInternal(apis, sourceDir, apiOutputDir, gemName) {
+    apiOutputDir = path.resolve(apiOutputDir, "PlayFab" + gemName + "Sdk");
+    console.log("Generating Lumberyard C++ " + gemName + " SDK to " + apiOutputDir);
 
     copyTree(path.resolve(sourceDir, "source"), apiOutputDir);
-    for (var i = 0; i < apis.length; i++) {
+    for (var i = 0; i < apis.length; i++)
         makeApi(apis[i], sourceDir, apiOutputDir, gemName);
-    }
     GenerateModels(apis, sourceDir, apiOutputDir, gemName);
     GenerateErrors(apis[0], sourceDir, apiOutputDir, gemName);
     GenerateSimpleFiles(apis, sourceDir, apiOutputDir, gemName);

@@ -7,17 +7,17 @@ if (typeof (getCompiledTemplate) === "undefined") getCompiledTemplate = function
 
 exports.putInRoot = true;
 
-exports.makeClientAPI = function (api, sourceDir, baseOutputDir) {
+exports.makeClientAPI2 = function (apis, sourceDir, baseOutputDir) {
     var apiOutputDir = path.resolve(baseOutputDir, "PlayFabClientSdk");
-    MakeLuaDistSdk([api], sourceDir, apiOutputDir, "Client");
+    MakeLuaDistSdk(apis, sourceDir, apiOutputDir, "Client");
     copyTree(path.resolve(sourceDir, "SharedTesting"), apiOutputDir); // SharedTesting in Client only
     
     apiOutputDir = path.resolve(baseOutputDir, "_Build/Defold/PlayFabClientSdk");
-    MakeDefold([api], sourceDir, apiOutputDir, "DefoldClient");
+    MakeDefold(apis, sourceDir, apiOutputDir, "DefoldClient");
     copyTree(path.resolve(sourceDir, "SharedTesting"), apiOutputDir); // SharedTesting in Client only
     
     apiOutputDir = path.resolve(baseOutputDir, "_Build/CoronaPluginBuilders/client/lua/plugin/playfab/client");
-    MakeCorona([api], sourceDir, apiOutputDir, "CoronaClient", "plugin.playfab.client.");
+    MakeCorona(apis, sourceDir, apiOutputDir, "CoronaClient", "plugin.playfab.client.");
     // Corona testing is copied separately
 }
 

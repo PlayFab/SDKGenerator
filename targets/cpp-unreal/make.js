@@ -5,48 +5,28 @@ if (typeof (copyTree) === "undefined") copyTree = function () { };
 if (typeof (generateApiSummaryLines) === "undefined") generateApiSummaryLines = function () { };
 if (typeof (getCompiledTemplate) === "undefined") getCompiledTemplate = function () { };
 
-exports.makeClientAPI = function (api, sourceDir, apiOutputDir) {
-    console.log("Generating Unreal Engine Client SDK to " + apiOutputDir);
-    
-    // Copy over the standard source files to the plugin destination
-    copyTree(path.resolve(sourceDir, "Source"), path.resolve(apiOutputDir, "PluginFiles/PlayFab/Source"));
-    // Copy over the standard plugin files including resources, content, and readme
-    copyTree(path.resolve(sourceDir, "StandardPluginFiles"), path.resolve(apiOutputDir, "PluginFiles/PlayFab"));
-    // Make the variable api files
-    MakeUnrealApi([api], apiOutputDir, sourceDir, "Client");
-    
-    // Now copy over the example project and then put the plugin folder in the right spot
-    MakePfTestActor([api], apiOutputDir, sourceDir);
-    copyTree(path.resolve(sourceDir, "ExampleProject"), path.resolve(apiOutputDir, "ExampleProject"));
-    copyTree(path.resolve(apiOutputDir, "PluginFiles"), path.resolve(apiOutputDir, "ExampleProject/Plugins"));
+exports.makeClientAPI2 = function (apis, sourceDir, apiOutputDir) {
+    makeApiIntermal(apis, sourceDir, apiOutputDir, "Client");
 }
 
 exports.makeServerAPI = function (apis, sourceDir, apiOutputDir) {
-    console.log("Generating Unreal Engine Server SDK to " + apiOutputDir);
-    
-    // Copy over the standard source files to the plugin destination
-    copyTree(path.resolve(sourceDir, "Source"), path.resolve(apiOutputDir, "PluginFiles/PlayFab/Source"));
-    // Copy over the standard plugin files including resources, content, and readme
-    copyTree(path.resolve(sourceDir, "StandardPluginFiles"), path.resolve(apiOutputDir, "PluginFiles/PlayFab"));
-    // Make the variable api files
-    MakeUnrealApi(apis, apiOutputDir, sourceDir, "Server");
-    
-    // Now copy over the example project and then put the plugin folder in the right spot
-    MakePfTestActor(apis, apiOutputDir, sourceDir);
-    copyTree(path.resolve(sourceDir, "ExampleProject"), path.resolve(apiOutputDir, "ExampleProject"));
-    copyTree(path.resolve(apiOutputDir, "PluginFiles"), path.resolve(apiOutputDir, "ExampleProject/Plugins"));
+    makeApiIntermal(apis, sourceDir, apiOutputDir, "Server");
 }
 
 exports.makeCombinedAPI = function (apis, sourceDir, apiOutputDir) {
-    console.log("Generating Unreal Engine Combined SDK to " + apiOutputDir);
-    
+    makeApiIntermal(apis, sourceDir, apiOutputDir, "All");
+}
+
+function makeApiIntermal(apis, sourceDir, apiOutputDir, apiName) {
+    console.log("Generating Unreal Engine " + apiName + " SDK to " + apiOutputDir);
+
     // Copy over the standard source files to the plugin destination
     copyTree(path.resolve(sourceDir, "Source"), path.resolve(apiOutputDir, "PluginFiles/PlayFab/Source"));
     // Copy over the standard plugin files including resources, content, and readme
     copyTree(path.resolve(sourceDir, "StandardPluginFiles"), path.resolve(apiOutputDir, "PluginFiles/PlayFab"));
     // Make the variable api files
-    MakeUnrealApi(apis, apiOutputDir, sourceDir, "All");
-    
+    MakeUnrealApi(apis, apiOutputDir, sourceDir, apiName);
+
     // Now copy over the example project and then put the plugin folder in the right spot
     MakePfTestActor(apis, apiOutputDir, sourceDir);
     copyTree(path.resolve(sourceDir, "ExampleProject"), path.resolve(apiOutputDir, "ExampleProject"));

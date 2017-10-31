@@ -12,11 +12,11 @@ namespace PlayFab
     {
 <% for(var i in api.calls) { var apiCall = api.calls[i];
 %><%- generateApiSummary("        ", apiCall, "summary")
-%><%- GetDeprecationAttribute("        ", apiCall)
+%><%- getDeprecationAttribute("        ", apiCall)
 %>        public static async Task<PlayFabResult<<%- apiCall.result %>>> <%- apiCall.name %>Async(<%- apiCall.request %> request, object customData = null, Dictionary<string, string> extraHeaders = null)
         {
-<%- GetRequestActions(apiCall, api) %>
-            var httpResult = await PlayFabHttp.DoPost("<%- apiCall.url %>", request, <%- GetAuthParams(apiCall) %>, extraHeaders);
+<%- getRequestActions(apiCall, api) %>
+            var httpResult = await PlayFabHttp.DoPost("<%- apiCall.url %>", request, <%- getAuthParams(apiCall) %>, extraHeaders);
             if(httpResult is PlayFabError)
             {
                 var error = (PlayFabError)httpResult;
@@ -28,7 +28,7 @@ namespace PlayFab
             var resultRawJson = (string)httpResult;
             var resultData = JsonWrapper.DeserializeObject<PlayFabJsonSuccess<<%- apiCall.result %>>>(resultRawJson);
             var result = resultData.data;
-<%- GetResultActions(apiCall, api) %>
+<%- getResultActions(apiCall, api) %>
             return new PlayFabResult<<%- apiCall.result %>> { Result = result, CustomData = customData };
         }
 

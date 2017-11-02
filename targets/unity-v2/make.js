@@ -33,7 +33,8 @@ function makeTestingFiles(apis, sourceDir, apiOutputDir) {
 
 function makeApiEventFiles(api, sourceDir, apiOutputDir) {
     var apiLocals = {
-        api: api
+        api: api,
+        getApiDefineFlag: getApiDefineFlag,
     };
 
     var apiTemplate = getCompiledTemplate(path.resolve(sourceDir, "templates", "PlayFabEvents.cs.ejs"));
@@ -48,6 +49,7 @@ function makeSharedEventFiles(apis, sourceDir, apiOutputDir) {
         psParentTypes: playStreamEventModels.ParentTypes,
         psChildTypes: playStreamEventModels.ChildTypes,
         generateApiSummary: generateApiSummary,
+        getApiDefineFlag: getApiDefineFlag,
         getDeprecationAttribute: getDeprecationAttribute,
         getPropertyDef: getModelPropertyDef,
         makeDatatype: makePlayStreamDatatype
@@ -91,13 +93,14 @@ function makeDatatypes(apis, sourceDir, apiOutputDir) {
     var templateDir = path.resolve(sourceDir, "templates");
     var modelsTemplate = getCompiledTemplate(path.resolve(templateDir, "Models.cs.ejs"));
 
-    for (var a = 0; a < apis.length; a++) {
-        var modelsLocal = {
-            api: apis[a],
-            makeDatatype: makeApiDatatype,
-            sourceDir: sourceDir
-        };
+    var modelsLocal = {
+        getApiDefineFlag: getApiDefineFlag,
+        makeDatatype: makeApiDatatype,
+        sourceDir: sourceDir
+    };
 
+    for (var a = 0; a < apis.length; a++) {
+        modelsLocal.api = apis[a];
         writeFile(path.resolve(apiOutputDir, apis[a].name + "/PlayFab" + apis[a].name + "Models.cs"), modelsTemplate(modelsLocal));
     }
 }
@@ -125,6 +128,7 @@ function makeApi(api, sourceDir, apiOutputDir) {
     var templateDir = path.resolve(sourceDir, "templates");
     var apiLocals = {
         api: api,
+        getApiDefineFlag: getApiDefineFlag,
         getAuthParams: getAuthParams,
         generateApiSummary: generateApiSummary,
         getDeprecationAttribute: getDeprecationAttribute,
@@ -352,14 +356,27 @@ function getPropertyJsonReader(property, datatype) {
 }
 
 function getAuthParams(apiCall) {
-    if (apiCall.auth === "SecretKey")
+    if (apiCall.url === "/Authentication/GetEntityToken")
+        return "authType";
+    else if (apiCall.auth === "SecretKey")
         return "AuthType.DevSecretKey";
     else if (apiCall.auth === "SessionTicket")
         return "AuthType.LoginSession";
+    else if (apiCall.auth === "EntityToken")
+        return "AuthType.EntityToken";
     return "AuthType.None";
 }
 
 function getRequestActions(tabbing, apiCall, api) {
+    if (api.name === "Entity" && (apiCall.name === "GetEntityToken"))
+        return tabbing + "AuthType authType = AuthType.None;\n" +
+            "#if !DISABLE_PLAYFABCLIENT_API\n" +
+            tabbing + "if (authType == AuthType.None && PlayFabClientAPI.IsClientLoggedIn())\n" +
+            tabbing + "    authType = AuthType.LoginSession;\n" +
+            "#endif\n" +
+            tabbing + "if (authType == AuthType.None && !string.IsNullOrEmpty(PlayFabSettings.DeveloperSecretKey))\n" +
+            tabbing + "    authType = AuthType.DevSecretKey;\n";
+
     if (api.name === "Client" && (apiCall.result === "LoginResult" || apiCall.request === "RegisterPlayFabUserRequest"))
         return tabbing + "request.TitleId = request.TitleId ?? PlayFabSettings.TitleId;\n"
             + tabbing + "if (request.TitleId == null) throw new Exception(\"Must be have PlayFabSettings.TitleId set to call this method\");\n";
@@ -396,4 +413,12 @@ function getDeprecationAttribute(tabbing, apiObj) {
     else if (isDeprecated)
         return tabbing + "[Obsolete(\"No longer available\", " + isError + ")]\n";
     return "";
+}
+
+function getApiDefineFlag(api) {
+    if (api.name === "Client")
+        return "!DISABLE_PLAYFABCLIENT_API"; // Client is enabled by default, so the flag is inverted
+    if (api.name === "Matchmaker")
+        return "ENABLE_PLAYFABSERVER_API"; // Matchmaker is bound to server, which is just a legacy design decision at this point
+    return "ENABLE_PLAYFAB" + api.name.toUpperCase() + "_API";
 }

@@ -1,4 +1,4 @@
-<% if(api.name == "Admin"){%>#if ENABLE_PLAYFABADMIN_API<%}else if(api.name == "Server" || api.name == "Matchmaker"){%>#if ENABLE_PLAYFABSERVER_API<%}else{%>#if !DISABLE_PLAYFABCLIENT_API<%}%>
+#if <%- getApiDefineFlag(api) %>
 using System;
 using System.Collections.Generic;
 using PlayFab.SharedModels;

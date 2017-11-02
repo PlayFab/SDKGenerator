@@ -1,4 +1,4 @@
-<% if(api.name == "Admin"){%>#if ENABLE_PLAYFABADMIN_API<%}else if(api.name == "Server" || api.name == "Matchmaker"){%>#if ENABLE_PLAYFABSERVER_API<%}else{%>#if !DISABLE_PLAYFABCLIENT_API<%}%>
+#if <%- getApiDefineFlag(api) %>
 using System;
 using System.Collections.Generic;
 using PlayFab.<%- api.name %>Models;
@@ -19,21 +19,21 @@ namespace PlayFab
         {
             return PlayFabHttp.IsClientLoggedIn();
         }
-
+<%}%>
         /// <summary>
         /// Clear the Client SessionToken which allows this Client to call API calls requiring login.
         /// A new/fresh login will be required after calling this.
         /// </summary>
-        public static void ForgetClientCredentials()
+        public static void ForgetAllCredentials()
         {
-            PlayFabHttp.ForgetClientCredentials();
+            PlayFabHttp.ForgetAllCredentials();
         }
-<%}%>
+
 <% for(var i in api.calls) { var apiCall = api.calls[i]; %><%- generateApiSummary("        ", apiCall, "summary") %><%- getDeprecationAttribute("        ", apiCall)
 %>        public static void <%- apiCall.name %>(<%- apiCall.request %> request, Action<<%- apiCall.result %>> resultCallback, Action<PlayFabError> errorCallback, object customData = null, Dictionary<string, string> extraHeaders = null)
         {
 <%- getRequestActions("            ", apiCall, api) %>
-            PlayFabHttp.MakeApiCall("/<%- api.name %>/<%- apiCall.name %>", request, <%- getAuthParams(apiCall) %>, resultCallback, errorCallback, customData, extraHeaders);
+            PlayFabHttp.MakeApiCall("<%- apiCall.url %>", request, <%- getAuthParams(apiCall) %>, resultCallback, errorCallback, customData, extraHeaders);
         }<%- getCustomApiFunction("        ", apiCall) %>
 
 <% } %>

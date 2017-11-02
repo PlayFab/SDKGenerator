@@ -680,13 +680,13 @@
     <Content Include="targets\unity-v2\Testing\Editor\PlayFabPackager.cs" />
     <Content Include="targets\unity-v2\Testing\scenes\testscene.unity" />
     <Content Include="targets\unity-v2\Testing\scenes\testscene.unity.meta" />
-    <Content Include="targets\unity-v2\Testing\Tests\Admin\AdminApiTests.cs" />
-    <Content Include="targets\unity-v2\Testing\Tests\Admin\AdminEventTests.cs" />
     <Content Include="targets\unity-v2\Testing\Tests\Client\ClientApiTests.cs" />
     <Content Include="targets\unity-v2\Testing\Tests\Client\ClientEventTests.cs" />
+    <Content Include="targets\unity-v2\Testing\Tests\Entity\EntityApiTests.cs">
+      <SubType>Code</SubType>
+    </Content>
     <Content Include="targets\unity-v2\Testing\Tests\Server\PlayStream\PlayStreamApiTests.cs" />
     <Content Include="targets\unity-v2\Testing\Tests\Server\ServerApiTests.cs" />
-    <Content Include="targets\unity-v2\Testing\Tests\Server\ServerEventTests.cs" />
     <Content Include="targets\unity-v2\Testing\Tests\Shared\TestTitleDataLoader.cs" />
     <Content Include="targets\unity-v2\Testing\Tests\Shared\TestTitleDataLoader.cs.meta" />
     <Content Include="targets\unity-v2\Testing\Tests\Shared\Uunit\Editor\UUnitTestRunner.cs" />
@@ -936,8 +936,8 @@
     <Folder Include="targets\unity-v2\Testing\Editor\" />
     <Folder Include="targets\unity-v2\Testing\scenes\" />
     <Folder Include="targets\unity-v2\Testing\Tests\" />
-    <Folder Include="targets\unity-v2\Testing\Tests\Admin\" />
     <Folder Include="targets\unity-v2\Testing\Tests\Client\" />
+    <Folder Include="targets\unity-v2\Testing\Tests\Entity\" />
     <Folder Include="targets\unity-v2\Testing\Tests\Server\" />
     <Folder Include="targets\unity-v2\Testing\Tests\Server\PlayStream\" />
     <Folder Include="targets\unity-v2\Testing\Tests\Shared\" />

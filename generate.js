@@ -261,15 +261,19 @@ function generateApis(buildIdentifier, targetOutputPathList, buildFlags, apiSrcD
     var clientApis = [
         getApiDefinition("Client.api.json", buildFlags)
     ];
-    var adminApis = [
-        getApiDefinition("Admin.api.json", buildFlags)
-    ];
     var serverApis = [
         getApiDefinition("Admin.api.json", buildFlags),
         getApiDefinition("Matchmaker.api.json", buildFlags),
         getApiDefinition("Server.api.json", buildFlags)
     ];
     var allApis = serverApis.concat(clientApis);
+    var entityApi = getApiDefinition("Entity.api.json", buildFlags);
+    // Null test is temporary, it should be embedded directly into above lists at a later date
+    if (entityApi) {
+        clientApis.push(entityApi);
+        serverApis.push(entityApi);
+        allApis.push(entityApi);
+    }
     var targetsDir = path.resolve(__dirname, "targets");
     for (var t = 0; t < targetOutputPathList.length; t++) {
         var target = targetOutputPathList[t];
@@ -305,13 +309,6 @@ function generateApis(buildIdentifier, targetOutputPathList, buildFlags, apiSrcD
                 mkdirParentsSync(apiOutputDir);
             targetMaker.makeServerAPI(serverApis, targetSourceDir, apiOutputDir);
         }
-        if (targetMaker.makeAdminAPI) {
-            apiOutputDir = targetMaker.putInRoot ? sdkOutputDir : path.resolve(sdkOutputDir, "PlayFabServerSDK");
-            console.log(" + Generating Server to " + apiOutputDir);
-            if (!fs.existsSync(apiOutputDir))
-                mkdirParentsSync(apiOutputDir);
-            targetMaker.makeAdminAPI(adminApis, targetSourceDir, apiOutputDir);
-        }
         if (targetMaker.makeCombinedAPI) {
             apiOutputDir = targetMaker.putInRoot ? sdkOutputDir : path.resolve(sdkOutputDir, "PlayFabSDK");
             console.log(" + Generating Combined to " + apiOutputDir);
@@ -324,6 +321,8 @@ function generateApis(buildIdentifier, targetOutputPathList, buildFlags, apiSrcD
 }
 function getApiDefinition(apiFileName, buildFlags) {
     var api = getApiJson(apiFileName);
+    if (api === null)
+        return null;
     // Special case, "obsolete" is treated as an SdkGenerator flag, but is not an actual flag in pf-main
     var obsoleteFlaged = false, nonNullableFlagged = false;
     for (var b = 0; b < buildFlags.length; b++) {
@@ -553,7 +552,9 @@ function writeFile(filename, data) {
 global.writeFile = writeFile;
 // Fetch the object parsed from an api-file, from the cache (can't load synchronously from URL-options, so we have to pre-cache them)
 function getApiJson(apiFileName) {
-    return sdkGeneratorGlobals.apiCache[apiFileName];
+    if (sdkGeneratorGlobals.apiCache.hasOwnProperty(apiFileName))
+        return sdkGeneratorGlobals.apiCache[apiFileName];
+    return null;
 }
 global.getApiJson = getApiJson;
 /**

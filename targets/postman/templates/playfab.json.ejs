@@ -20,7 +20,7 @@
 <% for(var i in api.calls) { var apiCall = api.calls[i]; %>
         {
             "id": "<%- apiName %>-<%- apiCall.name %>",
-            "headers": "<%- GetPostmanHeader(apiCall.auth) %>",
+            "headers": "<%- GetPostmanHeader(apiCall) %>",
             "url": "<%- GetUrl(apiCall) %>",
             "method": "POST",
             "collectionId": "PlayFabPostmanSDK",

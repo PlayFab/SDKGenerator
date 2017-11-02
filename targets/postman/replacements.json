@@ -1,9 +1,11 @@
 {
     "generic": {
         "_info": "Allows replacements for parameter-values within the post body (of any API-Call anywhere).  All breaklines in json-strings are currently removed, rather than parsed.  (Known issue)",
-        "TitleId": "{{TitleId}}",
-        "PlayFabId": "{{PlayFabId}}",
         "CharacterId": "{{CharacterId}}",
+        "EntityId": "{{EntityId}}",
+        "EntityType": "{{EntityType}}",
+        "PlayFabId": "{{PlayFabId}}",
+        "TitleId": "{{TitleId}}",
         "CatalogVersion": "{{PrimaryCatalogName}}"
     },
     "Client": {

@@ -139,7 +139,7 @@ PlayFab.<%- api.name %>Api = {
     IsClientLoggedIn: function () {
         return PlayFab._internalSettings.sessionTicket != null && PlayFab._internalSettings.sessionTicket.length > 0;
     },
-    ForgetClientCredentials: function () {
+    ForgetAllCredentials: function () {
         PlayFab._internalSettings.sessionTicket = null;
     },
 <% } for(var i in api.calls) { var apiCall = api.calls[i]; %>

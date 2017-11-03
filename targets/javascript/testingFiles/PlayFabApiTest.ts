@@ -522,7 +522,7 @@ var PlayFabApiTests = {
     /// </summary>
     ForgetCredentials: function (assert): void {
         assert.ok(PlayFabClientSDK.IsClientLoggedIn(), "Client should be logged in.");
-        PlayFabClientSDK.ForgetClientCredentials();
+        PlayFabClientSDK.ForgetAllCredentials();
         assert.ok(!PlayFabClientSDK.IsClientLoggedIn(), "Client should NOT be logged in.");
     },
 };

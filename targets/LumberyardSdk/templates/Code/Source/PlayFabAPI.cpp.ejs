@@ -15,7 +15,7 @@ bool PlayFabClientApi::IsClientLoggedIn()
 }
 
 // #THIRD_KIND_PLAYFAB_SHUTDOWN_FIXES: - Added a logout function so that the statics can be destroyed before the system allocator.
-void PlayFabClientApi::ForgetClientCredentials()
+void PlayFabClientApi::ForgetAllCredentials()
 {
     // #THIRD_KIND_PLAYFAB_CRASH_WHEN_PC_IS_OFFLINE: szaluga (2017/08/05)
     // We're taking advantage of the SSO optimization implemented by AZStd::string (and virtually all popular compilers) -

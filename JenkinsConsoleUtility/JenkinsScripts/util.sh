@@ -46,14 +46,14 @@ SetGitHubCreds () {
     testName=$(git config --global user.name)
     if [ -z "$testEmail" ] && [ -z "$testName"]; then
         if [ -n "$GITHUB_EMAIL" ]; then
-            git config --global user.email "$GITHUB_EMAIL"
+            git config --global user.email "$GITHUB_EMAIL" || true
         fi
         if [ -n "$GITHUB_USERNAME" ]; then
-            git config --global user.name "$GITHUB_USERNAME"
+            git config --global user.name "$GITHUB_USERNAME" || true
         fi
     fi
-	git config --global core.autocrlf "input"
-	git config core.autocrlf "input"
+	git config --global core.autocrlf "input" || true
+	git config core.autocrlf "input" || true
     unset testEmail
     unset testName
 }

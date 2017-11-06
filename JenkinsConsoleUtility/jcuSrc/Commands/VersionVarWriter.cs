@@ -119,11 +119,11 @@ namespace JenkinsConsoleUtility.Commands
                 case "javascriptsdk": return "javascript";
                 case "javasdk": return "java";
                 case "nodesdk": return "js-node";
-                case "postmancollection": return "postman";
                 case "objective_c_sdk": return "objc";
                 case "playfabgameserver": return "csharp-unity-gameserver";
                 case "unrealcppsdk": return "cpp-ue4";
                 // Multiple repos map to the same folder
+                case "postmancollection": case "postmanbeta": return "postman";
                 case "unitysdk": case "unitypsn": case "unityxbox": case "unitybeta": case "unityeditorextensions": return "unity-v2";
                 case "unrealblueprintsdk": case "uebppsnsdk": case "uebpxboxsdk": return "cpp-unreal";
 

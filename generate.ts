@@ -374,6 +374,11 @@ function getApiDefinition(apiFileName, buildFlags) {
             nonNullableFlagged = true;
     }
 
+    if (!isVisibleWithFlags(buildFlags, api, obsoleteFlaged, nonNullableFlagged)) {
+        console.log("** Skipping Flagged API: " + api.name);
+        return null;
+    }
+
     // Filter calls out of the API before returning it
     var filteredCalls = [];
     for (var cIdx = 0; cIdx < api.calls.length; cIdx++)

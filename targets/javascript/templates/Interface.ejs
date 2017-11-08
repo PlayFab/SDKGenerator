@@ -1,8 +1,8 @@
 <%- generateApiSummary("    ", datatype, "summary", "https://api.playfab.com/Documentation/" + api.name + "/datatype/" + datatype.classNameSpace + "/" + datatype.classNameSpace + "." + datatype.name)
-%>    export interface <%- datatype.name %><%- GetBaseTypeSyntax(datatype) %> {
+%>    export interface <%- datatype.name %><%- getBaseTypeSyntax(datatype) %> {
 <% if (datatype.properties) { for (var i = 0; i < datatype.properties.length; i++) { var property = datatype.properties[i]
 %><%- generateApiSummary("        ", property, "description")
-%>        <%- property.name %><%- GetPropertyTsType(property, datatype) %>;
+%>        <%- property.name %><%- getPropertyTsType(property, datatype) %>;
 <% } } %>
     }
 

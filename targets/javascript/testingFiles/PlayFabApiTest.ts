@@ -4,6 +4,8 @@ interface IAction { (): void }
 
 var PlayFabApiTests = {
     testTitleDataFilename: "testTitleData.json", // Since you never want this to be public, a web page can ONLY load this if it's a local file in the same directory (Also can't convert to environment variable)
+    testRetryDelay: 250,
+    testRetryCount: 8,
     titleData: {
         titleId: null, // put titleId here
         developerSecretKey: null, // put secretKey here
@@ -12,14 +14,15 @@ var PlayFabApiTests = {
         extraHeaders: {}
     },
     testData: {
-        playFabId: null, // Filled during login
-        characterId: null, // Filled during character-access
-        testNumber: null // Used by several tests
+        entityToken: null, // Entity-Login: filled after login
+        entityType: null, // Entity-Login: filled after login
+        entityId: null, // Entity-Login: filled after login
+        playFabId: null, // Client-Login: filled during login
+        testNumber: null, // Arbitrary counter, used by several tests
     },
     testConstants: {
         TEST_DATA_KEY: "testCounter",
-        TEST_STAT_NAME: "str",
-        CHAR_TEST_TYPE: "Fighter"
+        TEST_STAT_NAME: "str"
     },
 
     ManualExecution: function (): void {
@@ -43,18 +46,20 @@ var PlayFabApiTests = {
         QUnit.test("LoginOrRegister", PlayFabApiTests.LoginOrRegister);
         QUnit.test("LoginWithAdvertisingId", PlayFabApiTests.LoginWithAdvertisingId);
 
-        setTimeout(function (): void { PlayFabApiTests.PostLoginTests(0); }, 200);
+        setTimeout(function (): void { PlayFabApiTests.PostLoginTests(0); }, PlayFabApiTests.testRetryDelay);
+        setTimeout(function (): void { PlayFabApiTests.PostEntityTokenTests(0); }, PlayFabApiTests.testRetryDelay);
     },
 
     PostLoginTests: function (count): void {
-        if (count > 5)
+        if (count > PlayFabApiTests.testRetryCount)
             return;
 
         if (!PlayFabClientSDK.IsClientLoggedIn()) {
             // Wait for login
-            setTimeout(function (): void { PlayFabApiTests.PostLoginTests(count + 1); }, 200);
+            setTimeout(function (): void { PlayFabApiTests.PostLoginTests(count + 1); }, PlayFabApiTests.testRetryDelay);
         } else {
             // Continue with other tests that require login
+            // QUnit.test("GetEntityToken", PlayFabApiTests.GetEntityToken); // TODO: Release Entity API
             QUnit.test("UserDataApi", PlayFabApiTests.UserDataApi);
             QUnit.test("PlayerStatisticsApi", PlayFabApiTests.PlayerStatisticsApi);
             QUnit.test("UserCharacter", PlayFabApiTests.UserCharacter);
@@ -64,6 +69,19 @@ var PlayFabApiTests = {
             QUnit.test("CloudScriptError", PlayFabApiTests.CloudScriptError);
             QUnit.test("WriteEvent", PlayFabApiTests.WriteEvent);
             QUnit.test("ForgetCredentials", PlayFabApiTests.ForgetCredentials);
+        }
+    },
+
+    PostEntityTokenTests: function (count): void {
+        if (count > PlayFabApiTests.testRetryCount)
+            return;
+
+        if (!PlayFab["_internalSettings"].entityToken) {
+            // Wait for login
+            setTimeout(function (): void { PlayFabApiTests.PostEntityTokenTests(count + 1); }, PlayFabApiTests.testRetryDelay);
+        } else {
+            // Continue with other tests that require login
+            // QUnit.test("EntityObjects", PlayFabApiTests.EntityObjects); // TODO: Release Entity API
         }
     },
 
@@ -117,11 +135,10 @@ var PlayFabApiTests = {
         }
     },
 
-    /// <summary>
-    /// CLIENT API
-    /// Try to deliberately log in with an inappropriate password,
-    ///   and verify that the error displays as expected.
-    /// </summary>
+    /* CLIENT API
+     * Try to deliberately log in with an inappropriate password,
+     *   and verify that the error displays as expected.
+     */
     InvalidLogin: function (assert): void {
         var invalidDone = assert.async();
 
@@ -141,11 +158,10 @@ var PlayFabApiTests = {
         PlayFabClientSDK.LoginWithEmailAddress(invalidRequest, PlayFabApiTests.CallbackWrapper("invalidLoginCallback", invalidLoginCallback, assert));
     },
 
-    /// <summary>
-    /// CLIENT API
-    /// Try to deliberately register a user with an invalid email and password
-    ///   Verify that errorDetails are populated correctly.
-    /// </summary>
+    /* CLIENT API
+     * Try to deliberately register a user with an invalid email and password
+     *   Verify that errorDetails are populated correctly.
+     */
     InvalidRegistration: function (assert): void {
         var invalidDone = assert.async();
 
@@ -169,10 +185,9 @@ var PlayFabApiTests = {
         PlayFabClientSDK.RegisterPlayFabUser(invalidRequest, PlayFabApiTests.CallbackWrapper("registerCallback", registerCallback, assert));
     },
 
-    /// <summary>
-    /// CLIENT API
-    /// Log in or create a user, track their PlayFabId
-    /// </summary>
+    /* CLIENT API
+     * Log in or create a user, track their PlayFabId
+     */
     LoginOrRegister: function (assert): void {
         var loginRequest = <PlayFabClientModels.LoginWithCustomIDRequest>{
             CustomId: PlayFab.buildIdentifier,
@@ -191,10 +206,9 @@ var PlayFabApiTests = {
         PlayFabClientSDK.LoginWithCustomID(loginRequest, PlayFabApiTests.CallbackWrapper("loginCallback", loginCallback, assert));
     },
 
-    /// <summary>
-    /// CLIENT API
-    /// Test that the login call sequence sends the AdvertisingId when set
-    /// </summary>
+    /* CLIENT API
+     * Test that the login call sequence sends the AdvertisingId when set
+     */
     LoginWithAdvertisingId: function (assert): void {
         PlayFab.settings.advertisingIdType = PlayFab.settings.AD_TYPE_ANDROID_ID;
         PlayFab.settings.advertisingIdValue = "PlayFabTestId";
@@ -221,13 +235,12 @@ var PlayFabApiTests = {
         PlayFabClientSDK.LoginWithCustomID(loginRequest, PlayFabApiTests.CallbackWrapper("advertLoginCallback", advertLoginCallback, assert));
     },
 
-    /// <summary>
-    /// CLIENT API
-    /// Test a sequence of calls that modifies saved data,
-    ///   and verifies that the next sequential API call contains updated data.
-    /// Verify that the data is correctly modified on the next call.
-    /// Parameter types tested: string, Dictionary<string, string>, DateTime
-    /// </summary>
+    /* CLIENT API
+     * Test a sequence of calls that modifies saved data,
+     *   and verifies that the next sequential API call contains updated data.
+     * Verify that the data is correctly modified on the next call.
+     * Parameter types tested: string, Dictionary<string, string>, DateTime
+     */
     UserDataApi: function (assert): void {
         var getDataRequest = <PlayFabClientModels.GetUserDataRequest>{}; // null also works
 
@@ -276,13 +289,12 @@ var PlayFabApiTests = {
         PlayFabClientSDK.GetUserData(getDataRequest, PlayFabApiTests.CallbackWrapper("getDataCallback1", getDataCallback1, assert));
     },
 
-    /// <summary>
-    /// CLIENT API
-    /// Test a sequence of calls that modifies saved data,
-    ///   and verifies that the next sequential API call contains updated data.
-    /// Verify that the data is saved correctly, and that specific types are tested
-    /// Parameter types tested: Dictionary<string, int> 
-    /// </summary>
+    /* CLIENT API
+     * Test a sequence of calls that modifies saved data,
+     *   and verifies that the next sequential API call contains updated data.
+     * Verify that the data is saved correctly, and that specific types are tested
+     * Parameter types tested: Dictionary<string, int> 
+     */
     PlayerStatisticsApi: function (assert): void {
         var getStatsRequest = <PlayFabClientModels.GetPlayerStatisticsRequest>{}; // null also works
 
@@ -329,66 +341,25 @@ var PlayFabApiTests = {
         PlayFabClientSDK.GetPlayerStatistics(getStatsRequest, PlayFabApiTests.CallbackWrapper("getStatsCallback1", getStatsCallback1, assert));
     },
 
-    /// <summary>
-    /// SERVER API
-    /// Get or create the given test character for the given user
-    /// Parameter types tested: Contained-Classes, string
-    /// </summary>
+    /* CLIENT API
+     * Get or create the given test character for the given user
+     * Parameter types tested: Contained-Classes, string
+     */
     UserCharacter: function (assert): void {
         var getCharsRequest = <PlayFabClientModels.ListUsersCharactersRequest>{};
-        var grantCharRequest = {
-            TitleId: PlayFabApiTests.titleData.titleId,
-            PlayFabId: PlayFabApiTests.testData.playFabId,
-            CharacterName: PlayFabApiTests.titleData.characterName,
-            CharacterType: PlayFabApiTests.testConstants.CHAR_TEST_TYPE
-        };
+        var getDone = assert.async();
 
-        // We don't know at this point how many async calls we'll make
-        var getDone = null;
-        var grantDone = null;
-
-        var mandatoryGetCharsCallback = function (result: PlayFabModule.SuccessContainer<PlayFabClientModels.ListUsersCharactersResult>, error: PlayFabModule.IPlayFabError): void {
-            // GetChars MUST succeed at some point during this test
+        var getCharsCallback = function (result: PlayFabModule.SuccessContainer<PlayFabClientModels.ListUsersCharactersResult>, error: PlayFabModule.IPlayFabError): void {
             PlayFabApiTests.VerifyNullError(result, error, assert, "Testing GetChars result");
-
-            for (var i in result.data.Characters)
-                if (result.data.Characters[i].CharacterName === PlayFabApiTests.titleData.characterName)
-                    PlayFabApiTests.testData.characterId = result.data.Characters[i].CharacterId; // Save the characterId, it will be used in other tests
-
-            assert.ok(PlayFabApiTests.testData.characterId != null, "Searching for " + PlayFabApiTests.titleData.characterName + " on this account.");
             getDone();
         };
-        var grantCharCallback = function (result: PlayFabModule.SuccessContainer<PlayFabClientModels.GrantCharacterToUserResult>, error: PlayFabModule.IPlayFabError): void {
-            // Second character callback MUST succeed
-            PlayFabApiTests.VerifyNullError(result, error, assert, "Testing GrantCharacter result");
-
-            // Get chars again, this time with the newly granted character
-            getDone = assert.async();
-            PlayFabClientSDK.GetAllUsersCharacters(grantCharRequest, PlayFabApiTests.CallbackWrapper("mandatoryGetCharsCallback", mandatoryGetCharsCallback, assert));
-            grantDone();
-        };
-        var optionalGetCharsCallback = function (result: PlayFabModule.SuccessContainer<PlayFabClientModels.ListUsersCharactersResult>, error: PlayFabModule.IPlayFabError): void {
-            // First get chars falls back upon grant-char if target character not present
-            if (result.data.Characters.length === 0) {
-                // Register the character and try again
-                grantDone = assert.async();
-                PlayFabServerSDK.GrantCharacterToUser(grantCharRequest, PlayFabApiTests.CallbackWrapper("grantCharCallback", grantCharCallback, assert));
-                getDone();
-            }
-            else {
-                // Confirm the successful login
-                mandatoryGetCharsCallback(result, error);
-            }
-        };
-        getDone = assert.async();
-        PlayFabClientSDK.GetAllUsersCharacters(getCharsRequest, PlayFabApiTests.CallbackWrapper("optionalGetCharsCallback", optionalGetCharsCallback, assert));
+        PlayFabClientSDK.GetAllUsersCharacters(getCharsRequest, PlayFabApiTests.CallbackWrapper("getCharsCallback", getCharsCallback, assert));
     },
 
-    /// <summary>
-    /// CLIENT AND SERVER API
-    /// Test that leaderboard results can be requested
-    /// Parameter types tested: List of contained-classes
-    /// </summary>
+    /* CLIENT AND SERVER API
+     * Test that leaderboard results can be requested
+     * Parameter types tested: List of contained-classes
+     */
     LeaderBoard: function (assert): void {
         var clientRequest = <PlayFabClientModels.GetLeaderboardRequest>{
             MaxResultsCount: 3,
@@ -426,11 +397,10 @@ var PlayFabApiTests = {
         PlayFabServerSDK.GetLeaderboard(serverRequest, PlayFabApiTests.CallbackWrapper("getLeaderboardCallbackS", getLeaderboardCallbackS, assert));
     },
 
-    /// <summary>
-    /// CLIENT API
-    /// Test that AccountInfo can be requested
-    /// Parameter types tested: List of enum-as-strings converted to list of enums
-    /// </summary>
+    /* CLIENT API
+     * Test that AccountInfo can be requested
+     * Parameter types tested: List of enum-as-strings converted to list of enums
+     */
     AccountInfo: function (assert): void {
         var getDone = assert.async();
 
@@ -446,10 +416,9 @@ var PlayFabApiTests = {
         PlayFabClientSDK.GetAccountInfo(<PlayFabClientModels.GetAccountInfoRequest>{}, PlayFabApiTests.CallbackWrapper("getAccountInfoCallback", getAccountInfoCallback, assert));
     },
 
-    /// <summary>
-    /// CLIENT API
-    /// Test that CloudScript can be properly set up and invoked
-    /// </summary>
+    /* CLIENT API
+     * Test that CloudScript can be properly set up and invoked
+     */
     CloudScript: function (assert): void {
         var hwDone = assert.async();
 
@@ -470,10 +439,9 @@ var PlayFabApiTests = {
         PlayFabClientSDK.ExecuteCloudScript(helloWorldRequest, PlayFabApiTests.CallbackWrapper("helloWorldCallback", helloWorldCallback, assert));
     },
 
-    /// <summary>
-    /// CLIENT API
-    /// Test that CloudScript errors can be deciphered
-    /// </summary>
+    /* CLIENT API
+     * Test that CloudScript errors can be deciphered
+     */
     CloudScriptError: function (assert): void {
         var errDone = assert.async();
 
@@ -494,10 +462,9 @@ var PlayFabApiTests = {
         PlayFabClientSDK.ExecuteCloudScript(errRequest, PlayFabApiTests.CallbackWrapper("errCallback", errCallback, assert));
     },
 
-    /// <summary>
-    /// CLIENT API
-    /// Test that the client can publish custom PlayStream events
-    /// </summary>
+    /* CLIENT API
+     * Test that the client can publish custom PlayStream events
+     */
     WriteEvent: function (assert): void {
         var writeEventDone = assert.async();
 
@@ -516,10 +483,89 @@ var PlayFabApiTests = {
         PlayFabClientSDK.WritePlayerEvent(writeEventRequest, PlayFabApiTests.CallbackWrapper("writeEventCallback", writeEventCallback, assert));
     },
 
-    /// <summary>
-    /// CLIENT API
-    /// Test that the client can log out
-    /// </summary>
+    // TODO: Release Entity API
+    ///* ENTITY API
+    // * Test a sequence of calls that modifies saved data,
+    // *   and verifies that the next sequential API call contains updated data.
+    // * Verify that the data is correctly modified on the next call.
+    // * Parameter types tested: string, Dictionary<string, string>, DateTime
+    // */
+    //GetEntityToken: function (assert): void {
+    //    var getTokenDone = assert.async();
+    //    var getTokenCallback = function (result: PlayFabModule.SuccessContainer<PlayFabEntityModels.GetObjectsResponse>, error: PlayFabModule.IPlayFabError): void {
+    //        PlayFabApiTests.VerifyNullError(result, error, assert, "Testing GetToken result");
+    //        PlayFabApiTests.testData.entityId = result.data.EntityId;
+    //        PlayFabApiTests.testData.entityType = result.data.EntityType;
+    //        getTokenDone();
+    //    };
+
+    //    var getTokenRequest = <PlayFabEntityModels.GetEntityTokenRequest>{};
+    //    PlayFabEntitySDK.GetEntityToken(getTokenRequest, PlayFabApiTests.CallbackWrapper("getTokenCallback", getTokenCallback, assert));
+    //},
+
+    ///* ENTITY API
+    // * Test a sequence of calls that modifies saved data,
+    // *   and verifies that the next sequential API call contains updated data.
+    // * Verify that the data is correctly modified on the next call.
+    // * Parameter types tested: string, Dictionary<string, string>, DateTime
+    // */
+    //EntityObjects: function (assert): void {
+    //    var getObjectRequest = <PlayFabEntityModels.GetObjectsRequest>{
+    //        EntityId: PlayFabApiTests.testData.entityId,
+    //        EntityType: PlayFabApiTests.testData.entityType,
+    //        EscapeObject: true,
+    //    };
+
+    //    // This test is always exactly 3 async calls
+    //    var get1Done = assert.async();
+    //    var updateDone = assert.async();
+    //    var get2Done = assert.async();
+
+    //    var getObjectCallback2 = function (result: PlayFabModule.SuccessContainer<PlayFabEntityModels.GetObjectsResponse>, error: PlayFabModule.IPlayFabError): void {
+    //        PlayFabApiTests.VerifyNullError(result, error, assert, "Testing GetObjects result");
+    //        assert.ok(result.data.Objects != null, "Testing GetObjects Objects");
+    //        var actualtestNumber = null;
+    //        for (var i = 0; i < result.data.Objects.length; i++)
+    //            if (result.data.Objects[i].ObjectName === PlayFabApiTests.testConstants.TEST_DATA_KEY)
+    //                actualtestNumber = JSON.parse(result.data.Objects[i].EscapedObject);
+    //        assert.ok(actualtestNumber != null && typeof actualtestNumber === "number", "Testing GetObjects contains target obj (as number)");
+
+    //        assert.equal(PlayFabApiTests.testData.testNumber, actualtestNumber, "Testing incrementing counter: " + PlayFabApiTests.testData.testNumber + "==" + actualtestNumber);
+    //        get2Done();
+    //    };
+    //    var setObjectCallback = function (result: PlayFabModule.SuccessContainer<PlayFabEntityModels.SetObjectsResponse>, error: PlayFabModule.IPlayFabError): void {
+    //        PlayFabApiTests.VerifyNullError(result, error, assert, "Testing SetObjects result");
+
+    //        PlayFabEntitySDK.GetObjects(getObjectRequest, PlayFabApiTests.CallbackWrapper("getObjectCallback2", getObjectCallback2, assert));
+    //        updateDone();
+    //    };
+    //    var getObjectCallback1 = function (result: PlayFabModule.SuccessContainer<PlayFabEntityModels.GetObjectsResponse>, error: PlayFabModule.IPlayFabError): void {
+    //        PlayFabApiTests.VerifyNullError(result, error, assert, "Testing GetObjects result");
+    //        assert.ok(result.data.Objects != null, "Testing GetObjects Objects");
+    //        PlayFabApiTests.testData.testNumber = null;
+    //        for (var i = 0; i < result.data.Objects.length; i++)
+    //            if (result.data.Objects[i].ObjectName === PlayFabApiTests.testConstants.TEST_DATA_KEY)
+    //                PlayFabApiTests.testData.testNumber = JSON.parse(result.data.Objects[i].EscapedObject);
+    //        if (typeof PlayFabApiTests.testData.testNumber === "number")
+    //            PlayFabApiTests.testData.testNumber = 0; // Default number if not set yet
+    //        PlayFabApiTests.testData.testNumber = (PlayFabApiTests.testData.testNumber + 1) % 100; // This test is about the expected value changing - but not testing more complicated issues like bounds
+
+    //        var updateDataRequest = <PlayFabEntityModels.SetObjectsRequest>{
+    //            EntityId: PlayFabApiTests.testData.entityId,
+    //            EntityType: PlayFabApiTests.testData.entityType,
+    //            Objects: [{ ObjectName: PlayFabApiTests.testConstants.TEST_DATA_KEY, Object: PlayFabApiTests.testData.testNumber }]
+    //        };
+    //        PlayFabEntitySDK.SetObjects(updateDataRequest, PlayFabApiTests.CallbackWrapper("setObjectCallback", setObjectCallback, assert));
+    //        get1Done();
+    //    };
+
+    //    // Kick off this test process
+    //    PlayFabEntitySDK.GetObjects(getObjectRequest, PlayFabApiTests.CallbackWrapper("getObjectCallback1", getObjectCallback1, assert));
+    //},
+
+    /* CLIENT API
+     * Test that the client can log out
+     */
     ForgetCredentials: function (assert): void {
         assert.ok(PlayFabClientSDK.IsClientLoggedIn(), "Client should be logged in.");
         PlayFabClientSDK.ForgetAllCredentials();

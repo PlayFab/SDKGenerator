@@ -20,10 +20,12 @@ if(!PlayFab.settings) {
 
 if(!PlayFab._internalSettings) {
     PlayFab._internalSettings = {
+        entityToken: null,
         sessionTicket: null,
         productionServerUrl: ".playfabapi.com",
         errorTitleId: "Must be have PlayFab.settings.titleId set to call this method",
         errorLoggedIn: "Must be logged in to call this method",
+        errorEntityToken: "You must successfully call GetEntityToken before calling this",
         errorSecretKey: "Must have PlayFab.settings.developerSecretKey set to call this method",
 
         GetServerUrl: function () {
@@ -39,7 +41,7 @@ if(!PlayFab._internalSettings) {
                 try {
                     xhr.setRequestHeader(gHeaderKey, headersObj[headerKey]);
                 } catch (e) {
-                    console.log("Failed to append header: " + headerKey + " = " + headersObj[headerKey]);
+                    console.log("Failed to append header: " + headerKey + " = " + headersObj[headerKey] + "Error: " + e);
                 }
             }
         },
@@ -58,8 +60,8 @@ if(!PlayFab._internalSettings) {
             // window.console.log("URL: " + completeUrl);
             xhr.open("POST", completeUrl, true);
 
-            xhr.setRequestHeader('Content-Type', 'application/json');
-            xhr.setRequestHeader('X-PlayFabSDK', "JavaScriptSDK-" + PlayFab._internalSettings.sdkVersion);
+            xhr.setRequestHeader("Content-Type", "application/json");
+            xhr.setRequestHeader("X-PlayFabSDK", "JavaScriptSDK-" + PlayFab._internalSettings.sdkVersion);
             if (authkey != null)
                 xhr.setRequestHeader(authkey, authValue);
             PlayFab._internalSettings.InjectHeaders(xhr, PlayFab.settings.GlobalHeaderInjection);
@@ -139,19 +141,22 @@ PlayFab.<%- api.name %>Api = {
     IsClientLoggedIn: function () {
         return PlayFab._internalSettings.sessionTicket != null && PlayFab._internalSettings.sessionTicket.length > 0;
     },
-    ForgetAllCredentials: function () {
+<% } %>    ForgetAllCredentials: function () {
         PlayFab._internalSettings.sessionTicket = null;
+        PlayFab._internalSettings.entityToken = null;
     },
-<% } for(var i in api.calls) { var apiCall = api.calls[i]; %>
-<%- GetDeprecationAttribute("    ", apiCall)
+<% for(var i in api.calls) { var apiCall = api.calls[i]; %>
+<%- getDeprecationAttribute("    ", apiCall)
 %>    <%- apiCall.name %>: function (request, callback, customData, extraHeaders) {
-<%- GetRequestActions(apiCall, api) %>
-        <% if (HasResultActions(apiCall, api)) { %>var overloadCallback = function (result, error) {
-<%- GetResultActions(apiCall, api) %>
+<%- getRequestActions("        ", apiCall)
+%><% if (hasResultActions(apiCall)) { %>        var overloadCallback = function (result, error) {
+<%- getResultActions("            ", apiCall) %>
             if (callback != null && typeof (callback) == "function")
                 callback(result, error);
         };
-        PlayFab._internalSettings.ExecuteRequest(<%- GetUrl(apiCall, api) %>, request, <%- GetAuthParams(apiCall) %>, overloadCallback);<% }else{ %>PlayFab._internalSettings.ExecuteRequest(<%- GetUrl(apiCall, api) %>, request, <%- GetAuthParams(apiCall) %>, callback, customData, extraHeaders);<% } %>
+        PlayFab._internalSettings.ExecuteRequest(<%- getUrl(apiCall) %>, request, <%- getAuthParams(apiCall) %>, overloadCallback);<%
+}else{
+%>        PlayFab._internalSettings.ExecuteRequest(<%- getUrl(apiCall) %>, request, <%- getAuthParams(apiCall) %>, callback, customData, extraHeaders);<% } %>
     },
 <% } if (hasClientOptions) {%>
     _MultiStepClientLogin: function (needsAttribution) {
@@ -171,7 +176,7 @@ PlayFab.<%- api.name %>Api = {
 var PlayFab<%- api.name %>SDK = PlayFab.<%- api.name %>Api;
 <% if (hasClientOptions) { %>
 PlayFab.RegisterWithPhaser = function() {
-    if ( typeof Phaser === 'undefined')
+    if ( typeof Phaser === "undefined" )
         return;
 
     Phaser.Plugin.PlayFab = function (game, parent) {

@@ -12,21 +12,21 @@ exports.makeCombinedAPI = function (apis, sourceDir, apiOutputDir) {
 
     console.log("Generating ActionScript3 combined SDK to " + apiOutputDir);
 
-    RemoveExcessFiles(apiOutputDir);
+    removeExcessFiles(apis, apiOutputDir);
     copyTree(path.resolve(sourceDir, "source"), apiOutputDir);
-    
+
     for (var i = 0; i < apis.length; i++) {
-        MakeDatatypes(apis[i], sourceDir, apiOutputDir);
+        makeDatatypes(apis[i], sourceDir, apiOutputDir);
         makeApi(apis[i], sourceDir, apiOutputDir);
     }
-    
-    GenerateSimpleFiles(apis, sourceDir, apiOutputDir);
+
+    generateSimpleFiles(apis, sourceDir, apiOutputDir);
 }
 
-function RemoveFilesInDir(dirPath, searchFilter) {
+function removeFilesInDir(dirPath, searchFilter) {
     var files;
     try { files = fs.readdirSync(dirPath); }
-      catch (e) { return; }
+    catch (e) { return; }
     if (files.length > 0)
         for (var i = 0; i < files.length; i++) {
             var filePath = path.resolve(dirPath, files[i]);
@@ -35,50 +35,55 @@ function RemoveFilesInDir(dirPath, searchFilter) {
         }
 };
 
-function RemoveExcessFiles(apiOutputDir) {
-    RemoveFilesInDir(path.resolve(apiOutputDir, "com/playfab/AdminModels"), ".as");
-    RemoveFilesInDir(path.resolve(apiOutputDir, "com/playfab/ClientModels"), ".as");
-    RemoveFilesInDir(path.resolve(apiOutputDir, "com/playfab/MatchmakerModels"), ".as");
-    RemoveFilesInDir(path.resolve(apiOutputDir, "com/playfab/ServerModels"), ".as");
+function removeExcessFiles(apis, apiOutputDir) {
+    for (var a = 0; a < apis.length; a++)
+        removeFilesInDir(path.resolve(apiOutputDir, "com/playfab/" + apis[a].name + "Models"), ".as");
 }
 
-function GetBaseTypeSyntax(datatype) {
+function getBaseTypeSyntax(datatype) {
     // The model-inheritance feature was removed.
     // However in the future, we may still use some inheritance links for request/result baseclasses, for other sdk features
+    if (datatype.name.endsWith("Result") || datatype.name.endsWith("Response"))
+        return "";
+    if (datatype.name.endsWith("Request"))
+        return "";
     return "";
 }
 
-function MakeDatatypes(api, sourceDir, apiOutputDir) {
+function makeDatatypes(api, sourceDir, apiOutputDir) {
     var templateDir = path.resolve(sourceDir, "templates");
-    
     var modelTemplate = getCompiledTemplate(path.resolve(templateDir, "Model.as.ejs"));;
     var enumTemplate = getCompiledTemplate(path.resolve(templateDir, "Enum.as.ejs"));;
-    
+
     for (var d in api.datatypes) {
-        var datatype = api.datatypes[d];
-        
-        var modelLocals = {};
-        modelLocals.api = api;
-        modelLocals.datatype = datatype;
-        modelLocals.GetModelPropertyDef = GetModelPropertyDef;
-        modelLocals.GetModelPropertyInit = GetModelPropertyInit;
-        modelLocals.GetBaseTypeSyntax = GetBaseTypeSyntax;
-        modelLocals.GetDeprecationComment = GetDeprecationComment;
-        
+        if (!api.datatypes.hasOwnProperty(d))
+            continue;
+
+        var eachDatatype = api.datatypes[d];
+
+        var modelLocals = {
+            api: api,
+            datatype: eachDatatype,
+            getBaseTypeSyntax: getBaseTypeSyntax,
+            getDeprecationComment: getDeprecationComment,
+            getModelPropertyDef: getModelPropertyDef,
+            getModelPropertyInit: getModelPropertyInit
+        };
+
         var generatedModel;
-        if (datatype.isenum) {
+        if (eachDatatype.isenum) {
             generatedModel = enumTemplate(modelLocals);
         } else {
-            modelLocals.NeedsPlayFabUtil = NeedsPlayFabUtil(datatype);
+            modelLocals.needsPlayFabUtil = needsPlayFabUtil(eachDatatype);
             generatedModel = modelTemplate(modelLocals);
         }
-        
-        writeFile(path.resolve(apiOutputDir, "com/playfab/" + api.name + "Models/" + datatype.name + ".as"), generatedModel);
+
+        writeFile(path.resolve(apiOutputDir, "com/playfab/" + api.name + "Models/" + eachDatatype.name + ".as"), generatedModel);
     }
 }
 
 // A datatype needs util if it contains a DateTime
-function NeedsPlayFabUtil(datatype) {
+function needsPlayFabUtil(datatype) {
     for (var i = 0; i < datatype.properties.length; i++)
         if (datatype.properties[i].actualtype === "DateTime")
             return true;
@@ -87,54 +92,49 @@ function NeedsPlayFabUtil(datatype) {
 
 function makeApi(api, sourceDir, apiOutputDir) {
     console.log("Generating ActionScript " + api.name + " library to " + apiOutputDir);
-    
-    var templateDir = path.resolve(sourceDir, "templates");
-    
-    var apiTemplate = getCompiledTemplate(path.resolve(templateDir, "API.as.ejs"));;
-    var apiLocals = {};
-    apiLocals.api = api;
-    apiLocals.GetAuthParams = GetAuthParams;
-    apiLocals.GetRequestActions = GetRequestActions;
-    apiLocals.GetResultActions = GetResultActions;
-    apiLocals.GetUrlAccessor = GetUrlAccessor;
-    apiLocals.GetDeprecationAttribute = GetDeprecationAttribute;
-    apiLocals.hasClientOptions = api.name === "Client";
-    var generatedApi = apiTemplate(apiLocals);
-    writeFile(path.resolve(apiOutputDir, "com/playfab/PlayFab" + api.name + "API.as"), generatedApi);
+
+    var apiLocals = {
+        api: api,
+        getAuthParams: getAuthParams,
+        getRequestActions: getRequestActions,
+        getResultActions: getResultActions,
+        getDeprecationAttribute: getDeprecationAttribute,
+        hasClientOptions: api.name === "Client"
+    };
+
+    var apiTemplate = getCompiledTemplate(path.resolve(path.resolve(sourceDir, "templates"), "API.as.ejs"));;
+    writeFile(path.resolve(apiOutputDir, "com/playfab/PlayFab" + api.name + "API.as"), apiTemplate(apiLocals));
 }
 
-function GenerateSimpleFiles(apis, sourceDir, apiOutputDir) {
-    var errorsTemplate = getCompiledTemplate(path.resolve(sourceDir, "templates/Errors.as.ejs"));;
-    var errorLocals = {};
-    errorLocals.errorList = apis[0].errorList;
-    errorLocals.errors = apis[0].errors;
-    var generatedErrors = errorsTemplate(errorLocals);
-    writeFile(path.resolve(apiOutputDir, "com/playfab/PlayFabError.as"), generatedErrors);
-    
-    var versionTemplate = getCompiledTemplate(path.resolve(sourceDir, "templates/PlayFabVersion.as.ejs"));;
-    var versionLocals = {};
-    versionLocals.sdkVersion = exports.sdkVersion;
-    versionLocals.buildIdentifier = exports.buildIdentifier;
-    var generatedVersion = versionTemplate(versionLocals);
-    writeFile(path.resolve(apiOutputDir, "com/playfab/PlayFabVersion.as"), generatedVersion);
-    
-    var settingsTemplate = getCompiledTemplate(path.resolve(sourceDir, "templates/PlayFabSettings.as.ejs"));;
-    var settingsLocals = {};
-    settingsLocals.hasServerOptions = false;
-    settingsLocals.hasClientOptions = false;
+function generateSimpleFiles(apis, sourceDir, apiOutputDir) {
+    var simpleLocals = {
+        buildIdentifier: exports.buildIdentifier,
+        errorList: apis[0].errorList,
+        errors: apis[0].errors,
+        hasClientOptions: false,
+        hasServerOptions: false,
+        sdkVersion: exports.sdkVersion
+    };
     for (var i = 0; i < apis.length; i++) {
         if (apis[i].name === "Client")
-            settingsLocals.hasClientOptions = true;
+            simpleLocals.hasClientOptions = true;
         else
-            settingsLocals.hasServerOptions = true;
+            simpleLocals.hasServerOptions = true;
     }
-    var generatedsettings = settingsTemplate(settingsLocals);
-    writeFile(path.resolve(apiOutputDir, "com/playfab/PlayFabSettings.as"), generatedsettings);
+
+    var errorsTemplate = getCompiledTemplate(path.resolve(sourceDir, "templates/Errors.as.ejs"));;
+    writeFile(path.resolve(apiOutputDir, "com/playfab/PlayFabError.as"), errorsTemplate(simpleLocals));
+
+    var versionTemplate = getCompiledTemplate(path.resolve(sourceDir, "templates/PlayFabVersion.as.ejs"));;
+    writeFile(path.resolve(apiOutputDir, "com/playfab/PlayFabVersion.as"), versionTemplate(simpleLocals));
+
+    var settingsTemplate = getCompiledTemplate(path.resolve(sourceDir, "templates/PlayFabSettings.as.ejs"));;
+    writeFile(path.resolve(apiOutputDir, "com/playfab/PlayFabSettings.as"), settingsTemplate(simpleLocals));
 }
 
-function GetModelPropertyDef(property, datatype) {
-    var basicType = GetPropertyAsType(property, datatype);
-    
+function getModelPropertyDef(property, datatype) {
+    var basicType = getPropertyAsType(property, datatype);
+
     if (property.collection) {
         if (property.collection === "array") {
             return property.name + ":Vector.<" + basicType + ">";
@@ -147,17 +147,17 @@ function GetModelPropertyDef(property, datatype) {
         }
     }
     else {
-        if (property.optional && (basicType === "Boolean" 
-            || basicType === "int" 
-            || basicType === "uint" 
+        if (property.optional && (basicType === "Boolean"
+            || basicType === "int"
+            || basicType === "uint"
             || basicType === "Number"))
             basicType = "*";
         return property.name + ":" + basicType;
     }
 }
 
-function GetPropertyAsType(property, datatype) {
-    
+function getPropertyAsType(property, datatype) {
+
     if (property.actualtype === "String")
         return "String";
     else if (property.actualtype === "Boolean")
@@ -191,7 +191,7 @@ function GetPropertyAsType(property, datatype) {
     throw "Unknown property type: " + property.actualtype + " for " + property.name + " in " + datatype.name;
 }
 
-function GetModelPropertyInit(tabbing, property, datatype) {
+function getModelPropertyInit(tabbing, property, datatype) {
     if (property.isclass) {
         if (property.collection) {
             if (property.collection === "array")
@@ -207,7 +207,7 @@ function GetModelPropertyInit(tabbing, property, datatype) {
     }
     else if (property.collection) {
         if (property.collection === "array") {
-            var asType = GetPropertyAsType(property, datatype);
+            var asType = getPropertyAsType(property, datatype);
             return tabbing + property.name + " = data." + property.name + " ? Vector.<" + asType + ">(data." + property.name + ") : null;";
         }
         else if (property.collection === "map") {
@@ -225,7 +225,7 @@ function GetModelPropertyInit(tabbing, property, datatype) {
     }
 }
 
-function GetAuthParams(apiCall) {
+function getAuthParams(apiCall) {
     if (apiCall.auth === "SecretKey")
         return "\"X-SecretKey\", PlayFabSettings.DeveloperSecretKey";
     else if (apiCall.auth === "SessionTicket")
@@ -233,34 +233,30 @@ function GetAuthParams(apiCall) {
     return "null, null";
 }
 
-function GetRequestActions(apiCall, api) {
+function getRequestActions(tabbing, apiCall, api) {
     if (api.name === "Client" && (apiCall.result === "LoginResult" || apiCall.request === "RegisterPlayFabUserRequest"))
-        return "            request.TitleId = PlayFabSettings.TitleId != null ? PlayFabSettings.TitleId : request.TitleId;\n" 
-            + "            if(request.TitleId == null) throw new Error (\"Must be have PlayFabSettings.TitleId set to call this method\");";
+        return tabbing + "request.TitleId = PlayFabSettings.TitleId != null ? PlayFabSettings.TitleId : request.TitleId;\n"
+            + tabbing + "if(request.TitleId == null) throw new Error (\"Must be have PlayFabSettings.TitleId set to call this method\");";
     if (api.name === "Client" && apiCall.auth === "SessionTicket")
-        return "            if (authKey == null) throw new Error(\"Must be logged in to call this method\");";
+        return tabbing + "if (authKey == null) throw new Error(\"Must be logged in to call this method\");";
     if (apiCall.auth === "SecretKey")
-        return "            if (PlayFabSettings.DeveloperSecretKey == null) throw new Error (\"Must have PlayFabSettings.DeveloperSecretKey set to call this method\");";
+        return tabbing + "if (PlayFabSettings.DeveloperSecretKey == null) throw new Error (\"Must have PlayFabSettings.DeveloperSecretKey set to call this method\");";
     return "";
 }
 
-function GetResultActions(apiCall, api) {
+function getResultActions(tabbing, apiCall, api) {
     if (api.name === "Client" && (apiCall.result === "LoginResult" || apiCall.result === "RegisterPlayFabUserResult"))
-        return "                    authKey = result.SessionTicket != null ? result.SessionTicket : authKey;\n" 
-            + "                    MultiStepClientLogin(result.SettingsForUser.NeedsAttribution);\n";
+        return tabbing + "authKey = result.SessionTicket != null ? result.SessionTicket : authKey;\n"
+            + tabbing + "MultiStepClientLogin(result.SettingsForUser.NeedsAttribution);\n";
     else if (api.name === "Client" && apiCall.result === "AttributeInstallResult")
-        return "                    // Modify AdvertisingIdType:  Prevents us from sending the id multiple times, and allows automated tests to determine id was sent successfully\n" 
-            + "                    PlayFabSettings.AdvertisingIdType += \"_Successful\";\n";
+        return tabbing + "// Modify AdvertisingIdType:  Prevents us from sending the id multiple times, and allows automated tests to determine id was sent successfully\n"
+            + tabbing + "PlayFabSettings.AdvertisingIdType += \"_Successful\";\n";
     return "";
 }
 
-function GetUrlAccessor(apiCall) {
-    return "PlayFabSettings.GetURL()";
-}
-
-function GetDeprecationAttribute(tabbing, apiObj) {
+function getDeprecationAttribute(tabbing, apiObj) {
     var isDeprecated = apiObj.hasOwnProperty("deprecation");
-    
+
     if (isDeprecated && apiObj.deprecation.ReplacedBy != null)
         return tabbing + "[Deprecated(message=\"The " + apiObj.name + " API and its associated datatypes are scheduled for deprecation. Use " + apiObj.deprecation.ReplacedBy + " instead.\", replacement=\"" + apiObj.deprecation.ReplacedBy + "\")]\n";
     else if (isDeprecated)
@@ -270,9 +266,9 @@ function GetDeprecationAttribute(tabbing, apiObj) {
 
 // Basically, deprecating fields and models causes tons of deprecation warnings against ourself,
 //   making it nearly impossible to display to the user when THEY are using deprecated fields.
-function GetDeprecationComment(tabbing, apiObj) {
+function getDeprecationComment(tabbing, apiObj) {
     var isDeprecated = apiObj.hasOwnProperty("deprecation");
-    
+
     if (isDeprecated && apiObj.deprecation.ReplacedBy != null)
         return tabbing + "// Deprecated, please use " + apiObj.deprecation.ReplacedBy + "\n";
     else if (isDeprecated)

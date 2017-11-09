@@ -60,8 +60,8 @@ function makeSimpleTemplates(apis, templateDir, apiOutputDir) {
 function getRequestActions(tabbing, apiCall) {
     if (apiCall.url === "/Authentication/GetEntityToken")
         return tabbing + "var authKey = null; var authValue = null;\n"
-            + tabbing + "if (PlayFab._internalSettings.sessionTicket) { authKey = \"X-Authorization\"; authValue = PlayFab._internalSettings.sessionTicket; }\n"
-            + tabbing + "if (PlayFab.settings.developerSecretKey) { authKey = \"X-SecretKey\"; authValue = PlayFab.settings.developerSecretKey; }\n";
+            + tabbing + "if (!authKey && PlayFab._internalSettings.sessionTicket) { authKey = \"X-Authorization\"; authValue = PlayFab._internalSettings.sessionTicket; }\n"
+            + tabbing + "if (!authKey && PlayFab.settings.developerSecretKey) { authKey = \"X-SecretKey\"; authValue = PlayFab.settings.developerSecretKey; }\n";
     if (apiCall.result === "LoginResult" || apiCall.request === "RegisterPlayFabUserRequest")
         return tabbing + "request.TitleId = PlayFab.settings.titleId ? PlayFab.settings.titleId : request.TitleId; if (!request.TitleId) throw PlayFab._internalSettings.errorTitleId;\n";
     if (apiCall.auth === "EntityToken")

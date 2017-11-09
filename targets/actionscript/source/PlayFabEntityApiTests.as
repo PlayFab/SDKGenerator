@@ -6,8 +6,10 @@ package
     import flash.utils.Timer;
 
     import com.playfab.ClientModels.*;
+    import com.playfab.EntityModels.*;
     import com.playfab.ServerModels.*;
     import com.playfab.PlayFabClientAPI;
+    import com.playfab.PlayFabEntityAPI;
     import com.playfab.PlayFabServerAPI;
     import com.playfab.PlayFabSettings;
     import com.playfab.PlayFabHTTP;
@@ -18,7 +20,7 @@ package
     import asyncUnitTest.ASyncUnitTestEvent;
     import asyncUnitTest.ASyncAssert;
 
-    public class PlayFabApiTests extends ASyncUnitTestSuite
+    public class PlayFabEntityApiTests extends ASyncUnitTestSuite
     {
         private static var TITLE_DATA_FILENAME:String;
 
@@ -39,8 +41,10 @@ package
         // Variables for specific tests
         private var testIntExpected:int;
         private var testIntActual:int;
+        private var testEntityId:String;
+        private var testEntityType:String;
 
-        public function PlayFabApiTests(titleDataFileName:String, reporters:Array)
+        public function PlayFabEntityApiTests(titleDataFileName:String, reporters:Array)
         {
             super(reporters);
             TITLE_DATA_FILENAME = titleDataFileName;
@@ -57,6 +61,7 @@ package
             AddTest("CloudScript", CloudScript);
             AddTest("CloudScriptError", CloudScriptError);
             AddTest("WriteEvent", WriteEvent);
+            AddTest("EntityObjects", EntityObjects);
 
             KickOffTests();
         }
@@ -438,6 +443,68 @@ package
         }
         private function WriteEventCallback(result:com.playfab.ClientModels.WriteEventResponse) : void
         {
+            FinishTestHandler(new ASyncUnitTestEvent(ASyncUnitTestEvent.FINISH_TEST, ASyncUnitTestEvent.RESULT_PASSED, ""));
+        }
+
+        /// <summary>
+        /// ENTITY API
+        /// Test the Entity API, and Entity Objects
+        ///   and verifies that the next sequential API call contains updated object.
+        /// Verify that the saved object is correctly modified on the next call.
+        /// </summary>
+        private function EntityObjects() : void
+        {
+            testEntityType = testEntityType = null;
+            var getTokenRequest:com.playfab.EntityModels.GetEntityTokenRequest = new com.playfab.EntityModels.GetEntityTokenRequest();
+            PlayFabEntityAPI.GetEntityToken(getTokenRequest, Wrap(EntityObjects_GetTokenSuccess, "EntityObjects_GetTokenSuccess"), Wrap(Shared_ApiCallFailure, "EntityObjects_GetTokenSuccess"));
+        }
+        private function EntityObjects_GetTokenSuccess(result:com.playfab.EntityModels.GetEntityTokenResponse) : void
+        {
+            testEntityId = result.EntityId;
+            testEntityType = result.EntityType;
+            ASyncAssert.AssertNotNull(testEntityId);
+            ASyncAssert.AssertNotNull(testEntityType);
+
+            var getRequest:com.playfab.EntityModels.GetObjectsRequest = new com.playfab.EntityModels.GetObjectsRequest();
+            getRequest.EntityId = testEntityId;
+            getRequest.EntityType = testEntityType;
+            PlayFabEntityAPI.GetObjects(getRequest, Wrap(EntityObjects_GetSuccess1, "EntityObjects_GetSuccess1"), Wrap(Shared_ApiCallFailure, "EntityObjects_GetSuccess1"));
+        }
+        private function EntityObjects_GetSuccess1(result:com.playfab.EntityModels.GetObjectsResponse) : void
+        {
+            testIntExpected = 0;
+            for(var i:int = 0; i < result.Objects.length; i++)
+                if (result.Objects[i].ObjectName == TEST_DATA_KEY)
+                    testIntExpected = JSON.parse(result.Objects[i].EscapedDataObject) as int;
+            testIntExpected = (testIntExpected + 1) % 100; // This test is about the expected value changing
+
+            var updateRequest:com.playfab.EntityModels.SetObjectsRequest = new com.playfab.EntityModels.SetObjectsRequest();
+            updateRequest.EntityId = testEntityId;
+            updateRequest.EntityType = testEntityType;
+            updateRequest.Objects = new Vector.<SetObject>();
+            var updateObj:com.playfab.EntityModels.SetObject = new com.playfab.EntityModels.SetObject();
+            updateObj.ObjectName = TEST_DATA_KEY;
+            updateObj.DataObject = testIntExpected;
+            updateRequest.Objects[0] = updateObj;
+
+            PlayFabEntityAPI.SetObjects(updateRequest, Wrap(EntityObjects_UpdateSuccess, "EntityObjects_UpdateSuccess"), Wrap(Shared_ApiCallFailure, "EntityObjects_UpdateSuccess"));
+        }
+        private function EntityObjects_UpdateSuccess(result:com.playfab.EntityModels.SetObjectsResponse) : void
+        {
+            var getRequest:com.playfab.EntityModels.GetObjectsRequest = new com.playfab.EntityModels.GetObjectsRequest();
+            getRequest.EntityId = testEntityId;
+            getRequest.EntityType = testEntityType;
+            PlayFabEntityAPI.GetObjects(getRequest, Wrap(EntityObjects_GetSuccess2, "EntityObjects_GetSuccess2"), Wrap(Shared_ApiCallFailure, "EntityObjects_GetSuccess2"));
+        }
+        private function EntityObjects_GetSuccess2(result:com.playfab.EntityModels.GetObjectsResponse) : void
+        {
+            testIntActual = -1000;
+            ASyncAssert.AssertTrue(result.Objects.length > 0);
+            for(var i:int = 0; i < result.Objects.length; i++)
+                if (result.Objects[i].ObjectName == TEST_DATA_KEY)
+                    testIntActual = JSON.parse(result.Objects[i].EscapedDataObject) as int;
+            ASyncAssert.AssertEquals(testIntExpected, testIntActual);
+
             FinishTestHandler(new ASyncUnitTestEvent(ASyncUnitTestEvent.FINISH_TEST, ASyncUnitTestEvent.RESULT_PASSED, ""));
         }
     }

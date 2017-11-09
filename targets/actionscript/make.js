@@ -27,12 +27,13 @@ function removeFilesInDir(dirPath, searchFilter) {
     var files;
     try { files = fs.readdirSync(dirPath); }
     catch (e) { return; }
-    if (files.length > 0)
-        for (var i = 0; i < files.length; i++) {
-            var filePath = path.resolve(dirPath, files[i]);
-            if (fs.statSync(filePath).isFile() && (!searchFilter || filePath.contains(searchFilter)))
-                fs.unlinkSync(filePath);
-        }
+    if (files.length === 0)
+        return;
+    for (var i = 0; i < files.length; i++) {
+        var filePath = path.resolve(dirPath, files[i]);
+        if (fs.statSync(filePath).isFile() && (!searchFilter || filePath.contains(searchFilter)))
+            fs.unlinkSync(filePath);
+    }
 };
 
 function removeExcessFiles(apis, apiOutputDir) {
@@ -112,12 +113,15 @@ function generateSimpleFiles(apis, sourceDir, apiOutputDir) {
         errorList: apis[0].errorList,
         errors: apis[0].errors,
         hasClientOptions: false,
+        hasEntityOptions: false,
         hasServerOptions: false,
         sdkVersion: exports.sdkVersion
     };
     for (var i = 0; i < apis.length; i++) {
         if (apis[i].name === "Client")
             simpleLocals.hasClientOptions = true;
+        else if (apis[i].name === "Entity")
+            simpleLocals.hasEntityOptions = true;
         else
             simpleLocals.hasServerOptions = true;
     }
@@ -136,21 +140,14 @@ function getModelPropertyDef(property, datatype) {
     var basicType = getPropertyAsType(property, datatype);
 
     if (property.collection) {
-        if (property.collection === "array") {
+        if (property.collection === "array")
             return property.name + ":Vector.<" + basicType + ">";
-        }
-        else if (property.collection === "map") {
+        else if (property.collection === "map")
             return property.name + ":Object";
-        }
-        else {
+        else
             throw "Unknown collection type: " + property.collection + " for " + property.name + " in " + datatype.name;
-        }
-    }
-    else {
-        if (property.optional && (basicType === "Boolean"
-            || basicType === "int"
-            || basicType === "uint"
-            || basicType === "Number"))
+    } else {
+        if (property.optional && (basicType === "Boolean" || basicType === "int" || basicType === "uint" || basicType === "Number"))
             basicType = "*";
         return property.name + ":" + basicType;
     }
@@ -200,55 +197,62 @@ function getModelPropertyInit(tabbing, property, datatype) {
                 return tabbing + "if(data." + property.name + ") { " + property.name + " = {}; for(var " + property.name + "_iter:String in data." + property.name + ") { " + property.name + "[" + property.name + "_iter] = new " + property.actualtype + "(data." + property.name + "[" + property.name + "_iter]); }}";
             else
                 throw "Unknown collection type: " + property.collection + " for " + property.name + " in " + datatype.name;
-        }
-        else {
+        } else {
             return tabbing + property.name + " = new " + property.actualtype + "(data." + property.name + ");";
         }
-    }
-    else if (property.collection) {
+    } else if (property.collection) {
         if (property.collection === "array") {
             var asType = getPropertyAsType(property, datatype);
             return tabbing + property.name + " = data." + property.name + " ? Vector.<" + asType + ">(data." + property.name + ") : null;";
-        }
-        else if (property.collection === "map") {
+        } else if (property.collection === "map") {
             return tabbing + property.name + " = data." + property.name + ";";
-        }
-        else {
+        } else {
             throw "Unknown collection type: " + property.collection + " for " + property.name + " in " + datatype.name;
         }
     }
     else if (property.actualtype === "DateTime") {
         return tabbing + property.name + " = PlayFabUtil.parseDate(data." + property.name + ");";
-    }
-    else {
+    } else {
         return tabbing + property.name + " = data." + property.name + ";";
     }
 }
 
 function getAuthParams(apiCall) {
-    if (apiCall.auth === "SecretKey")
+    if (apiCall.url === "/Authentication/GetEntityToken")
+        return "authKey, authValue";
+    else if (apiCall.auth === "EntityToken")
+        return "\"X-EntityToken\", PlayFabSettings.EntityToken";
+    else if (apiCall.auth === "SecretKey")
         return "\"X-SecretKey\", PlayFabSettings.DeveloperSecretKey";
     else if (apiCall.auth === "SessionTicket")
-        return "\"X-Authorization\", authKey";
+        return "\"X-Authorization\", PlayFabSettings.ClientSessionTicket";
     return "null, null";
 }
 
 function getRequestActions(tabbing, apiCall, api) {
-    if (api.name === "Client" && (apiCall.result === "LoginResult" || apiCall.request === "RegisterPlayFabUserRequest"))
+    if (apiCall.url === "/Authentication/GetEntityToken")
+        return tabbing + "var authKey:String = null; var authValue:String = null;\n"
+            + tabbing + "if (authKey == null && PlayFabSettings.ClientSessionTicket) { authKey = \"X-Authorization\"; authValue = PlayFabSettings.ClientSessionTicket; }\n"
+            + tabbing + "if (authKey == null && PlayFabSettings.DeveloperSecretKey) { authKey = \"X-SecretKey\"; authValue = PlayFabSettings.DeveloperSecretKey; }\n";
+    else if (api.name === "Client" && (apiCall.result === "LoginResult" || apiCall.request === "RegisterPlayFabUserRequest"))
         return tabbing + "request.TitleId = PlayFabSettings.TitleId != null ? PlayFabSettings.TitleId : request.TitleId;\n"
             + tabbing + "if(request.TitleId == null) throw new Error (\"Must be have PlayFabSettings.TitleId set to call this method\");";
-    if (api.name === "Client" && apiCall.auth === "SessionTicket")
-        return tabbing + "if (authKey == null) throw new Error(\"Must be logged in to call this method\");";
-    if (apiCall.auth === "SecretKey")
+    else if (apiCall.auth === "EntityToken")
+        return tabbing + "if (PlayFabSettings.EntityToken == null) throw new Error(\"Must call GetEntityToken to call this method\");";
+    else if (apiCall.auth === "SessionTicket")
+        return tabbing + "if (PlayFabSettings.ClientSessionTicket == null) throw new Error(\"Must be logged in to call this method\");";
+    else if (apiCall.auth === "SecretKey")
         return tabbing + "if (PlayFabSettings.DeveloperSecretKey == null) throw new Error (\"Must have PlayFabSettings.DeveloperSecretKey set to call this method\");";
     return "";
 }
 
 function getResultActions(tabbing, apiCall, api) {
     if (api.name === "Client" && (apiCall.result === "LoginResult" || apiCall.result === "RegisterPlayFabUserResult"))
-        return tabbing + "authKey = result.SessionTicket != null ? result.SessionTicket : authKey;\n"
+        return tabbing + "PlayFabSettings.ClientSessionTicket = result.SessionTicket != null ? result.SessionTicket : PlayFabSettings.ClientSessionTicket;\n"
             + tabbing + "MultiStepClientLogin(result.SettingsForUser.NeedsAttribution);\n";
-    else if (api.name === "Client" && apiCall.result === "AttributeInstallResult")
+    else if (apiCall.url === "/Authentication/GetEntityToken")
+        return tabbing + "PlayFabSettings.EntityToken = result.EntityToken != null ? result.EntityToken : PlayFabSettings.EntityToken;\n";
+    else if (apiCall.url === "/Client/AttributeInstall")
         return tabbing + "// Modify AdvertisingIdType:  Prevents us from sending the id multiple times, and allows automated tests to determine id was sent successfully\n"
             + tabbing + "PlayFabSettings.AdvertisingIdType += \"_Successful\";\n";
     return "";

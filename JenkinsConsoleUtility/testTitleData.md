@@ -6,7 +6,7 @@ testTitleData.json is a file that is required by all of the example-test project
 
 * Your title must have this title setting enabled:
   * X Allow client to post player statistics
-* Your title must have an existing account which matches the email address in your testTitleData.json (described below)
+* Your title must have an existing player account registered which matches the email address in your testTitleData.json (described below)
   * The password should be whatever you want, we explicitly test failure to log in with a bad password
 * Unit testing titles should be clean/unused titles with no expectations
   * A legacy test exists in some SDKs where a character may be added to an account if the character doesn't exist

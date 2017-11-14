@@ -12,6 +12,19 @@ testTitleData.json is a file that is required by all of the example-test project
   * A legacy test exists in some SDKs where a character may be added to an account if the character doesn't exist
   * Specific user data, Entity Objects, and other features may be added to the test player that doesn't match existing title expectations
 * One test relies on an advertising plugin being enabled for your title, which is generally not typical. This test will always fail for your test titles, and you can ignore it, or disable it
+* The following Cloud Script function must exist in your title:
+
+```JS
+handlers.helloWorld = function (args, context) {
+    var message = "Hello " + currentPlayerId + "!";
+    log.info(message);
+    var inputValue = null;
+    if (args && args.hasOwnProperty("inputValue"))
+        inputValue = args.inputValue;
+    log.debug("helloWorld:", { input: inputValue });
+    return { messageValue: message };
+}
+```
 
 ### Each example project serves two main purposes in each SDK:
 

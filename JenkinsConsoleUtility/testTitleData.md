@@ -24,6 +24,12 @@ handlers.helloWorld = function (args, context) {
     log.debug("helloWorld:", { input: inputValue });
     return { messageValue: message };
 }
+
+handlers.throwError = function (args) {
+	var testObject;
+    var failureObj = testObj.doesnotexist.doesnotexist;
+	return failureObj; // Can't get to here
+}
 ```
 
 ### Each example project serves two main purposes in each SDK:

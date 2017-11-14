@@ -1,9 +1,18 @@
-testTitleData.json
-====
+# testTitleData.json
 
 testTitleData.json is a file that is required by all of the example-test projects in most of the PlayFab sdks
 
-Each example project serves two main purposes in each SDK:
+### PlayFab Title Requirements
+
+* Your title must have this title setting enabled:
+  * X Allow client to post player statistics
+* Your title must have an existing account which matches the email address in your testTitleData.json (described below)
+  * The password should be whatever you want, we explicitly test failure to log in with a bad password
+* Unit testing titles should be clean/unused titles with no expectations
+  * A legacy test exists in some SDKs where a character may be added to an account if the character doesn't exist
+  * Specific user data, Entity Objects, and other features may be added to the test player that doesn't match existing title expectations
+
+### Each example project serves two main purposes in each SDK:
 
 * Demonstrate to a developer using PlayFab, how to make successful API calls
   * In particular, we demonstrate specific areas of maximum first-time-user benefit, like logging in, Player data and statistics

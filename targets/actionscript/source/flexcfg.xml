@@ -453,7 +453,7 @@
     <!-- swf-version: specifies the version of the compiled SWF file.-->
     <swf-version>14</swf-version>
     <!-- target-player: specifies the version of the player the application is targeting. Features requiring a later version will not be compiled into the application. The minimum value supported is "9.0.0".-->
-    <target-player>26.0</target-player>
+    <target-player>27.0</target-player>
     <!-- tools-locale: specifies the locale used by the compiler when reporting errors and warnings.-->
     <!-- tools-locale usage:
    <tools-locale>string</tools-locale>

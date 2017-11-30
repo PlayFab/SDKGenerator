@@ -7,7 +7,7 @@ public class PlayFabProxy : ModuleRules
 #if PF_UNREAL_OLD_4_14_TO_4_15
         public PlayFabProxy(TargetInfo Target)
 #else
-    public PlayFabProxy(ReadOnlyTargetRules ROTargetRules) : base(ROTargetRules)
+    public PlayFabProxy(ReadOnlyTargetRules Target) : base(Target)
 #endif
     {
         PCHUsage = PCHUsageMode.UseExplicitOrSharedPCHs;

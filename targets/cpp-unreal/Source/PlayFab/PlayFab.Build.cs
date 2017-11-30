@@ -7,7 +7,7 @@ namespace UnrealBuildTool.Rules
 #if PF_UNREAL_OLD_4_14_TO_4_15
         public PlayFab(TargetInfo Target)
 #else
-        public PlayFab(ReadOnlyTargetRules ROTargetRules) : base(ROTargetRules)
+        public PlayFab(ReadOnlyTargetRules Target) : base(Target)
 #endif
         {
             PrivateIncludePaths.AddRange(

@@ -267,8 +267,11 @@
     <Content Include="targets\cpp-ue4\templates\core\PlayFabSettings.cpp.ejs" />
     <Content Include="targets\cpp-ue4\templates\PlayFab.uplugin.ejs" />
     <Content Include="targets\cpp-ue4\templates\PlayFabProxy.uplugin.ejs" />
-    <Content Include="targets\cpp-ue4\testingFiles\PlayFabApiTests.cpp" />
-    <Content Include="targets\cpp-ue4\testingFiles\PlayFabApiTests.h" />
+    <Content Include="targets\cpp-ue4\testingFiles\ExampleProject.uproject" />
+    <Content Include="targets\cpp-ue4\testingFiles\Source\ExampleProject.Target.cs" />
+    <Content Include="targets\cpp-ue4\testingFiles\Source\ExampleProjectEditor.Target.cs" />
+    <Content Include="targets\cpp-ue4\testingFiles\Source\ExampleProject\PlayFabApiTests.cpp" />
+    <Content Include="targets\cpp-ue4\testingFiles\Source\ExampleProject\PlayFabApiTests.h" />
     <Content Include="targets\cpp-unreal\ExampleProject\Config\DefaultEditor.ini" />
     <Content Include="targets\cpp-unreal\ExampleProject\Config\DefaultEngine.ini" />
     <Content Include="targets\cpp-unreal\ExampleProject\Config\DefaultGame.ini" />
@@ -775,6 +778,8 @@
     <Folder Include="targets\cpp-ue4\templates\blueprint\" />
     <Folder Include="targets\cpp-ue4\templates\core\" />
     <Folder Include="targets\cpp-ue4\testingFiles\" />
+    <Folder Include="targets\cpp-ue4\testingFiles\Source\" />
+    <Folder Include="targets\cpp-ue4\testingFiles\Source\ExampleProject\" />
     <Folder Include="targets\cpp-unreal\" />
     <Folder Include="targets\cpp-unreal\ExampleProject\" />
     <Folder Include="targets\cpp-unreal\ExampleProject\Config\" />

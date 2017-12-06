@@ -67,9 +67,9 @@ public:
                     // Add datatype name to array
                     modelsArray.push(datatype.name);
 
-                %>    /** Decode the <%- GetDatatypeSafeName(datatype, "name") %> response object*/
+                %>    /** Decode the <%- getDataTypeSafeName(datatype, "name") %> response object*/
 <%                %>    UFUNCTION(BlueprintCallable, Category = "PlayFab | <%- api.name %> | <%- api.subgroups[subgroup].name %> Models")
-<%                %>        static F<%- api.name %><%- GetDatatypeSafeName(datatype, "name") %> decode<%- GetDatatypeSafeName(datatype, "name") %>Response(UPlayFabJsonObject* response);
+<%                %>        static F<%- api.name %><%- getDataTypeSafeName(datatype, "name") %> decode<%- getDataTypeSafeName(datatype, "name") %>Response(UPlayFabJsonObject* response);
 
 <%
                 }

@@ -1,4 +1,3 @@
-// Fill out your copyright notice in the Description page of Project Settings.
 // #define PF_UNREAL_OLD_4_14_TO_4_17
 
 using UnrealBuildTool;

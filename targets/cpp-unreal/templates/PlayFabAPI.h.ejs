@@ -85,9 +85,11 @@ public:
 
     /** PlayFab Request Info */
     FString PlayFabRequestURL;
+    bool useEntityToken = false;
     bool useSecretKey = false;
     bool useSessionTicket = false;
-    bool isLoginRequest = false;
+    bool returnsSessionTicket = false;
+    bool returnsEntityToken = false;
 
     /** Is the response valid JSON? */
     bool bIsValidJsonResponse;

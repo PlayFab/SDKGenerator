@@ -25,90 +25,83 @@ function makeApiIntermal(apis, sourceDir, apiOutputDir, apiName) {
     // Copy over the standard plugin files including resources, content, and readme
     copyTree(path.resolve(sourceDir, "StandardPluginFiles"), path.resolve(apiOutputDir, "PluginFiles/PlayFab"));
     // Make the variable api files
-    MakeUnrealApi(apis, apiOutputDir, sourceDir, apiName);
+    makeUnrealApi(apis, apiOutputDir, sourceDir, apiName);
 
     // Now copy over the example project and then put the plugin folder in the right spot
-    MakePfTestActor(apis, apiOutputDir, sourceDir);
+    makePfTestActor(apis, apiOutputDir, sourceDir);
     copyTree(path.resolve(sourceDir, "ExampleProject"), path.resolve(apiOutputDir, "ExampleProject"));
     copyTree(path.resolve(apiOutputDir, "PluginFiles"), path.resolve(apiOutputDir, "ExampleProject/Plugins"));
 }
 
-function MakeUnrealApi(apis, apiOutputDir, sourceDir, libname) {
+function makeUnrealApi(apis, apiOutputDir, sourceDir, libname) {
     // Create the uplugin file
-    var apiLocals = {};
-    apiLocals.sdkVersion = exports.sdkVersion;
-    apiLocals.libname = libname;
-    apiLocals.apis = apis;
-    
-    var apiUpluginTemplate = getCompiledTemplate(path.resolve(sourceDir, "templates/PlayFab.uplugin.ejs"));
-    var generatedUplugin = apiUpluginTemplate(apiLocals);
-    writeFile(path.resolve(apiOutputDir, "PluginFiles/PlayFab/PlayFab.uplugin"), generatedUplugin);
-    
-    var apiPlayFabUtilitiesHTemplate = getCompiledTemplate(path.resolve(sourceDir, "templates/PlayFabUtilities.h.ejs"));
-    var generatedUtilitiesH = apiPlayFabUtilitiesHTemplate(apiLocals);
-    writeFile(path.resolve(apiOutputDir, "PluginFiles/PlayFab/Source/PlayFab/Classes/PlayFabUtilities.h"), generatedUtilitiesH);
-    
-    var apiPlayFabUtilitiesCppTemplate = getCompiledTemplate(path.resolve(sourceDir, "templates/PlayFabUtilities.cpp.ejs"));
-    var generatedUtilitiesCpp = apiPlayFabUtilitiesCppTemplate(apiLocals);
-    writeFile(path.resolve(apiOutputDir, "PluginFiles/PlayFab/Source/PlayFab/Private/PlayFabUtilities.cpp"), generatedUtilitiesCpp);
-    
-    var pfcppLocals = {};
-    pfcppLocals.sdkVersion = exports.sdkVersion;
-    pfcppLocals.names = [];
+    var apiLocals = {
+        apis: apis,
+        libname: libname,
+        names: [],
+        sdkVersion: exports.sdkVersion
+    };
     for (var a1 = 0; a1 < apis.length; a1++) {
-        pfcppLocals.names[a1] = {};
-        pfcppLocals.names[a1].name = apis[a1].name;
+        apiLocals.names[a1] = {};
+        apiLocals.names[a1].name = apis[a1].name;
     }
+
+    var apiUpluginTemplate = getCompiledTemplate(path.resolve(sourceDir, "templates/PlayFab.uplugin.ejs"));
+    writeFile(path.resolve(apiOutputDir, "PluginFiles/PlayFab/PlayFab.uplugin"), apiUpluginTemplate(apiLocals));
+
+    var apiPlayFabUtilitiesHTemplate = getCompiledTemplate(path.resolve(sourceDir, "templates/PlayFabUtilities.h.ejs"));
+    writeFile(path.resolve(apiOutputDir, "PluginFiles/PlayFab/Source/PlayFab/Classes/PlayFabUtilities.h"), apiPlayFabUtilitiesHTemplate(apiLocals));
+
+    var apiPlayFabUtilitiesCppTemplate = getCompiledTemplate(path.resolve(sourceDir, "templates/PlayFabUtilities.cpp.ejs"));
+    writeFile(path.resolve(apiOutputDir, "PluginFiles/PlayFab/Source/PlayFab/Private/PlayFabUtilities.cpp"), apiPlayFabUtilitiesCppTemplate(apiLocals));
+
     var apiPlayFabCppTemplate = getCompiledTemplate(path.resolve(sourceDir, "templates/PlayFab.cpp.ejs"));
-    var generatedPlayFabCpp = apiPlayFabCppTemplate(pfcppLocals);
-    writeFile(path.resolve(apiOutputDir, "PluginFiles/PlayFab/Source/PlayFab/Private/PlayFab.cpp"), generatedPlayFabCpp);
-    
+    writeFile(path.resolve(apiOutputDir, "PluginFiles/PlayFab/Source/PlayFab/Private/PlayFab.cpp"), apiPlayFabCppTemplate(apiLocals));
+
     for (var a2 = 0; a2 < apis.length; a2++)
-        MakeApiFiles(apis[a2], apiOutputDir, sourceDir, libname);
-    MakeSimpleFiles(apis, apiOutputDir, sourceDir);
+        makeApiFiles(apis[a2], apiOutputDir, sourceDir, libname);
+    makeSimpleFiles(apis, apiOutputDir, sourceDir);
 }
 
-function MakePfTestActor(apis, apiOutputDir, sourceDir) {
-    var testLocals = {};
-    testLocals.hasServerOptions = false;
-    testLocals.hasClientOptions = false;
-    testLocals.sdkVersion = exports.sdkVersion;
+function makePfTestActor(apis, apiOutputDir, sourceDir) {
+    var testLocals = {
+        hasServerOptions: false,
+        hasClientOptions: false,
+        sdkVersion: exports.sdkVersion
+    };
     for (var i = 0; i < apis.length; i++) {
         if (apis[i].name === "Client")
             testLocals.hasClientOptions = true;
-        else
+        else if (apis[i].name !== "Entity")
             testLocals.hasServerOptions = true;
     }
     var testTemplateH = getCompiledTemplate(path.resolve(sourceDir, "templates/PfTestActor.h.ejs"));
     var generatedH = testTemplateH(testLocals);
     writeFile(path.resolve(apiOutputDir, "ExampleProject/Plugins/PlayFab/Source/PlayFab/Classes/PfTestActor.h"), generatedH);
-    
+
     var testTemplateCpp = getCompiledTemplate(path.resolve(sourceDir, "templates/PfTestActor.cpp.ejs"));
     var generatedCpp = testTemplateCpp(testLocals);
     writeFile(path.resolve(apiOutputDir, "ExampleProject/Plugins/PlayFab/Source/PlayFab/Private/PfTestActor.cpp"), generatedCpp);
 }
 
 // Create Enums, .h file
-function MakeSimpleFiles(apis, apiOutputDir, sourceDir) {
-    var enumLocals = {
-        "enumTypes": CollectEnumsFromApis(apis),
-        "GetDatatypeSafeName": GetDatatypeSafeName
+function makeSimpleFiles(apis, apiOutputDir, sourceDir) {
+    var simpleLocals = {
+        buildIdentifier: exports.buildIdentifier,
+        enumTypes: collectEnumsFromApis(apis),
+        getDataTypeSafeName: getDataTypeSafeName,
+        sdkVersion: exports.sdkVersion
     }
+
     var enumTemplate = getCompiledTemplate(path.resolve(sourceDir, "templates/PlayFabEnums.h.ejs"));
-    var genEnums = enumTemplate(enumLocals);
-    writeFile(path.resolve(apiOutputDir, "PluginFiles/PlayFab/Source/PlayFab/Classes/PlayFabEnums.h"), genEnums);
-    
-    var settingLocals = {
-        "sdkVersion": exports.sdkVersion,
-        "buildIdentifier": exports.buildIdentifier
-    }
+    writeFile(path.resolve(apiOutputDir, "PluginFiles/PlayFab/Source/PlayFab/Classes/PlayFabEnums.h"), enumTemplate(simpleLocals));
+
     var settingsTemplate = getCompiledTemplate(path.resolve(sourceDir, "templates/IPlayFab.h.ejs"));
-    var genSettings = settingsTemplate(settingLocals);
-    writeFile(path.resolve(apiOutputDir, "PluginFiles/PlayFab/Source/PlayFab/Public/IPlayFab.h"), genSettings);
+    writeFile(path.resolve(apiOutputDir, "PluginFiles/PlayFab/Source/PlayFab/Public/IPlayFab.h"), settingsTemplate(simpleLocals));
 }
 
 // Pull all the enums out of all the apis, and collect them into a single collection of just the enum types and filter duplicates
-function CollectEnumsFromApis(apis) {
+function collectEnumsFromApis(apis) {
     var enumTypes = {};
     for (var i = 0; i < apis.length; i++)
         for (var dataTypeName in apis[i].datatypes)
@@ -118,61 +111,54 @@ function CollectEnumsFromApis(apis) {
 }
 
 // Create Models, .h and .cpp files
-function MakeApiFiles(api, apiOutputDir, sourceDir, libname) {
+function makeApiFiles(api, apiOutputDir, sourceDir, libname) {
+    var apiLocals = {
+        api: api,
+        getAuthBools: getAuthBools,
+        getPropertyCppType: getPropertyCppType,
+        generateApiSummary: generateApiSummary,
+        getPropertySerialization: getPropertySerialization,
+        getPropertyDeserialization: getPropertyDeserialization,
+        getDataTypeSafeName: getDataTypeSafeName,
+        hasClientOptions: api.name === "Client",
+        libname: libname,
+        sdkVersion: exports.sdkVersion
+    };
+
     var apiHeaderTemplate = getCompiledTemplate(path.resolve(sourceDir, "templates/PlayFabAPI.h.ejs"));
+    writeFile(path.resolve(apiOutputDir, "PluginFiles/PlayFab/Source/PlayFab/Classes/PlayFab" + api.name + "API.h"), apiHeaderTemplate(apiLocals));
     var apiCppTemplate = getCompiledTemplate(path.resolve(sourceDir, "templates/PlayFabAPI.cpp.ejs"));
+    writeFile(path.resolve(apiOutputDir, "PluginFiles/PlayFab/Source/PlayFab/Private/PlayFab" + api.name + "API.cpp"), apiCppTemplate(apiLocals));
+
     var apiPlayFabModelTemplate = getCompiledTemplate(path.resolve(sourceDir, "templates/PlayFabModels.h.ejs"));
+    writeFile(path.resolve(apiOutputDir, "PluginFiles/PlayFab/Source/PlayFab/Classes/PlayFab" + api.name + "Models.h"), apiPlayFabModelTemplate(apiLocals));
     var apiPlayFabModelCppTemplate = getCompiledTemplate(path.resolve(sourceDir, "templates/PlayFabModels.cpp.ejs"));
+    writeFile(path.resolve(apiOutputDir, "PluginFiles/PlayFab/Source/PlayFab/Private/PlayFab" + api.name + "Models.cpp"), apiPlayFabModelCppTemplate(apiLocals));
+
     var apiPlayFabModelDecoderHTemplate = getCompiledTemplate(path.resolve(sourceDir, "templates/PlayFabModelDecoder.h.ejs"));
+    writeFile(path.resolve(apiOutputDir, "PluginFiles/PlayFab/Source/PlayFab/Classes/PlayFab" + api.name + "ModelDecoder.h"), apiPlayFabModelDecoderHTemplate(apiLocals));
     var apiPlayFabModelDecoderCppTemplate = getCompiledTemplate(path.resolve(sourceDir, "templates/PlayFabModelDecoder.cpp.ejs"));
-    
-    var generatedHeader;
-    var generatedBody;
-    var apiLocals = {};
-    apiLocals.GetPropertyCppType = GetPropertyCppType;
-    apiLocals.generateApiSummary = generateApiSummary;
-    apiLocals.GetPropertySerialization = GetPropertySerialization;
-    apiLocals.GetPropertyDeserialization = GetPropertyDeserialization;
-    apiLocals.GetDatatypeSafeName = GetDatatypeSafeName;
-    apiLocals.api = api;
-    apiLocals.hasClientOptions = api.name === "Client";
-    apiLocals.sdkVersion = exports.sdkVersion;
-    apiLocals.libname = libname;
-    
-    generatedHeader = apiHeaderTemplate(apiLocals);
-    writeFile(path.resolve(apiOutputDir, "PluginFiles/PlayFab/Source/PlayFab/Classes/PlayFab" + api.name + "API.h"), generatedHeader);
-    generatedBody = apiCppTemplate(apiLocals);
-    writeFile(path.resolve(apiOutputDir, "PluginFiles/PlayFab/Source/PlayFab/Private/PlayFab" + api.name + "API.cpp"), generatedBody);
-    
-    generatedHeader = apiPlayFabModelTemplate(apiLocals);
-    writeFile(path.resolve(apiOutputDir, "PluginFiles/PlayFab/Source/PlayFab/Classes/PlayFab" + api.name + "Models.h"), generatedHeader);
-    generatedBody = apiPlayFabModelCppTemplate(apiLocals);
-    writeFile(path.resolve(apiOutputDir, "PluginFiles/PlayFab/Source/PlayFab/Private/PlayFab" + api.name + "Models.cpp"), generatedBody);
-    
-    generatedHeader = apiPlayFabModelDecoderHTemplate(apiLocals);
-    writeFile(path.resolve(apiOutputDir, "PluginFiles/PlayFab/Source/PlayFab/Classes/PlayFab" + api.name + "ModelDecoder.h"), generatedHeader);
-    generatedBody = apiPlayFabModelDecoderCppTemplate(apiLocals);
-    writeFile(path.resolve(apiOutputDir, "PluginFiles/PlayFab/Source/PlayFab/Private/PlayFab" + api.name + "ModelDecoder.cpp"), generatedBody);
+    writeFile(path.resolve(apiOutputDir, "PluginFiles/PlayFab/Source/PlayFab/Private/PlayFab" + api.name + "ModelDecoder.cpp"), apiPlayFabModelDecoderCppTemplate(apiLocals));
 }
 
 // Any playfab datatype names that conflict with Unreal datatype names need to be prefixed with "Pf-"
-function GetDatatypeSafeName(apiElement, attrName) {
+function getDataTypeSafeName(apiElement, attrName) {
     var pfTypeName = apiElement[attrName];
     if (pfTypeName === "SourceType") // In Unreal, the Enum ESourceType exists in the Android builder and conflicts with our ESourceType enum
         return "PfSourceType";
     return pfTypeName;
 }
 
-function GetPropertySafeName(property) {
+function getPropertySafeName(property) {
     // Turns out we didn't need this at the time it was added, but it's a good pattern
     return property.name;
 }
 
-function GetPropertyCppType(property, datatype) {
-    var propSafeName = GetPropertySafeName(property);
+function getPropertyCppType(property, datatype) {
+    var propSafeName = getPropertySafeName(property);
     var isCollection = property.hasOwnProperty("collection");
     var isArray = isCollection && property.collection === "array";
-    
+
     switch (property.jsontype) {
         case "String":
             if (isCollection && isArray) {
@@ -180,7 +166,7 @@ function GetPropertyCppType(property, datatype) {
             } else if (isCollection) {
                 return "UPlayFabJsonObject* " + propSafeName + ";";
             } else if (property.isenum) {
-                return "E" + GetDatatypeSafeName(property, "actualtype") + " " + propSafeName + ";";
+                return "E" + getDataTypeSafeName(property, "actualtype") + " " + propSafeName + ";";
             } else {
                 return "FString " + propSafeName + ";";
             }
@@ -209,15 +195,15 @@ function GetPropertyCppType(property, datatype) {
                 return "UPlayFabJsonObject* " + propSafeName + " = nullptr;";
             }
     }
-    
+
     throw "Unknown property type: " + property.actualtype + " for " + property.name + " in " + datatype.name;
 }
 
-function GetPropertySerialization(tabbing, property, datatype) {
-    var propSafeName = GetPropertySafeName(property);
+function getPropertySerialization(tabbing, property, datatype) {
+    var propSafeName = getPropertySafeName(property);
     var isCollection = property.hasOwnProperty("collection");
     var isArray = isCollection && property.collection === "array";
-    
+
     switch (property.jsontype) {
         case "String":
             if (propSafeName === "ParamsEncoded") {
@@ -227,38 +213,38 @@ function GetPropertySerialization(tabbing, property, datatype) {
                 return tabbing + "OutRestJsonObj->SetStringField(TEXT(\"" + property.name + "\"), IPlayFab::Get().getGameTitleId());\n";
             }
             if (isCollection && isArray) {
-                return tabbing + "// Check to see if string is empty\n" 
-                    + tabbing + "if (request." + propSafeName + ".IsEmpty() || request." + propSafeName + " == \"\") {\n" 
-                    + tabbing + "    OutRestJsonObj->SetFieldNull(TEXT(\"" + property.name + "\"));\n" 
-                    + tabbing + "} else {\n" 
-                    + tabbing + "    TArray<FString> " + propSafeName + "Array;\n" 
-                    + tabbing + "    FString(request." + propSafeName + ").ParseIntoArray(" + propSafeName + "Array, TEXT(\",\"), false);\n" 
-                    + tabbing + "    OutRestJsonObj->SetStringArrayField(TEXT(\"" + property.name + "\"), " + propSafeName + "Array);\n" 
+                return tabbing + "// Check to see if string is empty\n"
+                    + tabbing + "if (request." + propSafeName + ".IsEmpty() || request." + propSafeName + " == \"\") {\n"
+                    + tabbing + "    OutRestJsonObj->SetFieldNull(TEXT(\"" + property.name + "\"));\n"
+                    + tabbing + "} else {\n"
+                    + tabbing + "    TArray<FString> " + propSafeName + "Array;\n"
+                    + tabbing + "    FString(request." + propSafeName + ").ParseIntoArray(" + propSafeName + "Array, TEXT(\",\"), false);\n"
+                    + tabbing + "    OutRestJsonObj->SetStringArrayField(TEXT(\"" + property.name + "\"), " + propSafeName + "Array);\n"
                     + tabbing + "}\n";
             } else if (isCollection) {
                 return tabbing + "if (request." + propSafeName + " != nullptr) OutRestJsonObj->SetObjectField(TEXT(\"" + property.name + "\"), request." + propSafeName + ");\n";
             } else if (property.isenum) {
-                return tabbing + "FString temp_" + propSafeName + ";\n" 
-                    + tabbing + "if (GetEnumValueToString<E" + GetDatatypeSafeName(property, "actualtype") + ">(TEXT(\"E" + GetDatatypeSafeName(property, "actualtype") + "\"), request." + propSafeName + ", temp_" + propSafeName + "))\n" 
+                return tabbing + "FString temp_" + propSafeName + ";\n"
+                    + tabbing + "if (GetEnumValueToString<E" + getDataTypeSafeName(property, "actualtype") + ">(TEXT(\"E" + getDataTypeSafeName(property, "actualtype") + "\"), request." + propSafeName + ", temp_" + propSafeName + "))\n"
                     + tabbing + "    OutRestJsonObj->SetStringField(TEXT(\"" + property.name + "\"), temp_" + propSafeName + ");\n";
             } else {
-                return tabbing + "if (request." + propSafeName + ".IsEmpty() || request." + propSafeName + " == \"\") {\n" 
-                    + tabbing + "    OutRestJsonObj->SetFieldNull(TEXT(\"" + property.name + "\"));\n" 
-                    + tabbing + "} else {\n" 
-                    + tabbing + "    OutRestJsonObj->SetStringField(TEXT(\"" + property.name + "\"), request." + propSafeName + ");\n" 
+                return tabbing + "if (request." + propSafeName + ".IsEmpty() || request." + propSafeName + " == \"\") {\n"
+                    + tabbing + "    OutRestJsonObj->SetFieldNull(TEXT(\"" + property.name + "\"));\n"
+                    + tabbing + "} else {\n"
+                    + tabbing + "    OutRestJsonObj->SetStringField(TEXT(\"" + property.name + "\"), request." + propSafeName + ");\n"
                     + tabbing + "}\n";
             }
         case "Number":
             if (isCollection && isArray) {
-                return tabbing + "// Copy int array to float\n" 
-                    + tabbing + "TArray<float> tempArray;\n" 
-                    + tabbing + "for (int32 i = 0; i < request." + propSafeName + ".Num(); ++i) {\n" 
-                    + tabbing + "    tempArray.Add(float(request." + propSafeName + "[i]));\n" 
-                    + tabbing + "}\n" 
-                    + tabbing + "if (tempArray.Num() == 0) {\n" 
-                    + tabbing + "    OutRestJsonObj->SetFieldNull(TEXT(\"" + property.name + "\"));\n" 
-                    + tabbing + "} else {\n" 
-                    + tabbing + "    OutRestJsonObj->SetNumberArrayField(TEXT(\"" + property.name + "\"), tempArray);\n" 
+                return tabbing + "// Copy int array to float\n"
+                    + tabbing + "TArray<float> tempArray;\n"
+                    + tabbing + "for (int32 i = 0; i < request." + propSafeName + ".Num(); ++i) {\n"
+                    + tabbing + "    tempArray.Add(float(request." + propSafeName + "[i]));\n"
+                    + tabbing + "}\n"
+                    + tabbing + "if (tempArray.Num() == 0) {\n"
+                    + tabbing + "    OutRestJsonObj->SetFieldNull(TEXT(\"" + property.name + "\"));\n"
+                    + tabbing + "} else {\n"
+                    + tabbing + "    OutRestJsonObj->SetNumberArrayField(TEXT(\"" + property.name + "\"), tempArray);\n"
                     + tabbing + "}\n";
             } else if (isCollection) {
                 return tabbing + "if (request." + propSafeName + " != nullptr) OutRestJsonObj->SetObjectField(TEXT(\"" + property.name + "\"), request." + propSafeName + ");\n";
@@ -267,10 +253,10 @@ function GetPropertySerialization(tabbing, property, datatype) {
             }
         case "Object":
             if (isCollection && isArray) {
-                return tabbing + "if (request." + propSafeName + ".Num() == 0) {\n" 
-                    + tabbing + "    OutRestJsonObj->SetFieldNull(TEXT(\"" + property.name + "\"));\n" 
-                    + tabbing + "} else {\n" 
-                    + tabbing + "    OutRestJsonObj->SetObjectArrayField(TEXT(\"" + property.name + "\"), request." + propSafeName + ");\n" 
+                return tabbing + "if (request." + propSafeName + ".Num() == 0) {\n"
+                    + tabbing + "    OutRestJsonObj->SetFieldNull(TEXT(\"" + property.name + "\"));\n"
+                    + tabbing + "} else {\n"
+                    + tabbing + "    OutRestJsonObj->SetObjectArrayField(TEXT(\"" + property.name + "\"), request." + propSafeName + ");\n"
                     + tabbing + "}\n";
             } else if (isCollection) {
                 return tabbing + "if (request." + propSafeName + " != nullptr) OutRestJsonObj->SetObjectField(TEXT(\"" + property.name + "\"), request." + propSafeName + ");\n";
@@ -279,10 +265,10 @@ function GetPropertySerialization(tabbing, property, datatype) {
             }
         case "Boolean":
             if (isCollection && isArray) {
-                return tabbing + "if (request." + propSafeName + ".Num() == 0) {\n" 
-                    + tabbing + "    OutRestJsonObj->SetFieldNull(TEXT(\"" + property.name + "\"));\n" 
-                    + tabbing + "} else {\n" 
-                    + tabbing + "    OutRestJsonObj->SetBoolArrayField(TEXT(\"" + property.name + "\"), request." + propSafeName + ");\n" 
+                return tabbing + "if (request." + propSafeName + ".Num() == 0) {\n"
+                    + tabbing + "    OutRestJsonObj->SetFieldNull(TEXT(\"" + property.name + "\"));\n"
+                    + tabbing + "} else {\n"
+                    + tabbing + "    OutRestJsonObj->SetBoolArrayField(TEXT(\"" + property.name + "\"), request." + propSafeName + ");\n"
                     + tabbing + "}\n";
             } else if (isCollection) {
                 return tabbing + "if (request." + propSafeName + " != nullptr) OutRestJsonObj->SetObjectField(TEXT(\"" + property.name + "\"), request." + propSafeName + ");\n";
@@ -293,12 +279,12 @@ function GetPropertySerialization(tabbing, property, datatype) {
     throw "Cannot parse property: " + datatype.name + "." + property.name;
 }
 
-function GetPropertyDeserialization(tabbing, property, datatype) {
-    var propSafeName = GetPropertySafeName(property);
+function getPropertyDeserialization(tabbing, property, datatype) {
+    var propSafeName = getPropertySafeName(property);
     var isCollection = property.hasOwnProperty("collection");
     var isArray = isCollection && property.collection === "array";
     var isMap = isCollection && property.collection === "map";
-    
+
     switch (property.jsontype) {
         case "String":
             if (isCollection && isArray) {
@@ -306,7 +292,7 @@ function GetPropertyDeserialization(tabbing, property, datatype) {
             } else if (isCollection && isMap) {
                 return tabbing + "tempStruct." + propSafeName + " = !(dataObj->HasField(\"" + property.name + "\")) ? nullptr : dataObj->GetObjectField(\"" + property.name + "\");";
             } else if (property.isenum) {
-                return tabbing + "GetEnumValueFromString<E" + GetDatatypeSafeName(property, "actualtype") + ">(TEXT(\"E" + GetDatatypeSafeName(property, "actualtype") + "\"), dataObj->GetStringField(\"" + property.name + "\"), tempStruct." + propSafeName + ");";
+                return tabbing + "GetEnumValueFromString<E" + getDataTypeSafeName(property, "actualtype") + ">(TEXT(\"E" + getDataTypeSafeName(property, "actualtype") + "\"), dataObj->GetStringField(\"" + property.name + "\"), tempStruct." + propSafeName + ");";
             } else {
                 return tabbing + "tempStruct." + propSafeName + " = !(dataObj->HasField(\"" + property.name + "\")) ? TEXT(\"\") : dataObj->GetStringField(\"" + property.name + "\");";
             }
@@ -320,11 +306,11 @@ function GetPropertyDeserialization(tabbing, property, datatype) {
             }
         case "Number":
             if (isCollection && isArray) {
-                return tabbing + "// Copy int array to float" 
-                    + tabbing + "TArray<int32> tempArray;" 
-                    + tabbing + "for (int32 i = 0; i < dataObj->GetNumberArrayField(\"" + property.name + "\"); ++i) {" 
-                    + tabbing + "    tempArray.Add(int(dataObj->GetNumberArrayField(\"" + property.name + "\")[i]));" 
-                    + tabbing + "}" 
+                return tabbing + "// Copy int array to float"
+                    + tabbing + "TArray<int32> tempArray;"
+                    + tabbing + "for (int32 i = 0; i < dataObj->GetNumberArrayField(\"" + property.name + "\"); ++i) {"
+                    + tabbing + "    tempArray.Add(int(dataObj->GetNumberArrayField(\"" + property.name + "\")[i]));"
+                    + tabbing + "}"
                     + tabbing + "tempStruct." + propSafeName + " = tempArray;";
             } else if (isCollection) {
                 return tabbing + "tempStruct." + propSafeName + " = !(dataObj->HasField(\"" + property.name + "\")) ? nullptr : dataObj->GetObjectField(\"" + property.name + "\");";
@@ -354,5 +340,22 @@ function generateApiSummary(tabbing, apiElement, summaryParam, extraLines) {
     } else {
         output = "";
     }
+    return output;
+}
+
+function getAuthBools(tabbing, apiCall) {
+    var output = "";
+    if (apiCall.auth === "EntityToken" || apiCall.url === "/Authentication/GetEntityToken")
+        output += tabbing + "manager->useEntityToken = true;\n";
+    if (apiCall.auth === "SecretKey" || apiCall.url === "/Authentication/GetEntityToken")
+        output += tabbing + "manager->useSecretKey = true;\n";
+    if (apiCall.auth === "SessionTicket" || apiCall.url === "/Authentication/GetEntityToken")
+        output += tabbing + "manager->useSessionTicket = true;\n";
+
+    if (apiCall.result === "LoginResult" || apiCall.result === "RegisterPlayFabUserResult")
+        output += tabbing + "manager->returnsSessionTicket = true;\n";
+    if (apiCall.url === "/Authentication/GetEntityToken")
+        output += tabbing + "manager->returnsEntityToken = true;\n";
+
     return output;
 }

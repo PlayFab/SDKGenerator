@@ -732,27 +732,28 @@ void APfTestActor::OnWritePlayerEvent(FClientWriteEventResponse result, UObject*
 /// </summary>
 void APfTestActor::GetEntityToken(UPfTestContext* testContext)
 {
-    IPlayFab* playFabSettings = &(IPlayFab::Get());
-    if (!playFabSettings->IsClientLoggedIn())
-    {
-        EndTest(testContext, PlayFabApiTestFinishState::SKIPPED, "Earlier tests failed to log in");
-        return;
-    }
-
-    FEntityGetEntityTokenRequest request;
-    UPlayFabEntityAPI::FDelegateOnSuccessGetEntityToken onSuccess; onSuccess.BindUFunction(this, "OnGetEntityToken");
-    UPlayFabEntityAPI::FDelegateOnFailurePlayFabError onError; onError.BindUFunction(this, "OnSharedError");
-    UPlayFabEntityAPI* callObj = UPlayFabEntityAPI::GetEntityToken(request, onSuccess, onError, testContext);
-    callObj->Activate();
+    EndTest(testContext, PlayFabApiTestFinishState::SKIPPED, "Entity tests are not active yet");
+//    IPlayFab* playFabSettings = &(IPlayFab::Get());
+//    if (!playFabSettings->IsClientLoggedIn())
+//    {
+//        EndTest(testContext, PlayFabApiTestFinishState::SKIPPED, "Earlier tests failed to log in");
+//        return;
+//    }
+//
+//    FEntityGetEntityTokenRequest request;
+//    UPlayFabEntityAPI::FDelegateOnSuccessGetEntityToken onSuccess; onSuccess.BindUFunction(this, "OnGetEntityToken");
+//    UPlayFabEntityAPI::FDelegateOnFailurePlayFabError onError; onError.BindUFunction(this, "OnSharedError");
+//    UPlayFabEntityAPI* callObj = UPlayFabEntityAPI::GetEntityToken(request, onSuccess, onError, testContext);
+//    callObj->Activate();
 }
-void APfTestActor::OnGetEntityToken(FEntityGetEntityTokenResponse result, UObject* customData)
-{
-    entityId = result.EntityId;
-    entityType = result.EntityType;
-
-    UPfTestContext* testContext = dynamic_cast<UPfTestContext*>(customData);
-    EndTest(testContext, PlayFabApiTestFinishState::PASSED, "");
-}
+//void APfTestActor::OnGetEntityToken(FEntityGetEntityTokenResponse result, UObject* customData)
+//{
+//    entityId = result.EntityId;
+//    entityType = result.EntityType;
+//
+//    UPfTestContext* testContext = dynamic_cast<UPfTestContext*>(customData);
+//    EndTest(testContext, PlayFabApiTestFinishState::PASSED, "");
+//}
 
 /// <summary>
 /// ENTITY API
@@ -760,79 +761,77 @@ void APfTestActor::OnGetEntityToken(FEntityGetEntityTokenResponse result, UObjec
 /// </summary>
 void APfTestActor::ObjectApi(UPfTestContext* testContext)
 {
-    IPlayFab* playFabSettings = &(IPlayFab::Get());
-    if (!playFabSettings->IsClientLoggedIn())
-    {
-        EndTest(testContext, PlayFabApiTestFinishState::SKIPPED, "Earlier tests failed to log in");
-        return;
-    }
-
-    FEntityGetObjectsRequest request;
-    request.EntityId = entityId;
-    request.EntityType = entityType;
-    request.EscapeObject = true;
-
-    UPlayFabEntityAPI::FDelegateOnSuccessGetObjects onSuccess; onSuccess.BindUFunction(this, "OnGetObjectApi1");
-    UPlayFabEntityAPI::FDelegateOnFailurePlayFabError onError; onError.BindUFunction(this, "OnSharedError");
-    UPlayFabEntityAPI* callObj = UPlayFabEntityAPI::GetObjects(request, onSuccess, onError, testContext);
-    callObj->Activate();
+    EndTest(testContext, PlayFabApiTestFinishState::SKIPPED, "Entity tests are not active yet");
+//    IPlayFab* playFabSettings = &(IPlayFab::Get());
+//    if (!playFabSettings->IsClientLoggedIn())
+//    {
+//        EndTest(testContext, PlayFabApiTestFinishState::SKIPPED, "Earlier tests failed to log in");
+//        return;
+//    }
+//
+//    FEntityGetObjectsRequest request;
+//    request.EntityId = entityId;
+//    request.EntityType = entityType;
+//    request.EscapeObject = true;
+//
+//    UPlayFabEntityAPI::FDelegateOnSuccessGetObjects onSuccess; onSuccess.BindUFunction(this, "OnGetObjectApi1");
+//    UPlayFabEntityAPI::FDelegateOnFailurePlayFabError onError; onError.BindUFunction(this, "OnSharedError");
+//    UPlayFabEntityAPI* callObj = UPlayFabEntityAPI::GetObjects(request, onSuccess, onError, testContext);
+//    callObj->Activate();
 }
-
-void APfTestActor::OnGetObjectApi1(FEntityGetObjectsResponse result, UObject* customData)
-{
-    testMessageInt = 0; // Default if the data isn't present
-    for (int i = 0; i < result.Objects.Num(); i++) {
-        auto eachWrapper = result.Objects[i];
-        auto eachObjString = eachWrapper->GetStringField("EscapedDataObject");
-        testMessageInt = FCString::Atoi(*eachObjString);
-    }
-    testMessageInt = (testMessageInt + 1) % 100; // This test is about the Expected value changing - but not testing more complicated issues like bounds
-
-    FEntitySetObjectsRequest request;
-    request.EntityId = entityId;
-    request.EntityType = entityType;
-
-    auto saveObj = NewObject<UPlayFabJsonObject>();
-    saveObj->SetStringField(TEXT("ObjectName"), TEST_DATA_KEY);
-    saveObj->SetNumberField(TEXT("DataObject"), testMessageInt);
-    request.Objects.Add(saveObj);
-
-    UPlayFabEntityAPI::FDelegateOnSuccessSetObjects onSuccess; onSuccess.BindUFunction(this, "OnSetObjectApi");
-    UPlayFabEntityAPI::FDelegateOnFailurePlayFabError onError; onError.BindUFunction(this, "OnSharedError");
-    UPlayFabEntityAPI* callObj = UPlayFabEntityAPI::SetObjects(request, onSuccess, onError, customData);
-    callObj->Activate();
-}
-
-void APfTestActor::OnSetObjectApi(FEntitySetObjectsResponse result, UObject* customData)
-{
-    FEntityGetObjectsRequest request;
-    request.EntityId = entityId;
-    request.EntityType = entityType;
-    request.EscapeObject = true;
-
-    UPlayFabEntityAPI::FDelegateOnSuccessGetObjects onSuccess; onSuccess.BindUFunction(this, "OnGetObjectApi2");
-    UPlayFabEntityAPI::FDelegateOnFailurePlayFabError onError; onError.BindUFunction(this, "OnSharedError");
-    UPlayFabEntityAPI* callObj = UPlayFabEntityAPI::GetObjects(request, onSuccess, onError, customData);
-    callObj->Activate();
-}
-
-void APfTestActor::OnGetObjectApi2(FEntityGetObjectsResponse result, UObject* customData)
-{
-    UPfTestContext* testContext = dynamic_cast<UPfTestContext*>(customData);
-
-    int actualValue = -1000; // Fail if the data isn't present
-    for (int i = 0; i < result.Objects.Num(); i++) {
-        auto eachWrapper = result.Objects[i];
-        auto eachObjString = eachWrapper->GetStringField("EscapedDataObject");
-        actualValue = FCString::Atoi(*eachObjString);
-    }
-
-    // Verify output and end test
-    if (testMessageInt != actualValue)
-        EndTest(testContext, PlayFabApiTestFinishState::FAILED, FString::Printf(TEXT("Saved/Loaded Object Data did not match: %d != %d"), testMessageInt, actualValue));
-    else
-        EndTest(testContext, PlayFabApiTestFinishState::PASSED, "");
-}
+//void APfTestActor::OnGetObjectApi1(FEntityGetObjectsResponse result, UObject* customData)
+//{
+//    testMessageInt = 0; // Default if the data isn't present
+//    for (int i = 0; i < result.Objects.Num(); i++) {
+//        auto eachWrapper = result.Objects[i];
+//        auto eachObjString = eachWrapper->GetStringField("EscapedDataObject");
+//        testMessageInt = FCString::Atoi(*eachObjString);
+//    }
+//    testMessageInt = (testMessageInt + 1) % 100; // This test is about the Expected value changing - but not testing more complicated issues like bounds
+//
+//    FEntitySetObjectsRequest request;
+//    request.EntityId = entityId;
+//    request.EntityType = entityType;
+//
+//    auto saveObj = NewObject<UPlayFabJsonObject>();
+//    saveObj->SetStringField(TEXT("ObjectName"), TEST_DATA_KEY);
+//    saveObj->SetNumberField(TEXT("DataObject"), testMessageInt);
+//    request.Objects.Add(saveObj);
+//
+//    UPlayFabEntityAPI::FDelegateOnSuccessSetObjects onSuccess; onSuccess.BindUFunction(this, "OnSetObjectApi");
+//    UPlayFabEntityAPI::FDelegateOnFailurePlayFabError onError; onError.BindUFunction(this, "OnSharedError");
+//    UPlayFabEntityAPI* callObj = UPlayFabEntityAPI::SetObjects(request, onSuccess, onError, customData);
+//    callObj->Activate();
+//}
+//void APfTestActor::OnSetObjectApi(FEntitySetObjectsResponse result, UObject* customData)
+//{
+//    FEntityGetObjectsRequest request;
+//    request.EntityId = entityId;
+//    request.EntityType = entityType;
+//    request.EscapeObject = true;
+//
+//    UPlayFabEntityAPI::FDelegateOnSuccessGetObjects onSuccess; onSuccess.BindUFunction(this, "OnGetObjectApi2");
+//    UPlayFabEntityAPI::FDelegateOnFailurePlayFabError onError; onError.BindUFunction(this, "OnSharedError");
+//    UPlayFabEntityAPI* callObj = UPlayFabEntityAPI::GetObjects(request, onSuccess, onError, customData);
+//    callObj->Activate();
+//}
+//void APfTestActor::OnGetObjectApi2(FEntityGetObjectsResponse result, UObject* customData)
+//{
+//    UPfTestContext* testContext = dynamic_cast<UPfTestContext*>(customData);
+//
+//    int actualValue = -1000; // Fail if the data isn't present
+//    for (int i = 0; i < result.Objects.Num(); i++) {
+//        auto eachWrapper = result.Objects[i];
+//        auto eachObjString = eachWrapper->GetStringField("EscapedDataObject");
+//        actualValue = FCString::Atoi(*eachObjString);
+//    }
+//
+//    // Verify output and end test
+//    if (testMessageInt != actualValue)
+//        EndTest(testContext, PlayFabApiTestFinishState::FAILED, FString::Printf(TEXT("Saved/Loaded Object Data did not match: %d != %d"), testMessageInt, actualValue));
+//    else
+//        EndTest(testContext, PlayFabApiTestFinishState::PASSED, "");
+//}
 <% if (hasServerOptions) { %>
 /// <summary>
 /// SERVER API

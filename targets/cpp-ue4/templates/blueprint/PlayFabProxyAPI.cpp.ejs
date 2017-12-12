@@ -10,11 +10,11 @@ UPF<%- api.name %><%- apiCall.name %>::UPF<%- api.name %><%- apiCall.name %>(con
 {
 }
 
-UPF<%- api.name %><%- apiCall.name %>* UPF<%- api.name %><%- apiCall.name %>::<%- apiCall.name %>(class APlayerController* PlayerController<%- GetDatatypeSignatureInputParameters(apiCall, api) %>)
+UPF<%- api.name %><%- apiCall.name %>* UPF<%- api.name %><%- apiCall.name %>::<%- apiCall.name %>(class APlayerController* PlayerController<%- getDatatypeSignatureInputParameters(apiCall, api) %>)
 {
     UPF<%- api.name %><%- apiCall.name %>* Proxy = NewObject<UPF<%- api.name %><%- apiCall.name %>>();
     Proxy->PlayerControllerWeakPtr = PlayerController;
-    <% if(HasRequest(apiCall, api)) {
+    <% if(hasRequest(apiCall, api)) {
     var datatype = api.datatypes[apiCall.request];
     %>Proxy->Request = In<%- datatype.name %>;
     <% } %>
@@ -30,7 +30,7 @@ void UPF<%- api.name %><%- apiCall.name %>::Activate()
 
     if(<%- api.name %>API.IsValid())
     {
-        <% if(HasRequest(apiCall, api)) {
+        <% if(hasRequest(apiCall, api)) {
         %>CallResult = <%- api.name %>API-><%- apiCall.name %>(Request.Data, SuccessDelegate, ErrorDelegate);<%
         }
         else
@@ -46,7 +46,7 @@ void UPF<%- api.name %><%- apiCall.name %>::Activate()
 
 void UPF<%- api.name %><%- apiCall.name %>::OnSuccessCallback(const PlayFab::<%- api.name %>Models::F<%- apiCall.result %>& Result)
 {
-    <% if(HasResult(apiCall, api)) {
+    <% if(hasResult(apiCall, api)) {
     %>FBP<%- api.name%><%- apiCall.result %> BPResult;
      BPResult.Data = Result;
      OnSuccess.Broadcast(BPResult);<%

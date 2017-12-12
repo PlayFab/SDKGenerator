@@ -24,17 +24,17 @@ namespace <%- api.name %>Models
     struct PLAYFAB_API F<%- datatype.name %> : public FPlayFabBaseModel
     {
         <% for(var i in datatype.properties) { var property = datatype.properties[i] %>
-        <%- GetPropertyDescription(property) %>
-        <%- GetPropertyDef(property, datatype) %><% } %>
+        <%- getPropertyDescription(property) %>
+        <%- getPropertyDef(property, datatype) %><% } %>
 
         F<%- datatype.name %>() :
             FPlayFabBaseModel()<% for(var i in datatype.properties) { var property = datatype.properties[i] %>,
-            <%- GetPropertySafeName(property) %>(<%- GetPropertyDefaultValue(property, datatype) %>)<% } %>
+            <%- getPropertySafeName(property) %>(<%- getPropertyDefaultValue(property, datatype) %>)<% } %>
             {}
 
         F<%- datatype.name %>(const F<%- datatype.name %>& src) :
             FPlayFabBaseModel()<% for(var i in datatype.properties) { var property = datatype.properties[i] %>,
-            <%- GetPropertySafeName(property) %>(<%- GetPropertyCopyValue(property) %>)<% } %>
+            <%- getPropertySafeName(property) %>(<%- getPropertyCopyValue(property) %>)<% } %>
             {}
 
         F<%- datatype.name %>(const TSharedPtr<FJsonObject>& obj) : F<%- datatype.name %>()

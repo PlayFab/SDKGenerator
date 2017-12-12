@@ -30,14 +30,10 @@ namespace PlayFab
         // ------------ Generated API calls
 <%    for(var i in api.calls) {
 var apiCall = api.calls[i];
-if(HasRequest(apiCall, api))
-{ %>        /**
-         * <%- GetApiCallSummary(apiCall) %>
-         */
-        bool <%- apiCall.name %>(<%- api.name %>Models::F<%- apiCall.request %>& request, const F<%- apiCall.name %>Delegate& SuccessDelegate = F<%- apiCall.name %>Delegate(), const FPlayFabErrorDelegate& ErrorDelegate = FPlayFabErrorDelegate());
-<%    } else  {%>        /**
-         * <%- GetApiCallSummary(apiCall) %>
-         */
+if(hasRequest(apiCall, api))
+{ %><%- generateApiSummary("        ", apiCall, "summary")
+%>        bool <%- apiCall.name %>(<%- api.name %>Models::F<%- apiCall.request %>& request, const F<%- apiCall.name %>Delegate& SuccessDelegate = F<%- apiCall.name %>Delegate(), const FPlayFabErrorDelegate& ErrorDelegate = FPlayFabErrorDelegate());
+<%    } else  {%><%- generateApiSummary("        ", apiCall, "summary") %>
         bool <%- apiCall.name %>(const F<%- apiCall.name %>Delegate& SuccessDelegate = F<%- apiCall.name %>Delegate(), const FPlayFabErrorDelegate& ErrorDelegate = FPlayFabErrorDelegate());
 <% } } %>
     private:

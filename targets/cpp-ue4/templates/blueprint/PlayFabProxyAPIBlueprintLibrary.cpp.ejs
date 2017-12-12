@@ -6,24 +6,24 @@
 
 <% for(var i in api.datatypes) { var datatype = api.datatypes[i]; if (datatype.isenum) { continue; } %>
 // <%- datatype.name %>
-<% if ((!IsResult(datatype.name)&&!IsRequest(datatype.name))||IsRequest(datatype.name)) {
+<% if ((!isResult(datatype.name)&&!isRequest(datatype.name))||isRequest(datatype.name)) {
 %>FBP<%- api.name%><%- datatype.name %> UPF<%- api.name %>ProxyLibrary::MakeBP<%- api.name%><%- datatype.name %>(
-    <%- GetDatatypeSignatureParameters(datatype, api, true) %>    )
+    <%- getDatatypeSignatureParameters(datatype, api, true) %>    )
 {
     FBP<%- api.name%><%- datatype.name %> Out = FBP<%- api.name%><%- datatype.name %>();
     <% if (datatype.properties) { for (var p = 0; p < datatype.properties.length; p++) {
         var property = datatype.properties[p];
-    %><%- GenerateProxyPropertyWrite(property, api, datatype) %><% } } %>
+    %><%- generateProxyPropertyWrite(property, api, datatype) %><% } } %>
     return Out;
 }
 <% }
-    if ((!IsResult(datatype.name)&&!IsRequest(datatype.name))||IsResult(datatype.name)) {
+    if ((!isResult(datatype.name)&&!isRequest(datatype.name))||isResult(datatype.name)) {
 %>void UPF<%- api.name %>ProxyLibrary::BreakBP<%- api.name%><%- datatype.name %>(
     const FBP<%- api.name%><%- datatype.name %>& In
-<%- GetDatatypeSignatureParameters(datatype, api) %> )
+<%- getDatatypeSignatureParameters(datatype, api) %> )
 {
     <% if (datatype.properties) { for (var p = 0; p < datatype.properties.length; p++) {
         var property = datatype.properties[p];
-    %><%- GenerateProxyPropertyRead(property, api, datatype) %><% } } %>
+    %><%- generateProxyPropertyRead(property, api, datatype) %><% } } %>
 }
 <%}%><%}%>

@@ -16,15 +16,15 @@ class UPF<%- api.name %>ProxyLibrary : public UBlueprintFunctionLibrary
 public:
     <% for(var i in api.datatypes) { var datatype = api.datatypes[i]; if (datatype.isenum) { continue; } %>
     // <%- datatype.name %>
-<% if ((!IsResult(datatype.name)&&!IsRequest(datatype.name))||IsRequest(datatype.name)) {
+<% if ((!isResult(datatype.name)&&!isRequest(datatype.name))||isRequest(datatype.name)) {
 %>    UFUNCTION(BlueprintPure, Category = "PlayFab|<%- api.name%>", meta = (NativeMakeFunc))
     static FBP<%- api.name%><%- datatype.name %> MakeBP<%- api.name%><%- datatype.name %>(
-    <%- GetDatatypeSignatureParameters(datatype, api, true) %>);
+    <%- getDatatypeSignatureParameters(datatype, api, true) %>);
 <% }
-    if ((!IsResult(datatype.name)&&!IsRequest(datatype.name))||IsResult(datatype.name)) {
+    if ((!isResult(datatype.name)&&!isRequest(datatype.name))||isResult(datatype.name)) {
 %>    UFUNCTION(BlueprintPure, Category = "PlayFab|<%- api.name%>", meta = (NativeBreakFunc))
     static void BreakBP<%- api.name%><%- datatype.name %>(
     const FBP<%- api.name%><%- datatype.name %>& In
-<%- GetDatatypeSignatureParameters(datatype, api) %>);
+<%- getDatatypeSignatureParameters(datatype, api) %>);
 <%}%><%}%>
 };

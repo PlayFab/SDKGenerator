@@ -55,7 +55,7 @@ void PlayFab::<%- api.name %>Models::F<%- datatype.name %>::writeJSON(JsonWriter
 {
     writer->WriteObjectStart();
     <% for(var p in datatype.properties) { var property = datatype.properties[p]; %>
-    <%- GetPropertySerializer(property, datatype) %>
+<%- getPropertySerializer("    ", property, datatype) %>
     <% } %>
     
     writer->WriteObjectEnd();
@@ -64,15 +64,11 @@ void PlayFab::<%- api.name %>Models::F<%- datatype.name %>::writeJSON(JsonWriter
 bool PlayFab::<%- api.name %>Models::F<%- datatype.name %>::readFromValue(const TSharedPtr<FJsonObject>& obj)
 {
     bool HasSucceeded = true; 
-    <%    for(var p in datatype.properties)
-        { 
-            var property = datatype.properties[p];    %>
-    <%- GetPropertyDeserializer(property, datatype) %>
-    <%    } %>
+    <% for(var p in datatype.properties) { var property = datatype.properties[p]; %>
+<%- getPropertyDeserializer("    ", property, datatype) %>
+    <% } %>
     
     return HasSucceeded;
 }
 
 <% } } %>
-
-

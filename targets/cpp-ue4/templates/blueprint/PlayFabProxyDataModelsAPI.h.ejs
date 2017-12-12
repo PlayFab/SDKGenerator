@@ -15,11 +15,11 @@ enum class EBP<%- api.name %><%- datatype.name %> : uint8
 <% } %>    <%- datatype.name %>_<%- datatype.enumvalues[datatype.enumvalues.length-1].name %> UMETA(DisplayName = "<%- datatype.enumvalues[datatype.enumvalues.length-1].name %>")
 };
 <% } else { %>
-<% if (!IsResult(datatype.name)&&!IsRequest(datatype.name)) {
+<% if (!isResult(datatype.name)&&!isRequest(datatype.name)) {
 %>USTRUCT(BlueprintType, meta = (HasNativeMake = "PlayFabProxy.PF<%- api.name %>ProxyLibrary.MakeBP<%- api.name %><%- datatype.name %>", HasNativeBreak = "PlayFabProxy.PF<%- api.name %>ProxyLibrary.BreakBP<%- api.name %><%- datatype.name %>"))<%
-} else if (IsResult(datatype.name)) {
+} else if (isResult(datatype.name)) {
 %>USTRUCT(BlueprintType, meta = (HasNativeBreak = "PlayFabProxy.PF<%- api.name %>ProxyLibrary.BreakBP<%- api.name %><%- datatype.name %>"))<%
-} else if (IsRequest(datatype.name)) {
+} else if (isRequest(datatype.name)) {
 %>USTRUCT(BlueprintType, meta = (HasNativeMake = "PlayFabProxy.PF<%- api.name %>ProxyLibrary.MakeBP<%- api.name %><%- datatype.name %>"))<%
 }%>
 struct FBP<%- api.name %><%- datatype.name %>
@@ -31,6 +31,6 @@ public:
     PlayFab::<%- api.name %>Models::F<%- datatype.name %> Data;
 };
 <%} }%>
-<% for(var i in api.datatypes) { var datatype = api.datatypes[i]; if(datatype.isenum || !NeedsDelegate(datatype.name)) { continue; }
+<% for(var i in api.datatypes) { var datatype = api.datatypes[i]; if(datatype.isenum || !needsDelegate(datatype.name)) { continue; }
 %>DECLARE_DYNAMIC_MULTICAST_DELEGATE_OneParam(FBP<%- api.name%><%- datatype.name %>Delegate, const FBP<%- api.name%><%- datatype.name %>&, Result);
 <%}%>

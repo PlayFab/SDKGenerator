@@ -15,7 +15,7 @@ class UPF<%- api.name %><%- apiCall.name %> : public UPlayFabProxyBase
 public:
 
     UPROPERTY(BlueprintAssignable)
-        <% if(hasResult(apiCall, api)) {
+        <% if (hasResult(apiCall, api)) {
         %>FBP<%- api.name%><%- apiCall.result %>Delegate OnSuccess;<%
          } else
          {%>FEmptyPlayFabDelegate OnSuccess; <% }%>
@@ -29,7 +29,7 @@ public:
     // End of UOnlineBlueprintCallProxyBase interface
 
 private:
-    <% if(hasRequest(apiCall, api)) { %>FBP<%- api.name%><%- apiCall.request %> Request;<% } %>
+    <% if (hasRequest(apiCall, api)) { %>FBP<%- api.name%><%- apiCall.request %> Request;<% } %>
     PlayFab::UPlayFab<%- api.name %>API::F<%- apiCall.name %>Delegate SuccessDelegate;
 
     void OnSuccessCallback(const PlayFab::<%- api.name %>Models::F<%- apiCall.result %>& Result);

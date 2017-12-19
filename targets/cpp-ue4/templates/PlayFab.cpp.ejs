@@ -9,11 +9,9 @@
 #include "PlayFabSettings.h"
 
 // Api's
-#include "Core/PlayFabClientAPI.h"
-#include "Core/PlayFabAdminAPI.h"
-#include "Core/PlayFabServerAPI.h"
-#include "Core/PlayFabMatchMakerAPI.h"
-
+<% for(var i = 0; i < apis.length; i++) { var api = apis[i];
+%>#include "Core/PlayFab<%- api.name %>API.h"
+<% } %>
 DEFINE_LOG_CATEGORY(LogPlayFab);
 
 #define LOCTEXT_NAMESPACE "FPlayFabModule"
@@ -32,16 +30,12 @@ class FPlayFabModule : public IPlayFabModuleInterface
     bool HandleSettingsSaved();
 
     FString GetTitleId() const override { return PlayFab::PlayFabSettings::titleId; };
-    PlayFabClientPtr GetClientAPI() const override { return ClientAPI; };
-    PlayFabServerPtr GetServerAPI() const override { return ServerAPI; };
-    PlayFabMatchmakerPtr GetMatchmakerAPI() const override { return MatchMakerAPI; };
-    PlayFabAdminPtr GetAdminAPI() const override { return AdminAPI; };
-
-    PlayFabClientPtr ClientAPI;
-    PlayFabServerPtr ServerAPI;
-    PlayFabMatchmakerPtr MatchMakerAPI;
-    PlayFabAdminPtr AdminAPI;
-};
+<% for(var i = 0; i < apis.length; i++) { var api = apis[i];
+%>    PlayFab<%- api.name %>Ptr Get<%- api.name %>API() const override { return <%- api.name %>API; };
+<% } %>
+<% for(var i = 0; i < apis.length; i++) { var api = apis[i];
+%>    PlayFab<%- api.name %>Ptr <%- api.name %>API;
+<% } %>};
 
 void FPlayFabModule::StartupModule()
 {
@@ -51,10 +45,11 @@ void FPlayFabModule::StartupModule()
 
     // create the API
     ClientAPI = MakeShareable(new PlayFab::UPlayFabClientAPI());
+    // EntityAPI = MakeShareable(new PlayFab::UPlayFabEntityAPI());
 
 #if WITH_SERVER_CODE
     ServerAPI = MakeShareable(new PlayFab::UPlayFabServerAPI());
-    MatchMakerAPI = MakeShareable(new PlayFab::UPlayFabMatchmakerAPI());
+    MatchmakerAPI = MakeShareable(new PlayFab::UPlayFabMatchmakerAPI());
     AdminAPI = MakeShareable(new PlayFab::UPlayFabAdminAPI());
 #endif
 }

@@ -1,5 +1,6 @@
 
 #include "PlayFabProxyBaseModel.h"
+#include "PlayFabProxy.h"
 
 UPlayFabProxyBase::UPlayFabProxyBase(const FObjectInitializer& ObjectInitializer)
     : Super(ObjectInitializer)

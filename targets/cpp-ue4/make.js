@@ -28,7 +28,7 @@ exports.makeCombinedAPI = function (apis, sourceDir, apiOutputDir) {
         }
 
         generateModels(apis, sourceDir, outputCodeDir, "All", "Core/");
-        generateSimpleFiles(apis[0], sourceDir, eachApiOutputDir, outputCodeDir, "Core/");
+        generateSimpleFiles(apis, sourceDir, eachApiOutputDir, outputCodeDir, "Core/");
     }
 
     copyTree(path.resolve(sourceDir, "testingFiles"), path.resolve(apiOutputDir, "ExampleProject"));
@@ -54,11 +54,12 @@ function makeApi(api, sourceDir, apiOutputDir, subdir) {
     writeFile(path.resolve(apiOutputDir, "Private/" + subdir + "PlayFab" + api.name + "API.cpp"), apiBodyTemplate(apiLocals));
 }
 
-function generateSimpleFiles(api, sourceDir, apiOutputDir, outputCodeDir, subDir) {
+function generateSimpleFiles(apis, sourceDir, apiOutputDir, outputCodeDir, subDir) {
     var sharedLocals = {
+        apis: apis,
         buildIdentifier: exports.buildIdentifier,
-        errorList: api.errorList,
-        errors: api.errors,
+        errorList: apis[0].errorList,
+        errors: apis[0].errors,
         friendlyName: "PlayFab Cpp Sdk",
         sdkVersion: exports.sdkVersion
     };
@@ -77,6 +78,12 @@ function generateSimpleFiles(api, sourceDir, apiOutputDir, outputCodeDir, subDir
 
     var uproxyPluginTemplate = getCompiledTemplate(path.resolve(sourceDir, "templates/PlayFabProxy.uplugin.ejs"));
     writeFile(path.resolve(apiOutputDir, "Plugins/PlayFabProxy/PlayFabProxy.uplugin"), uproxyPluginTemplate(sharedLocals));
+
+    var moduleTemplateH = getCompiledTemplate(path.resolve(sourceDir, "templates/PlayFab.h.ejs"));
+    writeFile(path.resolve(apiOutputDir, "Plugins/PlayFab/Source/PlayFab/Public/PlayFab.h"), moduleTemplateH(sharedLocals));
+
+    var moduleTemplateCpp = getCompiledTemplate(path.resolve(sourceDir, "templates/PlayFab.cpp.ejs"));
+    writeFile(path.resolve(apiOutputDir, "Plugins/PlayFab/Source/PlayFab/Private/PlayFab.cpp"), moduleTemplateCpp(sharedLocals));
 }
 
 function generateModels(apis, sourceDir, apiOutputDir, libraryName, subdir) {
@@ -119,13 +126,12 @@ function generateApiSummary(tabbing, apiElement, summaryParam, extraLines) {
     var lines = generateApiSummaryLines(apiElement, summaryParam, extraLines);
 
     var output;
-    if (lines.length === 1 && lines[0]) {
+    if (lines.length === 1 && lines[0])
         output = tabbing + "/** " + lines[0] + " */\n";
-    } else if (lines.length > 0) {
+    else if (lines.length > 0)
         output = tabbing + "/**\n" + tabbing + " * " + lines.join("\n" + tabbing + " * ") + "\n" + tabbing + " */\n";
-    } else {
+    else
         output = "";
-    }
     return output;
 }
 
@@ -306,7 +312,7 @@ function getPropertySerializer(tabbing, property, datatype) {
     }
 
     if (isOptional)
-        return tabbing + "if(" + tester + ") { writer->WriteIdentifierPrefix(TEXT(\"" + propName + "\")); " + writer + " }";
+        return tabbing + "if (" + tester + ") { writer->WriteIdentifierPrefix(TEXT(\"" + propName + "\")); " + writer + " }";
     return tabbing + "writer->WriteIdentifierPrefix(TEXT(\"" + propName + "\")); " + writer;
 }
 
@@ -334,7 +340,7 @@ function getArrayPropertySerializer(tabbing, property, datatype) {
         + collectionTabbing + "writer->WriteArrayEnd();\n";
 
     if (isOptional)
-        return tabbing + "if(" + propName + ".Num() != 0)\n"
+        return tabbing + "if (" + propName + ".Num() != 0)\n"
             + tabbing + "{\n"
             + collectionWriter
             + tabbing + "}\n";
@@ -368,7 +374,7 @@ function getMapPropertySerializer(tabbing, property, datatype) {
         + collectionTabbing + "writer->WriteObjectEnd();\n";
 
     if (isOptional)
-        return tabbing + "if(" + propName + ".Num() != 0)\n"
+        return tabbing + "if (" + propName + ".Num() != 0)\n"
             + tabbing + "{\n"
             + collectionWriter
             + tabbing + "}";
@@ -382,7 +388,7 @@ function getDateTimeDeserializer(tabbing, property) {
     var propNameValue = propName + "Value";
 
     var result = tabbing + "const TSharedPtr<FJsonValue> " + propNameValue + " = obj->TryGetField(TEXT(\"" + propName + "\"));\n"
-        + tabbing + "if(" + propNameValue + ".IsValid())\n"
+        + tabbing + "if (" + propNameValue + ".IsValid())\n"
         + tabbing + "    " + safePropName + " = readDatetime(" + propNameValue + ");\n"
     return result;
 }
@@ -462,14 +468,16 @@ function getPropertyDeserializer(tabbing, property, datatype) {
     }
 
     var val = tabbing + "const TSharedPtr<FJsonValue> " + propNameFieldValue + " = obj->TryGetField(TEXT(\"" + propName + "\"));\n"
-        + tabbing + "if (" + propNameFieldValue + ".IsValid()&& !" + propNameFieldValue + "->IsNull())\n"
+        + tabbing + "if (" + propNameFieldValue + ".IsValid() && !" + propNameFieldValue + "->IsNull())\n"
         + tabbing + "{\n";
 
     if (property.isclass || propType === "object")
         val += tabbing + "    " + safePropName + " = " + getter + "\n";
-    else
+    else if (temporary)
         val += tabbing + "    " + temporary + "\n"
-            + tabbing + "    if(" + propNameFieldValue + "->" + getter + ") {" + safePropName + " = TmpValue; }\n";
+            + tabbing + "    if (" + propNameFieldValue + "->" + getter + ") { " + safePropName + " = TmpValue; }\n";
+    else // if (!temporary)
+        val += + tabbing + "    if (" + propNameFieldValue + "->" + getter + ") { " + safePropName + " = TmpValue; }\n";
     val += tabbing + "}";
 
     return val;
@@ -484,7 +492,7 @@ function getArrayStringPropertyDeserializer(tabbing, property, datatype) {
         optionalOption = "HasSucceeded &= ";
 
     if (property.actualtype === "String")
-        return tabbing + optionalOption + "obj->TryGetStringArrayField(TEXT(\"" + property.name + "\")," + property.name + ");";
+        return tabbing + optionalOption + "obj->TryGetStringArrayField(TEXT(\"" + property.name + "\"), " + property.name + ");";
     throw "Unknown property type: " + property.actualtype + " for " + property.name + " in " + datatype.name;
 }
 
@@ -494,77 +502,69 @@ function getArrayPropertyDeserializer(tabbing, property, datatype) {
 
     if (property.actualtype === "String") {
         return getArrayStringPropertyDeserializer(tabbing, property, datatype);
-    }
-    else if (property.actualtype === "Boolean") {
+    } else if (property.actualtype === "Boolean") {
         getter = "CurrentItem->AsBool()";
-    }
-    else if (property.actualtype === "int16") {
+    } else if (property.actualtype === "int16") {
         temporary = "int32 TmpValue;\n";
         temporary += "CurrentItem->TryGetNumber(TmpValue);\n";
         getter = "TmpValue";
-    }
-    else if (property.actualtype === "uint16") {
+    } else if (property.actualtype === "uint16") {
         temporary = "uint32 TmpValue;\n";
         temporary += "CurrentItem->TryGetNumber(TmpValue);\n";
         getter = "TmpValue";
-    }
-    else if (property.actualtype === "int32") {
+    } else if (property.actualtype === "int32") {
         temporary = "int32 TmpValue;\n";
         temporary += "CurrentItem->TryGetNumber(TmpValue);\n";
         getter = "TmpValue";
-    }
-    else if (property.actualtype === "uint32") {
+    } else if (property.actualtype === "uint32") {
         temporary = "uint32 TmpValue;\n";
         temporary += "CurrentItem->TryGetNumber(TmpValue);\n";
         getter = "TmpValue";
-    }
-    else if (property.actualtype === "int64") {
+    } else if (property.actualtype === "int64") {
         temporary = "int64 TmpValue;\n";
         temporary += "CurrentItem->TryGetNumber(TmpValue);\n";
         getter = "TmpValue";
-    }
-    else if (property.actualtype === "uint64") {
+    } else if (property.actualtype === "uint64") {
         temporary = "int64 TmpValue;\n";
         temporary += "CurrentItem->TryGetNumber(TmpValue);\n";
         getter = "TmpValue";
-    }
-    else if (property.actualtype === "float") {
+    } else if (property.actualtype === "float") {
         temporary = "double TmpValue;\n";
         temporary += "CurrentItem->TryGetNumber(TmpValue);\n";
         getter = "(float)TmpValue";
-    }
-    else if (property.actualtype === "double") {
+    } else if (property.actualtype === "double") {
         temporary = "double TmpValue;\n";
         temporary += "CurrentItem->TryGetNumber(TmpValue);\n";
         getter = "TmpValue";
-    }
-    else if (property.actualtype === "DateTime") {
+    } else if (property.actualtype === "DateTime") {
         getter = "readDatetime(CurrentItem)";
-    }
-    else if (property.isclass) {
+    } else if (property.isclass) {
         getter = "F" + property.actualtype + "(CurrentItem->AsObject())";
-    }
-    else if (property.isenum) {
+    } else if (property.isenum) {
         getter = "read" + property.actualtype + "FromValue(CurrentItem)";
-    }
-    else if (property.actualtype === "object") {
+    } else if (property.actualtype === "object") {
         getter = "FJsonKeeper(CurrentItem)";
-    }
-    else {
+    } else {
         throw "Unknown property type: " + property.actualtype + " for " + property.name + " in " + datatype.name;
     }
 
     var propertyArrayName = property.name + "Array";
 
-    var val = tabbing + "const TArray<TSharedPtr<FJsonValue>>&" + propertyArrayName + " = FPlayFabJsonHelpers::ReadArray(obj, TEXT(\"" + property.name + "\"));\n"
+    if (temporary)
+        return tabbing + "const TArray<TSharedPtr<FJsonValue>>&" + propertyArrayName + " = FPlayFabJsonHelpers::ReadArray(obj, TEXT(\"" + property.name + "\"));\n"
+            + tabbing + "for (int32 Idx = 0; Idx < " + propertyArrayName + ".Num(); Idx++)\n"
+            + tabbing + "{\n"
+            + tabbing + "    TSharedPtr<FJsonValue> CurrentItem = " + propertyArrayName + "[Idx];\n"
+            + tabbing + "    " + temporary + "\n"
+            + tabbing + "    " + property.name + ".Add(" + getter + ");\n"
+            + tabbing + "}\n";
+    // else if (!temporary)
+    return tabbing + "const TArray<TSharedPtr<FJsonValue>>&" + propertyArrayName + " = FPlayFabJsonHelpers::ReadArray(obj, TEXT(\"" + property.name + "\"));\n"
         + tabbing + "for (int32 Idx = 0; Idx < " + propertyArrayName + ".Num(); Idx++)\n"
         + tabbing + "{\n"
         + tabbing + "    TSharedPtr<FJsonValue> CurrentItem = " + propertyArrayName + "[Idx];\n"
-        + tabbing + "    " + temporary + "\n"
         + tabbing + "    " + property.name + ".Add(" + getter + ");\n"
         + tabbing + "}\n";
-
-    return val;
 }
 
 function getMapPropertyDeserializer(tabbing, property, datatype) {
@@ -573,71 +573,65 @@ function getMapPropertyDeserializer(tabbing, property, datatype) {
 
     if (property.actualtype === "String") {
         getter = "It.Value()->AsString()";
-    }
-    else if (property.actualtype === "Boolean") {
+    } else if (property.actualtype === "Boolean") {
         getter = "It.Value()->AsBool()";
-    }
-    else if (property.actualtype === "int16") {
+    } else if (property.actualtype === "int16") {
         temporary = "int32 TmpValue; It.Value()->TryGetNumber(TmpValue);";
         getter = "TmpValue";
-    }
-    else if (property.actualtype === "uint16") {
+    } else if (property.actualtype === "uint16") {
         temporary = "uint32 TmpValue; It.Value()->TryGetNumber(TmpValue);";
         getter = "TmpValue";
-    }
-    else if (property.actualtype === "int32") {
+    } else if (property.actualtype === "int32") {
         temporary = "int32 TmpValue; It.Value()->TryGetNumber(TmpValue);";
         getter = "TmpValue";
-    }
-    else if (property.actualtype === "uint32") {
+    } else if (property.actualtype === "uint32") {
         temporary = "uint32 TmpValue; It.Value()->TryGetNumber(TmpValue);";
         getter = "TmpValue";
-    }
-    else if (property.actualtype === "int64") {
+    } else if (property.actualtype === "int64") {
         temporary = "int64 TmpValue; It.Value()->TryGetNumber(TmpValue);";
         getter = "TmpValue";
-    }
-    else if (property.actualtype === "uint64") {
+    } else if (property.actualtype === "uint64") {
         temporary = "int64 TmpValue; It.Value()->TryGetNumber(TmpValue);";
         getter = "TmpValue";
-    }
-    else if (property.actualtype === "float") {
+    } else if (property.actualtype === "float") {
         temporary = "double TmpValue; It.Value()->TryGetNumber(TmpValue);";
         getter = "(float)TmpValue";
-    }
-    else if (property.actualtype === "double") {
+    } else if (property.actualtype === "double") {
         temporary = "double TmpValue; It.Value()->TryGetNumber(TmpValue);";
         getter = "TmpValue";
-    }
-    else if (property.actualtype === "DateTime") {
+    } else if (property.actualtype === "DateTime") {
         getter = "readDatetime(It.Value())";
-    }
-    else if (property.isclass) {
+    } else if (property.isclass) {
         getter = "F" + property.actualtype + "(It.Value()->AsObject())";
-    }
-    else if (property.isenum) {
+    } else if (property.isenum) {
         getter = "read" + property.actualtype + "FromValue(It.Value())";
-    }
-    else if (property.actualtype === "object") {
+    } else if (property.actualtype === "object") {
         getter = "FJsonKeeper(It.Value())";
-    }
-    else {
+    } else {
         throw "Unknown property type: " + property.actualtype + " for " + property.name + " in " + datatype.name;
     }
 
     var propertyObjectName = property.name + "Object";
 
-    var val = tabbing + "const TSharedPtr<FJsonObject>* " + propertyObjectName + ";\n"
+    if (temporary)
+        return tabbing + "const TSharedPtr<FJsonObject>* " + propertyObjectName + ";\n"
+            + tabbing + "if (obj->TryGetObjectField(TEXT(\"" + property.name + "\"), " + propertyObjectName + "))\n"
+            + tabbing + "{\n"
+            + tabbing + "    for (TMap<FString, TSharedPtr<FJsonValue>>::TConstIterator It((*" + propertyObjectName + ")->Values); It; ++It)\n"
+            + tabbing + "    {\n"
+            + tabbing + "        " + temporary + "\n"
+            + tabbing + "        " + property.name + ".Add(It.Key(), " + getter + ");\n"
+            + tabbing + "    }\n"
+            + tabbing + "}";
+    // else if (!temporary)
+    return tabbing + "const TSharedPtr<FJsonObject>* " + propertyObjectName + ";\n"
         + tabbing + "if (obj->TryGetObjectField(TEXT(\"" + property.name + "\"), " + propertyObjectName + "))\n"
         + tabbing + "{\n"
         + tabbing + "    for (TMap<FString, TSharedPtr<FJsonValue>>::TConstIterator It((*" + propertyObjectName + ")->Values); It; ++It)\n"
         + tabbing + "    {\n"
-        + tabbing + "        " + temporary + "\n"
         + tabbing + "        " + property.name + ".Add(It.Key(), " + getter + ");\n"
         + tabbing + "    }\n"
         + tabbing + "}";
-
-    return val;
 }
 
 function addTypeAndDependencies(datatype, datatypes, orderedTypes, addedSet) {
@@ -662,30 +656,58 @@ function getPropertyDescription(property) {
 }
 
 function getAuthParams(apiCall) {
-    if (apiCall.auth === "SecretKey")
+    if (apiCall.url === "/Authentication/GetEntityToken")
+        return "authKey, authValue";
+    else if (apiCall.auth === "EntityToken")
+        return "TEXT(\"X-EntityToken\"), PlayFabSettings::entityToken";
+    else if (apiCall.auth === "SecretKey")
         return "TEXT(\"X-SecretKey\"), PlayFabSettings::developerSecretKey";
     else if (apiCall.auth === "SessionTicket")
-        return "TEXT(\"X-Authorization\"), mUserSessionTicket";
+        return "TEXT(\"X-Authorization\"), PlayFabSettings::clientSessionTicket";
     return "TEXT(\"\"), TEXT(\"\")";
 }
 
 function getRequestActions(tabbing, apiCall, api) {
-    if (api.name === "Client" && (apiCall.result === "LoginResult" || apiCall.request === "RegisterPlayFabUserRequest"))
+    if (apiCall.url === "/Authentication/GetEntityToken")
+        return tabbing + "FString authKey; FString authValue;\n"
+            + tabbing + "if (PlayFabSettings::entityToken.Len() > 0) {\n"
+            + tabbing + "    authKey = TEXT(\"X-EntityToken\"); authValue = PlayFabSettings::entityToken;\n"
+            + tabbing + "} else if (PlayFabSettings::clientSessionTicket.Len() > 0) {\n"
+            + tabbing + "    authKey = TEXT(\"X-Authorization\"); authValue = PlayFabSettings::clientSessionTicket;\n"
+            + tabbing + "} else if (PlayFabSettings::developerSecretKey.Len() > 0) {\n"
+            + tabbing + "    authKey = TEXT(\"X-SecretKey\"); authValue = PlayFabSettings::developerSecretKey;\n"
+            + tabbing + "}\n";
+    else if (apiCall.auth === "EntityToken")
+        return tabbing + "if (PlayFabSettings::entityToken.Len() == 0) {\n"
+            + tabbing + "    UE_LOG(LogPlayFab, Error, TEXT(\"You must call GetEntityToken API Method before calling this function.\"));\n"
+            + tabbing + "}\n";
+    else if (apiCall.auth === "SecretKey")
+        return tabbing + "if (PlayFabSettings::developerSecretKey.Len() == 0) {\n"
+            + tabbing + "    UE_LOG(LogPlayFab, Error, TEXT(\"You must first set your PlayFab developerSecretKey to use this function (Unreal Settings Menu, or in C++ code)\"));\n"
+            + tabbing + "}\n";
+    else if (apiCall.auth === "SessionTicket")
+        return tabbing + "if (PlayFabSettings::clientSessionTicket.Len() == 0) {\n"
+            + tabbing + "    UE_LOG(LogPlayFab, Error, TEXT(\"You must log in before calling this function\"));\n"
+            + tabbing + "}\n";
+    else if (apiCall.result === "LoginResult" || apiCall.request === "RegisterPlayFabUserRequest")
         return tabbing + "if (PlayFabSettings::titleId.Len() > 0)\n"
-            + tabbing + "    request.TitleId = PlayFabSettings::titleId;";
+            + tabbing + "    request.TitleId = PlayFabSettings::titleId;\n";
     return "";
 }
 
 function getResultActions(tabbing, apiCall, api) {
-    if (api.name === "Client" && (apiCall.result === "LoginResult" || apiCall.result === "RegisterPlayFabUserResult"))
+    if (apiCall.url === "/Authentication/GetEntityToken")
+        return tabbing + "if (outResult.EntityToken.Len() > 0)\n"
+            + tabbing + "    PlayFabSettings::entityToken = outResult.EntityToken;\n\n";
+    else if (apiCall.result === "LoginResult" || apiCall.result === "RegisterPlayFabUserResult")
         return tabbing + "if (outResult.SessionTicket.Len() > 0)\n"
             + tabbing + "{\n"
-            + tabbing + "    mUserSessionTicket = outResult.SessionTicket;\n"
+            + tabbing + "    PlayFabSettings::clientSessionTicket = outResult.SessionTicket;\n"
             + tabbing + "    MultiStepClientLogin(outResult.SettingsForUser->NeedsAttribution);\n"
-            + tabbing + "}";
-    else if (api.name === "Client" && apiCall.result === "AttributeInstallResult")
+            + tabbing + "}\n\n";
+    else if (apiCall.result === "AttributeInstallResult")
         return tabbing + "// Modify advertisingIdType:  Prevents us from sending the id multiple times, and allows automated tests to determine id was sent successfully\n"
-            + tabbing + "PlayFabSettings::advertisingIdType += \"_Successful\";\n";
+            + tabbing + "PlayFabSettings::advertisingIdType += \"_Successful\";\n\n";
     return "";
 }
 

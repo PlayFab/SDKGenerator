@@ -14,7 +14,7 @@ UPF<%- api.name %><%- apiCall.name %>* UPF<%- api.name %><%- apiCall.name %>::<%
 {
     UPF<%- api.name %><%- apiCall.name %>* Proxy = NewObject<UPF<%- api.name %><%- apiCall.name %>>();
     Proxy->PlayerControllerWeakPtr = PlayerController;
-    <% if(hasRequest(apiCall, api)) {
+    <% if (hasRequest(apiCall, api)) {
     var datatype = api.datatypes[apiCall.request];
     %>Proxy->Request = In<%- datatype.name %>;
     <% } %>
@@ -28,9 +28,9 @@ void UPF<%- api.name %><%- apiCall.name %>::Activate()
 
     bool CallResult = false;
 
-    if(<%- api.name %>API.IsValid())
+    if (<%- api.name %>API.IsValid())
     {
-        <% if(hasRequest(apiCall, api)) {
+        <% if (hasRequest(apiCall, api)) {
         %>CallResult = <%- api.name %>API-><%- apiCall.name %>(Request.Data, SuccessDelegate, ErrorDelegate);<%
         }
         else
@@ -38,15 +38,13 @@ void UPF<%- api.name %><%- apiCall.name %>::Activate()
         } %>
     }
 
-    if(CallResult == false)
-    {
+    if (CallResult == false)
         OnFailure.Broadcast();
-    }
 }
 
 void UPF<%- api.name %><%- apiCall.name %>::OnSuccessCallback(const PlayFab::<%- api.name %>Models::F<%- apiCall.result %>& Result)
 {
-    <% if(hasResult(apiCall, api)) {
+    <% if (hasResult(apiCall, api)) {
     %>FBP<%- api.name%><%- apiCall.result %> BPResult;
      BPResult.Data = Result;
      OnSuccess.Broadcast(BPResult);<%

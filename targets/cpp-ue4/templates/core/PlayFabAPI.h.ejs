@@ -21,7 +21,7 @@ namespace PlayFab
         int GetPendingCalls() const;
         FString GetBuildIdentifier() const;
         void SetTitleId(const FString& titleId);
-<% if(hasClientOptions) { %>        bool SetAdvertId(const FString& typeId, const FString& advertisingIdValue);
+<% if (hasClientOptions) { %>        bool SetAdvertId(const FString& typeId, const FString& advertisingIdValue);
         bool AdvertIdSuccessful();
         bool IsClientLoggedIn() const;
         void MultiStepClientLogin(bool needsAttribution);
@@ -30,7 +30,7 @@ namespace PlayFab
         // ------------ Generated API calls
 <%    for(var i in api.calls) {
 var apiCall = api.calls[i];
-if(hasRequest(apiCall, api))
+if (hasRequest(apiCall, api))
 { %><%- generateApiSummary("        ", apiCall, "summary")
 %>        bool <%- apiCall.name %>(<%- api.name %>Models::F<%- apiCall.request %>& request, const F<%- apiCall.name %>Delegate& SuccessDelegate = F<%- apiCall.name %>Delegate(), const FPlayFabErrorDelegate& ErrorDelegate = FPlayFabErrorDelegate());
 <%    } else  {%><%- generateApiSummary("        ", apiCall, "summary") %>
@@ -41,6 +41,5 @@ if(hasRequest(apiCall, api))
 <% for(var i in api.calls) { var apiCall = api.calls[i];
 %>        void On<%- apiCall.name %>Result(FHttpRequestPtr HttpRequest, FHttpResponsePtr HttpResponse, bool bSucceeded, F<%- apiCall.name %>Delegate SuccessDelegate, FPlayFabErrorDelegate ErrorDelegate);
 <% } %>
-<% if(hasClientOptions) { %>        FString mUserSessionTicket;
-<% } %>    };
+    };
 };

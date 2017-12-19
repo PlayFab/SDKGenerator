@@ -6,6 +6,8 @@
 #include "PlayFab.h"
 #include "Core/PlayFabClientDataModels.h"
 #include "Core/PlayFabClientAPI.h"
+//#include "Core/PlayFabEntityDataModels.h"
+//#include "Core/PlayFabEntityAPI.h"
 #include "Core/PlayFabServerDataModels.h"
 #include "Core/PlayFabServerAPI.h"
 
@@ -34,7 +36,7 @@ public:
 
     bool Update() override;
 private:
-    void OnSuccess(const PlayFab::ClientModels::FLoginResult& Result) const;
+    void OnSuccess(const PlayFab::ClientModels::FLoginResult& result) const;
     void OnError(const PlayFab::FPlayFabError& ErrorResult) const;
 
     FString email;
@@ -52,7 +54,7 @@ public:
 
     bool Update() override;
 private:
-    void OnSuccess(const PlayFab::ClientModels::FLoginResult& Result) const;
+    void OnSuccess(const PlayFab::ClientModels::FLoginResult& result) const;
     void OnError(const PlayFab::FPlayFabError& ErrorResult) const;
 
     FString customId;
@@ -69,7 +71,7 @@ public:
 
     bool Update() override;
 private:
-    void OnSuccess(const PlayFab::ClientModels::FLoginResult& Result) const;
+    void OnSuccess(const PlayFab::ClientModels::FLoginResult& result) const;
     void OnError(const PlayFab::FPlayFabError& ErrorResult) const;
 
     int tickCounter = 0;
@@ -87,7 +89,7 @@ public:
 
     bool Update() override;
 private:
-    void OnSuccess(const PlayFab::ClientModels::FGetUserDataResult& Result) const;
+    void OnSuccess(const PlayFab::ClientModels::FGetUserDataResult& result) const;
     void CheckTimestamp(const FDateTime& updateTime) const;
     void OnError(const PlayFab::FPlayFabError& ErrorResult) const;
 
@@ -105,7 +107,7 @@ public:
 
     bool Update() override;
 private:
-    void OnSuccess(const PlayFab::ClientModels::FUpdateUserDataResult& Result) const;
+    void OnSuccess(const PlayFab::ClientModels::FUpdateUserDataResult& result) const;
     void OnError(const PlayFab::FPlayFabError& ErrorResult) const;
 
     FString TEST_DATA_KEY_1;
@@ -125,7 +127,7 @@ public:
 
     bool Update() override;
 private:
-    void OnSuccess(const PlayFab::ClientModels::FGetPlayerStatisticsResult& Result) const;
+    void OnSuccess(const PlayFab::ClientModels::FGetPlayerStatisticsResult& result) const;
     void OnError(const PlayFab::FPlayFabError& ErrorResult) const;
 
     FString TEST_STAT_NAME;
@@ -141,7 +143,7 @@ public:
 
     bool Update() override;
 private:
-    void OnSuccess(const PlayFab::ClientModels::FUpdatePlayerStatisticsResult& Result) const;
+    void OnSuccess(const PlayFab::ClientModels::FUpdatePlayerStatisticsResult& result) const;
     void OnError(const PlayFab::FPlayFabError& ErrorResult) const;
 
     FString TEST_STAT_NAME;
@@ -160,7 +162,7 @@ public:
 
     bool Update() override;
 private:
-    void OnSuccess(const PlayFab::ClientModels::FGetLeaderboardResult& Result) const;
+    void OnSuccess(const PlayFab::ClientModels::FGetLeaderboardResult& result) const;
     void OnError(const PlayFab::FPlayFabError& ErrorResult) const;
 
     FString TEST_STAT_NAME;
@@ -176,7 +178,7 @@ public:
 
     bool Update() override;
 private:
-    void OnSuccess(const PlayFab::ServerModels::FGetLeaderboardResult& Result) const;
+    void OnSuccess(const PlayFab::ServerModels::FGetLeaderboardResult& result) const;
     void OnError(const PlayFab::FPlayFabError& ErrorResult) const;
 
     FString TEST_STAT_NAME;
@@ -190,34 +192,14 @@ private:
 class PlayFabApiTest_GetAllUsersCharacters : public IAutomationLatentCommand
 {
 public:
-    PlayFabApiTest_GetAllUsersCharacters(const FString& CHAR_NAME, const FString& CHAR_TEST_TYPE, bool expectSuccess);
+    PlayFabApiTest_GetAllUsersCharacters();
 
     bool Update() override;
 private:
-    void OnSuccess(const PlayFab::ClientModels::FListUsersCharactersResult& Result) const;
+    void OnSuccess(const PlayFab::ClientModels::FListUsersCharactersResult& result) const;
     void OnError(const PlayFab::FPlayFabError& ErrorResult) const;
-
-    FString CHAR_NAME;
-    FString CHAR_TEST_TYPE;
-    bool expectSuccess = false;
 
     PlayFabClientPtr clientAPI = nullptr;
-};
-
-class PlayFabApiTest_GrantCharacterToUser : public IAutomationLatentCommand
-{
-public:
-    PlayFabApiTest_GrantCharacterToUser(const FString& CHAR_NAME, const FString& CHAR_TEST_TYPE);
-
-    bool Update() override;
-private:
-    void OnSuccess(const PlayFab::ServerModels::FGrantCharacterToUserResult& Result) const;
-    void OnError(const PlayFab::FPlayFabError& ErrorResult) const;
-
-    FString CHAR_NAME;
-    FString CHAR_TEST_TYPE;
-
-    PlayFabServerPtr serverAPI = nullptr;
 };
 
 /*
@@ -230,29 +212,83 @@ public:
 
     bool Update() override;
 private:
-    void OnSuccess(const PlayFab::ClientModels::FGetAccountInfoResult& Result) const;
+    void OnSuccess(const PlayFab::ClientModels::FGetAccountInfoResult& result) const;
     void OnError(const PlayFab::FPlayFabError& ErrorResult) const;
 
     PlayFabClientPtr clientAPI = nullptr;
 };
 
 /*
-* ==== CloudScript ====
+* ==== ExecuteCloudScript ====
 */
 class PlayFabApiTest_ExecuteCloudScript : public IAutomationLatentCommand
 {
 public:
-    PlayFabApiTest_ExecuteCloudScript(const FString& functionName);
+    PlayFabApiTest_ExecuteCloudScript(const FString& functionName, bool expectFail);
 
     bool Update() override;
 private:
-    void OnSuccess(const PlayFab::ClientModels::FExecuteCloudScriptResult& Result) const;
+    void OnSuccess(const PlayFab::ClientModels::FExecuteCloudScriptResult& result) const;
     void OnError(const PlayFab::FPlayFabError& ErrorResult) const;
 
     FString functionName;
+    bool expectFail;
 
     PlayFabClientPtr clientAPI = nullptr;
 };
+
+/*
+* ==== WriteEvent ====
+*/
+class PlayFabApiTest_WriteEvent : public IAutomationLatentCommand
+{
+public:
+    PlayFabApiTest_WriteEvent();
+
+    bool Update() override;
+private:
+    void OnSuccess(const PlayFab::ClientModels::FWriteEventResponse& result) const;
+    void OnError(const PlayFab::FPlayFabError& ErrorResult) const;
+
+    FString functionName;
+    bool expectFail;
+
+    PlayFabClientPtr clientAPI = nullptr;
+};
+
+
+/*
+* ==== GetEntityToken ====
+*/
+//class PlayFabApiTest_GetEntityToken : public IAutomationLatentCommand
+//{
+//public:
+//    PlayFabApiTest_GetEntityToken();
+//
+//    bool Update() override;
+//private:
+//    void OnSuccess(const PlayFab::EntityModels::FGetEntityTokenResponse& result) const;
+//    void OnError(const PlayFab::FPlayFabError& ErrorResult) const;
+//
+//    PlayFabEntityPtr entityAPI = nullptr;
+//};
+
+
+/*
+* ==== ObjectApi ====
+*/
+//class PlayFabApiTest_ObjectApi : public IAutomationLatentCommand
+//{
+//public:
+//    PlayFabApiTest_ObjectApi();
+//
+//    bool Update() override;
+//private:
+//    void OnSuccess(const PlayFab::EntityModels::FGetObjectsResponse& result) const;
+//    void OnError(const PlayFab::FPlayFabError& ErrorResult) const;
+//
+//    PlayFabEntityPtr entityAPI = nullptr;
+//};
 
 
 /*
@@ -264,7 +300,6 @@ public:
     FString titleId = TEXT("Your titleID");
     FString developerSecretKey = TEXT("For the security of your title, keep your secret key private!");
     FString userEmail = TEXT("An email associated with an existing user");
-    FString characterName = TEXT("arbitrary character name");
 };
 
 #define ADD_TEST(Name) TestFunctions.Add(&PlayFabApiTestSuite::Name); TestFunctionNames.Add(TEXT(#Name));
@@ -274,15 +309,16 @@ class PlayFabApiTestSuite : public FAutomationTestBase
 
 public:
     static FString playFabId; // Set by PlayFabApiTest_LoginWithEmail upon successful login
-    static FString characterId; // Set by PlayFabApiTest_GetAllUsersCharacters upon successfully finding target character
+    static FString entityId; // Set by PlayFabApiTest_GetEntityToken if retrieved successfully
+    static FString entityType; // Set by PlayFabApiTest_GetEntityToken if retrieved successfully
 
-                                // TEST CONSTANTS
+    // TEST CONSTANTS
     FString TEST_DATA_KEY_1 = TEXT("testCounter");
     FString TEST_DATA_KEY_2 = TEXT("deleteCounter");
     FString TEST_STAT_NAME = TEXT("str");
     FString INVALID_PASSWORD = TEXT("INVALID_PASSWORD");
-    FString CHAR_TEST_TYPE = TEXT("Test");
-    FString CLOUD_FUNCTION_NAME = TEXT("helloWorld");
+    FString CLOUD_FUNCTION_HELLO_WORLD = TEXT("helloWorld");
+    FString CLOUD_FUNCTION_THROW_ERROR = TEXT("throwError");
 
     // Input from TestTitleData.json
     TestTitleData testTitleData;
@@ -303,6 +339,10 @@ public:
         ADD_TEST(LeaderBoard);
         ADD_TEST(AccountInfo);
         ADD_TEST(CloudScript);
+        ADD_TEST(CloudScriptError);
+        ADD_TEST(WriteEvent);
+        ADD_TEST(GetEntityToken);
+        ADD_TEST(ObjectApi);
     }
 
 #if (ENGINE_MAJOR_VERSION == 4 && ENGINE_MINOR_VERSION >= 11)
@@ -342,7 +382,6 @@ protected:
         if (success) success &= jsonParsed->TryGetStringField("titleId", testTitleData.titleId);
         if (success) success &= jsonParsed->TryGetStringField("developerSecretKey", testTitleData.developerSecretKey);
         if (success) success &= jsonParsed->TryGetStringField("userEmail", testTitleData.userEmail);
-        if (success) success &= jsonParsed->TryGetStringField("characterName", testTitleData.characterName);
 
         return success;
     }
@@ -418,7 +457,7 @@ protected:
 
     bool UserCharacter() const
     {
-        ADD_LATENT_AUTOMATION_COMMAND(PlayFabApiTest_GetAllUsersCharacters(testTitleData.characterName, CHAR_TEST_TYPE, false));
+        ADD_LATENT_AUTOMATION_COMMAND(PlayFabApiTest_GetAllUsersCharacters());
 
         return true;
     };
@@ -441,12 +480,41 @@ protected:
 
     bool CloudScript() const
     {
-        ADD_LATENT_AUTOMATION_COMMAND(PlayFabApiTest_ExecuteCloudScript(CLOUD_FUNCTION_NAME));
+        ADD_LATENT_AUTOMATION_COMMAND(PlayFabApiTest_ExecuteCloudScript(CLOUD_FUNCTION_HELLO_WORLD, false));
+
+        return true;
+    };
+
+    bool CloudScriptError() const
+    {
+        ADD_LATENT_AUTOMATION_COMMAND(PlayFabApiTest_ExecuteCloudScript(CLOUD_FUNCTION_THROW_ERROR, true));
+
+        return true;
+    };
+
+    bool WriteEvent() const
+    {
+        ADD_LATENT_AUTOMATION_COMMAND(PlayFabApiTest_WriteEvent());
+
+        return true;
+    };
+
+    bool GetEntityToken() const
+    {
+        //ADD_LATENT_AUTOMATION_COMMAND(PlayFabApiTest_GetEntityToken());
+
+        return true;
+    };
+
+    bool ObjectApi() const
+    {
+        //ADD_LATENT_AUTOMATION_COMMAND(PlayFabApiTest_ObjectApi());
 
         return true;
     };
 
     PlayFabClientPtr clientAPI;
+    //PlayFabEntityPtr entityAPI;
     PlayFabServerPtr serverAPI;
     TArray<TestFunc> TestFunctions;
     TArray<FString> TestFunctionNames;

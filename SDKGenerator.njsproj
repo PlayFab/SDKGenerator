@@ -243,7 +243,7 @@
     <Content Include="targets\cpp-ue4\Plugins\PlayFab\Source\PlayFab\Private\Core\PlayFabBaseModel.cpp" />
     <Content Include="targets\cpp-ue4\Plugins\PlayFab\Source\PlayFab\Private\Core\PlayFabJsonHelpers.cpp" />
     <Content Include="targets\cpp-ue4\Plugins\PlayFab\Source\PlayFab\Private\Core\PlayFabResultHandler.cpp" />
-    <Content Include="targets\cpp-ue4\Plugins\PlayFab\Source\PlayFab\Private\PlayFab.cpp" />
+    <Content Include="targets\cpp-ue4\templates\PlayFab.cpp.ejs" />
     <Content Include="targets\cpp-ue4\Plugins\PlayFab\Source\PlayFab\Private\PlayFabRuntimeSettings.cpp" />
     <Content Include="targets\cpp-ue4\Plugins\PlayFab\Source\PlayFab\Private\PlayFabRuntimeSettings.h" />
     <Content Include="targets\cpp-ue4\Plugins\PlayFab\Source\PlayFab\Public\Core\PlayFabBaseModel.h" />
@@ -251,7 +251,6 @@
     <Content Include="targets\cpp-ue4\Plugins\PlayFab\Source\PlayFab\Public\Core\PlayFabJsonHelpers.h" />
     <Content Include="targets\cpp-ue4\Plugins\PlayFab\Source\PlayFab\Public\Core\PlayFabResultHandler.h" />
     <Content Include="targets\cpp-ue4\Plugins\PlayFab\Source\PlayFab\Public\Core\PlayFabSettings.h" />
-    <Content Include="targets\cpp-ue4\Plugins\PlayFab\Source\PlayFab\Public\PlayFab.h" />
     <Content Include="targets\cpp-ue4\templates\blueprint\PlayFabProxyAPI.cpp.ejs" />
     <Content Include="targets\cpp-ue4\templates\blueprint\PlayFabProxyAPI.h.ejs" />
     <Content Include="targets\cpp-ue4\templates\blueprint\PlayFabProxyAPIBlueprintLibrary.cpp.ejs" />
@@ -265,6 +264,7 @@
     <Content Include="targets\cpp-ue4\templates\core\PlayFabDataModels.h.ejs" />
     <Content Include="targets\cpp-ue4\templates\core\PlayFabError.h.ejs" />
     <Content Include="targets\cpp-ue4\templates\core\PlayFabSettings.cpp.ejs" />
+    <Content Include="targets\cpp-ue4\templates\PlayFab.h.ejs" />
     <Content Include="targets\cpp-ue4\templates\PlayFab.uplugin.ejs" />
     <Content Include="targets\cpp-ue4\templates\PlayFabProxy.uplugin.ejs" />
     <Content Include="targets\cpp-ue4\testingFiles\ExampleProject.uproject" />

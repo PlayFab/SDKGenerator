@@ -1,5 +1,6 @@
 #include "PlayFabResultHandler.h"
 #include "PlayFabSettings.h"
+#include "PlayFab.h"
 
 using namespace PlayFab;
 
@@ -12,6 +13,9 @@ int PlayFabRequestHandler::GetPendingCalls()
 
 TSharedRef<IHttpRequest> PlayFabRequestHandler::SendRequest(const FString& url, const FString& callBody, const FString& authKey, const FString& authValue)
 {
+    if (PlayFabSettings::titleId.Len() == 0) {
+        UE_LOG(LogPlayFab, Error, TEXT("You must define a titleID before making API Calls."));
+    }
     PlayFabRequestHandler::pendingCalls += 1;
 
     TSharedRef<IHttpRequest> HttpRequest = FHttpModule::Get().CreateRequest();

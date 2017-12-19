@@ -8,17 +8,13 @@ DECLARE_LOG_CATEGORY_EXTERN(LogPlayFab, Log, All);
 // forward declaration of classes
 namespace PlayFab
 {
-    class UPlayFabClientAPI;
-    class UPlayFabServerAPI;
-    class UPlayFabMatchmakerAPI;
-    class UPlayFabAdminAPI;
-}
+<% for(var i = 0; i < apis.length; i++) { var api = apis[i];
+%>    class UPlayFab<%- api.name %>API;
+<% } %>}
 
-typedef TSharedPtr<class PlayFab::UPlayFabClientAPI> PlayFabClientPtr;
-typedef TSharedPtr<class PlayFab::UPlayFabServerAPI> PlayFabServerPtr;
-typedef TSharedPtr<class PlayFab::UPlayFabMatchmakerAPI> PlayFabMatchmakerPtr;
-typedef TSharedPtr<class PlayFab::UPlayFabAdminAPI> PlayFabAdminPtr;
-
+<% for(var i = 0; i < apis.length; i++) { var api = apis[i];
+%>typedef TSharedPtr<class PlayFab::UPlayFab<%- api.name %>API> PlayFab<%- api.name %>Ptr;
+<% } %>
 /**
 * The public interface to this module.  In most cases, this interface is only public to sibling modules
 * within this plugin.
@@ -49,8 +45,6 @@ public:
     }
 
     virtual FString GetTitleId() const = 0;
-    virtual PlayFabClientPtr GetClientAPI() const = 0;
-    virtual PlayFabServerPtr GetServerAPI() const = 0;
-    virtual PlayFabMatchmakerPtr GetMatchmakerAPI() const = 0;
-    virtual PlayFabAdminPtr GetAdminAPI() const = 0;
-};
+<% for(var i = 0; i < apis.length; i++) { var api = apis[i];
+%>    virtual PlayFab<%- api.name %>Ptr Get<%- api.name %>API() const = 0;
+<% } %>};

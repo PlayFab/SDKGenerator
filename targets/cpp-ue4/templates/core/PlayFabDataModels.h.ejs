@@ -9,7 +9,7 @@ namespace PlayFab
 namespace <%- api.name %>Models
 {
 
-    <% for(var i in datatypes) { var datatype = datatypes[i]; if(datatype.isenum) { %>
+    <% for(var i in datatypes) { var datatype = datatypes[i]; if (datatype.isenum) { %>
     enum <%- datatype.name %>
     {
         <% for(var i=0; i<datatype.enumvalues.length-1; i++) { var enumval = datatype.enumvalues[i] %><%- datatype.name %><%- enumval.name %>,

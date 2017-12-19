@@ -6,7 +6,7 @@
 #include "Core/PlayFab<%- api.name %>DataModels.h"
 #include "PlayFab<%- api.name %>BPDataModels.generated.h"
 
-<% for(var i in api.datatypes) { var datatype = api.datatypes[i]; if(datatype.isenum) { %>
+<% for(var i in api.datatypes) { var datatype = api.datatypes[i]; if (datatype.isenum) { %>
 UENUM(BlueprintType)
 enum class EBP<%- api.name %><%- datatype.name %> : uint8
 {
@@ -31,6 +31,6 @@ public:
     PlayFab::<%- api.name %>Models::F<%- datatype.name %> Data;
 };
 <%} }%>
-<% for(var i in api.datatypes) { var datatype = api.datatypes[i]; if(datatype.isenum || !needsDelegate(datatype.name)) { continue; }
+<% for(var i in api.datatypes) { var datatype = api.datatypes[i]; if (datatype.isenum || !needsDelegate(datatype.name)) { continue; }
 %>DECLARE_DYNAMIC_MULTICAST_DELEGATE_OneParam(FBP<%- api.name%><%- datatype.name %>Delegate, const FBP<%- api.name%><%- datatype.name %>&, Result);
 <%}%>

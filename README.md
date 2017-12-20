@@ -29,7 +29,8 @@ If you have installed Node.js tools, then you can build any existing SDK from th
 There are many prebuilt scripts which can build each SDK automatically: https://github.com/PlayFab/SDKGenerator/tree/master/SDKBuildScripts
 * Find the script that matches the SDK you wish to build (EX unity_build.bat)
 * Double-click that file
-If you wish to build an new sdk, you may need to build a new .bat file using the instrucitons below.
+
+If you wish to build an new sdk, you may need to build a new .bat file using the instrucitons in the next section.
 
 Finally, to manually invoke the generator, open a command line at the root of the project and type:
 ```

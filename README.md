@@ -61,16 +61,9 @@ Flags are optional, and can be used to generate console apis.
 
 Example:
 
+```
 node generate.js unity-v2=../sdks/UnitySDK
-
-Note: Older command line options may work, such as:
-* node generate.js ..\API_Specs unity-v2=../sdks/UnitySDK
-* node generate.js C:\depot\API_Specs unity-v2=../sdks/UnitySDK
-However, if your API_Specs path was different, you may have to convert your old arguments from:
-* node generate.js <oldPath> unity-v2=../sdks/UnitySDK
-  * to:
-* node generate.js unity-v2=../sdks/UnitySDK -apiSpecPath <oldPath> 
-
+```
 
 ## 4. Building a new SDK
 

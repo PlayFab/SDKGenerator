@@ -44,13 +44,12 @@ You must supply a list of targets to generate, and the directory to generate the
 
 &lt;targetName&gt;=&lt;targetOutputLocation&gt;
 
-Where &lt;targetName&gt; is one of the supported SDK targets, and &lt;targetOutputLocation&gt; is a path to a directory to generate the SDK in. Note: Make sure there are no spaces between he arguments and the equals sign. Additional
+Where &lt;targetName&gt; is one of the supported SDK targets, and &lt;targetOutputLocation&gt; is a path to a directory to generate the SDK in. Note: Make sure there are no spaces between the arguments and the equals sign.
 
 API-Spec Location:
-* You must define exactly one location to read Api-Spec information
+* You may optionally define exactly one location to read Api-Spec information
   * -apiSpecPath [<apiSpecPath>]
-    * If the "-apiSpecPath" switch is defined without a path, this defaults to "C:/depot/API_Specs" (absolute path)
-    * This is the absolute or relative directory to the optional API_Specs repo in the prerequisites (required for this option)
+    * If the "-apiSpecPath" switch is defined without a path, this defaults to "../API_Specs" (relative path, sibling to SdkGenerator repo location)
   * -apiSpecGitUrl [<apiSpecGitUrl>]
     * If the "-apiSpecGitUrl" switch is defined without a URL, this defaults to "https://raw.githubusercontent.com/PlayFab/API_Specs/master/"
     * Reads API_Specs directly from a GitHub repository

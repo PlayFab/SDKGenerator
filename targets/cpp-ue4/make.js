@@ -31,7 +31,7 @@ exports.makeCombinedAPI = function (apis, sourceDir, apiOutputDir) {
         generateSimpleFiles(apis, sourceDir, eachApiOutputDir, outputCodeDir, "Core/");
     }
 
-    copyTree(path.resolve(sourceDir, "testingFiles"), path.resolve(apiOutputDir, "ExampleProject"));
+    copyTree(path.resolve(sourceDir, "ExampleProject"), path.resolve(apiOutputDir, "ExampleProject"));
 }
 
 function makeApi(api, sourceDir, apiOutputDir, subdir) {

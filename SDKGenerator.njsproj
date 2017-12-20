@@ -228,6 +228,14 @@
     <Content Include="targets\cpp-cocos2dx\templates\PlayFabError.h.ejs" />
     <Content Include="targets\cpp-cocos2dx\templates\PlayFabSettings.cpp.ejs" />
     <Content Include="targets\cpp-cocos2dx\templates\PlayFabSettings.h.ejs" />
+    <Content Include="targets\cpp-ue4\ExampleProject\ExampleProject.uproject" />
+    <Content Include="targets\cpp-ue4\ExampleProject\Source\ExampleProject.Target.cs" />
+    <Content Include="targets\cpp-ue4\ExampleProject\Source\ExampleProjectEditor.Target.cs" />
+    <Content Include="targets\cpp-ue4\ExampleProject\Source\ExampleProject\ExampleProject.Build.cs" />
+    <Content Include="targets\cpp-ue4\ExampleProject\Source\ExampleProject\ExampleProject.cpp" />
+    <Content Include="targets\cpp-ue4\ExampleProject\Source\ExampleProject\ExampleProject.h" />
+    <Content Include="targets\cpp-ue4\ExampleProject\Source\ExampleProject\PlayFabApiTests.cpp" />
+    <Content Include="targets\cpp-ue4\ExampleProject\Source\ExampleProject\PlayFabApiTests.h" />
     <Content Include="targets\cpp-ue4\Plugins\PlayFabProxy\Resources\Icon128.png" />
     <Content Include="targets\cpp-ue4\Plugins\PlayFabProxy\Source\PlayFabProxy\PlayFabProxy.Build.cs" />
     <Content Include="targets\cpp-ue4\Plugins\PlayFabProxy\Source\PlayFabProxy\Private\PlayFabProxy.cpp" />
@@ -267,11 +275,6 @@
     <Content Include="targets\cpp-ue4\templates\PlayFab.h.ejs" />
     <Content Include="targets\cpp-ue4\templates\PlayFab.uplugin.ejs" />
     <Content Include="targets\cpp-ue4\templates\PlayFabProxy.uplugin.ejs" />
-    <Content Include="targets\cpp-ue4\testingFiles\ExampleProject.uproject" />
-    <Content Include="targets\cpp-ue4\testingFiles\Source\ExampleProject.Target.cs" />
-    <Content Include="targets\cpp-ue4\testingFiles\Source\ExampleProjectEditor.Target.cs" />
-    <Content Include="targets\cpp-ue4\testingFiles\Source\ExampleProject\PlayFabApiTests.cpp" />
-    <Content Include="targets\cpp-ue4\testingFiles\Source\ExampleProject\PlayFabApiTests.h" />
     <Content Include="targets\cpp-unreal\ExampleProject\Config\DefaultEditor.ini" />
     <Content Include="targets\cpp-unreal\ExampleProject\Config\DefaultEngine.ini" />
     <Content Include="targets\cpp-unreal\ExampleProject\Config\DefaultGame.ini" />
@@ -757,6 +760,9 @@
     <Folder Include="targets\cpp-cocos2dx\source\" />
     <Folder Include="targets\cpp-cocos2dx\templates\" />
     <Folder Include="targets\cpp-ue4\" />
+    <Folder Include="targets\cpp-ue4\ExampleProject\" />
+    <Folder Include="targets\cpp-ue4\ExampleProject\Source\" />
+    <Folder Include="targets\cpp-ue4\ExampleProject\Source\ExampleProject\" />
     <Folder Include="targets\cpp-ue4\Plugins\" />
     <Folder Include="targets\cpp-ue4\Plugins\PlayFabProxy\" />
     <Folder Include="targets\cpp-ue4\Plugins\PlayFabProxy\Resources\" />
@@ -777,9 +783,6 @@
     <Folder Include="targets\cpp-ue4\templates\" />
     <Folder Include="targets\cpp-ue4\templates\blueprint\" />
     <Folder Include="targets\cpp-ue4\templates\core\" />
-    <Folder Include="targets\cpp-ue4\testingFiles\" />
-    <Folder Include="targets\cpp-ue4\testingFiles\Source\" />
-    <Folder Include="targets\cpp-ue4\testingFiles\Source\ExampleProject\" />
     <Folder Include="targets\cpp-unreal\" />
     <Folder Include="targets\cpp-unreal\ExampleProject\" />
     <Folder Include="targets\cpp-unreal\ExampleProject\Config\" />

@@ -6,7 +6,7 @@ popd
 
 if [%1] == [] (
 rem === BUILDING UnitySDK ===
-node generate.js unity-v2=..\sdks\UnitySDK -apiSpecPath
+node generate.js unity-v2=..\sdks\UnitySDK -apiSpecGitUrl
 ) else (
 rem === BUILDING UnitySDK with params %* ===
 node generate.js unity-v2=..\sdks\UnitySDK %*

@@ -13,6 +13,21 @@ exports.makeCombinedAPI = function (apis, sourceDir, apiOutputDir) {
     var templateDir = path.resolve(sourceDir, "templates");
     var apiTemplate = getCompiledTemplate(path.resolve(templateDir, "PlayFab_Api.js.ejs"));
     var apiTypingTemplate = getCompiledTemplate(path.resolve(templateDir, "PlayFab_Api.d.ts.ejs"));
+    var packageTemplate = getCompiledTemplate(path.resolve(templateDir, "package.json.ejs"));
+
+    var apiLocals = {
+        generateApiSummary: generateApiSummary,
+        getAuthParams: getAuthParams,
+        getDeprecationAttribute: getDeprecationAttribute,
+        getRequestActions: getRequestActions,
+        getResultActions: getResultActions,
+        getUrl: getUrl,
+        generateDatatype: generateDatatype,
+        hasResultActions: hasResultActions,
+        buildIdentifier: exports.buildIdentifier,
+        sdkVersion: exports.sdkVersion,
+        sourceDir: sourceDir
+    };
 
     var destSubFolders = ["PlayFabSdk", "PlayFabTestingExample"]; // Write both the published folder and the testing folder
     for (var fIdx = 0; fIdx < destSubFolders.length; fIdx++) {
@@ -20,27 +35,15 @@ exports.makeCombinedAPI = function (apis, sourceDir, apiOutputDir) {
 
         makeSimpleTemplates(apis, templateDir, eachOutputDir);
 
-        var apiLocals = {
-            generateApiSummary: generateApiSummary,
-            getAuthParams: getAuthParams,
-            getDeprecationAttribute: getDeprecationAttribute,
-            getRequestActions: getRequestActions,
-            getResultActions: getResultActions,
-            getUrl: getUrl,
-            generateDatatype: generateDatatype,
-            hasResultActions: hasResultActions,
-            buildIdentifier: exports.buildIdentifier,
-            sdkVersion: exports.sdkVersion,
-            sourceDir: sourceDir
-        };
         for (var i = 0; i < apis.length; i++) {
             apiLocals.api = apis[i];
             apiLocals.hasServerOptions = apis[i].name !== "Client"; // NOTE FOR THE EJS FILE: PlayFab.settings and PlayFab._internalSettings and are still global/shared - Only utilize this within the api-specific section
             apiLocals.hasClientOptions = apis[i].name === "Client"; // NOTE FOR THE EJS FILE: PlayFab.settings and PlayFab._internalSettings and are still global/shared - Only utilize this within the api-specific section
-            var generatedApi = apiTemplate(apiLocals);
-            writeFile(path.resolve(eachOutputDir, "src/PlayFab/PlayFab" + apis[i].name + "Api.js"), generatedApi);
-            var generatedTypings = apiTypingTemplate(apiLocals);
-            writeFile(path.resolve(eachOutputDir, "src/Typings/PlayFab/PlayFab" + apis[i].name + "Api.d.ts"), generatedTypings);
+
+            writeFile(path.resolve(eachOutputDir, "src/PlayFab/PlayFab" + apis[i].name + "Api.js"), apiTemplate(apiLocals));
+            writeFile(path.resolve(eachOutputDir, "src/Typings/PlayFab/PlayFab" + apis[i].name + "Api.d.ts"), apiTypingTemplate(apiLocals));
+            if (destSubFolders[fIdx] !== "PlayFabTestingExample")
+                writeFile(path.resolve(eachOutputDir, "package.json"), packageTemplate(apiLocals));
         }
     }
 

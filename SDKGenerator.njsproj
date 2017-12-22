@@ -350,6 +350,7 @@
     <Content Include="targets\csharp\UnittestRunner\UUnitTestRunner.cs" />
     <Content Include="targets\javascript\templates\Enum.ejs" />
     <Content Include="targets\javascript\templates\Interface.ejs" />
+    <Content Include="targets\javascript\templates\package.json.ejs" />
     <Content Include="targets\javascript\templates\PlayFab.d.ts.ejs" />
     <Content Include="targets\javascript\templates\PlayFab_Api.d.ts.ejs" />
     <Content Include="targets\javascript\templates\PlayFab_Api.js.ejs" />

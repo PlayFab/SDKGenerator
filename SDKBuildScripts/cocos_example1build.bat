@@ -2,6 +2,8 @@ setlocal
 echo off
 goto :DoWork
 
+rem This example is no longer published. But now that it's unpublished, we can just use it in-place to test the build.
+
 :BuildExample
 pushd ..\..\sdks\Cocos2d-xSDK
 echo === BUILDING Example Project for Cocos2d-xSDK ===

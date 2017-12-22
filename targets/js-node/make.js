@@ -55,10 +55,8 @@ exports.makeCombinedAPI = function (apis, sourceDir, apiOutputDir) {
         };
 
         // Write the package file
-        if (!isTesting) {
-            console.WriteLine("========== writing package.json " + isTesting + " " + destSubFolders[fIdx]);
+        if (!isTesting)
             writeFile(path.resolve(eachOutputDir, "package.json"), npmTemplate(locals));
-        }
         // Write the API files
         for (var i = 0; i < apis.length; i++) {
             locals.api = apis[i];

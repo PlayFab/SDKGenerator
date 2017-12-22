@@ -36,33 +36,36 @@ exports.makeCombinedAPI = function (apis, sourceDir, apiOutputDir) {
                 coreLocals.hasServerOptions = true;
         }
         writeFile(path.resolve(eachOutputDir, "Scripts/PlayFab/PlayFab.js"), coreTemplate(coreLocals));
-        
-        // Write the package file
-        var pkgLocals = {}
-        pkgLocals.isTesting = (destSubFolders[fIdx] === "PlayFabTestingExample");
-        pkgLocals.sdkVersion = exports.sdkVersion;
-        pkgLocals.projectName = pkgLocals.isTesting ? "playfab-testing" : "playfab-sdk";
-        pkgLocals.description = pkgLocals.isTesting ? "Playfab SDK automated testing example" : "Playfab SDK for node.js applications";
-        pkgLocals.mainFile = pkgLocals.isTesting ? "PlayFabApiTests.js" : "main.js";
-        writeFile(path.resolve(eachOutputDir, "package.json"), npmTemplate(pkgLocals));
-        
-        // Write the API files
-        var apiLocals = {
-            GenerateDatatype: GenerateDatatype,
+
+        var isTesting = (destSubFolders[fIdx] === "PlayFabTestingExample");
+        var locals = {
+            generateDatatype: generateDatatype,
             generateApiSummary: generateApiSummary,
-            GetAuthParams: GetAuthParams,
-            GetRequestActions: GetRequestActions,
-            GetResultActions: GetResultActions,
-            GetUrlAccessor: GetUrlAccessor,
-            GetDeprecationAttribute: GetDeprecationAttribute,
+            getAuthParams: getAuthParams,
+            getRequestActions: getRequestActions,
+            getResultActions: getResultActions,
+            getUrlAccessor: getUrlAccessor,
+            getDeprecationAttribute: getDeprecationAttribute,
+            description: isTesting ? "Playfab SDK automated testing example" : "Playfab SDK for node.js applications",
+            isTesting: isTesting,
+            mainFile: isTesting ? "PlayFabApiTests.js" : "main.js",
+            projectName: isTesting ? "playfab-testing" : "playfab-sdk",
+            sdkVersion: exports.sdkVersion,
             sourceDir: sourceDir
         };
+
+        // Write the package file
+        if (!isTesting) {
+            console.WriteLine("========== writing package.json " + isTesting + " " + destSubFolders[fIdx]);
+            writeFile(path.resolve(eachOutputDir, "package.json"), npmTemplate(locals));
+        }
+        // Write the API files
         for (var i = 0; i < apis.length; i++) {
-            apiLocals.api = apis[i];
-            apiLocals.hasServerOptions = apis[i].name !== "Client";
-            apiLocals.hasClientOptions = apis[i].name === "Client";
-            writeFile(path.resolve(eachOutputDir, "Scripts/PlayFab/PlayFab" + apis[i].name + ".js"), apiTemplate(apiLocals));
-            writeFile(path.resolve(eachOutputDir, "Scripts/typings/PlayFab/PlayFab" + apis[i].name + ".d.ts"), apiTypingsTemplate(apiLocals));
+            locals.api = apis[i];
+            locals.hasServerOptions = apis[i].name !== "Client";
+            locals.hasClientOptions = apis[i].name === "Client";
+            writeFile(path.resolve(eachOutputDir, "Scripts/PlayFab/PlayFab" + apis[i].name + ".js"), apiTemplate(locals));
+            writeFile(path.resolve(eachOutputDir, "Scripts/typings/PlayFab/PlayFab" + apis[i].name + ".d.ts"), apiTypingsTemplate(locals));
         }
     }
     
@@ -70,7 +73,7 @@ exports.makeCombinedAPI = function (apis, sourceDir, apiOutputDir) {
     copyTree(path.resolve(sourceDir, "testingFiles"), path.resolve(apiOutputDir, "PlayFabTestingExample"));
 }
 
-function GetAuthParams(apiCall) {
+function getAuthParams(apiCall) {
     if (apiCall.auth === "SecretKey")
         return "\"X-SecretKey\", PlayFab.settings.developerSecretKey";
     else if (apiCall.auth === "SessionTicket")
@@ -79,7 +82,7 @@ function GetAuthParams(apiCall) {
     return "null, null";
 }
 
-function GetRequestActions(numSpaces, apiCall, api) {
+function getRequestActions(numSpaces, apiCall, api) {
     var output = "";
     if (api.name === "Client" && (apiCall.result === "LoginResult" || apiCall.request === "RegisterPlayFabUserRequest"))
         output = "request.TitleId = PlayFab.settings.titleId != null ? PlayFab.settings.titleId : request.TitleId;\n    if (request.TitleId == null) throw \"Must be have PlayFab.settings.titleId set to call this method\";";
@@ -98,7 +101,7 @@ function GetRequestActions(numSpaces, apiCall, api) {
     return output;
 }
 
-function GetResultActions(numSpaces, apiCall, api) {
+function getResultActions(numSpaces, apiCall, api) {
     var spaces = "";
     for (var i = 0; i < numSpaces; i++)
         spaces += " ";
@@ -116,11 +119,11 @@ function GetResultActions(numSpaces, apiCall, api) {
     return output;
 }
 
-function GetUrlAccessor(apiCall) {
+function getUrlAccessor() {
     return "PlayFab.GetServerUrl()";
 }
 
-function GetDeprecationAttribute(tabbing, apiObj) {
+function getDeprecationAttribute(tabbing, apiObj) {
     var isDeprecated = apiObj.hasOwnProperty("deprecation");
     
     if (isDeprecated && apiObj.deprecation.ReplacedBy != null)
@@ -148,15 +151,15 @@ function generateApiSummary(tabbing, apiElement, summaryParam, extraLines) {
     return output;
 }
 
-function GenerateDatatype(api, datatype, sourceDir) {
+function generateDatatype(api, datatype, sourceDir) {
     var templateDir = path.resolve(sourceDir, "templates");
     var interfaceTemplate = getCompiledTemplate(path.resolve(templateDir, "Interface.ejs"));
     var enumTemplate = getCompiledTemplate(path.resolve(templateDir, "Enum.ejs"));
     
     var locals = {
         generateApiSummary: generateApiSummary,
-        GetBaseTypeSyntax: GetBaseTypeSyntax,
-        GetPropertyTsType: GetPropertyTsType,
+        getBaseTypeSyntax: getBaseTypeSyntax,
+        getPropertyTsType: getPropertyTsType,
         api: api,
         datatype: datatype
     };
@@ -165,7 +168,7 @@ function GenerateDatatype(api, datatype, sourceDir) {
     return interfaceTemplate(locals);
 }
 
-function GetBaseTypeSyntax(datatype) {
+function getBaseTypeSyntax(datatype) {
     if (datatype.className.toLowerCase().endsWith("request"))
         return " extends PlayFabModule.IPlayFabRequestCommon";
     if (datatype.className.toLowerCase().endsWith("response") || datatype.className.toLowerCase().endsWith("result"))
@@ -173,7 +176,7 @@ function GetBaseTypeSyntax(datatype) {
     return ""; // If both are -1, then neither is greater
 }
 
-function GetPropertyTsType(property, datatype) {
+function getPropertyTsType(property, datatype) {
     var output;
     
     if (property.actualtype === "String")

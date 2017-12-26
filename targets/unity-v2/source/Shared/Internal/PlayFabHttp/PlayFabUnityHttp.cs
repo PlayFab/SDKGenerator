@@ -1,11 +1,12 @@
 using System;
 using System.Collections;
 using System.IO;
-using PlayFab.ClientModels;
 using PlayFab.Json;
 using PlayFab.SharedModels;
 using UnityEngine;
-
+#if UNITY_2017_1_OR_NEWER
+using UnityEngine.Networking;
+#endif
 
 #if !UNITY_WSA && !UNITY_WP8
 using Ionic.Zlib;
@@ -14,8 +15,6 @@ using Ionic.Zlib;
 namespace PlayFab.Internal
 {
 #if UNITY_2017_1_OR_NEWER
-
-    using UnityEngine.Networking;
 
     public class PlayFabUnityHttp : IPlayFabHttp
     {
@@ -60,8 +59,8 @@ namespace PlayFab.Internal
         private IEnumerator Post(CallRequestContainer reqContainer)
         {
 #if PLAYFAB_REQUEST_TIMING
-                var stopwatch = System.Diagnostics.Stopwatch.StartNew();
-            #endif
+            var stopwatch = System.Diagnostics.Stopwatch.StartNew();
+#endif
 
             var www = new UnityWebRequest(reqContainer.FullUrl)
             {
@@ -87,7 +86,9 @@ namespace PlayFab.Internal
 #endif
 
             if (!string.IsNullOrEmpty(www.error))
+            {
                 OnError(www.error, reqContainer);
+            }
             else
             {
                 try
@@ -138,7 +139,7 @@ namespace PlayFab.Internal
             try
             {
 #if PLAYFAB_REQUEST_TIMING
-                    var startTime = DateTime.UtcNow;
+                var startTime = DateTime.UtcNow;
 #endif
                 var httpResult = JsonWrapper.DeserializeObject<HttpResponseObject>(response);
 

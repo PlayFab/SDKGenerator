@@ -523,6 +523,8 @@
     <Content Include="targets\unity-v2\source\Shared\Internal\PlayFabHttp\IPlayFabHttp.cs.meta" />
     <Content Include="targets\unity-v2\source\Shared\Internal\PlayFabHttp\PlayFabHTTP.cs" />
     <Content Include="targets\unity-v2\source\Shared\Internal\PlayFabHttp\PlayFabHTTP.cs.meta" />
+    <Content Include="targets\unity-v2\source\Shared\Internal\PlayFabHttp\PlayFabUnityHttp.cs" />
+    <Content Include="targets\unity-v2\source\Shared\Internal\PlayFabHttp\PlayFabUnityHttp.cs.meta" />
     <Content Include="targets\unity-v2\source\Shared\Internal\PlayFabHttp\PlayFabWebRequest.cs" />
     <Content Include="targets\unity-v2\source\Shared\Internal\PlayFabHttp\PlayFabWebRequest.cs.meta" />
     <Content Include="targets\unity-v2\source\Shared\Internal\PlayFabHttp\PlayFabWWW.cs" />

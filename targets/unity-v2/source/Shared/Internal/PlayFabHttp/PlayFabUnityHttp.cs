@@ -1,21 +1,14 @@
+#if UNITY_2017_1_OR_NEWER
+using PlayFab.Json;
+using PlayFab.SharedModels;
 using System;
 using System.Collections;
 using System.IO;
-using PlayFab.Json;
-using PlayFab.SharedModels;
 using UnityEngine;
-#if UNITY_2017_1_OR_NEWER
 using UnityEngine.Networking;
-#endif
-
-#if !UNITY_WSA && !UNITY_WP8
-using Ionic.Zlib;
-#endif
 
 namespace PlayFab.Internal
 {
-#if UNITY_2017_1_OR_NEWER
-
     public class PlayFabUnityHttp : IPlayFabHttp
     {
         private readonly int _pendingWwwMessages = 0;
@@ -42,8 +35,8 @@ namespace PlayFab.Internal
 
                 using (var stream = new MemoryStream())
                 {
-                    using (var zipstream = new GZipStream(stream, CompressionMode.Compress,
-                        CompressionLevel.BestCompression))
+                    using (var zipstream = new Ionic.Zlib.GZipStream(stream, Ionic.Zlib.CompressionMode.Compress,
+                        Ionic.Zlib.CompressionLevel.BestCompression))
                     {
                         zipstream.Write(reqContainer.Payload, 0, reqContainer.Payload.Length);
                     }
@@ -95,11 +88,10 @@ namespace PlayFab.Internal
                 {
 #if !UNITY_WSA && !UNITY_WP8 && !UNITY_WEBGL
                     string encoding;
-                    if (www.GetResponseHeaders().TryGetValue("Content-Encoding", out encoding) &&
-                        encoding.ToLower() == "gzip")
+                    if (www.GetResponseHeaders().TryGetValue("Content-Encoding", out encoding) && encoding.ToLower() == "gzip")
                     {
                         var stream = new MemoryStream(www.downloadHandler.data);
-                        using (var gZipStream = new GZipStream(stream, CompressionMode.Decompress, false))
+                        using (var gZipStream = new Ionic.Zlib.GZipStream(stream, Ionic.Zlib.CompressionMode.Decompress, false))
                         {
                             var buffer = new byte[4096];
                             using (var output = new MemoryStream())
@@ -132,7 +124,6 @@ namespace PlayFab.Internal
         {
             return _pendingWwwMessages;
         }
-
 
         public void OnResponse(string response, CallRequestContainer reqContainer)
         {
@@ -202,5 +193,5 @@ namespace PlayFab.Internal
             }
         }
     }
-#endif
 }
+#endif

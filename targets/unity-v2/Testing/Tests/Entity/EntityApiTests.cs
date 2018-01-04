@@ -3,6 +3,7 @@ using PlayFab.EntityModels;
 using PlayFab.Internal;
 using System;
 using System.Collections.Generic;
+using PlayFab.Json;
 
 namespace PlayFab.UUnit
 {
@@ -22,7 +23,6 @@ namespace PlayFab.UUnit
         private const string TEST_OBJ_NAME = "testCounter";
         // Test variables
         private string entityId;
-        private string entityType;
         private int _testInteger;
 
         public override void SetUp(UUnitTestContext testContext)
@@ -94,11 +94,12 @@ namespace PlayFab.UUnit
         private void GetTokenCallback(GetEntityTokenResponse result)
         {
             var testContext = (UUnitTestContext)result.CustomData;
-            testContext.True(PlayFabClientAPI.IsClientLoggedIn(), "Get Entity Token failed");
-            testContext.EndTest(UUnitFinishState.PASSED, PlayFabSettings.TitleId + ", " + result.EntityToken);
 
             entityId = result.EntityId;
-            entityType = result.EntityType;
+            testContext.StringEquals(EntityTypes.title_player_account.ToString(), result.EntityType, "GetEntityToken EntityType not expected: " + result.EntityType);
+
+            testContext.True(PlayFabClientAPI.IsClientLoggedIn(), "Get Entity Token failed");
+            testContext.EndTest(UUnitFinishState.PASSED, PlayFabSettings.TitleId + ", " + result.EntityToken);
         }
 
         /// <summary>
@@ -111,7 +112,7 @@ namespace PlayFab.UUnit
         [UUnitTest]
         public void ObjectApi(UUnitTestContext testContext)
         {
-            var getRequest = new GetObjectsRequest { EntityId = entityId, EntityType = entityType, EscapeObject =  true };
+            var getRequest = new GetObjectsRequest { EntityId = entityId, EntityType = EntityTypes.title_player_account, EscapeObject =  true };
             PlayFabEntityAPI.GetObjects(getRequest, PlayFabUUnitUtils.ApiActionWrapper<GetObjectsResponse>(testContext, GetObjectCallback1), PlayFabUUnitUtils.ApiActionWrapper<PlayFabError>(testContext, SharedErrorCallback), testContext);
         }
         private void GetObjectCallback1(GetObjectsResponse result)
@@ -128,9 +129,9 @@ namespace PlayFab.UUnit
             var updateRequest = new SetObjectsRequest
             {
                 EntityId = entityId,
-                EntityType = entityType,
+                EntityType = EntityTypes.title_player_account,
                 Objects = new List<SetObject> {
-                    new SetObject{ ObjectName = TEST_OBJ_NAME, DataObject = _testInteger }
+                    new SetObject{ ObjectName = TEST_OBJ_NAME, Unstructured = true, DataObject = _testInteger }
                 }
             };
             PlayFabEntityAPI.SetObjects(updateRequest, PlayFabUUnitUtils.ApiActionWrapper<SetObjectsResponse>(testContext, UpdateObjectCallback), PlayFabUUnitUtils.ApiActionWrapper<PlayFabError>(testContext, SharedErrorCallback), testContext);
@@ -139,7 +140,7 @@ namespace PlayFab.UUnit
         {
             var testContext = (UUnitTestContext)result.CustomData;
 
-            var getRequest = new GetObjectsRequest { EntityId = entityId, EntityType = entityType, EscapeObject = true };
+            var getRequest = new GetObjectsRequest { EntityId = entityId, EntityType = EntityTypes.title_player_account, EscapeObject = true };
             PlayFabEntityAPI.GetObjects(getRequest, PlayFabUUnitUtils.ApiActionWrapper<GetObjectsResponse>(testContext, GetObjectCallback2), PlayFabUUnitUtils.ApiActionWrapper<PlayFabError>(testContext, SharedErrorCallback), testContext);
         }
         private void GetObjectCallback2(GetObjectsResponse result)

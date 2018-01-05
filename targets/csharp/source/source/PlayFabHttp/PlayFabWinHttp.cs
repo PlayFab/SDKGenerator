@@ -10,6 +10,9 @@ namespace PlayFab.Internal
 {
     public class PlayFabWinHttp : IPlayFabHttp
     {
+
+        private readonly HttpClient _client = new HttpClient();
+		
         public async Task<object> DoPost(string urlPath, PlayFabRequestCommon request, string authType, string authKey, Dictionary<string, string> extraHeaders)
         {
             var fullUrl = PlayFabSettings.GetFullUrl(urlPath);
@@ -24,7 +27,6 @@ namespace PlayFab.Internal
                 bodyString = JsonWrapper.SerializeObject(request);
             }
 
-            var httpClient = new HttpClient();
             var requestMessage = new HttpRequestMessage(HttpMethod.Post, new Uri(fullUrl));
             requestMessage.Content = new HttpStringContent(bodyString, Windows.Storage.Streams.UnicodeEncoding.Utf8, "application/json");
             if (authType != null)
@@ -38,7 +40,7 @@ namespace PlayFab.Internal
             string httpResponseString;
             try
             {
-                httpResponse = await httpClient.SendRequestAsync(requestMessage);
+                httpResponse = await _client.SendRequestAsync(requestMessage);
                 httpResponseString = await httpResponse.Content.ReadAsStringAsync();
             }
             catch (Exception e)

@@ -2,7 +2,6 @@
 
 using System;
 using System.Collections.Generic;
-using System.IO;
 using System.Net.Http;
 using System.Text;
 using System.Threading.Tasks;
@@ -12,6 +11,9 @@ namespace PlayFab.Internal
 {
     public class PlayFabSysHttp : IPlayFabHttp
     {
+		
+        private readonly HttpClient _client = new HttpClient();
+		
         public async Task<object> DoPost(string urlPath, PlayFabRequestCommon request, string authType, string authKey, Dictionary<string, string> extraHeaders)
         {
             var fullUrl = PlayFabSettings.GetFullUrl(urlPath);
@@ -26,7 +28,6 @@ namespace PlayFab.Internal
                 bodyString = JsonWrapper.SerializeObject(request);
             }
 
-            var client = new HttpClient();
             HttpResponseMessage httpResponse;
             string httpResponseString;
             using (var postBody = new ByteArrayContent(Encoding.UTF8.GetBytes(bodyString)))
@@ -41,7 +42,7 @@ namespace PlayFab.Internal
 
                 try
                 {
-                    httpResponse = await client.PostAsync(fullUrl, postBody);
+                    httpResponse = await _client.PostAsync(fullUrl, postBody);
                     httpResponseString = await httpResponse.Content.ReadAsStringAsync();
                 }
                 catch (HttpRequestException e)

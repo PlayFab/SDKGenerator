@@ -6,7 +6,9 @@ using System;
 using System.Collections.Generic;
 using System.Text;
 using System.Threading.Tasks;
+using PlayFab;
 using PlayFab.Json;
+using System.Linq;
 
 namespace PlayFab.UUnit
 {
@@ -261,6 +263,31 @@ namespace PlayFab.UUnit
             var testMax = testMin + TimeSpan.FromMinutes(10);
             testContext.True(testMin <= timeUpdated && timeUpdated <= testMax);
         }
+        
+        
+        /// <summary>
+        /// CLIENT API
+        /// Tests several parallel requests and ensures they complete with no errors.
+        /// </summary>
+        [UUnitTest]
+        public void ParallelRequests(UUnitTestContext testContext)
+        {
+            var tasks = Enumerable.Range(0, 10)
+                .Select(_ => PlayFabClientAPI.GetUserDataAsync(new GetUserDataRequest(), _, extraHeaders))
+                .Select(ThrowIfApiError);
+
+            Task.WhenAll(tasks).ContinueWith(whenAll =>
+            {
+                if (!whenAll.IsCanceled && !whenAll.IsFaulted)
+                {
+                    testContext.EndTest(UUnitFinishState.PASSED, null);
+                }
+                else
+                {
+                    testContext.Fail("Parallel Requests failed "+whenAll.Exception.Flatten().Message);
+                }
+            });
+        }
 
         /// <summary>
         /// CLIENT API
@@ -417,6 +444,17 @@ namespace PlayFab.UUnit
             var writeTask = PlayFabClientAPI.WritePlayerEventAsync(request, null, extraHeaders);
             ContinueWithContext(writeTask, testContext, null, true, "PlayStream WriteEvent failed", true);
         }
+        
+        private static Task<PlayFabResult<T>> ThrowIfApiError<T>(Task<PlayFabResult<T>> original) where T : PlayFabResultCommon
+        {
+            return original.ContinueWith(_ =>
+            {
+                if (_.IsFaulted) throw _.Exception;
+                if (_.Result.Error != null) throw new Exception(_.Result.Error.GenerateErrorReport());
+                return _.Result;
+            });
+        }
     }
 }
+
 #endif

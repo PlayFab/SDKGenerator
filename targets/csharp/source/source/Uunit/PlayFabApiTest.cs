@@ -6,7 +6,9 @@ using System;
 using System.Collections.Generic;
 using System.Text;
 using System.Threading.Tasks;
+using PlayFab;
 using PlayFab.Json;
+using System.Linq;
 
 namespace PlayFab.UUnit
 {
@@ -262,6 +264,31 @@ namespace PlayFab.UUnit
             testContext.True(testMin <= timeUpdated && timeUpdated <= testMax);
         }
 
+		
+		
+		/// <summary>
+        /// CLIENT API
+        /// Test several parallel requests and ensures they complete with no errors.
+        /// </summary>
+        [UUnitTest]
+        public void ParallelRequests(UUnitTestContext testContext)
+        {
+            var tasks = Enumerable.Range(0, 10)
+                .Select(_ => PlayFabClientAPI.GetUserDataAsync(new GetUserDataRequest(), _, extraHeaders).ThrowIfApiError());
+
+            Task.WhenAll(tasks).ContinueWith(token =>
+            {
+                if (!token.IsCanceled && !token.IsFaulted)
+                {
+                    testContext.EndTest(UUnitFinishState.PASSED, null);
+                }
+                else
+                {
+                    testContext.Fail("Parallel Requests failed "+token.Exception.Flatten().Message);
+                }
+            });
+        }
+
         /// <summary>
         /// CLIENT API
         /// Test a sequence of calls that modifies saved data,
@@ -419,4 +446,19 @@ namespace PlayFab.UUnit
         }
     }
 }
+
+public static class ApiCallExtensions
+{
+	// Adds continuation to a regular request task and throws exception if response contains an error
+    public static Task<PlayFabResult<T>> ThrowIfApiError<T>(this Task<PlayFabResult<T>> original) where T : PlayFabResultCommon
+    {
+        return original.ContinueWith(_ =>
+        {
+            if (_.IsFaulted) throw _.Exception;
+            if (_.Result.Error != null) throw new Exception(_.Result.Error.GenerateErrorReport());
+            return _.Result;
+        });
+    }
+}
+
 #endif

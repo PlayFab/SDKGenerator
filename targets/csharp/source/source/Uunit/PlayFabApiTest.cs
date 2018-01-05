@@ -274,7 +274,7 @@ namespace PlayFab.UUnit
         {
             var tasks = Enumerable.Range(0, 10)
                 .Select(_ => PlayFabClientAPI.GetUserDataAsync(new GetUserDataRequest(), _, extraHeaders))
-                .Select(ApiCallExtensions.ThrowIfApiError);
+                .Select(ThrowIfApiError);
 
             Task.WhenAll(tasks).ContinueWith(whenAll =>
             {
@@ -445,19 +445,15 @@ namespace PlayFab.UUnit
             ContinueWithContext(writeTask, testContext, null, true, "PlayStream WriteEvent failed", true);
         }
         
-        private static class ApiCallExtensions
+        private static Task<PlayFabResult<T>> ThrowIfApiError<T>(Task<PlayFabResult<T>> original) where T : PlayFabResultCommon
         {
-            // Adds continuation to a regular request task and throws exception if response contains an error
-            public static Task<PlayFabResult<T>> ThrowIfApiError<T>(Task<PlayFabResult<T>> original) where T : PlayFabResultCommon
+            return original.ContinueWith(_ =>
             {
-                return original.ContinueWith(_ =>
-                {
-                    if (_.IsFaulted) throw _.Exception;
-                    if (_.Result.Error != null) throw new Exception(_.Result.Error.GenerateErrorReport());
-                    return _.Result;
-                });
-            }
-        }    
+                if (_.IsFaulted) throw _.Exception;
+                if (_.Result.Error != null) throw new Exception(_.Result.Error.GenerateErrorReport());
+                return _.Result;
+            });
+        }
     }
 }
 

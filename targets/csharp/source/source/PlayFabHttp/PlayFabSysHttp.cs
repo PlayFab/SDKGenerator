@@ -12,12 +12,7 @@ namespace PlayFab.Internal
     public class PlayFabSysHttp : IPlayFabHttp
     {
 		
-		private readonly HttpClient _client;
-
-        public PlayFabSysHttp()
-        {
-            _client = new HttpClient();
-        }
+        private readonly HttpClient _client = new HttpClient();
 		
         public async Task<object> DoPost(string urlPath, PlayFabRequestCommon request, string authType, string authKey, Dictionary<string, string> extraHeaders)
         {

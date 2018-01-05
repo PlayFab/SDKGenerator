@@ -117,7 +117,7 @@ namespace PlayFab.Internal
                 {
                     OnError("Unhandled error in PlayFabWWW: " + e, reqContainer);
                 }
-				www.Dispose();
+                www.Dispose();
             }
         }
 

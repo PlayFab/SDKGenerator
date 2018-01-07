@@ -118,6 +118,7 @@ namespace PlayFab.Internal
                     OnError("Unhandled error in PlayFabWWW: " + e, reqContainer);
                 }
             }
+            www.Dispose();
         }
 
         public int GetPendingMessages()

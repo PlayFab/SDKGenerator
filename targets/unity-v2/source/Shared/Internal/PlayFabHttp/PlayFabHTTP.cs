@@ -97,7 +97,7 @@ namespace PlayFab.Internal
         public static void InitializeLogger(IPlayFabLogger setLogger = null)
         {
             if (_logger != null)
-                throw new Exception("Once initialized, the logger cannot be reset.");
+                throw new InvalidOperationException("Once initialized, the logger cannot be reset.");
             if (setLogger == null)
                 setLogger = new PlayFabLogger();
             _logger = setLogger;

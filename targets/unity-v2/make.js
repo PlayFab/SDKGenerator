@@ -379,11 +379,11 @@ function getRequestActions(tabbing, apiCall, api) {
 
     if (api.name === "Client" && (apiCall.result === "LoginResult" || apiCall.request === "RegisterPlayFabUserRequest"))
         return tabbing + "request.TitleId = request.TitleId ?? PlayFabSettings.TitleId;\n"
-            + tabbing + "if (request.TitleId == null) throw new Exception(\"Must be have PlayFabSettings.TitleId set to call this method\");\n";
+            + tabbing + "if (request.TitleId == null) throw new PlayFabException(PlayFabExceptionCode.TitleNotSet,\"Must be have PlayFabSettings.TitleId set to call this method\");\n";
     if (api.name === "Client" && apiCall.auth === "SessionTicket")
-        return tabbing + "if (!IsClientLoggedIn()) throw new Exception(\"Must be logged in to call this method\");\n";
+        return tabbing + "if (!IsClientLoggedIn()) throw new PlayFabException(PlayFabExceptionCode.NotLoggedIn,\"Must be logged in to call this method\");\n";
     if (apiCall.auth === "SecretKey")
-        return tabbing + "if (PlayFabSettings.DeveloperSecretKey == null) throw new Exception(\"Must have PlayFabSettings.DeveloperSecretKey set to call this method\");\n";
+        return tabbing + "if (PlayFabSettings.DeveloperSecretKey == null) throw new PlayFabException(PlayFabExceptionCode.DeveloperKeyNotSet,\"Must have PlayFabSettings.DeveloperSecretKey set to call this method\");\n";
     return "";
 }
 

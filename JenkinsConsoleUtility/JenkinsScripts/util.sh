@@ -42,8 +42,8 @@ ForcePushD () {
 
 # USAGE: SetGitHubCreds
 SetGitHubCreds () {
-    testEmail=$(git config --global user.email)
-    testName=$(git config --global user.name)
+    testEmail=$(git config --global user.email) || true
+    testName=$(git config --global user.name) || true
     if [ -z "$testEmail" ] && [ -z "$testName"]; then
         if [ -n "$GITHUB_EMAIL" ]; then
             git config --global user.email "$GITHUB_EMAIL" || true

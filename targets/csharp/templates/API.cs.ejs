@@ -15,30 +15,27 @@ namespace PlayFab
 %><%- getDeprecationAttribute("        ", apiCall)
 %>        public static async Task<PlayFabResult<<%- apiCall.result %>>> <%- apiCall.name %>Async(<%- apiCall.request %> request, object customData = null, Dictionary<string, string> extraHeaders = null)
         {
-<%- getRequestActions(apiCall, api) %>
+<%- getRequestActions("            ", apiCall) %>
             var httpResult = await PlayFabHttp.DoPost("<%- apiCall.url %>", request, <%- getAuthParams(apiCall) %>, extraHeaders);
-            if(httpResult is PlayFabError)
+            if (httpResult is PlayFabError)
             {
                 var error = (PlayFabError)httpResult;
-                if (PlayFabSettings.GlobalErrorHandler != null)
-                    PlayFabSettings.GlobalErrorHandler(error);
+                PlayFabSettings.GlobalErrorHandler?.Invoke(error);
                 return new PlayFabResult<<%- apiCall.result %>> { Error = error, CustomData = customData };
             }
 
             var resultRawJson = (string)httpResult;
             var resultData = JsonWrapper.DeserializeObject<PlayFabJsonSuccess<<%- apiCall.result %>>>(resultRawJson);
             var result = resultData.data;
-<%- getResultActions(apiCall, api) %>
+<%- getResultActions("            ", apiCall, api) %>
             return new PlayFabResult<<%- apiCall.result %>> { Result = result, CustomData = customData };
         }
 
-<% } %><% if(authKey) {
-%>        private static string _authKey;
-
-        // Determine if the _authKey is set, without actually making it public
+<% } %><% if (authKey) {
+%>        // Determine if the client session ticket is set, without actually making it public
         public static bool IsClientLoggedIn()
         {
-            return !string.IsNullOrEmpty(_authKey);
+            return !string.IsNullOrEmpty(PlayFabSettings.ClientSessionTicket);
         }
 
         private static async Task<PlayFabResult<AttributeInstallResult>> MultiStepClientLogin(bool needsAttribution)

@@ -45,20 +45,20 @@ interface IPlayFabEnvironment {
     titleId: string;
 }
 
-export interface IPlayFabError {
+interface IPlayFabError {
     cloudScriptErrorCode : string;
     stack : string;
     apiErrorInfo?: IApiErrorInfo;
 }
 
-export interface IApiErrorInfo {
+interface IApiErrorInfo {
     api : string;
     request : any;
     result : any;
     apiError?: IApiError;
 }
 
-export interface IApiError {
+interface IApiError {
     code : number;
     status : string;
     error : string;

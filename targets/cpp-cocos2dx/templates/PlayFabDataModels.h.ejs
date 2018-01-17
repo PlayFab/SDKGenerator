@@ -7,7 +7,7 @@ namespace PlayFab
 {
     namespace <%- api.name %>Models
     {
-<% for(var i in datatypes) { var datatype = datatypes[i]; if(datatype.isenum) { %>        enum <%- datatype.name %>
+<% for(var i in datatypes) { var datatype = datatypes[i]; if (datatype.isenum) { %>        enum <%- datatype.name %>
         {
             <% for(var i=0; i<datatype.enumvalues.length-1; i++) { var enumval = datatype.enumvalues[i] %><%- datatype.name %><%- enumval.name %>,
             <% } %><%- datatype.name %><%- datatype.enumvalues[datatype.enumvalues.length-1].name %>
@@ -16,20 +16,20 @@ namespace PlayFab
         void write<%- datatype.name %>EnumJSON(<%- datatype.name %> enumVal, PFStringJsonWriter& writer);
         <%- datatype.name %> read<%- datatype.name %>FromValue(const rapidjson::Value& obj);
 
-<% } else { %><%- GetDeprecationAttribute("        ", datatype)
+<% } else { %><%- getDeprecationAttribute("        ", datatype)
 %>        struct <%- datatype.name %> : public PlayFabBaseModel
         {
 <% for(var i in datatype.properties) { var property = datatype.properties[i]
-%><%- GetPropertyDef("            ", property, datatype) %>
+%><%- getPropertyDef("            ", property, datatype) %>
 <% } %>
             <%- datatype.name %>() :
                 PlayFabBaseModel()<% for(var i in datatype.properties) { var property = datatype.properties[i] %>,
-                <%- GetPropertySafeName(property) %>(<%- GetPropertyDefaultValue(property, datatype) %>)<% } %>
+                <%- getPropertySafeName(property) %>(<%- getPropertyDefaultValue(property, datatype) %>)<% } %>
             {}
 
             <%- datatype.name %>(const <%- datatype.name %>& src) :
                 PlayFabBaseModel()<% for(var i in datatype.properties) { var property = datatype.properties[i] %>,
-                <%- GetPropertySafeName(property) %>(<%- GetPropertyCopyValue(property) %>)<% } %>
+                <%- getPropertySafeName(property) %>(<%- getPropertyCopyValue(property) %>)<% } %>
             {}
 
             <%- datatype.name %>(const rapidjson::Value& obj) : <%- datatype.name %>()

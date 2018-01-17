@@ -12,15 +12,15 @@ namespace PlayFab
     {
     public:
         template<typename ResType> using ProcessApiCallback = std::function<void(const ResType& result, void* userData)>;
-<% if(hasClientOptions) { %>
+<% if (hasClientOptions) { %>
         // Public, Client-Specific
         static void MultiStepClientLogin(bool needsAttribution);
         static bool IsClientLoggedIn();
 <% } %>
         // ------------ Generated API calls
-<% for(var i in api.calls) { var apiCall = api.calls[i]; if(HasRequest(apiCall, api)) { %><%- GetDeprecationAttribute("        ", apiCall)
+<% for(var i in api.calls) { var apiCall = api.calls[i]; if (hasRequest(apiCall, api)) { %><%- getDeprecationAttribute("        ", apiCall)
 %>        static void <%- apiCall.name %>(<%- api.name %>Models::<%- apiCall.request %>& request, ProcessApiCallback<<%- api.name %>Models::<%- apiCall.result%>> callback, ErrorCallback errorCallback = nullptr, void* userData = nullptr);
-<% } else { %><%- GetDeprecationAttribute("        ", apiCall)
+<% } else { %><%- getDeprecationAttribute("        ", apiCall)
 %>        static void <%- apiCall.name %>(ProcessApiCallback<<%- api.name %>Models::<%- apiCall.result%>> callback, ErrorCallback errorCallback = nullptr, void* userData = nullptr);
 <% } } %>
     private:
@@ -30,10 +30,6 @@ namespace PlayFab
         // ------------ Generated result handlers
 <% for(var i in api.calls) { var apiCall = api.calls[i];
 %>        static void On<%- apiCall.name %>Result(int httpStatus, HttpRequest* request, void* userData);
-<% }
-if(hasClientOptions) { %>
-        // Private, Client-Specific
-        static std::string mUserSessionTicket;
 <% } %>    };
 };
 #endif

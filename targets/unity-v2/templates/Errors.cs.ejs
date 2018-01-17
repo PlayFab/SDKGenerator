@@ -53,4 +53,21 @@ namespace PlayFab
             return _tempSb.ToString();
         }
     }
+
+    public class PlayFabException : Exception
+    {
+        public readonly PlayFabExceptionCode Code;
+        public PlayFabException(PlayFabExceptionCode code, string message) : base(message)
+        {
+            Code = code;
+        }
+    }
+
+    public enum PlayFabExceptionCode
+    {
+        DeveloperKeyNotSet,
+        EntityTokenNotSet,
+        NotLoggedIn,
+        TitleNotSet,
+    }
 }

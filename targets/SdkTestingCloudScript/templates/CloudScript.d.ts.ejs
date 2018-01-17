@@ -45,6 +45,28 @@ interface IPlayFabEnvironment {
     titleId: string;
 }
 
+interface IPlayFabError {
+    cloudScriptErrorCode : string;
+    stack : string;
+    apiErrorInfo?: IApiErrorInfo;
+}
+
+interface IApiErrorInfo {
+    api : string;
+    request : any;
+    result : any;
+    apiError?: IApiError;
+}
+
+interface IApiError {
+    code : number;
+    status : string;
+    error : string;
+    errorCode : number;
+    errorMessage : string;
+    errorDetails?: { [index:string] : { message: string[] } };
+}
+
 /** Static object which allows access to PlayFab ServerAPI calls */
 declare var server: IPlayFabServerAPI;
 

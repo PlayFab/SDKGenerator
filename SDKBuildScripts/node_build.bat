@@ -7,3 +7,5 @@ rem === BUILDING NodeSDK with params %* ===
 node generate.js js-node=..\sdks\NodeSDK %*
 )
 popd
+
+pause

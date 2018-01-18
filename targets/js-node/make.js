@@ -72,9 +72,6 @@ exports.makeCombinedAPI = function (apis, sourceDir, apiOutputDir) {
             writeFile(path.resolve(eachOutputDir, "Scripts/typings/PlayFab/PlayFab" + apis[i].name + ".d.ts"), apiTypingsTemplate(locals));
         }
     }
-
-    // Copy testing files
-    copyTree(path.resolve(sourceDir, "_testTypeScript"), path.resolve(apiOutputDir, "_testTypeScript"));
 }
 
 function getAuthParams(apiCall) {

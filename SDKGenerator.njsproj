@@ -138,6 +138,7 @@
     <Compile Include="targets\javascript\make.js" />
     <Compile Include="targets\java\make.js" />
     <Compile Include="targets\js-node\make.js" />
+    <Compile Include="targets\js-node\source\test\reporter.js" />
     <Compile Include="targets\LuaSdk\make.js" />
     <Compile Include="targets\LumberyardSdk\make.js" />
     <Compile Include="targets\newTarget\make.js" />
@@ -371,12 +372,19 @@
     <Content Include="targets\java\testingFiles\server\src\test\java\com\playfab\test\PlayFabApiTest.java" />
     <Content Include="targets\java\testingFiles\client\src\test\java\com\playfab\test\PlayFabApiTest.java" />
     <Content Include="targets\java\testingFiles\combo\src\test\java\com\playfab\test\PlayFabApiTest.java" />
+    <Content Include="targets\js-node\source\.npmignore" />
+    <Content Include="targets\js-node\source\runTest.cmd" />
+    <Content Include="targets\js-node\source\runTest.sh" />
+    <Content Include="targets\js-node\source\test\nodeunit.json" />
+    <Content Include="targets\js-node\source\test\run.bat" />
     <Content Include="targets\js-node\templates\api.js.ejs" />
     <Content Include="targets\js-node\templates\Enum.ejs" />
+    <Content Include="targets\js-node\templates\index.js.ejs" />
     <Content Include="targets\js-node\templates\Interface.ejs" />
     <Content Include="targets\js-node\templates\package.json.ejs" />
     <Content Include="targets\js-node\templates\playfab.js.ejs" />
     <Content Include="targets\js-node\templates\PlayFab_Api.d.ts.ejs" />
+    <Content Include="targets\js-node\templates\tsconfig.json.ejs" />
     <Content Include="targets\LuaSdk\EachCorona\defaults.lua" />
     <Content Include="targets\LuaSdk\EachDefold\PlayFab\PlayFabHttps_Defold.lua" />
     <Content Include="targets\LuaSdk\GlobalFiles\PlayFabClientSDK\PlayFabTesting\TestPlayFabConsole.lua" />
@@ -851,8 +859,8 @@
     <Folder Include="targets\js-node\source\" />
     <Folder Include="targets\js-node\source\Scripts\" />
     <Folder Include="targets\js-node\source\Scripts\typings\" />
-    <Folder Include="targets\js-node\source\Scripts\typings\node\" />
     <Folder Include="targets\js-node\source\Scripts\typings\PlayFab\" />
+    <Folder Include="targets\js-node\source\test\" />
     <Folder Include="targets\js-node\templates\" />
     <Folder Include="targets\LuaSdk\" />
     <Folder Include="targets\LuaSdk\EachCorona\" />
@@ -973,10 +981,6 @@
     <Folder Include="targets\WindowsSdk\templates\" />
   </ItemGroup>
   <ItemGroup>
-    <None Include="targets\js-node\source\Scripts\typings\node\node.d.ts" />
-    <None Include="targets\js-node\source\Scripts\typings\PlayFab\PlayFab.d.ts" />
-  </ItemGroup>
-  <ItemGroup>
     <None Include="targets\javascript\testingFiles\PlayFabApiTest.ts" />
   </ItemGroup>
   <ItemGroup>
@@ -985,6 +989,8 @@
   <ItemGroup>
     <TypeScriptCompile Include="generate.ts" />
     <TypeScriptCompile Include="node.d.ts" />
+    <TypeScriptCompile Include="targets\js-node\source\Scripts\typings\PlayFab\PlayFab.d.ts" />
+    <TypeScriptCompile Include="targets\js-node\source\test\test.ts" />
   </ItemGroup>
   <!-- Do not delete the following Import Project.  While this appears to do nothing it is a marker for setting TypeScript properties before our import that depends on them. -->
   <Import Project="$(MSBuildExtensionsPath32)\Microsoft\VisualStudio\v$(VisualStudioVersion)\TypeScript\Microsoft.TypeScript.targets" Condition="False" />

@@ -40,7 +40,7 @@ exports.MakeRequest = function (urlStr, request, authType, authValue, callback) 
         request = {};
     var requestBody = null;
     if (Number(process.version.match(/^v(\d+\.\d+)/)[1]) >= 4.7)
-        requestBody = Buffer.from(JSON.stringify(request), 'utf8');
+        requestBody = Buffer.from(JSON.stringify(request), "utf8");
     else
         requestBody = JSON.stringify(request);
 

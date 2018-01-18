@@ -12,18 +12,17 @@ PlayFab<%- api.name %>API::PlayFab<%- api.name %>API() {}
 
 <% for(var i in api.calls) { var apiCall = api.calls[i];
 %>void PlayFab<%- api.name %>API::<%- apiCall.name %>(
-<% if (hasRequest(apiCall, api)) { %>    <%- apiCall.request %>& request,<% } %>
-    ProcessApiCallback<<%- apiCall.result %>> callback,
+<% if (hasRequest(apiCall, api)) { %>    <%- apiCall.request %>& request,
+<% } %>    ProcessApiCallback<<%- apiCall.result %>> callback,
     ErrorCallback errorCallback,
     void* userData
 )
 {
-<%- getRequestActions("    ", apiCall, api)
+<%- getRequestActions("    ", apiCall)
 %>    HttpRequest* httpRequest = new HttpRequest("POST", <%- getUrlAccessor(apiCall) %>);
     httpRequest->SetHeader("Content-Type", "application/json");
     httpRequest->SetHeader("X-PlayFabSDK", PlayFabSettings::versionString);
-    <%- getAuthParams(apiCall) %>
-
+<%- getAuthParams("    ", apiCall) %>
     if (callback != nullptr)
         httpRequest->SetResultCallback(SharedVoidPointer(new ProcessApiCallback<<%- apiCall.result %>>(callback)));
     httpRequest->SetErrorCallback(errorCallback);
@@ -42,7 +41,7 @@ void PlayFab<%- api.name %>API::On<%- apiCall.name %>Result(int httpStatus, Http
 
     if (PlayFabRequestHandler::DecodeRequest(httpStatus, request, userData, outResult, errorResult))
     {
-<%- getResultActions("        ", apiCall, api)
+<%- getResultActions("        ", apiCall)
 %>        if (request->GetResultCallback() != nullptr)
         {
             (*static_cast<ProcessApiCallback<<%- apiCall.result %>> *>(request->GetResultCallback().get()))(outResult, request->GetUserData());
@@ -61,7 +60,7 @@ void PlayFab<%- api.name %>API::On<%- apiCall.name %>Result(int httpStatus, Http
 
 <% } %><% if (hasClientOptions) { %>bool PlayFabClientAPI::IsClientLoggedIn()
 {
-    return PlayFabSettings::clientSessionTicket.empty();
+    return !PlayFabSettings::clientSessionTicket.empty();
 }
 
 void PlayFabClientAPI::MultiStepClientLogin(bool needsAttribution)

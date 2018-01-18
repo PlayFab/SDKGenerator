@@ -61,7 +61,7 @@ namespace PlayFab.UUnit
         }
 
         /// <summary>
-        /// CLIENT API
+        /// CLIENT/ENTITY API
         /// Log in or create a user, track their PlayFabId
         /// </summary>
         [UUnitTest]
@@ -82,8 +82,8 @@ namespace PlayFab.UUnit
         }
 
         /// <summary>
-        /// CLIENT API
-        /// Log in or create a user, track their PlayFabId
+        /// ENTITY API
+        /// Verify that a client login can be converted into an entity token
         /// </summary>
         [UUnitTest]
         public void GetEntityToken(UUnitTestContext testContext)
@@ -103,11 +103,10 @@ namespace PlayFab.UUnit
         }
 
         /// <summary>
-        /// CLIENT API
-        /// Test a sequence of calls that modifies saved data,
-        ///   and verifies that the next sequential API call contains updated data.
-        /// Verify that the data is correctly modified on the next call.
-        /// Parameter types tested: string, Dictionary&lt;string, string>, DateTime
+        /// ENTITY API
+        /// Test a sequence of calls that modifies entity objects,
+        ///   and verifies that the next sequential API call contains updated information.
+        /// Verify that the object is correctly modified on the next call.
         /// </summary>
         [UUnitTest]
         public void ObjectApi(UUnitTestContext testContext)

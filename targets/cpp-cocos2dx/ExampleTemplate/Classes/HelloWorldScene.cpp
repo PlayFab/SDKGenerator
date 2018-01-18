@@ -31,6 +31,9 @@ bool HelloWorld::init()
         return false;
     }
 
+    Director::getInstance()->getOpenGLView()->setFrameSize(1920, 1080);
+    Director::getInstance()->getOpenGLView()->setDesignResolutionSize(1920, 1080, ResolutionPolicy::EXACT_FIT);
+
     Size visibleSize = Director::getInstance()->getVisibleSize();
     Vec2 origin = Director::getInstance()->getVisibleOrigin();
 
@@ -60,7 +63,9 @@ bool HelloWorld::init()
     PlayFabApiTest::PlayFabApiTests::InitializeTestSuite();
 
     // Test output setup
-    testReportLabel = Label::createWithTTF("", "fonts/Marker Felt.ttf", 14);
+    testReportLabel = Label::createWithTTF("", "fonts/Marker Felt.ttf", 18);
+    testReportLabel->setHorizontalAlignment(TextHAlignment::LEFT);
+    testReportLabel->setVerticalAlignment(TextVAlignment::TOP);
     this->addChild(testReportLabel, 1);
 
     return true;

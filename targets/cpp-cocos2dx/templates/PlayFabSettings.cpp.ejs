@@ -15,6 +15,7 @@ namespace PlayFab
     std::string PlayFabSettings::productionEnvironmentURL = ".playfabapi.com";
     std::string PlayFabSettings::titleId;
     ErrorCallback PlayFabSettings::globalErrorHandler = nullptr;
+    std::string PlayFabSettings::entityToken = "";
 <% if (hasServerOptions) { %>    std::string PlayFabSettings::developerSecretKey;
 <% }
 if (hasClientOptions) {

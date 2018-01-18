@@ -151,17 +151,12 @@ xcopy "$(ProjectDir)..\Resources" "$(OutDir)" /D /E /I /F /Y
     <ClCompile Include="..\Classes\HelloWorldScene.cpp" />
     <ClCompile Include="..\Classes\HttpRequest.cpp" />
     <ClCompile Include="..\Classes\HttpRequesterCURL.cpp" />
-    <ClCompile Include="..\Classes\PlayFabAdminAPI.cpp" />
-    <ClCompile Include="..\Classes\PlayFabAdminDataModels.cpp" />
     <ClCompile Include="..\Classes\PlayFabApiTest.cpp" />
     <ClCompile Include="..\Classes\PlayFabBaseModel.cpp" />
-    <ClCompile Include="..\Classes\PlayFabClientAPI.cpp" />
-    <ClCompile Include="..\Classes\PlayFabClientDataModels.cpp" />
-    <ClCompile Include="..\Classes\PlayFabMatchmakerAPI.cpp" />
-    <ClCompile Include="..\Classes\PlayFabMatchmakerDataModels.cpp" />
-    <ClCompile Include="..\Classes\PlayFabResultHandler.cpp" />
-    <ClCompile Include="..\Classes\PlayFabServerAPI.cpp" />
-    <ClCompile Include="..\Classes\PlayFabServerDataModels.cpp" />
+<% for (var a = 0; a < apis.length; a++) { var api = apis[a];
+%>    <ClCompile Include="..\Classes\PlayFab<%- api.name %>API.cpp" />
+    <ClCompile Include="..\Classes\PlayFab<%- api.name %>DataModels.cpp" />
+<% } %>    <ClCompile Include="..\Classes\PlayFabResultHandler.cpp" />
     <ClCompile Include="main.cpp" />
   </ItemGroup>
   <ItemGroup>

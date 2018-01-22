@@ -4,6 +4,7 @@ using PlayFab.Internal;
 using System;
 using System.Collections.Generic;
 using PlayFab.Json;
+using UnityEngine;
 
 namespace PlayFab.UUnit
 {
@@ -16,13 +17,14 @@ namespace PlayFab.UUnit
     /// </summary>
     public class EntityApiTests : UUnitTestCase
     {
-        private Action _tickAction = null;
         private TestTitleDataLoader.TestTitleData testTitleData;
 
         // Test-data constants
         private const string TEST_OBJ_NAME = "testCounter";
         // Test variables
-        private string entityId;
+        private string _entityId;
+        private string _testFileUrl;
+        private string _testFileChecksum;
         private int _testInteger;
 
         public override void SetUp(UUnitTestContext testContext)
@@ -34,19 +36,14 @@ namespace PlayFab.UUnit
             if (!titleInfoSet)
                 testContext.Skip(); // We cannot do client tests if the titleId is not given
 
-            foreach (var pair in testTitleData.extraHeaders)
-                PlayFabHttp.GlobalHeaderInjection[pair.Key] = pair.Value;
+            if (testTitleData.extraHeaders != null)
+                foreach (var pair in testTitleData.extraHeaders)
+                    PlayFabHttp.GlobalHeaderInjection[pair.Key] = pair.Value;
         }
 
         public override void Tick(UUnitTestContext testContext)
         {
-            if (_tickAction != null)
-                _tickAction();
-        }
-
-        public override void TearDown(UUnitTestContext testContext)
-        {
-            _tickAction = null;
+            // Do nothing, because the test finishes asynchronously
         }
 
         public override void ClassTearDown()
@@ -95,7 +92,7 @@ namespace PlayFab.UUnit
         {
             var testContext = (UUnitTestContext)result.CustomData;
 
-            entityId = result.EntityId;
+            _entityId = result.EntityId;
             testContext.StringEquals(EntityTypes.title_player_account.ToString(), result.EntityType, "GetEntityToken EntityType not expected: " + result.EntityType);
 
             testContext.True(PlayFabClientAPI.IsClientLoggedIn(), "Get Entity Token failed");
@@ -111,7 +108,7 @@ namespace PlayFab.UUnit
         [UUnitTest]
         public void ObjectApi(UUnitTestContext testContext)
         {
-            var getRequest = new GetObjectsRequest { EntityId = entityId, EntityType = EntityTypes.title_player_account, EscapeObject =  true };
+            var getRequest = new GetObjectsRequest { EntityId = _entityId, EntityType = EntityTypes.title_player_account, EscapeObject = true };
             PlayFabEntityAPI.GetObjects(getRequest, PlayFabUUnitUtils.ApiActionWrapper<GetObjectsResponse>(testContext, GetObjectCallback1), PlayFabUUnitUtils.ApiActionWrapper<PlayFabError>(testContext, SharedErrorCallback), testContext);
         }
         private void GetObjectCallback1(GetObjectsResponse result)
@@ -127,7 +124,7 @@ namespace PlayFab.UUnit
 
             var updateRequest = new SetObjectsRequest
             {
-                EntityId = entityId,
+                EntityId = _entityId,
                 EntityType = EntityTypes.title_player_account,
                 Objects = new List<SetObject> {
                     new SetObject{ ObjectName = TEST_OBJ_NAME, Unstructured = true, DataObject = _testInteger }
@@ -139,18 +136,19 @@ namespace PlayFab.UUnit
         {
             var testContext = (UUnitTestContext)result.CustomData;
 
-            var getRequest = new GetObjectsRequest { EntityId = entityId, EntityType = EntityTypes.title_player_account, EscapeObject = true };
+            var getRequest = new GetObjectsRequest { EntityId = _entityId, EntityType = EntityTypes.title_player_account, EscapeObject = true };
             PlayFabEntityAPI.GetObjects(getRequest, PlayFabUUnitUtils.ApiActionWrapper<GetObjectsResponse>(testContext, GetObjectCallback2), PlayFabUUnitUtils.ApiActionWrapper<PlayFabError>(testContext, SharedErrorCallback), testContext);
         }
         private void GetObjectCallback2(GetObjectsResponse result)
         {
             var testContext = (UUnitTestContext)result.CustomData;
 
-            _testInteger = -100; // Default if the data isn't present
-            foreach (var eachObj in result.Objects)
-                if (eachObj.ObjectName == TEST_OBJ_NAME)
-                    _testInteger = int.Parse(eachObj.EscapedDataObject);
-            testContext.True(_testInteger != -100, "Entity object not set");
+            var actualInteger = -100; // Default if the data isn't present
+            testContext.IntEquals(result.Objects.Count, 1, "Incorrect number of entity objects: " + result.Objects.Count);
+            testContext.StringEquals(result.Objects[0].ObjectName, TEST_OBJ_NAME, "Expected Test object not found: " + result.Objects[0].ObjectName);
+            actualInteger = int.Parse(result.Objects[0].EscapedDataObject);
+            testContext.True(actualInteger != -100, "Entity object not set");
+            testContext.IntEquals(_testInteger, actualInteger, "Entity Object was not updated: " + actualInteger + "!=" + _testInteger);
 
             testContext.EndTest(UUnitFinishState.PASSED, null);
         }

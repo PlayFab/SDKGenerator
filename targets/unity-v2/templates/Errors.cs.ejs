@@ -18,6 +18,7 @@ namespace PlayFab
 
     public class PlayFabError
     {
+        public string ApiEndpoint;
         public int HttpCode;
         public string HttpStatus;
         public PlayFabErrorCode Error;
@@ -35,7 +36,7 @@ namespace PlayFab
                     sb.Append(" | ");
                 }
             }
-            return string.Format("PlayFabError({0}, {1}, {2} {3}", Error, ErrorMessage, HttpCode, HttpStatus) + (sb.Length > 0 ? " - Details: " + sb.ToString() + ")" : ")");
+            return string.Format("{0} PlayFabError({1}, {2}, {3} {4}", ApiEndpoint, Error, ErrorMessage, HttpCode, HttpStatus) + (sb.Length > 0 ? " - Details: " + sb.ToString() + ")" : ")");
         }
 
         [ThreadStatic]
@@ -45,7 +46,7 @@ namespace PlayFab
             if (_tempSb == null)
                 _tempSb = new StringBuilder();
             _tempSb.Length = 0;
-            _tempSb.Append(ErrorMessage);
+            _tempSb.Append(ApiEndpoint).Append(": ").Append(ErrorMessage);
             if (ErrorDetails != null)
                 foreach (var pair in ErrorDetails)
                     foreach (var msg in pair.Value)

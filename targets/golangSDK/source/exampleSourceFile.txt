@@ -1,0 +1,8 @@
+This is a newtarget source file.
+It is copied as is, with no modifications.
+
+The source directory is not required, but by convention, it's the place to store files that should be copied as is.
+You can have as many files and subdirectories as you want, and they're all copied.
+
+EJS tags are ignored, so, <%- thisChunk %> is not evaluated in any way.
+(If it were, it would probably throw an exception about how "thisChunk" is not a known variable)

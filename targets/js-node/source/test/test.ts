@@ -1,18 +1,19 @@
-import * as pf from '../index';
-import * as reporter from './reporter';
-import * as nodeunit from 'nodeunit';
-import * as fs from 'fs';
+import * as pf from "../index";
+import * as reporter from "./reporter";
+import * as nodeunit from "nodeunit";
+import * as fs from "fs";
 
 var PlayFab = <PlayFabModule.IPlayFab>pf.PlayFab;
 var PlayFabAdmin = <PlayFabAdminModule.IPlayFabAdmin>pf.PlayFabAdmin; // Not strictly needed for this test, but I want to make sure it compiles/loads
 var PlayFabMatchmaker = <PlayFabMatchmakerModule.IPlayFabMatchmaker>pf.PlayFabAdmin; // Not strictly needed for this test, but I want to make sure it compiles/loads
 var PlayFabClient = <PlayFabClientModule.IPlayFabClient>pf.PlayFabClient;
+// var PlayFabEntity = <PlayFabEntityModule.IPlayFabEntity>pf.PlayFabEntity;
 var PlayFabServer = <PlayFabServerModule.IPlayFabServer>pf.PlayFabServer;
 
 interface IAction { (): void }
 
 
-var TitleData = {
+var titleData = {
     // You can set default values for testing here
     // Or you can provide the same structure in a json-file and load with LoadTitleData
     titleId: "",
@@ -21,15 +22,15 @@ var TitleData = {
     characterName: ""
 };
 
-var TestConstants = {
+var testConstants = {
     TEST_KEY: "testCounter",
     TEST_STAT_NAME: "str",
     CHAR_TEST_TYPE: "Fighter"
 };
 
-var TestData = {
+var testData = {
+    entityId: null,
     playFabId: null,
-    characterId: null,
     testNumber: null
 };
 
@@ -50,7 +51,7 @@ function CallbackWrapper<TResult extends PlayFabModule.IPlayFabResultCommon>(cal
     // Wrap PlayFab result callbacks so that exceptions in callbacks report into the test as failures
     // This is is specific to catching exceptions in the PlayFab callbacks, since they're async,
     //   they don't share the same stacktrace as the function that calls them
-    return function (error: PlayFabModule.IPlayFabError, result): void {
+    return function (error: PlayFabModule.IPlayFabError, result: PlayFabModule.IPlayFabSuccessContainer<TResult>): void {
         try {
             callback(error, result);
         } catch (e) {
@@ -106,19 +107,19 @@ exports.PlayFabApiTests = {
         if (filename != null && fs.existsSync(filename)) {
             var inputTitleData = require(filename);
 
-            // All of these must exist for the TitleData load to be successful
+            // All of these must exist for the titleData load to be successful
             var titleDataValid = inputTitleData.hasOwnProperty("titleId")
                 && inputTitleData.hasOwnProperty("developerSecretKey")
                 && inputTitleData.hasOwnProperty("userEmail")
                 && inputTitleData.hasOwnProperty("characterName");
 
             if (titleDataValid)
-                TitleData = inputTitleData;
+                titleData = inputTitleData;
             else
                 console.log("testTitleData input file did not parse correctly");
         }
-        PlayFab.settings.titleId = TitleData.titleId;
-        PlayFab.settings.developerSecretKey = TitleData.developerSecretKey;
+        PlayFab.settings.titleId = titleData.titleId;
+        PlayFab.settings.developerSecretKey = titleData.developerSecretKey;
         callback();
     },
     tearDown: function (callback): void {
@@ -132,11 +133,11 @@ exports.PlayFabApiTests = {
     /// </summary>
     InvalidLogin: TestWrapper(function (test): void {
         var invalidRequest = {
-            Email: TitleData.userEmail,
+            Email: titleData.userEmail,
             Password: "INVALID"
         };
 
-        var invalidLoginCallback = function (error: PlayFabModule.IPlayFabError, result): void {
+        var invalidLoginCallback = function (error: PlayFabModule.IPlayFabError, result: PlayFabModule.IPlayFabSuccessContainer<PlayFabClientModels.LoginResult>): void {
             test.ok(result == null, "Login should have failed");
             test.ok(error != null, "Login should have failed");
             if (error != null)
@@ -182,10 +183,10 @@ exports.PlayFabApiTests = {
             CreateAccount: true
         };
 
-        var loginCallback = function (error: PlayFabModule.IPlayFabError, result): void {
+        var loginCallback = function (error: PlayFabModule.IPlayFabError, result: PlayFabModule.IPlayFabSuccessContainer<PlayFabClientModels.LoginResult>): void {
             VerifyNullError(result, error, test, "Testing Valid login result");
             test.ok(PlayFabClient.IsClientLoggedIn(), "Testing Login credentials cache");
-            TestData.playFabId = result.data.PlayFabId; // Save the PlayFabId, it will be used in other tests
+            testData.playFabId = result.data.PlayFabId; // Save the PlayFabId, it will be used in other tests
             test.done();
         };
         PlayFabClient.LoginWithCustomID(loginRequest, CallbackWrapper("loginCallback", loginCallback, test));
@@ -210,7 +211,7 @@ exports.PlayFabApiTests = {
             else
                 setTimeout(SimpleCallbackWrapper("finishAdvertId", finishAdvertId, test), 200);
         };
-        var advertLoginCallback = function (error: PlayFabModule.IPlayFabError, result): void {
+        var advertLoginCallback = function (error: PlayFabModule.IPlayFabError, result: PlayFabModule.IPlayFabSuccessContainer<PlayFabClientModels.LoginResult>): void {
             VerifyNullError(result, error, test, "Testing Advert-Login result");
             setTimeout(SimpleCallbackWrapper("finishAdvertId", finishAdvertId, test), 200);
         };
@@ -231,15 +232,15 @@ exports.PlayFabApiTests = {
     UserDataApi: TestWrapper(function (test): void {
         var getDataRequest = {}; // null also works
 
-        var getDataCallback2 = function (error: PlayFabModule.IPlayFabError, result): void {
+        var getDataCallback2 = function (error: PlayFabModule.IPlayFabError, result: PlayFabModule.IPlayFabSuccessContainer<PlayFabClientModels.GetUserDataResult>): void {
             VerifyNullError(result, error, test, "Testing GetUserData result");
             test.ok(result.data.Data != null, "GetUserData failed");
-            test.ok(result.data.Data.hasOwnProperty(TestConstants.TEST_KEY), "GetUserData failed");
+            test.ok(result.data.Data.hasOwnProperty(testConstants.TEST_KEY), "GetUserData failed");
 
-            var actualtestNumber: number = parseInt(result.data.Data[TestConstants.TEST_KEY].Value, 10);
-            var actualTimeStamp: number = new Date(result.data.Data[TestConstants.TEST_KEY].LastUpdated).getTime();
+            var actualtestNumber: number = parseInt(result.data.Data[testConstants.TEST_KEY].Value, 10);
+            var actualTimeStamp: number = new Date(result.data.Data[testConstants.TEST_KEY].LastUpdated).getTime();
 
-            test.equal(TestData.testNumber, actualtestNumber, "" + TestData.testNumber + "!=" + actualtestNumber);
+            test.equal(testData.testNumber, actualtestNumber, "" + testData.testNumber + "!=" + actualtestNumber);
 
             var now: number = Date.now();
             var testMin: number = now - (1000 * 60 * 5);
@@ -247,22 +248,22 @@ exports.PlayFabApiTests = {
             test.ok(testMin <= actualTimeStamp && actualTimeStamp <= testMax);
             test.done();
         };
-        var updateDataCallback = function (error: PlayFabModule.IPlayFabError, result): void {
+        var updateDataCallback = function (error: PlayFabModule.IPlayFabError, result: PlayFabModule.IPlayFabSuccessContainer<PlayFabClientModels.UpdateUserDataResult>): void {
             VerifyNullError(result, error, test, "Testing UpdateUserData result");
 
             PlayFabClient.GetUserData(getDataRequest, CallbackWrapper("getDataCallback2", getDataCallback2, test));
         };
-        var getDataCallback1 = function (error: PlayFabModule.IPlayFabError, result): void {
+        var getDataCallback1 = function (error: PlayFabModule.IPlayFabError, result: PlayFabModule.IPlayFabSuccessContainer<PlayFabClientModels.GetUserDataResult>): void {
             VerifyNullError(result, error, test, "Testing GetUserData result");
             test.ok(result.data.Data != null, "GetUserData failed");
 
-            var hasData = result.data.Data.hasOwnProperty(TestConstants.TEST_KEY);
-            TestData.testNumber = !hasData ? 1 : parseInt(result.data.Data[TestConstants.TEST_KEY].Value, 10);
-            TestData.testNumber = (TestData.testNumber + 1) % 100; // This test is about the expected value changing - but not testing more complicated issues like bounds
+            var hasData = result.data.Data.hasOwnProperty(testConstants.TEST_KEY);
+            testData.testNumber = !hasData ? 1 : parseInt(result.data.Data[testConstants.TEST_KEY].Value, 10);
+            testData.testNumber = (testData.testNumber + 1) % 100; // This test is about the expected value changing - but not testing more complicated issues like bounds
 
             var updateDataRequest = <PlayFabClientModels.UpdateUserDataRequest>{};
             updateDataRequest.Data = {};
-            updateDataRequest.Data[TestConstants.TEST_KEY] = TestData.testNumber;
+            updateDataRequest.Data[testConstants.TEST_KEY] = testData.testNumber;
             PlayFabClient.UpdateUserData(updateDataRequest, CallbackWrapper("updateDataCallback", updateDataCallback, test));
         };
 
@@ -280,34 +281,34 @@ exports.PlayFabApiTests = {
     PlayerStatisticsApi: TestWrapper(function (test): void {
         var getStatsRequest = {}; // null also works
 
-        var getStatsCallback2 = function (error: PlayFabModule.IPlayFabError, result): void {
+        var getStatsCallback2 = function (error: PlayFabModule.IPlayFabError, result: PlayFabModule.IPlayFabSuccessContainer<PlayFabClientModels.GetPlayerStatisticsResult>): void {
             VerifyNullError(result, error, test, "Testing GetPlayerStats result");
             test.ok(result.data.Statistics != null, "GetPlayerStats failed");
 
             var actualtestNumber = -1000;
             for (var i = 0; i < result.data.Statistics.length; i++)
-                if (result.data.Statistics[i].StatisticName === TestConstants.TEST_STAT_NAME)
+                if (result.data.Statistics[i].StatisticName === testConstants.TEST_STAT_NAME)
                     actualtestNumber = result.data.Statistics[i].Value;
 
-            test.equal(TestData.testNumber, actualtestNumber, "" + TestData.testNumber + "!=" + actualtestNumber);
+            test.equal(testData.testNumber, actualtestNumber, "" + testData.testNumber + "!=" + actualtestNumber);
             test.done();
         };
-        var updateStatsCallback = function (error: PlayFabModule.IPlayFabError, result): void {
+        var updateStatsCallback = function (error: PlayFabModule.IPlayFabError, result: PlayFabModule.IPlayFabSuccessContainer<PlayFabClientModels.UpdatePlayerStatisticsResult>): void {
             VerifyNullError(result, error, test, "Testing UpdatePlayerStats result");
             PlayFabClient.GetPlayerStatistics(getStatsRequest, CallbackWrapper("getStatsCallback2", getStatsCallback2, test));
         };
-        var getStatsCallback1 = function (error: PlayFabModule.IPlayFabError, result): void {
+        var getStatsCallback1 = function (error: PlayFabModule.IPlayFabError, result: PlayFabModule.IPlayFabSuccessContainer<PlayFabClientModels.GetPlayerStatisticsResult>): void {
             VerifyNullError(result, error, test, "Testing GetPlayerStats result");
             test.ok(result.data.Statistics != null, "GetPlayerStats failed");
 
-            TestData.testNumber = 0;
+            testData.testNumber = 0;
             for (var i = 0; i < result.data.Statistics.length; i++)
-                if (result.data.Statistics[i].StatisticName === TestConstants.TEST_STAT_NAME)
-                    TestData.testNumber = result.data.Statistics[i].Value;
-            TestData.testNumber = (TestData.testNumber + 1) % 100; // This test is about the expected value changing - but not testing more complicated issues like bounds
+                if (result.data.Statistics[i].StatisticName === testConstants.TEST_STAT_NAME)
+                    testData.testNumber = result.data.Statistics[i].Value;
+            testData.testNumber = (testData.testNumber + 1) % 100; // This test is about the expected value changing - but not testing more complicated issues like bounds
 
             var updateStatsRequest = {
-                Statistics: [{ StatisticName: TestConstants.TEST_STAT_NAME, Value: TestData.testNumber }]
+                Statistics: [{ StatisticName: testConstants.TEST_STAT_NAME, Value: testData.testNumber }]
             };
             PlayFabClient.UpdatePlayerStatistics(updateStatsRequest, CallbackWrapper("updateStatsCallback", updateStatsCallback, test));
         };
@@ -322,44 +323,13 @@ exports.PlayFabApiTests = {
     /// Parameter types tested: Contained-Classes, string
     /// </summary>
     UserCharacter: TestWrapper(function (test): void {
-        var getCharsRequest = {};
-        var grantCharRequest = {
-            TitleId: TitleData.titleId,
-            PlayFabId: TestData.playFabId,
-            CharacterName: TitleData.characterName,
-            CharacterType: TestConstants.CHAR_TEST_TYPE
-        };
-
-        var mandatoryGetCharsCallback = function (error: PlayFabModule.IPlayFabError, result): void {
-            // GetChars MUST succeed at some point during this test
+        var getCharsCallback = function (error: PlayFabModule.IPlayFabError, result: PlayFabModule.IPlayFabSuccessContainer<PlayFabClientModels.ListUsersCharactersResult>): void {
             VerifyNullError(result, error, test, "Testing GetChars result");
-
-            for (var i in result.data.Characters)
-                if (result.data.Characters[i].CharacterName === TitleData.characterName)
-                    TestData.characterId = result.data.Characters[i].CharacterId; // Save the characterId, it will be used in other tests
-
-            test.ok(TestData.characterId != null, "Cannot find " + TitleData.characterName + " on this account.");
             test.done();
         };
-        var grantCharCallback = function (error: PlayFabModule.IPlayFabError, result): void {
-            // Second character callback MUST succeed
-            VerifyNullError(result, error, test, "Testing GrantCharacter result");
 
-            // Get chars again, this time with the newly granted character
-            PlayFabClient.GetAllUsersCharacters(getCharsRequest, CallbackWrapper("mandatoryGetCharsCallback", mandatoryGetCharsCallback, test));
-        };
-        var optionalGetCharsCallback = function (error: PlayFabModule.IPlayFabError, result): void {
-            // First get chars falls back upon grant-char if target character not present
-            if (result == null || result.data.Characters.length === 0) {
-                // Register the character and try again
-                PlayFabServer.GrantCharacterToUser(grantCharRequest, CallbackWrapper("grantCharCallback", grantCharCallback, test));
-            }
-            else {
-                // Confirm the successful login
-                mandatoryGetCharsCallback(error, result);
-            }
-        };
-        PlayFabClient.GetAllUsersCharacters(getCharsRequest, CallbackWrapper("optionalGetCharsCallback", optionalGetCharsCallback, test));
+        var getCharsRequest = {};
+        PlayFabClient.GetAllUsersCharacters(getCharsRequest, CallbackWrapper("getCharsCallback", getCharsCallback, test));
     }),
 
     /// <summary>
@@ -371,12 +341,12 @@ exports.PlayFabApiTests = {
         var clientRequest: PlayFabClientModels.GetLeaderboardRequest = {
             MaxResultsCount: 3,
             StartPosition: 0,
-            StatisticName: TestConstants.TEST_STAT_NAME
+            StatisticName: testConstants.TEST_STAT_NAME
         };
         var serverRequest: PlayFabServerModels.GetLeaderboardRequest = {
             MaxResultsCount: 3,
             StartPosition: 0,
-            StatisticName: TestConstants.TEST_STAT_NAME
+            StatisticName: testConstants.TEST_STAT_NAME
         };
 
         var callsCompleted = 0;
@@ -404,7 +374,7 @@ exports.PlayFabApiTests = {
     /// Parameter types tested: List of enum-as-strings converted to list of enums
     /// </summary>
     AccountInfo: TestWrapper(function (test): void {
-        var getAccountInfoCallback = function (error: PlayFabModule.IPlayFabError, result): void {
+        var getAccountInfoCallback = function (error: PlayFabModule.IPlayFabError, result: PlayFabModule.IPlayFabSuccessContainer<PlayFabClientModels.GetAccountInfoResult>): void {
             VerifyNullError(result, error, test, "Testing GetAccountInfo result");
             test.ok(result.data.AccountInfo != null, "GetAccountInfo failed");
             test.ok(result.data.AccountInfo.TitleInfo != null, "GetAccountInfo failed");
@@ -425,12 +395,12 @@ exports.PlayFabApiTests = {
             FunctionName: "helloWorld"
         };
 
-        var helloWorldCallback = function (error: PlayFabModule.IPlayFabError, result): void {
+        var helloWorldCallback = function (error: PlayFabModule.IPlayFabError, result: PlayFabModule.IPlayFabSuccessContainer<PlayFabClientModels.ExecuteCloudScriptResult>): void {
             VerifyNullError(result, error, test, "Testing HelloWorld result");
             if (result != null) {
                 test.ok(result.data.FunctionResult != null, "HelloWorld failed");
                 test.ok(result.data.FunctionResult.messageValue != null, "HelloWorld failed");
-                test.equal(result.data.FunctionResult.messageValue, "Hello " + TestData.playFabId + "!", "Unexpected HelloWorld cloudscript result: " + result.data.FunctionResult.messageValue);
+                test.equal(result.data.FunctionResult.messageValue, "Hello " + testData.playFabId + "!", "Unexpected HelloWorld cloudscript result: " + result.data.FunctionResult.messageValue);
             }
             test.done();
         };
@@ -447,7 +417,7 @@ exports.PlayFabApiTests = {
             FunctionName: "throwError"
         };
 
-        var errCallback = function (error: PlayFabModule.IPlayFabError, result): void {
+        var errCallback = function (error: PlayFabModule.IPlayFabError, result: PlayFabModule.IPlayFabSuccessContainer<PlayFabClientModels.ExecuteCloudScriptResult>): void {
             VerifyNullError(result, error, test, "Testing Cloud Script Error result");
             if (result != null) {
                 test.ok(result.data.FunctionResult == null, "Cloud Script Error failed");
@@ -464,7 +434,7 @@ exports.PlayFabApiTests = {
     /// CLIENT API
     /// Test that the client can publish custom PlayStream events
     /// </summary>
-    WriteEvent: function (test): void {
+    WriteEvent: TestWrapper(function (test): void {
         var writeEventRequest = {
             "EventName": "ForumPostEvent",
             "Body": {
@@ -473,16 +443,98 @@ exports.PlayFabApiTests = {
             }
         };
 
-        var writeEventCallback = function (error: PlayFabModule.IPlayFabError, result): void {
+        var writeEventCallback = function (error: PlayFabModule.IPlayFabError, result: PlayFabModule.IPlayFabSuccessContainer<PlayFabClientModels.WriteEventResponse>): void {
             VerifyNullError(result, error, test, "Testing WriteEvent result");
             test.done();
         };
 
         PlayFabClient.WritePlayerEvent(writeEventRequest, CallbackWrapper("writeEventCallback", writeEventCallback, test));
-    },
+    }),
+
+    /// <summary>
+    /// ENTITY API
+    /// Verify that a client login can be converted into an entity token
+    /// </summary>
+    //GetEntityToken: TestWrapper(function (test): void {
+    //    var getEntityTokenRequest = {
+    //        "EventName": "ForumPostEvent",
+    //        "Body": {
+    //            "Subject": "My First Post",
+    //            "Body": "This is my awesome post."
+    //        }
+    //    };
+
+    //    var getEntityTokenCallback = function (error: PlayFabModule.IPlayFabError, result: PlayFabModule.IPlayFabSuccessContainer<PlayFabEntityModels.GetEntityTokenResponse>): void {
+    //        VerifyNullError(result, error, test, "Testing GetEntityToken result");
+
+    //        test.ok(result.data.EntityId, "EntityId should be defined");
+    //        test.ok(result.data.EntityType, "EntityType should be defined");
+
+    //        testData.entityId = result.data.EntityId; // Save the EntityId, it will be used in other tests
+
+    //        test.done();
+    //    };
+
+    //    PlayFabEntity.GetEntityToken(getEntityTokenRequest, CallbackWrapper("getEntityTokenCallback", getEntityTokenCallback, test));
+    //}),
+
+    /// <summary>
+    /// ENTITY API
+    /// Test a sequence of calls that modifies entity objects,
+    ///   and verifies that the next sequential API call contains updated information.
+    /// Verify that the object is correctly modified on the next call.
+    /// </summary>
+    //ObjectApi: TestWrapper(function (test): void {
+    //    var getObjectsRequest: PlayFabEntityModels.GetObjectsRequest = {
+    //        EntityId: testData.entityId,
+    //        EntityType: "title_player_account",
+    //        EscapeObject: true
+    //    };
+
+    //    var getObjCallback2 = function (error: PlayFabModule.IPlayFabError, result: PlayFabModule.IPlayFabSuccessContainer<PlayFabEntityModels.GetObjectsResponse>): void {
+    //        VerifyNullError(result, error, test, "Testing GetObjects result");
+    //        test.ok(result.data.Objects, "GetObjects failed");
+    //        test.ok(result.data.Objects.length === 1, "Wrong number of GetObjects: 1 !== " + result.data.Objects.length);
+    //        test.ok(result.data.Objects[0].ObjectName === testConstants.TEST_KEY, "Test Object not found: " + result.data.Objects[0].ObjectName);
+
+    //        var actualtestNumber: number = parseInt(result.data.Objects[0].EscapedDataObject, 10);
+    //        test.equal(testData.testNumber, actualtestNumber, "" + testData.testNumber + " !== " + actualtestNumber);
+
+    //        test.done();
+    //    };
+    //    var setObjCallback = function (error: PlayFabModule.IPlayFabError, result: PlayFabModule.IPlayFabSuccessContainer<PlayFabEntityModels.SetObjectsResponse>): void {
+    //        VerifyNullError(result, error, test, "Testing SetObjects result");
+
+    //        PlayFabEntity.GetObjects(getObjectsRequest, CallbackWrapper("getObjCallback2", getObjCallback2, test));
+    //    };
+    //    var getObjCallback1 = function (error: PlayFabModule.IPlayFabError, result: PlayFabModule.IPlayFabSuccessContainer<PlayFabEntityModels.GetObjectsResponse>): void {
+    //        VerifyNullError(result, error, test, "Testing GetObjects result");
+
+    //        testData.testNumber = 0;
+    //        if (result.data.Objects && result.data.Objects.length === 1 && result.data.Objects[0].ObjectName === testConstants.TEST_KEY)
+    //            testData.testNumber = parseInt(result.data.Objects[0].EscapedDataObject, 10);
+    //        testData.testNumber = (testData.testNumber + 1) % 100; // This test is about the expected value changing - but not testing more complicated issues like bounds
+
+    //        var setObjRequest: PlayFabEntityModels.SetObjectsRequest = {
+    //            EntityId: testData.entityId,
+    //            EntityType: "title_player_account",
+    //            Objects: [
+    //                {
+    //                    ObjectName: testConstants.TEST_KEY,
+    //                    Unstructured: true,
+    //                    DataObject: testData.testNumber
+    //                }
+    //            ]
+    //        };
+    //        PlayFabEntity.SetObjects(setObjRequest, CallbackWrapper("setObjCallback", setObjCallback, test));
+    //    };
+
+    //    // Kick off this test process
+    //    PlayFabEntity.GetObjects(getObjectsRequest, CallbackWrapper("getObjCallback1", getObjCallback1, test));
+    //}),
 };
 
-nodeunit.on('complete', function (): void {
+nodeunit.on("complete", function (): void {
     reporter.PfTestReport[0].name = PlayFab.buildIdentifier;
     var saveResultsRequest = {
         FunctionName: "SaveTestData",
@@ -491,8 +543,8 @@ nodeunit.on('complete', function (): void {
     };
     if (PlayFabClient.IsClientLoggedIn()) {
         PlayFabClient.ExecuteCloudScript(saveResultsRequest, null);
-        console.log(TestData.playFabId, ", Test report saved to CloudScript: ", PlayFab.buildIdentifier);//, "\n", JSON.stringify(reporter.PfTestReport, null, 4));
+        console.log(testData.playFabId, ", Test report saved to CloudScript: ", PlayFab.buildIdentifier);//, "\n", JSON.stringify(reporter.PfTestReport, null, 4));
     } else {
-        console.log(TestData.playFabId, ", Failed to save test report to CloudScript: ", PlayFab.buildIdentifier);//, "\n", JSON.stringify(reporter.PfTestReport, null, 4));
+        console.log(testData.playFabId, ", Failed to save test report to CloudScript: ", PlayFab.buildIdentifier);//, "\n", JSON.stringify(reporter.PfTestReport, null, 4));
     }
 });

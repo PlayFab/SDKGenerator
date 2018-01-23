@@ -11,8 +11,8 @@ exports.IsClientLoggedIn = function () {
 for(var i in api.calls) { var apiCall = api.calls[i]; %>
 <%- getDeprecationAttribute("", apiCall)
 %>exports.<%- apiCall.name %> = function (request, callback) {
-<%- getRequestActions("    ", apiCall, api) %>
-    PlayFab.MakeRequest(<%- getUrlAccessor() %> + "<%- apiCall.url %>", request, <%- getAuthParams(apiCall) %>, function (error, result) {
+<%- getRequestActions("    ", apiCall)
+%>    PlayFab.MakeRequest(<%- getUrlAccessor() %> + "<%- apiCall.url %>", request, <%- getAuthParams(apiCall) %>, function (error, result) {
 <%- getResultActions("        ", apiCall, api) %>
         if (callback != null)
             callback(error, result);

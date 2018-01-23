@@ -378,12 +378,12 @@
     <Content Include="targets\js-node\source\test\run.bat" />
     <Content Include="targets\js-node\templates\api.js.ejs" />
     <Content Include="targets\js-node\templates\Enum.ejs" />
-    <Content Include="targets\js-node\templates\index.js.ejs" />
+    <Content Include="targets\js-node\source\index.js.ejs" />
     <Content Include="targets\js-node\templates\Interface.ejs" />
-    <Content Include="targets\js-node\templates\package.json.ejs" />
-    <Content Include="targets\js-node\templates\playfab.js.ejs" />
+    <Content Include="targets\js-node\source\package.json.ejs" />
+    <Content Include="targets\js-node\source\Scripts\PlayFab\playfab.js.ejs" />
     <Content Include="targets\js-node\templates\PlayFab_Api.d.ts.ejs" />
-    <Content Include="targets\js-node\templates\tsconfig.json.ejs" />
+    <Content Include="targets\js-node\source\tsconfig.json.ejs" />
     <Content Include="targets\LuaSdk\EachCorona\defaults.lua" />
     <Content Include="targets\LuaSdk\EachDefold\PlayFab\PlayFabHttps_Defold.lua" />
     <Content Include="targets\LuaSdk\GlobalFiles\PlayFabClientSDK\PlayFabTesting\TestPlayFabConsole.lua" />
@@ -855,6 +855,7 @@
     <Folder Include="targets\js-node\" />
     <Folder Include="targets\js-node\source\" />
     <Folder Include="targets\js-node\source\Scripts\" />
+    <Folder Include="targets\js-node\source\Scripts\PlayFab\" />
     <Folder Include="targets\js-node\source\Scripts\typings\" />
     <Folder Include="targets\js-node\source\Scripts\typings\PlayFab\" />
     <Folder Include="targets\js-node\source\test\" />

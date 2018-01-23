@@ -7,3 +7,5 @@ rem === BUILDING GolangSDK with params %* ===
 node generate.js golangSDK=..\sdks\GolangSDK %*
 )
 popd
+
+pause

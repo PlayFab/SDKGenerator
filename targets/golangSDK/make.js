@@ -50,3 +50,15 @@ function MakeExampleTemplateFile(sourceDir, apiOutputDir) {
     // generatedTemplateText is an in-memory string of the output file.  At this point, you just write it to the destination:
     writeFile(path.resolve(apiOutputDir, "exampleTemplate.txt"), generatedTemplateText);
 }
+
+function GetModelPropertyDef() {
+    return GetPropertyGoType();
+}
+
+function GetPropertyGoType() {
+
+}
+
+function GenerateSummary() {
+
+}

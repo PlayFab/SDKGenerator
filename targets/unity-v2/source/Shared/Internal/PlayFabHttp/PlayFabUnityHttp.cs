@@ -1,4 +1,4 @@
-#if UNITY_2017_1_OR_NEWER
+#if UNITY_2017_2_OR_NEWER
 using PlayFab.Json;
 using PlayFab.SharedModels;
 using System;
@@ -170,7 +170,7 @@ namespace PlayFab.Internal
                 {
                     if (reqContainer.ErrorCallback != null)
                     {
-                        reqContainer.Error = PlayFabHttp.GeneratePlayFabError(response, reqContainer.CustomData);
+                        reqContainer.Error = PlayFabHttp.GeneratePlayFabError(reqContainer.ApiEndpoint, response, reqContainer.CustomData);
                         PlayFabHttp.SendErrorEvent(reqContainer.ApiRequest, reqContainer.Error);
                         reqContainer.ErrorCallback(reqContainer.Error);
                     }
@@ -188,7 +188,7 @@ namespace PlayFab.Internal
             if (reqContainer.ErrorCallback != null)
             {
                 reqContainer.Error =
-                    PlayFabHttp.GeneratePlayFabError(reqContainer.JsonResponse, reqContainer.CustomData);
+                    PlayFabHttp.GeneratePlayFabError(reqContainer.ApiEndpoint, reqContainer.JsonResponse, reqContainer.CustomData);
                 PlayFabHttp.SendErrorEvent(reqContainer.ApiRequest, reqContainer.Error);
                 reqContainer.ErrorCallback(reqContainer.Error);
             }

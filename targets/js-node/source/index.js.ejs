@@ -1,0 +1,16 @@
+var PlayFab = require("./Scripts/PlayFab/PlayFab.js");
+<% for(var i = 0; i < apis.length; i++) { var api = apis[i]; %>
+var PlayFab<%- api.name %> = require("./Scripts/PlayFab/PlayFab<%- api.name %>.js");<% } %>
+
+module.exports = {
+    PlayFab : PlayFab,
+<% for(var i = 0; i < apis.length; i++) { var api = apis[i];
+%>    PlayFab<%- api.name %> : PlayFab<%- api.name %>,
+<% }
+%>    get settings() {
+        return PlayFab.settings;
+    },
+    set settings(value) {
+        Object.assign(PlayFab.settings,value);
+    }
+};

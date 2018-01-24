@@ -138,13 +138,13 @@
     <Compile Include="targets\javascript\make.js" />
     <Compile Include="targets\java\make.js" />
     <Compile Include="targets\js-node\make.js" />
+    <Compile Include="targets\js-node\source\test\reporter.js" />
     <Compile Include="targets\LuaSdk\make.js" />
     <Compile Include="targets\LumberyardSdk\make.js" />
     <Compile Include="targets\newTarget\make.js" />
     <Compile Include="targets\PhpSdk\make.js" />
     <Compile Include="targets\postman\make.js" />
     <Compile Include="targets\SdkTestingCloudScript\make.js" />
-    <None Include="targets\SdkTestingCloudScript\source\DefaultCloudScript.ts" />
     <Compile Include="targets\unity-v2\make.js" />
     <Compile Include="targets\WindowsSdk\make.js" />
     <Content Include="README.md" />
@@ -196,20 +196,20 @@
     <Content Include="targets\actionscript\templates\Model.as.ejs" />
     <Content Include="targets\actionscript\templates\PlayFabSettings.as.ejs" />
     <Content Include="targets\actionscript\templates\PlayFabVersion.as.ejs" />
-    <Content Include="targets\cpp-cocos2dx\ExampleSource\Classes\HelloWorldScene.cpp" />
-    <Content Include="targets\cpp-cocos2dx\ExampleSource\Classes\HelloWorldScene.h" />
-    <Content Include="targets\cpp-cocos2dx\ExampleSource\Classes\PlayFabApiTest.cpp" />
-    <Content Include="targets\cpp-cocos2dx\ExampleSource\Classes\PlayFabApiTest.h" />
-    <Content Include="targets\cpp-cocos2dx\ExampleSource\Classes\unistd.h" />
-    <Content Include="targets\cpp-cocos2dx\ExampleSource\proj.android-studio\app\jni\Android.mk" />
-    <Content Include="targets\cpp-cocos2dx\ExampleSource\proj.android-studio\app\jni\Application.mk" />
-    <Content Include="targets\cpp-cocos2dx\ExampleSource\proj.android-studio\app\res\values\strings.xml" />
-    <Content Include="targets\cpp-cocos2dx\ExampleSource\proj.android\jni\Android.mk" />
-    <Content Include="targets\cpp-cocos2dx\ExampleSource\proj.android\jni\Application.mk" />
-    <Content Include="targets\cpp-cocos2dx\ExampleSource\proj.ios_mac\PlayFabSDKExample.xcodeproj\project.pbxproj" />
-    <Content Include="targets\cpp-cocos2dx\ExampleSource\proj.win32\main.cpp" />
-    <Content Include="targets\cpp-cocos2dx\ExampleSource\proj.win32\PlayFabSDKExample.vcxproj" />
-    <Content Include="targets\cpp-cocos2dx\ExampleSource\proj.win32\PlayFabSDKExample.vcxproj.filters" />
+    <Content Include="targets\cpp-cocos2dx\ExampleTemplate\Classes\HelloWorldScene.cpp" />
+    <Content Include="targets\cpp-cocos2dx\ExampleTemplate\Classes\HelloWorldScene.h" />
+    <Content Include="targets\cpp-cocos2dx\ExampleTemplate\Classes\PlayFabApiTest.cpp" />
+    <Content Include="targets\cpp-cocos2dx\ExampleTemplate\Classes\PlayFabApiTest.h" />
+    <Content Include="targets\cpp-cocos2dx\ExampleTemplate\Classes\unistd.h" />
+    <Content Include="targets\cpp-cocos2dx\ExampleTemplate\proj.android-studio\app\jni\Android.mk.ejs" />
+    <Content Include="targets\cpp-cocos2dx\ExampleTemplate\proj.android-studio\app\jni\Application.mk" />
+    <Content Include="targets\cpp-cocos2dx\ExampleTemplate\proj.android-studio\app\res\values\strings.xml" />
+    <Content Include="targets\cpp-cocos2dx\ExampleTemplate\proj.ios_mac\PlayFabSDKExample.xcodeproj\project.pbxproj.ejs" />
+    <Content Include="targets\cpp-cocos2dx\ExampleTemplate\proj.win32\main.cpp" />
+    <Content Include="targets\cpp-cocos2dx\ExampleTemplate\proj.win32\PlayFabSDKExample.vcxproj.ejs" />
+    <Content Include="targets\cpp-cocos2dx\ExampleTemplate\proj.win32\PlayFabSDKExample.vcxproj.filters.ejs" />
+    <Content Include="targets\cpp-cocos2dx\ExampleTemplate\proj.android\jni\Android.mk.ejs" />
+    <Content Include="targets\cpp-cocos2dx\ExampleTemplate\proj.android\jni\Application.mk" />
     <Content Include="targets\cpp-cocos2dx\source\HttpRequest.cpp" />
     <Content Include="targets\cpp-cocos2dx\source\HttpRequest.h" />
     <Content Include="targets\cpp-cocos2dx\source\HttpRequesterCURL.cpp" />
@@ -371,12 +371,19 @@
     <Content Include="targets\java\testingFiles\server\src\test\java\com\playfab\test\PlayFabApiTest.java" />
     <Content Include="targets\java\testingFiles\client\src\test\java\com\playfab\test\PlayFabApiTest.java" />
     <Content Include="targets\java\testingFiles\combo\src\test\java\com\playfab\test\PlayFabApiTest.java" />
+    <Content Include="targets\js-node\source\.npmignore" />
+    <Content Include="targets\js-node\source\runTest.cmd" />
+    <Content Include="targets\js-node\source\runTest.sh" />
+    <Content Include="targets\js-node\source\test\nodeunit.json" />
+    <Content Include="targets\js-node\source\test\run.bat" />
     <Content Include="targets\js-node\templates\api.js.ejs" />
     <Content Include="targets\js-node\templates\Enum.ejs" />
+    <Content Include="targets\js-node\source\index.js.ejs" />
     <Content Include="targets\js-node\templates\Interface.ejs" />
-    <Content Include="targets\js-node\templates\package.json.ejs" />
-    <Content Include="targets\js-node\templates\playfab.js.ejs" />
+    <Content Include="targets\js-node\source\package.json.ejs" />
+    <Content Include="targets\js-node\source\Scripts\PlayFab\playfab.js.ejs" />
     <Content Include="targets\js-node\templates\PlayFab_Api.d.ts.ejs" />
+    <Content Include="targets\js-node\source\tsconfig.json.ejs" />
     <Content Include="targets\LuaSdk\EachCorona\defaults.lua" />
     <Content Include="targets\LuaSdk\EachDefold\PlayFab\PlayFabHttps_Defold.lua" />
     <Content Include="targets\LuaSdk\GlobalFiles\PlayFabClientSDK\PlayFabTesting\TestPlayFabConsole.lua" />
@@ -491,8 +498,6 @@
     <Content Include="targets\PhpSdk\templates\PlayFabApi.php.ejs" />
     <Content Include="targets\postman\replacements.json" />
     <Content Include="targets\postman\templates\playfab.json.ejs" />
-    <Content Include="targets\SdkTestingCloudScript\source\CloudScriptExample.njsproj" />
-    <Content Include="targets\SdkTestingCloudScript\source\CloudScriptExample.sln" />
     <Content Include="targets\SdkTestingCloudScript\templates\CloudScript.d.ts.ejs" />
     <Content Include="targets\SdkTestingCloudScript\templates\Interface.d.ts.ejs" />
     <Content Include="targets\SdkTestingCloudScript\templates\Enum.d.ts.ejs" />
@@ -748,18 +753,18 @@
     <Folder Include="targets\actionscript\source\com\playfab\" />
     <Folder Include="targets\actionscript\templates\" />
     <Folder Include="targets\cpp-cocos2dx\" />
-    <Folder Include="targets\cpp-cocos2dx\ExampleSource\" />
-    <Folder Include="targets\cpp-cocos2dx\ExampleSource\Classes\" />
-    <Folder Include="targets\cpp-cocos2dx\ExampleSource\proj.android-studio\" />
-    <Folder Include="targets\cpp-cocos2dx\ExampleSource\proj.android-studio\app\" />
-    <Folder Include="targets\cpp-cocos2dx\ExampleSource\proj.android-studio\app\jni\" />
-    <Folder Include="targets\cpp-cocos2dx\ExampleSource\proj.android-studio\app\res\" />
-    <Folder Include="targets\cpp-cocos2dx\ExampleSource\proj.android-studio\app\res\values\" />
-    <Folder Include="targets\cpp-cocos2dx\ExampleSource\proj.android\" />
-    <Folder Include="targets\cpp-cocos2dx\ExampleSource\proj.android\jni\" />
-    <Folder Include="targets\cpp-cocos2dx\ExampleSource\proj.ios_mac\" />
-    <Folder Include="targets\cpp-cocos2dx\ExampleSource\proj.ios_mac\PlayFabSDKExample.xcodeproj\" />
-    <Folder Include="targets\cpp-cocos2dx\ExampleSource\proj.win32\" />
+    <Folder Include="targets\cpp-cocos2dx\ExampleTemplate\Classes\" />
+    <Folder Include="targets\cpp-cocos2dx\ExampleTemplate\proj.android-studio\" />
+    <Folder Include="targets\cpp-cocos2dx\ExampleTemplate\proj.android-studio\app\" />
+    <Folder Include="targets\cpp-cocos2dx\ExampleTemplate\proj.android-studio\app\jni\" />
+    <Folder Include="targets\cpp-cocos2dx\ExampleTemplate\proj.android-studio\app\res\" />
+    <Folder Include="targets\cpp-cocos2dx\ExampleTemplate\proj.android-studio\app\res\values\" />
+    <Folder Include="targets\cpp-cocos2dx\ExampleTemplate\proj.ios_mac\" />
+    <Folder Include="targets\cpp-cocos2dx\ExampleTemplate\proj.ios_mac\PlayFabSDKExample.xcodeproj\" />
+    <Folder Include="targets\cpp-cocos2dx\ExampleTemplate\proj.win32\" />
+    <Folder Include="targets\cpp-cocos2dx\ExampleTemplate\" />
+    <Folder Include="targets\cpp-cocos2dx\ExampleTemplate\proj.android\" />
+    <Folder Include="targets\cpp-cocos2dx\ExampleTemplate\proj.android\jni\" />
     <Folder Include="targets\cpp-cocos2dx\source\" />
     <Folder Include="targets\cpp-cocos2dx\templates\" />
     <Folder Include="targets\cpp-ue4\" />
@@ -850,9 +855,10 @@
     <Folder Include="targets\js-node\" />
     <Folder Include="targets\js-node\source\" />
     <Folder Include="targets\js-node\source\Scripts\" />
+    <Folder Include="targets\js-node\source\Scripts\PlayFab\" />
     <Folder Include="targets\js-node\source\Scripts\typings\" />
-    <Folder Include="targets\js-node\source\Scripts\typings\node\" />
     <Folder Include="targets\js-node\source\Scripts\typings\PlayFab\" />
+    <Folder Include="targets\js-node\source\test\" />
     <Folder Include="targets\js-node\templates\" />
     <Folder Include="targets\LuaSdk\" />
     <Folder Include="targets\LuaSdk\EachCorona\" />
@@ -922,7 +928,6 @@
     <Folder Include="targets\postman\" />
     <Folder Include="targets\postman\templates\" />
     <Folder Include="targets\SdkTestingCloudScript\" />
-    <Folder Include="targets\SdkTestingCloudScript\source\" />
     <Folder Include="targets\SdkTestingCloudScript\templates\" />
     <Folder Include="targets\unity-v2\" />
     <Folder Include="targets\unity-v2\source\" />
@@ -973,18 +978,13 @@
     <Folder Include="targets\WindowsSdk\templates\" />
   </ItemGroup>
   <ItemGroup>
-    <None Include="targets\js-node\source\Scripts\typings\node\node.d.ts" />
-    <None Include="targets\js-node\source\Scripts\typings\PlayFab\PlayFab.d.ts" />
-  </ItemGroup>
-  <ItemGroup>
     <None Include="targets\javascript\testingFiles\PlayFabApiTest.ts" />
-  </ItemGroup>
-  <ItemGroup>
-    <None Include="targets\SdkTestingCloudScript\source\ExampleCloudScript.ts" />
   </ItemGroup>
   <ItemGroup>
     <TypeScriptCompile Include="generate.ts" />
     <TypeScriptCompile Include="node.d.ts" />
+    <TypeScriptCompile Include="targets\js-node\source\Scripts\typings\PlayFab\PlayFab.d.ts" />
+    <None Include="targets\js-node\source\test\test.ts" />
   </ItemGroup>
   <!-- Do not delete the following Import Project.  While this appears to do nothing it is a marker for setting TypeScript properties before our import that depends on them. -->
   <Import Project="$(MSBuildExtensionsPath32)\Microsoft\VisualStudio\v$(VisualStudioVersion)\TypeScript\Microsoft.TypeScript.targets" Condition="False" />

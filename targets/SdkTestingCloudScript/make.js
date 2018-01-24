@@ -10,7 +10,6 @@ exports.putInRoot = true;
 
 exports.makeServerAPI = function (apis, sourceDir, apiOutputDir) {
     console.log("Generating cloudscript-ts Server SDK to " + apiOutputDir);
-    copyTree(path.resolve(sourceDir, "source"), apiOutputDir);
 
     // Get only the server api because this is for CloudScript (only has access to serverAPI)
     var serverApi = null;

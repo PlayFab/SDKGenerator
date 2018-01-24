@@ -80,7 +80,7 @@ namespace PlayFab.Internal
             if (PlayFabSettings.RequestType == WebRequestType.HttpWebRequest)
                 _internalHttp = new PlayFabWebRequest();
 #endif
-#if UNITY_2017_1_OR_NEWER
+#if UNITY_2017_2_OR_NEWER
             if (PlayFabSettings.RequestType == WebRequestType.UnityWebRequest)
                 _internalHttp = new PlayFabUnityHttp();
 #endif
@@ -302,7 +302,7 @@ namespace PlayFab.Internal
             }
         }
 
-        protected internal static PlayFabError GeneratePlayFabError(string json, object customData)
+        protected internal static PlayFabError GeneratePlayFabError(string apiEndpoint, string json, object customData)
         {
             JsonObject errorDict = null;
             Dictionary<string, List<string>> errorDetails = null;
@@ -321,6 +321,7 @@ namespace PlayFab.Internal
 
             return new PlayFabError
             {
+                ApiEndpoint = apiEndpoint,
                 HttpCode = errorDict != null && errorDict.ContainsKey("code") ? Convert.ToInt32(errorDict["code"]) : 400,
                 HttpStatus = errorDict != null && errorDict.ContainsKey("status") ? (string)errorDict["status"] : "BadRequest",
                 Error = errorDict != null && errorDict.ContainsKey("errorCode") ? (PlayFabErrorCode)Convert.ToInt32(errorDict["errorCode"]) : PlayFabErrorCode.ServiceUnavailable,

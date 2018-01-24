@@ -137,11 +137,10 @@ function checkTarget(sdkSource, sdkDestination, targetOutputPathList, errorMessa
         name: sdkSource,
         dest: path.normalize(sdkDestination)
     };
-    if (fs.existsSync(targetOutput.dest) && !fs.lstatSync(targetOutput.dest).isDirectory()) {
+    if (fs.existsSync(targetOutput.dest) && !fs.lstatSync(targetOutput.dest).isDirectory())
         errorMessages.push("Invalid target output path: " + targetOutput.dest);
-    } else {
+    else
         targetOutputPathList.push(targetOutput);
-    }
 }
 
 function getTargetsList() {
@@ -470,6 +469,8 @@ interface String {
     endsWith(search: string): boolean;
     contains(search: string): boolean;
     wordWrap(width: number, brk: string, cut: boolean): string;
+    padStart(targetLength: number, padString: string): string;
+    repeat(targetLength: number): string;
 }
 
 // String utilities
@@ -513,89 +514,107 @@ String.prototype.wordWrap = function (width: number, brk: string, cut: boolean):
     return this;
 };
 
+// Official padStart implementation 
+// https://github.com/uxitten/polyfill/blob/master/string.polyfill.js
+// https://developer.mozilla.org/en-US/docs/Web/JavaScript/Reference/Global_Objects/String/padStart
+if (!String.prototype.padStart) {
+    String.prototype.padStart = function padStart(targetLength, padString) {
+        targetLength = targetLength >> 0; //truncate if number or convert non-number to 0;
+        padString = String((typeof padString !== 'undefined' ? padString : ' '));
+        if (this.length > targetLength) {
+            return String(this);
+        }
+        else {
+            targetLength = targetLength - this.length;
+            if (targetLength > padString.length) {
+                padString += padString.repeat(targetLength / padString.length); //append to original to ensure we are longer than needed
+            }
+            return padString.slice(0, targetLength) + String(this);
+        }
+    };
+}
+
 // SDK generation utilities
-function copyTree(source, dest) {
-    if (!fs.existsSync(source)) {
-        console.error("Copy tree source doesn't exist: " + source);
-        return;
+function templatizeTree(locals: { [key: string]: any }, sourcePath: string, destPath: string): void {
+    if (!fs.existsSync(sourcePath))
+        throw "Copy tree source doesn't exist: " + sourcePath;
+    if (!fs.lstatSync(sourcePath).isDirectory()) // File
+        return copyOrTemplatizeFile(locals, sourcePath, destPath);
+
+    // Directory
+    if (!fs.existsSync(destPath))
+        mkdirParentsSync(destPath);
+    else if (!fs.lstatSync(destPath).isDirectory())
+        throw "Can't copy a directory onto a file: " + sourcePath + " " + destPath;
+
+    var filesInDir = fs.readdirSync(sourcePath);
+    for (var i = 0; i < filesInDir.length; i++) {
+        var filename = filesInDir[i];
+        var file = sourcePath + "/" + filename;
+        if (fs.lstatSync(file).isDirectory())
+            templatizeTree(locals, file, destPath + "/" + filename);
+        else
+            copyOrTemplatizeFile(locals, file, destPath + "/" + filename);
     }
+}
+global.templatizeTree = templatizeTree;
 
-    if (fs.lstatSync(source).isDirectory()) {
-        if (!fs.existsSync(dest)) {
-            mkdirParentsSync(dest);
-        }
-        else if (!fs.lstatSync(dest).isDirectory()) {
-            console.error("Can't copy a directory onto a file: " + source + " " + dest);
-            return;
-        }
+function copyOrTemplatizeFile(locals: { [key: string]: any }, sourceFile: string, destFile: string): void {
+    checkFileCopy(sourceFile, destFile);
+    if (!sourceFile.endsWith(".ejs"))
+        return copyFile(sourceFile, destFile);
 
+    var template = getCompiledTemplate(sourceFile);
+    writeFile(destFile.substr(0, destFile.length - 4), template(locals));
+}
 
-        var filesInDir = fs.readdirSync(source);
-        for (var i = 0; i < filesInDir.length; i++) {
-            var filename = filesInDir[i];
-            var file = source + "/" + filename;
-            if (fs.lstatSync(file).isDirectory()) {
-                copyTree(file, dest + "/" + filename);
-            }
-            else {
-                copyFile(file, dest);
-            }
-        }
-    }
-    else {
-        copyFile(source, dest);
+function copyTree(sourcePath: string, destPath: string): void {
+    if (!fs.existsSync(sourcePath))
+        throw "Copy tree source doesn't exist: " + sourcePath;
+    if (!fs.lstatSync(sourcePath).isDirectory()) // File
+        return copyFile(sourcePath, destPath);
+
+    // Directory
+    if (!fs.existsSync(destPath))
+        mkdirParentsSync(destPath);
+    else if (!fs.lstatSync(destPath).isDirectory())
+        throw "Can't copy a directory onto a file: " + sourcePath + " " + destPath;
+
+    var filesInDir = fs.readdirSync(sourcePath);
+    for (var i = 0; i < filesInDir.length; i++) {
+        var filename = filesInDir[i];
+        var file = sourcePath + "/" + filename;
+        if (fs.lstatSync(file).isDirectory())
+            copyTree(file, destPath + "/" + filename);
+        else
+            copyFile(file, destPath);
     }
 }
 global.copyTree = copyTree;
 
-function copyFile(source, dest) {
-    if (!source || !dest) {
-        console.error("ERROR: Invalid copy file parameters: " + source + " " + dest);
-        return;
-    }
+function copyFile(sourceFile, destPath): void {
+    checkFileCopy(sourceFile, destPath);
 
-    if (!fs.existsSync(source)) {
-        console.error("ERROR: copyFile source doesn't exist: " + source);
-        return;
-    }
-    var sourceStat = fs.lstatSync(source);
+    var filename = path.basename(sourceFile);
 
-    if (sourceStat.isDirectory()) {
-        console.error("ERROR: copyFile source is a directory: " + source);
-        return;
-    }
-
-    var filename = path.basename(source);
-
-    if (fs.existsSync(dest)) {
-        if (fs.lstatSync(dest).isDirectory()) {
-            dest += "/" + filename;
+    if (fs.existsSync(destPath)) {
+        if (fs.lstatSync(destPath).isDirectory()) {
+            destPath += "/" + filename;
         }
-    }
-    else {
-        if (dest[dest.length - 1] === "/" || dest[dest.length - 1] === "\\") {
-            mkdirParentsSync(dest);
-            dest += filename;
+    } else {
+        if (destPath[destPath.length - 1] === "/" || destPath[destPath.length - 1] === "\\") {
+            mkdirParentsSync(destPath);
+            destPath += filename;
+        } else {
+            mkdirParentsSync(path.dirname(destPath));
         }
-        else {
-            var dirname = path.dirname(dest);
-            mkdirParentsSync(dirname);
-        }
-    }
-
-    if (fs.existsSync(dest)) {
-        // TODO: Make this an optional flag
-        //if(fs.lstatSync(dest).mtime.getTime() >= sourceStat.mtime.getTime())
-        //{
-        //    return;
-        //}
     }
 
     var bufLength = 64 * 1024;
     var buff = new Buffer(bufLength);
 
-    var fdr = fs.openSync(source, "r");
-    var fdw = fs.openSync(dest, "w");
+    var fdr = fs.openSync(sourceFile, "r");
+    var fdw = fs.openSync(destPath, "w");
     var bytesRead = 1;
     var pos = 0;
     while (bytesRead > 0) {
@@ -608,6 +627,15 @@ function copyFile(source, dest) {
 }
 global.copyFile = copyFile;
 
+function checkFileCopy(sourceFile: string, destFile: string): void {
+    if (!sourceFile || !destFile)
+        throw "ERROR: Invalid copy file parameters: " + sourceFile + " " + destFile;
+    if (!fs.existsSync(sourceFile))
+        throw "ERROR: copyFile source doesn't exist: " + sourceFile;
+    if (fs.lstatSync(sourceFile).isDirectory())
+        throw "ERROR: copyFile source is a directory: " + sourceFile;
+}
+
 // Returns one of: Null, "Proposed", "Deprecated", "Obsolete"
 function getDeprecationStatus(apiObj) {
     var deprecation = apiObj.hasOwnProperty("deprecation");
@@ -616,9 +644,10 @@ function getDeprecationStatus(apiObj) {
 
     var deprecationTime = new Date(apiObj.deprecation.DeprecatedAfter);
     var obsoleteTime = new Date(apiObj.deprecation.ObsoleteAfter);
-    if (new Date() > obsoleteTime)
+    var now = new Date();
+    if (now > obsoleteTime)
         return "Obsolete";
-    if (new Date() > deprecationTime)
+    if (now > deprecationTime)
         return "Deprecated";
     return "Proposed";
 }

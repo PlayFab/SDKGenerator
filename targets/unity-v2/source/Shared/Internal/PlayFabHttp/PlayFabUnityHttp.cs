@@ -53,6 +53,7 @@ namespace PlayFab.Internal
         {
 #if PLAYFAB_REQUEST_TIMING
             var stopwatch = System.Diagnostics.Stopwatch.StartNew();
+            var startTime = DateTime.UtcNow;
 #endif
 
             var www = new UnityWebRequest(reqContainer.FullUrl)

@@ -14,7 +14,7 @@ exports.makeClientAPI = function (api, sourceDir, apiOutputDir) {
     copyTree(path.resolve(sourceDir, "source"), apiOutputDir); // Copy the whole source directory as-is
     MakeSharedFile(sourceDir, apiOutputDir);
     MakeDatatypes([api], sourceDir, apiOutputDir);
-    //MakeApi(api, sourceDir, apiOutputDir);
+    MakeAPI(api, sourceDir, apiOutputDir);
     //GenerateSimpleFiles([api], sourceDir, apiOutputDir); 
 }
 
@@ -78,9 +78,26 @@ function MakeDatatypes(apis, sourceDir, apiOutputDir) {
         modelsLocal.api = apis[a];
         modelsLocal.makeDatatype = makeDatatype;
         var generatedModels = modelsTemplate(modelsLocal);
-        console.log("Writing out api datatypes to " + path.resolve(apiOutputDir, "playfab/PlayFab" + apis[a].name + "Models.go"))
-        writeFile(path.resolve(apiOutputDir, "playfab/PlayFab" + apis[a].name + "Models.go"), generatedModels);
+        console.log("Writing out api datatypes to " + path.resolve(apiOutputDir, "playfab/client/models/PlayFab" + apis[a].name + "Models.go"))
+        writeFile(path.resolve(apiOutputDir, "playfab/client/models/PlayFab" + apis[a].name + "Models.go"), generatedModels);
     }
+}
+
+function MakeAPI(api, sourceDir, apiOutputDir) {
+    console.log("Generating Go " + api.name + " library to " + apiOutputDir);
+    
+    var apiTemplate = GetCompiledTemplate(path.resolve(sourceDir, "templates/API.go.ejs"));
+    var apiLocals = {};
+    apiLocals.api = api;
+    //apiLocals.isAndroid = isAndroid;
+    apiLocals.getAuthParamName = GetAuthParamName;
+    //apiLocals.GetRequestActions = GetRequestActions;
+    //apiLocals.GetResultActions = GetResultActions;
+    //apiLocals.GetUrlAccessor = GetUrlAccessor;
+    //apiLocals.GenerateSummary = GenerateSummary;
+    apiLocals.hasClientOptions = api.name === "Client";
+    var generatedApi = apiTemplate(apiLocals);
+    writeFile(path.resolve(apiOutputDir, "playfab/client/PlayFab" + api.name + "API.go"), generatedApi);
 }
 
 function MakeSharedFile(sourceDir, apiOutputDir) {
@@ -91,7 +108,7 @@ function MakeSharedFile(sourceDir, apiOutputDir) {
     sharedLocals.sdkVersion = exports.sdkVersion;
     sharedLocals.buildIdentifier = exports.buildIdentifier
     var compiledSharedFile = sharedTemplate(sharedLocals);
-    writeFile(path.resolve(apiOutputDir, "playfab/pfshared.go"), compiledSharedFile);
+    writeFile(path.resolve(apiOutputDir, "playfab/pfshared/pfshared.go"), compiledSharedFile);
 }
 
 
@@ -144,6 +161,13 @@ function GetPropertyGoType(property, datatype) {
     return 
 }
 
+function GetAuthParamName(apiCall) {
+    switch(apiCall.auth) {
+        case "SecretKey": return "\"X-SecretKey\"";
+        case "SessionTicket": return "\"X-Authorization\"";
+        default: return "nil"
+    }
+}
 
 function GenerateSummary() {
 

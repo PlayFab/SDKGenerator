@@ -2,6 +2,7 @@ package PlayFab<%- api.name %>Models
 
 import (
     "time"
+    "playfab/pfshared"
 )
 <% for(var d in api.datatypes) { var datatype = api.datatypes[d] %>
 <%- makeDatatype(datatype, api) %><% } %>

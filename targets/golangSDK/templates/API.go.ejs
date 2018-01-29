@@ -1,0 +1,32 @@
+package PlayFab<%- api.name %>API 
+
+import (
+    "encoding/json"
+	"errors"
+    "playfab/client/pfshared"
+    "playfab/client/models"
+)
+
+<% for(var i in api.calls) { var apiCall = api.calls[i]; %>
+    type <%- apiCall.result %>Base struct {
+        pfshared.APIResponse 
+        Data <%- apiCall.result %>
+    }
+
+    func <%- apiCall.name %>(request <%-apiCall.result  %>) (*<%- apiCall.result %>Base, error) {
+        
+        
+        
+        resp, err := pfshared.MakeRequest("/<%- api.name %>/<%- apiCall.name%>", request, <%- getAuthParamName(apiCall) %>)
+        if err != nil {
+            return nil, err
+        }
+        var typedRespObj = <%- apiCall.result %>Base{}
+        if err := json.Unmarshal(resp, &typedRespObj); err != nil {
+            return nil, err
+        }
+
+        return &typedRespObj, nil
+    }
+
+<%}%>

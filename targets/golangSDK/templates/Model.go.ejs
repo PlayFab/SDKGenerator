@@ -1,5 +1,4 @@
-type <%- datatype.Name %> struct { <% for(var i in datatype.properties) { var property = datatype.properties[i] %>
-    <% getPropertyDef() %>
-<% } %>
+type <%- datatype.name %> struct { <% for(var i in datatype.properties) { var property = datatype.properties[i] %>
+    <%- getPropertyDef(property, datatype) %> <% } %>
 }
     

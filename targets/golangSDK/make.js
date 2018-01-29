@@ -10,9 +10,11 @@ var path = require("path");
 exports.makeClientAPI = function (api, sourceDir, apiOutputDir) {
     // Builds the client api.  The provided "api" variable is a single object, the API_SPECS/client.api.json as an object
     
-    console.log("Generating Client api from: " + sourceDir + " to: " + apiOutputDir);
+    console.log("\n\nGenerating Client api from: " + sourceDir + " to: " + apiOutputDir+"\n");
     copyTree(path.resolve(sourceDir, "source"), apiOutputDir); // Copy the whole source directory as-is
-    MakeExampleTemplateFile(sourceDir, apiOutputDir);
+    MakeDatatypes([api], sourceDir, apiOutputDir);
+    //MakeApi(api, sourceDir, apiOutputDir);
+    //GenerateSimpleFiles([api], sourceDir, apiOutputDir); 
 }
 
 // generate.js looks for some specific exported functions in make.js, like:
@@ -51,13 +53,85 @@ function MakeExampleTemplateFile(sourceDir, apiOutputDir) {
     writeFile(path.resolve(apiOutputDir, "exampleTemplate.txt"), generatedTemplateText);
 }
 
-function GetModelPropertyDef() {
-    return GetPropertyGoType();
+function MakeDatatypes(apis, sourceDir, apiOutputDir) { 
+    var templateDir = path.resolve(sourceDir, "templates");
+    var modelTemplate = GetCompiledTemplate(path.resolve(templateDir, "Model.go.ejs"));
+    var modelsTemplate = GetCompiledTemplate(path.resolve(templateDir, "Models.go.ejs"));
+    var enumTemplate = GetCompiledTemplate(path.resolve(templateDir, "Enum.go.ejs"));
+
+    console.log("Making datatypes\n")
+
+    var makeDatatype = function (datatype, api) {
+        var modelLocals = {};
+        modelLocals.datatype = datatype;
+        modelLocals.getPropertyDef = GetModelPropertyDef;
+        //modelLocals.getPropertyAttribs = GetPropertyAttribs;
+        modelLocals.generateSummary = GenerateSummary;
+        modelLocals.api = api;
+        return datatype.isenum ? enumTemplate(modelLocals) : modelTemplate(modelLocals);
+    };
+
+
+    for (var a = 0; a < apis.length; a++) {
+        var modelsLocal = {};
+        modelsLocal.api = apis[a];
+        modelsLocal.makeDatatype = makeDatatype;
+        var generatedModels = modelsTemplate(modelsLocal);
+        console.log("Writing out api datatypes to " + path.resolve(apiOutputDir, "playfab/PlayFab" + apis[a].name + "Models.go"))
+        writeFile(path.resolve(apiOutputDir, "playfab/PlayFab" + apis[a].name + "Models.go"), generatedModels);
+    }
 }
 
-function GetPropertyGoType() {
 
+function GetModelPropertyDef(property, datatype) {
+
+    if(property.collection)
+    {
+        switch(property.collection) 
+        {
+            case "array": return  property.name+" []"+GetPropertyGoType(property, datatype);
+            case "map": return property.name + " map[string]"+GetPropertyGoType(property, datatype);
+            default: throw "Unknown collection type: " + property.collection + " for " + property.name + " in " + datatype.name;
+            break;
+        }
+    }
+    else 
+    {
+        return property.name + " "  + GetPropertyGoType(property, datatype);
+    }
 }
+
+function GetPropertyGoType(property, datatype) {
+
+    if(property.isclass)
+    {
+        return property.actualtype;
+    }
+    else if(property.isenum)
+    {
+        return property.actualtype;
+    }
+
+    switch(property.actualtype) {
+        case "String": return "string";
+        case "Boolean": return "bool";
+        case "int16": return property.actualtype;
+        case "uint16": return property.actualtype;
+        case "int32": return property.actualtype;
+        case "uint32": return property.actualtype;
+        case "int64": return property.actualtype;
+        case "uint64": return property.actualtype;
+        case "float": return "float32";
+        case "double": return "float64"
+        case "DateTime": return "DATETIME-unimplemented"
+        case "object": return "interface{}";
+        default:  throw "Unknown property type: " + property.actualtype + " for " + property.name + " in " + datatype.name;
+        break;
+    }
+
+    return 
+}
+
 
 function GenerateSummary() {
 

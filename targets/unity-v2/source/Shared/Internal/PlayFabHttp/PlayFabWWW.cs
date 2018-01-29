@@ -146,7 +146,7 @@ namespace PlayFab.Internal
                     bool isGzipCompressed = responseBytes != null && responseBytes[0] == 31 && responseBytes[1] == 139;
                     string responseText = "Unexpected error: cannot decompress GZIP stream.";
                     if (!isGzipCompressed && responseBytes != null)
-                        responseText = System.Text.Encoding.UTF8.GetString(responseBytes);
+                        responseText = System.Text.Encoding.UTF8.GetString(responseBytes, 0, responseBytes.Length);
 #if !UNITY_WSA && !UNITY_WP8 && !UNITY_WEBGL
                     if (isGzipCompressed)
                     {

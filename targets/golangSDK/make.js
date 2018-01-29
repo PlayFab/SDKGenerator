@@ -12,6 +12,7 @@ exports.makeClientAPI = function (api, sourceDir, apiOutputDir) {
     
     console.log("\n\nGenerating Client api from: " + sourceDir + " to: " + apiOutputDir+"\n");
     copyTree(path.resolve(sourceDir, "source"), apiOutputDir); // Copy the whole source directory as-is
+    MakeSharedFile(sourceDir, apiOutputDir);
     MakeDatatypes([api], sourceDir, apiOutputDir);
     //MakeApi(api, sourceDir, apiOutputDir);
     //GenerateSimpleFiles([api], sourceDir, apiOutputDir); 
@@ -82,6 +83,17 @@ function MakeDatatypes(apis, sourceDir, apiOutputDir) {
     }
 }
 
+function MakeSharedFile(sourceDir, apiOutputDir) {
+    var templateDir = path.resolve(sourceDir, "templates");
+    var sharedTemplate = GetCompiledTemplate(path.resolve(templateDir, "pfshared.go.ejs"));
+
+    var sharedLocals = {}
+    sharedLocals.sdkVersion = exports.sdkVersion;
+    sharedLocals.buildIdentifier = exports.buildIdentifier
+    var compiledSharedFile = sharedTemplate(sharedLocals);
+    writeFile(path.resolve(apiOutputDir, "playfab/pfshared.go"), compiledSharedFile);
+}
+
 
 function GetModelPropertyDef(property, datatype) {
 
@@ -123,7 +135,7 @@ function GetPropertyGoType(property, datatype) {
         case "uint64": return property.actualtype;
         case "float": return "float32";
         case "double": return "float64"
-        case "DateTime": return "DATETIME-unimplemented"
+        case "DateTime": return "time.Time"
         case "object": return "interface{}";
         default:  throw "Unknown property type: " + property.actualtype + " for " + property.name + " in " + datatype.name;
         break;

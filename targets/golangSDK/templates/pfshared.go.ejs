@@ -56,9 +56,9 @@ type internalSettingsContainer struct {
 }
 
 var Settings PlayFabSettings = PlayFabSettings{
-	SdkVersion:      <%- sdkVersion %>,
-	BuildIdentifier: "jbuild_gosdk_0",
-	//VersionString:   nil,
+	SdkVersion:      "<%- sdkVersion %>",
+	BuildIdentifier: "<%- buildIdentifier %>",
+	VersionString:   "GoSDK-<%- sdkVersion %>",
 
 	UseDevelopmentEnvironment: false,
 	//DevelopmentEnvironmentURL: nil,

@@ -1,5 +1,8 @@
 package PlayFab<%- api.name %>Models
 
+import (
+    "time"
+)
 <% for(var d in api.datatypes) { var datatype = api.datatypes[d] %>
 <%- makeDatatype(datatype, api) %><% } %>
     

@@ -1,7 +1,17 @@
 <?xml version="1.0" encoding="UTF-8"?>
 <project xmlns="http://maven.apache.org/POM/4.0.0" xmlns:xsi="http://www.w3.org/2001/XMLSchema-instance" xsi:schemaLocation="http://maven.apache.org/POM/4.0.0 http://maven.apache.org/xsd/maven-4.0.0.xsd">
+    
+    <!-- POM config -->
     <modelVersion>4.0.0</modelVersion>
     <inceptionYear>2016</inceptionYear>
+    <properties>
+        <!-- Eliminates the file encoding warning. Of course, all of your files should probably be UTF-8 nowadays. -->
+        <project.build.sourceEncoding>UTF-8</project.build.sourceEncoding>
+        <!-- Added to show how the dependency/property report will look at properties -->
+        <javaLanguage.version>1.7</javaLanguage.version>
+    </properties>
+    
+    <!-- GAV & Meta -->
     <groupId>com.playfab</groupId>
     <artifactId><%- apiNameLc %>-sdk</artifactId>
     <version><%- sdkVersion %></version>
@@ -12,6 +22,15 @@
         <name>PlayFab Inc.</name>
         <url>https://PlayFab.com</url>
     </organization>
+    <developers>
+        <developer>
+            <name>Paul Gilmore</name>
+            <email>paul@playfab.com</email>
+            <organization>PlayFab</organization>
+            <organizationUrl>https://playfab.com/</organizationUrl>
+        </developer>
+    </developers>
+    
     <licenses>
         <license>
             <name>The Apache Software License, Version 2.0</name>
@@ -19,24 +38,26 @@
             <distribution>repo</distribution>
         </license>
     </licenses>
-    <prerequisites>
-        <maven>3.1.9</maven>
-    </prerequisites>
+    
+    <issueManagement>
+        <system>GitHub</system>
+        <url>https://github.com/PlayFab/JavaSDK/issues/</url>
+    </issueManagement>
+
     <scm>
         <connection>scm:git:https://github.com/PlayFab/JavaSDK.git</connection>
         <developerConnection>scm:git:https://github.com/PlayFab/JavaSDK.git</developerConnection>
         <url>scm:git:https://github.com/PlayFab/JavaSDK.git</url>
     </scm>
-    <issueManagement>
-        <system>GitHub</system>
-        <url>https://github.com/PlayFab/JavaSDK/issues/</url>
-    </issueManagement>
-    <properties>
-        <!-- Eliminates the file encoding warning. Of course, all of your files should probably be UTF-8 nowadays. -->
-        <project.build.sourceEncoding>UTF-8</project.build.sourceEncoding>
-        <!-- Added to show how the dependency/property report will look at properties -->
-        <javaLanguage.version>1.7</javaLanguage.version>
-    </properties>
+    
+    <!-- Distribution -->
+    <distributionManagement>
+      <snapshotRepository>
+        <id>ossrh</id>
+        <url>https://oss.sonatype.org/content/repositories/snapshots</url>
+      </snapshotRepository>
+    </distributionManagement>
+    
     <dependencies>
         <dependency>
             <groupId>junit</groupId>
@@ -58,6 +79,7 @@
             <scope>test</scope>
         </dependency>
     </dependencies>
+    
     <build>
         <plugins>
             <plugin>
@@ -69,13 +91,27 @@
                     <target>${javaLanguage.version}</target>
                 </configuration>
             </plugin>
+            
             <plugin>
                 <groupId>org.apache.maven.plugins</groupId>
                 <artifactId>maven-surefire-plugin</artifactId>
                 <version>2.19.1</version>
             </plugin>
+            
+            <plugin>
+                <groupId>org.sonatype.plugins</groupId>
+                <artifactId>nexus-staging-maven-plugin</artifactId>
+                <version>1.6.7</version>
+                <extensions>true</extensions>
+                <configuration>
+                    <serverId>ossrh</serverId>
+                    <nexusUrl>https://oss.sonatype.org/</nexusUrl>
+                    <autoReleaseAfterClose>false</autoReleaseAfterClose>
+                </configuration>
+            </plugin>
         </plugins>
     </build>
+    
     <profiles>
         <profile>
             <id>release</id>
@@ -90,26 +126,13 @@
                                 <id>sign-artifacts</id>
                                 <phase>verify</phase>
                                 <goals>
-                                    <goal>sign-and-deploy-file</goal>
+                                    <goal>sign</goal>
                                 </goals>
                                 <configuration>
-                                    <!-- From list-keys https://www.gnupg.org/gph/en/manual/r762.html -->
-                                    <keyname>4A496164</keyname>
-                                    <url>https://oss.sonatype.org/service/local/staging/deploy/maven2/</url>
-                                    <pomFile>pom.xml</pomFile>
-                                    <artifactId>${project.artifactId}</artifactId>
-                                    <groupId>${project.groupId}</groupId>
-                                    <version>${project.version}</version>
-                                    <file>target/${project.artifactId}-${project.version}.jar</file>
-                                    <files>
-                                        target/${project.artifactId}-${project.version}-sources.jar,target/${project.artifactId}-${project.version}-javadoc.jar
-                                    </files>
-                                    <types>jar,jar</types>
-                                    <classifiers>sources,javadoc</classifiers>
-                                    <repositoryId>ossrh</repositoryId>
+                                    <!-- This is necessary for gpg to not try to use the pinentry programs -->
                                     <gpgArguments>
-                                        <argument>--armor</argument>
-                                        <argument>--detach-sig</argument>
+                                        <arg>--pinentry-mode</arg>
+                                        <arg>loopback</arg>
                                     </gpgArguments>
                                 </configuration>
                             </execution>
@@ -117,8 +140,24 @@
                     </plugin>
                     <plugin>
                         <groupId>org.apache.maven.plugins</groupId>
+                        <artifactId>maven-javadoc-plugin</artifactId>
+                        <version>3.0.0</version>
+                        <executions>
+                            <execution>
+                                <id>attach-javadocs</id>
+                                <configuration>
+                                    <linksource>true</linksource>
+                                </configuration>
+                                <goals>
+                                    <goal>jar</goal>
+                                </goals>
+                            </execution>
+                        </executions>
+                    </plugin>
+                    <plugin>
+                        <groupId>org.apache.maven.plugins</groupId>
                         <artifactId>maven-source-plugin</artifactId>
-                        <version>2.4</version>
+                        <version>3.0.1</version>
                         <executions>
                             <execution>
                                 <id>attach-sources</id>
@@ -127,33 +166,6 @@
                                 </goals>
                             </execution>
                         </executions>
-                    </plugin>
-                    <plugin>
-                        <groupId>org.apache.maven.plugins</groupId>
-                        <artifactId>maven-javadoc-plugin</artifactId>
-                        <version>2.10.3</version>
-                        <executions>
-                            <execution>
-                                <id>attach-javadocs</id>
-                                <goals>
-                                    <goal>jar</goal>
-                                </goals>
-                                <configuration>
-                                    <linksource>true</linksource>
-                                </configuration>
-                            </execution>
-                        </executions>
-                    </plugin>
-                    <plugin>
-                        <groupId>org.sonatype.plugins</groupId>
-                        <artifactId>nexus-staging-maven-plugin</artifactId>
-                        <version>1.6.3</version>
-                        <extensions>true</extensions>
-                        <configuration>
-                            <serverId>ossrh</serverId>
-                            <nexusUrl>https://oss.sonatype.org/</nexusUrl>
-                            <autoReleaseAfterClose>false</autoReleaseAfterClose>
-                        </configuration>
                     </plugin>
                 </plugins>
             </build>
@@ -235,12 +247,5 @@
             </plugin>
         </plugins>
     </reporting>
-    <distributionManagement>
-        <repository>
-            <id>ossrh</id>
-            <url>https://oss.sonatype.org/service/local/staging/deploy/maven2/</url>
-            <!-- deployment url -->
-            <!--<url>https://oss.sonatype.org/content/repositories/snapshots/</url> staging url -->
-        </repository>
-    </distributionManagement>
+
 </project>

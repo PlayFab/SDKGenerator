@@ -359,6 +359,7 @@
     <Content Include="targets\javascript\testingFiles\web.config" />
     <Content Include="targets\javascript\testingFiles\web.Debug.config" />
     <Content Include="targets\javascript\testingFiles\web.Release.config" />
+    <Content Include="targets\java\readme.xml" />
     <Content Include="targets\java\srcCode\src\main\java\com\playfab\internal\PlayFabHTTP.java" />
     <Content Include="targets\java\srcCode\src\main\java\com\playfab\PlayFabUtil.java" />
     <Content Include="targets\java\templates\API.java.ejs" />

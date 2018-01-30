@@ -3,6 +3,7 @@ package pfshared
 import (
 	"encoding/json"
 	"io"
+	"errors"
 	"net/http"
 	"strings"
 )
@@ -113,6 +114,10 @@ func readJSONFromResp(resp *http.Response) ([]byte, error) {
 
 func MakeRequest(urlStr string, request interface{}, authType string) ([]byte, error) {
 
+	if PlayFabSettings.TitleId == "" {
+		return nil, errors.New("Must have a valid title Id set to call this method")
+	}
+
 	client := &http.Client{}
 
 	marshaledJSON, err := json.Marshal(request)
@@ -128,6 +133,24 @@ func MakeRequest(urlStr string, request interface{}, authType string) ([]byte, e
 	req.Header.Add("Content-Type", "application/json")
 	//req.Header.Add("Content-Length", string(req.ContentLength)) unsure if this is needed and how to get the content length correctly
 	req.Header.Add("X-PlayFabSDK", "GoSDK-"+Settings.SdkVersion+"-"+Settings.VersionString)
+	
+	if authType == "X-Authorization" {
+
+		if(PlayFabSettings.DeveloperSecretKey == "") {
+			return nil, errors.New("Must be logged in to call this method");
+		}
+		else {
+			req.Header.Add(authType, PlayFabSettings.DeveloperSecretKey)
+		}
+
+	} else if authType == "X-SecretKey" {
+		if(PlayFabSettings.DeveloperSecretKey == "") {
+			return nil, errors.New("Must have PlayFabSettings.DeveloperSecretKey set to call this method");
+		}
+		else {
+			req.Header.Add(authType, internalSettings.sessionTicket)
+		}
+	}
 	req.Header.Add(authType, Settings.DeveloperSecretKey)
 
 	resp, err := client.Do(req)

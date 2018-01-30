@@ -89,10 +89,10 @@ function MakeAPI(api, sourceDir, apiOutputDir) {
     var apiTemplate = GetCompiledTemplate(path.resolve(sourceDir, "templates/API.go.ejs"));
     var apiLocals = {};
     apiLocals.api = api;
-    //apiLocals.isAndroid = isAndroid;
+
     apiLocals.getAuthParamName = GetAuthParamName;
-    //apiLocals.GetRequestActions = GetRequestActions;
-    //apiLocals.GetResultActions = GetResultActions;
+    apiLocals.getRequestActions = GetRequestActions;
+    apiLocals.getResultActions = GetResultActions;
     //apiLocals.GetUrlAccessor = GetUrlAccessor;
     //apiLocals.GenerateSummary = GenerateSummary;
     apiLocals.hasClientOptions = api.name === "Client";
@@ -159,6 +159,33 @@ function GetPropertyGoType(property, datatype) {
     }
 
     return 
+}
+
+function GetRequestActions(apiCall, api) {
+    if (api.name === "Client" && (apiCall.result === "LoginResult" || apiCall.request === "RegisterPlayFabUserRequest"))
+        return "request.TitleId = PlayFabSettings.TitleId != null ? PlayFabSettings.TitleId : request.TitleId;\n"
+        +"        if(request.TitleId == null) {\n"
+        +"            return nil, errors.New(\"Must be have PlayFabSettings.TitleId set to call this method\");\n"
+        +"        }";
+    if (api.name === "Client" && apiCall.auth === "SessionTicket")
+        return "if (_authKey == null) {\n"
+        +"            errors.New(\"Must be logged in to call this method\");\n"
+        +"        }";
+    if (apiCall.auth === "SecretKey")
+        return "if (PlayFabSettings.DeveloperSecretKey == null) {\n"
+            + "            errors.New(\"Must have PlayFabSettings.DeveloperSecretKey set to call this method\");\n"
+            +"        }";
+    return "";
+}
+
+function GetResultActions(apiCall, api) {
+    if (api.name === "Client" && (apiCall.result === "LoginResult" || apiCall.result === "RegisterPlayFabUserResult"))
+        return "_authKey = result.SessionTicket != null ? result.SessionTicket : _authKey;\n" 
+            + "        MultiStepClientLogin(resultData.data.SettingsForUser.NeedsAttribution);";
+    else if (api.name === "Client" && apiCall.result === "AttributeInstallResult")
+        return "// Modify AdvertisingIdType:  Prevents us from sending the id multiple times, and allows automated tests to determine id was sent successfully\n" 
+            + "        PlayFabSettings.AdvertisingIdType += \"_Successful\";";
+    return "";
 }
 
 function GetAuthParamName(apiCall) {

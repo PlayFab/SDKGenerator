@@ -15,8 +15,7 @@ import (
 
     func <%- apiCall.name %>(request <%-apiCall.result  %>) (*<%- apiCall.result %>Base, error) {
         
-        
-        
+        <% //Disabled for now as can happen at request stage? getRequestActions(apiCall, api) %>
         resp, err := pfshared.MakeRequest("/<%- api.name %>/<%- apiCall.name%>", request, <%- getAuthParamName(apiCall) %>)
         if err != nil {
             return nil, err
@@ -25,8 +24,27 @@ import (
         if err := json.Unmarshal(resp, &typedRespObj); err != nil {
             return nil, err
         }
-
+        <%- getResultActions(apiCall, api) %>
         return &typedRespObj, nil
     }
 
 <%}%>
+
+func AttributeInstallResultBase MultiStepClientLogin(bool needsAttribution) {
+    pfSettings := &pfshared.PlayFabSettings
+
+    if (needsAttribution && !pfSettingss.DisableAdvertising && pfSettings.AdvertisingIdType != "" && pfSettings.AdvertisingIdValue != "")
+    {
+        request := AttributeInstallRequest{};
+        if (pfSettings.AdvertisingIdType == pfSettings.AD_TYPE_IDFA)
+            request.Idfa = pfSettings.AdvertisingIdValue;
+        else if (pfSettings.AdvertisingIdType == pfSettings.AD_TYPE_ANDROID_ID)
+            request.Adid = pfSettings.AdvertisingIdValue;
+        else
+            return null;
+
+
+        return  AttributeInstall(request);
+    }
+    return null;
+}

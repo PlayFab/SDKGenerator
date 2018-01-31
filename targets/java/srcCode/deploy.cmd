@@ -1,1 +1,1 @@
-mvn clean deploy -P release && mvn nexus-staging:release
+mvn clean deploy -e -P release && mvn nexus-staging:release

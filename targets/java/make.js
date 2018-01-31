@@ -1,22 +1,20 @@
 var path = require("path");
 
 // Making resharper less noisy - These are defined in Generate.js
-if (typeof (copyTree) === "undefined") copyTree = function () { };
 if (typeof (generateApiSummaryLines) === "undefined") generateApiSummaryLines = function () { };
 if (typeof (getCompiledTemplate) === "undefined") getCompiledTemplate = function () { };
+if (typeof (templatizeTree) === "undefined") templatizeTree = function () { };
 
 exports.makeClientAPI2 = function (apis, sourceDir, apiOutputDir) {
     var srcOutputLoc = ["", "../AndroidStudioExample/app/"];
-    var testOutputLoc = ["", "../AndroidStudioExample/app/"];
 
     for (var i = 0; i < srcOutputLoc.length; i++) {
         var srcOutputDir = path.resolve(apiOutputDir, srcOutputLoc[i]);
-        var testOutputDir = path.resolve(apiOutputDir, testOutputLoc[i]);
         var isAndroid = srcOutputDir.indexOf("AndroidStudioExample") >= 0;
 
+        var locals = { hasClientOptions: true, hasServerOptions: false };
         console.log("Generating Java client SDK to " + srcOutputDir);
-        copyTree(path.resolve(sourceDir, "srcCode"), srcOutputDir);
-        copyTree(path.resolve(sourceDir, "testingFiles/client"), testOutputDir);
+        templatizeTree(locals, path.resolve(sourceDir, "srcCode"), srcOutputDir);
         makeDatatypes(apis, sourceDir, srcOutputDir);
         for (var j = 0; j < apis.length; j++)
             makeApi(apis[j], sourceDir, apiOutputDir, false);
@@ -27,8 +25,8 @@ exports.makeClientAPI2 = function (apis, sourceDir, apiOutputDir) {
 exports.makeServerAPI = function (apis, sourceDir, apiOutputDir) {
     console.log("Generating Java server SDK to " + apiOutputDir);
 
-    copyTree(path.resolve(sourceDir, "srcCode"), apiOutputDir);
-    copyTree(path.resolve(sourceDir, "testingFiles/server"), apiOutputDir);
+    var locals = { hasClientOptions: false, hasServerOptions: true };
+    templatizeTree(locals, path.resolve(sourceDir, "srcCode"), apiOutputDir);
     makeDatatypes(apis, sourceDir, apiOutputDir);
     for (var i = 0; i < apis.length; i++)
         makeApi(apis[i], sourceDir, apiOutputDir, false);
@@ -38,8 +36,8 @@ exports.makeServerAPI = function (apis, sourceDir, apiOutputDir) {
 exports.makeCombinedAPI = function (apis, sourceDir, apiOutputDir) {
     console.log("Generating Java combined SDK to " + apiOutputDir);
 
-    copyTree(path.resolve(sourceDir, "srcCode"), apiOutputDir);
-    copyTree(path.resolve(sourceDir, "testingFiles/combo"), apiOutputDir);
+    var locals = { hasClientOptions: true, hasServerOptions: true };
+    templatizeTree(locals, path.resolve(sourceDir, "srcCode"), apiOutputDir);
     makeDatatypes(apis, sourceDir, apiOutputDir);
     for (var i = 0; i < apis.length; i++)
         makeApi(apis[i], sourceDir, apiOutputDir, false);
@@ -106,7 +104,7 @@ function generateSimpleFiles(apis, apiName, sourceDir, apiOutputDir, isAndroid) 
     for (var i = 0; i < apis.length; i++) {
         if (apis[i].name === "Client")
             locals.hasClientOptions = true;
-        else
+        else if (apis[i].name !== "Entity")
             locals.hasServerOptions = true;
     }
 
@@ -183,27 +181,40 @@ function getPropertyJavaType(property, datatype) {
 }
 
 function getAuthParams(apiCall) {
+    if (apiCall.auth === "EntityToken")
+        return "\"X-EntityToken\", PlayFabSettings.EntityToken";
     if (apiCall.auth === "SecretKey")
         return "\"X-SecretKey\", PlayFabSettings.DeveloperSecretKey";
-    else if (apiCall.auth === "SessionTicket")
-        return "\"X-Authorization\", _authKey";
+    if (apiCall.auth === "SessionTicket")
+        return "\"X-Authorization\", PlayFabSettings.ClientSessionTicket";
+    if (apiCall.url === "/Authentication/GetEntityToken")
+        return "authKey, authValue";
     return "null, null";
 }
 
 function getRequestActions(tabbing, apiCall) {
     if (apiCall.result === "LoginResult" || apiCall.request === "RegisterPlayFabUserRequest")
         return tabbing + "request.TitleId = PlayFabSettings.TitleId != null ? PlayFabSettings.TitleId : request.TitleId;\n"
-            + tabbing + "if(request.TitleId == null) throw new Exception (\"Must be have PlayFabSettings.TitleId set to call this method\");\n";
+            + tabbing + "if (request.TitleId == null) throw new Exception (\"Must be have PlayFabSettings.TitleId set to call this method\");\n";
+    if (apiCall.url === "/Authentication/GetEntityToken")
+        return tabbing + "String authKey = null, authValue = null;\n"
+            + tabbing + "if (PlayFabSettings.EntityToken != null) { authKey = \"X-EntityToken\"; authValue = PlayFabSettings.EntityToken; }\n"
+            + tabbing + "else if (PlayFabSettings.ClientSessionTicket != null) { authKey = \"X-Authorization\"; authValue = PlayFabSettings.ClientSessionTicket; }\n"
+            + tabbing + "else if (PlayFabSettings.DeveloperSecretKey != null) { authKey = \"X-SecretKey\"; authValue = PlayFabSettings.DeveloperSecretKey; }\n";
     if (apiCall.auth === "SessionTicket")
-        return tabbing + "if (_authKey == null) throw new Exception (\"Must be logged in to call this method\");\n";
+        return tabbing + "if (PlayFabSettings.ClientSessionTicket == null) throw new Exception (\"Must be logged in to call this method\");\n";
     if (apiCall.auth === "SecretKey")
         return tabbing + "if (PlayFabSettings.DeveloperSecretKey == null) throw new Exception (\"Must have PlayFabSettings.DeveloperSecretKey set to call this method\");\n";
+    if (apiCall.auth === "EntityToken")
+        return tabbing + "if (PlayFabSettings.EntityToken == null) throw new Exception (\"Must call GetEntityToken before you can use the Entity API\");\n";
     return "";
 }
 
 function getResultActions(tabbing, apiCall, api) {
-    if (api.name === "Client" && (apiCall.result === "LoginResult" || apiCall.result === "RegisterPlayFabUserResult"))
-        return tabbing + "_authKey = result.SessionTicket != null ? result.SessionTicket : _authKey;\n"
+    if (apiCall.url === "/Authentication/GetEntityToken")
+        return tabbing + "PlayFabSettings.EntityToken = result.EntityToken != null ? result.EntityToken : PlayFabSettings.EntityToken;\n";
+    else if (api.name === "Client" && (apiCall.result === "LoginResult" || apiCall.result === "RegisterPlayFabUserResult"))
+        return tabbing + "PlayFabSettings.ClientSessionTicket = result.SessionTicket != null ? result.SessionTicket : PlayFabSettings.ClientSessionTicket;\n"
             + tabbing + "MultiStepClientLogin(resultData.data.SettingsForUser.NeedsAttribution);\n";
     else if (api.name === "Client" && apiCall.result === "AttributeInstallResult")
         return tabbing + "// Modify AdvertisingIdType:  Prevents us from sending the id multiple times, and allows automated tests to determine id was sent successfully\n"
@@ -219,9 +230,13 @@ function generateApiSummary(tabbing, apiElement, summaryParam, extraLines) {
     var lines = generateApiSummaryLines(apiElement, summaryParam, extraLines, false, "@deprecated");
 
     // FILTERING: Java is very picky about the output
-    if (lines)
-        for (var i = 0; i < lines.length; i++)
+    if (lines) {
+        for (var i = 0; i < lines.length; i++) {
             lines[i] = lines[i].replaceAll("<", "&lt;").replaceAll(">", "&gt;");
+            if (lines[i].contains("*/"))
+                lines[i] = null;
+        }
+    }
 
     var output;
     if (lines.length === 1 && lines[0]) {

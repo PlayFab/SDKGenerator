@@ -1,6 +1,6 @@
 package com.playfab;
 
-<% if(isAndroid) { %>import android.util.Log;
+<% if (isAndroid) { %>import android.util.Log;
 <% } %>import com.playfab.internal.*;
 import com.playfab.PlayFab<%- api.name %>Models.*;
 import com.playfab.PlayFabErrors.*;
@@ -47,7 +47,7 @@ import com.google.gson.reflect.*;
         FutureTask<Object> task = PlayFabHTTP.doPost(<%- getUrlAccessor() %> + "<%- apiCall.url %>", request, <%- getAuthParams(apiCall) %>);
         task.run();
         Object httpResult = task.get();
-        if(httpResult instanceof PlayFabError) {
+        if (httpResult instanceof PlayFabError) {
             PlayFabError error = (PlayFabError)httpResult;
             if (PlayFabSettings.GlobalErrorHandler != null)
                 PlayFabSettings.GlobalErrorHandler.callback(error);
@@ -64,9 +64,9 @@ import com.google.gson.reflect.*;
         pfResult.Result = result;
         return pfResult;
     }
-<% } %><% if(hasClientOptions) { %>
+<% } %><% if (hasClientOptions) { %>
     public static void MultiStepClientLogin(Boolean needsAttribution) {
-<% if(isAndroid) {
+<% if (isAndroid) {
 %>        if (needsAttribution && !PlayFabSettings.DisableAdvertising
         && (PlayFabSettings.AdvertisingIdType == null || PlayFabSettings.AdvertisingIdType == "")
         && (PlayFabSettings.AdvertisingIdValue == null || PlayFabSettings.AdvertisingIdValue == "")
@@ -99,6 +99,4 @@ import com.google.gson.reflect.*;
             task.run();
         }
     }
-
-    private static String _authKey = null;
 <% } %>}

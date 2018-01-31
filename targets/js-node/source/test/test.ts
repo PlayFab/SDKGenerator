@@ -18,14 +18,12 @@ var titleData = {
     // Or you can provide the same structure in a json-file and load with LoadTitleData
     titleId: "",
     developerSecretKey: "",
-    userEmail: "",
-    characterName: ""
+    userEmail: ""
 };
 
 var testConstants = {
     TEST_KEY: "testCounter",
-    TEST_STAT_NAME: "str",
-    CHAR_TEST_TYPE: "Fighter"
+    TEST_STAT_NAME: "str"
 };
 
 var testData = {
@@ -110,8 +108,7 @@ exports.PlayFabApiTests = {
             // All of these must exist for the titleData load to be successful
             var titleDataValid = inputTitleData.hasOwnProperty("titleId")
                 && inputTitleData.hasOwnProperty("developerSecretKey")
-                && inputTitleData.hasOwnProperty("userEmail")
-                && inputTitleData.hasOwnProperty("characterName");
+                && inputTitleData.hasOwnProperty("userEmail");
 
             if (titleDataValid)
                 titleData = inputTitleData;

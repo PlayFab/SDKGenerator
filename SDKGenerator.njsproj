@@ -824,12 +824,12 @@
     <Folder Include="targets\javascript\testingFiles\" />
     <Folder Include="targets\java\" />
     <Folder Include="targets\java\srcCode\" />
-    <Folder Include="targets\java\srcCode\src\main\java\com\" />
-    <Folder Include="targets\java\srcCode\src\main\java\com\playfab\" />
-    <Folder Include="targets\java\srcCode\src\main\java\com\playfab\internal\" />
     <Folder Include="targets\java\srcCode\src\" />
     <Folder Include="targets\java\srcCode\src\main\" />
     <Folder Include="targets\java\srcCode\src\main\java\" />
+    <Folder Include="targets\java\srcCode\src\main\java\com\" />
+    <Folder Include="targets\java\srcCode\src\main\java\com\playfab\" />
+    <Folder Include="targets\java\srcCode\src\main\java\com\playfab\internal\" />
     <Folder Include="targets\java\srcCode\src\test\" />
     <Folder Include="targets\java\srcCode\src\test\java\" />
     <Folder Include="targets\java\srcCode\src\test\java\com\" />

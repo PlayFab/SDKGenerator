@@ -73,22 +73,20 @@ function makeDatatype(tabbing, datatype, sourceDir, extendsFrom) {
 function getProperty(tabbing, property) {
 
     var type = property.jsontype.toLowerCase();
-    if (type === "object") {
+    if (type === "object")
         type = "any";
-    }
-    if (property.isenum || property.isclass) {
+    if (property.isenum || property.isclass)
         type = property.actualtype;
-    }
 
     var preColon = property.name + (property.optional ? "?" : "");
     var postColon = type;
 
-    if (property.collection === "map") {
-        postColon = "{ [key: string]: " + type + " }"; // TODO: handle { [key: string]: string | null }
-    }
-    if (property.collection === "array") {
+    if (property.collection === "map" && type === "string")
+        postColon = "{ [key: string]: string | null }";
+    else if (property.collection === "map")
+        postColon = "{ [key: string]: " + type + " }";
+    else if (property.collection === "array")
         postColon += "[]";
-    }
 
     return tabbing + preColon + ": " + postColon + ",\n";
 }
@@ -97,12 +95,11 @@ function generateApiSummary(tabbing, apiElement, summaryParam, extraLines) {
     var lines = generateApiSummaryLines(apiElement, summaryParam, extraLines);
 
     var output;
-    if (lines.length === 1 && lines[0]) {
+    if (lines.length === 1 && lines[0])
         output = tabbing + "/** " + lines[0] + " */\n";
-    } else if (lines.length > 1) {
+    else if (lines.length > 1)
         output = tabbing + "/**\n" + tabbing + " * " + lines.join("\n" + tabbing + " * ") + "\n" + tabbing + " */\n";
-    } else {
+    else
         output = "";
-    }
     return output;
 }

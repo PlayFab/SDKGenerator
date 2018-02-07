@@ -9,44 +9,43 @@ import (
 )
 
 <% for(var i in api.calls) { var apiCall = api.calls[i]; %>
-    type <%- apiCall.result %>Base struct {
-        pfshared.APIResponse 
-        Data <%- apiCall.result %>
-    }
+type T<%- apiCall.name %> struct {
+    pfshared.APIResponse 
+    Data <%- apiCall.result %>
+}
 
-    <%- generateSummary("    ", apiCall, "summary") %>
-    func <%- apiCall.name %>(request <%-apiCall.result  %>) (*<%- apiCall.result %>Base, error) {
-        
-        <% //Disabled for now as can happen at request stage? getRequestActions(apiCall, api) %>
-        resp, err := pfshared.MakeRequest("/<%- api.name %>/<%- apiCall.name%>", request, <%- getAuthParamName(apiCall) %>)
-        if err != nil {
-            return nil, err
-        }
-        var typedRespObj = <%- apiCall.result %>Base{}
-        if err := json.Unmarshal(resp, &typedRespObj); err != nil {
-            return nil, err
-        }
-        <%- getResultActions(apiCall, api) %>
-        return &typedRespObj, nil
+<%- generateSummary("    ", apiCall, "summary") %>
+func <%- apiCall.name %>(request <%-apiCall.result  %>) (*<%- apiCall.result %>Base, error) {
+    
+    <% //Disabled for now as can happen at request stage? getRequestActions(apiCall, api) %>
+    resp, err := pfshared.MakeRequest("/<%- api.name %>/<%- apiCall.name%>", request, <%- getAuthParamName(apiCall) %>)
+    if err != nil {
+        return nil, err
     }
+    var typedRespObj = <%- apiCall.result %>Base{}
+    if err := json.Unmarshal(resp, &typedRespObj); err != nil {
+        return nil, err
+    }
+    <%- getResultActions(apiCall, api) %>
+    return &typedRespObj, nil
+}
 
 <%}%>
 
-func AttributeInstallResultBase MultiStepClientLogin(bool needsAttribution) {
-    pfSettings := &pfshared.PlayFabSettings
+func MultiStepClientLogin(needsAttribution bool) AttributeInstallResultBase {
+	pfSettings := &pfshared.PlayFabSettings
 
-    if (needsAttribution && !pfSettingss.DisableAdvertising && pfSettings.AdvertisingIdType != "" && pfSettings.AdvertisingIdValue != "")
-    {
-        request := AttributeInstallRequest{};
-        if (pfSettings.AdvertisingIdType == pfSettings.AD_TYPE_IDFA)
-            request.Idfa = pfSettings.AdvertisingIdValue;
-        else if (pfSettings.AdvertisingIdType == pfSettings.AD_TYPE_ANDROID_ID)
-            request.Adid = pfSettings.AdvertisingIdValue;
-        else
-            return null;
+	if needsAttribution && !pfSettingss.DisableAdvertising && pfSettings.AdvertisingIdType != "" && pfSettings.AdvertisingIdValue != "" {
+		request := AttributeInstallRequest{}
+		if pfSettings.AdvertisingIdType == pfSettings.AD_TYPE_IDFA {
+			request.Idfa = pfSettings.AdvertisingIdValue
+		} else if pfSettings.AdvertisingIdType == pfSettings.AD_TYPE_ANDROID_ID {
+			request.Adid = pfSettings.AdvertisingIdValue
+		} else {
+			return nil
+		}
 
-
-        return  AttributeInstall(request);
-    }
-    return null;
+		return AttributeInstall(request)
+	}
+	return nil
 }

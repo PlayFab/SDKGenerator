@@ -25,7 +25,11 @@ exports.makeServerAPI = function (apis, sourceDir, apiOutputDir) {
     
     console.log("Generating Server api from: " + sourceDir + " to: " + apiOutputDir);
     copyTree(path.resolve(sourceDir, "source"), apiOutputDir); // Copy the whole source directory as-is
-    MakeExampleTemplateFile(sourceDir, apiOutputDir);
+    MakeSharedFile(sourceDir, apiOutputDir);
+    MakeDatatypes(apis, sourceDir, apiOutputDir);
+    for(let i=0;i<apis.length;i++) {
+        MakeAPI(apis[i], sourceDir, apiOutputDir);
+    }
 }
 
 // generate.js looks for some specific exported functions in make.js, like:
@@ -34,24 +38,12 @@ exports.makeCombinedAPI = function (apis, sourceDir, apiOutputDir) {
     
     console.log("Generating Combined api from: " + sourceDir + " to: " + apiOutputDir);
     copyTree(path.resolve(sourceDir, "source"), apiOutputDir); // Copy the whole source directory as-is
-    MakeExampleTemplateFile(sourceDir, apiOutputDir);
-}
+    MakeSharedFile(sourceDir, apiOutputDir);
+    MakeDatatypes(apis, sourceDir, apiOutputDir);
 
-// Unlike source, Templates are written one file at a time.
-// You may want to write a helper function to write each template file, so you can call it from multiple places
-function MakeExampleTemplateFile(sourceDir, apiOutputDir) {
-    // Each template must be given any variables/information that it needs for generation.
-    // This might include apis, datatypes, custom functions defined in this make.js file, or anything else you want
-    var locals = {};
-    locals.GeneratedText = "This is generated text"; // A specific variable we wish to access in exampleTemplate.txt.ejs
-    locals.sdkVersion = exports.sdkVersion; // exports.sdkVersion is automatically injected into this file from generate.js, and comes from SdkManualNotes.json - you must provide your target in that file
-    
-    // Compiles the source .ejs file into a template function.
-    var template = GetCompiledTemplate(path.resolve(sourceDir, "templates/exampleTemplate.txt.ejs"));
-    // Call the template function, which executes the template, and evaluates all the ejs tags/logic
-    var generatedTemplateText = template(locals);
-    // generatedTemplateText is an in-memory string of the output file.  At this point, you just write it to the destination:
-    writeFile(path.resolve(apiOutputDir, "exampleTemplate.txt"), generatedTemplateText);
+    for(let i=0;i<apis.length;i++) {
+        MakeAPI(apis[i], sourceDir, apiOutputDir);
+    }
 }
 
 function MakeDatatypes(apis, sourceDir, apiOutputDir) { 
@@ -78,8 +70,11 @@ function MakeDatatypes(apis, sourceDir, apiOutputDir) {
         modelsLocal.api = apis[a];
         modelsLocal.makeDatatype = makeDatatype;
         var generatedModels = modelsTemplate(modelsLocal);
-        console.log("Writing out api datatypes to " + path.resolve(apiOutputDir, "playfab/client/models/PlayFab" + apis[a].name + "Models.go"))
-        writeFile(path.resolve(apiOutputDir, "playfab/client/models/PlayFab" + apis[a].name + "Models.go"), generatedModels);
+        console.log(apis[a].name);
+        var apiName = apis[a].name;
+        var pathStr = path.resolve(apiOutputDir, "playfab/"+apiName.toLowerCase()+"/models/PlayFab" + apiName + "Models.go");
+        console.log("Writing out api datatypes to " + pathStr)
+        writeFile(pathStr, generatedModels);
     }
 }
 
@@ -95,9 +90,9 @@ function MakeAPI(api, sourceDir, apiOutputDir) {
     apiLocals.getResultActions = GetResultActions;
     //apiLocals.GetUrlAccessor = GetUrlAccessor;
     //apiLocals.GenerateSummary = GenerateSummary;
-    apiLocals.hasClientOptions = api.name === "Client";
+    apiLocals.hasClientOptions = (api.name === "Client");
     var generatedApi = apiTemplate(apiLocals);
-    writeFile(path.resolve(apiOutputDir, "playfab/client/PlayFab" + api.name + "API.go"), generatedApi);
+    writeFile(path.resolve(apiOutputDir, "playfab/"+api.name.toLowerCase()+"/PlayFab" + api.name + "API.go"), generatedApi);
 }
 
 function MakeSharedFile(sourceDir, apiOutputDir) {

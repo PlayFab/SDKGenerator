@@ -3,8 +3,8 @@ package PlayFab<%- api.name %>API
 import (
     "encoding/json"
 	"errors"
-    "playfab/client/pfshared"
-    "playfab/client/models"
+    "playfab/pfshared"
+    "playfab/<%- api.name.toLowerCase() %>/models"
 )
 
 <% for(var i in api.calls) { var apiCall = api.calls[i]; %>

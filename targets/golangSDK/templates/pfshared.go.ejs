@@ -2,13 +2,13 @@ package pfshared
 
 import (
 	"encoding/json"
-	"io"
 	"errors"
+	"io"
 	"net/http"
 	"strings"
 )
 
-type PlayFabSettings struct {
+type PFSettings struct {
 	SdkVersion      string
 	BuildIdentifier string
 	VersionString   string
@@ -56,10 +56,10 @@ type internalSettingsContainer struct {
 	sessionTicket string
 }
 
-var Settings PlayFabSettings = PlayFabSettings{
-	SdkVersion:      "<%- sdkVersion %>",
-	BuildIdentifier: "<%- buildIdentifier %>",
-	VersionString:   "GoSDK-<%- sdkVersion %>",
+var PlayFabSettings PFSettings = PFSettings{
+	SdkVersion:      <%- sdkVersion %>,
+	BuildIdentifier: <%- buildIdentifier %>,
+	VersionString:   <%- sdkVersion %>,
 
 	UseDevelopmentEnvironment: false,
 	//DevelopmentEnvironmentURL: nil,
@@ -90,10 +90,10 @@ var internalSettings internalSettingsContainer = internalSettingsContainer{
 
 func GetServerUrl() string {
 	baseUrl := internalSettings.liveURL
-	if Settings.UseDevelopmentEnvironment {
+	if PlayFabSettings.UseDevelopmentEnvironment {
 		baseUrl = internalSettings.devEnvURL
 	}
-	return "https://" + Settings.TitleID + baseUrl
+	return "https://" + PlayFabSettings.TitleID + baseUrl
 }
 
 func readJSONFromResp(resp *http.Response) ([]byte, error) {
@@ -114,7 +114,7 @@ func readJSONFromResp(resp *http.Response) ([]byte, error) {
 
 func MakeRequest(urlStr string, request interface{}, authType string) ([]byte, error) {
 
-	if PlayFabSettings.TitleId == "" {
+	if PlayFabSettings.TitleID == "" {
 		return nil, errors.New("Must have a valid title Id set to call this method")
 	}
 
@@ -132,26 +132,24 @@ func MakeRequest(urlStr string, request interface{}, authType string) ([]byte, e
 
 	req.Header.Add("Content-Type", "application/json")
 	//req.Header.Add("Content-Length", string(req.ContentLength)) unsure if this is needed and how to get the content length correctly
-	req.Header.Add("X-PlayFabSDK", "GoSDK-"+Settings.SdkVersion+"-"+Settings.VersionString)
-	
+	req.Header.Add("X-PlayFabSDK", "GoSDK-"+PlayFabSettings.SdkVersion+"-"+PlayFabSettings.VersionString)
+
 	if authType == "X-Authorization" {
 
-		if(PlayFabSettings.DeveloperSecretKey == "") {
-			return nil, errors.New("Must be logged in to call this method");
-		}
-		else {
+		if PlayFabSettings.DeveloperSecretKey == "" {
+			return nil, errors.New("Must be logged in to call this method")
+		} else {
 			req.Header.Add(authType, PlayFabSettings.DeveloperSecretKey)
 		}
 
 	} else if authType == "X-SecretKey" {
-		if(PlayFabSettings.DeveloperSecretKey == "") {
-			return nil, errors.New("Must have PlayFabSettings.DeveloperSecretKey set to call this method");
-		}
-		else {
+		if PlayFabSettings.DeveloperSecretKey == "" {
+			return nil, errors.New("Must have PlayFabSettings.DeveloperSecretKey set to call this method")
+		} else {
 			req.Header.Add(authType, internalSettings.sessionTicket)
 		}
 	}
-	req.Header.Add(authType, Settings.DeveloperSecretKey)
+	req.Header.Add(authType, PlayFabSettings.DeveloperSecretKey)
 
 	resp, err := client.Do(req)
 	if err != nil {

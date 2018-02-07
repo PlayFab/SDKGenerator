@@ -721,12 +721,8 @@
     <Content Include="targets\unity-v2\Testing\Tests\Utility\JsonUnitTests.cs.meta" />
     <Content Include="targets\unity-v2\Testing\Tests\Utility\UtilTest.cs" />
     <Content Include="targets\unity-v2\Testing\Tests\Utility\UtilTest.cs.meta" />
-    <Content Include="targets\WindowsSdk\source\build\PlayFabSdk2013\packages.config" />
-    <Content Include="targets\WindowsSdk\source\build\PlayFabSdk2013\PlayFabSdk2013.vcxproj" />
     <Content Include="targets\WindowsSdk\source\build\PlayFabSdk2015\packages.config" />
     <Content Include="targets\WindowsSdk\source\build\PlayFabSdk2015\PlayFabSdk2015.vcxproj" />
-    <Content Include="targets\WindowsSdk\source\build\Testing2013\packages.config" />
-    <Content Include="targets\WindowsSdk\source\build\Testing2013\Testing2013.vcxproj" />
     <Content Include="targets\WindowsSdk\source\build\Testing2015\packages.config" />
     <Content Include="targets\WindowsSdk\source\build\Testing2015\Testing2015.vcxproj" />
     <Content Include="targets\WindowsSdk\source\build\TestSrc\PlayFabClientTest.cpp" />
@@ -737,9 +733,8 @@
     <Content Include="targets\WindowsSdk\source\source\PlayFabError.cpp" />
     <Content Include="targets\WindowsSdk\source\source\PlayFabHttp.cpp" />
     <Content Include="targets\WindowsSdk\source\source\PlayFabSettings.cpp" />
-    <Content Include="targets\WindowsSdk\templates\com.playfab.windowssdk.v1x0.autopkg.ejs" />
-    <Content Include="targets\WindowsSdk\templates\PlayFabApi.vcxproj.ejs" />
-    <Content Include="targets\WindowsSdk\templates\PlayFabError.h.ejs" />
+    <Content Include="targets\WindowsSdk\source\build\com.playfab.windowssdk.v140.autopkg.ejs" />
+    <Content Include="targets\WindowsSdk\source\include\playfab\PlayFabError.h.ejs" />
     <Content Include="targets\WindowsSdk\templates\PlayFab_Api.cpp.ejs" />
     <Content Include="targets\WindowsSdk\templates\PlayFab_Api.h.ejs" />
     <Content Include="targets\WindowsSdk\templates\PlayFab_DataModels.h.ejs" />
@@ -951,9 +946,7 @@
     <Folder Include="targets\WindowsSdk\" />
     <Folder Include="targets\WindowsSdk\source\" />
     <Folder Include="targets\WindowsSdk\source\build\" />
-    <Folder Include="targets\WindowsSdk\source\build\PlayFabSdk2013\" />
     <Folder Include="targets\WindowsSdk\source\build\PlayFabSdk2015\" />
-    <Folder Include="targets\WindowsSdk\source\build\Testing2013\" />
     <Folder Include="targets\WindowsSdk\source\build\Testing2015\" />
     <Folder Include="targets\WindowsSdk\source\build\TestSrc\" />
     <Folder Include="targets\WindowsSdk\source\include\" />

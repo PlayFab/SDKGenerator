@@ -1,8 +1,8 @@
 #pragma once
 <% if (api.name === "Client") { %>
-#ifndef <%- GetApiDefine(api) %>
+#ifndef <%- getApiDefine(api) %>
 <% } else { %>
-#ifdef <%- GetApiDefine(api) %>
+#ifdef <%- getApiDefine(api) %>
 <% } %>
 #include "playfab/PlayFabHttp.h"
 #include "playfab/PlayFab<%- api.name %>DataModels.h"

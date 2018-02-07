@@ -57,9 +57,9 @@ type internalSettingsContainer struct {
 }
 
 var PlayFabSettings PFSettings = PFSettings{
-	SdkVersion:      <%- sdkVersion %>,
-	BuildIdentifier: <%- buildIdentifier %>,
-	VersionString:   <%- sdkVersion %>,
+	SdkVersion:      "<%- sdkVersion %>",
+	BuildIdentifier: "<%- buildIdentifier %>",
+	VersionString:   "<%- sdkVersion %>",
 
 	UseDevelopmentEnvironment: false,
 	//DevelopmentEnvironmentURL: nil,

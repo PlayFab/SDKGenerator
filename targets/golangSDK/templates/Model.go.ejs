@@ -1,4 +1,6 @@
+<%- generateSummary("", datatype, "summary") %>
 type <%- datatype.name %> struct { <% for(var i in datatype.properties) { var property = datatype.properties[i] %>
+    <%- generateSummary("    ", property, "description") %>
     <%- getPropertyDef(property, datatype) %> <% } %>
 }
     

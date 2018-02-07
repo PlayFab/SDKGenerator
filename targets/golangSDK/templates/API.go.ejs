@@ -1,3 +1,4 @@
+<%- generateSummary("", api, "description") %>
 package PlayFab<%- api.name %>API 
 
 import (
@@ -13,6 +14,7 @@ import (
         Data <%- apiCall.result %>
     }
 
+    <%- generateSummary("    ", apiCall, "summary") %>
     func <%- apiCall.name %>(request <%-apiCall.result  %>) (*<%- apiCall.result %>Base, error) {
         
         <% //Disabled for now as can happen at request stage? getRequestActions(apiCall, api) %>

@@ -1,4 +1,5 @@
+<%- generateSummary("", datatype, "summary") %>
 type <%- datatype.name %> int
 const ( <% for(var i=0; i<datatype.enumvalues.length; i++) { var enumprops = datatype.enumvalues[i] %>
-    <%- datatype.name %>_<%- enumprops.name %> <% if(i==0){%> = iota <%}%><% } %>
+    <%- datatype.name %><%- enumprops.name %> <% if(i==0){%> = iota <%}%><% } %>
 )

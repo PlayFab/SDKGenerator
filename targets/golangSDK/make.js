@@ -11,7 +11,7 @@ exports.makeClientAPI = function (api, sourceDir, apiOutputDir) {
     // Builds the client api.  The provided "api" variable is a single object, the API_SPECS/client.api.json as an object
     
     console.log("\n\nGenerating Client api from: " + sourceDir + " to: " + apiOutputDir+"\n");
-    copyTree(path.resolve(sourceDir, "source"), apiOutputDir); // Copy the whole source directory as-is
+    //copyTree(path.resolve(sourceDir, "source"), apiOutputDir); // Copy the whole source directory as-is
     MakeSharedFile(sourceDir, apiOutputDir);
     MakeDatatypes([api], sourceDir, apiOutputDir);
     MakeAPI(api, sourceDir, apiOutputDir);
@@ -24,7 +24,7 @@ exports.makeServerAPI = function (apis, sourceDir, apiOutputDir) {
     // If you don't want admin, you should filter it out (we may remove admin in the future, once we finish the "makeAdminAPI" option
     
     console.log("Generating Server api from: " + sourceDir + " to: " + apiOutputDir);
-    copyTree(path.resolve(sourceDir, "source"), apiOutputDir); // Copy the whole source directory as-is
+    //copyTree(path.resolve(sourceDir, "source"), apiOutputDir); // Copy the whole source directory as-is
     MakeSharedFile(sourceDir, apiOutputDir);
     MakeDatatypes(apis, sourceDir, apiOutputDir);
     for(let i=0;i<apis.length;i++) {
@@ -37,7 +37,7 @@ exports.makeCombinedAPI = function (apis, sourceDir, apiOutputDir) {
     // Builds every api.  The provided "apis" variable is a list of objects, built from: API_SPECS/admin.api.json, API_SPECS/matchmaker.api.json, API_SPECS/server.api.json, and API_SPECS/client.api.json
     
     console.log("Generating Combined api from: " + sourceDir + " to: " + apiOutputDir);
-    copyTree(path.resolve(sourceDir, "source"), apiOutputDir); // Copy the whole source directory as-is
+    //copyTree(path.resolve(sourceDir, "source"), apiOutputDir); // Copy the whole source directory as-is
     MakeSharedFile(sourceDir, apiOutputDir);
     MakeDatatypes(apis, sourceDir, apiOutputDir);
 
@@ -89,7 +89,7 @@ function MakeAPI(api, sourceDir, apiOutputDir) {
     apiLocals.getRequestActions = GetRequestActions;
     apiLocals.getResultActions = GetResultActions;
     //apiLocals.GetUrlAccessor = GetUrlAccessor;
-    //apiLocals.GenerateSummary = GenerateSummary;
+    apiLocals.generateSummary = GenerateSummary;
     apiLocals.hasClientOptions = (api.name === "Client");
     var generatedApi = apiTemplate(apiLocals);
     writeFile(path.resolve(apiOutputDir, "playfab/"+api.name.toLowerCase()+"/PlayFab" + api.name + "API.go"), generatedApi);
@@ -158,24 +158,28 @@ function GetPropertyGoType(property, datatype) {
 
 function GetRequestActions(apiCall, api) {
     if (api.name === "Client" && (apiCall.result === "LoginResult" || apiCall.request === "RegisterPlayFabUserRequest"))
-        return "request.TitleId = PlayFabSettings.TitleId != null ? PlayFabSettings.TitleId : request.TitleId;\n"
-        +"        if(request.TitleId == null) {\n"
+        return "if PlayFabSettings.TitleId != null {\n"
+        +"            request.TitleId = PlayFabSettings.TitleId;\n"
+        +"        }\n"
+        +"        if request.TitleId == null {\n"
         +"            return nil, errors.New(\"Must be have PlayFabSettings.TitleId set to call this method\");\n"
         +"        }";
     if (api.name === "Client" && apiCall.auth === "SessionTicket")
-        return "if (_authKey == null) {\n"
+        return "if _authKey == null {\n"
         +"            errors.New(\"Must be logged in to call this method\");\n"
         +"        }";
     if (apiCall.auth === "SecretKey")
-        return "if (PlayFabSettings.DeveloperSecretKey == null) {\n"
-            + "            errors.New(\"Must have PlayFabSettings.DeveloperSecretKey set to call this method\");\n"
+        return "if PlayFabSettings.DeveloperSecretKey == null {\n"
+            + "           errors.New(\"Must have PlayFabSettings.DeveloperSecretKey set to call this method\");\n"
             +"        }";
     return "";
 }
 
 function GetResultActions(apiCall, api) {
     if (api.name === "Client" && (apiCall.result === "LoginResult" || apiCall.result === "RegisterPlayFabUserResult"))
-        return "_authKey = result.SessionTicket != null ? result.SessionTicket : _authKey;\n" 
+        return "if result.SessionTicket != null{\n" 
+            +"            _authKey = result.SessionTicket\n"
+            +"        }\n"
             + "        MultiStepClientLogin(resultData.data.SettingsForUser.NeedsAttribution);";
     else if (api.name === "Client" && apiCall.result === "AttributeInstallResult")
         return "// Modify AdvertisingIdType:  Prevents us from sending the id multiple times, and allows automated tests to determine id was sent successfully\n" 
@@ -191,6 +195,22 @@ function GetAuthParamName(apiCall) {
     }
 }
 
-function GenerateSummary() {
+function GenerateSummary(tabbing, apiObj, summaryParam) {
+    var isDeprecated = apiObj.hasOwnProperty("deprecation");
+    var hasSummary = apiObj.hasOwnProperty(summaryParam);
+    
+    if (!isDeprecated && !hasSummary) {
+        return "";
+    }
+    
+    var summaryLine = "";
+    if (isDeprecated && apiObj.deprecation.ReplacedBy != null)
+        return "//Deprecated: Please use " + apiObj.deprecation.ReplacedBy + " instead.";
+    else if (isDeprecated)
+        return "//Deprecated Do not use";
+    else if (hasSummary)
+        return "//" + apiObj[summaryParam];
+
+    return summaryLine;
 
 }

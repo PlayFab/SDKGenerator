@@ -33,12 +33,6 @@ namespace JenkinsConsoleUtility.Commands
             var sdkName = JenkinsConsoleUtility.GetArgVar(argsLc, "sdkName");
             var sdkGenKey = GetSdkGenKey(sdkName);
 
-            if (string.IsNullOrEmpty(sdkGenKey))
-            {
-                JenkinsConsoleUtility.FancyWriteToConsole("Cannot convert sdkName into sdkGenKey: " + sdkName);
-                return 1;
-            }
-
             if (argsLc.ContainsKey("apispecpath"))
                 _apiSpecPath = JenkinsConsoleUtility.GetArgVar(argsLc, "apiSpecPath");
             else if (argsLc.ContainsKey("apispecgiturl"))
@@ -118,23 +112,23 @@ namespace JenkinsConsoleUtility.Commands
         {
             switch (sdkName.ToLower())
             {
+                // Single repo maps to mismatched foldername
                 case "actionscriptsdk": return "actionscript";
                 case "cocos2d-xsdk": return "cpp-cocos2dx";
                 case "csharpsdk": return "csharp";
                 case "javascriptsdk": return "javascript";
                 case "javasdk": return "java";
-                case "luasdk": return "luasdk";
                 case "nodesdk": return "js-node";
-                case "postmancollection": return "postman";
-                case "unitysdk": return "unity-v2";
-                case "lumberyardsdk": return "lumberyardsdk";
                 case "objective_c_sdk": return "objc";
                 case "playfabgameserver": return "csharp-unity-gameserver";
-                case "unrealblueprintsdk": return "cpp-unreal";
-                case "unrealcppsdk": return "cpp-ue4";
-                case "windowssdk": return "windowssdk";
+                // Multiple repos map to the same folder
+                case "postmancollection": case "postmanbeta": return "postman";
+                case "unitysdk": case "unitypsn": case "unityxbox": case "unitybeta": case "unityeditorextensions": return "unity-v2";
+                case "unrealblueprintsdk": case "uebppsnsdk": case "uebpxboxsdk": return "cpp-unreal";
+                case "unrealcppsdk": case "uecpppsnsdk": case "uecppxboxsdk": return "cpp-ue4";
+
+                default: return sdkName.ToLower(); // Most new sdks have matching names
             }
-            return null;
         }
 
         /// <summary>

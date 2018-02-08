@@ -7,31 +7,28 @@
 
 using namespace PlayFab;
 using namespace PlayFab::<%- api.name %>Models;
-<% if(hasClientOptions) { %>
-std::string PlayFab<%- api.name%>API::mUserSessionTicket; // Private, Client-Specific
-<% } %>
+
 PlayFab<%- api.name %>API::PlayFab<%- api.name %>API() {}
 
 <% for(var i in api.calls) { var apiCall = api.calls[i];
 %>void PlayFab<%- api.name %>API::<%- apiCall.name %>(
-    <% if(HasRequest(apiCall, api)) { %><%- apiCall.request %>& request,<% } %>
-    ProcessApiCallback<<%- apiCall.result %>> callback,
+<% if (hasRequest(apiCall, api)) { %>    <%- apiCall.request %>& request,
+<% } %>    ProcessApiCallback<<%- apiCall.result %>> callback,
     ErrorCallback errorCallback,
     void* userData
-    )
+)
 {
-    <%- GetRequestActions(apiCall, api) %>
-    HttpRequest* httpRequest = new HttpRequest("POST", <%- GetUrlAccessor(apiCall) %>);
+<%- getRequestActions("    ", apiCall)
+%>    HttpRequest* httpRequest = new HttpRequest("POST", <%- getUrlAccessor(apiCall) %>);
     httpRequest->SetHeader("Content-Type", "application/json");
     httpRequest->SetHeader("X-PlayFabSDK", PlayFabSettings::versionString);
-    <%- GetAuthParams(apiCall) %>
-
+<%- getAuthParams("    ", apiCall) %>
     if (callback != nullptr)
         httpRequest->SetResultCallback(SharedVoidPointer(new ProcessApiCallback<<%- apiCall.result %>>(callback)));
     httpRequest->SetErrorCallback(errorCallback);
     httpRequest->SetUserData(userData);
 
-    <% if(HasRequest(apiCall, api)) { %>httpRequest->SetBody(request.toJSONString());<% } else { %>httpRequest->SetBody("{}");<% } %>
+    <% if (hasRequest(apiCall, api)) { %>httpRequest->SetBody(request.toJSONString());<% } else { %>httpRequest->SetBody("{}");<% } %>
     httpRequest->CompressBody();
 
     PlayFabSettings::httpRequester->AddRequest(httpRequest, On<%- apiCall.name %>Result, userData);
@@ -44,8 +41,8 @@ void PlayFab<%- api.name %>API::On<%- apiCall.name %>Result(int httpStatus, Http
 
     if (PlayFabRequestHandler::DecodeRequest(httpStatus, request, userData, outResult, errorResult))
     {
-<%- GetResultActions(apiCall, api) %>
-        if (request->GetResultCallback() != nullptr)
+<%- getResultActions("        ", apiCall)
+%>        if (request->GetResultCallback() != nullptr)
         {
             (*static_cast<ProcessApiCallback<<%- apiCall.result %>> *>(request->GetResultCallback().get()))(outResult, request->GetUserData());
         }
@@ -61,9 +58,9 @@ void PlayFab<%- api.name %>API::On<%- apiCall.name %>Result(int httpStatus, Http
     delete request;
 }
 
-<% } %><% if(hasClientOptions) { %>bool PlayFabClientAPI::IsClientLoggedIn()
+<% } %><% if (hasClientOptions) { %>bool PlayFabClientAPI::IsClientLoggedIn()
 {
-    return !mUserSessionTicket.empty();
+    return !PlayFabSettings::clientSessionTicket.empty();
 }
 
 void PlayFabClientAPI::MultiStepClientLogin(bool needsAttribution)

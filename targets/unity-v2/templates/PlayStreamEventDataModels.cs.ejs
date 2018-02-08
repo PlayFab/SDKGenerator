@@ -1,4 +1,4 @@
-﻿using System;
+using System;
 using System.Collections.Generic;
 
 namespace PlayFab.PlayStreamModels
@@ -26,9 +26,9 @@ namespace PlayFab.PlayStreamModels
 %>    public class <%- eachClass.className %> : PlayStreamEventBase
     {
 <% for (var pIdx in eachClass.properties) { var eachProperty = eachClass.properties[pIdx];
-%>        public <%- GetPropertyDef(eachProperty, eachClass) %>;
+%>        public <%- getPropertyDef(eachProperty, eachClass) %>;
 <% } %>    }
 <% } %>    #endregion <%- eachGroup.Group %>
 <% }
-for (var chIdx in psChildTypes) { var datatype = psChildTypes[chIdx] %><%- MakeDatatype(datatype, sourceDir) %><% } %>
+for (var chIdx in psChildTypes) { var datatype = psChildTypes[chIdx] %><%- makeDatatype(datatype, sourceDir) %><% } %>
 }

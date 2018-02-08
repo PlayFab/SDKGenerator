@@ -8,6 +8,7 @@ if(!PlayFab.settings) {
         developerSecretKey: null, // For security reasons you must never expose this value to the client or players - You must set this value for Server-APIs to work properly (Found in the Game Manager for your title, at the PlayFab Website)
         advertisingIdType: null,
         advertisingIdValue: null,
+        GlobalHeaderInjection: null,
 
         // disableAdvertising is provided for completeness, but changing it is not suggested
         // Disabling this may prevent your advertising-related PlayFab marketplace partners from working correctly
@@ -19,33 +20,53 @@ if(!PlayFab.settings) {
 
 if(!PlayFab._internalSettings) {
     PlayFab._internalSettings = {
+        entityToken: null,
+        sdkVersion: "<%- sdkVersion %>",
         sessionTicket: null,
         productionServerUrl: ".playfabapi.com",
+        errorTitleId: "Must be have PlayFab.settings.titleId set to call this method",
+        errorLoggedIn: "Must be logged in to call this method",
+        errorEntityToken: "You must successfully call GetEntityToken before calling this",
+        errorSecretKey: "Must have PlayFab.settings.developerSecretKey set to call this method",
 
         GetServerUrl: function () {
             return "https://" + PlayFab.settings.titleId + PlayFab._internalSettings.productionServerUrl;
         },
 
-        ExecuteRequest: function (completeUrl, data, authkey, authValue, callback) {
+        InjectHeaders: function (xhr, headersObj) {
+            if (!headersObj)
+                return;
+
+            for (var headerKey in headersObj)
+            {
+                try {
+                    xhr.setRequestHeader(gHeaderKey, headersObj[headerKey]);
+                } catch (e) {
+                    console.log("Failed to append header: " + headerKey + " = " + headersObj[headerKey] + "Error: " + e);
+                }
+            }
+        },
+
+        ExecuteRequest: function (completeUrl, request, authkey, authValue, callback, customData, extraHeaders) {
             if (callback != null && typeof (callback) != "function")
                 throw "Callback must be null of a function";
 
-            if (data == null)
-                data = {};
+            if (request == null)
+                request = {};
 
             var startTime = new Date();
-            var requestBody = JSON.stringify(data);
+            var requestBody = JSON.stringify(request);
 
             var xhr = new XMLHttpRequest();
             // window.console.log("URL: " + completeUrl);
             xhr.open("POST", completeUrl, true);
 
-            xhr.setRequestHeader('Content-Type', 'application/json');
-
+            xhr.setRequestHeader("Content-Type", "application/json");
+            xhr.setRequestHeader("X-PlayFabSDK", "JavaScriptSDK-" + PlayFab._internalSettings.sdkVersion);
             if (authkey != null)
                 xhr.setRequestHeader(authkey, authValue);
-
-            xhr.setRequestHeader('X-PlayFabSDK', "JavaScriptSDK-" + PlayFab._internalSettings.sdkVersion);
+            PlayFab._internalSettings.InjectHeaders(xhr, PlayFab.settings.GlobalHeaderInjection);
+            PlayFab._internalSettings.InjectHeaders(xhr, extraHeaders);
 
             xhr.onloadend = function () {
                 if (callback == null)
@@ -66,6 +87,8 @@ if(!PlayFab._internalSettings) {
                 }
 
                 result.CallBackTimeMS = new Date() - startTime;
+                result.Request = request;
+                result.CustomData = customData;
 
                 if (result.code === 200)
                     callback(result, null);
@@ -91,6 +114,9 @@ if(!PlayFab._internalSettings) {
                 }
 
                 result.CallBackTimeMS = new Date() - startTime;
+                result.Request = request;
+                result.CustomData = customData;
+
                 callback(null, result);
             }
 
@@ -101,22 +127,37 @@ if(!PlayFab._internalSettings) {
 
 PlayFab.buildIdentifier = "<%- buildIdentifier %>";
 PlayFab.sdkVersion = "<%- sdkVersion %>";
+PlayFab.GenerateErrorReport = function (error) {
+    if (error == null)
+        return "";
+    var fullErrors = error.errorMessage;
+    for (var paramName in error.errorDetails)
+        for (var msgIdx in error.errorDetails[paramName])
+            fullErrors += "\n" + paramName + ": " + error.errorDetails[paramName][msgIdx];
+    return fullErrors;
+};
 
 PlayFab.<%- api.name %>Api = {
 <% if (hasClientOptions) { %>
     IsClientLoggedIn: function () {
         return PlayFab._internalSettings.sessionTicket != null && PlayFab._internalSettings.sessionTicket.length > 0;
     },
-<% } for(var i in api.calls) { var apiCall = api.calls[i]; %>
-<%- GetDeprecationAttribute("    ", apiCall)
-%>    <%- apiCall.name %>: function (request, callback) {
-<%- GetRequestActions(apiCall, api) %>
-        <% if (HasResultActions(apiCall, api)) { %>var overloadCallback = function (result, error) {
-<%- GetResultActions(apiCall, api) %>
+<% } %>    ForgetAllCredentials: function () {
+        PlayFab._internalSettings.sessionTicket = null;
+        PlayFab._internalSettings.entityToken = null;
+    },
+<% for(var i in api.calls) { var apiCall = api.calls[i]; %>
+<%- getDeprecationAttribute("    ", apiCall)
+%>    <%- apiCall.name %>: function (request, callback, customData, extraHeaders) {
+<%- getRequestActions("        ", apiCall)
+%><% if (hasResultActions(apiCall)) { %>        var overloadCallback = function (result, error) {
+<%- getResultActions("            ", apiCall) %>
             if (callback != null && typeof (callback) == "function")
                 callback(result, error);
         };
-        PlayFab._internalSettings.ExecuteRequest(<%- GetUrl(apiCall, api) %>, request, <%- GetAuthParams(apiCall) %>, overloadCallback);<% }else{ %>PlayFab._internalSettings.ExecuteRequest(<%- GetUrl(apiCall, api) %>, request, <%- GetAuthParams(apiCall) %>, callback);<% } %>
+        PlayFab._internalSettings.ExecuteRequest(<%- getUrl(apiCall) %>, request, <%- getAuthParams(apiCall) %>, overloadCallback);<%
+}else{
+%>        PlayFab._internalSettings.ExecuteRequest(<%- getUrl(apiCall) %>, request, <%- getAuthParams(apiCall) %>, callback, customData, extraHeaders);<% } %>
     },
 <% } if (hasClientOptions) {%>
     _MultiStepClientLogin: function (needsAttribution) {
@@ -134,3 +175,19 @@ PlayFab.<%- api.name %>Api = {
 <% } %>};
 
 var PlayFab<%- api.name %>SDK = PlayFab.<%- api.name %>Api;
+<% if (hasClientOptions) { %>
+PlayFab.RegisterWithPhaser = function() {
+    if ( typeof Phaser === "undefined" )
+        return;
+
+    Phaser.Plugin.PlayFab = function (game, parent) {
+        Phaser.Plugin.call(this, game, parent);
+    };
+    Phaser.Plugin.PlayFab.prototype = Object.create(Phaser.Plugin.prototype);
+    Phaser.Plugin.PlayFab.prototype.constructor = Phaser.Plugin.PlayFab;
+    Phaser.Plugin.PlayFab.prototype.PlayFab = PlayFab;
+    Phaser.Plugin.PlayFab.prototype.settings = PlayFab.settings;
+    Phaser.Plugin.PlayFab.prototype.ClientApi = PlayFab.ClientApi;
+};
+PlayFab.RegisterWithPhaser();
+<% } %>

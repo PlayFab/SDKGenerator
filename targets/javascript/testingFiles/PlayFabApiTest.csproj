@@ -17,6 +17,7 @@
     <IISExpressWindowsAuthentication />
     <IISExpressUseClassicPipelineMode />
     <UseGlobalApplicationHostFile />
+    <Use64BitIISExpress />
   </PropertyGroup>
   <ItemGroup>
     <Service Include="{4A0DDDB5-7A95-4FBF-97CC-616D07737A77}" />
@@ -25,6 +26,7 @@
     <Content Include="index.html" />
     <Content Include="src\PlayFab\PlayFabAdminApi.js" />
     <Content Include="src\PlayFab\PlayFabClientApi.js" />
+    <!--<Content Include="src\PlayFab\PlayFabEntityApi.js" /> TODO: Enable Entity API-->
     <Content Include="src\PlayFab\PlayFabMatchmakerApi.js" />
     <Content Include="src\PlayFab\PlayFabServerApi.js" />
     <Content Include="web.config" />
@@ -34,6 +36,7 @@
     <TypeScriptCompile Include="src\typings\PlayFab\PlayFab.d.ts" />
     <TypeScriptCompile Include="src\typings\PlayFab\PlayFabAdminApi.d.ts" />
     <TypeScriptCompile Include="src\typings\PlayFab\PlayFabClientApi.d.ts" />
+    <!--<TypeScriptCompile Include="src\typings\PlayFab\PlayFabEntityApi.d.ts" /> TODO: Enable Entity API-->
     <TypeScriptCompile Include="src\typings\PlayFab\PlayFabMatchmakerApi.d.ts" />
     <TypeScriptCompile Include="src\typings\PlayFab\PlayFabServerApi.d.ts" />
   </ItemGroup>

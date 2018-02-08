@@ -2,6 +2,8 @@ setlocal
 echo off
 goto :DoWork
 
+rem This example is no longer published. But now that it's unpublished, we can just use it in-place to test the build.
+
 :BuildExample
 pushd ..\..\sdks\Cocos2d-xSDK
 echo === BUILDING Example Project for Cocos2d-xSDK ===
@@ -12,7 +14,6 @@ set BuildResult=%errorlevel%
 if %BuildResult% EQU 0 (
     pushd PlayFabSDKExample
     xcopy ..\PlayFabSDK\* Classes\ /c /f /s /y
-    xcopy ..\..\..\SDKGenerator\targets\cpp-cocos2dx\ExampleSource\* . /c /f /s /y
 )
 popd
 popd

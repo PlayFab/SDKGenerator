@@ -6,13 +6,10 @@ using System;
 using System.Collections.Generic;
 using System.IO;
 using System.Threading;
+using JenkinsConsoleUtility.Util;
 
 namespace JenkinsConsoleUtility.Commands
 {
-    public class TestTitleData
-    {
-        public string titleId;
-    }
     public class CsGetRequest
     {
         public string customId;
@@ -46,7 +43,7 @@ namespace JenkinsConsoleUtility.Commands
 
         public int Execute(Dictionary<string, string> argsLc, Dictionary<string, string> argsCased)
         {
-            var titleId = GetTitleId(argsLc);
+            var testTitleData = TestTitleDataLoader.Load(argsLc);
             var buildIdentifier = JenkinsConsoleUtility.GetArgVar(argsLc, "buildidentifier");
             var workspacePath = JenkinsConsoleUtility.GetArgVar(argsLc, "workspacePath", Environment.GetEnvironmentVariable("TEMP"));
             var timeout = TimeSpan.FromSeconds(int.Parse(JenkinsConsoleUtility.GetArgVar(argsLc, "timeout", "30")));
@@ -54,14 +51,14 @@ namespace JenkinsConsoleUtility.Commands
             _getRequest = new CsGetRequest { customId = buildIdentifier };
 
             JenkinsConsoleUtility.FancyWriteToConsole("Begin CloudScriptListener", null, ConsoleColor.Gray);
-            var returnCode = Login(titleId, buildIdentifier);
+            var returnCode = Login(testTitleData.titleId, buildIdentifier, testTitleData);
             if (returnCode != 0)
                 return returnCode;
-            returnCode = WaitForTestResult(timeout);
+            returnCode = WaitForTestResult(timeout, testTitleData);
             if (returnCode != 0)
                 return returnCode;
             JenkinsConsoleUtility.FancyWriteToConsole("Test data found", null, ConsoleColor.Gray);
-            returnCode = FetchTestResult(buildIdentifier, workspacePath);
+            returnCode = FetchTestResult(buildIdentifier, workspacePath, testTitleData);
             if (returnCode != 0)
                 return returnCode;
             JenkinsConsoleUtility.FancyWriteToConsole("Test data received", null, ConsoleColor.Green);
@@ -69,44 +66,10 @@ namespace JenkinsConsoleUtility.Commands
             return 0;
         }
 
-        private static string GetTitleId(Dictionary<string, string> args)
-        {
-            // If titleId is provided directly, use it
-            string temp; 
-            if (JenkinsConsoleUtility.TryGetArgVar(out temp, args, "titleId") && !string.IsNullOrEmpty(temp))
-                return temp;
-            // If testTitleData path is provided, try to load the file
-            if (JenkinsConsoleUtility.TryGetArgVar(out temp, args, "testTitleData") && !string.IsNullOrEmpty(temp))
-                return GetTitleIdFromTestTitleData(temp);
-            // If PF_TEST_TITLE_DATA_JSON exists, get testTitleData path from it, and try to load the file
-            temp = Environment.GetEnvironmentVariable("PF_TEST_TITLE_DATA_JSON");
-            if (!string.IsNullOrEmpty(temp))
-                return GetTitleIdFromTestTitleData(temp);
-
-            return null;
-        }
-
-        private static string GetTitleIdFromTestTitleData(string filepath)
-        {
-            if (!File.Exists(filepath))
-                return null;
-
-            var json = File.ReadAllText(filepath);
-            try
-            {
-                var titleData = JsonWrapper.DeserializeObject<TestTitleData>(json);
-                return titleData.titleId;
-            }
-            catch
-            {
-                return null;
-            }
-        }
-
-        private static int Login(string titleId, string buildIdentifier)
+        private static int Login(string titleId, string buildIdentifier, TestTitleData testTitleData)
         {
             PlayFabSettings.TitleId = titleId;
-            var task = PlayFabClientAPI.LoginWithCustomIDAsync(new LoginWithCustomIDRequest { TitleId = titleId, CustomId = buildIdentifier, CreateAccount = true });
+            var task = PlayFabClientAPI.LoginWithCustomIDAsync(new LoginWithCustomIDRequest { TitleId = titleId, CustomId = buildIdentifier, CreateAccount = true }, null, testTitleData.extraHeaders);
             task.Wait();
             var returnCode = PlayFabClientAPI.IsClientLoggedIn() ? 0 : 1;
             if (returnCode != 0)
@@ -124,7 +87,7 @@ namespace JenkinsConsoleUtility.Commands
         /// <summary>
         /// Loop and poll for the expected test results
         /// </summary>
-        private static int WaitForTestResult(TimeSpan timeout)
+        private static int WaitForTestResult(TimeSpan timeout, TestTitleData testTitleData)
         {
             var now = DateTime.UtcNow;
             var expireTime = now + timeout;
@@ -133,7 +96,7 @@ namespace JenkinsConsoleUtility.Commands
             while (now < expireTime && !resultsReady)
             {
                 string errorReport;
-                var callResult = ExecuteCloudScript(CsFuncTestDataExists, _getRequest, out resultsReady, out errorReport);
+                var callResult = ExecuteCloudScript(CsFuncTestDataExists, _getRequest, testTitleData.extraHeaders, out resultsReady, out errorReport);
                 if (callResult == false)
                     return 1; // The cloudscript call failed
                 Thread.Sleep(TestDataExistsSleepTime);
@@ -148,11 +111,11 @@ namespace JenkinsConsoleUtility.Commands
         /// Fetch the result and return
         /// (The cloudscript function should remove the test result from userData and delete the user)
         /// </summary>
-        private static int FetchTestResult(string buildIdentifier, string workspacePath)
+        private static int FetchTestResult(string buildIdentifier, string workspacePath, TestTitleData testTitleData)
         {
             List<TestSuiteReport> testResults;
             string errorReport;
-            var callResult = ExecuteCloudScript(CsFuncGetTestData, _getRequest, out testResults, out errorReport);
+            var callResult = ExecuteCloudScript(CsFuncGetTestData, _getRequest, testTitleData.extraHeaders, out testResults, out errorReport);
 
             var tempFilename = buildIdentifier + ".xml";
             var tempFileFullPath = Path.Combine(workspacePath, tempFilename);
@@ -162,7 +125,7 @@ namespace JenkinsConsoleUtility.Commands
             return JUnitXml.WriteXmlFile(tempFileFullPath, testResults, true);
         }
 
-        public static bool ExecuteCloudScript<TIn, TOut>(string functionName, TIn functionParameter, out TOut result, out string errorReport)
+        public static bool ExecuteCloudScript<TIn, TOut>(string functionName, TIn functionParameter, Dictionary<string, string> extraHeaders, out TOut result, out string errorReport)
         {
             // Perform the request
             var request = new ExecuteCloudScriptRequest
@@ -171,7 +134,7 @@ namespace JenkinsConsoleUtility.Commands
                 FunctionParameter = functionParameter,
                 GeneratePlayStreamEvent = true
             };
-            var task = PlayFabClientAPI.ExecuteCloudScriptAsync(request);
+            var task = PlayFabClientAPI.ExecuteCloudScriptAsync(request, null, extraHeaders);
             task.Wait();
             errorReport = PlayFabUtil.GetCloudScriptErrorReport(task.Result);
 

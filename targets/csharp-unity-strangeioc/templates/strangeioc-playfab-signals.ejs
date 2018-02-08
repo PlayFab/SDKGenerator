@@ -18,10 +18,8 @@ public class LoginToPlayFabResponseSignal: Signal{}
 //<%-subgroup.name%>
 #region <%-subgroup.name%>
     <% for(var x=0; x<subgroup.methods.length; x++){ %><% var apiCall = api.calls.filter(function(el){ return el.name === subgroup.methods[x]; })[0];%><% if( !apiCall ) { %><% continue; %><% } %>
-    ///<summary>
-    ///<%- apiCall.summary%>
-    ///</summary>
-    public class <%-apiCall.name%>Signal : Signal<<%-apiCall.request%>> { }
+<%- generateApiSummary("    ", apiCall, "summary")
+%>    public class <%-apiCall.name%>Signal : Signal<<%-apiCall.request%>> { }
     <%}%>
 #endregion<%}%>
 #endregion
@@ -32,10 +30,8 @@ public class LoginToPlayFabResponseSignal: Signal{}
 //<%-subgroup.name%>
 #region <%-subgroup.name%>
 <% for(var x=0; x<subgroup.methods.length; x++){ %><% var apiCall = api.calls.filter(function(el){ return el.name === subgroup.methods[x]; })[0];%><% if( !apiCall ) { %><% continue; %><% } %>
-    ///<summary>
-    ///<%- apiCall.summary%>
-    ///</summary>
-    public class <%-apiCall.name%>ResponseSignal : Signal<<%-apiCall.result%>> { }
+<%- generateApiSummary("    ", apiCall, "summary")
+%>    public class <%-apiCall.name%>ResponseSignal : Signal<<%-apiCall.result%>> { }
 <%}%>
 #endregion
 <%}%>

@@ -1,73 +1,42 @@
-// Some copyright should be here...
+// #define PF_UNREAL_OLD_4_14_TO_4_15
+// #define PF_UNREAL_OLD_4_16_TO_4_17
 
 using UnrealBuildTool;
 
 public class PlayFab : ModuleRules
 {
-	public PlayFab(TargetInfo Target)
-	{
-		
-		PublicIncludePaths.AddRange(
-			new string[] {
-				"PlayFab/Public"
-				
-				// ... add public include paths required here ...
-			}
-			);
-				
-		
-		PrivateIncludePaths.AddRange(
-			new string[] {
-				"PlayFab/Private",
-				
-				// ... add other private include paths required here ...
-			}
-			);
+#if PF_UNREAL_OLD_4_14_TO_4_15
+        public PlayFab(TargetInfo Target)
+#else
+    public PlayFab(ReadOnlyTargetRules Target) : base(Target)
+#endif
+    {
+        PCHUsage = PCHUsageMode.UseExplicitOrSharedPCHs;
 
+        PublicIncludePaths.AddRange(new string[] {
+            "PlayFab/Public"
+        });
 
-        PublicIncludePathModuleNames.AddRange(new string[] { "Json" });
+        PrivateIncludePaths.AddRange(new string[] {
+            "PlayFab/Private"
+        });
 
-        PublicDependencyModuleNames.AddRange(
-            new string[]
-				{
-					"Core",
-					"CoreUObject",
-					"Engine",
-					"InputCore",
-                    "Settings",
-					"HTTP",
-                    "Json",
-                    "OnlineSubsystemUtils"
-				}
-        );
-			
-		
-		PrivateDependencyModuleNames.AddRange(
-			new string[]
-			{
-				// ... add private dependencies that you statically link with here ...	
-			}
-			);
-		
-		
-		DynamicallyLoadedModuleNames.AddRange(
-			new string[]
-			{
-				
-				// ... add any modules that your module loads dynamically here ...
-			}
-			);
+        PublicDependencyModuleNames.AddRange(new string[]{
+            "Core",
+            "CoreUObject",
+            "HTTP",
+            "Json"
+        });
 
+#if PF_UNREAL_OLD_4_14_TO_4_15 || PF_UNREAL_OLD_4_16_TO_4_17
         if (UEBuildConfiguration.bBuildEditor == true)
+#else
+        if (Target.bBuildEditor == true)
+#endif
         {
-
-            PublicDependencyModuleNames.AddRange(
-                new string[] 
-					{
-						"UnrealEd", 
-					}
-            );
-
+            PrivateDependencyModuleNames.AddRange(new string[] {
+                "Settings"
+            });
         }
-	}
+    }
 }

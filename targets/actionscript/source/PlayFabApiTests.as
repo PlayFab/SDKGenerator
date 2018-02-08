@@ -24,7 +24,6 @@ package
 
         private static const TEST_STAT_BASE:int = 10;
         private static const TEST_STAT_NAME:String = "str";
-        private static const CHAR_TEST_TYPE:String = "Test";
         private static const TEST_DATA_KEY:String = "testCounter";
 
         // Functional
@@ -36,7 +35,6 @@ package
 
         // Information fetched by appropriate API calls
         private static var playFabId:String;
-        private static var characterId:String;
 
         // Variables for specific tests
         private var testIntExpected:int;
@@ -101,12 +99,7 @@ package
         /// </summary>
         private function Shared_ApiCallFailure(error:com.playfab.PlayFabError) : void
         {
-            var fullMessage:String = error.errorMessage;
-            for (var key:String in error.errorDetails) {
-                fullMessage += "\n";
-                fullMessage += key + ": " + error.errorDetails[key];
-            }
-            ASyncAssert.Fail(fullMessage);
+            ASyncAssert.Fail(error.GenerateErrorReport());
         }
 
         /// <summary>
@@ -130,7 +123,7 @@ package
         private function InvalidLogin_Failure(error:com.playfab.PlayFabError) : void
         {
             ASyncAssert.AssertNotNull(error.errorMessage);
-            if(error.errorMessage.toLowerCase().indexOf("password") >= 0)
+            if(error.GenerateErrorReport().toLowerCase().indexOf("password") >= 0)
                 FinishTestHandler(new ASyncUnitTestEvent(ASyncUnitTestEvent.FINISH_TEST, ASyncUnitTestEvent.RESULT_PASSED, ""));
             else
                 ASyncAssert.Fail("Unexpected error result: " + error.errorMessage);
@@ -157,29 +150,20 @@ package
         }
         private function InvalidRegistration_Failure(error:com.playfab.PlayFabError) : void
         {
+            var fullReport:String = error.GenerateErrorReport();
             ASyncAssert.AssertNotNull(error.errorMessage);
             ASyncAssert.AssertNotNull(error.errorDetails); // This is one of the few messages that actually provide errorDetails
-            if(error.errorMessage.toLowerCase().indexOf("invalid input parameters") == -1)
+            if(fullReport.toLowerCase().indexOf("invalid input parameters") == -1)
                 ASyncAssert.Fail("Unexpected error result: " + error.errorMessage);
 
-            // Find and verify each expected error detail message
             var expectedEmailMsg:String = "Email address is not valid.";
+            if(fullReport.toLowerCase().indexOf(expectedEmailMsg.toLowerCase()) == -1)
+                ASyncAssert.Fail("Can't find expected error: " + expectedEmailMsg + "\n not present in \n" + fullReport);
+
             var expectedPasswordMsg:String = "Password must be between";
-            var foundEmailMsg:Boolean = false;
-            var foundPasswordMsg:Boolean = false;
-            var allMessages:String = "";
-            for (var key:String in error.errorDetails) {
-                var eachArray:Array = error.errorDetails[key];
-                for (var eachIndex:String in eachArray) {
-                    if(eachArray[eachIndex].indexOf(expectedEmailMsg) >= 0)
-                        foundEmailMsg = true;
-                    if(eachArray[eachIndex].indexOf(expectedPasswordMsg) >= 0)
-                        foundPasswordMsg = true;
-                    allMessages += eachArray[eachIndex];
-                }
-            }
-            ASyncAssert.AssertTrue(foundEmailMsg, "\"" + expectedEmailMsg + "\" not found in: " + allMessages);
-            ASyncAssert.AssertTrue(foundPasswordMsg, "\"" + expectedPasswordMsg + "\" not found in: " + allMessages);
+            if(fullReport.toLowerCase().indexOf(expectedPasswordMsg.toLowerCase()) == -1)
+                ASyncAssert.Fail("Can't find expected error: " + expectedEmailMsg + "\n not present in \n" + fullReport);
+
             FinishTestHandler(new ASyncUnitTestEvent(ASyncUnitTestEvent.FINISH_TEST, ASyncUnitTestEvent.RESULT_PASSED, ""));
         }
 

@@ -151,6 +151,9 @@ namespace PlayFab
     inline void FromJsonUtilT(web::json::value& input, std::list<time_t>& output)
     {
         output.clear();
+        if (input.is_null())
+            return;
+
         time_t eachOutput;
         web::json::array& inputArray = input.as_array();
         for (auto iter = inputArray.begin(); iter != inputArray.end(); ++iter)
@@ -172,6 +175,9 @@ namespace PlayFab
     inline void FromJsonUtilT(web::json::value& input, std::map<std::string, time_t>& output)
     {
         output.clear();
+        if (input.is_null())
+            return;
+
         time_t eachOutput;
         web::json::object& inputArray = input.as_object();
         for (auto iter = inputArray.begin(); iter != inputArray.end(); ++iter)
@@ -227,6 +233,9 @@ namespace PlayFab
     template <typename EnumType> inline void FromJsonUtilE(web::json::value& input, std::list<EnumType>& output)
     {
         output.clear();
+        if (input.is_null())
+            return;
+
         EnumType eachOutput;
         web::json::array& inputArray = input.as_array();
         for (auto iter = inputArray.begin(); iter != inputArray.end(); ++iter)
@@ -248,6 +257,9 @@ namespace PlayFab
     template <typename EnumType> inline void FromJsonUtilE(web::json::value& input, std::map<std::string, EnumType>& output)
     {
         output.clear();
+        if (input.is_null())
+            return;
+
         EnumType eachOutput;
         web::json::object& inputArray = input.as_object();
         for (auto iter = inputArray.begin(); iter != inputArray.end(); ++iter)
@@ -293,6 +305,9 @@ namespace PlayFab
     inline void FromJsonUtilS(web::json::value& input, std::list<std::string>& output)
     {
         output.clear();
+        if (input.is_null())
+            return;
+
         std::string eachOutput;
         web::json::array& inputArray = input.as_array();
         for (auto iter = inputArray.begin(); iter != inputArray.end(); ++iter)
@@ -314,6 +329,9 @@ namespace PlayFab
     inline void FromJsonUtilS(web::json::value& input, std::map<std::string, std::string>& output)
     {
         output.clear();
+        if (input.is_null())
+            return;
+
         std::string eachOutput;
         web::json::object& inputArray = input.as_object();
         for (auto iter = inputArray.begin(); iter != inputArray.end(); ++iter)
@@ -371,6 +389,9 @@ namespace PlayFab
     template <typename ObjectType> inline void FromJsonUtilO(web::json::value& input, std::list<ObjectType>& output)
     {
         output.clear();
+        if (input.is_null())
+            return;
+
         ObjectType eachOutput;
         web::json::array& inputArray = input.as_array();
         for (auto iter = inputArray.begin(); iter != inputArray.end(); ++iter)
@@ -392,6 +413,9 @@ namespace PlayFab
     template <typename ObjectType> inline void FromJsonUtilO(web::json::value& input, std::map<std::string, ObjectType>& output)
     {
         output.clear();
+        if (input.is_null())
+            return;
+
         ObjectType eachOutput;
         web::json::object& inputArray = input.as_object();
         for (auto iter = inputArray.begin(); iter != inputArray.end(); ++iter)
@@ -487,6 +511,9 @@ namespace PlayFab
     template <typename PrimitiveType> inline void FromJsonUtilP(web::json::value& input, std::list<PrimitiveType>& output)
     {
         output.clear();
+        if (input.is_null())
+            return;
+
         PrimitiveType eachOutput;
         web::json::array& inputArray = input.as_array();
         for (auto iter = inputArray.begin(); iter != inputArray.end(); ++iter)
@@ -508,6 +535,9 @@ namespace PlayFab
     template <typename PrimitiveType> inline void FromJsonUtilP(web::json::value& input, std::map<std::string, PrimitiveType>& output)
     {
         output.clear();
+        if (input.is_null())
+            return;
+
         PrimitiveType eachOutput;
         web::json::object& inputArray = input.as_object();
         for (auto iter = inputArray.begin(); iter != inputArray.end(); ++iter)
@@ -517,3 +547,4 @@ namespace PlayFab
         }
     }
 }
+

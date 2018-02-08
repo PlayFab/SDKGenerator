@@ -1,85 +1,147 @@
 var path = require("path");
 
+// Making resharper less noisy - These are defined in Generate.js
+if (typeof (copyTree) === "undefined") copyTree = function () { };
+if (typeof (getCompiledTemplate) === "undefined") getCompiledTemplate = function () { };
+
 // Lumberyard has pretty significantly different imports from the other C++ sdks
 // It is also more closely structured like UnitySDK, and should hopefully be closer to implementing the
 //   global callback system.  So for now, there is no shared code between the other C++ sdks and lumberyard.
 
-exports.makeClientAPI = function (api, sourceDir, apiOutputDir) {
-    console.log("Generating Lumberyard C++ client SDK to " + apiOutputDir);
+var uuids = {
+    // These matter a great deal, and need to be set properly in specific places
+    "Client": "59aceeb4fcdc4556859a00fdef51702b",
+    "Server": "a7bd94263453450a8cff6c8d047a82ee",
+    "Combo": "abf1282cbb534d908e39e0684e34cb20",
+    "TestGemClient": "a283c61c3bb84efbb6bfbd04c9b2f0d0",
+    "TestGemServer": "1ef0cc192c26498e9d87e5940d0f0154",
+    "TestGemCombo": "fee877ce92be40deb14badcc4b93b6ff",
+};
 
-    copyTree(path.resolve(sourceDir, "source"), apiOutputDir);
-    MakeGem([api], sourceDir, apiOutputDir);
-    MakeApi(api, sourceDir, apiOutputDir);
-    GenerateModels([api], sourceDir, apiOutputDir);
-    GenerateErrors(api, sourceDir, apiOutputDir);
-    GenerateSimpleFiles([api], sourceDir, apiOutputDir);
-    
-    // Test Gem
-    copyTree(path.resolve(sourceDir, "testing/TestGem"), path.resolve(apiOutputDir, "../TestGemClient"));
-    copyFile(path.resolve(sourceDir, "testing/PlayFabApiTestNode_Client.cpp"), path.resolve(apiOutputDir, "../TestGemClient/Code/Source/PlayFabApiTestNode.cpp"));
+var sysCmpTokens = {
+    // These don't seem to matter much, but I borrowed the ones that were auto-generated and made them unique for each SysCmp in each Gem
+    "ClientSettings": "FDEEA325-EC4C-4D4B-9FBD-E64A8D523CE0",
+    "ClientClient": "FDEEA325-EC4C-4D4B-9FBD-E64A8D523CE6",
+
+    "ComboSettings": "525A86F9-CFF4-4868-A55F-24F5E76823C0",
+    "ComboAdmin": "525A86F9-CFF4-4868-A55F-24F5E76823CA",
+    "ComboClient": "525A86F9-CFF4-4868-A55F-24F5E76823CB",
+    "ComboMatchmaker": "525A86F9-CFF4-4868-A55F-24F5E76823CC",
+    "ComboServer": "525A86F9-CFF4-4868-A55F-24F5E76823CD",
+
+    "ServerSettings": "9C3DF7E4-CCFD-42F4-9B75-0B9DF4894560",
+    "ServerAdmin": "9C3DF7E4-CCFD-42F4-9B75-0B9DF489456D",
+    "ServerMatchmaker": "9C3DF7E4-CCFD-42F4-9B75-0B9DF489456E",
+    "ServerServer": "9C3DF7E4-CCFD-42F4-9B75-0B9DF489456F",
+
+    "TestGemClient": "71FD0DA7-A873-4672-A46F-D0A2FD686FA5",
+    "TestGemCombo": "B7AF3C21-D689-4A83-86F5-00EA210D0A22",
+    "TestGemServer": "5AB613A1-8AA2-4099-AFAB-F43CACC66A60",
+}
+
+var sdkModuleTokens = {
+    // These matter a great deal, and need to be set properly in specific places
+    "Client": "F73EAA98-BB00-45D4-832F-6001FF96D66E",
+    "Combo": "C035EAD2-AD5D-458E-9D11-93B2E318CD09",
+    "Server": "F73EAA98-BB00-45D4-832F-6001FF96D66E",
+    "TestGemClient": "866F12CD-AADA-4B57-932B-123B3B14E59F",
+    "TestGemCombo": "0757A088-EC2D-4417-9F45-FB1DF16A80E6",
+    "TestGemServer": "A16750F6-EA08-4E1E-BA74-400BBECF9606",
+}
+
+var gemSummaries = {
+    Client: "PlayFab Lumberyard Client SDK can be used in your game client to connect to PlayFab services from a Lumberyard project",
+    Server: "PlayFab Lumberyard Server SDK can be used for matchmaking and game servers, and connects to PlayFab services from a Lumberyard project",
+    Combo: "PlayFab Lumberyard Combined SDK can be used for game servers, internal tools, special situations, and testing PlayFab services from a Lumberyard project",
+};
+
+exports.putInRoot = true;
+
+exports.makeClientAPI2 = function (apis, sourceDir, apiOutputDir) {
+    makeApiInternal(apis, sourceDir, apiOutputDir, "Client");
 }
 
 exports.makeServerAPI = function (apis, sourceDir, apiOutputDir) {
-    console.log("Generating Lumberyard C++ server SDK to " + apiOutputDir);
-    
-    copyTree(path.resolve(sourceDir, "source"), apiOutputDir);
-    MakeGem(apis, sourceDir, apiOutputDir);
-    for (var i = 0; i < apis.length; i++) {
-        MakeApi(apis[i], sourceDir, apiOutputDir);
-    }
-    GenerateModels(apis, sourceDir, apiOutputDir);
-    GenerateErrors(apis[0], sourceDir, apiOutputDir);
-    GenerateSimpleFiles(apis, sourceDir, apiOutputDir);
-    
-    // Test Gem
-    copyTree(path.resolve(sourceDir, "testing/TestGem"), path.resolve(apiOutputDir, "../TestGemServer"));
-    copyFile(path.resolve(sourceDir, "testing/PlayFabApiTestNode_Server.cpp"), path.resolve(apiOutputDir, "../TestGemServer/Code/Source/PlayFabApiTestNode.cpp"));
+    makeApiInternal(apis, sourceDir, apiOutputDir, "Server");
 }
 
 exports.makeCombinedAPI = function (apis, sourceDir, apiOutputDir) {
-    console.log("Generating Lumberyard C++ combined SDK to " + apiOutputDir);
-    
-    copyTree(path.resolve(sourceDir, "source"), apiOutputDir);
-    MakeGem(apis, sourceDir, apiOutputDir);
-    for (var i = 0; i < apis.length; i++) {
-        MakeApi(apis[i], sourceDir, apiOutputDir);
-    }
-    GenerateModels(apis, sourceDir, apiOutputDir);
-    GenerateErrors(apis[0], sourceDir, apiOutputDir);
-    GenerateSimpleFiles(apis, sourceDir, apiOutputDir);
-    
-    // Test Gem
-    copyTree(path.resolve(sourceDir, "testing/TestGem"), path.resolve(apiOutputDir, "../TestGemCombo"));
-    copyFile(path.resolve(sourceDir, "testing/PlayFabApiTestNode_Combo.cpp"), path.resolve(apiOutputDir, "../TestGemCombo/Code/Source/PlayFabApiTestNode.cpp"));
+    makeApiInternal(apis, sourceDir, apiOutputDir, "Combo");
 }
 
-function GenerateSimpleFiles(apis, sourceDir, apiOutputDir) {
-    var locals = {};
-    locals.sdkVersion = exports.sdkVersion;
-    locals.apis = apis;
-    locals.hasClientOptions = false;
-    locals.hasServerOptions = false;
+function makeApiInternal(apis, sourceDir, apiOutputDir, gemName) {
+    apiOutputDir = path.resolve(apiOutputDir, "PlayFab" + gemName + "Sdk");
+    console.log("Generating Lumberyard C++ " + gemName + " SDK to " + apiOutputDir);
+
+    copyTree(path.resolve(sourceDir, "source"), apiOutputDir);
+    for (var i = 0; i < apis.length; i++)
+        makeApi(apis[i], sourceDir, apiOutputDir, gemName);
+    GenerateModels(apis, sourceDir, apiOutputDir, gemName);
+    GenerateErrors(apis[0], sourceDir, apiOutputDir, gemName);
+    GenerateSimpleFiles(apis, sourceDir, apiOutputDir, gemName);
+    GenerateTestFiles(apis, sourceDir, apiOutputDir, gemName);
+}
+
+function GenerateSimpleFiles(apis, sourceDir, apiOutputDir, gemName) {
+    var locals = {
+        apis: apis,
+        buildIdentifier: exports.buildIdentifier,
+        gemName: gemName,
+        gemSummary: gemSummaries[gemName],
+        gemUuid: uuids[gemName],
+        hasClientOptions: false,
+        hasServerOptions: false,
+        sdkVersion: exports.sdkVersion,
+        sdkModuleTokens: sdkModuleTokens,
+        sysCmpTokens: sysCmpTokens,
+    };
     for (var i = 0; i < apis.length; i++) {
         if (apis[i].name === "Client") locals.hasClientOptions = true;
         if (apis[i].name !== "Client") locals.hasServerOptions = true;
     }
-    
-    var vcProjTemplate = GetCompiledTemplate(path.resolve(sourceDir, "templates/gem.json.ejs"));
-    var generatedProject = vcProjTemplate(locals);
-    writeFile(path.resolve(apiOutputDir, "gem.json"), generatedProject);
-    
-    var wafTemplate = GetCompiledTemplate(path.resolve(sourceDir, "templates/playfabsdk.waf_files.ejs"));
-    var generatedWaf = wafTemplate(locals);
-    writeFile(path.resolve(apiOutputDir, "Code/playfabsdk.waf_files"), generatedWaf);
-    
-    var hSettingTemplate = GetCompiledTemplate(path.resolve(sourceDir, "templates/PlayFabSettings.h.ejs"));
-    var generatedSettingH = hSettingTemplate(locals);
-    writeFile(path.resolve(apiOutputDir, "Code/Include/PlayFabSettings.h"), generatedSettingH);
-    
-    var cppSettingTemplate = GetCompiledTemplate(path.resolve(sourceDir, "templates/PlayFabSettings.cpp.ejs"));
-    var generatedSettingCpp = cppSettingTemplate(locals);
-    writeFile(path.resolve(apiOutputDir, "Code/Source/PlayFabSettings.cpp"), generatedSettingCpp);
-    
+
+    var wscriptTemplate = getCompiledTemplate(path.resolve(sourceDir, "templates/Code/wscript.ejs"));
+    writeFile(path.resolve(apiOutputDir, "Code/wscript"), wscriptTemplate(locals));
+
+    var wafTemplate = getCompiledTemplate(path.resolve(sourceDir, "templates/Code/playfab_sdk.waf_files.ejs"));
+    writeFile(path.resolve(apiOutputDir, "Code/playfab" + gemName.toLowerCase() + "sdk.waf_files"), wafTemplate(locals));
+
+    var wafTemplate = getCompiledTemplate(path.resolve(sourceDir, "templates/Code/playfab_sdk_tests.waf_files.ejs"));
+    writeFile(path.resolve(apiOutputDir, "Code/playfab" + gemName.toLowerCase() + "sdk_tests.waf_files"), wafTemplate(locals));
+
+    var vcProjTemplate = getCompiledTemplate(path.resolve(sourceDir, "templates/gem.json.ejs"));
+    writeFile(path.resolve(apiOutputDir, "gem.json"), vcProjTemplate(locals));
+
+    var hHttpTemplate = getCompiledTemplate(path.resolve(sourceDir, "templates/Code/Include/PlayFab_Sdk/PlayFabHttp.h.ejs"));
+    writeFile(path.resolve(apiOutputDir, "Code/Include/PlayFab" + gemName + "Sdk/PlayFabHttp.h"), hHttpTemplate(locals));
+
+    var cppHttpTemplate = getCompiledTemplate(path.resolve(sourceDir, "templates/Code/Source/PlayFabHttp.cpp.ejs"));
+    writeFile(path.resolve(apiOutputDir, "Code/Source/PlayFabHttp.cpp"), cppHttpTemplate(locals));
+
+    var hSettingTemplate = getCompiledTemplate(path.resolve(sourceDir, "templates/Code/Source/PlayFabSettings.h.ejs"));
+    writeFile(path.resolve(apiOutputDir, "Code/Source/PlayFabSettings.h"), hSettingTemplate(locals));
+
+    var cppSettingTemplate = getCompiledTemplate(path.resolve(sourceDir, "templates/Code/Source/PlayFabSettings.cpp.ejs"));
+    writeFile(path.resolve(apiOutputDir, "Code/Source/PlayFabSettings.cpp"), cppSettingTemplate(locals));
+
+    var cppSettingTemplate = getCompiledTemplate(path.resolve(sourceDir, "templates/Code/Tests/PlayFab_SdkTest.cpp.ejs"));
+    writeFile(path.resolve(apiOutputDir, "Code/Tests/PlayFab" + gemName + "SdkTest.cpp"), cppSettingTemplate(locals));
+
+    var sdkModuleTemplate = getCompiledTemplate(path.resolve(sourceDir, "templates/Code/Source/PlayFab_SdkModule.cpp.ejs"));
+    writeFile(path.resolve(apiOutputDir, "Code/Source/PlayFab" + gemName + "SdkModule.cpp"), sdkModuleTemplate(locals));
+
+    var settingBusCpp = getCompiledTemplate(path.resolve(sourceDir, "templates/Code/Include/PlayFab_Sdk/PlayFab_SettingsBus.h.ejs"));
+    writeFile(path.resolve(apiOutputDir, "Code/Include/PlayFab" + gemName + "Sdk/PlayFab" + gemName + "_SettingsBus.h"), settingBusCpp(locals));
+
+    var settingCmpH = getCompiledTemplate(path.resolve(sourceDir, "templates/Code/Source/PlayFab_SettingsSysComponent.h.ejs"));
+    writeFile(path.resolve(apiOutputDir, "Code/Source/PlayFab" + gemName + "_SettingsSysComponent.h"), settingCmpH(locals));
+
+    var settingCmpCpp = getCompiledTemplate(path.resolve(sourceDir, "templates/Code/Source/PlayFab_SettingsSysComponent.cpp.ejs"));
+    writeFile(path.resolve(apiOutputDir, "Code/Source/PlayFab" + gemName + "_SettingsSysComponent.cpp"), settingCmpCpp(locals));
+
+    var gatherH = getCompiledTemplate(path.resolve(sourceDir, "templates/Code/Source/PlayFabDataGatherer.h.ejs"));
+    writeFile(path.resolve(apiOutputDir, "Code/Source/PlayFabDataGatherer.h"), gatherH(locals));
+
     // Set the PlayFab Gem version in the 1.0 sample project - This is outside of the sdk itself
     try {
         var gemFilePath10 = "C:/dev/Lumberyard1.0/dev/SamplesProject/gems.json";
@@ -88,7 +150,7 @@ function GenerateSimpleFiles(apis, sourceDir, apiOutputDir) {
             if (gemsJson10.Gems[a].Path === "Gems/PlayFabSdk")
                 gemsJson10.Gems[a].Version = exports.sdkVersion;
         writeFile(gemFilePath10, JSON.stringify(gemsJson10, null, 4));
-    } catch(err) {}
+    } catch (err) { }
 
     // Set the PlayFab Gem version in the 1.3 sample project - This is outside of the sdk itself
     try {
@@ -101,51 +163,88 @@ function GenerateSimpleFiles(apis, sourceDir, apiOutputDir) {
     } catch (err) { }
 }
 
-function MakeGem(apis, sourceDir, apiOutputDir) {
-    var apiLocals = {};
-    apiLocals.apis = apis;
-    
-    var iGemH = GetCompiledTemplate(path.resolve(sourceDir, "templates/IPlayFabSdkGem.h.ejs"));
-    var genIGemH = iGemH(apiLocals);
-    writeFile(path.resolve(apiOutputDir, "Code/Include/IPlayFabSdkGem.h"), genIGemH);
-    
-    var gemH = GetCompiledTemplate(path.resolve(sourceDir, "templates/PlayFabSdkGem.h.ejs"));
-    var genGemH = gemH(apiLocals);
-    writeFile(path.resolve(apiOutputDir, "Code/Source/PlayFabSdkGem.h"), genGemH);
-    
-    var gemCpp = GetCompiledTemplate(path.resolve(sourceDir, "templates/PlayFabSdkGem.cpp.ejs"));
-    var genGemCpp = gemCpp(apiLocals);
-    writeFile(path.resolve(apiOutputDir, "Code/Source/PlayFabSdkGem.cpp"), genGemCpp);
+function makeApi(api, sourceDir, apiOutputDir, gemName) {
+    var locals = {
+        api: api,
+        gemName: gemName,
+        gemUuid: uuids[gemName],
+        hasClientOptions: api.name === "Client",
+        sysCmpTokens: sysCmpTokens,
+
+        HasRequest: HasRequest,
+        GetAuthParams: GetAuthParams,
+        GetResultActions: GetResultActions,
+        GetRequestActions: GetRequestActions,
+    };
+
+    var apiH = getCompiledTemplate(path.resolve(sourceDir, "templates/Code/Source/PlayFabApi.h.ejs"));
+    writeFile(path.resolve(apiOutputDir, "Code/Source/PlayFab" + api.name + "Api.h"), apiH(locals));
+
+    var sysCmpH = getCompiledTemplate(path.resolve(sourceDir, "templates/Code/Source/PlayFab_SysComponent.h.ejs"));
+    writeFile(path.resolve(apiOutputDir, "Code/Source/PlayFab" + gemName + "_" + api.name + "SysComponent.h"), sysCmpH(locals));
+
+    var sysCmpCpp = getCompiledTemplate(path.resolve(sourceDir, "templates/Code/Source/PlayFab_SysComponent.cpp.ejs"));
+    writeFile(path.resolve(apiOutputDir, "Code/Source/PlayFab" + gemName + "_" + api.name + "SysComponent.cpp"), sysCmpCpp(locals));
+
+    var apiCpp = getCompiledTemplate(path.resolve(sourceDir, "templates/Code/Source/PlayFabApi.cpp.ejs"));
+    writeFile(path.resolve(apiOutputDir, "Code/Source/PlayFab" + api.name + "Api.cpp"), apiCpp(locals));
+
+    var apiCpp = getCompiledTemplate(path.resolve(sourceDir, "templates/Code/Include/PlayFab_Sdk/PlayFab_Bus.h.ejs"));
+    writeFile(path.resolve(apiOutputDir, "Code/Include/PlayFab" + gemName + "Sdk/PlayFab" + gemName + "_" + api.name + "Bus.h"), apiCpp(locals));
 }
 
-function MakeApi(api, sourceDir, apiOutputDir) {
-    var apiLocals = {};
-    apiLocals.api = api;
-    apiLocals.HasRequest = HasRequest;
-    apiLocals.GetAuthParams = GetAuthParams;
-    apiLocals.GetResultActions = GetResultActions;
-    apiLocals.GetRequestActions = GetRequestActions;
-    apiLocals.hasClientOptions = api.name === "Client";
-    
-    var interfaceH = GetCompiledTemplate(path.resolve(sourceDir, "templates/IPlayFabApi.h.ejs"));
-    var genInterfaceH = interfaceH(apiLocals);
-    writeFile(path.resolve(apiOutputDir, "Code/Include/IPlayFab" + api.name + "Api.h"), genInterfaceH);
-    
-    var wrapperH = GetCompiledTemplate(path.resolve(sourceDir, "templates/PlayFabApiWrapper.h.ejs"));
-    var genWrapperH = wrapperH(apiLocals);
-    writeFile(path.resolve(apiOutputDir, "Code/Source/PlayFab" + api.name + "ApiWrapper.h"), genWrapperH);
-    
-    var wrapperCpp = GetCompiledTemplate(path.resolve(sourceDir, "templates/PlayFabApiWrapper.cpp.ejs"));
-    var genWrapperCpp = wrapperCpp(apiLocals);
-    writeFile(path.resolve(apiOutputDir, "Code/Source/PlayFab" + api.name + "ApiWrapper.cpp"), genWrapperCpp);
-    
-    var apiH = GetCompiledTemplate(path.resolve(sourceDir, "templates/PlayFabApi.h.ejs"));
-    var genApiH = apiH(apiLocals);
-    writeFile(path.resolve(apiOutputDir, "Code/Source/PlayFab" + api.name + "Api.h"), genApiH);
-    
-    var apiCpp = GetCompiledTemplate(path.resolve(sourceDir, "templates/PlayFabApi.cpp.ejs"));
-    var genApiCpp = apiCpp(apiLocals);
-    writeFile(path.resolve(apiOutputDir, "Code/Source/PlayFab" + api.name + "Api.cpp"), genApiCpp);
+function GenerateTestFiles(apis, sourceDir, apiOutputDir, gemName) {
+    var testGemName = "TestGem" + gemName;
+    apiOutputDir = apiOutputDir.replaceAll("PlayFabClientSdk", "TestGemClient");
+    apiOutputDir = apiOutputDir.replaceAll("PlayFabServerSdk", "TestGemServer");
+    apiOutputDir = apiOutputDir.replaceAll("PlayFabComboSdk", "TestGemCombo");
+    copyTree(path.resolve(sourceDir, "testingSource"), apiOutputDir);
+
+    var locals = {
+        gemName: gemName,
+        hasClientOptions: false,
+        hasServerOptions: false,
+        sdkModuleTokens: sdkModuleTokens,
+        sdkVersion: exports.sdkVersion,
+        sysCmpTokens: sysCmpTokens,
+        testGemName: testGemName,
+        uuids: uuids,
+    };
+    for (var i = 0; i < apis.length; i++) {
+        if (apis[i].name === "Client") locals.hasClientOptions = true;
+        if (apis[i].name !== "Client") locals.hasServerOptions = true;
+    }
+
+    var gemTemplate = getCompiledTemplate(path.resolve(sourceDir, "testingTemplate/gem.json.ejs"));
+    writeFile(path.resolve(apiOutputDir, "gem.json"), gemTemplate(locals));
+
+    var wafTemplate = getCompiledTemplate(path.resolve(sourceDir, "testingTemplate/Code/playfab_test.waf_files.ejs"));
+    writeFile(path.resolve(apiOutputDir, "Code/playfab" + gemName + "test.waf_files"), wafTemplate(locals));
+
+    var testWafTemplate = getCompiledTemplate(path.resolve(sourceDir, "testingTemplate/Code/playfab_test_tests.waf_files.ejs"));
+    writeFile(path.resolve(apiOutputDir, "Code/playfab" + gemName + "test_tests.waf_files"), testWafTemplate(locals));
+
+    var busTemplate = getCompiledTemplate(path.resolve(sourceDir, "testingTemplate/Code/Include/PlayFab_Test/PlayFab_TestBus.h.ejs"));
+    writeFile(path.resolve(apiOutputDir, "Code/Include/PlayFab" + gemName + "Test/playfab" + gemName + "TestBus.h"), busTemplate(locals));
+
+    var moduleTemplate = getCompiledTemplate(path.resolve(sourceDir, "testingTemplate/Code/Source/PlayFab_TestModule.cpp.ejs"));
+    writeFile(path.resolve(apiOutputDir, "Code/Source/PlayFab" + gemName + "TestModule.cpp"), moduleTemplate(locals));
+
+    var cppCmpTemplate = getCompiledTemplate(path.resolve(sourceDir, "testingTemplate/Code/Source/PlayFab_TestSystemComponent.cpp.ejs"));
+    writeFile(path.resolve(apiOutputDir, "Code/Source/PlayFab" + gemName + "TestSystemComponent.cpp"), cppCmpTemplate(locals));
+
+    var hCmpTemplate = getCompiledTemplate(path.resolve(sourceDir, "testingTemplate/Code/Source/PlayFab_TestSystemComponent.h.ejs"));
+    writeFile(path.resolve(apiOutputDir, "Code/Source/PlayFab" + gemName + "TestSystemComponent.h"), hCmpTemplate(locals));
+
+    var testTemplate = getCompiledTemplate(path.resolve(sourceDir, "testingTemplate/Code/Tests/PlayFab_TestTest.cpp.ejs"));
+    writeFile(path.resolve(apiOutputDir, "Code/Tests/PlayFab" + gemName + "TestTest.cpp"), testTemplate(locals));
+
+    if (testGemName === "TestGemClient")
+        copyFile(path.resolve(sourceDir, "testingFiles/PlayFabClientApiTestNode.cpp"), path.resolve(apiOutputDir, "Code/Source/PlayFabClientApiTestNode.cpp"));
+    else if (testGemName === "TestGemCombo")
+        copyFile(path.resolve(sourceDir, "testingFiles/PlayFabComboApiTestNode.cpp"), path.resolve(apiOutputDir, "Code/Source/PlayFabComboApiTestNode.cpp"));
+    else if (testGemName === "TestGemServer")
+        copyFile(path.resolve(sourceDir, "testingFiles/PlayFabServerApiTestNode.cpp"), path.resolve(apiOutputDir, "Code/Source/PlayFabServerApiTestNode.cpp"));
 }
 
 function HasRequest(apiCall, api) {
@@ -162,17 +261,17 @@ function GetDatatypeBaseType(datatype) {
 
 function GetPropertyDef(property, datatype) {
     var safePropName = GetPropertySafeName(property);
-    
+
     if (property.collection === "array")
-        return "std::list<" + GetPropertyCppType(property, datatype, false) + "> " + safePropName + ";";
+        return "AZStd::vector<" + GetPropertyCppType(property, datatype, false) + "> " + safePropName + "; // #THIRD_KIND_PLAYFAB_BEHAVIOUR_CONTEXT: dbowen (2017/08/11) - Change std::list to AZStd::vector because the latter supports reflection to behavior context.";
     else if (property.collection === "map")
-        return "std::map<Aws::String, " + GetPropertyCppType(property, datatype, false) + "> " + safePropName + ";";
+        return "std::map<AZStd::string, " + GetPropertyCppType(property, datatype, false) + "> " + safePropName + ";";
     return GetPropertyCppType(property, datatype, true) + " " + safePropName + ";";
 }
 
-function GetPropertyDestructor(property) {
+function GetPropertyDestructor(tabbing, property) {
     if ((!property.collection && property.isclass && property.optional) || property.hasOwnProperty("implementingTypes"))
-        return "                if (" + GetPropertySafeName(property) + " != nullptr) delete " + GetPropertySafeName(property) + ";\n";
+        return tabbing + "if (" + GetPropertySafeName(property) + " != nullptr) delete " + GetPropertySafeName(property) + ";\n";
     return "";
 }
 
@@ -183,9 +282,9 @@ function GetPropertySafeName(property) {
 
 function GetPropertyCppType(property, datatype, needOptional) {
     var isOptional = property.optional && needOptional;
-    
+
     if (property.actualtype === "String")
-        return "Aws::String";
+        return "AZStd::string";
     else if (property.actualtype === "Boolean")
         return isOptional ? "OptionalBool" : "bool";
     else if (property.actualtype === "int16")
@@ -219,7 +318,7 @@ function GetPropertyDefaultValue(property, datatype) {
     var isOptional = property.optional;
     if (property.collection)
         return "";
-    
+
     if (property.actualtype === "String")
         return "";
     else if (property.actualtype === "Boolean")
@@ -258,20 +357,20 @@ function GetPropertyCopyValue(property, datatype) {
     return "src." + safePropName;
 }
 
-function GetPropertySerializer(property, datatype) {
+function GetPropertySerializer(tabbing, property, datatype) {
     if (property.collection === "array")
-        return GetArrayPropertySerializer(property, datatype);
+        return GetArrayPropertySerializer(tabbing, property, datatype);
     else if (property.collection === "map")
-        return GetMapPropertySerializer(property, datatype);
-    
+        return GetMapPropertySerializer(tabbing, property, datatype);
+
     var writer = null;
     var tester = null;
-    
+
     var propType = property.actualtype;
     var propName = property.name;
     var safePropName = GetPropertySafeName(property);
     var isOptional = property.optional;
-    
+
     if (propType === "String") {
         writer = "writer.String(" + safePropName + ".c_str());";
         tester = safePropName + ".length() > 0";
@@ -334,18 +433,22 @@ function GetPropertySerializer(property, datatype) {
     else {
         throw "Unknown property type: " + propType + " for " + propName + " in " + datatype.name;
     }
-    
+
     if (isOptional)
-        return "if (" + tester + ") { writer.String(\"" + propName + "\"); " + writer + " }";
-    return "writer.String(\"" + propName + "\"); " + writer;
+        return tabbing + "if (" + tester + ") {\n"
+            + tabbing + "    writer.String(\"" + propName + "\");\n"
+            + tabbing + "    " + writer + "\n"
+            + tabbing + "}";
+    return tabbing + "writer.String(\"" + propName + "\");\n"
+        + tabbing + writer;
 }
 
-function GetArrayPropertySerializer(property, datatype) {
+function GetArrayPropertySerializer(tabbing, property, datatype) {
     var writer;
     var propName = property.name;
     var isOptional = property.optional;
     var cppType = GetPropertyCppType(property, datatype, false);
-    
+
     if (property.actualtype === "String")
         writer = "writer.String(iter->c_str());";
     else if (property.actualtype === "Boolean")
@@ -376,23 +479,29 @@ function GetArrayPropertySerializer(property, datatype) {
         writer = "iter->writeJSON(writer);";
     else
         throw "Unknown property type: " + property.actualtype + " for " + propName + " in " + datatype.name;
-    
-    var collectionWriter = "writer.StartArray();\n    ";
-    collectionWriter += "for (std::list<" + cppType + ">::iterator iter = " + propName + ".begin(); iter != " + propName + ".end(); iter++) {\n        ";
-    collectionWriter += writer + "\n    }\n    ";
-    collectionWriter += "writer.EndArray();\n    ";
-    
+
+    var internalTabbing = isOptional ? tabbing + "    " : tabbing;
+    var arrayWriter = internalTabbing + "writer.StartArray();\n";
+    arrayWriter += internalTabbing + "for (auto iter = " + propName + ".begin(); iter != " + propName + ".end(); iter++) {     // #THIRD_KIND_PLAYFAB_BEHAVIOUR_CONTEXT: dbowen (2017/08/11) - Change std::list to AZStd::vector because the latter supports reflection to behavior context. \n";
+    arrayWriter += internalTabbing + "    " + writer + "\n";
+    arrayWriter += internalTabbing + "}\n";
+    arrayWriter += internalTabbing + "writer.EndArray();";
+
     if (isOptional)
-        return "if (!" + propName + ".empty()) {\n    writer.String(\"" + propName + "\");\n    " + collectionWriter + " }";
-    return "writer.String(\"" + propName + "\");\n    " + collectionWriter;
+        return tabbing + "if (!" + propName + ".empty()) {\n"
+            + tabbing + "    writer.String(\"" + propName + "\");\n"
+            + arrayWriter + "\n"
+            + tabbing + "}";
+    return tabbing + "writer.String(\"" + propName + "\");\n"
+        + arrayWriter;
 }
 
-function GetMapPropertySerializer(property, datatype) {
+function GetMapPropertySerializer(tabbing, property, datatype) {
     var writer;
     var propName = property.name;
     var isOptional = property.optional;
     var cppType = GetPropertyCppType(property, datatype, false);
-    
+
     if (property.actualtype === "String")
         writer = "writer.String(iter->second.c_str());";
     else if (property.actualtype === "Boolean")
@@ -423,27 +532,34 @@ function GetMapPropertySerializer(property, datatype) {
         writer = "iter->second.writeJSON(writer);";
     else
         throw "Unknown property type: " + property.actualtype + " for " + propName + " in " + datatype.name;
-    
-    var collectionWriter = "writer.StartObject();\n    ";
-    collectionWriter += "for (std::map<Aws::String, " + cppType + ">::iterator iter = " + propName + ".begin(); iter != " + propName + ".end(); ++iter) {\n        ";
-    collectionWriter += "writer.String(iter->first.c_str()); " + writer + "\n    }\n    ";
-    collectionWriter += "writer.EndObject();\n    ";
-    
+
+    var internalTabbing = isOptional ? tabbing + "    " : tabbing;
+    var mapWriter = internalTabbing + "writer.StartObject();\n"
+        + internalTabbing + "for (auto iter = " + propName + ".begin(); iter != " + propName + ".end(); ++iter) {\n"
+        + internalTabbing + "    writer.String(iter->first.c_str());\n"
+        + internalTabbing + "    " + writer + "\n"
+        + internalTabbing + "}\n"
+        + internalTabbing + "writer.EndObject();";
+
     if (isOptional)
-        return "if (!" + propName + ".empty()) {\n    writer.String(\"" + propName + "\");\n    " + collectionWriter + " }";
-    return "writer.String(\"" + propName + "\");\n    " + collectionWriter;
+        return tabbing + "if (!" + propName + ".empty()) {\n"
+            + tabbing + "    writer.String(\"" + propName + "\");\n"
+            + mapWriter + "\n"
+            + tabbing + "}";
+    return tabbing + "writer.String(\"" + propName + "\");\n"
+        + mapWriter;
 }
 
-function GetPropertyDeserializer(property, datatype) {
+function GetPropertyDeserializer(tabbing, property, datatype) {
     var propType = property.actualtype;
     var propName = property.name;
     var safePropName = GetPropertySafeName(property);
-    
+
     if (property.collection === "array")
-        return GetArrayPropertyDeserializer(property, datatype);
+        return GetArrayPropertyDeserializer(tabbing, property, datatype);
     else if (property.collection === "map")
-        return GetMapPropertyDeserializer(property, datatype);
-    
+        return GetMapPropertyDeserializer(tabbing, property, datatype);
+
     var getter;
     if (propType === "String")
         getter = propName + "_member->value.GetString()";
@@ -477,13 +593,12 @@ function GetPropertyDeserializer(property, datatype) {
         getter = "MultitypeVar(" + propName + "_member->value)";
     else
         throw "Unknown property type: " + propType + " for " + propName + " in " + datatype.name;
-    
-    var val = "const Value::ConstMemberIterator " + propName + "_member = obj.FindMember(\"" + propName + "\");\n";
-    val += "                if (" + propName + "_member != obj.MemberEnd() && !" + propName + "_member->value.IsNull()) " + safePropName + " = " + getter + ";";
-    return val;
+
+    return tabbing + "const Value::ConstMemberIterator " + propName + "_member = obj.FindMember(\"" + propName + "\");\n"
+        + tabbing + "if (" + propName + "_member != obj.MemberEnd() && !" + propName + "_member->value.IsNull()) " + safePropName + " = " + getter + ";";
 }
 
-function GetArrayPropertyDeserializer(property, datatype) {
+function GetArrayPropertyDeserializer(tabbing, property, datatype) {
     var getter;
     if (property.actualtype === "String")
         getter = "memberList[i].GetString()";
@@ -515,16 +630,17 @@ function GetArrayPropertyDeserializer(property, datatype) {
         getter = "MultitypeVar(memberList[i])";
     else
         throw "Unknown property type: " + property.actualtype + " for " + property.name + " in " + datatype.name;
-    
-    var val = "const Value::ConstMemberIterator " + property.name + "_member = obj.FindMember(\"" + property.name + "\");\n";
-    val += "    if (" + property.name + "_member != obj.MemberEnd()) {\n";
-    val += "        const rapidjson::Value& memberList = " + property.name + "_member->value;\n";
-    val += "        for (SizeType i = 0; i < memberList.Size(); i++) {\n";
-    val += "            " + property.name + ".push_back(" + getter + ");\n        }\n    }";
-    return val;
+
+    return tabbing + "const Value::ConstMemberIterator " + property.name + "_member = obj.FindMember(\"" + property.name + "\");\n"
+        + tabbing + "if (" + property.name + "_member != obj.MemberEnd()) {\n"
+        + tabbing + "    const rapidjson::Value& memberList = " + property.name + "_member->value;\n"
+        + tabbing + "    for (SizeType i = 0; i < memberList.Size(); i++) {\n"
+        + tabbing + "        " + property.name + ".push_back(" + getter + ");\n"
+        + tabbing + "    }\n"
+        + tabbing + "}";
 }
 
-function GetMapPropertyDeserializer(property, datatype) {
+function GetMapPropertyDeserializer(tabbing, property, datatype) {
     var getter;
     if (property.actualtype === "String")
         getter = "iter->value.GetString()";
@@ -556,18 +672,19 @@ function GetMapPropertyDeserializer(property, datatype) {
         getter = "MultitypeVar(iter->value)";
     else
         throw "Unknown property type: " + property.actualtype + " for " + property.name + " in " + datatype.name;
-    
-    var val = "const Value::ConstMemberIterator " + property.name + "_member = obj.FindMember(\"" + property.name + "\");\n";
-    val += "    if (" + property.name + "_member != obj.MemberEnd()) {\n";
-    val += "        for (Value::ConstMemberIterator iter = " + property.name + "_member->value.MemberBegin(); iter != " + property.name + "_member->value.MemberEnd(); ++iter) {\n";
-    val += "            " + property.name + "[iter->name.GetString()] = " + getter + ";\n        }\n    }";
-    return val;
+
+    return tabbing + "const Value::ConstMemberIterator " + property.name + "_member = obj.FindMember(\"" + property.name + "\");\n"
+        + tabbing + "if (" + property.name + "_member != obj.MemberEnd()) {\n"
+        + tabbing + "    for (Value::ConstMemberIterator iter = " + property.name + "_member->value.MemberBegin(); iter != " + property.name + "_member->value.MemberEnd(); ++iter) {\n"
+        + tabbing + "        " + property.name + "[iter->name.GetString()] = " + getter + ";\n"
+        + tabbing + "    }\n"
+        + tabbing + "}";
 }
 
 function AddTypeAndDependencies(datatype, datatypes, orderedTypes, addedSet) {
     if (addedSet[datatype.name])
         return;
-    
+
     if (datatype.properties) {
         for (var p = 0; p < datatype.properties.length; p++) {
             var property = datatype.properties[p];
@@ -577,53 +694,58 @@ function AddTypeAndDependencies(datatype, datatypes, orderedTypes, addedSet) {
             }
         }
     }
-    
+
     orderedTypes.push(datatype);
     addedSet[datatype.name] = datatype;
 }
 
-function GenerateModels(apis, sourceDir, apiOutputDir, libraryName) {
+function GenerateModels(apis, sourceDir, apiOutputDir, gemName) {
     for (var a = 0; a < apis.length; a++) {
         var api = apis[a];
-        
+
         // Order datatypes based on dependency graph
         var orderedTypes = [];
         var addedSet = {};
-        
+
         for (var i in api.datatypes)
             AddTypeAndDependencies(api.datatypes[i], api.datatypes, orderedTypes, addedSet);
-        
-        var modelLocals = {};
-        modelLocals.api = api;
-        modelLocals.datatypes = orderedTypes;
-        modelLocals.GetDatatypeBaseType = GetDatatypeBaseType;
-        modelLocals.GetPropertyDef = GetPropertyDef;
-        modelLocals.GetPropertySerializer = GetPropertySerializer;
-        modelLocals.GetPropertyDeserializer = GetPropertyDeserializer;
-        modelLocals.GetPropertyDefaultValue = GetPropertyDefaultValue;
-        modelLocals.GetPropertyCopyValue = GetPropertyCopyValue;
-        modelLocals.GetPropertySafeName = GetPropertySafeName;
-        modelLocals.GetPropertyDestructor = GetPropertyDestructor;
-        modelLocals.libraryName = libraryName;
-        
-        var modelHeaderTemplate = GetCompiledTemplate(path.resolve(sourceDir, "templates/PlayFabDataModels.h.ejs"));
-        var generatedHeader = modelHeaderTemplate(modelLocals);
-        writeFile(path.resolve(apiOutputDir, "Code/Include/PlayFab" + api.name + "DataModels.h"), generatedHeader);
+
+        var modelLocals = {
+            api: api,
+            datatypes: orderedTypes,
+            gemName: gemName,
+            GetDatatypeBaseType: GetDatatypeBaseType,
+            GetPropertyDef: GetPropertyDef,
+            GetPropertySerializer: GetPropertySerializer,
+            GetPropertyDeserializer: GetPropertyDeserializer,
+            GetPropertyDefaultValue: GetPropertyDefaultValue,
+            GetPropertyCopyValue: GetPropertyCopyValue,
+            GetPropertySafeName: GetPropertySafeName,
+            GetPropertyDestructor: GetPropertyDestructor
+        };
+
+        var modelHeaderTemplate = getCompiledTemplate(path.resolve(sourceDir, "templates/Code/Include/PlayFab_Sdk/PlayFab_DataModels.h.ejs"));
+        writeFile(path.resolve(apiOutputDir, "Code/Include/PlayFab" + gemName + "Sdk/PlayFab" + api.name + "DataModels.h"), modelHeaderTemplate(modelLocals));
     }
+
+    var modelHeaderTemplate = getCompiledTemplate(path.resolve(sourceDir, "templates/Code/Include/PlayFab_Sdk/PlayFabBaseModel.h.ejs"));
+    writeFile(path.resolve(apiOutputDir, "Code/Include/PlayFab" + gemName + "Sdk/PlayFabBaseModel.h"), modelHeaderTemplate(modelLocals));
 }
 
-function GenerateErrors(api, sourceDir, apiOutputDir) {
-    var errorsTemplate = GetCompiledTemplate(path.resolve(sourceDir, "templates/PlayFabError.h.ejs"));
-    var errorLocals = {};
-    errorLocals.errorList = api.errorList;
-    errorLocals.errors = api.errors;
-    var generatedErrors = errorsTemplate(errorLocals);
-    writeFile(path.resolve(apiOutputDir, "Code/Include/PlayFabError.h"), generatedErrors);
+function GenerateErrors(api, sourceDir, apiOutputDir, gemName) {
+    var errorLocals = {
+        errorList: api.errorList,
+        errors: api.errors,
+        gemName: gemName
+    };
+
+    var errorsTemplate = getCompiledTemplate(path.resolve(sourceDir, "templates/Code/Include/PlayFab_Sdk/PlayFabError.h.ejs"));
+    writeFile(path.resolve(apiOutputDir, "Code/Include/PlayFab" + gemName + "Sdk/PlayFabError.h"), errorsTemplate(errorLocals));
 }
 
 function GetAuthParams(apiCall) {
     if (apiCall.auth === "SecretKey")
-        return "\"X-SecretKey\", PlayFabSettings::playFabSettings.developerSecretKey";
+        return "\"X-SecretKey\", PlayFabSettings::playFabSettings->developerSecretKey";
     else if (apiCall.auth === "SessionTicket")
         return "\"X-Authorization\", mUserSessionTicket";
     return "\"\", \"\"";
@@ -631,17 +753,19 @@ function GetAuthParams(apiCall) {
 
 function GetRequestActions(apiCall, api) {
     if (api.name === "Client" && (apiCall.result === "LoginResult" || apiCall.request === "RegisterPlayFabUserRequest"))
-        return "    if (PlayFabSettings::playFabSettings.titleId.length() > 0)\n        request.TitleId = PlayFabSettings::playFabSettings.titleId;\n";
+        return "    if (PlayFabSettings::playFabSettings->titleId.length() > 0)\n        request.TitleId = PlayFabSettings::playFabSettings->titleId;\n";
     return "";
 }
 
 function GetResultActions(apiCall, api) {
     if (api.name === "Client" && (apiCall.result === "LoginResult" || apiCall.result === "RegisterPlayFabUserResult"))
-        return "        if (outResult->SessionTicket.length() > 0)\n" 
-            + "            PlayFabClientApi::mUserSessionTicket = outResult->SessionTicket;\n" 
+        return "        if (outResult->SessionTicket.length() > 0)\n"
+            + "        {\n"
+            + "            PlayFabClientApi::mUserSessionTicket = outResult->SessionTicket;\n"
+            + "        }\n"
             + "        MultiStepClientLogin(outResult->SettingsForUser->NeedsAttribution);\n";
     else if (api.name === "Client" && apiCall.result === "AttributeInstallResult")
-        return "        // Modify advertisingIdType:  Prevents us from sending the id multiple times, and allows automated tests to determine id was sent successfully\n" 
-            + "        PlayFabSettings::playFabSettings.advertisingIdType += \"_Successful\";\n";
+        return "        // Modify advertisingIdType:  Prevents us from sending the id multiple times, and allows automated tests to determine id was sent successfully\n"
+            + "        PlayFabSettings::playFabSettings->advertisingIdType += \"_Successful\";\n";
     return "";
 }

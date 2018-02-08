@@ -1,7 +1,7 @@
 #if !NETFX_CORE || !XAMARIN
 
 using System;
-using System.IO;
+using System.Collections.Generic;
 using System.Net.Http;
 using System.Text;
 using System.Threading.Tasks;
@@ -11,7 +11,10 @@ namespace PlayFab.Internal
 {
     public class PlayFabSysHttp : IPlayFabHttp
     {
-        public async Task<object> DoPost(string urlPath, PlayFabRequestCommon request, string authType, string authKey)
+		
+        private readonly HttpClient _client = new HttpClient();
+		
+        public async Task<object> DoPost(string urlPath, PlayFabRequestCommon request, string authType, string authKey, Dictionary<string, string> extraHeaders)
         {
             var fullUrl = PlayFabSettings.GetFullUrl(urlPath);
             string bodyString;
@@ -25,7 +28,6 @@ namespace PlayFab.Internal
                 bodyString = JsonWrapper.SerializeObject(request);
             }
 
-            var client = new HttpClient();
             HttpResponseMessage httpResponse;
             string httpResponseString;
             using (var postBody = new ByteArrayContent(Encoding.UTF8.GetBytes(bodyString)))
@@ -34,10 +36,13 @@ namespace PlayFab.Internal
                 if (authType != null)
                     postBody.Headers.Add(authType, authKey);
                 postBody.Headers.Add("X-PlayFabSDK", PlayFabSettings.SdkVersionString);
+                if (extraHeaders != null)
+                    foreach (var headerPair in extraHeaders)
+                        postBody.Headers.Add(headerPair.Key, headerPair.Value);
 
                 try
                 {
-                    httpResponse = await client.PostAsync(fullUrl, postBody);
+                    httpResponse = await _client.PostAsync(fullUrl, postBody);
                     httpResponseString = await httpResponse.Content.ReadAsStringAsync();
                 }
                 catch (HttpRequestException e)

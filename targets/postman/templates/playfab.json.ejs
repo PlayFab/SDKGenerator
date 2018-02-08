@@ -20,7 +20,7 @@
 <% for(var i in api.calls) { var apiCall = api.calls[i]; %>
         {
             "id": "<%- apiName %>-<%- apiCall.name %>",
-            "headers": "<%- GetPostmanHeader(apiCall.auth) %>",
+            "headers": "<%- GetPostmanHeader(apiCall) %>",
             "url": "<%- GetUrl(apiCall) %>",
             "method": "POST",
             "collectionId": "PlayFabPostmanSDK",
@@ -30,7 +30,7 @@
             "descriptionFormat": "html",
             "currentHelper": "normal",
             "folder": "PlayFabPostmanSDK-<%- apiName %>Folder",
-            "rawModeData": <%- GetRequestExample(api, apiCall, propertyReplacements) %>
+            "rawModeData": <%- GetRequestExample(api, apiCall) %>
         }<% if(parseInt(i) + 1 < api.calls.length || parseInt(a) + 1 < apis.length){ %>,<% } %><% } %><% } %>
     ]
 }

@@ -68,8 +68,8 @@ public:
               %>    // callbacks
 <%            %>    DECLARE_DYNAMIC_DELEGATE_TwoParams(FDelegateOnSuccess<%- apiCall.name %>, F<%- api.name %><%- apiCall.result %>, result, UObject*, customData);
 <%            %>
-<%            %>    /** <%- apiCall.summary %> */
-<%            %>    UFUNCTION(BlueprintCallable, Category = "PlayFab | <%- api.name %> | <%- api.subgroups[subgroup].name %> ", meta = (BlueprintInternalUseOnly = "true"))
+<%            %><%- generateApiSummary("    ", apiCall, "summary")
+%><%          %>    UFUNCTION(BlueprintCallable, Category = "PlayFab | <%- api.name %> | <%- api.subgroups[subgroup].name %> ", meta = (BlueprintInternalUseOnly = "true"))
 <%            %>        static UPlayFab<%- api.name %>API* <%- apiCall.name %>(F<%- api.name %><%- apiCall.request %> request,
 <%            %>            FDelegateOnSuccess<%- apiCall.name %> onSuccess,
 <%            %>            FDelegateOnFailurePlayFabError onFailure, UObject* customData);
@@ -85,9 +85,11 @@ public:
 
     /** PlayFab Request Info */
     FString PlayFabRequestURL;
+    bool useEntityToken = false;
     bool useSecretKey = false;
     bool useSessionTicket = false;
-    bool isLoginRequest = false;
+    bool returnsSessionTicket = false;
+    bool returnsEntityToken = false;
 
     /** Is the response valid JSON? */
     bool bIsValidJsonResponse;

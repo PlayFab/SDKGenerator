@@ -1,13 +1,13 @@
-// Fill out your copyright notice in the Description page of Project Settings.
-
 #pragma once
 
 #include "GameFramework/Actor.h"
 <% if (hasClientOptions) { %>
 #include "PlayFabClientModels.h"
 #include "PlayFabClientApi.h"
-<% }
-if (hasServerOptions) { %>
+<% } %>
+//#include "PlayFabEntityModels.h"
+//#include "PlayFabEntityApi.h"
+<% if (hasServerOptions) { %>
 #include "PlayFabServerModels.h"
 #include "PlayFabServerApi.h"
 <% } %>
@@ -67,7 +67,7 @@ public:
     };
 
     UFUNCTION()
-        FString GenerateSummary(FDateTime now)
+        FString GenerateTestSummary(FDateTime now)
     {
         FDateTime tempEndTime = (activeState == PlayFabApiTestActiveState::COMPLETE) ? endTime : now;
         FDateTime tempStartTime = (startTime != 0) ? startTime : now;
@@ -116,22 +116,20 @@ public:
     UPROPERTY()
         FString userEmail;
     UPROPERTY()
-        FString characterName;
-    UPROPERTY()
         FString TEST_DATA_KEY = "testCounter";
     UPROPERTY()
         FString TEST_STAT_NAME = "str";
     UPROPERTY()
         FString playFabId;
     UPROPERTY()
+        FString entityType;
+    UPROPERTY()
+        FString entityId;
+    UPROPERTY()
         FDateTime testMessageTime;
     UPROPERTY()
         TArray<UPfTestContext*> testContexts;
     int testMessageInt;
-
-    /* Manual memory management for objects created by this test suite */
-    UPROPERTY()
-        TArray<UObject*> managedObjects;
 
     UFUNCTION()
         void InitializeTestSuite();
@@ -140,7 +138,7 @@ public:
     UFUNCTION()
         bool TickTestSuite();
     UFUNCTION()
-        FString GenerateSummary();
+        FString GenerateTestSummary();
 
     UFUNCTION()
         bool ClassSetup();
@@ -233,7 +231,6 @@ public:
         void OnPlayerStatisticsApiUpdate(FClientUpdatePlayerStatisticsResult result, UObject* customData);
     UFUNCTION()
         void OnPlayerStatisticsApiGet2(FClientGetPlayerStatisticsResult result, UObject* customData);
-    bool TryExtractIntFromStats(const UPlayFabJsonObject* jsonObj, const FString& key, int& outValue);
 
     /// <summary>
     /// CLIENT API
@@ -303,4 +300,25 @@ if (hasServerOptions) { %>
     UFUNCTION()
         void OnServerTitleData(FServerGetTitleDataResult result, UObject* customData);
 <% } %>
+    /// <summary>
+    /// ENTITY API
+    /// Convert the ClientToken to an EntityToken
+    /// </summary>
+    UFUNCTION()
+        void GetEntityToken(UPfTestContext* testContext);
+//    UFUNCTION()
+//        void OnGetEntityToken(FEntityGetEntityTokenResponse result, UObject* customData);
+
+    /// <summary>
+    /// ENTITY API
+    /// Save and load an Entity object
+    /// </summary>
+    UFUNCTION()
+        void ObjectApi(UPfTestContext* testContext);
+//    UFUNCTION()
+//        void OnGetObjectApi1(FEntityGetObjectsResponse result, UObject* customData);
+//    UFUNCTION()
+//        void OnSetObjectApi(FEntitySetObjectsResponse result, UObject* customData);
+//    UFUNCTION()
+//        void OnGetObjectApi2(FEntityGetObjectsResponse result, UObject* customData);
 };

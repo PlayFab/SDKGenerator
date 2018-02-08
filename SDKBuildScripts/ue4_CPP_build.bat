@@ -1,37 +1,23 @@
 rem === Cleaning existing files from UnrealCppSdk ===
 pushd ..\..\sdks\UnrealCppSdk
-pushd PlayFabSDK\Plugins\PlayFab\Source\PlayFabProxy\Private\Proxy
-rmdir /S /Q Admin
-rmdir /S /Q Client
-rmdir /S /Q Matchmaker
-rmdir /S /Q Server
+pushd PlayFabSDK\Plugins
+rmdir /S /Q PlayFab
+rmdir /S /Q PlayFabProxy
 popd
-pushd PlayFabSDK\Plugins\PlayFab\Source\PlayFabProxy\Public\Proxy
-rmdir /S /Q Admin
-rmdir /S /Q Client
-rmdir /S /Q Matchmaker
-rmdir /S /Q Server
-popd
-pushd ExampleProject\Plugins\PlayFab\Source\PlayFabProxy\Private\Proxy
-rmdir /S /Q Admin
-rmdir /S /Q Client
-rmdir /S /Q Matchmaker
-rmdir /S /Q Server
-popd
-pushd ExampleProject\Plugins\PlayFab\Source\PlayFabProxy\Public\Proxy
-rmdir /S /Q Admin
-rmdir /S /Q Client
-rmdir /S /Q Matchmaker
-rmdir /S /Q Server
+pushd ExampleProject\Plugins
+rmdir /S /Q PlayFab
+rmdir /S /Q PlayFabProxy
 popd
 popd
 
 pushd ..
 if [%1] == [] (
 rem === BUILDING UnrealCppSdk ===
-node generate.js cpp-ue4=..\sdks\UnrealCppSdk -apiSpecPath
+node generate.js cpp-ue4=..\sdks\UnrealCppSdk -apiSpecGitUrl -flags nonnullable
 ) else (
 rem === BUILDING UnrealCppSdk with params %* ===
 node generate.js cpp-ue4=..\sdks\UnrealCppSdk %*
 )
 popd
+
+pause

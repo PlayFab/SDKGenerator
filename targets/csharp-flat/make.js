@@ -1,47 +1,32 @@
 var path = require("path");
 
-exports.makeClientAPI = function (api, sourceDir, apiOutputDir) {
-    console.log("Generating C-sharp client SDK to " + apiOutputDir);
-    
-    var libname = "Client";
-    
-    copyTree(path.resolve(sourceDir, "source"), apiOutputDir);
-    MakeAllDatatypes([api], sourceDir, apiOutputDir);
-    MakeApi(api, sourceDir, apiOutputDir);
-    GenerateErrors(api, sourceDir, apiOutputDir);
-    GenerateVersion(api, sourceDir, apiOutputDir);
-    GenerateProject([api], sourceDir, apiOutputDir, libname);
+// Making resharper less noisy - These are defined in Generate.js
+if (typeof (copyFile) === "undefined") copyFile = function () { };
+if (typeof (copyTree) === "undefined") copyTree = function () { };
+if (typeof (getCompiledTemplate) === "undefined") getCompiledTemplate = function () { };
+
+exports.makeClientAPI2 = function (apis, sourceDir, apiOutputDir) {
+    makeApiInternal(apis, sourceDir, apiOutputDir, "Client");
 }
 
 exports.makeServerAPI = function (apis, sourceDir, apiOutputDir) {
-    console.log("Generating C-sharp server SDK to " + apiOutputDir);
-    
-    var libname = "Server";
-    
-    copyTree(path.resolve(sourceDir, "source"), apiOutputDir);
-    MakeAllDatatypes(apis, sourceDir, apiOutputDir);
-    for (var i = 0; i < apis.length; i++) {
-        var api = apis[i];
-        MakeApi(api, sourceDir, apiOutputDir);
-    }
-    GenerateErrors(apis[0], sourceDir, apiOutputDir);
-    GenerateVersion(apis[0], sourceDir, apiOutputDir);
-    GenerateProject(apis, sourceDir, apiOutputDir, libname);
+    makeApiInternal(apis, sourceDir, apiOutputDir, "Server");
 }
 
 exports.makeCombinedAPI = function (apis, sourceDir, apiOutputDir) {
-    console.log("Generating C-sharp combined SDK to " + apiOutputDir);
-    
-    var libname = "All";
-    
-    copyTree(path.resolve(sourceDir, "source"), apiOutputDir);
+    makeApiInternal(apis, sourceDir, apiOutputDir, "All");
+
     copyTree(path.resolve(sourceDir, "UnittestRunner"), path.resolve(apiOutputDir, "UnittestRunner")); // Copy the actual unittest project in the CombinedAPI
     copyFile(path.resolve(sourceDir, "PlayFabSDK+Unit.sln"), path.resolve(apiOutputDir, "PlayFabSDK+Unit.sln"));
+}
+
+function makeApiInternal(apis, sourceDir, apiOutputDir, libname) {
+    console.log("Generating C-sharp " + libname + " SDK to " + apiOutputDir);
+
+    copyTree(path.resolve(sourceDir, "source"), apiOutputDir);
     MakeAllDatatypes(apis, sourceDir, apiOutputDir);
-    for (var i = 0; i < apis.length; i++) {
-        var api = apis[i];
-        MakeApi(api, sourceDir, apiOutputDir);
-    }
+    for (var i = 0; i < apis.length; i++)
+        MakeApi(apis[i], sourceDir, apiOutputDir);
     GenerateErrors(apis[0], sourceDir, apiOutputDir);
     GenerateVersion(apis[0], sourceDir, apiOutputDir);
     GenerateProject(apis, sourceDir, apiOutputDir, libname);
@@ -49,23 +34,22 @@ exports.makeCombinedAPI = function (apis, sourceDir, apiOutputDir) {
 
 function MakeAllDatatypes(apis, sourceDir, apiOutputDir) {
     var templateDir = path.resolve(sourceDir, "templates");
-    var modelsTemplate = GetCompiledTemplate(path.resolve(templateDir, "Models.cs.ejs"));
-    
+    var modelsTemplate = getCompiledTemplate(path.resolve(templateDir, "Models.cs.ejs"));
+
     for (var a = 0; a < apis.length; a++) {
-        var api = apis[a];
-        var modelsLocal = {};
-        modelsLocal.api = api;
-        modelsLocal.sourceDir = sourceDir;
-        modelsLocal.MakeDatatype = MakeDatatype;
-        var generatedModels = modelsTemplate(modelsLocal);
-        writeFile(path.resolve(apiOutputDir, "source/PlayFab" + api.name + "Models.cs"), generatedModels);
+        var modelsLocal = {
+            api: apis[a],
+            sourceDir: sourceDir,
+            MakeDatatype: MakeDatatype,
+        };
+        writeFile(path.resolve(apiOutputDir, "source/PlayFab" + apis[a].name + "Models.cs"), modelsTemplate(modelsLocal));
     }
 }
 
 function MakeDatatype(datatype, api, sourceDir) {
     var templateDir = path.resolve(sourceDir, "templates");
-    var modelTemplate = GetCompiledTemplate(path.resolve(templateDir, "Model.cs.ejs"));
-    var enumTemplate = GetCompiledTemplate(path.resolve(templateDir, "Enum.cs.ejs"));
+    var modelTemplate = getCompiledTemplate(path.resolve(templateDir, "Model.cs.ejs"));
+    var enumTemplate = getCompiledTemplate(path.resolve(templateDir, "Enum.cs.ejs"));
     
     var modelLocals = {};
     modelLocals.datatype = datatype;
@@ -75,7 +59,6 @@ function MakeDatatype(datatype, api, sourceDir) {
     modelLocals.GetModelAccessibility = GetModelAccessibility;
     modelLocals.GetDeprecationAttribute = GetDeprecationAttribute;
     modelLocals.JoinParams = JoinParams;
-    modelLocals.true = true;
     modelLocals.api = api;
     
     if (datatype.isenum)
@@ -87,7 +70,7 @@ function MakeApi(api, sourceDir, apiOutputDir) {
     console.log("Generating C# " + api.name + " library to " + apiOutputDir);
     
     var templateDir = path.resolve(sourceDir, "templates");
-    var apiTemplate = GetCompiledTemplate(path.resolve(templateDir, "API.cs.ejs"));
+    var apiTemplate = getCompiledTemplate(path.resolve(templateDir, "API.cs.ejs"));
     
     var apiLocals = {};
     apiLocals.api = api;
@@ -119,7 +102,7 @@ function MakeApi(api, sourceDir, apiOutputDir) {
 }
 
 function GenerateErrors(api, sourceDir, apiOutputDir) {
-    var errorsTemplate = GetCompiledTemplate(path.resolve(sourceDir, "templates/Errors.cs.ejs"));
+    var errorsTemplate = getCompiledTemplate(path.resolve(sourceDir, "templates/Errors.cs.ejs"));
     var errorLocals = {};
     errorLocals.errorList = api.errorList;
     errorLocals.errors = api.errors;
@@ -128,7 +111,7 @@ function GenerateErrors(api, sourceDir, apiOutputDir) {
 }
 
 function GenerateVersion(api, sourceDir, apiOutputDir) {
-    var versionTemplate = GetCompiledTemplate(path.resolve(sourceDir, "templates/PlayFabVersion.cs.ejs"));
+    var versionTemplate = getCompiledTemplate(path.resolve(sourceDir, "templates/PlayFabVersion.cs.ejs"));
     var versionLocals = {};
     versionLocals.sdkRevision = exports.sdkVersion;
     versionLocals.buildIdentifier = exports.buildIdentifier;
@@ -137,7 +120,7 @@ function GenerateVersion(api, sourceDir, apiOutputDir) {
 }
 
 function GenerateProject(apis, sourceDir, apiOutputDir, libname) {
-    var vcProjTemplate = GetCompiledTemplate(path.resolve(sourceDir, "templates/PlayFabSDK.csproj.ejs"));
+    var vcProjTemplate = getCompiledTemplate(path.resolve(sourceDir, "templates/PlayFabSDK.csproj.ejs"));
     
     var projLocals = {};
     projLocals.apis = apis;

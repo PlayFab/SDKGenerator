@@ -1,10 +1,10 @@
 pushd ..
 if [%1] == [] (
 rem === BUILDING NewTarget ===
-node generate.js CloudScriptExample=..\sdks\CloudScriptExample -apiSpecPath
+node generate.js SdkTestingCloudScript=..\sdks\SdkTestingCloudScript -apiSpecGitUrl
 ) else (
 rem === BUILDING NewTarget with params %* ===
-node generate.js CloudScriptExample=..\sdks\CloudScriptExample %*
+node generate.js SdkTestingCloudScript=..\sdks\SdkTestingCloudScript %*
 )
 popd
 

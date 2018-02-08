@@ -54,7 +54,7 @@ namespace PlayFab.UUnit
                 return Summary;
 
             SuiteFinished = _suite.TickTestSuite();
-            Summary = _suite.GenerateSummary();
+            Summary = _suite.GenerateTestSummary();
             AllTestsPassed = _suite.AllTestsPassed();
 
             if (SuiteFinished)

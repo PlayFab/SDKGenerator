@@ -1,0 +1,51 @@
+<!-- 
+    This file, once filled, must be renamed to 'settings.xml' 
+    and placed into '.m2' folder which resides in user home directory.
+    Each entry that needs to be filled is prepended with a comment explaining how to acquire
+    necessary data.
+-->
+<settings>
+  <servers>
+    <server>
+      <id>ossrh</id>
+        <!-- 
+            These credentials are used to access oss sonatype repository.
+            First, you need an account @ https://issues.sonatype.org. You register as usual with normal username and password of your choice
+            Consult with official Sonatype guide and make sure your account has access to manage some repositories
+            Once this is the case, use the username email and password to access sonatype nexus @ https://oss.sonatype.org
+            Search for profile settings. In there you will be able to generate ACCESS TOKEN.
+            This ACCESS TOKEN will consist of username and password that you need in this section.
+
+            Username typically looks like 8 symbols: Ab01CD02
+            Passwords typically looks like a long token: t9IVsq8qXHFJLf9UjFvs1YbEsco+2COvWuUpw7O7jqAw
+        -->
+        <username>==USERNAME GOES HERE===</username>
+        <password>==PASSWORD GOES HERE===</password>
+    </server>
+  </servers>
+  <profiles>
+    <profile>
+      <id>sign-artifacts</id>
+      <activation>
+        <activeByDefault>true</activeByDefault>
+      </activation> 
+      <properties>
+        <!-- 
+            When creating / importing key, use this guide: http://central.sonatype.org/pages/working-with-pgp-signatures.html
+            Note: gpg and gpg2 executables are identical usage-wise. Use whatever executable you find on your target machine.
+            During key generation, you will need to specify passphrase
+            In the end, you will obtain key with keyID
+            Make sure to publish your key to one of key servers like so:
+                gpg2 --keyserver hkp://pool.sks-keyservers.net --send-keys C6EED57A
+                
+            Use passphrase and keyId (as keyname) to fill the section below.
+            
+            keyname typically looks like 8 symbols: 36B9A1FB
+            passphrase may be arbitrary string: cowmoscowtrailer
+        -->
+        <gpg.keyname>==KEYNAME GOES HERE==</gpg.keyname>
+        <gpg.passphrase>==PASSPHRASE GOES HERE==</gpg.passphrase>
+      </properties>
+    </profile>
+  </profiles>
+</settings>

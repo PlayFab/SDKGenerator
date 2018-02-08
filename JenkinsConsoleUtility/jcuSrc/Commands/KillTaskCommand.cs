@@ -17,22 +17,31 @@ namespace JenkinsConsoleUtility.Commands
 
         public int Execute(Dictionary<string, string> argsLc, Dictionary<string, string> argsCased)
         {
-            var taskName = JenkinsConsoleUtility.GetArgVar(argsLc, "taskName");
+            var taskNames = JenkinsConsoleUtility.GetArgVar(argsCased, "taskName");
+            if (string.IsNullOrEmpty(taskNames))
+                return 1;
 
-            List<Process> hitList = new List<Process>();
-            hitList.AddRange(Process.GetProcessesByName(taskName));
-            foreach (var eachProcess in hitList)
+            var hitList = new List<Process>();
+            var taskNameList = taskNames.Split(',');
+            foreach (var eachTaskName in taskNameList)
             {
-                JenkinsConsoleUtility.FancyWriteToConsole("Closing task: " + eachProcess.ProcessName, null, ConsoleColor.Yellow);
-                eachProcess.CloseMainWindow(); // Gently close the target so they don't throw error codes 
+                var eachTaskNameTrim = eachTaskName.Trim();
+                if (string.IsNullOrEmpty(eachTaskNameTrim))
+                    continue;
+                var eachHitList = Process.GetProcessesByName(eachTaskNameTrim);
+                hitList.AddRange(eachHitList);
+                foreach (var eachProcess in eachHitList)
+                {
+                    JenkinsConsoleUtility.FancyWriteToConsole("Closing task: " + eachProcess.ProcessName, null, ConsoleColor.Yellow);
+                    eachProcess.CloseMainWindow(); // Gently close the target so they don't throw error codes 
+                }
             }
 
             // Sleep for a while and wait for the programs to close safely
-            var openCount = hitList.Count;
             for (var i = 0; i < TASK_KILL_DELAY_MS; i += TASK_KILL_SLEEP_MS)
             {
                 Thread.Sleep(TASK_KILL_SLEEP_MS);
-                openCount = 0;
+                var openCount = 0;
                 foreach (var eachProcess in hitList)
                 {
                     if (!eachProcess.HasExited)
@@ -52,7 +61,7 @@ namespace JenkinsConsoleUtility.Commands
             }
 
             if (hitList.Count == 0)
-                JenkinsConsoleUtility.FancyWriteToConsole("No tasks to kill: " + taskName, null, ConsoleColor.Red);
+                JenkinsConsoleUtility.FancyWriteToConsole("No tasks to kill: " + taskNames, null, ConsoleColor.Red);
             return hitList.Count > 0 ? 0 : 1;
         }
     }

@@ -28,10 +28,10 @@ namespace PlayFab.Internal
 
         private static string _unityVersion;
 
-        private static string _authKey;
         private static bool _sessionStarted;
         public bool SessionStarted { get { return _sessionStarted; } set { _sessionStarted = value; } }
-        public string AuthKey { get { return _authKey; } set { _authKey = value; } }
+        public string AuthKey { get; set; }
+        public string EntityToken { get; set; }
 
         public void InitializeHttp()
         {
@@ -62,15 +62,6 @@ namespace PlayFab.Internal
             // These are performance Optimizations for HttpWebRequests.
             ServicePointManager.DefaultConnectionLimit = 10;
             ServicePointManager.Expect100Continue = false;
-
-            //Support for SSL
-            var rcvc = new System.Net.Security.RemoteCertificateValidationCallback(AcceptAllCertifications); //(sender, cert, chain, ssl) => true
-            ServicePointManager.ServerCertificateValidationCallback = rcvc;
-        }
-
-        private static bool AcceptAllCertifications(object sender, System.Security.Cryptography.X509Certificates.X509Certificate certificate, System.Security.Cryptography.X509Certificates.X509Chain chain, System.Net.Security.SslPolicyErrors sslPolicyErrors)
-        {
-            return true;
         }
 
         public void MakeApiCall(CallRequestContainer reqContainer)
@@ -178,19 +169,11 @@ namespace PlayFab.Internal
                 reqContainer.HttpRequest = (HttpWebRequest)WebRequest.Create(reqContainer.FullUrl);
                 reqContainer.HttpRequest.UserAgent = "UnityEngine-Unity; Version: " + _unityVersion;
                 reqContainer.HttpRequest.SendChunked = false;
-                reqContainer.HttpRequest.Proxy = null;
                 // Prevents hitting a proxy if no proxy is available. TODO: Add support for proxy's.
-                reqContainer.HttpRequest.Headers.Add("X-ReportErrorAsSuccess", "true");
-                // Without this, we have to catch WebException instead, and manually decode the result
-                reqContainer.HttpRequest.Headers.Add("X-PlayFabSDK", PlayFabSettings.VersionString);
+                reqContainer.HttpRequest.Proxy = null;
 
-                switch (reqContainer.AuthKey)
-                {
-#if ENABLE_PLAYFABSERVER_API || ENABLE_PLAYFABADMIN_API
-                    case AuthType.DevSecretKey: reqContainer.HttpRequest.Headers.Add("X-SecretKey", PlayFabSettings.DeveloperSecretKey); break;
-#endif
-                    case AuthType.LoginSession: reqContainer.HttpRequest.Headers.Add("X-Authorization", _authKey); break;
-                }
+                foreach (var pair in reqContainer.RequestHeaders)
+                    reqContainer.HttpRequest.Headers.Add(pair.Key, pair.Value);
 
                 reqContainer.HttpRequest.ContentType = "application/json";
                 reqContainer.HttpRequest.Method = "POST";
@@ -270,7 +253,7 @@ namespace PlayFab.Internal
         /// </summary>
         private static void QueueRequestError(CallRequestContainer reqContainer)
         {
-            reqContainer.Error = PlayFabHttp.GeneratePlayFabError(reqContainer.JsonResponse, reqContainer.CustomData); // Decode the server-json error
+            reqContainer.Error = PlayFabHttp.GeneratePlayFabError(reqContainer.ApiEndpoint, reqContainer.JsonResponse, reqContainer.CustomData); // Decode the server-json error
             reqContainer.HttpState = HttpRequestState.Error;
             lock (ResultQueue)
             {
@@ -306,27 +289,12 @@ namespace PlayFab.Internal
                 reqContainer.ApiResult.Request = reqContainer.ApiRequest;
                 reqContainer.ApiResult.CustomData = reqContainer.CustomData;
 
-#if !DISABLE_PLAYFABCLIENT_API
-                ClientModels.UserSettings userSettings = null;
-                var res = reqContainer.ApiResult as ClientModels.LoginResult;
-                var regRes = reqContainer.ApiResult as ClientModels.RegisterPlayFabUserResult;
-                if (res != null)
-                {
-                    userSettings = res.SettingsForUser;
-                    _authKey = res.SessionTicket;
-                }
-                else if (regRes != null)
-                {
-                    userSettings = regRes.SettingsForUser;
-                    _authKey = regRes.SessionTicket;
-                }
+                PlayFabHttp.instance.OnPlayFabApiResult(reqContainer.ApiResult);
 
-                if (userSettings != null && _authKey != null && userSettings.NeedsAttribution)
+#if !DISABLE_PLAYFABCLIENT_API
+                lock (ResultQueue)
                 {
-                    lock (ResultQueue)
-                    {
-                        ResultQueue.Enqueue(PlayFabIdfa.OnPlayFabLogin);
-                    }
+                    ResultQueue.Enqueue(() => { PlayFabDeviceUtil.OnPlayFabLogin(reqContainer.ApiResult); });
                 }
 #endif
                 lock (ResultQueue)

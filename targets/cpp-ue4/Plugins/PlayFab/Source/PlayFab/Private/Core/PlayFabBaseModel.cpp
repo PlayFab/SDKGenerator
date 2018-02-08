@@ -1,4 +1,3 @@
-#include "PlayFabPrivatePCH.h"
 #include "PlayFabBaseModel.h"
 #include "PlayFab.h"
 
@@ -6,85 +5,101 @@ using namespace PlayFab;
 
 FString FPlayFabBaseModel::toJSONString() const
 {
-	FString JsonOutString;
-	JsonWriter Json = TJsonWriterFactory<TCHAR, TPrettyJsonPrintPolicy<TCHAR> >::Create(&JsonOutString);
-	writeJSON(Json);
+    FString JsonOutString;
+    JsonWriter Json = TJsonWriterFactory<TCHAR, TPrettyJsonPrintPolicy<TCHAR> >::Create(&JsonOutString);
+    writeJSON(Json);
 
-	if (Json->Close())
-	{
-		// write log here
-	}
+    if (Json->Close())
+    {
+        // write log here
+    }
 
-	return JsonOutString;
+    return JsonOutString;
 }
 
-void FMultitypeVar::writeJSON(JsonWriter& writer) const
+void FJsonKeeper::writeJSON(JsonWriter& writer) const
 {
-	switch (mType)
-	{
-	case MultitypeNull:
-		writer->WriteNull();
-		break;
-	case MultitypeBool:
-		writer->WriteValue(mBool);
-		break;
-	case MultitypeNumber:
-		writer->WriteValue(mNumber);
-		break;
-	case MultitypeString:
-		writer->WriteValue(mString);
-		break;
-	}
+    switch (JsonValue->Type)
+    {
+    case EJson::None:
+    {
+        break;
+    }
+    case EJson::Array:
+    {
+        writer->WriteArrayStart();
+        for (auto Elem : JsonValue->AsArray())
+        {
+            FJsonKeeper(Elem).writeJSON(writer);
+        }
+        writer->WriteArrayEnd();
+        break;
+    }
+    case EJson::Boolean:
+    {
+        writer->WriteValue(JsonValue->AsBool());
+        break;
+    }
+    case EJson::Number:
+    {
+        writer->WriteValue(JsonValue->AsNumber());
+        break;
+    }
+    case EJson::Object:
+    {
+        writer->WriteObjectStart();
+        for (auto Elem : JsonValue->AsObject()->Values)
+        {
+            writer->WriteIdentifierPrefix(Elem.Key);
+            FJsonKeeper(Elem.Value).writeJSON(writer);
+        }
+        writer->WriteObjectEnd();
+        break;
+    }
+    case EJson::String:
+    {
+        writer->WriteValue(JsonValue->AsString());
+        break;
+    }
+    case EJson::Null:
+    {
+        writer->WriteNull();
+        break;
+    }
+    default:
+    {
+        break;
+    }
+    }
 }
 
-
-bool FMultitypeVar::readFromValue(const TSharedPtr<FJsonValue>& value)
+bool FJsonKeeper::readFromValue(const TSharedPtr<FJsonObject>& obj)
 {
-	if (value->IsNull())
-	{
-		mType = MultitypeNull;
-	}
-	else if (value->Type == EJson::Boolean)
-	{
-		mType = MultitypeBool;
-		mBool = value->AsBool();
-	}
-	else if (value->Type == EJson::Number)
-	{
-		mType = MultitypeNumber;
-		mNumber = value->AsNumber();
-	}
-	else if (value->Type == EJson::String)
-	{
-		mType = MultitypeString;
-		mString = value->AsString();
-	}
-	else
-	{
-		mType = MultitypeNull;
-		return false;
-	}
-	return true;
+    return false;
 }
 
-bool FMultitypeVar::readFromValue(const TSharedPtr<FJsonObject>& obj)
+bool FJsonKeeper::readFromValue(const TSharedPtr<FJsonValue>& value)
 {
-	return false;
+    if (value.IsValid())
+    {
+        JsonValue = value.ToSharedRef();
+    }
+    return true;
 }
 
 void PlayFab::writeDatetime(FDateTime datetime, JsonWriter& writer)
 {
-	writer->WriteValue(datetime.ToIso8601());
+    writer->WriteValue(datetime.ToIso8601());
 }
 
 FDateTime PlayFab::readDatetime(const TSharedPtr<FJsonValue>& value)
 {
-	FDateTime DateTimeOut;
-	FString DateString = value->AsString();
-	if (!FDateTime::ParseIso8601(*DateString, DateTimeOut))
-	{
-		UE_LOG(LogPlayFab, Error, TEXT("readDatetime - Unable to import FDateTime from Iso8601 String"));
-	}
+    FDateTime DateTimeOut;
+    FString DateString = value->AsString();
+    if (!FDateTime::ParseIso8601(*DateString, DateTimeOut))
+    {
+        UE_LOG(LogPlayFab, Error, TEXT("readDatetime - Unable to import FDateTime from Iso8601 String"));
+    }
 
-	return DateTimeOut;
+    return DateTimeOut;
 }

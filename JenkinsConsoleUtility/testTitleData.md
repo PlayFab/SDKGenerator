@@ -1,9 +1,38 @@
-testTitleData.json
-====
+# testTitleData.json
 
 testTitleData.json is a file that is required by all of the example-test projects in most of the PlayFab sdks
 
-Each example project serves two main purposes in each SDK:
+### PlayFab Title Requirements
+
+* Your title must have this title setting enabled:
+  * X Allow client to post player statistics
+* Your title must have an existing player account registered which matches the email address in your testTitleData.json (described below)
+  * The password should be whatever you want, we explicitly test failure to log in with a bad password
+* Unit testing titles should be clean/unused titles with no expectations
+  * A legacy test exists in some SDKs where a character may be added to an account if the character doesn't exist
+  * Specific user data, Entity Objects, and other features may be added to the test player that doesn't match existing title expectations
+* One test relies on an advertising plugin being enabled for your title, which is generally not typical. This test will always fail for your test titles, and you can ignore it, or disable it
+* The following Cloud Script functions must exist in your title:
+
+```JS
+handlers.helloWorld = function (args, context) {
+    var message = "Hello " + currentPlayerId + "!";
+    log.info(message);
+    var inputValue = null;
+    if (args && args.hasOwnProperty("inputValue"))
+        inputValue = args.inputValue;
+    log.debug("helloWorld:", { input: inputValue });
+    return { messageValue: message };
+}
+
+handlers.throwError = function (args) {
+	var testObject;
+    var failureObj = testObj.doesnotexist.doesnotexist;
+	return failureObj; // Can't get to here
+}
+```
+
+### Each example project serves two main purposes in each SDK:
 
 * Demonstrate to a developer using PlayFab, how to make successful API calls
   * In particular, we demonstrate specific areas of maximum first-time-user benefit, like logging in, Player data and statistics
@@ -15,9 +44,6 @@ This last portion, "running our tests on your own title" comes with a few requir
 
 * You must specify a testTitleData.json file which tells our tests which title to use
   * For most SDKs, the best way to do this is to set an environment variable called PF_TEST_TITLE_DATA_JSON={the full file path to your testTitleData.json file}
-* In Game-Manager, you must unlock a security setting that allows clients to set player statistics (This setting should NOT be set for a live game which is server-authoritative)
-* NOTE: Some tests have a hard coded titleId="6195" in those tests, which is us being sloppy, and we intend to fix these over time
-  * Generally, it shouldn't hurt anything if you run your tests on our title, but it's better for both of us if you change this to your title when you see it
 
 The format of the testTitleData.json file is as follows:
 
@@ -32,9 +58,7 @@ The format of the testTitleData.json file is as follows:
 
 Please note characterName is deprecated, and has already been removed from most of the test-examples in our SDKs.  For those few that remain, this can be any valid character name (Those test suites will usually create the character).
 
-Please note, the path to testTitleData.json is hard coded in most of the examples to this: "C:/depot/pf-main/tools/SDKBuildScripts/testTitleData.json"
-
-Our own testTitleData.json is located at this location and contains the secret key for title 6195, and thus we do not publish this file.  You should change this path to your own testTitleData.json location, wherever it may be.
+Our own testTitleData.json contains the secret key for title 6195, and thus we do not publish this file.  You should create your own file using the format above, as we cannot provide ours.
 
 Philosophy
 ====

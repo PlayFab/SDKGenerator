@@ -35,13 +35,19 @@ namespace JenkinsConsoleUtility.Testing
 
         public override void SetUp(UUnitTestContext testContext)
         {
-            var tempFolderPath = Environment.GetEnvironmentVariable("TEMP") ?? ""; // Get the Windows 10 user temp folder
+            var tempFolderPath = Environment.GetEnvironmentVariable("WORKSPACE") ?? Environment.GetEnvironmentVariable("TEMP") ?? ""; // Get the Windows 10 user temp folder
             _tempFileFullPath = Path.Combine(tempFolderPath, tempFilename);
 
             var outfile = File.Open(_tempFileFullPath, FileMode.Create);
             byte[] buffer = Encoding.UTF8.GetBytes(EXAMPLE_XML);
             outfile.Write(buffer, 0, buffer.Length);
             outfile.Close();
+        }
+
+        public override void TearDown(UUnitTestContext testContext)
+        {
+            if (File.Exists(_tempFileFullPath))
+                File.Delete(_tempFileFullPath);
         }
 
         [UUnitTest]

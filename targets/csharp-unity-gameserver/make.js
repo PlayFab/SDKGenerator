@@ -1,6 +1,10 @@
 var path = require("path");
 var unityV2 = require("../unity-v2/make.js");
 
+// Making resharper less noisy - These are defined in Generate.js
+if (typeof (generateApiSummaryLines) === "undefined") generateApiSummaryLines = function () { };
+if (typeof (getCompiledTemplate) === "undefined") getCompiledTemplate = function () { };
+
 exports.putInRoot = true;
 
 // Build the SDK into the gameserver and example-client, as they'd appear if taken from nightly
@@ -40,7 +44,7 @@ function MakeStrangeIoC(apis, sourceDir, apiOutputDir) {
 function MakeErrorHandler(templateDir, apiOutputDir) {
     console.log("   - Generating C# Error Handler library to\n   -> " + apiOutputDir);
     
-    var apiTemplate = GetCompiledTemplate(path.resolve(templateDir, "PlayFabErrorHandler.cs.ejs"));
+    var apiTemplate = getCompiledTemplate(path.resolve(templateDir, "PlayFabErrorHandler.cs.ejs"));
     var locals = {};
     var generatedApi = apiTemplate(locals);
     writeFile(path.resolve(apiOutputDir, "ErrorHandler/PlayFabErrorHandler.cs"), generatedApi);
@@ -49,9 +53,9 @@ function MakeErrorHandler(templateDir, apiOutputDir) {
 function MakeSignals(apis, templateDir, apiOutputDir) {
     console.log("   - Generating C# Signals library to\n   -> " + apiOutputDir);
     
-    var apiTemplate = GetCompiledTemplate(path.resolve(templateDir, "PlayFabSignals.cs.ejs"));
+    var apiTemplate = getCompiledTemplate(path.resolve(templateDir, "PlayFabSignals.cs.ejs"));
     var locals = {};
-    locals.GenerateSummary = GenerateSummary;
+    locals.generateApiSummary = generateApiSummary;
     locals.apis = apis;
     var generatedApi = apiTemplate(locals);
     writeFile(path.resolve(apiOutputDir, "Signals/PlayFabSignals.cs"), generatedApi);
@@ -60,9 +64,9 @@ function MakeSignals(apis, templateDir, apiOutputDir) {
 function MakeCommands(apis, templateDir, apiOutputDir) {
     console.log("   - Generating C# Commands library to\n   -> " + apiOutputDir);
     
-    var apiTemplate = GetCompiledTemplate(path.resolve(templateDir, "PlayFabCommands.cs.ejs"));
+    var apiTemplate = getCompiledTemplate(path.resolve(templateDir, "PlayFabCommands.cs.ejs"));
     var locals = {};
-    locals.GenerateSummary = GenerateSummary;
+    locals.generateApiSummary = generateApiSummary;
     locals.apis = apis;
     var generatedApi = apiTemplate(locals);
     writeFile(path.resolve(apiOutputDir, "Commands/PlayFabCommands.cs"), generatedApi);
@@ -71,20 +75,24 @@ function MakeCommands(apis, templateDir, apiOutputDir) {
 function MakeContext(apis, templateDir, apiOutputDir) {
     console.log("   - Generating C# Context library to\n   -> " + apiOutputDir);
     
-    var apiTemplate = GetCompiledTemplate(path.resolve(templateDir, "PlayFabContextManager.cs.ejs"));
+    var apiTemplate = getCompiledTemplate(path.resolve(templateDir, "PlayFabContextManager.cs.ejs"));
     var locals = {};
     locals.apis = apis;
-    locals.GenerateSummary = GenerateSummary;
+    locals.generateApiSummary = generateApiSummary;
     var generatedApi = apiTemplate(locals);
     writeFile(path.resolve(apiOutputDir, "PlayFabContextManager.cs"), generatedApi);
 }
 
-function GenerateSummary(tabbing, element, summaryParam) {
-    if (!element.hasOwnProperty(summaryParam)) {
-        return "";
+function generateApiSummary(tabbing, apiElement, summaryParam, extraLines) {
+    var lines = generateApiSummaryLines(apiElement, summaryParam, extraLines);
+
+    var output;
+    if (lines.length === 1 && lines[0]) {
+        output = tabbing + "/// <summary>\n" + tabbing + "/// " + lines.join("\n" + tabbing + "/// ") + "\n" + tabbing + "/// </summary>\n";
+    } else if (lines.length > 0) {
+        output = tabbing + "/// <summary>\n" + tabbing + "/// " + lines.join("\n" + tabbing + "/// ") + "\n" + tabbing + "/// </summary>\n";
+    } else {
+        output = "";
     }
-    
-    return tabbing + "/// <summary>\n" 
-        + tabbing + "/// " + element[summaryParam] + "\n" 
-        + tabbing + "/// </summary>\n";
+    return output;
 }

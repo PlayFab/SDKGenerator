@@ -1,8 +1,8 @@
-<% if(api.name == "Admin"){%>#if ENABLE_PLAYFABADMIN_API<%}else if(api.name == "Server" || api.name == "Matchmaker"){%>#if ENABLE_PLAYFABSERVER_API<%}else{%>#if !DISABLE_PLAYFABCLIENT_API<%}%>
+#if <%- getApiDefineFlag(api) %>
 using System;
 using System.Collections.Generic;
 using PlayFab.SharedModels;
 
 namespace PlayFab.<%- api.name %>Models
-{<% for(var d in api.datatypes) { var datatype = api.datatypes[d] %><%- MakeDatatype(datatype, sourceDir) %><% } %>}
+{<% for(var d in api.datatypes) { var datatype = api.datatypes[d] %><%- makeDatatype(datatype, sourceDir) %><% } %>}
 #endif

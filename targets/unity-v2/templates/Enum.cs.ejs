@@ -1,8 +1,6 @@
-<% if(datatype.description) { %>
-    /// <summary>
-    /// <%- datatype.description %>
-    /// </summary><% } %>
-    public enum <%- datatype.className %>
+
+<%- generateApiSummary("    ", datatype, "description")
+%>    public enum <%- datatype.className %>
     {
         <% for(var i=0; i<datatype.enumvalues.length-1; i++) { var enumprops = datatype.enumvalues[i] %><%- enumprops.name %>,
         <% } %><%- datatype.enumvalues[datatype.enumvalues.length-1].name %>

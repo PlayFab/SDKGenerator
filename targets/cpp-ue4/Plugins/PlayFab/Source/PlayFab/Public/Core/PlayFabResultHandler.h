@@ -1,7 +1,9 @@
 #pragma once
 
+#include "CoreMinimal.h"
 #include "PlayFabBaseModel.h"
 #include "PlayFabError.h"
+#include "Http.h"
 
 namespace PlayFab
 {

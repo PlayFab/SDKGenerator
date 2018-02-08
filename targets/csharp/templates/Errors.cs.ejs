@@ -1,4 +1,5 @@
 using PlayFab.Internal;
+using System;
 using System.Collections.Generic;
 using System.Text;
 
@@ -16,14 +17,14 @@ namespace PlayFab
         <% for(var i=1; i<errorList.length-1; i++) { var errorProps = errors[errorList[i]] %><%- errorProps.name %> = <%- errorProps.id %>,
         <% } %><% var errorProps = errors[errorList[errorList.length-1]] %><%- errorProps.name %> = <%- errorProps.id %>
     }
-    
+
     public class PlayFabError
     {
         public int HttpCode;
         public string HttpStatus;
         public PlayFabErrorCode Error;
         public string ErrorMessage;
-        public Dictionary<string, string[] > ErrorDetails;
+        public Dictionary<string, string[]> ErrorDetails;
 
         private static readonly StringBuilder Sb = new StringBuilder();
         public string GenerateErrorReport()
@@ -43,12 +44,33 @@ namespace PlayFab
         }
     };
 
-    public class PlayFabResult<TResult> where TResult : PlayFabResultCommon
+    public class PlayFabBaseResult
     {
-        public PlayFabError Error;
-        public TResult Result;
         public object CustomData;
+        public PlayFabError Error;
     }
-    
+
+    public class PlayFabResult<TResult> : PlayFabBaseResult where TResult : PlayFabResultCommon
+    {
+        public TResult Result;
+    }
+
     public delegate void ErrorCallback(PlayFabError error);
+
+    public class PlayFabException : Exception
+    {
+        public readonly PlayFabExceptionCode Code;
+        public PlayFabException(PlayFabExceptionCode code, string message) : base(message)
+        {
+            Code = code;
+        }
+    }
+
+    public enum PlayFabExceptionCode
+    {
+        DeveloperKeyNotSet,
+        EntityTokenNotSet,
+        NotLoggedIn,
+        TitleNotSet,
+    }
 }

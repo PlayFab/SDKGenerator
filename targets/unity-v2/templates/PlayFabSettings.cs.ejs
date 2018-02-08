@@ -7,6 +7,9 @@ namespace PlayFab
     {
         UnityWww, // High compatability Unity api calls
         HttpWebRequest, // High performance multi-threaded api calls
+#if UNITY_2017_2_OR_NEWER
+        UnityWebRequest, // Modern unity HTTP component
+#endif
         CustomHttp //If this is used, you must set the Http to an IPlayFabHttp object.
     }
 
@@ -41,7 +44,7 @@ namespace PlayFab
             var settingsList = Resources.LoadAll<PlayFabSharedSettings>("PlayFabSharedSettings");
             if (settingsList.Length != 1)
             {
-                throw new Exception("Either Missing PlayFabSharedSettings data file or multiple data files exist.");
+                throw new Exception("The number of PlayFabSharedSettings objects should be 1: " + settingsList.Length);
             }
             return settingsList[0];
         }
@@ -49,10 +52,10 @@ namespace PlayFab
         public static PlayFabSharedSettings GetSharedSettingsObject()
         {
             return GetSharedSettingsObjectPrivate();
-        } 
+        }
 
 
-#if ENABLE_PLAYFABSERVER_API || ENABLE_PLAYFABADMIN_API
+#if ENABLE_PLAYFABSERVER_API || ENABLE_PLAYFABADMIN_API || UNITY_EDITOR
         public static string DeveloperSecretKey
         {
             set { PlayFabSharedPrivate.DeveloperSecretKey = value;}

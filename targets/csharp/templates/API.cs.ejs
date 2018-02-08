@@ -2,42 +2,40 @@ using PlayFab.<%- api.name %>Models;
 using PlayFab.Internal;
 using PlayFab.Json;
 using System;
+using System.Collections.Generic;
 using System.Threading.Tasks;
 
 namespace PlayFab
 {
-<%- GenerateSummary("    ", api, "description")
+<%- generateApiSummary("    ", api, "description")
 %>    public class PlayFab<%- api.name %>API
     {
 <% for(var i in api.calls) { var apiCall = api.calls[i];
-%><%- GenerateSummary("        ", apiCall, "summary")
-%><%- GetDeprecationAttribute("        ", apiCall)
-%>        public static async Task<PlayFabResult<<%- apiCall.result %>>> <%- apiCall.name %>Async(<%- apiCall.request %> request, object customData = null)
+%><%- generateApiSummary("        ", apiCall, "summary")
+%><%- getDeprecationAttribute("        ", apiCall)
+%>        public static async Task<PlayFabResult<<%- apiCall.result %>>> <%- apiCall.name %>Async(<%- apiCall.request %> request, object customData = null, Dictionary<string, string> extraHeaders = null)
         {
-<%- GetRequestActions(apiCall, api) %>
-            var httpResult = await PlayFabHttp.DoPost("<%- apiCall.url %>", request, <%- GetAuthParams(apiCall) %>);
-            if(httpResult is PlayFabError)
+<%- getRequestActions("            ", apiCall) %>
+            var httpResult = await PlayFabHttp.DoPost("<%- apiCall.url %>", request, <%- getAuthParams(apiCall) %>, extraHeaders);
+            if (httpResult is PlayFabError)
             {
                 var error = (PlayFabError)httpResult;
-                if (PlayFabSettings.GlobalErrorHandler != null)
-                    PlayFabSettings.GlobalErrorHandler(error);
+                PlayFabSettings.GlobalErrorHandler?.Invoke(error);
                 return new PlayFabResult<<%- apiCall.result %>> { Error = error, CustomData = customData };
             }
 
             var resultRawJson = (string)httpResult;
             var resultData = JsonWrapper.DeserializeObject<PlayFabJsonSuccess<<%- apiCall.result %>>>(resultRawJson);
             var result = resultData.data;
-<%- GetResultActions(apiCall, api) %>
+<%- getResultActions("            ", apiCall, api) %>
             return new PlayFabResult<<%- apiCall.result %>> { Result = result, CustomData = customData };
         }
 
-<% } %><% if(authKey) {
-%>        private static string _authKey;
-
-        // Determine if the _authKey is set, without actually making it public
+<% } %><% if (authKey) {
+%>        // Determine if the client session ticket is set, without actually making it public
         public static bool IsClientLoggedIn()
         {
-            return !string.IsNullOrEmpty(_authKey);
+            return !string.IsNullOrEmpty(PlayFabSettings.ClientSessionTicket);
         }
 
         private static async Task<PlayFabResult<AttributeInstallResult>> MultiStepClientLogin(bool needsAttribution)

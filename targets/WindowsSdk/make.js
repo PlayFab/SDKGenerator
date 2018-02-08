@@ -1,82 +1,67 @@
 var path = require("path");
 
+// Making resharper less noisy - These are defined in Generate.js
+if (typeof (getCompiledTemplate) === "undefined") getCompiledTemplate = function () { };
+if (typeof (templatizeTree) === "undefined") templatizeTree = function () { };
+
 exports.makeCombinedAPI = function (apis, sourceDir, apiOutputDir) {
     console.log("Generating Combined api from: " + sourceDir + " to: " + apiOutputDir);
-    copyTree(path.resolve(sourceDir, "source"), apiOutputDir);
-    MakeSimpleTemplates(apis, sourceDir, apiOutputDir);
-    for (var i = 0; i < apis.length; i++)
-        MakeApiFiles(apis[i], sourceDir, apiOutputDir);
-}
 
-function MakeSimpleTemplates(apis, sourceDir, apiOutputDir) {
     var locals = {
         apis: apis,
         sdkVersion: exports.sdkVersion,
         sdkDate: exports.sdkVersion.split(".")[2],
-        sdkYear: exports.sdkVersion.split(".")[2].substr(0, 2)
+        sdkYear: exports.sdkVersion.split(".")[2].substr(0, 2),
+        vsVer: "v140", // If we add 141, we'll have to tweak this again
+        vsYear: "2015" // If we add 2017, we'll have to tweak this again
     };
 
-    var errTemplate = GetCompiledTemplate(path.resolve(sourceDir, "templates/PlayFabError.h.ejs"));;
-    var generatedErr = errTemplate(locals);
-    writeFile(path.resolve(apiOutputDir, "include/playfab", "PlayFabError.h"), generatedErr);
-    
-    locals.vsVer = "v120";
-    locals.vsYear = "2013";
-    var pkg13Template = GetCompiledTemplate(path.resolve(sourceDir, "templates/com.playfab.windowssdk.v1x0.autopkg.ejs"));;
-    var generatedPkg13 = pkg13Template(locals);
-    writeFile(path.resolve(apiOutputDir, "build", "com.playfab.windowssdk.v120.autopkg"), generatedPkg13);
-
-    locals.vsVer = "v140";
-    locals.vsYear = "2015";
-    var pkg15Template = GetCompiledTemplate(path.resolve(sourceDir, "templates/com.playfab.windowssdk.v1x0.autopkg.ejs"));;
-    var generatedPkg15 = pkg15Template(locals);
-    writeFile(path.resolve(apiOutputDir, "build", "com.playfab.windowssdk.v140.autopkg"), generatedPkg15);
+    templatizeTree(locals, path.resolve(sourceDir, "source"), apiOutputDir);
+    for (var i = 0; i < apis.length; i++)
+        makeApiFiles(apis[i], sourceDir, apiOutputDir);
 }
 
-function MakeApiFiles(api, sourceDir, apiOutputDir) {
+function makeApiFiles(api, sourceDir, apiOutputDir) {
     var locals = {
         api: api,
+        enumtypes: getEnumTypes(api.datatypes),
+        getApiDefine: getApiDefine,
+        getAuthParams: getAuthParams,
+        getBaseType: getBaseType,
+        getPropertyDefinition: getPropertyDefinition,
+        getPropertyFromJson: getPropertyFromJson,
+        getPropertyToJson: getPropertyToJson,
+        getPropertySafeName: getPropertySafeName,
+        getRequestActions: getRequestActions,
+        getResultActions: getResultActions,
         sdkVersion: exports.sdkVersion,
-        enumtypes: GetEnumTypes(api.datatypes),
-        sortedClasses: GetSortedClasses(api.datatypes),
-        GetApiDefine: GetApiDefine,
-        GetAuthParams: GetAuthParams,
-        GetBaseType: GetBaseType,
-        GetPropertyDefinition: GetPropertyDefinition,
-        GetPropertyFromJson: GetPropertyFromJson,
-        GetPropertyToJson: GetPropertyToJson,
-        GetPropertySafeName: GetPropertySafeName,
-        GetRequestActions: GetRequestActions,
-        GetResultActions: GetResultActions
+        sortedClasses: getSortedClasses(api.datatypes)
     };
-    
-    var apihTemplate = GetCompiledTemplate(path.resolve(sourceDir, "templates/PlayFab_Api.h.ejs"));;
-    var generatedApiH = apihTemplate(locals);
-    writeFile(path.resolve(apiOutputDir, "include/playfab", "PlayFab" + api.name + "Api.h"), generatedApiH);
-    
-    var apiCppTemplate = GetCompiledTemplate(path.resolve(sourceDir, "templates/PlayFab_Api.cpp.ejs"));;
-    var generatedApiCpp = apiCppTemplate(locals);
-    writeFile(path.resolve(apiOutputDir, "source", "PlayFab" + api.name + "Api.cpp"), generatedApiCpp);
-    
-    var dataModelTemplate = GetCompiledTemplate(path.resolve(sourceDir, "templates/PlayFab_DataModels.h.ejs"));;
-    var generatedDataModel = dataModelTemplate(locals);
-    writeFile(path.resolve(apiOutputDir, "include/playfab", "PlayFab" + api.name + "DataModels.h"), generatedDataModel);
+
+    var apihTemplate = getCompiledTemplate(path.resolve(sourceDir, "templates/PlayFab_Api.h.ejs"));;
+    writeFile(path.resolve(apiOutputDir, "include/playfab", "PlayFab" + api.name + "Api.h"), apihTemplate(locals));
+
+    var apiCppTemplate = getCompiledTemplate(path.resolve(sourceDir, "templates/PlayFab_Api.cpp.ejs"));;
+    writeFile(path.resolve(apiOutputDir, "source", "PlayFab" + api.name + "Api.cpp"), apiCppTemplate(locals));
+
+    var dataModelTemplate = getCompiledTemplate(path.resolve(sourceDir, "templates/PlayFab_DataModels.h.ejs"));;
+    writeFile(path.resolve(apiOutputDir, "include/playfab", "PlayFab" + api.name + "DataModels.h"), dataModelTemplate(locals));
 }
 
 // *************************** Internal utility methods ***************************
-function GetEnumTypes(datatypes) {
+function getEnumTypes(datatypes) {
     var enumtypes = [];
-    
+
     for (var typeIdx in datatypes) // Add all types and their dependencies
         if (datatypes[typeIdx].isenum)
             enumtypes.push(datatypes[typeIdx]);
     return enumtypes;
 }
 
-function GetSortedClasses(datatypes) {
+function getSortedClasses(datatypes) {
     var sortedClasses = [];
     var addedTypes = new Set();
-    
+
     var addType = function (datatype) {
         if (addedTypes.has(datatype.name) || datatype.isenum)
             return;
@@ -91,33 +76,33 @@ function GetSortedClasses(datatypes) {
         addedTypes.add(datatype.name);
         sortedClasses.push(datatype);
     }
-    
+
     for (var typeIdx in datatypes) // Add all types and their dependencies
         addType(datatypes[typeIdx]);
     return sortedClasses;
 }
 
 // *************************** ejs-exposed methods ***************************
-function GetApiDefine(api) {
+function getApiDefine(api) {
     if (api.name === "Client")
         return "DISABLE_PLAYFABCLIENT_API";
     if (api.name === "Server" || api.name === "Matchmaker")
         return "ENABLE_PLAYFABSERVER_API";
     if (api.name === "Admin")
         return "ENABLE_PLAYFABADMIN_API";
-    throw "GetApiDefine: Unknown api: " + api.name;
+    throw "getApiDefine: Unknown api: " + api.name;
 }
 
-function GetAuthParams(apiCall) {
+function getAuthParams(apiCall) {
     switch (apiCall.auth) {
         case "None": return "U(\"\"), U(\"\")";
         case "SessionTicket": return "U(\"X-Authorization\"), mUserSessionTicket";
         case "SecretKey": return "U(\"X-SecretKey\"), PlayFabSettings::developerSecretKey";
     }
-    throw "GetAuthParams: Unknown auth type: " + apiCall.auth + " for " + apiCall.name;
+    throw "getAuthParams: Unknown auth type: " + apiCall.auth + " for " + apiCall.name;
 }
 
-function GetBaseType(datatype) {
+function getBaseType(datatype) {
     if (datatype.className.toLowerCase().endsWith("request"))
         return "PlayFabRequestCommon";
     if (datatype.className.toLowerCase().endsWith("response") || datatype.className.toLowerCase().endsWith("result"))
@@ -125,9 +110,9 @@ function GetBaseType(datatype) {
     return "PlayFabBaseModel";
 }
 
-function GetPropertyCppType(property, datatype, needOptional) {
+function getPropertyCppType(property, datatype, needOptional) {
     var isOptional = property.optional && needOptional;
-    
+
     if (property.actualtype === "String")
         return "std::string";
     else if (property.isclass)
@@ -156,13 +141,13 @@ function GetPropertyCppType(property, datatype, needOptional) {
         return isOptional ? "Boxed<time_t>" : "time_t";
     else if (property.isenum)
         return isOptional ? ("Boxed<" + property.actualtype + ">") : property.actualtype;
-    throw "GetPropertyCppType: Unknown property type: " + property.actualtype + " for " + property.name + " in " + datatype.name;
+    throw "getPropertyCppType: Unknown property type: " + property.actualtype + " for " + property.name + " in " + datatype.name;
 }
 
-function GetPropertyDefinition(tabbing, property, datatype) {
-    var cppType = GetPropertyCppType(property, datatype, !property.collection);
-    var safePropName = GetPropertySafeName(property);
-    
+function getPropertyDefinition(tabbing, property, datatype) {
+    var cppType = getPropertyCppType(property, datatype, !property.collection);
+    var safePropName = getPropertySafeName(property);
+
     if (!property.collection) {
         return tabbing + cppType + " " + safePropName + ";";
     } else if (property.jsontype === "Object" && property.actualtype === "object") {
@@ -172,11 +157,11 @@ function GetPropertyDefinition(tabbing, property, datatype) {
     } else if (property.collection === "map") {
         return tabbing + "std::map<std::string, " + cppType + "> " + safePropName + ";";
     }
-    throw "GetPropertyDefinition: Unknown property type: " + property.actualtype + " for " + property.name + " in " + datatype.name;
+    throw "getPropertyDefinition: Unknown property type: " + property.actualtype + " for " + property.name + " in " + datatype.name;
 }
 
-function GetPropertyFromJson(tabbing, property, datatype) {
-    var safePropName = GetPropertySafeName(property);
+function getPropertyFromJson(tabbing, property, datatype) {
+    var safePropName = getPropertySafeName(property);
     if (property.jsontype === "Object" && property.actualtype === "object")
         return tabbing + safePropName + " = input[U(\"" + safePropName + "\")];";
     if (property.jsontype === "Object")
@@ -192,12 +177,12 @@ function GetPropertyFromJson(tabbing, property, datatype) {
     var primitives = new Set(["Boolean", "int16", "uint16", "int32", "uint32", "int64", "uint64", "float", "double"]);
     if (primitives.has(property.actualtype))
         return tabbing + "FromJsonUtilP(input[U(\"" + safePropName + "\")], " + safePropName + ");";
-    
-    throw "GetPropertyFromJson: Unknown property type: " + property.actualtype + " for " + property.name + " in " + datatype.name;
+
+    throw "getPropertyFromJson: Unknown property type: " + property.actualtype + " for " + property.name + " in " + datatype.name;
 }
 
-function GetPropertyToJson(tabbing, property, datatype) {
-    var safePropName = GetPropertySafeName(property);
+function getPropertyToJson(tabbing, property, datatype) {
+    var safePropName = getPropertySafeName(property);
     if (property.jsontype === "Object" && property.actualtype === "object")
         return tabbing + "output[U(\"" + property.name + "\")] = " + safePropName + ";";
     if (property.jsontype === "Object")
@@ -213,29 +198,29 @@ function GetPropertyToJson(tabbing, property, datatype) {
     var primitives = new Set(["Boolean", "int16", "uint16", "int32", "uint32", "int64", "uint64", "float", "double"]);
     if (primitives.has(property.actualtype))
         return tabbing + "web::json::value each_" + safePropName + "; ToJsonUtilP(" + safePropName + ", each_" + safePropName + "); output[U(\"" + property.name + "\")] = each_" + safePropName + ";";
-    
-    throw "GetPropertyToJson: Unknown property type: " + property.actualtype + " for " + property.name + " in " + datatype.name;
+
+    throw "getPropertyToJson: Unknown property type: " + property.actualtype + " for " + property.name + " in " + datatype.name;
 }
 
-function GetPropertySafeName(property) {
+function getPropertySafeName(property) {
     return (property.actualtype === property.name) ? "pf" + property.name : property.name;
 }
 
-function GetRequestActions(tabbing, apiCall, api) {
+function getRequestActions(tabbing, apiCall) {
     if (apiCall.result === "LoginResult" || apiCall.result === "RegisterPlayFabUserResult")
         return tabbing + "if (PlayFabSettings::titleId.length() > 0) request.TitleId = ShortenString(PlayFabSettings::titleId);\n";
     return "";
 }
 
-function GetResultActions(tabbing, apiCall, api) {
+function getResultActions(tabbing, apiCall) {
     if (apiCall.result === "LoginResult" || apiCall.result === "RegisterPlayFabUserResult")
-        return tabbing + "if (outResult.SessionTicket.length() > 0)\n" 
-            + tabbing + "{\n" 
-            + tabbing + "    mUserSessionTicket = WidenString(outResult.SessionTicket);\n" 
-            + tabbing + "    MultiStepClientLogin(outResult.SettingsForUser->NeedsAttribution);\n" 
+        return tabbing + "if (outResult.SessionTicket.length() > 0)\n"
+            + tabbing + "{\n"
+            + tabbing + "    mUserSessionTicket = WidenString(outResult.SessionTicket);\n"
+            + tabbing + "    MultiStepClientLogin(outResult.SettingsForUser->NeedsAttribution);\n"
             + tabbing + "}\n";
     if (apiCall.result === "AttributeInstallResult")
         return tabbing + "PlayFabSettings::advertisingIdType += U(\"_Successful\");\n";
-    
+
     return "";
 }

@@ -20,6 +20,7 @@ namespace PlayFab.Internal
         public delegate void ApiProcessErrorEvent(PlayFabRequestCommon request, PlayFabError error);
         public static event ApiProcessingEvent<ApiProcessingEventArgs> ApiProcessingEventHandler;
         public static event ApiProcessErrorEvent ApiProcessingErrorEventHandler;
+        public static readonly Dictionary<string, string> GlobalHeaderInjection = new Dictionary<string, string>();
 
 #if ENABLE_PLAYFABPLAYSTREAM_API && ENABLE_PLAYFABSERVER_API
         private static IPlayFabSignalR _internalSignalR;
@@ -79,6 +80,10 @@ namespace PlayFab.Internal
             if (PlayFabSettings.RequestType == WebRequestType.HttpWebRequest)
                 _internalHttp = new PlayFabWebRequest();
 #endif
+#if UNITY_2017_2_OR_NEWER
+            if (PlayFabSettings.RequestType == WebRequestType.UnityWebRequest)
+                _internalHttp = new PlayFabUnityHttp();
+#endif
             if (_internalHttp == null)
                 _internalHttp = new PlayFabWww();
 
@@ -92,7 +97,7 @@ namespace PlayFab.Internal
         public static void InitializeLogger(IPlayFabLogger setLogger = null)
         {
             if (_logger != null)
-                throw new Exception("Once initialized, the logger cannot be reset.");
+                throw new InvalidOperationException("Once initialized, the logger cannot be reset.");
             if (setLogger == null)
                 setLogger = new PlayFabLogger();
             _logger = setLogger;
@@ -133,7 +138,7 @@ namespace PlayFab.Internal
         /// </summary>
         protected internal static void MakeApiCall<TResult>(string apiEndpoint,
             PlayFabRequestCommon request, AuthType authType, Action<TResult> resultCallback,
-            Action<PlayFabError> errorCallback, object customData = null, bool allowQueueing = false)
+            Action<PlayFabError> errorCallback, object customData = null, Dictionary<string, string> extraHeaders = null, bool allowQueueing = false)
             where TResult : PlayFabResultCommon
         {
             InitializeHttp();
@@ -145,14 +150,31 @@ namespace PlayFab.Internal
                 FullUrl = PlayFabSettings.GetFullUrl(apiEndpoint),
                 CustomData = customData,
                 Payload = Encoding.UTF8.GetBytes(JsonWrapper.SerializeObject(request)),
-                AuthKey = authType,
                 ApiRequest = request,
                 ErrorCallback = errorCallback,
+                RequestHeaders = extraHeaders ?? new Dictionary<string, string>() // Use any headers provided by the customer
             };
+            // Append any additional headers
+            foreach (var pair in GlobalHeaderInjection)
+                if (!reqContainer.RequestHeaders.ContainsKey(pair.Key))
+                    reqContainer.RequestHeaders[pair.Key] = pair.Value;
+
 #if PLAYFAB_REQUEST_TIMING
             reqContainer.Timing.StartTimeUtc = DateTime.UtcNow;
             reqContainer.Timing.ApiEndpoint = apiEndpoint;
 #endif
+
+            // Add PlayFab Headers
+            reqContainer.RequestHeaders["X-ReportErrorAsSuccess"] = "true"; // Makes processing PlayFab errors a little easier
+            reqContainer.RequestHeaders["X-PlayFabSDK"] = PlayFabSettings.VersionString; // Tell PlayFab which SDK this is
+            switch (authType)
+            {
+#if ENABLE_PLAYFABSERVER_API || ENABLE_PLAYFABADMIN_API
+                case AuthType.DevSecretKey: reqContainer.RequestHeaders["X-SecretKey"] = PlayFabSettings.DeveloperSecretKey; break;
+#endif
+                case AuthType.LoginSession: reqContainer.RequestHeaders["X-Authorization"] = _internalHttp.AuthKey; break;
+                case AuthType.EntityToken: reqContainer.RequestHeaders["X-EntityToken"] = _internalHttp.EntityToken; break;
+            }
 
             // These closures preserve the TResult generic information in a way that's safe for all the devices
             reqContainer.DeserializeResultJson = () =>
@@ -179,9 +201,29 @@ namespace PlayFab.Internal
         }
 
         /// <summary>
+        /// Internal code shared by IPlayFabHTTP implementations
+        /// </summary>
+        internal void OnPlayFabApiResult(PlayFabResultCommon result)
+        {
+#if ENABLE_PLAYFABENTITY_API
+            var entRes = result as EntityModels.GetEntityTokenResponse;
+            if (entRes != null)
+                _internalHttp.EntityToken = entRes.EntityToken;
+#endif
+#if !DISABLE_PLAYFABCLIENT_API
+            var logRes = result as ClientModels.LoginResult;
+            var regRes = result as ClientModels.RegisterPlayFabUserResult;
+            if (logRes != null)
+                _internalHttp.AuthKey = logRes.SessionTicket;
+            else if (regRes != null)
+                _internalHttp.AuthKey = regRes.SessionTicket;
+#endif
+        }
+
+        /// <summary>
         /// MonoBehaviour OnEnable Method
         /// </summary>
-        public void OnEnable()
+        private void OnEnable()
         {
             if (_logger != null)
             {
@@ -192,7 +234,7 @@ namespace PlayFab.Internal
         /// <summary>
         /// MonoBehaviour OnDisable
         /// </summary>
-        public void OnDisable()
+        private void OnDisable()
         {
             if (_logger != null)
             {
@@ -203,7 +245,7 @@ namespace PlayFab.Internal
         /// <summary>
         /// MonoBehaviour OnDestroy
         /// </summary>
-        public void OnDestroy()
+        private void OnDestroy()
         {
             if (_internalHttp != null)
             {
@@ -224,7 +266,7 @@ namespace PlayFab.Internal
         /// <summary>
         /// MonoBehaviour Update
         /// </summary>
-        public void Update()
+        private void Update()
         {
             if (_internalHttp != null)
             {
@@ -251,7 +293,16 @@ namespace PlayFab.Internal
             return _internalHttp != null && !string.IsNullOrEmpty(_internalHttp.AuthKey);
         }
 
-        protected internal static PlayFabError GeneratePlayFabError(string json, object customData)
+        public static void ForgetAllCredentials()
+        {
+            if (_internalHttp != null)
+            {
+                _internalHttp.AuthKey = null;
+                _internalHttp.EntityToken = null;
+            }
+        }
+
+        protected internal static PlayFabError GeneratePlayFabError(string apiEndpoint, string json, object customData)
         {
             JsonObject errorDict = null;
             Dictionary<string, List<string>> errorDetails = null;
@@ -270,6 +321,7 @@ namespace PlayFab.Internal
 
             return new PlayFabError
             {
+                ApiEndpoint = apiEndpoint,
                 HttpCode = errorDict != null && errorDict.ContainsKey("code") ? Convert.ToInt32(errorDict["code"]) : 400,
                 HttpStatus = errorDict != null && errorDict.ContainsKey("status") ? (string)errorDict["status"] : "BadRequest",
                 Error = errorDict != null && errorDict.ContainsKey("errorCode") ? (PlayFabErrorCode)Convert.ToInt32(errorDict["errorCode"]) : PlayFabErrorCode.ServiceUnavailable,

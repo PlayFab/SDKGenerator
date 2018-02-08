@@ -1,11 +1,10 @@
 #pragma once
 
+#include "CoreMinimal.h"
 #include "Json.h"
-#include "UnrealString.h"
 
 namespace PlayFab
 {
-
     typedef TSharedRef< TJsonWriter<TCHAR, TPrettyJsonPrintPolicy<TCHAR> > > JsonWriter;
     typedef TSharedRef< TJsonReader<TCHAR> > JsonReader;
 
@@ -31,17 +30,6 @@ namespace PlayFab
         bool mIsSet;
     };
 
-    typedef Boxed<bool> OptionalBool;
-    typedef Boxed<uint16> OptionalUint16;
-    typedef Boxed<int16> OptionalInt16;
-    typedef Boxed<uint32> OptionalUint32;
-    typedef Boxed<int32> OptionalInt32;
-    typedef Boxed<uint64> OptionalUint64;
-    typedef Boxed<int64> OptionalInt64;
-    typedef Boxed<float> OptionalFloat;
-    typedef Boxed<double> OptionalDouble;
-    typedef Boxed<FDateTime> OptionalTime;
-
     struct FPlayFabBaseModel
     {
         virtual ~FPlayFabBaseModel() {}
@@ -52,84 +40,54 @@ namespace PlayFab
         FString toJSONString() const;
     };
 
-    enum MultitypeVarTypes
-    {
-        MultitypeNull,
-        MultitypeBool,
-        MultitypeNumber,
-        MultitypeString
-    };
-
-    struct FMultitypeVar : public FPlayFabBaseModel
+    struct PLAYFAB_API FJsonKeeper : public FPlayFabBaseModel
     {
     private:
-        MultitypeVarTypes mType;
-        FString mString;
-        bool mBool;
-        double mNumber;
+        TSharedRef<class FJsonValue> JsonValue; // Reference so that any time this struct is avaiable, the JsonValue is aswell, even if a FJsonValueNull
 
     public:
+        FJsonKeeper() : JsonValue(MakeShareable(new FJsonValueNull())) {}
+        FJsonKeeper(const TSharedPtr<class FJsonValue>& val) : JsonValue(val.ToSharedRef()) {}
+        FJsonKeeper(const TSharedPtr<class FJsonObject>& val) : JsonValue(MakeShareable(new FJsonValueObject(val))) {}
+        FJsonKeeper(const FString& val) : JsonValue(MakeShareable(new FJsonValueString(val))) {}
+        FJsonKeeper(const bool& val) : JsonValue(MakeShareable(new FJsonValueBoolean(val))) {}
+        FJsonKeeper(const int8& val) : JsonValue(MakeShareable(new FJsonValueNumber(val))) {}
+        FJsonKeeper(const int16& val) : JsonValue(MakeShareable(new FJsonValueNumber(val))) {}
+        FJsonKeeper(const int32& val) : JsonValue(MakeShareable(new FJsonValueNumber(val))) {}
+        FJsonKeeper(const int64& val) : JsonValue(MakeShareable(new FJsonValueNumber(val))) {}
+        FJsonKeeper(const uint8& val) : JsonValue(MakeShareable(new FJsonValueNumber(val))) {}
+        FJsonKeeper(const uint16& val) : JsonValue(MakeShareable(new FJsonValueNumber(val))) {}
+        FJsonKeeper(const uint32& val) : JsonValue(MakeShareable(new FJsonValueNumber(val))) {}
+        FJsonKeeper(const uint64& val) : JsonValue(MakeShareable(new FJsonValueNumber(val))) {}
+        FJsonKeeper(const float& val) : JsonValue(MakeShareable(new FJsonValueNumber(val))) {}
+        FJsonKeeper(const double& val) : JsonValue(MakeShareable(new FJsonValueNumber(val))) {}
 
-        FMultitypeVar() : mType(MultitypeNull) {}
-        FMultitypeVar(bool val) : mType(MultitypeBool), mBool(val) {}
-        FMultitypeVar(uint16 val) : mType(MultitypeNumber), mNumber(val) {}
-        FMultitypeVar(int16 val) : mType(MultitypeNumber), mNumber(val) {}
-        FMultitypeVar(uint32 val) : mType(MultitypeNumber), mNumber(val) {}
-        FMultitypeVar(int32 val) : mType(MultitypeNumber), mNumber(val) {}
-        FMultitypeVar(float val) : mType(MultitypeNumber), mNumber(val) {}
-        FMultitypeVar(double val) : mType(MultitypeNumber), mNumber(val) {}
-        FMultitypeVar(FString val) : mType(MultitypeString), mString(val) {}
+        bool notNull() const { return !isNull(); }
+        bool isNull() const { return JsonValue->IsNull(); }
 
-        FMultitypeVar(const TSharedPtr<FJsonObject>& obj)
-        {
-            readFromValue(obj);
-        }
+        FJsonKeeper& operator=(const TSharedPtr<class FJsonValue>& val) { JsonValue = val.ToSharedRef(); return *this; }
+        FJsonKeeper& operator=(const TSharedPtr<class FJsonObject>& val) { JsonValue = MakeShareable(new FJsonValueObject(val)); return *this; }
+        FJsonKeeper& operator=(const FString& val) { JsonValue = MakeShareable(new FJsonValueString(val)); return *this; }
+        FJsonKeeper& operator=(const bool& val) { JsonValue = MakeShareable(new FJsonValueBoolean(val)); return *this; }
+        FJsonKeeper& operator=(const int8& val) { JsonValue = MakeShareable(new FJsonValueNumber(val)); return *this; }
+        FJsonKeeper& operator=(const int16& val) { JsonValue = MakeShareable(new FJsonValueNumber(val)); return *this; }
+        FJsonKeeper& operator=(const int32& val) { JsonValue = MakeShareable(new FJsonValueNumber(val)); return *this; }
+        FJsonKeeper& operator=(const int64& val) { JsonValue = MakeShareable(new FJsonValueNumber(val)); return *this; }
+        FJsonKeeper& operator=(const uint8& val) { JsonValue = MakeShareable(new FJsonValueNumber(val)); return *this; }
+        FJsonKeeper& operator=(const uint16& val) { JsonValue = MakeShareable(new FJsonValueNumber(val)); return *this; }
+        FJsonKeeper& operator=(const uint32& val) { JsonValue = MakeShareable(new FJsonValueNumber(val)); return *this; }
+        FJsonKeeper& operator=(const uint64& val) { JsonValue = MakeShareable(new FJsonValueNumber(val)); return *this; }
+        FJsonKeeper& operator=(const float& val) { JsonValue = MakeShareable(new FJsonValueNumber(val)); return *this; }
+        FJsonKeeper& operator=(const double& val) { JsonValue = MakeShareable(new FJsonValueNumber(val)); return *this; }
 
-        void setNull() { mType = MultitypeNull; }
-        bool notNull() { return mType != MultitypeNull; }
-        bool isNull() { return mType == MultitypeNull; }
-        MultitypeVarTypes getType() { return mType; }
-
-        bool notNull() const { return mType != MultitypeNull; }
-        bool isNull() const { return mType == MultitypeNull; }
-        MultitypeVarTypes getType() const { return mType; }
-
-        FMultitypeVar& operator=(bool val) { mBool = val; mType = MultitypeBool; return *this; }
-        FMultitypeVar& operator=(uint16 val) { mNumber = val; mType = MultitypeNumber; return *this; }
-        FMultitypeVar& operator=(int16 val) { mNumber = val; mType = MultitypeNumber; return *this; }
-        FMultitypeVar& operator=(uint32 val) { mNumber = val; mType = MultitypeNumber; return *this; }
-        FMultitypeVar& operator=(int32 val) { mNumber = val; mType = MultitypeNumber; return *this; }
-        FMultitypeVar& operator=(float val) { mNumber = val; mType = MultitypeNumber; return *this; }
-        FMultitypeVar& operator=(double val) { mNumber = val; mType = MultitypeNumber; return *this; }
-        FMultitypeVar& operator=(FString val) { mString = val; mType = MultitypeString; return *this; }
-
-        operator bool() { return mBool; }
-        operator uint16() { return (uint16)mNumber; }
-        operator int16() { return (int16)mNumber; }
-        operator uint32() { return (uint32)mNumber; }
-        operator int32() { return (int32)mNumber; }
-        operator float() { return (float)mNumber; }
-        operator double() { return mNumber; }
-        operator FString() { return mString; }
-
-        operator bool() const { return mBool; }
-        operator uint16() const { return (uint16)mNumber; }
-        operator int16() const { return (int16)mNumber; }
-        operator uint32() const { return (uint32)mNumber; }
-        operator int32() const { return (int32)mNumber; }
-        operator float() const { return (float)mNumber; }
-        operator double() const { return mNumber; }
-        operator FString() const { return mString; }
-
-
-        ~FMultitypeVar() {}
+        ~FJsonKeeper() {}
         void writeJSON(JsonWriter& writer) const override;
-        bool readFromValue(const TSharedPtr<FJsonObject>& obj) override;
-        bool readFromValue(const TSharedPtr<FJsonValue>& value) override;
-    };
+        bool readFromValue(const TSharedPtr<class FJsonObject>& obj) override;
+        bool readFromValue(const TSharedPtr<class FJsonValue>& value) override;
 
+        TSharedPtr<class FJsonValue> GetJsonValue() const { return JsonValue; };
+    };
 
     void writeDatetime(FDateTime datetime, JsonWriter& writer);
     FDateTime readDatetime(const TSharedPtr<FJsonValue>& value);
-
 }

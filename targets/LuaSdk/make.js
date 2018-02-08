@@ -1,18 +1,23 @@
 var path = require("path");
 
+// Making resharper less noisy - These are defined in Generate.js
+if (typeof (copyTree) === "undefined") copyTree = function () { };
+if (typeof (generateApiSummaryLines) === "undefined") generateApiSummaryLines = function () { };
+if (typeof (getCompiledTemplate) === "undefined") getCompiledTemplate = function () { };
+
 exports.putInRoot = true;
 
-exports.makeClientAPI = function (api, sourceDir, baseOutputDir) {
+exports.makeClientAPI2 = function (apis, sourceDir, baseOutputDir) {
     var apiOutputDir = path.resolve(baseOutputDir, "PlayFabClientSdk");
-    MakeLuaDistSdk([api], sourceDir, apiOutputDir, "Client");
+    MakeLuaDistSdk(apis, sourceDir, apiOutputDir, "Client");
     copyTree(path.resolve(sourceDir, "SharedTesting"), apiOutputDir); // SharedTesting in Client only
     
     apiOutputDir = path.resolve(baseOutputDir, "_Build/Defold/PlayFabClientSdk");
-    MakeDefold([api], sourceDir, apiOutputDir, "DefoldClient");
+    MakeDefold(apis, sourceDir, apiOutputDir, "DefoldClient");
     copyTree(path.resolve(sourceDir, "SharedTesting"), apiOutputDir); // SharedTesting in Client only
     
     apiOutputDir = path.resolve(baseOutputDir, "_Build/CoronaPluginBuilders/client/lua/plugin/playfab/client");
-    MakeCorona([api], sourceDir, apiOutputDir, "CoronaClient", "plugin.playfab.client.");
+    MakeCorona(apis, sourceDir, apiOutputDir, "CoronaClient", "plugin.playfab.client.");
     // Corona testing is copied separately
 }
 
@@ -45,7 +50,7 @@ function MakeCoreSdk(apis, sourceDir, apiOutputDir, sdkDescriptor, requirePrefix
     copyTree(path.resolve(sourceDir, "source"), apiOutputDir);
     MakeSimpleFiles(apis, sourceDir, apiOutputDir, requirePrefix, sdkVersionString);
     for (var a = 0; a < apis.length; a++)
-        MakeApi(apis[a], sourceDir, apiOutputDir, requirePrefix);
+        makeApi(apis[a], sourceDir, apiOutputDir, requirePrefix);
 }
 
 function MakeLuaDistSdk(apis, sourceDir, apiOutputDir, sdkDescriptor) {
@@ -64,11 +69,11 @@ function MakeDefold(apis, sourceDir, apiOutputDir, sdkDescriptor) {
     }
     customLocals.sdkDescriptor = sdkDescriptor; // sdkDescriptor is only used in Defold Templates
     
-    var projTemplate = GetCompiledTemplate(path.resolve(sourceDir, "templates/Defold/PlayFabSdk.project.ejs"));
+    var projTemplate = getCompiledTemplate(path.resolve(sourceDir, "templates/Defold/PlayFabSdk.project.ejs"));
     var projGenerated = projTemplate(customLocals);
     writeFile(path.resolve(apiOutputDir, "PlayFabSdk.project"), projGenerated);
     if (sdkDescriptor.indexOf("Client") > -1) {
-        var testTemplate = GetCompiledTemplate(path.resolve(sourceDir, "templates/Defold/PlayFabTestExample.project.ejs"));
+        var testTemplate = getCompiledTemplate(path.resolve(sourceDir, "templates/Defold/PlayFabTestExample.project.ejs"));
         var testGenerated = testTemplate(customLocals);
         writeFile(path.resolve(apiOutputDir, "PlayFabTestExample.project"), testGenerated);
     }
@@ -78,7 +83,7 @@ function MakeCorona(apis, sourceDir, apiOutputDir, sdkDescriptor, requirePrefix)
     var customLocals = {}
     customLocals.requirePrefix = requirePrefix;
     
-    var httpsTemplate = GetCompiledTemplate(path.resolve(sourceDir, "templates/Corona/PlayFabHttpsCorona.lua.ejs"));
+    var httpsTemplate = getCompiledTemplate(path.resolve(sourceDir, "templates/Corona/PlayFabHttpsCorona.lua.ejs"));
     var httpsGenerated = httpsTemplate(customLocals);
     writeFile(path.resolve(apiOutputDir, "PlayFabHttpsCorona.lua"), httpsGenerated);
     
@@ -87,16 +92,16 @@ function MakeCorona(apis, sourceDir, apiOutputDir, sdkDescriptor, requirePrefix)
     copyTree(path.resolve(sourceDir, "EachCorona"), apiOutputDir);
 }
 
-function MakeApi(api, sourceDir, apiOutputDir, requirePrefix) {
+function makeApi(api, sourceDir, apiOutputDir, requirePrefix) {
     var locals = {};
     locals.api = api;
-    locals.GenerateSummary = GenerateSummary;
+    locals.generateApiSummary = generateApiSummary;
     locals.GetRequestActions = GetRequestActions;
     locals.GetAuthentication = GetAuthentication;
     locals.hasClientOptions = api.name === "Client";
     locals.requirePrefix = requirePrefix; // Corona is in a top-level subfolder which is not present in any other sdk
     
-    var template = GetCompiledTemplate(path.resolve(sourceDir, "templates/PlayFabApi.lua.ejs"));
+    var template = getCompiledTemplate(path.resolve(sourceDir, "templates/PlayFabApi.lua.ejs"));
     var generatedTemplateText = template(locals);
     writeFile(path.resolve(apiOutputDir, "PlayFab" + api.name + "Api.lua"), generatedTemplateText);
 }
@@ -115,28 +120,25 @@ function MakeSimpleFiles(apis, sourceDir, apiOutputDir, requirePrefix, sdkVersio
             locals.hasServerOptions = true;
     }
     
-    var settingsTemplate = GetCompiledTemplate(path.resolve(sourceDir, "templates/PlayFabSettings.lua.ejs"));
+    var settingsTemplate = getCompiledTemplate(path.resolve(sourceDir, "templates/PlayFabSettings.lua.ejs"));
     var genSettings = settingsTemplate(locals);
     writeFile(path.resolve(apiOutputDir, "PlayFabSettings.lua"), genSettings);
     
-    var ihttpTemplate = GetCompiledTemplate(path.resolve(sourceDir, "templates/IPlayFabHttps.lua.ejs"));
+    var ihttpTemplate = getCompiledTemplate(path.resolve(sourceDir, "templates/IPlayFabHttps.lua.ejs"));
     var genIHttp = ihttpTemplate(locals);
     writeFile(path.resolve(apiOutputDir, "IPlayFabHttps.lua"), genIHttp);
 }
 
-function GenerateSummary(tabbing, element, summaryParam) {
-    if (!element.hasOwnProperty(summaryParam)) {
-        return "";
-    }
-    
-    var output = tabbing + "-- " + element[summaryParam] + "\n";
-    if (element.hasOwnProperty("url")) {
-        var apiName = element.url.split("/")[1];
-        output += tabbing + "-- API Method Documentation: https://api.playfab.com/Documentation/" + apiName + "/method/" + element.name + "\n";
-        if (element.hasOwnProperty("request"))
-            output += tabbing + "-- Request Documentation: https://api.playfab.com/Documentation/" + apiName + "/datatype/PlayFab." + apiName + ".Models/PlayFab." + apiName + ".Models." + element.request + "\n";
-        if (element.hasOwnProperty("result"))
-            output += tabbing + "-- Result Documentation: https://api.playfab.com/Documentation/" + apiName + "/datatype/PlayFab." + apiName + ".Models/PlayFab." + apiName + ".Models." + element.result + "\n";
+function generateApiSummary(tabbing, apiElement, summaryParam, extraLines) {
+    var lines = generateApiSummaryLines(apiElement, summaryParam, extraLines, true);
+
+    var output;
+    if (lines.length === 1 && lines[0]) {
+        output = tabbing + "-- " + lines.join("\n" + tabbing + "-- ") + "\n";
+    } else if (lines.length > 0) {
+        output = tabbing + "-- " + lines.join("\n" + tabbing + "-- ") + "\n";
+    } else {
+        output = "";
     }
     return output;
 }

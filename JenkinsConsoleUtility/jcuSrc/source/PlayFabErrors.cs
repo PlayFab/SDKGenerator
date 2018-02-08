@@ -260,7 +260,54 @@ namespace PlayFab
         ScheduledTaskCreateConflict = 1255,
         InvalidScheduledTaskName = 1256,
         InvalidTaskSchedule = 1257,
-        SteamNotEnabledForTitle = 1258
+        SteamNotEnabledForTitle = 1258,
+        LimitNotAnUpgradeOption = 1259,
+        NoSecretKeyEnabledForCloudScript = 1260,
+        TaskNotFound = 1261,
+        TaskInstanceNotFound = 1262,
+        InvalidIdentityProviderId = 1263,
+        MisconfiguredIdentityProvider = 1264,
+        InvalidScheduledTaskType = 1265,
+        BillingInformationRequired = 1266,
+        LimitedEditionItemUnavailable = 1267,
+        InvalidAdPlacementAndReward = 1268,
+        AllAdPlacementViewsAlreadyConsumed = 1269,
+        GoogleOAuthNotConfiguredForTitle = 1270,
+        GoogleOAuthError = 1271,
+        UserNotFriend = 1272,
+        InvalidSignature = 1273,
+        InvalidPublicKey = 1274,
+        GoogleOAuthNoIdTokenIncludedInResponse = 1275,
+        StatisticUpdateInProgress = 1276,
+        LeaderboardVersionNotAvailable = 1277,
+        StatisticAlreadyHasPrizeTable = 1279,
+        PrizeTableHasOverlappingRanks = 1280,
+        PrizeTableHasMissingRanks = 1281,
+        PrizeTableRankStartsAtZero = 1282,
+        InvalidStatistic = 1283,
+        ExpressionParseFailure = 1284,
+        ExpressionInvokeFailure = 1285,
+        ExpressionTooLong = 1286,
+        DataUpdateRateExceeded = 1287,
+        RestrictedEmailDomain = 1288,
+        EncryptionKeyDisabled = 1289,
+        EncryptionKeyMissing = 1290,
+        EncryptionKeyBroken = 1291,
+        NoSharedSecretKeyConfigured = 1292,
+        SecretKeyNotFound = 1293,
+        PlayerSecretAlreadyConfigured = 1294,
+        APIRequestsDisabledForTitle = 1295,
+        InvalidSharedSecretKey = 1296,
+        PrizeTableHasNoRanks = 1297,
+        ProfileDoesNotExist = 1298,
+        ContentS3OriginBucketNotConfigured = 1299,
+        InvalidEnvironmentForReceipt = 1300,
+        EncryptedRequestNotAllowed = 1301,
+        SignedRequestNotAllowed = 1302,
+        RequestViewConstraintParamsNotAllowed = 1303,
+        BadPartnerConfiguration = 1304,
+        XboxBPCertificateFailure = 1305,
+        XboxXASSExchangeFailure = 1306
     }
     
     public class PlayFabError
@@ -270,7 +317,7 @@ namespace PlayFab
         public PlayFabErrorCode Error;
         public string ErrorMessage;
         public Dictionary<string, string[] > ErrorDetails;
-		
+
         private static readonly StringBuilder Sb = new StringBuilder();
         public string GenerateErrorReport()
         {
@@ -293,7 +340,7 @@ namespace PlayFab
     {
         public PlayFabError Error;
         public TResult Result;
-		public object CustomData;
+        public object CustomData;
     }
     
     public delegate void ErrorCallback(PlayFabError error);

@@ -53,10 +53,10 @@ for(var subgroup in api.subgroups)
                 modelsArray.push(datatype.name);
 
                 // Create the start of the functions
-                %>F<%- api.name %><%- GetDatatypeSafeName(datatype, "name") %> UPlayFab<%- api.name %>ModelDecoder::decode<%- GetDatatypeSafeName(datatype, "name") %>Response(UPlayFabJsonObject* response)
+                %>F<%- api.name %><%- getDataTypeSafeName(datatype, "name") %> UPlayFab<%- api.name %>ModelDecoder::decode<%- getDataTypeSafeName(datatype, "name") %>Response(UPlayFabJsonObject* response)
 <%                %>{
 <%                %>    // Temp ustruct
-<%                %>    F<%- api.name %><%- GetDatatypeSafeName(datatype, "name") %> tempStruct;
+<%                %>    F<%- api.name %><%- getDataTypeSafeName(datatype, "name") %> tempStruct;
 <% if (datatype.properties.length > 0) {
                   %>    UPlayFabJsonObject* dataObj = !(response->HasField("data")) ? nullptr : response->GetObjectField("data");
 <% } %>
@@ -65,7 +65,7 @@ for(var subgroup in api.subgroups)
                 {
 
                     var property = datatype.properties[z];
-%><%- GetPropertyDeserialization("    ", property, datatype) %>
+%><%- getPropertyDeserialization("    ", property, datatype) %>
 <% } %>
 <%            %>    return tempStruct;
 <%            %>}

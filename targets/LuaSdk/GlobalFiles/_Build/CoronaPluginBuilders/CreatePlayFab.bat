@@ -3,10 +3,11 @@ rem we need to reset it back to the location of this bat file
 cd %~dp0
 
 SETLOCAL
-set tempBuildPath=C:\depot\sdks\LuaSdk\_Build\BuiltCorona
-set CoronaDestPath=C:\depot\sdks\LuaSdk\Corona
+if ["%WORKSPACE%"]==[""] (set WORKSPACE=C:\depot)
+set tempBuildPath=%WORKSPACE%\sdks\LuaSdk\_Build\BuiltCorona
+set CoronaDestPath=%WORKSPACE%\sdks\LuaSdk\Corona
 set CoronaPluginPath=%CoronaDestPath%\Plugins
-set CoronaRepo=C:\depot\sdks\store-hosted-playfab
+set CoronaRepo=%WORKSPACE%\sdks\store-hosted-playfab
 
 call :doWork client
 call :doWork server
@@ -14,12 +15,13 @@ call :doWork combo
 goto :endWithPause
 
 :doWork
-rem === Build the %1 plugin ===
+echo === Build the %1 plugin ===
 pushd %1
-rmdir /S /Q %tempBuildPath%\Corona%1Plugin
-call create_project.bat %tempBuildPath%\Corona%1Plugin %1
+rmdir /S /Q "%tempBuildPath%\Corona%1Plugin"
+call create_project.bat "%tempBuildPath%\Corona%1Plugin" %1
 popd
-rem === Move the zips to the published location
+echo === Move the zips to the published location (%1) ===
+echo on
 pushd ..\BuiltCorona\Corona%1Plugin
 call build.bat
 popd

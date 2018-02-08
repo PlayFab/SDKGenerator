@@ -28,7 +28,7 @@ function PlayFabHttps_LuaSec.MakePlayFabApiCall(urlPath, request, authKey, authV
     end
     
     local playFabResponse = {}
-    local fullUrl = "https://" .. PlayFabSettings.settings.titleId .. ".playfabapi.com/" .. urlPath
+    local fullUrl = "https://" .. PlayFabSettings.settings.titleId .. ".playfabapi.com" .. urlPath
     local body, code, headers, status = https.request{
         method = "POST",
         url = fullUrl,

@@ -18,7 +18,7 @@ public:
 
     const FString SdkVersion = "<%- sdkVersion %>";
     const FString BuildIdentifier = "<%- buildIdentifier %>";
-    const FString VersionString = "UnrealBlueprintSDK-<%- sdkVersion %>";
+    const FString VersionString = "UnrealCppSDK-<%- sdkVersion %>";
 
     // Photon Ap Ids
     FString PhotonRealtimeAppId;
@@ -75,6 +75,15 @@ public:
         SessionTicket = NewSessionTicket;
     }
 
+    inline FString getEntityToken()
+    {
+        return EntityToken;
+    }
+    inline void setEntityToken(FString NewEntityToken)
+    {
+        EntityToken = NewEntityToken;
+    }
+
     inline FString getSecretApiKey()
     {
         return PlayFabApiSecretKey;
@@ -101,6 +110,7 @@ public:
 
 private:
     FString GameTitleId; // PlayFab TitleId
+    FString EntityToken; // PlayFab entity session ticket
     FString SessionTicket; // PlayFab client session ticket
     FString PlayFabApiSecretKey; // PlayFab DeveloperSecretKey
     FCriticalSection pendingCallLock;

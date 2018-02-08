@@ -9,11 +9,11 @@ exports.IsClientLoggedIn = function () {
 }
 <% }
 for(var i in api.calls) { var apiCall = api.calls[i]; %>
-<%- GetDeprecationAttribute("", apiCall)
+<%- getDeprecationAttribute("", apiCall)
 %>exports.<%- apiCall.name %> = function (request, callback) {
-<%- GetRequestActions(4, apiCall, api) %>
-    PlayFab.MakeRequest(<%- GetUrlAccessor(apiCall) %> + "<%- apiCall.url %>", request, <%- GetAuthParams(apiCall) %>, function (error, result) {
-<%- GetResultActions(8, apiCall, api) %>
+<%- getRequestActions("    ", apiCall)
+%>    PlayFab.MakeRequest(<%- getUrlAccessor() %> + "<%- apiCall.url %>", request, <%- getAuthParams(apiCall) %>, function (error, result) {
+<%- getResultActions("        ", apiCall, api) %>
         if (callback != null)
             callback(error, result);
     });

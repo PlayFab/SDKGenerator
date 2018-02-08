@@ -1,5 +1,5 @@
-<% if(api.name == "Admin"){ %>#if ENABLE_PLAYFABADMIN_API<% }else if(api.name == "Server" || api.name == "Matchmaker"){ %>#if ENABLE_PLAYFABSERVER_API<% }else{ %>#if !DISABLE_PLAYFABCLIENT_API<% } %>
-<% if(api.name == "Admin"){ %>using PlayFab.AdminModels;<% }else if(api.name == "Server"){ %>using PlayFab.ServerModels;<% }else if(api.name == "Matchmaker"){ %>using PlayFab.MatchmakerModels;<% }else{ %>using PlayFab.ClientModels;<% } %>
+#if <%- getApiDefineFlag(api) %>
+using PlayFab.<%- api.name %>Models;
 
 namespace PlayFab.Events
 {

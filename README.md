@@ -1,12 +1,13 @@
-PlayFab SDK Generator README
-========
-1. Overview:
-----
+# PlayFab SDK Generator README
+
+
+## 1. Overview:
+
 This is a node.js based program that takes a json description of the PlayFab API and uses it to generate out all the different SDKs that must be kept up to date. This project also contains the sources for all PlayFab SDKs on all platforms. If you want to make a change in an SDK, this is where the change has to go.
 
 
-2. Prerequisites:
-----
+## 2. Prerequisites:
+
 0. Any recent MS-Windows Operating System
 1. You must have Node.js installed: http://nodejs.org/
   * The location of node.exe must be in your PATH environment variable.  Default: C:\Program Files (x86)\nodejs\
@@ -18,8 +19,8 @@ This is a node.js based program that takes a json description of the PlayFab API
   * &lt;parent-folder&gt;/API_Specs = https://github.com/PlayFab/api_specs
  
 
-3. Usage Instructions:
-----
+## 3. Usage Instructions:
+
 If you have installed Node.js tools, then you can build any existing SDK from the Visual Studio solution: https://github.com/PlayFab/SDKGenerator/blob/master/SDKGenerator.sln
 * Open the solution
 * Set the Project Configuration to match the sdk you wish to build
@@ -28,7 +29,8 @@ If you have installed Node.js tools, then you can build any existing SDK from th
 There are many prebuilt scripts which can build each SDK automatically: https://github.com/PlayFab/SDKGenerator/tree/master/SDKBuildScripts
 * Find the script that matches the SDK you wish to build (EX unity_build.bat)
 * Double-click that file
-If you wish to build an new sdk, you may need to build a new .bat file using the instrucitons below.
+
+If you wish to build an new sdk, you may need to build a new .bat file using the instrucitons in the next section.
 
 Finally, to manually invoke the generator, open a command line at the root of the project and type:
 ```
@@ -42,13 +44,12 @@ You must supply a list of targets to generate, and the directory to generate the
 
 &lt;targetName&gt;=&lt;targetOutputLocation&gt;
 
-Where &lt;targetName&gt; is one of the supported SDK targets, and &lt;targetOutputLocation&gt; is a path to a directory to generate the SDK in. Note: Make sure there are no spaces between he arguments and the equals sign. Additional
+Where &lt;targetName&gt; is one of the supported SDK targets, and &lt;targetOutputLocation&gt; is a path to a directory to generate the SDK in. Note: Make sure there are no spaces between the arguments and the equals sign.
 
 API-Spec Location:
-* You must define exactly one location to read Api-Spec information
+* You may optionally define exactly one location to read Api-Spec information
   * -apiSpecPath [<apiSpecPath>]
-    * If the "-apiSpecPath" switch is defined without a path, this defaults to "C:/depot/API_Specs" (absolute path)
-    * This is the absolute or relative directory to the optional API_Specs repo in the prerequisites (required for this option)
+    * If the "-apiSpecPath" switch is defined without a path, this defaults to "../API_Specs" (relative path, sibling to SdkGenerator repo location)
   * -apiSpecGitUrl [<apiSpecGitUrl>]
     * If the "-apiSpecGitUrl" switch is defined without a URL, this defaults to "https://raw.githubusercontent.com/PlayFab/API_Specs/master/"
     * Reads API_Specs directly from a GitHub repository
@@ -60,29 +61,24 @@ Flags are optional, and can be used to generate console apis.
 
 Example:
 
+```
 node generate.js unity-v2=../sdks/UnitySDK
+```
 
-Note: Older command line options may work, such as:
-* node generate.js ..\API_Specs unity-v2=../sdks/UnitySDK
-* node generate.js C:\depot\API_Specs unity-v2=../sdks/UnitySDK
-However, if your API_Specs path was different, you may have to convert your old arguments from:
-* node generate.js <oldPath> unity-v2=../sdks/UnitySDK
-  * to:
-* node generate.js unity-v2=../sdks/UnitySDK -apiSpecPath <oldPath> 
+## 4. Building a new SDK
 
-4. Building a new SDK
-----
 Setting up a new target in the SdkGenerator is fairly simple.  This example has been added to the SdkGenerator for reference: https://github.com/PlayFab/SDKGenerator/tree/master/targets/newTarget
 * Add a new subfolder in [SdkGenerator/Targets](https://github.com/PlayFab/SDKGenerator/tree/master/targets)
 * Add a "make.js" file to your new target
-  * Implement makeClientAPI, makeServerAPI, and/or makeCombinedAPI in the file, as shown in the [NewTarget Example](https://github.com/PlayFab/SDKGenerator/blob/master/targets/newTarget/make.js)
+  * Implement makeClientAPI2, makeServerAPI, and/or makeCombinedAPI in the file, as shown in the [NewTarget Example](https://github.com/PlayFab/SDKGenerator/blob/master/targets/newTarget/make.js)
   * Optionally, you may use template files and source files, as described in the NewTarget example.
 * Add a new bat-file to generate your sdk in [SdkGenerator/SDKBuildScripts](https://github.com/PlayFab/SDKGenerator/tree/master/SDKBuildScripts)
 
 PlayFab somtimes accepts submissions for new SDKs.  This process is extensive, and it has to be integrated with our automated build and testing system.  For more information contact us on the forums.
 
-5. Troubleshooting:
-----
+
+## 5. Troubleshooting:
+
 For a complete list of available APIs, check out the [online documentation](http://api.playfab.com/Documentation/).
 
 #### Contact Us
@@ -94,10 +90,9 @@ Our Developer Success Team can assist with answering any questions as well as pr
 [Forums, Support and Knowledge Base](https://community.playfab.com/hc/en-us)
 
 
-6. Copyright and Licensing Information:
-----
+## 6. Copyright and Licensing Information:
+
   Apache License -- 
   Version 2.0, January 2004
   http://www.apache.org/licenses/
-
   Full details available within the LICENSE file.

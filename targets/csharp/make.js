@@ -1,51 +1,57 @@
 var path = require("path");
 
-exports.makeClientAPI = function (api, sourceDir, apiOutputDir) {
+// Making resharper less noisy - These are defined in Generate.js
+if (typeof (copyFile) === "undefined") copyFile = function () { };
+if (typeof (copyTree) === "undefined") copyTree = function () { };
+if (typeof (generateApiSummaryLines) === "undefined") generateApiSummaryLines = function () { };
+if (typeof (getCompiledTemplate) === "undefined") getCompiledTemplate = function () { };
+
+exports.makeClientAPI2 = function (apis, sourceDir, apiOutputDir) {
     console.log("Generating C-sharp client SDK to " + apiOutputDir);
-    
+
     copyTree(path.resolve(sourceDir, "source"), apiOutputDir);
-    MakeDatatypes([api], sourceDir, apiOutputDir);
-    MakeApi(api, sourceDir, apiOutputDir);
-    GenerateSimpleFiles([api], sourceDir, apiOutputDir);
-    GenerateProject([api], sourceDir, apiOutputDir, "Client", "");
+    makeDatatypes(apis, sourceDir, apiOutputDir);
+    for (var i = 0; i < apis.length; i++)
+        makeApi(apis[i], sourceDir, apiOutputDir);
+    generateSimpleFiles(apis, sourceDir, apiOutputDir);
+    generateProject(apis, sourceDir, apiOutputDir, "Client", "");
 }
 
 exports.makeServerAPI = function (apis, sourceDir, apiOutputDir) {
     console.log("Generating C-sharp server SDK to " + apiOutputDir);
-    
+
     copyTree(path.resolve(sourceDir, "source"), apiOutputDir);
-    MakeDatatypes(apis, sourceDir, apiOutputDir);
-    for (var i = 0; i < apis.length; i++) {
-        var api = apis[i];
-        MakeApi(api, sourceDir, apiOutputDir);
-    }
-    GenerateSimpleFiles(apis, sourceDir, apiOutputDir);
-    GenerateProject(apis, sourceDir, apiOutputDir, "Server", ";DISABLE_PLAYFABCLIENT_API");
+    makeDatatypes(apis, sourceDir, apiOutputDir);
+    for (var i = 0; i < apis.length; i++)
+        makeApi(apis[i], sourceDir, apiOutputDir);
+    generateSimpleFiles(apis, sourceDir, apiOutputDir);
+    generateProject(apis, sourceDir, apiOutputDir, "Server", ";DISABLE_PLAYFABCLIENT_API");
 }
 
 exports.makeCombinedAPI = function (apis, sourceDir, apiOutputDir) {
     console.log("Generating C-sharp combined SDK to " + apiOutputDir);
-    
+
     copyTree(path.resolve(sourceDir, "source"), apiOutputDir);
     copyTree(path.resolve(sourceDir, "UnittestRunner"), path.resolve(apiOutputDir, "UnittestRunner")); // Copy the actual unittest project in the CombinedAPI
     copyFile(path.resolve(sourceDir, "PlayFabSDK+Unit.sln"), path.resolve(apiOutputDir, "PlayFabSDK+Unit.sln"));
-    MakeDatatypes(apis, sourceDir, apiOutputDir);
+    makeDatatypes(apis, sourceDir, apiOutputDir);
     for (var i = 0; i < apis.length; i++)
-        MakeApi(apis[i], sourceDir, apiOutputDir);
-    GenerateSimpleFiles(apis, sourceDir, apiOutputDir);
-    GenerateProject(apis, sourceDir, apiOutputDir, "All", "");
+        makeApi(apis[i], sourceDir, apiOutputDir);
+    generateSimpleFiles(apis, sourceDir, apiOutputDir);
+    generateProject(apis, sourceDir, apiOutputDir, "All", "");
+    generateNugetTemplate(sourceDir, apiOutputDir);
 }
 
-function GetBaseTypeSyntax(datatype) {
+function getBaseTypeSyntax(datatype) {
     var parents = [];
-    
+
     if (datatype.className.toLowerCase().endsWith("request"))
         parents.push("PlayFabRequestCommon");
     if (datatype.className.toLowerCase().endsWith("response") || datatype.className.toLowerCase().endsWith("result"))
         parents.push("PlayFabResultCommon");
     if (datatype.sortKey)
         parents.push("IComparable<" + datatype.name + ">");
-    
+
     var output = "";
     if (parents.length > 0) {
         output = " : ";
@@ -58,57 +64,60 @@ function GetBaseTypeSyntax(datatype) {
     return output;
 }
 
-function MakeDatatypes(apis, sourceDir, apiOutputDir) {
-    var modelTemplate = GetCompiledTemplate(path.resolve(sourceDir, "templates/Model.cs.ejs"));
-    var modelsTemplate = GetCompiledTemplate(path.resolve(sourceDir, "templates/Models.cs.ejs"));
-    var enumTemplate = GetCompiledTemplate(path.resolve(sourceDir, "templates/Enum.cs.ejs"));
-    
+function makeDatatypes(apis, sourceDir, apiOutputDir) {
+    var modelTemplate = getCompiledTemplate(path.resolve(sourceDir, "templates/Model.cs.ejs"));
+    var modelsTemplate = getCompiledTemplate(path.resolve(sourceDir, "templates/Models.cs.ejs"));
+    var enumTemplate = getCompiledTemplate(path.resolve(sourceDir, "templates/Enum.cs.ejs"));
+
     var makeDatatype = function (datatype, api) {
-        var modelLocals = {};
-        modelLocals.api = api;
-        modelLocals.datatype = datatype;
-        modelLocals.GetModelPropertyDef = GetModelPropertyDef;
-        modelLocals.GetPropertyAttribs = GetPropertyAttribs;
-        modelLocals.GetBaseTypeSyntax = GetBaseTypeSyntax;
-        modelLocals.GetDeprecationAttribute = GetDeprecationAttribute;
-        
+        var modelLocals = {
+            api: api,
+            datatype: datatype,
+            generateApiSummary: generateApiSummary,
+            getModelPropertyDef: getModelPropertyDef,
+            getPropertyAttribs: getPropertyAttribs,
+            getBaseTypeSyntax: getBaseTypeSyntax,
+            getDeprecationAttribute: getDeprecationAttribute
+        };
+
         return (datatype.isenum) ? enumTemplate(modelLocals) : modelTemplate(modelLocals);
     };
-    
+
     for (var a = 0; a < apis.length; a++) {
-        var modelsLocal = {};
-        modelsLocal.api = apis[a];
-        modelsLocal.makeDatatype = makeDatatype;
-        var generatedModels = modelsTemplate(modelsLocal);
-        writeFile(path.resolve(apiOutputDir, "source/PlayFab" + apis[a].name + "Models.cs"), generatedModels);
+        var modelsLocal = {
+            api: apis[a],
+            makeDatatype: makeDatatype
+        };
+
+        writeFile(path.resolve(apiOutputDir, "source/PlayFab" + apis[a].name + "Models.cs"), modelsTemplate(modelsLocal));
     }
 }
 
-function MakeApi(api, sourceDir, apiOutputDir) {
+function makeApi(api, sourceDir, apiOutputDir) {
     console.log("Generating C# " + api.name + " library to " + apiOutputDir);
-    
-    var apiTemplate = GetCompiledTemplate(path.resolve(sourceDir, "templates/API.cs.ejs"));
-    var apiLocals = {};
-    apiLocals.api = api;
-    apiLocals.GetAuthParams = GetAuthParams;
-    apiLocals.GetRequestActions = GetRequestActions;
-    apiLocals.GetResultActions = GetResultActions;
-    apiLocals.GetDeprecationAttribute = GetDeprecationAttribute;
-    apiLocals.GenerateSummary = GenerateSummary;
-    
-    apiLocals.authKey = api.name === "Client";
-    var generatedApi = apiTemplate(apiLocals);
-    writeFile(path.resolve(apiOutputDir, "source/PlayFab" + api.name + "API.cs"), generatedApi);
+
+    var apiLocals = {
+        api: api,
+        getAuthParams: getAuthParams,
+        getRequestActions: getRequestActions,
+        getResultActions: getResultActions,
+        getDeprecationAttribute: getDeprecationAttribute,
+        generateApiSummary: generateApiSummary,
+        authKey: api.name === "Client"
+    };
+
+    var apiTemplate = getCompiledTemplate(path.resolve(sourceDir, "templates/API.cs.ejs"));
+    writeFile(path.resolve(apiOutputDir, "source/PlayFab" + api.name + "API.cs"), apiTemplate(apiLocals));
 }
 
-function GenerateSimpleFiles(apis, sourceDir, apiOutputDir) {
-    var errorsTemplate = GetCompiledTemplate(path.resolve(sourceDir, "templates/Errors.cs.ejs"));
+function generateSimpleFiles(apis, sourceDir, apiOutputDir) {
     var errorLocals = {};
     errorLocals.errorList = apis[0].errorList;
     errorLocals.errors = apis[0].errors;
-    var generatedErrors = errorsTemplate(errorLocals);
-    writeFile(path.resolve(apiOutputDir, "source/PlayFabErrors.cs"), generatedErrors);
-    
+
+    var errorsTemplate = getCompiledTemplate(path.resolve(sourceDir, "templates/Errors.cs.ejs"));
+    writeFile(path.resolve(apiOutputDir, "source/PlayFabErrors.cs"), errorsTemplate(errorLocals));
+
     var settingsLocals = {};
     settingsLocals.hasServerOptions = false;
     settingsLocals.hasClientOptions = false;
@@ -120,33 +129,41 @@ function GenerateSimpleFiles(apis, sourceDir, apiOutputDir) {
         else
             settingsLocals.hasServerOptions = true;
     }
-    
-    var utilTemplate = GetCompiledTemplate(path.resolve(sourceDir, "templates/PlayFabUtil.cs.ejs"));
-    var generatedTemplate = utilTemplate(settingsLocals);
-    writeFile(path.resolve(apiOutputDir, "source/PlayFabUtil.cs"), generatedTemplate);
-    
-    var settingsTemplate = GetCompiledTemplate(path.resolve(sourceDir, "templates/PlayFabSettings.cs.ejs"));
-    var generatedSettings = settingsTemplate(settingsLocals);
-    writeFile(path.resolve(apiOutputDir, "source/PlayFabSettings.cs"), generatedSettings);
+
+    var utilTemplate = getCompiledTemplate(path.resolve(sourceDir, "templates/PlayFabUtil.cs.ejs"));
+    writeFile(path.resolve(apiOutputDir, "source/PlayFabUtil.cs"), utilTemplate(settingsLocals));
+
+    var settingsTemplate = getCompiledTemplate(path.resolve(sourceDir, "templates/PlayFabSettings.cs.ejs"));
+    writeFile(path.resolve(apiOutputDir, "source/PlayFabSettings.cs"), settingsTemplate(settingsLocals));
 }
 
-function GenerateProject(apis, sourceDir, apiOutputDir, libname, extraDefines) {
-    var vcProjTemplate = GetCompiledTemplate(path.resolve(sourceDir, "templates/PlayFabSDK.csproj.ejs"));
-    
-    var projLocals = {};
-    projLocals.apis = apis;
-    projLocals.libname = libname;
-    projLocals.extraDefines = ";NETFX_CORE;SIMPLE_JSON_TYPEINFO" + extraDefines;
-    
-    var generatedProject = vcProjTemplate(projLocals);
-    writeFile(path.resolve(apiOutputDir, "PlayFabSDK.csproj"), generatedProject);
+function generateProject(apis, sourceDir, apiOutputDir, libname, extraDefines) {
+    var projLocals = {
+        apis: apis,
+        libname: libname,
+        extraDefines: ";NETFX_CORE;SIMPLE_JSON_TYPEINFO" + extraDefines
+    };
+
+    var vcProjTemplate = getCompiledTemplate(path.resolve(sourceDir, "templates/PlayFabSDK.csproj.ejs"));
+    writeFile(path.resolve(apiOutputDir, "PlayFabSDK.csproj"), vcProjTemplate(projLocals));
 }
 
-function GetModelPropertyDef(property, datatype) {
+function generateNugetTemplate(sourceDir, apiOutputDir) {
+    var projLocals = {
+        sdkVersion: exports.sdkVersion,
+        sdkDate: exports.sdkVersion.split(".")[2],
+        sdkYear: exports.sdkVersion.split(".")[2].substr(0, 2)
+    };
+
+    var vcProjTemplate = getCompiledTemplate(path.resolve(sourceDir, "templates/PlayFabSDK.nuspec.ejs"));
+    writeFile(path.resolve(apiOutputDir, "PlayFabSDK.nuspec"), vcProjTemplate(projLocals));
+}
+
+function getModelPropertyDef(property, datatype) {
     var basicType;
     if (property.collection) {
-        basicType = GetPropertyCsType(property, datatype, false);
-        
+        basicType = getPropertyCsType(property, datatype, false);
+
         if (property.collection === "array")
             return "List<" + basicType + "> " + property.name;
         else if (property.collection === "map")
@@ -155,14 +172,14 @@ function GetModelPropertyDef(property, datatype) {
             throw "Unknown collection type: " + property.collection + " for " + property.name + " in " + datatype.name;
     }
     else {
-        basicType = GetPropertyCsType(property, datatype, true);
+        basicType = getPropertyCsType(property, datatype, true);
         return basicType + " " + property.name;
     }
 }
 
-function GetPropertyAttribs(property, datatype, api) {
+function getPropertyAttribs(property, datatype, api) {
     var attribs = "";
-    
+
     if (property.isUnordered) {
         var listDatatype = api.datatypes[property.actualtype];
         if (listDatatype && listDatatype.sortKey)
@@ -170,13 +187,13 @@ function GetPropertyAttribs(property, datatype, api) {
         else
             attribs += "[Unordered]\n        ";
     }
-    
+
     return attribs;
 }
 
-function GetPropertyCsType(property, datatype, needOptional) {
+function getPropertyCsType(property, datatype, needOptional) {
     var optional = (needOptional && property.optional) ? "?" : "";
-    
+
     if (property.actualtype === "String")
         return "string";
     else if (property.actualtype === "Boolean")
@@ -209,42 +226,55 @@ function GetPropertyCsType(property, datatype, needOptional) {
         throw "Unknown property type: " + property.actualtype + " for " + property.name + " in " + datatype.name;
 }
 
-function GetAuthParams(apiCall) {
+function getAuthParams(apiCall) {
+    if (apiCall.url === "/Authentication/GetEntityToken")
+        return "authKey, authValue";
+    if (apiCall.auth === "EntityToken")
+        return "\"X-EntityToken\", PlayFabSettings.EntityToken";
     if (apiCall.auth === "SecretKey")
         return "\"X-SecretKey\", PlayFabSettings.DeveloperSecretKey";
     else if (apiCall.auth === "SessionTicket")
-        return "\"X-Authorization\", _authKey";
+        return "\"X-Authorization\", PlayFabSettings.ClientSessionTicket";
     return "null, null";
 }
 
-function GetRequestActions(apiCall, api) {
-    if (api.name === "Client" && (apiCall.result === "LoginResult" || apiCall.request === "RegisterPlayFabUserRequest"))
-        return "            request.TitleId = PlayFabSettings.TitleId ?? request.TitleId;\n" 
-            + "            if(request.TitleId == null) throw new Exception (\"Must be have PlayFabSettings.TitleId set to call this method\");\n";
-    if (api.name === "Client" && apiCall.auth === "SessionTicket")
-        return "            if (_authKey == null) throw new Exception (\"Must be logged in to call this method\");\n";
+function getRequestActions(tabbing, apiCall) {
+    if (apiCall.result === "LoginResult" || apiCall.request === "RegisterPlayFabUserRequest")
+        return tabbing + "request.TitleId = PlayFabSettings.TitleId ?? request.TitleId;\n"
+            + tabbing + "if (request.TitleId == null) throw new PlayFabException(PlayFabExceptionCode.TitleNotSet, \"Must be have PlayFabSettings.TitleId set to call this method\");\n";
+    if (apiCall.auth === "EntityToken")
+        return tabbing + "if (PlayFabSettings.EntityToken == null) throw new PlayFabException(PlayFabExceptionCode.EntityTokenNotSet, \"Must call GetEntityToken before calling this method\");\n";
+    if (apiCall.auth === "SessionTicket")
+        return tabbing + "if (PlayFabSettings.ClientSessionTicket == null) throw new PlayFabException(PlayFabExceptionCode.NotLoggedIn, \"Must be logged in to call this method\");\n";
     if (apiCall.auth === "SecretKey")
-        return "            if (PlayFabSettings.DeveloperSecretKey == null) throw new Exception (\"Must have PlayFabSettings.DeveloperSecretKey set to call this method\");\n";
+        return tabbing + "if (PlayFabSettings.DeveloperSecretKey == null) throw new PlayFabException(PlayFabExceptionCode.DeveloperKeyNotSet, \"Must have PlayFabSettings.DeveloperSecretKey set to call this method\");\n";
+    if (apiCall.url === "/Authentication/GetEntityToken")
+        return tabbing + "string authKey = null, authValue = null;\n"
+            + tabbing + "if (PlayFabSettings.ClientSessionTicket != null) { authKey = \"X-Authorization\"; authValue = PlayFabSettings.ClientSessionTicket; }\n"
+            + tabbing + "if (PlayFabSettings.DeveloperSecretKey != null) { authKey = \"X-SecretKey\"; authValue = PlayFabSettings.DeveloperSecretKey; }\n"
+            + tabbing + "if (PlayFabSettings.EntityToken != null) { authKey = \"X-EntityToken\"; authValue = PlayFabSettings.EntityToken; }\n";
     return "";
 }
 
-function GetResultActions(apiCall, api) {
-    if (api.name === "Client" && (apiCall.result === "LoginResult" || apiCall.result === "RegisterPlayFabUserResult"))
-        return "            _authKey = result.SessionTicket ?? _authKey;\n" 
-            + "            await MultiStepClientLogin(result.SettingsForUser.NeedsAttribution);\n";
+function getResultActions(tabbing, apiCall, api) {
+    if (apiCall.result === "LoginResult" || apiCall.result === "RegisterPlayFabUserResult")
+        return tabbing + "PlayFabSettings.ClientSessionTicket = result.SessionTicket ?? PlayFabSettings.ClientSessionTicket;\n"
+            + tabbing + "await MultiStepClientLogin(result.SettingsForUser.NeedsAttribution);\n";
     else if (api.name === "Client" && apiCall.result === "AttributeInstallResult")
-        return "            // Modify AdvertisingIdType:  Prevents us from sending the id multiple times, and allows automated tests to determine id was sent successfully\n" 
-            + "            PlayFabSettings.AdvertisingIdType += \"_Successful\";\n";
+        return tabbing + "// Modify AdvertisingIdType:  Prevents us from sending the id multiple times, and allows automated tests to determine id was sent successfully\n"
+            + tabbing + "PlayFabSettings.AdvertisingIdType += \"_Successful\";\n";
+    else if (apiCall.result === "GetEntityTokenResponse")
+        return tabbing + "PlayFabSettings.EntityToken = result.EntityToken;\n";
     return "";
 }
 
-function GetDeprecationAttribute(tabbing, apiObj) {
+function getDeprecationAttribute(tabbing, apiObj) {
     var isDeprecated = apiObj.hasOwnProperty("deprecation");
     var deprecationTime = null;
     if (isDeprecated)
         deprecationTime = new Date(apiObj.deprecation.DeprecatedAfter);
-    var isError = isDeprecated && (new Date() > deprecationTime) ? "true": "false";
-    
+    var isError = isDeprecated && (new Date() > deprecationTime) ? "true" : "false";
+
     if (isDeprecated && apiObj.deprecation.ReplacedBy != null)
         return tabbing + "[Obsolete(\"Use '" + apiObj.deprecation.ReplacedBy + "' instead\", " + isError + ")]\n";
     else if (isDeprecated)
@@ -252,12 +282,16 @@ function GetDeprecationAttribute(tabbing, apiObj) {
     return "";
 }
 
-function GenerateSummary(tabbing, element, summaryParam) {
-    if (!element.hasOwnProperty(summaryParam)) {
-        return "";
+function generateApiSummary(tabbing, apiElement, summaryParam, extraLines) {
+    var lines = generateApiSummaryLines(apiElement, summaryParam, extraLines);
+
+    var output;
+    if (lines.length === 1 && lines[0]) {
+        output = tabbing + "/// <summary>\n" + tabbing + "/// " + lines.join("\n" + tabbing + "/// ") + "\n" + tabbing + "/// </summary>\n";
+    } else if (lines.length > 0) {
+        output = tabbing + "/// <summary>\n" + tabbing + "/// " + lines.join("\n" + tabbing + "/// ") + "\n" + tabbing + "/// </summary>\n";
+    } else {
+        output = "";
     }
-    
-    return tabbing + "/// <summary>\n" 
-        + tabbing + "/// " + element[summaryParam] + "\n" 
-        + tabbing + "/// </summary>\n";
+    return output;
 }

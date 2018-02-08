@@ -32,9 +32,9 @@ namespace PlayFab.Events
 #if !DISABLE_PLAYFABCLIENT_API
             if (OnLoginResultEvent != null) { foreach (var each in OnLoginResultEvent.GetInvocationList()) { if (ReferenceEquals(each.Target, instance)) { OnLoginResultEvent -= (PlayFabResultEvent<ClientModels.LoginResult>)each; } } }
 #endif
-<% for (var x = 0; x < apis.length; x++) { var api = apis[x]; if (api.name == "Admin") {
-%>#if ENABLE_PLAYFABADMIN_API<% } else if (api.name == "Server" || api.name == "Matchmaker") {
-%>#if ENABLE_PLAYFABSERVER_API<% } else { %>#if !DISABLE_PLAYFABCLIENT_API<% }
+<% for (var x = 0; x < apis.length; x++) {
+var api = apis[x];
+%>#if <%- getApiDefineFlag(api) %><%
 for (var i in api.calls) { var apiCall = api.calls[i]; var prefix = ""; if (api.name != "Client"){ prefix=api.name } %>
             if (On<%- prefix %><%- apiCall.name %>RequestEvent != null) { foreach (var each in On<%- prefix%><%- apiCall.name %>RequestEvent.GetInvocationList()) { if (ReferenceEquals(each.Target, instance)) { On<%- prefix%><%- apiCall.name %>RequestEvent -= (PlayFabRequestEvent<<%-api.name%>Models.<%- apiCall.request %>>)each; } } }
 <% if (apiCall.result != "LoginResult") { %>            if (On<%- prefix%><%- apiCall.name %>ResultEvent != null) { foreach (var each in On<%- prefix%><%- apiCall.name %>ResultEvent.GetInvocationList()) { if (ReferenceEquals(each.Target, instance)) { On<%- prefix%><%- apiCall.name %>ResultEvent -= (PlayFabResultEvent<<%-api.name%>Models.<%- apiCall.result %>>)each; } } }
@@ -58,10 +58,8 @@ for (var i in api.calls) { var apiCall = api.calls[i]; var prefix = ""; if (api.
             if (e.EventType == ApiProcessingEventType.Pre)
             {
                 var type = e.Request.GetType();
-<% for (var x = 0; x < apis.length; x++){ var api = apis[x]; if (api.name == "Admin") {
-%>#if ENABLE_PLAYFABADMIN_API<% } else if (api.name == "Server" || api.name == "Matchmaker") {
-%>#if ENABLE_PLAYFABSERVER_API<% } else {
-%>#if !DISABLE_PLAYFABCLIENT_API<% }
+<% for (var x = 0; x < apis.length; x++){ var api = apis[x];
+%>#if <%- getApiDefineFlag(api) %><%
 for (var i in api.calls) { var apiCall = api.calls[i]; var prefix = ""; if (api.name != "Client"){ prefix=api.name } %>
                 if (type == typeof(<%-api.name%>Models.<%- apiCall.request %>)) { if (_instance.On<%- prefix %><%- apiCall.name %>RequestEvent != null) { _instance.On<%- prefix %><%- apiCall.name %>RequestEvent((<%-api.name%>Models.<%- apiCall.request %>)e.Request); return; } }<% } %>
 #endif
@@ -70,9 +68,8 @@ for (var i in api.calls) { var apiCall = api.calls[i]; var prefix = ""; if (api.
             else
             {
                 var type = e.Result.GetType();
-<% for (var x = 0; x < apis.length; x++){ var api = apis[x]; if (api.name == "Admin") { %>#if ENABLE_PLAYFABADMIN_API<% } else if (api.name == "Server" || api.name == "Matchmaker") {
-%>#if ENABLE_PLAYFABSERVER_API<% } else {
-%>#if !DISABLE_PLAYFABCLIENT_API<% }
+<% for (var x = 0; x < apis.length; x++){ var api = apis[x];
+%>#if <%- getApiDefineFlag(api) %><%
 if (api.name=="Client") { %>
                 if (type == typeof(ClientModels.LoginResult)) { if (_instance.OnLoginResultEvent != null) { _instance.OnLoginResultEvent((ClientModels.LoginResult)e.Result); return; } }<% } %>
 <% for (var i in api.calls) { var apiCall = api.calls[i]; var prefix = ""; if (api.name != "Client"){ prefix=api.name } if (apiCall.result != "LoginResult") { %>

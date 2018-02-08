@@ -3,6 +3,7 @@ using PlayFab.ClientModels;
 using PlayFab.Json;
 using System;
 using System.Collections.Generic;
+using PlayFab.Internal;
 
 namespace PlayFab.UUnit
 {
@@ -16,6 +17,7 @@ namespace PlayFab.UUnit
     public class ClientApiTests : UUnitTestCase
     {
         private Action _tickAction = null;
+        private TestTitleDataLoader.TestTitleData testTitleData;
 
         // Test-data constants
         private const string TEST_STAT_NAME = "str";
@@ -30,13 +32,17 @@ namespace PlayFab.UUnit
 
         public override void SetUp(UUnitTestContext testContext)
         {
-            var titleData = TestTitleDataLoader.LoadTestTitleData();
-            _userEmail = titleData.userEmail;
+            testTitleData = TestTitleDataLoader.LoadTestTitleData();
+            _userEmail = testTitleData.userEmail;
 
             // Verify all the inputs won't cause crashes in the tests
             var titleInfoSet = !string.IsNullOrEmpty(PlayFabSettings.TitleId) && !string.IsNullOrEmpty(_userEmail);
             if (!titleInfoSet)
                 testContext.Skip(); // We cannot do client tests if the titleId is not given
+
+            if (testTitleData.extraHeaders != null)
+                foreach (var pair in testTitleData.extraHeaders)
+                    PlayFabHttp.GlobalHeaderInjection[pair.Key] = pair.Value;
         }
 
         public override void Tick(UUnitTestContext testContext)
@@ -50,6 +56,11 @@ namespace PlayFab.UUnit
             PlayFabSettings.AdvertisingIdType = null;
             PlayFabSettings.AdvertisingIdValue = null;
             _tickAction = null;
+        }
+
+        public override void ClassTearDown()
+        {
+            PlayFabClientAPI.ForgetAllCredentials();
         }
 
         private void SharedErrorCallback(PlayFabError error)
@@ -141,7 +152,7 @@ namespace PlayFab.UUnit
             PlayFabId = result.PlayFabId;
             var testContext = (UUnitTestContext)result.CustomData;
             testContext.True(PlayFabClientAPI.IsClientLoggedIn(), "User login failed");
-            testContext.EndTest(UUnitFinishState.PASSED, null);
+            testContext.EndTest(UUnitFinishState.PASSED, PlayFabSettings.TitleId + ", " + result.PlayFabId);
         }
 
 
@@ -169,6 +180,7 @@ namespace PlayFab.UUnit
             PlayFabId = result.PlayFabId;
             var testContext = (UUnitTestContext)result.CustomData;
             testContext.True(PlayFabClientAPI.IsClientLoggedIn(), "User login failed");
+            testContext.True(result.SettingsForUser.NeedsAttribution, "This title is not configured for advertisements.");
 
             var target = PlayFabSettings.AD_TYPE_ANDROID_ID + "_Successful";
             var failTime = DateTime.UtcNow + TimeSpan.FromSeconds(10);
@@ -440,7 +452,6 @@ namespace PlayFab.UUnit
             var request = new WriteClientPlayerEventRequest
             {
                 EventName = "ForumPostEvent",
-                Timestamp = DateTime.UtcNow,
                 Body = new Dictionary<string, object>
                 {
                     { "Subject", "My First Post" },

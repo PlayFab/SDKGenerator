@@ -3,6 +3,7 @@
 **/.idea/
 **/.idea/
 **/.vs/
+**/node_modules/
 
 .project
 .classpath
@@ -10,3 +11,4 @@
 *.user
 *.dat
 *.tmp
+generate.js.map

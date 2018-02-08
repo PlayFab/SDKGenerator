@@ -1,4 +1,5 @@
 using System;
+using System.Collections.Generic;
 using PlayFab.SharedModels;
 
 namespace PlayFab.Internal
@@ -7,6 +8,7 @@ namespace PlayFab.Internal
     {
         bool SessionStarted { get; set; }
         string AuthKey { get; set; }
+        string EntityToken { get; set; }
         void InitializeHttp();
 
         // Mirroring MonoBehaviour - Relayed from PlayFabHTTP
@@ -24,6 +26,7 @@ namespace PlayFab.Internal
         PreLoginSession, // Not yet defined
         LoginSession, // "X-Authorization"
         DevSecretKey, // "X-SecretKey"
+        EntityToken, // "X-EntityToken"
     }
 
 
@@ -49,10 +52,10 @@ namespace PlayFab.Internal
         // This class stores the state of the request and all associated data
         public string ApiEndpoint = null;
         public string FullUrl = null;
-        public AuthType AuthKey = AuthType.None;
         public byte[] Payload = null;
         public string JsonResponse = null;
         public PlayFabRequestCommon ApiRequest;
+        public Dictionary<string, string> RequestHeaders;
         public PlayFabResultCommon ApiResult;
         public PlayFabError Error;
         public Action DeserializeResultJson;

@@ -1,117 +1,105 @@
 var path = require("path");
 
-exports.makeClientAPI = function (api, sourceDir, apiOutputDir) {
-    var libname = "Client";
-    
-    console.log("Generating Cocos2d-x C++ client SDK to " + apiOutputDir);
-    
-    copyTree(path.resolve(sourceDir, "source"), apiOutputDir);
-    
-    MakeApi(api, sourceDir, apiOutputDir);
-    
-    GenerateModels([api], sourceDir, apiOutputDir, libname);
-    GenerateErrors(api, sourceDir, apiOutputDir);
-    GenerateSettings([api], sourceDir, apiOutputDir);
+// Making resharper less noisy - These are defined in Generate.js
+if (typeof (copyTree) === "undefined") copyTree = function () { };
+if (typeof (templatizeTree) === "undefined") templatizeTree = function () { };
+if (typeof (getCompiledTemplate) === "undefined") getCompiledTemplate = function () { };
+
+exports.makeClientAPI2 = function (apis, sourceDir, apiOutputDir) {
+    makeApiInternal(apis, sourceDir, apiOutputDir, "Client");
 }
 
 exports.makeServerAPI = function (apis, sourceDir, apiOutputDir) {
-    var libname = "Server";
-    
-    console.log("Generating Cocos2d-x C++ server SDK to " + apiOutputDir);
-    
-    copyTree(path.resolve(sourceDir, "source"), apiOutputDir);
-    
-    for (var i = 0; i < apis.length; i++)
-        MakeApi(apis[i], sourceDir, apiOutputDir);
-    
-    GenerateModels(apis, sourceDir, apiOutputDir, libname);
-    GenerateErrors(apis[0], sourceDir, apiOutputDir);
-    GenerateSettings(apis, sourceDir, apiOutputDir);
+    makeApiInternal(apis, sourceDir, apiOutputDir, "Server");
 }
 
 exports.makeCombinedAPI = function (apis, sourceDir, apiOutputDir) {
-    var libname = "All";
-    
-    console.log("Generating Cocos2d-x C++ combined SDK to " + apiOutputDir);
-    
-    copyTree(path.resolve(sourceDir, "source"), apiOutputDir);
-    
-    for (var i = 0; i < apis.length; i++)
-        MakeApi(apis[i], sourceDir, apiOutputDir);
-    
-    GenerateModels(apis, sourceDir, apiOutputDir, libname);
-    GenerateErrors(apis[0], sourceDir, apiOutputDir);
-    GenerateSettings(apis, sourceDir, apiOutputDir);
-
-    copyTree(path.resolve(sourceDir, "ExampleSource"), path.resolve(apiOutputDir, "../PlayFabSdkExample"));
+    makeApiInternal(apis, sourceDir, apiOutputDir, "All");
 }
 
-function GenerateSettings(apis, sourceDir, apiOutputDir) {
-    var settingsTemplateh = GetCompiledTemplate(path.resolve(sourceDir, "templates/PlayFabSettings.h.ejs"));;
-    var settingsTemplateCpp = GetCompiledTemplate(path.resolve(sourceDir, "templates/PlayFabSettings.cpp.ejs"));;
-    
-    var settingsLocals = {};
-    settingsLocals.sdkVersion = exports.sdkVersion;
-    settingsLocals.buildIdentifier = exports.buildIdentifier;
-    settingsLocals.hasClientOptions = false;
-    settingsLocals.hasServerOptions = false;
+function makeApiInternal(apis, sourceDir, apiOutputDir, libname) {
+    console.log("Generating Cocos2d-x C++ " + libname + " SDK to " + apiOutputDir);
+
+    copyTree(path.resolve(sourceDir, "source"), apiOutputDir);
+
+    for (var i = 0; i < apis.length; i++)
+        makeApi(apis[i], sourceDir, apiOutputDir);
+
+    generateModels(apis, sourceDir, apiOutputDir, libname);
+    generateErrors(apis[0], sourceDir, apiOutputDir);
+    generateSettings(apis, sourceDir, apiOutputDir);
+
+    var locals = {
+        apis: apis
+    };
+
+    templatizeTree(locals, path.resolve(sourceDir, "ExampleTemplate"), path.resolve(apiOutputDir, "../PlayFabSdkExample"));
+}
+
+function generateSettings(apis, sourceDir, apiOutputDir) {
+    var locals = {
+        buildIdentifier: exports.buildIdentifier,
+        hasClientOptions: false,
+        hasServerOptions: false,
+        sdkVersion: exports.sdkVersion
+    };
     for (var i = 0; i < apis.length; i++) {
         if (apis[i].name === "Client")
-            settingsLocals.hasClientOptions = true;
-        else
-            settingsLocals.hasServerOptions = true;
+            locals.hasClientOptions = true;
+        else if (apis[i].name !== "Entity")
+            locals.hasServerOptions = true;
     }
-    var generatedSettingsH = settingsTemplateh(settingsLocals);
-    var generatedSettingsCpp = settingsTemplateCpp(settingsLocals);
-    writeFile(path.resolve(apiOutputDir, "PlayFabSettings.h"), generatedSettingsH);
-    writeFile(path.resolve(apiOutputDir, "PlayFabSettings.cpp"), generatedSettingsCpp);
+
+    var settingsTemplateh = getCompiledTemplate(path.resolve(sourceDir, "templates/PlayFabSettings.h.ejs"));;
+    writeFile(path.resolve(apiOutputDir, "PlayFabSettings.h"), settingsTemplateh(locals));
+
+    var settingsTemplateCpp = getCompiledTemplate(path.resolve(sourceDir, "templates/PlayFabSettings.cpp.ejs"));;
+    writeFile(path.resolve(apiOutputDir, "PlayFabSettings.cpp"), settingsTemplateCpp(locals));
 }
 
-function MakeApi(api, sourceDir, apiOutputDir) {
-    var apiLocals = {};
-    apiLocals.api = api;
-    apiLocals.GetAuthParams = GetAuthParams;
-    apiLocals.GetRequestActions = GetRequestActions;
-    apiLocals.GetResultActions = GetResultActions;
-    apiLocals.GetUrlAccessor = GetUrlAccessor;
-    apiLocals.HasRequest = HasRequest;
-    apiLocals.GetDeprecationAttribute = GetDeprecationAttribute;
-    apiLocals.hasClientOptions = api.name === "Client";
-    
-    var apiHeaderTemplate = GetCompiledTemplate(path.resolve(sourceDir, "templates/PlayFabAPI.h.ejs"));;
-    var generatedHeader = apiHeaderTemplate(apiLocals);
-    writeFile(path.resolve(apiOutputDir, "PlayFab" + api.name + "API.h"), generatedHeader);
-    
-    var apiBodyTemplate = GetCompiledTemplate(path.resolve(sourceDir, "templates/PlayFabAPI.cpp.ejs"));;
-    var generatedBody = apiBodyTemplate(apiLocals);
-    writeFile(path.resolve(apiOutputDir, "PlayFab" + api.name + "API.cpp"), generatedBody);
+function makeApi(api, sourceDir, apiOutputDir) {
+    var locals = {
+        api: api,
+        getAuthParams: getAuthParams,
+        getRequestActions: getRequestActions,
+        getResultActions: getResultActions,
+        getUrlAccessor: getUrlAccessor,
+        hasRequest: hasRequest,
+        getDeprecationAttribute: getDeprecationAttribute,
+        hasClientOptions: api.name === "Client"
+    };
+
+    var apiHeaderTemplate = getCompiledTemplate(path.resolve(sourceDir, "templates/PlayFabAPI.h.ejs"));;
+    writeFile(path.resolve(apiOutputDir, "PlayFab" + api.name + "API.h"), apiHeaderTemplate(locals));
+
+    var apiBodyTemplate = getCompiledTemplate(path.resolve(sourceDir, "templates/PlayFabAPI.cpp.ejs"));;
+    writeFile(path.resolve(apiOutputDir, "PlayFab" + api.name + "API.cpp"), apiBodyTemplate(locals));
 }
 
-function HasRequest(apiCall, api) {
+function hasRequest(apiCall, api) {
     var requestType = api.datatypes[apiCall.request];
     return requestType.properties.length > 0;
 }
 
-function GetPropertyDef(tabbing, property, datatype) {
-    
-    var safePropName = GetPropertySafeName(property);
-    
+function getPropertyDef(tabbing, property, datatype) {
+    var safePropName = getPropertySafeName(property);
+
     if (property.collection === "array")
-        return GetDeprecationAttribute(tabbing, property) + tabbing + "std::list<" + GetPropertyCppType(property, datatype, false) + "> " + safePropName + ";";
+        return getDeprecationAttribute(tabbing, property) + tabbing + "std::list<" + getPropertyCppType(property, datatype, false) + "> " + safePropName + ";";
     else if (property.collection === "map")
-        return GetDeprecationAttribute(tabbing, property) + tabbing + "std::map<std::string, " + GetPropertyCppType(property, datatype, false) + "> " + safePropName + ";";
+        return getDeprecationAttribute(tabbing, property) + tabbing + "std::map<std::string, " + getPropertyCppType(property, datatype, false) + "> " + safePropName + ";";
     else
-        return GetDeprecationAttribute(tabbing, property) + tabbing + GetPropertyCppType(property, datatype, true) + " " + safePropName + ";";
+        return getDeprecationAttribute(tabbing, property) + tabbing + getPropertyCppType(property, datatype, true) + " " + safePropName + ";";
 }
 
-// PFWORKBIN-445 & PFWORKBIN-302 - variable names can't be the same as the variable type when compiling for android
-function GetPropertySafeName(property) {
+// NOTE: variable names can't be the same as the variable type when compiling for android
+function getPropertySafeName(property) {
     return (property.actualtype === property.name) ? "pf" + property.name : property.name;
 }
 
-function GetPropertyCppType(property, datatype, needOptional) {
+function getPropertyCppType(property, datatype, needOptional) {
     var isOptional = property.optional && needOptional;
-    
+
     if (property.actualtype === "String")
         return "std::string";
     else if (property.actualtype === "Boolean")
@@ -143,11 +131,11 @@ function GetPropertyCppType(property, datatype, needOptional) {
     throw "Unknown property type: " + property.actualtype + " for " + property.name + " in " + datatype.name;
 }
 
-function GetPropertyDefaultValue(property, datatype) {
+function getPropertyDefaultValue(property, datatype) {
     var isOptional = property.optional;
     if (property.collection)
         return "";
-    
+
     if (property.actualtype === "String")
         return "";
     else if (property.actualtype === "Boolean")
@@ -179,27 +167,27 @@ function GetPropertyDefaultValue(property, datatype) {
     throw "Unknown property type: " + property.actualtype + " for " + property.name + " in " + datatype.name;
 }
 
-function GetPropertyCopyValue(property) {
-    var safePropName = GetPropertySafeName(property);
+function getPropertyCopyValue(property) {
+    var safePropName = getPropertySafeName(property);
     if (property.isclass && property.optional && !property.collection)
         return "src." + safePropName + " ? new " + property.actualtype + "(*src." + safePropName + ") : NULL";
     return "src." + safePropName;
 }
 
-function GetPropertySerializer(property, datatype) {
+function getPropertySerializer(property, datatype) {
     if (property.collection === "array")
-        return GetArrayPropertySerializer(property, datatype);
+        return getArrayPropertySerializer(property, datatype);
     else if (property.collection === "map")
-        return GetMapPropertySerializer(property, datatype);
-    
+        return getMapPropertySerializer(property, datatype);
+
     var writer = null;
     var tester = null;
-    
+
     var propType = property.actualtype;
     var propName = property.name;
-    var safePropName = GetPropertySafeName(property);
+    var safePropName = getPropertySafeName(property);
     var isOptional = property.optional;
-    
+
     if (propType === "String") {
         writer = "writer.String(" + safePropName + ".c_str());";
         tester = safePropName + ".length() > 0";
@@ -262,18 +250,18 @@ function GetPropertySerializer(property, datatype) {
     else {
         throw "Unknown property type: " + propType + " for " + propName + " in " + datatype.name;
     }
-    
+
     if (isOptional)
         return "if (" + tester + ") { writer.String(\"" + propName + "\"); " + writer + " }";
     return "writer.String(\"" + propName + "\"); " + writer;
 }
 
-function GetArrayPropertySerializer(property, datatype) {
+function getArrayPropertySerializer(property, datatype) {
     var writer;
     var propName = property.name;
     var isOptional = property.optional;
-    var cppType = GetPropertyCppType(property, datatype, false);
-    
+    var cppType = getPropertyCppType(property, datatype, false);
+
     if (property.actualtype === "String")
         writer = "writer.String(iter->c_str());";
     else if (property.actualtype === "Boolean")
@@ -304,23 +292,23 @@ function GetArrayPropertySerializer(property, datatype) {
         writer = "iter->writeJSON(writer);";
     else
         throw "Unknown property type: " + property.actualtype + " for " + propName + " in " + datatype.name;
-    
+
     var collectionWriter = "writer.StartArray();\n    ";
     collectionWriter += "for (std::list<" + cppType + ">::iterator iter = " + propName + ".begin(); iter != " + propName + ".end(); iter++) {\n        ";
     collectionWriter += writer + "\n    }\n    ";
     collectionWriter += "writer.EndArray();\n    ";
-    
+
     if (isOptional)
         return "if (!" + propName + ".empty()) {\n    writer.String(\"" + propName + "\");\n    " + collectionWriter + " }";
     return "writer.String(\"" + propName + "\");\n    " + collectionWriter;
 }
 
-function GetMapPropertySerializer(property, datatype) {
+function getMapPropertySerializer(property, datatype) {
     var writer;
     var propName = property.name;
     var isOptional = property.optional;
-    var cppType = GetPropertyCppType(property, datatype, false);
-    
+    var cppType = getPropertyCppType(property, datatype, false);
+
     if (property.actualtype === "String")
         writer = "writer.String(iter->second.c_str());";
     else if (property.actualtype === "Boolean")
@@ -351,27 +339,27 @@ function GetMapPropertySerializer(property, datatype) {
         writer = "iter->second.writeJSON(writer);";
     else
         throw "Unknown property type: " + property.actualtype + " for " + propName + " in " + datatype.name;
-    
+
     var collectionWriter = "writer.StartObject();\n    ";
     collectionWriter += "for (std::map<std::string, " + cppType + ">::iterator iter = " + propName + ".begin(); iter != " + propName + ".end(); ++iter) {\n        ";
     collectionWriter += "writer.String(iter->first.c_str()); " + writer + "\n    }\n    ";
     collectionWriter += "writer.EndObject();\n    ";
-    
+
     if (isOptional)
         return "if (!" + propName + ".empty()) {\n    writer.String(\"" + propName + "\");\n    " + collectionWriter + " }";
     return "writer.String(\"" + propName + "\");\n    " + collectionWriter;
 }
 
-function GetPropertyDeserializer(property, datatype) {
+function getPropertyDeserializer(property, datatype) {
     var propType = property.actualtype;
     var propName = property.name;
-    var safePropName = GetPropertySafeName(property);
-    
+    var safePropName = getPropertySafeName(property);
+
     if (property.collection === "array")
-        return GetArrayPropertyDeserializer(property, datatype);
+        return getArrayPropertyDeserializer(property, datatype);
     else if (property.collection === "map")
-        return GetMapPropertyDeserializer(property, datatype);
-    
+        return getMapPropertyDeserializer(property, datatype);
+
     var getter;
     if (propType === "String")
         getter = propName + "_member->value.GetString()";
@@ -405,13 +393,13 @@ function GetPropertyDeserializer(property, datatype) {
         getter = "MultitypeVar(" + propName + "_member->value)";
     else
         throw "Unknown property type: " + propType + " for " + propName + " in " + datatype.name;
-    
+
     var val = "const Value::ConstMemberIterator " + propName + "_member = obj.FindMember(\"" + propName + "\");\n";
     val += "    if (" + propName + "_member != obj.MemberEnd() && !" + propName + "_member->value.IsNull()) " + safePropName + " = " + getter + ";";
     return val;
 }
 
-function GetArrayPropertyDeserializer(property, datatype) {
+function getArrayPropertyDeserializer(property, datatype) {
     var getter;
     if (property.actualtype === "String")
         getter = "memberList[i].GetString()";
@@ -443,7 +431,7 @@ function GetArrayPropertyDeserializer(property, datatype) {
         getter = "MultitypeVar(memberList[i])";
     else
         throw "Unknown property type: " + property.actualtype + " for " + property.name + " in " + datatype.name;
-    
+
     var val = "const Value::ConstMemberIterator " + property.name + "_member = obj.FindMember(\"" + property.name + "\");\n";
     val += "    if (" + property.name + "_member != obj.MemberEnd()) {\n";
     val += "        const rapidjson::Value& memberList = " + property.name + "_member->value;\n";
@@ -452,7 +440,7 @@ function GetArrayPropertyDeserializer(property, datatype) {
     return val;
 }
 
-function GetMapPropertyDeserializer(property, datatype) {
+function getMapPropertyDeserializer(property, datatype) {
     var getter;
     if (property.actualtype === "String")
         getter = "iter->value.GetString()";
@@ -484,7 +472,7 @@ function GetMapPropertyDeserializer(property, datatype) {
         getter = "MultitypeVar(iter->value)";
     else
         throw "Unknown property type: " + property.actualtype + " for " + property.name + " in " + datatype.name;
-    
+
     var val = "const Value::ConstMemberIterator " + property.name + "_member = obj.FindMember(\"" + property.name + "\");\n";
     val += "    if (" + property.name + "_member != obj.MemberEnd()) {\n";
     val += "        for (Value::ConstMemberIterator iter = " + property.name + "_member->value.MemberBegin(); iter != " + property.name + "_member->value.MemberEnd(); ++iter) {\n";
@@ -492,98 +480,112 @@ function GetMapPropertyDeserializer(property, datatype) {
     return val;
 }
 
-function AddTypeAndDependencies(datatype, datatypes, orderedTypes, addedSet) {
+function addTypeAndDependencies(datatype, datatypes, orderedTypes, addedSet) {
     if (addedSet[datatype.name])
         return;
-    
+
     if (datatype.properties) {
         for (var p = 0; p < datatype.properties.length; p++) {
             var property = datatype.properties[p];
             if (property.isclass || property.isenum) {
                 var dependentType = datatypes[property.actualtype];
-                AddTypeAndDependencies(dependentType, datatypes, orderedTypes, addedSet);
+                addTypeAndDependencies(dependentType, datatypes, orderedTypes, addedSet);
             }
         }
     }
-    
+
     orderedTypes.push(datatype);
     addedSet[datatype.name] = datatype;
 }
 
-function GenerateModels(apis, sourceDir, apiOutputDir, libraryName) {
+function generateModels(apis, sourceDir, apiOutputDir, libraryName) {
     for (var a = 0; a < apis.length; a++) {
         var api = apis[a];
-        
+
         // Order datatypes based on dependency graph
         var orderedTypes = [];
         var addedSet = {};
-        
-        for (var i in api.datatypes) {
-            var datatype = api.datatypes[i];
-            AddTypeAndDependencies(datatype, api.datatypes, orderedTypes, addedSet);
-        }
-        
-        var modelHeaderTemplate = GetCompiledTemplate(path.resolve(sourceDir, "templates/PlayFabDataModels.h.ejs"));
-        var modelBodyTemplate = GetCompiledTemplate(path.resolve(sourceDir, "templates/PlayFabDataModels.cpp.ejs"));
-        
-        var modelLocals = {};
-        modelLocals.api = api;
-        modelLocals.datatypes = orderedTypes;
-        modelLocals.GetPropertyDef = GetPropertyDef;
-        modelLocals.GetPropertySerializer = GetPropertySerializer;
-        modelLocals.GetPropertyDeserializer = GetPropertyDeserializer;
-        modelLocals.GetPropertyDefaultValue = GetPropertyDefaultValue;
-        modelLocals.GetPropertyCopyValue = GetPropertyCopyValue;
-        modelLocals.GetPropertySafeName = GetPropertySafeName;
-        modelLocals.GetDeprecationAttribute = GetDeprecationAttribute;
-        modelLocals.libraryName = libraryName;
-        var generatedHeader = modelHeaderTemplate(modelLocals);
-        writeFile(path.resolve(apiOutputDir, "PlayFab" + api.name + "DataModels.h"), generatedHeader);
-        
-        var generatedBody = modelBodyTemplate(modelLocals);
-        writeFile(path.resolve(apiOutputDir, "PlayFab" + api.name + "DataModels.cpp"), generatedBody);
+        for (var i in api.datatypes)
+            addTypeAndDependencies(api.datatypes[i], api.datatypes, orderedTypes, addedSet);
+
+        var locals = {
+            api: api,
+            datatypes: orderedTypes,
+            getPropertyDef: getPropertyDef,
+            getPropertySerializer: getPropertySerializer,
+            getPropertyDeserializer: getPropertyDeserializer,
+            getPropertyDefaultValue: getPropertyDefaultValue,
+            getPropertyCopyValue: getPropertyCopyValue,
+            getPropertySafeName: getPropertySafeName,
+            getDeprecationAttribute: getDeprecationAttribute,
+            libraryName: libraryName
+        };
+
+        var modelHeaderTemplate = getCompiledTemplate(path.resolve(sourceDir, "templates/PlayFabDataModels.h.ejs"));
+        writeFile(path.resolve(apiOutputDir, "PlayFab" + api.name + "DataModels.h"), modelHeaderTemplate(locals));
+
+        var modelBodyTemplate = getCompiledTemplate(path.resolve(sourceDir, "templates/PlayFabDataModels.cpp.ejs"));
+        writeFile(path.resolve(apiOutputDir, "PlayFab" + api.name + "DataModels.cpp"), modelBodyTemplate(locals));
     }
 }
 
-function GenerateErrors(api, sourceDir, apiOutputDir) {
-    var errorsTemplate = GetCompiledTemplate(path.resolve(sourceDir, "templates/PlayFabError.h.ejs"));
-    var errorLocals = {};
-    errorLocals.errorList = api.errorList;
-    errorLocals.errors = api.errors;
-    var generatedErrors = errorsTemplate(errorLocals);
-    writeFile(path.resolve(apiOutputDir, "PlayFabError.h"), generatedErrors);
+function generateErrors(api, sourceDir, apiOutputDir) {
+    var locals = {
+        errorList: api.errorList,
+        errors: api.errors
+    };
+
+    var errorsTemplate = getCompiledTemplate(path.resolve(sourceDir, "templates/PlayFabError.h.ejs"));
+    writeFile(path.resolve(apiOutputDir, "PlayFabError.h"), errorsTemplate(locals));
 }
 
-function GetAuthParams(apiCall) {
-    if (apiCall.auth === "SecretKey")
-        return "httpRequest->SetHeader(\"X-SecretKey\", PlayFabSettings::developerSecretKey);";
+function getAuthParams(tabbing, apiCall) {
+    if (apiCall.url === "/Authentication/GetEntityToken")
+        return tabbing + "httpRequest->SetHeader(authKey, authValue);\n";
+    else if (apiCall.auth === "EntityToken")
+        return tabbing + "httpRequest->SetHeader(\"X-EntityToken\", PlayFabSettings::entityToken);\n";
+    else if (apiCall.auth === "SecretKey")
+        return tabbing + "httpRequest->SetHeader(\"X-SecretKey\", PlayFabSettings::developerSecretKey);\n";
     else if (apiCall.auth === "SessionTicket")
-        return "httpRequest->SetHeader(\"X-Authorization\", mUserSessionTicket);";
+        return tabbing + "httpRequest->SetHeader(\"X-Authorization\", PlayFabSettings::clientSessionTicket);\n";
     return "";
 }
 
-var GetRequestActions = function (apiCall, api) {
-    if (api.name === "Client" && (apiCall.result === "LoginResult" || apiCall.request === "RegisterPlayFabUserRequest"))
-        return "if (PlayFabSettings::titleId.length() > 0)\n        request.TitleId = PlayFabSettings::titleId;";
+var getRequestActions = function (tabbing, apiCall) {
+    if (apiCall.url === "/Authentication/GetEntityToken")
+        return tabbing + "std::string authKey, authValue;\n"
+            + tabbing + "if (PlayFabSettings::clientSessionTicket.length() > 0) {\n"
+            + tabbing + "    authKey = \"X-Authorization\"; authValue = PlayFabSettings::clientSessionTicket;\n"
+            + tabbing + "} else if (PlayFabSettings::developerSecretKey.length() > 0) {\n"
+            + tabbing + "    authKey = \"X-SecretKey\"; authValue = PlayFabSettings::developerSecretKey;\n"
+            + tabbing + "} else if (PlayFabSettings::entityToken.length() > 0) {\n"
+            + tabbing + "    authKey = \"X-EntityToken\"; authValue = PlayFabSettings::entityToken;\n"
+            + tabbing + "}\n";
+    else if (apiCall.result === "LoginResult" || apiCall.request === "RegisterPlayFabUserRequest")
+        return tabbing + "if (PlayFabSettings::titleId.length() > 0)\n"
+            + tabbing + "    request.TitleId = PlayFabSettings::titleId;\n";
     return "";
 }
 
-var GetResultActions = function (apiCall, api) {
-    if (api.name === "Client" && (apiCall.result === "LoginResult" || apiCall.result === "RegisterPlayFabUserResult"))
-        return "        if (outResult.SessionTicket.length() > 0)\n" 
-            + "            (static_cast<PlayFab" + api.name + "API*>(userData))->mUserSessionTicket = outResult.SessionTicket;\n" 
-            + "        MultiStepClientLogin(outResult.SettingsForUser->NeedsAttribution);\n";
-    else if (api.name === "Client" && apiCall.result === "AttributeInstallResult")
-        return "        // Modify advertisingIdType:  Prevents us from sending the id multiple times, and allows automated tests to determine id was sent successfully\n" 
-            + "        PlayFabSettings::advertisingIdType += \"_Successful\";\n";
+var getResultActions = function (tabbing, apiCall) {
+    if (apiCall.url === "/Authentication/GetEntityToken")
+        return tabbing + "if (outResult.EntityToken.length() > 0)\n"
+            + tabbing + "    PlayFabSettings::entityToken = outResult.EntityToken;\n";
+    else if (apiCall.result === "LoginResult" || apiCall.result === "RegisterPlayFabUserResult")
+        return tabbing + "if (outResult.SessionTicket.length() > 0)\n"
+            + tabbing + "    PlayFabSettings::clientSessionTicket = outResult.SessionTicket;\n"
+            + tabbing + "MultiStepClientLogin(outResult.SettingsForUser->NeedsAttribution);\n\n";
+    else if (apiCall.result === "AttributeInstallResult")
+        return tabbing + "// Modify advertisingIdType:  Prevents us from sending the id multiple times, and allows automated tests to determine id was sent successfully\n"
+            + tabbing + "PlayFabSettings::advertisingIdType += \"_Successful\";\n\n";
     return "";
 }
 
-function GetUrlAccessor(apiCall) {
+function getUrlAccessor(apiCall) {
     return "PlayFabSettings::getURL(\"" + apiCall.url + "\")";
 }
 
-function GetDeprecationAttribute(tabbing, apiObj) {
+function getDeprecationAttribute(tabbing, apiObj) {
     // In C++ there's all kinds of platform-dependent ways to mark deprecation, and they all seem flaky and unreliable.
     // After a lot of investigation, a comment just seems like the easiest and most consistent solution.
     var isDeprecated = apiObj.hasOwnProperty("deprecation");

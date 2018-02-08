@@ -5,8 +5,8 @@ REM ---------------------------------------------------------------------------
 REM Validate args
 REM ---------------------------------------------------------------------------
 
-if "%1"=="" goto OnShowCommandLineHelp
-if "%2"=="" goto OnShowCommandLineHelp
+if ["%~1"]==[""] goto OnShowCommandLineHelp
+if ["%2"]==[""] goto OnShowCommandLineHelp
 
 REM ---------------------------------------------------------------------------
 REM Create Project
@@ -88,7 +88,7 @@ call :MakeReplace "%vbsfile%"
 for /f "tokens=*" %%a in ('dir "%srcDir%" /s /b /a-d /on') do (
   for /f "usebackq" %%b in (`Findstr /mic:"%~1" "%%a"`) do (
     echo(&Echo Replacing "%~1" with "%~2" in file %%~nxa
-    <%%a cscript //nologo %vbsfile% "%~1" "%~2" > "%tmpfile%"
+    <%%a cscript //nologo "%vbsfile%" "%~1" "%~2" > "%tmpfile%"
     if exist "%tmpfile%" move /Y "%tmpfile%" "%%~dpnxa">nul
   )
 )

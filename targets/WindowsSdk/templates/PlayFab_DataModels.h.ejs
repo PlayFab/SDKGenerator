@@ -1,8 +1,8 @@
 #pragma once
 <% if (api.name === "Client") { %>
-#ifndef <%- GetApiDefine(api) %>
+#ifndef <%- getApiDefine(api) %>
 <% } else { %>
-#ifdef <%- GetApiDefine(api) %>
+#ifdef <%- getApiDefine(api) %>
 <% } %>
 #include "playfab/PlayFabBaseModel.h"
 
@@ -33,23 +33,23 @@ for (var enumIdx = 0; enumIdx < enumtypes.length; enumIdx++) { var enumtype = en
 <% } %>
         // <%- api.name %> Classes<%
 for (var typeIdx = 0; typeIdx < sortedClasses.length; typeIdx++) { var datatype = sortedClasses[typeIdx]; %>
-        struct <%- datatype.name %> : public <%- GetBaseType(datatype) %>
+        struct <%- datatype.name %> : public <%- getBaseType(datatype) %>
         {
 <% for (var propIdx = 0; propIdx < datatype.properties.length; propIdx++) { var property = datatype.properties[propIdx];
-%><%- GetPropertyDefinition("            ", property, datatype) %>
+%><%- getPropertyDefinition("            ", property, datatype) %>
 <% } %>
             <%- datatype.name %>() :
-                <%- GetBaseType(datatype) %>()<%
+                <%- getBaseType(datatype) %>()<%
 for (var propIdx = 0; propIdx < datatype.properties.length; propIdx++) { var property = datatype.properties[propIdx];
 %>,
-                <%- GetPropertySafeName(property) %>()<% } %>
+                <%- getPropertySafeName(property) %>()<% } %>
             {}
 
             <%- datatype.name %>(const <%- datatype.name %>& src) :
-                <%- GetBaseType(datatype) %>()<%
+                <%- getBaseType(datatype) %>()<%
 for (var propIdx = 0; propIdx < datatype.properties.length; propIdx++) { var property = datatype.properties[propIdx];
 %>,
-                <%- GetPropertySafeName(property) %>(src.<%- GetPropertySafeName(property) %>)<% } %>
+                <%- getPropertySafeName(property) %>(src.<%- getPropertySafeName(property) %>)<% } %>
             {}
 
             ~<%- datatype.name %>() { }
@@ -57,14 +57,14 @@ for (var propIdx = 0; propIdx < datatype.properties.length; propIdx++) { var pro
             void FromJson(web::json::value& input) override
             {
 <% for (var propIdx = 0; propIdx < datatype.properties.length; propIdx++) { var property = datatype.properties[propIdx];
-%><%- GetPropertyFromJson("                ", property, datatype) %>
+%><%- getPropertyFromJson("                ", property, datatype) %>
 <% } %>            }
 
             web::json::value ToJson() const override
             {
                 web::json::value output;
 <% for (var propIdx = 0; propIdx < datatype.properties.length; propIdx++) { var property = datatype.properties[propIdx];
-%><%- GetPropertyToJson("                ", property, datatype) %>
+%><%- getPropertyToJson("                ", property, datatype) %>
 <% } %>                return output;
             }
         };

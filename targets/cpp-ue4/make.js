@@ -1,6 +1,11 @@
 var path = require("path");
 var blueprint = require("./make-bp.js");
 
+// Making resharper less noisy - These are defined in Generate.js
+if (typeof (copyTree) === "undefined") copyTree = function () { };
+if (typeof (generateApiSummaryLines) === "undefined") generateApiSummaryLines = function () { };
+if (typeof (getCompiledTemplate) === "undefined") getCompiledTemplate = function () { };
+
 exports.putInRoot = true;
 
 exports.makeCombinedAPI = function (apis, sourceDir, apiOutputDir) {
@@ -9,174 +14,187 @@ exports.makeCombinedAPI = function (apis, sourceDir, apiOutputDir) {
         var eachApiOutputDir = path.resolve(apiOutputDir, subFolders[i]);
         var pluginOutputDir = path.resolve(eachApiOutputDir, "Plugins");
         var outputCodeDir = path.resolve(pluginOutputDir, "PlayFab/Source/PlayFab");
-        var blueprintCodeDir = path.resolve(pluginOutputDir, "PlayFab/Source/PlayFabProxy");
-        
+        var blueprintCodeDir = path.resolve(pluginOutputDir, "PlayFabProxy/Source/PlayFabProxy");
+
         console.log("Generating UE4 C++ combined SDK to " + eachApiOutputDir);
-        
+
         // copy the base plugins files, resource, uplugin, etc
         copyTree(path.resolve(sourceDir, "Plugins"), pluginOutputDir);
-        
+
         for (var a = 0; a < apis.length; a++) {
-            MakeApi(apis[a], sourceDir, outputCodeDir, "Core/");
+            makeApi(apis[a], sourceDir, outputCodeDir, "Core/");
             // generate blueprint boilerplate
             blueprint.MakeBp(apis[a], sourceDir, blueprintCodeDir, "Proxy/");
         }
-        
-        GenerateModels(apis, sourceDir, outputCodeDir, "All", "Core/");
-        GenerateSimpleFiles(apis[0], sourceDir, eachApiOutputDir, outputCodeDir, "Core/");
+
+        generateModels(apis, sourceDir, outputCodeDir, "All", "Core/");
+        generateSimpleFiles(apis, sourceDir, eachApiOutputDir, outputCodeDir, "Core/");
     }
 
-    copyTree(path.resolve(sourceDir, "testingFiles"), path.resolve(apiOutputDir, "ExampleProject/Source/ExampleProject"));
+    copyTree(path.resolve(sourceDir, "ExampleProject"), path.resolve(apiOutputDir, "ExampleProject"));
 }
 
-function MakeApi(api, sourceDir, apiOutputDir, subdir) {
-    var apiHeaderTemplate = GetCompiledTemplate(path.resolve(sourceDir, "templates/core/PlayFabAPI.h.ejs"));
-    var apiBodyTemplate = GetCompiledTemplate(path.resolve(sourceDir, "templates/core/PlayFabAPI.cpp.ejs"));
-    
-    var apiLocals = {};
-    apiLocals.api = api;
-    apiLocals.GetAuthParams = GetAuthParams;
-    apiLocals.GetRequestActions = GetRequestActions;
-    apiLocals.GetResultActions = GetResultActions;
-    apiLocals.GetUrlAccessor = GetUrlAccessor;
-    apiLocals.hasClientOptions = api.name === "Client";
-    apiLocals.hasServerOptions = api.name !== "Client";
-    apiLocals.HasRequest = HasRequest;
-    apiLocals.GetApiCallSummary = GetApiCallSummary;
-    
-    var generatedHeader = apiHeaderTemplate(apiLocals);
-    writeFile(path.resolve(apiOutputDir, "Public/" + subdir + "PlayFab" + api.name + "API.h"), generatedHeader);
-    
-    var generatedBody = apiBodyTemplate(apiLocals);
-    writeFile(path.resolve(apiOutputDir, "Private/" + subdir + "PlayFab" + api.name + "API.cpp"), generatedBody);
+function makeApi(api, sourceDir, apiOutputDir, subdir) {
+    var apiLocals = {
+        api: api,
+        generateApiSummary: generateApiSummary,
+        getAuthParams: getAuthParams,
+        getRequestActions: getRequestActions,
+        getResultActions: getResultActions,
+        getUrlAccessor: getUrlAccessor,
+        hasClientOptions: api.name === "Client",
+        hasServerOptions: api.name !== "Client",
+        hasRequest: hasRequest
+    };
+
+    var apiHeaderTemplate = getCompiledTemplate(path.resolve(sourceDir, "templates/core/PlayFabAPI.h.ejs"));
+    writeFile(path.resolve(apiOutputDir, "Public/" + subdir + "PlayFab" + api.name + "API.h"), apiHeaderTemplate(apiLocals));
+
+    var apiBodyTemplate = getCompiledTemplate(path.resolve(sourceDir, "templates/core/PlayFabAPI.cpp.ejs"));
+    writeFile(path.resolve(apiOutputDir, "Private/" + subdir + "PlayFab" + api.name + "API.cpp"), apiBodyTemplate(apiLocals));
 }
 
-function GenerateSimpleFiles(api, sourceDir, apiOutputDir, outputCodeDir, subDir) {
-    var sharedLocals = {}
-    sharedLocals.friendlyName = "PlayFab Cpp Sdk";
-    sharedLocals.sdkVersion = exports.sdkVersion;
-    sharedLocals.buildIdentifier = exports.buildIdentifier;
-    sharedLocals.errorList = api.errorList;
-    sharedLocals.errors = api.errors;
+function generateSimpleFiles(apis, sourceDir, apiOutputDir, outputCodeDir, subDir) {
+    var sharedLocals = {
+        apis: apis,
+        buildIdentifier: exports.buildIdentifier,
+        errorList: apis[0].errorList,
+        errors: apis[0].errors,
+        friendlyName: "PlayFab Cpp Sdk",
+        sdkVersion: exports.sdkVersion
+    };
 
     // Errors Definition
-    var errorsTemplate = GetCompiledTemplate(path.resolve(sourceDir, "templates/core/PlayFabError.h.ejs"));
-    var generatedErrors = errorsTemplate(sharedLocals);
-    writeFile(path.resolve(outputCodeDir, "Public", subDir, "PlayFabError.h"), generatedErrors);
-    
+    var errorsTemplate = getCompiledTemplate(path.resolve(sourceDir, "templates/core/PlayFabError.h.ejs"));
+    writeFile(path.resolve(outputCodeDir, "Public", subDir, "PlayFabError.h"), errorsTemplate(sharedLocals));
+
     // Settings and constants
-    var settingsTemplate = GetCompiledTemplate(path.resolve(sourceDir, "templates/core/PlayFabSettings.cpp.ejs"));
-    var generatedSettings = settingsTemplate(sharedLocals);
-    writeFile(path.resolve(outputCodeDir, "Private", subDir, "PlayFabSettings.cpp"), generatedSettings);
-    
+    var settingsTemplate = getCompiledTemplate(path.resolve(sourceDir, "templates/core/PlayFabSettings.cpp.ejs"));
+    writeFile(path.resolve(outputCodeDir, "Private", subDir, "PlayFabSettings.cpp"), settingsTemplate(sharedLocals));
+
     // uplugin file
-    var upluginTemplate = GetCompiledTemplate(path.resolve(sourceDir, "templates/PlayFab.uplugin.ejs"));
-    var generatedUplugin = upluginTemplate(sharedLocals);
-    writeFile(path.resolve(apiOutputDir, "Plugins/PlayFab/PlayFab.uplugin"), generatedUplugin);
+    var upluginTemplate = getCompiledTemplate(path.resolve(sourceDir, "templates/PlayFab.uplugin.ejs"));
+    writeFile(path.resolve(apiOutputDir, "Plugins/PlayFab/PlayFab.uplugin"), upluginTemplate(sharedLocals));
+
+    var uproxyPluginTemplate = getCompiledTemplate(path.resolve(sourceDir, "templates/PlayFabProxy.uplugin.ejs"));
+    writeFile(path.resolve(apiOutputDir, "Plugins/PlayFabProxy/PlayFabProxy.uplugin"), uproxyPluginTemplate(sharedLocals));
+
+    var moduleTemplateH = getCompiledTemplate(path.resolve(sourceDir, "templates/PlayFab.h.ejs"));
+    writeFile(path.resolve(apiOutputDir, "Plugins/PlayFab/Source/PlayFab/Public/PlayFab.h"), moduleTemplateH(sharedLocals));
+
+    var moduleTemplateCpp = getCompiledTemplate(path.resolve(sourceDir, "templates/PlayFab.cpp.ejs"));
+    writeFile(path.resolve(apiOutputDir, "Plugins/PlayFab/Source/PlayFab/Private/PlayFab.cpp"), moduleTemplateCpp(sharedLocals));
 }
 
-function GenerateModels(apis, sourceDir, apiOutputDir, libraryName, subdir) {
+function generateModels(apis, sourceDir, apiOutputDir, libraryName, subdir) {
     for (var a = 0; a < apis.length; a++) {
         var api = apis[a];
-        
+
         // Order datatypes based on dependency graph
         var orderedTypes = [];
         var addedSet = {};
-        
-        for (var i in api.datatypes) {
-            var datatype = api.datatypes[i];
-            AddTypeAndDependencies(datatype, api.datatypes, orderedTypes, addedSet);
-        }
-        
-        var modelHeaderTemplate = GetCompiledTemplate(path.resolve(sourceDir, "templates/core/PlayFabDataModels.h.ejs"));
-        var modelBodyTemplate = GetCompiledTemplate(path.resolve(sourceDir, "templates/core/PlayFabDataModels.cpp.ejs"));
-        
-        var modelLocals = {};
-        modelLocals.api = api;
-        modelLocals.datatypes = orderedTypes;
-        modelLocals.GetPropertyDef = GetPropertyDef;
-        modelLocals.GetPropertySerializer = GetPropertySerializer;
-        modelLocals.GetPropertyDeserializer = GetPropertyDeserializer;
-        modelLocals.GetPropertyDefaultValue = GetPropertyDefaultValue;
-        modelLocals.GetPropertyCopyValue = GetPropertyCopyValue;
-        modelLocals.GetPropertySafeName = GetPropertySafeName;
-        modelLocals.GetPropertyDescription = GetPropertyDescription;
-        modelLocals.libraryName = libraryName;
-        var generatedHeader = modelHeaderTemplate(modelLocals);
-        writeFile(path.resolve(apiOutputDir, "Public/" + subdir + "/PlayFab" + api.name + "DataModels.h"), generatedHeader);
-        
-        var generatedBody = modelBodyTemplate(modelLocals);
-        writeFile(path.resolve(apiOutputDir, "Private/" + subdir + "PlayFab" + api.name + "DataModels.cpp"), generatedBody);
+        for (var i in api.datatypes)
+            addTypeAndDependencies(api.datatypes[i], api.datatypes, orderedTypes, addedSet);
+
+        var modelLocals = {
+            api: api,
+            datatypes: orderedTypes,
+            getPropertyCopyValue: getPropertyCopyValue,
+            getPropertyDef: getPropertyDef,
+            getPropertyDefaultValue: getPropertyDefaultValue,
+            getPropertyDescription: getPropertyDescription,
+            getPropertyDeserializer: getPropertyDeserializer,
+            getPropertySerializer: getPropertySerializer,
+            getPropertySafeName: getPropertySafeName,
+            libraryName: libraryName
+        };
+
+        var modelHeaderTemplate = getCompiledTemplate(path.resolve(sourceDir, "templates/core/PlayFabDataModels.h.ejs"));
+        writeFile(path.resolve(apiOutputDir, "Public/" + subdir + "/PlayFab" + api.name + "DataModels.h"), modelHeaderTemplate(modelLocals));
+
+        var modelBodyTemplate = getCompiledTemplate(path.resolve(sourceDir, "templates/core/PlayFabDataModels.cpp.ejs"));
+        writeFile(path.resolve(apiOutputDir, "Private/" + subdir + "PlayFab" + api.name + "DataModels.cpp"), modelBodyTemplate(modelLocals));
     }
 }
 
-function GetApiCallSummary(apiCall) {
-    var summary = apiCall.summary;
-    if (apiCall.hasOwnProperty("requestDetails"))
-        summary += "\n         * " + apiCall.requestDetails;
-    return summary;
+function generateApiSummary(tabbing, apiElement, summaryParam, extraLines) {
+    if (!extraLines)
+        extraLines = [];
+    if (apiElement.hasOwnProperty("requestDetails"))
+        extraLines.push(apiElement.requestDetails);
+
+    var lines = generateApiSummaryLines(apiElement, summaryParam, extraLines);
+
+    var output;
+    if (lines.length === 1 && lines[0])
+        output = tabbing + "/** " + lines[0] + " */\n";
+    else if (lines.length > 0)
+        output = tabbing + "/**\n" + tabbing + " * " + lines.join("\n" + tabbing + " * ") + "\n" + tabbing + " */\n";
+    else
+        output = "";
+    return output;
 }
 
-function HasRequest(apiCall, api) {
+function hasRequest(apiCall, api) {
     var requestType = api.datatypes[apiCall.request];
     return requestType.properties.length > 0;
 }
 
-function GetPropertyDef(property, datatype) {
-    var safePropName = GetPropertySafeName(property);
-    
+function getPropertyDef(property, datatype) {
+    var safePropName = getPropertySafeName(property);
+
     if (property.collection === "array")
-        return "TArray<" + GetPropertyCppType(property, datatype, false) + "> " + safePropName + ";";
+        return "TArray<" + getPropertyCppType(property, datatype, false) + "> " + safePropName + ";";
     else if (property.collection === "map")
-        return "TMap<FString, " + GetPropertyCppType(property, datatype, false) + "> " + safePropName + ";";
+        return "TMap<FString, " + getPropertyCppType(property, datatype, false) + "> " + safePropName + ";";
     else
-        return GetPropertyCppType(property, datatype, true) + " " + safePropName + ";";
+        return getPropertyCppType(property, datatype, true) + " " + safePropName + ";";
 }
 
 // PFWORKBIN-445 & PFWORKBIN-302 - variable names can't be the same as the variable type when compiling for android
-function GetPropertySafeName(property) {
+function getPropertySafeName(property) {
     return (property.actualtype === property.name) ? "pf" + property.name : property.name;
 }
 
-function GetPropertyCppType(property, datatype, needOptional) {
+function getPropertyCppType(property, datatype, needOptional) {
     var isOptional = property.optional && needOptional;
-    
+
     if (property.actualtype === "String")
         return "FString";
     else if (property.actualtype === "Boolean")
-        return isOptional ? "OptionalBool" : "bool";
+        return isOptional ? "Boxed<bool>" : "bool";
     else if (property.actualtype === "int16")
-        return isOptional ? "OptionalInt16" : "int16";
+        return isOptional ? "Boxed<int16>" : "int16";
     else if (property.actualtype === "uint16")
-        return isOptional ? "OptionalUint16" : "uint16";
+        return isOptional ? "Boxed<uint16>" : "uint16";
     else if (property.actualtype === "int32")
-        return isOptional ? "OptionalInt32" : "int32";
+        return isOptional ? "Boxed<int32>" : "int32";
     else if (property.actualtype === "uint32")
-        return isOptional ? "OptionalUint32" : "uint32";
+        return isOptional ? "Boxed<uint32>" : "uint32";
     else if (property.actualtype === "int64")
-        return isOptional ? "OptionalInt64" : "int64";
+        return isOptional ? "Boxed<int64>" : "int64";
     else if (property.actualtype === "uint64")
-        return isOptional ? "OptionalUInt64" : "uint64";
+        return isOptional ? "Boxed<uint64>" : "uint64";
     else if (property.actualtype === "float")
-        return isOptional ? "OptionalFloat" : "float";
+        return isOptional ? "Boxed<float>" : "float";
     else if (property.actualtype === "double")
-        return isOptional ? "OptionalDouble" : "double";
+        return isOptional ? "Boxed<double>" : "double";
     else if (property.actualtype === "DateTime")
-        return isOptional ? "OptionalTime" : "FDateTime";
+        return isOptional ? "Boxed<FDateTime>" : "FDateTime";
     else if (property.isclass)
         return isOptional ? "TSharedPtr<F" + property.actualtype + ">" : "F" + property.actualtype; // sub object
     else if (property.isenum)
         return isOptional ? ("Boxed<" + property.actualtype + ">") : property.actualtype; // enum
     else if (property.actualtype === "object")
-        return "FMultitypeVar";
+        return "FJsonKeeper";
     throw "Unknown property type: " + property.actualtype + " for " + property.name + " in " + datatype.name;
 }
 
-function GetPropertyDefaultValue(property, datatype) {
+function getPropertyDefaultValue(property, datatype) {
     var isOptional = property.optional;
     if (property.collection)
         return "";
-    
+
     if (property.actualtype === "String")
         return "";
     else if (property.actualtype === "Boolean")
@@ -208,29 +226,28 @@ function GetPropertyDefaultValue(property, datatype) {
     throw "Unknown property type: " + property.actualtype + " for " + property.name + " in " + datatype.name;
 }
 
-function GetPropertyCopyValue(property) {
-    var safePropName = GetPropertySafeName(property);
-    
-    if (property.isclass && property.optional && !property.collection) {
+function getPropertyCopyValue(property) {
+    var safePropName = getPropertySafeName(property);
+
+    if (property.isclass && property.optional && !property.collection)
         return "src." + safePropName + ".IsValid() ? MakeShareable(new F" + property.actualtype + "(*src." + safePropName + ")) : nullptr";
-    }
     return "src." + safePropName;
 }
 
-function GetPropertySerializer(property, datatype) {
+function getPropertySerializer(tabbing, property, datatype) {
     if (property.collection === "array")
-        return GetArrayPropertySerializer(property, datatype);
+        return getArrayPropertySerializer(tabbing, property, datatype);
     else if (property.collection === "map")
-        return GetMapPropertySerializer(property, datatype);
-    
+        return getMapPropertySerializer(tabbing, property, datatype);
+
     var writer = null;
     var tester = null;
-    
+
     var propType = property.actualtype;
     var propName = property.name;
-    var safePropName = GetPropertySafeName(property);
+    var safePropName = getPropertySafeName(property);
     var isOptional = property.optional;
-    
+
     if (propType === "String") {
         writer = "writer->WriteValue(" + safePropName + ");";
         tester = safePropName + ".IsEmpty() == false";
@@ -293,17 +310,17 @@ function GetPropertySerializer(property, datatype) {
     else {
         throw "Unknown property type: " + propType + " for " + propName + " in " + datatype.name;
     }
-    
+
     if (isOptional)
-        return "if(" + tester + ") { writer->WriteIdentifierPrefix(TEXT(\"" + propName + "\")); " + writer + " }";
-    return "writer->WriteIdentifierPrefix(TEXT(\"" + propName + "\")); " + writer;
+        return tabbing + "if (" + tester + ") { writer->WriteIdentifierPrefix(TEXT(\"" + propName + "\")); " + writer + " }";
+    return tabbing + "writer->WriteIdentifierPrefix(TEXT(\"" + propName + "\")); " + writer;
 }
 
-function GetArrayPropertySerializer(property, datatype) {
+function getArrayPropertySerializer(tabbing, property, datatype) {
     var propName = property.name;
     var isOptional = property.optional;
-    var cppType = GetPropertyCppType(property, datatype, false);
-    
+    var cppType = getPropertyCppType(property, datatype, false);
+
     var writer = "writer->WriteValue(item);";
     if (property.actualtype === "uint64")
         writer = "writer->WriteValue(static_cast<int64>(item));";
@@ -315,25 +332,26 @@ function GetArrayPropertySerializer(property, datatype) {
         writer = "write" + property.actualtype + "EnumJSON(item, writer);";
     else if (property.actualtype === "object")
         writer = "item.writeJSON(writer);";
-    
-    var collectionWriter = "    writer->WriteArrayStart(TEXT(\"" + propName + "\"));\n    ";
-    collectionWriter += "\n        for (const " + cppType + "& item : " + propName + ")";
-    collectionWriter += "\n        {";
-    collectionWriter += "\n            " + writer;
-    collectionWriter += "\n        }";
-    collectionWriter += "\n        writer->WriteArrayEnd();\n    ";
-    
+
+    var collectionTabbing = isOptional ? "    " + tabbing : tabbing;
+    var collectionWriter = collectionTabbing + "writer->WriteArrayStart(TEXT(\"" + propName + "\"));\n"
+        + collectionTabbing + "for (const " + cppType + "& item : " + propName + ")\n"
+        + collectionTabbing + "    " + writer + "\n"
+        + collectionTabbing + "writer->WriteArrayEnd();\n";
+
     if (isOptional)
-        return "if(" + propName + ".Num() != 0) \n    {\n    " + collectionWriter + " }";
-    return "\n    " + collectionWriter;
+        return tabbing + "if (" + propName + ".Num() != 0)\n"
+            + tabbing + "{\n"
+            + collectionWriter
+            + tabbing + "}\n";
+    return collectionWriter;
 }
 
-function GetMapPropertySerializer(property, datatype) {
-    
+function getMapPropertySerializer(tabbing, property, datatype) {
     var propName = property.name;
     var isOptional = property.optional;
-    var cppType = GetPropertyCppType(property, datatype, false);
-    
+    var cppType = getPropertyCppType(property, datatype, false);
+
     var writer = "writer->WriteValue((*It).Value);";
     if (property.actualtype === "uint32")
         writer = "writer->WriteValue(static_cast<int64>((*It).Value));";
@@ -345,49 +363,50 @@ function GetMapPropertySerializer(property, datatype) {
         writer = "write" + property.actualtype + "EnumJSON((*It).Value, writer);";
     else if (property.actualtype === "object")
         writer = "(*It).Value.writeJSON(writer);";
-    
-    var collectionWriter = "    writer->WriteObjectStart(TEXT(\"" + propName + "\"));\n";
-    collectionWriter += "        for (TMap<FString, " + cppType + ">::TConstIterator It(" + propName + "); It; ++It)\n";
-    collectionWriter += "        {\n";
-    collectionWriter += "            writer->WriteIdentifierPrefix((*It).Key);\n";
-    collectionWriter += "            " + writer + "\n";
-    collectionWriter += "        }\n";
-    collectionWriter += "        writer->WriteObjectEnd();\n";
-    
+
+    var collectionTabbing = isOptional ? "    " + tabbing : tabbing;
+    var collectionWriter = collectionTabbing + "writer->WriteObjectStart(TEXT(\"" + propName + "\"));\n"
+        + collectionTabbing + "for (TMap<FString, " + cppType + ">::TConstIterator It(" + propName + "); It; ++It)\n"
+        + collectionTabbing + "{\n"
+        + collectionTabbing + "    writer->WriteIdentifierPrefix((*It).Key);\n"
+        + collectionTabbing + "    " + writer + "\n"
+        + collectionTabbing + "}\n"
+        + collectionTabbing + "writer->WriteObjectEnd();\n";
+
     if (isOptional)
-        return "if(" + propName + ".Num() != 0) \n    {\n    " + collectionWriter + "     }";
-    return "\n    " + collectionWriter;
+        return tabbing + "if (" + propName + ".Num() != 0)\n"
+            + tabbing + "{\n"
+            + collectionWriter
+            + tabbing + "}";
+    return tabbing + collectionWriter;
 }
 
 // custom deserializer for readDatetime
-function GetDateTimeDeserializer(property) {
+function getDateTimeDeserializer(tabbing, property) {
     var propName = property.name;
-    var safePropName = GetPropertySafeName(property);
+    var safePropName = getPropertySafeName(property);
     var propNameValue = propName + "Value";
-    
-    var result = "";
-    result += "const TSharedPtr<FJsonValue> " + propNameValue + " = obj->TryGetField(TEXT(\"" + propName + "\"));\n";
-    result += "    if(" + propNameValue + ".IsValid())\n";
-    result += "    {\n";
-    result += "        " + safePropName + " = readDatetime(" + propNameValue + ");\n";
-    result += "    }";
+
+    var result = tabbing + "const TSharedPtr<FJsonValue> " + propNameValue + " = obj->TryGetField(TEXT(\"" + propName + "\"));\n"
+        + tabbing + "if (" + propNameValue + ".IsValid())\n"
+        + tabbing + "    " + safePropName + " = readDatetime(" + propNameValue + ");\n"
     return result;
 }
 
-function GetPropertyDeserializer(property, datatype) {
+function getPropertyDeserializer(tabbing, property, datatype) {
     var propType = property.actualtype;
     var propName = property.name;
-    var safePropName = GetPropertySafeName(property);
-    
+    var safePropName = getPropertySafeName(property);
+
     if (property.collection === "array")
-        return GetArrayPropertyDeserializer(property, datatype);
+        return getArrayPropertyDeserializer(tabbing, property, datatype);
     else if (property.collection === "map")
-        return GetMapPropertyDeserializer(property, datatype);
-    
+        return getMapPropertyDeserializer(tabbing, property, datatype);
+
     var getter = null;
     var temporary = "";
     var propNameFieldValue = propName + "Value";
-    
+
     if (propType === "String") {
         temporary = "FString TmpValue;";
         getter = "TryGetString(TmpValue)";
@@ -429,7 +448,7 @@ function GetPropertyDeserializer(property, datatype) {
         getter = "TryGetNumber(TmpValue)";
     }
     else if (propType === "DateTime") {
-        return GetDateTimeDeserializer(property);
+        return getDateTimeDeserializer(tabbing, property);
     }
     else if (property.isclass && property.optional) {
         getter = "MakeShareable(new " + "F" + propType + "(" + propNameFieldValue + "->AsObject()));";
@@ -438,250 +457,260 @@ function GetPropertyDeserializer(property, datatype) {
         getter = "F" + propType + "(" + propNameFieldValue + "->AsObject());";
     }
     else if (property.isenum) {
-        return safePropName + " = read" + propType + "FromValue(obj->TryGetField(TEXT(\"" + propName + "\")));";
+        return tabbing + safePropName + " = read" + propType + "FromValue(obj->TryGetField(TEXT(\"" + propName + "\")));";
     }
     else if (propType === "object") {
         // implement custom call for this
-        getter = "FMultitypeVar(" + propNameFieldValue + "->AsObject());";
+        getter = "FJsonKeeper(" + propNameFieldValue + ");";
     }
     else {
         throw "Unknown property type: " + propType + " for " + propName + " in " + datatype.name;
     }
-    
-    var val = "";
-    val += "const TSharedPtr<FJsonValue> " + propNameFieldValue + " = obj->TryGetField(TEXT(\"" + propName + "\"));\n";
-    val += "    if (" + propNameFieldValue + ".IsValid()&& !" + propNameFieldValue + "->IsNull())\n";
-    val += "    {\n";
-    
-    if (property.isclass || propType === "object") {
-        val += "        " + safePropName + " = " + getter + "\n";
-    }
-    else {
-        val += "        " + temporary + "\n";
-        val += "        if(" + propNameFieldValue + "->" + getter + ") {" + safePropName + " = TmpValue; }\n";
-    }
-    val += "    }";
-    
+
+    var val = tabbing + "const TSharedPtr<FJsonValue> " + propNameFieldValue + " = obj->TryGetField(TEXT(\"" + propName + "\"));\n"
+        + tabbing + "if (" + propNameFieldValue + ".IsValid() && !" + propNameFieldValue + "->IsNull())\n"
+        + tabbing + "{\n";
+
+    if (property.isclass || propType === "object")
+        val += tabbing + "    " + safePropName + " = " + getter + "\n";
+    else if (temporary)
+        val += tabbing + "    " + temporary + "\n"
+            + tabbing + "    if (" + propNameFieldValue + "->" + getter + ") { " + safePropName + " = TmpValue; }\n";
+    else // if (!temporary)
+        val += + tabbing + "    if (" + propNameFieldValue + "->" + getter + ") { " + safePropName + " = TmpValue; }\n";
+    val += tabbing + "}";
+
     return val;
 }
 
 // specialization for array of strings
-function GetArrayStringPropertyDeserializer(property, datatype) {
+function getArrayStringPropertyDeserializer(tabbing, property, datatype) {
     var isOptional = property.optional;
     var optionalOption = "";
-    
+
     if (isOptional === false)
         optionalOption = "HasSucceeded &= ";
-    
+
     if (property.actualtype === "String")
-        return optionalOption + "obj->TryGetStringArrayField(TEXT(\"" + property.name + "\")," + property.name + ");";
+        return tabbing + optionalOption + "obj->TryGetStringArrayField(TEXT(\"" + property.name + "\"), " + property.name + ");";
     throw "Unknown property type: " + property.actualtype + " for " + property.name + " in " + datatype.name;
 }
 
-function GetArrayPropertyDeserializer(property, datatype) {
+function getArrayPropertyDeserializer(tabbing, property, datatype) {
     var getter = null; // represent the getter call function
-    var temporary = ""; // represent the
-    
+    var temporary = ""; // represents a potential intermediate state used for some variables
+
     if (property.actualtype === "String") {
-        return GetArrayStringPropertyDeserializer(property, datatype);
-    }
-    else if (property.actualtype === "Boolean") {
+        return getArrayStringPropertyDeserializer(tabbing, property, datatype);
+    } else if (property.actualtype === "Boolean") {
         getter = "CurrentItem->AsBool()";
-    }
-    else if (property.actualtype === "int16") {
+    } else if (property.actualtype === "int16") {
         temporary = "int32 TmpValue;\n";
         temporary += "CurrentItem->TryGetNumber(TmpValue);\n";
         getter = "TmpValue";
-    }
-    else if (property.actualtype === "uint16") {
+    } else if (property.actualtype === "uint16") {
         temporary = "uint32 TmpValue;\n";
         temporary += "CurrentItem->TryGetNumber(TmpValue);\n";
         getter = "TmpValue";
-    }
-    else if (property.actualtype === "int32") {
+    } else if (property.actualtype === "int32") {
         temporary = "int32 TmpValue;\n";
         temporary += "CurrentItem->TryGetNumber(TmpValue);\n";
         getter = "TmpValue";
-    }
-    else if (property.actualtype === "uint32") {
+    } else if (property.actualtype === "uint32") {
         temporary = "uint32 TmpValue;\n";
         temporary += "CurrentItem->TryGetNumber(TmpValue);\n";
         getter = "TmpValue";
-    }
-    else if (property.actualtype === "int64") {
+    } else if (property.actualtype === "int64") {
         temporary = "int64 TmpValue;\n";
         temporary += "CurrentItem->TryGetNumber(TmpValue);\n";
         getter = "TmpValue";
-    }
-    else if (property.actualtype === "uint64") {
+    } else if (property.actualtype === "uint64") {
         temporary = "int64 TmpValue;\n";
         temporary += "CurrentItem->TryGetNumber(TmpValue);\n";
         getter = "TmpValue";
-    }
-    else if (property.actualtype === "float") {
+    } else if (property.actualtype === "float") {
         temporary = "double TmpValue;\n";
         temporary += "CurrentItem->TryGetNumber(TmpValue);\n";
         getter = "(float)TmpValue";
-    }
-    else if (property.actualtype === "double") {
+    } else if (property.actualtype === "double") {
         temporary = "double TmpValue;\n";
         temporary += "CurrentItem->TryGetNumber(TmpValue);\n";
         getter = "TmpValue";
-    }
-    else if (property.actualtype === "DateTime") {
+    } else if (property.actualtype === "DateTime") {
         getter = "readDatetime(CurrentItem)";
-    }
-    else if (property.isclass) {
+    } else if (property.isclass) {
         getter = "F" + property.actualtype + "(CurrentItem->AsObject())";
-    }
-    else if (property.isenum) {
+    } else if (property.isenum) {
         getter = "read" + property.actualtype + "FromValue(CurrentItem)";
-    }
-    else if (property.actualtype === "object") {
-        getter = "FMultitypeVar(CurrentItem)";
-    }
-    else {
+    } else if (property.actualtype === "object") {
+        getter = "FJsonKeeper(CurrentItem)";
+    } else {
         throw "Unknown property type: " + property.actualtype + " for " + property.name + " in " + datatype.name;
     }
-    
+
     var propertyArrayName = property.name + "Array";
-    
-    var val = "{\n";
-    val += "        const TArray< TSharedPtr<FJsonValue> >&" + propertyArrayName + " = FPlayFabJsonHelpers::ReadArray(obj, TEXT(\"" + property.name + "\"));\n";
-    val += "        for (int32 Idx = 0; Idx < " + propertyArrayName + ".Num(); Idx++)\n";
-    val += "        {\n";
-    val += "            TSharedPtr<FJsonValue> CurrentItem = " + propertyArrayName + "[Idx];\n";
-    val += "            " + temporary + "\n";
-    val += "            " + property.name + ".Add(" + getter + ");\n";
-    val += "        }\n";
-    val += "    }\n";
-    
-    return val;
+
+    if (temporary)
+        return tabbing + "const TArray<TSharedPtr<FJsonValue>>&" + propertyArrayName + " = FPlayFabJsonHelpers::ReadArray(obj, TEXT(\"" + property.name + "\"));\n"
+            + tabbing + "for (int32 Idx = 0; Idx < " + propertyArrayName + ".Num(); Idx++)\n"
+            + tabbing + "{\n"
+            + tabbing + "    TSharedPtr<FJsonValue> CurrentItem = " + propertyArrayName + "[Idx];\n"
+            + tabbing + "    " + temporary + "\n"
+            + tabbing + "    " + property.name + ".Add(" + getter + ");\n"
+            + tabbing + "}\n";
+    // else if (!temporary)
+    return tabbing + "const TArray<TSharedPtr<FJsonValue>>&" + propertyArrayName + " = FPlayFabJsonHelpers::ReadArray(obj, TEXT(\"" + property.name + "\"));\n"
+        + tabbing + "for (int32 Idx = 0; Idx < " + propertyArrayName + ".Num(); Idx++)\n"
+        + tabbing + "{\n"
+        + tabbing + "    TSharedPtr<FJsonValue> CurrentItem = " + propertyArrayName + "[Idx];\n"
+        + tabbing + "    " + property.name + ".Add(" + getter + ");\n"
+        + tabbing + "}\n";
 }
 
-function GetMapPropertyDeserializer(property, datatype) {
+function getMapPropertyDeserializer(tabbing, property, datatype) {
     var getter = null;
     var temporary = "";
-    
+
     if (property.actualtype === "String") {
         getter = "It.Value()->AsString()";
-    }
-    else if (property.actualtype === "Boolean") {
+    } else if (property.actualtype === "Boolean") {
         getter = "It.Value()->AsBool()";
-    }
-    else if (property.actualtype === "int16") {
+    } else if (property.actualtype === "int16") {
         temporary = "int32 TmpValue; It.Value()->TryGetNumber(TmpValue);";
         getter = "TmpValue";
-    }
-    else if (property.actualtype === "uint16") {
+    } else if (property.actualtype === "uint16") {
         temporary = "uint32 TmpValue; It.Value()->TryGetNumber(TmpValue);";
         getter = "TmpValue";
-    }
-    else if (property.actualtype === "int32") {
+    } else if (property.actualtype === "int32") {
         temporary = "int32 TmpValue; It.Value()->TryGetNumber(TmpValue);";
         getter = "TmpValue";
-    }
-    else if (property.actualtype === "uint32") {
+    } else if (property.actualtype === "uint32") {
         temporary = "uint32 TmpValue; It.Value()->TryGetNumber(TmpValue);";
         getter = "TmpValue";
-    }
-    else if (property.actualtype === "int64") {
+    } else if (property.actualtype === "int64") {
         temporary = "int64 TmpValue; It.Value()->TryGetNumber(TmpValue);";
         getter = "TmpValue";
-    }
-    else if (property.actualtype === "uint64") {
+    } else if (property.actualtype === "uint64") {
         temporary = "int64 TmpValue; It.Value()->TryGetNumber(TmpValue);";
         getter = "TmpValue";
-    }
-    else if (property.actualtype === "float") {
+    } else if (property.actualtype === "float") {
         temporary = "double TmpValue; It.Value()->TryGetNumber(TmpValue);";
         getter = "(float)TmpValue";
-    }
-    else if (property.actualtype === "double") {
+    } else if (property.actualtype === "double") {
         temporary = "double TmpValue; It.Value()->TryGetNumber(TmpValue);";
         getter = "TmpValue";
-    }
-    else if (property.actualtype === "DateTime") {
+    } else if (property.actualtype === "DateTime") {
         getter = "readDatetime(It.Value())";
-    }
-    else if (property.isclass) {
+    } else if (property.isclass) {
         getter = "F" + property.actualtype + "(It.Value()->AsObject())";
-    }
-    else if (property.isenum) {
+    } else if (property.isenum) {
         getter = "read" + property.actualtype + "FromValue(It.Value())";
-    }
-    else if (property.actualtype === "object") {
-        getter = "FMultitypeVar(It.Value()->AsObject())";
-    }
-    else {
+    } else if (property.actualtype === "object") {
+        getter = "FJsonKeeper(It.Value())";
+    } else {
         throw "Unknown property type: " + property.actualtype + " for " + property.name + " in " + datatype.name;
     }
-    
+
     var propertyObjectName = property.name + "Object";
-    
-    var val = "const TSharedPtr<FJsonObject>* " + propertyObjectName + ";\n";
-    val += "    if (obj->TryGetObjectField(TEXT(\"" + property.name + "\"), " + propertyObjectName + "))\n";
-    val += "    {\n";
-    val += "        for (TMap<FString, TSharedPtr<FJsonValue>>::TConstIterator It((*" + propertyObjectName + ")->Values); It; ++It)\n";
-    val += "        {\n";
-    val += "            " + temporary + "\n";
-    val += "            " + property.name + ".Add(It.Key(), " + getter + ");\n";
-    val += "        }\n";
-    val += "    }";
-    
-    return val;
+
+    if (temporary)
+        return tabbing + "const TSharedPtr<FJsonObject>* " + propertyObjectName + ";\n"
+            + tabbing + "if (obj->TryGetObjectField(TEXT(\"" + property.name + "\"), " + propertyObjectName + "))\n"
+            + tabbing + "{\n"
+            + tabbing + "    for (TMap<FString, TSharedPtr<FJsonValue>>::TConstIterator It((*" + propertyObjectName + ")->Values); It; ++It)\n"
+            + tabbing + "    {\n"
+            + tabbing + "        " + temporary + "\n"
+            + tabbing + "        " + property.name + ".Add(It.Key(), " + getter + ");\n"
+            + tabbing + "    }\n"
+            + tabbing + "}";
+    // else if (!temporary)
+    return tabbing + "const TSharedPtr<FJsonObject>* " + propertyObjectName + ";\n"
+        + tabbing + "if (obj->TryGetObjectField(TEXT(\"" + property.name + "\"), " + propertyObjectName + "))\n"
+        + tabbing + "{\n"
+        + tabbing + "    for (TMap<FString, TSharedPtr<FJsonValue>>::TConstIterator It((*" + propertyObjectName + ")->Values); It; ++It)\n"
+        + tabbing + "    {\n"
+        + tabbing + "        " + property.name + ".Add(It.Key(), " + getter + ");\n"
+        + tabbing + "    }\n"
+        + tabbing + "}";
 }
 
-function AddTypeAndDependencies(datatype, datatypes, orderedTypes, addedSet) {
+function addTypeAndDependencies(datatype, datatypes, orderedTypes, addedSet) {
     if (addedSet[datatype.name])
         return;
-    
+
     if (datatype.properties) {
         for (var p = 0; p < datatype.properties.length; p++) {
             var property = datatype.properties[p];
-            if (property.isclass || property.isenum) {
-                var dependentType = datatypes[property.actualtype];
-                AddTypeAndDependencies(dependentType, datatypes, orderedTypes, addedSet);
-            }
+            if (property.isclass || property.isenum)
+                addTypeAndDependencies(datatypes[property.actualtype], datatypes, orderedTypes, addedSet);
         }
     }
-    
+
     orderedTypes.push(datatype);
     addedSet[datatype.name] = datatype;
 }
 
-function GetPropertyDescription(property) {
-    var optional = property.optional ? "[optional] ": "";
+function getPropertyDescription(property) {
+    var optional = property.optional ? "[optional] " : "";
     return "// " + optional + property.description;
 }
 
-function GetAuthParams(apiCall) {
-    if (apiCall.auth === "SecretKey")
+function getAuthParams(apiCall) {
+    if (apiCall.url === "/Authentication/GetEntityToken")
+        return "authKey, authValue";
+    else if (apiCall.auth === "EntityToken")
+        return "TEXT(\"X-EntityToken\"), PlayFabSettings::entityToken";
+    else if (apiCall.auth === "SecretKey")
         return "TEXT(\"X-SecretKey\"), PlayFabSettings::developerSecretKey";
     else if (apiCall.auth === "SessionTicket")
-        return "TEXT(\"X-Authorization\"), mUserSessionTicket";
+        return "TEXT(\"X-Authorization\"), PlayFabSettings::clientSessionTicket";
     return "TEXT(\"\"), TEXT(\"\")";
 }
 
-function GetRequestActions(apiCall, api) {
-    if (api.name === "Client" && (apiCall.result === "LoginResult" || apiCall.request === "RegisterPlayFabUserRequest"))
-        return "if (PlayFabSettings::titleId.Len() > 0)\n        request.TitleId = PlayFabSettings::titleId;";
+function getRequestActions(tabbing, apiCall, api) {
+    if (apiCall.url === "/Authentication/GetEntityToken")
+        return tabbing + "FString authKey; FString authValue;\n"
+            + tabbing + "if (PlayFabSettings::entityToken.Len() > 0) {\n"
+            + tabbing + "    authKey = TEXT(\"X-EntityToken\"); authValue = PlayFabSettings::entityToken;\n"
+            + tabbing + "} else if (PlayFabSettings::clientSessionTicket.Len() > 0) {\n"
+            + tabbing + "    authKey = TEXT(\"X-Authorization\"); authValue = PlayFabSettings::clientSessionTicket;\n"
+            + tabbing + "} else if (PlayFabSettings::developerSecretKey.Len() > 0) {\n"
+            + tabbing + "    authKey = TEXT(\"X-SecretKey\"); authValue = PlayFabSettings::developerSecretKey;\n"
+            + tabbing + "}\n";
+    else if (apiCall.auth === "EntityToken")
+        return tabbing + "if (PlayFabSettings::entityToken.Len() == 0) {\n"
+            + tabbing + "    UE_LOG(LogPlayFab, Error, TEXT(\"You must call GetEntityToken API Method before calling this function.\"));\n"
+            + tabbing + "}\n";
+    else if (apiCall.auth === "SecretKey")
+        return tabbing + "if (PlayFabSettings::developerSecretKey.Len() == 0) {\n"
+            + tabbing + "    UE_LOG(LogPlayFab, Error, TEXT(\"You must first set your PlayFab developerSecretKey to use this function (Unreal Settings Menu, or in C++ code)\"));\n"
+            + tabbing + "}\n";
+    else if (apiCall.auth === "SessionTicket")
+        return tabbing + "if (PlayFabSettings::clientSessionTicket.Len() == 0) {\n"
+            + tabbing + "    UE_LOG(LogPlayFab, Error, TEXT(\"You must log in before calling this function\"));\n"
+            + tabbing + "}\n";
+    else if (apiCall.result === "LoginResult" || apiCall.request === "RegisterPlayFabUserRequest")
+        return tabbing + "if (PlayFabSettings::titleId.Len() > 0)\n"
+            + tabbing + "    request.TitleId = PlayFabSettings::titleId;\n";
     return "";
 }
 
-function GetResultActions(apiCall, api) {
-    if (api.name === "Client" && (apiCall.result === "LoginResult" || apiCall.result === "RegisterPlayFabUserResult"))
-        return "        if (outResult.SessionTicket.Len() > 0)\n" 
-            + "        {\n" 
-            + "            mUserSessionTicket = outResult.SessionTicket;\n" 
-            + "            MultiStepClientLogin(outResult.SettingsForUser->NeedsAttribution);\n" 
-            + "        }";
-    else if (api.name === "Client" && apiCall.result === "AttributeInstallResult")
-        return "        // Modify advertisingIdType:  Prevents us from sending the id multiple times, and allows automated tests to determine id was sent successfully\n" 
-            + "        PlayFabSettings::advertisingIdType += \"_Successful\";";
+function getResultActions(tabbing, apiCall, api) {
+    if (apiCall.url === "/Authentication/GetEntityToken")
+        return tabbing + "if (outResult.EntityToken.Len() > 0)\n"
+            + tabbing + "    PlayFabSettings::entityToken = outResult.EntityToken;\n\n";
+    else if (apiCall.result === "LoginResult" || apiCall.result === "RegisterPlayFabUserResult")
+        return tabbing + "if (outResult.SessionTicket.Len() > 0)\n"
+            + tabbing + "{\n"
+            + tabbing + "    PlayFabSettings::clientSessionTicket = outResult.SessionTicket;\n"
+            + tabbing + "    MultiStepClientLogin(outResult.SettingsForUser->NeedsAttribution);\n"
+            + tabbing + "}\n\n";
+    else if (apiCall.result === "AttributeInstallResult")
+        return tabbing + "// Modify advertisingIdType:  Prevents us from sending the id multiple times, and allows automated tests to determine id was sent successfully\n"
+            + tabbing + "PlayFabSettings::advertisingIdType += \"_Successful\";\n\n";
     return "";
 }
 
-function GetUrlAccessor(apiCall) {
+function getUrlAccessor(apiCall) {
     return "PlayFabSettings::getURL(TEXT(\"" + apiCall.url + "\"))";
 }

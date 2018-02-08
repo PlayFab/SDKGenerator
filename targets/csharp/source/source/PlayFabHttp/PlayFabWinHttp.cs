@@ -10,7 +10,10 @@ namespace PlayFab.Internal
 {
     public class PlayFabWinHttp : IPlayFabHttp
     {
-        public async Task<object> DoPost(string urlPath, PlayFabRequestCommon request, string authType, string authKey)
+
+        private readonly HttpClient _client = new HttpClient();
+		
+        public async Task<object> DoPost(string urlPath, PlayFabRequestCommon request, string authType, string authKey, Dictionary<string, string> extraHeaders)
         {
             var fullUrl = PlayFabSettings.GetFullUrl(urlPath);
             string bodyString;
@@ -24,18 +27,20 @@ namespace PlayFab.Internal
                 bodyString = JsonWrapper.SerializeObject(request);
             }
 
-            var httpClient = new HttpClient();
             var requestMessage = new HttpRequestMessage(HttpMethod.Post, new Uri(fullUrl));
             requestMessage.Content = new HttpStringContent(bodyString, Windows.Storage.Streams.UnicodeEncoding.Utf8, "application/json");
             if (authType != null)
                 requestMessage.Headers.Add(new KeyValuePair<string, string>(authType, authKey));
             requestMessage.Headers.Add(new KeyValuePair<string, string>("X-PlayFabSDK", PlayFabSettings.SdkVersionString));
+            if (extraHeaders != null)
+                foreach (var headerPair in extraHeaders)
+                    requestMessage.Headers.Add(headerPair);
 
             HttpResponseMessage httpResponse;
             string httpResponseString;
             try
             {
-                httpResponse = await httpClient.SendRequestAsync(requestMessage);
+                httpResponse = await _client.SendRequestAsync(requestMessage);
                 httpResponseString = await httpResponse.Content.ReadAsStringAsync();
             }
             catch (Exception e)

@@ -158,32 +158,32 @@ function GetPropertyGoType(property, datatype) {
 
 function GetRequestActions(apiCall, api) {
     if (api.name === "Client" && (apiCall.result === "LoginResult" || apiCall.request === "RegisterPlayFabUserRequest"))
-        return "if PlayFabSettings.TitleId != null {\n"
-        +"            request.TitleId = PlayFabSettings.TitleId;\n"
+        return "if pfshared.PlayFabSettings.TitleId != \"\" {\n"
+        +"            request.TitleId = pfshared.PlayFabSettings.TitleId;\n"
         +"        }\n"
-        +"        if request.TitleId == null {\n"
-        +"            return nil, errors.New(\"Must be have PlayFabSettings.TitleId set to call this method\");\n"
+        +"        if request.TitleId == \"\" {\n"
+        +"            return nil, errors.New(\"Must be have pfshared.PlayFabSettings.TitleId set to call this method\");\n"
         +"        }";
     if (api.name === "Client" && apiCall.auth === "SessionTicket")
-        return "if _authKey == null {\n"
+        return "if pfshared.PlayFabSettings.SessionTicket == \"\" {\n"
         +"            errors.New(\"Must be logged in to call this method\");\n"
         +"        }";
     if (apiCall.auth === "SecretKey")
-        return "if PlayFabSettings.DeveloperSecretKey == null {\n"
-            + "           errors.New(\"Must have PlayFabSettings.DeveloperSecretKey set to call this method\");\n"
+        return "if pfshared.PlayFabSettings.DeveloperSecretKey == \"\" {\n"
+            + "           errors.New(\"Must have pfshared.PlayFabSettings.DeveloperSecretKey set to call this method\");\n"
             +"        }";
     return "";
 }
 
 function GetResultActions(apiCall, api) {
     if (api.name === "Client" && (apiCall.result === "LoginResult" || apiCall.result === "RegisterPlayFabUserResult"))
-        return "if result.SessionTicket != null{\n" 
-            +"            _authKey = result.SessionTicket\n"
+        return "if typedRespObj.Data.SessionTicket != \"\"{\n" 
+            +"            pfshared.PlayFabSettings.SessionTicket = typedRespObj.Data.SessionTicket\n"
             +"        }\n"
-            + "        MultiStepClientLogin(resultData.data.SettingsForUser.NeedsAttribution);";
+            + "        MultiStepClientLogin(typedRespObj.Data.SettingsForUser.NeedsAttribution);";
     else if (api.name === "Client" && apiCall.result === "AttributeInstallResult")
-        return "// Modify AdvertisingIdType:  Prevents us from sending the id multiple times, and allows automated tests to determine id was sent successfully\n" 
-            + "        PlayFabSettings.AdvertisingIdType += \"_Successful\";";
+        return "// Modify AdvertisingIDType:  Prevents us from sending the id multiple times, and allows automated tests to determine id was sent successfully\n" 
+            + "        pfshared.PlayFabSettings.AdvertisingIDType += \"_Successful\";";
     return "";
 }
 
@@ -191,7 +191,7 @@ function GetAuthParamName(apiCall) {
     switch(apiCall.auth) {
         case "SecretKey": return "\"X-SecretKey\"";
         case "SessionTicket": return "\"X-Authorization\"";
-        default: return "nil"
+        default: return "\"\""
     }
 }
 

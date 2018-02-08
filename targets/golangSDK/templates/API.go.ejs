@@ -3,26 +3,25 @@ package PlayFab<%- api.name %>API
 
 import (
     "encoding/json"
-	"errors"
     "playfab/pfshared"
-    "playfab/<%- api.name.toLowerCase() %>/models"
+    . "playfab/<%- api.name.toLowerCase() %>/models"
 )
 
 <% for(var i in api.calls) { var apiCall = api.calls[i]; %>
-type T<%- apiCall.name %> struct {
+type <%- apiCall.name %>ResponseWrapped struct {
     pfshared.APIResponse 
     Data <%- apiCall.result %>
 }
 
 <%- generateSummary("    ", apiCall, "summary") %>
-func <%- apiCall.name %>(request <%-apiCall.result  %>) (*<%- apiCall.result %>Base, error) {
+func <%- apiCall.name %>(request <%-apiCall.request  %>) (*<%- apiCall.name %>ResponseWrapped, error) {
     
     <% //Disabled for now as can happen at request stage? getRequestActions(apiCall, api) %>
     resp, err := pfshared.MakeRequest("/<%- api.name %>/<%- apiCall.name%>", request, <%- getAuthParamName(apiCall) %>)
     if err != nil {
         return nil, err
     }
-    var typedRespObj = <%- apiCall.result %>Base{}
+    var typedRespObj = <%- apiCall.name %>ResponseWrapped{}
     if err := json.Unmarshal(resp, &typedRespObj); err != nil {
         return nil, err
     }
@@ -31,21 +30,21 @@ func <%- apiCall.name %>(request <%-apiCall.result  %>) (*<%- apiCall.result %>B
 }
 
 <%}%>
-
-func MultiStepClientLogin(needsAttribution bool) AttributeInstallResultBase {
+<%if(api.name === "Client"){%>
+func MultiStepClientLogin(needsAttribution bool) (*AttributeInstallResponseWrapped, error) {
 	pfSettings := &pfshared.PlayFabSettings
 
-	if needsAttribution && !pfSettingss.DisableAdvertising && pfSettings.AdvertisingIdType != "" && pfSettings.AdvertisingIdValue != "" {
+	if needsAttribution && !pfSettings.DisableAdvertising && pfSettings.AdvertisingIDType != "" && pfSettings.AdvertisingIDValue != "" {
 		request := AttributeInstallRequest{}
-		if pfSettings.AdvertisingIdType == pfSettings.AD_TYPE_IDFA {
-			request.Idfa = pfSettings.AdvertisingIdValue
-		} else if pfSettings.AdvertisingIdType == pfSettings.AD_TYPE_ANDROID_ID {
-			request.Adid = pfSettings.AdvertisingIdValue
+		if pfSettings.AdvertisingIDType == pfSettings.AD_TYPE_IDFA {
+			request.Idfa = pfSettings.AdvertisingIDValue
+		} else if pfSettings.AdvertisingIDType == pfSettings.AD_TYPE_ANDROID_ID {
+			request.Adid = pfSettings.AdvertisingIDValue
 		} else {
-			return nil
+			return nil, nil
 		}
 
 		return AttributeInstall(request)
 	}
-	return nil
-}
+	return nil, nil
+} <%}%>

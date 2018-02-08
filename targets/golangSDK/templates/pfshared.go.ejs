@@ -17,6 +17,7 @@ type PFSettings struct {
 	DevelopmentEnvironmentURL string
 	ProductionEnvironmentURL  string
 	TitleID                   string
+	SessionTicket			  string
 
 	// if ServerAPI || AdminAPI
 	DeveloperSecretKey string
@@ -85,7 +86,6 @@ var PlayFabSettings PFSettings = PFSettings{
 var internalSettings internalSettingsContainer = internalSettingsContainer{
 	devEnvURL:     ".playfabsandbox.com",
 	liveURL:       ".playfabapi.com",
-	sessionTicket: "",
 }
 
 func GetServerUrl() string {
@@ -136,20 +136,19 @@ func MakeRequest(urlStr string, request interface{}, authType string) ([]byte, e
 
 	if authType == "X-Authorization" {
 
-		if PlayFabSettings.DeveloperSecretKey == "" {
+		if PlayFabSettings.SessionTicket == "" {
 			return nil, errors.New("Must be logged in to call this method")
 		} else {
-			req.Header.Add(authType, PlayFabSettings.DeveloperSecretKey)
+			req.Header.Add(authType, PlayFabSettings.SessionTicket)
 		}
 
 	} else if authType == "X-SecretKey" {
 		if PlayFabSettings.DeveloperSecretKey == "" {
 			return nil, errors.New("Must have PlayFabSettings.DeveloperSecretKey set to call this method")
 		} else {
-			req.Header.Add(authType, internalSettings.sessionTicket)
+			req.Header.Add(authType, PlayFabSettings.DeveloperSecretKey)
 		}
 	}
-	req.Header.Add(authType, PlayFabSettings.DeveloperSecretKey)
 
 	resp, err := client.Do(req)
 	if err != nil {

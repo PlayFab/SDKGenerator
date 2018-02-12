@@ -12,13 +12,12 @@ exports.makeServerAPI = function (apis, sourceDir, apiOutputDir) {
     console.log("Generating cloudscript-ts Server SDK to " + apiOutputDir);
 
     // Get only the server api because this is for CloudScript (only has access to serverAPI)
-    var serverApi = null;
+    var apiList = [];
     for (var i = 0; i < apis.length; i++)
-        if (apis[i].name === "Server")
-            serverApi = apis[i];
-    if (!serverApi)
+        if (apis[i].name === "Server" || apis[i].name === "Entity")
+            apiList.push(apis[i]);
+    if (apiList.length === 0)
         throw "Could not find Server API";
-    console.log("Test api is: " + serverApi.name);
 
     // Load PlayStream APIs
     var playStreamEventModels = getApiJson("PlayStreamEventModels.json");
@@ -29,7 +28,7 @@ exports.makeServerAPI = function (apis, sourceDir, apiOutputDir) {
 
     // Generate the api against the template
     var apiLocals = {
-        api: serverApi,
+        apis: apiList,
         childTypes: playStreamEventModels.ChildTypes,
         parentTypes: playStreamEventModels.ParentTypes,
         sdkVersion: exports.sdkVersion,
@@ -93,6 +92,15 @@ function getProperty(tabbing, property) {
 
 function generateApiSummary(tabbing, apiElement, summaryParam, extraLines) {
     var lines = generateApiSummaryLines(apiElement, summaryParam, extraLines);
+
+    // FILTERING: Java is very picky about the output
+    if (lines) {
+        for (var i = 0; i < lines.length; i++) {
+            lines[i] = lines[i].replaceAll("<", "&lt;").replaceAll(">", "&gt;");
+            if (lines[i].contains("*/"))
+                lines[i] = null;
+        }
+    }
 
     var output;
     if (lines.length === 1 && lines[0])

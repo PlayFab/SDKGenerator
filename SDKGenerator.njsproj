@@ -722,9 +722,10 @@
     <Content Include="targets\unity-v2\Testing\Tests\Utility\UtilTest.cs" />
     <Content Include="targets\unity-v2\Testing\Tests\Utility\UtilTest.cs.meta" />
     <Content Include="targets\WindowsSdk\source\build\PlayFabSdk2015\packages.config" />
-    <Content Include="targets\WindowsSdk\source\build\PlayFabSdk2015\PlayFabSdk2015.vcxproj" />
+    <Content Include="targets\WindowsSdk\source\build\PlayFabSdk2015\PlayFabSdk2015.vcxproj.ejs" />
     <Content Include="targets\WindowsSdk\source\build\Testing2015\packages.config" />
-    <Content Include="targets\WindowsSdk\source\build\Testing2015\Testing2015.vcxproj" />
+    <Content Include="targets\WindowsSdk\source\build\Testing2015\Testing2015.vcxproj.ejs" />
+    <Content Include="targets\WindowsSdk\source\build\TestSrc\PlayFabEntityTest.cpp" />
     <Content Include="targets\WindowsSdk\source\build\TestSrc\PlayFabClientTest.cpp" />
     <Content Include="targets\WindowsSdk\source\build\TestSrc\PlayFabServerTest.cpp" />
     <Content Include="targets\WindowsSdk\source\include\playfab\PlayFabBaseModel.h" />

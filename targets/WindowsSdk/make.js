@@ -9,6 +9,7 @@ exports.makeCombinedAPI = function (apis, sourceDir, apiOutputDir) {
 
     var locals = {
         apis: apis,
+        extraDefines: "ENABLE_PLAYFABADMIN_API;ENABLE_PLAYFABSERVER_API;", // "ENABLE_PLAYFABADMIN_API;ENABLE_PLAYFABENTITY_API;ENABLE_PLAYFABSERVER_API;"
         sdkVersion: exports.sdkVersion,
         sdkDate: exports.sdkVersion.split(".")[2],
         sdkYear: exports.sdkVersion.split(".")[2].substr(0, 2),
@@ -90,13 +91,18 @@ function getApiDefine(api) {
         return "ENABLE_PLAYFABSERVER_API";
     if (api.name === "Admin")
         return "ENABLE_PLAYFABADMIN_API";
+    if (api.name === "Entity")
+        return "ENABLE_PLAYFABENTITY_API";
     throw "getApiDefine: Unknown api: " + api.name;
 }
 
 function getAuthParams(apiCall) {
+    if (apiCall.url === "/Authentication/GetEntityToken")
+        return "authKey, authValue";
     switch (apiCall.auth) {
         case "None": return "U(\"\"), U(\"\")";
-        case "SessionTicket": return "U(\"X-Authorization\"), mUserSessionTicket";
+        case "EntityToken": return "U(\"X-EntityToken\"), PlayFabSettings::entityToken";
+        case "SessionTicket": return "U(\"X-Authorization\"), PlayFabSettings::clientSessionTicket";
         case "SecretKey": return "U(\"X-SecretKey\"), PlayFabSettings::developerSecretKey";
     }
     throw "getAuthParams: Unknown auth type: " + apiCall.auth + " for " + apiCall.name;
@@ -106,7 +112,7 @@ function getBaseType(datatype) {
     if (datatype.className.toLowerCase().endsWith("request"))
         return "PlayFabRequestCommon";
     if (datatype.className.toLowerCase().endsWith("response") || datatype.className.toLowerCase().endsWith("result"))
-        return "PlayFabRequestCommon";
+        return "PlayFabResultCommon";
     return "PlayFabBaseModel";
 }
 
@@ -209,14 +215,26 @@ function getPropertySafeName(property) {
 function getRequestActions(tabbing, apiCall) {
     if (apiCall.result === "LoginResult" || apiCall.result === "RegisterPlayFabUserResult")
         return tabbing + "if (PlayFabSettings::titleId.length() > 0) request.TitleId = ShortenString(PlayFabSettings::titleId);\n";
+    if (apiCall.url === "/Authentication/GetEntityToken")
+        return tabbing + "utility::string_t authKey, authValue;\n"
+            + tabbing + "if (PlayFabSettings::entityToken.length() > 0) {\n"
+            + tabbing + "    authKey = WidenString(\"X-EntityToken\"); authValue = PlayFabSettings::entityToken;\n"
+            + tabbing + "} else if (PlayFabSettings::clientSessionTicket.length() > 0) {\n"
+            + tabbing + "    authKey = WidenString(\"X-Authorization\"); authValue = PlayFabSettings::clientSessionTicket;\n"
+            + tabbing + "} else if (PlayFabSettings::developerSecretKey.length() > 0) {\n"
+            + tabbing + "    authKey = WidenString(\"X-SecretKey\"); authValue = PlayFabSettings::developerSecretKey;\n"
+            + tabbing + "}\n";
+
     return "";
 }
 
 function getResultActions(tabbing, apiCall) {
+    if (apiCall.url === "/Authentication/GetEntityToken")
+        return tabbing + "if (outResult.EntityToken.length() > 0) PlayFabSettings::entityToken = WidenString(outResult.EntityToken);\n";
     if (apiCall.result === "LoginResult" || apiCall.result === "RegisterPlayFabUserResult")
         return tabbing + "if (outResult.SessionTicket.length() > 0)\n"
             + tabbing + "{\n"
-            + tabbing + "    mUserSessionTicket = WidenString(outResult.SessionTicket);\n"
+            + tabbing + "    PlayFabSettings::clientSessionTicket = WidenString(outResult.SessionTicket);\n"
             + tabbing + "    MultiStepClientLogin(outResult.SettingsForUser->NeedsAttribution);\n"
             + tabbing + "}\n";
     if (apiCall.result === "AttributeInstallResult")

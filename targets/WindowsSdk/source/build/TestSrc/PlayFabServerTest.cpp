@@ -80,6 +80,7 @@ namespace UnittestRunner
         }
         TEST_CLASS_CLEANUP(ClassCleanup)
         {
+            PlayFabServerAPI::ForgetAllCredentials();
         }
 
         static void PlayFabApiWait()

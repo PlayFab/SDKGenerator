@@ -34,7 +34,8 @@ namespace UnittestRunner
 
         // Variables for specific tests
         static string testMessageReturn;
-        static Int32 testMessageInt;
+        static Int32 testMessageInt1;
+        static Int32 testMessageInt2;
         static time_t testMessageTime;
         static bool testMessageBool;
 
@@ -95,6 +96,7 @@ namespace UnittestRunner
         }
         TEST_CLASS_CLEANUP(ClassCleanup)
         {
+            PlayFabClientAPI::ForgetAllCredentials();
         }
 
         static void PlayFabApiWait()
@@ -261,7 +263,7 @@ namespace UnittestRunner
             PlayFabClientAPI::GetUserData(getRequest, GetDataCallback, SharedFailedCallback, nullptr);
             PlayFabApiWait();
             Assert::IsTrue(testMessageReturn.compare("GetData_Success") == 0, L"Check that GetUserData was successful");
-            int testCounterValueExpected = (testMessageInt + 1) % 100; // This test is about the expected value changing - but not testing more complicated issues like bounds
+            int testCounterValueExpected = (testMessageInt1 + 1) % 100; // This test is about the expected value changing - but not testing more complicated issues like bounds
 
             updateRequest1.Data[TEST_DATA_KEY_1] = to_string(testCounterValueExpected);
             updateRequest1.Data[TEST_DATA_KEY_2] = string("This is trash");
@@ -272,7 +274,7 @@ namespace UnittestRunner
             PlayFabClientAPI::GetUserData(getRequest, GetDataCallback, SharedFailedCallback, nullptr);
             PlayFabApiWait();
             Assert::IsTrue(testMessageReturn.compare("GetData_Success") == 0, L"Check that GetUserData was successful");
-            testCounterValueActual = testMessageInt;
+            testCounterValueActual = testMessageInt1;
             Assert::AreEqual(testCounterValueExpected, testCounterValueActual, L"Check that the userData counter was incremented as expected");
             Assert::IsTrue(testMessageBool, L"Check if TEST_DATA_KEY_2 exists"); // TEST_DATA_KEY_2 is created
 
@@ -301,7 +303,7 @@ namespace UnittestRunner
             auto it1 = result.Data.find(TEST_DATA_KEY_1);
             if (it1 != result.Data.end())
             {
-                testMessageInt = atoi(it1->second.Value.c_str());
+                testMessageInt1 = atoi(it1->second.Value.c_str());
                 testMessageTime = it1->second.LastUpdated;
             }
             auto it2 = result.Data.find(TEST_DATA_KEY_2);
@@ -328,7 +330,7 @@ namespace UnittestRunner
             PlayFabClientAPI::GetPlayerStatistics(getRequest, GetStatsCallback, SharedFailedCallback, nullptr);
             PlayFabApiWait();
             Assert::IsTrue(testMessageReturn.compare("GetStats_Success") == 0, WidenString(testMessageReturn).c_str());
-            Int32 testStatValueExpected = (testMessageInt + 1) % 100; // This test is about the expected value changing (incrementing through from TEST_STAT_BASE to TEST_STAT_BASE * 2 - 1)
+            Int32 testStatValueExpected = (testMessageInt1 + 1) % 100; // This test is about the expected value changing (incrementing through from TEST_STAT_BASE to TEST_STAT_BASE * 2 - 1)
 
             UpdatePlayerStatisticsRequest updateRequest;
             StatisticUpdate statUpdate;
@@ -342,7 +344,7 @@ namespace UnittestRunner
             PlayFabClientAPI::GetPlayerStatistics(getRequest, GetStatsCallback, SharedFailedCallback, nullptr);
             PlayFabApiWait();
             Assert::IsTrue(testMessageReturn.compare("GetStats_Success") == 0, WidenString(testMessageReturn).c_str());
-            Int32 testStatValueActual = testMessageInt;
+            Int32 testStatValueActual = testMessageInt1;
 
             Assert::AreEqual(testStatValueExpected, testStatValueActual);
         }
@@ -353,7 +355,7 @@ namespace UnittestRunner
             {
                 if (it->StatisticName == TEST_STAT_NAME)
                 {
-                    testMessageInt = it->Value;
+                    testMessageInt1 = it->Value;
                     success = true;
                 }
             }
@@ -403,12 +405,15 @@ namespace UnittestRunner
             PlayFabClientAPI::GetLeaderboard(clientRequest, ClientLeaderboardCallback, SharedFailedCallback, nullptr);
             PlayFabApiWait();
             Assert::IsTrue(testMessageReturn.compare("GetClientLB_Success") == 0, WidenString(testMessageReturn).c_str());
-            Assert::IsTrue(testMessageInt != 0);
+            Assert::IsTrue(testMessageInt1 != 0);
+            Assert::IsTrue(testMessageInt2 == 3);
         }
         static void ClientLeaderboardCallback(const GetLeaderboardResult& result, void* customData)
         {
             testMessageReturn = "GetClientLB_Success";
-            testMessageInt = result.Leaderboard.size();
+            testMessageInt1 = result.Leaderboard.size();
+            // Verifies that the request comes through as expected
+            testMessageInt2 += result.Request.as_object().find(WidenString("MaxResultsCount"))->second.as_integer();
         }
 
         /// <summary>
@@ -547,7 +552,8 @@ namespace UnittestRunner
 
     // Variables for specific tests
     string PlayFabClientTest::testMessageReturn;
-    Int32 PlayFabClientTest::testMessageInt;
+    Int32 PlayFabClientTest::testMessageInt1;
+    Int32 PlayFabClientTest::testMessageInt2;
     time_t PlayFabClientTest::testMessageTime;
     bool PlayFabClientTest::testMessageBool;
 }

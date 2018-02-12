@@ -83,7 +83,9 @@ namespace PlayFab
     /// <summary>
     /// Base class for all PlayFab Results
     /// </summary>
-    struct PlayFabResultCommon : public PlayFabBaseModel { };
+    struct PlayFabResultCommon : public PlayFabBaseModel {
+        web::json::value Request;
+    };
 
     // Utilities for [de]serializing time_t to/from json
     inline void ToJsonUtilT(const time_t input, web::json::value& output)

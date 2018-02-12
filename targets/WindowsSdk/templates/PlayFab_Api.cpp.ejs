@@ -16,6 +16,11 @@ namespace PlayFab
         return PlayFabHttp::Get().Update();
     }
 
+    void PlayFab<%- api.name %>API::ForgetAllCredentials()
+    {
+        return PlayFabSettings::ForgetAllCredentials();
+    }
+
     // PlayFab<%- api.name %> APIs
 <% for (var callIdx = 0; callIdx < api.calls.length; callIdx++) { var apiCall = api.calls[callIdx]; %>
     void PlayFab<%- api.name %>API::<%- apiCall.name %>(
@@ -35,6 +40,7 @@ namespace PlayFab
     {
         <%- apiCall.result %> outResult;
         outResult.FromJson(request.errorWrapper.Data);
+        outResult.Request = request.request;
 <%- getResultActions("        ", apiCall) %>
         auto internalPtr = request.successCallback.get();
         if (internalPtr != nullptr)
@@ -45,12 +51,9 @@ namespace PlayFab
     }
 <% } %><% if (api.name === "Client") { %>
     // Private PlayFabClientAPI specific
-
-    utility::string_t PlayFabClientAPI::mUserSessionTicket;
-
     bool PlayFabClientAPI::IsClientLoggedIn()
     {
-        return !mUserSessionTicket.empty();
+        return !PlayFabSettings::clientSessionTicket.empty();
     }
 
     void PlayFabClientAPI::MultiStepClientLogin(bool needsAttribution)

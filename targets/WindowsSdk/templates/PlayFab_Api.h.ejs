@@ -16,6 +16,8 @@ namespace PlayFab
     {
     public:
         static size_t Update();
+        static void ForgetAllCredentials();
+
 <% if (api.name === "Client") { %>
         // Public, Client-Specific
         static bool IsClientLoggedIn();
@@ -35,7 +37,6 @@ namespace PlayFab
 <% if (api.name === "Client") { %>
         // Private, Client-Specific
         static void MultiStepClientLogin(bool needsAttribution);
-        static utility::string_t mUserSessionTicket;
 <% } %>    };
 }
 

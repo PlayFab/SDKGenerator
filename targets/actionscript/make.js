@@ -2,8 +2,8 @@ var fs = require("fs");
 var path = require("path");
 
 // Making resharper less noisy - These are defined in Generate.js
-if (typeof (copyTree) === "undefined") copyTree = function () { };
 if (typeof (getCompiledTemplate) === "undefined") getCompiledTemplate = function () { };
+if (typeof (templatizeTree) === "undefined") templatizeTree = function () { };
 
 exports.putInRoot = true;
 
@@ -13,14 +13,27 @@ exports.makeCombinedAPI = function (apis, sourceDir, apiOutputDir) {
     console.log("Generating ActionScript3 combined SDK to " + apiOutputDir);
 
     removeExcessFiles(apis, apiOutputDir);
-    copyTree(path.resolve(sourceDir, "source"), apiOutputDir);
 
-    for (var i = 0; i < apis.length; i++) {
-        makeDatatypes(apis[i], sourceDir, apiOutputDir);
-        makeApi(apis[i], sourceDir, apiOutputDir);
+    var locals = {
+        airVersion: 28, // Latest version of AirSdk installed overtop of Flex SDK
+        buildIdentifier: exports.buildIdentifier,
+        errorList: apis[0].errorList,
+        errors: apis[0].errors,
+        hasClientOptions: true, // if (apis[i].name === "Client")
+        hasEntityOptions: false,
+        hasServerOptions: true,  // else if server, admin, matchmaker
+        sdkVersion: exports.sdkVersion
+    };
+    for (var i = 0; i < apis.length; i++)
+        if (apis[i].name === "Entity")
+            locals.hasEntityOptions = true; // Entity is still in beta, so it may not actually be there
+
+    templatizeTree(locals ,path.resolve(sourceDir, "source"), apiOutputDir);
+
+    for (var a = 0; a < apis.length; a++) {
+        makeDatatypes(apis[a], sourceDir, apiOutputDir);
+        makeApi(apis[a], sourceDir, apiOutputDir);
     }
-
-    generateSimpleFiles(apis, sourceDir, apiOutputDir);
 }
 
 function removeFilesInDir(dirPath, searchFilter) {
@@ -105,35 +118,6 @@ function makeApi(api, sourceDir, apiOutputDir) {
 
     var apiTemplate = getCompiledTemplate(path.resolve(path.resolve(sourceDir, "templates"), "API.as.ejs"));;
     writeFile(path.resolve(apiOutputDir, "com/playfab/PlayFab" + api.name + "API.as"), apiTemplate(apiLocals));
-}
-
-function generateSimpleFiles(apis, sourceDir, apiOutputDir) {
-    var simpleLocals = {
-        buildIdentifier: exports.buildIdentifier,
-        errorList: apis[0].errorList,
-        errors: apis[0].errors,
-        hasClientOptions: false,
-        hasEntityOptions: false,
-        hasServerOptions: false,
-        sdkVersion: exports.sdkVersion
-    };
-    for (var i = 0; i < apis.length; i++) {
-        if (apis[i].name === "Client")
-            simpleLocals.hasClientOptions = true;
-        else if (apis[i].name === "Entity")
-            simpleLocals.hasEntityOptions = true;
-        else
-            simpleLocals.hasServerOptions = true;
-    }
-
-    var errorsTemplate = getCompiledTemplate(path.resolve(sourceDir, "templates/Errors.as.ejs"));;
-    writeFile(path.resolve(apiOutputDir, "com/playfab/PlayFabError.as"), errorsTemplate(simpleLocals));
-
-    var versionTemplate = getCompiledTemplate(path.resolve(sourceDir, "templates/PlayFabVersion.as.ejs"));;
-    writeFile(path.resolve(apiOutputDir, "com/playfab/PlayFabVersion.as"), versionTemplate(simpleLocals));
-
-    var settingsTemplate = getCompiledTemplate(path.resolve(sourceDir, "templates/PlayFabSettings.as.ejs"));;
-    writeFile(path.resolve(apiOutputDir, "com/playfab/PlayFabSettings.as"), settingsTemplate(simpleLocals));
 }
 
 function getModelPropertyDef(property, datatype) {

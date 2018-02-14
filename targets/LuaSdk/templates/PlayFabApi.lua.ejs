@@ -33,7 +33,7 @@ end
 for (var c in api.calls) { var apiCall = api.calls[c]; %>
 <%- generateApiSummary("", apiCall, "summary")
 %>function PlayFab<%- api.name %>Api.<%- apiCall.name %>(request, onSuccess, onError)
-<%- getRequestActions("    ", apiCall, api)
+<%- getRequestActions("    ", apiCall)
 %>    IPlayFabHttps.MakePlayFabApiCall("<%- apiCall.url %>", request, <%- getAuthentication(apiCall) %>, onSuccess, onError)
 end
 <% } %>

@@ -3,6 +3,7 @@
 
 local json = require("PlayFab.json")
 local PlayFabClientApi = require("PlayFab.PlayFabClientApi")
+local PlayFabEntityApiExists, PlayFabEntityApi = pcall(require, "PlayFab.PlayFabEntityApi")
 -- Most users won't need to import PlayFabSettings, as the public settings are available via PlayFabClientApi.settings
 local PlayFabSettings = require("PlayFab.PlayFabSettings")
 local AsyncTestSuite = require("PlayFabTesting.AsyncTestSuite")
@@ -33,7 +34,8 @@ local PlayFabApiTestSuite = {
 
     -- TEST VARIABLES
     playFabId = nil,
-    testDataValue = nil,
+    entityId = nil,
+    testNumber = nil,
     testStatValue = nil,
 }
 
@@ -118,7 +120,7 @@ end
 function PlayFabApiTestSuite.OnLoginSuccess(result)
     if (result.PlayFabId) then 
         PlayFabApiTestSuite.playFabId = result.PlayFabId
-        AsyncTestSuite.EndTest("PASSED", nil)
+        AsyncTestSuite.EndTest("PASSED", PlayFabApiTestSuite.playFabId)
     else
         AsyncTestSuite.EndTest("FAILED", "PlayFabId not found in login result" .. json.encode(result))
     end
@@ -174,18 +176,18 @@ function PlayFabApiTestSuite.UserDataApi()
     PlayFabClientApi.GetUserData(getDataRequest, AsyncTestSuite.WrapCallback("OnGetUserData1", PlayFabApiTestSuite.OnGetUserData1), PlayFabApiTestSuite.OnSharedError)
 end
 function PlayFabApiTestSuite.OnGetUserData1(result)
-    PlayFabApiTestSuite.testDataValue = 0
+    PlayFabApiTestSuite.testNumber = 0
     if (result.Data and result.Data[PlayFabApiTestSuite.TEST_DATA_KEY]) then
-        PlayFabApiTestSuite.testDataValue = tonumber(result.Data[PlayFabApiTestSuite.TEST_DATA_KEY].Value)
+        PlayFabApiTestSuite.testNumber = tonumber(result.Data[PlayFabApiTestSuite.TEST_DATA_KEY].Value)
     end
-    PlayFabApiTestSuite.testDataValue = (PlayFabApiTestSuite.testDataValue + 1) % 100 -- This test is about the expected value changing - but not testing more complicated issues like bounds
+    PlayFabApiTestSuite.testNumber = (PlayFabApiTestSuite.testNumber + 1) % 100 -- This test is about the expected value changing - but not testing more complicated issues like bounds
 
     local updateRequest = {
         -- Currently, you need to look up the correct format for this object in the API-docs:
         --   https://api.playfab.com/Documentation/Client/method/UpdateUserData
         Data = {}
     }
-    updateRequest.Data[PlayFabApiTestSuite.TEST_DATA_KEY] = tostring(PlayFabApiTestSuite.testDataValue)
+    updateRequest.Data[PlayFabApiTestSuite.TEST_DATA_KEY] = tostring(PlayFabApiTestSuite.testNumber)
     PlayFabClientApi.UpdateUserData(updateRequest, AsyncTestSuite.WrapCallback("OnUpdateUserData", PlayFabApiTestSuite.OnUpdateUserData), PlayFabApiTestSuite.OnSharedError)
 end
 function PlayFabApiTestSuite.OnUpdateUserData(result)
@@ -198,10 +200,10 @@ function PlayFabApiTestSuite.OnGetUserData2(result)
         actualValue = tonumber(result.Data[PlayFabApiTestSuite.TEST_DATA_KEY].Value)
     end
     
-    if (actualValue == PlayFabApiTestSuite.testDataValue) then
+    if (actualValue == PlayFabApiTestSuite.testNumber) then
         AsyncTestSuite.EndTest("PASSED", nil)
     else
-        AsyncTestSuite.EndTest("FAILED", "UserDataApi failed: " .. tostring(PlayFabApiTestSuite.testDataValue) .. " != " .. tostring(actualValue) .. " Json: " .. json.encode(result))
+        AsyncTestSuite.EndTest("FAILED", "UserDataApi failed: " .. tostring(PlayFabApiTestSuite.testNumber) .. " != " .. tostring(actualValue) .. " Json: " .. json.encode(result))
     end
 end
 
@@ -361,10 +363,91 @@ function PlayFabApiTestSuite.WriteEvent()
             Body = "This is my awesome post."
         }
     }
-    PlayFabClientApi.WritePlayerEvent(writeEventRequest, AsyncTestSuite.WrapCallback("OnLeaderboard", PlayFabApiTestSuite.OnLeaderboard), PlayFabApiTestSuite.OnSharedError)
+    PlayFabClientApi.WritePlayerEvent(writeEventRequest, AsyncTestSuite.WrapCallback("OnWriteEvent", PlayFabApiTestSuite.OnWriteEvent), PlayFabApiTestSuite.OnSharedError)
 end
-function PlayFabApiTestSuite.OnLeaderboard(result)
+function PlayFabApiTestSuite.OnWriteEvent(result)
     AsyncTestSuite.EndTest("PASSED", nil)
+end
+
+--- <summary>
+--- ENTITY API
+--- Verify that a client login can be converted into an entity token
+--- </summary>
+function PlayFabApiTestSuite.GetEntityToken()
+    local getTokenRequest = {
+        -- Currently, you need to look up the correct format for this object in the API-docs:
+        --   https://api.playfab.com/Documentation/Entity/method/GetEntityToken
+    }
+    PlayFabEntityApi.GetEntityToken(getTokenRequest, AsyncTestSuite.WrapCallback("OnGetEntityToken", PlayFabApiTestSuite.OnGetEntityToken), PlayFabApiTestSuite.OnSharedError)
+end
+function PlayFabApiTestSuite.OnGetEntityToken(result)
+    if (result.EntityId) then 
+        PlayFabApiTestSuite.entityId = result.EntityId
+        AsyncTestSuite.EndTest("PASSED", PlayFabApiTestSuite.entityId)
+    else
+        AsyncTestSuite.EndTest("FAILED", "EntityId not found in GetEntityToken result" .. json.encode(result))
+    end
+end
+
+--- <summary>
+--- CLIENT API
+--- Test a sequence of calls that modifies entity objects,
+---   and verifies that the next sequential API call contains updated information.
+--- Verify that the object is correctly modified on the next call.
+--- </summary>
+function PlayFabApiTestSuite.ObjectApi()
+    local getObjRequest = {
+        -- Currently, you need to look up the correct format for this object in the API-docs:
+        --   https://api.playfab.com/Documentation/Entity/method/GetObjects
+        EntityId = PlayFabApiTestSuite.entityId,
+        EntityType = "title_player_account",
+        EscapeObject = true,
+    }
+    PlayFabEntityApi.GetObjects(getObjRequest, AsyncTestSuite.WrapCallback("OnGetObj1", PlayFabApiTestSuite.OnGetObj1), PlayFabApiTestSuite.OnSharedError)
+end
+function PlayFabApiTestSuite.OnGetObj1(result)
+    PlayFabApiTestSuite.testNumber = 0
+    if (result.Objects and result.Objects[1] and result.Objects[1].ObjectName == PlayFabApiTestSuite.TEST_DATA_KEY) then
+        PlayFabApiTestSuite.testNumber = tonumber(result.Objects[1].EscapedDataObject)
+    end
+    PlayFabApiTestSuite.testNumber = (PlayFabApiTestSuite.testNumber + 1) % 100 -- This test is about the expected value changing - but not testing more complicated issues like bounds
+
+    local updateRequest = {
+        -- Currently, you need to look up the correct format for this object in the API-docs:
+        --   https://api.playfab.com/Documentation/Entity/method/SetObjects
+        EntityId = PlayFabApiTestSuite.entityId,
+        EntityType = "title_player_account",
+        Objects = {
+            {
+                ObjectName = PlayFabApiTestSuite.TEST_DATA_KEY,
+                DataObject = PlayFabApiTestSuite.testNumber,
+                Unstructured = true,
+            }
+        },
+    }
+    PlayFabEntityApi.SetObjects(updateRequest, AsyncTestSuite.WrapCallback("OnSetObj", PlayFabApiTestSuite.OnSetObj), PlayFabApiTestSuite.OnSharedError)
+end
+function PlayFabApiTestSuite.OnSetObj(result)
+    local getObjRequest = {
+        -- Currently, you need to look up the correct format for this object in the API-docs:
+        --   https://api.playfab.com/Documentation/Entity/method/GetObjects
+        EntityId = PlayFabApiTestSuite.entityId,
+        EntityType = "title_player_account",
+        EscapeObject = true,
+    }
+    PlayFabEntityApi.GetObjects(getObjRequest, AsyncTestSuite.WrapCallback("OnGetObj2", PlayFabApiTestSuite.OnGetObj2), PlayFabApiTestSuite.OnSharedError)
+end
+function PlayFabApiTestSuite.OnGetObj2(result)
+    local actualValue = -1000
+    if (result.Objects and result.Objects[1] and result.Objects[1].ObjectName == PlayFabApiTestSuite.TEST_DATA_KEY) then
+        actualValue = tonumber(result.Objects[1].EscapedDataObject)
+    end
+    
+    if (actualValue == PlayFabApiTestSuite.testNumber) then
+        AsyncTestSuite.EndTest("PASSED", actualValue)
+    else
+        AsyncTestSuite.EndTest("FAILED", "ObjectApi failed: " .. tostring(PlayFabApiTestSuite.testNumber) .. " != " .. tostring(actualValue) .. " Json: " .. json.encode(result))
+    end
 end
 
 -- TEST SUITE MANAGEMENT SECTION
@@ -382,6 +465,10 @@ function PlayFabApiTestSuite.Start()
     AsyncTestSuite.AddTest("CloudScript", PlayFabApiTestSuite.CloudScript)
     AsyncTestSuite.AddTest("CloudScriptError", PlayFabApiTestSuite.CloudScriptError)
     AsyncTestSuite.AddTest("WriteEvent", PlayFabApiTestSuite.WriteEvent)
+    if (PlayFabEntityApiExists) then
+        AsyncTestSuite.AddTest("GetEntityToken", PlayFabApiTestSuite.GetEntityToken)
+        AsyncTestSuite.AddTest("ObjectApi", PlayFabApiTestSuite.ObjectApi)
+    end
     AsyncTestSuite.BeginTesting()
 end
 

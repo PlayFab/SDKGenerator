@@ -131,34 +131,73 @@ function generateApiSummary(tabbing, apiElement, summaryParam, extraLines) {
     return output;
 }
 
-function getRequestActions(tabbing, apiCall, api) {
-    if (api.name === "Client" && (apiCall.result === "LoginResult" || apiCall.request === "RegisterPlayFabUserRequest"))
-        return tabbing + "request.TitleId = PlayFabSettings.settings.titleId\n"
-            + tabbing + "local externalOnSuccess = onSuccess\n"
+function getRequestActions(tabbing, apiCall) {
+    var requestAction = "";
+
+    if (apiCall.url === "/Authentication/GetEntityToken")
+        requestAction = tabbing + "local authKey = nil\n"
+            + tabbing + "local authValue = nil\n"
+            + tabbing + "if (PlayFabSettings._internalSettings.entityToken) then\n"
+            + tabbing + "    authKey = \"X-EntityToken\"\n"
+            + tabbing + "    authValue = PlayFabSettings._internalSettings.entityToken\n"
+            + tabbing + "end\n"
+            + tabbing + "if (PlayFabSettings._internalSettings.sessionTicket) then\n"
+            + tabbing + "    authKey = \"X-Authorization\"\n"
+            + tabbing + "    authValue = PlayFabSettings._internalSettings.sessionTicket\n"
+            + tabbing + "end\n"
+            + tabbing + "if (PlayFabSettings.settings.devSecretKey) then\n"
+            + tabbing + "    authKey = \"X-SecretKey\"\n"
+            + tabbing + "    authValue = PlayFabSettings.settings.devSecretKey\n"
+            + tabbing + "end\n";
+    else if (apiCall.result === "LoginResult" || apiCall.request === "RegisterPlayFabUserRequest")
+        requestAction = tabbing + "request.TitleId = PlayFabSettings.settings.titleId\n";
+    else if (apiCall.result === "AttributeInstallResult")
+        requestAction = tabbing + "if (not PlayFabClientApi.IsClientLoggedIn()) then error(\"Must be logged in to call this method\") end\n"
+            + tabbing + "PlayFabSettings.settings.advertisingIdType = PlayFabSettings.settings.advertisingIdType .. \"_Successful\"\n";
+    else if (apiCall.auth === "SessionTicket")
+        requestAction = tabbing + "if (not PlayFabClientApi.IsClientLoggedIn()) then error(\"Must be logged in to call this method\") end\n";
+    else if (apiCall.auth === "SecretKey")
+        requestAction = tabbing + "if (not PlayFabSettings.settings.titleId or not PlayFabSettings.settings.devSecretKey) then error(\"Must have PlayFabSettings.settings.devSecretKey set to call this method\") end\n";
+    else if (apiCall.auth === "EntityToken")
+        requestAction = tabbing + "if (not PlayFabSettings.settings.titleId or not PlayFabSettings._internalSettings.entityToken) then error(\"Must call GetEntityToken first, to call this method\") end\n";
+
+    requestAction += getResultAction(tabbing, apiCall);
+    return requestAction;
+}
+
+function getResultAction(tabbing, apiCall) {
+    var preCallback = "";
+    var postCallback = "";
+    var internalTabbing = tabbing + "    ";
+    if (apiCall.url === "/Authentication/GetEntityToken")
+        preCallback = internalTabbing + "PlayFabSettings._internalSettings.entityToken = result.EntityToken\n";
+    else if (apiCall.result === "LoginResult" || apiCall.request === "RegisterPlayFabUserRequest") {
+        preCallback = internalTabbing + "PlayFabSettings._internalSettings.sessionTicket = result.SessionTicket\n";
+        postCallback = internalTabbing + "PlayFabClientApi._MultiStepClientLogin(result.SettingsForUser.NeedsAttribution)\n";
+    }
+
+    var resultAction = "";
+    if (preCallback || postCallback) // Wrap the logic and the callback in a secondary callback wrapper
+        resultAction = "\n" + tabbing + "local externalOnSuccess = onSuccess\n"
             + tabbing + "function wrappedOnSuccess(result)\n"
-            + tabbing + "    PlayFabSettings._internalSettings.sessionTicket = result.SessionTicket\n"
+            + preCallback
             + tabbing + "    if (externalOnSuccess) then\n"
             + tabbing + "        externalOnSuccess(result)\n"
             + tabbing + "    end\n"
-            + tabbing + "    PlayFabClientApi._MultiStepClientLogin(result.SettingsForUser.NeedsAttribution)\n"
+            + postCallback
             + tabbing + "end\n"
             + tabbing + "onSuccess = wrappedOnSuccess\n";
-    if (api.name === "Client" && apiCall.result === "AttributeInstallResult")
-        return tabbing + "if (not PlayFabClientApi.IsClientLoggedIn()) then error(\"Must be logged in to call this method\") end\n"
-            + tabbing + "PlayFabSettings.settings.advertisingIdType = PlayFabSettings.settings.advertisingIdType .. \"_Successful\"\n";
-    if (api.name === "Client" && apiCall.auth === "SessionTicket")
-        return tabbing + "if (not PlayFabClientApi.IsClientLoggedIn()) then error(\"Must be logged in to call this method\") end\n";
-    if (apiCall.auth === "SecretKey")
-        return tabbing + "if (not PlayFabSettings.settings.titleId or not PlayFabSettings.settings.devSecretKey) then error(\"Must have PlayFabSettings.settings.devSecretKey set to call this method\") end\n";
-    return "";
+    return resultAction;
 }
 
 function getAuthentication(apiCall) {
-    if (apiCall.auth === "None")
-        return "nil, nil";
-    else if (apiCall.auth === "SessionTicket")
+    if (apiCall.url === "/Authentication/GetEntityToken")
+        return "authKey, authValue";
+    if (apiCall.auth === "SessionTicket")
         return "\"X-Authorization\", PlayFabSettings._internalSettings.sessionTicket";
     else if (apiCall.auth === "SecretKey")
         return "\"X-SecretKey\", PlayFabSettings.settings.devSecretKey";
-    return "";
+    else if (apiCall.auth === "EntityToken")
+        return "\"X-EntityToken\", PlayFabSettings._internalSettings.entityToken";
+    return "nil, nil";
 }

@@ -12,17 +12,13 @@
 
 local PlayFabSettings = {
     _internalSettings = {
-<% if (hasClientOptions) {
-%>        sessionTicket = nil,
-<% } 
-%>        sdkVersionString = "<%- sdkVersionString %>",
+        sessionTicket = nil,
+        sdkVersionString = "<%- sdkVersionString %>",
         buildIdentifier = "<%- buildIdentifier %>"
     },
     settings = {
-<% if (hasServerOptions) {
-%>        devSecretKey = nil,
-<% }
-if (hasClientOptions) {
+        devSecretKey = nil,
+<% if (hasClientOptions) {
 %>        disableAdvertising = false,
         advertisingIdType = nil,
         advertisingIdValue = nil,

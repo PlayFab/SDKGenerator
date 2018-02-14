@@ -20,7 +20,7 @@ local PlayFabSettings = {
     },
     settings = {
 <% if (hasServerOptions) {
-%>        devSecretKey = nil, -- This should never be assigned in a client distribution
+%>        devSecretKey = nil,
 <% }
 if (hasClientOptions) {
 %>        disableAdvertising = false,

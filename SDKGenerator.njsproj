@@ -445,9 +445,9 @@
     <Content Include="targets\LuaSdk\templates\Corona\PlayFabHttpsCorona.lua.ejs" />
     <Content Include="targets\LuaSdk\templates\Defold\PlayFabSdk.project.ejs" />
     <Content Include="targets\LuaSdk\templates\Defold\PlayFabTestExample.project.ejs" />
-    <Content Include="targets\LuaSdk\templates\IPlayFabHttps.lua.ejs" />
+    <Content Include="targets\LuaSdk\source\IPlayFabHttps.lua.ejs" />
     <Content Include="targets\LuaSdk\templates\PlayFabApi.lua.ejs" />
-    <Content Include="targets\LuaSdk\templates\PlayFabSettings.lua.ejs" />
+    <Content Include="targets\LuaSdk\source\PlayFabSettings.lua.ejs" />
     <Content Include="targets\LumberyardSdk\source\Code\Source\PlayFabDataGatherer.cpp">
       <SubType>Code</SubType>
     </Content>

@@ -22,7 +22,7 @@ namespace JenkinsConsoleUtility.Testing
             var task = PlayFabClientAPI.LoginWithCustomIDAsync(new LoginWithCustomIDRequest { CreateAccount = true, CustomId = TEST_CUSTOM_ID, TitleId = testTitleData.titleId });
             task.Wait();
 
-            testContext.True(PlayFabClientAPI.IsClientLoggedIn(), "User login not successful: " + PlayFabUtil.GetErrorReport(task.Result.Error));
+            testContext.True(PlayFabClientAPI.IsClientLoggedIn(), "User login not successful: " + task.Result.Error?.GenerateErrorReport());
         }
 
         /// <summary>

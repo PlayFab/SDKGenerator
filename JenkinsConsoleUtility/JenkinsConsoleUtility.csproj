@@ -40,6 +40,9 @@
     <Reference Include="Octokit, Version=0.28.0.0, Culture=neutral, processorArchitecture=MSIL">
       <HintPath>packages\Octokit.0.28.0\lib\net45\Octokit.dll</HintPath>
     </Reference>
+    <Reference Include="PlayFabAllSDK, Version=1.0.0.0, Culture=neutral, processorArchitecture=MSIL">
+      <HintPath>packages\PlayFabAllSDK.1.24.180213\lib\portable45-net45+win8+wpa81\PlayFabAllSDK.dll</HintPath>
+    </Reference>
     <Reference Include="System" />
     <Reference Include="System.Core" />
     <Reference Include="System.Web" />
@@ -58,27 +61,6 @@
     <Compile Include="jcuSrc\Commands\VersionVarWriter.cs" />
     <Compile Include="jcuSrc\JenkinsConsoleUtility.cs" />
     <Compile Include="jcuSrc\JUnitXml.cs" />
-    <Compile Include="jcuSrc\source\Json\ISerializer.cs" />
-    <Compile Include="jcuSrc\source\Json\NewtonsoftWrapper.cs" />
-    <Compile Include="jcuSrc\source\Json\SimpleJson.cs" />
-    <Compile Include="jcuSrc\source\PlayFabClientAPI.cs" />
-    <Compile Include="jcuSrc\source\PlayFabClientModels.cs" />
-    <Compile Include="jcuSrc\source\PlayFabErrors.cs" />
-    <Compile Include="jcuSrc\source\PlayFabFileUtil.cs" />
-    <Compile Include="jcuSrc\source\PlayFabHttp\IPlayFabHttp.cs" />
-    <Compile Include="jcuSrc\source\PlayFabHttp\PlayFabHttp.cs" />
-    <Compile Include="jcuSrc\source\PlayFabHttp\PlayFabSysHttp.cs" />
-    <Compile Include="jcuSrc\source\PlayFabHttp\PlayFabWinHttp.cs" />
-    <Compile Include="jcuSrc\source\PlayFabSettings.cs" />
-    <Compile Include="jcuSrc\source\PlayFabUtil.cs" />
-    <Compile Include="jcuSrc\source\Uunit\PlayFabApiTest.cs" />
-    <Compile Include="jcuSrc\source\Uunit\UUnitAssertException.cs" />
-    <Compile Include="jcuSrc\source\Uunit\UUnitIncrementalTestRunner.cs" />
-    <Compile Include="jcuSrc\source\Uunit\UUnitTestCase.cs" />
-    <Compile Include="jcuSrc\source\Uunit\UUnitTestContext.cs" />
-    <Compile Include="jcuSrc\source\Uunit\UUnitTestReport.cs" />
-    <Compile Include="jcuSrc\source\Uunit\UUnitTestSuite.cs" />
-    <Compile Include="jcuSrc\source\wsaReflectionExtensions.cs" />
     <Compile Include="jcuSrc\Testing\CloudScriptTests.cs" />
     <Compile Include="jcuSrc\Commands\TestingCommand.cs" />
     <Compile Include="jcuSrc\Testing\TestJsonReportSyntax.cs" />

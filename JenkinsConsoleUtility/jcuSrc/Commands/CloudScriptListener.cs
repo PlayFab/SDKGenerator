@@ -75,7 +75,7 @@ namespace JenkinsConsoleUtility.Commands
             if (returnCode != 0)
             {
                 JenkinsConsoleUtility.FancyWriteToConsole("Failed to log in using CustomID: " + titleId + ", " + buildIdentifier, null, ConsoleColor.Red);
-                JenkinsConsoleUtility.FancyWriteToConsole(PlayFabUtil.GetErrorReport(task.Result.Error), null, ConsoleColor.Red);
+                JenkinsConsoleUtility.FancyWriteToConsole(task.Result.Error?.GenerateErrorReport(), null, ConsoleColor.Red);
             }
             else
             {

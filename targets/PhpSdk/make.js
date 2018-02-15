@@ -1,51 +1,56 @@
 var path = require("path");
 
 // Making resharper less noisy - These are defined in Generate.js
-if (typeof (copyTree) === "undefined") copyTree = function () { };
 if (typeof (generateApiSummaryLines) === "undefined") generateApiSummaryLines = function () { };
 if (typeof (getCompiledTemplate) === "undefined") getCompiledTemplate = function () { };
+if (typeof (templatizeTree) === "undefined") templatizeTree = function () { };
 
 exports.makeCombinedAPI = function (apis, sourceDir, apiOutputDir) {
     console.log("Generating Combined api from: " + sourceDir + " to: " + apiOutputDir);
-    copyTree(path.resolve(sourceDir, "source"), apiOutputDir);
-    for (var i = 0; i < apis.length; i++)
-        makeApi(apis[i], sourceDir, apiOutputDir);
-}
 
-//function MakeSimpleFiles(apis, sourceDir, apiOutputDir) {
-//}
+    var locals = {
+        sdkVersion: exports.sdkVersion
+    };
+
+    templatizeTree(locals, path.resolve(sourceDir, "source"), apiOutputDir);
+    for (var a = 0; a < apis.length; a++)
+        makeApi(apis[a], sourceDir, apiOutputDir);
+}
 
 function makeApi(api, sourceDir, apiOutputDir) {
     var locals = {
         api: api,
         sdkVersion: exports.sdkVersion,
         generateApiSummary: generateApiSummary,
-        GetAuthKey: GetAuthKey,
-        GetRequestActions: GetRequestActions
+        getAuthKey: getAuthKey,
+        getRequestActions: getRequestActions
     };
-    
-    var template = getCompiledTemplate(path.resolve(sourceDir, "templates/PlayFabApi.php.ejs"));
-    var generatedTemplateText = template(locals);
-    writeFile(path.resolve(apiOutputDir, "PlayFab" + api.name + "Api.php"), generatedTemplateText);
+
+    var apiTemplate = getCompiledTemplate(path.resolve(sourceDir, "templates/PlayFabApi.php.ejs"));
+    writeFile(path.resolve(apiOutputDir, "PlayFab" + api.name + "Api.php"), apiTemplate(locals));
 }
 
-function GetAuthKey(apiCall) {
+function getAuthKey(apiCall) {
     if (apiCall.auth === "SecretKey")
         return "\"X-SecretKey\"";
     else if (apiCall.auth === "SessionTicket")
         return "\"X-Authentication\"";
+    else if (apiCall.auth === "EntityToken")
+        return "\"X-EntityToken\"";
     return "null";
 }
 
-function GetRequestActions(tabbing, apiCall, api) {
-    if (api.name === "Client" && (apiCall.result === "LoginResult" || apiCall.request === "RegisterPlayFabUserRequest"))
-        return tabbing + "if (!isset($titleId)) $titleId = PlayFabSettings::$titleId;\n" 
+function getRequestActions(tabbing, apiCall) {
+    if (apiCall.result === "LoginResult" || apiCall.request === "RegisterPlayFabUserRequest")
+        return tabbing + "if (!isset($titleId)) $titleId = PlayFabSettings::$titleId;\n"
             + tabbing + "if (!isset($request->$titleId)) !$request->titleId = $titleId;\n";
-    if (api.name === "Client" && apiCall.auth === "SessionTicket")
+    if (apiCall.auth === "SessionTicket")
         return tabbing + "//TODO: Check the sessionTicket\n";
     if (apiCall.auth === "SecretKey")
         return tabbing + "//TODO: Check the devSecretKey\n";
-    
+    if (apiCall.auth === "EntityToken")
+        return tabbing + "//TODO: Check the entityToken\n";
+
     return "";
 }
 
@@ -53,12 +58,11 @@ function generateApiSummary(tabbing, apiElement, summaryParam, extraLines) {
     var lines = generateApiSummaryLines(apiElement, summaryParam, extraLines);
 
     var output;
-    if (lines.length === 1 && lines[0]) {
+    if (lines.length === 1 && lines[0])
         output = tabbing + "/// <summary>\n" + tabbing + "/// " + lines.join("\n" + tabbing + "/// ") + "\n" + tabbing + "/// </summary>\n";
-    } else if (lines.length > 0) {
+    else if (lines.length > 0)
         output = tabbing + "/// <summary>\n" + tabbing + "/// " + lines.join("\n" + tabbing + "/// ") + "\n" + tabbing + "/// </summary>\n";
-    } else {
+    else
         output = "";
-    }
     return output;
 }

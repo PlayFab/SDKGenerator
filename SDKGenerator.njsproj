@@ -480,7 +480,7 @@
     <Content Include="targets\LumberyardSdk\testingSource\preview.png" />
     <Content Include="targets\newTarget\source\exampleSourceFile.txt" />
     <Content Include="targets\newTarget\templates\exampleTemplate.txt.ejs" />
-    <Content Include="targets\PhpSdk\source\PlayFabHttp.php" />
+    <Content Include="targets\PhpSdk\source\PlayFabHttp.php.ejs" />
     <Content Include="targets\PhpSdk\templates\PlayFabApi.php.ejs" />
     <Content Include="targets\postman\replacements.json" />
     <Content Include="targets\postman\templates\playfab.json.ejs" />

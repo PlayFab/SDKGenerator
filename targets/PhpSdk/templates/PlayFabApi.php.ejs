@@ -7,8 +7,8 @@ class PlayFab<%- api.name %>Api
 %><%- generateApiSummary("    ", apiCall, "summary", "https://api.playfab.com/Documentation/" + api.name + "/method/" + apiCall.name)
 %>    public static function <%- apiCall.name %>($titleId, $authValue, $request)
     {
-<%- GetRequestActions("        ", apiCall, api) %>
-        $result = PlayFabHttp::MakeCurlApiCall($titleId, "<%- apiCall.url %>", $request, <%- GetAuthKey(apiCall, api) %>, $authValue);
+<%- getRequestActions("        ", apiCall) %>
+        $result = PlayFabHttp::MakeCurlApiCall($titleId, "<%- apiCall.url %>", $request, <%- getAuthKey(apiCall, api) %>, $authValue);
         return $result;
     }
 

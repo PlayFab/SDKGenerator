@@ -70,17 +70,6 @@
     <DebugSymbols>true</DebugSymbols>
     <OutputPath>bin\</OutputPath>
     <ScriptArguments>LumberyardSdk=..\sdks\LumberyardSDK -apiSpecPath -buildIdentifier LumberyardSdk_manual</ScriptArguments>
-    <TypeScriptTarget>ES6</TypeScriptTarget>
-    <TypeScriptJSXEmit>None</TypeScriptJSXEmit>
-    <TypeScriptCompileOnSaveEnabled>True</TypeScriptCompileOnSaveEnabled>
-    <TypeScriptNoImplicitAny>False</TypeScriptNoImplicitAny>
-    <TypeScriptRemoveComments>False</TypeScriptRemoveComments>
-    <TypeScriptOutFile />
-    <TypeScriptOutDir />
-    <TypeScriptGeneratesDeclarations>False</TypeScriptGeneratesDeclarations>
-    <TypeScriptNoEmitOnError>True</TypeScriptNoEmitOnError>
-    <TypeScriptMapRoot />
-    <TypeScriptSourceRoot />
   </PropertyGroup>
   <PropertyGroup Condition=" '$(Configuration)' == 'NodeSDK' ">
     <DebugSymbols>true</DebugSymbols>
@@ -120,7 +109,7 @@
   <PropertyGroup Condition=" '$(Configuration)' == 'UnrealCppSdk' ">
     <DebugSymbols>true</DebugSymbols>
     <OutputPath>bin\</OutputPath>
-    <ScriptArguments>cpp-ue4=..\sdks\UnrealCppSdk -flags nonnullable -apiSpecGitUrl https://raw.githubusercontent.com/PlayFab/API_Specs/automated/  -buildIdentifier JBuild_UnrealCppSdk_0</ScriptArguments>
+    <ScriptArguments>cpp-ue4=..\sdks\UnrealCppSdk -flags nonnullable -apiSpecPath -buildIdentifier UnrealCppSDK_manual</ScriptArguments>
   </PropertyGroup>
   <PropertyGroup Condition=" '$(Configuration)' == 'WindowsSDK' ">
     <DebugSymbols>true</DebugSymbols>
@@ -448,12 +437,8 @@
     <Content Include="targets\LuaSdk\source\IPlayFabHttps.lua.ejs" />
     <Content Include="targets\LuaSdk\templates\PlayFabApi.lua.ejs" />
     <Content Include="targets\LuaSdk\source\PlayFabSettings.lua.ejs" />
-    <Content Include="targets\LumberyardSdk\source\Code\Source\PlayFabDataGatherer.cpp">
-      <SubType>Code</SubType>
-    </Content>
-    <Content Include="targets\LumberyardSdk\templates\Code\Source\PlayFabDataGatherer.h.ejs">
-      <SubType>Code</SubType>
-    </Content>
+    <Content Include="targets\LumberyardSdk\source\Code\Source\PlayFabDataGatherer.cpp" />
+    <Content Include="targets\LumberyardSdk\templates\Code\Source\PlayFabDataGatherer.h.ejs" />
     <Content Include="targets\LumberyardSdk\templates\Code\Include\PlayFab_Sdk\PlayFabBaseModel.h.ejs" />
     <Content Include="targets\LumberyardSdk\templates\Code\Include\PlayFab_Sdk\PlayFabHttp.h.ejs" />
     <Content Include="targets\LumberyardSdk\templates\Code\Include\PlayFab_Sdk\PlayFab_SettingsBus.h.ejs" />
@@ -701,9 +686,7 @@
     <Content Include="targets\unity-v2\Testing\scenes\testscene.unity.meta" />
     <Content Include="targets\unity-v2\Testing\Tests\Client\ClientApiTests.cs" />
     <Content Include="targets\unity-v2\Testing\Tests\Client\ClientEventTests.cs" />
-    <Content Include="targets\unity-v2\Testing\Tests\Entity\EntityApiTests.cs">
-      <SubType>Code</SubType>
-    </Content>
+    <Content Include="targets\unity-v2\Testing\Tests\Entity\EntityApiTests.cs" />
     <Content Include="targets\unity-v2\Testing\Tests\Server\PlayStream\PlayStreamApiTests.cs" />
     <Content Include="targets\unity-v2\Testing\Tests\Server\ServerApiTests.cs" />
     <Content Include="targets\unity-v2\Testing\Tests\Shared\TestTitleDataLoader.cs" />

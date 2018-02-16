@@ -5,12 +5,12 @@ class PlayFab<%- api.name %>Api
 {
 <% for(var i in api.calls) { var apiCall = api.calls[i];
 %><%- generateApiSummary("    ", apiCall, "summary", "https://api.playfab.com/Documentation/" + api.name + "/method/" + apiCall.name)
-%>    public static function <%- apiCall.name %>($titleId, $authValue, $request)
+%>    public static function <%- apiCall.name %>($titleId, <%- getAuthInputParams(apiCall) %>$request)
     {
 <%- getRequestActions("        ", apiCall) %>
-        $result = PlayFabHttp::MakeCurlApiCall($titleId, "<%- apiCall.url %>", $request, <%- getAuthKey(apiCall, api) %>, $authValue);
+        $result = PlayFabHttp::MakeCurlApiCall($titleId, "<%- apiCall.url %>", $request, <%- getCurlAuthParams(apiCall) %>);
         return $result;
     }
-
+<%- getCustomApiSignatures(api, sourceDir, apiCall) %>
 <% } %>}
 ?>

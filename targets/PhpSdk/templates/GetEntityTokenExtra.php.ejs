@@ -1,0 +1,24 @@
+<% var spoofedApiCall = { auth: "EntityToken" }; %>
+<%- generateApiSummary("    ", apiCall, "summary", "https://api.playfab.com/Documentation/" + api.name + "/method/" + apiCall.name)
+%>    public static function <%- apiCall.name %>WithEntityToken($titleId, <%- getAuthInputParams(spoofedApiCall) %>$request)
+    {
+<%- getRequestActions("        ", spoofedApiCall) %>
+        $result = PlayFabHttp::MakeCurlApiCall($titleId, "<%- apiCall.url %>", $request, <%- getCurlAuthParams(spoofedApiCall) %>);
+        return $result;
+    }
+<% spoofedApiCall = { auth: "SessionTicket" }; %>
+<%- generateApiSummary("    ", apiCall, "summary", "https://api.playfab.com/Documentation/" + api.name + "/method/" + apiCall.name)
+%>    public static function <%- apiCall.name %>WithSessionTicket($titleId, <%- getAuthInputParams(spoofedApiCall) %>$request)
+    {
+<%- getRequestActions("        ", spoofedApiCall) %>
+        $result = PlayFabHttp::GetEntityToken($titleId, "<%- apiCall.url %>", $request, <%- getCurlAuthParams(spoofedApiCall) %>);
+        return $result;
+    }
+<% spoofedApiCall = { auth: "SecretKey" }; %>
+<%- generateApiSummary("    ", apiCall, "summary", "https://api.playfab.com/Documentation/" + api.name + "/method/" + apiCall.name)
+%>    public static function <%- apiCall.name %>WithSecretKey($titleId, <%- getAuthInputParams(spoofedApiCall) %>$request)
+    {
+<%- getRequestActions("        ", spoofedApiCall) %>
+        $result = PlayFabHttp::GetEntityToken($titleId, "<%- apiCall.url %>", $request, <%- getCurlAuthParams(spoofedApiCall) %>);
+        return $result;
+    }

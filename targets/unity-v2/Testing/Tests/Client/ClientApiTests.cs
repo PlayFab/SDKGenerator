@@ -7,13 +7,6 @@ using PlayFab.Internal;
 
 namespace PlayFab.UUnit
 {
-    /// <summary>
-    /// A real system would potentially run only the client or server API, and not both.
-    /// But, they still interact with eachother directly.
-    /// The tests can't be independent for Client/Server, as the sequence of calls isn't really independent for real-world scenarios.
-    /// The client logs in, which triggers a server, and then back and forth.
-    /// For the purpose of testing, they each have pieces of information they share with one another, and that sharing makes various calls possible.
-    /// </summary>
     public class ClientApiTests : UUnitTestCase
     {
         private Action _tickAction = null;

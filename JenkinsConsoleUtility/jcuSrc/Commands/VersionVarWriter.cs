@@ -126,6 +126,7 @@ namespace JenkinsConsoleUtility.Commands
                 case "unitysdk": case "unitypsn": case "unityxbox": case "unitybeta": case "unityeditorextensions": return "unity-v2";
                 case "unrealblueprintsdk": case "uebppsnsdk": case "uebpxboxsdk": return "cpp-unreal";
                 case "unrealcppsdk": case "uecpppsnsdk": case "uecppxboxsdk": return "cpp-ue4";
+                case "windowssdk": case "winbetasdk": case "winpsnsdk": case "winxboxsdk": return "windowssdk";
 
                 default: return sdkName.ToLower(); // Most new sdks have matching names
             }

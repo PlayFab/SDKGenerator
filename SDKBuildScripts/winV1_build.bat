@@ -7,3 +7,4 @@ rem === BUILDING WindowsSDK with params %* ===
 node generate.js windowssdk=..\sdks\WindowsSDK %*
 )
 popd
+pause

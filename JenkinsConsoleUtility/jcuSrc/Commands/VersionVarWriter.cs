@@ -112,20 +112,21 @@ namespace JenkinsConsoleUtility.Commands
         {
             switch (sdkName.ToLower())
             {
+                // TODO: Move this to Api_Specs Json file
                 // Single repo maps to mismatched foldername
                 case "actionscriptsdk": return "actionscript";
                 case "cocos2d-xsdk": return "cpp-cocos2dx";
-                case "csharpsdk": return "csharp";
                 case "javascriptsdk": return "javascript";
                 case "javasdk": return "java";
                 case "objective_c_sdk": return "objc";
                 case "playfabgameserver": return "csharp-unity-gameserver";
                 // Multiple repos map to the same folder
+                case "csharpsdk": case "csharpbetasdk": return "csharp";
                 case "nodesdk": case "nodebetasdk": return "js-node";
                 case "postmancollection": case "postmanbeta": return "postman";
                 case "unitysdk": case "unitypsn": case "unityxbox": case "unitybeta": case "unityeditorextensions": return "unity-v2";
-                case "unrealblueprintsdk": case "uebppsnsdk": case "uebpxboxsdk": return "cpp-unreal";
-                case "unrealcppsdk": case "uecpppsnsdk": case "uecppxboxsdk": return "cpp-ue4";
+                case "unrealblueprintsdk": case "uebpbetasdk": case "uebppsnsdk": case "uebpxboxsdk": return "cpp-unreal";
+                case "unrealcppsdk": case "uecppbetasdk": case "uecpppsnsdk": case "uecppxboxsdk": return "cpp-ue4";
                 case "windowssdk": case "winbetasdk": case "winpsnsdk": case "winxboxsdk": return "windowssdk";
 
                 default: return sdkName.ToLower(); // Most new sdks have matching names

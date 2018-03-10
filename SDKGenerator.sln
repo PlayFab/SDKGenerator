@@ -1,7 +1,7 @@
 ﻿
 Microsoft Visual Studio Solution File, Format Version 12.00
-# Visual Studio 14
-VisualStudioVersion = 14.0.25420.1
+# Visual Studio 15
+VisualStudioVersion = 15.0.27130.2027
 MinimumVisualStudioVersion = 10.0.40219.1
 Project("{9092AA53-FB77-4645-B42D-1CCCA6BD08BD}") = "SDKGenerator", "SDKGenerator.njsproj", "{2BA807EF-310C-43B5-8D42-1ABCFFF39BE9}"
 EndProject
@@ -9,9 +9,9 @@ Global
 	GlobalSection(SolutionConfigurationPlatforms) = preSolution
 		ActionScriptSDK|Any CPU = ActionScriptSDK|Any CPU
 		CloudScript|Any CPU = CloudScript|Any CPU
+		CocosSDK|Any CPU = CocosSDK|Any CPU
 		CSharpFlat|Any CPU = CSharpFlat|Any CPU
 		CSharpSDK|Any CPU = CSharpSDK|Any CPU
-		CocosSDK|Any CPU = CocosSDK|Any CPU
 		JavaScriptSDK|Any CPU = JavaScriptSDK|Any CPU
 		JavaSDK|Any CPU = JavaSDK|Any CPU
 		LuaSdk|Any CPU = LuaSdk|Any CPU
@@ -31,12 +31,12 @@ Global
 		{2BA807EF-310C-43B5-8D42-1ABCFFF39BE9}.ActionScriptSDK|Any CPU.Build.0 = ActionScriptSDK|Any CPU
 		{2BA807EF-310C-43B5-8D42-1ABCFFF39BE9}.CloudScript|Any CPU.ActiveCfg = CloudScript|Any CPU
 		{2BA807EF-310C-43B5-8D42-1ABCFFF39BE9}.CloudScript|Any CPU.Build.0 = CloudScript|Any CPU
+		{2BA807EF-310C-43B5-8D42-1ABCFFF39BE9}.CocosSDK|Any CPU.ActiveCfg = CocosSDK|Any CPU
+		{2BA807EF-310C-43B5-8D42-1ABCFFF39BE9}.CocosSDK|Any CPU.Build.0 = CocosSDK|Any CPU
 		{2BA807EF-310C-43B5-8D42-1ABCFFF39BE9}.CSharpFlat|Any CPU.ActiveCfg = CSharpFlat|Any CPU
 		{2BA807EF-310C-43B5-8D42-1ABCFFF39BE9}.CSharpFlat|Any CPU.Build.0 = CSharpFlat|Any CPU
 		{2BA807EF-310C-43B5-8D42-1ABCFFF39BE9}.CSharpSDK|Any CPU.ActiveCfg = CSharpSDK|Any CPU
 		{2BA807EF-310C-43B5-8D42-1ABCFFF39BE9}.CSharpSDK|Any CPU.Build.0 = CSharpSDK|Any CPU
-		{2BA807EF-310C-43B5-8D42-1ABCFFF39BE9}.CocosSDK|Any CPU.ActiveCfg = CocosSDK|Any CPU
-		{2BA807EF-310C-43B5-8D42-1ABCFFF39BE9}.CocosSDK|Any CPU.Build.0 = CocosSDK|Any CPU
 		{2BA807EF-310C-43B5-8D42-1ABCFFF39BE9}.JavaScriptSDK|Any CPU.ActiveCfg = JavaScriptSDK|Any CPU
 		{2BA807EF-310C-43B5-8D42-1ABCFFF39BE9}.JavaScriptSDK|Any CPU.Build.0 = JavaScriptSDK|Any CPU
 		{2BA807EF-310C-43B5-8D42-1ABCFFF39BE9}.JavaSDK|Any CPU.ActiveCfg = JavaSDK|Any CPU
@@ -66,5 +66,8 @@ Global
 	EndGlobalSection
 	GlobalSection(SolutionProperties) = preSolution
 		HideSolutionNode = FALSE
+	EndGlobalSection
+	GlobalSection(ExtensibilityGlobals) = postSolution
+		SolutionGuid = {937AC6EB-1240-45B8-8172-8011EB4E262B}
 	EndGlobalSection
 EndGlobal

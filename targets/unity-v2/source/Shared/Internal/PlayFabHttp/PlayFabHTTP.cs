@@ -214,9 +214,15 @@ namespace PlayFab.Internal
             var logRes = result as ClientModels.LoginResult;
             var regRes = result as ClientModels.RegisterPlayFabUserResult;
             if (logRes != null)
+            {
                 _internalHttp.AuthKey = logRes.SessionTicket;
+                if (logRes.EntityToken != null)
+                    _internalHttp.EntityToken = logRes.EntityToken.EntityToken;
+            }
             else if (regRes != null)
+            {
                 _internalHttp.AuthKey = regRes.SessionTicket;
+            }
 #endif
         }
 

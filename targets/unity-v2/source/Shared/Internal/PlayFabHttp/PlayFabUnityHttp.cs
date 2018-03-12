@@ -23,6 +23,44 @@ namespace PlayFab.Internal
 
         public void OnDestroy() { }
 
+        public void SimpleGetCall(string fullUrl, Action<byte[]> successCallback, Action<string> errorCallback)
+        {
+            PlayFabHttp.instance.StartCoroutine(SimpleCallCoroutine(fullUrl, null, successCallback, errorCallback));
+        }
+
+        public void SimplePutCall(string fullUrl, byte[] payload, Action successCallback, Action<string> errorCallback)
+        {
+            PlayFabHttp.instance.StartCoroutine(SimpleCallCoroutine(fullUrl, payload, (result) => { successCallback(); }, errorCallback));
+        }
+
+        private static IEnumerator SimpleCallCoroutine(string fullUrl, byte[] payload, Action<byte[]> successCallback, Action<string> errorCallback)
+        {
+            if (payload == null)
+            {
+                var www = new UnityWebRequest(fullUrl)
+                {
+                    downloadHandler = new DownloadHandlerBuffer(),
+                    method = "POST"
+                };
+                yield return www;
+                if (!string.IsNullOrEmpty(www.error))
+                    errorCallback(www.error);
+                else
+                    successCallback(www.downloadHandler.data);
+            }
+            else
+            {
+                var putRequest = UnityWebRequest.Put(fullUrl, payload);
+                putRequest.SendWebRequest();
+                while (putRequest.uploadProgress < 1 && putRequest.downloadProgress < 1)
+                    yield return 1;
+                if (!string.IsNullOrEmpty(putRequest.error))
+                    errorCallback(putRequest.error);
+                else
+                    successCallback(null);
+            }
+        }
+
         public void MakeApiCall(CallRequestContainer reqContainer)
         {
             reqContainer.RequestHeaders["Content-Type"] = "application/json";

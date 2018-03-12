@@ -139,7 +139,7 @@ namespace PlayFab.UUnit
             var actualInteger = int.Parse(result.Objects[TEST_OBJ_NAME].EscapedDataObject);
             testContext.IntEquals(_testInteger, actualInteger, "Entity Object was not updated: " + actualInteger + "!=" + _testInteger);
 
-            testContext.EndTest(UUnitFinishState.PASSED, null);
+            testContext.EndTest(UUnitFinishState.PASSED, actualInteger.ToString());
         }
     }
 }

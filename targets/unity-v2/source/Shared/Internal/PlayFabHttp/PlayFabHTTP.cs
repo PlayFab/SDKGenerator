@@ -133,6 +133,19 @@ namespace PlayFab.Internal
         }
 #endif
 
+        public static void SimpleGetCall(string fullUrl, Action<byte[]> successCallback, Action<string> errorCallback)
+        {
+            InitializeHttp();
+            _internalHttp.SimpleGetCall(fullUrl, successCallback, errorCallback);
+        }
+
+
+        public static void SimplePutCall(string fullUrl, byte[] payload, Action successCallback, Action<string> errorCallback)
+        {
+            InitializeHttp();
+            _internalHttp.SimplePutCall(fullUrl, payload, successCallback, errorCallback);
+        }
+
         /// <summary>
         /// Internal method for Make API Calls
         /// </summary>
@@ -222,6 +235,8 @@ namespace PlayFab.Internal
             else if (regRes != null)
             {
                 _internalHttp.AuthKey = regRes.SessionTicket;
+                //if (regRes.EntityToken != null)
+                //    _internalHttp.EntityToken = logRes.EntityToken.EntityToken;
             }
 #endif
         }

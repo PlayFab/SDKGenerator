@@ -242,7 +242,7 @@ namespace PlayFab.UUnit
             testContext.True(minTest <= timeUpdated && timeUpdated <= maxTest);
 
             testContext.True(Math.Abs((DateTime.UtcNow - timeUpdated).TotalMinutes) < 5); // Make sure that this timestamp is recent - This must also account for the difference between local machine time and server time
-            testContext.EndTest(UUnitFinishState.PASSED, null);
+            testContext.EndTest(UUnitFinishState.PASSED, actualValue.ToString());
         }
 
         /// <summary>
@@ -293,7 +293,7 @@ namespace PlayFab.UUnit
                     actualValue = eachStat.Value;
             testContext.IntEquals(_testInteger, actualValue);
 
-            testContext.EndTest(UUnitFinishState.PASSED, null);
+            testContext.EndTest(UUnitFinishState.PASSED, actualValue.ToString());
         }
 
         /// <summary>

@@ -33,7 +33,7 @@ namespace PlayFab
 <% for(var i in api.calls) { var apiCall = api.calls[i]; %><%- generateApiSummary("        ", apiCall, "summary") %><%- getDeprecationAttribute("        ", apiCall)
 %>        public static void <%- apiCall.name %>(<%- apiCall.request %> request, Action<<%- apiCall.result %>> resultCallback, Action<PlayFabError> errorCallback, object customData = null, Dictionary<string, string> extraHeaders = null)
         {
-<%- getRequestActions("            ", apiCall, api) %>
+<%- getRequestActions("            ", apiCall) %>
             PlayFabHttp.MakeApiCall("<%- apiCall.url %>", request, <%- getAuthParams(apiCall) %>, resultCallback, errorCallback, customData, extraHeaders);
         }<%- getCustomApiFunction("        ", apiCall) %>
 

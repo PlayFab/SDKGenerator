@@ -34,7 +34,7 @@ function makeTestingFiles(apis, sourceDir, apiOutputDir) {
 function makeApiEventFiles(api, sourceDir, apiOutputDir) {
     var apiLocals = {
         api: api,
-        getApiDefineFlag: getApiDefineFlag,
+        getApiDefineFlag: getApiDefineFlag
     };
 
     var apiTemplate = getCompiledTemplate(path.resolve(sourceDir, "templates", "PlayFabEvents.cs.ejs"));
@@ -367,8 +367,8 @@ function getAuthParams(apiCall) {
     return "AuthType.None";
 }
 
-function getRequestActions(tabbing, apiCall, api) {
-    if (api.name === "Entity" && (apiCall.name === "GetEntityToken"))
+function getRequestActions(tabbing, apiCall) {
+    if (apiCall.name === "GetEntityToken")
         return tabbing + "AuthType authType = AuthType.None;\n" +
             "#if !DISABLE_PLAYFABCLIENT_API\n" +
             tabbing + "if (authType == AuthType.None && PlayFabClientAPI.IsClientLoggedIn())\n" +
@@ -377,10 +377,7 @@ function getRequestActions(tabbing, apiCall, api) {
             tabbing + "if (authType == AuthType.None && !string.IsNullOrEmpty(PlayFabSettings.DeveloperSecretKey))\n" +
             tabbing + "    authType = AuthType.DevSecretKey;\n";
 
-    if (api.name === "Client" && (apiCall.result === "LoginResult" || apiCall.request === "RegisterPlayFabUserRequest"))
-        return tabbing + "request.TitleId = request.TitleId ?? PlayFabSettings.TitleId;\n"
-            + tabbing + "if (request.TitleId == null) throw new PlayFabException(PlayFabExceptionCode.TitleNotSet,\"Must be have PlayFabSettings.TitleId set to call this method\");\n";
-    if (api.name === "Client" && apiCall.auth === "SessionTicket")
+    if (apiCall.auth === "SessionTicket")
         return tabbing + "if (!IsClientLoggedIn()) throw new PlayFabException(PlayFabExceptionCode.NotLoggedIn,\"Must be logged in to call this method\");\n";
     if (apiCall.auth === "SecretKey")
         return tabbing + "if (PlayFabSettings.DeveloperSecretKey == null) throw new PlayFabException(PlayFabExceptionCode.DeveloperKeyNotSet,\"Must have PlayFabSettings.DeveloperSecretKey set to call this method\");\n";

@@ -72,6 +72,8 @@ namespace PlayFab.Internal
         /// </summary>
         public static void InitializeHttp()
         {
+            if (string.IsNullOrEmpty(PlayFabSettings.TitleId))
+                throw new PlayFabException(PlayFabExceptionCode.TitleNotSet, "You must set PlayFabSettings.TitleId before making API Calls.");
             if (_internalHttp != null)
                 return;
 

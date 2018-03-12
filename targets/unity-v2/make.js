@@ -377,6 +377,8 @@ function getRequestActions(tabbing, apiCall) {
             tabbing + "if (authType == AuthType.None && !string.IsNullOrEmpty(PlayFabSettings.DeveloperSecretKey))\n" +
             tabbing + "    authType = AuthType.DevSecretKey;\n";
 
+    if (apiCall.result === "LoginResult" || apiCall.request === "RegisterPlayFabUserRequest")
+        return tabbing + "request.TitleId = request.TitleId ?? PlayFabSettings.TitleId;\n";
     if (apiCall.auth === "SessionTicket")
         return tabbing + "if (!IsClientLoggedIn()) throw new PlayFabException(PlayFabExceptionCode.NotLoggedIn,\"Must be logged in to call this method\");\n";
     if (apiCall.auth === "SecretKey")

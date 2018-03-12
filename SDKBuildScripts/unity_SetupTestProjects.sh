@@ -105,7 +105,7 @@ MainScript () {
     if [ $? -ne 0 ]; then return 1; fi
     DoWorkTesting "${SdkName}_TS" "ENABLE_PLAYFABSERVER_API;DISABLE_PLAYFABCLIENT_API;ENABLE_PLAYFABENTITY_API"
     if [ $? -ne 0 ]; then return 1; fi
-    DoWorkTesting "${SdkName}_TZ" "ENABLE_PLAYFABADMIN_API;ENABLE_PLAYFABSERVER_API;ENABLE_PLAYFABENTITY_API"
+    DoWorkTesting "${SdkName}_TZ" "ENABLE_PLAYFABADMIN_API;ENABLE_PLAYFABSERVER_API;ENABLE_PLAYFABMATCHMAKER_API;ENABLE_PLAYFABENTITY_API"
     if [ $? -ne 0 ]; then return 1; fi
 }
 

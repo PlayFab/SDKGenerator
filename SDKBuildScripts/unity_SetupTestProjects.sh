@@ -112,7 +112,7 @@ MainScript () {
 CheckDefault WORKSPACE C:/proj
 CheckDefault SHARED_WORKSPACE C:/depot
 CheckDefault SdkName UnitySDK
-CheckDefault UNITY_VERSION Unity171
+CheckDefault UNITY_VERSION Unity173
 
 # MainScript <all command line args for script>
 MainScript "$@"

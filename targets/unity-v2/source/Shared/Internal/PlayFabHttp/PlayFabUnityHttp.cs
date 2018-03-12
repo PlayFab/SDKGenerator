@@ -51,7 +51,11 @@ namespace PlayFab.Internal
             else
             {
                 var putRequest = UnityWebRequest.Put(fullUrl, payload);
+#if UNITY_2017_2_OR_NEWER
                 putRequest.SendWebRequest();
+#else
+                putRequest.Send();
+#endif
                 while (putRequest.uploadProgress < 1 && putRequest.downloadProgress < 1)
                     yield return 1;
                 if (!string.IsNullOrEmpty(putRequest.error))
@@ -104,7 +108,11 @@ namespace PlayFab.Internal
             foreach (var headerPair in reqContainer.RequestHeaders)
                 www.SetRequestHeader(headerPair.Key, headerPair.Value);
 
+#if UNITY_2017_2_OR_NEWER
             yield return www.SendWebRequest();
+#else
+            yield return www.Send();
+#endif
 
 #if PLAYFAB_REQUEST_TIMING
             stopwatch.Stop();

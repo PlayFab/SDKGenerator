@@ -4,7 +4,11 @@ using System.IO;
 using PlayFab.Json;
 using PlayFab.SharedModels;
 using UnityEngine;
+#if UNITY_5_4_OR_NEWER
 using UnityEngine.Networking;
+#else
+using UnityEngine.Experimental.Networking;
+#endif
 #if !UNITY_WSA && !UNITY_WP8
 using Ionic.Zlib;
 #endif
@@ -46,7 +50,11 @@ namespace PlayFab.Internal
             else
             {
                 var putRequest = UnityWebRequest.Put(fullUrl, payload);
+#if UNITY_2017_2_OR_NEWER
                 putRequest.SendWebRequest();
+#else
+                putRequest.Send();
+#endif
                 while (putRequest.uploadProgress < 1 && putRequest.downloadProgress < 1)
                     yield return 1;
                 if (!string.IsNullOrEmpty(putRequest.error))

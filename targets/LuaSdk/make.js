@@ -171,7 +171,12 @@ function getResultAction(tabbing, apiCall) {
     var internalTabbing = tabbing + "    ";
     if (apiCall.url === "/Authentication/GetEntityToken")
         preCallback = internalTabbing + "PlayFabSettings._internalSettings.entityToken = result.EntityToken\n";
-    else if (apiCall.result === "LoginResult" || apiCall.request === "RegisterPlayFabUserRequest") {
+    else if (apiCall.result === "LoginResult") {
+        preCallback = internalTabbing + "PlayFabSettings._internalSettings.sessionTicket = result.SessionTicket\n"
+            + internalTabbing + "if (result.Entity) then PlayFabSettings._internalSettings.entityToken = result.Entity.EntityToken end\n";
+        postCallback = internalTabbing + "PlayFabClientApi._MultiStepClientLogin(result.SettingsForUser.NeedsAttribution)\n";
+    }
+    else if (apiCall.request === "RegisterPlayFabUserRequest") {
         preCallback = internalTabbing + "PlayFabSettings._internalSettings.sessionTicket = result.SessionTicket\n";
         postCallback = internalTabbing + "PlayFabClientApi._MultiStepClientLogin(result.SettingsForUser.NeedsAttribution)\n";
     }

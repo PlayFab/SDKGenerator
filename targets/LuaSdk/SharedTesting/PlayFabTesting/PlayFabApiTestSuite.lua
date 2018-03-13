@@ -34,7 +34,7 @@ local PlayFabApiTestSuite = {
 
     -- TEST VARIABLES
     playFabId = nil,
-    entityId = nil,
+    entityKey = nil,
     testNumber = nil,
     testStatValue = nil,
 }
@@ -381,9 +381,9 @@ function PlayFabApiTestSuite.GetEntityToken()
     PlayFabEntityApi.GetEntityToken(getTokenRequest, AsyncTestSuite.WrapCallback("OnGetEntityToken", PlayFabApiTestSuite.OnGetEntityToken), PlayFabApiTestSuite.OnSharedError)
 end
 function PlayFabApiTestSuite.OnGetEntityToken(result)
-    if (result.EntityId) then 
-        PlayFabApiTestSuite.entityId = result.EntityId
-        AsyncTestSuite.EndTest("PASSED", PlayFabApiTestSuite.entityId)
+    if (result.Entity) then 
+        PlayFabApiTestSuite.entityKey = result.Entity
+        AsyncTestSuite.EndTest("PASSED", PlayFabApiTestSuite.entityKey.Id)
     else
         AsyncTestSuite.EndTest("FAILED", "EntityId not found in GetEntityToken result" .. json.encode(result))
     end
@@ -399,7 +399,7 @@ function PlayFabApiTestSuite.ObjectApi()
     local getObjRequest = {
         -- Currently, you need to look up the correct format for this object in the API-docs:
         --   https://api.playfab.com/Documentation/Entity/method/GetObjects
-        EntityId = PlayFabApiTestSuite.entityId,
+        Entity = PlayFabApiTestSuite.entityKey,
         EntityType = "title_player_account",
         EscapeObject = true,
     }
@@ -407,15 +407,15 @@ function PlayFabApiTestSuite.ObjectApi()
 end
 function PlayFabApiTestSuite.OnGetObj1(result)
     PlayFabApiTestSuite.testNumber = 0
-    if (result.Objects and result.Objects[1] and result.Objects[1].ObjectName == PlayFabApiTestSuite.TEST_DATA_KEY) then
-        PlayFabApiTestSuite.testNumber = tonumber(result.Objects[1].EscapedDataObject)
+    if (result.Objects and result.Objects[PlayFabApiTestSuite.TEST_DATA_KEY] and result.Objects[PlayFabApiTestSuite.TEST_DATA_KEY].ObjectName == PlayFabApiTestSuite.TEST_DATA_KEY) then
+        PlayFabApiTestSuite.testNumber = tonumber(result.Objects[PlayFabApiTestSuite.TEST_DATA_KEY].EscapedDataObject)
     end
     PlayFabApiTestSuite.testNumber = (PlayFabApiTestSuite.testNumber + 1) % 100 -- This test is about the expected value changing - but not testing more complicated issues like bounds
 
     local updateRequest = {
         -- Currently, you need to look up the correct format for this object in the API-docs:
         --   https://api.playfab.com/Documentation/Entity/method/SetObjects
-        EntityId = PlayFabApiTestSuite.entityId,
+        Entity = PlayFabApiTestSuite.entityKey,
         EntityType = "title_player_account",
         Objects = {
             {
@@ -431,7 +431,7 @@ function PlayFabApiTestSuite.OnSetObj(result)
     local getObjRequest = {
         -- Currently, you need to look up the correct format for this object in the API-docs:
         --   https://api.playfab.com/Documentation/Entity/method/GetObjects
-        EntityId = PlayFabApiTestSuite.entityId,
+        Entity = PlayFabApiTestSuite.entityKey,
         EntityType = "title_player_account",
         EscapeObject = true,
     }
@@ -439,8 +439,8 @@ function PlayFabApiTestSuite.OnSetObj(result)
 end
 function PlayFabApiTestSuite.OnGetObj2(result)
     local actualValue = -1000
-    if (result.Objects and result.Objects[1] and result.Objects[1].ObjectName == PlayFabApiTestSuite.TEST_DATA_KEY) then
-        actualValue = tonumber(result.Objects[1].EscapedDataObject)
+    if (result.Objects and result.Objects[PlayFabApiTestSuite.TEST_DATA_KEY] and result.Objects[PlayFabApiTestSuite.TEST_DATA_KEY].ObjectName == PlayFabApiTestSuite.TEST_DATA_KEY) then
+        actualValue = tonumber(result.Objects[PlayFabApiTestSuite.TEST_DATA_KEY].EscapedDataObject)
     end
     
     if (actualValue == PlayFabApiTestSuite.testNumber) then

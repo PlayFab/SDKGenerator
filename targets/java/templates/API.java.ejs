@@ -59,7 +59,7 @@ import com.google.gson.reflect.*;
 
         PlayFabJsonSuccess<<%- apiCall.result %>> resultData = gson.fromJson(resultRawJson, new TypeToken<PlayFabJsonSuccess<<%- apiCall.result %>>>(){}.getType());
         <%- apiCall.result %> result = resultData.data;
-<%- getResultActions("        ", apiCall, api) %>
+<%- getResultActions("        ", apiCall) %>
         PlayFabResult<<%- apiCall.result %>> pfResult = new PlayFabResult<<%- apiCall.result %>>();
         pfResult.Result = result;
         return pfResult;

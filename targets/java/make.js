@@ -99,7 +99,7 @@ function generateSimpleFiles(apis, apiName, sourceDir, apiOutputDir, isAndroid) 
         hasClientOptions: false,
         hasServerOptions: false,
         isAndroid: isAndroid,
-        sdkVersion: exports.sdkVersion,
+        sdkVersion: exports.sdkVersion
     };
     for (var i = 0; i < apis.length; i++) {
         if (apis[i].name === "Client")
@@ -210,13 +210,17 @@ function getRequestActions(tabbing, apiCall) {
     return "";
 }
 
-function getResultActions(tabbing, apiCall, api) {
+function getResultActions(tabbing, apiCall) {
     if (apiCall.url === "/Authentication/GetEntityToken")
         return tabbing + "PlayFabSettings.EntityToken = result.EntityToken != null ? result.EntityToken : PlayFabSettings.EntityToken;\n";
-    else if (api.name === "Client" && (apiCall.result === "LoginResult" || apiCall.result === "RegisterPlayFabUserResult"))
+    else if (apiCall.result === "LoginResult")
+        return tabbing + "PlayFabSettings.ClientSessionTicket = result.SessionTicket != null ? result.SessionTicket : PlayFabSettings.ClientSessionTicket;\n"
+            + tabbing + "if (result.EntityToken != null) PlayFabSettings.EntityToken = result.EntityToken.EntityToken != null ? result.EntityToken.EntityToken : PlayFabSettings.EntityToken;\n"
+            + tabbing + "MultiStepClientLogin(resultData.data.SettingsForUser.NeedsAttribution);\n";
+    else if (apiCall.result === "RegisterPlayFabUserResult")
         return tabbing + "PlayFabSettings.ClientSessionTicket = result.SessionTicket != null ? result.SessionTicket : PlayFabSettings.ClientSessionTicket;\n"
             + tabbing + "MultiStepClientLogin(resultData.data.SettingsForUser.NeedsAttribution);\n";
-    else if (api.name === "Client" && apiCall.result === "AttributeInstallResult")
+    else if (apiCall.result === "AttributeInstallResult")
         return tabbing + "// Modify AdvertisingIdType:  Prevents us from sending the id multiple times, and allows automated tests to determine id was sent successfully\n"
             + tabbing + "PlayFabSettings.AdvertisingIdType += \"_Successful\";\n";
     return "";

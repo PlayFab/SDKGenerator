@@ -19,8 +19,8 @@ import com.playfab.PlayFabClientAPI;
 import com.playfab.PlayFabServerModels;
 import com.playfab.PlayFabServerAPI;
 <% } %>
-//import com.playfab.PlayFabEntityModels;
-//import com.playfab.PlayFabEntityAPI;
+import com.playfab.PlayFabEntityModels;
+import com.playfab.PlayFabEntityAPI;
 
 public class PlayFabApiTest
 {
@@ -33,7 +33,7 @@ public class PlayFabApiTest
 <% if (hasClientOptions) { %>
     // Cached values
     private static String playFabId = null;
-    private static String entityId = null;
+    private static PlayFabEntityModels.EntityKey entityKey = null;
 <% } else if (hasServerOptions) { %>
     // Cached values
     private static String playFabId = "1337D00D"; // This is not a valid player id, but Cloud Script doesn't care unless that id is used by the Cloud Script handler.
@@ -464,17 +464,19 @@ public class PlayFabApiTest
      *  ENTITY API
      *  Log in or create a user, track their PlayFabId
      */
-//    @Test
-//    public void GetEntityToken()
-//    {
-//        LoginOrRegister();
-//
-//        PlayFabEntityModels.GetEntityTokenRequest request = new PlayFabEntityModels.GetEntityTokenRequest();
-//        PlayFabResult<PlayFabEntityModels.GetEntityTokenResponse> result = PlayFabEntityAPI.GetEntityToken(request);
-//        VerifyResult(result, true);
-//
-//        entityId = result.Result.EntityId;
-//    }
+    @Test
+    public void GetEntityToken()
+    {
+        LoginOrRegister();
+
+        PlayFabEntityModels.GetEntityTokenRequest request = new PlayFabEntityModels.GetEntityTokenRequest();
+        PlayFabResult<PlayFabEntityModels.GetEntityTokenResponse> result = PlayFabEntityAPI.GetEntityToken(request);
+        VerifyResult(result, true);
+
+        assertEquals(result.Result.Entity.TypeString, "title_player_account");
+        assertEquals(result.Result.Entity.Type.toString(), "title_player_account");
+        entityKey = result.Result.Entity;
+    }
 
     /**
      *  ENTITY API
@@ -482,41 +484,46 @@ public class PlayFabApiTest
      *    and verifies that the next sequential API call contains updated information.
      *  Verify that the object is correctly modified on the next call.
      */
-//    @Test
-//    public void ObjectApi()
-//    {
-//        GetEntityToken();
+    @Test
+    public void ObjectApi()
+    {
+        GetEntityToken();
 
-//        PlayFabEntityModels.GetObjectsRequest getRequest = new PlayFabEntityModels.GetObjectsRequest();
-//        getRequest.EntityId = entityId;
-//        getRequest.EntityType = "title_player_account";
-//        getRequest.EscapeObject = true;
-//        PlayFabResult<PlayFabEntityModels.GetObjectsResponse> getObjResult = PlayFabEntityAPI.GetObjects(getRequest);
-//        VerifyResult(getObjResult, true);
-//
-//        int testCounterValueExpected = 0;
-//        if (getObjResult.Result.Objects.size() == 1 && TEST_DATA_KEY.equals(getObjResult.Result.Objects.get(0).ObjectName))
-//            testCounterValueExpected = Integer.parseInt(getObjResult.Result.Objects.get(0).EscapedDataObject);
-//        testCounterValueExpected = (testCounterValueExpected + 1) % 100; // This test is about the expected value changing - but not testing more complicated issues like bounds
-//
-//        PlayFabEntityModels.SetObjectsRequest setObjRequest = new PlayFabEntityModels.SetObjectsRequest();
-//        setObjRequest.EntityId = entityId;
-//        setObjRequest.EntityType = "title_player_account";
-//        setObjRequest.Objects = new ArrayList<PlayFabEntityModels.SetObject>();
-//        PlayFabEntityModels.SetObject setObj = new PlayFabEntityModels.SetObject();
-//        setObj.ObjectName = TEST_DATA_KEY;
-//        setObj.Unstructured = true;
-//        setObj.DataObject = testCounterValueExpected;
-//        setObjRequest.Objects.add(setObj);
-//        PlayFabResult<PlayFabEntityModels.SetObjectsResponse> setObjResult = PlayFabEntityAPI.SetObjects(setObjRequest);
-//        VerifyResult(setObjResult, true);
-//
-//        getObjResult = PlayFabEntityAPI.GetObjects(getRequest);
-//        VerifyResult(getObjResult, true);
-//
-//        int testCounterValueActual = -1000;
-//        if (getObjResult.Result.Objects.size() == 1 && TEST_DATA_KEY.equals(getObjResult.Result.Objects.get(0).ObjectName))
-//            testCounterValueActual = Integer.parseInt(getObjResult.Result.Objects.get(0).EscapedDataObject);
-//        assertEquals(testCounterValueExpected, testCounterValueActual);
-//    }
+        PlayFabEntityModels.ObjectResult tempObjResult = null;
+
+        PlayFabEntityModels.GetObjectsRequest getRequest = new PlayFabEntityModels.GetObjectsRequest();
+        getRequest.Entity = entityKey;
+        getRequest.EscapeObject = true;
+        PlayFabResult<PlayFabEntityModels.GetObjectsResponse> getObjResult = PlayFabEntityAPI.GetObjects(getRequest);
+        VerifyResult(getObjResult, true);
+
+        int testCounterValueExpected = 0;
+        if (getObjResult.Result.Objects.size() == 1 && getObjResult.Result.Objects.containsKey(TEST_DATA_KEY))
+            tempObjResult = getObjResult.Result.Objects.get(TEST_DATA_KEY);
+        if (tempObjResult != null)
+            testCounterValueExpected = Integer.parseInt(tempObjResult.EscapedDataObject);
+        testCounterValueExpected = (testCounterValueExpected + 1) % 100; // This test is about the expected value changing - but not testing more complicated issues like bounds
+
+        PlayFabEntityModels.SetObjectsRequest setObjRequest = new PlayFabEntityModels.SetObjectsRequest();
+        setObjRequest.Entity = entityKey;
+        setObjRequest.Objects = new ArrayList<PlayFabEntityModels.SetObject>();
+        PlayFabEntityModels.SetObject setObj = new PlayFabEntityModels.SetObject();
+        setObj.ObjectName = TEST_DATA_KEY;
+        setObj.Unstructured = true;
+        setObj.DataObject = testCounterValueExpected;
+        setObjRequest.Objects.add(setObj);
+        PlayFabResult<PlayFabEntityModels.SetObjectsResponse> setObjResult = PlayFabEntityAPI.SetObjects(setObjRequest);
+        VerifyResult(setObjResult, true);
+
+        getObjResult = PlayFabEntityAPI.GetObjects(getRequest);
+        VerifyResult(getObjResult, true);
+
+        int testCounterValueActual = -1000;
+        tempObjResult = null;
+        if (getObjResult.Result.Objects.size() == 1 && getObjResult.Result.Objects.containsKey(TEST_DATA_KEY))
+            tempObjResult = getObjResult.Result.Objects.get(TEST_DATA_KEY);
+        if (tempObjResult != null)
+            testCounterValueActual = Integer.parseInt(tempObjResult.EscapedDataObject);
+        assertEquals(testCounterValueExpected, testCounterValueActual);
+    }
 <% } %>}

@@ -232,7 +232,7 @@ function generateApiSummary(tabbing, apiElement, summaryParam, extraLines) {
     // FILTERING: Java is very picky about the output
     if (lines) {
         for (var i = 0; i < lines.length; i++) {
-            lines[i] = lines[i].replaceAll("<", "&lt;").replaceAll(">", "&gt;");
+            lines[i] = lines[i].replaceAll("&", "&amp;").replaceAll("<", "&lt;").replaceAll(">", "&gt;");
             if (lines[i].contains("*/"))
                 lines[i] = null;
         }

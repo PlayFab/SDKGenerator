@@ -28,7 +28,7 @@ namespace PlayFab.UUnit
         private static Dictionary<string, string> extraHeaders;
 
         // Information fetched by appropriate API calls
-        private static string entityId;
+        private static EntityModels.EntityKey entityKey;
         public static string PlayFabId;
 
         /// <summary>
@@ -459,7 +459,7 @@ namespace PlayFab.UUnit
         }
         private void GetEntityTokenContinued(PlayFabResult<GetEntityTokenResponse> result, UUnitTestContext testContext, string failMessage)
         {
-            entityId = result.Result.EntityId;
+            entityKey = result.Result.Entity;
         }
 
         /// <summary>
@@ -474,8 +474,7 @@ namespace PlayFab.UUnit
         {
             var request = new GetObjectsRequest
             {
-                EntityId = entityId,
-                EntityType = EntityTypes.title_player_account,
+                Entity = entityKey,
                 EscapeObject = true
             };
             var eachTask = PlayFabEntityAPI.GetObjectsAsync(request, null, extraHeaders);
@@ -487,13 +486,12 @@ namespace PlayFab.UUnit
             // testContext.StringEquals(result.Result.Objects[0].ObjectName, TEST_DATA_KEY);
 
             _testInteger = 0;
-            if (result.Result.Objects.Count == 1 && result.Result.Objects[0].ObjectName == TEST_DATA_KEY)
-                int.TryParse(result.Result.Objects[0].EscapedDataObject, out _testInteger);
+            if (result.Result.Objects.Count == 1 && result.Result.Objects[TEST_DATA_KEY].ObjectName == TEST_DATA_KEY)
+                int.TryParse(result.Result.Objects[TEST_DATA_KEY].EscapedDataObject, out _testInteger);
 
             var request = new SetObjectsRequest
             {
-                EntityId = entityId,
-                EntityType = EntityTypes.title_player_account,
+                Entity = entityKey,
                 Objects = new List<SetObject>
                 {
                     new SetObject
@@ -511,8 +509,7 @@ namespace PlayFab.UUnit
         {
             var request = new GetObjectsRequest
             {
-                EntityId = entityId,
-                EntityType = EntityTypes.title_player_account,
+                Entity = entityKey,
                 EscapeObject = true
             };
             var eachTask = PlayFabEntityAPI.GetObjectsAsync(request, null, extraHeaders);
@@ -521,11 +518,11 @@ namespace PlayFab.UUnit
         private void GetObjects2Continued(PlayFabResult<GetObjectsResponse> result, UUnitTestContext testContext, string failMessage)
         {
             testContext.IntEquals(result.Result.Objects.Count, 1);
-            testContext.StringEquals(result.Result.Objects[0].ObjectName, TEST_DATA_KEY);
+            testContext.StringEquals(result.Result.Objects[TEST_DATA_KEY].ObjectName, TEST_DATA_KEY);
 
-            if (!int.TryParse(result.Result.Objects[0].EscapedDataObject, out int actualValue))
+            if (!int.TryParse(result.Result.Objects[TEST_DATA_KEY].EscapedDataObject, out int actualValue))
                 actualValue = -1000;
-            testContext.IntEquals(_testInteger, actualValue, "Failed: " + _testInteger + "!=" + actualValue + ", Returned json: " + result.Result.Objects[0].EscapedDataObject);
+            testContext.IntEquals(_testInteger, actualValue, "Failed: " + _testInteger + "!=" + actualValue + ", Returned json: " + result.Result.Objects[TEST_DATA_KEY].EscapedDataObject);
 
             testContext.EndTest(UUnitFinishState.PASSED, null);
         }

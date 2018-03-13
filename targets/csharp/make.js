@@ -14,7 +14,7 @@ exports.makeClientAPI2 = function (apis, sourceDir, apiOutputDir) {
     for (var i = 0; i < apis.length; i++)
         makeApi(apis[i], sourceDir, apiOutputDir);
     generateSimpleFiles(apis, sourceDir, apiOutputDir);
-    generateProject(apis, sourceDir, apiOutputDir, "Client", "");
+    generateProject(apis, sourceDir, apiOutputDir, "Client", "ENABLE_PLAYFABENTITY_API");
 }
 
 exports.makeServerAPI = function (apis, sourceDir, apiOutputDir) {
@@ -25,7 +25,7 @@ exports.makeServerAPI = function (apis, sourceDir, apiOutputDir) {
     for (var i = 0; i < apis.length; i++)
         makeApi(apis[i], sourceDir, apiOutputDir);
     generateSimpleFiles(apis, sourceDir, apiOutputDir);
-    generateProject(apis, sourceDir, apiOutputDir, "Server", ";DISABLE_PLAYFABCLIENT_API");
+    generateProject(apis, sourceDir, apiOutputDir, "Server", ";DISABLE_PLAYFABCLIENT_API;ENABLE_PLAYFABENTITY_API");
 }
 
 exports.makeCombinedAPI = function (apis, sourceDir, apiOutputDir) {
@@ -38,7 +38,7 @@ exports.makeCombinedAPI = function (apis, sourceDir, apiOutputDir) {
     for (var i = 0; i < apis.length; i++)
         makeApi(apis[i], sourceDir, apiOutputDir);
     generateSimpleFiles(apis, sourceDir, apiOutputDir);
-    generateProject(apis, sourceDir, apiOutputDir, "All", "");
+    generateProject(apis, sourceDir, apiOutputDir, "All", "ENABLE_PLAYFABADMIN_API;ENABLE_PLAYFABSERVER_API;ENABLE_PLAYFABMATCHMAKER_API;ENABLE_PLAYFABENTITY_API");
     generateNugetTemplate(sourceDir, apiOutputDir);
 }
 
@@ -257,7 +257,11 @@ function getRequestActions(tabbing, apiCall) {
 }
 
 function getResultActions(tabbing, apiCall, api) {
-    if (apiCall.result === "LoginResult" || apiCall.result === "RegisterPlayFabUserResult")
+    if (apiCall.result === "LoginResult")
+        return tabbing + "PlayFabSettings.ClientSessionTicket = result.SessionTicket ?? PlayFabSettings.ClientSessionTicket;\n"
+            + tabbing + "PlayFabSettings.EntityToken = result.EntityToken?.EntityToken ?? PlayFabSettings.EntityToken;\n"
+            + tabbing + "await MultiStepClientLogin(result.SettingsForUser.NeedsAttribution);\n";
+    else if (apiCall.result === "RegisterPlayFabUserResult")
         return tabbing + "PlayFabSettings.ClientSessionTicket = result.SessionTicket ?? PlayFabSettings.ClientSessionTicket;\n"
             + tabbing + "await MultiStepClientLogin(result.SettingsForUser.NeedsAttribution);\n";
     else if (api.name === "Client" && apiCall.result === "AttributeInstallResult")

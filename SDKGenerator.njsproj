@@ -303,10 +303,6 @@
     <Content Include="targets\cpp-unreal\templates\PlayFabUtilities.cpp.ejs" />
     <Content Include="targets\cpp-unreal\templates\PlayFabUtilities.h.ejs" />
     <Content Include="targets\cpp-unreal\Tutorial.docx" />
-    <Content Include="targets\csharp-unity-gameserver\templates\PlayFabCommands.cs.ejs" />
-    <Content Include="targets\csharp-unity-gameserver\templates\PlayFabContextManager.cs.ejs" />
-    <Content Include="targets\csharp-unity-gameserver\templates\PlayFabErrorHandler.cs.ejs" />
-    <Content Include="targets\csharp-unity-gameserver\templates\PlayFabSignals.cs.ejs" />
     <Content Include="targets\csharp\source\Properties\AssemblyInfo.cs" />
     <Content Include="targets\csharp\source\source\Json\ISerializer.cs" />
     <Content Include="targets\csharp\source\source\Json\NewtonsoftWrapper.cs" />
@@ -788,7 +784,6 @@
     <Folder Include="targets\cpp-unreal\StandardPluginFiles\Resources\" />
     <Folder Include="targets\cpp-unreal\templates\" />
     <Folder Include="targets\csharp-unity-gameserver\" />
-    <Folder Include="targets\csharp-unity-gameserver\templates\" />
     <Folder Include="targets\csharp\" />
     <Folder Include="targets\csharp\source\" />
     <Folder Include="targets\csharp\source\Properties\" />

@@ -184,7 +184,6 @@ namespace UnittestRunner
             SetObjectsRequest setRequest;
             setRequest.Entity = entityKey;
             SetObject setObj;
-            setObj.Unstructured = true;
             setObj.DataObject = testMessageInt1;
             setObj.ObjectName = TEST_OBJ_NAME;
             setRequest.Objects.push_back(setObj);

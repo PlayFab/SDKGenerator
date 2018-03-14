@@ -518,7 +518,6 @@ exports.PlayFabApiTests = {
     //            Objects: [
     //                {
     //                    ObjectName: testConstants.TEST_KEY,
-    //                    Unstructured: true,
     //                    DataObject: testData.testNumber
     //                }
     //            ]

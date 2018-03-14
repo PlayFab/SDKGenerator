@@ -971,7 +971,6 @@ namespace PlayFabApiTest
             SetObject updateObj;
             updateObj.ObjectName = TEST_DATA_KEY;
             updateObj.DataObject = testMessageInt;
-            updateObj.Unstructured = true;
             updateRequest.Objects.push_back(updateObj);
 
 

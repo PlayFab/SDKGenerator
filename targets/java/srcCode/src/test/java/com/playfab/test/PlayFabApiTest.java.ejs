@@ -509,7 +509,6 @@ public class PlayFabApiTest
         setObjRequest.Objects = new ArrayList<PlayFabEntityModels.SetObject>();
         PlayFabEntityModels.SetObject setObj = new PlayFabEntityModels.SetObject();
         setObj.ObjectName = TEST_DATA_KEY;
-        setObj.Unstructured = true;
         setObj.DataObject = testCounterValueExpected;
         setObjRequest.Objects.add(setObj);
         PlayFabResult<PlayFabEntityModels.SetObjectsResponse> setObjResult = PlayFabEntityAPI.SetObjects(setObjRequest);

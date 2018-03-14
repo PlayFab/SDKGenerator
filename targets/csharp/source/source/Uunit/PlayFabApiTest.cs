@@ -496,7 +496,6 @@ namespace PlayFab.UUnit
                 {
                     new SetObject
                     {
-                        Unstructured = true,
                         DataObject = _testInteger,
                         ObjectName = TEST_DATA_KEY
                     }

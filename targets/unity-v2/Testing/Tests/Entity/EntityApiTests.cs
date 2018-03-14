@@ -118,7 +118,7 @@ namespace PlayFab.UUnit
             {
                 Entity = _entityKey,
                 Objects = new List<SetObject> {
-                    new SetObject{ ObjectName = TEST_OBJ_NAME, Unstructured = true, DataObject = _testInteger }
+                    new SetObject{ ObjectName = TEST_OBJ_NAME, DataObject = _testInteger }
                 }
             };
             PlayFabEntityAPI.SetObjects(updateRequest, PlayFabUUnitUtils.ApiActionWrapper<SetObjectsResponse>(testContext, UpdateObjectCallback), PlayFabUUnitUtils.ApiActionWrapper<PlayFabError>(testContext, SharedErrorCallback), testContext);

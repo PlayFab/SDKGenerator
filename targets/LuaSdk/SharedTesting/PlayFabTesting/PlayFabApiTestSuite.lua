@@ -421,7 +421,6 @@ function PlayFabApiTestSuite.OnGetObj1(result)
             {
                 ObjectName = PlayFabApiTestSuite.TEST_DATA_KEY,
                 DataObject = PlayFabApiTestSuite.testNumber,
-                Unstructured = true,
             }
         },
     }

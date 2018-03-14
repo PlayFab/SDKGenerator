@@ -223,7 +223,13 @@ void UPlayFab<%- api.name %>API::OnProcessRequestComplete(FHttpRequestPtr Reques
 <% if (hasClientOptions) { %>
     if (returnsSessionTicket && !myResponse.responseError.hasError)
     {
-        pfSettings->setSessionTicket(myResponse.responseData->GetObjectField("data")->GetStringField("SessionTicket"));
+        // Auth Tokens
+        auto response = myResponse.responseData->GetObjectField("data");
+        pfSettings->setSessionTicket(response->GetStringField("SessionTicket"));
+        if (response->HasField("EntityToken"))
+            pfSettings->setEntityToken(response->GetObjectField("EntityToken")->GetStringField("EntityToken"));
+
+        // IDFA Attribution when relevant
         bool needsAttribution = myResponse.responseData->GetObjectField("data")->GetBoolField("SessionTicket");
         if (needsAttribution && !pfSettings->DisableAdvertising && !pfSettings->AdvertisingIdType.IsEmpty() && !pfSettings->AdvertisingIdValue.IsEmpty())
         {

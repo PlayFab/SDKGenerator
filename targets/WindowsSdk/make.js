@@ -7,9 +7,17 @@ if (typeof (templatizeTree) === "undefined") templatizeTree = function () { };
 exports.makeCombinedAPI = function (apis, sourceDir, apiOutputDir) {
     console.log("Generating Combined api from: " + sourceDir + " to: " + apiOutputDir);
 
+    var extraDefines = "ENABLE_PLAYFABADMIN_API;ENABLE_PLAYFABSERVER_API;";
+    var hasEntity = false;
+    for (var a1 = 0; a1 < apis.length; a1++)
+        hasEntity = hasEntity || apis[a1].name === "Entity";
+    if (hasEntity)
+        extraDefines = extraDefines + "ENABLE_PLAYFABENTITY_API;";
+
     var locals = {
         apis: apis,
-        extraDefines: "ENABLE_PLAYFABADMIN_API;ENABLE_PLAYFABSERVER_API;", // "ENABLE_PLAYFABADMIN_API;ENABLE_PLAYFABENTITY_API;ENABLE_PLAYFABSERVER_API;"
+        extraDefines: extraDefines,
+        sdkVersion: exports.sdkVersion,
         sdkVersion: exports.sdkVersion,
         sdkDate: exports.sdkVersion.split(".")[2],
         sdkYear: exports.sdkVersion.split(".")[2].substr(0, 2),
@@ -18,8 +26,8 @@ exports.makeCombinedAPI = function (apis, sourceDir, apiOutputDir) {
     };
 
     templatizeTree(locals, path.resolve(sourceDir, "source"), apiOutputDir);
-    for (var i = 0; i < apis.length; i++)
-        makeApiFiles(apis[i], sourceDir, apiOutputDir);
+    for (var a2 = 0; a2 < apis.length; a2++)
+        makeApiFiles(apis[a2], sourceDir, apiOutputDir);
 }
 
 function makeApiFiles(api, sourceDir, apiOutputDir) {
@@ -231,7 +239,14 @@ function getRequestActions(tabbing, apiCall) {
 function getResultActions(tabbing, apiCall) {
     if (apiCall.url === "/Authentication/GetEntityToken")
         return tabbing + "if (outResult.EntityToken.length() > 0) PlayFabSettings::entityToken = WidenString(outResult.EntityToken);\n";
-    if (apiCall.result === "LoginResult" || apiCall.result === "RegisterPlayFabUserResult")
+    if (apiCall.result === "LoginResult")
+        return tabbing + "if (outResult.SessionTicket.length() > 0)\n"
+            + tabbing + "{\n"
+            + tabbing + "    PlayFabSettings::clientSessionTicket = WidenString(outResult.SessionTicket);\n"
+            + tabbing + "    if (outResult.EntityToken.notNull()) PlayFabSettings::entityToken = WidenString(outResult.EntityToken->EntityToken);\n"
+            + tabbing + "    MultiStepClientLogin(outResult.SettingsForUser->NeedsAttribution);\n"
+            + tabbing + "}\n";
+    if (apiCall.result === "RegisterPlayFabUserResult")
         return tabbing + "if (outResult.SessionTicket.length() > 0)\n"
             + tabbing + "{\n"
             + tabbing + "    PlayFabSettings::clientSessionTicket = WidenString(outResult.SessionTicket);\n"

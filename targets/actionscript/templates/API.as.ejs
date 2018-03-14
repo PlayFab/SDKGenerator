@@ -7,7 +7,7 @@ package com.playfab
 <% for(var i in api.calls) { var apiCall = api.calls[i]; %><%- getDeprecationAttribute("        ", apiCall)
 %>        public static function <%- apiCall.name %>(request:<%- apiCall.request %>, onComplete:Function, onError:Function):void
         {
-<%- getRequestActions("            ", apiCall, api) %>
+<%- getRequestActions("            ", apiCall) %>
             var requetJson:String = JSON.stringify( request );
 
             var onPostComplete:Function = function(resultData:Object, error:PlayFabError):void

@@ -20,7 +20,7 @@ exports.makeCombinedAPI = function (apis, sourceDir, apiOutputDir) {
         errorList: apis[0].errorList,
         errors: apis[0].errors,
         hasClientOptions: true, // if (apis[i].name === "Client")
-        hasEntityOptions: false,
+        hasEntityOptions: false, // if (apis[i].name === "Entity")
         hasServerOptions: true,  // else if server, admin, matchmaker
         sdkVersion: exports.sdkVersion
     };
@@ -127,7 +127,7 @@ function getModelPropertyDef(property, datatype) {
         if (property.collection === "array")
             return property.name + ":Vector.<" + basicType + ">";
         else if (property.collection === "map")
-            return property.name + ":Object";
+            return property.name + ":Object"; // Arbitrary maps become Objects here
         else
             throw "Unknown collection type: " + property.collection + " for " + property.name + " in " + datatype.name;
     } else {
@@ -138,7 +138,6 @@ function getModelPropertyDef(property, datatype) {
 }
 
 function getPropertyAsType(property, datatype) {
-
     if (property.actualtype === "String")
         return "String";
     else if (property.actualtype === "Boolean")
@@ -213,12 +212,12 @@ function getAuthParams(apiCall) {
     return "null, null";
 }
 
-function getRequestActions(tabbing, apiCall, api) {
+function getRequestActions(tabbing, apiCall) {
     if (apiCall.url === "/Authentication/GetEntityToken")
         return tabbing + "var authKey:String = null; var authValue:String = null;\n"
             + tabbing + "if (authKey == null && PlayFabSettings.ClientSessionTicket) { authKey = \"X-Authorization\"; authValue = PlayFabSettings.ClientSessionTicket; }\n"
             + tabbing + "if (authKey == null && PlayFabSettings.DeveloperSecretKey) { authKey = \"X-SecretKey\"; authValue = PlayFabSettings.DeveloperSecretKey; }\n";
-    else if (api.name === "Client" && (apiCall.result === "LoginResult" || apiCall.request === "RegisterPlayFabUserRequest"))
+    else if (apiCall.result === "LoginResult" || apiCall.request === "RegisterPlayFabUserRequest")
         return tabbing + "request.TitleId = PlayFabSettings.TitleId != null ? PlayFabSettings.TitleId : request.TitleId;\n"
             + tabbing + "if(request.TitleId == null) throw new Error (\"Must be have PlayFabSettings.TitleId set to call this method\");";
     else if (apiCall.auth === "EntityToken")
@@ -230,8 +229,12 @@ function getRequestActions(tabbing, apiCall, api) {
     return "";
 }
 
-function getResultActions(tabbing, apiCall, api) {
-    if (api.name === "Client" && (apiCall.result === "LoginResult" || apiCall.result === "RegisterPlayFabUserResult"))
+function getResultActions(tabbing, apiCall) {
+    if (apiCall.result === "LoginResult")
+        return tabbing + "PlayFabSettings.ClientSessionTicket = result.SessionTicket != null ? result.SessionTicket : PlayFabSettings.ClientSessionTicket;\n"
+            + tabbing + "PlayFabSettings.EntityToken = result.EntityToken != null ? result.EntityToken.EntityToken : PlayFabSettings.EntityToken;\n"
+            + tabbing + "MultiStepClientLogin(result.SettingsForUser.NeedsAttribution);\n";
+    else if (apiCall.result === "RegisterPlayFabUserResult")
         return tabbing + "PlayFabSettings.ClientSessionTicket = result.SessionTicket != null ? result.SessionTicket : PlayFabSettings.ClientSessionTicket;\n"
             + tabbing + "MultiStepClientLogin(result.SettingsForUser.NeedsAttribution);\n";
     else if (apiCall.url === "/Authentication/GetEntityToken")

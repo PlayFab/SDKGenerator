@@ -167,7 +167,6 @@
     <Content Include="targets\actionscript\source\asyncUnitTest\ASyncUnitTestReporter.as" />
     <Content Include="targets\actionscript\source\asyncUnitTest\ASyncUnitTestSuite.as" />
     <Content Include="targets\actionscript\source\asyncUnitTest\ASyncUnitTestTraceReporter.as" />
-    <Content Include="targets\actionscript\source\buildEntityTests.bat" />
     <Content Include="targets\actionscript\source\buildTests.bat" />
     <Content Include="targets\actionscript\source\com\playfab\PlayFabError.as.ejs" />
     <Content Include="targets\actionscript\source\com\playfab\PlayFabHTTP.as" />
@@ -178,10 +177,7 @@
     <Content Include="targets\actionscript\source\How to make this example documentation.txt" />
     <Content Include="targets\actionscript\source\PfApiTest.as" />
     <Content Include="targets\actionscript\source\PfApiTest.xml.ejs" />
-    <Content Include="targets\actionscript\source\PfEntityApiTest.as" />
-    <Content Include="targets\actionscript\source\PfEntityApiTest.xml.ejs" />
     <Content Include="targets\actionscript\source\PlayFabApiTests.as" />
-    <Content Include="targets\actionscript\source\PlayFabEntityApiTests.as" />
     <Content Include="targets\actionscript\templates\API.as.ejs" />
     <Content Include="targets\actionscript\templates\Enum.as.ejs" />
     <Content Include="targets\actionscript\templates\Model.as.ejs" />

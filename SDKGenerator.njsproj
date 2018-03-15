@@ -246,9 +246,9 @@
     <Content Include="targets\cpp-ue4\Plugins\PlayFab\Source\PlayFab\Public\Core\PlayFabSettings.h" />
     <Content Include="targets\cpp-ue4\templates\blueprint\PlayFabProxyAPI.cpp.ejs" />
     <Content Include="targets\cpp-ue4\templates\blueprint\PlayFabProxyAPI.h.ejs" />
-    <Content Include="targets\cpp-ue4\templates\blueprint\PlayFabProxyAPIBlueprintLibrary.cpp.ejs" />
-    <Content Include="targets\cpp-ue4\templates\blueprint\PlayFabProxyAPIBlueprintLibrary.h.ejs" />
-    <Content Include="targets\cpp-ue4\templates\blueprint\PlayFabProxyDataModelsAPI.h.ejs" />
+    <Content Include="targets\cpp-ue4\templates\blueprint\PlayFab_BPLibrary.cpp.ejs" />
+    <Content Include="targets\cpp-ue4\templates\blueprint\PlayFab_BPLibrary.h.ejs" />
+    <Content Include="targets\cpp-ue4\templates\blueprint\PlayFab_BPDataModels.h.ejs" />
     <Content Include="targets\cpp-ue4\templates\core\PlayFabAPI.cpp.ejs" />
     <Content Include="targets\cpp-ue4\templates\core\PlayFabAPI.h.ejs" />
     <Content Include="targets\cpp-ue4\templates\core\PlayFabAPI.vcxproj.ejs" />

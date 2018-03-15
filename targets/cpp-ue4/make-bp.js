@@ -25,10 +25,10 @@ function generateBpProxy(api, sourceDir, apiOutputDir, subdir) {
         };
 
         var proxyApiHeaderTemplate = getCompiledTemplate(path.resolve(sourceDir, "templates/blueprint/PlayFabProxyAPI.h.ejs"));
-        writeFile(path.resolve(apiOutputDir, "Public/" + subdir + api.name + "/" + "PF" + api.name + api.calls[i].name + ".h"), proxyApiHeaderTemplate(apiLocals));
+        writeFile(path.resolve(apiOutputDir, "Public/" + subdir + api.name + "/PF" + api.name + api.calls[i].name + ".h"), proxyApiHeaderTemplate(apiLocals));
 
         var proxyApiBodyTemplate = getCompiledTemplate(path.resolve(sourceDir, "templates/blueprint/PlayFabProxyAPI.cpp.ejs"));
-        writeFile(path.resolve(apiOutputDir, "Private/" + subdir + api.name + "/" + "PF" + api.name + api.calls[i].name + ".cpp"), proxyApiBodyTemplate(apiLocals));
+        writeFile(path.resolve(apiOutputDir, "Private/" + subdir + api.name + "/PF" + api.name + api.calls[i].name + ".cpp"), proxyApiBodyTemplate(apiLocals));
     }
 }
 
@@ -42,11 +42,11 @@ function generateBpLibrary(api, sourceDir, apiOutputDir, subdir) {
         isResult: isResult
     };
 
-    var proxyBpLibraryHeaderTemplate = getCompiledTemplate(path.resolve(sourceDir, "templates/blueprint/PlayFabProxyAPIBlueprintLibrary.h.ejs"));
-    writeFile(path.resolve(apiOutputDir, "Public/" + subdir + "/" + "PlayFab" + api.name + "BPLibrary.h"), proxyBpLibraryHeaderTemplate(bpLibraryLocal));
+    var proxyBpLibraryHeaderTemplate = getCompiledTemplate(path.resolve(sourceDir, "templates/blueprint/PlayFab_BPLibrary.h.ejs"));
+    writeFile(path.resolve(apiOutputDir, "Public/" + subdir + "/PlayFab" + api.name + "BPLibrary.h"), proxyBpLibraryHeaderTemplate(bpLibraryLocal));
 
-    var proxyBpLibraryBodyTemplate = getCompiledTemplate(path.resolve(sourceDir, "templates/blueprint/PlayFabProxyAPIBlueprintLibrary.cpp.ejs"));
-    writeFile(path.resolve(apiOutputDir, "Private/" + subdir + "/" + "PlayFab" + api.name + "BPLibrary.cpp"), proxyBpLibraryBodyTemplate(bpLibraryLocal));
+    var proxyBpLibraryBodyTemplate = getCompiledTemplate(path.resolve(sourceDir, "templates/blueprint/PlayFab_BPLibrary.cpp.ejs"));
+    writeFile(path.resolve(apiOutputDir, "Private/" + subdir + "/PlayFab" + api.name + "BPLibrary.cpp"), proxyBpLibraryBodyTemplate(bpLibraryLocal));
 }
 
 function generateBpDataModels(api, sourceDir, apiOutputDir, subdir) {
@@ -57,8 +57,8 @@ function generateBpDataModels(api, sourceDir, apiOutputDir, subdir) {
         isResult: isResult
     };
 
-    var proxyBpModelHeaderTemplate = getCompiledTemplate(path.resolve(sourceDir, "templates/blueprint/PlayFabProxyDataModelsAPI.h.ejs"));
-    writeFile(path.resolve(apiOutputDir, "Public/" + subdir + "/" + "PlayFab" + api.name + "BPDataModels.h"), proxyBpModelHeaderTemplate(bpModelsLocal));
+    var proxyBpModelHeaderTemplate = getCompiledTemplate(path.resolve(sourceDir, "templates/blueprint/PlayFab_BPDataModels.h.ejs"));
+    writeFile(path.resolve(apiOutputDir, "Public/" + subdir + "/PlayFab" + api.name + "BPDataModels.h"), proxyBpModelHeaderTemplate(bpModelsLocal));
 }
 
 function needsDelegate(name) {
@@ -95,7 +95,7 @@ function getDatatypeSignatureInputParameters(apiCall, api) {
     return ", const FBP" + api.name + datatype.name + "& In" + datatype.name;
 }
 
-function getDatatypeSignatureParameters(datatype, api, make) {
+function getDatatypeSignatureParameters(tabbing, datatype, api, make) {
     var result = "";
 
     if (!datatype.properties)
@@ -110,11 +110,12 @@ function getDatatypeSignatureParameters(datatype, api, make) {
 
         if (make) {
             makeCount = makeCount + 1;
+            result += tabbing;
             if (makeCount !== 1)
-                result += "\t, ";
+                result += ", ";
             result += getBpPropertyDefinition(property, api) + " In" + property.name + "\n";
         } else {
-            result += "\t, " + getBpPropertyDefinition(property, api) + "& Out" + property.name + "\n";
+            result += tabbing + ", " + getBpPropertyDefinition(property, api) + "& Out" + property.name + "\n";
         }
     }
 
@@ -123,145 +124,130 @@ function getDatatypeSignatureParameters(datatype, api, make) {
 
 ///////////////////
 // Write properties
-function generateMapClassProxyWrite(property, api, datatype) {
+function generateMapClassProxyWrite(tabbing, property, api, datatype) {
     var safePropName = getPropertySafeName(property);
     var inValue = "In" + property.name;
 
-    var result = "";
-    result += "for (auto& elem : " + inValue + ")";
-    result += "\n\t" + "{";
-    result += "\n\t\t" + "const " + getPropertyUe4ToOpaqueType(property, api, datatype) + " value = elem.Value;";
+    var result = tabbing + "for (auto& elem : " + inValue + ")\n";
+    result += tabbing + "{\n";
+    result += tabbing + "    const " + getPropertyUe4ToOpaqueType(property, api, datatype) + " value = elem.Value;\n";
     if (property.isenum)
-        result += "\n\t\t" + "Out.Data." + safePropName + ".Add(elem.Key, static_cast<" + getProperyUe4ToNativeType(property, api, datatype) + ">(static_cast<uint8>(value)));";
+        result += tabbing + "    Out.Data." + safePropName + ".Add(elem.Key, static_cast<" + getProperyUe4ToNativeType(property, api, datatype) + ">(static_cast<uint8>(value)));\n";
     else if (property.isclass)
-        result += "\n\t\t" + "Out.Data." + safePropName + ".Add(elem.Key, value.Data);";
+        result += tabbing + "    Out.Data." + safePropName + ".Add(elem.Key, value.Data);\n";
     else if (property.actualtype === "object")
-        result += "\n\t\t" + "Out.Data." + safePropName + ".Add(elem.Key, value->GetRootValue());";
+        result += tabbing + "    Out.Data." + safePropName + ".Add(elem.Key, value->GetRootValue());\n";
     else // should really only be number types
-        result += "\n\t\t" + "Out.Data." + safePropName + ".Add(elem.Key, static_cast<" + getProperyUe4ToNativeType(property, api, datatype) + ">(value));";
-    result += "\n\t" + "}";
+        result += tabbing + "    Out.Data." + safePropName + ".Add(elem.Key, static_cast<" + getProperyUe4ToNativeType(property, api, datatype) + ">(value));\n";
+    result += tabbing + "}\n";
     return result;
 }
 
-function generateArrayClassProxyWrite(property, api, datatype) {
+function generateArrayClassProxyWrite(tabbing, property, api, datatype) {
     var safePropName = getPropertySafeName(property);
     var inValue = "In" + property.name;
 
-    var result = "";
-    result += "for (const " + getPropertyUe4ToOpaqueType(property, api, datatype) + "& elem : " + inValue + ")";
-    result += "\n\t" + "{";
+    var result = tabbing + "for (const " + getPropertyUe4ToOpaqueType(property, api, datatype) + "& elem : " + inValue + ")\n";
+    result += tabbing + "{\n";
     if (property.isenum)
-        result += "\n\t\t" + "Out.Data." + safePropName + ".Add(static_cast<" + getProperyUe4ToNativeType(property, api, datatype) + ">(static_cast<uint8>(elem)));";
+        result += tabbing + "    Out.Data." + safePropName + ".Add(static_cast<" + getProperyUe4ToNativeType(property, api, datatype) + ">(static_cast<uint8>(elem)));\n";
     else if (property.isclass)
-        result += "\n\t\t" + "Out.Data." + safePropName + ".Add(elem.Data);";
+        result += tabbing + "    Out.Data." + safePropName + ".Add(elem.Data);\n";
     else  // should really only be number types
-        result += "\n\t\t" + "Out.Data." + safePropName + ".Add(static_cast<" + getProperyUe4ToNativeType(property, api, datatype) + ">(elem));";
-    result += "\n\t" + "}";
+        result += tabbing + "    Out.Data." + safePropName + ".Add(static_cast<" + getProperyUe4ToNativeType(property, api, datatype) + ">(elem));\n";
+    result += tabbing + "}\n";
     return result;
 }
 
-function generateProxyPropertyWrite(property, api, datatype) {
+function generateProxyPropertyWrite(tabbing, property, api, datatype) {
     if (property.name === "TitleId") // TitleId is set via PlayFab project settings
         return "";
 
-    var result = "";
     // handle optional classes
     // should this return the pointer instead?
     var safePropName = getPropertySafeName(property);
     if (property.isclass && property.optional && !property.collection)
-        result += "Out.Data." + safePropName + " = MakeShareable(new " + getProperyUe4ToNativeType(property, api, datatype) + "(In" + property.name + ".Data));";
-    else if (property.collection === "array" && (property.isclass || property.isenum || property.actualtype === "uint64"))
-        result += generateArrayClassProxyWrite(property, api, datatype);
+        return tabbing + "Out.Data." + safePropName + " = MakeShareable(new " + getProperyUe4ToNativeType(property, api, datatype) + "(In" + property.name + ".Data));\n";
+    else if (property.collection === "array" && (property.jsontype === "Object" || property.isenum))
+        return generateArrayClassProxyWrite(tabbing, property, api, datatype);
     else if (property.collection === "map" && (property.isclass || property.isenum || getProperyUe4ToNativeType(property, api, datatype) !== getPropertyUe4ToOpaqueType(property, api, datatype)))
-        result += generateMapClassProxyWrite(property, api, datatype);
+        return generateMapClassProxyWrite(tabbing, property, api, datatype);
     else if (property.isenum)
-        result += "Out.Data." + safePropName + " = static_cast<" + getProperyUe4ToNativeType(property, api, datatype) + ">(static_cast<uint8>(In" + property.name + "));";
+        return tabbing + "Out.Data." + safePropName + " = static_cast<" + getProperyUe4ToNativeType(property, api, datatype) + ">(static_cast<uint8>(In" + property.name + "));\n";
     else if (property.actualtype === "object")
-        result += "Out.Data." + safePropName + " = In" + property.name + "->GetRootValue();";
+        return tabbing + "Out.Data." + safePropName + " = In" + property.name + "->GetRootValue();\n";
     else if (property.isclass)
-        result += "Out.Data." + safePropName + " = In" + property.name + ".Data;";
+        return tabbing + "Out.Data." + safePropName + " = In" + property.name + ".Data;\n";
     else
-        result += "Out.Data." + safePropName + " = In" + property.name + ";";
-    return result + "\n\t";
+        return tabbing + "Out.Data." + safePropName + " = In" + property.name + ";\n";
 }
 
 //////////////////
 // Read properties
-function generateMapClassProxyRead(property, api, datatype) {
+function generateMapClassProxyRead(tabbing, property, api, datatype) {
     var safePropName = getPropertySafeName(property);
     var inValue = "In.Data." + safePropName;
 
-    var result = "";
-    result += "for (auto& elem : " + inValue + ")\n";
-    result += "\t" + "{\n";
-    result += "\t\t" + "const " + getProperyUe4ToNativeType(property, api, datatype) + " value = elem.Value;\n";
+    var result = tabbing + "for (auto& elem : " + inValue + ")\n";
+    result += tabbing + "{\n";
+    result += tabbing + "    const " + getProperyUe4ToNativeType(property, api, datatype) + " value = elem.Value;\n";
     if (property.isenum) {
-        result += "\t\t" + "Out" + property.name + ".Add(elem.Key, static_cast<" + getPropertyUe4ToOpaqueType(property, api, datatype) + ">(static_cast<uint8>(value)));\n";
+        result += tabbing + "    Out" + property.name + ".Add(elem.Key, static_cast<" + getPropertyUe4ToOpaqueType(property, api, datatype) + ">(static_cast<uint8>(value)));\n";
     } else if (property.isclass) {
-        result += "\t\t" + "Out" + property.name + ".Add(elem.Key, " + getPropertyUe4ToOpaqueType(property, api, datatype) + "(value));\n";
+        result += tabbing + "    Out" + property.name + ".Add(elem.Key, " + getPropertyUe4ToOpaqueType(property, api, datatype) + "(value));\n";
     } else if (property.actualtype === "object") {
-        result += "\t\t" + getPropertyUe4ToOpaqueType(property, api, datatype) + " val = NewObject<UPlayFabJsonValue>();\n"
-            + "\t\t" + "val->SetRootValue(value.GetJsonValue());\n"
-            + "\t\t" + "Out" + property.name + ".Add(elem.Key, val);\n";
+        result += tabbing + "    " + getPropertyUe4ToOpaqueType(property, api, datatype) + " " + safePropName + "Val = NewObject<UPlayFabJsonValue>();\n"
+            + tabbing + "    " + safePropName + "Val->SetRootValue(value.GetJsonValue());\n"
+            + tabbing + "    Out" + property.name + ".Add(elem.Key, " + safePropName + "Val);\n";
     } else { // should really only be number types
-        result += "\t\t" + "Out" + property.name + ".Add(elem.Key, static_cast<" + getPropertyUe4ToOpaqueType(property, api, datatype) + ">(value));\n";
+        result += tabbing + "    Out" + property.name + ".Add(elem.Key, static_cast<" + getPropertyUe4ToOpaqueType(property, api, datatype) + ">(value));\n";
     }
-    result += "\t" + "}";
+    result += tabbing + "}\n";
     return result;
 }
 
-function generateArrayClassProxyRead(property, api, datatype) {
+function generateArrayClassProxyRead(tabbing, property, api, datatype) {
     var safePropName = getPropertySafeName(property);
     var inValue = "In.Data." + safePropName;
 
-    var result = "";
-    result += "for (const " + getProperyUe4ToNativeType(property, api, datatype) + "& elem : " + inValue + ")\n";
-    result += "\t" + "{\n";
+    var result = tabbing + "for (const " + getProperyUe4ToNativeType(property, api, datatype) + "& elem : " + inValue + ")\n";
+    result += tabbing + "{\n";
     if (property.isenum) {
-        result += "\t\t" + "Out" + property.name + ".Add(static_cast<" + getPropertyUe4ToOpaqueType(property, api, datatype) + ">(static_cast<uint8>(elem)));\n";
+        result += tabbing + "    Out" + property.name + ".Add(static_cast<" + getPropertyUe4ToOpaqueType(property, api, datatype) + ">(static_cast<uint8>(elem)));\n";
     } else if (property.isclass) {
-        result += "\t\t" + "Out" + property.name + ".Add(" + getPropertyUe4ToOpaqueType(property, api, datatype) + "(elem));\n";
+        result += tabbing + "    Out" + property.name + ".Add(" + getPropertyUe4ToOpaqueType(property, api, datatype) + "(elem));\n";
     } else { // should really only be number types
-        result += "\t\t" + "Out" + property.name + ".Add(static_cast<" + getPropertyUe4ToOpaqueType(property, api, datatype) + ">(elem));\n";
+        result += tabbing + "    Out" + property.name + ".Add(static_cast<" + getPropertyUe4ToOpaqueType(property, api, datatype) + ">(elem));\n";
     }
-    result += "\t" + "}";
+    result += tabbing + "}\n";
     return result;
 }
 
-function generateProxyPropertyRead(property, api, datatype) {
+function generateProxyPropertyRead(tabbing, property, api, datatype) {
     if (property.name === "TitleId") // TitleId is set via PlayFab project settings
-    {
         return "";
-    }
 
-    var result = "";
     // handle optional classes
     // should this return the pointer instead?
     var safePropName = getPropertySafeName(property);
-    if (property.isclass && property.optional && !property.collection) {
-        result += "if (In.Data." + safePropName + ".IsValid()) {";
-        result += "Out" + property.name + ".Data = *In.Data." + safePropName + ";";
-        result += "}";
-    } else if (property.collection === "array" && (property.isclass || property.isenum || property.actualtype === "uint64")) {
-        result += generateArrayClassProxyRead(property, api, datatype);
-    } else if (property.collection === "map" && (property.isclass || property.isenum || getProperyUe4ToNativeType(property, api, datatype) !== getPropertyUe4ToOpaqueType(property, api, datatype))) {
-        result += generateMapClassProxyRead(property, api, datatype);
-    } else if (property.isenum && property.optional) {
-        result += "if (In.Data." + safePropName + ".notNull()) {";
-        result += "Out" + property.name + " = static_cast<" + getPropertyUe4ToOpaqueType(property, api, datatype) + ">(static_cast<uint8>(In.Data." + safePropName + ".mValue));";
-        result += "}";
-    } else if (property.isenum) {
-        result += "Out" + property.name + " = static_cast<" + getPropertyUe4ToOpaqueType(property, api, datatype) + ">(static_cast<uint8>(In.Data." + safePropName + "));";
-    } else if (property.actualtype === "object") {
-        result += getPropertyUe4ToOpaqueType(property, api, datatype) + " val = NewObject<UPlayFabJsonValue>();";
-        result += "\n\t" + "val->SetRootValue(In.Data." + safePropName + ".GetJsonValue());";
-        result += "\n\t" + "Out" + property.name + " = val;";
-    } else if (property.isclass) {
-        result += "Out" + property.name + ".Data = In.Data." + safePropName + ";";
-    } else {
-        result += "Out" + property.name + " = In.Data." + safePropName + ";";
-    }
-    return result + "\n\t";
+    if (property.isclass && property.optional && !property.collection)
+        return tabbing + "if (In.Data." + safePropName + ".IsValid()) { Out" + property.name + ".Data = *In.Data." + safePropName + "; }\n";
+    else if (property.collection === "array" && (property.jsontype === "Object" || property.isenum))
+        return generateArrayClassProxyRead(tabbing, property, api, datatype);
+    else if (property.collection === "map" && (property.isclass || property.isenum || getProperyUe4ToNativeType(property, api, datatype) !== getPropertyUe4ToOpaqueType(property, api, datatype)))
+        return generateMapClassProxyRead(tabbing, property, api, datatype);
+    else if (property.isenum && property.optional)
+        return tabbing + "if (In.Data." + safePropName + ".notNull()) { Out" + property.name + " = static_cast<" + getPropertyUe4ToOpaqueType(property, api, datatype) + ">(static_cast<uint8>(In.Data." + safePropName + ".mValue)); }\n";
+    else if (property.isenum)
+        return tabbing + "Out" + property.name + " = static_cast<" + getPropertyUe4ToOpaqueType(property, api, datatype) + ">(static_cast<uint8>(In.Data." + safePropName + "));\n";
+    else if (property.actualtype === "object")
+        return tabbing + getPropertyUe4ToOpaqueType(property, api, datatype) + " " + safePropName + "Val = NewObject<UPlayFabJsonValue>();\n"
+            + tabbing + safePropName + "Val->SetRootValue(In.Data." + safePropName + ".GetJsonValue());\n"
+            + tabbing + "Out" + property.name + " = " + safePropName + "Val;\n";
+    else if (property.isclass)
+        return tabbing + "Out" + property.name + ".Data = In.Data." + safePropName + ";\n";
+    else
+        return tabbing + "Out" + property.name + " = In.Data." + safePropName + ";\n";
 }
 
 //////////////////////////////////////////////////////////////////////////

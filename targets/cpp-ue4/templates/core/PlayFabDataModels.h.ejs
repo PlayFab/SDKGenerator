@@ -8,8 +8,7 @@ namespace PlayFab
 {
 namespace <%- api.name %>Models
 {
-
-    <% for(var i in datatypes) { var datatype = datatypes[i]; if (datatype.isenum) { %>
+<% for(var i in datatypes) { var datatype = datatypes[i]; if (datatype.isenum) { %>
     enum <%- datatype.name %>
     {
         <% for(var i=0; i<datatype.enumvalues.length-1; i++) { var enumval = datatype.enumvalues[i] %><%- datatype.name %><%- enumval.name %>,
@@ -19,15 +18,13 @@ namespace <%- api.name %>Models
     PLAYFAB_API void write<%- datatype.name %>EnumJSON(<%- datatype.name %> enumVal, JsonWriter& writer);
     PLAYFAB_API <%- datatype.name %> read<%- datatype.name %>FromValue(const TSharedPtr<FJsonValue>& value);
     PLAYFAB_API <%- datatype.name %> read<%- datatype.name %>FromValue(const FString& value);
-
-    <% } else { %>
+<% } else { %>
     struct PLAYFAB_API F<%- datatype.name %> : public FPlayFabBaseModel
     {
-        <% for(var i in datatype.properties) { var property = datatype.properties[i] %>
-        <%- getPropertyDescription(property) %>
-        <%- getPropertyDef(property, datatype) %><% } %>
-
-        F<%- datatype.name %>() :
+<% for(var i in datatype.properties) { var property = datatype.properties[i]
+%><%- generateApiSummary("        ", property, "description")
+%><%- getPropertyDef("        ", property, datatype) %><% }
+%>        F<%- datatype.name %>() :
             FPlayFabBaseModel()<% for(var i in datatype.properties) { var property = datatype.properties[i] %>,
             <%- getPropertySafeName(property) %>(<%- getPropertyDefaultValue(property, datatype) %>)<% } %>
             {}
@@ -47,7 +44,6 @@ namespace <%- api.name %>Models
         void writeJSON(JsonWriter& writer) const override;
         bool readFromValue(const TSharedPtr<FJsonObject>& obj) override;
     };
-    <% } } %>
-
+<% } } %>
 }
 }

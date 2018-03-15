@@ -43,7 +43,7 @@ function makeApi(api, sourceDir, apiOutputDir, subdir) {
         getResultActions: getResultActions,
         getUrlAccessor: getUrlAccessor,
         hasClientOptions: api.name === "Client",
-        hasServerOptions: api.name !== "Client",
+        hasServerOptions: api.name !== "Client" && api.name !== "Entity",
         hasRequest: hasRequest
     };
 
@@ -99,10 +99,10 @@ function generateModels(apis, sourceDir, apiOutputDir, libraryName, subdir) {
         var modelLocals = {
             api: api,
             datatypes: orderedTypes,
+            generateApiSummary: generateApiSummary,
             getPropertyCopyValue: getPropertyCopyValue,
             getPropertyDef: getPropertyDef,
             getPropertyDefaultValue: getPropertyDefaultValue,
-            getPropertyDescription: getPropertyDescription,
             getPropertyDeserializer: getPropertyDeserializer,
             getPropertySerializer: getPropertySerializer,
             getPropertySafeName: getPropertySafeName,
@@ -124,10 +124,16 @@ function generateApiSummary(tabbing, apiElement, summaryParam, extraLines) {
         extraLines.push(apiElement.requestDetails);
 
     var lines = generateApiSummaryLines(apiElement, summaryParam, extraLines);
+    if (apiElement.optional) {
+        if (lines.count === 0)
+            lines.unshift("[optional]");
+        else
+            lines[0] = "[optional] " + lines[0];
+    }
 
     var output;
     if (lines.length === 1 && lines[0])
-        output = tabbing + "/** " + lines[0] + " */\n";
+        output = tabbing + "// " + lines[0] + "\n";
     else if (lines.length > 0)
         output = tabbing + "/**\n" + tabbing + " * " + lines.join("\n" + tabbing + " * ") + "\n" + tabbing + " */\n";
     else
@@ -140,15 +146,15 @@ function hasRequest(apiCall, api) {
     return requestType.properties.length > 0;
 }
 
-function getPropertyDef(property, datatype) {
+function getPropertyDef(tabbing, property, datatype) {
     var safePropName = getPropertySafeName(property);
 
     if (property.collection === "array")
-        return "TArray<" + getPropertyCppType(property, datatype, false) + "> " + safePropName + ";";
+        return tabbing + "TArray<" + getPropertyCppType(property, datatype, false) + "> " + safePropName + ";\n";
     else if (property.collection === "map")
-        return "TMap<FString, " + getPropertyCppType(property, datatype, false) + "> " + safePropName + ";";
+        return tabbing + "TMap<FString, " + getPropertyCppType(property, datatype, false) + "> " + safePropName + ";\n";
     else
-        return getPropertyCppType(property, datatype, true) + " " + safePropName + ";";
+        return tabbing + getPropertyCppType(property, datatype, true) + " " + safePropName + ";\n\n";
 }
 
 // PFWORKBIN-445 & PFWORKBIN-302 - variable names can't be the same as the variable type when compiling for android
@@ -389,7 +395,7 @@ function getDateTimeDeserializer(tabbing, property) {
 
     var result = tabbing + "const TSharedPtr<FJsonValue> " + propNameValue + " = obj->TryGetField(TEXT(\"" + propName + "\"));\n"
         + tabbing + "if (" + propNameValue + ".IsValid())\n"
-        + tabbing + "    " + safePropName + " = readDatetime(" + propNameValue + ");\n"
+        + tabbing + "    " + safePropName + " = readDatetime(" + propNameValue + ");\n";
     return result;
 }
 
@@ -451,7 +457,7 @@ function getPropertyDeserializer(tabbing, property, datatype) {
         return getDateTimeDeserializer(tabbing, property);
     }
     else if (property.isclass && property.optional) {
-        getter = "MakeShareable(new " + "F" + propType + "(" + propNameFieldValue + "->AsObject()));";
+        getter = "MakeShareable(new F" + propType + "(" + propNameFieldValue + "->AsObject()));";
     }
     else if (property.isclass) {
         getter = "F" + propType + "(" + propNameFieldValue + "->AsObject());";
@@ -467,20 +473,20 @@ function getPropertyDeserializer(tabbing, property, datatype) {
         throw "Unknown property type: " + propType + " for " + propName + " in " + datatype.name;
     }
 
-    var val = tabbing + "const TSharedPtr<FJsonValue> " + propNameFieldValue + " = obj->TryGetField(TEXT(\"" + propName + "\"));\n"
+    var output = tabbing + "const TSharedPtr<FJsonValue> " + propNameFieldValue + " = obj->TryGetField(TEXT(\"" + propName + "\"));\n"
         + tabbing + "if (" + propNameFieldValue + ".IsValid() && !" + propNameFieldValue + "->IsNull())\n"
         + tabbing + "{\n";
 
     if (property.isclass || propType === "object")
-        val += tabbing + "    " + safePropName + " = " + getter + "\n";
+        output += tabbing + "    " + safePropName + " = " + getter + "\n";
     else if (temporary)
-        val += tabbing + "    " + temporary + "\n"
+        output += tabbing + "    " + temporary + "\n"
             + tabbing + "    if (" + propNameFieldValue + "->" + getter + ") { " + safePropName + " = TmpValue; }\n";
     else // if (!temporary)
-        val += + tabbing + "    if (" + propNameFieldValue + "->" + getter + ") { " + safePropName + " = TmpValue; }\n";
-    val += tabbing + "}";
+        output += + tabbing + "    if (" + propNameFieldValue + "->" + getter + ") { " + safePropName + " = TmpValue; }\n";
+    output += tabbing + "}";
 
-    return val;
+    return output;
 }
 
 // specialization for array of strings
@@ -650,11 +656,6 @@ function addTypeAndDependencies(datatype, datatypes, orderedTypes, addedSet) {
     addedSet[datatype.name] = datatype;
 }
 
-function getPropertyDescription(property) {
-    var optional = property.optional ? "[optional] " : "";
-    return "// " + optional + property.description;
-}
-
 function getAuthParams(apiCall) {
     if (apiCall.url === "/Authentication/GetEntityToken")
         return "authKey, authValue";
@@ -667,7 +668,7 @@ function getAuthParams(apiCall) {
     return "TEXT(\"\"), TEXT(\"\")";
 }
 
-function getRequestActions(tabbing, apiCall, api) {
+function getRequestActions(tabbing, apiCall) {
     if (apiCall.url === "/Authentication/GetEntityToken")
         return tabbing + "FString authKey; FString authValue;\n"
             + tabbing + "if (PlayFabSettings::entityToken.Len() > 0) {\n"
@@ -695,16 +696,18 @@ function getRequestActions(tabbing, apiCall, api) {
     return "";
 }
 
-function getResultActions(tabbing, apiCall, api) {
+function getResultActions(tabbing, apiCall) {
     if (apiCall.url === "/Authentication/GetEntityToken")
         return tabbing + "if (outResult.EntityToken.Len() > 0)\n"
             + tabbing + "    PlayFabSettings::entityToken = outResult.EntityToken;\n\n";
-    else if (apiCall.result === "LoginResult" || apiCall.result === "RegisterPlayFabUserResult")
+    else if (apiCall.result === "LoginResult")
+        return tabbing + "if (outResult.SessionTicket.Len() > 0) PlayFabSettings::clientSessionTicket = outResult.SessionTicket;\n"
+            + tabbing + "if (outResult.EntityToken.IsValid()) PlayFabSettings::entityToken = outResult.EntityToken->EntityToken;\n"
+            + tabbing + "MultiStepClientLogin(outResult.SettingsForUser->NeedsAttribution);\n\n";
+    else if (apiCall.result === "RegisterPlayFabUserResult")
         return tabbing + "if (outResult.SessionTicket.Len() > 0)\n"
-            + tabbing + "{\n"
             + tabbing + "    PlayFabSettings::clientSessionTicket = outResult.SessionTicket;\n"
-            + tabbing + "    MultiStepClientLogin(outResult.SettingsForUser->NeedsAttribution);\n"
-            + tabbing + "}\n\n";
+            + tabbing + "MultiStepClientLogin(outResult.SettingsForUser->NeedsAttribution);\n\n";
     else if (apiCall.result === "AttributeInstallResult")
         return tabbing + "// Modify advertisingIdType:  Prevents us from sending the id multiple times, and allows automated tests to determine id was sent successfully\n"
             + tabbing + "PlayFabSettings::advertisingIdType += \"_Successful\";\n\n";

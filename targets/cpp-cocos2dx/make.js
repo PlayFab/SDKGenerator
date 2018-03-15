@@ -174,11 +174,11 @@ function getPropertyCopyValue(property) {
     return "src." + safePropName;
 }
 
-function getPropertySerializer(property, datatype) {
+function getPropertySerializer(tabbing, property, datatype) {
     if (property.collection === "array")
-        return getArrayPropertySerializer(property, datatype);
+        return getArrayPropertySerializer(tabbing, property, datatype);
     else if (property.collection === "map")
-        return getMapPropertySerializer(property, datatype);
+        return getMapPropertySerializer(tabbing, property, datatype);
 
     var writer = null;
     var tester = null;
@@ -252,11 +252,11 @@ function getPropertySerializer(property, datatype) {
     }
 
     if (isOptional)
-        return "if (" + tester + ") { writer.String(\"" + propName + "\"); " + writer + " }";
-    return "writer.String(\"" + propName + "\"); " + writer;
+        return tabbing + "if (" + tester + ") { writer.String(\"" + propName + "\"); " + writer + " }\n";
+    return tabbing + "writer.String(\"" + propName + "\"); " + writer + "\n";
 }
 
-function getArrayPropertySerializer(property, datatype) {
+function getArrayPropertySerializer(tabbing, property, datatype) {
     var writer;
     var propName = property.name;
     var isOptional = property.optional;
@@ -293,17 +293,23 @@ function getArrayPropertySerializer(property, datatype) {
     else
         throw "Unknown property type: " + property.actualtype + " for " + propName + " in " + datatype.name;
 
-    var collectionWriter = "writer.StartArray();\n    ";
-    collectionWriter += "for (std::list<" + cppType + ">::iterator iter = " + propName + ".begin(); iter != " + propName + ".end(); iter++) {\n        ";
-    collectionWriter += writer + "\n    }\n    ";
-    collectionWriter += "writer.EndArray();\n    ";
+    var internalTabbing = isOptional ? tabbing + "    " : tabbing;
+    var collectionWriter = internalTabbing + "writer.StartArray();\n"
+        + internalTabbing + "for (std::list<" + cppType + ">::iterator iter = " + propName + ".begin(); iter != " + propName + ".end(); iter++) {\n"
+        + internalTabbing + "    " + writer + "\n"
+        + internalTabbing + "}\n"
+        + internalTabbing + "writer.EndArray();\n";
 
     if (isOptional)
-        return "if (!" + propName + ".empty()) {\n    writer.String(\"" + propName + "\");\n    " + collectionWriter + " }";
-    return "writer.String(\"" + propName + "\");\n    " + collectionWriter;
+        return tabbing + "if (!" + propName + ".empty()) {\n"
+            + tabbing + "    writer.String(\"" + propName + "\");\n"
+            + collectionWriter
+            + tabbing + "}\n";
+    return tabbing + "writer.String(\"" + propName + "\");\n"
+        + collectionWriter;
 }
 
-function getMapPropertySerializer(property, datatype) {
+function getMapPropertySerializer(tabbing, property, datatype) {
     var writer;
     var propName = property.name;
     var isOptional = property.optional;
@@ -340,25 +346,32 @@ function getMapPropertySerializer(property, datatype) {
     else
         throw "Unknown property type: " + property.actualtype + " for " + propName + " in " + datatype.name;
 
-    var collectionWriter = "writer.StartObject();\n    ";
-    collectionWriter += "for (std::map<std::string, " + cppType + ">::iterator iter = " + propName + ".begin(); iter != " + propName + ".end(); ++iter) {\n        ";
-    collectionWriter += "writer.String(iter->first.c_str()); " + writer + "\n    }\n    ";
-    collectionWriter += "writer.EndObject();\n    ";
+    var internalTabbing = isOptional ? tabbing + "    " : tabbing;
+    var collectionWriter = internalTabbing + "writer.StartObject();\n"
+        + internalTabbing + "for (std::map<std::string, " + cppType + ">::iterator iter = " + propName + ".begin(); iter != " + propName + ".end(); ++iter) {\n"
+        + internalTabbing + "    writer.String(iter->first.c_str()); " + writer + "\n"
+        + internalTabbing + "}\n"
+        + internalTabbing + "writer.EndObject();\n";
 
     if (isOptional)
-        return "if (!" + propName + ".empty()) {\n    writer.String(\"" + propName + "\");\n    " + collectionWriter + " }";
-    return "writer.String(\"" + propName + "\");\n    " + collectionWriter;
+        return tabbing + "if (!" + propName + ".empty()) {\n"
+            + tabbing + "    writer.String(\"" + propName + "\");\n"
+            + collectionWriter
+            + tabbing + "}\n";
+
+    return tabbing + "writer.String(\"" + propName + "\");\n"
+        + collectionWriter;
 }
 
-function getPropertyDeserializer(property, datatype) {
+function getPropertyDeserializer(tabbing, property, datatype) {
     var propType = property.actualtype;
     var propName = property.name;
     var safePropName = getPropertySafeName(property);
 
     if (property.collection === "array")
-        return getArrayPropertyDeserializer(property, datatype);
+        return getArrayPropertyDeserializer(tabbing, property, datatype);
     else if (property.collection === "map")
-        return getMapPropertyDeserializer(property, datatype);
+        return getMapPropertyDeserializer(tabbing, property, datatype);
 
     var getter;
     if (propType === "String")
@@ -394,12 +407,11 @@ function getPropertyDeserializer(property, datatype) {
     else
         throw "Unknown property type: " + propType + " for " + propName + " in " + datatype.name;
 
-    var val = "const Value::ConstMemberIterator " + propName + "_member = obj.FindMember(\"" + propName + "\");\n";
-    val += "    if (" + propName + "_member != obj.MemberEnd() && !" + propName + "_member->value.IsNull()) " + safePropName + " = " + getter + ";";
-    return val;
+    return tabbing + "const Value::ConstMemberIterator " + propName + "_member = obj.FindMember(\"" + propName + "\");\n"
+        + tabbing + "if (" + propName + "_member != obj.MemberEnd() && !" + propName + "_member->value.IsNull()) " + safePropName + " = " + getter + ";\n";
 }
 
-function getArrayPropertyDeserializer(property, datatype) {
+function getArrayPropertyDeserializer(tabbing, property, datatype) {
     var getter;
     if (property.actualtype === "String")
         getter = "memberList[i].GetString()";
@@ -432,15 +444,16 @@ function getArrayPropertyDeserializer(property, datatype) {
     else
         throw "Unknown property type: " + property.actualtype + " for " + property.name + " in " + datatype.name;
 
-    var val = "const Value::ConstMemberIterator " + property.name + "_member = obj.FindMember(\"" + property.name + "\");\n";
-    val += "    if (" + property.name + "_member != obj.MemberEnd()) {\n";
-    val += "        const rapidjson::Value& memberList = " + property.name + "_member->value;\n";
-    val += "        for (SizeType i = 0; i < memberList.Size(); i++) {\n";
-    val += "            " + property.name + ".push_back(" + getter + ");\n        }\n    }";
-    return val;
+    return tabbing + "const Value::ConstMemberIterator " + property.name + "_member = obj.FindMember(\"" + property.name + "\");\n"
+        + tabbing + "if (" + property.name + "_member != obj.MemberEnd()) {\n"
+        + tabbing + "    const rapidjson::Value& memberList = " + property.name + "_member->value;\n"
+        + tabbing + "    for (SizeType i = 0; i < memberList.Size(); i++) {\n"
+        + tabbing + "        " + property.name + ".push_back(" + getter + ");\n"
+        + tabbing + "    }\n"
+        + tabbing + "}\n";
 }
 
-function getMapPropertyDeserializer(property, datatype) {
+function getMapPropertyDeserializer(tabbing, property, datatype) {
     var getter;
     if (property.actualtype === "String")
         getter = "iter->value.GetString()";
@@ -473,11 +486,12 @@ function getMapPropertyDeserializer(property, datatype) {
     else
         throw "Unknown property type: " + property.actualtype + " for " + property.name + " in " + datatype.name;
 
-    var val = "const Value::ConstMemberIterator " + property.name + "_member = obj.FindMember(\"" + property.name + "\");\n";
-    val += "    if (" + property.name + "_member != obj.MemberEnd()) {\n";
-    val += "        for (Value::ConstMemberIterator iter = " + property.name + "_member->value.MemberBegin(); iter != " + property.name + "_member->value.MemberEnd(); ++iter) {\n";
-    val += "            " + property.name + "[iter->name.GetString()] = " + getter + ";\n        }\n    }";
-    return val;
+    return tabbing + "const Value::ConstMemberIterator " + property.name + "_member = obj.FindMember(\"" + property.name + "\");\n"
+        + tabbing + "if (" + property.name + "_member != obj.MemberEnd()) {\n"
+        + tabbing + "    for (Value::ConstMemberIterator iter = " + property.name + "_member->value.MemberBegin(); iter != " + property.name + "_member->value.MemberEnd(); ++iter) {\n"
+        + tabbing + "        " + property.name + "[iter->name.GetString()] = " + getter + ";\n"
+        + tabbing + "    }\n"
+        + tabbing + "}\n";
 }
 
 function addTypeAndDependencies(datatype, datatypes, orderedTypes, addedSet) {
@@ -554,12 +568,12 @@ function getAuthParams(tabbing, apiCall) {
 var getRequestActions = function (tabbing, apiCall) {
     if (apiCall.url === "/Authentication/GetEntityToken")
         return tabbing + "std::string authKey, authValue;\n"
-            + tabbing + "if (PlayFabSettings::clientSessionTicket.length() > 0) {\n"
+            + tabbing + "if (PlayFabSettings::entityToken.length() > 0) {\n"
+            + tabbing + "    authKey = \"X-EntityToken\"; authValue = PlayFabSettings::entityToken;\n"
+            + tabbing + "} else if (PlayFabSettings::clientSessionTicket.length() > 0) {\n"
             + tabbing + "    authKey = \"X-Authorization\"; authValue = PlayFabSettings::clientSessionTicket;\n"
             + tabbing + "} else if (PlayFabSettings::developerSecretKey.length() > 0) {\n"
             + tabbing + "    authKey = \"X-SecretKey\"; authValue = PlayFabSettings::developerSecretKey;\n"
-            + tabbing + "} else if (PlayFabSettings::entityToken.length() > 0) {\n"
-            + tabbing + "    authKey = \"X-EntityToken\"; authValue = PlayFabSettings::entityToken;\n"
             + tabbing + "}\n";
     else if (apiCall.result === "LoginResult" || apiCall.request === "RegisterPlayFabUserRequest")
         return tabbing + "if (PlayFabSettings::titleId.length() > 0)\n"
@@ -571,9 +585,12 @@ var getResultActions = function (tabbing, apiCall) {
     if (apiCall.url === "/Authentication/GetEntityToken")
         return tabbing + "if (outResult.EntityToken.length() > 0)\n"
             + tabbing + "    PlayFabSettings::entityToken = outResult.EntityToken;\n";
-    else if (apiCall.result === "LoginResult" || apiCall.result === "RegisterPlayFabUserResult")
-        return tabbing + "if (outResult.SessionTicket.length() > 0)\n"
-            + tabbing + "    PlayFabSettings::clientSessionTicket = outResult.SessionTicket;\n"
+    else if (apiCall.result === "LoginResult")
+        return tabbing + "if (outResult.SessionTicket.length() > 0) PlayFabSettings::clientSessionTicket = outResult.SessionTicket;\n"
+            + tabbing + "if (outResult.EntityToken != nullptr) PlayFabSettings::entityToken = outResult.EntityToken->EntityToken;\n"
+            + tabbing + "MultiStepClientLogin(outResult.SettingsForUser->NeedsAttribution);\n\n";
+    else if (apiCall.result === "RegisterPlayFabUserResult")
+        return tabbing + "if (outResult.SessionTicket.length() > 0) PlayFabSettings::clientSessionTicket = outResult.SessionTicket;\n"
             + tabbing + "MultiStepClientLogin(outResult.SettingsForUser->NeedsAttribution);\n\n";
     else if (apiCall.result === "AttributeInstallResult")
         return tabbing + "// Modify advertisingIdType:  Prevents us from sending the id multiple times, and allows automated tests to determine id was sent successfully\n"

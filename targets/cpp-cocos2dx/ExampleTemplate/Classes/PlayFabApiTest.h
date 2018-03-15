@@ -1,23 +1,17 @@
-//#define ENTITY_TESTS_ENABLED
-
 #include <fstream>
 #include "cocos2d.h"
 #include "PlayFabSettings.h"
 #include "PlayFabClientDataModels.h"
 #include "PlayFabClientAPI.h"
-#ifdef ENTITY_TESTS_ENABLED
 #include "PlayFabEntityDataModels.h"
 #include "PlayFabEntityAPI.h"
-#endif
 
 #pragma once
 
 using namespace rapidjson;
 using namespace PlayFab;
 using namespace ClientModels;
-#ifdef ENTITY_TESTS_ENABLED
 using namespace EntityModels;
-#endif
 
 #if CC_TARGET_PLATFORM == CC_PLATFORM_ANDROID
 #include <string>
@@ -245,10 +239,8 @@ namespace PlayFabApiTest
                 testContexts.insert(testContexts.end(), new PfTestContext("CloudScript", CloudScript));
                 testContexts.insert(testContexts.end(), new PfTestContext("CloudScriptError", CloudScriptError));
                 testContexts.insert(testContexts.end(), new PfTestContext("WriteEvent", WriteEvent));
-#ifdef ENTITY_TESTS_ENABLED
                 testContexts.insert(testContexts.end(), new PfTestContext("GetEntityToken", GetEntityToken));
                 testContexts.insert(testContexts.end(), new PfTestContext("ObjectApi", ObjectApi));
-#endif
             }
         }
 
@@ -332,7 +324,7 @@ namespace PlayFabApiTest
         const static std::string TEST_DATA_KEY;
         const static std::string TEST_STAT_NAME;
         static std::string playFabId;
-        static std::string entityId;
+        static PlayFab::EntityModels::EntityKey entityKey;
         static int testMessageInt;
         static time_t testMessageTime;
         static std::list<PfTestContext*> testContexts;
@@ -908,7 +900,6 @@ namespace PlayFabApiTest
             EndTest(*testContext, PASSED, "");
         }
 
-#ifdef ENTITY_TESTS_ENABLED
         /// <summary>
         /// ENTITY API
         /// Verify that a client login can be converted into an entity token
@@ -921,20 +912,21 @@ namespace PlayFabApiTest
                 return;
             }
 
-            PlayFabEntityAPI::GetEntityToken(OnGetEntityToken, OnSharedError, &testContext);
+            GetEntityTokenRequest request;
+            PlayFabEntityAPI::GetEntityToken(request, OnGetEntityToken, OnSharedError, &testContext);
         }
         static void OnGetEntityToken(const GetEntityTokenResponse& result, void* customData)
         {
             PfTestContext* testContext = reinterpret_cast<PfTestContext*>(customData);
 
-            entityId = result.EntityId;
+            entityKey = *result.Entity;
 
-            if (result.EntityType != "title_player_account")
-                EndTest(*testContext, FAILED, "EntityType unexpected: " + result.EntityType);
-            else if (result.EntityId.length() == 0)
+            if (entityKey.TypeString != "title_player_account")
+                EndTest(*testContext, FAILED, "EntityType unexpected: " + entityKey.TypeString);
+            else if (entityKey.Id.length() == 0)
                 EndTest(*testContext, FAILED, "EntityID was empty");
             else
-                EndTest(*testContext, PASSED, entityId);
+                EndTest(*testContext, PASSED, entityKey.Id);
         }
 
         /// <summary>
@@ -952,21 +944,20 @@ namespace PlayFabApiTest
             }
 
             GetObjectsRequest request;
-            request.EntityId = entityId;
-            request.EntityType = EntityTypes::EntityTypestitle_player_account;
+            request.Entity = entityKey;
             request.EscapeObject = true;
             PlayFabEntityAPI::GetObjects(request, OnGetObjects1, OnSharedError, &testContext);
         }
         static void OnGetObjects1(const GetObjectsResponse& result, void* customData)
         {
             testMessageInt = 0;
-            if (result.Objects.size() == 1 && result.Objects.begin()->ObjectName == TEST_DATA_KEY)
-                testMessageInt = atoi(result.Objects.begin()->EscapedDataObject.c_str());
+            auto found = result.Objects.find(TEST_DATA_KEY);
+            if (found != result.Objects.end())
+                testMessageInt = atoi(found->second.EscapedDataObject.c_str());
             testMessageInt = (testMessageInt + 1) % 100;
 
             SetObjectsRequest updateRequest;
-            updateRequest.EntityId = entityId;
-            updateRequest.EntityType = EntityTypes::EntityTypestitle_player_account;
+            updateRequest.Entity = entityKey;
 
             SetObject updateObj;
             updateObj.ObjectName = TEST_DATA_KEY;
@@ -979,24 +970,26 @@ namespace PlayFabApiTest
         static void OnSetObjects(const SetObjectsResponse& result, void* customData)
         {
             GetObjectsRequest request;
-            request.EntityId = entityId;
-            request.EntityType = EntityTypes::EntityTypestitle_player_account;
+            request.Entity = entityKey;
             request.EscapeObject = true;
             PlayFabEntityAPI::GetObjects(request, OnGetObjects2, OnSharedError, customData);
         }
         static void OnGetObjects2(const GetObjectsResponse& result, void* customData)
         {
-            int actualDataValue = -1000;
-            if (result.Objects.size() == 1 && result.Objects.begin()->ObjectName == TEST_DATA_KEY)
-                actualDataValue = atoi(result.Objects.begin()->EscapedDataObject.c_str());
-
             PfTestContext* testContext = reinterpret_cast<PfTestContext*>(customData);
+
+            int actualDataValue = -1000;
+            auto found = result.Objects.find(TEST_DATA_KEY);
+            if (found != result.Objects.end())
+                actualDataValue = atoi(found->second.EscapedDataObject.c_str());
+            else
+                EndTest(*testContext, FAILED, "Object saved in SetObjects cannot be found in GetObjects.");
+
             if (testMessageInt != actualDataValue)
                 EndTest(*testContext, FAILED, "User data not updated as expected.");
             else
                 EndTest(*testContext, PASSED, "");
         }
-#endif
     };
     // C++ Static vars
     PlayFabApiTestActiveState PlayFabApiTests::suiteState;
@@ -1009,7 +1002,7 @@ namespace PlayFabApiTest
     const std::string PlayFabApiTests::TEST_STAT_NAME = "str";
     std::list<PfTestContext*> PlayFabApiTests::testContexts;
     std::string PlayFabApiTests::playFabId;
-    std::string PlayFabApiTests::entityId;
+    PlayFab::EntityModels::EntityKey PlayFabApiTests::entityKey;
     int PlayFabApiTests::testMessageInt;
     time_t PlayFabApiTests::testMessageTime;
 }

@@ -39,16 +39,16 @@ using namespace rapidjson;
 void <%- datatype.name %>::writeJSON(PFStringJsonWriter& writer)
 {
     writer.StartObject();
-
-<% for(var p in datatype.properties) { var property = datatype.properties[p]; %>    <%- getPropertySerializer(property, datatype) %>
-<% } %>
-    writer.EndObject();
+<% for(var p in datatype.properties) { var property = datatype.properties[p];
+%><%- getPropertySerializer("    ", property, datatype) %><% }
+%>    writer.EndObject();
 }
 
 bool <%- datatype.name %>::readFromValue(const rapidjson::Value& obj)
 {
-<% for(var p in datatype.properties) { var property = datatype.properties[p]; %>    <%- getPropertyDeserializer(property, datatype) %>
-<% } %>
+<% for(var p in datatype.properties) { var property = datatype.properties[p];
+%><%- getPropertyDeserializer("    ", property, datatype) %><% }
+%>
     return true;
 }
 <% } } %>

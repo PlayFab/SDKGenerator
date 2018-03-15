@@ -7,7 +7,7 @@ var PlayFab = <PlayFabModule.IPlayFab>pf.PlayFab;
 var PlayFabAdmin = <PlayFabAdminModule.IPlayFabAdmin>pf.PlayFabAdmin; // Not strictly needed for this test, but I want to make sure it compiles/loads
 var PlayFabMatchmaker = <PlayFabMatchmakerModule.IPlayFabMatchmaker>pf.PlayFabAdmin; // Not strictly needed for this test, but I want to make sure it compiles/loads
 var PlayFabClient = <PlayFabClientModule.IPlayFabClient>pf.PlayFabClient;
-// var PlayFabEntity = <PlayFabEntityModule.IPlayFabEntity>pf.PlayFabEntity;
+var PlayFabEntity = <PlayFabEntityModule.IPlayFabEntity>pf.PlayFabEntity;
 var PlayFabServer = <PlayFabServerModule.IPlayFabServer>pf.PlayFabServer;
 
 interface IAction { (): void }
@@ -27,7 +27,7 @@ var testConstants = {
 };
 
 var testData = {
-    entityId: null,
+    entityKey: null,
     playFabId: null,
     testNumber: null
 };
@@ -452,28 +452,21 @@ exports.PlayFabApiTests = {
     /// ENTITY API
     /// Verify that a client login can be converted into an entity token
     /// </summary>
-    //GetEntityToken: TestWrapper(function (test): void {
-    //    var getEntityTokenRequest = {
-    //        "EventName": "ForumPostEvent",
-    //        "Body": {
-    //            "Subject": "My First Post",
-    //            "Body": "This is my awesome post."
-    //        }
-    //    };
+    GetEntityToken: TestWrapper(function (test): void {
+        var getEntityTokenCallback = function (error: PlayFabModule.IPlayFabError, result: PlayFabModule.IPlayFabSuccessContainer<PlayFabEntityModels.GetEntityTokenResponse>): void {
+            VerifyNullError(result, error, test, "Testing GetEntityToken result");
 
-    //    var getEntityTokenCallback = function (error: PlayFabModule.IPlayFabError, result: PlayFabModule.IPlayFabSuccessContainer<PlayFabEntityModels.GetEntityTokenResponse>): void {
-    //        VerifyNullError(result, error, test, "Testing GetEntityToken result");
+            test.ok(result.data.Entity.Id, "EntityId should be defined");
+            test.ok(result.data.Entity.Type, "EntityType should be defined");
+            test.ok(result.data.Entity.TypeString, "EntityType should be defined");
 
-    //        test.ok(result.data.EntityId, "EntityId should be defined");
-    //        test.ok(result.data.EntityType, "EntityType should be defined");
+            testData.entityKey = result.data.Entity; // Save the Entity info, it will be used in other tests
 
-    //        testData.entityId = result.data.EntityId; // Save the EntityId, it will be used in other tests
+            test.done();
+        };
 
-    //        test.done();
-    //    };
-
-    //    PlayFabEntity.GetEntityToken(getEntityTokenRequest, CallbackWrapper("getEntityTokenCallback", getEntityTokenCallback, test));
-    //}),
+        PlayFabEntity.GetEntityToken(null, CallbackWrapper("getEntityTokenCallback", getEntityTokenCallback, test));
+    }),
 
     /// <summary>
     /// ENTITY API
@@ -481,53 +474,50 @@ exports.PlayFabApiTests = {
     ///   and verifies that the next sequential API call contains updated information.
     /// Verify that the object is correctly modified on the next call.
     /// </summary>
-    //ObjectApi: TestWrapper(function (test): void {
-    //    var getObjectsRequest: PlayFabEntityModels.GetObjectsRequest = {
-    //        EntityId: testData.entityId,
-    //        EntityType: "title_player_account",
-    //        EscapeObject: true
-    //    };
+    ObjectApi: TestWrapper(function (test): void {
+        var getObjectsRequest: PlayFabEntityModels.GetObjectsRequest = {
+            Entity: testData.entityKey,
+            EscapeObject: true
+        };
 
-    //    var getObjCallback2 = function (error: PlayFabModule.IPlayFabError, result: PlayFabModule.IPlayFabSuccessContainer<PlayFabEntityModels.GetObjectsResponse>): void {
-    //        VerifyNullError(result, error, test, "Testing GetObjects result");
-    //        test.ok(result.data.Objects, "GetObjects failed");
-    //        test.ok(result.data.Objects.length === 1, "Wrong number of GetObjects: 1 !== " + result.data.Objects.length);
-    //        test.ok(result.data.Objects[0].ObjectName === testConstants.TEST_KEY, "Test Object not found: " + result.data.Objects[0].ObjectName);
+        var getObjCallback2 = function (error: PlayFabModule.IPlayFabError, result: PlayFabModule.IPlayFabSuccessContainer<PlayFabEntityModels.GetObjectsResponse>): void {
+            VerifyNullError(result, error, test, "Testing GetObjects result");
+            test.ok(result.data.Objects, "GetObjects failed");
+            test.ok(result.data.Objects.hasOwnProperty(testConstants.TEST_KEY));
 
-    //        var actualtestNumber: number = parseInt(result.data.Objects[0].EscapedDataObject, 10);
-    //        test.equal(testData.testNumber, actualtestNumber, "" + testData.testNumber + " !== " + actualtestNumber);
+            var actualtestNumber: number = parseInt(result.data.Objects[testConstants.TEST_KEY].EscapedDataObject, 10);
+            test.equal(testData.testNumber, actualtestNumber, "" + testData.testNumber + " !== " + actualtestNumber);
 
-    //        test.done();
-    //    };
-    //    var setObjCallback = function (error: PlayFabModule.IPlayFabError, result: PlayFabModule.IPlayFabSuccessContainer<PlayFabEntityModels.SetObjectsResponse>): void {
-    //        VerifyNullError(result, error, test, "Testing SetObjects result");
+            test.done();
+        };
+        var setObjCallback = function (error: PlayFabModule.IPlayFabError, result: PlayFabModule.IPlayFabSuccessContainer<PlayFabEntityModels.SetObjectsResponse>): void {
+            VerifyNullError(result, error, test, "Testing SetObjects result");
 
-    //        PlayFabEntity.GetObjects(getObjectsRequest, CallbackWrapper("getObjCallback2", getObjCallback2, test));
-    //    };
-    //    var getObjCallback1 = function (error: PlayFabModule.IPlayFabError, result: PlayFabModule.IPlayFabSuccessContainer<PlayFabEntityModels.GetObjectsResponse>): void {
-    //        VerifyNullError(result, error, test, "Testing GetObjects result");
+            PlayFabEntity.GetObjects(getObjectsRequest, CallbackWrapper("getObjCallback2", getObjCallback2, test));
+        };
+        var getObjCallback1 = function (error: PlayFabModule.IPlayFabError, result: PlayFabModule.IPlayFabSuccessContainer<PlayFabEntityModels.GetObjectsResponse>): void {
+            VerifyNullError(result, error, test, "Testing GetObjects result");
 
-    //        testData.testNumber = 0;
-    //        if (result.data.Objects && result.data.Objects.length === 1 && result.data.Objects[0].ObjectName === testConstants.TEST_KEY)
-    //            testData.testNumber = parseInt(result.data.Objects[0].EscapedDataObject, 10);
-    //        testData.testNumber = (testData.testNumber + 1) % 100; // This test is about the expected value changing - but not testing more complicated issues like bounds
+            testData.testNumber = 0;
+            if (result.data.Objects && result.data.Objects.hasOwnProperty(testConstants.TEST_KEY))
+                testData.testNumber = parseInt(result.data.Objects[testConstants.TEST_KEY].EscapedDataObject, 10);
+            testData.testNumber = (testData.testNumber + 1) % 100; // This test is about the expected value changing - but not testing more complicated issues like bounds
 
-    //        var setObjRequest: PlayFabEntityModels.SetObjectsRequest = {
-    //            EntityId: testData.entityId,
-    //            EntityType: "title_player_account",
-    //            Objects: [
-    //                {
-    //                    ObjectName: testConstants.TEST_KEY,
-    //                    DataObject: testData.testNumber
-    //                }
-    //            ]
-    //        };
-    //        PlayFabEntity.SetObjects(setObjRequest, CallbackWrapper("setObjCallback", setObjCallback, test));
-    //    };
+            var setObjRequest: PlayFabEntityModels.SetObjectsRequest = {
+                Entity: testData.entityKey,
+                Objects: [
+                    {
+                        ObjectName: testConstants.TEST_KEY,
+                        DataObject: testData.testNumber
+                    }
+                ]
+            };
+            PlayFabEntity.SetObjects(setObjRequest, CallbackWrapper("setObjCallback", setObjCallback, test));
+        };
 
-    //    // Kick off this test process
-    //    PlayFabEntity.GetObjects(getObjectsRequest, CallbackWrapper("getObjCallback1", getObjCallback1, test));
-    //}),
+        // Kick off this test process
+        PlayFabEntity.GetObjects(getObjectsRequest, CallbackWrapper("getObjCallback1", getObjCallback1, test));
+    }),
 };
 
 nodeunit.on("complete", function (): void {

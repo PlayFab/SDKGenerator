@@ -83,6 +83,7 @@ function getResultActions(tabbing, apiCall) {
     else if (apiCall.result === "LoginResult" || apiCall.result === "RegisterPlayFabUserResult")
         return tabbing + "if (result != null && result.data != null) {\n"
             + tabbing + "    PlayFab._internalSettings.sessionTicket = result.data.hasOwnProperty(\"SessionTicket\") ? result.data.SessionTicket : PlayFab._internalSettings.sessionTicket;\n"
+            + tabbing + "    PlayFab._internalSettings.entityToken = result.data.hasOwnProperty(\"EntityToken\") ? result.data.EntityToken.EntityToken : PlayFab._internalSettings.entityToken;\n"
             + tabbing + "    exports._MultiStepClientLogin(result.data.SettingsForUser.NeedsAttribution);\n"
             + tabbing + "}";
     else if (apiCall.result === "AttributeInstallResult")

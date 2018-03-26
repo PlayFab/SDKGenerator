@@ -15,12 +15,8 @@ class FPlayFab : public IPlayFab
         //Force classes to be compiled on shipping build
         UPlayFabJsonObject::StaticClass();
         UPlayFabJsonValue::StaticClass();
-<%
-        // This Loops through the different apis and adds the classes here
-        for(var i in names)
-        {%>
-        UPlayFab<%- names[i].name %>API::StaticClass();<%
-        }%>
+<% for(var a in apis) { %>
+        UPlayFab<%- apis[a].name %>API::StaticClass();<% } %>
     }
 
     virtual void ShutdownModule() override

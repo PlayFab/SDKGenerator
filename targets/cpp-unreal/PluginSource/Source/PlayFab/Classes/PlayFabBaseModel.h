@@ -23,7 +23,7 @@ struct FPlayFabError
 
     /** Holds the error name recieved from playfab. */
     UPROPERTY(EditAnywhere, BlueprintReadWrite, Category = "PlayFab | Error | Models")
-        FString  ErrorName;
+        FString ErrorName;
 
     /** Holds the error message recieved from playfab. */
     UPROPERTY(EditAnywhere, BlueprintReadWrite, Category = "PlayFab | Error | Models")

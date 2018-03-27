@@ -62,14 +62,12 @@ void UPlayFabClientAPI::MultiStepClientLogin(bool needsAttribution)
         AttributeInstall(request);
     }
 }
-<% } else if (hasServerOptions) {
-%>
+
 void UPlayFab<%- api.name %>API::SetDevSecretKey(const FString& developerSecretKey)
 {
     PlayFabSettings::developerSecretKey = developerSecretKey;
 }
-<% }
-for(var i in api.calls) { var apiCall = api.calls[i];
+<%for(var i in api.calls) { var apiCall = api.calls[i];
 %>
 bool UPlayFab<%- api.name %>API::<%- apiCall.name %>(
     <% if (hasRequest(apiCall, api)) { %><%- api.name %>Models::F<%- apiCall.request %>& request,<% } %>

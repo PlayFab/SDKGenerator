@@ -177,14 +177,11 @@ function generateSimpleFiles(apis, sourceDir, apiOutputDir) {
     var settingsLocals = {
         sdkVersion: exports.sdkVersion,
         buildIdentifier: exports.buildIdentifier,
-        hasServerOptions: false,
         hasClientOptions: false
     };
     for (var i = 0; i < apis.length; i++) {
         if (apis[i].name === "Client")
             settingsLocals.hasClientOptions = true;
-        else
-            settingsLocals.hasServerOptions = true;
     }
 
     var settingsTemplate = getCompiledTemplate(path.resolve(sourceDir, "templates/PlayFabSettings.cs.ejs"));

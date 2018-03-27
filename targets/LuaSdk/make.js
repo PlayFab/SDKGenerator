@@ -52,15 +52,12 @@ function makeCoreSdk(apis, sourceDir, apiOutputDir, sdkDescriptor, requirePrefix
     var locals = {
         buildIdentifier: exports.buildIdentifier,
         sdkVersionString: sdkVersionString,
-        hasServerOptions: false,
         hasClientOptions: false,
         requirePrefix: requirePrefix // Corona is in a top-level subfolder which is not present in any other sdk
     };
     for (var i = 0; i < apis.length; i++) {
         if (apis[i].name === "Client")
             locals.hasClientOptions = true;
-        else if (apis[i].name !== "Entity")
-            locals.hasServerOptions = true;
     }
 
     templatizeTree(locals, path.resolve(sourceDir, "source"), apiOutputDir);

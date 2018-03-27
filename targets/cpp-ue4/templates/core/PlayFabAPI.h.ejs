@@ -25,8 +25,8 @@ namespace PlayFab
         bool AdvertIdSuccessful();
         bool IsClientLoggedIn() const;
         void MultiStepClientLogin(bool needsAttribution);
-<% } else if (hasServerOptions) { %>        void SetDevSecretKey(const FString& developerSecretKey);
-<% } %>
+        void SetDevSecretKey(const FString& developerSecretKey);
+
         // ------------ Generated API calls
 <%    for(var i in api.calls) {
 var apiCall = api.calls[i];

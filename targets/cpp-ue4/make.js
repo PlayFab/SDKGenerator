@@ -43,7 +43,6 @@ function makeApi(api, sourceDir, apiOutputDir, subdir) {
         getResultActions: getResultActions,
         getUrlAccessor: getUrlAccessor,
         hasClientOptions: api.name === "Client",
-        hasServerOptions: api.name !== "Client" && api.name !== "Entity",
         hasRequest: hasRequest
     };
 

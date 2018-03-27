@@ -28,7 +28,6 @@ exports.makeCombinedAPI = function (apis, sourceDir, apiOutputDir) {
         getUrlAccessor: getUrlAccessor,
         // Node is combo-only, which always has all options for all common files
         hasClientOptions: true, // for (var a = 0; a < apis.length; a++) { if (apis[a].name === "Client")
-        hasServerOptions: true, // for (var a = 0; a < apis.length; a++) { else if (apis[a].name !== "Entity")
         projectName: "playfab-sdk",
         sdkVersion: exports.sdkVersion,
         sourceDir: sourceDir
@@ -40,7 +39,6 @@ exports.makeCombinedAPI = function (apis, sourceDir, apiOutputDir) {
     // Write the API files
     for (var i = 0; i < apis.length; i++) {
         locals.api = apis[i];
-        locals.hasServerOptions = apis[i].name !== "Client" && apis[i].name !== "Entity";
         locals.hasClientOptions = apis[i].name === "Client";
 
         writeFile(path.resolve(eachOutputDir, "Scripts/PlayFab/PlayFab" + apis[i].name + ".js"), apiTemplate(locals));

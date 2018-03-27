@@ -20,13 +20,8 @@ exports.makeCombinedAPI = function (apis, sourceDir, apiOutputDir) {
         errorList: apis[0].errorList,
         errors: apis[0].errors,
         hasClientOptions: true, // if (apis[i].name === "Client")
-        hasEntityOptions: false, // if (apis[i].name === "Entity")
-        hasServerOptions: true,  // else if server, admin, matchmaker
         sdkVersion: exports.sdkVersion
     };
-    for (var i = 0; i < apis.length; i++)
-        if (apis[i].name === "Entity")
-            locals.hasEntityOptions = true; // Entity is still in beta, so it may not actually be there
 
     templatizeTree(locals ,path.resolve(sourceDir, "source"), apiOutputDir);
 

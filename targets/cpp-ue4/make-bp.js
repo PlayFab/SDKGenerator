@@ -1,5 +1,7 @@
 var path = require("path");
 
+var maxEnumSize = 255;
+
 // Making resharper less noisy - These are defined in Generate.js
 if (typeof (getCompiledTemplate) === "undefined") getCompiledTemplate = function () { };
 
@@ -52,6 +54,7 @@ function generateBpLibrary(api, sourceDir, apiOutputDir, subdir) {
 function generateBpDataModels(api, sourceDir, apiOutputDir, subdir) {
     var bpModelsLocal = {
         api: api,
+        maxEnumSize: maxEnumSize,
         needsDelegate: needsDelegate,
         isRequest: isRequest,
         isResult: isResult
@@ -95,7 +98,7 @@ function getDatatypeSignatureInputParameters(apiCall, api) {
     return ", const FBP" + api.name + datatype.name + "& In" + datatype.name;
 }
 
-function getDatatypeSignatureParameters(tabbing, datatype, api, make) {
+function getDatatypeSignatureParameters(tabbing, api, datatype, make) {
     var result = "";
 
     if (!datatype.properties)
@@ -113,9 +116,9 @@ function getDatatypeSignatureParameters(tabbing, datatype, api, make) {
             result += tabbing;
             if (makeCount !== 1)
                 result += ", ";
-            result += getBpPropertyDefinition(property, api) + " In" + property.name + "\n";
+            result += getBpPropertyDefinition(api, datatype, property) + " In" + property.name + "\n";
         } else {
-            result += tabbing + ", " + getBpPropertyDefinition(property, api) + "& Out" + property.name + "\n";
+            result += tabbing + ", " + getBpPropertyDefinition(api, datatype, property) + "& Out" + property.name + "\n";
         }
     }
 
@@ -124,42 +127,42 @@ function getDatatypeSignatureParameters(tabbing, datatype, api, make) {
 
 ///////////////////
 // Write properties
-function generateMapClassProxyWrite(tabbing, property, api, datatype) {
+function generateMapClassProxyWrite(tabbing, api, datatype, property) {
     var safePropName = getPropertySafeName(property);
     var inValue = "In" + property.name;
 
     var result = tabbing + "for (auto& elem : " + inValue + ")\n";
     result += tabbing + "{\n";
-    result += tabbing + "    const " + getPropertyUe4ToOpaqueType(property, api, datatype) + " value = elem.Value;\n";
-    if (property.isenum)
-        result += tabbing + "    Out.Data." + safePropName + ".Add(elem.Key, static_cast<" + getProperyUe4ToNativeType(property, api, datatype) + ">(static_cast<uint8>(value)));\n";
+    result += tabbing + "    const " + getPropertyUe4ToOpaqueType(api, datatype, property) + " value = elem.Value;\n";
+    if (property.isenum && api.datatypes[property.actualtype].enumvalues.length <= maxEnumSize)
+        result += tabbing + "    Out.Data." + safePropName + ".Add(elem.Key, static_cast<" + getProperyUe4ToNativeType(api, datatype, property) + ">(static_cast<uint8>(value)));\n";
     else if (property.isclass)
         result += tabbing + "    Out.Data." + safePropName + ".Add(elem.Key, value.Data);\n";
     else if (property.actualtype === "object")
         result += tabbing + "    Out.Data." + safePropName + ".Add(elem.Key, value->GetRootValue());\n";
     else // should really only be number types
-        result += tabbing + "    Out.Data." + safePropName + ".Add(elem.Key, static_cast<" + getProperyUe4ToNativeType(property, api, datatype) + ">(value));\n";
+        result += tabbing + "    Out.Data." + safePropName + ".Add(elem.Key, static_cast<" + getProperyUe4ToNativeType(api, datatype, property) + ">(value));\n";
     result += tabbing + "}\n";
     return result;
 }
 
-function generateArrayClassProxyWrite(tabbing, property, api, datatype) {
+function generateArrayClassProxyWrite(tabbing, api, datatype, property) {
     var safePropName = getPropertySafeName(property);
     var inValue = "In" + property.name;
 
-    var result = tabbing + "for (const " + getPropertyUe4ToOpaqueType(property, api, datatype) + "& elem : " + inValue + ")\n";
+    var result = tabbing + "for (const " + getPropertyUe4ToOpaqueType(api, datatype, property) + "& elem : " + inValue + ")\n";
     result += tabbing + "{\n";
-    if (property.isenum)
-        result += tabbing + "    Out.Data." + safePropName + ".Add(static_cast<" + getProperyUe4ToNativeType(property, api, datatype) + ">(static_cast<uint8>(elem)));\n";
+    if (property.isenum && api.datatypes[property.actualtype].enumvalues.length <= maxEnumSize)
+        result += tabbing + "    Out.Data." + safePropName + ".Add(static_cast<" + getProperyUe4ToNativeType(api, datatype, property) + ">(static_cast<uint8>(elem)));\n";
     else if (property.isclass)
         result += tabbing + "    Out.Data." + safePropName + ".Add(elem.Data);\n";
     else  // should really only be number types
-        result += tabbing + "    Out.Data." + safePropName + ".Add(static_cast<" + getProperyUe4ToNativeType(property, api, datatype) + ">(elem));\n";
+        result += tabbing + "    Out.Data." + safePropName + ".Add(static_cast<" + getProperyUe4ToNativeType(api, datatype, property) + ">(elem));\n";
     result += tabbing + "}\n";
     return result;
 }
 
-function generateProxyPropertyWrite(tabbing, property, api, datatype) {
+function generateProxyPropertyWrite(tabbing, api, datatype, property) {
     if (property.name === "TitleId") // TitleId is set via PlayFab project settings
         return "";
 
@@ -167,13 +170,13 @@ function generateProxyPropertyWrite(tabbing, property, api, datatype) {
     // should this return the pointer instead?
     var safePropName = getPropertySafeName(property);
     if (property.isclass && property.optional && !property.collection)
-        return tabbing + "Out.Data." + safePropName + " = MakeShareable(new " + getProperyUe4ToNativeType(property, api, datatype) + "(In" + property.name + ".Data));\n";
+        return tabbing + "Out.Data." + safePropName + " = MakeShareable(new " + getProperyUe4ToNativeType(api, datatype, property) + "(In" + property.name + ".Data));\n";
     else if (property.collection === "array" && (property.jsontype === "Object" || property.isenum))
-        return generateArrayClassProxyWrite(tabbing, property, api, datatype);
-    else if (property.collection === "map" && (property.isclass || property.isenum || getProperyUe4ToNativeType(property, api, datatype) !== getPropertyUe4ToOpaqueType(property, api, datatype)))
-        return generateMapClassProxyWrite(tabbing, property, api, datatype);
-    else if (property.isenum)
-        return tabbing + "Out.Data." + safePropName + " = static_cast<" + getProperyUe4ToNativeType(property, api, datatype) + ">(static_cast<uint8>(In" + property.name + "));\n";
+        return generateArrayClassProxyWrite(tabbing, api, datatype, property);
+    else if (property.collection === "map" && (property.isclass || property.isenum || getProperyUe4ToNativeType(api, datatype, property) !== getPropertyUe4ToOpaqueType(api, datatype, property)))
+        return generateMapClassProxyWrite(tabbing, api, datatype, property);
+    else if (property.isenum && api.datatypes[property.actualtype].enumvalues.length <= maxEnumSize)
+        return tabbing + "Out.Data." + safePropName + " = static_cast<" + getProperyUe4ToNativeType(api, datatype, property) + ">(static_cast<uint8>(In" + property.name + "));\n";
     else if (property.actualtype === "object")
         return tabbing + "Out.Data." + safePropName + " = In" + property.name + "->GetRootValue();\n";
     else if (property.isclass)
@@ -184,46 +187,46 @@ function generateProxyPropertyWrite(tabbing, property, api, datatype) {
 
 //////////////////
 // Read properties
-function generateMapClassProxyRead(tabbing, property, api, datatype) {
+function generateMapClassProxyRead(tabbing, api, datatype, property) {
     var safePropName = getPropertySafeName(property);
     var inValue = "In.Data." + safePropName;
 
     var result = tabbing + "for (auto& elem : " + inValue + ")\n";
     result += tabbing + "{\n";
-    result += tabbing + "    const " + getProperyUe4ToNativeType(property, api, datatype) + " value = elem.Value;\n";
-    if (property.isenum) {
-        result += tabbing + "    Out" + property.name + ".Add(elem.Key, static_cast<" + getPropertyUe4ToOpaqueType(property, api, datatype) + ">(static_cast<uint8>(value)));\n";
+    result += tabbing + "    const " + getProperyUe4ToNativeType(api, datatype, property) + " value = elem.Value;\n";
+    if (property.isenum && api.datatypes[property.actualtype].enumvalues.length <= maxEnumSize) {
+        result += tabbing + "    Out" + property.name + ".Add(elem.Key, static_cast<" + getPropertyUe4ToOpaqueType(api, datatype, property) + ">(static_cast<uint8>(value)));\n";
     } else if (property.isclass) {
-        result += tabbing + "    Out" + property.name + ".Add(elem.Key, " + getPropertyUe4ToOpaqueType(property, api, datatype) + "(value));\n";
+        result += tabbing + "    Out" + property.name + ".Add(elem.Key, " + getPropertyUe4ToOpaqueType(api, datatype, property) + "(value));\n";
     } else if (property.actualtype === "object") {
-        result += tabbing + "    " + getPropertyUe4ToOpaqueType(property, api, datatype) + " " + safePropName + "Val = NewObject<UPlayFabJsonValue>();\n"
+        result += tabbing + "    " + getPropertyUe4ToOpaqueType(api, datatype, property) + " " + safePropName + "Val = NewObject<UPlayFabJsonValue>();\n"
             + tabbing + "    " + safePropName + "Val->SetRootValue(value.GetJsonValue());\n"
             + tabbing + "    Out" + property.name + ".Add(elem.Key, " + safePropName + "Val);\n";
     } else { // should really only be number types
-        result += tabbing + "    Out" + property.name + ".Add(elem.Key, static_cast<" + getPropertyUe4ToOpaqueType(property, api, datatype) + ">(value));\n";
+        result += tabbing + "    Out" + property.name + ".Add(elem.Key, static_cast<" + getPropertyUe4ToOpaqueType(api, datatype, property) + ">(value));\n";
     }
     result += tabbing + "}\n";
     return result;
 }
 
-function generateArrayClassProxyRead(tabbing, property, api, datatype) {
+function generateArrayClassProxyRead(tabbing, api, datatype, property) {
     var safePropName = getPropertySafeName(property);
     var inValue = "In.Data." + safePropName;
 
-    var result = tabbing + "for (const " + getProperyUe4ToNativeType(property, api, datatype) + "& elem : " + inValue + ")\n";
+    var result = tabbing + "for (const " + getProperyUe4ToNativeType(api, datatype, property) + "& elem : " + inValue + ")\n";
     result += tabbing + "{\n";
-    if (property.isenum) {
-        result += tabbing + "    Out" + property.name + ".Add(static_cast<" + getPropertyUe4ToOpaqueType(property, api, datatype) + ">(static_cast<uint8>(elem)));\n";
+    if (property.isenum && api.datatypes[property.actualtype].enumvalues.length <= maxEnumSize) {
+        result += tabbing + "    Out" + property.name + ".Add(static_cast<" + getPropertyUe4ToOpaqueType(api, datatype, property) + ">(static_cast<uint8>(elem)));\n";
     } else if (property.isclass) {
-        result += tabbing + "    Out" + property.name + ".Add(" + getPropertyUe4ToOpaqueType(property, api, datatype) + "(elem));\n";
+        result += tabbing + "    Out" + property.name + ".Add(" + getPropertyUe4ToOpaqueType(api, datatype, property) + "(elem));\n";
     } else { // should really only be number types
-        result += tabbing + "    Out" + property.name + ".Add(static_cast<" + getPropertyUe4ToOpaqueType(property, api, datatype) + ">(elem));\n";
+        result += tabbing + "    Out" + property.name + ".Add(static_cast<" + getPropertyUe4ToOpaqueType(api, datatype, property) + ">(elem));\n";
     }
     result += tabbing + "}\n";
     return result;
 }
 
-function generateProxyPropertyRead(tabbing, property, api, datatype) {
+function generateProxyPropertyRead(tabbing, api, datatype, property) {
     if (property.name === "TitleId") // TitleId is set via PlayFab project settings
         return "";
 
@@ -233,15 +236,15 @@ function generateProxyPropertyRead(tabbing, property, api, datatype) {
     if (property.isclass && property.optional && !property.collection)
         return tabbing + "if (In.Data." + safePropName + ".IsValid()) { Out" + property.name + ".Data = *In.Data." + safePropName + "; }\n";
     else if (property.collection === "array" && (property.jsontype === "Object" || property.isenum))
-        return generateArrayClassProxyRead(tabbing, property, api, datatype);
-    else if (property.collection === "map" && (property.isclass || property.isenum || getProperyUe4ToNativeType(property, api, datatype) !== getPropertyUe4ToOpaqueType(property, api, datatype)))
-        return generateMapClassProxyRead(tabbing, property, api, datatype);
-    else if (property.isenum && property.optional)
-        return tabbing + "if (In.Data." + safePropName + ".notNull()) { Out" + property.name + " = static_cast<" + getPropertyUe4ToOpaqueType(property, api, datatype) + ">(static_cast<uint8>(In.Data." + safePropName + ".mValue)); }\n";
-    else if (property.isenum)
-        return tabbing + "Out" + property.name + " = static_cast<" + getPropertyUe4ToOpaqueType(property, api, datatype) + ">(static_cast<uint8>(In.Data." + safePropName + "));\n";
+        return generateArrayClassProxyRead(tabbing, api, datatype, property);
+    else if (property.collection === "map" && (property.isclass || property.isenum || getProperyUe4ToNativeType(api, datatype, property) !== getPropertyUe4ToOpaqueType(api, datatype, property)))
+        return generateMapClassProxyRead(tabbing, api, datatype, property);
+    else if (property.isenum && property.optional && api.datatypes[property.actualtype].enumvalues.length <= maxEnumSize)
+        return tabbing + "if (In.Data." + safePropName + ".notNull()) { Out" + property.name + " = static_cast<" + getPropertyUe4ToOpaqueType(api, datatype, property) + ">(static_cast<uint8>(In.Data." + safePropName + ".mValue)); }\n";
+    else if (property.isenum && api.datatypes[property.actualtype].enumvalues.length <= maxEnumSize)
+        return tabbing + "Out" + property.name + " = static_cast<" + getPropertyUe4ToOpaqueType(api, datatype, property) + ">(static_cast<uint8>(In.Data." + safePropName + "));\n";
     else if (property.actualtype === "object")
-        return tabbing + getPropertyUe4ToOpaqueType(property, api, datatype) + " " + safePropName + "Val = NewObject<UPlayFabJsonValue>();\n"
+        return tabbing + getPropertyUe4ToOpaqueType(api, datatype, property) + " " + safePropName + "Val = NewObject<UPlayFabJsonValue>();\n"
             + tabbing + safePropName + "Val->SetRootValue(In.Data." + safePropName + ".GetJsonValue());\n"
             + tabbing + "Out" + property.name + " = " + safePropName + "Val;\n";
     else if (property.isclass)
@@ -252,20 +255,22 @@ function generateProxyPropertyRead(tabbing, property, api, datatype) {
 
 //////////////////////////////////////////////////////////////////////////
 // generate opaque type
-function getBpPropertyDefinition(property, api, datatype) {
+function getBpPropertyDefinition(api, datatype, property) {
     if (property.collection === "array") {
-        return "TArray<" + getPropertyUe4ToOpaqueType(property, api, datatype) + ">";
+        return "TArray<" + getPropertyUe4ToOpaqueType(api, datatype, property) + ">";
     } else if (property.collection === "map") {
-        return "TMap<FString, " + getPropertyUe4ToOpaqueType(property, api, datatype) + ">";
+        return "TMap<FString, " + getPropertyUe4ToOpaqueType(api, datatype, property) + ">";
     }
 
-    return getPropertyUe4ToOpaqueType(property, api, datatype);
+    return getPropertyUe4ToOpaqueType(api, datatype, property);
 }
 
-function getPropertyUe4ToOpaqueType(property, api, datatype) {
+function getPropertyUe4ToOpaqueType(api, datatype, property) {
     var propertyUe4Type;
 
     if (property.actualtype === "String")
+        propertyUe4Type = "FString";
+    else if (property.isenum && api.datatypes[property.actualtype].enumvalues.length > maxEnumSize)
         propertyUe4Type = "FString";
     else if (property.actualtype === "Boolean")
         propertyUe4Type = "bool";
@@ -294,15 +299,17 @@ function getPropertyUe4ToOpaqueType(property, api, datatype) {
     else if (property.actualtype === "object")
         propertyUe4Type = "UPlayFabJsonValue*";
     else
-        throw "Unknown property type: " + property.actualtype + " for " + property.name + " in " + datatype.name;
+        throw "getPropertyUe4ToOpaqueType: Unknown property type: " + property.actualtype + " for " + property.name + " in " + datatype.name;
 
     return propertyUe4Type;
 }
 
-function getProperyUe4ToNativeType(property, api, datatype) {
+function getProperyUe4ToNativeType(api, datatype, property) {
     var propertyUe4Type;
 
     if (property.actualtype === "String")
+        propertyUe4Type = "FString";
+    else if (property.isenum && api.datatypes[property.actualtype].enumvalues.length > maxEnumSize)
         propertyUe4Type = "FString";
     else if (property.actualtype === "Boolean")
         propertyUe4Type = "bool";
@@ -331,7 +338,7 @@ function getProperyUe4ToNativeType(property, api, datatype) {
     else if (property.actualtype === "object")
         propertyUe4Type = "PlayFab::FJsonKeeper";
     else
-        throw "Unknown property type: " + property.actualtype + " for " + property.name + " in " + datatype.name;
+        throw "getProperyUe4ToNativeType: Unknown property type: " + property.actualtype + " for " + property.name + " in " + datatype.name;
 
     return propertyUe4Type;
 }

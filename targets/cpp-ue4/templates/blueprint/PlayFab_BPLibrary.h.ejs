@@ -19,12 +19,12 @@ public:
 <% if ((!isResult(datatype.name)&&!isRequest(datatype.name))||isRequest(datatype.name)) {
 %>    UFUNCTION(BlueprintPure, Category = "PlayFab|<%- api.name%>", meta = (NativeMakeFunc))
         static FBP<%- api.name%><%- datatype.name %> MakeBP<%- api.name%><%- datatype.name %>(
-<%- getDatatypeSignatureParameters("            ", datatype, api, true) %>);
+<%- getDatatypeSignatureParameters("            ", api, datatype, true) %>        );
 <% }
     if ((!isResult(datatype.name)&&!isRequest(datatype.name))||isResult(datatype.name)) {
 %>    UFUNCTION(BlueprintPure, Category = "PlayFab|<%- api.name%>", meta = (NativeBreakFunc))
         static void BreakBP<%- api.name%><%- datatype.name %>(
             const FBP<%- api.name%><%- datatype.name %>& In
-<%- getDatatypeSignatureParameters("            ", datatype, api) %>);
+<%- getDatatypeSignatureParameters("            ", api, datatype) %>);
 <%}%><%}%>
 };

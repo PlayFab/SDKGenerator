@@ -23,10 +23,10 @@ namespace <%- api.name %>Models
     {
 <% for(var i in datatype.properties) { var property = datatype.properties[i]
 %><%- generateApiSummary("        ", property, "description")
-%><%- getPropertyDef("        ", property, datatype) %><% }
+%><%- getPropertyDef("        ", api, datatype, property) %><% }
 %>        F<%- datatype.name %>() :
             FPlayFabBaseModel()<% for(var i in datatype.properties) { var property = datatype.properties[i] %>,
-            <%- getPropertySafeName(property) %>(<%- getPropertyDefaultValue(property, datatype) %>)<% } %>
+            <%- getPropertySafeName(property) %>(<%- getPropertyDefaultValue(api, datatype, property) %>)<% } %>
             {}
 
         F<%- datatype.name %>(const F<%- datatype.name %>& src) :

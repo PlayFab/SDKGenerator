@@ -7,6 +7,7 @@ if (typeof (generateApiSummaryLines) === "undefined") generateApiSummaryLines = 
 if (typeof (getCompiledTemplate) === "undefined") getCompiledTemplate = function () { };
 
 exports.putInRoot = true;
+var maxEnumSize = 255;
 
 exports.makeCombinedAPI = function (apis, sourceDir, apiOutputDir) {
     var subFolders = ["PlayFabSDK", "ExampleProject"]; // Two copies, one for example project, and one as the raw plugin
@@ -46,10 +47,10 @@ function makeApi(api, sourceDir, apiOutputDir, subdir) {
         hasRequest: hasRequest
     };
 
-    var apiHeaderTemplate = getCompiledTemplate(path.resolve(sourceDir, "templates/core/PlayFabAPI.h.ejs"));
+    var apiHeaderTemplate = getCompiledTemplate(path.resolve(sourceDir, "templates/core/PlayFab_API.h.ejs"));
     writeFile(path.resolve(apiOutputDir, "Public/" + subdir + "PlayFab" + api.name + "API.h"), apiHeaderTemplate(apiLocals));
 
-    var apiBodyTemplate = getCompiledTemplate(path.resolve(sourceDir, "templates/core/PlayFabAPI.cpp.ejs"));
+    var apiBodyTemplate = getCompiledTemplate(path.resolve(sourceDir, "templates/core/PlayFab_API.cpp.ejs"));
     writeFile(path.resolve(apiOutputDir, "Private/" + subdir + "PlayFab" + api.name + "API.cpp"), apiBodyTemplate(apiLocals));
 }
 
@@ -145,15 +146,15 @@ function hasRequest(apiCall, api) {
     return requestType.properties.length > 0;
 }
 
-function getPropertyDef(tabbing, property, datatype) {
+function getPropertyDef(tabbing, api, datatype, property) {
     var safePropName = getPropertySafeName(property);
 
     if (property.collection === "array")
-        return tabbing + "TArray<" + getPropertyCppType(property, datatype, false) + "> " + safePropName + ";\n";
+        return tabbing + "TArray<" + getPropertyCppType(api, datatype, property, false) + "> " + safePropName + ";\n";
     else if (property.collection === "map")
-        return tabbing + "TMap<FString, " + getPropertyCppType(property, datatype, false) + "> " + safePropName + ";\n";
+        return tabbing + "TMap<FString, " + getPropertyCppType(api, datatype, property, false) + "> " + safePropName + ";\n";
     else
-        return tabbing + getPropertyCppType(property, datatype, true) + " " + safePropName + ";\n\n";
+        return tabbing + getPropertyCppType(api, datatype, property, true) + " " + safePropName + ";\n\n";
 }
 
 // PFWORKBIN-445 & PFWORKBIN-302 - variable names can't be the same as the variable type when compiling for android
@@ -161,10 +162,12 @@ function getPropertySafeName(property) {
     return (property.actualtype === property.name) ? "pf" + property.name : property.name;
 }
 
-function getPropertyCppType(property, datatype, needOptional) {
+function getPropertyCppType(api, datatype, property, needOptional) {
     var isOptional = property.optional && needOptional;
 
     if (property.actualtype === "String")
+        return "FString";
+    else if (property.isenum && api.datatypes[property.actualtype].enumvalues.length > maxEnumSize)
         return "FString";
     else if (property.actualtype === "Boolean")
         return isOptional ? "Boxed<bool>" : "bool";
@@ -192,15 +195,17 @@ function getPropertyCppType(property, datatype, needOptional) {
         return isOptional ? ("Boxed<" + property.actualtype + ">") : property.actualtype; // enum
     else if (property.actualtype === "object")
         return "FJsonKeeper";
-    throw "Unknown property type: " + property.actualtype + " for " + property.name + " in " + datatype.name;
+    throw "getPropertyCppType: Unknown property type: " + property.actualtype + " for " + property.name + " in " + datatype.name;
 }
 
-function getPropertyDefaultValue(property, datatype) {
+function getPropertyDefaultValue(api, datatype, property) {
     var isOptional = property.optional;
     if (property.collection)
         return "";
 
     if (property.actualtype === "String")
+        return "";
+    else if (property.isenum && api.datatypes[property.actualtype].enumvalues.length > maxEnumSize)
         return "";
     else if (property.actualtype === "Boolean")
         return isOptional ? "" : "false";
@@ -228,7 +233,7 @@ function getPropertyDefaultValue(property, datatype) {
         return ""; // isOptional ? "" : ""; // enum
     else if (property.actualtype === "object")
         return "";
-    throw "Unknown property type: " + property.actualtype + " for " + property.name + " in " + datatype.name;
+    throw "getPropertyDefaultValue: Unknown property type: " + property.actualtype + " for " + property.name + " in " + datatype.name;
 }
 
 function getPropertyCopyValue(property) {
@@ -239,92 +244,64 @@ function getPropertyCopyValue(property) {
     return "src." + safePropName;
 }
 
-function getPropertySerializer(tabbing, property, datatype) {
+function getPropertySerializer(tabbing, api, datatype, property) {
     if (property.collection === "array")
-        return getArrayPropertySerializer(tabbing, property, datatype);
+        return getArrayPropertySerializer(tabbing, api, datatype, property);
     else if (property.collection === "map")
-        return getMapPropertySerializer(tabbing, property, datatype);
+        return getMapPropertySerializer(tabbing, api, datatype, property);
 
     var writer = null;
     var tester = null;
-
-    var propType = property.actualtype;
-    var propName = property.name;
     var safePropName = getPropertySafeName(property);
-    var isOptional = property.optional;
 
-    if (propType === "String") {
-        writer = "writer->WriteValue(" + safePropName + ");";
-        tester = safePropName + ".IsEmpty() == false";
-    }
-    else if (propType === "Boolean") {
-        writer = "writer->WriteValue(" + safePropName + ");";
-        tester = safePropName + ".notNull()";
-    }
-    else if (propType === "int16") {
-        writer = "writer->WriteValue(" + safePropName + ");";
-        tester = safePropName + ".notNull()";
-    }
-    else if (propType === "uint16") {
-        writer = "writer->WriteValue(" + safePropName + ");";
-        tester = safePropName + ".notNull()";
-    }
-    else if (propType === "int32") {
-        writer = "writer->WriteValue(" + safePropName + ");";
-        tester = safePropName + ".notNull()";
-    }
-    else if (propType === "uint32") {
-        writer = "writer->WriteValue(static_cast<int64>(" + safePropName + "));";
-        tester = safePropName + ".notNull()";
-    }
-    else if (propType === "int64") {
-        writer = "writer->WriteValue(" + safePropName + ");";
-        tester = safePropName + ".notNull()";
-    }
-    else if (propType === "uint64") {
-        writer = "writer->WriteValue(static_cast<int64>(" + safePropName + "));";
-        tester = safePropName + ".notNull()";
-    }
-    else if (propType === "float") {
-        writer = "writer->WriteValue(" + safePropName + ");";
-        tester = safePropName + ".notNull()";
-    }
-    else if (propType === "double") {
-        writer = "writer->WriteValue(" + safePropName + ");";
-        tester = safePropName + ".notNull()";
-    }
-    else if (propType === "DateTime") {
-        writer = "writeDatetime(" + safePropName + ", writer);";
-        tester = safePropName + ".notNull()";
-    }
-    else if (property.isclass) {
-        if (isOptional)
-            writer = safePropName + "->writeJSON(writer);";
-        else
-            writer = safePropName + ".writeJSON(writer);";
-        tester = safePropName + ".IsValid()";
-    }
-    else if (property.isenum) {
-        writer = "write" + propType + "EnumJSON(" + safePropName + ", writer);";
-        tester = safePropName + ".notNull()";
-    }
-    else if (propType === "object") {
-        writer = safePropName + ".writeJSON(writer);";
-        tester = safePropName + ".notNull()";
-    }
-    else {
-        throw "Unknown property type: " + propType + " for " + propName + " in " + datatype.name;
+    function setTemps(intWriter, intTester) {
+        writer = intWriter;
+        tester = intTester;
     }
 
-    if (isOptional)
-        return tabbing + "if (" + tester + ") { writer->WriteIdentifierPrefix(TEXT(\"" + propName + "\")); " + writer + " }";
-    return tabbing + "writer->WriteIdentifierPrefix(TEXT(\"" + propName + "\")); " + writer;
+    if (property.actualtype === "String")
+        setTemps("writer->WriteValue(" + safePropName + ");", safePropName + ".IsEmpty() == false");
+    else if (property.isenum && api.datatypes[property.actualtype].enumvalues.length > maxEnumSize)
+        setTemps("writer->WriteValue(" + safePropName + ");", safePropName + ".IsEmpty() == false");
+    else if (property.actualtype === "Boolean")
+        setTemps("writer->WriteValue(" + safePropName + ");", safePropName + ".notNull()");
+    else if (property.actualtype === "int16")
+        setTemps("writer->WriteValue(" + safePropName + ");", safePropName + ".notNull()");
+    else if (property.actualtype === "uint16")
+        setTemps("writer->WriteValue(" + safePropName + ");", safePropName + ".notNull()");
+    else if (property.actualtype === "int32")
+        setTemps("writer->WriteValue(" + safePropName + ");", safePropName + ".notNull()");
+    else if (property.actualtype === "uint32")
+        setTemps("writer->WriteValue(static_cast<int64>(" + safePropName + "));", safePropName + ".notNull()");
+    else if (property.actualtype === "int64")
+        setTemps("writer->WriteValue(" + safePropName + ");", safePropName + ".notNull()");
+    else if (property.actualtype === "uint64")
+        setTemps("writer->WriteValue(static_cast<int64>(" + safePropName + "));", safePropName + ".notNull()");
+    else if (property.actualtype === "float")
+        setTemps("writer->WriteValue(" + safePropName + ");", safePropName + ".notNull()");
+    else if (property.actualtype === "double")
+        setTemps("writer->WriteValue(" + safePropName + ");", safePropName + ".notNull()");
+    else if (property.actualtype === "DateTime")
+        setTemps("writeDatetime(" + safePropName + ", writer);", safePropName + ".notNull()");
+    else if (property.isclass && property.optional)
+        setTemps(safePropName + "->writeJSON(writer);", safePropName + ".IsValid()");
+    else if (property.isclass)
+        setTemps(safePropName + ".writeJSON(writer);", safePropName + ".IsValid()");
+    else if (property.isenum)
+        setTemps("write" + property.actualtype + "EnumJSON(" + safePropName + ", writer);", safePropName + ".notNull()");
+    else if (property.actualtype === "object")
+        setTemps(safePropName + ".writeJSON(writer);", safePropName + ".notNull()");
+    else
+        throw "getPropertySerializer: Unknown property type: " + property.actualtype + " for " + property.name + " in " + datatype.name;
+
+    if (property.optional)
+        return tabbing + "if (" + tester + ") { writer->WriteIdentifierPrefix(TEXT(\"" + property.name + "\")); " + writer + " }";
+    return tabbing + "writer->WriteIdentifierPrefix(TEXT(\"" + property.name + "\")); " + writer;
 }
 
-function getArrayPropertySerializer(tabbing, property, datatype) {
-    var propName = property.name;
+function getArrayPropertySerializer(tabbing, api, datatype, property) {
     var isOptional = property.optional;
-    var cppType = getPropertyCppType(property, datatype, false);
+    var cppType = getPropertyCppType(api, datatype, property, false);
 
     var writer = "writer->WriteValue(item);";
     if (property.actualtype === "uint64")
@@ -333,29 +310,28 @@ function getArrayPropertySerializer(tabbing, property, datatype) {
         writer = "writeDatetime(item, writer);";
     else if (property.isclass)
         writer = "item.writeJSON(writer);";
-    else if (property.isenum)
+    else if (property.isenum && api.datatypes[property.actualtype].enumvalues.length <= maxEnumSize)
         writer = "write" + property.actualtype + "EnumJSON(item, writer);";
     else if (property.actualtype === "object")
         writer = "item.writeJSON(writer);";
 
     var collectionTabbing = isOptional ? "    " + tabbing : tabbing;
-    var collectionWriter = collectionTabbing + "writer->WriteArrayStart(TEXT(\"" + propName + "\"));\n"
-        + collectionTabbing + "for (const " + cppType + "& item : " + propName + ")\n"
+    var collectionWriter = collectionTabbing + "writer->WriteArrayStart(TEXT(\"" + property.name + "\"));\n"
+        + collectionTabbing + "for (const " + cppType + "& item : " + property.name + ")\n"
         + collectionTabbing + "    " + writer + "\n"
         + collectionTabbing + "writer->WriteArrayEnd();\n";
 
     if (isOptional)
-        return tabbing + "if (" + propName + ".Num() != 0)\n"
+        return tabbing + "if (" + property.name + ".Num() != 0)\n"
             + tabbing + "{\n"
             + collectionWriter
             + tabbing + "}\n";
     return collectionWriter;
 }
 
-function getMapPropertySerializer(tabbing, property, datatype) {
-    var propName = property.name;
+function getMapPropertySerializer(tabbing, api, datatype, property) {
     var isOptional = property.optional;
-    var cppType = getPropertyCppType(property, datatype, false);
+    var cppType = getPropertyCppType(api, datatype, property, false);
 
     var writer = "writer->WriteValue((*It).Value);";
     if (property.actualtype === "uint32")
@@ -364,14 +340,16 @@ function getMapPropertySerializer(tabbing, property, datatype) {
         writer = "writeDatetime((*It).Value, writer);";
     else if (property.isclass)
         writer = "(*It).Value.writeJSON(writer);";
+    else if (property.isenum && api.datatypes[property.actualtype].enumvalues.length > maxEnumSize)
+        ; // Explicit do nothing, use the default string writer above
     else if (property.isenum)
         writer = "write" + property.actualtype + "EnumJSON((*It).Value, writer);";
     else if (property.actualtype === "object")
         writer = "(*It).Value.writeJSON(writer);";
 
     var collectionTabbing = isOptional ? "    " + tabbing : tabbing;
-    var collectionWriter = collectionTabbing + "writer->WriteObjectStart(TEXT(\"" + propName + "\"));\n"
-        + collectionTabbing + "for (TMap<FString, " + cppType + ">::TConstIterator It(" + propName + "); It; ++It)\n"
+    var collectionWriter = collectionTabbing + "writer->WriteObjectStart(TEXT(\"" + property.name + "\"));\n"
+        + collectionTabbing + "for (TMap<FString, " + cppType + ">::TConstIterator It(" + property.name + "); It; ++It)\n"
         + collectionTabbing + "{\n"
         + collectionTabbing + "    writer->WriteIdentifierPrefix((*It).Key);\n"
         + collectionTabbing + "    " + writer + "\n"
@@ -379,7 +357,7 @@ function getMapPropertySerializer(tabbing, property, datatype) {
         + collectionTabbing + "writer->WriteObjectEnd();\n";
 
     if (isOptional)
-        return tabbing + "if (" + propName + ".Num() != 0)\n"
+        return tabbing + "if (" + property.name + ".Num() != 0)\n"
             + tabbing + "{\n"
             + collectionWriter
             + tabbing + "}";
@@ -388,108 +366,83 @@ function getMapPropertySerializer(tabbing, property, datatype) {
 
 // custom deserializer for readDatetime
 function getDateTimeDeserializer(tabbing, property) {
-    var propName = property.name;
     var safePropName = getPropertySafeName(property);
-    var propNameValue = propName + "Value";
+    var propNameValue = property.name + "Value";
 
-    var result = tabbing + "const TSharedPtr<FJsonValue> " + propNameValue + " = obj->TryGetField(TEXT(\"" + propName + "\"));\n"
+    var result = tabbing + "const TSharedPtr<FJsonValue> " + propNameValue + " = obj->TryGetField(TEXT(\"" + property.name + "\"));\n"
         + tabbing + "if (" + propNameValue + ".IsValid())\n"
         + tabbing + "    " + safePropName + " = readDatetime(" + propNameValue + ");\n";
     return result;
 }
 
-function getPropertyDeserializer(tabbing, property, datatype) {
-    var propType = property.actualtype;
-    var propName = property.name;
+function getPropertyDeserializer(tabbing, api, datatype, property) {
     var safePropName = getPropertySafeName(property);
 
     if (property.collection === "array")
-        return getArrayPropertyDeserializer(tabbing, property, datatype);
+        return getArrayPropertyDeserializer(tabbing, api, datatype, property);
     else if (property.collection === "map")
-        return getMapPropertyDeserializer(tabbing, property, datatype);
+        return getMapPropertyDeserializer(tabbing, api, datatype, property);
 
     var getter = null;
     var temporary = "";
-    var propNameFieldValue = propName + "Value";
+    var propNameVal = property.name + "Value";
+    function setTemps(intTemporary, intGetter) {
+        temporary = intTemporary;
+        getter = intGetter;
+    }
 
-    if (propType === "String") {
-        temporary = "FString TmpValue;";
-        getter = "TryGetString(TmpValue)";
-    }
-    else if (propType === "Boolean") {
-        temporary = "bool TmpValue;";
-        getter = "TryGetBool(TmpValue)";
-    }
-    else if (propType === "int16") {
-        temporary = "int32 TmpValue;";
-        getter = "TryGetNumber(TmpValue)";
-    }
-    else if (propType === "uint16") {
-        temporary = "uint32 TmpValue;";
-        getter = "TryGetNumber(TmpValue)";
-    }
-    else if (propType === "int32") {
-        temporary = "int32 TmpValue;";
-        getter = "TryGetNumber(TmpValue)";
-    }
-    else if (propType === "uint32") {
-        temporary = "uint32 TmpValue;";
-        getter = "TryGetNumber(TmpValue)";
-    }
-    else if (propType === "int64") {
-        temporary = "int64 TmpValue;";
-        getter = "TryGetNumber(TmpValue)";
-    }
-    else if (propType === "uint64") {
-        temporary = "int64 TmpValue;";
-        getter = "TryGetNumber(TmpValue)";
-    }
-    else if (propType === "float") {
-        temporary = "double TmpValue;";
-        getter = "TryGetNumber(TmpValue)";
-    }
-    else if (propType === "double") {
-        temporary = "double TmpValue;";
-        getter = "TryGetNumber(TmpValue)";
-    }
-    else if (propType === "DateTime") {
+    if (property.actualtype === "String")
+        setTemps("FString TmpValue;", "TryGetString(TmpValue)");
+    else if (property.isenum && api.datatypes[property.actualtype].enumvalues.length > maxEnumSize)
+        setTemps("FString TmpValue;", "TryGetString(TmpValue)");
+    else if (property.actualtype === "Boolean")
+        setTemps("bool TmpValue;", "TryGetBool(TmpValue)");
+    else if (property.actualtype === "int16")
+        setTemps("int32 TmpValue;", "TryGetNumber(TmpValue)");
+    else if (property.actualtype === "uint16")
+        setTemps("uint32 TmpValue;", "TryGetNumber(TmpValue)");
+    else if (property.actualtype === "int32")
+        setTemps("int32 TmpValue;", "TryGetNumber(TmpValue)");
+    else if (property.actualtype === "uint32")
+        setTemps("uint32 TmpValue;", "TryGetNumber(TmpValue)");
+    else if (property.actualtype === "int64")
+        setTemps("int64 TmpValue;", "TryGetNumber(TmpValue)");
+    else if (property.actualtype === "uint64")
+        setTemps("int64 TmpValue;", "TryGetNumber(TmpValue)");
+    else if (property.actualtype === "float")
+        setTemps("double TmpValue;", "TryGetNumber(TmpValue)");
+    else if (property.actualtype === "double")
+        setTemps("double TmpValue;", "TryGetNumber(TmpValue)");
+    else if (property.actualtype === "DateTime")
         return getDateTimeDeserializer(tabbing, property);
-    }
-    else if (property.isclass && property.optional) {
-        getter = "MakeShareable(new F" + propType + "(" + propNameFieldValue + "->AsObject()));";
-    }
-    else if (property.isclass) {
-        getter = "F" + propType + "(" + propNameFieldValue + "->AsObject());";
-    }
-    else if (property.isenum) {
-        return tabbing + safePropName + " = read" + propType + "FromValue(obj->TryGetField(TEXT(\"" + propName + "\")));";
-    }
-    else if (propType === "object") {
-        // implement custom call for this
-        getter = "FJsonKeeper(" + propNameFieldValue + ");";
-    }
-    else {
-        throw "Unknown property type: " + propType + " for " + propName + " in " + datatype.name;
-    }
+    else if (property.isclass && property.optional)
+        getter = "MakeShareable(new F" + property.actualtype + "(" + propNameVal + "->AsObject()));";
+    else if (property.isclass)
+        getter = "F" + property.actualtype + "(" + propNameVal + "->AsObject());";
+    else if (property.isenum)
+        return tabbing + safePropName + " = read" + property.actualtype + "FromValue(obj->TryGetField(TEXT(\"" + property.name + "\")));";
+    else if (property.actualtype === "object")
+        getter = "FJsonKeeper(" + propNameVal + ");"; // implement custom call for this
+    else
+        throw "getPropertyDeserializer: Unknown property type: " + property.actualtype + " for " + property.name + " in " + datatype.name;
 
-    var output = tabbing + "const TSharedPtr<FJsonValue> " + propNameFieldValue + " = obj->TryGetField(TEXT(\"" + propName + "\"));\n"
-        + tabbing + "if (" + propNameFieldValue + ".IsValid() && !" + propNameFieldValue + "->IsNull())\n"
+    var output = tabbing + "const TSharedPtr<FJsonValue> " + propNameVal + " = obj->TryGetField(TEXT(\"" + property.name + "\"));\n"
+        + tabbing + "if (" + propNameVal + ".IsValid() && !" + propNameVal + "->IsNull())\n"
         + tabbing + "{\n";
-
-    if (property.isclass || propType === "object")
+    if (property.isclass || property.actualtype === "object")
         output += tabbing + "    " + safePropName + " = " + getter + "\n";
     else if (temporary)
         output += tabbing + "    " + temporary + "\n"
-            + tabbing + "    if (" + propNameFieldValue + "->" + getter + ") { " + safePropName + " = TmpValue; }\n";
+            + tabbing + "    if (" + propNameVal + "->" + getter + ") { " + safePropName + " = TmpValue; }\n";
     else // if (!temporary)
-        output += + tabbing + "    if (" + propNameFieldValue + "->" + getter + ") { " + safePropName + " = TmpValue; }\n";
+        output += + tabbing + "    if (" + propNameVal + "->" + getter + ") { " + safePropName + " = TmpValue; }\n";
     output += tabbing + "}";
 
     return output;
 }
 
 // specialization for array of strings
-function getArrayStringPropertyDeserializer(tabbing, property, datatype) {
+function getArrayStringPropertyDeserializer(tabbing, datatype, property) {
     var isOptional = property.optional;
     var optionalOption = "";
 
@@ -498,60 +451,51 @@ function getArrayStringPropertyDeserializer(tabbing, property, datatype) {
 
     if (property.actualtype === "String")
         return tabbing + optionalOption + "obj->TryGetStringArrayField(TEXT(\"" + property.name + "\"), " + property.name + ");";
-    throw "Unknown property type: " + property.actualtype + " for " + property.name + " in " + datatype.name;
+    throw "getArrayStringPropertyDeserializer: Unknown property type: " + property.actualtype + " for " + property.name + " in " + datatype.name;
 }
 
-function getArrayPropertyDeserializer(tabbing, property, datatype) {
+function getArrayPropertyDeserializer(tabbing, api, datatype, property) {
     var getter = null; // represent the getter call function
     var temporary = ""; // represents a potential intermediate state used for some variables
 
-    if (property.actualtype === "String") {
-        return getArrayStringPropertyDeserializer(tabbing, property, datatype);
-    } else if (property.actualtype === "Boolean") {
-        getter = "CurrentItem->AsBool()";
-    } else if (property.actualtype === "int16") {
-        temporary = "int32 TmpValue;\n";
-        temporary += "CurrentItem->TryGetNumber(TmpValue);\n";
-        getter = "TmpValue";
-    } else if (property.actualtype === "uint16") {
-        temporary = "uint32 TmpValue;\n";
-        temporary += "CurrentItem->TryGetNumber(TmpValue);\n";
-        getter = "TmpValue";
-    } else if (property.actualtype === "int32") {
-        temporary = "int32 TmpValue;\n";
-        temporary += "CurrentItem->TryGetNumber(TmpValue);\n";
-        getter = "TmpValue";
-    } else if (property.actualtype === "uint32") {
-        temporary = "uint32 TmpValue;\n";
-        temporary += "CurrentItem->TryGetNumber(TmpValue);\n";
-        getter = "TmpValue";
-    } else if (property.actualtype === "int64") {
-        temporary = "int64 TmpValue;\n";
-        temporary += "CurrentItem->TryGetNumber(TmpValue);\n";
-        getter = "TmpValue";
-    } else if (property.actualtype === "uint64") {
-        temporary = "int64 TmpValue;\n";
-        temporary += "CurrentItem->TryGetNumber(TmpValue);\n";
-        getter = "TmpValue";
-    } else if (property.actualtype === "float") {
-        temporary = "double TmpValue;\n";
-        temporary += "CurrentItem->TryGetNumber(TmpValue);\n";
-        getter = "(float)TmpValue";
-    } else if (property.actualtype === "double") {
-        temporary = "double TmpValue;\n";
-        temporary += "CurrentItem->TryGetNumber(TmpValue);\n";
-        getter = "TmpValue";
-    } else if (property.actualtype === "DateTime") {
-        getter = "readDatetime(CurrentItem)";
-    } else if (property.isclass) {
-        getter = "F" + property.actualtype + "(CurrentItem->AsObject())";
-    } else if (property.isenum) {
-        getter = "read" + property.actualtype + "FromValue(CurrentItem)";
-    } else if (property.actualtype === "object") {
-        getter = "FJsonKeeper(CurrentItem)";
-    } else {
-        throw "Unknown property type: " + property.actualtype + " for " + property.name + " in " + datatype.name;
+    function setTemps(intGetter, intTemporary) {
+        getter = intGetter;
+        if (intTemporary)
+            temporary = intTemporary;
     }
+
+    if (property.actualtype === "String")
+        return getArrayStringPropertyDeserializer(tabbing, datatype, property);
+    else if (property.isenum && api.datatypes[property.actualtype].enumvalues.length > maxEnumSize)
+        return getArrayStringPropertyDeserializer(tabbing, datatype, property);
+    else if (property.actualtype === "Boolean")
+        setTemps("CurrentItem->AsBool()");
+    else if (property.actualtype === "int16")
+        setTemps("TmpValue", "int32 TmpValue;\n" + tabbing + "CurrentItem->TryGetNumber(TmpValue);\n");
+    else if (property.actualtype === "uint16")
+        setTemps("TmpValue", "uint32 TmpValue;\n" + tabbing + "CurrentItem->TryGetNumber(TmpValue);\n");
+    else if (property.actualtype === "int32")
+        setTemps("TmpValue", "int32 TmpValue;\n" + tabbing + "CurrentItem->TryGetNumber(TmpValue);\n");
+    else if (property.actualtype === "uint32")
+        setTemps("TmpValue", "uint32 TmpValue;\n" + tabbing + "CurrentItem->TryGetNumber(TmpValue);\n");
+    else if (property.actualtype === "int64")
+        setTemps("TmpValue", "int64 TmpValue;\n" + tabbing + "CurrentItem->TryGetNumber(TmpValue);\n");
+    else if (property.actualtype === "uint64")
+        setTemps("TmpValue", "int64 TmpValue;\n" + tabbing + "CurrentItem->TryGetNumber(TmpValue);\n");
+    else if (property.actualtype === "float")
+        setTemps("(float)TmpValue", "double TmpValue;\n" + tabbing + "CurrentItem->TryGetNumber(TmpValue);\n");
+    else if (property.actualtype === "double")
+        setTemps("TmpValue", "double TmpValue;\n" + tabbing + "CurrentItem->TryGetNumber(TmpValue);\n");
+    else if (property.actualtype === "DateTime")
+        setTemps("readDatetime(CurrentItem)");
+    else if (property.isclass)
+        setTemps("F" + property.actualtype + "(CurrentItem->AsObject())");
+    else if (property.isenum)
+        setTemps("read" + property.actualtype + "FromValue(CurrentItem)");
+    else if (property.actualtype === "object")
+        setTemps("FJsonKeeper(CurrentItem)");
+    else
+        throw "getArrayPropertyDeserializer: Unknown property type: " + property.actualtype + " for " + property.name + " in " + datatype.name;
 
     var propertyArrayName = property.name + "Array";
 
@@ -572,49 +516,48 @@ function getArrayPropertyDeserializer(tabbing, property, datatype) {
         + tabbing + "}\n";
 }
 
-function getMapPropertyDeserializer(tabbing, property, datatype) {
+function getMapPropertyDeserializer(tabbing, api, datatype, property) {
     var getter = null;
     var temporary = "";
 
-    if (property.actualtype === "String") {
-        getter = "It.Value()->AsString()";
-    } else if (property.actualtype === "Boolean") {
-        getter = "It.Value()->AsBool()";
-    } else if (property.actualtype === "int16") {
-        temporary = "int32 TmpValue; It.Value()->TryGetNumber(TmpValue);";
-        getter = "TmpValue";
-    } else if (property.actualtype === "uint16") {
-        temporary = "uint32 TmpValue; It.Value()->TryGetNumber(TmpValue);";
-        getter = "TmpValue";
-    } else if (property.actualtype === "int32") {
-        temporary = "int32 TmpValue; It.Value()->TryGetNumber(TmpValue);";
-        getter = "TmpValue";
-    } else if (property.actualtype === "uint32") {
-        temporary = "uint32 TmpValue; It.Value()->TryGetNumber(TmpValue);";
-        getter = "TmpValue";
-    } else if (property.actualtype === "int64") {
-        temporary = "int64 TmpValue; It.Value()->TryGetNumber(TmpValue);";
-        getter = "TmpValue";
-    } else if (property.actualtype === "uint64") {
-        temporary = "int64 TmpValue; It.Value()->TryGetNumber(TmpValue);";
-        getter = "TmpValue";
-    } else if (property.actualtype === "float") {
-        temporary = "double TmpValue; It.Value()->TryGetNumber(TmpValue);";
-        getter = "(float)TmpValue";
-    } else if (property.actualtype === "double") {
-        temporary = "double TmpValue; It.Value()->TryGetNumber(TmpValue);";
-        getter = "TmpValue";
-    } else if (property.actualtype === "DateTime") {
-        getter = "readDatetime(It.Value())";
-    } else if (property.isclass) {
-        getter = "F" + property.actualtype + "(It.Value()->AsObject())";
-    } else if (property.isenum) {
-        getter = "read" + property.actualtype + "FromValue(It.Value())";
-    } else if (property.actualtype === "object") {
-        getter = "FJsonKeeper(It.Value())";
-    } else {
-        throw "Unknown property type: " + property.actualtype + " for " + property.name + " in " + datatype.name;
+    function setTemps(get, temp) {
+        getter = get;
+        if (temp)
+            temporary = temp;
     }
+
+    if (property.actualtype === "String")
+        setTemps("It.Value()->AsString()");
+    else if (property.isenum && api.datatypes[property.actualtype].enumvalues.length > maxEnumSize)
+        setTemps("It.Value()->AsString()");
+    else if (property.actualtype === "Boolean")
+        setTemps("It.Value()->AsBool()");
+    else if (property.actualtype === "int16")
+        setTemps("TmpValue", "int32 TmpValue; It.Value()->TryGetNumber(TmpValue);");
+    else if (property.actualtype === "uint16")
+        setTemps("TmpValue", "uint32 TmpValue; It.Value()->TryGetNumber(TmpValue);");
+    else if (property.actualtype === "int32")
+        setTemps("TmpValue", "int32 TmpValue; It.Value()->TryGetNumber(TmpValue);");
+    else if (property.actualtype === "uint32")
+        setTemps("TmpValue", "uint32 TmpValue; It.Value()->TryGetNumber(TmpValue);");
+    else if (property.actualtype === "int64")
+        setTemps("TmpValue", "int64 TmpValue; It.Value()->TryGetNumber(TmpValue);");
+    else if (property.actualtype === "uint64")
+        setTemps("TmpValue", "int64 TmpValue; It.Value()->TryGetNumber(TmpValue);");
+    else if (property.actualtype === "float")
+        setTemps("(float)TmpValue", "double TmpValue; It.Value()->TryGetNumber(TmpValue);");
+    else if (property.actualtype === "double")
+        setTemps("TmpValue", "double TmpValue; It.Value()->TryGetNumber(TmpValue);");
+    else if (property.actualtype === "DateTime")
+        setTemps("readDatetime(It.Value())");
+    else if (property.isclass)
+        setTemps("F" + property.actualtype + "(It.Value()->AsObject())");
+    else if (property.isenum)
+        setTemps("read" + property.actualtype + "FromValue(It.Value())");
+    else if (property.actualtype === "object")
+        setTemps("FJsonKeeper(It.Value())");
+    else
+        throw "getMapPropertyDeserializer: Unknown property type: " + property.actualtype + " for " + property.name + " in " + datatype.name;
 
     var propertyObjectName = property.name + "Object";
 
@@ -640,6 +583,9 @@ function getMapPropertyDeserializer(tabbing, property, datatype) {
 }
 
 function addTypeAndDependencies(datatype, datatypes, orderedTypes, addedSet) {
+    if (datatype.isenum && datatype.enumvalues.length > maxEnumSize)
+        return; // Enums are basically strings under the hood, and Unreal doesn't support that many enum values, so just fall back on Strings
+
     if (addedSet[datatype.name])
         return;
 

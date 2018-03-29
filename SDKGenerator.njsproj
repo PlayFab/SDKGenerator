@@ -236,6 +236,8 @@
     <Content Include="targets\cpp-ue4\Plugins\PlayFab\Source\PlayFab\Private\Core\PlayFabBaseModel.cpp" />
     <Content Include="targets\cpp-ue4\Plugins\PlayFab\Source\PlayFab\Private\Core\PlayFabJsonHelpers.cpp" />
     <Content Include="targets\cpp-ue4\Plugins\PlayFab\Source\PlayFab\Private\Core\PlayFabResultHandler.cpp" />
+    <Content Include="targets\cpp-ue4\templates\core\PlayFab_API.cpp.ejs" />
+    <Content Include="targets\cpp-ue4\templates\core\PlayFab_API.h.ejs" />
     <Content Include="targets\cpp-ue4\templates\PlayFab.cpp.ejs" />
     <Content Include="targets\cpp-ue4\Plugins\PlayFab\Source\PlayFab\Private\PlayFabRuntimeSettings.cpp" />
     <Content Include="targets\cpp-ue4\Plugins\PlayFab\Source\PlayFab\Private\PlayFabRuntimeSettings.h" />
@@ -249,8 +251,6 @@
     <Content Include="targets\cpp-ue4\templates\blueprint\PlayFab_BPLibrary.cpp.ejs" />
     <Content Include="targets\cpp-ue4\templates\blueprint\PlayFab_BPLibrary.h.ejs" />
     <Content Include="targets\cpp-ue4\templates\blueprint\PlayFab_BPDataModels.h.ejs" />
-    <Content Include="targets\cpp-ue4\templates\core\PlayFabAPI.cpp.ejs" />
-    <Content Include="targets\cpp-ue4\templates\core\PlayFabAPI.h.ejs" />
     <Content Include="targets\cpp-ue4\templates\core\PlayFabAPI.vcxproj.ejs" />
     <Content Include="targets\cpp-ue4\templates\core\PlayFabAPI.vcxproj.filters.ejs" />
     <Content Include="targets\cpp-ue4\templates\core\PlayFabDataModels.cpp.ejs" />

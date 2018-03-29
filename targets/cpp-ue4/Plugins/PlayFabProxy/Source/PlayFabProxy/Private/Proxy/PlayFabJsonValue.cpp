@@ -7,6 +7,7 @@
 #include "PlayFabJsonValue.h"
 #include "Json.h"
 #include "PlayFabProxy.h"
+#include "Public/Proxy/PlayFabJsonObject.h"
 
 UPlayFabJsonValue::UPlayFabJsonValue(const class FObjectInitializer& PCIP)
     : Super(PCIP)

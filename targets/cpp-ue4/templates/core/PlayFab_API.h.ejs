@@ -25,13 +25,12 @@ namespace PlayFab
         bool AdvertIdSuccessful();
         bool IsClientLoggedIn() const;
         void MultiStepClientLogin(bool needsAttribution);
-        void SetDevSecretKey(const FString& developerSecretKey);
+<% } %>        void SetDevSecretKey(const FString& developerSecretKey);
 
         // ------------ Generated API calls
-<%    for(var i in api.calls) {
-var apiCall = api.calls[i];
-if (hasRequest(apiCall, api))
-{ %><%- generateApiSummary("        ", apiCall, "summary")
+<% for(var i in api.calls) { var apiCall = api.calls[i];
+if (hasRequest(apiCall, api)) {
+%><%- generateApiSummary("        ", apiCall, "summary")
 %>        bool <%- apiCall.name %>(<%- api.name %>Models::F<%- apiCall.request %>& request, const F<%- apiCall.name %>Delegate& SuccessDelegate = F<%- apiCall.name %>Delegate(), const FPlayFabErrorDelegate& ErrorDelegate = FPlayFabErrorDelegate());
 <%    } else  {%><%- generateApiSummary("        ", apiCall, "summary") %>
         bool <%- apiCall.name %>(const F<%- apiCall.name %>Delegate& SuccessDelegate = F<%- apiCall.name %>Delegate(), const FPlayFabErrorDelegate& ErrorDelegate = FPlayFabErrorDelegate());

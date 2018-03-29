@@ -5,8 +5,9 @@
 #include "Core/PlayFab<%- api.name %>API.h"
 #include "Core/PlayFab<%- api.name %>DataModels.h"
 #include "PlayFab<%- api.name %>BPDataModels.generated.h"
-
-<% for(var i in api.datatypes) { var datatype = api.datatypes[i]; if (datatype.isenum) { %>
+<% for(var i in api.datatypes) { var datatype = api.datatypes[i];
+if (datatype.isenum && datatype.enumvalues.length > maxEnumSize) continue;
+if (datatype.isenum) { %>
 UENUM(BlueprintType)
 enum class EBP<%- api.name %><%- datatype.name %> : uint8
 {

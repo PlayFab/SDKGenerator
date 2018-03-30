@@ -2,14 +2,24 @@ var path = require("path");
 var blueprint = require("./make-bp.js");
 
 // Making resharper less noisy - These are defined in Generate.js
-if (typeof (copyTree) === "undefined") copyTree = function () { };
 if (typeof (generateApiSummaryLines) === "undefined") generateApiSummaryLines = function () { };
 if (typeof (getCompiledTemplate) === "undefined") getCompiledTemplate = function () { };
+if (typeof (templatizeTree) === "undefined") templatizeTree = function () { };
 
 exports.putInRoot = true;
 var maxEnumSize = 255;
 
 exports.makeCombinedAPI = function (apis, sourceDir, apiOutputDir) {
+    var locals = {
+        apis: apis,
+        buildIdentifier: exports.buildIdentifier,
+        errorList: apis[0].errorList,
+        errors: apis[0].errors,
+        friendlyName: "PlayFab Cpp Sdk",
+        sdkVersion: exports.sdkVersion,
+        ueTargetVersion: "4.19"
+    };
+
     var subFolders = ["PlayFabSDK", "ExampleProject"]; // Two copies, one for example project, and one as the raw plugin
     for (var i = 0; i < subFolders.length; i++) {
         var eachApiOutputDir = path.resolve(apiOutputDir, subFolders[i]);
@@ -20,7 +30,7 @@ exports.makeCombinedAPI = function (apis, sourceDir, apiOutputDir) {
         console.log("Generating UE4 C++ combined SDK to " + eachApiOutputDir);
 
         // copy the base plugins files, resource, uplugin, etc
-        copyTree(path.resolve(sourceDir, "Plugins"), pluginOutputDir);
+        templatizeTree(locals, path.resolve(sourceDir, "Plugins"), pluginOutputDir);
 
         for (var a = 0; a < apis.length; a++) {
             makeApi(apis[a], sourceDir, outputCodeDir, "Core/");
@@ -29,10 +39,9 @@ exports.makeCombinedAPI = function (apis, sourceDir, apiOutputDir) {
         }
 
         generateModels(apis, sourceDir, outputCodeDir, "All", "Core/");
-        generateSimpleFiles(apis, sourceDir, eachApiOutputDir, outputCodeDir, "Core/");
     }
 
-    copyTree(path.resolve(sourceDir, "ExampleProject"), path.resolve(apiOutputDir, "ExampleProject"));
+    templatizeTree(locals, path.resolve(sourceDir, "ExampleProject"), path.resolve(apiOutputDir, "ExampleProject"));
 }
 
 function makeApi(api, sourceDir, apiOutputDir, subdir) {
@@ -52,38 +61,6 @@ function makeApi(api, sourceDir, apiOutputDir, subdir) {
 
     var apiBodyTemplate = getCompiledTemplate(path.resolve(sourceDir, "templates/core/PlayFab_API.cpp.ejs"));
     writeFile(path.resolve(apiOutputDir, "Private/" + subdir + "PlayFab" + api.name + "API.cpp"), apiBodyTemplate(apiLocals));
-}
-
-function generateSimpleFiles(apis, sourceDir, apiOutputDir, outputCodeDir, subDir) {
-    var sharedLocals = {
-        apis: apis,
-        buildIdentifier: exports.buildIdentifier,
-        errorList: apis[0].errorList,
-        errors: apis[0].errors,
-        friendlyName: "PlayFab Cpp Sdk",
-        sdkVersion: exports.sdkVersion
-    };
-
-    // Errors Definition
-    var errorsTemplate = getCompiledTemplate(path.resolve(sourceDir, "templates/core/PlayFabError.h.ejs"));
-    writeFile(path.resolve(outputCodeDir, "Public", subDir, "PlayFabError.h"), errorsTemplate(sharedLocals));
-
-    // Settings and constants
-    var settingsTemplate = getCompiledTemplate(path.resolve(sourceDir, "templates/core/PlayFabSettings.cpp.ejs"));
-    writeFile(path.resolve(outputCodeDir, "Private", subDir, "PlayFabSettings.cpp"), settingsTemplate(sharedLocals));
-
-    // uplugin file
-    var upluginTemplate = getCompiledTemplate(path.resolve(sourceDir, "templates/PlayFab.uplugin.ejs"));
-    writeFile(path.resolve(apiOutputDir, "Plugins/PlayFab/PlayFab.uplugin"), upluginTemplate(sharedLocals));
-
-    var uproxyPluginTemplate = getCompiledTemplate(path.resolve(sourceDir, "templates/PlayFabProxy.uplugin.ejs"));
-    writeFile(path.resolve(apiOutputDir, "Plugins/PlayFabProxy/PlayFabProxy.uplugin"), uproxyPluginTemplate(sharedLocals));
-
-    var moduleTemplateH = getCompiledTemplate(path.resolve(sourceDir, "templates/PlayFab.h.ejs"));
-    writeFile(path.resolve(apiOutputDir, "Plugins/PlayFab/Source/PlayFab/Public/PlayFab.h"), moduleTemplateH(sharedLocals));
-
-    var moduleTemplateCpp = getCompiledTemplate(path.resolve(sourceDir, "templates/PlayFab.cpp.ejs"));
-    writeFile(path.resolve(apiOutputDir, "Plugins/PlayFab/Source/PlayFab/Private/PlayFab.cpp"), moduleTemplateCpp(sharedLocals));
 }
 
 function generateModels(apis, sourceDir, apiOutputDir, libraryName, subdir) {
@@ -109,10 +86,10 @@ function generateModels(apis, sourceDir, apiOutputDir, libraryName, subdir) {
             libraryName: libraryName
         };
 
-        var modelHeaderTemplate = getCompiledTemplate(path.resolve(sourceDir, "templates/core/PlayFabDataModels.h.ejs"));
+        var modelHeaderTemplate = getCompiledTemplate(path.resolve(sourceDir, "templates/core/PlayFab_DataModels.h.ejs"));
         writeFile(path.resolve(apiOutputDir, "Public/" + subdir + "/PlayFab" + api.name + "DataModels.h"), modelHeaderTemplate(modelLocals));
 
-        var modelBodyTemplate = getCompiledTemplate(path.resolve(sourceDir, "templates/core/PlayFabDataModels.cpp.ejs"));
+        var modelBodyTemplate = getCompiledTemplate(path.resolve(sourceDir, "templates/core/PlayFab_DataModels.cpp.ejs"));
         writeFile(path.resolve(apiOutputDir, "Private/" + subdir + "PlayFab" + api.name + "DataModels.cpp"), modelBodyTemplate(modelLocals));
     }
 }

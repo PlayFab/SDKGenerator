@@ -22,7 +22,6 @@ namespace UnrealBuildTool.Rules
                     "Engine",
                     "HTTP",
                     "Json",
-                    "OnlineSubsystemUtils"
                 }
             );
         }

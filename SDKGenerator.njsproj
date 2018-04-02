@@ -264,7 +264,7 @@
     <Content Include="targets\cpp-unreal\ExampleProject\Content\Maps\Test.umap" />
     <Content Include="targets\cpp-unreal\ExampleProject\Content\PfTestOutput.uasset" />
     <Content Include="targets\cpp-unreal\ExampleProject\Content\PfTestWidget.uasset" />
-    <Content Include="targets\cpp-unreal\ExampleProject\ExampleProject.uproject" />
+    <Content Include="targets\cpp-unreal\ExampleProject\ExampleProject.uproject.ejs" />
     <Content Include="targets\cpp-unreal\ExampleProject\Source\ExampleProject.Target.cs" />
     <Content Include="targets\cpp-unreal\ExampleProject\Source\ExampleProjectEditor.Target.cs" />
     <Content Include="targets\cpp-unreal\ExampleProject\Source\ExampleProject\ExampleProject.Build.cs" />

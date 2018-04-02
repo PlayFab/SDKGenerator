@@ -1,5 +1,3 @@
-// #define PF_UNREAL_OLD_4_16_TO_4_17
-
 using UnrealBuildTool;
 
 public class PlayFab : ModuleRules
@@ -23,11 +21,7 @@ public class PlayFab : ModuleRules
             "Json"
         });
 
-#if PF_UNREAL_OLD_4_16_TO_4_17
-        if (UEBuildConfiguration.bBuildEditor == true)
-#else
         if (Target.bBuildEditor == true)
-#endif
         {
             PrivateDependencyModuleNames.AddRange(new string[] {
                 "Settings"

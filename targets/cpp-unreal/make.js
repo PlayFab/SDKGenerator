@@ -29,7 +29,8 @@ function makeApiIntermal(apis, sourceDir, apiOutputDir, libName) {
         hasServerOptions: false,
         hasClientOptions: false,
         libName: libName,
-        sdkVersion: exports.sdkVersion
+        sdkVersion: exports.sdkVersion,
+        ueTargetVersion: "4.19"
     };
     for (var i = 0; i < apis.length; i++) {
         if (apis[i].name === "Client")

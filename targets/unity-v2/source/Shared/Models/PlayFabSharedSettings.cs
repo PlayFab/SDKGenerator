@@ -7,9 +7,7 @@ using PlayFab;
 public class PlayFabSharedSettings : ScriptableObject
 {
     public string TitleId;
-#if ENABLE_PLAYFABADMIN_API || ENABLE_PLAYFABSERVER_API || UNITY_EDITOR
     public string DeveloperSecretKey;
-#endif
 #if ENABLE_PLAYFABPLAYSTREAM_API && ENABLE_PLAYFABSERVER_API
     public string ProductionEnvironmentPlayStreamUrl = "";
 #endif

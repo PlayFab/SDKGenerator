@@ -371,8 +371,10 @@ function getRequestActions(tabbing, apiCall) {
             tabbing + "if (authType == AuthType.None && PlayFabClientAPI.IsClientLoggedIn())\n" +
             tabbing + "    authType = AuthType.LoginSession;\n" +
             "#endif\n" +
+            "#if ENABLE_PLAYFABSERVER_API || ENABLE_PLAYFABADMIN_API || ENABLE_PLAYFABMATCHMAKER_API || UNITY_EDITOR" +
             tabbing + "if (authType == AuthType.None && !string.IsNullOrEmpty(PlayFabSettings.DeveloperSecretKey))\n" +
-            tabbing + "    authType = AuthType.DevSecretKey;\n";
+            tabbing + "    authType = AuthType.DevSecretKey;\n" +
+            "#endif\n";
 
     if (apiCall.result === "LoginResult" || apiCall.request === "RegisterPlayFabUserRequest")
         return tabbing + "request.TitleId = request.TitleId ?? PlayFabSettings.TitleId;\n";

@@ -6,8 +6,8 @@
 #include "PlayFab.h"
 #include "Core/PlayFabClientDataModels.h"
 #include "Core/PlayFabClientAPI.h"
-//#include "Core/PlayFabEntityDataModels.h"
-//#include "Core/PlayFabEntityAPI.h"
+#include "Core/PlayFabEntityDataModels.h"
+#include "Core/PlayFabEntityAPI.h"
 #include "Core/PlayFabServerDataModels.h"
 #include "Core/PlayFabServerAPI.h"
 
@@ -260,35 +260,35 @@ private:
 /*
 * ==== GetEntityToken ====
 */
-//class PlayFabApiTest_GetEntityToken : public IAutomationLatentCommand
-//{
-//public:
-//    PlayFabApiTest_GetEntityToken();
-//
-//    bool Update() override;
-//private:
-//    void OnSuccess(const PlayFab::EntityModels::FGetEntityTokenResponse& result) const;
-//    void OnError(const PlayFab::FPlayFabError& ErrorResult) const;
-//
-//    PlayFabEntityPtr entityAPI = nullptr;
-//};
+class PlayFabApiTest_GetEntityToken : public IAutomationLatentCommand
+{
+public:
+    PlayFabApiTest_GetEntityToken();
+
+    bool Update() override;
+private:
+    void OnSuccess(const PlayFab::EntityModels::FGetEntityTokenResponse& result) const;
+    void OnError(const PlayFab::FPlayFabError& ErrorResult) const;
+
+    PlayFabEntityPtr entityAPI = nullptr;
+};
 
 
 /*
 * ==== ObjectApi ====
 */
-//class PlayFabApiTest_ObjectApi : public IAutomationLatentCommand
-//{
-//public:
-//    PlayFabApiTest_ObjectApi();
-//
-//    bool Update() override;
-//private:
-//    void OnSuccess(const PlayFab::EntityModels::FGetObjectsResponse& result) const;
-//    void OnError(const PlayFab::FPlayFabError& ErrorResult) const;
-//
-//    PlayFabEntityPtr entityAPI = nullptr;
-//};
+class PlayFabApiTest_ObjectApi : public IAutomationLatentCommand
+{
+public:
+    PlayFabApiTest_ObjectApi();
+
+    bool Update() override;
+private:
+    void OnSuccess(const PlayFab::EntityModels::FGetObjectsResponse& result) const;
+    void OnError(const PlayFab::FPlayFabError& ErrorResult) const;
+
+    PlayFabEntityPtr entityAPI = nullptr;
+};
 
 
 /*
@@ -309,8 +309,7 @@ class PlayFabApiTestSuite : public FAutomationTestBase
 
 public:
     static FString playFabId; // Set by PlayFabApiTest_LoginWithEmail upon successful login
-    static FString entityId; // Set by PlayFabApiTest_GetEntityToken if retrieved successfully
-    static FString entityType; // Set by PlayFabApiTest_GetEntityToken if retrieved successfully
+    static PlayFab::EntityModels::FEntityKey entityKey; // Set by PlayFabApiTest_GetEntityToken if retrieved successfully
 
     // TEST CONSTANTS
     FString TEST_DATA_KEY_1 = TEXT("testCounter");
@@ -501,20 +500,20 @@ protected:
 
     bool GetEntityToken() const
     {
-        //ADD_LATENT_AUTOMATION_COMMAND(PlayFabApiTest_GetEntityToken());
+        ADD_LATENT_AUTOMATION_COMMAND(PlayFabApiTest_GetEntityToken());
 
         return true;
     };
 
     bool ObjectApi() const
     {
-        //ADD_LATENT_AUTOMATION_COMMAND(PlayFabApiTest_ObjectApi());
+        ADD_LATENT_AUTOMATION_COMMAND(PlayFabApiTest_ObjectApi());
 
         return true;
     };
 
     PlayFabClientPtr clientAPI;
-    //PlayFabEntityPtr entityAPI;
+    PlayFabEntityPtr entityAPI;
     PlayFabServerPtr serverAPI;
     TArray<TestFunc> TestFunctions;
     TArray<FString> TestFunctionNames;

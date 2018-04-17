@@ -30,7 +30,7 @@ namespace PlayFab
         bool mIsSet;
     };
 
-    struct FPlayFabBaseModel
+    struct PLAYFAB_API FPlayFabBaseModel
     {
         virtual ~FPlayFabBaseModel() {}
         virtual void writeJSON(JsonWriter& Json) const = 0;

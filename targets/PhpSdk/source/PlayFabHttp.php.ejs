@@ -52,7 +52,6 @@ if (!class_exists("PlayFabHttp")) {
             curl_setopt($ch, CURLOPT_RETURNTRANSFER, true);
             if (PlayFabSettings::$disableSsl) {
                 curl_setopt($ch, CURLOPT_SSL_VERIFYHOST, 0); // TODO: DON'T PUBLISH WITH THIS
-                curl_setopt($ch, CURLOPT_SSL_VERIFYPEER, 0); // TODO: DON'T PUBLISH WITH THIS
             }
             curl_setopt($ch, CURLOPT_HTTPHEADER, $httpHeaders);
             $rawResult = curl_exec($ch);

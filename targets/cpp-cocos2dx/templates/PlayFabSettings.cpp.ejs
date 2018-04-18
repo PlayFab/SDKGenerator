@@ -16,11 +16,10 @@ namespace PlayFab
     std::string PlayFabSettings::titleId;
     ErrorCallback PlayFabSettings::globalErrorHandler = nullptr;
     std::string PlayFabSettings::entityToken = "";
-<% if (hasServerOptions) { %>    std::string PlayFabSettings::developerSecretKey;
-<% }
-if (hasClientOptions) {
-%>    std::string PlayFabSettings::clientSessionTicket = "";
-    std::string PlayFabSettings::advertisingIdType = "";
+    std::string PlayFabSettings::developerSecretKey;
+    std::string PlayFabSettings::clientSessionTicket = "";
+<% if (hasClientOptions) {
+%>    std::string PlayFabSettings::advertisingIdType = "";
     std::string PlayFabSettings::advertisingIdValue = "";
 
     bool PlayFabSettings::disableAdvertising = false;

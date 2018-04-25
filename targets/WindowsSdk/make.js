@@ -7,17 +7,9 @@ if (typeof (templatizeTree) === "undefined") templatizeTree = function () { };
 exports.makeCombinedAPI = function (apis, sourceDir, apiOutputDir) {
     console.log("Generating Combined api from: " + sourceDir + " to: " + apiOutputDir);
 
-    var extraDefines = "ENABLE_PLAYFABADMIN_API;ENABLE_PLAYFABSERVER_API;";
-    var hasEntity = false;
-    for (var a1 = 0; a1 < apis.length; a1++)
-        hasEntity = hasEntity || apis[a1].name === "Entity";
-    if (hasEntity)
-        extraDefines = extraDefines + "ENABLE_PLAYFABENTITY_API;";
-
     var locals = {
         apis: apis,
-        extraDefines: extraDefines,
-        sdkVersion: exports.sdkVersion,
+        extraDefines: "ENABLE_PLAYFABADMIN_API;ENABLE_PLAYFABENTITY_API;ENABLE_PLAYFABMATCHMAKER_API;ENABLE_PLAYFABSERVER_API;",
         sdkVersion: exports.sdkVersion,
         sdkDate: exports.sdkVersion.split(".")[2],
         sdkYear: exports.sdkVersion.split(".")[2].substr(0, 2),

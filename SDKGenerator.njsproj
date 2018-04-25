@@ -116,6 +116,11 @@
     <OutputPath>bin\</OutputPath>
     <ScriptArguments>windowssdk=..\sdks\WindowsSdk -apiSpecPath -buildIdentifier WindowsSdk_manual</ScriptArguments>
   </PropertyGroup>
+  <PropertyGroup Condition=" '$(Configuration)' == 'XPlatCppSdk' ">
+    <DebugSymbols>true</DebugSymbols>
+    <OutputPath>bin\</OutputPath>
+    <ScriptArguments>xplatcppsdk=..\sdks\XPlatCppSdk -apiSpecPath -buildIdentifier XPlatCppSdk_manual</ScriptArguments>
+  </PropertyGroup>
   <ItemGroup>
     <Compile Include="targets\actionscript\make.js" />
     <Compile Include="targets\cpp-cocos2dx\make.js" />
@@ -136,6 +141,7 @@
     <Compile Include="targets\SdkTestingCloudScript\make.js" />
     <Compile Include="targets\unity-v2\make.js" />
     <Compile Include="targets\WindowsSdk\make.js" />
+    <Compile Include="targets\XPlatCppSdk\make.js" />
     <Content Include="README.md" />
     <Content Include="SDKBuildScripts\actionscript_build.bat" />
     <Content Include="SDKBuildScripts\cocos_build.bat" />
@@ -707,12 +713,43 @@
     <Content Include="targets\WindowsSdk\source\include\playfab\PlayFabSettings.h" />
     <Content Include="targets\WindowsSdk\source\source\PlayFabError.cpp" />
     <Content Include="targets\WindowsSdk\source\source\PlayFabHttp.cpp" />
-    <Content Include="targets\WindowsSdk\source\source\PlayFabSettings.cpp" />
+    <Content Include="targets\WindowsSdk\source\source\PlayFabSettings.cpp.ejs" />
     <Content Include="targets\WindowsSdk\source\build\com.playfab.windowssdk.v140.autopkg.ejs" />
     <Content Include="targets\WindowsSdk\source\include\playfab\PlayFabError.h.ejs" />
     <Content Include="targets\WindowsSdk\templates\PlayFab_Api.cpp.ejs" />
     <Content Include="targets\WindowsSdk\templates\PlayFab_Api.h.ejs" />
     <Content Include="targets\WindowsSdk\templates\PlayFab_DataModels.h.ejs" />
+    <Content Include="targets\XPlatCppSdk\source\cppsdk\configLinux.json" />
+    <Content Include="targets\XPlatCppSdk\source\cppsdk\configWindows.json" />
+    <Content Include="targets\XPlatCppSdk\source\cppsdk\include\playfab\PlayFabBaseModel.h" />
+    <Content Include="targets\XPlatCppSdk\templates\PlayFab_API.h.ejs" />
+    <Content Include="targets\XPlatCppSdk\templates\PlayFab_DataModels.h.ejs" />
+    <Content Include="targets\XPlatCppSdk\source\cppsdk\include\playfab\PlayFabError.h" />
+    <Content Include="targets\XPlatCppSdk\source\cppsdk\include\playfab\PlayFabHttp.h" />
+    <Content Include="targets\XPlatCppSdk\source\cppsdk\include\playfab\PlayFabSettings.h" />
+    <Content Include="targets\XPlatCppSdk\source\cppsdk\packages.config" />
+    <Content Include="targets\XPlatCppSdk\templates\PlayFab_Api.cpp.ejs" />
+    <Content Include="targets\XPlatCppSdk\source\cppsdk\source\playfab\PlayFabError.cpp" />
+    <Content Include="targets\XPlatCppSdk\source\cppsdk\source\playfab\PlayFabHttp.cpp" />
+    <Content Include="targets\XPlatCppSdk\source\cppsdk\source\playfab\PlayFabSettings.cpp.ejs" />
+    <Content Include="targets\XPlatCppSdk\source\cppsdk\stdafx.cpp" />
+    <Content Include="targets\XPlatCppSdk\source\cppsdk\stdafx.h" />
+    <Content Include="targets\XPlatCppSdk\source\cppsdk\utils.h" />
+    <Content Include="targets\XPlatCppSdk\source\cppsdk\XPlatCppLinux.vcxproj.ejs" />
+    <Content Include="targets\XPlatCppSdk\source\cppsdk\XPlatCppLinux.vcxproj.filters" />
+    <Content Include="targets\XPlatCppSdk\source\cppsdk\XPlatCppLinux.vcxproj.user" />
+    <Content Include="targets\XPlatCppSdk\source\cppsdk\XPlatCppWindows.vcxproj.ejs" />
+    <Content Include="targets\XPlatCppSdk\source\cppsdk\XPlatCppWindows.vcxproj.filters" />
+    <Content Include="targets\XPlatCppSdk\source\testapps\cppLinuxTestApp\cppLinuxTestApp.vcxproj.ejs" />
+    <Content Include="targets\XPlatCppSdk\source\testapps\cppLinuxTestApp\cppLinuxTestApp.vcxproj.user" />
+    <Content Include="targets\XPlatCppSdk\source\testapps\cppLinuxTestApp\main.cpp" />
+    <Content Include="targets\XPlatCppSdk\source\testapps\cppWindowsTestApp\cppWindowsTestApp.cpp" />
+    <Content Include="targets\XPlatCppSdk\source\testapps\cppWindowsTestApp\cppWindowsTestApp.vcxproj.ejs" />
+    <Content Include="targets\XPlatCppSdk\source\testapps\cppWindowsTestApp\cppWindowsTestApp.vcxproj.filters" />
+    <Content Include="targets\XPlatCppSdk\source\testapps\cppWindowsTestApp\cppWindowsTestApp.vcxproj.user" />
+    <Content Include="targets\XPlatCppSdk\source\testapps\cppWindowsTestApp\cppWindowsTestAppPch.cpp" />
+    <Content Include="targets\XPlatCppSdk\source\testapps\cppWindowsTestApp\cppWindowsTestAppPch.h" />
+    <Content Include="targets\XPlatCppSdk\source\testapps\cppWindowsTestApp\packages.config" />
   </ItemGroup>
   <ItemGroup>
     <Folder Include="SDKBuildScripts\" />
@@ -880,6 +917,7 @@
     <Folder Include="targets\LumberyardSdk\testingTemplate\Code\Tests\" />
     <Folder Include="targets\LumberyardSdk\testingTemplate\Code\" />
     <Folder Include="targets\LumberyardSdk\testingTemplate\Code\Source\" />
+    <Folder Include="targets\XPlatCppSdk\" />
     <Folder Include="targets\newTarget\" />
     <Folder Include="targets\newTarget\source\" />
     <Folder Include="targets\newTarget\templates\" />
@@ -935,6 +973,16 @@
     <Folder Include="targets\WindowsSdk\source\include\playfab\" />
     <Folder Include="targets\WindowsSdk\source\source\" />
     <Folder Include="targets\WindowsSdk\templates\" />
+    <Folder Include="targets\XPlatCppSdk\source\" />
+    <Folder Include="targets\XPlatCppSdk\source\cppsdk\" />
+    <Folder Include="targets\XPlatCppSdk\source\cppsdk\include\" />
+    <Folder Include="targets\XPlatCppSdk\source\cppsdk\include\playfab\" />
+    <Folder Include="targets\XPlatCppSdk\source\cppsdk\source\" />
+    <Folder Include="targets\XPlatCppSdk\source\cppsdk\source\playfab\" />
+    <Folder Include="targets\XPlatCppSdk\source\testapps\" />
+    <Folder Include="targets\XPlatCppSdk\source\testapps\cppLinuxTestApp\" />
+    <Folder Include="targets\XPlatCppSdk\source\testapps\cppWindowsTestApp\" />
+    <Folder Include="targets\XPlatCppSdk\templates\" />
   </ItemGroup>
   <ItemGroup>
     <None Include="targets\javascript\testingFiles\PlayFabApiTest.ts" />

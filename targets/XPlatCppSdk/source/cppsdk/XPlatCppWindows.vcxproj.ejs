@@ -1,0 +1,185 @@
+<?xml version="1.0" encoding="utf-8"?>
+<Project DefaultTargets="Build" ToolsVersion="15.0" xmlns="http://schemas.microsoft.com/developer/msbuild/2003">
+  <Import Project="..\packages\openssl.1.0.1.21\build\native\openssl.props" Condition="Exists('..\packages\openssl.1.0.1.21\build\native\openssl.props')" />
+  <ItemGroup Label="ProjectConfigurations">
+    <ProjectConfiguration Include="Debug|x64">
+      <Configuration>Debug</Configuration>
+      <Platform>x64</Platform>
+    </ProjectConfiguration>
+    <ProjectConfiguration Include="Release|x64">
+      <Configuration>Release</Configuration>
+      <Platform>x64</Platform>
+    </ProjectConfiguration>
+  </ItemGroup>
+  <PropertyGroup Label="Globals">
+    <VCProjectVersion>15.0</VCProjectVersion>
+    <ProjectGuid>{92F6EC5F-B66C-4572-A74D-79329AFF3129}</ProjectGuid>
+    <Keyword>Win32Proj</Keyword>
+    <RootNamespace>XPlatCppWindows</RootNamespace>
+    <OutputSubDir>XPlatCppWindows</OutputSubDir>
+    <OutDir>$(SolutionDir)$(Platform)\$(Configuration)\$(OutputSubDir)\</OutDir>
+    <ProjectName>XPlatCppWindows</ProjectName>
+  </PropertyGroup>
+  <Import Project="$(VCTargetsPath)\Microsoft.Cpp.Default.props" />
+  <PropertyGroup Condition="'$(Configuration)|$(Platform)'=='Debug|x64'" Label="Configuration">
+    <ConfigurationType>StaticLibrary</ConfigurationType>
+    <UseDebugLibraries>true</UseDebugLibraries>
+    <PlatformToolset><%- vsVer %></PlatformToolset>
+    <CharacterSet>Unicode</CharacterSet>
+  </PropertyGroup>
+  <PropertyGroup Condition="'$(Configuration)|$(Platform)'=='Release|x64'" Label="Configuration">
+    <ConfigurationType>StaticLibrary</ConfigurationType>
+    <UseDebugLibraries>false</UseDebugLibraries>
+    <PlatformToolset><%- vsVer %></PlatformToolset>
+    <CharacterSet>Unicode</CharacterSet>
+  </PropertyGroup>
+  <Import Project="$(VCTargetsPath)\Microsoft.Cpp.props" />
+  <ImportGroup Label="ExtensionSettings">
+  </ImportGroup>
+  <ImportGroup Label="Shared">
+  </ImportGroup>
+  <ImportGroup Label="PropertySheets" Condition="'$(Configuration)|$(Platform)'=='Debug|x64'">
+    <Import Project="$(UserRootDir)\Microsoft.Cpp.$(Platform).user.props" Condition="exists('$(UserRootDir)\Microsoft.Cpp.$(Platform).user.props')" Label="LocalAppDataPlatform" />
+  </ImportGroup>
+  <ImportGroup Condition="'$(Configuration)|$(Platform)'=='Release|x64'" Label="PropertySheets">
+    <Import Project="$(UserRootDir)\Microsoft.Cpp.$(Platform).user.props" Condition="exists('$(UserRootDir)\Microsoft.Cpp.$(Platform).user.props')" Label="LocalAppDataPlatform" />
+  </ImportGroup>
+  <PropertyGroup Label="UserMacros" />
+  <PropertyGroup Condition="'$(Configuration)|$(Platform)'=='Debug|x64'">
+    <LinkIncremental>true</LinkIncremental>
+  </PropertyGroup>
+  <PropertyGroup Condition="'$(Configuration)|$(Platform)'=='Release|x64'">
+    <LinkIncremental>true</LinkIncremental>
+  </PropertyGroup>
+  <ItemDefinitionGroup Condition="'$(Configuration)|$(Platform)'=='Debug|x64'">
+    <ClCompile>
+      <PrecompiledHeader>Use</PrecompiledHeader>
+      <WarningLevel>Level4</WarningLevel>
+      <Optimization>Disabled</Optimization>
+      <SDLCheck>true</SDLCheck>
+      <PreprocessorDefinitions>_DEBUG;_LIB;WINDOWS_BUILD;<%- extraDefines %>%(PreprocessorDefinitions)</PreprocessorDefinitions>
+      <ConformanceMode>true</ConformanceMode>
+      <PrecompiledHeaderFile>stdafx.h</PrecompiledHeaderFile>
+      <AdditionalIncludeDirectories>$(ProjectDir);$(ProjectDir)/include;$(SolutionDir)packages\curl.7.30.0.2\build\native\include</AdditionalIncludeDirectories>
+      <DebugInformationFormat>ProgramDatabase</DebugInformationFormat>
+      <MinimalRebuild>false</MinimalRebuild>
+      <MultiProcessorCompilation>true</MultiProcessorCompilation>
+      <DisableSpecificWarnings>4251</DisableSpecificWarnings>
+      <RuntimeLibrary>MultiThreadedDebug</RuntimeLibrary>
+    </ClCompile>
+    <Link>
+      <SubSystem>Windows</SubSystem>
+      <GenerateDebugInformation>true</GenerateDebugInformation>
+    </Link>
+    <ProjectReference />
+    <ProjectReference />
+    <Lib>
+      <AdditionalDependencies>
+      </AdditionalDependencies>
+      <AdditionalLibraryDirectories>
+      </AdditionalLibraryDirectories>
+    </Lib>
+  </ItemDefinitionGroup>
+  <ItemDefinitionGroup Condition="'$(Configuration)|$(Platform)'=='Release|x64'">
+    <ClCompile>
+      <PrecompiledHeader>Use</PrecompiledHeader>
+      <WarningLevel>Level4</WarningLevel>
+      <SDLCheck>true</SDLCheck>
+      <PreprocessorDefinitions>_LIB;WINDOWS_BUILD;<%- extraDefines %>%(PreprocessorDefinitions)</PreprocessorDefinitions>
+      <ConformanceMode>true</ConformanceMode>
+      <PrecompiledHeaderFile>stdafx.h</PrecompiledHeaderFile>
+      <AdditionalIncludeDirectories>$(ProjectDir);$(ProjectDir)/include;$(SolutionDir)packages\curl.7.30.0.2\build\native\include</AdditionalIncludeDirectories>
+      <DebugInformationFormat>ProgramDatabase</DebugInformationFormat>
+      <MinimalRebuild>false</MinimalRebuild>
+      <MultiProcessorCompilation>true</MultiProcessorCompilation>
+      <DisableSpecificWarnings>4251</DisableSpecificWarnings>
+      <RuntimeLibrary>MultiThreaded</RuntimeLibrary>
+    </ClCompile>
+    <Link>
+      <SubSystem>Windows</SubSystem>
+      <GenerateDebugInformation>false</GenerateDebugInformation>
+    </Link>
+    <ProjectReference />
+    <ProjectReference />
+    <Lib>
+      <AdditionalDependencies>
+      </AdditionalDependencies>
+      <AdditionalLibraryDirectories>
+      </AdditionalLibraryDirectories>
+    </Lib>
+  </ItemDefinitionGroup>
+  <ItemGroup>
+    <ClInclude Include="include\playfab\PlayFabAdminApi.h" />
+    <ClInclude Include="include\playfab\PlayFabAdminDataModels.h" />
+    <ClInclude Include="include\playfab\PlayFabBaseModel.h" />
+    <ClInclude Include="include\playfab\PlayFabClientApi.h" />
+    <ClInclude Include="include\playfab\PlayFabClientDataModels.h" />
+    <ClInclude Include="include\playfab\PlayFabEntityApi.h" />
+    <ClInclude Include="include\playfab\PlayFabEntityDataModels.h" />
+    <ClInclude Include="include\playfab\PlayFabHttp.h" />
+    <ClInclude Include="include\playfab\PlayFabMatchmakerApi.h" />
+    <ClInclude Include="include\playfab\PlayFabMatchmakerDataModels.h" />
+    <ClInclude Include="include\playfab\PlayFabServerApi.h" />
+    <ClInclude Include="include\playfab\PlayFabServerDataModels.h" />
+    <ClInclude Include="include\playfab\PlayFabSettings.h" />
+    <ClInclude Include="stdafx.h" />
+    <ClInclude Include="utils.h" />
+  </ItemGroup>
+  <ItemGroup>
+    <ClCompile Include="source\playfab\PlayFabAdminApi.cpp" />
+    <ClCompile Include="source\playfab\PlayFabClientApi.cpp" />
+    <ClCompile Include="source\playfab\PlayFabEntityApi.cpp" />
+    <ClCompile Include="source\playfab\PlayFabError.cpp" />
+    <ClCompile Include="source\playfab\PlayFabHttp.cpp" />
+    <ClCompile Include="source\playfab\PlayFabMatchmakerApi.cpp" />
+    <ClCompile Include="source\playfab\PlayFabServerApi.cpp" />
+    <ClCompile Include="source\playfab\PlayFabSettings.cpp" />
+    <ClCompile Include="stdafx.cpp">
+      <PrecompiledHeader Condition="'$(Configuration)|$(Platform)'=='Debug|x64'">Create</PrecompiledHeader>
+      <PrecompiledHeader Condition="'$(Configuration)|$(Platform)'=='Release|x64'">Create</PrecompiledHeader>
+    </ClCompile>
+  </ItemGroup>
+  <ItemGroup>
+    <None Include="configWindows.json">
+      <DeploymentContent>true</DeploymentContent>
+    </None>
+    <None Include="packages.config" />
+  </ItemGroup>
+  <Import Project="$(VCTargetsPath)\Microsoft.Cpp.targets" />
+  <ImportGroup Label="ExtensionTargets">
+    <Import Project="..\packages\curl.redist.7.30.0.2\build\native\curl.redist.targets" Condition="Exists('..\packages\curl.redist.7.30.0.2\build\native\curl.redist.targets')" />
+    <Import Project="..\packages\libssh2.redist.1.4.3.1\build\native\libssh2.redist.targets" Condition="Exists('..\packages\libssh2.redist.1.4.3.1\build\native\libssh2.redist.targets')" />
+    <Import Project="..\packages\openssl.redist.1.0.1.25\build\native\openssl.redist.targets" Condition="Exists('..\packages\openssl.redist.1.0.1.25\build\native\openssl.redist.targets')" />
+    <Import Project="..\packages\zlib.redist.1.2.8.1\build\native\zlib.redist.targets" Condition="Exists('..\packages\zlib.redist.1.2.8.1\build\native\zlib.redist.targets')" />
+    <Import Project="..\packages\zlib.1.2.8.1\build\native\zlib.targets" Condition="Exists('..\packages\zlib.1.2.8.1\build\native\zlib.targets')" />
+    <Import Project="..\packages\openssl.1.0.1.21\build\native\openssl.targets" Condition="Exists('..\packages\openssl.1.0.1.21\build\native\openssl.targets')" />
+    <Import Project="..\packages\libssh2.1.4.3.1\build\native\libssh2.targets" Condition="Exists('..\packages\libssh2.1.4.3.1\build\native\libssh2.targets')" />
+    <Import Project="..\packages\curl.7.30.0.2\build\native\curl.targets" Condition="Exists('..\packages\curl.7.30.0.2\build\native\curl.targets')" />
+    <Import Project="..\packages\jsoncpp-vc140-static-32_64.1.8.0\build\native\jsoncpp-vc140-static-32_64.targets" Condition="Exists('..\packages\jsoncpp-vc140-static-32_64.1.8.0\build\native\jsoncpp-vc140-static-32_64.targets')" />
+  </ImportGroup>
+  <Target Name="EnsureNuGetPackageBuildImports" BeforeTargets="PrepareForBuild">
+    <PropertyGroup>
+      <ErrorText>This project references NuGet package(s) that are missing on this computer. Use NuGet Package Restore to download them.  For more information, see http://go.microsoft.com/fwlink/?LinkID=322105. The missing file is {0}.</ErrorText>
+    </PropertyGroup>
+    <Error Condition="!Exists('..\packages\curl.redist.7.30.0.2\build\native\curl.redist.targets')" Text="$([System.String]::Format('$(ErrorText)', '..\packages\curl.redist.7.30.0.2\build\native\curl.redist.targets'))" />
+    <Error Condition="!Exists('..\packages\libssh2.redist.1.4.3.1\build\native\libssh2.redist.targets')" Text="$([System.String]::Format('$(ErrorText)', '..\packages\libssh2.redist.1.4.3.1\build\native\libssh2.redist.targets'))" />
+    <Error Condition="!Exists('..\packages\openssl.redist.1.0.1.25\build\native\openssl.redist.targets')" Text="$([System.String]::Format('$(ErrorText)', '..\packages\openssl.redist.1.0.1.25\build\native\openssl.redist.targets'))" />
+    <Error Condition="!Exists('..\packages\zlib.redist.1.2.8.1\build\native\zlib.redist.targets')" Text="$([System.String]::Format('$(ErrorText)', '..\packages\zlib.redist.1.2.8.1\build\native\zlib.redist.targets'))" />
+    <Error Condition="!Exists('..\packages\zlib.1.2.8.1\build\native\zlib.targets')" Text="$([System.String]::Format('$(ErrorText)', '..\packages\zlib.1.2.8.1\build\native\zlib.targets'))" />
+    <Error Condition="!Exists('..\packages\openssl.1.0.1.21\build\native\openssl.props')" Text="$([System.String]::Format('$(ErrorText)', '..\packages\openssl.1.0.1.21\build\native\openssl.props'))" />
+    <Error Condition="!Exists('..\packages\openssl.1.0.1.21\build\native\openssl.targets')" Text="$([System.String]::Format('$(ErrorText)', '..\packages\openssl.1.0.1.21\build\native\openssl.targets'))" />
+    <Error Condition="!Exists('..\packages\libssh2.1.4.3.1\build\native\libssh2.targets')" Text="$([System.String]::Format('$(ErrorText)', '..\packages\libssh2.1.4.3.1\build\native\libssh2.targets'))" />
+    <Error Condition="!Exists('..\packages\curl.7.30.0.2\build\native\curl.targets')" Text="$([System.String]::Format('$(ErrorText)', '..\packages\curl.7.30.0.2\build\native\curl.targets'))" />
+    <Error Condition="!Exists('..\packages\jsoncpp-vc140-static-32_64.1.8.0\build\native\jsoncpp-vc140-static-32_64.targets')" Text="$([System.String]::Format('$(ErrorText)', '..\packages\jsoncpp-vc140-static-32_64.1.8.0\build\native\jsoncpp-vc140-static-32_64.targets'))" />
+  </Target>
+  <Target Name="CopyDependencies" AfterTargets="AfterBuild">
+    <ItemGroup>
+      <Dependency Include="..\packages\curl.redist.7.30.0.2\build\native\bin\v110\$(Platform)\$(Configuration)\dynamic\libcurl.dll" />
+      <Dependency Include="..\packages\libssh2.redist.1.4.3.1\build\native\bin\v110\$(Platform)\$(Configuration)\dynamic\cdecl\libssh2.dll" />
+      <Dependency Include="..\packages\zlib.redist.1.2.8.1\build\native\bin\v110\$(Platform)\$(Configuration)\dynamic\cdecl\zlib.dll" />
+      <Dependency Include="..\packages\openssl.redist.1.0.1.25\build\native\bin\v110\$(Platform)\$(Configuration)\dynamic\libeay32.dll" />
+      <Dependency Include="..\packages\openssl.redist.1.0.1.25\build\native\bin\v110\$(Platform)\$(Configuration)\dynamic\ssleay32.dll" />
+    </ItemGroup>
+    <Copy SourceFiles="@(Dependency)" DestinationFolder="$(OutDir)" SkipUnchangedFiles="true" />
+  </Target>
+</Project>

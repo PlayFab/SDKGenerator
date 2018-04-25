@@ -25,6 +25,7 @@ namespace PlayFab.UUnit
 
         public override void SetUp(UUnitTestContext testContext)
         {
+            PlayFabWebRequest.SkipCertificateValidation(); // Internal testing doesn't have a good answer for this yet
             testTitleData = TestTitleDataLoader.LoadTestTitleData();
             _userEmail = testTitleData.userEmail;
 

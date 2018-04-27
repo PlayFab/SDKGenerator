@@ -100,6 +100,7 @@ namespace PlayFab
         if (PlayFabSettings::threadedCallbacks)
             HandleResults(reqContainer);
 
+        // TODO: CODE REVIEW: Code reviewer indicated that static_cast may be better here, and based on wiki, I think that statement is correct - needs re-testing
         PlayFabHttp& instance = reinterpret_cast<PlayFabHttp&>(Get());
         if (!PlayFabSettings::threadedCallbacks)
         {
@@ -220,6 +221,7 @@ namespace PlayFab
 
     size_t PlayFabHttp::Update()
     {
+        // TODO: Why is this not compiling?
         //if (PlayFabSettings::threadedCallbacks)
         //    throw std::exception("You should not call Update() when PlayFabSettings::threadedCallbacks == true");
 

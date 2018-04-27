@@ -6,9 +6,7 @@
 #include <list>
 #include <map>
 
-// #include <iostream>
 #include <sstream>
-// #include <locale>
 #include <iomanip>
 
 namespace PlayFab

@@ -90,7 +90,7 @@
   <ItemDefinitionGroup Condition="'$(Configuration)|$(Platform)'=='Debug|Win32'">
     <ClCompile>
       <PrecompiledHeader>NotUsing</PrecompiledHeader>
-      <WarningLevel>Level3</WarningLevel>
+      <WarningLevel>Level4</WarningLevel>
       <Optimization>Disabled</Optimization>
       <PreprocessorDefinitions>WIN32;_DEBUG;_WINDOWS;_LIB;<%- extraDefines %>%(PreprocessorDefinitions)</PreprocessorDefinitions>
       <PrecompiledHeaderFile />
@@ -109,7 +109,7 @@
   <ItemDefinitionGroup Condition="'$(Configuration)|$(Platform)'=='Debug|x64'">
     <ClCompile>
       <PrecompiledHeader>NotUsing</PrecompiledHeader>
-      <WarningLevel>Level3</WarningLevel>
+      <WarningLevel>Level4</WarningLevel>
       <Optimization>Disabled</Optimization>
       <PreprocessorDefinitions>_DEBUG;_WINDOWS;_LIB;<%- extraDefines %>%(PreprocessorDefinitions)</PreprocessorDefinitions>
       <AdditionalIncludeDirectories>..\..\include;%(AdditionalIncludeDirectories)</AdditionalIncludeDirectories>
@@ -127,7 +127,7 @@
   </ItemDefinitionGroup>
   <ItemDefinitionGroup Condition="'$(Configuration)|$(Platform)'=='Release|Win32'">
     <ClCompile>
-      <WarningLevel>Level3</WarningLevel>
+      <WarningLevel>Level4</WarningLevel>
       <PrecompiledHeader>
       </PrecompiledHeader>
       <Optimization>MaxSpeed</Optimization>
@@ -145,7 +145,7 @@
   </ItemDefinitionGroup>
   <ItemDefinitionGroup Condition="'$(Configuration)|$(Platform)'=='Release|x64'">
     <ClCompile>
-      <WarningLevel>Level3</WarningLevel>
+      <WarningLevel>Level4</WarningLevel>
       <PrecompiledHeader>
       </PrecompiledHeader>
       <Optimization>MaxSpeed</Optimization>
@@ -165,20 +165,20 @@
     <ClCompile Include="..\..\source\PlayFabError.cpp" />
     <ClCompile Include="..\..\source\PlayFabHttp.cpp" />
     <ClCompile Include="..\..\source\PlayFabSettings.cpp" />
-<% for (var a = 0; a < apis.length; a++) { var api = apis[a]; %>
-    <ClCompile Include="..\..\source\PlayFab<%- api.name %>Api.cpp" />
-<% } %>
-  </ItemGroup>
+<% for (var a = 0; a < apis.length; a++) { var api = apis[a];
+%>    <ClCompile Include="..\..\source\PlayFab<%- api.name %>Api.cpp" />
+<% }
+%>  </ItemGroup>
   <ItemGroup>
     <ClInclude Include="..\..\include\playfab\PlayFabBaseModel.h" />
     <ClInclude Include="..\..\include\playfab\PlayFabError.h" />
     <ClInclude Include="..\..\include\playfab\PlayFabSettings.h" />
     <ClInclude Include="..\..\include\playfab\PlayFabHttp.h" />
-<% for (var a = 0; a < apis.length; a++) { var api = apis[a]; %>
-    <ClInclude Include="..\..\include\playfab\PlayFab<%- api.name %>Api.h" />
+<% for (var a = 0; a < apis.length; a++) { var api = apis[a];
+%>    <ClInclude Include="..\..\include\playfab\PlayFab<%- api.name %>Api.h" />
     <ClInclude Include="..\..\include\playfab\PlayFab<%- api.name %>DataModels.h" />
-<% } %>
-  </ItemGroup>
+<% }
+%>  </ItemGroup>
   <ItemGroup>
     <None Include="packages.config" />
   </ItemGroup>

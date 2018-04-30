@@ -99,10 +99,10 @@ namespace PlayFab
     inline void FromJsonUtilT(const web::json::value& input, time_t& output)
     {
         if (input.is_null()) return;
-        std::string enumStr = ShortenString(input.as_string());
+        std::string timeStr = ShortenString(input.as_string());
         tm timeStruct = {};
         unsigned int milliseconds = 0; // milliseconds are truncated in a standard time_t structure
-        sscanf_s(enumStr.c_str(), "%u-%u-%uT%u:%u%u.%uZ", &timeStruct.tm_year, &timeStruct.tm_mon, &timeStruct.tm_mday,
+        sscanf_s(timeStr.c_str(), "%u-%u-%uT%u:%u%u.%uZ", &timeStruct.tm_year, &timeStruct.tm_mon, &timeStruct.tm_mday,
             &timeStruct.tm_hour, &timeStruct.tm_min, &timeStruct.tm_sec, &milliseconds);
         timeStruct.tm_year -= 1900;
         timeStruct.tm_mon -= 1;
@@ -438,11 +438,11 @@ namespace PlayFab
     }
     inline void FromJsonUtilP(const web::json::value& input, Int16& output)
     {
-        if (!input.is_null()) output = input.as_integer();
+        if (!input.is_null()) output = static_cast<Int16>(input.as_integer());
     }
     inline void FromJsonUtilP(const web::json::value& input, Uint16& output)
     {
-        if (!input.is_null()) output = input.as_integer();
+        if (!input.is_null()) output = static_cast<Uint16>(input.as_integer());
     }
     inline void FromJsonUtilP(const web::json::value& input, Int32& output)
     {

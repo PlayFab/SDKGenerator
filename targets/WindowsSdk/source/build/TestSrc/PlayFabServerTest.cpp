@@ -97,7 +97,7 @@ namespace UnittestRunner
         }
 
         // A shared failure function for all calls (That don't expect failure)
-        static void SharedFailedCallback(const PlayFabError& error, void* customData)
+        static void SharedFailedCallback(const PlayFabError& error, void*)
         {
             testMessageReturn.clear();
             testMessageReturn._Grow(1024);
@@ -124,7 +124,7 @@ namespace UnittestRunner
             bool success = (testMessageReturn.find("Hello " + playFabId + "!") != -1);
             Assert::IsTrue(success, WidenString(testMessageReturn).c_str());
         }
-        static void CloudHelloWorldCallback(const ExecuteCloudScriptResult& constResult, void* customData)
+        static void CloudHelloWorldCallback(const ExecuteCloudScriptResult& constResult, void*)
         {
             ExecuteCloudScriptResult result = constResult; // Some web::json::value syntax is unavailable for const objects, and there's just no way around it
             if (result.FunctionResult.is_null())
@@ -138,7 +138,8 @@ namespace UnittestRunner
 
     bool PlayFabServerTest::TITLE_INFO_SET = false;
 
-    string PlayFabServerTest::TEST_TITLE_DATA_LOC = "testTitleData.json"; // default to local file if PF_TEST_TITLE_DATA_JSON env-var does not exist
+    // default to local file if PF_TEST_TITLE_DATA_JSON env-var does not exist
+    string PlayFabServerTest::TEST_TITLE_DATA_LOC = "testTitleData.json";
 
     // Variables for specific tests
     string PlayFabServerTest::testMessageReturn;

@@ -36,6 +36,7 @@ function makeApiFiles(api, sourceDir, apiOutputDir) {
         getPropertySafeName: getPropertySafeName,
         getRequestActions: getRequestActions,
         getResultActions: getResultActions,
+        ifHasProps: ifHasProps,
         sdkVersion: exports.sdkVersion,
         sortedClasses: getSortedClasses(api.datatypes)
     };
@@ -249,4 +250,10 @@ function getResultActions(tabbing, apiCall) {
         return tabbing + "PlayFabSettings::advertisingIdType += U(\"_Successful\");\n";
 
     return "";
+}
+
+function ifHasProps(datatype, displayText) {
+    if (datatype.properties.length === 0)
+        return "";
+    return displayText;
 }

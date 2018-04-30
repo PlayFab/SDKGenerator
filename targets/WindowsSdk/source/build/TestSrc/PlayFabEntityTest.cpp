@@ -107,7 +107,7 @@ namespace UnittestRunner
         }
 
         // A shared failure function for all calls (That don't expect failure)
-        static void SharedFailedCallback(const PlayFabError& error, void* customData)
+        static void SharedFailedCallback(const PlayFabError& error, void*)
         {
             testMessageReturn.clear();
             testMessageReturn._Grow(1024);
@@ -154,7 +154,7 @@ namespace UnittestRunner
             Assert::IsTrue(entityToken.length() > 0, WidenString("Title-Player Entity Token not retrieved from GetEntityToken").c_str());
             Assert::IsTrue(entityKey.Id.length() > 0, WidenString("Title-Player EntityId not retrieved from GetEntityToken").c_str());
         }
-        static void GetEntityTokenCallback(const GetEntityTokenResponse& result, void* customData)
+        static void GetEntityTokenCallback(const GetEntityTokenResponse& result, void*)
         {
             testMessageReturn = "Entity Token Received";
             entityToken = result.EntityToken;
@@ -197,7 +197,7 @@ namespace UnittestRunner
 
             Assert::IsTrue(testMessageInt1 == testMessageInt2);
         }
-        static void GetObjectsCallback1(const GetObjectsResponse& result, void* customData)
+        static void GetObjectsCallback1(const GetObjectsResponse& result, void*)
         {
             testMessageInt1 = 0; // Expected Value
             for (auto it = result.Objects.begin(); it != result.Objects.end(); ++it)
@@ -205,11 +205,11 @@ namespace UnittestRunner
                     testMessageInt1 = atoi(it->second.EscapedDataObject.c_str());
             testMessageReturn = "GetObj1 Success";
         }
-        static void SetObjectsCallback(const SetObjectsResponse& result, void* customData)
+        static void SetObjectsCallback(const SetObjectsResponse&, void*)
         {
             testMessageReturn = "UpdateObj Success";
         }
-        static void GetObjectsCallback2(const GetObjectsResponse& result, void* customData)
+        static void GetObjectsCallback2(const GetObjectsResponse& result, void*)
         {
             testMessageInt2 = -1000; // Actual Value
             testMessageReturn = "GetObj2 Failed";
@@ -226,7 +226,8 @@ namespace UnittestRunner
 
     bool PlayFabEntityTest::TITLE_INFO_SET = false;
 
-    string PlayFabEntityTest::TEST_TITLE_DATA_LOC = "testTitleData.json"; // default to local file if PF_TEST_TITLE_DATA_JSON env-var does not exist
+    // default to local file if PF_TEST_TITLE_DATA_JSON env-var does not exist
+    string PlayFabEntityTest::TEST_TITLE_DATA_LOC = "testTitleData.json";
 
     // Variables for specific tests
     int PlayFabEntityTest::testMessageInt1;

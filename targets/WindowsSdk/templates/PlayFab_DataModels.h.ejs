@@ -45,7 +45,7 @@ for (var propIdx = 0; propIdx < datatype.properties.length; propIdx++) { var pro
                 <%- getPropertySafeName(property) %>()<% } %>
             {}
 
-            <%- datatype.name %>(const <%- datatype.name %>& src) :
+            <%- datatype.name %>(const <%- datatype.name %>&<%- ifHasProps(datatype, " src") %>) :
                 <%- getBaseType(datatype) %>()<%
 for (var propIdx = 0; propIdx < datatype.properties.length; propIdx++) { var property = datatype.properties[propIdx];
 %>,
@@ -54,7 +54,7 @@ for (var propIdx = 0; propIdx < datatype.properties.length; propIdx++) { var pro
 
             ~<%- datatype.name %>() { }
 
-            void FromJson(web::json::value& input) override
+            void FromJson(web::json::value&<%- ifHasProps(datatype, " input") %>) override
             {
 <% for (var propIdx = 0; propIdx < datatype.properties.length; propIdx++) { var property = datatype.properties[propIdx];
 %><%- getPropertyFromJson("                ", property, datatype) %>

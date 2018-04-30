@@ -113,7 +113,7 @@ namespace UnittestRunner
         }
 
         // A shared failure function for all calls (That don't expect failure)
-        static void SharedFailedCallback(const PlayFabError& error, void* customData)
+        static void SharedFailedCallback(const PlayFabError& error, void*)
         {
             testMessageReturn.clear();
             testMessageReturn._Grow(1024);
@@ -141,7 +141,7 @@ namespace UnittestRunner
 
             Assert::IsTrue(testMessageReturn.compare("InvalidLogin - Password correctly reported") == 0, WidenString(testMessageReturn).c_str()); // This call is supposed to return as an error
         }
-        static void LoginCallback(const LoginResult& result, void* customData)
+        static void LoginCallback(const LoginResult& result, void*)
         {
             testMessageReturn = "Login_Success";
             playFabId = result.PlayFabId; // Successful login tracks playFabId
@@ -164,7 +164,7 @@ namespace UnittestRunner
             request.Email = USER_EMAIL;
             request.Password = "INVALID";
 
-            PlayFabClientAPI::LoginWithEmailAddress(request, LoginCallback, [](const PlayFabError& error, void* customData) { testMessageReturn = "Lambda failure success"; }, nullptr);
+            PlayFabClientAPI::LoginWithEmailAddress(request, LoginCallback, [](const PlayFabError&, void*) { testMessageReturn = "Lambda failure success"; }, nullptr);
             PlayFabApiWait();
 
             Assert::IsTrue(testMessageReturn.compare("Lambda failure success") == 0, WidenString(testMessageReturn).c_str()); // This call is supposed to return as an error
@@ -186,7 +186,7 @@ namespace UnittestRunner
 
             Assert::IsTrue(testMessageReturn.compare("InvalidRegistration - errorDetails correctly reported") == 0, WidenString(testMessageReturn).c_str()); // This call is supposed to return as an error
         }
-        static void InvalidRegistrationSuccess(const RegisterPlayFabUserResult& result, void* customData)
+        static void InvalidRegistrationSuccess(const RegisterPlayFabUserResult&, void*)
         {
             testMessageReturn = "InvalidRegistration was expected to fail";
         }
@@ -297,7 +297,7 @@ namespace UnittestRunner
             time_t maxTime = now + (60 * 5);
             Assert::IsTrue(minTime <= testMessageTime && testMessageTime <= maxTime);
         }
-        static void GetDataCallback(const GetUserDataResult& result, void* customData)
+        static void GetDataCallback(const GetUserDataResult& result, void*)
         {
             testMessageReturn = "GetData_Success";
             auto it1 = result.Data.find(TEST_DATA_KEY_1);
@@ -309,7 +309,7 @@ namespace UnittestRunner
             auto it2 = result.Data.find(TEST_DATA_KEY_2);
             testMessageBool = (it2 != result.Data.end());
         }
-        static void UpdateDataCallback(const UpdateUserDataResult& result, void* customData)
+        static void UpdateDataCallback(const UpdateUserDataResult&, void*)
         {
             // The update result doesn't contain anything interesting.  It's better to just re-call GetUserData again to verify the update
             testMessageReturn = "UpdateData_Success";
@@ -348,7 +348,7 @@ namespace UnittestRunner
 
             Assert::AreEqual(testStatValueExpected, testStatValueActual);
         }
-        static void GetStatsCallback(const GetPlayerStatisticsResult& result, void* customData)
+        static void GetStatsCallback(const GetPlayerStatisticsResult& result, void*)
         {
             bool success = false;
             for (auto it = result.Statistics.begin(); it != result.Statistics.end(); ++it)
@@ -364,7 +364,7 @@ namespace UnittestRunner
             else
                 testMessageReturn = "Target statistic not found";
         }
-        static void UpdateStatsCallback(const UpdatePlayerStatisticsResult& result, void* customData)
+        static void UpdateStatsCallback(const UpdatePlayerStatisticsResult&, void*)
         {
             // The update result doesn't contain anything interesting.  It's better to just re-call GetUserData again to verify the update
             testMessageReturn = "UpdateStats_Success";
@@ -383,7 +383,7 @@ namespace UnittestRunner
             PlayFabApiWait();
             Assert::IsTrue(testMessageReturn.compare("GetChars_Success") == 0, WidenString(testMessageReturn).c_str());
         }
-        static void GetCharsCallback(const ListUsersCharactersResult& result, void* customData)
+        static void GetCharsCallback(const ListUsersCharactersResult&, void*)
         {
             testMessageReturn = "GetChars_Success";
         }
@@ -408,7 +408,7 @@ namespace UnittestRunner
             Assert::IsTrue(testMessageInt1 != 0);
             Assert::IsTrue(testMessageInt2 == 3);
         }
-        static void ClientLeaderboardCallback(const GetLeaderboardResult& result, void* customData)
+        static void ClientLeaderboardCallback(const GetLeaderboardResult& result, void*)
         {
             testMessageReturn = "GetClientLB_Success";
             testMessageInt1 = result.Leaderboard.size();
@@ -431,7 +431,7 @@ namespace UnittestRunner
             PlayFabApiWait();
             Assert::IsTrue(testMessageReturn.compare("Enums tested") == 0, WidenString(testMessageReturn).c_str());
         }
-        static void AcctInfoCallback(const GetAccountInfoResult& result, void* customData)
+        static void AcctInfoCallback(const GetAccountInfoResult& result, void*)
         {
             if (result.AccountInfo.isNull() || result.AccountInfo->TitleInfo.isNull() || result.AccountInfo->TitleInfo->Origination.isNull())
             {
@@ -459,7 +459,7 @@ namespace UnittestRunner
             bool success = (testMessageReturn.find("Hello " + playFabId + "!") != -1);
             Assert::IsTrue(success, WidenString(testMessageReturn).c_str());
         }
-        static void CloudHelloWorldCallback(const ExecuteCloudScriptResult& constResult, void* customData)
+        static void CloudHelloWorldCallback(const ExecuteCloudScriptResult& constResult, void*)
         {
             ExecuteCloudScriptResult result = constResult; // Some web::json::value syntax is unavailable for const objects, and there's just no way around it
             if (result.FunctionResult.is_null())
@@ -502,7 +502,7 @@ namespace UnittestRunner
 
             Assert::IsTrue(testMessageReturn.find("JavascriptException") == 0, WidenString(testMessageReturn).c_str());
         }
-        static void CloudErrorCallback(const ExecuteCloudScriptResult& result, void* customData)
+        static void CloudErrorCallback(const ExecuteCloudScriptResult& result, void*)
         {
             testMessageReturn = "";
             if (!result.FunctionResult.is_null())
@@ -530,7 +530,7 @@ namespace UnittestRunner
             PlayFabApiWait();
             Assert::IsTrue(testMessageReturn.compare("WriteEvent tested") == 0, WidenString(testMessageReturn).c_str());
         }
-        static void OnWritePlayerEvent(const WriteEventResponse& result, void* customData)
+        static void OnWritePlayerEvent(const WriteEventResponse&, void*)
         {
             testMessageReturn = "WriteEvent tested";
         }

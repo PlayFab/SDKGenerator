@@ -359,10 +359,18 @@ namespace UnittestRunner
                     success = true;
                 }
             }
-            if (success)
+            if (success) {
                 testMessageReturn = "GetStats_Success";
-            else
-                testMessageReturn = "Target statistic not found";
+            } else {
+                testMessageReturn = "Target statistic not found, (";
+                testMessageReturn += std::to_string(result.Statistics.size());
+                testMessageReturn += ")";
+                for (auto it = result.Statistics.begin(); it != result.Statistics.end(); ++it)
+                {
+                    testMessageReturn += ", ";
+                    testMessageReturn += it->StatisticName;
+                }
+            }
         }
         static void UpdateStatsCallback(const UpdatePlayerStatisticsResult&, void*)
         {

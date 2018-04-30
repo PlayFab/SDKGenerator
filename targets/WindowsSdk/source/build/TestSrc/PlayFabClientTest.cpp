@@ -326,10 +326,10 @@ namespace UnittestRunner
         {
             LoginOrRegister(); // C++ Environment is nicely secluded, but also means that we have to manually handle sequential requirements
 
+            testMessageInt1 = 0;
             GetPlayerStatisticsRequest getRequest;
             PlayFabClientAPI::GetPlayerStatistics(getRequest, GetStatsCallback, SharedFailedCallback, nullptr);
             PlayFabApiWait();
-            Assert::IsTrue(testMessageReturn.compare("GetStats_Success") == 0, WidenString(testMessageReturn).c_str());
             Int32 testStatValueExpected = (testMessageInt1 + 1) % 100; // This test is about the expected value changing (incrementing through from TEST_STAT_BASE to TEST_STAT_BASE * 2 - 1)
 
             UpdatePlayerStatisticsRequest updateRequest;

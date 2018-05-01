@@ -91,8 +91,7 @@ namespace PlayFab
         gmtime_s(&timeInfo, &input);
 #endif
 #ifdef LINUX_BUILD
-        tm* temp = gmtime(&input);
-        timeInfo = *temp;
+        timeInfo = *gmtime(&input);
 #endif
         char buff[40];
         strftime(buff, 40, "%Y-%m-%dT%H:%M:%S.000Z", &timeInfo);
@@ -427,39 +426,39 @@ namespace PlayFab
     }
     inline void FromJsonUtilP(const Json::Value& input, bool& output)
     {
-        if (input != Json::Value::null) output = input.asBool();
+        output = input != Json::Value::null ? false : input.asBool();
     }
     inline void FromJsonUtilP(const Json::Value& input, Int16& output)
     {
-        if (input != Json::Value::null) output = static_cast<Int16>(input.asInt());
+        output = input != Json::Value::null ? 0 : static_cast<Int16>(input.asInt());
     }
     inline void FromJsonUtilP(const Json::Value& input, Uint16& output)
     {
-        if (input != Json::Value::null) output = static_cast<Uint16>(input.asInt());
+        output = input != Json::Value::null ? static_cast<Uint16>(0) : static_cast<Uint16>(input.asInt());
     }
     inline void FromJsonUtilP(const Json::Value& input, Int32& output)
     {
-        if (input != Json::Value::null) output = input.asInt();
+        output = input != Json::Value::null ? 0 : input.asInt();
     }
     inline void FromJsonUtilP(const Json::Value& input, Uint32& output)
     {
-        if (input != Json::Value::null) output = input.asUInt();
+        output = input != Json::Value::null ? 0 : input.asUInt();
     }
     inline void FromJsonUtilP(const Json::Value& input, Int64& output)
     {
-        if (input != Json::Value::null) output = input.asInt64();
+        output = input != Json::Value::null ? 0 : input.asInt64();
     }
     inline void FromJsonUtilP(const Json::Value& input, Uint64& output)
     {
-        if (input != Json::Value::null) output = input.asUInt64();
+        output = input != Json::Value::null ? 0 : input.asUInt64();
     }
     inline void FromJsonUtilP(const Json::Value& input, float& output)
     {
-        if (input != Json::Value::null) output = input.asFloat();
+        output = input != Json::Value::null ? 0 : input.asFloat();
     }
     inline void FromJsonUtilP(const Json::Value& input, double& output)
     {
-        if (input != Json::Value::null) output = input.asDouble();
+        output = input != Json::Value::null ? 0 : input.asDouble();
     }
     template <typename PrimitiveType> inline void ToJsonUtilP(const Boxed<PrimitiveType>& input, Json::Value& output)
     {

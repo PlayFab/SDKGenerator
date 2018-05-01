@@ -724,7 +724,7 @@
     <Content Include="targets\XPlatCppSdk\source\cppsdk\include\playfab\PlayFabBaseModel.h" />
     <Content Include="targets\XPlatCppSdk\templates\PlayFab_API.h.ejs" />
     <Content Include="targets\XPlatCppSdk\templates\PlayFab_DataModels.h.ejs" />
-    <Content Include="targets\XPlatCppSdk\source\cppsdk\include\playfab\PlayFabError.h" />
+    <Content Include="targets\XPlatCppSdk\source\cppsdk\include\playfab\PlayFabError.h.ejs" />
     <Content Include="targets\XPlatCppSdk\source\cppsdk\include\playfab\PlayFabHttp.h" />
     <Content Include="targets\XPlatCppSdk\source\cppsdk\include\playfab\PlayFabSettings.h" />
     <Content Include="targets\XPlatCppSdk\source\cppsdk\packages.config" />

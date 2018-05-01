@@ -51,7 +51,7 @@
   </ItemGroup>
   <ItemDefinitionGroup Condition="'$(Configuration)|$(Platform)'=='Debug|x64'">
     <ClCompile>
-      <AdditionalIncludeDirectories>$(ProjectDir);$(ProjectDir)include;/usr/include;/home/pg/projects/XPlatCppLinux/;/home/pg/projects/XPlatCppLinux/include;%(AdditionalIncludeDirectories)</AdditionalIncludeDirectories>
+      <AdditionalIncludeDirectories>$(ProjectDir);$(ProjectDir)include;/usr/include;../GSDK_CPP_Linux/;../GSDK_CPP_Linux/include;$(SolutionDir)cppsdk;$(SolutionDir)cppsdk/include;%(AdditionalIncludeDirectories)</AdditionalIncludeDirectories>
       <PreprocessorDefinitions>LINUX_BUILD;<%- extraDefines %>%(PreprocessorDefinitions)</PreprocessorDefinitions>
     </ClCompile>
     <Link>
@@ -62,7 +62,7 @@
   </ItemDefinitionGroup>
   <ItemDefinitionGroup Condition="'$(Configuration)|$(Platform)'=='Release|x64'">
     <ClCompile>
-      <AdditionalIncludeDirectories>$(ProjectDir);$(ProjectDir)include;/usr/include;/home/pg/projects/XPlatCppLinux/;/home/pg/projects/XPlatCppLinux/include;%(AdditionalIncludeDirectories)</AdditionalIncludeDirectories>
+      <AdditionalIncludeDirectories>$(ProjectDir);$(ProjectDir)include;/usr/include;../GSDK_CPP_Linux/;../GSDK_CPP_Linux/include;$(SolutionDir)cppsdk;$(SolutionDir)cppsdk/include;%(AdditionalIncludeDirectories)</AdditionalIncludeDirectories>
       <PreprocessorDefinitions>LINUX_BUILD;<%- extraDefines %>%(PreprocessorDefinitions)</PreprocessorDefinitions>
     </ClCompile>
     <Link>

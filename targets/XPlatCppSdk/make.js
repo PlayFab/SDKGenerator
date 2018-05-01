@@ -257,7 +257,7 @@ function getResultActions(tabbing, apiCall) {
 }
 
 function ifHasProps(datatype, displayText) {
-    if (datatype.properties.length == 0)
+    if (datatype.properties.length === 0)
         return "";
     return displayText;
 }

@@ -8,6 +8,9 @@
 #include <thread>
 #include <mutex>
 
+// Intellisense-only includes
+#include <curl/curl.h>
+
 namespace PlayFab
 {
     struct CallRequestContainer;

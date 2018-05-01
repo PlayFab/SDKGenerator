@@ -9,6 +9,14 @@
 #include <sstream>
 #include <iomanip>
 
+// Intellisense-only includes
+#ifdef LINUX_BUILD
+#include <jsoncpp/json/value.h>
+#endif
+#ifdef WINDOWS_BUILD
+#include <json/value.h>
+#endif
+
 namespace PlayFab
 {
 #ifdef WIN32

@@ -39,9 +39,10 @@
   <PropertyGroup Label="UserMacros" />
   <ItemDefinitionGroup Condition="'$(Configuration)|$(Platform)'=='Debug|x64'">
     <ClCompile>
-      <AdditionalIncludeDirectories>$(ProjectDir);$(ProjectDir)include;/usr/include;/home/pg/projects/XPlatCppLinux/;/home/pg/projects/XPlatCppLinux/include;%(AdditionalIncludeDirectories)</AdditionalIncludeDirectories>
+      <AdditionalIncludeDirectories>$(ProjectDir);$(ProjectDir)include;/usr/include;%(AdditionalIncludeDirectories)</AdditionalIncludeDirectories>
       <CppLanguageStandard>c++1y</CppLanguageStandard>
       <PreprocessorDefinitions>LINUX_BUILD;<%- extraDefines %>%(PreprocessorDefinitions)</PreprocessorDefinitions>
+      <AdditionalOptions>-I $(RemoteProjectDir) -I $(RemoteProjectDir)/include %(AdditionalOptions)</AdditionalOptions>
     </ClCompile>
     <Link>
       <AdditionalLibraryDirectories>/usr/lib/x86_64-linux-gnu;%(AdditionalLibraryDirectories)</AdditionalLibraryDirectories>
@@ -53,9 +54,10 @@
   </ItemDefinitionGroup>
   <ItemDefinitionGroup Condition="'$(Configuration)|$(Platform)'=='Release|x64'">
     <ClCompile>
-      <AdditionalIncludeDirectories>$(ProjectDir);$(ProjectDir)include;/usr/include;/home/pg/projects/XPlatCppLinux/;/home/pg/projects/XPlatCppLinux/include;%(AdditionalIncludeDirectories)</AdditionalIncludeDirectories>
+      <AdditionalIncludeDirectories>$(ProjectDir);$(ProjectDir)include;/usr/include;%(AdditionalIncludeDirectories)</AdditionalIncludeDirectories>
       <CppLanguageStandard>c++1y</CppLanguageStandard>
       <PreprocessorDefinitions>LINUX_BUILD;<%- extraDefines %>%(PreprocessorDefinitions)</PreprocessorDefinitions>
+      <AdditionalOptions>-I $(RemoteProjectDir) -I $(RemoteProjectDir)/include %(AdditionalOptions)</AdditionalOptions>
     </ClCompile>
     <Link>
       <AdditionalLibraryDirectories>/usr/lib/x86_64-linux-gnu;%(AdditionalLibraryDirectories)</AdditionalLibraryDirectories>

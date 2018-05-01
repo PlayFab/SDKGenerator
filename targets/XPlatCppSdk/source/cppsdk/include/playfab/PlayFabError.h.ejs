@@ -1,0 +1,50 @@
+#pragma once
+
+#include <playfab/PlayFabBaseModel.h>
+
+// Intellisense-only includes
+#ifdef LINUX_BUILD
+#include <jsoncpp/json/value.h>
+#endif
+#ifdef WINDOWS_BUILD
+#include <json/value.h>
+#endif
+
+namespace PlayFab
+{
+    enum PlayFabErrorCode
+    {
+        PlayFabErrorHostnameNotFound = 1,
+        PlayFabErrorConnectionTimeout,
+        PlayFabErrorConnectionRefused,
+        PlayFabErrorSocketError,
+<% for (errIdx in apis[0].errors) { var apiErr = apis[0].errors[errIdx];
+%>        PlayFabError<%- apiErr.name %> = <%- apiErr.id %>,
+<% }
+%>    };
+
+    /// <summary>
+    /// The wrapper around all PlayFab responses, and all fields needed in the case of an error
+    /// </summary>
+    struct PlayFabError : public PlayFabBaseModel
+    {
+        // Serialized fields
+        int HttpCode;
+        std::string HttpStatus;
+        PlayFabErrorCode ErrorCode;
+        std::string ErrorName;
+        std::string ErrorMessage;
+        Json::Value ErrorDetails;
+        Json::Value Data;
+        // Non-serialized fields
+        std::string UrlPath;
+        Json::Value Request;
+
+        void FromJson(Json::Value& input) override;
+        Json::Value ToJson() const override;
+
+        std::string GenerateReport() const;
+    };
+
+    typedef std::function<void(const PlayFabError& error, void* customData)> ErrorCallback;
+}

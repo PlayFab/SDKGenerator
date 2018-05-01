@@ -2,7 +2,9 @@
 
 #include <playfab/PlayFabHttp.h>
 #include <playfab/PlayFabSettings.h>
-#include <exception>
+
+// Intellisense-only includes
+#include <curl/curl.h>
 
 namespace PlayFab
 {
@@ -100,8 +102,7 @@ namespace PlayFab
         if (PlayFabSettings::threadedCallbacks)
             HandleResults(reqContainer);
 
-        // TODO: CODE REVIEW: Code reviewer indicated that static_cast may be better here, and based on wiki, I think that statement is correct - needs re-testing
-        PlayFabHttp& instance = reinterpret_cast<PlayFabHttp&>(Get());
+        PlayFabHttp& instance = static_cast<PlayFabHttp&>(Get());
         if (!PlayFabSettings::threadedCallbacks)
         {
             { // LOCK httpRequestMutex
@@ -221,9 +222,8 @@ namespace PlayFab
 
     size_t PlayFabHttp::Update()
     {
-        // TODO: Why is this not compiling?
-        //if (PlayFabSettings::threadedCallbacks)
-        //    throw std::exception("You should not call Update() when PlayFabSettings::threadedCallbacks == true");
+        if (PlayFabSettings::threadedCallbacks)
+            throw std::runtime_error("You should not call Update() when PlayFabSettings::threadedCallbacks == true");
 
         CallRequestContainer* reqContainer;
         size_t resultCount;

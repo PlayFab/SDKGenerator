@@ -1,0 +1,48 @@
+configurations {
+    Toolset {
+        key : "PlatformToolset";
+        choices: { <%- vsVer %> };
+    };
+}
+
+nuget {
+    nuspec {
+        id = "com.playfab.xplatcppsdk.<%- vsVer %>";
+        version : <%- sdkVersion %>;
+        title: "PlayFab Cross Platform C++ Sdk for Visual Studio <%- vsYear %>";
+        summary: "PlayFab is the unified backend platform for games and everything you need to build and operate your game, all in one place, so you can focus on creating and delivering a great player experience.";
+        authors: "PlayFab";
+        owners: "PlayFab";
+        licenseUrl: "https://raw.githubusercontent.com/PlayFab/XPlatCppSdk/master/LICENSE";
+        projectUrl: "https://github.com/PlayFab/XPlatCppSdk";
+        iconUrl: "https://playfab.com/assets/img/playfab-mark.png";
+        requireLicenseAcceptance: false;
+        description: "Authentication, in-game commerce, player data, title data, inventory, characters, statistics, leaderboards, analytics and reporting, friends, multiplayer, matchmaking, tournaments, cloud script, trading, real-time event handling, player management, live ops, and server hosting for all major platforms/devices and games of any scale. This sdk gives your game the ability log into PlayFab and access cloud data and services.";
+        releaseNotes: "https://api.playfab.com/releaseNotes/#<%- sdkDate %>";
+        copyright: "Copyright 20<%- sdkYear %>";
+        language: "C++";
+        tags: { PlayFab, Baas, Paas, JSON, REST, HTTP, SSL, API, cloud, liveops, game, gamedev, native };
+    };
+
+    dependencies {
+        packages : {
+            jsoncpp-vc140-static-32_64/1.8.0;
+            curl/7.30.0.2;
+        };
+    }
+
+    files {
+        nestedInclude: {
+            #destination = ${d_include}\playfab;
+            "cppsdk\include\playfab\*.h"
+        };
+
+        [x64,v141,release] {
+            lib:     { x64\Release\XPlatCppWindows\XPlatCppWindows.lib; }
+        };
+        [x64,v141,debug] {
+            lib:     { x64\Debug\XPlatCppWindows\XPlatCppWindows.lib; }
+            symbols: { x64\Debug\XPlatCppWindows\XPlatCppWindows.pdb; }
+        };
+    };
+}

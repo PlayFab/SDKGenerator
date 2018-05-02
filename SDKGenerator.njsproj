@@ -719,6 +719,7 @@
     <Content Include="targets\WindowsSdk\templates\PlayFab_Api.cpp.ejs" />
     <Content Include="targets\WindowsSdk\templates\PlayFab_Api.h.ejs" />
     <Content Include="targets\WindowsSdk\templates\PlayFab_DataModels.h.ejs" />
+    <Content Include="targets\XPlatCppSdk\source\com.playfab.xplatcppsdk.v141.autopkg.ejs" />
     <Content Include="targets\XPlatCppSdk\source\cppsdk\configLinux.json" />
     <Content Include="targets\XPlatCppSdk\source\cppsdk\configWindows.json" />
     <Content Include="targets\XPlatCppSdk\source\cppsdk\include\playfab\PlayFabBaseModel.h" />

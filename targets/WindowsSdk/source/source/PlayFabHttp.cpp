@@ -132,7 +132,7 @@ namespace PlayFab
     size_t PlayFabHttp::Update()
     {
         if (PlayFabSettings::threadedCallbacks)
-            throw std::exception("You should not call Update() when PlayFabSettings::threadedCallbacks == true");
+            throw std::runtime_error("You should not call Update() when PlayFabSettings::threadedCallbacks == true");
 
         if (pendingRequests.size() == 0)
             return 0;

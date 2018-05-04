@@ -3,10 +3,10 @@
 #include <playfab/PlayFabBaseModel.h>
 
 // Intellisense-only includes
-#ifdef LINUX_BUILD
+#ifndef _WIN32
 #include <jsoncpp/json/value.h>
 #endif
-#ifdef WINDOWS_BUILD
+#ifdef _WIN32
 #include <json/value.h>
 #endif
 

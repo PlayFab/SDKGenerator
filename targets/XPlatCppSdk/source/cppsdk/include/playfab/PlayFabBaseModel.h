@@ -9,10 +9,10 @@
 #include <iomanip>
 
 // Intellisense-only includes
-#ifdef LINUX_BUILD
+#ifndef _WIN32
 #include <jsoncpp/json/value.h>
 #endif
-#ifdef WINDOWS_BUILD
+#ifdef _WIN32
 #include <json/value.h>
 #endif
 
@@ -86,10 +86,10 @@ namespace PlayFab
     inline void ToJsonUtilT(const time_t input, Json::Value& output)
     {
         struct tm timeInfo;
-#ifdef WINDOWS_BUILD
+#ifdef _WIN32
         gmtime_s(&timeInfo, &input);
 #endif
-#ifdef LINUX_BUILD
+#ifndef _WIN32
         timeInfo = *gmtime(&input);
 #endif
         char buff[40];

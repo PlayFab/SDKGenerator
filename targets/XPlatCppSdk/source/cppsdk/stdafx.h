@@ -21,7 +21,7 @@
 #include <condition_variable>
 #include <thread>
 
-#ifdef LINUX_BUILD
+#ifndef _WIN32
 #include <jsoncpp/json/json.h>
 #include <jsoncpp/json/reader.h>
 #include <jsoncpp/json/value.h>
@@ -29,7 +29,7 @@
 #include <stdio.h>
 #endif
 
-#ifdef WINDOWS_BUILD
+#ifdef _WIN32
 #define WIN32_LEAN_AND_MEAN
 
 #include <json/json.h>

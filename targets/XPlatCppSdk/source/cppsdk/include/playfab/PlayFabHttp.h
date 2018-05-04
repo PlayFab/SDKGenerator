@@ -8,10 +8,10 @@
 
 // Intellisense-only includes
 #include <curl/curl.h>
-#ifdef LINUX_BUILD
+#ifndef _WIN32
 #include <jsoncpp/json/value.h>
 #endif
-#ifdef WINDOWS_BUILD
+#ifdef _WIN32
 #include <json/value.h>
 #endif
 

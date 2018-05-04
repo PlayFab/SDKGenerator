@@ -1,6 +1,5 @@
 #pragma once
 
-#include <stdafx.h>
 #include <ctime>
 #include <functional>
 #include <list>

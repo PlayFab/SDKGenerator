@@ -1,7 +1,5 @@
 #pragma once
 
-#include <stdafx.h>
-
 #include <playfab/PlayFabError.h>
 #include <functional>
 #include <memory>
@@ -10,6 +8,12 @@
 
 // Intellisense-only includes
 #include <curl/curl.h>
+#ifdef LINUX_BUILD
+#include <jsoncpp/json/value.h>
+#endif
+#ifdef WINDOWS_BUILD
+#include <json/value.h>
+#endif
 
 namespace PlayFab
 {

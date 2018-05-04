@@ -59,9 +59,6 @@
     <ClInclude Include="stdafx.h">
       <Filter>Header Files</Filter>
     </ClInclude>
-    <ClInclude Include="utils.h">
-      <Filter>Header Files</Filter>
-    </ClInclude>
     <ClInclude Include="include\playfab\PlayFabError.h">
       <Filter>Header Files\playfab</Filter>
     </ClInclude>

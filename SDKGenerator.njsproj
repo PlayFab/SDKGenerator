@@ -735,7 +735,6 @@
     <Content Include="targets\XPlatCppSdk\source\cppsdk\source\playfab\PlayFabSettings.cpp.ejs" />
     <Content Include="targets\XPlatCppSdk\source\cppsdk\stdafx.cpp" />
     <Content Include="targets\XPlatCppSdk\source\cppsdk\stdafx.h" />
-    <Content Include="targets\XPlatCppSdk\source\cppsdk\utils.h" />
     <Content Include="targets\XPlatCppSdk\source\cppsdk\XPlatCppLinux.vcxproj.ejs" />
     <Content Include="targets\XPlatCppSdk\source\cppsdk\XPlatCppLinux.vcxproj.filters" />
     <Content Include="targets\XPlatCppSdk\source\cppsdk\XPlatCppLinux.vcxproj.user" />

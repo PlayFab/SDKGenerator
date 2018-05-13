@@ -723,6 +723,7 @@
     <Content Include="targets\XPlatCppSdk\source\cppsdk\configLinux.json" />
     <Content Include="targets\XPlatCppSdk\source\cppsdk\configWindows.json" />
     <Content Include="targets\XPlatCppSdk\source\cppsdk\include\playfab\PlayFabBaseModel.h" />
+    <Content Include="targets\XPlatCppSdk\source\XPlatCppSdk.sln.ejs" />
     <Content Include="targets\XPlatCppSdk\templates\PlayFab_API.h.ejs" />
     <Content Include="targets\XPlatCppSdk\templates\PlayFab_DataModels.h.ejs" />
     <Content Include="targets\XPlatCppSdk\source\cppsdk\include\playfab\PlayFabError.h.ejs" />

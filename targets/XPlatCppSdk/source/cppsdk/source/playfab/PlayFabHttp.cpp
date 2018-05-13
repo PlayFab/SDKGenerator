@@ -40,6 +40,7 @@ namespace PlayFab
 
     PlayFabHttp::PlayFabHttp()
     {
+        activeRequestCount = 0;
         threadRunning = true;
         pfHttpWorkerThread = std::thread(&PlayFabHttp::WorkerThread, this);
     };
@@ -54,6 +55,7 @@ namespace PlayFab
         for (size_t i = 0; i < pendingResults.size(); ++i)
             delete pendingResults[i];
         pendingResults.clear();
+        activeRequestCount = 0;
     }
 
     void PlayFabHttp::MakeInstance()
@@ -159,6 +161,7 @@ namespace PlayFab
         { // LOCK httpRequestMutex
             std::unique_lock<std::mutex> lock(httpRequestMutex);
             pendingRequests.push_back(reqContainer);
+            activeRequestCount++;
         } // UNLOCK httpRequestMutex
     }
 
@@ -226,20 +229,23 @@ namespace PlayFab
             throw std::runtime_error("You should not call Update() when PlayFabSettings::threadedCallbacks == true");
 
         CallRequestContainer* reqContainer;
-        size_t resultCount;
-
         { // LOCK httpRequestMutex
             std::unique_lock<std::mutex> lock(httpRequestMutex);
-            resultCount = pendingResults.size();
-            if (resultCount == 0)
-                return resultCount;
+            if (pendingResults.empty())
+                return activeRequestCount;
 
             reqContainer = pendingResults[pendingResults.size() - 1];
             pendingResults.pop_back();
+            activeRequestCount--;
         } // UNLOCK httpRequestMutex
 
         HandleResults(*reqContainer);
         delete reqContainer;
-        return resultCount;
+
+        // activeRequestCount can be altered by HandleResults, so we have to re-lock and return an updated value
+        { // LOCK httpRequestMutex
+            std::unique_lock<std::mutex> lock(httpRequestMutex);
+            return activeRequestCount;
+        }
     }
 }

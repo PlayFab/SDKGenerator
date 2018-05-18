@@ -16,6 +16,7 @@ Global
 		JavaSDK|Any CPU = JavaSDK|Any CPU
 		LuaSdk|Any CPU = LuaSdk|Any CPU
 		LumberyardSdk|Any CPU = LumberyardSdk|Any CPU
+		NewTarget|Any CPU = NewTarget|Any CPU
 		NodeSDK|Any CPU = NodeSDK|Any CPU
 		ObjCSdk|Any CPU = ObjCSdk|Any CPU
 		PhpSdk|Any CPU = PhpSdk|Any CPU
@@ -48,6 +49,8 @@ Global
 		{2BA807EF-310C-43B5-8D42-1ABCFFF39BE9}.LumberyardSdk|Any CPU.Build.0 = LumberyardSdk|Any CPU
 		{2BA807EF-310C-43B5-8D42-1ABCFFF39BE9}.NodeSDK|Any CPU.ActiveCfg = NodeSDK|Any CPU
 		{2BA807EF-310C-43B5-8D42-1ABCFFF39BE9}.NodeSDK|Any CPU.Build.0 = NodeSDK|Any CPU
+		{2BA807EF-310C-43B5-8D42-1ABCFFF39BE9}.NewTarget|Any CPU.ActiveCfg = NewTarget|Any CPU
+		{2BA807EF-310C-43B5-8D42-1ABCFFF39BE9}.NewTarget|Any CPU.Build.0 = NewTarget|Any CPU
 		{2BA807EF-310C-43B5-8D42-1ABCFFF39BE9}.ObjCSdk|Any CPU.ActiveCfg = ObjCSdk|Any CPU
 		{2BA807EF-310C-43B5-8D42-1ABCFFF39BE9}.ObjCSdk|Any CPU.Build.0 = ObjCSdk|Any CPU
 		{2BA807EF-310C-43B5-8D42-1ABCFFF39BE9}.PhpSdk|Any CPU.ActiveCfg = PhpSdk|Any CPU

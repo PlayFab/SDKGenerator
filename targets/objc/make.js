@@ -4,7 +4,7 @@ var path = require("path");
 if (typeof (copyTree) === "undefined") copyTree = function () { };
 if (typeof (getCompiledTemplate) === "undefined") getCompiledTemplate = function () { };
 
-exports.putInRoot = true;
+// exports.putInRoot = true;
 
 exports.makeClientAPI2 = function (apis, sourceDir, apiOutputDir) {
     console.log("Generating client api from: " + sourceDir + " to: " + apiOutputDir);

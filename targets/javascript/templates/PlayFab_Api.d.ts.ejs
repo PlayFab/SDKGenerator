@@ -16,6 +16,6 @@ declare module PlayFab<%- api.name %>Module {
 declare module PlayFab<%- api.name %>Models {
 <% for(var dIdx in api.datatypes) {
 var datatype = api.datatypes[dIdx];
-%><%- generateDatatype(datatype, sourceDir) %><%
+%><%- generateDatatype(api, datatype, sourceDir) %><%
 } %>
 }

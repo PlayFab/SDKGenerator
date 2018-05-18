@@ -55,7 +55,7 @@ var gemSummaries = {
     Combo: "PlayFab Lumberyard Combined SDK can be used for game servers, internal tools, special situations, and testing PlayFab services from a Lumberyard project",
 };
 
-exports.putInRoot = true;
+// exports.putInRoot = true;
 
 exports.makeClientAPI2 = function (apis, sourceDir, apiOutputDir) {
     makeApiInternal(apis, sourceDir, apiOutputDir, "Client");

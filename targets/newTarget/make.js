@@ -7,7 +7,7 @@ if (typeof (getCompiledTemplate) === "undefined") getCompiledTemplate = function
 // generate.js is our central file, for all generated sdks.  Don't modify that one.
 // For each function below, apiOutputDir is automatically set to include a subfolder, so each make function generates to a different subfolder.
 // You can over-ride this by uncommenting this:
-// exports.putInRoot = true;
+// // exports.putInRoot = true;
 // BEWARE, you should only implement 1 function if you use this option, or manually define your subfolders in your make functions
 
 // generate.js looks for some specific exported functions in make.js, like:

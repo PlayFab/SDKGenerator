@@ -6,6 +6,7 @@ if (typeof (getCompiledTemplate) === "undefined") getCompiledTemplate = function
 if (typeof (templatizeTree) === "undefined") templatizeTree = function () { };
 
 exports.makeCombinedAPI = function (apis, sourceDir, apiOutputDir) {
+    apiOutputDir = path.join(apiOutputDir, "PlayFabSDK");
     console.log("Generating Combined api from: " + sourceDir + " to: " + apiOutputDir);
 
     var locals = {

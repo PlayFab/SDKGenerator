@@ -5,7 +5,7 @@ if (typeof (copyTree) === "undefined") copyTree = function () { };
 if (typeof (generateApiSummaryLines) === "undefined") generateApiSummaryLines = function () { };
 if (typeof (getCompiledTemplate) === "undefined") getCompiledTemplate = function () { };
 
-exports.putInRoot = true;
+// exports.putInRoot = true;
 
 exports.makeCombinedAPI = function (apis, sourceDir, apiOutputDir) {
     console.log("Generating JavaScript Combined SDK to " + apiOutputDir);
@@ -158,12 +158,13 @@ function generateApiSummary(tabbing, apiElement, summaryParam, extraLines) {
     return output;
 }
 
-function generateDatatype(datatype, sourceDir) {
+function generateDatatype(api, datatype, sourceDir) {
     var templateDir = path.resolve(sourceDir, "templates");
     var interfaceTemplate = getCompiledTemplate(path.resolve(templateDir, "Interface.ejs"));
     var enumTemplate = getCompiledTemplate(path.resolve(templateDir, "Enum.ejs"));
 
     var locals = {
+        api: api,
         generateApiSummary: generateApiSummary,
         getBaseTypeSyntax: getBaseTypeSyntax,
         getPropertyTsType: getPropertyTsType,

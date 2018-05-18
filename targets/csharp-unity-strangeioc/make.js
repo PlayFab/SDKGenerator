@@ -5,7 +5,7 @@ if (typeof (copyTree) === "undefined") copyTree = function () { };
 if (typeof (generateApiSummaryLines) === "undefined") generateApiSummaryLines = function () { };
 if (typeof (getCompiledTemplate) === "undefined") getCompiledTemplate = function () { };
 
-exports.putInRoot = true;
+// exports.putInRoot = true;
 
 exports.makeClientAPI2 = function (apis, sourceDir, apiOutputDir) {
     var baseApiOutputDir = path.resolve(apiOutputDir, "Packages/PlayFabContext/");

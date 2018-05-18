@@ -6,14 +6,17 @@ if (typeof (templatizeTree) === "undefined") templatizeTree = function () { };
 if (typeof (getCompiledTemplate) === "undefined") getCompiledTemplate = function () { };
 
 exports.makeClientAPI2 = function (apis, sourceDir, apiOutputDir) {
+    apiOutputDir = path.join(apiOutputDir, "PlayFabClientSDK");
     makeApiInternal(apis, sourceDir, apiOutputDir, "Client");
 }
 
 exports.makeServerAPI = function (apis, sourceDir, apiOutputDir) {
+    apiOutputDir = path.join(apiOutputDir, "PlayFabServerSDK");
     makeApiInternal(apis, sourceDir, apiOutputDir, "Server");
 }
 
 exports.makeCombinedAPI = function (apis, sourceDir, apiOutputDir) {
+    apiOutputDir = path.join(apiOutputDir, "PlayFabSDK");
     makeApiInternal(apis, sourceDir, apiOutputDir, "All");
 }
 

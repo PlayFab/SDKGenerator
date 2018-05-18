@@ -6,7 +6,7 @@ if (typeof (generateApiSummaryLines) === "undefined") generateApiSummaryLines = 
 if (typeof (getCompiledTemplate) === "undefined") getCompiledTemplate = function () { };
 if (typeof (templatizeTree) === "undefined") templatizeTree = function () { };
 
-exports.putInRoot = true;
+// exports.putInRoot = true;
 var maxEnumSize = 255;
 
 exports.makeCombinedAPI = function (apis, sourceDir, apiOutputDir) {

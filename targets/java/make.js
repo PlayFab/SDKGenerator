@@ -6,6 +6,7 @@ if (typeof (getCompiledTemplate) === "undefined") getCompiledTemplate = function
 if (typeof (templatizeTree) === "undefined") templatizeTree = function () { };
 
 exports.makeClientAPI2 = function (apis, sourceDir, apiOutputDir) {
+    apiOutputDir = path.join(apiOutputDir, "PlayFabClientSDK");
     var srcOutputLoc = ["", "../AndroidStudioExample/app/"];
 
     for (var i = 0; i < srcOutputLoc.length; i++) {
@@ -23,6 +24,7 @@ exports.makeClientAPI2 = function (apis, sourceDir, apiOutputDir) {
 }
 
 exports.makeServerAPI = function (apis, sourceDir, apiOutputDir) {
+    apiOutputDir = path.join(apiOutputDir, "PlayFabServerSDK");
     console.log("Generating Java server SDK to " + apiOutputDir);
 
     var locals = { hasClientOptions: false, hasServerOptions: true };
@@ -34,6 +36,7 @@ exports.makeServerAPI = function (apis, sourceDir, apiOutputDir) {
 }
 
 exports.makeCombinedAPI = function (apis, sourceDir, apiOutputDir) {
+    apiOutputDir = path.join(apiOutputDir, "PlayFabSDK");
     console.log("Generating Java combined SDK to " + apiOutputDir);
 
     var locals = { hasClientOptions: true, hasServerOptions: true };

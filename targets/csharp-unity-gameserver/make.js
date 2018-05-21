@@ -5,8 +5,6 @@ var unityV2 = require("../unity-v2/make.js");
 if (typeof (generateApiSummaryLines) === "undefined") generateApiSummaryLines = function () { };
 if (typeof (getCompiledTemplate) === "undefined") getCompiledTemplate = function () { };
 
-exports.putInRoot = true;
-
 // Build the SDK into the gameserver and example-client, as they'd appear if taken from nightly
 exports.makeCombinedAPI = function (apis, sourceDir, apiOutputDir) {
 

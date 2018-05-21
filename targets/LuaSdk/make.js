@@ -6,8 +6,6 @@ if (typeof (generateApiSummaryLines) === "undefined") generateApiSummaryLines = 
 if (typeof (getCompiledTemplate) === "undefined") getCompiledTemplate = function () { };
 if (typeof (templatizeTree) === "undefined") templatizeTree = function () { };
 
-exports.putInRoot = true;
-
 exports.makeClientAPI2 = function (apis, sourceDir, baseOutputDir) {
     var apiOutputDir = path.resolve(baseOutputDir, "PlayFabClientSdk");
     makeLuaDistSdk(apis, sourceDir, apiOutputDir, "Client");

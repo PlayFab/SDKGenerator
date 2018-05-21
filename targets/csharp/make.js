@@ -7,6 +7,7 @@ if (typeof (generateApiSummaryLines) === "undefined") generateApiSummaryLines = 
 if (typeof (getCompiledTemplate) === "undefined") getCompiledTemplate = function () { };
 
 exports.makeClientAPI2 = function (apis, sourceDir, apiOutputDir) {
+    apiOutputDir = path.join(apiOutputDir, "PlayFabClientSDK");
     console.log("Generating C-sharp client SDK to " + apiOutputDir);
 
     copyTree(path.resolve(sourceDir, "source"), apiOutputDir);
@@ -18,6 +19,7 @@ exports.makeClientAPI2 = function (apis, sourceDir, apiOutputDir) {
 }
 
 exports.makeServerAPI = function (apis, sourceDir, apiOutputDir) {
+    apiOutputDir = path.join(apiOutputDir, "PlayFabServerSDK");
     console.log("Generating C-sharp server SDK to " + apiOutputDir);
 
     copyTree(path.resolve(sourceDir, "source"), apiOutputDir);
@@ -29,6 +31,7 @@ exports.makeServerAPI = function (apis, sourceDir, apiOutputDir) {
 }
 
 exports.makeCombinedAPI = function (apis, sourceDir, apiOutputDir) {
+    apiOutputDir = path.join(apiOutputDir, "PlayFabSDK");
     console.log("Generating C-sharp combined SDK to " + apiOutputDir);
 
     copyTree(path.resolve(sourceDir, "source"), apiOutputDir);

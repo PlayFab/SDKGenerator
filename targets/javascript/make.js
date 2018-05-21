@@ -5,8 +5,6 @@ if (typeof (copyTree) === "undefined") copyTree = function () { };
 if (typeof (generateApiSummaryLines) === "undefined") generateApiSummaryLines = function () { };
 if (typeof (getCompiledTemplate) === "undefined") getCompiledTemplate = function () { };
 
-// exports.putInRoot = true;
-
 exports.makeCombinedAPI = function (apis, sourceDir, apiOutputDir) {
     console.log("Generating JavaScript Combined SDK to " + apiOutputDir);
 

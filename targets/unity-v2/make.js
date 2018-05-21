@@ -6,8 +6,6 @@ if (typeof (getApiJson) === "undefined") getApiJson = function () { };
 if (typeof (getCompiledTemplate) === "undefined") getCompiledTemplate = function () { };
 if (typeof (generateApiSummaryLines) === "undefined") generateApiSummaryLines = function () { };
 
-// exports.putInRoot = true;
-
 // Automatically called by generate.js
 exports.makeCombinedAPI = function (apis, sourceDir, apiOutputDir) {
     exports.MakeUnityV2Sdk(apis, sourceDir, path.resolve(apiOutputDir, "Source/PlayFabSDK"));

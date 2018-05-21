@@ -3,8 +3,6 @@ var path = require("path");
 // Making resharper less noisy - These are defined in Generate.js
 if (typeof (getCompiledTemplate) === "undefined") getCompiledTemplate = function () { };
 
-// exports.putInRoot = true;
-
 var PropertyReplacements = {};
 
 exports.makeCombinedAPI = function (apis, sourceDir, apiOutputDir) {

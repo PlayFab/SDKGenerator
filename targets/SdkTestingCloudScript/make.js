@@ -6,8 +6,6 @@ if (typeof (getApiJson) === "undefined") getApiJson = function () { };
 if (typeof (generateApiSummaryLines) === "undefined") generateApiSummaryLines = function () { };
 if (typeof (getCompiledTemplate) === "undefined") getCompiledTemplate = function () { };
 
-// exports.putInRoot = true;
-
 exports.makeServerAPI = function (apis, sourceDir, apiOutputDir) {
     console.log("Generating cloudscript-ts Server SDK to " + apiOutputDir);
 

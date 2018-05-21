@@ -4,8 +4,6 @@ var path = require("path");
 if (typeof (getCompiledTemplate) === "undefined") getCompiledTemplate = function () { };
 if (typeof (templatizeTree) === "undefined") templatizeTree = function () { };
 
-// exports.putInRoot = true;
-
 exports.makeCombinedAPI = function (apis, sourceDir, apiOutputDir) {
     console.log("Generating Combined api from: " + sourceDir + " to: " + apiOutputDir);
 

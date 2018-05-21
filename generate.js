@@ -198,7 +198,7 @@ function loadApisFromLocalFiles(argsByName, apiCache, apiSpecPath, onComplete) {
 }
 function loadApisFromGitHub(argsByName, apiCache, apiSpecGitUrl, onComplete) {
     var finishCountdown = 0;
-    function onEachComplete() {
+    function onEachComplete(cacheKey) {
         finishCountdown -= 1;
         if (finishCountdown === 0) {
             console.log("Finished loading files from GitHub");
@@ -206,16 +206,17 @@ function loadApisFromGitHub(argsByName, apiCache, apiSpecGitUrl, onComplete) {
             onComplete();
         }
     }
-    downloadFromUrl(apiSpecGitUrl, tocFilename, apiCache, tocFilename, onEachComplete, false);
-    var docList = apiCache[tocFilename].documents;
-    for (var dIdx = 0; dIdx < docList.length; dIdx++) {
-        if (docList[dIdx].sdkGenMakeMethods) {
-            finishCountdown += 1;
-            downloadFromUrl(apiSpecGitUrl, docList[dIdx].path, apiCache, docList[dIdx].path, onEachComplete, docList[dIdx].isOptional);
-            apiCache[docList[dIdx].path].id = dIdx;
-            mapSpecMethods(docList[dIdx]);
+    function onTocComplete() {
+        var docList = apiCache[tocFilename].documents;
+        for (var dIdx = 0; dIdx < docList.length; dIdx++) {
+            if (docList[dIdx].sdkGenMakeMethods) {
+                finishCountdown += 1;
+                downloadFromUrl(apiSpecGitUrl, docList[dIdx].path, apiCache, docList[dIdx].path, onEachComplete, docList[dIdx].isOptional);
+                mapSpecMethods(docList[dIdx]);
+            }
         }
     }
+    downloadFromUrl(apiSpecGitUrl, tocFilename, apiCache, tocFilename, onTocComplete, false);
 }
 function loadApisFromPlayFabServer(argsByName, apiCache, apiSpecPfUrl, onComplete) {
     var finishCountdown = 0;
@@ -227,20 +228,23 @@ function loadApisFromPlayFabServer(argsByName, apiCache, apiSpecPfUrl, onComplet
             onComplete();
         }
     }
-    downloadFromUrl(apiSpecPfUrl, tocFilename, apiCache, tocFilename, onEachComplete, false);
-    var docList = apiCache[tocFilename].documents;
-    for (var dIdx = 0; dIdx < docList.length; dIdx++) {
-        if (dIdx[dIdx].sdkGenMakeMethods) {
-            finishCountdown += 1;
-            if (dIdx[dIdx].path !== "SdkManualNotes.json")
-                downloadFromUrl(apiSpecPfUrl, dIdx[dIdx].shortname, apiCache, dIdx[dIdx].path, onEachComplete, false);
-            else
-                downloadFromUrl(defaultApiSpecGitHubUrl, dIdx[dIdx].shortname, apiCache, dIdx[dIdx].path, onEachComplete, false);
-            mapSpecMethods(docList[dIdx]);
+    function onTocComplete() {
+        var docList = apiCache[tocFilename].documents;
+        for (var dIdx = 0; dIdx < docList.length; dIdx++) {
+            if (docList[dIdx].sdkGenMakeMethods) {
+                finishCountdown += 1;
+                if (docList[dIdx].path !== "SdkManualNotes.json")
+                    downloadFromUrl(apiSpecPfUrl, docList[dIdx].shortname, apiCache, docList[dIdx].path, onEachComplete, false);
+                else
+                    downloadFromUrl(defaultApiSpecGitHubUrl, docList[dIdx].path, apiCache, docList[dIdx].path, onEachComplete, false);
+                mapSpecMethods(docList[dIdx]);
+            }
         }
     }
+    downloadFromUrl(defaultApiSpecGitHubUrl, tocFilename, apiCache, tocFilename, onTocComplete, false);
 }
 function downloadFromUrl(srcUrl, appendUrl, apiCache, cacheKey, onEachComplete, optional) {
+    srcUrl = srcUrl.endsWith("/") ? srcUrl : srcUrl + "/";
     var fullUrl = srcUrl + appendUrl;
     console.log("Begin reading URL: " + fullUrl);
     var rawResponse = "";
@@ -258,7 +262,7 @@ function downloadFromUrl(srcUrl, appendUrl, apiCache, cacheKey, onEachComplete, 
                 if (!optional)
                     throw jsonErr;
             }
-            onEachComplete();
+            onEachComplete(cacheKey);
         });
         request.on("error", function (reqErr) {
             console.log(" ***** Request failed on: " + fullUrl);

@@ -198,7 +198,7 @@ function mapSpecMethods(docObj) {
     for (var i = 0; i < genMethods.length; i++) {
         var funcName = genMethods[i];
         if (!sdkGeneratorGlobals.sdkDocsByMethodName[funcName])
-            sdkGeneratorGlobals.sdkDocsByMethodName[funcName] = { funcName: funcName, apiDocPaths: []};
+            sdkGeneratorGlobals.sdkDocsByMethodName[funcName] = { funcName: funcName, apiDocPaths: [] };
         sdkGeneratorGlobals.sdkDocsByMethodName[funcName].apiDocPaths.push(docObj.path);
     }
 }
@@ -238,7 +238,7 @@ function loadApisFromLocalFiles(argsByName, apiCache, apiSpecPath, onComplete) {
 function loadApisFromGitHub(argsByName, apiCache, apiSpecGitUrl, onComplete) {
     var finishCountdown = 0;
 
-    function onEachComplete() {
+    function onEachComplete(cacheKey) {
         finishCountdown -= 1;
         if (finishCountdown === 0) {
             console.log("Finished loading files from GitHub");
@@ -247,16 +247,18 @@ function loadApisFromGitHub(argsByName, apiCache, apiSpecGitUrl, onComplete) {
         }
     }
 
-    downloadFromUrl(apiSpecGitUrl, tocFilename, apiCache, tocFilename, onEachComplete, false);
-    var docList = apiCache[tocFilename].documents;
-    for (var dIdx = 0; dIdx < docList.length; dIdx++) {
-        if (docList[dIdx].sdkGenMakeMethods) {
-            finishCountdown += 1;
-            downloadFromUrl(apiSpecGitUrl, docList[dIdx].path, apiCache, docList[dIdx].path, onEachComplete, docList[dIdx].isOptional);
-            apiCache[docList[dIdx].path].id = dIdx;
-            mapSpecMethods(docList[dIdx]);
+    function onTocComplete() {
+        var docList = apiCache[tocFilename].documents;
+        for (var dIdx = 0; dIdx < docList.length; dIdx++) {
+            if (docList[dIdx].sdkGenMakeMethods) {
+                finishCountdown += 1;
+                downloadFromUrl(apiSpecGitUrl, docList[dIdx].path, apiCache, docList[dIdx].path, onEachComplete, docList[dIdx].isOptional);
+                mapSpecMethods(docList[dIdx]);
+            }
         }
     }
+
+    downloadFromUrl(apiSpecGitUrl, tocFilename, apiCache, tocFilename, onTocComplete, false);
 }
 
 function loadApisFromPlayFabServer(argsByName, apiCache, apiSpecPfUrl, onComplete) {
@@ -271,21 +273,25 @@ function loadApisFromPlayFabServer(argsByName, apiCache, apiSpecPfUrl, onComplet
         }
     }
 
-    downloadFromUrl(apiSpecPfUrl, tocFilename, apiCache, tocFilename, onEachComplete, false);
-    var docList = apiCache[tocFilename].documents;
-    for (var dIdx = 0; dIdx < docList.length; dIdx++) {
-        if (dIdx[dIdx].sdkGenMakeMethods) {
-            finishCountdown += 1;
-            if (dIdx[dIdx].path !== "SdkManualNotes.json")
-                downloadFromUrl(apiSpecPfUrl, dIdx[dIdx].shortname, apiCache, dIdx[dIdx].path, onEachComplete, false);
-            else
-                downloadFromUrl(defaultApiSpecGitHubUrl, dIdx[dIdx].shortname, apiCache, dIdx[dIdx].path, onEachComplete, false);
-            mapSpecMethods(docList[dIdx]);
+    function onTocComplete() {
+        var docList = apiCache[tocFilename].documents;
+        for (var dIdx = 0; dIdx < docList.length; dIdx++) {
+            if (docList[dIdx].sdkGenMakeMethods) {
+                finishCountdown += 1;
+                if (docList[dIdx].path !== "SdkManualNotes.json")
+                    downloadFromUrl(apiSpecPfUrl, docList[dIdx].shortname, apiCache, docList[dIdx].path, onEachComplete, false);
+                else
+                    downloadFromUrl(defaultApiSpecGitHubUrl, docList[dIdx].path, apiCache, docList[dIdx].path, onEachComplete, false);
+                mapSpecMethods(docList[dIdx]);
+            }
         }
     }
+
+    downloadFromUrl(defaultApiSpecGitHubUrl, tocFilename, apiCache, tocFilename, onTocComplete, false);
 }
 
 function downloadFromUrl(srcUrl: string, appendUrl: string, apiCache, cacheKey: string, onEachComplete, optional: boolean) {
+    srcUrl = srcUrl.endsWith("/") ? srcUrl : srcUrl + "/";
     var fullUrl = srcUrl + appendUrl;
     console.log("Begin reading URL: " + fullUrl);
     var rawResponse = "";
@@ -302,7 +308,7 @@ function downloadFromUrl(srcUrl: string, appendUrl: string, apiCache, cacheKey: 
                 if (!optional)
                     throw jsonErr;
             }
-            onEachComplete();
+            onEachComplete(cacheKey);
         });
         request.on("error", (reqErr) => {
             console.log(" ***** Request failed on: " + fullUrl);

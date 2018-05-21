@@ -1,0 +1,50 @@
+<%- generateSummary("", api, "description") %>
+package PlayFab<%- api.name %>API 
+
+import (
+    "encoding/json"
+    "playfab/pfshared"
+    . "playfab/<%- api.name.toLowerCase() %>/models"
+)
+
+<% for(var i in api.calls) { var apiCall = api.calls[i]; %>
+type <%- apiCall.name %>ResponseWrapped struct {
+    pfshared.APIResponse 
+    Data <%- apiCall.result %>
+}
+
+<%- generateSummary("    ", apiCall, "summary") %>
+func <%- apiCall.name %>(request <%-apiCall.request  %>) (*<%- apiCall.name %>ResponseWrapped, error) {
+    
+    <% //Disabled for now as can happen at request stage? getRequestActions(apiCall, api) %>
+    resp, err := pfshared.MakeRequest("/<%- api.name %>/<%- apiCall.name%>", request, <%- getAuthParamName(apiCall) %>)
+    if err != nil {
+        return nil, err
+    }
+    var typedRespObj = <%- apiCall.name %>ResponseWrapped{}
+    if err := json.Unmarshal(resp, &typedRespObj); err != nil {
+        return nil, err
+    }
+    <%- getResultActions(apiCall, api) %>
+    return &typedRespObj, nil
+}
+
+<%}%>
+<%if(api.name === "Client"){%>
+func MultiStepClientLogin(needsAttribution bool) (*AttributeInstallResponseWrapped, error) {
+	pfSettings := &pfshared.PlayFabSettings
+
+	if needsAttribution && !pfSettings.DisableAdvertising && pfSettings.AdvertisingIDType != "" && pfSettings.AdvertisingIDValue != "" {
+		request := AttributeInstallRequest{}
+		if pfSettings.AdvertisingIDType == pfSettings.AD_TYPE_IDFA {
+			request.Idfa = pfSettings.AdvertisingIDValue
+		} else if pfSettings.AdvertisingIDType == pfSettings.AD_TYPE_ANDROID_ID {
+			request.Adid = pfSettings.AdvertisingIDValue
+		} else {
+			return nil, nil
+		}
+
+		return AttributeInstall(request)
+	}
+	return nil, nil
+} <%}%>

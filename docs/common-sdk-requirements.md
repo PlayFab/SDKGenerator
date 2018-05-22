@@ -9,23 +9,33 @@ The information listed here was primarily sourced in a few meetings/discussions/
 
 ## Requirements
 ### Requirements to the SDK
-* Non-monolithic, modular structure that allows a greater degree of flexibility and scalability in development, maintenance, customization and extensibility due to smaller building blocks (services) that can be worked independently
-* Consists of services
+* Greater degree of flexibility and scalability in development, maintenance, customization and extensibility due to:
+    * Non-monolithic, modular structure
+    * Smaller building blocks (services) that can be worked on independently
+    * High configurability (configuration-driven design)
 * Configurable composition:
     * Services can be selected
     * Services can be optional
     * Services can be required
     * Composition rules/restrictions apply based on each service dependencies and configuration
     * Configuration errors must be prevented/communicated at the time of configuring
+* Ability to tailor SDK to specific customer needs
 * Can be composed and configured by a customer
-* Tracked SDK generation process for acceptable customer experience
-* Support of PlayFab-built and custom services (created by customers)
+* Trackable SDK generation and download process to provide acceptable customer experience
+* Can be used to support all existing SDK platforms
+* Can be integrated into existing SDK generation process (eventually replace generation of monolithic SDKs)
+* Support of built-in (authored by PlayFab) and custom services (created by customers)
+* Service management/administration system (for PlayFab admins)
+* Well-defined and easy new service development process
+* Well-defined and easy new service registration process
 
 ### Requirements to a service
-* Contains metadata (description of itself)
-* Configurable
-* Can be developed independently
+* Contains metadata (description of itself that can be read by the system)
+* Configurable (a set of properties that can be set/modified by the system or customer):
+    * When selecting the service before generating and downloading SDK (SDK design time)
+    * When adjusting the service locally after SDK is downloaded (client code build time or runtime)
+* Can be developed independently of other services
 * Can interact with other services using:
-    * Specific service identifiers
+    * Specific service identifiers (reference to a specific service)
     * Configurable aliases (via configuration)
-* Not limited by nature (not only a part of existing SDKs)
+* Not limited by nature (not necessarily part of an existing SDKs, it can be anything)

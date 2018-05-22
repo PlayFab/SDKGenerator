@@ -33,9 +33,11 @@ The information listed here was primarily sourced in a few meetings/discussions/
 * Contains metadata (description of itself that can be read by the system)
 * Configurable (a set of properties that can be set/modified by the system or customer):
     * When selecting the service before generating and downloading SDK (SDK design time)
-    * When adjusting the service locally after SDK is downloaded (client code build time or runtime)
+    * When adjusting the service locally after SDK is downloaded (client code at build time or runtime)
 * Can be developed independently of other services
 * Can interact with other services using:
-    * Specific service identifiers (reference to a specific service)
+    * Specific unique service identifiers (reference to a specific service)
     * Configurable aliases (via configuration)
-* Not limited by nature (not necessarily part of an existing SDKs, it can be anything)
+* Can be used by other services (by a unique service identifier)
+* Can provide implementations for multiple programming languages/platforms
+* Not limited by nature (not necessarily to be part of any existing SDKs, it can be anything)

@@ -8,7 +8,7 @@ The information listed here was primarily sourced in a few meetings/discussions/
 * _Service_ is a single building unit (module) of the new modular SDK. TODO: please let me know if another term is desired for this.
 
 ## Requirements
-### Requirements to the SDK
+### Requirements for the SDK
 * Greater degree of flexibility and scalability in development, maintenance, customization and extensibility due to:
     * Non-monolithic, modular structure
     * Smaller building blocks (services) that can be worked on independently
@@ -29,7 +29,7 @@ The information listed here was primarily sourced in a few meetings/discussions/
 * Well-defined and easy new service development process
 * Well-defined and easy new service registration process
 
-### Requirements to a service
+### Requirements for a service
 * Contains metadata (description of itself that can be read by the system)
 * Configurable (a set of properties that can be set/modified by the system or customer):
     * When selecting the service before generating and downloading SDK (SDK design time)

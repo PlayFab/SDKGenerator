@@ -117,7 +117,6 @@ namespace JenkinsConsoleUtility.Commands
                 case "actionscriptsdk": return "actionscript";
                 case "cocos2d-xsdk": return "cpp-cocos2dx";
                 case "javascriptsdk": return "javascript";
-                case "javasdk": return "java";
                 case "objective_c_sdk": return "objc";
                 case "playfabgameserver": return "csharp-unity-gameserver";
                 // Multiple repos map to the same folder
@@ -129,6 +128,7 @@ namespace JenkinsConsoleUtility.Commands
                 case "unrealcppsdk": case "uecppbetasdk": case "uecpppsnsdk": case "uecppxboxsdk": return "cpp-ue4";
                 case "windowssdk": case "winbetasdk": case "winpsnsdk": case "winxboxsdk": return "windowssdk";
                 case "xplatcppsdk": case "xplatbetasdk": case "xplatpsnsdk": case "xplatxboxsdk": return "xplatcppsdk";
+                case "javasdk": case "javabetasdk": return "java";
 
                 default: return sdkName.ToLower(); // Most new sdks have matching names
             }

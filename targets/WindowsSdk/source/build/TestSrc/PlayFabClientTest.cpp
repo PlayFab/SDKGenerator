@@ -47,8 +47,8 @@ namespace UnittestRunner
         static void SetTitleInfo(web::json::value titleData)
         {
             // Parse all the inputs
-            PlayFabSettings::titleId = titleData[U("titleId")].as_string();
-            USER_EMAIL = ShortenString(titleData[U("userEmail")].as_string());
+            PlayFabSettings::titleId = titleData[L"titleId"].as_string();
+            USER_EMAIL = ShortenString(titleData[L"userEmail"].as_string());
 
             // Verify all the inputs won't cause crashes in the tests
             TITLE_INFO_SET = true;
@@ -90,7 +90,7 @@ namespace UnittestRunner
             else
             {
                 // TODO: POPULATE THIS SECTION WITH REAL INFORMATION (or set up a testTitleData file, and set your PF_TEST_TITLE_DATA_JSON to the path for that file)
-                PlayFabSettings::titleId = U(""); // The titleId for your title, found in the "Settings" section of PlayFab Game Manager
+                PlayFabSettings::titleId = L""; // The titleId for your title, found in the "Settings" section of PlayFab Game Manager
                 USER_EMAIL = ""; // This is the email for a valid user (test tries to log into it with an invalid password, and verifies error result)
             }
         }
@@ -230,7 +230,7 @@ namespace UnittestRunner
         TEST_METHOD(LoginWithAdvertisingId)
         {
             PlayFabSettings::advertisingIdType = PlayFabSettings::AD_TYPE_ANDROID_ID;
-            PlayFabSettings::advertisingIdValue = U("PlayFabTestId");
+            PlayFabSettings::advertisingIdValue = L"PlayFabTestId";
 
             LoginWithCustomIDRequest loginRequest;
             loginRequest.CustomId = ShortenString(PlayFabSettings::buildIdentifier);
@@ -239,7 +239,7 @@ namespace UnittestRunner
             PlayFabClientAPI::LoginWithCustomID(loginRequest, LoginCallback, LoginFailedCallback, nullptr);
             PlayFabApiWait();
 
-            auto targetValue = PlayFabSettings::AD_TYPE_ANDROID_ID + U("_Successful");
+            auto targetValue = PlayFabSettings::AD_TYPE_ANDROID_ID + L"_Successful";
             auto actualValue = PlayFabSettings::advertisingIdType;
             Assert::IsTrue(actualValue.compare(targetValue) == 0, L"Check that advertisingId was sent.");
         }
@@ -421,7 +421,7 @@ namespace UnittestRunner
             testMessageReturn = "GetClientLB_Success";
             testMessageInt1 = result.Leaderboard.size();
             // Verifies that the request comes through as expected
-            testMessageInt2 += result.Request.as_object().find(WidenString("MaxResultsCount"))->second.as_integer();
+            testMessageInt2 += result.Request.as_object().find(L"MaxResultsCount")->second.as_integer();
         }
 
         /// <summary>
@@ -475,7 +475,7 @@ namespace UnittestRunner
             else if (!result.Error.isNull())
                 testMessageReturn = result.Error.mValue.Message;
             else
-                testMessageReturn = ShortenString(result.FunctionResult[U("messageValue")].as_string());
+                testMessageReturn = ShortenString(result.FunctionResult[L"messageValue"].as_string());
         }
 
         /// <summary>
@@ -532,8 +532,8 @@ namespace UnittestRunner
             WriteClientPlayerEventRequest request;
             request.EventName = "ForumPostEvent";
             request.Timestamp = time(nullptr);
-            request.Body[U("Subject")] = web::json::value::string(WidenString("My First Post"));
-            request.Body[U("Body")] = web::json::value::string(WidenString("My awesome post."));
+            request.Body[L"Subject"] = web::json::value::string(L"My First Post");
+            request.Body[L"Body"] = web::json::value::string(L"My awesome post.");
             PlayFabClientAPI::WritePlayerEvent(request, OnWritePlayerEvent, SharedFailedCallback, nullptr);
             PlayFabApiWait();
             Assert::IsTrue(testMessageReturn.compare("WriteEvent tested") == 0, WidenString(testMessageReturn).c_str());

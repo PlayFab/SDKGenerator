@@ -33,7 +33,7 @@ namespace PlayFab
 <%- getRequestActions("        ", apiCall) %>
         IPlayFabHttp& http = IPlayFabHttp::Get();
         auto requestJson = request.ToJson();
-        http.AddRequest(U("<%- apiCall.url %>"), <%- getAuthParams(apiCall) %>, requestJson, On<%- apiCall.name %>Result, SharedVoidPointer((callback == nullptr) ? nullptr : new ProcessApiCallback<<%- apiCall.result %>>(callback)), errorCallback, customData);
+        http.AddRequest(L"<%- apiCall.url %>", <%- getAuthParams(apiCall) %>, requestJson, On<%- apiCall.name %>Result, SharedVoidPointer((callback == nullptr) ? nullptr : new ProcessApiCallback<<%- apiCall.result %>>(callback)), errorCallback, customData);
     }
 
     void PlayFab<%- api.name %>API::On<%- apiCall.name %>Result(CallRequestContainer& request)

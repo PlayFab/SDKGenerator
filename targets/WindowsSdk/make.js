@@ -103,10 +103,10 @@ function getAuthParams(apiCall) {
     if (apiCall.url === "/Authentication/GetEntityToken")
         return "authKey, authValue";
     switch (apiCall.auth) {
-        case "None": return "U(\"\"), U(\"\")";
-        case "EntityToken": return "U(\"X-EntityToken\"), PlayFabSettings::entityToken";
-        case "SessionTicket": return "U(\"X-Authorization\"), PlayFabSettings::clientSessionTicket";
-        case "SecretKey": return "U(\"X-SecretKey\"), PlayFabSettings::developerSecretKey";
+        case "None": return "L\"\", L\"\"";
+        case "EntityToken": return "L\"X-EntityToken\", PlayFabSettings::entityToken";
+        case "SessionTicket": return "L\"X-Authorization\", PlayFabSettings::clientSessionTicket";
+        case "SecretKey": return "L\"X-SecretKey\", PlayFabSettings::developerSecretKey";
     }
     throw "getAuthParams: Unknown auth type: " + apiCall.auth + " for " + apiCall.name;
 }
@@ -172,20 +172,20 @@ function getPropertyDefinition(tabbing, property, datatype) {
 function getPropertyFromJson(tabbing, property, datatype) {
     var safePropName = getPropertySafeName(property);
     if (property.jsontype === "Object" && property.actualtype === "object")
-        return tabbing + safePropName + " = input[U(\"" + safePropName + "\")];";
+        return tabbing + safePropName + " = input[L\"" + safePropName + "\"];";
     if (property.jsontype === "Object")
-        return tabbing + "FromJsonUtilO(input[U(\"" + safePropName + "\")], " + safePropName + ");";
+        return tabbing + "FromJsonUtilO(input[L\"" + safePropName + "\"], " + safePropName + ");";
     if (property.isenum && (property.collection || property.optional))
-        return tabbing + "FromJsonUtilE(input[U(\"" + safePropName + "\")], " + safePropName + ");";
+        return tabbing + "FromJsonUtilE(input[L\"" + safePropName + "\"], " + safePropName + ");";
     if (property.isenum)
-        return tabbing + "FromJsonEnum(input[U(\"" + safePropName + "\")], " + safePropName + ");";
+        return tabbing + "FromJsonEnum(input[L\"" + safePropName + "\"], " + safePropName + ");";
     if (property.actualtype === "DateTime")
-        return tabbing + "FromJsonUtilT(input[U(\"" + safePropName + "\")], " + safePropName + ");";
+        return tabbing + "FromJsonUtilT(input[L\"" + safePropName + "\"], " + safePropName + ");";
     if (property.actualtype === "String")
-        return tabbing + "FromJsonUtilS(input[U(\"" + safePropName + "\")], " + safePropName + ");";
+        return tabbing + "FromJsonUtilS(input[L\"" + safePropName + "\"], " + safePropName + ");";
     var primitives = new Set(["Boolean", "int16", "uint16", "int32", "uint32", "int64", "uint64", "float", "double"]);
     if (primitives.has(property.actualtype))
-        return tabbing + "FromJsonUtilP(input[U(\"" + safePropName + "\")], " + safePropName + ");";
+        return tabbing + "FromJsonUtilP(input[L\"" + safePropName + "\"], " + safePropName + ");";
 
     throw "getPropertyFromJson: Unknown property type: " + property.actualtype + " for " + property.name + " in " + datatype.name;
 }
@@ -193,20 +193,20 @@ function getPropertyFromJson(tabbing, property, datatype) {
 function getPropertyToJson(tabbing, property, datatype) {
     var safePropName = getPropertySafeName(property);
     if (property.jsontype === "Object" && property.actualtype === "object")
-        return tabbing + "output[U(\"" + property.name + "\")] = " + safePropName + ";";
+        return tabbing + "output[L\"" + property.name + "\"] = " + safePropName + ";";
     if (property.jsontype === "Object")
-        return tabbing + "web::json::value each_" + safePropName + "; ToJsonUtilO(" + safePropName + ", each_" + safePropName + "); output[U(\"" + property.name + "\")] = each_" + safePropName + ";";
-    if (property.isenum && (property.HTMLAllCollection || property.optional))
-        return tabbing + "web::json::value each_" + safePropName + "; ToJsonUtilE(" + safePropName + ", each_" + safePropName + "); output[U(\"" + property.name + "\")] = each_" + safePropName + ";";
+        return tabbing + "web::json::value each_" + safePropName + "; ToJsonUtilO(" + safePropName + ", each_" + safePropName + "); output[L\"" + property.name + "\"] = each_" + safePropName + ";";
+    if (property.isenum && (property.collection || property.optional))
+        return tabbing + "web::json::value each_" + safePropName + "; ToJsonUtilE(" + safePropName + ", each_" + safePropName + "); output[L\"" + property.name + "\"] = each_" + safePropName + ";";
     if (property.isenum)
-        return tabbing + "web::json::value each_" + safePropName + "; ToJsonEnum(" + safePropName + ", each_" + safePropName + "); output[U(\"" + property.name + "\")] = each_" + safePropName + ";";
+        return tabbing + "web::json::value each_" + safePropName + "; ToJsonEnum(" + safePropName + ", each_" + safePropName + "); output[L\"" + property.name + "\"] = each_" + safePropName + ";";
     if (property.actualtype === "DateTime")
-        return tabbing + "web::json::value each_" + safePropName + "; ToJsonUtilT(" + property.name + ", each_" + safePropName + "); output[U(\"" + property.name + "\")] = each_" + safePropName + ";";
+        return tabbing + "web::json::value each_" + safePropName + "; ToJsonUtilT(" + property.name + ", each_" + safePropName + "); output[L\"" + property.name + "\"] = each_" + safePropName + ";";
     if (property.actualtype === "String")
-        return tabbing + "web::json::value each_" + safePropName + "; ToJsonUtilS(" + safePropName + ", each_" + safePropName + "); output[U(\"" + property.name + "\")] = each_" + safePropName + ";";
+        return tabbing + "web::json::value each_" + safePropName + "; ToJsonUtilS(" + safePropName + ", each_" + safePropName + "); output[L\"" + property.name + "\"] = each_" + safePropName + ";";
     var primitives = new Set(["Boolean", "int16", "uint16", "int32", "uint32", "int64", "uint64", "float", "double"]);
     if (primitives.has(property.actualtype))
-        return tabbing + "web::json::value each_" + safePropName + "; ToJsonUtilP(" + safePropName + ", each_" + safePropName + "); output[U(\"" + property.name + "\")] = each_" + safePropName + ";";
+        return tabbing + "web::json::value each_" + safePropName + "; ToJsonUtilP(" + safePropName + ", each_" + safePropName + "); output[L\"" + property.name + "\"] = each_" + safePropName + ";";
 
     throw "getPropertyToJson: Unknown property type: " + property.actualtype + " for " + property.name + " in " + datatype.name;
 }
@@ -221,11 +221,11 @@ function getRequestActions(tabbing, apiCall) {
     if (apiCall.url === "/Authentication/GetEntityToken")
         return tabbing + "utility::string_t authKey, authValue;\n"
             + tabbing + "if (PlayFabSettings::entityToken.length() > 0) {\n"
-            + tabbing + "    authKey = WidenString(\"X-EntityToken\"); authValue = PlayFabSettings::entityToken;\n"
+            + tabbing + "    authKey = L\"X-EntityToken\"; authValue = PlayFabSettings::entityToken;\n"
             + tabbing + "} else if (PlayFabSettings::clientSessionTicket.length() > 0) {\n"
-            + tabbing + "    authKey = WidenString(\"X-Authorization\"); authValue = PlayFabSettings::clientSessionTicket;\n"
+            + tabbing + "    authKey = L\"X-Authorization\"; authValue = PlayFabSettings::clientSessionTicket;\n"
             + tabbing + "} else if (PlayFabSettings::developerSecretKey.length() > 0) {\n"
-            + tabbing + "    authKey = WidenString(\"X-SecretKey\"); authValue = PlayFabSettings::developerSecretKey;\n"
+            + tabbing + "    authKey = L\"X-SecretKey\"; authValue = PlayFabSettings::developerSecretKey;\n"
             + tabbing + "}\n";
 
     return "";
@@ -248,7 +248,7 @@ function getResultActions(tabbing, apiCall) {
             + tabbing + "    MultiStepClientLogin(outResult.SettingsForUser->NeedsAttribution);\n"
             + tabbing + "}\n";
     if (apiCall.result === "AttributeInstallResult")
-        return tabbing + "PlayFabSettings::advertisingIdType += U(\"_Successful\");\n";
+        return tabbing + "PlayFabSettings::advertisingIdType += L\"_Successful\";\n";
 
     return "";
 }

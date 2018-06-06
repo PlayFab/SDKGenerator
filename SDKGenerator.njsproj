@@ -936,6 +936,8 @@
     <Folder Include="targets\PhpSdk\templates\" />
     <Folder Include="targets\postman\" />
     <Folder Include="targets\postman\templates\" />
+    <Folder Include="targets\python\" />
+    <Folder Include="targets\python\templates\" />
     <Folder Include="targets\SdkTestingCloudScript\" />
     <Folder Include="targets\SdkTestingCloudScript\templates\" />
     <Folder Include="targets\unity-v2\" />

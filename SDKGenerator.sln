@@ -22,6 +22,7 @@ Global
 		PhpSdk|Any CPU = PhpSdk|Any CPU
 		PlayFabGameServer|Any CPU = PlayFabGameServer|Any CPU
 		PostmanCollection|Any CPU = PostmanCollection|Any CPU
+		Python|Any CPU = Python|Any CPU
 		UnitySdk|Any CPU = UnitySdk|Any CPU
 		UnrealBlueprintSDK|Any CPU = UnrealBlueprintSDK|Any CPU
 		UnrealCppSdk|Any CPU = UnrealCppSdk|Any CPU
@@ -47,10 +48,10 @@ Global
 		{2BA807EF-310C-43B5-8D42-1ABCFFF39BE9}.LuaSdk|Any CPU.Build.0 = LuaSdk|Any CPU
 		{2BA807EF-310C-43B5-8D42-1ABCFFF39BE9}.LumberyardSdk|Any CPU.ActiveCfg = LumberyardSdk|Any CPU
 		{2BA807EF-310C-43B5-8D42-1ABCFFF39BE9}.LumberyardSdk|Any CPU.Build.0 = LumberyardSdk|Any CPU
-		{2BA807EF-310C-43B5-8D42-1ABCFFF39BE9}.NodeSDK|Any CPU.ActiveCfg = NodeSDK|Any CPU
-		{2BA807EF-310C-43B5-8D42-1ABCFFF39BE9}.NodeSDK|Any CPU.Build.0 = NodeSDK|Any CPU
 		{2BA807EF-310C-43B5-8D42-1ABCFFF39BE9}.NewTarget|Any CPU.ActiveCfg = NewTarget|Any CPU
 		{2BA807EF-310C-43B5-8D42-1ABCFFF39BE9}.NewTarget|Any CPU.Build.0 = NewTarget|Any CPU
+		{2BA807EF-310C-43B5-8D42-1ABCFFF39BE9}.NodeSDK|Any CPU.ActiveCfg = NodeSDK|Any CPU
+		{2BA807EF-310C-43B5-8D42-1ABCFFF39BE9}.NodeSDK|Any CPU.Build.0 = NodeSDK|Any CPU
 		{2BA807EF-310C-43B5-8D42-1ABCFFF39BE9}.ObjCSdk|Any CPU.ActiveCfg = ObjCSdk|Any CPU
 		{2BA807EF-310C-43B5-8D42-1ABCFFF39BE9}.ObjCSdk|Any CPU.Build.0 = ObjCSdk|Any CPU
 		{2BA807EF-310C-43B5-8D42-1ABCFFF39BE9}.PhpSdk|Any CPU.ActiveCfg = PhpSdk|Any CPU
@@ -59,6 +60,8 @@ Global
 		{2BA807EF-310C-43B5-8D42-1ABCFFF39BE9}.PlayFabGameServer|Any CPU.Build.0 = PlayFabGameServer|Any CPU
 		{2BA807EF-310C-43B5-8D42-1ABCFFF39BE9}.PostmanCollection|Any CPU.ActiveCfg = PostmanCollection|Any CPU
 		{2BA807EF-310C-43B5-8D42-1ABCFFF39BE9}.PostmanCollection|Any CPU.Build.0 = PostmanCollection|Any CPU
+		{2BA807EF-310C-43B5-8D42-1ABCFFF39BE9}.Python|Any CPU.ActiveCfg = Python|Any CPU
+		{2BA807EF-310C-43B5-8D42-1ABCFFF39BE9}.Python|Any CPU.Build.0 = Python|Any CPU
 		{2BA807EF-310C-43B5-8D42-1ABCFFF39BE9}.UnitySdk|Any CPU.ActiveCfg = UnitySdk|Any CPU
 		{2BA807EF-310C-43B5-8D42-1ABCFFF39BE9}.UnitySdk|Any CPU.Build.0 = UnitySdk|Any CPU
 		{2BA807EF-310C-43B5-8D42-1ABCFFF39BE9}.UnrealBlueprintSDK|Any CPU.ActiveCfg = UnrealBlueprintSDK|Any CPU

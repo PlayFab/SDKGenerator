@@ -101,6 +101,11 @@
     <OutputPath>bin\</OutputPath>
     <ScriptArguments>csharp-unity-gameserver=..\sdks\PlayFabGameServer -apiSpecPath -buildIdentifier UnitySDK_manual</ScriptArguments>
   </PropertyGroup>
+  <PropertyGroup Condition=" '$(Configuration)' == 'Python' ">
+    <DebugSymbols>true</DebugSymbols>
+    <OutputPath>bin\</OutputPath>
+    <ScriptArguments>python=..\sdks\Python -apiSpecPath -buildIdentifier Python_manual</ScriptArguments>
+  </PropertyGroup>
   <PropertyGroup Condition=" '$(Configuration)' == 'UnitySdk' ">
     <DebugSymbols>true</DebugSymbols>
     <OutputPath>bin\</OutputPath>
@@ -161,6 +166,7 @@
     <Content Include="SDKBuildScripts\objc_build.bat" />
     <Content Include="SDKBuildScripts\php_build.bat" />
     <Content Include="SDKBuildScripts\postman_build.bat" />
+    <Content Include="SDKBuildScripts\python.bat" />
     <Content Include="SDKBuildScripts\SdkTestingCloudScript_build.bat" />
     <Content Include="SDKBuildScripts\ue4_BP_build.bat" />
     <Content Include="SDKBuildScripts\ue4_CPP_build.bat" />
@@ -486,6 +492,7 @@
     <Content Include="targets\PhpSdk\templates\PlayFabApi.php.ejs" />
     <Content Include="targets\postman\replacements.json" />
     <Content Include="targets\postman\templates\playfab.json.ejs" />
+    <!--<Content Include="targets\python\templates\playfab.json.ejs" />-->
     <Content Include="targets\SdkTestingCloudScript\templates\CloudScript.d.ts.ejs" />
     <Content Include="targets\SdkTestingCloudScript\templates\Interface.d.ts.ejs" />
     <Content Include="targets\SdkTestingCloudScript\templates\Enum.d.ts.ejs" />

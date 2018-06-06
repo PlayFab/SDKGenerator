@@ -80,6 +80,19 @@ setUserDataPayload = {
   ]
 }
 
+# get catalog
+response = requests.post(getCatalogItemsUrl , data=json.dumps(setUserDataPayload), headers=arr)
+
+print(response.text) #TEXT/HTML
+print(response.status_code, response.reason) #HTTP
+
+# Purchase apple
+response = requests.post(getCatalogItemsUrl , data=json.dumps(setUserDataPayload), headers=arr)
+
+print(response.text) #TEXT/HTML
+print(response.status_code, response.reason) #HTTP
+
+# check apple exists in inventory
 response = requests.post(getCatalogItemsUrl , data=json.dumps(setUserDataPayload), headers=arr)
 
 print(response.text) #TEXT/HTML

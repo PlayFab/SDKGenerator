@@ -1,0 +1,6 @@
+import enum
+
+<%- generateApiSummary("    ", datatype, "description")
+%>class <%- datatype.name %> (enum.Enum):
+    <% for(var i = 0; i < datatype.enumvalues.length-1; i++)%>
+    <%-  datatype.enumvalues[i].name %> = <%-i%>

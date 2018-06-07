@@ -1,0 +1,4 @@
+# import PlayFab.Internal
+
+class PlayFab<%- api.name %>Models:
+    <% for(var d in api.datatypes) { var datatype = api.datatypes[d] %><%- makeDatatype(datatype, api) %><% } %>

@@ -41,8 +41,8 @@ namespace UnittestRunner
             TITLE_INFO_SET = true;
 
             // Parse all the inputs
-            PlayFabSettings::titleId = titleData[U("titleId")].as_string();
-            PlayFabSettings::developerSecretKey = titleData[U("developerSecretKey")].as_string();
+            PlayFabSettings::titleId = titleData[L"titleId"].as_string();
+            PlayFabSettings::developerSecretKey = titleData[L"developerSecretKey"].as_string();
 
             // Verify all the inputs won't cause crashes in the tests
             TITLE_INFO_SET = true;
@@ -84,8 +84,8 @@ namespace UnittestRunner
             else
             {
                 // TODO: POPULATE THIS SECTION WITH REAL INFORMATION (or set up a testTitleData file, and set your PF_TEST_TITLE_DATA_JSON to the path for that file)
-                PlayFabSettings::titleId = U(""); // The titleId for your title, found in the "Settings" section of PlayFab Game Manager
-                PlayFabSettings::developerSecretKey = U(""); // The titleId for your title, found in the "Settings" section of PlayFab Game Manager
+                PlayFabSettings::titleId = L""; // The titleId for your title, found in the "Settings" section of PlayFab Game Manager
+                PlayFabSettings::developerSecretKey = L""; // The titleId for your title, found in the "Settings" section of PlayFab Game Manager
             }
         }
         TEST_CLASS_CLEANUP(ClassCleanup)
@@ -151,8 +151,8 @@ namespace UnittestRunner
 
             Assert::IsTrue(testMessageReturn.compare("Entity Token Received") == 0, WidenString(testMessageReturn).c_str()); // We got the entity token
             Assert::IsTrue(entityKey.TypeString.compare("title_player_account") == 0, WidenString("EntityType: " + entityKey.TypeString).c_str()); // We got the entity token for the type we expected
-            Assert::IsTrue(entityToken.length() > 0, WidenString("Title-Player Entity Token not retrieved from GetEntityToken").c_str());
-            Assert::IsTrue(entityKey.Id.length() > 0, WidenString("Title-Player EntityId not retrieved from GetEntityToken").c_str());
+            Assert::IsTrue(entityToken.length() > 0, L"Title-Player Entity Token not retrieved from GetEntityToken");
+            Assert::IsTrue(entityKey.Id.length() > 0, L"Title-Player EntityId not retrieved from GetEntityToken");
         }
         static void GetEntityTokenCallback(const GetEntityTokenResponse& result, void*)
         {

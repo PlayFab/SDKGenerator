@@ -2,14 +2,14 @@
 
 namespace PlayFab
 {
-    const utility::string_t PlayFabSettings::sdkVersion = U("<%- sdkVersion %>");
-    const utility::string_t PlayFabSettings::buildIdentifier = U("<%- buildIdentifier %>");
-    const utility::string_t PlayFabSettings::versionString = U("WindowsSDK-<%- sdkVersion %>");
+    const utility::string_t PlayFabSettings::sdkVersion = L"<%- sdkVersion %>";
+    const utility::string_t PlayFabSettings::buildIdentifier = L"<%- buildIdentifier %>";
+    const utility::string_t PlayFabSettings::versionString = L"WindowsSDK-<%- sdkVersion %>";
 
     bool PlayFabSettings::useDevelopmentEnvironment = false;
     utility::string_t PlayFabSettings::serverURL;
-    utility::string_t PlayFabSettings::developmentEnvironmentURL = U(".playfabsandbox.com");
-    utility::string_t PlayFabSettings::productionEnvironmentURL = U(".playfabapi.com");
+    utility::string_t PlayFabSettings::developmentEnvironmentURL = L".playfabsandbox.com";
+    utility::string_t PlayFabSettings::productionEnvironmentURL = L".playfabapi.com";
     utility::string_t PlayFabSettings::titleId; // You must set this value for PlayFabSdk to work properly (Found in the Game Manager for your title, at the PlayFab Website)
     ErrorCallback PlayFabSettings::globalErrorHandler = nullptr;
 
@@ -23,12 +23,12 @@ namespace PlayFab
 
 #ifndef DISABLE_PLAYFABCLIENT_API
     utility::string_t PlayFabSettings::clientSessionTicket; // This is set by any Client Login method, and is required for all other Client API methods
-    utility::string_t PlayFabSettings::advertisingIdType = U(""); // Set this to the appropriate AD_TYPE_X constant below
-    utility::string_t PlayFabSettings::advertisingIdValue = U(""); // Set this to corresponding device value
+    utility::string_t PlayFabSettings::advertisingIdType = L""; // Set this to the appropriate AD_TYPE_X constant below
+    utility::string_t PlayFabSettings::advertisingIdValue = L""; // Set this to corresponding device value
 
     bool PlayFabSettings::disableAdvertising = false;
-    const utility::string_t PlayFabSettings::AD_TYPE_IDFA = U("Idfa");
-    const utility::string_t PlayFabSettings::AD_TYPE_ANDROID_ID = U("Adid");
+    const utility::string_t PlayFabSettings::AD_TYPE_IDFA = L"Idfa";
+    const utility::string_t PlayFabSettings::AD_TYPE_ANDROID_ID = L"Adid";
 #endif
 
     void PlayFabSettings::ForgetAllCredentials()

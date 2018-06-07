@@ -31,8 +31,8 @@ namespace UnittestRunner
             TITLE_INFO_SET = true;
 
             // Parse all the inputs
-            PlayFabSettings::titleId = titleData[U("titleId")].as_string();
-            PlayFabSettings::developerSecretKey = titleData[U("developerSecretKey")].as_string();
+            PlayFabSettings::titleId = titleData[L"titleId"].as_string();
+            PlayFabSettings::developerSecretKey = titleData[L"developerSecretKey"].as_string();
 
             // Verify all the inputs won't cause crashes in the tests
             TITLE_INFO_SET = true;
@@ -74,8 +74,8 @@ namespace UnittestRunner
             else
             {
                 // TODO: POPULATE THIS SECTION WITH REAL INFORMATION (or set up a testTitleData file, and set your PF_TEST_TITLE_DATA_JSON to the path for that file)
-                PlayFabSettings::titleId = U(""); // The titleId for your title, found in the "Settings" section of PlayFab Game Manager
-                PlayFabSettings::developerSecretKey = U(""); // The titleId for your title, found in the "Settings" section of PlayFab Game Manager
+                PlayFabSettings::titleId = L""; // The titleId for your title, found in the "Settings" section of PlayFab Game Manager
+                PlayFabSettings::developerSecretKey = L""; // The titleId for your title, found in the "Settings" section of PlayFab Game Manager
             }
         }
         TEST_CLASS_CLEANUP(ClassCleanup)
@@ -132,7 +132,7 @@ namespace UnittestRunner
             else if (!result.Error.isNull())
                 testMessageReturn = result.Error.mValue.Message;
             else
-                testMessageReturn = ShortenString(result.FunctionResult[U("messageValue")].as_string());
+                testMessageReturn = ShortenString(result.FunctionResult[L"messageValue"].as_string());
         }
     };
 

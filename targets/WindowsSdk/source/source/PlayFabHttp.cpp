@@ -49,9 +49,9 @@ namespace PlayFab
         reqContainer->httpClient = new web::http::client::http_client(PlayFabSettings::GetUrl(urlPath));
         reqContainer->httpRequest = new web::http::http_request(web::http::methods::POST);
         web::http::http_headers& headers = reqContainer->httpRequest->headers();
-        headers.add(U("Content-Type"), U("application/json"));
-        headers.add(U("X-PlayFabSDK"), PlayFabSettings::versionString);
-        headers.add(U("X-ReportErrorAsSuccess"), U("true"));
+        headers.add(L"Content-Type", L"application/json");
+        headers.add(L"X-PlayFabSDK", PlayFabSettings::versionString);
+        headers.add(L"X-ReportErrorAsSuccess", L"true");
         if (authKey.length() != 0 && authValue.length() != 0)
             headers.add(authKey, authValue);
         reqContainer->httpRequest->set_body(reqContainer->request);

@@ -9,7 +9,7 @@ exports.makeClientAPI2 = function (apis, sourceDir, apiOutputDir) {
     // Builds the client api.  The provided "api" variable is a single object, the API_SPECS/client.api.json as an object
     console.log("Generating Client api from: " + sourceDir + " to: " + apiOutputDir);
     copyTree(path.resolve(sourceDir, "source"), apiOutputDir); // Copy the whole source directory as-is
-    MakeExampleTemplateFile(sourceDir, apiOutputDir);
+    //MakeExampleTemplateFile(sourceDir, apiOutputDir);
 }
 
 
@@ -35,16 +35,15 @@ exports.makeServerAPI = function (apis, sourceDir, apiOutputDir) {
     for(var i=0; i< apis.length; i++)
         makeApi(apis[i], sourceDir, apiOutputDir);
 
-
-    MakeExampleTemplateFile(sourceDir, apiOutputDir);
+    //MakeExampleTemplateFile(sourceDir, apiOutputDir);
 }
 
 // generate.js looks for some specific exported functions in make.js, like:
 exports.makeCombinedAPI = function (apis, sourceDir, apiOutputDir) {
     // Builds every api.  The provided "apis" variable is a list of objects, built from: API_SPECS/admin.api.json, API_SPECS/matchmaker.api.json, API_SPECS/server.api.json, and API_SPECS/client.api.json
     console.log("Generating Combined api from: " + sourceDir + " to: " + apiOutputDir);
-    templatizeTree(path.resolve(sourceDir, "source"), apiOutputDir); // Copy the whole source directory as-is
-    MakeExampleTemplateFile(sourceDir, apiOutputDir);
+    //templatizeTree(path.resolve(sourceDir, "source"), apiOutputDir); // Copy the whole source directory as-is
+    //MakeExampleTemplateFile(sourceDir, apiOutputDir);
 }
 
 // Unlike source, Templates are written one file at a time.
@@ -76,11 +75,14 @@ function makeDataTypes(apis, sourceDir, apiOutputDir) {
         var modelLocals = {
             api: api,
             datatype: datatype,
+            multiTab: multiTab,
             generateApiSummary: generateApiSummary,
             getModelPropertyDef: getModelPropertyDef,
             getPropertyAttribs: getPropertyAttribs,
             getBaseTypeSyntax: getBaseTypeSyntax,
-            getDeprecationAttribute: getDeprecationAttribute
+            getDeprecationAttribute: getDeprecationAttribute,
+            getDefaultValueForType: getDefaultValueForType,
+            getComparator: getComparator,
         };
 
         return (datatype.isenum) ? enumTemplate(modelLocals) : modelTemplate(modelLocals);
@@ -101,10 +103,13 @@ function makeApi(api, sourceDir, apiOutputDir) {
 
     var apiLocals = {
         api: api,
+        multiTab: multiTab,
         getAuthParams: getAuthParams,
         getRequestActions: getRequestActions,
         getResultActions: getResultActions,
         getDeprecationAttribute: getDeprecationAttribute,
+        getComparator: getComparator,
+        getDefaultValueForType: getDefaultValueForType,
         generateApiSummary: generateApiSummary,
         authKey: api.name === "Client"
     };
@@ -154,24 +159,9 @@ function getDeprecationAttribute(tabbing, apiObj) {
     return "";
 }
 
-function generateApiSummary(tabbing, apiElement, summaryParam, extraLines) {
-    var lines = generateApiSummaryLines(apiElement, summaryParam, extraLines);
-
-    var output;
-    if (lines.length === 1 && lines[0]) {
-        output = tabbing + "# <summary>\n" + tabbing + "# " + lines.join("\n" + tabbing + "# ") + "\n" + tabbing + "# </summary>\n";
-    } else if (lines.length > 0) {
-        output = tabbing + "# <summary>\n" + tabbing + "# " + lines.join("\n" + tabbing + "# ") + "\n" + tabbing + "# </summary>\n";
-    } else {
-        output = "";
-    }
-    return output;
-
-}
-
 function getBaseTypeSyntax(datatype) {
     var parents = [];
-
+    
     if (datatype.className.toLowerCase().endsWith("request"))
         parents.push("PlayFabRequestCommon");
     if (datatype.className.toLowerCase().endsWith("response") || datatype.className.toLowerCase().endsWith("result"))
@@ -179,27 +169,27 @@ function getBaseTypeSyntax(datatype) {
     // if (datatype.sortKey) python equivalent would be defining something like def __eq__(self, other) this may not be needed?
     //     parents.push("IComparable<" + datatype.name + ">");
 
-    var output = "";
     if (parents.length > 0) {
-        output = " : ";
+        var output = "(";
         for (var i = 0; i < parents.length; i++) {
             if (i !== 0)
                 output += ", ";
             output += parents[i];
         }
+        output += ")"
     }
     return output;
 }
 
-function getPropertyAttribs(property, datatype, api) {
+function getPropertyAttribs(tabbing, property, datatype, api) {
     var attribs = "";
 
     if (property.isUnordered) {
         var listDatatype = api.datatypes[property.actualtype];
         if (listDatatype && listDatatype.sortKey)
-            attribs += "# [Unordered(SortProperty=\"" + listDatatype.sortKey + "\")]\n        ";
+            attribs += tabbing + "# [Unordered(SortProperty=\"" + listDatatype.sortKey + "\")]\n";
         else
-            attribs += "# [Unordered]\n        ";
+            attribs += tabbing + "# [Unordered]\n";
     }
 
     return attribs;
@@ -208,17 +198,161 @@ function getPropertyAttribs(property, datatype, api) {
 function getModelPropertyDef(property, datatype) {
     var basicType;
     if (property.collection) {
-        basicType = getPropertyCsType(property, datatype, false);
+        //basicType = getPropertyCsType(property, datatype, false);
 
-        if (property.collection === "array")
-            return "List<" + basicType + "> " + property.name;
-        else if (property.collection === "map")
-            return "Dictionary<string," + basicType + "> " + property.name;
-        else
-            throw "Unknown collection type: " + property.collection + " for " + property.name + " in " + datatype.name;
+        //if (property.collection === "array")
+        //    return "List<" + basicType + "> " + property.name;
+        //else if (property.collection === "map")
+        //    return "Dictionary<string," + basicType + "> " + property.name;
+        //else
+        //    throw "Unknown collection type: " + property.collection + " for " + property.name + " in " + datatype.name;
     }
     else {
-        basicType = getPropertyCsType(property, datatype, true);
-        return basicType + " " + property.name;
+        //basicType = getPropertyCsType(property, datatype, true);
+        //return basicType + " " + property.name;
     }
+    return property.name;
 }
+
+function getAuthParams(apiCall) {
+    if (apiCall.url === "/Authentication/GetEntityToken")
+        return "authKey, authValue";
+    if (apiCall.auth === "EntityToken")
+        return "\"X-EntityToken\", PlayFabSettings.EntityToken";
+    if (apiCall.auth === "SecretKey")
+        return "\"X-SecretKey\", PlayFabSettings.DeveloperSecretKey";
+    else if (apiCall.auth === "SessionTicket")
+        return "\"X-Authorization\", PlayFabSettings.ClientSessionTicket";
+    return "null, null";
+}
+
+function getRequestActions(tabbing, apiCall) {
+    if (apiCall.result === "LoginResult" || apiCall.request === "RegisterPlayFabUserRequest")
+        return tabbing + "request.TitleId = PlayFabSettings.TitleId ?? request.TitleId;\n"
+            + tabbing + "if (request.TitleId == null) throw new PlayFabException(PlayFabExceptionCode.TitleNotSet, \"Must be have PlayFabSettings.TitleId set to call this method\");\n";
+    if (apiCall.auth === "EntityToken")
+        return tabbing + "if (PlayFabSettings.EntityToken == null) throw new PlayFabException(PlayFabExceptionCode.EntityTokenNotSet, \"Must call GetEntityToken before calling this method\");\n";
+    if (apiCall.auth === "SessionTicket")
+        return tabbing + "if (PlayFabSettings.ClientSessionTicket == null) throw new PlayFabException(PlayFabExceptionCode.NotLoggedIn, \"Must be logged in to call this method\");\n";
+    if (apiCall.auth === "SecretKey")
+        return tabbing + "if (PlayFabSettings.DeveloperSecretKey == null) throw new PlayFabException(PlayFabExceptionCode.DeveloperKeyNotSet, \"Must have PlayFabSettings.DeveloperSecretKey set to call this method\");\n";
+    if (apiCall.url === "/Authentication/GetEntityToken")
+        return tabbing + "string authKey = null, authValue = null;\n"
+            + tabbing + "if (PlayFabSettings.ClientSessionTicket != null) { authKey = \"X-Authorization\"; authValue = PlayFabSettings.ClientSessionTicket; }\n"
+            + tabbing + "if (PlayFabSettings.DeveloperSecretKey != null) { authKey = \"X-SecretKey\"; authValue = PlayFabSettings.DeveloperSecretKey; }\n"
+            + tabbing + "if (PlayFabSettings.EntityToken != null) { authKey = \"X-EntityToken\"; authValue = PlayFabSettings.EntityToken; }\n";
+    return "";
+}
+
+function getResultActions(tabbing, apiCall, api) {
+    if (apiCall.result === "LoginResult")
+        return tabbing + "PlayFabSettings.ClientSessionTicket = result.SessionTicket ?? PlayFabSettings.ClientSessionTicket;\n"
+            + tabbing + "PlayFabSettings.EntityToken = result.EntityToken?.EntityToken ?? PlayFabSettings.EntityToken;\n"
+            + tabbing + "await MultiStepClientLogin(result.SettingsForUser.NeedsAttribution);\n";
+    else if (apiCall.result === "RegisterPlayFabUserResult")
+        return tabbing + "PlayFabSettings.ClientSessionTicket = result.SessionTicket ?? PlayFabSettings.ClientSessionTicket;\n"
+            + tabbing + "await MultiStepClientLogin(result.SettingsForUser.NeedsAttribution);\n";
+    else if (api.name === "Client" && apiCall.result === "AttributeInstallResult")
+        return tabbing + "// Modify AdvertisingIdType:  Prevents us from sending the id multiple times, and allows automated tests to determine id was sent successfully\n"
+            + tabbing + "PlayFabSettings.AdvertisingIdType += \"_Successful\";\n";
+    else if (apiCall.result === "GetEntityTokenResponse")
+        return tabbing + "PlayFabSettings.EntityToken = result.EntityToken;\n";
+    return "";
+}
+
+function getDeprecationAttribute(tabbing, apiObj) {
+    var isDeprecated = apiObj.hasOwnProperty("deprecation");
+    var deprecationTime = null;
+    if (isDeprecated)
+        deprecationTime = new Date(apiObj.deprecation.DeprecatedAfter);
+    var isError = isDeprecated && (new Date() > deprecationTime) ? "true" : "false";
+
+    if (isDeprecated && apiObj.deprecation.ReplacedBy != null)
+        return tabbing + "# [Obsolete(\"Use '" + apiObj.deprecation.ReplacedBy + "' instead\", " + isError + ")]\n";
+    else if (isDeprecated)
+        return tabbing + "# [Obsolete(\"No longer available\", " + isError + ")]\n";
+    return "";
+}
+
+function generateApiSummary(tabbing, apiElement, summaryParam, extraLines) {
+    var lines = generateApiSummaryLines(apiElement, summaryParam, extraLines);
+
+    var output;
+    if (lines.length === 1) {
+        output = tabbing + "# " + lines.join("\n" + tabbing + "# ") + "\n";
+    } else if (lines.length > 0) {
+        output = tabbing + "# " + lines.join("\n" + tabbing + "# ") + "\n";
+    } else {
+        output = "";
+    }
+    return output;
+}
+
+function getComparator(tabbing, dataTypeName, dataTypeSortKey)
+{
+    var output = multiTab(tabbing, 3) + "def __eq__(self, " + dataTypeName + " other):\n" +
+        multiTab(tabbing, 4) + "if other == None || other." + dataTypeSortKey + " == None:\n" +
+        multiTab(tabbing, 5) + "return 1\n" +
+        multiTab(tabbing, 4) + "if " + dataTypeSortKey + " == None:\n" +
+        multiTab(tabbing, 5) + "return -1\n"+
+        multiTab(tabbing, 4) + "return "+dataTypeSortKey+".__eq__(self."+dataTypeSortKey+", other."+dataTypeSortKey+")\n";
+
+    return output;
+}
+
+function multiTab(tabbing, numTabs)
+{
+    var finalTabbing = "";
+    while (numTabs != 0)
+    {
+        finalTabbing += tabbing;
+        numTabs--;
+    }
+    return finalTabbing;
+}
+
+function getDefaultValueForType(property, datatype) {
+
+    if (property.jsontype === "Number")
+        return "0";
+    if (datatype.jsontype === "String")
+        return "\"\"";
+    if(datatype.JsonType === "Object" && datatype.isOptional)
+        return "None";
+    //if(datatype.JsonType === "Object")
+    //    return "new " + ?namespace ? + datatype.actualtype + "()";
+    if(datatype.JsonType === "Object")
+        return "new " + datatype.actualtype + "()";
+
+    if (property.actualtype === "String")
+        return "\"\"";
+    else if (property.actualtype === "Boolean")
+        return "False";
+    else if (property.actualtype === "int16")
+        return "0";
+    else if (property.actualtype === "uint16")
+        return "0";
+    else if (property.actualtype === "int32")
+        return "0";
+    else if (property.actualtype === "uint32")
+        return "0";
+    else if (property.actualtype === "int64")
+        return "0";
+    else if (property.actualtype === "uint64")
+        return "0";
+    else if (property.actualtype === "float")
+        return "0.0";
+    else if (property.actualtype === "double")
+        return "0.0";
+    else if (property.actualtype === "DateTime")
+        return "datetime.date.today()";
+    else if (property.isclass)
+        return property.actualtype;
+    else if (property.isenum) //TODO: figure out default enum or val at 0
+        return property.actualtype;
+    else if (property.actualtype === "object")
+        return "None";
+    else
+        throw "Unknown property type: " + property.actualtype + " for " + property.name + " in " + datatype.name;
+}
+

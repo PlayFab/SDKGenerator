@@ -1,17 +1,11 @@
-from abc import ABCMeta
-
 <%- generateApiSummary("    ", datatype, "description")
 %><%- getDeprecationAttribute("    ", datatype)
-%>class <%- datatype.name %><%- getBaseTypeSyntax(datatype) %>: 
-    <% for(var i in datatype.properties) { var property = datatype.properties[i];%>
-    <%- generateApiSummary("        ", property, "description")
-%><%- getDeprecationAttribute("        ", property)
-%>        <%- getPropertyAttribs(property, datatype, api) %>def <%- getModelPropertyDef(property, datatype) %>
+%>    class <%- datatype.name %><%- getBaseTypeSyntax(datatype) %>:
+        def __init__(self):<% for(var i in datatype.properties) { var property = datatype.properties[i];%>
+<%- generateApiSummary("            ", property, "description")
+%><%- getDeprecationAttribute("            ", property)
+%><%- getPropertyAttribs("            ", property, datatype, api)
+%>            self.<%- getModelPropertyDef(property, datatype) %> = <%- getDefaultValueForType(property, datatype) %>
 <% } %><% if (datatype.sortKey) { %>
-        def __eq__(self, <%- datatype.name %> other)
-            if other == null || other.<%- datatype.sortKey%> == null:
-                return 1
-            if <%- datatype.sortKey%> == null:
-                return -1
-            return <%- datatype.sortKey%>.__eq__(self.<%- datatype.sortKey%>, other.<%- datatype.sortKey%>)
-<% } %>
+<%- getComparator("    ", datatype.name, datatype.sortKey) %><% } %>
+

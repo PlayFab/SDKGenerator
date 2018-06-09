@@ -1,7 +1,8 @@
 <%- generateApiSummary("    ", datatype, "description")
 %><%- getDeprecationAttribute("    ", datatype)
-%>    class <%- datatype.name %><%- getBaseTypeSyntax(datatype) %>:
-        def __init__(self):<% for(var i in datatype.properties) { var property = datatype.properties[i];%>
+%><%- commentOutClassesWithoutProperties("    ", datatype.properties.length) %>    class <%- datatype.name %><%- getBaseTypeSyntax(datatype) %>:
+<%- addInitializeFunction("        ", datatype.properties.length) %>
+<% for(var i in datatype.properties) { var property = datatype.properties[i];%>
 <%- generateApiSummary("            ", property, "description")
 %><%- getDeprecationAttribute("            ", property)
 %><%- getPropertyAttribs("            ", property, datatype, api)

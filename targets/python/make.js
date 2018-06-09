@@ -82,6 +82,8 @@ function makeDataTypes(apis, sourceDir, apiOutputDir) {
             getBaseTypeSyntax: getBaseTypeSyntax,
             getDeprecationAttribute: getDeprecationAttribute,
             getDefaultValueForType: getDefaultValueForType,
+            addInitializeFunction: addInitializeFunction,
+            commentOutClassesWithoutProperties: commentOutClassesWithoutProperties,
             getComparator: getComparator,
         };
 
@@ -111,6 +113,8 @@ function makeApi(api, sourceDir, apiOutputDir) {
         getComparator: getComparator,
         getDefaultValueForType: getDefaultValueForType,
         generateApiSummary: generateApiSummary,
+        addInitializeFunction: addInitializeFunction,
+        commentOutClassesWithoutProperties: commentOutClassesWithoutProperties,
         authKey: api.name === "Client"
     };
 
@@ -290,8 +294,9 @@ function generateApiSummary(tabbing, apiElement, summaryParam, extraLines) {
 
 function getComparator(tabbing, dataTypeName, dataTypeSortKey)
 {
-    var output = multiTab(tabbing, 3) + "def __eq__(self, " + dataTypeName + " other):\n" +
-        multiTab(tabbing, 4) + "if other == None || other." + dataTypeSortKey + " == None:\n" +
+    //var output = multiTab(tabbing, 3) + "def __eq__(self, " + dataTypeName + " other):\n" +
+    var output = multiTab(tabbing, 3) + "def __eq__(self, other):\n" +
+        multiTab(tabbing, 4) + "if other == None or other." + dataTypeSortKey + " == None:\n" +
         multiTab(tabbing, 5) + "return 1\n" +
         multiTab(tabbing, 4) + "if " + dataTypeSortKey + " == None:\n" +
         multiTab(tabbing, 5) + "return -1\n"+
@@ -356,3 +361,15 @@ function getDefaultValueForType(property, datatype) {
         throw "Unknown property type: " + property.actualtype + " for " + property.name + " in " + datatype.name;
 }
 
+function addInitializeFunction(tabbing, propertySize)
+{
+    return propertySize > 0 ? tabbing + "def __init__(self):" : "";
+}
+
+function commentOutClassesWithoutProperties(tabbing, propertyCount)
+{
+    if (propertyCount == 0)
+    {
+        return tabbing + "# This class has no properties, and cannot be instantiated in python.\n"+tabbing+"#";
+    }
+}

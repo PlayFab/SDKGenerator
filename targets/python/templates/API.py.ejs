@@ -1,5 +1,5 @@
 <%- generateApiSummary("    ", api, "description")
-%>    class PlayFab<%- api.name %>API
+%>    class PlayFab<%- api.name %>API:
 <% for(var i in api.calls) { var apiCall = api.calls[i];
 %><%- generateApiSummary("        ", apiCall, "summary")
 %><%- getDeprecationAttribute("        ", apiCall)
@@ -22,10 +22,9 @@
 
 <% } %><% if (authKey) {
 %>        # Determine if the client session ticket is set, without actually making it public
-        public static bool IsClientLoggedIn()
-        {
-            return !string.IsNullOrEmpty(PlayFabSettings.ClientSessionTicket);
-        }
+        # public static bool IsClientLoggedIn()
+        def IsClientLoggedIn:
+            return !(PlayFabSettings.ClientSessionTicket == "" || PlayFabSettings.ClientSessionTicket == None);
 
         async Task<PlayFabResult<AttributeInstallResult>> MultiStepClientLogin(bool needsAttribution)
             if needsAttribution && !PlayFabSettings.DisableAdvertising && !string.IsNullOrEmpty(PlayFabSettings.AdvertisingIdType) && !string.IsNullOrEmpty(PlayFabSettings.AdvertisingIdValue):

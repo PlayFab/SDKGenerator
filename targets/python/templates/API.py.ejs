@@ -11,17 +11,17 @@ def noneOrEmpty(str):
 %><%- getDeprecationAttribute("    ", apiCall)
 %>    async def <%- apiCall.name %>Async(request, customData, extraHeaders):
 <%- getRequestActions("        ", apiCall) %>
-        var httpResult = await PlayFabHttp.DoPost("<%- apiCall.url %>", request, <%- getAuthParams(apiCall) %>, extraHeaders)
+        httpResult = await PlayFabHttp.DoPost("<%- apiCall.url %>", request, <%- getAuthParams(apiCall) %>, extraHeaders)
         if type(httpResult) is PlayFabError:
-            var error = (PlayFabError)httpResult
-            PlayFabSettings.GlobalErrorHandler?.Invoke(error)
+            error = httpResult
+            #PlayFabSettings.GlobalErrorHandler?.Invoke(error)
             return <%- apiCall.result %>(error, customData)
 
-        var resultRawJson = (string)httpResult;
-        var resultData = JsonWrapper.DeserializeObject<PlayFabJsonSuccess<<%- apiCall.result %>>>(resultRawJson)
-        var result = resultData.data
+        resultRawJson = httpResult
+        resultData = JsonWrapper.DeserializeObject<PlayFabJsonSuccess<<%- apiCall.result %>>>(resultRawJson)
+        result = resultData.data
 <%- getResultActions("        ", apiCall, api) %>
-        return new <%- apiCall.result %>(result, customData)
+        return <%- apiCall.result %>(result, customData)
 
 <% } %><% if (authKey) {
 %>        # Determine if the client session ticket is set, without actually making it public
@@ -31,7 +31,7 @@ def noneOrEmpty(str):
 
         async def MultiStepClientLogin(needsAttribution):
             if needsAttribution and !PlayFabSettings.DisableAdvertising and !noneOrEmpty(PlayFabSettings.AdvertisingIdType) and !noneOrEmpty(PlayFabSettings.AdvertisingIdValue):
-                var request = new AttributeInstallRequest()
+                request = new AttributeInstallRequest()
                 if PlayFabSettings.AdvertisingIdType == PlayFabSettings.AD_TYPE_IDFA:
                     request.Idfa = PlayFabSettings.AdvertisingIdValue
                 else if PlayFabSettings.AdvertisingIdType == PlayFabSettings.AD_TYPE_ANDROID_ID:

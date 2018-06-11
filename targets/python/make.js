@@ -236,34 +236,34 @@ function getAuthParams(apiCall) {
 function getRequestActions(tabbing, apiCall) {
     if (apiCall.result === "LoginResult" || apiCall.request === "RegisterPlayFabUserRequest")
         return tabbing + "request.TitleId = PlayFabSettings.TitleId ?? request.TitleId;\n"
-            + tabbing + "if (request.TitleId == null) throw new PlayFabException(PlayFabExceptionCode.TitleNotSet, \"Must be have PlayFabSettings.TitleId set to call this method\");\n";
+            + tabbing + "if request.TitleId == None:\n"+tabbing+"    raise Exception(PlayFabExceptionCode.TitleNotSet, \"Must be have PlayFabSettings.TitleId set to call this method\")\n";
     if (apiCall.auth === "EntityToken")
-        return tabbing + "if (PlayFabSettings.EntityToken == null) throw new PlayFabException(PlayFabExceptionCode.EntityTokenNotSet, \"Must call GetEntityToken before calling this method\");\n";
+        return tabbing + "if PlayFabSettings.EntityToken == None:\n "+tabbing+"    raise Exception(PlayFabExceptionCode.EntityTokenNotSet, \"Must call GetEntityToken before calling this method\")\n";
     if (apiCall.auth === "SessionTicket")
-        return tabbing + "if (PlayFabSettings.ClientSessionTicket == null) throw new PlayFabException(PlayFabExceptionCode.NotLoggedIn, \"Must be logged in to call this method\");\n";
+        return tabbing + "if PlayFabSettings.ClientSessionTicket == None:\n"+tabbing+"    raise Exception(PlayFabExceptionCode.NotLoggedIn, \"Must be logged in to call this method\")\n";
     if (apiCall.auth === "SecretKey")
-        return tabbing + "if (PlayFabSettings.DeveloperSecretKey == null) throw new PlayFabException(PlayFabExceptionCode.DeveloperKeyNotSet, \"Must have PlayFabSettings.DeveloperSecretKey set to call this method\");\n";
+        return tabbing + "if PlayFabSettings.DeveloperSecretKey == None:\n"+tabbing+"    raise Exception(PlayFabExceptionCode.DeveloperKeyNotSet, \"Must have PlayFabSettings.DeveloperSecretKey set to call this method\");\n";
     if (apiCall.url === "/Authentication/GetEntityToken")
-        return tabbing + "string authKey = null, authValue = null;\n"
-            + tabbing + "if (PlayFabSettings.ClientSessionTicket != null) { authKey = \"X-Authorization\"; authValue = PlayFabSettings.ClientSessionTicket; }\n"
-            + tabbing + "if (PlayFabSettings.DeveloperSecretKey != null) { authKey = \"X-SecretKey\"; authValue = PlayFabSettings.DeveloperSecretKey; }\n"
-            + tabbing + "if (PlayFabSettings.EntityToken != null) { authKey = \"X-EntityToken\"; authValue = PlayFabSettings.EntityToken; }\n";
+        return tabbing + "authKey = None\n"+tabbing+"authValue = None\n"
+            + tabbing + "if PlayFabSettings.ClientSessionTicket != None:\n "+tabbing+"    authKey = \"X-Authorization\"\n"+tabbing+"    authValue = PlayFabSettings.ClientSessionTicket \n"
+            + tabbing + "if PlayFabSettings.DeveloperSecretKey != None:\n "+tabbing+"    authKey = \"X-SecretKey\"\n"+tabbing+"    authValue = PlayFabSettings.DeveloperSecretKey \n"
+            + tabbing + "if PlayFabSettings.EntityToken != None:\n "+tabbing+"    authKey = \"X-EntityToken\"\n"+tabbing+"    authValue = PlayFabSettings.EntityToken\n";
     return "";
 }
 
 function getResultActions(tabbing, apiCall, api) {
     if (apiCall.result === "LoginResult")
-        return tabbing + "PlayFabSettings.ClientSessionTicket = result.SessionTicket ?? PlayFabSettings.ClientSessionTicket;\n"
-            + tabbing + "PlayFabSettings.EntityToken = result.EntityToken?.EntityToken ?? PlayFabSettings.EntityToken;\n"
-            + tabbing + "await MultiStepClientLogin(result.SettingsForUser.NeedsAttribution);\n";
+        return tabbing + "PlayFabSettings.ClientSessionTicket = result.SessionTicket ?? PlayFabSettings.ClientSessionTicket\n"
+            + tabbing + "PlayFabSettings.EntityToken = result.EntityToken?.EntityToken ?? PlayFabSettings.EntityToken\n"
+            + tabbing + "await MultiStepClientLogin(result.SettingsForUser.NeedsAttribution)\n";
     else if (apiCall.result === "RegisterPlayFabUserResult")
-        return tabbing + "PlayFabSettings.ClientSessionTicket = result.SessionTicket ?? PlayFabSettings.ClientSessionTicket;\n"
-            + tabbing + "await MultiStepClientLogin(result.SettingsForUser.NeedsAttribution);\n";
+        return tabbing + "PlayFabSettings.ClientSessionTicket = result.SessionTicket ?? PlayFabSettings.ClientSessionTicket\n"
+            + tabbing + "await MultiStepClientLogin(result.SettingsForUser.NeedsAttribution)\n";
     else if (api.name === "Client" && apiCall.result === "AttributeInstallResult")
         return tabbing + "// Modify AdvertisingIdType:  Prevents us from sending the id multiple times, and allows automated tests to determine id was sent successfully\n"
-            + tabbing + "PlayFabSettings.AdvertisingIdType += \"_Successful\";\n";
+            + tabbing + "PlayFabSettings.AdvertisingIdType += \"_Successful\"\n";
     else if (apiCall.result === "GetEntityTokenResponse")
-        return tabbing + "PlayFabSettings.EntityToken = result.EntityToken;\n";
+        return tabbing + "PlayFabSettings.EntityToken = result.EntityToken\n";
     return "";
 }
 

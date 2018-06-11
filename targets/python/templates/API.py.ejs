@@ -1,41 +1,44 @@
-<%- generateApiSummary("    ", api, "description")
-%>    class PlayFab<%- api.name %>API:
-<% for(var i in api.calls) { var apiCall = api.calls[i];
-%><%- generateApiSummary("        ", apiCall, "summary")
-%><%- getDeprecationAttribute("        ", apiCall)
-%>       async Task<PlayFabResult<<%- apiCall.result %>>> <%- apiCall.name %>Async(<%- apiCall.request %> request, object customData = null, Dictionary<string, string> extraHeaders = null)
-<%- getRequestActions("            ", apiCall) %>
-            var httpResult = await PlayFabHttp.DoPost("<%- apiCall.url %>", request, <%- getAuthParams(apiCall) %>, extraHeaders);
-            if (httpResult is PlayFabError)
-            {
-                var error = (PlayFabError)httpResult;
-                PlayFabSettings.GlobalErrorHandler?.Invoke(error);
-                return new PlayFabResult<<%- apiCall.result %>> { Error = error, CustomData = customData };
-            }
+import asyncio
 
-            var resultRawJson = (string)httpResult;
-            var resultData = JsonWrapper.DeserializeObject<PlayFabJsonSuccess<<%- apiCall.result %>>>(resultRawJson);
-            var result = resultData.data;
-<%- getResultActions("            ", apiCall, api) %>
-            return new PlayFabResult<<%- apiCall.result %>> { Result = result, CustomData = customData };
-        }
+# TODO: move to shared file (useable in other generated files)
+def noneOrEmpty(str):
+    return str == "" or str == None
+
+<%- generateApiSummary("", api, "description")
+%>class PlayFab<%- api.name %>API:
+<% for(var i in api.calls) { var apiCall = api.calls[i];
+%><%- generateApiSummary("    ", apiCall, "summary")
+%><%- getDeprecationAttribute("    ", apiCall)
+%>    async def <%- apiCall.name %>Async(request, customData, extraHeaders):
+<%- getRequestActions("        ", apiCall) %>
+        var httpResult = await PlayFabHttp.DoPost("<%- apiCall.url %>", request, <%- getAuthParams(apiCall) %>, extraHeaders)
+        if type(httpResult) is PlayFabError:
+            var error = (PlayFabError)httpResult
+            PlayFabSettings.GlobalErrorHandler?.Invoke(error)
+            return <%- apiCall.result %>(error, customData)
+
+        var resultRawJson = (string)httpResult;
+        var resultData = JsonWrapper.DeserializeObject<PlayFabJsonSuccess<<%- apiCall.result %>>>(resultRawJson)
+        var result = resultData.data
+<%- getResultActions("        ", apiCall, api) %>
+        return new <%- apiCall.result %>(result, customData)
 
 <% } %><% if (authKey) {
 %>        # Determine if the client session ticket is set, without actually making it public
         # public static bool IsClientLoggedIn()
         def IsClientLoggedIn:
-            return !(PlayFabSettings.ClientSessionTicket == "" || PlayFabSettings.ClientSessionTicket == None);
+            return !(PlayFabSettings.ClientSessionTicket == "" or PlayFabSettings.ClientSessionTicket == None)
 
-        async Task<PlayFabResult<AttributeInstallResult>> MultiStepClientLogin(bool needsAttribution)
-            if needsAttribution && !PlayFabSettings.DisableAdvertising && !string.IsNullOrEmpty(PlayFabSettings.AdvertisingIdType) && !string.IsNullOrEmpty(PlayFabSettings.AdvertisingIdValue):
+        async def MultiStepClientLogin(needsAttribution):
+            if needsAttribution and !PlayFabSettings.DisableAdvertising and !noneOrEmpty(PlayFabSettings.AdvertisingIdType) and !noneOrEmpty(PlayFabSettings.AdvertisingIdValue):
                 var request = new AttributeInstallRequest()
                 if PlayFabSettings.AdvertisingIdType == PlayFabSettings.AD_TYPE_IDFA:
-                    request.Idfa = PlayFabSettings.AdvertisingIdValue;
+                    request.Idfa = PlayFabSettings.AdvertisingIdValue
                 else if PlayFabSettings.AdvertisingIdType == PlayFabSettings.AD_TYPE_ANDROID_ID:
                     request.Adid = PlayFabSettings.AdvertisingIdValue
                 else
                     return None
                 return await AttributeInstallAsync(request)
-            return null;
-        }
-<% } %>    }
+            return None
+
+<% } %>

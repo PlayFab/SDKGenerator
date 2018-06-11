@@ -35,6 +35,8 @@ exports.makeServerAPI = function (apis, sourceDir, apiOutputDir) {
     for(var i=0; i< apis.length; i++)
         makeApi(apis[i], sourceDir, apiOutputDir);
 
+    generateSimpleFiles(apis, sourceDir, apiOutputDir);
+
     //MakeExampleTemplateFile(sourceDir, apiOutputDir);
 }
 
@@ -145,8 +147,9 @@ function generateSimpleFiles(apis, sourceDir, apiOutputDir) {
     var utilTemplate = getCompiledTemplate(path.resolve(sourceDir, "templates/PlayFabUtil.py.ejs"));
     writeFile(path.resolve(apiOutputDir, "source/PlayFabUtil.py"), utilTemplate(settingsLocals));
 
-    var settingsTemplate = getCompiledTemplate(path.resolve(sourceDir, "templates/PlayFabSettings.py.ejs"));
-    writeFile(path.resolve(apiOutputDir, "source/PlayFabSettings.py"), settingsTemplate(settingsLocals));
+    // TODO: this may need to be moved to js?
+    //var settingsTemplate = getCompiledTemplate(path.resolve(sourceDir, "templates/PlayFabSettings.py.ejs"));
+    //writeFile(path.resolve(apiOutputDir, "source/PlayFabSettings.py"), settingsTemplate(settingsLocals));
 }
 
 function getDeprecationAttribute(tabbing, apiObj) {

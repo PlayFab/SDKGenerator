@@ -1,4 +1,13 @@
 import enum
+import calendar
+import time
+# import PlayFabInternal # this should eventually contain the classes below
+
+class PlayFabRequestCommon:
+    pass
+
+class PlayFabResultCommon:
+    pass
 
 class PlayFab<%- api.name %>Models:
 <% for(var d in api.datatypes) { var datatype = api.datatypes[d] %><%- makeDatatype(datatype, api) %><% } %>

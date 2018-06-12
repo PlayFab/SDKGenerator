@@ -1,0 +1,74 @@
+<?xml version="1.0" encoding="utf-8"?>
+<Project ToolsVersion="12.0" DefaultTargets="Build" xmlns="http://schemas.microsoft.com/developer/msbuild/2003">
+  <Import Project="$(MSBuildExtensionsPath)\$(MSBuildToolsVersion)\Microsoft.Common.props" Condition="Exists('$(MSBuildExtensionsPath)\$(MSBuildToolsVersion)\Microsoft.Common.props')" />
+  <PropertyGroup>
+    <MinimumVisualStudioVersion>11.0</MinimumVisualStudioVersion>
+    <Configuration Condition=" '$(Configuration)' == '' ">Debug</Configuration>
+    <Platform Condition=" '$(Platform)' == '' ">AnyCPU</Platform>
+    <ProjectGuid>{CCA89497-1426-4F0B-8A11-7E5FB965FB4B}</ProjectGuid>
+    <OutputType>Library</OutputType>
+    <AppDesignerFolder>Properties</AppDesignerFolder>
+    <RootNamespace>PlayFabServerSDK</RootNamespace>
+    <AssemblyName>PlayFabServerSDK</AssemblyName>
+    <DefaultLanguage>en-US</DefaultLanguage>
+    <FileAlignment>512</FileAlignment>
+    <ProjectTypeGuids>{786C830F-07A1-408B-BD7F-6EE04809D6DB};{FAE04EC0-301F-11D3-BF4B-00C04F79EFBC}</ProjectTypeGuids>
+    <TargetFrameworkProfile>Profile111</TargetFrameworkProfile>
+    <TargetFrameworkVersion>v4.5</TargetFrameworkVersion>
+  </PropertyGroup>
+  <PropertyGroup Condition=" '$(Configuration)|$(Platform)' == 'Debug|AnyCPU' ">
+    <DebugSymbols>true</DebugSymbols>
+    <DebugType>full</DebugType>
+    <Optimize>false</Optimize>
+    <OutputPath>bin\Debug\</OutputPath>
+    <DefineConstants>TRACE;DEBUG;NETFX_CORE;SIMPLE_JSON_TYPEINFO;DISABLE_PLAYFABCLIENT_API;ENABLE_PLAYFABENTITY_API</DefineConstants>
+    <ErrorReport>prompt</ErrorReport>
+    <WarningLevel>4</WarningLevel>
+  </PropertyGroup>
+  <PropertyGroup Condition=" '$(Configuration)|$(Platform)' == 'Release|AnyCPU' ">
+    <DebugType>pdbonly</DebugType>
+    <Optimize>true</Optimize>
+    <OutputPath>bin\Release\</OutputPath>
+    <DefineConstants>TRACE;NETFX_CORE;SIMPLE_JSON_TYPEINFO;DISABLE_PLAYFABCLIENT_API;ENABLE_PLAYFABENTITY_API</DefineConstants>
+    <ErrorReport>prompt</ErrorReport>
+    <WarningLevel>4</WarningLevel>
+  </PropertyGroup>
+  <ItemGroup>
+    <Compile Include="..\..\..\pf-common\csharp\PlayFabServerSDK\source\IPlayFabSender.cs">
+      <Link>dependencies\pf-common\source\IPlayFabSender.cs</Link>
+    </Compile>
+    <Compile Include="..\..\..\pf-common\csharp\PlayFabServerSDK\source\Json\ISerializer.cs">
+      <Link>dependencies\pf-common\source\Json\ISerializer.cs</Link>
+    </Compile>
+    <Compile Include="..\..\..\pf-common\csharp\PlayFabServerSDK\source\Json\NewtonsoftWrapper.cs">
+      <Link>dependencies\pf-common\source\Json\NewtonsoftWrapper.cs</Link>
+    </Compile>
+    <Compile Include="..\..\..\pf-common\csharp\PlayFabServerSDK\source\Json\SimpleJson.cs">
+      <Link>dependencies\pf-common\source\Json\SimpleJson.cs</Link>
+    </Compile>
+    <Compile Include="..\..\..\pf-common\csharp\PlayFabServerSDK\source\PlayFabCommon.cs">
+      <Link>dependencies\pf-common\source\PlayFabCommon.cs</Link>
+    </Compile>
+    <Compile Include="..\..\..\pf-common\csharp\PlayFabServerSDK\source\PlayFabErrors.cs">
+      <Link>dependencies\pf-common\source\PlayFabErrors.cs</Link>
+    </Compile>
+    <Compile Include="..\..\..\pf-common\csharp\PlayFabServerSDK\source\PlayFabFileUtil.cs">
+      <Link>dependencies\pf-common\source\PlayFabFileUtil.cs</Link>
+    </Compile>
+    <Compile Include="..\..\..\pf-common\csharp\PlayFabServerSDK\source\PlayFabSettings.cs">
+      <Link>dependencies\pf-common\source\PlayFabSettings.cs</Link>
+    </Compile>
+    <Compile Include="..\..\..\pf-common\csharp\PlayFabServerSDK\source\PlayFabUtil.cs">
+      <Link>dependencies\pf-common\source\PlayFabUtil.cs</Link>
+    </Compile>
+    <Compile Include="..\..\..\pf-common\csharp\PlayFabServerSDK\source\WsaReflectionExtensions.cs">
+      <Link>dependencies\pf-common\source\WsaReflectionExtensions.cs</Link>
+    </Compile>
+    <Compile Include="source\PlayFabHttp\IPlayFabHttp.cs" />
+    <Compile Include="source\PlayFabHttp\PlayFabHttp.cs" />
+    <Compile Include="source\PlayFabHttp\PlayFabSysHttp.cs" />
+    <Compile Include="source\PlayFabHttp\PlayFabWinHttp.cs" />
+    <Compile Include="Properties\AssemblyInfo.cs" />
+  </ItemGroup>
+  <Import Project="$(MSBuildExtensionsPath32)\Microsoft\Portable\$(TargetFrameworkVersion)\Microsoft.Portable.CSharp.targets" />
+</Project>

@@ -1,0 +1,15 @@
+{
+    "id": "pf-api",
+    "dependencies": [ "pf-common" ],
+    "configurationSettingKeys": [
+        {
+            "key": "plugin-sender",
+            "defaultValue": "pf-sender"
+        }
+    ],
+    "targets": [
+        {
+            "name": "csharp"
+        }
+    ]
+}

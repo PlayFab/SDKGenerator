@@ -15,9 +15,10 @@ var sdkGeneratorGlobals = {
     sdkDocsByMethodName: {} // When loading TOC, match documents to the SdkGen function that should be called for those docs
 };
 var defaultApiSpecFilePath = "../API_Specs"; // Relative path to Generate.js
-var defaultApiSpecGitHubUrl = "https://raw.githubusercontent.com/PlayFab/API_Specs/TOC";
+var defaultApiSpecGitHubUrl = "https://raw.githubusercontent.com/PlayFab/API_Specs/master";
 var defaultApiSpecPlayFabUrl = "https://www.playfabapi.com/apispec";
 var tocFilename = "TOC.json";
+var tocCacheKey = "TOC";
 /////////////////////////////////// The main build sequence for this program ///////////////////////////////////
 function parseAndLoadApis() {
     console.log("My args:" + process.argv.join(" "));
@@ -85,6 +86,38 @@ function parseCommandInputs(args, argsByName, errorMessages, targetOutputPathLis
     argsByName.buildidentifier = argsByName.buildidentifier.toLowerCase(); // lowercase the buildIdentifier
     if (argsByName.hasOwnProperty("flags"))
         sdkGeneratorGlobals.buildFlags = lowercaseFlagsList(argsByName.flags.split(" "));
+    // Common-SDK-part-begin
+    // If script argument -plugins was specified then 
+    // plugin generation must be performed instead of the classic SDK generation
+    if (argsByName.plugins == null)
+        argsByName.plugins = false;
+    else
+        argsByName.plugins = true;
+    if (argsByName.plugins) {
+        if (targetOutputPathList.length === 0)
+            errorMessages.push("SDK source is not defined, plugins can't be generated");
+        var sdkSource = targetOutputPathList[0].name;
+        // Determine important paths
+        var commonSdkDir = path.resolve("common-sdk");
+        var pluginGenDir = path.resolve(commonSdkDir, "plugin-generator");
+        var targetSourceRootDir = path.resolve(pluginGenDir, "targets/" + sdkSource);
+        // Get a list of plugins and set target outputs (one for each plugin)
+        // (in current implementation simply enumerate plugin subdirectories in the "SDK source" directory for plugins)
+        targetOutputPathList.length = 0;
+        var files = fs.readdirSync(targetSourceRootDir);
+        for (var i in files) {
+            if (!files.hasOwnProperty(i))
+                continue;
+            var dirName = files[i];
+            var dirPath = targetSourceRootDir + '/' + dirName;
+            if (fs.statSync(dirPath).isDirectory()) {
+                // Set target output for a plugin
+                var dest = "common-sdk/plugins/" + dirName + '/' + sdkSource;
+                checkPluginTarget(sdkSource, dirName, dest, targetOutputPathList, errorMessages);
+            }
+        }
+    }
+    // Common-SDK-part-end
 }
 function extractArgs(args, argsByName, targetOutputPathList, errorMessages) {
     var cmdArgs = args.slice(2, args.length); // remove "node.exe generate.js"
@@ -119,8 +152,12 @@ function extractArgs(args, argsByName, targetOutputPathList, errorMessages) {
     }
 }
 function checkTarget(sdkSource, sdkDestination, targetOutputPathList, errorMessages) {
+    return checkPluginTarget(sdkSource, null, sdkDestination, targetOutputPathList, errorMessages);
+}
+function checkPluginTarget(sdkSource, pluginDirectoryName, sdkDestination, targetOutputPathList, errorMessages) {
     var targetOutput = {
         name: sdkSource,
+        pluginDirName: pluginDirectoryName,
         dest: path.normalize(sdkDestination)
     };
     if (fs.existsSync(targetOutput.dest) && !fs.lstatSync(targetOutput.dest).isDirectory())
@@ -131,6 +168,11 @@ function checkTarget(sdkSource, sdkDestination, targetOutputPathList, errorMessa
 function getTargetsList() {
     var targetList = [];
     var targetsDir = path.resolve(__dirname, "targets");
+    // Common-SDK-part-begin
+    if (sdkGeneratorGlobals.argsByName.plugins) {
+        targetsDir = path.resolve(__dirname, "common-sdk/plugin-generator/targets");
+    }
+    // Common-SDK-part-end
     var targets = fs.readdirSync(targetsDir);
     for (var i = 0; i < targets.length; i++) {
         var target = targets[i];
@@ -183,12 +225,12 @@ function loadApisFromLocalFiles(argsByName, apiCache, apiSpecPath, onComplete) {
         }
         console.log("Finished reading: " + fullPath);
     }
-    loadEachFile(tocFilename, "TOC", false);
-    var docList = apiCache["TOC"].documents;
+    loadEachFile(tocFilename, tocCacheKey, false);
+    var docList = apiCache[tocCacheKey].documents;
     for (var dIdx = 0; dIdx < docList.length; dIdx++) {
         var genMethods = docList[dIdx].sdkGenMakeMethods;
         if (genMethods) {
-            loadEachFile(docList[dIdx].path2, docList[dIdx].docKey, docList[dIdx].isOptional);
+            loadEachFile(docList[dIdx].relPath, docList[dIdx].docKey, docList[dIdx].isOptional);
             mapSpecMethods(docList[dIdx]);
         }
     }
@@ -206,16 +248,16 @@ function loadApisFromGitHub(argsByName, apiCache, apiSpecGitUrl, onComplete) {
         }
     }
     function onTocComplete() {
-        var docList = apiCache["TOC"].documents;
+        var docList = apiCache[tocCacheKey].documents;
         for (var dIdx = 0; dIdx < docList.length; dIdx++) {
             if (docList[dIdx].sdkGenMakeMethods) {
                 finishCountdown += 1;
-                downloadFromUrl(apiSpecGitUrl, docList[dIdx].path2, apiCache, docList[dIdx].path2, onEachComplete, docList[dIdx].isOptional);
+                downloadFromUrl(apiSpecGitUrl, docList[dIdx].relPath, apiCache, docList[dIdx].docKey, onEachComplete, docList[dIdx].isOptional);
                 mapSpecMethods(docList[dIdx]);
             }
         }
     }
-    downloadFromUrl(apiSpecGitUrl, tocFilename, apiCache, "TOC", onTocComplete, false);
+    downloadFromUrl(apiSpecGitUrl, tocFilename, apiCache, tocCacheKey, onTocComplete, false);
 }
 function loadApisFromPlayFabServer(argsByName, apiCache, apiSpecPfUrl, onComplete) {
     var finishCountdown = 0;
@@ -228,23 +270,19 @@ function loadApisFromPlayFabServer(argsByName, apiCache, apiSpecPfUrl, onComplet
         }
     }
     function onTocComplete() {
-        var docList = apiCache["TOC"].documents;
+        var docList = apiCache[tocCacheKey].documents;
         for (var dIdx = 0; dIdx < docList.length; dIdx++) {
             if (docList[dIdx].sdkGenMakeMethods) {
                 finishCountdown += 1;
-                if (docList[dIdx].path2 !== "SdkManualNotes.json")
+                if (!docList[dIdx].relPath.contains("SdkManualNotes"))
                     downloadFromUrl(apiSpecPfUrl, docList[dIdx].docKey, apiCache, docList[dIdx].docKey, onEachComplete, false);
                 else
-                    downloadFromUrl(defaultApiSpecGitHubUrl, basepath(docList[dIdx].path2), apiCache, docList[dIdx].docKey, onEachComplete, false);
+                    downloadFromUrl(defaultApiSpecGitHubUrl, docList[dIdx].relPath, apiCache, docList[dIdx].docKey, onEachComplete, false);
                 mapSpecMethods(docList[dIdx]);
             }
         }
     }
-    downloadFromUrl(defaultApiSpecGitHubUrl, tocFilename, apiCache, "TOC", onTocComplete, false);
-}
-function basepath(path) {
-    var split = path.split("(/|\\)");
-    return split[split.length - 1];
+    downloadFromUrl(defaultApiSpecGitHubUrl, tocFilename, apiCache, tocCacheKey, onTocComplete, false);
 }
 function downloadFromUrl(srcUrl, appendUrl, apiCache, cacheKey, onEachComplete, optional) {
     srcUrl = srcUrl.endsWith("/") ? srcUrl : srcUrl + "/";
@@ -279,9 +317,21 @@ function downloadFromUrl(srcUrl, appendUrl, apiCache, cacheKey, onEachComplete, 
 function generateApis(buildIdentifier, targetOutputPathList, buildFlags, apiSrcDescription) {
     console.log("Generating PlayFab APIs from specs: " + apiSrcDescription);
     var targetsDir = path.resolve(__dirname, "targets");
+    // Common-SDK-part-begin
+    if (sdkGeneratorGlobals.argsByName.plugins) {
+        targetsDir = path.resolve(__dirname, "common-sdk/plugin-generator/targets");
+    }
+    // Common-SDK-part-end
     for (var targIdx = 0; targIdx < targetOutputPathList.length; targIdx++) {
         var target = targetOutputPathList[targIdx];
         var targetSourceDir = path.resolve(targetsDir, target.name);
+        // Common-SDK-part-begin
+        if (sdkGeneratorGlobals.argsByName.plugins) {
+            // Copy plugin descriptor
+            copyTree(path.resolve(__dirname, "common-sdk/plugin-generator/plugin-metadata/" + target.pluginDirName), path.resolve(target.dest, ".."));
+            targetSourceDir = path.resolve(targetsDir, target.name + '/' + target.pluginDirName);
+        }
+        // Common-SDK-part-end
         var targetMain = path.resolve(targetSourceDir, "make.js");
         console.log("Making target from: " + targetMain + "\n - to: " + target.dest);
         var targetMaker = require(targetMain);

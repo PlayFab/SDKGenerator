@@ -1,0 +1,14 @@
+**/bin/
+**/obj/
+**/.idea/
+**/.idea/
+**/.vs/
+**/node_modules/
+
+.project
+.classpath
+*.suo
+*.user
+*.dat
+*.tmp
+generate.js.map

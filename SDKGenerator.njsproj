@@ -44,7 +44,7 @@
   <PropertyGroup Condition=" '$(Configuration)' == 'CSharpSDK' ">
     <DebugSymbols>true</DebugSymbols>
     <OutputPath>bin\</OutputPath>
-    <ScriptArguments>csharp=..\sdks\CSharpSDK -apiSpecPath -buildIdentifier CSharpSDK_manual</ScriptArguments>
+    <ScriptArguments>csharp=..\sdks\CSharpSDK -apiSpecPath -buildIdentifier CSharpSDK_manual -plugins</ScriptArguments>
   </PropertyGroup>
   <PropertyGroup Condition=" '$(Configuration)' == 'CocosSDK' ">
     <DebugSymbols>true</DebugSymbols>
@@ -129,7 +129,6 @@
   <ItemGroup>
     <Compile Include="targets\actionscript\make.js" />
     <Compile Include="targets\cpp-cocos2dx\make.js" />
-    <Compile Include="targets\cpp-ue4\make-bp.js" />
     <Compile Include="targets\cpp-ue4\make.js" />
     <Compile Include="targets\cpp-unreal\make.js" />
     <Compile Include="targets\csharp-unity-gameserver\make.js" />
@@ -243,20 +242,19 @@
     <Content Include="targets\cpp-ue4\Plugins\PlayFabProxy\Source\PlayFabProxy\Public\Proxy\PlayFabJsonValue.h" />
     <Content Include="targets\cpp-ue4\Plugins\PlayFabProxy\Source\PlayFabProxy\Public\Proxy\PlayFabProxyBaseModel.h" />
     <Content Include="targets\cpp-ue4\Plugins\PlayFab\Resources\Icon128.png" />
-    <Content Include="targets\cpp-ue4\Plugins\PlayFab\Source\PlayFab\PlayFab.Build.cs" />
-    <Content Include="targets\cpp-ue4\Plugins\PlayFab\Source\PlayFab\Private\Core\PlayFabBaseModel.cpp" />
-    <Content Include="targets\cpp-ue4\Plugins\PlayFab\Source\PlayFab\Private\Core\PlayFabJsonHelpers.cpp" />
-    <Content Include="targets\cpp-ue4\Plugins\PlayFab\Source\PlayFab\Private\Core\PlayFabResultHandler.cpp" />
+    <Content Include="targets\cpp-ue4\Plugins\PlayFab\Source\PlayFab\PlayFab.Build.cs.ejs" />
+    <Content Include="targets\cpp-ue4\Plugins\PlayFab\Source\PlayFab\Private\Core\PlayFabBaseModel.cpp.ejs" />
+    <Content Include="targets\cpp-ue4\Plugins\PlayFab\Source\PlayFab\Private\Core\PlayFabJsonHelpers.cpp.ejs" />
+    <Content Include="targets\cpp-ue4\Plugins\PlayFab\Source\PlayFab\Private\Core\PlayFabResultHandler.cpp.ejs" />
     <Content Include="targets\cpp-ue4\templates\core\PlayFab_API.cpp.ejs" />
     <Content Include="targets\cpp-ue4\templates\core\PlayFab_API.h.ejs" />
     <Content Include="targets\cpp-ue4\Plugins\PlayFab\Source\PlayFab\Private\PlayFab.cpp.ejs" />
-    <Content Include="targets\cpp-ue4\Plugins\PlayFab\Source\PlayFab\Private\PlayFabRuntimeSettings.cpp" />
-    <Content Include="targets\cpp-ue4\Plugins\PlayFab\Source\PlayFab\Private\PlayFabRuntimeSettings.h" />
-    <Content Include="targets\cpp-ue4\Plugins\PlayFab\Source\PlayFab\Public\Core\PlayFabBaseModel.h" />
-    <Content Include="targets\cpp-ue4\Plugins\PlayFab\Source\PlayFab\Public\Core\PlayFabCore.h" />
-    <Content Include="targets\cpp-ue4\Plugins\PlayFab\Source\PlayFab\Public\Core\PlayFabJsonHelpers.h" />
-    <Content Include="targets\cpp-ue4\Plugins\PlayFab\Source\PlayFab\Public\Core\PlayFabResultHandler.h" />
-    <Content Include="targets\cpp-ue4\Plugins\PlayFab\Source\PlayFab\Public\Core\PlayFabSettings.h" />
+    <Content Include="targets\cpp-ue4\Plugins\PlayFab\Source\PlayFab\Private\PlayFabRuntimeSettings.cpp.ejs" />
+    <Content Include="targets\cpp-ue4\Plugins\PlayFab\Source\PlayFab\Private\PlayFabRuntimeSettings.h.ejs" />
+    <Content Include="targets\cpp-ue4\Plugins\PlayFab\Source\PlayFab\Public\Core\PlayFabBaseModel.h.ejs" />
+    <Content Include="targets\cpp-ue4\Plugins\PlayFab\Source\PlayFab\Public\Core\PlayFabJsonHelpers.h.ejs" />
+    <Content Include="targets\cpp-ue4\Plugins\PlayFab\Source\PlayFab\Public\Core\PlayFabResultHandler.h.ejs" />
+    <Content Include="targets\cpp-ue4\Plugins\PlayFab\Source\PlayFab\Public\Core\PlayFabSettings.h.ejs" />
     <Content Include="targets\cpp-ue4\templates\blueprint\PlayFabProxyAPI.cpp.ejs" />
     <Content Include="targets\cpp-ue4\templates\blueprint\PlayFabProxyAPI.h.ejs" />
     <Content Include="targets\cpp-ue4\templates\blueprint\PlayFab_BPLibrary.cpp.ejs" />

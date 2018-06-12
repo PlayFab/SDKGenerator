@@ -1,0 +1,17 @@
+
+<%- generateApiSummary("    ", datatype, "description")
+%><%- getDeprecationAttribute("    ", datatype)
+%>    public<% if (datatype.isAbstract) { %> abstract<% } %> class <%- datatype.name %><%- getBaseTypeSyntax(datatype) %>
+    {<% for(var i in datatype.properties) { var property = datatype.properties[i];%>
+<%- generateApiSummary("        ", property, "description")
+%><%- getDeprecationAttribute("        ", property)
+%>        <%- getPropertyAttribs(property, datatype, api) %>public <%- getModelPropertyDef(property, datatype) %>;
+<% } %><% if (datatype.sortKey) { %>
+        public int CompareTo(<%- datatype.name %> other)
+        {
+            if (other == null || other.<%- datatype.sortKey%> == null) return 1;
+            if (<%- datatype.sortKey%> == null) return -1;
+            return <%- datatype.sortKey%>.CompareTo(other.<%- datatype.sortKey%>);
+        }
+<% } %>
+    }

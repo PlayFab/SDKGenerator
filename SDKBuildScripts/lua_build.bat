@@ -7,3 +7,5 @@ rem === BUILDING LuaSdk with params %* ===
 node generate.js LuaSdk=..\sdks\LuaSdk %*
 )
 popd
+
+pause

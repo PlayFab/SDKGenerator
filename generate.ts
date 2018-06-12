@@ -251,7 +251,7 @@ function loadApisFromGitHub(argsByName, apiCache, apiSpecGitUrl, onComplete) {
         for (var dIdx = 0; dIdx < docList.length; dIdx++) {
             if (docList[dIdx].sdkGenMakeMethods) {
                 finishCountdown += 1;
-                downloadFromUrl(apiSpecGitUrl, docList[dIdx].path2, apiCache, docList[dIdx].path2, onEachComplete, docList[dIdx].isOptional);
+                downloadFromUrl(apiSpecGitUrl, docList[dIdx].path2, apiCache, docList[dIdx].docKey, onEachComplete, docList[dIdx].isOptional);
                 mapSpecMethods(docList[dIdx]);
             }
         }

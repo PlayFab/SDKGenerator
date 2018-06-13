@@ -46,6 +46,6 @@ async def DoPost(urlPath, request, authType, authKey, extraHeaders):
     if PlayFabSettings.TitleId == None:
         raise Exception("You must set your titleId before making an api call")
 
-    response = requests.post(loginurl, data=json.dumps(loginPayload), headers=extraHeaders)
+    response = requests.post(urlPath, data=json.dumps(loginPayload), headers=extraHeaders)
 
     #return await _http.DoPost(urlPath, request, authType, authKey, extraHeaders)

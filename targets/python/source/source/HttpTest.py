@@ -35,11 +35,11 @@ sessionticket = ""
 
 # extract entity 
 if (response.status_code == 200):
-	json_data = json.loads(response.text)
-	EntityToken = json_data["data"]["EntityToken"]["EntityToken"]
-	Entity = json_data["data"]["EntityToken"]["Entity"]
-	sessionticket = json_data["data"]["SessionTicket"]
-	headers['X-Authentication'] = sessionticket
+    json_data = json.loads(response.text)
+    EntityToken = json_data["data"]["EntityToken"]["EntityToken"]
+    Entity = json_data["data"]["EntityToken"]["Entity"]
+    sessionticket = json_data["data"]["SessionTicket"]
+    headers['X-Authentication'] = sessionticket
 
 # headers = {'content-type': 'application/json', 'X-Authentication': sessionticket }
 

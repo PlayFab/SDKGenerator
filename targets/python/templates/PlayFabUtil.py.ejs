@@ -17,8 +17,8 @@ class PlayFab:
 
     class PlayFabUtil:
         # All parseable ISO 8601 formats for DateTime.[Try]ParseExact - Lets us deserialize any legacy timestamps in one of these formats
-        # These are the standard format with ISO 8601 UTC markers (T/Z)
-        # These are the standard format without ISO 8601 UTC markers (T/Z)
+        # (index 0-4) These are the standard format with ISO 8601 UTC markers (T/Z)
+        # (index 5-9) These are the standard format without ISO 8601 UTC markers (T/Z)
         DefaultDateTimeFormats = ["yyyy-MM-ddTHH:mm:ss.FFFFFFZ", "yyyy-MM-ddTHH:mm:ss.FFFFZ", "yyyy-MM-ddTHH:mm:ss.FFFZ", "yyyy-MM-ddTHH:mm:ss.FFZ", "yyyy-MM-ddTHH:mm:ssZ", "yyyy-MM-dd HH:mm:ss.FFFFFF", "yyyy-MM-dd HH:mm:ss.FFFF", "yyyy-MM-dd HH:mm:ss.FFF", "yyyy-MM-dd HH:mm:ss.FF", "yyyy-MM-dd HH:mm:ss"]
 
         DEFAULT_UTC_OUTPUT_INDEX = 2 # The default format everybody should use

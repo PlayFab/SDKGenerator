@@ -1,76 +1,60 @@
-using PlayFab.Internal;
-using System;
-using System.Collections.Generic;
-using System.Text;
+# import PlayFab.Internal; # ??
+from enum import Enum
 
-namespace PlayFab
-{
-    /// <summary>
-    /// Error codes returned by PlayFabAPIs
-    /// </summary>
-    public enum PlayFabErrorCode
-    {
+class PlayFab:
+    # Error codes returned by PlayFabAPIs
+    class PlayFabErrorCode(Enum):
         Success = 0,
         Unknown = 1,
         ConnectionError = 2,
         JsonParseError = 3,
         <% for(var i=1; i<errorList.length-1; i++) { var errorProps = errors[errorList[i]] %><%- errorProps.name %> = <%- errorProps.id %>,
         <% } %><% var errorProps = errors[errorList[errorList.length-1]] %><%- errorProps.name %> = <%- errorProps.id %>
-    }
 
-    public class PlayFabError
-    {
-        public int HttpCode;
-        public string HttpStatus;
-        public PlayFabErrorCode Error;
-        public string ErrorMessage;
-        public Dictionary<string, string[]> ErrorDetails;
+    class PlayFabError:
+        def __init__(self):
+            self.HttpCode = 0
+            self.HttpStatus = ""
+            self.Error = PlayFabErrorCode.Unknown # PlayFabError enum
+            self.ErrorMessage = ""
+            self.ErrorDetails = {} # dictionary of string keys and list of strings for values
 
-        private static readonly StringBuilder Sb = new StringBuilder();
-        public string GenerateErrorReport()
-        {
-            Sb.Length = 0;
-            if (ErrorMessage != null)
-                Sb.Append(ErrorMessage);
-            if (ErrorDetails == null)
-                return Sb.ToString();
+        def GenerateErrorReport(self):
+            str = ""
+            if self.ErrorMessage != None:
+                str.append(self.ErrorMessage)
+            if self.ErrorDetails == None:
+                return str
 
-            foreach (var pair in ErrorDetails)
-            {
-                foreach (var eachMsg in pair.Value)
-                    Sb.Append(pair.Key).Append(": ").Append(eachMsg);
-            }
-            return Sb.ToString();
-        }
-    };
+            for pair in ErrorDetails:
+                for eachMsg in pair.Value: # we want to loop through each item in the dictionary here
+                    str.append(pair.Key).append(": ").append(eachMsg)
 
-    public class PlayFabBaseResult
-    {
-        public object CustomData;
-        public PlayFabError Error;
-    }
+            return str
 
-    public class PlayFabResult<TResult> : PlayFabBaseResult where TResult : PlayFabResultCommon
-    {
-        public TResult Result;
-    }
+    class PlayFabBaseResult:
+        def __init__(self):
+            self.CustomData = None
+            self.PlayFabError = Error
 
-    public delegate void ErrorCallback(PlayFabError error);
+    class PlayFabResult(PlayFabBaseResult): # PlayFabBaseResult where TResult : PlayFabResultCommon
+        def __init__(self):
+            super().__init__(self)
+            self.Result = None
 
-    public class PlayFabException : Exception
-    {
-        public readonly PlayFabExceptionCode Code;
-        public PlayFabException(PlayFabExceptionCode code, string message) : base(message)
-        {
-            Code = code;
-        }
-    }
+    # error is PlayFab error
+    def ErrorCallback(error):
+        pass
 
-    public enum PlayFabExceptionCode
-    {
-        DeveloperKeyNotSet,
-        EntityTokenNotSet,
-        NotLoggedIn,
-        TitleNotSet,
-    }
-}
+    class PlayFabException(Exception):
+
+        def __init__(self, code, message):
+            super().__init__(self, message)
+            self.Code = code
+
+    class PlayFabExceptionCode(Enum):
+        DeveloperKeyNotSet = 0
+        EntityTokenNotSet = 1
+        NotLoggedIn = 2
+        TitleNotSet = 3
+

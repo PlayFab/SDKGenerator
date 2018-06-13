@@ -260,7 +260,7 @@ function getResultActions(tabbing, apiCall, api) {
         return tabbing + "PlayFabSettings.ClientSessionTicket = result.SessionTicket ?? PlayFabSettings.ClientSessionTicket\n"
             + tabbing + "await MultiStepClientLogin(result.SettingsForUser.NeedsAttribution)\n";
     else if (api.name === "Client" && apiCall.result === "AttributeInstallResult")
-        return tabbing + "// Modify AdvertisingIdType:  Prevents us from sending the id multiple times, and allows automated tests to determine id was sent successfully\n"
+        return tabbing + "# Modify AdvertisingIdType:  Prevents us from sending the id multiple times, and allows automated tests to determine id was sent successfully\n"
             + tabbing + "PlayFabSettings.AdvertisingIdType += \"_Successful\"\n";
     else if (apiCall.result === "GetEntityTokenResponse")
         return tabbing + "PlayFabSettings.EntityToken = result.EntityToken\n";

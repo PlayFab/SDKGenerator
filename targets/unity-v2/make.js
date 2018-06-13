@@ -40,7 +40,7 @@ function makeApiEventFiles(api, sourceDir, apiOutputDir) {
 }
 
 function makeSharedEventFiles(apis, sourceDir, apiOutputDir) {
-    var playStreamEventModels = getApiJson("PlayStreamEventModels.json");
+    var playStreamEventModels = getApiJson("PlayStreamEventModels");
     var eventLocals = {
         apis: apis,
         sourceDir: sourceDir,

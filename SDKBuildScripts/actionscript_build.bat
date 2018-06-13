@@ -7,3 +7,5 @@ rem === BUILDING ActionScriptSDK with params %* ===
 node generate.js actionscript=..\sdks\ActionScriptSDK %*
 )
 popd
+
+pause

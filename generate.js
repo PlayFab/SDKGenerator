@@ -15,9 +15,10 @@ var sdkGeneratorGlobals = {
     sdkDocsByMethodName: {} // When loading TOC, match documents to the SdkGen function that should be called for those docs
 };
 var defaultApiSpecFilePath = "../API_Specs"; // Relative path to Generate.js
-var defaultApiSpecGitHubUrl = "https://raw.githubusercontent.com/PlayFab/API_Specs/TOC";
+var defaultApiSpecGitHubUrl = "https://raw.githubusercontent.com/PlayFab/API_Specs/master";
 var defaultApiSpecPlayFabUrl = "https://www.playfabapi.com/apispec";
 var tocFilename = "TOC.json";
+var tocCacheKey = "TOC";
 /////////////////////////////////// The main build sequence for this program ///////////////////////////////////
 function parseAndLoadApis() {
     console.log("My args:" + process.argv.join(" "));
@@ -183,12 +184,12 @@ function loadApisFromLocalFiles(argsByName, apiCache, apiSpecPath, onComplete) {
         }
         console.log("Finished reading: " + fullPath);
     }
-    loadEachFile(tocFilename, "TOC", false);
-    var docList = apiCache["TOC"].documents;
+    loadEachFile(tocFilename, tocCacheKey, false);
+    var docList = apiCache[tocCacheKey].documents;
     for (var dIdx = 0; dIdx < docList.length; dIdx++) {
         var genMethods = docList[dIdx].sdkGenMakeMethods;
         if (genMethods) {
-            loadEachFile(docList[dIdx].path2, docList[dIdx].docKey, docList[dIdx].isOptional);
+            loadEachFile(docList[dIdx].relPath, docList[dIdx].docKey, docList[dIdx].isOptional);
             mapSpecMethods(docList[dIdx]);
         }
     }
@@ -206,16 +207,16 @@ function loadApisFromGitHub(argsByName, apiCache, apiSpecGitUrl, onComplete) {
         }
     }
     function onTocComplete() {
-        var docList = apiCache["TOC"].documents;
+        var docList = apiCache[tocCacheKey].documents;
         for (var dIdx = 0; dIdx < docList.length; dIdx++) {
             if (docList[dIdx].sdkGenMakeMethods) {
                 finishCountdown += 1;
-                downloadFromUrl(apiSpecGitUrl, docList[dIdx].path2, apiCache, docList[dIdx].docKey, onEachComplete, docList[dIdx].isOptional);
+                downloadFromUrl(apiSpecGitUrl, docList[dIdx].relPath, apiCache, docList[dIdx].docKey, onEachComplete, docList[dIdx].isOptional);
                 mapSpecMethods(docList[dIdx]);
             }
         }
     }
-    downloadFromUrl(apiSpecGitUrl, tocFilename, apiCache, "TOC", onTocComplete, false);
+    downloadFromUrl(apiSpecGitUrl, tocFilename, apiCache, tocCacheKey, onTocComplete, false);
 }
 function loadApisFromPlayFabServer(argsByName, apiCache, apiSpecPfUrl, onComplete) {
     var finishCountdown = 0;
@@ -228,19 +229,19 @@ function loadApisFromPlayFabServer(argsByName, apiCache, apiSpecPfUrl, onComplet
         }
     }
     function onTocComplete() {
-        var docList = apiCache["TOC"].documents;
+        var docList = apiCache[tocCacheKey].documents;
         for (var dIdx = 0; dIdx < docList.length; dIdx++) {
             if (docList[dIdx].sdkGenMakeMethods) {
                 finishCountdown += 1;
-                if (docList[dIdx].path2 !== "SdkManualNotes.json")
+                if (!docList[dIdx].relPath.contains("SdkManualNotes"))
                     downloadFromUrl(apiSpecPfUrl, docList[dIdx].docKey, apiCache, docList[dIdx].docKey, onEachComplete, false);
                 else
-                    downloadFromUrl(defaultApiSpecGitHubUrl, basepath(docList[dIdx].path2), apiCache, docList[dIdx].docKey, onEachComplete, false);
+                    downloadFromUrl(defaultApiSpecGitHubUrl, basepath(docList[dIdx].relPath), apiCache, docList[dIdx].docKey, onEachComplete, false);
                 mapSpecMethods(docList[dIdx]);
             }
         }
     }
-    downloadFromUrl(defaultApiSpecGitHubUrl, tocFilename, apiCache, "TOC", onTocComplete, false);
+    downloadFromUrl(defaultApiSpecGitHubUrl, tocFilename, apiCache, tocCacheKey, onTocComplete, false);
 }
 function basepath(path) {
     var split = path.split("(/|\\)");

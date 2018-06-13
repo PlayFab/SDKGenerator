@@ -6,10 +6,23 @@ if (typeof (getCompiledTemplate) === "undefined") getCompiledTemplate = function
 
 // generate.js looks for some specific exported functions in make.js, like:
 exports.makeClientAPI2 = function (apis, sourceDir, apiOutputDir) {
+    var locals = {
+        apis: apis,
+        buildIdentifier: exports.buildIdentifier,
+        errorList: apis[0].errorList,
+        errors: apis[0].errors,
+        friendlyName: "PlayFab Python Sdk",
+        sdkVersion: exports.sdkVersion,
+    };
+
     // Builds the client api.  The provided "api" variable is a single object, the API_SPECS/client.api.json as an object
     console.log("Generating Client api from: " + sourceDir + " to: " + apiOutputDir);
-    copyTree(path.resolve(sourceDir, "source"), apiOutputDir); // Copy the whole source directory as-is
-    //MakeExampleTemplateFile(sourceDir, apiOutputDir);
+
+    templatizeTree(locals, path.resolve(sourceDir, "source"), apiOutputDir);
+    makeDataTypes(apis, sourceDir, apiOutputDir);
+    for (var i = 0; i < apis.length; i++)
+        makeApi(apis[i], sourceDir, apiOutputDir);
+    generateSimpleFiles(apis, sourceDir, apiOutputDir);
 }
 
 
@@ -22,7 +35,6 @@ exports.makeServerAPI = function (apis, sourceDir, apiOutputDir) {
         errors: apis[0].errors,
         friendlyName: "PlayFab Python Sdk",
         sdkVersion: exports.sdkVersion,
-        //ueTargetVersion: "4.19"
     };
 
     // Builds the server api.  The provided "apis" variable is a list of objects, built from: API_SPECS/admin.api.json, API_SPECS/matchmaker.api.json, and API_SPECS/server.api.json
@@ -225,24 +237,24 @@ function getAuthParams(apiCall) {
     if (apiCall.url === "/Authentication/GetEntityToken")
         return "authKey, authValue";
     if (apiCall.auth === "EntityToken")
-        return "\"X-EntityToken\", PlayFabSettings.EntityToken";
+        return "\"X-EntityToken\", EntityToken";
     if (apiCall.auth === "SecretKey")
-        return "\"X-SecretKey\", PlayFabSettings.DeveloperSecretKey";
+        return "\"X-SecretKey\", DeveloperSecretKey";
     else if (apiCall.auth === "SessionTicket")
-        return "\"X-Authorization\", PlayFabSettings.ClientSessionTicket";
-    return "null, null";
+        return "\"X-Authorization\", ClientSessionTicket";
+    return "None, None";
 }
 
 function getRequestActions(tabbing, apiCall) {
     if (apiCall.result === "LoginResult" || apiCall.request === "RegisterPlayFabUserRequest")
-        return tabbing + "request.TitleId = PlayFabSettings.TitleId ?? request.TitleId;\n"
-            + tabbing + "if request.TitleId == None:\n"+tabbing+"    raise Exception(PlayFabExceptionCode.TitleNotSet, \"Must be have PlayFabSettings.TitleId set to call this method\")\n";
+        return tabbing + "request.TitleId = PlayFabSettings.TitleId or request.TitleId\n"
+            + tabbing + "if request.TitleId == None:\n"+tabbing+"    raise Exception(PlayFabExceptionCode.TitleNotSet, \"Must be have TitleId set to call this method\")\n";
     if (apiCall.auth === "EntityToken")
         return tabbing + "if PlayFabSettings.EntityToken == None:\n "+tabbing+"    raise Exception(PlayFabExceptionCode.EntityTokenNotSet, \"Must call GetEntityToken before calling this method\")\n";
     if (apiCall.auth === "SessionTicket")
         return tabbing + "if PlayFabSettings.ClientSessionTicket == None:\n"+tabbing+"    raise Exception(PlayFabExceptionCode.NotLoggedIn, \"Must be logged in to call this method\")\n";
     if (apiCall.auth === "SecretKey")
-        return tabbing + "if PlayFabSettings.DeveloperSecretKey == None:\n"+tabbing+"    raise Exception(PlayFabExceptionCode.DeveloperKeyNotSet, \"Must have PlayFabSettings.DeveloperSecretKey set to call this method\");\n";
+        return tabbing + "if PlayFabSettings.DeveloperSecretKey == None:\n"+tabbing+"    raise Exception(PlayFabExceptionCode.DeveloperKeyNotSet, \"Must have DeveloperSecretKey set to call this method\")\n";
     if (apiCall.url === "/Authentication/GetEntityToken")
         return tabbing + "authKey = None\n"+tabbing+"authValue = None\n"
             + tabbing + "if PlayFabSettings.ClientSessionTicket != None:\n "+tabbing+"    authKey = \"X-Authorization\"\n"+tabbing+"    authValue = PlayFabSettings.ClientSessionTicket \n"
@@ -253,17 +265,17 @@ function getRequestActions(tabbing, apiCall) {
 
 function getResultActions(tabbing, apiCall, api) {
     if (apiCall.result === "LoginResult")
-        return tabbing + "PlayFabSettings.ClientSessionTicket = result.SessionTicket ?? PlayFabSettings.ClientSessionTicket\n"
-            + tabbing + "PlayFabSettings.EntityToken = result.EntityToken?.EntityToken ?? PlayFabSettings.EntityToken\n"
-            + tabbing + "await MultiStepClientLogin(result.SettingsForUser.NeedsAttribution)\n";
+        return tabbing + "ClientSessionTicket = result[\"data\"][\"SessionTicket\"] or ClientSessionTicket\n"
+            + tabbing + "EntityToken = result[\"data\"][\"EntityToken\"][\"EntityToken\"] or EntityToken\n"
+            + tabbing + "MultiStepClientLogin(result.SettingsForUser.NeedsAttribution)\n";
     else if (apiCall.result === "RegisterPlayFabUserResult")
-        return tabbing + "PlayFabSettings.ClientSessionTicket = result.SessionTicket ?? PlayFabSettings.ClientSessionTicket\n"
-            + tabbing + "await MultiStepClientLogin(result.SettingsForUser.NeedsAttribution)\n";
+        return tabbing + "ClientSessionTicket = result[\"data\"][\"SessionTicket\"] or ClientSessionTicket\n"
+            + tabbing + "MultiStepClientLogin(result.SettingsForUser.NeedsAttribution)\n";
     else if (api.name === "Client" && apiCall.result === "AttributeInstallResult")
         return tabbing + "# Modify AdvertisingIdType:  Prevents us from sending the id multiple times, and allows automated tests to determine id was sent successfully\n"
-            + tabbing + "PlayFabSettings.AdvertisingIdType += \"_Successful\"\n";
+            + tabbing + "AdvertisingIdType += \"_Successful\"\n";
     else if (apiCall.result === "GetEntityTokenResponse")
-        return tabbing + "PlayFabSettings.EntityToken = result.EntityToken\n";
+        return tabbing + "EntityToken = result[\"data\"][\"EntityToken\"][\"EntityToken\"]\n";
     return "";
 }
 
@@ -298,12 +310,12 @@ function generateApiSummary(tabbing, apiElement, summaryParam, extraLines) {
 function getComparator(tabbing, dataTypeName, dataTypeSortKey)
 {
     //var output = multiTab(tabbing, 3) + "def __eq__(self, " + dataTypeName + " other):\n" +
-    var output = multiTab(tabbing, 3) + "def __eq__(self, other):\n" +
-        multiTab(tabbing, 4) + "if other == None or other." + dataTypeSortKey + " == None:\n" +
-        multiTab(tabbing, 5) + "return 1\n" +
-        multiTab(tabbing, 4) + "if " + dataTypeSortKey + " == None:\n" +
-        multiTab(tabbing, 5) + "return -1\n"+
-        multiTab(tabbing, 4) + "return "+dataTypeSortKey+".__eq__(self."+dataTypeSortKey+", other."+dataTypeSortKey+")\n";
+    var output = multiTab(tabbing, 2) + "def __eq__(self, other):\n" +
+        multiTab(tabbing, 3) + "if other == None or other." + dataTypeSortKey + " == None:\n" +
+        multiTab(tabbing, 4) + "return 1\n" +
+        multiTab(tabbing, 3) + "if " + dataTypeSortKey + " == None:\n" +
+        multiTab(tabbing, 4) + "return -1\n"+
+        multiTab(tabbing, 3) + "return "+dataTypeSortKey+".__eq__(self."+dataTypeSortKey+", other."+dataTypeSortKey+")\n";
 
     return output;
 }

@@ -1,44 +1,48 @@
+import PlayFab<%- api.name %>Models
 import asyncio
+import PlayFabHTTP
+import PlayFabSettings
+import PlayFabErrors
 
 # TODO: move to shared file (useable in other generated files)
 def noneOrEmpty(str):
     return str == "" or str == None
 
 <%- generateApiSummary("", api, "description")
-%>class PlayFab<%- api.name %>API:
+%>#class PlayFab<%- api.name %>API:
 <% for(var i in api.calls) { var apiCall = api.calls[i];
-%><%- generateApiSummary("    ", apiCall, "summary")
-%><%- getDeprecationAttribute("    ", apiCall)
-%>    async def <%- apiCall.name %>Async(request, customData, extraHeaders):
-<%- getRequestActions("        ", apiCall) %>
-        httpResult = await PlayFabHttp.DoPost("<%- apiCall.url %>", request, <%- getAuthParams(apiCall) %>, extraHeaders)
-        if type(httpResult) is PlayFabError:
-            error = httpResult
-            #PlayFabSettings.GlobalErrorHandler?.Invoke(error)
-            return <%- apiCall.result %>(error, customData)
+%><%- generateApiSummary("", apiCall, "summary")
+%><%- getDeprecationAttribute("", apiCall)
+%>def <%- apiCall.name %>Async(request, customData, extraHeaders):
+<%- getRequestActions("    ", apiCall) %>
+    httpResult = PlayFabHTTP.PlayFabInternal.DoPost("<%- apiCall.url %>", request, <%- getAuthParams(apiCall) %>, extraHeaders)
+    if type(httpResult) is PlayFabError:
+        error = httpResult
+        #PlayFabSettings.GlobalErrorHandler?.Invoke(error)
+        return <%- apiCall.result %>(error, customData)
 
-        resultRawJson = httpResult
-        resultData = JsonWrapper.DeserializeObject<PlayFabJsonSuccess<<%- apiCall.result %>>>(resultRawJson)
-        result = resultData.data
-<%- getResultActions("        ", apiCall, api) %>
-        return <%- apiCall.result %>(result, customData)
+    resultRawJson = httpResult.text
+    # resultData = JsonWrapper.DeserializeObject<PlayFabJsonSuccess<<%- apiCall.result %>>>(resultRawJson)
+    resultData = json.loads(resultRawJson)
+    result = resultData
+<%- getResultActions("    ", apiCall, api) %>
+    return <%- apiCall.result %>(result, customData)
 
 <% } %><% if (authKey) {
-%>        # Determine if the client session ticket is set, without actually making it public
-        # public static bool IsClientLoggedIn()
-        def IsClientLoggedIn:
-            return !(PlayFabSettings.ClientSessionTicket == "" or PlayFabSettings.ClientSessionTicket == None)
+%># Determine if the client session ticket is set, without actually making it public
+# public static bool IsClientLoggedIn()
+def IsClientLoggedIn():
+    return not (ClientSessionTicket == "" or ClientSessionTicket == None)
 
-        async def MultiStepClientLogin(needsAttribution):
-            if needsAttribution and !PlayFabSettings.DisableAdvertising and !noneOrEmpty(PlayFabSettings.AdvertisingIdType) and !noneOrEmpty(PlayFabSettings.AdvertisingIdValue):
-                request = new AttributeInstallRequest()
-                if PlayFabSettings.AdvertisingIdType == PlayFabSettings.AD_TYPE_IDFA:
-                    request.Idfa = PlayFabSettings.AdvertisingIdValue
-                else if PlayFabSettings.AdvertisingIdType == PlayFabSettings.AD_TYPE_ANDROID_ID:
-                    request.Adid = PlayFabSettings.AdvertisingIdValue
-                else
-                    return None
-                return await AttributeInstallAsync(request)
+def MultiStepClientLogin(needsAttribution):
+    if needsAttribution and not DisableAdvertising and not noneOrEmpty(AdvertisingIdType) and not noneOrEmpty(AdvertisingIdValue):
+        request = AttributeInstallRequest()
+        if AdvertisingIdType == AD_TYPE_IDFA:
+            request.Idfa = AdvertisingIdValue
+        elif AdvertisingIdType == AD_TYPE_ANDROID_ID:
+            request.Adid = PlayFabSettings.AdvertisingIdValue
+        else:
             return None
-
+        return AttributeInstallAsync(request)
+    return None
 <% } %>

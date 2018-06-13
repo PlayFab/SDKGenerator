@@ -20,7 +20,6 @@ loginPayload = {
   "LoginTitlePlayerAccountEntity": True
 }
 
-# not really needed?
 response = requests.post(loginurl, data=json.dumps(loginPayload), headers=headers)
 
 EntityToken = ""

@@ -1,12 +1,12 @@
-<%- generateApiSummary("    ", datatype, "description")
-%><%- getDeprecationAttribute("    ", datatype)
-%><%- commentOutClassesWithoutProperties("    ", datatype.properties.length) %>    class <%- datatype.name %><%- getBaseTypeSyntax(datatype) %>:
-<%- addInitializeFunction("        ", datatype.properties.length) %>
+<%- generateApiSummary("", datatype, "description")
+%><%- getDeprecationAttribute("", datatype)
+%><%- commentOutClassesWithoutProperties("", datatype.properties.length) %>class <%- datatype.name %><%- getBaseTypeSyntax(datatype) %>:
+<%- addInitializeFunction("    ", datatype.properties.length) %>
 <% for(var i in datatype.properties) { var property = datatype.properties[i];%>
-<%- generateApiSummary("            ", property, "description")
-%><%- getDeprecationAttribute("            ", property)
-%><%- getPropertyAttribs("            ", property, datatype, api)
-%>            self.<%- getModelPropertyDef(property, datatype) %> = <%- getDefaultValueForType(property, datatype) %>
+<%- generateApiSummary("        ", property, "description")
+%><%- getDeprecationAttribute("        ", property)
+%><%- getPropertyAttribs("        ", property, datatype, api)
+%>        self.<%- getModelPropertyDef(property, datatype) %> = <%- getDefaultValueForType(property, datatype) %>
 <% } %><% if (datatype.sortKey) { %>
 <%- getComparator("    ", datatype.name, datatype.sortKey) %><% } %>
 

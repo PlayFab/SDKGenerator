@@ -492,7 +492,9 @@
     <Content Include="targets\PhpSdk\templates\PlayFabApi.php.ejs" />
     <Content Include="targets\postman\replacements.json" />
     <Content Include="targets\postman\templates\playfab.json.ejs" />
+    <Content Include="targets\python\source\source\apiTest.py" />
     <Content Include="targets\python\source\source\PlayFabHTTP.py" />
+    <Content Include="targets\python\source\source\PlayFabSettings.py" />
     <Content Include="targets\python\source\source\ThreadingTest.py" />
     <!--<Content Include="targets\python\templates\playfab.json.ejs" />-->
     <Content Include="targets\SdkTestingCloudScript\templates\CloudScript.d.ts.ejs" />

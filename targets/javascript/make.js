@@ -185,9 +185,9 @@ function generateDatatype(api, datatype, sourceDir) {
 }
 
 function getBaseTypeSyntax(datatype) {
-    if (datatype.className.toLowerCase().endsWith("request"))
+    if (datatype.isRequest)
         return " extends PlayFabModule.IPlayFabRequestCommon";
-    if (datatype.className.toLowerCase().endsWith("response") || datatype.className.toLowerCase().endsWith("result"))
+    if (datatype.isResult)
         return " extends PlayFabModule.IPlayFabResultCommon ";
     return ""; // If both are -1, then neither is greater
 }
@@ -223,7 +223,7 @@ function getPropertyTsType(property, datatype) {
 
     var isOptional = property.optional;
     // TitleId is required at the API level, but optional at the SDK level, because we automagically provide it from settings
-    var isLoginRequest = ((datatype.name.contains("Login") && datatype.name.contains("Request")) || datatype.name === "RegisterPlayFabUserRequest");
+    var isLoginRequest = ((datatype.name.contains("Login") && datatype.isRequest) || datatype.name === "RegisterPlayFabUserRequest");
     if (isLoginRequest && property.name === "TitleId")
         isOptional = true;
 

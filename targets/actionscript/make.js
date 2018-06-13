@@ -52,9 +52,9 @@ function removeExcessFiles(apis, apiOutputDir) {
 function getBaseTypeSyntax(datatype) {
     // The model-inheritance feature was removed.
     // However in the future, we may still use some inheritance links for request/result baseclasses, for other sdk features
-    if (datatype.name.endsWith("Result") || datatype.name.endsWith("Response"))
+    if (datatype.isResult)
         return "";
-    if (datatype.name.endsWith("Request"))
+    if (datatype.isRequest)
         return "";
     return "";
 }

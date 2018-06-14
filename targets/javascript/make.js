@@ -88,10 +88,10 @@ function getResultActions(tabbing, apiCall) {
         return tabbing + "if (result != null) {\n"
             + tabbing + "       if(result.data.SessionTicket != null) {\n"
             + tabbing + "           PlayFab._internalSettings.sessionTicket = result.data.SessionTicket;\n"
-            + tabbing + "       }"
+            + tabbing + "       }\n"
             + tabbing + "       if (result.data.EntityToken != null) {\n"
             + tabbing + "           PlayFab._internalSettings.entityToken = result.data.EntityToken.EntityToken;\n"
-            + tabbing + "       }"
+            + tabbing + "       }\n"
             + tabbing + "    PlayFab.ClientApi._MultiStepClientLogin(result.data.SettingsForUser.NeedsAttribution);\n"
             + tabbing + "}";
     if (apiCall.result === "RegisterPlayFabUserResult")

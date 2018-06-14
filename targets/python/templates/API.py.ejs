@@ -15,7 +15,7 @@ def noneOrEmpty(str):
 %><%- getDeprecationAttribute("", apiCall)
 %>def <%- apiCall.name %>Async(request, customData, extraHeaders):
 <%- getRequestActions("    ", apiCall) %>
-    httpResult = PlayFabHTTP.PlayFabInternal.DoPost("<%- apiCall.url %>", request, <%- getAuthParams(apiCall) %>, extraHeaders)
+    httpResult = PlayFabHTTP.DoPost("<%- apiCall.url %>", request, <%- getAuthParams(apiCall) %>, extraHeaders)
     if type(httpResult) is PlayFabError:
         error = httpResult
         #PlayFabSettings.GlobalErrorHandler?.Invoke(error)

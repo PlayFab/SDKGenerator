@@ -494,6 +494,7 @@
     <Content Include="targets\postman\templates\playfab.json.ejs" />
     <Content Include="targets\python\source\source\apiTest.py" />
     <Content Include="targets\python\source\source\PlayFabHTTP.py" />
+    <Content Include="targets\python\templates\PlayFabJson.py.ejs" />
     <Content Include="targets\python\source\source\PlayFabSettings.py" />
     <Content Include="targets\python\source\source\ThreadingTest.py" />
     <!--<Content Include="targets\python\templates\playfab.json.ejs" />-->
@@ -931,6 +932,8 @@
     <Folder Include="targets\LumberyardSdk\testingTemplate\Code\Tests\" />
     <Folder Include="targets\LumberyardSdk\testingTemplate\Code\" />
     <Folder Include="targets\LumberyardSdk\testingTemplate\Code\Source\" />
+    <Folder Include="targets\python\source\" />
+    <Folder Include="targets\python\source\source\" />
     <Folder Include="targets\XPlatCppSdk\" />
     <Folder Include="targets\newTarget\" />
     <Folder Include="targets\newTarget\source\" />

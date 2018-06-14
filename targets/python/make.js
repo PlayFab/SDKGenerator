@@ -84,6 +84,7 @@ function makeDataTypes(apis, sourceDir, apiOutputDir) {
     var modelTemplate = getCompiledTemplate(path.resolve(sourceDir, "templates/Model.py.ejs"));
     var modelsTemplate = getCompiledTemplate(path.resolve(sourceDir, "templates/Models.py.ejs"));
     var enumTemplate = getCompiledTemplate(path.resolve(sourceDir, "templates/Enum.py.ejs"));
+    var jsonTemplate = getCompiledTemplate(path.resolve(sourceDir, "templates/PlayFabJson.py.ejs"));
 
     var makeDatatype = function (datatype, api) {
         var modelLocals = {
@@ -100,6 +101,8 @@ function makeDataTypes(apis, sourceDir, apiOutputDir) {
             commentOutClassesWithoutProperties: commentOutClassesWithoutProperties,
             getComparator: getComparator,
         };
+
+        writeFile(path.resolve(apiOutputDir, "source/PlayFabJson.py"), jsonTemplate(modelLocals));
 
         return (datatype.isenum) ? enumTemplate(modelLocals) : modelTemplate(modelLocals);
     };
@@ -159,6 +162,7 @@ function generateSimpleFiles(apis, sourceDir, apiOutputDir) {
     var utilTemplate = getCompiledTemplate(path.resolve(sourceDir, "templates/PlayFabUtil.py.ejs"));
     writeFile(path.resolve(apiOutputDir, "source/PlayFabUtil.py"), utilTemplate(settingsLocals));
 
+
     // TODO: this may need to be moved to js?
     //var settingsTemplate = getCompiledTemplate(path.resolve(sourceDir, "templates/PlayFabSettings.py.ejs"));
     //writeFile(path.resolve(apiOutputDir, "source/PlayFabSettings.py"), settingsTemplate(settingsLocals));
@@ -182,9 +186,9 @@ function getBaseTypeSyntax(datatype) {
     var parents = [];
     
     if (datatype.className.toLowerCase().endsWith("request"))
-        parents.push("PlayFabRequestCommon");
+        parents.push("PlayFabHTTP.PlayFabRequestCommon");
     if (datatype.className.toLowerCase().endsWith("response") || datatype.className.toLowerCase().endsWith("result"))
-        parents.push("PlayFabResultCommon");
+        parents.push("PlayFabHTTP.PlayFabResultCommon");
     // if (datatype.sortKey) python equivalent would be defining something like def __eq__(self, other) this may not be needed?
     //     parents.push("IComparable<" + datatype.name + ">");
 

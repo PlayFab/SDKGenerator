@@ -1,7 +1,7 @@
 #class PlayFabSettings:
 
 ProductionEnvironmentURL = ".playfabapi.com"
-TitleId = None # You must set this value for PlayFabSdk to work properly (Found in the Game Manager for your title, at the PlayFab Website)
+TitleId = "" # You must set this value for PlayFabSdk to work properly (Found in the Game Manager for your title, at the PlayFab Website)
 GlobalErrorHandler = None
 EntityToken = None # Internal variable used for Entity API Access (basically Entity Login)
 DeveloperSecretKey = None # You must set this value for PlayFabSdk to work properly (Found in the Game Manager for your title, at the PlayFab Website)
@@ -19,6 +19,6 @@ AD_TYPE_ANDROID_ID = "Adid"
 
 def GetURL():
     baseUrl = ProductionEnvironmentURL
-    if baseUrl.indexOf("http") == 0:
+    if baseUrl.find("http") == 0:
         return baseUrl
     return "https://"+TitleId+baseUrl

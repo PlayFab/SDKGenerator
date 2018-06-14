@@ -1,9 +1,10 @@
 # using System.Threading.Tasks;
 from enum import Enum
 import requests
-#import PlayFabSettings
+import PlayFabSettings
 import json
 import PlayFabJson
+import PlayFabErrors
 
 # This is a base-class for all Api-request objects.
 # It is currently unfinished, but we will add result-specific properties,
@@ -50,10 +51,12 @@ def DoPost(urlPath, request, authType, authKey, extraHeaders):
     #if PlayFabSettings.TitleId == None:
     #    raise Exception("You must set your titleId before making an api call")
 
-    response = requests.post(urlPath, data=json.dumps(request, default=PlayFabJson.unserialize_object), headers=extraHeaders)
+    url = "" + PlayFabSettings.GetURL() + "" + urlPath
+
+    response = requests.post(url, data=json.dumps(request, default=PlayFabJson.serialize_instance), headers=extraHeaders)
 
     if response != 200:
-        return PlayFabError()
+        return PlayFabErrors.PlayFab.PlayFabError()
 
     json_data = json.loads(response.text)
 

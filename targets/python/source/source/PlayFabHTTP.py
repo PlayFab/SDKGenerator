@@ -112,35 +112,19 @@ def DoPost(urlPath, request, authType, authKey, extraHeaders):
 
     url = "" + PlayFabSettings.GetURL() + "" + urlPath
 
-    #response = requests.post(url, data=MyEncoderInstance.encode(request), headers=extraHeaders)
-    #j = json.dumps(request.__dict__)
-    objAsDict = request.__dict__
-
-    # TODO: go through each object of objAsDict and turn those into dictionaries as well?
-
     j = json.dumps(request.__dict__, cls=PythonObjectEncoder)
-    #j = objAsDict #json.dumps(objAsDict)
-    #print(j)
 
-    requestHeaders = {"Content-Type": "application/json"}
+    requestHeaders = {}
 
-    #requestHeaders["Content-Type"] = "application/json"
-    #requestHeaders[authType] = authKey
+    requestHeaders["Content-Type"] = "application/json"
     #requestHeaders["X-PlayFabSDK"] = PlayFabSettings.SdkVersionString
 
-    # TODO: this needs to be figured out. What class type is extraHeaders?
-    #for h in extraHeaders.iterkeys:
-    #    requestHeaders[h] = extraHeaders[h]
-        
+    for k, v in extraHeaders.items():
+        requestHeaders[k] = extraHeaders[k]
 
     response = requests.post(url, data=j, headers=requestHeaders)
-
-    #print(response._content)
 
     if response.status_code != 200:
         return PlayFabErrors.PlayFabError()
 
     return response
-    #json_data = json.loads(response.text)
-
-    #return await _http.DoPost(urlPath, request, authType, authKey, extraHeaders)

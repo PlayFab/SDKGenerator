@@ -19,12 +19,18 @@ request.TitleId = PlayFabSettings.TitleId
 request.LoginTitlePlayerAccountEntity = True
 
 customData = ""
-extraHeaders = ""
+extraHeaders = {}
 
 #loop = asyncio.get_event_loop()  
 #loop.run_until_complete(PlayFabClientAPI.LoginWithCustomIDAsync(request, customData, extraHeaders))  
 #loop.close()  
-test = PlayFabClientAPI.LoginWithCustomIDAsync(request, customData, extraHeaders)
+testLogin = PlayFabClientAPI.LoginWithCustomIDAsync(request, customData, extraHeaders)
 
-# is this retrieved by a login? Do we need to do that first?
-DeveloperSeceretKey = ""
+extraHeaders["X-Authentication"] = testLogin["ClientSessionTicket"]
+
+userRequest = PlayFabClientModels.GetUserDataRequest()
+
+userRequest.PlayFabId = testLogin.PlayFabId
+
+testGetUserData = PlayFabClientAPI.GetUserData()
+print(extraHeaders)

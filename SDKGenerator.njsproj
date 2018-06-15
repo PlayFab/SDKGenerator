@@ -252,7 +252,6 @@
     <Content Include="targets\cpp-ue4\Plugins\PlayFab\Source\PlayFab\Private\PlayFabRuntimeSettings.cpp.ejs" />
     <Content Include="targets\cpp-ue4\Plugins\PlayFab\Source\PlayFab\Private\PlayFabRuntimeSettings.h.ejs" />
     <Content Include="targets\cpp-ue4\Plugins\PlayFab\Source\PlayFab\Public\Core\PlayFabBaseModel.h.ejs" />
-    <Content Include="targets\cpp-ue4\Plugins\PlayFab\Source\PlayFab\Public\Core\PlayFabCore.h.ejs" />
     <Content Include="targets\cpp-ue4\Plugins\PlayFab\Source\PlayFab\Public\Core\PlayFabJsonHelpers.h.ejs" />
     <Content Include="targets\cpp-ue4\Plugins\PlayFab\Source\PlayFab\Public\Core\PlayFabResultHandler.h.ejs" />
     <Content Include="targets\cpp-ue4\Plugins\PlayFab\Source\PlayFab\Public\Core\PlayFabSettings.h.ejs" />

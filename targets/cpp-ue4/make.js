@@ -8,9 +8,9 @@ if (typeof (templatizeTree) === "undefined") templatizeTree = function () { };
 var maxEnumSize = 255;
 
 var copyright =
-`////////////////////////////////////////////////
-// Copyright (C) Microsoft. All rights reserved.
-////////////////////////////////////////////////
+`//////////////////////////////////////////////////////
+// Copyright (C) Microsoft. 2018. All rights reserved.
+//////////////////////////////////////////////////////
 `;
 
 exports.makeCombinedAPI = function (apis, sourceDir, apiOutputDir) {

@@ -1,12 +1,15 @@
 <%- generateApiSummary("", datatype, "description")
 %><%- getDeprecationAttribute("", datatype)
-%><%- commentOutClassesWithoutProperties("", datatype.properties.length) %>class <%- datatype.name %><%- getBaseTypeSyntax(datatype) %>:
+%>class <%- datatype.name %><%- getBaseTypeSyntax(datatype) %>:
 <%- addInitializeFunction("    ", datatype.properties.length) %>
 <% for(var i in datatype.properties) { var property = datatype.properties[i];%>
 <%- generateApiSummary("        ", property, "description")
 %><%- getDeprecationAttribute("        ", property)
 %><%- getPropertyAttribs("        ", property, datatype, api)
 %>        self.<%- getModelPropertyDef(property, datatype) %> = <%- getDefaultValueForType(property, datatype) %>
-<% } %><% if (datatype.sortKey) { %>
-<%- getComparator("    ", datatype.name, datatype.sortKey) %><% } %>
+<% } %>
+<%- getJsonSerialization("    ", datatype.name, datatype.sortKey) %>
+<% if (datatype.sortKey) { %>
+<%- getComparator("    ", datatype.name, datatype.sortKey) %>
+<% } %>
 

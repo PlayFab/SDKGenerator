@@ -22,7 +22,7 @@ extraHeaders = ""
 #loop = asyncio.get_event_loop()  
 #loop.run_until_complete(PlayFabClientAPI.LoginWithCustomIDAsync(request, customData, extraHeaders))  
 #loop.close()  
-uhh = PlayFabClientAPI.LoginWithCustomIDAsync(request, customData, extraHeaders)
+test = PlayFabClientAPI.LoginWithCustomIDAsync(request, customData, extraHeaders)
 
 # is this retrieved by a login? Do we need to do that first?
 DeveloperSeceretKey = ""

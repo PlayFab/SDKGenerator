@@ -2,20 +2,36 @@
 from enum import Enum
 import requests
 import PlayFabSettings
-import json
+from json import JSONEncoder
 import PlayFabJson
 import PlayFabErrors
+
+class MyEncoder(JSONEncoder):
+    def default(self, o):
+        if isinstance(o, PlayFabBaseObject):
+            return JSONEncoder.default(self, dict(o.__dict__))
+        elif isinstance(o, datetime):
+            return "this is a timestamp"
+
+        # not handling iterables, enums, 
+
+        return JSONEncoder.default(self, o)
+
+MyEncoderInstance = MyEncoder()
+
+class PlayFabBaseObject:
+    pass
 
 # This is a base-class for all Api-request objects.
 # It is currently unfinished, but we will add result-specific properties,
 #   and add template where-conditions to make some code easier to follow
-class PlayFabRequestCommon:
+class PlayFabRequestCommon(PlayFabBaseObject):
     pass
 
 # This is a base-class for all Api-result objects.
 # It is currently unfinished, but we will add result-specific properties,
 # and add template where-conditions to make some code easier to follow
-class PlayFabResultCommon:
+class PlayFabResultCommon(PlayFabBaseObject):
     pass
 
 class PlayFabJsonError(Enum):
@@ -53,7 +69,7 @@ def DoPost(urlPath, request, authType, authKey, extraHeaders):
 
     url = "" + PlayFabSettings.GetURL() + "" + urlPath
 
-    response = requests.post(url, data=json.dumps(request, default=PlayFabJson.serialize_instance), headers=extraHeaders)
+    response = requests.post(url, data=MyEncoderInstance.encode(request), headers=extraHeaders)
 
     if response != 200:
         return PlayFabErrors.PlayFab.PlayFabError()

@@ -98,7 +98,8 @@ function makeDataTypes(apis, sourceDir, apiOutputDir) {
             getDeprecationAttribute: getDeprecationAttribute,
             getDefaultValueForType: getDefaultValueForType,
             addInitializeFunction: addInitializeFunction,
-            commentOutClassesWithoutProperties: commentOutClassesWithoutProperties,
+            //commentOutClassesWithoutProperties: commentOutClassesWithoutProperties,
+            getJsonSerialization: getJsonSerialization,
             getComparator: getComparator,
         };
 
@@ -131,7 +132,8 @@ function makeApi(api, sourceDir, apiOutputDir) {
         getDefaultValueForType: getDefaultValueForType,
         generateApiSummary: generateApiSummary,
         addInitializeFunction: addInitializeFunction,
-        commentOutClassesWithoutProperties: commentOutClassesWithoutProperties,
+        //commentOutClassesWithoutProperties: commentOutClassesWithoutProperties,
+        getJsonSerialization: getJsonSerialization,
         authKey: api.name === "Client"
     };
 
@@ -189,8 +191,9 @@ function getBaseTypeSyntax(datatype) {
         parents.push("PlayFabHTTP.PlayFabRequestCommon");
     if (datatype.className.toLowerCase().endsWith("response") || datatype.className.toLowerCase().endsWith("result"))
         parents.push("PlayFabHTTP.PlayFabResultCommon");
-    // if (datatype.sortKey) python equivalent would be defining something like def __eq__(self, other) this may not be needed?
-    //     parents.push("IComparable<" + datatype.name + ">");
+    else {
+        parents.push("PlayFabHTTP.PlayFabBaseObject");
+    }
 
     if (parents.length > 0) {
         var output = "(";
@@ -382,13 +385,21 @@ function getDefaultValueForType(property, datatype) {
 
 function addInitializeFunction(tabbing, propertySize)
 {
-    return propertySize > 0 ? tabbing + "def __init__(self):" : "";
+    return tabbing + (propertySize > 0 ? "def __init__(self):" : "def __init__(self):\n"+tabbing+"    pass");
 }
 
-function commentOutClassesWithoutProperties(tabbing, propertyCount)
+//function commentOutClassesWithoutProperties(tabbing, propertyCount)
+//{
+//    if (propertyCount == 0)
+//    {
+//        return tabbing + "# This class has no properties, and cannot be instantiated in python.\n"+tabbing+"#";
+//    }
+//}
+function getJsonSerialization(tabbing, properties)
 {
-    if (propertyCount == 0)
-    {
-        return tabbing + "# This class has no properties, and cannot be instantiated in python.\n"+tabbing+"#";
-    }
+    //var def = tabbing+"def default(self, o):\n" + tabbing + "    return {";
+
+    //// iterate through properties and add them to this dictionary
+
+    //return def + "\n"+tabbing+"    }";
 }

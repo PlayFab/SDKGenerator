@@ -3,6 +3,7 @@ import calendar
 import time
 # import PlayFabInternal # this should eventually contain the classes below
 import PlayFabHTTP
+from json import JSONEncoder
 
 #class PlayFab<%- api.name %>Models:
 <% for(var d in api.datatypes) { var datatype = api.datatypes[d] %><%- makeDatatype(datatype, api) %><% } %>

@@ -1,60 +1,59 @@
 # import PlayFab.Internal; # ??
 from enum import Enum
 
-class PlayFab:
-    # Error codes returned by PlayFabAPIs
-    class PlayFabErrorCode(Enum):
-        Success = 0,
-        Unknown = 1,
-        ConnectionError = 2,
-        JsonParseError = 3,
-        <% for(var i=1; i<errorList.length-1; i++) { var errorProps = errors[errorList[i]] %><%- errorProps.name %> = <%- errorProps.id %>,
-        <% } %><% var errorProps = errors[errorList[errorList.length-1]] %><%- errorProps.name %> = <%- errorProps.id %>
+# Error codes returned by PlayFabAPIs
+class PlayFabErrorCode(Enum):
+    Success = 0,
+    Unknown = 1,
+    ConnectionError = 2,
+    JsonParseError = 3,
+    <% for(var i=1; i<errorList.length-1; i++) { var errorProps = errors[errorList[i]] %><%- errorProps.name %> = <%- errorProps.id %>,
+    <% } %><% var errorProps = errors[errorList[errorList.length-1]] %><%- errorProps.name %> = <%- errorProps.id %>
 
-    class PlayFabError:
-        def __init__(self):
-            self.HttpCode = 0
-            self.HttpStatus = ""
-            self.Error = PlayFabErrorCode.Unknown # PlayFabError enum
-            self.ErrorMessage = ""
-            self.ErrorDetails = {} # dictionary of string keys and list of strings for values
+class PlayFabError:
+    def __init__(self):
+        self.HttpCode = 0
+        self.HttpStatus = ""
+        self.Error = PlayFabErrorCode.Unknown # PlayFabError enum
+        self.ErrorMessage = ""
+        self.ErrorDetails = {} # dictionary of string keys and list of strings for values
 
-        def GenerateErrorReport(self):
-            str = ""
-            if self.ErrorMessage != None:
-                str.append(self.ErrorMessage)
-            if self.ErrorDetails == None:
-                return str
-
-            for pair in ErrorDetails:
-                for eachMsg in pair.Value: # we want to loop through each item in the dictionary here
-                    str.append(pair.Key).append(": ").append(eachMsg)
-
+    def GenerateErrorReport(self):
+        str = ""
+        if self.ErrorMessage != None:
+            str.append(self.ErrorMessage)
+        if self.ErrorDetails == None:
             return str
 
-    class PlayFabBaseResult:
-        def __init__(self):
-            self.CustomData = None
-            self.PlayFabError = Error
+        for pair in self.ErrorDetails:
+            for eachMsg in pair.Value: # we want to loop through each item in the dictionary here
+                str.append(pair.Key).append(": ").append(eachMsg)
 
-    class PlayFabResult(PlayFabBaseResult): # PlayFabBaseResult where TResult : PlayFabResultCommon
-        def __init__(self):
-            super().__init__(self)
-            self.Result = None
+        return str
+
+class PlayFabBaseResult:
+    def __init__(self):
+        self.CustomData = None
+        self.PlayFabError = Error
+
+class PlayFabResult(PlayFabBaseResult): # PlayFabBaseResult where TResult : PlayFabResultCommon
+    def __init__(self):
+        super().__init__(self)
+        self.Result = None
 
     # error is PlayFab error
     def ErrorCallback(error):
         pass
 
-    class PlayFabException(Exception):
+class PlayFabException(Exception):
 
-        def __init__(self, code, message):
-            super().__init__(self, message)
-            self.Code = code
+    def __init__(self, code, message):
+        super().__init__(self, message)
+        self.Code = code
 
-    class PlayFabExceptionCode(Enum):
-        DeveloperKeyNotSet = 0
-        EntityTokenNotSet = 1
-        NotLoggedIn = 2
-        TitleNotSet = 3
+class PlayFabExceptionCode(Enum):
+    DeveloperKeyNotSet = 0
+    EntityTokenNotSet = 1
+    NotLoggedIn = 2
+    TitleNotSet = 3
 

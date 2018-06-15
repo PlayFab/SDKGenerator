@@ -7,14 +7,16 @@ import PlayFabClientAPI
 
 import asyncio
 
-TitleId = "9D63"
+PlayFabSettings.TitleId = "9D63"
+PlayFabSettings.SdkVersionString = "4"
 customId = "8fa79815413d472d"
 
 request = PlayFabClientModels.LoginWithCustomIDRequest()
 
 request.CreateAccount = True
 request.CustomId = customId
-request.TitleId = TitleId
+request.TitleId = PlayFabSettings.TitleId
+request.LoginTitlePlayerAccountEntity = True
 
 customData = ""
 extraHeaders = ""

@@ -6,6 +6,8 @@ GlobalErrorHandler = None
 EntityToken = None # Internal variable used for Entity API Access (basically Entity Login)
 DeveloperSecretKey = None # You must set this value for PlayFabSdk to work properly (Found in the Game Manager for your title, at the PlayFab Website)
 ClientSessionTicket = None # This is set
+#SdkVersionString = "JavaSDK-<%- sdkVersion %>";
+SdkVersionString = ""
 
 # Client specifics
 AdvertisingIdType = "" # Set this to the appropriate AD_TYPE_X constant below

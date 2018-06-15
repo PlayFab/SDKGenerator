@@ -3,6 +3,7 @@ import asyncio
 import PlayFabHTTP
 import PlayFabSettings
 import PlayFabErrors
+import json
 
 # TODO: move to shared file (useable in other generated files)
 def noneOrEmpty(str):
@@ -16,17 +17,19 @@ def noneOrEmpty(str):
 %>def <%- apiCall.name %>Async(request, customData, extraHeaders):
 <%- getRequestActions("    ", apiCall) %>
     httpResult = PlayFabHTTP.DoPost("<%- apiCall.url %>", request, <%- getAuthParams(apiCall) %>, extraHeaders)
-    if type(httpResult) is PlayFabError:
+    if type(httpResult) is PlayFabErrors.PlayFabError:
         error = httpResult
         #PlayFabSettings.GlobalErrorHandler?.Invoke(error)
-        return <%- apiCall.result %>(error, customData)
+        #return PlayFab<%-api.name%>Models.<%- apiCall.result %>(error, customData) # we need to propagate these items, need to reconsider models?
+        return PlayFab<%-api.name%>Models.<%- apiCall.result %>()
 
     resultRawJson = httpResult.text
     # resultData = JsonWrapper.DeserializeObject<PlayFabJsonSuccess<<%- apiCall.result %>>>(resultRawJson)
     resultData = json.loads(resultRawJson)
     result = resultData
+    returnable = PlayFab<%- api.name %>Models.<%- apiCall.result %>()
 <%- getResultActions("    ", apiCall, api) %>
-    return <%- apiCall.result %>(result, customData)
+    return returnable # PlayFab<%- api.name %>Models.<%- apiCall.result %>(result, customData)
 
 <% } %><% if (authKey) {
 %># Determine if the client session ticket is set, without actually making it public
@@ -35,7 +38,7 @@ def IsClientLoggedIn():
     return not (ClientSessionTicket == "" or ClientSessionTicket == None)
 
 def MultiStepClientLogin(needsAttribution):
-    if needsAttribution and not DisableAdvertising and not noneOrEmpty(AdvertisingIdType) and not noneOrEmpty(AdvertisingIdValue):
+    if needsAttribution and not PlayFabSettings.DisableAdvertising and not noneOrEmpty(PlayFabSettings.AdvertisingIdType) and not noneOrEmpty(PlayFabSettings.AdvertisingIdValue):
         request = AttributeInstallRequest()
         if AdvertisingIdType == AD_TYPE_IDFA:
             request.Idfa = AdvertisingIdValue

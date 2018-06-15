@@ -195,6 +195,8 @@ function getBaseTypeSyntax(datatype) {
         parents.push("PlayFabHTTP.PlayFabBaseObject");
     }
 
+    //parents.push("PlayFabHTTP.Serializable")
+
     if (parents.length > 0) {
         var output = "(";
         for (var i = 0; i < parents.length; i++) {
@@ -272,17 +274,17 @@ function getRequestActions(tabbing, apiCall) {
 
 function getResultActions(tabbing, apiCall, api) {
     if (apiCall.result === "LoginResult")
-        return tabbing + "ClientSessionTicket = result[\"data\"][\"SessionTicket\"] or ClientSessionTicket\n"
-            + tabbing + "EntityToken = result[\"data\"][\"EntityToken\"][\"EntityToken\"] or EntityToken\n"
-            + tabbing + "MultiStepClientLogin(result.SettingsForUser.NeedsAttribution)\n";
+        return tabbing + "returnable.ClientSessionTicket = result[\"data\"][\"SessionTicket\"] or ClientSessionTicket\n"
+            + tabbing + "returnable.EntityToken = result[\"data\"][\"EntityToken\"][\"EntityToken\"] or EntityToken\n"
+            + tabbing + "MultiStepClientLogin(result[\"data\"][\"SettingsForUser\"][\"NeedsAttribution\"])\n";
     else if (apiCall.result === "RegisterPlayFabUserResult")
-        return tabbing + "ClientSessionTicket = result[\"data\"][\"SessionTicket\"] or ClientSessionTicket\n"
-            + tabbing + "MultiStepClientLogin(result.SettingsForUser.NeedsAttribution)\n";
+        return tabbing + "returnable.ClientSessionTicket = result[\"data\"][\"SessionTicket\"] or ClientSessionTicket\n"
+            + tabbing + "MultiStepClientLogin(result[\"data\"][\"SettingsForUser\"][\"NeedsAttribution\"])\n";
     else if (api.name === "Client" && apiCall.result === "AttributeInstallResult")
         return tabbing + "# Modify AdvertisingIdType:  Prevents us from sending the id multiple times, and allows automated tests to determine id was sent successfully\n"
             + tabbing + "AdvertisingIdType += \"_Successful\"\n";
     else if (apiCall.result === "GetEntityTokenResponse")
-        return tabbing + "EntityToken = result[\"data\"][\"EntityToken\"][\"EntityToken\"]\n";
+        return tabbing + "returnable.EntityToken = result[\"data\"][\"EntityToken\"][\"EntityToken\"]\n";
     return "";
 }
 

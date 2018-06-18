@@ -932,6 +932,7 @@
     <Folder Include="targets\LumberyardSdk\testingTemplate\Code\Tests\" />
     <Folder Include="targets\LumberyardSdk\testingTemplate\Code\" />
     <Folder Include="targets\LumberyardSdk\testingTemplate\Code\Source\" />
+    <Folder Include="targets\python\Archive\" />
     <Folder Include="targets\python\source\" />
     <Folder Include="targets\python\source\source\" />
     <Folder Include="targets\XPlatCppSdk\" />

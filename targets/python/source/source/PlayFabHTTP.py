@@ -112,7 +112,8 @@ def DoPost(urlPath, request, authType, authKey, extraHeaders):
 
     url = "" + PlayFabSettings.GetURL() + "" + urlPath
 
-    j = json.dumps(request.__dict__, cls=PythonObjectEncoder)
+    #j = json.dumps(request.__dict__, cls=PythonObjectEncoder)
+    j = json.dumps(request)
 
     requestHeaders = {}
 

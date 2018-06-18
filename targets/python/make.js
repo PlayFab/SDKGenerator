@@ -19,7 +19,7 @@ exports.makeClientAPI2 = function (apis, sourceDir, apiOutputDir) {
     console.log("Generating Client api from: " + sourceDir + " to: " + apiOutputDir);
 
     templatizeTree(locals, path.resolve(sourceDir, "source"), apiOutputDir);
-    makeDataTypes(apis, sourceDir, apiOutputDir);
+    //makeDataTypes(apis, sourceDir, apiOutputDir);
     for (var i = 0; i < apis.length; i++)
         makeApi(apis[i], sourceDir, apiOutputDir);
     generateSimpleFiles(apis, sourceDir, apiOutputDir);
@@ -43,7 +43,7 @@ exports.makeServerAPI = function (apis, sourceDir, apiOutputDir) {
     console.log("Generating Server api from: " + sourceDir + " to: " + apiOutputDir);
     templatizeTree(locals, path.resolve(sourceDir, "source"), apiOutputDir); // Copy the whole source directory as-is
 
-    makeDataTypes(apis, sourceDir, apiOutputDir);
+    //makeDataTypes(apis, sourceDir, apiOutputDir);
     for(var i=0; i< apis.length; i++)
         makeApi(apis[i], sourceDir, apiOutputDir);
 
@@ -250,14 +250,14 @@ function getAuthParams(apiCall) {
     if (apiCall.auth === "SecretKey")
         return "\"X-SecretKey\", DeveloperSecretKey";
     else if (apiCall.auth === "SessionTicket")
-        return "\"X-Authorization\", ClientSessionTicket";
+        return "\"X-Authorization\", PlayFabSettings.ClientSessionTicket";
     return "None, None";
 }
 
 function getRequestActions(tabbing, apiCall) {
     if (apiCall.result === "LoginResult" || apiCall.request === "RegisterPlayFabUserRequest")
-        return tabbing + "request.TitleId = PlayFabSettings.TitleId or request.TitleId\n"
-            + tabbing + "if request.TitleId == None:\n"+tabbing+"    raise Exception(PlayFabExceptionCode.TitleNotSet, \"Must be have TitleId set to call this method\")\n";
+        return tabbing + "request[\"TitleId\"] = PlayFabSettings.TitleId or request.TitleId\n"
+            + tabbing + "if request[\"TitleId\"] == None:\n"+tabbing+"    raise Exception(PlayFabExceptionCode.TitleNotSet, \"Must be have TitleId set to call this method\")\n";
     if (apiCall.auth === "EntityToken")
         return tabbing + "if PlayFabSettings.EntityToken == None:\n "+tabbing+"    raise Exception(PlayFabExceptionCode.EntityTokenNotSet, \"Must call GetEntityToken before calling this method\")\n";
     if (apiCall.auth === "SessionTicket")
@@ -274,17 +274,17 @@ function getRequestActions(tabbing, apiCall) {
 
 function getResultActions(tabbing, apiCall, api) {
     if (apiCall.result === "LoginResult")
-        return tabbing + "returnable.ClientSessionTicket = result[\"data\"][\"SessionTicket\"] or ClientSessionTicket\n"
-            + tabbing + "returnable.EntityToken = result[\"data\"][\"EntityToken\"][\"EntityToken\"] or EntityToken\n"
+        return tabbing + "returnResult[\"ClientSessionTicket\"] = result[\"data\"][\"SessionTicket\"] or ClientSessionTicket\n"
+            + tabbing + "returnResult[\"EntityToken\"] = result[\"data\"][\"EntityToken\"][\"EntityToken\"] or EntityToken\n"
             + tabbing + "MultiStepClientLogin(result[\"data\"][\"SettingsForUser\"][\"NeedsAttribution\"])\n";
     else if (apiCall.result === "RegisterPlayFabUserResult")
-        return tabbing + "returnable.ClientSessionTicket = result[\"data\"][\"SessionTicket\"] or ClientSessionTicket\n"
+        return tabbing + "returnResult[\"ClientSessionTicket\"] = result[\"data\"][\"SessionTicket\"] or ClientSessionTicket\n"
             + tabbing + "MultiStepClientLogin(result[\"data\"][\"SettingsForUser\"][\"NeedsAttribution\"])\n";
     else if (api.name === "Client" && apiCall.result === "AttributeInstallResult")
         return tabbing + "# Modify AdvertisingIdType:  Prevents us from sending the id multiple times, and allows automated tests to determine id was sent successfully\n"
             + tabbing + "AdvertisingIdType += \"_Successful\"\n";
     else if (apiCall.result === "GetEntityTokenResponse")
-        return tabbing + "returnable.EntityToken = result[\"data\"][\"EntityToken\"][\"EntityToken\"]\n";
+        return tabbing + "returnResult[\"EntityToken\"] = result[\"data\"][\"EntityToken\"][\"EntityToken\"]\n";
     return "";
 }
 
@@ -399,7 +399,7 @@ function addInitializeFunction(tabbing, propertySize)
 //}
 function getJsonSerialization(tabbing, properties)
 {
-    //var def = tabbing+"def default(self, o):\n" + tabbing + "    return {";
+    var def = tabbing+"def fromJson(json):\n" + tabbing + "    return {";
 
     //// iterate through properties and add them to this dictionary
 

@@ -1,4 +1,4 @@
-import PlayFab<%- api.name %>Models
+# import PlayFab<%- api.name %>Models
 import asyncio
 import PlayFabHTTP
 import PlayFabSettings
@@ -19,17 +19,14 @@ def noneOrEmpty(str):
     httpResult = PlayFabHTTP.DoPost("<%- apiCall.url %>", request, <%- getAuthParams(apiCall) %>, extraHeaders)
     if type(httpResult) is PlayFabErrors.PlayFabError:
         error = httpResult
-        #PlayFabSettings.GlobalErrorHandler?.Invoke(error)
-        #return PlayFab<%-api.name%>Models.<%- apiCall.result %>(error, customData) # we need to propagate these items, need to reconsider models?
-        return PlayFab<%-api.name%>Models.<%- apiCall.result %>()
+        return error # PlayFab<%-api.name%>Models.<%- apiCall.result %>()
 
     resultRawJson = httpResult.text
-    # resultData = JsonWrapper.DeserializeObject<PlayFabJsonSuccess<<%- apiCall.result %>>>(resultRawJson)
     resultData = json.loads(resultRawJson)
     result = resultData
-    returnable = PlayFab<%- api.name %>Models.<%- apiCall.result %>()
+    returnResult = resultData["data"]
 <%- getResultActions("    ", apiCall, api) %>
-    return returnable # PlayFab<%- api.name %>Models.<%- apiCall.result %>(result, customData)
+    return returnResult # PlayFab<%- api.name %>Models.<%- apiCall.result %>(result, customData)
 
 <% } %><% if (authKey) {
 %># Determine if the client session ticket is set, without actually making it public

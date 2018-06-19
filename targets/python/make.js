@@ -11,7 +11,7 @@ exports.makeClientAPI2 = function (apis, sourceDir, apiOutputDir) {
         buildIdentifier: exports.buildIdentifier,
         errorList: apis[0].errorList,
         errors: apis[0].errors,
-        friendlyName: "PlayFab Python Sdk",
+        friendlyName: "PlayFab Python Client Sdk",
         sdkVersion: exports.sdkVersion,
     };
 
@@ -33,7 +33,7 @@ exports.makeServerAPI = function (apis, sourceDir, apiOutputDir) {
         buildIdentifier: exports.buildIdentifier,
         errorList: apis[0].errorList,
         errors: apis[0].errors,
-        friendlyName: "PlayFab Python Sdk",
+        friendlyName: "PlayFab Python Server Sdk",
         sdkVersion: exports.sdkVersion,
     };
 
@@ -54,10 +54,23 @@ exports.makeServerAPI = function (apis, sourceDir, apiOutputDir) {
 
 // generate.js looks for some specific exported functions in make.js, like:
 exports.makeCombinedAPI = function (apis, sourceDir, apiOutputDir) {
-    // Builds every api.  The provided "apis" variable is a list of objects, built from: API_SPECS/admin.api.json, API_SPECS/matchmaker.api.json, API_SPECS/server.api.json, and API_SPECS/client.api.json
-    console.log("Generating Combined api from: " + sourceDir + " to: " + apiOutputDir);
-    //templatizeTree(path.resolve(sourceDir, "source"), apiOutputDir); // Copy the whole source directory as-is
-    //MakeExampleTemplateFile(sourceDir, apiOutputDir);
+    var locals = {
+        apis: apis,
+        buildIdentifier: exports.buildIdentifier,
+        errorList: apis[0].errorList,
+        errors: apis[0].errors,
+        friendlyName: "PlayFab Python Combined Sdk",
+        sdkVersion: exports.sdkVersion,
+    };
+
+    // Builds the client api.  The provided "api" variable is a single object, the API_SPECS/client.api.json as an object
+    console.log("Generating Combined Client/Server api from: " + sourceDir + " to: " + apiOutputDir);
+
+    templatizeTree(locals, path.resolve(sourceDir, "source"), apiOutputDir);
+    //makeDataTypes(apis, sourceDir, apiOutputDir);
+    for (var i = 0; i < apis.length; i++)
+        makeApi(apis[i], sourceDir, apiOutputDir);
+    generateSimpleFiles(apis, sourceDir, apiOutputDir);
 }
 
 // Unlike source, Templates are written one file at a time.
@@ -163,11 +176,6 @@ function generateSimpleFiles(apis, sourceDir, apiOutputDir) {
 
     var utilTemplate = getCompiledTemplate(path.resolve(sourceDir, "templates/PlayFabUtil.py.ejs"));
     writeFile(path.resolve(apiOutputDir, "source/PlayFabUtil.py"), utilTemplate(settingsLocals));
-
-
-    // TODO: this may need to be moved to js?
-    //var settingsTemplate = getCompiledTemplate(path.resolve(sourceDir, "templates/PlayFabSettings.py.ejs"));
-    //writeFile(path.resolve(apiOutputDir, "source/PlayFabSettings.py"), settingsTemplate(settingsLocals));
 }
 
 function getDeprecationAttribute(tabbing, apiObj) {

@@ -1,36 +1,32 @@
-# import PlayFab<%- api.name %>Models
-import asyncio
 import PlayFabHTTP
 import PlayFabSettings
 import PlayFabErrors
 import json
 
-# TODO: move to shared file (useable in other generated files)
 def noneOrEmpty(str):
     return str == "" or str == None
 
-<%- generateApiSummary("", api, "description")
-%>#class PlayFab<%- api.name %>API:
-<% for(var i in api.calls) { var apiCall = api.calls[i];
+<%- generateApiSummary("", api, "description")%><% for(var i in api.calls) { var apiCall = api.calls[i];
 %><%- generateApiSummary("", apiCall, "summary")
 %><%- getDeprecationAttribute("", apiCall)
-%>def <%- apiCall.name %>Async(request, customData, extraHeaders):
+%>def <%- apiCall.name %>Async(request, customData, extraHeaders, postProcessingFunc):
 <%- getRequestActions("    ", apiCall) %>
     httpResult = PlayFabHTTP.DoPost("<%- apiCall.url %>", request, <%- getAuthParams(apiCall) %>, extraHeaders)
     if type(httpResult) is PlayFabErrors.PlayFabError:
         error = httpResult
-        return error # PlayFab<%-api.name%>Models.<%- apiCall.result %>()
+        postProcessingFunc(error)
+        return error
 
     resultRawJson = httpResult.text
     resultData = json.loads(resultRawJson)
     result = resultData
     returnResult = resultData["data"]
 <%- getResultActions("    ", apiCall, api) %>
-    return returnResult # PlayFab<%- api.name %>Models.<%- apiCall.result %>(result, customData)
+    postProcessingFunc(returnResult)
+    return returnResult
 
 <% } %><% if (authKey) {
 %># Determine if the client session ticket is set, without actually making it public
-# public static bool IsClientLoggedIn()
 def IsClientLoggedIn():
     return not (ClientSessionTicket == "" or ClientSessionTicket == None)
 

@@ -21,14 +21,14 @@ for (var enumIdx = 0; enumIdx < enumtypes.length; enumIdx++) { var enumtype = en
         inline void ToJsonEnum(const <%- enumtype.name %> input, web::json::value& output)
         {
 <% for(var i=0; i<enumtype.enumvalues.length; i++) { var enumval = enumtype.enumvalues[i]
-%>            if (input == <%- enumtype.name %><%- enumval.name %>) output = web::json::value(U("<%- enumval.name %>"));
+%>            if (input == <%- enumtype.name %><%- enumval.name %>) output = web::json::value(L"<%- enumval.name %>");
 <% } %>        }
         inline void FromJsonEnum(const web::json::value& input, <%- enumtype.name %>& output)
         {
             if (!input.is_string()) return;
             const utility::string_t& inputStr = input.as_string();
 <% for(var i=0; i<enumtype.enumvalues.length; i++) { var enumval = enumtype.enumvalues[i]
-%>            if (inputStr == U("<%- enumval.name %>")) output = <%- enumtype.name %><%- enumval.name %>;
+%>            if (inputStr == L"<%- enumval.name %>") output = <%- enumtype.name %><%- enumval.name %>;
 <% } %>        }
 <% } %>
         // <%- api.name %> Classes<%

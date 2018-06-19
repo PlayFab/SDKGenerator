@@ -378,11 +378,11 @@ namespace PlayFab.UUnit
         [UUnitTest]
         public void CloudScript(UUnitTestContext testContext)
         {
-            var request = new ExecuteCloudScriptRequest { FunctionName = "helloWorld" };
+            var request = new ClientModels.ExecuteCloudScriptRequest { FunctionName = "helloWorld" };
             var cloudTask = PlayFabClientAPI.ExecuteCloudScriptAsync(request, null, extraHeaders);
             ContinueWithContext(cloudTask, testContext, CloudScriptContinued, true, "Failed to Execute CloudScript", true);
         }
-        private void CloudScriptContinued(PlayFabResult<ExecuteCloudScriptResult> cloudResult, UUnitTestContext testContext, string failMessage)
+        private void CloudScriptContinued(PlayFabResult<ClientModels.ExecuteCloudScriptResult> cloudResult, UUnitTestContext testContext, string failMessage)
         {
             string messageValue = null;
             // Get the helloWorld return message
@@ -403,11 +403,11 @@ namespace PlayFab.UUnit
         [UUnitTest]
         public void CloudScriptError(UUnitTestContext testContext)
         {
-            var request = new ExecuteCloudScriptRequest { FunctionName = "throwError" };
+            var request = new ClientModels.ExecuteCloudScriptRequest { FunctionName = "throwError" };
             var cloudTask = PlayFabClientAPI.ExecuteCloudScriptAsync(request, null, extraHeaders);
             ContinueWithContext(cloudTask, testContext, CloudScriptErrorContinued, true, "Failed to Execute CloudScript", true);
         }
-        private void CloudScriptErrorContinued(PlayFabResult<ExecuteCloudScriptResult> cloudResult, UUnitTestContext testContext, string failMessage)
+        private void CloudScriptErrorContinued(PlayFabResult<ClientModels.ExecuteCloudScriptResult> cloudResult, UUnitTestContext testContext, string failMessage)
         {
             // Get the JavascriptException result
             testContext.IsNull(cloudResult.Result.FunctionResult);

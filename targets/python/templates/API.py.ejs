@@ -12,7 +12,7 @@ import PlayFabSettings
     httpResult = PlayFabHTTP.DoPost("<%- apiCall.url %>", request, <%- getAuthParams(apiCall) %>, extraHeaders)
     if type(httpResult) is PlayFabErrors.PlayFabError:
         error = httpResult
-        postProcessingFunc(null, error)
+        postProcessingFunc(None, error)
         return error
 
     resultRawJson = httpResult.text
@@ -20,7 +20,7 @@ import PlayFabSettings
     result = resultData
     returnResult = resultData["data"]
 <%- getResultActions("    ", apiCall, api) %>
-    postProcessingFunc(returnResult, null)
+    postProcessingFunc(returnResult, None)
 
 <% } %><% if (hasClientOptions) {
 %># Determine if the client session ticket is set, without actually making it public

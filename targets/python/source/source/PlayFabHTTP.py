@@ -1,5 +1,3 @@
-from enum import Enum
-from json import JSONEncoder
 import json
 import PlayFabSettings
 import PlayFabErrors
@@ -20,20 +18,20 @@ class PlayFabRequestCommon(PlayFabBaseObject):
 class PlayFabResultCommon(PlayFabBaseObject):
     pass
 
-class PlayFabJsonError(Enum):
+class PlayFabJsonError():
     def __init__(self):
-        code = 0
-        status = ""
-        error = ""
-        errorCode = 0
-        errorMessage = ""
-        errorDetails = None
+        self.code = 0
+        self.status = ""
+        self.error = ""
+        self.errorCode = 0
+        self.errorMessage = ""
+        self.errorDetails = None
 
-class PlayFabJsonSuccess(Enum):
+class PlayFabJsonSuccess():
     def __init__(self):
-        code = 0
-        status = ""
-        data = None
+        self.code = 0
+        self.status = ""
+        self.data = None
 
 def DoPost(urlPath, request, authType, authKey, extraHeaders):
     if PlayFabSettings.TitleId == None:
@@ -41,7 +39,11 @@ def DoPost(urlPath, request, authType, authKey, extraHeaders):
 
     url = PlayFabSettings.GetURL(urlPath)
 
-    j = json.dumps(request)
+    try:
+        j = json.dumps(request)
+    except v:
+        err = PlayFabJsonError().errorMessage = "{}{}".format(v , request)
+        return err
 
     requestHeaders = {}
 

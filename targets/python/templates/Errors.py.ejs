@@ -1,4 +1,3 @@
-# import PlayFab.Internal; # ??
 from enum import Enum
 
 # Error codes returned by PlayFabAPIs
@@ -30,20 +29,6 @@ class PlayFabError:
                 str.append(pair.Key).append(": ").append(eachMsg)
 
         return str
-
-class PlayFabBaseResult:
-    def __init__(self):
-        self.CustomData = None
-        self.PlayFabError = Error
-
-class PlayFabResult(PlayFabBaseResult): # PlayFabBaseResult where TResult : PlayFabResultCommon
-    def __init__(self):
-        super().__init__(self)
-        self.Result = None
-
-    # error is PlayFab error
-    def ErrorCallback(error):
-        pass
 
 class PlayFabException(Exception):
 

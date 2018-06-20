@@ -8,12 +8,12 @@ classes = {
 }
 
 def unserialize_object(d):
+    # TODO: investigate classname element more carefully
     clsname = d.pop('__classname__', None)
     if clsname:
         cls = classes[clsname]
         obj = cls.__new__(cls)  # make instance without calling __init__
-        for key, value in d.items():
-            setattr(obj, key, value)
-            return obj
+        obj.update(d)
+        return obj
     else:
         return d

@@ -104,7 +104,7 @@
   <PropertyGroup Condition=" '$(Configuration)' == 'Python' ">
     <DebugSymbols>true</DebugSymbols>
     <OutputPath>bin\</OutputPath>
-    <ScriptArguments>python=..\sdks\Python -apiSpecPath -buildIdentifier Python_manual</ScriptArguments>
+    <ScriptArguments>python=..\sdks\PythonSdk -apiSpecPath -buildIdentifier PythonSdk_Manual</ScriptArguments>
   </PropertyGroup>
   <PropertyGroup Condition=" '$(Configuration)' == 'UnitySdk' ">
     <DebugSymbols>true</DebugSymbols>
@@ -165,7 +165,7 @@
     <Content Include="SDKBuildScripts\objc_build.bat" />
     <Content Include="SDKBuildScripts\php_build.bat" />
     <Content Include="SDKBuildScripts\postman_build.bat" />
-    <Content Include="SDKBuildScripts\python.bat" />
+    <Content Include="SDKBuildScripts\python_build.bat" />
     <Content Include="SDKBuildScripts\SdkTestingCloudScript_build.bat" />
     <Content Include="SDKBuildScripts\ue4_BP_build.bat" />
     <Content Include="SDKBuildScripts\ue4_CPP_build.bat" />
@@ -491,9 +491,8 @@
     <Content Include="targets\postman\replacements.json" />
     <Content Include="targets\postman\templates\playfab.json.ejs" />
     <Content Include="targets\python\source\source\PlayFabHTTP.py" />
-    <Content Include="targets\python\templates\PlayFabJson.py.ejs" />
+    <Content Include="targets\python\Archive\PlayFabJson.py.ejs" />
     <Content Include="targets\python\source\source\PlayFabSettings.py" />
-    <!--<Content Include="targets\python\templates\playfab.json.ejs" />-->
     <Content Include="targets\SdkTestingCloudScript\templates\CloudScript.d.ts.ejs" />
     <Content Include="targets\SdkTestingCloudScript\templates\Interface.d.ts.ejs" />
     <Content Include="targets\SdkTestingCloudScript\templates\Enum.d.ts.ejs" />
@@ -928,9 +927,6 @@
     <Folder Include="targets\LumberyardSdk\testingTemplate\Code\Tests\" />
     <Folder Include="targets\LumberyardSdk\testingTemplate\Code\" />
     <Folder Include="targets\LumberyardSdk\testingTemplate\Code\Source\" />
-    <Folder Include="targets\python\Archive\" />
-    <Folder Include="targets\python\source\" />
-    <Folder Include="targets\python\source\source\" />
     <Folder Include="targets\XPlatCppSdk\" />
     <Folder Include="targets\newTarget\" />
     <Folder Include="targets\newTarget\source\" />
@@ -941,6 +937,9 @@
     <Folder Include="targets\postman\" />
     <Folder Include="targets\postman\templates\" />
     <Folder Include="targets\python\" />
+    <Folder Include="targets\python\Archive\" />
+    <Folder Include="targets\python\source\" />
+    <Folder Include="targets\python\source\source\" />
     <Folder Include="targets\python\templates\" />
     <Folder Include="targets\SdkTestingCloudScript\" />
     <Folder Include="targets\SdkTestingCloudScript\templates\" />

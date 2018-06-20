@@ -1,10 +1,10 @@
 pushd ..
 if [%1] == [] (
 rem === BUILDING PythonSDK ===
-node generate.js python=..\sdks\PythonSDK -apiSpecGitUrl
+node generate.js pythonsdk=..\sdks\PythonSDK -apiSpecGitUrl
 ) else (
 rem === BUILDING PythonSDK with params %* ===
-node generate.js python=..\sdks\PythonSDK %*
+node generate.js pythonsdk=..\sdks\PythonSDK %*
 )
 popd
 pause

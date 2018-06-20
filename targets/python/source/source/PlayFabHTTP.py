@@ -1,10 +1,9 @@
-# using System.Threading.Tasks;
 from enum import Enum
-import requests
-import PlayFabSettings
 from json import JSONEncoder
 import json
+import PlayFabSettings
 import PlayFabErrors
+import requests
 
 class PlayFabBaseObject():
     pass
@@ -30,7 +29,7 @@ class PlayFabJsonError(Enum):
         errorMessage = ""
         errorDetails = None
 
-class PlayFabJsonSuccess:
+class PlayFabJsonSuccess(Enum):
     def __init__(self):
         code = 0
         status = ""
@@ -40,18 +39,16 @@ def DoPost(urlPath, request, authType, authKey, extraHeaders):
     if PlayFabSettings.TitleId == None:
         raise Exception("You must set your titleId before making an api call")
 
-    url = "" + PlayFabSettings.GetURL() + "" + urlPath
+    url = PlayFabSettings.GetURL(urlPath)
 
-    #j = json.dumps(request.__dict__, cls=PythonObjectEncoder)
     j = json.dumps(request)
 
     requestHeaders = {}
 
     requestHeaders["Content-Type"] = "application/json"
-    #requestHeaders["X-PlayFabSDK"] = PlayFabSettings.SdkVersionString
+    requestHeaders["X-PlayFabSDK"] = PlayFabSettings.SdkVersionString
 
-    for k, v in extraHeaders.items():
-        requestHeaders[k] = extraHeaders[k]
+    requestHeaders.update(extraHeaders)
 
     response = requests.post(url, data=j, headers=requestHeaders)
 

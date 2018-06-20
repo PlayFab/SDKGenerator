@@ -1,20 +1,18 @@
-import PlayFabHTTP
-import PlayFabSettings
 import PlayFabErrors
+import PlayFabHTTP
 import json
+import PlayFabSettings
 
-def noneOrEmpty(str):
-    return str == "" or str == None
-
-<%- generateApiSummary("", api, "description")%><% for(var i in api.calls) { var apiCall = api.calls[i];
+<%- generateApiSummary("", api, "description")%>
+<% for(var i in api.calls) { var apiCall = api.calls[i];
 %><%- generateApiSummary("", apiCall, "summary")
 %><%- getDeprecationAttribute("", apiCall)
-%>def <%- apiCall.name %>Async(request, customData, extraHeaders, postProcessingFunc):
+%>def <%- apiCall.name %>(request, customData, extraHeaders, postProcessingFunc):
 <%- getRequestActions("    ", apiCall) %>
     httpResult = PlayFabHTTP.DoPost("<%- apiCall.url %>", request, <%- getAuthParams(apiCall) %>, extraHeaders)
     if type(httpResult) is PlayFabErrors.PlayFabError:
         error = httpResult
-        postProcessingFunc(error)
+        postProcessingFunc(null, error)
         return error
 
     resultRawJson = httpResult.text
@@ -22,23 +20,18 @@ def noneOrEmpty(str):
     result = resultData
     returnResult = resultData["data"]
 <%- getResultActions("    ", apiCall, api) %>
-    postProcessingFunc(returnResult)
-    return returnResult
+    postProcessingFunc(returnResult, null)
 
-<% } %><% if (authKey) {
+<% } %><% if (hasClientOptions) {
 %># Determine if the client session ticket is set, without actually making it public
 def IsClientLoggedIn():
     return not (ClientSessionTicket == "" or ClientSessionTicket == None)
 
 def MultiStepClientLogin(needsAttribution):
-    if needsAttribution and not PlayFabSettings.DisableAdvertising and not noneOrEmpty(PlayFabSettings.AdvertisingIdType) and not noneOrEmpty(PlayFabSettings.AdvertisingIdValue):
-        request = AttributeInstallRequest()
+    if needsAttribution and not PlayFabSettings.DisableAdvertising and not PlayFabSettings.AdvertisingIdType and not PlayFabSettings.AdvertisingIdValue:
+        request = {}
         if AdvertisingIdType == AD_TYPE_IDFA:
-            request.Idfa = AdvertisingIdValue
+            request["Idfa"] = AdvertisingIdValue
         elif AdvertisingIdType == AD_TYPE_ANDROID_ID:
-            request.Adid = PlayFabSettings.AdvertisingIdValue
-        else:
-            return None
-        return AttributeInstallAsync(request)
-    return None
+            request["Adid"] = PlayFabSettings.AdvertisingIdValue
 <% } %>

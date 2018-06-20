@@ -12,14 +12,14 @@ exports.makeClientAPI2 = function (apis, sourceDir, apiOutputDir) {
         errorList: apis[0].errorList,
         errors: apis[0].errors,
         friendlyName: "PlayFab Python Client Sdk",
-        sdkVersion: exports.sdkVersion,
+        sdkVersion: exports.sdkVersion
     };
 
     // Builds the client api.  The provided "api" variable is a single object, the API_SPECS/client.api.json as an object
     console.log("Generating Client api from: " + sourceDir + " to: " + apiOutputDir);
 
     templatizeTree(locals, path.resolve(sourceDir, "source"), apiOutputDir);
-    //makeDataTypes(apis, sourceDir, apiOutputDir);
+
     for (var i = 0; i < apis.length; i++)
         makeApi(apis[i], sourceDir, apiOutputDir);
     generateSimpleFiles(apis, sourceDir, apiOutputDir);
@@ -34,7 +34,7 @@ exports.makeServerAPI = function (apis, sourceDir, apiOutputDir) {
         errorList: apis[0].errorList,
         errors: apis[0].errors,
         friendlyName: "PlayFab Python Server Sdk",
-        sdkVersion: exports.sdkVersion,
+        sdkVersion: exports.sdkVersion
     };
 
     // Builds the server api.  The provided "apis" variable is a list of objects, built from: API_SPECS/admin.api.json, API_SPECS/matchmaker.api.json, and API_SPECS/server.api.json
@@ -43,13 +43,10 @@ exports.makeServerAPI = function (apis, sourceDir, apiOutputDir) {
     console.log("Generating Server api from: " + sourceDir + " to: " + apiOutputDir);
     templatizeTree(locals, path.resolve(sourceDir, "source"), apiOutputDir); // Copy the whole source directory as-is
 
-    //makeDataTypes(apis, sourceDir, apiOutputDir);
     for(var i=0; i< apis.length; i++)
         makeApi(apis[i], sourceDir, apiOutputDir);
 
     generateSimpleFiles(apis, sourceDir, apiOutputDir);
-
-    //MakeExampleTemplateFile(sourceDir, apiOutputDir);
 }
 
 // generate.js looks for some specific exported functions in make.js, like:
@@ -60,14 +57,13 @@ exports.makeCombinedAPI = function (apis, sourceDir, apiOutputDir) {
         errorList: apis[0].errorList,
         errors: apis[0].errors,
         friendlyName: "PlayFab Python Combined Sdk",
-        sdkVersion: exports.sdkVersion,
+        sdkVersion: exports.sdkVersion
     };
 
     // Builds the client api.  The provided "api" variable is a single object, the API_SPECS/client.api.json as an object
     console.log("Generating Combined Client/Server api from: " + sourceDir + " to: " + apiOutputDir);
 
     templatizeTree(locals, path.resolve(sourceDir, "source"), apiOutputDir);
-    //makeDataTypes(apis, sourceDir, apiOutputDir);
     for (var i = 0; i < apis.length; i++)
         makeApi(apis[i], sourceDir, apiOutputDir);
     generateSimpleFiles(apis, sourceDir, apiOutputDir);
@@ -111,7 +107,6 @@ function makeDataTypes(apis, sourceDir, apiOutputDir) {
             getDeprecationAttribute: getDeprecationAttribute,
             getDefaultValueForType: getDefaultValueForType,
             addInitializeFunction: addInitializeFunction,
-            //commentOutClassesWithoutProperties: commentOutClassesWithoutProperties,
             getJsonSerialization: getJsonSerialization,
             getComparator: getComparator,
         };
@@ -147,7 +142,7 @@ function makeApi(api, sourceDir, apiOutputDir) {
         addInitializeFunction: addInitializeFunction,
         //commentOutClassesWithoutProperties: commentOutClassesWithoutProperties,
         getJsonSerialization: getJsonSerialization,
-        authKey: api.name === "Client"
+        hasClientOptions: api.name === "Client"
     };
 
     var apiTemplate = getCompiledTemplate(path.resolve(sourceDir, "templates/API.py.ejs"));
@@ -173,9 +168,6 @@ function generateSimpleFiles(apis, sourceDir, apiOutputDir) {
         else
             settingsLocals.hasServerOptions = true;
     }
-
-    var utilTemplate = getCompiledTemplate(path.resolve(sourceDir, "templates/PlayFabUtil.py.ejs"));
-    writeFile(path.resolve(apiOutputDir, "source/PlayFabUtil.py"), utilTemplate(settingsLocals));
 }
 
 function getDeprecationAttribute(tabbing, apiObj) {

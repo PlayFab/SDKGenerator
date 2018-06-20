@@ -18,8 +18,7 @@ def unserialize_object(d):
     if clsname:
         cls = classes[clsname]
         obj = cls.__new__(cls)  # make instance without calling __init__
-        for key, value in d.items():
-            setattr(obj, key, value)
-            return obj
+        obj.update(d)
+        return obj
     else:
         return d

@@ -55,6 +55,6 @@ def DoPost(urlPath, request, authType, authKey, extraHeaders):
     response = requests.post(url, data=j, headers=requestHeaders)
 
     if response.status_code != 200:
-        return PlayFabErrors.PlayFabError()
+        return PlayFabErrors.PlayFabError(response.text)
 
     return response

@@ -1,8 +1,7 @@
-import enum
-import datetime
-# import PlayFabInternal # this should eventually contain the classes below
-import PlayFabHTTP
 from json import JSONEncoder
+import datetime
+import enum
+import PlayFabBaseClasses
+import PlayFabHTTP
 
-#class PlayFab<%- api.name %>Models:
 <% for(var d in api.datatypes) { var datatype = api.datatypes[d] %><%- makeDatatype(datatype, api) %><% } %>

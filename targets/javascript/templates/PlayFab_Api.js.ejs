@@ -155,7 +155,7 @@ PlayFab.<%- api.name %>Api = {
             if (callback != null && typeof (callback) == "function")
                 callback(result, error);
         };
-        PlayFab._internalSettings.ExecuteRequest(<%- getUrl(apiCall) %>, request, <%- getAuthParams(apiCall) %>, overloadCallback);<%
+        PlayFab._internalSettings.ExecuteRequest(<%- getUrl(apiCall) %>, request, <%- getAuthParams(apiCall) %>, overloadCallback, customData, extraHeaders);<%
 }else{
 %>        PlayFab._internalSettings.ExecuteRequest(<%- getUrl(apiCall) %>, request, <%- getAuthParams(apiCall) %>, callback, customData, extraHeaders);<% } %>
     },

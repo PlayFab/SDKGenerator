@@ -1,7 +1,9 @@
 #if !DISABLE_PLAYFABCLIENT_API
 using PlayFab.ClientModels;
 using PlayFab.SharedModels;
+using PlayFab.Json;
 using UnityEngine;
+using System.Collections.Generic;
 
 namespace PlayFab.Internal
 {
@@ -31,20 +33,15 @@ namespace PlayFab.Internal
         #endregion Make Attribution API call
 
         #region Scrape Device Info
-        private class DeviceInfoRequest : PlayFabRequestCommon
-        {
-            public PlayFabDataGatherer Info;
-        }
-
         private static void SendDeviceInfoToPlayFab()
         {
             if (PlayFabSettings.DisableDeviceInfo || !_gatherInfo) return;
 
             var request = new DeviceInfoRequest
             {
-                Info = new PlayFabDataGatherer()
+                Info = JsonWrapper.DeserializeObject<Dictionary<string, object>>(JsonWrapper.SerializeObject(new PlayFabDataGatherer()))
             };
-            PlayFabHttp.MakeApiCall<EmptyResult>("/Client/ReportDeviceInfo", request, AuthType.LoginSession, OnGatherSuccess, OnGatherFail);
+            PlayFabClientAPI.ReportDeviceInfo(request, OnGatherSuccess, OnGatherFail);
         }
         private static void OnGatherSuccess(EmptyResult result)
         {

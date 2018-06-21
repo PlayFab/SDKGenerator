@@ -1,10 +1,6 @@
 def serialize_instance(obj):
     d = { '__classname__' : type(obj).__name__ }
     d.update(dir(obj)) 
-    # o = vars(obj.__dict__)
-    # d.update(o) 
-    # d = { '__classname__' : type(obj).__name__, 'vars' : dir(obj) }
-    # d = { '__classname__' : dir(obj) }
     return d
 
 classes = {

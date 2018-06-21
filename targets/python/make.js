@@ -274,17 +274,17 @@ function getRequestActions(tabbing, apiCall) {
 
 function getResultActions(tabbing, apiCall, api) {
     if (apiCall.result === "LoginResult")
-        return tabbing + "returnResult[\"ClientSessionTicket\"] = result[\"data\"][\"SessionTicket\"] or ClientSessionTicket\n"
-            + tabbing + "returnResult[\"EntityToken\"] = result[\"data\"][\"EntityToken\"][\"EntityToken\"] or EntityToken\n"
-            + tabbing + "MultiStepClientLogin(result[\"data\"][\"SettingsForUser\"][\"NeedsAttribution\"])\n";
+        return tabbing + "returnResult[\"ClientSessionTicket\"] = playfabResult[\"SessionTicket\"] or ClientSessionTicket\n"
+            + tabbing + "returnResult[\"EntityToken\"] = playfabResult[\"EntityToken\"][\"EntityToken\"] or EntityToken\n"
+            + tabbing + "MultiStepClientLogin(playfabResult[\"SettingsForUser\"][\"NeedsAttribution\"])\n";
     else if (apiCall.result === "RegisterPlayFabUserResult")
-        return tabbing + "returnResult[\"ClientSessionTicket\"] = result[\"data\"][\"SessionTicket\"] or ClientSessionTicket\n"
-            + tabbing + "MultiStepClientLogin(result[\"data\"][\"SettingsForUser\"][\"NeedsAttribution\"])\n";
+        return tabbing + "returnResult[\"ClientSessionTicket\"] = playfabResult[\"SessionTicket\"] or ClientSessionTicket\n"
+            + tabbing + "MultiStepClientLogin(playfabResult[\"SettingsForUser\"][\"NeedsAttribution\"])\n";
     else if (api.name === "Client" && apiCall.result === "AttributeInstallResult")
         return tabbing + "# Modify AdvertisingIdType:  Prevents us from sending the id multiple times, and allows automated tests to determine id was sent successfully\n"
             + tabbing + "AdvertisingIdType += \"_Successful\"\n";
     else if (apiCall.result === "GetEntityTokenResponse")
-        return tabbing + "returnResult[\"EntityToken\"] = result[\"data\"][\"EntityToken\"][\"EntityToken\"]\n";
+        return tabbing + "returnResult[\"EntityToken\"] = playfabResult[\"EntityToken\"][\"EntityToken\"]\n";
     return "";
 }
 

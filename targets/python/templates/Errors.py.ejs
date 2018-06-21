@@ -20,32 +20,31 @@ class PlayFabError:
             self.Error = ""
             self.ErrorCode = PlayFabErrorCode.Unknown
             self.ErrorMessage = ""
-            self.ErrorDetails = {}# dictionary of string keys and list of strings for values
+            self.ErrorDetails = None# dictionary of string keys and list of strings for values
 
     def fromJson(self, other):
-        o = eval(other._content)
-        self.HttpCode = other.status_code
-        self.HttpStatus = o["status"]
-        self.Error = o["error"]
-        self.ErrorCode = o["errorCode"]
-        self.ErrorMessage = o["errorMessage"]
-        self.ErrorDetails = other.headers
+        self.HttpCode = other["code"]
+        self.HttpStatus = other["status"]
+        self.Error = other["error"]
+        self.ErrorCode = other["errorCode"]
+        self.ErrorMessage = other["errorMessage"]
+        self.ErrorDetails = other.get("errorDetails", None)
 
     def GenerateErrorReport(self):
         str = ""
         if self.ErrorMessage != None:
-            str.append(self.ErrorMessage)
+            str = self.ErrorMessage
         if self.ErrorDetails == None:
             return str
 
         for pair in self.ErrorDetails:
             for eachMsg in pair.Value: # we want to loop through each item in the dictionary here
-                str.append(pair.Key).append(": ").append(eachMsg)
+                str += "{}: {}".format(pair.Key, eachMsg)
 
         return str
 
     def __str__(self):
-        return "Error: {}".format(self.ErrorMessage)
+        return self.GenerateErrorReport()
 
 class PlayFabException(Exception):
 

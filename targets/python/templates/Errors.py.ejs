@@ -10,12 +10,26 @@ class PlayFabErrorCode(Enum):
     <% } %><% var errorProps = errors[errorList[errorList.length-1]] %><%- errorProps.name %> = <%- errorProps.id %>
 
 class PlayFabError:
-    def __init__(self, errorMessage):
-        self.HttpCode = 0
-        self.HttpStatus = ""
-        self.Error = PlayFabErrorCode.Unknown # PlayFabError enum
-        self.ErrorMessage = errorMessage
-        self.ErrorDetails = {} # dictionary of string keys and list of strings for values
+
+    def __init__(self, *args):
+        if len(args) == 1:
+            self.fromJson(args[0])
+        else:
+            self.HttpCode = 0
+            self.HttpStatus = ""
+            self.Error = ""
+            self.ErrorCode = PlayFabErrorCode.Unknown
+            self.ErrorMessage = ""
+            self.ErrorDetails = {}# dictionary of string keys and list of strings for values
+
+    def fromJson(self, other):
+        o = eval(other._content)
+        self.HttpCode = other.status_code
+        self.HttpStatus = o["status"]
+        self.Error = o["error"]
+        self.ErrorCode = o["errorCode"]
+        self.ErrorMessage = o["errorMessage"]
+        self.ErrorDetails = other.headers
 
     def GenerateErrorReport(self):
         str = ""

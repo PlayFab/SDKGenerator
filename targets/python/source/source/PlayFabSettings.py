@@ -6,6 +6,7 @@ DeveloperSecretKey = None # You must set this value for PlayFabSdk to work prope
 ClientSessionTicket = None # This is set
 SdkVersionString = "PythonSdk-<%- sdkVersion %>";
 SdkVersionString = ""
+DefaultTitleId = "defaultTitleId"
 
 # Client specifics
 AdvertisingIdType = "" # Set this to the appropriate AD_TYPE_X constant below
@@ -19,7 +20,17 @@ AD_TYPE_ANDROID_ID = "Adid"
 
 def GetURL(methodUrl):
     baseUrl = ProductionEnvironmentURL
-    url = "{}{}{}{}".format("https://", TitleId ,baseUrl, methodUrl)
+
     if baseUrl.find("http") == 0:
         return baseUrl
-    return url
+
+    title = ""
+
+    if not TitleId:
+        title = DefaultTitleId
+    else:
+        title = TitleId
+
+    url = "https://{titleId}{url}".format(titleId = title, url=baseUrl)
+
+    return "{}{}".format(url, methodUrl)

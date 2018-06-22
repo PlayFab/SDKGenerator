@@ -6,7 +6,7 @@ import requests
 # Note this is a blocking call and will always run synchronously
 # the return type is a dictionary that should contain a valid dictionary that should reflect the expected JSON response
 # if the call fails, there will be a returned PlayFabError
-def DoPost(urlPath, request, authKey, authVal, extraHeaders):
+def DoPost(urlPath, request, authKey, authVal, extraHeaders, callback):
     url = PlayFabSettings.GetURL(urlPath)
 
     try:
@@ -40,4 +40,21 @@ def DoPost(urlPath, request, authKey, authVal, extraHeaders):
     if resp["code"] != 200:
         return PlayFabErrors.PlayFabError(resp)
 
-    return resp["data"]
+    data = resp["data"]
+
+    if type(data) is PlayFabErrors.PlayFabError:
+        error = data
+
+        if PlayFabSettings.GlobalErrorHandler:
+            try:
+                PlayFabSettings.GlobalErrorHandler(error)
+            except:
+                raise PlayFabErrors.PlayFabException("GlobalErrorHandler failed")
+
+        try:
+            callback(None, error)
+            return
+        except:
+            raise PlayFabErrors.PlayFabException("Response error after callback function {} failed".format(callback.__name__))
+
+    return data

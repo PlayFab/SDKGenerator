@@ -274,17 +274,17 @@ function getRequestActions(tabbing, apiCall) {
 
 function getResultActions(tabbing, apiCall, api) {
     if (apiCall.result === "LoginResult")
-        return tabbing + "PlayFabSettings.ClientSessionTicket = playfabResult[\"SessionTicket\"] or PlayFabSettings.ClientSessionTicket\n"
-            + tabbing + "PlayFabSettings.EntityToken = playfabResult[\"EntityToken\"][\"EntityToken\"] or PlayFabSettings.EntityToken\n"
-            + tabbing + "MultiStepClientLogin(playfabResult[\"SettingsForUser\"])\n";
+        return tabbing + "PlayFabSettings.ClientSessionTicket = playFabResult[\"SessionTicket\"] or PlayFabSettings.ClientSessionTicket\n"
+            + tabbing + "PlayFabSettings.EntityToken = playFabResult[\"EntityToken\"][\"EntityToken\"] or PlayFabSettings.EntityToken\n"
+            + tabbing + "MultiStepClientLogin(playFabResult[\"SettingsForUser\"])\n";
     else if (apiCall.result === "RegisterPlayFabUserResult")
-        return tabbing + "PlayFabSettings.ClientSessionTicket = playfabResult[\"SessionTicket\"] or PlayFabSettings.ClientSessionTicket\n"
-            + tabbing + "MultiStepClientLogin(playfabResult[\"SettingsForUser\"])\n";
+        return tabbing + "PlayFabSettings.ClientSessionTicket = playFabResult[\"SessionTicket\"] or PlayFabSettings.ClientSessionTicket\n"
+            + tabbing + "MultiStepClientLogin(playFabResult[\"SettingsForUser\"])\n";
     else if (api.name === "Client" && apiCall.result === "AttributeInstallResult")
         return tabbing + "# Modify AdvertisingIdType:  Prevents us from sending the id multiple times, and allows automated tests to determine id was sent successfully\n"
             + tabbing + "AdvertisingIdType += \"_Successful\"\n";
     else if (apiCall.result === "GetEntityTokenResponse")
-        return tabbing + "PlayFabSettings.EntityToken = playfabResult[\"EntityToken\"] or PlayFabSettings.EntityToken\n";
+        return tabbing + "PlayFabSettings.EntityToken = playFabResult[\"EntityToken\"] or PlayFabSettings.EntityToken\n";
     return "";
 }
 

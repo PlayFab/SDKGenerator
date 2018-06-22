@@ -4,7 +4,6 @@ var path = require("path");
 if (typeof (templatizeTree) === "undefined") templatizeTree = function () { };
 if (typeof (getCompiledTemplate) === "undefined") getCompiledTemplate = function () { };
 
-// generate.js looks for some specific exported functions in make.js, like:
 exports.makeClientAPI2 = function (apis, sourceDir, apiOutputDir) {
     var locals = {
         apis: apis,
@@ -26,7 +25,6 @@ exports.makeClientAPI2 = function (apis, sourceDir, apiOutputDir) {
 }
 
 
-// generate.js looks for some specific exported functions in make.js, like:
 exports.makeServerAPI = function (apis, sourceDir, apiOutputDir) {
     var locals = {
         apis: apis,
@@ -37,9 +35,6 @@ exports.makeServerAPI = function (apis, sourceDir, apiOutputDir) {
         sdkVersion: exports.sdkVersion
     };
 
-    // Builds the server api.  The provided "apis" variable is a list of objects, built from: API_SPECS/admin.api.json, API_SPECS/matchmaker.api.json, and API_SPECS/server.api.json
-    // If you don't want admin, you should filter it out yourself (for now)
-
     console.log("Generating Server api from: " + sourceDir + " to: " + apiOutputDir);
     templatizeTree(locals, path.resolve(sourceDir, "source"), apiOutputDir); // Copy the whole source directory as-is
 
@@ -49,7 +44,6 @@ exports.makeServerAPI = function (apis, sourceDir, apiOutputDir) {
     generateSimpleFiles(apis, sourceDir, apiOutputDir);
 }
 
-// generate.js looks for some specific exported functions in make.js, like:
 exports.makeCombinedAPI = function (apis, sourceDir, apiOutputDir) {
     var locals = {
         apis: apis,
@@ -60,7 +54,6 @@ exports.makeCombinedAPI = function (apis, sourceDir, apiOutputDir) {
         sdkVersion: exports.sdkVersion
     };
 
-    // Builds the client api.  The provided "api" variable is a single object, the API_SPECS/client.api.json as an object
     console.log("Generating Combined Client/Server api from: " + sourceDir + " to: " + apiOutputDir);
 
     templatizeTree(locals, path.resolve(sourceDir, "source"), apiOutputDir);
@@ -282,7 +275,7 @@ function getResultActions(tabbing, apiCall, api) {
             + tabbing + "MultiStepClientLogin(playFabResult[\"SettingsForUser\"])\n";
     else if (api.name === "Client" && apiCall.result === "AttributeInstallResult")
         return tabbing + "# Modify AdvertisingIdType:  Prevents us from sending the id multiple times, and allows automated tests to determine id was sent successfully\n"
-            + tabbing + "AdvertisingIdType += \"_Successful\"\n";
+            + tabbing + "PlayFabSettings.AdvertisingIdType += \"_Successful\"\n";
     else if (apiCall.result === "GetEntityTokenResponse")
         return tabbing + "PlayFabSettings.EntityToken = playFabResult[\"EntityToken\"] or PlayFabSettings.EntityToken\n";
     return "";

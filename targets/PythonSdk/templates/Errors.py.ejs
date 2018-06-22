@@ -17,11 +17,11 @@ class PlayFabError:
             self.fromJson(args[0])
         else:
             self.HttpCode = 0
-            self.HttpStatus = ""
-            self.Error = ""
-            self.ErrorCode = PlayFabErrorCode.Unknown
-            self.ErrorMessage = ""
-            self.ErrorDetails = None# dictionary of string keys and list of strings for values
+            self.HttpStatus = "Request Timeout"
+            self.Error = "ServiceUnavailable"
+            self.ErrorCode = PlayFabErrorCode.ServiceUnavailable
+            self.ErrorMessage = "Unable to contact PlayFab server"
+            self.ErrorDetails = None # dictionary of string keys and list of strings for values
 
     def fromJson(self, other):
         self.HttpCode = other["code"]

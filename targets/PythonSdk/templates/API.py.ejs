@@ -1,6 +1,6 @@
+import json
 import PlayFabErrors
 import PlayFabHTTP
-import json
 import PlayFabSettings
 
 <%- generateApiSummary("", api, "description")%>
@@ -18,7 +18,7 @@ import PlayFabSettings
 <% } %><% if (hasClientOptions) {
 %># Determine if the client session ticket is set, without actually making it public
 def IsClientLoggedIn():
-    return bool(PlayFabSettings.ClientSessionTicket)
+    return bool(PlayFabSettings._internalSettings.ClientSessionTicket)
 
 def MultiStepClientLogin(settingsForUser):
     disabledAds = PlayFabSettings.DisableAdvertising

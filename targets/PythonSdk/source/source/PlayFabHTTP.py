@@ -21,48 +21,48 @@ def DoPost(urlPath, request, authKey, authVal, extraHeaders, callback):
         requestHeaders.update(extraHeaders)
 
     requestHeaders["Content-Type"] = "application/json"
-    requestHeaders["X-PlayFabSDK"] = PlayFabSettings.SdkVersionString
+    requestHeaders["X-PlayFabSDK"] = PlayFabSettings._internalSettings.SdkVersionString
     requestHeaders["X-ReportErrorAsSuccess"] = "true" # Makes processing PlayFab errors a little easier
 
     if authKey:
         requestHeaders[authKey] = authVal
 
-    response = requests.post(url, data=j, headers=requestHeaders)
+    httpResponse = requests.post(url, data=j, headers=requestHeaders)
 
-    if response.status_code != 200:
-        newError = PlayFabErrors.PlayFabError()
-        newError.code = response.status_code
-        newError.errorCode = PlayFabErrors.PlayFabErrorCode.ServiceUnavailable
-        newError.errorMessage = "HTTP request never reached Playfab server"
-        return  newError
+    error = response = None
 
-    resp = json.loads(response.content.decode("utf-8"))
+    if httpResponse.status_code != 200:
+        # Failed to contact PlayFab Case
+        error = PlayFabErrors.PlayFabError()
+        error.code = response.status_code
+        error.errorCode = PlayFabErrors.PlayFabErrorCode.ServiceUnavailable
+        error.errorMessage = "HTTP request never reached Playfab server"
+    else:
+        # Contacted playfab
+        responseWrapper = json.loads(httpResponse.content.decode("utf-8"))
+        if responseWrapper["code"] != 200:
+            # contacted PlayFab, but response indicated failure
+            error = responseWrapper 
+        else:
+            # successful call to PlayFab
+            response = responseWrapper["data"]
 
-    if resp["code"] != 200:
-        return PlayFabErrors.PlayFabError(resp)
-
-    data = resp["data"]
-
-    if type(data) is PlayFabErrors.PlayFabError:
-        error = data
-
+    if error:
         callGlobalErrorHandler(error)
 
         try:
-            callback(None, error)
-            return
-        except:
-            raise PlayFabErrors.PlayFabException("HTTP Response returned an error after callback function failed")
-
-    try:
-        callback(data, None)
-    except:
-        callGlobalErrorHandler(error)
-        raise PlayFabErrors.PlayFabException("Successful callback failed")
+            callback(None, error) # Notify the caller about an API Call failure
+        except Exception as e:
+            PlayFabSettings.GlobalExceptionLogger(e) # Global notification about exception in caller's callback
+    elif response:
+        try:
+            callback(response, None) # Notify the caller about an API Call success
+        except Exception as e:
+            PlayFabSettings.GlobalExceptionLogger(e) # Global notification about exception in caller's callback
 
 def callGlobalErrorHandler(error):
     if PlayFabSettings.GlobalErrorHandler:
         try:
-            PlayFabSettings.GlobalErrorHandler(error)
+            PlayFabSettings.GlobalErrorHandler(error) # Global notification about an API Call failure
         except:
-            raise PlayFabErrors.PlayFabException("Custom PlayFabSettings.GlobalErrorHandler failed execution")
+            PlayFabSettings.GlobalExceptionLogger(e) # Global notification about exception in caller's callback

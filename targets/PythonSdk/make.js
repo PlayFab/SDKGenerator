@@ -239,45 +239,56 @@ function getAuthParams(apiCall) {
     if (apiCall.url === "/Authentication/GetEntityToken")
         return "authKey, authValue";
     if (apiCall.auth === "EntityToken")
-        return "\"X-EntityToken\", PlayFabSettings.EntityToken";
+        return "\"X-EntityToken\", PlayFabSettings._internalSettings.EntityToken";
     if (apiCall.auth === "SecretKey")
         return "\"X-SecretKey\", PlayFabSettings.DeveloperSecretKey";
     else if (apiCall.auth === "SessionTicket")
-        return "\"X-Authorization\", PlayFabSettings.ClientSessionTicket";
+        return "\"X-Authorization\", PlayFabSettings._internalSettings.ClientSessionTicket";
     return "None, None";
 }
 
 function getRequestActions(tabbing, apiCall) {
     if (apiCall.result === "LoginResult" || apiCall.request === "RegisterPlayFabUserRequest")
         return tabbing + "request[\"TitleId\"] = PlayFabSettings.TitleId or request.TitleId\n"
-            + tabbing + "if not request[\"TitleId\"]:\n"+tabbing+"    raise PlayFabErrors.PlayFabException(PlayFabErrors.PlayFabErrorCode.TitleNotSet, \"Must be have TitleId set to call this method\")\n";
+            + tabbing + "if not request[\"TitleId\"]:\n"
+            + tabbing + "    raise PlayFabErrors.PlayFabException(\"Must be have TitleId set to call this method\")\n";
     if (apiCall.auth === "EntityToken")
-        return tabbing + "if not PlayFabSettings.EntityToken:\n "+tabbing+"    raise PlayFabErrors.PlayFabException(PlayFabErrors.PlayFabErrorCode.EntityTokenNotSet, \"Must call GetEntityToken before calling this method\")\n";
+        return tabbing + "if not PlayFabSettings._internalSettings.EntityToken:\n "
+            + tabbing + "    raise PlayFabErrors.PlayFabException(\"Must call GetEntityToken before calling this method\")\n";
     if (apiCall.auth === "SessionTicket")
-        return tabbing + "if not PlayFabSettings.ClientSessionTicket:\n"+tabbing+"    raise PlayFabErrors.PlayFabException(PlayFabErrors.PlayFabErrorCode.NotLoggedIn, \"Must be logged in to call this method\")\n";
+        return tabbing + "if not PlayFabSettings._internalSettings.ClientSessionTicket:\n"
+            + tabbing + "    raise PlayFabErrors.PlayFabException(\"Must be logged in to call this method\")\n";
     if (apiCall.auth === "SecretKey")
-        return tabbing + "if not PlayFabSettings.DeveloperSecretKey:\n"+tabbing+"    raise PlayFabErrors.PlayFabException(PlayFabErrors.PlayFabErrorCode.DeveloperKeyNotSet, \"Must have DeveloperSecretKey set to call this method\")\n";
+        return tabbing + "if not PlayFabSettings.DeveloperSecretKey:\n"
+            + tabbing + "    raise PlayFabErrors.PlayFabException(\"Must have DeveloperSecretKey set to call this method\")\n";
     if (apiCall.url === "/Authentication/GetEntityToken")
-        return tabbing + "authKey = None\n" + tabbing + "authValue = None\n"
-            + tabbing + "if PlayFabSettings.EntityToken:\n" + tabbing + "    authKey = \"X-EntityToken\"\n" + tabbing + "    authValue = PlayFabSettings.EntityToken\n"
-            + tabbing + "elif PlayFabSettings.ClientSessionTicket:\n" + tabbing + "    authKey = \"X-Authorization\"\n" + tabbing + "    authValue = PlayFabSettings.ClientSessionTicket \n"
-            + tabbing + "elif PlayFabSettings.DeveloperSecretKey:\n" + tabbing + "    authKey = \"X-SecretKey\"\n" + tabbing + "    authValue = PlayFabSettings.DeveloperSecretKey \n";
+        return tabbing + "authKey = None\n"
+            + tabbing + "authValue = None\n"
+            + tabbing + "if PlayFabSettings._internalSettings.EntityToken:\n"
+            + tabbing + "    authKey = \"X-EntityToken\"\n"
+            + tabbing + "    authValue = PlayFabSettings._internalSettings.EntityToken\n"
+            + tabbing + "elif PlayFabSettings._internalSettings.ClientSessionTicket:\n"
+            + tabbing + "    authKey = \"X-Authorization\"\n"
+            + tabbing + "    authValue = PlayFabSettings._internalSettings.ClientSessionTicket \n"
+            + tabbing + "elif PlayFabSettings.DeveloperSecretKey:\n"
+            + tabbing + "    authKey = \"X-SecretKey\"\n"
+            + tabbing + "    authValue = PlayFabSettings.DeveloperSecretKey \n";
     return "";
 }
 
 function getResultActions(tabbing, apiCall, api) {
     if (apiCall.result === "LoginResult")
-        return tabbing + "PlayFabSettings.ClientSessionTicket = playFabResult[\"SessionTicket\"] or PlayFabSettings.ClientSessionTicket\n"
-            + tabbing + "PlayFabSettings.EntityToken = playFabResult[\"EntityToken\"][\"EntityToken\"] or PlayFabSettings.EntityToken\n"
+        return tabbing + "PlayFabSettings._internalSettings.ClientSessionTicket = playFabResult[\"SessionTicket\"] or PlayFabSettings._internalSettings.ClientSessionTicket\n"
+            + tabbing + "PlayFabSettings._internalSettings.EntityToken = playFabResult[\"EntityToken\"][\"EntityToken\"] or PlayFabSettings._internalSettings.EntityToken\n"
             + tabbing + "MultiStepClientLogin(playFabResult[\"SettingsForUser\"])\n";
     else if (apiCall.result === "RegisterPlayFabUserResult")
-        return tabbing + "PlayFabSettings.ClientSessionTicket = playFabResult[\"SessionTicket\"] or PlayFabSettings.ClientSessionTicket\n"
+        return tabbing + "PlayFabSettings._internalSettings.ClientSessionTicket = playFabResult[\"SessionTicket\"] or PlayFabSettings._internalSettings.ClientSessionTicket\n"
             + tabbing + "MultiStepClientLogin(playFabResult[\"SettingsForUser\"])\n";
     else if (api.name === "Client" && apiCall.result === "AttributeInstallResult")
         return tabbing + "# Modify AdvertisingIdType:  Prevents us from sending the id multiple times, and allows automated tests to determine id was sent successfully\n"
             + tabbing + "PlayFabSettings.AdvertisingIdType += \"_Successful\"\n";
     else if (apiCall.result === "GetEntityTokenResponse")
-        return tabbing + "PlayFabSettings.EntityToken = playFabResult[\"EntityToken\"] or PlayFabSettings.EntityToken\n";
+        return tabbing + "PlayFabSettings._internalSettings.EntityToken = playFabResult[\"EntityToken\"] or PlayFabSettings._internalSettings.EntityToken\n";
     return "";
 }
 

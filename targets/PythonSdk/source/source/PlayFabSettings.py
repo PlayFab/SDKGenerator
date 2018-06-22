@@ -1,14 +1,12 @@
 import PlayFabErrors
+import sys
+import traceback
 
 ProductionEnvironmentURL = "https://{titleId}.playfabapi.com{methodUrl}"
 TitleId = "" # You must set this value for PlayFabSdk to work properly (Found in the Game
              # Manager for your title, at the PlayFab Website)
-GlobalErrorHandler = None
-EntityToken = None # Internal variable used for Entity API Access (basically Entity Login)
 DeveloperSecretKey = None # You must set this value for PlayFabSdk to work properly (Found in the Game
                           # Manager for your title, at the PlayFab Website)
-ClientSessionTicket = None # This is set
-SdkVersionString = "PythonSdk-<%- sdkVersion %>"
 
 # Client specifics
 AdvertisingIdType = "" # Set this to the appropriate AD_TYPE_X constant below
@@ -22,6 +20,15 @@ DisableAdvertising = False
 AD_TYPE_IDFA = "Idfa"
 AD_TYPE_ANDROID_ID = "Adid"
 
+class InternalSettings:
+    pass
+
+_internalSettings = InternalSettings()
+
+_internalSettings.EntityToken = None
+_internalSettings.ClientSessionTicket = None
+_internalSettings.SdkVersionString = "PythonSdk-<%- sdkVersion %>"
+
 def GetURL(methodUrl):
     if not TitleId:
         raise PlayFabErrors.PlayFabException("You must set PlayFabSettings.TitleId before making an API call")
@@ -29,3 +36,10 @@ def GetURL(methodUrl):
     url = ProductionEnvironmentURL.format(titleId = TitleId, methodUrl=methodUrl)
 
     return url
+
+def DefaultExceptionLogger(exceptionObj):
+    print("Unexpected error:", sys.exc_info()[0])
+    traceback.print_exc()
+
+GlobalErrorHandler = None
+GlobalExceptionLogger = DefaultExceptionLogger

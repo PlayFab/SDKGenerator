@@ -38,9 +38,9 @@ class PlayFabError:
         if self.ErrorDetails == None:
             return str
 
-        for pair in self.ErrorDetails:
-            for eachMsg in pair.Value: # we want to loop through each item in the dictionary here
-                str += "{}: {}".format(pair.Key, eachMsg)
+        for i in self.ErrorDetails.items():
+            # for eachMsg in val: # we want to loop through each item in the dictionary here
+            str += "{}".format(i)
 
         return str
 

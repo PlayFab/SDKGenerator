@@ -4,10 +4,11 @@ import PlayFabSettings
 import PlayFabEntityAPI
 import PlayFabServerAPI
 import PlayFabClientAPI
+import PlayFabManualTestSettings
 
-PlayFabSettings.TitleId = "9D63"
-PlayFabSettings.SdkVersionString = "4"
-customId = "8fa79815413d472d"
+PlayFabSettings.TitleId = PlayFabManualTestSettings.TitleId
+PlayFabSettings.SdkVersionString = PlayFabManualTestSettings.SdkVersionString
+customId = PlayFabManualTestSettings.customId
 
 request = {}
 
@@ -25,9 +26,6 @@ def loginCallback(success, fail):
     else:
         print(success)
 
-#loop = asyncio.get_event_loop()  
-#loop.run_until_complete(PlayFabClientAPI.LoginWithCustomIDAsync(request, customData, extraHeaders))  
-#loop.close()  
 PlayFabClientAPI.LoginWithCustomID(request, loginCallback, customData, extraHeaders)
 
 def entityTokenCallback(success, fail):

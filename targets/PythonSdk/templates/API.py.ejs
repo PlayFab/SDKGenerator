@@ -9,12 +9,11 @@ import PlayFabSettings
 %><%- getDeprecationAttribute("", apiCall)
 %>def <%- apiCall.name %>(request, callback, customData = None, extraHeaders = None):
 <%- getRequestActions("    ", apiCall) %>
-    playFabResult = PlayFabHTTP.DoPost("<%- apiCall.url %>", request, <%- getAuthParams(apiCall) %>, extraHeaders, callback)
-<%- getResultActions("    ", apiCall, api) %>
-    try:
-        callback(playFabResult, None)
-    except:
-        raise PlayFabErrors.PlayFabException("Callback function {} for <%- apiCall.name %> failed".format(callback.__name__))
+    def wrappedCallback(playFabResult, error):
+<%- getResultActions("        ", apiCall, api) %>
+        callback(playFabResult, error)
+
+    PlayFabHTTP.DoPost("<%- apiCall.url %>", request, <%- getAuthParams(apiCall) %>, extraHeaders, wrappedCallback)
 
 <% } %><% if (hasClientOptions) {
 %># Determine if the client session ticket is set, without actually making it public

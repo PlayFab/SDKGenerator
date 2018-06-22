@@ -45,16 +45,23 @@ def DoPost(urlPath, request, authKey, authVal, extraHeaders, callback):
     if type(data) is PlayFabErrors.PlayFabError:
         error = data
 
-        if PlayFabSettings.GlobalErrorHandler:
-            try:
-                PlayFabSettings.GlobalErrorHandler(error)
-            except:
-                raise PlayFabErrors.PlayFabException("GlobalErrorHandler failed")
+        callGlobalErrorHandler(error)
 
         try:
             callback(None, error)
             return
         except:
-            raise PlayFabErrors.PlayFabException("Response error after callback function {} failed".format(callback.__name__))
+            raise PlayFabErrors.PlayFabException("HTTP Response returned an error after callback function failed")
 
-    return data
+    try:
+        callback(data, None)
+    except:
+        callGlobalErrorHandler(error)
+        raise PlayFabErrors.PlayFabException("Successful callback failed")
+
+def callGlobalErrorHandler(error):
+    if PlayFabSettings.GlobalErrorHandler:
+        try:
+            PlayFabSettings.GlobalErrorHandler(error)
+        except:
+            raise PlayFabErrors.PlayFabException("Custom PlayFabSettings.GlobalErrorHandler failed execution")

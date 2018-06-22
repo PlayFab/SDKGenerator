@@ -36,7 +36,7 @@ exports.makeServerAPI = function (apis, sourceDir, apiOutputDir) {
     };
 
     console.log("Generating Server api from: " + sourceDir + " to: " + apiOutputDir);
-    templatizeTree(locals, path.resolve(sourceDir, "source"), apiOutputDir); // Copy the whole source directory as-is
+    templatizeTree(locals, path.resolve(sourceDir, "source"), apiOutputDir);
 
     for(var i=0; i< apis.length; i++)
         makeApi(apis[i], sourceDir, apiOutputDir);

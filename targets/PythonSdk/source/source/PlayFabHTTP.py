@@ -4,7 +4,8 @@ import PlayFabErrors
 import requests
 
 # Note this is a blocking call and will always run synchronously
-# the return type is a dictionary that should contain a valid dictionary that should reflect the expected JSON response
+# the return type is a dictionary that should contain a valid dictionary that
+# should reflect the expected JSON response
 # if the call fails, there will be a returned PlayFabError
 def DoPost(urlPath, request, authKey, authVal, extraHeaders, callback):
     url = PlayFabSettings.GetURL(urlPath)
@@ -21,7 +22,7 @@ def DoPost(urlPath, request, authKey, authVal, extraHeaders, callback):
 
     requestHeaders["Content-Type"] = "application/json"
     requestHeaders["X-PlayFabSDK"] = PlayFabSettings.SdkVersionString
-    requestHeaders["X-ReportErrorAsSuccess"] = "true"; # Makes processing PlayFab errors a little easier
+    requestHeaders["X-ReportErrorAsSuccess"] = "true" # Makes processing PlayFab errors a little easier
 
     if authKey:
         requestHeaders[authKey] = authVal

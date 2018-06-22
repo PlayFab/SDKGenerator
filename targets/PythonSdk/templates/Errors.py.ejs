@@ -11,6 +11,7 @@ class PlayFabErrorCode(Enum):
 
 class PlayFabError:
 
+    # the first args item is expected to be a valid dictionary
     def __init__(self, *args):
         if len(args) == 1:
             self.fromJson(args[0])
@@ -47,14 +48,5 @@ class PlayFabError:
         return self.GenerateErrorReport()
 
 class PlayFabException(Exception):
-
-    def __init__(self, code, message):
-        super().__init__(self, message)
-        self.Code = code
-
-class PlayFabExceptionCode(Enum):
-    DeveloperKeyNotSet = 0
-    EntityTokenNotSet = 1
-    NotLoggedIn = 2
-    TitleNotSet = 3
+    pass
 

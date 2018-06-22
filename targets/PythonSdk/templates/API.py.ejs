@@ -1,0 +1,51 @@
+import PlayFabErrors
+import PlayFabHTTP
+import json
+import PlayFabSettings
+
+<%- generateApiSummary("", api, "description")%>
+<% for(var i in api.calls) { var apiCall = api.calls[i];
+%><%- generateApiSummary("", apiCall, "summary")
+%><%- getDeprecationAttribute("", apiCall)
+%>def <%- apiCall.name %>(request, callback, customData = None, extraHeaders = None):
+<%- getRequestActions("    ", apiCall) %>
+    playfabResult = PlayFabHTTP.DoPost("<%- apiCall.url %>", request, <%- getAuthParams(apiCall) %>, extraHeaders)
+    if type(playfabResult) is PlayFabErrors.PlayFabError:
+        error = playfabResult
+
+        if PlayFabSettings.GlobalErrorHandler:
+            try:
+                PlayFabSettings.GlobalErrorHandler(error)
+            except:
+                raise PlayFabErrors.PlayFabException("GlobalErrorHandler failed")
+
+        try:
+            callback(None, error)
+            return
+        except:
+            raise PlayFabErrors.PlayFabException("Response error after Callback function for <%- apiCall.name %> failed")
+
+    returnResult = playfabResult
+<%- getResultActions("    ", apiCall, api) %>
+    try:
+        callback(returnResult, None)
+    except e:
+        raise PlayFabErrors.PlayFabException("Callback function for <% apiCall.name %> failed")
+
+<% } %><% if (hasClientOptions) {
+%># Determine if the client session ticket is set, without actually making it public
+def IsClientLoggedIn():
+    return bool(PlayFabSettings.ClientSessionTicket)
+
+def MultiStepClientLogin(settingsForUser):
+    disabledAds = PlayFabSettings.DisableAdvertising
+    adIdType = PlayFabSettings.AdvertisingIdType
+    adIdVal = PlayFabSettings.AdvertisingIdValue
+
+    if settingsForUser["NeedsAttribution"] and not disabledAds and adIdType and adIdVal:
+        request = {}
+        if AdvertisingIdType == AD_TYPE_IDFA:
+            request["Idfa"] = AdvertisingIdValue
+        elif AdvertisingIdType == AD_TYPE_ANDROID_ID:
+            request["Adid"] = PlayFabSettings.AdvertisingIdValue
+<% } %>

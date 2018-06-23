@@ -14,7 +14,6 @@ exports.makeClientAPI2 = function (apis, sourceDir, apiOutputDir) {
         sdkVersion: exports.sdkVersion
     };
 
-    // Builds the client api.  The provided "api" variable is a single object, the API_SPECS/client.api.json as an object
     console.log("Generating Client api from: " + sourceDir + " to: " + apiOutputDir);
 
     templatizeTree(locals, path.resolve(sourceDir, "source"), apiOutputDir);

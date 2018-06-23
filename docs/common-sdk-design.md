@@ -12,7 +12,6 @@ There is nothing fundamentally wrong with current PlayFab SDKs and the SDK gener
     * Use an alternative service platform (e.g. a different data ingestion system)
     * Use a different network transport/protocol (unless already built in the SDK)
     * Use different elements of data processing stack on the client side (e.g. specific data formatting, serialization, compression, encryption)
-    * Use alternative client-side API
 *  No diversity in available solutions (beside a single SDK (per client platform) and REST API) that would allow a wider spectrum of integration options with PlayFab services (think of a "marketplace" of various solutions created by PlayFab and third parties, that would allow users to choose the breadth and the depth of interaction with PlayFab platform)
 
 ## Solution
@@ -28,19 +27,34 @@ Many limitations listed above can be addressed by a set of improvements in SDKs 
     * SDKs are not directly downloaded from a single designated git repo as one-for-all content anymore. Instead, they become customer-specific content that can be personally designed from plugins, configured, packaged and then downloaded by user.
     * The SDK generation consists of two separate processes:
         * _Plugin Generator_ (similar to the current SDK Generator but generates plugins instead of whole SDKs. Each plugin is stored in its own git repo (similarly as a whole SDK now))
-        * _Common SDK Builder_ (with user's SDK configuration as an input it assembles a custom SDK from plugins, generates some "gluing" code that allows plugins to interoperate, packages it up as a complete SDK with source code and project files and prepares it as downloadable content for user)
+        * _Common SDK Builder_ (with user's SDK configuration as input it assembles a custom SDK from plugins, generates some "gluing" code that allows plugins to interoperate, packages it up in a complete SDK with source code, assets and project files and prepares it as downloadable content for user)
     * An existing PlayFab SDK is split into multiple plugins, e.g. the "API layer" and the "data sender" (network transport client) (granularity is TBD, it can be an evolving process that may later add plugins for data batching, encryption, compression, logging, etc)
     * Custom plugins can be authored by third parties and are stored in individual git repos (similar to PlayFab's plugins)
     * Each plugin has identification and dependencies metadata
 
 * Additional systems and services:
     * Registry of plugins (a maintainable/curated list of repos with supported plugins). This is used by the Common SDK Builder.
-    * UX (e.g. a web page) that allows a customer to build, configure and download an SDK assembled from plugins
-    * UX and a process that allows a customer to register their custom plugins
-    * UX and a process to maintain a "marketplace" of available plugins accessible to customers
+    * UX (e.g. a web page) that allows a customer to build, configure and download an SDK assembled from plugins (out of scope of this spec)
+    * UX and a process that allows a customer to register their custom plugins (out of scope of this spec)
+    * UX and a process to maintain a "marketplace" of available plugins accessible to customers (out of scope of this spec)
 
 * Additional offerings:
     * Common SDK Builder can potentially be productized as a library available for distrubutuion - a tool that would allow customers to generate SDKs on the fly in their automation processes.
+
+### Why not just provide interfaces for some SDK parts that customers could implement?
+For languages and platforms that support interfaces or base classes the Common SDK infrastructure will provide a similar experience (a custom plugin will likely be implementing some interface so that other plugins can effectively interact with it), but with additional benefits:
+* Discoverability of a custom implementation due to metadata (plugin descriptor):
+    * Ability for the custom code to be identified and handled by the whole PlayFab system (tools, processes, UX) rather than just a specific SDK platform or programming language
+    * Sharing or monetization: ability to register a custom implementation with PlayFab and be found/used by other customers
+    * Versioning and compatibility
+    * Dependency declaration
+* Single (e.g. web) UX to assemble and configure an SDK regardless of the target platform or programming language
+* Zero-code SDK composition (won't require customers to make any code modifications manually to use a custom implementation)
+* Automation of SDK composition (potentially, in the future - if we release the Common SDK Builder as a tool or service for customers). Use case: customers can assemble SDKs in their build pipelines or other automations.
+* API for interaction with other parts of an SDK (Plugin Manager).
+* Code generation based on SDK configuration.
+
+Using plugin system of the Common SDK infrastructure won't be required for extensibility. If these benefits aren't needed then simply custom implementation of available interfaces and manual integration with an SDK may remain a viable option.
 
 ## Goals
 The goals of the proposed solution are:

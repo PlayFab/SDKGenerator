@@ -101,6 +101,11 @@
     <OutputPath>bin\</OutputPath>
     <ScriptArguments>csharp-unity-gameserver=..\sdks\PlayFabGameServer -apiSpecPath -buildIdentifier UnitySDK_manual</ScriptArguments>
   </PropertyGroup>
+  <PropertyGroup Condition=" '$(Configuration)' == 'Python' ">
+    <DebugSymbols>true</DebugSymbols>
+    <OutputPath>bin\</OutputPath>
+    <ScriptArguments>pythonsdk=..\sdks\PythonSdk -apiSpecPath -buildIdentifier PythonSdk_Manual</ScriptArguments>
+  </PropertyGroup>
   <PropertyGroup Condition=" '$(Configuration)' == 'UnitySdk' ">
     <DebugSymbols>true</DebugSymbols>
     <OutputPath>bin\</OutputPath>
@@ -142,6 +147,7 @@
     <Compile Include="targets\newTarget\make.js" />
     <Compile Include="targets\PhpSdk\make.js" />
     <Compile Include="targets\postman\make.js" />
+    <Compile Include="targets\PythonSdk\make.js" />
     <Compile Include="targets\SdkTestingCloudScript\make.js" />
     <Compile Include="targets\unity-v2\make.js" />
     <Compile Include="targets\WindowsSdk\make.js" />
@@ -160,6 +166,7 @@
     <Content Include="SDKBuildScripts\objc_build.bat" />
     <Content Include="SDKBuildScripts\php_build.bat" />
     <Content Include="SDKBuildScripts\postman_build.bat" />
+    <Content Include="SDKBuildScripts\python_build.bat" />
     <Content Include="SDKBuildScripts\SdkTestingCloudScript_build.bat" />
     <Content Include="SDKBuildScripts\ue4_BP_build.bat" />
     <Content Include="SDKBuildScripts\ue4_CPP_build.bat" />
@@ -484,6 +491,18 @@
     <Content Include="targets\PhpSdk\templates\PlayFabApi.php.ejs" />
     <Content Include="targets\postman\replacements.json" />
     <Content Include="targets\postman\templates\playfab.json.ejs" />
+    <Content Include="targets\PythonSdk\Archive\Enum.py.ejs" />
+    <Content Include="targets\PythonSdk\Archive\Model.py.ejs" />
+    <Content Include="targets\PythonSdk\Archive\Models.py.ejs" />
+    <Content Include="targets\PythonSdk\Archive\PlayFabBaseClasses.py" />
+    <Content Include="targets\PythonSdk\Archive\PlayFabJson.py" />
+    <Content Include="targets\PythonSdk\Archive\PlayFabJson.py.ejs" />
+    <Content Include="targets\PythonSdk\Archive\PlayFabUtil.py.ejs" />
+    <Content Include="targets\PythonSdk\source\source\PlayFabHTTP.py" />
+    <Content Include="targets\PythonSdk\source\source\PlayFabManualTest.py" />
+    <Content Include="targets\PythonSdk\source\source\PlayFabSettings.py" />
+    <Content Include="targets\PythonSdk\templates\API.py.ejs" />
+    <Content Include="targets\PythonSdk\templates\Errors.py.ejs" />
     <Content Include="targets\SdkTestingCloudScript\templates\CloudScript.d.ts.ejs" />
     <Content Include="targets\SdkTestingCloudScript\templates\Interface.d.ts.ejs" />
     <Content Include="targets\SdkTestingCloudScript\templates\Enum.d.ts.ejs" />
@@ -918,6 +937,11 @@
     <Folder Include="targets\LumberyardSdk\testingTemplate\Code\Tests\" />
     <Folder Include="targets\LumberyardSdk\testingTemplate\Code\" />
     <Folder Include="targets\LumberyardSdk\testingTemplate\Code\Source\" />
+    <Folder Include="targets\PythonSdk\" />
+    <Folder Include="targets\PythonSdk\Archive\" />
+    <Folder Include="targets\PythonSdk\source\" />
+    <Folder Include="targets\PythonSdk\source\source\" />
+    <Folder Include="targets\PythonSdk\templates\" />
     <Folder Include="targets\XPlatCppSdk\" />
     <Folder Include="targets\newTarget\" />
     <Folder Include="targets\newTarget\source\" />

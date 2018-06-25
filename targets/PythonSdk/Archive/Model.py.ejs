@@ -1,0 +1,23 @@
+<%- generateApiSummary("", datatype, "description")
+%><%- getDeprecationAttribute("", datatype)
+%>class <%- datatype.name %><%- getBaseTypeSyntax(datatype) %>:
+<%- addInitializeFunction("    ", datatype.properties.length) %>
+<% for(var i in datatype.properties) { var property = datatype.properties[i];%>
+<%- generateApiSummary("        ", property, "description")
+%><%- getDeprecationAttribute("        ", property)
+%><%- getPropertyAttribs("        ", property, datatype, api)
+%>        self.<%- getModelPropertyDef(property, datatype) %> = <%- getDefaultValueForType(property, datatype) %>
+<% } %>
+<% if(datatype.properties.length > 0) { %>
+    def fromJson(json):
+        obj = <%- datatype.name%>()
+        try:<% for(var i in datatype.properties) { var property = datatype.properties[i];%>
+            obj.<%- getModelPropertyDef(property, datatype) %> = json["<%- getModelPropertyDef(property, datatype) %>"]<% } %>
+        except error:
+            return <%- datatype.name%>()
+        return obj
+<% } %>
+<% if (datatype.sortKey) { %>
+<%- getComparator("    ", datatype.name, datatype.sortKey) %>
+<% } %>
+

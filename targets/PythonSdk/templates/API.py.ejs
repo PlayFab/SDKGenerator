@@ -1,0 +1,36 @@
+import PlayFabErrors
+import PlayFabHTTP
+import PlayFabSettings
+
+<%- generateApiSummary("", api, "description")%>
+<% if (hasClientOptions) {
+%># Determine if the client session ticket is set, without actually making it public
+def IsClientLoggedIn():
+    return bool(PlayFabSettings._internalSettings.ClientSessionTicket)
+
+def MultiStepClientLogin(settingsForUser):
+    disabledAds = PlayFabSettings.DisableAdvertising
+    adIdType = PlayFabSettings.AdvertisingIdType
+    adIdVal = PlayFabSettings.AdvertisingIdValue
+
+    if settingsForUser["NeedsAttribution"] and not disabledAds and adIdType and adIdVal:
+        request = {}
+        if adIdType == PlayFabSettings.AD_TYPE_IDFA:
+            request["Idfa"] = adIdVal
+        elif adIdType == PlayFabSettings.AD_TYPE_ANDROID_ID:
+            request["Adid"] = adIdVal
+        AttributeInstall(request, None)<% } %>
+
+<% for(var i in api.calls) { var apiCall = api.calls[i];
+%><%- generateApiSummary("", apiCall, "summary", ["https://api.playfab.com/documentation/" + api.name.toLowerCase() + "/method/" + apiCall.name ])
+%><%- getDeprecationAttribute("", apiCall)
+%>def <%- apiCall.name %>(request, callback, customData = None, extraHeaders = None):
+<%- getRequestActions("    ", apiCall) 
+%>    def wrappedCallback(playFabResult, error):
+<%- getResultActions("        ", apiCall, api) 
+%>        if callback:
+            callback(playFabResult, error)
+
+    PlayFabHTTP.DoPost("<%- apiCall.url %>", request, <%- getAuthParams(apiCall) %>, wrappedCallback, customData, extraHeaders)
+
+<% } %>

@@ -1,0 +1,51 @@
+from enum import Enum
+
+# Error codes returned by PlayFabAPIs
+class PlayFabErrorCode(Enum):
+    Success = 0,
+    Unknown = 1,
+    ConnectionError = 2,
+    JsonParseError = 3,
+    <% for(var i=1; i<errorList.length-1; i++) { var errorProps = errors[errorList[i]] %><%- errorProps.name %> = <%- errorProps.id %>,
+    <% } %><% var errorProps = errors[errorList[errorList.length-1]] %><%- errorProps.name %> = <%- errorProps.id %>
+
+class PlayFabError:
+    # the first args item is expected to be a valid dictionary
+    def __init__(self, *args):
+        if len(args) == 1:
+            self.fromJson(args[0])
+        else:
+            self.HttpCode = 408
+            self.HttpStatus = "Request Timeout"
+            self.Error = "ServiceUnavailable"
+            self.ErrorCode = PlayFabErrorCode.ServiceUnavailable
+            self.ErrorMessage = "Unable to contact PlayFab server"
+            self.ErrorDetails = None # dictionary of string keys and list of strings for values
+
+    def fromJson(self, other):
+        self.HttpCode = other["code"]
+        self.HttpStatus = other["status"]
+        self.Error = other["error"]
+        self.ErrorCode = other["errorCode"]
+        self.ErrorMessage = other["errorMessage"]
+        self.ErrorDetails = other.get("errorDetails", None)
+
+    def GenerateErrorReport(self):
+        str = ""
+        if self.ErrorMessage != None:
+            str = self.ErrorMessage
+        if self.ErrorDetails == None:
+            return str
+
+        for i in self.ErrorDetails.items():
+            # for eachMsg in val: # we want to loop through each item in the dictionary here
+            str += "{}".format(i)
+
+        return str
+
+    def __str__(self):
+        return self.GenerateErrorReport()
+
+class PlayFabException(Exception):
+    pass
+

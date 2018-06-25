@@ -5,7 +5,7 @@ import traceback
 ProductionEnvironmentURL = "https://{titleId}.playfabapi.com{methodUrl}"
 TitleId = "" # You must set this value for PlayFabSdk to work properly (Found in the Game
              # Manager for your title, at the PlayFab Website)
-DeveloperSecretKey = None # You must set this value for PlayFabSdk to work properly (Found in the Game
+DeveloperSecretKey = None # You must set this value for Admin/Server/Matchmaker to work properly (Found in the Game
                           # Manager for your title, at the PlayFab Website)
 
 # Client specifics
@@ -25,7 +25,10 @@ class InternalSettings:
 
 _internalSettings = InternalSettings()
 
+# This is automatically populated by the PlayFabEntityApi.GetEntityToken method.
 _internalSettings.EntityToken = None
+
+# This is automatically populated by any PlayFabClientApi.Login method.
 _internalSettings.ClientSessionTicket = None
 _internalSettings.SdkVersionString = "PythonSdk-<%- sdkVersion %>"
 

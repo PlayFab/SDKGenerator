@@ -1,4 +1,3 @@
-import json
 import PlayFabErrors
 import PlayFabHTTP
 import PlayFabSettings
@@ -28,7 +27,11 @@ def MultiStepClientLogin(settingsForUser):
     if settingsForUser["NeedsAttribution"] and not disabledAds and adIdType and adIdVal:
         request = {}
         if PlayFabSettings.AdvertisingIdType == AD_TYPE_IDFA:
+            PlayFabSettings.AdvertisingIdValue = adIdVal
+            PlayFabSettings.AdvertisingIdType = adIdType
             request["Idfa"] = PlayFabSettings.AdvertisingIdValue
         elif PlayFabSettings.AdvertisingIdType == AD_TYPE_ANDROID_ID:
+            PlayFabSettings.AdvertisingIdValue = adIdVal
+            PlayFabSettings.AdvertisingIdType = adIdType
             request["Adid"] = PlayFabSettings.AdvertisingIdValue
 <% } %>

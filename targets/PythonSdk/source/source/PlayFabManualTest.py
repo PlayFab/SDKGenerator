@@ -1,6 +1,11 @@
-# idea here is to include PlayFabSettings, set them,
-# include API.py (or PlayFabSErverAPI.py) and see if you can call a function
-# out of it
+'''
+idea here is to include PlayFabSettings, set them,
+include API.py (or PlayFabSErverAPI.py) and see if you can call a function
+out of it.
+
+These test API calls are synchronous and will block the current running python process.
+'''
+
 import PlayFabErrors
 import PlayFabEntityAPI
 import PlayFabSettings
@@ -8,6 +13,8 @@ import PlayFabServerAPI
 import PlayFabClientAPI
 import PlayFabManualTestSettings
 
+# This needs to be set for the application to work properly.
+# This can be found in the GameManger for your Title of the PlayFab website
 PlayFabSettings.TitleId = PlayFabManualTestSettings.TitleId
 customId = PlayFabManualTestSettings.customId
 

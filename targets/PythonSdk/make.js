@@ -250,16 +250,16 @@ function getRequestActions(tabbing, apiCall) {
     if (apiCall.result === "LoginResult" || apiCall.request === "RegisterPlayFabUserRequest")
         return tabbing + "request[\"TitleId\"] = PlayFabSettings.TitleId or request.TitleId\n"
             + tabbing + "if not request[\"TitleId\"]:\n"
-            + tabbing + "    raise PlayFabErrors.PlayFabException(\"Must be have TitleId set to call this method\")\n";
+            + tabbing + "    raise PlayFabErrors.PlayFabException(\"Must be have TitleId set to call this method\")\n\n";
     if (apiCall.auth === "EntityToken")
         return tabbing + "if not PlayFabSettings._internalSettings.EntityToken:\n "
-            + tabbing + "    raise PlayFabErrors.PlayFabException(\"Must call GetEntityToken before calling this method\")\n";
+            + tabbing + "    raise PlayFabErrors.PlayFabException(\"Must call GetEntityToken before calling this method\")\n\n";
     if (apiCall.auth === "SessionTicket")
         return tabbing + "if not PlayFabSettings._internalSettings.ClientSessionTicket:\n"
-            + tabbing + "    raise PlayFabErrors.PlayFabException(\"Must be logged in to call this method\")\n";
+            + tabbing + "    raise PlayFabErrors.PlayFabException(\"Must be logged in to call this method\")\n\n";
     if (apiCall.auth === "SecretKey")
         return tabbing + "if not PlayFabSettings.DeveloperSecretKey:\n"
-            + tabbing + "    raise PlayFabErrors.PlayFabException(\"Must have DeveloperSecretKey set to call this method\")\n";
+            + tabbing + "    raise PlayFabErrors.PlayFabException(\"Must have DeveloperSecretKey set to call this method\")\n\n";
     if (apiCall.url === "/Authentication/GetEntityToken")
         return tabbing + "authKey = None\n"
             + tabbing + "authValue = None\n"
@@ -271,7 +271,7 @@ function getRequestActions(tabbing, apiCall) {
             + tabbing + "    authValue = PlayFabSettings._internalSettings.ClientSessionTicket \n"
             + tabbing + "elif PlayFabSettings.DeveloperSecretKey:\n"
             + tabbing + "    authKey = \"X-SecretKey\"\n"
-            + tabbing + "    authValue = PlayFabSettings.DeveloperSecretKey \n";
+            + tabbing + "    authValue = PlayFabSettings.DeveloperSecretKey \n\n";
     return "";
 }
 

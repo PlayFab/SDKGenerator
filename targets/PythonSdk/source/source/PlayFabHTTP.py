@@ -7,7 +7,7 @@ import requests
 # the return type is a dictionary that should contain a valid dictionary that
 # should reflect the expected JSON response
 # if the call fails, there will be a returned PlayFabError
-def DoPost(urlPath, request, authKey, authVal, extraHeaders, callback):
+def DoPost(urlPath, request, authKey, authVal, callback, customData = None, extraHeaders = None):
     url = PlayFabSettings.GetURL(urlPath)
 
     try:
@@ -47,14 +47,14 @@ def DoPost(urlPath, request, authKey, authVal, extraHeaders, callback):
             # successful call to PlayFab
             response = responseWrapper["data"]
 
-    if error:
+    if error and callback:
         callGlobalErrorHandler(error)
 
         try:
             callback(None, error) # Notify the caller about an API Call failure
         except Exception as e:
             PlayFabSettings.GlobalExceptionLogger(e) # Global notification about exception in caller's callback
-    elif response:
+    elif response and callback:
         try:
             callback(response, None) # Notify the caller about an API Call success
         except Exception as e:

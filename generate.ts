@@ -38,10 +38,14 @@ const defaultApiSpecGitHubUrl = "https://raw.githubusercontent.com/PlayFab/API_S
 const defaultApiSpecPlayFabUrl = "https://www.playfabapi.com/apispec";
 const tocFilename = "TOC.json";
 const tocCacheKey = "TOC";
+const defaultSpecialization = "sdk";
+
+let specializationContent;
 
 /////////////////////////////////// The main build sequence for this program ///////////////////////////////////
 function parseAndLoadApis() {
     console.log("My args:" + process.argv.join(" "));
+
     // Step 1
     parseCommandInputs(process.argv, sdkGeneratorGlobals.argsByName, sdkGeneratorGlobals.errorMessages, sdkGeneratorGlobals.targetOutputPathList);
     reportErrorsAndExit(sdkGeneratorGlobals.errorMessages);
@@ -60,7 +64,7 @@ function reportErrorsAndExit(errorMessages) {
         return; // No errors to report, so continue
 
     // Else, report all errors and exit the program
-    console.log("Synatax: node generate.js\n" +
+    console.log("Syntax: node generate.js\n" +
         "\t\t<targetName>=<targetOutputPath>\n" +
         "\t\t-(apiSpecPath|apiSpecGitUrl|apiSpecPfUrl)[ (<apiSpecPath>|<apiSpecGitUrl>|<apiSpecPfUrl>)]\n" +
         "\t\t[ -flags <flag>[ <flag> ...]]\n\n" +
@@ -85,7 +89,22 @@ function parseCommandInputs(args, argsByName, errorMessages, targetOutputPathLis
     // Parse the command line arguments into key-value-pairs
     extractArgs(args, argsByName, targetOutputPathList, errorMessages);
 
-    // Apply defaults 
+    // Apply defaults
+    var specialization = defaultSpecialization;
+    if (argsByName.specialization) {
+        specialization = argsByName.specialization;
+    }
+
+    var specializationFile = path.resolve("generate-" + specialization + ".ts");
+    try {
+        specializationContent = require(specializationFile);
+        if (!specializationContent) {
+            errorMessages.push("Could not load specialization (" + specializationFile + "). Make sure that file has a valid content.");
+        }
+    } catch (err) {
+        errorMessages.push("Failed to load specialization (" + specializationFile + "). Make sure that file exists.");
+    }
+
     if (!argsByName.hasOwnProperty("apispecpath") && !argsByName.hasOwnProperty("apispecgiturl") && !argsByName.hasOwnProperty("apispecpfurl"))
         argsByName.apispecgiturl = ""; // If nothing is defined, default to GitHub
     // A source key set, with no value means use the default for that input format
@@ -119,9 +138,17 @@ function parseCommandInputs(args, argsByName, errorMessages, targetOutputPathLis
 function extractArgs(args, argsByName, targetOutputPathList, errorMessages) {
     var cmdArgs = args.slice(2, args.length); // remove "node.exe generate.js"
     var activeKey = null;
+    var specialization;
     for (var i = 0; i < cmdArgs.length; i++) {
         var lcArg = cmdArgs[i].toLowerCase();
-        if (cmdArgs[i].indexOf("-") === 0) {
+        if (cmdArgs[i].indexOf("--") === 0) {
+            if (specialization) {
+                errorMessages.push("Specialization is already specified: (" + specialization + ") but additional parameter encountered: (" + cmdArgs[i] + ")");
+            } else {
+                specialization = lcArg.substring(2); // remove the "--", lowercase the value
+                argsByName["specialization"] = specialization;
+            }
+        } else if (cmdArgs[i].indexOf("-") === 0) {
             activeKey = lcArg.substring(1); // remove the "-", lowercase the argsByName-key
             argsByName[activeKey] = "";
         } else if (lcArg.indexOf("=") !== -1) { // any parameter with an "=" is assumed to be a target specification, lowercase the targetName

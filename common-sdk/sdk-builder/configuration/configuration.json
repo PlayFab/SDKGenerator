@@ -1,0 +1,27 @@
+{
+    "output": "../sdk",
+    "description": "Some modular SDK...",
+    "plugins": [
+        {
+            "id": "pf-api",
+            "configuration":
+            {
+                "settings": [
+                    {
+                        "key": "plugin-sender",
+                        "value": "pf-sender"
+                    }
+                ]
+            }
+        },
+        {
+            "id": "pf-sender",
+            "configuration":
+            {
+                "settings": []
+            }
+        }
+    ],
+    "targetPlatforms": [ "csharp" ],
+    "pluginSubtypePath": "PlayFabSDK"
+}

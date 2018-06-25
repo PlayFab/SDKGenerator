@@ -1,0 +1,47 @@
+<% for (var i = 0; i < pluginInfos.length; i++) { %><%- pluginInfos[i].code.headerInclude
+%><% } %>
+
+namespace PlayFab
+{
+    public class PluginManager
+    {
+        public static PluginManager Instance { get; private set; } = new PluginManager();
+
+        private PluginManager()
+        {
+            // initialize with configuration
+            // . . .
+        }
+
+        public object GetPluginBySettingKey(string settingKey)
+        {
+            string id = null;
+
+            // get plugin ids from configuration settings
+            <% for (var i = 0; i < configSettings.length; i++) { %>
+            if (settingKey == "<%- configSettings[i].key %>")
+            {
+                id = "<%- configSettings[i].value %>";
+            }<% } %>
+
+            return this.GetPlugin(id);
+        }
+
+        public object GetPlugin(string id)
+        {
+            switch (id)
+            {<% for (var i = 0; i < pluginInfos.length; i++) { %>
+                case "<%- pluginInfos[i].id %>":
+                    {
+                        <%- pluginInfos[i].code.callCreate %>
+                    }
+                    break;<% } %>
+                default:
+                    {
+                        return null;
+                    }
+                    break;
+            }
+        }
+    }
+}

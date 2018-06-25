@@ -1,0 +1,14 @@
+{
+    "id": "pf-sender",
+    "dependencies": [ "pf-common" ],
+    "configurationSettingKeys": [],
+    "targets": [
+        {
+            "name": "csharp",
+            "code": {
+                "headerInclude": "using PlayFab.Internal;",
+                "callCreate": "return new PlayFabHttp();"
+            }
+        }
+    ]
+}

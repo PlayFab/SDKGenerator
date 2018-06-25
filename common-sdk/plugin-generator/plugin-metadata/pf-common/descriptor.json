@@ -1,0 +1,10 @@
+{
+    "id": "pf-common",
+    "dependencies": [],
+    "configurationSettingKeys": [],
+    "targets": [
+        {
+            "name": "csharp"
+        }
+    ]
+}

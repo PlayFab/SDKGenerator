@@ -5,19 +5,51 @@ var path = require("path");
 
 ejs.delimiter = "\n";
 
-interface SdkDoc {
-    funcName: string;
-    apiDocKeys: string[];
+interface ITargetOutput {
+    name: string,
+    dest: string,
 }
 
+// Plugin descriptor schema
+interface PluginDescriptor {
+    id: string;
+    dependencies: string[];
+    configurationSettingKeys: { key: string; defaultValue: string; }[];
+    targets: {
+        name: string;
+        code: {
+            headerInclude: string;
+            callCreate: string;
+        };
+    }[];
+}
+
+// SDK configuration schema
+interface SdkConfig {
+    output: string;
+    description: string;
+    plugins: SdkConfigPluginItem[];
+    targetPlatforms: string[];
+    pluginSubtypePath: string; // TODO: this is a temporary solution and needs to be removed when we decide how to deal with plugin subtypes (e.g. PlayFabSDK, PlayFabClientSDK, PlayFabServerSDK). Requires discussion as it will have an impact on dependencies metadata.
+}
+
+interface SdkConfigPluginItem {
+    id: string;
+    configuration: {
+        settings: { key: string; value: string; }[];
+    };
+}
+
+// Struct with global variables used across this app
 interface SdkGlobals {
     argsByName: any;
     errorMessages: string[];
     targetOutputPathList: any[];
     buildFlags: string[];
-    apiSrcDescription: string;
-    apiCache: { [key: string]: any; }
-    sdkDocsByMethodName: { [key: string]: SdkDoc; }
+    configDescription: string;
+    docCache: { [key: string]: any; };
+    config: SdkConfig;
+    pluginCache: { [pluginId: string]: PluginDescriptor; }
 }
 
 var sdkGeneratorGlobals: SdkGlobals = {
@@ -28,31 +60,33 @@ var sdkGeneratorGlobals: SdkGlobals = {
     errorMessages: [], // String list of errors during parsing and loading steps
     targetOutputPathList: [], // A list of objects that describe sdk targets to build
     buildFlags: [], // The sdkBuildFlags which modify the list of APIs available in this build of the SDK
-    apiSrcDescription: "INVALID", // Assigned if/when the api-spec source is fetched properly
-    apiCache: {}, // We have to pre-cache the api-spec files, because latter steps (like ejs) can't run asynchronously
-    sdkDocsByMethodName: {} // When loading TOC, match documents to the SdkGen function that should be called for those docs
+    configDescription: "INVALID", // Assigned if/when the config is fetched properly
+    docCache: {}, // We have to pre-cache files, because latter steps (like ejs) can't run asynchronously
+    config: null, // The loaded configuration
+    pluginCache: {} // The collection of plugins required for SDK
 };
 
-const defaultApiSpecFilePath = "../API_Specs"; // Relative path to Generate.js
-const defaultApiSpecGitHubUrl = "https://raw.githubusercontent.com/PlayFab/API_Specs/master";
-const defaultApiSpecPlayFabUrl = "https://www.playfabapi.com/apispec";
-const tocFilename = "TOC.json";
-const tocCacheKey = "TOC";
+const defaultConfigFilePath = "configuration"; // Relative path to Generate.js
+const defaultConfigGitHubUrl = "https://raw.githubusercontent.com/PlayFab/API_Specs/master";
+const defaultConfigPlayFabUrl = "https://www.playfabapi.com/apispec";
+const pluginDescriptorFilename = "descriptor.json";
+const configFilename = "configuration.json";
+const configCacheKey = "config";
 
 /////////////////////////////////// The main build sequence for this program ///////////////////////////////////
-function parseAndLoadApis() {
+function main() {
     console.log("My args:" + process.argv.join(" "));
     // Step 1
     parseCommandInputs(process.argv, sdkGeneratorGlobals.argsByName, sdkGeneratorGlobals.errorMessages, sdkGeneratorGlobals.targetOutputPathList);
     reportErrorsAndExit(sdkGeneratorGlobals.errorMessages);
 
     // Kick off Step 2
-    loadAndCacheApis(sdkGeneratorGlobals.argsByName, sdkGeneratorGlobals.apiCache);
+    loadAndCacheConfig(sdkGeneratorGlobals.argsByName, sdkGeneratorGlobals.docCache);
 }
 
 // Wrapper function for Step 3
 function generateSdks() {
-    generateApis(sdkGeneratorGlobals.argsByName["buildidentifier"], sdkGeneratorGlobals.targetOutputPathList, sdkGeneratorGlobals.buildFlags, sdkGeneratorGlobals.apiSrcDescription);
+    generateModularSdks(sdkGeneratorGlobals.argsByName["buildidentifier"], sdkGeneratorGlobals.targetOutputPathList, sdkGeneratorGlobals.buildFlags, sdkGeneratorGlobals.configDescription, sdkGeneratorGlobals.config);
 }
 
 function reportErrorsAndExit(errorMessages) {
@@ -90,15 +124,11 @@ function parseCommandInputs(args, argsByName, errorMessages, targetOutputPathLis
         argsByName.apispecgiturl = ""; // If nothing is defined, default to GitHub
     // A source key set, with no value means use the default for that input format
     if (argsByName.apispecpath === "")
-        argsByName.apispecpath = defaultApiSpecFilePath;
+        argsByName.apispecpath = defaultConfigFilePath;
     if (argsByName.apispecgiturl === "")
-        argsByName.apispecgiturl = defaultApiSpecGitHubUrl;
+        argsByName.apispecgiturl = defaultConfigGitHubUrl;
     if (argsByName.apispecpfurl === "")
-        argsByName.apispecpfurl = defaultApiSpecPlayFabUrl;
-
-    // Output an error if no targets are defined
-    if (targetOutputPathList.length === 0)
-        errorMessages.push("No targets defined, you must define at least one.");
+        argsByName.apispecpfurl = defaultConfigPlayFabUrl;
 
     // Output an error if there's any problems with the api-spec source    
     var specCount = 0;
@@ -147,7 +177,7 @@ function parseCommandInputs(args, argsByName, errorMessages, targetOutputPathLis
 
                 // Set target output for a plugin
                 var dest = "common-sdk/plugins/" + dirName + '/' + sdkSource;
-                checkPluginTarget(sdkSource, dirName, dest, targetOutputPathList, errorMessages);
+                //checkPluginTarget(sdkSource, dirName, dest, targetOutputPathList, errorMessages);
             }
         }
     }
@@ -162,13 +192,9 @@ function extractArgs(args, argsByName, targetOutputPathList, errorMessages) {
         if (cmdArgs[i].indexOf("-") === 0) {
             activeKey = lcArg.substring(1); // remove the "-", lowercase the argsByName-key
             argsByName[activeKey] = "";
-        } else if (lcArg.indexOf("=") !== -1) { // any parameter with an "=" is assumed to be a target specification, lowercase the targetName
-            var argPair = cmdArgs[i].split("=", 2);
-            checkTarget(argPair[0].toLowerCase(), argPair[1], targetOutputPathList, errorMessages);
         } else if ((lcArg === "c:\\depot\\api_specs" || lcArg === "..\\api_specs") && activeKey === null && !argsByName.hasOwnProperty("apispecpath")) { // Special case to handle old API-Spec path as fixed 3rd parameter - DEPRECATED
             argsByName["apispecpath"] = cmdArgs[i];
         } else if (activeKey === null) {
-            errorMessages.push("Unexpected token: " + cmdArgs[i]);
         } else {
             var temp = argsByName[activeKey];
             if (temp.length > 0)
@@ -177,33 +203,6 @@ function extractArgs(args, argsByName, targetOutputPathList, errorMessages) {
                 argsByName[activeKey] = cmdArgs[i];
         }
     }
-
-    // Pull from environment variables if there's no console-defined targets
-    if (targetOutputPathList.length === 0 && process.env.hasOwnProperty("SdkSource") && process.env.hasOwnProperty("SdkName")) {
-        checkTarget(process.env.hasOwnProperty("SdkSource"), process.env.hasOwnProperty("SdkName"), targetOutputPathList, errorMessages);
-    }
-}
-
-interface ITargetOutput {
-    name: string,
-    pluginDirName: string,
-    dest: string,
-}
-
-function checkTarget(sdkSource, sdkDestination, targetOutputPathList, errorMessages) {
-    return checkPluginTarget(sdkSource, null, sdkDestination, targetOutputPathList, errorMessages);
-}
-
-function checkPluginTarget(sdkSource, pluginDirectoryName, sdkDestination, targetOutputPathList, errorMessages) {
-    var targetOutput: ITargetOutput = {
-        name: sdkSource,
-        pluginDirName: pluginDirectoryName,
-        dest: path.normalize(sdkDestination)
-    };
-    if (fs.existsSync(targetOutput.dest) && !fs.lstatSync(targetOutput.dest).isDirectory())
-        errorMessages.push("Invalid target output path: " + targetOutput.dest);
-    else
-        targetOutputPathList.push(targetOutput);
 }
 
 function getTargetsList() {
@@ -231,30 +230,20 @@ function getTargetsList() {
     return targetList;
 }
 
-/////////////////////////////////// Major step 2 - Load and cache the API files ///////////////////////////////////
-function loadAndCacheApis(argsByName, apiCache) {
+/////////////////////////////////// Major step 2 - Load and cache configuration ///////////////////////////////////
+function loadAndCacheConfig(argsByName, docCache) {
     // generateSdks is the function that begins the next step
 
     if (argsByName.apispecpath) {
-        loadApisFromLocalFiles(argsByName, apiCache, argsByName.apispecpath, generateSdks);
+        loadConfigFromLocalFiles(argsByName, docCache, argsByName.apispecpath, generateSdks);
     } else if (argsByName.apispecgiturl) {
-        loadApisFromGitHub(argsByName, apiCache, argsByName.apispecgiturl, generateSdks);
+        loadConfigFromGitHub(argsByName, docCache, argsByName.apispecgiturl, generateSdks);
     } else if (argsByName.apispecpfurl) {
-        loadApisFromPlayFabServer(argsByName, apiCache, argsByName.apispecpfurl, generateSdks);
+        loadConfigFromPlayFabServer(argsByName, docCache, argsByName.apispecpfurl, generateSdks);
     }
 }
 
-function mapSpecMethods(docObj) {
-    var genMethods = docObj.sdkGenMakeMethods;
-    for (var i = 0; i < genMethods.length; i++) {
-        var funcName = genMethods[i];
-        if (!sdkGeneratorGlobals.sdkDocsByMethodName[funcName])
-            sdkGeneratorGlobals.sdkDocsByMethodName[funcName] = { funcName: funcName, apiDocKeys: [] };
-        sdkGeneratorGlobals.sdkDocsByMethodName[funcName].apiDocKeys.push(docObj.docKey);
-    }
-}
-
-function loadApisFromLocalFiles(argsByName, apiCache, apiSpecPath, onComplete) {
+function loadConfigFromLocalFiles(argsByName, docCache, apiSpecPath, onComplete) {
     function loadEachFile(filename: string, cacheKey: string, optional: boolean) {
         var fullPath = path.resolve(apiSpecPath, filename);
         console.log("Begin reading File: " + fullPath);
@@ -266,81 +255,82 @@ function loadApisFromLocalFiles(argsByName, apiCache, apiSpecPath, onComplete) {
             if (!optional) throw err;
         }
         if (fileContents) {
-            apiCache[cacheKey] = fileContents;
+            docCache[cacheKey] = fileContents;
         }
         console.log("Finished reading: " + fullPath);
     }
 
-    loadEachFile(tocFilename, tocCacheKey, false);
-    var docList = apiCache[tocCacheKey].documents;
+    loadEachFile(configFilename, configCacheKey, false);
+    sdkGeneratorGlobals.config = docCache[configCacheKey];
+
+    /*
+    var docList = docCache[configCacheKey].documents;
     for (var dIdx = 0; dIdx < docList.length; dIdx++) {
         var genMethods = docList[dIdx].sdkGenMakeMethods;
         if (genMethods) {
             loadEachFile(docList[dIdx].relPath, docList[dIdx].docKey, docList[dIdx].isOptional);
             mapSpecMethods(docList[dIdx]);
         }
-    }
+    }*/
 
-    sdkGeneratorGlobals.apiSrcDescription = argsByName.apispecpath;
+    sdkGeneratorGlobals.configDescription = sdkGeneratorGlobals.config.description;
     onComplete();
 }
 
-function loadApisFromGitHub(argsByName, apiCache, apiSpecGitUrl, onComplete) {
+function loadConfigFromGitHub(argsByName, docCache, apiSpecGitUrl, onComplete) {
     var finishCountdown = 0;
 
     function onEachComplete(cacheKey) {
         finishCountdown -= 1;
         if (finishCountdown === 0) {
             console.log("Finished loading files from GitHub");
-            sdkGeneratorGlobals.apiSrcDescription = argsByName.apiSpecGitUrl;
+            sdkGeneratorGlobals.configDescription = argsByName.apiSpecGitUrl;
             onComplete();
         }
     }
 
     function onTocComplete() {
-        var docList = apiCache[tocCacheKey].documents;
+        var docList = docCache[configCacheKey].documents;
         for (var dIdx = 0; dIdx < docList.length; dIdx++) {
             if (docList[dIdx].sdkGenMakeMethods) {
                 finishCountdown += 1;
-                downloadFromUrl(apiSpecGitUrl, docList[dIdx].relPath, apiCache, docList[dIdx].docKey, onEachComplete, docList[dIdx].isOptional);
-                mapSpecMethods(docList[dIdx]);
+                downloadFromUrl(apiSpecGitUrl, docList[dIdx].relPath, docCache, docList[dIdx].docKey, onEachComplete, docList[dIdx].isOptional);
             }
         }
     }
 
-    downloadFromUrl(apiSpecGitUrl, tocFilename, apiCache, tocCacheKey, onTocComplete, false);
+    downloadFromUrl(apiSpecGitUrl, configFilename, docCache, configCacheKey, onTocComplete, false);
 }
 
-function loadApisFromPlayFabServer(argsByName, apiCache, apiSpecPfUrl, onComplete) {
+function loadConfigFromPlayFabServer(argsByName, docCache, apiSpecPfUrl, onComplete) {
     var finishCountdown = 0;
 
     function onEachComplete() {
         finishCountdown -= 1;
         if (finishCountdown === 0) {
             console.log("Finished loading files from PlayFab Server");
-            sdkGeneratorGlobals.apiSrcDescription = argsByName.apispecpfurl;
+            sdkGeneratorGlobals.configDescription = argsByName.apispecpfurl;
             onComplete();
         }
     }
 
     function onTocComplete() {
-        var docList = apiCache[tocCacheKey].documents;
+        var docList = docCache[configCacheKey].documents;
         for (var dIdx = 0; dIdx < docList.length; dIdx++) {
             if (docList[dIdx].sdkGenMakeMethods) {
                 finishCountdown += 1;
                 if (!docList[dIdx].relPath.contains("SdkManualNotes"))
-                    downloadFromUrl(apiSpecPfUrl, docList[dIdx].docKey, apiCache, docList[dIdx].docKey, onEachComplete, false);
+                    downloadFromUrl(apiSpecPfUrl, docList[dIdx].docKey, docCache, docList[dIdx].docKey, onEachComplete, false);
                 else
-                    downloadFromUrl(defaultApiSpecGitHubUrl, docList[dIdx].relPath, apiCache, docList[dIdx].docKey, onEachComplete, false);
-                mapSpecMethods(docList[dIdx]);
+                    downloadFromUrl(defaultConfigGitHubUrl, docList[dIdx].relPath, docCache, docList[dIdx].docKey, onEachComplete, false);
             }
         }
     }
 
-    downloadFromUrl(defaultApiSpecGitHubUrl, tocFilename, apiCache, tocCacheKey, onTocComplete, false);
+    downloadFromUrl(defaultConfigGitHubUrl, configFilename, docCache, configCacheKey, onTocComplete, false);
 }
 
-function downloadFromUrl(srcUrl: string, appendUrl: string, apiCache, cacheKey: string, onEachComplete, optional: boolean) {
+function downloadFromUrl(srcUrl: string, appendUrl: string, docCache, cacheKey: string, onEachComplete, optional: boolean) {
     srcUrl = srcUrl.endsWith("/") ? srcUrl : srcUrl + "/";
     var fullUrl = srcUrl + appendUrl;
     console.log("Begin reading URL: " + fullUrl);
@@ -351,7 +341,7 @@ function downloadFromUrl(srcUrl: string, appendUrl: string, apiCache, cacheKey: 
         request.on("end", () => {
             console.log("Finished reading: " + fullUrl);
             try {
-                apiCache[cacheKey] = JSON.parse(rawResponse);
+                docCache[cacheKey] = JSON.parse(rawResponse);
             } catch (jsonErr) {
                 console.log(" ***** Failed to parse json: " + rawResponse.trim());
                 console.log(" ***** Failed to Load: " + fullUrl);
@@ -369,65 +359,126 @@ function downloadFromUrl(srcUrl: string, appendUrl: string, apiCache, cacheKey: 
     });
 }
 
-/////////////////////////////////// Major step 3 - Generate the indicated ouptut files ///////////////////////////////////
-function generateApis(buildIdentifier, targetOutputPathList, buildFlags, apiSrcDescription) {
-    console.log("Generating PlayFab APIs from specs: " + apiSrcDescription);
+function prepareTargetOutputs(targetOutputPathList, config: SdkConfig) {
+    if (config) {
+        targetOutputPathList.length = 0;
+        for (var i = 0; i < config.targetPlatforms.length; i++) {
+            var targetOutput: ITargetOutput = {
+                name: config.targetPlatforms[i],
+                dest: path.normalize(config.output + "/" + config.targetPlatforms[i])
+            };
 
-    var targetsDir = path.resolve(__dirname, "targets");
-    // Common-SDK-part-begin
-    if (sdkGeneratorGlobals.argsByName.plugins) {
-        targetsDir = path.resolve(__dirname, "common-sdk/plugin-generator/targets");
+            mkdirParentsSync(targetOutput.dest);
+            targetOutputPathList.push(targetOutput);
+        }
     }
-    // Common-SDK-part-end
+}
 
+/////////////////////////////////// Major step 3 - Generate the files for modular SDKs ///////////////////////////////////
+function generateModularSdks(buildIdentifier, targetOutputPathList, buildFlags, configDescription, config: SdkConfig) {
+    console.log("Generating PlayFab modular SDKs from configuration: " + configDescription);
+
+    // Prepare the SDK destination (fills targetOutputPathList)
+    prepareTargetOutputs(targetOutputPathList, config);
+
+    // Determine and read all required plugins
+    var pluginsPath = "../plugins";
+    var pluginDir: string;
+    for (var i = 0; i < config.plugins.length; i++) {
+        readPlugin(config.plugins[i].id, pluginsPath);
+    }
+
+    var sdkBuilderTargetsDir = path.resolve(__dirname, "targets");
+
+    // Iterate through each target platform specified in SDK configuration
     for (var targIdx = 0; targIdx < targetOutputPathList.length; targIdx++) {
         var target = targetOutputPathList[targIdx];
 
-        var targetSourceDir = path.resolve(targetsDir, target.name);
-        // Common-SDK-part-begin
-        if (sdkGeneratorGlobals.argsByName.plugins) {
-            // Copy plugin descriptor
-            copyTree(path.resolve(__dirname, "common-sdk/plugin-generator/plugin-metadata/" + target.pluginDirName), path.resolve(target.dest, ".."));
-
-            targetSourceDir = path.resolve(targetsDir, target.name + '/' + target.pluginDirName);
+        // Copy all required plugins
+        for (var pluginId in sdkGeneratorGlobals.pluginCache) {
+            var pluginContentSourceDir = path.resolve(pluginsPath, pluginId + "/" + target.name + "/" + config.pluginSubtypePath + "/source");
+            var pluginContentTargetDir = path.resolve(target.dest, "source/plugins/" + pluginId);
+            copyTree(pluginContentSourceDir, pluginContentTargetDir);
         }
-        // Common-SDK-part-end
 
+        // Copy the common library
+        var commonLibrarySourceDir = path.resolve("../common-client-lib/source");
+        var commonLibraryTargetDir = path.resolve(target.dest, "source/common-client-lib");
+        copyTree(commonLibrarySourceDir, commonLibraryTargetDir);
+
+        // Other SDK build operations (generating from templates, etc)
+        var targetSourceDir = path.resolve(sdkBuilderTargetsDir, target.name);
         var targetMain = path.resolve(targetSourceDir, "make.js");
         console.log("Making target from: " + targetMain + "\n - to: " + target.dest);
         var targetMaker = require(targetMain);
 
-        // It would probably be better to pass these into the functions, but I don't want to change all the make___Api parameters for all projects today.
-        //   For now, just change the global variables in each with the data loaded from SdkManualNotes.json
-        var apiNotes = getApiJson("SdkManualNotes");
-        targetMaker.sdkVersion = apiNotes.sdkVersion[target.name];
+        //var apiNotes = getApiJson("SdkManualNotes");
+        targetMaker.sdkVersion = "1.0.0.0"; //apiNotes.sdkVersion[target.name];
         targetMaker.buildIdentifier = buildIdentifier;
         if (targetMaker.sdkVersion === null) {
             throw "SdkManualNotes does not contain sdkVersion for " +
             target.name; // The point of this error is to force you to add a line to sdkManualNotes.json, to describe the version and date when this sdk/collection is built
         }
 
-        for (var funcIdx in sdkGeneratorGlobals.sdkDocsByMethodName) {
-            const funcName = sdkGeneratorGlobals.sdkDocsByMethodName[funcIdx].funcName;
-            const funcDocNames = sdkGeneratorGlobals.sdkDocsByMethodName[funcIdx].apiDocKeys;
-            const jsonDocList = [];
-            for (var docIdx = 0; docIdx < funcDocNames.length; docIdx++)
-                jsonDocList.push(getApiDefinition(funcDocNames[docIdx], buildFlags));
+        if (targetMaker["main"]) {
+            console.log(" + Generating SDK to " + target.dest);
+            if (!fs.existsSync(target.dest))
+                mkdirParentsSync(target.dest);
 
-            if (targetMaker[funcName]) {
-                console.log(" + Generating " + funcName + " to " + target.dest);
-                if (!fs.existsSync(target.dest))
-                    mkdirParentsSync(target.dest);
-                targetMaker[funcName](jsonDocList, targetSourceDir, target.dest);
-            }
+            // Generate and copy Plugin Manager
+            // Generate project files
+            // Generate settings file
+            // Generate nuget file
+            targetMaker["main"](targetSourceDir, target.dest, target.name, sdkGeneratorGlobals.pluginCache, config);
         }
     }
 
+    // Done
     console.log("\n\nDONE!\n");
 }
 
+function readPlugin(id: string, pluginsPath: string) {
+    // If plugin's descriptor is already in the cache then return immediately (prevents loops)
+    if (sdkGeneratorGlobals.pluginCache[id])
+        return;
+
+    // Read plugin's descriptor
+    var pluginDir = path.resolve(pluginsPath, id);
+    if (fs.existsSync(pluginDir) && fs.lstatSync(pluginDir).isDirectory()) {
+        var pluginDescriptorFile = path.resolve(pluginDir, pluginDescriptorFilename);
+        if (fs.existsSync(pluginDescriptorFile) && !fs.lstatSync(pluginDescriptorFile).isDirectory()) {
+            console.log("Begin reading File: " + pluginDescriptorFile);
+            var fileContents: PluginDescriptor = null;
+            try {
+                fileContents = require(pluginDescriptorFile);
+            } catch (err) {
+                console.log(" ***** Failed to Load: " + pluginDescriptorFile);
+                throw err;
+            }
+
+            if (fileContents) {
+                // Put plugin's descriptor in cache
+                sdkGeneratorGlobals.pluginCache[id] = fileContents;
+
+                // Iterate through possible plugin's hard dependendecies and read them too
+                if (fileContents.dependencies) {
+                    for (var i = 0; i < fileContents.dependencies.length; i++) {
+                        readPlugin(fileContents.dependencies[i], pluginsPath);
+                    }
+                }
+            }
+
+            console.log("Finished reading: " + pluginDescriptorFile);
+        }
+        else
+            throw "ERROR: required plugin's descriptor doesn't exist: " + pluginDescriptorFile;
+    }
+    else
+        throw "ERROR: required plugin's directory doesn't exist: " + pluginDir;
+}
+
 function getApiDefinition(cacheKey, buildFlags) {
-    var api = getApiJson(cacheKey);
+    var api;// = getApiJson(cacheKey);
     if (!api)
         return null;
 
@@ -735,12 +786,13 @@ function writeFile(filename, data) {
 global.writeFile = writeFile;
 
 // Fetch the object parsed from an api-file, from the cache (can't load synchronously from URL-options, so we have to pre-cache them)
+/*
 function getApiJson(cacheKey: string) {
-    if (sdkGeneratorGlobals.apiCache.hasOwnProperty(cacheKey))
-        return sdkGeneratorGlobals.apiCache[cacheKey];
+    if (sdkGeneratorGlobals.docCache.hasOwnProperty(cacheKey))
+        return sdkGeneratorGlobals.docCache[cacheKey];
     return null;
 }
-global.getApiJson = getApiJson;
+global.getApiJson = getApiJson;*/
 
 /**
  * Wrapper function for boilerplate of compiling templates
@@ -807,4 +859,4 @@ function generateApiSummaryLines(apiElement: any, summaryParam: string, extraLin
 global.generateApiSummaryLines = generateApiSummaryLines;
 
 // Kick everything off
-parseAndLoadApis();
+main();

@@ -86,6 +86,38 @@ function parseCommandInputs(args, argsByName, errorMessages, targetOutputPathLis
     argsByName.buildidentifier = argsByName.buildidentifier.toLowerCase(); // lowercase the buildIdentifier
     if (argsByName.hasOwnProperty("flags"))
         sdkGeneratorGlobals.buildFlags = lowercaseFlagsList(argsByName.flags.split(" "));
+    // Common-SDK-part-begin
+    // If script argument -plugins was specified then 
+    // plugin generation must be performed instead of the classic SDK generation
+    if (argsByName.plugins == null)
+        argsByName.plugins = false;
+    else
+        argsByName.plugins = true;
+    if (argsByName.plugins) {
+        if (targetOutputPathList.length === 0)
+            errorMessages.push("SDK source is not defined, plugins can't be generated");
+        var sdkSource = targetOutputPathList[0].name;
+        // Determine important paths
+        var commonSdkDir = path.resolve("common-sdk");
+        var pluginGenDir = path.resolve(commonSdkDir, "plugin-generator");
+        var targetSourceRootDir = path.resolve(pluginGenDir, "targets/" + sdkSource);
+        // Get a list of plugins and set target outputs (one for each plugin)
+        // (in current implementation simply enumerate plugin subdirectories in the "SDK source" directory for plugins)
+        targetOutputPathList.length = 0;
+        var files = fs.readdirSync(targetSourceRootDir);
+        for (var i in files) {
+            if (!files.hasOwnProperty(i))
+                continue;
+            var dirName = files[i];
+            var dirPath = targetSourceRootDir + '/' + dirName;
+            if (fs.statSync(dirPath).isDirectory()) {
+                // Set target output for a plugin
+                var dest = "common-sdk/plugins/" + dirName + '/' + sdkSource;
+                checkPluginTarget(sdkSource, dirName, dest, targetOutputPathList, errorMessages);
+            }
+        }
+    }
+    // Common-SDK-part-end
 }
 function extractArgs(args, argsByName, targetOutputPathList, errorMessages) {
     var cmdArgs = args.slice(2, args.length); // remove "node.exe generate.js"
@@ -120,8 +152,12 @@ function extractArgs(args, argsByName, targetOutputPathList, errorMessages) {
     }
 }
 function checkTarget(sdkSource, sdkDestination, targetOutputPathList, errorMessages) {
+    return checkPluginTarget(sdkSource, null, sdkDestination, targetOutputPathList, errorMessages);
+}
+function checkPluginTarget(sdkSource, pluginDirectoryName, sdkDestination, targetOutputPathList, errorMessages) {
     var targetOutput = {
         name: sdkSource,
+        pluginDirName: pluginDirectoryName,
         dest: path.normalize(sdkDestination)
     };
     if (fs.existsSync(targetOutput.dest) && !fs.lstatSync(targetOutput.dest).isDirectory())
@@ -132,6 +168,11 @@ function checkTarget(sdkSource, sdkDestination, targetOutputPathList, errorMessa
 function getTargetsList() {
     var targetList = [];
     var targetsDir = path.resolve(__dirname, "targets");
+    // Common-SDK-part-begin
+    if (sdkGeneratorGlobals.argsByName.plugins) {
+        targetsDir = path.resolve(__dirname, "common-sdk/plugin-generator/targets");
+    }
+    // Common-SDK-part-end
     var targets = fs.readdirSync(targetsDir);
     for (var i = 0; i < targets.length; i++) {
         var target = targets[i];
@@ -276,9 +317,21 @@ function downloadFromUrl(srcUrl, appendUrl, apiCache, cacheKey, onEachComplete, 
 function generateApis(buildIdentifier, targetOutputPathList, buildFlags, apiSrcDescription) {
     console.log("Generating PlayFab APIs from specs: " + apiSrcDescription);
     var targetsDir = path.resolve(__dirname, "targets");
+    // Common-SDK-part-begin
+    if (sdkGeneratorGlobals.argsByName.plugins) {
+        targetsDir = path.resolve(__dirname, "common-sdk/plugin-generator/targets");
+    }
+    // Common-SDK-part-end
     for (var targIdx = 0; targIdx < targetOutputPathList.length; targIdx++) {
         var target = targetOutputPathList[targIdx];
         var targetSourceDir = path.resolve(targetsDir, target.name);
+        // Common-SDK-part-begin
+        if (sdkGeneratorGlobals.argsByName.plugins) {
+            // Copy plugin descriptor
+            copyTree(path.resolve(__dirname, "common-sdk/plugin-generator/plugin-metadata/" + target.pluginDirName), path.resolve(target.dest, ".."));
+            targetSourceDir = path.resolve(targetsDir, target.name + '/' + target.pluginDirName);
+        }
+        // Common-SDK-part-end
         var targetMain = path.resolve(targetSourceDir, "make.js");
         console.log("Making target from: " + targetMain + "\n - to: " + target.dest);
         var targetMaker = require(targetMain);

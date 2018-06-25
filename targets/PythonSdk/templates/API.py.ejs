@@ -22,7 +22,7 @@ def MultiStepClientLogin(settingsForUser):
         AttributeInstall(request, None)<% } %>
 
 <% for(var i in api.calls) { var apiCall = api.calls[i];
-%><%- generateApiSummary("", apiCall, "summary", ["https://api.playfab.com/documentation/" + api.name + "/method/" + apiCall.name ])
+%><%- generateApiSummary("", apiCall, "summary", ["https://api.playfab.com/documentation/" + api.name.toLowerCase() + "/method/" + apiCall.name ])
 %><%- getDeprecationAttribute("", apiCall)
 %>def <%- apiCall.name %>(request, callback, customData = None, extraHeaders = None):
 <%- getRequestActions("    ", apiCall) 

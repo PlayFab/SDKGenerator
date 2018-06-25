@@ -61,62 +61,43 @@ exports.makeCombinedAPI = function (apis, sourceDir, apiOutputDir) {
     generateSimpleFiles(apis, sourceDir, apiOutputDir);
 }
 
-// Unlike source, Templates are written one file at a time.
-// You may want to write a helper function to write each template file, so you can call it from multiple places
-function MakeExampleTemplateFile(sourceDir, apiOutputDir) {
-    // Each template must be given any variables/information that it needs for generation.
-    // This might include apis, datatypes, custom functions defined in this make.js file, or anything else you want
-    var locals = {};
+// TODO: comment back in when Models are ready
+//function makeDataTypes(apis, sourceDir, apiOutputDir) {
+//    var modelTemplate = getCompiledTemplate(path.resolve(sourceDir, "templates/Model.py.ejs"));
+//    var modelsTemplate = getCompiledTemplate(path.resolve(sourceDir, "templates/Models.py.ejs"));
+//    var enumTemplate = getCompiledTemplate(path.resolve(sourceDir, "templates/Enum.py.ejs"));
+//    var jsonTemplate = getCompiledTemplate(path.resolve(sourceDir, "templates/PlayFabJson.py.ejs"));
 
-    locals.GeneratedText = "This is generated text"; // A specific variable we wish to access in exampleTemplate.txt.ejs
-    locals.sdkVersion = exports.sdkVersion; // exports.sdkVersion is automatically injected into this file from generate.js, and comes from SdkManualNotes.json - you must provide your target in that file
+//    var makeDatatype = function (datatype, api) {
+//        var modelLocals = {
+//            api: api,
+//            datatype: datatype,
+//            multiTab: multiTab,
+//            generateApiSummary: generateApiSummary,
+//            getModelPropertyDef: getModelPropertyDef,
+//            getPropertyAttribs: getPropertyAttribs,
+//            getBaseTypeSyntax: getBaseTypeSyntax,
+//            getDeprecationAttribute: getDeprecationAttribute,
+//            getDefaultValueForType: getDefaultValueForType,
+//            addInitializeFunction: addInitializeFunction,
+//            getJsonSerialization: getJsonSerialization,
+//            getComparator: getComparator,
+//        };
 
-    // Compiles the source .ejs file into a template function.
-    var template = getCompiledTemplate(path.resolve(sourceDir, "templates/exampleTemplate.txt.ejs"));
+//        writeFile(path.resolve(apiOutputDir, "source/PlayFabJson.py"), jsonTemplate(modelLocals));
 
-    // Call the template function, which executes the template, and evaluates all the ejs tags/logic
-    var generatedTemplateText = template(locals);
+//        return (datatype.isenum) ? enumTemplate(modelLocals) : modelTemplate(modelLocals);
+//    };
 
-    // generatedTemplateText is an in-memory string of the output file.  At this point, you just write it to the destination:
-    writeFile(path.resolve(apiOutputDir, "exampleTemplate.txt"), generatedTemplateText);
-}
+//    for (var a = 0; a < apis.length; a++) {
+//        var modelsLocal = {
+//            api: apis[a],
+//            makeDatatype: makeDatatype
+//        };
 
-function makeDataTypes(apis, sourceDir, apiOutputDir) {
-    var modelTemplate = getCompiledTemplate(path.resolve(sourceDir, "templates/Model.py.ejs"));
-    var modelsTemplate = getCompiledTemplate(path.resolve(sourceDir, "templates/Models.py.ejs"));
-    var enumTemplate = getCompiledTemplate(path.resolve(sourceDir, "templates/Enum.py.ejs"));
-    var jsonTemplate = getCompiledTemplate(path.resolve(sourceDir, "templates/PlayFabJson.py.ejs"));
-
-    var makeDatatype = function (datatype, api) {
-        var modelLocals = {
-            api: api,
-            datatype: datatype,
-            multiTab: multiTab,
-            generateApiSummary: generateApiSummary,
-            getModelPropertyDef: getModelPropertyDef,
-            getPropertyAttribs: getPropertyAttribs,
-            getBaseTypeSyntax: getBaseTypeSyntax,
-            getDeprecationAttribute: getDeprecationAttribute,
-            getDefaultValueForType: getDefaultValueForType,
-            addInitializeFunction: addInitializeFunction,
-            getJsonSerialization: getJsonSerialization,
-            getComparator: getComparator,
-        };
-
-        writeFile(path.resolve(apiOutputDir, "source/PlayFabJson.py"), jsonTemplate(modelLocals));
-
-        return (datatype.isenum) ? enumTemplate(modelLocals) : modelTemplate(modelLocals);
-    };
-
-    for (var a = 0; a < apis.length; a++) {
-        var modelsLocal = {
-            api: apis[a],
-            makeDatatype: makeDatatype
-        };
-
-        writeFile(path.resolve(apiOutputDir, "source/PlayFab" + apis[a].name + "Models.py"), modelsTemplate(modelsLocal));
-    }
-}
+//        writeFile(path.resolve(apiOutputDir, "source/PlayFab" + apis[a].name + "Models.py"), modelsTemplate(modelsLocal));
+//    }
+//}
 
 function makeApi(api, sourceDir, apiOutputDir) {
     console.log("Generating Python " + api.name + " library to " + apiOutputDir);
@@ -132,8 +113,6 @@ function makeApi(api, sourceDir, apiOutputDir) {
         getDefaultValueForType: getDefaultValueForType,
         generateApiSummary: generateApiSummary,
         addInitializeFunction: addInitializeFunction,
-        //commentOutClassesWithoutProperties: commentOutClassesWithoutProperties,
-        getJsonSerialization: getJsonSerialization,
         hasClientOptions: api.name === "Client"
     };
 
@@ -148,18 +127,6 @@ function generateSimpleFiles(apis, sourceDir, apiOutputDir) {
 
     var errorsTemplate = getCompiledTemplate(path.resolve(sourceDir, "templates/Errors.py.ejs"));
     writeFile(path.resolve(apiOutputDir, "source/PlayFabErrors.py"), errorsTemplate(errorLocals));
-
-    var settingsLocals = {};
-    settingsLocals.hasServerOptions = false;
-    settingsLocals.hasClientOptions = false;
-    settingsLocals.sdkVersion = exports.sdkVersion;
-    settingsLocals.buildIdentifier = exports.buildIdentifier;
-    for (var i = 0; i < apis.length; i++) {
-        if (apis[i].name === "Client")
-            settingsLocals.hasClientOptions = true;
-        else
-            settingsLocals.hasServerOptions = true;
-    }
 }
 
 function getDeprecationAttribute(tabbing, apiObj) {
@@ -377,10 +344,10 @@ function getDefaultValueForType(property, datatype) {
     else if (property.actualtype === "double")
         return "0.0";
     else if (property.actualtype === "DateTime")
-        return "datetime.date.today()";
+        return "datetime.min";
     else if (property.isclass)
-        return property.actualtype;
-    else if (property.isenum) //TODO: figure out default enum or val at 0
+        return property.actualtype + "()";
+    else if (property.isenum)
         return property.actualtype;
     else if (property.actualtype === "object")
         return "None";
@@ -391,20 +358,4 @@ function getDefaultValueForType(property, datatype) {
 function addInitializeFunction(tabbing, propertySize)
 {
     return tabbing + (propertySize > 0 ? "def __init__(self):" : "def __init__(self):\n"+tabbing+"    pass");
-}
-
-//function commentOutClassesWithoutProperties(tabbing, propertyCount)
-//{
-//    if (propertyCount == 0)
-//    {
-//        return tabbing + "# This class has no properties, and cannot be instantiated in python.\n"+tabbing+"#";
-//    }
-//}
-function getJsonSerialization(tabbing, properties)
-{
-    var def = tabbing+"def fromJson(json):\n" + tabbing + "    return {";
-
-    //// iterate through properties and add them to this dictionary
-
-    //return def + "\n"+tabbing+"    }";
 }

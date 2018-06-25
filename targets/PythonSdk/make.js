@@ -104,15 +104,11 @@ function makeApi(api, sourceDir, apiOutputDir) {
 
     var apiLocals = {
         api: api,
-        multiTab: multiTab,
         getAuthParams: getAuthParams,
         getRequestActions: getRequestActions,
         getResultActions: getResultActions,
         getDeprecationAttribute: getDeprecationAttribute,
-        getComparator: getComparator,
-        getDefaultValueForType: getDefaultValueForType,
         generateApiSummary: generateApiSummary,
-        addInitializeFunction: addInitializeFunction,
         hasClientOptions: api.name === "Client"
     };
 
@@ -143,30 +139,31 @@ function getDeprecationAttribute(tabbing, apiObj) {
     return "";
 }
 
-function getBaseTypeSyntax(datatype) {
-    var parents = [];
+// TODO: This will be needed for Model Generation
+//function getBaseTypeSyntax(datatype) {
+//    var parents = [];
     
-    if (datatype.className.toLowerCase().endsWith("request"))
-        parents.push("PlayFabHTTP.PlayFabRequestCommon");
-    if (datatype.className.toLowerCase().endsWith("response") || datatype.className.toLowerCase().endsWith("result"))
-        parents.push("PlayFabHTTP.PlayFabResultCommon");
-    else {
-        parents.push("PlayFabHTTP.PlayFabBaseObject");
-    }
+//    if (datatype.className.toLowerCase().endsWith("request"))
+//        parents.push("PlayFabHTTP.PlayFabRequestCommon");
+//    if (datatype.className.toLowerCase().endsWith("response") || datatype.className.toLowerCase().endsWith("result"))
+//        parents.push("PlayFabHTTP.PlayFabResultCommon");
+//    else {
+//        parents.push("PlayFabHTTP.PlayFabBaseObject");
+//    }
 
-    //parents.push("PlayFabHTTP.Serializable")
+//    //parents.push("PlayFabHTTP.Serializable")
 
-    if (parents.length > 0) {
-        var output = "(";
-        for (var i = 0; i < parents.length; i++) {
-            if (i !== 0)
-                output += ", ";
-            output += parents[i];
-        }
-        output += ")"
-    }
-    return output;
-}
+//    if (parents.length > 0) {
+//        var output = "(";
+//        for (var i = 0; i < parents.length; i++) {
+//            if (i !== 0)
+//                output += ", ";
+//            output += parents[i];
+//        }
+//        output += ")"
+//    }
+//    return output;
+//}
 
 function getPropertyAttribs(tabbing, property, datatype, api) {
     var attribs = "";
@@ -286,76 +283,78 @@ function generateApiSummary(tabbing, apiElement, summaryParam, extraLines) {
     return output;
 }
 
-function getComparator(tabbing, dataTypeName, dataTypeSortKey)
-{
-    //var output = multiTab(tabbing, 3) + "def __eq__(self, " + dataTypeName + " other):\n" +
-    var output = multiTab(tabbing, 2) + "def __eq__(self, other):\n" +
-        multiTab(tabbing, 3) + "if other == None or other." + dataTypeSortKey + " == None:\n" +
-        multiTab(tabbing, 4) + "return 1\n" +
-        multiTab(tabbing, 3) + "if " + dataTypeSortKey + " == None:\n" +
-        multiTab(tabbing, 4) + "return -1\n"+
-        multiTab(tabbing, 3) + "return "+dataTypeSortKey+".__eq__(self."+dataTypeSortKey+", other."+dataTypeSortKey+")\n";
+// TODO: This will be needed for Model generation in the future
+//function getComparator(tabbing, dataTypeName, dataTypeSortKey)
+//{
+//    //var output = multiTab(tabbing, 3) + "def __eq__(self, " + dataTypeName + " other):\n" +
+//    var output = multiTab(tabbing, 2) + "def __eq__(self, other):\n" +
+//        multiTab(tabbing, 3) + "if other == None or other." + dataTypeSortKey + " == None:\n" +
+//        multiTab(tabbing, 4) + "return 1\n" +
+//        multiTab(tabbing, 3) + "if " + dataTypeSortKey + " == None:\n" +
+//        multiTab(tabbing, 4) + "return -1\n"+
+//        multiTab(tabbing, 3) + "return "+dataTypeSortKey+".__eq__(self."+dataTypeSortKey+", other."+dataTypeSortKey+")\n";
 
-    return output;
-}
+//    return output;
+//}
 
-function multiTab(tabbing, numTabs)
-{
-    var finalTabbing = "";
-    while (numTabs != 0)
-    {
-        finalTabbing += tabbing;
-        numTabs--;
-    }
-    return finalTabbing;
-}
+//function multiTab(tabbing, numTabs)
+//{
+//    var finalTabbing = "";
+//    while (numTabs != 0)
+//    {
+//        finalTabbing += tabbing;
+//        numTabs--;
+//    }
+//    return finalTabbing;
+//}
 
-function getDefaultValueForType(property, datatype) {
+// TODO: This will be needed for Model Generation
+//function getDefaultValueForType(property, datatype) {
 
-    if (property.jsontype === "Number")
-        return "0";
-    if (datatype.jsontype === "String")
-        return "\"\"";
-    if(datatype.JsonType === "Object" && datatype.isOptional)
-        return "None";
-    //if(datatype.JsonType === "Object")
-    //    return "new " + ?namespace ? + datatype.actualtype + "()";
-    if(datatype.JsonType === "Object")
-        return "new " + datatype.actualtype + "()";
+//    if (property.jsontype === "Number")
+//        return "0";
+//    if (datatype.jsontype === "String")
+//        return "\"\"";
+//    if(datatype.JsonType === "Object" && datatype.isOptional)
+//        return "None";
+//    //if(datatype.JsonType === "Object")
+//    //    return "new " + ?namespace ? + datatype.actualtype + "()";
+//    if(datatype.JsonType === "Object")
+//        return "new " + datatype.actualtype + "()";
 
-    if (property.actualtype === "String")
-        return "\"\"";
-    else if (property.actualtype === "Boolean")
-        return "False";
-    else if (property.actualtype === "int16")
-        return "0";
-    else if (property.actualtype === "uint16")
-        return "0";
-    else if (property.actualtype === "int32")
-        return "0";
-    else if (property.actualtype === "uint32")
-        return "0";
-    else if (property.actualtype === "int64")
-        return "0";
-    else if (property.actualtype === "uint64")
-        return "0";
-    else if (property.actualtype === "float")
-        return "0.0";
-    else if (property.actualtype === "double")
-        return "0.0";
-    else if (property.actualtype === "DateTime")
-        return "datetime.min";
-    else if (property.isclass)
-        return property.actualtype + "()";
-    else if (property.isenum)
-        return property.actualtype;
-    else if (property.actualtype === "object")
-        return "None";
-    else
-        throw "Unknown property type: " + property.actualtype + " for " + property.name + " in " + datatype.name;
-}
-
-function addInitializeFunction(tabbing, propertySize)
-{
-    return tabbing + (propertySize > 0 ? "def __init__(self):" : "def __init__(self):\n"+tabbing+"    pass");
-}
+//    if (property.actualtype === "String")
+//        return "\"\"";
+//    else if (property.actualtype === "Boolean")
+//        return "False";
+//    else if (property.actualtype === "int16")
+//        return "0";
+//    else if (property.actualtype === "uint16")
+//        return "0";
+//    else if (property.actualtype === "int32")
+//        return "0";
+//    else if (property.actualtype === "uint32")
+//        return "0";
+//    else if (property.actualtype === "int64")
+//        return "0";
+//    else if (property.actualtype === "uint64")
+//        return "0";
+//    else if (property.actualtype === "float")
+//        return "0.0";
+//    else if (property.actualtype === "double")
+//        return "0.0";
+//    else if (property.actualtype === "DateTime")
+//        return "datetime.min";
+//    else if (property.isclass)
+//        return property.actualtype + "()";
+//    else if (property.isenum)
+//        return property.actualtype;
+//    else if (property.actualtype === "object")
+//        return "None";
+//    else
+//        throw "Unknown property type: " + property.actualtype + " for " + property.name + " in " + datatype.name;
+//}
+//
+//function addInitializeFunction(tabbing, propertySize)
+//{
+//    return tabbing + (propertySize > 0 ? "def __init__(self):" : "def __init__(self):\n"+tabbing+"    pass");
+//}

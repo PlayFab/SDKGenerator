@@ -8,7 +8,7 @@ namespace PlayFab
 {
     /// <summary>
     /// PlayFab Entity APIs provide a variety of core PlayFab features and work consistently across a broad set of entities,
-    /// such as titles, players, characters, and more. API methods for executing CloudScript with an Entity Profile
+    /// such as titles, players, characters, and more.
     /// </summary>
     public class PlayFabEntityAPI
     {
@@ -274,28 +274,6 @@ namespace PlayFab
             var result = resultData.data;
 
             return new PlayFabResult<EmptyResult> { Result = result, CustomData = customData };
-        }
-
-        /// <summary>
-        /// Executes CloudScript using the Entity Profile
-        /// </summary>
-        public static async Task<PlayFabResult<ExecuteCloudScriptResult>> ExecuteEntityCloudScriptAsync(ExecuteEntityCloudScriptRequest request, object customData = null, Dictionary<string, string> extraHeaders = null)
-        {
-            if (PlayFabSettings.EntityToken == null) throw new PlayFabException(PlayFabExceptionCode.EntityTokenNotSet, "Must call GetEntityToken before calling this method");
-
-            var httpResult = await PlayFabSenderHelper.DoPost("/CloudScript/ExecuteEntityCloudScript", request, "X-EntityToken", PlayFabSettings.EntityToken, extraHeaders);
-            if (httpResult is PlayFabError)
-            {
-                var error = (PlayFabError)httpResult;
-                PlayFabSettings.GlobalErrorHandler?.Invoke(error);
-                return new PlayFabResult<ExecuteCloudScriptResult> { Error = error, CustomData = customData };
-            }
-
-            var resultRawJson = (string)httpResult;
-            var resultData = JsonWrapper.DeserializeObject<PlayFabJsonSuccess<ExecuteCloudScriptResult>>(resultRawJson);
-            var result = resultData.data;
-
-            return new PlayFabResult<ExecuteCloudScriptResult> { Result = result, CustomData = customData };
         }
 
         /// <summary>

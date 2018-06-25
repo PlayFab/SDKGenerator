@@ -13,6 +13,7 @@ namespace PlayFab
         Unknown = 1,
         ConnectionError = 2,
         JsonParseError = 3,
+        MatchmakingHopperIdInvalid = 230,
         UnkownError = 500,
         InvalidParams = 1000,
         AccountNotFound = 1001,
@@ -391,11 +392,9 @@ namespace PlayFab
         GameServerConflict = 1386,
         GameServerInternalServerError = 1387,
         GameServerServiceUnavailable = 1388,
-        ExplicitContentDetected = 1389,
-        PIIContentDetected = 1390,
-        InvalidScheduledTaskParameter = 1391,
-        MatchmakingEntityInvalid = 2001,
-        MatchmakingPlayerAttributesInvalid = 2002,
+        MatchmakingInvalidEntityKeyList = 2000,
+        MatchmakingInvalidTicketCreatorProfile = 2001,
+        MatchmakingInvalidUserAttributes = 2002,
         MatchmakingCreateRequestMissing = 2003,
         MatchmakingCreateRequestCreatorMissing = 2004,
         MatchmakingCreateRequestCreatorIdMissing = 2005,
@@ -407,7 +406,7 @@ namespace PlayFab
         MatchmakingHopperIdMissing = 2011,
         MatchmakingTitleIdMissing = 2012,
         MatchmakingTicketIdIdMissing = 2013,
-        MatchmakingPlayerIdMissing = 2014,
+        MatchmakingUserIdMissing = 2014,
         MatchmakingJoinRequestUserMissing = 2015,
         MatchmakingHopperConfigNotFound = 2016,
         MatchmakingMatchNotFound = 2017,
@@ -420,12 +419,10 @@ namespace PlayFab
         MatchmakingCancelTicketServerIdentityInvalid = 2024,
         MatchmakingCancelTicketUserIdentityMismatch = 2025,
         MatchmakingGetMatchIdentityMismatch = 2026,
-        MatchmakingPlayerIdentityMismatch = 2027,
+        MatchmakingUserIdentityMismatch = 2027,
         MatchmakingAlreadyJoinedTicket = 2028,
         MatchmakingTicketAlreadyCompleted = 2029,
-        MatchmakingHopperIdInvalid = 2030,
-        MatchmakingHopperConfigInvalid = 2031,
-        MatchmakingMemberProfileInvalid = 2032
+        MatchmakingHopperConfigInvalid = 2031
     }
 
     public class PlayFabError

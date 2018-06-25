@@ -1594,6 +1594,7 @@ namespace PlayFab.AdminModels
     public enum GenericErrorCodes
     {
         Success,
+        MatchmakingHopperIdInvalid,
         UnkownError,
         InvalidParams,
         AccountNotFound,
@@ -1972,11 +1973,9 @@ namespace PlayFab.AdminModels
         GameServerConflict,
         GameServerInternalServerError,
         GameServerServiceUnavailable,
-        ExplicitContentDetected,
-        PIIContentDetected,
-        InvalidScheduledTaskParameter,
-        MatchmakingEntityInvalid,
-        MatchmakingPlayerAttributesInvalid,
+        MatchmakingInvalidEntityKeyList,
+        MatchmakingInvalidTicketCreatorProfile,
+        MatchmakingInvalidUserAttributes,
         MatchmakingCreateRequestMissing,
         MatchmakingCreateRequestCreatorMissing,
         MatchmakingCreateRequestCreatorIdMissing,
@@ -1988,7 +1987,7 @@ namespace PlayFab.AdminModels
         MatchmakingHopperIdMissing,
         MatchmakingTitleIdMissing,
         MatchmakingTicketIdIdMissing,
-        MatchmakingPlayerIdMissing,
+        MatchmakingUserIdMissing,
         MatchmakingJoinRequestUserMissing,
         MatchmakingHopperConfigNotFound,
         MatchmakingMatchNotFound,
@@ -2001,12 +2000,10 @@ namespace PlayFab.AdminModels
         MatchmakingCancelTicketServerIdentityInvalid,
         MatchmakingCancelTicketUserIdentityMismatch,
         MatchmakingGetMatchIdentityMismatch,
-        MatchmakingPlayerIdentityMismatch,
+        MatchmakingUserIdentityMismatch,
         MatchmakingAlreadyJoinedTicket,
         MatchmakingTicketAlreadyCompleted,
-        MatchmakingHopperIdInvalid,
-        MatchmakingHopperConfigInvalid,
-        MatchmakingMemberProfileInvalid
+        MatchmakingHopperConfigInvalid
     }
 
     public class GetActionsOnPlayersInSegmentTaskInstanceResult : PlayFabResultCommon

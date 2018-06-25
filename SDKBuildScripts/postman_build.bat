@@ -7,3 +7,5 @@ rem === BUILDING PostmanCollection with params %* ===
 node generate.js postman=..\sdks\PostmanCollection %*
 )
 popd
+
+pause

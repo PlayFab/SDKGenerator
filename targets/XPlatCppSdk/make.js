@@ -197,7 +197,7 @@ function getPropertyToJson(tabbing, property, datatype) {
         return tabbing + "output[\"" + property.name + "\"] = " + safePropName + ";";
     if (property.jsontype === "Object")
         return tabbing + "Json::Value each_" + safePropName + "; ToJsonUtilO(" + safePropName + ", each_" + safePropName + "); output[\"" + property.name + "\"] = each_" + safePropName + ";";
-    if (property.isenum && (property.HTMLAllCollection || property.optional))
+    if (property.isenum && (property.collection || property.optional))
         return tabbing + "Json::Value each_" + safePropName + "; ToJsonUtilE(" + safePropName + ", each_" + safePropName + "); output[\"" + property.name + "\"] = each_" + safePropName + ";";
     if (property.isenum)
         return tabbing + "Json::Value each_" + safePropName + "; ToJsonEnum(" + safePropName + ", each_" + safePropName + "); output[\"" + property.name + "\"] = each_" + safePropName + ";";

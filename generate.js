@@ -18,6 +18,7 @@ var defaultApiSpecFilePath = "../API_Specs"; // Relative path to Generate.js
 var defaultApiSpecGitHubUrl = "https://raw.githubusercontent.com/PlayFab/API_Specs/master";
 var defaultApiSpecPlayFabUrl = "https://www.playfabapi.com/apispec";
 var tocFilename = "TOC.json";
+var tocCacheKey = "TOC";
 /////////////////////////////////// The main build sequence for this program ///////////////////////////////////
 function parseAndLoadApis() {
     console.log("My args:" + process.argv.join(" "));
@@ -161,12 +162,12 @@ function mapSpecMethods(docObj) {
     for (var i = 0; i < genMethods.length; i++) {
         var funcName = genMethods[i];
         if (!sdkGeneratorGlobals.sdkDocsByMethodName[funcName])
-            sdkGeneratorGlobals.sdkDocsByMethodName[funcName] = { funcName: funcName, apiDocPaths: [] };
-        sdkGeneratorGlobals.sdkDocsByMethodName[funcName].apiDocPaths.push(docObj.path);
+            sdkGeneratorGlobals.sdkDocsByMethodName[funcName] = { funcName: funcName, apiDocKeys: [] };
+        sdkGeneratorGlobals.sdkDocsByMethodName[funcName].apiDocKeys.push(docObj.docKey);
     }
 }
 function loadApisFromLocalFiles(argsByName, apiCache, apiSpecPath, onComplete) {
-    function loadEachFile(filename, optional) {
+    function loadEachFile(filename, cacheKey, optional) {
         var fullPath = path.resolve(apiSpecPath, filename);
         console.log("Begin reading File: " + fullPath);
         var fileContents = null;
@@ -179,17 +180,16 @@ function loadApisFromLocalFiles(argsByName, apiCache, apiSpecPath, onComplete) {
                 throw err;
         }
         if (fileContents) {
-            apiCache[filename] = fileContents;
+            apiCache[cacheKey] = fileContents;
         }
         console.log("Finished reading: " + fullPath);
     }
-    loadEachFile(tocFilename, false);
-    var docList = apiCache[tocFilename].documents;
+    loadEachFile(tocFilename, tocCacheKey, false);
+    var docList = apiCache[tocCacheKey].documents;
     for (var dIdx = 0; dIdx < docList.length; dIdx++) {
         var genMethods = docList[dIdx].sdkGenMakeMethods;
         if (genMethods) {
-            loadEachFile(docList[dIdx].path, docList[dIdx].isOptional);
-            apiCache[docList[dIdx].path].id = dIdx; // Assign an internal, auto-generated ID so we can identify them later
+            loadEachFile(docList[dIdx].relPath, docList[dIdx].docKey, docList[dIdx].isOptional);
             mapSpecMethods(docList[dIdx]);
         }
     }
@@ -207,16 +207,16 @@ function loadApisFromGitHub(argsByName, apiCache, apiSpecGitUrl, onComplete) {
         }
     }
     function onTocComplete() {
-        var docList = apiCache[tocFilename].documents;
+        var docList = apiCache[tocCacheKey].documents;
         for (var dIdx = 0; dIdx < docList.length; dIdx++) {
             if (docList[dIdx].sdkGenMakeMethods) {
                 finishCountdown += 1;
-                downloadFromUrl(apiSpecGitUrl, docList[dIdx].path, apiCache, docList[dIdx].path, onEachComplete, docList[dIdx].isOptional);
+                downloadFromUrl(apiSpecGitUrl, docList[dIdx].relPath, apiCache, docList[dIdx].docKey, onEachComplete, docList[dIdx].isOptional);
                 mapSpecMethods(docList[dIdx]);
             }
         }
     }
-    downloadFromUrl(apiSpecGitUrl, tocFilename, apiCache, tocFilename, onTocComplete, false);
+    downloadFromUrl(apiSpecGitUrl, tocFilename, apiCache, tocCacheKey, onTocComplete, false);
 }
 function loadApisFromPlayFabServer(argsByName, apiCache, apiSpecPfUrl, onComplete) {
     var finishCountdown = 0;
@@ -229,19 +229,19 @@ function loadApisFromPlayFabServer(argsByName, apiCache, apiSpecPfUrl, onComplet
         }
     }
     function onTocComplete() {
-        var docList = apiCache[tocFilename].documents;
+        var docList = apiCache[tocCacheKey].documents;
         for (var dIdx = 0; dIdx < docList.length; dIdx++) {
             if (docList[dIdx].sdkGenMakeMethods) {
                 finishCountdown += 1;
-                if (docList[dIdx].path !== "SdkManualNotes.json")
-                    downloadFromUrl(apiSpecPfUrl, docList[dIdx].shortname, apiCache, docList[dIdx].path, onEachComplete, false);
+                if (!docList[dIdx].relPath.contains("SdkManualNotes"))
+                    downloadFromUrl(apiSpecPfUrl, docList[dIdx].docKey, apiCache, docList[dIdx].docKey, onEachComplete, false);
                 else
-                    downloadFromUrl(defaultApiSpecGitHubUrl, docList[dIdx].path, apiCache, docList[dIdx].path, onEachComplete, false);
+                    downloadFromUrl(defaultApiSpecGitHubUrl, docList[dIdx].relPath, apiCache, docList[dIdx].docKey, onEachComplete, false);
                 mapSpecMethods(docList[dIdx]);
             }
         }
     }
-    downloadFromUrl(defaultApiSpecGitHubUrl, tocFilename, apiCache, tocFilename, onTocComplete, false);
+    downloadFromUrl(defaultApiSpecGitHubUrl, tocFilename, apiCache, tocCacheKey, onTocComplete, false);
 }
 function downloadFromUrl(srcUrl, appendUrl, apiCache, cacheKey, onEachComplete, optional) {
     srcUrl = srcUrl.endsWith("/") ? srcUrl : srcUrl + "/";
@@ -284,7 +284,7 @@ function generateApis(buildIdentifier, targetOutputPathList, buildFlags, apiSrcD
         var targetMaker = require(targetMain);
         // It would probably be better to pass these into the functions, but I don't want to change all the make___Api parameters for all projects today.
         //   For now, just change the global variables in each with the data loaded from SdkManualNotes.json
-        var apiNotes = getApiJson("SdkManualNotes.json");
+        var apiNotes = getApiJson("SdkManualNotes");
         targetMaker.sdkVersion = apiNotes.sdkVersion[target.name];
         targetMaker.buildIdentifier = buildIdentifier;
         if (targetMaker.sdkVersion === null) {
@@ -293,7 +293,7 @@ function generateApis(buildIdentifier, targetOutputPathList, buildFlags, apiSrcD
         }
         for (var funcIdx in sdkGeneratorGlobals.sdkDocsByMethodName) {
             var funcName = sdkGeneratorGlobals.sdkDocsByMethodName[funcIdx].funcName;
-            var funcDocNames = sdkGeneratorGlobals.sdkDocsByMethodName[funcIdx].apiDocPaths;
+            var funcDocNames = sdkGeneratorGlobals.sdkDocsByMethodName[funcIdx].apiDocKeys;
             var jsonDocList = [];
             for (var docIdx = 0; docIdx < funcDocNames.length; docIdx++)
                 jsonDocList.push(getApiDefinition(funcDocNames[docIdx], buildFlags));
@@ -307,8 +307,8 @@ function generateApis(buildIdentifier, targetOutputPathList, buildFlags, apiSrcD
     }
     console.log("\n\nDONE!\n");
 }
-function getApiDefinition(apiFileName, buildFlags) {
-    var api = getApiJson(apiFileName);
+function getApiDefinition(cacheKey, buildFlags) {
+    var api = getApiJson(cacheKey);
     if (!api)
         return null;
     // Special case, "obsolete" is treated as an SdkGenerator flag, but is not an actual flag in pf-main
@@ -570,9 +570,9 @@ function writeFile(filename, data) {
 }
 global.writeFile = writeFile;
 // Fetch the object parsed from an api-file, from the cache (can't load synchronously from URL-options, so we have to pre-cache them)
-function getApiJson(apiFileName) {
-    if (sdkGeneratorGlobals.apiCache.hasOwnProperty(apiFileName))
-        return sdkGeneratorGlobals.apiCache[apiFileName];
+function getApiJson(cacheKey) {
+    if (sdkGeneratorGlobals.apiCache.hasOwnProperty(cacheKey))
+        return sdkGeneratorGlobals.apiCache[cacheKey];
     return null;
 }
 global.getApiJson = getApiJson;

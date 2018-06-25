@@ -1,5 +1,4 @@
 var path = require("path");
-var blueprint = require("./make-bp.js");
 
 // Making resharper less noisy - These are defined in Generate.js
 if (typeof (generateApiSummaryLines) === "undefined") generateApiSummaryLines = function () { };
@@ -8,15 +7,22 @@ if (typeof (templatizeTree) === "undefined") templatizeTree = function () { };
 
 var maxEnumSize = 255;
 
+var copyright =
+`//////////////////////////////////////////////////////
+// Copyright (C) Microsoft. 2018. All rights reserved.
+//////////////////////////////////////////////////////
+`;
+
 exports.makeCombinedAPI = function (apis, sourceDir, apiOutputDir) {
     var locals = {
         apis: apis,
         buildIdentifier: exports.buildIdentifier,
+        copyright: copyright,
         errorList: apis[0].errorList,
         errors: apis[0].errors,
         friendlyName: "PlayFab Cpp Sdk",
         sdkVersion: exports.sdkVersion,
-        ueTargetVersion: "4.19"
+        ueTargetVersion: "4.19.0"
     };
 
     var subFolders = ["PlayFabSDK", "ExampleProject"]; // Two copies, one for example project, and one as the raw plugin
@@ -24,7 +30,6 @@ exports.makeCombinedAPI = function (apis, sourceDir, apiOutputDir) {
         var eachApiOutputDir = path.resolve(apiOutputDir, subFolders[i]);
         var pluginOutputDir = path.resolve(eachApiOutputDir, "Plugins");
         var outputCodeDir = path.resolve(pluginOutputDir, "PlayFab/Source/PlayFab");
-        var blueprintCodeDir = path.resolve(pluginOutputDir, "PlayFabProxy/Source/PlayFabProxy");
 
         console.log("Generating UE4 C++ combined SDK to " + eachApiOutputDir);
 
@@ -33,8 +38,6 @@ exports.makeCombinedAPI = function (apis, sourceDir, apiOutputDir) {
 
         for (var a = 0; a < apis.length; a++) {
             makeApi(apis[a], sourceDir, outputCodeDir, "Core/");
-            // generate blueprint boilerplate
-            blueprint.MakeBp(apis[a], sourceDir, blueprintCodeDir, "Proxy/");
         }
 
         generateModels(apis, sourceDir, outputCodeDir, "All", "Core/");
@@ -46,6 +49,7 @@ exports.makeCombinedAPI = function (apis, sourceDir, apiOutputDir) {
 function makeApi(api, sourceDir, apiOutputDir, subdir) {
     var apiLocals = {
         api: api,
+        copyright: copyright,
         generateApiSummary: generateApiSummary,
         getAuthParams: getAuthParams,
         getRequestActions: getRequestActions,
@@ -74,6 +78,7 @@ function generateModels(apis, sourceDir, apiOutputDir, libraryName, subdir) {
 
         var modelLocals = {
             api: api,
+            copyright: copyright,
             datatypes: orderedTypes,
             generateApiSummary: generateApiSummary,
             getPropertyCopyValue: getPropertyCopyValue,

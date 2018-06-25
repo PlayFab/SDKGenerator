@@ -18,7 +18,7 @@ exports.makeServerAPI = function (apis, sourceDir, apiOutputDir) {
         throw "Could not find Server API";
 
     // Load PlayStream APIs
-    var playStreamEventModels = getApiJson("PlayStreamEventModels.json");
+    var playStreamEventModels = getApiJson("PlayStreamEventModels");
     // Load API template
     var cloudScriptTemplate = getCompiledTemplate(path.resolve(sourceDir, "templates/CloudScript.d.ts.ejs"));
     var playstreamTemplate = getCompiledTemplate(path.resolve(sourceDir, "templates/PlayStream.d.ts.ejs"));

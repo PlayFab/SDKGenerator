@@ -3,19 +3,7 @@ import PlayFabHTTP
 import PlayFabSettings
 
 <%- generateApiSummary("", api, "description")%>
-<% for(var i in api.calls) { var apiCall = api.calls[i];
-%><%- generateApiSummary("", apiCall, "summary")
-%><%- getDeprecationAttribute("", apiCall)
-%>def <%- apiCall.name %>(request, callback, customData = None, extraHeaders = None):
-<%- getRequestActions("    ", apiCall) %>
-    def wrappedCallback(playFabResult, error):
-<%- getResultActions("        ", apiCall, api) %>
-        if callback:
-            callback(playFabResult, error)
-
-    PlayFabHTTP.DoPost("<%- apiCall.url %>", request, <%- getAuthParams(apiCall) %>, wrappedCallback, customData, extraHeaders)
-
-<% } %><% if (hasClientOptions) {
+<% if (hasClientOptions) {
 %># Determine if the client session ticket is set, without actually making it public
 def IsClientLoggedIn():
     return bool(PlayFabSettings._internalSettings.ClientSessionTicket)
@@ -32,3 +20,17 @@ def MultiStepClientLogin(settingsForUser):
         elif adIdType == PlayFabSettings.AD_TYPE_ANDROID_ID:
             request["Adid"] = adIdVal
         AttributeInstall(request, None)<% } %>
+
+<% for(var i in api.calls) { var apiCall = api.calls[i];
+%><%- generateApiSummary("", apiCall, "summary")
+%><%- getDeprecationAttribute("", apiCall)
+%>def <%- apiCall.name %>(request, callback, customData = None, extraHeaders = None):
+<%- getRequestActions("    ", apiCall) %>
+    def wrappedCallback(playFabResult, error):
+<%- getResultActions("        ", apiCall, api) %>
+        if callback:
+            callback(playFabResult, error)
+
+    PlayFabHTTP.DoPost("<%- apiCall.url %>", request, <%- getAuthParams(apiCall) %>, wrappedCallback, customData, extraHeaders)
+
+<% } %>

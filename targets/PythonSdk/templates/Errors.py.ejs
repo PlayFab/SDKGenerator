@@ -10,13 +10,12 @@ class PlayFabErrorCode(Enum):
     <% } %><% var errorProps = errors[errorList[errorList.length-1]] %><%- errorProps.name %> = <%- errorProps.id %>
 
 class PlayFabError:
-
     # the first args item is expected to be a valid dictionary
     def __init__(self, *args):
         if len(args) == 1:
             self.fromJson(args[0])
         else:
-            self.HttpCode = 0
+            self.HttpCode = 408
             self.HttpStatus = "Request Timeout"
             self.Error = "ServiceUnavailable"
             self.ErrorCode = PlayFabErrorCode.ServiceUnavailable

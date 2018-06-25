@@ -24,7 +24,7 @@ def DoPost(urlPath, request, authKey, authVal, callback, customData = None, extr
     requestHeaders["X-PlayFabSDK"] = PlayFabSettings._internalSettings.SdkVersionString
     requestHeaders["X-ReportErrorAsSuccess"] = "true" # Makes processing PlayFab errors a little easier
 
-    if authKey:
+    if authKey and authVal:
         requestHeaders[authKey] = authVal
 
     httpResponse = requests.post(url, data=j, headers=requestHeaders)
@@ -34,9 +34,9 @@ def DoPost(urlPath, request, authKey, authVal, callback, customData = None, extr
     if httpResponse.status_code != 200:
         # Failed to contact PlayFab Case
         error = PlayFabErrors.PlayFabError()
-        error.code = response.status_code
-        error.errorCode = PlayFabErrors.PlayFabErrorCode.ServiceUnavailable
-        error.errorMessage = "HTTP request never reached Playfab server"
+
+        error.HttpCode = httpResponse.status_code
+        error.HttpStatus = httpResponse.reason
     else:
         # Contacted playfab
         responseWrapper = json.loads(httpResponse.content.decode("utf-8"))
@@ -64,5 +64,5 @@ def callGlobalErrorHandler(error):
     if PlayFabSettings.GlobalErrorHandler:
         try:
             PlayFabSettings.GlobalErrorHandler(error) # Global notification about an API Call failure
-        except:
+        except Exception as e:
             PlayFabSettings.GlobalExceptionLogger(e) # Global notification about exception in caller's callback

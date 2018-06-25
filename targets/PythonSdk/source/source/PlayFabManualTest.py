@@ -25,10 +25,6 @@ request["CustomId"] = customId
 request["TitleId"] = PlayFabSettings.TitleId
 request["LoginTitlePlayerAccountEntity"] = True
 
-customData = ""
-extraHeaders = {}
-
-
 def loginCallback(success, fail):
     if fail:
         print(fail)
@@ -36,7 +32,7 @@ def loginCallback(success, fail):
         print(success)
 
 
-PlayFabClientAPI.LoginWithCustomID(request, loginCallback, customData, extraHeaders)
+PlayFabClientAPI.LoginWithCustomID(request, loginCallback)
 
 
 def entityTokenCallback(success, fail):
@@ -49,7 +45,7 @@ def entityTokenCallback(success, fail):
 
 
 etRequest = {}
-PlayFabEntityAPI.GetEntityToken(etRequest, entityTokenCallback, customData, extraHeaders)
+PlayFabEntityAPI.GetEntityToken(etRequest, entityTokenCallback)
 
 def entityObjectCallback(success, fail):
     if fail:
@@ -59,12 +55,12 @@ def entityObjectCallback(success, fail):
 
 # need to add entity id to this request
 eoRequest = {}
-PlayFabEntityAPI.GetObjects(etRequest, entityObjectCallback, customData, extraHeaders)
+PlayFabEntityAPI.GetObjects(etRequest, entityObjectCallback)
 
 eoRequest2 = {
     "Entity" : EntityKey
 }
-PlayFabEntityAPI.GetObjects(eoRequest2, entityObjectCallback, customData, extraHeaders)
+PlayFabEntityAPI.GetObjects(eoRequest2, entityObjectCallback)
 
 def titleDataReqCallback(success, fail):
     if fail:
@@ -75,7 +71,7 @@ def titleDataReqCallback(success, fail):
 
 try:
     titleDataRequest = {}
-    PlayFabServerAPI.GetTitleData(titleDataRequest, titleDataReqCallback, customData, extraHeaders)
+    PlayFabServerAPI.GetTitleData(titleDataRequest, titleDataReqCallback)
 except PlayFabErrors.PlayFabException as e:
     print("Caught expected error")
     PlayFabSettings.GlobalExceptionLogger(e)
@@ -83,4 +79,4 @@ except PlayFabErrors.PlayFabException as e:
 PlayFabSettings.DeveloperSecretKey = PlayFabManualTestSettings.DeveloperSeceretKey
 
 titleDataRequest2 = {}
-PlayFabServerAPI.GetTitleData(titleDataRequest, titleDataReqCallback, customData, extraHeaders)
+PlayFabServerAPI.GetTitleData(titleDataRequest, titleDataReqCallback)

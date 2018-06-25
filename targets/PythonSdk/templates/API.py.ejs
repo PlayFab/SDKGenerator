@@ -10,7 +10,8 @@ import PlayFabSettings
 <%- getRequestActions("    ", apiCall) %>
     def wrappedCallback(playFabResult, error):
 <%- getResultActions("        ", apiCall, api) %>
-        callback(playFabResult, error)
+        if callback:
+            callback(playFabResult, error)
 
     PlayFabHTTP.DoPost("<%- apiCall.url %>", request, <%- getAuthParams(apiCall) %>, wrappedCallback, customData, extraHeaders)
 
@@ -30,6 +31,4 @@ def MultiStepClientLogin(settingsForUser):
             request["Idfa"] = adIdVal
         elif adIdType == PlayFabSettings.AD_TYPE_ANDROID_ID:
             request["Adid"] = adIdVal
-        PlayFabClientApi.AttributeInstall(request, None)
-
-<% } %>
+        AttributeInstall(request, None)<% } %>

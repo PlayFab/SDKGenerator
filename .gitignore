@@ -11,4 +11,4 @@
 *.user
 *.dat
 *.tmp
-generate.js.map
+*.js.map

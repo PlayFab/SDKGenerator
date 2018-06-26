@@ -1013,6 +1013,8 @@
     <None Include="targets\javascript\testingFiles\PlayFabApiTest.ts" />
   </ItemGroup>
   <ItemGroup>
+    <TypeScriptCompile Include="generate-plugins.ts" />
+    <TypeScriptCompile Include="generate-sdk.ts" />
     <TypeScriptCompile Include="generate.ts" />
     <TypeScriptCompile Include="node.d.ts" />
     <TypeScriptCompile Include="targets\js-node\source\Scripts\typings\PlayFab\PlayFab.d.ts" />

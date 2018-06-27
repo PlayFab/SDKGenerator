@@ -4,7 +4,7 @@ with open("README.md", "r") as fh:
         
 setuptools.setup(
     name="PlayFab",
-    version="0.1.5",
+    version="0.1.8",
     author="Todd Bello",
     author_email="toddbell@microsoft.com",
     description="PlayFab SDK for Python",
@@ -14,7 +14,7 @@ setuptools.setup(
     packages=setuptools.find_packages(),
     classifiers=(
         "Programming Language :: Python :: 3",
-        "License :: OSI Approved :: MIT License",
+        "License :: OSI Approved :: Apache Software License",
         "Operating System :: OS Independent",
     ),
 )

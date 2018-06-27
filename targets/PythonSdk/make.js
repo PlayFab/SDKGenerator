@@ -1,11 +1,27 @@
 var path = require("path");
+var fs = require("fs");
 
 // Making resharper less noisy - These are defined in Generate.js
 if (typeof (templatizeTree) === "undefined") templatizeTree = function () { };
 if (typeof (getCompiledTemplate) === "undefined") getCompiledTemplate = function () { };
 
+function copyOverScripts(sourceDir, apiOutputDir)
+{
+    var srcDir = sourceDir + "\\source";
+    var outDir = apiOutputDir.substr(0, 18);
+    console.log("copying scripts from: " + srcDir + " to: " + apiOutputDir);
+
+    var filesInDir = fs.readdirSync(srcDir);
+    for (var i = 0; i < filesInDir.length; i++) {
+        var filename = filesInDir[i];
+        var file = srcDir + "/" + filename;
+        if (!fs.lstatSync(file).isDirectory())
+            copyFile(file, outDir);
+    }
+}
+
 exports.makeClientAPI2 = function (apis, sourceDir, apiOutputDir) {
-    apiOutputDir += "/PlayFab"
+    apiOutputDir += "\\PlayFab"
     var locals = {
         apis: apis,
         buildIdentifier: exports.buildIdentifier,
@@ -22,10 +38,12 @@ exports.makeClientAPI2 = function (apis, sourceDir, apiOutputDir) {
     for (var i = 0; i < apis.length; i++)
         makeApi(apis[i], sourceDir, apiOutputDir);
     generateSimpleFiles(apis, sourceDir, apiOutputDir);
+
+    copyOverScripts(sourceDir, apiOutputDir);
 }
 
 exports.makeServerAPI = function (apis, sourceDir, apiOutputDir) {
-    apiOutputDir += "/PlayFab"
+    apiOutputDir += "\\PlayFab"
     var locals = {
         apis: apis,
         buildIdentifier: exports.buildIdentifier,
@@ -42,10 +60,11 @@ exports.makeServerAPI = function (apis, sourceDir, apiOutputDir) {
         makeApi(apis[i], sourceDir, apiOutputDir);
 
     generateSimpleFiles(apis, sourceDir, apiOutputDir);
+    copyOverScripts(sourceDir, apiOutputDir);
 }
 
 exports.makeCombinedAPI = function (apis, sourceDir, apiOutputDir) {
-    apiOutputDir += "/PlayFab"
+    apiOutputDir += "\\PlayFab"
     var locals = {
         apis: apis,
         buildIdentifier: exports.buildIdentifier,
@@ -61,6 +80,7 @@ exports.makeCombinedAPI = function (apis, sourceDir, apiOutputDir) {
     for (var i = 0; i < apis.length; i++)
         makeApi(apis[i], sourceDir, apiOutputDir);
     generateSimpleFiles(apis, sourceDir, apiOutputDir);
+    copyOverScripts(sourceDir, apiOutputDir);
 }
 
 // TODO: comment back in when Models are ready

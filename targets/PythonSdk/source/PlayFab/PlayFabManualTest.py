@@ -6,11 +6,11 @@ out of it.
 These test API calls are synchronous and will block the current running python process.
 '''
 
-import PlayFabErrors
-import PlayFabEntityAPI
-import PlayFabSettings
-import PlayFabServerAPI
-import PlayFabClientAPI
+import PlayFab.PlayFabErrors
+import PlayFab.PlayFabEntityAPI
+import PlayFab.PlayFabSettings
+import PlayFab.PlayFabServerAPI
+import PlayFab.PlayFabClientAPI
 import PlayFabManualTestSettings
 
 # This needs to be set for the application to work properly.

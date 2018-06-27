@@ -1,6 +1,6 @@
 import json
-import PlayFabSettings
-import PlayFabErrors
+import PlayFab.PlayFabSettings
+import PlayFab.PlayFabErrors
 import requests
 
 # Note this is a blocking call and will always run synchronously

@@ -498,9 +498,9 @@
     <Content Include="targets\PythonSdk\Archive\PlayFabJson.py" />
     <Content Include="targets\PythonSdk\Archive\PlayFabJson.py.ejs" />
     <Content Include="targets\PythonSdk\Archive\PlayFabUtil.py.ejs" />
-    <Content Include="targets\PythonSdk\source\source\PlayFabHTTP.py" />
-    <Content Include="targets\PythonSdk\source\source\PlayFabManualTest.py" />
-    <Content Include="targets\PythonSdk\source\source\PlayFabSettings.py" />
+    <Content Include="targets\PythonSdk\source\PlayFab\PlayFabHTTP.py" />
+    <Content Include="targets\PythonSdk\source\PlayFab\PlayFabManualTest.py" />
+    <Content Include="targets\PythonSdk\source\PlayFab\PlayFabSettings.py" />
     <Content Include="targets\PythonSdk\templates\API.py.ejs" />
     <Content Include="targets\PythonSdk\templates\Errors.py.ejs" />
     <Content Include="targets\SdkTestingCloudScript\templates\CloudScript.d.ts.ejs" />
@@ -940,7 +940,7 @@
     <Folder Include="targets\PythonSdk\" />
     <Folder Include="targets\PythonSdk\Archive\" />
     <Folder Include="targets\PythonSdk\source\" />
-    <Folder Include="targets\PythonSdk\source\source\" />
+    <Folder Include="targets\PythonSdk\source\PlayFab\" />
     <Folder Include="targets\PythonSdk\templates\" />
     <Folder Include="targets\XPlatCppSdk\" />
     <Folder Include="targets\newTarget\" />

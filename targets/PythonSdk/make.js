@@ -5,6 +5,7 @@ if (typeof (templatizeTree) === "undefined") templatizeTree = function () { };
 if (typeof (getCompiledTemplate) === "undefined") getCompiledTemplate = function () { };
 
 exports.makeClientAPI2 = function (apis, sourceDir, apiOutputDir) {
+    apiOutputDir += "/PlayFab"
     var locals = {
         apis: apis,
         buildIdentifier: exports.buildIdentifier,
@@ -16,15 +17,15 @@ exports.makeClientAPI2 = function (apis, sourceDir, apiOutputDir) {
 
     console.log("Generating Client api from: " + sourceDir + " to: " + apiOutputDir);
 
-    templatizeTree(locals, path.resolve(sourceDir, "source"), apiOutputDir);
+    templatizeTree(locals, path.resolve(sourceDir, "source/PlayFab"), apiOutputDir);
 
     for (var i = 0; i < apis.length; i++)
         makeApi(apis[i], sourceDir, apiOutputDir);
     generateSimpleFiles(apis, sourceDir, apiOutputDir);
 }
 
-
 exports.makeServerAPI = function (apis, sourceDir, apiOutputDir) {
+    apiOutputDir += "/PlayFab"
     var locals = {
         apis: apis,
         buildIdentifier: exports.buildIdentifier,
@@ -35,7 +36,7 @@ exports.makeServerAPI = function (apis, sourceDir, apiOutputDir) {
     };
 
     console.log("Generating Server api from: " + sourceDir + " to: " + apiOutputDir);
-    templatizeTree(locals, path.resolve(sourceDir, "source"), apiOutputDir);
+    templatizeTree(locals, path.resolve(sourceDir, "source/PlayFab"), apiOutputDir);
 
     for(var i=0; i< apis.length; i++)
         makeApi(apis[i], sourceDir, apiOutputDir);
@@ -44,6 +45,7 @@ exports.makeServerAPI = function (apis, sourceDir, apiOutputDir) {
 }
 
 exports.makeCombinedAPI = function (apis, sourceDir, apiOutputDir) {
+    apiOutputDir += "/PlayFab"
     var locals = {
         apis: apis,
         buildIdentifier: exports.buildIdentifier,
@@ -55,7 +57,7 @@ exports.makeCombinedAPI = function (apis, sourceDir, apiOutputDir) {
 
     console.log("Generating Combined Client/Server api from: " + sourceDir + " to: " + apiOutputDir);
 
-    templatizeTree(locals, path.resolve(sourceDir, "source"), apiOutputDir);
+    templatizeTree(locals, path.resolve(sourceDir, "source/PlayFab"), apiOutputDir);
     for (var i = 0; i < apis.length; i++)
         makeApi(apis[i], sourceDir, apiOutputDir);
     generateSimpleFiles(apis, sourceDir, apiOutputDir);
@@ -113,7 +115,7 @@ function makeApi(api, sourceDir, apiOutputDir) {
     };
 
     var apiTemplate = getCompiledTemplate(path.resolve(sourceDir, "templates/API.py.ejs"));
-    writeFile(path.resolve(apiOutputDir, "source/PlayFab" + api.name + "API.py"), apiTemplate(apiLocals));
+    writeFile(path.resolve(apiOutputDir, "PlayFab" + api.name + "API.py"), apiTemplate(apiLocals));
 }
 
 function generateSimpleFiles(apis, sourceDir, apiOutputDir) {
@@ -122,7 +124,7 @@ function generateSimpleFiles(apis, sourceDir, apiOutputDir) {
     errorLocals.errors = apis[0].errors;
 
     var errorsTemplate = getCompiledTemplate(path.resolve(sourceDir, "templates/Errors.py.ejs"));
-    writeFile(path.resolve(apiOutputDir, "source/PlayFabErrors.py"), errorsTemplate(errorLocals));
+    writeFile(path.resolve(apiOutputDir, "PlayFabErrors.py"), errorsTemplate(errorLocals));
 }
 
 function getDeprecationAttribute(tabbing, apiObj) {
@@ -179,24 +181,24 @@ function getPropertyAttribs(tabbing, property, datatype, api) {
     return attribs;
 }
 
-function getModelPropertyDef(property, datatype) {
-    var basicType;
-    if (property.collection) {
-        //basicType = getPropertyCsType(property, datatype, false);
+//function getModelPropertyDef(property, datatype) {
+//    var basicType;
+//    if (property.collection) {
+//        basicType = getPropertyCsType(property, datatype, false);
 
-        //if (property.collection === "array")
-        //    return "List<" + basicType + "> " + property.name;
-        //else if (property.collection === "map")
-        //    return "Dictionary<string," + basicType + "> " + property.name;
-        //else
-        //    throw "Unknown collection type: " + property.collection + " for " + property.name + " in " + datatype.name;
-    }
-    else {
-        //basicType = getPropertyCsType(property, datatype, true);
-        //return basicType + " " + property.name;
-    }
-    return property.name;
-}
+//        if (property.collection === "array")
+//            return "List<" + basicType + "> " + property.name;
+//        else if (property.collection === "map")
+//            return "Dictionary<string," + basicType + "> " + property.name;
+//        else
+//            throw "Unknown collection type: " + property.collection + " for " + property.name + " in " + datatype.name;
+//    }
+//    else {
+//        basicType = getPropertyCsType(property, datatype, true);
+//        return basicType + " " + property.name;
+//    }
+//    return property.name;
+//}
 
 function getAuthParams(apiCall) {
     if (apiCall.url === "/Authentication/GetEntityToken")

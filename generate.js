@@ -3,6 +3,13 @@ var fs = require("fs");
 var https = require("https");
 var path = require("path");
 ejs.delimiter = "\n";
+var defaultApiSpecFilePath = "../API_Specs"; // Relative path to Generate.js
+var defaultApiSpecGitHubUrl = "https://raw.githubusercontent.com/PlayFab/API_Specs/master";
+var defaultApiSpecPlayFabUrl = "https://www.playfabapi.com/apispec";
+var tocFilename = "TOC.json";
+var tocCacheKey = "TOC";
+var specializationTocCacheKey = "specializationTOC";
+var defaultSpecialization = "sdk";
 var sdkGeneratorGlobals = {
     // Frequently, these are passed by reference to avoid over-use of global variables. Unfortunately, the async nature of loading api files required some global references
     // Internal note: We lowercase the argsByName-keys, targetNames, buildIdentifier, and the flags.  Case is maintained for all other argsByName-values, and targets
@@ -12,14 +19,9 @@ var sdkGeneratorGlobals = {
     buildFlags: [],
     apiSrcDescription: "INVALID",
     apiCache: {},
-    sdkDocsByMethodName: {} // When loading TOC, match documents to the SdkGen function that should be called for those docs
+    sdkDocsByMethodName: {},
+    specialization: defaultSpecialization
 };
-var defaultApiSpecFilePath = "../API_Specs"; // Relative path to Generate.js
-var defaultApiSpecGitHubUrl = "https://raw.githubusercontent.com/PlayFab/API_Specs/master";
-var defaultApiSpecPlayFabUrl = "https://www.playfabapi.com/apispec";
-var tocFilename = "TOC.json";
-var tocCacheKey = "TOC";
-var defaultSpecialization = "sdk";
 var specializationContent;
 /////////////////////////////////// The main build sequence for this program ///////////////////////////////////
 function parseAndLoadApis() {
@@ -32,6 +34,9 @@ function parseAndLoadApis() {
 }
 // Wrapper function for Step 3
 function generateSdks() {
+    if (specializationContent["initializeSpecialization"]) {
+        specializationContent["initializeSpecialization"](sdkGeneratorGlobals.apiCache[specializationTocCacheKey]);
+    }
     generateApis(sdkGeneratorGlobals.argsByName["buildidentifier"], sdkGeneratorGlobals.targetOutputPathList, sdkGeneratorGlobals.buildFlags, sdkGeneratorGlobals.apiSrcDescription);
 }
 function reportErrorsAndExit(errorMessages) {
@@ -60,11 +65,10 @@ function parseCommandInputs(args, argsByName, errorMessages, targetOutputPathLis
     // Parse the command line arguments into key-value-pairs
     extractArgs(args, argsByName, targetOutputPathList, errorMessages);
     // Apply defaults
-    var specialization = defaultSpecialization;
     if (argsByName.specialization) {
-        specialization = argsByName.specialization;
+        sdkGeneratorGlobals.specialization = argsByName.specialization;
     }
-    var specializationFile = path.resolve("generate-" + specialization + ".ts");
+    var specializationFile = path.resolve("generate-" + sdkGeneratorGlobals.specialization + ".ts");
     try {
         specializationContent = require(specializationFile);
         if (!specializationContent) {
@@ -183,6 +187,17 @@ function loadAndCacheApis(argsByName, apiCache) {
         loadApisFromPlayFabServer(argsByName, apiCache, argsByName.apispecpfurl, generateSdks);
     }
 }
+function getSpecializationTocRef(apiCache) {
+    var specializationRefs = apiCache[tocCacheKey].specializations;
+    if (specializationRefs) {
+        for (var i = 0; i < specializationRefs.length; i++) {
+            if (specializationRefs[i].name == sdkGeneratorGlobals.specialization) {
+                return specializationRefs[i];
+            }
+        }
+    }
+    return null;
+}
 function mapSpecMethods(docObj) {
     var genMethods = docObj.sdkGenMakeMethods;
     for (var i = 0; i < genMethods.length; i++) {
@@ -210,7 +225,14 @@ function loadApisFromLocalFiles(argsByName, apiCache, apiSpecPath, onComplete) {
         }
         console.log("Finished reading: " + fullPath);
     }
+    // Load TOC
     loadEachFile(tocFilename, tocCacheKey, false);
+    // Load specialization TOC
+    var specializationTocRef = getSpecializationTocRef(apiCache);
+    if (specializationTocRef) {
+        loadEachFile(specializationTocRef.path, specializationTocCacheKey, false);
+    }
+    // Load TOC docs
     var docList = apiCache[tocCacheKey].documents;
     for (var dIdx = 0; dIdx < docList.length; dIdx++) {
         var genMethods = docList[dIdx].sdkGenMakeMethods;
@@ -233,6 +255,13 @@ function loadApisFromGitHub(argsByName, apiCache, apiSpecGitUrl, onComplete) {
         }
     }
     function onTocComplete() {
+        // Load specialization TOC
+        var specializationTocRef = getSpecializationTocRef(apiCache);
+        if (specializationTocRef) {
+            finishCountdown += 1;
+            downloadFromUrl(apiSpecGitUrl, specializationTocRef.path, apiCache, specializationTocCacheKey, onEachComplete, false);
+        }
+        // Load TOC docs
         var docList = apiCache[tocCacheKey].documents;
         for (var dIdx = 0; dIdx < docList.length; dIdx++) {
             if (docList[dIdx].sdkGenMakeMethods) {
@@ -242,6 +271,7 @@ function loadApisFromGitHub(argsByName, apiCache, apiSpecGitUrl, onComplete) {
             }
         }
     }
+    // Load TOC
     downloadFromUrl(apiSpecGitUrl, tocFilename, apiCache, tocCacheKey, onTocComplete, false);
 }
 function loadApisFromPlayFabServer(argsByName, apiCache, apiSpecPfUrl, onComplete) {
@@ -255,6 +285,13 @@ function loadApisFromPlayFabServer(argsByName, apiCache, apiSpecPfUrl, onComplet
         }
     }
     function onTocComplete() {
+        // Load specialization TOC
+        var specializationTocRef = getSpecializationTocRef(apiCache);
+        if (!specializationTocRef) {
+            finishCountdown += 1;
+            downloadFromUrl(defaultApiSpecGitHubUrl, specializationTocRef.path, apiCache, specializationTocCacheKey, onEachComplete, false);
+        }
+        // Load TOC docs
         var docList = apiCache[tocCacheKey].documents;
         for (var dIdx = 0; dIdx < docList.length; dIdx++) {
             if (docList[dIdx].sdkGenMakeMethods) {
@@ -267,6 +304,7 @@ function loadApisFromPlayFabServer(argsByName, apiCache, apiSpecPfUrl, onComplet
             }
         }
     }
+    // Load TOC
     downloadFromUrl(defaultApiSpecGitHubUrl, tocFilename, apiCache, tocCacheKey, onTocComplete, false);
 }
 function downloadFromUrl(srcUrl, appendUrl, apiCache, cacheKey, onEachComplete, optional) {

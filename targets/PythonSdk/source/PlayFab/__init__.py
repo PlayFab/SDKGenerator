@@ -1,10 +1,10 @@
-import PlayFab.PlayFabAdminAPI as PlayFabAdminAPI
-import PlayFab.PlayFabClientAPI as PlayFabClientAPI
-import PlayFab.PlayFabEntityAPI as PlayFabEntityAPI
-import PlayFab.PlayFabErrors as PlayFabErrors
-import PlayFab.PlayFabHTTP as PlayFabHTTP
-import PlayFab.PlayFabMatchmakerAPI as PlayFabMatchmakerAPI
-import PlayFab.PlayFabServerAPI as PlayFabServerAPI
-import PlayFab.PlayFabSettings as PlayFabSettings
+import playfab.PlayFabAdminAPI as PlayFabAdminAPI
+import playfab.PlayFabClientAPI as PlayFabClientAPI
+import playfab.PlayFabEntityAPI as PlayFabEntityAPI
+import playfab.PlayFabErrors as PlayFabErrors
+import playfab.PlayFabHTTP as PlayFabHTTP
+import playfab.PlayFabMatchmakerAPI as PlayFabMatchmakerAPI
+import playfab.PlayFabServerAPI as PlayFabServerAPI
+import playfab.PlayFabSettings as PlayFabSettings
 
-__all__ = ["PlayFab.PlayFabAdminApi", "PlayFab.PlayFabClientAPI", "PlayFab.PlayFabEntityAPI", "PlayFab.PlayFabErrors", "PlayFab.PlayFabHTTP", "PlayFab.PlayFabMatchmakerAPI", "PlayFab.PlayFabServerAPI", "PlayFab.PlayFabSettings"]
+__all__ = ["PlayFabAdminAPI", "PlayFabClientAPI", "PlayFabEntityAPI", "PlayFabErrors", "PlayFabHTTP", "PlayFabMatchmakerAPI", "PlayFabServerAPI", "PlayFabSettings"]

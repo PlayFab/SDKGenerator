@@ -1,13 +1,26 @@
+Param(
+    [switch]$prod= $false
+)
+
 cd F:\sdks\PythonSDK\
 
 python setup.py sdist bdist_wheel
 
-twine upload --repository-url https://test.pypi.org/legacy/ dist/*
+switch($prod)
+{
+    $false{
+        # last test version was 0.2.8 any earlier version uploaded will probably get stomped over by pypi's cache
+        twine upload --repository-url https://test.pypi.org/legacy/ dist/*;
 
-python -m pip uninstall PlayFab
+        python -m pip uninstall playfab;
 
-python -m pip install --trusted-host test.pypi.org --upgrade --index-url https://test.pypi.org/simple/ PlayFab
+        python -m pip install --trusted-host test.pypi.org --upgrade --index-url https://test.pypi.org/simple/ playfab;
 
-cd ..\..\pyTest\
+        cd ..\..\pyTest\;
 
-python
+        python;
+    }
+    $true{
+        twine upload dist/*;
+    }
+}

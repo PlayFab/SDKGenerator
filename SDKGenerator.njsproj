@@ -940,7 +940,7 @@
     <Folder Include="targets\PythonSdk\" />
     <Folder Include="targets\PythonSdk\Archive\" />
     <Folder Include="targets\PythonSdk\source\" />
-    <Folder Include="targets\PythonSdk\source\PlayFab\" />
+    <Folder Include="targets\PythonSdk\source\playfab\" />
     <Folder Include="targets\PythonSdk\templates\" />
     <Folder Include="targets\XPlatCppSdk\" />
     <Folder Include="targets\newTarget\" />

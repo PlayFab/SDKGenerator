@@ -20,49 +20,6 @@ function copyOverScripts(sourceDir, apiOutputDir)
     }
 }
 
-exports.makeClientAPI2 = function (apis, sourceDir, apiOutputDir) {
-    apiOutputDir += "\\playfab"
-    var locals = {
-        apis: apis,
-        buildIdentifier: exports.buildIdentifier,
-        errorList: apis[0].errorList,
-        errors: apis[0].errors,
-        friendlyName: "PlayFab Python Client Sdk",
-        sdkVersion: exports.sdkVersion
-    };
-
-    console.log("Generating Client api from: " + sourceDir + " to: " + apiOutputDir);
-
-    templatizeTree(locals, path.resolve(sourceDir, "source/playfab"), apiOutputDir);
-
-    for (var i = 0; i < apis.length; i++)
-        makeApi(apis[i], sourceDir, apiOutputDir);
-    generateSimpleFiles(apis, sourceDir, apiOutputDir);
-
-    copyOverScripts(sourceDir, apiOutputDir);
-}
-
-exports.makeServerAPI = function (apis, sourceDir, apiOutputDir) {
-    apiOutputDir += "\\playfab"
-    var locals = {
-        apis: apis,
-        buildIdentifier: exports.buildIdentifier,
-        errorList: apis[0].errorList,
-        errors: apis[0].errors,
-        friendlyName: "PlayFab Python Server Sdk",
-        sdkVersion: exports.sdkVersion
-    };
-
-    console.log("Generating Server api from: " + sourceDir + " to: " + apiOutputDir);
-    templatizeTree(locals, path.resolve(sourceDir, "source/playfab"), apiOutputDir);
-
-    for(var i=0; i< apis.length; i++)
-        makeApi(apis[i], sourceDir, apiOutputDir);
-
-    generateSimpleFiles(apis, sourceDir, apiOutputDir);
-    copyOverScripts(sourceDir, apiOutputDir);
-}
-
 exports.makeCombinedAPI = function (apis, sourceDir, apiOutputDir) {
     apiOutputDir += "\\playfab"
     var locals = {

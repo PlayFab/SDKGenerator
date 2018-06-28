@@ -4,9 +4,9 @@ with open("README.md", "r") as fh:
         
 setuptools.setup(
     name="playfab",
-    version="0.0.1",
-    author="Todd Bello",
-    author_email="toddbell@microsoft.com",
+    version="0.0.2",
+    author="PlayFab Dev Tools team",
+    author_email="playfabdt@microsoft.com",
     description="PlayFab SDK for Python",
     long_description=long_description,
     long_description_content_type="text/markdown",

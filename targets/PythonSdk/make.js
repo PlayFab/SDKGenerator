@@ -1,27 +1,20 @@
 var path = require("path");
-var fs = require("fs");
 
 // Making resharper less noisy - These are defined in Generate.js
 if (typeof (templatizeTree) === "undefined") templatizeTree = function () { };
 if (typeof (getCompiledTemplate) === "undefined") getCompiledTemplate = function () { };
 
+// moves over setup.py and uploadPython.sh
 function copyOverScripts(sourceDir, apiOutputDir)
 {
     var srcDir = sourceDir + "\\source";
-    var outDir = apiOutputDir.substr(0, 18);
-    console.log("copying scripts from: " + srcDir + " to: " + apiOutputDir);
-
-    var filesInDir = fs.readdirSync(srcDir);
-    for (var i = 0; i < filesInDir.length; i++) {
-        var filename = filesInDir[i];
-        var file = srcDir + "/" + filename;
-        if (!fs.lstatSync(file).isDirectory())
-            copyFile(file, outDir);
-    }
+    //var outDir = apiOutputDir.substr(0, 18);
+    var locals = {};
+    templatizeTree(locals, srcDir, apiOutputDir);
 }
 
 exports.makeCombinedAPI = function (apis, sourceDir, apiOutputDir) {
-    apiOutputDir += "\\playfab"
+    playFabOutputDir = apiOutputDir + "\\playfab"
     var locals = {
         apis: apis,
         buildIdentifier: exports.buildIdentifier,
@@ -31,12 +24,16 @@ exports.makeCombinedAPI = function (apis, sourceDir, apiOutputDir) {
         sdkVersion: exports.sdkVersion
     };
 
-    console.log("Generating Combined Client/Server api from: " + sourceDir + " to: " + apiOutputDir);
+    console.log("Generating Combined Client/Server api from: " + sourceDir + " to: " + playFabOutputDir);
 
-    templatizeTree(locals, path.resolve(sourceDir, "source/playfab"), apiOutputDir);
+    templatizeTree(locals, path.resolve(sourceDir, "source/playfab"), playFabOutputDir);
     for (var i = 0; i < apis.length; i++)
-        makeApi(apis[i], sourceDir, apiOutputDir);
-    generateSimpleFiles(apis, sourceDir, apiOutputDir);
+        makeApi(apis[i], sourceDir, playFabOutputDir);
+    generateSimpleFiles(apis, sourceDir, playFabOutputDir);
+
+    var setupTemplate = getCompiledTemplate(path.resolve(sourceDir, "templates/setup.py.ejs"));
+    writeFile(path.resolve(apiOutputDir, "setup.py"), setupTemplate(locals));
+
     copyOverScripts(sourceDir, apiOutputDir);
 }
 
@@ -102,6 +99,7 @@ function generateSimpleFiles(apis, sourceDir, apiOutputDir) {
 
     var errorsTemplate = getCompiledTemplate(path.resolve(sourceDir, "templates/Errors.py.ejs"));
     writeFile(path.resolve(apiOutputDir, "PlayFabErrors.py"), errorsTemplate(errorLocals));
+
 }
 
 function getDeprecationAttribute(tabbing, apiObj) {

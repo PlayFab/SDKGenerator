@@ -2,6 +2,7 @@ Param(
     [switch]$prod= $false
 )
 
+# TODO: this file should be converted to a .sh to be consistent with Jenkins builds.
 cd F:\sdks\PythonSDK\
 
 python setup.py sdist bdist_wheel

@@ -79,6 +79,23 @@ namespace PlayFab.Internal
 
             // Device information gathering
             SendDeviceInfoToPlayFab();
+
+#if ENABLE_PLAYFABENTITY_API
+            string playFabUserId = loginResult.PlayFabId;
+            EntityModels.EntityKey entityKey = new EntityModels.EntityKey();
+            if (loginResult.EntityToken != null)
+            {
+                entityKey.Id = loginResult.EntityToken.Entity.Id;
+                entityKey.Type = (PlayFab.EntityModels.EntityTypes)(int)loginResult.EntityToken.Entity.Type; // possible loss of data 
+                entityKey.TypeString = loginResult.EntityToken.Entity.TypeString;
+
+                PlayFabHttp.InitializeScreenTimeTracker(entityKey, playFabUserId);
+            }
+            else
+            {
+                PlayFabHttp.shouldCollectScreenTime = false;
+            }
+#endif
         }
 
         private static void GetAdvertIdFromUnity()

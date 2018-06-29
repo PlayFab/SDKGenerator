@@ -287,7 +287,7 @@ function loadApisFromPlayFabServer(argsByName, apiCache, apiSpecPfUrl, onComplet
     function onTocComplete() {
         // Load specialization TOC
         var specializationTocRef = getSpecializationTocRef(apiCache);
-        if (!specializationTocRef) {
+        if (specializationTocRef) {
             finishCountdown += 1;
             downloadFromUrl(defaultApiSpecGitHubUrl, specializationTocRef.path, apiCache, specializationTocCacheKey, onEachComplete, false);
         }

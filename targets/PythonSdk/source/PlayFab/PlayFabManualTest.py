@@ -6,11 +6,7 @@ out of it.
 These test API calls are synchronous and will block the current running python process.
 '''
 
-import PlayFabErrors
-import PlayFabEntityAPI
-import PlayFabSettings
-import PlayFabServerAPI
-import PlayFabClientAPI
+from playfab import *
 import PlayFabManualTestSettings
 
 # This needs to be set for the application to work properly.
@@ -31,9 +27,7 @@ def loginCallback(success, fail):
     else:
         print(success)
 
-
 PlayFabClientAPI.LoginWithCustomID(request, loginCallback)
-
 
 def entityTokenCallback(success, fail):
     global EntityKey
@@ -42,7 +36,6 @@ def entityTokenCallback(success, fail):
     else:
         EntityKey = success["Entity"]
         print(success)
-
 
 etRequest = {}
 PlayFabEntityAPI.GetEntityToken(etRequest, entityTokenCallback)
@@ -67,7 +60,6 @@ def titleDataReqCallback(success, fail):
         print(fail)
     else:
         print(success)
-
 
 try:
     titleDataRequest = {}

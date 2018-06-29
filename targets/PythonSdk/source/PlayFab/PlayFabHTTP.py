@@ -1,6 +1,6 @@
 import json
-import PlayFabSettings
-import PlayFabErrors
+import playfab.PlayFabSettings as PlayFabSettings
+import playfab.PlayFabErrors as PlayFabErrors
 import requests
 
 # Note this is a blocking call and will always run synchronously
@@ -12,7 +12,7 @@ def DoPost(urlPath, request, authKey, authVal, callback, customData = None, extr
 
     try:
         j = json.dumps(request)
-    except e:
+    except Exception as e:
         raise PlayFabErrors.PlayFabException("The given request is not json serializable. {}".format(e))
 
     requestHeaders = {}

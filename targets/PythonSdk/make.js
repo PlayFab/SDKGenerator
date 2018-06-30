@@ -5,11 +5,15 @@ if (typeof (templatizeTree) === "undefined") templatizeTree = function () { };
 if (typeof (getCompiledTemplate) === "undefined") getCompiledTemplate = function () { };
 
 // moves over setup.py and uploadPython.sh
-function copyOverScripts(sourceDir, apiOutputDir)
+function copyOverScripts(apis, sourceDir, apiOutputDir)
 {
     var srcDir = sourceDir + "\\source";
-    //var outDir = apiOutputDir.substr(0, 18);
-    var locals = {};
+    var locals = {
+        apis: apis,
+        errorList: apis[0].errorList,
+        errors: apis[0].errors,
+        sdkVersion: exports.sdkVersion,
+    };
     templatizeTree(locals, srcDir, apiOutputDir);
 }
 
@@ -18,9 +22,9 @@ exports.makeCombinedAPI = function (apis, sourceDir, apiOutputDir) {
     var locals = {
         apis: apis,
         buildIdentifier: exports.buildIdentifier,
+        friendlyName: "PlayFab Python Combined Sdk",
         errorList: apis[0].errorList,
         errors: apis[0].errors,
-        friendlyName: "PlayFab Python Combined Sdk",
         sdkVersion: exports.sdkVersion
     };
 
@@ -29,12 +33,8 @@ exports.makeCombinedAPI = function (apis, sourceDir, apiOutputDir) {
     templatizeTree(locals, path.resolve(sourceDir, "source/playfab"), playFabOutputDir);
     for (var i = 0; i < apis.length; i++)
         makeApi(apis[i], sourceDir, playFabOutputDir);
-    generateSimpleFiles(apis, sourceDir, playFabOutputDir);
 
-    var setupTemplate = getCompiledTemplate(path.resolve(sourceDir, "templates/setup.py.ejs"));
-    writeFile(path.resolve(apiOutputDir, "setup.py"), setupTemplate(locals));
-
-    copyOverScripts(sourceDir, apiOutputDir);
+    copyOverScripts(apis, sourceDir, apiOutputDir);
 }
 
 // TODO: comment back in when Models are ready
@@ -90,16 +90,6 @@ function makeApi(api, sourceDir, apiOutputDir) {
 
     var apiTemplate = getCompiledTemplate(path.resolve(sourceDir, "templates/API.py.ejs"));
     writeFile(path.resolve(apiOutputDir, "PlayFab" + api.name + "API.py"), apiTemplate(apiLocals));
-}
-
-function generateSimpleFiles(apis, sourceDir, apiOutputDir) {
-    var errorLocals = {};
-    errorLocals.errorList = apis[0].errorList;
-    errorLocals.errors = apis[0].errors;
-
-    var errorsTemplate = getCompiledTemplate(path.resolve(sourceDir, "templates/Errors.py.ejs"));
-    writeFile(path.resolve(apiOutputDir, "PlayFabErrors.py"), errorsTemplate(errorLocals));
-
 }
 
 function getDeprecationAttribute(tabbing, apiObj) {

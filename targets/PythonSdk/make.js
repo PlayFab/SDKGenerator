@@ -1,20 +1,40 @@
 var path = require("path");
+var fs = require("fs");
 
 // Making resharper less noisy - These are defined in Generate.js
 if (typeof (templatizeTree) === "undefined") templatizeTree = function () { };
 if (typeof (getCompiledTemplate) === "undefined") getCompiledTemplate = function () { };
 
+// TODO: these functions do not show up, even after setting globals.copyOrTemplatizeFile = copyOrTemplatizeFile.
+function checkFileCopy(sourceFile, destFile) {
+    if (!sourceFile || !destFile)
+        throw "ERROR: Invalid copy file parameters: " + sourceFile + " " + destFile;
+    if (!fs.existsSync(sourceFile))
+        throw "ERROR: copyFile source doesn't exist: " + sourceFile;
+    if (fs.lstatSync(sourceFile).isDirectory())
+        throw "ERROR: copyFile source is a directory: " + sourceFile;
+}
+
+function copyOrTemplatizeFile(locals, sourceFile, destFile) {
+    checkFileCopy(sourceFile, destFile);
+    if (!sourceFile.endsWith(".ejs"))
+        return copyFile(sourceFile, destFile);
+    var template = getCompiledTemplate(sourceFile);
+    writeFile(destFile.substr(0, destFile.length - 4), template(locals));
+}
+
+
 // moves over setup.py and uploadPython.sh
-function copyOverScripts(apis, sourceDir, apiOutputDir)
+function copyOverScripts(locals, sourceDir, apiOutputDir)
 {
-    var srcDir = sourceDir + "\\source";
-    var locals = {
-        apis: apis,
-        errorList: apis[0].errorList,
-        errors: apis[0].errors,
-        sdkVersion: exports.sdkVersion,
-    };
-    templatizeTree(locals, srcDir, apiOutputDir);
+    var setupFileName = "setup.py.ejs"
+    var uploadFileName = "uploadPython.ps1"
+
+    copyOrTemplatizeFile(locals, sourceDir + "/" + setupFileName, apiOutputDir + "/" + setupFileName);
+    copyOrTemplatizeFile(locals, sourceDir + "/" + uploadFileName, apiOutputDir + "/" + uploadFileName);
+
+    // TODO: convert to .sh
+    //copyOrTemplatizeFile(locals, file, destPath + "/" + "uploadPython.sh");
 }
 
 exports.makeCombinedAPI = function (apis, sourceDir, apiOutputDir) {
@@ -30,11 +50,11 @@ exports.makeCombinedAPI = function (apis, sourceDir, apiOutputDir) {
 
     console.log("Generating Combined Client/Server api from: " + sourceDir + " to: " + playFabOutputDir);
 
-    templatizeTree(locals, path.resolve(sourceDir, "source/playfab"), playFabOutputDir);
+    templatizeTree(locals, path.resolve(sourceDir, "playfab"), playFabOutputDir);
     for (var i = 0; i < apis.length; i++)
         makeApi(apis[i], sourceDir, playFabOutputDir);
 
-    copyOverScripts(apis, sourceDir, apiOutputDir);
+    copyOverScripts(locals, sourceDir, apiOutputDir);
 }
 
 // TODO: comment back in when Models are ready

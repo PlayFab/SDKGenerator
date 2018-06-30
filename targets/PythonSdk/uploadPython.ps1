@@ -1,5 +1,6 @@
 Param(
     [switch]$prod= $false
+    [string]$PYTHON_API_HASH = "" # default to a null string, if you don't have our password, you shouldn't be able to upload a malicious python package
 )
 
 # TODO: this file should be converted to a .sh to be consistent with Jenkins builds.
@@ -22,6 +23,6 @@ switch($prod)
         python;
     }
     $true{
-        twine upload dist/*;
+        twine upload dist/* -u playfabDevTools -p $PYTHON_API_HASH
     }
 }

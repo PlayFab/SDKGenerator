@@ -9,7 +9,9 @@ function copyOverScripts(sourceDir, apiOutputDir)
 {
     var srcDir = sourceDir + "\\source";
     //var outDir = apiOutputDir.substr(0, 18);
-    var locals = {};
+    var locals = {
+        sdkVersion: exports.sdkVersion
+    };
     templatizeTree(locals, srcDir, apiOutputDir);
 }
 
@@ -31,8 +33,8 @@ exports.makeCombinedAPI = function (apis, sourceDir, apiOutputDir) {
         makeApi(apis[i], sourceDir, playFabOutputDir);
     generateSimpleFiles(apis, sourceDir, playFabOutputDir);
 
-    var setupTemplate = getCompiledTemplate(path.resolve(sourceDir, "templates/setup.py.ejs"));
-    writeFile(path.resolve(apiOutputDir, "setup.py"), setupTemplate(locals));
+    //var setupTemplate = getCompiledTemplate(path.resolve(sourceDir, "setup.py.ejs"));
+    //writeFile(path.resolve(apiOutputDir, "setup.py"), setupTemplate(locals));
 
     copyOverScripts(sourceDir, apiOutputDir);
 }

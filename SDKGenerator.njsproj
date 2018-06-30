@@ -504,7 +504,7 @@
     <Content Include="targets\PythonSdk\source\playfab\__init__.py" />
     <Content Include="targets\PythonSdk\source\uploadPython.ps1" />
     <Content Include="targets\PythonSdk\templates\API.py.ejs" />
-    <Content Include="targets\PythonSdk\templates\Errors.py.ejs" />
+    <Content Include="targets\PythonSdk\source\playfab\PlayFabErrors.py.ejs" />
     <Content Include="targets\PythonSdk\source\setup.py.ejs" />
     <Content Include="targets\SdkTestingCloudScript\templates\CloudScript.d.ts.ejs" />
     <Content Include="targets\SdkTestingCloudScript\templates\Interface.d.ts.ejs" />

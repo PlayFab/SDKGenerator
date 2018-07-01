@@ -1,6 +1,7 @@
 #if <%- getApiDefineFlag(api) %>
 using System;
 using System.Collections.Generic;
+using PlayFab.SharedModels;
 using PlayFab.<%- api.name %>Models;
 using PlayFab.Internal;
 using PlayFab.Json;
@@ -38,6 +39,23 @@ namespace PlayFab
         }<%- getCustomApiFunction("        ", apiCall) %>
 
 <% } %>
+#if UNITY_5_3 || UNITY_5_3_OR_NEWER
+<% for(var i in api.calls) { var apiCall = api.calls[i]; %><%- generateApiSummary("        ", apiCall, "summary") %><%- getDeprecationAttribute("        ", apiCall)
+%>        public static WaitForPlayFabResponse<<%- apiCall.result %>> <%- apiCall.name %>(<%- apiCall.request %> request)
+        {
+             var task = new WaitForPlayFabResponse<<%- apiCall.result %>>();
+
+             <%- apiCall.name %>(
+                 request,
+                 result => task.Complete(result),
+                 error => task.Complete(error)
+             );
+
+             return task;
+        }
+
+<% } %>
+#endif // UNITY_5_3 || UNITY_5_3_OR_NEWER
     }
 }
-#endif
+#endif // <%- getApiDefineFlag(api) %>

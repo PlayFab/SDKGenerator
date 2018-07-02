@@ -1,5 +1,5 @@
 Param(
-    [switch]$prod= $false # this should be called sdks/PythonSdk/uploadPython.ps1 -prod -PYTHON_API_HASH {insert password here through the correct channels}
+    [switch]$prod= $false, # this should be called sdks/PythonSdk/uploadPython.ps1 -prod -PYTHON_API_HASH {insert password here through the correct channels}
     [string]$PYTHON_API_HASH = "" # default to a null string, if you don't have our password, you shouldn't be able to upload a malicious python package
 )
 

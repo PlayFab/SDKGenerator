@@ -24,6 +24,7 @@ Global
 		PostmanCollection|Any CPU = PostmanCollection|Any CPU
 		Python|Any CPU = Python|Any CPU
 		UnitySdk|Any CPU = UnitySdk|Any CPU
+		UnityBeta|Any CPU = UnityBeta|Any CPU
 		UnrealBlueprintSDK|Any CPU = UnrealBlueprintSDK|Any CPU
 		UnrealCppSdk|Any CPU = UnrealCppSdk|Any CPU
 		WindowsSDK|Any CPU = WindowsSDK|Any CPU
@@ -64,6 +65,8 @@ Global
 		{2BA807EF-310C-43B5-8D42-1ABCFFF39BE9}.Python|Any CPU.Build.0 = Python|Any CPU
 		{2BA807EF-310C-43B5-8D42-1ABCFFF39BE9}.UnitySdk|Any CPU.ActiveCfg = UnitySdk|Any CPU
 		{2BA807EF-310C-43B5-8D42-1ABCFFF39BE9}.UnitySdk|Any CPU.Build.0 = UnitySdk|Any CPU
+		{2BA807EF-310C-43B5-8D42-1ABCFFF39BE9}.UnityBeta|Any CPU.ActiveCfg = UnityBeta|Any CPU
+		{2BA807EF-310C-43B5-8D42-1ABCFFF39BE9}.UnityBeta|Any CPU.Build.0 = UnityBeta|Any CPU
 		{2BA807EF-310C-43B5-8D42-1ABCFFF39BE9}.UnrealBlueprintSDK|Any CPU.ActiveCfg = UnrealBlueprintSDK|Any CPU
 		{2BA807EF-310C-43B5-8D42-1ABCFFF39BE9}.UnrealBlueprintSDK|Any CPU.Build.0 = UnrealBlueprintSDK|Any CPU
 		{2BA807EF-310C-43B5-8D42-1ABCFFF39BE9}.UnrealCppSdk|Any CPU.ActiveCfg = UnrealCppSdk|Any CPU

@@ -130,7 +130,7 @@ namespace PlayFab.Internal
         {
             WaitForSeconds delay = new WaitForSeconds(secondsBetweenBatches);
 
-            while (PlayFabSettings.ShouldCollectScreenTime)
+            while (!PlayFabSettings.DisableScreenTimeCollection)
             {
                 screenTimeTracker.Send();
                 yield return delay;
@@ -289,7 +289,7 @@ namespace PlayFab.Internal
             }
 
 #if ENABLE_PLAYFABENTITY_API && ENABLE_PLAYFAB_BETA
-            if ((screenTimeTracker != null) && (PlayFabSettings.PlayFabSettings.ShouldCollectScreenTime != false))
+            if ((screenTimeTracker != null) && (!PlayFabSettings.DisableScreenTimeCollection != false))
             {
                 screenTimeTracker.OnEnable();
             }
@@ -307,7 +307,7 @@ namespace PlayFab.Internal
             }
 
 #if ENABLE_PLAYFABENTITY_API && ENABLE_PLAYFAB_BETA
-            if ((screenTimeTracker != null) && (PlayFabSettings.ShouldCollectScreenTime != false))
+            if ((screenTimeTracker != null) && (!PlayFabSettings.DisableScreenTimeCollection != false))
             {
                 screenTimeTracker.OnDisable();
             }
@@ -335,7 +335,7 @@ namespace PlayFab.Internal
             }
 
 #if ENABLE_PLAYFABENTITY_API && ENABLE_PLAYFAB_BETA
-            if ((screenTimeTracker != null) && (PlayFabSettings.ShouldCollectScreenTime != false))
+            if ((screenTimeTracker != null) && (!PlayFabSettings.DisableScreenTimeCollection != false))
             {
                 screenTimeTracker.OnDestroy();
             }
@@ -348,7 +348,7 @@ namespace PlayFab.Internal
         public void OnApplicationFocus(bool isFocused)
         {
 #if ENABLE_PLAYFABENTITY_API && ENABLE_PLAYFAB_BETA
-            if ((screenTimeTracker != null) && (PlayFabSettings.ShouldCollectScreenTime != false))
+            if ((screenTimeTracker != null) && (!PlayFabSettings.DisableScreenTimeCollection != false))
             {
                 screenTimeTracker.OnApplicationFocus(isFocused);
             }
@@ -361,7 +361,7 @@ namespace PlayFab.Internal
         public void OnApplicationQuit()
         {
 #if ENABLE_PLAYFABENTITY_API && ENABLE_PLAYFAB_BETA
-            if ((screenTimeTracker != null) && (PlayFabSettings.ShouldCollectScreenTime != false))
+            if ((screenTimeTracker != null) && (!PlayFabSettings.DisableScreenTimeCollection != false))
             {
                 screenTimeTracker.OnApplicationQuit();
             }

@@ -7,7 +7,7 @@ if (typeof (getCompiledTemplate) === "undefined") getCompiledTemplate = function
 // moves over setup.py and uploadPython.sh
 function copyOverScripts(apis, sourceDir, apiOutputDir)
 {
-    var srcDir = sourceDir + "\\source";
+    var srcDir = path.resolve(sourceDir, "source");
     var locals = {
         apis: apis,
         errorList: apis[0].errorList,
@@ -18,7 +18,6 @@ function copyOverScripts(apis, sourceDir, apiOutputDir)
 }
 
 exports.makeCombinedAPI = function (apis, sourceDir, apiOutputDir) {
-    playFabOutputDir = apiOutputDir + "\\playfab"
     var locals = {
         apis: apis,
         buildIdentifier: exports.buildIdentifier,
@@ -28,11 +27,11 @@ exports.makeCombinedAPI = function (apis, sourceDir, apiOutputDir) {
         sdkVersion: exports.sdkVersion
     };
 
-    console.log("Generating Combined Client/Server api from: " + sourceDir + " to: " + playFabOutputDir);
+    console.log("Generating Combined Client/Server api from: " + sourceDir + " to: " + apiOutputDir);
 
-    templatizeTree(locals, path.resolve(sourceDir, "source/playfab"), playFabOutputDir);
+    templatizeTree(locals, path.resolve(sourceDir, "source"), apiOutputDir);
     for (var i = 0; i < apis.length; i++)
-        makeApi(apis[i], sourceDir, playFabOutputDir);
+        makeApi(apis[i], sourceDir, apiOutputDir);
 
     copyOverScripts(apis, sourceDir, apiOutputDir);
 }
@@ -89,7 +88,7 @@ function makeApi(api, sourceDir, apiOutputDir) {
     };
 
     var apiTemplate = getCompiledTemplate(path.resolve(sourceDir, "templates/API.py.ejs"));
-    writeFile(path.resolve(apiOutputDir, "PlayFab" + api.name + "API.py"), apiTemplate(apiLocals));
+    writeFile(path.resolve(apiOutputDir, "playfab/PlayFab" + api.name + "API.py"), apiTemplate(apiLocals));
 }
 
 function getDeprecationAttribute(tabbing, apiObj) {

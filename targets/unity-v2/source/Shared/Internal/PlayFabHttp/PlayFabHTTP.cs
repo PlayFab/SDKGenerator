@@ -28,8 +28,7 @@ namespace PlayFab.Internal
 #endif
 
         private static IPlayFabLogger _logger;
-#if ENABLE_PLAYFABENTITY_API
-        internal static bool shouldCollectScreenTime = true;
+#if ENABLE_PLAYFABENTITY_API && ENABLE_PLAYFAB_BETA
         private static IScreenTimeTracker screenTimeTracker = new ScreenTimeTracker();
         private const float delayBetweenBatches = 5.0f;
 #endif
@@ -111,7 +110,7 @@ namespace PlayFab.Internal
             _logger = setLogger;
         }
 
-#if ENABLE_PLAYFABENTITY_API
+#if ENABLE_PLAYFABENTITY_API && ENABLE_PLAYFAB_BETA
         /// <summary>
         /// This initializes ScreenTimeTracker object and notifying it to start sending info.
         /// </summary>
@@ -120,7 +119,6 @@ namespace PlayFab.Internal
         public static void InitializeScreenTimeTracker(EntityModels.EntityKey entityKey, string playFabUserId)
         {
             screenTimeTracker.ClientSessionStart(entityKey, playFabUserId);
-            shouldCollectScreenTime = true;
             instance.StartCoroutine(SendScreenTimeEvents(delayBetweenBatches));
         }
 
@@ -132,7 +130,7 @@ namespace PlayFab.Internal
         {
             WaitForSeconds delay = new WaitForSeconds(secondsBetweenBatches);
 
-            while (shouldCollectScreenTime)
+            while (!PlayFabSettings.DisableScreenTimeCollection)
             {
                 screenTimeTracker.Send();
                 yield return delay;
@@ -290,8 +288,8 @@ namespace PlayFab.Internal
                 _logger.OnEnable();
             }
 
-#if ENABLE_PLAYFABENTITY_API
-            if ((screenTimeTracker != null) && (shouldCollectScreenTime != false))
+#if ENABLE_PLAYFABENTITY_API && ENABLE_PLAYFAB_BETA
+            if ((screenTimeTracker != null) && (!PlayFabSettings.DisableScreenTimeCollection != false))
             {
                 screenTimeTracker.OnEnable();
             }
@@ -308,8 +306,8 @@ namespace PlayFab.Internal
                 _logger.OnDisable();
             }
 
-#if ENABLE_PLAYFABENTITY_API
-            if ((screenTimeTracker != null) && (shouldCollectScreenTime != false))
+#if ENABLE_PLAYFABENTITY_API && ENABLE_PLAYFAB_BETA
+            if ((screenTimeTracker != null) && (!PlayFabSettings.DisableScreenTimeCollection != false))
             {
                 screenTimeTracker.OnDisable();
             }
@@ -336,8 +334,8 @@ namespace PlayFab.Internal
                 _logger.OnDestroy();
             }
 
-#if ENABLE_PLAYFABENTITY_API
-            if ((screenTimeTracker != null) && (shouldCollectScreenTime != false))
+#if ENABLE_PLAYFABENTITY_API && ENABLE_PLAYFAB_BETA
+            if ((screenTimeTracker != null) && (!PlayFabSettings.DisableScreenTimeCollection != false))
             {
                 screenTimeTracker.OnDestroy();
             }
@@ -349,8 +347,8 @@ namespace PlayFab.Internal
         /// </summary>
         public void OnApplicationFocus(bool isFocused)
         {
-#if ENABLE_PLAYFABENTITY_API
-            if ((screenTimeTracker != null) && (shouldCollectScreenTime != false))
+#if ENABLE_PLAYFABENTITY_API && ENABLE_PLAYFAB_BETA
+            if ((screenTimeTracker != null) && (!PlayFabSettings.DisableScreenTimeCollection != false))
             {
                 screenTimeTracker.OnApplicationFocus(isFocused);
             }
@@ -362,8 +360,8 @@ namespace PlayFab.Internal
         /// </summary>
         public void OnApplicationQuit()
         {
-#if ENABLE_PLAYFABENTITY_API
-            if ((screenTimeTracker != null) && (shouldCollectScreenTime != false))
+#if ENABLE_PLAYFABENTITY_API && ENABLE_PLAYFAB_BETA
+            if ((screenTimeTracker != null) && (!PlayFabSettings.DisableScreenTimeCollection != false))
             {
                 screenTimeTracker.OnApplicationQuit();
             }

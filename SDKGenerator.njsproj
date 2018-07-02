@@ -111,6 +111,11 @@
     <OutputPath>bin\</OutputPath>
     <ScriptArguments>unity-v2=..\sdks\UnitySDK -apiSpecPath -buildIdentifier UnitySDK_manual</ScriptArguments>
   </PropertyGroup>
+  <PropertyGroup Condition=" '$(Configuration)' == 'UnityBeta' ">
+    <DebugSymbols>true</DebugSymbols>
+    <OutputPath>bin\</OutputPath>
+    <ScriptArguments>unity-v2=..\sdks\UnityBeta -apiSpecPath -buildIdentifier UnityBetaSDK_manual -flags beta</ScriptArguments>
+  </PropertyGroup>
   <PropertyGroup Condition=" '$(Configuration)' == 'UnrealBlueprintSDK' ">
     <DebugSymbols>true</DebugSymbols>
     <OutputPath>bin\</OutputPath>

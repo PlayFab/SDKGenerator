@@ -519,6 +519,7 @@
     <Content Include="targets\unity-v2\source\Admin\PlayFabSettings.cs" />
     <Content Include="targets\unity-v2\source\Client\PlayFabDeviceUtil.cs" />
     <Content Include="targets\unity-v2\source\Client\PlayFabSettings.cs" />
+    <Content Include="targets\unity-v2\source\Entity\ScreenTimeTracker.cs" />
     <Content Include="targets\unity-v2\source\link.xml" />
     <Content Include="targets\unity-v2\source\Server\PlayFabSettings.cs" />
     <Content Include="targets\unity-v2\source\Server\PlayStream\PlayFabPlayStreamAPI.cs" />
@@ -950,6 +951,7 @@
     <Folder Include="targets\PythonSdk\source\" />
     <Folder Include="targets\PythonSdk\source\playfab\" />
     <Folder Include="targets\PythonSdk\templates\" />
+    <Folder Include="targets\unity-v2\source\Entity\" />
     <Folder Include="targets\XPlatCppSdk\" />
     <Folder Include="targets\newTarget\" />
     <Folder Include="targets\newTarget\source\" />

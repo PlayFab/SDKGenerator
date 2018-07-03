@@ -96,7 +96,7 @@ namespace PlayFab.Internal
             }
             else
             {
-                PlayFabSettings.DisableScreenTimeCollection = true;
+                PlayFabSettings.DisableFocusTimeCollection = true;
             }
 #endif
         }

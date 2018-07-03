@@ -11,7 +11,7 @@ namespace PlayFab
         public static string AdvertisingIdValue = null;
         public static bool DisableAdvertising = false;
         public static bool DisableDeviceInfo = false;
-        public static bool DisableScreenTimeCollection = false;
+        public static bool DisableFocusTimeCollection = false;
     }
 }
 #endif

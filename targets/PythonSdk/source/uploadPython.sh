@@ -8,6 +8,6 @@ python -m pip install --user --upgrade twine
 
 python setup.py sdist bdist_wheel
 
-twine upload dist/* -u playfabDevTools -p $PYTHON_API_HASH
+twine upload dist/* -u playfabDevTools -p $PYTHON_API_HASH || exit 0
 
 exit 0

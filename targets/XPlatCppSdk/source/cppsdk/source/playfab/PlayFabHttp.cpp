@@ -60,11 +60,15 @@ namespace PlayFab
 
     void PlayFabHttp::MakeInstance()
     {
-        class _PlayFabHttp : public PlayFabHttp {}; // Hack to bypass private constructor on PlayFabHttp
-
         if (httpInstance == nullptr)
         {
+#if __cplusplus > 201103L
+            class _PlayFabHttp : public PlayFabHttp {}; // Hack to bypass private constructor on PlayFabHttp
             httpInstance = std::make_unique<_PlayFabHttp>();
+#else
+#pragma message("PlayFab SDK: C++11 support is not well tested. Please consider upgrading to the latest version of Visual Studio")
+            httpInstance = std::unique_ptr<PlayFabHttp>(new PlayFabHttp());
+#endif
         }
     }
 

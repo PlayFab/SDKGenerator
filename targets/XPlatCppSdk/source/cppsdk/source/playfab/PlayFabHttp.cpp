@@ -2,6 +2,7 @@
 
 #include <playfab/PlayFabHttp.h>
 #include <playfab/PlayFabSettings.h>
+#include <StdMakeUnique.h>
 
 // Intellisense-only includes
 #include <curl/curl.h>

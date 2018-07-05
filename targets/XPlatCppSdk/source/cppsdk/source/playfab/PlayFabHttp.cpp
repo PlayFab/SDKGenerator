@@ -117,32 +117,8 @@ namespace PlayFab
     size_t PlayFabHttp::CurlReceiveData(char* buffer, size_t blockSize, size_t blockCount, void* userData)
     {
         CallRequestContainer* reqContainer = reinterpret_cast<CallRequestContainer*>(userData);
-        reqContainer->responseString.assign(buffer, blockSize * blockCount);
+        reqContainer->responseString.append(buffer, blockSize * blockCount);
 
-        Json::CharReaderBuilder jsonReaderFactory;
-        Json::CharReader* jsonReader(jsonReaderFactory.newCharReader());
-        JSONCPP_STRING jsonParseErrors;
-        const bool parsedSuccessfully = jsonReader->parse(reqContainer->responseString.c_str(), reqContainer->responseString.c_str() + reqContainer->responseString.length(), &reqContainer->responseJson, &jsonParseErrors);
-
-        if (parsedSuccessfully)
-        {
-            reqContainer->errorWrapper.HttpCode = reqContainer->responseJson.get("code", Json::Value::null).asInt();
-            reqContainer->errorWrapper.HttpStatus = reqContainer->responseJson.get("status", Json::Value::null).asString();
-            reqContainer->errorWrapper.Data = reqContainer->responseJson.get("data", Json::Value::null);
-            reqContainer->errorWrapper.ErrorName = reqContainer->responseJson.get("error", Json::Value::null).asString();
-            reqContainer->errorWrapper.ErrorMessage = reqContainer->responseJson.get("errorMessage", Json::Value::null).asString();
-            reqContainer->errorWrapper.ErrorDetails = reqContainer->responseJson.get("errorDetails", Json::Value::null);
-        }
-        else
-        {
-            reqContainer->errorWrapper.HttpCode = 408;
-            reqContainer->errorWrapper.HttpStatus = reqContainer->responseString;
-            reqContainer->errorWrapper.ErrorCode = PlayFabErrorConnectionTimeout;
-            reqContainer->errorWrapper.ErrorName = "Failed to parse PlayFab response";
-            reqContainer->errorWrapper.ErrorMessage = jsonParseErrors;
-        }
-
-        HandleCallback(*reqContainer);
         return (blockSize * blockCount);
     }
 
@@ -196,6 +172,7 @@ namespace PlayFab
         // Send
         curl_easy_setopt(reqContainer.curlHandle, CURLOPT_SSL_VERIFYPEER, false); // TODO: Replace this with a ca-bundle ref???
         const auto res = curl_easy_perform(reqContainer.curlHandle);
+		
         if (res != CURLE_OK)
         {
             reqContainer.errorWrapper.HttpCode = 408;
@@ -203,6 +180,33 @@ namespace PlayFab
             reqContainer.errorWrapper.ErrorCode = PlayFabErrorConnectionTimeout;
             reqContainer.errorWrapper.ErrorName = "Failed to contact server";
             reqContainer.errorWrapper.ErrorMessage = "Failed to contact server, curl error: " + std::to_string(res);
+            HandleCallback(reqContainer);
+        }
+        else
+        {
+			Json::CharReaderBuilder jsonReaderFactory;
+			Json::CharReader* jsonReader(jsonReaderFactory.newCharReader());
+			JSONCPP_STRING jsonParseErrors;
+			const bool parsedSuccessfully = jsonReader->parse(reqContainer.responseString.c_str(), reqContainer.responseString.c_str() + reqContainer.responseString.length(), &reqContainer.responseJson, &jsonParseErrors);
+
+			if (parsedSuccessfully)
+			{
+				reqContainer.errorWrapper.HttpCode = reqContainer.responseJson.get("code", Json::Value::null).asInt();
+				reqContainer.errorWrapper.HttpStatus = reqContainer.responseJson.get("status", Json::Value::null).asString();
+				reqContainer.errorWrapper.Data = reqContainer.responseJson.get("data", Json::Value::null);
+				reqContainer.errorWrapper.ErrorName = reqContainer.responseJson.get("error", Json::Value::null).asString();
+				reqContainer.errorWrapper.ErrorMessage = reqContainer.responseJson.get("errorMessage", Json::Value::null).asString();
+				reqContainer.errorWrapper.ErrorDetails = reqContainer.responseJson.get("errorDetails", Json::Value::null);
+			}
+			else
+			{
+				reqContainer.errorWrapper.HttpCode = 408;
+				reqContainer.errorWrapper.HttpStatus = reqContainer.responseString;
+				reqContainer.errorWrapper.ErrorCode = PlayFabErrorConnectionTimeout;
+				reqContainer.errorWrapper.ErrorName = "Failed to parse PlayFab response";
+				reqContainer.errorWrapper.ErrorMessage = jsonParseErrors;
+			}
+
             HandleCallback(reqContainer);
         }
     }

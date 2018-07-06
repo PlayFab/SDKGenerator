@@ -25,14 +25,14 @@
   <ItemGroup>
     <Content Include="index.html" />
 <% for(var i in apis) { var api = apis[i];
-%>    <Content Include="src\PlayFab\PlayFab<%- api.name %>Api.js"></script>
+%>    <Content Include="src\PlayFab\PlayFab<%- api.name %>Api.js" />
 <% } %>    <Content Include="web.config" />
   </ItemGroup>
   <ItemGroup>
     <TypeScriptCompile Include="PlayFabApiTest.ts" />
     <TypeScriptCompile Include="src\typings\PlayFab\PlayFab.d.ts" />
 <% for(var i in apis) { var api = apis[i];
-%>    <TypeScriptCompile Include="src\typings\PlayFab\PlayFab<%- api.name %>Api.d.ts"></script>
+%>    <TypeScriptCompile Include="src\typings\PlayFab\PlayFab<%- api.name %>Api.d.ts" />
 <% } %>  </ItemGroup>
   <ItemGroup>
     <None Include="web.Debug.config">

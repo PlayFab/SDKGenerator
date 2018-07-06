@@ -26,16 +26,14 @@
     <Content Include="index.html" />
 <% for(var i in apis) { var api = apis[i];
 %>    <script src="src\PlayFab\PlayFab<%- api.name %>Api.js"></script>
-<% } %>
-    <Content Include="web.config" />
+<% } %>    <Content Include="web.config" />
   </ItemGroup>
   <ItemGroup>
     <TypeScriptCompile Include="PlayFabApiTest.ts" />
     <TypeScriptCompile Include="src\typings\PlayFab\PlayFab.d.ts" />
 <% for(var i in apis) { var api = apis[i];
 %>    <script src="src\typings\PlayFab\PlayFab<%- api.name %>Api.d.ts"></script>
-<% } %>
-  </ItemGroup>
+<% } %>  </ItemGroup>
   <ItemGroup>
     <None Include="web.Debug.config">
       <DependentUpon>web.config</DependentUpon>

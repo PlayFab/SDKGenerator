@@ -31,9 +31,6 @@ exports.makeCombinedAPI = function (apis, sourceDir, apiOutputDir) {
 
     templatizeTree(locals, path.resolve(sourceDir, "source"), apiOutputDir);
 
-    var iniTemplate = getCompiledTemplate(path.resolve(sourceDir, "templates/__init__.py.ejs"));
-    writeFile(path.resolve(apiOutputDir, "playfab/__init__.py"), iniTemplate(locals));
-
     for (var i = 0; i < apis.length; i++)
         makeApi(apis[i], sourceDir, apiOutputDir);
 

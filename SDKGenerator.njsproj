@@ -355,7 +355,7 @@
     <Content Include="targets\javascript\templates\PlayFab_Api.d.ts.ejs" />
     <Content Include="targets\javascript\templates\PlayFab_Api.js.ejs" />
     <Content Include="targets\javascript\testingFiles\PlayFabApiTest.csproj" />
-    <Content Include="targets\javascript\testingFiles\index.html" />
+    <Content Include="targets\javascript\testingFiles\index.html.ejs" />
     <Content Include="targets\javascript\testingFiles\web.config" />
     <Content Include="targets\javascript\testingFiles\web.Debug.config" />
     <Content Include="targets\javascript\testingFiles\web.Release.config" />

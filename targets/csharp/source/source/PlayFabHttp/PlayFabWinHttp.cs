@@ -11,20 +11,10 @@ namespace PlayFab.Internal
     public class PlayFabWinHttp : IPlayFabHttp
     {
         private readonly HttpClient _client = new HttpClient();
-        private ISerializerPlugin _serializer;
-
-        public PlayFabSysHttp()
-        {
-            _serializer = (ISerializerPlugin)PluginManager.Instance.GetPlugin(PluginContract.Serializer);
-            if (_serializer == null)
-            {
-                _serializer = new PlayFabSerializer();
-                PluginManager.Instance.SetPlugin(PluginContract.Serializer, _serializer);
-            }
-        }
 
         public async Task<object> DoPost(string urlPath, PlayFabRequestCommon request, string authType, string authKey, Dictionary<string, string> extraHeaders)
         {
+            var serializer = (ISerializerPlugin)PluginManager.GetPlugin(PluginContract.PlayFab_Serializer);
             var fullUrl = PlayFabSettings.GetFullUrl(urlPath);
             string bodyString;
 
@@ -34,7 +24,7 @@ namespace PlayFab.Internal
             }
             else
             {
-                bodyString = _serializer.SerializeObject(request);
+                bodyString = serializer.SerializeObject(request);
             }
 
             var requestMessage = new HttpRequestMessage(HttpMethod.Post, new Uri(fullUrl));
@@ -76,7 +66,7 @@ namespace PlayFab.Internal
                 PlayFabJsonError errorResult;
                 try
                 {
-                    errorResult = _serializer.DeserializeObject<PlayFabJsonError>(httpResponseString);
+                    errorResult = serializer.DeserializeObject<PlayFabJsonError>(httpResponseString);
                 }
                 catch (Exception e)
                 {

@@ -1,20 +1,12 @@
-
 using System;
 using System.Globalization;
 using System.Reflection;
 
 namespace PlayFab.Json
 {
-    public interface ISerializer
+    public interface ISerializer : ISerializerPlugin
     {
-        T DeserializeObject<T>(string json);
-        T DeserializeObject<T>(string json, object jsonSerializerStrategy);
-        object DeserializeObject(string json);
-
-        string SerializeObject(object json);
-        string SerializeObject(object json, object jsonSerializerStrategy);
     }
-
 
     public static class JsonWrapper
     {

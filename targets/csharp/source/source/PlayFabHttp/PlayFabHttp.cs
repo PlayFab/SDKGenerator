@@ -41,28 +41,12 @@ namespace PlayFab.Internal
 
     public static class PlayFabHttp
     {
-        private static ITransportPlugin _transport;
-
         public static async Task<object> DoPost(string urlPath, PlayFabRequestCommon request, string authType, string authKey, Dictionary<string, string> extraHeaders)
         {
             if (PlayFabSettings.TitleId == null)
                 throw new Exception("You must set your titleId before making an api call");
-            if (_transport == null)
-                _transport = GetTransport();
-
-            return await _transport.DoPost(urlPath, request, authType, authKey, extraHeaders);
-        }
-
-        private static ITransportPlugin GetTransport()
-        {
-            var transport = (ITransportPlugin)PluginManager.Instance.GetPlugin(PluginContract.Transport);
-            if (transport == null)
-            {
-                transport = new PlayFabTransport();
-                PluginManager.Instance.SetPlugin(PluginContract.Transport, transport);
-            }
-
-            return transport;
+            var transport = (ITransportPlugin)PluginManager.GetPlugin(PluginContract.PlayFab_Transport);
+            return await transport.DoPost(urlPath, request, authType, authKey, extraHeaders);
         }
     }
 }

@@ -10,15 +10,8 @@
     <div id="qunit-fixture"></div>
     <script src="http://code.jquery.com/jquery-1.7.1.min.js"></script><!-- HTTP vs HTTPS here should match where this file is hosted (This file is not strictly meant to be hosted, but rather run locally) -->
     <script src="http://code.jquery.com/qunit/qunit-1.19.0.js"></script>
-<% for(var i in api.calls) { var apiCall = api.calls[i];
-%>
-    <script src="src/PlayFab/PlayFab<%- api.name %>Api.js"></script>
-<% } %>
-    <script src="src/PlayFab/PlayFab<%- api.name %>Api.js"></script>
-    <script src="src/PlayFab/PlayFabClientApi.js"></script>
-    <script src="src/PlayFab/PlayFabEntityApi.js"></script>
-    <script src="src/PlayFab/PlayFabMatchmakerApi.js"></script>
-    <script src="src/PlayFab/PlayFabServerApi.js"></script>-->
-    <script src="PlayFabApiTest.js"></script>
+<% for(var i in apis) { var api = apis[i];
+%>    <script src="src/PlayFab/PlayFab<%- api.name %>Api.js"></script>
+<% } %>    <script src="PlayFabApiTest.js"></script>
 </body>
 </html>

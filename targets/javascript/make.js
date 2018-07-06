@@ -15,6 +15,7 @@ exports.makeCombinedAPI = function (apis, sourceDir, apiOutputDir) {
     var packageTemplate = getCompiledTemplate(path.resolve(templateDir, "package.json.ejs"));
 
     var apiLocals = {
+        apis: apis,
         generateApiSummary: generateApiSummary,
         getAuthParams: getAuthParams,
         getDeprecationAttribute: getDeprecationAttribute,

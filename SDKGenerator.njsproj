@@ -506,7 +506,7 @@
     <Content Include="targets\PythonSdk\source\playfab\PlayFabHTTP.py" />
     <Content Include="targets\PythonSdk\source\playfab\PlayFabManualTest.py" />
     <Content Include="targets\PythonSdk\source\playfab\PlayFabSettings.py" />
-    <Content Include="targets\PythonSdk\source\playfab\__init__.py" />
+    <Content Include="targets\PythonSdk\templates\__init__.py.ejs" />
     <Content Include="targets\PythonSdk\source\uploadPython.sh" />
     <Content Include="targets\PythonSdk\templates\API.py.ejs" />
     <Content Include="targets\PythonSdk\source\playfab\PlayFabErrors.py.ejs" />

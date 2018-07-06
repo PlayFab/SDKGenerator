@@ -1,0 +1,12 @@
+<% for (var a = 0; a < apis.length; a++) { var api = apis[a];
+%>import playfab.PlayFab<%- api.name %>API as PlayFab<%- api.name %>API
+<% } %>
+import playfab.PlayFabErrors as PlayFabErrors
+import playfab.PlayFabHTTP as PlayFabHTTP
+import playfab.PlayFabSettings as PlayFabSettings
+
+__all__ = ["PlayFabErrors", "PlayFabHTTP", "PlayFabSettings"]
+
+<% for (var a = 0; a < apis.length; a++) { var api = apis[a];
+%>__all__.append("PlayFab<%- api.name %>API")
+<% } %>

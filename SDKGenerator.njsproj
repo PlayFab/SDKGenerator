@@ -761,6 +761,15 @@
     <Content Include="targets\XPlatCppSdk\source\cppsdk\configLinux.json" />
     <Content Include="targets\XPlatCppSdk\source\cppsdk\configWindows.json" />
     <Content Include="targets\XPlatCppSdk\source\cppsdk\include\playfab\PlayFabBaseModel.h" />
+    <Content Include="targets\XPlatCppSdk\source\LibUnitTest\LibUnitTest.vcxproj" />
+    <Content Include="targets\XPlatCppSdk\source\LibUnitTest\LibUnitTest.vcxproj.filters" />
+    <Content Include="targets\XPlatCppSdk\source\LibUnitTest\packages.config" />
+    <Content Include="targets\XPlatCppSdk\source\LibUnitTest\PlayFabClientTest.cpp" />
+    <Content Include="targets\XPlatCppSdk\source\LibUnitTest\PlayFabEntityTest.cpp" />
+    <Content Include="targets\XPlatCppSdk\source\LibUnitTest\PlayFabServerTest.cpp" />
+    <Content Include="targets\XPlatCppSdk\source\LibUnitTest\stdafx.cpp" />
+    <Content Include="targets\XPlatCppSdk\source\LibUnitTest\stdafx.h" />
+    <Content Include="targets\XPlatCppSdk\source\LibUnitTest\targetver.h" />
     <Content Include="targets\XPlatCppSdk\source\XPlatCppSdk.sln.ejs" />
     <Content Include="targets\XPlatCppSdk\templates\PlayFab_API.h.ejs" />
     <Content Include="targets\XPlatCppSdk\templates\PlayFab_DataModels.h.ejs" />
@@ -1021,6 +1030,7 @@
     <Folder Include="targets\XPlatCppSdk\source\cppsdk\include\playfab\" />
     <Folder Include="targets\XPlatCppSdk\source\cppsdk\source\" />
     <Folder Include="targets\XPlatCppSdk\source\cppsdk\source\playfab\" />
+    <Folder Include="targets\XPlatCppSdk\source\LibUnitTest\" />
     <Folder Include="targets\XPlatCppSdk\source\testapps\" />
     <Folder Include="targets\XPlatCppSdk\source\testapps\cppLinuxTestApp\" />
     <Folder Include="targets\XPlatCppSdk\source\testapps\cppWindowsTestApp\" />

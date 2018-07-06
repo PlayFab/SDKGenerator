@@ -32,11 +32,9 @@
   <ItemGroup>
     <TypeScriptCompile Include="PlayFabApiTest.ts" />
     <TypeScriptCompile Include="src\typings\PlayFab\PlayFab.d.ts" />
-    <TypeScriptCompile Include="src\typings\PlayFab\PlayFabAdminApi.d.ts" />
-    <TypeScriptCompile Include="src\typings\PlayFab\PlayFabClientApi.d.ts" />
-    <TypeScriptCompile Include="src\typings\PlayFab\PlayFabEntityApi.d.ts" />
-    <TypeScriptCompile Include="src\typings\PlayFab\PlayFabMatchmakerApi.d.ts" />
-    <TypeScriptCompile Include="src\typings\PlayFab\PlayFabServerApi.d.ts" />
+<% for(var i in apis) { var api = apis[i];
+%>    <script src="src\typings\PlayFab\PlayFab<%- api.name %>Api.d.ts"></script>
+<% } %>
   </ItemGroup>
   <ItemGroup>
     <None Include="web.Debug.config">

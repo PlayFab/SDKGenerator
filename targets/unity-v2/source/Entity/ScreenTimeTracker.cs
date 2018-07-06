@@ -1,4 +1,4 @@
-#if ENABLE_PLAYFABENTITY_API && ENABLE_PLAYFAB_BETA
+#if ENABLE_PLAYFABENTITY_API
 using System;
 using System.Collections.Generic;
 using PlayFab.EntityModels;
@@ -142,7 +142,6 @@ namespace PlayFab.Public
                 int eventsInTheBatch = 0;
                 WriteEventsRequest request = new WriteEventsRequest();
                 request.Events = new List<EventContents>();
-                request.FlushToPlayStream = true;
 
                 while ((eventsRequests.Count > 0) && (eventsInTheBatch < maxBatchSizeInEvents))
                 {
@@ -174,7 +173,7 @@ namespace PlayFab.Public
             Debug.LogWarning("Failed to send session data. Error: " + response.GenerateErrorReport());
         }
 
-        #region Unused MonoBehaviour compatibility  methods
+#region Unused MonoBehaviour compatibility  methods
         /// <summary>
         /// Unused
         /// Name mimics MonoBehaviour method, for ease of integration.
@@ -201,7 +200,7 @@ namespace PlayFab.Public
         {
             // add code sending events on destroy
         }
-        #endregion
+#endregion
 
         /// <summary>
         /// Trying to send event during game exit. Note: works only on certain platforms.

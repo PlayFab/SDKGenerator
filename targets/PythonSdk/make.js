@@ -30,7 +30,6 @@ exports.makeCombinedAPI = function (apis, sourceDir, apiOutputDir) {
     console.log("Generating Combined Client/Server api from: " + sourceDir + " to: " + apiOutputDir);
 
     templatizeTree(locals, path.resolve(sourceDir, "source"), apiOutputDir);
-
     for (var i = 0; i < apis.length; i++)
         makeApi(apis[i], sourceDir, apiOutputDir);
 

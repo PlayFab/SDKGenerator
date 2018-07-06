@@ -41,28 +41,28 @@ namespace PlayFab.Internal
 
     public static class PlayFabHttp
     {
-        private static readonly IPlayFabHttp _http;
-
-        static PlayFabHttp()
-        {
-            var httpInterfaceType = typeof(IPlayFabHttp);
-            var types = typeof(PlayFabHttp).GetAssembly().GetTypes();
-            foreach (var eachType in types)
-            {
-                if (httpInterfaceType.IsAssignableFrom(eachType) && !eachType.IsAbstract)
-                {
-                    _http = (IPlayFabHttp)Activator.CreateInstance(eachType.AsType());
-                    return;
-                }
-            }
-            throw new Exception("Cannot find a valid IPlayFabHttp type");
-        }
+        private static ITransportPlugin _transport;
 
         public static async Task<object> DoPost(string urlPath, PlayFabRequestCommon request, string authType, string authKey, Dictionary<string, string> extraHeaders)
         {
             if (PlayFabSettings.TitleId == null)
                 throw new Exception("You must set your titleId before making an api call");
-            return await _http.DoPost(urlPath, request, authType, authKey, extraHeaders);
+            if (_transport == null)
+                _transport = GetTransport();
+
+            return await _transport.DoPost(urlPath, request, authType, authKey, extraHeaders);
+        }
+
+        private static ITransportPlugin GetTransport()
+        {
+            var transport = (ITransportPlugin)PluginManager.Instance.GetPlugin(PluginContract.Transport);
+            if (transport == null)
+            {
+                transport = new PlayFabTransport();
+                PluginManager.Instance.SetPlugin(PluginContract.Transport, transport);
+            }
+
+            return transport;
         }
     }
 }

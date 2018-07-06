@@ -319,6 +319,9 @@
     <Content Include="targets\cpp-unreal\PluginSource\Source\PlayFab\Classes\PlayFabUtilities.h.ejs" />
     <Content Include="targets\cpp-unreal\Tutorial.docx" />
     <Content Include="targets\csharp\source\Properties\AssemblyInfo.cs" />
+    <Content Include="targets\csharp\source\source\IPlayFabPlugin.cs" />
+    <Content Include="targets\csharp\source\source\ISerializerPlugin.cs" />
+    <Content Include="targets\csharp\source\source\ITransportPlugin.cs" />
     <Content Include="targets\csharp\source\source\Json\ISerializer.cs" />
     <Content Include="targets\csharp\source\source\Json\NewtonsoftWrapper.cs" />
     <Content Include="targets\csharp\source\source\Json\SimpleJson.cs" />
@@ -327,6 +330,10 @@
     <Content Include="targets\csharp\source\source\PlayFabHttp\PlayFabHttp.cs" />
     <Content Include="targets\csharp\source\source\PlayFabHttp\PlayFabSysHttp.cs" />
     <Content Include="targets\csharp\source\source\PlayFabHttp\PlayFabWinHttp.cs" />
+    <Content Include="targets\csharp\source\source\PlayFabSerializer.cs" />
+    <Content Include="targets\csharp\source\source\PlayFabTransport.cs" />
+    <Content Include="targets\csharp\source\source\PluginContract.cs" />
+    <Content Include="targets\csharp\source\source\PluginManager.cs" />
     <Content Include="targets\csharp\source\source\Uunit\PlayFabApiTest.cs" />
     <Content Include="targets\csharp\source\source\Uunit\UUnitAssertException.cs" />
     <Content Include="targets\csharp\source\source\Uunit\UUnitIncrementalTestRunner.cs" />

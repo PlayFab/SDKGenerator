@@ -24,11 +24,9 @@
   </ItemGroup>
   <ItemGroup>
     <Content Include="index.html" />
-    <Content Include="src\PlayFab\PlayFabAdminApi.js" />
-    <Content Include="src\PlayFab\PlayFabClientApi.js" />
-    <Content Include="src\PlayFab\PlayFabEntityApi.js" />
-    <Content Include="src\PlayFab\PlayFabMatchmakerApi.js" />
-    <Content Include="src\PlayFab\PlayFabServerApi.js" />
+<% for(var i in apis) { var api = apis[i];
+%>    <script src="src\PlayFab\PlayFab<%- api.name %>Api.js"></script>
+<% } %>
     <Content Include="web.config" />
   </ItemGroup>
   <ItemGroup>

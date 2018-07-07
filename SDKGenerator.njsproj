@@ -5,7 +5,6 @@
     <VSToolsPath Condition="'$(VSToolsPath)' == ''">$(MSBuildExtensionsPath32)\Microsoft\VisualStudio\v$(VisualStudioVersion)</VSToolsPath>
     <Name>SdkGenerator</Name>
     <RootNamespace>SdkGenerator</RootNamespace>
-    <DebuggerPort>5858</DebuggerPort>
     <EnableTypeScript>true</EnableTypeScript>
     <TypeScriptSourceMap>true</TypeScriptSourceMap>
     <TypeScriptModuleKind>CommonJS</TypeScriptModuleKind>
@@ -354,7 +353,7 @@
     <Content Include="targets\javascript\templates\PlayFab.d.ts.ejs" />
     <Content Include="targets\javascript\templates\PlayFab_Api.d.ts.ejs" />
     <Content Include="targets\javascript\templates\PlayFab_Api.js.ejs" />
-    <Content Include="targets\javascript\testingFiles\PlayFabApiTest.csproj" />
+    <Content Include="targets\javascript\testingFiles\PlayFabApiTest.csproj.ejs" />
     <Content Include="targets\javascript\testingFiles\index.html.ejs" />
     <Content Include="targets\javascript\testingFiles\web.config" />
     <Content Include="targets\javascript\testingFiles\web.Debug.config" />

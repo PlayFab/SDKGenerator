@@ -46,7 +46,10 @@ namespace PlayFab.Internal
             if (PlayFabSettings.TitleId == null)
                 throw new Exception("You must set your titleId before making an api call");
             var transport = (ITransportPlugin)PluginManager.GetPlugin(PluginContract.PlayFab_Transport);
-            return await transport.DoPost(urlPath, request, authType, authKey, extraHeaders);
+            if (transport is IPlayFabHttp)
+                return await ((IPlayFabHttp)transport).DoPost(urlPath, request, authType, authKey, extraHeaders);
+            else
+                return await transport.DoPost(urlPath, request, extraHeaders);
         }
     }
 }

@@ -5,7 +5,6 @@ using System.Collections.Generic;
 using System.Net.Http;
 using System.Text;
 using System.Threading.Tasks;
-using PlayFab.Json;
 
 namespace PlayFab.Internal
 {
@@ -106,6 +105,11 @@ namespace PlayFab.Internal
             }
 
             return httpResponseString;
+        }
+
+        public async Task<object> DoPost(string urlPath, object request, Dictionary<string, string> headers)
+        {
+            throw new NotImplementedException();
         }
     }
 }

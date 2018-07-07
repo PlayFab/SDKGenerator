@@ -1,6 +1,5 @@
 #if NETFX_CORE && XAMARIN
 
-using PlayFab.Json;
 using System;
 using System.Collections.Generic;
 using System.Threading.Tasks;
@@ -95,6 +94,11 @@ namespace PlayFab.Internal
             }
 
             return httpResponseString;
+        }
+
+        public async Task<object> DoPost(string urlPath, object request, Dictionary<string, string> headers)
+        {
+            throw new NotImplementedException();
         }
     }
 }

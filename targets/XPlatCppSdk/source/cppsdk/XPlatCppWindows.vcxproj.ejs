@@ -116,7 +116,7 @@
 %>
     <ClInclude Include="include\playfab\PlayFab<%- api.name %>Api.h" />
     <ClInclude Include="include\playfab\PlayFab<%- api.name %>DataModels.h" />
-<%- } %>
+<% } %>
     <ClInclude Include="include\playfab\PlayFabError.h" />
     <ClInclude Include="include\playfab\PlayFabHttp.h" />
     <ClInclude Include="include\playfab\PlayFabSettings.h" />
@@ -126,7 +126,7 @@
 <% for(var i in apis) { var api = apis[i];
 %>
     <ClCompile Include="source\playfab\PlayFab<%- api.name %>Api.cpp" />
-<%- } %>
+<% } %>
     <ClCompile Include="source\playfab\PlayFabError.cpp" />
     <ClCompile Include="source\playfab\PlayFabHttp.cpp" />
     <ClCompile Include="source\playfab\PlayFabSettings.cpp" />

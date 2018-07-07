@@ -777,9 +777,9 @@
     <Content Include="targets\XPlatCppSdk\source\cppsdk\stdafx.cpp" />
     <Content Include="targets\XPlatCppSdk\source\cppsdk\stdafx.h" />
     <Content Include="targets\XPlatCppSdk\source\cppsdk\XPlatCppLinux.vcxproj.ejs" />
-    <Content Include="targets\XPlatCppSdk\source\cppsdk\XPlatCppLinux.vcxproj.filters" />
+    <Content Include="targets\XPlatCppSdk\source\cppsdk\XPlatCppLinux.vcxproj.filters.ejs" />
     <Content Include="targets\XPlatCppSdk\source\cppsdk\XPlatCppWindows.vcxproj.ejs" />
-    <Content Include="targets\XPlatCppSdk\source\cppsdk\XPlatCppWindows.vcxproj.filters" />
+    <Content Include="targets\XPlatCppSdk\source\cppsdk\XPlatCppWindows.vcxproj.filters.ejs" />
     <Content Include="targets\XPlatCppSdk\source\testapps\cppLinuxTestApp\cppLinuxTestApp.vcxproj.ejs" />
     <Content Include="targets\XPlatCppSdk\source\testapps\cppLinuxTestApp\main.cpp" />
     <Content Include="targets\XPlatCppSdk\source\testapps\cppWindowsTestApp\cppWindowsTestApp.cpp" />

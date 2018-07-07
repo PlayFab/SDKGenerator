@@ -65,30 +65,24 @@
     </Lib>
   </ItemDefinitionGroup>
   <ItemGroup>
-    <ClInclude Include="include\playfab\PlayFabAdminApi.h" />
-    <ClInclude Include="include\playfab\PlayFabAdminDataModels.h" />
     <ClInclude Include="include\playfab\PlayFabBaseModel.h" />
-    <ClInclude Include="include\playfab\PlayFabClientApi.h" />
-    <ClInclude Include="include\playfab\PlayFabClientDataModels.h" />
-    <ClInclude Include="include\playfab\PlayFabEntityApi.h" />
-    <ClInclude Include="include\playfab\PlayFabEntityDataModels.h" />
+<% for(var i in apis) { var api = apis[i];
+%>
+    <ClInclude Include="include\playfab\PlayFab<%- api.name %>Api.h"/>
+    <ClInclude Include="include\playfab\PlayFab<%- api.name %>DataModels.h"/>
+<%- } %>
     <ClInclude Include="include\playfab\PlayFabError.h" />
     <ClInclude Include="include\playfab\PlayFabHttp.h" />
-    <ClInclude Include="include\playfab\PlayFabMatchmakerApi.h" />
-    <ClInclude Include="include\playfab\PlayFabMatchmakerDataModels.h" />
-    <ClInclude Include="include\playfab\PlayFabServerApi.h" />
-    <ClInclude Include="include\playfab\PlayFabServerDataModels.h" />
     <ClInclude Include="include\playfab\PlayFabSettings.h" />
     <ClInclude Include="stdafx.h" />
   </ItemGroup>
   <ItemGroup>
-    <ClCompile Include="source\playfab\PlayFabAdminApi.cpp" />
-    <ClCompile Include="source\playfab\PlayFabClientApi.cpp" />
-    <ClCompile Include="source\playfab\PlayFabEntityApi.cpp" />
+<% for(var i in apis) { var api = apis[i];
+%>
+    <ClInclude Include="source\playfab\PlayFab<%- api.name %>Api.cpp"/>
+<%- } %>
     <ClCompile Include="source\playfab\PlayFabError.cpp" />
     <ClCompile Include="source\playfab\PlayFabHttp.cpp" />
-    <ClCompile Include="source\playfab\PlayFabMatchmakerApi.cpp" />
-    <ClCompile Include="source\playfab\PlayFabServerApi.cpp" />
     <ClCompile Include="source\playfab\PlayFabSettings.cpp" />
     <ClCompile Include="stdafx.cpp" />
   </ItemGroup>

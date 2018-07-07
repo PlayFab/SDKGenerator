@@ -216,6 +216,7 @@ namespace UnittestRunner
         }
         static void SetObjectsCallback(const SetObjectsResponse& result, void*)
         {
+            UNREFERENCED_VARIABLE(result);
             testMessageReturn = "UpdateObj Success";
         }
         static void GetObjectsCallback2(const GetObjectsResponse& result, void*)

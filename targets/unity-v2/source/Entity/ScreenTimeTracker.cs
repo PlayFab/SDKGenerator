@@ -37,7 +37,7 @@ namespace PlayFab.Public
         private Queue<EventContents> eventsRequests = new Queue<EventContents>();
 
         private EntityModels.EntityKey entityInfo = new EntityModels.EntityKey();
-        private const String eventNamespace = "com.playfab.temp-extension.foo";
+        private const String eventNamespace = "com.playfab.events.";
         private const int maxBatchSizeInEvents = 10;
 
         /// <summary>
@@ -53,7 +53,7 @@ namespace PlayFab.Public
 
             EventContents eventInfo = new EventContents();
 
-            eventInfo.Name = "ClientSessionStart";
+            eventInfo.Name = "cient_session_start";
             eventInfo.EventNamespace = eventNamespace;
             eventInfo.Entity = entityInfo;
 
@@ -79,7 +79,7 @@ namespace PlayFab.Public
         {
             EventContents eventInfo = new EventContents();
 
-            eventInfo.Name = "ClientFocusChange";
+            eventInfo.Name = "client_focus_change";
             eventInfo.EventNamespace = eventNamespace;
             eventInfo.Entity = entityInfo;
 

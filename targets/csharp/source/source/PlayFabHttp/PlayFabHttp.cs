@@ -44,11 +44,11 @@ namespace PlayFab.Internal
         public static async Task<object> DoPost(string urlPath, PlayFabRequestCommon request, string authType, string authKey, Dictionary<string, string> extraHeaders)
         {
             if (PlayFabSettings.TitleId == null)
-                throw new Exception("You must set your titleId before making an api call");
+                throw new PlayFabException(PlayFabExceptionCode.TitleNotSet, "You must set your titleId before making an api call");
             var transport = (ITransportPlugin)PluginManager.GetPlugin(PluginContract.PlayFab_Transport);
 
             var headers = new Dictionary<string, string>();
-            if (authType != null)
+            if (authType != null && authKey != null)
             {
                 headers[authType] = authKey;
             }

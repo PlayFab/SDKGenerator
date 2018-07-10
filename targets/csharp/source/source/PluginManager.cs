@@ -90,14 +90,14 @@ namespace PlayFab
                     }
                     else
                     {
-                        throw new Exception("Found more than one implementation of " + nameof(I) + ". Please call PluginManager.SetPlugin(...) to set a specific implementation before using other public PlayFab API.");
+                        throw new PlayFabException(PlayFabExceptionCode.PluginAmbiguity, "Found more than one implementation of " + nameof(I) + ". Please call PluginManager.SetPlugin(...) to set a specific implementation before using other public PlayFab API.");
                     }
                 }
             }
 
             if (plugin == null)
             {
-                throw new Exception("Cannot find a valid " + nameof(I) + " type");
+                throw new PlayFabException(PlayFabExceptionCode.PluginNotFound, "Cannot find a valid " + nameof(I) + " type");
             }
 
             return plugin;

@@ -1,10 +1,9 @@
-using System.Collections.Generic;
-using System.Threading.Tasks;
+using System;
 
 namespace PlayFab.Internal
 {
-    public interface IPlayFabHttp
+    [Obsolete("This interface is deprecated, please use PlayFab.ITransportPlugin instead.", false)]
+    public interface IPlayFabHttp: ITransportPlugin
     {
-        Task<object> DoPost(string urlPath, PlayFabRequestCommon request, string authType, string authKey, Dictionary<string, string> extraHeaders);
     }
 }

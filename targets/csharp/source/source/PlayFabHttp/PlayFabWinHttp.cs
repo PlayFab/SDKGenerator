@@ -7,11 +7,11 @@ using Windows.Web.Http;
 
 namespace PlayFab.Internal
 {
-    public class PlayFabWinHttp : IPlayFabHttp
+    public class PlayFabWinHttp : ITransportPlugin
     {
         private readonly HttpClient _client = new HttpClient();
 
-        public async Task<object> DoPost(string urlPath, PlayFabRequestCommon request, string authType, string authKey, Dictionary<string, string> extraHeaders)
+        public async Task<object> DoPost(string urlPath, object request, Dictionary<string, string> extraHeaders)
         {
             var serializer = (ISerializerPlugin)PluginManager.GetPlugin(PluginContract.PlayFab_Serializer);
             var fullUrl = PlayFabSettings.GetFullUrl(urlPath);
@@ -28,8 +28,6 @@ namespace PlayFab.Internal
 
             var requestMessage = new HttpRequestMessage(HttpMethod.Post, new Uri(fullUrl));
             requestMessage.Content = new HttpStringContent(bodyString, Windows.Storage.Streams.UnicodeEncoding.Utf8, "application/json");
-            if (authType != null)
-                requestMessage.Headers.Add(new KeyValuePair<string, string>(authType, authKey));
             requestMessage.Headers.Add(new KeyValuePair<string, string>("X-PlayFabSDK", PlayFabSettings.SdkVersionString));
             if (extraHeaders != null)
                 foreach (var headerPair in extraHeaders)
@@ -94,11 +92,6 @@ namespace PlayFab.Internal
             }
 
             return httpResponseString;
-        }
-
-        public async Task<object> DoPost(string urlPath, object request, Dictionary<string, string> headers)
-        {
-            throw new NotImplementedException();
         }
     }
 }

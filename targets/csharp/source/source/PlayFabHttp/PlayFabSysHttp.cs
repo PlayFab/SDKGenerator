@@ -8,11 +8,11 @@ using System.Threading.Tasks;
 
 namespace PlayFab.Internal
 {
-    public class PlayFabSysHttp : IPlayFabHttp
+    public class PlayFabSysHttp : ITransportPlugin
     {
         private readonly HttpClient _client = new HttpClient();
 
-        public async Task<object> DoPost(string urlPath, PlayFabRequestCommon request, string authType, string authKey, Dictionary<string, string> extraHeaders)
+        public async Task<object> DoPost(string urlPath, object request, Dictionary<string, string> extraHeaders)
         {
             var serializer = (ISerializerPlugin)PluginManager.GetPlugin(PluginContract.PlayFab_Serializer);
             var fullUrl = PlayFabSettings.GetFullUrl(urlPath);
@@ -32,8 +32,6 @@ namespace PlayFab.Internal
             using (var postBody = new ByteArrayContent(Encoding.UTF8.GetBytes(bodyString)))
             {
                 postBody.Headers.Add("Content-Type", "application/json");
-                if (authType != null)
-                    postBody.Headers.Add(authType, authKey);
                 postBody.Headers.Add("X-PlayFabSDK", PlayFabSettings.SdkVersionString);
                 if (extraHeaders != null)
                     foreach (var headerPair in extraHeaders)
@@ -105,11 +103,6 @@ namespace PlayFab.Internal
             }
 
             return httpResponseString;
-        }
-
-        public async Task<object> DoPost(string urlPath, object request, Dictionary<string, string> headers)
-        {
-            throw new NotImplementedException();
         }
     }
 }

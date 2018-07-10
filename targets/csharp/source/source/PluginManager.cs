@@ -1,7 +1,5 @@
 using System;
 using System.Collections.Generic;
-using PlayFab.Internal;
-using PlayFab.Json;
 
 namespace PlayFab
 {
@@ -12,7 +10,7 @@ namespace PlayFab
         /// <summary>
         /// The singleton instance of plugin manager.
         /// </summary>
-        private static PluginManager Instance { get; set; } = new PluginManager();
+        private static readonly PluginManager Instance = new PluginManager();
 
         private PluginManager()
         {
@@ -51,10 +49,10 @@ namespace PlayFab
                 switch (contract)
                 {
                     case PluginContract.PlayFab_Serializer:
-                        plugin = this.CreatePlayFabSerializerPlugin();
+                        plugin = this.CreatePlugin<ISerializerPlugin>();
                         break;
                     case PluginContract.PlayFab_Transport:
-                        plugin = this.CreatePlayFabTransportPlugin();
+                        plugin = this.CreatePlugin<ITransportPlugin>();
                         break;
                     default:
                         throw new ArgumentException("This contract is not supported", nameof(contract));
@@ -77,24 +75,32 @@ namespace PlayFab
             this.plugins[key] = plugin;
         }
 
-        private ITransportPlugin CreatePlayFabTransportPlugin()
+        private I CreatePlugin<I>() where I: class, IPlayFabPlugin
         {
-            var httpInterfaceType = typeof(IPlayFabHttp);
-            var types = typeof(PlayFabHttp).GetAssembly().GetTypes();
+            var interfaceType = typeof(I);
+            var types = this.GetType().GetAssembly().GetTypes();
+            I plugin = null;
             foreach (var eachType in types)
             {
-                if (httpInterfaceType.IsAssignableFrom(eachType) && !eachType.IsAbstract)
+                if (interfaceType.IsAssignableFrom(eachType) && !eachType.IsAbstract)
                 {
-                    return (IPlayFabHttp)Activator.CreateInstance(eachType.AsType());
+                    if (plugin == null)
+                    {
+                        plugin = (I)Activator.CreateInstance(eachType.AsType());
+                    }
+                    else
+                    {
+                        throw new Exception("Found more than one implementation of " + nameof(I) + ". Please call PluginManager.SetPlugin(...) to set a specific implementation before using other public PlayFab API.");
+                    }
                 }
             }
 
-            throw new Exception("Cannot find a valid IPlayFabHttp type");
-        }
+            if (plugin == null)
+            {
+                throw new Exception("Cannot find a valid " + nameof(I) + " type");
+            }
 
-        private ISerializerPlugin CreatePlayFabSerializerPlugin()
-        {
-            return new SimpleJsonInstance();
+            return plugin;
         }
     }
 }

@@ -451,7 +451,6 @@ namespace UnittestRunner
                 return;
             }
 
-            auto output = result.AccountInfo->TitleInfo->Origination.mValue; // C++ can't really do anything with this once fetched
             testMessageReturn = "Enums tested";
         }
 

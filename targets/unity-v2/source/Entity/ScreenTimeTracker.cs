@@ -38,7 +38,7 @@ namespace PlayFab.Public
         private Queue<EventContents> eventsRequests = new Queue<EventContents>();
 
         private EntityModels.EntityKey entityInfo = new EntityModels.EntityKey();
-        private const String eventNamespace = "com.playfab.events.analytics";
+        private const String eventNamespace = "com.playfab.events.sessions";
         private const int maxBatchSizeInEvents = 10;
 
         /// <summary>
@@ -148,22 +148,18 @@ namespace PlayFab.Public
         {
             if ((PlayFabClientAPI.IsClientLoggedIn()) && (isSending == false))
             {
-                int eventsInTheBatch = 0;
                 isSending = true;
 
                 WriteEventsRequest request = new WriteEventsRequest();
                 request.Events = new List<EventContents>();
-                request.FlushToPlayStream = true;
 
-                while ((eventsRequests.Count > 0) && (eventsInTheBatch < maxBatchSizeInEvents))
+                while ((eventsRequests.Count > 0) && (request.Events.Count < maxBatchSizeInEvents))
                 {
                     EventContents eventInfo = eventsRequests.Dequeue();
                     request.Events.Add(eventInfo);
-
-                    eventsInTheBatch++;
                 }
 
-                if (eventsInTheBatch > 0)
+                if (request.Events.Count > 0)
                 {
                     PlayFabEntityAPI.WriteEvents(request, EventSentSuccessfulCallback, EventSentErrorCallback);
                 }

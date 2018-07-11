@@ -92,11 +92,8 @@ function getApiDefine(api) {
         return "DISABLE_PLAYFABCLIENT_API";
     if (api.name === "Server" || api.name === "Matchmaker")
         return "ENABLE_PLAYFABSERVER_API";
-    if (api.name === "Admin")
-        return "ENABLE_PLAYFABADMIN_API";
-    if (api.name === "Entity")
-        return "ENABLE_PLAYFABENTITY_API";
-    throw "getApiDefine: Unknown api: " + api.name;
+    else
+        return "ENABLE_PLAYFAB" + api.name.toUpperCase() + "_API";
 }
 
 function getAuthParams(apiCall) {

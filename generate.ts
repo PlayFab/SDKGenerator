@@ -425,8 +425,11 @@ function generateApis(buildIdentifier, targetOutputPathList, buildFlags, apiSrcD
             const funcName = sdkGeneratorGlobals.sdkDocsByMethodName[funcIdx].funcName;
             const funcDocNames = sdkGeneratorGlobals.sdkDocsByMethodName[funcIdx].apiDocKeys;
             const jsonDocList = [];
-            for (var docIdx = 0; docIdx < funcDocNames.length; docIdx++)
-                jsonDocList.push(getApiDefinition(funcDocNames[docIdx], buildFlags));
+            for (var docIdx = 0; docIdx < funcDocNames.length; docIdx++) {
+                var apiDefn = getApiDefinition(funcDocNames[docIdx], buildFlags)
+                if (apiDefn)
+                    jsonDocList.push(apiDefn);
+            }
 
             if (targetMaker[funcName]) {
                 console.log(" + Generating " + funcName + " to " + target.dest);

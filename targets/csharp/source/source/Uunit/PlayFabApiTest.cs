@@ -36,7 +36,7 @@ namespace PlayFab.UUnit
         // as they would cause ambiguity with real PlayFab plugins when loaded by default in PluginManager on runtime.
         // The factory methods below are set from another C# project: UnittestRunner, where the custom test plugins are declared.
         public static Func<Func<object, string>, Func<string, Type, object>, ISerializerPlugin> CreateCustomSerializerPlugin;
-        public static Func<ITransportPlugin> CreateCustomTransportPlugin;
+        public static Func<Func<string, object, Dictionary<string, string>, Task<object>>, ITransportPlugin> CreateCustomTransportPlugin;
 
         /// <summary>
         /// PlayFab Title cannot be created from SDK tests, so you must provide your titleId to run unit tests.
@@ -503,14 +503,47 @@ namespace PlayFab.UUnit
 
         /// <summary>
         /// CLIENT AND SERVER API
-        /// Test that plugin manager throws when more than one plugin is found for a requested contract and plugin wasn't specified explicitly.
+        /// Test that plugin manager can use a custom transport plugin and that it works correctly.
         /// </summary>
         [UUnitTest]
         public void PluginManagerCustomPluginTransport(UUnitTestContext testContext)
         {
-            var getRequest = new GetUserDataRequest();
-            var getDataTask = PlayFabClientAPI.GetUserDataAsync(getRequest, null, extraHeaders);
-            ContinueWithContext(getDataTask, testContext, null, true, "GetUserData call failed", true);
+            bool wasDoPostCalled = false;
+            var playFabTransport = PluginManager.GetPlugin(PluginContract.PlayFab_Transport) as ITransportPlugin;
+            var customTransport = CreateCustomTransportPlugin(
+            // DoPost action
+            async (string urlPath, object request, Dictionary<string, string> headers) =>
+            {
+                wasDoPostCalled = true;
+
+                // Call PlayFab's implementation from inside a custom plugin to act as a real implementation
+                return await playFabTransport.DoPost(urlPath, request, headers);
+            });
+
+            try
+            {
+                // Set custom trasnport plugin
+                PluginManager.SetPlugin(customTransport, PluginContract.PlayFab_Transport);
+
+                // Call some PlayFab API 
+                var getRequest = new GetUserDataRequest();
+                var getDataTask = PlayFabClientAPI.GetUserDataAsync(getRequest, null, extraHeaders);
+                ContinueWithContext(getDataTask, testContext, null, true, "GetUserData call failed", false);
+                getDataTask.Wait();
+
+                // Verify
+                testContext.True(wasDoPostCalled);
+                testContext.IsNull(getDataTask.Result.Error);
+                testContext.EndTest(UUnitFinishState.PASSED, null);
+            }
+            catch (Exception e)
+            {
+                testContext.EndTest(UUnitFinishState.FAILED, e.ToString());
+            }
+            finally
+            {
+                PluginManager.SetPlugin(playFabTransport, PluginContract.PlayFab_Transport);
+            }
         }
 
         /// <summary>

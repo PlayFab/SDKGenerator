@@ -26,9 +26,9 @@ namespace UnittestRunner
                 return new CustomSerializerPlugin() { SerializeAction = serializeAction, DeserializeAction = deserializeAction };
             };
 
-            PlayFabApiTest.CreateCustomTransportPlugin = () =>
+            PlayFabApiTest.CreateCustomTransportPlugin = doPostAction =>
             {
-                return new CustomTransportPlugin();
+                return new CustomTransportPlugin() { DoPostAction = doPostAction };
             };
 
             var testInputs = GetTestTitleData(args);
@@ -145,8 +145,15 @@ namespace UnittestRunner
 
     public class CustomTransportPlugin : ITransportPlugin
     {
-        public Task<object> DoPost(string urlPath, object request, Dictionary<string, string> headers)
+        public Func<string, object, Dictionary<string, string>, Task<object>> DoPostAction;
+
+        public async Task<object> DoPost(string urlPath, object request, Dictionary<string, string> headers)
         {
+            if (DoPostAction != null)
+            {
+                return await DoPostAction(urlPath, request, headers);
+            }
+
             throw new NotImplementedException();
         }
     }

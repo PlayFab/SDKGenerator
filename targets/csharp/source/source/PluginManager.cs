@@ -35,7 +35,7 @@ namespace PlayFab
         /// <param name="plugin">The plugin instance.</param>
         /// <param name="contract">The app contract of plugin.</param>
         /// <param name="instanceName">The optional plugin instance name. Instance names allow to have mulptiple plugins with the same contract.</param>
-        public void SetPlugin(IPlayFabPlugin plugin, PluginContract contract, string instanceName = "")
+        public static void SetPlugin(IPlayFabPlugin plugin, PluginContract contract, string instanceName = "")
         {
             Instance.SetPluginInternal(plugin, contract, instanceName);
         }

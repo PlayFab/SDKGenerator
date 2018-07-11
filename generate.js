@@ -713,6 +713,7 @@ try {
 catch (error) {
     console.error(error);
     setTimeout(doNothing, 30000);
+    throw error;
 }
 setTimeout(doNothing, 5000);
 //# sourceMappingURL=generate.js.map

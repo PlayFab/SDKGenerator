@@ -4,6 +4,8 @@ namespace UnrealBuildTool.Rules
     {
         public PlayFab(ReadOnlyTargetRules Target) : base(Target)
         {
+            PCHUsage = PCHUsageMode.NoSharedPCHs;
+
             PrivateIncludePaths.AddRange(
                 new string[] {"PlayFab/Private"}
             );

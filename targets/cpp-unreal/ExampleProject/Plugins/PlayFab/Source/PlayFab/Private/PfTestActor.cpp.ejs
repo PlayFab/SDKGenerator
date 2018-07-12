@@ -1,5 +1,8 @@
-#include "PlayFabPrivatePCH.h"
+#if (ENGINE_MINOR_VERSION < 15)
+#include "TempPreCompiled.h"
+#endif
 #include "PfTestActor.h"
+#include "PlayFabPrivate.h"
 #include "PlayFabEnums.h"
 
 const int SUMMARY_INIT_BUFFER_SIZE = 10000;

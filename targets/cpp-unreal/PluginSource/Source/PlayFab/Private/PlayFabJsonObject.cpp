@@ -5,6 +5,7 @@
 // Updated by Joshua Lyons to include null values
 ////////////////////////////////////////////////////////////
 
+#include "PlayFabJsonObject.h"
 #include "PlayFabPrivatePCH.h"
 
 typedef TJsonWriterFactory< TCHAR, TCondensedJsonPrintPolicy<TCHAR> > FCondensedJsonStringWriterFactory;

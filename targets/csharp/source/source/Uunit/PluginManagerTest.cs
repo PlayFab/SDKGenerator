@@ -47,7 +47,6 @@ namespace PlayFab.UUnit
         }
 
         /// <summary>
-        /// CLIENT AND SERVER API
         /// Test that plugin manager returns default plugins if they are not set.
         /// </summary>
         [UUnitTest]
@@ -62,24 +61,23 @@ namespace PlayFab.UUnit
         }
 
         /// <summary>
-        /// CLIENT AND SERVER API
         /// Test that plugin manager can set and return a custom plugin.
         /// </summary>
         [UUnitTest]
         public void PluginManagerCustomPlugin(UUnitTestContext testContext)
         {
             var playFabSerializer = PluginManager.GetPlugin<ISerializerPlugin>(PluginContract.PlayFab_Serializer);
-            var customSerializer = new CustomSerializerPlugin();
+            var expectedSerializer = new CustomSerializerPlugin();
             try
             {
                 // Set a custom serializer plugin
-                PluginManager.SetPlugin(customSerializer, PluginContract.PlayFab_Serializer);
+                PluginManager.SetPlugin(expectedSerializer, PluginContract.PlayFab_Serializer);
 
                 // Get serializer plugin from manager
-                var serializerPlugin = PluginManager.GetPlugin<ISerializerPlugin>(PluginContract.PlayFab_Serializer);
+                var actualSerializer = PluginManager.GetPlugin<ISerializerPlugin>(PluginContract.PlayFab_Serializer);
 
                 // Verify
-                testContext.True(object.ReferenceEquals(serializerPlugin, customSerializer));
+                testContext.True(object.ReferenceEquals(actualSerializer, expectedSerializer));
                 testContext.EndTest(UUnitFinishState.PASSED, null);
             }
             catch (Exception e)
@@ -94,8 +92,7 @@ namespace PlayFab.UUnit
         }
 
         /// <summary>
-        /// CLIENT AND SERVER API
-        /// Test that plugin manager can set and return mupltiple plugins per contract.
+        /// Test that plugin manager can set and return multiple plugins per contract.
         /// </summary>
         [UUnitTest]
         public void PluginManagerMultiplePluginsPerContract(UUnitTestContext testContext)
@@ -104,20 +101,20 @@ namespace PlayFab.UUnit
             const string customTransportName2 = "Custom transport client 2";
 
             var playFabTransport = PluginManager.GetPlugin<ITransportPlugin>(PluginContract.PlayFab_Transport);
-            var customTransport1 = new CustomTransportPlugin() { Name = customTransportName1 };
-            var customTransport2 = new CustomTransportPlugin() { Name = customTransportName2 };
+            var expectedTransport1 = new CustomTransportPlugin() { Name = customTransportName1 };
+            var expectedTransport2 = new CustomTransportPlugin() { Name = customTransportName2 };
 
-            // Set a custom plugins
-            PluginManager.SetPlugin(customTransport1, PluginContract.PlayFab_Transport, customTransportName1);
-            PluginManager.SetPlugin(customTransport2, PluginContract.PlayFab_Transport, customTransportName2);
+            // Set custom plugins
+            PluginManager.SetPlugin(expectedTransport1, PluginContract.PlayFab_Transport, customTransportName1);
+            PluginManager.SetPlugin(expectedTransport2, PluginContract.PlayFab_Transport, customTransportName2);
 
             // Verify 
-            var transport = PluginManager.GetPlugin<ITransportPlugin>(PluginContract.PlayFab_Transport);
-            testContext.True(object.ReferenceEquals(transport, playFabTransport)); // the default one is still the same
-            var transport1 = PluginManager.GetPlugin<ITransportPlugin>(PluginContract.PlayFab_Transport, customTransportName1);
-            testContext.True(object.ReferenceEquals(transport1, customTransport1));
-            var transport2 = PluginManager.GetPlugin<ITransportPlugin>(PluginContract.PlayFab_Transport, customTransportName2);
-            testContext.True(object.ReferenceEquals(transport2, customTransport2));
+            var actualTransport = PluginManager.GetPlugin<ITransportPlugin>(PluginContract.PlayFab_Transport);
+            testContext.True(object.ReferenceEquals(actualTransport, playFabTransport)); // the default one is still the same
+            var actualTransport1 = PluginManager.GetPlugin<ITransportPlugin>(PluginContract.PlayFab_Transport, customTransportName1);
+            testContext.True(object.ReferenceEquals(actualTransport1, expectedTransport1));
+            var actualTransport2 = PluginManager.GetPlugin<ITransportPlugin>(PluginContract.PlayFab_Transport, customTransportName2);
+            testContext.True(object.ReferenceEquals(actualTransport2, expectedTransport2));
             testContext.EndTest(UUnitFinishState.PASSED, null);
         }
     }

@@ -272,8 +272,8 @@ namespace PlayFab.Internal
             else if (regRes != null)
             {
                 _internalHttp.AuthKey = regRes.SessionTicket;
-                //if (regRes.EntityToken != null)
-                //    _internalHttp.EntityToken = logRes.EntityToken.EntityToken;
+                if (regRes.EntityToken != null)
+                    _internalHttp.EntityToken = regRes.EntityToken.EntityToken;
             }
 #endif
         }

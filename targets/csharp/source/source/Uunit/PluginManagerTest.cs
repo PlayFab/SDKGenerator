@@ -2,12 +2,9 @@
 
 using PlayFab.ClientModels;
 using PlayFab.Internal;
-using PlayFab.Json;
 using System;
 using System.Collections.Generic;
-using System.Linq;
 using System.Threading.Tasks;
-using System.Reflection;
 using System.Collections.Concurrent;
 
 namespace PlayFab.UUnit
@@ -147,16 +144,91 @@ namespace PlayFab.UUnit
 
         /// <summary>
         /// CLIENT AND SERVER API
-        /// Test that plugin manager can use a custom serializer plugin and that it is called correctly.
+        /// Test that plugin manager returns default plugins if they are not set.
         /// </summary>
         [UUnitTest]
-        public void PluginManagerCustomPluginSerializer(UUnitTestContext testContext)
+        public void PluginManagerDefaultPlugins(UUnitTestContext testContext)
+        {
+            var playFabSerializer = PluginManager.GetPlugin(PluginContract.PlayFab_Serializer) as ISerializerPlugin;
+            var playFabTransport = PluginManager.GetPlugin(PluginContract.PlayFab_Transport) as ITransportPlugin;
+
+            testContext.NotNull(playFabSerializer);
+            testContext.NotNull(playFabTransport);
+            testContext.EndTest(UUnitFinishState.PASSED, null);
+        }
+
+        /// <summary>
+        /// CLIENT AND SERVER API
+        /// Test that plugin manager can set and return a custom plugin.
+        /// </summary>
+        [UUnitTest]
+        public void PluginManagerCustomPlugin(UUnitTestContext testContext)
         {
             var playFabSerializer = PluginManager.GetPlugin(PluginContract.PlayFab_Serializer) as ISerializerPlugin;
             var customSerializer = new CustomSerializerPlugin();
             try
             {
-                // Set custom serializer plugin
+                // Set a custom serializer plugin
+                PluginManager.SetPlugin(customSerializer, PluginContract.PlayFab_Serializer);
+
+                // Get serializer plugin from manager
+                var serializerPlugin = PluginManager.GetPlugin(PluginContract.PlayFab_Serializer);
+
+                // Verify
+                testContext.True(object.ReferenceEquals(serializerPlugin, customSerializer));
+                testContext.EndTest(UUnitFinishState.PASSED, null);
+            }
+            catch (Exception e)
+            {
+                testContext.EndTest(UUnitFinishState.FAILED, e.ToString());
+            }
+            finally
+            {
+                // Restore the original plugin
+                PluginManager.SetPlugin(playFabSerializer, PluginContract.PlayFab_Serializer);
+            }
+        }
+
+        /// <summary>
+        /// CLIENT AND SERVER API
+        /// Test that plugin manager can set and return mupltiple plugins per contract.
+        /// </summary>
+        [UUnitTest]
+        public void PluginManagerMultiplePluginsPerContract(UUnitTestContext testContext)
+        {
+            const string customTransportName1 = "Custom transport client 1";
+            const string customTransportName2 = "Custom transport client 2";
+
+            var playFabTransport = PluginManager.GetPlugin(PluginContract.PlayFab_Transport) as ITransportPlugin;
+            var customTransport1 = new CustomTransportPlugin() { Name = customTransportName1 };
+            var customTransport2 = new CustomTransportPlugin() { Name = customTransportName2 };
+
+            // Set a custom plugins
+            PluginManager.SetPlugin(customTransport1, PluginContract.PlayFab_Transport, customTransportName1);
+            PluginManager.SetPlugin(customTransport2, PluginContract.PlayFab_Transport, customTransportName2);
+
+            // Verify 
+            var transport = PluginManager.GetPlugin(PluginContract.PlayFab_Transport) as ITransportPlugin;
+            testContext.True(object.ReferenceEquals(transport, playFabTransport)); // the default one is still the same
+            var transport1 = PluginManager.GetPlugin(PluginContract.PlayFab_Transport, customTransportName1) as ITransportPlugin;
+            testContext.True(object.ReferenceEquals(transport1, customTransport1));
+            var transport2 = PluginManager.GetPlugin(PluginContract.PlayFab_Transport, customTransportName2) as ITransportPlugin;
+            testContext.True(object.ReferenceEquals(transport2, customTransport2));
+            testContext.EndTest(UUnitFinishState.PASSED, null);
+        }
+
+        /// <summary>
+        /// CLIENT AND SERVER API
+        /// Test that SDK can use a custom serializer plugin.
+        /// </summary>
+        [UUnitTest]
+        public void SdkCustomPluginSerializer(UUnitTestContext testContext)
+        {
+            var playFabSerializer = PluginManager.GetPlugin(PluginContract.PlayFab_Serializer) as ISerializerPlugin;
+            var customSerializer = new CustomSerializerPlugin();
+            try
+            {
+                // Set a custom serializer plugin
                 PluginManager.SetPlugin(customSerializer, PluginContract.PlayFab_Serializer);
 
                 // Call some PlayFab API 
@@ -182,17 +254,17 @@ namespace PlayFab.UUnit
 
         /// <summary>
         /// CLIENT AND SERVER API
-        /// Test that plugin manager can use a custom transport plugin and that it is called correctly.
+        /// Test that SDK can use a custom transport plugin.
         /// </summary>
         [UUnitTest]
-        public void PluginManagerCustomPluginTransport(UUnitTestContext testContext)
+        public void SdkCustomPluginTransport(UUnitTestContext testContext)
         {
             var playFabTransport = PluginManager.GetPlugin(PluginContract.PlayFab_Transport) as ITransportPlugin;
             var customTransport = new CustomTransportPlugin();
 
             try
             {
-                // Set custom transport plugin
+                // Set a custom transport plugin
                 PluginManager.SetPlugin(customTransport, PluginContract.PlayFab_Transport);
 
                 // Call some PlayFab API 
@@ -218,10 +290,10 @@ namespace PlayFab.UUnit
 
         /// <summary>
         /// CLIENT AND SERVER API
-        /// Test that plugin manager can use multiple plugins with the same contract and that it works correctly.
+        /// Test that multiple plugins can be used with the same contract simultaneously.
         /// </summary>
         [UUnitTest]
-        public void PluginManagerMultiplePluginsPerContract(UUnitTestContext testContext)
+        public void SdkMultiplePluginsPerContract(UUnitTestContext testContext)
         {
             // Create multiple custom plugins, set them with the same contract
             const int pluginNumber = 4;

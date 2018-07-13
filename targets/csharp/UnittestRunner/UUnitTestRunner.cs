@@ -1,12 +1,10 @@
+using PlayFab;
+using PlayFab.UUnit;
 using System;
-using System.Collections.Generic;
 using System.IO;
 using System.Threading;
-using System.Threading.Tasks;
-using PlayFab;
 using PlayFab.ClientModels;
 using PlayFab.Json;
-using PlayFab.UUnit;
 
 namespace UnittestRunner
 {

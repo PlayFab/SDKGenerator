@@ -36,6 +36,7 @@ namespace PlayFab.UUnit
                 testInputs = new TestTitleData { titleId = "6195", userEmail = "paul@playfab.com" };
 #if !DISABLE_PLAYFABCLIENT_API
             PlayFabApiTest.SetTitleInfo(testInputs);
+            PluginManagerTest.SetTitleInfo(testInputs);
 #endif
 
             SuiteFinished = false;

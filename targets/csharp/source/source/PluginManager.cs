@@ -1,5 +1,7 @@
 using System;
 using System.Collections.Generic;
+using PlayFab.Internal;
+using PlayFab.Json;
 
 namespace PlayFab
 {
@@ -45,14 +47,15 @@ namespace PlayFab
             var key = new Tuple<PluginContract, string>(contract, instanceName);
             if (!this.plugins.ContainsKey(key))
             {
+                // Requested plugin is not in the cache, create the default one
                 IPlayFabPlugin plugin;
                 switch (contract)
                 {
                     case PluginContract.PlayFab_Serializer:
-                        plugin = this.CreatePlugin<ISerializerPlugin>();
+                        plugin = this.CreatePlugin<SimpleJsonInstance>();
                         break;
                     case PluginContract.PlayFab_Transport:
-                        plugin = this.CreatePlugin<ITransportPlugin>();
+                        plugin = this.CreatePlayFabTransportPlugin();
                         break;
                     default:
                         throw new ArgumentException("This contract is not supported", nameof(contract));
@@ -75,32 +78,24 @@ namespace PlayFab
             this.plugins[key] = plugin;
         }
 
-        private I CreatePlugin<I>() where I: class, IPlayFabPlugin
+        private IPlayFabPlugin CreatePlugin<T>() where T : IPlayFabPlugin, new()
         {
-            var interfaceType = typeof(I);
-            var types = this.GetType().GetAssembly().GetTypes();
-            I plugin = null;
+            return (IPlayFabPlugin)Activator.CreateInstance(typeof(T).AsType());
+        }
+
+        private ITransportPlugin CreatePlayFabTransportPlugin()
+        {
+            var httpInterfaceType = typeof(ITransportPlugin);
+            var types = typeof(PlayFabHttp).GetAssembly().GetTypes();
             foreach (var eachType in types)
             {
-                if (interfaceType.IsAssignableFrom(eachType) && !eachType.IsAbstract)
+                if (httpInterfaceType.IsAssignableFrom(eachType) && !eachType.IsAbstract)
                 {
-                    if (plugin == null)
-                    {
-                        plugin = (I)Activator.CreateInstance(eachType.AsType());
-                    }
-                    else
-                    {
-                        throw new PlayFabException(PlayFabExceptionCode.PluginAmbiguity, "Found more than one implementation of " + nameof(I) + ". Please call PluginManager.SetPlugin(...) to set a specific implementation before using other public PlayFab API.");
-                    }
+                    return (ITransportPlugin)Activator.CreateInstance(eachType.AsType());
                 }
             }
 
-            if (plugin == null)
-            {
-                throw new PlayFabException(PlayFabExceptionCode.PluginNotFound, "Cannot find a valid " + nameof(I) + " type");
-            }
-
-            return plugin;
+            throw new Exception("Cannot find a valid ITransportPlugin type");
         }
     }
 }

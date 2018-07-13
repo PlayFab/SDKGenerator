@@ -43,7 +43,7 @@ namespace PlayFab.Internal
         }
         private static void OnGatherSuccess(ClientModels.EmptyResult result)
         {
-            Debug.Log("OnGatherSuccess");
+            //Debug.Log("OnGatherSuccess");
         }
         private static void OnGatherFail(PlayFabError error)
         {

@@ -332,6 +332,7 @@
     <Content Include="targets\csharp\source\source\PluginContract.cs" />
     <Content Include="targets\csharp\source\source\PluginManager.cs" />
     <Content Include="targets\csharp\source\source\Uunit\PlayFabApiTest.cs" />
+    <Content Include="targets\csharp\source\source\Uunit\PluginManagerTest.cs" />
     <Content Include="targets\csharp\source\source\Uunit\UUnitAssertException.cs" />
     <Content Include="targets\csharp\source\source\Uunit\UUnitIncrementalTestRunner.cs" />
     <Content Include="targets\csharp\source\source\Uunit\UUnitTestCase.cs" />

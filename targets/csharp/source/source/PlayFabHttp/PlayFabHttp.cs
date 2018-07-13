@@ -1,4 +1,3 @@
-using System;
 using System.Collections.Generic;
 using System.Threading.Tasks;
 
@@ -45,7 +44,7 @@ namespace PlayFab.Internal
         {
             if (PlayFabSettings.TitleId == null)
                 throw new PlayFabException(PlayFabExceptionCode.TitleNotSet, "You must set your titleId before making an api call");
-            var transport = (ITransportPlugin)PluginManager.GetPlugin(PluginContract.PlayFab_Transport);
+            var transport = PluginManager.GetPlugin<ITransportPlugin>(PluginContract.PlayFab_Transport);
 
             var headers = new Dictionary<string, string>();
             if (authType != null && authKey != null)

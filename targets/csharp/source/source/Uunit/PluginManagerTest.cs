@@ -80,10 +80,6 @@ namespace PlayFab.UUnit
                 testContext.True(object.ReferenceEquals(actualSerializer, expectedSerializer));
                 testContext.EndTest(UUnitFinishState.PASSED, null);
             }
-            catch (Exception e)
-            {
-                testContext.EndTest(UUnitFinishState.FAILED, e.ToString());
-            }
             finally
             {
                 // Restore the original plugin

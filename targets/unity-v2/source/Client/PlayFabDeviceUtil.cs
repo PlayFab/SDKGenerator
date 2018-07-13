@@ -68,17 +68,17 @@ namespace PlayFab.Internal
             string playFabId = null;
             ClientModels.EntityTokenResponse entityInfo = null;
 
-            if (loginResult != null && loginResult.SettingsForUser != null)
+            if (loginResult != null)
             {
                 settingsForUser = loginResult.SettingsForUser;
                 playFabId = loginResult.PlayFabId;
                 entityInfo = loginResult.EntityToken;
             }
-            else if (registerResult != null && registerResult.SettingsForUser != null)
+            else if (registerResult != null)
             {
                 settingsForUser = registerResult.SettingsForUser;
                 playFabId = registerResult.PlayFabId;
-                entityInfo = loginResult.EntityToken;
+                entityInfo = registerResult.EntityToken;
             }
 
             _OnPlayFabLogin(settingsForUser, playFabId, entityInfo);

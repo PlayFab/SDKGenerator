@@ -2,8 +2,8 @@
 // This is the utility functions for the PlayFab plugin
 //////////////////////////////////////////////////////////////////////////////////////////////
 
-#include "PlayFabUtilities.h"
 #include "PlayFabPrivatePCH.h"
+#include "PlayFabUtilities.h"
 
 void UPlayFabUtilities::setPlayFabSettings(FString GameTitleId, FString PlayFabSecretApiKey, FString PhotonRealtimeAppId, FString PhotonTurnbasedAppId, FString PhotonChatAppId)
 {

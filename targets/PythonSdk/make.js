@@ -3,6 +3,7 @@ var path = require("path");
 // Making resharper less noisy - These are defined in Generate.js
 if (typeof (templatizeTree) === "undefined") templatizeTree = function () { };
 if (typeof (getCompiledTemplate) === "undefined") getCompiledTemplate = function () { };
+var cPythonLineComment = "'''\n"
 
 // moves over setup.py and uploadPython.sh
 function copyOverScripts(apis, sourceDir, apiOutputDir)
@@ -100,9 +101,9 @@ function getDeprecationAttribute(tabbing, apiObj) {
     var isError = isDeprecated && (new Date() > deprecationTime) ? "true" : "false";
 
     if (isDeprecated && apiObj.deprecation.ReplacedBy != null)
-        return tabbing + "# [Obsolete(\"Use '" + apiObj.deprecation.ReplacedBy + "' instead\", " + isError + ")]\n";
+        return tabbing + cPythonLineComment + tabbing + "# [Obsolete(\"Use '" + apiObj.deprecation.ReplacedBy + "' instead\", " + isError + ")]\n" + tabbing + cPythonLineComment;
     else if (isDeprecated)
-        return tabbing + "# [Obsolete(\"No longer available\", " + isError + ")]\n";
+        return tabbing + cPythonLineComment + tabbing + "# [Obsolete(\"No longer available\", " + isError + ")]\n" + tabbing + cPythonLineComment;
     return "";
 }
 
@@ -238,12 +239,13 @@ function getDeprecationAttribute(tabbing, apiObj) {
 
 function generateApiSummary(tabbing, apiElement, summaryParam, extraLines) {
     var lines = generateApiSummaryLines(apiElement, summaryParam, extraLines);
+    var tabbedLineComment = tabbing + cPythonLineComment;
 
     var output;
     if (lines.length === 1) {
-        output = tabbing + "# " + lines.join("\n" + tabbing + "# ") + "\n";
+        output = tabbedLineComment + lines.join("\n" + tabbing) + "\n" + tabbedLineComment;
     } else if (lines.length > 0) {
-        output = tabbing + "# " + lines.join("\n" + tabbing + "# ") + "\n";
+        output = tabbedLineComment + lines.join("\n" + tabbing) + "\n" + tabbedLineComment;
     } else {
         output = "";
     }

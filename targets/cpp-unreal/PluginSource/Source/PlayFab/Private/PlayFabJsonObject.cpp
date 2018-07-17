@@ -5,7 +5,11 @@
 // Updated by Joshua Lyons to include null values
 ////////////////////////////////////////////////////////////
 
-#include "PlayFabPrivatePCH.h"
+#if (ENGINE_MINOR_VERSION < 15)
+#include "TempPreCompiled.h"
+#endif
+#include "PlayFabJsonObject.h"
+#include "PlayFabPrivate.h"
 
 typedef TJsonWriterFactory< TCHAR, TCondensedJsonPrintPolicy<TCHAR> > FCondensedJsonStringWriterFactory;
 typedef TJsonWriter< TCHAR, TCondensedJsonPrintPolicy<TCHAR> > FCondensedJsonStringWriter;

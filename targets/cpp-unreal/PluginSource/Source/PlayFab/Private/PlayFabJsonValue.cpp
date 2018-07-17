@@ -4,7 +4,14 @@
 // Originally wriiten by Vladimir Alyamkin.
 ////////////////////////////////////////////////////////////
 
-#include "PlayFabPrivatePCH.h"
+#if (ENGINE_MINOR_VERSION < 15)
+#include "TempPreCompiled.h"
+#endif
+#include "PlayFabJsonObject.h"
+#include "PlayFabJsonValue.h"
+#include "PlayFabPrivate.h"
+#include "CoreMinimal.h"
+
 
 UPlayFabJsonValue::UPlayFabJsonValue(const class FObjectInitializer& PCIP)
     : Super(PCIP)

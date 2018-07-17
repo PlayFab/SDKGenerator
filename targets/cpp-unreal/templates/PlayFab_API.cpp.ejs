@@ -4,9 +4,14 @@
 // API: <%- api.name %>
 //////////////////////////////////////////////////////////////////////////////////////////////
 
-#include "PlayFabPrivatePCH.h"
-#include "PlayFabEnums.h"
+#if (ENGINE_MINOR_VERSION < 15)
+#include "TempPreCompiled.h"
+#endif
 #include "PlayFab<%- api.name %>API.h"
+#include "PlayFab<%- api.name %>Models.h"
+#include "PlayFab<%- api.name %>ModelDecoder.h"
+#include "PlayFabPrivate.h"
+#include "PlayFabEnums.h"
 
 UPlayFab<%- api.name %>API::UPlayFab<%- api.name %>API(const FObjectInitializer& ObjectInitializer)
     : Super(ObjectInitializer)

@@ -243,11 +243,11 @@ function generateApiSummary(tabbing, apiElement, summaryParam, extraLines) {
 
     var output;
     if (lines.length === 1) {
-        output = tabbedLineComment + lines.join("\n" + tabbing) + "\n" + tabbedLineComment;
+        output = tabbedLineComment + tabbing + lines.join("\n" + tabbing) + "\n" + tabbedLineComment;
     } else if (lines.length > 0) {
-        output = tabbedLineComment + lines.join("\n" + tabbing) + "\n" + tabbedLineComment;
+        output = tabbedLineComment + tabbing + lines.join("\n" + tabbing) + "\n" + tabbedLineComment;
     } else {
-        output = "";
+        output = tabing;
     }
     return output;
 }

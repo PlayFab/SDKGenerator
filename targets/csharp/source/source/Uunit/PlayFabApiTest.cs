@@ -7,6 +7,7 @@ using System;
 using System.Collections.Generic;
 using System.Linq;
 using System.Threading.Tasks;
+using System.Reflection;
 #if ENABLE_PLAYFABENTITY_API
 using PlayFab.EntityModels;
 #endif
@@ -30,6 +31,12 @@ namespace PlayFab.UUnit
         // Information fetched by appropriate API calls
         private static EntityModels.EntityKey entityKey;
         public static string PlayFabId;
+
+        // Custom plugins that are used for testing can't be declared and compiled directly in this C# project (assembly)
+        // as they would cause ambiguity with real PlayFab plugins when loaded by default in PluginManager on runtime.
+        // The factory methods below are set from another C# project: UnittestRunner, where the custom test plugins are declared.
+        public static Func<Func<object, string>, Func<string, Type, object>, ISerializerPlugin> CreateCustomSerializerPlugin;
+        public static Func<Func<string, object, Dictionary<string, string>, Task<object>>, ITransportPlugin> CreateCustomTransportPlugin;
 
         /// <summary>
         /// PlayFab Title cannot be created from SDK tests, so you must provide your titleId to run unit tests.
@@ -435,6 +442,147 @@ namespace PlayFab.UUnit
             var writeTask = PlayFabClientAPI.WritePlayerEventAsync(request, null, extraHeaders);
             ContinueWithContext(writeTask, testContext, null, true, "PlayStream WriteEvent failed", true);
         }
+
+        /// <summary>
+        /// CLIENT AND SERVER API
+        /// Test that plugin manager can use a custom serializer plugin and that it works correctly.
+        /// </summary>
+        [UUnitTest]
+        public void PluginManagerCustomPluginSerializer(UUnitTestContext testContext)
+        {
+            bool wasSerialized = false, wasDeserialized = false;
+            var playFabSerializer = PluginManager.GetPlugin(PluginContract.PlayFab_Serializer) as ISerializerPlugin;
+            var customSerializer = CreateCustomSerializerPlugin(
+            // Serialize action
+            obj =>
+            {
+                wasSerialized = true;
+
+                // Call PlayFab's implementation from inside a custom plugin to act as a real implementation
+                return playFabSerializer.SerializeObject(obj);
+            },
+            // Deserialize action
+            (serialized, genericItemType) =>
+            {
+                wasDeserialized = true;
+
+                // Call PlayFab's implementation from inside a custom plugin to act as a real implementation.
+                // Use reflection to call generic DeserializeObject method (the one that is called after POST in SDK) of playFabSerializer
+                MethodInfo method = playFabSerializer.GetType().GetRuntimeMethods().Where(x => x.Name == "DeserializeObject" && x.IsGenericMethod && x.GetParameters().Count() == 1).Single();
+                MethodInfo generic = method.MakeGenericMethod(genericItemType);
+                return generic.Invoke(playFabSerializer, new object[] { serialized });
+            });
+
+            try
+            {
+                // Set custom serializer plugin
+                PluginManager.SetPlugin(customSerializer, PluginContract.PlayFab_Serializer);
+
+                // Call some PlayFab API 
+                var getRequest = new GetUserDataRequest();
+                getRequest.PlayFabId = "some-invalid-data"; // Make this call fail so that it triggers deserialization of response
+                var getDataTask = PlayFabClientAPI.GetUserDataAsync(getRequest, null, extraHeaders);
+                ContinueWithContext(getDataTask, testContext, null, false, "GetUserData call failed", false);
+                getDataTask.Wait();
+
+                // Verify
+                testContext.True(wasSerialized);
+                testContext.True(wasDeserialized);
+                testContext.True(getDataTask.Result.Error.Error == PlayFabErrorCode.InvalidParams);
+                testContext.EndTest(UUnitFinishState.PASSED, null);
+            }
+            catch (Exception e)
+            {
+                testContext.EndTest(UUnitFinishState.FAILED, e.ToString());
+            }
+            finally
+            {
+                PluginManager.SetPlugin(playFabSerializer, PluginContract.PlayFab_Serializer);
+            }
+        }
+
+        /// <summary>
+        /// CLIENT AND SERVER API
+        /// Test that plugin manager can use a custom transport plugin and that it works correctly.
+        /// </summary>
+        [UUnitTest]
+        public void PluginManagerCustomPluginTransport(UUnitTestContext testContext)
+        {
+            bool wasDoPostCalled = false;
+            var playFabTransport = PluginManager.GetPlugin(PluginContract.PlayFab_Transport) as ITransportPlugin;
+            var customTransport = CreateCustomTransportPlugin(
+            // DoPost action
+            async (string urlPath, object request, Dictionary<string, string> headers) =>
+            {
+                wasDoPostCalled = true;
+
+                // Call PlayFab's implementation from inside a custom plugin to act as a real implementation
+                return await playFabTransport.DoPost(urlPath, request, headers);
+            });
+
+            try
+            {
+                // Set custom trasnport plugin
+                PluginManager.SetPlugin(customTransport, PluginContract.PlayFab_Transport);
+
+                // Call some PlayFab API 
+                var getRequest = new GetUserDataRequest();
+                var getDataTask = PlayFabClientAPI.GetUserDataAsync(getRequest, null, extraHeaders);
+                ContinueWithContext(getDataTask, testContext, null, true, "GetUserData call failed", false);
+                getDataTask.Wait();
+
+                // Verify
+                testContext.True(wasDoPostCalled);
+                testContext.IsNull(getDataTask.Result.Error);
+                testContext.EndTest(UUnitFinishState.PASSED, null);
+            }
+            catch (Exception e)
+            {
+                testContext.EndTest(UUnitFinishState.FAILED, e.ToString());
+            }
+            finally
+            {
+                PluginManager.SetPlugin(playFabTransport, PluginContract.PlayFab_Transport);
+            }
+        }
+
+        /// <summary>
+        /// CLIENT AND SERVER API
+        /// Test that plugin manager throws when more than one plugin is found for a requested contract and plugin wasn't specified explicitly.
+        /// </summary>
+        [UUnitTest]
+        public void PluginManagerMultiplePluginsPerContract(UUnitTestContext testContext)
+        {
+            var getRequest = new GetUserDataRequest();
+            var getDataTask = PlayFabClientAPI.GetUserDataAsync(getRequest, null, extraHeaders);
+            ContinueWithContext(getDataTask, testContext, null, true, "GetUserData call failed", true);
+        }
+        /*
+        private void PluginManagerAmbiguityContinued(PlayFabResult<GetPlayerStatisticsResult> getStatResult1, UUnitTestContext testContext, string failMessage)
+        {
+            foreach (var eachStat in getStatResult1.Result.Statistics)
+                if (eachStat.StatisticName == TEST_STAT_NAME)
+                    _testInteger = eachStat.Value;
+            _testInteger = (_testInteger + 1) % 100; // This test is about the expected value changing (incrementing through from TEST_STAT_BASE to TEST_STAT_BASE * 2 - 1)
+
+            var updateRequest = new UpdatePlayerStatisticsRequest { Statistics = new List<StatisticUpdate> { new StatisticUpdate { StatisticName = TEST_STAT_NAME, Value = _testInteger } } };
+            var updateTask = PlayFabClientAPI.UpdatePlayerStatisticsAsync(updateRequest, null, extraHeaders);
+            ContinueWithContext(updateTask, testContext, PlayerStatisticsApiContinued2, true, "UpdatePlayerStatistics call failed", false);
+        }
+        private void PlayerStatisticsApiContinued2(PlayFabResult<UpdatePlayerStatisticsResult> updateResult, UUnitTestContext testContext, string failMessage)
+        {
+            var getRequest = new GetPlayerStatisticsRequest();
+            var getStatTask2 = PlayFabClientAPI.GetPlayerStatisticsAsync(getRequest, null, extraHeaders);
+            ContinueWithContext(getStatTask2, testContext, PlayerStatisticsApiContinued3, true, "GetPlayerStatistics2 call failed", true);
+        }
+        private void PlayerStatisticsApiContinued3(PlayFabResult<GetPlayerStatisticsResult> getStatResult2, UUnitTestContext testContext, string failMessage)
+        {
+            var testStatActual = int.MinValue;
+            foreach (var eachStat in getStatResult2.Result.Statistics)
+                if (eachStat.StatisticName == TEST_STAT_NAME)
+                    testStatActual = eachStat.Value;
+            testContext.IntEquals(_testInteger, testStatActual);
+        }*/
 
         private static Task<PlayFabResult<T>> ThrowIfApiError<T>(Task<PlayFabResult<T>> original) where T : PlayFabResultCommon
         {

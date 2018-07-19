@@ -3,7 +3,7 @@ var path = require("path");
 // Making resharper less noisy - These are defined in Generate.js
 if (typeof (templatizeTree) === "undefined") templatizeTree = function () { };
 if (typeof (getCompiledTemplate) === "undefined") getCompiledTemplate = function () { };
-var cPythonLineComment = "'''\n"
+var cPythonLineComment = "\"\"\"\n"
 
 // moves over setup.py and uploadPython.sh
 function copyOverScripts(apis, sourceDir, apiOutputDir)

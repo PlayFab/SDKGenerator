@@ -1,10 +1,10 @@
-'''
+"""
 idea here is to include PlayFabSettings, set them,
 include API.py (or PlayFabSErverAPI.py) and see if you can call a function
 out of it.
 
 These test API calls are synchronous and will block the current running python process.
-'''
+"""
 
 from playfab import *
 import PlayFabManualTestSettings

@@ -4,12 +4,12 @@ import playfab.PlayFabErrors as PlayFabErrors
 import requests
 
 def DoPost(urlPath, request, authKey, authVal, callback, customData = None, extraHeaders = None):
-    '''
+    """
     # Note this is a blocking call and will always run synchronously
     # the return type is a dictionary that should contain a valid dictionary that
     # should reflect the expected JSON response
     # if the call fails, there will be a returned PlayFabError
-    '''
+    """
 
     url = PlayFabSettings.GetURL(urlPath)
 

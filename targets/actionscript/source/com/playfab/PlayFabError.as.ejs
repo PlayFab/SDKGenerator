@@ -6,7 +6,8 @@ package com.playfab
         public static const NetworkIOError:int = 2;
         public static const FlashSecurityError:int = 3;
 
-<% for(var i=0; i<errorList.length; i++) { var errorProps = errors[errorList[i]] %>        public static const <%- errorProps.name %>:int = <%- errorProps.id %>;
+<% for(var eachErrIdx in apis[0].errors) { var errorProps = apis[0].errors[eachErrIdx]
+%>        public static const <%- errorProps.name %>:int = <%- errorProps.id %>;
 <% } %>
 
         public function PlayFabError(data:Object=null)

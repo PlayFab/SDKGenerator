@@ -34,7 +34,7 @@ exports.makeCombinedAPI = function (apis, sourceDir, apiOutputDir) {
     templatizeTree(locals, path.resolve(sourceDir, "source"), apiOutputDir);
     for (var i = 0; i < apis.length; i++) {
         if (apis[i] != null) {
-            makeApi(apis[i], sourceDir, playFabOutputDir);
+            makeApi(apis[i], sourceDir, apiOutputDir);
         }
     }
 

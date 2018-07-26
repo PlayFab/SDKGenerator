@@ -14,9 +14,8 @@ exports.makeCombinedAPI = function (apis, sourceDir, apiOutputDir) {
 
     var locals = {
         airVersion: 28, // Latest version of AirSdk installed overtop of Flex SDK
+        apis: apis,
         buildIdentifier: exports.buildIdentifier,
-        errorList: apis[0].errorList,
-        errors: apis[0].errors,
         hasClientOptions: true, // if (apis[i].name === "Client")
         sdkVersion: exports.sdkVersion
     };

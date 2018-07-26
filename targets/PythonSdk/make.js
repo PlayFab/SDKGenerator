@@ -3,6 +3,8 @@ var path = require("path");
 // Making resharper less noisy - These are defined in Generate.js
 if (typeof (templatizeTree) === "undefined") templatizeTree = function () { };
 if (typeof (getCompiledTemplate) === "undefined") getCompiledTemplate = function () { };
+var cPythonLineComment = "\"\"\"";
+var cPythonNewLineComment = "\"\"\"\n";
 
 // moves over setup.py and uploadPython.sh
 function copyOverScripts(apis, sourceDir, apiOutputDir)
@@ -30,8 +32,11 @@ exports.makeCombinedAPI = function (apis, sourceDir, apiOutputDir) {
     console.log("Generating Combined Client/Server api from: " + sourceDir + " to: " + apiOutputDir);
 
     templatizeTree(locals, path.resolve(sourceDir, "source"), apiOutputDir);
-    for (var i = 0; i < apis.length; i++)
-        makeApi(apis[i], sourceDir, apiOutputDir);
+    for (var i = 0; i < apis.length; i++) {
+        if (apis[i] != null) {
+            makeApi(apis[i], sourceDir, apiOutputDir);
+        }
+    }
 
     copyOverScripts(apis, sourceDir, apiOutputDir);
 }
@@ -99,9 +104,9 @@ function getDeprecationAttribute(tabbing, apiObj) {
     var isError = isDeprecated && (new Date() > deprecationTime) ? "true" : "false";
 
     if (isDeprecated && apiObj.deprecation.ReplacedBy != null)
-        return tabbing + "# [Obsolete(\"Use '" + apiObj.deprecation.ReplacedBy + "' instead\", " + isError + ")]\n";
+        return tabbing + cPythonLineComment + tabbing + "# [Obsolete(\"Use '" + apiObj.deprecation.ReplacedBy + "' instead\", " + isError + ")]\n" + tabbing + cPythonLineComment;
     else if (isDeprecated)
-        return tabbing + "# [Obsolete(\"No longer available\", " + isError + ")]\n";
+        return tabbing + cPythonLineComment + tabbing + "# [Obsolete(\"No longer available\", " + isError + ")]\n" + tabbing + cPythonLineComment;
     return "";
 }
 
@@ -240,12 +245,13 @@ function getDeprecationAttribute(tabbing, apiObj) {
 
 function generateApiSummary(tabbing, apiElement, summaryParam, extraLines) {
     var lines = generateApiSummaryLines(apiElement, summaryParam, extraLines);
+    var tabbedLineComment = tabbing + cPythonNewLineComment;
 
     var output;
     if (lines.length === 1) {
-        output = tabbing + "# " + lines.join("\n" + tabbing + "# ") + "\n";
+        output = tabbing + cPythonLineComment + " "+ lines.join("\n") + " " + tabbedLineComment + "\n";
     } else if (lines.length > 0) {
-        output = tabbing + "# " + lines.join("\n" + tabbing + "# ") + "\n";
+        output = tabbedLineComment + tabbing + lines.join("\n" + tabbing) + "\n" + tabbedLineComment;
     } else {
         output = "";
     }

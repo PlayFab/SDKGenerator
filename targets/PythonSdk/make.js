@@ -3,7 +3,8 @@ var path = require("path");
 // Making resharper less noisy - These are defined in Generate.js
 if (typeof (templatizeTree) === "undefined") templatizeTree = function () { };
 if (typeof (getCompiledTemplate) === "undefined") getCompiledTemplate = function () { };
-var cPythonLineComment = "\"\"\"\n"
+var cPythonLineComment = "\"\"\"";
+var cPythonNewLineComment = "\"\"\"\n";
 
 // moves over setup.py and uploadPython.sh
 function copyOverScripts(apis, sourceDir, apiOutputDir)
@@ -32,8 +33,11 @@ exports.makeCombinedAPI = function (apis, sourceDir, apiOutputDir) {
     console.log("Generating Combined Client/Server api from: " + sourceDir + " to: " + playFabOutputDir);
 
     templatizeTree(locals, path.resolve(sourceDir, "source/playfab"), playFabOutputDir);
-    for (var i = 0; i < apis.length; i++)
-        makeApi(apis[i], sourceDir, playFabOutputDir);
+    for (var i = 0; i < apis.length; i++) {
+        if (apis[i] != null) {
+            makeApi(apis[i], sourceDir, playFabOutputDir);
+        }
+    }
 
     copyOverScripts(apis, sourceDir, apiOutputDir);
 }
@@ -239,15 +243,15 @@ function getDeprecationAttribute(tabbing, apiObj) {
 
 function generateApiSummary(tabbing, apiElement, summaryParam, extraLines) {
     var lines = generateApiSummaryLines(apiElement, summaryParam, extraLines);
-    var tabbedLineComment = tabbing + cPythonLineComment;
+    var tabbedLineComment = tabbing + cPythonNewLineComment;
 
     var output;
     if (lines.length === 1) {
-        output = tabbedLineComment + tabbing + lines.join("\n" + tabbing) + "\n" + tabbedLineComment;
+        output = tabbing + cPythonLineComment + " "+ lines.join("\n") + " " + tabbedLineComment + "\n";
     } else if (lines.length > 0) {
         output = tabbedLineComment + tabbing + lines.join("\n" + tabbing) + "\n" + tabbedLineComment;
     } else {
-        output = tabing;
+        output = "";
     }
     return output;
 }

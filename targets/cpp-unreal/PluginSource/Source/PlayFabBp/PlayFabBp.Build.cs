@@ -1,8 +1,8 @@
 namespace UnrealBuildTool.Rules
 {
-    public class PlayFab : ModuleRules
+    public class PlayFabBp : ModuleRules
     {
-        public PlayFab(ReadOnlyTargetRules Target) : base(Target)
+        public PlayFabBp(ReadOnlyTargetRules Target) : base(Target)
         {
             PCHUsage = PCHUsageMode.NoSharedPCHs;
 

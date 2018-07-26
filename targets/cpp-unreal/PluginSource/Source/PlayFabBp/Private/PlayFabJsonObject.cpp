@@ -9,6 +9,7 @@
 #include "PreCompiledHeader.h"
 #endif
 #include "PlayFabJsonObject.h"
+#include "PlayFabJsonValue.h"
 #include "PlayFabPrivate.h"
 
 typedef TJsonWriterFactory< TCHAR, TCondensedJsonPrintPolicy<TCHAR> > FCondensedJsonStringWriterFactory;

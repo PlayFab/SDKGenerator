@@ -4,7 +4,7 @@ var path = require("path");
 if (typeof (copyTree) === "undefined") copyTree = function () { };
 if (typeof (getCompiledTemplate) === "undefined") getCompiledTemplate = function () { };
 
-// generate.js looks for some specific exported functions in make.js, like:
+// generate.js looks for some specific exported functions (as defined in TOC.json) in make.js, like:
 exports.makeClientAPI2 = function (apis, sourceDir, apiOutputDir) {
     // Builds the client api.  The provided "api" variable is a single object, the API_SPECS/client.api.json as an object
     
@@ -13,7 +13,7 @@ exports.makeClientAPI2 = function (apis, sourceDir, apiOutputDir) {
     MakeExampleTemplateFile(sourceDir, apiOutputDir);
 }
 
-// generate.js looks for some specific exported functions in make.js, like:
+// generate.js looks for some specific exported functions (as defined in TOC.json) in make.js, like:
 exports.makeServerAPI = function (apis, sourceDir, apiOutputDir) {
     // Builds the server api.  The provided "apis" variable is a list of objects, built from: API_SPECS/admin.api.json, API_SPECS/matchmaker.api.json, and API_SPECS/server.api.json
     // If you don't want admin, you should filter it out yourself (for now)
@@ -23,7 +23,7 @@ exports.makeServerAPI = function (apis, sourceDir, apiOutputDir) {
     MakeExampleTemplateFile(sourceDir, apiOutputDir);
 }
 
-// generate.js looks for some specific exported functions in make.js, like:
+// generate.js looks for some specific exported functions (as defined in TOC.json) in make.js, like:
 exports.makeCombinedAPI = function (apis, sourceDir, apiOutputDir) {
     // Builds every api.  The provided "apis" variable is a list of objects, built from: API_SPECS/admin.api.json, API_SPECS/matchmaker.api.json, API_SPECS/server.api.json, and API_SPECS/client.api.json
     

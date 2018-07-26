@@ -4,5 +4,8 @@
 // API: <%- api.name %>
 //////////////////////////////////////////////////////////////////////////////////////////////
 
-#include "PlayFabPrivatePCH.h"
+#if (ENGINE_MINOR_VERSION < 15)
+#include "PreCompiledHeader.h"
+#endif
 #include "PlayFab<%- api.name %>Models.h"
+#include "PlayFabPrivate.h"

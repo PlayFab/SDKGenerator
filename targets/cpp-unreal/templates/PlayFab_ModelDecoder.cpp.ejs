@@ -4,8 +4,11 @@
 // API: <%- api.name %>
 //////////////////////////////////////////////////////////////////////////////////////////////
 
-#include "PlayFabPrivatePCH.h"
+#if (ENGINE_MINOR_VERSION < 15)
+#include "PreCompiledHeader.h"
+#endif
 #include "PlayFab<%- api.name %>ModelDecoder.h"
+#include "PlayFabPrivate.h"
 
 //////////////////////////////////////////////////////////////////////////
 // Generated PlayFab <%- api.name %> API Functions

@@ -1,4 +1,3 @@
-using System;
 using System.Collections.Generic;
 using System.Threading.Tasks;
 
@@ -41,28 +40,26 @@ namespace PlayFab.Internal
 
     public static class PlayFabHttp
     {
-        private static readonly IPlayFabHttp _http;
-
-        static PlayFabHttp()
-        {
-            var httpInterfaceType = typeof(IPlayFabHttp);
-            var types = typeof(PlayFabHttp).GetAssembly().GetTypes();
-            foreach (var eachType in types)
-            {
-                if (httpInterfaceType.IsAssignableFrom(eachType) && !eachType.IsAbstract)
-                {
-                    _http = (IPlayFabHttp)Activator.CreateInstance(eachType.AsType());
-                    return;
-                }
-            }
-            throw new Exception("Cannot find a valid IPlayFabHttp type");
-        }
-
         public static async Task<object> DoPost(string urlPath, PlayFabRequestCommon request, string authType, string authKey, Dictionary<string, string> extraHeaders)
         {
             if (PlayFabSettings.TitleId == null)
-                throw new Exception("You must set your titleId before making an api call");
-            return await _http.DoPost(urlPath, request, authType, authKey, extraHeaders);
+                throw new PlayFabException(PlayFabExceptionCode.TitleNotSet, "You must set your titleId before making an api call");
+            var transport = PluginManager.GetPlugin<ITransportPlugin>(PluginContract.PlayFab_Transport);
+
+            var headers = new Dictionary<string, string>();
+            if (authType != null && authKey != null)
+            {
+                headers[authType] = authKey;
+            }
+            if (extraHeaders != null)
+            {
+                foreach (var extraHeader in extraHeaders)
+                {
+                    headers.Add(extraHeader.Key, extraHeader.Value);
+                }
+            }
+
+            return await transport.DoPost(urlPath, request, headers);
         }
     }
 }

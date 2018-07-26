@@ -1,29 +1,22 @@
-
 using System;
 using System.Globalization;
 using System.Reflection;
 
 namespace PlayFab.Json
 {
-    public interface ISerializer
+    [Obsolete("This interface is deprecated, please use PlayFab.ISerializerPlugin instead.", false)]
+    public interface ISerializer: ISerializerPlugin
     {
-        T DeserializeObject<T>(string json);
-        T DeserializeObject<T>(string json, object jsonSerializerStrategy);
-        object DeserializeObject(string json);
-
-        string SerializeObject(object json);
-        string SerializeObject(object json, object jsonSerializerStrategy);
     }
-
 
     public static class JsonWrapper
     {
-        private static ISerializer _instance = new SimpleJsonInstance();
+        private static ISerializerPlugin _instance = new SimpleJsonInstance();
 
         /// <summary>
         /// Use this property to override the Serialization for the SDK.
         /// </summary>
-        public static ISerializer Instance
+        public static ISerializerPlugin Instance
         {
             get { return _instance; }
             set { _instance = value; }
@@ -55,7 +48,7 @@ namespace PlayFab.Json
         }
     }
 
-    public class SimpleJsonInstance : ISerializer
+    public class SimpleJsonInstance : ISerializerPlugin
     {
         public static PlayFabJsonSerializerStrategy ApiSerializerStrategy = new PlayFabJsonSerializerStrategy();
         private static DateTimeStyles _dateTimeStyles = DateTimeStyles.RoundtripKind;

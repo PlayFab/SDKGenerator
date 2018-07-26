@@ -13,7 +13,7 @@ def MultiStepClientLogin(settingsForUser):
     adIdType = PlayFabSettings.AdvertisingIdType
     adIdVal = PlayFabSettings.AdvertisingIdValue
 
-    if settingsForUser["NeedsAttribution"] and not disabledAds and adIdType and adIdVal:
+    if settingsForUser and settingsForUser["NeedsAttribution"] and not disabledAds and adIdType and adIdVal:
         request = {}
         if adIdType == PlayFabSettings.AD_TYPE_IDFA:
             request["Idfa"] = adIdVal

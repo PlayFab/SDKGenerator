@@ -129,7 +129,7 @@ namespace JenkinsConsoleUtility.Commands
                 case "windowssdk": case "winbetasdk": case "winpsnsdk": case "winxboxsdk": return "windowssdk";
                 case "xplatcppsdk": case "xplatbetasdk": case "xplatpsnsdk": case "xplatxboxsdk": return "xplatcppsdk";
                 case "javasdk": case "javabetasdk": return "java";
-                case "pythonsdk": case "pythonbetasdk": return "python";
+                case "pythonsdk": case "pythonbetasdk": return "pythonsdk";
 
                 default: return sdkName.ToLower(); // Most new sdks have matching names
             }

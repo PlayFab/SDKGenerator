@@ -1,11 +1,10 @@
-﻿<?xml version="1.0" encoding="utf-8"?>
+<?xml version="1.0" encoding="utf-8"?>
 <Project DefaultTargets="Build" xmlns="http://schemas.microsoft.com/developer/msbuild/2003" ToolsVersion="4.0">
   <PropertyGroup>
     <VisualStudioVersion Condition="'$(VisualStudioVersion)' == ''">11.0</VisualStudioVersion>
     <VSToolsPath Condition="'$(VSToolsPath)' == ''">$(MSBuildExtensionsPath32)\Microsoft\VisualStudio\v$(VisualStudioVersion)</VSToolsPath>
     <Name>SdkGenerator</Name>
     <RootNamespace>SdkGenerator</RootNamespace>
-    <DebuggerPort>5858</DebuggerPort>
     <EnableTypeScript>true</EnableTypeScript>
     <TypeScriptSourceMap>true</TypeScriptSourceMap>
     <TypeScriptModuleKind>CommonJS</TypeScriptModuleKind>
@@ -110,6 +109,11 @@
     <DebugSymbols>true</DebugSymbols>
     <OutputPath>bin\</OutputPath>
     <ScriptArguments>unity-v2=..\sdks\UnitySDK -apiSpecPath -buildIdentifier UnitySDK_manual</ScriptArguments>
+  </PropertyGroup>
+  <PropertyGroup Condition=" '$(Configuration)' == 'UnityBeta' ">
+    <DebugSymbols>true</DebugSymbols>
+    <OutputPath>bin\</OutputPath>
+    <ScriptArguments>unity-v2=..\sdks\UnityBeta -apiSpecPath -buildIdentifier UnityBetaSDK_manual -flags beta</ScriptArguments>
   </PropertyGroup>
   <PropertyGroup Condition=" '$(Configuration)' == 'UnrealBlueprintSDK' ">
     <DebugSymbols>true</DebugSymbols>
@@ -314,6 +318,9 @@
     <Content Include="targets\cpp-unreal\PluginSource\Source\PlayFab\Classes\PlayFabUtilities.h.ejs" />
     <Content Include="targets\cpp-unreal\Tutorial.docx" />
     <Content Include="targets\csharp\source\Properties\AssemblyInfo.cs" />
+    <Content Include="targets\csharp\source\source\IPlayFabPlugin.cs" />
+    <Content Include="targets\csharp\source\source\ISerializerPlugin.cs" />
+    <Content Include="targets\csharp\source\source\ITransportPlugin.cs" />
     <Content Include="targets\csharp\source\source\Json\ISerializer.cs" />
     <Content Include="targets\csharp\source\source\Json\NewtonsoftWrapper.cs" />
     <Content Include="targets\csharp\source\source\Json\SimpleJson.cs" />
@@ -322,7 +329,10 @@
     <Content Include="targets\csharp\source\source\PlayFabHttp\PlayFabHttp.cs" />
     <Content Include="targets\csharp\source\source\PlayFabHttp\PlayFabSysHttp.cs" />
     <Content Include="targets\csharp\source\source\PlayFabHttp\PlayFabWinHttp.cs" />
+    <Content Include="targets\csharp\source\source\PluginContract.cs" />
+    <Content Include="targets\csharp\source\source\PluginManager.cs" />
     <Content Include="targets\csharp\source\source\Uunit\PlayFabApiTest.cs" />
+    <Content Include="targets\csharp\source\source\Uunit\PluginManagerTest.cs" />
     <Content Include="targets\csharp\source\source\Uunit\UUnitAssertException.cs" />
     <Content Include="targets\csharp\source\source\Uunit\UUnitIncrementalTestRunner.cs" />
     <Content Include="targets\csharp\source\source\Uunit\UUnitTestCase.cs" />
@@ -349,8 +359,8 @@
     <Content Include="targets\javascript\templates\PlayFab.d.ts.ejs" />
     <Content Include="targets\javascript\templates\PlayFab_Api.d.ts.ejs" />
     <Content Include="targets\javascript\templates\PlayFab_Api.js.ejs" />
-    <Content Include="targets\javascript\testingFiles\PlayFabApiTest.csproj" />
-    <Content Include="targets\javascript\testingFiles\index.html" />
+    <Content Include="targets\javascript\testingFiles\PlayFabApiTest.csproj.ejs" />
+    <Content Include="targets\javascript\testingFiles\index.html.ejs" />
     <Content Include="targets\javascript\testingFiles\web.config" />
     <Content Include="targets\javascript\testingFiles\web.Debug.config" />
     <Content Include="targets\javascript\testingFiles\web.Release.config" />
@@ -501,8 +511,8 @@
     <Content Include="targets\PythonSdk\source\playfab\PlayFabHTTP.py" />
     <Content Include="targets\PythonSdk\source\playfab\PlayFabManualTest.py" />
     <Content Include="targets\PythonSdk\source\playfab\PlayFabSettings.py" />
-    <Content Include="targets\PythonSdk\source\playfab\__init__.py" />
-    <Content Include="targets\PythonSdk\source\uploadPython.ps1" />
+    <Content Include="targets\PythonSdk\source\playfab\__init__.py.ejs" />
+    <Content Include="targets\PythonSdk\source\uploadPython.sh" />
     <Content Include="targets\PythonSdk\templates\API.py.ejs" />
     <Content Include="targets\PythonSdk\source\playfab\PlayFabErrors.py.ejs" />
     <Content Include="targets\PythonSdk\source\setup.py.ejs" />
@@ -514,6 +524,7 @@
     <Content Include="targets\unity-v2\source\Admin\PlayFabSettings.cs" />
     <Content Include="targets\unity-v2\source\Client\PlayFabDeviceUtil.cs" />
     <Content Include="targets\unity-v2\source\Client\PlayFabSettings.cs" />
+    <Content Include="targets\unity-v2\source\Entity\ScreenTimeTracker.cs" />
     <Content Include="targets\unity-v2\source\link.xml" />
     <Content Include="targets\unity-v2\source\Server\PlayFabSettings.cs" />
     <Content Include="targets\unity-v2\source\Server\PlayStream\PlayFabPlayStreamAPI.cs" />
@@ -748,6 +759,15 @@
     <Content Include="targets\XPlatCppSdk\source\cppsdk\configLinux.json" />
     <Content Include="targets\XPlatCppSdk\source\cppsdk\configWindows.json" />
     <Content Include="targets\XPlatCppSdk\source\cppsdk\include\playfab\PlayFabBaseModel.h" />
+    <Content Include="targets\XPlatCppSdk\source\LibUnitTest\LibUnitTest.vcxproj" />
+    <Content Include="targets\XPlatCppSdk\source\LibUnitTest\LibUnitTest.vcxproj.filters" />
+    <Content Include="targets\XPlatCppSdk\source\LibUnitTest\packages.config" />
+    <Content Include="targets\XPlatCppSdk\source\LibUnitTest\PlayFabClientTest.cpp" />
+    <Content Include="targets\XPlatCppSdk\source\LibUnitTest\PlayFabEntityTest.cpp" />
+    <Content Include="targets\XPlatCppSdk\source\LibUnitTest\PlayFabServerTest.cpp" />
+    <Content Include="targets\XPlatCppSdk\source\LibUnitTest\stdafx.cpp" />
+    <Content Include="targets\XPlatCppSdk\source\LibUnitTest\stdafx.h" />
+    <Content Include="targets\XPlatCppSdk\source\LibUnitTest\targetver.h" />
     <Content Include="targets\XPlatCppSdk\source\XPlatCppSdk.sln.ejs" />
     <Content Include="targets\XPlatCppSdk\templates\PlayFab_API.h.ejs" />
     <Content Include="targets\XPlatCppSdk\templates\PlayFab_DataModels.h.ejs" />
@@ -762,9 +782,9 @@
     <Content Include="targets\XPlatCppSdk\source\cppsdk\stdafx.cpp" />
     <Content Include="targets\XPlatCppSdk\source\cppsdk\stdafx.h" />
     <Content Include="targets\XPlatCppSdk\source\cppsdk\XPlatCppLinux.vcxproj.ejs" />
-    <Content Include="targets\XPlatCppSdk\source\cppsdk\XPlatCppLinux.vcxproj.filters" />
+    <Content Include="targets\XPlatCppSdk\source\cppsdk\XPlatCppLinux.vcxproj.filters.ejs" />
     <Content Include="targets\XPlatCppSdk\source\cppsdk\XPlatCppWindows.vcxproj.ejs" />
-    <Content Include="targets\XPlatCppSdk\source\cppsdk\XPlatCppWindows.vcxproj.filters" />
+    <Content Include="targets\XPlatCppSdk\source\cppsdk\XPlatCppWindows.vcxproj.filters.ejs" />
     <Content Include="targets\XPlatCppSdk\source\testapps\cppLinuxTestApp\cppLinuxTestApp.vcxproj.ejs" />
     <Content Include="targets\XPlatCppSdk\source\testapps\cppLinuxTestApp\main.cpp" />
     <Content Include="targets\XPlatCppSdk\source\testapps\cppWindowsTestApp\cppWindowsTestApp.cpp" />
@@ -945,6 +965,7 @@
     <Folder Include="targets\PythonSdk\source\" />
     <Folder Include="targets\PythonSdk\source\playfab\" />
     <Folder Include="targets\PythonSdk\templates\" />
+    <Folder Include="targets\unity-v2\source\Entity\" />
     <Folder Include="targets\XPlatCppSdk\" />
     <Folder Include="targets\newTarget\" />
     <Folder Include="targets\newTarget\source\" />
@@ -1007,6 +1028,7 @@
     <Folder Include="targets\XPlatCppSdk\source\cppsdk\include\playfab\" />
     <Folder Include="targets\XPlatCppSdk\source\cppsdk\source\" />
     <Folder Include="targets\XPlatCppSdk\source\cppsdk\source\playfab\" />
+    <Folder Include="targets\XPlatCppSdk\source\LibUnitTest\" />
     <Folder Include="targets\XPlatCppSdk\source\testapps\" />
     <Folder Include="targets\XPlatCppSdk\source\testapps\cppLinuxTestApp\" />
     <Folder Include="targets\XPlatCppSdk\source\testapps\cppWindowsTestApp\" />

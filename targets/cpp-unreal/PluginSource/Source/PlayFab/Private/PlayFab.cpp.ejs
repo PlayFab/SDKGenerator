@@ -3,7 +3,15 @@
 // This cpp file is the main cpp file for the plugin. We set up globals here.
 //////////////////////////////////////////////////////////////////////////////////////////////
 
-#include "PlayFabPrivatePCH.h"
+#if (ENGINE_MINOR_VERSION < 15)
+#include "PreCompiledHeader.h"
+#endif
+#include "CoreMinimal.h"
+#include "PlayFabPrivate.h"
+#include "PlayFabJsonValue.h"
+#include "PlayFabJsonObject.h"
+<% for(var a in apis) { %>
+#include "PlayFab<%- apis[a].name %>API.h" <% } %>
 
 const FString IPlayFab::PlayFabURL(TEXT(".playfabapi.com"));
 

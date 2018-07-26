@@ -66,6 +66,7 @@
       <MultiProcessorCompilation>true</MultiProcessorCompilation>
       <DisableSpecificWarnings>4251</DisableSpecificWarnings>
       <RuntimeLibrary>MultiThreadedDebug</RuntimeLibrary>
+      <AdditionalOptions>/Zc:__cplusplus %(AdditionalOptions)</AdditionalOptions>
     </ClCompile>
     <Link>
       <SubSystem>Windows</SubSystem>
@@ -94,6 +95,7 @@
       <MultiProcessorCompilation>true</MultiProcessorCompilation>
       <DisableSpecificWarnings>4251</DisableSpecificWarnings>
       <RuntimeLibrary>MultiThreaded</RuntimeLibrary>
+      <AdditionalOptions>/Zc:__cplusplus %(AdditionalOptions)</AdditionalOptions>
     </ClCompile>
     <Link>
       <SubSystem>Windows</SubSystem>
@@ -109,30 +111,24 @@
     </Lib>
   </ItemDefinitionGroup>
   <ItemGroup>
-    <ClInclude Include="include\playfab\PlayFabAdminApi.h" />
-    <ClInclude Include="include\playfab\PlayFabAdminDataModels.h" />
     <ClInclude Include="include\playfab\PlayFabBaseModel.h" />
-    <ClInclude Include="include\playfab\PlayFabClientApi.h" />
-    <ClInclude Include="include\playfab\PlayFabClientDataModels.h" />
-    <ClInclude Include="include\playfab\PlayFabEntityApi.h" />
-    <ClInclude Include="include\playfab\PlayFabEntityDataModels.h" />
+<% for(var i in apis) { var api = apis[i];
+%>
+    <ClInclude Include="include\playfab\PlayFab<%- api.name %>Api.h" />
+    <ClInclude Include="include\playfab\PlayFab<%- api.name %>DataModels.h" />
+<% } %>
     <ClInclude Include="include\playfab\PlayFabError.h" />
     <ClInclude Include="include\playfab\PlayFabHttp.h" />
-    <ClInclude Include="include\playfab\PlayFabMatchmakerApi.h" />
-    <ClInclude Include="include\playfab\PlayFabMatchmakerDataModels.h" />
-    <ClInclude Include="include\playfab\PlayFabServerApi.h" />
-    <ClInclude Include="include\playfab\PlayFabServerDataModels.h" />
     <ClInclude Include="include\playfab\PlayFabSettings.h" />
     <ClInclude Include="stdafx.h" />
   </ItemGroup>
   <ItemGroup>
-    <ClCompile Include="source\playfab\PlayFabAdminApi.cpp" />
-    <ClCompile Include="source\playfab\PlayFabClientApi.cpp" />
-    <ClCompile Include="source\playfab\PlayFabEntityApi.cpp" />
+<% for(var i in apis) { var api = apis[i];
+%>
+    <ClCompile Include="source\playfab\PlayFab<%- api.name %>Api.cpp" />
+<% } %>
     <ClCompile Include="source\playfab\PlayFabError.cpp" />
     <ClCompile Include="source\playfab\PlayFabHttp.cpp" />
-    <ClCompile Include="source\playfab\PlayFabMatchmakerApi.cpp" />
-    <ClCompile Include="source\playfab\PlayFabServerApi.cpp" />
     <ClCompile Include="source\playfab\PlayFabSettings.cpp" />
     <ClCompile Include="stdafx.cpp">
       <PrecompiledHeader Condition="'$(Configuration)|$(Platform)'=='Debug|x64'">Create</PrecompiledHeader>

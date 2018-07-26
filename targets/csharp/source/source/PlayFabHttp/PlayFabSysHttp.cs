@@ -5,17 +5,16 @@ using System.Collections.Generic;
 using System.Net.Http;
 using System.Text;
 using System.Threading.Tasks;
-using PlayFab.Json;
 
 namespace PlayFab.Internal
 {
-    public class PlayFabSysHttp : IPlayFabHttp
+    public class PlayFabSysHttp : ITransportPlugin
     {
-		
         private readonly HttpClient _client = new HttpClient();
-		
-        public async Task<object> DoPost(string urlPath, PlayFabRequestCommon request, string authType, string authKey, Dictionary<string, string> extraHeaders)
+
+        public async Task<object> DoPost(string urlPath, object request, Dictionary<string, string> extraHeaders)
         {
+            var serializer = PluginManager.GetPlugin<ISerializerPlugin>(PluginContract.PlayFab_Serializer);
             var fullUrl = PlayFabSettings.GetFullUrl(urlPath);
             string bodyString;
 
@@ -25,7 +24,7 @@ namespace PlayFab.Internal
             }
             else
             {
-                bodyString = JsonWrapper.SerializeObject(request);
+                bodyString = serializer.SerializeObject(request);
             }
 
             HttpResponseMessage httpResponse;
@@ -33,8 +32,6 @@ namespace PlayFab.Internal
             using (var postBody = new ByteArrayContent(Encoding.UTF8.GetBytes(bodyString)))
             {
                 postBody.Headers.Add("Content-Type", "application/json");
-                if (authType != null)
-                    postBody.Headers.Add(authType, authKey);
                 postBody.Headers.Add("X-PlayFabSDK", PlayFabSettings.SdkVersionString);
                 if (extraHeaders != null)
                     foreach (var headerPair in extraHeaders)
@@ -77,7 +74,7 @@ namespace PlayFab.Internal
                 PlayFabJsonError errorResult;
                 try
                 {
-                    errorResult = JsonWrapper.DeserializeObject<PlayFabJsonError>(httpResponseString);
+                    errorResult = serializer.DeserializeObject<PlayFabJsonError>(httpResponseString);
                 }
                 catch (Exception e)
                 {

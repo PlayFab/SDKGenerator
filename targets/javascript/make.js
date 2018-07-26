@@ -1,7 +1,7 @@
 var path = require("path");
 
 // Making resharper less noisy - These are defined in Generate.js
-if (typeof (copyTree) === "undefined") copyTree = function () { };
+if (typeof (templatizeTree) === "undefined") templatizeTree = function () { };
 if (typeof (generateApiSummaryLines) === "undefined") generateApiSummaryLines = function () { };
 if (typeof (getCompiledTemplate) === "undefined") getCompiledTemplate = function () { };
 
@@ -14,6 +14,7 @@ exports.makeCombinedAPI = function (apis, sourceDir, apiOutputDir) {
     var packageTemplate = getCompiledTemplate(path.resolve(templateDir, "package.json.ejs"));
 
     var apiLocals = {
+        apis: apis,
         generateApiSummary: generateApiSummary,
         getAuthParams: getAuthParams,
         getDeprecationAttribute: getDeprecationAttribute,
@@ -45,7 +46,7 @@ exports.makeCombinedAPI = function (apis, sourceDir, apiOutputDir) {
     }
 
     // Copy testing files
-    copyTree(path.resolve(sourceDir, "testingFiles"), path.resolve(apiOutputDir, "PlayFabTestingExample"));
+    templatizeTree(apiLocals, path.resolve(sourceDir, "testingFiles"), path.resolve(apiOutputDir, "PlayFabTestingExample"));
 }
 
 function makeSimpleTemplates(apis, templateDir, apiOutputDir) {

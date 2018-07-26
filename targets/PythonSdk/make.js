@@ -9,7 +9,7 @@ var cPythonNewLineComment = "\"\"\"\n";
 // moves over setup.py and uploadPython.sh
 function copyOverScripts(apis, sourceDir, apiOutputDir)
 {
-    var srcDir = sourceDir + "\\source";
+    var srcDir = path.resolve(sourceDir, "source");
     var locals = {
         apis: apis,
         errorList: apis[0].errorList,
@@ -20,7 +20,6 @@ function copyOverScripts(apis, sourceDir, apiOutputDir)
 }
 
 exports.makeCombinedAPI = function (apis, sourceDir, apiOutputDir) {
-    playFabOutputDir = apiOutputDir + "\\playfab"
     var locals = {
         apis: apis,
         buildIdentifier: exports.buildIdentifier,
@@ -30,9 +29,9 @@ exports.makeCombinedAPI = function (apis, sourceDir, apiOutputDir) {
         sdkVersion: exports.sdkVersion
     };
 
-    console.log("Generating Combined Client/Server api from: " + sourceDir + " to: " + playFabOutputDir);
+    console.log("Generating Combined Client/Server api from: " + sourceDir + " to: " + apiOutputDir);
 
-    templatizeTree(locals, path.resolve(sourceDir, "source/playfab"), playFabOutputDir);
+    templatizeTree(locals, path.resolve(sourceDir, "source"), apiOutputDir);
     for (var i = 0; i < apis.length; i++) {
         if (apis[i] != null) {
             makeApi(apis[i], sourceDir, playFabOutputDir);
@@ -94,7 +93,7 @@ function makeApi(api, sourceDir, apiOutputDir) {
     };
 
     var apiTemplate = getCompiledTemplate(path.resolve(sourceDir, "templates/API.py.ejs"));
-    writeFile(path.resolve(apiOutputDir, "PlayFab" + api.name + "API.py"), apiTemplate(apiLocals));
+    writeFile(path.resolve(apiOutputDir, "playfab/PlayFab" + api.name + "API.py"), apiTemplate(apiLocals));
 }
 
 function getDeprecationAttribute(tabbing, apiObj) {
@@ -213,17 +212,20 @@ function getRequestActions(tabbing, apiCall) {
 
 function getResultActions(tabbing, apiCall, api) {
     if (apiCall.result === "LoginResult")
-        return tabbing + "PlayFabSettings._internalSettings.ClientSessionTicket = playFabResult[\"SessionTicket\"] or PlayFabSettings._internalSettings.ClientSessionTicket\n"
-            + tabbing + "PlayFabSettings._internalSettings.EntityToken = playFabResult[\"EntityToken\"][\"EntityToken\"] or PlayFabSettings._internalSettings.EntityToken\n"
-            + tabbing + "MultiStepClientLogin(playFabResult[\"SettingsForUser\"])\n";
+        return tabbing + "if playFabResult:\n" 
+            + tabbing + "    PlayFabSettings._internalSettings.ClientSessionTicket = playFabResult[\"SessionTicket\"] if \"SessionTicket\" in playFabResult else PlayFabSettings._internalSettings.ClientSessionTicket\n"
+            + tabbing + "    PlayFabSettings._internalSettings.EntityToken = playFabResult[\"EntityToken\"][\"EntityToken\"] if \"EntityToken\" in playFabResult else PlayFabSettings._internalSettings.EntityToken\n"
+            + tabbing + "    MultiStepClientLogin(playFabResult.get(\"SettingsForUser\"))\n";
     else if (apiCall.result === "RegisterPlayFabUserResult")
-        return tabbing + "PlayFabSettings._internalSettings.ClientSessionTicket = playFabResult[\"SessionTicket\"] or PlayFabSettings._internalSettings.ClientSessionTicket\n"
-            + tabbing + "MultiStepClientLogin(playFabResult[\"SettingsForUser\"])\n";
+        return tabbing + "if playFabResult:\n" 
+            + tabbing + "    PlayFabSettings._internalSettings.ClientSessionTicket = playFabResult[\"SessionTicket\"] if \"SessionTicket\" in playFabResult else PlayFabSettings._internalSettings.ClientSessionTicket\n"
+            + tabbing + "    MultiStepClientLogin(playFabResult.get(\"SettingsForUser\"))\n";
     else if (api.name === "Client" && apiCall.result === "AttributeInstallResult")
         return tabbing + "# Modify AdvertisingIdType:  Prevents us from sending the id multiple times, and allows automated tests to determine id was sent successfully\n"
             + tabbing + "PlayFabSettings.AdvertisingIdType += \"_Successful\"\n";
     else if (apiCall.result === "GetEntityTokenResponse")
-        return tabbing + "PlayFabSettings._internalSettings.EntityToken = playFabResult[\"EntityToken\"] or PlayFabSettings._internalSettings.EntityToken\n";
+        return tabbing + "if playFabResult:\n"
+            + tabbing + "    PlayFabSettings._internalSettings.EntityToken = playFabResult[\"EntityToken\"] if \"EntityToken\" in playFabResult else PlayFabSettings._internalSettings.EntityToken\n";
     return "";
 }
 

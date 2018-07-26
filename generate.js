@@ -297,9 +297,9 @@ function loadApisFromPlayFabServer(argsByName, apiCache, apiSpecPfUrl, onComplet
             if (docList[dIdx].sdkGenMakeMethods) {
                 finishCountdown += 1;
                 if (!docList[dIdx].relPath.contains("SdkManualNotes"))
-                    downloadFromUrl(apiSpecPfUrl, docList[dIdx].docKey, apiCache, docList[dIdx].docKey, onEachComplete, false);
+                    downloadFromUrl(apiSpecPfUrl, docList[dIdx].docKey, apiCache, docList[dIdx].docKey, onEachComplete, docList[dIdx].isOptional);
                 else
-                    downloadFromUrl(defaultApiSpecGitHubUrl, docList[dIdx].relPath, apiCache, docList[dIdx].docKey, onEachComplete, false);
+                    downloadFromUrl(defaultApiSpecGitHubUrl, docList[dIdx].relPath, apiCache, docList[dIdx].docKey, onEachComplete, docList[dIdx].isOptional);
                 mapSpecMethods(docList[dIdx]);
             }
         }
@@ -359,8 +359,11 @@ function generateApis(buildIdentifier, targetOutputPathList, buildFlags, apiSrcD
             var funcName = sdkGeneratorGlobals.sdkDocsByMethodName[funcIdx].funcName;
             var funcDocNames = sdkGeneratorGlobals.sdkDocsByMethodName[funcIdx].apiDocKeys;
             var jsonDocList = [];
-            for (var docIdx = 0; docIdx < funcDocNames.length; docIdx++)
-                jsonDocList.push(getApiDefinition(funcDocNames[docIdx], buildFlags));
+            for (var docIdx = 0; docIdx < funcDocNames.length; docIdx++) {
+                var apiDefn = getApiDefinition(funcDocNames[docIdx], buildFlags);
+                if (apiDefn)
+                    jsonDocList.push(apiDefn);
+            }
             if (targetMaker[funcName]) {
                 console.log(" + Generating " + funcName + " to " + target.dest);
                 if (!fs.existsSync(target.dest))
@@ -383,51 +386,59 @@ function getApiDefinition(cacheKey, buildFlags) {
         if (buildFlags[b].indexOf("nonnullable") !== -1)
             nonNullableFlagged = true;
     }
-    if (!isVisibleWithFlags(buildFlags, api, obsoleteFlaged, nonNullableFlagged)) {
-        console.log("** Skipping Flagged API: " + api.name);
+    var apiFlagConflicts = GetFlagConflicts(buildFlags, api, obsoleteFlaged, nonNullableFlagged);
+    if (apiFlagConflicts) {
+        console.log("** Skipping Flagged API: " + api.name + ": " + apiFlagConflicts);
         return null;
     }
     // Filter calls out of the API before returning it
     var filteredCalls = [];
-    for (var cIdx = 0; cIdx < api.calls.length; cIdx++)
-        if (isVisibleWithFlags(buildFlags, api.calls[cIdx], obsoleteFlaged, nonNullableFlagged))
+    for (var cIdx = 0; cIdx < api.calls.length; cIdx++) {
+        var callFlagConflicts = GetFlagConflicts(buildFlags, api.calls[cIdx], obsoleteFlaged, nonNullableFlagged);
+        if (!callFlagConflicts)
             filteredCalls.push(api.calls[cIdx]);
+        else
+            console.log("** Skipping Flagged Method: " + api.name + "." + api.calls[cIdx].name + ": " + callFlagConflicts);
+    }
     api.calls = filteredCalls;
     // Filter datatypes out of the API before returning it
     var filteredTypes = {};
     for (var dIdx in api.datatypes) {
-        if (isVisibleWithFlags(buildFlags, api.datatypes[dIdx], obsoleteFlaged, nonNullableFlagged)) {
+        var typeFlagConflicts = GetFlagConflicts(buildFlags, api.datatypes[dIdx], obsoleteFlaged, nonNullableFlagged);
+        if (!typeFlagConflicts) {
             var eachType = api.datatypes[dIdx];
             var filteredProperties = [];
             if (eachType.properties) {
                 for (var pIdx = 0; pIdx < eachType.properties.length; pIdx++)
-                    if (isVisibleWithFlags(buildFlags, eachType.properties[pIdx], obsoleteFlaged, nonNullableFlagged))
+                    if (!GetFlagConflicts(buildFlags, eachType.properties[pIdx], obsoleteFlaged, nonNullableFlagged))
                         filteredProperties.push(eachType.properties[pIdx]);
                 eachType.properties = filteredProperties;
             }
             filteredTypes[api.datatypes[dIdx].className] = eachType;
         }
+        else
+            console.log("** Skipping Flagged Method: " + api.name + "." + api.datatypes[dIdx].className + ": " + typeFlagConflicts);
     }
     api.datatypes = filteredTypes;
     return api;
 }
-function isVisibleWithFlags(buildFlags, apiObj, obsoleteFlaged, nonNullableFlagged) {
+function GetFlagConflicts(buildFlags, apiObj, obsoleteFlaged, nonNullableFlagged) {
     // Filter obsolete elements
     if (!obsoleteFlaged && apiObj.hasOwnProperty("deprecation")) {
         var obsoleteTime = new Date(apiObj.deprecation.ObsoleteAfter);
         if (new Date() > obsoleteTime)
-            return false;
+            return "deprecation";
     }
     // Filter governing booleans
     if (!nonNullableFlagged && apiObj.hasOwnProperty("GovernsProperty"))
-        return false;
+        return "governs";
     // It's pretty easy to exclude (Api calls and datatypes)
     var exclusiveFlags = [];
     if (apiObj.hasOwnProperty("ExclusiveFlags"))
         exclusiveFlags = lowercaseFlagsList(apiObj.ExclusiveFlags);
     for (var bIdx = 0; bIdx < buildFlags.length; bIdx++)
         if (exclusiveFlags.indexOf(buildFlags[bIdx]) !== -1)
-            return false;
+            return apiObj.ExclusiveFlags;
     // All Inclusive flags must match if present (Api calls only)
     var allInclusiveFlags = [];
     if (apiObj.hasOwnProperty("AllInclusiveFlags"))
@@ -435,17 +446,17 @@ function isVisibleWithFlags(buildFlags, apiObj, obsoleteFlaged, nonNullableFlagg
     if (allInclusiveFlags.length !== 0)
         for (var alIdx = 0; alIdx < allInclusiveFlags.length; alIdx++)
             if (buildFlags.indexOf(allInclusiveFlags[alIdx]) === -1)
-                return false; // If a required flag is missing, fail out
+                return apiObj.AllInclusiveFlags; // If a required flag is missing, fail out
     // Any Inclusive flags must match at least one if present (Api calls and datatypes)
     var anyInclusiveFlags = [];
     if (apiObj.hasOwnProperty("AnyInclusiveFlags"))
         anyInclusiveFlags = lowercaseFlagsList(apiObj.AnyInclusiveFlags);
     if (anyInclusiveFlags.length === 0)
-        return true; // If there's no flags, it is always included
+        return null; // If there's no flags, it is always included
     for (var anIdx = 0; anIdx < anyInclusiveFlags.length; anIdx++)
         if (buildFlags.indexOf(anyInclusiveFlags[anIdx]) !== -1)
-            return true; // Otherwise at least one flag must be present
-    return false;
+            return null; // At least one flag must be present - which we just found
+    return apiObj.AnyInclusiveFlags;
 }
 /////////////////////////////////// RANDOM INTERNAL UTILITIES used locally ///////////////////////////////////
 function lowercaseFlagsList(flags) {
@@ -697,6 +708,15 @@ function generateApiSummaryLines(apiElement, summaryParam, extraLines, linkToDoc
     return lines;
 }
 global.generateApiSummaryLines = generateApiSummaryLines;
-// Kick everything off
-parseAndLoadApis();
+function doNothing() { }
+try {
+    // Kick everything off
+    parseAndLoadApis();
+}
+catch (error) {
+    console.error(error);
+    setTimeout(doNothing, 30000);
+    throw error;
+}
+setTimeout(doNothing, 5000);
 //# sourceMappingURL=generate.js.map

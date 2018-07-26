@@ -2,8 +2,11 @@
 // This files holds the code for the play fab base model.
 //////////////////////////////////////////////////////////////////////////////////////////////
 
-#include "PlayFabPrivatePCH.h"
+#if (ENGINE_MINOR_VERSION < 15)
+#include "PreCompiledHeader.h"
+#endif
 #include "PlayFabBaseModel.h"
+#include "PlayFabPrivate.h"
 
 const int ERROR_DETAILS_INIT_BUFFER_SIZE = 10000;
 

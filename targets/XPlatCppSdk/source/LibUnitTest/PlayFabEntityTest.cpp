@@ -214,7 +214,7 @@ namespace UnittestRunner
                     testMessageInt1 = atoi(it->second.EscapedDataObject.c_str());
             testMessageReturn = "GetObj1 Success";
         }
-        static void SetObjectsCallback(const SetObjectsResponse& result, void*)
+        static void SetObjectsCallback(const SetObjectsResponse& /* result */, void*)
         {
             testMessageReturn = "UpdateObj Success";
         }

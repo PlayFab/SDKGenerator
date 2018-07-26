@@ -24,22 +24,16 @@
   </ItemGroup>
   <ItemGroup>
     <Content Include="index.html" />
-    <Content Include="src\PlayFab\PlayFabAdminApi.js" />
-    <Content Include="src\PlayFab\PlayFabClientApi.js" />
-    <Content Include="src\PlayFab\PlayFabEntityApi.js" />
-    <Content Include="src\PlayFab\PlayFabMatchmakerApi.js" />
-    <Content Include="src\PlayFab\PlayFabServerApi.js" />
-    <Content Include="web.config" />
+<% for(var i in apis) { var api = apis[i];
+%>    <Content Include="src\PlayFab\PlayFab<%- api.name %>Api.js" />
+<% } %>    <Content Include="web.config" />
   </ItemGroup>
   <ItemGroup>
     <TypeScriptCompile Include="PlayFabApiTest.ts" />
     <TypeScriptCompile Include="src\typings\PlayFab\PlayFab.d.ts" />
-    <TypeScriptCompile Include="src\typings\PlayFab\PlayFabAdminApi.d.ts" />
-    <TypeScriptCompile Include="src\typings\PlayFab\PlayFabClientApi.d.ts" />
-    <TypeScriptCompile Include="src\typings\PlayFab\PlayFabEntityApi.d.ts" />
-    <TypeScriptCompile Include="src\typings\PlayFab\PlayFabMatchmakerApi.d.ts" />
-    <TypeScriptCompile Include="src\typings\PlayFab\PlayFabServerApi.d.ts" />
-  </ItemGroup>
+<% for(var i in apis) { var api = apis[i];
+%>    <TypeScriptCompile Include="src\typings\PlayFab\PlayFab<%- api.name %>Api.d.ts" />
+<% } %>  </ItemGroup>
   <ItemGroup>
     <None Include="web.Debug.config">
       <DependentUpon>web.config</DependentUpon>

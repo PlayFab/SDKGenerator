@@ -1,10 +1,12 @@
-using PlayFab;
-using PlayFab.UUnit;
 using System;
+using System.Collections.Generic;
 using System.IO;
 using System.Threading;
+using System.Threading.Tasks;
+using PlayFab;
 using PlayFab.ClientModels;
 using PlayFab.Json;
+using PlayFab.UUnit;
 
 namespace UnittestRunner
 {
@@ -19,6 +21,16 @@ namespace UnittestRunner
 
         private static int Main(string[] args)
         {
+            PlayFabApiTest.CreateCustomSerializerPlugin = (serializeAction, deserializeAction) =>
+            {
+                return new CustomSerializerPlugin() { SerializeAction = serializeAction, DeserializeAction = deserializeAction };
+            };
+
+            PlayFabApiTest.CreateCustomTransportPlugin = doPostAction =>
+            {
+                return new CustomTransportPlugin() { DoPostAction = doPostAction };
+            };
+
             var testInputs = GetTestTitleData(args);
             UUnitIncrementalTestRunner.Start(true, null, testInputs, OnComplete);
             while (!UUnitIncrementalTestRunner.SuiteFinished)
@@ -87,6 +99,62 @@ namespace UnittestRunner
             else if (result.Result != null)
                 WriteConsoleColor("Successful!", ConsoleColor.Green);
             _onCompleted = true;
+        }
+    }
+
+    public class CustomSerializerPlugin : ISerializerPlugin
+    {
+        public Func<object, string> SerializeAction;
+        public Func<string, Type, object> DeserializeAction;
+
+        public T DeserializeObject<T>(string serialized)
+        {
+            if (DeserializeAction != null)
+            {
+                return (T)DeserializeAction(serialized, typeof(T));
+            }
+
+            throw new NotImplementedException();
+        }
+
+        public T DeserializeObject<T>(string serialized, object serializerStrategy)
+        {
+            throw new NotImplementedException();
+        }
+
+        public object DeserializeObject(string serialized)
+        {
+            throw new NotImplementedException();
+        }
+
+        public string SerializeObject(object obj)
+        {
+            if (SerializeAction != null)
+            {
+                return SerializeAction(obj);
+            }
+
+            throw new NotImplementedException();
+        }
+
+        public string SerializeObject(object obj, object serializerStrategy)
+        {
+            throw new NotImplementedException();
+        }
+    }
+
+    public class CustomTransportPlugin : ITransportPlugin
+    {
+        public Func<string, object, Dictionary<string, string>, Task<object>> DoPostAction;
+
+        public async Task<object> DoPost(string urlPath, object request, Dictionary<string, string> headers)
+        {
+            if (DoPostAction != null)
+            {
+                return await DoPostAction(urlPath, request, headers);
+            }
+
+            throw new NotImplementedException();
         }
     }
 }

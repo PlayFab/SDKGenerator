@@ -40,7 +40,7 @@ public:
 
     static inline IPlayFab& Get()
     {
-        return FModuleManager::LoadModuleChecked< IPlayFab >("PlayFab");
+        return FModuleManager::LoadModuleChecked< IPlayFab >("PlayFabBp");
     }
 
     /**
@@ -50,7 +50,7 @@ public:
     */
     static inline bool IsAvailable()
     {
-        return FModuleManager::Get().IsModuleLoaded("PlayFab");
+        return FModuleManager::Get().IsModuleLoaded("PlayFabBp");
     }
 
     inline FString getGameTitleId()

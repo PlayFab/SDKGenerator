@@ -3,11 +3,14 @@ import playfab.PlayFabSettings as PlayFabSettings
 import playfab.PlayFabErrors as PlayFabErrors
 import requests
 
-# Note this is a blocking call and will always run synchronously
-# the return type is a dictionary that should contain a valid dictionary that
-# should reflect the expected JSON response
-# if the call fails, there will be a returned PlayFabError
 def DoPost(urlPath, request, authKey, authVal, callback, customData = None, extraHeaders = None):
+    """
+    Note this is a blocking call and will always run synchronously
+    the return type is a dictionary that should contain a valid dictionary that
+    should reflect the expected JSON response
+    if the call fails, there will be a returned PlayFabError
+    """
+
     url = PlayFabSettings.GetURL(urlPath)
 
     try:
@@ -51,18 +54,24 @@ def DoPost(urlPath, request, authKey, authVal, callback, customData = None, extr
         callGlobalErrorHandler(error)
 
         try:
-            callback(None, error) # Notify the caller about an API Call failure
+            # Notify the caller about an API Call failure
+            callback(None, error) 
         except Exception as e:
-            PlayFabSettings.GlobalExceptionLogger(e) # Global notification about exception in caller's callback
+            # Global notification about exception in caller's callback
+            PlayFabSettings.GlobalExceptionLogger(e) 
     elif response and callback:
         try:
-            callback(response, None) # Notify the caller about an API Call success
+            # Notify the caller about an API Call success
+            callback(response, None) 
         except Exception as e:
-            PlayFabSettings.GlobalExceptionLogger(e) # Global notification about exception in caller's callback
+            # Global notification about exception in caller's callback
+            PlayFabSettings.GlobalExceptionLogger(e) 
 
 def callGlobalErrorHandler(error):
     if PlayFabSettings.GlobalErrorHandler:
-        try:
-            PlayFabSettings.GlobalErrorHandler(error) # Global notification about an API Call failure
+        try: 
+            # Global notification about an API Call failure
+            PlayFabSettings.GlobalErrorHandler(error)
         except Exception as e:
-            PlayFabSettings.GlobalExceptionLogger(e) # Global notification about exception in caller's callback
+            # Global notification about exception in caller's callback
+            PlayFabSettings.GlobalExceptionLogger(e) 

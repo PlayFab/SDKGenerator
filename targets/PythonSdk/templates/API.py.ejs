@@ -4,8 +4,9 @@ import playfab.PlayFabSettings as PlayFabSettings
 
 <%- generateApiSummary("", api, "description")
 %><% if (hasClientOptions) {
-%># Determine if the client session ticket is set, without actually making it public
+%>
 def IsClientLoggedIn():
+    """Determine if the client session ticket is set, without actually making it public"""
     return bool(PlayFabSettings._internalSettings.ClientSessionTicket)
 
 def MultiStepClientLogin(settingsForUser):

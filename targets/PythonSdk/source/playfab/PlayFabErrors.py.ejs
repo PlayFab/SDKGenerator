@@ -1,7 +1,7 @@
 from enum import Enum
 class PlayFabErrorCode(Enum):
     """
-    # Error codes returned by PlayFabAPIs
+    Error codes returned by PlayFabAPIs
     """
     Success = 0,
     Unknown = 1,
@@ -13,7 +13,7 @@ class PlayFabErrorCode(Enum):
 class PlayFabError:
     def __init__(self, *args):
         """
-        # The first args item is expected to be a valid dictionary
+        The first args item is expected to be a valid dictionary
         """
         if len(args) == 1:
             self.fromJson(args[0])

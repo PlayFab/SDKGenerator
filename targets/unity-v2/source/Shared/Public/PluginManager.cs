@@ -80,7 +80,7 @@ namespace PlayFab
 
         private IPlayFabPlugin CreatePlugin<T>() where T : IPlayFabPlugin, new()
         {
-            return (IPlayFabPlugin)Activator.CreateInstance(typeof(T).AsType());
+            return (IPlayFabPlugin)Activator.CreateInstance(typeof(T));
         }
 
         private ITransportPlugin CreatePlayFabTransportPlugin()

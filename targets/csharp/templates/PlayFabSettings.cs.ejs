@@ -8,10 +8,10 @@ namespace PlayFab
         public const string SdkVersion = "<%- sdkVersion %>";
         public const string BuildIdentifier = "<%- buildIdentifier %>";
         public const string SdkVersionString = "CSharpSDK-<%- sdkVersion %>";
-		public static readonly Dictionary<string, string> RequestGetParams = new Dictionary<string, string> {
-			{ "SDKname", "CSharpSDK" },
-			{ "SDKversion", SdkVersion }
-		};
+        public static readonly Dictionary<string, string> RequestGetParams = new Dictionary<string, string> {
+            { "SDKname", "CSharpSDK" },
+            { "SDKversion", SdkVersion }
+        };
 
         /// <summary> This is for PlayFab internal debugging.  Generally you shouldn't touch this </summary>
         public static bool UseDevelopmentEnvironment = false;
@@ -42,34 +42,34 @@ namespace PlayFab
 <% } %>
         public static string GetFullUrl(string apiCall, Dictionary<string, string> getParams)
         {
-			StringBuilder sb = new StringBuilder(1000);
-		
-			var baseUrl = UseDevelopmentEnvironment ? DevelopmentEnvironmentUrl : ProductionEnvironmentUrl;
-			if (!baseUrl.StartsWith("http"))
-				sb.Append("https://").Append(TitleId);
-			sb.Append(baseUrl);
-			if (!baseUrl.StartsWith("http"))
-				sb.Append(apiCall);
-		
-			if (getParams != null)
-			{
-				bool firstParam = true;
-				foreach (var paramPair in getParams)
-				{
-					if (firstParam)
-					{
-						sb.Append("?");
-						firstParam = false;
-					}
-					else
-					{
-						sb.Append("&");
-					}
-					sb.Append(paramPair.Key).Append("=").Append(paramPair.Value);
-				}
-			}
-		
-			return sb.ToString();
+            StringBuilder sb = new StringBuilder(1000);
+        
+            var baseUrl = UseDevelopmentEnvironment ? DevelopmentEnvironmentUrl : ProductionEnvironmentUrl;
+            if (!baseUrl.StartsWith("http"))
+                sb.Append("https://").Append(TitleId);
+            sb.Append(baseUrl);
+            if (!baseUrl.StartsWith("http"))
+                sb.Append(apiCall);
+        
+            if (getParams != null)
+            {
+                bool firstParam = true;
+                foreach (var paramPair in getParams)
+                {
+                    if (firstParam)
+                    {
+                        sb.Append("?");
+                        firstParam = false;
+                    }
+                    else
+                    {
+                        sb.Append("&");
+                    }
+                    sb.Append(paramPair.Key).Append("=").Append(paramPair.Value);
+                }
+            }
+        
+            return sb.ToString();
         }
     }
 }

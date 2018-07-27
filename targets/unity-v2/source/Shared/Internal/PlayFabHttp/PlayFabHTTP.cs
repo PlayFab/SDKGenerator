@@ -189,7 +189,7 @@ namespace PlayFab.Internal
             var reqContainer = new CallRequestContainer
             {
                 ApiEndpoint = apiEndpoint,
-                FullUrl = PlayFabSettings.GetFullUrl(apiEndpoint),
+                FullUrl = PlayFabSettings.GetFullUrl(apiEndpoint, PlayFabSettings.RequestGetParams),
                 CustomData = customData,
                 Payload = Encoding.UTF8.GetBytes(serializer.SerializeObject(request)),
                 ApiRequest = request,

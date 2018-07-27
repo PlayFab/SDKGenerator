@@ -600,6 +600,14 @@
     <Content Include="targets\unity-v2\source\Shared\Models\SharedModels.cs" />
     <Content Include="targets\unity-v2\source\Shared\Models\SharedModels.cs.meta" />
     <Content Include="targets\unity-v2\source\Shared\Public.meta" />
+    <Content Include="targets\unity-v2\source\Shared\Public\IPlayFabPlugin.cs" />
+    <Content Include="targets\unity-v2\source\Shared\Public\IPlayFabPlugin.cs.meta" />
+    <Content Include="targets\unity-v2\source\Shared\Public\IPlayFabTransportPlugin.cs" />
+    <Content Include="targets\unity-v2\source\Shared\Public\IPlayFabTransportPlugin.cs.meta" />
+    <Content Include="targets\unity-v2\source\Shared\Public\ISerializerPlugin.cs" />
+    <Content Include="targets\unity-v2\source\Shared\Public\ISerializerPlugin.cs.meta" />
+    <Content Include="targets\unity-v2\source\Shared\Public\ITransportPlugin.cs" />
+    <Content Include="targets\unity-v2\source\Shared\Public\ITransportPlugin.cs.meta" />
     <Content Include="targets\unity-v2\source\Shared\Public\PlayFabDataGatherer.cs" />
     <Content Include="targets\unity-v2\source\Shared\Public\PlayFabDataGatherer.cs.meta" />
     <Content Include="targets\unity-v2\source\Shared\Public\PlayFabEvents.cs.meta" />
@@ -607,6 +615,10 @@
     <Content Include="targets\unity-v2\source\Shared\Public\PlayFabLogger.cs.meta" />
     <Content Include="targets\unity-v2\source\Shared\Public\PlayFabSettings.cs.meta" />
     <Content Include="targets\unity-v2\source\Shared\Public\PlayStream\PlayStreamEventDataModels.cs.meta" />
+    <Content Include="targets\unity-v2\source\Shared\Public\PluginContract.cs" />
+    <Content Include="targets\unity-v2\source\Shared\Public\PluginContract.cs.meta" />
+    <Content Include="targets\unity-v2\source\Shared\Public\PluginManager.cs" />
+    <Content Include="targets\unity-v2\source\Shared\Public\PluginManager.cs.meta" />
     <Content Include="targets\unity-v2\source\Shared\Public\Resources.meta" />
     <Content Include="targets\unity-v2\source\Shared\Public\Resources\PlayFabSharedSettings.asset" />
     <Content Include="targets\unity-v2\source\Shared\Public\Resources\PlayFabSharedSettings.asset.meta" />
@@ -736,6 +748,8 @@
     <Content Include="targets\unity-v2\Testing\Tests\Shared\Uunit\UUnitTestSuite.cs" />
     <Content Include="targets\unity-v2\Testing\Tests\Utility\JsonUnitTests.cs" />
     <Content Include="targets\unity-v2\Testing\Tests\Utility\JsonUnitTests.cs.meta" />
+    <Content Include="targets\unity-v2\Testing\Tests\Utility\PluginManagerTests.cs" />
+    <Content Include="targets\unity-v2\Testing\Tests\Utility\PluginManagerTests.cs.meta" />
     <Content Include="targets\unity-v2\Testing\Tests\Utility\UtilTest.cs" />
     <Content Include="targets\unity-v2\Testing\Tests\Utility\UtilTest.cs.meta" />
     <Content Include="targets\WindowsSdk\source\build\PlayFabSdk2015\packages.config" />

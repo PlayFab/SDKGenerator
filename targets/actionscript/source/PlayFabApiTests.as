@@ -5,11 +5,13 @@ package
     import flash.events.*;
     import flash.utils.Timer;
 
+    import com.playfab.AuthenticationModels.*;
     import com.playfab.ClientModels.*;
-    import com.playfab.EntityModels.*;
+    import com.playfab.DataModels.*;
     import com.playfab.ServerModels.*;
+    import com.playfab.PlayFabAuthenticationAPI;
     import com.playfab.PlayFabClientAPI;
-    import com.playfab.PlayFabEntityAPI;
+    import com.playfab.PlayFabDataAPI;
     import com.playfab.PlayFabServerAPI;
     import com.playfab.PlayFabSettings;
     import com.playfab.PlayFabHTTP;
@@ -41,7 +43,8 @@ package
         // Variables for specific tests
         private var testIntExpected:int;
         private var testIntActual:int;
-        private var testEntityKey:com.playfab.EntityModels.EntityKey;
+        private var testEntityId:String;
+        private var testEntityTypeString:String;
 
         public function PlayFabApiTests(titleDataFileName:String, reporters:Array)
         {
@@ -453,21 +456,24 @@ package
         /// </summary>
         private function EntityObjects() : void
         {
-            var getTokenRequest:com.playfab.EntityModels.GetEntityTokenRequest = new com.playfab.EntityModels.GetEntityTokenRequest();
-            PlayFabEntityAPI.GetEntityToken(getTokenRequest, Wrap(EntityObjects_GetTokenSuccess, "EntityObjects_GetTokenSuccess"), Wrap(Shared_ApiCallFailure, "EntityObjects_GetTokenSuccess"));
+            var getTokenRequest:com.playfab.AuthenticationModels.GetEntityTokenRequest = new com.playfab.AuthenticationModels.GetEntityTokenRequest();
+            PlayFabAuthenticationAPI.GetEntityToken(getTokenRequest, Wrap(EntityObjects_GetTokenSuccess, "EntityObjects_GetTokenSuccess"), Wrap(Shared_ApiCallFailure, "EntityObjects_GetTokenSuccess"));
         }
-        private function EntityObjects_GetTokenSuccess(result:com.playfab.EntityModels.GetEntityTokenResponse) : void
+        private function EntityObjects_GetTokenSuccess(result:com.playfab.AuthenticationModels.GetEntityTokenResponse) : void
         {
-            testEntityKey = result.Entity;
-            ASyncAssert.AssertNotNull(testEntityKey.Id);
-            ASyncAssert.AssertNotNull(testEntityKey.Type);
+            ASyncAssert.AssertNotNull(result.Entity.Id);
+            ASyncAssert.AssertNotNull(result.Entity.TypeString);
+            testEntityId = result.Entity.Id;
+            testEntityTypeString = result.Entity.TypeString;
 
-            var getRequest:com.playfab.EntityModels.GetObjectsRequest = new com.playfab.EntityModels.GetObjectsRequest();
-            getRequest.Entity = testEntityKey;
+            var getRequest:com.playfab.DataModels.GetObjectsRequest = new com.playfab.DataModels.GetObjectsRequest();
+            getRequest.Entity = new com.playfab.DataModels.EntityKey();
+            getRequest.Entity.Id = testEntityId;
+            getRequest.Entity.TypeString = testEntityTypeString;
             getRequest.EscapeObject = true;
-            PlayFabEntityAPI.GetObjects(getRequest, Wrap(EntityObjects_GetSuccess1, "EntityObjects_GetSuccess1"), Wrap(Shared_ApiCallFailure, "EntityObjects_GetSuccess1"));
+            PlayFabDataAPI.GetObjects(getRequest, Wrap(EntityObjects_GetSuccess1, "EntityObjects_GetSuccess1"), Wrap(Shared_ApiCallFailure, "EntityObjects_GetSuccess1"));
         }
-        private function EntityObjects_GetSuccess1(result:com.playfab.EntityModels.GetObjectsResponse) : void
+        private function EntityObjects_GetSuccess1(result:com.playfab.DataModels.GetObjectsResponse) : void
         {
             testIntExpected = 0;
             if (result.Objects.hasOwnProperty(TEST_DATA_KEY))
@@ -478,24 +484,28 @@ package
             }
             testIntExpected = (testIntExpected + 1) % 100; // This test is about the expected value changing
 
-            var updateRequest:com.playfab.EntityModels.SetObjectsRequest = new com.playfab.EntityModels.SetObjectsRequest();
-            updateRequest.Entity = testEntityKey;
+            var updateRequest:com.playfab.DataModels.SetObjectsRequest = new com.playfab.DataModels.SetObjectsRequest();
+            updateRequest.Entity = new com.playfab.DataModels.EntityKey();
+            updateRequest.Entity.Id = testEntityId;
+            updateRequest.Entity.TypeString = testEntityTypeString;
             updateRequest.Objects = new Vector.<SetObject>();
-            var updateObj:com.playfab.EntityModels.SetObject = new com.playfab.EntityModels.SetObject();
+            var updateObj:com.playfab.DataModels.SetObject = new com.playfab.DataModels.SetObject();
             updateObj.ObjectName = TEST_DATA_KEY;
             updateObj.DataObject = testIntExpected;
             updateRequest.Objects[0] = updateObj;
 
-            PlayFabEntityAPI.SetObjects(updateRequest, Wrap(EntityObjects_UpdateSuccess, "EntityObjects_UpdateSuccess"), Wrap(Shared_ApiCallFailure, "EntityObjects_UpdateSuccess"));
+            PlayFabDataAPI.SetObjects(updateRequest, Wrap(EntityObjects_UpdateSuccess, "EntityObjects_UpdateSuccess"), Wrap(Shared_ApiCallFailure, "EntityObjects_UpdateSuccess"));
         }
-        private function EntityObjects_UpdateSuccess(result:com.playfab.EntityModels.SetObjectsResponse) : void
+        private function EntityObjects_UpdateSuccess(result:com.playfab.DataModels.SetObjectsResponse) : void
         {
-            var getRequest:com.playfab.EntityModels.GetObjectsRequest = new com.playfab.EntityModels.GetObjectsRequest();
-            getRequest.Entity = testEntityKey;
+            var getRequest:com.playfab.DataModels.GetObjectsRequest = new com.playfab.DataModels.GetObjectsRequest();
+            getRequest.Entity = new com.playfab.DataModels.EntityKey();
+            getRequest.Entity.Id = testEntityId;
+            getRequest.Entity.TypeString = testEntityTypeString;
             getRequest.EscapeObject = true;
-            PlayFabEntityAPI.GetObjects(getRequest, Wrap(EntityObjects_GetSuccess2, "EntityObjects_GetSuccess2"), Wrap(Shared_ApiCallFailure, "EntityObjects_GetSuccess2"));
+            PlayFabDataAPI.GetObjects(getRequest, Wrap(EntityObjects_GetSuccess2, "EntityObjects_GetSuccess2"), Wrap(Shared_ApiCallFailure, "EntityObjects_GetSuccess2"));
         }
-        private function EntityObjects_GetSuccess2(result:com.playfab.EntityModels.GetObjectsResponse) : void
+        private function EntityObjects_GetSuccess2(result:com.playfab.DataModels.GetObjectsResponse) : void
         {
             testIntActual = -1000;
             ASyncAssert.AssertTrue(result.Objects.hasOwnProperty(TEST_DATA_KEY));

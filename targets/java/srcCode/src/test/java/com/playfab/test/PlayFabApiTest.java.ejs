@@ -19,8 +19,10 @@ import com.playfab.PlayFabClientAPI;
 import com.playfab.PlayFabServerModels;
 import com.playfab.PlayFabServerAPI;
 <% } %>
-import com.playfab.PlayFabEntityModels;
-import com.playfab.PlayFabEntityAPI;
+import com.playfab.PlayFabAuthenticationModels;
+import com.playfab.PlayFabAuthenticationAPI;
+import com.playfab.PlayFabDataModels;
+import com.playfab.PlayFabDataAPI;
 
 public class PlayFabApiTest
 {
@@ -33,7 +35,8 @@ public class PlayFabApiTest
 <% if (hasClientOptions) { %>
     // Cached values
     private static String playFabId = null;
-    private static PlayFabEntityModels.EntityKey entityKey = null;
+    private static String entityId = null;
+    private static String entityTypeString = null;
 <% } else if (hasServerOptions) { %>
     // Cached values
     private static String playFabId = "1337D00D"; // This is not a valid player id, but Cloud Script doesn't care unless that id is used by the Cloud Script handler.
@@ -467,13 +470,13 @@ public class PlayFabApiTest
     {
         LoginOrRegister();
 
-        PlayFabEntityModels.GetEntityTokenRequest request = new PlayFabEntityModels.GetEntityTokenRequest();
-        PlayFabResult<PlayFabEntityModels.GetEntityTokenResponse> result = PlayFabEntityAPI.GetEntityToken(request);
+        PlayFabAuthenticationModels.GetEntityTokenRequest request = new PlayFabAuthenticationModels.GetEntityTokenRequest();
+        PlayFabResult<PlayFabAuthenticationModels.GetEntityTokenResponse> result = PlayFabAuthenticationAPI.GetEntityToken(request);
         VerifyResult(result, true);
 
         assertEquals(result.Result.Entity.TypeString, "title_player_account");
-        assertEquals(result.Result.Entity.Type.toString(), "title_player_account");
-        entityKey = result.Result.Entity;
+        entityId = result.Result.Entity.Id;
+        entityTypeString = result.Result.Entity.TypeString;
     }
 
     /**
@@ -487,12 +490,14 @@ public class PlayFabApiTest
     {
         GetEntityToken();
 
-        PlayFabEntityModels.ObjectResult tempObjResult = null;
+        PlayFabDataModels.ObjectResult tempObjResult = null;
 
-        PlayFabEntityModels.GetObjectsRequest getRequest = new PlayFabEntityModels.GetObjectsRequest();
-        getRequest.Entity = entityKey;
+        PlayFabDataModels.GetObjectsRequest getRequest = new PlayFabDataModels.GetObjectsRequest();
+        getRequest.Entity = new PlayFabDataModels.EntityKey();
+        getRequest.Entity.Id = entityId;
+        getRequest.Entity.TypeString = entityTypeString;
         getRequest.EscapeObject = true;
-        PlayFabResult<PlayFabEntityModels.GetObjectsResponse> getObjResult = PlayFabEntityAPI.GetObjects(getRequest);
+        PlayFabResult<PlayFabDataModels.GetObjectsResponse> getObjResult = PlayFabDataAPI.GetObjects(getRequest);
         VerifyResult(getObjResult, true);
 
         int testCounterValueExpected = 0;
@@ -502,17 +507,19 @@ public class PlayFabApiTest
             testCounterValueExpected = Integer.parseInt(tempObjResult.EscapedDataObject);
         testCounterValueExpected = (testCounterValueExpected + 1) % 100; // This test is about the expected value changing - but not testing more complicated issues like bounds
 
-        PlayFabEntityModels.SetObjectsRequest setObjRequest = new PlayFabEntityModels.SetObjectsRequest();
-        setObjRequest.Entity = entityKey;
-        setObjRequest.Objects = new ArrayList<PlayFabEntityModels.SetObject>();
-        PlayFabEntityModels.SetObject setObj = new PlayFabEntityModels.SetObject();
+        PlayFabDataModels.SetObjectsRequest setObjRequest = new PlayFabDataModels.SetObjectsRequest();
+        setObjRequest.Entity = new PlayFabDataModels.EntityKey();
+        setObjRequest.Entity.Id = entityId;
+        setObjRequest.Entity.TypeString = entityTypeString;
+        setObjRequest.Objects = new ArrayList<PlayFabDataModels.SetObject>();
+        PlayFabDataModels.SetObject setObj = new PlayFabDataModels.SetObject();
         setObj.ObjectName = TEST_DATA_KEY;
         setObj.DataObject = testCounterValueExpected;
         setObjRequest.Objects.add(setObj);
-        PlayFabResult<PlayFabEntityModels.SetObjectsResponse> setObjResult = PlayFabEntityAPI.SetObjects(setObjRequest);
+        PlayFabResult<PlayFabDataModels.SetObjectsResponse> setObjResult = PlayFabDataAPI.SetObjects(setObjRequest);
         VerifyResult(setObjResult, true);
 
-        getObjResult = PlayFabEntityAPI.GetObjects(getRequest);
+        getObjResult = PlayFabDataAPI.GetObjects(getRequest);
         VerifyResult(getObjResult, true);
 
         int testCounterValueActual = -1000;

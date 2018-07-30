@@ -14,7 +14,8 @@ var PlayFabApiTests = {
     },
     testData: {
         entityToken: null, // Entity-Login: filled after login
-        entityKey: null, // Entity-Login: filled after login
+        entityId: null, // Entity-Login: filled after login
+        entityTypeString: null, // Entity-Login: filled after login
         playFabId: null, // Client-Login: filled during login
         testNumber: null, // Arbitrary counter, used by several tests
     },
@@ -491,7 +492,8 @@ var PlayFabApiTests = {
         var getTokenDone = assert.async();
         var getTokenCallback = function (result: PlayFabModule.SuccessContainer<PlayFabDataModels.GetObjectsResponse>, error: PlayFabModule.IPlayFabError): void {
             PlayFabApiTests.VerifyNullError(result, error, assert, "Testing GetToken result");
-            PlayFabApiTests.testData.entityKey = result.data.Entity;
+            PlayFabApiTests.testData.entityId = result.data.Entity.Id;
+            PlayFabApiTests.testData.entityTypeString = result.data.Entity.TypeString;
             getTokenDone();
         };
 
@@ -507,7 +509,10 @@ var PlayFabApiTests = {
     // */
     EntityObjects: function (assert): void {
         var getObjectRequest = <PlayFabDataModels.GetObjectsRequest>{
-            Entity: PlayFabApiTests.testData.entityKey,
+            Entity: {
+                Id: PlayFabApiTests.testData.entityId,
+                TypeString: PlayFabApiTests.testData.entityTypeString,
+            },
             EscapeObject: true,
         };
 
@@ -540,7 +545,10 @@ var PlayFabApiTests = {
             PlayFabApiTests.testData.testNumber = (PlayFabApiTests.testData.testNumber + 1) % 100; // This test is about the expected value changing - but not testing more complicated issues like bounds
 
             var updateDataRequest = <PlayFabDataModels.SetObjectsRequest>{
-                Entity: PlayFabApiTests.testData.entityKey,
+                Entity: {
+                    Id: PlayFabApiTests.testData.entityId,
+                    TypeString: PlayFabApiTests.testData.entityTypeString,
+                },
                 Objects: [{ ObjectName: PlayFabApiTests.testConstants.TEST_DATA_KEY, DataObject: PlayFabApiTests.testData.testNumber }]
             };
             PlayFabDataSDK.SetObjects(updateDataRequest, PlayFabApiTests.CallbackWrapper("setObjectCallback", setObjectCallback, assert));

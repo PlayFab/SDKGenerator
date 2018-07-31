@@ -3,7 +3,8 @@
 
 local json = require("PlayFab.json")
 local PlayFabClientApi = require("PlayFab.PlayFabClientApi")
-local PlayFabEntityApiExists, PlayFabEntityApi = pcall(require, "PlayFab.PlayFabEntityApi")
+local PlayFabAuthenticationApiExists, PlayFabAuthenticationApi = pcall(require, "PlayFab.PlayFabAuthenticationApi")
+local PlayFabDataApiExists, PlayFabDataApi = pcall(require, "PlayFab.PlayFabDataApi")
 -- Most users won't need to import PlayFabSettings, as the public settings are available via PlayFabClientApi.settings
 local PlayFabSettings = require("PlayFab.PlayFabSettings")
 local AsyncTestSuite = require("PlayFabTesting.AsyncTestSuite")
@@ -34,7 +35,8 @@ local PlayFabApiTestSuite = {
 
     -- TEST VARIABLES
     playFabId = nil,
-    entityKey = nil,
+    entityId = nil,
+    entityTypeString = nil,
     testNumber = nil,
     testStatValue = nil,
 }
@@ -376,14 +378,15 @@ end
 function PlayFabApiTestSuite.GetEntityToken()
     local getTokenRequest = {
         -- Currently, you need to look up the correct format for this object in the API-docs:
-        --   https://api.playfab.com/Documentation/Entity/method/GetEntityToken
+        --   https://api.playfab.com/Documentation/Authentication/method/GetEntityToken
     }
-    PlayFabEntityApi.GetEntityToken(getTokenRequest, AsyncTestSuite.WrapCallback("OnGetEntityToken", PlayFabApiTestSuite.OnGetEntityToken), PlayFabApiTestSuite.OnSharedError)
+    PlayFabAuthenticationApi.GetEntityToken(getTokenRequest, AsyncTestSuite.WrapCallback("OnGetEntityToken", PlayFabApiTestSuite.OnGetEntityToken), PlayFabApiTestSuite.OnSharedError)
 end
 function PlayFabApiTestSuite.OnGetEntityToken(result)
     if (result.Entity) then 
-        PlayFabApiTestSuite.entityKey = result.Entity
-        AsyncTestSuite.EndTest("PASSED", PlayFabApiTestSuite.entityKey.Id)
+        PlayFabApiTestSuite.entityId = result.Entity.Id
+        PlayFabApiTestSuite.entityTypeString = result.Entity.TypeString
+        AsyncTestSuite.EndTest("PASSED", result.Entity.Id)
     else
         AsyncTestSuite.EndTest("FAILED", "EntityId not found in GetEntityToken result" .. json.encode(result))
     end
@@ -398,12 +401,14 @@ end
 function PlayFabApiTestSuite.ObjectApi()
     local getObjRequest = {
         -- Currently, you need to look up the correct format for this object in the API-docs:
-        --   https://api.playfab.com/Documentation/Entity/method/GetObjects
-        Entity = PlayFabApiTestSuite.entityKey,
-        EntityType = "title_player_account",
+        --   https://api.playfab.com/Documentation/Data/method/GetObjects
+        Entity = {
+            Id = PlayFabApiTestSuite.entityId,
+            TypeString = PlayFabApiTestSuite.entityTypeString,
+        },
         EscapeObject = true,
     }
-    PlayFabEntityApi.GetObjects(getObjRequest, AsyncTestSuite.WrapCallback("OnGetObj1", PlayFabApiTestSuite.OnGetObj1), PlayFabApiTestSuite.OnSharedError)
+    PlayFabDataApi.GetObjects(getObjRequest, AsyncTestSuite.WrapCallback("OnGetObj1", PlayFabApiTestSuite.OnGetObj1), PlayFabApiTestSuite.OnSharedError)
 end
 function PlayFabApiTestSuite.OnGetObj1(result)
     PlayFabApiTestSuite.testNumber = 0
@@ -414,9 +419,11 @@ function PlayFabApiTestSuite.OnGetObj1(result)
 
     local updateRequest = {
         -- Currently, you need to look up the correct format for this object in the API-docs:
-        --   https://api.playfab.com/Documentation/Entity/method/SetObjects
-        Entity = PlayFabApiTestSuite.entityKey,
-        EntityType = "title_player_account",
+        --   https://api.playfab.com/Documentation/Data/method/SetObjects
+        Entity = {
+            Id = PlayFabApiTestSuite.entityId,
+            TypeString = PlayFabApiTestSuite.entityTypeString,
+        },
         Objects = {
             {
                 ObjectName = PlayFabApiTestSuite.TEST_DATA_KEY,
@@ -424,17 +431,19 @@ function PlayFabApiTestSuite.OnGetObj1(result)
             }
         },
     }
-    PlayFabEntityApi.SetObjects(updateRequest, AsyncTestSuite.WrapCallback("OnSetObj", PlayFabApiTestSuite.OnSetObj), PlayFabApiTestSuite.OnSharedError)
+    PlayFabDataApi.SetObjects(updateRequest, AsyncTestSuite.WrapCallback("OnSetObj", PlayFabApiTestSuite.OnSetObj), PlayFabApiTestSuite.OnSharedError)
 end
 function PlayFabApiTestSuite.OnSetObj(result)
     local getObjRequest = {
         -- Currently, you need to look up the correct format for this object in the API-docs:
-        --   https://api.playfab.com/Documentation/Entity/method/GetObjects
-        Entity = PlayFabApiTestSuite.entityKey,
-        EntityType = "title_player_account",
+        --   https://api.playfab.com/Documentation/Data/method/GetObjects
+        Entity = {
+            Id = PlayFabApiTestSuite.entityId,
+            TypeString = PlayFabApiTestSuite.entityTypeString,
+        },
         EscapeObject = true,
     }
-    PlayFabEntityApi.GetObjects(getObjRequest, AsyncTestSuite.WrapCallback("OnGetObj2", PlayFabApiTestSuite.OnGetObj2), PlayFabApiTestSuite.OnSharedError)
+    PlayFabDataApi.GetObjects(getObjRequest, AsyncTestSuite.WrapCallback("OnGetObj2", PlayFabApiTestSuite.OnGetObj2), PlayFabApiTestSuite.OnSharedError)
 end
 function PlayFabApiTestSuite.OnGetObj2(result)
     local actualValue = -1000
@@ -464,7 +473,7 @@ function PlayFabApiTestSuite.Start()
     AsyncTestSuite.AddTest("CloudScript", PlayFabApiTestSuite.CloudScript)
     AsyncTestSuite.AddTest("CloudScriptError", PlayFabApiTestSuite.CloudScriptError)
     AsyncTestSuite.AddTest("WriteEvent", PlayFabApiTestSuite.WriteEvent)
-    if (PlayFabEntityApiExists) then
+    if (PlayFabAuthenticationApiExists and PlayFabDataApiExists) then
         AsyncTestSuite.AddTest("GetEntityToken", PlayFabApiTestSuite.GetEntityToken)
         AsyncTestSuite.AddTest("ObjectApi", PlayFabApiTestSuite.ObjectApi)
     end

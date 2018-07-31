@@ -11,7 +11,7 @@ def DoPost(urlPath, request, authKey, authVal, callback, customData = None, extr
     if the call fails, there will be a returned PlayFabError
     """
 
-    url = PlayFabSettings.GetURL(urlPath)
+    url = PlayFabSettings.GetURL(urlPath, PlayFabSettings._internalSettings.RequestGetParams)
 
     try:
         j = json.dumps(request)

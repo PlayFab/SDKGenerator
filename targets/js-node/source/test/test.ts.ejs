@@ -4,12 +4,9 @@ import * as nodeunit from "nodeunit";
 import * as fs from "fs";
 
 var PlayFab = <PlayFabModule.IPlayFab>pf.PlayFab;
-var PlayFabAdmin = <PlayFabAdminModule.IPlayFabAdmin>pf.PlayFabAdmin; // Not strictly needed for this test, but I want to make sure it compiles/loads
-var PlayFabMatchmaker = <PlayFabMatchmakerModule.IPlayFabMatchmaker>pf.PlayFabAdmin; // Not strictly needed for this test, but I want to make sure it compiles/loads
-var PlayFabClient = <PlayFabClientModule.IPlayFabClient>pf.PlayFabClient;
-var PlayFabEntity = <PlayFabEntityModule.IPlayFabEntity>pf.PlayFabEntity;
-var PlayFabServer = <PlayFabServerModule.IPlayFabServer>pf.PlayFabServer;
-
+<% for(var a = 0; a < apis.length; a++) { var api = apis[a];
+%>var PlayFab<%- api.name %> = <PlayFab<%- api.name %>Module.IPlayFab<%- api.name %>>pf.PlayFab<%- api.name %>; 
+<% } %>
 interface IAction { (): void }
 
 
@@ -27,7 +24,8 @@ var testConstants = {
 };
 
 var testData = {
-    entityKey: null,
+    entityId: null,
+    entityTypeString: null,
     playFabId: null,
     testNumber: null
 };
@@ -453,19 +451,19 @@ exports.PlayFabApiTests = {
     /// Verify that a client login can be converted into an entity token
     /// </summary>
     GetEntityToken: TestWrapper(function (test): void {
-        var getEntityTokenCallback = function (error: PlayFabModule.IPlayFabError, result: PlayFabModule.IPlayFabSuccessContainer<PlayFabEntityModels.GetEntityTokenResponse>): void {
+        var getEntityTokenCallback = function (error: PlayFabModule.IPlayFabError, result: PlayFabModule.IPlayFabSuccessContainer<PlayFabAuthenticationModels.GetEntityTokenResponse>): void {
             VerifyNullError(result, error, test, "Testing GetEntityToken result");
 
             test.ok(result.data.Entity.Id, "EntityId should be defined");
-            test.ok(result.data.Entity.Type, "EntityType should be defined");
-            test.ok(result.data.Entity.TypeString, "EntityType should be defined");
+            test.ok(result.data.Entity.TypeString, "EntityTypeString should be defined");
 
-            testData.entityKey = result.data.Entity; // Save the Entity info, it will be used in other tests
+            testData.entityId = result.data.Entity.Id; // Save the Entity info, it will be used in other tests
+            testData.entityTypeString = result.data.Entity.TypeString; // Save the Entity info, it will be used in other tests
 
             test.done();
         };
 
-        PlayFabEntity.GetEntityToken(null, CallbackWrapper("getEntityTokenCallback", getEntityTokenCallback, test));
+        PlayFabAuthentication.GetEntityToken(null, CallbackWrapper("getEntityTokenCallback", getEntityTokenCallback, test));
     }),
 
     /// <summary>
@@ -475,12 +473,15 @@ exports.PlayFabApiTests = {
     /// Verify that the object is correctly modified on the next call.
     /// </summary>
     ObjectApi: TestWrapper(function (test): void {
-        var getObjectsRequest: PlayFabEntityModels.GetObjectsRequest = {
-            Entity: testData.entityKey,
+        var getObjectsRequest: PlayFabDataModels.GetObjectsRequest = {
+            Entity: {
+                Id: testData.entityId,
+                TypeString: testData.entityTypeString,
+            },
             EscapeObject: true
         };
 
-        var getObjCallback2 = function (error: PlayFabModule.IPlayFabError, result: PlayFabModule.IPlayFabSuccessContainer<PlayFabEntityModels.GetObjectsResponse>): void {
+        var getObjCallback2 = function (error: PlayFabModule.IPlayFabError, result: PlayFabModule.IPlayFabSuccessContainer<PlayFabDataModels.GetObjectsResponse>): void {
             VerifyNullError(result, error, test, "Testing GetObjects result");
             test.ok(result.data.Objects, "GetObjects failed");
             test.ok(result.data.Objects.hasOwnProperty(testConstants.TEST_KEY));
@@ -490,12 +491,12 @@ exports.PlayFabApiTests = {
 
             test.done();
         };
-        var setObjCallback = function (error: PlayFabModule.IPlayFabError, result: PlayFabModule.IPlayFabSuccessContainer<PlayFabEntityModels.SetObjectsResponse>): void {
+        var setObjCallback = function (error: PlayFabModule.IPlayFabError, result: PlayFabModule.IPlayFabSuccessContainer<PlayFabDataModels.SetObjectsResponse>): void {
             VerifyNullError(result, error, test, "Testing SetObjects result");
 
-            PlayFabEntity.GetObjects(getObjectsRequest, CallbackWrapper("getObjCallback2", getObjCallback2, test));
+            PlayFabData.GetObjects(getObjectsRequest, CallbackWrapper("getObjCallback2", getObjCallback2, test));
         };
-        var getObjCallback1 = function (error: PlayFabModule.IPlayFabError, result: PlayFabModule.IPlayFabSuccessContainer<PlayFabEntityModels.GetObjectsResponse>): void {
+        var getObjCallback1 = function (error: PlayFabModule.IPlayFabError, result: PlayFabModule.IPlayFabSuccessContainer<PlayFabDataModels.GetObjectsResponse>): void {
             VerifyNullError(result, error, test, "Testing GetObjects result");
 
             testData.testNumber = 0;
@@ -503,8 +504,11 @@ exports.PlayFabApiTests = {
                 testData.testNumber = parseInt(result.data.Objects[testConstants.TEST_KEY].EscapedDataObject, 10);
             testData.testNumber = (testData.testNumber + 1) % 100; // This test is about the expected value changing - but not testing more complicated issues like bounds
 
-            var setObjRequest: PlayFabEntityModels.SetObjectsRequest = {
-                Entity: testData.entityKey,
+            var setObjRequest: PlayFabDataModels.SetObjectsRequest = {
+                Entity: {
+                    Id: testData.entityId,
+                    TypeString: testData.entityTypeString,
+                },
                 Objects: [
                     {
                         ObjectName: testConstants.TEST_KEY,
@@ -512,11 +516,11 @@ exports.PlayFabApiTests = {
                     }
                 ]
             };
-            PlayFabEntity.SetObjects(setObjRequest, CallbackWrapper("setObjCallback", setObjCallback, test));
+            PlayFabData.SetObjects(setObjRequest, CallbackWrapper("setObjCallback", setObjCallback, test));
         };
 
         // Kick off this test process
-        PlayFabEntity.GetObjects(getObjectsRequest, CallbackWrapper("getObjCallback1", getObjCallback1, test));
+        PlayFabData.GetObjects(getObjectsRequest, CallbackWrapper("getObjCallback1", getObjCallback1, test));
     }),
 };
 

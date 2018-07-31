@@ -57,14 +57,29 @@ This is automatically populated by any PlayFabClientApi.Login method.
 """
 _internalSettings.ClientSessionTicket = None
 _internalSettings.SdkVersionString = "PythonSdk-<%- sdkVersion %>"
+_internalSettings.RequestGetParams = {
+    "SDKname": "PythonSdk",
+    "SDKversion": "<%- sdkVersion %>"
+}
 
-def GetURL(methodUrl):
+def GetURL(methodUrl, getParams):
     if not TitleId:
         raise PlayFabErrors.PlayFabException("You must set PlayFabSettings.TitleId before making an API call")
 
-    url = ProductionEnvironmentURL.format(titleId = TitleId, methodUrl=methodUrl)
+    url = []
+    url.append(ProductionEnvironmentURL.format(titleId = TitleId, methodUrl=methodUrl))
 
-    return url
+    if getParams:
+        for idx, (k, v) in enumerate(getParams.items()):
+            if idx == 0:
+                url.append("?")
+            else:
+                url.append("&")
+            url.append(k)
+            url.append("=")
+            url.append(v)
+
+    return "".join(url)
 
 def DefaultExceptionLogger(exceptionObj):
     print("Unexpected error:", sys.exc_info()[0])

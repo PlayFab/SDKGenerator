@@ -181,7 +181,7 @@ namespace PlayFab.UUnit
             }
             else
             {
-                testContext.EndTest(UUnitFinishState.FAILED, "Entity Token is null!");
+                testContext.Fail("Entity Token is null!");
             }
         }
         private void LoadFiles(UUnitTestContext testContext)
@@ -224,7 +224,7 @@ namespace PlayFab.UUnit
             PlayFabHttp.SimpleGetCall(fileData.DownloadUrl, PlayFabUUnitUtils.SimpleApiActionWrapper<byte[]>(testContext, TestFileContent),
                 error =>
                 {
-                    testContext.EndTest(UUnitFinishState.FAILED, error);
+                    testContext.Fail(error);
                 });
         }
         void UploadFile(UUnitTestContext testContext, string fileName)
@@ -250,6 +250,7 @@ namespace PlayFab.UUnit
 
             PlayFabEntityAPI.DeleteFiles(request, result =>
             {
+                testContext.EndTest(UUnitFinishState.PASSED, "File " + TEST_FILE_NAME + "was succesfully created and uploaded to server with PUT");
             },
             PlayFabUUnitUtils.ApiActionWrapper<PlayFabError>(testContext, SharedErrorCallback), testContext);
         }
@@ -275,7 +276,7 @@ namespace PlayFab.UUnit
                 }
                 else
                 {
-                    testContext.EndTest(UUnitFinishState.FAILED, error.ErrorMessage);
+                    testContext.Fail(error.ErrorMessage);
                 }
             }
         }
@@ -295,7 +296,7 @@ namespace PlayFab.UUnit
                 PlayFabUUnitUtils.SimpleApiNoParamsActionWrapper(testContext, FinalizeUpload),
                 error =>
                 {
-                    testContext.EndTest(UUnitFinishState.FAILED, error);
+                    testContext.Fail(error);
                 }
             );
         }
@@ -320,7 +321,6 @@ namespace PlayFab.UUnit
 
             testContext.True(testFileData.Equals(_testPayload));
             DeleteFiles(testContext, new List<string> { TEST_FILE_NAME });
-            testContext.EndTest(UUnitFinishState.PASSED, "File " + TEST_FILE_NAME + "was succesfully created and uploaded to server with PUT");
         }
         #endregion
     }

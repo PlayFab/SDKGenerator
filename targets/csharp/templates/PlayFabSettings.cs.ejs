@@ -47,9 +47,8 @@ namespace PlayFab
             var baseUrl = UseDevelopmentEnvironment ? DevelopmentEnvironmentUrl : ProductionEnvironmentUrl;
             if (!baseUrl.StartsWith("http"))
                 sb.Append("https://").Append(TitleId);
-            sb.Append(baseUrl);
-            if (!baseUrl.StartsWith("http"))
-                sb.Append(apiCall);
+                
+            sb.Append(baseUrl).Append(apiCall);
         
             if (getParams != null)
             {

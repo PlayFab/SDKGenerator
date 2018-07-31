@@ -14,7 +14,8 @@ var PlayFabApiTests = {
     },
     testData: {
         entityToken: null, // Entity-Login: filled after login
-        entityKey: null, // Entity-Login: filled after login
+        entityId: null, // Entity-Login: filled after login
+        entityTypeString: null, // Entity-Login: filled after login
         playFabId: null, // Client-Login: filled during login
         testNumber: null, // Arbitrary counter, used by several tests
     },
@@ -489,14 +490,15 @@ var PlayFabApiTests = {
     // */
     GetEntityToken: function (assert): void {
         var getTokenDone = assert.async();
-        var getTokenCallback = function (result: PlayFabModule.SuccessContainer<PlayFabEntityModels.GetObjectsResponse>, error: PlayFabModule.IPlayFabError): void {
+        var getTokenCallback = function (result: PlayFabModule.SuccessContainer<PlayFabDataModels.GetObjectsResponse>, error: PlayFabModule.IPlayFabError): void {
             PlayFabApiTests.VerifyNullError(result, error, assert, "Testing GetToken result");
-            PlayFabApiTests.testData.entityKey = result.data.Entity;
+            PlayFabApiTests.testData.entityId = result.data.Entity.Id;
+            PlayFabApiTests.testData.entityTypeString = result.data.Entity.TypeString;
             getTokenDone();
         };
 
-        var getTokenRequest = <PlayFabEntityModels.GetEntityTokenRequest>{};
-        PlayFabEntitySDK.GetEntityToken(getTokenRequest, PlayFabApiTests.CallbackWrapper("getTokenCallback", getTokenCallback, assert));
+        var getTokenRequest = <PlayFabAuthenticationModels.GetEntityTokenRequest>{};
+        PlayFabAuthenticationSDK.GetEntityToken(getTokenRequest, PlayFabApiTests.CallbackWrapper("getTokenCallback", getTokenCallback, assert));
     },
 
     ///* ENTITY API
@@ -506,8 +508,11 @@ var PlayFabApiTests = {
     // * Parameter types tested: string, Dictionary<string, string>, DateTime
     // */
     EntityObjects: function (assert): void {
-        var getObjectRequest = <PlayFabEntityModels.GetObjectsRequest>{
-            Entity: PlayFabApiTests.testData.entityKey,
+        var getObjectRequest = <PlayFabDataModels.GetObjectsRequest>{
+            Entity: {
+                Id: PlayFabApiTests.testData.entityId,
+                TypeString: PlayFabApiTests.testData.entityTypeString,
+            },
             EscapeObject: true,
         };
 
@@ -516,7 +521,7 @@ var PlayFabApiTests = {
         var updateDone = assert.async();
         var get2Done = assert.async();
 
-        var getObjectCallback2 = function (result: PlayFabModule.SuccessContainer<PlayFabEntityModels.GetObjectsResponse>, error: PlayFabModule.IPlayFabError): void {
+        var getObjectCallback2 = function (result: PlayFabModule.SuccessContainer<PlayFabDataModels.GetObjectsResponse>, error: PlayFabModule.IPlayFabError): void {
             PlayFabApiTests.VerifyNullError(result, error, assert, "Testing GetObjects result");
             assert.ok(result.data.Objects != null, "Testing GetObjects Objects");
             var actualtestNumber = JSON.parse(result.data.Objects[PlayFabApiTests.testConstants.TEST_DATA_KEY].EscapedDataObject);
@@ -525,13 +530,13 @@ var PlayFabApiTests = {
             assert.equal(PlayFabApiTests.testData.testNumber, actualtestNumber, "Testing incrementing counter: " + PlayFabApiTests.testData.testNumber + "==" + actualtestNumber);
             get2Done();
         };
-        var setObjectCallback = function (result: PlayFabModule.SuccessContainer<PlayFabEntityModels.SetObjectsResponse>, error: PlayFabModule.IPlayFabError): void {
+        var setObjectCallback = function (result: PlayFabModule.SuccessContainer<PlayFabDataModels.SetObjectsResponse>, error: PlayFabModule.IPlayFabError): void {
             PlayFabApiTests.VerifyNullError(result, error, assert, "Testing SetObjects result");
 
-            PlayFabEntitySDK.GetObjects(getObjectRequest, PlayFabApiTests.CallbackWrapper("getObjectCallback2", getObjectCallback2, assert));
+            PlayFabDataSDK.GetObjects(getObjectRequest, PlayFabApiTests.CallbackWrapper("getObjectCallback2", getObjectCallback2, assert));
             updateDone();
         };
-        var getObjectCallback1 = function (result: PlayFabModule.SuccessContainer<PlayFabEntityModels.GetObjectsResponse>, error: PlayFabModule.IPlayFabError): void {
+        var getObjectCallback1 = function (result: PlayFabModule.SuccessContainer<PlayFabDataModels.GetObjectsResponse>, error: PlayFabModule.IPlayFabError): void {
             PlayFabApiTests.VerifyNullError(result, error, assert, "Testing GetObjects result");
             assert.ok(result.data.Objects != null, "Testing GetObjects Objects");
             PlayFabApiTests.testData.testNumber = 0;
@@ -539,16 +544,19 @@ var PlayFabApiTests = {
                 PlayFabApiTests.testData.testNumber = JSON.parse(result.data.Objects[PlayFabApiTests.testConstants.TEST_DATA_KEY].EscapedDataObject);
             PlayFabApiTests.testData.testNumber = (PlayFabApiTests.testData.testNumber + 1) % 100; // This test is about the expected value changing - but not testing more complicated issues like bounds
 
-            var updateDataRequest = <PlayFabEntityModels.SetObjectsRequest>{
-                Entity: PlayFabApiTests.testData.entityKey,
+            var updateDataRequest = <PlayFabDataModels.SetObjectsRequest>{
+                Entity: {
+                    Id: PlayFabApiTests.testData.entityId,
+                    TypeString: PlayFabApiTests.testData.entityTypeString,
+                },
                 Objects: [{ ObjectName: PlayFabApiTests.testConstants.TEST_DATA_KEY, DataObject: PlayFabApiTests.testData.testNumber }]
             };
-            PlayFabEntitySDK.SetObjects(updateDataRequest, PlayFabApiTests.CallbackWrapper("setObjectCallback", setObjectCallback, assert));
+            PlayFabDataSDK.SetObjects(updateDataRequest, PlayFabApiTests.CallbackWrapper("setObjectCallback", setObjectCallback, assert));
             get1Done();
         };
 
         // Kick off this test process
-        PlayFabEntitySDK.GetObjects(getObjectRequest, PlayFabApiTests.CallbackWrapper("getObjectCallback1", getObjectCallback1, assert));
+        PlayFabDataSDK.GetObjects(getObjectRequest, PlayFabApiTests.CallbackWrapper("getObjectCallback1", getObjectCallback1, assert));
     },
 
     /* CLIENT API

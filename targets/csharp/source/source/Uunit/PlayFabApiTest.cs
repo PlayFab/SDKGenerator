@@ -8,7 +8,8 @@ using System.Collections.Generic;
 using System.Linq;
 using System.Threading.Tasks;
 #if ENABLE_PLAYFABENTITY_API
-using PlayFab.EntityModels;
+using PlayFab.AuthenticationModels;
+using PlayFab.DataModels;
 #endif
 
 namespace PlayFab.UUnit
@@ -28,7 +29,8 @@ namespace PlayFab.UUnit
         private static Dictionary<string, string> extraHeaders;
 
         // Information fetched by appropriate API calls
-        private static EntityModels.EntityKey entityKey;
+        private static string entityId;
+        private static string entityTypeString;
         public static string PlayFabId;
 
         /// <summary>
@@ -454,12 +456,13 @@ namespace PlayFab.UUnit
         [UUnitTest]
         public void GetEntityToken(UUnitTestContext testContext)
         {
-            var writeTask = PlayFabEntityAPI.GetEntityTokenAsync(new GetEntityTokenRequest(), null, extraHeaders);
+            var writeTask = PlayFabAuthenticationAPI.GetEntityTokenAsync(new GetEntityTokenRequest(), null, extraHeaders);
             ContinueWithContext(writeTask, testContext, GetEntityTokenContinued, true, "GetEntityToken failed", true);
         }
         private void GetEntityTokenContinued(PlayFabResult<GetEntityTokenResponse> result, UUnitTestContext testContext, string failMessage)
         {
-            entityKey = result.Result.Entity;
+            entityId = result.Result.Entity.Id;
+            entityTypeString = result.Result.Entity.TypeString;
         }
 
         /// <summary>
@@ -474,10 +477,14 @@ namespace PlayFab.UUnit
         {
             var request = new GetObjectsRequest
             {
-                Entity = entityKey,
+                Entity = new DataModels.EntityKey
+                {
+                    Id = entityId,
+                    TypeString = entityTypeString,
+                },
                 EscapeObject = true
             };
-            var eachTask = PlayFabEntityAPI.GetObjectsAsync(request, null, extraHeaders);
+            var eachTask = PlayFabDataAPI.GetObjectsAsync(request, null, extraHeaders);
             ContinueWithContext(eachTask, testContext, GetObjects1Continued, true, "GetObjects1 failed", false);
         }
         private void GetObjects1Continued(PlayFabResult<GetObjectsResponse> result, UUnitTestContext testContext, string failMessage)
@@ -491,7 +498,11 @@ namespace PlayFab.UUnit
 
             var request = new SetObjectsRequest
             {
-                Entity = entityKey,
+                Entity = new DataModels.EntityKey
+                {
+                    Id = entityId,
+                    TypeString = entityTypeString,
+                },
                 Objects = new List<SetObject>
                 {
                     new SetObject
@@ -501,17 +512,21 @@ namespace PlayFab.UUnit
                     }
                 }
             };
-            var eachTask = PlayFabEntityAPI.SetObjectsAsync(request, null, extraHeaders);
+            var eachTask = PlayFabDataAPI.SetObjectsAsync(request, null, extraHeaders);
             ContinueWithContext(eachTask, testContext, SetObjectsContinued, true, "SetObjects failed", false);
         }
         private void SetObjectsContinued(PlayFabResult<SetObjectsResponse> result, UUnitTestContext testContext, string failMessage)
         {
             var request = new GetObjectsRequest
             {
-                Entity = entityKey,
+                Entity = new DataModels.EntityKey
+                {
+                    Id = entityId,
+                    TypeString = entityTypeString,
+                },
                 EscapeObject = true
             };
-            var eachTask = PlayFabEntityAPI.GetObjectsAsync(request, null, extraHeaders);
+            var eachTask = PlayFabDataAPI.GetObjectsAsync(request, null, extraHeaders);
             ContinueWithContext(eachTask, testContext, GetObjects2Continued, true, "GetObjects2 failed", false);
         }
         private void GetObjects2Continued(PlayFabResult<GetObjectsResponse> result, UUnitTestContext testContext, string failMessage)

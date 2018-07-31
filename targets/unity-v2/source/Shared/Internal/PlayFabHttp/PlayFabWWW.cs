@@ -57,12 +57,24 @@ namespace PlayFab.Internal
             {
                 var putRequest = UnityWebRequest.Put(fullUrl, payload);
 #if UNITY_2017_2_OR_NEWER
+                putRequest.chunkedTransfer = false; // can be removed after Unity's PUT will be more stable
                 putRequest.SendWebRequest();
 #else
                 putRequest.Send();
 #endif
+
+#if !UNITY_WEBGL
                 while (putRequest.uploadProgress < 1 && putRequest.downloadProgress < 1)
+                {
                     yield return 1;
+                }
+#else
+                while (!putRequest.isDone)
+                {
+                    yield return 1;
+                }
+#endif
+
                 if (!string.IsNullOrEmpty(putRequest.error))
                     errorCallback(putRequest.error);
                 else

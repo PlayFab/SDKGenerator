@@ -1,4 +1,6 @@
 using System;
+using System.Collections.Generic;
+Using System.Text;
 using UnityEngine;
 
 namespace PlayFab
@@ -33,6 +35,12 @@ namespace PlayFab
         public const string SdkVersion = "<%- sdkVersion %>";
         public const string BuildIdentifier = "<%- buildIdentifier %>";
         public const string VersionString = "UnitySDK-<%- sdkVersion %>";
+
+        public static readonly Dictionary<string, string> RequestGetParams = new Dictionary<string, string> {
+            { "SDKname", "UnitySDK" },
+            { "SDKversion", SdkVersion }
+        };
+
         private const string DefaultPlayFabApiUrlPrivate = ".playfabapi.com";
         [Obsolete("This field will become private after Mar 1, 2017", false)]
         public static string DefaultPlayFabApiUrl { get { return DefaultPlayFabApiUrlPrivate; } }
@@ -148,15 +156,35 @@ namespace PlayFab
             set { PlayFabSharedPrivate.LogCapLimit = value; }
         }
 
-        public static string GetFullUrl(string apiCall)
+        public static string GetFullUrl(string apiCall, Dictionary<string, string> getParams)
         {
-            string output;
+            StringBuilder sb = new StringBuilder(1000);
+        
             var baseUrl = ProductionEnvironmentUrlPrivate;
-            if (baseUrl.StartsWith("http"))
-                output = baseUrl + apiCall;
-            else
-                output = "https://" + TitleId + baseUrl + apiCall;
-            return output;
+            if (!baseUrl.StartsWith("http"))
+                sb.Append("https://").Append(TitleId);
+        
+            sb.Append(baseUrl).Append(apiCall);
+        
+            if (getParams != null)
+            {
+                bool firstParam = true;
+                foreach (var paramPair in getParams)
+                {
+                    if (firstParam)
+                    {
+                        sb.Append("?");
+                        firstParam = false;
+                    }
+                    else
+                    {
+                        sb.Append("&");
+                    }
+                    sb.Append(paramPair.Key).Append("=").Append(paramPair.Value);
+                }
+            }
+        
+            return sb.ToString();
         }
     }
 }

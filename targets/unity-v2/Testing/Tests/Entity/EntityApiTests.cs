@@ -1,8 +1,10 @@
 #if !DISABLE_PLAYFABCLIENT_API && ENABLE_PLAYFABENTITY_API
 using PlayFab.EntityModels;
 using PlayFab.Internal;
+using System;
 using System.Collections.Generic;
 using System.Linq;
+using System.Text;
 
 namespace PlayFab.UUnit
 {
@@ -14,8 +16,8 @@ namespace PlayFab.UUnit
         private const string TEST_OBJ_NAME = "testCounter";
         // Test variables
         private EntityKey _entityKey;
-        private string _testFileUrl;
-        private string _testFileChecksum;
+        private const string TEST_FILE_NAME = "testfile";
+        private const string _testPayload = "{123456789}";
         private int _testInteger;
 
         public override void SetUp(UUnitTestContext testContext)
@@ -141,6 +143,186 @@ namespace PlayFab.UUnit
 
             testContext.EndTest(UUnitFinishState.PASSED, actualInteger.ToString());
         }
+        #region PUT_Verb_Test
+        /// <summary>
+        /// ENTITY PUT API
+        /// Tests a sequence of calls that upload file to a server via PUT.
+        /// Verifies that the file can be downloaded with the same information it's been saved with.
+        /// </summary>
+
+        [UUnitTest]
+        public void PutApi(UUnitTestContext testContext)
+        {
+            var loginRequest = new ClientModels.LoginWithCustomIDRequest
+            {
+                CustomId = PlayFabSettings.BuildIdentifier,
+                CreateAccount = true,
+                LoginTitlePlayerAccountEntity = true,
+            };
+
+            PlayFabClientAPI.LoginWithCustomID(loginRequest, PlayFabUUnitUtils.ApiActionWrapper<ClientModels.LoginResult>(testContext, LoginCallbackPutTest), PlayFabUUnitUtils.ApiActionWrapper<PlayFabError>(testContext, SharedErrorCallback), testContext);
+        }
+        private void LoginCallbackPutTest(ClientModels.LoginResult result)
+        {
+            var testContext = (UUnitTestContext)result.CustomData;
+
+            if (result.EntityToken != null)
+            {
+                PlayFab.EntityModels.EntityTypes entityType = (PlayFab.EntityModels.EntityTypes)(int)result.EntityToken.Entity.Type; // possible loss of data 
+
+                _entityKey = new PlayFab.EntityModels.EntityKey
+                {
+                    Id = result.EntityToken.Entity.Id,
+                    Type = entityType,
+                    TypeString = result.EntityToken.Entity.TypeString
+                };
+
+                LoadFiles(testContext);
+            }
+            else
+            {
+                testContext.Fail("Entity Token is null!");
+            }
+        }
+        private void LoadFiles(UUnitTestContext testContext)
+        {
+            var request = new GetFilesRequest
+            {
+                Entity = _entityKey
+            };
+
+            PlayFabEntityAPI.GetFiles(request, PlayFabUUnitUtils.ApiActionWrapper<EntityModels.GetFilesResponse>(testContext, OnGetFilesInfo), PlayFabUUnitUtils.ApiActionWrapper<PlayFabError>(testContext, SharedErrorCallback), testContext);
+        }
+        void OnGetFilesInfo(GetFilesResponse result)
+        {
+            var testContext = (UUnitTestContext)result.CustomData;
+            bool testFileFound = false;
+            GetFileMetadata fileMetaData = new GetFileMetadata();
+
+            foreach (var eachFilePair in result.Metadata)
+            {
+                if (eachFilePair.Key.Equals(TEST_FILE_NAME))
+                {
+                    testFileFound = true;
+
+                    fileMetaData = eachFilePair.Value;
+                    break; // this test only support one file
+                }
+            }
+
+            if (!testFileFound)
+            {
+                UploadFile(testContext, TEST_FILE_NAME);
+            }
+            else
+            {
+                GetActualFile(testContext, fileMetaData);
+            }
+        }
+        void GetActualFile(UUnitTestContext testContext, GetFileMetadata fileData)
+        {
+            PlayFabHttp.SimpleGetCall(fileData.DownloadUrl, PlayFabUUnitUtils.SimpleApiActionWrapper<byte[]>(testContext, TestFileContent),
+                error =>
+                {
+                    testContext.Fail(error);
+                });
+        }
+        void UploadFile(UUnitTestContext testContext, string fileName)
+        {
+            var request = new InitiateFileUploadsRequest
+            {
+                Entity = _entityKey,
+                FileNames = new List<string>
+                {
+                    fileName
+                },
+            };
+
+            PlayFabEntityAPI.InitiateFileUploads(request, PlayFabUUnitUtils.ApiActionWrapper<InitiateFileUploadsResponse>(testContext, OnInitFileUpload), PlayFabUUnitUtils.ApiActionWrapper<PlayFabError>(testContext, OnInitFailed), testContext);
+        }
+        void DeleteFiles(UUnitTestContext testContext, List<string> fileName)
+        {
+            var request = new DeleteFilesRequest
+            {
+                Entity = _entityKey,
+                FileNames = fileName,
+            };
+
+            PlayFabEntityAPI.DeleteFiles(request, result =>
+            {
+                testContext.EndTest(UUnitFinishState.PASSED, "File " + TEST_FILE_NAME + "was succesfully created and uploaded to server with PUT");
+            },
+            PlayFabUUnitUtils.ApiActionWrapper<PlayFabError>(testContext, SharedErrorCallback), testContext);
+        }
+        void OnInitFailed(PlayFabError error)
+        {
+            var testContext = (UUnitTestContext)error.CustomData;
+
+            if (error.Error == PlayFabErrorCode.EntityFileOperationPending)
+            {
+                var request = new AbortFileUploadsRequest
+                {
+                    Entity = _entityKey,
+                    FileNames = new List<string> { TEST_FILE_NAME },
+                };
+
+                PlayFabEntityAPI.AbortFileUploads(request, PlayFabUUnitUtils.ApiActionWrapper<AbortFileUploadsResponse>(testContext, OnAbortFileUpload), PlayFabUUnitUtils.ApiActionWrapper<PlayFabError>(testContext, SharedErrorCallback), testContext);
+            }
+            else
+            {
+                if (error.CustomData != null)
+                {
+                    SharedErrorCallback(error);
+                }
+                else
+                {
+                    testContext.Fail(error.ErrorMessage);
+                }
+            }
+        }
+        void OnAbortFileUpload(AbortFileUploadsResponse result)
+        {
+            var testContext = (UUnitTestContext)result.CustomData;
+
+            UploadFile(testContext, TEST_FILE_NAME);
+        }
+        void OnInitFileUpload(InitiateFileUploadsResponse response)
+        {
+            var testContext = (UUnitTestContext)response.CustomData;
+            var payload = Encoding.UTF8.GetBytes(_testPayload);
+
+            PlayFabHttp.SimplePutCall(response.UploadDetails[0].UploadUrl,
+                payload,
+                PlayFabUUnitUtils.SimpleApiNoParamsActionWrapper(testContext, FinalizeUpload),
+                error =>
+                {
+                    testContext.Fail(error);
+                }
+            );
+        }
+        void FinalizeUpload(UUnitTestContext testContext)
+        {
+            var request = new FinalizeFileUploadsRequest
+            {
+                Entity = _entityKey,
+                FileNames = new List<string> { TEST_FILE_NAME },
+            };
+            PlayFabEntityAPI.FinalizeFileUploads(request, PlayFabUUnitUtils.ApiActionWrapper<FinalizeFileUploadsResponse>(testContext, OnUploadSuccess), PlayFabUUnitUtils.ApiActionWrapper<PlayFabError>(testContext, SharedErrorCallback), testContext);
+        }
+        void OnUploadSuccess(FinalizeFileUploadsResponse result)
+        {
+            var testContext = (UUnitTestContext)result.CustomData;
+
+            LoadFiles(testContext);
+        }
+        void TestFileContent(UUnitTestContext testContext, byte[] result)
+        {
+            var testFileData = Encoding.UTF8.GetString(result);
+
+            testContext.True(testFileData.Equals(_testPayload));
+            DeleteFiles(testContext, new List<string> { TEST_FILE_NAME });
+        }
+        #endregion
     }
 }
 #endif

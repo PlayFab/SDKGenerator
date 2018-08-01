@@ -417,5 +417,9 @@ function getApiDefineFlag(api) {
         return "!DISABLE_PLAYFABCLIENT_API"; // Client is enabled by default, so the flag is inverted
     if (api.name === "Matchmaker")
         return "ENABLE_PLAYFABSERVER_API"; // Matchmaker is bound to server, which is just a legacy design decision at this point
-    return "ENABLE_PLAYFAB" + api.name.toUpperCase() + "_API";
+    if (api.name === "Admin" || api.name === "Server")
+        return "ENABLE_PLAYFAB" + api.name.toUpperCase() + "_API";
+
+    // For now, everything else is considered ENTITY
+    return "ENABLE_PLAYFABENTITY_API";
 }

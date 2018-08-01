@@ -107,11 +107,10 @@ namespace PlayFab.Internal
         /// <summary>
         /// This initializes ScreenTimeTracker object and notifying it to start sending info.
         /// </summary>
-        /// <param name="entityKey">Result of the user's login, consist of entity info</param>
         /// <param name="playFabUserId">Result of the user's login, represent user ID</param>
-        public static void InitializeScreenTimeTracker(EntityModels.EntityKey entityKey, string playFabUserId)
+        public static void InitializeScreenTimeTracker(string entityId, string entityTypeString, string playFabUserId)
         {
-            screenTimeTracker.ClientSessionStart(entityKey, playFabUserId);
+            screenTimeTracker.ClientSessionStart(entityId, entityTypeString, playFabUserId);
             instance.StartCoroutine(SendScreenTimeEvents(delayBetweenBatches));
         }
 
@@ -251,7 +250,7 @@ namespace PlayFab.Internal
         internal void OnPlayFabApiResult(PlayFabResultCommon result)
         {
 #if ENABLE_PLAYFABENTITY_API
-            var entRes = result as EntityModels.GetEntityTokenResponse;
+            var entRes = result as AuthenticationModels.GetEntityTokenResponse;
             if (entRes != null)
             {
                 var transport = PluginManager.GetPlugin<IPlayFabTransportPlugin>(PluginContract.PlayFab_Transport);

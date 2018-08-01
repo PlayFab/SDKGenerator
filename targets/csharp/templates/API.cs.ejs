@@ -25,7 +25,7 @@ namespace PlayFab
             }
 
             var resultRawJson = (string)httpResult;
-            var resultData = JsonWrapper.DeserializeObject<PlayFabJsonSuccess<<%- apiCall.result %>>>(resultRawJson);
+            var resultData = PluginManager.GetPlugin<ISerializerPlugin>(PluginContract.PlayFab_Serializer).DeserializeObject<PlayFabJsonSuccess<<%- apiCall.result %>>>(resultRawJson);
             var result = resultData.data;
 <%- getResultActions("            ", apiCall, api) %>
             return new PlayFabResult<<%- apiCall.result %>> { Result = result, CustomData = customData };

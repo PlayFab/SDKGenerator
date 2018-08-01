@@ -17,3 +17,5 @@
 DECLARE_LOG_CATEGORY_EXTERN(LogPlayFab, Log, All);
 
 #include "IPlayFab.h"
+
+#include "PlayFabClasses.h"

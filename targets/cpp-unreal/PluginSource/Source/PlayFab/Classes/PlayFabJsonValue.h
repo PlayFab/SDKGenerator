@@ -34,7 +34,7 @@ namespace EPFJson
  * Blueprintable FJsonValue wrapper
  */
 UCLASS(BlueprintType, Blueprintable)
-class PLAYFABBP_API UPlayFabJsonValue : public UObject
+class PLAYFAB_API UPlayFabJsonValue : public UObject
 {
     GENERATED_UCLASS_BODY()
 

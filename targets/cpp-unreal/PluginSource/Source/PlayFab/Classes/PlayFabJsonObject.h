@@ -17,7 +17,7 @@ class UPlayFabJsonValue;
  * Blueprintable FJsonObject wrapper
  */
 UCLASS(BlueprintType, Blueprintable)
-class PLAYFABBP_API UPlayFabJsonObject : public UObject
+class PLAYFAB_API UPlayFabJsonObject : public UObject
 {
     GENERATED_UCLASS_BODY()
 

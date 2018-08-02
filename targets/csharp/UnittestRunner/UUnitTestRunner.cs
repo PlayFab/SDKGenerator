@@ -69,7 +69,7 @@ namespace UnittestRunner
             if (File.Exists(filename))
             {
                 var testInputsFile = File.ReadAllText(filename);
-                testInputs = JsonWrapper.DeserializeObject<TestTitleData>(testInputsFile);
+                testInputs = PluginManager.GetPlugin<ISerializerPlugin>(PluginContract.PlayFab_Serializer).DeserializeObject<TestTitleData>(testInputsFile);
             }
             else
             {

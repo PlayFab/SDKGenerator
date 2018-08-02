@@ -1,6 +1,5 @@
 #if !DISABLE_PLAYFABCLIENT_API && ENABLE_PLAYFABENTITY_API
 using PlayFab.Internal;
-using System;
 using System.Collections.Generic;
 using System.Linq;
 using System.Text;

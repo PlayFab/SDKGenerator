@@ -1,10 +1,10 @@
 var path = require("path");
 
 // Making resharper less noisy - These are defined in Generate.js
-if (typeof (copyTree) === "undefined") copyTree = function () { };
 if (typeof (getApiJson) === "undefined") getApiJson = function () { };
 if (typeof (getCompiledTemplate) === "undefined") getCompiledTemplate = function () { };
 if (typeof (generateApiSummaryLines) === "undefined") generateApiSummaryLines = function () { };
+if (typeof (templatizeTree) === "undefined") templatizeTree = function () { };
 
 // Automatically called by generate.js
 exports.makeCombinedAPI = function (apis, sourceDir, apiOutputDir) {
@@ -14,10 +14,21 @@ exports.makeCombinedAPI = function (apis, sourceDir, apiOutputDir) {
 
 // This function is additionally called from the csharp-unity-gameserver target
 exports.MakeUnityV2Sdk = function (apis, sourceDir, apiOutputDir) {
-    copyTree(path.resolve(sourceDir, "source"), apiOutputDir);
+    var locals = {
+        errorList: apis[0].errorList,
+        errors: apis[0].errors,
+        sdkVersion: exports.sdkVersion,
+        buildIdentifier: exports.buildIdentifier,
+        hasClientOptions: false
+    };
+    for (var i = 0; i < apis.length; i++) {
+        if (apis[i].name === "Client")
+            locals.hasClientOptions = true;
+    }
+
+    templatizeTree(locals, path.resolve(sourceDir, "source"), apiOutputDir);
     makeSharedEventFiles(apis, sourceDir, apiOutputDir);
     makeDatatypes(apis, sourceDir, apiOutputDir);
-    generateSimpleFiles(apis, sourceDir, apiOutputDir);
     for (var i = 0; i < apis.length; i++) {
         makeApiEventFiles(apis[i], sourceDir, apiOutputDir);
         makeApi(apis[i], sourceDir, apiOutputDir);
@@ -26,7 +37,11 @@ exports.MakeUnityV2Sdk = function (apis, sourceDir, apiOutputDir) {
 
 function makeTestingFiles(apis, sourceDir, apiOutputDir) {
     var testingOutputDir = path.resolve(apiOutputDir, "Testing");
-    copyTree(path.resolve(sourceDir, "Testing"), testingOutputDir);
+
+    var locals = {
+    };
+
+    templatizeTree(locals, path.resolve(sourceDir, "Testing"), testingOutputDir);
 }
 
 function makeApiEventFiles(api, sourceDir, apiOutputDir) {
@@ -162,29 +177,6 @@ function getCustomApiFunction(tabbing, apiCall) {
             + tabbing + "}";
     }
     return ""; // Most apis don't have a custom alternate
-}
-
-function generateSimpleFiles(apis, sourceDir, apiOutputDir) {
-    var errorLocals = {
-        errorList: apis[0].errorList,
-        errors: apis[0].errors
-    };
-
-    var errorsTemplate = getCompiledTemplate(path.resolve(sourceDir, "templates/Errors.cs.ejs"));
-    writeFile(path.resolve(apiOutputDir, "Shared/Internal/PlayFabErrors.cs"), errorsTemplate(errorLocals));
-
-    var settingsLocals = {
-        sdkVersion: exports.sdkVersion,
-        buildIdentifier: exports.buildIdentifier,
-        hasClientOptions: false
-    };
-    for (var i = 0; i < apis.length; i++) {
-        if (apis[i].name === "Client")
-            settingsLocals.hasClientOptions = true;
-    }
-
-    var settingsTemplate = getCompiledTemplate(path.resolve(sourceDir, "templates/PlayFabSettings.cs.ejs"));
-    writeFile(path.resolve(apiOutputDir, "Shared/Public/PlayFabSettings.cs"), settingsTemplate(settingsLocals));
 }
 
 function getModelPropertyDef(property, datatype) {

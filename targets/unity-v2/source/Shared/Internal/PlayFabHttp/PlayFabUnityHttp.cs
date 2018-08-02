@@ -39,16 +39,19 @@ namespace PlayFab.Internal
         {
             if (payload == null)
             {
-                var www = new UnityWebRequest(fullUrl)
+                using (UnityWebRequest www = UnityWebRequest.Get(fullUrl))
                 {
-                    downloadHandler = new DownloadHandlerBuffer(),
-                    method = "POST"
+#if UNITY_2017_2_OR_NEWER
+                    yield return www.SendWebRequest();
+#else
+                    yield return www.Send();
+#endif
+
+                    if (!string.IsNullOrEmpty(www.error))
+                        errorCallback(www.error);
+                    else
+                        successCallback(www.downloadHandler.data);
                 };
-                yield return www;
-                if (!string.IsNullOrEmpty(www.error))
-                    errorCallback(www.error);
-                else
-                    successCallback(www.downloadHandler.data);
             }
             else
             {

@@ -165,7 +165,6 @@ namespace PlayFab.UUnit
         [UUnitTest]
         public void PutApi(UUnitTestContext testContext)
         {
-            Debug.Log("Func: PutApi");
             var loginRequest = new ClientModels.LoginWithCustomIDRequest
             {
                 CustomId = PlayFabSettings.BuildIdentifier,
@@ -177,7 +176,6 @@ namespace PlayFab.UUnit
         }
         private void LoginCallbackPutTest(ClientModels.LoginResult result)
         {
-            Debug.Log("Func: LoginCallbackPutTest");
             var testContext = (UUnitTestContext)result.CustomData;
 
             if (result.EntityToken != null)
@@ -194,7 +192,6 @@ namespace PlayFab.UUnit
         }
         private void LoadFiles(UUnitTestContext testContext)
         {
-            Debug.Log("Func: LoadFiles");
             var request = new DataModels.GetFilesRequest
             {
                 Entity = new DataModels.EntityKey { Id = _entityId, TypeString = _entityTypeString },
@@ -204,7 +201,6 @@ namespace PlayFab.UUnit
         }
         void OnGetFilesInfo(DataModels.GetFilesResponse result)
         {
-            Debug.Log("Func: OnGetFilesInfo");
             var testContext = (UUnitTestContext)result.CustomData;
             bool testFileFound = false;
             DataModels.GetFileMetadata fileMetaData = new DataModels.GetFileMetadata();
@@ -232,7 +228,6 @@ namespace PlayFab.UUnit
         }
         void GetActualFile(UUnitTestContext testContext, DataModels.GetFileMetadata fileData)
         {
-            Debug.Log("Func: GetActualFile");
             PlayFabHttp.SimpleGetCall(fileData.DownloadUrl,
                 PlayFabUUnitUtils.SimpleApiActionWrapper<byte[]>(testContext, TestFileContent),
                 error =>
@@ -242,7 +237,6 @@ namespace PlayFab.UUnit
         }
         void UploadFile(UUnitTestContext testContext, string fileName)
         {
-            Debug.Log("Func: UploadFile");
             var request = new DataModels.InitiateFileUploadsRequest
             {
                 Entity = new DataModels.EntityKey { Id = _entityId, TypeString = _entityTypeString },
@@ -256,12 +250,8 @@ namespace PlayFab.UUnit
         }
         void DeleteFiles(UUnitTestContext testContext, List<string> fileName, bool shouldEndTest, UUnitFinishState finishState, string finishMessage)
         {
-            Debug.Log("Func: DeleteFiles");
             if (!_shouldDeleteFiles) // Only delete the file if it was created
-            {
-                Debug.LogWarning("Skipping deletion of Entity File");
                 return;
-            }
 
             var request = new DataModels.DeleteFilesRequest
             {
@@ -269,11 +259,9 @@ namespace PlayFab.UUnit
                 FileNames = fileName,
             };
 
-            Debug.LogWarning("Begin deleting Entity File");
             _shouldDeleteFiles = false; // We have successfully deleted the file, it should not try again in teardown
             PlayFabDataAPI.DeleteFiles(request, result =>
             {
-                Debug.LogWarning("Successfully deleted Entity File");
                 if (shouldEndTest)
                     testContext.EndTest(finishState, finishMessage);
             },
@@ -281,7 +269,6 @@ namespace PlayFab.UUnit
         }
         void OnInitFailed(PlayFabError error)
         {
-            Debug.Log("Func: OnInitFailed");
             var testContext = (UUnitTestContext)error.CustomData;
 
             if (error.Error == PlayFabErrorCode.EntityFileOperationPending)
@@ -308,14 +295,12 @@ namespace PlayFab.UUnit
         }
         void OnAbortFileUpload(DataModels.AbortFileUploadsResponse result)
         {
-            Debug.Log("Func: OnAbortFileUpload");
             var testContext = (UUnitTestContext)result.CustomData;
 
             UploadFile(testContext, TEST_FILE_NAME);
         }
         void OnInitFileUpload(DataModels.InitiateFileUploadsResponse response)
         {
-            Debug.Log("Func: OnInitFileUpload");
             var testContext = (UUnitTestContext)response.CustomData;
             var payload = Encoding.UTF8.GetBytes(_testPayload);
 
@@ -333,7 +318,6 @@ namespace PlayFab.UUnit
         }
         void FinalizeUpload(UUnitTestContext testContext)
         {
-            Debug.Log("Func: FinalizeUpload");
             var request = new DataModels.FinalizeFileUploadsRequest
             {
                 Entity = new DataModels.EntityKey { Id = _entityId, TypeString = _entityTypeString },
@@ -343,8 +327,6 @@ namespace PlayFab.UUnit
         }
         void OnUploadSuccess(DataModels.FinalizeFileUploadsResponse result)
         {
-            Debug.Log("Func: OnUploadSuccess");
-            Debug.LogWarning("Setting up the entity file for deletion");
             _shouldDeleteFiles = true; // We attached a file to the player, teardown should delete the file if the test fails
 
             var testContext = (UUnitTestContext)result.CustomData;
@@ -353,7 +335,6 @@ namespace PlayFab.UUnit
         }
         void TestFileContent(UUnitTestContext testContext, byte[] result)
         {
-            Debug.Log("Func: TestFileContent");
             var testFileData = Encoding.UTF8.GetString(result);
 
             testContext.NotNull(result, "Raw file result was null");

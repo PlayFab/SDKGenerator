@@ -720,12 +720,12 @@
     <Content Include="targets\unity-v2\source\Shared\SignalR.NET20\Transports\SseEvent.cs.meta" />
     <Content Include="targets\unity-v2\templates\API.cs.ejs" />
     <Content Include="targets\unity-v2\templates\Enum.cs.ejs" />
-    <Content Include="targets\unity-v2\templates\Errors.cs.ejs" />
+    <Content Include="targets\unity-v2\source\Shared\Internal\PlayFabErrors.cs.ejs" />
     <Content Include="targets\unity-v2\templates\Events.cs.ejs" />
     <Content Include="targets\unity-v2\templates\Model.cs.ejs" />
     <Content Include="targets\unity-v2\templates\Models.cs.ejs" />
     <Content Include="targets\unity-v2\templates\PlayFabEvents.cs.ejs" />
-    <Content Include="targets\unity-v2\templates\PlayFabSettings.cs.ejs" />
+    <Content Include="targets\unity-v2\source\Shared\Public\PlayFabSettings.cs.ejs" />
     <Content Include="targets\unity-v2\templates\PlayStreamEventDataModels.cs.ejs" />
     <Content Include="targets\unity-v2\Testing\Editor\PlayFabPackager.cs" />
     <Content Include="targets\unity-v2\Testing\scenes\testscene.unity" />

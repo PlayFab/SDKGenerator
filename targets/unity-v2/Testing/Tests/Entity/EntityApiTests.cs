@@ -155,7 +155,7 @@ namespace PlayFab.UUnit
 
             testContext.EndTest(UUnitFinishState.PASSED, actualInteger.ToString());
         }
-#region PUT_Verb_Test
+        #region PUT_Verb_Test
         /// <summary>
         /// ENTITY PUT API
         /// Tests a sequence of calls that upload file to a server via PUT.
@@ -364,7 +364,7 @@ namespace PlayFab.UUnit
             testContext.True(testFileData.Equals(_testPayload), testFileData);
             DeleteFiles(testContext, new List<string> { TEST_FILE_NAME }, true, UUnitFinishState.PASSED, "File " + TEST_FILE_NAME + "was succesfully created and uploaded to server with PUT");
         }
-#endregion
+        #endregion
     }
 }
 #endif

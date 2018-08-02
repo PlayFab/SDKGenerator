@@ -298,7 +298,7 @@
     <Content Include="targets\cpp-unreal\PluginSource\Source\PlayFab\Private\PlayFabBaseModel.cpp" />
     <Content Include="targets\cpp-unreal\PluginSource\Source\PlayFab\Private\PlayFabJsonObject.cpp" />
     <Content Include="targets\cpp-unreal\PluginSource\Source\PlayFab\Private\PlayFabJsonValue.cpp" />
-    <Content Include="targets\cpp-unreal\PluginSource\Source\PlayFab\Private\PlayFabPrivatePCH.h" />
+    <Content Include="targets\cpp-unreal\PluginSource\Source\PlayFab\Private\PlayFabPrivate.h" />
     <Content Include="targets\cpp-unreal\PluginSource\Source\PlayFab\Private\PlayFabUtilities.cpp" />
     <Content Include="targets\cpp-unreal\StandardPluginFiles\Content\pf_icon.uasset" />
     <Content Include="targets\cpp-unreal\StandardPluginFiles\Resources\Icon128.png" />

@@ -58,8 +58,7 @@ This is automatically populated by any PlayFabClientApi.Login method.
 _internalSettings.ClientSessionTicket = None
 _internalSettings.SdkVersionString = "PythonSdk-<%- sdkVersion %>"
 _internalSettings.RequestGetParams = {
-    "SDKname": "PythonSdk",
-    "SDKversion": "<%- sdkVersion %>"
+    "sdk": _internalSettings.SdkVersionString
 }
 
 def GetURL(methodUrl, getParams):

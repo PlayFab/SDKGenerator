@@ -37,8 +37,7 @@ namespace PlayFab
         public const string VersionString = "UnitySDK-<%- sdkVersion %>";
 
         public static readonly Dictionary<string, string> RequestGetParams = new Dictionary<string, string> {
-            { "SDKname", "UnitySDK" },
-            { "SDKversion", SdkVersion }
+            { "sdk", VersionString }
         };
 
         private const string DefaultPlayFabApiUrlPrivate = ".playfabapi.com";

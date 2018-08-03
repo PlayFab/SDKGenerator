@@ -9,8 +9,7 @@ namespace PlayFab
         public const string BuildIdentifier = "<%- buildIdentifier %>";
         public const string SdkVersionString = "CSharpSDK-<%- sdkVersion %>";
         public static readonly Dictionary<string, string> RequestGetParams = new Dictionary<string, string> {
-            { "SDKname", "CSharpSDK" },
-            { "SDKversion", SdkVersion }
+            { "sdk", SdkVersionString }
         };
 
         /// <summary> This is for PlayFab internal debugging.  Generally you shouldn't touch this </summary>

@@ -1,0 +1,16 @@
+import py_compile
+
+files = [
+<% for (var a = 0; a < apis.length; a++) { var api = apis[a];
+%>"PlayFab<%- api.name %>API.py",
+<% } %>
+"__init__.py",
+"PlayFabErrors.py",
+"PlayFabPlayStreamEventsAPI.py",
+"PlayFabHTTP.py",
+"PlayFabSettings.py",
+"PlayFabManualTest.py"
+]
+
+for eachFile in files:
+    py_compile.compile(eachFile)

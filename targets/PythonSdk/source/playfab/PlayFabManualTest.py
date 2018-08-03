@@ -34,7 +34,7 @@ def entityTokenCallback(success, fail):
         print(success)
 
 etRequest = {}
-PlayFabEntityAPI.GetEntityToken(etRequest, entityTokenCallback)
+PlayFabAuthenticationAPI.GetEntityToken(etRequest, entityTokenCallback)
 
 def entityObjectCallback(success, fail):
     if fail:
@@ -44,12 +44,12 @@ def entityObjectCallback(success, fail):
 
 # need to add entity id to this request
 eoRequest = {}
-PlayFabEntityAPI.GetObjects(etRequest, entityObjectCallback)
+PlayFabDataAPI.GetObjects(etRequest, entityObjectCallback)
 
 eoRequest2 = {
     "Entity" : EntityKey
 }
-PlayFabEntityAPI.GetObjects(eoRequest2, entityObjectCallback)
+PlayFabDataAPI.GetObjects(eoRequest2, entityObjectCallback)
 
 def titleDataReqCallback(success, fail):
     if fail:

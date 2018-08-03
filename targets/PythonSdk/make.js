@@ -187,7 +187,7 @@ function getRequestActions(tabbing, apiCall) {
             + tabbing + "if not request[\"TitleId\"]:\n"
             + tabbing + "    raise PlayFabErrors.PlayFabException(\"Must be have TitleId set to call this method\")\n\n";
     if (apiCall.auth === "EntityToken")
-        return tabbing + "if not PlayFabSettings._internalSettings.EntityToken:\n "
+        return tabbing + "if not PlayFabSettings._internalSettings.EntityToken:\n"
             + tabbing + "    raise PlayFabErrors.PlayFabException(\"Must call GetEntityToken before calling this method\")\n\n";
     if (apiCall.auth === "SessionTicket")
         return tabbing + "if not PlayFabSettings._internalSettings.ClientSessionTicket:\n"

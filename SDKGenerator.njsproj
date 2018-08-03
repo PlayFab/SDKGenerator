@@ -511,6 +511,7 @@
     <Content Include="targets\PythonSdk\source\playfab\PlayFabHTTP.py" />
     <Content Include="targets\PythonSdk\source\playfab\PlayFabManualTest.py" />
     <Content Include="targets\PythonSdk\source\playfab\PlayFabSettings.py.ejs" />
+    <Content Include="targets\PythonSdk\source\playfab\testCompile.py.ejs" />
     <Content Include="targets\PythonSdk\source\playfab\__init__.py.ejs" />
     <Content Include="targets\PythonSdk\source\uploadPython.sh" />
     <Content Include="targets\PythonSdk\templates\API.py.ejs" />

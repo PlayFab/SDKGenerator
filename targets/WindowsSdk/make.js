@@ -11,7 +11,7 @@ exports.makeCombinedAPI = function (apis, sourceDir, apiOutputDir) {
     var locals = {
         apis: apis,
         buildIdentifier: exports.buildIdentifier,
-        extraDefines: "ENABLE_PLAYFABADMIN_API;ENABLE_PLAYFABENTITY_API;ENABLE_PLAYFABMATCHMAKER_API;ENABLE_PLAYFABSERVER_API;",
+        extraDefines: "ENABLE_PLAYFABADMIN_API;ENABLE_PLAYFABENTITY_API;ENABLE_PLAYFABMATCHMAKER_API;ENABLE_PLAYFABSERVER_API;ENABLE_PLAYFABAUTHENTICATION_API;ENABLE_PLAYFABDATA_API;",
         sdkVersion: exports.sdkVersion,
         sdkDate: exports.sdkVersion.split(".")[2],
         sdkYear: exports.sdkVersion.split(".")[2].substr(0, 2),

@@ -15,6 +15,8 @@
 using namespace Microsoft::VisualStudio::CppUnitTestFramework;
 using namespace std;
 using namespace PlayFab;
+using namespace PlayFab::AuthenticationModels;
+using namespace PlayFab::DataModels;
 using namespace ClientModels;
 
 namespace UnittestRunner

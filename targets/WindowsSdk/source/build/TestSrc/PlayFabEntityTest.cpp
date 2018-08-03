@@ -4,17 +4,18 @@
 #include <stdlib.h> // _dupenv_s
 #include <Windows.h> // Sleep()
 
+#include "playfab/PlayFabAuthenticationDataModels.h"
+#include "playfab/PlayFabAuthenticationApi.h"
 #include "playfab/PlayFabClientDataModels.h"
 #include "playfab/PlayFabClientApi.h"
-#include "playfab/PlayFabEntityDataModels.h"
-#include "playfab/PlayFabEntityApi.h"
+#include "playfab/PlayFabDataDataModels.h"
+#include "playfab/PlayFabDataApi.h"
 #include "playfab/PlayFabSettings.h"
 
 using namespace Microsoft::VisualStudio::CppUnitTestFramework;
 using namespace std;
 using namespace PlayFab;
 using namespace ClientModels;
-using namespace EntityModels;
 
 namespace UnittestRunner
 {
@@ -26,7 +27,8 @@ namespace UnittestRunner
         static int testMessageInt2;
         static string testMessageReturn;
         static string entityToken;
-        static EntityModels::EntityKey entityKey;
+        static string entityId;
+        static string entityTypeString;
         static int testInteger;
 
         static const string TEST_OBJ_NAME;
@@ -90,7 +92,7 @@ namespace UnittestRunner
         }
         TEST_CLASS_CLEANUP(ClassCleanup)
         {
-            PlayFabEntityAPI::ForgetAllCredentials();
+            PlayFabAuthenticationAPI::ForgetAllCredentials();
         }
 
         static void PlayFabApiWait()
@@ -99,7 +101,7 @@ namespace UnittestRunner
             size_t count = 1, sleepCount = 0;
             while (count != 0)
             {
-                count = PlayFabEntityAPI::Update();
+                count = PlayFabAuthenticationAPI::Update();
                 sleepCount++;
                 Sleep(1);
             }
@@ -146,23 +148,22 @@ namespace UnittestRunner
             LoginClient();
 
             GetEntityTokenRequest request;
-            PlayFabEntityAPI::GetEntityToken(request, GetEntityTokenCallback, SharedFailedCallback, nullptr);
+            PlayFabAuthenticationAPI::GetEntityToken(request, GetEntityTokenCallback, SharedFailedCallback, nullptr);
             PlayFabApiWait();
 
             Assert::IsTrue(testMessageReturn.compare("Entity Token Received") == 0, WidenString(testMessageReturn).c_str()); // We got the entity token
-            Assert::IsTrue(entityKey.TypeString.compare("title_player_account") == 0, WidenString("EntityType: " + entityKey.TypeString).c_str()); // We got the entity token for the type we expected
             Assert::IsTrue(entityToken.length() > 0, L"Title-Player Entity Token not retrieved from GetEntityToken");
-            Assert::IsTrue(entityKey.Id.length() > 0, L"Title-Player EntityId not retrieved from GetEntityToken");
+            Assert::IsTrue(entityId.length() > 0, L"Title-Player EntityId not retrieved from GetEntityToken");
+            Assert::IsTrue(entityTypeString.compare("title_player_account") == 0, WidenString("EntityTypeString: " + entityTypeString).c_str()); // We got the entity token for the type we expected
         }
         static void GetEntityTokenCallback(const GetEntityTokenResponse& result, void*)
         {
             testMessageReturn = "Entity Token Received";
             entityToken = result.EntityToken;
 
-            // It's unfortunate that we have to specify the internal structure of EntityType here...
-            entityKey.Id = result.Entity->Id;
-            entityKey.Type = result.Entity->Type;
-            entityKey.TypeString = result.Entity->TypeString;
+            // It's unfortunate that we have to specify the internal structure of EntityKey here...
+            entityId = result.Entity->Id;
+            entityTypeString = result.Entity->TypeString;
         }
 
         /// <summary>
@@ -176,22 +177,24 @@ namespace UnittestRunner
             GetEntityToken();
 
             GetObjectsRequest getRequest;
-            getRequest.Entity = entityKey;
-            PlayFabEntityAPI::GetObjects(getRequest, GetObjectsCallback1, SharedFailedCallback, nullptr);
+            getRequest.Entity.Id = entityId;
+            getRequest.Entity.TypeString = entityTypeString;
+            PlayFabDataAPI::GetObjects(getRequest, GetObjectsCallback1, SharedFailedCallback, nullptr);
             PlayFabApiWait();
             Assert::IsTrue(testMessageReturn.compare("GetObj1 Success") == 0, WidenString(testMessageReturn).c_str());
 
             SetObjectsRequest setRequest;
-            setRequest.Entity = entityKey;
+            setRequest.Entity.Id = entityId;
+            setRequest.Entity.TypeString = entityTypeString;
             SetObject setObj;
             setObj.DataObject = testMessageInt1;
             setObj.ObjectName = TEST_OBJ_NAME;
             setRequest.Objects.push_back(setObj);
-            PlayFabEntityAPI::SetObjects(setRequest, SetObjectsCallback, SharedFailedCallback, nullptr);
+            PlayFabDataAPI::SetObjects(setRequest, SetObjectsCallback, SharedFailedCallback, nullptr);
             PlayFabApiWait();
             Assert::IsTrue(testMessageReturn.compare("UpdateObj Success") == 0, WidenString(testMessageReturn).c_str());
 
-            PlayFabEntityAPI::GetObjects(getRequest, GetObjectsCallback2, SharedFailedCallback, nullptr);
+            PlayFabDataAPI::GetObjects(getRequest, GetObjectsCallback2, SharedFailedCallback, nullptr);
             PlayFabApiWait();
             Assert::IsTrue(testMessageReturn.compare("GetObj2 Success") == 0, WidenString(testMessageReturn).c_str());
 
@@ -234,7 +237,8 @@ namespace UnittestRunner
     int PlayFabEntityTest::testMessageInt2;
     string PlayFabEntityTest::testMessageReturn;
     string PlayFabEntityTest::entityToken;
-    EntityModels::EntityKey PlayFabEntityTest::entityKey;
+    string PlayFabEntityTest::entityId;
+    string PlayFabEntityTest::entityTypeString;
 
     const string PlayFabEntityTest::TEST_OBJ_NAME = "testCounter";
 }

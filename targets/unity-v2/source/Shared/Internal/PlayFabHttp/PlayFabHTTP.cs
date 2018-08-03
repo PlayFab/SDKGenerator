@@ -288,7 +288,7 @@ namespace PlayFab.Internal
             }
 
 #if ENABLE_PLAYFABENTITY_API && !DISABLE_PLAYFABCLIENT_API
-            if (screenTimeTracker != null && !PlayFabSettings.DisableFocusTimeCollection)
+            if ((screenTimeTracker != null) && !PlayFabSettings.DisableFocusTimeCollection)
             {
                 screenTimeTracker.OnEnable();
             }
@@ -306,7 +306,7 @@ namespace PlayFab.Internal
             }
 
 #if ENABLE_PLAYFABENTITY_API && !DISABLE_PLAYFABCLIENT_API
-            if (screenTimeTracker != null && !PlayFabSettings.DisableFocusTimeCollection)
+            if ((screenTimeTracker != null) && !PlayFabSettings.DisableFocusTimeCollection)
             {
                 screenTimeTracker.OnDisable();
             }
@@ -335,7 +335,7 @@ namespace PlayFab.Internal
             }
 
 #if ENABLE_PLAYFABENTITY_API && !DISABLE_PLAYFABCLIENT_API
-            if (screenTimeTracker != null && !PlayFabSettings.DisableFocusTimeCollection)
+            if ((screenTimeTracker != null) && !PlayFabSettings.DisableFocusTimeCollection)
             {
                 screenTimeTracker.OnDestroy();
             }
@@ -348,7 +348,7 @@ namespace PlayFab.Internal
         public void OnApplicationFocus(bool isFocused)
         {
 #if ENABLE_PLAYFABENTITY_API && !DISABLE_PLAYFABCLIENT_API
-            if (screenTimeTracker != null && !PlayFabSettings.DisableFocusTimeCollection)
+            if ((screenTimeTracker != null) && !PlayFabSettings.DisableFocusTimeCollection)
             {
                 screenTimeTracker.OnApplicationFocus(isFocused);
             }
@@ -361,7 +361,7 @@ namespace PlayFab.Internal
         public void OnApplicationQuit()
         {
 #if ENABLE_PLAYFABENTITY_API && !DISABLE_PLAYFABCLIENT_API
-            if (screenTimeTracker != null && !PlayFabSettings.DisableFocusTimeCollection)
+            if ((screenTimeTracker != null) && !PlayFabSettings.DisableFocusTimeCollection)
             {
                 screenTimeTracker.OnApplicationQuit();
             }

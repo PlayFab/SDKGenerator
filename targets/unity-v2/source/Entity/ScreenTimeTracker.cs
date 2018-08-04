@@ -1,7 +1,6 @@
 #if ENABLE_PLAYFABENTITY_API && !DISABLE_PLAYFABCLIENT_API
 using System;
 using System.Collections.Generic;
-using PlayFab.PlayStreamEventsModels;
 using UnityEngine;
 
 namespace PlayFab.Public
@@ -35,9 +34,9 @@ namespace PlayFab.Public
         private DateTime focusOffDateTime = DateTime.UtcNow;
         private DateTime focusOnDateTime = DateTime.UtcNow;
 
-        private Queue<EventContents> eventsRequests = new Queue<EventContents>();
+        private Queue<EventsModels.EventContents> eventsRequests = new Queue<EventsModels.EventContents>();
 
-        private EntityKey entityKey = new EntityKey();
+        private EventsModels.EntityKey entityKey = new EventsModels.EntityKey();
         private const String eventNamespace = "com.playfab.events.sessions";
         private const int maxBatchSizeInEvents = 10;
 
@@ -52,7 +51,7 @@ namespace PlayFab.Public
             entityKey.Id = entityId;
             entityKey.TypeString = entityTypeString;
 
-            EventContents eventInfo = new EventContents();
+            EventsModels.EventContents eventInfo = new EventsModels.EventContents();
 
             eventInfo.Name = "client_session_start";
             eventInfo.EventNamespace = eventNamespace;
@@ -79,7 +78,7 @@ namespace PlayFab.Public
         /// <param name="isFocused">State of focus</param>
         public void OnApplicationFocus(bool isFocused)
         {
-            EventContents eventInfo = new EventContents();
+            EventsModels.EventContents eventInfo = new EventsModels.EventContents();
             DateTime currentUtcDateTime = DateTime.UtcNow;
 
             eventInfo.Name = "client_focus_change";
@@ -150,18 +149,18 @@ namespace PlayFab.Public
             {
                 isSending = true;
 
-                WriteEventsRequest request = new WriteEventsRequest();
-                request.Events = new List<EventContents>();
+                EventsModels.WriteEventsRequest request = new EventsModels.WriteEventsRequest();
+                request.Events = new List<EventsModels.EventContents>();
 
                 while ((eventsRequests.Count > 0) && (request.Events.Count < maxBatchSizeInEvents))
                 {
-                    EventContents eventInfo = eventsRequests.Dequeue();
+                    EventsModels.EventContents eventInfo = eventsRequests.Dequeue();
                     request.Events.Add(eventInfo);
                 }
 
                 if (request.Events.Count > 0)
                 {
-                    PlayFabPlayStreamEventsAPI.WriteEvents(request, EventSentSuccessfulCallback, EventSentErrorCallback);
+                    PlayFabEventsAPI.WriteEvents(request, EventSentSuccessfulCallback, EventSentErrorCallback);
                 }
 
                 isSending = false;
@@ -172,7 +171,7 @@ namespace PlayFab.Public
         /// Callback to handle successful server interaction.
         /// </summary>
         /// <param name="response">Server response</param>
-        private void EventSentSuccessfulCallback(WriteEventsResponse response)
+        private void EventSentSuccessfulCallback(EventsModels.WriteEventsResponse response)
         {
             // add code to work with successful callback
         }

@@ -14,10 +14,10 @@ CheckDefault WORKSPACE C:/proj
 ResetRepo (){
     # Assumes the current directory is set to the repo to be reset
     SetGitHubCreds
-    git checkout master
-    git pull origin master
+    git checkout master2
+    git pull origin master2
 
-    if [ "$gitTarget"!="master" ]; then
+    if [ "$gitTarget"!="master2" ]; then
         git fetch --progress origin
         if [ "$PublishToGit"!="true" ]; then
             git branch -D $gitTarget || true

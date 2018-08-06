@@ -10,7 +10,7 @@ cd %~dp0
 pushd ..
 if [%1] == [] (
 rem === BUILDING UnrealBlueprintSDK ===
-node generate.js cpp-unreal=%destPath% %*-flags nonnullable -apiSpecGitUrl
+node generate.js cpp-unreal=%destPath% -flags nonnullable -apiSpecGitUrl
 ) else (
 rem === BUILDING UnrealBlueprintSDK with params %* ===
 node generate.js cpp-unreal=%destPath% %*

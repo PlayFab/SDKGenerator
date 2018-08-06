@@ -2,8 +2,9 @@ setlocal
 set repoName=SdkTestingCloudScript
 set destPath=..\sdks\%repoName%
 pushd ..\%destPath%
-del /S *.js
-del /S *.ts
+rem Doesn't catch what we expect to catch, and is not needed for actual change
+rem del /S *.js
+rem del /S *.ts
 popd
 
 cd %~dp0

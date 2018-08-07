@@ -14,6 +14,8 @@ CheckDefault WORKSPACE C:/proj
 ResetRepo (){
     # Assumes the current directory is set to the repo to be reset
     SetGitHubCreds
+    git fetch --progress origin
+    git checkout master2 || git checkout -b master2 || CleanCurrentRepo
     git checkout master2
     git pull origin master2
 

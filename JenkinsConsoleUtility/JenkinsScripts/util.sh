@@ -76,6 +76,7 @@ CleanCurrentRepo () {
     git fetch --progress origin || CleanCurrentRepo hard 3 $retryCounter
     if [ -n "$1" ]; then
         git reset --hard || CleanCurrentRepo hard 3 $retryCounter
+        git fetch --progress origin
         git checkout master2 || git checkout -b master2 || CleanCurrentRepo hard 3 $retryCounter
         git reset --hard origin/master2 || CleanCurrentRepo hard 3 $retryCounter
     else

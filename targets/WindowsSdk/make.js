@@ -89,7 +89,7 @@ function getSortedClasses(datatypes) {
 // *************************** ejs-exposed methods ***************************
 function getApiDefine(api) {
     if (api.name === "Client")
-        return "!DISABLE_PLAYFABCLIENT_API"; // Client is enabled by default, so the flag is inverted
+        return "DISABLE_PLAYFABCLIENT_API";
     if (api.name === "Matchmaker")
         return "ENABLE_PLAYFABSERVER_API"; // Matchmaker is bound to server, which is just a legacy design decision at this point
     if (api.name === "Admin" || api.name === "Server")

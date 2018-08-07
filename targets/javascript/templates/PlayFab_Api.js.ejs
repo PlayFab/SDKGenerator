@@ -22,6 +22,9 @@ if(!PlayFab._internalSettings) {
     PlayFab._internalSettings = {
         entityToken: null,
         sdkVersion: "<%- sdkVersion %>",
+        requestGetParams: {
+            sdk: "JavaScriptSDK-<%- sdkVersion %>"
+        },
         sessionTicket: null,
         productionServerUrl: ".playfabapi.com",
         errorTitleId: "Must be have PlayFab.settings.titleId set to call this method",
@@ -47,7 +50,7 @@ if(!PlayFab._internalSettings) {
             }
         },
 
-        ExecuteRequest: function (completeUrl, request, authkey, authValue, callback, customData, extraHeaders) {
+        ExecuteRequest: function (url, request, authkey, authValue, callback, customData, extraHeaders) {
             if (callback != null && typeof (callback) != "function")
                 throw "Callback must be null of a function";
 
@@ -56,6 +59,21 @@ if(!PlayFab._internalSettings) {
 
             var startTime = new Date();
             var requestBody = JSON.stringify(request);
+
+            var completeUrl = url;
+            var getParams = PlayFab._internalSettings.requestGetParams;
+            if (getParams != null) {
+                var firstParam = true;
+                for (var key in getParams) {
+                    if (firstParam) {
+                        completeUrl += "?";
+                        firstParam = false;
+                    } else {
+                        completeUrl += "&";
+                    }
+                    completeUrl += key + "=" + getParams[key];
+                }
+            }
 
             var xhr = new XMLHttpRequest();
             // window.console.log("URL: " + completeUrl);

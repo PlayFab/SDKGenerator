@@ -16,7 +16,6 @@ ResetRepo (){
     SetGitHubCreds
     git fetch --progress origin
     git checkout master2 || git checkout -b master2 || CleanCurrentRepo
-    git checkout master2
     git pull origin master2
 
     if [ "$gitTarget"!="master2" ]; then

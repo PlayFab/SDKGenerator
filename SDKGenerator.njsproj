@@ -154,6 +154,8 @@
     <Compile Include="targets\PythonSdk\make.js" />
     <Compile Include="targets\SdkTestingCloudScript\make.js" />
     <Compile Include="targets\unity-v2\make.js" />
+    <Compile Include="targets\unity-v2\source\Client\PlayFabIdfa.cs" />
+    <Compile Include="targets\unity-v2\source\Shared\SignalR.NET20\Properties\AssemblyInfo.cs" />
     <Compile Include="targets\WindowsSdk\make.js" />
     <Compile Include="targets\XPlatCppSdk\make.js" />
     <Content Include="README.md" />
@@ -981,6 +983,7 @@
     <Folder Include="targets\PythonSdk\source\playfab\" />
     <Folder Include="targets\PythonSdk\templates\" />
     <Folder Include="targets\unity-v2\source\Entity\" />
+    <Folder Include="targets\unity-v2\source\Shared\SignalR.NET20\Properties\" />
     <Folder Include="targets\XPlatCppSdk\" />
     <Folder Include="targets\newTarget\" />
     <Folder Include="targets\newTarget\source\" />

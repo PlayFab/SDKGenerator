@@ -11,7 +11,7 @@ exports.makeCombinedAPI = function (apis, sourceDir, apiOutputDir) {
     var locals = {
         apis: apis,
         buildIdentifier: exports.buildIdentifier,
-        extraDefines: "ENABLE_PLAYFABADMIN_API;ENABLE_PLAYFABENTITY_API;ENABLE_PLAYFABMATCHMAKER_API;ENABLE_PLAYFABSERVER_API;ENABLE_PLAYFABAUTHENTICATION_API;ENABLE_PLAYFABDATA_API;",
+        extraDefines: "ENABLE_PLAYFABADMIN_API;ENABLE_PLAYFABENTITY_API;ENABLE_PLAYFABMATCHMAKER_API;ENABLE_PLAYFABSERVER_API;",
         sdkVersion: exports.sdkVersion,
         sdkDate: exports.sdkVersion.split(".")[2],
         sdkYear: exports.sdkVersion.split(".")[2].substr(0, 2),
@@ -89,11 +89,14 @@ function getSortedClasses(datatypes) {
 // *************************** ejs-exposed methods ***************************
 function getApiDefine(api) {
     if (api.name === "Client")
-        return "DISABLE_PLAYFABCLIENT_API";
-    if (api.name === "Server" || api.name === "Matchmaker")
-        return "ENABLE_PLAYFABSERVER_API";
-    else
+        return "!DISABLE_PLAYFABCLIENT_API"; // Client is enabled by default, so the flag is inverted
+    if (api.name === "Matchmaker")
+        return "ENABLE_PLAYFABSERVER_API"; // Matchmaker is bound to server, which is just a legacy design decision at this point
+    if (api.name === "Admin" || api.name === "Server")
         return "ENABLE_PLAYFAB" + api.name.toUpperCase() + "_API";
+
+    // For now, everything else is considered ENTITY
+    return "ENABLE_PLAYFABENTITY_API";
 }
 
 function getAuthParams(apiCall) {

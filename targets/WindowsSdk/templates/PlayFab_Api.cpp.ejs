@@ -49,7 +49,7 @@ namespace PlayFab
             callback(outResult, request.customData);
         }
     }
-<% } %><% if (api.name === "Client") { %>
+<% } %><% if (hasClientOptions) { %>
     // Private PlayFabClientAPI specific
     bool PlayFabClientAPI::IsClientLoggedIn()
     {

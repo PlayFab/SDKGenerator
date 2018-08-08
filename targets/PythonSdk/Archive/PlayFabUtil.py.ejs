@@ -29,7 +29,6 @@ class PlayFab:
                 return None
             return error.GenerateErrorReport()
 
-<% if (hasClientOptions || hasServerOptions) { %>
         def GetCloudScriptErrorReport(result):
             if result.Error != None:
                 return result.Error.GenerateErrorReport()
@@ -56,4 +55,3 @@ class PlayFab:
                     str.append("\n").append(JsonWrapper.SerializeObject(eachLog.Data))
 
             return "".join(str)
-<% } %>

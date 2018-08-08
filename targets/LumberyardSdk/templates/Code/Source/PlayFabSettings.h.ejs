@@ -17,7 +17,8 @@ namespace PlayFab<%- gemName %>Sdk
         AZStd::string productionEnvironmentURL;
         AZStd::string titleId; // You must set this value for PlayFab to work properly (Found in the Game Manager for your title, at the PlayFab Website)
         ErrorCallback globalErrorHandler;
-<% if (hasServerOptions) { %>        AZStd::string developerSecretKey; // You must set this value for PlayFab to work properly (Found in the Game Manager for your title, at the PlayFab Website)
+<% if (hasServerOptions) {
+%>        AZStd::string developerSecretKey; // You must set this value for PlayFab to work properly (Found in the Game Manager for your title, at the PlayFab Website)
 <% }
 if (hasClientOptions) {
 %>        AZStd::string advertisingIdType; // Set this to the appropriate AD_TYPE_X constant below

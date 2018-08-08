@@ -8,14 +8,15 @@ if (typeof (templatizeTree) === "undefined") templatizeTree = function () { };
 exports.makeClientAPI2 = function (apis, sourceDir, apiOutputDir) {
     var srcOutputLoc = ["PlayFabClientSDK", "AndroidStudioExample/app/"];
 
+    var authMechanisms = getAuthMechanisms(apis);
     var locals = {
         apiName: "Client",
         apiNameLc: "Client".toLowerCase(),
         buildIdentifier: exports.buildIdentifier,
         errorList: apis[0].errorList,
         errors: apis[0].errors,
-        hasClientOptions: true,
-        hasServerOptions: false,
+        hasClientOptions: authMechanisms.includes("SessionTicket"),
+        hasServerOptions: authMechanisms.includes("SecretKey"),
         isAndroid: null, // Set Below
         sdkVersion: exports.sdkVersion
     };
@@ -40,14 +41,15 @@ exports.makeServerAPI = function (apis, sourceDir, apiOutputDir) {
     apiOutputDir = path.join(apiOutputDir, "PlayFabServerSDK");
     console.log("Generating Java server SDK to " + apiOutputDir);
 
+    var authMechanisms = getAuthMechanisms(apis);
     var locals = {
         apiName: "Server",
         apiNameLc: "Server".toLowerCase(),
         buildIdentifier: exports.buildIdentifier,
         errorList: apis[0].errorList,
         errors: apis[0].errors,
-        hasClientOptions: false,
-        hasServerOptions: true,
+        hasClientOptions: authMechanisms.includes("SessionTicket"),
+        hasServerOptions: authMechanisms.includes("SecretKey"),
         isAndroid: false,
         sdkVersion: exports.sdkVersion
     };
@@ -64,14 +66,15 @@ exports.makeCombinedAPI = function (apis, sourceDir, apiOutputDir) {
     apiOutputDir = path.join(apiOutputDir, "PlayFabSDK");
     console.log("Generating Java combined SDK to " + apiOutputDir);
 
+    var authMechanisms = getAuthMechanisms(apis);
     var locals = {
         apiName: "Combo",
         apiNameLc: "Combo".toLowerCase(),
         buildIdentifier: exports.buildIdentifier,
         errorList: apis[0].errorList,
         errors: apis[0].errors,
-        hasClientOptions: true,
-        hasServerOptions: true,
+        hasClientOptions: authMechanisms.includes("SessionTicket"),
+        hasServerOptions: authMechanisms.includes("SecretKey"),
         isAndroid: false,
         sdkVersion: exports.sdkVersion
     };
@@ -122,7 +125,7 @@ function makeApi(api, sourceDir, apiOutputDir, isAndroid) {
         getResultActions: getResultActions,
         getUrlAccessor: getUrlAccessor,
         generateApiSummary: generateApiSummary,
-        hasClientOptions: api.name === "Client"
+        hasClientOptions: getAuthMechanisms([api]).includes("SessionTicket"),
     };
 
     var apiTemplate = getCompiledTemplate(path.resolve(sourceDir, "templates/API.java.ejs"));

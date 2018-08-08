@@ -58,7 +58,8 @@ void PlayFab<%- api.name %>API::On<%- apiCall.name %>Result(int httpStatus, Http
     delete request;
 }
 
-<% } %><% if (hasClientOptions) { %>bool PlayFabClientAPI::IsClientLoggedIn()
+<% } %><% if (hasClientOptions) {
+%>bool PlayFabClientAPI::IsClientLoggedIn()
 {
     return !PlayFabSettings::clientSessionTicket.empty();
 }

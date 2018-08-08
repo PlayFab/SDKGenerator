@@ -9,7 +9,7 @@ namespace PlayFab<%- gemName %>Sdk
     class PlayFab<%- api.name %>Api
     {
     public:
-<% if(hasClientOptions) { %>
+<% if (hasClientOptions) { %>
         // Public, Client-Specific
         static bool IsClientLoggedIn();
         static void ForgetAllCredentials();  // #THIRD_KIND_PLAYFAB_SHUTDOWN_FIXES: - Added a logout function so that the statics can be destroyed before the system allocator.
@@ -27,7 +27,7 @@ namespace PlayFab<%- gemName %>Sdk
         // ------------ Generated result handlers
 <% for(var i in api.calls) { var apiCall = api.calls[i];
 %>        static void On<%- apiCall.name %>Result(PlayFabRequest* request);
-<% } %><% if(hasClientOptions) { %>
+<% } %><% if (hasClientOptions) { %>
         // Private, Client-Specific
         static void MultiStepClientLogin(bool needsAttribution);
 

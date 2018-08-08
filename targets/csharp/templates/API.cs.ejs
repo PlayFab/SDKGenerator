@@ -31,7 +31,7 @@ namespace PlayFab
             return new PlayFabResult<<%- apiCall.result %>> { Result = result, CustomData = customData };
         }
 
-<% } %><% if (authKey) {
+<% } %><% if (hasClientOptions) {
 %>        // Determine if the client session ticket is set, without actually making it public
         public static bool IsClientLoggedIn()
         {

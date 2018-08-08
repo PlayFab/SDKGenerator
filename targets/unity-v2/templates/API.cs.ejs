@@ -12,7 +12,7 @@ namespace PlayFab
 %>    public static class PlayFab<%- api.name %>API
     {
         static PlayFab<%- api.name %>API() {}
-<% if(api.name == "Client") { %>
+<% if (hasClientOptions) { %>
         /// <summary>
         /// Check to See if the client is logged in.
         /// </summary>

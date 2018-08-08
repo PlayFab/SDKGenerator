@@ -1,7 +1,8 @@
 declare module PlayFab<%- api.name %>Module {
     export interface IPlayFab<%- api.name %> {
         settings: PlayFabModule.IPlayFabSettings;
-<% if (hasClientOptions) { %>        IsClientLoggedIn(): boolean;
+<% if (hasClientOptions) {
+%>        IsClientLoggedIn(): boolean;
 
 <% } %><% for(var cIdx in api.calls) { var apiCall = api.calls[cIdx];
 %><%- generateApiSummary("        ", apiCall, "summary", "https://api.playfab.com/Documentation/" + api.name + "/method/" + apiCall.name)

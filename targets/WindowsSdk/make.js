@@ -37,6 +37,7 @@ function makeApiFiles(api, sourceDir, apiOutputDir) {
         getPropertySafeName: getPropertySafeName,
         getRequestActions: getRequestActions,
         getResultActions: getResultActions,
+        hasClientOptions: getAuthMechanisms([api]).includes("SessionTicket"),
         ifHasProps: ifHasProps,
         sdkVersion: exports.sdkVersion,
         sortedClasses: getSortedClasses(api.datatypes)

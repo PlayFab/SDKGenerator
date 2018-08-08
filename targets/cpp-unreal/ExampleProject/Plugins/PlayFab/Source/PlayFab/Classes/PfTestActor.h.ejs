@@ -5,8 +5,10 @@
 #include "PlayFabClientModels.h"
 #include "PlayFabClientApi.h"
 <% } %>
-#include "PlayFabEntityModels.h"
-#include "PlayFabEntityApi.h"
+#include "PlayFabAuthenticationModels.h"
+#include "PlayFabAuthenticationApi.h"
+#include "PlayFabDataModels.h"
+#include "PlayFabDataApi.h"
 <% if (hasServerOptions) { %>
 #include "PlayFabServerModels.h"
 #include "PlayFabServerApi.h"
@@ -122,7 +124,9 @@ public:
     UPROPERTY()
         FString playFabId;
     UPROPERTY()
-        UPlayFabJsonObject* entityKey;
+        FString entityId;
+    UPROPERTY()
+        FString entityTypeString;
     UPROPERTY()
         FDateTime testMessageTime;
     UPROPERTY()
@@ -305,7 +309,7 @@ if (hasServerOptions) { %>
     UFUNCTION()
         void GetEntityToken(UPfTestContext* testContext);
     UFUNCTION()
-        void OnGetEntityToken(FEntityGetEntityTokenResponse result, UObject* customData);
+        void OnGetEntityToken(FAuthenticationGetEntityTokenResponse result, UObject* customData);
 
     /// <summary>
     /// ENTITY API
@@ -314,9 +318,9 @@ if (hasServerOptions) { %>
     UFUNCTION()
         void ObjectApi(UPfTestContext* testContext);
     UFUNCTION()
-        void OnGetObjectApi1(FEntityGetObjectsResponse result, UObject* customData);
+        void OnGetObjectApi1(FDataGetObjectsResponse result, UObject* customData);
     UFUNCTION()
-        void OnSetObjectApi(FEntitySetObjectsResponse result, UObject* customData);
+        void OnSetObjectApi(FDataSetObjectsResponse result, UObject* customData);
     UFUNCTION()
-        void OnGetObjectApi2(FEntityGetObjectsResponse result, UObject* customData);
+        void OnGetObjectApi2(FDataGetObjectsResponse result, UObject* customData);
 };

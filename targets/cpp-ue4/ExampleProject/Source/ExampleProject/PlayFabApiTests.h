@@ -4,10 +4,12 @@
 #include "Runtime/Launch/Resources/Version.h"
 
 #include "PlayFab.h"
+#include "Core/PlayFabAuthenticationDataModels.h"
+#include "Core/PlayFabAuthenticationAPI.h"
 #include "Core/PlayFabClientDataModels.h"
 #include "Core/PlayFabClientAPI.h"
-#include "Core/PlayFabEntityDataModels.h"
-#include "Core/PlayFabEntityAPI.h"
+#include "Core/PlayFabDataDataModels.h"
+#include "Core/PlayFabDataAPI.h"
 #include "Core/PlayFabServerDataModels.h"
 #include "Core/PlayFabServerAPI.h"
 
@@ -267,10 +269,10 @@ public:
 
     bool Update() override;
 private:
-    void OnSuccess(const PlayFab::EntityModels::FGetEntityTokenResponse& result) const;
+    void OnSuccess(const PlayFab::AuthenticationModels::FGetEntityTokenResponse& result) const;
     void OnError(const PlayFab::FPlayFabError& ErrorResult) const;
 
-    PlayFabEntityPtr entityAPI = nullptr;
+    PlayFabAuthenticationPtr authenticationAPI = nullptr;
 };
 
 
@@ -284,10 +286,10 @@ public:
 
     bool Update() override;
 private:
-    void OnSuccess(const PlayFab::EntityModels::FGetObjectsResponse& result) const;
+    void OnSuccess(const PlayFab::DataModels::FGetObjectsResponse& result) const;
     void OnError(const PlayFab::FPlayFabError& ErrorResult) const;
 
-    PlayFabEntityPtr entityAPI = nullptr;
+    PlayFabDataPtr dataAPI = nullptr;
 };
 
 
@@ -309,7 +311,8 @@ class PlayFabApiTestSuite : public FAutomationTestBase
 
 public:
     static FString playFabId; // Set by PlayFabApiTest_LoginWithEmail upon successful login
-    static PlayFab::EntityModels::FEntityKey entityKey; // Set by PlayFabApiTest_GetEntityToken if retrieved successfully
+    static FString entityId; // Set by PlayFabApiTest_GetEntityToken if retrieved successfully
+    static FString entityTypeString; // Set by PlayFabApiTest_GetEntityToken if retrieved successfully
 
     // TEST CONSTANTS
     FString TEST_DATA_KEY_1 = TEXT("testCounter");
@@ -512,8 +515,9 @@ protected:
         return true;
     };
 
+    PlayFabAuthenticationPtr authenticationAPI;
     PlayFabClientPtr clientAPI;
-    PlayFabEntityPtr entityAPI;
+    PlayFabDataPtr dataAPI;
     PlayFabServerPtr serverAPI;
     TArray<TestFunc> TestFunctions;
     TArray<FString> TestFunctionNames;

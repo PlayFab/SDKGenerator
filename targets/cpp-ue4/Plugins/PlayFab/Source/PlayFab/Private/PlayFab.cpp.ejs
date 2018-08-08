@@ -46,8 +46,9 @@ void FPlayFabModule::StartupModule()
     HandleSettingsSaved();
 
     // create the API
+    AuthenticationAPI = MakeShareable(new PlayFab::UPlayFabAuthenticationAPI());
     ClientAPI = MakeShareable(new PlayFab::UPlayFabClientAPI());
-    EntityAPI = MakeShareable(new PlayFab::UPlayFabEntityAPI());
+    DataAPI = MakeShareable(new PlayFab::UPlayFabDataAPI());
 
 #if WITH_SERVER_CODE
     ServerAPI = MakeShareable(new PlayFab::UPlayFabServerAPI());

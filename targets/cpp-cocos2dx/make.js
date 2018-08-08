@@ -40,18 +40,13 @@ function makeApiInternal(apis, sourceDir, apiOutputDir, libname) {
 }
 
 function generateSettings(apis, sourceDir, apiOutputDir) {
+    var authMechanisms = getAuthMechanisms(apis);
     var locals = {
         buildIdentifier: exports.buildIdentifier,
-        hasClientOptions: false,
-        hasServerOptions: false,
+        hasClientOptions: authMechanisms.includes("SessionTicket"),
+        hasServerOptions: authMechanisms.includes("SecretKey"),
         sdkVersion: exports.sdkVersion
     };
-    for (var i = 0; i < apis.length; i++) {
-        if (apis[i].name === "Client")
-            locals.hasClientOptions = true;
-        else if (apis[i].name !== "Entity")
-            locals.hasServerOptions = true;
-    }
 
     var settingsTemplateh = getCompiledTemplate(path.resolve(sourceDir, "templates/PlayFabSettings.h.ejs"));;
     writeFile(path.resolve(apiOutputDir, "PlayFabSettings.h"), settingsTemplateh(locals));
@@ -69,7 +64,7 @@ function makeApi(api, sourceDir, apiOutputDir) {
         getUrlAccessor: getUrlAccessor,
         hasRequest: hasRequest,
         getDeprecationAttribute: getDeprecationAttribute,
-        hasClientOptions: api.name === "Client"
+        hasClientOptions: getAuthMechanisms([api]).includes("SessionTicket")
     };
 
     var apiHeaderTemplate = getCompiledTemplate(path.resolve(sourceDir, "templates/PlayFabAPI.h.ejs"));;

@@ -55,7 +55,7 @@ function makeApi(api, sourceDir, apiOutputDir, subdir) {
         getRequestActions: getRequestActions,
         getResultActions: getResultActions,
         getUrlAccessor: getUrlAccessor,
-        hasClientOptions: api.name === "Client",
+        hasClientOptions: getAuthMechanisms([api]).includes("SessionTicket"),
         hasRequest: hasRequest
     };
 

@@ -19,12 +19,8 @@ exports.MakeUnityV2Sdk = function (apis, sourceDir, apiOutputDir) {
         errors: apis[0].errors,
         sdkVersion: exports.sdkVersion,
         buildIdentifier: exports.buildIdentifier,
-        hasClientOptions: false
+        hasClientOptions: getAuthMechanisms(apis).includes("SessionTicket"),
     };
-    for (var i = 0; i < apis.length; i++) {
-        if (apis[i].name === "Client")
-            locals.hasClientOptions = true;
-    }
 
     templatizeTree(locals, path.resolve(sourceDir, "source"), apiOutputDir);
     makeSharedEventFiles(apis, sourceDir, apiOutputDir);
@@ -147,7 +143,7 @@ function makeApi(api, sourceDir, apiOutputDir) {
         getDeprecationAttribute: getDeprecationAttribute,
         getRequestActions: getRequestActions,
         getCustomApiFunction: getCustomApiFunction,
-        hasClientOptions: api.name === "Client"
+        hasClientOptions: getAuthMechanisms([api]).includes("SessionTicket"),
     };
 
     var apiTemplate = getCompiledTemplate(path.resolve(templateDir, "API.cs.ejs"));

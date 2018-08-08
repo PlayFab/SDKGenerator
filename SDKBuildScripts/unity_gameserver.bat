@@ -2,7 +2,7 @@ setlocal
 set repoName=PlayFabGameServer
 set destPath=..\sdks\%repoName%
 pushd ..\%destPath%
-del /S *.cs
+del /S *entity*.cs
 attrib -H *.meta /S /D
 popd
 

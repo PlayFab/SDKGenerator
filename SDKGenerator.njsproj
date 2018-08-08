@@ -781,9 +781,6 @@
     <Content Include="targets\XPlatCppSdk\source\LibUnitTest\LibUnitTest.vcxproj" />
     <Content Include="targets\XPlatCppSdk\source\LibUnitTest\LibUnitTest.vcxproj.filters" />
     <Content Include="targets\XPlatCppSdk\source\LibUnitTest\packages.config" />
-    <Content Include="targets\XPlatCppSdk\source\LibUnitTest\PlayFabClientTest.cpp" />
-    <Content Include="targets\XPlatCppSdk\source\LibUnitTest\PlayFabEntityTest.cpp" />
-    <Content Include="targets\XPlatCppSdk\source\LibUnitTest\PlayFabServerTest.cpp" />
     <Content Include="targets\XPlatCppSdk\source\LibUnitTest\stdafx.cpp" />
     <Content Include="targets\XPlatCppSdk\source\LibUnitTest\stdafx.h" />
     <Content Include="targets\XPlatCppSdk\source\LibUnitTest\targetver.h" />

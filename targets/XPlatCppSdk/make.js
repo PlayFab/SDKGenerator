@@ -90,11 +90,14 @@ function getSortedClasses(datatypes) {
 // *************************** ejs-exposed methods ***************************
 function getApiDefine(api) {
     if (api.name === "Client")
-        return "DISABLE_PLAYFABCLIENT_API";
-    if (api.name === "Server" || api.name === "Matchmaker")
-        return "ENABLE_PLAYFABSERVER_API";
-    else
-        return "ENABLE_PLAYFAB" + api.name.toUpperCase() + "_API";
+        return "#ifndef DISABLE_PLAYFABCLIENT_API";
+    if (api.name === "Matchmaker")
+        return "#ifdef ENABLE_PLAYFABSERVER_API"; // Matchmaker is bound to server, which is just a legacy design decision at this point
+    if (api.name === "Admin" || api.name === "Server")
+        return "#ifdef ENABLE_PLAYFAB" + api.name.toUpperCase() + "_API";
+
+    // For now, everything else is considered ENTITY
+    return "#ifdef ENABLE_PLAYFABENTITY_API";
 }
 
 function getAuthParams(apiCall) {

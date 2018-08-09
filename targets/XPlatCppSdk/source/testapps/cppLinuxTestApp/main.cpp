@@ -8,7 +8,7 @@
 
 void OnPlayFabFail(const PlayFab::PlayFabError& error, void*)
 {
-    printf(("========== PlayFab call Failed: " + error.GenerateReport() + "\n").c_str());
+    printf(("========== PlayFab call Failed: " + error.GenerateErrorReport() + "\n").c_str());
 }
 
 void OnProfile(const PlayFab::ClientModels::GetPlayerProfileResult& result, void*)

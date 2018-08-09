@@ -104,7 +104,7 @@ namespace UnittestRunner
             testMessageReturn = "API_Call_Failed for: ";
             testMessageReturn += error.UrlPath;
             testMessageReturn += "\n";
-            testMessageReturn += error.GenerateReport();
+            testMessageReturn += error.GenerateErrorReport();
             testMessageReturn += "\n";
             testMessageReturn += ShortenString(error.Request.serialize());
         }

@@ -32,7 +32,7 @@ namespace PlayFab
         return output;
     }
 
-    std::string PlayFabError::GenerateReport() const
+    std::string PlayFabError::GenerateErrorReport() const
     {
         std::string output;
         output._Grow(1024);

@@ -43,7 +43,7 @@ namespace PlayFab
         void FromJson(Json::Value& input) override;
         Json::Value ToJson() const override;
 
-        std::string GenerateReport() const;
+        std::string GenerateErrorReport() const;
     };
 
     typedef std::function<void(const PlayFabError& error, void* customData)> ErrorCallback;

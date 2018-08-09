@@ -17,7 +17,12 @@ static std::string _type;
 
 void OnPlayFabFail(const PlayFab::PlayFabError& error, void*)
 {
-    printf(("========== PlayFab call Failed: " + error.GenerateReport() + "\n").c_str());
+    printf(("========== PlayFab call Failed: " + error.GenerateErrorReport() + "\n").c_str());
+}
+
+void OnGetProfile(const PlayFab::ProfilesModels::GetEntityProfileResponse& result, void*)
+{
+    printf(("========== PlayFab Profiles Success: " + result.Profile.mValue.Entity.mValue.TypeString + "\n").c_str());
 }
 
 void OnGetEntityToken(const PlayFab::AuthenticationModels::GetEntityTokenResponse& result, void*)
@@ -25,11 +30,13 @@ void OnGetEntityToken(const PlayFab::AuthenticationModels::GetEntityTokenRespons
     printf(("========== PlayFab GetEntityToken Success: " + result.EntityToken + "\n").c_str());
     _id = result.Entity.mValue.Id;
     _type = result.Entity.mValue.TypeString;
-}
 
-void OnGetProfile(const PlayFab::ProfilesModels::GetEntityProfileResponse& result, void*)
-{
-    printf(("========== PlayFab Profiles Success: " + result.Profile.mValue.Entity.mValue.TypeString + "\n").c_str());
+
+    auto req = PlayFab::ProfilesModels::GetEntityProfileRequest();
+    req.Entity.Id = _id;
+    req.Entity.TypeString = _type;
+
+    PlayFab::PlayFabProfilesAPI::GetProfile(req, OnGetProfile, OnPlayFabFail);
 }
 
 void OnProfile(const PlayFab::ClientModels::GetPlayerProfileResult& result, void*)
@@ -39,12 +46,6 @@ void OnProfile(const PlayFab::ClientModels::GetPlayerProfileResult& result, void
     auto request = PlayFab::AuthenticationModels::GetEntityTokenRequest();
 
     PlayFab::PlayFabAuthenticationAPI::GetEntityToken(request, OnGetEntityToken);
-
-    auto req = PlayFab::ProfilesModels::GetEntityProfileRequest();
-    req.Entity.Id = _id;
-    req.Entity.TypeString = _type;
-
-    PlayFab::PlayFabProfilesAPI::GetProfile(req, OnGetProfile, OnPlayFabFail);
 }
 
 void OnLoginSuccess(const PlayFab::ClientModels::LoginResult& result, void*)

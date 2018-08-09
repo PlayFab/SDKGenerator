@@ -239,7 +239,7 @@ function getResultActions(tabbing, apiCall) {
 }
 
 function getUrlAccessor(apiCallUrl) {
-    return "PlayFabSettings.GetURL(\"" + apiCallUrl + "\")"
+    return "PlayFabSettings.GetURL(\"" + apiCallUrl + "\")";
 }
 
 function generateApiSummary(tabbing, apiElement, summaryParam, extraLines) {

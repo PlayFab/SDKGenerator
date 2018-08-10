@@ -13,15 +13,15 @@ PlayFabSettings::PlayFabSettings() :
     productionEnvironmentURL(".playfabapi.com"),
     titleId(), // You must set this value for PlayFab to work properly (Found in the Game Manager for your title, at the PlayFab Website)
     globalErrorHandler(nullptr),
-    <% if (hasServerOptions) {
-    %>developerSecretKey(), // You must set this value for PlayFab to work properly (Found in the Game Manager for your title, at the PlayFab Website)
-    <% } if (hasClientOptions) {
-    %>advertisingIdType(), // Set this to the appropriate AD_TYPE_X constant below
+<% if (hasServerOptions) {
+%>    developerSecretKey(), // You must set this value for PlayFab to work properly (Found in the Game Manager for your title, at the PlayFab Website)
+<% } if (hasClientOptions) {
+%>    advertisingIdType(), // Set this to the appropriate AD_TYPE_X constant below
     advertisingIdValue(), // Set this to corresponding device value
     // DisableAdvertising is provided for completeness, but changing it is not suggested
     // Disabling this may prevent your advertising-related PlayFab marketplace partners from working correctly
     disableAdvertising(false),
     AD_TYPE_IDFA("Idfa"),
     AD_TYPE_ANDROID_ID("Adid"),
-    <% } %>serverURL()
+<% } %>    serverURL()
 {};

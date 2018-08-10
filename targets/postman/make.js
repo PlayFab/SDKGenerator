@@ -50,7 +50,7 @@ function CallSorter(a, b) {
 }
 
 function GetUrl(apiCall) {
-    return "https://{{TitleId}}.playfabapi.com" + apiCall.url;
+    return "https://{{TitleId}}.playfabapi.com" + apiCall.url + "?sdk=PostmanCollection-" + exports.sdkVersion;
 }
 
 function GetPostmanHeader(apiCall) {

@@ -2,7 +2,6 @@
 
 @interface PlayFabConnection : NSObject <NSURLConnectionDelegate, NSURLConnectionDataDelegate> {
     NSURLConnection * internalConnection;
-    //@property
     NSMutableData * container;
 }
 

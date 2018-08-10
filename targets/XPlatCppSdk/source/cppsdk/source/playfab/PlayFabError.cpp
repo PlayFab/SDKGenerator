@@ -34,7 +34,7 @@ namespace PlayFab
         return output;
     }
 
-    std::string PlayFabError::GenerateReport() const
+    std::string PlayFabError::GenerateErrorReport() const
     {
         std::string output;
         output.reserve(1024);

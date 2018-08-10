@@ -23,24 +23,19 @@ exports.makeCombinedAPI = function (apis, sourceDir, apiOutputDir) {
 function makeApiIntermal(apis, sourceDir, apiOutputDir, libName) {
     console.log("Generating Unreal Engine " + libName + " SDK to " + apiOutputDir);
 
+    var authMechanisms = getAuthMechanisms(apis);
     var locals = {
         apis: apis,
         buildIdentifier: exports.buildIdentifier,
         enumTypes: collectEnumsFromApis(apis),
         generateApiSummary: generateApiSummary,
         getDataTypeSafeName: getDataTypeSafeName,
-        hasServerOptions: false,
-        hasClientOptions: false,
+        hasClientOptions: authMechanisms.includes("SessionTicket"),
+        hasServerOptions: authMechanisms.includes("SecretKey"),
         libName: libName,
         sdkVersion: exports.sdkVersion,
         ueTargetVersion: "4.19"
     };
-    for (var i = 0; i < apis.length; i++) {
-        if (apis[i].name === "Client")
-            locals.hasClientOptions = true;
-        else if (apis[i].name !== "Entity")
-            locals.hasServerOptions = true;
-    }
 
     // Copy over the standard source files to the plugin destination
     templatizeTree(locals, path.resolve(sourceDir, "PluginSource"), path.resolve(apiOutputDir, "PluginFiles/PlayFab"));
@@ -75,7 +70,7 @@ function makeApiFiles(api, apiOutputDir, sourceDir, libName) {
         getPropertySerialization: getPropertySerialization,
         getPropertyDeserialization: getPropertyDeserialization,
         getDataTypeSafeName: getDataTypeSafeName,
-        hasClientOptions: api.name === "Client",
+        hasClientOptions: getAuthMechanisms([api]).includes("SessionTicket"),
         libName: libName,
         sdkVersion: exports.sdkVersion
     };

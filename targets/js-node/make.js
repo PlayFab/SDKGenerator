@@ -25,7 +25,7 @@ exports.makeCombinedAPI = function (apis, sourceDir, apiOutputDir) {
         getResultActions: getResultActions,
         getUrlAccessor: getUrlAccessor,
         // Node is combo-only, which always has all options for all common files
-        hasClientOptions: true, // for (var a = 0; a < apis.length; a++) { if (apis[a].name === "Client")
+        hasClientOptions: getAuthMechanisms(apis).includes("SessionTicket"),
         projectName: "playfab-sdk",
         sdkVersion: exports.sdkVersion,
         sourceDir: sourceDir
@@ -37,7 +37,7 @@ exports.makeCombinedAPI = function (apis, sourceDir, apiOutputDir) {
     // Write the API files
     for (var i = 0; i < apis.length; i++) {
         locals.api = apis[i];
-        locals.hasClientOptions = apis[i].name === "Client";
+        locals.hasClientOptions = getAuthMechanisms([apis[i]]).includes("SessionTicket");
 
         writeFile(path.resolve(eachOutputDir, "Scripts/PlayFab/PlayFab" + apis[i].name + ".js"), apiTemplate(locals));
         writeFile(path.resolve(eachOutputDir, "Scripts/typings/PlayFab/PlayFab" + apis[i].name + ".d.ts"), apiTypingsTemplate(locals));

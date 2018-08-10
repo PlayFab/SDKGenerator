@@ -1,9 +1,7 @@
 #include <stdafx.h>
-<% if (api.name === "Client") { %>
-#ifndef <%- getApiDefine(api) %>
-<% } else { %>
-#ifdef <%- getApiDefine(api) %>
-<% } %>
+
+<%- getApiDefine(api) %>
+
 #include <playfab/PlayFab<%- api.name %>Api.h>
 #include <playfab/PlayFabHttp.h>
 #include <playfab/PlayFabSettings.h>
@@ -50,7 +48,7 @@ namespace PlayFab
             callback(outResult, request.customData);
         }
     }
-<% } %><% if (api.name === "Client") { %>
+<% } %><% if (hasClientOptions) { %>
     // Private PlayFabClientAPI specific
     bool PlayFabClientAPI::IsClientLoggedIn()
     {

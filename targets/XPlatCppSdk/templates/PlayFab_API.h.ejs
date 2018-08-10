@@ -1,9 +1,7 @@
 #pragma once
-<% if (api.name === "Client") { %>
-#ifndef <%- getApiDefine(api) %>
-<% } else { %>
-#ifdef <%- getApiDefine(api) %>
-<% } %>
+
+<%- getApiDefine(api) %>
+
 #include <playfab/PlayFabHttp.h>
 #include <playfab/PlayFab<%- api.name %>DataModels.h>
 
@@ -18,7 +16,7 @@ namespace PlayFab
         static size_t Update();
         static void ForgetAllCredentials();
 
-<% if (api.name === "Client") { %>
+<% if (hasClientOptions) { %>
         // Public, Client-Specific
         static bool IsClientLoggedIn();
 <% } %>
@@ -34,7 +32,7 @@ namespace PlayFab
 <% for (var callIdx = 0; callIdx < api.calls.length; callIdx++) { var apiCall = api.calls[callIdx];
 %>        static void On<%- apiCall.name %>Result(CallRequestContainer& request);
 <% } %>
-<% if (api.name === "Client") { %>
+<% if (hasClientOptions) { %>
         // Private, Client-Specific
         static void MultiStepClientLogin(bool needsAttribution);
 <% } %>    };

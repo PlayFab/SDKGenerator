@@ -81,22 +81,19 @@ function makeApiInternal(apis, sourceDir, apiOutputDir, gemName) {
 }
 
 function GenerateSimpleFiles(apis, sourceDir, apiOutputDir, gemName) {
+    var authMechanisms = getAuthMechanisms(apis);
     var locals = {
         apis: apis,
         buildIdentifier: exports.buildIdentifier,
         gemName: gemName,
         gemSummary: gemSummaries[gemName],
         gemUuid: uuids[gemName],
-        hasClientOptions: false,
-        hasServerOptions: false,
+        hasClientOptions: authMechanisms.includes("SessionTicket"),
+        hasServerOptions: authMechanisms.includes("SecretKey"),
         sdkVersion: exports.sdkVersion,
         sdkModuleTokens: sdkModuleTokens,
         sysCmpTokens: sysCmpTokens,
     };
-    for (var i = 0; i < apis.length; i++) {
-        if (apis[i].name === "Client") locals.hasClientOptions = true;
-        if (apis[i].name !== "Client") locals.hasServerOptions = true;
-    }
 
     var wscriptTemplate = getCompiledTemplate(path.resolve(sourceDir, "templates/Code/wscript.ejs"));
     writeFile(path.resolve(apiOutputDir, "Code/wscript"), wscriptTemplate(locals));
@@ -166,7 +163,7 @@ function makeApi(api, sourceDir, apiOutputDir, gemName) {
         api: api,
         gemName: gemName,
         gemUuid: uuids[gemName],
-        hasClientOptions: api.name === "Client",
+        hasClientOptions: getAuthMechanisms([api]).includes("SessionTicket"),
         sysCmpTokens: sysCmpTokens,
 
         HasRequest: HasRequest,
@@ -198,20 +195,17 @@ function GenerateTestFiles(apis, sourceDir, apiOutputDir, gemName) {
     apiOutputDir = apiOutputDir.replaceAll("PlayFabComboSdk", "TestGemCombo");
     copyTree(path.resolve(sourceDir, "testingSource"), apiOutputDir);
 
+    var authMechanisms = getAuthMechanisms(apis);
     var locals = {
         gemName: gemName,
-        hasClientOptions: false,
-        hasServerOptions: false,
+        hasClientOptions: authMechanisms.includes("SessionTicket"),
+        hasServerOptions: authMechanisms.includes("SecretKey"),
         sdkModuleTokens: sdkModuleTokens,
         sdkVersion: exports.sdkVersion,
         sysCmpTokens: sysCmpTokens,
         testGemName: testGemName,
         uuids: uuids,
     };
-    for (var i = 0; i < apis.length; i++) {
-        if (apis[i].name === "Client") locals.hasClientOptions = true;
-        if (apis[i].name !== "Client") locals.hasServerOptions = true;
-    }
 
     var gemTemplate = getCompiledTemplate(path.resolve(sourceDir, "testingTemplate/gem.json.ejs"));
     writeFile(path.resolve(apiOutputDir, "gem.json"), gemTemplate(locals));
@@ -750,19 +744,19 @@ function GetAuthParams(apiCall) {
 }
 
 function GetRequestActions(apiCall, api) {
-    if (api.name === "Client" && (apiCall.result === "LoginResult" || apiCall.request === "RegisterPlayFabUserRequest"))
+    if (apiCall.result === "LoginResult" || apiCall.request === "RegisterPlayFabUserRequest")
         return "    if (PlayFabSettings::playFabSettings->titleId.length() > 0)\n        request.TitleId = PlayFabSettings::playFabSettings->titleId;\n";
     return "";
 }
 
 function GetResultActions(apiCall, api) {
-    if (api.name === "Client" && (apiCall.result === "LoginResult" || apiCall.result === "RegisterPlayFabUserResult"))
+    if (apiCall.result === "LoginResult" || apiCall.result === "RegisterPlayFabUserResult")
         return "        if (outResult->SessionTicket.length() > 0)\n"
             + "        {\n"
             + "            PlayFabClientApi::mUserSessionTicket = outResult->SessionTicket;\n"
             + "        }\n"
             + "        MultiStepClientLogin(outResult->SettingsForUser->NeedsAttribution);\n";
-    else if (api.name === "Client" && apiCall.result === "AttributeInstallResult")
+    else if (apiCall.result === "AttributeInstallResult")
         return "        // Modify advertisingIdType:  Prevents us from sending the id multiple times, and allows automated tests to determine id was sent successfully\n"
             + "        PlayFabSettings::playFabSettings->advertisingIdType += \"_Successful\";\n";
     return "";

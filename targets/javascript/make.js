@@ -13,17 +13,17 @@ exports.makeCombinedAPI = function (apis, sourceDir, apiOutputDir) {
     var apiTypingTemplate = getCompiledTemplate(path.resolve(templateDir, "PlayFab_Api.d.ts.ejs"));
     var packageTemplate = getCompiledTemplate(path.resolve(templateDir, "package.json.ejs"));
 
-    var apiLocals = {
+    var locals = {
         apis: apis,
+        buildIdentifier: exports.buildIdentifier,
         generateApiSummary: generateApiSummary,
+        generateDatatype: generateDatatype,
         getAuthParams: getAuthParams,
         getDeprecationAttribute: getDeprecationAttribute,
         getRequestActions: getRequestActions,
         getResultActions: getResultActions,
         getUrl: getUrl,
-        generateDatatype: generateDatatype,
         hasResultActions: hasResultActions,
-        buildIdentifier: exports.buildIdentifier,
         sdkVersion: exports.sdkVersion,
         sourceDir: sourceDir
     };
@@ -35,18 +35,18 @@ exports.makeCombinedAPI = function (apis, sourceDir, apiOutputDir) {
         makeSimpleTemplates(apis, templateDir, eachOutputDir);
 
         for (var i = 0; i < apis.length; i++) {
-            apiLocals.api = apis[i];
-            apiLocals.hasClientOptions = apis[i].name === "Client"; // NOTE FOR THE EJS FILE: PlayFab.settings and PlayFab._internalSettings and are still global/shared - Only utilize this within the api-specific section
+            locals.api = apis[i];
+            locals.hasClientOptions = getAuthMechanisms([apis[i]]).includes("SessionTicket"); // NOTE FOR THE d.ts FILE: Individual API interfaces should be limited to just what makes sense to that API
 
-            writeFile(path.resolve(eachOutputDir, "src/PlayFab/PlayFab" + apis[i].name + "Api.js"), apiTemplate(apiLocals));
-            writeFile(path.resolve(eachOutputDir, "src/Typings/PlayFab/PlayFab" + apis[i].name + "Api.d.ts"), apiTypingTemplate(apiLocals));
+            writeFile(path.resolve(eachOutputDir, "src/PlayFab/PlayFab" + apis[i].name + "Api.js"), apiTemplate(locals));
+            writeFile(path.resolve(eachOutputDir, "src/Typings/PlayFab/PlayFab" + apis[i].name + "Api.d.ts"), apiTypingTemplate(locals));
             if (destSubFolders[fIdx] !== "PlayFabTestingExample")
-                writeFile(path.resolve(eachOutputDir, "package.json"), packageTemplate(apiLocals));
+                writeFile(path.resolve(eachOutputDir, "package.json"), packageTemplate(locals));
         }
     }
 
     // Copy testing files
-    templatizeTree(apiLocals, path.resolve(sourceDir, "testingFiles"), path.resolve(apiOutputDir, "PlayFabTestingExample"));
+    templatizeTree(locals, path.resolve(sourceDir, "testingFiles"), path.resolve(apiOutputDir, "PlayFabTestingExample"));
 }
 
 function makeSimpleTemplates(apis, templateDir, apiOutputDir) {

@@ -120,7 +120,7 @@ namespace UnittestRunner
             testMessageReturn = "API_Call_Failed for: ";
             testMessageReturn += error.UrlPath;
             testMessageReturn += "\n";
-            testMessageReturn += error.GenerateReport();
+            testMessageReturn += error.GenerateErrorReport();
             testMessageReturn += "\n";
             testMessageReturn += ShortenString(error.Request.serialize());
         }
@@ -195,7 +195,7 @@ namespace UnittestRunner
             bool foundEmailMsg, foundPasswordMsg;
             string expectedEmailMsg = "Email address is not valid.";
             string expectedPasswordMsg = "Password must be between";
-            string errorConcat = error.GenerateReport();
+            string errorConcat = error.GenerateErrorReport();
             foundEmailMsg = (errorConcat.find(expectedEmailMsg) != -1);
             foundPasswordMsg = (errorConcat.find(expectedPasswordMsg) != -1);
 

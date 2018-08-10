@@ -7,7 +7,8 @@ DEFINE_LOG_CATEGORY(LogPlayFabTest); // This is a separate project from the Play
 * ==== Test Suite ====
 */
 FString PlayFabApiTestSuite::playFabId;
-PlayFab::EntityModels::FEntityKey PlayFabApiTestSuite::entityKey;
+FString PlayFabApiTestSuite::entityId;
+FString PlayFabApiTestSuite::entityTypeString;
 
 /*
 * ==== LoginWithEmailAddress ====
@@ -636,27 +637,26 @@ PlayFabApiTest_GetEntityToken::PlayFabApiTest_GetEntityToken()
 bool PlayFabApiTest_GetEntityToken::Update()
 {
     // Initialize, setup the call, and wait for the result
-    if (!entityAPI.IsValid())
+    if (!authenticationAPI.IsValid())
     {
-        entityAPI = IPlayFabModuleInterface::Get().GetEntityAPI();
+        authenticationAPI = IPlayFabModuleInterface::Get().GetAuthenticationAPI();
 
-        PlayFab::EntityModels::FGetEntityTokenRequest request;
-        entityAPI->GetEntityToken(
+        PlayFab::AuthenticationModels::FGetEntityTokenRequest request;
+        authenticationAPI->GetEntityToken(
             request,
-            PlayFab::UPlayFabEntityAPI::FGetEntityTokenDelegate::CreateRaw(this, &PlayFabApiTest_GetEntityToken::OnSuccess)
+            PlayFab::UPlayFabAuthenticationAPI::FGetEntityTokenDelegate::CreateRaw(this, &PlayFabApiTest_GetEntityToken::OnSuccess)
             , PlayFab::FPlayFabErrorDelegate::CreateRaw(this, &PlayFabApiTest_GetEntityToken::OnError)
         );
     }
 
     // Return when the api call is resolved
-    return entityAPI->GetPendingCalls() == 0;
+    return authenticationAPI->GetPendingCalls() == 0;
 }
 
-void PlayFabApiTest_GetEntityToken::OnSuccess(const PlayFab::EntityModels::FGetEntityTokenResponse& result) const
+void PlayFabApiTest_GetEntityToken::OnSuccess(const PlayFab::AuthenticationModels::FGetEntityTokenResponse& result) const
 {
-    PlayFabApiTestSuite::entityKey.Id = result.Entity->Id;
-    PlayFabApiTestSuite::entityKey.Type = result.Entity->Type;
-    PlayFabApiTestSuite::entityKey.TypeString = result.Entity->TypeString;
+    PlayFabApiTestSuite::entityId = result.Entity->Id;
+    PlayFabApiTestSuite::entityTypeString = result.Entity->TypeString;
     UE_LOG(LogPlayFabTest, Log, TEXT("GetEntityToken Succeeded"));
 }
 
@@ -676,25 +676,26 @@ PlayFabApiTest_ObjectApi::PlayFabApiTest_ObjectApi()
 bool PlayFabApiTest_ObjectApi::Update()
 {
     // Initialize, setup the call, and wait for the result
-    if (!entityAPI.IsValid())
+    if (!dataAPI.IsValid())
     {
-        entityAPI = IPlayFabModuleInterface::Get().GetEntityAPI();
+        dataAPI = IPlayFabModuleInterface::Get().GetDataAPI();
 
-        PlayFab::EntityModels::FGetObjectsRequest request;
-        request.Entity = PlayFabApiTestSuite::entityKey;
+        PlayFab::DataModels::FGetObjectsRequest request;
+        request.Entity.Id = PlayFabApiTestSuite::entityId;
+        request.Entity.TypeString = PlayFabApiTestSuite::entityTypeString;
         request.EscapeObject = true;
 
-        entityAPI->GetObjects(request
-            , PlayFab::UPlayFabEntityAPI::FGetObjectsDelegate::CreateRaw(this, &PlayFabApiTest_ObjectApi::OnSuccess)
+        dataAPI->GetObjects(request
+            , PlayFab::UPlayFabDataAPI::FGetObjectsDelegate::CreateRaw(this, &PlayFabApiTest_ObjectApi::OnSuccess)
             , PlayFab::FPlayFabErrorDelegate::CreateRaw(this, &PlayFabApiTest_ObjectApi::OnError)
         );
     }
 
     // Return when the api call is resolved
-    return entityAPI->GetPendingCalls() == 0;
+    return dataAPI->GetPendingCalls() == 0;
 }
 
-void PlayFabApiTest_ObjectApi::OnSuccess(const PlayFab::EntityModels::FGetObjectsResponse& result) const
+void PlayFabApiTest_ObjectApi::OnSuccess(const PlayFab::DataModels::FGetObjectsResponse& result) const
 {
     UE_LOG(LogPlayFabTest, Log, TEXT("ObjectApi Succeeded"));
 }

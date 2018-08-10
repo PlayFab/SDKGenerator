@@ -106,7 +106,7 @@ function makeApi(api, sourceDir, apiOutputDir) {
         getResultActions: getResultActions,
         getDeprecationAttribute: getDeprecationAttribute,
         generateApiSummary: generateApiSummary,
-        authKey: api.name === "Client"
+        hasClientOptions: getAuthMechanisms([api]).includes("SessionTicket")
     };
 
     var apiTemplate = getCompiledTemplate(path.resolve(sourceDir, "templates/API.cs.ejs"));
@@ -114,30 +114,24 @@ function makeApi(api, sourceDir, apiOutputDir) {
 }
 
 function generateSimpleFiles(apis, sourceDir, apiOutputDir) {
-    var errorLocals = {};
-    errorLocals.errorList = apis[0].errorList;
-    errorLocals.errors = apis[0].errors;
+    var authMechanisms = getAuthMechanisms(apis);
+    var locals = {
+        buildIdentifier: exports.buildIdentifier,
+        errorList: apis[0].errorList,
+        errors: apis[0].errors,
+        hasClientOptions: authMechanisms.includes("SessionTicket"),
+        hasServerOptions: authMechanisms.includes("SecretKey"),
+        sdkVersion: exports.sdkVersion
+    };
 
     var errorsTemplate = getCompiledTemplate(path.resolve(sourceDir, "templates/Errors.cs.ejs"));
-    writeFile(path.resolve(apiOutputDir, "source/PlayFabErrors.cs"), errorsTemplate(errorLocals));
-
-    var settingsLocals = {};
-    settingsLocals.hasServerOptions = false;
-    settingsLocals.hasClientOptions = false;
-    settingsLocals.sdkVersion = exports.sdkVersion;
-    settingsLocals.buildIdentifier = exports.buildIdentifier;
-    for (var i = 0; i < apis.length; i++) {
-        if (apis[i].name === "Client")
-            settingsLocals.hasClientOptions = true;
-        else
-            settingsLocals.hasServerOptions = true;
-    }
+    writeFile(path.resolve(apiOutputDir, "source/PlayFabErrors.cs"), errorsTemplate(locals));
 
     var utilTemplate = getCompiledTemplate(path.resolve(sourceDir, "templates/PlayFabUtil.cs.ejs"));
-    writeFile(path.resolve(apiOutputDir, "source/PlayFabUtil.cs"), utilTemplate(settingsLocals));
+    writeFile(path.resolve(apiOutputDir, "source/PlayFabUtil.cs"), utilTemplate(locals));
 
     var settingsTemplate = getCompiledTemplate(path.resolve(sourceDir, "templates/PlayFabSettings.cs.ejs"));
-    writeFile(path.resolve(apiOutputDir, "source/PlayFabSettings.cs"), settingsTemplate(settingsLocals));
+    writeFile(path.resolve(apiOutputDir, "source/PlayFabSettings.cs"), settingsTemplate(locals));
 }
 
 function generateProject(apis, sourceDir, apiOutputDir, libname, extraDefines) {
@@ -267,7 +261,7 @@ function getResultActions(tabbing, apiCall, api) {
     else if (apiCall.result === "RegisterPlayFabUserResult")
         return tabbing + "PlayFabSettings.ClientSessionTicket = result.SessionTicket ?? PlayFabSettings.ClientSessionTicket;\n"
             + tabbing + "await MultiStepClientLogin(result.SettingsForUser.NeedsAttribution);\n";
-    else if (api.name === "Client" && apiCall.result === "AttributeInstallResult")
+    else if (apiCall.result === "AttributeInstallResult")
         return tabbing + "// Modify AdvertisingIdType:  Prevents us from sending the id multiple times, and allows automated tests to determine id was sent successfully\n"
             + tabbing + "PlayFabSettings.AdvertisingIdType += \"_Successful\";\n";
     else if (apiCall.result === "GetEntityTokenResponse")

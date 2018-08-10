@@ -18,7 +18,7 @@ exports.makeCombinedAPI = function (apis, sourceDir, apiOutputDir) {
         airVersion: airVersion,
         apis: apis,
         buildIdentifier: exports.buildIdentifier,
-        hasClientOptions: true, // if (apis[i].name === "Client")
+        hasClientOptions: getAuthMechanisms(apis).includes("SessionTicket"),
         sdkVersion: exports.sdkVersion
     };
 
@@ -107,7 +107,7 @@ function makeApi(api, sourceDir, apiOutputDir) {
         getRequestActions: getRequestActions,
         getResultActions: getResultActions,
         getDeprecationAttribute: getDeprecationAttribute,
-        hasClientOptions: api.name === "Client"
+        hasClientOptions: getAuthMechanisms([api]).includes("SessionTicket")
     };
 
     var apiTemplate = getCompiledTemplate(path.resolve(path.resolve(sourceDir, "templates"), "API.as.ejs"));;

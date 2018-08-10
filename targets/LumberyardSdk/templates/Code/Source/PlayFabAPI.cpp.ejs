@@ -1,11 +1,11 @@
 #include "StdAfx.h"
 #include "PlayFab<%- api.name %>Api.h"
 #include "PlayFabSettings.h"
-<% if(hasClientOptions) { %>
+<% if (hasClientOptions) { %>
 #include "PlayFabDataGatherer.h" // #THIRD_KIND_PLAYFAB_DATA_GATHERER: gwatson (2017/09/12) - Added PlayFab data gatherer to send system information events to PlayFab on login
 <% } %>
 using namespace PlayFab<%- gemName %>Sdk;
-<% if(hasClientOptions) { %>
+<% if (hasClientOptions) { %>
 // Client-Specific
 AZStd::string PlayFabClientApi::mUserSessionTicket;
 

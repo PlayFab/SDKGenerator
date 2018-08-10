@@ -16,8 +16,8 @@ exports.makeCombinedAPI = function (apis, sourceDir, apiOutputDir) {
         sdkVersion: exports.sdkVersion,
         sdkDate: exports.sdkVersion.split(".")[2],
         sdkYear: exports.sdkVersion.split(".")[2].substr(0, 2),
-        vsVer: "v141", // If we add 141, we'll have to tweak this again
-        vsYear: "2017" // If we add 2017, we'll have to tweak this again
+        vsVer: "v141", // As C++ versions change, we may need to update this
+        vsYear: "2017" // As VS versions change, we may need to update this
     };
 
     templatizeTree(locals, path.resolve(sourceDir, "source"), apiOutputDir);
@@ -38,6 +38,7 @@ function makeApiFiles(api, sourceDir, apiOutputDir) {
         getPropertySafeName: getPropertySafeName,
         getRequestActions: getRequestActions,
         getResultActions: getResultActions,
+        hasClientOptions: getAuthMechanisms([api]).includes("SessionTicket"),
         ifHasProps: ifHasProps,
         sdkVersion: exports.sdkVersion,
         sortedClasses: getSortedClasses(api.datatypes)
@@ -90,11 +91,14 @@ function getSortedClasses(datatypes) {
 // *************************** ejs-exposed methods ***************************
 function getApiDefine(api) {
     if (api.name === "Client")
-        return "DISABLE_PLAYFABCLIENT_API";
-    if (api.name === "Server" || api.name === "Matchmaker")
-        return "ENABLE_PLAYFABSERVER_API";
-    else
-        return "ENABLE_PLAYFAB" + api.name.toUpperCase() + "_API";
+        return "#ifndef DISABLE_PLAYFABCLIENT_API";
+    if (api.name === "Matchmaker")
+        return "#ifdef ENABLE_PLAYFABSERVER_API"; // Matchmaker is bound to server, which is just a legacy design decision at this point
+    if (api.name === "Admin" || api.name === "Server")
+        return "#ifdef ENABLE_PLAYFAB" + api.name.toUpperCase() + "_API";
+
+    // For now, everything else is considered ENTITY
+    return "#ifdef ENABLE_PLAYFABENTITY_API";
 }
 
 function getAuthParams(apiCall) {

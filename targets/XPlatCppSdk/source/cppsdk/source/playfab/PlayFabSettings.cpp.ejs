@@ -8,7 +8,7 @@ namespace PlayFab
     const std::string PlayFabSettings::buildIdentifier = "<%- buildIdentifier %>";
     const std::string PlayFabSettings::versionString = "XPlatCppSdk-<%- sdkVersion %>";
 
-    const std::map<string, string> PlayFabSettings::requestGetParams = {
+    const std::map<std::string, std::string> PlayFabSettings::requestGetParams = {
         { "sdk", PlayFabSettings::versionString }
     };
 
@@ -43,7 +43,7 @@ namespace PlayFab
         clientSessionTicket.clear();
     }
 
-    std::string PlayFabSettings::GetUrl(const std::string& urlPath, const std::map<string, string>& getParams)
+    std::string PlayFabSettings::GetUrl(const std::string& urlPath, const std::map<std::string, std::string>& getParams)
     {
         if (serverURL.length() == 0)
             serverURL = "https://" + titleId + (useDevelopmentEnvironment ? developmentEnvironmentURL : productionEnvironmentURL);

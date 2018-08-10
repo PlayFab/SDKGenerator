@@ -6,7 +6,6 @@
 
 @implementation PlayFabBaseModel
 
-
 + (NSDateFormatter*)timestampFormatter
 {
     static NSDateFormatter *instance = nil;
@@ -15,7 +14,6 @@
         [instance setDateFormat:@"yyyy'-'MM'-'dd'T'HH':'mm':'ss.SSS'Z'"];
         [instance setTimeZone:[NSTimeZone timeZoneForSecondsFromGMT:0]];
     }
-    //instance.dateStyle = NSDateFormatterMediumStyle;
     return instance;
 }
 
@@ -53,21 +51,5 @@
     NSString *jsonString = [[NSString alloc] initWithBytes:[jsonData bytes] length:[jsonData length] encoding:NSUTF8StringEncoding];
     return jsonString;
 }
-
-
-//TODO: This is using non-JAG method... probably change
-/*-(NSString*) JSONString {
-    NSMutableDictionary *properties = [NSMutableDictionary dictionaryWithDictionary:[self propertyDictionary]];
-    //[properties removeObjectsForKeys:@[@"created_at", @"updated_at"]]; // We should never send created or updated at directly
-    
-    NSError *jsonError = nil;
-    NSData *jsonData = [NSJSONSerialization dataWithJSONObject:properties options:0 error:&jsonError];
-    
-    if(jsonError == nil) {
-        return [[NSString alloc] initWithData:jsonData encoding:NSUTF8StringEncoding];
-    } else {
-        return nil;
-    }
-}*/
 
 @end

@@ -53,7 +53,7 @@ function HasRequest(apiCall, api) {
     return requestType.properties.length > 0;
 }
 
-function GetPropertyDef(property, datatype) {
+function GetPropertyDef(property, datatype, api) {
     //var propType = property.actualtype;
     //var propName = property.name;
     var safePropName = GetPropertySafeName(property);
@@ -63,7 +63,7 @@ function GetPropertyDef(property, datatype) {
     else if (property.collection === "map")
         return "NSDictionary* " + safePropName + ";";
     else
-        return GetPropertyCppType(property, datatype, true) + " " + safePropName + ";";
+        return GetPropertyCppType(property, datatype, true, api) + " " + safePropName + ";";
 }
 
 // PFWORKBIN-445 & PFWORKBIN-302 - variable names can't be the same as the variable type when compiling for android
@@ -71,7 +71,7 @@ function GetPropertySafeName(property) {
     return (property.actualtype === property.name) ? "pf" + property.name : property.name;
 }
 
-function GetPropertyCppType(property, datatype, needOptional) {
+function GetPropertyCppType(property, datatype, needOptional, api) {
     var isOptional = property.optional && needOptional;
     
     if (property.actualtype === "String") {
@@ -108,10 +108,10 @@ function GetPropertyCppType(property, datatype, needOptional) {
         return "NSDate*";
     }
     else if (property.isclass) {
-        return isOptional ? property.actualtype + "*" : property.actualtype; // sub object
+        return isOptional ? api.name + property.actualtype + "*" : api.name + property.actualtype + "*"; // sub object
     }
     else if (property.isenum) {
-        return property.actualtype; // enum
+        return api.name + property.actualtype; // enum
     }
     else if (property.actualtype === "object") {
         return "NSDictionary*";
@@ -182,15 +182,15 @@ function GetPropertyCopyValue(property, datatype) {
     return "src." + safePropName;
 }
 
-function GetPropertyDeserializer(property, datatype) {
+function GetPropertyDeserializer(property, datatype, api) {
     var propType = property.actualtype;
     var propName = property.name;
     var safePropName = GetPropertySafeName(property);
     
     if (property.collection === "array")
-        return GetArrayPropertyDeserializer(property, datatype);
+        return GetArrayPropertyDeserializer(property, datatype, api);
     else if (property.collection === "map")
-        return GetMapPropertyDeserializer(property, datatype);
+        return GetMapPropertyDeserializer(property, datatype, api);
     
     var getter;
     if (propType === "String") {
@@ -227,10 +227,10 @@ function GetPropertyDeserializer(property, datatype) {
         getter = "[[PlayFabBaseModel timestampFormatter] dateFromString:[properties valueForKey:@\"" + propName + "\"]];";
     }
     else if (property.isclass) {
-        getter = "[[" + propType + " new] initWithDictionary:[properties objectForKey:@\"" + propName + "\"]];";
+        getter = "[[" + api.name + propType + " new] initWithDictionary:[properties objectForKey:@\"" + propName + "\"]];";
     }
     else if (property.isenum) {
-        getter = "(" + property.actualtype + ")" + "[properties valueForKey:@\"" + propName + "\"];";
+        getter = "(" + api.name + property.actualtype + ")" + "[properties valueForKey:@\"" + api.name + propName + "\"];";
     }
     else if (propType === "object") {
         getter = "[properties valueForKey:@\"" + propName + "\"];";
@@ -241,7 +241,7 @@ function GetPropertyDeserializer(property, datatype) {
     
     return "self." + safePropName + " = " + getter;
 }
-function GetArrayPropertyDeserializer(property, datatype) {
+function GetArrayPropertyDeserializer(property, datatype, api) {
     var getter;
     
     var propType = property.actualtype;
@@ -279,10 +279,10 @@ function GetArrayPropertyDeserializer(property, datatype) {
         getter = "[[PlayFabBaseModel timestampFormatter] dateFromString:[member_list objectAtIndex:i]]";
     }
     else if (property.isclass) {
-        getter = "[[" + property.actualtype + " new] initWithDictionary:[member_list objectAtIndex:i]]";
+        getter = "[[" + api.name +  property.actualtype + " new] initWithDictionary:[member_list objectAtIndex:i]]";
     }
     else if (property.isenum) {
-        getter = "(" + property.actualtype + ")" + "[member_list objectAtIndex:i]";
+        getter = "(" + api.name +  property.actualtype + ")" + "[member_list objectAtIndex:i]";
     }
     else if (property.actualtype === "object") {
         getter = "[member_list objectAtIndex:i]";
@@ -303,7 +303,7 @@ function GetArrayPropertyDeserializer(property, datatype) {
     return val;
 }
 
-function GetMapPropertyDeserializer(property, datatype) {
+function GetMapPropertyDeserializer(property, datatype, api) {
     var getter;
     
     var propType = property.actualtype;
@@ -342,10 +342,10 @@ function GetMapPropertyDeserializer(property, datatype) {
         getter = "[[PlayFabBaseModel timestampFormatter] dateFromString:[member_list objectForKey:key]]";
     }
     else if (property.isclass) {
-        getter = "[[" + property.actualtype + " new] initWithDictionary:[member_list objectForKey:key]]";
+        getter = "[[" + api.name +  property.actualtype + " new] initWithDictionary:[member_list objectForKey:key]]";
     }
     else if (property.isenum) {
-        getter = "(" + property.actualtype + ")" + "[member_list objectForKey:key]";
+        getter = "(" + api.name +  property.actualtype + ")" + "[member_list objectForKey:key]";
     }
     else if (property.actualtype === "object") {
         getter = "[member_list objectForKey:key]";

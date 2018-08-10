@@ -8,9 +8,5 @@
 
 #import <Foundation/Foundation.h>
 
-//@interface PlayFabVersion : NSObject
-
 FOUNDATION_EXPORT NSString *const sdkVersion;
 FOUNDATION_EXPORT NSString *const versionString;
-
-//@end

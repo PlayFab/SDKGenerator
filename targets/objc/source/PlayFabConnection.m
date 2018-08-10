@@ -1,4 +1,3 @@
-
 #import "PlayFabConnection.h"
 #import "PlayFabVersion.h"
 
@@ -7,11 +6,8 @@ static NSMutableArray *sharedConnectionList = nil;
 @implementation PlayFabConnection
 @synthesize request,completionBlock,internalConnection;
 
-
 -(void)postURL:(NSString*)url body:(NSString*)body authType:(NSString*)authType authKey:(NSString*)authKey
 {
-    NSLog(@"postURL");
-    
     NSURL *sRequestURL = [NSURL URLWithString:url];
     
     NSMutableURLRequest *myRequest = [NSMutableURLRequest requestWithURL:sRequestURL];
@@ -38,9 +34,7 @@ static NSMutableArray *sharedConnectionList = nil;
     }else {
         NSLog(@"Some error occurred in Connection");
     }
-    
 }
-
 
 #pragma mark NSURLConnectionDelegate methods
 

@@ -1,41 +1,30 @@
-
-
 #import <Foundation/Foundation.h>
 
 #import "PlayFab<%- api.name %>DataModels.h"
 #import "PlayFabError.h"
 #import "PlayFabSettings.h"
+<% if(api.name == "Entity") { %>#import "PlayFabClientAPI.h"<% } %>
 
 @interface PlayFab<%- api.name %>API : NSObject
+
++(NSString*) GetURL;
+
 <% if(authKey) { %>
 @property (nonatomic) NSString* mUserSessionTicket;
 <% } %>
 		<% for(var i in api.calls) { var apiCall = api.calls[i]; %>
-typedef void(^<%- apiCall.name %>Callback)(<%- apiCall.result%>* result, NSObject* userData);
+typedef void(^<%- apiCall.name %>Callback)(<%- api.name %><%- apiCall.result%>* result, NSObject* userData);
 		<% } %>
 
 + (PlayFabClientAPI*) GetInstance;
 
 		<% if(api.name == "Client") { %>+(bool) IsClientLoggedIn;<% } %>
 
-
-        // ------------ Generated API calls
+// ------------ Generated API calls
 		<% for(var i in api.calls) { var apiCall = api.calls[i]; if(HasRequest(apiCall, api)) { %>
--(void) <%- apiCall.name %>:(<%- apiCall.request %>*)request success:(<%- apiCall.name %>Callback)callback failure:(ErrorCallback)errorCallback withUserData:(NSObject*)userData;
+-(void) <%- apiCall.name %>:(<%- api.name %><%- apiCall.request %>*)request success:(<%- apiCall.name %>Callback)callback failure:(ErrorCallback)errorCallback withUserData:(NSObject*)userData;
 		<% } else {%>
 -(void) <%- apiCall.name %>:(<%- apiCall.name %>Callback)callback failure:(ErrorCallback)errorCallback withUserData:(NSObject*) userData;
 		<% } } %>
-
-    //private:
-/*
-        // ------------ Generated result handlers
-		<% for(var i in api.calls) { var apiCall = api.calls[i]; %>
-+ (void) On<%- apiCall.name %>Result:(int)httpStatus withRequest:(HttpRequest*) request withUserData:(void*) userData;
-		<% } %>
- */
-
-        //@property bool mOwnsRequester;
-        //@property AFHTTPClient* mHttpRequester;
-
 
 @end

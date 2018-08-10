@@ -14,6 +14,8 @@ namespace PlayFab
         static const utility::string_t buildIdentifier;
         static const utility::string_t versionString;
 
+        static const std::map<utility::string_t, utility::string_t> requestGetParams;
+
         static bool useDevelopmentEnvironment;
         static utility::string_t developmentEnvironmentURL;
         static utility::string_t productionEnvironmentURL;
@@ -45,7 +47,7 @@ namespace PlayFab
         PlayFabSettings(const PlayFabSettings& other); // Private copy-constructor, static class should never have an instance
 
         friend PlayFabHttp;
-        static utility::string_t GetUrl(const utility::string_t& urlPath);
+        static utility::string_t GetUrl(const utility::string_t& urlPath, const std::map<utility::string_t, utility::string_t>& getParams);
 
         static utility::string_t serverURL;
     };

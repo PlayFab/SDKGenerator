@@ -46,7 +46,7 @@ namespace PlayFab
         reqContainer->customData = customData;
 
         // Create http_client to send the request.
-        reqContainer->httpClient = new web::http::client::http_client(PlayFabSettings::GetUrl(urlPath));
+        reqContainer->httpClient = new web::http::client::http_client(PlayFabSettings::GetUrl(urlPath, PlayFabSettings::requestGetParams));
         reqContainer->httpRequest = new web::http::http_request(web::http::methods::POST);
         web::http::http_headers& headers = reqContainer->httpRequest->headers();
         headers.add(L"Content-Type", L"application/json");
@@ -67,7 +67,7 @@ namespace PlayFab
             catch (const std::exception&)
             {
                 // Handle Failures at this layer
-                reqContainer->errorWrapper.UrlPath = ShortenString(PlayFabSettings::GetUrl(urlPath));
+                reqContainer->errorWrapper.UrlPath = ShortenString(PlayFabSettings::GetUrl(urlPath, PlayFabSettings::requestGetParams));
                 reqContainer->errorWrapper.Request = requestBody;
                 reqContainer->errorWrapper.HttpCode = 408;
                 reqContainer->errorWrapper.ErrorCode = PlayFabErrorServiceUnavailable;
@@ -81,7 +81,7 @@ namespace PlayFab
             if (httpCode != 200)
             {
                 // Handle Failures at this layer
-                reqContainer->errorWrapper.UrlPath = ShortenString(PlayFabSettings::GetUrl(urlPath));
+                reqContainer->errorWrapper.UrlPath = ShortenString(PlayFabSettings::GetUrl(urlPath, PlayFabSettings::requestGetParams));
                 reqContainer->errorWrapper.Request = requestBody;
                 reqContainer->errorWrapper.HttpCode = httpCode;
                 reqContainer->errorWrapper.ErrorCode = PlayFabErrorServiceUnavailable;
@@ -97,7 +97,7 @@ namespace PlayFab
                 auto response = responseTask.get();
                 if (response.is_object())
                     reqContainer->errorWrapper.FromJson(response);
-                reqContainer->errorWrapper.UrlPath = ShortenString(PlayFabSettings::GetUrl(urlPath));
+                reqContainer->errorWrapper.UrlPath = ShortenString(PlayFabSettings::GetUrl(urlPath, PlayFabSettings::requestGetParams));
                 reqContainer->errorWrapper.Request = requestBody;
             }
             catch (const std::exception&)

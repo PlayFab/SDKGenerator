@@ -24,7 +24,6 @@ static NSString * AdvertisingIdType;
 static NSString * AdvertisingIdValue;
 
 
-
 @implementation PlayFabSettings
 
 + (NSString *) ProductionEnvironmentURL
@@ -47,7 +46,6 @@ static NSString * AdvertisingIdValue;
 {
     return AdvertisingIdValue;
 }
-
 
 + (void) setProductionEnvironmentURL:(NSString*)setValue
 {

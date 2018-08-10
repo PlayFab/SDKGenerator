@@ -15,10 +15,10 @@ ResetRepo (){
     # Assumes the current directory is set to the repo to be reset
     SetGitHubCreds
     git fetch --progress origin
-    git checkout master2 || git checkout -b master2 || CleanCurrentRepo
-    git pull origin master2
+    git checkout master || git checkout -b master || CleanCurrentRepo
+    git pull origin master
 
-    if [ "$gitTarget"!="master2" ]; then
+    if [ "$gitTarget"!="master" ]; then
         git fetch --progress origin
         if [ "$PublishToGit"!="true" ]; then
             git branch -D $gitTarget || true

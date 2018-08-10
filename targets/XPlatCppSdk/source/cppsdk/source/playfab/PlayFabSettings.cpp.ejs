@@ -45,10 +45,15 @@ namespace PlayFab
 
     std::string PlayFabSettings::GetUrl(const std::string& urlPath, const std::map<std::string, std::string>& getParams)
     {
+        std::string fullUrl;
+        fullUrl.reserve(1000);
+
         if (serverURL.length() == 0)
-            serverURL = "https://" + titleId + (useDevelopmentEnvironment ? developmentEnvironmentURL : productionEnvironmentURL);
+            fullUrl += "https://" + titleId + (useDevelopmentEnvironment ? developmentEnvironmentURL : productionEnvironmentURL);
+        else
+            fullUrl += serverURL;
         
-        std::string fullUrl = serverURL + urlPath;
+        fullUrl += urlPath;
 
         bool firstParam = true;
         for (auto const& paramPair : getParams)

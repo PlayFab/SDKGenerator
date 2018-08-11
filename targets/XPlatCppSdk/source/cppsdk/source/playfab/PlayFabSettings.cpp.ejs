@@ -47,7 +47,9 @@ namespace PlayFab
         std::string fullUrl;
         fullUrl.reserve(1000);
 
-        fullUrl += "https://" + titleId + (useDevelopmentEnvironment ? developmentEnvironmentURL : productionEnvironmentURL);
+        fullUrl += "https://";
+        fullUrl += titleId;
+        fullUrl += useDevelopmentEnvironment ? developmentEnvironmentURL : productionEnvironmentURL;
         fullUrl += urlPath;
 
         bool firstParam = true;
@@ -59,7 +61,9 @@ namespace PlayFab
             } else {
                 fullUrl += "&";
             }
-            fullUrl += paramPair.first + "=" + paramPair.second;
+            fullUrl += paramPair.first;
+            fullUrl += "=";
+            fullUrl += paramPair.second;
         }
         
         return fullUrl;

@@ -13,7 +13,6 @@ namespace PlayFab
     };
 
     bool PlayFabSettings::useDevelopmentEnvironment = false;
-    std::string PlayFabSettings::serverURL;
     std::string PlayFabSettings::developmentEnvironmentURL = ".playfabsandbox.com";
     std::string PlayFabSettings::productionEnvironmentURL = ".playfabapi.com";
     std::string PlayFabSettings::titleId; // You must set this value for PlayFabSdk to work properly (Found in the Game Manager for your title, at the PlayFab Website)
@@ -48,11 +47,7 @@ namespace PlayFab
         std::string fullUrl;
         fullUrl.reserve(1000);
 
-        if (serverURL.length() == 0)
-            fullUrl += "https://" + titleId + (useDevelopmentEnvironment ? developmentEnvironmentURL : productionEnvironmentURL);
-        else
-            fullUrl += serverURL;
-        
+        fullUrl += "https://" + titleId + (useDevelopmentEnvironment ? developmentEnvironmentURL : productionEnvironmentURL);
         fullUrl += urlPath;
 
         bool firstParam = true;

@@ -48,7 +48,5 @@ namespace PlayFab
 
         friend PlayFabHttp;
         static std::string GetUrl(const std::string& urlPath, const std::map<std::string, std::string>& getParams);
-
-        static std::string serverURL;
     };
 }

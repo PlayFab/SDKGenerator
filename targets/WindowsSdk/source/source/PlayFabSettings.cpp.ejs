@@ -45,7 +45,9 @@ namespace PlayFab
         utility::string_t fullUrl;
         fullUrl.reserve(1000);
 
-        fullUrl += U("https://" + titleId + (useDevelopmentEnvironment ? developmentEnvironmentURL : productionEnvironmentURL));
+        fullUrl += L"https://";
+        fullUrl += titleId;
+        fullUrl += useDevelopmentEnvironment ? developmentEnvironmentURL : productionEnvironmentURL;
         fullUrl += urlPath;
 
         bool firstParam = true;
@@ -57,7 +59,9 @@ namespace PlayFab
             } else {
                 fullUrl += L"&";
             }
-            fullUrl += paramPair.first + L"=" + paramPair.second;
+            fullUrl += paramPair.first;
+            fullUrl += L"=";
+            fullUrl += paramPair.second;
         }
         
         return fullUrl;

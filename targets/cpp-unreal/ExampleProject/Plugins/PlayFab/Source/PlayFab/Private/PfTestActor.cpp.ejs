@@ -749,7 +749,7 @@ void APfTestActor::GetEntityToken(UPfTestContext* testContext)
 void APfTestActor::OnGetEntityToken(FAuthenticationGetEntityTokenResponse result, UObject* customData)
 {
     entityId = result.Entity->GetStringField("Id");
-    entityTypeString = result.Entity->GetStringField("TypeString");
+    entityType = result.Entity->GetStringField("Type");
 
     UPfTestContext* testContext = dynamic_cast<UPfTestContext*>(customData);
     EndTest(testContext, PlayFabApiTestFinishState::PASSED, "");
@@ -771,7 +771,7 @@ void APfTestActor::ObjectApi(UPfTestContext* testContext)
     FDataGetObjectsRequest request;
     request.Entity = NewObject<UPlayFabJsonObject>();
     request.Entity->SetStringField("Id", entityId);
-    request.Entity->SetStringField("TypeString", entityTypeString);
+    request.Entity->SetStringField("Type", entityType);
     request.EscapeObject = true;
 
     UPlayFabDataAPI::FDelegateOnSuccessGetObjects onSuccess; onSuccess.BindUFunction(this, "OnGetObjectApi1");
@@ -791,7 +791,7 @@ void APfTestActor::OnGetObjectApi1(FDataGetObjectsResponse result, UObject* cust
     FDataSetObjectsRequest request;
     request.Entity = NewObject<UPlayFabJsonObject>();
     request.Entity->SetStringField("Id", entityId);
-    request.Entity->SetStringField("TypeString", entityTypeString);
+    request.Entity->SetStringField("Type", entityType);
 
     auto saveObj = NewObject<UPlayFabJsonObject>();
     saveObj->SetStringField(TEXT("ObjectName"), TEST_DATA_KEY);
@@ -808,7 +808,7 @@ void APfTestActor::OnSetObjectApi(FDataSetObjectsResponse result, UObject* custo
     FDataGetObjectsRequest request;
     request.Entity = NewObject<UPlayFabJsonObject>();
     request.Entity->SetStringField("Id", entityId);
-    request.Entity->SetStringField("TypeString", entityTypeString);
+    request.Entity->SetStringField("Type", entityType);
     request.EscapeObject = true;
 
     UPlayFabDataAPI::FDelegateOnSuccessGetObjects onSuccess; onSuccess.BindUFunction(this, "OnGetObjectApi2");

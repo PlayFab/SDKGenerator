@@ -15,7 +15,7 @@ var PlayFabApiTests = {
     testData: {
         entityToken: null, // Entity-Login: filled after login
         entityId: null, // Entity-Login: filled after login
-        entityTypeString: null, // Entity-Login: filled after login
+        entityType: null, // Entity-Login: filled after login
         playFabId: null, // Client-Login: filled during login
         testNumber: null, // Arbitrary counter, used by several tests
     },
@@ -493,7 +493,7 @@ var PlayFabApiTests = {
         var getTokenCallback = function (result: PlayFabModule.SuccessContainer<PlayFabDataModels.GetObjectsResponse>, error: PlayFabModule.IPlayFabError): void {
             PlayFabApiTests.VerifyNullError(result, error, assert, "Testing GetToken result");
             PlayFabApiTests.testData.entityId = result.data.Entity.Id;
-            PlayFabApiTests.testData.entityTypeString = result.data.Entity.TypeString;
+            PlayFabApiTests.testData.entityType = result.data.Entity.Type;
             getTokenDone();
         };
 
@@ -511,7 +511,7 @@ var PlayFabApiTests = {
         var getObjectRequest = <PlayFabDataModels.GetObjectsRequest>{
             Entity: {
                 Id: PlayFabApiTests.testData.entityId,
-                TypeString: PlayFabApiTests.testData.entityTypeString,
+                Type: PlayFabApiTests.testData.entityType,
             },
             EscapeObject: true,
         };
@@ -547,7 +547,7 @@ var PlayFabApiTests = {
             var updateDataRequest = <PlayFabDataModels.SetObjectsRequest>{
                 Entity: {
                     Id: PlayFabApiTests.testData.entityId,
-                    TypeString: PlayFabApiTests.testData.entityTypeString,
+                    Type: PlayFabApiTests.testData.entityType,
                 },
                 Objects: [{ ObjectName: PlayFabApiTests.testConstants.TEST_DATA_KEY, DataObject: PlayFabApiTests.testData.testNumber }]
             };

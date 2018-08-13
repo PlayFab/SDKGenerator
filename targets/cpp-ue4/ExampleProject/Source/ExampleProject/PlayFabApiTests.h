@@ -312,7 +312,7 @@ class PlayFabApiTestSuite : public FAutomationTestBase
 public:
     static FString playFabId; // Set by PlayFabApiTest_LoginWithEmail upon successful login
     static FString entityId; // Set by PlayFabApiTest_GetEntityToken if retrieved successfully
-    static FString entityTypeString; // Set by PlayFabApiTest_GetEntityToken if retrieved successfully
+    static FString entityType; // Set by PlayFabApiTest_GetEntityToken if retrieved successfully
 
     // TEST CONSTANTS
     FString TEST_DATA_KEY_1 = TEXT("testCounter");

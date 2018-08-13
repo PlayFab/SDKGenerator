@@ -30,7 +30,7 @@ namespace UnittestRunner
         static string testMessageReturn;
         static string entityToken;
         static string entityId;
-        static string entityTypeString;
+        static string entityType;
         static int testInteger;
 
         static const string TEST_OBJ_NAME;
@@ -156,7 +156,7 @@ namespace UnittestRunner
             Assert::IsTrue(testMessageReturn.compare("Entity Token Received") == 0, WidenString(testMessageReturn).c_str()); // We got the entity token
             Assert::IsTrue(entityToken.length() > 0, L"Title-Player Entity Token not retrieved from GetEntityToken");
             Assert::IsTrue(entityId.length() > 0, L"Title-Player EntityId not retrieved from GetEntityToken");
-            Assert::IsTrue(entityTypeString.compare("title_player_account") == 0, WidenString("EntityTypeString: " + entityTypeString).c_str()); // We got the entity token for the type we expected
+            Assert::IsTrue(entityType.compare("title_player_account") == 0, WidenString("entityType: " + entityType).c_str()); // We got the entity token for the type we expected
         }
         static void GetEntityTokenCallback(const GetEntityTokenResponse& result, void*)
         {
@@ -165,7 +165,7 @@ namespace UnittestRunner
 
             // It's unfortunate that we have to specify the internal structure of EntityKey here...
             entityId = result.Entity->Id;
-            entityTypeString = result.Entity->TypeString;
+            entityType = result.Entity->Type;
         }
 
         /// <summary>
@@ -180,14 +180,14 @@ namespace UnittestRunner
 
             GetObjectsRequest getRequest;
             getRequest.Entity.Id = entityId;
-            getRequest.Entity.TypeString = entityTypeString;
+            getRequest.Entity.Type = entityType;
             PlayFabDataAPI::GetObjects(getRequest, GetObjectsCallback1, SharedFailedCallback, nullptr);
             PlayFabApiWait();
             Assert::IsTrue(testMessageReturn.compare("GetObj1 Success") == 0, WidenString(testMessageReturn).c_str());
 
             SetObjectsRequest setRequest;
             setRequest.Entity.Id = entityId;
-            setRequest.Entity.TypeString = entityTypeString;
+            setRequest.Entity.Type = entityType;
             SetObject setObj;
             setObj.DataObject = testMessageInt1;
             setObj.ObjectName = TEST_OBJ_NAME;
@@ -240,7 +240,7 @@ namespace UnittestRunner
     string PlayFabEntityTest::testMessageReturn;
     string PlayFabEntityTest::entityToken;
     string PlayFabEntityTest::entityId;
-    string PlayFabEntityTest::entityTypeString;
+    string PlayFabEntityTest::entityType;
 
     const string PlayFabEntityTest::TEST_OBJ_NAME = "testCounter";
 }

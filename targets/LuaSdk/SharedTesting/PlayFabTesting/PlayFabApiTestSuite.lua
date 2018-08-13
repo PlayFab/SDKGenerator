@@ -36,7 +36,7 @@ local PlayFabApiTestSuite = {
     -- TEST VARIABLES
     playFabId = nil,
     entityId = nil,
-    entityTypeString = nil,
+    entityType = nil,
     testNumber = nil,
     testStatValue = nil,
 }
@@ -385,7 +385,7 @@ end
 function PlayFabApiTestSuite.OnGetEntityToken(result)
     if (result.Entity) then 
         PlayFabApiTestSuite.entityId = result.Entity.Id
-        PlayFabApiTestSuite.entityTypeString = result.Entity.TypeString
+        PlayFabApiTestSuite.entityType = result.Entity.Type
         AsyncTestSuite.EndTest("PASSED", result.Entity.Id)
     else
         AsyncTestSuite.EndTest("FAILED", "EntityId not found in GetEntityToken result" .. json.encode(result))
@@ -404,7 +404,7 @@ function PlayFabApiTestSuite.ObjectApi()
         --   https://api.playfab.com/Documentation/Data/method/GetObjects
         Entity = {
             Id = PlayFabApiTestSuite.entityId,
-            TypeString = PlayFabApiTestSuite.entityTypeString,
+            Type = PlayFabApiTestSuite.entityType,
         },
         EscapeObject = true,
     }
@@ -422,7 +422,7 @@ function PlayFabApiTestSuite.OnGetObj1(result)
         --   https://api.playfab.com/Documentation/Data/method/SetObjects
         Entity = {
             Id = PlayFabApiTestSuite.entityId,
-            TypeString = PlayFabApiTestSuite.entityTypeString,
+            Type = PlayFabApiTestSuite.entityType,
         },
         Objects = {
             {
@@ -439,7 +439,7 @@ function PlayFabApiTestSuite.OnSetObj(result)
         --   https://api.playfab.com/Documentation/Data/method/GetObjects
         Entity = {
             Id = PlayFabApiTestSuite.entityId,
-            TypeString = PlayFabApiTestSuite.entityTypeString,
+            Type = PlayFabApiTestSuite.entityType,
         },
         EscapeObject = true,
     }

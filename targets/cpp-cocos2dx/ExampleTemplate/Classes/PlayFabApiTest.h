@@ -326,7 +326,7 @@ namespace PlayFabApiTest
         const static std::string TEST_STAT_NAME;
         static std::string playFabId;
         static std::string entityId;
-        static std::string entityTypeString;
+        static std::string entityType;
         static int testMessageInt;
         static time_t testMessageTime;
         static std::list<PfTestContext*> testContexts;
@@ -922,10 +922,10 @@ namespace PlayFabApiTest
             PfTestContext* testContext = reinterpret_cast<PfTestContext*>(customData);
 
             entityId = *result.Entity.Id;
-            entityTypeString = *result.Entity.TypeString;
+            entityType = *result.Entity.Type;
 
-            if (entityTypeString != "title_player_account")
-                EndTest(*testContext, FAILED, "EntityTypeString unexpected: " + entityTypeString);
+            if (entityType != "title_player_account")
+                EndTest(*testContext, FAILED, "entityType unexpected: " + entityType);
             else if (entityId.length() == 0)
                 EndTest(*testContext, FAILED, "EntityID was empty");
             else
@@ -948,7 +948,7 @@ namespace PlayFabApiTest
 
             GetObjectsRequest request;
             request.Entity.Id = entityId;
-            request.Entity.TypeString = entityTypeString;
+            request.Entity.Type = entityType;
             request.EscapeObject = true;
             PlayFabDataAPI::GetObjects(request, OnGetObjects1, OnSharedError, &testContext);
         }
@@ -962,7 +962,7 @@ namespace PlayFabApiTest
 
             SetObjectsRequest request;
             request.Entity.Id = entityId;
-            request.Entity.TypeString = entityTypeString;
+            request.Entity.Type = entityType;
 
             SetObject updateObj;
             updateObj.ObjectName = TEST_DATA_KEY;
@@ -975,7 +975,7 @@ namespace PlayFabApiTest
         {
             GetObjectsRequest request;
             request.Entity.Id = entityId;
-            request.Entity.TypeString = entityTypeString;
+            request.Entity.Type = entityType;
             request.EscapeObject = true;
             PlayFabDataAPI::GetObjects(request, OnGetObjects2, OnSharedError, customData);
         }
@@ -1008,7 +1008,7 @@ namespace PlayFabApiTest
     std::list<PfTestContext*> PlayFabApiTests::testContexts;
     std::string PlayFabApiTests::playFabId;
     std::string PlayFabApiTests::entityId;
-    std::string PlayFabApiTests::entityTypeString;
+    std::string PlayFabApiTests::entityType;
     int PlayFabApiTests::testMessageInt;
     time_t PlayFabApiTests::testMessageTime;
 }

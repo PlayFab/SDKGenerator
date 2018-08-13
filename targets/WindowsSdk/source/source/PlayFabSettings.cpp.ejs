@@ -6,8 +6,11 @@ namespace PlayFab
     const utility::string_t PlayFabSettings::buildIdentifier = L"<%- buildIdentifier %>";
     const utility::string_t PlayFabSettings::versionString = L"WindowsSDK-<%- sdkVersion %>";
 
+    const std::map<utility::string_t, utility::string_t> PlayFabSettings::requestGetParams = {
+        { L"sdk", PlayFabSettings::versionString }
+    };
+
     bool PlayFabSettings::useDevelopmentEnvironment = false;
-    utility::string_t PlayFabSettings::serverURL;
     utility::string_t PlayFabSettings::developmentEnvironmentURL = L".playfabsandbox.com";
     utility::string_t PlayFabSettings::productionEnvironmentURL = L".playfabapi.com";
     utility::string_t PlayFabSettings::titleId; // You must set this value for PlayFabSdk to work properly (Found in the Game Manager for your title, at the PlayFab Website)
@@ -37,10 +40,30 @@ namespace PlayFab
         clientSessionTicket.clear();
     }
 
-    utility::string_t PlayFabSettings::GetUrl(const utility::string_t& urlPath)
+    utility::string_t PlayFabSettings::GetUrl(const utility::string_t& urlPath, const std::map<utility::string_t, utility::string_t>& getParams)
     {
-        if (serverURL.length() == 0)
-            serverURL = U("https://" + titleId + (useDevelopmentEnvironment ? developmentEnvironmentURL : productionEnvironmentURL));
-        return serverURL + urlPath;
+        utility::string_t fullUrl;
+        fullUrl.reserve(1000);
+
+        fullUrl += L"https://";
+        fullUrl += titleId;
+        fullUrl += useDevelopmentEnvironment ? developmentEnvironmentURL : productionEnvironmentURL;
+        fullUrl += urlPath;
+
+        bool firstParam = true;
+        for (auto const& paramPair : getParams)
+        {
+            if (firstParam) {
+                fullUrl += L"?";
+                firstParam = false;
+            } else {
+                fullUrl += L"&";
+            }
+            fullUrl += paramPair.first;
+            fullUrl += L"=";
+            fullUrl += paramPair.second;
+        }
+        
+        return fullUrl;
     }
 }

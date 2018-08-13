@@ -108,9 +108,9 @@ namespace PlayFab.Internal
         /// This initializes ScreenTimeTracker object and notifying it to start sending info.
         /// </summary>
         /// <param name="playFabUserId">Result of the user's login, represent user ID</param>
-        public static void InitializeScreenTimeTracker(string entityId, string entityTypeString, string playFabUserId)
+        public static void InitializeScreenTimeTracker(string entityId, string entityType, string playFabUserId)
         {
-            screenTimeTracker.ClientSessionStart(entityId, entityTypeString, playFabUserId);
+            screenTimeTracker.ClientSessionStart(entityId, entityType, playFabUserId);
             instance.StartCoroutine(SendScreenTimeEvents(delayBetweenBatches));
         }
 

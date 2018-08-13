@@ -8,7 +8,7 @@ DEFINE_LOG_CATEGORY(LogPlayFabTest); // This is a separate project from the Play
 */
 FString PlayFabApiTestSuite::playFabId;
 FString PlayFabApiTestSuite::entityId;
-FString PlayFabApiTestSuite::entityTypeString;
+FString PlayFabApiTestSuite::entityType;
 
 /*
 * ==== LoginWithEmailAddress ====
@@ -656,7 +656,7 @@ bool PlayFabApiTest_GetEntityToken::Update()
 void PlayFabApiTest_GetEntityToken::OnSuccess(const PlayFab::AuthenticationModels::FGetEntityTokenResponse& result) const
 {
     PlayFabApiTestSuite::entityId = result.Entity->Id;
-    PlayFabApiTestSuite::entityTypeString = result.Entity->TypeString;
+    PlayFabApiTestSuite::entityType = result.Entity->Type;
     UE_LOG(LogPlayFabTest, Log, TEXT("GetEntityToken Succeeded"));
 }
 
@@ -682,7 +682,7 @@ bool PlayFabApiTest_ObjectApi::Update()
 
         PlayFab::DataModels::FGetObjectsRequest request;
         request.Entity.Id = PlayFabApiTestSuite::entityId;
-        request.Entity.TypeString = PlayFabApiTestSuite::entityTypeString;
+        request.Entity.Type = PlayFabApiTestSuite::entityType;
         request.EscapeObject = true;
 
         dataAPI->GetObjects(request

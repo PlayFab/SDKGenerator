@@ -30,7 +30,7 @@ namespace PlayFab.UUnit
 
         // Information fetched by appropriate API calls
         private static string entityId;
-        private static string entityTypeString;
+        private static string entityType;
         public static string PlayFabId;
 
         /// <summary>
@@ -462,7 +462,7 @@ namespace PlayFab.UUnit
         private void GetEntityTokenContinued(PlayFabResult<GetEntityTokenResponse> result, UUnitTestContext testContext, string failMessage)
         {
             entityId = result.Result.Entity.Id;
-            entityTypeString = result.Result.Entity.TypeString;
+            entityType = result.Result.Entity.Type;
         }
 
         /// <summary>
@@ -480,7 +480,7 @@ namespace PlayFab.UUnit
                 Entity = new DataModels.EntityKey
                 {
                     Id = entityId,
-                    TypeString = entityTypeString,
+                    Type = entityType,
                 },
                 EscapeObject = true
             };
@@ -501,7 +501,7 @@ namespace PlayFab.UUnit
                 Entity = new DataModels.EntityKey
                 {
                     Id = entityId,
-                    TypeString = entityTypeString,
+                    Type = entityType,
                 },
                 Objects = new List<SetObject>
                 {
@@ -522,7 +522,7 @@ namespace PlayFab.UUnit
                 Entity = new DataModels.EntityKey
                 {
                     Id = entityId,
-                    TypeString = entityTypeString,
+                    Type = entityType,
                 },
                 EscapeObject = true
             };

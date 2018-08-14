@@ -1,4 +1,4 @@
-#if defined(ENABLE_PLAYFABENTITY_API) && !defined(DISABLE_PLAYFABCLIENT_API)
+#if !defined(DISABLE_PLAYFABENTITY_API) && !defined(DISABLE_PLAYFABCLIENT_API)
 
 #include "CppUnitTest.h"
 #include <stdlib.h> // _dupenv_s

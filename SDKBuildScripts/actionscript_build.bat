@@ -1,20 +1,8 @@
 setlocal
 set repoName=ActionScriptSDK
-set destPath=..\sdks\%repoName%
-pushd ..\%destPath%
-del /S *.as
-popd
+set targetSrc=actionscript
+set delSrc=true
+set flagsParams=
 
-cd %~dp0
-pushd ..
-if [%1] == [] (
-rem === BUILDING ActionScriptSDK ===
-node generate.js actionscript=%destPath% -apiSpecGitUrl
-) else (
-rem === BUILDING ActionScriptSDK with params %* ===
-node generate.js actionscript=%destPath% %*
-)
-popd
-
-pause
+call shared_build.bat
 endlocal

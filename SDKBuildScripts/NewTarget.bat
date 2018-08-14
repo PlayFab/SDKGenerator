@@ -1,20 +1,8 @@
 setlocal
 set repoName=NewTarget
-set destPath=..\sdks\%repoName%
-pushd ..\%destPath%
-rem del /S *.notapplicable
-popd
+set targetSrc=newTarget
+set delSrc=false
+set flagsParams=
 
-cd %~dp0
-pushd ..
-if [%1] == [] (
-rem === BUILDING NewTarget ===
-node generate.js newTarget=%destPath% -apiSpecGitUrl
-) else (
-rem === BUILDING NewTarget with params %* ===
-node generate.js newTarget=%destPath% %*
-)
-popd
-
-pause
+call shared_build.bat
 endlocal

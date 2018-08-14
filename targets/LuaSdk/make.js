@@ -1,19 +1,21 @@
 var path = require("path");
 
 // Making resharper less noisy - These are defined in Generate.js
-if (typeof (copyTree) === "undefined") copyTree = function () { };
 if (typeof (generateApiSummaryLines) === "undefined") generateApiSummaryLines = function () { };
 if (typeof (getCompiledTemplate) === "undefined") getCompiledTemplate = function () { };
 if (typeof (templatizeTree) === "undefined") templatizeTree = function () { };
 
 exports.makeClientAPI2 = function (apis, sourceDir, baseOutputDir) {
+    var locals = {
+    };
+
     var apiOutputDir = path.resolve(baseOutputDir, "PlayFabClientSdk");
     makeLuaDistSdk(apis, sourceDir, apiOutputDir, "Client");
-    copyTree(path.resolve(sourceDir, "SharedTesting"), apiOutputDir); // SharedTesting in Client only
+    templatizeTree(locals, path.resolve(sourceDir, "SharedTesting"), apiOutputDir); // SharedTesting in Client only
 
     apiOutputDir = path.resolve(baseOutputDir, "_Build/Defold/PlayFabClientSdk");
     makeDefold(apis, sourceDir, apiOutputDir, "DefoldClient");
-    copyTree(path.resolve(sourceDir, "SharedTesting"), apiOutputDir); // SharedTesting in Client only
+    templatizeTree(locals, path.resolve(sourceDir, "SharedTesting"), apiOutputDir); // SharedTesting in Client only
 
     apiOutputDir = path.resolve(baseOutputDir, "_Build/CoronaPluginBuilders/client/lua/plugin/playfab/client");
     makeCorona(apis, sourceDir, apiOutputDir, "CoronaClient", "plugin.playfab.client.");
@@ -41,7 +43,11 @@ exports.makeCombinedAPI = function (apis, sourceDir, baseOutputDir) {
     apiOutputDir = path.resolve(baseOutputDir, "_Build/CoronaPluginBuilders/combo/lua/plugin/playfab/combo");
     makeCorona(apis, sourceDir, apiOutputDir, "CoronaCombined", "plugin.playfab.combo.");
 
-    copyTree(path.resolve(sourceDir, "GlobalFiles"), baseOutputDir);
+    var locals = {
+        apis: apis
+    };
+
+    templatizeTree(locals, path.resolve(sourceDir, "GlobalFiles"), baseOutputDir);
 }
 
 function makeCoreSdk(apis, sourceDir, apiOutputDir, sdkDescriptor, requirePrefix, sdkVersionString) {
@@ -60,20 +66,23 @@ function makeCoreSdk(apis, sourceDir, apiOutputDir, sdkDescriptor, requirePrefix
 }
 
 function makeLuaDistSdk(apis, sourceDir, apiOutputDir, sdkDescriptor) {
+    var locals = {
+    };
+
     var sdkVersionString = "LuaSdk_" + exports.sdkVersion;
     makeCoreSdk(apis, sourceDir, path.resolve(apiOutputDir, "PlayFab"), sdkDescriptor, "PlayFab.", sdkVersionString);
-    copyTree(path.resolve(sourceDir, "LuaDist"), apiOutputDir);
+    templatizeTree(locals, path.resolve(sourceDir, "LuaDist"), apiOutputDir);
 }
 
 function makeDefold(apis, sourceDir, apiOutputDir, sdkDescriptor) {
-    var sdkVersionString = "DefoldSdk_" + exports.sdkVersion;
-    makeCoreSdk(apis, sourceDir, path.resolve(apiOutputDir, "PlayFab"), sdkDescriptor, "PlayFab.", sdkVersionString);
-    copyTree(path.resolve(sourceDir, "EachDefold"), apiOutputDir);
-
     var locals = {
         sdkDescriptor: sdkDescriptor, // sdkDescriptor is only used in Defold Templates
         sdkVersion: exports.sdkVersion
     }
+
+    var sdkVersionString = "DefoldSdk_" + exports.sdkVersion;
+    makeCoreSdk(apis, sourceDir, path.resolve(apiOutputDir, "PlayFab"), sdkDescriptor, "PlayFab.", sdkVersionString);
+    templatizeTree(locals, path.resolve(sourceDir, "EachDefold"), apiOutputDir);
 
     var projTemplate = getCompiledTemplate(path.resolve(sourceDir, "templates/Defold/PlayFabSdk.project.ejs"));
     writeFile(path.resolve(apiOutputDir, "PlayFabSdk.project"), projTemplate(locals));
@@ -94,7 +103,7 @@ function makeCorona(apis, sourceDir, apiOutputDir, sdkDescriptor, requirePrefix)
 
     var sdkVersionString = "CoronaSdk_" + exports.sdkVersion;
     makeCoreSdk(apis, sourceDir, apiOutputDir, sdkDescriptor, requirePrefix, sdkVersionString); // requirePrefix is mostly for Corona
-    copyTree(path.resolve(sourceDir, "EachCorona"), apiOutputDir);
+    templatizeTree(locals, path.resolve(sourceDir, "EachCorona"), apiOutputDir);
 }
 
 function makeApi(api, sourceDir, apiOutputDir, requirePrefix) {

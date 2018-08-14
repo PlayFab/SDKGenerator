@@ -422,7 +422,7 @@
     <Content Include="targets\LuaSdk\GlobalFiles\_Build\CoronaPluginBuilders\combo\bin\README.markdown" />
     <Content Include="targets\LuaSdk\GlobalFiles\_Build\CoronaPluginBuilders\combo\create_project.bat" />
     <Content Include="targets\LuaSdk\GlobalFiles\_Build\CoronaPluginBuilders\combo\create_project.sh" />
-    <Content Include="targets\LuaSdk\GlobalFiles\_Build\CoronaPluginBuilders\combo\lua\plugin\playfab\combo.lua" />
+    <Content Include="targets\LuaSdk\GlobalFiles\_Build\CoronaPluginBuilders\combo\lua\plugin\playfab\combo.lua.ejs" />
     <Content Include="targets\LuaSdk\GlobalFiles\_Build\CoronaPluginBuilders\combo\metadata.json" />
     <Content Include="targets\LuaSdk\GlobalFiles\_Build\CoronaPluginBuilders\combo\README.markdown" />
     <Content Include="targets\LuaSdk\GlobalFiles\_Build\CoronaPluginBuilders\combo\tmp\build.bat" />
@@ -438,7 +438,7 @@
     <Content Include="targets\LuaSdk\GlobalFiles\_Build\CoronaPluginBuilders\server\bin\README.markdown" />
     <Content Include="targets\LuaSdk\GlobalFiles\_Build\CoronaPluginBuilders\server\create_project.bat" />
     <Content Include="targets\LuaSdk\GlobalFiles\_Build\CoronaPluginBuilders\server\create_project.sh" />
-    <Content Include="targets\LuaSdk\GlobalFiles\_Build\CoronaPluginBuilders\server\lua\plugin\playfab\server.lua" />
+    <Content Include="targets\LuaSdk\GlobalFiles\_Build\CoronaPluginBuilders\server\lua\plugin\playfab\server.lua.ejs" />
     <Content Include="targets\LuaSdk\GlobalFiles\_Build\CoronaPluginBuilders\server\metadata.json" />
     <Content Include="targets\LuaSdk\GlobalFiles\_Build\CoronaPluginBuilders\server\README.markdown" />
     <Content Include="targets\LuaSdk\GlobalFiles\_Build\CoronaPluginBuilders\server\tmp\build.bat" />

@@ -1,21 +1,8 @@
 setlocal
 set repoName=NodeSDK
-set destPath=..\sdks\%repoName%
-pushd ..\%destPath%
-del /S *.js
-del /S *.ts
-popd
+set targetSrc=js-node
+set delSrc=true
+set flagsParams=
 
-cd %~dp0
-pushd ..
-if [%1] == [] (
-rem === BUILDING NodeSDK ===
-node generate.js js-node=%destPath% -apiSpecGitUrl
-) else (
-rem === BUILDING NodeSDK with params %* ===
-node generate.js js-node=%destPath% %*
-)
-popd
-
-pause
+call shared_build.bat
 endlocal

@@ -7,7 +7,7 @@ if (typeof (templatizeTree) === "undefined") templatizeTree = function () { };
 exports.makeCombinedAPI = function (apis, sourceDir, apiOutputDir) {
     console.log("Generating Combined api from: " + sourceDir + " to: " + apiOutputDir);
 
-    var extraDefines = "ENABLE_PLAYFABADMIN_API;ENABLE_PLAYFABENTITY_API;ENABLE_PLAYFABMATCHMAKER_API;ENABLE_PLAYFABSERVER_API;";
+    var extraDefines = "ENABLE_PLAYFABADMIN_API;ENABLE_PLAYFABSERVER_API;";
 
     var locals = {
         apis: apis,
@@ -98,7 +98,7 @@ function getApiDefine(api) {
         return "#ifdef ENABLE_PLAYFAB" + api.name.toUpperCase() + "_API";
 
     // For now, everything else is considered ENTITY
-    return "#ifdef ENABLE_PLAYFABENTITY_API";
+    return "#ifndef DISABLE_PLAYFABENTITY_API";
 }
 
 function getAuthParams(apiCall) {

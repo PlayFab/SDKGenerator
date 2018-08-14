@@ -45,16 +45,10 @@ void FPlayFabModule::StartupModule()
     RegisterSettings();
     HandleSettingsSaved();
 
-    // create the API
-    AuthenticationAPI = MakeShareable(new PlayFab::UPlayFabAuthenticationAPI());
-    ClientAPI = MakeShareable(new PlayFab::UPlayFabClientAPI());
-    DataAPI = MakeShareable(new PlayFab::UPlayFabDataAPI());
-
-#if WITH_SERVER_CODE
-    ServerAPI = MakeShareable(new PlayFab::UPlayFabServerAPI());
-    MatchmakerAPI = MakeShareable(new PlayFab::UPlayFabMatchmakerAPI());
-    AdminAPI = MakeShareable(new PlayFab::UPlayFabAdminAPI());
-#endif
+    // create the APIs
+<% for(var i = 0; i < apis.length; i++) { var api = apis[i];
+%>    <%- api.name %>API = MakeShareable(new PlayFab::UPlayFab<%- api.name %>API());
+<% } %>
 }
 
 void FPlayFabModule::ShutdownModule()

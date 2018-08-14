@@ -7,7 +7,7 @@ using System;
 using System.Collections.Generic;
 using System.Linq;
 using System.Threading.Tasks;
-#if ENABLE_PLAYFABENTITY_API
+#if !DISABLE_PLAYFABENTITY_API
 using PlayFab.AuthenticationModels;
 using PlayFab.DataModels;
 #endif
@@ -448,7 +448,7 @@ namespace PlayFab.UUnit
             });
         }
 
-#if ENABLE_PLAYFABENTITY_API
+#if !DISABLE_PLAYFABENTITY_API
         /// <summary>
         /// ENTITY API
         /// Get the EntityToken for the client player

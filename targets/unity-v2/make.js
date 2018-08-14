@@ -358,7 +358,7 @@ function getRequestActions(tabbing, apiCall) {
             tabbing + "if (authType == AuthType.None && PlayFabClientAPI.IsClientLoggedIn())\n" +
             tabbing + "    authType = AuthType.LoginSession;\n" +
             "#endif\n" +
-            "#if ENABLE_PLAYFABSERVER_API || ENABLE_PLAYFABADMIN_API || ENABLE_PLAYFABMATCHMAKER_API || UNITY_EDITOR\n" +
+            "#if ENABLE_PLAYFABSERVER_API || ENABLE_PLAYFABADMIN_API || UNITY_EDITOR\n" +
             tabbing + "if (authType == AuthType.None && !string.IsNullOrEmpty(PlayFabSettings.DeveloperSecretKey))\n" +
             tabbing + "    authType = AuthType.DevSecretKey;\n" +
             "#endif\n";
@@ -409,5 +409,5 @@ function getApiDefineFlag(api) {
         return "ENABLE_PLAYFAB" + api.name.toUpperCase() + "_API";
 
     // For now, everything else is considered ENTITY
-    return "ENABLE_PLAYFABENTITY_API";
+    return "!DISABLE_PLAYFABENTITY_API";
 }

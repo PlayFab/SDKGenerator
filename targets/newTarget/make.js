@@ -15,7 +15,7 @@ exports.makeClientAPI2 = function (apis, sourceDir, apiOutputDir) {
 
 // generate.js looks for some specific exported functions (as defined in TOC.json) in make.js, like:
 exports.makeServerAPI = function (apis, sourceDir, apiOutputDir) {
-    // Builds the server api.  The provided "apis" variable is a list of objects, built from: API_SPECS/admin.api.json, API_SPECS/matchmaker.api.json, and API_SPECS/server.api.json
+    // Builds the server api.  The provided "apis" variable is a list of objects, Examples: API_SPECS/Legacy/PlayFab/admin.api.json and API_SPECS/Legacy/PlayFab/server.api.json
     // If you don't want admin, you should filter it out yourself (for now)
     
     console.log("Generating Server api from: " + sourceDir + " to: " + apiOutputDir);
@@ -25,7 +25,7 @@ exports.makeServerAPI = function (apis, sourceDir, apiOutputDir) {
 
 // generate.js looks for some specific exported functions (as defined in TOC.json) in make.js, like:
 exports.makeCombinedAPI = function (apis, sourceDir, apiOutputDir) {
-    // Builds every api.  The provided "apis" variable is a list of objects, built from: API_SPECS/admin.api.json, API_SPECS/matchmaker.api.json, API_SPECS/server.api.json, and API_SPECS/client.api.json
+    // Builds every api.  The provided "apis" variable is a list of objects, Examples: API_SPECS/Legacy/PlayFab/admin.api.json, API_SPECS/Legacy/PlayFab/server.api.json, and API_SPECS/Legacy/PlayFab/client.api.json
     
     console.log("Generating Combined api from: " + sourceDir + " to: " + apiOutputDir);
     copyTree(path.resolve(sourceDir, "source"), apiOutputDir); // Copy the whole source directory as-is

@@ -1,20 +1,8 @@
 setlocal
 set repoName=JavaSDK
-set destPath=..\sdks\%repoName%
-pushd ..\%destPath%
-del /S *.java
-popd
+set targetSrc=java
+set delSrc=true
+set flagsParams=
 
-cd %~dp0
-pushd ..
-if [%1] == [] (
-rem === BUILDING JavaSDK ===
-node generate.js java=%destPath% -apiSpecGitUrl
-) else (
-rem === BUILDING JavaSDK with params %* ===
-node generate.js java=%destPath% %*
-)
-popd
-
-pause
+call shared_build.bat
 endlocal

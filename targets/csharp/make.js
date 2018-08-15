@@ -15,7 +15,7 @@ exports.makeClientAPI2 = function (apis, sourceDir, apiOutputDir) {
     for (var i = 0; i < apis.length; i++)
         makeApi(apis[i], sourceDir, apiOutputDir);
     generateSimpleFiles(apis, sourceDir, apiOutputDir);
-    generateProject(apis, sourceDir, apiOutputDir, "Client", "ENABLE_PLAYFABENTITY_API");
+    generateProject(apis, sourceDir, apiOutputDir, "Client", "");
 }
 
 exports.makeServerAPI = function (apis, sourceDir, apiOutputDir) {
@@ -27,7 +27,7 @@ exports.makeServerAPI = function (apis, sourceDir, apiOutputDir) {
     for (var i = 0; i < apis.length; i++)
         makeApi(apis[i], sourceDir, apiOutputDir);
     generateSimpleFiles(apis, sourceDir, apiOutputDir);
-    generateProject(apis, sourceDir, apiOutputDir, "Server", ";DISABLE_PLAYFABCLIENT_API;ENABLE_PLAYFABENTITY_API");
+    generateProject(apis, sourceDir, apiOutputDir, "Server", ";DISABLE_PLAYFABCLIENT_API");
 }
 
 exports.makeCombinedAPI = function (apis, sourceDir, apiOutputDir) {
@@ -41,7 +41,7 @@ exports.makeCombinedAPI = function (apis, sourceDir, apiOutputDir) {
     for (var i = 0; i < apis.length; i++)
         makeApi(apis[i], sourceDir, apiOutputDir);
     generateSimpleFiles(apis, sourceDir, apiOutputDir);
-    generateProject(apis, sourceDir, apiOutputDir, "All", "ENABLE_PLAYFABADMIN_API;ENABLE_PLAYFABSERVER_API;ENABLE_PLAYFABMATCHMAKER_API;ENABLE_PLAYFABENTITY_API");
+    generateProject(apis, sourceDir, apiOutputDir, "All", "ENABLE_PLAYFABADMIN_API;ENABLE_PLAYFABSERVER_API");
     generateNugetTemplate(sourceDir, apiOutputDir);
 }
 

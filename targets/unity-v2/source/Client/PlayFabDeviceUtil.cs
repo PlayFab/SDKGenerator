@@ -118,7 +118,7 @@ namespace PlayFab.Internal
             // Device information gathering
             SendDeviceInfoToPlayFab();
 
-#if ENABLE_PLAYFABENTITY_API
+#if !DISABLE_PLAYFABENTITY_API
             if (!string.IsNullOrEmpty(entityId) && !string.IsNullOrEmpty(entityType) && _gatherScreenTime)
             {
                 PlayFabHttp.InitializeScreenTimeTracker(entityId, entityType, playFabId);

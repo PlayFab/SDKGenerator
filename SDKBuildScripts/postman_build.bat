@@ -1,20 +1,8 @@
 setlocal
 set repoName=PostmanCollection
-set destPath=..\sdks\%repoName%
-pushd ..\%destPath%
-rem del /S *.notapplicable
-popd
+set targetSrc=postman
+set delSrc=false
+set flagsParams=
 
-cd %~dp0
-pushd ..
-if [%1] == [] (
-rem === BUILDING PostmanCollection ===
-node generate.js postman=%destPath% -apiSpecGitUrl
-) else (
-rem === BUILDING PostmanCollection with params %* ===
-node generate.js postman=%destPath% %*
-)
-popd
-
-pause
+call shared_build.bat
 endlocal

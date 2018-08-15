@@ -1,21 +1,8 @@
 setlocal
 set repoName=PlayFabGameServer
-set destPath=..\sdks\%repoName%
-pushd ..\%destPath%
-del /S *entity*.cs
-attrib -H *.meta /S /D
-popd
+set targetSrc=csharp-unity-gameserver
+set delSrc=true
+set flagsParams=
 
-cd %~dp0
-pushd ..
-if [%1] == [] (
-rem === BUILDING Unity PlayFabGameServer ===
-node generate.js csharp-unity-gameserver=%destPath% -apiSpecGitUrl
-) else (
-rem === BUILDING Unity PlayFabGameServer with params %* ===
-node generate.js csharp-unity-gameserver=%destPath% %*
-)
-popd
-
-pause
+call shared_build.bat
 endlocal

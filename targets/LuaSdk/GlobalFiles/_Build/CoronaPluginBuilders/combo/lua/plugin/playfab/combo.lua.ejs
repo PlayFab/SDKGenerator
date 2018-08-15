@@ -96,11 +96,9 @@ end
 
 lib.IPlayFabHttps = require("plugin.playfab.combo.IPlayFabHttps")
 lib.json = require("plugin.playfab.combo.json")
-lib.PlayFabAdminApi = require("plugin.playfab.combo.PlayFabAdminApi")
-lib.PlayFabClientApi = require("plugin.playfab.combo.PlayFabClientApi")
-lib.PlayFabMatchmakerApi = require("plugin.playfab.combo.PlayFabMatchmakerApi")
-lib.PlayFabServerApi = require("plugin.playfab.combo.PlayFabServerApi")
-lib.PlayFabSettings = require("plugin.playfab.combo.PlayFabSettings")
+<% for(var i = 0; i < apis.length; i++) { var api = apis[i];
+%>lib.PlayFab<%- api.name %>Api = require("plugin.playfab.combo.PlayFab<%- api.name %>Api")
+<% } %>
 
 local PlayFabHttpsCorona = require("plugin.playfab.combo.PlayFabHttpsCorona")
 lib.IPlayFabHttps.SetHttp(PlayFabHttpsCorona) -- Assign the Corona-specific IHttps wrapper

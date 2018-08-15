@@ -1,8 +1,5 @@
-<% if (api.name === "Client") { %>
-#ifndef <%- getApiDefine(api) %>
-<% } else { %>
-#ifdef <%- getApiDefine(api) %>
-<% } %>
+<%- getApiDefine(api) %>
+
 #include "playfab/PlayFab<%- api.name %>Api.h"
 #include "playfab/PlayFabHttp.h"
 #include "playfab/PlayFabSettings.h"

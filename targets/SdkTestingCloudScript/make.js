@@ -1,32 +1,37 @@
 var path = require("path");
 
 // Making resharper less noisy - These are defined in Generate.js
-if (typeof (copyTree) === "undefined") copyTree = function () { };
 if (typeof (getApiJson) === "undefined") getApiJson = function () { };
 if (typeof (generateApiSummaryLines) === "undefined") generateApiSummaryLines = function () { };
 if (typeof (getCompiledTemplate) === "undefined") getCompiledTemplate = function () { };
+if (typeof (templatizeTree) === "undefined") templatizeTree = function () { };
 
 exports.makeServerAPI = function (apis, sourceDir, apiOutputDir) {
     console.log("Generating cloudscript-ts Server SDK to " + apiOutputDir);
 
     // Get only the server api because this is for CloudScript (only has access to serverAPI)
-    var apiList = [];
-    for (var i = 0; i < apis.length; i++)
-        if (apis[i].name === "Server" || apis[i].name === "Entity")
-            apiList.push(apis[i]);
-    if (apiList.length === 0)
+    var serverApiNames = ["Server"];
+    var entityApiNames = ["Authentication", "Data", "Events", "Groups", "Profiles"];
+    var serverApiList = [];
+    var entityApiList = [];
+    for (var i = 0; i < apis.length; i++) {
+        if (serverApiNames.includes(apis[i].name))
+            serverApiList.push(apis[i]);
+        if (entityApiNames.includes(apis[i].name))
+            entityApiList.push(apis[i]);
+    }
+    if (serverApiList.length === 0)
         throw "Could not find Server API";
+    if (entityApiList.length === 0)
+        throw "Could not find Entity API";
 
     // Load PlayStream APIs
     var playStreamEventModels = getApiJson("PlayStreamEventModels");
-    // Load API template
-    var cloudScriptTemplate = getCompiledTemplate(path.resolve(sourceDir, "templates/CloudScript.d.ts.ejs"));
-    var playstreamTemplate = getCompiledTemplate(path.resolve(sourceDir, "templates/PlayStream.d.ts.ejs"));
-    var pkgTemplate = getCompiledTemplate(path.resolve(sourceDir, "templates/package.json.ejs"));
 
     // Generate the api against the template
-    var apiLocals = {
-        apis: apiList,
+    var locals = {
+        serverApiList: serverApiList,
+        entityApiList: entityApiList,
         childTypes: playStreamEventModels.ChildTypes,
         parentTypes: playStreamEventModels.ParentTypes,
         sdkVersion: exports.sdkVersion,
@@ -35,10 +40,7 @@ exports.makeServerAPI = function (apis, sourceDir, apiOutputDir) {
         generateApiSummary: generateApiSummary
     };
 
-    // Write out the template
-    writeFile(path.resolve(apiOutputDir, "Scripts/typings/PlayFab/CloudScript.d.ts"), cloudScriptTemplate(apiLocals));
-    writeFile(path.resolve(apiOutputDir, "Scripts/typings/PlayFab/PlayStream.d.ts"), playstreamTemplate(apiLocals));
-    writeFile(path.resolve(apiOutputDir, "package.json"), pkgTemplate(apiLocals));
+    templatizeTree(locals, path.resolve(sourceDir, "source"), apiOutputDir);
 }
 
 /**

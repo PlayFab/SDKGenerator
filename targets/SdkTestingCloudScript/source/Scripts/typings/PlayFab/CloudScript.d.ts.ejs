@@ -67,21 +67,43 @@ interface IApiError {
     errorDetails?: { [index:string] : { message: string[] } };
 }
 
-<% for(var a in apis) { var api = apis[a];
-%>/** Static object which allows access to PlayFab <%- api.name %> API calls */
-declare var <%- api.name.toLowerCase() %>: IPlayFab<%- api.name %>API;
-<% } %><% for(var a in apis) { var api = apis[a]; %>
+/** Static object which allows access to PlayFab Classic Server API calls */
+declare var server: IPlayFabServerAPI;
+/** Static object which allows access to PlayFab Entity API calls */
+declare var entity: IPlayFabEntityAPI;
+<% for(var sa in serverApiList) { var api = serverApiList[sa]; %>
 /** <%- api.name %>API.Models as interfaces */
 declare namespace PlayFab<%- api.name %>Models {
 <% for(var i in api.datatypes) { var datatype = api.datatypes[i];
 %><%- generateApiSummary("    ", datatype, "description", "https://api.playfab.com/Documentation/" + api.name + "/datatype/" + datatype.classNameSpace + "/" + datatype.classNameSpace + "." + datatype.name)
-%><%- makeDatatype("    ", datatype, sourceDir, "") %><% } %>}
-/** <%- api.name %> interface methods */
-interface IPlayFab<%- api.name %>API {
+%><%- makeDatatype("    ", datatype, sourceDir, "") %><% }
+%>}<% } %>
+
+/** Server interface methods */
+interface IPlayFabServerAPI {
+<% for(var sa in serverApiList) { var api = serverApiList[sa];
+for(var i in api.calls) { var apiCall = api.calls[i];
+%><%- generateApiSummary("    ", apiCall, "summary", "https://api.playfab.com/Documentation/" + api.name + "/method/" + apiCall.name) -%>
+    <%- apiCall.name %>(request: PlayFab<%- api.name %>Models.<%- apiCall.request %>): PlayFab<%- api.name %>Models.<%- apiCall.result %>;
+
+<% } } %>
+}
+
+<% for(var ea in entityApiList) { var api = entityApiList[ea]; %>
+/** <%- api.name %>API.Models as interfaces */
+declare namespace PlayFab<%- api.name %>Models {
+<% for(var i in api.datatypes) { var datatype = api.datatypes[i];
+%><%- generateApiSummary("    ", datatype, "description", "https://api.playfab.com/Documentation/" + api.name + "/datatype/" + datatype.classNameSpace + "/" + datatype.classNameSpace + "." + datatype.name)
+%><%- makeDatatype("    ", datatype, sourceDir, "") %><% }
+%>}<% } %>
+
+/** Entity interface methods */
+interface IPlayFabEntityAPI {
+<% for(var ea in entityApiList) { var api = entityApiList[ea];
+%>
 <% for(var i in api.calls) { var apiCall = api.calls[i];
 %><%- generateApiSummary("    ", apiCall, "summary", "https://api.playfab.com/Documentation/" + api.name + "/method/" + apiCall.name) -%>
     <%- apiCall.name %>(request: PlayFab<%- api.name %>Models.<%- apiCall.request %>): PlayFab<%- api.name %>Models.<%- apiCall.result %>;
 
-<% } %>
+<% } } %>
 }
-<% } %>

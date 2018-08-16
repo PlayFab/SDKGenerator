@@ -16,7 +16,7 @@ namespace PlayFab.UUnit
         private string _entityId;
         private string _entityType;
         private const string TEST_FILE_NAME = "testfile";
-        private const string _testPayload = "{123456789}";
+        private readonly byte[] _testPayload = new byte[] { 1, 2, 3, 4, 5, 6, 7, 8, 9, 10 };
         private int _testInteger;
         private bool _shouldDeleteFiles;
 
@@ -153,6 +153,7 @@ namespace PlayFab.UUnit
 
             testContext.EndTest(UUnitFinishState.PASSED, actualInteger.ToString());
         }
+
         #region PUT_Verb_Test
         /// <summary>
         /// ENTITY PUT API
@@ -300,13 +301,9 @@ namespace PlayFab.UUnit
         void OnInitFileUpload(DataModels.InitiateFileUploadsResponse response)
         {
             var testContext = (UUnitTestContext)response.CustomData;
-            var payload = Encoding.UTF8.GetBytes(_testPayload);
-
-            testContext.IntEquals(_testPayload.Length, payload.Length);
-            testContext.True(_testPayload.Length > 0);
 
             PlayFabHttp.SimplePutCall(response.UploadDetails[0].UploadUrl,
-                payload,
+                _testPayload,
                 PlayFabUUnitUtils.SimpleApiNoParamsActionWrapper(testContext, FinalizeUpload),
                 error =>
                 {
@@ -333,15 +330,13 @@ namespace PlayFab.UUnit
         }
         void TestFileContent(UUnitTestContext testContext, byte[] result)
         {
-            var testFileData = Encoding.UTF8.GetString(result);
+            var json = PluginManager.GetPlugin<ISerializerPlugin>(PluginContract.PlayFab_Serializer);
 
             testContext.NotNull(result, "Raw file result was null");
-            testContext.NotNull(testFileData, "UTF8 conversion of result was null");
             testContext.True(result.Length > 0, "Raw file result was zero length");
-            testContext.True(testFileData.Length > 0, "UTF8 conversion of result was zero length");
 
-            testContext.True(testFileData.Equals(_testPayload), testFileData);
-            DeleteFiles(testContext, new List<string> { TEST_FILE_NAME }, true, UUnitFinishState.PASSED, "File " + TEST_FILE_NAME + "was succesfully created and uploaded to server with PUT");
+            testContext.StringEquals(json.SerializeObject(_testPayload), json.SerializeObject(result), json.SerializeObject(result));
+            DeleteFiles(testContext, new List<string> { TEST_FILE_NAME }, true, UUnitFinishState.PASSED, "File " + TEST_FILE_NAME + " was succesfully created and uploaded to server with PUT");
         }
         #endregion
     }

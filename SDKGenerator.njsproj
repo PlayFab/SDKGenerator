@@ -479,11 +479,11 @@
     <Content Include="targets\PythonSdk\templates\API.py.ejs" />
     <Content Include="targets\PythonSdk\source\playfab\PlayFabErrors.py.ejs" />
     <Content Include="targets\PythonSdk\source\setup.py.ejs" />
-    <Content Include="targets\SdkTestingCloudScript\templates\CloudScript.d.ts.ejs" />
+    <Content Include="targets\SdkTestingCloudScript\source\Scripts\typings\PlayFab\CloudScript.d.ts.ejs" />
     <Content Include="targets\SdkTestingCloudScript\templates\Interface.d.ts.ejs" />
     <Content Include="targets\SdkTestingCloudScript\templates\Enum.d.ts.ejs" />
-    <Content Include="targets\SdkTestingCloudScript\templates\package.json.ejs" />
-    <Content Include="targets\SdkTestingCloudScript\templates\PlayStream.d.ts.ejs" />
+    <Content Include="targets\SdkTestingCloudScript\source\package.json.ejs" />
+    <Content Include="targets\SdkTestingCloudScript\source\Scripts\typings\PlayFab\PlayStream.d.ts.ejs" />
     <Content Include="targets\unity-v2\source\Admin\PlayFabSettings.cs" />
     <Content Include="targets\unity-v2\source\Client\PlayFabDeviceUtil.cs" />
     <Content Include="targets\unity-v2\source\Client\PlayFabSettings.cs" />
@@ -927,6 +927,10 @@
     <Folder Include="targets\PythonSdk\source\" />
     <Folder Include="targets\PythonSdk\source\playfab\" />
     <Folder Include="targets\PythonSdk\templates\" />
+    <Folder Include="targets\SdkTestingCloudScript\source\" />
+    <Folder Include="targets\SdkTestingCloudScript\source\Scripts\" />
+    <Folder Include="targets\SdkTestingCloudScript\source\Scripts\typings\" />
+    <Folder Include="targets\SdkTestingCloudScript\source\Scripts\typings\PlayFab\" />
     <Folder Include="targets\unity-v2\source\Entity\" />
     <Folder Include="targets\unity-v2\source\Shared\SignalR.NET20\Properties\" />
     <Folder Include="targets\XPlatCppSdk\" />

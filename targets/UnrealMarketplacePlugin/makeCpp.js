@@ -7,46 +7,40 @@ if (typeof (templatizeTree) === "undefined") templatizeTree = function () { };
 
 var maxEnumSize = 255;
 
-var copyright =
-`//////////////////////////////////////////////////////
-// Copyright (C) Microsoft. 2018. All rights reserved.
-//////////////////////////////////////////////////////
-`;
-
-exports.makeCombinedAPI = function (apis, sourceDir, apiOutputDir) {
+exports.makeCppCombinedAPI = function (apis, copyright, sourceDir, apiOutputDir, ueTargetVersion, sdkVersion, buildIdentifier) {
     var locals = {
         apis: apis,
-        buildIdentifier: exports.buildIdentifier,
+        buildIdentifier: buildIdentifier,
         copyright: copyright,
         errorList: apis[0].errorList,
         errors: apis[0].errors,
-        friendlyName: "PlayFab Cpp Sdk",
-        sdkVersion: exports.sdkVersion,
-        ueTargetVersion: "4.19.0"
+        friendlyName: "PlayFab Cpp Module",
+        sdkVersion: sdkVersion,
+        ueTargetVersion: ueTargetVersion
     };
 
-    var subFolders = ["PlayFabSDK", "ExampleProject"]; // Two copies, one for example project, and one as the raw plugin
+    var subFolders = ["PlayFabPlugin"]; // Raw plugin folder
     for (var i = 0; i < subFolders.length; i++) {
+        var sourceCodeDir = path.resolve(sourceDir, "source/PlayFab/Source/PlayFabCpp");
         var eachApiOutputDir = path.resolve(apiOutputDir, subFolders[i]);
-        var pluginOutputDir = path.resolve(eachApiOutputDir, "Plugins");
-        var outputCodeDir = path.resolve(pluginOutputDir, "PlayFab/Source/PlayFab");
+        var outputCodeDir = path.resolve(eachApiOutputDir, "PlayFab/Source/PlayFabCpp");
 
-        console.log("Generating UE4 combined plugin to " + eachApiOutputDir);
+        console.log("Generating UE4 C++ Module to " + eachApiOutputDir);
+
+        console.log("Source : " + sourceCodeDir + " ");
 
         // copy the base plugins files, resource, uplugin, etc
-        templatizeTree(locals, path.resolve(sourceDir, "Plugins"), pluginOutputDir);
+        templatizeTree(locals, sourceCodeDir, outputCodeDir);
 
         for (var a = 0; a < apis.length; a++) {
-            makeApi(apis[a], sourceDir, outputCodeDir, "Core/");
+            makeApi(apis[a], copyright, sourceDir, outputCodeDir, "Core/");
         }
 
-        generateModels(apis, sourceDir, outputCodeDir, "All", "Core/");
+        generateModels(apis, copyright, sourceDir, outputCodeDir, "All", "Core/");
     }
-
-    templatizeTree(locals, path.resolve(sourceDir, "ExampleProject"), path.resolve(apiOutputDir, "ExampleProject"));
 }
 
-function makeApi(api, sourceDir, apiOutputDir, subdir) {
+function makeApi(api, copyright, sourceDir, apiOutputDir, subdir) {
     var apiLocals = {
         api: api,
         copyright: copyright,
@@ -59,14 +53,14 @@ function makeApi(api, sourceDir, apiOutputDir, subdir) {
         hasRequest: hasRequest
     };
 
-    var apiHeaderTemplate = getCompiledTemplate(path.resolve(sourceDir, "templates/core/PlayFab_API.h.ejs"));
+    var apiHeaderTemplate = getCompiledTemplate(path.resolve(sourceDir, "templates/PlayFabCpp/core/PlayFab_API.h.ejs"));
     writeFile(path.resolve(apiOutputDir, "Public/" + subdir + "PlayFab" + api.name + "API.h"), apiHeaderTemplate(apiLocals));
 
-    var apiBodyTemplate = getCompiledTemplate(path.resolve(sourceDir, "templates/core/PlayFab_API.cpp.ejs"));
+    var apiBodyTemplate = getCompiledTemplate(path.resolve(sourceDir, "templates/PlayFabCpp/core/PlayFab_API.cpp.ejs"));
     writeFile(path.resolve(apiOutputDir, "Private/" + subdir + "PlayFab" + api.name + "API.cpp"), apiBodyTemplate(apiLocals));
 }
 
-function generateModels(apis, sourceDir, apiOutputDir, libraryName, subdir) {
+function generateModels(apis, copyright, sourceDir, apiOutputDir, libraryName, subdir) {
     for (var a = 0; a < apis.length; a++) {
         var api = apis[a];
 
@@ -90,10 +84,10 @@ function generateModels(apis, sourceDir, apiOutputDir, libraryName, subdir) {
             libraryName: libraryName
         };
 
-        var modelHeaderTemplate = getCompiledTemplate(path.resolve(sourceDir, "templates/core/PlayFab_DataModels.h.ejs"));
+        var modelHeaderTemplate = getCompiledTemplate(path.resolve(sourceDir, "templates/PlayFabCpp/core/PlayFab_DataModels.h.ejs"));
         writeFile(path.resolve(apiOutputDir, "Public/" + subdir + "/PlayFab" + api.name + "DataModels.h"), modelHeaderTemplate(modelLocals));
 
-        var modelBodyTemplate = getCompiledTemplate(path.resolve(sourceDir, "templates/core/PlayFab_DataModels.cpp.ejs"));
+        var modelBodyTemplate = getCompiledTemplate(path.resolve(sourceDir, "templates/PlayFabCpp/core/PlayFab_DataModels.cpp.ejs"));
         writeFile(path.resolve(apiOutputDir, "Private/" + subdir + "PlayFab" + api.name + "DataModels.cpp"), modelBodyTemplate(modelLocals));
     }
 }
@@ -586,60 +580,60 @@ function getAuthParams(apiCall) {
     if (apiCall.url === "/Authentication/GetEntityToken")
         return "authKey, authValue";
     else if (apiCall.auth === "EntityToken")
-        return "TEXT(\"X-EntityToken\"), PlayFabSettings::entityToken";
+        return "TEXT(\"X-EntityToken\"), PlayFabSettings::GetEntityToken()";
     else if (apiCall.auth === "SecretKey")
-        return "TEXT(\"X-SecretKey\"), PlayFabSettings::developerSecretKey";
+        return "TEXT(\"X-SecretKey\"), PlayFabSettings::GetDeveloperSecretKey()";
     else if (apiCall.auth === "SessionTicket")
-        return "TEXT(\"X-Authorization\"), PlayFabSettings::clientSessionTicket";
+        return "TEXT(\"X-Authorization\"), PlayFabSettings::GetClientSessionTicket()";
     return "TEXT(\"\"), TEXT(\"\")";
 }
 
 function getRequestActions(tabbing, apiCall) {
     if (apiCall.url === "/Authentication/GetEntityToken")
         return tabbing + "FString authKey; FString authValue;\n"
-            + tabbing + "if (PlayFabSettings::entityToken.Len() > 0) {\n"
-            + tabbing + "    authKey = TEXT(\"X-EntityToken\"); authValue = PlayFabSettings::entityToken;\n"
-            + tabbing + "} else if (PlayFabSettings::clientSessionTicket.Len() > 0) {\n"
-            + tabbing + "    authKey = TEXT(\"X-Authorization\"); authValue = PlayFabSettings::clientSessionTicket;\n"
-            + tabbing + "} else if (PlayFabSettings::developerSecretKey.Len() > 0) {\n"
-            + tabbing + "    authKey = TEXT(\"X-SecretKey\"); authValue = PlayFabSettings::developerSecretKey;\n"
+            + tabbing + "if (PlayFabSettings::GetEntityToken().Len() > 0) {\n"
+            + tabbing + "    authKey = TEXT(\"X-EntityToken\"); authValue = PlayFabSettings::GetEntityToken();\n"
+            + tabbing + "} else if (PlayFabSettings::GetClientSessionTicket().Len() > 0) {\n"
+            + tabbing + "    authKey = TEXT(\"X-Authorization\"); authValue = PlayFabSettings::GetClientSessionTicket();\n"
+            + tabbing + "} else if (PlayFabSettings::GetDeveloperSecretKey().Len() > 0) {\n"
+            + tabbing + "    authKey = TEXT(\"X-SecretKey\"); authValue = PlayFabSettings::GetDeveloperSecretKey();\n"
             + tabbing + "}\n";
     else if (apiCall.auth === "EntityToken")
-        return tabbing + "if (PlayFabSettings::entityToken.Len() == 0) {\n"
+        return tabbing + "if (PlayFabSettings::GetEntityToken().Len() == 0) {\n"
             + tabbing + "    UE_LOG(LogPlayFab, Error, TEXT(\"You must call GetEntityToken API Method before calling this function.\"));\n"
             + tabbing + "}\n";
     else if (apiCall.auth === "SecretKey")
-        return tabbing + "if (PlayFabSettings::developerSecretKey.Len() == 0) {\n"
+        return tabbing + "if (PlayFabSettings::GetDeveloperSecretKey().Len() == 0) {\n"
             + tabbing + "    UE_LOG(LogPlayFab, Error, TEXT(\"You must first set your PlayFab developerSecretKey to use this function (Unreal Settings Menu, or in C++ code)\"));\n"
             + tabbing + "}\n";
     else if (apiCall.auth === "SessionTicket")
-        return tabbing + "if (PlayFabSettings::clientSessionTicket.Len() == 0) {\n"
+        return tabbing + "if (PlayFabSettings::GetClientSessionTicket().Len() == 0) {\n"
             + tabbing + "    UE_LOG(LogPlayFab, Error, TEXT(\"You must log in before calling this function\"));\n"
             + tabbing + "}\n";
     else if (apiCall.result === "LoginResult" || apiCall.request === "RegisterPlayFabUserRequest")
-        return tabbing + "if (PlayFabSettings::titleId.Len() > 0)\n"
-            + tabbing + "    request.TitleId = PlayFabSettings::titleId;\n";
+        return tabbing + "if (PlayFabSettings::GetTitleId().Len() > 0)\n"
+            + tabbing + "    request.TitleId = PlayFabSettings::GetTitleId();\n";
     return "";
 }
 
 function getResultActions(tabbing, apiCall) {
     if (apiCall.url === "/Authentication/GetEntityToken")
         return tabbing + "if (outResult.EntityToken.Len() > 0)\n"
-            + tabbing + "    PlayFabSettings::entityToken = outResult.EntityToken;\n\n";
+            + tabbing + "    PlayFabSettings::SetEntityToken(outResult.EntityToken);\n\n";
     else if (apiCall.result === "LoginResult")
-        return tabbing + "if (outResult.SessionTicket.Len() > 0) PlayFabSettings::clientSessionTicket = outResult.SessionTicket;\n"
-            + tabbing + "if (outResult.EntityToken.IsValid()) PlayFabSettings::entityToken = outResult.EntityToken->EntityToken;\n"
+        return tabbing + "if (outResult.SessionTicket.Len() > 0) PlayFabSettings::SetClientSessionTicket(outResult.SessionTicket);\n"
+            + tabbing + "if (outResult.EntityToken.IsValid()) PlayFabSettings::SetEntityToken(outResult.EntityToken->EntityToken);\n"
             + tabbing + "MultiStepClientLogin(outResult.SettingsForUser->NeedsAttribution);\n\n";
     else if (apiCall.result === "RegisterPlayFabUserResult")
         return tabbing + "if (outResult.SessionTicket.Len() > 0)\n"
-            + tabbing + "    PlayFabSettings::clientSessionTicket = outResult.SessionTicket;\n"
+            + tabbing + "    PlayFabSettings::SetClientSessionTicket(outResult.SessionTicket);\n"
             + tabbing + "MultiStepClientLogin(outResult.SettingsForUser->NeedsAttribution);\n\n";
     else if (apiCall.result === "AttributeInstallResult")
         return tabbing + "// Modify advertisingIdType:  Prevents us from sending the id multiple times, and allows automated tests to determine id was sent successfully\n"
-            + tabbing + "PlayFabSettings::advertisingIdType += \"_Successful\";\n\n";
+            + tabbing + "PlayFabSettings::SetAdvertisingIdType(PlayFabSettings::GetAdvertisingIdType() + \"_Successful\");\n\n";
     return "";
 }
 
 function getUrlAccessor(apiCall) {
-    return "PlayFabSettings::getURL(TEXT(\"" + apiCall.url + "\"))";
+    return "PlayFabSettings::GetUrl(TEXT(\"" + apiCall.url + "\"))";
 }

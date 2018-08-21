@@ -1,0 +1,42 @@
+<%- copyright %>
+
+  #include "PlayFab.h"
+
+  #include "PlayFabSettings.h"
+
+// Api's
+  <% for(var i = 0; i < apis.length; i++) { var api = apis[i];
+%>#include "Core/PlayFab<%- api.name %>API.h"
+<% } %>
+DEFINE_LOG_CATEGORY(LogPlayFab);
+
+class FPlayFabModule : public IPlayFabModuleInterface
+{
+    /** IModuleInterface implementation */
+    virtual void StartupModule() override;
+    virtual void ShutdownModule() override;
+
+    FString GetTitleId() const override { return PlayFab::PlayFabSettings::GetTitleId(); };
+    
+<% for(var i = 0; i < apis.length; i++) { var api = apis[i];
+%>    PlayFab<%- api.name %>Ptr Get<%- api.name %>API() const override { return <%- api.name %>API; };
+<% } %>
+<% for(var i = 0; i < apis.length; i++) { var api = apis[i];
+%>    PlayFab<%- api.name %>Ptr <%- api.name %>API;
+<% } %>
+
+};
+
+void FPlayFabModule::StartupModule()
+{
+    // create the API
+	<% for(var a in apis) { %>
+        <%- apis[a].name %>API = MakeShareable(new PlayFab::UPlayFab<%- apis[a].name %>API());<% } %>
+}
+
+void FPlayFabModule::ShutdownModule()
+{
+    
+}
+
+IMPLEMENT_MODULE(FPlayFabModule, PlayFabCpp)

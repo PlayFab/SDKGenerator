@@ -49,19 +49,12 @@ namespace PlayFab
     /// <summary>
     /// Provides an interface and a static instance for https implementations
     /// </summary>
-    class IPlayFabHttp : public IPlayFabHttpTransportPlugin
+    class IPlayFabHttp 
     {
     public:
         static IPlayFabHttp& Get();
 
         virtual ~IPlayFabHttp();
-
-        virtual void AddRequest(
-            const std::string& urlPath,
-            const std::string& authKey,
-            const std::string& authValue,
-            const std::string& requestBody, // dev note: Used to be Json::Value&
-            std::function<void(CallRequestContainer)> callback) override; // dev note: used to hard code this callback?
 
         virtual size_t Update() = 0;
     protected:
@@ -72,7 +65,7 @@ namespace PlayFab
     /// <summary>
     /// PlayFabHttp is the default https implementation for Win/C++, using cpprestsdk
     /// </summary>
-    class PlayFabHttp : public IPlayFabHttp
+    class PlayFabHttp : public IPlayFabHttp, public IPlayFabHttpTransportPlugin
     {
     public:
         static void MakeInstance();

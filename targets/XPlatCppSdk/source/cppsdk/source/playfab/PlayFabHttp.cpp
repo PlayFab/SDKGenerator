@@ -126,7 +126,7 @@ namespace PlayFab
         return (blockSize * blockCount);
     }
 
-    void PlayFabHttp::AddRequest(const std::string& urlPath, const std::string& authKey, const std::string& authValue, const Json::Value& requestBody, RequestCompleteCallback internalCallback, SharedVoidPointer successCallback, ErrorCallback errorCallback, void* customData)
+    void PlayFabHttp::InternalAddRequest(const std::string& urlPath, const std::string& authKey, const std::string& authValue, const Json::Value& requestBody, RequestCompleteCallback internalCallback, SharedVoidPointer successCallback, ErrorCallback errorCallback, void* customData)
     {
         CallRequestContainer* reqContainer = new CallRequestContainer();
         reqContainer->errorWrapper.UrlPath = urlPath;
@@ -144,6 +144,21 @@ namespace PlayFab
             activeRequestCount++;
         } // UNLOCK httpRequestMutex
     }
+
+    
+    void PlayFabHttp::AddRequest(
+        const std::string& urlPath,
+        const std::string& authKey,
+        const std::string& authValue,
+        const std::string& requestBody, // dev note: Used to be Json::Value&
+        std::function<void(CallRequestContainer)> callback) // dev note: used to hard code this callback?
+    {
+        //TODO: we will somehow need to hook this up to the above AddRequest, there may be an issue regarding the callbacks?
+        // TODO: convert requestBody from std::string to a Json::Value?
+        // TODO: how to convert from the given callback, to the 3 callbacks we actually want? (complete, success, error?)
+        //InternalAddRequest(urlPath, authKey, authValue, requestBody, );
+    }
+
 
     void PlayFabHttp::ExecuteRequest(CallRequestContainer& reqContainer)
     {

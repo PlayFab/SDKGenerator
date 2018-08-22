@@ -1,6 +1,7 @@
 #pragma once
 
 #include <playfab/PlayFabError.h>
+#include <playfab/PlayFabPluginManager.h>
 #include <functional>
 #include <memory>
 #include <thread>
@@ -17,8 +18,7 @@
 
 namespace PlayFab
 {
-    struct CallRequestContainer;
-    typedef void(*RequestCompleteCallback)(CallRequestContainer& reqContainer);
+    typedef void(*RequestCompleteCallback)(CallRequestContainer reqContainer);
     typedef std::shared_ptr<void> SharedVoidPointer;
 
     /// <summary>
@@ -49,17 +49,24 @@ namespace PlayFab
     /// <summary>
     /// Provides an interface and a static instance for https implementations
     /// </summary>
-    class IPlayFabHttp
+    class IPlayFabHttp : public IPlayFabHttpTransportPlugin
     {
     public:
         static IPlayFabHttp& Get();
 
         virtual ~IPlayFabHttp();
 
-        virtual void AddRequest(const std::string& urlPath, const std::string& authKey, const std::string& authValue, const Json::Value& requestBody, RequestCompleteCallback internalCallback, SharedVoidPointer successCallback, ErrorCallback errorCallback, void* customData) = 0;
+        virtual void AddRequest(
+            const std::string& urlPath,
+            const std::string& authKey,
+            const std::string& authValue,
+            const std::string& requestBody, // dev note: Used to be Json::Value&
+            std::function<void(CallRequestContainer)> callback) override; // dev note: used to hard code this callback?
+
         virtual size_t Update() = 0;
     protected:
         static std::unique_ptr<IPlayFabHttp> httpInstance;
+        virtual void InternalAddRequest(const std::string& urlPath, const std::string& authKey, const std::string& authValue, const Json::Value& requestBody, RequestCompleteCallback internalCallback, SharedVoidPointer successCallback, ErrorCallback errorCallback, void* customData) = 0;
     };
 
     /// <summary>
@@ -69,11 +76,20 @@ namespace PlayFab
     {
     public:
         static void MakeInstance();
-        ~PlayFabHttp() override;
+        ~PlayFabHttp();
 
-        void AddRequest(const std::string& urlPath, const std::string& authKey, const std::string& authValue, const Json::Value& requestBody, RequestCompleteCallback internalCallback, SharedVoidPointer successCallback, ErrorCallback errorCallback, void* customData) override;
-        size_t Update() override;
+        virtual void AddRequest(
+            const std::string& urlPath,
+            const std::string& authKey,
+            const std::string& authValue,
+            const std::string& requestBody, // dev note: Used to be Json::Value&
+            std::function<void(CallRequestContainer)> callback) override; // dev note: used to hard code this callback?
+
+        size_t Update();
     private:
+
+        void InternalAddRequest(const std::string& urlPath, const std::string& authKey, const std::string& authValue, const Json::Value& requestBody, RequestCompleteCallback internalCallback, SharedVoidPointer successCallback, ErrorCallback errorCallback, void* customData);
+
         PlayFabHttp(); // Private constructor, to enforce singleton instance
         PlayFabHttp(const PlayFabHttp& other); // Private copy-constructor, to enforce singleton instance
 

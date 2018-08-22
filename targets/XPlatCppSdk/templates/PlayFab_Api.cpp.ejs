@@ -30,9 +30,12 @@ namespace PlayFab
     )
     {
 <%- getRequestActions("        ", apiCall) %>
-        IPlayFabHttp& http = IPlayFabHttp::Get();
-        const auto requestJson = request.ToJson();
-        http.AddRequest("<%- apiCall.url %>", <%- getAuthParams(apiCall) %>, requestJson, On<%- apiCall.name %>Result, SharedVoidPointer((callback == nullptr) ? nullptr : new ProcessApiCallback<<%- apiCall.result %>>(callback)), errorCallback, customData);
+        // IPlayFabHttp& http = IPlayFabHttp::Get();
+        // const auto requestJson = request.ToJson();
+        //http.AddRequest("<%- apiCall.url %>", <%- getAuthParams(apiCall) %>, requestJson, On<%- apiCall.name %>Result, SharedVoidPointer((callback == nullptr) ? nullptr : new ProcessApiCallback<<%- apiCall.result %>>(callback)), errorCallback, customData);
+
+        // TODO: requestJson needs to be in std::string format
+        // http.AddRequest("<%- apiCall.url %>", <%- getAuthParams(apiCall) %>, requestJson, On<%- apiCall.name %>Result);
     }
 
     void PlayFab<%- api.name %>API::On<%- apiCall.name %>Result(CallRequestContainer& request)

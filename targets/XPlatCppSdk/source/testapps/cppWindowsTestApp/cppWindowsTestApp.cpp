@@ -1,4 +1,4 @@
-﻿// Copyright (C) Microsoft Corporation. All rights reserved.
+// Copyright (C) Microsoft Corporation. All rights reserved.
 
 #include <cppWindowsTestAppPch.h>
 
@@ -10,7 +10,8 @@
 
 void OnPlayFabFail(const PlayFab::PlayFabError& error, void*)
 {
-    printf(("========== PlayFab call Failed: " + error.GenerateReport() + "\n").c_str());
+    //printf(("========== PlayFab call Failed: " + error.GenerateReport() + "\n").c_str());
+    printf(("========== PlayFab call Failed: " + error.ErrorMessage + "\n").c_str());
 }
 
 void OnProfile(const PlayFab::ClientModels::GetPlayerProfileResult& result, void*)
@@ -28,15 +29,22 @@ void OnLoginSuccess(const PlayFab::ClientModels::LoginResult& result, void*)
 }
 
 using namespace PlayFab;
-class MyCustomTransport : public IPlayFabHttp
+class MyCustomTransport : public IPlayFabHttpTransportPlugin
 {
 public:
-    virtual void AddRequest(const std::string&, const std::string&, const std::string&, const Json::Value&, RequestCompleteCallback, SharedVoidPointer, ErrorCallback, void*) override
+    //virtual void AddRequest(const std::string&, const std::string&, const std::string&, const Json::Value&, RequestCompleteCallback, SharedVoidPointer, ErrorCallback, void*) override
+    //{
+    //    printf("hello there!");
+    //}
+    virtual void AddRequest(
+        const std::string& /*urlPath*/,
+        const std::string& /*authKey*/,
+        const std::string& /*authValue*/,
+        const std::string& /*requestBody*/, // dev note: Used to be Json::Value&
+        std::function<void(CallRequestContainer)> /*callback*/)
     {
         printf("hello there!");
     }
-
-    virtual size_t Update() override { return 0; }
 };
 
 int main()
@@ -44,7 +52,7 @@ int main()
     //PlayFab::IPlayFabTransportPlugin& plugin = PlayFab::PlayFabPluginManager::GetPlugin<PlayFab::IPlayFabTransportPlugin>(PlayFab::PlayFabPluginContract::PlayFab_Transport);
 
     //auto myTransportPlugin = std::make_unique<MyCustomTransport>();
-    //PlayFab::PlayFabPluginManager::SetPlugin(*myTransportPlugin, PlayFabPluginContract::PlayFab_Transport);
+    //PlayFab::PlayFabPluginManager::SetPlugin(myTransportPlugin, PlayFabPluginContract::PlayFab_HttpTransport);
 
     //// Super hacky short-term functionality PlayFab Test - TODO: Put the regular set of tests into proper Unit Test project
     //printf("========== Starting PlayFab Login API call.\n");

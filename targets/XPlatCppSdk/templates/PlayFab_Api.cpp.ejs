@@ -30,12 +30,16 @@ namespace PlayFab
     )
     {
 <%- getRequestActions("        ", apiCall) %>
-        // IPlayFabHttp& http = IPlayFabHttp::Get();
-        // const auto requestJson = request.ToJson();
+        IPlayFabHttp& http = IPlayFabHttp::Get();
+        const auto requestJson = request.ToJson().toStyledString();
         //http.AddRequest("<%- apiCall.url %>", <%- getAuthParams(apiCall) %>, requestJson, On<%- apiCall.name %>Result, SharedVoidPointer((callback == nullptr) ? nullptr : new ProcessApiCallback<<%- apiCall.result %>>(callback)), errorCallback, customData);
 
+        // TODO: getAuthParams(apiCall) will have to happen earlier, and not be parameters anymore.
+        // we need to get these parameters added to a map like:
+        std::map<const std::string&, const std::string&> headers;
+
         // TODO: requestJson needs to be in std::string format
-        // http.AddRequest("<%- apiCall.url %>", <%- getAuthParams(apiCall) %>, requestJson, On<%- apiCall.name %>Result);
+        http.AddPostRequest("<%- apiCall.url %>", headers, requestJson, On<%- apiCall.name %>Result);
     }
 
     void PlayFab<%- api.name %>API::On<%- apiCall.name %>Result(CallRequestContainer& request)

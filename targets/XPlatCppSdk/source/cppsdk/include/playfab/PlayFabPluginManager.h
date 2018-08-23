@@ -27,12 +27,11 @@ namespace PlayFab
     /// </summary>
     class IPlayFabHttpTransportPlugin : public IPlayFabPlugin
     {
-        virtual void AddRequest(
+        virtual void AddPostRequest(
             const std::string& urlPath,
-            const std::string& authKey,
-            const std::string& authValue,
+            std::map<const std::string&, const std::string&> headers,
             const std::string& requestBody, // dev note: Used to be Json::Value&
-            std::function<void(CallRequestContainer)> callback) = 0; // dev note: used to hard code this callback?
+            std::function<void(CallRequestContainer&)> callback) = 0; // dev note: used to hard code this callback?
     };
 
     /// <summary>

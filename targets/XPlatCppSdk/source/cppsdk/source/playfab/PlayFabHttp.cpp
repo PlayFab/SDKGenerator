@@ -126,7 +126,7 @@ namespace PlayFab
         return (blockSize * blockCount);
     }
 
-    void InternalAddRequest(const std::string& urlPath, const std::string& authKey, const std::string& authValue, const Json::Value& requestBody, std::function<void(CallRequestContainer&)> internalCallback, SharedVoidPointer successCallback, ErrorCallback errorCallback, void* customData)
+    void PlayFabHttp::InternalAddRequest(const std::string& urlPath, const std::string& authKey, const std::string& authValue, const Json::Value& requestBody, std::function<void(CallRequestContainer&)> internalCallback, SharedVoidPointer successCallback, ErrorCallback errorCallback, void* customData)
     {
         CallRequestContainer* reqContainer = new CallRequestContainer();
         reqContainer->errorWrapper.UrlPath = urlPath;
@@ -148,9 +148,9 @@ namespace PlayFab
     
     void PlayFabHttp::AddPostRequest(
         const std::string& urlPath,
-        std::map<const std::string&, const std::string&> headers,
+        std::map<std::string, std::string> headers,
         const std::string& requestBody, // dev note: Used to be Json::Value&
-        std::function<void(CallRequestContainer)> callback) // dev note: used to hard code this callback?
+        std::function<void(CallRequestContainer&)> callback) // dev note: used to hard code this callback?
     {
         // map about headers
         // set auth key and auth value before here 
@@ -166,7 +166,7 @@ namespace PlayFab
         Json::Value root;
         reader.parse(requestBody, root);
 
-        InternalAddRequest(urlPath, authKey, authValue, root);
+        InternalAddRequest(urlPath, authKey, authValue, root, callback, nullptr, nullptr, nullptr);
     }
 
     void PlayFabHttp::ExecuteRequest(CallRequestContainer& reqContainer)

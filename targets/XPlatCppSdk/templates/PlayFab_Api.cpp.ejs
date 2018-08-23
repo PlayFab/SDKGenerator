@@ -36,7 +36,7 @@ namespace PlayFab
 
         // TODO: getAuthParams(apiCall) will have to happen earlier, and not be parameters anymore.
         // we need to get these parameters added to a map like:
-        std::map<const std::string&, const std::string&> headers;
+        std::map<std::string, std::string> headers;
 
         // TODO: requestJson needs to be in std::string format
         http.AddPostRequest("<%- apiCall.url %>", headers, requestJson, On<%- apiCall.name %>Result);

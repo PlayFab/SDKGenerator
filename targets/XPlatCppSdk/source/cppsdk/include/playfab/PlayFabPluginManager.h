@@ -29,7 +29,7 @@ namespace PlayFab
     {
         virtual void AddPostRequest(
             const std::string& urlPath,
-            std::map<const std::string&, const std::string&> headers,
+            std::map<std::string, std::string> headers,
             const std::string& requestBody, // dev note: Used to be Json::Value&
             std::function<void(CallRequestContainer&)> callback) = 0; // dev note: used to hard code this callback?
     };

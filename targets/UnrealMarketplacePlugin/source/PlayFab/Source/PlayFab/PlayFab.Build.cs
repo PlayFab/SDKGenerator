@@ -17,7 +17,6 @@ namespace UnrealBuildTool.Rules
 
             PrivateIncludePaths.Add(Path.Combine(ModuleDirectory, "Private"));
 
-
             PublicDependencyModuleNames.AddRange(
                 new string[]
                 {

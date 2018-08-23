@@ -2,10 +2,10 @@
 
 #pragma once
 
-  #include "CoreMinimal.h"
-  #include <Runtime/Launch/Resources/Version.h>
-  #include "PlayFabJsonObject.h"
-  #include "PlayFabEnums.generated.h"
+#include "CoreMinimal.h"
+#include <Runtime/Launch/Resources/Version.h>
+#include "PlayFabJsonObject.h"
+#include "PlayFabEnums.generated.h"
 
 // PlayFab enums start with "pfenum_" in order to avoid code-name conflicts - For JSON, remove that prefix, and send only the expected portion (the display name is not fetchable when compiled)
   static const FString prefix = TEXT("pfenum_");

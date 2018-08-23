@@ -1,11 +1,11 @@
 <%- copyright %>
 
-  #include "PlayFab.h"
+#include "PlayFab.h"
 
-  #include "PlayFabSettings.h"
+#include "PlayFabSettings.h"
 
 // Api's
-  <% for(var i = 0; i < apis.length; i++) { var api = apis[i];
+<% for(var i = 0; i < apis.length; i++) { var api = apis[i];
 %>#include "Core/PlayFab<%- api.name %>API.h"
 <% } %>
 DEFINE_LOG_CATEGORY(LogPlayFab);

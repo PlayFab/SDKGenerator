@@ -11,12 +11,12 @@
 #include "CoreUObject.h"
 #include "Engine.h"
 
-#include "Delegate.h"
+#include "Delegates/Delegate.h"
 #include "Http.h"
-#include "Map.h"
+#include "Containers/Map.h"
 #include "Json.h"
 
-#include "ModuleManager.h"
+#include "Modules/ModuleManager.h"
 
 DECLARE_LOG_CATEGORY_EXTERN(LogPlayFab, Log, All);
 

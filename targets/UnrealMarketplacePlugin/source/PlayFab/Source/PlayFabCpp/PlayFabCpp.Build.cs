@@ -15,6 +15,10 @@ public class PlayFabCpp : ModuleRules
 
         PrivateIncludePaths.Add(Path.Combine(ModuleDirectory, "Private"));
 
+        PublicIncludePaths.Add(Path.Combine(ModuleDirectory, "Public/Core"));
+
+        PrivateIncludePaths.Add(Path.Combine(ModuleDirectory, "Private/Core"));
+
         PublicDependencyModuleNames.AddRange(new string[]{
             "Core",
             "CoreUObject",

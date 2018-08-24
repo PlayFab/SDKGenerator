@@ -25,7 +25,7 @@ namespace PlayFab
     void PlayFab<%- api.name %>API::<%- apiCall.name %>(
         <%- apiCall.request %>& request,
         ProcessApiCallback<<%- apiCall.result %>> callback,
-        ErrorCallback errorCallback
+        ErrorCallback /*errorCallback*/
         , void* /*customData*/
     )
     {
@@ -39,12 +39,17 @@ namespace PlayFab
         std::map<std::string, std::string> headers;
 
         // TODO: requestJson needs to be in std::string format
-        http.AddPostRequest("<%- apiCall.url %>", headers, requestJson, On<%- apiCall.name %>Result, errorCallback);
+        http.AddPostRequest("<%- apiCall.url %>", headers, requestJson, On<%- apiCall.name %>Result);
     }
 
     //void PlayFab<%- api.name %>API::On<%- apiCall.name %>Result(CallRequestContainer& request)
     void PlayFab<%- api.name %>API::On<%- apiCall.name %>Result(int httpResponseCode, std::string jsonResponse)
     {
+        // TODO: convert httpResponseCode and jsonResponse to a CallRequestContainer request
+        // MAYBE: add a static function to PlayFabHttp? to convert?
+        CallRequestContainer request = PlayFabHttp::BuildContainer(httpResponseCode, jsonResponse);
+
+        // then this function should work as is.
         <%- apiCall.result %> outResult;
         outResult.FromJson(request.errorWrapper.Data);
         outResult.Request = request.errorWrapper.Request;

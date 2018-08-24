@@ -280,4 +280,18 @@ namespace PlayFab
             return activeRequestCount;
         }
     }
+
+    CallRequestContainer PlayFabHttp::BuildContainer(int httpCode, std::string jsonResponse)
+    {
+        CallRequestContainer reqContainer = CallRequestContainer();
+        reqContainer->errorWrapper.UrlPath = urlPath;
+        reqContainer->authKey = authKey;
+        reqContainer->authValue = authValue;
+        reqContainer->errorWrapper.Request = requestBody;
+        reqContainer->internalCallback = internalCallback;
+        reqContainer->successCallback = successCallback;
+        reqContainer->errorCallback = errorCallback;
+        reqContainer->customData = customData;
+        return reqContainer;
+    }
 }

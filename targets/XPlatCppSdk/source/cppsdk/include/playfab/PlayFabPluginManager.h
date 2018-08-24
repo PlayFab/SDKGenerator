@@ -4,6 +4,8 @@
 
 namespace PlayFab
 {
+    typedef std::function<void(int httpCode, std::string json)> Callback;
+
     /// <summary>
     /// The enumeration of supported plugin contracts.
     /// </summary>
@@ -31,7 +33,7 @@ namespace PlayFab
             const std::string& urlPath,
             std::map<std::string, std::string> headers,
             const std::string& requestBody, // dev note: Used to be Json::Value&
-            std::function<void(CallRequestContainer&)> callback) = 0; // dev note: used to hard code this callback?
+            Callback callback) = 0; // dev note: used to hard code this callback?
     };
 
     /// <summary>

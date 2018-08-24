@@ -25,8 +25,8 @@ namespace PlayFab
     void PlayFab<%- api.name %>API::<%- apiCall.name %>(
         <%- apiCall.request %>& request,
         ProcessApiCallback<<%- apiCall.result %>> callback,
-        ErrorCallback errorCallback,
-        void* customData
+        ErrorCallback errorCallback
+        , void* /*customData*/
     )
     {
 <%- getRequestActions("        ", apiCall) %>
@@ -39,10 +39,11 @@ namespace PlayFab
         std::map<std::string, std::string> headers;
 
         // TODO: requestJson needs to be in std::string format
-        http.AddPostRequest("<%- apiCall.url %>", headers, requestJson, On<%- apiCall.name %>Result);
+        http.AddPostRequest("<%- apiCall.url %>", headers, requestJson, On<%- apiCall.name %>Result, errorCallback);
     }
 
-    void PlayFab<%- api.name %>API::On<%- apiCall.name %>Result(CallRequestContainer& request)
+    //void PlayFab<%- api.name %>API::On<%- apiCall.name %>Result(CallRequestContainer& request)
+    void PlayFab<%- api.name %>API::On<%- apiCall.name %>Result(int httpResponseCode, std::string jsonResponse)
     {
         <%- apiCall.result %> outResult;
         outResult.FromJson(request.errorWrapper.Data);

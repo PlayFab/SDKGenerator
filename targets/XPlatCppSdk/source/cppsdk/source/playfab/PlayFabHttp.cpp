@@ -150,14 +150,14 @@ namespace PlayFab
         const std::string& urlPath,
         std::map<std::string, std::string> headers,
         const std::string& requestBody, // dev note: Used to be Json::Value&
-        std::function<void(CallRequestContainer&)> callback) // dev note: used to hard code this callback?
+        std::function<void(CallRequestContainer&)> callback,
+        ErrorCallback errorCallback) // dev note: used to hard code this callback?
     {
-        // map about headers
-        // set auth key and auth value before here 
-        //std::map<std::string, std::string> headers;
-
-        // TODO: convert requestBody from std::string to a Json::Value?
         // TODO: how to convert from the given callback, to the 3 callbacks we actually want? (complete, success, error?)
+        // the error callback used to be handed to us from the external user
+        // callback should be investigated at least
+        // We used to generate the shared void ptr function like: SharedVoidPointer((callback == nullptr) ? nullptr : new ProcessApiCallback<<%- apiCall.result %>>(callback))
+        // which the above says if there IS a callback, we pass a specialized ProcessApiCallback? Do we need this too?!?!?
         
         auto authKey = headers["authKey"];
         auto authValue = headers["authValue"];
@@ -166,7 +166,7 @@ namespace PlayFab
         Json::Value root;
         reader.parse(requestBody, root);
 
-        InternalAddRequest(urlPath, authKey, authValue, root, callback, nullptr, nullptr, nullptr);
+        InternalAddRequest(urlPath, authKey, authValue, root, callback, nullptr, errorCallback, nullptr);
     }
 
     void PlayFabHttp::ExecuteRequest(CallRequestContainer& reqContainer)

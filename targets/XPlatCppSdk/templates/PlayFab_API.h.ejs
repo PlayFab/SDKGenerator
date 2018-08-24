@@ -30,7 +30,8 @@ namespace PlayFab
 
         // ------------ Generated result handlers
 <% for (var callIdx = 0; callIdx < api.calls.length; callIdx++) { var apiCall = api.calls[callIdx];
-%>        static void On<%- apiCall.name %>Result(CallRequestContainer& request);
+%>        //static void On<%- apiCall.name %>Result(CallRequestContainer& request);
+            static void On<%- apiCall.name %>Result(int httpCode, std::string jsonResponse);
 <% } %>
 <% if (hasClientOptions) { %>
         // Private, Client-Specific

@@ -32,10 +32,6 @@ using namespace PlayFab;
 class MyCustomTransport : public IPlayFabHttpTransportPlugin
 {
 public:
-    //virtual void AddRequest(const std::string&, const std::string&, const std::string&, const Json::Value&, RequestCompleteCallback, SharedVoidPointer, ErrorCallback, void*) override
-    //{
-    //    printf("hello there!");
-    //}
     virtual void AddRequest(
         const std::string& /*urlPath*/,
         const std::string& /*authKey*/,
@@ -55,16 +51,16 @@ int main()
     //PlayFab::PlayFabPluginManager::SetPlugin(myTransportPlugin, PlayFabPluginContract::PlayFab_HttpTransport);
 
     //// Super hacky short-term functionality PlayFab Test - TODO: Put the regular set of tests into proper Unit Test project
-    //printf("========== Starting PlayFab Login API call.\n");
-    //PlayFab::PlayFabSettings::titleId = "6195";
-    //PlayFab::PlayFabSettings::threadedCallbacks = true;
-    //PlayFab::ClientModels::LoginWithCustomIDRequest request;
-    //request.CustomId = "test_GSDK";
-    //request.CreateAccount = true;
-    //PlayFab::PlayFabClientAPI::LoginWithCustomID(request, OnLoginSuccess, OnPlayFabFail);
+    printf("========== Starting PlayFab Login API call.\n");
+    PlayFab::PlayFabSettings::titleId = "6195";
+    PlayFab::PlayFabSettings::threadedCallbacks = true;
+    PlayFab::ClientModels::LoginWithCustomIDRequest request;
+    request.CustomId = "test_GSDK";
+    request.CreateAccount = true;
+    PlayFab::PlayFabClientAPI::LoginWithCustomID(request, OnLoginSuccess, OnPlayFabFail);
 
     printf("Press enter to exit the program.\n");
-    getchar();
+    //getchar();
 
     return 0;
 }

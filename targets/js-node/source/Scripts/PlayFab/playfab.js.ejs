@@ -27,6 +27,9 @@ var _internalSettings = exports._internalSettings = {
     liveUrl: ".playfabapi.com",
     entityToken: null,
     sessionTicket: null,
+    requestGetParams: {
+        sdk: "JavaScriptSDK-<%- sdkVersion %>"
+    },
 };
 
 exports.GetServerUrl = function () {
@@ -42,6 +45,25 @@ exports.MakeRequest = function (urlStr, request, authType, authValue, callback) 
         requestBody = Buffer.from(JSON.stringify(request), "utf8");
     else
         requestBody = JSON.stringify(request);
+
+    var urlArr = ["", url]; //make a new array for the URL
+    var getParams = PlayFab._internalSettings.requestGetParams;
+    if (getParams != null) {
+        var firstParam = true;
+        for (var key in getParams) {
+            if (firstParam) {
+                urlArr.push("?");
+                firstParam = false;
+            } else {
+                urlArr.push("&");
+            }
+            urlArr.push(key);
+            urlArr.push("=");
+            urlArr.push(getParams[key]);
+        }
+    }
+
+    completeUrl = urlArr.join("");
 
     var options = url.parse(urlStr);
     if (options.protocol !== "https:")

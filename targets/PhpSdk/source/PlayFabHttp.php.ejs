@@ -17,7 +17,7 @@ if (!class_exists("PlayFabSettings")) {
 
             $output = PlayFabSettings::$PlayFabApiUrl . $apiPath;
             $output = str_replace("{titleId}", $titleId, $output);
-            bool $firstParam = True;
+            $firstParam = True;
             foreach($getParams as $key => $value)
             {
                 if($firstParam)

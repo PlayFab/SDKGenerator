@@ -46,7 +46,7 @@ exports.MakeRequest = function (urlStr, request, authType, authValue, callback) 
     else
         requestBody = JSON.stringify(request);
 
-    var urlArr = ["", url]; //make a new array for the URL
+    var urlArr = [urlStr]; //make a new array for the URL
     var getParams = _internalSettings.requestGetParams;
     if (getParams != null) {
         var firstParam = true;
@@ -63,9 +63,9 @@ exports.MakeRequest = function (urlStr, request, authType, authValue, callback) 
         }
     }
 
-    completeUrl = urlArr.join("");
+    var completeUrl = urlArr.join("");
 
-    var options = url.parse(urlStr);
+    var options = url.parse(completeUrl);
     if (options.protocol !== "https:")
         throw "Unsupported protocol: " + options.protocol;
     options.method = "POST";

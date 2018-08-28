@@ -60,24 +60,20 @@ if(!PlayFab._internalSettings) {
             var startTime = new Date();
             var requestBody = JSON.stringify(request);
 
-            var urlArr = ["", url]; //make a new array for the URL
+            var completeUrl = url; 
             var getParams = PlayFab._internalSettings.requestGetParams;
             if (getParams != null) {
                 var firstParam = true;
                 for (var key in getParams) {
                     if (firstParam) {
-                        urlArr.push("?");
+                        completeUrl += "?"; 
                         firstParam = false;
                     } else {
-                        urlArr.push("&");
+                        completeUrl += "&"; 
                     }
-                    urlArr.push(key);
-                    urlArr.push("=");
-                    urlArr.push(getParams[key]);
+                    completeUrl += key + "=" + getParams[key];
                 }
             }
-
-            completeUrl = urlArr.join("");
 
             var xhr = new XMLHttpRequest();
             // window.console.log("URL: " + completeUrl);

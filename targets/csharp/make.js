@@ -41,7 +41,7 @@ exports.makeCombinedAPI = function (apis, sourceDir, apiOutputDir) {
     for (var i = 0; i < apis.length; i++)
         makeApi(apis[i], sourceDir, apiOutputDir);
     generateSimpleFiles(apis, sourceDir, apiOutputDir);
-    generateProject(apis, sourceDir, apiOutputDir, "All", "ENABLE_PLAYFABADMIN_API;ENABLE_PLAYFABSERVER_API");
+    generateProject(apis, sourceDir, apiOutputDir, "All", ";ENABLE_PLAYFABADMIN_API;ENABLE_PLAYFABSERVER_API");
     generateNugetTemplate(sourceDir, apiOutputDir);
 }
 

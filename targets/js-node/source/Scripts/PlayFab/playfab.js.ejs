@@ -47,7 +47,7 @@ exports.MakeRequest = function (urlStr, request, authType, authValue, callback) 
         requestBody = JSON.stringify(request);
 
     var urlArr = ["", url]; //make a new array for the URL
-    var getParams = PlayFab._internalSettings.requestGetParams;
+    var getParams = _internalSettings.requestGetParams;
     if (getParams != null) {
         var firstParam = true;
         for (var key in getParams) {

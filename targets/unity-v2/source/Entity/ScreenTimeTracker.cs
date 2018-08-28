@@ -69,6 +69,9 @@ namespace PlayFab.Public
 
             eventInfo.Payload = payload;
             eventsRequests.Enqueue(eventInfo);
+
+            // Fake a focus-on event at the time of the first login:
+            OnApplicationFocus(true);
         }
 
         /// <summary>

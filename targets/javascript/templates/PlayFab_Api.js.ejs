@@ -60,16 +60,16 @@ if(!PlayFab._internalSettings) {
             var startTime = new Date();
             var requestBody = JSON.stringify(request);
 
-            var completeUrl = url; 
+            var completeUrl = url;
             var getParams = PlayFab._internalSettings.requestGetParams;
             if (getParams != null) {
                 var firstParam = true;
                 for (var key in getParams) {
                     if (firstParam) {
-                        completeUrl += "?"; 
+                        completeUrl += "?";
                         firstParam = false;
                     } else {
-                        completeUrl += "&"; 
+                        completeUrl += "&";
                     }
                     completeUrl += key + "=" + getParams[key];
                 }

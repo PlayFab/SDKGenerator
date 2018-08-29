@@ -5,21 +5,24 @@
 
 . $SHARED_WORKSPACE/SDKGenerator/JenkinsConsoleUtility/JenkinsScripts/util.sh
 
+# USAGE Nuke <folderLinkName>
+Nuke () {
+    rm "$1" 2> /dev/null || rm -f "$1" 2> /dev/null || rm -r "$1" 2> /dev/null || rm -rf "$1" 2> /dev/null || true
+}
+
 # USAGE: DeleteUnityCruft
 DeleteUnityCruft () {
     echo === DeleteUnityCruft $PWD, $@ ===
-    echo ==== BEGIN: Errors about failure to delete are normal ====
-    rm -rf .vs
-    rm -rf bin
-    rm -rf Library
-    rm -rf obj
-    rm -rf ProjectSettings
-    rm -rf Temp
-    rm -rf testBuilds
+    Nuke ".vs"
+    Nuke "bin"
+    Nuke "Library"
+    Nuke "obj"
+    Nuke "ProjectSettings"
+    Nuke "Temp"
+    Nuke "testBuilds"
     mkdir testBuilds
-    rm -f *.csproj
-    rm -f *.sln
-    echo ==== END: Errors about failure to delete are normal ====
+    Nuke "*.csproj"
+    Nuke "*.sln"
 }
 
 
@@ -29,10 +32,10 @@ DoWorkEditor () {
     ForcePushD "$1"
     DeleteUnityCruft
     ForcePushD "Assets"
-    cmd <<< "rmdir PlayFabSdk >nul 2>&1"
+    Nuke "PlayFabSdk"
     cmd <<< "mklink /D PlayFabSdk \"$WORKSPACE/sdks/$SdkName/Source/PlayFabSDK\""
     if [ $? -ne 0 ]; then return 1; fi
-    cmd <<< "rmdir Editor >nul 2>&1"
+    Nuke "Editor"
     cmd <<< "mklink /D Editor \"$WORKSPACE/sdks/$SdkName/Testing/Editor\""
     if [ $? -ne 0 ]; then return 1; fi
     WriteUnitySettingsFile "PlayFabExample/Editor" "$2"
@@ -48,10 +51,10 @@ DoWorkTesting () {
     ForcePushD "$1"
     DeleteUnityCruft
     ForcePushD "Assets"
-    cmd <<< "rmdir PlayFabSdk >nul 2>&1"
+    Nuke "PlayFabSdk"
     cmd <<< "mklink /D PlayFabSdk \"$WORKSPACE/sdks/$SdkName/Source/PlayFabSDK\""
     if [ $? -ne 0 ]; then return 1; fi
-    cmd <<< "rmdir Testing >nul 2>&1"
+    Nuke "Testing"
     cmd <<< "mklink /D Testing \"$WORKSPACE/sdks/$SdkName/Testing\""
     if [ $? -ne 0 ]; then return 1; fi
     WriteUnitySettingsFile "PlayFabExample/Editor" "$2"
@@ -95,8 +98,8 @@ WriteUnitySettingsFile () {
 # USAGE: MainScript
 MainScript () {
     echo == MainScript $PWD, $@ ==
-    ForceCD "$WORKSPACE/$UNITY_VERSION"
-    rm -f *.txt || true
+    ForcePushD "$WORKSPACE/$UNITY_VERSION"
+    Nuke "*.txt"
     DoWorkEditor "${SdkName}_BUP"
     if [ $? -ne 0 ]; then return 1; fi
     DoWorkTesting "${SdkName}_TA" "ENABLE_PLAYFABADMIN_API;DISABLE_PLAYFABCLIENT_API"
@@ -107,13 +110,13 @@ MainScript () {
     if [ $? -ne 0 ]; then return 1; fi
     DoWorkTesting "${SdkName}_TZ" "ENABLE_PLAYFABADMIN_API;ENABLE_PLAYFABSERVER_API"
     if [ $? -ne 0 ]; then return 1; fi
+    popd
 }
 
-CheckDefault WORKSPACE C:/proj
-CheckDefault SHARED_WORKSPACE C:/depot
-CheckDefault SdkName UnitySDK
-CheckDefault UNITY_VERSION Unity173
+CheckDefault WORKSPACE "C:/proj"
+CheckDefault SHARED_WORKSPACE "C:/depot"
+CheckDefault SdkName "UnitySDK"
+CheckDefault UNITY_VERSION "Unity181"
 
 # MainScript <all command line args for script>
 MainScript "$@"
-#ForceCD "c:/depot/SDKGenerator/SDKBuildScripts"

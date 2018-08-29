@@ -142,7 +142,7 @@ function generateProject(apis, sourceDir, apiOutputDir, libname, extraDefines) {
     };
 
     var vcProjTemplate = getCompiledTemplate(path.resolve(sourceDir, "templates/PlayFabSDK.csproj.ejs"));
-    writeFile(path.resolve(apiOutputDir, "PlayFabSDK.csproj"), vcProjTemplate(projLocals));
+    writeFile(path.resolve(apiOutputDir, "source/PlayFabSDK.csproj"), vcProjTemplate(projLocals));
 }
 
 function generateNugetTemplate(sourceDir, apiOutputDir) {
@@ -153,7 +153,7 @@ function generateNugetTemplate(sourceDir, apiOutputDir) {
     };
 
     var vcProjTemplate = getCompiledTemplate(path.resolve(sourceDir, "templates/PlayFabSDK.nuspec.ejs"));
-    writeFile(path.resolve(apiOutputDir, "PlayFabSDK.nuspec"), vcProjTemplate(projLocals));
+    writeFile(path.resolve(apiOutputDir, "source/PlayFabSDK.nuspec"), vcProjTemplate(projLocals));
 }
 
 function getModelPropertyDef(property, datatype) {

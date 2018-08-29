@@ -27,6 +27,9 @@ var _internalSettings = exports._internalSettings = {
     liveUrl: ".playfabapi.com",
     entityToken: null,
     sessionTicket: null,
+    requestGetParams: {
+        sdk: "JavaScriptSDK-<%- sdkVersion %>"
+    },
 };
 
 exports.GetServerUrl = function () {
@@ -43,7 +46,26 @@ exports.MakeRequest = function (urlStr, request, authType, authValue, callback) 
     else
         requestBody = JSON.stringify(request);
 
-    var options = url.parse(urlStr);
+    var urlArr = [urlStr]; //make a new array for the URL
+    var getParams = _internalSettings.requestGetParams;
+    if (getParams != null) {
+        var firstParam = true;
+        for (var key in getParams) {
+            if (firstParam) {
+                urlArr.push("?");
+                firstParam = false;
+            } else {
+                urlArr.push("&");
+            }
+            urlArr.push(key);
+            urlArr.push("=");
+            urlArr.push(getParams[key]);
+        }
+    }
+
+    var completeUrl = urlArr.join("");
+
+    var options = url.parse(completeUrl);
     if (options.protocol !== "https:")
         throw "Unsupported protocol: " + options.protocol;
     options.method = "POST";

@@ -3,19 +3,36 @@
 if (!class_exists("PlayFabSettings")) {
     class PlayFabSettings
     {
-        public static $PlayFabApiUrl = "https://{titleId}.playfabapi.com";
         public static $versionString = "PhpSdk-<%- sdkVersion %>";
+        public static $requestGetParams = array("sdk" => "<%- sdkVersion %>");
+        public static $PlayFabApiUrl = "https://{titleId}.playfabapi.com";
         public static $enableCompression = false; // Can't get this to work
         public static $titleId = null;
         public static $disableSsl = false;
 
-        public static function GetFullUrl($titleId, $apiPath)
+        public static function GetFullUrl($titleId, $apiPath, $getParams)
         {
             if (!isset($titleId) && isset(PlayFabSettings::$titleId))
                 $titleId = PlayFabSettings::$titleId;
 
             $output = PlayFabSettings::$PlayFabApiUrl . $apiPath;
             $output = str_replace("{titleId}", $titleId, $output);
+            $firstParam = True;
+            foreach($getParams as $key => $value)
+            {
+                if($firstParam)
+                {
+                    $output = $output . "?";
+                    $firstParam = False;
+                }
+                else
+                {
+                    $output = $output . "&";
+                }
+
+                $output = $output . $key . "=" . $value;
+            }
+
             return $output;
         }
     }
@@ -26,7 +43,7 @@ if (!class_exists("PlayFabHttp")) {
     {
         public static function MakeCurlApiCall($titleId, $apiPath, $request, $authKey, $authValue)
         {
-            $fullUrl = PlayFabSettings::GetFullUrl($titleId, $apiPath);
+            $fullUrl = PlayFabSettings::GetFullUrl($titleId, $apiPath, PlayFabSettings::$requestGetParams);
             $payload = json_encode($request);
 
             // ApiCall Headers
@@ -67,7 +84,7 @@ if (!class_exists("PlayFabHttp")) {
 
         // public static function MakeHttpRequestApiCall($titleId, $apiPath, $request, $authKey, $authValue)
         // {
-            // $fullUrl = PlayFabSettings::GetFullUrl($titleId, $apiPath);
+            // $fullUrl = PlayFabSettings::GetFullUrl($titleId, $apiPath, PlayFabSettings::$requestGetParams);
             // $httpRequest = new HttpRequest($fullUrl, HttpRequest::METH_POST);
             // $requestJson = json_encode($request);
 

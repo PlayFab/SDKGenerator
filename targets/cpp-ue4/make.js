@@ -31,7 +31,7 @@ exports.makeCombinedAPI = function (apis, sourceDir, apiOutputDir) {
         var pluginOutputDir = path.resolve(eachApiOutputDir, "Plugins");
         var outputCodeDir = path.resolve(pluginOutputDir, "PlayFab/Source/PlayFab");
 
-        console.log("Generating UE4 C++ combined SDK to " + eachApiOutputDir);
+        console.log("Generating UE4 combined plugin to " + eachApiOutputDir);
 
         // copy the base plugins files, resource, uplugin, etc
         templatizeTree(locals, path.resolve(sourceDir, "Plugins"), pluginOutputDir);

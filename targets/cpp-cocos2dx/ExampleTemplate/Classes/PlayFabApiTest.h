@@ -287,7 +287,7 @@ namespace PlayFabApiTest
                 return _outputSummary;
 
             _outputSummary = "";
-            // _outputSummary._Grow(10000, false); Doesn't exist on android *sigh*
+            // _outputSummary.resize(10000, false); Doesn't exist on android *sigh*
 
             time_t now = clock();
             int numPassed = 0;

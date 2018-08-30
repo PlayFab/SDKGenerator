@@ -40,11 +40,7 @@ namespace PlayFab.Internal
             {
                 Info = serializer.DeserializeObject<Dictionary<string, object>>(serializer.SerializeObject(new PlayFabDataGatherer()))
             };
-            PlayFabClientAPI.ReportDeviceInfo(request, OnGatherSuccess, OnGatherFail);
-        }
-        private static void OnGatherSuccess(ClientModels.EmptyResult result)
-        {
-            //Debug.Log("OnGatherSuccess");
+            PlayFabClientAPI.ReportDeviceInfo(request, null, OnGatherFail);
         }
         private static void OnGatherFail(PlayFabError error)
         {

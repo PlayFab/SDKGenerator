@@ -116,7 +116,7 @@ namespace UnittestRunner
         static void SharedFailedCallback(const PlayFabError& error, void*)
         {
             testMessageReturn.clear();
-            testMessageReturn._Grow(1024);
+            testMessageReturn.resize(1024);
             testMessageReturn = "API_Call_Failed for: ";
             testMessageReturn += error.UrlPath;
             testMessageReturn += "\n";

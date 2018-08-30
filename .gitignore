@@ -5,6 +5,10 @@
 **/.vs/
 **/node_modules/
 
+generate-plugins.js
+generate-sdk.js
+generate.js
+
 .project
 .classpath
 *.suo

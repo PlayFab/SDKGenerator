@@ -52,7 +52,6 @@ using System.Dynamic;
 using System.Globalization;
 using System.Reflection;
 using System.Runtime.CompilerServices;
-using System.Runtime.Serialization;
 using System.Text;
 
 // ReSharper disable LoopCanBeConvertedToQuery
@@ -554,7 +553,7 @@ namespace PlayFab.Json
             object obj;
             if (TryDeserializeObject(json, out obj))
                 return obj;
-            throw new SerializationException("Invalid JSON string");
+            throw new ArgumentException("Invalid JSON string", nameof(json));
         }
 
         /// <summary>

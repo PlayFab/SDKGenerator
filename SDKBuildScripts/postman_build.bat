@@ -1,8 +1,7 @@
 setlocal
-set repoName=PostmanCollection
+set SdkName=PostmanCollection
 set targetSrc=postman
 set delSrc=false
-set flagsParams=
 
 call shared_build.bat
 endlocal

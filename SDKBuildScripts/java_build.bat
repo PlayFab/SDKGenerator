@@ -1,8 +1,7 @@
 setlocal
-set repoName=JavaSDK
+set SdkName=JavaSDK
 set targetSrc=java
 set delSrc=true
-set flagsParams=
 
 call shared_build.bat
 endlocal

@@ -1,8 +1,7 @@
 setlocal
-set repoName=XPlatCppSdk
+set SdkName=XPlatCppSdk
 set targetSrc=xplatcppsdk
 set delSrc=true
-set flagsParams=
 
 call shared_build.bat
 endlocal

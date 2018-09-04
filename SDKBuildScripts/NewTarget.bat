@@ -1,8 +1,7 @@
 setlocal
-set repoName=NewTarget
+set SdkName=NewTarget
 set targetSrc=newTarget
 set delSrc=false
-set flagsParams=
 
 call shared_build.bat
 endlocal

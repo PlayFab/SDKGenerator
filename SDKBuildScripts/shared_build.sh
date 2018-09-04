@@ -1,3 +1,5 @@
+#!/bin/bash
+
 # Mandatory Variable Checks
 if [ -z "$SdkName" ] || [ -z "$targetSrc" ]; then
     echo Mandatory parameters not defined: SdkName=$SdkName targetSrc=$targetSrc
@@ -25,7 +27,7 @@ CleanCodeFiles () {
 BuildSdk () {
     pushd ..
     echo === BUILDING $SdkName ===
-    node generate.js $targetSrc=$destPath $apiSpecSource $SdkGenArgs $buildIdentifier
+    node generate.js $targetSrc=$destPath $apiSpecSource $SdkGenArgs $buildIdentifier $VerticalNameInternal
     popd
 }
 
@@ -34,8 +36,11 @@ destPath="../sdks/$SdkName"
 if [ -z "$apiSpecSource" ]; then
     apiSpecSource="-apiSpecGitUrl"
 fi
-if [ ! -z "$SdkName" ] && [ ! -z "$NODE_NAME" ] && [ ! -z "$EXECUTOR_NUMBER" ]; then
-    buildIdentifier="-buildIdentifier JBuild_${SdkName}_${NODE_NAME}_${EXECUTOR_NUMBER}"
+if [ -z "$buildIdentifier" ] && [ ! -z "$SdkName" ] && [ ! -z "$NODE_NAME" ] && [ ! -z "$EXECUTOR_NUMBER" ]; then
+    buildIdentifier="-buildIdentifier JBuild_${SdkName}_${VerticalName}_${NODE_NAME}_${EXECUTOR_NUMBER}"
+fi
+if [ ! -z "$VerticalName" ]; then
+    VerticalNameInternal="-VerticalName $VerticalName"
 fi
 
 # Do the work

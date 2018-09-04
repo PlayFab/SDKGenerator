@@ -21,7 +21,7 @@ if [%apiSpecSource%] == [] (
 )
 
 if defined NODE_NAME (
-    set %buildIdentifier%=-buildIdentifier JBuild_%SdkName%_%NODE_NAME%_%EXECUTOR_NUMBER%
+    set buildIdentifier=-buildIdentifier JBuild_%SdkName%_%NODE_NAME%_%EXECUTOR_NUMBER%
 )
 
 cd %~dp0

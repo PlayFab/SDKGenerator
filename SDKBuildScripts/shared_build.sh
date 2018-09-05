@@ -3,31 +3,35 @@
 # Mandatory Variable Checks
 if [ -z "$SdkName" ] || [ -z "$targetSrc" ]; then
     echo Mandatory parameters not defined: SdkName=$SdkName targetSrc=$targetSrc
-    return 1
+    exit 1
 fi
 
 # Functions
 CleanCodeFiles () {
     pushd "../%destPath%"
-    rm -r *.as
-    rm -r *.cpp
-    rm -r *.cs
-    rm -r *.h
-    rm -r *.java
-    rm -r *.js
-    rm -r *.lua
-    rm -r *.m
-    rm -r *.php
-    rm -r *.py
-    rm -r *.ts
-    cmd <<< attrib -H *.meta /S /D
+    rm -r *.as 2> /dev/null || true
+    rm -r *.cpp 2> /dev/null || true
+    rm -r *.cs 2> /dev/null || true
+    rm -r *.h 2> /dev/null || true
+    rm -r *.java 2> /dev/null || true
+    rm -r *.js 2> /dev/null || true
+    rm -r *.lua 2> /dev/null || true
+    rm -r *.m 2> /dev/null || true
+    rm -r *.php 2> /dev/null || true
+    rm -r *.py 2> /dev/null || true
+    rm -r *.ts 2> /dev/null || true
+    # cmd <<< "attrib -H *.meta /S /D" # Doesn't seem to be working...
     popd
 }
 
 BuildSdk () {
     pushd ..
-    echo === BUILDING $SdkName ===
-    node generate.js $targetSrc=$destPath $apiSpecSource $SdkGenArgs $buildIdentifier $VerticalNameInternal
+    echo === SHARED BUILDING $SdkName ===
+    if [ -z "$quickTest" ]; then
+        node generate.js $targetSrc=$destPath $apiSpecSource $SdkGenArgs $buildIdentifier $VerticalNameInternal
+    else
+        echo node generate.js $targetSrc=$destPath $apiSpecSource $SdkGenArgs $buildIdentifier $VerticalNameInternal
+    fi
     popd
 }
 

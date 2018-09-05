@@ -15,7 +15,6 @@ request = {}
 request["CreateAccount"] = True
 request["CustomId"] = customId
 request["TitleId"] = PlayFabSettings.TitleId
-request["LoginTitlePlayerAccountEntity"] = True
 
 def loginCallback(success, fail):
     if fail:

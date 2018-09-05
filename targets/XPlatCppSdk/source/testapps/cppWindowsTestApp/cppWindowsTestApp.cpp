@@ -1,51 +1,22 @@
-﻿
 // Copyright (C) Microsoft Corporation. All rights reserved.
 
 #include <cppWindowsTestAppPch.h>
 
 #include <playfab/PlayFabClientApi.h>
 #include <playfab/PlayFabClientDataModels.h>
-#include <playfab/PlayFabAuthenticationApi.h>
-#include <playfab/PlayFabAuthenticationDataModels.h>
-#include <playfab/PlayFabProfilesApi.h>
-#include <playfab/PlayFabProfilesDataModels.h>
 #include <playfab/PlayFabSettings.h>
-
-
-static std::string _id;
-static std::string _type;
+#include <playfab/PlayFabPluginManager.h>
+#include <iostream>
 
 void OnPlayFabFail(const PlayFab::PlayFabError& error, void*)
 {
-    printf(("========== PlayFab call Failed: " + error.GenerateErrorReport() + "\n").c_str());
-}
-
-void OnGetProfile(const PlayFab::ProfilesModels::GetEntityProfileResponse& result, void*)
-{
-    printf(("========== PlayFab Profiles Success: " + result.Profile.mValue.Entity.mValue.Type + "\n").c_str());
-}
-
-void OnGetEntityToken(const PlayFab::AuthenticationModels::GetEntityTokenResponse& result, void*)
-{
-    printf(("========== PlayFab GetEntityToken Success: " + result.EntityToken + "\n").c_str());
-    _id = result.Entity.mValue.Id;
-    _type = result.Entity.mValue.Type;
-
-
-    auto req = PlayFab::ProfilesModels::GetEntityProfileRequest();
-    req.Entity.Id = _id;
-    req.Entity.Type = _type;
-
-    PlayFab::PlayFabProfilesAPI::GetProfile(req, OnGetProfile, OnPlayFabFail);
+    //printf(("========== PlayFab call Failed: " + error.GenerateReport() + "\n").c_str());
+    printf(("========== PlayFab call Failed: " + error.ErrorMessage + "\n").c_str());
 }
 
 void OnProfile(const PlayFab::ClientModels::GetPlayerProfileResult& result, void*)
 {
     printf(("========== PlayFab Profile Success: " + result.PlayerProfile->DisplayName + "\n").c_str());
-
-    auto request = PlayFab::AuthenticationModels::GetEntityTokenRequest();
-
-    PlayFab::PlayFabAuthenticationAPI::GetEntityToken(request, OnGetEntityToken);
 }
 
 void OnLoginSuccess(const PlayFab::ClientModels::LoginResult& result, void*)
@@ -57,9 +28,29 @@ void OnLoginSuccess(const PlayFab::ClientModels::LoginResult& result, void*)
     PlayFab::PlayFabClientAPI::GetPlayerProfile(request, OnProfile, OnPlayFabFail);
 }
 
+using namespace PlayFab;
+class MyCustomTransport : public IPlayFabHttpTransportPlugin
+{
+public:
+    virtual void AddRequest(
+        const std::string& /*urlPath*/,
+        const std::string& /*authKey*/,
+        const std::string& /*authValue*/,
+        const std::string& /*requestBody*/, // dev note: Used to be Json::Value&
+        std::function<void(CallRequestContainer)> /*callback*/)
+    {
+        printf("hello there!");
+    }
+};
+
 int main()
 {
-    // Super hacky short-term functionality PlayFab Test - TODO: Put the regular set of tests into proper Unit Test project
+    //PlayFab::IPlayFabTransportPlugin& plugin = PlayFab::PlayFabPluginManager::GetPlugin<PlayFab::IPlayFabTransportPlugin>(PlayFab::PlayFabPluginContract::PlayFab_Transport);
+
+    //auto myTransportPlugin = std::make_unique<MyCustomTransport>();
+    //PlayFab::PlayFabPluginManager::SetPlugin(myTransportPlugin, PlayFabPluginContract::PlayFab_HttpTransport);
+
+    //// Super hacky short-term functionality PlayFab Test - TODO: Put the regular set of tests into proper Unit Test project
     printf("========== Starting PlayFab Login API call.\n");
     PlayFab::PlayFabSettings::titleId = "6195";
     PlayFab::PlayFabSettings::threadedCallbacks = true;
@@ -69,7 +60,7 @@ int main()
     PlayFab::PlayFabClientAPI::LoginWithCustomID(request, OnLoginSuccess, OnPlayFabFail);
 
     printf("Press enter to exit the program.\n");
-    getchar();
+    //getchar();
 
     return 0;
 }

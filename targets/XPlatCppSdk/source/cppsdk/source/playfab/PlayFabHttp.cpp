@@ -126,7 +126,7 @@ namespace PlayFab
         return (blockSize * blockCount);
     }
 
-    void PlayFabHttp::AddRequest(const std::string& urlPath, const std::string& authKey, const std::string& authValue, const Json::Value& requestBody, RequestCompleteCallback internalCallback, SharedVoidPointer successCallback, ErrorCallback errorCallback, void* customData)
+    void PlayFabHttp::InternalAddRequest(const std::string& urlPath, const std::string& authKey, const std::string& authValue, const Json::Value& requestBody, std::function<void(CallRequestContainer&)> internalCallback, SharedVoidPointer successCallback, ErrorCallback errorCallback, void* customData)
     {
         CallRequestContainer* reqContainer = new CallRequestContainer();
         reqContainer->errorWrapper.UrlPath = urlPath;
@@ -143,6 +143,30 @@ namespace PlayFab
             pendingRequests.push_back(reqContainer);
             activeRequestCount++;
         } // UNLOCK httpRequestMutex
+    }
+
+    
+    void PlayFabHttp::AddPostRequest(
+        const std::string& urlPath,
+        std::map<std::string, std::string> headers,
+        const std::string& requestBody, // dev note: Used to be Json::Value&
+        std::function<void(CallRequestContainer&)> callback,
+        ErrorCallback errorCallback) // dev note: used to hard code this callback?
+    {
+        // TODO: how to convert from the given callback, to the 3 callbacks we actually want? (complete, success, error?)
+        // the error callback used to be handed to us from the external user
+        // callback should be investigated at least
+        // We used to generate the shared void ptr function like: SharedVoidPointer((callback == nullptr) ? nullptr : new ProcessApiCallback<<%- apiCall.result %>>(callback))
+        // which the above says if there IS a callback, we pass a specialized ProcessApiCallback? Do we need this too?!?!?
+        
+        auto authKey = headers["authKey"];
+        auto authValue = headers["authValue"];
+
+        Json::Reader reader;
+        Json::Value root;
+        reader.parse(requestBody, root);
+
+        InternalAddRequest(urlPath, authKey, authValue, root, callback, nullptr, errorCallback, nullptr);
     }
 
     void PlayFabHttp::ExecuteRequest(CallRequestContainer& reqContainer)
@@ -255,5 +279,19 @@ namespace PlayFab
             std::unique_lock<std::mutex> lock(httpRequestMutex);
             return activeRequestCount;
         }
+    }
+
+    CallRequestContainer PlayFabHttp::BuildContainer(int httpCode, std::string jsonResponse)
+    {
+        CallRequestContainer reqContainer = CallRequestContainer();
+        reqContainer->errorWrapper.UrlPath = urlPath;
+        reqContainer->authKey = authKey;
+        reqContainer->authValue = authValue;
+        reqContainer->errorWrapper.Request = requestBody;
+        reqContainer->internalCallback = internalCallback;
+        reqContainer->successCallback = successCallback;
+        reqContainer->errorCallback = errorCallback;
+        reqContainer->customData = customData;
+        return reqContainer;
     }
 }

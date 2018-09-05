@@ -15,8 +15,8 @@ exports.makeCombinedAPI = function (apis, sourceDir, apiOutputDir) {
         sdkVersion: exports.sdkVersion,
         sdkDate: exports.sdkVersion.split(".")[2],
         sdkYear: exports.sdkVersion.split(".")[2].substr(0, 2),
-        vsVer: "v140", // If we add 141, we'll have to tweak this again
-        vsYear: "2015" // If we add 2017, we'll have to tweak this again
+        vsVer: "v141", // If we add 141, we'll have to tweak this again
+        vsYear: "2017" // If we add 2017, we'll have to tweak this again
     };
 
     templatizeTree(locals, path.resolve(sourceDir, "source"), apiOutputDir);

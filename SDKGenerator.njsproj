@@ -786,6 +786,8 @@
     <Content Include="targets\XPlatCppSdk\source\cppsdk\configLinux.json" />
     <Content Include="targets\XPlatCppSdk\source\cppsdk\configWindows.json" />
     <Content Include="targets\XPlatCppSdk\source\cppsdk\include\playfab\PlayFabBaseModel.h" />
+    <Content Include="targets\XPlatCppSdk\source\cppsdk\include\playfab\PlayFabPluginManager.h" />
+    <Content Include="targets\XPlatCppSdk\source\cppsdk\source\playfab\PlayFabPluginManager.cpp" />
     <Content Include="targets\XPlatCppSdk\source\LibUnitTest\LibUnitTest.vcxproj.ejs" />
     <Content Include="targets\XPlatCppSdk\source\LibUnitTest\LibUnitTest.vcxproj.filters" />
     <Content Include="targets\XPlatCppSdk\source\LibUnitTest\packages.config" />

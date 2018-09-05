@@ -1,6 +1,7 @@
 #pragma once
 
 #include <playfab/PlayFabError.h>
+#include <playfab/PlayFabPluginManager.h>
 #include <functional>
 #include <memory>
 #include <thread>
@@ -17,7 +18,10 @@
 
 namespace PlayFab
 {
-    struct CallRequestContainer;
+// callback interface should just be integer httpcode and string json result
+// we wrap this with individual callbacks (playfab callbacks will re-directing a bunch).
+// utility method in our own wrapper that does a switch on whether it's 200 or not (users may consider 203 a success while we don't).
+// people who call generic thing, we should revisit this with C#.
     typedef void(*RequestCompleteCallback)(CallRequestContainer& reqContainer);
     typedef std::shared_ptr<void> SharedVoidPointer;
 
@@ -38,7 +42,7 @@ namespace PlayFab
         std::string responseString;
         Json::Value responseJson = Json::Value::null;
         PlayFabError errorWrapper;
-        RequestCompleteCallback internalCallback;
+        std::function<void(CallRequestContainer&)> internalCallback;
         SharedVoidPointer successCallback;
         ErrorCallback errorCallback;
 
@@ -49,15 +53,24 @@ namespace PlayFab
     /// <summary>
     /// Provides an interface and a static instance for https implementations
     /// </summary>
-    class IPlayFabHttp
+    class IPlayFabHttp : public IPlayFabHttpTransportPlugin
     {
     public:
         static IPlayFabHttp& Get();
 
         virtual ~IPlayFabHttp();
 
-        virtual void AddRequest(const std::string& urlPath, const std::string& authKey, const std::string& authValue, const Json::Value& requestBody, RequestCompleteCallback internalCallback, SharedVoidPointer successCallback, ErrorCallback errorCallback, void* customData) = 0;
         virtual size_t Update() = 0;
+
+        virtual void AddPostRequest(
+            const std::string& /*urlPath*/,
+            std::map<std::string, std::string> /*headers*/,
+            const std::string& /*requestBody*/, // dev note: Used to be Json::Value&
+            std::function<void(int httpCode, std::string json)> /*callback*/) override // dev note: used to hard code this callback?
+        {
+
+        }
+
     protected:
         static std::unique_ptr<IPlayFabHttp> httpInstance;
     };
@@ -69,11 +82,19 @@ namespace PlayFab
     {
     public:
         static void MakeInstance();
-        ~PlayFabHttp() override;
+        virtual ~PlayFabHttp() override;
 
-        void AddRequest(const std::string& urlPath, const std::string& authKey, const std::string& authValue, const Json::Value& requestBody, RequestCompleteCallback internalCallback, SharedVoidPointer successCallback, ErrorCallback errorCallback, void* customData) override;
-        size_t Update() override;
+        virtual void AddPostRequest(
+            const std::string& urlPath,
+            std::map<std::string,std::string> headers,
+            const std::string& requestBody, // dev note: Used to be Json::Value&
+            Callback callback) override; // dev note: used to hard code this callback?
+
+            virtual size_t Update();
     private:
+
+        void InternalAddRequest(const std::string& urlPath, const std::string& authKey, const std::string& authValue, const Json::Value& requestBody, std::function<void(CallRequestContainer&)> internalCallback, SharedVoidPointer successCallback, ErrorCallback errorCallback, void* customData);
+
         PlayFabHttp(); // Private constructor, to enforce singleton instance
         PlayFabHttp(const PlayFabHttp& other); // Private copy-constructor, to enforce singleton instance
 

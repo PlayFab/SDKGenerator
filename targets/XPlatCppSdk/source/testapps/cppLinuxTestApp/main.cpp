@@ -1,14 +1,16 @@
 // Copyright (C) Microsoft Corporation. All rights reserved.
 
-#include <cstdio>
+#include <cppWindowsTestAppPch.h>
 
 #include <playfab/PlayFabClientApi.h>
 #include <playfab/PlayFabClientDataModels.h>
 #include <playfab/PlayFabSettings.h>
+#include <playfab/PlayFabPluginManager.h>
+#include <iostream>
 
 void OnPlayFabFail(const PlayFab::PlayFabError& error, void*)
 {
-    printf(("========== PlayFab call Failed: " + error.GenerateErrorReport() + "\n").c_str());
+    printf(("========== PlayFab call Failed: " + error.GenerateReport() + "\n").c_str());
 }
 
 void OnProfile(const PlayFab::ClientModels::GetPlayerProfileResult& result, void*)
@@ -25,8 +27,25 @@ void OnLoginSuccess(const PlayFab::ClientModels::LoginResult& result, void*)
     PlayFab::PlayFabClientAPI::GetPlayerProfile(request, OnProfile, OnPlayFabFail);
 }
 
+using namespace PlayFab;
+class MyCustomTransport : public IPlayFabHttp
+{
+public:
+    virtual void AddRequest(const std::string&, const std::string&, const std::string&, const Json::Value&, RequestCompleteCallback, SharedVoidPointer, ErrorCallback, void*) override
+    {
+        printf("hello there!");
+    }
+
+    virtual size_t Update() override { return 0; }
+};
+
 int main()
 {
+    //PlayFab::IPlayFabTransportPlugin& plugin = PlayFab::PlayFabPluginManager::GetPlugin<PlayFab::IPlayFabTransportPlugin>(PlayFab::PlayFabPluginContract::PlayFab_Transport);
+
+    auto myTransportPlugin = std::make_unique<MyCustomTransport>();
+    PlayFab::PlayFabPluginManager::SetPlugin(*myTransportPlugin, PlayFabPluginContract::PlayFab_Transport);
+
     // Super hacky short-term functionality PlayFab Test - TODO: Put the regular set of tests into proper Unit Test project
     printf("========== Starting PlayFab Login API call.\n");
     PlayFab::PlayFabSettings::titleId = "6195";

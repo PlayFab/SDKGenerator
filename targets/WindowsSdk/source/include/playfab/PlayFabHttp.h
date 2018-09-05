@@ -41,6 +41,8 @@ namespace PlayFab
 
         virtual void AddRequest(const utility::string_t& urlPath, const utility::string_t& authKey, const utility::string_t& authValue, const web::json::value& requestBody, RequestCompleteCallback internalCallback, SharedVoidPointer successCallback, ErrorCallback errorCallback, void* customData) = 0;
         virtual size_t Update() = 0;
+
+
     protected:
         static IPlayFabHttp* httpInstance;
     };
@@ -57,6 +59,12 @@ namespace PlayFab
 
         void AddRequest(const utility::string_t& urlPath, const utility::string_t& authKey, const utility::string_t& authValue, const web::json::value& requestBody, RequestCompleteCallback internalCallback, SharedVoidPointer successCallback, ErrorCallback errorCallback, void* customData) override;
         size_t Update() override;
+
+        //TODO: this may require adding in error and success callbacks?
+
+        //TODO: this may have a home that's not in PlayFabHttp. It doesn't make sense here, 
+        // IS THERE A UTILITY LIBRARY THAT WOULD MAKE BETTER DESIGN SENSE HERE?
+        static CallRequestContainer BuildContainer(int httpCode, std::string jsonResponse);
     private:
         PlayFabHttp(); // Private constructor, to enforce singleton instance
         PlayFabHttp(const PlayFabHttp& other); // Private copy-constructor, to enforce singleton instance

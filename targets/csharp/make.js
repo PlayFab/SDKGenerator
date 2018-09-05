@@ -1,47 +1,72 @@
 var path = require("path");
 
 // Making resharper less noisy - These are defined in Generate.js
-if (typeof (copyFile) === "undefined") copyFile = function () { };
-if (typeof (copyTree) === "undefined") copyTree = function () { };
 if (typeof (generateApiSummaryLines) === "undefined") generateApiSummaryLines = function () { };
 if (typeof (getCompiledTemplate) === "undefined") getCompiledTemplate = function () { };
+if (typeof (templatizeTree) === "undefined") templatizeTree = function () { };
 
 exports.makeClientAPI2 = function (apis, sourceDir, apiOutputDir) {
     apiOutputDir = path.join(apiOutputDir, "PlayFabClientSDK");
     console.log("Generating C-sharp client SDK to " + apiOutputDir);
 
-    copyTree(path.resolve(sourceDir, "source"), apiOutputDir);
+    var extraDefines = "";
+    var locals = {
+        apis: apis,
+        libname: "Client",
+        extraDefines: ";NETFX_CORE;SIMPLE_JSON_TYPEINFO" + extraDefines,
+        sdkVersion: exports.sdkVersion,
+        sdkDate: exports.sdkVersion.split(".")[2],
+        sdkYear: exports.sdkVersion.split(".")[2].substr(0, 2)
+    };
+
+    templatizeTree(locals, path.resolve(sourceDir, "source"), apiOutputDir);
     makeDatatypes(apis, sourceDir, apiOutputDir);
     for (var i = 0; i < apis.length; i++)
         makeApi(apis[i], sourceDir, apiOutputDir);
     generateSimpleFiles(apis, sourceDir, apiOutputDir);
-    generateProject(apis, sourceDir, apiOutputDir, "Client", "");
 }
 
 exports.makeServerAPI = function (apis, sourceDir, apiOutputDir) {
     apiOutputDir = path.join(apiOutputDir, "PlayFabServerSDK");
     console.log("Generating C-sharp server SDK to " + apiOutputDir);
 
-    copyTree(path.resolve(sourceDir, "source"), apiOutputDir);
+    var extraDefines = ";DISABLE_PLAYFABCLIENT_API";
+    var locals = {
+        apis: apis,
+        libname: "Server",
+        extraDefines: ";NETFX_CORE;SIMPLE_JSON_TYPEINFO" + extraDefines,
+        sdkVersion: exports.sdkVersion,
+        sdkDate: exports.sdkVersion.split(".")[2],
+        sdkYear: exports.sdkVersion.split(".")[2].substr(0, 2)
+    };
+
+    templatizeTree(locals, path.resolve(sourceDir, "source"), apiOutputDir);
     makeDatatypes(apis, sourceDir, apiOutputDir);
     for (var i = 0; i < apis.length; i++)
         makeApi(apis[i], sourceDir, apiOutputDir);
     generateSimpleFiles(apis, sourceDir, apiOutputDir);
-    generateProject(apis, sourceDir, apiOutputDir, "Server", ";DISABLE_PLAYFABCLIENT_API");
 }
 
 exports.makeCombinedAPI = function (apis, sourceDir, apiOutputDir) {
     apiOutputDir = path.join(apiOutputDir, "PlayFabSDK");
     console.log("Generating C-sharp combined SDK to " + apiOutputDir);
 
-    copyTree(path.resolve(sourceDir, "source"), apiOutputDir);
-    copyTree(path.resolve(sourceDir, "UnittestRunner"), path.resolve(apiOutputDir, "UnittestRunner")); // Copy the actual unittest project in the CombinedAPI
-    copyFile(path.resolve(sourceDir, "PlayFabSDK+Unit.sln"), path.resolve(apiOutputDir, "PlayFabSDK+Unit.sln"));
+    var extraDefines = ";ENABLE_PLAYFABADMIN_API;ENABLE_PLAYFABSERVER_API";
+    var locals = {
+        apis: apis,
+        libname: "All",
+        extraDefines: ";NETFX_CORE;SIMPLE_JSON_TYPEINFO" + extraDefines,
+        sdkVersion: exports.sdkVersion,
+        sdkDate: exports.sdkVersion.split(".")[2],
+        sdkYear: exports.sdkVersion.split(".")[2].substr(0, 2)
+    };
+
+    templatizeTree(locals, path.resolve(sourceDir, "source"), apiOutputDir);
+    templatizeTree(locals, path.resolve(sourceDir, "UnittestRunner"), path.resolve(apiOutputDir, "UnittestRunner")); // Copy the actual unittest project in the CombinedAPI
     makeDatatypes(apis, sourceDir, apiOutputDir);
     for (var i = 0; i < apis.length; i++)
         makeApi(apis[i], sourceDir, apiOutputDir);
     generateSimpleFiles(apis, sourceDir, apiOutputDir);
-    generateProject(apis, sourceDir, apiOutputDir, "All", ";ENABLE_PLAYFABADMIN_API;ENABLE_PLAYFABSERVER_API");
 }
 
 function getBaseTypeSyntax(datatype) {
@@ -131,20 +156,6 @@ function generateSimpleFiles(apis, sourceDir, apiOutputDir) {
 
     var settingsTemplate = getCompiledTemplate(path.resolve(sourceDir, "templates/PlayFabSettings.cs.ejs"));
     writeFile(path.resolve(apiOutputDir, "source/PlayFabSettings.cs"), settingsTemplate(locals));
-}
-
-function generateProject(apis, sourceDir, apiOutputDir, libname, extraDefines) {
-    var projLocals = {
-        apis: apis,
-        libname: libname,
-        extraDefines: ";NETFX_CORE;SIMPLE_JSON_TYPEINFO" + extraDefines,
-        sdkVersion: exports.sdkVersion,
-        sdkDate: exports.sdkVersion.split(".")[2],
-        sdkYear: exports.sdkVersion.split(".")[2].substr(0, 2)
-    };
-
-    var vcProjTemplate = getCompiledTemplate(path.resolve(sourceDir, "templates/PlayFabSDK.csproj.ejs"));
-    writeFile(path.resolve(apiOutputDir, "source/PlayFabSDK.csproj"), vcProjTemplate(projLocals));
 }
 
 function getModelPropertyDef(property, datatype) {

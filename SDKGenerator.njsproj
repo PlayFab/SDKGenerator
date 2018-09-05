@@ -307,7 +307,8 @@
     <Content Include="targets\cpp-unreal\templates\PlayFab_Models.cpp.ejs" />
     <Content Include="targets\cpp-unreal\templates\PlayFab_Models.h.ejs" />
     <Content Include="targets\cpp-unreal\Tutorial.docx" />
-    <Content Include="targets\csharp\source\Properties\AssemblyInfo.cs" />
+    <Content Include="targets\csharp\source\PlayFabSDK+Unit.sln.ejs" />
+    <Content Include="targets\csharp\source\PlayFabSDK.sln.ejs" />
     <Content Include="targets\csharp\source\source\IPlayFabPlugin.cs" />
     <Content Include="targets\csharp\source\source\ISerializerPlugin.cs" />
     <Content Include="targets\csharp\source\source\ITransportPlugin.cs" />
@@ -321,6 +322,7 @@
     <Content Include="targets\csharp\source\source\PlayFabHttp\PlayFabWinHttp.cs" />
     <Content Include="targets\csharp\source\source\PluginContract.cs" />
     <Content Include="targets\csharp\source\source\PluginManager.cs" />
+    <Content Include="targets\csharp\source\source\Properties\AssemblyInfo.cs" />
     <Content Include="targets\csharp\source\source\Uunit\PlayFabApiTest.cs" />
     <Content Include="targets\csharp\source\source\Uunit\PluginManagerTest.cs" />
     <Content Include="targets\csharp\source\source\Uunit\UUnitAssertException.cs" />
@@ -335,8 +337,7 @@
     <Content Include="targets\csharp\templates\Errors.cs.ejs" />
     <Content Include="targets\csharp\templates\Model.cs.ejs" />
     <Content Include="targets\csharp\templates\Models.cs.ejs" />
-    <Content Include="targets\csharp\templates\PlayFabSDK.csproj.ejs" />
-    <Content Include="targets\csharp\templates\PlayFabSDK.nuspec.ejs" />
+    <Content Include="targets\csharp\source\source\PlayFabSDK.csproj.ejs" />
     <Content Include="targets\csharp\templates\PlayFabSettings.cs.ejs" />
     <Content Include="targets\csharp\templates\PlayFabUtil.cs.ejs" />
     <Content Include="targets\csharp\UnittestRunner\App.config" />
@@ -883,10 +884,10 @@
     <Folder Include="targets\csharp-unity-gameserver\" />
     <Folder Include="targets\csharp\" />
     <Folder Include="targets\csharp\source\" />
-    <Folder Include="targets\csharp\source\Properties\" />
     <Folder Include="targets\csharp\source\source\" />
     <Folder Include="targets\csharp\source\source\Json\" />
     <Folder Include="targets\csharp\source\source\PlayFabHttp\" />
+    <Folder Include="targets\csharp\source\source\Properties\" />
     <Folder Include="targets\csharp\source\source\Uunit\" />
     <Folder Include="targets\csharp\templates\" />
     <Folder Include="targets\csharp\UnittestRunner\" />

@@ -8,7 +8,7 @@ fi
 
 # Functions
 CleanCodeFiles () {
-    pushd "../%destPath%"
+    pushd "../$destPath"
     rm -r *.as 2> /dev/null || true
     rm -r *.cpp 2> /dev/null || true
     rm -r *.cs 2> /dev/null || true

@@ -156,7 +156,6 @@
     <Compile Include="targets\SdkTestingCloudScript\make.js" />
     <Compile Include="targets\unity-v2\make.js" />
     <Compile Include="targets\unity-v2\source\Client\PlayFabIdfa.cs" />
-    <Compile Include="targets\unity-v2\source\Shared\SignalR.NET20\Properties\AssemblyInfo.cs" />
     <Compile Include="targets\UnrealMarketplacePlugin\make.js" />
     <Compile Include="targets\UnrealMarketplacePlugin\makeBp.js" />
     <Compile Include="targets\UnrealMarketplacePlugin\makeCommon.js" />
@@ -974,7 +973,6 @@
     <Folder Include="targets\SdkTestingCloudScript\source\Scripts\typings\" />
     <Folder Include="targets\SdkTestingCloudScript\source\Scripts\typings\PlayFab\" />
     <Folder Include="targets\unity-v2\source\Entity\" />
-    <Folder Include="targets\unity-v2\source\Shared\SignalR.NET20\Properties\" />
     <Folder Include="targets\UnrealMarketplacePlugin\" />
     <Folder Include="targets\UnrealMarketplacePlugin\examplesource\" />
     <Folder Include="targets\UnrealMarketplacePlugin\examplesource\ExampleProject\" />

@@ -61,19 +61,27 @@ MainScript () {
     # TEMPORARY: API_Specs might already exist, without being a git repo because of previous script versions
     rm -rf "$WORKSPACE/API_Specs"
     SyncWorkspaceRepo "$SHARED_WORKSPACE" "$WORKSPACE" "API_Specs"
-    SyncWorkspaceRepo "$SHARED_WORKSPACE" "$WORKSPACE" "pf-main"
+    if [ -z "$quickTest" ]; then
+        SyncWorkspaceRepo "$SHARED_WORKSPACE" "$WORKSPACE" "pf-main"
+    else
+        echo SKIP: SyncWorkspaceRepo pf-main 
+    fi
     SyncWorkspaceRepo "$SHARED_WORKSPACE" "$WORKSPACE" "SDKGenerator"
     ForcePushD "$SHARED_WORKSPACE/sdks"
     SyncWorkspaceRepo "$SHARED_WORKSPACE/sdks" "$WORKSPACE/sdks" "$SdkName"
 
     # It's always safe to remove past arc-patches
-    DelArcPatches "$WORKSPACE/pf-main"
-    DelArcPatches "$WORKSPACE/SDKGenerator"
-    ForcePushD "$SHARED_WORKSPACE/sdks"
-    DelArcPatches "$WORKSPACE/sdks/$SdkName"
+    # DelArcPatches "$WORKSPACE/pf-main"
+    # DelArcPatches "$WORKSPACE/SDKGenerator"
+    # ForcePushD "$SHARED_WORKSPACE/sdks"
+    # DelArcPatches "$WORKSPACE/sdks/$SdkName"
 
-    DoNugetWork
-    ApplyArcPatch
+    if [ -z "$quickTest" ]; then
+        DoNugetWork
+    else
+        echo SKIP: DoNugetWork for JCU
+    fi
+    # ApplyArcPatch
 }
 
 MainScript "$@"

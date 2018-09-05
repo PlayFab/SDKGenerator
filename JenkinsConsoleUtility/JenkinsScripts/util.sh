@@ -20,7 +20,7 @@ ForceCD () {
     if [ -z "$@" ]; then
         return 1
     fi
-    cd "$@" || _MakeDirCd "$@"
+    cd "$@" 2> /dev/null || _MakeDirCd "$@"
     return 0
 }
 
@@ -36,7 +36,7 @@ ForcePushD () {
     if [ -z "$@" ]; then
         return 1
     fi
-    pushd "$@" || _MakeDirPushD "$@"
+    pushd "$@" 2> /dev/null || _MakeDirPushD "$@"
     return 0
 }
 

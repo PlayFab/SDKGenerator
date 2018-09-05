@@ -1,15 +1,15 @@
 var path = require("path");
 
 // Making resharper less noisy - These are defined in Generate.js
-if (typeof (copyTree) === "undefined") copyTree = function () { };
 if (typeof (getCompiledTemplate) === "undefined") getCompiledTemplate = function () { };
+if (typeof (templatizeTree) === "undefined") templatizeTree = function () { };
 
 // generate.js looks for some specific exported functions (as defined in TOC.json) in make.js, like:
 exports.makeClientAPI2 = function (apis, sourceDir, apiOutputDir) {
     // Builds the client api.  The provided "api" variable is a single object, the API_SPECS/client.api.json as an object
     
     console.log("Generating Client api from: " + sourceDir + " to: " + apiOutputDir);
-    copyTree(path.resolve(sourceDir, "source"), apiOutputDir); // Copy the whole source directory as-is
+    templatizeTree({}, path.resolve(sourceDir, "source"), apiOutputDir); // Copy the whole source directory as-is
     MakeExampleTemplateFile(sourceDir, apiOutputDir);
 }
 
@@ -19,7 +19,7 @@ exports.makeServerAPI = function (apis, sourceDir, apiOutputDir) {
     // If you don't want admin, you should filter it out yourself (for now)
     
     console.log("Generating Server api from: " + sourceDir + " to: " + apiOutputDir);
-    copyTree(path.resolve(sourceDir, "source"), apiOutputDir); // Copy the whole source directory as-is
+    templatizeTree({}, path.resolve(sourceDir, "source"), apiOutputDir); // Copy the whole source directory as-is
     MakeExampleTemplateFile(sourceDir, apiOutputDir);
 }
 
@@ -28,7 +28,7 @@ exports.makeCombinedAPI = function (apis, sourceDir, apiOutputDir) {
     // Builds every api.  The provided "apis" variable is a list of objects, Examples: API_SPECS/Legacy/PlayFab/admin.api.json, API_SPECS/Legacy/PlayFab/server.api.json, and API_SPECS/Legacy/PlayFab/client.api.json
     
     console.log("Generating Combined api from: " + sourceDir + " to: " + apiOutputDir);
-    copyTree(path.resolve(sourceDir, "source"), apiOutputDir); // Copy the whole source directory as-is
+    templatizeTree({}, path.resolve(sourceDir, "source"), apiOutputDir); // Copy the whole source directory as-is
     MakeExampleTemplateFile(sourceDir, apiOutputDir);
 }
 

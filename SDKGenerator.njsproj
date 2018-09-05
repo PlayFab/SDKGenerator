@@ -35,11 +35,6 @@
     <OutputPath>bin\</OutputPath>
     <ScriptArguments>SdkTestingCloudScript=..\sdks\SdkTestingCloudScript -apiSpecPath -buildIdentifier CloudTS_manual</ScriptArguments>
   </PropertyGroup>
-  <PropertyGroup Condition=" '$(Configuration)' == 'CSharpFlat' ">
-    <DebugSymbols>true</DebugSymbols>
-    <OutputPath>bin\</OutputPath>
-    <ScriptArguments>csharp-flat=..\sdks\PxCsFlat -apiSpecPath -buildIdentifier CsFlat_manual</ScriptArguments>
-  </PropertyGroup>
   <PropertyGroup Condition=" '$(Configuration)' == 'CSharpSDK' ">
     <DebugSymbols>true</DebugSymbols>
     <OutputPath>bin\</OutputPath>
@@ -240,6 +235,7 @@
     <Content Include="targets\cpp-cocos2dx\templates\PlayFabError.h.ejs" />
     <Content Include="targets\cpp-cocos2dx\templates\PlayFabSettings.cpp.ejs" />
     <Content Include="targets\cpp-cocos2dx\templates\PlayFabSettings.h.ejs" />
+    <Content Include="targets\cpp-ue4\ExampleProject\ExampleProject.sln.ejs" />
     <Content Include="targets\cpp-ue4\ExampleProject\ExampleProject.uproject.ejs" />
     <Content Include="targets\cpp-ue4\ExampleProject\Source\ExampleProject.Target.cs" />
     <Content Include="targets\cpp-ue4\ExampleProject\Source\ExampleProjectEditor.Target.cs" />
@@ -274,6 +270,7 @@
     <Content Include="targets\cpp-unreal\ExampleProject\Content\Maps\Test.umap" />
     <Content Include="targets\cpp-unreal\ExampleProject\Content\PfTestOutput.uasset" />
     <Content Include="targets\cpp-unreal\ExampleProject\Content\PfTestWidget.uasset" />
+    <Content Include="targets\cpp-unreal\ExampleProject\ExampleProject.sln.ejs" />
     <Content Include="targets\cpp-unreal\ExampleProject\ExampleProject.uproject.ejs" />
     <Content Include="targets\cpp-unreal\ExampleProject\Plugins\PlayFab\Source\PlayFab\Classes\PfTestActor.h.ejs" />
     <Content Include="targets\cpp-unreal\ExampleProject\Plugins\PlayFab\Source\PlayFab\Private\PfTestActor.cpp.ejs" />
@@ -307,6 +304,8 @@
     <Content Include="targets\cpp-unreal\templates\PlayFab_Models.cpp.ejs" />
     <Content Include="targets\cpp-unreal\templates\PlayFab_Models.h.ejs" />
     <Content Include="targets\cpp-unreal\Tutorial.docx" />
+    <Content Include="targets\csharp\source\PlayFabSDK+Unit.sln.ejs" />
+    <Content Include="targets\csharp\source\PlayFabSDK.sln.ejs" />
     <Content Include="targets\csharp\source\Properties\AssemblyInfo.cs" />
     <Content Include="targets\csharp\source\source\IPlayFabPlugin.cs" />
     <Content Include="targets\csharp\source\source\ISerializerPlugin.cs" />
@@ -351,6 +350,7 @@
     <Content Include="targets\javascript\templates\PlayFab_Api.js.ejs" />
     <Content Include="targets\javascript\testingFiles\PlayFabApiTest.csproj.ejs" />
     <Content Include="targets\javascript\testingFiles\index.html.ejs" />
+    <Content Include="targets\javascript\testingFiles\PlayFabApiTest.sln.ejs" />
     <Content Include="targets\javascript\testingFiles\web.config" />
     <Content Include="targets\javascript\testingFiles\web.Debug.config" />
     <Content Include="targets\javascript\testingFiles\web.Release.config" />
@@ -707,6 +707,7 @@
     <Content Include="targets\UnrealMarketplacePlugin\examplesource\ExampleProject\Content\Maps\Test.umap" />
     <Content Include="targets\UnrealMarketplacePlugin\examplesource\ExampleProject\Content\PfTestOutput.uasset" />
     <Content Include="targets\UnrealMarketplacePlugin\examplesource\ExampleProject\Content\PfTestWidget.uasset" />
+    <Content Include="targets\UnrealMarketplacePlugin\examplesource\ExampleProject\ExampleProject.sln.ejs" />
     <Content Include="targets\UnrealMarketplacePlugin\examplesource\ExampleProject\ExampleProject.uproject.ejs" />
     <Content Include="targets\UnrealMarketplacePlugin\examplesource\ExampleProject\Plugins\PlayFab\Source\PlayFab\Classes\PfTestActor.h.ejs" />
     <Content Include="targets\UnrealMarketplacePlugin\examplesource\ExampleProject\Plugins\PlayFab\Source\PlayFab\Private\PfTestActor.cpp.ejs" />
@@ -764,6 +765,7 @@
     <Content Include="targets\UnrealMarketplacePlugin\templates\PlayFab\PlayFab_ModelDecoder.h.ejs" />
     <Content Include="targets\UnrealMarketplacePlugin\templates\PlayFab\PlayFab_Models.cpp.ejs" />
     <Content Include="targets\UnrealMarketplacePlugin\templates\PlayFab\PlayFab_Models.h.ejs" />
+    <Content Include="targets\WindowsSdk\source\build\PlayFabSdk2015.sln.ejs" />
     <Content Include="targets\WindowsSdk\source\build\PlayFabSdk2015\packages.config" />
     <Content Include="targets\WindowsSdk\source\build\PlayFabSdk2015\PlayFabSdk2015.vcxproj.ejs" />
     <Content Include="targets\WindowsSdk\source\build\Testing2015\packages.config" />

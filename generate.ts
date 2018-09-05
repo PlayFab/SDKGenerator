@@ -663,30 +663,6 @@ function copyOrTemplatizeFile(locals: { [key: string]: any }, sourceFile: string
     writeFile(destFile.substr(0, destFile.length - 4), template(locals));
 }
 
-function copyTree(sourcePath: string, destPath: string): void {
-    if (!fs.existsSync(sourcePath))
-        throw "Copy tree source doesn't exist: " + sourcePath;
-    if (!fs.lstatSync(sourcePath).isDirectory()) // File
-        return copyFile(sourcePath, destPath);
-
-    // Directory
-    if (!fs.existsSync(destPath))
-        mkdirParentsSync(destPath);
-    else if (!fs.lstatSync(destPath).isDirectory())
-        throw "Can't copy a directory onto a file: " + sourcePath + " " + destPath;
-
-    var filesInDir = fs.readdirSync(sourcePath);
-    for (var i = 0; i < filesInDir.length; i++) {
-        var filename = filesInDir[i];
-        var file = sourcePath + "/" + filename;
-        if (fs.lstatSync(file).isDirectory())
-            copyTree(file, destPath + "/" + filename);
-        else
-            copyFile(file, destPath);
-    }
-}
-global.copyTree = copyTree;
-
 function copyFile(sourceFile, destPath): void {
     checkFileCopy(sourceFile, destPath);
 
@@ -720,7 +696,6 @@ function copyFile(sourceFile, destPath): void {
     fs.closeSync(fdr);
     fs.closeSync(fdw);
 }
-global.copyFile = copyFile;
 
 function checkFileCopy(sourceFile: string, destFile: string): void {
     if (!sourceFile || !destFile)

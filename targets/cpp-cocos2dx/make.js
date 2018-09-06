@@ -1,9 +1,8 @@
 var path = require("path");
 
 // Making resharper less noisy - These are defined in Generate.js
-if (typeof (copyTree) === "undefined") copyTree = function () { };
-if (typeof (templatizeTree) === "undefined") templatizeTree = function () { };
 if (typeof (getCompiledTemplate) === "undefined") getCompiledTemplate = function () { };
+if (typeof (templatizeTree) === "undefined") templatizeTree = function () { };
 
 exports.makeClientAPI2 = function (apis, sourceDir, apiOutputDir) {
     apiOutputDir = path.join(apiOutputDir, "PlayFabClientSDK");
@@ -23,7 +22,11 @@ exports.makeCombinedAPI = function (apis, sourceDir, apiOutputDir) {
 function makeApiInternal(apis, sourceDir, apiOutputDir, libname) {
     console.log("Generating Cocos2d-x C++ " + libname + " SDK to " + apiOutputDir);
 
-    copyTree(path.resolve(sourceDir, "source"), apiOutputDir);
+    var locals = {
+        apis: apis
+    };
+
+    templatizeTree(locals, path.resolve(sourceDir, "source"), apiOutputDir);
 
     for (var i = 0; i < apis.length; i++)
         makeApi(apis[i], sourceDir, apiOutputDir);
@@ -31,10 +34,6 @@ function makeApiInternal(apis, sourceDir, apiOutputDir, libname) {
     generateModels(apis, sourceDir, apiOutputDir, libname);
     generateErrors(apis[0], sourceDir, apiOutputDir);
     generateSettings(apis, sourceDir, apiOutputDir);
-
-    var locals = {
-        apis: apis
-    };
 
     templatizeTree(locals, path.resolve(sourceDir, "ExampleTemplate"), path.resolve(apiOutputDir, "../PlayFabSdkExample"));
 }

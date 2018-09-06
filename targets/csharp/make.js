@@ -1,15 +1,16 @@
 var path = require("path");
 
 // Making resharper less noisy - These are defined in Generate.js
+if (typeof (copyFile) === "undefined") copyFile = function () { };
+if (typeof (copyTree) === "undefined") copyTree = function () { };
 if (typeof (generateApiSummaryLines) === "undefined") generateApiSummaryLines = function () { };
 if (typeof (getCompiledTemplate) === "undefined") getCompiledTemplate = function () { };
-if (typeof (templatizeTree) === "undefined") templatizeTree = function () { };
 
 exports.makeClientAPI2 = function (apis, sourceDir, apiOutputDir) {
     apiOutputDir = path.join(apiOutputDir, "PlayFabClientSDK");
     console.log("Generating C-sharp client SDK to " + apiOutputDir);
 
-    templatizeTree({}, path.resolve(sourceDir, "source"), apiOutputDir);
+    copyTree(path.resolve(sourceDir, "source"), apiOutputDir);
     makeDatatypes(apis, sourceDir, apiOutputDir);
     for (var i = 0; i < apis.length; i++)
         makeApi(apis[i], sourceDir, apiOutputDir);
@@ -21,7 +22,7 @@ exports.makeServerAPI = function (apis, sourceDir, apiOutputDir) {
     apiOutputDir = path.join(apiOutputDir, "PlayFabServerSDK");
     console.log("Generating C-sharp server SDK to " + apiOutputDir);
 
-    templatizeTree({}, path.resolve(sourceDir, "source"), apiOutputDir);
+    copyTree(path.resolve(sourceDir, "source"), apiOutputDir);
     makeDatatypes(apis, sourceDir, apiOutputDir);
     for (var i = 0; i < apis.length; i++)
         makeApi(apis[i], sourceDir, apiOutputDir);
@@ -33,8 +34,9 @@ exports.makeCombinedAPI = function (apis, sourceDir, apiOutputDir) {
     apiOutputDir = path.join(apiOutputDir, "PlayFabSDK");
     console.log("Generating C-sharp combined SDK to " + apiOutputDir);
 
-    templatizeTree({}, path.resolve(sourceDir, "source"), apiOutputDir);
-    templatizeTree({}, path.resolve(sourceDir, "UnittestRunner"), path.resolve(apiOutputDir, "UnittestRunner")); // Copy the actual unittest project in the CombinedAPI
+    copyTree(path.resolve(sourceDir, "source"), apiOutputDir);
+    copyTree(path.resolve(sourceDir, "UnittestRunner"), path.resolve(apiOutputDir, "UnittestRunner")); // Copy the actual unittest project in the CombinedAPI
+    copyFile(path.resolve(sourceDir, "PlayFabSDK+Unit.sln"), path.resolve(apiOutputDir, "PlayFabSDK+Unit.sln"));
     makeDatatypes(apis, sourceDir, apiOutputDir);
     for (var i = 0; i < apis.length; i++)
         makeApi(apis[i], sourceDir, apiOutputDir);

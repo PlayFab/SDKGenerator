@@ -559,6 +559,27 @@ function copyOrTemplatizeFile(locals, sourceFile, destFile) {
     var template = getCompiledTemplate(sourceFile);
     writeFile(destFile.substr(0, destFile.length - 4), template(locals));
 }
+function copyTree(sourcePath, destPath) {
+    if (!fs.existsSync(sourcePath))
+        throw "Copy tree source doesn't exist: " + sourcePath;
+    if (!fs.lstatSync(sourcePath).isDirectory())
+        return copyFile(sourcePath, destPath);
+    // Directory
+    if (!fs.existsSync(destPath))
+        mkdirParentsSync(destPath);
+    else if (!fs.lstatSync(destPath).isDirectory())
+        throw "Can't copy a directory onto a file: " + sourcePath + " " + destPath;
+    var filesInDir = fs.readdirSync(sourcePath);
+    for (var i = 0; i < filesInDir.length; i++) {
+        var filename = filesInDir[i];
+        var file = sourcePath + "/" + filename;
+        if (fs.lstatSync(file).isDirectory())
+            copyTree(file, destPath + "/" + filename);
+        else
+            copyFile(file, destPath);
+    }
+}
+global.copyTree = copyTree;
 function copyFile(sourceFile, destPath) {
     checkFileCopy(sourceFile, destPath);
     var filename = path.basename(sourceFile);
@@ -590,6 +611,7 @@ function copyFile(sourceFile, destPath) {
     fs.closeSync(fdr);
     fs.closeSync(fdw);
 }
+global.copyFile = copyFile;
 function checkFileCopy(sourceFile, destFile) {
     if (!sourceFile || !destFile)
         throw "ERROR: Invalid copy file parameters: " + sourceFile + " " + destFile;

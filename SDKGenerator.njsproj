@@ -304,8 +304,6 @@
     <Content Include="targets\cpp-unreal\templates\PlayFab_Models.cpp.ejs" />
     <Content Include="targets\cpp-unreal\templates\PlayFab_Models.h.ejs" />
     <Content Include="targets\cpp-unreal\Tutorial.docx" />
-    <Content Include="targets\csharp\source\PlayFabSDK+Unit.sln.ejs" />
-    <Content Include="targets\csharp\source\PlayFabSDK.sln.ejs" />
     <Content Include="targets\csharp\source\Properties\AssemblyInfo.cs" />
     <Content Include="targets\csharp\source\source\IPlayFabPlugin.cs" />
     <Content Include="targets\csharp\source\source\ISerializerPlugin.cs" />

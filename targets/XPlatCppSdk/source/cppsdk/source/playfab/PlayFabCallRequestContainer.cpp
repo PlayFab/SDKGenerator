@@ -1,7 +1,6 @@
 #include <stdafx.h>
 
 #include <playfab/PlayFabCallRequestContainer.h>
-//#include "PlayFabCallRequestContainer.h"
 
 namespace PlayFab
 {

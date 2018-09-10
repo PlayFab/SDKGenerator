@@ -11,12 +11,12 @@ namespace PlayFab
         return instance;
     }
 
-    void PlayFabPluginManager::SetPlugin(IPlayFabPlugin& plugin, const PlayFabPluginContract contract, const std::string instanceName)
+    void PlayFabPluginManager::SetPlugin(IPlayFabPlugin& plugin, const PlayFabPluginContract& contract, const std::string& instanceName)
     {
         instance().SetPluginInternal(plugin, contract, instanceName);
     }
 
-    IPlayFabPlugin& PlayFabPluginManager::GetPluginInternal(const PlayFabPluginContract contract, const std::string instanceName)
+    IPlayFabPlugin& PlayFabPluginManager::GetPluginInternal(const PlayFabPluginContract& contract, const std::string& instanceName)
     {
         const auto key = std::make_pair(contract, instanceName);
         auto pluginEntry = plugins.find(key);
@@ -46,7 +46,7 @@ namespace PlayFab
         }
     }
 
-    void PlayFabPluginManager::SetPluginInternal(IPlayFabPlugin& plugin, const PlayFabPluginContract contract, const std::string instanceName)
+    void PlayFabPluginManager::SetPluginInternal(IPlayFabPlugin& plugin, const PlayFabPluginContract& contract, const std::string& instanceName)
     {
         const auto key = std::make_pair(contract, instanceName);
         auto pluginEntry = plugins.find(key);
@@ -68,6 +68,6 @@ namespace PlayFab
 
     IPlayFabPlugin* PlayFabPluginManager::CreatePlayFabTransportPlugin()
     {
-        return new PlayFabHttp;
+        return new IPlayFabHttpPlugin;
     }
 }

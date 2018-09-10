@@ -121,7 +121,8 @@ function generateSimpleFiles(apis, sourceDir, apiOutputDir) {
         errors: apis[0].errors,
         hasClientOptions: authMechanisms.includes("SessionTicket"),
         hasServerOptions: authMechanisms.includes("SecretKey"),
-        sdkVersion: exports.sdkVersion
+        sdkVersion: exports.sdkVersion,
+        verticalName: exports.verticalName
     };
 
     var errorsTemplate = getCompiledTemplate(path.resolve(sourceDir, "templates/Errors.cs.ejs"));

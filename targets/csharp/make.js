@@ -121,7 +121,8 @@ function generateSimpleFiles(apis, sourceDir, apiOutputDir) {
         errors: apis[0].errors,
         hasClientOptions: authMechanisms.includes("SessionTicket"),
         hasServerOptions: authMechanisms.includes("SecretKey"),
-        sdkVersion: exports.sdkVersion
+        sdkVersion: exports.sdkVersion,
+        getVerticalNameDefault: getVerticalNameDefault
     };
 
     var errorsTemplate = getCompiledTemplate(path.resolve(sourceDir, "templates/Errors.cs.ejs"));
@@ -154,6 +155,14 @@ function generateNugetTemplate(sourceDir, apiOutputDir) {
 
     var vcProjTemplate = getCompiledTemplate(path.resolve(sourceDir, "templates/PlayFabSDK.nuspec.ejs"));
     writeFile(path.resolve(apiOutputDir, "PlayFabSDK.nuspec"), vcProjTemplate(projLocals));
+}
+
+function getVerticalNameDefault() {
+    if (exports.verticalName) {
+        return "\"" + exports.verticalName + "\"";
+    }
+
+    return "null";
 }
 
 function getModelPropertyDef(property, datatype) {

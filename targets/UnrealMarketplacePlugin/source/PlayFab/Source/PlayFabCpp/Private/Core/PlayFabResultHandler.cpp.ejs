@@ -33,7 +33,7 @@ TSharedRef<IHttpRequest> PlayFabRequestHandler::SendRequest(const FString& url, 
     return HttpRequest;
 }
 
-bool PlayFabRequestHandler::DecodeRequest(FHttpRequestPtr HttpRequest, FHttpResponsePtr HttpResponse, bool bSucceeded, PlayFab::FPlayFabBaseModel& OutResult, PlayFab::FPlayFabError& OutError)
+bool PlayFabRequestHandler::DecodeRequest(FHttpRequestPtr HttpRequest, FHttpResponsePtr HttpResponse, bool bSucceeded, PlayFab::FPlayFabCppBaseModel& OutResult, PlayFab::FPlayFabError& OutError)
 {
     PlayFabRequestHandler::pendingCalls -= 1;
 

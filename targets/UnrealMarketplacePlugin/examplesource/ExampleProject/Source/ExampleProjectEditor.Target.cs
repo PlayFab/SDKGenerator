@@ -9,7 +9,6 @@ public class ExampleProjectEditorTarget : TargetRules
 {
     public ExampleProjectEditorTarget(TargetInfo Target) : base(Target)
     {
-        bUseUnityBuild = false;
         Type = TargetType.Editor;
         ExtraModuleNames.AddRange(new string[] { "ExampleProject" });
     }

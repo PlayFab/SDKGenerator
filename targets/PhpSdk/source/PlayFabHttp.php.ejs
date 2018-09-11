@@ -5,8 +5,9 @@ if (!class_exists("PlayFabSettings")) {
     {
         public static $versionString = "PhpSdk-<%- sdkVersion %>";
         public static $requestGetParams = array("sdk" => "<%- sdkVersion %>");
-        public static $PlayFabApiUrl = "https://{titleId}.playfabapi.com";
+        public static $productionEnvironmentUrl = ".playfabapi.com"; // This is only for customers running a private cluster.  Generally you shouldn't touch this
         public static $enableCompression = false; // Can't get this to work
+        public static $verticalName = <%- getVerticalNameDefault() %>; // The name of a customer vertical. This is only for customers running a private cluster. Generally you shouldn't touch this
         public static $titleId = null;
         public static $disableSsl = false;
 
@@ -15,8 +16,22 @@ if (!class_exists("PlayFabSettings")) {
             if (!isset($titleId) && isset(PlayFabSettings::$titleId))
                 $titleId = PlayFabSettings::$titleId;
 
-            $output = PlayFabSettings::$PlayFabApiUrl . $apiPath;
-            $output = str_replace("{titleId}", $titleId, $output);
+            $output = "";
+            if (!(substr($productionEnvironmentUrl, 0, 4) === "http"))
+            {
+                if (isset($verticalName))
+                {
+                    $output = "https://" . $verticalName;
+                }
+                else
+                {
+                    $output = "https://" . $titleId;
+                }
+            }
+            
+            $output .= $productionEnvironmentUrl;
+            $output .= $apiPath;
+
             $firstParam = True;
             foreach($getParams as $key => $value)
             {

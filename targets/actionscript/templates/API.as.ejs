@@ -28,7 +28,7 @@ package com.playfab
                 }
             }
 
-            PlayFabHTTP.post(PlayFabSettings.GetURL()+"<%- apiCall.url %>", requetJson, <%- getAuthParams(apiCall) %>, onPostComplete);
+            PlayFabHTTP.post(PlayFabSettings.GetURL("<%- apiCall.url %>"), requetJson, <%- getAuthParams(apiCall) %>, onPostComplete);
         }
 
 <% } %><% if (hasClientOptions) {

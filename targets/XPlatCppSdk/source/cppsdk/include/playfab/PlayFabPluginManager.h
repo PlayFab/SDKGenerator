@@ -27,10 +27,16 @@ namespace PlayFab
 
     /// <summary>
     /// Interface of any transport SDK plugin.
+    /// All functions execute asynchronously
     /// </summary>
     class IPlayFabHttpPlugin : public IPlayFabPlugin
     {
-        virtual void AddRequest(std::string url, std::unordered_map<std::string, std::string> headers, SharedVoidPointer callback, ErrorCallback errorCallback = nullptr, void* extrabuffer = nullptr);
+    public:
+        /// <summary>
+        /// starts the process of making a post request.
+        /// A user is expected to supply their own CallRequestContainerBase
+        /// </summary>
+        virtual void MakePostRequest(const CallRequestContainerBase&) = 0;
     };
 
     /// <summary>

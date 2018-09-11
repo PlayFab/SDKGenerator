@@ -57,7 +57,8 @@ function makeCoreSdk(apis, sourceDir, apiOutputDir, sdkDescriptor, requirePrefix
         buildIdentifier: exports.buildIdentifier,
         sdkVersionString: sdkVersionString,
         hasClientOptions: getAuthMechanisms(apis).includes("SessionTicket"),
-        requirePrefix: requirePrefix // Corona is in a top-level subfolder which is not present in any other sdk
+        requirePrefix: requirePrefix, // Corona is in a top-level subfolder which is not present in any other sdk
+        getVerticalNameDefault: getVerticalNameDefault
     };
 
     templatizeTree(locals, path.resolve(sourceDir, "source"), apiOutputDir);
@@ -129,6 +130,14 @@ function generateApiSummary(tabbing, apiElement, summaryParam, extraLines) {
     else if (lines.length > 0)
         output = tabbing + "-- " + lines.join("\n" + tabbing + "-- ") + "\n";
     return output;
+}
+
+function getVerticalNameDefault() {
+    if (exports.verticalName) {
+        return "\"" + exports.verticalName + "\"";
+    }
+
+    return "nil";
 }
 
 function getRequestActions(tabbing, apiCall) {

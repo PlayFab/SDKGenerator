@@ -1,6 +1,7 @@
 #pragma once
 
 #include <playfab/PlayFabCallRequestContainer.h>
+#include <playfab/PlayFabPluginManager.h>
 #include <playfab/PlayFabError.h>
 #include <functional>
 #include <memory>
@@ -19,15 +20,17 @@ namespace PlayFab
     /// <summary>
     /// Provides an interface and a static instance for https implementations
     /// </summary>
-    class IPlayFabHttp
+    class IPlayFabHttp : public IPlayFabHttpPlugin
     {
     public:
         static IPlayFabHttp& Get();
 
         virtual ~IPlayFabHttp();
 
-        virtual void AddRequest(const std::string& urlPath, const std::string& authKey, const std::string& authValue, const Json::Value& requestBody, RequestCompleteCallback internalCallback, SharedVoidPointer successCallback, ErrorCallback errorCallback, void* customData) = 0;
         virtual size_t Update() = 0;
+
+        virtual void MakePostRequest(const CallRequestContainerBase&) override { };
+
     protected:
         static std::unique_ptr<IPlayFabHttp> httpInstance;
     };
@@ -41,11 +44,16 @@ namespace PlayFab
         static void MakeInstance();
         ~PlayFabHttp() override;
 
-        void AddRequest(const std::string& urlPath, const std::string& authKey, const std::string& authValue, const Json::Value& requestBody, RequestCompleteCallback internalCallback, SharedVoidPointer successCallback, ErrorCallback errorCallback, void* customData) override;
+        virtual void MakePostRequest(const CallRequestContainerBase&) override;
+
         size_t Update() override;
+
     private:
         PlayFabHttp(); // Private constructor, to enforce singleton instance
         PlayFabHttp(const PlayFabHttp& other); // Private copy-constructor, to enforce singleton instance
+
+        PlayFabHttp(PlayFabHttp&& other) = delete;
+        PlayFabHttp& operator=(PlayFabHttp&& other) = delete;
 
         static size_t CurlReceiveData(char* buffer, size_t blockSize, size_t blockCount, void* userData);
         static void ExecuteRequest(CallRequestContainer& reqContainer);
@@ -61,3 +69,4 @@ namespace PlayFab
         std::vector<CallRequestContainer*> pendingResults;
     };
 }
+

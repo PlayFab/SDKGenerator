@@ -24,8 +24,7 @@ Global
 		Python|Any CPU = Python|Any CPU
 		UnitySdk|Any CPU = UnitySdk|Any CPU
 		UnityBeta|Any CPU = UnityBeta|Any CPU
-		UnrealBlueprintSDK|Any CPU = UnrealBlueprintSDK|Any CPU
-		UnrealCppSdk|Any CPU = UnrealCppSdk|Any CPU
+		Unreal|Any CPU = Unreal|Any CPU
 		WindowsSDK|Any CPU = WindowsSDK|Any CPU
 		XPlatCppSdk|Any CPU = XPlatCppSdk|Any CPU
 	EndGlobalSection
@@ -64,10 +63,8 @@ Global
 		{2BA807EF-310C-43B5-8D42-1ABCFFF39BE9}.UnitySdk|Any CPU.Build.0 = UnitySdk|Any CPU
 		{2BA807EF-310C-43B5-8D42-1ABCFFF39BE9}.UnityBeta|Any CPU.ActiveCfg = UnityBeta|Any CPU
 		{2BA807EF-310C-43B5-8D42-1ABCFFF39BE9}.UnityBeta|Any CPU.Build.0 = UnityBeta|Any CPU
-		{2BA807EF-310C-43B5-8D42-1ABCFFF39BE9}.UnrealBlueprintSDK|Any CPU.ActiveCfg = UnrealBlueprintSDK|Any CPU
-		{2BA807EF-310C-43B5-8D42-1ABCFFF39BE9}.UnrealBlueprintSDK|Any CPU.Build.0 = UnrealBlueprintSDK|Any CPU
-		{2BA807EF-310C-43B5-8D42-1ABCFFF39BE9}.UnrealCppSdk|Any CPU.ActiveCfg = UnrealCppSdk|Any CPU
-		{2BA807EF-310C-43B5-8D42-1ABCFFF39BE9}.UnrealCppSdk|Any CPU.Build.0 = UnrealCppSdk|Any CPU
+		{2BA807EF-310C-43B5-8D42-1ABCFFF39BE9}.Unreal|Any CPU.ActiveCfg = Unreal|Any CPU
+		{2BA807EF-310C-43B5-8D42-1ABCFFF39BE9}.Unreal|Any CPU.Build.0 = Unreal|Any CPU
 		{2BA807EF-310C-43B5-8D42-1ABCFFF39BE9}.WindowsSDK|Any CPU.ActiveCfg = WindowsSDK|Any CPU
 		{2BA807EF-310C-43B5-8D42-1ABCFFF39BE9}.WindowsSDK|Any CPU.Build.0 = WindowsSDK|Any CPU
 		{2BA807EF-310C-43B5-8D42-1ABCFFF39BE9}.XPlatCppSdk|Any CPU.ActiveCfg = XPlatCppSdk|Any CPU

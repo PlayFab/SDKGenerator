@@ -9,6 +9,7 @@ public class ExampleProjectTarget : TargetRules
 {
     public ExampleProjectTarget(TargetInfo Target) : base(Target)
     {
+        bUseUnityBuild = false;
         Type = TargetType.Game;
         ExtraModuleNames.AddRange(new string[] { "ExampleProject" });
     }

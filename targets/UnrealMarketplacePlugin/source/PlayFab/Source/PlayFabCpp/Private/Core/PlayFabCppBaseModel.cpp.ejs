@@ -1,11 +1,11 @@
 <%- copyright %>
 
-#include "PlayFabBaseModel.h"
+#include "PlayFabCppBaseModel.h"
 #include "PlayFab.h"
 
 using namespace PlayFab;
 
-FString FPlayFabBaseModel::toJSONString() const
+FString FPlayFabCppBaseModel::toJSONString() const
 {
     FString JsonOutString;
     JsonWriter Json = TJsonWriterFactory<TCHAR, TPrettyJsonPrintPolicy<TCHAR> >::Create(&JsonOutString);

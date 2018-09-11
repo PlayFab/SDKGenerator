@@ -35,8 +35,9 @@ namespace PlayFab
         http.AddRequest("<%- apiCall.url %>", <%- getAuthParams(apiCall) %>, requestJson, On<%- apiCall.name %>Result, SharedVoidPointer((callback == nullptr) ? nullptr : new ProcessApiCallback<<%- apiCall.result %>>(callback)), errorCallback, customData);
     }
 
-    void PlayFab<%- api.name %>API::On<%- apiCall.name %>Result(CallRequestContainer& request)
+    void PlayFab<%- api.name %>API::On<%- apiCall.name %>Result(CallRequestContainerBase& pRequest)
     {
+        CallRequestContainer request = static_cast<CallRequestContainer&>(pRequest);
         <%- apiCall.result %> outResult;
         outResult.FromJson(request.errorWrapper.Data);
         outResult.Request = request.errorWrapper.Request;

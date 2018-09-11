@@ -89,6 +89,12 @@ namespace PlayFab
             get { return PlayFabSharedPrivate.TitleId; }
             set { PlayFabSharedPrivate.TitleId = value; }
         }
+        
+        public static string VerticalName
+        {
+            get { return PlayFabSharedPrivate.VerticalName; }
+            set { PlayFabSharedPrivate.VerticalName = value; }
+        }
 
         public static PlayFabLogLevel LogLevel
         {
@@ -152,7 +158,16 @@ namespace PlayFab
         
             var baseUrl = ProductionEnvironmentUrlPrivate;
             if (!baseUrl.StartsWith("http"))
-                sb.Append("https://").Append(TitleId);
+            {
+                if (!string.IsNullOrEmpty(VerticalName))
+                {
+                    sb.Append("https://").Append(VerticalName);
+                }
+                else
+                {
+                    sb.Append("https://").Append(TitleId);
+                }
+            }
         
             sb.Append(baseUrl).Append(apiCall);
         

@@ -542,7 +542,7 @@
     <Content Include="targets\unity-v2\source\Shared\Ionic.Zlib\ZTree.cs.meta" />
     <Content Include="targets\unity-v2\source\Shared\Models.meta" />
     <Content Include="targets\unity-v2\source\Shared\Models\Editor\MakeSharedSettingsObj.cs" />
-    <Content Include="targets\unity-v2\source\Shared\Models\PlayFabSharedSettings.cs" />
+    <Content Include="targets\unity-v2\source\Shared\Models\PlayFabSharedSettings.cs.ejs" />
     <Content Include="targets\unity-v2\source\Shared\Models\PlayFabSharedSettings.cs.meta" />
     <Content Include="targets\unity-v2\source\Shared\Models\SharedModels.cs" />
     <Content Include="targets\unity-v2\source\Shared\Models\SharedModels.cs.meta" />

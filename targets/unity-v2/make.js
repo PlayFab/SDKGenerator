@@ -20,6 +20,7 @@ exports.MakeUnityV2Sdk = function (apis, sourceDir, apiOutputDir) {
         sdkVersion: exports.sdkVersion,
         buildIdentifier: exports.buildIdentifier,
         hasClientOptions: getAuthMechanisms(apis).includes("SessionTicket"),
+        getVerticalNameDefault: getVerticalNameDefault
     };
 
     templatizeTree(locals, path.resolve(sourceDir, "source"), apiOutputDir);
@@ -173,6 +174,14 @@ function getCustomApiFunction(tabbing, apiCall) {
             + tabbing + "}";
     }
     return ""; // Most apis don't have a custom alternate
+}
+
+function getVerticalNameDefault() {
+    if (exports.verticalName) {
+        return "\"" + exports.verticalName + "\"";
+    }
+
+    return "null";
 }
 
 function getModelPropertyDef(property, datatype) {

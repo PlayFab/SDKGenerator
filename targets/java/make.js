@@ -18,7 +18,8 @@ exports.makeClientAPI2 = function (apis, sourceDir, apiOutputDir) {
         hasClientOptions: authMechanisms.includes("SessionTicket"),
         hasServerOptions: authMechanisms.includes("SecretKey"),
         isAndroid: null, // Set Below
-        sdkVersion: exports.sdkVersion
+        sdkVersion: exports.sdkVersion,
+        getVerticalNameDefault: getVerticalNameDefault
     };
 
     for (var i = 0; i < srcOutputLoc.length; i++) {
@@ -51,7 +52,8 @@ exports.makeServerAPI = function (apis, sourceDir, apiOutputDir) {
         hasClientOptions: authMechanisms.includes("SessionTicket"),
         hasServerOptions: authMechanisms.includes("SecretKey"),
         isAndroid: false,
-        sdkVersion: exports.sdkVersion
+        sdkVersion: exports.sdkVersion,
+        getVerticalNameDefault: getVerticalNameDefault
     };
 
     console.log(" + Generating Java Server SDK to " + apiOutputDir);
@@ -76,11 +78,12 @@ exports.makeCombinedAPI = function (apis, sourceDir, apiOutputDir) {
         hasClientOptions: authMechanisms.includes("SessionTicket"),
         hasServerOptions: authMechanisms.includes("SecretKey"),
         isAndroid: false,
-        sdkVersion: exports.sdkVersion
+        sdkVersion: exports.sdkVersion,
+        getVerticalNameDefault: getVerticalNameDefault
     };
 
     console.log(" + Generating Java Combo SDK to " + apiOutputDir);
-makeDatatypes(apis, sourceDir, apiOutputDir);
+    makeDatatypes(apis, sourceDir, apiOutputDir);
     for (var i = 0; i < apis.length; i++)
         makeApi(apis[i], sourceDir, apiOutputDir, false);
     templatizeTree(locals, path.resolve(sourceDir, "source_shared"), apiOutputDir);
@@ -130,6 +133,14 @@ function makeApi(api, sourceDir, apiOutputDir, isAndroid) {
 
     var apiTemplate = getCompiledTemplate(path.resolve(sourceDir, "templates/API.java.ejs"));
     writeFile(outFileName, apiTemplate(locals));
+}
+
+function getVerticalNameDefault() {
+    if (exports.verticalName) {
+        return "\"" + exports.verticalName + "\"";
+    }
+
+    return "null";
 }
 
 function getModelPropertyDef(property, datatype) {

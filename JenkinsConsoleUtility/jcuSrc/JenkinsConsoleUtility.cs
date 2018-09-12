@@ -88,7 +88,7 @@ namespace JenkinsConsoleUtility
 
             if (getDefault != null) // Don't use string.IsNullOrEmpty() here, because there's a distinction between "undefined" and "empty"
             {
-                FancyWriteToConsole("WARNING: " + key + " not found, reverting to: " + getDefault, null, ConsoleColor.DarkYellow);
+                FancyWriteToConsole("GetArgVar: " + key + " not defined, reverting to: " + getDefault, null, ConsoleColor.DarkYellow);
                 return getDefault;
             }
 

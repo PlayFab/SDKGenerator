@@ -10,7 +10,7 @@ fi
 
 # USAGE NukeAll <pattern>
 NukeAll () {
-    find . -name "$1" -exec rm -f {} \;
+    find . -name "$1" -exec rm -f {} \; 2> /dev/null || true
 }
 
 # USAGE CleanCodeFiles

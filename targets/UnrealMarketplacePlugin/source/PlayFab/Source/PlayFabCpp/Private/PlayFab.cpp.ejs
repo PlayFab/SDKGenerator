@@ -8,7 +8,7 @@
 <% for(var i = 0; i < apis.length; i++) { var api = apis[i];
 %>#include "Core/PlayFab<%- api.name %>API.h"
 <% } %>
-DEFINE_LOG_CATEGORY(LogPlayFab);
+DEFINE_LOG_CATEGORY(LogPlayFabCpp);
 
 class FPlayFabModule : public IPlayFabModuleInterface
 {

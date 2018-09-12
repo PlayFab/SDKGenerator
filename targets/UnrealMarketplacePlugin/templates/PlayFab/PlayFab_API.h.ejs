@@ -12,14 +12,14 @@
 #include "CoreMinimal.h"
 #include "Http.h"
 #include "Net/OnlineBlueprintCallProxyBase.h"
-#include "PlayFabBpBaseModel.h"
+#include "PlayFabBaseModel.h"
 #include "PlayFab<%- api.name %>Models.h"
 #include "PlayFab<%- api.name %>API.generated.h"
 
-DECLARE_DYNAMIC_MULTICAST_DELEGATE_ThreeParams(FOnPlayFab<%- api.name %>RequestCompleted, FPlayFabBpBaseModel, response, UObject*, customData, bool, successful);
+DECLARE_DYNAMIC_MULTICAST_DELEGATE_ThreeParams(FOnPlayFab<%- api.name %>RequestCompleted, FPlayFabBaseModel, response, UObject*, customData, bool, successful);
 
 UCLASS(Blueprintable, BlueprintType)
-class UPlayFab<%- api.name %>API : public UOnlineBlueprintCallProxyBase
+class PLAYFAB_API UPlayFab<%- api.name %>API : public UOnlineBlueprintCallProxyBase
 {
     GENERATED_UCLASS_BODY()
 
@@ -80,7 +80,7 @@ public:
 <%            %>
 <%            %>    // Implements FOnPlayFab<%- api.name %>RequestCompleted
 <%            %>    UFUNCTION(BlueprintCallable, Category = "PlayFab | <%- api.name %> | <%- api.subgroups[subgroup].name %> ", meta = (BlueprintInternalUseOnly = "true"))
-<%            %>        void Helper<%- apiCall.name %>(FPlayFabBpBaseModel response, UObject* customData, bool successful);
+<%            %>        void Helper<%- apiCall.name %>(FPlayFabBaseModel response, UObject* customData, bool successful);
 <%            %>
 <%
             }

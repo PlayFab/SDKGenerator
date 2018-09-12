@@ -600,15 +600,15 @@ function getRequestActions(tabbing, apiCall) {
             + tabbing + "}\n";
     else if (apiCall.auth === "EntityToken")
         return tabbing + "if (PlayFabSettings::GetEntityToken().Len() == 0) {\n"
-            + tabbing + "    UE_LOG(LogPlayFab, Error, TEXT(\"You must call GetEntityToken API Method before calling this function.\"));\n"
+            + tabbing + "    UE_LOG(LogPlayFabCpp, Error, TEXT(\"You must call GetEntityToken API Method before calling this function.\"));\n"
             + tabbing + "}\n";
     else if (apiCall.auth === "SecretKey")
         return tabbing + "if (PlayFabSettings::GetDeveloperSecretKey().Len() == 0) {\n"
-            + tabbing + "    UE_LOG(LogPlayFab, Error, TEXT(\"You must first set your PlayFab developerSecretKey to use this function (Unreal Settings Menu, or in C++ code)\"));\n"
+            + tabbing + "    UE_LOG(LogPlayFabCpp, Error, TEXT(\"You must first set your PlayFab developerSecretKey to use this function (Unreal Settings Menu, or in C++ code)\"));\n"
             + tabbing + "}\n";
     else if (apiCall.auth === "SessionTicket")
         return tabbing + "if (PlayFabSettings::GetClientSessionTicket().Len() == 0) {\n"
-            + tabbing + "    UE_LOG(LogPlayFab, Error, TEXT(\"You must log in before calling this function\"));\n"
+            + tabbing + "    UE_LOG(LogPlayFabCpp, Error, TEXT(\"You must log in before calling this function\"));\n"
             + tabbing + "}\n";
     else if (apiCall.result === "LoginResult" || apiCall.request === "RegisterPlayFabUserRequest")
         return tabbing + "if (PlayFabSettings::GetTitleId().Len() > 0)\n"

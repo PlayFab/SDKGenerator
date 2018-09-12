@@ -7,19 +7,26 @@ if [ -z "$SdkName" ] || [ -z "$targetSrc" ]; then
 fi
 
 # Functions
+
+# USAGE NukeAll <pattern>
+NukeAll () {
+    find . -name "$1" -exec rm -f {} \;
+}
+
+# USAGE CleanCodeFiles
 CleanCodeFiles () {
     pushd "../$destPath"
-    rm -r *.as 2> /dev/null || true
-    rm -r *.cpp 2> /dev/null || true
-    rm -r *.cs 2> /dev/null || true
-    rm -r *.h 2> /dev/null || true
-    rm -r *.java 2> /dev/null || true
-    rm -r *.js 2> /dev/null || true
-    rm -r *.lua 2> /dev/null || true
-    rm -r *.m 2> /dev/null || true
-    rm -r *.php 2> /dev/null || true
-    rm -r *.py 2> /dev/null || true
-    rm -r *.ts 2> /dev/null || true
+    NukeAll "*.as"
+    NukeAll "*.cpp"
+    NukeAll "*.cs"
+    NukeAll "*.h"
+    NukeAll "*.java"
+    NukeAll "*.js"
+    NukeAll "*.lua"
+    NukeAll "*.m"
+    NukeAll "*.php"
+    NukeAll "*.py"
+    NukeAll "*.ts"
     # cmd <<< "attrib -H *.meta /S /D" # Doesn't seem to be working...
     popd
 }

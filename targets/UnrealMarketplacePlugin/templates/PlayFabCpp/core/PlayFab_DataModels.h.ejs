@@ -4,7 +4,7 @@
 #pragma once
 
 #include "CoreMinimal.h"
-#include "Core/PlayFabCppBaseModel.h"
+#include "PlayFabCppBaseModel.h"
 
 namespace PlayFab
 {
@@ -21,7 +21,7 @@ namespace <%- api.name %>Models
     PLAYFABCPP_API <%- datatype.name %> read<%- datatype.name %>FromValue(const TSharedPtr<FJsonValue>& value);
     PLAYFABCPP_API <%- datatype.name %> read<%- datatype.name %>FromValue(const FString& value);
 <% } else { %>
-    struct PLAYFABCPP_API F<%- datatype.name %> : public FPlayFabCppBaseModel
+    struct PLAYFABCPP_API F<%- datatype.name %> : public PlayFab::FPlayFabCppBaseModel
     {
 <% for(var i in datatype.properties) { var property = datatype.properties[i]
 %><%- generateApiSummary("        ", property, "description")

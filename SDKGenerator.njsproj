@@ -152,29 +152,6 @@
     <Compile Include="targets\WindowsSdk\make.js" />
     <Compile Include="targets\XPlatCppSdk\make.js" />
     <Content Include="README.md" />
-    <Content Include="SDKBuildScripts\actionscript_build.bat" />
-    <Content Include="SDKBuildScripts\cocos_build.bat" />
-    <Content Include="SDKBuildScripts\cocos_example1build.bat" />
-    <Content Include="SDKBuildScripts\csharp_build.bat" />
-    <Content Include="SDKBuildScripts\java_build.bat" />
-    <Content Include="SDKBuildScripts\js_build.bat" />
-    <Content Include="SDKBuildScripts\lua_build.bat" />
-    <Content Include="SDKBuildScripts\Lumberyard_build.bat" />
-    <Content Include="SDKBuildScripts\NewTarget.bat" />
-    <Content Include="SDKBuildScripts\node_build.bat" />
-    <Content Include="SDKBuildScripts\objc_build.bat" />
-    <Content Include="SDKBuildScripts\php_build.bat" />
-    <Content Include="SDKBuildScripts\postman_build.bat" />
-    <Content Include="SDKBuildScripts\python_build.bat" />
-    <Content Include="SDKBuildScripts\SdkTestingCloudScript_build.bat" />
-    <Content Include="SDKBuildScripts\ue4_BP_build.bat" />
-    <Content Include="SDKBuildScripts\ue4_CPP_build.bat" />
-    <Content Include="SDKBuildScripts\unity_build.bat" />
-    <Content Include="SDKBuildScripts\unity_build_strangeIoC.bat" />
-    <Content Include="SDKBuildScripts\unity_gameserver.bat" />
-    <Content Include="SDKBuildScripts\unity_RunAutoTests.bat" />
-    <Content Include="SDKBuildScripts\unity_SetupTestProjects.sh" />
-    <Content Include="SDKBuildScripts\winV1_build.bat" />
     <Content Include="targets\actionscript\source\asyncUnitTest\ASyncAssert.as" />
     <Content Include="targets\actionscript\source\asyncUnitTest\ASyncUnitTestCloudScriptReporter.as" />
     <Content Include="targets\actionscript\source\asyncUnitTest\ASyncUnitTestEvent.as" />
@@ -690,14 +667,14 @@
     <Content Include="targets\UnrealMarketplacePlugin\source\PlayFab\Source\PlayFabCpp\Public\Core\PlayFabResultHandler.h.ejs" />
     <Content Include="targets\UnrealMarketplacePlugin\source\PlayFab\Source\PlayFabCpp\Public\Core\PlayFabSettings.h.ejs" />
     <Content Include="targets\UnrealMarketplacePlugin\source\PlayFab\Source\PlayFabCpp\Public\PlayFab.h.ejs" />
-    <Content Include="targets\UnrealMarketplacePlugin\Source\PlayFab\Source\PlayFab\Classes\PlayFabBpBaseModel.h.ejs" />
+    <Content Include="targets\UnrealMarketplacePlugin\source\PlayFab\Source\PlayFab\Classes\PlayFabBaseModel.h.ejs" />
     <Content Include="targets\UnrealMarketplacePlugin\source\PlayFab\Source\PlayFab\Classes\PlayFabEnums.h.ejs" />
     <Content Include="targets\UnrealMarketplacePlugin\source\PlayFab\Source\PlayFab\Classes\PlayFabJsonObject.h.ejs" />
     <Content Include="targets\UnrealMarketplacePlugin\source\PlayFab\Source\PlayFab\Classes\PlayFabJsonValue.h.ejs" />
     <Content Include="targets\UnrealMarketplacePlugin\source\PlayFab\Source\PlayFab\Classes\PlayFabUtilities.h.ejs" />
     <Content Include="targets\UnrealMarketplacePlugin\Source\PlayFab\Source\PlayFab\PlayFab.Build.cs" />
     <Content Include="targets\UnrealMarketplacePlugin\source\PlayFab\Source\PlayFab\Private\PlayFab.cpp.ejs" />
-    <Content Include="targets\UnrealMarketplacePlugin\Source\PlayFab\Source\PlayFab\Private\PlayFabBpBaseModel.cpp.ejs" />
+    <Content Include="targets\UnrealMarketplacePlugin\source\PlayFab\Source\PlayFab\Private\PlayFabBaseModel.cpp.ejs" />
     <Content Include="targets\UnrealMarketplacePlugin\source\PlayFab\Source\PlayFab\Private\PlayFabJsonObject.cpp.ejs" />
     <Content Include="targets\UnrealMarketplacePlugin\source\PlayFab\Source\PlayFab\Private\PlayFabJsonValue.cpp.ejs" />
     <Content Include="targets\UnrealMarketplacePlugin\Source\PlayFab\Source\PlayFab\Private\PlayFabPrivate.h" />
@@ -773,7 +750,6 @@
     <Content Include="targets\XPlatCppSdk\source\testapps\cppWindowsTestApp\packages.config" />
   </ItemGroup>
   <ItemGroup>
-    <Folder Include="SDKBuildScripts\" />
     <Folder Include="targets\" />
     <Folder Include="targets\actionscript\" />
     <Folder Include="targets\actionscript\source\" />
@@ -925,7 +901,6 @@
     <Folder Include="targets\UnrealMarketplacePlugin\Source\PlayFab\Source\PlayFab\Private\" />
     <Folder Include="targets\UnrealMarketplacePlugin\Source\PlayFab\Source\PlayFab\Public\" />
     <Folder Include="targets\UnrealMarketplacePlugin\Templates\" />
-    <Folder Include="targets\UnrealMarketplacePlugin\templates\PlayFabCommon\" />
     <Folder Include="targets\UnrealMarketplacePlugin\templates\PlayFabCpp\" />
     <Folder Include="targets\UnrealMarketplacePlugin\templates\PlayFabCpp\core\" />
     <Folder Include="targets\UnrealMarketplacePlugin\templates\PlayFab\" />

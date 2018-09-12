@@ -119,7 +119,7 @@ for(var subgroup in api.subgroups)
 <%            %>}
 <%            %>
 <%            %>// Implements FOnPlayFab<%- api.name %>RequestCompleted
-<%            %>void UPlayFab<%- api.name %>API::Helper<%- apiCall.name %>(FPlayFabBpBaseModel response, UObject* customData, bool successful)
+<%            %>void UPlayFab<%- api.name %>API::Helper<%- apiCall.name %>(FPlayFabBaseModel response, UObject* customData, bool successful)
 <%            %>{
 <%            %>    FPlayFabError error = response.responseError;
 <%            %>    if (error.hasError && OnFailure.IsBound())
@@ -183,7 +183,7 @@ void UPlayFab<%- api.name %>API::OnProcessRequestComplete(FHttpRequestPtr Reques
         return;
     }
 
-    FPlayFabBpBaseModel myResponse;
+    FPlayFabBaseModel myResponse;
 
     // Check we have result to process further
     if (!bWasSuccessful)

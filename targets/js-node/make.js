@@ -28,7 +28,8 @@ exports.makeCombinedAPI = function (apis, sourceDir, apiOutputDir) {
         hasClientOptions: getAuthMechanisms(apis).includes("SessionTicket"),
         projectName: "playfab-sdk",
         sdkVersion: exports.sdkVersion,
-        sourceDir: sourceDir
+        sourceDir: sourceDir,
+        getVerticalNameDefault: getVerticalNameDefault
     };
 
     var eachOutputDir = path.resolve(apiOutputDir, "PlayFabSdk");
@@ -42,6 +43,14 @@ exports.makeCombinedAPI = function (apis, sourceDir, apiOutputDir) {
         writeFile(path.resolve(eachOutputDir, "Scripts/PlayFab/PlayFab" + apis[i].name + ".js"), apiTemplate(locals));
         writeFile(path.resolve(eachOutputDir, "Scripts/typings/PlayFab/PlayFab" + apis[i].name + ".d.ts"), apiTypingsTemplate(locals));
     }
+}
+
+function getVerticalNameDefault() {
+    if (exports.verticalName) {
+        return "\"" + exports.verticalName + "\"";
+    }
+
+    return "null";
 }
 
 function getAuthParams(apiCall) {

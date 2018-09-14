@@ -5,6 +5,8 @@ declare module PlayFabModule {
         settings: IPlayFabSettings;
     }
     export interface IPlayFabSettings {
+        productionUrl: string;
+        verticalName: string;
         titleId: string;
         developerSecretKey?: string;
         advertisingIdType?: string;

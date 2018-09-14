@@ -15,6 +15,7 @@ function copyOverScripts(apis, sourceDir, apiOutputDir)
         errorList: apis[0].errorList,
         errors: apis[0].errors,
         sdkVersion: exports.sdkVersion,
+        getVerticalNameDefault: getVerticalNameDefault
     };
     templatizeTree(locals, srcDir, apiOutputDir);
 }
@@ -26,7 +27,8 @@ exports.makeCombinedAPI = function (apis, sourceDir, apiOutputDir) {
         friendlyName: "PlayFab Python Combined Sdk",
         errorList: apis[0].errorList,
         errors: apis[0].errors,
-        sdkVersion: exports.sdkVersion
+        sdkVersion: exports.sdkVersion,
+        getVerticalNameDefault: getVerticalNameDefault
     };
 
     console.log("Generating Combined Client/Server api from: " + sourceDir + " to: " + apiOutputDir);
@@ -94,6 +96,14 @@ function makeApi(api, sourceDir, apiOutputDir) {
 
     var apiTemplate = getCompiledTemplate(path.resolve(sourceDir, "templates/API.py.ejs"));
     writeFile(path.resolve(apiOutputDir, "playfab/PlayFab" + api.name + "API.py"), apiTemplate(apiLocals));
+}
+
+function getVerticalNameDefault() {
+    if (exports.verticalName) {
+        return "\"" + exports.verticalName + "\"";
+    }
+
+    return "None";
 }
 
 function getDeprecationAttribute(tabbing, apiObj) {

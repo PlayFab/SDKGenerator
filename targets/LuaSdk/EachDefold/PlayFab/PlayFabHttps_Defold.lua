@@ -54,7 +54,7 @@ function PlayFabHttps_Defold.MakePlayFabApiCall(urlPath, request, authKey, authV
         requestHeaders[authKey] = authValue
     end
 
-    local fullUrl = "https://" .. PlayFabSettings.settings.titleId .. ".playfabapi.com" .. urlPath
+    local fullUrl = PlayFabSettings.GetFullUrl(urlPath)
 
     http.request(
         fullUrl,

@@ -447,7 +447,7 @@ namespace UnittestRunner
                 return;
             }
 
-            auto output = result.AccountInfo->TitleInfo->Origination; // C++ can't really do anything with this once fetched
+            auto output = result.AccountInfo->TitleInfo->Origination.mValue; // C++ can't really do anything with this once fetched
             testMessageReturn = "Enums tested";
         }
 
@@ -473,7 +473,7 @@ namespace UnittestRunner
             if (result.FunctionResult.is_null())
                 testMessageReturn = "Cloud Decode Failure";
             else if (!result.Error.isNull())
-                testMessageReturn = result.Error->Message;
+                testMessageReturn = result.Error.mValue.Message;
             else
                 testMessageReturn = ShortenString(result.FunctionResult[L"messageValue"].as_string());
         }

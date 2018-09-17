@@ -4,7 +4,6 @@
 #include <functional>
 #include <list>
 #include <map>
-#include <assert.h>
 
 #include <sstream>
 #include <iomanip>
@@ -40,11 +39,13 @@ namespace PlayFab
     class Boxed
     {
     public:
+        BoxedType mValue;
+
         Boxed() : mValue(), mIsSet(false) {}
         Boxed(BoxedType value) : mValue(value), mIsSet(true) {}
 
         inline Boxed& operator=(BoxedType value) { mValue = value; mIsSet = true; return *this; }
-        inline operator const BoxedType& () const { assert(notNull()); return *operator->(); }
+        inline operator BoxedType() { return mValue; }
         inline BoxedType* operator->() { return mIsSet ? &mValue : nullptr; }
         inline const BoxedType* operator->() const { return mIsSet ? &mValue : nullptr; }
 
@@ -52,7 +53,6 @@ namespace PlayFab
         inline bool notNull() const { return mIsSet; }
         inline bool isNull() const { return !mIsSet; }
     private:
-        BoxedType mValue;
         bool mIsSet;
     };
 
@@ -113,7 +113,7 @@ namespace PlayFab
         }
         else
         {
-            ToJsonUtilT(input, output);
+            ToJsonUtilT(input.mValue, output);
         }
     }
     inline void FromJsonUtilT(const Json::Value& input, Boxed<time_t>& output)
@@ -193,7 +193,7 @@ namespace PlayFab
         }
         else
         {
-            ToJsonEnum(input, output);
+            ToJsonEnum(input.mValue, output);
         }
     }
     template <typename EnumType> inline void FromJsonUtilE(const Json::Value& input, Boxed<EnumType>& output)
@@ -348,7 +348,7 @@ namespace PlayFab
         if (input.isNull())
             output = Json::Value();
         else
-            output = static_cast<ObjectType>(input).ToJson();
+            output = input.mValue.ToJson();
     }
     template <typename ObjectType> inline void FromJsonUtilO(Json::Value& input, Boxed<ObjectType>& output)
     {
@@ -465,7 +465,7 @@ namespace PlayFab
         }
         else
         {
-            ToJsonUtilP(input, output);
+            ToJsonUtilP(input.mValue, output);
         }
     }
     template <typename PrimitiveType> inline void FromJsonUtilP(const Json::Value& input, Boxed<PrimitiveType>& output)

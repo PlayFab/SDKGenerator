@@ -130,7 +130,7 @@ namespace UnittestRunner
             if (result.FunctionResult.is_null())
                 testMessageReturn = "Cloud Decode Failure";
             else if (!result.Error.isNull())
-                testMessageReturn = result.Error->Message;
+                testMessageReturn = result.Error.mValue.Message;
             else
                 testMessageReturn = ShortenString(result.FunctionResult[L"messageValue"].as_string());
         }

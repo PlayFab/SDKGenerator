@@ -22,14 +22,14 @@ void OnPlayFabFail(const PlayFab::PlayFabError& error, void*)
 
 void OnGetProfile(const PlayFab::ProfilesModels::GetEntityProfileResponse& result, void*)
 {
-    printf(("========== PlayFab Profiles Success: " + result.Profile->Entity->Type + "\n").c_str());
+    printf(("========== PlayFab Profiles Success: " + result.Profile.mValue.Entity.mValue.Type + "\n").c_str());
 }
 
 void OnGetEntityToken(const PlayFab::AuthenticationModels::GetEntityTokenResponse& result, void*)
 {
     printf(("========== PlayFab GetEntityToken Success: " + result.EntityToken + "\n").c_str());
-    _id = result.Entity->Id;
-    _type = result.Entity->Type;
+    _id = result.Entity.mValue.Id;
+    _type = result.Entity.mValue.Type;
 
 
     auto req = PlayFab::ProfilesModels::GetEntityProfileRequest();

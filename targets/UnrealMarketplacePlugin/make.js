@@ -14,35 +14,41 @@ var copyright =
 //////////////////////////////////////////////////////
 `;
 
-exports.makeCombinedAPI = function (apis, sourceDir, apiOutputDir) {
+exports.makeCombinedAPI = function (apis, sourceDir, baseApiOutputDir) {
+    // The list of current supported UE versions - Intended to be the latest 3
+    var ueTargetVersions = ["4.18", "4.19", "4.20"];
 
-    var ueTargetVersion = "4.20";
-    var sdkVersion = exports.sdkVersion;
-    var buildIdentifier = exports.buildIdentifier;
+    for (var v = 0; v < ueTargetVersions.length; v++) {
+        var ueTargetVersion = ueTargetVersions[v];
+        var apiOutputDir = path.resolve(baseApiOutputDir, ueTargetVersion); // Break multiple versions into separate top level folders
 
-    // Create the Source folder in the plugin with all the modules
-    bpMakeJsPath.makeBpCombinedAPI(apis, copyright, sourceDir, apiOutputDir, ueTargetVersion, sdkVersion, buildIdentifier);
-    cppMakeJsPath.makeCppCombinedAPI(apis, copyright, sourceDir, apiOutputDir, ueTargetVersion, sdkVersion, buildIdentifier);
-    commonMakeJsPath.makeCommonCombinedAPI(apis, copyright, sourceDir, apiOutputDir, ueTargetVersion, sdkVersion, buildIdentifier);
+        console.log("Generating Unreal Plugin to " + apiOutputDir);
 
-    var authMechanisms = getAuthMechanisms(apis);
-    var locals = {
-        apis: apis,
-        ueTargetVersion: ueTargetVersion,
-        sdkVersion: sdkVersion,
-        copyright: copyright,
-        hasClientOptions: authMechanisms.includes("SessionTicket"),
-        hasServerOptions: authMechanisms.includes("SecretKey")
-    };
+        // Create the Source folder in the plugin with all the modules
+        bpMakeJsPath.makeBpCombinedAPI(apis, copyright, sourceDir, apiOutputDir, ueTargetVersion, exports.sdkVersion, exports.buildIdentifier);
+        cppMakeJsPath.makeCppCombinedAPI(apis, copyright, sourceDir, apiOutputDir, ueTargetVersion, exports.sdkVersion, exports.buildIdentifier);
+        commonMakeJsPath.makeCommonCombinedAPI(apis, copyright, sourceDir, apiOutputDir, ueTargetVersion, exports.sdkVersion, exports.buildIdentifier);
 
-    // Copy the resources, content and the .uplugin file
-    templatizeTree(locals, path.resolve(sourceDir, "source/PlayFab/Content"), path.resolve(apiOutputDir, "PlayFabPlugin/PlayFab/Content"));
-    templatizeTree(locals, path.resolve(sourceDir, "source/PlayFab/Resources"), path.resolve(apiOutputDir, "PlayFabPlugin/PlayFab/Resources"));
-    templatizeTree(locals, path.resolve(sourceDir, "source/PlayFab/PlayFab.uplugin.ejs"), path.resolve(apiOutputDir, "PlayFabPlugin/PlayFab/PlayFab.uplugin.ejs"));
+        var authMechanisms = getAuthMechanisms(apis);
+        var locals = {
+            apis: apis,
+            ueTargetVersion: ueTargetVersion,
+            sdkVersion: exports.sdkVersion,
+            copyright: copyright,
+            hasClientOptions: authMechanisms.includes("SessionTicket"),
+            hasServerOptions: authMechanisms.includes("SecretKey")
+        };
 
-    // Create the Example project folder
-    templatizeTree(locals, path.resolve(sourceDir, "examplesource"), apiOutputDir);
+        // Copy the resources, content and the .uplugin file
+        templatizeTree(locals, path.resolve(sourceDir, "source/PlayFab/Content"), path.resolve(apiOutputDir, "PlayFabPlugin/PlayFab/Content"));
+        templatizeTree(locals, path.resolve(sourceDir, "source/PlayFab/Resources"), path.resolve(apiOutputDir, "PlayFabPlugin/PlayFab/Resources"));
+        templatizeTree(locals, path.resolve(sourceDir, "source/PlayFab/PlayFab.uplugin.ejs"), path.resolve(apiOutputDir, "PlayFabPlugin/PlayFab/PlayFab.uplugin.ejs"));
 
-    // Copy the PlayFabPlugin folder just created into the ExampleProject
-    templatizeTree(locals, path.resolve(apiOutputDir, "PlayFabPlugin"), path.resolve(apiOutputDir, "ExampleProject/Plugins"));
+        // Create the Example project folder
+        templatizeTree(locals, path.resolve(sourceDir, "examplesource"), apiOutputDir);
+
+        // Copy the PlayFabPlugin folder just created into the ExampleProject
+        // TODO: It causes very confusing problems to copy from an output subdir to another output subdir. Let's fix this
+        templatizeTree(locals, path.resolve(apiOutputDir, "PlayFabPlugin"), path.resolve(apiOutputDir, "ExampleProject/Plugins"));
+    }
 }

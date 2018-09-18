@@ -55,7 +55,7 @@ static FORCEINLINE bool GetEnumValueToString(const FString& enumTypeName, const 
 }
 
 <% for(var i in enumTypes) { var enumType = enumTypes[i]; %>
-<%- generateApiSummary("", enumType, "name") %>
+<%- generateBpApiSummary("", enumType, "name") %>
 UENUM(BlueprintType)
 enum class E<%- getDataTypeSafeName(enumType, "name") %> : uint8
 {

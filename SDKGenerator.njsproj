@@ -147,7 +147,6 @@
     <Compile Include="targets\unity-v2\source\Client\PlayFabIdfa.cs" />
     <Compile Include="targets\UnrealMarketplacePlugin\make.js" />
     <Compile Include="targets\UnrealMarketplacePlugin\makeBp.js" />
-    <Compile Include="targets\UnrealMarketplacePlugin\makeCommon.js" />
     <Compile Include="targets\UnrealMarketplacePlugin\makeCpp.js" />
     <Compile Include="targets\WindowsSdk\make.js" />
     <Compile Include="targets\XPlatCppSdk\make.js" />
@@ -645,6 +644,8 @@
     <Content Include="targets\UnrealMarketplacePlugin\examplesource\ExampleProject\Source\ExampleProject\ExampleProjectGameMode.h" />
     <Content Include="targets\UnrealMarketplacePlugin\examplesource\ExampleProject\Source\ExampleProject\PlayFabApiTests.cpp" />
     <Content Include="targets\UnrealMarketplacePlugin\examplesource\ExampleProject\Source\ExampleProject\PlayFabApiTests.h" />
+    <Content Include="targets\UnrealMarketplacePlugin\Source\BuildAndroid.bat.ejs" />
+    <Content Include="targets\UnrealMarketplacePlugin\Source\BuildWin64.bat.ejs" />
     <Content Include="targets\UnrealMarketplacePlugin\Source\PlayFab\Content\pf_icon.uasset" />
     <Content Include="targets\UnrealMarketplacePlugin\source\PlayFab\PlayFab.uplugin.ejs" />
     <Content Include="targets\UnrealMarketplacePlugin\Source\PlayFab\Resources\Icon128.png" />

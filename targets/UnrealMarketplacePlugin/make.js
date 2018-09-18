@@ -1,6 +1,5 @@
 ﻿var path = require("path");
 var cppMakeJsPath = require("./makeCpp.js");
-var commonMakeJsPath = require("./makeCommon.js");
 var bpMakeJsPath = require("./makebp.js");
 
 // Making resharper less noisy - These are defined in Generate.js
@@ -27,22 +26,25 @@ exports.makeCombinedAPI = function (apis, sourceDir, baseApiOutputDir) {
         // Create the Source folder in the plugin with all the modules
         bpMakeJsPath.makeBpCombinedAPI(apis, copyright, sourceDir, apiOutputDir, ueTargetVersion, exports.sdkVersion, exports.buildIdentifier);
         cppMakeJsPath.makeCppCombinedAPI(apis, copyright, sourceDir, apiOutputDir, ueTargetVersion, exports.sdkVersion, exports.buildIdentifier);
-        commonMakeJsPath.makeCommonCombinedAPI(apis, copyright, sourceDir, apiOutputDir, ueTargetVersion, exports.sdkVersion, exports.buildIdentifier);
 
         var authMechanisms = getAuthMechanisms(apis);
         var locals = {
             apis: apis,
-            ueTargetVersion: ueTargetVersion,
-            sdkVersion: exports.sdkVersion,
+            buildIdentifier: exports.buildIdentifier,
             copyright: copyright,
+            enumTypes: collectEnumsFromApis(apis),
+            errorList: apis[0].errorList,
+            errors: apis[0].errors,
+            generateBpApiSummary: bpMakeJsPath.generateApiSummary,
+            getDataTypeSafeName: bpMakeJsPath.getDataTypeSafeName,
             hasClientOptions: authMechanisms.includes("SessionTicket"),
-            hasServerOptions: authMechanisms.includes("SecretKey")
+            hasServerOptions: authMechanisms.includes("SecretKey"),
+            sdkVersion: exports.sdkVersion,
+            ueTargetVersion: ueTargetVersion
         };
 
         // Copy the resources, content and the .uplugin file
-        templatizeTree(locals, path.resolve(sourceDir, "source/PlayFab/Content"), path.resolve(apiOutputDir, "PlayFabPlugin/PlayFab/Content"));
-        templatizeTree(locals, path.resolve(sourceDir, "source/PlayFab/Resources"), path.resolve(apiOutputDir, "PlayFabPlugin/PlayFab/Resources"));
-        templatizeTree(locals, path.resolve(sourceDir, "source/PlayFab/PlayFab.uplugin.ejs"), path.resolve(apiOutputDir, "PlayFabPlugin/PlayFab/PlayFab.uplugin.ejs"));
+        templatizeTree(locals, path.resolve(sourceDir, "source"), path.resolve(apiOutputDir, "PlayFabPlugin"));
 
         // Create the Example project folder
         templatizeTree(locals, path.resolve(sourceDir, "examplesource"), apiOutputDir);
@@ -51,4 +53,14 @@ exports.makeCombinedAPI = function (apis, sourceDir, baseApiOutputDir) {
         // TODO: It causes very confusing problems to copy from an output subdir to another output subdir. Let's fix this
         templatizeTree(locals, path.resolve(apiOutputDir, "PlayFabPlugin"), path.resolve(apiOutputDir, "ExampleProject/Plugins"));
     }
+}
+
+// BP Module: Pull all the enums out of all the apis, and collect them into a single collection of just the enum types and filter duplicates
+function collectEnumsFromApis(apis) {
+    var enumTypes = {};
+    for (var a = 0; a < apis.length; a++)
+        for (var d in apis[a].datatypes)
+            if (apis[a].datatypes[d].isenum && apis[a].datatypes[d].enumvalues.length <= 255)
+                enumTypes[d] = apis[a].datatypes[d];
+    return enumTypes;
 }

@@ -116,7 +116,7 @@ namespace PlayFab
         }
         else
         {
-            ToJsonUtilT(input, output);
+            ToJsonUtilT(static_cast<time_t>(input), output);
         }
     }
     inline void FromJsonUtilT(const web::json::value& input, Boxed<time_t>& output)
@@ -476,7 +476,7 @@ namespace PlayFab
         }
         else
         {
-            ToJsonUtilP(input, output);
+            ToJsonUtilP(static_cast<PrimitiveType>(input), output);
         }
     }
     template <typename PrimitiveType> inline void FromJsonUtilP(const web::json::value& input, Boxed<PrimitiveType>& output)

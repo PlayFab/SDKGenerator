@@ -7,7 +7,7 @@ if (typeof (templatizeTree) === "undefined") templatizeTree = function () { };
 
 var maxEnumSize = 255;
 
-exports.makeCppCombinedAPI = function (apis, copyright, sourceDir, apiOutputDir, ueTargetVersion, sdkVersion, buildIdentifier) {
+exports.makeCppCombinedAPI = function (apis, copyright, sourceDir, baseApiOutputDir, ueTargetVersion, sdkVersion, buildIdentifier) {
     var locals = {
         apis: apis,
         buildIdentifier: buildIdentifier,
@@ -21,21 +21,13 @@ exports.makeCppCombinedAPI = function (apis, copyright, sourceDir, apiOutputDir,
 
     var subFolders = ["PlayFabPlugin"]; // Raw plugin folder
     for (var i = 0; i < subFolders.length; i++) {
-        var sourceCodeDir = path.resolve(sourceDir, "source/PlayFab/Source/PlayFabCpp");
-        var eachApiOutputDir = path.resolve(apiOutputDir, subFolders[i]);
-        var outputCodeDir = path.resolve(eachApiOutputDir, "PlayFab/Source/PlayFabCpp");
+        var apiOutputDir = path.resolve(baseApiOutputDir, subFolders[i]);
+        var outputCodeDir = path.resolve(apiOutputDir, "PlayFab/Source/PlayFabCpp");
 
-        console.log("Generating UE4 C++ Module to " + eachApiOutputDir);
+        console.log("Generating UE4 C++ Module from " + sourceDir + " to " + apiOutputDir);
 
-        console.log("Source : " + sourceCodeDir + " ");
-
-        // copy the base plugins files, resource, uplugin, etc
-        templatizeTree(locals, sourceCodeDir, outputCodeDir);
-
-        for (var a = 0; a < apis.length; a++) {
+        for (var a = 0; a < apis.length; a++)
             makeApi(apis[a], copyright, sourceDir, outputCodeDir, "Core/");
-        }
-
         generateModels(apis, copyright, sourceDir, outputCodeDir, "All", "Core/");
     }
 }

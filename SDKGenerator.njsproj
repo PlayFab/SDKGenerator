@@ -130,6 +130,7 @@
     <Compile Include="targets\cpp-cocos2dx\make.js" />
     <Compile Include="targets\csharp-unity-gameserver\make.js" />
     <Compile Include="targets\csharp\make.js" />
+    <Compile Include="targets\csharp\source\source\Uunit\tests\HttpTests.cs" />
     <Compile Include="targets\javascript\make.js" />
     <Compile Include="targets\java\make.js" />
     <Compile Include="targets\java\source_androidStudio\src\main\java\com\playfab\androidstudioexample\PlayFabExampleActivity.java" />
@@ -219,7 +220,7 @@
     <Content Include="targets\csharp\source\source\PlayFabHttp\PlayFabWinHttp.cs" />
     <Content Include="targets\csharp\source\source\PluginContract.cs" />
     <Content Include="targets\csharp\source\source\PluginManager.cs" />
-    <Content Include="targets\csharp\source\source\Uunit\PlayFabApiTest.cs" />
+    <Content Include="targets\csharp\source\source\Uunit\tests\PlayFabApiTest.cs" />
     <Content Include="targets\csharp\source\source\Uunit\PluginManagerTest.cs" />
     <Content Include="targets\csharp\source\source\Uunit\UUnitAssertException.cs" />
     <Content Include="targets\csharp\source\source\Uunit\UUnitIncrementalTestRunner.cs" />
@@ -781,6 +782,7 @@
     <Folder Include="targets\csharp\source\source\Json\" />
     <Folder Include="targets\csharp\source\source\PlayFabHttp\" />
     <Folder Include="targets\csharp\source\source\Uunit\" />
+    <Folder Include="targets\csharp\source\source\Uunit\tests\" />
     <Folder Include="targets\csharp\templates\" />
     <Folder Include="targets\csharp\UnittestRunner\" />
     <Folder Include="targets\csharp\UnittestRunner\Properties\" />

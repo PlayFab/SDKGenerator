@@ -53,7 +53,7 @@ namespace PlayFab.Internal
             {
                 var error = new PlayFabError();
 
-                if (string.IsNullOrEmpty(httpResponseString) || httpResponse.StatusCode == HttpStatusCode.NotFound)
+                if (string.IsNullOrEmpty(httpResponseString))
                 {
                     error.HttpCode = (int)httpResponse.StatusCode;
                     error.HttpStatus = httpResponse.StatusCode.ToString();

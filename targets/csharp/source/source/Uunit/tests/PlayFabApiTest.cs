@@ -126,7 +126,7 @@ namespace PlayFab.UUnit
             testContext.NotNull(loginResult, failMessage);
             testContext.IsNull(loginResult.Result, failMessage);
             testContext.NotNull(loginResult.Error, failMessage);
-            testContext.True(loginResult.Error.ErrorMessage.Contains("password"), loginResult.Error.ErrorMessage);
+            testContext.True(loginResult.Error.ErrorMessage.Contains("password"), loginResult.Error.ErrorMessage + ", for: " + USER_EMAIL + ", on: " + PlayFabSettings.TitleId);
         }
 
         /// <summary>

@@ -5,12 +5,12 @@
 
 namespace PlayFab
 {
-	const FString PlayFabSettings::sdkVersion = IPlayFabCommonModuleInterface::Get().GetSdkVersion();
-	const FString PlayFabSettings::buildIdentifier = IPlayFabCommonModuleInterface::Get().GetBuildIdentifier();
-	const FString PlayFabSettings::versionString = IPlayFabCommonModuleInterface::Get().GetVersionString();
+	FString PlayFabSettings::sdkVersion;
+	FString PlayFabSettings::buildIdentifier;
+	FString PlayFabSettings::versionString;
 
-	const FString PlayFabSettings::AD_TYPE_IDFA = IPlayFabCommonModuleInterface::Get().GetAD_TYPE_IDFA();
-	const FString PlayFabSettings::AD_TYPE_ANDROID_ID = IPlayFabCommonModuleInterface::Get().GetAD_TYPE_ANDROID_ID();
+	FString PlayFabSettings::AD_TYPE_IDFA;
+	FString PlayFabSettings::AD_TYPE_ANDROID_ID;
 
 	// Getters
 	FString PlayFabSettings::GetServerURL()

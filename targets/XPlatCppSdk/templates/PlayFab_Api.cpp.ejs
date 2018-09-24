@@ -5,6 +5,15 @@
 #include <playfab/PlayFab<%- api.name %>Api.h>
 #include <playfab/PlayFabHttp.h>
 #include <playfab/PlayFabSettings.h>
+#include <playfab/PlayFabError.h>
+
+
+#ifndef _WIN32
+#include <jsoncpp/json/writer.h>
+#endif
+#ifdef _WIN32
+#include <json/writer.h>
+#endif
 
 namespace PlayFab
 {
@@ -32,23 +41,70 @@ namespace PlayFab
 <%- getRequestActions("        ", apiCall) %>
         IPlayFabHttp& http = IPlayFabHttp::Get();
         const auto requestJson = request.ToJson();
-        http.AddRequest("<%- apiCall.url %>", <%- getAuthParams(apiCall) %>, requestJson, On<%- apiCall.name %>Result, SharedVoidPointer((callback == nullptr) ? nullptr : new ProcessApiCallback<<%- apiCall.result %>>(callback)), errorCallback, customData);
+
+        Json::FastWriter writer;
+        std::string jsonAsString = writer.write(requestJson);
+
+        std::unordered_map<std::string, std::string> headers;
+        headers.emplace(<%- getAuthParams(apiCall) %>);
+
+        CallRequestContainerBase crc = CallRequestContainerBase(
+            "<%- apiCall.url %>",
+            headers,
+            jsonAsString,
+            On<%- apiCall.name %>Result,
+            SharedVoidPointer((callback == nullptr) ? nullptr : new ProcessApiCallback<<%- apiCall.result %>>(callback)),
+            errorCallback,
+            customData);
+
+        http.MakePostRequest(crc);
     }
 
-    void PlayFab<%- api.name %>API::On<%- apiCall.name %>Result(CallRequestContainerBase& pRequest)
+    void PlayFab<%- api.name %>API::On<%- apiCall.name %>Result(int httpCode, std::string result, void* customContext)
     {
-        CallRequestContainer request = static_cast<CallRequestContainer&>(pRequest);
-        <%- apiCall.result %> outResult;
-        outResult.FromJson(request.errorWrapper.Data);
-        outResult.Request = request.errorWrapper.Request;
-<%- getResultActions("        ", apiCall) %>
-        const auto internalPtr = request.successCallback.get();
-        if (internalPtr != nullptr)
+        Json::Value root;
+        Json::Reader reader;
+
+        bool parsingSuccessful = reader.parse(result.c_str(), root);
+
+        if(parsingSuccessful)
         {
-            const auto callback = (*static_cast<ProcessApiCallback<<%- apiCall.result %>> *>(internalPtr));
-            callback(outResult, request.customData);
+            <%- apiCall.result %> outResult;
+
+            outResult.FromJson(root);
+
+            // TODO: consider the following: (do we need this errorWrapper request?)
+            //outResult.Request = request.errorWrapper.Request;
+
+            CallRequestContainerBase* crc = static_cast<CallRequestContainerBase*>(customContext);
+
+            if(httpCode == 200 && crc->getAPICallback() != nullptr)
+            {
+                // TODO: cast the function correctly.
+                // const auto callback = (*static_cast<ProcessApiCallback<<%- apiCall.result %>> *>(crc->getAPICallback()));
+                // callback(outResult, crc->getCustomContext());
+            }
+            else // Process the error case
+            {
+                // TODO: how is this supposed to fail gracefully?
+                // TODO: consider the objects we are using, does the base class need an errorWrapper?
+                if (PlayFabSettings::globalErrorHandler != nullptr)
+                {
+                    PlayFabSettings::globalErrorHandler(request.errorWrapper, customData);
+                }
+
+                if (crc->getErrorCallback() != nullptr)
+                {
+                    //outResult->getErrorCallback()(request.errorWrapper, customData);
+                }
+            }
+        }
+        else
+        {
+            throw new std::invalid_argument("The returned result body was not in a valid Json format during On<%- apiCall.name %>Result.");
         }
     }
+
 <% } %><% if (hasClientOptions) { %>
     // Private PlayFabClientAPI specific
     bool PlayFabClientAPI::IsClientLoggedIn()

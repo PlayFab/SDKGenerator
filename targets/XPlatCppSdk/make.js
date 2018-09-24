@@ -218,8 +218,14 @@ function getPropertySafeName(property) {
 }
 
 function getRequestActions(tabbing, apiCall) {
+    //TODO Bug 6594: add to this titleId check. 
+    // If this titleId does not exist we should be throwing an error informing the user MUST have a titleId.
     if (apiCall.result === "LoginResult" || apiCall.result === "RegisterPlayFabUserResult")
-        return tabbing + "if (PlayFabSettings::titleId.length() > 0) request.TitleId = PlayFabSettings::titleId;\n";
+        return tabbing + "if (PlayFabSettings::titleId.length() > 0)\n"
+            + tabbing + "{\n"
+            + tabbing + "    request.TitleId = PlayFabSettings::titleId;\n"
+            + tabbing + "}\n";
+        
     if (apiCall.url === "/Authentication/GetEntityToken")
         return tabbing + "std::string authKey, authValue;\n"
             + tabbing + "if (PlayFabSettings::entityToken.length() > 0) {\n"
@@ -235,7 +241,10 @@ function getRequestActions(tabbing, apiCall) {
 
 function getResultActions(tabbing, apiCall) {
     if (apiCall.url === "/Authentication/GetEntityToken")
-        return tabbing + "if (outResult.EntityToken.length() > 0) PlayFabSettings::entityToken = outResult.EntityToken;\n";
+        return tabbing + "if (outResult.EntityToken.length() > 0)"
+            + tabbing + "{\n"
+            + tabbing + "    PlayFabSettings::entityToken = outResult.EntityToken; \n"
+            + tabbing + "}\n";
     if (apiCall.result === "LoginResult")
         return tabbing + "if (outResult.SessionTicket.length() > 0)\n"
             + tabbing + "{\n"

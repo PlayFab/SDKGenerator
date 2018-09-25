@@ -7,14 +7,6 @@
 #include <playfab/PlayFabSettings.h>
 #include <playfab/PlayFabError.h>
 
-
-#ifndef _WIN32
-#include <jsoncpp/json/writer.h>
-#endif
-#ifdef _WIN32
-#include <json/writer.h>
-#endif
-
 namespace PlayFab
 {
     using namespace <%- api.name %>Models;
@@ -48,61 +40,37 @@ namespace PlayFab
         std::unordered_map<std::string, std::string> headers;
         headers.emplace(<%- getAuthParams(apiCall) %>);
 
-        CallRequestContainerBase crc = CallRequestContainerBase(
+        CallRequestContainer* reqContainer = new CallRequestContainer(CallRequestContainerBase(
             "<%- apiCall.url %>",
             headers,
             jsonAsString,
             On<%- apiCall.name %>Result,
-            SharedVoidPointer((callback == nullptr) ? nullptr : new ProcessApiCallback<<%- apiCall.result %>>(callback)),
-            errorCallback,
-            customData);
+            customData));
 
-        http.MakePostRequest(crc);
+        reqContainer->successCallback = SharedVoidPointer((callback == nullptr) ? nullptr : new ProcessApiCallback<<%- apiCall.result %>>(callback));
+        reqContainer->errorCallback = errorCallback;
+
+        http.MakePostRequest(*reqContainer);
     }
 
-    void PlayFab<%- api.name %>API::On<%- apiCall.name %>Result(int httpCode, std::string result, void* customContext)
+    void PlayFab<%- api.name %>API::On<%- apiCall.name %>Result(int httpCode, std::string result, CallRequestContainerBase& reqContainer)
     {
-        Json::Value root;
-        Json::Reader reader;
+        CallRequestContainer& container = static_cast<CallRequestContainer&>(reqContainer);
 
-        bool parsingSuccessful = reader.parse(result.c_str(), root);
-
-        if(parsingSuccessful)
+        // Unpacks the result as ResultType and invokes successCallback according to that type
+        <%- apiCall.result %> outResult;
+        if (IsSuccessfulResult(outResult, container))
         {
-            <%- apiCall.result %> outResult;
-
-            outResult.FromJson(root);
-
-            // TODO: consider the following: (do we need this errorWrapper request?)
-            //outResult.Request = request.errorWrapper.Request;
-
-            CallRequestContainerBase* crc = static_cast<CallRequestContainerBase*>(customContext);
-
-            if(httpCode == 200 && crc->getAPICallback() != nullptr)
+    <%- getResultActions("        ", apiCall) %>
+            const auto internalPtr = container.successCallback.get();
+            if (internalPtr != nullptr)
             {
-                // TODO: cast the function correctly.
-                // const auto callback = (*static_cast<ProcessApiCallback<<%- apiCall.result %>> *>(crc->getAPICallback()));
-                // callback(outResult, crc->getCustomContext());
-            }
-            else // Process the error case
-            {
-                // TODO: how is this supposed to fail gracefully?
-                // TODO: consider the objects we are using, does the base class need an errorWrapper?
-                if (PlayFabSettings::globalErrorHandler != nullptr)
-                {
-                    PlayFabSettings::globalErrorHandler(request.errorWrapper, customData);
-                }
-
-                if (crc->getErrorCallback() != nullptr)
-                {
-                    //outResult->getErrorCallback()(request.errorWrapper, customData);
-                }
+                const auto callback = (*static_cast<ProcessApiCallback<<%- apiCall.result %>> *>(internalPtr));
+                callback(outResult, container.getCustomData());
             }
         }
-        else
-        {
-            throw new std::invalid_argument("The returned result body was not in a valid Json format during On<%- apiCall.name %>Result.");
-        }
+
+        delete &container;
     }
 
 <% } %><% if (hasClientOptions) { %>
@@ -126,6 +94,23 @@ namespace PlayFab
             AttributeInstall(request, nullptr, nullptr);
         }
     }
-<% } %>}
+<% } %>    bool PlayFab<%- api.name %>API::IsSuccessfulResult(PlayFabResultCommon& resultCommon, CallRequestContainer& container)
+    {
+        if (container.errorWrapper.HttpCode == 200)
+        {
+            resultCommon.FromJson(container.errorWrapper.Data);
+            resultCommon.Request = container.errorWrapper.Request;
+            return true;
+        }
+        else // Process the error case
+        {
+            if (PlayFabSettings::globalErrorHandler != nullptr)
+                PlayFabSettings::globalErrorHandler(container.errorWrapper, container.getCustomData());
+            if (container.errorCallback != nullptr)
+                container.errorCallback(container.errorWrapper, container.getCustomData());
+            return false;
+        }
+    }
+}
 
 #endif

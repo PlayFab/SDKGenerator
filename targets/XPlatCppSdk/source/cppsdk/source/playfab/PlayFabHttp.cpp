@@ -70,7 +70,7 @@ namespace PlayFab
 
         while (this->threadRunning)
         {
-            CallRequestContainer* reqContainer = nullptr;
+            CallRequestContainerBase* reqContainer = nullptr;
 
             { // LOCK httpRequestMutex
                 std::unique_lock<std::mutex> lock(this->httpRequestMutex);
@@ -91,7 +91,7 @@ namespace PlayFab
 
             if (reqContainer != nullptr)
             {
-                ExecuteRequest(*reqContainer);
+                ExecuteRequest(*static_cast<CallRequestContainer*>(reqContainer));
             }
         }
     }
@@ -122,13 +122,11 @@ namespace PlayFab
         return (blockSize * blockCount);
     }
 
-    void PlayFabHttp::MakePostRequest(const CallRequestContainerBase& requestContainer)
+    void PlayFabHttp::MakePostRequest(const CallRequestContainerBase& reqContainer)
     {
-        CallRequestContainer* reqContainer = new CallRequestContainer(requestContainer);
-
         { // LOCK httpRequestMutex
             std::unique_lock<std::mutex> lock(httpRequestMutex);
-            pendingRequests.push_back(reqContainer);
+            pendingRequests.push_back(const_cast<CallRequestContainerBase*>(&reqContainer));
             activeRequestCount++;
         } // UNLOCK httpRequestMutex
     }
@@ -138,7 +136,7 @@ namespace PlayFab
         // Set up curl handle
         reqContainer.curlHandle = curl_easy_init();
         curl_easy_reset(reqContainer.curlHandle);
-        curl_easy_setopt(reqContainer.curlHandle, CURLOPT_URL, PlayFabSettings::GetUrl(reqContainer.errorWrapper.UrlPath, PlayFabSettings::requestGetParams).c_str());
+        curl_easy_setopt(reqContainer.curlHandle, CURLOPT_URL, PlayFabSettings::GetUrl(reqContainer.getUrl(), PlayFabSettings::requestGetParams).c_str());
 
         // Set up headers
         reqContainer.curlHttpHeaders = nullptr;
@@ -153,15 +151,18 @@ namespace PlayFab
         {
             for (auto const &obj : headers)
             {
-                std::string header = obj.first + ": " + obj.second;
-                reqContainer.curlHttpHeaders = curl_slist_append(reqContainer.curlHttpHeaders, header.c_str());
+                if (obj.first.length() != 0 && obj.second.length() != 0) // no empty keys or values in headers
+                {
+                    std::string header = obj.first + ": " + obj.second;
+                    reqContainer.curlHttpHeaders = curl_slist_append(reqContainer.curlHttpHeaders, header.c_str());
+                }
             }
         }
 
         curl_easy_setopt(reqContainer.curlHandle, CURLOPT_HTTPHEADER, reqContainer.curlHttpHeaders);
 
         // Set up post & payload
-        std::string payload = reqContainer.errorWrapper.Request.toStyledString();
+        std::string payload = reqContainer.getRequestBody();
         curl_easy_setopt(reqContainer.curlHandle, CURLOPT_POST, nullptr);
         curl_easy_setopt(reqContainer.curlHandle, CURLOPT_POSTFIELDS, payload.c_str());
 
@@ -219,8 +220,8 @@ namespace PlayFab
         {
             reqContainer.getCallback()(
                 reqContainer.responseJson.get("code", Json::Value::null).asInt(),
-                reqContainer.responseString.c_str(),
-                static_cast<void*>(&reqContainer));
+                reqContainer.responseString,
+                reqContainer);
         }
     }
 
@@ -231,7 +232,7 @@ namespace PlayFab
             throw std::runtime_error("You should not call Update() when PlayFabSettings::threadedCallbacks == true");
         }
 
-        CallRequestContainer* reqContainer;
+        CallRequestContainerBase* reqContainer;
         { // LOCK httpRequestMutex
             std::unique_lock<std::mutex> lock(httpRequestMutex);
             if (pendingResults.empty())
@@ -244,7 +245,7 @@ namespace PlayFab
             activeRequestCount--;
         } // UNLOCK httpRequestMutex
 
-        HandleResults(*reqContainer);
+        HandleResults(*static_cast<CallRequestContainer*>(reqContainer));
         delete reqContainer;
 
         // activeRequestCount can be altered by HandleResults, so we have to re-lock and return an updated value

@@ -12,30 +12,30 @@
 
 namespace PlayFab
 {
-    CallRequestContainer::CallRequestContainer(const CallRequestContainerBase& base) :
-        CallRequestContainerBase(base),
+    CallRequestContainer::CallRequestContainer(const CallRequestContainerBase& reqContainer) :
+        CallRequestContainerBase(reqContainer),
         curlHandle(nullptr),
         curlHttpHeaders(nullptr),
         finished(false),
         responseString(""),
         responseJson(Json::Value::null),
         errorWrapper(),
-        internalCallback(nullptr),
-        successCallback(nullptr)
+        successCallback(nullptr),
+        errorCallback(nullptr)
     {
-        errorWrapper.UrlPath = base.getUrl();
+        errorWrapper.UrlPath = reqContainer.getUrl();
 
-        Json::Value root;
+        Json::Value request;
         Json::Reader reader;
-        bool parsingSuccessful = reader.parse(base.getRequestBody().c_str(), root);
+        bool parsingSuccessful = reader.parse(reqContainer.getRequestBody(), request);
 
-        if(parsingSuccessful)
+        if (parsingSuccessful)
         {
-            errorWrapper.Request = base.getRequestBody();
+            errorWrapper.Request = request;
         }
         else
         {
-            throw new std::invalid_argument("The requestBody string was not in a valid Json format during MakePostRequest.");
+            throw new std::invalid_argument("The requestBody string is not in a valid Json format.");
         }
     }
 

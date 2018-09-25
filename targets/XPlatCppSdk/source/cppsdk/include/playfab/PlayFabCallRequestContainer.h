@@ -10,19 +10,13 @@
 
 namespace PlayFab
 {
-    typedef void(*RequestCompleteCallback)(CallRequestContainerBase& reqContainer);
-    typedef std::shared_ptr<void> SharedVoidPointer;
-
     /// <summary>
     /// Internal PlayFabHttp container for each api call
-    /// This object is reusable in its callback usage. 
-    /// A user should not hold on to this explicit object, 
-    /// but copy any needed info out of it in their callback.
     /// </summary>
     class CallRequestContainer : public CallRequestContainerBase
     {
     public:
-        CallRequestContainer(const CallRequestContainerBase& base);
+        CallRequestContainer(const CallRequestContainerBase& reqContainer);
 
         virtual ~CallRequestContainer() override;
 
@@ -36,7 +30,7 @@ namespace PlayFab
         std::string responseString;
         Json::Value responseJson = Json::Value::null;
         PlayFabError errorWrapper;
-        std::function<void(CallRequestContainerBase&)> internalCallback;
         SharedVoidPointer successCallback;
+        ErrorCallback errorCallback;
     };
 }

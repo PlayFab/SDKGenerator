@@ -29,7 +29,7 @@ namespace PlayFab
 
         virtual size_t Update() = 0;
 
-        virtual void MakePostRequest(const CallRequestContainerBase&) override { };
+        virtual void MakePostRequest(const CallRequestContainerBase&) = 0;
 
     protected:
         static std::unique_ptr<IPlayFabHttp> httpInstance;
@@ -65,8 +65,8 @@ namespace PlayFab
         std::mutex httpRequestMutex;
         bool threadRunning;
         int activeRequestCount;
-        std::vector<CallRequestContainer*> pendingRequests;
-        std::vector<CallRequestContainer*> pendingResults;
+        std::vector<CallRequestContainerBase*> pendingRequests;
+        std::vector<CallRequestContainerBase*> pendingResults;
     };
 }
 

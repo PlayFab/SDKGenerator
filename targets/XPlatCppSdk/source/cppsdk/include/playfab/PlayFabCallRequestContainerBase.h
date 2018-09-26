@@ -5,7 +5,6 @@
 namespace PlayFab
 {
     class CallRequestContainerBase;
-    typedef std::shared_ptr<void> SharedVoidPointer;
     typedef void(*CallRequestContainerCallback)(int, std::string, CallRequestContainerBase&);
 
     /// <summary>
@@ -31,6 +30,10 @@ namespace PlayFab
         CallRequestContainerBase(const CallRequestContainerBase& reqContainer);
         const CallRequestContainerBase& operator=(const CallRequestContainerBase& reqContainer);
 
+        // Prevent move construction and assignment operations
+        CallRequestContainerBase(CallRequestContainerBase&&) = delete;
+        CallRequestContainerBase& operator=(CallRequestContainerBase&&) = delete;
+
         virtual ~CallRequestContainerBase();
 
         std::string getUrl() const;
@@ -51,6 +54,6 @@ namespace PlayFab
         CallRequestContainerCallback mCallback;
 
         // I never own this, I can never destroy it
-        void* mCustomData;
+        void* mCustomData; // optional user data (relayed to callback). This gives users the flexibility to tag each request with some data that can be accessed in callback.
     };
 }

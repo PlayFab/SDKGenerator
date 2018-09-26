@@ -40,14 +40,14 @@ namespace PlayFab
         std::unordered_map<std::string, std::string> headers;
         headers.emplace(<%- getAuthParams(apiCall) %>);
 
-        CallRequestContainer* reqContainer = new CallRequestContainer(CallRequestContainerBase(
+        CallRequestContainer* reqContainer = new CallRequestContainer(
             "<%- apiCall.url %>",
             headers,
             jsonAsString,
             On<%- apiCall.name %>Result,
-            customData));
+            customData);
 
-        reqContainer->successCallback = SharedVoidPointer((callback == nullptr) ? nullptr : new ProcessApiCallback<<%- apiCall.result %>>(callback));
+        reqContainer->successCallback = std::shared_ptr<void>((callback == nullptr) ? nullptr : new ProcessApiCallback<<%- apiCall.result %>>(callback));
         reqContainer->errorCallback = errorCallback;
 
         http.MakePostRequest(*reqContainer);
@@ -57,11 +57,10 @@ namespace PlayFab
     {
         CallRequestContainer& container = static_cast<CallRequestContainer&>(reqContainer);
 
-        // Unpacks the result as ResultType and invokes successCallback according to that type
         <%- apiCall.result %> outResult;
         if (IsSuccessfulResult(outResult, container))
         {
-    <%- getResultActions("        ", apiCall) %>
+<%- getResultActions("            ", apiCall) %>
             const auto internalPtr = container.successCallback.get();
             if (internalPtr != nullptr)
             {
@@ -72,7 +71,6 @@ namespace PlayFab
 
         delete &container;
     }
-
 <% } %><% if (hasClientOptions) { %>
     // Private PlayFabClientAPI specific
     bool PlayFabClientAPI::IsClientLoggedIn()
@@ -94,7 +92,8 @@ namespace PlayFab
             AttributeInstall(request, nullptr, nullptr);
         }
     }
-<% } %>    bool PlayFab<%- api.name %>API::IsSuccessfulResult(PlayFabResultCommon& resultCommon, CallRequestContainer& container)
+<% } %>
+    bool PlayFab<%- api.name %>API::IsSuccessfulResult(PlayFabResultCommon& resultCommon, CallRequestContainer& container)
     {
         if (container.errorWrapper.HttpCode == 200)
         {

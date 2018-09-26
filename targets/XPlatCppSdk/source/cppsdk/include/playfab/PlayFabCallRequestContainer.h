@@ -6,8 +6,6 @@
 // Intellisense-only includes
 #include <curl/curl.h>
 
-#include <unordered_map>
-
 namespace PlayFab
 {
     /// <summary>
@@ -16,7 +14,11 @@ namespace PlayFab
     class CallRequestContainer : public CallRequestContainerBase
     {
     public:
-        CallRequestContainer(const CallRequestContainerBase& reqContainer);
+        CallRequestContainer(std::string url,
+            const std::unordered_map<std::string, std::string>& headers,
+            std::string requestBody,
+            CallRequestContainerCallback callback,
+            void* customData = nullptr);
 
         virtual ~CallRequestContainer() override;
 
@@ -30,7 +32,7 @@ namespace PlayFab
         std::string responseString;
         Json::Value responseJson = Json::Value::null;
         PlayFabError errorWrapper;
-        SharedVoidPointer successCallback;
+        std::shared_ptr<void> successCallback;
         ErrorCallback errorCallback;
     };
 }

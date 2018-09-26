@@ -2,18 +2,14 @@
 
 #include <playfab/PlayFabCallRequestContainer.h>
 
-#ifndef _WIN32
-#include <jsoncpp/json/reader.h>
-#endif
-#ifdef _WIN32
-#include <json/reader.h>
-#endif
-
-
 namespace PlayFab
 {
-    CallRequestContainer::CallRequestContainer(const CallRequestContainerBase& reqContainer) :
-        CallRequestContainerBase(reqContainer),
+    CallRequestContainer::CallRequestContainer(std::string url,
+        const std::unordered_map<std::string, std::string>& headers,
+        std::string requestBody,
+        CallRequestContainerCallback callback,
+        void* customData) :
+        CallRequestContainerBase(url, headers, requestBody, callback, customData),
         curlHandle(nullptr),
         curlHttpHeaders(nullptr),
         finished(false),
@@ -23,19 +19,15 @@ namespace PlayFab
         successCallback(nullptr),
         errorCallback(nullptr)
     {
-        errorWrapper.UrlPath = reqContainer.getUrl();
+        errorWrapper.UrlPath = url;
 
         Json::Value request;
         Json::Reader reader;
-        bool parsingSuccessful = reader.parse(reqContainer.getRequestBody(), request);
+        bool parsingSuccessful = reader.parse(requestBody, request);
 
         if (parsingSuccessful)
         {
             errorWrapper.Request = request;
-        }
-        else
-        {
-            throw new std::invalid_argument("The requestBody string is not in a valid Json format.");
         }
     }
 

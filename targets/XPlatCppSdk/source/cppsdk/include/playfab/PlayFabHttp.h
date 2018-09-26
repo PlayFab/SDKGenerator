@@ -25,7 +25,7 @@ namespace PlayFab
     public:
         static IPlayFabHttp& Get();
 
-        virtual ~IPlayFabHttp();
+        virtual ~IPlayFabHttp() = 0;
 
         virtual size_t Update() = 0;
 

@@ -68,7 +68,7 @@ namespace PlayFab
 
     IPlayFabPlugin* PlayFabPluginManager::CreatePlayFabTransportPlugin()
     {
-        // TODO: this should make a real HttpPlugin, not an interface
-        return new IPlayFabHttpPlugin;
+        IPlayFabHttp& http = IPlayFabHttp::Get();
+        return &http;
     }
 }

@@ -8,16 +8,14 @@ CheckDefault SHARED_WORKSPACE C:/depot
 CheckDefault SdkName UnitySDK
 CheckDefault PublishToGit false
 
-if [ $PublishToGit=="false" ]; then
-    echo === Revert files (do not commit this version) ===
-    ForceCD $SHARED_WORKSPACE\sdks\$SdkName
-    git checkout -- .
-else
+ForcePushD $WORKSPACE\sdks\$SdkName
+
+if [ $PublishToGit=="true" ]; then
     echo === Commit to Git ===
-    ForceCD $WORKSPACE\sdks\$SdkName
+    git fetch --progress origin
     git add -A
     git commit -m "$commitMessage"
-    git push origin $gitTarget
-    ForceCD $SHARED_WORKSPACE\sdks\$SdkName
-    git push origin $gitTarget
+    git push origin $gitTarget -f -u
 fi
+
+popd

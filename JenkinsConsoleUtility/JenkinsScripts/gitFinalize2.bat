@@ -3,10 +3,12 @@ setlocal
 
 IF "%PublishToGit%"=="true" (
     echo === Commit to Git ===
-    cd "%WORKSPACE%/sdks/%SdkName%"
+    pushd "%WORKSPACE%/sdks/%SdkName%"
+    git fetch --progress origin
     git add -A
     git commit -m "%commitMessage%"
-    git push origin %gitTarget%
+    git push origin $gitTarget -f -u
+    popd
 )
 
 endlocal

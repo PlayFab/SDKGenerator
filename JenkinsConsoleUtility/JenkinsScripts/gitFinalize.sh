@@ -8,7 +8,7 @@ CheckDefault SHARED_WORKSPACE C:/depot
 CheckDefault SdkName UnitySDK
 CheckDefault PublishToGit false
 
-ForcePushD $WORKSPACE\sdks\$SdkName
+ForcePushD "$WORKSPACE\sdks\$SdkName"
 
 if [ $PublishToGit=="true" ]; then
     echo === Commit to Git ===

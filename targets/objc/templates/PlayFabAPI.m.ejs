@@ -10,7 +10,7 @@
 @implementation PlayFab<%- api.name %>API
 
 +(NSString*) GetURL {
-return [NSString stringWithFormat:@"https://%@%@", PlayFabSettings.TitleId, PlayFabSettings.ProductionEnvironmentURL];
+return [NSString stringWithFormat:@"https://%@%@", PlayFabSettings.VerticalName ? : PlayFabSettings.TitleId, PlayFabSettings.ProductionEnvironmentURL];
 }
 
 static PlayFabClientAPI* PlayFabInstance;

@@ -23,7 +23,6 @@ ResetRepo (){
         if [ "$PublishToGit"!="true" ]; then
             git branch -D $gitTarget || true
             git checkout -b $gitTarget
-            git push origin $gitTarget -f -u
         else
             git checkout -b $gitTarget
             git checkout $gitTarget

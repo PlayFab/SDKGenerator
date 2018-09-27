@@ -14,7 +14,7 @@ if [ $PublishToGit=="true" ]; then
     echo === Commit to Git ===
     git fetch --progress origin
     git add -A
-    git commit -m "$commitMessage"
+    git commit --allow-empty -m "$commitMessage"
     git push origin $gitTarget -f -u || (git fetch --progress origin && git push origin $gitTarget -f -u)
 fi
 

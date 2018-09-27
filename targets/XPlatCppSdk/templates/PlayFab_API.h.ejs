@@ -36,7 +36,7 @@ namespace PlayFab
 <% if (hasClientOptions) { %>
         // Private, Client-Specific
         static void MultiStepClientLogin(bool needsAttribution);
-<% } %>    static bool IsSuccessfulResult(PlayFabResultCommon& resultCommon, CallRequestContainer& container);
+<% } %>        static bool ValidateResult(PlayFabResultCommon& resultCommon, CallRequestContainer& container);
     };
 }
 

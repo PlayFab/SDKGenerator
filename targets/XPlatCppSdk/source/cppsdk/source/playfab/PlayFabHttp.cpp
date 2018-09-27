@@ -136,7 +136,7 @@ namespace PlayFab
         // Set up curl handle
         reqContainer.curlHandle = curl_easy_init();
         curl_easy_reset(reqContainer.curlHandle);
-        curl_easy_setopt(reqContainer.curlHandle, CURLOPT_URL, PlayFabSettings::GetUrl(reqContainer.getUrl(), PlayFabSettings::requestGetParams).c_str());
+        curl_easy_setopt(reqContainer.curlHandle, CURLOPT_URL, PlayFabSettings::GetUrl(reqContainer.GetUrl(), PlayFabSettings::requestGetParams).c_str());
 
         // Set up headers
         reqContainer.curlHttpHeaders = nullptr;
@@ -145,7 +145,7 @@ namespace PlayFab
         reqContainer.curlHttpHeaders = curl_slist_append(reqContainer.curlHttpHeaders, ("X-PlayFabSDK: " + PlayFabSettings::versionString).c_str());
         reqContainer.curlHttpHeaders = curl_slist_append(reqContainer.curlHttpHeaders, "X-ReportErrorAsSuccess: true");
 
-        auto headers = reqContainer.getHeaders();
+        auto headers = reqContainer.GetHeaders();
 
         if (headers.size() > 0)
         {
@@ -162,7 +162,7 @@ namespace PlayFab
         curl_easy_setopt(reqContainer.curlHandle, CURLOPT_HTTPHEADER, reqContainer.curlHttpHeaders);
 
         // Set up post & payload
-        std::string payload = reqContainer.getRequestBody();
+        std::string payload = reqContainer.GetRequestBody();
         curl_easy_setopt(reqContainer.curlHandle, CURLOPT_POST, nullptr);
         curl_easy_setopt(reqContainer.curlHandle, CURLOPT_POSTFIELDS, payload.c_str());
 
@@ -216,9 +216,10 @@ namespace PlayFab
 
     void PlayFabHttp::HandleResults(CallRequestContainer& reqContainer)
     {
-        if (reqContainer.getCallback() != nullptr)
+        auto callback = reqContainer.GetCallback();
+        if (callback != nullptr)
         {
-            reqContainer.getCallback()(
+            callback(
                 reqContainer.responseJson.get("code", Json::Value::null).asInt(),
                 reqContainer.responseString,
                 reqContainer);
@@ -245,8 +246,8 @@ namespace PlayFab
             activeRequestCount--;
         } // UNLOCK httpRequestMutex
 
+        // The callback called from HandleResults may delete the object pointed by reqContainer from the heap; do not use it after this call
         HandleResults(*static_cast<CallRequestContainer*>(reqContainer));
-        delete reqContainer;
 
         // activeRequestCount can be altered by HandleResults, so we have to re-lock and return an updated value
         { // LOCK httpRequestMutex

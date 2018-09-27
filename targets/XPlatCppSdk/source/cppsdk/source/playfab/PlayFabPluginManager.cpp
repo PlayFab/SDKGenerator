@@ -5,7 +5,7 @@
 
 namespace PlayFab
 {
-    PlayFabPluginManager& PlayFabPluginManager::Instance()
+    PlayFabPluginManager& PlayFabPluginManager::GetInstance()
     {
         static PlayFabPluginManager instance;
         return instance;
@@ -13,7 +13,7 @@ namespace PlayFab
 
     void PlayFabPluginManager::SetPlugin(IPlayFabPlugin& plugin, const PlayFabPluginContract& contract, const std::string& instanceName)
     {
-        Instance().SetPluginInternal(plugin, contract, instanceName);
+        GetInstance().SetPluginInternal(plugin, contract, instanceName);
     }
 
     IPlayFabPlugin& PlayFabPluginManager::GetPluginInternal(const PlayFabPluginContract& contract, const std::string& instanceName)

@@ -33,7 +33,7 @@ namespace PlayFab
     )
     {
 <%- getRequestActions("        ", apiCall) %>
-        IPlayFabHttp& http = IPlayFabHttp::Get();
+        IPlayFabHttpPlugin& http = PlayFabPluginManager::GetPlugin<IPlayFabHttpPlugin>(PlayFabPluginContract::PlayFab_Transport);
         const auto requestJson = request.ToJson();
 
         Json::FastWriter writer;

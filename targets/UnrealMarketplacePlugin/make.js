@@ -1,4 +1,4 @@
-﻿var path = require("path");
+var path = require("path");
 var cppMakeJsPath = require("./makeCpp.js");
 var bpMakeJsPath = require("./makebp.js");
 
@@ -40,7 +40,8 @@ exports.makeCombinedAPI = function (apis, sourceDir, baseApiOutputDir) {
             hasClientOptions: authMechanisms.includes("SessionTicket"),
             hasServerOptions: authMechanisms.includes("SecretKey"),
             sdkVersion: exports.sdkVersion,
-            ueTargetVersion: ueTargetVersion
+            ueTargetVersion: ueTargetVersion,
+            getDefaultVerticalName: getDefaultVerticalName
         };
 
         // Copy the resources, content and the .uplugin file
@@ -63,4 +64,12 @@ function collectEnumsFromApis(apis) {
             if (apis[a].datatypes[d].isenum && apis[a].datatypes[d].enumvalues.length <= 255)
                 enumTypes[d] = apis[a].datatypes[d];
     return enumTypes;
+}
+
+function getDefaultVerticalName() {
+    if (exports.verticalName)
+    {
+        return exports.verticalName;
+    }
+    return "";
 }

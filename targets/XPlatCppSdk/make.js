@@ -266,4 +266,5 @@ function getDefaultVerticalization() {
     if (exports.verticalName) {
         return exports.verticalName;
     }
+    return "";
 }

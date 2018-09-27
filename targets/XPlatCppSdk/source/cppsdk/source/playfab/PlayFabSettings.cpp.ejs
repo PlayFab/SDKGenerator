@@ -50,7 +50,7 @@ namespace PlayFab
 
         fullUrl += "https://";
 
-        if(PlayFabSettings::verticalName != "")
+        if(PlayFabSettings::verticalName.length > 0)
         {
             fullUrl += PlayFabSettings::verticalName;
         }

@@ -7,7 +7,7 @@ IF "%PublishToGit%"=="true" (
     git fetch --progress origin
     git add -A
     git commit -m "%commitMessage%"
-    git push origin $gitTarget -f -u
+    git push origin %gitTarget% -f -u
     popd
 )
 

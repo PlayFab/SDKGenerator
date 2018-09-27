@@ -216,9 +216,10 @@ namespace PlayFab
 
     void PlayFabHttp::HandleResults(CallRequestContainer& reqContainer)
     {
-        if (reqContainer.GetCallback() != nullptr)
+        auto callback = reqContainer.GetCallback();
+        if (callback != nullptr)
         {
-            reqContainer.GetCallback()(
+            callback(
                 reqContainer.responseJson.get("code", Json::Value::null).asInt(),
                 reqContainer.responseString,
                 reqContainer);
@@ -245,8 +246,8 @@ namespace PlayFab
             activeRequestCount--;
         } // UNLOCK httpRequestMutex
 
+        // The callback called from HandleResults may delete the object pointed by reqContainer from the heap; do not use it after this call
         HandleResults(*static_cast<CallRequestContainer*>(reqContainer));
-        delete reqContainer;
 
         // activeRequestCount can be altered by HandleResults, so we have to re-lock and return an updated value
         { // LOCK httpRequestMutex

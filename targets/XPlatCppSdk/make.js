@@ -17,7 +17,8 @@ exports.makeCombinedAPI = function (apis, sourceDir, apiOutputDir) {
         sdkDate: exports.sdkVersion.split(".")[2],
         sdkYear: exports.sdkVersion.split(".")[2].substr(0, 2),
         vsVer: "v141", // As C++ versions change, we may need to update this
-        vsYear: "2017" // As VS versions change, we may need to update this
+        vsYear: "2017", // As VS versions change, we may need to update this
+        getDefaultVerticalization: getDefaultVerticalization
     };
 
     templatizeTree(locals, path.resolve(sourceDir, "source"), apiOutputDir);
@@ -259,4 +260,10 @@ function ifHasProps(datatype, displayText) {
     if (datatype.properties.length === 0)
         return "";
     return displayText;
+}
+
+function getDefaultVerticalization() {
+    if (exports.verticalName) {
+        return exports.verticalName;
+    }
 }

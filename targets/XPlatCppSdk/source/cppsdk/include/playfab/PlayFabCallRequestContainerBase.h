@@ -36,24 +36,24 @@ namespace PlayFab
 
         virtual ~CallRequestContainerBase();
 
-        std::string getUrl() const;
-        std::unordered_map<std::string, std::string> getHeaders() const;
-        std::string getRequestBody() const;
+        std::string GetUrl() const;
+        std::unordered_map<std::string, std::string> GetHeaders() const;
+        std::string GetRequestBody() const;
 
         /// <summary>
         /// This function is meant to handle logic of calling the error callback or success
         /// </summary>
-        CallRequestContainerCallback getCallback() const;
+        CallRequestContainerCallback GetCallback() const;
 
-        void* getCustomData() const;
+        void* GetCustomData() const;
 
     private:
-        std::string mUrl;
-        std::unordered_map<std::string, std::string> mHeaders;
-        std::string mRequestBody;
-        CallRequestContainerCallback mCallback;
+        std::string url;
+        std::unordered_map<std::string, std::string> headers;
+        std::string requestBody;
+        CallRequestContainerCallback callback;
 
         // I never own this, I can never destroy it
-        void* mCustomData; // optional user data (relayed to callback). This gives users the flexibility to tag each request with some data that can be accessed in callback.
+        void* customData; // optional user data (relayed to callback). This gives users the flexibility to tag each request with some data that can be accessed in callback.
     };
 }

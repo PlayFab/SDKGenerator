@@ -7,6 +7,8 @@
 #include <playfab/PlayFabSettings.h>
 #include <playfab/PlayFabError.h>
 
+#pragma warning (disable: 4100) // formal parameters are part of a public interface
+
 namespace PlayFab
 {
     using namespace <%- api.name %>Models;
@@ -58,14 +60,14 @@ namespace PlayFab
         CallRequestContainer& container = static_cast<CallRequestContainer&>(reqContainer);
 
         <%- apiCall.result %> outResult;
-        if (IsSuccessfulResult(outResult, container))
+        if (ValidateResult(outResult, container))
         {
 <%- getResultActions("            ", apiCall) %>
             const auto internalPtr = container.successCallback.get();
             if (internalPtr != nullptr)
             {
                 const auto callback = (*static_cast<ProcessApiCallback<<%- apiCall.result %>> *>(internalPtr));
-                callback(outResult, container.getCustomData());
+                callback(outResult, container.GetCustomData());
             }
         }
 
@@ -93,7 +95,7 @@ namespace PlayFab
         }
     }
 <% } %>
-    bool PlayFab<%- api.name %>API::IsSuccessfulResult(PlayFabResultCommon& resultCommon, CallRequestContainer& container)
+    bool PlayFab<%- api.name %>API::ValidateResult(PlayFabResultCommon& resultCommon, CallRequestContainer& container)
     {
         if (container.errorWrapper.HttpCode == 200)
         {
@@ -104,9 +106,9 @@ namespace PlayFab
         else // Process the error case
         {
             if (PlayFabSettings::globalErrorHandler != nullptr)
-                PlayFabSettings::globalErrorHandler(container.errorWrapper, container.getCustomData());
+                PlayFabSettings::globalErrorHandler(container.errorWrapper, container.GetCustomData());
             if (container.errorCallback != nullptr)
-                container.errorCallback(container.errorWrapper, container.getCustomData());
+                container.errorCallback(container.errorWrapper, container.GetCustomData());
             return false;
         }
     }

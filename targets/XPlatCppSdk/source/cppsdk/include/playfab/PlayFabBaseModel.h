@@ -40,20 +40,20 @@ namespace PlayFab
     class Boxed
     {
     public:
-        Boxed() : mValue(), mIsSet(false) {}
-        Boxed(BoxedType value) : mValue(value), mIsSet(true) {}
+        Boxed() : boxedValue(), isSet(false) {}
+        Boxed(BoxedType value) : boxedValue(value), isSet(true) {}
 
-        inline Boxed& operator=(BoxedType value) { mValue = value; mIsSet = true; return *this; }
+        inline Boxed& operator=(BoxedType value) { boxedValue = value; isSet = true; return *this; }
         inline operator const BoxedType& () const { assert(notNull()); return *operator->(); }
-        inline BoxedType* operator->() { return mIsSet ? &mValue : nullptr; }
-        inline const BoxedType* operator->() const { return mIsSet ? &mValue : nullptr; }
+        inline BoxedType* operator->() { return isSet ? &boxedValue : nullptr; }
+        inline const BoxedType* operator->() const { return isSet ? &boxedValue : nullptr; }
 
-        inline void setNull() { mIsSet = false; }
-        inline bool notNull() const { return mIsSet; }
-        inline bool isNull() const { return !mIsSet; }
+        inline void setNull() { isSet = false; }
+        inline bool notNull() const { return isSet; }
+        inline bool isNull() const { return !isSet; }
     private:
-        BoxedType mValue;
-        bool mIsSet;
+        BoxedType boxedValue;
+        bool isSet;
     };
 
     template<typename ResType> using ProcessApiCallback = std::function<void(const ResType& result, void* customData)>;

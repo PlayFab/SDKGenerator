@@ -10,11 +10,11 @@ namespace PlayFab
         std::string requestBody,
         CallRequestContainerCallback callback,
         void* customData) :
-        mUrl(url),
-        mHeaders(headers),
-        mRequestBody(requestBody),
-        mCallback(callback),
-        mCustomData(customData)
+        url(url),
+        headers(headers),
+        requestBody(requestBody),
+        callback(callback),
+        customData(customData)
     {
     }
 
@@ -27,11 +27,11 @@ namespace PlayFab
     {
         if (this != &otherContainer)
         {
-            this->mUrl = otherContainer.mUrl;
-            this->mHeaders = otherContainer.mHeaders;
-            this->mRequestBody = otherContainer.mRequestBody;
-            this->mCallback = otherContainer.mCallback;
-            this->mCustomData = otherContainer.mCustomData;
+            this->url = otherContainer.url;
+            this->headers = otherContainer.headers;
+            this->requestBody = otherContainer.requestBody;
+            this->callback = otherContainer.callback;
+            this->customData = otherContainer.customData;
         }
 
         return *this;
@@ -41,28 +41,28 @@ namespace PlayFab
     {
     }
 
-    std::string CallRequestContainerBase::getUrl() const
+    std::string CallRequestContainerBase::GetUrl() const
     {
-        return mUrl;
+        return url;
     }
 
-    std::unordered_map<std::string, std::string> CallRequestContainerBase::getHeaders() const
+    std::unordered_map<std::string, std::string> CallRequestContainerBase::GetHeaders() const
     {
-        return mHeaders;
+        return headers;
     }
 
-    std::string CallRequestContainerBase::getRequestBody() const
+    std::string CallRequestContainerBase::GetRequestBody() const
     {
-        return mRequestBody;
+        return requestBody;
     }
 
-    CallRequestContainerCallback CallRequestContainerBase::getCallback() const
+    CallRequestContainerCallback CallRequestContainerBase::GetCallback() const
     {
-        return mCallback;
+        return callback;
     }
 
-    void* CallRequestContainerBase::getCustomData() const
+    void* CallRequestContainerBase::GetCustomData() const
     {
-        return mCustomData;
+        return customData;
     }
 }

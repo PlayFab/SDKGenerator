@@ -52,7 +52,7 @@ namespace PlayFab
     class PlayFabPluginManager
     {
     public:
-        static PlayFabPluginManager& instance(); // The singleton instance of plugin manager
+        static PlayFabPluginManager& Instance(); // The singleton instance of plugin manager
 
         // Prevent copy/move construction
         PlayFabPluginManager(const PlayFabPluginManager&) = delete;
@@ -67,7 +67,7 @@ namespace PlayFab
         template <typename T>
         static T& GetPlugin(const PlayFabPluginContract& contract, const std::string& instanceName = "")
         {
-            return (T&)(instance().GetPluginInternal(contract, instanceName));
+            return (T&)(Instance().GetPluginInternal(contract, instanceName));
         }
 
         // Sets a custom plugin.

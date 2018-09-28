@@ -15,7 +15,7 @@ exports.makeCombinedAPI = function (apis, sourceDir, apiOutputDir) {
 
     var locals = {
         apis: apis,
-        buildIdentifier: exports.buildIdentifier,
+        buildIdentifier: sdkGlobals.buildIdentifier,
         generateApiSummary: generateApiSummary,
         generateDatatype: generateDatatype,
         getAuthParams: getAuthParams,
@@ -24,7 +24,7 @@ exports.makeCombinedAPI = function (apis, sourceDir, apiOutputDir) {
         getResultActions: getResultActions,
         getUrl: getUrl,
         hasResultActions: hasResultActions,
-        sdkVersion: exports.sdkVersion,
+        sdkVersion: sdkGlobals.sdkVersion,
         sourceDir: sourceDir,
         getVerticalNameDefault: getVerticalNameDefault
     };
@@ -61,8 +61,8 @@ function makeSimpleTemplates(apis, templateDir, apiOutputDir) {
 }
 
 function getVerticalNameDefault() {
-    if (exports.verticalName) {
-        return "\"" + exports.verticalName + "\"";
+    if (sdkGlobals.verticalName) {
+        return "\"" + sdkGlobals.verticalName + "\"";
     }
 
     return "null";

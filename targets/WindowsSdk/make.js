@@ -10,11 +10,11 @@ exports.makeCombinedAPI = function (apis, sourceDir, apiOutputDir) {
 
     var locals = {
         apis: apis,
-        buildIdentifier: exports.buildIdentifier,
+        buildIdentifier: sdkGlobals.buildIdentifier,
         extraDefines: "ENABLE_PLAYFABADMIN_API;ENABLE_PLAYFABSERVER_API;",
-        sdkVersion: exports.sdkVersion,
-        sdkDate: exports.sdkVersion.split(".")[2],
-        sdkYear: exports.sdkVersion.split(".")[2].substr(0, 2),
+        sdkVersion: sdkGlobals.sdkVersion,
+        sdkDate: sdkGlobals.sdkVersion.split(".")[2],
+        sdkYear: sdkGlobals.sdkVersion.split(".")[2].substr(0, 2),
         vsVer: "v140", // If we add 141, we'll have to tweak this again
         vsYear: "2015" // If we add 2017, we'll have to tweak this again
     };
@@ -39,7 +39,7 @@ function makeApiFiles(api, sourceDir, apiOutputDir) {
         getResultActions: getResultActions,
         hasClientOptions: getAuthMechanisms([api]).includes("SessionTicket"),
         ifHasProps: ifHasProps,
-        sdkVersion: exports.sdkVersion,
+        sdkVersion: sdkGlobals.sdkVersion,
         sortedClasses: getSortedClasses(api.datatypes)
     };
 

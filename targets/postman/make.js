@@ -19,7 +19,7 @@ exports.makeCombinedAPI = function (apis, sourceDir, apiOutputDir) {
     }
 
     var locals = {
-        sdkVersion: exports.sdkVersion,
+        sdkVersion: sdkGlobals.sdkVersion,
         apis: apis,
         getPostmanDescription: getPostmanDescription,
         getPostmanHeader: getPostmanHeader,
@@ -53,23 +53,23 @@ function callSorter(a, b) {
 
 function getUrl(apiCall) {
 
-    if (exports.verticalName)
+    if (sdkGlobals.verticalName)
         // verticalName isn't an established variable in Postman, and we know it here, so we can just apply it
-        return "https://" + exports.verticalName + ".playfabapi.com" + apiCall.url + "?sdk=PostmanCollection-" + exports.sdkVersion;
-    return "https://{{TitleId}}.playfabapi.com" + apiCall.url + "?sdk=PostmanCollection-" + exports.sdkVersion;
+        return "https://" + sdkGlobals.verticalName + ".playfabapi.com" + apiCall.url + "?sdk=PostmanCollection-" + sdkGlobals.sdkVersion;
+    return "https://{{TitleId}}.playfabapi.com" + apiCall.url + "?sdk=PostmanCollection-" + sdkGlobals.sdkVersion;
 }
 
 function getPostmanHeader(apiCall) {
     if (apiCall.url === "/Authentication/GetEntityToken")
-        return "X-PlayFabSDK: PostmanCollection-" + exports.sdkVersion + "\\nContent-Type: application/json\\nX-Authentication: {{SessionTicket}}\\nX-SecretKey: {{SecretKey}}\\n";
+        return "X-PlayFabSDK: PostmanCollection-" + sdkGlobals.sdkVersion + "\\nContent-Type: application/json\\nX-Authentication: {{SessionTicket}}\\nX-SecretKey: {{SecretKey}}\\n";
     if (apiCall.auth === "SessionTicket")
-        return "X-PlayFabSDK: PostmanCollection-" + exports.sdkVersion + "\\nContent-Type: application/json\\nX-Authentication: {{SessionTicket}}\\n";
+        return "X-PlayFabSDK: PostmanCollection-" + sdkGlobals.sdkVersion + "\\nContent-Type: application/json\\nX-Authentication: {{SessionTicket}}\\n";
     else if (apiCall.auth === "SecretKey")
-        return "X-PlayFabSDK: PostmanCollection-" + exports.sdkVersion + "\\nContent-Type: application/json\\nX-SecretKey: {{SecretKey}}\\n";
+        return "X-PlayFabSDK: PostmanCollection-" + sdkGlobals.sdkVersion + "\\nContent-Type: application/json\\nX-SecretKey: {{SecretKey}}\\n";
     else if (apiCall.auth === "EntityToken")
-        return "X-PlayFabSDK: PostmanCollection-" + exports.sdkVersion + "\\nContent-Type: application/json\\nX-EntityToken: {{EntityToken}}\\n";
+        return "X-PlayFabSDK: PostmanCollection-" + sdkGlobals.sdkVersion + "\\nContent-Type: application/json\\nX-EntityToken: {{EntityToken}}\\n";
     else if (apiCall.auth === "None")
-        return "X-PlayFabSDK: PostmanCollection-" + exports.sdkVersion + "\\nContent-Type: application/json\\n";
+        return "X-PlayFabSDK: PostmanCollection-" + sdkGlobals.sdkVersion + "\\nContent-Type: application/json\\n";
 
     return "";
 }
@@ -174,7 +174,7 @@ function getRequestExample(api, apiCall) {
 }
 
 function getVerticalTag() {
-    if (exports.verticalName)
-        return " for vertical: " + exports.verticalName;
+    if (sdkGlobals.verticalName)
+        return " for vertical: " + sdkGlobals.verticalName;
     return "";
 }

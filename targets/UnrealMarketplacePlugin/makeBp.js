@@ -45,7 +45,7 @@ function makeApiFiles(api, copyright, apiOutputDir, sourceDir, libName) {
         getDataTypeSafeName: getDataTypeSafeName,
         hasClientOptions: getAuthMechanisms([api]).includes("SessionTicket"),
         libName: libName,
-        sdkVersion: exports.sdkVersion
+        sdkVersion: sdkGlobals.sdkVersion
     };
 
     var apiHeaderTemplate = getCompiledTemplate(path.resolve(sourceDir, "templates/PlayFab/PlayFab_API.h.ejs"));

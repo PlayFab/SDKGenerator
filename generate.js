@@ -351,13 +351,15 @@ function generateApis(buildIdentifier, targetOutputPathList, buildFlags, apiSrcD
         // It would probably be better to pass these into the functions, but I don't want to change all the make___Api parameters for all projects today.
         //   For now, just change the global variables in each with the data loaded from SdkManualNotes.json
         var apiNotes = getApiJson("SdkManualNotes");
-        targetMaker.sdkVersion = apiNotes.sdkVersion[target.name];
-        targetMaker.buildIdentifier = buildIdentifier;
-        if (targetMaker.sdkVersion === null) {
+        sdkGlobals.sdkVersion = apiNotes.sdkVersion[target.name];
+        sdkGlobals.buildIdentifier = buildIdentifier;
+        if (sdkGlobals.sdkVersion === null) {
             throw "SdkManualNotes does not contain sdkVersion for " +
                 target.name; // The point of this error is to force you to add a line to sdkManualNotes.json, to describe the version and date when this sdk/collection is built
         }
-        targetMaker.verticalName = sdkGeneratorGlobals.argsByName["verticalname"];
+        sdkGlobals.verticalName = sdkGeneratorGlobals.argsByName["verticalname"];
+        if (sdkGlobals.verticalName)
+            console.log("Verticalized build: " + sdkGlobals.verticalName);
         for (var funcIdx in sdkGeneratorGlobals.sdkDocsByMethodName) {
             var funcName = sdkGeneratorGlobals.sdkDocsByMethodName[funcIdx].funcName;
             var funcDocNames = sdkGeneratorGlobals.sdkDocsByMethodName[funcIdx].apiDocKeys;

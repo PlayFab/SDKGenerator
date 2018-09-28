@@ -41,10 +41,10 @@ function makeApiInternal(apis, sourceDir, apiOutputDir, libname) {
 function generateSettings(apis, sourceDir, apiOutputDir) {
     var authMechanisms = getAuthMechanisms(apis);
     var locals = {
-        buildIdentifier: exports.buildIdentifier,
+        buildIdentifier: sdkGlobals.buildIdentifier,
         hasClientOptions: authMechanisms.includes("SessionTicket"),
         hasServerOptions: authMechanisms.includes("SecretKey"),
-        sdkVersion: exports.sdkVersion
+        sdkVersion: sdkGlobals.sdkVersion
     };
 
     var settingsTemplateh = getCompiledTemplate(path.resolve(sourceDir, "templates/PlayFabSettings.h.ejs"));;

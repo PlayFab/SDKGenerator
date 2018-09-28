@@ -18,6 +18,7 @@ function makeApiInternal(api, sourceDir, apiOutputDir) {
         GetRequestActions: GetRequestActions,
         GetResultActions: GetResultActions,
         HasRequest: HasRequest,
+        GetDefaultVerticalName: GetDefaultVerticalName,
     };
 
     GenerateModels([api], apiOutputDir, api.name, sourceDir, "");
@@ -428,7 +429,7 @@ function GenerateVersion(api, apiOutputDir, sourceDir) {
     var versionTemplate = getCompiledTemplate(path.resolve(sourceDir, "templates/PlayFabVersion.m.ejs"));
     
     var versionLocals = {};
-    versionLocals.sdkVersion = exports.sdkVersion;
+    versionLocals.sdkVersion = sdkGlobals.sdkVersion;
     var generatedVersion = versionTemplate(versionLocals);
     writeFile(path.resolve(apiOutputDir, "PlayFabSDK/PlayFabVersion.m"), generatedVersion);
 }
@@ -468,6 +469,14 @@ function GetResultActions(apiCall, api) {
         val += "    [[PlayFab" + api.name + "API GetInstance] MultiStepClientLogin:model.SettingsForUser.NeedsAttribution];\n";
         val += "#endif\n";
         return val;
+    }
+    return "";
+}
+
+function GetDefaultVerticalName() {
+    if (exports.verticalName)
+    {
+        return exports.verticalName;
     }
     return "";
 }

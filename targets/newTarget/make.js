@@ -39,7 +39,7 @@ function MakeExampleTemplateFile(sourceDir, apiOutputDir) {
     // This might include apis, datatypes, custom functions defined in this make.js file, or anything else you want
     var locals = {};
     locals.GeneratedText = "This is generated text"; // A specific variable we wish to access in exampleTemplate.txt.ejs
-    locals.sdkVersion = exports.sdkVersion; // exports.sdkVersion is automatically injected into this file from generate.js, and comes from SdkManualNotes.json - you must provide your target in that file
+    locals.sdkVersion = sdkGlobals.sdkVersion; // sdkGlobals.sdkVersion is automatically injected into this file from generate.js, and comes from SdkManualNotes.json - you must provide your target in that file
     
     // Compiles the source .ejs file into a template function.
     var template = getCompiledTemplate(path.resolve(sourceDir, "templates/exampleTemplate.txt.ejs"));

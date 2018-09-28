@@ -10,7 +10,7 @@ exports.makeCombinedAPI = function (apis, sourceDir, apiOutputDir) {
     console.log("Generating Combined api from: " + sourceDir + " to: " + apiOutputDir);
 
     var locals = {
-        sdkVersion: exports.sdkVersion,
+        sdkVersion: sdkGlobals.sdkVersion,
         getVerticalNameDefault: getVerticalNameDefault
     };
 
@@ -22,7 +22,7 @@ exports.makeCombinedAPI = function (apis, sourceDir, apiOutputDir) {
 function makeApi(api, sourceDir, apiOutputDir) {
     var locals = {
         api: api,
-        sdkVersion: exports.sdkVersion,
+        sdkVersion: sdkGlobals.sdkVersion,
         generateApiSummary: generateApiSummary,
         getAuthInputParams: getAuthInputParams,
         getCurlAuthParams: getCurlAuthParams,
@@ -37,8 +37,8 @@ function makeApi(api, sourceDir, apiOutputDir) {
 }
 
 function getVerticalNameDefault() {
-    if (exports.verticalName) {
-        return "\"" + exports.verticalName + "\"";
+    if (sdkGlobals.verticalName) {
+        return "\"" + sdkGlobals.verticalName + "\"";
     }
 
     return "null";

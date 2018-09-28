@@ -17,8 +17,8 @@ exports.MakeUnityV2Sdk = function (apis, sourceDir, apiOutputDir) {
     var locals = {
         errorList: apis[0].errorList,
         errors: apis[0].errors,
-        sdkVersion: exports.sdkVersion,
-        buildIdentifier: exports.buildIdentifier,
+        sdkVersion: sdkGlobals.sdkVersion,
+        buildIdentifier: sdkGlobals.buildIdentifier,
         hasClientOptions: getAuthMechanisms(apis).includes("SessionTicket"),
         getVerticalNameDefault: getVerticalNameDefault
     };
@@ -177,8 +177,8 @@ function getCustomApiFunction(tabbing, apiCall) {
 }
 
 function getVerticalNameDefault() {
-    if (exports.verticalName) {
-        return "\"" + exports.verticalName + "\"";
+    if (sdkGlobals.verticalName) {
+        return "\"" + sdkGlobals.verticalName + "\"";
     }
 
     return "null";

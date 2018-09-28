@@ -116,12 +116,12 @@ function makeApi(api, sourceDir, apiOutputDir) {
 function generateSimpleFiles(apis, sourceDir, apiOutputDir) {
     var authMechanisms = getAuthMechanisms(apis);
     var locals = {
-        buildIdentifier: exports.buildIdentifier,
+        buildIdentifier: sdkGlobals.buildIdentifier,
         errorList: apis[0].errorList,
         errors: apis[0].errors,
         hasClientOptions: authMechanisms.includes("SessionTicket"),
         hasServerOptions: authMechanisms.includes("SecretKey"),
-        sdkVersion: exports.sdkVersion,
+        sdkVersion: sdkGlobals.sdkVersion,
         getVerticalNameDefault: getVerticalNameDefault
     };
 
@@ -148,9 +148,9 @@ function generateProject(apis, sourceDir, apiOutputDir, libname, extraDefines) {
 
 function generateNugetTemplate(sourceDir, apiOutputDir) {
     var projLocals = {
-        sdkVersion: exports.sdkVersion,
-        sdkDate: exports.sdkVersion.split(".")[2],
-        sdkYear: exports.sdkVersion.split(".")[2].substr(0, 2)
+        sdkVersion: sdkGlobals.sdkVersion,
+        sdkDate: sdkGlobals.sdkVersion.split(".")[2],
+        sdkYear: sdkGlobals.sdkVersion.split(".")[2].substr(0, 2)
     };
 
     var vcProjTemplate = getCompiledTemplate(path.resolve(sourceDir, "templates/PlayFabSDK.nuspec.ejs"));
@@ -158,8 +158,8 @@ function generateNugetTemplate(sourceDir, apiOutputDir) {
 }
 
 function getVerticalNameDefault() {
-    if (exports.verticalName) {
-        return "\"" + exports.verticalName + "\"";
+    if (sdkGlobals.verticalName) {
+        return "\"" + sdkGlobals.verticalName + "\"";
     }
 
     return "null";

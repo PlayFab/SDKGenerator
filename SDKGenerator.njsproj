@@ -93,7 +93,7 @@
   <PropertyGroup Condition=" '$(Configuration)' == 'PlayFabGameServer' ">
     <DebugSymbols>true</DebugSymbols>
     <OutputPath>bin\</OutputPath>
-    <ScriptArguments>csharp-unity-gameserver=..\sdks\PlayFabGameServer -apiSpecPath -buildIdentifier UnitySDK_manual</ScriptArguments>
+    <ScriptArguments>csharp-unity-gameserver=..\sdks\PlayFabGameServer -apiSpecPath -buildIdentifier UnitySDK_manual -verticalName testVerticalName</ScriptArguments>
   </PropertyGroup>
   <PropertyGroup Condition=" '$(Configuration)' == 'Python' ">
     <DebugSymbols>true</DebugSymbols>

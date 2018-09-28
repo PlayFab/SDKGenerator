@@ -14,7 +14,7 @@ function copyOverScripts(apis, sourceDir, apiOutputDir)
         apis: apis,
         errorList: apis[0].errorList,
         errors: apis[0].errors,
-        sdkVersion: exports.sdkVersion,
+        sdkVersion: sdkGlobals.sdkVersion,
         getVerticalNameDefault: getVerticalNameDefault
     };
     templatizeTree(locals, srcDir, apiOutputDir);
@@ -23,11 +23,11 @@ function copyOverScripts(apis, sourceDir, apiOutputDir)
 exports.makeCombinedAPI = function (apis, sourceDir, apiOutputDir) {
     var locals = {
         apis: apis,
-        buildIdentifier: exports.buildIdentifier,
+        buildIdentifier: sdkGlobals.buildIdentifier,
         friendlyName: "PlayFab Python Combined Sdk",
         errorList: apis[0].errorList,
         errors: apis[0].errors,
-        sdkVersion: exports.sdkVersion,
+        sdkVersion: sdkGlobals.sdkVersion,
         getVerticalNameDefault: getVerticalNameDefault
     };
 
@@ -99,8 +99,8 @@ function makeApi(api, sourceDir, apiOutputDir) {
 }
 
 function getVerticalNameDefault() {
-    if (exports.verticalName) {
-        return "\"" + exports.verticalName + "\"";
+    if (sdkGlobals.verticalName) {
+        return "\"" + sdkGlobals.verticalName + "\"";
     }
 
     return "None";

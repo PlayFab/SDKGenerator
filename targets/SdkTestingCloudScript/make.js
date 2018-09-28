@@ -34,7 +34,7 @@ exports.makeServerAPI = function (apis, sourceDir, apiOutputDir) {
         entityApiList: entityApiList,
         childTypes: playStreamEventModels.ChildTypes,
         parentTypes: playStreamEventModels.ParentTypes,
-        sdkVersion: exports.sdkVersion,
+        sdkVersion: sdkGlobals.sdkVersion,
         sourceDir: sourceDir,
         makeDatatype: makeDatatype,
         generateApiSummary: generateApiSummary

@@ -429,7 +429,7 @@ function GenerateVersion(api, apiOutputDir, sourceDir) {
     var versionTemplate = getCompiledTemplate(path.resolve(sourceDir, "templates/PlayFabVersion.m.ejs"));
     
     var versionLocals = {};
-    versionLocals.sdkVersion = exports.sdkVersion;
+    versionLocals.sdkVersion = sdkGlobals.sdkVersion;
     var generatedVersion = versionTemplate(versionLocals);
     writeFile(path.resolve(apiOutputDir, "PlayFabSDK/PlayFabVersion.m"), generatedVersion);
 }

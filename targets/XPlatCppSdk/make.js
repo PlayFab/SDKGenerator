@@ -11,11 +11,11 @@ exports.makeCombinedAPI = function (apis, sourceDir, apiOutputDir) {
 
     var locals = {
         apis: apis,
-        buildIdentifier: exports.buildIdentifier,
+        buildIdentifier: sdkGlobals.buildIdentifier,
         extraDefines: extraDefines,
-        sdkVersion: exports.sdkVersion,
-        sdkDate: exports.sdkVersion.split(".")[2],
-        sdkYear: exports.sdkVersion.split(".")[2].substr(0, 2),
+        sdkVersion: sdkGlobals.sdkVersion,
+        sdkDate: sdkGlobals.sdkVersion.split(".")[2],
+        sdkYear: sdkGlobals.sdkVersion.split(".")[2].substr(0, 2),
         vsVer: "v141", // As C++ versions change, we may need to update this
         vsYear: "2017", // As VS versions change, we may need to update this
         getVerticalNameDefault: getVerticalNameDefault
@@ -41,7 +41,7 @@ function makeApiFiles(api, sourceDir, apiOutputDir) {
         getResultActions: getResultActions,
         hasClientOptions: getAuthMechanisms([api]).includes("SessionTicket"),
         ifHasProps: ifHasProps,
-        sdkVersion: exports.sdkVersion,
+        sdkVersion: sdkGlobals.sdkVersion,
         sortedClasses: getSortedClasses(api.datatypes)
     };
 
@@ -272,8 +272,8 @@ function ifHasProps(datatype, displayText) {
 }
 
 function getVerticalNameDefault() {
-    if (exports.verticalName) {
-        return exports.verticalName;
+    if (sdkGlobals.verticalName) {
+        return sdkGlobals.verticalName;
     }
     return "";
 }

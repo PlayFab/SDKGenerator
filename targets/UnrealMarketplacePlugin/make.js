@@ -24,13 +24,13 @@ exports.makeCombinedAPI = function (apis, sourceDir, baseApiOutputDir) {
         console.log("Generating Unreal Plugin to " + apiOutputDir);
 
         // Create the Source folder in the plugin with all the modules
-        bpMakeJsPath.makeBpCombinedAPI(apis, copyright, sourceDir, apiOutputDir, ueTargetVersion, exports.sdkVersion, exports.buildIdentifier);
-        cppMakeJsPath.makeCppCombinedAPI(apis, copyright, sourceDir, apiOutputDir, ueTargetVersion, exports.sdkVersion, exports.buildIdentifier);
+        bpMakeJsPath.makeBpCombinedAPI(apis, copyright, sourceDir, apiOutputDir, ueTargetVersion, sdkGlobals.sdkVersion, sdkGlobals.buildIdentifier);
+        cppMakeJsPath.makeCppCombinedAPI(apis, copyright, sourceDir, apiOutputDir, ueTargetVersion, sdkGlobals.sdkVersion, sdkGlobals.buildIdentifier);
 
         var authMechanisms = getAuthMechanisms(apis);
         var locals = {
             apis: apis,
-            buildIdentifier: exports.buildIdentifier,
+            buildIdentifier: sdkGlobals.buildIdentifier,
             copyright: copyright,
             enumTypes: collectEnumsFromApis(apis),
             errorList: apis[0].errorList,
@@ -39,7 +39,7 @@ exports.makeCombinedAPI = function (apis, sourceDir, baseApiOutputDir) {
             getDataTypeSafeName: bpMakeJsPath.getDataTypeSafeName,
             hasClientOptions: authMechanisms.includes("SessionTicket"),
             hasServerOptions: authMechanisms.includes("SecretKey"),
-            sdkVersion: exports.sdkVersion,
+            sdkVersion: sdkGlobals.sdkVersion,
             ueTargetVersion: ueTargetVersion
         };
 

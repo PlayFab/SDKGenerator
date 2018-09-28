@@ -3,33 +3,35 @@ var path = require("path");
 // Making resharper less noisy - These are defined in Generate.js
 if (typeof (getCompiledTemplate) === "undefined") getCompiledTemplate = function () { };
 
-var PropertyReplacements = {};
+var propertyReplacements = {};
 
 exports.makeCombinedAPI = function (apis, sourceDir, apiOutputDir) {
     console.log("Generating Postman combined Collection to " + apiOutputDir);
 
     try {
-        PropertyReplacements = require(path.resolve(sourceDir, "replacements.json"));
+        propertyReplacements = require(path.resolve(sourceDir, "replacements.json"));
     } catch (ex) {
         throw "The file: replacements.json was not properly formatted JSON";
     }
 
     for (var a = 0; a < apis.length; a++) {
-        apis[a].calls.sort(CallSorter);
+        apis[a].calls.sort(callSorter);
     }
 
-    var apiLocals = {};
-    apiLocals.sdkVersion = exports.sdkVersion;
-    apiLocals.apis = apis;
-    apiLocals.GetUrl = GetUrl;
-    apiLocals.GetPostmanHeader = GetPostmanHeader;
-    apiLocals.GetPostmanDescription = GetPostmanDescription;
-    apiLocals.GetRequestExample = GetRequestExample;
+    var locals = {
+        sdkVersion: exports.sdkVersion,
+        apis: apis,
+        getPostmanDescription: getPostmanDescription,
+        getPostmanHeader: getPostmanHeader,
+        getRequestExample: getRequestExample,
+        getUrl: getUrl,
+        getVerticalTag: getVerticalTag
+    };
 
     var outputFile = path.resolve(apiOutputDir, "playfab.json");
     var templateDir = path.resolve(sourceDir, "templates");
     var apiTemplate = getCompiledTemplate(path.resolve(templateDir, "playfab.json.ejs"));
-    writeFile(outputFile, apiTemplate(apiLocals));
+    writeFile(outputFile, apiTemplate(locals));
 
     try {
         require(outputFile); // Read the destination file and make sure it is correctly formatted json
@@ -38,7 +40,7 @@ exports.makeCombinedAPI = function (apis, sourceDir, apiOutputDir) {
     }
 }
 
-function CallSorter(a, b) {
+function callSorter(a, b) {
     if (a.name > b.name) {
         return 1;
     }
@@ -49,11 +51,15 @@ function CallSorter(a, b) {
     return 0;
 }
 
-function GetUrl(apiCall) {
+function getUrl(apiCall) {
+
+    if (exports.verticalName)
+        // verticalName isn't an established variable in Postman, and we know it here, so we can just apply it
+        return "https://" + exports.verticalName + ".playfabapi.com" + apiCall.url + "?sdk=PostmanCollection-" + exports.sdkVersion;
     return "https://{{TitleId}}.playfabapi.com" + apiCall.url + "?sdk=PostmanCollection-" + exports.sdkVersion;
 }
 
-function GetPostmanHeader(apiCall) {
+function getPostmanHeader(apiCall) {
     if (apiCall.url === "/Authentication/GetEntityToken")
         return "X-PlayFabSDK: PostmanCollection-" + exports.sdkVersion + "\\nContent-Type: application/json\\nX-Authentication: {{SessionTicket}}\\nX-SecretKey: {{SecretKey}}\\n";
     if (apiCall.auth === "SessionTicket")
@@ -68,13 +74,13 @@ function GetPostmanHeader(apiCall) {
     return "";
 }
 
-function JsonEscape(input) {
+function jsonEscape(input) {
     if (input != null)
         input = input.replace(/\r/g, "").replace(/\n/g, "\\n").replace(/"/g, "\\\"");
     return input;
 }
 
-function GetPostmanDescription(api, apiCall) {
+function getPostmanDescription(api, apiCall) {
     var isProposed = apiCall.hasOwnProperty("deprecation");
     var isDeprecated = isProposed && (new Date() > new Date(apiCall.deprecation.DeprecatedAfter));
 
@@ -89,22 +95,24 @@ function GetPostmanDescription(api, apiCall) {
     if (isDeprecated)
         return output;
 
-    output += JsonEscape(apiCall.summary); // Make sure quote characters are properly escaped
+    output += jsonEscape(apiCall.summary); // Make sure quote characters are properly escaped
     if (!isProposed)
         output += "\\n\\nApi Documentation: https://api.playfab.com/Documentation/" + api.name + "/method/" + apiCall.name;
 
     output += "\\n\\n**The following case-sensitive environment variables are required for this call:**";
     output += "\\n\\n\\\"TitleId\\\" - The Title Id of your game, available in the Game Manager (https://developer.playfab.com)";
     if (apiCall.auth === "SessionTicket")
-        output += "\\n\\n\\\"SessionTicket\\\" - The string returned as \\\"SessionTicket\\\" in response to any Login API.";
+        output += "\\n\\n\\\"SessionTicket\\\" - The string returned as \\\"SessionTicket\\\" in response to any Login method.";
     if (apiCall.auth === "SecretKey")
         output += "\\n\\n\\\"SecretKey\\\" - The PlayFab API Secret Key, available in Game Manager for your title (https://developer.playfab.com/en-us/{{titleId}}/settings/credentials)";
+    if (apiCall.auth === "EntityToken")
+        output += "\\n\\n\\\"EntityToken\\\" - The string returned as \\\"EntityToken.EntityToken\\\" in response to any Login method.";
 
     var props = api.datatypes[apiCall.request].properties;
     if (props.length > 0)
         output += "\\n\\n**The body of this api-call should be proper json-format.  The api-body accepts the following case-sensitive parameters:**";
     for (var p = 0; p < props.length; p++) {
-        output += "\\n\\n\\\"" + props[p].name + "\\\": " + JsonEscape(props[p].description);
+        output += "\\n\\n\\\"" + props[p].name + "\\\": " + jsonEscape(props[p].description);
     }
 
     output += "\\n\\nTo set up an Environment, click the text next to the eye icon up top in Postman (it should say \"No environment\", if this is your first time using Postman). Select \"Manage environments\", then \"Add\". Type a name for your environment where it says \"New environment\", then enter each variable name above as the \"Key\", with the value as defined for each above.".replace(/"/g, "\\\"");
@@ -112,42 +120,42 @@ function GetPostmanDescription(api, apiCall) {
     return output;
 }
 
-function GetCorrectedRequestExample(api, apiCall) {
+function getCorrectedRequestExample(api, apiCall) {
     var output = JSON.parse(apiCall.requestExample);
-    CheckReplacements(api, output);
-    return "\"" + JsonEscape(JSON.stringify(output, null, 2)) + "\"";
+    checkReplacements(api, output);
+    return "\"" + jsonEscape(JSON.stringify(output, null, 2)) + "\"";
 }
 
-function DoReplace(obj, paramName, newValue) {
+function doReplace(obj, paramName, newValue) {
     if (obj.hasOwnProperty(paramName)) {
         console.log("Replaced: " + obj[paramName] + " with " + newValue);
         obj[paramName] = newValue;
     }
 };
 
-function CheckReplacements(api, obj) {
-    for (var replaceCategory in PropertyReplacements) {
+function checkReplacements(api, obj) {
+    for (var replaceCategory in propertyReplacements) {
         if (replaceCategory === "generic") {
-            for (var genReplaceName1 in PropertyReplacements[replaceCategory])
-                DoReplace(obj, genReplaceName1, PropertyReplacements[replaceCategory][genReplaceName1]);
+            for (var genReplaceName1 in propertyReplacements[replaceCategory])
+                doReplace(obj, genReplaceName1, propertyReplacements[replaceCategory][genReplaceName1]);
         }
         if (replaceCategory === api.name) {
-            for (var apiReplaceName in PropertyReplacements[replaceCategory]) {
+            for (var apiReplaceName in propertyReplacements[replaceCategory]) {
                 if (apiReplaceName === "generic") {
-                    for (var genReplaceName2 in PropertyReplacements[replaceCategory][apiReplaceName])
-                        DoReplace(obj, genReplaceName2, PropertyReplacements[replaceCategory][apiReplaceName][genReplaceName2]);
+                    for (var genReplaceName2 in propertyReplacements[replaceCategory][apiReplaceName])
+                        doReplace(obj, genReplaceName2, propertyReplacements[replaceCategory][apiReplaceName][genReplaceName2]);
                 }
-                DoReplace(obj, apiReplaceName, PropertyReplacements[replaceCategory][apiReplaceName]);
+                doReplace(obj, apiReplaceName, propertyReplacements[replaceCategory][apiReplaceName]);
             }
         }
     }
 }
 
-function GetRequestExample(api, apiCall) {
+function getRequestExample(api, apiCall) {
     var msg = null;
     if (apiCall.requestExample.length > 0 && apiCall.requestExample.indexOf("{") >= 0) {
         if (apiCall.requestExample.indexOf("\\\"") === -1) // I can't handle json in a string in json in a string...
-            return GetCorrectedRequestExample(api, apiCall);
+            return getCorrectedRequestExample(api, apiCall);
         else
             msg = "CANNOT PARSE EXAMPLE BODY: ";
     }
@@ -162,5 +170,11 @@ function GetRequestExample(api, apiCall) {
         msg = "AUTO GENERATED BODY FOR: ";
     console.log(msg + api.name + "." + apiCall.name);
     // console.log("    " + JSON.stringify(output, null, 2));
-    return "\"" + JsonEscape(JSON.stringify(output, null, 2)) + "\"";;
+    return "\"" + jsonEscape(JSON.stringify(output, null, 2)) + "\"";;
+}
+
+function getVerticalTag() {
+    if (exports.verticalName)
+        return " for vertical: " + exports.verticalName;
+    return "";
 }

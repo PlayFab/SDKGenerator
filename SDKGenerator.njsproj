@@ -361,7 +361,7 @@
     <Content Include="targets\objc\source\PlayFabSDK.h" />
     <Content Include="targets\objc\source\PlayFabSDK.m" />
     <Content Include="targets\objc\source\PlayFabSettings.h" />
-    <Content Include="targets\objc\source\PlayFabSettings.m" />
+    <Content Include="targets\objc\templates\PlayFabSettings.m.ejs" />
     <Content Include="targets\objc\source\PlayFabVersion.h" />
     <Content Include="targets\objc\templates\Model.m.ejs" />
     <Content Include="targets\objc\templates\PlayFabAPI.h.ejs" />

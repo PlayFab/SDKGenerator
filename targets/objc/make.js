@@ -18,6 +18,7 @@ function makeApiInternal(api, sourceDir, apiOutputDir) {
         GetRequestActions: GetRequestActions,
         GetResultActions: GetResultActions,
         HasRequest: HasRequest,
+        GetDefaultVerticalName: GetDefaultVerticalName,
     };
 
     GenerateModels([api], apiOutputDir, api.name, sourceDir, "");
@@ -468,6 +469,14 @@ function GetResultActions(apiCall, api) {
         val += "    [[PlayFab" + api.name + "API GetInstance] MultiStepClientLogin:model.SettingsForUser.NeedsAttribution];\n";
         val += "#endif\n";
         return val;
+    }
+    return "";
+}
+
+function GetDefaultVerticalName() {
+    if (exports.verticalName)
+    {
+        return exports.verticalName;
     }
     return "";
 }

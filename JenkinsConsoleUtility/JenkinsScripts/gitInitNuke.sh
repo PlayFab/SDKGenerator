@@ -4,8 +4,6 @@
 . $SHARED_WORKSPACE/SDKGenerator/JenkinsConsoleUtility/JenkinsScripts/util.sh
 
 # Defaults for some variables
-CheckDefault AUTOMATED_GIT_BRANCH automated
-CheckDefault gitTarget $AUTOMATED_GIT_BRANCH
 CheckDefault SdkName UnitySDK
 CheckDefault SHARED_WORKSPACE C:/depot
 CheckDefault WORKSPACE C:/proj
@@ -18,14 +16,14 @@ ResetRepo (){
     git checkout master || git checkout -b master || CleanCurrentRepo
     git pull origin master
 
-    if [ "$gitTarget"!="master" ]; then
+    if [ "$GitDestBranch"!="master" ]; then
         git fetch --progress origin
         if [ "$PublishToGit"!="true" ]; then
-            git branch -D $gitTarget || true
-            git checkout -b $gitTarget
+            git branch -D $GitDestBranch || true
+            git checkout -b $GitDestBranch
         else
-            git checkout -b $gitTarget
-            git checkout $gitTarget
+            git checkout -b $GitDestBranch
+            git checkout $GitDestBranch
         fi
     fi
 }

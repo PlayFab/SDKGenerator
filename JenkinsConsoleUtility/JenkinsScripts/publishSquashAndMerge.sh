@@ -1,21 +1,23 @@
 #!/bin/bash
 
-# Squash and Merge from automated->master
+# Squash and Merge from "automated-publish"->"master"->"versioned"
 #   If versioned exists: master->versioned, and then tag and notate the release in GitHub
+
+CheckDefault GitSrcBranch "automated-publish"
 
 cd "$WORKSPACE/sdks/$SdkName"
 
 git fetch --progress origin
 
-echo === Sync $AUTOMATED_GIT_BRANCH ===
-git checkout $AUTOMATED_GIT_BRANCH || git checkout -b $AUTOMATED_GIT_BRANCH
-git reset --hard origin/$AUTOMATED_GIT_BRANCH
+echo === Sync $GitSrcBranch ===
+git checkout $GitSrcBranch || git checkout -b $GitSrcBranch
+git reset --hard origin/$GitSrcBranch
 echo === Sync master ===
 git checkout master || git checkout -b master
 git reset --hard origin/master
 
 echo === Squash-Merge to master ===
-git merge --no-commit --squash origin/$AUTOMATED_GIT_BRANCH
+git merge --no-commit --squash origin/$GitSrcBranch
 git commit -m "https://api.playfab.com/releaseNotes/#$sdkDate"
 git push origin master
 

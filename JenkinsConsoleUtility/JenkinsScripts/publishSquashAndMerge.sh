@@ -38,4 +38,5 @@ git push --progress "origin" tag $sdkVersion
 cd "$WORKSPACE/SDKGenerator/JenkinsConsoleUtility/bin/Debug"
 ./JenkinsConsoleUtility.exe --version --GitApi -SdkName $SdkName -apiSpecPath
 
+cd "$WORKSPACE/sdks/$SdkName"
 git push origin --delete $GitSrcBranch

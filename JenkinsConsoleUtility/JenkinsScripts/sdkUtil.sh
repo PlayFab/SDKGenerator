@@ -14,7 +14,7 @@ CheckVerticalizedParameters() {
     # Typical builds will meet none of these conditions, and this function will have no effect
     if [ -z "$GitDestBranch" ] || [ "$GitDestBranch" = "invalid" ] || [ "$GitDestBranch" = "master" ] || [ "$GitDestBranch" = "versioned" ] || [ "$GitDestBranch" = "automated" ]; then
         echo "INVALID GitDestBranch: ($GitDestBranch, $VerticalName)"
-        if [ "$PublishToGit" = "true" ]
+        if [ "$PublishToGit" = "true" ]; then
             exit 1 # We can't commit to this branch name
         else
             echo "  .. but it's ok, because we won't commit to that branch"
@@ -22,7 +22,7 @@ CheckVerticalizedParameters() {
     elif [ "$GitDestBranch" = "verticalName" ]; then
         if [ -z "$VerticalName" ]; then
             echo "INVALID GitDestBranch, can't be assigned to VerticalName: ($GitDestBranch, $VerticalName)"
-            if [ "$PublishToGit" = "true" ]
+            if [ "$PublishToGit" = "true" ]; then
                 exit 1 # We can't commit to this branch name
             else
                 echo "  .. but it's ok, because we won't commit to that branch"

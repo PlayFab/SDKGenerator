@@ -25,7 +25,7 @@ FString UPlayFab<%- api.name %>API::GetBuildIdentifier() const
 
 void UPlayFab<%- api.name %>API::SetTitleId(const FString& titleId)
 {
-	PlayFabSettings::SetTitleId(titleId);
+    PlayFabSettings::SetTitleId(titleId);
 }
 <% if (hasClientOptions) { %>
 bool UPlayFabClientAPI::SetAdvertId(const FString& advertisingIdType, const FString& advertisingIdValue)

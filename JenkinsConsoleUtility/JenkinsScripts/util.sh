@@ -1,6 +1,6 @@
 #!/bin/bash
 # USAGE: . util.sh
-# Includes a bunch of super handy functions that are shared by a bunch of different scripts
+# Includes a bunch of functions shared by other scripts
 
 # USAGE: CheckDefault <variable> <new value if unset>
 CheckDefault() {

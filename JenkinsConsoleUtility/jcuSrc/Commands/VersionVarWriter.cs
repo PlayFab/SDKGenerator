@@ -120,7 +120,7 @@ namespace JenkinsConsoleUtility.Commands
                 case "objective_c_sdk": return "objc";
                 case "playfabgameserver": return "csharp-unity-gameserver";
                 // Multiple repos map to the same folder
-                case "csharpsdk": case "csharpbetasdk": return "csharp";
+                case "csharpsdk": case "csharpbetasdk": case "csharppsnsdk": return "csharp";
                 case "nodesdk": case "nodebetasdk": return "js-node";
                 case "postmancollection": case "postmanbeta": return "postman";
                 case "unitysdk": case "unitypsn": case "unitybeta": case "unityeditorextensions": return "unity-v2";

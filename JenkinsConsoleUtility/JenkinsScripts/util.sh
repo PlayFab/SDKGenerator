@@ -1,5 +1,5 @@
 #!/bin/bash
-# USAGE: . util.sh
+# USAGE: . ./util.sh
 # Includes a bunch of functions shared by other scripts
 
 # USAGE: CheckDefault <variable> <new value if unset>

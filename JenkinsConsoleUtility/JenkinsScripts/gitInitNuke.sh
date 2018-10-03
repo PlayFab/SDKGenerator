@@ -1,13 +1,8 @@
 #!/bin/bash
 # USAGE: testInit.sh
 
-. $SHARED_WORKSPACE/SDKGenerator/JenkinsConsoleUtility/JenkinsScripts/util.sh
-. $SHARED_WORKSPACE/SDKGenerator/JenkinsConsoleUtility/JenkinsScripts/sdkUtil.sh
-
-# Defaults for some variables
-# CheckDefault SdkName UnitySDK
-CheckDefault SHARED_WORKSPACE C:/depot
-# CheckDefault WORKSPACE C:/proj
+. $WORKSPACE/SDKGenerator/JenkinsConsoleUtility/JenkinsScripts/util.sh || . ./util.sh
+. $WORKSPACE/SDKGenerator/JenkinsConsoleUtility/JenkinsScripts/sdkUtil.sh || . ./sdkUtil.sh
 
 # USAGE: ResetRepo
 ResetRepo (){

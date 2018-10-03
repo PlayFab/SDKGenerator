@@ -1,7 +1,7 @@
 #!/bin/bash
 
-. $WORKSPACE/SDKGenerator/JenkinsConsoleUtility/JenkinsScripts/util.sh || . ./util.sh
-. $WORKSPACE/SDKGenerator/JenkinsConsoleUtility/JenkinsScripts/sdkUtil.sh || . ./sdkUtil.sh
+. "$WORKSPACE/SDKGenerator/JenkinsConsoleUtility/JenkinsScripts/util.sh" || . ./util.sh
+. "$WORKSPACE/SDKGenerator/JenkinsConsoleUtility/JenkinsScripts/sdkUtil.sh" || . ./sdkUtil.sh
 
 CheckDefault PublishToGit false
 

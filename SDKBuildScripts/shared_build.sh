@@ -1,5 +1,7 @@
 #!/bin/bash
 
+. "$WORKSPACE/SDKGenerator/JenkinsConsoleUtility/JenkinsScripts/sdkUtil.sh" 2> /dev/null || . "../JenkinsConsoleUtility/JenkinsScripts/sdkUtil.sh" 2> /dev/null
+
 # Mandatory Variable Checks
 if [ -z "$SdkName" ] || [ -z "$targetSrc" ]; then
     echo Mandatory parameters not defined: SdkName=$SdkName targetSrc=$targetSrc
@@ -44,15 +46,9 @@ BuildSdk () {
 
 # Set the script-internal variables
 destPath="../sdks/$SdkName"
-if [ -z "$apiSpecSource" ]; then
-    apiSpecSource="-apiSpecGitUrl"
-fi
-if [ -z "$buildIdentifier" ] && [ ! -z "$SdkName" ] && [ ! -z "$NODE_NAME" ] && [ ! -z "$EXECUTOR_NUMBER" ]; then
-    buildIdentifier="-buildIdentifier JBuild_${SdkName}_${VerticalName}_${NODE_NAME}_${EXECUTOR_NUMBER}"
-fi
-if [ ! -z "$VerticalName" ]; then
-    VerticalNameInternal="-VerticalName $VerticalName"
-fi
+CheckApiSpecSourceDefault
+CheckBuildIdentifierDefault
+CheckVerticalNameInternalDefault
 
 # Do the work
 if [ "$delSrc" == "true" ]; then

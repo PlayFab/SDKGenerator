@@ -51,7 +51,7 @@ CheckBuildIdentifierDefault
 CheckVerticalNameInternalDefault
 
 # Do the work
-if [ "$delSrc" == "true" ]; then
+if [ "$delSrc" = "true" ]; then
     CleanCodeFiles
 fi
 BuildSdk

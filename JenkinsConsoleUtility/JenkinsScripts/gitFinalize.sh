@@ -4,6 +4,7 @@
 . "$WORKSPACE/SDKGenerator/JenkinsConsoleUtility/JenkinsScripts/sdkUtil.sh" 2> /dev/null || . ./sdkUtil.sh 2> /dev/null
 
 CheckDefault PublishToGit false
+CheckDefault PublishToS3 false
 
 DoGitFinalize() {
     ForcePushD "$WORKSPACE/sdks/$SdkName"
@@ -29,7 +30,7 @@ DoPublishToS3() {
 }
 
 CheckVerticalizedParameters
-if [ $PublishToGit=="true" ]; then
+if [ "$PublishToGit" = "true" ]; then
     DoGitFinalize
 fi
 if [ "$PublishToS3" = "true" ]; then

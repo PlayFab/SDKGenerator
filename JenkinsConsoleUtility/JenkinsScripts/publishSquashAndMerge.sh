@@ -3,7 +3,7 @@
 # Squash and Merge from "automated-publish"->"master"->"versioned"
 #   If versioned exists: master->versioned, and then tag and notate the release in GitHub
 
-. "$WORKSPACE/SDKGenerator/JenkinsConsoleUtility/JenkinsScripts/util.sh" || . ./util.sh
+. "$WORKSPACE/SDKGenerator/JenkinsConsoleUtility/JenkinsScripts/util.sh" 2> /dev/null || . ./util.sh 2> /dev/null
 
 CheckDefault GitSrcBranch "automated-publish"
 
@@ -36,7 +36,7 @@ git tag $sdkVersion
 git push --progress "origin" tag $sdkVersion
 
 cd "$WORKSPACE/SDKGenerator/JenkinsConsoleUtility/bin/Debug"
-./JenkinsConsoleUtility.exe --version --GitApi -SdkName $SdkName -apiSpecPath
+./JenkinsConsoleUtility.exe --version --GitApi -SdkName $SdkName -apiSpecGitUrl
 
 cd "$WORKSPACE/sdks/$SdkName"
 git push origin --delete $GitSrcBranch

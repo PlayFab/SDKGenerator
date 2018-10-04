@@ -33,3 +33,23 @@ CheckVerticalizedParameters() {
         fi
     fi
 }
+
+CheckApiSpecSourceDefault() {
+    if [ -z "$apiSpecSource" ]; then
+        apiSpecSource="-apiSpecGitUrl"
+    fi
+}
+
+CheckBuildIdentifierDefault() {
+    if [ -z "$buildIdentifier" ] && [ ! -z "$SdkName" ] && [ ! -z "$NODE_NAME" ] && [ ! -z "$EXECUTOR_NUMBER" ]; then
+        buildIdentifier="-buildIdentifier JBuild_${SdkName}_${VerticalName}_${NODE_NAME}_${EXECUTOR_NUMBER}"
+    fi
+}
+
+CheckVerticalNameInternalDefault() {
+    if [ ! -z "$VerticalName" ]; then
+        VerticalNameInternal="-VerticalName $VerticalName"
+    fi
+}
+
+echo sdkUtil.sh loaded

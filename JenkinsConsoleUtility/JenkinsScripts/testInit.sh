@@ -1,7 +1,7 @@
 #!/bin/bash
 # USAGE: testInit.sh
 
-. $SHARED_WORKSPACE/SDKGenerator/JenkinsConsoleUtility/JenkinsScripts/util.sh || . ./util.sh
+. "$WORKSPACE/SDKGenerator/JenkinsConsoleUtility/JenkinsScripts/util.sh" 2> /dev/null || . ./util.sh 2> /dev/null
 
 # Defaults for some variables
 CheckDefault SHARED_WORKSPACE C:/depot
@@ -63,13 +63,11 @@ DoWork () {
     SyncWorkspaceRepo "$SHARED_WORKSPACE" "$WORKSPACE" "API_Specs"
     # SyncWorkspaceRepo "$SHARED_WORKSPACE" "$WORKSPACE" "pf-main" # None of the SDKs need pf-main directly
     SyncWorkspaceRepo "$SHARED_WORKSPACE" "$WORKSPACE" "SDKGenerator"
-    ForcePushD "$SHARED_WORKSPACE/sdks"
     SyncWorkspaceRepo "$SHARED_WORKSPACE/sdks" "$WORKSPACE/sdks" "$SdkName"
 
     # It's always safe to remove past arc-patches
     # DelArcPatches "$WORKSPACE/pf-main"
     # DelArcPatches "$WORKSPACE/SDKGenerator"
-    # ForcePushD "$SHARED_WORKSPACE/sdks"
     # DelArcPatches "$WORKSPACE/sdks/$SdkName"
 
     if [ -z "$quickTest" ]; then

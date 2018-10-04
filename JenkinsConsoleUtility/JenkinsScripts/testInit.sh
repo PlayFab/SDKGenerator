@@ -1,7 +1,8 @@
 #!/bin/bash
 # USAGE: testInit.sh
 
-. "$WORKSPACE/SDKGenerator/JenkinsConsoleUtility/JenkinsScripts/util.sh" 2> /dev/null || . ./util.sh 2> /dev/null
+# $WORKSPACE/SDKGenerator doesn't exist until later in this file
+. "$SHARED_WORKSPACE/SDKGenerator/JenkinsConsoleUtility/JenkinsScripts/util.sh" 2> /dev/null || . ./util.sh 2> /dev/null
 
 # Defaults for some variables
 CheckDefault SHARED_WORKSPACE C:/depot

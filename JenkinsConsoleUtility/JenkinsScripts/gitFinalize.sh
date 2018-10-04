@@ -22,7 +22,7 @@ DoPublishToS3() {
     git clean -dfx
     popd
     
-    rm -f repo.zip
+    rm -f repo.zip || true
     7z a -r repo.zip "sdks/$SdkName"
 
     CheckDefault VerticalName master

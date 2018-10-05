@@ -47,7 +47,6 @@ exports.GetServerUrl = function () {
 exports.MakeRequest = function (urlStr, request, authType, authValue, callback) {
     if (request == null)
         request = {};
-    var requestBody = null;
     var requestBody = Buffer.from(JSON.stringify(request), "utf8");
 
     var urlArr = [urlStr]; //make a new array for the URL

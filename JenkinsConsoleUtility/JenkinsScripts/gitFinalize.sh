@@ -3,7 +3,6 @@
 . "$WORKSPACE/SDKGenerator/JenkinsConsoleUtility/JenkinsScripts/util.sh" 2> /dev/null || . ./util.sh 2> /dev/null
 . "$WORKSPACE/SDKGenerator/JenkinsConsoleUtility/JenkinsScripts/sdkUtil.sh" 2> /dev/null || . ./sdkUtil.sh 2> /dev/null
 
-CheckDefault PublishToGit false
 CheckDefault PublishToS3 false
 
 DoGitFinalize() {
@@ -26,13 +25,13 @@ DoPublishToS3() {
     7z a -r repo.zip "sdks/$SdkName"
 
     CheckDefault VerticalName master
-    aws s3 cp repo.zip s3://playfab-sdk-dist/$VerticalName/$SdkName/$(date +%y%d%m)_${S3BuildNum}_$SdkName.zip --profile jenkins
+    aws s3 cp repo.zip s3://playfab-sdk-dist/$VerticalName/$SdkName/$(date +%y%m%d)_${S3BuildNum}_$SdkName.zip --profile jenkins
 }
 
 CheckVerticalizedParameters
-if [ "$PublishToGit" = "true" ]; then
+if [ "$GitDestBranch" != "doNotCommit" ]; then
     DoGitFinalize
 fi
-if [ "$PublishToS3" = "true" ]; then
+if [ "$PublishToS3" = "true" ] && [ ! -z "S3BuildNum" ] && [ "S3BuildNum" != "0" ]; then
     DoPublishToS3
 fi

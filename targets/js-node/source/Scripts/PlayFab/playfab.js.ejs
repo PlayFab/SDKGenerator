@@ -47,11 +47,7 @@ exports.GetServerUrl = function () {
 exports.MakeRequest = function (urlStr, request, authType, authValue, callback) {
     if (request == null)
         request = {};
-    var requestBody = null;
-    if (Number(process.version.match(/^v(\d+\.\d+)/)[1]) >= 4.7)
-        requestBody = Buffer.from(JSON.stringify(request), "utf8");
-    else
-        requestBody = JSON.stringify(request);
+    var requestBody = Buffer.from(JSON.stringify(request), "utf8");
 
     var urlArr = [urlStr]; //make a new array for the URL
     var getParams = _internalSettings.requestGetParams;

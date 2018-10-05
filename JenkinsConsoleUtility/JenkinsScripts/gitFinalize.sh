@@ -33,6 +33,6 @@ CheckVerticalizedParameters
 if [ "$PublishToGit" = "true" ]; then
     DoGitFinalize
 fi
-if [ "$PublishToS3" = "true" ]; then
+if [ "$PublishToS3" = "true" ] && [ ! -z "S3BuildNum" ] && [ "S3BuildNum" != "0" ]; then
     DoPublishToS3
 fi

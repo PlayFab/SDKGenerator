@@ -3,7 +3,6 @@
 . "$WORKSPACE/SDKGenerator/JenkinsConsoleUtility/JenkinsScripts/util.sh" 2> /dev/null || . ./util.sh 2> /dev/null
 . "$WORKSPACE/SDKGenerator/JenkinsConsoleUtility/JenkinsScripts/sdkUtil.sh" 2> /dev/null || . ./sdkUtil.sh 2> /dev/null
 
-CheckDefault PublishToGit false
 CheckDefault PublishToS3 false
 
 DoGitFinalize() {
@@ -30,7 +29,7 @@ DoPublishToS3() {
 }
 
 CheckVerticalizedParameters
-if [ "$PublishToGit" = "true" ]; then
+if [ "$GitDestBranch" != "doNotCommit" ]; then
     DoGitFinalize
 fi
 if [ "$PublishToS3" = "true" ] && [ ! -z "S3BuildNum" ] && [ "S3BuildNum" != "0" ]; then

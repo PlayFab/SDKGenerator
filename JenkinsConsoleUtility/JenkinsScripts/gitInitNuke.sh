@@ -14,7 +14,7 @@ ResetRepo (){
 
     if [ "$GitDestBranch"!="master" ]; then
         git fetch --progress origin
-        if [ "$PublishToGit"!="true" ]; then
+        if [ "$GitDestBranch" != "doNotCommit" ]; then
             git branch -D $GitDestBranch || true
             git checkout -b $GitDestBranch
         else

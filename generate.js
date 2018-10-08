@@ -357,9 +357,6 @@ function generateApis(buildIdentifier, targetOutputPathList, buildFlags, apiSrcD
             throw "SdkManualNotes does not contain sdkVersion for " +
                 target.name; // The point of this error is to force you to add a line to sdkManualNotes.json, to describe the version and date when this sdk/collection is built
         }
-        sdkGlobals.verticalName = sdkGeneratorGlobals.argsByName["verticalname"];
-        if (sdkGlobals.verticalName)
-            console.log("Verticalized build: " + sdkGlobals.verticalName);
         for (var funcIdx in sdkGeneratorGlobals.sdkDocsByMethodName) {
             var funcName = sdkGeneratorGlobals.sdkDocsByMethodName[funcIdx].funcName;
             var funcDocNames = sdkGeneratorGlobals.sdkDocsByMethodName[funcIdx].apiDocKeys;

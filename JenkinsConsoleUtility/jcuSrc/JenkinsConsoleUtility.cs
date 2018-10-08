@@ -51,7 +51,7 @@ namespace JenkinsConsoleUtility
             var verticalName = GetArgVar(lcArgsByName, "verticalname", string.Empty);
             if (!string.IsNullOrWhiteSpace(verticalName))
             {
-                PlayFab.PlayFabSettings.ProductionEnvironmentUrl = "https://" + verticalName + ".playfabapi.com";
+                PlayFab.PlayFabSettings.VerticalName = verticalName;
             }
 
             var returnCode = 0;

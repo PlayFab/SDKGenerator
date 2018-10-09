@@ -35,7 +35,7 @@ CheckVerticalizedParameters() {
         echo "VerticalName = master, should not be manually specified, it's implied. (A lot of stuff will break if master is explicit)"
         return 1 # We want to fail this case, regardless of publish state
     elif [ ! -z "$VerticalName" ]; then
-        if [ "$GitDestBranch" != "verticalName" ]; then
+        if [ "$GitDestBranch" != "vertical-$VerticalName" ]; then
             FailIfPublishing "Output branch must be verticalName when building a vertical"
         elif [ "$apiSpecSource" != "-apiSpecPfUrl" ] && [ "$apiSpecSource" != "-apiSpecPfUrl https://${VerticalName}.playfabapi.com/apispec" ]; then
             echo "apiSpecSource must be -apiSpecPfUrl when building a vertical, or else it won't build what you expect"

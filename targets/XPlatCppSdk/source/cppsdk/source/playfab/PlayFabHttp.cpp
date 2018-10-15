@@ -191,6 +191,7 @@ namespace PlayFab
             Json::CharReader* jsonReader(jsonReaderFactory.newCharReader());
             JSONCPP_STRING jsonParseErrors;
             const bool parsedSuccessfully = jsonReader->parse(reqContainer.responseString.c_str(), reqContainer.responseString.c_str() + reqContainer.responseString.length(), &reqContainer.responseJson, &jsonParseErrors);
+            delete jsonReader;
 
             if (parsedSuccessfully)
             {

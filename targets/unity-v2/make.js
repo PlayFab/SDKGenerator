@@ -19,7 +19,7 @@ exports.MakeUnityV2Sdk = function (apis, sourceDir, apiOutputDir) {
     var locals = {
         errorList: apis[0].errorList,
         errors: apis[0].errors,
-        sdkVersion: "2.53.181001",//sdkGlobals.sdkVersion,
+        sdkVersion: sdkGlobals.sdkVersion,
         buildIdentifier: sdkGlobals.buildIdentifier,
         hasClientOptions: getAuthMechanisms(apis).includes("SessionTicket"),
         getVerticalNameDefault: getVerticalNameDefault

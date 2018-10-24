@@ -20,7 +20,8 @@ var sdkGeneratorGlobals = {
     apiSrcDescription: "INVALID",
     apiCache: {},
     sdkDocsByMethodName: {},
-    specialization: defaultSpecialization
+    specialization: defaultSpecialization,
+    unitySubfolder: null
 };
 global.sdkGeneratorGlobals = sdkGeneratorGlobals;
 var specializationContent;
@@ -89,6 +90,8 @@ function parseCommandInputs(args, argsByName, errorMessages, targetOutputPathLis
         argsByName.apispecgiturl = defaultApiSpecGitHubUrl;
     if (argsByName.apispecpfurl === "")
         argsByName.apispecpfurl = defaultApiSpecPlayFabUrl;
+    if (argsByName.unityDestinationSubfolder)
+        sdkGeneratorGlobals.unitySubfolder = argsByName.unityDestinationSubfolder;
     // Output an error if no targets are defined
     if (targetOutputPathList.length === 0)
         errorMessages.push("No targets defined, you must define at least one.");

@@ -24,6 +24,7 @@ interface SdkGenGlobals {
     apiCache: { [key: string]: any; }
     sdkDocsByMethodName: { [key: string]: SdkDoc; }
     specialization: string;
+    unitySubfolder: string;
 }
 
 const defaultApiSpecFilePath = "../API_Specs"; // Relative path to Generate.js
@@ -46,7 +47,8 @@ var sdkGeneratorGlobals: SdkGenGlobals = {
     apiSrcDescription: "INVALID", // Assigned if/when the api-spec source is fetched properly
     apiCache: {}, // We have to pre-cache the api-spec files, because latter steps (like ejs) can't run asynchronously
     sdkDocsByMethodName: {}, // When loading TOC, match documents to the SdkGen function that should be called for those docs
-    specialization: defaultSpecialization
+    specialization: defaultSpecialization,
+    unitySubfolder: null
 };
 global.sdkGeneratorGlobals = sdkGeneratorGlobals;
 
@@ -128,6 +130,9 @@ function parseCommandInputs(args, argsByName, errorMessages, targetOutputPathLis
         argsByName.apispecgiturl = defaultApiSpecGitHubUrl;
     if (argsByName.apispecpfurl === "")
         argsByName.apispecpfurl = defaultApiSpecPlayFabUrl;
+
+    if (argsByName.unityDestinationSubfolder)
+        sdkGeneratorGlobals.unitySubfolder = argsByName.unityDestinationSubfolder;
 
     // Output an error if no targets are defined
     if (targetOutputPathList.length === 0)

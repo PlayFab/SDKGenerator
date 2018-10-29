@@ -136,6 +136,9 @@
     <Compile Include="targets\java\source_androidStudio\src\main\java\com\playfab\androidstudioexample\PlayFabExampleActivity.java" />
     <Compile Include="targets\java\source_androidStudio\src\main\java\com\playfab\PlayFabGetAdvertId.java" />
     <Compile Include="targets\js-node\make.js" />
+    <Compile Include="targets\js-node\source\index.d.ts.ejs">
+      <SubType>Code</SubType>
+    </Compile>
     <Compile Include="targets\js-node\source\test\reporter.js" />
     <Compile Include="targets\LuaSdk\make.js" />
     <Compile Include="targets\newTarget\make.js" />

@@ -29,12 +29,6 @@ namespace PlayFab.UUnit
         {
             PlayFabSettings.TitleId = _previousTitleId;
             PlayFabSettings.VerticalName = null;
-
-            // if test didn't complete, fail
-            if (testContext.ActiveState != UUnitActiveState.COMPLETE)
-            {
-                testContext.Fail("PubSub UnitTest didn't recieve a message in time");
-            }
         }
 
         public override void ClassTearDown()
@@ -56,7 +50,6 @@ namespace PlayFab.UUnit
 
             PubSub pubSub = new PubSub(message =>
             {
-                Debug.Log("Received a Message: " + message);
                 ((UUnitTestContext) result.CustomData).EndTest(UUnitFinishState.PASSED, "PubSub construction successful");
             }, 
             new Topic { EventNamespace = "com.playfab.events.test", Name = "testevent", Entity = new Entity { Type = _MyEntityKey.Type, Id = _MyEntityKey.Id } }); // will this Entity conflict?

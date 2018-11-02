@@ -10,16 +10,22 @@
 
 namespace PlayFab
 {
-    std::unique_ptr<IPlayFabHttp> IPlayFabHttp::httpInstance = nullptr;
+    std::shared_ptr<IPlayFabHttp> IPlayFabHttp::httpInstance = nullptr;
     IPlayFabHttp::~IPlayFabHttp() = default;
     IPlayFabHttp& IPlayFabHttp::Get()
+    {
+        return *GetPtr().get();
+    }
+
+    std::shared_ptr<IPlayFabHttp> IPlayFabHttp::GetPtr()
     {
         // In the future we could make it easier to override this instance with a sub-type, for now it defaults to the only one we have
         if (httpInstance == nullptr)
         {
             PlayFabHttp::MakeInstance();
         }
-        return *httpInstance.get();
+
+        return httpInstance;
     }
 
     PlayFabHttp::PlayFabHttp()
@@ -56,10 +62,10 @@ namespace PlayFab
         {
 #if __cplusplus > 201103L
             class _PlayFabHttp : public PlayFabHttp {}; // Hack to bypass private constructor on PlayFabHttp
-            httpInstance = std::make_unique<_PlayFabHttp>();
+            httpInstance = std::make_shared<_PlayFabHttp>();
 #else
 #pragma message("PlayFab SDK: C++11 support is not well tested. Please consider upgrading to the latest version of Visual Studio")
-            httpInstance = std::unique_ptr<PlayFabHttp>(new PlayFabHttp());
+            httpInstance = std::shared_ptr<PlayFabHttp>(new PlayFabHttp());
 #endif
         }
     }
@@ -188,7 +194,7 @@ namespace PlayFab
         else
         {
             Json::CharReaderBuilder jsonReaderFactory;
-            std::unique_ptr<Json::CharReader> jsonReader(jsonReaderFactory.newCharReader());
+            Json::CharReader* jsonReader(jsonReaderFactory.newCharReader());
             JSONCPP_STRING jsonParseErrors;
             const bool parsedSuccessfully = jsonReader->parse(reqContainer.responseString.c_str(), reqContainer.responseString.c_str() + reqContainer.responseString.length(), &reqContainer.responseJson, &jsonParseErrors);
 

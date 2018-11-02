@@ -48,11 +48,13 @@ namespace PlayFab
 
     /// <summary>
     /// The PlayFab plugin manager.
+    /// It can be used either as an instance or a singleton.
     /// </summary>
     class PlayFabPluginManager
     {
     public:
-        static PlayFabPluginManager& GetInstance(); // The singleton instance of plugin manager
+        static PlayFabPluginManager& GetInstance(); // The singleton instance of plugin manager (created on demand)
+        PlayFabPluginManager();
 
         // Prevent copy/move construction
         PlayFabPluginManager(const PlayFabPluginManager&) = delete;
@@ -65,25 +67,43 @@ namespace PlayFab
         // Gets a plugin.
         // If a plugin with specified contract and optional instance name does not exist, it will create a new one.
         template <typename T>
-        static T& GetPlugin(const PlayFabPluginContract& contract, const std::string& instanceName = "")
+        static T& GetPlugin(const PlayFabPluginContract contract, const std::string& instanceName = "")
         {
-            return (T&)(GetInstance().GetPluginInternal(contract, instanceName));
+            return *GetPlugin2<T>(contract, instanceName);
+        }
+
+        // Gets a plugin.
+        // If a plugin with specified contract and optional instance name does not exist, it will create a new one.
+        template <typename T>
+        static std::shared_ptr<T> GetPlugin2(const PlayFabPluginContract contract, const std::string& instanceName = "")
+        {
+            return std::static_pointer_cast<T>(GetInstance().GetPluginInternal(contract, instanceName));
         }
 
         // Sets a custom plugin.
         // If a plugin with specified contract and optional instance name already exists, it will be replaced with specified instance.
-        static void SetPlugin(IPlayFabPlugin& plugin, const PlayFabPluginContract& contract, const std::string& instanceName = "");
+        static void SetPlugin(std::shared_ptr<IPlayFabPlugin> plugin, const PlayFabPluginContract contract, const std::string& instanceName = "");
+
+        // Gets a plugin.
+        // If a plugin with specified contract and optional instance name does not exist, it will create a new one.
+        template <typename T>
+        std::shared_ptr<T> GetPluginInstance(const PlayFabPluginContract contract, const std::string& instanceName = "")
+        {
+            return std::static_pointer_cast<T>(GetPluginInternal(contract, instanceName));
+        }
+
+        // Sets a custom plugin.
+        // If a plugin with specified contract and optional instance name already exists, it will be replaced with specified instance.
+        void SetPluginInstance(std::shared_ptr<IPlayFabPlugin> plugin, const PlayFabPluginContract contract, const std::string& instanceName = "");
+
     private:
-        IPlayFabPlugin& GetPluginInternal(const PlayFabPluginContract& contract, const std::string& instanceName);
-        void SetPluginInternal(IPlayFabPlugin& plugin, const PlayFabPluginContract& contract, const std::string& instanceName);
+        std::shared_ptr<IPlayFabPlugin> GetPluginInternal(const PlayFabPluginContract contract, const std::string& instanceName);
+        void SetPluginInternal(std::shared_ptr<IPlayFabPlugin> plugin, const PlayFabPluginContract contract, const std::string& instanceName);
 
-        IPlayFabPlugin* CreatePlayFabSerializerPlugin();
-        IPlayFabPlugin* CreatePlayFabTransportPlugin();
+        std::shared_ptr<IPlayFabPlugin> CreatePlayFabSerializerPlugin();
+        std::shared_ptr<IPlayFabPlugin> CreatePlayFabTransportPlugin();
 
-        // Private constructor and destructor
-        PlayFabPluginManager() = default;
-        ~PlayFabPluginManager() = default;
-
-        std::map<const std::pair<const PlayFabPluginContract, const std::string>, IPlayFabPlugin&> plugins;
+    private:
+        std::map<const std::pair<const PlayFabPluginContract, const std::string>, std::shared_ptr<IPlayFabPlugin>> plugins;
     };
 }

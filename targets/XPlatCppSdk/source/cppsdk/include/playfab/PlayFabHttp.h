@@ -24,6 +24,7 @@ namespace PlayFab
     {
     public:
         static IPlayFabHttp& Get();
+        static std::shared_ptr<IPlayFabHttp> GetPtr();
 
         virtual ~IPlayFabHttp() = 0;
 
@@ -32,7 +33,7 @@ namespace PlayFab
         virtual void MakePostRequest(const CallRequestContainerBase&) = 0;
 
     protected:
-        static std::unique_ptr<IPlayFabHttp> httpInstance;
+        static std::shared_ptr<IPlayFabHttp> httpInstance;
     };
 
     /// <summary>

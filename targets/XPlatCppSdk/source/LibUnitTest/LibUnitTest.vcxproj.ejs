@@ -94,8 +94,12 @@
   </ItemDefinitionGroup>
   <ItemGroup>
     <ClInclude Include="stdafx.h" />
+    <ClInclude Include="targetver.h" />
   </ItemGroup>
   <ItemGroup>
+    <ClCompile Include="PlayFabClientTest.cpp" />
+    <ClCompile Include="PlayFabEntityTest.cpp" />
+    <ClCompile Include="PlayFabServerTest.cpp" />
     <ClCompile Include="stdafx.cpp">
       <PrecompiledHeader Condition="'$(Configuration)|$(Platform)'=='Debug|x64'">Create</PrecompiledHeader>
       <PrecompiledHeader Condition="'$(Configuration)|$(Platform)'=='Release|x64'">Create</PrecompiledHeader>
@@ -121,6 +125,13 @@
     <Import Project="..\packages\libssh2.1.4.3.3\build\native\libssh2.targets" Condition="Exists('..\packages\libssh2.1.4.3.3\build\native\libssh2.targets')" />
     <Import Project="..\packages\curl.7.30.0.2\build\native\curl.targets" Condition="Exists('..\packages\curl.7.30.0.2\build\native\curl.targets')" />
   </ImportGroup>
+  <Target Name="CopyDependencies" AfterTargets="AfterBuild"> 
+    <ItemGroup> 
+      <Dependency Include="$(TFS_BinariesDirectory)\$(Configuration)\$(Platform)\XPlatCppWindows\*.dll" />
+      <Dependency Include="$(SolutionDir)$(Platform)\$(Configuration)\XPlatCppWindows\*.dll" />
+    </ItemGroup>
+    <Copy SourceFiles="@(Dependency)" DestinationFolder="$(OutDir)" SkipUnchangedFiles="true" />
+  </Target>
   <Target Name="EnsureNuGetPackageBuildImports" BeforeTargets="PrepareForBuild">
     <PropertyGroup>
       <ErrorText>This project references NuGet package(s) that are missing on this computer. Use NuGet Package Restore to download them.  For more information, see http://go.microsoft.com/fwlink/?LinkID=322105. The missing file is {0}.</ErrorText>

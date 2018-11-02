@@ -11,19 +11,28 @@ namespace PlayFab
         return instance;
     }
 
-    void PlayFabPluginManager::SetPlugin(IPlayFabPlugin& plugin, const PlayFabPluginContract& contract, const std::string& instanceName)
+    PlayFabPluginManager::PlayFabPluginManager()
     {
-        GetInstance().SetPluginInternal(plugin, contract, instanceName);
     }
 
-    IPlayFabPlugin& PlayFabPluginManager::GetPluginInternal(const PlayFabPluginContract& contract, const std::string& instanceName)
+    void PlayFabPluginManager::SetPlugin(std::shared_ptr<IPlayFabPlugin> plugin, const PlayFabPluginContract contract, const std::string& instanceName)
+    {
+        GetInstance().SetPluginInternal(std::move(plugin), contract, instanceName);
+    }
+
+    void PlayFabPluginManager::SetPluginInstance(std::shared_ptr<IPlayFabPlugin> plugin, const PlayFabPluginContract contract, const std::string& instanceName)
+    {
+        SetPluginInternal(std::move(plugin), contract, instanceName);
+    }
+
+    std::shared_ptr<IPlayFabPlugin> PlayFabPluginManager::GetPluginInternal(const PlayFabPluginContract contract, const std::string& instanceName)
     {
         const auto key = std::make_pair(contract, instanceName);
         auto pluginEntry = plugins.find(key);
         if (pluginEntry == plugins.end())
         {
             // Requested plugin is not in the cache, create the default one
-            IPlayFabPlugin *pluginPtr = nullptr;
+            std::shared_ptr<IPlayFabPlugin> pluginPtr = nullptr;
             switch (contract)
             {
             case PlayFabPluginContract::PlayFab_Serializer:
@@ -37,8 +46,8 @@ namespace PlayFab
                 break;
             }
 
-            plugins.insert({ key, *pluginPtr });
-            return *pluginPtr;
+            plugins.insert({ key, pluginPtr });
+            return pluginPtr;
         }
         else
         {
@@ -46,29 +55,28 @@ namespace PlayFab
         }
     }
 
-    void PlayFabPluginManager::SetPluginInternal(IPlayFabPlugin& plugin, const PlayFabPluginContract& contract, const std::string& instanceName)
+    void PlayFabPluginManager::SetPluginInternal(std::shared_ptr<IPlayFabPlugin> plugin, const PlayFabPluginContract contract, const std::string& instanceName)
     {
         const auto key = std::make_pair(contract, instanceName);
         auto pluginEntry = plugins.find(key);
         if (pluginEntry == plugins.end())
         {
-            plugins.insert({ key, plugin });
+            plugins.insert({ key, std::move(plugin) });
         }
         else
         {
             plugins.erase(key);
-            plugins.insert({ key, plugin });
+            plugins.insert({ key, std::move(plugin) });
         }
     }
 
-    IPlayFabPlugin* PlayFabPluginManager::CreatePlayFabSerializerPlugin()
+    std::shared_ptr<IPlayFabPlugin> PlayFabPluginManager::CreatePlayFabSerializerPlugin()
     {
-        return new IPlayFabSerializerPlugin;
+        return std::make_shared<IPlayFabSerializerPlugin>();
     }
 
-    IPlayFabPlugin* PlayFabPluginManager::CreatePlayFabTransportPlugin()
+    std::shared_ptr<IPlayFabPlugin> PlayFabPluginManager::CreatePlayFabTransportPlugin()
     {
-        IPlayFabHttp& http = IPlayFabHttp::Get();
-        return &http;
+        return IPlayFabHttp::GetPtr();
     }
 }

@@ -1,7 +1,6 @@
 // Copyright (C) Microsoft Corporation. All rights reserved.
 
 #include <cstdio>
-#include <iostream>
 #include <memory>
 
 #include <playfab/PlayFabClientApi.h>
@@ -15,7 +14,7 @@ void OnPlayFabFail(const PlayFab::PlayFabError& error, void*)
 
 void OnProfile(const PlayFab::ClientModels::GetPlayerProfileResult& result, void*)
 {
-    printf(("========== PlayFab Profile Success: " + result.PlayerProfile->PublisherId + "\n").c_str());
+    printf(("========== PlayFab Profile Success: " + result.PlayerProfile->PlayerId + "\n").c_str());
 }
 
 void OnLoginSuccess(const PlayFab::ClientModels::LoginResult& result, void*)

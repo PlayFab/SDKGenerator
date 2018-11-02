@@ -194,7 +194,7 @@ namespace PlayFab
         else
         {
             Json::CharReaderBuilder jsonReaderFactory;
-            Json::CharReader* jsonReader(jsonReaderFactory.newCharReader());
+            std::unique_ptr<Json::CharReader> jsonReader(jsonReaderFactory.newCharReader());
             JSONCPP_STRING jsonParseErrors;
             const bool parsedSuccessfully = jsonReader->parse(reqContainer.responseString.c_str(), reqContainer.responseString.c_str() + reqContainer.responseString.length(), &reqContainer.responseJson, &jsonParseErrors);
 

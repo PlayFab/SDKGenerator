@@ -14,8 +14,6 @@
 #include <playfab/PlayFabEventsDataModels.h>
 #include <playfab/PlayFabSettings.h>
 
-#include <windows.h>
-
 using namespace std;
 using namespace PlayFab::MultiplayerModels;
 

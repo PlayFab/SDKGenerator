@@ -34,11 +34,20 @@ OBJS = stdafx.o \
 	PlayFabHttp.o \
 	PlayFabLocalizationApi.o \
 	PlayFabMatchmakerApi.o \
+	PlayFabMultiplayerApi.o \
 	PlayFabPluginManager.o \
 	PlayFabProfilesApi.o \
 	PlayFabServerApi.o \
 	PlayFabSettings.o \
+	DataCenterResult.o \
+	PlayFabQoSApi.o \
+	QoSResult.o \
+	QoSSocket.o \
+	XPlatSocket.o \
 	main.o
+
+# Relative path to the project root directory
+PROJ_DIR = ..
 
 # Here is a Make Macro defined by two Macro Expansions.
 # A Macro Expansion may be treated as a textual replacement of the Make Macro.
@@ -78,17 +87,19 @@ $(LINK_TARGET) : $(OBJS)
 	g++ -o $@ $^ -ljsoncpp -lcurl -lssl -lpthread
 # Here is the compilation command Make Macro:
 COMPILE_CMD = \
-	g++ -I cppsdk -I cppsdk/include -D ENABLE_PLAYFABADMIN_API -D ENABLE_PLAYFABSERVER_API -o $@ -c $<
+	g++ -I $(PROJ_DIR)/cppsdk -I $(PROJ_DIR)/cppsdk/include -D ENABLE_PLAYFABADMIN_API -D ENABLE_PLAYFABSERVER_API -o $@ -c $<
 # Here is a Pattern Rule, often used for compile-line.
 # It says how to create a file with a .o suffix, given a file with a .cpp suffix.
 # The rule's command uses some built-in Make Macros:
 # $@ for the pattern-matched target
 # $< for the pattern-matched dependency
-%.o : cppsdk/source/playfab/%.cpp
+%.o : $(PROJ_DIR)/cppsdk/source/playfab/%.cpp
 	$(COMPILE_CMD)
-stdafx.o : cppsdk/stdafx.cpp
+%.o : $(PROJ_DIR)/cppsdk/source/playfab/QoS/%.cpp
 	$(COMPILE_CMD)
-main.o : testapps/cppLinuxTestApp/main.cpp
+stdafx.o : $(PROJ_DIR)/cppsdk/stdafx.cpp
+	$(COMPILE_CMD)
+main.o : $(PROJ_DIR)/testapps/cppLinuxTestApp/main.cpp
 	$(COMPILE_CMD)
 # These are Dependency Rules, which are rules without any command.
 # Dependency Rules indicate that if any file to the right of the colon changes,

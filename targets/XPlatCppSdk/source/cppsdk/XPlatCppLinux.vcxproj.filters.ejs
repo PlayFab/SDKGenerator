@@ -15,6 +15,12 @@
     <Filter Include="Source Files\playfab">
       <UniqueIdentifier>{92e0782c-b801-4c3a-8f75-1e2a7e511201}</UniqueIdentifier>
     </Filter>
+    <Filter Include="Source Files\playfab\QoS">
+      <UniqueIdentifier>{488a68e1-cad5-40a9-9845-959990ae1ae7}</UniqueIdentifier>
+    </Filter>
+    <Filter Include="Header Files\playfab\QoS">
+      <UniqueIdentifier>{83c411f7-bfae-4798-8b14-d42ce2337023}</UniqueIdentifier>
+    </Filter>
   </ItemGroup>
   <ItemGroup>
     <ClInclude Include="include\playfab\PlayFabBaseModel.h">
@@ -48,10 +54,32 @@
     <ClInclude Include="include\playfab\PlayFabPluginManager.h">
       <Filter>Header Files\playfab</Filter>
     </ClInclude>
+    <ClInclude Include="include\playfab\QoS\DataCenterResult.h">
+      <Filter>Header Files\playfab\QoS</Filter>
+    </ClInclude>
+    <ClInclude Include="include\playfab\QoS\PingResult.h">
+      <Filter>Header Files\playfab\QoS</Filter>
+    </ClInclude>
+    <ClInclude Include="include\playfab\QoS\PlayFabQoSApi.h">
+      <Filter>Header Files\playfab\QoS</Filter>
+    </ClInclude>
+    <ClInclude Include="include\playfab\QoS\QoS.h">
+      <Filter>Header Files\playfab\QoS</Filter>
+    </ClInclude>
+    <ClInclude Include="include\playfab\QoS\QoSResult.h">
+      <Filter>Header Files\playfab\QoS</Filter>
+    </ClInclude>
+    <ClInclude Include="include\playfab\QoS\QoSSocket.h">
+      <Filter>Header Files\playfab\QoS</Filter>
+    </ClInclude>
+    <ClInclude Include="include\playfab\QoS\XPlatSocket.h">
+      <Filter>Header Files\playfab\QoS</Filter>
+    </ClInclude>
+    <ClInclude Include="source\playfab\PlayFabAdminApi.cpp">
   </ItemGroup>
   <ItemGroup>
     <ClCompile Include="stdafx.cpp">
-      <Filter>Source Files</Filter>
+      <Filter>Source Files\playfab</Filter>
     </ClCompile>
 <% for(var i in apis) { var api = apis[i];
 %>    <ClCompile Include="source\playfab\PlayFab<%- api.name %>Api.cpp">
@@ -74,6 +102,21 @@
     </ClCompile>
     <ClCompile Include="source\playfab\PlayFabPluginManager.cpp">
       <Filter>Source Files\playfab</Filter>
+    </ClCompile>
+    <ClCompile Include="source\playfab\QoS\XPlatSocket.cpp">
+      <Filter>Source Files\playfab\QoS</Filter>
+    </ClCompile>
+    <ClCompile Include="source\playfab\QoS\QoSSocket.cpp">
+      <Filter>Source Files\playfab\QoS</Filter>
+    </ClCompile>
+    <ClCompile Include="source\playfab\QoS\QoSResult.cpp">
+      <Filter>Source Files\playfab\QoS</Filter>
+    </ClCompile>
+    <ClCompile Include="source\playfab\QoS\PlayFabQoSApi.cpp">
+      <Filter>Source Files\playfab\QoS</Filter>
+    </ClCompile>
+    <ClCompile Include="source\playfab\QoS\DataCenterResult.cpp">
+      <Filter>Source Files\playfab\QoS</Filter>
     </ClCompile>
   </ItemGroup>
   <ItemGroup>

@@ -1,4 +1,4 @@
-<?xml version="1.0" encoding="utf-8"?>
+﻿<?xml version="1.0" encoding="utf-8"?>
 <Project DefaultTargets="Build" ToolsVersion="15.0" xmlns="http://schemas.microsoft.com/developer/msbuild/2003">
   <Import Project="..\packages\openssl.1.0.1.21\build\native\openssl.props" Condition="Exists('..\packages\openssl.1.0.1.21\build\native\openssl.props')" />
   <ItemGroup Label="ProjectConfigurations">
@@ -110,11 +110,9 @@
   </ItemDefinitionGroup>
   <ItemGroup>
     <ClInclude Include="include\playfab\PlayFabBaseModel.h" />
-<% for(var i in apis) { var api = apis[i];
-%>
+<% for(var i in apis) { var api = apis[i];%>
     <ClInclude Include="include\playfab\PlayFab<%- api.name %>Api.h" />
-    <ClInclude Include="include\playfab\PlayFab<%- api.name %>DataModels.h" />
-<% } %>
+    <ClInclude Include="include\playfab\PlayFab<%- api.name %>DataModels.h" /><% } %>
     <ClInclude Include="include\playfab\PlayFabError.h" />
     <ClInclude Include="include\playfab\PlayFabHttp.h" />
     <ClInclude Include="include\playfab\PlayFabSettings.h" />
@@ -131,10 +129,8 @@
     <ClInclude Include="stdafx.h" />
   </ItemGroup>
   <ItemGroup>
-<% for(var i in apis) { var api = apis[i];
-%>
-    <ClCompile Include="source\playfab\PlayFab<%- api.name %>Api.cpp" />
-<% } %>
+<% for(var i in apis) { var api = apis[i];%>
+    <ClCompile Include="source\playfab\PlayFab<%- api.name %>Api.cpp" /><% } %>
     <ClCompile Include="source\playfab\PlayFabError.cpp" />
     <ClCompile Include="source\playfab\PlayFabHttp.cpp" />
     <ClCompile Include="source\playfab\PlayFabSettings.cpp" />

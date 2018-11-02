@@ -75,8 +75,7 @@
     <ProjectReference />
     <ProjectReference />
     <Lib>
-      <AdditionalDependencies>
-      </AdditionalDependencies>
+      <AdditionalDependencies>ws2_32.lib;%(AdditionalDependencies)</AdditionalDependencies>
       <AdditionalLibraryDirectories>
       </AdditionalLibraryDirectories>
     </Lib>
@@ -104,8 +103,7 @@
     <ProjectReference />
     <ProjectReference />
     <Lib>
-      <AdditionalDependencies>
-      </AdditionalDependencies>
+      <AdditionalDependencies>ws2_32.lib;%(AdditionalDependencies)</AdditionalDependencies>
       <AdditionalLibraryDirectories>
       </AdditionalLibraryDirectories>
     </Lib>
@@ -123,6 +121,13 @@
     <ClInclude Include="include\playfab\PlayFabCallRequestContainer.h" />
     <ClInclude Include="include\playfab\PlayFabCallRequestContainerBase.h" />
     <ClInclude Include="include\playfab\PlayFabPluginManager.h" />
+    <ClInclude Include="include\playfab\QoS\DataCenterResult.h" />
+    <ClInclude Include="include\playfab\QoS\PingResult.h" />
+    <ClInclude Include="include\playfab\QoS\PlayFabQoSApi.h" />
+    <ClInclude Include="include\playfab\QoS\QoS.h" />
+    <ClInclude Include="include\playfab\QoS\QoSResult.h" />
+    <ClInclude Include="include\playfab\QoS\QoSSocket.h" />
+    <ClInclude Include="include\playfab\QoS\XPlatSocket.h" />
     <ClInclude Include="stdafx.h" />
   </ItemGroup>
   <ItemGroup>
@@ -136,6 +141,11 @@
     <ClCompile Include="source\playfab\PlayFabCallRequestContainerBase.cpp" />
     <ClCompile Include="source\playfab\PlayFabCallRequestContainer.cpp" />
     <ClCompile Include="source\playfab\PlayFabPluginManager.cpp" />
+    <ClCompile Include="source\playfab\QoS\DataCenterResult.cpp" />
+    <ClCompile Include="source\playfab\QoS\PlayFabQoSApi.cpp" />
+    <ClCompile Include="source\playfab\QoS\QoSResult.cpp" />
+    <ClCompile Include="source\playfab\QoS\QoSSocket.cpp" />
+    <ClCompile Include="source\playfab\QoS\XPlatSocket.cpp" />
     <ClCompile Include="stdafx.cpp">
       <PrecompiledHeader Condition="'$(Configuration)|$(Platform)'=='Debug|x64'">Create</PrecompiledHeader>
       <PrecompiledHeader Condition="'$(Configuration)|$(Platform)'=='Release|x64'">Create</PrecompiledHeader>

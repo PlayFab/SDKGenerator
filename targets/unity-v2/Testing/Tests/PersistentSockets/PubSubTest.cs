@@ -16,7 +16,7 @@ namespace PlayFab.UUnit
         private Entity entity;
 
         private int testTicks = 0;
-        private int playstreamTickDelay = 600;
+        private int playstreamTickDelay = 150;
 
         public override void SetUp(UUnitTestContext testContext)
         {

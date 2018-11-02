@@ -23,7 +23,6 @@ namespace PlayFab.UUnit
             // specific title id for relay test
             _previousTitleId = PlayFabSettings.TitleId;
             PlayFabSettings.TitleId = "70B02F89";
-            //PlayFabSettings.VerticalName = "spi-relay";
             PlayFabSettings.VerticalName = "spi";
         }
 

@@ -40,9 +40,9 @@ namespace PlayFab.UUnit
                 ec.Entity = new EventsModels.EntityKey();
                 ec.Entity.Id = _MyEntityKey.Id;
                 ec.Entity.Type = _MyEntityKey.Type;
-                ec.Name = "Ping_PubSub_Constructor";
+                ec.Name = "testevent";
 
-                ec.EventNamespace = "com.playfab.events.PubSubTestNamespace";
+                ec.EventNamespace = "com.playfab.events.test";
 
                 req.Events = new List<EventsModels.EventContents>();
                 req.Events.Add(ec);

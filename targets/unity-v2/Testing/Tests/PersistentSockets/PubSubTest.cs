@@ -12,9 +12,8 @@ namespace PlayFab.UUnit
         static PlayFab.EventsModels.EntityKey _MyEntityKey = null;
         static string _previousTitleId = null;
 
-        private bool socketOpen = false;
-
         private PubSub pubSub;
+        private Entity entity;
 
         private int testTicks = 0;
         private int playstreamTickDelay = 60;
@@ -33,15 +32,15 @@ namespace PlayFab.UUnit
             ++testTicks;
             // this test will ping a write event continuously
             // THIS TEST THROTTLES THE TITLE. so you should NOT do this until you KNOW the object is open
-            if (socketOpen && testTicks % playstreamTickDelay == 0)
+            if (pubSub != null && pubSub.State == PersistentSocketState.Opened && testTicks % playstreamTickDelay == 0)
             {
                 EventsModels.WriteEventsRequest req = new EventsModels.WriteEventsRequest();
 
                 EventsModels.EventContents ec = new EventsModels.EventContents();
 
                 ec.Entity = new EventsModels.EntityKey();
-                ec.Entity.Id = "A8140AB9109712B";
-                ec.Entity.Type = "title";
+                ec.Entity.Id = _MyEntityKey.Id;
+                ec.Entity.Type = _MyEntityKey.Type;
                 ec.Name = "Ping_PubSub_Constructor";
 
                 ec.EventNamespace = "com.playfab.events.PubSubTestNamespace";
@@ -50,7 +49,6 @@ namespace PlayFab.UUnit
                 req.Events.Add(ec);
 
                 PlayFabEventsAPI.WriteEvents(req, WriteEventSuccessful, WriteEventFail);
-                socketOpen = false;
             }
         }
 
@@ -94,7 +92,6 @@ namespace PlayFab.UUnit
                 ((UUnitTestContext)result.CustomData).EndTest(UUnitFinishState.PASSED, "PubSub construction successful");
             },
             new Topic { EventNamespace = "com.playfab.events.test", Name = "testevent", Entity = new Entity { Type = _MyEntityKey.Type, Id = _MyEntityKey.Id } });
-            socketOpen = true;
         }
 
         void LoginFailure(PlayFab.PlayFabError error)

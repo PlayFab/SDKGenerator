@@ -67,15 +67,7 @@ namespace PlayFab
         // Gets a plugin.
         // If a plugin with specified contract and optional instance name does not exist, it will create a new one.
         template <typename T>
-        static T& GetPlugin(const PlayFabPluginContract contract, const std::string& instanceName = "")
-        {
-            return *GetPlugin2<T>(contract, instanceName);
-        }
-
-        // Gets a plugin.
-        // If a plugin with specified contract and optional instance name does not exist, it will create a new one.
-        template <typename T>
-        static std::shared_ptr<T> GetPlugin2(const PlayFabPluginContract contract, const std::string& instanceName = "")
+        static std::shared_ptr<T> GetPlugin(const PlayFabPluginContract contract, const std::string& instanceName = "")
         {
             return std::static_pointer_cast<T>(GetInstance().GetPluginInternal(contract, instanceName));
         }

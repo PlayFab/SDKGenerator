@@ -14,8 +14,6 @@
 #include <playfab/QoS/PlayFabQoSApi.h>
 #include <iostream>
 
-static std::string _id;
-static std::string _entityType;
 static bool loginCompleted;
 
 using namespace PlayFab::QoS;
@@ -34,13 +32,8 @@ void OnGetProfile(const PlayFab::ProfilesModels::GetEntityProfileResponse& resul
 void OnGetEntityToken(const PlayFab::AuthenticationModels::GetEntityTokenResponse& result, void*)
 {
     printf(("========== PlayFab GetEntityToken Success: " + result.EntityToken + "\n").c_str());
-    _id = result.Entity->Id;
-    _entityType = result.Entity->Type;
-
 
     auto req = PlayFab::ProfilesModels::GetEntityProfileRequest();
-    req.Entity.Id = _id;
-    req.Entity.Type = _entityType;
 
     PlayFab::PlayFabProfilesAPI::GetProfile(req, OnGetProfile, OnPlayFabFail);
 }

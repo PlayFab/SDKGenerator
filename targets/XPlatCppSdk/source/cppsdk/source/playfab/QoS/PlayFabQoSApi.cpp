@@ -16,6 +16,7 @@
 
 using namespace std;
 using namespace PlayFab::MultiplayerModels;
+using namespace PlayFab::EventsModels;
 
 namespace PlayFab
 {
@@ -123,15 +124,23 @@ namespace PlayFab
             PlayFab::EventsModels::WriteEventsRequest request;
             PlayFab::EventsModels::EventContents event1;
 
-            // event1.Entity = nullptr;
-            
             event1.Name = "QosResult";
             event1.EventNamespace = "com.playfab.multiplayer.servers";
             event1.Payload["TitleId"] = PlayFab::PlayFabSettings::titleId;
             event1.Payload["Results"] = value;
             request.Events.push_back(event1);
 
-            PlayFab::PlayFabEventsAPI::WriteEvents(request, nullptr);
+            PlayFab::PlayFabEventsAPI::WriteEvents(request, WriteEventsSuccessCallBack, WriteEventsFailureCallBack);
+        }
+
+        void PlayFabQoSApi::WriteEventsSuccessCallBack(const WriteEventsResponse& result, void*)
+        {
+            LOG_QOS("QoSResult successfully sent to PlayFab");
+        }
+
+        void PlayFabQoSApi::WriteEventsFailureCallBack(const PlayFabError& error, void*)
+        {
+            LOG_QOS("Failed to QoSResult sent to PlayFab");
         }
 
         void PlayFabQoSApi::PingThunderheadForServerList()

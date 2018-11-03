@@ -7,6 +7,7 @@
 #include <playfab/QoS/QoSResult.h>
 #include <playfab/QoS/QoSSocket.h>
 #include <playfab/PlayFabMultiplayerDataModels.h>
+#include <playfab/PlayFabEventsDataModels.h>
 #include <playfab/PlayFabError.h>
 
 namespace PlayFab
@@ -31,12 +32,15 @@ namespace PlayFab
             void InitializeAsyncPingResults(std::vector<std::future<PingResult>>& asyncPingResults);
             void PingServers(std::vector<PlayFab::MultiplayerModels::AzureRegion>& pings, std::vector<std::future<PingResult>>& asyncPingResults, std::vector<std::shared_ptr<QoSSocket>>& sockets, std::unordered_map<PlayFab::MultiplayerModels::AzureRegion, PingResult>& accumulatedPingResults, unsigned int timeoutMs);
             void UpdateAccumulatedPingResult(PingResult& result, PlayFab::MultiplayerModels::AzureRegion region, std::unordered_map<PlayFab::MultiplayerModels::AzureRegion, PingResult>& accumulatedPingResults, unsigned int timeoutMs);
+            QoSResult GetResult(unsigned int numThreads, unsigned int timeoutMs);
+
             void PingThunderheadForServerList();
             static void ListQosServersSuccessCallBack(const PlayFab::MultiplayerModels::ListQosServersResponse& result, void* customData);
             static void ListQosServersFailureCallBack(const PlayFab::PlayFabError& error, void* customData);
-            
-            QoSResult GetResult(unsigned int numThreads, unsigned int timeoutMs);
+
             void SendResultsToPlayFab(QoSResult& result);
+            static void WriteEventsSuccessCallBack(const PlayFab::EventsModels::WriteEventsResponse& result, void*);
+            static void WriteEventsFailureCallBack(const PlayFab::PlayFabError& error, void*);
 
         private:
             const int numOfPingIterations = QOS_NUM_OF_PING_ITERATIONS; // Number of pings to do to each server, to calculate an average latency.

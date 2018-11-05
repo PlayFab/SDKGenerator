@@ -13,15 +13,15 @@ namespace PlayFab
     namespace QoS
     {
         // the error code that is returned if a QoS exception was thrown
-        const int QOS_EXCEPTION_ERROR_CODE = -777;
+        constexpr int EXCEPTION_ERROR_CODE = -777;
 
         // Wait time before looping back on a thread
-        const int QOS_THREAD_WAIT_MS = 10;
+        constexpr int THREAD_WAIT_MS = 10;
 
         // Default timeout for the api if the user does not supply a timeout
-        const int QOS_DEFAULT_TIMEOUT_MS = 250;
+        constexpr int DEFAULT_TIMEOUT_MS = 250;
 
         // Number of times a server is pinged
-        const int QOS_NUM_OF_PING_ITERATIONS = 3;
+        constexpr int NUM_OF_PING_ITERATIONS = 3;
     }
 }

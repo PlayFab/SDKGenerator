@@ -116,7 +116,7 @@ namespace PlayFab
                 return -1;
             }
 
-            // TODO sangarg : Optimization
+            // TODO : Optimization
             //	Find a way to cache the hostent as we can have the same address being set again.
             //	Might look into using an unordered_map<socketAddr, hostent> but that might be expensive.
             struct hostent *he = gethostbyname(socketAddr);

@@ -337,7 +337,7 @@ namespace PlayFab
         // Parameters : Configured socket to ping
         // Return : The ping result
         // Note that the function eat any exceptions thrown to it.
-        PingResult GetQoSResultForDatacenter(shared_ptr<QoSSocket> socket)
+        PingResult PlayFabQoSApi::GetQoSResultForDatacenter(shared_ptr<QoSSocket> socket)
         {
             // Ping a data center and return the ping time
             try
@@ -347,7 +347,7 @@ namespace PlayFab
             catch (...)
             {
                 LOG_QOS("Some exception was caught while pinging. Ignore the ping");
-                PingResult result(INT32_MAX, QOS_EXCEPTION_ERROR_CODE, 0);
+                PingResult result(INT32_MAX, EXCEPTION_ERROR_CODE, 0);
 
                 return move(result);
             }

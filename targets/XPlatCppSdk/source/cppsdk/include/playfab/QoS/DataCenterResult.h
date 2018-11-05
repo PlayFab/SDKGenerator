@@ -19,7 +19,6 @@ namespace PlayFab
             DataCenterResult& operator=(DataCenterResult&&) = delete;
             DataCenterResult& operator=(const DataCenterResult&) = delete;
 
-
             // The datacenter name
             std::string dataCenterName;
 

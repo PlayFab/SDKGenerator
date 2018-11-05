@@ -76,7 +76,7 @@ void TestGetQosResultApi()
     char c = 'a';
     PlayFab::QoS::PlayFabQoSApi api;
 
-    while (c != 'e')
+    while (c != 'e' && c != 'E')
     {
         auto result = api.GetQoSResult(5, 200);
 
@@ -94,7 +94,7 @@ void TestGetQosResultApi()
             cout << "Result could not be populated : " << result.lastErrorCode << endl;
         }
 
-        cout << "[QOS API] To exit, enter E, else enter anything else : " << endl;
+        cout << "[QOS API] To exit, enter 'e', else enter anything else : " << endl;
         cin >> c;
     }
 }

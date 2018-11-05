@@ -98,7 +98,7 @@ namespace PlayFab
             // Snap the end time
             chrono::steady_clock::time_point end = chrono::steady_clock::now();
 
-            // TODO sangarg : Optionala : Can add error checking for the reply and return based on that
+            // TODO : Can add error checking for the reply and return based on that
             //	The first 2 bytes should be set to 0s.
 
             // Calculate the total time

@@ -75,11 +75,10 @@
     <ClInclude Include="include\playfab\QoS\XPlatSocket.h">
       <Filter>Header Files\playfab\QoS</Filter>
     </ClInclude>
-    <ClInclude Include="source\playfab\PlayFabAdminApi.cpp">
   </ItemGroup>
   <ItemGroup>
     <ClCompile Include="stdafx.cpp">
-      <Filter>Source Files\playfab</Filter>
+      <Filter>Source Files</Filter>
     </ClCompile>
 <% for(var i in apis) { var api = apis[i];
 %>    <ClCompile Include="source\playfab\PlayFab<%- api.name %>Api.cpp">

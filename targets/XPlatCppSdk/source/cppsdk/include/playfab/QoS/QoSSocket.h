@@ -53,7 +53,7 @@ namespace PlayFab
             // Message sent. Should start with 2 bytes set to 255 each (all bits set to 1)
             const char message[BUFLEN]{ static_cast<char>(MSGHEADER), static_cast<char>(MSGHEADER) };
             char buf[BUFLEN];
-            const std::chrono::milliseconds threadWaitTimespan = std::chrono::milliseconds(QOS_THREAD_WAIT_MS);
+            const std::chrono::milliseconds threadWaitTimespan = std::chrono::milliseconds(THREAD_WAIT_MS);
         };
     }
 }

@@ -13,10 +13,9 @@ namespace PlayFab.UUnit
         static string _previousTitleId = null;
 
         private PubSub pubSub;
-        private Entity entity;
 
-        private int testTicks = 0;
-        private int playstreamTickDelay = 150;
+        TimeSpan writeDelay = new TimeSpan(0, 0, 0, 3);
+        DateTime nextWrite;
 
         public override void SetUp(UUnitTestContext testContext)
         {
@@ -24,15 +23,21 @@ namespace PlayFab.UUnit
             _previousTitleId = PlayFabSettings.TitleId;
             PlayFabSettings.TitleId = "70B02F89";
             PlayFabSettings.VerticalName = "spi";
+            UpdateNextWriteTime();
+        }
+
+        private void UpdateNextWriteTime()
+        {
+            nextWrite = DateTime.Now + writeDelay;
         }
 
         public override void Tick(UUnitTestContext testContext)
         {
-            ++testTicks;
             // this test will ping a write event continuously
             // THIS TEST THROTTLES THE TITLE. so you should NOT do this until you KNOW the object is open
-            if (pubSub != null && pubSub.State == PersistentSocketState.Opened && testTicks % playstreamTickDelay == 0)
+            if (pubSub != null && pubSub.State == PersistentSocketState.Opened && DateTime.Now > nextWrite)
             {
+                UpdateNextWriteTime();
                 EventsModels.WriteEventsRequest req = new EventsModels.WriteEventsRequest();
 
                 EventsModels.EventContents ec = new EventsModels.EventContents();
@@ -53,9 +58,10 @@ namespace PlayFab.UUnit
 
         public void WriteEventSuccessful(EventsModels.WriteEventsResponse response)
         {
-            // check that we have assigned id's?
-            // this will probably get called a few times before the hub connection opens
-            // but once the hub connection opens it should immediatley start seeing something each Tick
+            foreach (var id in response.AssignedEventIds)
+            {
+                Debug.Log("WriteEvent Succeeded and Id assigned: " + id);
+            }
         }
 
         public void WriteEventFail(PlayFabError error)

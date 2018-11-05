@@ -52,21 +52,8 @@ namespace PlayFab.UUnit
                 req.Events = new List<EventsModels.EventContents>();
                 req.Events.Add(ec);
 
-                PlayFabEventsAPI.WriteEvents(req, WriteEventSuccessful, WriteEventFail);
+                PlayFabEventsAPI.WriteEvents(req, null, null);
             }
-        }
-
-        public void WriteEventSuccessful(EventsModels.WriteEventsResponse response)
-        {
-            foreach (var id in response.AssignedEventIds)
-            {
-                Debug.Log("WriteEvent Succeeded and Id assigned: " + id);
-            }
-        }
-
-        public void WriteEventFail(PlayFabError error)
-        {
-            Debug.Log("Write Event Failed: " + error.ErrorMessage);
         }
 
         public override void TearDown(UUnitTestContext testContext)

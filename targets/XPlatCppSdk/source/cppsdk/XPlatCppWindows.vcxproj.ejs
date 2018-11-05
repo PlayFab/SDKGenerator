@@ -1,4 +1,4 @@
-<?xml version="1.0" encoding="utf-8"?>
+﻿<?xml version="1.0" encoding="utf-8"?>
 <Project DefaultTargets="Build" ToolsVersion="15.0" xmlns="http://schemas.microsoft.com/developer/msbuild/2003">
   <Import Project="..\packages\openssl.1.0.1.21\build\native\openssl.props" Condition="Exists('..\packages\openssl.1.0.1.21\build\native\openssl.props')" />
   <ItemGroup Label="ProjectConfigurations">
@@ -75,8 +75,7 @@
     <ProjectReference />
     <ProjectReference />
     <Lib>
-      <AdditionalDependencies>
-      </AdditionalDependencies>
+      <AdditionalDependencies>ws2_32.lib;%(AdditionalDependencies)</AdditionalDependencies>
       <AdditionalLibraryDirectories>
       </AdditionalLibraryDirectories>
     </Lib>
@@ -104,38 +103,45 @@
     <ProjectReference />
     <ProjectReference />
     <Lib>
-      <AdditionalDependencies>
-      </AdditionalDependencies>
+      <AdditionalDependencies>ws2_32.lib;%(AdditionalDependencies)</AdditionalDependencies>
       <AdditionalLibraryDirectories>
       </AdditionalLibraryDirectories>
     </Lib>
   </ItemDefinitionGroup>
   <ItemGroup>
     <ClInclude Include="include\playfab\PlayFabBaseModel.h" />
-<% for(var i in apis) { var api = apis[i];
-%>
+<% for(var i in apis) { var api = apis[i];%>
     <ClInclude Include="include\playfab\PlayFab<%- api.name %>Api.h" />
-    <ClInclude Include="include\playfab\PlayFab<%- api.name %>DataModels.h" />
-<% } %>
+    <ClInclude Include="include\playfab\PlayFab<%- api.name %>DataModels.h" /><% } %>
     <ClInclude Include="include\playfab\PlayFabError.h" />
     <ClInclude Include="include\playfab\PlayFabHttp.h" />
     <ClInclude Include="include\playfab\PlayFabSettings.h" />
     <ClInclude Include="include\playfab\PlayFabCallRequestContainer.h" />
     <ClInclude Include="include\playfab\PlayFabCallRequestContainerBase.h" />
     <ClInclude Include="include\playfab\PlayFabPluginManager.h" />
+    <ClInclude Include="include\playfab\QoS\DataCenterResult.h" />
+    <ClInclude Include="include\playfab\QoS\PingResult.h" />
+    <ClInclude Include="include\playfab\QoS\PlayFabQoSApi.h" />
+    <ClInclude Include="include\playfab\QoS\QoS.h" />
+    <ClInclude Include="include\playfab\QoS\QoSResult.h" />
+    <ClInclude Include="include\playfab\QoS\QoSSocket.h" />
+    <ClInclude Include="include\playfab\QoS\XPlatSocket.h" />
     <ClInclude Include="stdafx.h" />
   </ItemGroup>
   <ItemGroup>
-<% for(var i in apis) { var api = apis[i];
-%>
-    <ClCompile Include="source\playfab\PlayFab<%- api.name %>Api.cpp" />
-<% } %>
+<% for(var i in apis) { var api = apis[i];%>
+    <ClCompile Include="source\playfab\PlayFab<%- api.name %>Api.cpp" /><% } %>
     <ClCompile Include="source\playfab\PlayFabError.cpp" />
     <ClCompile Include="source\playfab\PlayFabHttp.cpp" />
     <ClCompile Include="source\playfab\PlayFabSettings.cpp" />
     <ClCompile Include="source\playfab\PlayFabCallRequestContainerBase.cpp" />
     <ClCompile Include="source\playfab\PlayFabCallRequestContainer.cpp" />
     <ClCompile Include="source\playfab\PlayFabPluginManager.cpp" />
+    <ClCompile Include="source\playfab\QoS\DataCenterResult.cpp" />
+    <ClCompile Include="source\playfab\QoS\PlayFabQoSApi.cpp" />
+    <ClCompile Include="source\playfab\QoS\QoSResult.cpp" />
+    <ClCompile Include="source\playfab\QoS\QoSSocket.cpp" />
+    <ClCompile Include="source\playfab\QoS\XPlatSocket.cpp" />
     <ClCompile Include="stdafx.cpp">
       <PrecompiledHeader Condition="'$(Configuration)|$(Platform)'=='Debug|x64'">Create</PrecompiledHeader>
       <PrecompiledHeader Condition="'$(Configuration)|$(Platform)'=='Release|x64'">Create</PrecompiledHeader>

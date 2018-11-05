@@ -94,14 +94,14 @@ namespace PlayFab.UUnit
 
             pubSub = new PubSub(message =>
             {
-                ((UUnitTestContext)result.CustomData).EndTest(UUnitFinishState.PASSED, "PubSub construction successful");
+                ((UUnitTestContext)result.CustomData).EndTest(UUnitFinishState.PASSED, "");
             },
             new Topic { EventNamespace = "com.playfab.events.test", Name = "testevent", Entity = new Entity { Type = _MyEntityKey.Type, Id = _MyEntityKey.Id } });
         }
 
         void LoginFailure(PlayFab.PlayFabError error)
         {
-            ((UUnitTestContext)error.CustomData).Fail("PubSub UnitTest Login Failed with the message: " + error.ErrorMessage);
+            ((UUnitTestContext)error.CustomData).Fail("PubSub UnitTest Login Failed with the message: " + error.GenerateErrorReport());
         }
     }
 }

@@ -13,9 +13,13 @@ namespace PlayFab.UUnit
         static string _previousTitleId = null;
 
         private PubSub pubSub;
+        private Entity entity;
 
         TimeSpan writeDelay = new TimeSpan(0, 0, 0, 3);
         DateTime nextWrite;
+
+        private const string ns = "com.playfab.events.test";
+        private const string testName = "testevent";
 
         public override void SetUp(UUnitTestContext testContext)
         {
@@ -33,8 +37,6 @@ namespace PlayFab.UUnit
 
         public override void Tick(UUnitTestContext testContext)
         {
-            // this test will ping a write event continuously
-            // THIS TEST THROTTLES THE TITLE. so you should NOT do this until you KNOW the object is open
             if (pubSub != null && pubSub.State == PersistentSocketState.Opened && DateTime.Now > nextWrite)
             {
                 UpdateNextWriteTime();
@@ -45,15 +47,29 @@ namespace PlayFab.UUnit
                 ec.Entity = new EventsModels.EntityKey();
                 ec.Entity.Id = _MyEntityKey.Id;
                 ec.Entity.Type = _MyEntityKey.Type;
-                ec.Name = "testevent";
+                ec.Name = testName;
 
-                ec.EventNamespace = "com.playfab.events.test";
+                ec.EventNamespace = ns;
+                ec.PayloadJSON = $"{{\"CurrentTime\" : \"{DateTime.Now}\"}}";
 
                 req.Events = new List<EventsModels.EventContents>();
                 req.Events.Add(ec);
 
-                PlayFabEventsAPI.WriteEvents(req, null, null);
+                PlayFabEventsAPI.WriteEvents(req, WriteEventSuccessful, WriteEventFail);
             }
+        }
+
+        public void WriteEventSuccessful(EventsModels.WriteEventsResponse response)
+        {
+            foreach (var id in response.AssignedEventIds)
+            {
+                Debug.Log("Write Event Fired: " + id.ToString());
+            }
+        }
+
+        public void WriteEventFail(PlayFabError error)
+        {
+            Debug.Log("Write Event Failed: " + error.ErrorMessage);
         }
 
         public override void TearDown(UUnitTestContext testContext)

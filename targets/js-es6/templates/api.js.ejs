@@ -1,0 +1,32 @@
+import * as Shared from "./shared";
+
+export let settings = Shared.settings;
+<% if (hasClientOptions) { %>
+export function IsClientLoggedIn () {
+    return Shared._internalSettings.sessionTicket != null && Shared._internalSettings.sessionTicket.length > 0
+}
+<% }
+for(var i in api.calls) { var apiCall = api.calls[i]; %>
+<%- getDeprecationAttribute("", apiCall)
+%>export function <%- apiCall.name %>(request, callback) {
+<%- getRequestActions("    ", apiCall)
+%>    Shared.MakeRequest(<%- getUrlAccessor() %> + "<%- apiCall.url %>", request, <%- getAuthParams(apiCall) %>, function (error, result) {
+<%- getResultActions("    ", apiCall, api) %>
+        if (callback != null)
+            callback(error, result);
+    });
+};
+<% } if (hasClientOptions) { %>
+export function _MultiStepClientLogin (needsAttribution) {
+    if (needsAttribution && !Shared.settings.disableAdvertising && Boolean(Shared.settings.advertisingIdType) && Boolean(Shared.settings.advertisingIdValue))
+    {
+        var request = {};
+        if (Shared.settings.advertisingIdType === Shared.settings.AD_TYPE_IDFA)
+            request.Idfa = Shared.settings.advertisingIdValue;
+        else if (Shared.settings.advertisingIdType === Shared.settings.AD_TYPE_ANDROID_ID)
+            request.Adid = Shared.settings.advertisingIdValue;
+        else
+            return;
+        AttributeInstall(request);
+    }
+}<% } %>

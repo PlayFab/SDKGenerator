@@ -1,0 +1,15 @@
+{
+    "compilerOptions": {
+        "module": "es6"
+    },
+    "files": [
+        "lib/index.d.ts",
+<% for(var i = 0; i < apis.length; i++) { var api = apis[i];
+%>        "lib/<%- api.name %>.d.ts",
+<% }
+%>      "lib/shared.d.ts"
+    ],
+	"exclude": [
+		"node_modules"
+	]
+}

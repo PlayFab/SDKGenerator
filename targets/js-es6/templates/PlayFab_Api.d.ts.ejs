@@ -1,0 +1,15 @@
+import * as Shared from "./shared";
+
+export let settings: Shared.IPlayFabSettings;
+<% if (hasClientOptions) { %>
+export const IsClientLoggedIn: () => boolean;
+<% } %>
+<% for(var cIdx in api.calls) { var apiCall = api.calls[cIdx];%>
+<%- generateApiSummary("", apiCall, "summary", "https://api.playfab.com/Documentation/" + api.name + "/method/" + apiCall.name)
+%>export function <%- apiCall.name %>(request: I<%- apiCall.request %>, callback: Shared.ApiCallback<I<%- apiCall.result %>>): void;
+<% } %>
+
+/* Models */
+<% for(var dIdx in api.datatypes) { var datatype = api.datatypes[dIdx];%>
+<%- generateDatatype(api, datatype, sourceDir) %>
+<% } %>

@@ -13,7 +13,6 @@ namespace PlayFab.UUnit
         static string _previousTitleId = null;
 
         private PubSub pubSub;
-        private Entity entity;
 
         TimeSpan writeDelay = new TimeSpan(0, 0, 0, 3);
         DateTime nextWrite;
@@ -55,21 +54,8 @@ namespace PlayFab.UUnit
                 req.Events = new List<EventsModels.EventContents>();
                 req.Events.Add(ec);
 
-                PlayFabEventsAPI.WriteEvents(req, WriteEventSuccessful, WriteEventFail);
+                PlayFabEventsAPI.WriteEvents(req, null, null);
             }
-        }
-
-        public void WriteEventSuccessful(EventsModels.WriteEventsResponse response)
-        {
-            foreach (var id in response.AssignedEventIds)
-            {
-                Debug.Log("Write Event Fired: " + id.ToString());
-            }
-        }
-
-        public void WriteEventFail(PlayFabError error)
-        {
-            Debug.Log("Write Event Failed: " + error.ErrorMessage);
         }
 
         public override void TearDown(UUnitTestContext testContext)

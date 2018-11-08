@@ -158,6 +158,9 @@
     <Compile Include="targets\UnrealMarketplacePlugin\makeCpp.js" />
     <Compile Include="targets\WindowsSdk\make.js" />
     <Compile Include="targets\XPlatCppSdk\make.js" />
+    <Content Include="package.json">
+      <SubType>Code</SubType>
+    </Content>
     <Content Include="README.md" />
     <Content Include="targets\actionscript\source\asyncUnitTest\ASyncAssert.as" />
     <Content Include="targets\actionscript\source\asyncUnitTest\ASyncUnitTestCloudScriptReporter.as" />

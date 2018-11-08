@@ -1,5 +1,5 @@
 type <%- datatype.name -%> = "<%- datatype.enumvalues[0].name %>"
 
 <% for(var i = 1; i < datatype.enumvalues.length; i++) {
-%>        | "<%- datatype.enumvalues[i].name %>"<%if (i === datatype.enumvalues.length - 1){%>;<% } %>
+%>    | "<%- datatype.enumvalues[i].name %>"<%if (i === datatype.enumvalues.length - 1){%>;<% } %>
 <% } %>

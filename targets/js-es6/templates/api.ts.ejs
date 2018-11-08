@@ -1,0 +1,42 @@
+import { Promise } from "es6-promise";
+
+import * as playfab from "./playfab";
+
+<% if (hasClientOptions) { %>
+export function IsClientLoggedIn (): boolean {
+    return playfab._internalSettings.sessionTicket != null && playfab._internalSettings.sessionTicket.length > 0
+}
+<% }
+for(var i in api.calls) { var apiCall = api.calls[i]; %>
+<%- generateApiSummary("", apiCall, "summary", "https://api.playfab.com/Documentation/" + api.name + "/method/" + apiCall.name)
+%><%- getDeprecationAttribute("", apiCall)
+%>export function <%- apiCall.name %>(request: I<%- apiCall.request %>): Promise<I<%- apiCall.result %>> {
+	return new Promise<I<%- apiCall.result %>>((resolve, reject) => {
+<%- getRequestActions("		", apiCall) %>
+		playfab.makeRequest<I<%- apiCall.result %>>(<%- getUrlAccessor() %> + "<%- apiCall.url %>", request, <%- getAuthParams(apiCall) %>)
+		.then((result: I<%- apiCall.result %>) => {
+<%- getResultActions("			", apiCall, api)
+%>			resolve(result);
+		})
+		.catch((error: playfab.IPlayFabError) => {
+			reject(error);
+		});
+	});
+};
+<% } if (hasClientOptions) { %>
+function _MultiStepClientLogin(needsAttribution: boolean): void {
+    if (needsAttribution && !playfab.settings.disableAdvertising && Boolean(playfab.settings.advertisingIdType) && Boolean(playfab.settings.advertisingIdValue))
+    {
+        const request: any = {};
+        if (playfab.settings.advertisingIdType === playfab.settings.AD_TYPE_IDFA) {
+            request.Idfa = playfab.settings.advertisingIdValue;
+        } else if (playfab.settings.advertisingIdType === playfab.settings.AD_TYPE_ANDROID_ID) {
+            request.Adid = playfab.settings.advertisingIdValue;
+        } else {
+            return;
+		}
+        AttributeInstall(request);
+    }
+}<% } %>
+<% for(var dIdx in api.datatypes) { var datatype = api.datatypes[dIdx];
+%><%- generateDatatype(api, datatype, sourceDir) %><% } %>

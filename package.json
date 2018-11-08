@@ -1,0 +1,9 @@
+{
+  "name": "sdk-generator",
+  "version": "1.0.0",
+  "description": "SDK Generator, produces the source code for all PlayFab SDKs.",
+  "dependencies": {
+    "ejs": "^1.0.0",
+    "shelljs": "0.8.2"
+  }
+}

@@ -275,15 +275,14 @@
     <Content Include="targets\java\source_shared\src\main\java\com\playfab\PlayFabSettings.java.ejs" />
     <Content Include="targets\java\source_std\pom.xml.ejs" />
     <Content Include="targets\js-es6\source\.npmignore" />
-    <Content Include="targets\js-es6\source\lib\index.d.ts.ejs" />
-    <Content Include="targets\js-es6\source\lib\index.js.ejs" />
-    <Content Include="targets\js-es6\source\lib\shared.js.ejs" />
+    <Content Include="targets\js-es6\source\.babelrc.ejs" />
+    <Content Include="targets\js-es6\source\src\index.ts.ejs" />
+    <Content Include="targets\js-es6\source\src\playfab.ts.ejs" />
     <Content Include="targets\js-es6\source\package.json.ejs" />
     <Content Include="targets\js-es6\source\tsconfig.json.ejs" />
-    <Content Include="targets\js-es6\templates\api.js.ejs" />
+    <Content Include="targets\js-es6\templates\api.ts.ejs" />
     <Content Include="targets\js-es6\templates\Enum.ejs" />
     <Content Include="targets\js-es6\templates\Interface.ejs" />
-    <Content Include="targets\js-es6\templates\PlayFab_Api.d.ts.ejs" />
     <Content Include="targets\js-node\source\.npmignore" />
     <Content Include="targets\js-node\source\runTest.cmd" />
     <Content Include="targets\js-node\source\runTest.sh" />
@@ -846,7 +845,7 @@
     <Folder Include="targets\java\templates\" />
     <Folder Include="targets\js-es6\" />
     <Folder Include="targets\js-es6\source\" />
-    <Folder Include="targets\js-es6\source\lib\" />
+    <Folder Include="targets\js-es6\source\src\" />
     <Folder Include="targets\js-es6\templates\" />
     <Folder Include="targets\js-node\" />
     <Folder Include="targets\js-node\source\" />
@@ -1024,7 +1023,6 @@
     <TypeScriptCompile Include="generate-sdk.ts" />
     <TypeScriptCompile Include="generate.ts" />
     <TypeScriptCompile Include="node.d.ts" />
-    <TypeScriptCompile Include="targets\js-es6\source\lib\shared.d.ts" />
     <TypeScriptCompile Include="targets\js-node\source\Scripts\typings\PlayFab\PlayFab.d.ts" />
     <None Include="targets\js-node\source\test\test.ts.ejs" />
   </ItemGroup>

@@ -1,4 +1,5 @@
 var path = require("path");
+var shell = require("shelljs");
 
 // Making resharper less noisy - These are defined in Generate.js
 if (typeof (generateApiSummaryLines) === "undefined") generateApiSummaryLines = function () { };
@@ -10,8 +11,11 @@ exports.makeCombinedAPI = function (apis, sourceDir, apiOutputDir) {
 
     // Load the templates
     var templateDir = path.resolve(sourceDir, "templates");
-    var apiTemplate = getCompiledTemplate(path.resolve(templateDir, "api.js.ejs"));
-    var apiTypingsTemplate = getCompiledTemplate(path.resolve(templateDir, "PlayFab_Api.d.ts.ejs"));
+    var apiTemplate = getCompiledTemplate(path.resolve(templateDir, "api.ts.ejs"));
+
+    apis.forEach(function (api) {
+        api.fileName = api.name.charAt(0).toLowerCase() + api.name.slice(1);
+    });
 
     var locals = {
         apis: apis,
@@ -40,10 +44,11 @@ exports.makeCombinedAPI = function (apis, sourceDir, apiOutputDir) {
         locals.api = apis[i];
         locals.hasClientOptions = getAuthMechanisms([apis[i]]).includes("SessionTicket");
 
-        writeFile(path.resolve(eachOutputDir, "lib/" + apis[i].name + ".js"), apiTemplate(locals));
-        writeFile(path.resolve(eachOutputDir, "lib/" + apis[i].name + ".d.ts"), apiTypingsTemplate(locals));
+        writeFile(path.resolve(eachOutputDir, "src/" + apis[i].fileName + ".ts"), apiTemplate(locals));
     }
-}
+    shell.cd(path.resolve(apiOutputDir, "PlayFabSdk"));
+    shell.exec("npm install && npm run build");
+};
 
 function getVerticalNameDefault() {
     if (sdkGlobals.verticalName) {
@@ -57,48 +62,55 @@ function getAuthParams(apiCall) {
     if (apiCall.url === "/Authentication/GetEntityToken")
         return "authKey, authValue";
     else if (apiCall.auth === "EntityToken")
-        return "\"X-EntityToken\", Shared._internalSettings.entityToken";
+        return "\"X-EntityToken\", playfab._internalSettings.entityToken";
     else if (apiCall.auth === "SecretKey")
-        return "\"X-SecretKey\", Shared.settings.developerSecretKey";
+        return "\"X-SecretKey\", playfab.settings.developerSecretKey";
     else if (apiCall.auth === "SessionTicket")
-        return "\"X-Authorization\", Shared._internalSettings.sessionTicket";
+        return "\"X-Authorization\", playfab._internalSettings.sessionTicket";
     return "null, null";
 }
 
 function getRequestActions(tabbing, apiCall) {
     if (apiCall.url === "/Authentication/GetEntityToken")
-        return tabbing + "var authKey = \"\"; var authValue = \"\";\n"
-            + tabbing + "if (Shared._internalSettings.sessionTicket) { authKey = \"X-Authorization\"; authValue = Shared._internalSettings.sessionTicket; }\n"
-            + tabbing + "else if (Shared.settings.developerSecretKey) { authKey = \"X-SecretKey\"; authValue = Shared.settings.developerSecretKey; }\n"
-            + tabbing + "else if (Shared._internalSettings.entityToken) { authKey = \"X-EntityToken\"; authValue = Shared._internalSettings.entityToken; }\n\n";
+        return tabbing + "let authKey = \"\";\n"
+            + tabbing + "let authValue = \"\";\n"
+            + tabbing + "if (playfab._internalSettings.sessionTicket) {\n"
+            + tabbing + "    authKey = \"X-Authorization\"; authValue = playfab._internalSettings.sessionTicket;\n"
+            + tabbing + "} else if (playfab.settings.developerSecretKey) {\n"
+            + tabbing + "    authKey = \"X-SecretKey\"; authValue = playfab.settings.developerSecretKey;\n"
+            + tabbing + "} else if (playfab._internalSettings.entityToken) {\n"
+            + tabbing + "    authKey = \"X-EntityToken\"; authValue = playfab._internalSettings.entityToken;\n"
+            + tabbing + "}\n";
     else if (apiCall.result === "LoginResult" || apiCall.request === "RegisterPlayFabUserRequest")
-        return tabbing + "request.TitleId = Shared.settings.titleId != null ? Shared.settings.titleId : request.TitleId;\n"
-            + tabbing + "if (request.TitleId == null) throw \"Must be have Shared.settings.titleId set to call this method\";\n";
+        return tabbing + "request.TitleId = playfab.settings.titleId != null ? playfab.settings.titleId : request.TitleId;\n"
+            + tabbing + "if (request.TitleId == null) reject(\"Must have playfab.settings.titleId set to call this method\");\n";
     else if (apiCall.auth === "SessionTicket")
-        return tabbing + "if (Shared._internalSettings.sessionTicket == null) throw \"Must be logged in to call this method\";\n";
+        return tabbing + "if (playfab._internalSettings.sessionTicket == null) reject(\"Must be logged in to call this method\");\n";
     else if (apiCall.auth === "SecretKey")
-        return tabbing + "if (Shared.settings.developerSecretKey == null) throw \"Must have Shared.settings.DeveloperSecretKey set to call this method\";\n\n";
+        return tabbing + "if (playfab.settings.developerSecretKey == null) reject(\"Must have playfab.settings.DeveloperSecretKey set to call this method\");\n";
     return "";
 }
 
 function getResultActions(tabbing, apiCall) {
     if (apiCall.url === "/Authentication/GetEntityToken")
-        return tabbing + "if (result != null && result.data != null)\n"
-            + tabbing + "    Shared._internalSettings.entityToken = result.data.hasOwnProperty(\"EntityToken\") ? result.data.EntityToken : Shared._internalSettings.entityToken;\n";
+        return tabbing + "if (result != null)\n"
+            + tabbing + "    playfab._internalSettings.entityToken = result.EntityToken !== undefined ? result.EntityToken : playfab._internalSettings.entityToken;\n";
     else if (apiCall.result === "LoginResult" || apiCall.result === "RegisterPlayFabUserResult")
-        return tabbing + "if (result != null && result.data != null) {\n"
-            + tabbing + "    Shared._internalSettings.sessionTicket = result.data.hasOwnProperty(\"SessionTicket\") ? result.data.SessionTicket : Shared._internalSettings.sessionTicket;\n"
-            + tabbing + "    Shared._internalSettings.entityToken = result.data.hasOwnProperty(\"EntityToken\") ? result.data.EntityToken.EntityToken : Shared._internalSettings.entityToken;\n"
-            + tabbing + "    _MultiStepClientLogin(result.data.SettingsForUser.NeedsAttribution);\n"
+        return tabbing + "if (result != null) {\n"
+            + tabbing + "    playfab._internalSettings.sessionTicket = result.SessionTicket !== undefined ? result.SessionTicket : playfab._internalSettings.sessionTicket;\n"
+            + tabbing + "    playfab._internalSettings.entityToken = result.EntityToken !== undefined && result.EntityToken.EntityToken !== undefined ? result.EntityToken.EntityToken : playfab._internalSettings.entityToken;\n"
+            + tabbing + "    if (result.SettingsForUser != null) {\n"
+            + tabbing + "        _MultiStepClientLogin(result.SettingsForUser.NeedsAttribution);\n"
+            + tabbing + "    }"
             + tabbing + "}";
     else if (apiCall.result === "AttributeInstallResult")
-        return tabbing + "// Modify advertisingIdType:  Prevents us from sending the id multiple times, and allows automated tests to determine id was sent successfully\n"
-            + tabbing + "Shared.settings.advertisingIdType += \"_Successful\";\n";
+        return tabbing + "// Modify advertisingIdType: Prevents us from sending the id multiple times, and allows automated tests to determine id was sent successfully\n"
+            + tabbing + "playfab.settings.advertisingIdType += \"_Successful\";\n";
     return "";
 }
 
 function getUrlAccessor() {
-    return "Shared.GetServerUrl()";
+    return "playfab.GetServerUrl()";
 }
 
 function getDeprecationAttribute(tabbing, apiObj) {
@@ -148,9 +160,9 @@ function generateDatatype(api, datatype, sourceDir) {
 
 function getBaseTypeSyntax(datatype) {
     if (datatype.className.toLowerCase().endsWith("request"))
-        return " extends Shared.IPlayFabRequestCommon";
+        return " extends playfab.IPlayFabRequestCommon";
     if (datatype.className.toLowerCase().endsWith("response") || datatype.className.toLowerCase().endsWith("result"))
-        return " extends Shared.IPlayFabResultCommon";
+        return " extends playfab.IPlayFabResultCommon";
     return ""; // If both are -1, then neither is greater
 }
 

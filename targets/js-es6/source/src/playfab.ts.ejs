@@ -1,0 +1,178 @@
+import { Promise } from "es6-promise";
+
+export const sdk_version = "<%- sdkVersion %>";
+export const buildIdentifier = "<%- buildIdentifier %>";
+
+export interface IPlayFabRequestCommon { }
+export interface IPlayFabError {
+    code: number;
+    status: string;
+    error: string;
+    errorCode: number;
+    errorMessage: string;
+    errorDetails?: { [key: string]: string[]};
+}
+export interface IPlayFabResultCommon extends IPlayFabError { }
+export interface IPlayFabSuccessContainer<TResult extends IPlayFabResultCommon> extends IPlayFabError {
+    data: TResult;
+}
+
+interface ISettings {
+    productionUrl: string,
+    verticalName: string | null,
+    titleId: string | null,
+    globalErrorHandler: string | null,
+    developerSecretKey: string | null,
+<% if (hasClientOptions) {
+%>
+    advertisingIdType: string | null,
+    advertisingIdValue: string | null,
+    disableAdvertising: boolean,
+    AD_TYPE_IDFA: string,
+    AD_TYPE_ANDROID_ID: string,
+<% } %>};
+
+export let settings: ISettings = {
+    productionUrl: ".playfabapi.com",
+    verticalName: <%- getVerticalNameDefault() %>, // The name of a customer vertical. This is only for customers running a private cluster. Generally you shouldn't touch this
+    titleId: null, // You must set this value for PlayFabEs6Sdk to work properly (Found in the Game Manager for your title, at the PlayFab Website)
+    globalErrorHandler: null,
+    developerSecretKey: null, // You must set this value for PlayFabEs6Sdk to work properly (Found in the Game Manager for your title, at the PlayFab Website)
+<% if (hasClientOptions) {
+%>
+    advertisingIdType: null, // Set this to the appropriate AD_TYPE_X constant below
+    advertisingIdValue: null, // Set this to corresponding device value
+
+    // disableAdvertising is provided for completeness, but changing it is not suggested
+    // Disabling this may prevent your advertising-related PlayFab marketplace partners from working correctly
+    disableAdvertising: false,
+    AD_TYPE_IDFA: "Idfa",
+    AD_TYPE_ANDROID_ID: "Adid",
+<% } %>};
+
+interface IInternalSettings {
+    entityToken: string | null;
+    sessionTicket: string | null;
+    requestGetParams: Record<string, string>,
+}
+
+export let _internalSettings: IInternalSettings = {
+    entityToken: null,
+    sessionTicket: null,
+    requestGetParams: {
+        sdk: "Es6SDK-" + sdk_version
+    },
+};
+
+export function GetServerUrl(): string {
+    let baseUrl = settings.productionUrl;
+    if (!(baseUrl.substring(0, 4) === "http")) {
+        if (settings.verticalName) {
+            return "https://" + settings.verticalName + baseUrl;
+        } else {
+            return "https://" + settings.titleId + baseUrl;
+        }
+    } else {
+        return baseUrl;
+    }
+}
+
+function getCompleteUrl(urlStr: string): string {
+    const urlArr = [urlStr]; //make a new array for the URL
+    const getParams = _internalSettings.requestGetParams;
+    if (getParams != null) {
+        let firstParam = true;
+        for (let key in getParams) {
+            if (firstParam) {
+                urlArr.push("?");
+                firstParam = false;
+            } else {
+                urlArr.push("&");
+            }
+            urlArr.push(key);
+            urlArr.push("=");
+            urlArr.push(getParams[key]);
+        }
+    }
+
+    return urlArr.join("");
+}
+
+function getRequestOptions(requestBody: string, authType: string | null, authValue: string | null): RequestInit {
+    const requestOptions: RequestInit = {
+        method: "POST",
+        headers: {
+            "Content-Type": "application/json",
+            "Content-Length": requestBody.length.toString(),
+            "X-PlayFabSDK": "Es6SDK-" + sdk_version
+        },
+        body: requestBody,
+    }
+
+    if (authType && authValue) {
+        requestOptions.headers = {
+            ...requestOptions.headers,
+            [authType]: authValue,
+        };
+    }
+    return requestOptions;
+}
+
+export function createErrorResponse(error: any): IPlayFabError {
+    return {
+        code: 503, // Service Unavailable
+        status: "Service Unavailable",
+        error: "Connection error",
+        errorCode: 2, // PlayFabErrorCode.ConnectionError
+        errorMessage: error
+    };
+}
+
+export function makeRequest<T extends IPlayFabResultCommon>(urlStr: string, request: IPlayFabRequestCommon | null, authType: string | null, authValue: string | null): Promise<T> {
+    return new Promise<T>((resolve, reject) => {
+        try {
+            if (request == null) {
+                request = {};
+            }
+            const requestBody = JSON.stringify(request);
+            const completeUrl = getCompleteUrl(urlStr);
+            if (completeUrl.toLowerCase().indexOf("https:") !== 0) {
+                reject("Unsupported protocol");
+            }
+
+            const xhr = new XMLHttpRequest();
+            xhr.open("POST", completeUrl, true);
+            xhr.setRequestHeader("Content-Type", "application/json");
+            xhr.setRequestHeader("Content-Length", requestBody.length.toString());
+            xhr.setRequestHeader("X-PlayFabSDK", "Es6SDK-" + sdk_version);
+            if (authType && authValue) {
+                xhr.setRequestHeader(authType, authValue);
+            }
+            xhr.onload = function () {
+                try {
+                    const responseJson = JSON.parse(this.responseText);
+                    if (responseJson.status === undefined || responseJson.data === undefined) {
+                        reject(createErrorResponse("Not expected json response: " + JSON.stringify(responseJson)));
+                    } else {
+                        const response: IPlayFabSuccessContainer<T> = responseJson;
+                        if (response.status !== "OK" || response.error) {
+                            reject(response);
+                        } else if (response.data.error) {
+                            reject(response.data);
+                        } else {
+                            resolve(response.data);
+                        }
+                    }
+                } catch (error) {
+                    reject(createErrorResponse(error));
+                }
+            }
+            xhr.onerror = function() {
+                reject(createErrorResponse(this.responseText));
+            }
+            xhr.send(requestBody);
+        } catch (error) {
+            reject(error);
+        }
+    });
+}

@@ -60,6 +60,7 @@ interface IInternalSettings {
     requestGetParams: Record<string, string>,
 }
 
+/** @internal */
 export let _internalSettings: IInternalSettings = {
     entityToken: null,
     sessionTicket: null,
@@ -127,7 +128,6 @@ export function makeRequest<T extends IPlayFabResultCommon>(urlStr: string, requ
             const xhr = new XMLHttpRequest();
             xhr.open("POST", completeUrl, true);
             xhr.setRequestHeader("Content-Type", "application/json");
-            xhr.setRequestHeader("Content-Length", requestBody.length.toString());
             xhr.setRequestHeader("X-PlayFabSDK", "Es6SDK-" + sdk_version);
             if (authType && authValue) {
                 xhr.setRequestHeader(authType, authValue);

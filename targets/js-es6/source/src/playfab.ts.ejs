@@ -3,6 +3,10 @@ import { Promise } from "es6-promise";
 export const sdk_version = "<%- sdkVersion %>";
 export const buildIdentifier = "<%- buildIdentifier %>";
 
+export const errorTitleId = "Must have playfab.settings.titleId set to call this method";
+export const errorLoggedIn = "Must be logged in to call this method";
+export const errorSecretKey = "Must have playfab.settings.DeveloperSecretKey set to call this method";
+
 export interface IPlayFabRequestCommon { }
 export interface IPlayFabError {
     code: number;
@@ -17,7 +21,7 @@ export interface IPlayFabSuccessContainer<TResult extends IPlayFabResultCommon> 
     data: TResult;
 }
 
-interface ISettings {
+export interface ISettings {
     productionUrl: string,
     verticalName: string | null,
     titleId: string | null,
@@ -96,26 +100,6 @@ function getCompleteUrl(urlStr: string): string {
     }
 
     return urlArr.join("");
-}
-
-function getRequestOptions(requestBody: string, authType: string | null, authValue: string | null): RequestInit {
-    const requestOptions: RequestInit = {
-        method: "POST",
-        headers: {
-            "Content-Type": "application/json",
-            "Content-Length": requestBody.length.toString(),
-            "X-PlayFabSDK": "Es6SDK-" + sdk_version
-        },
-        body: requestBody,
-    }
-
-    if (authType && authValue) {
-        requestOptions.headers = {
-            ...requestOptions.headers,
-            [authType]: authValue,
-        };
-    }
-    return requestOptions;
 }
 
 export function createErrorResponse(error: any): IPlayFabError {

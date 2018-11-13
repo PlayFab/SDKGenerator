@@ -83,11 +83,11 @@ function getRequestActions(tabbing, apiCall) {
             + tabbing + "}\n";
     else if (apiCall.result === "LoginResult" || apiCall.request === "RegisterPlayFabUserRequest")
         return tabbing + "request.TitleId = playfab.settings.titleId != null ? playfab.settings.titleId : request.TitleId;\n"
-            + tabbing + "if (request.TitleId == null) reject(\"Must have playfab.settings.titleId set to call this method\");\n";
+            + tabbing + "if (request.TitleId == null) reject(playfab.errorTitleId);\n";
     else if (apiCall.auth === "SessionTicket")
-        return tabbing + "if (playfab._internalSettings.sessionTicket == null) reject(\"Must be logged in to call this method\");\n";
+        return tabbing + "if (playfab._internalSettings.sessionTicket == null) reject(playfab.errorLoggedIn);\n";
     else if (apiCall.auth === "SecretKey")
-        return tabbing + "if (playfab.settings.developerSecretKey == null) reject(\"Must have playfab.settings.DeveloperSecretKey set to call this method\");\n";
+        return tabbing + "if (playfab.settings.developerSecretKey == null) reject(playfab.errorSecretKey);\n";
     return "";
 }
 

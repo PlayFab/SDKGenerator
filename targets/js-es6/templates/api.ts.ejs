@@ -2,6 +2,8 @@ import { Promise } from "es6-promise";
 
 import * as playfab from "./playfab";
 
+export let settings = playfab.settings;
+
 <% if (hasClientOptions) { %>
 export function IsClientLoggedIn (): boolean {
     return playfab._internalSettings.sessionTicket != null && playfab._internalSettings.sessionTicket.length > 0

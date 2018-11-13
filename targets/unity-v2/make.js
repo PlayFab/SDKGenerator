@@ -146,6 +146,7 @@ function makeApi(api, sourceDir, apiOutputDir) {
         getDeprecationAttribute: getDeprecationAttribute,
         getRequestActions: getRequestActions,
         getCustomApiFunction: getCustomApiFunction,
+        hasEntityTokenOptions: api.name === "Authentication",
         hasClientOptions: getAuthMechanisms([api]).includes("SessionTicket"),
     };
 

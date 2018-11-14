@@ -132,10 +132,10 @@ export function makeRequest<T extends IPlayFabResultCommon>(urlStr: string, requ
             if (authType && authValue) {
                 xhr.setRequestHeader(authType, authValue);
             }
-            xhr.onload = function () {
+            xhr.onload = function() {
                 try {
                     const responseJson = JSON.parse(this.responseText);
-                    if (responseJson.status === undefined || responseJson.data === undefined) {
+                    if (responseJson.status === undefined && responseJson.data === undefined) {
                         reject(createErrorResponse("Not expected json response: " + JSON.stringify(responseJson)));
                     } else {
                         const response: IPlayFabSuccessContainer<T> = responseJson;

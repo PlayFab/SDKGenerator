@@ -1,5 +1,18 @@
 // This script includes only logic specific to generation of whole PlayFab SDKs (classic process)
 
+interface SdkGlobals {
+    buildIdentifier: string;
+    sdkVersion: string;
+    verticalName: string;
+}
+
+var sdkGlobals: SdkGlobals = {
+    buildIdentifier: null,
+    sdkVersion: null,
+    verticalName: null
+}
+global.sdkGlobals = sdkGlobals;
+
 // Fetch the object parsed from an api-file, from the cache (can't load synchronously from URL-options, so we have to pre-cache them)
 function getApiJson(cacheKey: string) {
     if (sdkGeneratorGlobals.apiCache.hasOwnProperty(cacheKey))

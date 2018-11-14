@@ -20,7 +20,8 @@ var sdkGeneratorGlobals = {
     apiSrcDescription: "INVALID",
     apiCache: {},
     sdkDocsByMethodName: {},
-    specialization: defaultSpecialization
+    specialization: defaultSpecialization,
+    unitySubfolder: null
 };
 global.sdkGeneratorGlobals = sdkGeneratorGlobals;
 var specializationContent;
@@ -89,6 +90,8 @@ function parseCommandInputs(args, argsByName, errorMessages, targetOutputPathLis
         argsByName.apispecgiturl = defaultApiSpecGitHubUrl;
     if (argsByName.apispecpfurl === "")
         argsByName.apispecpfurl = defaultApiSpecPlayFabUrl;
+    if (argsByName.unityDestinationSubfolder)
+        sdkGeneratorGlobals.unitySubfolder = argsByName.unityDestinationSubfolder;
     // Output an error if no targets are defined
     if (targetOutputPathList.length === 0)
         errorMessages.push("No targets defined, you must define at least one.");
@@ -351,9 +354,9 @@ function generateApis(buildIdentifier, targetOutputPathList, buildFlags, apiSrcD
         // It would probably be better to pass these into the functions, but I don't want to change all the make___Api parameters for all projects today.
         //   For now, just change the global variables in each with the data loaded from SdkManualNotes.json
         var apiNotes = getApiJson("SdkManualNotes");
-        targetMaker.sdkVersion = apiNotes.sdkVersion[target.name];
-        targetMaker.buildIdentifier = buildIdentifier;
-        if (targetMaker.sdkVersion === null) {
+        sdkGlobals.sdkVersion = apiNotes.sdkVersion[target.name];
+        sdkGlobals.buildIdentifier = buildIdentifier;
+        if (sdkGlobals.sdkVersion === null) {
             throw "SdkManualNotes does not contain sdkVersion for " +
                 target.name; // The point of this error is to force you to add a line to sdkManualNotes.json, to describe the version and date when this sdk/collection is built
         }

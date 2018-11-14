@@ -7,7 +7,8 @@ exports.sdk_version = "<%- sdkVersion %>";
 exports.buildIdentifier = "<%- buildIdentifier %>";
 
 var settings = exports.settings = {
-    useDevEnv: false,
+    productionUrl: ".playfabapi.com",
+    verticalName: <%- getVerticalNameDefault() %>, // The name of a customer vertical. This is only for customers running a private cluster. Generally you shouldn't touch this
     titleId: null, // You must set this value for PlayFabSdk to work properly (Found in the Game Manager for your title, at the PlayFab Website)
     globalErrorHandler: null,
     developerSecretKey: null, // You must set this value for PlayFabSdk to work properly (Found in the Game Manager for your title, at the PlayFab Website)
@@ -23,8 +24,6 @@ var settings = exports.settings = {
 <% } %>};
 
 var _internalSettings = exports._internalSettings = {
-    devEnvUrl: ".playfabsandbox.com",
-    liveUrl: ".playfabapi.com",
     entityToken: null,
     sessionTicket: null,
     requestGetParams: {
@@ -33,18 +32,22 @@ var _internalSettings = exports._internalSettings = {
 };
 
 exports.GetServerUrl = function () {
-    var baseUrl = exports.settings.useDevEnv ? exports._internalSettings.devEnvUrl : exports._internalSettings.liveUrl;
-    return "https://" + exports.settings.titleId + baseUrl;
+    var baseUrl = exports.settings.productionUrl;
+    if (!(baseUrl.substring(0, 4) === "http")) {
+        if (exports.settings.verticalName) {
+            return "https://" + exports.settings.verticalName + baseUrl;
+        } else {
+            return "https://" + exports.settings.titleId + baseUrl;
+        }
+    } else {
+        return baseUrl;
+    }
 }
 
 exports.MakeRequest = function (urlStr, request, authType, authValue, callback) {
     if (request == null)
         request = {};
-    var requestBody = null;
-    if (Number(process.version.match(/^v(\d+\.\d+)/)[1]) >= 4.7)
-        requestBody = Buffer.from(JSON.stringify(request), "utf8");
-    else
-        requestBody = JSON.stringify(request);
+    var requestBody = Buffer.from(JSON.stringify(request), "utf8");
 
     var urlArr = [urlStr]; //make a new array for the URL
     var getParams = _internalSettings.requestGetParams;

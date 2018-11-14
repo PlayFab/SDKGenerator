@@ -37,11 +37,11 @@
     <StartupObject>JenkinsConsoleUtility.JenkinsConsoleUtility</StartupObject>
   </PropertyGroup>
   <ItemGroup>
-    <Reference Include="Octokit, Version=0.29.0.0, Culture=neutral, processorArchitecture=MSIL">
-      <HintPath>packages\Octokit.0.29.0\lib\net45\Octokit.dll</HintPath>
+    <Reference Include="Octokit, Version=0.32.0.0, Culture=neutral, processorArchitecture=MSIL">
+      <HintPath>packages\Octokit.0.32.0\lib\net45\Octokit.dll</HintPath>
     </Reference>
     <Reference Include="PlayFabAllSDK, Version=1.0.0.0, Culture=neutral, processorArchitecture=MSIL">
-      <HintPath>packages\PlayFabAllSDK.1.24.180213\lib\portable45-net45+win8+wpa81\PlayFabAllSDK.dll</HintPath>
+      <HintPath>packages\PlayFabAllSDK.1.38.181001\lib\portable45-net45+win8+wpa81\PlayFabAllSDK.dll</HintPath>
     </Reference>
     <Reference Include="System" />
     <Reference Include="System.Core" />

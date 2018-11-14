@@ -1,10 +1,13 @@
 #!/bin/bash
 # USAGE: testInit.sh
 
-. $SHARED_WORKSPACE/SDKGenerator/JenkinsConsoleUtility/JenkinsScripts/util.sh || . util.sh
+# $WORKSPACE/SDKGenerator doesn't exist until later in this file
+. "$SHARED_WORKSPACE/SDKGenerator/JenkinsConsoleUtility/JenkinsScripts/util.sh" 2> /dev/null || . ./util.sh 2> /dev/null
+. "$SHARED_WORKSPACE/SDKGenerator/JenkinsConsoleUtility/JenkinsScripts/sdkUtil.sh" 2> /dev/null || . ./sdkUtil.sh 2> /dev/null
+
+CheckVerticalizedParameters
 
 # Defaults for some variables
-CheckDefault SdkName UnitySDK
 CheckDefault SHARED_WORKSPACE C:/depot
 CheckDefault WORKSPACE C:/proj
 
@@ -42,18 +45,19 @@ DoNugetWork (){
     pushd "$WORKSPACE/SDKGenerator/JenkinsConsoleUtility"
     cmd <<< "nuget restore JenkinsConsoleUtility.sln"
     popd
-    pushd "$WORKSPACE/pf-main/Server"
-    cmd <<< "nuget restore Server.sln"
-    popd
+    # None of the SDKs need pf-main directly
+    # pushd "$WORKSPACE/pf-main/Server"
+    # cmd <<< "nuget restore Server.sln"
+    # popd
 }
 
-# USAGE: MainScript
-MainScript () {
-    echo == MainScript $PWD, $@ ==
+# USAGE: DoWork
+DoWork () {
+    echo == DoWork $PWD, $@ ==
 
     # These are always shared, never modified directly, and never arc-patched
     SyncGitHubRepo "$SHARED_WORKSPACE" "API_Specs"
-    SyncGitHubRepo "$SHARED_WORKSPACE" "pf-main"
+    # SyncGitHubRepo "$SHARED_WORKSPACE" "pf-main" # None of the SDKs need pf-main directly
     SyncGitHubRepo "$SHARED_WORKSPACE" "SDKGenerator"
     SyncGitHubRepo "$SHARED_WORKSPACE/sdks" "$SdkName"
 
@@ -61,19 +65,21 @@ MainScript () {
     # TEMPORARY: API_Specs might already exist, without being a git repo because of previous script versions
     rm -rf "$WORKSPACE/API_Specs"
     SyncWorkspaceRepo "$SHARED_WORKSPACE" "$WORKSPACE" "API_Specs"
-    SyncWorkspaceRepo "$SHARED_WORKSPACE" "$WORKSPACE" "pf-main"
+    # SyncWorkspaceRepo "$SHARED_WORKSPACE" "$WORKSPACE" "pf-main" # None of the SDKs need pf-main directly
     SyncWorkspaceRepo "$SHARED_WORKSPACE" "$WORKSPACE" "SDKGenerator"
-    ForcePushD "$SHARED_WORKSPACE/sdks"
     SyncWorkspaceRepo "$SHARED_WORKSPACE/sdks" "$WORKSPACE/sdks" "$SdkName"
 
     # It's always safe to remove past arc-patches
-    DelArcPatches "$WORKSPACE/pf-main"
-    DelArcPatches "$WORKSPACE/SDKGenerator"
-    ForcePushD "$SHARED_WORKSPACE/sdks"
-    DelArcPatches "$WORKSPACE/sdks/$SdkName"
+    # DelArcPatches "$WORKSPACE/pf-main"
+    # DelArcPatches "$WORKSPACE/SDKGenerator"
+    # DelArcPatches "$WORKSPACE/sdks/$SdkName"
 
-    DoNugetWork
-    ApplyArcPatch
+    if [ -z "$quickTest" ]; then
+        DoNugetWork
+    else
+        echo SKIP: DoNugetWork for JCU
+    fi
+    # ApplyArcPatch
 }
 
-MainScript "$@"
+DoWork "$@"

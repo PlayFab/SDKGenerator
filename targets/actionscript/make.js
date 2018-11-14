@@ -17,9 +17,10 @@ exports.makeCombinedAPI = function (apis, sourceDir, apiOutputDir) {
     var locals = {
         airVersion: airVersion,
         apis: apis,
-        buildIdentifier: exports.buildIdentifier,
+        buildIdentifier: sdkGlobals.buildIdentifier,
         hasClientOptions: getAuthMechanisms(apis).includes("SessionTicket"),
-        sdkVersion: exports.sdkVersion
+        sdkVersion: sdkGlobals.sdkVersion,
+        getVerticalNameDefault: getVerticalNameDefault
     };
 
     templatizeTree(locals ,path.resolve(sourceDir, "source"), apiOutputDir);
@@ -112,6 +113,14 @@ function makeApi(api, sourceDir, apiOutputDir) {
 
     var apiTemplate = getCompiledTemplate(path.resolve(path.resolve(sourceDir, "templates"), "API.as.ejs"));;
     writeFile(path.resolve(apiOutputDir, "com/playfab/PlayFab" + api.name + "API.as"), apiTemplate(apiLocals));
+}
+
+function getVerticalNameDefault() {
+    if (sdkGlobals.verticalName) {
+        return "\"" + sdkGlobals.verticalName + "\"";
+    }
+
+    return "null";
 }
 
 function getModelPropertyDef(property, datatype) {

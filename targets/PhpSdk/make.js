@@ -10,7 +10,8 @@ exports.makeCombinedAPI = function (apis, sourceDir, apiOutputDir) {
     console.log("Generating Combined api from: " + sourceDir + " to: " + apiOutputDir);
 
     var locals = {
-        sdkVersion: exports.sdkVersion
+        sdkVersion: sdkGlobals.sdkVersion,
+        getVerticalNameDefault: getVerticalNameDefault
     };
 
     templatizeTree(locals, path.resolve(sourceDir, "source"), apiOutputDir);
@@ -21,17 +22,26 @@ exports.makeCombinedAPI = function (apis, sourceDir, apiOutputDir) {
 function makeApi(api, sourceDir, apiOutputDir) {
     var locals = {
         api: api,
-        sdkVersion: exports.sdkVersion,
+        sdkVersion: sdkGlobals.sdkVersion,
         generateApiSummary: generateApiSummary,
         getAuthInputParams: getAuthInputParams,
         getCurlAuthParams: getCurlAuthParams,
         getCustomApiSignatures: getCustomApiSignatures,
         getRequestActions: getRequestActions,
-        sourceDir: sourceDir
+        sourceDir: sourceDir,
+        getVerticalNameDefault: getVerticalNameDefault
     };
 
     var apiTemplate = getCompiledTemplate(path.resolve(sourceDir, "templates/PlayFabApi.php.ejs"));
     writeFile(path.resolve(apiOutputDir, "PlayFab" + api.name + "Api.php"), apiTemplate(locals));
+}
+
+function getVerticalNameDefault() {
+    if (sdkGlobals.verticalName) {
+        return "\"" + sdkGlobals.verticalName + "\"";
+    }
+
+    return "null";
 }
 
 function getCurlAuthParams(apiCall) {

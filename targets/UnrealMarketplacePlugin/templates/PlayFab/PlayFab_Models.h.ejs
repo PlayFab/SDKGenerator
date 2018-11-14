@@ -57,7 +57,7 @@ for(var subgroup in api.subgroups)
 %>
 <%- generateApiSummary("", datatype, "description")
 %>USTRUCT(BlueprintType)
-struct F<%- api.name %><%- getDataTypeSafeName(datatype, "name") %>
+struct PLAYFAB_API F<%- api.name %><%- getDataTypeSafeName(datatype, "name") %>
 {
     GENERATED_USTRUCT_BODY()
 public:

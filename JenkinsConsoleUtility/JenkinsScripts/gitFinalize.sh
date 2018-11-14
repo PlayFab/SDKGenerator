@@ -1,23 +1,37 @@
 #!/bin/bash
 
-. $SHARED_WORKSPACE/SDKGenerator/JenkinsConsoleUtility/JenkinsScripts/util.sh
+. "$WORKSPACE/SDKGenerator/JenkinsConsoleUtility/JenkinsScripts/util.sh" 2> /dev/null || . ./util.sh 2> /dev/null
+. "$WORKSPACE/SDKGenerator/JenkinsConsoleUtility/JenkinsScripts/sdkUtil.sh" 2> /dev/null || . ./sdkUtil.sh 2> /dev/null
 
-CheckDefault gitTarget $AUTOMATED_GIT_BRANCH
-CheckDefault WORKSPACE C:/proj
-CheckDefault SHARED_WORKSPACE C:/depot
-CheckDefault SdkName UnitySDK
-CheckDefault PublishToGit false
+CheckDefault PublishToS3 false
 
-if [ $PublishToGit=="false" ]; then
-    echo === Revert files (do not commit this version) ===
-    ForceCD $SHARED_WORKSPACE\sdks\$SdkName
-    git checkout -- .
-else
+DoGitFinalize() {
+    ForcePushD "$WORKSPACE/sdks/$SdkName"
     echo === Commit to Git ===
-    ForceCD $WORKSPACE\sdks\$SdkName
+    git fetch --progress origin
     git add -A
-    git commit -m "$commitMessage"
-    git push origin $gitTarget
-    ForceCD $SHARED_WORKSPACE\sdks\$SdkName
-    git push origin $gitTarget
+    git commit --allow-empty -m "$commitMessage"
+    git push origin $GitDestBranch -f -u || (git fetch --progress origin && git push origin $GitDestBranch -f -u)
+    popd
+}
+
+DoPublishToS3() {
+    cd "$WORKSPACE"
+    pushd "sdks/$SdkName"
+    git clean -dfx
+    popd
+    
+    rm -f repo.zip || true
+    7z a -r repo.zip "sdks/$SdkName"
+
+    CheckDefault VerticalName master
+    aws s3 cp repo.zip s3://playfab-sdk-dist/$VerticalName/$SdkName/$(date +%y%m%d)_${S3BuildNum}_$SdkName.zip --profile jenkins
+}
+
+CheckVerticalizedParameters
+if [ "$GitDestBranch" != "doNotCommit" ]; then
+    DoGitFinalize
+fi
+if [ "$PublishToS3" = "true" ] && [ ! -z "S3BuildNum" ] && [ "S3BuildNum" != "0" ]; then
+    DoPublishToS3
 fi

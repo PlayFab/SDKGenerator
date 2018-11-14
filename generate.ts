@@ -15,7 +15,7 @@ interface SdkDoc {
     apiDocKeys: string[];
 }
 
-interface SdkGlobals {
+interface SdkGenGlobals {
     argsByName: any;
     errorMessages: string[];
     targetOutputPathList: any[];
@@ -24,6 +24,7 @@ interface SdkGlobals {
     apiCache: { [key: string]: any; }
     sdkDocsByMethodName: { [key: string]: SdkDoc; }
     specialization: string;
+    unitySubfolder: string;
 }
 
 const defaultApiSpecFilePath = "../API_Specs"; // Relative path to Generate.js
@@ -35,7 +36,7 @@ const specializationTocCacheKey = "specializationTOC";
 const defaultSpecialization = "sdk";
 
 
-var sdkGeneratorGlobals: SdkGlobals = {
+var sdkGeneratorGlobals: SdkGenGlobals = {
     // Frequently, these are passed by reference to avoid over-use of global variables. Unfortunately, the async nature of loading api files required some global references
 
     // Internal note: We lowercase the argsByName-keys, targetNames, buildIdentifier, and the flags.  Case is maintained for all other argsByName-values, and targets
@@ -46,7 +47,8 @@ var sdkGeneratorGlobals: SdkGlobals = {
     apiSrcDescription: "INVALID", // Assigned if/when the api-spec source is fetched properly
     apiCache: {}, // We have to pre-cache the api-spec files, because latter steps (like ejs) can't run asynchronously
     sdkDocsByMethodName: {}, // When loading TOC, match documents to the SdkGen function that should be called for those docs
-    specialization: defaultSpecialization
+    specialization: defaultSpecialization,
+    unitySubfolder: null
 };
 global.sdkGeneratorGlobals = sdkGeneratorGlobals;
 
@@ -128,6 +130,9 @@ function parseCommandInputs(args, argsByName, errorMessages, targetOutputPathLis
         argsByName.apispecgiturl = defaultApiSpecGitHubUrl;
     if (argsByName.apispecpfurl === "")
         argsByName.apispecpfurl = defaultApiSpecPlayFabUrl;
+
+    if (argsByName.unityDestinationSubfolder)
+        sdkGeneratorGlobals.unitySubfolder = argsByName.unityDestinationSubfolder;
 
     // Output an error if no targets are defined
     if (targetOutputPathList.length === 0)
@@ -417,9 +422,9 @@ function generateApis(buildIdentifier, targetOutputPathList, buildFlags, apiSrcD
         // It would probably be better to pass these into the functions, but I don't want to change all the make___Api parameters for all projects today.
         //   For now, just change the global variables in each with the data loaded from SdkManualNotes.json
         var apiNotes = getApiJson("SdkManualNotes");
-        targetMaker.sdkVersion = apiNotes.sdkVersion[target.name];
-        targetMaker.buildIdentifier = buildIdentifier;
-        if (targetMaker.sdkVersion === null) {
+        sdkGlobals.sdkVersion = apiNotes.sdkVersion[target.name];
+        sdkGlobals.buildIdentifier = buildIdentifier;
+        if (sdkGlobals.sdkVersion === null) {
             throw "SdkManualNotes does not contain sdkVersion for " +
             target.name; // The point of this error is to force you to add a line to sdkManualNotes.json, to describe the version and date when this sdk/collection is built
         }

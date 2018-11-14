@@ -19,6 +19,7 @@ FOUNDATION_EXPORT NSString *const AD_TYPE_ANDROID_ID;
 + (NSString *) DeveloperSecretKey;
 + (NSString *) AdvertisingIdType;  // Set this to the appropriate AD_TYPE_X constant above
 + (NSString *) AdvertisingIdValue;
++ (NSString *) VerticalName;
 
 
 + (void) setProductionEnvironmentURL:(NSString*)setValue;
@@ -26,6 +27,7 @@ FOUNDATION_EXPORT NSString *const AD_TYPE_ANDROID_ID;
 + (void) setDeveloperSecretKey:(NSString*)setValue;
 + (void) setAdvertisingIdType:(NSString*)setValue;
 + (void) setAdvertisingIdValue:(NSString*)setValue;
++ (void) setVerticalName:(NSString*)setValue;
 
 //identifierForAdvertising only available if you explicitly add USE_IDFA=1 to Target > Build Settings > Preprocessor Macros
 #ifdef USE_IDFA

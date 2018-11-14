@@ -15,7 +15,7 @@ exports.makeCombinedAPI = function (apis, sourceDir, apiOutputDir) {
 
     var locals = {
         apis: apis,
-        buildIdentifier: exports.buildIdentifier,
+        buildIdentifier: sdkGlobals.buildIdentifier,
         description: "Playfab SDK for node.js applications",
         generateDatatype: generateDatatype,
         generateApiSummary: generateApiSummary,
@@ -27,8 +27,9 @@ exports.makeCombinedAPI = function (apis, sourceDir, apiOutputDir) {
         // Node is combo-only, which always has all options for all common files
         hasClientOptions: getAuthMechanisms(apis).includes("SessionTicket"),
         projectName: "playfab-sdk",
-        sdkVersion: exports.sdkVersion,
-        sourceDir: sourceDir
+        sdkVersion: sdkGlobals.sdkVersion,
+        sourceDir: sourceDir,
+        getVerticalNameDefault: getVerticalNameDefault
     };
 
     var eachOutputDir = path.resolve(apiOutputDir, "PlayFabSdk");
@@ -42,6 +43,14 @@ exports.makeCombinedAPI = function (apis, sourceDir, apiOutputDir) {
         writeFile(path.resolve(eachOutputDir, "Scripts/PlayFab/PlayFab" + apis[i].name + ".js"), apiTemplate(locals));
         writeFile(path.resolve(eachOutputDir, "Scripts/typings/PlayFab/PlayFab" + apis[i].name + ".d.ts"), apiTypingsTemplate(locals));
     }
+}
+
+function getVerticalNameDefault() {
+    if (sdkGlobals.verticalName) {
+        return "\"" + sdkGlobals.verticalName + "\"";
+    }
+
+    return "null";
 }
 
 function getAuthParams(apiCall) {

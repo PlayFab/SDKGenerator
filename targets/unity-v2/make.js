@@ -8,7 +8,9 @@ if (typeof (templatizeTree) === "undefined") templatizeTree = function () { };
 
 // Automatically called by generate.js
 exports.makeCombinedAPI = function (apis, sourceDir, apiOutputDir) {
-    exports.MakeUnityV2Sdk(apis, sourceDir, path.resolve(apiOutputDir, "Source/PlayFabSDK"));
+    var defaultUnitySubFolder = "Source/PlayFabSDK";
+
+    exports.MakeUnityV2Sdk(apis, sourceDir, path.resolve(apiOutputDir, sdkGeneratorGlobals.unitySubfolder ? sdkGeneratorGlobals.unitySubfolder : defaultUnitySubFolder));
     makeTestingFiles(apis, sourceDir, apiOutputDir);
 }
 
@@ -17,9 +19,10 @@ exports.MakeUnityV2Sdk = function (apis, sourceDir, apiOutputDir) {
     var locals = {
         errorList: apis[0].errorList,
         errors: apis[0].errors,
-        sdkVersion: exports.sdkVersion,
-        buildIdentifier: exports.buildIdentifier,
+        sdkVersion: sdkGlobals.sdkVersion,
+        buildIdentifier: sdkGlobals.buildIdentifier,
         hasClientOptions: getAuthMechanisms(apis).includes("SessionTicket"),
+        getVerticalNameDefault: getVerticalNameDefault
     };
 
     templatizeTree(locals, path.resolve(sourceDir, "source"), apiOutputDir);
@@ -143,6 +146,7 @@ function makeApi(api, sourceDir, apiOutputDir) {
         getDeprecationAttribute: getDeprecationAttribute,
         getRequestActions: getRequestActions,
         getCustomApiFunction: getCustomApiFunction,
+        hasEntityTokenOptions: api.name === "Authentication",
         hasClientOptions: getAuthMechanisms([api]).includes("SessionTicket"),
     };
 
@@ -173,6 +177,14 @@ function getCustomApiFunction(tabbing, apiCall) {
             + tabbing + "}";
     }
     return ""; // Most apis don't have a custom alternate
+}
+
+function getVerticalNameDefault() {
+    if (sdkGlobals.verticalName) {
+        return "\"" + sdkGlobals.verticalName + "\"";
+    }
+
+    return "null";
 }
 
 function getModelPropertyDef(property, datatype) {

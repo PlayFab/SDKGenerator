@@ -54,10 +54,11 @@ function makeCoreSdk(apis, sourceDir, apiOutputDir, sdkDescriptor, requirePrefix
     console.log("Generating " + sdkDescriptor + " api\n    from: " + sourceDir + "\n    to: " + apiOutputDir);
 
     var locals = {
-        buildIdentifier: exports.buildIdentifier,
+        buildIdentifier: sdkGlobals.buildIdentifier,
         sdkVersionString: sdkVersionString,
         hasClientOptions: getAuthMechanisms(apis).includes("SessionTicket"),
-        requirePrefix: requirePrefix // Corona is in a top-level subfolder which is not present in any other sdk
+        requirePrefix: requirePrefix, // Corona is in a top-level subfolder which is not present in any other sdk
+        getVerticalNameDefault: getVerticalNameDefault
     };
 
     templatizeTree(locals, path.resolve(sourceDir, "source"), apiOutputDir);
@@ -69,7 +70,7 @@ function makeLuaDistSdk(apis, sourceDir, apiOutputDir, sdkDescriptor) {
     var locals = {
     };
 
-    var sdkVersionString = "LuaSdk_" + exports.sdkVersion;
+    var sdkVersionString = "LuaSdk_" + sdkGlobals.sdkVersion;
     makeCoreSdk(apis, sourceDir, path.resolve(apiOutputDir, "PlayFab"), sdkDescriptor, "PlayFab.", sdkVersionString);
     templatizeTree(locals, path.resolve(sourceDir, "LuaDist"), apiOutputDir);
 }
@@ -77,10 +78,10 @@ function makeLuaDistSdk(apis, sourceDir, apiOutputDir, sdkDescriptor) {
 function makeDefold(apis, sourceDir, apiOutputDir, sdkDescriptor) {
     var locals = {
         sdkDescriptor: sdkDescriptor, // sdkDescriptor is only used in Defold Templates
-        sdkVersion: exports.sdkVersion
+        sdkVersion: sdkGlobals.sdkVersion
     }
 
-    var sdkVersionString = "DefoldSdk_" + exports.sdkVersion;
+    var sdkVersionString = "DefoldSdk_" + sdkGlobals.sdkVersion;
     makeCoreSdk(apis, sourceDir, path.resolve(apiOutputDir, "PlayFab"), sdkDescriptor, "PlayFab.", sdkVersionString);
     templatizeTree(locals, path.resolve(sourceDir, "EachDefold"), apiOutputDir);
 
@@ -101,7 +102,7 @@ function makeCorona(apis, sourceDir, apiOutputDir, sdkDescriptor, requirePrefix)
     var httpsTemplate = getCompiledTemplate(path.resolve(sourceDir, "templates/Corona/PlayFabHttpsCorona.lua.ejs"));
     writeFile(path.resolve(apiOutputDir, "PlayFabHttpsCorona.lua"), httpsTemplate(locals));
 
-    var sdkVersionString = "CoronaSdk_" + exports.sdkVersion;
+    var sdkVersionString = "CoronaSdk_" + sdkGlobals.sdkVersion;
     makeCoreSdk(apis, sourceDir, apiOutputDir, sdkDescriptor, requirePrefix, sdkVersionString); // requirePrefix is mostly for Corona
     templatizeTree(locals, path.resolve(sourceDir, "EachCorona"), apiOutputDir);
 }
@@ -129,6 +130,14 @@ function generateApiSummary(tabbing, apiElement, summaryParam, extraLines) {
     else if (lines.length > 0)
         output = tabbing + "-- " + lines.join("\n" + tabbing + "-- ") + "\n";
     return output;
+}
+
+function getVerticalNameDefault() {
+    if (sdkGlobals.verticalName) {
+        return "\"" + sdkGlobals.verticalName + "\"";
+    }
+
+    return "nil";
 }
 
 function getRequestActions(tabbing, apiCall) {

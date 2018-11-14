@@ -1,7 +1,6 @@
 var path = require("path");
 
 // Making resharper less noisy - These are defined in Generate.js
-if (typeof (templatizeTree) === "undefined") templatizeTree = function () { };
 if (typeof (generateApiSummaryLines) === "undefined") generateApiSummaryLines = function () { };
 if (typeof (getCompiledTemplate) === "undefined") getCompiledTemplate = function () { };
 
@@ -18,7 +17,7 @@ function makeApiIntermal(apis, copyright, sourceDir, apiOutputDir, libName, ueTa
         apis: apis,
         copyright: copyright,
         buildIdentifier: buildIdentifier,
-        enumTypes: collectEnumsFromApis(apis),
+        
         generateApiSummary: generateApiSummary,
         getDataTypeSafeName: getDataTypeSafeName,
         hasClientOptions: authMechanisms.includes("SessionTicket"),
@@ -28,22 +27,9 @@ function makeApiIntermal(apis, copyright, sourceDir, apiOutputDir, libName, ueTa
         ueTargetVersion: ueTargetVersion
     };
 
-    // Copy over the standard source files to the plugin destination
-    templatizeTree(locals, path.resolve(sourceDir, "source/PlayFab/Source/PlayFab"), path.resolve(apiOutputDir, "PlayFab/Source/PlayFab"));
-    
     // Make the variable api files
-    for (var a2 = 0; a2 < apis.length; a2++)
-        makeApiFiles(apis[a2], copyright, apiOutputDir, sourceDir, libName);
-}
-
-// Pull all the enums out of all the apis, and collect them into a single collection of just the enum types and filter duplicates
-function collectEnumsFromApis(apis) {
-    var enumTypes = {};
     for (var a = 0; a < apis.length; a++)
-        for (var d in apis[a].datatypes)
-            if (apis[a].datatypes[d].isenum && apis[a].datatypes[d].enumvalues.length <= 255)
-                enumTypes[d] = apis[a].datatypes[d];
-    return enumTypes;
+        makeApiFiles(apis[a], copyright, apiOutputDir, sourceDir, libName);
 }
 
 // Create Models, .h and .cpp files
@@ -59,7 +45,7 @@ function makeApiFiles(api, copyright, apiOutputDir, sourceDir, libName) {
         getDataTypeSafeName: getDataTypeSafeName,
         hasClientOptions: getAuthMechanisms([api]).includes("SessionTicket"),
         libName: libName,
-        sdkVersion: exports.sdkVersion
+        sdkVersion: sdkGlobals.sdkVersion
     };
 
     var apiHeaderTemplate = getCompiledTemplate(path.resolve(sourceDir, "templates/PlayFab/PlayFab_API.h.ejs"));
@@ -85,6 +71,7 @@ function getDataTypeSafeName(apiElement, attrName) {
         return "PfSourceType";
     return pfTypeName;
 }
+exports.getDataTypeSafeName = getDataTypeSafeName;
 
 function getPropertySafeName(property) {
     // Turns out we didn't need this at the time it was added, but it's a good pattern
@@ -279,6 +266,7 @@ function generateApiSummary(tabbing, apiElement, summaryParam, extraLines) {
     }
     return output;
 }
+exports.generateApiSummary = generateApiSummary;
 
 function getAuthBools(tabbing, apiCall) {
     var output = "";

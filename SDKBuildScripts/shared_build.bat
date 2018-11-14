@@ -1,4 +1,4 @@
-set destPath=..\sdks\%repoName%
+set destPath=..\sdks\%SdkName%
 pushd ..\%destPath%
 if [%delSrc%] == [true] (
     del /S *.as
@@ -16,18 +16,21 @@ if [%delSrc%] == [true] (
 )
 popd
 
+if [%apiSpecSource%] == [] (
+    set apiSpecSource=-apiSpecGitUrl
+)
 
-if [%specSrc%] == [] (
-    set specSrc=-apiSpecGitUrl
+if defined NODE_NAME (
+    set buildIdentifier=-buildIdentifier JBuild_%SdkName%_%NODE_NAME%_%EXECUTOR_NUMBER%
 )
 
 cd %~dp0
 pushd ..
 if [%1] == [] (
-    rem === BUILDING %repoName% ===
-    node generate.js %targetSrc%=%destPath% %flagsParams% %specSrc%
+    rem === BUILDING %SdkName% ===
+    node generate.js %targetSrc%=%destPath% %apiSpecSource% %SdkGenArgs% %buildIdentifier%
 ) else (
-    rem === BUILDING %repoName% with params %* ===
+    rem === BUILDING %SdkName% with params %* ===
     node generate.js %targetSrc%=%destPath% %*
 )
 popd

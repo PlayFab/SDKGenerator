@@ -2,6 +2,7 @@
 
 #pragma once
 
+#include "UObject/Package.h"
 #include "CoreMinimal.h"
 #include <Runtime/Launch/Resources/Version.h>
 #include "PlayFabJsonObject.h"
@@ -54,7 +55,7 @@ static FORCEINLINE bool GetEnumValueToString(const FString& enumTypeName, const 
 }
 
 <% for(var i in enumTypes) { var enumType = enumTypes[i]; %>
-<%- generateApiSummary("", enumType, "name") %>
+<%- generateBpApiSummary("", enumType, "name") %>
 UENUM(BlueprintType)
 enum class E<%- getDataTypeSafeName(enumType, "name") %> : uint8
 {

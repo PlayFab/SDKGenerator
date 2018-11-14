@@ -15,7 +15,7 @@ exports.makeCombinedAPI = function (apis, sourceDir, apiOutputDir) {
 
     var locals = {
         apis: apis,
-        buildIdentifier: exports.buildIdentifier,
+        buildIdentifier: sdkGlobals.buildIdentifier,
         generateApiSummary: generateApiSummary,
         generateDatatype: generateDatatype,
         getAuthParams: getAuthParams,
@@ -24,8 +24,9 @@ exports.makeCombinedAPI = function (apis, sourceDir, apiOutputDir) {
         getResultActions: getResultActions,
         getUrl: getUrl,
         hasResultActions: hasResultActions,
-        sdkVersion: exports.sdkVersion,
-        sourceDir: sourceDir
+        sdkVersion: sdkGlobals.sdkVersion,
+        sourceDir: sourceDir,
+        getVerticalNameDefault: getVerticalNameDefault
     };
 
     var destSubFolders = ["PlayFabSdk", "PlayFabTestingExample"]; // Write both the published folder and the testing folder
@@ -51,11 +52,20 @@ exports.makeCombinedAPI = function (apis, sourceDir, apiOutputDir) {
 
 function makeSimpleTemplates(apis, templateDir, apiOutputDir) {
     var apiLocals = {
-        apis: apis
+        apis: apis,
+        getVerticalNameDefault: getVerticalNameDefault
     };
     var coreTyping = getCompiledTemplate(path.resolve(templateDir, "PlayFab.d.ts.ejs"));
     var genCoreTypings = coreTyping(apiLocals);
     writeFile(path.resolve(apiOutputDir, "src/Typings/PlayFab/Playfab.d.ts"), genCoreTypings);
+}
+
+function getVerticalNameDefault() {
+    if (sdkGlobals.verticalName) {
+        return "\"" + sdkGlobals.verticalName + "\"";
+    }
+
+    return "null";
 }
 
 function getRequestActions(tabbing, apiCall) {

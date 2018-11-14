@@ -13,6 +13,7 @@ namespace PlayFab
         static const std::string sdkVersion;
         static const std::string buildIdentifier;
         static const std::string versionString;
+        static const std::string verticalName;
 
         static const std::map<std::string, std::string> requestGetParams;
 

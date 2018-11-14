@@ -7,7 +7,7 @@ if (typeof (templatizeTree) === "undefined") templatizeTree = function () { };
 
 var maxEnumSize = 255;
 
-exports.makeCppCombinedAPI = function (apis, copyright, sourceDir, apiOutputDir, ueTargetVersion, sdkVersion, buildIdentifier) {
+exports.makeCppCombinedAPI = function (apis, copyright, sourceDir, baseApiOutputDir, ueTargetVersion, sdkVersion, buildIdentifier) {
     var locals = {
         apis: apis,
         buildIdentifier: buildIdentifier,
@@ -21,21 +21,13 @@ exports.makeCppCombinedAPI = function (apis, copyright, sourceDir, apiOutputDir,
 
     var subFolders = ["PlayFabPlugin"]; // Raw plugin folder
     for (var i = 0; i < subFolders.length; i++) {
-        var sourceCodeDir = path.resolve(sourceDir, "source/PlayFab/Source/PlayFabCpp");
-        var eachApiOutputDir = path.resolve(apiOutputDir, subFolders[i]);
-        var outputCodeDir = path.resolve(eachApiOutputDir, "PlayFab/Source/PlayFabCpp");
+        var apiOutputDir = path.resolve(baseApiOutputDir, subFolders[i]);
+        var outputCodeDir = path.resolve(apiOutputDir, "PlayFab/Source/PlayFabCpp");
 
-        console.log("Generating UE4 C++ Module to " + eachApiOutputDir);
+        console.log("Generating UE4 C++ Module from " + sourceDir + " to " + apiOutputDir);
 
-        console.log("Source : " + sourceCodeDir + " ");
-
-        // copy the base plugins files, resource, uplugin, etc
-        templatizeTree(locals, sourceCodeDir, outputCodeDir);
-
-        for (var a = 0; a < apis.length; a++) {
+        for (var a = 0; a < apis.length; a++)
             makeApi(apis[a], copyright, sourceDir, outputCodeDir, "Core/");
-        }
-
         generateModels(apis, copyright, sourceDir, outputCodeDir, "All", "Core/");
     }
 }
@@ -600,15 +592,15 @@ function getRequestActions(tabbing, apiCall) {
             + tabbing + "}\n";
     else if (apiCall.auth === "EntityToken")
         return tabbing + "if (PlayFabSettings::GetEntityToken().Len() == 0) {\n"
-            + tabbing + "    UE_LOG(LogPlayFab, Error, TEXT(\"You must call GetEntityToken API Method before calling this function.\"));\n"
+            + tabbing + "    UE_LOG(LogPlayFabCpp, Error, TEXT(\"You must call GetEntityToken API Method before calling this function.\"));\n"
             + tabbing + "}\n";
     else if (apiCall.auth === "SecretKey")
         return tabbing + "if (PlayFabSettings::GetDeveloperSecretKey().Len() == 0) {\n"
-            + tabbing + "    UE_LOG(LogPlayFab, Error, TEXT(\"You must first set your PlayFab developerSecretKey to use this function (Unreal Settings Menu, or in C++ code)\"));\n"
+            + tabbing + "    UE_LOG(LogPlayFabCpp, Error, TEXT(\"You must first set your PlayFab developerSecretKey to use this function (Unreal Settings Menu, or in C++ code)\"));\n"
             + tabbing + "}\n";
     else if (apiCall.auth === "SessionTicket")
         return tabbing + "if (PlayFabSettings::GetClientSessionTicket().Len() == 0) {\n"
-            + tabbing + "    UE_LOG(LogPlayFab, Error, TEXT(\"You must log in before calling this function\"));\n"
+            + tabbing + "    UE_LOG(LogPlayFabCpp, Error, TEXT(\"You must log in before calling this function\"));\n"
             + tabbing + "}\n";
     else if (apiCall.result === "LoginResult" || apiCall.request === "RegisterPlayFabUserRequest")
         return tabbing + "if (PlayFabSettings::GetTitleId().Len() > 0)\n"

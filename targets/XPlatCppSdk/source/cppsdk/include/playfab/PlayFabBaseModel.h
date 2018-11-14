@@ -4,6 +4,7 @@
 #include <functional>
 #include <list>
 #include <map>
+#include <assert.h>
 
 #include <sstream>
 #include <iomanip>
@@ -39,21 +40,20 @@ namespace PlayFab
     class Boxed
     {
     public:
-        BoxedType mValue;
+        Boxed() : boxedValue(), isSet(false) {}
+        Boxed(BoxedType value) : boxedValue(value), isSet(true) {}
 
-        Boxed() : mValue(), mIsSet(false) {}
-        Boxed(BoxedType value) : mValue(value), mIsSet(true) {}
+        inline Boxed& operator=(BoxedType value) { boxedValue = value; isSet = true; return *this; }
+        inline operator const BoxedType& () const { assert(notNull()); return *operator->(); }
+        inline BoxedType* operator->() { return isSet ? &boxedValue : nullptr; }
+        inline const BoxedType* operator->() const { return isSet ? &boxedValue : nullptr; }
 
-        inline Boxed& operator=(BoxedType value) { mValue = value; mIsSet = true; return *this; }
-        inline operator BoxedType() { return mValue; }
-        inline BoxedType* operator->() { return mIsSet ? &mValue : nullptr; }
-        inline const BoxedType* operator->() const { return mIsSet ? &mValue : nullptr; }
-
-        inline void setNull() { mIsSet = false; }
-        inline bool notNull() const { return mIsSet; }
-        inline bool isNull() const { return !mIsSet; }
+        inline void setNull() { isSet = false; }
+        inline bool notNull() const { return isSet; }
+        inline bool isNull() const { return !isSet; }
     private:
-        bool mIsSet;
+        BoxedType boxedValue;
+        bool isSet;
     };
 
     template<typename ResType> using ProcessApiCallback = std::function<void(const ResType& result, void* customData)>;
@@ -113,7 +113,7 @@ namespace PlayFab
         }
         else
         {
-            ToJsonUtilT(input.mValue, output);
+            ToJsonUtilT(static_cast<time_t>(input), output);
         }
     }
     inline void FromJsonUtilT(const Json::Value& input, Boxed<time_t>& output)
@@ -193,7 +193,7 @@ namespace PlayFab
         }
         else
         {
-            ToJsonEnum(input.mValue, output);
+            ToJsonEnum(input, output);
         }
     }
     template <typename EnumType> inline void FromJsonUtilE(const Json::Value& input, Boxed<EnumType>& output)
@@ -348,7 +348,7 @@ namespace PlayFab
         if (input.isNull())
             output = Json::Value();
         else
-            output = input.mValue.ToJson();
+            output = static_cast<ObjectType>(input).ToJson();
     }
     template <typename ObjectType> inline void FromJsonUtilO(Json::Value& input, Boxed<ObjectType>& output)
     {
@@ -465,7 +465,7 @@ namespace PlayFab
         }
         else
         {
-            ToJsonUtilP(input.mValue, output);
+            ToJsonUtilP(static_cast<PrimitiveType>(input), output);
         }
     }
     template <typename PrimitiveType> inline void FromJsonUtilP(const Json::Value& input, Boxed<PrimitiveType>& output)

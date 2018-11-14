@@ -11,9 +11,13 @@
 #include <playfab/PlayFabProfilesDataModels.h>
 #include <playfab/PlayFabSettings.h>
 
+#include <playfab/QoS/PlayFabQoSApi.h>
+#include <iostream>
 
-static std::string _id;
-static std::string _type;
+static bool loginCompleted;
+
+using namespace PlayFab::QoS;
+using namespace std;
 
 void OnPlayFabFail(const PlayFab::PlayFabError& error, void*)
 {
@@ -22,19 +26,14 @@ void OnPlayFabFail(const PlayFab::PlayFabError& error, void*)
 
 void OnGetProfile(const PlayFab::ProfilesModels::GetEntityProfileResponse& result, void*)
 {
-    printf(("========== PlayFab Profiles Success: " + result.Profile.mValue.Entity.mValue.Type + "\n").c_str());
+    printf(("========== PlayFab Profiles Success: " + result.Profile->Entity->Type + "\n").c_str());
 }
 
 void OnGetEntityToken(const PlayFab::AuthenticationModels::GetEntityTokenResponse& result, void*)
 {
     printf(("========== PlayFab GetEntityToken Success: " + result.EntityToken + "\n").c_str());
-    _id = result.Entity.mValue.Id;
-    _type = result.Entity.mValue.Type;
-
 
     auto req = PlayFab::ProfilesModels::GetEntityProfileRequest();
-    req.Entity.Id = _id;
-    req.Entity.Type = _type;
 
     PlayFab::PlayFabProfilesAPI::GetProfile(req, OnGetProfile, OnPlayFabFail);
 }
@@ -55,6 +54,49 @@ void OnLoginSuccess(const PlayFab::ClientModels::LoginResult& result, void*)
     printf("========== Starting PlayFab GetProfile API call.\n");
     PlayFab::ClientModels::GetPlayerProfileRequest request;
     PlayFab::PlayFabClientAPI::GetPlayerProfile(request, OnProfile, OnPlayFabFail);
+    loginCompleted = true;
+}
+
+void OnLoginFailed(const PlayFab::PlayFabError& error, void* customData)
+{
+    OnPlayFabFail(error, customData);
+    loginCompleted = true;
+}
+
+void PrintResult(const PlayFab::QoS::DataCenterResult& result)
+{
+    cout << "DataCenter : " << result.dataCenterName
+        << "\tLatency : " << result.latencyMs
+        << "\tErrorCode :  " << result.lastErrorCode
+        << endl;
+}
+
+void TestGetQosResultApi()
+{
+    char c = 'a';
+    PlayFab::QoS::PlayFabQoSApi api;
+
+    while (c != 'e' && c != 'E')
+    {
+        auto result = api.GetQoSResult(5, 200);
+
+        if (result.lastErrorCode == 0)
+        {
+            vector<PlayFab::QoS::DataCenterResult> r(move(result.dataCenterResults));
+
+            for (int i = 0; i<r.size(); ++i)
+            {
+                PrintResult(r[i]);
+            }
+        }
+        else
+        {
+            cout << "Result could not be populated : " << result.lastErrorCode << endl;
+        }
+
+        cout << "[QOS API] To exit, enter 'e', else enter anything else : " << endl;
+        cin >> c;
+    }
 }
 
 int main()
@@ -66,10 +108,14 @@ int main()
     PlayFab::ClientModels::LoginWithCustomIDRequest request;
     request.CustomId = "test_GSDK";
     request.CreateAccount = true;
-    PlayFab::PlayFabClientAPI::LoginWithCustomID(request, OnLoginSuccess, OnPlayFabFail);
+    PlayFab::PlayFabClientAPI::LoginWithCustomID(request, OnLoginSuccess, OnLoginFailed);
 
-    printf("Press enter to exit the program.\n");
-    getchar();
+    while (!loginCompleted)
+    {
+        Sleep(10);
+    }
+
+    TestGetQosResultApi();
 
     return 0;
 }

@@ -6,36 +6,26 @@
 // Intellisense-only includes
 #include <curl/curl.h>
 
+#include <stdexcept>
+
 namespace PlayFab
 {
-    CallRequestContainer::CallRequestContainer() :
-        curlHandle(nullptr),
-        curlHttpHeaders(nullptr),
-        customData(nullptr),
-        finished(false),
-        responseString(""),
-        responseJson(Json::Value::null),
-        errorWrapper(),
-        internalCallback(nullptr),
-        successCallback(nullptr),
-        errorCallback(nullptr)
-    {
-    }
-
-    CallRequestContainer::~CallRequestContainer()
-    {
-        curl_easy_reset(curlHandle);
-        curlHttpHeaders = nullptr;
-    }
-
-    std::unique_ptr<IPlayFabHttp> IPlayFabHttp::httpInstance = nullptr;
+    std::shared_ptr<IPlayFabHttp> IPlayFabHttp::httpInstance = nullptr;
     IPlayFabHttp::~IPlayFabHttp() = default;
     IPlayFabHttp& IPlayFabHttp::Get()
     {
+        return *GetPtr().get();
+    }
+
+    std::shared_ptr<IPlayFabHttp> IPlayFabHttp::GetPtr()
+    {
         // In the future we could make it easier to override this instance with a sub-type, for now it defaults to the only one we have
         if (httpInstance == nullptr)
+        {
             PlayFabHttp::MakeInstance();
-        return *httpInstance.get();
+        }
+
+        return httpInstance;
     }
 
     PlayFabHttp::PlayFabHttp()
@@ -50,11 +40,19 @@ namespace PlayFab
         threadRunning = false;
         pfHttpWorkerThread.join();
         for (size_t i = 0; i < pendingRequests.size(); ++i)
+        {
             delete pendingRequests[i];
+        }
+
         pendingRequests.clear();
+
         for (size_t i = 0; i < pendingResults.size(); ++i)
+        {
             delete pendingResults[i];
+        }
+
         pendingResults.clear();
+
         activeRequestCount = 0;
     }
 
@@ -64,10 +62,10 @@ namespace PlayFab
         {
 #if __cplusplus > 201103L
             class _PlayFabHttp : public PlayFabHttp {}; // Hack to bypass private constructor on PlayFabHttp
-            httpInstance = std::make_unique<_PlayFabHttp>();
+            httpInstance = std::make_shared<_PlayFabHttp>();
 #else
 #pragma message("PlayFab SDK: C++11 support is not well tested. Please consider upgrading to the latest version of Visual Studio")
-            httpInstance = std::unique_ptr<PlayFabHttp>(new PlayFabHttp());
+            httpInstance = std::shared_ptr<PlayFabHttp>(new PlayFabHttp());
 #endif
         }
     }
@@ -78,7 +76,7 @@ namespace PlayFab
 
         while (this->threadRunning)
         {
-            CallRequestContainer* reqContainer = nullptr;
+            CallRequestContainerBase* reqContainer = nullptr;
 
             { // LOCK httpRequestMutex
                 std::unique_lock<std::mutex> lock(this->httpRequestMutex);
@@ -98,7 +96,9 @@ namespace PlayFab
             }
 
             if (reqContainer != nullptr)
-                ExecuteRequest(*reqContainer);
+            {
+                ExecuteRequest(*static_cast<CallRequestContainer*>(reqContainer));
+            }
         }
     }
 
@@ -106,11 +106,13 @@ namespace PlayFab
     {
         reqContainer.finished = true;
         if (PlayFabSettings::threadedCallbacks)
+        {
             HandleResults(reqContainer);
+        }
 
-        PlayFabHttp& instance = static_cast<PlayFabHttp&>(Get());
         if (!PlayFabSettings::threadedCallbacks)
         {
+            PlayFabHttp& instance = static_cast<PlayFabHttp&>(Get());
             { // LOCK httpRequestMutex
                 std::unique_lock<std::mutex> lock(instance.httpRequestMutex);
                 instance.pendingResults.push_back(&reqContainer);
@@ -126,21 +128,11 @@ namespace PlayFab
         return (blockSize * blockCount);
     }
 
-    void PlayFabHttp::AddRequest(const std::string& urlPath, const std::string& authKey, const std::string& authValue, const Json::Value& requestBody, RequestCompleteCallback internalCallback, SharedVoidPointer successCallback, ErrorCallback errorCallback, void* customData)
+    void PlayFabHttp::MakePostRequest(const CallRequestContainerBase& reqContainer)
     {
-        CallRequestContainer* reqContainer = new CallRequestContainer();
-        reqContainer->errorWrapper.UrlPath = urlPath;
-        reqContainer->authKey = authKey;
-        reqContainer->authValue = authValue;
-        reqContainer->errorWrapper.Request = requestBody;
-        reqContainer->internalCallback = internalCallback;
-        reqContainer->successCallback = successCallback;
-        reqContainer->errorCallback = errorCallback;
-        reqContainer->customData = customData;
-
         { // LOCK httpRequestMutex
             std::unique_lock<std::mutex> lock(httpRequestMutex);
-            pendingRequests.push_back(reqContainer);
+            pendingRequests.push_back(const_cast<CallRequestContainerBase*>(&reqContainer));
             activeRequestCount++;
         } // UNLOCK httpRequestMutex
     }
@@ -150,7 +142,7 @@ namespace PlayFab
         // Set up curl handle
         reqContainer.curlHandle = curl_easy_init();
         curl_easy_reset(reqContainer.curlHandle);
-        curl_easy_setopt(reqContainer.curlHandle, CURLOPT_URL, PlayFabSettings::GetUrl(reqContainer.errorWrapper.UrlPath, PlayFabSettings::requestGetParams).c_str());
+        curl_easy_setopt(reqContainer.curlHandle, CURLOPT_URL, PlayFabSettings::GetUrl(reqContainer.GetUrl(), PlayFabSettings::requestGetParams).c_str());
 
         // Set up headers
         reqContainer.curlHttpHeaders = nullptr;
@@ -158,12 +150,25 @@ namespace PlayFab
         reqContainer.curlHttpHeaders = curl_slist_append(reqContainer.curlHttpHeaders, "Content-Type: application/json; charset=utf-8");
         reqContainer.curlHttpHeaders = curl_slist_append(reqContainer.curlHttpHeaders, ("X-PlayFabSDK: " + PlayFabSettings::versionString).c_str());
         reqContainer.curlHttpHeaders = curl_slist_append(reqContainer.curlHttpHeaders, "X-ReportErrorAsSuccess: true");
-        if (reqContainer.authKey.length() != 0 && reqContainer.authValue.length() != 0)
-            reqContainer.curlHttpHeaders = curl_slist_append(reqContainer.curlHttpHeaders, (reqContainer.authKey + ": " + reqContainer.authValue).c_str());
+
+        auto headers = reqContainer.GetHeaders();
+
+        if (headers.size() > 0)
+        {
+            for (auto const &obj : headers)
+            {
+                if (obj.first.length() != 0 && obj.second.length() != 0) // no empty keys or values in headers
+                {
+                    std::string header = obj.first + ": " + obj.second;
+                    reqContainer.curlHttpHeaders = curl_slist_append(reqContainer.curlHttpHeaders, header.c_str());
+                }
+            }
+        }
+
         curl_easy_setopt(reqContainer.curlHandle, CURLOPT_HTTPHEADER, reqContainer.curlHttpHeaders);
 
         // Set up post & payload
-        std::string payload = reqContainer.errorWrapper.Request.toStyledString();
+        std::string payload = reqContainer.GetRequestBody();
         curl_easy_setopt(reqContainer.curlHandle, CURLOPT_POST, nullptr);
         curl_easy_setopt(reqContainer.curlHandle, CURLOPT_POSTFIELDS, payload.c_str());
 
@@ -189,7 +194,7 @@ namespace PlayFab
         else
         {
             Json::CharReaderBuilder jsonReaderFactory;
-            Json::CharReader* jsonReader(jsonReaderFactory.newCharReader());
+            std::unique_ptr<Json::CharReader> jsonReader(jsonReaderFactory.newCharReader());
             JSONCPP_STRING jsonParseErrors;
             const bool parsedSuccessfully = jsonReader->parse(reqContainer.responseString.c_str(), reqContainer.responseString.c_str() + reqContainer.responseString.length(), &reqContainer.responseJson, &jsonParseErrors);
 
@@ -217,38 +222,38 @@ namespace PlayFab
 
     void PlayFabHttp::HandleResults(CallRequestContainer& reqContainer)
     {
-        // The success case must be handled by a function which is aware of the ResultType
-        if (reqContainer.errorWrapper.HttpCode == 200)
+        auto callback = reqContainer.GetCallback();
+        if (callback != nullptr)
         {
-            reqContainer.internalCallback(reqContainer); // Unpacks the result as ResultType and invokes successCallback according to that type
-        }
-        else // Process the error case
-        {
-            if (PlayFabSettings::globalErrorHandler != nullptr)
-                PlayFabSettings::globalErrorHandler(reqContainer.errorWrapper, reqContainer.customData);
-            if (reqContainer.errorCallback != nullptr)
-                reqContainer.errorCallback(reqContainer.errorWrapper, reqContainer.customData);
+            callback(
+                reqContainer.responseJson.get("code", Json::Value::null).asInt(),
+                reqContainer.responseString,
+                reqContainer);
         }
     }
 
     size_t PlayFabHttp::Update()
     {
         if (PlayFabSettings::threadedCallbacks)
+        {
             throw std::runtime_error("You should not call Update() when PlayFabSettings::threadedCallbacks == true");
+        }
 
-        CallRequestContainer* reqContainer;
+        CallRequestContainerBase* reqContainer;
         { // LOCK httpRequestMutex
             std::unique_lock<std::mutex> lock(httpRequestMutex);
             if (pendingResults.empty())
+            {
                 return activeRequestCount;
+            }
 
             reqContainer = pendingResults[pendingResults.size() - 1];
             pendingResults.pop_back();
             activeRequestCount--;
         } // UNLOCK httpRequestMutex
 
-        HandleResults(*reqContainer);
-        delete reqContainer;
+        // The callback called from HandleResults may delete the object pointed by reqContainer from the heap; do not use it after this call
+        HandleResults(*static_cast<CallRequestContainer*>(reqContainer));
 
         // activeRequestCount can be altered by HandleResults, so we have to re-lock and return an updated value
         { // LOCK httpRequestMutex

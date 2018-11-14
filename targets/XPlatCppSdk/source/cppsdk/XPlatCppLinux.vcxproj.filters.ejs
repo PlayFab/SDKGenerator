@@ -1,23 +1,26 @@
 <?xml version="1.0" encoding="utf-8"?>
 <Project ToolsVersion="4.0" xmlns="http://schemas.microsoft.com/developer/msbuild/2003">
   <ItemGroup>
-<% for(var i in apis) { var api = apis[i];
-%>    <ClCompile Include="source\playfab\PlayFab<%- api.name %>Api.cpp">
-      <Filter>Source Files\playfab</Filter>
-    </ClCompile>
-<% } %>
-    <ClCompile Include="source\playfab\PlayFabError.cpp">
-      <Filter>Source Files\playfab</Filter>
-    </ClCompile>
-    <ClCompile Include="source\playfab\PlayFabHttp.cpp">
-      <Filter>Source Files\playfab</Filter>
-    </ClCompile>
-    <ClCompile Include="source\playfab\PlayFabSettings.cpp">
-      <Filter>Source Files\playfab</Filter>
-    </ClCompile>
-    <ClCompile Include="stdafx.cpp">
-      <Filter>Source Files</Filter>
-    </ClCompile>
+    <Filter Include="Source Files">
+      <UniqueIdentifier>{c7401a51-d5db-44a8-9af8-ee206a68f2d7}</UniqueIdentifier>
+      <Extensions>cpp;c;cc;cxx;def;odl;idl;hpj;bat;asm;asmx</Extensions>
+    </Filter>
+    <Filter Include="Header Files">
+      <UniqueIdentifier>{84a82bea-d897-4f6e-b6f3-154bc61aac6f}</UniqueIdentifier>
+      <Extensions>h;hh;hpp;hxx;hm;inl;inc;xsd</Extensions>
+    </Filter>
+    <Filter Include="Header Files\playfab">
+      <UniqueIdentifier>{d14ed5bc-9de9-4073-bdbf-ccfeacd164d8}</UniqueIdentifier>
+    </Filter>
+    <Filter Include="Source Files\playfab">
+      <UniqueIdentifier>{92e0782c-b801-4c3a-8f75-1e2a7e511201}</UniqueIdentifier>
+    </Filter>
+    <Filter Include="Source Files\playfab\QoS">
+      <UniqueIdentifier>{488a68e1-cad5-40a9-9845-959990ae1ae7}</UniqueIdentifier>
+    </Filter>
+    <Filter Include="Header Files\playfab\QoS">
+      <UniqueIdentifier>{83c411f7-bfae-4798-8b14-d42ce2337023}</UniqueIdentifier>
+    </Filter>
   </ItemGroup>
   <ItemGroup>
     <ClInclude Include="include\playfab\PlayFabBaseModel.h">
@@ -30,8 +33,7 @@
     <ClInclude Include="include\playfab\PlayFab<%- api.name %>DataModels.h">
       <Filter>Header Files\playfab</Filter>
     </ClInclude>
-<% } %>
-    <ClInclude Include="include\playfab\PlayFabHttp.h">
+<% } %>    <ClInclude Include="include\playfab\PlayFabHttp.h">
       <Filter>Header Files\playfab</Filter>
     </ClInclude>
     <ClInclude Include="include\playfab\PlayFabSettings.h">
@@ -43,23 +45,81 @@
     <ClInclude Include="include\playfab\PlayFabError.h">
       <Filter>Header Files\playfab</Filter>
     </ClInclude>
+    <ClInclude Include="include\playfab\PlayFabCallRequestContainerBase.h">
+      <Filter>Header Files\playfab</Filter>
+    </ClInclude>
+    <ClInclude Include="include\playfab\PlayFabCallRequestContainer.h">
+      <Filter>Header Files\playfab</Filter>
+    </ClInclude>
+    <ClInclude Include="include\playfab\PlayFabPluginManager.h">
+      <Filter>Header Files\playfab</Filter>
+    </ClInclude>
+    <ClInclude Include="include\playfab\QoS\DataCenterResult.h">
+      <Filter>Header Files\playfab\QoS</Filter>
+    </ClInclude>
+    <ClInclude Include="include\playfab\QoS\PingResult.h">
+      <Filter>Header Files\playfab\QoS</Filter>
+    </ClInclude>
+    <ClInclude Include="include\playfab\QoS\PlayFabQoSApi.h">
+      <Filter>Header Files\playfab\QoS</Filter>
+    </ClInclude>
+    <ClInclude Include="include\playfab\QoS\QoS.h">
+      <Filter>Header Files\playfab\QoS</Filter>
+    </ClInclude>
+    <ClInclude Include="include\playfab\QoS\QoSResult.h">
+      <Filter>Header Files\playfab\QoS</Filter>
+    </ClInclude>
+    <ClInclude Include="include\playfab\QoS\QoSSocket.h">
+      <Filter>Header Files\playfab\QoS</Filter>
+    </ClInclude>
+    <ClInclude Include="include\playfab\QoS\XPlatSocket.h">
+      <Filter>Header Files\playfab\QoS</Filter>
+    </ClInclude>
+  </ItemGroup>
+  <ItemGroup>
+    <ClCompile Include="stdafx.cpp">
+      <Filter>Source Files</Filter>
+    </ClCompile>
+<% for(var i in apis) { var api = apis[i];
+%>    <ClCompile Include="source\playfab\PlayFab<%- api.name %>Api.cpp">
+      <Filter>Source Files\playfab</Filter>
+    </ClCompile>
+<% } %>    <ClCompile Include="source\playfab\PlayFabError.cpp">
+      <Filter>Source Files\playfab</Filter>
+    </ClCompile>
+    <ClCompile Include="source\playfab\PlayFabHttp.cpp">
+      <Filter>Source Files\playfab</Filter>
+    </ClCompile>
+    <ClCompile Include="source\playfab\PlayFabSettings.cpp">
+      <Filter>Source Files\playfab</Filter>
+    </ClCompile>
+    <ClCompile Include="source\playfab\PlayFabCallRequestContainerBase.cpp">
+      <Filter>Source Files\playfab</Filter>
+    </ClCompile>
+    <ClCompile Include="source\playfab\PlayFabCallRequestContainer.cpp">
+      <Filter>Source Files\playfab</Filter>
+    </ClCompile>
+    <ClCompile Include="source\playfab\PlayFabPluginManager.cpp">
+      <Filter>Source Files\playfab</Filter>
+    </ClCompile>
+    <ClCompile Include="source\playfab\QoS\XPlatSocket.cpp">
+      <Filter>Source Files\playfab\QoS</Filter>
+    </ClCompile>
+    <ClCompile Include="source\playfab\QoS\QoSSocket.cpp">
+      <Filter>Source Files\playfab\QoS</Filter>
+    </ClCompile>
+    <ClCompile Include="source\playfab\QoS\QoSResult.cpp">
+      <Filter>Source Files\playfab\QoS</Filter>
+    </ClCompile>
+    <ClCompile Include="source\playfab\QoS\PlayFabQoSApi.cpp">
+      <Filter>Source Files\playfab\QoS</Filter>
+    </ClCompile>
+    <ClCompile Include="source\playfab\QoS\DataCenterResult.cpp">
+      <Filter>Source Files\playfab\QoS</Filter>
+    </ClCompile>
   </ItemGroup>
   <ItemGroup>
     <None Include="packages.config" />
     <None Include="configLinux.json" />
-  </ItemGroup>
-  <ItemGroup>
-    <Filter Include="Source Files">
-      <UniqueIdentifier>{c7401a51-d5db-44a8-9af8-ee206a68f2d7}</UniqueIdentifier>
-    </Filter>
-    <Filter Include="Header Files">
-      <UniqueIdentifier>{84a82bea-d897-4f6e-b6f3-154bc61aac6f}</UniqueIdentifier>
-    </Filter>
-    <Filter Include="Source Files\playfab">
-      <UniqueIdentifier>{92e0782c-b801-4c3a-8f75-1e2a7e511201}</UniqueIdentifier>
-    </Filter>
-    <Filter Include="Header Files\playfab">
-      <UniqueIdentifier>{d14ed5bc-9de9-4073-bdbf-ccfeacd164d8}</UniqueIdentifier>
-    </Filter>
   </ItemGroup>
 </Project>

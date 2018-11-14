@@ -5,6 +5,9 @@
 #include <playfab/PlayFab<%- api.name %>Api.h>
 #include <playfab/PlayFabHttp.h>
 #include <playfab/PlayFabSettings.h>
+#include <playfab/PlayFabError.h>
+
+#pragma warning (disable: 4100) // formal parameters are part of a public interface
 
 namespace PlayFab
 {
@@ -30,23 +33,45 @@ namespace PlayFab
     )
     {
 <%- getRequestActions("        ", apiCall) %>
-        IPlayFabHttp& http = IPlayFabHttp::Get();
+        IPlayFabHttpPlugin& http = *PlayFabPluginManager::GetPlugin<IPlayFabHttpPlugin>(PlayFabPluginContract::PlayFab_Transport);
         const auto requestJson = request.ToJson();
-        http.AddRequest("<%- apiCall.url %>", <%- getAuthParams(apiCall) %>, requestJson, On<%- apiCall.name %>Result, SharedVoidPointer((callback == nullptr) ? nullptr : new ProcessApiCallback<<%- apiCall.result %>>(callback)), errorCallback, customData);
+
+        Json::FastWriter writer;
+        std::string jsonAsString = writer.write(requestJson);
+
+        std::unordered_map<std::string, std::string> headers;
+        headers.emplace(<%- getAuthParams(apiCall) %>);
+
+        CallRequestContainer* reqContainer = new CallRequestContainer(
+            "<%- apiCall.url %>",
+            headers,
+            jsonAsString,
+            On<%- apiCall.name %>Result,
+            customData);
+
+        reqContainer->successCallback = std::shared_ptr<void>((callback == nullptr) ? nullptr : new ProcessApiCallback<<%- apiCall.result %>>(callback));
+        reqContainer->errorCallback = errorCallback;
+
+        http.MakePostRequest(*reqContainer);
     }
 
-    void PlayFab<%- api.name %>API::On<%- apiCall.name %>Result(CallRequestContainer& request)
+    void PlayFab<%- api.name %>API::On<%- apiCall.name %>Result(int httpCode, std::string result, CallRequestContainerBase& reqContainer)
     {
+        CallRequestContainer& container = static_cast<CallRequestContainer&>(reqContainer);
+
         <%- apiCall.result %> outResult;
-        outResult.FromJson(request.errorWrapper.Data);
-        outResult.Request = request.errorWrapper.Request;
-<%- getResultActions("        ", apiCall) %>
-        const auto internalPtr = request.successCallback.get();
-        if (internalPtr != nullptr)
+        if (ValidateResult(outResult, container))
         {
-            const auto callback = (*static_cast<ProcessApiCallback<<%- apiCall.result %>> *>(internalPtr));
-            callback(outResult, request.customData);
+<%- getResultActions("            ", apiCall) %>
+            const auto internalPtr = container.successCallback.get();
+            if (internalPtr != nullptr)
+            {
+                const auto callback = (*static_cast<ProcessApiCallback<<%- apiCall.result %>> *>(internalPtr));
+                callback(outResult, container.GetCustomData());
+            }
         }
+
+        delete &container;
     }
 <% } %><% if (hasClientOptions) { %>
     // Private PlayFabClientAPI specific
@@ -69,6 +94,24 @@ namespace PlayFab
             AttributeInstall(request, nullptr, nullptr);
         }
     }
-<% } %>}
+<% } %>
+    bool PlayFab<%- api.name %>API::ValidateResult(PlayFabResultCommon& resultCommon, CallRequestContainer& container)
+    {
+        if (container.errorWrapper.HttpCode == 200)
+        {
+            resultCommon.FromJson(container.errorWrapper.Data);
+            resultCommon.Request = container.errorWrapper.Request;
+            return true;
+        }
+        else // Process the error case
+        {
+            if (PlayFabSettings::globalErrorHandler != nullptr)
+                PlayFabSettings::globalErrorHandler(container.errorWrapper, container.GetCustomData());
+            if (container.errorCallback != nullptr)
+                container.errorCallback(container.errorWrapper, container.GetCustomData());
+            return false;
+        }
+    }
+}
 
 #endif

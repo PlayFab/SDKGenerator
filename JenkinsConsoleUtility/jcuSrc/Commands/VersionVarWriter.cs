@@ -120,14 +120,15 @@ namespace JenkinsConsoleUtility.Commands
                 case "objective_c_sdk": return "objc";
                 case "playfabgameserver": return "csharp-unity-gameserver";
                 // Multiple repos map to the same folder
-                case "csharpsdk": case "csharpbetasdk": return "csharp";
+                case "csharpsdk": case "csharpbetasdk": case "csharppsnsdk": return "csharp";
                 case "nodesdk": case "nodebetasdk": return "js-node";
                 case "postmancollection": case "postmanbeta": return "postman";
-                case "unitysdk": case "unitypsn": case "unityxbox": case "unitybeta": case "unityeditorextensions": return "unity-v2";
-                case "unrealblueprintsdk": case "uebpbetasdk": case "uebppsnsdk": case "uebpxboxsdk": return "cpp-unreal";
-                case "unrealcppsdk": case "uecppbetasdk": case "uecpppsnsdk": case "uecppxboxsdk": return "cpp-ue4";
-                case "windowssdk": case "winbetasdk": case "winpsnsdk": case "winxboxsdk": return "windowssdk";
-                case "xplatcppsdk": case "xplatbetasdk": case "xplatpsnsdk": case "xplatxboxsdk": return "xplatcppsdk";
+                case "unitysdk": case "unitypsn": case "unitybeta": case "unityeditorextensions": return "unity-v2";
+                case "unrealblueprintsdk": case "uebpbetasdk": case "uebppsnsdk": return "cpp-unreal";
+                case "unrealcppsdk": case "uecppbetasdk": case "uecpppsnsdk": return "cpp-ue4";
+                case "unrealmarketplaceplugin": case "uemkplbetasdk": case "uemkplpsnsdk": return "unrealmarketplaceplugin";
+                case "windowssdk": case "winbetasdk": case "winpsnsdk": return "windowssdk";
+                case "xplatcppsdk": case "xplatbetasdk": case "xplatpsnsdk": return "xplatcppsdk";
                 case "javasdk": case "javabetasdk": return "java";
                 case "pythonsdk": case "pythonbetasdk": return "pythonsdk";
 

@@ -7,12 +7,13 @@ namespace PlayFabCommon
     const FString PlayFabCommonSettings::sdkVersion = "<%- sdkVersion %>";
     const FString PlayFabCommonSettings::buildIdentifier = "<%- buildIdentifier %>";
     const FString PlayFabCommonSettings::versionString = "UE4MKPL-<%- sdkVersion %>";
+    const FString PlayFabCommonSettings::verticalName = "<%- getDefaultVerticalName() %>";
 
-	FString PlayFabCommonSettings::serverURL;
+    FString PlayFabCommonSettings::serverURL;
     FString PlayFabCommonSettings::productionEnvironmentURL = ".playfabapi.com";
-    
-	FString PlayFabCommonSettings::titleId;
-	
+
+    FString PlayFabCommonSettings::titleId;
+
     FString PlayFabCommonSettings::clientSessionTicket;
     FString PlayFabCommonSettings::developerSecretKey;
     FString PlayFabCommonSettings::entityToken;
@@ -22,9 +23,9 @@ namespace PlayFabCommon
     bool PlayFabCommonSettings::disableAdvertising = false;
     const FString PlayFabCommonSettings::AD_TYPE_IDFA = "Idfa";
     const FString PlayFabCommonSettings::AD_TYPE_ANDROID_ID = "Adid";
-	
-	FString PlayFabCommonSettings::playFabApiSecretKey;
-	FString PlayFabCommonSettings::photonRealtimeAppId;
-	FString PlayFabCommonSettings::photonTurnbasedAppId;
-	FString PlayFabCommonSettings::photonChatAppId;
+
+    FString PlayFabCommonSettings::playFabApiSecretKey;
+    FString PlayFabCommonSettings::photonRealtimeAppId;
+    FString PlayFabCommonSettings::photonTurnbasedAppId;
+    FString PlayFabCommonSettings::photonChatAppId;
 }

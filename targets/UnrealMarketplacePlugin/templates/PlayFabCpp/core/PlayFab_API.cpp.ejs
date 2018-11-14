@@ -25,7 +25,7 @@ FString UPlayFab<%- api.name %>API::GetBuildIdentifier() const
 
 void UPlayFab<%- api.name %>API::SetTitleId(const FString& titleId)
 {
-	PlayFabSettings::SetTitleId(titleId);
+    PlayFabSettings::SetTitleId(titleId);
 }
 <% if (hasClientOptions) { %>
 bool UPlayFabClientAPI::SetAdvertId(const FString& advertisingIdType, const FString& advertisingIdValue)
@@ -85,7 +85,7 @@ bool UPlayFab<%- api.name %>API::<%- apiCall.name %>(
 void UPlayFab<%- api.name %>API::On<%- apiCall.name %>Result(FHttpRequestPtr HttpRequest, FHttpResponsePtr HttpResponse, bool bSucceeded, F<%- apiCall.name %>Delegate SuccessDelegate, FPlayFabErrorDelegate ErrorDelegate)
 {
     <%- api.name %>Models::F<%- apiCall.result%> outResult;
-    FPlayFabError errorResult;
+    FPlayFabCppError errorResult;
     if (PlayFabRequestHandler::DecodeRequest(HttpRequest, HttpResponse, bSucceeded, outResult, errorResult))
     {
 <%- getResultActions("        ", apiCall)

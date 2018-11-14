@@ -1,14 +1,8 @@
 #!/bin/bash
 # USAGE: testInit.sh
 
-. $SHARED_WORKSPACE/SDKGenerator/JenkinsConsoleUtility/JenkinsScripts/util.sh
-
-# Defaults for some variables
-CheckDefault AUTOMATED_GIT_BRANCH automated
-CheckDefault gitTarget $AUTOMATED_GIT_BRANCH
-CheckDefault SdkName UnitySDK
-CheckDefault SHARED_WORKSPACE C:/depot
-CheckDefault WORKSPACE C:/proj
+. "$WORKSPACE/SDKGenerator/JenkinsConsoleUtility/JenkinsScripts/util.sh" 2> /dev/null || . ./util.sh 2> /dev/null
+. "$WORKSPACE/SDKGenerator/JenkinsConsoleUtility/JenkinsScripts/sdkUtil.sh" 2> /dev/null || . ./sdkUtil.sh 2> /dev/null
 
 # USAGE: ResetRepo
 ResetRepo (){
@@ -18,18 +12,14 @@ ResetRepo (){
     git checkout master || git checkout -b master || CleanCurrentRepo
     git pull origin master
 
-    if [ "$gitTarget"!="master" ]; then
+    if [ "$GitDestBranch"!="master" ]; then
         git fetch --progress origin
-        if [ "$PublishToGit"!="true" ]; then
-            git branch -D $gitTarget || true
-            git checkout -b $gitTarget
-            git push origin $gitTarget -f -u
-        else
-            git checkout -b $gitTarget
-            git checkout $gitTarget
-        fi
+        git branch -D $GitDestBranch || true
+        git checkout -b $GitDestBranch || true
+        git checkout $GitDestBranch
     fi
 }
 
+CheckVerticalizedParameters
 ForcePushD "$WORKSPACE/sdks/$SdkName"
 ResetRepo

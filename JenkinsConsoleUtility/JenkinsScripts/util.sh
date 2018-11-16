@@ -89,7 +89,7 @@ CleanCurrentRepo () {
 # USAGE: _CloneGitHubRepo <folder> <RepoName>
 _CloneGitHubRepo () {
     ForceCD "$1"
-    git clone git@github.com:PlayFab/$2.git
+    git clone --recurse-submodules git@github.com:PlayFab/$2.git
     cd $2
 }
 
@@ -105,7 +105,7 @@ SyncGitHubRepo () {
 # USAGE: _CloneWorkspaceRepo <fromFolder> <toFolder> <RepoName>
 _CloneWorkspaceRepo () {
     ForceCD "$2"
-    git clone --reference "$1/$3" git@github.com:PlayFab/$3.git
+    git clone --recurse-submodules --reference "$1/$3" git@github.com:PlayFab/$3.git
     cd $3
 }
 

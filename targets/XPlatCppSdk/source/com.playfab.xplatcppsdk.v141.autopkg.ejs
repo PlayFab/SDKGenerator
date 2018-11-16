@@ -24,25 +24,22 @@ nuget {
         tags: { PlayFab, Baas, Paas, JSON, REST, HTTP, SSL, API, cloud, liveops, game, gamedev, native };
     };
 
-    dependencies {
-        packages : {
-            jsoncpp-vc140-static-32_64/1.8.0;
-            curl/7.30.0.2;
-        };
-    }
-
     files {
+        docs: {
+            "external\deps-*\**\*"
+        };
+
         nestedInclude: {
             #destination = ${d_include}\playfab;
-            "cppsdk\include\playfab\*.h"
+            "cppsdk\include\playfab\**\*.h"
         };
 
         [x64,v141,release] {
-            lib:     { cppsdk\x64\Release\XPlatCppWindows\XPlatCppWindows.lib; }
+            lib:     { x64\Release\XPlatCppWindows\XPlatCppWindows.lib; }
         };
         [x64,v141,debug] {
-            lib:     { cppsdk\x64\Debug\XPlatCppWindows\XPlatCppWindows.lib; }
-            symbols: { cppsdk\x64\Debug\XPlatCppWindows\XPlatCppWindows.pdb; }
+            lib:     { x64\Debug\XPlatCppWindows\XPlatCppWindows.lib; }
+            symbols: { x64\Debug\XPlatCppWindows\XPlatCppWindows.pdb; }
         };
     };
 }

@@ -1,6 +1,5 @@
 <?xml version="1.0" encoding="utf-8"?>
 <Project DefaultTargets="Build" ToolsVersion="15.0" xmlns="http://schemas.microsoft.com/developer/msbuild/2003">
-  <Import Project="..\..\packages\openssl.1.0.1.21\build\native\openssl.props" Condition="Exists('..\..\packages\openssl.1.0.1.21\build\native\openssl.props')" />
   <ItemGroup Label="ProjectConfigurations">
     <ProjectConfiguration Include="Debug|x64">
       <Configuration>Debug</Configuration>
@@ -47,9 +46,11 @@
   <PropertyGroup Label="UserMacros" />
   <PropertyGroup Condition="'$(Configuration)|$(Platform)'=='Debug|x64'">
     <LinkIncremental>false</LinkIncremental>
+    <IncludePath>$(SolutionDir)external\deps-debug\include;$(IncludePath)</IncludePath>
   </PropertyGroup>
   <PropertyGroup Condition="'$(Configuration)|$(Platform)'=='Release|x64'">
     <LinkIncremental>false</LinkIncremental>
+    <IncludePath>$(SolutionDir)external\deps-release\include;$(IncludePath)</IncludePath>
   </PropertyGroup>
   <ItemDefinitionGroup Condition="'$(Configuration)|$(Platform)'=='Debug|x64'">
     <ClCompile>
@@ -57,7 +58,7 @@
       <WarningLevel>Level4</WarningLevel>
       <Optimization>Disabled</Optimization>
       <SDLCheck>true</SDLCheck>
-      <PreprocessorDefinitions>_DEBUG;_CONSOLE;WIN32;<%- extraDefines %>%(PreprocessorDefinitions)</PreprocessorDefinitions>
+      <PreprocessorDefinitions>_DEBUG;_CONSOLE;WIN32;CURL_STATICLIB;<%- extraDefines %>%(PreprocessorDefinitions)</PreprocessorDefinitions>
       <ConformanceMode>true</ConformanceMode>
       <AdditionalIncludeDirectories>$(SolutionDir)cppsdk/include;$(SolutionDir)cppsdk</AdditionalIncludeDirectories>
       <PrecompiledHeaderFile>cppWindowsTestAppPch.h</PrecompiledHeaderFile>
@@ -65,14 +66,14 @@
       <TreatWarningAsError>true</TreatWarningAsError>
       <MinimalRebuild>false</MinimalRebuild>
       <MultiProcessorCompilation>true</MultiProcessorCompilation>
-      <RuntimeLibrary>MultiThreadedDebug</RuntimeLibrary>
+      <RuntimeLibrary>MultiThreadedDebugDLL</RuntimeLibrary>
       <AdditionalOptions>/Zc:__cplusplus /bigobj %(AdditionalOptions)</AdditionalOptions>
     </ClCompile>
     <Link>
       <SubSystem>Console</SubSystem>
       <GenerateDebugInformation>true</GenerateDebugInformation>
-      <AdditionalDependencies>XPlatCppWindows.lib;jsoncpp.lib;libcurl.lib;%(AdditionalDependencies)</AdditionalDependencies>
-      <AdditionalLibraryDirectories>$(TFS_BinariesDirectory)\$(Configuration)\$(Platform)\XPlatCppWindows\;$(SolutionDir)$(Platform)\$(Configuration)\XPlatCppWindows;$(SolutionDir)packages\curl.7.30.0.2\build\native\lib\v110\x64\Debug\dynamic;$(SolutionDir)packages\jsoncpp-vc140-static-32_64.1.8.0\lib\native\libs\x64\static\Debug</AdditionalLibraryDirectories>
+      <AdditionalDependencies>XPlatCppWindows.lib;lib_json.lib;zlib.lib;libssl.lib;libcrypto.lib;libcurl_a_debug.lib;ws2_32.lib;wldap32.lib;crypt32.lib;normaliz.lib;%(AdditionalDependencies)</AdditionalDependencies>
+      <AdditionalLibraryDirectories>$(TFS_BinariesDirectory)\$(Configuration)\$(Platform)\XPlatCppWindows\;$(SolutionDir)$(Platform)\$(Configuration)\XPlatCppWindows;$(SolutionDir)external\deps-debug\lib</AdditionalLibraryDirectories>
     </Link>
   </ItemDefinitionGroup>
   <ItemDefinitionGroup Condition="'$(Configuration)|$(Platform)'=='Release|x64'">
@@ -80,7 +81,7 @@
       <PrecompiledHeader>Use</PrecompiledHeader>
       <WarningLevel>Level4</WarningLevel>
       <SDLCheck>true</SDLCheck>
-      <PreprocessorDefinitions>_CONSOLE;WIN32;<%- extraDefines %>%(PreprocessorDefinitions)</PreprocessorDefinitions>
+      <PreprocessorDefinitions>_CONSOLE;WIN32;CURL_STATICLIB;<%- extraDefines %>%(PreprocessorDefinitions)</PreprocessorDefinitions>
       <ConformanceMode>true</ConformanceMode>
       <AdditionalIncludeDirectories>$(SolutionDir)cppsdk/include;$(SolutionDir)cppsdk</AdditionalIncludeDirectories>
       <PrecompiledHeaderFile>cppWindowsTestAppPch.h</PrecompiledHeaderFile>
@@ -88,14 +89,14 @@
       <TreatWarningAsError>true</TreatWarningAsError>
       <MinimalRebuild>false</MinimalRebuild>
       <MultiProcessorCompilation>true</MultiProcessorCompilation>
-      <RuntimeLibrary>MultiThreaded</RuntimeLibrary>
+      <RuntimeLibrary>MultiThreadedDLL</RuntimeLibrary>
       <AdditionalOptions>/Zc:__cplusplus /bigobj %(AdditionalOptions)</AdditionalOptions>
     </ClCompile>
     <Link>
       <SubSystem>Console</SubSystem>
       <GenerateDebugInformation>true</GenerateDebugInformation>
-      <AdditionalDependencies>XPlatCppWindows.lib;jsoncpp.lib;libcurl.lib;%(AdditionalDependencies)</AdditionalDependencies>
-      <AdditionalLibraryDirectories>$(TFS_BinariesDirectory)\$(Configuration)\$(Platform)\XPlatCppWindows\;$(SolutionDir)$(Platform)\$(Configuration)\XPlatCppWindows;$(SolutionDir)packages\curl.7.30.0.2\build\native\lib\v110\x64\Release\dynamic;$(SolutionDir)packages\jsoncpp-vc140-static-32_64.1.8.0\lib\native\libs\x64\static\Release</AdditionalLibraryDirectories>
+      <AdditionalDependencies>XPlatCppWindows.lib;lib_json.lib;zlib.lib;libssl.lib;libcrypto.lib;libcurl_a.lib;ws2_32.lib;wldap32.lib;crypt32.lib;normaliz.lib;%(AdditionalDependencies)</AdditionalDependencies>
+      <AdditionalLibraryDirectories>$(TFS_BinariesDirectory)\$(Configuration)\$(Platform)\XPlatCppWindows\;$(SolutionDir)$(Platform)\$(Configuration)\XPlatCppWindows;$(SolutionDir)external\deps-release\lib</AdditionalLibraryDirectories>
     </Link>
   </ItemDefinitionGroup>
   <ItemGroup>
@@ -112,20 +113,8 @@
       <Project>{92f6ec5f-b66c-4572-a74d-79329aff3129}</Project>
     </ProjectReference>
   </ItemGroup>
-  <ItemGroup>
-    <None Include="packages.config" />
-  </ItemGroup>
   <Import Project="$(VCTargetsPath)\Microsoft.Cpp.targets" />
   <ImportGroup Label="ExtensionTargets">
-    <Import Project="..\..\packages\curl.redist.7.30.0.2\build\native\curl.redist.targets" Condition="Exists('..\..\packages\curl.redist.7.30.0.2\build\native\curl.redist.targets')" />
-    <Import Project="..\..\packages\libssh2.redist.1.4.3.3\build\native\libssh2.redist.targets" Condition="Exists('..\..\packages\libssh2.redist.1.4.3.3\build\native\libssh2.redist.targets')" />
-    <Import Project="..\..\packages\openssl.redist.1.0.1.25\build\native\openssl.redist.targets" Condition="Exists('..\..\packages\openssl.redist.1.0.1.25\build\native\openssl.redist.targets')" />
-    <Import Project="..\..\packages\zlib.redist.1.2.8.1\build\native\zlib.redist.targets" Condition="Exists('..\..\packages\zlib.redist.1.2.8.1\build\native\zlib.redist.targets')" />
-    <Import Project="..\..\packages\zlib.1.2.8.1\build\native\zlib.targets" Condition="Exists('..\..\packages\zlib.1.2.8.1\build\native\zlib.targets')" />
-    <Import Project="..\..\packages\openssl.1.0.1.21\build\native\openssl.targets" Condition="Exists('..\..\packages\openssl.1.0.1.21\build\native\openssl.targets')" />
-    <Import Project="..\..\packages\libssh2.1.4.3.3\build\native\libssh2.targets" Condition="Exists('..\..\packages\libssh2.1.4.3.3\build\native\libssh2.targets')" />
-    <Import Project="..\..\packages\curl.7.30.0.2\build\native\curl.targets" Condition="Exists('..\..\packages\curl.7.30.0.2\build\native\curl.targets')" />
-    <Import Project="..\..\packages\jsoncpp-vc140-static-32_64.1.8.0\build\native\jsoncpp-vc140-static-32_64.targets" Condition="Exists('..\..\packages\jsoncpp-vc140-static-32_64.1.8.0\build\native\jsoncpp-vc140-static-32_64.targets')" />
   </ImportGroup>
   <Target Name="CopyDependencies" AfterTargets="AfterBuild">
     <ItemGroup>
@@ -133,20 +122,5 @@
       <Dependency Include="$(SolutionDir)$(Platform)\$(Configuration)\XPlatCppWindows\*.dll" />
     </ItemGroup>
     <Copy SourceFiles="@(Dependency)" DestinationFolder="$(OutDir)" SkipUnchangedFiles="true" />
-  </Target>
-  <Target Name="EnsureNuGetPackageBuildImports" BeforeTargets="PrepareForBuild">
-    <PropertyGroup>
-      <ErrorText>This project references NuGet package(s) that are missing on this computer. Use NuGet Package Restore to download them.  For more information, see http://go.microsoft.com/fwlink/?LinkID=322105. The missing file is {0}.</ErrorText>
-    </PropertyGroup>
-    <Error Condition="!Exists('..\..\packages\curl.redist.7.30.0.2\build\native\curl.redist.targets')" Text="$([System.String]::Format('$(ErrorText)', '..\..\packages\curl.redist.7.30.0.2\build\native\curl.redist.targets'))" />
-    <Error Condition="!Exists('..\..\packages\libssh2.redist.1.4.3.3\build\native\libssh2.redist.targets')" Text="$([System.String]::Format('$(ErrorText)', '..\..\packages\libssh2.redist.1.4.3.3\build\native\libssh2.redist.targets'))" />
-    <Error Condition="!Exists('..\..\packages\openssl.redist.1.0.1.25\build\native\openssl.redist.targets')" Text="$([System.String]::Format('$(ErrorText)', '..\..\packages\openssl.redist.1.0.1.25\build\native\openssl.redist.targets'))" />
-    <Error Condition="!Exists('..\..\packages\zlib.redist.1.2.8.1\build\native\zlib.redist.targets')" Text="$([System.String]::Format('$(ErrorText)', '..\..\packages\zlib.redist.1.2.8.1\build\native\zlib.redist.targets'))" />
-    <Error Condition="!Exists('..\..\packages\zlib.1.2.8.1\build\native\zlib.targets')" Text="$([System.String]::Format('$(ErrorText)', '..\..\packages\zlib.1.2.8.1\build\native\zlib.targets'))" />
-    <Error Condition="!Exists('..\..\packages\openssl.1.0.1.21\build\native\openssl.props')" Text="$([System.String]::Format('$(ErrorText)', '..\..\packages\openssl.1.0.1.21\build\native\openssl.props'))" />
-    <Error Condition="!Exists('..\..\packages\openssl.1.0.1.21\build\native\openssl.targets')" Text="$([System.String]::Format('$(ErrorText)', '..\..\packages\openssl.1.0.1.21\build\native\openssl.targets'))" />
-    <Error Condition="!Exists('..\..\packages\libssh2.1.4.3.3\build\native\libssh2.targets')" Text="$([System.String]::Format('$(ErrorText)', '..\..\packages\libssh2.1.4.3.3\build\native\libssh2.targets'))" />
-    <Error Condition="!Exists('..\..\packages\curl.7.30.0.2\build\native\curl.targets')" Text="$([System.String]::Format('$(ErrorText)', '..\..\packages\curl.7.30.0.2\build\native\curl.targets'))" />
-    <Error Condition="!Exists('..\..\packages\jsoncpp-vc140-static-32_64.1.8.0\build\native\jsoncpp-vc140-static-32_64.targets')" Text="$([System.String]::Format('$(ErrorText)', '..\..\packages\jsoncpp-vc140-static-32_64.1.8.0\build\native\jsoncpp-vc140-static-32_64.targets'))" />
   </Target>
 </Project>

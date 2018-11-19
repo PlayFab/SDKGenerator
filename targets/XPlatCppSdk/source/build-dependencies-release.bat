@@ -106,6 +106,9 @@ mkdir test
 mkdir tools
 mkdir util
 
+rem - update timestamps of make targets to prevent re-generation of premade makefile
+nmake /T
+rem - build openssl using premade makefile
 nmake
 if /I "%ERRORLEVEL%" neq "0" (
 echo openssl build failed!

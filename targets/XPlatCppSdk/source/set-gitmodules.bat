@@ -1,7 +1,7 @@
 @echo off
 echo ========= Setting Git Submodules to specific commits (BEGIN) =========
 echo --- zlib
-git submodule add https://github.com/madler/zlib.git external/zlib
+git submodule add https://github.com/madler/zlib.git ./external/zlib
 if /I "%ERRORLEVEL%" gtr "1" (
 exit /B %ERRORLEVEL%
 )
@@ -14,7 +14,7 @@ exit /B %ERRORLEVEL%
 popd
 
 echo --- openssl
-git submodule add -b OpenSSL_1_1_0-stable https://github.com/openssl/openssl.git external/openssl
+git submodule add -b OpenSSL_1_1_0-stable https://github.com/openssl/openssl.git ./external/openssl
 if /I "%ERRORLEVEL%" gtr "1" (
 exit /B %ERRORLEVEL%
 )
@@ -27,7 +27,7 @@ exit /B %ERRORLEVEL%
 popd
 
 echo --- curl
-git submodule add https://github.com/curl/curl.git external/curl
+git submodule add https://github.com/curl/curl.git ./external/curl
 if /I "%ERRORLEVEL%" gtr "1" (
 exit /B %ERRORLEVEL%
 )
@@ -40,7 +40,7 @@ exit /B %ERRORLEVEL%
 popd
 
 echo --- jsoncpp
-git submodule add https://github.com/open-source-parsers/jsoncpp.git external/jsoncpp
+git submodule add https://github.com/open-source-parsers/jsoncpp.git ./external/jsoncpp
 if /I "%ERRORLEVEL%" gtr "1" (
 exit /B %ERRORLEVEL%
 )

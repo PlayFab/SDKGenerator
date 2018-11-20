@@ -17,7 +17,7 @@ function makeApiIntermal(apis, copyright, sourceDir, apiOutputDir, libName, ueTa
         apis: apis,
         copyright: copyright,
         buildIdentifier: buildIdentifier,
-        
+
         generateApiSummary: generateApiSummary,
         getDataTypeSafeName: getDataTypeSafeName,
         hasClientOptions: authMechanisms.includes("SessionTicket"),
@@ -28,8 +28,16 @@ function makeApiIntermal(apis, copyright, sourceDir, apiOutputDir, libName, ueTa
     };
 
     // Make the variable api files
-    for (var a = 0; a < apis.length; a++)
-        makeApiFiles(apis[a], copyright, apiOutputDir, sourceDir, libName);
+    for (var a = 0; a < apis.length; a++) {
+        if (apis[a].calls.length > 0) {
+            // If there are any calls specified for this api, call makeApi
+            makeApiFiles(apis[a], copyright, apiOutputDir, sourceDir, libName);
+        }
+        else {
+            // Else remove it from the apis list as we do not need it
+            apis.splice(a, 1);
+        }
+    }
 }
 
 // Create Models, .h and .cpp files

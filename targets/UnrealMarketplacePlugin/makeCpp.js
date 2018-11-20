@@ -25,9 +25,18 @@ exports.makeCppCombinedAPI = function (apis, copyright, sourceDir, baseApiOutput
         var outputCodeDir = path.resolve(apiOutputDir, "PlayFab/Source/PlayFabCpp");
 
         console.log("Generating UE4 C++ Module from " + sourceDir + " to " + apiOutputDir);
+        
+        for (var a = 0; a < apis.length; a++) {
+            if (apis[a].calls.length > 0) {
+                // If there are any calls specified for this api, call makeApi
+                makeApi(apis[a], copyright, sourceDir, outputCodeDir, "Core/");
+            }
+            else {
+                // Else remove it from the apis list as we do not need it
+                apis.splice(a, 1);
+            }
+        }
 
-        for (var a = 0; a < apis.length; a++)
-            makeApi(apis[a], copyright, sourceDir, outputCodeDir, "Core/");
         generateModels(apis, copyright, sourceDir, outputCodeDir, "All", "Core/");
     }
 }

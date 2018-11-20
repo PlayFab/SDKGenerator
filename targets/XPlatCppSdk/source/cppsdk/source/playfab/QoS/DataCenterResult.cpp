@@ -8,8 +8,8 @@ namespace PlayFab
 {
     namespace QoS
     {
-        DataCenterResult::DataCenterResult(const std::string& dataCenterName, int latencyMs, int errorCode) :
-            dataCenterName(dataCenterName), latencyMs(latencyMs), lastErrorCode(errorCode)
+        DataCenterResult::DataCenterResult(PlayFab::MultiplayerModels::AzureRegion region, const std::string& dataCenterName, int latencyMs, int errorCode) :
+            region(region), dataCenterName(dataCenterName), latencyMs(latencyMs), lastErrorCode(errorCode)
         {
         }
     }

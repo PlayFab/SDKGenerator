@@ -41,7 +41,6 @@ OBJS = stdafx.o \
 	PlayFabSettings.o \
 	DataCenterResult.o \
 	PlayFabQoSApi.o \
-	QoSResult.o \
 	QoSSocket.o \
 	XPlatSocket.o \
 	main.o

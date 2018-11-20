@@ -1,6 +1,7 @@
 #pragma once
 
 #include <string>
+#include <playfab/PlayFabMultiplayerDataModels.h>
 
 namespace PlayFab
 {
@@ -12,12 +13,15 @@ namespace PlayFab
         class DataCenterResult
         {
         public:
-            DataCenterResult(const std::string& dataCenterName, int latencyMs, int errorCode);
+            DataCenterResult(PlayFab::MultiplayerModels::AzureRegion region, const std::string& dataCenterName, int latencyMs, int errorCode);
             DataCenterResult() = delete;
             DataCenterResult(DataCenterResult&&) = default;
             DataCenterResult(const DataCenterResult&) = delete;
             DataCenterResult& operator=(DataCenterResult&&) = delete;
             DataCenterResult& operator=(const DataCenterResult&) = delete;
+
+            // The datacenter region
+            PlayFab::MultiplayerModels::AzureRegion region;
 
             // The datacenter name
             std::string dataCenterName;

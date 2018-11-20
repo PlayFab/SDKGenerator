@@ -65,7 +65,8 @@ void OnLoginFailed(const PlayFab::PlayFabError& error, void* customData)
 
 void PrintResult(const PlayFab::QoS::DataCenterResult& result)
 {
-    cout << "DataCenter : " << result.dataCenterName
+    cout << "Region : " << result.region 
+        << "\tDataCenter : " << result.dataCenterName
         << "\tLatency : " << result.latencyMs
         << "\tErrorCode :  " << result.lastErrorCode
         << endl;

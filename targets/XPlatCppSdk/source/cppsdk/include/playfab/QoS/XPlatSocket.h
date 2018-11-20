@@ -45,9 +45,6 @@ namespace PlayFab
             // Set the timeout for an individual socket call
             int SetTimeout(int timeout);
 
-            // Set the blocking mode for the socket
-            int SetMode(u_long& mode);
-
             // Send the message and return the error code
             int SendMessage(const char* message);
 

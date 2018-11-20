@@ -92,22 +92,6 @@ namespace PlayFab
 #endif
         }
 
-        int XPlatSocket::SetMode(u_long& mode)
-        {
-            // If an initialization error was logged, return -1
-            if (LogErrorIfNotInitialized())
-            {
-                return -1;
-            }
-
-#ifdef _WIN32
-            // Windows does not support Async, only non blocking is supported.
-            return ioctlsocket(s, FIONBIO, &mode);
-#else
-            return ioctl(s, FIOASYNC, &mode);
-#endif
-        }
-
         int XPlatSocket::SetAddress(const char* socketAddr)
         {
             // If an initialization error was logged, return -1

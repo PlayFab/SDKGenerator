@@ -18,9 +18,6 @@ namespace PlayFab
 
         constexpr int PORT = 3075; // Port the QoS server listen on
 
-        constexpr u_long BLOCKING_ASYNC_MODE = 1; // 1 => Set the socket mode to non-blocking or async
-                                                  // 0 => Set the socket mode to blocking
-
         /// <summary>
         /// A wrapper on top of the XPlatSocket class to abstract out the logic
         /// for pinging the Azure QoS servers.

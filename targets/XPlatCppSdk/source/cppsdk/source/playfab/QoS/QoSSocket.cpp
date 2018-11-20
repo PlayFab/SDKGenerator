@@ -35,13 +35,6 @@ namespace PlayFab
                 errorCode = xPlatSocket->SetTimeout(timeoutMs);
             }
 
-            // Set the blocking mode
-            if (errorCode == 0)
-            {
-                u_long mode = BLOCKING_ASYNC_MODE;
-                errorCode = xPlatSocket->SetMode(mode);
-            }
-
             // If the errorCode is not 0, return the last socket error.
             return (errorCode == 0) ? 0 : xPlatSocket->GetLastErrorCode();
         }
@@ -68,31 +61,16 @@ namespace PlayFab
                 result.errorCode = xPlatSocket->GetLastErrorCode();
                 LOG_QOS("sendto() failed with error code : " << result.errorCode << endl);
 
-                return std::move(result);
+                return result;
             }
 
             // Wait for the reply.
-            while (true)
+            if (xPlatSocket->ReceiveReply(buf, BUFLEN) == SOCKET_ERROR)
             {
-                int errorCode = xPlatSocket->ReceiveReply(buf, BUFLEN);
-                if (errorCode == SOCKET_ERROR)
-                {
-                    if ((errorCode = xPlatSocket->GetLastErrorCode()) == WSAEWOULDBLOCK)
-                    {
-                        std::this_thread::sleep_for(threadWaitTimespan);
-                    }
-                    else
-                    {
-                        result.errorCode = errorCode;
-                        LOG_QOS("recvfrom() failed with error code : " << result.errorCode << endl);
+                result.errorCode = xPlatSocket->GetLastErrorCode();
+                LOG_QOS("recvfrom() failed with error code : " << result.errorCode << endl);
 
-                        return std::move(result);
-                    }
-                }
-                else
-                {
-                    break;
-                }
+                return result;
             }
 
             // Snap the end time
@@ -106,7 +84,7 @@ namespace PlayFab
 
             result.latencyMs = totalMilliseconds.count();
 
-            return std::move(result);
+            return result;
         }
     }
 }

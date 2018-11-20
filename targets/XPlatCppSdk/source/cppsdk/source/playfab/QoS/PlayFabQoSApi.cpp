@@ -31,7 +31,7 @@ namespace PlayFab
         {
             QoSResult result(move(GetResult(numThreads, timeoutMs)));
             SendResultsToPlayFab(result);
-            return move(result);
+            return result;
         }
 
         QoSResult PlayFabQoSApi::GetResult(unsigned int numThreads, unsigned int timeoutMs)
@@ -42,7 +42,7 @@ namespace PlayFab
             {
                 LOG_QOS("Client is not logged in" << endl);
                 result.lastErrorCode = -1;
-                return move(result);
+                return result;
             }
 
             listQosServersCompleted = false;
@@ -60,7 +60,7 @@ namespace PlayFab
             if (serverCount < 0)
             {
                 result.lastErrorCode = -1;
-                return move(result);
+                return result;
             }
 
             // get a list of datacenter pings that need to be done
@@ -81,7 +81,7 @@ namespace PlayFab
             if ((numThreads = sockets.size()) == 0)
             {
                 LOG_QOS("No socket could be created. " << std::endl);
-                return move(result);
+                return result;
             }
 
             // initialize the async ping results
@@ -96,7 +96,7 @@ namespace PlayFab
             {
                 // Calculate the latency
                 int latency = (it->second.pingCount == 0) ? INT32_MAX : it->second.latencyMs / it->second.pingCount;
-                result.dataCenterResults.push_back(move(DataCenterResult(dataCenterMap[it->first], latency, it->second.errorCode)));
+                result.dataCenterResults.push_back(move(DataCenterResult(it->first, dataCenterMap[it->first], latency, it->second.errorCode)));
             }
 
             return result;
@@ -111,7 +111,8 @@ namespace PlayFab
             for (int i = 0; i < result.dataCenterResults.size(); ++i)
             {
                 Json::Value dcResult;
-                
+
+                dcResult["AzureRegion"] = Json::Value(result.dataCenterResults[i].region);
                 dcResult["DataCenterName"] = Json::Value(result.dataCenterResults[i].dataCenterName.c_str());
                 dcResult["LatencyMs"] = Json::Value(result.dataCenterResults[i].latencyMs);
                 dcResult["ErrorCode"] = Json::Value(result.dataCenterResults[i].lastErrorCode);
@@ -196,7 +197,7 @@ namespace PlayFab
                 }
             }
 
-            return move(pingList);
+            return pingList;
         }
 
         void PlayFabQoSApi::InitializeAccumulatedPingResults(unordered_map<AzureRegion, PingResult>& accumulatedPingResults)
@@ -342,14 +343,14 @@ namespace PlayFab
             // Ping a data center and return the ping time
             try
             {
-                return move(socket->GetQoSServerLatencyMs());
+                return socket->GetQoSServerLatencyMs();
             }
             catch (...)
             {
                 LOG_QOS("Some exception was caught while pinging. Ignore the ping");
                 PingResult result(INT32_MAX, EXCEPTION_ERROR_CODE, 0);
 
-                return move(result);
+                return result;
             }
         }
     }

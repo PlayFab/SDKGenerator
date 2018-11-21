@@ -1,68 +1,75 @@
-<?xml version="1.0" encoding="utf-8"?>
-<Project ToolsVersion="12.0" DefaultTargets="Build" xmlns="http://schemas.microsoft.com/developer/msbuild/2003">
-  <Import Project="$(MSBuildExtensionsPath)\$(MSBuildToolsVersion)\Microsoft.Common.props" Condition="Exists('$(MSBuildExtensionsPath)\$(MSBuildToolsVersion)\Microsoft.Common.props')" />
+<Project Sdk="Microsoft.NET.Sdk">
+
   <PropertyGroup>
-    <MinimumVisualStudioVersion>11.0</MinimumVisualStudioVersion>
-    <Configuration Condition=" '$(Configuration)' == '' ">Debug</Configuration>
-    <Platform Condition=" '$(Platform)' == '' ">AnyCPU</Platform>
-    <ProjectGuid>{CCA89497-1426-4F0B-8A11-7E5FB965FB4B}</ProjectGuid>
-    <OutputType>Library</OutputType>
-    <AppDesignerFolder>Properties</AppDesignerFolder>
+    <TargetFrameworks>netstandard1.1;netstandard2.0;net45;portable45-net45+win8+wpa81</TargetFrameworks>
     <RootNamespace>PlayFab<%- libname %>SDK</RootNamespace>
     <AssemblyName>PlayFab<%- libname %>SDK</AssemblyName>
     <DefaultLanguage>en-US</DefaultLanguage>
     <FileAlignment>512</FileAlignment>
-    <ProjectTypeGuids>{786C830F-07A1-408B-BD7F-6EE04809D6DB};{FAE04EC0-301F-11D3-BF4B-00C04F79EFBC}</ProjectTypeGuids>
-    <TargetFrameworkProfile>Profile111</TargetFrameworkProfile>
-    <TargetFrameworkVersion>v4.5</TargetFrameworkVersion>
+
+    <PackageId>PlayFabAllSDK</PackageId>
+    <Version><%- sdkVersion %></Version>
+    <Title>PlayFab CSharp Sdk</Title>
+    <Authors>PlayFab Inc.</Authors>
+    <Owners>PlayFab Inc.</Owners>
+    <PackageLicenseUrl>https://raw.githubusercontent.com/PlayFab/CSharpSDK/master/LICENSE</PackageLicenseUrl>
+    <PackageProjectUrl>https://github.com/PlayFab/CSharpSDK</PackageProjectUrl>
+    <PackageIconUrl>https://playfab.com/assets/img/playfab-mark.png</PackageIconUrl>
+    <PackageRequireLicenseAcceptance>false</PackageRequireLicenseAcceptance>
+    <Description>Authentication, in-game commerce, player data, title data, inventory, characters, statistics, leaderboards, analytics and reporting, friends, multiplayer, matchmaking, tournaments, cloud script, trading, real-time event handling, player management, live ops, and server hosting for all major platforms/devices and games of any scale. This sdk gives your game the ability log into PlayFab and access cloud data and services.</Description>
+    <Company>PlayFab</Company>
+    <Product>PlayFabSDK</Product>
+    <Copyright>Copyright 20<%- sdkYear %></Copyright>
+    <PackageTags>PlayFab, Baas, Paas, JSON, REST, HTTP, SSL, API, cloud, liveops, game, gamedev, native</PackageTags>
+    <PackageReleaseNotes>https://api.playfab.com/releaseNotes/#<%- sdkDate %></PackageReleaseNotes>
+    <NeutralLanguage>en</NeutralLanguage>
+    <AssemblyVersion>1</AssemblyVersion>
+    <FileVersion>1</FileVersion>
   </PropertyGroup>
+
+  <PropertyGroup Condition=" '$(TargetFramework)' == 'portable45-net45+win8+wpa81' ">
+    <TargetFrameworkIdentifier>.NETPortable</TargetFrameworkIdentifier>
+    <TargetFrameworkVersion>v4.5</TargetFrameworkVersion>
+    <TargetFrameworkProfile>Profile111</TargetFrameworkProfile>
+    <DefineConstants>$(DefineConstants);PORTABLE111</DefineConstants>
+  </PropertyGroup>
+
   <PropertyGroup Condition=" '$(Configuration)|$(Platform)' == 'Debug|AnyCPU' ">
     <DebugSymbols>true</DebugSymbols>
     <DebugType>full</DebugType>
     <Optimize>false</Optimize>
-    <OutputPath>bin\Debug\</OutputPath>
     <DefineConstants>TRACE;DEBUG<%- extraDefines %></DefineConstants>
     <ErrorReport>prompt</ErrorReport>
     <WarningLevel>4</WarningLevel>
   </PropertyGroup>
+
   <PropertyGroup Condition=" '$(Configuration)|$(Platform)' == 'Release|AnyCPU' ">
     <DebugType>pdbonly</DebugType>
     <Optimize>true</Optimize>
-    <OutputPath>bin\Release\</OutputPath>
     <DefineConstants>TRACE<%- extraDefines %></DefineConstants>
     <ErrorReport>prompt</ErrorReport>
     <WarningLevel>4</WarningLevel>
   </PropertyGroup>
-  <ItemGroup>
-    <Compile Include="source\Json\ISerializer.cs" />
-    <Compile Include="source\Json\NewtonsoftWrapper.cs" />
-    <Compile Include="source\Json\SimpleJson.cs" />
-    <Compile Include="source\PlayFabHttp\IPlayFabHttp.cs" />
-    <Compile Include="source\PlayFabHttp\PlayFabHttp.cs" />
-    <Compile Include="source\PlayFabHttp\PlayFabSysHttp.cs" />
-    <Compile Include="source\PlayFabHttp\PlayFabWinHttp.cs" />
-    <% for(var i in apis) { var api = apis[i]; %><Compile Include="source\PlayFab<%- api.name %>API.cs" />
-    <Compile Include="source\PlayFab<%- api.name %>Models.cs" />
-    <% } %><Compile Include="source\PlayFabErrors.cs" />
-    <Compile Include="Properties\AssemblyInfo.cs" />
-    <Compile Include="source\PlayFabSettings.cs" />
-    <Compile Include="source\PlayFabFileUtil.cs" />
-    <Compile Include="source\PlayFabUtil.cs" />
-    <Compile Include="source\IPlayFabPlugin.cs" />
-    <Compile Include="source\ISerializerPlugin.cs" />
-    <Compile Include="source\ITransportPlugin.cs" />
-    <Compile Include="source\PluginContract.cs" />
-    <Compile Include="source\PluginManager.cs" />
-    <Compile Include="source\Uunit\tests\HttpTests.cs" />
-    <Compile Include="source\Uunit\tests\PlayFabApiTest.cs" />
-    <Compile Include="source\Uunit\PluginManagerTest.cs" />
-    <Compile Include="source\Uunit\UUnitAssertException.cs" />
-    <Compile Include="source\Uunit\UUnitIncrementalTestRunner.cs" />
-    <Compile Include="source\Uunit\UUnitTestCase.cs" />
-    <Compile Include="source\Uunit\UUnitTestContext.cs" />
-    <Compile Include="source\Uunit\UUnitTestReport.cs" />
-    <Compile Include="source\Uunit\UUnitTestSuite.cs" />
-    <Compile Include="source\WsaReflectionExtensions.cs" />
+
+  <ItemGroup Condition=" '$(TargetFramework)' == 'net45' Or '$(TargetFramework)' == 'portable45-net45+win8+wpa81' ">
+    <Reference Include="System" />
+    <Reference Include="System.Collections" />
+    <Reference Include="System.Threading" />
+    <Reference Include="System.Threading.Tasks" />
+    <Reference Include="System.Linq" />
+    <Reference Include="System.Core" />
+    <Reference Include="System.Runtime" />
+    <Reference Include="System.Reflection" />
+    <Reference Include="System.Reflection.Extensions" />
+    <Reference Include="System.ComponentModel" />
+    <Reference Include="System.Text.Encoding" />
+    <Reference Include="System.Diagnostics.Tools" />
+    <Reference Include="System.Resources.ResourceManager" />
+    <Reference Include="System.Globalization" />
+    <Reference Include="System.Runtime.Extensions" />
+    <Reference Include="System.Net.Primitives" />
+    <Reference Include="System.Net.Http" />
+    <Reference Include="Microsoft.CSharp" />
   </ItemGroup>
-  <Import Project="$(MSBuildExtensionsPath32)\Microsoft\Portable\$(TargetFrameworkVersion)\Microsoft.Portable.CSharp.targets" />
+
 </Project>

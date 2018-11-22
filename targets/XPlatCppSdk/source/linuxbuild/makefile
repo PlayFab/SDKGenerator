@@ -39,6 +39,12 @@ OBJS = stdafx.o \
 	PlayFabProfilesApi.o \
 	PlayFabServerApi.o \
 	PlayFabSettings.o \
+	PlayFabEvent.o \
+	PlayFabEventApi.o \
+	PlayFabEventBuffer.o \
+	PlayFabEventPipeline.o \
+	PlayFabEventRouter.o \
+	PlayFabSpinLock.o \
 	DataCenterResult.o \
 	PlayFabQoSApi.o \
 	QoSSocket.o \

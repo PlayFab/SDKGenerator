@@ -32,12 +32,12 @@ namespace PlayFab.Internal
 
         public void SimplePutCall(string fullUrl, byte[] payload, Action<byte[]> successCallback, Action<string> errorCallback)
         {
-            PlayFabHttp.instance.StartCoroutine(SimpleCallCoroutine("put",fullUrl, payload, (result) => { successCallback(result); }, errorCallback));
+            PlayFabHttp.instance.StartCoroutine(SimpleCallCoroutine("put",fullUrl, payload, successCallback, errorCallback));
         }
 
         public void SimplePostCall(string fullUrl, byte[] payload, Action<byte[]> successCallback, Action<string> errorCallback)
         {
-            PlayFabHttp.instance.StartCoroutine(SimpleCallCoroutine("post", fullUrl, payload, (result) => { successCallback(result); }, errorCallback));
+            PlayFabHttp.instance.StartCoroutine(SimpleCallCoroutine("post", fullUrl, payload, successCallback, errorCallback));
         }
 
         private static IEnumerator SimpleCallCoroutine(string method, string fullUrl, byte[] payload, Action<byte[]> successCallback, Action<string> errorCallback)

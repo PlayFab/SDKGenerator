@@ -15,7 +15,8 @@ namespace PlayFab
 
     size_t PlayFab<%- api.name %>API::Update()
     {
-        return PlayFabHttp::Get().Update();
+        IPlayFabHttpPlugin& http = *PlayFabPluginManager::GetPlugin<IPlayFabHttpPlugin>(PlayFabPluginContract::PlayFab_Transport);
+        return http.Update();
     }
 
     void PlayFab<%- api.name %>API::ForgetAllCredentials()
@@ -42,7 +43,7 @@ namespace PlayFab
         std::unordered_map<std::string, std::string> headers;
         headers.emplace(<%- getAuthParams(apiCall) %>);
 
-        CallRequestContainer* reqContainer = new CallRequestContainer(
+        auto reqContainer = std::make_unique<CallRequestContainer>(
             "<%- apiCall.url %>",
             headers,
             jsonAsString,
@@ -52,12 +53,12 @@ namespace PlayFab
         reqContainer->successCallback = std::shared_ptr<void>((callback == nullptr) ? nullptr : new ProcessApiCallback<<%- apiCall.result %>>(callback));
         reqContainer->errorCallback = errorCallback;
 
-        http.MakePostRequest(*reqContainer);
+        http.MakePostRequest(std::unique_ptr<CallRequestContainerBase>(static_cast<CallRequestContainerBase*>(reqContainer.release())));
     }
 
-    void PlayFab<%- api.name %>API::On<%- apiCall.name %>Result(int httpCode, std::string result, CallRequestContainerBase& reqContainer)
+    void PlayFab<%- api.name %>API::On<%- apiCall.name %>Result(int httpCode, std::string result, std::unique_ptr<CallRequestContainerBase> reqContainer)
     {
-        CallRequestContainer& container = static_cast<CallRequestContainer&>(reqContainer);
+        CallRequestContainer& container = static_cast<CallRequestContainer&>(*reqContainer);
 
         <%- apiCall.result %> outResult;
         if (ValidateResult(outResult, container))
@@ -70,8 +71,6 @@ namespace PlayFab
                 callback(outResult, container.GetCustomData());
             }
         }
-
-        delete &container;
     }
 <% } %><% if (hasClientOptions) { %>
     // Private PlayFabClientAPI specific

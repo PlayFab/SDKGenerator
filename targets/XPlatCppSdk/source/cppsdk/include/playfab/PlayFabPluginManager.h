@@ -36,7 +36,15 @@ namespace PlayFab
         /// starts the process of making a post request.
         /// A user is expected to supply their own CallRequestContainerBase
         /// </summary>
-        virtual void MakePostRequest(const CallRequestContainerBase&) = 0;
+        virtual void MakePostRequest(std::unique_ptr<CallRequestContainerBase>) = 0;
+
+        /// <summary>
+        /// updates the process of making post requests.
+        /// This method can be used when plugin is not using a working thread and instead should execute 
+        /// its long-running operations via polling using this method.
+        /// Returns number of currently pending post requests.
+        /// </summary>
+        virtual size_t Update() = 0;
     };
 
     /// <summary>

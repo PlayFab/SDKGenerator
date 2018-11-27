@@ -77,6 +77,6 @@ namespace PlayFab
 
     std::shared_ptr<IPlayFabPlugin> PlayFabPluginManager::CreatePlayFabTransportPlugin()
     {
-        return IPlayFabHttp::GetPtr();
+        return std::make_shared<PlayFabHttp>();
     }
 }

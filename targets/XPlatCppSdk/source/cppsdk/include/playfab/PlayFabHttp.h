@@ -4,6 +4,7 @@
 #include <playfab/PlayFabPluginManager.h>
 #include <playfab/PlayFabError.h>
 #include <functional>
+#include <deque>
 #include <memory>
 #include <thread>
 #include <mutex>
@@ -18,56 +19,33 @@
 namespace PlayFab
 {
     /// <summary>
-    /// Provides an interface and a static instance for https implementations
-    /// </summary>
-    class IPlayFabHttp : public IPlayFabHttpPlugin
-    {
-    public:
-        static IPlayFabHttp& Get();
-        static std::shared_ptr<IPlayFabHttp> GetPtr();
-
-        virtual ~IPlayFabHttp() = 0;
-
-        virtual size_t Update() = 0;
-
-        virtual void MakePostRequest(const CallRequestContainerBase&) = 0;
-
-    protected:
-        static std::shared_ptr<IPlayFabHttp> httpInstance;
-    };
-
-    /// <summary>
     /// PlayFabHttp is the default https implementation for Win/C++, using cpprestsdk
     /// </summary>
-    class PlayFabHttp : public IPlayFabHttp
+    class PlayFabHttp : public IPlayFabHttpPlugin
     {
     public:
-        static void MakeInstance();
-        ~PlayFabHttp() override;
-
-        virtual void MakePostRequest(const CallRequestContainerBase&) override;
-
-        size_t Update() override;
-
-    private:
-        PlayFabHttp(); // Private constructor, to enforce singleton instance
-        PlayFabHttp(const PlayFabHttp& other); // Private copy-constructor, to enforce singleton instance
-
+        PlayFabHttp();
+        PlayFabHttp(const PlayFabHttp& other) = delete;
         PlayFabHttp(PlayFabHttp&& other) = delete;
         PlayFabHttp& operator=(PlayFabHttp&& other) = delete;
+        virtual ~PlayFabHttp();
 
+        virtual void MakePostRequest(std::unique_ptr<CallRequestContainerBase> requestContainer) override;
+        virtual size_t Update() override;
+
+    private:
         static size_t CurlReceiveData(char* buffer, size_t blockSize, size_t blockCount, void* userData);
-        static void ExecuteRequest(CallRequestContainer& reqContainer);
+        void ExecuteRequest(std::unique_ptr<CallRequestContainer> requestContainer);
         void WorkerThread();
-        static void HandleCallback(CallRequestContainer& reqContainer);
-        static void HandleResults(CallRequestContainer& reqContainer);
+        void HandleCallback(std::unique_ptr<CallRequestContainer> requestContainer);
+        void HandleResults(std::unique_ptr<CallRequestContainer> requestContainer);
 
-        std::thread pfHttpWorkerThread;
+        std::thread workerThread;
         std::mutex httpRequestMutex;
         bool threadRunning;
         int activeRequestCount;
-        std::vector<CallRequestContainerBase*> pendingRequests;
-        std::vector<CallRequestContainerBase*> pendingResults;
+        std::deque<std::unique_ptr<CallRequestContainerBase>> pendingRequests;
+        std::deque<std::unique_ptr<CallRequestContainerBase>> pendingResults;
     };
 }
 

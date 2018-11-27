@@ -10,64 +10,17 @@
 
 namespace PlayFab
 {
-    std::shared_ptr<IPlayFabHttp> IPlayFabHttp::httpInstance = nullptr;
-    IPlayFabHttp::~IPlayFabHttp() = default;
-    IPlayFabHttp& IPlayFabHttp::Get()
-    {
-        return *GetPtr().get();
-    }
-
-    std::shared_ptr<IPlayFabHttp> IPlayFabHttp::GetPtr()
-    {
-        // In the future we could make it easier to override this instance with a sub-type, for now it defaults to the only one we have
-        if (httpInstance == nullptr)
-        {
-            PlayFabHttp::MakeInstance();
-        }
-
-        return httpInstance;
-    }
-
     PlayFabHttp::PlayFabHttp()
     {
         activeRequestCount = 0;
         threadRunning = true;
-        pfHttpWorkerThread = std::thread(&PlayFabHttp::WorkerThread, this);
+        workerThread = std::thread(&PlayFabHttp::WorkerThread, this);
     };
 
     PlayFabHttp::~PlayFabHttp()
     {
         threadRunning = false;
-        pfHttpWorkerThread.join();
-        for (size_t i = 0; i < pendingRequests.size(); ++i)
-        {
-            delete pendingRequests[i];
-        }
-
-        pendingRequests.clear();
-
-        for (size_t i = 0; i < pendingResults.size(); ++i)
-        {
-            delete pendingResults[i];
-        }
-
-        pendingResults.clear();
-
-        activeRequestCount = 0;
-    }
-
-    void PlayFabHttp::MakeInstance()
-    {
-        if (httpInstance == nullptr)
-        {
-#if __cplusplus > 201103L
-            class _PlayFabHttp : public PlayFabHttp {}; // Hack to bypass private constructor on PlayFabHttp
-            httpInstance = std::make_shared<_PlayFabHttp>();
-#else
-#pragma message("PlayFab SDK: C++11 support is not well tested. Please consider upgrading to the latest version of Visual Studio")
-            httpInstance = std::shared_ptr<PlayFabHttp>(new PlayFabHttp());
-#endif
-        }
+        workerThread.join();
     }
 
     void PlayFabHttp::WorkerThread()
@@ -76,7 +29,7 @@ namespace PlayFab
 
         while (this->threadRunning)
         {
-            CallRequestContainerBase* reqContainer = nullptr;
+            std::unique_ptr<CallRequestContainerBase> requestContainer = nullptr;
 
             { // LOCK httpRequestMutex
                 std::unique_lock<std::mutex> lock(this->httpRequestMutex);
@@ -84,8 +37,8 @@ namespace PlayFab
                 queueSize = this->pendingRequests.size();
                 if (queueSize != 0)
                 {
-                    reqContainer = this->pendingRequests[this->pendingRequests.size() - 1];
-                    this->pendingRequests.pop_back();
+                    requestContainer = std::move(this->pendingRequests[0]);
+                    this->pendingRequests.pop_front();
                 }
             } // UNLOCK httpRequestMutex
 
@@ -95,27 +48,32 @@ namespace PlayFab
                 continue;
             }
 
-            if (reqContainer != nullptr)
+            if (requestContainer != nullptr)
             {
-                ExecuteRequest(*static_cast<CallRequestContainer*>(reqContainer));
+                CallRequestContainer* requestContainerPtr = dynamic_cast<CallRequestContainer*>(requestContainer.get());
+                if (requestContainerPtr != nullptr)
+                {
+                    requestContainer.release();
+                    ExecuteRequest(std::unique_ptr<CallRequestContainer>(requestContainerPtr));
+                }
             }
         }
     }
 
-    void PlayFabHttp::HandleCallback(CallRequestContainer& reqContainer)
+    void PlayFabHttp::HandleCallback(std::unique_ptr<CallRequestContainer> requestContainer)
     {
+        CallRequestContainer& reqContainer = *requestContainer;
         reqContainer.finished = true;
         if (PlayFabSettings::threadedCallbacks)
         {
-            HandleResults(reqContainer);
+            HandleResults(std::move(requestContainer));
         }
 
         if (!PlayFabSettings::threadedCallbacks)
         {
-            PlayFabHttp& instance = static_cast<PlayFabHttp&>(Get());
             { // LOCK httpRequestMutex
-                std::unique_lock<std::mutex> lock(instance.httpRequestMutex);
-                instance.pendingResults.push_back(&reqContainer);
+                std::unique_lock<std::mutex> lock(httpRequestMutex);
+                pendingResults.push_back(std::unique_ptr<CallRequestContainerBase>(static_cast<CallRequestContainerBase*>(requestContainer.release())));
             } // UNLOCK httpRequestMutex
         }
     }
@@ -128,17 +86,19 @@ namespace PlayFab
         return (blockSize * blockCount);
     }
 
-    void PlayFabHttp::MakePostRequest(const CallRequestContainerBase& reqContainer)
+    void PlayFabHttp::MakePostRequest(std::unique_ptr<CallRequestContainerBase> requestContainer)
     {
         { // LOCK httpRequestMutex
             std::unique_lock<std::mutex> lock(httpRequestMutex);
-            pendingRequests.push_back(const_cast<CallRequestContainerBase*>(&reqContainer));
+            pendingRequests.push_back(std::move(requestContainer));
             activeRequestCount++;
         } // UNLOCK httpRequestMutex
     }
 
-    void PlayFabHttp::ExecuteRequest(CallRequestContainer& reqContainer)
+    void PlayFabHttp::ExecuteRequest(std::unique_ptr<CallRequestContainer> requestContainer)
     {
+        CallRequestContainer& reqContainer = *requestContainer;
+
         // Set up curl handle
         reqContainer.curlHandle = curl_easy_init();
         curl_easy_reset(reqContainer.curlHandle);
@@ -189,7 +149,7 @@ namespace PlayFab
             reqContainer.errorWrapper.ErrorCode = PlayFabErrorConnectionTimeout;
             reqContainer.errorWrapper.ErrorName = "Failed to contact server";
             reqContainer.errorWrapper.ErrorMessage = "Failed to contact server, curl error: " + std::to_string(res);
-            HandleCallback(reqContainer);
+            HandleCallback(std::move(requestContainer));
         }
         else
         {
@@ -216,19 +176,20 @@ namespace PlayFab
                 reqContainer.errorWrapper.ErrorMessage = jsonParseErrors;
             }
 
-            HandleCallback(reqContainer);
+            HandleCallback(std::move(requestContainer));
         }
     }
 
-    void PlayFabHttp::HandleResults(CallRequestContainer& reqContainer)
+    void PlayFabHttp::HandleResults(std::unique_ptr<CallRequestContainer> requestContainer)
     {
+        CallRequestContainer& reqContainer = *requestContainer;
         auto callback = reqContainer.GetCallback();
         if (callback != nullptr)
         {
             callback(
                 reqContainer.responseJson.get("code", Json::Value::null).asInt(),
                 reqContainer.responseString,
-                reqContainer);
+                std::unique_ptr<CallRequestContainerBase>(static_cast<CallRequestContainerBase*>(requestContainer.release())));
         }
     }
 
@@ -239,7 +200,7 @@ namespace PlayFab
             throw std::runtime_error("You should not call Update() when PlayFabSettings::threadedCallbacks == true");
         }
 
-        CallRequestContainerBase* reqContainer;
+        std::unique_ptr<CallRequestContainerBase> requestContainer = nullptr;
         { // LOCK httpRequestMutex
             std::unique_lock<std::mutex> lock(httpRequestMutex);
             if (pendingResults.empty())
@@ -247,13 +208,12 @@ namespace PlayFab
                 return activeRequestCount;
             }
 
-            reqContainer = pendingResults[pendingResults.size() - 1];
-            pendingResults.pop_back();
+            requestContainer = std::move(this->pendingResults[0]);
+            this->pendingResults.pop_front();
             activeRequestCount--;
         } // UNLOCK httpRequestMutex
 
-        // The callback called from HandleResults may delete the object pointed by reqContainer from the heap; do not use it after this call
-        HandleResults(*static_cast<CallRequestContainer*>(reqContainer));
+        HandleResults(std::unique_ptr<CallRequestContainer>(static_cast<CallRequestContainer*>(requestContainer.release())));
 
         // activeRequestCount can be altered by HandleResults, so we have to re-lock and return an updated value
         { // LOCK httpRequestMutex

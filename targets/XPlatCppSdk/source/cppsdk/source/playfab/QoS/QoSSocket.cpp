@@ -16,7 +16,7 @@ namespace PlayFab
     {
         QoSSocket::QoSSocket()
         {
-            xPlatSocket = make_unique<XPlatSocket>();
+            xPlatSocket = std::unique_ptr<XPlatSocket>(new XPlatSocket());
         }
 
         int QoSSocket::ConfigureSocket(int timeoutMs)

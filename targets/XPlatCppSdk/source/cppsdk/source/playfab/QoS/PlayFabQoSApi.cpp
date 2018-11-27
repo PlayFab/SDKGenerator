@@ -219,7 +219,7 @@ namespace PlayFab
             // Setup sockets based on the number of threads
             for (int i = 0; i < numThreads; ++i)
             {
-                shared_ptr<QoSSocket> socket = make_shared<QoSSocket>();
+                shared_ptr<QoSSocket> socket = shared_ptr<QoSSocket>(new QoSSocket());
 
                 int errorCode;
                 if ((errorCode = socket->ConfigureSocket(timeoutMs)) == 0)

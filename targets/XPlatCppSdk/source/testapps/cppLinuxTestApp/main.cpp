@@ -164,7 +164,7 @@ void EmitEvents(PlayFab::PlayFabEventAPI& api)
     // emit several events fast, they will be batched up in a pipeline according to pipeline's settings
     for (int i = 0; i < numberOfEventsEmitted; i++)
     {
-        auto event = std::make_unique<PlayFab::PlayFabEvent>();
+        auto event = std::unique_ptr<PlayFab::PlayFabEvent>(new PlayFab::PlayFabEvent());
 
         // user can specify whether it's 
         // - lightweight (goes to 1DS), 

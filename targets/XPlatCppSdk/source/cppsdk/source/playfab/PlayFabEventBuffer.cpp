@@ -24,10 +24,10 @@ namespace PlayFab
         const size_t bufferSize) 
         : 
         buffMask(AdjustBufferSize(bufferSize) - 1),
-        bufferArray(std::make_unique<uint8_t[]>(buffMask + 1)),
+        bufferArray(std::unique_ptr<uint8_t[]>(new uint8_t[buffMask + 1])),
         buffStart((uint64_t)(bufferArray.get())),
         buffEnd(buffStart + buffMask + 1),
-        eventIndex(std::make_shared<std::atomic<uint64_t>>(0)),
+        eventIndex(std::shared_ptr<std::atomic<uint64_t>>(new std::atomic<uint64_t>(0))),
         disabled(false)
     {
         uint8_t *buffer = (uint8_t*)buffStart;

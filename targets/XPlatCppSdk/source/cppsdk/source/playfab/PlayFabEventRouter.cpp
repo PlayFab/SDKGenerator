@@ -13,7 +13,7 @@ namespace PlayFab
 
     PlayFabEventRouter::PlayFabEventRouter()
     {
-        this->pipelines.emplace(0, std::move(std::make_shared<PlayFabEventPipeline>(std::make_shared<PlayFabEventPipelineSettings>()))); // add PlayFab pipeline by default
+        this->pipelines.emplace(0, std::move(std::shared_ptr<PlayFabEventPipeline>(new PlayFabEventPipeline(std::shared_ptr<PlayFabEventPipelineSettings>(new PlayFabEventPipelineSettings()))))); // add PlayFab pipeline by default
     }
 
     void PlayFabEventRouter::RouteEvent(std::shared_ptr<const IPlayFabEmitEventRequest> request) const

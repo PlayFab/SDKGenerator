@@ -88,7 +88,7 @@ namespace PlayFab
 
             // pipeline failed to intake the event, create a response
             const auto& playFabEmitRequest = std::dynamic_pointer_cast<const PlayFabEmitEventRequest>(request);
-            auto playFabEmitEventResponse = std::make_shared<PlayFabEmitEventResponse>();
+            auto playFabEmitEventResponse = std::shared_ptr<PlayFabEmitEventResponse>(new PlayFabEmitEventResponse());
             playFabEmitEventResponse->emitEventResult = emitResult;
 
             // call an emit event callback
@@ -212,16 +212,16 @@ namespace PlayFab
             }
             else
             {
-                auto requestBatchPtr = std::make_shared<const std::vector<std::shared_ptr<const IPlayFabEmitEventRequest>>>(std::move(foundBatchIterator->second));
+                auto requestBatchPtr = std::shared_ptr<const std::vector<std::shared_ptr<const IPlayFabEmitEventRequest>>>(new std::vector<std::shared_ptr<const IPlayFabEmitEventRequest>>(std::move(foundBatchIterator->second)));
 
                 // call individual emit event callbacks
                 for (const auto& eventEmitRequest : *requestBatchPtr)
                 {
                     const auto& playFabEmitRequest = std::dynamic_pointer_cast<const PlayFabEmitEventRequest>(eventEmitRequest);
-                    auto playFabEmitEventResponse = std::make_shared<PlayFabEmitEventResponse>();
+                    auto playFabEmitEventResponse = std::shared_ptr<PlayFabEmitEventResponse>(new PlayFabEmitEventResponse());
                     playFabEmitEventResponse->emitEventResult = EmitEventResult::Success;
-                    playFabEmitEventResponse->playFabError = std::make_shared<PlayFabError>(); // success code by default
-                    playFabEmitEventResponse->writeEventsResponse = std::make_shared<EventsModels::WriteEventsResponse>(result);
+                    playFabEmitEventResponse->playFabError = std::shared_ptr<PlayFabError>(new PlayFabError()); // success code by default
+                    playFabEmitEventResponse->writeEventsResponse = std::shared_ptr<EventsModels::WriteEventsResponse>(new EventsModels::WriteEventsResponse(result));
                     playFabEmitEventResponse->batch = requestBatchPtr;
                     playFabEmitEventResponse->batchNumber = reinterpret_cast<size_t>(customData);
 
@@ -251,15 +251,15 @@ namespace PlayFab
             }
             else
             {
-                auto requestBatchPtr = std::make_shared<const std::vector<std::shared_ptr<const IPlayFabEmitEventRequest>>>(std::move(foundBatchIterator->second));
+                auto requestBatchPtr = std::shared_ptr<const std::vector<std::shared_ptr<const IPlayFabEmitEventRequest>>>(new std::vector<std::shared_ptr<const IPlayFabEmitEventRequest>>(std::move(foundBatchIterator->second)));
 
                 // call individual emit event callbacks
                 for (const auto& eventEmitRequest : *requestBatchPtr)
                 {
                     const auto& playFabEmitRequest = std::dynamic_pointer_cast<const PlayFabEmitEventRequest>(eventEmitRequest);
-                    auto playFabEmitEventResponse = std::make_shared<PlayFabEmitEventResponse>();
+                    auto playFabEmitEventResponse = std::shared_ptr<PlayFabEmitEventResponse>(new PlayFabEmitEventResponse());
                     playFabEmitEventResponse->emitEventResult = EmitEventResult::Success;
-                    playFabEmitEventResponse->playFabError = std::make_shared<PlayFabError>(error);
+                    playFabEmitEventResponse->playFabError = std::shared_ptr<PlayFabError>(new PlayFabError(error));
                     playFabEmitEventResponse->batch = requestBatchPtr;
                     playFabEmitEventResponse->batchNumber = reinterpret_cast<size_t>(customData);
 

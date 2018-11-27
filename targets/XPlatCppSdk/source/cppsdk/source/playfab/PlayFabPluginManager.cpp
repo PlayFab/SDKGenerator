@@ -72,11 +72,11 @@ namespace PlayFab
 
     std::shared_ptr<IPlayFabPlugin> PlayFabPluginManager::CreatePlayFabSerializerPlugin()
     {
-        return std::make_shared<IPlayFabSerializerPlugin>();
+        return std::shared_ptr<IPlayFabSerializerPlugin>(new IPlayFabSerializerPlugin());
     }
 
     std::shared_ptr<IPlayFabPlugin> PlayFabPluginManager::CreatePlayFabTransportPlugin()
     {
-        return std::make_shared<PlayFabHttp>();
+        return std::shared_ptr<PlayFabHttp>(new PlayFabHttp());
     }
 }

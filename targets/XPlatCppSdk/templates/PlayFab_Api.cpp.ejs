@@ -43,12 +43,12 @@ namespace PlayFab
         std::unordered_map<std::string, std::string> headers;
         headers.emplace(<%- getAuthParams(apiCall) %>);
 
-        auto reqContainer = std::make_unique<CallRequestContainer>(
+        auto reqContainer = std::unique_ptr<CallRequestContainer>(new CallRequestContainer(
             "<%- apiCall.url %>",
             headers,
             jsonAsString,
             On<%- apiCall.name %>Result,
-            customData);
+            customData));
 
         reqContainer->successCallback = std::shared_ptr<void>((callback == nullptr) ? nullptr : new ProcessApiCallback<<%- apiCall.result %>>(callback));
         reqContainer->errorCallback = errorCallback;

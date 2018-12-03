@@ -148,10 +148,23 @@ function makeApi(api, sourceDir, apiOutputDir) {
         getCustomApiFunction: getCustomApiFunction,
         hasEntityTokenOptions: api.name === "Authentication",
         hasClientOptions: getAuthMechanisms([api]).includes("SessionTicket"),
+        isPartial: isPartial(api.name)
     };
 
     var apiTemplate = getCompiledTemplate(path.resolve(templateDir, "API.cs.ejs"));
     writeFile(path.resolve(apiOutputDir, api.name + "/PlayFab" + api.name + "API.cs"), apiTemplate(apiLocals));
+}
+
+function isPartial(api)
+{
+    if (api === "Multiplayer")
+    {
+        return "partial ";
+    }
+    else
+    {
+        return "";
+    }
 }
 
 // Some apis have entirely custom built functions to augment apis in ways that aren't generate-able

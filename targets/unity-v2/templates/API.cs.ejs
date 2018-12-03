@@ -9,7 +9,7 @@ using PlayFab.Public;
 namespace PlayFab
 {
 <%- generateApiSummary("    ", api, "description")
-%>    public static class PlayFab<%- api.name %>API
+%>    public static <%- isPartial %>class PlayFab<%- api.name %>API
     {
         static PlayFab<%- api.name %>API() {}
 <% if (hasClientOptions) { %>

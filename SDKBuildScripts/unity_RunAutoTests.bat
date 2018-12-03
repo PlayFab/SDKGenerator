@@ -67,47 +67,66 @@ goto :EOF
 :SetEachProjDefine
 cd "%ProjRootPath%\%1"
 %UnityExe% -projectPath "%ProjRootPath%\%1" -quit -batchmode -executeMethod SetupPlayFabExample.Setup -logFile "%ProjRootPath%\compile%1.txt"
-if %errorLevel% NEQ 0 (exit /b %errorLevel%)
+if %errorLevel% NEQ 0 (
+    type "%ProjRootPath%\compile%1.txt"
+    exit /b %errorLevel%
+)
 goto :EOF
 
 :RunClientJenkernaught1
 echo === Build Win32 Client Target ===
 cd "%ProjRootPath%\%SdkName%_TC"
 %UnityExe% -projectPath "%ProjRootPath%\%SdkName%_TC" -quit -batchmode -executeMethod PlayFab.Internal.PlayFabPackager.MakeWin32TestingBuild -logFile "%ProjRootPath%\buildWin32Client.txt"
-if %errorLevel% NEQ 0 (exit /b %errorLevel%)
+if %errorLevel% NEQ 0 (
+    type "%ProjRootPath%\buildWin32Client.txt"
+    exit /b %errorLevel%
+)
 goto :EOF
 
 :RunClientJenkernaught2
 echo === Run the %UnityExe% Client UnitTests ===
 cd "%ProjRootPath%\%SdkName%_TC\testBuilds"
 Win32test -batchmode -nographics -logFile "%ProjRootPath%\clientTestOutput.txt"
-if %errorLevel% NEQ 0 (exit /b %errorLevel%)
+if %errorLevel% NEQ 0 (
+    exit /b %errorLevel%
+)
 goto :EOF
 
 :RunClientJenkernaught3
 echo === Save test results to Jenkernaught ===
 cd %WORKSPACE%/SDKGenerator/JenkinsConsoleUtility/bin/Debug
 JenkinsConsoleUtility --listencs -buildIdentifier %BuildIdentifier% -workspacePath %WORKSPACE% -timeout 30 -verbose true
-if %errorLevel% NEQ 0 (exit /b %errorLevel%)
+if %errorLevel% NEQ 0 (
+    exit /b %errorLevel%
+)
 goto :EOF
 
 :BuildAndroid
 echo === Build Android Target ===
 cd "%ProjRootPath%\%SdkName%_TC"
 %UnityExe% -projectPath "%ProjRootPath%\%SdkName%_TC" -quit -batchmode -executeMethod PlayFab.Internal.PlayFabPackager.MakeAndroidBuild -logFile "%ProjRootPath%\buildAndroidOutput.txt"
-if %errorLevel% NEQ 0 (exit /b %errorLevel%)
+if %errorLevel% NEQ 0 (
+    "%ProjRootPath%\buildAndroidOutput.txt"
+    exit /b %errorLevel%
+)
 goto :EOF
 
 :BuildiPhone
 echo === Build iPhone Target ===
 cd "%ProjRootPath%\%SdkName%_TC"
 %UnityExe% -projectPath "%ProjRootPath%\%SdkName%_TC" -quit -batchmode -executeMethod PlayFab.Internal.PlayFabPackager.MakeIPhoneBuild -logFile "%ProjRootPath%\buildiPhoneOutput.txt"
-if %errorLevel% NEQ 0 (exit /b %errorLevel%)
+if %errorLevel% NEQ 0 (
+    type "%ProjRootPath%\buildiPhoneOutput.txt"
+    exit /b %errorLevel%
+)
 goto :EOF
 
 :BuildWp8
 echo === Build WinPhone Target ===
 cd "%ProjRootPath%\%SdkName%_TC"
 %UnityExe% -projectPath "%ProjRootPath%\%SdkName%_TC" -quit -batchmode -executeMethod PlayFab.Internal.PlayFabPackager.MakeWp8Build -logFile "%ProjRootPath%\buildWp8Output.txt"
-if %errorLevel% NEQ 0 (exit /b %errorLevel%)
+if %errorLevel% NEQ 0 (
+    type "%ProjRootPath%\buildWp8Output.txt"
+    exit /b %errorLevel%
+)
 goto :EOF

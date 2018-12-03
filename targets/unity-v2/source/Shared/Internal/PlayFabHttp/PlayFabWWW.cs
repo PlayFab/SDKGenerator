@@ -67,7 +67,7 @@ namespace PlayFab.Internal
                 }
                 else
                 {
-                    var strPayload = System.Text.Encoding.UTF8.GetString(payload);
+                    var strPayload = System.Text.Encoding.UTF8.GetString(payload, 0, payload.Length);
                     request = UnityWebRequest.Post(fullUrl, strPayload);
                 }
 

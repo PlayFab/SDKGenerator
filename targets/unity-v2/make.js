@@ -22,8 +22,7 @@ exports.MakeUnityV2Sdk = function (apis, sourceDir, apiOutputDir) {
         sdkVersion: sdkGlobals.sdkVersion,
         buildIdentifier: sdkGlobals.buildIdentifier,
         hasClientOptions: getAuthMechanisms(apis).includes("SessionTicket"),
-        getVerticalNameDefault: getVerticalNameDefault,
-        isPartial: isPartial(apis.name)
+        getVerticalNameDefault: getVerticalNameDefault
     };
 
     templatizeTree(locals, path.resolve(sourceDir, "source"), apiOutputDir);

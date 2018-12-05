@@ -61,7 +61,7 @@
       <PreprocessorDefinitions>_DEBUG;_LIB;CURL_STATICLIB;<%- extraDefines %>%(PreprocessorDefinitions)</PreprocessorDefinitions>
       <ConformanceMode>true</ConformanceMode>
       <PrecompiledHeaderFile>stdafx.h</PrecompiledHeaderFile>
-      <AdditionalIncludeDirectories>$(ProjectDir);$(ProjectDir)/../external/deps-debug/include;$(ProjectDir)/include</AdditionalIncludeDirectories>
+      <AdditionalIncludeDirectories>$(ProjectDir);$(ProjectDir)/../external/deps-debug/include;$(ProjectDir)/../external/aria/lib/include/public;$(ProjectDir)/../external/aria/lib;$(ProjectDir)/../external/aria/bondlite/include/bond_lite;$(ProjectDir)/../external/aria/bondlite/generated;$(ProjectDir)/include</AdditionalIncludeDirectories>
       <DebugInformationFormat>ProgramDatabase</DebugInformationFormat>
       <MinimalRebuild>false</MinimalRebuild>
       <MultiProcessorCompilation>true</MultiProcessorCompilation>
@@ -89,7 +89,7 @@
       <PreprocessorDefinitions>_LIB;CURL_STATICLIB;<%- extraDefines %>%(PreprocessorDefinitions)</PreprocessorDefinitions>
       <ConformanceMode>true</ConformanceMode>
       <PrecompiledHeaderFile>stdafx.h</PrecompiledHeaderFile>
-      <AdditionalIncludeDirectories>$(ProjectDir);$(ProjectDir)/../external/deps-release/include;$(ProjectDir)/include</AdditionalIncludeDirectories>
+      <AdditionalIncludeDirectories>$(ProjectDir);$(ProjectDir)/../external/deps-release/include;$(ProjectDir)/../external/aria/lib/include/public;$(ProjectDir)/../external/aria/lib;$(ProjectDir)/../external/aria/bondlite/include/bond_lite;$(ProjectDir)/../external/aria/bondlite/generated;$(ProjectDir)/include</AdditionalIncludeDirectories>
       <DebugInformationFormat>ProgramDatabase</DebugInformationFormat>
       <MinimalRebuild>false</MinimalRebuild>
       <MultiProcessorCompilation>true</MultiProcessorCompilation>
@@ -110,6 +110,8 @@
     </Lib>
   </ItemDefinitionGroup>
   <ItemGroup>
+    <ClInclude Include="include\playfab\OneDSHttpPlugin.h" />
+    <ClInclude Include="include\playfab\OneDSEventsApi.h" />
     <ClInclude Include="include\playfab\PlayFabBaseModel.h" />
 <% for(var i in apis) { var api = apis[i];%>
     <ClInclude Include="include\playfab\PlayFab<%- api.name %>Api.h" />
@@ -136,6 +138,8 @@
     <ClInclude Include="stdafx.h" />
   </ItemGroup>
   <ItemGroup>
+    <ClCompile Include="source\playfab\OneDSHttpPlugin.cpp" />
+    <ClCompile Include="source\playfab\OneDSEventsApi.cpp" />
 <% for(var i in apis) { var api = apis[i];%>
     <ClCompile Include="source\playfab\PlayFab<%- api.name %>Api.cpp" /><% } %>
     <ClCompile Include="source\playfab\PlayFabEvent.cpp" />

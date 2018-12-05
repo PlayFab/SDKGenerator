@@ -19,7 +19,7 @@
 namespace PlayFab
 {
     /// <summary>
-    /// PlayFabHttp is the default https implementation for Win/C++, using cpprestsdk
+    /// PlayFabHttp is the default https implementation to interact with PlayFab services using curl.
     /// </summary>
     class PlayFabHttp : public IPlayFabHttpPlugin
     {
@@ -33,9 +33,9 @@ namespace PlayFab
         virtual void MakePostRequest(std::unique_ptr<CallRequestContainerBase> requestContainer) override;
         virtual size_t Update() override;
 
-    private:
+    protected:
         static size_t CurlReceiveData(char* buffer, size_t blockSize, size_t blockCount, void* userData);
-        void ExecuteRequest(std::unique_ptr<CallRequestContainer> requestContainer);
+        virtual void ExecuteRequest(std::unique_ptr<CallRequestContainer> requestContainer);
         void WorkerThread();
         void HandleCallback(std::unique_ptr<CallRequestContainer> requestContainer);
         void HandleResults(std::unique_ptr<CallRequestContainer> requestContainer);

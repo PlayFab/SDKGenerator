@@ -9,7 +9,7 @@ namespace PlayFab
 {
     /// <summary>
     /// Main interface for PlayFab Sdk, specifically all Lightweight/Heavyweight Event APIs.
-    /// This class contains public methods of playstream event API for single events.
+    /// This class contains public methods of event API for single events.
     /// </summary>
     class PlayFabEventAPI
     {

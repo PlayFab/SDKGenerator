@@ -620,6 +620,8 @@
     <Content Include="targets\XPlatCppSdk\source\com.playfab.xplatcppsdk.v141.autopkg.ejs" />
     <Content Include="targets\XPlatCppSdk\source\cppsdk\configLinux.json" />
     <Content Include="targets\XPlatCppSdk\source\cppsdk\configWindows.json" />
+    <Content Include="targets\XPlatCppSdk\source\cppsdk\include\playfab\OneDSEventsApi.h" />
+    <Content Include="targets\XPlatCppSdk\source\cppsdk\include\playfab\OneDSHttpPlugin.h" />
     <Content Include="targets\XPlatCppSdk\source\cppsdk\include\playfab\PlayFabBaseModel.h" />
     <Content Include="targets\XPlatCppSdk\source\cppsdk\include\playfab\PlayFabCallRequestContainer.h" />
     <Content Include="targets\XPlatCppSdk\source\cppsdk\include\playfab\PlayFabCallRequestContainerBase.h" />
@@ -641,6 +643,8 @@
     <Content Include="targets\XPlatCppSdk\source\cppsdk\include\playfab\QoS\QoSSocket.h" />
     <Content Include="targets\XPlatCppSdk\source\cppsdk\include\playfab\QoS\XPlatSocket.h" />
     <Content Include="targets\XPlatCppSdk\source\cppsdk\packages.config" />
+    <Content Include="targets\XPlatCppSdk\source\cppsdk\source\playfab\OneDSEventsApi.cpp" />
+    <Content Include="targets\XPlatCppSdk\source\cppsdk\source\playfab\OneDSHttpPlugin.cpp" />
     <Content Include="targets\XPlatCppSdk\source\cppsdk\source\playfab\PlayFabCallRequestContainer.cpp" />
     <Content Include="targets\XPlatCppSdk\source\cppsdk\source\playfab\PlayFabCallRequestContainerBase.cpp" />
     <Content Include="targets\XPlatCppSdk\source\cppsdk\source\playfab\PlayFabError.cpp" />

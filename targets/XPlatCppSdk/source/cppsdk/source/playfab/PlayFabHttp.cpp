@@ -102,6 +102,7 @@ namespace PlayFab
         // Set up curl handle
         reqContainer.curlHandle = curl_easy_init();
         curl_easy_reset(reqContainer.curlHandle);
+        curl_easy_setopt(reqContainer.curlHandle, CURLOPT_NOSIGNAL, true);
         curl_easy_setopt(reqContainer.curlHandle, CURLOPT_URL, PlayFabSettings::GetUrl(reqContainer.GetUrl(), PlayFabSettings::requestGetParams).c_str());
 
         // Set up headers

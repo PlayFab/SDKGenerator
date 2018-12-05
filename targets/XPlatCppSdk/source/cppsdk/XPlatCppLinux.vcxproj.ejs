@@ -65,6 +65,8 @@
     </Lib>
   </ItemDefinitionGroup>
   <ItemGroup>
+    <ClInclude Include="include\playfab\OneDSHttpPlugin.h" />
+    <ClInclude Include="include\playfab\OneDSEventsApi.h" />
     <ClInclude Include="include\playfab\PlayFabBaseModel.h" />
 <% for(var i in apis) { var api = apis[i];
 %>
@@ -93,6 +95,8 @@
     <ClInclude Include="stdafx.h" />
   </ItemGroup>
   <ItemGroup>
+    <ClCompile Include="source\playfab\OneDSHttpPlugin.cpp" />
+    <ClCompile Include="source\playfab\OneDSEventsApi.cpp" />
 <% for(var i in apis) { var api = apis[i];
 %>
     <ClInclude Include="source\playfab\PlayFab<%- api.name %>Api.cpp"/>

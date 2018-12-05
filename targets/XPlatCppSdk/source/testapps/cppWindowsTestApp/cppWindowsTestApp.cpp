@@ -1,8 +1,10 @@
-﻿
-// Copyright (C) Microsoft Corporation. All rights reserved.
+﻿// Copyright (C) Microsoft Corporation. All rights reserved.
 
-#include <cppWindowsTestAppPch.h>
+#include <iostream>
+#include <cstdio>
+#include <memory>
 
+#include "cppWindowsTestAppPch.h"
 #include <playfab/PlayFabClientApi.h>
 #include <playfab/PlayFabClientDataModels.h>
 #include <playfab/PlayFabAuthenticationApi.h>
@@ -13,9 +15,12 @@
 #include <playfab/PlayFabEventsDataModels.h>
 #include <playfab/PlayFabEventsApi.h>
 #include <playfab/PlayFabEventApi.h>
+#include <playfab/OneDSEventsApi.h>
+#include <playfab/OneDSHttpPlugin.h>
 
 #include <playfab/QoS/PlayFabQoSApi.h>
-#include <iostream>
+
+using namespace std;
 
 constexpr int numberOfEventsEmitted = 6;
 
@@ -56,6 +61,18 @@ void EmitEventCallback(std::shared_ptr<const PlayFab::IPlayFabEvent> event, std:
     {
         operationCompleted = true;
     }
+}
+
+void OnOneDSWriteTelemetryEventsSucceeded(const PlayFab::EventsModels::WriteEventsResponse& result, void*)
+{
+    printf(("========== OneDS WriteTelemetryEvents Succeeded: " + result.ToJson().toStyledString() + "\n").c_str());
+    operationCompleted = true;
+}
+
+void OnOneDSWriteTelemetryEventsFailed(const PlayFab::PlayFabError& error, void*)
+{
+    printf(("========== OneDS WriteTelemetryEvents Failed: " + error.GenerateErrorReport() + "\n").c_str());
+    operationCompleted = true;
 }
 
 void OnWriteEventsSucceeded(const PlayFab::EventsModels::WriteEventsResponse& result, void*)
@@ -170,7 +187,6 @@ void TestPlayFabEventsApi()
     // send several events
     for (int i = 0; i < 2; i++)
     {
-        PlayFab::EventsModels::EventContents event1;
         req.Events.push_back(CreateEventContents("event_A_", i));
         req.Events.push_back(CreateEventContents("event_B_", i));
     }
@@ -227,6 +243,34 @@ void TestPlayFabEventApi()
     }
 }
 
+void TestOneDSEventsApi()
+{
+    // set OneDS HTTP plugin
+    auto oneDSHttpPlugin = std::shared_ptr<PlayFab::OneDSHttpPlugin>(new PlayFab::OneDSHttpPlugin());
+    PlayFab::PlayFabPluginManager::SetPlugin(oneDSHttpPlugin, PlayFab::PlayFabPluginContract::PlayFab_Transport, PlayFab::PLUGIN_TRANSPORT_ONEDS);
+
+    // create OneDS Events API instance
+    PlayFab::OneDSEventsAPI api;
+    PlayFab::EventsModels::WriteEventsRequest req;
+
+    // send several events
+    for (int j = 0; j < 5; j++)
+    {
+        for (int i = 0; i < 2; i++)
+        {
+            req.Events.push_back(CreateEventContents("event_AA_", i));
+            req.Events.push_back(CreateEventContents("event_BB_", i));
+        }
+    }
+
+    operationCompleted = false;
+    api.WriteTelemetryEvents(req, &OnOneDSWriteTelemetryEventsSucceeded, &OnOneDSWriteTelemetryEventsFailed);
+    while (!operationCompleted)
+    {
+        std::this_thread::yield();
+    }
+}
+
 int main()
 {
     // Super hacky short-term functionality PlayFab Test - TODO: Put the regular set of tests into proper Unit Test project
@@ -240,7 +284,7 @@ int main()
 
     while (!loginCompleted)
     {
-        Sleep(10);
+        std::this_thread::yield();
     }
 
     TestGetQosResultApi();
@@ -251,6 +295,9 @@ int main()
     // PlayFab lightweight/heavyweight events (emitted individually
     // and processed in a background thread using event pipeline (router, batching, etc))
     TestPlayFabEventApi();
+
+    // OneDS Events API (lightweight events sent as a whole batch)
+    TestOneDSEventsApi();
 
     return 0;
 }

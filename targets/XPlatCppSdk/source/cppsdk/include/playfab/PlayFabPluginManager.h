@@ -9,6 +9,8 @@
 
 namespace PlayFab
 {
+    const std::string PLUGIN_TRANSPORT_ONEDS = "PLUGIN_TRANSPORT_ONEDS";
+
     /// <summary>
     /// The enumeration of supported plugin contracts.
     /// </summary>

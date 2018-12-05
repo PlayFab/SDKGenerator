@@ -15,7 +15,7 @@ var copyright =
 
 exports.makeCombinedAPI = function (apis, sourceDir, baseApiOutputDir) {
     // The list of current supported UE versions - Intended to be the latest 3
-    var ueTargetVersions = ["4.18", "4.19", "4.20"];
+    var ueTargetVersions = ["4.18", "4.19", "4.20", "4.21"];
 
     for (var v = 0; v < ueTargetVersions.length; v++) {
         var ueTargetVersion = ueTargetVersions[v];

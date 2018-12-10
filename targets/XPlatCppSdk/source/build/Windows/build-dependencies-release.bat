@@ -5,14 +5,21 @@ echo This batch file must be run in "x64 Native Tools Command Prompt for VS 2017
 
 setlocal
 pushd "%~dp0"
-set deps=../deps/
+
+rem - set the externals folder path to be used everywhere
+pushd ..\..
+set sdkRootDir=%cd%
+set externalDir=%sdkRootDir%/external
+popd
+
+set deps=%externalDir%/deps/
 
 echo --- Cleaning up deps ---
-rmdir "external/deps/" /s /q
-rmdir "external/deps-release/" /s /q
+rmdir "%externalDir%/deps/" /s /q
+rmdir "%externalDir%/deps-release" /s /q
 
 echo --- Building zlib ---
-pushd "external/zlib"
+pushd "%externalDir%/zlib"
 nmake /f win32/Makefile.msc
 if /I "%ERRORLEVEL%" neq "0" (
 echo zlip build failed!
@@ -32,7 +39,7 @@ xcopy "zlib1.pdb" "%deps%lib/" /R /F /Y /H
 popd
 
 echo --- Building openssl ---
-pushd "external/openssl-build-release"
+pushd "%externalDir%/openssl-build-release"
 rem - create a directory tree necessary for openssl build
 rem - (typically created by running "perl Configure" but we are pre-baking that step
 rem - for a convenience of "static" makefile that allows to modify build settings)
@@ -125,7 +132,7 @@ xcopy "libcrypto.lib" "%deps%lib/" /R /F /Y /H
 popd
 
 echo --- Building curl ---
-pushd "external/curl"
+pushd "%externalDir%/curl"
 call buildconf.bat
 if /I "%ERRORLEVEL%" neq "0" (
 echo curl build config failed!
@@ -151,7 +158,7 @@ xcopy "%curlBuildDir%lib/libcurl_a.lib" "%deps%lib/" /R /F /Y /H
 popd
 
 echo --- Building jsoncpp ---
-pushd "external/jsoncpp-build"
+pushd "%externalDir%/jsoncpp-build"
 msbuild.exe lib_json.sln /nologo /t:Build /p:Configuration="Release" /p:Platform=x64
 if /I "%ERRORLEVEL%" neq "0" (
 echo jsoncpp build failed!
@@ -166,8 +173,13 @@ xcopy "x64/Release/lib_json.lib" "%deps%lib/" /R /F /Y /H
 xcopy "x64/Release/lib_json.pdb" "%deps%lib/" /R /F /Y /H
 popd
 
-xcopy "external/deps/*.*" "external/deps-release/" /E /R /F /Y /H
+rem - copy the deps folder to build
+xcopy "%externalDir%/deps" "%externalDir%/deps-release/" /I /E /R /F /Y /H
 popd
+
+rem - cleanup intermediate deps folders
+rmdir "%externalDir%/deps/" /s /q
+
 echo === Build Xplat C++ SDK dependencies (END) ===
 echo All dependencies are built successfully.
 exit /B 0

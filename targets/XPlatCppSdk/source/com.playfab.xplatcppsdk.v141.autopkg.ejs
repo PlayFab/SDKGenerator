@@ -41,12 +41,12 @@ nuget {
 
         nestedInclude: {
             #destination = ${d_include}\playfab;
-            "cppsdk\include\playfab\**\*.h"
+            "code\include\playfab\**\*.h"
         };
 
         [x64,v141,release] {
             lib: {
-                cppsdk\x64\Release\XPlatCppWindows\XPlatCppWindows.lib; 
+                code\x64\Release\XPlatCppWindows\XPlatCppWindows.lib; 
                 external\deps-release\lib\libcurl_a.lib;
                 external\deps-release\lib\libssl.lib;
                 external\deps-release\lib\libcrypto.lib;
@@ -57,7 +57,7 @@ nuget {
 
         [x64,v141,debug] {
             lib: {
-                cppsdk\x64\Debug\XPlatCppWindows\XPlatCppWindows.lib;
+                code\x64\Debug\XPlatCppWindows\XPlatCppWindows.lib;
                 external\deps-debug\lib\libcurl_a_debug.lib;
                 external\deps-debug\lib\libssl.lib;
                 external\deps-debug\lib\libcrypto.lib;
@@ -65,7 +65,7 @@ nuget {
                 external\deps-debug\lib\lib_json.lib;
             }
             symbols: {
-                cppsdk\x64\Debug\XPlatCppWindows\XPlatCppWindows.pdb;
+                code\x64\Debug\XPlatCppWindows\XPlatCppWindows.pdb;
                 external\deps-debug\lib\lib_json.pdb;
                 external\deps-debug\lib\zlib.pdb;
             }

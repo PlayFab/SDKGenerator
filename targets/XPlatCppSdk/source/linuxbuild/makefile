@@ -95,17 +95,17 @@ $(LINK_TARGET) : $(OBJS)
 	g++ -o $@ $^ -ljsoncpp -lcurl -lssl -lpthread
 # Here is the compilation command Make Macro:
 COMPILE_CMD = \
-	g++ -I $(PROJ_DIR)/cppsdk -I $(PROJ_DIR)/cppsdk/include -I $(PROJ_DIR)/external/aria/lib/include/public -I $(PROJ_DIR)/external/aria/lib -I $(PROJ_DIR)/external/aria/bondlite/include/bond_lite -I $(PROJ_DIR)/external/aria/bondlite/generated -include macros.h -include $(PROJ_DIR)/testapps/cppWindowsTestApp/cppWindowsTestAppPch.h -D ENABLE_PLAYFABADMIN_API -D ENABLE_PLAYFABSERVER_API -o $@ -c $<
+	g++ -I $(PROJ_DIR)/code -I $(PROJ_DIR)/code/include -I $(PROJ_DIR)/external/aria/lib/include/public -I $(PROJ_DIR)/external/aria/lib -I $(PROJ_DIR)/external/aria/bondlite/include/bond_lite -I $(PROJ_DIR)/external/aria/bondlite/generated -include macros.h -include $(PROJ_DIR)/testapps/cppWindowsTestApp/cppWindowsTestAppPch.h -D ENABLE_PLAYFABADMIN_API -D ENABLE_PLAYFABSERVER_API -o $@ -c $<
 # Here is a Pattern Rule, often used for compile-line.
 # It says how to create a file with a .o suffix, given a file with a .cpp suffix.
 # The rule's command uses some built-in Make Macros:
 # $@ for the pattern-matched target
 # $< for the pattern-matched dependency
-%.o : $(PROJ_DIR)/cppsdk/source/playfab/%.cpp
+%.o : $(PROJ_DIR)/code/source/playfab/%.cpp
 	$(COMPILE_CMD)
-%.o : $(PROJ_DIR)/cppsdk/source/playfab/QoS/%.cpp
+%.o : $(PROJ_DIR)/code/source/playfab/QoS/%.cpp
 	$(COMPILE_CMD)
-stdafx.o : $(PROJ_DIR)/cppsdk/stdafx.cpp
+stdafx.o : $(PROJ_DIR)/code/stdafx.cpp
 	$(COMPILE_CMD)
 main.o : $(PROJ_DIR)/testapps/cppWindowsTestApp/cppWindowsTestApp.cpp
 	$(COMPILE_CMD)

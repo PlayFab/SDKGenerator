@@ -60,7 +60,7 @@
       <SDLCheck>true</SDLCheck>
       <PreprocessorDefinitions>_DEBUG;_CONSOLE;WIN32;CURL_STATICLIB;<%- extraDefines %>%(PreprocessorDefinitions)</PreprocessorDefinitions>
       <ConformanceMode>true</ConformanceMode>
-      <AdditionalIncludeDirectories>$(SolutionDir)external\deps-debug\include;$(SolutionDir)cppsdk/include;$(SolutionDir)cppsdk</AdditionalIncludeDirectories>
+      <AdditionalIncludeDirectories>$(SolutionDir)external\deps-debug\include;$(SolutionDir)code/include;$(SolutionDir)code</AdditionalIncludeDirectories>
       <PrecompiledHeaderFile>cppWindowsTestAppPch.h</PrecompiledHeaderFile>
       <DebugInformationFormat>ProgramDatabase</DebugInformationFormat>
       <TreatWarningAsError>true</TreatWarningAsError>
@@ -84,7 +84,7 @@
       <SDLCheck>true</SDLCheck>
       <PreprocessorDefinitions>_CONSOLE;WIN32;CURL_STATICLIB;<%- extraDefines %>%(PreprocessorDefinitions)</PreprocessorDefinitions>
       <ConformanceMode>true</ConformanceMode>
-      <AdditionalIncludeDirectories>$(SolutionDir)external\deps-release\include;$(SolutionDir)cppsdk/include;$(SolutionDir)cppsdk</AdditionalIncludeDirectories>
+      <AdditionalIncludeDirectories>$(SolutionDir)external\deps-release\include;$(SolutionDir)code/include;$(SolutionDir)code</AdditionalIncludeDirectories>
       <PrecompiledHeaderFile>cppWindowsTestAppPch.h</PrecompiledHeaderFile>
       <DebugInformationFormat>ProgramDatabase</DebugInformationFormat>
       <TreatWarningAsError>true</TreatWarningAsError>
@@ -111,7 +111,7 @@
     </ClCompile>
   </ItemGroup>
   <ItemGroup>
-    <ProjectReference Include="..\..\cppsdk\XPlatCppWindows.vcxproj">
+    <ProjectReference Include="..\..\code\XPlatCppWindows.vcxproj">
       <Project>{92f6ec5f-b66c-4572-a74d-79329aff3129}</Project>
     </ProjectReference>
   </ItemGroup>

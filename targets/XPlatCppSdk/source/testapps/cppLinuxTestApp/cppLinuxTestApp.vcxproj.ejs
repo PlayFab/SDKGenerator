@@ -43,13 +43,13 @@
     <ClCompile Include="main.cpp" />
   </ItemGroup>
   <ItemGroup>
-    <ProjectReference Include="..\..\cppsdk\XPlatCppLinux.vcxproj">
+    <ProjectReference Include="..\..\code\XPlatCppLinux.vcxproj">
       <Project>{f34f32a5-802c-4abf-9e17-dc009e02df97}</Project>
     </ProjectReference>
   </ItemGroup>
   <ItemDefinitionGroup Condition="'$(Configuration)|$(Platform)'=='Debug|x64'">
     <ClCompile>
-      <AdditionalIncludeDirectories>$(ProjectDir);$(ProjectDir)include;/usr/include;../XPlatCppLinux/;../XPlatCppLinux/include;$(SolutionDir)cppsdk;$(SolutionDir)cppsdk/include;%(AdditionalIncludeDirectories)</AdditionalIncludeDirectories>
+      <AdditionalIncludeDirectories>$(ProjectDir);$(ProjectDir)include;/usr/include;../XPlatCppLinux/;../XPlatCppLinux/include;$(SolutionDir)code;$(SolutionDir)code/include;%(AdditionalIncludeDirectories)</AdditionalIncludeDirectories>
       <PreprocessorDefinitions><%- extraDefines %>%(PreprocessorDefinitions)</PreprocessorDefinitions>
     </ClCompile>
     <Link>
@@ -60,7 +60,7 @@
   </ItemDefinitionGroup>
   <ItemDefinitionGroup Condition="'$(Configuration)|$(Platform)'=='Release|x64'">
     <ClCompile>
-      <AdditionalIncludeDirectories>$(ProjectDir);$(ProjectDir)include;/usr/include;../XPlatCppLinux/;../XPlatCppLinux/include;$(SolutionDir)cppsdk;$(SolutionDir)cppsdk/include;%(AdditionalIncludeDirectories)</AdditionalIncludeDirectories>
+      <AdditionalIncludeDirectories>$(ProjectDir);$(ProjectDir)include;/usr/include;../XPlatCppLinux/;../XPlatCppLinux/include;$(SolutionDir)code;$(SolutionDir)code/include;%(AdditionalIncludeDirectories)</AdditionalIncludeDirectories>
       <PreprocessorDefinitions><%- extraDefines %>%(PreprocessorDefinitions)</PreprocessorDefinitions>
     </ClCompile>
     <Link>

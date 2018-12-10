@@ -1,0 +1,2 @@
+curl and jsoncpp may each have other sub-dependencies which all have additional licenses defined in nuget
+(Those sub-dependencies are not explicitly required by this project, except through curl and jsoncpp)

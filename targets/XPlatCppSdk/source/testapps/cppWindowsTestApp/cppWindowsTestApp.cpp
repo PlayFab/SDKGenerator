@@ -12,13 +12,17 @@
 #include <playfab/PlayFabProfilesApi.h>
 #include <playfab/PlayFabProfilesDataModels.h>
 #include <playfab/PlayFabSettings.h>
-#include <playfab/PlayFabEventsDataModels.h>
+#include <playfab/PlayFabTelemetryEventsApi.h>
+#include <playfab/PlayFabTelemetryEventsDataModels.h>
 #include <playfab/PlayFabEventsApi.h>
+#include <playfab/PlayFabEventsDataModels.h>
 #include <playfab/PlayFabEventApi.h>
 #include <playfab/OneDSEventsApi.h>
 #include <playfab/OneDSHttpPlugin.h>
 
 #include <playfab/QoS/PlayFabQoSApi.h>
+
+#pragma warning (disable: 4100) // formal parameters are part of a public interface
 
 using namespace std;
 
@@ -245,15 +249,45 @@ void TestPlayFabEventApi()
 
 void TestOneDSEventsApi()
 {
+    // Get OneDS context
+    operationCompleted = false;
+    bool isOneDSAuthenticated = false;
+    std::string oneDSProjectIdIkey;
+    std::string oneDSIngestionKey;
+    PlayFab::EventsModels::TelemetryIngestionConfigRequest configRequest;
+    PlayFab::PlayFabTelemetryEventsAPI::GetTelemetryIngestionConfig(configRequest,
+        [&](const PlayFab::EventsModels::TelemetryIngestionConfigResponse& result, void* relayedCustomData)
+        {
+            oneDSProjectIdIkey = "o:" + result.TenantId;
+            oneDSIngestionKey = result.IngestionKey;
+            isOneDSAuthenticated = true;
+            operationCompleted = true;
+        },
+        [&](const PlayFab::PlayFabError& error, void* relayedCustomData)
+        {
+            printf(("========== GetTelemetryIngestionConfig Failed: " + error.GenerateErrorReport() + "\n").c_str());
+            isOneDSAuthenticated = false;
+            operationCompleted = true;
+        });
+    while (!operationCompleted)
+    {
+        std::this_thread::yield();
+    }
+
+    if (!isOneDSAuthenticated)
+        return;
+
     // set OneDS HTTP plugin
     auto oneDSHttpPlugin = std::shared_ptr<PlayFab::OneDSHttpPlugin>(new PlayFab::OneDSHttpPlugin());
     PlayFab::PlayFabPluginManager::SetPlugin(oneDSHttpPlugin, PlayFab::PlayFabPluginContract::PlayFab_Transport, PlayFab::PLUGIN_TRANSPORT_ONEDS);
 
     // create OneDS Events API instance
     PlayFab::OneDSEventsAPI api;
-    PlayFab::EventsModels::WriteEventsRequest req;
+    api.SetCredentials(oneDSProjectIdIkey, oneDSIngestionKey);
 
     // send several events
+    PlayFab::EventsModels::WriteEventsRequest req;
+    // - prepare a batch
     for (int j = 0; j < 5; j++)
     {
         for (int i = 0; i < 2; i++)
@@ -262,7 +296,7 @@ void TestOneDSEventsApi()
             req.Events.push_back(CreateEventContents("event_BB_", i));
         }
     }
-
+    // - send the batch
     operationCompleted = false;
     api.WriteTelemetryEvents(req, &OnOneDSWriteTelemetryEventsSucceeded, &OnOneDSWriteTelemetryEventsFailed);
     while (!operationCompleted)

@@ -40,10 +40,11 @@ namespace PlayFab
     class OneDSCallRequestContainer : public CallRequestContainer
     {
     public:
-        OneDSCallRequestContainer(std::vector<uint8_t> requestBody,
+        OneDSCallRequestContainer(const std::unordered_map<std::string, std::string>& headers,
+            std::vector<uint8_t> requestBody,
             CallRequestContainerCallback callback,
             void* customData = nullptr):
-            CallRequestContainer("", std::unordered_map<std::string, std::string>(), "", callback, customData),
+            CallRequestContainer("", headers, "", callback, customData),
             requestBinaryBody(std::move(requestBody))
         {
         }

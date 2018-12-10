@@ -4,6 +4,7 @@
 
 #include <playfab/OneDSHttpPlugin.h>
 #include <playfab/OneDSEventsApi.h>
+#include <playfab/PlayFabTelemetryEventsApi.h>
 #include <playfab/PlayFabPluginManager.h>
 #include <playfab/PlayFabSettings.h>
 #include <playfab/PlayFabError.h>
@@ -82,7 +83,7 @@ namespace PlayFab
     }
 
     // Decorator of a OneDS record. The content of this decorator is heavily based on the code in Aria's SDK (see its Logger and decorators implementation).
-    bool DecorateOneDSRecord(AriaProtocol::Record& record, EventContents const& eventContents)
+    bool DecorateOneDSRecord(AriaProtocol::Record& record, EventContents const& eventContents, const std::string& oneDSProjectIdIkey)
     {
         // --- Default parameters used in the Aria sample app:
         EventLatency eventLatency = EventLatency::EventLatency_Normal;
@@ -99,7 +100,7 @@ namespace PlayFab
         }
 
         record.baseType = EVENTRECORD_TYPE_CUSTOM_EVENT;
-        record.iKey = ONEDS_PROJECTID_IKEY; // OneDS Project ID
+        record.iKey = oneDSProjectIdIkey;
 
         // --- Apply base decoration
         if (record.extSdk.size() == 0)
@@ -117,7 +118,6 @@ namespace PlayFab
 
         record.extSdk[0].seq = ++oneDSEventSequenceId;
         record.extSdk[0].epoch = initId;
-        //std::string sdkVersion = std::string("EVT-Windows-C++-No-") + BUILD_VERSION_STR;
         std::string sdkVersion = std::string("EVT-PlayFab-XPlat-C++-No-") + BUILD_VERSION_STR;
         record.extSdk[0].libVer = sdkVersion;
         record.extSdk[0].installId = installId; //m_owner.GetLogSessionData()->getSessionSDKUid();
@@ -226,7 +226,6 @@ namespace PlayFab
             const auto &v = eventContents.Payload[propName];
 
             std::vector<uint8_t> guid;
-            uint8_t guid_bytes[16] = { 0 };
 
             switch (v.type())
             {
@@ -303,10 +302,19 @@ namespace PlayFab
         return http.Update();
     }
 
-    //void PlayFabEventsAPI::ForgetAllCredentials()
-    //{
-    //    return PlayFabSettings::ForgetAllCredentials();
-    //}
+    void OneDSEventsAPI::SetCredentials(const std::string& oneDSProjectIdIkey, const std::string& oneDSIngestionKey)
+    {
+        this->oneDSProjectIdIkey = oneDSProjectIdIkey;
+        this->oneDSIngestionKey = oneDSIngestionKey;
+        isOneDSAuthenticated = true;
+    }
+
+    void OneDSEventsAPI::ForgetAllCredentials()
+    {
+        isOneDSAuthenticated = false;
+        oneDSProjectIdIkey = "";
+        oneDSIngestionKey = "";
+    }
 
     void OneDSEventsAPI::WriteTelemetryEvents(
         WriteEventsRequest& request,
@@ -315,13 +323,27 @@ namespace PlayFab
         void* customData
     )
     {
+        if (!isOneDSAuthenticated)
+        {
+            PlayFabError result;
+            result.ErrorCode = PlayFabErrorCode::PlayFabErrorAuthTokenDoesNotExist;
+            result.ErrorName = "OneDSError";
+            result.ErrorMessage = "OneDS API client is not authenticated. Please make sure OneDS credentials are set.";
+            if (PlayFabSettings::globalErrorHandler != nullptr)
+                PlayFabSettings::globalErrorHandler(result, customData);
+            if (errorCallback != nullptr)
+                errorCallback(result, customData);
+            return;
+        }
+
+        // get transport plugin for OneDS
         IPlayFabHttpPlugin& http = *PlayFabPluginManager::GetPlugin<IPlayFabHttpPlugin>(PlayFabPluginContract::PlayFab_Transport, PLUGIN_TRANSPORT_ONEDS);
         std::vector<uint8_t> serializedBatch;
         bond_lite::CompactBinaryProtocolWriter batchWriter(serializedBatch);
         for (const auto& event : request.Events)
         {
             AriaProtocol::Record record;
-            if (DecorateOneDSRecord(record, event))
+            if (DecorateOneDSRecord(record, event, oneDSProjectIdIkey))
             {
                 // OneDS record was composed successfully,
                 // serialize it
@@ -335,7 +357,11 @@ namespace PlayFab
         }
 
         // send batch
+        std::unordered_map<std::string, std::string> headers;
+        headers.emplace("APIKey", oneDSIngestionKey);
+
         auto reqContainer = std::unique_ptr<OneDSCallRequestContainer>(new OneDSCallRequestContainer(
+            headers,
             serializedBatch,
             OnWriteTelemetryEventsResult,
             customData));

@@ -154,7 +154,7 @@ namespace PlayFab
                 {
                     // check if the batch wait time expired
                     std::chrono::seconds batchAge = std::chrono::duration_cast<std::chrono::seconds>(clock::now() - momentBatchStarted);
-                    if (batchAge.count() >= this->settings->maximalBatchWaitTime)
+                    if (batchAge.count() >= (int32_t)this->settings->maximalBatchWaitTime)
                     {
                         // batch wait time expired, send incomplete batch
                         this->SendBatch(batchCounter);

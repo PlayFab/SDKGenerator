@@ -21,7 +21,6 @@ namespace PlayFab
         // Set up headers
         reqContainer.curlHttpHeaders = nullptr;
         reqContainer.curlHttpHeaders = curl_slist_append(reqContainer.curlHttpHeaders, "Accept: */*");
-        reqContainer.curlHttpHeaders = curl_slist_append(reqContainer.curlHttpHeaders, ONEDS_TENANTID_HEADER);
         reqContainer.curlHttpHeaders = curl_slist_append(reqContainer.curlHttpHeaders, "Client-Id: NO_AUTH");
         reqContainer.curlHttpHeaders = curl_slist_append(reqContainer.curlHttpHeaders, "Content-Type: application/bond-compact-binary");
         reqContainer.curlHttpHeaders = curl_slist_append(reqContainer.curlHttpHeaders, "Expect: 100-continue");
@@ -96,8 +95,9 @@ namespace PlayFab
                     reqContainer.errorWrapper.HttpCode = 400;
                     reqContainer.errorWrapper.HttpStatus = "Error";
                     reqContainer.errorWrapper.Data = reqContainer.responseJson;
+                    reqContainer.errorWrapper.ErrorCode = PlayFabErrorCode::PlayFabErrorUnknownError;
                     reqContainer.errorWrapper.ErrorName = "OneDSError";
-                    reqContainer.errorWrapper.ErrorMessage = "OneDS Error";
+                    reqContainer.errorWrapper.ErrorMessage = reqContainer.responseJson.toStyledString();
                     reqContainer.errorWrapper.ErrorDetails = reqContainer.responseString;
                 }
             }

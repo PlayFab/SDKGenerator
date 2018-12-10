@@ -8,9 +8,6 @@
 #include <thread>
 #include <mutex>
 
-#define ONEDS_TENANTID_HEADER ""
-#define ONEDS_PROJECTID_IKEY ""
-
 namespace PlayFab
 {
     /// <summary>

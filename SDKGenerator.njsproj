@@ -635,6 +635,8 @@
     <Content Include="targets\XPlatCppSdk\source\cppsdk\include\playfab\PlayFabPluginManager.h" />
     <Content Include="targets\XPlatCppSdk\source\cppsdk\include\playfab\PlayFabSettings.h" />
     <Content Include="targets\XPlatCppSdk\source\cppsdk\include\playfab\PlayFabSpinLock.h" />
+    <Content Include="targets\XPlatCppSdk\source\cppsdk\include\playfab\PlayFabTelemetryEventsApi.h" />
+    <Content Include="targets\XPlatCppSdk\source\cppsdk\include\playfab\PlayFabTelemetryEventsDataModels.h" />
     <Content Include="targets\XPlatCppSdk\source\cppsdk\include\playfab\QoS\DataCenterResult.h" />
     <Content Include="targets\XPlatCppSdk\source\cppsdk\include\playfab\QoS\PingResult.h" />
     <Content Include="targets\XPlatCppSdk\source\cppsdk\include\playfab\QoS\PlayFabQoSApi.h" />
@@ -657,6 +659,7 @@
     <Content Include="targets\XPlatCppSdk\source\cppsdk\source\playfab\PlayFabPluginManager.cpp" />
     <Content Include="targets\XPlatCppSdk\source\cppsdk\source\playfab\PlayFabSettings.cpp.ejs" />
     <Content Include="targets\XPlatCppSdk\source\cppsdk\source\playfab\PlayFabSpinLock.cpp" />
+    <Content Include="targets\XPlatCppSdk\source\cppsdk\source\playfab\PlayFabTelemetryEventsApi.cpp" />
     <Content Include="targets\XPlatCppSdk\source\cppsdk\source\playfab\QoS\DataCenterResult.cpp" />
     <Content Include="targets\XPlatCppSdk\source\cppsdk\source\playfab\QoS\PlayFabQoSApi.cpp" />
     <Content Include="targets\XPlatCppSdk\source\cppsdk\source\playfab\QoS\QoSResult.cpp" />

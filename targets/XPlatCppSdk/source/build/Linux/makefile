@@ -55,7 +55,7 @@ OBJS = stdafx.o \
 	main.o
 
 # Relative path to the project root directory
-PROJ_DIR = ..
+PROJ_DIR = ../..
 
 # Here is a Make Macro defined by two Macro Expansions.
 # A Macro Expansion may be treated as a textual replacement of the Make Macro.
@@ -95,7 +95,7 @@ $(LINK_TARGET) : $(OBJS)
 	g++ -o $@ $^ -ljsoncpp -lcurl -lssl -lpthread
 # Here is the compilation command Make Macro:
 COMPILE_CMD = \
-	g++ -I $(PROJ_DIR)/code -I $(PROJ_DIR)/code/include -I $(PROJ_DIR)/external/aria/lib/include/public -I $(PROJ_DIR)/external/aria/lib -I $(PROJ_DIR)/external/aria/bondlite/include/bond_lite -I $(PROJ_DIR)/external/aria/bondlite/generated -include macros.h -include $(PROJ_DIR)/testapps/cppWindowsTestApp/cppWindowsTestAppPch.h -D ENABLE_PLAYFABADMIN_API -D ENABLE_PLAYFABSERVER_API -o $@ -c $<
+	g++ -I $(PROJ_DIR)/code -I $(PROJ_DIR)/code/include -I $(PROJ_DIR)/external/aria/lib/include/public -I $(PROJ_DIR)/external/aria/lib -I $(PROJ_DIR)/external/aria/bondlite/include/bond_lite -I $(PROJ_DIR)/external/aria/bondlite/generated -include macros.h -include $(PROJ_DIR)/test/TestApp/TestAppPch.h -D ENABLE_PLAYFABADMIN_API -D ENABLE_PLAYFABSERVER_API -o $@ -c $<
 # Here is a Pattern Rule, often used for compile-line.
 # It says how to create a file with a .o suffix, given a file with a .cpp suffix.
 # The rule's command uses some built-in Make Macros:
@@ -107,7 +107,7 @@ COMPILE_CMD = \
 	$(COMPILE_CMD)
 stdafx.o : $(PROJ_DIR)/code/stdafx.cpp
 	$(COMPILE_CMD)
-main.o : $(PROJ_DIR)/testapps/cppWindowsTestApp/cppWindowsTestApp.cpp
+main.o : $(PROJ_DIR)/test/TestApp/TestApp.cpp
 	$(COMPILE_CMD)
 # These are Dependency Rules, which are rules without any command.
 # Dependency Rules indicate that if any file to the right of the colon changes,

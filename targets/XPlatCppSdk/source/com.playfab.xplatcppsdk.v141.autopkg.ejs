@@ -46,28 +46,16 @@ nuget {
 
         [x64,v141,release] {
             lib: {
-                code\x64\Release\XPlatCppWindows\XPlatCppWindows.lib; 
-                external\deps-release\lib\libcurl_a.lib;
-                external\deps-release\lib\libssl.lib;
-                external\deps-release\lib\libcrypto.lib;
-                external\deps-release\lib\zlib.lib;
-                external\deps-release\lib\lib_json.lib;
+                build\Windows\x64\Release\XPlatCppWindows\XPlatCppWindows.lib; 
             }
         };
 
         [x64,v141,debug] {
             lib: {
-                code\x64\Debug\XPlatCppWindows\XPlatCppWindows.lib;
-                external\deps-debug\lib\libcurl_a_debug.lib;
-                external\deps-debug\lib\libssl.lib;
-                external\deps-debug\lib\libcrypto.lib;
-                external\deps-debug\lib\zlib.lib;
-                external\deps-debug\lib\lib_json.lib;
+                build\Windows\x64\Debug\XPlatCppWindows\XPlatCppWindows.lib;
             }
             symbols: {
-                code\x64\Debug\XPlatCppWindows\XPlatCppWindows.pdb;
-                external\deps-debug\lib\lib_json.pdb;
-                external\deps-debug\lib\zlib.pdb;
+                build\Windows\x64\Debug\XPlatCppWindows\XPlatCppWindows.pdb;
             }
         };
     };

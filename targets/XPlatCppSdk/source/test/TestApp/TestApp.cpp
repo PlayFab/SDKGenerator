@@ -4,7 +4,7 @@
 #include <cstdio>
 #include <memory>
 
-#include "cppWindowsTestAppPch.h"
+#include "TestAppPch.h"
 #include <playfab/PlayFabClientApi.h>
 #include <playfab/PlayFabClientDataModels.h>
 #include <playfab/PlayFabAuthenticationApi.h>

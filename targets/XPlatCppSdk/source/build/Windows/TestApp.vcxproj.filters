@@ -15,15 +15,15 @@
     </Filter>
   </ItemGroup>
   <ItemGroup>
-    <ClInclude Include="cppWindowsTestAppPch.h">
+    <ClInclude Include="$(TestSourceDir)\TestApp\TestAppPch.h">
       <Filter>Header Files</Filter>
     </ClInclude>
   </ItemGroup>
   <ItemGroup>
-    <ClCompile Include="cppWindowsTestApp.cpp">
+    <ClCompile Include="$(TestSourceDir)\TestApp\TestApp.cpp">
       <Filter>Source Files</Filter>
     </ClCompile>
-    <ClCompile Include="cppWindowsTestAppPch.cpp">
+    <ClCompile Include="$(TestSourceDir)\TestApp\TestAppPch.cpp">
       <Filter>Source Files</Filter>
     </ClCompile>
   </ItemGroup>

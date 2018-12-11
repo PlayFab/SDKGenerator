@@ -46,13 +46,13 @@ function makeApiFiles(api, sourceDir, apiOutputDir) {
     };
 
     var apihTemplate = getCompiledTemplate(path.resolve(sourceDir, "templates/PlayFab_Api.h.ejs"));;
-    writeFile(path.resolve(apiOutputDir, "cppsdk/include/playfab", "PlayFab" + api.name + "Api.h"), apihTemplate(locals));
+    writeFile(path.resolve(apiOutputDir, "code/include/playfab", "PlayFab" + api.name + "Api.h"), apihTemplate(locals));
 
     var apiCppTemplate = getCompiledTemplate(path.resolve(sourceDir, "templates/PlayFab_Api.cpp.ejs"));;
-    writeFile(path.resolve(apiOutputDir, "cppsdk/source/playfab", "PlayFab" + api.name + "Api.cpp"), apiCppTemplate(locals));
+    writeFile(path.resolve(apiOutputDir, "code/source/playfab", "PlayFab" + api.name + "Api.cpp"), apiCppTemplate(locals));
 
     var dataModelTemplate = getCompiledTemplate(path.resolve(sourceDir, "templates/PlayFab_DataModels.h.ejs"));;
-    writeFile(path.resolve(apiOutputDir, "cppsdk/include/playfab", "PlayFab" + api.name + "DataModels.h"), dataModelTemplate(locals));
+    writeFile(path.resolve(apiOutputDir, "code/include/playfab", "PlayFab" + api.name + "DataModels.h"), dataModelTemplate(locals));
 }
 
 // *************************** Internal utility methods ***************************

@@ -66,7 +66,7 @@ namespace PlayFab
         {
             reqContainer.errorWrapper.HttpCode = 408;
             reqContainer.errorWrapper.HttpStatus = "Failed to contact server";
-            reqContainer.errorWrapper.ErrorCode = PlayFabErrorConnectionTimeout;
+            reqContainer.errorWrapper.ErrorCode = PlayFabErrorCode::PlayFabErrorConnectionTimeout;
             reqContainer.errorWrapper.ErrorName = "Failed to contact server";
             reqContainer.errorWrapper.ErrorMessage = "Failed to contact server, curl error: " + std::to_string(res);
             HandleCallback(std::move(requestContainer));
@@ -105,7 +105,7 @@ namespace PlayFab
             {
                 reqContainer.errorWrapper.HttpCode = 408;
                 reqContainer.errorWrapper.HttpStatus = reqContainer.responseString;
-                reqContainer.errorWrapper.ErrorCode = PlayFabErrorConnectionTimeout;
+                reqContainer.errorWrapper.ErrorCode = PlayFabErrorCode::PlayFabErrorConnectionTimeout;
                 reqContainer.errorWrapper.ErrorName = "Failed to parse PlayFab response";
                 reqContainer.errorWrapper.ErrorMessage = jsonParseErrors;
             }

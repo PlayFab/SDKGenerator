@@ -302,10 +302,10 @@ namespace PlayFab
         return http.Update();
     }
 
-    void OneDSEventsAPI::SetCredentials(const std::string& oneDSProjectIdIkey, const std::string& oneDSIngestionKey)
+    void OneDSEventsAPI::SetCredentials(const std::string& projectIdIkey, const std::string& ingestionKey)
     {
-        this->oneDSProjectIdIkey = oneDSProjectIdIkey;
-        this->oneDSIngestionKey = oneDSIngestionKey;
+        oneDSProjectIdIkey = projectIdIkey;
+        oneDSIngestionKey = ingestionKey;
         isOneDSAuthenticated = true;
     }
 
@@ -314,6 +314,11 @@ namespace PlayFab
         isOneDSAuthenticated = false;
         oneDSProjectIdIkey = "";
         oneDSIngestionKey = "";
+    }
+
+    bool OneDSEventsAPI::GetIsOneDSAuthenticated() const
+    {
+        return isOneDSAuthenticated;
     }
 
     void OneDSEventsAPI::WriteTelemetryEvents(

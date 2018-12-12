@@ -4,6 +4,7 @@
 
 #include <playfab/PlayFabEvent.h>
 #include <playfab/PlayFabEventPipeline.h>
+#include <playfab/OneDSEventPipeline.h>
 
 namespace PlayFab
 {

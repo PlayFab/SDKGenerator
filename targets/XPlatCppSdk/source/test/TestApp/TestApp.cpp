@@ -40,13 +40,13 @@ void EmitEventCallback(std::shared_ptr<const PlayFab::IPlayFabEvent> event, std:
     auto pfEvent = std::dynamic_pointer_cast<const PlayFab::PlayFabEvent>(event);
     auto pfResponse = std::dynamic_pointer_cast<const PlayFab::PlayFabEmitEventResponse>(response);
 
-    if (pfResponse->playFabError->HttpCode == 0)
+    if (pfResponse->playFabError->ErrorCode == PlayFab::PlayFabErrorCode::PlayFabErrorSuccess)
     {
         printf(("-> " + pfEvent->GetName() + " was sent successfully " +
             "in the batch #" + std::to_string(pfResponse->batchNumber) + " "
             "of " + std::to_string(pfResponse->batch->size()) + " events. "
             "HTTP code: " + std::to_string(pfResponse->playFabError->HttpCode) +
-            ", PF error code: " + std::to_string(pfResponse->playFabError->ErrorCode) +
+            ", app error code: " + std::to_string(pfResponse->playFabError->ErrorCode) +
             "\n").c_str());
     }
     else
@@ -55,7 +55,7 @@ void EmitEventCallback(std::shared_ptr<const PlayFab::IPlayFabEvent> event, std:
             "in the batch #" + std::to_string(pfResponse->batchNumber) + " "
             "of " + std::to_string(pfResponse->batch->size()) + " events. "
             "HTTP code: " + std::to_string(pfResponse->playFabError->HttpCode) +
-            ", PF error code: " + std::to_string(pfResponse->playFabError->ErrorCode) +
+            ", app error code: " + std::to_string(pfResponse->playFabError->ErrorCode) +
             ", HTTP status: " + pfResponse->playFabError->HttpStatus +
             ", Message: " + pfResponse->playFabError->ErrorMessage +
             " \n").c_str());
@@ -203,7 +203,7 @@ void TestPlayFabEventsApi()
     }
 }
 
-void EmitEvents(PlayFab::PlayFabEventAPI& api)
+void EmitEvents(PlayFab::PlayFabEventAPI& api, PlayFab::PlayFabEventType eventType)
 {
     // emit several events fast, they will be batched up in a pipeline according to pipeline's settings
     for (int i = 0; i < numberOfEventsEmitted; i++)
@@ -214,7 +214,7 @@ void EmitEvents(PlayFab::PlayFabEventAPI& api)
         // - lightweight (goes to 1DS), 
         // - heavyweight (goes to PlayFab's WriteEvents), 
         // - or anything else
-        event->eventType = PlayFab::PlayFabEventType::Heavyweight;
+        event->eventType = eventType;
         std::stringstream name;
         name << "event_" << i;
         event->SetName(name.str());
@@ -227,8 +227,10 @@ void EmitEvents(PlayFab::PlayFabEventAPI& api)
     }
 }
 
-void TestPlayFabEventApi()
+void TestHeavyweightEvents()
 {
+    printf("=== Emitting heavyweight events (to send to PlayFab)\n");
+
     // test custom event API (it uses event pipeline (router, batching, etc))
     PlayFab::PlayFabEventAPI api; // create Event API instance
 
@@ -239,8 +241,9 @@ void TestPlayFabEventApi()
     settings->maximalNumberOfItemsInBatch = 4; // number of events in a batch
     settings->maximalNumberOfBatchesInFlight = 3; // maximal number of batches processed simultaneously by a transport plugin before taking next events from the buffer
 
+    eventCounter = 0;
     operationCompleted = false;
-    EmitEvents(api);
+    EmitEvents(api, PlayFab::PlayFabEventType::Heavyweight);
     while (!operationCompleted)
     {
         std::this_thread::yield();
@@ -305,6 +308,29 @@ void TestOneDSEventsApi()
     }
 }
 
+void TestLightweightEvents()
+{
+    printf("=== Emitting lightweight events (to send to OneDS)\n");
+
+    // test custom event API (it uses event pipeline (router, batching, etc))
+    PlayFab::PlayFabEventAPI api; // create Event API instance (it handles both PlayFab and OneDS heavyweight/lightweight events)
+
+    // adjust some pipeline settings
+    auto pipeline = std::dynamic_pointer_cast<PlayFab::PlayFabEventPipeline>(api.GetEventRouter()->GetPipelines().at(1)); // get OneDS pipeline
+    auto settings = pipeline->GetSettings(); // get pipeline's settings
+    settings->maximalBatchWaitTime = 2; // incomplete batch expiration in seconds
+    settings->maximalNumberOfItemsInBatch = 3; // number of events in a batch
+    settings->maximalNumberOfBatchesInFlight = 10; // maximal number of batches processed simultaneously by a transport plugin before taking next events from the buffer
+
+    eventCounter = 0;
+    operationCompleted = false;
+    EmitEvents(api, PlayFab::PlayFabEventType::Lightweight);
+    while (!operationCompleted)
+    {
+        std::this_thread::yield();
+    }
+}
+
 int main()
 {
     // Super hacky short-term functionality PlayFab Test - TODO: Put the regular set of tests into proper Unit Test project
@@ -326,12 +352,16 @@ int main()
     // PlayFab Events API (heavyweight events sent as a whole batch)
     TestPlayFabEventsApi(); 
 
-    // PlayFab lightweight/heavyweight events (emitted individually
+    // PlayFab heavyweight events (emitted individually
     // and processed in a background thread using event pipeline (router, batching, etc))
-    TestPlayFabEventApi();
+    TestHeavyweightEvents();
 
     // OneDS Events API (lightweight events sent as a whole batch)
     TestOneDSEventsApi();
+
+    // OneDS lightweight events (emitted individually
+    // and processed in a background thread using event pipeline (router, batching, etc))
+    TestLightweightEvents();
 
     return 0;
 }

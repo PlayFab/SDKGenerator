@@ -17,8 +17,9 @@ namespace PlayFab
     public:
         OneDSEventsAPI() {} // Default constructor
         size_t Update();
-        void SetCredentials(const std::string& oneDSProjectIdIkey, const std::string& oneDSIngestionKey);
+        void SetCredentials(const std::string& projectIdIkey, const std::string& ingestionKey);
         void ForgetAllCredentials();
+        bool GetIsOneDSAuthenticated() const;
 
         void WriteTelemetryEvents(EventsModels::WriteEventsRequest& request, ProcessApiCallback<EventsModels::WriteEventsResponse> callback, ErrorCallback errorCallback = nullptr, void* customData = nullptr);
 

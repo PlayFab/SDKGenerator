@@ -17,6 +17,7 @@ namespace PlayFab
     {
     public:
         PlayFabEventPipelineSettings();
+        virtual ~PlayFabEventPipelineSettings() {};
 
         size_t bufferSize; // The minimal size of buffer, in bytes. The actually allocated size will be a power of 2 that is equal or greater than this value.
         size_t maximalNumberOfItemsInBatch; // The maximal number of items (events) a batch can hold before it is sent out.
@@ -43,7 +44,7 @@ namespace PlayFab
     class PlayFabEventPipeline: public IPlayFabEventPipeline
     {
     public:
-        PlayFabEventPipeline(std::shared_ptr<PlayFabEventPipelineSettings> settings);
+        explicit PlayFabEventPipeline(std::shared_ptr<PlayFabEventPipelineSettings> settings);
         virtual ~PlayFabEventPipeline() override;
 
         PlayFabEventPipeline(const PlayFabEventPipeline& source) = delete; // disable copy
@@ -55,25 +56,28 @@ namespace PlayFab
         virtual void Start() override;
         virtual void IntakeEvent(std::shared_ptr<const IPlayFabEmitEventRequest> request) override;
 
+    protected:
+        virtual void SendBatch(size_t& batchCounter);
+
     private:
-        void WorkerThread();
-        void SendBatch(size_t& batchCounter);
+        void WorkerThread();        
         void WriteEventsApiCallback(const EventsModels::WriteEventsResponse& result, void* customData);
         void WriteEventsApiErrorCallback(const PlayFabError& error, void* customData);
+
+    protected:
+        // PlayFab's public Events API (e.g. WriteEvents method) allows to pass only a pointer to some custom object (void* customData) that will be relayed back to its callbacks. 
+        // This is the only reliable way to relate a particular Events API call with its particular callbacks since it is an asynchronous operation.
+        // We are using that feature (custom pointer relay) because we need to know which batch it was when we receive a callback from the Events API.
+        // To keep track of all batches currently in flight (i.e. those for which we called Events API) we need to have a container with controllable size
+        // that would allow to quickly map a pointer (like void* customData) to a batch (like a std::vector<std::shared_ptr<const IPlayFabEmitEventRequest>>).
+        std::unordered_map<void*, std::vector<std::shared_ptr<const IPlayFabEmitEventRequest>>> batchesInFlight;
+        std::vector<std::shared_ptr<const IPlayFabEmitEventRequest>> batch;
 
     private:
         std::shared_ptr<PlayFabEventPipelineSettings> settings;
         PlayFabEventBuffer buffer;
         std::thread workerThread;
         std::atomic<bool> isWorkerThreadRunning;
-        std::vector<std::shared_ptr<const IPlayFabEmitEventRequest>> batch;
-
-        // PlayFab's public Events API (e.g. WriteEvents method) allows to pass only a pointer to some custom object (void* customData) that will be relayed back to its callbacks. 
-        // This is the only reliable way to relate a particular Events API call with its particular callbacks since it is an asynchronous operation.
-        // We are using that feature (custom pointer relay) because we need to know which batch it was when we receive a callback from the Events API.
-        // To keep track of all batches currently in flight (i.e. those for which we called Events API) we need to have a contaner with controllable size
-        // that would allow to quickly map a pointer (like void* customData) to a batch (like a std::vector<std::shared_ptr<const IPlayFabEmitEventRequest>>).
-        std::unordered_map<void*, std::vector<std::shared_ptr<const IPlayFabEmitEventRequest>>> batchesInFlight;
     };
 }
 

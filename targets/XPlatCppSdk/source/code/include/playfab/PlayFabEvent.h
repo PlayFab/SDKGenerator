@@ -67,6 +67,7 @@ namespace PlayFab
         EventsModels::EventContents eventContents;
 
         friend class PlayFabEventPipeline; // to access eventContents directly from PF pipeline for perf optimization
+        friend class OneDSEventPipeline; // to access eventContents directly from OneDS pipeline for perf optimization
     };
 
     /// <summary>

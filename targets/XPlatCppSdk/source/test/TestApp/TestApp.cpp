@@ -257,12 +257,18 @@ void TestOneDSEventsApi()
     bool isOneDSAuthenticated = false;
     std::string oneDSProjectIdIkey;
     std::string oneDSIngestionKey;
+    std::string oneDSJwtToken;
+    std::string oneDSHeaderJwtTicketKey;
+    std::string oneDSHeaderJwtTicketPrefix;
     PlayFab::EventsModels::TelemetryIngestionConfigRequest configRequest;
     PlayFab::PlayFabTelemetryEventsAPI::GetTelemetryIngestionConfig(configRequest,
         [&](const PlayFab::EventsModels::TelemetryIngestionConfigResponse& result, void* relayedCustomData)
         {
             oneDSProjectIdIkey = "o:" + result.TenantId;
             oneDSIngestionKey = result.IngestionKey;
+            oneDSJwtToken = result.TelemetryJwtToken;
+            oneDSHeaderJwtTicketKey = result.TelemetryJwtHeaderKey;
+            oneDSHeaderJwtTicketPrefix = result.TelemetryJwtHeaderPrefix;
             isOneDSAuthenticated = true;
             operationCompleted = true;
         },
@@ -286,7 +292,7 @@ void TestOneDSEventsApi()
 
     // create OneDS Events API instance
     PlayFab::OneDSEventsAPI api;
-    api.SetCredentials(oneDSProjectIdIkey, oneDSIngestionKey);
+    api.SetCredentials(oneDSProjectIdIkey, oneDSIngestionKey, oneDSJwtToken, oneDSHeaderJwtTicketKey, oneDSHeaderJwtTicketPrefix);
 
     // send several events
     PlayFab::EventsModels::WriteEventsRequest req;

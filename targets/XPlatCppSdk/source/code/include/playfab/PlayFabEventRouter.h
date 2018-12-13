@@ -9,7 +9,7 @@
 namespace PlayFab
 {
     /// <summary>
-    /// The enumeration of all possible "types" of events
+    /// The enumeration of all built-in event pipelines
     /// </summary>
     enum class EventPipelineKey
     {

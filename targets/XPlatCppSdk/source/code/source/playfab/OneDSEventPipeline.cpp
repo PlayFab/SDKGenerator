@@ -48,39 +48,39 @@ namespace PlayFab
         // call OneDS Events API to send the batch
         oneDSEventsApi.WriteTelemetryEvents(
             batchReq,
-            std::bind(&OneDSEventPipeline::WriteTelemetryEventsApiCallback, this, std::placeholders::_1, std::placeholders::_2),
-            std::bind(&OneDSEventPipeline::WriteTelemetryEventsApiErrorCallback, this, std::placeholders::_1, std::placeholders::_2),
+            std::bind(&OneDSEventPipeline::WriteTelemetryEventsApiCallback, this, std::placeholders::_1, std::placeholders::_2), // bind instance method of this class as a success callback
+            std::bind(&OneDSEventPipeline::WriteTelemetryEventsApiErrorCallback, this, std::placeholders::_1, std::placeholders::_2), // bind instance method of this class as an error callback
             customData);
     }
 
     bool OneDSEventPipeline::AuthenticateOneDSApi(void* customData)
     {
         // Get OneDS context
-        bool operationComplete = false;
-        bool isOneDSAuthenticated = false;
+        std::shared_ptr<bool> operationComplete = std::shared_ptr<bool>(new bool(false));
+        std::shared_ptr<bool> isOneDSAuthenticated = std::shared_ptr<bool>(new bool(false));
         EventsModels::TelemetryIngestionConfigRequest configRequest;
         PlayFabTelemetryEventsAPI::GetTelemetryIngestionConfig(configRequest,
             [&](const PlayFab::EventsModels::TelemetryIngestionConfigResponse& result, void* relayedCustomData)
             {
                 oneDSEventsApi.SetCredentials("o:" + result.TenantId, result.IngestionKey);
-                isOneDSAuthenticated = true;
-                operationComplete = true;
+                *isOneDSAuthenticated = true;
+                *operationComplete = true;
             },
             [&](const PlayFab::PlayFabError& error, void* relayedCustomData)
             {
                 // failed to get OneDS context info (including credentials), relay error to user
                 WriteTelemetryEventsApiErrorCallback(error, customData);
-                isOneDSAuthenticated = false;
-                operationComplete = true;
+                *isOneDSAuthenticated = false;
+                *operationComplete = true;
             });
 
         auto checkWaitSpan = std::chrono::milliseconds(this->GetSettings()->readBufferWaitTime);
-        while (!operationComplete)
+        while (!(*operationComplete))
         {
             std::this_thread::sleep_for(checkWaitSpan);
         }
 
-        return isOneDSAuthenticated;
+        return *isOneDSAuthenticated;
     }
 
     void OneDSEventPipeline::WriteTelemetryEventsApiCallback(const EventsModels::WriteEventsResponse& result, void* customData)
@@ -112,7 +112,14 @@ namespace PlayFab
                     playFabEmitEventResponse->batchNumber = reinterpret_cast<size_t>(customData);
 
                     // call an emit event callback
-                    playFabEmitRequest->callback(playFabEmitRequest->event, std::move(playFabEmitEventResponse));
+                    try
+                    {
+                        playFabEmitRequest->callback(playFabEmitRequest->event, std::move(playFabEmitEventResponse));
+                    }
+                    catch (...)
+                    {
+                        LOG_PIPELINE("An exception originated in user's success callback method");
+                    }
                 }
 
                 // remove the batch from tracking map
@@ -150,7 +157,14 @@ namespace PlayFab
                     playFabEmitEventResponse->batchNumber = reinterpret_cast<size_t>(customData);
 
                     // call an emit event callback
-                    playFabEmitRequest->callback(playFabEmitRequest->event, std::move(playFabEmitEventResponse));
+                    try
+                    {
+                        playFabEmitRequest->callback(playFabEmitRequest->event, std::move(playFabEmitEventResponse));
+                    }
+                    catch (...)
+                    {
+                        LOG_PIPELINE("An exception originated in user's error callback method");
+                    }
                 }
 
                 // remove the batch from tracking map

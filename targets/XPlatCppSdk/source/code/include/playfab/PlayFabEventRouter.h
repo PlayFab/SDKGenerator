@@ -9,6 +9,15 @@
 namespace PlayFab
 {
     /// <summary>
+    /// The enumeration of all possible "types" of events
+    /// </summary>
+    enum class EventPipelineKey
+    {
+        PlayFab, // PlayFab event pipeline
+        OneDS // OneDS (One Collector) event pipeline
+    };
+
+    /// <summary>
     /// Interface for any event router
     /// </summary>
     class IPlayFabEventRouter
@@ -16,10 +25,10 @@ namespace PlayFab
     public:
         virtual ~IPlayFabEventRouter() {}
         virtual void RouteEvent(std::shared_ptr<const IPlayFabEmitEventRequest> request) const = 0; // Route an event to pipelines. This method must be thread-safe.
-        const std::unordered_map<size_t, std::shared_ptr<IPlayFabEventPipeline>>& GetPipelines() const;
+        const std::unordered_map<EventPipelineKey, std::shared_ptr<IPlayFabEventPipeline>>& GetPipelines() const;
 
     protected:
-        std::unordered_map<size_t, std::shared_ptr<IPlayFabEventPipeline>> pipelines;
+        std::unordered_map<EventPipelineKey, std::shared_ptr<IPlayFabEventPipeline>> pipelines;
     };
 
     /// <summary>

@@ -235,7 +235,7 @@ void TestHeavyweightEvents()
     PlayFab::PlayFabEventAPI api; // create Event API instance
 
     // adjust some pipeline settings
-    auto pipeline = std::dynamic_pointer_cast<PlayFab::PlayFabEventPipeline>(api.GetEventRouter()->GetPipelines().at(0)); // get PF pipeline
+    auto pipeline = std::dynamic_pointer_cast<PlayFab::PlayFabEventPipeline>(api.GetEventRouter()->GetPipelines().at(PlayFab::EventPipelineKey::PlayFab)); // get PF pipeline
     auto settings = pipeline->GetSettings(); // get pipeline's settings
     settings->maximalBatchWaitTime = 4; // incomplete batch expiration in seconds
     settings->maximalNumberOfItemsInBatch = 4; // number of events in a batch
@@ -316,7 +316,7 @@ void TestLightweightEvents()
     PlayFab::PlayFabEventAPI api; // create Event API instance (it handles both PlayFab and OneDS heavyweight/lightweight events)
 
     // adjust some pipeline settings
-    auto pipeline = std::dynamic_pointer_cast<PlayFab::PlayFabEventPipeline>(api.GetEventRouter()->GetPipelines().at(1)); // get OneDS pipeline
+    auto pipeline = std::dynamic_pointer_cast<PlayFab::PlayFabEventPipeline>(api.GetEventRouter()->GetPipelines().at(PlayFab::EventPipelineKey::OneDS)); // get OneDS pipeline
     auto settings = pipeline->GetSettings(); // get pipeline's settings
     settings->maximalBatchWaitTime = 2; // incomplete batch expiration in seconds
     settings->maximalNumberOfItemsInBatch = 3; // number of events in a batch

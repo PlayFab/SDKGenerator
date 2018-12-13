@@ -83,7 +83,7 @@ namespace PlayFab
     }
 
     // Decorator of a OneDS record. The content of this decorator is heavily based on the code in Aria's SDK (see its Logger and decorators implementation).
-    bool DecorateOneDSRecord(AriaProtocol::Record& record, EventContents const& eventContents, const std::string& oneDSProjectIdIkey)
+    bool DecorateOneDSRecord(AriaProtocol::Record& record, EventContents const& eventContents, const std::string& oneDSProjectIdIkey, const std::string& oneDSHeaderJwtTicketKey)
     {
         // --- Default parameters used in the Aria sample app:
         EventLatency eventLatency = EventLatency::EventLatency_Normal;
@@ -121,6 +121,12 @@ namespace PlayFab
         std::string sdkVersion = std::string("EVT-PlayFab-XPlat-C++-No-") + BUILD_VERSION_STR;
         record.extSdk[0].libVer = sdkVersion;
         record.extSdk[0].installId = installId; //m_owner.GetLogSessionData()->getSessionSDKUid();
+
+        // set Tickets
+        record.extProtocol.push_back(::AriaProtocol::Protocol());
+        std::vector<std::string> ticketKeys;
+        ticketKeys.push_back(oneDSHeaderJwtTicketKey);
+        record.extProtocol[0].ticketKeys.push_back(ticketKeys);
 
         // --- Apply semantic context decoration
         if (record.data.size() == 0)
@@ -302,10 +308,13 @@ namespace PlayFab
         return http.Update();
     }
 
-    void OneDSEventsAPI::SetCredentials(const std::string& projectIdIkey, const std::string& ingestionKey)
+    void OneDSEventsAPI::SetCredentials(const std::string& projectIdIkey, const std::string& ingestionKey, const std::string& jwtToken, const std::string& headerJwtTicketKey, const std::string& headerJwtTicketPrefix)
     {
         oneDSProjectIdIkey = projectIdIkey;
         oneDSIngestionKey = ingestionKey;
+        oneDSJwtToken = jwtToken;
+        oneDSHeaderJwtTicketKey = headerJwtTicketKey;
+        oneDSHeaderJwtTicketPrefix = headerJwtTicketPrefix;
         isOneDSAuthenticated = true;
     }
 
@@ -314,6 +323,9 @@ namespace PlayFab
         isOneDSAuthenticated = false;
         oneDSProjectIdIkey = "";
         oneDSIngestionKey = "";
+        oneDSJwtToken = "";
+        oneDSHeaderJwtTicketKey = "";
+        oneDSHeaderJwtTicketPrefix = "";
     }
 
     bool OneDSEventsAPI::GetIsOneDSAuthenticated() const
@@ -348,7 +360,7 @@ namespace PlayFab
         for (const auto& event : request.Events)
         {
             AriaProtocol::Record record;
-            if (DecorateOneDSRecord(record, event, oneDSProjectIdIkey))
+            if (DecorateOneDSRecord(record, event, oneDSProjectIdIkey, oneDSHeaderJwtTicketKey))
             {
                 // OneDS record was composed successfully,
                 // serialize it
@@ -364,6 +376,7 @@ namespace PlayFab
         // send batch
         std::unordered_map<std::string, std::string> headers;
         headers.emplace("APIKey", oneDSIngestionKey);
+        headers.emplace("Tickets", "\"" + oneDSHeaderJwtTicketKey + "\": \"" + oneDSHeaderJwtTicketPrefix + ":" + oneDSJwtToken + "\"");
 
         auto reqContainer = std::unique_ptr<OneDSCallRequestContainer>(new OneDSCallRequestContainer(
             headers,

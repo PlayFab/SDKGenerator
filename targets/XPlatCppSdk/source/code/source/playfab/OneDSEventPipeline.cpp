@@ -62,7 +62,7 @@ namespace PlayFab
         PlayFabTelemetryEventsAPI::GetTelemetryIngestionConfig(configRequest,
             [&](const PlayFab::EventsModels::TelemetryIngestionConfigResponse& result, void* relayedCustomData)
             {
-                oneDSEventsApi.SetCredentials("o:" + result.TenantId, result.IngestionKey);
+                oneDSEventsApi.SetCredentials("o:" + result.TenantId, result.IngestionKey, result.TelemetryJwtToken, result.TelemetryJwtHeaderKey, result.TelemetryJwtHeaderPrefix);
                 *isOneDSAuthenticated = true;
                 *operationComplete = true;
             },

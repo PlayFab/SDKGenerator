@@ -631,6 +631,7 @@
     <Content Include="targets\XPlatCppSdk\source\build\Windows\XPlatCppWindows.sln.ejs" />
     <Content Include="targets\XPlatCppSdk\source\build\Windows\XPlatCppWindows.vcxproj.ejs" />
     <Content Include="targets\XPlatCppSdk\source\build\Windows\XPlatCppWindows.vcxproj.filters.ejs" />
+    <Content Include="targets\XPlatCppSdk\source\code\include\playfab\OneDSEventPipeline.h" />
     <Content Include="targets\XPlatCppSdk\source\code\include\playfab\OneDSEventsApi.h" />
     <Content Include="targets\XPlatCppSdk\source\code\include\playfab\OneDSHttpPlugin.h" />
     <Content Include="targets\XPlatCppSdk\source\code\include\playfab\PlayFabBaseModel.h" />
@@ -655,6 +656,7 @@
     <Content Include="targets\XPlatCppSdk\source\code\include\playfab\QoS\QoSResult.h" />
     <Content Include="targets\XPlatCppSdk\source\code\include\playfab\QoS\QoSSocket.h" />
     <Content Include="targets\XPlatCppSdk\source\code\include\playfab\QoS\XPlatSocket.h" />
+    <Content Include="targets\XPlatCppSdk\source\code\source\playfab\OneDSEventPipeline.cpp" />
     <Content Include="targets\XPlatCppSdk\source\code\source\playfab\OneDSEventsApi.cpp" />
     <Content Include="targets\XPlatCppSdk\source\code\source\playfab\OneDSHttpPlugin.cpp" />
     <Content Include="targets\XPlatCppSdk\source\code\source\playfab\PlayFabCallRequestContainer.cpp" />

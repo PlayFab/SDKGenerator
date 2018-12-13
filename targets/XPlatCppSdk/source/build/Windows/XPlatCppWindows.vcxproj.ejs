@@ -113,6 +113,7 @@
   <ItemGroup>
     <ClInclude Include="$(SdkSourceDir)\include\playfab\OneDSHttpPlugin.h" />
     <ClInclude Include="$(SdkSourceDir)\include\playfab\OneDSEventsApi.h" />
+    <ClInclude Include="$(SdkSourceDir)\include\playfab\OneDSEventPipeline.h" />
     <ClInclude Include="$(SdkSourceDir)\include\playfab\PlayFabBaseModel.h" />
 <% for(var i in apis) { var api = apis[i];%>
     <ClInclude Include="$(SdkSourceDir)\include\playfab\PlayFab<%- api.name %>Api.h" />
@@ -143,6 +144,7 @@
   <ItemGroup>
     <ClCompile Include="$(SdkSourceDir)\source\playfab\OneDSHttpPlugin.cpp" />
     <ClCompile Include="$(SdkSourceDir)\source\playfab\OneDSEventsApi.cpp" />
+    <ClCompile Include="$(SdkSourceDir)\source\playfab\OneDSEventPipeline.cpp" />
 <% for(var i in apis) { var api = apis[i];%>
     <ClCompile Include="$(SdkSourceDir)\source\playfab\PlayFab<%- api.name %>Api.cpp" /><% } %>
     <ClCompile Include="$(SdkSourceDir)\source\playfab\PlayFabTelemetryEventsApi.cpp" />

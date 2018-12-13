@@ -48,6 +48,7 @@ OBJS = stdafx.o \
 	PlayFabSpinLock.o \
 	OneDSHttpPlugin.o \
 	OneDSEventsApi.o \
+	OneDSEventPipeline.o \
 	DataCenterResult.o \
 	PlayFabQoSApi.o \
 	QoSSocket.o \

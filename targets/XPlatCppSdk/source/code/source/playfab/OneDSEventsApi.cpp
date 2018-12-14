@@ -335,7 +335,7 @@ namespace PlayFab
 
     void OneDSEventsAPI::WriteTelemetryEvents(
         WriteEventsRequest& request,
-        ProcessApiCallback<EventsModels::WriteEventsResponse> callback,
+        ProcessApiCallback<EventsModels::OneDSWriteEventsResponse> callback,
         ErrorCallback errorCallback,
         void* customData
     )
@@ -384,7 +384,7 @@ namespace PlayFab
             OnWriteTelemetryEventsResult,
             customData));
 
-        reqContainer->successCallback = std::shared_ptr<void>((callback == nullptr) ? nullptr : new ProcessApiCallback<WriteEventsResponse>(callback));
+        reqContainer->successCallback = std::shared_ptr<void>((callback == nullptr) ? nullptr : new ProcessApiCallback<OneDSWriteEventsResponse>(callback));
         reqContainer->errorCallback = errorCallback;
 
         http.MakePostRequest(std::unique_ptr<CallRequestContainerBase>(static_cast<CallRequestContainerBase*>(reqContainer.release())));
@@ -394,14 +394,14 @@ namespace PlayFab
     {
         CallRequestContainer& container = static_cast<CallRequestContainer&>(*reqContainer);
 
-        WriteEventsResponse outResult;
+        OneDSWriteEventsResponse outResult;
         if (ValidateResult(outResult, container))
         {
-
+            outResult.errorWrapper = &container.errorWrapper;
             const auto internalPtr = container.successCallback.get();
             if (internalPtr != nullptr)
             {
-                const auto callback = (*static_cast<ProcessApiCallback<WriteEventsResponse> *>(internalPtr));
+                const auto callback = (*static_cast<ProcessApiCallback<OneDSWriteEventsResponse> *>(internalPtr));
                 callback(outResult, container.GetCustomData());
             }
         }
@@ -409,7 +409,7 @@ namespace PlayFab
 
     bool OneDSEventsAPI::ValidateResult(PlayFabResultCommon& resultCommon, CallRequestContainer& container)
     {
-        if (container.errorWrapper.HttpCode == 200)
+        if (container.errorWrapper.ErrorCode == PlayFabErrorCode::PlayFabErrorSuccess)
         {
             resultCommon.FromJson(container.errorWrapper.Data);
             resultCommon.Request = container.errorWrapper.Request;

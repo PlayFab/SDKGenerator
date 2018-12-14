@@ -10,6 +10,19 @@
 namespace PlayFab
 {
     /// <summary>
+    /// OneDS-specific extension of WriteEventsResponse
+    /// </summary>
+    namespace EventsModels
+    {
+        struct OneDSWriteEventsResponse : public WriteEventsResponse
+        {
+            // Error wrapper that is relayed from CallRequestContainer to a user's success callback. 
+            // That error wrapper contains HTTP response information that may be valuable also for successful callbacks.
+            const PlayFabError* errorWrapper;
+        };
+    }
+
+    /// <summary>
     /// Main interface for OneDS (One Data Collector) events APIs
     /// </summary>
     class OneDSEventsAPI
@@ -21,7 +34,7 @@ namespace PlayFab
         void ForgetAllCredentials();
         bool GetIsOneDSAuthenticated() const;
 
-        void WriteTelemetryEvents(EventsModels::WriteEventsRequest& request, ProcessApiCallback<EventsModels::WriteEventsResponse> callback, ErrorCallback errorCallback = nullptr, void* customData = nullptr);
+        void WriteTelemetryEvents(EventsModels::WriteEventsRequest& request, ProcessApiCallback<EventsModels::OneDSWriteEventsResponse> callback, ErrorCallback errorCallback = nullptr, void* customData = nullptr);
 
     private:
         static void OnWriteTelemetryEventsResult(int httpCode, std::string result, std::unique_ptr<CallRequestContainerBase> reqContainer);

@@ -142,10 +142,12 @@ namespace PlayFab
         // Send
         curl_easy_setopt(reqContainer.curlHandle, CURLOPT_SSL_VERIFYPEER, false); // TODO: Replace this with a ca-bundle ref???
         const auto res = curl_easy_perform(reqContainer.curlHandle);
+        long curlHttpResponseCode = 0;
+        curl_easy_getinfo(reqContainer.curlHandle, CURLINFO_RESPONSE_CODE, &curlHttpResponseCode);
 
         if (res != CURLE_OK)
         {
-            reqContainer.errorWrapper.HttpCode = 408;
+            reqContainer.errorWrapper.HttpCode = curlHttpResponseCode != 0 ? curlHttpResponseCode : 408;
             reqContainer.errorWrapper.HttpStatus = "Failed to contact server";
             reqContainer.errorWrapper.ErrorCode = PlayFabErrorConnectionTimeout;
             reqContainer.errorWrapper.ErrorName = "Failed to contact server";
@@ -170,7 +172,7 @@ namespace PlayFab
             }
             else
             {
-                reqContainer.errorWrapper.HttpCode = 408;
+                reqContainer.errorWrapper.HttpCode = curlHttpResponseCode != 0 ? curlHttpResponseCode : 408;
                 reqContainer.errorWrapper.HttpStatus = reqContainer.responseString;
                 reqContainer.errorWrapper.ErrorCode = PlayFabErrorConnectionTimeout;
                 reqContainer.errorWrapper.ErrorName = "Failed to parse PlayFab response";

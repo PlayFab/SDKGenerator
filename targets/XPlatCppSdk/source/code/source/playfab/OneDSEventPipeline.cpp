@@ -83,7 +83,7 @@ namespace PlayFab
         return *isOneDSAuthenticated;
     }
 
-    void OneDSEventPipeline::WriteTelemetryEventsApiCallback(const EventsModels::WriteEventsResponse& result, void* customData)
+    void OneDSEventPipeline::WriteTelemetryEventsApiCallback(const EventsModels::OneDSWriteEventsResponse& result, void* customData)
     {
         try
         {
@@ -103,10 +103,7 @@ namespace PlayFab
                     const auto& playFabEmitRequest = std::dynamic_pointer_cast<const PlayFabEmitEventRequest>(eventEmitRequest);
                     auto playFabEmitEventResponse = std::shared_ptr<PlayFabEmitEventResponse>(new PlayFabEmitEventResponse());
                     playFabEmitEventResponse->emitEventResult = EmitEventResult::Success;
-                    auto playFabError = std::shared_ptr<PlayFabError>(new PlayFabError());
-                    playFabError->HttpCode = 200;
-                    playFabError->ErrorCode = PlayFabErrorCode::PlayFabErrorSuccess;
-                    playFabEmitEventResponse->playFabError = playFabError;
+                    playFabEmitEventResponse->playFabError = std::shared_ptr<PlayFabError>(new PlayFabError(*result.errorWrapper));
                     playFabEmitEventResponse->writeEventsResponse = std::shared_ptr<EventsModels::WriteEventsResponse>(new EventsModels::WriteEventsResponse(result));
                     playFabEmitEventResponse->batch = requestBatchPtr;
                     playFabEmitEventResponse->batchNumber = reinterpret_cast<size_t>(customData);

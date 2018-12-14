@@ -34,7 +34,7 @@ namespace PlayFab
 
     private:
         bool AuthenticateOneDSApi(void* customData);
-        void WriteTelemetryEventsApiCallback(const EventsModels::WriteEventsResponse& result, void* customData);
+        void WriteTelemetryEventsApiCallback(const EventsModels::OneDSWriteEventsResponse& result, void* customData);
         void WriteTelemetryEventsApiErrorCallback(const PlayFabError& error, void* customData);
 
     private:

@@ -61,10 +61,12 @@ namespace PlayFab
         // Send
         curl_easy_setopt(reqContainer.curlHandle, CURLOPT_SSL_VERIFYPEER, false); // TODO: Replace this with a ca-bundle ref???
         const auto res = curl_easy_perform(reqContainer.curlHandle);
+        long curlHttpResponseCode = 0;
+        curl_easy_getinfo(reqContainer.curlHandle, CURLINFO_RESPONSE_CODE, &curlHttpResponseCode);
 
         if (res != CURLE_OK)
         {
-            reqContainer.errorWrapper.HttpCode = 408;
+            reqContainer.errorWrapper.HttpCode = curlHttpResponseCode != 0 ? curlHttpResponseCode : 408;
             reqContainer.errorWrapper.HttpStatus = "Failed to contact server";
             reqContainer.errorWrapper.ErrorCode = PlayFabErrorCode::PlayFabErrorConnectionTimeout;
             reqContainer.errorWrapper.ErrorName = "Failed to contact server";
@@ -73,41 +75,68 @@ namespace PlayFab
         }
         else
         {
-            Json::CharReaderBuilder jsonReaderFactory;
-            std::unique_ptr<Json::CharReader> jsonReader(jsonReaderFactory.newCharReader());
-            JSONCPP_STRING jsonParseErrors;
-            const bool parsedSuccessfully = jsonReader->parse(reqContainer.responseString.c_str(), reqContainer.responseString.c_str() + reqContainer.responseString.length(), &reqContainer.responseJson, &jsonParseErrors);
-
-            if (parsedSuccessfully)
+            if ((curlHttpResponseCode >= 200 && curlHttpResponseCode < 300) || curlHttpResponseCode == 0)
             {
-                auto result = reqContainer.responseJson.get("acc", Json::Value::null).asInt();
-                if (result > 0)
+                // following One-DS recommendations, HTTP response codes within [200, 300) are success
+                // (0 means HTTP code could not be determined and we attempt to parse response)
+                Json::CharReaderBuilder jsonReaderFactory;
+                std::unique_ptr<Json::CharReader> jsonReader(jsonReaderFactory.newCharReader());
+                JSONCPP_STRING jsonParseErrors;
+                const bool parsedSuccessfully = jsonReader->parse(reqContainer.responseString.c_str(), reqContainer.responseString.c_str() + reqContainer.responseString.length(), &reqContainer.responseJson, &jsonParseErrors);
+
+                if (parsedSuccessfully)
                 {
-                    reqContainer.errorWrapper.HttpCode = 200;
-                    reqContainer.errorWrapper.HttpStatus = "OK";
-                    reqContainer.errorWrapper.Data = reqContainer.responseJson;
-                    reqContainer.errorWrapper.ErrorName = "";
-                    reqContainer.errorWrapper.ErrorMessage = "";
-                    reqContainer.errorWrapper.ErrorDetails = "";
+                    auto result = reqContainer.responseJson.get("acc", Json::Value::null).asInt();
+                    if (result > 0)
+                    {
+                        // fully successful response
+                        reqContainer.errorWrapper.HttpCode = curlHttpResponseCode != 0 ? curlHttpResponseCode : 200;
+                        reqContainer.errorWrapper.HttpStatus = "OK";
+                        reqContainer.errorWrapper.Data = reqContainer.responseJson;
+                        reqContainer.errorWrapper.ErrorName = "";
+                        reqContainer.errorWrapper.ErrorMessage = "";
+                    }
+                    else
+                    {
+                        reqContainer.errorWrapper.HttpCode = curlHttpResponseCode != 0 ? curlHttpResponseCode : 200;
+                        reqContainer.errorWrapper.HttpStatus = reqContainer.responseString;
+                        reqContainer.errorWrapper.Data = reqContainer.responseJson;
+                        reqContainer.errorWrapper.ErrorCode = PlayFabErrorCode::PlayFabErrorPartialFailure;
+                        reqContainer.errorWrapper.ErrorName = "OneDS error";
+                        reqContainer.errorWrapper.ErrorMessage = reqContainer.responseJson.toStyledString();
+                    }
                 }
                 else
                 {
-                    reqContainer.errorWrapper.HttpCode = 400;
-                    reqContainer.errorWrapper.HttpStatus = "Error";
-                    reqContainer.errorWrapper.Data = reqContainer.responseJson;
-                    reqContainer.errorWrapper.ErrorCode = PlayFabErrorCode::PlayFabErrorUnknownError;
-                    reqContainer.errorWrapper.ErrorName = "OneDSError";
-                    reqContainer.errorWrapper.ErrorMessage = reqContainer.responseJson.toStyledString();
-                    reqContainer.errorWrapper.ErrorDetails = reqContainer.responseString;
+                    reqContainer.errorWrapper.HttpCode = curlHttpResponseCode != 0 ? curlHttpResponseCode : 200;
+                    reqContainer.errorWrapper.HttpStatus = reqContainer.responseString;
+                    reqContainer.errorWrapper.ErrorCode = PlayFabErrorCode::PlayFabErrorPartialFailure;
+                    reqContainer.errorWrapper.ErrorName = "Failed to parse OneDS response";
+                    reqContainer.errorWrapper.ErrorMessage = jsonParseErrors;
                 }
+            }
+            else if ((curlHttpResponseCode >= 500 && curlHttpResponseCode != 501 && curlHttpResponseCode != 505) 
+                || curlHttpResponseCode == 408 || curlHttpResponseCode == 429)
+            {
+                // following One-DS recommendations, HTTP response codes in this range (excluding and including specific codes)
+                // are eligible for retries
+
+                // TODO implement a retry policy
+                // As a placeholder, return an immediate error
+                reqContainer.errorWrapper.HttpCode = curlHttpResponseCode;
+                reqContainer.errorWrapper.HttpStatus = reqContainer.responseString;
+                reqContainer.errorWrapper.ErrorCode = PlayFabErrorCode::PlayFabErrorUnknownError;
+                reqContainer.errorWrapper.ErrorName = "OneDSError";
+                reqContainer.errorWrapper.ErrorMessage = "Failed to send a batch of events to OneDS";
             }
             else
             {
-                reqContainer.errorWrapper.HttpCode = 408;
+                // following One-DS recommendations, all other HTTP response codes are errors that should not be retried
+                reqContainer.errorWrapper.HttpCode = curlHttpResponseCode;
                 reqContainer.errorWrapper.HttpStatus = reqContainer.responseString;
-                reqContainer.errorWrapper.ErrorCode = PlayFabErrorCode::PlayFabErrorConnectionTimeout;
-                reqContainer.errorWrapper.ErrorName = "Failed to parse PlayFab response";
-                reqContainer.errorWrapper.ErrorMessage = jsonParseErrors;
+                reqContainer.errorWrapper.ErrorCode = PlayFabErrorCode::PlayFabErrorUnknownError;
+                reqContainer.errorWrapper.ErrorName = "OneDSError"; 
+                reqContainer.errorWrapper.ErrorMessage = "Failed to send a batch of events to OneDS";
             }
 
             HandleCallback(std::move(requestContainer));

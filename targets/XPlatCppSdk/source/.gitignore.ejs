@@ -293,6 +293,9 @@ desktop.ini
 external/deps/
 external/deps-release/
 external/deps-debug/
+external/deps-xdk-debug/
+external/deps-xdk-profile/
+external/deps-xdk-release/
 
 external/openssl-build-release/**/*
 !external/openssl-build-release/configdata.pm
@@ -304,7 +307,25 @@ external/openssl-build-debug/**/*
 !external/openssl-build-debug/makefile
 !external/openssl-build-debug/readme.txt
 
-# Linux Build
+# Json xdk build
+external/jsoncpp-xdk-build/Durango
+external/jsoncpp-xdk-build/Debug
+external/jsoncpp-xdk-build/Profile
+external/jsoncpp-xdk-build/Release
 
+# Linux Build
 build/Linux/*.o
 build/Linux/XPlatCppLinux
+
+# Xbox build generated files
+build/Xbox/durango
+build/Xbox/Debug
+build/Xbox/Profile
+build/Xbox/Release
+
+# TestXboxApp build files
+build/Xbox/TestXboxApp/Durango
+build/Xbox/TestXboxApp/TestXboxApp/Durango
+build/Xbox/TestXboxApp/TestXboxApp/Debug
+build/Xbox/TestXboxApp/TestXboxApp/Profile
+build/Xbox/TestXboxApp/TestXboxApp/Release

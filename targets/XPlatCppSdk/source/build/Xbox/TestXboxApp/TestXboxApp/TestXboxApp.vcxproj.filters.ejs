@@ -1,0 +1,46 @@
+﻿<?xml version="1.0" encoding="utf-8"?>
+<Project ToolsVersion="15.0" xmlns="http://schemas.microsoft.com/developer/msbuild/2003">
+  <ItemGroup>
+    <Filter Include="Common">
+      <UniqueIdentifier>0693d9e7-4dec-4457-b2ec-0cfe665293e7</UniqueIdentifier>
+    </Filter>
+    <Filter Include="Assets">
+      <UniqueIdentifier>7ba540a3-0b1b-483f-99f2-ecdf9bf70340</UniqueIdentifier>
+      <Extensions>bmp;dds;fbx;gif;jpg;jpeg;tga;tiff;tif;png</Extensions>
+    </Filter>
+  </ItemGroup>
+  <ItemGroup>
+    <ClInclude Include="pch.h" />
+    <ClInclude Include="Game.h" />
+    <ClInclude Include="StepTimer.h">
+      <Filter>Common</Filter>
+    </ClInclude>
+    <ClInclude Include="TestCode.h" />
+  </ItemGroup>
+  <ItemGroup>
+    <ClCompile Include="pch.cpp" />
+    <ClCompile Include="Game.cpp" />
+    <ClCompile Include="Main.cpp" />
+    <ClCompile Include="TestCode.cpp" />
+  </ItemGroup>
+  <ItemGroup>
+    <AppxManifest Include="Package.appxmanifest" />
+  </ItemGroup>
+  <ItemGroup>
+    <Image Include="Logo.png">
+      <Filter>Assets</Filter>
+    </Image>
+    <Image Include="SmallLogo.png">
+      <Filter>Assets</Filter>
+    </Image>
+    <Image Include="SplashScreen.png">
+      <Filter>Assets</Filter>
+    </Image>
+    <Image Include="StoreLogo.png">
+      <Filter>Assets</Filter>
+    </Image>
+    <Image Include="WideLogo.png">
+      <Filter>Assets</Filter>
+    </Image>
+  </ItemGroup>
+</Project>

@@ -146,29 +146,22 @@ void PrintResult(const PlayFab::QoS::DataCenterResult& result)
 
 void TestGetQosResultApi()
 {
-    char c = 'a';
     PlayFab::QoS::PlayFabQoSApi api;
 
-    while (c != 'e' && c != 'E')
+    auto result = api.GetQoSResult(5, 200);
+
+    if (result.lastErrorCode == 0)
     {
-        auto result = api.GetQoSResult(5, 200);
+        vector<PlayFab::QoS::DataCenterResult> r(move(result.dataCenterResults));
 
-        if (result.lastErrorCode == 0)
+        for (int i = 0; i < r.size(); ++i)
         {
-            vector<PlayFab::QoS::DataCenterResult> r(move(result.dataCenterResults));
-
-            for (int i = 0; i<r.size(); ++i)
-            {
-                PrintResult(r[i]);
-            }
+            PrintResult(r[i]);
         }
-        else
-        {
-            cout << "Result could not be populated : " << result.lastErrorCode << endl;
-        }
-
-        cout << "[QOS API] To exit, enter 'e', else enter anything else : " << endl;
-        cin >> c;
+    }
+    else
+    {
+        cout << "Result could not be populated : " << result.lastErrorCode << endl;
     }
 }
 

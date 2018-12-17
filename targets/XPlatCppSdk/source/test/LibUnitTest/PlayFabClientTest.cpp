@@ -7,7 +7,7 @@
 #include <cstdlib> // _dupenv_s
 #include <Windows.h> // Sleep()
 
-#include <json/reader.h>
+#include <playfab/PlayFabJsonHeaders.h>
 
 #include <playfab/PlayFabClientDataModels.h>
 #include <playfab/PlayFabClientApi.h>

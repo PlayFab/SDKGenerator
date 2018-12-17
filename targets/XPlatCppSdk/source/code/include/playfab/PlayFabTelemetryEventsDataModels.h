@@ -3,14 +3,7 @@
 #ifndef DISABLE_PLAYFABENTITY_API
 
 #include <playfab/PlayFabBaseModel.h>
-
-// Intellisense-only includes
-#ifndef _WIN32
-#include <jsoncpp/json/value.h>
-#endif
-#ifdef _WIN32
-#include <json/value.h>
-#endif
+#include <playfab/PlayFabJsonHeaders.h>
 
 namespace PlayFab
 {

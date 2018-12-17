@@ -3,7 +3,7 @@
 #ifndef DISABLE_PLAYFABENTITY_API
 
 #include <playfab/PlayFabTelemetryEventsApi.h>
-#include <playfab/PlayFabHttp.h>
+#include <playfab/PlayFabPluginManager.h>
 #include <playfab/PlayFabSettings.h>
 #include <playfab/PlayFabError.h>
 

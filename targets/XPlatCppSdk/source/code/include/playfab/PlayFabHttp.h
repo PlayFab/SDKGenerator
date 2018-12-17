@@ -9,12 +9,7 @@
 #include <thread>
 #include <mutex>
 
-#ifndef _WIN32
-#include <jsoncpp/json/value.h>
-#endif
-#ifdef _WIN32
-#include <json/value.h>
-#endif
+#include <playfab/PlayFabJsonHeaders.h>
 
 namespace PlayFab
 {
@@ -48,4 +43,3 @@ namespace PlayFab
         std::deque<std::unique_ptr<CallRequestContainerBase>> pendingResults;
     };
 }
-

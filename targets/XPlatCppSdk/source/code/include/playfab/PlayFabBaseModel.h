@@ -9,13 +9,7 @@
 #include <sstream>
 #include <iomanip>
 
-// Intellisense-only includes
-#ifndef _WIN32
-#include <jsoncpp/json/value.h>
-#endif
-#ifdef _WIN32
-#include <json/value.h>
-#endif
+#include <playfab/PlayFabJsonHeaders.h>
 
 namespace PlayFab
 {
@@ -88,8 +82,7 @@ namespace PlayFab
         tm timeInfo;
 #ifdef _WIN32
         gmtime_s(&timeInfo, &input);
-#endif
-#ifndef _WIN32
+#elif __linux__
         timeInfo = *gmtime(&input);
 #endif
         char buff[40];

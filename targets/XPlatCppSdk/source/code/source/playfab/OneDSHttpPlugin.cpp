@@ -4,7 +4,7 @@
 
 #include <playfab/OneDSHttpPlugin.h>
 
-#include <curl/curl.h>
+#include <playfab/PlayFabTransportHeaders.h>
 
 namespace PlayFab
 {
@@ -13,23 +13,23 @@ namespace PlayFab
         OneDSCallRequestContainer& reqContainer = (OneDSCallRequestContainer&)*requestContainer;
 
         // Set up curl handle
-        reqContainer.curlHandle = curl_easy_init();
-        curl_easy_reset(reqContainer.curlHandle);
-        curl_easy_setopt(reqContainer.curlHandle, CURLOPT_NOSIGNAL, true);
-        curl_easy_setopt(reqContainer.curlHandle, CURLOPT_URL, "https://self.events.data.microsoft.com/OneCollector/1.0/");
+        CURL* curlHandle = curl_easy_init();
+        curl_easy_reset(curlHandle);
+        curl_easy_setopt(curlHandle, CURLOPT_NOSIGNAL, true);
+        curl_easy_setopt(curlHandle, CURLOPT_URL, "https://self.events.data.microsoft.com/OneCollector/1.0/");
 
         // Set up headers
-        reqContainer.curlHttpHeaders = nullptr;
-        reqContainer.curlHttpHeaders = curl_slist_append(reqContainer.curlHttpHeaders, "Accept: */*");
-        reqContainer.curlHttpHeaders = curl_slist_append(reqContainer.curlHttpHeaders, "Client-Id: NO_AUTH");
-        reqContainer.curlHttpHeaders = curl_slist_append(reqContainer.curlHttpHeaders, "Content-Type: application/bond-compact-binary");
-        reqContainer.curlHttpHeaders = curl_slist_append(reqContainer.curlHttpHeaders, "Expect: 100-continue");
-        reqContainer.curlHttpHeaders = curl_slist_append(reqContainer.curlHttpHeaders, "SDK-Version: EVT-PlayFab-XPlat-C++-No-3.0.275.1");
+        curl_slist* curlHttpHeaders = nullptr;
+        curlHttpHeaders = curl_slist_append(curlHttpHeaders, "Accept: */*");
+        curlHttpHeaders = curl_slist_append(curlHttpHeaders, "Client-Id: NO_AUTH");
+        curlHttpHeaders = curl_slist_append(curlHttpHeaders, "Content-Type: application/bond-compact-binary");
+        curlHttpHeaders = curl_slist_append(curlHttpHeaders, "Expect: 100-continue");
+        curlHttpHeaders = curl_slist_append(curlHttpHeaders, "SDK-Version: EVT-PlayFab-XPlat-C++-No-3.0.275.1");
         int64_t now = std::chrono::duration_cast<std::chrono::milliseconds>(std::chrono::system_clock::now().time_since_epoch()).count();
-        reqContainer.curlHttpHeaders = curl_slist_append(reqContainer.curlHttpHeaders, (std::string("Upload-Time: ") + std::to_string(now)).c_str());
-        reqContainer.curlHttpHeaders = curl_slist_append(reqContainer.curlHttpHeaders, (std::string("Content-Length: ") + std::to_string(reqContainer.requestBinaryBody.size())).c_str());
-        reqContainer.curlHttpHeaders = curl_slist_append(reqContainer.curlHttpHeaders, "Connection: Keep-Alive");
-        reqContainer.curlHttpHeaders = curl_slist_append(reqContainer.curlHttpHeaders, "Cache-Control: no-cache");
+        curlHttpHeaders = curl_slist_append(curlHttpHeaders, (std::string("Upload-Time: ") + std::to_string(now)).c_str());
+        curlHttpHeaders = curl_slist_append(curlHttpHeaders, (std::string("Content-Length: ") + std::to_string(reqContainer.requestBinaryBody.size())).c_str());
+        curlHttpHeaders = curl_slist_append(curlHttpHeaders, "Connection: Keep-Alive");
+        curlHttpHeaders = curl_slist_append(curlHttpHeaders, "Cache-Control: no-cache");
 
         auto headers = reqContainer.GetHeaders();
 
@@ -40,29 +40,29 @@ namespace PlayFab
                 if (obj.first.length() != 0 && obj.second.length() != 0) // no empty keys or values in headers
                 {
                     std::string header = obj.first + ": " + obj.second;
-                    reqContainer.curlHttpHeaders = curl_slist_append(reqContainer.curlHttpHeaders, header.c_str());
+                    curlHttpHeaders = curl_slist_append(curlHttpHeaders, header.c_str());
                 }
             }
         }
 
-        curl_easy_setopt(reqContainer.curlHandle, CURLOPT_HTTPHEADER, reqContainer.curlHttpHeaders);
+        curl_easy_setopt(curlHandle, CURLOPT_HTTPHEADER, curlHttpHeaders);
 
         // Set up post & payload
-        curl_easy_setopt(reqContainer.curlHandle, CURLOPT_POST, nullptr);
-        curl_easy_setopt(reqContainer.curlHandle, CURLOPT_POSTFIELDS, reqContainer.requestBinaryBody.data());
-        curl_easy_setopt(reqContainer.curlHandle, CURLOPT_POSTFIELDSIZE, reqContainer.requestBinaryBody.size());
+        curl_easy_setopt(curlHandle, CURLOPT_POST, nullptr);
+        curl_easy_setopt(curlHandle, CURLOPT_POSTFIELDS, reqContainer.requestBinaryBody.data());
+        curl_easy_setopt(curlHandle, CURLOPT_POSTFIELDSIZE, reqContainer.requestBinaryBody.size());
 
         // Process result
         // TODO: CURLOPT_ERRORBUFFER ?
-        curl_easy_setopt(reqContainer.curlHandle, CURLOPT_TIMEOUT_MS, 10000L);
-        curl_easy_setopt(reqContainer.curlHandle, CURLOPT_WRITEDATA, &reqContainer);
-        curl_easy_setopt(reqContainer.curlHandle, CURLOPT_WRITEFUNCTION, CurlReceiveData);
+        curl_easy_setopt(curlHandle, CURLOPT_TIMEOUT_MS, 10000L);
+        curl_easy_setopt(curlHandle, CURLOPT_WRITEDATA, &reqContainer);
+        curl_easy_setopt(curlHandle, CURLOPT_WRITEFUNCTION, CurlReceiveData);
 
         // Send
-        curl_easy_setopt(reqContainer.curlHandle, CURLOPT_SSL_VERIFYPEER, false); // TODO: Replace this with a ca-bundle ref???
-        const auto res = curl_easy_perform(reqContainer.curlHandle);
+        curl_easy_setopt(curlHandle, CURLOPT_SSL_VERIFYPEER, false); // TODO: Replace this with a ca-bundle ref???
+        const auto res = curl_easy_perform(curlHandle);
         long curlHttpResponseCode = 0;
-        curl_easy_getinfo(reqContainer.curlHandle, CURLINFO_RESPONSE_CODE, &curlHttpResponseCode);
+        curl_easy_getinfo(curlHandle, CURLINFO_RESPONSE_CODE, &curlHttpResponseCode);
 
         if (res != CURLE_OK)
         {
@@ -115,7 +115,7 @@ namespace PlayFab
                     reqContainer.errorWrapper.ErrorMessage = jsonParseErrors;
                 }
             }
-            else if ((curlHttpResponseCode >= 500 && curlHttpResponseCode != 501 && curlHttpResponseCode != 505) 
+            else if ((curlHttpResponseCode >= 500 && curlHttpResponseCode != 501 && curlHttpResponseCode != 505)
                 || curlHttpResponseCode == 408 || curlHttpResponseCode == 429)
             {
                 // following One-DS recommendations, HTTP response codes in this range (excluding and including specific codes)
@@ -135,12 +135,15 @@ namespace PlayFab
                 reqContainer.errorWrapper.HttpCode = curlHttpResponseCode;
                 reqContainer.errorWrapper.HttpStatus = reqContainer.responseString;
                 reqContainer.errorWrapper.ErrorCode = PlayFabErrorCode::PlayFabErrorUnknownError;
-                reqContainer.errorWrapper.ErrorName = "OneDSError"; 
+                reqContainer.errorWrapper.ErrorName = "OneDSError";
                 reqContainer.errorWrapper.ErrorMessage = "Failed to send a batch of events to OneDS";
             }
 
             HandleCallback(std::move(requestContainer));
         }
+
+        curl_easy_reset(curlHandle);
+        curlHttpHeaders = nullptr;
     }
 }
 

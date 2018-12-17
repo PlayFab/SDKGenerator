@@ -2,9 +2,7 @@
 
 #include <playfab/PlayFabHttp.h>
 #include <playfab/PlayFabSettings.h>
-
-// Intellisense-only includes
-#include <curl/curl.h>
+#include <playfab/PlayFabTransportHeaders.h>
 
 #include <stdexcept>
 
@@ -100,17 +98,17 @@ namespace PlayFab
         CallRequestContainer& reqContainer = *requestContainer;
 
         // Set up curl handle
-        reqContainer.curlHandle = curl_easy_init();
-        curl_easy_reset(reqContainer.curlHandle);
-        curl_easy_setopt(reqContainer.curlHandle, CURLOPT_NOSIGNAL, true);
-        curl_easy_setopt(reqContainer.curlHandle, CURLOPT_URL, PlayFabSettings::GetUrl(reqContainer.GetUrl(), PlayFabSettings::requestGetParams).c_str());
+        CURL* curlHandle = curl_easy_init();
+        curl_easy_reset(curlHandle);
+        curl_easy_setopt(curlHandle, CURLOPT_NOSIGNAL, true);
+        curl_easy_setopt(curlHandle, CURLOPT_URL, PlayFabSettings::GetUrl(reqContainer.GetUrl(), PlayFabSettings::requestGetParams).c_str());
 
         // Set up headers
-        reqContainer.curlHttpHeaders = nullptr;
-        reqContainer.curlHttpHeaders = curl_slist_append(reqContainer.curlHttpHeaders, "Accept: application/json");
-        reqContainer.curlHttpHeaders = curl_slist_append(reqContainer.curlHttpHeaders, "Content-Type: application/json; charset=utf-8");
-        reqContainer.curlHttpHeaders = curl_slist_append(reqContainer.curlHttpHeaders, ("X-PlayFabSDK: " + PlayFabSettings::versionString).c_str());
-        reqContainer.curlHttpHeaders = curl_slist_append(reqContainer.curlHttpHeaders, "X-ReportErrorAsSuccess: true");
+        curl_slist* curlHttpHeaders = nullptr;
+        curlHttpHeaders = curl_slist_append(curlHttpHeaders, "Accept: application/json");
+        curlHttpHeaders = curl_slist_append(curlHttpHeaders, "Content-Type: application/json; charset=utf-8");
+        curlHttpHeaders = curl_slist_append(curlHttpHeaders, ("X-PlayFabSDK: " + PlayFabSettings::versionString).c_str());
+        curlHttpHeaders = curl_slist_append(curlHttpHeaders, "X-ReportErrorAsSuccess: true");
 
         auto headers = reqContainer.GetHeaders();
 
@@ -121,29 +119,29 @@ namespace PlayFab
                 if (obj.first.length() != 0 && obj.second.length() != 0) // no empty keys or values in headers
                 {
                     std::string header = obj.first + ": " + obj.second;
-                    reqContainer.curlHttpHeaders = curl_slist_append(reqContainer.curlHttpHeaders, header.c_str());
+                    curlHttpHeaders = curl_slist_append(curlHttpHeaders, header.c_str());
                 }
             }
         }
 
-        curl_easy_setopt(reqContainer.curlHandle, CURLOPT_HTTPHEADER, reqContainer.curlHttpHeaders);
+        curl_easy_setopt(curlHandle, CURLOPT_HTTPHEADER, curlHttpHeaders);
 
         // Set up post & payload
         std::string payload = reqContainer.GetRequestBody();
-        curl_easy_setopt(reqContainer.curlHandle, CURLOPT_POST, nullptr);
-        curl_easy_setopt(reqContainer.curlHandle, CURLOPT_POSTFIELDS, payload.c_str());
+        curl_easy_setopt(curlHandle, CURLOPT_POST, nullptr);
+        curl_easy_setopt(curlHandle, CURLOPT_POSTFIELDS, payload.c_str());
 
         // Process result
         // TODO: CURLOPT_ERRORBUFFER ?
-        curl_easy_setopt(reqContainer.curlHandle, CURLOPT_TIMEOUT_MS, 10000L);
-        curl_easy_setopt(reqContainer.curlHandle, CURLOPT_WRITEDATA, &reqContainer);
-        curl_easy_setopt(reqContainer.curlHandle, CURLOPT_WRITEFUNCTION, CurlReceiveData);
+        curl_easy_setopt(curlHandle, CURLOPT_TIMEOUT_MS, 10000L);
+        curl_easy_setopt(curlHandle, CURLOPT_WRITEDATA, &reqContainer);
+        curl_easy_setopt(curlHandle, CURLOPT_WRITEFUNCTION, CurlReceiveData);
 
         // Send
-        curl_easy_setopt(reqContainer.curlHandle, CURLOPT_SSL_VERIFYPEER, false); // TODO: Replace this with a ca-bundle ref???
-        const auto res = curl_easy_perform(reqContainer.curlHandle);
+        curl_easy_setopt(curlHandle, CURLOPT_SSL_VERIFYPEER, false); // TODO: Replace this with a ca-bundle ref???
+        const auto res = curl_easy_perform(curlHandle);
         long curlHttpResponseCode = 0;
-        curl_easy_getinfo(reqContainer.curlHandle, CURLINFO_RESPONSE_CODE, &curlHttpResponseCode);
+        curl_easy_getinfo(curlHandle, CURLINFO_RESPONSE_CODE, &curlHttpResponseCode);
 
         if (res != CURLE_OK)
         {
@@ -181,6 +179,9 @@ namespace PlayFab
 
             HandleCallback(std::move(requestContainer));
         }
+
+        curl_easy_reset(curlHandle);
+        curlHttpHeaders = nullptr;
     }
 
     void PlayFabHttp::HandleResults(std::unique_ptr<CallRequestContainer> requestContainer)

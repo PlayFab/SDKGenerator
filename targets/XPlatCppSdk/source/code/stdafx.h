@@ -30,6 +30,8 @@
 #include <stdio.h>
 #endif // __linux__
 
+// Durango is also defined as WIN32.
+// Hence to specify only Windows, we have check for ! _DURANGO.
 #ifdef _WIN32
 #ifndef _DURANGO
 #define WIN32_LEAN_AND_MEAN

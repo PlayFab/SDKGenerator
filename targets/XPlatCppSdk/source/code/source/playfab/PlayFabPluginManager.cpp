@@ -81,6 +81,6 @@ namespace PlayFab
         return std::shared_ptr<PlayFabIXHR2HttpPlugin>(new PlayFabIXHR2HttpPlugin());
 #else
         return std::shared_ptr<PlayFabHttp>(new PlayFabHttp());
-#endif // !_DURANGO
+#endif // _DURANGO
     }
 }

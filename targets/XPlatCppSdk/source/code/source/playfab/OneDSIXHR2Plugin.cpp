@@ -87,9 +87,6 @@ namespace PlayFab
         // Setup url
         std::wstring url = L"https://self.events.data.microsoft.com/OneCollector/1.0/";
 
-        // Setup payload
-        
-
         // Send post request
         postEventRequest.Open(
             L"POST",

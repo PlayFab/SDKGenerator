@@ -138,7 +138,7 @@ void OnLoginSuccess(const PlayFab::ClientModels::LoginResult& result, void*)
 {
     print_log("========== PlayFab Login Success: %d", result.PlayFabId);
 
-    print_log("========== Starting PlayFab GetProfile API call.\n");
+    print_log("\n========== Starting PlayFab GetProfile API call.\n");
     PlayFab::ClientModels::GetPlayerProfileRequest request;
     PlayFab::PlayFabClientAPI::GetPlayerProfile(request, OnProfile, OnPlayFabFail);
     loginCompleted = true;
@@ -161,6 +161,8 @@ void PrintResult(const PlayFab::QoS::DataCenterResult& result)
 
 void TestGetQosResultApi()
 {
+    print_log("========== Starting PlayFab GetQoSResult API call.\n");
+
     PlayFab::QoS::PlayFabQoSApi api;
 
     auto result = api.GetQoSResult(5, 200);
@@ -178,6 +180,8 @@ void TestGetQosResultApi()
     {
         print_log("Result could not be populated : %d", result.lastErrorCode);
     }
+
+    print_log("========== End PlayFab GetQoSResult API call.\n");
 }
 
 PlayFab::EventsModels::EventContents CreateEventContents(const std::string& eventName, int i)

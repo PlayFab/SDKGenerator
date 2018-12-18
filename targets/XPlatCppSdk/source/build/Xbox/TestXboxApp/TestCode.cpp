@@ -1,10 +1,13 @@
-﻿// Copyright (C) Microsoft Corporation. All rights reserved.
+// Copyright (C) Microsoft Corporation. All rights reserved.
+
+#include "pch.h"
+#include "TestCode.h"
 
 #include <iostream>
 #include <cstdio>
 #include <memory>
+#include <string>
 
-#include "TestAppPch.h"
 #include <playfab/PlayFabClientApi.h>
 #include <playfab/PlayFabClientDataModels.h>
 #include <playfab/PlayFabAuthenticationApi.h>
@@ -19,6 +22,7 @@
 #include <playfab/PlayFabEventApi.h>
 #include <playfab/OneDSEventsApi.h>
 #include <playfab/OneDSHttpPlugin.h>
+#include <playfab/OneDSIXHR2Plugin.h>
 
 #include <playfab/QoS/PlayFabQoSApi.h>
 
@@ -35,27 +39,38 @@ static int eventCounter = 0;
 using namespace PlayFab::QoS;
 using namespace std;
 
+int print_log(const char* format, ...)
+{
+    static char s_printf_buf[1024];
+    va_list args;
+    va_start(args, format);
+    _vsnprintf(s_printf_buf, sizeof(s_printf_buf), format, args);
+    va_end(args);
+    OutputDebugStringA(s_printf_buf);
+    return 0;
+}
+
 void EmitEventCallback(std::shared_ptr<const PlayFab::IPlayFabEvent> event, std::shared_ptr<const PlayFab::IPlayFabEmitEventResponse> response)
 {
     auto pfEvent = std::dynamic_pointer_cast<const PlayFab::PlayFabEvent>(event);
     auto pfResponse = std::dynamic_pointer_cast<const PlayFab::PlayFabEmitEventResponse>(response);
 
-    if (pfResponse->playFabError->ErrorCode == PlayFab::PlayFabErrorCode::PlayFabErrorSuccess)
+    if (pfResponse->playFabError->HttpCode == 0)
     {
-        printf(("-> " + pfEvent->GetName() + " was sent successfully " +
+        print_log(("-> " + pfEvent->GetName() + " was sent successfully " +
             "in the batch #" + std::to_string(pfResponse->batchNumber) + " "
             "of " + std::to_string(pfResponse->batch->size()) + " events. "
             "HTTP code: " + std::to_string(pfResponse->playFabError->HttpCode) +
-            ", app error code: " + std::to_string(pfResponse->playFabError->ErrorCode) +
+            ", PF error code: " + std::to_string(pfResponse->playFabError->ErrorCode) +
             "\n").c_str());
     }
     else
     {
-        printf(("-> " + pfEvent->GetName() + " received an error back " +
+        print_log(("-> " + pfEvent->GetName() + " received an error back " +
             "in the batch #" + std::to_string(pfResponse->batchNumber) + " "
             "of " + std::to_string(pfResponse->batch->size()) + " events. "
             "HTTP code: " + std::to_string(pfResponse->playFabError->HttpCode) +
-            ", app error code: " + std::to_string(pfResponse->playFabError->ErrorCode) +
+            ", PF error code: " + std::to_string(pfResponse->playFabError->ErrorCode) +
             ", HTTP status: " + pfResponse->playFabError->HttpStatus +
             ", Message: " + pfResponse->playFabError->ErrorMessage +
             " \n").c_str());
@@ -69,41 +84,41 @@ void EmitEventCallback(std::shared_ptr<const PlayFab::IPlayFabEvent> event, std:
 
 void OnOneDSWriteTelemetryEventsSucceeded(const PlayFab::EventsModels::WriteEventsResponse& result, void*)
 {
-    printf(("========== OneDS WriteTelemetryEvents Succeeded: " + result.ToJson().toStyledString() + "\n").c_str());
+    print_log("========== OneDS WriteTelemetryEvents Succeeded: %s\n", result.ToJson().toStyledString());
     operationCompleted = true;
 }
 
 void OnOneDSWriteTelemetryEventsFailed(const PlayFab::PlayFabError& error, void*)
 {
-    printf(("========== OneDS WriteTelemetryEvents Failed: " + error.GenerateErrorReport() + "\n").c_str());
+    print_log("========== OneDS WriteTelemetryEvents Failed: %s\n", error.GenerateErrorReport());
     operationCompleted = true;
 }
 
 void OnWriteEventsSucceeded(const PlayFab::EventsModels::WriteEventsResponse& result, void*)
 {
-    printf(("========== PlayFab WriteEvents Succeeded: " + result.ToJson().toStyledString() + "\n").c_str());
+    print_log("========== PlayFab WriteEvents Succeeded: %s\n", result.ToJson().toStyledString());
     operationCompleted = true;
 }
 
 void OnWriteEventsFailed(const PlayFab::PlayFabError& error, void*)
 {
-    printf(("========== PlayFab WriteEvents Failed: " + error.GenerateErrorReport() + "\n").c_str());
+    print_log("========== PlayFab WriteEvents Failed: %s\n", error.GenerateErrorReport());
     operationCompleted = true;
 }
 
 void OnPlayFabFail(const PlayFab::PlayFabError& error, void*)
 {
-    printf(("========== PlayFab call Failed: " + error.GenerateErrorReport() + "\n").c_str());
+    print_log("========== PlayFab call Failed: %s", error.GenerateErrorReport());
 }
 
 void OnGetProfile(const PlayFab::ProfilesModels::GetEntityProfileResponse& result, void*)
 {
-    printf(("========== PlayFab Profiles Success: " + result.Profile->Entity->Type + "\n").c_str());
+    print_log("========== PlayFab Profiles Success: %s\n", result.Profile->Entity->Type);
 }
 
 void OnGetEntityToken(const PlayFab::AuthenticationModels::GetEntityTokenResponse& result, void*)
 {
-    printf(("========== PlayFab GetEntityToken Success: " + result.EntityToken + "\n").c_str());
+    print_log("========== PlayFab GetEntityToken Success: %s\n", result.EntityToken);
 
     auto req = PlayFab::ProfilesModels::GetEntityProfileRequest();
 
@@ -112,7 +127,7 @@ void OnGetEntityToken(const PlayFab::AuthenticationModels::GetEntityTokenRespons
 
 void OnProfile(const PlayFab::ClientModels::GetPlayerProfileResult& result, void*)
 {
-    printf(("========== PlayFab Profile Success: " + result.PlayerProfile->DisplayName + "\n").c_str());
+    print_log("========== PlayFab Profile Success: %s\n", result.PlayerProfile->DisplayName);
 
     auto request = PlayFab::AuthenticationModels::GetEntityTokenRequest();
 
@@ -121,9 +136,9 @@ void OnProfile(const PlayFab::ClientModels::GetPlayerProfileResult& result, void
 
 void OnLoginSuccess(const PlayFab::ClientModels::LoginResult& result, void*)
 {
-    printf(("========== PlayFab Login Success: " + result.PlayFabId + "\n").c_str());
+    print_log("========== PlayFab Login Success: %d", result.PlayFabId);
 
-    printf("========== Starting PlayFab GetProfile API call.\n");
+    print_log("\n========== Starting PlayFab GetProfile API call.\n");
     PlayFab::ClientModels::GetPlayerProfileRequest request;
     PlayFab::PlayFabClientAPI::GetPlayerProfile(request, OnProfile, OnPlayFabFail);
     loginCompleted = true;
@@ -137,15 +152,17 @@ void OnLoginFailed(const PlayFab::PlayFabError& error, void* customData)
 
 void PrintResult(const PlayFab::QoS::DataCenterResult& result)
 {
-    cout << "Region : " << result.region 
-        << "\tDataCenter : " << result.dataCenterName
-        << "\tLatency : " << result.latencyMs
-        << "\tErrorCode :  " << result.lastErrorCode
-        << endl;
+    print_log("Region : %d", result.region);
+    print_log("\tDataCenter : %s", result.dataCenterName);
+    print_log("\tLatency : %d", result.latencyMs);
+    print_log("\tErrorCode : %d", result.lastErrorCode);
+    print_log("\n");
 }
 
 void TestGetQosResultApi()
 {
+    print_log("========== Starting PlayFab GetQoSResult API call.\n");
+
     PlayFab::QoS::PlayFabQoSApi api;
 
     auto result = api.GetQoSResult(5, 200);
@@ -161,8 +178,10 @@ void TestGetQosResultApi()
     }
     else
     {
-        cout << "Result could not be populated : " << result.lastErrorCode << endl;
+        print_log("Result could not be populated : %d", result.lastErrorCode);
     }
+
+    print_log("========== End PlayFab GetQoSResult API call.\n");
 }
 
 PlayFab::EventsModels::EventContents CreateEventContents(const std::string& eventName, int i)
@@ -209,12 +228,12 @@ void EmitEvents(PlayFab::PlayFabEventAPI& api, PlayFab::PlayFabEventType eventTy
         // - or anything else
         event->eventType = eventType;
         std::stringstream name;
-        name << "event_" << i;
+        name << "xbox_event_" << i;
         event->SetName(name.str());
         event->SetProperty("prop_A", 123);
         event->SetProperty("prop_B", "hello, world!");
         event->SetProperty("prop_C", true);
-        printf((event->GetName() + " is emitted ->\n").c_str());
+        print_log((event->GetName() + " is emitted ->\n").c_str());
 
         api.EmitEvent(std::move(event), &EmitEventCallback);
     }
@@ -222,7 +241,7 @@ void EmitEvents(PlayFab::PlayFabEventAPI& api, PlayFab::PlayFabEventType eventTy
 
 void TestHeavyweightEvents()
 {
-    printf("=== Emitting heavyweight events (to send to PlayFab)\n");
+    print_log("=== Emitting heavyweight events (to send to PlayFab)\n");
 
     // test custom event API (it uses event pipeline (router, batching, etc))
     PlayFab::PlayFabEventAPI api; // create Event API instance
@@ -256,21 +275,21 @@ void TestOneDSEventsApi()
     PlayFab::EventsModels::TelemetryIngestionConfigRequest configRequest;
     PlayFab::PlayFabTelemetryEventsAPI::GetTelemetryIngestionConfig(configRequest,
         [&](const PlayFab::EventsModels::TelemetryIngestionConfigResponse& result, void* relayedCustomData)
-        {
-            oneDSProjectIdIkey = "o:" + result.TenantId;
-            oneDSIngestionKey = result.IngestionKey;
-            oneDSJwtToken = result.TelemetryJwtToken;
-            oneDSHeaderJwtTicketKey = result.TelemetryJwtHeaderKey;
-            oneDSHeaderJwtTicketPrefix = result.TelemetryJwtHeaderPrefix;
-            isOneDSAuthenticated = true;
-            operationCompleted = true;
-        },
+    {
+        oneDSProjectIdIkey = "o:" + result.TenantId;
+        oneDSIngestionKey = result.IngestionKey;
+        oneDSJwtToken = result.TelemetryJwtToken;
+        oneDSHeaderJwtTicketKey = result.TelemetryJwtHeaderKey;
+        oneDSHeaderJwtTicketPrefix = result.TelemetryJwtHeaderPrefix;
+        isOneDSAuthenticated = true;
+        operationCompleted = true;
+    },
         [&](const PlayFab::PlayFabError& error, void* relayedCustomData)
-        {
-            printf(("========== GetTelemetryIngestionConfig Failed: " + error.GenerateErrorReport() + "\n").c_str());
-            isOneDSAuthenticated = false;
-            operationCompleted = true;
-        });
+    {
+        print_log(("========== GetTelemetryIngestionConfig Failed: " + error.GenerateErrorReport() + "\n").c_str());
+        isOneDSAuthenticated = false;
+        operationCompleted = true;
+    });
     while (!operationCompleted)
     {
         std::this_thread::yield();
@@ -279,8 +298,14 @@ void TestOneDSEventsApi()
     if (!isOneDSAuthenticated)
         return;
 
+#ifndef _DURANGO
     // set OneDS HTTP plugin
     auto oneDSHttpPlugin = std::shared_ptr<PlayFab::OneDSHttpPlugin>(new PlayFab::OneDSHttpPlugin());
+#else
+    // set OneDS HTTP plugin
+    auto oneDSHttpPlugin = std::shared_ptr<PlayFab::OneDSIXHR2Plugin>(new PlayFab::OneDSIXHR2Plugin());
+#endif
+
     PlayFab::PlayFabPluginManager::SetPlugin(oneDSHttpPlugin, PlayFab::PlayFabPluginContract::PlayFab_Transport, PlayFab::PLUGIN_TRANSPORT_ONEDS);
 
     // create OneDS Events API instance
@@ -309,7 +334,7 @@ void TestOneDSEventsApi()
 
 void TestLightweightEvents()
 {
-    printf("=== Emitting lightweight events (to send to OneDS)\n");
+    print_log("=== Emitting lightweight events (to send to OneDS)\n");
 
     // test custom event API (it uses event pipeline (router, batching, etc))
     PlayFab::PlayFabEventAPI api; // create Event API instance (it handles both PlayFab and OneDS heavyweight/lightweight events)
@@ -330,14 +355,16 @@ void TestLightweightEvents()
     }
 }
 
-int main()
+void RunTests()
 {
+    print_log("\n\n\n----------------------------------------------------------------------\n");
+    print_log("STARTING TESTS--------------------------------------------------------\n");
     // Super hacky short-term functionality PlayFab Test - TODO: Put the regular set of tests into proper Unit Test project
-    printf("========== Starting PlayFab Login API call.\n");
+    print_log("========== Starting PlayFab Login API call.\n");
     PlayFab::PlayFabSettings::titleId = "6195";
     PlayFab::PlayFabSettings::threadedCallbacks = true;
     PlayFab::ClientModels::LoginWithCustomIDRequest request;
-    request.CustomId = "test_GSDK";
+    request.CustomId = "test_XBOX";
     request.CreateAccount = true;
     PlayFab::PlayFabClientAPI::LoginWithCustomID(request, OnLoginSuccess, OnLoginFailed);
 
@@ -347,9 +374,6 @@ int main()
     }
 
     TestGetQosResultApi();
-
-    // PlayFab Events API (heavyweight events sent as a whole batch)
-    TestPlayFabEventsApi(); 
 
     // PlayFab heavyweight events (emitted individually
     // and processed in a background thread using event pipeline (router, batching, etc))
@@ -362,5 +386,6 @@ int main()
     // and processed in a background thread using event pipeline (router, batching, etc))
     TestLightweightEvents();
 
-    return 0;
+    print_log("TESTS END-------------------------------------------------------------\n");
+    print_log("----------------------------------------------------------------------\n\n\n");
 }

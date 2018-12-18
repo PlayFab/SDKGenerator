@@ -1,7 +1,7 @@
 #include <stdafx.h>
 
 #include <playfab/PlayFabPluginManager.h>
-#include <playfab/PlayFabHttp.h>
+#include <playfab/PlayFabTransportHeaders.h>
 
 namespace PlayFab
 {
@@ -77,6 +77,10 @@ namespace PlayFab
 
     std::shared_ptr<IPlayFabPlugin> PlayFabPluginManager::CreatePlayFabTransportPlugin()
     {
+#ifdef _DURANGO
+        return std::shared_ptr<PlayFabIXHR2HttpPlugin>(new PlayFabIXHR2HttpPlugin());
+#else
         return std::shared_ptr<PlayFabHttp>(new PlayFabHttp());
+#endif // _DURANGO
     }
 }

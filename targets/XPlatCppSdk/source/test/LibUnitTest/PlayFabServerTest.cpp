@@ -7,7 +7,7 @@
 #include <stdlib.h> // _dupenv_s
 #include <Windows.h> // Sleep()
 
-#include <json/reader.h>
+#include <playfab/PlayFabJsonHeaders.h>
 
 #include <playfab/PlayFabServerDataModels.h>
 #include <playfab/PlayFabServerApi.h>

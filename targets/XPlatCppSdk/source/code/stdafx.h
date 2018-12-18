@@ -21,19 +21,21 @@
 #include <condition_variable>
 #include <thread>
 
-#ifndef _WIN32
-#include <jsoncpp/json/json.h>
-#include <jsoncpp/json/reader.h>
-#include <jsoncpp/json/value.h>
-#include <curl/curl.h>
+#define UNREFERENCED_PARAMETER(P) (P)
+
+#ifdef _DURANGO
+#endif // _DURANGO
+
+#ifdef __linux__
 #include <stdio.h>
-#endif
+#endif // __linux__
 
+// Durango is also defined as WIN32.
+// Hence to specify only Windows, we have check for ! _DURANGO.
 #ifdef _WIN32
+#ifndef _DURANGO
 #define WIN32_LEAN_AND_MEAN
+#endif //! _DURANGO
+#endif //_WIN32
 
-#include <json/json.h>
-#include <json/reader.h>
-#include <json/value.h>
-#include <curl/curl.h>
-#endif
+#include <playfab/PlayFabJsonHeaders.h>

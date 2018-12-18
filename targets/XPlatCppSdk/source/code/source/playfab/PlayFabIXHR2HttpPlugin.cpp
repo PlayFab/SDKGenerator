@@ -166,8 +166,7 @@ namespace PlayFab
             reqContainer.errorWrapper.HttpCode = 401;
             reqContainer.errorWrapper.HttpStatus = "Access denied";
 
-            // TODO sangarg : Fix the error code here
-            reqContainer.errorWrapper.ErrorCode = PlayFabErrorConnectionTimeout;
+            reqContainer.errorWrapper.ErrorCode = PlayFabErrorConnectionRefused;
             reqContainer.errorWrapper.ErrorName = "Access denied";
             reqContainer.errorWrapper.ErrorMessage = "Failed to contact server, error: " + std::to_string(res);
             HandleCallback(std::move(requestContainer));

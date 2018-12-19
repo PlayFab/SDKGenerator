@@ -12,8 +12,7 @@
 #include <playfab/PlayFabProfilesApi.h>
 #include <playfab/PlayFabProfilesDataModels.h>
 #include <playfab/PlayFabSettings.h>
-#include <playfab/PlayFabTelemetryEventsApi.h>
-#include <playfab/PlayFabTelemetryEventsDataModels.h>
+#include <playfab/OneDSEventsDataModels.h>
 #include <playfab/PlayFabEventsApi.h>
 #include <playfab/PlayFabEventsDataModels.h>
 #include <playfab/PlayFabEventApi.h>
@@ -254,7 +253,7 @@ void TestOneDSEventsApi()
     std::string oneDSHeaderJwtTicketKey;
     std::string oneDSHeaderJwtTicketPrefix;
     PlayFab::EventsModels::TelemetryIngestionConfigRequest configRequest;
-    PlayFab::PlayFabTelemetryEventsAPI::GetTelemetryIngestionConfig(configRequest,
+    PlayFab::OneDSEventsAPI::GetTelemetryIngestionConfig(configRequest,
         [&](const PlayFab::EventsModels::TelemetryIngestionConfigResponse& result, void* relayedCustomData)
         {
             oneDSProjectIdIkey = "o:" + result.TenantId;

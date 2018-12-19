@@ -2,7 +2,7 @@
 
 #ifndef DISABLE_ONEDS_API
 
-#include <playfab/PlayFabTelemetryEventsApi.h>
+#include <playfab/OneDSEventsDataModels.h>
 #include <playfab/OneDSEventPipeline.h>
 #include <playfab/OneDSEventsApi.h>
 
@@ -59,7 +59,7 @@ namespace PlayFab
         std::shared_ptr<bool> operationComplete = std::shared_ptr<bool>(new bool(false));
         std::shared_ptr<bool> isOneDSAuthenticated = std::shared_ptr<bool>(new bool(false));
         EventsModels::TelemetryIngestionConfigRequest configRequest;
-        PlayFabTelemetryEventsAPI::GetTelemetryIngestionConfig(configRequest,
+        OneDSEventsAPI::GetTelemetryIngestionConfig(configRequest,
             [&](const PlayFab::EventsModels::TelemetryIngestionConfigResponse& result, void* relayedCustomData)
             {
                 oneDSEventsApi.SetCredentials("o:" + result.TenantId, result.IngestionKey, result.TelemetryJwtToken, result.TelemetryJwtHeaderKey, result.TelemetryJwtHeaderPrefix);

@@ -39,7 +39,6 @@ OBJS = stdafx.o \
 	PlayFabProfilesApi.o \
 	PlayFabServerApi.o \
 	PlayFabSettings.o \
-	PlayFabTelemetryEventsApi.o \
 	PlayFabEvent.o \
 	PlayFabEventApi.o \
 	PlayFabEventBuffer.o \

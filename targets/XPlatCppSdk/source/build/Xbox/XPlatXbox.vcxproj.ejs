@@ -176,8 +176,7 @@
 <% for(var i in apis) { var api = apis[i];%>
     <ClInclude Include="$(SdkSourceDir)\include\playfab\PlayFab<%- api.name %>Api.h" />
     <ClInclude Include="$(SdkSourceDir)\include\playfab\PlayFab<%- api.name %>DataModels.h" /><% } %>
-    <ClInclude Include="$(SdkSourceDir)\include\playfab\PlayFabTelemetryEventsApi.h" />
-    <ClInclude Include="$(SdkSourceDir)\include\playfab\PlayFabTelemetryEventsDataModels.h" />
+    <ClInclude Include="$(SdkSourceDir)\include\playfab\OneDSEventsDataModels.h" />
     <ClInclude Include="$(SdkSourceDir)\include\playfab\PlayFabEvent.h" />
     <ClInclude Include="$(SdkSourceDir)\include\playfab\PlayFabEventApi.h" />
     <ClInclude Include="$(SdkSourceDir)\include\playfab\PlayFabEventBuffer.h" />
@@ -208,7 +207,6 @@
     <ClCompile Include="$(SdkSourceDir)\source\playfab\OneDSEventPipeline.cpp" />
 <% for(var i in apis) { var api = apis[i];%>
     <ClCompile Include="$(SdkSourceDir)\source\playfab\PlayFab<%- api.name %>Api.cpp" /><% } %>
-    <ClCompile Include="$(SdkSourceDir)\source\playfab\PlayFabTelemetryEventsApi.cpp" />
     <ClCompile Include="$(SdkSourceDir)\source\playfab\PlayFabEvent.cpp" />
     <ClCompile Include="$(SdkSourceDir)\source\playfab\PlayFabEventApi.cpp" />
     <ClCompile Include="$(SdkSourceDir)\source\playfab\PlayFabEventBuffer.cpp" />

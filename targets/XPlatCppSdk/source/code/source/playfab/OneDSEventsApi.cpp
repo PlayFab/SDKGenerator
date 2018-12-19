@@ -4,7 +4,6 @@
 
 #include <playfab/OneDSHttpPlugin.h>
 #include <playfab/OneDSEventsApi.h>
-#include <playfab/PlayFabTelemetryEventsApi.h>
 #include <playfab/PlayFabPluginManager.h>
 #include <playfab/PlayFabSettings.h>
 #include <playfab/PlayFabError.h>
@@ -331,6 +330,52 @@ namespace PlayFab
     bool OneDSEventsAPI::GetIsOneDSAuthenticated() const
     {
         return isOneDSAuthenticated;
+    }
+
+    void OneDSEventsAPI::GetTelemetryIngestionConfig(
+        TelemetryIngestionConfigRequest& request,
+        ProcessApiCallback<TelemetryIngestionConfigResponse> callback,
+        ErrorCallback errorCallback,
+        void* customData
+    )
+    {
+        IPlayFabHttpPlugin& http = *PlayFabPluginManager::GetPlugin<IPlayFabHttpPlugin>(PlayFabPluginContract::PlayFab_Transport);
+        const auto requestJson = request.ToJson();
+
+        Json::FastWriter writer;
+        std::string jsonAsString = writer.write(requestJson);
+
+        std::unordered_map<std::string, std::string> headers;
+        headers.emplace("X-EntityToken", PlayFabSettings::entityToken);
+
+        auto reqContainer = std::unique_ptr<CallRequestContainer>(new CallRequestContainer(
+            "/Event/GetTelemetryIngestionConfig",
+            headers,
+            jsonAsString,
+            OnGetTelemetryIngestionConfigResult,
+            customData));
+
+        reqContainer->successCallback = std::shared_ptr<void>((callback == nullptr) ? nullptr : new ProcessApiCallback<TelemetryIngestionConfigResponse>(callback));
+        reqContainer->errorCallback = errorCallback;
+
+        http.MakePostRequest(std::unique_ptr<CallRequestContainerBase>(static_cast<CallRequestContainerBase*>(reqContainer.release())));
+    }
+
+    void OneDSEventsAPI::OnGetTelemetryIngestionConfigResult(int httpCode, std::string result, std::unique_ptr<CallRequestContainerBase> reqContainer)
+    {
+        CallRequestContainer& container = static_cast<CallRequestContainer&>(*reqContainer);
+
+        TelemetryIngestionConfigResponse outResult;
+        if (ValidateResult(outResult, container))
+        {
+
+            const auto internalPtr = container.successCallback.get();
+            if (internalPtr != nullptr)
+            {
+                const auto callback = (*static_cast<ProcessApiCallback<TelemetryIngestionConfigResponse> *>(internalPtr));
+                callback(outResult, container.GetCustomData());
+            }
+        }
     }
 
     void OneDSEventsAPI::WriteTelemetryEvents(

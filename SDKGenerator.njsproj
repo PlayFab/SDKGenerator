@@ -656,6 +656,7 @@
     <Content Include="targets\XPlatCppSdk\source\build\Xbox\XPlatXbox.vcxproj.filters.ejs" />
     <Content Include="targets\XPlatCppSdk\source\code\include\playfab\OneDSEventPipeline.h" />
     <Content Include="targets\XPlatCppSdk\source\code\include\playfab\OneDSEventsApi.h" />
+    <Content Include="targets\XPlatCppSdk\source\code\include\playfab\OneDSEventsDataModels.h" />
     <Content Include="targets\XPlatCppSdk\source\code\include\playfab\OneDSHttpPlugin.h" />
     <Content Include="targets\XPlatCppSdk\source\code\include\playfab\OneDSIXHR2Plugin.h" />
     <Content Include="targets\XPlatCppSdk\source\code\include\playfab\PlayFabBaseModel.h" />
@@ -674,8 +675,6 @@
     <Content Include="targets\XPlatCppSdk\source\code\include\playfab\PlayFabPluginManager.h" />
     <Content Include="targets\XPlatCppSdk\source\code\include\playfab\PlayFabSettings.h" />
     <Content Include="targets\XPlatCppSdk\source\code\include\playfab\PlayFabSpinLock.h" />
-    <Content Include="targets\XPlatCppSdk\source\code\include\playfab\PlayFabTelemetryEventsApi.h" />
-    <Content Include="targets\XPlatCppSdk\source\code\include\playfab\PlayFabTelemetryEventsDataModels.h" />
     <Content Include="targets\XPlatCppSdk\source\code\include\playfab\PlayFabTransportHeaders.h" />
     <Content Include="targets\XPlatCppSdk\source\code\include\playfab\QoS\DataCenterResult.h" />
     <Content Include="targets\XPlatCppSdk\source\code\include\playfab\QoS\PingResult.h" />
@@ -702,7 +701,6 @@
     <Content Include="targets\XPlatCppSdk\source\code\source\playfab\PlayFabPluginManager.cpp" />
     <Content Include="targets\XPlatCppSdk\source\code\source\playfab\PlayFabSettings.cpp.ejs" />
     <Content Include="targets\XPlatCppSdk\source\code\source\playfab\PlayFabSpinLock.cpp" />
-    <Content Include="targets\XPlatCppSdk\source\code\source\playfab\PlayFabTelemetryEventsApi.cpp" />
     <Content Include="targets\XPlatCppSdk\source\code\source\playfab\QoS\DataCenterResult.cpp" />
     <Content Include="targets\XPlatCppSdk\source\code\source\playfab\QoS\PlayFabQoSApi.cpp" />
     <Content Include="targets\XPlatCppSdk\source\code\source\playfab\QoS\QoSSocket.cpp" />

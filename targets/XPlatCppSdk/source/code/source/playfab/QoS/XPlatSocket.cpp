@@ -5,12 +5,12 @@
 #include <playfab/QoS/XPlatSocket.h>
 #include <playfab/QoS/QoS.h>
 
-#ifdef _WIN32
+#if defined(PLAYFAB_PLATFORM_WINDOWS) || defined(PLAYFAB_PLATFORM_XBOX)
 #include <sys/utime.h>
 #else
 #include <sys/ioctl.h>
 #include <utime.h>
-#endif // _WIN32
+#endif
 
 using namespace std;
 
@@ -25,12 +25,12 @@ namespace PlayFab
 
         XPlatSocket::~XPlatSocket()
         {
-#ifdef _WIN32
+#if defined(PLAYFAB_PLATFORM_WINDOWS) || defined(PLAYFAB_PLATFORM_XBOX)
             closesocket(s);
             WSACleanup();
 #else
             close(s);
-#endif // _WIN32
+#endif
         }
 
         int XPlatSocket::InitializeSocket()
@@ -46,21 +46,21 @@ namespace PlayFab
 
             int errorCode = 0;
 
-#ifdef _WIN32
+#if defined(PLAYFAB_PLATFORM_WINDOWS) || defined(PLAYFAB_PLATFORM_XBOX)
             // Initializing
             if ((errorCode = WSAStartup(MAKEWORD(2, 2), &wsa)) != 0)
             {
                 LOG_QOS("WSAStartup failed with the error code : " << errorCode << endl);
                 return errorCode;
             }
-#endif // _WIN32
+#endif
 
             // create socket
             if ((s = socket(AF_INET, SOCK_DGRAM, IPPROTO_UDP)) == SOCKET_ERROR)
             {
-#ifdef _WIN32
+#if defined(PLAYFAB_PLATFORM_WINDOWS) || defined(PLAYFAB_PLATFORM_XBOX)
                 errorCode = WSAGetLastError();
-#endif // _WIN32
+#endif
                 LOG_QOS("Socket creation failed with the error code : " << errorCode << endl);
                 return errorCode;
             }
@@ -81,7 +81,7 @@ namespace PlayFab
                 return -1;
             }
 
-#ifdef _WIN32
+#if defined(PLAYFAB_PLATFORM_WINDOWS) || defined(PLAYFAB_PLATFORM_XBOX)
             return setsockopt(s, SOL_SOCKET, SO_RCVTIMEO | SO_SNDTIMEO, (char*)&timeoutMs, sizeof(timeoutMs));
 #else
             // Input timeout is in milliseconds
@@ -112,7 +112,7 @@ namespace PlayFab
 
             auto inAddr = (struct in_addr*) he->h_addr_list[0];
 
-#ifdef _WIN32
+#if defined(PLAYFAB_PLATFORM_WINDOWS) || defined(PLAYFAB_PLATFORM_XBOX)
             if (inAddr->S_un.S_addr == 0)
             {
                 LOG_QOS("Address casting failed\n");
@@ -126,7 +126,7 @@ namespace PlayFab
                 return -1;
             }
             siOther.sin_addr.s_addr = inAddr->s_addr;
-#endif // _WIN32
+#endif
 
             // 0 indicates that the host was found
             return 0;

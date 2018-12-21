@@ -77,10 +77,10 @@ namespace PlayFab
 
     std::shared_ptr<IPlayFabPlugin> PlayFabPluginManager::CreatePlayFabTransportPlugin()
     {
-#ifdef _DURANGO
+#ifdef PLAYFAB_PLATFORM_XBOX
         return std::shared_ptr<PlayFabIXHR2HttpPlugin>(new PlayFabIXHR2HttpPlugin());
 #else
         return std::shared_ptr<PlayFabHttp>(new PlayFabHttp());
-#endif // _DURANGO
+#endif // PLAYFAB_PLATFORM_XBOX
     }
 }

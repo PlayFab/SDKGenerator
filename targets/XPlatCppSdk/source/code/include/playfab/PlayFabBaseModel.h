@@ -9,11 +9,12 @@
 #include <sstream>
 #include <iomanip>
 
+#include <playfab/PlayFabPlatformMacros.h>
 #include <playfab/PlayFabJsonHeaders.h>
 
 namespace PlayFab
 {
-#ifdef WIN32
+#if defined(PLAYFAB_PLATFORM_WINDOWS) || defined(PLAYFAB_PLATFORM_XBOX)
     typedef signed __int64 Int64;
     typedef signed __int32 Int32;
     typedef signed __int16 Int16;
@@ -21,7 +22,7 @@ namespace PlayFab
     typedef unsigned __int64 Uint64;
     typedef unsigned __int32 Uint32;
     typedef unsigned __int16 Uint16;
-#else
+#elif defined(PLAYFAB_PLATFORM_LINUX)
     typedef int64_t Int64;
     typedef int32_t Int32;
     typedef int16_t Int16;
@@ -80,9 +81,9 @@ namespace PlayFab
     inline void ToJsonUtilT(const time_t input, Json::Value& output)
     {
         tm timeInfo;
-#ifdef _WIN32
+#if defined(PLAYFAB_PLATFORM_WINDOWS) || defined(PLAYFAB_PLATFORM_XBOX)
         gmtime_s(&timeInfo, &input);
-#elif __linux__
+#elif defined(PLAYFAB_PLATFORM_LINUX)
         timeInfo = *gmtime(&input);
 #endif
         char buff[40];

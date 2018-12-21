@@ -1,21 +1,21 @@
 #pragma once
 
-#ifdef _DURANGO
+#include <playfab/PlayFabPlatformMacros.h>
+
+#ifdef PLAYFAB_PLATFORM_XBOX
 #include <json/json.h>
 #include <json/reader.h>
 #include <json/value.h>
-#endif // _DURANGO
+#endif // PLAYFAB_PLATFORM_XBOX
 
-#ifdef __linux__
+#ifdef PLAYFAB_PLATFORM_LINUX
 #include <jsoncpp/json/json.h>
 #include <jsoncpp/json/reader.h>
 #include <jsoncpp/json/value.h>
-#endif // __linux__
+#endif // PLAYFAB_PLATFORM_LINUX
 
-#ifdef _WIN32
-#ifndef _DURANGO
+#ifdef PLAYFAB_PLATFORM_WINDOWS
 #include <json/json.h>
 #include <json/reader.h>
 #include <json/value.h>
-#endif // !_DURANGO
-#endif // _WIN32
+#endif // PLAYFAB_PLATFORM_WINDOWS

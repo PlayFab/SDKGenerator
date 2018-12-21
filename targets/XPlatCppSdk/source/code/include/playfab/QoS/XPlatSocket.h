@@ -1,6 +1,6 @@
 #pragma once
 
-#ifdef _WIN32
+#if defined(PLAYFAB_PLATFORM_WINDOWS) || defined(PLAYFAB_PLATFORM_XBOX)
 #include <winsock2.h>
 #include <Windows.h>
 #include <ws2tcpip.h>
@@ -13,7 +13,7 @@
 #include <netdb.h>
 constexpr int SOCKET_ERROR = -1;
 constexpr int WSAEWOULDBLOCK = 10035;
-#endif // _WIN32
+#endif
 
 namespace PlayFab
 {
@@ -63,12 +63,12 @@ namespace PlayFab
             bool initialized;
             struct sockaddr_in siOther;
 
-#ifdef _WIN32
+#if defined(PLAYFAB_PLATFORM_WINDOWS) || defined(PLAYFAB_PLATFORM_XBOX)
             int s, slen;
             WSADATA wsa;
 #else
             unsigned int s, slen;
-#endif // _WIN32
+#endif
         };
     }
 }

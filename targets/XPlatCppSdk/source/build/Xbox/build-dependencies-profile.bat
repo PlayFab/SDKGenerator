@@ -31,7 +31,7 @@ echo jsoncpp build succeeded.
 rem - copy headers and binaries to deps
 xcopy "../jsoncpp/include/json/*.*" "%deps%include/json/" /E /R /F /Y /H
 xcopy "Durango/Profile/lib_json.lib" "%deps%lib/" /R /F /Y /H
-xcopy "Durango/Profile/lib_json.pdb" "%deps%lib/" /R /F /Y /H
+xcopy "Durango/Profile/lib_json.pri" "%deps%lib/" /R /F /Y /H
 popd
 
 rem - copy the deps folder to build

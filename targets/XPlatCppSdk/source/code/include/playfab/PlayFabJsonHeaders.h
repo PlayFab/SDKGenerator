@@ -2,7 +2,7 @@
 
 #include <playfab/PlayFabPlatformMacros.h>
 
-#if define(PLAYFAB_PLATFORM_WINDOWS) || define(PLAYFAB_PLATFORM_XBOX)
+#if defined(PLAYFAB_PLATFORM_WINDOWS) || defined(PLAYFAB_PLATFORM_XBOX)
 #include <json/json.h>
 #include <json/reader.h>
 #include <json/value.h>

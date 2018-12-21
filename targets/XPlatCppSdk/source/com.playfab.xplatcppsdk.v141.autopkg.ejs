@@ -40,7 +40,7 @@ nuget {
         };
 
         nestedInclude: {
-            #destination = ${d_include}\playfab;
+            #destination = ${d_include}playfab;
             "code\include\playfab\**\*.h"
         };
 
@@ -53,8 +53,6 @@ nuget {
         [x64,v141,debug] {
             lib: {
                 build\Windows\x64\Debug\XPlatCppWindows\XPlatCppWindows.lib;
-            }
-            symbols: {
                 build\Windows\x64\Debug\XPlatCppWindows\XPlatCppWindows.pdb;
             }
         };

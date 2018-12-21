@@ -708,6 +708,7 @@
     <Content Include="targets\XPlatCppSdk\source\code\stdafx.cpp" />
     <Content Include="targets\XPlatCppSdk\source\code\stdafx.h" />
     <Content Include="targets\XPlatCppSdk\source\com.playfab.xplatcppsdk.v141.autopkg.ejs" />
+    <Content Include="targets\XPlatCppSdk\source\com.playfab.xplatxboxsdk.v141.autopkg.ejs" />
     <Content Include="targets\XPlatCppSdk\source\DEPENDENCIES.md" />
     <Content Include="targets\XPlatCppSdk\source\external\aria\bondlite\external\README.md" />
     <Content Include="targets\XPlatCppSdk\source\external\aria\bondlite\generated\AriaProtocol-generate.py" />

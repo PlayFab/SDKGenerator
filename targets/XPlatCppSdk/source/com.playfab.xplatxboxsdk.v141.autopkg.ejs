@@ -1,0 +1,102 @@
+configurations {
+    Toolset {
+        key : "PlatformToolset";
+        choices: { <%- vsVer %> };
+    };
+
+    Platform {
+        key : "Platform";
+        choices: { Durango };
+    };
+
+    Configuration {
+        key : "Configuration";
+        choices: { Release, Debug, Profile };
+    };
+}
+
+nuget {
+    nuspec {
+        id = "com.playfab.xplatxboxsdk.<%- vsVer %>";
+        version : <%- sdkVersion %>;
+        title: "PlayFab Xbox Platform C++ Sdk for Visual Studio <%- vsYear %>";
+        summary: "PlayFab is the unified backend platform for games and everything you need to build and operate your game, all in one place, so you can focus on creating and delivering a great player experience.";
+        authors: "PlayFab";
+        owners: "PlayFab";
+        licenseUrl: "https://raw.githubusercontent.com/PlayFab/XPlatCppSdk/master/LICENSE";
+        projectUrl: "https://github.com/PlayFab/XPlatCppSdk";
+        iconUrl: "https://playfab.com/assets/img/playfab-mark.png";
+        requireLicenseAcceptance: false;
+        description: "Authentication, in-game commerce, player data, title data, inventory, characters, statistics, leaderboards, analytics and reporting, friends, multiplayer, matchmaking, tournaments, cloud script, trading, real-time event handling, player management, live ops, and server hosting for all major platforms/devices and games of any scale. This sdk gives your game the ability log into PlayFab and access cloud data and services.";
+        releaseNotes: "https://api.playfab.com/releaseNotes/#<%- sdkDate %>";
+        copyright: "Copyright 20<%- sdkYear %>";
+        language: "C++";
+        tags: { PlayFab, Baas, Paas, JSON, REST, HTTP, SSL, API, cloud, liveops, game, gamedev, native, xbox };
+    };
+
+    files {
+        docs: {
+            "external\deps-xdk-*\**\*"
+        };
+
+        [release]
+        include: {
+        };
+
+        [debug]
+        include: {
+        };
+
+        [profile]
+        include: {
+        };
+
+        include1: {
+            #destination = ${d_include}Release\json;
+            "external\deps-xdk-release\**\*.h"
+        };
+
+        include2: {
+            #destination = ${d_include}Debug\json;
+            "external\deps-xdk-debug\**\*.h"
+        };
+        
+        include3: {
+            #destination = ${d_include}Profile\json;
+            "external\deps-xdk-profile\**\*.h"
+        };
+
+        nestedInclude: {
+            #destination = ${d_include}playfab;
+            "code\include\playfab\**\*.h"
+        };
+
+        [Durango,v141,release] {
+            lib: {
+                build\Xbox\Durango\Release\XPlatXbox.lib; 
+            }
+        };
+
+        [Durango,v141,debug] {
+            lib: {
+                build\Xbox\Durango\Debug\XPlatXbox.lib;
+            }
+            symbols: {
+                build\Xbox\Durango\Debug\XPlatXbox.pdb;
+            }
+        };
+
+        [Durango,v141,profile] {
+            lib: {
+                build\Xbox\Durango\Profile\XPlatXbox.lib;
+            }
+            symbols: {
+                build\Xbox\Durango\Profile\XPlatXbox.pri;
+            }
+        };
+    };
+
+    targets {
+        Libraries += ws2_32.lib;
+    }
+}

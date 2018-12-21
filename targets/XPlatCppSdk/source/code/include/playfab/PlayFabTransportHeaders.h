@@ -1,17 +1,12 @@
 #pragma once
 
-#ifdef _DURANGO
+#include <playfab/PlayFabPlatformMacros.h>
+
+#ifdef PLAYFAB_PLATFORM_XBOX
 #include <playfab/PlayFabIXHR2HttpPlugin.h>
-#endif // _DURANGO
+#endif // PLAYFAB_PLATFORM_XBOX
 
-#ifdef __linux__
+#if define(PLAYFAB_PLATFORM_WINDOWS) || define(PLAYFAB_PLATFORM_LINUX) 
 #include <curl/curl.h>
 #include <playfab/PlayFabHttp.h>
-#endif // __linux__
-
-#ifdef _WIN32
-#ifndef _DURANGO
-#include <curl/curl.h>
-#include <playfab/PlayFabHttp.h>
-#endif // !_DURANGO
-#endif // _WIN32
+#endif // PLAYFAB_PLATFORM_WINDOWS || PLAYFAB_PLATFORM_LINUX

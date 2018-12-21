@@ -21,21 +21,16 @@
 #include <condition_variable>
 #include <thread>
 
+#include <playfab/PlayFabPlatformMacros.h>
+
 #define UNREFERENCED_PARAMETER(P) (P)
 
-#ifdef _DURANGO
-#endif // _DURANGO
-
-#ifdef __linux__
+#ifdef PLAYFAB_PLATFORM_LINUX
 #include <stdio.h>
-#endif // __linux__
+#endif // PLAYFAB_PLATFORM_LINUX
 
-// Durango is also defined as WIN32.
-// Hence to specify only Windows, we have check for ! _DURANGO.
-#ifdef _WIN32
-#ifndef _DURANGO
+#ifdef PLAYFAB_PLATFORM_WINDOWS
 #define WIN32_LEAN_AND_MEAN
-#endif //! _DURANGO
-#endif //_WIN32
+#endif // PLAYFAB_PLATFORM_WINDOWS
 
 #include <playfab/PlayFabJsonHeaders.h>

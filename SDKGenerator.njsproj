@@ -672,6 +672,7 @@
     <Content Include="targets\XPlatCppSdk\source\code\include\playfab\PlayFabIXHR2HttpPlugin.h" />
     <Content Include="targets\XPlatCppSdk\source\code\include\playfab\PlayFabIXHR2HttpRequest.h" />
     <Content Include="targets\XPlatCppSdk\source\code\include\playfab\PlayFabJsonHeaders.h" />
+    <Content Include="targets\XPlatCppSdk\source\code\include\playfab\PlayFabPlatformMacros.h" />
     <Content Include="targets\XPlatCppSdk\source\code\include\playfab\PlayFabPluginManager.h" />
     <Content Include="targets\XPlatCppSdk\source\code\include\playfab\PlayFabSettings.h" />
     <Content Include="targets\XPlatCppSdk\source\code\include\playfab\PlayFabSpinLock.h" />

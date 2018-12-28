@@ -14,7 +14,7 @@
 namespace PlayFab
 {
     /// <summary>
-    /// PlayFabHttp is the default https implementation to interact with PlayFab services using curl.
+    /// PlayFabHttp is an https implementation to interact with PlayFab services using curl.
     /// </summary>
     class PlayFabHttp : public IPlayFabHttpPlugin
     {

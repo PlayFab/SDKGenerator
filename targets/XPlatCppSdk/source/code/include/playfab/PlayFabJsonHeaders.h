@@ -1,3 +1,7 @@
+// Copyright (C) Microsoft Corporation. All rights reserved.
+// 
+// This header file is used to include platform-specific headers of JsonCpp library.
+
 #pragma once
 
 #include <playfab/PlayFabPlatformMacros.h>

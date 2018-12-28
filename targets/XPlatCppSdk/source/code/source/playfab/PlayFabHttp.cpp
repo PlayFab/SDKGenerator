@@ -2,7 +2,7 @@
 
 #include <playfab/PlayFabHttp.h>
 #include <playfab/PlayFabSettings.h>
-#include <playfab/PlayFabTransportHeaders.h>
+#include <curl/curl.h>
 
 #include <stdexcept>
 

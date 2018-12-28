@@ -659,6 +659,7 @@
     <Content Include="targets\XPlatCppSdk\source\code\include\playfab\OneDSEventsDataModels.h" />
     <Content Include="targets\XPlatCppSdk\source\code\include\playfab\OneDSHttpPlugin.h" />
     <Content Include="targets\XPlatCppSdk\source\code\include\playfab\OneDSIXHR2Plugin.h" />
+    <Content Include="targets\XPlatCppSdk\source\code\include\playfab\OneDSWinHttpPlugin.h" />
     <Content Include="targets\XPlatCppSdk\source\code\include\playfab\PlayFabBaseModel.h" />
     <Content Include="targets\XPlatCppSdk\source\code\include\playfab\PlayFabCallRequestContainer.h" />
     <Content Include="targets\XPlatCppSdk\source\code\include\playfab\PlayFabCallRequestContainerBase.h" />
@@ -677,6 +678,7 @@
     <Content Include="targets\XPlatCppSdk\source\code\include\playfab\PlayFabSettings.h" />
     <Content Include="targets\XPlatCppSdk\source\code\include\playfab\PlayFabSpinLock.h" />
     <Content Include="targets\XPlatCppSdk\source\code\include\playfab\PlayFabTransportHeaders.h" />
+    <Content Include="targets\XPlatCppSdk\source\code\include\playfab\PlayFabWinHttpPlugin.h" />
     <Content Include="targets\XPlatCppSdk\source\code\include\playfab\QoS\DataCenterResult.h" />
     <Content Include="targets\XPlatCppSdk\source\code\include\playfab\QoS\PingResult.h" />
     <Content Include="targets\XPlatCppSdk\source\code\include\playfab\QoS\PlayFabQoSApi.h" />
@@ -688,6 +690,7 @@
     <Content Include="targets\XPlatCppSdk\source\code\source\playfab\OneDSEventsApi.cpp" />
     <Content Include="targets\XPlatCppSdk\source\code\source\playfab\OneDSHttpPlugin.cpp" />
     <Content Include="targets\XPlatCppSdk\source\code\source\playfab\OneDSIXHR2Plugin.cpp" />
+    <Content Include="targets\XPlatCppSdk\source\code\source\playfab\OneDSWinHttpPlugin.cpp" />
     <Content Include="targets\XPlatCppSdk\source\code\source\playfab\PlayFabCallRequestContainer.cpp" />
     <Content Include="targets\XPlatCppSdk\source\code\source\playfab\PlayFabCallRequestContainerBase.cpp" />
     <Content Include="targets\XPlatCppSdk\source\code\source\playfab\PlayFabError.cpp" />
@@ -702,6 +705,7 @@
     <Content Include="targets\XPlatCppSdk\source\code\source\playfab\PlayFabPluginManager.cpp" />
     <Content Include="targets\XPlatCppSdk\source\code\source\playfab\PlayFabSettings.cpp.ejs" />
     <Content Include="targets\XPlatCppSdk\source\code\source\playfab\PlayFabSpinLock.cpp" />
+    <Content Include="targets\XPlatCppSdk\source\code\source\playfab\PlayFabWinHttpPlugin.cpp" />
     <Content Include="targets\XPlatCppSdk\source\code\source\playfab\QoS\DataCenterResult.cpp" />
     <Content Include="targets\XPlatCppSdk\source\code\source\playfab\QoS\PlayFabQoSApi.cpp" />
     <Content Include="targets\XPlatCppSdk\source\code\source\playfab\QoS\QoSSocket.cpp" />

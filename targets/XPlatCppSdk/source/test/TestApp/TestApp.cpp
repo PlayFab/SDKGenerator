@@ -17,7 +17,7 @@
 #include <playfab/PlayFabEventsDataModels.h>
 #include <playfab/PlayFabEventApi.h>
 #include <playfab/OneDSEventsApi.h>
-#include <playfab/OneDSHttpPlugin.h>
+#include <playfab/PlayFabTransportHeaders.h>
 
 #include <playfab/QoS/PlayFabQoSApi.h>
 
@@ -279,7 +279,11 @@ void TestOneDSEventsApi()
         return;
 
     // set OneDS HTTP plugin
+#ifdef PLAYFAB_PLATFORM_WINDOWS
+    auto oneDSHttpPlugin = std::shared_ptr<PlayFab::OneDSWinHttpPlugin>(new PlayFab::OneDSWinHttpPlugin());
+#elif defined(PLAYFAB_PLATFORM_LINUX)
     auto oneDSHttpPlugin = std::shared_ptr<PlayFab::OneDSHttpPlugin>(new PlayFab::OneDSHttpPlugin());
+#endif
     PlayFab::PlayFabPluginManager::SetPlugin(oneDSHttpPlugin, PlayFab::PlayFabPluginContract::PlayFab_Transport, PlayFab::PLUGIN_TRANSPORT_ONEDS);
 
     // create OneDS Events API instance

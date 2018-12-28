@@ -3,8 +3,7 @@
 #ifndef DISABLE_ONEDS_API
 
 #include <playfab/OneDSHttpPlugin.h>
-
-#include <playfab/PlayFabTransportHeaders.h>
+#include <curl/curl.h>
 
 namespace PlayFab
 {

@@ -79,6 +79,8 @@ namespace PlayFab
     {
 #ifdef PLAYFAB_PLATFORM_XBOX
         return std::shared_ptr<PlayFabIXHR2HttpPlugin>(new PlayFabIXHR2HttpPlugin());
+#elif defined(PLAYFAB_PLATFORM_WINDOWS)
+        return std::shared_ptr<PlayFabWinHttpPlugin>(new PlayFabWinHttpPlugin());
 #else
         return std::shared_ptr<PlayFabHttp>(new PlayFabHttp());
 #endif // PLAYFAB_PLATFORM_XBOX

@@ -11,9 +11,11 @@
 
 namespace PlayFab
 {
+    constexpr auto ONEDS_SERVICE_URL = "https://self.events.data.microsoft.com/OneCollector/1.0/";
+
     std::string OneDSWinHttpPlugin::GetUrl(CallRequestContainer& requestContainer) const
     {
-        return std::string("https://self.events.data.microsoft.com/OneCollector/1.0/");
+        return std::string(ONEDS_SERVICE_URL);
     }
 
     void OneDSWinHttpPlugin::SetPredefinedHeaders(CallRequestContainer& requestContainer, HINTERNET hRequest)
@@ -35,7 +37,7 @@ namespace PlayFab
     bool OneDSWinHttpPlugin::GetBinaryPayload(CallRequestContainer& requestContainer, LPVOID& payload, DWORD& payloadSize) const
     {
         OneDSCallRequestContainer& reqContainer = (OneDSCallRequestContainer&)requestContainer;
-        payloadSize = (DWORD)reqContainer.requestBinaryBody.size();
+        payloadSize = static_cast<DWORD>(reqContainer.requestBinaryBody.size());
         payload = reqContainer.requestBinaryBody.data();
         return true;
     }

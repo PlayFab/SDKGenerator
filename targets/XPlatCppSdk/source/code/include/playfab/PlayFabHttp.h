@@ -8,13 +8,14 @@
 #include <memory>
 #include <thread>
 #include <mutex>
+#include <atomic>
 
 #include <playfab/PlayFabJsonHeaders.h>
 
 namespace PlayFab
 {
     /// <summary>
-    /// PlayFabHttp is the default https implementation to interact with PlayFab services using curl.
+    /// PlayFabHttp is an https implementation to interact with PlayFab services using curl.
     /// </summary>
     class PlayFabHttp : public IPlayFabHttpPlugin
     {
@@ -37,7 +38,7 @@ namespace PlayFab
 
         std::thread workerThread;
         std::mutex httpRequestMutex;
-        bool threadRunning;
+        std::atomic<bool> threadRunning;
         int activeRequestCount;
         std::deque<std::unique_ptr<CallRequestContainerBase>> pendingRequests;
         std::deque<std::unique_ptr<CallRequestContainerBase>> pendingResults;

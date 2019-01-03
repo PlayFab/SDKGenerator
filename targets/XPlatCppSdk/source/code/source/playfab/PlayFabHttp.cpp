@@ -2,7 +2,7 @@
 
 #include <playfab/PlayFabHttp.h>
 #include <playfab/PlayFabSettings.h>
-#include <playfab/PlayFabTransportHeaders.h>
+#include <curl/curl.h>
 
 #include <stdexcept>
 
@@ -18,7 +18,13 @@ namespace PlayFab
     PlayFabHttp::~PlayFabHttp()
     {
         threadRunning = false;
-        workerThread.join();
+        try
+        {
+            workerThread.join();
+        }
+        catch (...)
+        {
+        }
     }
 
     void PlayFabHttp::WorkerThread()

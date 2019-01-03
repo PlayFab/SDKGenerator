@@ -72,15 +72,17 @@ namespace PlayFab
 
     std::shared_ptr<IPlayFabPlugin> PlayFabPluginManager::CreatePlayFabSerializerPlugin()
     {
-        return std::shared_ptr<IPlayFabSerializerPlugin>(new IPlayFabSerializerPlugin());
+        return std::make_shared<IPlayFabSerializerPlugin>();
     }
 
     std::shared_ptr<IPlayFabPlugin> PlayFabPluginManager::CreatePlayFabTransportPlugin()
     {
 #ifdef PLAYFAB_PLATFORM_XBOX
-        return std::shared_ptr<PlayFabIXHR2HttpPlugin>(new PlayFabIXHR2HttpPlugin());
+        return std::make_shared<PlayFabIXHR2HttpPlugin>();
+#elif defined(PLAYFAB_PLATFORM_WINDOWS)
+        return std::make_shared<PlayFabWinHttpPlugin>();
 #else
-        return std::shared_ptr<PlayFabHttp>(new PlayFabHttp());
+        return std::make_shared<PlayFabHttp>();
 #endif // PLAYFAB_PLATFORM_XBOX
     }
 }

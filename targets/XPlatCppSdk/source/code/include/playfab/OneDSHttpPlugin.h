@@ -11,7 +11,7 @@
 namespace PlayFab
 {
     /// <summary>
-    /// OneDSHttpPlugin is the default https implementation to interact with OneDS (One Data Collector) services using curl.
+    /// OneDSHttpPlugin is an https implementation to interact with OneDS (One Data Collector) services using curl.
     /// </summary>
     class OneDSHttpPlugin : public PlayFabHttp
     {

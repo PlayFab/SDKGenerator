@@ -26,7 +26,7 @@
     <ClInclude Include="$(SdkSourceDir)\include\playfab\PlayFabPlatformMacros.h">
       <Filter>Header Files\playfab</Filter>
     </ClInclude>
-    <ClInclude Include="$(SdkSourceDir)\include\playfab\OneDSHttpPlugin.h">
+    <ClInclude Include="$(SdkSourceDir)\include\playfab\OneDSCurlHttpPlugin.h">
       <Filter>Header Files\playfab</Filter>
     </ClInclude>
     <ClInclude Include="$(SdkSourceDir)\include\playfab\OneDSWinHttpPlugin.h">
@@ -48,7 +48,7 @@
     <ClInclude Include="$(SdkSourceDir)\include\playfab\PlayFab<%- api.name %>DataModels.h">
       <Filter>Header Files\playfab</Filter>
     </ClInclude>
-<% } %>    <ClInclude Include="$(SdkSourceDir)\include\playfab\PlayFabHttp.h">
+<% } %>    <ClInclude Include="$(SdkSourceDir)\include\playfab\PlayFabCurlHttpPlugin.h">
       <Filter>Header Files\playfab</Filter>
     </ClInclude>
     <ClInclude Include="$(SdkSourceDir)\include\playfab\PlayFabWinHttpPlugin.h">
@@ -122,7 +122,7 @@
     </ClInclude>
   </ItemGroup>
   <ItemGroup>
-    <ClCompile Include="$(SdkSourceDir)\source\playfab\OneDSHttpPlugin.cpp">
+    <ClCompile Include="$(SdkSourceDir)\source\playfab\OneDSCurlHttpPlugin.cpp">
       <Filter>Source Files\playfab</Filter>
     </ClCompile>
     <ClCompile Include="$(SdkSourceDir)\source\playfab\OneDSWinHttpPlugin.cpp">
@@ -144,7 +144,7 @@
 <% } %>    <ClCompile Include="$(SdkSourceDir)\source\playfab\PlayFabError.cpp">
       <Filter>Source Files\playfab</Filter>
     </ClCompile>
-    <ClCompile Include="$(SdkSourceDir)\source\playfab\PlayFabHttp.cpp">
+    <ClCompile Include="$(SdkSourceDir)\source\playfab\PlayFabCurlHttpPlugin.cpp">
       <Filter>Source Files\playfab</Filter>
     </ClCompile>
     <ClCompile Include="$(SdkSourceDir)\source\playfab\PlayFabWinHttpPlugin.cpp">

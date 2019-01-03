@@ -1,6 +1,6 @@
 #include <stdafx.h>
 
-#include <playfab/PlayFabHttp.h>
+#include <playfab/PlayFabCurlHttpPlugin.h>
 #include <playfab/PlayFabSettings.h>
 #include <curl/curl.h>
 
@@ -8,14 +8,14 @@
 
 namespace PlayFab
 {
-    PlayFabHttp::PlayFabHttp()
+    PlayFabCurlHttpPlugin::PlayFabCurlHttpPlugin()
     {
         activeRequestCount = 0;
         threadRunning = true;
-        workerThread = std::thread(&PlayFabHttp::WorkerThread, this);
+        workerThread = std::thread(&PlayFabCurlHttpPlugin::WorkerThread, this);
     };
 
-    PlayFabHttp::~PlayFabHttp()
+    PlayFabCurlHttpPlugin::~PlayFabCurlHttpPlugin()
     {
         threadRunning = false;
         try
@@ -27,7 +27,7 @@ namespace PlayFab
         }
     }
 
-    void PlayFabHttp::WorkerThread()
+    void PlayFabCurlHttpPlugin::WorkerThread()
     {
         size_t queueSize;
 
@@ -64,7 +64,7 @@ namespace PlayFab
         }
     }
 
-    void PlayFabHttp::HandleCallback(std::unique_ptr<CallRequestContainer> requestContainer)
+    void PlayFabCurlHttpPlugin::HandleCallback(std::unique_ptr<CallRequestContainer> requestContainer)
     {
         CallRequestContainer& reqContainer = *requestContainer;
         reqContainer.finished = true;
@@ -82,7 +82,7 @@ namespace PlayFab
         }
     }
 
-    size_t PlayFabHttp::CurlReceiveData(char* buffer, size_t blockSize, size_t blockCount, void* userData)
+    size_t PlayFabCurlHttpPlugin::CurlReceiveData(char* buffer, size_t blockSize, size_t blockCount, void* userData)
     {
         CallRequestContainer* reqContainer = reinterpret_cast<CallRequestContainer*>(userData);
         reqContainer->responseString.append(buffer, blockSize * blockCount);
@@ -90,7 +90,7 @@ namespace PlayFab
         return (blockSize * blockCount);
     }
 
-    void PlayFabHttp::MakePostRequest(std::unique_ptr<CallRequestContainerBase> requestContainer)
+    void PlayFabCurlHttpPlugin::MakePostRequest(std::unique_ptr<CallRequestContainerBase> requestContainer)
     {
         { // LOCK httpRequestMutex
             std::unique_lock<std::mutex> lock(httpRequestMutex);
@@ -99,7 +99,7 @@ namespace PlayFab
         } // UNLOCK httpRequestMutex
     }
 
-    void PlayFabHttp::ExecuteRequest(std::unique_ptr<CallRequestContainer> requestContainer)
+    void PlayFabCurlHttpPlugin::ExecuteRequest(std::unique_ptr<CallRequestContainer> requestContainer)
     {
         CallRequestContainer& reqContainer = *requestContainer;
 
@@ -190,7 +190,7 @@ namespace PlayFab
         curlHttpHeaders = nullptr;
     }
 
-    void PlayFabHttp::HandleResults(std::unique_ptr<CallRequestContainer> requestContainer)
+    void PlayFabCurlHttpPlugin::HandleResults(std::unique_ptr<CallRequestContainer> requestContainer)
     {
         CallRequestContainer& reqContainer = *requestContainer;
         auto callback = reqContainer.GetCallback();
@@ -203,7 +203,7 @@ namespace PlayFab
         }
     }
 
-    size_t PlayFabHttp::Update()
+    size_t PlayFabCurlHttpPlugin::Update()
     {
         if (PlayFabSettings::threadedCallbacks)
         {

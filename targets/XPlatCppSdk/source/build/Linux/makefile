@@ -31,7 +31,7 @@ OBJS = stdafx.o \
 	PlayFabError.o \
 	PlayFabEventsApi.o \
 	PlayFabGroupsApi.o \
-	PlayFabHttp.o \
+	PlayFabCurlHttpPlugin.o \
 	PlayFabLocalizationApi.o \
 	PlayFabMatchmakerApi.o \
 	PlayFabMultiplayerApi.o \
@@ -45,7 +45,7 @@ OBJS = stdafx.o \
 	PlayFabEventPipeline.o \
 	PlayFabEventRouter.o \
 	PlayFabSpinLock.o \
-	OneDSHttpPlugin.o \
+	OneDSCurlHttpPlugin.o \
 	OneDSEventsApi.o \
 	OneDSEventPipeline.o \
 	DataCenterResult.o \

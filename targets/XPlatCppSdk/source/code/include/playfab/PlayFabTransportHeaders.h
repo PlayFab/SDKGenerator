@@ -8,17 +8,15 @@
 
 #ifdef PLAYFAB_PLATFORM_XBOX
 #include <playfab/PlayFabIXHR2HttpPlugin.h>
-#include <playfab/OneDSIXHR2HttpPlugin.h>
+#include <playfab/OneDSIXHR2Plugin.h>
 #endif // PLAYFAB_PLATFORM_XBOX
 
 #ifdef PLAYFAB_PLATFORM_WINDOWS
 #include <playfab/PlayFabWinHttpPlugin.h>
-#include <playfab/PlayFabHttp.h>
 #include <playfab/OneDSWinHttpPlugin.h>
-#include <playfab/OneDSHttpPlugin.h>
 #endif // PLAYFAB_PLATFORM_WINDOWS
 
 #ifdef PLAYFAB_PLATFORM_LINUX
-#include <playfab/PlayFabHttp.h>
-#include <playfab/OneDSHttpPlugin.h>
+#include <playfab/PlayFabCurlHttpPlugin.h>
+#include <playfab/OneDSCurlHttpPlugin.h>
 #endif // PLAYFAB_PLATFORM_LINUX

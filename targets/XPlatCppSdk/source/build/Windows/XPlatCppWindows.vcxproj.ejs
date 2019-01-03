@@ -61,7 +61,7 @@
       <WarningLevel>Level4</WarningLevel>
       <Optimization>Disabled</Optimization>
       <SDLCheck>true</SDLCheck>
-      <PreprocessorDefinitions>_DEBUG;_LIB;CURL_STATICLIB;<%- extraDefines %>%(PreprocessorDefinitions)</PreprocessorDefinitions>
+      <PreprocessorDefinitions>_DEBUG;_LIB;<%- extraDefines %>%(PreprocessorDefinitions)</PreprocessorDefinitions>
       <ConformanceMode>true</ConformanceMode>
       <PrecompiledHeaderFile>stdafx.h</PrecompiledHeaderFile>
       <AdditionalIncludeDirectories>$(SdkSourceDir);$(ExternalDir)/deps-$(Configuration)/include;$(ExternalDir)/aria/lib/include/public;$(ExternalDir)/aria/lib;$(ExternalDir)/aria/bondlite/include/bond_lite;$(ExternalDir)/aria/bondlite/generated;$(SdkSourceDir)/include</AdditionalIncludeDirectories>
@@ -79,7 +79,7 @@
     <ProjectReference />
     <ProjectReference />
     <Lib>
-      <AdditionalDependencies>ws2_32.lib;lib_json.lib;winhttp.lib;zlib.lib;libssl.lib;libcrypto.lib;wldap32.lib;crypt32.lib;normaliz.lib;libcurl_a_debug.lib;%(AdditionalDependencies)</AdditionalDependencies>
+      <AdditionalDependencies>ws2_32.lib;lib_json.lib;winhttp.lib;%(AdditionalDependencies)</AdditionalDependencies>
       <AdditionalLibraryDirectories>$(ExternalDir)\deps-$(Configuration)\lib</AdditionalLibraryDirectories>
     </Lib>
   </ItemDefinitionGroup>
@@ -88,7 +88,7 @@
       <PrecompiledHeader>Use</PrecompiledHeader>
       <WarningLevel>Level4</WarningLevel>
       <SDLCheck>true</SDLCheck>
-      <PreprocessorDefinitions>_LIB;CURL_STATICLIB;<%- extraDefines %>%(PreprocessorDefinitions)</PreprocessorDefinitions>
+      <PreprocessorDefinitions>_LIB;<%- extraDefines %>%(PreprocessorDefinitions)</PreprocessorDefinitions>
       <ConformanceMode>true</ConformanceMode>
       <PrecompiledHeaderFile>stdafx.h</PrecompiledHeaderFile>
       <AdditionalIncludeDirectories>$(SdkSourceDir);$(ExternalDir)/deps-$(Configuration)/include;$(ExternalDir)/aria/lib/include/public;$(ExternalDir)/aria/lib;$(ExternalDir)/aria/bondlite/include/bond_lite;$(ExternalDir)/aria/bondlite/generated;$(SdkSourceDir)/include</AdditionalIncludeDirectories>
@@ -106,13 +106,12 @@
     <ProjectReference />
     <ProjectReference />
     <Lib>
-      <AdditionalDependencies>ws2_32.lib;lib_json.lib;winhttp.lib;zlib.lib;libssl.lib;libcrypto.lib;wldap32.lib;crypt32.lib;normaliz.lib;libcurl_a.lib;%(AdditionalDependencies)</AdditionalDependencies>
+      <AdditionalDependencies>ws2_32.lib;lib_json.lib;winhttp.lib;%(AdditionalDependencies)</AdditionalDependencies>
       <AdditionalLibraryDirectories>$(ExternalDir)\deps-$(Configuration)\lib</AdditionalLibraryDirectories>
     </Lib>
   </ItemDefinitionGroup>
   <ItemGroup>
     <ClInclude Include="$(SdkSourceDir)\include\playfab\PlayFabPlatformMacros.h" />
-    <ClInclude Include="$(SdkSourceDir)\include\playfab\OneDSHttpPlugin.h" />
     <ClInclude Include="$(SdkSourceDir)\include\playfab\OneDSWinHttpPlugin.h" />
     <ClInclude Include="$(SdkSourceDir)\include\playfab\OneDSEventsApi.h" />
     <ClInclude Include="$(SdkSourceDir)\include\playfab\OneDSEventPipeline.h" />
@@ -127,7 +126,6 @@
     <ClInclude Include="$(SdkSourceDir)\include\playfab\PlayFabEventPipeline.h" />
     <ClInclude Include="$(SdkSourceDir)\include\playfab\PlayFabEventRouter.h" />
     <ClInclude Include="$(SdkSourceDir)\include\playfab\PlayFabError.h" />
-    <ClInclude Include="$(SdkSourceDir)\include\playfab\PlayFabHttp.h" />
     <ClInclude Include="$(SdkSourceDir)\include\playfab\PlayFabWinHttpPlugin.h" />
     <ClInclude Include="$(SdkSourceDir)\include\playfab\PlayFabSettings.h" />
     <ClInclude Include="$(SdkSourceDir)\include\playfab\PlayFabCallRequestContainer.h" />
@@ -146,7 +144,6 @@
     <ClInclude Include="$(SdkSourceDir)\stdafx.h" />
   </ItemGroup>
   <ItemGroup>
-    <ClCompile Include="$(SdkSourceDir)\source\playfab\OneDSHttpPlugin.cpp" />
     <ClCompile Include="$(SdkSourceDir)\source\playfab\OneDSWinHttpPlugin.cpp" />
     <ClCompile Include="$(SdkSourceDir)\source\playfab\OneDSEventsApi.cpp" />
     <ClCompile Include="$(SdkSourceDir)\source\playfab\OneDSEventPipeline.cpp" />
@@ -158,7 +155,6 @@
     <ClCompile Include="$(SdkSourceDir)\source\playfab\PlayFabEventPipeline.cpp" />
     <ClCompile Include="$(SdkSourceDir)\source\playfab\PlayFabEventRouter.cpp" />
     <ClCompile Include="$(SdkSourceDir)\source\playfab\PlayFabError.cpp" />
-    <ClCompile Include="$(SdkSourceDir)\source\playfab\PlayFabHttp.cpp" />
     <ClCompile Include="$(SdkSourceDir)\source\playfab\PlayFabWinHttpPlugin.cpp" />
     <ClCompile Include="$(SdkSourceDir)\source\playfab\PlayFabSettings.cpp" />
     <ClCompile Include="$(SdkSourceDir)\source\playfab\PlayFabCallRequestContainerBase.cpp" />

@@ -2,12 +2,12 @@
 
 #ifndef DISABLE_ONEDS_API
 
-#include <playfab/OneDSHttpPlugin.h>
+#include <playfab/OneDSCurlHttpPlugin.h>
 #include <curl/curl.h>
 
 namespace PlayFab
 {
-    void OneDSHttpPlugin::ExecuteRequest(std::unique_ptr<CallRequestContainer> requestContainer)
+    void OneDSCurlHttpPlugin::ExecuteRequest(std::unique_ptr<CallRequestContainer> requestContainer)
     {
         OneDSCallRequestContainer& reqContainer = (OneDSCallRequestContainer&)*requestContainer;
 

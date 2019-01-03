@@ -8,6 +8,7 @@
 #include <memory>
 #include <thread>
 #include <mutex>
+#include <atomic>
 
 #include <playfab/PlayFabJsonHeaders.h>
 
@@ -37,7 +38,7 @@ namespace PlayFab
 
         std::thread workerThread;
         std::mutex httpRequestMutex;
-        bool threadRunning;
+        std::atomic<bool> threadRunning;
         int activeRequestCount;
         std::deque<std::unique_ptr<CallRequestContainerBase>> pendingRequests;
         std::deque<std::unique_ptr<CallRequestContainerBase>> pendingResults;

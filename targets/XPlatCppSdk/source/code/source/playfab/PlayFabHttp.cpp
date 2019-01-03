@@ -18,7 +18,13 @@ namespace PlayFab
     PlayFabHttp::~PlayFabHttp()
     {
         threadRunning = false;
-        workerThread.join();
+        try
+        {
+            workerThread.join();
+        }
+        catch (...)
+        {
+        }
     }
 
     void PlayFabHttp::WorkerThread()

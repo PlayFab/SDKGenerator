@@ -17,7 +17,13 @@ namespace PlayFab
     PlayFabIXHR2HttpPlugin::~PlayFabIXHR2HttpPlugin()
     {
         threadRunning = false;
-        workerThread.join();
+        try
+        {
+            workerThread.join();
+        }
+        catch (...)
+        {
+        }
     }
 
     void PlayFabIXHR2HttpPlugin::WorkerThread()

@@ -21,7 +21,13 @@ namespace PlayFab
     PlayFabWinHttpPlugin::~PlayFabWinHttpPlugin()
     {
         threadRunning = false;
-        workerThread.join();
+        try
+        {
+            workerThread.join();
+        }
+        catch (...)
+        {
+        }
     }
 
     void PlayFabWinHttpPlugin::WorkerThread()

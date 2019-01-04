@@ -25,10 +25,6 @@ nuget {
     };
 
     files {
-        docs: {
-            "external\deps-*\**\*"
-        };
-
         [release]
         include: {
             "external\deps-release\include\**\*.h"
@@ -59,11 +55,7 @@ nuget {
     };
 
     targets {
-        Defines += CURL_STATICLIB;
         Libraries += ws2_32.lib;
-        Libraries += wldap32.lib;
-        Libraries += crypt32.lib;
-        Libraries += normaliz.lib;
         Libraries += winhttp.lib;
     }
 }

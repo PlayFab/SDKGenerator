@@ -15,16 +15,16 @@
 namespace PlayFab
 {
     /// <summary>
-    /// PlayFabHttp is an https implementation to interact with PlayFab services using curl.
+    /// PlayFabCurlHttpPlugin is an https implementation to interact with PlayFab services using curl.
     /// </summary>
-    class PlayFabHttp : public IPlayFabHttpPlugin
+    class PlayFabCurlHttpPlugin : public IPlayFabHttpPlugin
     {
     public:
-        PlayFabHttp();
-        PlayFabHttp(const PlayFabHttp& other) = delete;
-        PlayFabHttp(PlayFabHttp&& other) = delete;
-        PlayFabHttp& operator=(PlayFabHttp&& other) = delete;
-        virtual ~PlayFabHttp();
+        PlayFabCurlHttpPlugin();
+        PlayFabCurlHttpPlugin(const PlayFabCurlHttpPlugin& other) = delete;
+        PlayFabCurlHttpPlugin(PlayFabCurlHttpPlugin&& other) = delete;
+        PlayFabCurlHttpPlugin& operator=(PlayFabCurlHttpPlugin&& other) = delete;
+        virtual ~PlayFabCurlHttpPlugin();
 
         virtual void MakePostRequest(std::unique_ptr<CallRequestContainerBase> requestContainer) override;
         virtual size_t Update() override;

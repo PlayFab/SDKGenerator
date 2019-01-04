@@ -101,6 +101,7 @@ namespace PlayFab
 
         std::shared_ptr<IPlayFabPlugin> CreatePlayFabSerializerPlugin();
         std::shared_ptr<IPlayFabPlugin> CreatePlayFabTransportPlugin();
+        std::shared_ptr<IPlayFabPlugin> CreateOneDSTransportPlugin();
 
     private:
         std::map<const std::pair<const PlayFabPluginContract, const std::string>, std::shared_ptr<IPlayFabPlugin>> plugins;

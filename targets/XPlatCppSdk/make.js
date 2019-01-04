@@ -107,8 +107,8 @@ function getAuthParams(apiCall) {
         return "authKey, authValue";
     switch (apiCall.auth) {
         case "None": return "\"\", \"\"";
-        case "EntityToken": return "\"X-EntityToken\", PlayFabSettings::entityToken";
-        case "SessionTicket": return "\"X-Authorization\", PlayFabSettings::clientSessionTicket";
+        case "EntityToken": return "\"X-EntityToken\", request.userSession == nullptr ? PlayFabSettings::entityToken : request.userSession->entityToken";
+        case "SessionTicket": return "\"X-Authorization\", request.userSession == nullptr ? PlayFabSettings::clientSessionTicket : request.userSession->clientSessionTicket";
         case "SecretKey": return "\"X-SecretKey\", PlayFabSettings::developerSecretKey";
     }
     throw "getAuthParams: Unknown auth type: " + apiCall.auth + " for " + apiCall.name;
@@ -117,6 +117,8 @@ function getAuthParams(apiCall) {
 function getBaseType(datatype) {
     if (datatype.className.toLowerCase().endsWith("request"))
         return "PlayFabRequestCommon";
+    if (datatype.className.toLowerCase().endsWith("loginresult"))
+        return "PlayFabLoginResultCommon";
     if (datatype.className.toLowerCase().endsWith("response") || datatype.className.toLowerCase().endsWith("result"))
         return "PlayFabResultCommon";
     return "PlayFabBaseModel";
@@ -229,11 +231,24 @@ function getRequestActions(tabbing, apiCall) {
         
     if (apiCall.url === "/Authentication/GetEntityToken")
         return tabbing + "std::string authKey, authValue;\n"
-            + tabbing + "if (PlayFabSettings::entityToken.length() > 0) {\n"
-            + tabbing + "    authKey = \"X-EntityToken\"; authValue = PlayFabSettings::entityToken;\n"
-            + tabbing + "} else if (PlayFabSettings::clientSessionTicket.length() > 0) {\n"
-            + tabbing + "    authKey = \"X-Authorization\"; authValue = PlayFabSettings::clientSessionTicket;\n"
-            + tabbing + "} else if (PlayFabSettings::developerSecretKey.length() > 0) {\n"
+            + tabbing + "if (request.userSession != nullptr) {\n"
+            + tabbing + "    if (request.userSession->entityToken.length() > 0) {\n"
+            + tabbing + "        authKey = \"X-EntityToken\"; authValue = request.userSession->entityToken;\n"
+            + tabbing + "    }\n"
+            + tabbing + "    else if (request.userSession->clientSessionTicket.length() > 0) {\n"
+            + tabbing + "        authKey = \"X-Authorization\"; authValue = request.userSession->clientSessionTicket;\n"
+            + tabbing + "    }\n"
+            + tabbing + "}\n"
+            + tabbing + "else {\n"
+            + tabbing + "    if (PlayFabSettings::entityToken.length() > 0) {\n"
+            + tabbing + "        authKey = \"X-EntityToken\"; authValue = PlayFabSettings::entityToken;\n"
+            + tabbing + "    }\n"
+            + tabbing + "    else if (PlayFabSettings::clientSessionTicket.length() > 0) {\n"
+            + tabbing + "        authKey = \"X-Authorization\"; authValue = PlayFabSettings::clientSessionTicket;\n"
+            + tabbing + "    }\n"
+            + tabbing + "}\n"
+            + tabbing + "\n"
+            + tabbing + "if (PlayFabSettings::developerSecretKey.length() > 0) {\n"
             + tabbing + "    authKey = \"X-SecretKey\"; authValue = PlayFabSettings::developerSecretKey;\n"
             + tabbing + "}\n";
 
@@ -249,8 +264,13 @@ function getResultActions(tabbing, apiCall) {
     if (apiCall.result === "LoginResult")
         return tabbing + "if (outResult.SessionTicket.length() > 0)\n"
             + tabbing + "{\n"
+            + tabbing + "    outResult.userSession = std::make_shared<PlayFabUserSession>();\n"
+            + tabbing + "    outResult.userSession->clientSessionTicket = outResult.SessionTicket;\n"
             + tabbing + "    PlayFabSettings::clientSessionTicket = outResult.SessionTicket;\n"
-            + tabbing + "    if (outResult.EntityToken.notNull()) PlayFabSettings::entityToken = outResult.EntityToken->EntityToken;\n"
+            + tabbing + "    if (outResult.EntityToken.notNull()) {\n"
+            + tabbing + "        outResult.userSession->entityToken = outResult.EntityToken->EntityToken;\n"
+            + tabbing + "        PlayFabSettings::entityToken = outResult.EntityToken->EntityToken;\n"
+            + tabbing + "    }\n"
             + tabbing + "    MultiStepClientLogin(outResult.SettingsForUser->NeedsAttribution);\n"
             + tabbing + "}\n";
     if (apiCall.result === "RegisterPlayFabUserResult")

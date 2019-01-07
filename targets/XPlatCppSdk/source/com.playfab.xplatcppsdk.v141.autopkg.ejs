@@ -25,14 +25,8 @@ nuget {
     };
 
     files {
-        [release]
         include: {
-            "external\deps-release\include\**\*.h"
-        };
-
-        [debug]
-        include: {
-            "external\deps-debug\include\**\*.h"
+            "external\jsoncpp\include\**\*.h"
         };
 
         nestedInclude: {
@@ -49,8 +43,12 @@ nuget {
         [x64,v141,debug] {
             lib: {
                 build\Windows\x64\Debug\XPlatCppWindows\XPlatCppWindows.lib;
-                build\Windows\x64\Debug\XPlatCppWindows\XPlatCppWindows.pdb;
             }
+        };
+
+        other: {
+            #destination: ${d_lib};
+            build\Windows\x64\Debug\XPlatCppWindows\XPlatCppWindows.pdb
         };
     };
 

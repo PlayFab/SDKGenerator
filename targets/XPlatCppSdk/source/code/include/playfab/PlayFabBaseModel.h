@@ -12,7 +12,7 @@
 
 #include <playfab/PlayFabPlatformMacros.h>
 #include <playfab/PlayFabJsonHeaders.h>
-#include <playfab/PlayFabUserSession.h>
+#include <playfab/PlayFabAuthenticationContext.h>
 
 namespace PlayFab
 {
@@ -71,7 +71,7 @@ namespace PlayFab
     /// Adds a parameter that controls how requests are threaded
     /// </summary>
     struct PlayFabRequestCommon : public PlayFabBaseModel { 
-        std::shared_ptr<PlayFabUserSession> userSession; // an optional user session (can used in multi-user scenarios)
+        std::shared_ptr<PlayFabAuthenticationContext> authenticationContext; // an optional authentication context (can used in multi-user scenarios)
     };
 
     /// <summary>
@@ -85,7 +85,7 @@ namespace PlayFab
     /// Base class for all PlayFab Login method Results
     /// </summary>
     struct PlayFabLoginResultCommon : public PlayFabResultCommon {
-        std::shared_ptr<PlayFabUserSession> userSession; // a user session returned by Login methods (can used in multi-user scenarios)
+        std::shared_ptr<PlayFabAuthenticationContext> authenticationContext; // an authentication context returned by Login methods (can used in multi-user scenarios)
     };
 
     // Utilities for [de]serializing time_t to/from json

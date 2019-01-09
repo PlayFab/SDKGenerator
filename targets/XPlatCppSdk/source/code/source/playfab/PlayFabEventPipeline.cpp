@@ -13,7 +13,8 @@ namespace PlayFab
         maximalNumberOfItemsInBatch(5),
         maximalBatchWaitTime(3),
         maximalNumberOfBatchesInFlight(16),
-        readBufferWaitTime(10)
+        readBufferWaitTime(10),
+        authenticationContext(nullptr)
     {
     }
 
@@ -178,6 +179,11 @@ namespace PlayFab
     {
         // create a WriteEvents API request to send the batch
         EventsModels::WriteEventsRequest batchReq;
+        if (this->settings->authenticationContext != nullptr)
+        {
+            batchReq.authenticationContext = this->settings->authenticationContext;
+        }
+
         for (const auto& eventEmitRequest : this->batch)
         {
             const auto& playFabEmitRequest = std::dynamic_pointer_cast<const PlayFabEmitEventRequest>(eventEmitRequest);

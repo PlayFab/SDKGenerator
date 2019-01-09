@@ -107,12 +107,12 @@
       <FunctionLevelLinking>true</FunctionLevelLinking>
       <IntrinsicFunctions>true</IntrinsicFunctions>
       <CompileAsWinRT>false</CompileAsWinRT>
-      <AdditionalIncludeDirectories>$(SdkSourceDir);$(ExternalDir)/deps-xdk-$(Configuration)/include;$(ExternalDir)/aria/lib/include/public;$(ExternalDir)/aria/lib;$(ExternalDir)/aria/bondlite/include/bond_lite;$(ExternalDir)/aria/bondlite/generated;$(SdkSourceDir)/include</AdditionalIncludeDirectories>
+      <AdditionalIncludeDirectories>$(SdkSourceDir);$(ExternalDir)/jsoncpp/include;$(ExternalDir)/aria/lib/include/public;$(ExternalDir)/aria/lib;$(ExternalDir)/aria/bondlite/include/bond_lite;$(ExternalDir)/aria/bondlite/generated;$(SdkSourceDir)/include</AdditionalIncludeDirectories>
       <AdditionalOptions>/bigobj %(AdditionalOptions)</AdditionalOptions>
+      <DisableSpecificWarnings>4996</DisableSpecificWarnings>
     </ClCompile>
     <Lib>
-      <AdditionalLibraryDirectories>$(ExternalDir)\deps-xdk-$(Configuration)\lib</AdditionalLibraryDirectories>
-      <AdditionalDependencies>lib_json.lib;ws2_32.lib;%(AdditionalDependencies)</AdditionalDependencies>
+      <AdditionalDependencies>ws2_32.lib;%(AdditionalDependencies)</AdditionalDependencies>
     </Lib>
   </ItemDefinitionGroup>
   <ItemDefinitionGroup Condition="'$(Configuration)|$(Platform)'=='Profile|Durango'">
@@ -136,12 +136,12 @@
       <FunctionLevelLinking>true</FunctionLevelLinking>
       <IntrinsicFunctions>true</IntrinsicFunctions>
       <CompileAsWinRT>false</CompileAsWinRT>
-      <AdditionalIncludeDirectories>$(SdkSourceDir);$(ExternalDir)/deps-xdk-$(Configuration)/include;$(ExternalDir)/aria/lib/include/public;$(ExternalDir)/aria/lib;$(ExternalDir)/aria/bondlite/include/bond_lite;$(ExternalDir)/aria/bondlite/generated;$(SdkSourceDir)/include</AdditionalIncludeDirectories>
+      <AdditionalIncludeDirectories>$(SdkSourceDir);$(ExternalDir)/jsoncpp/include;$(ExternalDir)/aria/lib/include/public;$(ExternalDir)/aria/lib;$(ExternalDir)/aria/bondlite/include/bond_lite;$(ExternalDir)/aria/bondlite/generated;$(SdkSourceDir)/include</AdditionalIncludeDirectories>
       <AdditionalOptions>/bigobj %(AdditionalOptions)</AdditionalOptions>
+      <DisableSpecificWarnings>4996</DisableSpecificWarnings>
     </ClCompile>
     <Lib>
-      <AdditionalLibraryDirectories>$(ExternalDir)\deps-xdk-$(Configuration)\lib</AdditionalLibraryDirectories>
-      <AdditionalDependencies>lib_json.lib;ws2_32.lib;%(AdditionalDependencies)</AdditionalDependencies>
+      <AdditionalDependencies>ws2_32.lib;%(AdditionalDependencies)</AdditionalDependencies>
     </Lib>
   </ItemDefinitionGroup>
   <ItemDefinitionGroup Condition="'$(Configuration)|$(Platform)'=='Debug|Durango'">
@@ -160,12 +160,12 @@
       <Optimization>Disabled</Optimization>
       <PreprocessorDefinitions>_DEBUG;__WRL_NO_DEFAULT_LIB__;_LIB;<%- extraDefines %>%(PreprocessorDefinitions)</PreprocessorDefinitions>
       <CompileAsWinRT>false</CompileAsWinRT>
-      <AdditionalIncludeDirectories>$(SdkSourceDir);$(ExternalDir)/deps-xdk-$(Configuration)/include;$(ExternalDir)/aria/lib/include/public;$(ExternalDir)/aria/lib;$(ExternalDir)/aria/bondlite/include/bond_lite;$(ExternalDir)/aria/bondlite/generated;$(SdkSourceDir)/include</AdditionalIncludeDirectories>
+      <AdditionalIncludeDirectories>$(SdkSourceDir);$(ExternalDir)/jsoncpp/include;$(ExternalDir)/aria/lib/include/public;$(ExternalDir)/aria/lib;$(ExternalDir)/aria/bondlite/include/bond_lite;$(ExternalDir)/aria/bondlite/generated;$(SdkSourceDir)/include</AdditionalIncludeDirectories>
       <AdditionalOptions>/bigobj %(AdditionalOptions)</AdditionalOptions>
+      <DisableSpecificWarnings>4996</DisableSpecificWarnings>
     </ClCompile>
     <Lib>
-      <AdditionalLibraryDirectories>$(ExternalDir)\deps-xdk-$(Configuration)\lib</AdditionalLibraryDirectories>
-      <AdditionalDependencies>lib_json.lib;ws2_32.lib;%(AdditionalDependencies)</AdditionalDependencies>
+      <AdditionalDependencies>ws2_32.lib;%(AdditionalDependencies)</AdditionalDependencies>
     </Lib>
   </ItemDefinitionGroup>
   <ItemGroup>
@@ -230,6 +230,11 @@
       <PrecompiledHeader Condition="'$(Configuration)|$(Platform)'=='Debug|Durango'">Create</PrecompiledHeader>
       <PrecompiledHeader Condition="'$(Configuration)|$(Platform)'=='Release|Durango'">Create</PrecompiledHeader>
     </ClCompile>
+  </ItemGroup>
+  <ItemGroup>
+    <ProjectReference Include="..\..\external\jsoncpp-xdk-build\lib_json.vcxproj">
+      <Project>{5e27db55-1dcc-42c7-a813-0bf0b8d8ca29}</Project>
+    </ProjectReference>
   </ItemGroup>
   <Import Project="$(VCTargetsPath)\Microsoft.Cpp.targets" />
   <ImportGroup Label="ExtensionTargets">

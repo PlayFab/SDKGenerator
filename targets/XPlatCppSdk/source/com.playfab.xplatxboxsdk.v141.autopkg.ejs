@@ -35,31 +35,19 @@ nuget {
     };
 
     files {
-        [release]
-        include: {
-        };
-
-        [debug]
-        include: {
-        };
-
-        [profile]
-        include: {
-        };
-
         include1: {
             #destination = ${d_include}Release\json;
-            "external\deps-xdk-release\**\*.h"
+            "external\jsoncpp\include\**\*.h"
         };
 
         include2: {
             #destination = ${d_include}Debug\json;
-            "external\deps-xdk-debug\**\*.h"
+            "external\jsoncpp\include\**\*.h"
         };
         
         include3: {
             #destination = ${d_include}Profile\json;
-            "external\deps-xdk-profile\**\*.h"
+            "external\jsoncpp\include\**\*.h"
         };
 
         nestedInclude: {
@@ -76,15 +64,19 @@ nuget {
         [Durango,v141,debug] {
             lib: {
                 build\Xbox\Durango\Debug\XPlatXbox.lib;
-                build\Xbox\Durango\Debug\XPlatXbox.pdb;
             }
         };
 
         [Durango,v141,profile] {
             lib: {
                 build\Xbox\Durango\Profile\XPlatXbox.lib;
-                build\Xbox\Durango\Profile\XPlatXbox.pri;
             }
+        };
+        
+        other: {
+            #destination: ${d_lib};
+            build\Xbox\Durango\Debug\XPlatXbox.pdb;
+            build\Xbox\Durango\Profile\XPlatXbox.pri;
         };
     };
 

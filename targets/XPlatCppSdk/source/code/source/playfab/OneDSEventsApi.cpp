@@ -2,7 +2,6 @@
 
 #ifndef DISABLE_ONEDS_API
 
-#include <playfab/OneDSHttpPlugin.h>
 #include <playfab/OneDSEventsApi.h>
 #include <playfab/PlayFabPluginManager.h>
 #include <playfab/PlayFabSettings.h>

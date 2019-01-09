@@ -12,7 +12,7 @@
 #include <playfab/PlayFabProfilesApi.h>
 #include <playfab/PlayFabProfilesDataModels.h>
 #include <playfab/PlayFabSettings.h>
-#include <playfab/PlayFabUserSession.h>
+#include <playfab/PlayFabAuthenticationContext.h>
 #include <playfab/OneDSEventsDataModels.h>
 #include <playfab/PlayFabEventsApi.h>
 #include <playfab/PlayFabEventsDataModels.h>
@@ -328,7 +328,7 @@ void TestLightweightEvents()
 
 void TestMultipleUsers()
 {
-    printf("========== Testing multiple users scenario ===========\n");
+    printf("\n========== Testing multiple users scenario ===========\n");
     PlayFab::ClientModels::LoginWithCustomIDRequest loginRequest;
     PlayFab::ClientModels::GetPlayerProfileRequest profileRequest;
     bool loginCompletedUser1 = false;
@@ -337,8 +337,8 @@ void TestMultipleUsers()
     bool loginSuccessfulUser2 = false;
     bool profileCompletedUser1 = false;
     bool profileCompletedUser2 = false;
-    std::shared_ptr<PlayFab::PlayFabUserSession> userSession1;
-    std::shared_ptr<PlayFab::PlayFabUserSession> userSession2;
+    std::shared_ptr<PlayFab::PlayFabAuthenticationContext> authContextUser1;
+    std::shared_ptr<PlayFab::PlayFabAuthenticationContext> authContextUser2;
     loginRequest.CreateAccount = true;
 
     // log in user 1
@@ -347,8 +347,8 @@ void TestMultipleUsers()
     [&](const PlayFab::ClientModels::LoginResult& result, void* customData)
         {
             printf("---------- Successfully logged in user 1\n");
-            printf(("---------- User 1 client session ticket: " + result.userSession->clientSessionTicket + "\n").c_str());
-            userSession1 = result.userSession;
+            printf(("---------- User 1 client session ticket: " + result.authenticationContext->clientSessionTicket + "\n").c_str());
+            authContextUser1 = result.authenticationContext;
             loginCompletedUser1 = true;
             loginSuccessfulUser1 = true;
         }, 
@@ -364,8 +364,8 @@ void TestMultipleUsers()
         [&](const PlayFab::ClientModels::LoginResult& result, void* customData)
         {
             printf("---------- Successfully logged in user 2\n");
-            printf(("---------- User 2 client session ticket: " + result.userSession->clientSessionTicket + "\n").c_str());
-            userSession2 = result.userSession;
+            printf(("---------- User 2 client session ticket: " + result.authenticationContext->clientSessionTicket + "\n").c_str());
+            authContextUser2 = result.authenticationContext;
             loginCompletedUser2 = true;
             loginSuccessfulUser2 = true;
         },
@@ -392,7 +392,7 @@ void TestMultipleUsers()
     PlayFab::PlayFabSettings::entityToken.empty();
 
     // user 1: make API call "get my profile"
-    profileRequest.userSession = userSession1; // <- specify user 1 session
+    profileRequest.authenticationContext = authContextUser1; // <- specify user 1 auth context
     PlayFab::PlayFabClientAPI::GetPlayerProfile(profileRequest, 
         [&](const PlayFab::ClientModels::GetPlayerProfileResult& result, void*) 
         {
@@ -406,7 +406,7 @@ void TestMultipleUsers()
         });
 
     // user 2: make API call "get my profile"
-    profileRequest.userSession = userSession2; // <- specify user 2 session
+    profileRequest.authenticationContext = authContextUser2; // <- specify user 2 auth context
     PlayFab::PlayFabClientAPI::GetPlayerProfile(profileRequest,
         [&](const PlayFab::ClientModels::GetPlayerProfileResult& result, void*)
         {

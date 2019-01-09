@@ -107,9 +107,9 @@ function getAuthParams(apiCall) {
         return "authKey, authValue";
     switch (apiCall.auth) {
         case "None": return "\"\", \"\"";
-        case "EntityToken": return "\"X-EntityToken\", request.userSession == nullptr ? PlayFabSettings::entityToken : request.userSession->entityToken";
-        case "SessionTicket": return "\"X-Authorization\", request.userSession == nullptr ? PlayFabSettings::clientSessionTicket : request.userSession->clientSessionTicket";
-        case "SecretKey": return "\"X-SecretKey\", PlayFabSettings::developerSecretKey";
+        case "EntityToken": return "\"X-EntityToken\", request.authenticationContext == nullptr ? PlayFabSettings::entityToken : request.authenticationContext->entityToken";
+        case "SessionTicket": return "\"X-Authorization\", request.authenticationContext == nullptr ? PlayFabSettings::clientSessionTicket : request.authenticationContext->clientSessionTicket";
+        case "SecretKey": return "\"X-SecretKey\", request.authenticationContext == nullptr ? PlayFabSettings::developerSecretKey : request.authenticationContext->developerSecretKey";
     }
     throw "getAuthParams: Unknown auth type: " + apiCall.auth + " for " + apiCall.name;
 }
@@ -231,12 +231,15 @@ function getRequestActions(tabbing, apiCall) {
         
     if (apiCall.url === "/Authentication/GetEntityToken")
         return tabbing + "std::string authKey, authValue;\n"
-            + tabbing + "if (request.userSession != nullptr) {\n"
-            + tabbing + "    if (request.userSession->entityToken.length() > 0) {\n"
-            + tabbing + "        authKey = \"X-EntityToken\"; authValue = request.userSession->entityToken;\n"
+            + tabbing + "if (request.authenticationContext != nullptr) {\n"
+            + tabbing + "    if (request.authenticationContext->entityToken.length() > 0) {\n"
+            + tabbing + "        authKey = \"X-EntityToken\"; authValue = request.authenticationContext->entityToken;\n"
             + tabbing + "    }\n"
-            + tabbing + "    else if (request.userSession->clientSessionTicket.length() > 0) {\n"
-            + tabbing + "        authKey = \"X-Authorization\"; authValue = request.userSession->clientSessionTicket;\n"
+            + tabbing + "    else if (request.authenticationContext->clientSessionTicket.length() > 0) {\n"
+            + tabbing + "        authKey = \"X-Authorization\"; authValue = request.authenticationContext->clientSessionTicket;\n"
+            + tabbing + "    }\n"
+            + tabbing + "    else if (request.authenticationContext->developerSecretKey.length() > 0) {\n"
+            + tabbing + "        authKey = \"X-SecretKey\"; authValue = request.authenticationContext->developerSecretKey;\n"
             + tabbing + "    }\n"
             + tabbing + "}\n"
             + tabbing + "else {\n"
@@ -246,11 +249,10 @@ function getRequestActions(tabbing, apiCall) {
             + tabbing + "    else if (PlayFabSettings::clientSessionTicket.length() > 0) {\n"
             + tabbing + "        authKey = \"X-Authorization\"; authValue = PlayFabSettings::clientSessionTicket;\n"
             + tabbing + "    }\n"
-            + tabbing + "}\n"
-            + tabbing + "\n"
-            + tabbing + "if (PlayFabSettings::developerSecretKey.length() > 0) {\n"
-            + tabbing + "    authKey = \"X-SecretKey\"; authValue = PlayFabSettings::developerSecretKey;\n"
-            + tabbing + "}\n";
+            + tabbing + "    else if (PlayFabSettings::developerSecretKey.length() > 0) {\n"
+            + tabbing + "        authKey = \"X-SecretKey\"; authValue = PlayFabSettings::developerSecretKey;\n"
+            + tabbing + "    }\n"
+            + tabbing + "}\n\n";
 
     return "";
 }
@@ -264,11 +266,11 @@ function getResultActions(tabbing, apiCall) {
     if (apiCall.result === "LoginResult")
         return tabbing + "if (outResult.SessionTicket.length() > 0)\n"
             + tabbing + "{\n"
-            + tabbing + "    outResult.userSession = std::make_shared<PlayFabUserSession>();\n"
-            + tabbing + "    outResult.userSession->clientSessionTicket = outResult.SessionTicket;\n"
+            + tabbing + "    outResult.authenticationContext = std::make_shared<PlayFabAuthenticationContext>();\n"
+            + tabbing + "    outResult.authenticationContext->clientSessionTicket = outResult.SessionTicket;\n"
             + tabbing + "    PlayFabSettings::clientSessionTicket = outResult.SessionTicket;\n"
             + tabbing + "    if (outResult.EntityToken.notNull()) {\n"
-            + tabbing + "        outResult.userSession->entityToken = outResult.EntityToken->EntityToken;\n"
+            + tabbing + "        outResult.authenticationContext->entityToken = outResult.EntityToken->EntityToken;\n"
             + tabbing + "        PlayFabSettings::entityToken = outResult.EntityToken->EntityToken;\n"
             + tabbing + "    }\n"
             + tabbing + "    MultiStepClientLogin(outResult.SettingsForUser->NeedsAttribution);\n"

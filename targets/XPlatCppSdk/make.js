@@ -252,7 +252,7 @@ function getRequestActions(tabbing, apiCall) {
             + tabbing + "    else if (PlayFabSettings::developerSecretKey.length() > 0) {\n"
             + tabbing + "        authKey = \"X-SecretKey\"; authValue = PlayFabSettings::developerSecretKey;\n"
             + tabbing + "    }\n"
-            + tabbing + "}\n\n";
+            + tabbing + "}\n";
 
     return "";
 }

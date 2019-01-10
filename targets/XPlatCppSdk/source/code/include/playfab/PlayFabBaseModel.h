@@ -8,9 +8,11 @@
 
 #include <sstream>
 #include <iomanip>
+#include <memory>
 
 #include <playfab/PlayFabPlatformMacros.h>
 #include <playfab/PlayFabJsonHeaders.h>
+#include <playfab/PlayFabAuthenticationContext.h>
 
 namespace PlayFab
 {
@@ -68,13 +70,22 @@ namespace PlayFab
     /// Base class for all PlayFab Requests
     /// Adds a parameter that controls how requests are threaded
     /// </summary>
-    struct PlayFabRequestCommon : public PlayFabBaseModel { };
+    struct PlayFabRequestCommon : public PlayFabBaseModel { 
+        std::shared_ptr<PlayFabAuthenticationContext> authenticationContext; // an optional authentication context (can used in multi-user scenarios)
+    };
 
     /// <summary>
     /// Base class for all PlayFab Results
     /// </summary>
     struct PlayFabResultCommon : public PlayFabBaseModel {
         Json::Value Request;
+    };
+
+    /// <summary>
+    /// Base class for all PlayFab Login method Results
+    /// </summary>
+    struct PlayFabLoginResultCommon : public PlayFabResultCommon {
+        std::shared_ptr<PlayFabAuthenticationContext> authenticationContext; // an authentication context returned by Login methods (can used in multi-user scenarios)
     };
 
     // Utilities for [de]serializing time_t to/from json

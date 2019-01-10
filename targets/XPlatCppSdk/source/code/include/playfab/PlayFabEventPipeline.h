@@ -7,6 +7,7 @@
 
 #include <playfab/PlayFabEvent.h>
 #include <playfab/PlayFabEventBuffer.h>
+#include <playfab/PlayFabAuthenticationContext.h>
 
 namespace PlayFab
 {
@@ -25,6 +26,7 @@ namespace PlayFab
         size_t maximalNumberOfRetries; // The maximal number of retries for transient transport errors, before a batch is discarded.
         size_t maximalNumberOfBatchesInFlight; // The maximal number of batches currently "in flight" (sent to a transport plugin).
         int64_t readBufferWaitTime; // The wait time between attempts to read events from buffer when it is empty, in milliseconds.
+        std::shared_ptr<PlayFabAuthenticationContext> authenticationContext; // The optional PlayFab authentication context that can be used with static PlayFab events API
     };
 
     /// <summary>

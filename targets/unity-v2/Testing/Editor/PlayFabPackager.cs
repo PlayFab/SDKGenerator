@@ -165,7 +165,7 @@ namespace PlayFab.Internal
         {
             Setup();
 #if UNITY_2017_1_OR_NEWER
-            EditorUserBuildSettings.wsaBuildAndRunDeployTarget = WSABuildAndRunDeployTarget.LocalMachine;
+            EditorUserBuildSettings.wsaBuildAndRunDeployTarget = WSABuildAndRunDeployTarget.WindowsPhone;
             EditorUserBuildSettings.wsaSubtarget = WSASubtarget.AnyDevice;
             EditorUserBuildSettings.wsaGenerateReferenceProjects = true;
             PlayerSettings.WSA.SetCapability(PlayerSettings.WSACapability.InternetClient, true);

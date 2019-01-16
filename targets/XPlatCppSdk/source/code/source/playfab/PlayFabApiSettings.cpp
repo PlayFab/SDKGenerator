@@ -13,7 +13,7 @@ namespace PlayFab
 #endif
         verticalName(PlayFabSettings::verticalName),
         baseServiceHost(PlayFabSettings::productionEnvironmentURL),
-        titleId(PlayFabApiSettings::titleId)
+        titleId(PlayFabSettings::titleId)
     {
     }
 

@@ -106,7 +106,8 @@ namespace PlayFab
             headers,
             jsonAsString,
             std::bind(&PlayFab<%- api.name %>InstanceAPI::On<%- apiCall.name %>Result, this, std::placeholders::_1, std::placeholders::_2, std::placeholders::_3),
-            customData));
+            customData,
+            this->settings));
 
         reqContainer->successCallback = std::shared_ptr<void>((callback == nullptr) ? nullptr : new ProcessApiCallback<<%- apiCall.result %>>(callback));
         reqContainer->errorCallback = errorCallback;

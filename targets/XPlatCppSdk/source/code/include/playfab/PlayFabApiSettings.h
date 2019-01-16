@@ -21,9 +21,9 @@ namespace PlayFab
         // DisableAdvertising is provided for completeness, but changing it is not suggested
         // Disabling this may prevent your advertising-related PlayFab marketplace partners from working correctly
         bool disableAdvertising;
+#endif
 
         PlayFabApiSettings();
         std::string GetUrl(const std::string& urlPath, const std::map<std::string, std::string>& getParams);
-#endif
     };
 }

@@ -5,6 +5,7 @@
 #include <memory>
 
 #include "TestAppPch.h"
+#include <playfab/PlayFabApiSettings.h>
 #include <playfab/PlayFabClientApi.h>
 #include <playfab/PlayFabClientInstanceApi.h>
 #include <playfab/PlayFabClientDataModels.h>
@@ -327,7 +328,7 @@ void TestLightweightEvents()
     }
 }
 
-void TestMultipleUsers()
+void TestMultipleUsersWithStaticAPIs()
 {
     printf("\n========== Testing multiple users with static APIs scenario ===========\n");
     PlayFab::ClientModels::LoginWithCustomIDRequest loginRequest;
@@ -427,7 +428,7 @@ void TestMultipleUsers()
     }
 }
 
-void TestMultipleUsersOnMultipleAPIInstances()
+void TestMultipleUsersWithAPIInstances()
 {
     printf("\n========== Testing multiple users with API instances scenario ===========\n");
     PlayFab::ClientModels::LoginWithCustomIDRequest loginRequest;
@@ -439,7 +440,7 @@ void TestMultipleUsersOnMultipleAPIInstances()
     bool profileCompletedUser1 = false;
     bool profileCompletedUser2 = false;
     PlayFab::PlayFabClientInstanceAPI clientApi1;
-    PlayFab::PlayFabClientInstanceAPI clientApi2;
+    PlayFab::PlayFabClientInstanceAPI clientApi2(std::make_shared<PlayFab::PlayFabApiSettings>()); // also test explicit API settings
     loginRequest.CreateAccount = true;
 
     // log in user 1
@@ -556,10 +557,10 @@ int main()
     TestLightweightEvents();
 
     // Test multiple users scenario
-    TestMultipleUsers();
+    TestMultipleUsersWithStaticAPIs();
 
     // Test multiple users on multiple API instances scenario
-    TestMultipleUsersOnMultipleAPIInstances();
+    TestMultipleUsersWithAPIInstances();
 
     return 0;
 }

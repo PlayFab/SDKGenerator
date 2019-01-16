@@ -15,7 +15,8 @@ namespace PlayFab
             const std::unordered_map<std::string, std::string>& headers,
             std::string requestBody,
             CallRequestContainerCallback callback,
-            void* customData = nullptr);
+            void* customData = nullptr,
+            std::shared_ptr<PlayFabApiSettings> apiSettings = nullptr);
 
         virtual ~CallRequestContainer() override;
 
@@ -36,8 +37,9 @@ namespace PlayFab
         OneDSCallRequestContainer(const std::unordered_map<std::string, std::string>& headers,
             std::vector<uint8_t> requestBody,
             CallRequestContainerCallback callback,
-            void* customData = nullptr):
-            CallRequestContainer("", headers, "", callback, customData),
+            void* customData = nullptr,
+            std::shared_ptr<PlayFabApiSettings> apiSettings = nullptr):
+            CallRequestContainer("", headers, "", callback, customData, apiSettings),
             requestBinaryBody(std::move(requestBody))
         {
         }

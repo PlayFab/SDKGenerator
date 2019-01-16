@@ -8,8 +8,9 @@ namespace PlayFab
         const std::unordered_map<std::string, std::string>& headers,
         std::string requestBody,
         CallRequestContainerCallback callback,
-        void* customData) :
-        CallRequestContainerBase(url, headers, requestBody, callback, customData),
+        void* customData,
+        std::shared_ptr<PlayFabApiSettings> settings) :
+        CallRequestContainerBase(url, headers, requestBody, callback, customData, settings),
         finished(false),
         responseString(""),
         responseJson(Json::Value::null),

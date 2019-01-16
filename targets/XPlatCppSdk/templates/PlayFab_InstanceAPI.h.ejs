@@ -1,0 +1,60 @@
+#pragma once
+
+<%- getApiDefine(api) %>
+
+#include <playfab/PlayFabCallRequestContainer.h>
+#include <playfab/PlayFabApiSettings.h>
+#include <playfab/PlayFabAuthenticationContext.h>
+#include <playfab/PlayFab<%- api.name %>DataModels.h>
+#include <memory>
+
+namespace PlayFab
+{
+    /// <summary>
+    /// Main interface for PlayFab Sdk, specifically all <%- api.name %> APIs
+    /// </summary>
+    class PlayFab<%- api.name %>InstanceAPI
+    {
+    private:
+        std::shared_ptr<PlayFabApiSettings> settings;
+        std::shared_ptr<PlayFabAuthenticationContext> authContext;
+
+    public:
+        PlayFab<%- api.name %>InstanceAPI();
+        explicit PlayFab<%- api.name %>InstanceAPI(std::shared_ptr<PlayFabApiSettings> apiSettings);
+        explicit PlayFab<%- api.name %>InstanceAPI(std::shared_ptr<PlayFabAuthenticationContext> authenticationContext);
+        PlayFab<%- api.name %>InstanceAPI(std::shared_ptr<PlayFabApiSettings> apiSettings, std::shared_ptr<PlayFabAuthenticationContext> authenticationContext);
+        ~PlayFab<%- api.name %>InstanceAPI();
+        PlayFab<%- api.name %>InstanceAPI(const PlayFab<%- api.name %>InstanceAPI& source) = delete; // disable copy
+        PlayFab<%- api.name %>InstanceAPI(PlayFab<%- api.name %>InstanceAPI&&) = delete; // disable move
+        PlayFab<%- api.name %>InstanceAPI& operator=(const PlayFab<%- api.name %>InstanceAPI& source) = delete; // disable assignment
+        PlayFab<%- api.name %>InstanceAPI& operator=(PlayFab<%- api.name %>InstanceAPI&& other) = delete; // disable move assignment
+
+        std::shared_ptr<PlayFabApiSettings> GetSettings() const;
+        void SetSettings(std::shared_ptr<PlayFabApiSettings> apiSettings);
+        std::shared_ptr<PlayFabAuthenticationContext> GetAuthenticationContext() const;
+        void SetAuthenticationContext(std::shared_ptr<PlayFabAuthenticationContext> authenticationContext);
+        size_t Update();
+        void ForgetAllCredentials();
+<% if (hasClientOptions) { %>
+        // Public, Client-Specific
+        bool IsClientLoggedIn();
+<% } %>
+        // ------------ Generated API calls
+<% for (var callIdx = 0; callIdx < api.calls.length; callIdx++) { var apiCall = api.calls[callIdx];
+%>        void <%- apiCall.name %>(<%- api.name %>Models::<%- apiCall.request %>& request, ProcessApiCallback<<%- api.name %>Models::<%- apiCall.result %>> callback, ErrorCallback errorCallback = nullptr, void* customData = nullptr);
+<% } %>
+        // ------------ Generated result handlers
+<% for (var callIdx = 0; callIdx < api.calls.length; callIdx++) { var apiCall = api.calls[callIdx];
+%>        void On<%- apiCall.name %>Result(int httpCode, std::string result, std::unique_ptr<CallRequestContainerBase> reqContainer);
+<% }
+if (hasClientOptions) { %>
+        // Private, Client-Specific
+        void MultiStepClientLogin(bool needsAttribution);
+<% } %>        bool ValidateResult(PlayFabResultCommon& resultCommon, CallRequestContainer& container);
+    private:
+        std::shared_ptr<PlayFabAuthenticationContext> GetOrCreateAuthenticationContext();
+    };
+}
+
+#endif

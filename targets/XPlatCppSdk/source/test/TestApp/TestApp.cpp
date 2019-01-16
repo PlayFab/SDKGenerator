@@ -6,6 +6,7 @@
 
 #include "TestAppPch.h"
 #include <playfab/PlayFabClientApi.h>
+#include <playfab/PlayFabClientInstanceApi.h>
 #include <playfab/PlayFabClientDataModels.h>
 #include <playfab/PlayFabAuthenticationApi.h>
 #include <playfab/PlayFabAuthenticationDataModels.h>
@@ -328,7 +329,7 @@ void TestLightweightEvents()
 
 void TestMultipleUsers()
 {
-    printf("\n========== Testing multiple users scenario ===========\n");
+    printf("\n========== Testing multiple users with static APIs scenario ===========\n");
     PlayFab::ClientModels::LoginWithCustomIDRequest loginRequest;
     PlayFab::ClientModels::GetPlayerProfileRequest profileRequest;
     bool loginCompletedUser1 = false;
@@ -426,6 +427,102 @@ void TestMultipleUsers()
     }
 }
 
+void TestMultipleUsersOnMultipleAPIInstances()
+{
+    printf("\n========== Testing multiple users with API instances scenario ===========\n");
+    PlayFab::ClientModels::LoginWithCustomIDRequest loginRequest;
+    PlayFab::ClientModels::GetPlayerProfileRequest profileRequest;
+    bool loginCompletedUser1 = false;
+    bool loginCompletedUser2 = false;
+    bool loginSuccessfulUser1 = false;
+    bool loginSuccessfulUser2 = false;
+    bool profileCompletedUser1 = false;
+    bool profileCompletedUser2 = false;
+    PlayFab::PlayFabClientInstanceAPI clientApi1;
+    PlayFab::PlayFabClientInstanceAPI clientApi2;
+    loginRequest.CreateAccount = true;
+
+    // log in user 1
+    loginRequest.CustomId = "test_GSDK1";
+    clientApi1.LoginWithCustomID(loginRequest,
+        [&](const PlayFab::ClientModels::LoginResult& result, void* customData)
+        {
+            printf("---------- Successfully logged in user 1\n");
+            printf(("---------- User 1 client session ticket: " + clientApi1.GetAuthenticationContext()->clientSessionTicket + "\n").c_str());
+            loginCompletedUser1 = true;
+            loginSuccessfulUser1 = true;
+        },
+        [&](const PlayFab::PlayFabError& error, void* customData)
+        {
+            printf(("========== Failed to log in user 1: " + error.GenerateErrorReport() + "\n").c_str());
+            loginCompletedUser1 = true;
+        });
+
+    // log in user 2
+    loginRequest.CustomId = "test_GSDK2";
+    clientApi2.LoginWithCustomID(loginRequest,
+        [&](const PlayFab::ClientModels::LoginResult& result, void* customData)
+        {
+            printf("---------- Successfully logged in user 2\n");
+            printf(("---------- User 2 client session ticket: " + clientApi2.GetAuthenticationContext()->clientSessionTicket + "\n").c_str());
+            loginCompletedUser2 = true;
+            loginSuccessfulUser2 = true;
+        },
+        [&](const PlayFab::PlayFabError& error, void* customData)
+        {
+            printf(("========== Failed to log in user 2: " + error.GenerateErrorReport() + "\n").c_str());
+            loginCompletedUser2 = true;
+        });
+
+    // wait for both users to be logged in (we need to get their sessions)
+    while (!(loginCompletedUser1 && loginCompletedUser2))
+    {
+        std::this_thread::yield();
+    }
+
+    if (!loginSuccessfulUser1 || !loginSuccessfulUser2)
+    {
+        return;
+    }
+
+    // ensure that classic credentials (global, statically stored) aren't used:
+    PlayFab::PlayFabSettings::ForgetAllCredentials();
+    PlayFab::PlayFabSettings::clientSessionTicket.empty();
+    PlayFab::PlayFabSettings::entityToken.empty();
+
+    // user 1: make API call "get my profile"
+    clientApi1.GetPlayerProfile(profileRequest,
+        [&](const PlayFab::ClientModels::GetPlayerProfileResult& result, void*)
+        {
+            printf(("========== Successfully read user 1 profile. Player ID: " + result.PlayerProfile->PlayerId + "\n").c_str());
+            profileCompletedUser1 = true;
+        },
+        [&](const PlayFab::PlayFabError& error, void*)
+        {
+            printf(("========== Failed to get user 1 profile: " + error.GenerateErrorReport() + "\n").c_str());
+            profileCompletedUser1 = true;
+        });
+
+    // user 2: make API call "get my profile"
+    clientApi2.GetPlayerProfile(profileRequest,
+        [&](const PlayFab::ClientModels::GetPlayerProfileResult& result, void*)
+        {
+            printf(("========== Successfully read user 2 profile. Player ID: " + result.PlayerProfile->PlayerId + "\n").c_str());
+            profileCompletedUser2 = true;
+        },
+        [&](const PlayFab::PlayFabError& error, void*)
+        {
+            printf(("========== Failed to get user 2 profile: " + error.GenerateErrorReport() + "\n").c_str());
+            profileCompletedUser2 = true;
+        });
+
+    // wait for both users to be get their profiles
+    while (!(profileCompletedUser1 && profileCompletedUser2))
+    {
+        std::this_thread::yield();
+    }
+}
+
 int main()
 {
     // Super hacky short-term functionality PlayFab Test - TODO: Put the regular set of tests into proper Unit Test project
@@ -460,6 +557,9 @@ int main()
 
     // Test multiple users scenario
     TestMultipleUsers();
+
+    // Test multiple users on multiple API instances scenario
+    TestMultipleUsersOnMultipleAPIInstances();
 
     return 0;
 }

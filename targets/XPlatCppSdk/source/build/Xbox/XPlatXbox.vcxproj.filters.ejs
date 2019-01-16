@@ -35,7 +35,10 @@
     <ClInclude Include="$(SdkSourceDir)\include\playfab\OneDSEventPipeline.h">
       <Filter>Header Files\playfab</Filter>
     </ClInclude>
-        <ClInclude Include="$(SdkSourceDir)\include\playfab\PlayFabAuthenticationContext.h">
+    <ClInclude Include="$(SdkSourceDir)\include\playfab\PlayFabAuthenticationContext.h">
+      <Filter>Header Files\playfab</Filter>
+    </ClInclude>
+    <ClInclude Include="$(SdkSourceDir)\include\playfab\PlayFabApiSettings.h">
       <Filter>Header Files\playfab</Filter>
     </ClInclude>
     <ClInclude Include="$(SdkSourceDir)\include\playfab\PlayFabBaseModel.h">
@@ -43,6 +46,9 @@
     </ClInclude>
 <% for(var i in apis) { var api = apis[i];
 %>    <ClInclude Include="$(SdkSourceDir)\include\playfab\PlayFab<%- api.name %>API.h">
+      <Filter>Header Files\playfab</Filter>
+    </ClInclude>
+    <ClInclude Include="$(SdkSourceDir)\include\playfab\PlayFab<%- api.name %>InstanceAPI.h">
       <Filter>Header Files\playfab</Filter>
     </ClInclude>
     <ClInclude Include="$(SdkSourceDir)\include\playfab\PlayFab<%- api.name %>DataModels.h">
@@ -128,7 +134,13 @@
     <ClCompile Include="$(SdkSourceDir)\source\playfab\OneDSEventsApi.cpp">
       <Filter>Source Files\playfab</Filter>
     </ClCompile>
-     <ClCompile Include="$(SdkSourceDir)\source\playfab\OneDSEventPipeline.cpp">
+    <ClCompile Include="$(SdkSourceDir)\source\playfab\OneDSEventPipeline.cpp">
+      <Filter>Source Files\playfab</Filter>
+    </ClCompile>
+    <ClCompile Include="$(SdkSourceDir)\source\playfab\PlayFabAuthenticationContext.cpp">
+      <Filter>Source Files\playfab</Filter>
+    </ClCompile>
+    <ClCompile Include="$(SdkSourceDir)\source\playfab\PlayFabApiSettings.cpp">
       <Filter>Source Files\playfab</Filter>
     </ClCompile>
     <ClCompile Include="$(SdkSourceDir)\stdafx.cpp">
@@ -136,6 +148,9 @@
     </ClCompile>
 <% for(var i in apis) { var api = apis[i];
 %>    <ClCompile Include="$(SdkSourceDir)\source\playfab\PlayFab<%- api.name %>Api.cpp">
+      <Filter>Source Files\playfab</Filter>
+    </ClCompile>
+    <ClCompile Include="$(SdkSourceDir)\source\playfab\PlayFab<%- api.name %>InstanceAPI.cpp">
       <Filter>Source Files\playfab</Filter>
     </ClCompile>
 <% } %>    <ClCompile Include="$(SdkSourceDir)\source\playfab\PlayFabError.cpp">

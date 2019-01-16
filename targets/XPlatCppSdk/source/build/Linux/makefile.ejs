@@ -21,23 +21,15 @@ LINK_TARGET = XPlatCppLinux
 
 # Here is a Make Macro that uses the backslash to extend to multiple lines.
 OBJS = stdafx.o \
-	PlayFabAdminApi.o \
-	PlayFabAuthenticationApi.o \
+	PlayFabAuthenticationContext.o \
+	PlayFabApiSettings.o \<% for(var i in apis) { var api = apis[i];%>
+	PlayFab<%- api.name %>Api.o \
+	PlayFab<%- api.name %>InstanceApi.o \<% } %>
 	PlayFabCallRequestContainer.o \
 	PlayFabCallRequestContainerBase.o \
-	PlayFabClientApi.o \
-	PlayFabCloudScriptApi.o \
-	PlayFabDataApi.o \
 	PlayFabError.o \
-	PlayFabEventsApi.o \
-	PlayFabGroupsApi.o \
 	PlayFabCurlHttpPlugin.o \
-	PlayFabLocalizationApi.o \
-	PlayFabMatchmakerApi.o \
-	PlayFabMultiplayerApi.o \
 	PlayFabPluginManager.o \
-	PlayFabProfilesApi.o \
-	PlayFabServerApi.o \
 	PlayFabSettings.o \
 	PlayFabEvent.o \
 	PlayFabEventApi.o \

@@ -7,7 +7,7 @@ namespace PlayFab
 {
     public class PluginManager
     {
-        private Dictionary<PluginContractKey, IPlayFabPlugin> plugins = new Dictionary<PluginContractKey, IPlayFabPlugin>();
+        private Dictionary<PluginContractKey, IPlayFabPlugin> plugins = new Dictionary<PluginContractKey, IPlayFabPlugin>(new PublicContractKeyComparator());
 
         /// <summary>
         /// The singleton instance of plugin manager.

@@ -15,7 +15,7 @@ namespace PlayFab
     {
         public override bool Equals(PluginContractKey x, PluginContractKey y)
         {
-            return x._pluginContract == y._pluginContract && x._pluginName == y._pluginName;
+            return x._pluginContract == y._pluginContract && x._pluginName.Equals(y._pluginName);
         }
 
         public override int GetHashCode(PluginContractKey obj)

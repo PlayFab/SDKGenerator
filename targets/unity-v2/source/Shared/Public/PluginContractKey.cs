@@ -11,7 +11,7 @@ namespace PlayFab
         public string _pluginName;
     }
 
-    public class PublicContractKeyComparator : EqualityComparer<PluginContractKey>
+    public class PluginContractKeyComparator : EqualityComparer<PluginContractKey>
     {
         public override bool Equals(PluginContractKey x, PluginContractKey y)
         {

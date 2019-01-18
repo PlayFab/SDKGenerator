@@ -11,11 +11,11 @@ namespace PlayFab
         public string _pluginName;
     }
 
-    public class PublicContractKeyComparator : EqualityComparer<PluginContractKey>
+    public class PluginContractKeyComparator : EqualityComparer<PluginContractKey>
     {
         public override bool Equals(PluginContractKey x, PluginContractKey y)
         {
-            return x._pluginContract == y._pluginContract && x._pluginName == y._pluginName;
+            return x._pluginContract == y._pluginContract && x._pluginName.Equals(y._pluginName);
         }
 
         public override int GetHashCode(PluginContractKey obj)

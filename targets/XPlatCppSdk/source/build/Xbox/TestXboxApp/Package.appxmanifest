@@ -3,7 +3,7 @@
          xmlns:mx="http://schemas.microsoft.com/appx/2013/xbox/manifest"
          IgnorableNamespaces="mx">
 
-    <Identity Name="fe0965e5-69e5-4ddd-879a-03cf96a14bd5"
+    <Identity Name="TestXboxApp"
               Publisher="CN=Publisher"
               Version="1.0.0.0" />
 

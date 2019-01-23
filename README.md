@@ -10,13 +10,13 @@ This is a node.js based program that takes a json description of the PlayFab API
 
 0. Any recent MS-Windows Operating System
 1. You must have Node.js installed: http://nodejs.org/
-  * The location of node.exe must be in your PATH environment variable.  Default: C:\Program Files (x86)\nodejs\
-  * Highly suggested that you install Node.js tools for Visual Studio: https://beta.visualstudio.com/vs/node-js/
+    * The location of node.exe must be in your PATH environment variable.  Default: C:\Program Files (x86)\nodejs\
+    * Highly suggested that you install Node.js tools for Visual Studio: https://beta.visualstudio.com/vs/node-js/
 2. SdkGenerator requires several PlayFab repositories, cloned to your local machine, as sibiling folders to SdkGenerator.
-  * &lt;parent-folder&gt;/SdkGenerator = https://github.com/PlayFab/SDKGenerator (you're looking at it)
-  * &lt;parent-folder&gt;/sdks/&lt;targetSDK&gt; - For every sdk you want to generate, you should git-clone the PlayFab repository for that target into the "sdks" subfolder first.  In many cases, there are required files in the repo which are not generated
-3. SdkGenerator can be configured to read from other PlayFab repositories, cloned to your local machine, as sibiling folders to SdkGenerator.
-  * &lt;parent-folder&gt;/API_Specs = https://github.com/PlayFab/api_specs
+    * &lt;parent-folder&gt;/SdkGenerator = https://github.com/PlayFab/SDKGenerator (you're looking at it)
+    * &lt;parent-folder&gt;/sdks/&lt;targetSDK&gt; - For every sdk you want to generate, you should git-clone the PlayFab repository for that target into the "sdks" subfolder first.  In many cases, there are required files in the repo which are not generated
+3. [Optional] SdkGenerator can be configured to read from other PlayFab repositories, cloned to your local machine, as sibiling folders to SdkGenerator.
+    * &lt;parent-folder&gt;/API_Specs = https://github.com/PlayFab/api_specs
  
 
 ## 3. Usage Instructions:
@@ -30,7 +30,7 @@ There are many prebuilt scripts which can build each SDK automatically: https://
 * Find the script that matches the SDK you wish to build (EX unity_build.bat)
 * Double-click that file
 
-If you wish to build an new sdk, you may need to build a new .bat file using the instrucitons in the next section.
+If you wish to build an new sdk, you may need to build a new .bat file using the instructions in the next section.
 
 Finally, to manually invoke the generator, open a command line at the root of the project and type:
 ```

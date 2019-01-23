@@ -198,7 +198,7 @@ namespace PlayFab.Internal
             string win32Path = Path.Combine(GetBuildPath(), "Win32test.exe");
             MkDir(GetBuildPath());
             BuildPipeline.BuildPlayer(TestScenes, win32Path, BuildTarget.StandaloneWindows, BuildOptions.None);
-            if (Directory.GetFiles(win32Path).Length == 0)
+            if (!File.Exists(win32Path))
                 throw new Exception("Target file did not build: " + win32Path);
         }
     }

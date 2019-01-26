@@ -1,0 +1,34 @@
+﻿<%- copyright %>
+
+#pragma once
+
+#include "CoreMinimal.h"
+#include "PlayFabAuthenticationContext.generated.h"
+
+/**
+* Container for PlayFab authentication credentials data.
+*/
+UCLASS(BlueprintType)
+class PLAYFABCOMMON_API UPlayFabAuthenticationContext : public UObject
+{
+    GENERATED_BODY()
+public:
+    UPlayFabAuthenticationContext();
+
+
+    // Client session ticket that is used as an authentication token in many PlayFab API methods.
+    UPROPERTY(EditAnywhere, BlueprintReadWrite)
+        FString ClientSessionTicket;
+
+    // User's entity token. Entity tokens are required by all Entity API methods.
+    UPROPERTY(EditAnywhere, BlueprintReadWrite)
+        FString EntityToken;
+
+    // Developer secret key. These keys can be used in development environments.
+    UPROPERTY(EditAnywhere, BlueprintReadWrite)
+        FString DeveloperSecretKey;
+
+
+    UFUNCTION(BlueprintCallable)
+        void ForgetAllCredentials();
+};

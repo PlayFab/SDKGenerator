@@ -6,15 +6,22 @@
 // API: <%- api.name %>
 //////////////////////////////////////////////////////////////////////////////////////////////
 
-#include "PlayFab<%- api.name %>API.h"
+#include "Classes/PlayFab<%- api.name %>API.h"
 #include "PlayFab<%- api.name %>Models.h"
 #include "PlayFab<%- api.name %>ModelDecoder.h"
 #include "PlayFabPrivate.h"
 #include "PlayFabEnums.h"
+#include "PlayFabCommon/Public/PlayFabAuthenticationContext.h"
 
 UPlayFab<%- api.name %>API::UPlayFab<%- api.name %>API(const FObjectInitializer& ObjectInitializer)
     : Super(ObjectInitializer)
+    , AuthenticationContext(nullptr)
 {
+}
+
+void UPlayFab<%- api.name %>API::SetAuthenticationContext(UPlayFabAuthenticationContext* InAuthenticationContext)
+{
+    AuthenticationContext = InAuthenticationContext;
 }
 
 void UPlayFab<%- api.name %>API::SetRequestObject(UPlayFabJsonObject* JsonObject)
@@ -104,6 +111,7 @@ for(var subgroup in api.subgroups)
 <%            %>    manager->OnPlayFabResponse.AddDynamic(manager, &UPlayFab<%- api.name %>API::Helper<%- apiCall.name %>);
 <%            %>
 <%            %>    // Setup the request
+<%            %>    manager->SetAuthenticationContext(request.AuthenticationContext);
 <%            %>    manager->PlayFabRequestURL = "<%- apiCall.url %>";
 <%            %><%- getAuthBools("    ", apiCall) %>
 <%            %>    // Serialize all the request properties to json
@@ -155,7 +163,12 @@ for(var subgroup in api.subgroups)
 
                 if (!found) {
               %>        F<%- api.name %><%- apiCall.result %> result = UPlayFab<%- api.name %>ModelDecoder::decode<%- apiCall.result %>Response(response.responseData);
-<%            %>        OnSuccess<%- apiCall.name %>.Execute(result, mCustomData);
+<%            %>        result.Request = RequestJsonObj;
+<%              if (apiCall.result === "LoginResult") {
+              %>        // AuthenticationContext was set in OnProcessRequestComplete
+<%            %>        result.AuthenticationContext = AuthenticationContext;
+<%              }
+              %>        OnSuccess<%- apiCall.name %>.Execute(result, mCustomData);
 <%
                 }
 
@@ -225,13 +238,25 @@ void UPlayFab<%- api.name %>API::OnProcessRequestComplete(FHttpRequestPtr Reques
     myResponse.responseData = ResponseJsonObj;
     IPlayFab* pfSettings = &(IPlayFab::Get());
 <% if (hasClientOptions) { %>
+    if (returnsSessionTicket || returnsEntityToken)
+    {
+        AuthenticationContext = NewObject<UPlayFabAuthenticationContext>();
+    }
     if (returnsSessionTicket && !myResponse.responseError.hasError)
     {
         // Auth Tokens
         auto response = myResponse.responseData->GetObjectField("data");
-        pfSettings->setSessionTicket(response->GetStringField("SessionTicket"));
+        {
+            FString NewSessionTicket = response->GetStringField("SessionTicket");
+            pfSettings->setSessionTicket(NewSessionTicket);
+            AuthenticationContext->ClientSessionTicket = MoveTemp(NewSessionTicket);
+        }
         if (response->HasField("EntityToken"))
-            pfSettings->setEntityToken(response->GetObjectField("EntityToken")->GetStringField("EntityToken"));
+        {
+            FString NewEntityToken = response->GetObjectField("EntityToken")->GetStringField("EntityToken");
+            pfSettings->setEntityToken(NewEntityToken);
+            AuthenticationContext->EntityToken = MoveTemp(NewEntityToken);
+        }
 
         // IDFA Attribution when relevant
         bool needsAttribution = myResponse.responseData->GetObjectField("data")->GetBoolField("SessionTicket");
@@ -256,7 +281,14 @@ void UPlayFab<%- api.name %>API::OnProcessRequestComplete(FHttpRequestPtr Reques
     }
 <% } %>
     if (returnsEntityToken)
-        pfSettings->setEntityToken(myResponse.responseData->GetObjectField("data")->GetStringField("EntityToken"));
+    {
+<% if (!hasClientOptions) { %>
+        AuthenticationContext = NewObject<UPlayFabAuthenticationContext>();
+<% } %>
+        FString NewEntityToken = myResponse.responseData->GetObjectField("data")->GetStringField("EntityToken");
+        pfSettings->setEntityToken(NewEntityToken);
+        AuthenticationContext->EntityToken = MoveTemp(NewEntityToken);
+    }
 
     // Broadcast the result event
     OnPlayFabResponse.Broadcast(myResponse, mCustomData, myResponse.responseError.hasError);
@@ -275,15 +307,12 @@ void UPlayFab<%- api.name %>API::Activate()
     HttpRequest->SetVerb(TEXT("POST"));
 
     // Headers
-    auto entityToken = pfSettings->getEntityToken();
-    auto clientToken = pfSettings->getSessionTicket();
-    auto devSecretKey = pfSettings->getSecretApiKey();
-    if (useEntityToken && entityToken.Len() > 0)
-        HttpRequest->SetHeader(TEXT("X-EntityToken"), entityToken);
-    else if (useSessionTicket && clientToken.Len() > 0)
-        HttpRequest->SetHeader(TEXT("X-Authentication"), clientToken);
-    else if (useSecretKey && devSecretKey.Len() > 0)
-        HttpRequest->SetHeader(TEXT("X-SecretKey"), devSecretKey);
+    if (useEntityToken)
+        HttpRequest->SetHeader(TEXT("X-EntityToken"), AuthenticationContext ? AuthenticationContext->EntityToken : pfSettings->getEntityToken());
+    else if (useSessionTicket)
+        HttpRequest->SetHeader(TEXT("X-Authentication"), AuthenticationContext ? AuthenticationContext->ClientSessionTicket : pfSettings->getSessionTicket());
+    else if (useSecretKey)
+        HttpRequest->SetHeader(TEXT("X-SecretKey"), AuthenticationContext ? AuthenticationContext->DeveloperSecretKey : pfSettings->getSecretApiKey());
     HttpRequest->SetHeader(TEXT("Content-Type"), TEXT("application/json"));
     HttpRequest->SetHeader(TEXT("X-PlayFabSDK"), pfSettings->getVersionString());
     HttpRequest->SetHeader(TEXT("X-ReportErrorAsSuccess"), TEXT("true")); // FHttpResponsePtr doesn't provide sufficient information when an error code is returned

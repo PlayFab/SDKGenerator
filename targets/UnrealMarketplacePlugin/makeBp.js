@@ -38,6 +38,7 @@ function makeApiFiles(api, copyright, apiOutputDir, sourceDir, libName) {
         api: api,
         copyright: copyright,
         getAuthBools: getAuthBools,
+        getBaseType: getBaseType,
         getPropertyCppType: getPropertyCppType,
         generateApiSummary: generateApiSummary,
         getPropertySerialization: getPropertySerialization,
@@ -76,6 +77,17 @@ exports.getDataTypeSafeName = getDataTypeSafeName;
 function getPropertySafeName(property) {
     // Turns out we didn't need this at the time it was added, but it's a good pattern
     return property.name;
+}
+
+function getBaseType(datatype) {
+    if (datatype.isRequest === true)
+        return "PlayFabRequestCommon";
+    if (datatype.isResult === true) {
+        if (datatype.className.endsWith("LoginResult"))
+            return "PlayFabLoginResultCommon";
+        return "PlayFabResultCommon";
+    }
+    return "PlayFabBaseModel";
 }
 
 function getPropertyCppType(property, datatype) {

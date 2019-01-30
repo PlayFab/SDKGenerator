@@ -281,7 +281,7 @@ void UPlayFab<%- api.name %>API::Activate()
     if (useEntityToken && entityToken.Len() > 0)
         HttpRequest->SetHeader(TEXT("X-EntityToken"), entityToken);
     else if (useSessionTicket && clientToken.Len() > 0)
-        HttpRequest->SetHeader(TEXT("X-Authentication"), clientToken);
+        HttpRequest->SetHeader(TEXT("X-Authorization"), clientToken);
     else if (useSecretKey && devSecretKey.Len() > 0)
         HttpRequest->SetHeader(TEXT("X-SecretKey"), devSecretKey);
     HttpRequest->SetHeader(TEXT("Content-Type"), TEXT("application/json"));

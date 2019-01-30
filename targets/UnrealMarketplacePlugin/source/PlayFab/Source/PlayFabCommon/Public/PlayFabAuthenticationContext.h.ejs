@@ -16,19 +16,39 @@ public:
     UPlayFabAuthenticationContext();
 
 
-    // Client session ticket that is used as an authentication token in many PlayFab API methods.
-    UPROPERTY(EditAnywhere, BlueprintReadWrite)
-        FString ClientSessionTicket;
+    // Get the client session ticket that is used as an authentication token in many PlayFab API methods.
+    UFUNCTION(BlueprintCallable, BlueprintPure, Category = "PlayFab | Core")
+        FString& GetClientSessionTicket();
 
-    // User's entity token. Entity tokens are required by all Entity API methods.
-    UPROPERTY(EditAnywhere, BlueprintReadWrite)
-        FString EntityToken;
+    // Set the client session ticket that is used as an authentication token in many PlayFab API methods.
+    UFUNCTION(BlueprintCallable, Category = "PlayFab | Core")
+        void SetClientSessionTicket(FString inTicket);
 
-    // Developer secret key. These keys can be used in development environments.
-    UPROPERTY(EditAnywhere, BlueprintReadWrite)
-        FString DeveloperSecretKey;
+    // Get the user's entity token. Entity tokens are required by all Entity API methods.
+    UFUNCTION(BlueprintCallable, BlueprintPure, Category = "PlayFab | Core")
+        FString& GetEntityToken();
 
+    // Set the user's entity token. Entity tokens are required by all Entity API methods.
+    UFUNCTION(BlueprintCallable, Category = "PlayFab | Core")
+        void SetEntityToken(FString inToken);
 
+    // Get the developer secret key. These keys can be used in development environments.
+    UFUNCTION(BlueprintCallable, BlueprintPure, Category = "PlayFab | Core")
+        FString& GetDeveloperSecretKey();
+
+    // Set the developer secret key. These keys can be used in development environments.
+    UFUNCTION(BlueprintCallable, Category = "PlayFab | Core")
+        void SetDeveloperSecretKey(FString inKey);
+
+    // Reset all fields
     UFUNCTION(BlueprintCallable)
         void ForgetAllCredentials();
+
+private: 
+    // Client session ticket that is used as an authentication token in many PlayFab API methods.
+    FString clientSessionTicket;
+    // User's entity token. Entity tokens are required by all Entity API methods.
+    FString entityToken;
+    // Developer secret key. These keys can be used in development environments.
+    FString developerSecretKey;
 };

@@ -81,13 +81,13 @@ function getPropertySafeName(property) {
 
 function getBaseType(datatype) {
     if (datatype.isRequest === true)
-        return "PlayFabRequestCommon";
+        return "FPlayFabRequestCommon";
     if (datatype.isResult === true) {
-        if (datatype.className.endsWith("LoginResult"))
-            return "PlayFabLoginResultCommon";
-        return "PlayFabResultCommon";
+        if (datatype.className.toLowerCase().endsWith("loginresult"))
+            return "FPlayFabLoginResultCommon";
+        return "FPlayFabResultCommon";
     }
-    return "PlayFabBaseModel";
+    throw new Error(`No valid base type because a proper FPlayFabBaseModel doesn't exist yet for the Blueprint API, and ${datatype.className} is neither request nor result.`);
 }
 
 function getPropertyCppType(property, datatype) {

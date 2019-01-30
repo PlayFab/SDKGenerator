@@ -22,7 +22,7 @@ public:
 
     // Set the client session ticket that is used as an authentication token in many PlayFab API methods.
     UFUNCTION(BlueprintCallable, Category = "PlayFab | Core")
-        void SetClientSessionTicket(FString inTicket);
+        void SetClientSessionTicket(FString InTicket);
 
     // Get the user's entity token. Entity tokens are required by all Entity API methods.
     UFUNCTION(BlueprintCallable, BlueprintPure, Category = "PlayFab | Core")
@@ -30,7 +30,7 @@ public:
 
     // Set the user's entity token. Entity tokens are required by all Entity API methods.
     UFUNCTION(BlueprintCallable, Category = "PlayFab | Core")
-        void SetEntityToken(FString inToken);
+        void SetEntityToken(FString InToken);
 
     // Get the developer secret key. These keys can be used in development environments.
     UFUNCTION(BlueprintCallable, BlueprintPure, Category = "PlayFab | Core")
@@ -38,7 +38,7 @@ public:
 
     // Set the developer secret key. These keys can be used in development environments.
     UFUNCTION(BlueprintCallable, Category = "PlayFab | Core")
-        void SetDeveloperSecretKey(FString inKey);
+        void SetDeveloperSecretKey(FString InKey);
 
     // Reset all fields
     UFUNCTION(BlueprintCallable)
@@ -46,9 +46,11 @@ public:
 
 private: 
     // Client session ticket that is used as an authentication token in many PlayFab API methods.
-    FString clientSessionTicket;
+    FString ClientSessionTicket;
+
     // User's entity token. Entity tokens are required by all Entity API methods.
-    FString entityToken;
+    FString EntityToken;
+
     // Developer secret key. These keys can be used in development environments.
-    FString developerSecretKey;
+    FString DeveloperSecretKey;
 };

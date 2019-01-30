@@ -7,41 +7,41 @@ UPlayFabAuthenticationContext::UPlayFabAuthenticationContext() {}
 
 FString& UPlayFabAuthenticationContext::GetClientSessionTicket()
 {
-    return clientSessionTicket;
+    return ClientSessionTicket;
 };
 
-void UPlayFabAuthenticationContext::SetClientSessionTicket(FString inTicket)
+void UPlayFabAuthenticationContext::SetClientSessionTicket(FString InTicket)
 {
-    clientSessionTicket = MoveTemp(inTicket);
+    ClientSessionTicket = MoveTemp(InTicket);
 };
 
 FString& UPlayFabAuthenticationContext::GetEntityToken()
 {
-    return entityToken;
+    return EntityToken;
 };
 
-void UPlayFabAuthenticationContext::SetEntityToken(FString inToken)
+void UPlayFabAuthenticationContext::SetEntityToken(FString InToken)
 {
-    entityToken = MoveTemp(inToken);
+    EntityToken = MoveTemp(InToken);
 };
 
 FString& UPlayFabAuthenticationContext::GetDeveloperSecretKey()
 {
 #if defined(ENABLE_PLAYFABSERVER_API) && defined(ENABLE_PLAYFABADMIN_API)
 #if ENABLE_PLAYFABSERVER_API && ENABLE_PLAYFABADMIN_API
-    return developerSecretKey;
+    return DeveloperSecretKey;
 #endif
 #endif
 
     checkf(false, TEXT("Cannot call GetDeveloperSecretKey in a non-developer build!"));
-    return developerSecretKey;
+    return DeveloperSecretKey;
 }
 
-void UPlayFabAuthenticationContext::SetDeveloperSecretKey(FString inKey) 
+void UPlayFabAuthenticationContext::SetDeveloperSecretKey(FString InKey) 
 { 
 #if defined(ENABLE_PLAYFABSERVER_API) && defined(ENABLE_PLAYFABADMIN_API)
 #if ENABLE_PLAYFABSERVER_API && ENABLE_PLAYFABADMIN_API
-    developerSecretKey = MoveTemp(inKey);
+    DeveloperSecretKey = MoveTemp(InKey);
     return;
 #endif
 #endif
@@ -51,7 +51,7 @@ void UPlayFabAuthenticationContext::SetDeveloperSecretKey(FString inKey)
 
 void UPlayFabAuthenticationContext::ForgetAllCredentials()
 {
-    clientSessionTicket.Empty();
-    entityToken.Empty();
-    developerSecretKey.Empty();
+    ClientSessionTicket.Empty();
+    EntityToken.Empty();
+    DeveloperSecretKey.Empty();
 }

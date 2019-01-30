@@ -573,11 +573,11 @@ function getAuthParams(apiCall) {
     if (apiCall.url === "/Authentication/GetEntityToken")
         return "authKey, authValue";
     else if (apiCall.auth === "EntityToken")
-		return "TEXT(\"X-EntityToken\"), !request.AuthenticationContext.IsValid() ? PlayFabSettings::GetEntityToken() : request.AuthenticationContext->GetEntityToken()";
+        return "TEXT(\"X-EntityToken\"), !request.AuthenticationContext.IsValid() ? PlayFabSettings::GetEntityToken() : request.AuthenticationContext->GetEntityToken()";
     else if (apiCall.auth === "SecretKey")
-		return "TEXT(\"X-SecretKey\"), !request.AuthenticationContext.IsValid() ? PlayFabSettings::GetDeveloperSecretKey() : request.AuthenticationContext->GetDeveloperSecretKey()";
+        return "TEXT(\"X-SecretKey\"), !request.AuthenticationContext.IsValid() ? PlayFabSettings::GetDeveloperSecretKey() : request.AuthenticationContext->GetDeveloperSecretKey()";
     else if (apiCall.auth === "SessionTicket")
-		return "TEXT(\"X-Authorization\"), !request.AuthenticationContext.IsValid() ? PlayFabSettings::GetClientSessionTicket() : request.AuthenticationContext->GetClientSessionTicket()";
+        return "TEXT(\"X-Authorization\"), !request.AuthenticationContext.IsValid() ? PlayFabSettings::GetClientSessionTicket() : request.AuthenticationContext->GetClientSessionTicket()";
     return "TEXT(\"\"), TEXT(\"\")";
 }
 

@@ -614,7 +614,7 @@ function getRequestActions(tabbing, apiCall) {
             + tabbing + "    }\n"
             + tabbing + "}\n";
     else if (apiCall.auth === "EntityToken")
-        return tabbing + "if ((request.AuthenticationContext.IsValid() && request.AuthenticationContext->GetEntityToken().Len() == 0)"
+        return tabbing + "if ((request.AuthenticationContext.IsValid() && request.AuthenticationContext->GetEntityToken().Len() == 0)\n"
             + tabbing + "    || (request.AuthenticationContext.IsValid() && PlayFabSettings::GetEntityToken().Len() == 0)) {\n"
             + tabbing + "    UE_LOG(LogPlayFabCpp, Error, TEXT(\"You must call GetEntityToken API Method before calling this function.\"));\n"
             + tabbing + "}\n";
@@ -624,7 +624,7 @@ function getRequestActions(tabbing, apiCall) {
             + tabbing + "    UE_LOG(LogPlayFabCpp, Error, TEXT(\"You must first set your PlayFab developerSecretKey to use this function (Unreal Settings Menu, or in C++ code)\"));\n"
             + tabbing + "}\n";
     else if (apiCall.auth === "SessionTicket")
-        return tabbing + "if((request.AuthenticationContext.IsValid() && request.AuthenticationContext->GetClientSessionTicket().Len() == 0)"
+        return tabbing + "if((request.AuthenticationContext.IsValid() && request.AuthenticationContext->GetClientSessionTicket().Len() == 0)\n"
             + tabbing + "    || (!request.AuthenticationContext.IsValid() && PlayFabSettings::GetClientSessionTicket().Len() == 0)) {\n"
             + tabbing + "    UE_LOG(LogPlayFabCpp, Error, TEXT(\"You must log in before calling this function\"));\n"
             + tabbing + "}\n";

@@ -1,6 +1,7 @@
 #include <stdafx.h>
 
 #include <playfab/PlayFabCallRequestContainer.h>
+#include <playfab/PlayFabSettings.h>
 
 namespace PlayFab
 {
@@ -8,8 +9,9 @@ namespace PlayFab
         const std::unordered_map<std::string, std::string>& headers,
         std::string requestBody,
         CallRequestContainerCallback callback,
-        void* customData) :
-        CallRequestContainerBase(url, headers, requestBody, callback, customData),
+        void* customData,
+        std::shared_ptr<PlayFabApiSettings> settings) :
+        CallRequestContainerBase(url, headers, requestBody, callback, customData, settings),
         finished(false),
         responseString(""),
         responseJson(Json::Value::null),
@@ -31,5 +33,17 @@ namespace PlayFab
 
     CallRequestContainer::~CallRequestContainer()
     {
+    }
+
+    std::string CallRequestContainer::GetFullUrl() const
+    {
+        if (apiSettings == nullptr)
+        {
+            return PlayFabSettings::GetUrl(this->GetUrl(), PlayFabSettings::requestGetParams);
+        }
+        else
+        {
+            return apiSettings->GetUrl(this->GetUrl(), PlayFabSettings::requestGetParams);
+        }
     }
 }

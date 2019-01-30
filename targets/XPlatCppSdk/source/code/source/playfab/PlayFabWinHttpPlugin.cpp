@@ -288,7 +288,7 @@ namespace PlayFab
 
     std::string PlayFabWinHttpPlugin::GetUrl(CallRequestContainer& reqContainer) const
     {
-        return PlayFabSettings::GetUrl(reqContainer.GetUrl(), PlayFabSettings::requestGetParams);
+        return reqContainer.GetFullUrl();
     }
 
     void PlayFabWinHttpPlugin::SetPredefinedHeaders(CallRequestContainer& requestContainer, HINTERNET hRequest)

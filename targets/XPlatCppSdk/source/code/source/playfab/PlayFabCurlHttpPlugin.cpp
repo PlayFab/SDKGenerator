@@ -107,18 +107,7 @@ namespace PlayFab
         CURL* curlHandle = curl_easy_init();
         curl_easy_reset(curlHandle);
         curl_easy_setopt(curlHandle, CURLOPT_NOSIGNAL, true);
-
-        std::string urlString;
-        auto apiSettings = reqContainer.GetApiSettings();
-        if (apiSettings == nullptr)
-        {
-            urlString = PlayFabSettings::GetUrl(reqContainer.GetUrl(), PlayFabSettings::requestGetParams);
-        }
-        else
-        {
-            urlString = apiSettings->GetUrl(reqContainer.GetUrl(), PlayFabSettings::requestGetParams);
-        }
-
+        std::string urlString = reqContainer.GetFullUrl();
         curl_easy_setopt(curlHandle, CURLOPT_URL, urlString.c_str());
 
         // Set up headers

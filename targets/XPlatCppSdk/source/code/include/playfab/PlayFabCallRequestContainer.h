@@ -19,6 +19,7 @@ namespace PlayFab
             std::shared_ptr<PlayFabApiSettings> apiSettings = nullptr);
 
         virtual ~CallRequestContainer() override;
+        std::string GetFullUrl() const;
 
         // TODO: clean up these public variables with setters/getters when you have the chance.
 

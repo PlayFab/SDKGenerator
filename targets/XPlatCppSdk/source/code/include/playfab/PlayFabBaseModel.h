@@ -71,7 +71,10 @@ namespace PlayFab
     /// Adds a parameter that controls how requests are threaded
     /// </summary>
     struct PlayFabRequestCommon : public PlayFabBaseModel { 
-        std::shared_ptr<PlayFabAuthenticationContext> authenticationContext; // an optional authentication context (can used in multi-user scenarios)
+        /// <summary>
+        /// An optional authentication context, it can used in multi-user scenarios
+        /// </summary>
+        std::shared_ptr<PlayFabAuthenticationContext> authenticationContext;
     };
 
     /// <summary>
@@ -85,7 +88,10 @@ namespace PlayFab
     /// Base class for all PlayFab Login method Results
     /// </summary>
     struct PlayFabLoginResultCommon : public PlayFabResultCommon {
-        std::shared_ptr<PlayFabAuthenticationContext> authenticationContext; // an authentication context returned by Login methods (can used in multi-user scenarios)
+        /// <summary>
+        /// An authentication context returned by Login methods, it can used in multi-user scenarios
+        /// </summary>
+        std::shared_ptr<PlayFabAuthenticationContext> authenticationContext;
     };
 
     // Utilities for [de]serializing time_t to/from json

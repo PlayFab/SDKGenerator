@@ -1,6 +1,7 @@
 #include <stdafx.h>
 
 #include <playfab/PlayFabCallRequestContainer.h>
+#include <playfab/PlayFabSettings.h>
 
 namespace PlayFab
 {
@@ -32,5 +33,17 @@ namespace PlayFab
 
     CallRequestContainer::~CallRequestContainer()
     {
+    }
+
+    std::string CallRequestContainer::GetFullUrl() const
+    {
+        if (apiSettings == nullptr)
+        {
+            return PlayFabSettings::GetUrl(this->GetUrl(), PlayFabSettings::requestGetParams);
+        }
+        else
+        {
+            return apiSettings->GetUrl(this->GetUrl(), PlayFabSettings::requestGetParams);
+        }
     }
 }

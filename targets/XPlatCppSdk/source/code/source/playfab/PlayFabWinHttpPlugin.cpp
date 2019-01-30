@@ -288,13 +288,7 @@ namespace PlayFab
 
     std::string PlayFabWinHttpPlugin::GetUrl(CallRequestContainer& reqContainer) const
     {
-        auto apiSettings = reqContainer.GetApiSettings();
-        if (apiSettings == nullptr)
-        {
-            return PlayFabSettings::GetUrl(reqContainer.GetUrl(), PlayFabSettings::requestGetParams);
-        }
-
-        return apiSettings->GetUrl(reqContainer.GetUrl(), PlayFabSettings::requestGetParams);
+        return reqContainer.GetFullUrl();
     }
 
     void PlayFabWinHttpPlugin::SetPredefinedHeaders(CallRequestContainer& requestContainer, HINTERNET hRequest)

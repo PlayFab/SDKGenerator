@@ -51,7 +51,7 @@ namespace PlayFab
 
         void* GetCustomData() const;
 
-    private:
+    protected:
         std::string url;
         std::unordered_map<std::string, std::string> headers;
         std::string requestBody;

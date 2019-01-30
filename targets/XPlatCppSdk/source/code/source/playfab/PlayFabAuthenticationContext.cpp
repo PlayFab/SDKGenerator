@@ -5,17 +5,29 @@
 
 namespace PlayFab
 {
-    PlayFabAuthenticationContext::PlayFabAuthenticationContext() :
-        clientSessionTicket(PlayFabSettings::clientSessionTicket),
-        entityToken(PlayFabSettings::entityToken),
-        developerSecretKey(PlayFabSettings::developerSecretKey)
+    PlayFabAuthenticationContext::PlayFabAuthenticationContext()
     {
+#ifndef DISABLE_PLAYFABCLIENT_API
+        clientSessionTicket = PlayFabSettings::clientSessionTicket;
+#endif
+#ifndef DISABLE_PLAYFABENTITY_API
+        entityToken = PlayFabSettings::entityToken;
+#endif
+#if defined(ENABLE_PLAYFABSERVER_API) || defined(ENABLE_PLAYFABADMIN_API)
+        developerSecretKey = PlayFabSettings::developerSecretKey;
+#endif
     }
 
     void PlayFabAuthenticationContext::ForgetAllCredentials()
     {
+#ifndef DISABLE_PLAYFABCLIENT_API
         clientSessionTicket.clear();
+#endif
+#ifndef DISABLE_PLAYFABENTITY_API
         entityToken.clear();
+#endif
+#if defined(ENABLE_PLAYFABSERVER_API) || defined(ENABLE_PLAYFABADMIN_API)
         developerSecretKey.clear();
+#endif
     }
 }

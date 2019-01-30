@@ -13,44 +13,106 @@ class PLAYFABCOMMON_API UPlayFabAuthenticationContext : public UObject
 {
     GENERATED_BODY()
 public:
-    UPlayFabAuthenticationContext();
 
 
     // Get the client session ticket that is used as an authentication token in many PlayFab API methods.
     UFUNCTION(BlueprintCallable, BlueprintPure, Category = "PlayFab | Core")
-        FString& GetClientSessionTicket();
+        FString& GetClientSessionTicket()
+    {
+#if defined(DISABLE_PLAYFABCLIENT_API)
+#if DISABLE_PLAYFABCLIENT_API
+        checkf(false, TEXT("ClientSessionTicket is disabled because DISABLE_PLAYFABCLIENT_API is set."));
+#endif
+#endif
+        return ClientSessionTicket;
+    }
 
     // Set the client session ticket that is used as an authentication token in many PlayFab API methods.
     UFUNCTION(BlueprintCallable, Category = "PlayFab | Core")
-        void SetClientSessionTicket(FString InTicket);
+        void SetClientSessionTicket(FString InTicket)
+    {
+#if defined(DISABLE_PLAYFABCLIENT_API)
+#if DISABLE_PLAYFABCLIENT_API
+        checkf(false, TEXT("ClientSessionTicket is disabled because DISABLE_PLAYFABCLIENT_API is set."));
+#endif
+#endif
+        ClientSessionTicket = InTicket;
+    }
+
 
     // Get the user's entity token. Entity tokens are required by all Entity API methods.
     UFUNCTION(BlueprintCallable, BlueprintPure, Category = "PlayFab | Core")
-        FString& GetEntityToken();
+        FString& GetEntityToken()
+    {
+#if defined(DISABLE_PLAYFABENTITY_API)
+#if DISABLE_PLAYFABENTITY_API
+        checkf(false, TEXT("EntityToken is disabled because DISABLE_PLAYFABENTITY_API is set."));
+#endif
+#endif
+        return EntityToken;
+    }
 
     // Set the user's entity token. Entity tokens are required by all Entity API methods.
     UFUNCTION(BlueprintCallable, Category = "PlayFab | Core")
-        void SetEntityToken(FString InToken);
+        void SetEntityToken(FString InToken)
+    {
+#if defined(DISABLE_PLAYFABENTITY_API)
+#if DISABLE_PLAYFABENTITY_API
+        checkf(false, TEXT("EntityToken is disabled because DISABLE_PLAYFABENTITY_API is set."));
+#endif
+#endif
+        EntityToken = InToken;
+    }
+
 
     // Get the developer secret key. These keys can be used in development environments.
     UFUNCTION(BlueprintCallable, BlueprintPure, Category = "PlayFab | Core")
-        FString& GetDeveloperSecretKey();
+        FString& GetDeveloperSecretKey()
+    {
+#if defined(ENABLE_PLAYFABSERVER_API) && defined(ENABLE_PLAYFABADMIN_API)
+#if ENABLE_PLAYFABSERVER_API && ENABLE_PLAYFABADMIN_API
+        return DeveloperSecretKey;
+#endif
+#endif
+
+        checkf(false, TEXT("Cannot call GetDeveloperSecretKey in a non-developer build!"));
+        return DeveloperSecretKey;
+    }
 
     // Set the developer secret key. These keys can be used in development environments.
     UFUNCTION(BlueprintCallable, Category = "PlayFab | Core")
-        void SetDeveloperSecretKey(FString InKey);
+        void SetDeveloperSecretKey(FString InKey)
+    { 
+#if defined(ENABLE_PLAYFABSERVER_API) && defined(ENABLE_PLAYFABADMIN_API)
+#if ENABLE_PLAYFABSERVER_API && ENABLE_PLAYFABADMIN_API
+        SetDeveloperSecretKey(MoveTemp(InKey);
+        return;
+#endif
+#endif
+
+        checkf(false, TEXT("Cannot call SetDeveloperSecretKey in a non-developer build!"));
+    };
+
 
     // Reset all fields
     UFUNCTION(BlueprintCallable)
-        void ForgetAllCredentials();
+        void ForgetAllCredentials()
+    {
+        ClientSessionTicket.Empty();
+        EntityToken.Empty();
+        DeveloperSecretKey.Empty();
+    }
 
 private: 
     // Client session ticket that is used as an authentication token in many PlayFab API methods.
+    UPROPERTY()
     FString ClientSessionTicket;
 
     // User's entity token. Entity tokens are required by all Entity API methods.
+    UPROPERTY()
     FString EntityToken;
 
     // Developer secret key. These keys can be used in development environments.
+    UPROPERTY()
     FString DeveloperSecretKey;
 };

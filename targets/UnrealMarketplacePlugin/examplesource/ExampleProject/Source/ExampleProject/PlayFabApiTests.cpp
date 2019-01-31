@@ -735,7 +735,7 @@ bool PlayFabApiTest_MultipleUsers::Update()
         cachedDeveloperSecretKey = IPlayFabCommonModuleInterface::Get().GetDeveloperSecretKey();
 
         // Log In User 1
-        PlayFab::ClientModels::FLoginWithCustomIDRequest user1LoginRequest;
+        PlayFab::ClientModels::FLoginWithCustomIDRequest user1LoginRequest{};
         user1LoginRequest.CustomId = TEXT("UE4MultiUserCpp_1");
         user1LoginRequest.CreateAccount = true;
         clientAPI->LoginWithCustomID(user1LoginRequest
@@ -754,7 +754,7 @@ void PlayFabApiTest_MultipleUsers::OnUser1LoginSuccess(const PlayFab::ClientMode
     user1LoginResult = result;
 
     // Log In User 2
-    PlayFab::ClientModels::FLoginWithCustomIDRequest user2LoginRequest;
+    PlayFab::ClientModels::FLoginWithCustomIDRequest user2LoginRequest{};
     user2LoginRequest.CustomId = TEXT("UE4MultiUserCpp_2");
     user2LoginRequest.CreateAccount = true;
 
@@ -775,7 +775,7 @@ void PlayFabApiTest_MultipleUsers::OnUser2LoginSuccess(const PlayFab::ClientMode
     IPlayFabCommonModuleInterface::Get().SetDeveloperSecretKey(TEXT(""));
 
     // Get User 1 Profile
-    PlayFab::ClientModels::FGetPlayerProfileRequest user1ProfileRequest;
+    PlayFab::ClientModels::FGetPlayerProfileRequest user1ProfileRequest{};
     user1ProfileRequest.AuthenticationContext = user1LoginResult.AuthenticationContext;
 
     clientAPI->GetPlayerProfile(user1ProfileRequest
@@ -789,7 +789,7 @@ void PlayFabApiTest_MultipleUsers::OnUser1GetProfileSuccess(const PlayFab::Clien
     UE_LOG(LogPlayFabTest, Log, TEXT("MultipleUsers: Got User 1 Profile with player ID %s"), *result.PlayerProfile->PlayerId);
 
     // Get User 2 Profile
-    PlayFab::ClientModels::FGetPlayerProfileRequest user2ProfileRequest;
+    PlayFab::ClientModels::FGetPlayerProfileRequest user2ProfileRequest{};
     user2ProfileRequest.AuthenticationContext = user2LoginResult.AuthenticationContext;
 
     clientAPI->GetPlayerProfile(user2ProfileRequest

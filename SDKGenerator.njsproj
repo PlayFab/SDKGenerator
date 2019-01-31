@@ -559,7 +559,6 @@
     <Content Include="targets\UnrealMarketplacePlugin\Source\PlayFab\Resources\Icon128.png" />
     <Content Include="targets\UnrealMarketplacePlugin\Source\PlayFab\Source\PlayFabCommon\PlayFabCommon.Build.cs" />
     <Content Include="targets\UnrealMarketplacePlugin\source\PlayFab\Source\PlayFabCommon\Private\PlayFabCommon.cpp.ejs" />
-    <Content Include="targets\UnrealMarketplacePlugin\Source\PlayFab\Source\PlayFabCommon\Private\PlayFabAuthenticationContext.cpp.ejs" />
     <Content Include="targets\UnrealMarketplacePlugin\source\PlayFab\Source\PlayFabCommon\Private\PlayFabCommonSettings.cpp.ejs" />
     <Content Include="targets\UnrealMarketplacePlugin\source\PlayFab\Source\PlayFabCommon\Private\PlayFabRuntimeSettings.cpp.ejs" />
     <Content Include="targets\UnrealMarketplacePlugin\source\PlayFab\Source\PlayFabCommon\Public\PlayFabCommon.h.ejs" />
@@ -582,6 +581,9 @@
     <Content Include="targets\UnrealMarketplacePlugin\source\PlayFab\Source\PlayFab\Classes\PlayFabEnums.h.ejs" />
     <Content Include="targets\UnrealMarketplacePlugin\source\PlayFab\Source\PlayFab\Classes\PlayFabJsonObject.h.ejs" />
     <Content Include="targets\UnrealMarketplacePlugin\source\PlayFab\Source\PlayFab\Classes\PlayFabJsonValue.h.ejs" />
+    <Content Include="targets\UnrealMarketplacePlugin\Source\PlayFab\Source\PlayFab\Classes\PlayFabLoginResultCommon.h.ejs" />
+    <Content Include="targets\UnrealMarketplacePlugin\Source\PlayFab\Source\PlayFab\Classes\PlayFabRequestCommon.h.ejs" />
+    <Content Include="targets\UnrealMarketplacePlugin\Source\PlayFab\Source\PlayFab\Classes\PlayFabResultCommon.h.ejs" />
     <Content Include="targets\UnrealMarketplacePlugin\source\PlayFab\Source\PlayFab\Classes\PlayFabUtilities.h.ejs" />
     <Content Include="targets\UnrealMarketplacePlugin\Source\PlayFab\Source\PlayFab\PlayFab.Build.cs" />
     <Content Include="targets\UnrealMarketplacePlugin\source\PlayFab\Source\PlayFab\Private\PlayFab.cpp.ejs" />

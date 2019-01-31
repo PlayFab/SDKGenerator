@@ -12,6 +12,8 @@
 #include "CoreMinimal.h"
 #include "Kismet/BlueprintFunctionLibrary.h"
 #include "PlayFabEnums.h"
+#include "PlayFabRequestCommon.h"
+#include "PlayFabLoginResultCommon.h"
 #include "PlayFab<%- api.name %>Models.generated.h"
 
 class UPlayFabJsonObject;
@@ -57,7 +59,7 @@ for(var subgroup in api.subgroups)
 %>
 <%- generateApiSummary("", datatype, "description")
 %>USTRUCT(BlueprintType)
-struct PLAYFAB_API F<%- api.name %><%- getDataTypeSafeName(datatype, "name") %>
+struct PLAYFAB_API F<%- api.name %><%- getDataTypeSafeName(datatype, "name") %> : public <%- getBaseType(datatype) %>
 {
     GENERATED_USTRUCT_BODY()
 public:

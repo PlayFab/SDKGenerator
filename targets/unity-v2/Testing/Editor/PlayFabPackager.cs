@@ -179,7 +179,7 @@ namespace PlayFab.Internal
             MkDir(GetBuildPath());
             MkDir(wp8Path);
             BuildPipeline.BuildPlayer(TestScenes, wp8Path, WsaBuildTarget, BuildOptions.None);
-            if (!File.Exists(wp8Path))
+            if (Directory.GetFiles(wp8Path).Length == 0)
                 throw new Exception("Target directory is empty: " + wp8Path + ", " + string.Join(",", Directory.GetFiles(wp8Path)));
         }
 

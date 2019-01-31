@@ -736,7 +736,7 @@ bool PlayFabApiTest_MultipleUsers::Update()
 
         // Log In User 1
         PlayFab::ClientModels::FLoginWithCustomIDRequest user1LoginRequest;
-        user1LoginRequest.CustomId = TEXT("UE4MultiUser_1");
+        user1LoginRequest.CustomId = TEXT("UE4MultiUserCpp_1");
         user1LoginRequest.CreateAccount = true;
         clientAPI->LoginWithCustomID(user1LoginRequest
             , PlayFab::UPlayFabClientAPI::FLoginWithCustomIDDelegate::CreateRaw(this, &PlayFabApiTest_MultipleUsers::OnUser1LoginSuccess)
@@ -755,7 +755,7 @@ void PlayFabApiTest_MultipleUsers::OnUser1LoginSuccess(const PlayFab::ClientMode
 
     // Log In User 2
     PlayFab::ClientModels::FLoginWithCustomIDRequest user2LoginRequest;
-    user2LoginRequest.CustomId = TEXT("UE4MultiUser_2");
+    user2LoginRequest.CustomId = TEXT("UE4MultiUserCpp_2");
     user2LoginRequest.CreateAccount = true;
 
     clientAPI->LoginWithCustomID(user2LoginRequest
@@ -769,7 +769,7 @@ void PlayFabApiTest_MultipleUsers::OnUser2LoginSuccess(const PlayFab::ClientMode
     UE_LOG(LogPlayFabTest, Log, TEXT("MultipleUsers: User 2 logged in"));
     user2LoginResult = result;
 
-    // ensure that classic credentials (global, statically stored) aren't used:
+    // Ensure that classic credentials (global, statically stored) aren't used:
     IPlayFabCommonModuleInterface::Get().SetClientSessionTicket(TEXT(""));
     IPlayFabCommonModuleInterface::Get().SetEntityToken(TEXT(""));
     IPlayFabCommonModuleInterface::Get().SetDeveloperSecretKey(TEXT(""));

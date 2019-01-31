@@ -159,7 +159,7 @@ namespace PlayFab.Internal
             MkDir(GetBuildPath());
             MkDir(iosPath);
             BuildPipeline.BuildPlayer(TestScenes, iosPath, AppleBuildTarget, BuildOptions.None);
-            if (!File.Exists(iosPath))
+            if (Directory.GetFiles(iosPath).Length == 0)
                 throw new Exception("Target directory is empty: " + iosPath + ", " + string.Join(",", Directory.GetFiles(iosPath)));
         }
 

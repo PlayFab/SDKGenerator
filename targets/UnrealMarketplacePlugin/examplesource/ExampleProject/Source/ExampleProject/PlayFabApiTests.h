@@ -294,6 +294,7 @@ private:
 struct TestTitleData
 {
 public:
+    bool loaded = false;
     FString titleId = TEXT("Your titleID");
     FString developerSecretKey = TEXT("For the security of your title, keep your secret key private!");
     FString userEmail = TEXT("An email associated with an existing user");
@@ -318,15 +319,20 @@ public:
     FString CLOUD_FUNCTION_THROW_ERROR = TEXT("throwError");
 
     // Input from TestTitleData.json
-    TestTitleData testTitleData;
+    TestTitleData testTitleDataStorage;
+    TestTitleData& GetTestTitleData()
+    {
+        if (!testTitleDataStorage.loaded)
+        {
+            testTitleDataStorage.loaded = LoadTitleData();
+            // IPlayFabModuleInterface::Get().SetTitleInformationFromJson(//todo);
+        }
+        return testTitleDataStorage;
+    }
 
     PlayFabApiTestSuite(const FString& InName)
         : FAutomationTestBase(InName, false)
     {
-        if (!LoadTitleData())
-            return;
-        // IPlayFabModuleInterface::Get().SetTitleInformationFromJson(//todo);
-
         ADD_TEST(InvalidLogin);
         ADD_TEST(LoginOrRegister);
         ADD_TEST(LoginWithAdvertisingId);
@@ -378,9 +384,9 @@ protected:
             success &= FJsonSerializer::Deserialize(jsonReader, jsonParsed);
         }
 
-        if (success) success &= jsonParsed->TryGetStringField("titleId", testTitleData.titleId);
-        if (success) success &= jsonParsed->TryGetStringField("developerSecretKey", testTitleData.developerSecretKey);
-        if (success) success &= jsonParsed->TryGetStringField("userEmail", testTitleData.userEmail);
+        if (success) success &= jsonParsed->TryGetStringField("titleId", testTitleDataStorage.titleId);
+        if (success) success &= jsonParsed->TryGetStringField("developerSecretKey", testTitleDataStorage.developerSecretKey);
+        if (success) success &= jsonParsed->TryGetStringField("userEmail", testTitleDataStorage.userEmail);
 
         return success;
     }
@@ -397,6 +403,10 @@ protected:
 
     bool RunTest(const FString& Parameters) override
     {
+        auto& testTitleData = GetTestTitleData();
+        if (!testTitleData.loaded)
+            return false;
+
         clientAPI = IPlayFabModuleInterface::Get().GetClientAPI();
         serverAPI = IPlayFabModuleInterface::Get().GetServerAPI();
         TestTrue(TEXT("The clientAPI reports itself as invalid."), clientAPI.IsValid());
@@ -421,7 +431,9 @@ protected:
 
     bool InvalidLogin() const
     {
-        ADD_LATENT_AUTOMATION_COMMAND(PlayFabApiTest_0LoginWithEmail(testTitleData.userEmail, INVALID_PASSWORD));
+        if (!testTitleDataStorage.loaded)
+            return false;
+        ADD_LATENT_AUTOMATION_COMMAND(PlayFabApiTest_0LoginWithEmail(testTitleDataStorage.userEmail, INVALID_PASSWORD));
 
         return true;
     };

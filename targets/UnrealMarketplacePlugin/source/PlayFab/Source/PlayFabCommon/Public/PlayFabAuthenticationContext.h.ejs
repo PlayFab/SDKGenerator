@@ -85,7 +85,7 @@ public:
     { 
 #if defined(ENABLE_PLAYFABSERVER_API) && defined(ENABLE_PLAYFABADMIN_API)
 #if ENABLE_PLAYFABSERVER_API && ENABLE_PLAYFABADMIN_API
-        SetDeveloperSecretKey(MoveTemp(InKey);
+        DeveloperSecretKey = MoveTemp(InKey);
         return;
 #endif
 #endif

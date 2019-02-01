@@ -319,16 +319,7 @@ public:
     FString CLOUD_FUNCTION_THROW_ERROR = TEXT("throwError");
 
     // Input from TestTitleData.json
-    TestTitleData testTitleDataStorage;
-    TestTitleData& GetTestTitleData()
-    {
-        if (!testTitleDataStorage.loaded)
-        {
-            testTitleDataStorage.loaded = LoadTitleData();
-            // IPlayFabModuleInterface::Get().SetTitleInformationFromJson(//todo);
-        }
-        return testTitleDataStorage;
-    }
+    TestTitleData testTitleData;
 
     PlayFabApiTestSuite(const FString& InName)
         : FAutomationTestBase(InName, false)
@@ -384,9 +375,11 @@ protected:
             success &= FJsonSerializer::Deserialize(jsonReader, jsonParsed);
         }
 
-        if (success) success &= jsonParsed->TryGetStringField("titleId", testTitleDataStorage.titleId);
-        if (success) success &= jsonParsed->TryGetStringField("developerSecretKey", testTitleDataStorage.developerSecretKey);
-        if (success) success &= jsonParsed->TryGetStringField("userEmail", testTitleDataStorage.userEmail);
+        if (success) success &= jsonParsed->TryGetStringField("titleId", testTitleData.titleId);
+        if (success) success &= jsonParsed->TryGetStringField("developerSecretKey", testTitleData.developerSecretKey);
+        if (success) success &= jsonParsed->TryGetStringField("userEmail", testTitleData.userEmail);
+
+        testTitleData.loaded = success;
 
         return success;
     }
@@ -403,9 +396,14 @@ protected:
 
     bool RunTest(const FString& Parameters) override
     {
-        auto& testTitleData = GetTestTitleData();
         if (!testTitleData.loaded)
-            return false;
+        {
+            if (!LoadTitleData())
+            {
+                UE_LOG(LogPlayFabTest, Error, TEXT("Could not load test title data"));
+                return false;
+            }
+        }
 
         clientAPI = IPlayFabModuleInterface::Get().GetClientAPI();
         serverAPI = IPlayFabModuleInterface::Get().GetServerAPI();
@@ -431,7 +429,7 @@ protected:
 
     bool InvalidLogin() const
     {
-        ADD_LATENT_AUTOMATION_COMMAND(PlayFabApiTest_0LoginWithEmail(testTitleDataStorage.userEmail, INVALID_PASSWORD));
+        ADD_LATENT_AUTOMATION_COMMAND(PlayFabApiTest_0LoginWithEmail(testTitleData.userEmail, INVALID_PASSWORD));
 
         return true;
     };

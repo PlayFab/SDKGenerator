@@ -431,8 +431,6 @@ protected:
 
     bool InvalidLogin() const
     {
-        if (!testTitleDataStorage.loaded)
-            return false;
         ADD_LATENT_AUTOMATION_COMMAND(PlayFabApiTest_0LoginWithEmail(testTitleDataStorage.userEmail, INVALID_PASSWORD));
 
         return true;

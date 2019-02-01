@@ -126,6 +126,16 @@ public:
     UPROPERTY()
         FString playFabId;
     UPROPERTY()
+        FString cachedClientSessionTicket;
+    UPROPERTY()
+        FString cachedEntityToken;
+    UPROPERTY()
+        FString cachedDeveloperSecretKey;
+    UPROPERTY()
+        FClientLoginResult multiUser1LoginResult;
+    UPROPERTY()
+        FClientLoginResult multiUser2LoginResult;
+    UPROPERTY()
         FString entityId;
     UPROPERTY()
         FString entityType;
@@ -193,6 +203,27 @@ public:
         void LoginOrRegister(UPfTestContext* testContext);
     UFUNCTION()
         void OnLoginOrRegister(FClientLoginResult result, UObject* customData);
+
+    /// <summary>
+    /// CLIENT API
+    /// Test the multi-user login functionality by logging in as two separate 
+    ///  users, getting the profile data for each, and verifying that their 
+    ///  specified credentials are being used instead of the statically 
+    ///  stored ones
+    /// </summary>
+    UFUNCTION()
+        void MultiUserLogin(UPfTestContext* testContext);
+    UFUNCTION()
+        void OnMultiUser1Login(FClientLoginResult result, UObject* customData);
+    UFUNCTION()
+        void OnMultiUser2Login(FClientLoginResult result, UObject* customData);
+    UFUNCTION()
+        void OnMultiUser1GetProfile(FClientGetPlayerProfileResult result, UObject* customData);
+    UFUNCTION()
+        void OnMultiUser2GetProfile(FClientGetPlayerProfileResult result, UObject* customData);
+    UFUNCTION()
+        void OnMultiUserFail(FPlayFabError error, UObject* customData);
+    void ApplyCachedCredentials();
 
     /// <summary>
     /// CLIENT API

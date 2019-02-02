@@ -337,75 +337,93 @@ void APfTestActor::MultiUserLogin(UPfTestContext* testContext)
     cachedDeveloperSecretKey  = playFabSettings->getSecretApiKey();
 
     // Log In User 1
-    FClientLoginWithCustomIDRequest request{};
-    request.CustomId = TEXT("UE4MultiUserBp_1");
-    request.CreateAccount = true;
+    FClientLoginWithCustomIDRequest request1{};
+    request1.CustomId = TEXT("UE4MultiUserBp_1");
+    request1.CreateAccount = true;
 
-    UPlayFabClientAPI::FDelegateOnSuccessLoginWithCustomID onSuccess; onSuccess.BindUFunction(this, "OnMultiUser1Login");
-    UPlayFabClientAPI::FDelegateOnFailurePlayFabError onError; onError.BindUFunction(this, "OnMultiUserFail");
-    UPlayFabClientAPI* callObj = UPlayFabClientAPI::LoginWithCustomID(request, onSuccess, onError, testContext);
-    callObj->Activate();
+    UPlayFabClientAPI::FDelegateOnSuccessLoginWithCustomID onSuccess1; onSuccess1.BindUFunction(this, "OnMultiUser1Login");
+    UPlayFabClientAPI::FDelegateOnFailurePlayFabError onError1; onError1.BindUFunction(this, "OnMultiUserFail");
+    UPlayFabClientAPI* callObj1 = UPlayFabClientAPI::LoginWithCustomID(request1, onSuccess1, onError1, testContext);
+    callObj1->Activate();
+
+    // Log In User 2
+    FClientLoginWithCustomIDRequest request2{};
+    request2.CustomId = TEXT("UE4MultiUserBp_2");
+    request2.CreateAccount = true;
+
+    UPlayFabClientAPI::FDelegateOnSuccessLoginWithCustomID onSuccess2; onSuccess2.BindUFunction(this, "OnMultiUser2Login");
+    UPlayFabClientAPI::FDelegateOnFailurePlayFabError onError2; onError2.BindUFunction(this, "OnMultiUserFail");
+    UPlayFabClientAPI* callObj2 = UPlayFabClientAPI::LoginWithCustomID(request2, onSuccess2, onError2, testContext);
+    callObj2->Activate();
 }
 
 void APfTestActor::OnMultiUser1Login(FClientLoginResult result, UObject* customData)
 {
-    UPfTestContext* testContext = dynamic_cast<UPfTestContext*>(customData);
     multiUser1LoginResult = result;
     
-    // Log In User 2
-    FClientLoginWithCustomIDRequest request{};
-    request.CustomId = TEXT("UE4MultiUserBp_2");
-    request.CreateAccount = true;
-
-    UPlayFabClientAPI::FDelegateOnSuccessLoginWithCustomID onSuccess; onSuccess.BindUFunction(this, "OnMultiUser2Login");
-    UPlayFabClientAPI::FDelegateOnFailurePlayFabError onError; onError.BindUFunction(this, "OnMultiUserFail");
-    UPlayFabClientAPI* callObj = UPlayFabClientAPI::LoginWithCustomID(request, onSuccess, onError, testContext);
-    callObj->Activate();
+    if (multiUser2LoginResult.EntityToken != nullptr)
+        OnBothUsersLogin(customData);
 }
 
 void APfTestActor::OnMultiUser2Login(FClientLoginResult result, UObject* customData)
 {
-    UPfTestContext* testContext = dynamic_cast<UPfTestContext*>(customData);
     multiUser2LoginResult = result;
-    IPlayFab* playFabSettings = &(IPlayFab::Get());
+    
+    if (multiUser1LoginResult.EntityToken != nullptr)
+        OnBothUsersLogin(customData);
+}
+
+void APfTestActor::OnBothUsersLogin(UObject* customData)
+{
+    UPfTestContext* testContext = dynamic_cast<UPfTestContext*>(customData);
 
     // Ensure that classic credentials (global, statically stored) aren't used:
+    IPlayFab* playFabSettings = &(IPlayFab::Get());
     playFabSettings->setSessionTicket(TEXT(""));
     playFabSettings->setEntityToken(TEXT(""));
     playFabSettings->setApiSecretKey(TEXT(""));
 
     // Get User 1 Profile
-    FClientGetPlayerProfileRequest request{};
-    request.AuthenticationContext = multiUser1LoginResult.AuthenticationContext;
-    request.PlayFabId = multiUser1LoginResult.PlayFabId;
+    FClientGetPlayerProfileRequest request1{};
+    request1.AuthenticationContext = multiUser1LoginResult.AuthenticationContext;
+    request1.PlayFabId = multiUser1LoginResult.PlayFabId;
 
-    UPlayFabClientAPI::FDelegateOnSuccessGetPlayerProfile onSuccess; onSuccess.BindUFunction(this, "OnMultiUser1GetProfile");
-    UPlayFabClientAPI::FDelegateOnFailurePlayFabError onError; onError.BindUFunction(this, "OnMultiUserFail");
-    UPlayFabClientAPI* callObj = UPlayFabClientAPI::GetPlayerProfile(request, onSuccess, onError, testContext);
-    callObj->Activate();
+    UPlayFabClientAPI::FDelegateOnSuccessGetPlayerProfile onSuccess1; onSuccess1.BindUFunction(this, "OnMultiUser1GetProfile");
+    UPlayFabClientAPI::FDelegateOnFailurePlayFabError onError1; onError1.BindUFunction(this, "OnMultiUserFail");
+    UPlayFabClientAPI* callObj1 = UPlayFabClientAPI::GetPlayerProfile(request1, onSuccess1, onError1, testContext);
+    callObj1->Activate();
+
+    // Get User 2 Profile
+    FClientGetPlayerProfileRequest request2{};
+    request2.AuthenticationContext = multiUser2LoginResult.AuthenticationContext;
+    request2.PlayFabId = multiUser2LoginResult.PlayFabId;
+
+    UPlayFabClientAPI::FDelegateOnSuccessGetPlayerProfile onSuccess2; onSuccess2.BindUFunction(this, "OnMultiUser2GetProfile");
+    UPlayFabClientAPI::FDelegateOnFailurePlayFabError onError2; onError2.BindUFunction(this, "OnMultiUserFail");
+    UPlayFabClientAPI* callObj2 = UPlayFabClientAPI::GetPlayerProfile(request2, onSuccess2, onError2, testContext);
+    callObj2->Activate();
 }
 
 void APfTestActor::OnMultiUser1GetProfile(FClientGetPlayerProfileResult result, UObject* customData)
 {
-    UPfTestContext* testContext = dynamic_cast<UPfTestContext*>(customData);
-
-    // Get User 2 Profile
-    FClientGetPlayerProfileRequest request{};
-    request.AuthenticationContext = multiUser2LoginResult.AuthenticationContext;
-    request.PlayFabId = multiUser2LoginResult.PlayFabId;
-
-    UPlayFabClientAPI::FDelegateOnSuccessGetPlayerProfile onSuccess; onSuccess.BindUFunction(this, "OnMultiUser2GetProfile");
-    UPlayFabClientAPI::FDelegateOnFailurePlayFabError onError; onError.BindUFunction(this, "OnMultiUserFail");
-    UPlayFabClientAPI* callObj = UPlayFabClientAPI::GetPlayerProfile(request, onSuccess, onError, testContext);
-    callObj->Activate();
+    multiUser1ProfileResult = result;
+    
+    if (multiUser2ProfileResult.PlayerProfile != nullptr)
+        OnBothUsersGetProfile(customData);
 }
 
 void APfTestActor::OnMultiUser2GetProfile(FClientGetPlayerProfileResult result, UObject* customData)
 {
+    multiUser2ProfileResult = result;
+    
+    if (multiUser1ProfileResult.PlayerProfile != nullptr)
+        OnBothUsersGetProfile(customData);
+}
+
+void APfTestActor::OnBothUsersGetProfile(UObject* customData)
+{
     UPfTestContext* testContext = dynamic_cast<UPfTestContext*>(customData);
-
     ApplyCachedCredentials();
-
     EndTest(testContext, PlayFabApiTestFinishState::PASSED, "");
 }
 

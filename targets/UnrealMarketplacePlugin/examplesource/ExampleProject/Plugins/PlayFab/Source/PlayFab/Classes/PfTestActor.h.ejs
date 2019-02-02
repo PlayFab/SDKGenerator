@@ -131,10 +131,14 @@ public:
         FString cachedEntityToken;
     UPROPERTY()
         FString cachedDeveloperSecretKey;
-    UPROPERTY()
+        UPROPERTY()
         FClientLoginResult multiUser1LoginResult;
     UPROPERTY()
         FClientLoginResult multiUser2LoginResult;
+    UPROPERTY()
+        FClientGetPlayerProfileResult multiUser1ProfileResult;
+    UPROPERTY()
+        FClientGetPlayerProfileResult multiUser2ProfileResult;
     UPROPERTY()
         FString entityId;
     UPROPERTY()
@@ -217,10 +221,12 @@ public:
         void OnMultiUser1Login(FClientLoginResult result, UObject* customData);
     UFUNCTION()
         void OnMultiUser2Login(FClientLoginResult result, UObject* customData);
+    void OnBothUsersLogin(UObject* customData);
     UFUNCTION()
         void OnMultiUser1GetProfile(FClientGetPlayerProfileResult result, UObject* customData);
     UFUNCTION()
         void OnMultiUser2GetProfile(FClientGetPlayerProfileResult result, UObject* customData);
+    void OnBothUsersGetProfile(UObject* customData);
     UFUNCTION()
         void OnMultiUserFail(FPlayFabError error, UObject* customData);
     void ApplyCachedCredentials();

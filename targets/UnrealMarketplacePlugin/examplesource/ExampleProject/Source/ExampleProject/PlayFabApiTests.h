@@ -299,8 +299,10 @@ public:
 private:
     void OnUser1LoginSuccess(const PlayFab::ClientModels::FLoginResult& result);
     void OnUser2LoginSuccess(const PlayFab::ClientModels::FLoginResult& result);
+    void OnBothUsersLoggedIn();
     void OnUser1GetProfileSuccess(const PlayFab::ClientModels::FGetPlayerProfileResult& result);
     void OnUser2GetProfileSuccess(const PlayFab::ClientModels::FGetPlayerProfileResult& result);
+    void OnBothUsersGetProfile();
 
     void OnError(const PlayFab::FPlayFabCppError& ErrorResult);
 
@@ -310,6 +312,9 @@ private:
 
     PlayFab::ClientModels::FLoginResult user1LoginResult;
     PlayFab::ClientModels::FLoginResult user2LoginResult;
+
+    PlayFab::ClientModels::FGetPlayerProfileResult user1ProfileResult;
+    PlayFab::ClientModels::FGetPlayerProfileResult user2ProfileResult;
 
     FString cachedEntityToken;
     FString cachedClientSessionTicket;

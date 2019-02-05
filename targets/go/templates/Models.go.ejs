@@ -1,0 +1,17 @@
+package <%- api.name.toLowerCase() %>
+<%  timeImportWritten = false;
+    for(var d in api.datatypes) { 
+      if (timeImportWritten === true) break;  
+      var datatype = api.datatypes[d];
+      if (!datatype.isenum) {
+          for(var i in datatype.properties) {
+               var property = datatype.properties[i];
+               if (property.actualtype === "DateTime") { %>
+import "time"
+                   <% timeImportWritten = true;
+                   break;
+               }
+          }
+      }
+}%> <% for(var d in api.datatypes) { var datatype = api.datatypes[d] %>
+<%- makeDatatype(datatype, api) %><% } %>

@@ -1,0 +1,5 @@
+<%- generateApiSummary("    ", datatype, "description")
+%>type <%- datatype.name %>Model struct {<% for(var i in datatype.properties) { var property = datatype.properties[i] %>
+    <%- generateApiSummary("        ", property, "description")
+%>    <%- getPropertyDef(property, datatype) %><% } %>
+}

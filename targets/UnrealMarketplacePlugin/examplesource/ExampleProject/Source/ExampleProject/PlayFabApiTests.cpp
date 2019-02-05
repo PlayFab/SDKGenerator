@@ -742,6 +742,15 @@ bool PlayFabApiTest_MultipleUsers::Update()
             , PlayFab::UPlayFabClientAPI::FLoginWithCustomIDDelegate::CreateRaw(this, &PlayFabApiTest_MultipleUsers::OnUser1LoginSuccess)
             , PlayFab::FPlayFabErrorDelegate::CreateRaw(this, &PlayFabApiTest_MultipleUsers::OnError)
         );
+
+        // Log In User 2
+        PlayFab::ClientModels::FLoginWithCustomIDRequest user2LoginRequest{};
+        user2LoginRequest.CustomId = TEXT("UE4MultiUserCpp_2");
+        user2LoginRequest.CreateAccount = true;
+        clientAPI->LoginWithCustomID(user2LoginRequest
+            , PlayFab::UPlayFabClientAPI::FLoginWithCustomIDDelegate::CreateRaw(this, &PlayFabApiTest_MultipleUsers::OnUser2LoginSuccess)
+            , PlayFab::FPlayFabErrorDelegate::CreateRaw(this, &PlayFabApiTest_MultipleUsers::OnError)
+        );
     }
 
     // Return when the api call is resolved
@@ -752,23 +761,20 @@ void PlayFabApiTest_MultipleUsers::OnUser1LoginSuccess(const PlayFab::ClientMode
 {
     UE_LOG(LogPlayFabTest, Log, TEXT("MultipleUsers: User 1 logged in"));
     user1LoginResult = result;
-
-    // Log In User 2
-    PlayFab::ClientModels::FLoginWithCustomIDRequest user2LoginRequest{};
-    user2LoginRequest.CustomId = TEXT("UE4MultiUserCpp_2");
-    user2LoginRequest.CreateAccount = true;
-
-    clientAPI->LoginWithCustomID(user2LoginRequest
-        , PlayFab::UPlayFabClientAPI::FLoginWithCustomIDDelegate::CreateRaw(this, &PlayFabApiTest_MultipleUsers::OnUser2LoginSuccess)
-        , PlayFab::FPlayFabErrorDelegate::CreateRaw(this, &PlayFabApiTest_MultipleUsers::OnError)
-    );
+    if (user2LoginResult.EntityToken.IsValid())
+        OnBothUsersLoggedIn();
 }
 
 void PlayFabApiTest_MultipleUsers::OnUser2LoginSuccess(const PlayFab::ClientModels::FLoginResult& result)
 {
     UE_LOG(LogPlayFabTest, Log, TEXT("MultipleUsers: User 2 logged in"));
     user2LoginResult = result;
+    if (user1LoginResult.EntityToken.IsValid())
+        OnBothUsersLoggedIn();
+}
 
+void PlayFabApiTest_MultipleUsers::OnBothUsersLoggedIn()
+{
     // Ensure that classic credentials (global, statically stored) aren't used:
     IPlayFabCommonModuleInterface::Get().SetClientSessionTicket(TEXT(""));
     IPlayFabCommonModuleInterface::Get().SetEntityToken(TEXT(""));
@@ -777,9 +783,16 @@ void PlayFabApiTest_MultipleUsers::OnUser2LoginSuccess(const PlayFab::ClientMode
     // Get User 1 Profile
     PlayFab::ClientModels::FGetPlayerProfileRequest user1ProfileRequest{};
     user1ProfileRequest.AuthenticationContext = user1LoginResult.AuthenticationContext;
-
     clientAPI->GetPlayerProfile(user1ProfileRequest
         , PlayFab::UPlayFabClientAPI::FGetPlayerProfileDelegate::CreateRaw(this, &PlayFabApiTest_MultipleUsers::OnUser1GetProfileSuccess)
+        , PlayFab::FPlayFabErrorDelegate::CreateRaw(this, &PlayFabApiTest_MultipleUsers::OnError)
+    );
+
+    // Get User 2 Profile
+    PlayFab::ClientModels::FGetPlayerProfileRequest user2ProfileRequest{};
+    user2ProfileRequest.AuthenticationContext = user2LoginResult.AuthenticationContext;
+    clientAPI->GetPlayerProfile(user2ProfileRequest
+        , PlayFab::UPlayFabClientAPI::FGetPlayerProfileDelegate::CreateRaw(this, &PlayFabApiTest_MultipleUsers::OnUser2GetProfileSuccess)
         , PlayFab::FPlayFabErrorDelegate::CreateRaw(this, &PlayFabApiTest_MultipleUsers::OnError)
     );
 }
@@ -788,20 +801,23 @@ void PlayFabApiTest_MultipleUsers::OnUser1GetProfileSuccess(const PlayFab::Clien
 {
     UE_LOG(LogPlayFabTest, Log, TEXT("MultipleUsers: Got User 1 Profile with player ID %s"), *result.PlayerProfile->PlayerId);
 
-    // Get User 2 Profile
-    PlayFab::ClientModels::FGetPlayerProfileRequest user2ProfileRequest{};
-    user2ProfileRequest.AuthenticationContext = user2LoginResult.AuthenticationContext;
-
-    clientAPI->GetPlayerProfile(user2ProfileRequest
-        , PlayFab::UPlayFabClientAPI::FGetPlayerProfileDelegate::CreateRaw(this, &PlayFabApiTest_MultipleUsers::OnUser2GetProfileSuccess)
-        , PlayFab::FPlayFabErrorDelegate::CreateRaw(this, &PlayFabApiTest_MultipleUsers::OnError)
-    );
+    user1ProfileResult = result;
+    if (user2ProfileResult.PlayerProfile.IsValid())
+        OnBothUsersGetProfile();
 }
 
 void PlayFabApiTest_MultipleUsers::OnUser2GetProfileSuccess(const PlayFab::ClientModels::FGetPlayerProfileResult& result)
 {
     RestoreCachedStaticCredentials();
     UE_LOG(LogPlayFabTest, Log, TEXT("MultipleUsers: Got User 2 Profile with player ID %s"), *result.PlayerProfile->PlayerId);
+
+    user1ProfileResult = result;
+    if (user1ProfileResult.PlayerProfile.IsValid())
+        OnBothUsersGetProfile();
+}
+
+void PlayFabApiTest_MultipleUsers::OnBothUsersGetProfile() 
+{
     UE_LOG(LogPlayFabTest, Log, TEXT("MultipleUsers Succeeded"));
 }
 

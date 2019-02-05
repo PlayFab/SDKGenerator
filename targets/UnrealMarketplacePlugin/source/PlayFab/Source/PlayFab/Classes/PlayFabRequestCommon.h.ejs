@@ -13,11 +13,7 @@ struct PLAYFAB_API FPlayFabRequestCommon
 {
     GENERATED_BODY()
 
-    FPlayFabRequestCommon()
-        : AuthenticationContext(nullptr)
-    {}
-
     // An optional authentication context (can used in multi-user scenarios)
     UPROPERTY(EditAnywhere, BlueprintReadWrite, Category = "PlayFab | Core")
-        UPlayFabAuthenticationContext* AuthenticationContext;
+        UPlayFabAuthenticationContext* AuthenticationContext = nullptr;
 };

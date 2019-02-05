@@ -1,0 +1,98 @@
+<% var spoofedApiCall = { auth: "EntityToken" }; %>
+<%- generateApiSummary("    ", apiCall, "summary", "https://api.playfab.com/Documentation/" + api.name + "/method/" + apiCall.name)
+%>func <%- apiCall.name %>WithEntityToken(settings *playfab.Settings, postData *<%- apiCall.request %>Model, <%- getAuthInputParams(spoofedApiCall) %>) (*<%- apiCall.result %>Model, error) {
+<%- getRequestActions("        ", spoofedApiCall) %>
+    b, err := json.Marshal(postData)
+    if err != nil {
+        return nil, err
+    }
+    sourceMap, err := playfab.Request(settings, b, "<%- apiCall.url %>", <%- getCurlAuthParams(spoofedApiCall) %>)
+    if err != nil {
+        return nil, err
+    }
+    
+    result := &<%- apiCall.result %>Model{}
+
+    config := mapstructure.DecoderConfig{
+        DecodeHook: playfab.StringToDateTimeHook,
+        Result:     result,
+    }
+    
+    decoder, err := mapstructure.NewDecoder(&config)
+    if err != nil {
+        return nil, err
+    }
+   
+    err = decoder.Decode(sourceMap)
+    if err != nil {
+        return nil, err
+    }
+
+    return result, nil
+}
+
+<% spoofedApiCall = { auth: "SessionTicket" }; %>
+<%- generateApiSummary("    ", apiCall, "summary", "https://api.playfab.com/Documentation/" + api.name + "/method/" + apiCall.name)
+%>func <%- apiCall.name %>WithSessionTicket(settings *playfab.Settings, postData *<%- apiCall.request %>Model,  <%- getAuthInputParams(spoofedApiCall) %>) (*<%- apiCall.result %>Model, error) {
+<%- getRequestActions("        ", spoofedApiCall) %>
+    b, err := json.Marshal(postData)
+    if err != nil {
+        return nil, err
+    }
+    sourceMap, err := playfab.Request(settings, b, "<%- apiCall.url %>", <%- getCurlAuthParams(spoofedApiCall) %>)
+    if err != nil {
+        return nil, err
+    }
+    
+    result := &<%- apiCall.result %>Model{}
+
+    config := mapstructure.DecoderConfig{
+        DecodeHook: playfab.StringToDateTimeHook,
+        Result:     result,
+    }
+    
+    decoder, err := mapstructure.NewDecoder(&config)
+    if err != nil {
+        return nil, err
+    }
+   
+    err = decoder.Decode(sourceMap)
+    if err != nil {
+        return nil, err
+    }
+
+    return result, nil
+}
+
+<% spoofedApiCall = { auth: "SecretKey" }; %>
+<%- generateApiSummary("    ", apiCall, "summary", "https://api.playfab.com/Documentation/" + api.name + "/method/" + apiCall.name)
+%>func <%- apiCall.name %>WithSecretKey(settings *playfab.Settings, postData *<%- apiCall.request %>Model, <%- getAuthInputParams(spoofedApiCall) %>) (*<%- apiCall.result %>Model, error) {
+<%- getRequestActions("        ", spoofedApiCall) %>
+    b, err := json.Marshal(postData)
+    if err != nil {
+        return nil, err
+    }
+    sourceMap, err := playfab.Request(settings, b, "<%- apiCall.url %>", <%- getCurlAuthParams(spoofedApiCall) %>)
+    if err != nil {
+        return nil, err
+    }
+    
+    result := &<%- apiCall.result %>Model{}
+
+    config := mapstructure.DecoderConfig{
+        DecodeHook: playfab.StringToDateTimeHook,
+        Result:     result,
+    }
+    
+    decoder, err := mapstructure.NewDecoder(&config)
+    if err != nil {
+        return nil, err
+    }
+   
+    err = decoder.Decode(sourceMap)
+    if err != nil {
+        return nil, err
+    }
+
+    return result, nil
+}

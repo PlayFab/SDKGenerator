@@ -1,0 +1,6 @@
+<%- generateApiSummary("    ", datatype, "description")
+%>type <%- datatype.name %> string
+  
+const (
+    <% for(var i=0; i<=datatype.enumvalues.length-1; i++) { var enumprops = datatype.enumvalues[i] %> <%- datatype.name %><%- enumprops.name %> <%- datatype.name %> = "<%- enumprops.name %>"
+    <% } %>  )

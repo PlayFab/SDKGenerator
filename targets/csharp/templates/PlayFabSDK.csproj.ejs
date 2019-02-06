@@ -1,7 +1,7 @@
 <Project Sdk="Microsoft.NET.Sdk">
 
   <PropertyGroup>
-    <TargetFrameworks>netstandard1.1;netstandard2.0;net45;portable45-net45+win8+wpa81</TargetFrameworks>
+    <TargetFrameworks>netstandard1.1;netstandard2.0;net45</TargetFrameworks>
     <RootNamespace>PlayFab<%- libname %>SDK</RootNamespace>
     <AssemblyName>PlayFab<%- libname %>SDK</AssemblyName>
     <DefaultLanguage>en-US</DefaultLanguage>
@@ -54,6 +54,7 @@
   <ItemGroup Condition=" '$(TargetFramework)' == 'net45' Or '$(TargetFramework)' == 'portable45-net45+win8+wpa81' ">
     <Reference Include="System" />
     <Reference Include="System.Collections" />
+    <Reference Include="System.IO" />
     <Reference Include="System.Threading" />
     <Reference Include="System.Threading.Tasks" />
     <Reference Include="System.Linq" />

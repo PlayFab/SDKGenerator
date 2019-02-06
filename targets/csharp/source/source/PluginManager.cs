@@ -7,6 +7,8 @@ namespace PlayFab
 {
     public class PluginManager
     {
+        public const string PLUGIN_TRANSPORT_ONEDS = "PLUGIN_TRANSPORT_ONEDS";
+
         private Dictionary<Tuple<PluginContract, string>, IPlayFabPlugin> plugins = new Dictionary<Tuple<PluginContract, string>, IPlayFabPlugin>();
 
         /// <summary>
@@ -55,7 +57,10 @@ namespace PlayFab
                         plugin = this.CreatePlugin<SimpleJsonInstance>();
                         break;
                     case PluginContract.PlayFab_Transport:
-                        plugin = this.CreatePlayFabTransportPlugin();
+                        if (instanceName == PluginManager.PLUGIN_TRANSPORT_ONEDS)
+                            plugin = this.CreateOneDSTransportPlugin();
+                        else
+                            plugin = this.CreatePlayFabTransportPlugin();
                         break;
                     default:
                         throw new ArgumentException("This contract is not supported", nameof(contract));
@@ -96,6 +101,21 @@ namespace PlayFab
             }
 
             throw new Exception("Cannot find a valid ITransportPlugin type");
+        }
+
+        private IOneDSTransportPlugin CreateOneDSTransportPlugin()
+        {
+            var httpInterfaceType = typeof(IOneDSTransportPlugin);
+            var types = typeof(PlayFabHttp).GetAssembly().GetTypes();
+            foreach (var eachType in types)
+            {
+                if (httpInterfaceType.IsAssignableFrom(eachType) && !eachType.IsAbstract)
+                {
+                    return (IOneDSTransportPlugin)Activator.CreateInstance(eachType.AsType());
+                }
+            }
+
+            throw new Exception("Cannot find a valid IOneDSTransportPlugin type");
         }
     }
 }

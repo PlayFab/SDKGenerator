@@ -259,7 +259,7 @@ void UPlayFab<%- api.name %>API::OnProcessRequestComplete(FHttpRequestPtr Reques
         pfSettings->setEntityToken(myResponse.responseData->GetObjectField("data")->GetStringField("EntityToken"));
 
     // Broadcast the result event
-    OnPlayFabResponse.Broadcast(myResponse, mCustomData, myResponse.responseError.hasError);
+    OnPlayFabResponse.Broadcast(myResponse, mCustomData, !myResponse.responseError.hasError);
     pfSettings->ModifyPendingCallCount(-1);
 }
 

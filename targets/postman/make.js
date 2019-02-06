@@ -61,9 +61,9 @@ function getUrl(apiCall) {
 
 function getPostmanHeader(apiCall) {
     if (apiCall.url === "/Authentication/GetEntityToken")
-        return "X-PlayFabSDK: PostmanCollection-" + sdkGlobals.sdkVersion + "\\nContent-Type: application/json\\nX-Authentication: {{SessionTicket}}\\nX-SecretKey: {{SecretKey}}\\n";
+        return "X-PlayFabSDK: PostmanCollection-" + sdkGlobals.sdkVersion + "\\nContent-Type: application/json\\nX-Authorization: {{SessionTicket}}\\nX-SecretKey: {{SecretKey}}\\n";
     if (apiCall.auth === "SessionTicket")
-        return "X-PlayFabSDK: PostmanCollection-" + sdkGlobals.sdkVersion + "\\nContent-Type: application/json\\nX-Authentication: {{SessionTicket}}\\n";
+        return "X-PlayFabSDK: PostmanCollection-" + sdkGlobals.sdkVersion + "\\nContent-Type: application/json\\nX-Authorization: {{SessionTicket}}\\n";
     else if (apiCall.auth === "SecretKey")
         return "X-PlayFabSDK: PostmanCollection-" + sdkGlobals.sdkVersion + "\\nContent-Type: application/json\\nX-SecretKey: {{SecretKey}}\\n";
     else if (apiCall.auth === "EntityToken")

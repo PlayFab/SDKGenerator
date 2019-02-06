@@ -50,7 +50,7 @@ function getCurlAuthParams(apiCall) {
     if (apiCall.auth === "EntityToken")
         return "\"X-EntityToken\", $entityToken";
     if (apiCall.auth === "SessionTicket")
-        return "\"X-Authentication\", $clientSessionTicket";
+        return "\"X-Authorization\", $clientSessionTicket";
     if (apiCall.auth === "SecretKey")
         return "\"X-SecretKey\", $developerSecreteKey";
     return "null, null";
@@ -59,7 +59,7 @@ function getCurlAuthParams(apiCall) {
 function getRequestActions(tabbing, apiCall) {
     if (apiCall.url === "/Authentication/GetEntityToken")
         return tabbing + "if (!is_null($entityToken)) { $authKey = \"X-EntityToken\"; $authValue = $entityToken; }\n"
-            + tabbing + "elseif (!is_null($clientSessionTicket)) { $authKey = \"X-Authentication\"; $authValue = $clientSessionTicket; }\n"
+            + tabbing + "elseif (!is_null($clientSessionTicket)) { $authKey = \"X-Authorization\"; $authValue = $clientSessionTicket; }\n"
             + tabbing + "elseif (!is_null($developerSecreteKey)) { $authKey = \"X-SecretKey\"; $authValue = $developerSecreteKey; }\n";
     if (apiCall.result === "LoginResult" || apiCall.request === "RegisterPlayFabUserRequest")
         return tabbing + "if (!isset($titleId)) $titleId = PlayFabSettings::$titleId;\n"

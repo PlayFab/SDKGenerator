@@ -294,6 +294,7 @@ private:
 struct TestTitleData
 {
 public:
+    bool loaded = false;
     FString titleId = TEXT("Your titleID");
     FString developerSecretKey = TEXT("For the security of your title, keep your secret key private!");
     FString userEmail = TEXT("An email associated with an existing user");
@@ -323,10 +324,6 @@ public:
     PlayFabApiTestSuite(const FString& InName)
         : FAutomationTestBase(InName, false)
     {
-        if (!LoadTitleData())
-            return;
-        // IPlayFabModuleInterface::Get().SetTitleInformationFromJson(//todo);
-
         ADD_TEST(InvalidLogin);
         ADD_TEST(LoginOrRegister);
         ADD_TEST(LoginWithAdvertisingId);
@@ -382,6 +379,8 @@ protected:
         if (success) success &= jsonParsed->TryGetStringField("developerSecretKey", testTitleData.developerSecretKey);
         if (success) success &= jsonParsed->TryGetStringField("userEmail", testTitleData.userEmail);
 
+        testTitleData.loaded = success;
+
         return success;
     }
 
@@ -397,6 +396,15 @@ protected:
 
     bool RunTest(const FString& Parameters) override
     {
+        if (!testTitleData.loaded)
+        {
+            if (!LoadTitleData())
+            {
+                UE_LOG(LogPlayFabTest, Error, TEXT("Could not load test title data"));
+                return false;
+            }
+        }
+
         clientAPI = IPlayFabModuleInterface::Get().GetClientAPI();
         serverAPI = IPlayFabModuleInterface::Get().GetServerAPI();
         TestTrue(TEXT("The clientAPI reports itself as invalid."), clientAPI.IsValid());

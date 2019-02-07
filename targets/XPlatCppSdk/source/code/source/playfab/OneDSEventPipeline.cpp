@@ -59,6 +59,11 @@ namespace PlayFab
         std::shared_ptr<bool> operationComplete = std::shared_ptr<bool>(new bool(false));
         std::shared_ptr<bool> isOneDSAuthenticated = std::shared_ptr<bool>(new bool(false));
         EventsModels::TelemetryIngestionConfigRequest configRequest;
+        if (this->GetSettings()->authenticationContext != nullptr)
+        {
+            configRequest.authenticationContext = this->GetSettings()->authenticationContext;
+        }
+
         OneDSEventsAPI::GetTelemetryIngestionConfig(configRequest,
             [&](const PlayFab::EventsModels::TelemetryIngestionConfigResponse& result, void* relayedCustomData)
             {

@@ -113,9 +113,12 @@
     <ClInclude Include="$(SdkSourceDir)\include\playfab\OneDSWinHttpPlugin.h" />
     <ClInclude Include="$(SdkSourceDir)\include\playfab\OneDSEventsApi.h" />
     <ClInclude Include="$(SdkSourceDir)\include\playfab\OneDSEventPipeline.h" />
+    <ClInclude Include="$(SdkSourceDir)\include\playfab\PlayFabAuthenticationContext.h" />
+    <ClInclude Include="$(SdkSourceDir)\include\playfab\PlayFabApiSettings.h" />
     <ClInclude Include="$(SdkSourceDir)\include\playfab\PlayFabBaseModel.h" />
 <% for(var i in apis) { var api = apis[i];%>
     <ClInclude Include="$(SdkSourceDir)\include\playfab\PlayFab<%- api.name %>Api.h" />
+    <ClInclude Include="$(SdkSourceDir)\include\playfab\PlayFab<%- api.name %>InstanceApi.h" />
     <ClInclude Include="$(SdkSourceDir)\include\playfab\PlayFab<%- api.name %>DataModels.h" /><% } %>
     <ClInclude Include="$(SdkSourceDir)\include\playfab\OneDSEventsDataModels.h" />
     <ClInclude Include="$(SdkSourceDir)\include\playfab\PlayFabEvent.h" />
@@ -145,8 +148,11 @@
     <ClCompile Include="$(SdkSourceDir)\source\playfab\OneDSWinHttpPlugin.cpp" />
     <ClCompile Include="$(SdkSourceDir)\source\playfab\OneDSEventsApi.cpp" />
     <ClCompile Include="$(SdkSourceDir)\source\playfab\OneDSEventPipeline.cpp" />
+    <ClCompile Include="$(SdkSourceDir)\source\playfab\PlayFabAuthenticationContext.cpp" />
+    <ClCompile Include="$(SdkSourceDir)\source\playfab\PlayFabApiSettings.cpp" />
 <% for(var i in apis) { var api = apis[i];%>
-    <ClCompile Include="$(SdkSourceDir)\source\playfab\PlayFab<%- api.name %>Api.cpp" /><% } %>
+    <ClCompile Include="$(SdkSourceDir)\source\playfab\PlayFab<%- api.name %>Api.cpp" />
+    <ClCompile Include="$(SdkSourceDir)\source\playfab\PlayFab<%- api.name %>InstanceApi.cpp" /><% } %>
     <ClCompile Include="$(SdkSourceDir)\source\playfab\PlayFabEvent.cpp" />
     <ClCompile Include="$(SdkSourceDir)\source\playfab\PlayFabEventApi.cpp" />
     <ClCompile Include="$(SdkSourceDir)\source\playfab\PlayFabEventBuffer.cpp" />

@@ -145,7 +145,7 @@ namespace PlayFab
         SetupRequestHeaders(reqContainer, headers);
 
         // Setup url
-        std::string urlString = PlayFabSettings::GetUrl(reqContainer.GetUrl(), PlayFabSettings::requestGetParams);
+        std::string urlString = reqContainer.GetFullUrl();
         std::wstring url(urlString.begin(), urlString.end());
         
         // Setup payload

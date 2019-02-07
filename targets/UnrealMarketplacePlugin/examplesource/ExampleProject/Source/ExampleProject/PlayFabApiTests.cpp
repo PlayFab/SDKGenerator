@@ -811,13 +811,18 @@ void PlayFabApiTest_MultipleUsers::OnUser2GetProfileSuccess(const PlayFab::Clien
     RestoreCachedStaticCredentials();
     UE_LOG(LogPlayFabTest, Log, TEXT("MultipleUsers: Got User 2 Profile with player ID %s"), *result.PlayerProfile->PlayerId);
 
-    user1ProfileResult = result;
+    user2ProfileResult = result;
     if (user1ProfileResult.PlayerProfile.IsValid())
         OnBothUsersGetProfile();
 }
 
-void PlayFabApiTest_MultipleUsers::OnBothUsersGetProfile() 
+void PlayFabApiTest_MultipleUsers::OnBothUsersGetProfile()
 {
+    if (user1ProfileResult.PlayerProfile->PlayerId != user1LoginResult.PlayFabId || user2ProfileResult.PlayerProfile->PlayerId != user2LoginResult.PlayFabId) {
+        UE_LOG(LogPlayFabTest, Error, TEXT("MultipleUsers failed: IDs from login results not consistent with IDs from profile results"));
+        return;
+    }
+
     UE_LOG(LogPlayFabTest, Log, TEXT("MultipleUsers Succeeded"));
 }
 

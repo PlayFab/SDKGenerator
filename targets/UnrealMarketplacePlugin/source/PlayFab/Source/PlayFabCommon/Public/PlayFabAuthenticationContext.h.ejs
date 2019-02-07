@@ -19,10 +19,8 @@ public:
     UFUNCTION(BlueprintCallable, BlueprintPure, Category = "PlayFab | Core")
         FString& GetClientSessionTicket()
     {
-#if defined(DISABLE_PLAYFABCLIENT_API)
-#if DISABLE_PLAYFABCLIENT_API
+#ifdef DISABLE_PLAYFABCLIENT_API
         checkf(false, TEXT("ClientSessionTicket is disabled because DISABLE_PLAYFABCLIENT_API is set."));
-#endif
 #endif
         return ClientSessionTicket;
     }
@@ -31,10 +29,8 @@ public:
     UFUNCTION(BlueprintCallable, Category = "PlayFab | Core")
         void SetClientSessionTicket(FString InTicket)
     {
-#if defined(DISABLE_PLAYFABCLIENT_API)
-#if DISABLE_PLAYFABCLIENT_API
+#ifdef DISABLE_PLAYFABCLIENT_API
         checkf(false, TEXT("ClientSessionTicket is disabled because DISABLE_PLAYFABCLIENT_API is set."));
-#endif
 #endif
         ClientSessionTicket = InTicket;
     }
@@ -44,10 +40,8 @@ public:
     UFUNCTION(BlueprintCallable, BlueprintPure, Category = "PlayFab | Core")
         FString& GetEntityToken()
     {
-#if defined(DISABLE_PLAYFABENTITY_API)
-#if DISABLE_PLAYFABENTITY_API
+#ifdef DISABLE_PLAYFABENTITY_API
         checkf(false, TEXT("EntityToken is disabled because DISABLE_PLAYFABENTITY_API is set."));
-#endif
 #endif
         return EntityToken;
     }
@@ -56,10 +50,8 @@ public:
     UFUNCTION(BlueprintCallable, Category = "PlayFab | Core")
         void SetEntityToken(FString InToken)
     {
-#if defined(DISABLE_PLAYFABENTITY_API)
-#if DISABLE_PLAYFABENTITY_API
+#ifdef DISABLE_PLAYFABENTITY_API
         checkf(false, TEXT("EntityToken is disabled because DISABLE_PLAYFABENTITY_API is set."));
-#endif
 #endif
         EntityToken = InToken;
     }
@@ -70,9 +62,7 @@ public:
         FString& GetDeveloperSecretKey()
     {
 #if defined(ENABLE_PLAYFABSERVER_API) && defined(ENABLE_PLAYFABADMIN_API)
-#if ENABLE_PLAYFABSERVER_API && ENABLE_PLAYFABADMIN_API
         return DeveloperSecretKey;
-#endif
 #endif
 
         checkf(false, TEXT("Cannot call GetDeveloperSecretKey in a non-developer build!"));
@@ -84,10 +74,8 @@ public:
         void SetDeveloperSecretKey(FString InKey)
     { 
 #if defined(ENABLE_PLAYFABSERVER_API) && defined(ENABLE_PLAYFABADMIN_API)
-#if ENABLE_PLAYFABSERVER_API && ENABLE_PLAYFABADMIN_API
         DeveloperSecretKey = MoveTemp(InKey);
         return;
-#endif
 #endif
 
         checkf(false, TEXT("Cannot call SetDeveloperSecretKey in a non-developer build!"));

@@ -1,5 +1,7 @@
+using PlayFab.Json;
 using System;
 using System.Collections.Generic;
+using System.IO;
 #if !DISABLE_PLAYFABCLIENT_API
 using PlayFab.ClientModels;
 #endif
@@ -31,12 +33,24 @@ namespace PlayFab.UUnit
 #endif
         )
         {
+#if NET45 || NETCOREAPP2_0
+            try
+            {
+                var testTitleDataPath = Environment.GetEnvironmentVariable("PF_TEST_TITLE_DATA_JSON");
+                var jsonContent = File.ReadAllText(testTitleDataPath + "/testTitleData.json");
+                testInputs = PlayFabSimpleJson.DeserializeObject<TestTitleData>(jsonContent);
+            }
+            catch (Exception)
+            {
+            }
+#endif
             // Fall back on hard coded testTitleData if necessary (Put your own data here)
             if (testInputs == null)
                 testInputs = new TestTitleData { titleId = "6195", userEmail = "paul@playfab.com" };
 #if !DISABLE_PLAYFABCLIENT_API
             PlayFabApiTest.SetTitleInfo(testInputs);
 #endif
+            PlayFabServerApiTest.SetTitleInfo(testInputs);
 
             SuiteFinished = false;
             AllTestsPassed = false;

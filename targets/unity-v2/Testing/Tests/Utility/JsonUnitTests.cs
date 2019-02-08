@@ -46,8 +46,8 @@ namespace PlayFab.UUnit
         public long LongValue; public ulong UlongValue;
         public float FloatValue; public double DoubleValue;
 
-        public static ObjNumFieldTest Max = new ObjNumFieldTest { SbyteValue = sbyte.MaxValue, ByteValue = byte.MaxValue, ShortValue = short.MaxValue, UshortValue = ushort.MaxValue, IntValue = int.MaxValue, UintValue = uint.MaxValue, LongValue = long.MaxValue, UlongValue = ulong.MaxValue, FloatValue = float.MaxValue, DoubleValue = double.MaxValue };
-        public static ObjNumFieldTest Min = new ObjNumFieldTest { SbyteValue = sbyte.MinValue, ByteValue = byte.MinValue, ShortValue = short.MinValue, UshortValue = ushort.MinValue, IntValue = int.MinValue, UintValue = uint.MinValue, LongValue = long.MinValue, UlongValue = ulong.MinValue, FloatValue = float.MinValue, DoubleValue = double.MinValue };
+        public static ObjNumFieldTest Max = new ObjNumFieldTest { SbyteValue = sbyte.MaxValue-1, ByteValue = byte.MaxValue-1, ShortValue = short.MaxValue-1, UshortValue = ushort.MaxValue-1, IntValue = int.MaxValue-1, UintValue = uint.MaxValue-1, LongValue = long.MaxValue-1, UlongValue = ulong.MaxValue-1, FloatValue = float.MaxValue-float.Epsilon, DoubleValue = double.MaxValue-double.Epsilon };
+        public static ObjNumFieldTest Min = new ObjNumFieldTest { SbyteValue = sbyte.MinValue+1, ByteValue = byte.MinValue+1, ShortValue = short.MinValue+1, UshortValue = ushort.MinValue+1, IntValue = int.MinValue+1, UintValue = uint.MinValue+1, LongValue = long.MinValue+1, UlongValue = ulong.MinValue+1, FloatValue = float.MinValue+float.Epsilon, DoubleValue = double.MinValue+double.Epsilon };
         public static ObjNumFieldTest Zero = new ObjNumFieldTest();
     }
     internal class ObjNumPropTest
@@ -63,8 +63,8 @@ namespace PlayFab.UUnit
         public float FloatValue { get; set; }
         public double DoubleValue { get; set; }
 
-        public static ObjNumPropTest Max = new ObjNumPropTest { SbyteValue = sbyte.MaxValue, ByteValue = byte.MaxValue, ShortValue = short.MaxValue, UshortValue = ushort.MaxValue, IntValue = int.MaxValue, UintValue = uint.MaxValue, LongValue = long.MaxValue, UlongValue = ulong.MaxValue, FloatValue = float.MaxValue, DoubleValue = double.MaxValue };
-        public static ObjNumPropTest Min = new ObjNumPropTest { SbyteValue = sbyte.MinValue, ByteValue = byte.MinValue, ShortValue = short.MinValue, UshortValue = ushort.MinValue, IntValue = int.MinValue, UintValue = uint.MinValue, LongValue = long.MinValue, UlongValue = ulong.MinValue, FloatValue = float.MinValue, DoubleValue = double.MinValue };
+        public static ObjNumPropTest Max = new ObjNumPropTest { SbyteValue = sbyte.MaxValue-1, ByteValue = byte.MaxValue-1, ShortValue = short.MaxValue-1, UshortValue = ushort.MaxValue-1, IntValue = int.MaxValue-1, UintValue = uint.MaxValue-1, LongValue = long.MaxValue-1, UlongValue = ulong.MaxValue-1, FloatValue = float.MaxValue-float.Epsilon, DoubleValue = double.MaxValue-double.Epsilon };
+        public static ObjNumPropTest Min = new ObjNumPropTest { SbyteValue = sbyte.MinValue+1, ByteValue = byte.MinValue+1, ShortValue = short.MinValue+1, UshortValue = ushort.MinValue+1, IntValue = int.MinValue+1, UintValue = uint.MinValue+1, LongValue = long.MinValue+1, UlongValue = ulong.MinValue+1, FloatValue = float.MinValue+float.Epsilon, DoubleValue = double.MinValue+double.Epsilon };
         public static ObjNumPropTest Zero = new ObjNumPropTest();
     }
     internal struct StructNumFieldTest
@@ -75,8 +75,8 @@ namespace PlayFab.UUnit
         public long LongValue; public ulong UlongValue;
         public float FloatValue; public double DoubleValue;
 
-        public static StructNumFieldTest Max = new StructNumFieldTest { SbyteValue = sbyte.MaxValue, ByteValue = byte.MaxValue, ShortValue = short.MaxValue, UshortValue = ushort.MaxValue, IntValue = int.MaxValue, UintValue = uint.MaxValue, LongValue = long.MaxValue, UlongValue = ulong.MaxValue, FloatValue = float.MaxValue, DoubleValue = double.MaxValue };
-        public static StructNumFieldTest Min = new StructNumFieldTest { SbyteValue = sbyte.MinValue, ByteValue = byte.MinValue, ShortValue = short.MinValue, UshortValue = ushort.MinValue, IntValue = int.MinValue, UintValue = uint.MinValue, LongValue = long.MinValue, UlongValue = ulong.MinValue, FloatValue = float.MinValue, DoubleValue = double.MinValue };
+        public static StructNumFieldTest Max = new StructNumFieldTest { SbyteValue = sbyte.MaxValue-1, ByteValue = byte.MaxValue-1, ShortValue = short.MaxValue-1, UshortValue = ushort.MaxValue-1, IntValue = int.MaxValue-1, UintValue = uint.MaxValue-1, LongValue = long.MaxValue-1, UlongValue = ulong.MaxValue-1, FloatValue = float.MaxValue-float.Epsilon, DoubleValue = double.MaxValue-double.Epsilon };
+        public static StructNumFieldTest Min = new StructNumFieldTest { SbyteValue = sbyte.MinValue+1, ByteValue = byte.MinValue+1, ShortValue = short.MinValue+1, UshortValue = ushort.MinValue+1, IntValue = int.MinValue+1, UintValue = uint.MinValue+1, LongValue = long.MinValue+1, UlongValue = ulong.MinValue+1, FloatValue = float.MinValue+float.Epsilon, DoubleValue = double.MinValue+double.Epsilon };
         public static StructNumFieldTest Zero = new StructNumFieldTest();
     }
     internal class ObjOptNumFieldTest
@@ -92,8 +92,8 @@ namespace PlayFab.UUnit
         public float? FloatValue { get; set; }
         public double? DoubleValue { get; set; }
 
-        public static ObjOptNumFieldTest Max = new ObjOptNumFieldTest { SbyteValue = sbyte.MaxValue, ByteValue = byte.MaxValue, ShortValue = short.MaxValue, UshortValue = ushort.MaxValue, IntValue = int.MaxValue, UintValue = uint.MaxValue, LongValue = long.MaxValue, UlongValue = ulong.MaxValue, FloatValue = float.MaxValue, DoubleValue = double.MaxValue };
-        public static ObjOptNumFieldTest Min = new ObjOptNumFieldTest { SbyteValue = sbyte.MinValue, ByteValue = byte.MinValue, ShortValue = short.MinValue, UshortValue = ushort.MinValue, IntValue = int.MinValue, UintValue = uint.MinValue, LongValue = long.MinValue, UlongValue = ulong.MinValue, FloatValue = float.MinValue, DoubleValue = double.MinValue };
+        public static ObjOptNumFieldTest Max = new ObjOptNumFieldTest { SbyteValue = sbyte.MaxValue-1, ByteValue = byte.MaxValue-1, ShortValue = short.MaxValue-1, UshortValue = ushort.MaxValue-1, IntValue = int.MaxValue-1, UintValue = uint.MaxValue-1, LongValue = long.MaxValue-1, UlongValue = ulong.MaxValue-1, FloatValue = float.MaxValue-float.Epsilon, DoubleValue = double.MaxValue-double.Epsilon };
+        public static ObjOptNumFieldTest Min = new ObjOptNumFieldTest { SbyteValue = sbyte.MinValue+1, ByteValue = byte.MinValue+1, ShortValue = short.MinValue+1, UshortValue = ushort.MinValue+1, IntValue = int.MinValue+1, UintValue = uint.MinValue+1, LongValue = long.MinValue+1, UlongValue = ulong.MinValue+1, FloatValue = float.MinValue+float.Epsilon, DoubleValue = double.MinValue+double.Epsilon };
         public static ObjOptNumFieldTest Zero = new ObjOptNumFieldTest { SbyteValue = 0, ByteValue = 0, ShortValue = 0, UshortValue = 0, IntValue = 0, UintValue = 0, LongValue = 0, UlongValue = 0, FloatValue = 0, DoubleValue = 0 };
         public static ObjOptNumFieldTest Null = new ObjOptNumFieldTest { SbyteValue = null, ByteValue = null, ShortValue = null, UshortValue = null, IntValue = null, UintValue = null, LongValue = null, UlongValue = null, FloatValue = null, DoubleValue = null };
     }

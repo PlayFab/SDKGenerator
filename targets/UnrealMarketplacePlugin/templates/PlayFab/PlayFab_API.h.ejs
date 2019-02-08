@@ -31,7 +31,7 @@ public:
     UPROPERTY(BlueprintAssignable)
         FOnPlayFab<%- api.name %>RequestCompleted OnPlayFabResponse;
 
-    void SetAuthenticationContext(UPlayFabAuthenticationContext* InAuthenticationContext);
+    void SetCallAuthenticationContext(UPlayFabAuthenticationContext* InAuthenticationContext);
 
     /** Set the Request Json object */
     void SetRequestObject(UPlayFabJsonObject* JsonObject);
@@ -126,7 +126,7 @@ public:
 %>
 private:
     UPROPERTY()
-        UPlayFabAuthenticationContext* AuthenticationContext;
+        UPlayFabAuthenticationContext* CallAuthenticationContext;
 
     /** Internal bind function for the IHTTPRequest::OnProcessRequestCompleted() event */
     void OnProcessRequestComplete(FHttpRequestPtr Request, FHttpResponsePtr Response, bool bWasSuccessful);

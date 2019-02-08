@@ -15,13 +15,13 @@
 
 UPlayFab<%- api.name %>API::UPlayFab<%- api.name %>API(const FObjectInitializer& ObjectInitializer)
     : Super(ObjectInitializer)
-    , AuthenticationContext(nullptr)
+    , CallAuthenticationContext(nullptr)
 {
 }
 
-void UPlayFab<%- api.name %>API::SetAuthenticationContext(UPlayFabAuthenticationContext* InAuthenticationContext)
+void UPlayFab<%- api.name %>API::SetCallAuthenticationContext(UPlayFabAuthenticationContext* InAuthenticationContext)
 {
-    AuthenticationContext = InAuthenticationContext;
+    CallAuthenticationContext = InAuthenticationContext;
 }
 
 void UPlayFab<%- api.name %>API::SetRequestObject(UPlayFabJsonObject* JsonObject)
@@ -111,7 +111,7 @@ for(var subgroup in api.subgroups)
 <%            %>    manager->OnPlayFabResponse.AddDynamic(manager, &UPlayFab<%- api.name %>API::Helper<%- apiCall.name %>);
 <%            %>
 <%            %>    // Setup the request
-<%            %>    manager->SetAuthenticationContext(request.AuthenticationContext);
+<%            %>    manager->SetCallAuthenticationContext(request.AuthenticationContext);
 <%            %>    manager->PlayFabRequestURL = "<%- apiCall.url %>";
 <%            %><%- getAuthBools("    ", apiCall) %>
 <%            %>    // Serialize all the request properties to json
@@ -154,21 +154,21 @@ for(var subgroup in api.subgroups)
                     if (datatype.name == apiCall.result) {
                         found = true;
 
-              %>        F<%- api.name %><%- apiCall.result %> result = UPlayFab<%- api.name %>ModelDecoder::decode<%- getDataTypeSafeName(datatype, "name") %>Response(response.responseData);
-<%            %>        OnSuccess<%- apiCall.name %>.Execute(result, mCustomData);
+              %>        F<%- api.name %><%- apiCall.result %> ResultStruct = UPlayFab<%- api.name %>ModelDecoder::decode<%- getDataTypeSafeName(datatype, "name") %>Response(response.responseData);
+<%            %>        OnSuccess<%- apiCall.name %>.Execute(ResultStruct, mCustomData);
 <%
                         break;
                     }
                 }
 
                 if (!found) {
-              %>        F<%- api.name %><%- apiCall.result %> result = UPlayFab<%- api.name %>ModelDecoder::decode<%- apiCall.result %>Response(response.responseData);
-<%            %>        result.Request = RequestJsonObj;
+              %>        F<%- api.name %><%- apiCall.result %> ResultStruct = UPlayFab<%- api.name %>ModelDecoder::decode<%- apiCall.result %>Response(response.responseData);
+<%            %>        ResultStruct.Request = RequestJsonObj;
 <%              if (apiCall.result === "LoginResult") {
-              %>        // AuthenticationContext was set in OnProcessRequestComplete
-<%            %>        result.AuthenticationContext = AuthenticationContext;
+              %>        // CallAuthenticationContext was set in OnProcessRequestComplete
+<%            %>        ResultStruct.AuthenticationContext = CallAuthenticationContext;
 <%              }
-              %>        OnSuccess<%- apiCall.name %>.Execute(result, mCustomData);
+              %>        OnSuccess<%- apiCall.name %>.Execute(ResultStruct, mCustomData);
 <%
                 }
 
@@ -240,22 +240,24 @@ void UPlayFab<%- api.name %>API::OnProcessRequestComplete(FHttpRequestPtr Reques
 <% if (hasClientOptions) { %>
     if (returnsSessionTicket || returnsEntityToken)
     {
-        AuthenticationContext = NewObject<UPlayFabAuthenticationContext>();
+        CallAuthenticationContext = NewObject<UPlayFabAuthenticationContext>();
     }
     if (returnsSessionTicket && !myResponse.responseError.hasError)
     {
         // Auth Tokens
-        auto response = myResponse.responseData->GetObjectField("data");
+        auto ResponseDataJSON = myResponse.responseData->GetObjectField("data");
         {
-            FString NewSessionTicket = response->GetStringField("SessionTicket");
+            FString NewSessionTicket = ResponseDataJSON->GetStringField("SessionTicket");
             pfSettings->setSessionTicket(NewSessionTicket);
-            AuthenticationContext->SetClientSessionTicket(MoveTemp(NewSessionTicket));
+            CallAuthenticationContext->SetClientSessionTicket(MoveTemp(NewSessionTicket));
         }
-        if (response->HasField("EntityToken"))
+        if (ResponseDataJSON->HasField("EntityToken"))
         {
-            FString NewEntityToken = response->GetObjectField("EntityToken")->GetStringField("EntityToken");
+            FString NewEntityToken = ResponseDataJSON->GetObjectField("EntityToken")->GetStringField("EntityToken");
             pfSettings->setEntityToken(NewEntityToken);
-            AuthenticationContext->SetEntityToken(MoveTemp(NewEntityToken));
+            // Store entity token so that it can be added to the ResultStruct in the call-specific "Helper" callback
+            // which is responsible for forming response JSON into a semantic struct, and passing it to user code
+            CallAuthenticationContext->SetEntityToken(MoveTemp(NewEntityToken));
         }
 
         // IDFA Attribution when relevant
@@ -282,12 +284,12 @@ void UPlayFab<%- api.name %>API::OnProcessRequestComplete(FHttpRequestPtr Reques
 <% } %>
     if (returnsEntityToken)
     {
-<% if (!hasClientOptions) { %>
-        AuthenticationContext = NewObject<UPlayFabAuthenticationContext>();
-<% } %>
-        FString NewEntityToken = myResponse.responseData->GetObjectField("data")->GetStringField("EntityToken");
+<% if (!hasClientOptions) { 
+%>        CallAuthenticationContext = NewObject<UPlayFabAuthenticationContext>();
+<% }
+%>        FString NewEntityToken = myResponse.responseData->GetObjectField("data")->GetStringField("EntityToken");
         pfSettings->setEntityToken(NewEntityToken);
-        AuthenticationContext->SetEntityToken(MoveTemp(NewEntityToken));
+        CallAuthenticationContext->SetEntityToken(MoveTemp(NewEntityToken));
     }
 
     // Broadcast the result event
@@ -308,11 +310,11 @@ void UPlayFab<%- api.name %>API::Activate()
 
     // Headers
     if (useEntityToken)
-        HttpRequest->SetHeader(TEXT("X-EntityToken"), AuthenticationContext ? AuthenticationContext->GetEntityToken() : pfSettings->getEntityToken());
+        HttpRequest->SetHeader(TEXT("X-EntityToken"), CallAuthenticationContext != nullptr ? CallAuthenticationContext->GetEntityToken() : pfSettings->getEntityToken());
     else if (useSessionTicket)
-        HttpRequest->SetHeader(TEXT("X-Authorization"), AuthenticationContext ? AuthenticationContext->GetClientSessionTicket() : pfSettings->getSessionTicket());
+        HttpRequest->SetHeader(TEXT("X-Authorization"), CallAuthenticationContext != nullptr ? CallAuthenticationContext->GetClientSessionTicket() : pfSettings->getSessionTicket());
     else if (useSecretKey)
-        HttpRequest->SetHeader(TEXT("X-SecretKey"), AuthenticationContext ? AuthenticationContext->GetDeveloperSecretKey() : pfSettings->getSecretApiKey());
+        HttpRequest->SetHeader(TEXT("X-SecretKey"), CallAuthenticationContext != nullptr ? CallAuthenticationContext->GetDeveloperSecretKey() : pfSettings->getSecretApiKey());
     HttpRequest->SetHeader(TEXT("Content-Type"), TEXT("application/json"));
     HttpRequest->SetHeader(TEXT("X-PlayFabSDK"), pfSettings->getVersionString());
     HttpRequest->SetHeader(TEXT("X-ReportErrorAsSuccess"), TEXT("true")); // FHttpResponsePtr doesn't provide sufficient information when an error code is returned

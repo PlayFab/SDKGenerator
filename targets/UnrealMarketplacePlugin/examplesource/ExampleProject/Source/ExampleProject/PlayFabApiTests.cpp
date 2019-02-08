@@ -818,8 +818,12 @@ void PlayFabApiTest_MultipleUsers::OnUser2GetProfileSuccess(const PlayFab::Clien
 
 void PlayFabApiTest_MultipleUsers::OnBothUsersGetProfile()
 {
-    if (user1ProfileResult.PlayerProfile->PlayerId != user1LoginResult.PlayFabId || user2ProfileResult.PlayerProfile->PlayerId != user2LoginResult.PlayFabId) {
-        UE_LOG(LogPlayFabTest, Error, TEXT("MultipleUsers failed: IDs from login results not consistent with IDs from profile results"));
+    if (user1LoginResult.PlayFabId != user1ProfileResult.PlayerProfile->PlayerId) {
+        UE_LOG(LogPlayFabTest, Error, TEXT("MultipleUsers failed: IDs from User 1's LoginResult (%s) and GetPlayerProfileResult (%s) don't match"), *user1LoginResult.PlayFabId, user1ProfileResult.PlayerProfile->PlayerId);
+        return;
+    }
+    if (user2LoginResult.PlayFabId != user2ProfileResult.PlayerProfile->PlayerId) {
+        UE_LOG(LogPlayFabTest, Error, TEXT("MultipleUsers failed: IDs from User 2's LoginResult (%s) and GetPlayerProfileResult (%s) don't match"), *user2LoginResult.PlayFabId, user2ProfileResult.PlayerProfile->PlayerId);
         return;
     }
 

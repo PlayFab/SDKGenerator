@@ -730,6 +730,7 @@ bool PlayFabApiTest_MultipleUsers::Update()
 
         // Cache the static login credentials. We will be clearing these in order to test the multi-user functionality
         //  that circumvents them, but other tests depend on these being set so we need to clean up after ourselves
+        //  TODO: Update test framework with a setup/teardown for each test that handles this, so that tests don't depend on each other's side effects
         cachedClientSessionTicket = IPlayFabCommonModuleInterface::Get().GetClientSessionTicket();
         cachedEntityToken = IPlayFabCommonModuleInterface::Get().GetEntityToken();
         cachedDeveloperSecretKey = IPlayFabCommonModuleInterface::Get().GetDeveloperSecretKey();
@@ -818,8 +819,12 @@ void PlayFabApiTest_MultipleUsers::OnUser2GetProfileSuccess(const PlayFab::Clien
 
 void PlayFabApiTest_MultipleUsers::OnBothUsersGetProfile()
 {
-    if (user1ProfileResult.PlayerProfile->PlayerId != user1LoginResult.PlayFabId || user2ProfileResult.PlayerProfile->PlayerId != user2LoginResult.PlayFabId) {
-        UE_LOG(LogPlayFabTest, Error, TEXT("MultipleUsers failed: IDs from login results not consistent with IDs from profile results"));
+    if (user1LoginResult.PlayFabId != user1ProfileResult.PlayerProfile->PlayerId) {
+        UE_LOG(LogPlayFabTest, Error, TEXT("MultipleUsers failed: IDs from User 1's LoginResult (%s) and GetPlayerProfileResult (%s) don't match"), *user1LoginResult.PlayFabId, *user1ProfileResult.PlayerProfile->PlayerId);
+        return;
+    }
+    if (user2LoginResult.PlayFabId != user2ProfileResult.PlayerProfile->PlayerId) {
+        UE_LOG(LogPlayFabTest, Error, TEXT("MultipleUsers failed: IDs from User 2's LoginResult (%s) and GetPlayerProfileResult (%s) don't match"), *user2LoginResult.PlayFabId, *user2ProfileResult.PlayerProfile->PlayerId);
         return;
     }
 
@@ -832,6 +837,10 @@ void PlayFabApiTest_MultipleUsers::OnError(const PlayFab::FPlayFabCppError& Erro
     UE_LOG(LogPlayFabTest, Error, TEXT("MultipleUsers failed: %s"), *(ErrorResult.ErrorMessage));
 }
 
+/**
+ *  Restore the static credentials originally set by LoginOrRegister but wiped in this test, as other tests depend on them
+ *  TODO: Update test framework with a setup/teardown for each test that handles this, so that tests don't depend on each other's side effects
+ */
 void PlayFabApiTest_MultipleUsers::RestoreCachedStaticCredentials()
 {
     IPlayFabCommonModuleInterface::Get().SetClientSessionTicket(cachedClientSessionTicket);

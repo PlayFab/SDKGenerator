@@ -332,6 +332,7 @@ void APfTestActor::MultiUserLogin(UPfTestContext* testContext)
 
     // Cache the static login credentials. We will be clearing these in order to test the multi-user functionality
     //  that circumvents them, but other tests depend on these being set so we need to clean up after ourselves
+    // TODO: Update test framework with a setup/teardown for each test that handles this, so that tests don't depend on each other's side effects
     cachedClientSessionTicket = playFabSettings->getSessionTicket();
     cachedEntityToken         = playFabSettings->getEntityToken();
     cachedDeveloperSecretKey  = playFabSettings->getSecretApiKey();
@@ -433,6 +434,10 @@ void APfTestActor::OnMultiUserFail(FPlayFabError error, UObject* customData)
     OnSharedError(error, customData);
 }
 
+/// <summary>
+/// Restore the static credentials originally set by LoginOrRegister but wiped in this test, as other tests depend on them
+///  TODO: Update test framework with a setup/teardown for each test that handles this, so that tests don't depend on each other's side effects
+/// </summary>
 void APfTestActor::ApplyCachedCredentials()
 {
     IPlayFab* playFabSettings = &(IPlayFab::Get());

@@ -289,7 +289,7 @@ function getRequestActions(tabbing, apiCall) {
     if (apiCall.auth === "SecretKey")
         return tabbing + "if (PlayFabSettings.DeveloperSecretKey == null) throw new PlayFabException(PlayFabExceptionCode.DeveloperKeyNotSet, \"Must have PlayFabSettings.DeveloperSecretKey set to call this method\");\n";
     if (apiCall.auth === "SecretKeyInstance")
-        return tabbing + "var developerSecretKey = request.AuthenticationContext?.DeveloperSecretKey ?? (authenticationContext?.DeveloperSecretKey ?? PlayFabSettings.DeveloperSecretKey);\n            if (developerSecretKey == null) throw new PlayFabException(PlayFabExceptionCode.DeveloperKeyNotSet, \"Must have PlayFabSettings.DeveloperSecretKey set to call this method\");\n";
+        return tabbing + "var developerSecretKey = request.AuthenticationContext?.DeveloperSecretKey ?? (authenticationContext?.DeveloperSecretKey ?? PlayFabSettings.DeveloperSecretKey);\n            if (developerSecretKey == null) throw new PlayFabException(PlayFabExceptionCode.DeveloperKeyNotSet, \"DeveloperSecretKey is not found in Request, Server Instance or PlayFabSettings\");\n";
     if (apiCall.url === "/Authentication/GetEntityToken")
         return tabbing + "string authKey = null, authValue = null;\n"
             + tabbing + "if (PlayFabSettings.ClientSessionTicket != null) { authKey = \"X-Authorization\"; authValue = PlayFabSettings.ClientSessionTicket; }\n"

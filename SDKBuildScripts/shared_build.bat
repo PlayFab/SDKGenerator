@@ -17,7 +17,7 @@ if [%delSrc%] == [true] (
 popd
 
 if ["%apiSpecSource%"] == [""] (
-    set apiSpecSource=-apiSpecPath
+    set apiSpecSource=-apiSpecGitUrl
 )
 
 if defined NODE_NAME (

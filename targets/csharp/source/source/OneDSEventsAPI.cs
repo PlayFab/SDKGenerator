@@ -146,7 +146,7 @@ namespace PlayFab
                 }
             }
 
-            var httpResult = await transport.DoPost(request, headers);
+            var httpResult = await transport.DoPost(serializedBatch, headers);
             if (httpResult is PlayFabError)
             {
                 var error = (PlayFabError)httpResult;
@@ -154,11 +154,7 @@ namespace PlayFab
                 return new PlayFabResult<WriteEventsResponse> { Error = error, CustomData = customData };
             }
 
-            var resultRawJson = (string)httpResult;
-            var resultData = PluginManager.GetPlugin<ISerializerPlugin>(PluginContract.PlayFab_Serializer).DeserializeObject<PlayFabJsonSuccess<WriteEventsResponse>>(resultRawJson);
-            var result = resultData.data;
-
-            return new PlayFabResult<WriteEventsResponse> { Result = result, CustomData = customData };
+            return new PlayFabResult<WriteEventsResponse> { Result = new WriteEventsResponse(), CustomData = customData };
         }
 
         /// <summary>

@@ -61,6 +61,14 @@ namespace PlayFab.Pipeline
         /// </summary>
         //public event BatchSendOutcomeEventHandler RaiseBatchSendOutcomeEvent;
 
+        public OneDSEventPipelineSettings Settings
+        {
+            get
+            {
+                return this.settings;
+            }
+        }
+
         public Task PipelineTask
         {
             get

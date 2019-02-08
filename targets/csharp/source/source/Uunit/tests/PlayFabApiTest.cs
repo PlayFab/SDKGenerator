@@ -7,6 +7,8 @@ using System;
 using System.Collections.Generic;
 using System.Linq;
 using System.Threading.Tasks;
+using PlayFab.Pipeline;
+using PlayFab.Logger;
 #if !DISABLE_PLAYFABENTITY_API
 using PlayFab.AuthenticationModels;
 using PlayFab.DataModels;
@@ -436,6 +438,117 @@ namespace PlayFab.UUnit
 
             var writeTask = PlayFabClientAPI.WritePlayerEventAsync(request, null, extraHeaders);
             ContinueWithContext(writeTask, testContext, null, true, "PlayStream WriteEvent failed", true);
+        }
+
+        /// <summary>
+        /// ONEDS API
+        /// Test that a batch of custom events can be sent to OneDS server
+        /// </summary>
+        [UUnitTest]
+        public void WriteOneDSEvents(UUnitTestContext testContext)
+        {
+            var event1 = new PlayFabEvent() { Name = "Event_1", EventType = PlayFabEventType.Lightweight };
+            event1.SetProperty("Prop-A", true);
+            event1.SetProperty("Prop-B", "hello");
+            event1.SetProperty("Prop-C", 123);
+
+            var event2 = new PlayFabEvent() { Name = "Event_2", EventType = PlayFabEventType.Lightweight };
+            event2.SetProperty("Prop-A", false);
+            event2.SetProperty("Prop-B", "good-bye");
+            event2.SetProperty("Prop-C", 456);
+
+            var request = new EventsModels.WriteEventsRequest
+            {
+                Events = new List<EventsModels.EventContents>
+                {
+                    event1.EventContents,
+                    event2.EventContents
+                }
+            };
+
+            var oneDSEventsApi = new OneDSEventsAPI();
+
+            // get OneDS authentication from PlayFab
+            var configRequest = new EventsModels.TelemetryIngestionConfigRequest();
+            var authTask = OneDSEventsAPI.GetTelemetryIngestionConfigAsync(configRequest);
+            var response = authTask.Result.Result;
+            if (authTask.Result.Result != null)
+            {
+                oneDSEventsApi.SetCredentials("o:" + response.TenantId, response.IngestionKey, response.TelemetryJwtToken, response.TelemetryJwtHeaderKey, response.TelemetryJwtHeaderPrefix);
+            }
+            else
+            {
+                testContext.Fail("Failed to get OneDS authentication info from PlayFab");
+                return;
+            }
+
+            // call OneDS events API
+            var writeTask = oneDSEventsApi.WriteTelemetryEventsAsync(request, null, extraHeaders);
+            ContinueWithContext(writeTask, testContext, WriteOneDSEventsContinued, true, "Failed to send a batch of custom OneDS events", true);
+        }
+
+        private void WriteOneDSEventsContinued(PlayFabResult<EventsModels.WriteEventsResponse> writeResult, UUnitTestContext testContext, string failMessage)
+        {
+            testContext.True(writeResult.Error == null && writeResult.Result != null, "Failed to send a batch of custom events to OneDS server");
+        }
+
+        /// <summary>
+        /// EVENT API
+        /// Test that custom lightweight events can be sent to OneDS server
+        /// </summary>
+        [UUnitTest]
+        public void EmitLightweightEvents(UUnitTestContext testContext)
+        {
+            // create and set settings for OneDS event pipeline
+            var settings = new OneDSEventPipelineSettings();
+            settings.BatchSize = 8;
+            settings.BatchFillTimeout = TimeSpan.FromSeconds(1);
+
+            // create OneDS event pipeline
+            var oneDSPipeline = new OneDSEventPipeline(settings, new DebugLogger());
+
+            // create custom event API, add the pipeline
+            var playFabEventApi = new PlayFabEventAPI();
+            playFabEventApi.EventRouter.AddAndStartPipeline(EventPipelineKey.OneDS, oneDSPipeline);
+
+            // create and emit many lightweight events
+            var results = new List<Task>();
+            for (int i = 0; i < 50; i++)
+            {
+                results.AddRange(playFabEventApi.EmitEvent(this.CreateSamplePlayFabEvent("Event_Custom", PlayFabEventType.Lightweight)));
+            }
+
+            // wait when the pipeline finishes sending all events
+            var all = Task.WhenAll(results);
+            all.Wait();
+
+            // check results
+            var sentBatches = new Dictionary<IList<IPlayFabEmitEventRequest>, int>();
+            foreach (var result in results)
+            {
+                testContext.True(result.IsCompleted, "Custom event emission task failed to complete");
+                PlayFabEmitEventResponse response = (PlayFabEmitEventResponse)((Task<IPlayFabEmitEventResponse>)result).Result;
+                testContext.True(response.EmitEventResult == EmitEventResult.Success, "Custom event emission task failed to succeed");
+                testContext.True(response.PlayFabError == null && response.WriteEventsResponse != null, "Custom event failed to be sent");
+
+                if (!sentBatches.ContainsKey(response.Batch))
+                    sentBatches[response.Batch] = 0;
+                sentBatches[response.Batch]++;
+            }
+
+            // 6 full batches of 8 events and 1 incomplete batch of 2 events are expected
+            testContext.True(sentBatches.Count(x => x.Value == 8) == 6, "Wrong number of full batches");
+            testContext.True(sentBatches.Count(x => x.Value == 2) == 1, "Wrong number of incomplete batches");
+            testContext.EndTest(UUnitFinishState.PASSED, null);
+        }
+
+        private PlayFabEvent CreateSamplePlayFabEvent(string name, PlayFabEventType eventType)
+        {
+            var customEvent = new PlayFabEvent { Name = name, EventType = eventType };
+            customEvent.SetProperty("Prop-A", true);
+            customEvent.SetProperty("Prop-B", "custom");
+            customEvent.SetProperty("Prop-C", 567);
+            return customEvent;
         }
 
         private static Task<PlayFabResult<T>> ThrowIfApiError<T>(Task<PlayFabResult<T>> original) where T : PlayFabResultCommon

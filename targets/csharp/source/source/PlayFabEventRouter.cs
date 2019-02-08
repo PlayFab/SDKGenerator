@@ -20,6 +20,7 @@ namespace PlayFab
     public interface IPlayFabEventRouter
     {
         IDictionary<EventPipelineKey, IEventPipeline> Pipelines { get; }
+        Task AddAndStartPipeline(EventPipelineKey eventPipelineKey, IEventPipeline eventPipeline);
         IEnumerable<Task<IPlayFabEmitEventResponse>> RouteEvent(IPlayFabEmitEventRequest request); // Route an event to pipelines. This method must be thread-safe.
     }
 
@@ -39,7 +40,18 @@ namespace PlayFab
         public PlayFabEventRouter()
         {
             this.Pipelines = new Dictionary<EventPipelineKey, IEventPipeline>();
-            this.Pipelines.Add(EventPipelineKey.OneDS, new OneDSEventPipeline(new OneDSEventPipelineSettings(), new DebugLogger()));  // add OneDS pipeline
+        }
+
+        /// <summary>
+        /// Adds and starts an event pipeline.
+        /// </summary>
+        /// <param name="eventPipelineKey">The event pipeline key.</param>
+        /// <param name="eventPipeline">The event pipeline.</param>
+        /// <returns>A task that runs while the pipeline is active.</returns>
+        public Task AddAndStartPipeline(EventPipelineKey eventPipelineKey, IEventPipeline eventPipeline)
+        {
+            this.Pipelines.Add(eventPipelineKey, eventPipeline);
+            return eventPipeline.StartAsync();
         }
 
         public IEnumerable<Task<IPlayFabEmitEventResponse>> RouteEvent(IPlayFabEmitEventRequest request)

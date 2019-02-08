@@ -177,7 +177,7 @@ namespace PlayFab
         /// <summary>
         /// The title id is used to batch and send the events to a particular destination (e.g. can be used in the DNS name of the PlayFab endpoints)
         /// </summary>
-        public string TitleId { get; set; } = string.Empty;
+        public string TitleId { get; set; } = "default";
 
         /// <summary>
         /// A promise to return IPlayFabEmitEventResponse when event is processed by pipeline.

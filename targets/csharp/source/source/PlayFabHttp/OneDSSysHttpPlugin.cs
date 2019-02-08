@@ -19,7 +19,10 @@ namespace PlayFab.Internal
             var content = request as byte[];
             if (content == null)
             {
-
+                var error = new PlayFabError();
+                error.Error = PlayFabErrorCode.InvalidContentType;
+                error.ErrorMessage = "Binary content for HTTP body is null";
+                return error;
             }
 
             var fullUrl = ONEDS_SERVICE_URL;
@@ -30,7 +33,6 @@ namespace PlayFab.Internal
             using (var postBody = new ByteArrayContent(content))
             {
                 string currentTimestampString = TimestampNow().ToString();
-                postBody.Headers.Add("User-Agent", "OCT_C#");
                 postBody.Headers.Add("sdk-version", "OCT_C#-0.11.1.0");
                 postBody.Headers.Add("Content-Encoding", "gzip");
                 postBody.Headers.Add("Content-Type", "application/bond-compact-binary");
@@ -64,49 +66,63 @@ namespace PlayFab.Internal
                 }
             }
 
-            if (!httpResponse.IsSuccessStatusCode)
+            int httpCode = (int)httpResponse.StatusCode;
+            if (httpCode >= 200 && httpCode < 300)
             {
-                var error = new PlayFabError();
-
-                if (string.IsNullOrEmpty(httpResponseString) || httpResponse.StatusCode == System.Net.HttpStatusCode.NotFound)
-                {
-                    error.HttpCode = (int)httpResponse.StatusCode;
-                    error.HttpStatus = httpResponse.StatusCode.ToString();
-                    return error;
-                }
-
-                PlayFabJsonError errorResult;
+                var responseObj = PluginManager.GetPlugin<ISerializerPlugin>(PluginContract.PlayFab_Serializer).DeserializeObject(httpResponseString) as Json.JsonObject;
                 try
                 {
-                    errorResult = null; // serializer.DeserializeObject<PlayFabJsonError>(httpResponseString);  // TO DO !!!!!!!!!!!!!!!!!!!!!!!!! replace null
+                    ulong oneDSResult = ulong.Parse(responseObj["acc"].ToString());
+                    if (oneDSResult > 0)
+                    {
+                        // successful response
+                        return httpResponseString;
+                    }
+                    else
+                    {
+                        var error = new PlayFabError();
+                        error.HttpCode = httpCode;
+                        error.HttpStatus = httpResponseString;
+                        error.Error = PlayFabErrorCode.PartialFailure;
+                        error.ErrorMessage = "OneDS server did not accept events";
+                        return error;
+                    }
                 }
                 catch (Exception e)
                 {
-                    error.HttpCode = (int)httpResponse.StatusCode;
-                    error.HttpStatus = httpResponse.StatusCode.ToString();
+                    var error = new PlayFabError();
+                    error.HttpCode = httpCode;
+                    error.HttpStatus = httpResponseString;
                     error.Error = PlayFabErrorCode.JsonParseError;
-                    error.ErrorMessage = e.Message;
+                    error.ErrorMessage = "Failed to parse response from OneDS server";
                     return error;
                 }
+            }
+            else if ((httpCode >= 500 && httpCode != 501 && httpCode != 505)
+                || httpCode == 408 || httpCode == 429)
+            {
+                // following One-DS recommendations, HTTP response codes in this range (excluding and including specific codes)
+                // are eligible for retries
 
-                error.HttpCode = errorResult.code;
-                error.HttpStatus = errorResult.status;
-                error.Error = (PlayFabErrorCode)errorResult.errorCode;
-                error.ErrorMessage = errorResult.errorMessage;
-                error.ErrorDetails = errorResult.errorDetails;
+                // TODO implement a retry policy
+                // As a placeholder, return an immediate error
+                var error = new PlayFabError();
+                error.HttpCode = httpCode;
+                error.HttpStatus = httpResponseString;
+                error.Error = PlayFabErrorCode.UnknownError;
+                error.ErrorMessage = "Failed to send a batch of events to OneDS";
                 return error;
             }
-
-            if (string.IsNullOrEmpty(httpResponseString))
+            else
             {
-                return new PlayFabError
-                {
-                    Error = PlayFabErrorCode.Unknown,
-                    ErrorMessage = "Internal server error"
-                };
+                // following One-DS recommendations, all other HTTP response codes are errors that should not be retried
+                var error = new PlayFabError();
+                error.HttpCode = httpCode;
+                error.HttpStatus = httpResponseString;
+                error.Error = PlayFabErrorCode.UnknownError;
+                error.ErrorMessage = "Failed to send a batch of events to OneDS";
+                return error;
             }
-
-            return httpResponseString;
         }
 
         /// <summary>

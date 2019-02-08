@@ -639,7 +639,7 @@ function getResultActions(tabbing, apiCall) {
         return tabbing + "if (outResult.EntityToken.Len() > 0)\n"
             + tabbing + "    PlayFabSettings::SetEntityToken(outResult.EntityToken);\n";
     else if (apiCall.result === "LoginResult")
-        return tabbing + "outResult.AuthenticationContext = TSharedPtr<UPlayFabAuthenticationContext>(NewObject<UPlayFabAuthenticationContext>());\n"
+        return tabbing + "outResult.AuthenticationContext = TSharedPtr<UPlayFabAuthenticationContext>(NewObject<UPlayFabAuthenticationContext>((UObject*)GetTransientPackage(), NAME_None, RF_Standalone));\n"
             + tabbing + "if (outResult.SessionTicket.Len() > 0) {\n"
             + tabbing + "    PlayFabSettings::SetClientSessionTicket(outResult.SessionTicket);\n"
             + tabbing + "    outResult.AuthenticationContext->SetClientSessionTicket(outResult.SessionTicket);\n"

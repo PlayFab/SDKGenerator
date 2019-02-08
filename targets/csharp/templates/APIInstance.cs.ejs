@@ -60,8 +60,7 @@ namespace PlayFab
 %>        public async Task<PlayFabResult<<%- apiCall.result %>>> <%- apiCall.name %>Async(<%- apiCall.request %> request, object customData = null, Dictionary<string, string> extraHeaders = null)
         {
 <%- getRequestActions("            ", apiCall) %>
-			var fullUrl = apiSettings == null ? PlayFabSettings.GetFullUrl("<%- apiCall.url %>", PlayFabSettings.RequestGetParams) : apiSettings.GetFullUrl("<%- apiCall.url %>", PlayFabSettings.RequestGetParams);
-            var httpResult = await PlayFabHttp.DoPost(fullUrl, request, <%- getAuthParams(apiCall) %>, extraHeaders, apiSettings);
+            var httpResult = await PlayFabHttp.DoPost("<%- apiCall.url %>", request, <%- getAuthParams(apiCall) %>, extraHeaders, apiSettings);
             if (httpResult is PlayFabError)
             {
                 var error = (PlayFabError)httpResult;

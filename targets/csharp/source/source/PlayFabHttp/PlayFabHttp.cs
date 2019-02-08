@@ -48,6 +48,7 @@ namespace PlayFab.Internal
     {
         public static async Task<object> DoPost(string urlPath, PlayFabRequestCommon request, string authType, string authKey, Dictionary<string, string> extraHeaders, PlayFabApiSettings apiSettings = null)
         {
+            var fullPath = apiSettings == null ? PlayFabSettings.GetFullUrl(urlPath, PlayFabSettings.RequestGetParams) : apiSettings.GetFullUrl(urlPath, PlayFabSettings.RequestGetParams);
             var titleId = apiSettings?.TitleId == null ? PlayFabSettings.TitleId : apiSettings.TitleId;
             if (titleId == null)
                 throw new PlayFabException(PlayFabExceptionCode.TitleNotSet, "You must set your titleId before making an api call");
@@ -66,7 +67,7 @@ namespace PlayFab.Internal
                 }
             }
 
-            return await transport.DoPost(urlPath, request, headers, apiSettings);
+            return await transport.DoPost(fullPath, request, headers);
         }
     }
 }

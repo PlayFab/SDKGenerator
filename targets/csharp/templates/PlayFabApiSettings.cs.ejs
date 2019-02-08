@@ -5,11 +5,8 @@ namespace PlayFab
 {
     public class PlayFabApiSettings
     {
-        public const string SdkVersion = "<%- sdkVersion %>";
-        public const string BuildIdentifier = "<%- buildIdentifier %>";
-        public const string SdkVersionString = "CSharpSDK-<%- sdkVersion %>";
         public readonly Dictionary<string, string> RequestGetParams = new Dictionary<string, string> {
-            { "sdk", SdkVersionString }
+            { "sdk", PlayFabSettings.SdkVersionString }
         };
 
         /// <summary> This is only for customers running a private cluster.  Generally you shouldn't touch this </summary>
@@ -37,44 +34,9 @@ namespace PlayFab
         public readonly string AD_TYPE_IDFA = "Idfa";
         public readonly string AD_TYPE_ANDROID_ID = "Adid";
 <% } %>
-        public string GetFullUrl(string apiCall, Dictionary<string, string> getParams)
+        public virtual string GetFullUrl(string apiCall, Dictionary<string, string> getParams)
         {
-            StringBuilder sb = new StringBuilder(1000);
-        
-            var baseUrl = ProductionEnvironmentUrl;
-            if (!baseUrl.StartsWith("http"))
-            {
-                if (VerticalName != null)
-                {
-                    sb.Append("https://").Append(VerticalName);
-                }
-                else
-                {
-                    sb.Append("https://").Append(TitleId);
-                }
-            }
-                
-            sb.Append(baseUrl).Append(apiCall);
-        
-            if (getParams != null)
-            {
-                bool firstParam = true;
-                foreach (var paramPair in getParams)
-                {
-                    if (firstParam)
-                    {
-                        sb.Append("?");
-                        firstParam = false;
-                    }
-                    else
-                    {
-                        sb.Append("&");
-                    }
-                    sb.Append(paramPair.Key).Append("=").Append(paramPair.Value);
-                }
-            }
-        
-            return sb.ToString();
+            return PlayFabSettings.GetFullUrl(apiCall, getParams, this);
         }
     }
 }

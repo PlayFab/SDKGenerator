@@ -15,7 +15,7 @@ exports.makeClientAPI2 = function (apis, sourceDir, apiOutputDir) {
     for (var i = 0; i < apis.length; i++)
         makeApi(apis[i], sourceDir, apiOutputDir);
     generateSimpleFiles(apis, sourceDir, apiOutputDir);
-    generateProject(apis, sourceDir, apiOutputDir, "Client", "");
+    generateProject(apis, sourceDir, apiOutputDir, "Client", "ENABLE_PLAYFABCLIENT_API");
 }
 
 exports.makeServerAPI = function (apis, sourceDir, apiOutputDir) {
@@ -27,7 +27,7 @@ exports.makeServerAPI = function (apis, sourceDir, apiOutputDir) {
     for (var i = 0; i < apis.length; i++)
         makeApi(apis[i], sourceDir, apiOutputDir);
     generateSimpleFiles(apis, sourceDir, apiOutputDir);
-    generateProject(apis, sourceDir, apiOutputDir, "Server", ";NETFX_CORE;SIMPLE_JSON_TYPEINFO;DISABLE_PLAYFABCLIENT_API;ENABLE_PLAYFABSERVER_API;ENABLE_PLAYFABADMIN_API");
+    generateProject(apis, sourceDir, apiOutputDir, "Server", ";NETFX_CORE;SIMPLE_JSON_TYPEINFO;DISABLE_PLAYFABCLIENT_API;ENABLE_PLAYFABSERVER_API");
 }
 
 exports.makeServerInstanceAPI = function (apis, sourceDir, apiOutputDir) {
@@ -49,7 +49,7 @@ exports.makeCombinedAPI = function (apis, sourceDir, apiOutputDir) {
     for (var i = 0; i < apis.length; i++)
         makeApi(apis[i], sourceDir, apiOutputDir);
     generateSimpleFiles(apis, sourceDir, apiOutputDir);
-    generateProject(apis, sourceDir, apiOutputDir, "All", ";ENABLE_PLAYFABADMIN_API;ENABLE_PLAYFABSERVER_API");
+    generateProject(apis, sourceDir, apiOutputDir, "All", ";ENABLE_PLAYFABADMIN_API;ENABLE_PLAYFABSERVER_API;ENABLE_PLAYFABCLIENT_API");
 }
 
 exports.makeCombinedInstanceAPI = function (apis, sourceDir, apiOutputDir) {

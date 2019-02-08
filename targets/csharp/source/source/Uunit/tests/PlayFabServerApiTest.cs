@@ -12,23 +12,7 @@ namespace PlayFab.UUnit
 {
     public class PlayFabServerApiTest : UUnitTestCase
     {
-        private const string TEST_STAT_NAME = "str";
-        private const string TEST_DATA_KEY = "testCounter";
-
-        private int _testInteger;
-
-        // Functional
-        private static bool TITLE_INFO_SET = false;
-
-        // Fixed values provided from testInputs
-        private static string USER_EMAIL;
-        private static Dictionary<string, string> extraHeaders;
-
-        // Information fetched by appropriate API calls
-        private static string entityId;
-        private static string entityType;
-        public static string PlayFabId;
-        public static string developerSecretKey;
+        private static TestTitleData testTitleData;
 
         /// <summary>
         /// PlayFab Title cannot be created from SDK tests, so you must provide your titleId to run unit tests.
@@ -36,23 +20,14 @@ namespace PlayFab.UUnit
         /// </summary>
         public static void SetTitleInfo(TestTitleData testInputs)
         {
-            TITLE_INFO_SET = true;
-
-            PlayFabSettings.TitleId = testInputs.titleId;
-            USER_EMAIL = testInputs.userEmail;
-            extraHeaders = testInputs.extraHeaders;
-            developerSecretKey = testInputs.developerSecretKey;
-
-            // Verify all the inputs won't cause crashes in the tests
-            TITLE_INFO_SET &= !string.IsNullOrEmpty(PlayFabSettings.TitleId)
-                && !string.IsNullOrEmpty(USER_EMAIL);
+            testTitleData = testInputs;
         }
 
         public override void Tick(UUnitTestContext testContext)
         {
             // No work needed, async tests will end themselves
         }
-        
+
         /// <summary>
         /// SERVER API
         /// Multiple instances of the same API class can be created
@@ -64,7 +39,7 @@ namespace PlayFab.UUnit
             settings.TitleId = PlayFabSettings.TitleId;
 
             PlayFabAuthenticationContext context = new PlayFabAuthenticationContext();
-            context.DeveloperSecretKey = developerSecretKey;
+            context.DeveloperSecretKey = testTitleData.developerSecretKey;
 
             try
             {
@@ -134,7 +109,7 @@ namespace PlayFab.UUnit
             settings.TitleId = PlayFabSettings.TitleId;
 
             PlayFabAuthenticationContext context = new PlayFabAuthenticationContext();
-            context.DeveloperSecretKey = developerSecretKey;
+            context.DeveloperSecretKey = testTitleData.developerSecretKey;
 
             var loginRequest1 = new LoginWithServerCustomIdRequest()
             {
@@ -155,14 +130,13 @@ namespace PlayFab.UUnit
                 PlayFabServerInstanceAPI serverInstance1 = new PlayFabServerInstanceAPI(settings, context);
                 PlayFabServerInstanceAPI serverInstance2 = new PlayFabServerInstanceAPI(settings, context);
 
-                var result1 =  serverInstance1.LoginWithServerCustomIdAsync(loginRequest1, null, extraHeaders).Result;
-                var result2 =  serverInstance2.LoginWithServerCustomIdAsync(loginRequest2, null, extraHeaders).Result;
+                var result1 = serverInstance1.LoginWithServerCustomIdAsync(loginRequest1, null, testTitleData.extraHeaders).Result;
+                var result2 = serverInstance2.LoginWithServerCustomIdAsync(loginRequest2, null, testTitleData.extraHeaders).Result;
 
-                testContext.NotNull(result1.Result, "ApiInstanceLogin failed");
-                testContext.NotNull(result2.Result, "ApiInstanceLogin failed");
-                testContext.IsNull(result1.Error, "ApiInstanceLogin failed");
-                testContext.IsNull(result2.Error, "ApiInstanceLogin failed");
-
+                testContext.NotNull(result1.Result, "serverInstace1 login failed");
+                testContext.NotNull(result2.Result, "serverInstance2 login failed");
+                testContext.IsNull(result1.Error, "serverInstance1 got error: " + result1.Error?.ErrorMessage ?? string.Empty);
+                testContext.IsNull(result2.Error, "serverInstance2 got error: " + result2.Error?.ErrorMessage ?? string.Empty);
                 testContext.EndTest(UUnitFinishState.PASSED, null);
             }
             catch (Exception)
@@ -179,7 +153,7 @@ namespace PlayFab.UUnit
         [UUnitTest]
         public void CheckWithNoSettings(UUnitTestContext testContext)
         {
-            PlayFabSettings.DeveloperSecretKey = developerSecretKey;
+            PlayFabSettings.DeveloperSecretKey = testTitleData.developerSecretKey;
 
             //It should work with static class only
             PlayFabServerInstanceAPI serverInstanceWithoutAnyParameter = new PlayFabServerInstanceAPI();
@@ -194,7 +168,7 @@ namespace PlayFab.UUnit
         [UUnitTest]
         public void CheckWithAuthContextAndWithoutAuthContext(UUnitTestContext testContext)
         {
-            PlayFabSettings.DeveloperSecretKey = developerSecretKey;
+            PlayFabSettings.DeveloperSecretKey = testTitleData.developerSecretKey;
 
             //IT will  use static developer key - Should has no error 
             PlayFabServerInstanceAPI serverInstance1 = new PlayFabServerInstanceAPI();
@@ -216,11 +190,10 @@ namespace PlayFab.UUnit
                 testContext.IntEquals(401, result2.Error.HttpCode, "Server Instance2 got wrong error");
                 testContext.EndTest(UUnitFinishState.PASSED, null);
             }
-            catch(Exception ex)
+            catch (Exception ex)
             {
                 testContext.Fail("CheckWithAuthContextAndWithoutAuthContext failed : " + ex.Message);
             }
-            
         }
 
         /// <summary>
@@ -236,13 +209,13 @@ namespace PlayFab.UUnit
             settings.TitleId = PlayFabSettings.TitleId;
 
             PlayFabAuthenticationContext context = new PlayFabAuthenticationContext();
-            context.DeveloperSecretKey = developerSecretKey;
+            context.DeveloperSecretKey = testTitleData.developerSecretKey;
 
             PlayFabAuthenticationContext context2 = new PlayFabAuthenticationContext();
             context2.DeveloperSecretKey = "GETERROR";
 
             PlayFabAuthenticationContext context3 = new PlayFabAuthenticationContext();
-            context3.DeveloperSecretKey = developerSecretKey;
+            context3.DeveloperSecretKey = testTitleData.developerSecretKey;
 
             PlayFabAuthenticationContext context4 = new PlayFabAuthenticationContext();
             context4.DeveloperSecretKey = "TESTKEYERROR";
@@ -251,7 +224,7 @@ namespace PlayFab.UUnit
             context5.DeveloperSecretKey = "123421";
 
 
-            PlayFabServerInstanceAPI serverInstance = new PlayFabServerInstanceAPI(settings,context);
+            PlayFabServerInstanceAPI serverInstance = new PlayFabServerInstanceAPI(settings, context);
             tasks.Add(serverInstance.GetAllSegmentsAsync(new GetAllSegmentsRequest()));
 
             PlayFabServerInstanceAPI serverInstance1 = new PlayFabServerInstanceAPI(settings, context);

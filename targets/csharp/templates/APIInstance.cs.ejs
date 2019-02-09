@@ -59,8 +59,8 @@ namespace PlayFab
 %><%- getDeprecationAttribute("        ", apiCall)
 %>        public async Task<PlayFabResult<<%- apiCall.result %>>> <%- apiCall.name %>Async(<%- apiCall.request %> request, object customData = null, Dictionary<string, string> extraHeaders = null)
         {
-<%- getRequestActions("            ", apiCall) %>
-            var httpResult = await PlayFabHttp.DoPost("<%- apiCall.url %>", request, <%- getAuthParams(apiCall) %>, extraHeaders, apiSettings);
+<%- getRequestActions("            ", apiCall, true) %>
+            var httpResult = await PlayFabHttp.DoPost("<%- apiCall.url %>", request, <%- getAuthParams(apiCall, true) %>, extraHeaders, apiSettings);
             if (httpResult is PlayFabError)
             {
                 var error = (PlayFabError)httpResult;

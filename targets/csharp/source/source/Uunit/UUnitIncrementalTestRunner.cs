@@ -31,7 +31,6 @@ namespace PlayFab.UUnit
 
         public static TestTitleData LoadTestTitleData(TestTitleData testInputs = null)
         {
-
 #if NET45 || NETCOREAPP2_0
             if(testInputs == null)
             {

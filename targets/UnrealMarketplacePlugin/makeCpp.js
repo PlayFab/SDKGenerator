@@ -611,15 +611,14 @@ function getBaseType(datatype) {
 function getRequestActions(tabbing, apiCall, isInstanceApi) {
     if (apiCall.result === "LoginResult" || apiCall.request === "RegisterPlayFabUserRequest") {
         if (isInstanceApi) {
-            return tabbing + "auto apiSettings = this->GetSettings();\n"
-                + tabbing + "if (!apiSettings.IsValid()) {\n"
+            return tabbing + "if (!this->settings.IsValid()) {\n"
                 + tabbing + "    if (PlayFabSettings::GetTitleId().Len() > 0) {\n"
                 + tabbing + "        request.TitleId = PlayFabSettings::GetTitleId();\n"
                 + tabbing + "    }\n"
                 + tabbing + "}\n"
                 + tabbing + "else {\n"
-                + tabbing + "    if (apiSettings->GetTitleId().Len() > 0) {\n"
-                + tabbing + "        request.TitleId = apiSettings->GetTitleId();\n"
+                + tabbing + "    if (this->settings->GetTitleId().Len() > 0) {\n"
+                + tabbing + "        request.TitleId = this->settings->GetTitleId();\n"
                 + tabbing + "    }\n"
                 + tabbing + "}\n";
         }

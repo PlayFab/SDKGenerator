@@ -69,9 +69,7 @@ void UPlayFab<%- api.name %>InstanceAPI::ForgetAllCredentials()
 TSharedPtr<UPlayFabAuthenticationContext> UPlayFab<%- api.name %>InstanceAPI::GetOrCreateAuthenticationContext()
 {
     if (!this->authContext.IsValid())
-    {
-        this->authContext = TSharedPtr<UPlayFabAuthenticationContext>(NewObject<UPlayFabAuthenticationContext>());;
-    }
+        this->authContext = TSharedPtr<UPlayFabAuthenticationContext>(NewObject<UPlayFabAuthenticationContext>());
 
     return this->authContext;
 }

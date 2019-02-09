@@ -672,7 +672,7 @@ function getResultActions(tabbing, apiCall, isInstanceApi) {
         return tabbing + "if (outResult.EntityToken.Len() > 0)\n"
             + tabbing + "    " + authByIsInstance(isInstanceApi, true) + "SetEntityToken(outResult.EntityToken);\n";
     else if (apiCall.result === "LoginResult"){
-        return tabbing + "outResult.AuthenticationContext = TSharedPtr<UPlayFabAuthenticationContext>(NewObject<UPlayFabAuthenticationContext>());\n"
+        return tabbing + "outResult.AuthenticationContext = TSharedPtr<UPlayFabAuthenticationContext>(NewObject<UPlayFabAuthenticationContext>((UObject*)GetTransientPackage(), NAME_None, RF_Standalone));\n"
             + tabbing + "if (outResult.SessionTicket.Len() > 0) {\n"
             + (isInstanceApi ? tabbing + "    " + "this->GetOrCreateAuthenticationContext();\n" : "")
             + tabbing + "    " + authByIsInstance(isInstanceApi, false) + "SetClientSessionTicket(outResult.SessionTicket);\n"

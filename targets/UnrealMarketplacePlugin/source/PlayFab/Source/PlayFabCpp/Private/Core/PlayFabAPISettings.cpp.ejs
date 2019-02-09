@@ -1,0 +1,19 @@
+<%- copyright %>
+
+#pragma once
+
+#include "PlayFabAPISettings.h"
+#include "PlayFab.h"
+#include "PlayFabSettings.h"
+
+UPlayFabAPISettings::UPlayFabAPISettings() :
+#ifndef DISABLE_PLAYFABCLIENT_API
+          AdvertisingIdType(PlayFab::PlayFabSettings::GetAdvertisingIdType())
+        , AdvertisingIdValue(PlayFab::PlayFabSettings::GetAdvertisingIdValue())
+        , DisableAdvertising(PlayFab::PlayFabSettings::GetDisableAdvertising())
+#endif
+        , VerticalName(PlayFab::PlayFabSettings::GetVerticalName())
+        , BaseServiceHost(PlayFab::PlayFabSettings::GetProductionEnvironmentURL())
+        , TitleId(PlayFab::PlayFabSettings::GetTitleId())
+{
+}

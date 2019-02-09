@@ -570,12 +570,14 @@
     <Content Include="targets\UnrealMarketplacePlugin\source\PlayFab\Source\PlayFabCpp\Private\Core\PlayFabJsonHelpers.cpp.ejs" />
     <Content Include="targets\UnrealMarketplacePlugin\source\PlayFab\Source\PlayFabCpp\Private\Core\PlayFabResultHandler.cpp.ejs" />
     <Content Include="targets\UnrealMarketplacePlugin\source\PlayFab\Source\PlayFabCpp\Private\Core\PlayFabSettings.cpp.ejs" />
+    <Content Include="targets\UnrealMarketplacePlugin\Source\PlayFab\Source\PlayFabCpp\Private\Core\PlayFabAPISettings.cpp.ejs" />
     <Content Include="targets\UnrealMarketplacePlugin\source\PlayFab\Source\PlayFabCpp\Private\PlayFab.cpp.ejs" />
     <Content Include="targets\UnrealMarketplacePlugin\Source\PlayFab\Source\PlayFabCpp\Public\Core\PlayFabCppBaseModel.h.ejs" />
     <Content Include="targets\UnrealMarketplacePlugin\source\PlayFab\Source\PlayFabCpp\Public\Core\PlayFabError.h.ejs" />
     <Content Include="targets\UnrealMarketplacePlugin\source\PlayFab\Source\PlayFabCpp\Public\Core\PlayFabJsonHelpers.h.ejs" />
     <Content Include="targets\UnrealMarketplacePlugin\source\PlayFab\Source\PlayFabCpp\Public\Core\PlayFabResultHandler.h.ejs" />
     <Content Include="targets\UnrealMarketplacePlugin\source\PlayFab\Source\PlayFabCpp\Public\Core\PlayFabSettings.h.ejs" />
+    <Content Include="targets\UnrealMarketplacePlugin\Source\PlayFab\Source\PlayFabCpp\Public\Core\PlayFabAPISettings.h.ejs" />
     <Content Include="targets\UnrealMarketplacePlugin\source\PlayFab\Source\PlayFabCpp\Public\PlayFab.h.ejs" />
     <Content Include="targets\UnrealMarketplacePlugin\source\PlayFab\Source\PlayFab\Classes\PlayFabBaseModel.h.ejs" />
     <Content Include="targets\UnrealMarketplacePlugin\source\PlayFab\Source\PlayFab\Classes\PlayFabEnums.h.ejs" />
@@ -597,6 +599,8 @@
     <Content Include="targets\UnrealMarketplacePlugin\templates\PlayFabCpp\core\PlayFab_API.h.ejs" />
     <Content Include="targets\UnrealMarketplacePlugin\templates\PlayFabCpp\core\PlayFab_DataModels.cpp.ejs" />
     <Content Include="targets\UnrealMarketplacePlugin\templates\PlayFabCpp\core\PlayFab_DataModels.h.ejs" />
+  	<Content Include="targets\UnrealMarketplacePlugin\templates\PlayFabCpp\core\PlayFab_InstanceAPI.cpp.ejs" />
+    <Content Include="targets\UnrealMarketplacePlugin\templates\PlayFabCpp\core\PlayFab_InstanceAPI.h.ejs" />
     <Content Include="targets\UnrealMarketplacePlugin\templates\PlayFab\PlayFab_API.cpp.ejs" />
     <Content Include="targets\UnrealMarketplacePlugin\templates\PlayFab\PlayFab_API.h.ejs" />
     <Content Include="targets\UnrealMarketplacePlugin\templates\PlayFab\PlayFab_ModelDecoder.cpp.ejs" />

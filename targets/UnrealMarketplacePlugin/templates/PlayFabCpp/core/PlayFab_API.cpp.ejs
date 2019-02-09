@@ -86,8 +86,8 @@ bool UPlayFab<%- api.name %>API::<%- apiCall.name %>(
     const F<%- apiCall.name %>Delegate& SuccessDelegate,
     const FPlayFabErrorDelegate& ErrorDelegate)
 {
-<%- getRequestActions("    ", apiCall)
-%>    auto HttpRequest = PlayFabRequestHandler::SendRequest(<%- getUrlAccessor(apiCall) %>, request.toJSONString(), <%- getAuthParams(apiCall) %>);
+<%- getRequestActions("    ", apiCall, false)
+%>    auto HttpRequest = PlayFabRequestHandler::SendRequest(<%- getUrlAccessor(apiCall) %>, request.toJSONString(), <%- getAuthParams(apiCall, false) %>);
     HttpRequest->OnProcessRequestComplete().BindRaw(this, &UPlayFab<%- api.name %>API::On<%- apiCall.name %>Result, SuccessDelegate, ErrorDelegate);
     return HttpRequest->ProcessRequest();
 }
@@ -98,7 +98,7 @@ void UPlayFab<%- api.name %>API::On<%- apiCall.name %>Result(FHttpRequestPtr Htt
     FPlayFabCppError errorResult;
     if (PlayFabRequestHandler::DecodeRequest(HttpRequest, HttpResponse, bSucceeded, outResult, errorResult))
     {
-<%- getResultActions("        ", apiCall)
+<%- getResultActions("        ", apiCall, false)
 %>        SuccessDelegate.ExecuteIfBound(outResult);
     }
     else

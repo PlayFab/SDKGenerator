@@ -110,6 +110,11 @@ namespace PlayFab
             {
                 throw new GSDKInitializationException($"Cannot read configuration file {fileName}", ex);
             }
+            
+            if (string.IsNullOrWhiteSpace(HeartbeatEndpoint) || string.IsNullOrWhiteSpace(ServerId))
+            {
+                throw new GSDKInitializationException($"Heartbeat endpoint and Server id are required configuration values. Please double check configuration file at: {fileName}");
+            }
         }
     }
 

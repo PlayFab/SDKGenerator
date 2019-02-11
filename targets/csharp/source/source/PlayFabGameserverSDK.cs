@@ -196,7 +196,7 @@ namespace PlayFab
         /// <param name="message">The message to be logged</param>
         public static void LogMessage(string message)
         {
-            //_internalSdk.Logger.Log(message);
+            _internalSdk.Logger.Log(message);
         }
     }
 }

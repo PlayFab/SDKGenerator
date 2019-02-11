@@ -32,6 +32,10 @@ namespace PlayFab
         explicit UPlayFab<%- api.name %>InstanceAPI(TSharedPtr<UPlayFabAuthenticationContext> authenticationContext);
         UPlayFab<%- api.name %>InstanceAPI(TSharedPtr<UPlayFabAPISettings> apiSettings, TSharedPtr<UPlayFabAuthenticationContext> authenticationContext);
         ~UPlayFab<%- api.name %>InstanceAPI();
+        UPlayFab<%- api.name %>InstanceAPI(const UPlayFab<%- api.name %>InstanceAPI& source) = delete; // disable copy
+        UPlayFab<%- api.name %>InstanceAPI(UPlayFab<%- api.name %>InstanceAPI&&) = delete; // disable move
+        UPlayFab<%- api.name %>InstanceAPI& operator=(const UPlayFab<%- api.name %>InstanceAPI& source) = delete; // disable assignment
+        UPlayFab<%- api.name %>InstanceAPI& operator=(UPlayFab<%- api.name %>InstanceAPI&& other) = delete; // disable move assignment
 
         int GetPendingCalls() const;
         TSharedPtr<UPlayFabAPISettings> GetSettings() const;

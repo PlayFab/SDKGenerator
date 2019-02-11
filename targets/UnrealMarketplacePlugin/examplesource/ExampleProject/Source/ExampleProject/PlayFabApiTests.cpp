@@ -854,10 +854,8 @@ PlayFabApiTest_MultipleUsersWithInstancedApis::PlayFabApiTest_MultipleUsersWithI
 bool PlayFabApiTest_MultipleUsersWithInstancedApis::Update()
 {
     // Initialize, setup the call, and wait for the result
-    if (!testsStarted)
+    if (!clientAPI1.IsValid())
     {
-        testsStarted = true;
-
         // Cache the static login credentials. We will be clearing these in order to test the multi-user functionality
         //  that circumvents them, but other tests depend on these being set so we need to clean up after ourselves
         //  TODO: Update test framework with a setup/teardown for each test that handles this, so that tests don't depend on each other's side effects
@@ -865,14 +863,14 @@ bool PlayFabApiTest_MultipleUsersWithInstancedApis::Update()
         cachedEntityToken = IPlayFabCommonModuleInterface::Get().GetEntityToken();
         cachedDeveloperSecretKey = IPlayFabCommonModuleInterface::Get().GetDeveloperSecretKey();
 
-        clientAPI1 = PlayFab::UPlayFabClientInstanceAPI();
-        clientAPI2 = PlayFab::UPlayFabClientInstanceAPI(MakeShared<UPlayFabAPISettings>(UPlayFabAPISettings()));
+        clientAPI1 = TSharedPtr<PlayFab::UPlayFabClientInstanceAPI>(new PlayFab::UPlayFabClientInstanceAPI());
+        clientAPI2 = TSharedPtr<PlayFab::UPlayFabClientInstanceAPI>(new PlayFab::UPlayFabClientInstanceAPI(TSharedPtr<UPlayFabAPISettings>(new UPlayFabAPISettings())));
 
         // Log In User 1
         PlayFab::ClientModels::FLoginWithCustomIDRequest user1LoginRequest{};
         user1LoginRequest.CustomId = TEXT("UE4MultiUserInstancedCpp_1");
         user1LoginRequest.CreateAccount = true;
-        clientAPI1.LoginWithCustomID(user1LoginRequest
+        clientAPI1->LoginWithCustomID(user1LoginRequest
             , PlayFab::UPlayFabClientInstanceAPI::FLoginWithCustomIDDelegate::CreateRaw(this, &PlayFabApiTest_MultipleUsersWithInstancedApis::OnUser1LoginSuccess)
             , PlayFab::FPlayFabErrorDelegate::CreateRaw(this, &PlayFabApiTest_MultipleUsersWithInstancedApis::OnError)
         );
@@ -881,14 +879,14 @@ bool PlayFabApiTest_MultipleUsersWithInstancedApis::Update()
         PlayFab::ClientModels::FLoginWithCustomIDRequest user2LoginRequest{};
         user2LoginRequest.CustomId = TEXT("UE4MultiUserInstancedCpp_2");
         user2LoginRequest.CreateAccount = true;
-        clientAPI2.LoginWithCustomID(user2LoginRequest
+        clientAPI2->LoginWithCustomID(user2LoginRequest
             , PlayFab::UPlayFabClientInstanceAPI::FLoginWithCustomIDDelegate::CreateRaw(this, &PlayFabApiTest_MultipleUsersWithInstancedApis::OnUser2LoginSuccess)
             , PlayFab::FPlayFabErrorDelegate::CreateRaw(this, &PlayFabApiTest_MultipleUsersWithInstancedApis::OnError)
         );
     }
 
     // Return when the api call is resolved
-    return clientAPI1.GetPendingCalls() == 0;
+    return clientAPI1->GetPendingCalls() == 0;
 }
 
 void PlayFabApiTest_MultipleUsersWithInstancedApis::OnUser1LoginSuccess(const PlayFab::ClientModels::FLoginResult& result)
@@ -916,14 +914,14 @@ void PlayFabApiTest_MultipleUsersWithInstancedApis::OnBothUsersLoggedIn()
 
     // Get User 1 Profile
     PlayFab::ClientModels::FGetPlayerProfileRequest user1ProfileRequest{};
-    clientAPI1.GetPlayerProfile(user1ProfileRequest
+    clientAPI1->GetPlayerProfile(user1ProfileRequest
         , PlayFab::UPlayFabClientInstanceAPI::FGetPlayerProfileDelegate::CreateRaw(this, &PlayFabApiTest_MultipleUsersWithInstancedApis::OnUser1GetProfileSuccess)
         , PlayFab::FPlayFabErrorDelegate::CreateRaw(this, &PlayFabApiTest_MultipleUsersWithInstancedApis::OnError)
     );
 
     // Get User 2 Profile
     PlayFab::ClientModels::FGetPlayerProfileRequest user2ProfileRequest{};
-    clientAPI2.GetPlayerProfile(user2ProfileRequest
+    clientAPI2->GetPlayerProfile(user2ProfileRequest
         , PlayFab::UPlayFabClientInstanceAPI::FGetPlayerProfileDelegate::CreateRaw(this, &PlayFabApiTest_MultipleUsersWithInstancedApis::OnUser2GetProfileSuccess)
         , PlayFab::FPlayFabErrorDelegate::CreateRaw(this, &PlayFabApiTest_MultipleUsersWithInstancedApis::OnError)
     );

@@ -351,10 +351,8 @@ private:
      */
     void RestoreCachedStaticCredentials();
 
-    bool testsStarted = false;
-
-    PlayFab::UPlayFabClientInstanceAPI clientAPI1;
-    PlayFab::UPlayFabClientInstanceAPI clientAPI2;
+    TSharedPtr<PlayFab::UPlayFabClientInstanceAPI> clientAPI1;
+    TSharedPtr<PlayFab::UPlayFabClientInstanceAPI> clientAPI2;
 
     PlayFab::ClientModels::FLoginResult user1LoginResult;
     PlayFab::ClientModels::FLoginResult user2LoginResult;

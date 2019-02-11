@@ -3,6 +3,7 @@
 #pragma once
 
 #include "CoreMinimal.h"
+#include "PlayFabSettings.h"
 
 /**
 * The settings that can be used (optionally) by instance versions of PlayFab APIs.
@@ -95,7 +96,11 @@ public:
         DisableAdvertising = InDisableAdvertising;
     }
 
-
+    FString GetUrl(const FString& CallPath)
+    {
+        return TEXT("https://") + (!VerticalName.IsEmpty() ? VerticalName : TitleId) + BaseServiceHost
+         + CallPath + TEXT("?sdk=") + PlayFab::PlayFabSettings::sdkVersion;
+    }
 
 private:
     // The name of a PlayFab service vertical

@@ -702,6 +702,9 @@ function getResultActions(tabbing, apiCall, isInstanceApi) {
     return "";
 }
 
-function getUrlAccessor(apiCall) {
-    return "PlayFabSettings::GetUrl(TEXT(\"" + apiCall.url + "\"))";
+function getUrlAccessor(apiCall, isInstanceApi) {
+    if(isInstanceApi)
+        return "!this->settings.IsValid() ? PlayFabSettings::GetUrl(TEXT(\"" + apiCall.url + "\")) : this->settings->GetUrl(TEXT(\"" + apiCall.url + "\"))";
+    else
+        return "PlayFabSettings::GetUrl(TEXT(\"" + apiCall.url + "\"))";
 }

@@ -600,7 +600,7 @@
     <Content Include="targets\UnrealMarketplacePlugin\templates\PlayFabCpp\core\PlayFab_API.h.ejs" />
     <Content Include="targets\UnrealMarketplacePlugin\templates\PlayFabCpp\core\PlayFab_DataModels.cpp.ejs" />
     <Content Include="targets\UnrealMarketplacePlugin\templates\PlayFabCpp\core\PlayFab_DataModels.h.ejs" />
-  	<Content Include="targets\UnrealMarketplacePlugin\templates\PlayFabCpp\core\PlayFab_InstanceAPI.cpp.ejs" />
+    <Content Include="targets\UnrealMarketplacePlugin\templates\PlayFabCpp\core\PlayFab_InstanceAPI.cpp.ejs" />
     <Content Include="targets\UnrealMarketplacePlugin\templates\PlayFabCpp\core\PlayFab_InstanceAPI.h.ejs" />
     <Content Include="targets\UnrealMarketplacePlugin\templates\PlayFab\PlayFab_API.cpp.ejs" />
     <Content Include="targets\UnrealMarketplacePlugin\templates\PlayFab\PlayFab_API.h.ejs" />

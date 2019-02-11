@@ -860,6 +860,7 @@ bool PlayFabApiTest_MultipleUsersWithInstancedApis::Update()
 
         // Cache the static login credentials. We will be clearing these in order to test the multi-user functionality
         //  that circumvents them, but other tests depend on these being set so we need to clean up after ourselves
+        //  TODO: Update test framework with a setup/teardown for each test that handles this, so that tests don't depend on each other's side effects
         cachedClientSessionTicket = IPlayFabCommonModuleInterface::Get().GetClientSessionTicket();
         cachedEntityToken = IPlayFabCommonModuleInterface::Get().GetEntityToken();
         cachedDeveloperSecretKey = IPlayFabCommonModuleInterface::Get().GetDeveloperSecretKey();
@@ -872,16 +873,16 @@ bool PlayFabApiTest_MultipleUsersWithInstancedApis::Update()
         user1LoginRequest.CustomId = TEXT("UE4MultiUserInstancedCpp_1");
         user1LoginRequest.CreateAccount = true;
         clientAPI1.LoginWithCustomID(user1LoginRequest
-            , PlayFab::UPlayFabClientAPI::FLoginWithCustomIDDelegate::CreateRaw(this, &PlayFabApiTest_MultipleUsersWithInstancedApis::OnUser1LoginSuccess)
+            , PlayFab::UPlayFabClientInstanceAPI::FLoginWithCustomIDDelegate::CreateRaw(this, &PlayFabApiTest_MultipleUsersWithInstancedApis::OnUser1LoginSuccess)
             , PlayFab::FPlayFabErrorDelegate::CreateRaw(this, &PlayFabApiTest_MultipleUsersWithInstancedApis::OnError)
         );
 
         // Log In User 2
         PlayFab::ClientModels::FLoginWithCustomIDRequest user2LoginRequest{};
-        user2LoginRequest.CustomId = TEXT("UE4MultiUserInstanced_2");
+        user2LoginRequest.CustomId = TEXT("UE4MultiUserInstancedCpp_2");
         user2LoginRequest.CreateAccount = true;
         clientAPI2.LoginWithCustomID(user2LoginRequest
-            , PlayFab::UPlayFabClientAPI::FLoginWithCustomIDDelegate::CreateRaw(this, &PlayFabApiTest_MultipleUsersWithInstancedApis::OnUser2LoginSuccess)
+            , PlayFab::UPlayFabClientInstanceAPI::FLoginWithCustomIDDelegate::CreateRaw(this, &PlayFabApiTest_MultipleUsersWithInstancedApis::OnUser2LoginSuccess)
             , PlayFab::FPlayFabErrorDelegate::CreateRaw(this, &PlayFabApiTest_MultipleUsersWithInstancedApis::OnError)
         );
     }
@@ -916,14 +917,14 @@ void PlayFabApiTest_MultipleUsersWithInstancedApis::OnBothUsersLoggedIn()
     // Get User 1 Profile
     PlayFab::ClientModels::FGetPlayerProfileRequest user1ProfileRequest{};
     clientAPI1.GetPlayerProfile(user1ProfileRequest
-        , PlayFab::UPlayFabClientAPI::FGetPlayerProfileDelegate::CreateRaw(this, &PlayFabApiTest_MultipleUsersWithInstancedApis::OnUser1GetProfileSuccess)
+        , PlayFab::UPlayFabClientInstanceAPI::FGetPlayerProfileDelegate::CreateRaw(this, &PlayFabApiTest_MultipleUsersWithInstancedApis::OnUser1GetProfileSuccess)
         , PlayFab::FPlayFabErrorDelegate::CreateRaw(this, &PlayFabApiTest_MultipleUsersWithInstancedApis::OnError)
     );
 
     // Get User 2 Profile
     PlayFab::ClientModels::FGetPlayerProfileRequest user2ProfileRequest{};
     clientAPI2.GetPlayerProfile(user2ProfileRequest
-        , PlayFab::UPlayFabClientAPI::FGetPlayerProfileDelegate::CreateRaw(this, &PlayFabApiTest_MultipleUsersWithInstancedApis::OnUser2GetProfileSuccess)
+        , PlayFab::UPlayFabClientInstanceAPI::FGetPlayerProfileDelegate::CreateRaw(this, &PlayFabApiTest_MultipleUsersWithInstancedApis::OnUser2GetProfileSuccess)
         , PlayFab::FPlayFabErrorDelegate::CreateRaw(this, &PlayFabApiTest_MultipleUsersWithInstancedApis::OnError)
     );
 }

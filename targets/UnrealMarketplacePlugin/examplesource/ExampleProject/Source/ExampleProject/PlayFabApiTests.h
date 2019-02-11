@@ -345,6 +345,10 @@ private:
 
     void OnError(const PlayFab::FPlayFabCppError& ErrorResult);
 
+    /**
+     *  Restore the static credentials originally set by LoginOrRegister but wiped in this test, as other tests depend on them
+     *  TODO: Update test framework with a setup/teardown for each test that handles this, so that tests don't depend on each other's side effects
+     */
     void RestoreCachedStaticCredentials();
 
     bool testsStarted = false;

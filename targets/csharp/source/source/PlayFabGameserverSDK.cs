@@ -89,7 +89,7 @@ namespace PlayFab
         /// </summary>
         public static void Start(bool debugLogs = false)
         {
-            Task.WhenAll(_internalSdk.StartAsync())
+            Task.WhenAll(_internalSdk.StartAsync(debugLogs))
                 .Wait();
         }
 

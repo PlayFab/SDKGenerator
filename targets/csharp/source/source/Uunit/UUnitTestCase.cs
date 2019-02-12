@@ -6,7 +6,9 @@
  * http://creativecommons.org/licenses/by-sa/3.0/
 */
 
+using PlayFab.Internal;
 using System;
+using System.Threading.Tasks;
 
 namespace PlayFab.UUnit
 {
@@ -56,6 +58,54 @@ namespace PlayFab.UUnit
         /// </summary>
         public virtual void ClassTearDown()
         {
+        }
+
+        protected void ContinueWithContext<T>(Task<PlayFabResult<T>> srcTask, UUnitTestContext testContext, Action<PlayFabResult<T>, UUnitTestContext, string> continueAction, bool expectSuccess, string failMessage, bool endTest) where T : PlayFabResultCommon
+        {
+            srcTask.ContinueWith(task =>
+            {
+                var failed = true;
+                try
+                {
+                    if (expectSuccess)
+                    {
+                        testContext.NotNull(task.Result, failMessage);
+                        testContext.IsNull(task.Result.Error, PlayFabUtil.GenerateErrorReport(task.Result.Error));
+                        testContext.NotNull(task.Result.Result, failMessage);
+                    }
+                    if (continueAction != null)
+                        continueAction.Invoke(task.Result, testContext, failMessage);
+                    failed = false;
+                }
+                catch (UUnitSkipException uu)
+                {
+                    // Silence the assert and ensure the test is marked as complete - The exception is just to halt the test process
+                    testContext.EndTest(UUnitFinishState.SKIPPED, uu.Message);
+                }
+                catch (UUnitException uu)
+                {
+                    // Silence the assert and ensure the test is marked as complete - The exception is just to halt the test process
+                    testContext.EndTest(UUnitFinishState.FAILED, uu.Message + "\n" + uu.StackTrace);
+                }
+                catch (Exception e)
+                {
+                    // Report this exception as an unhandled failure in the test
+                    testContext.EndTest(UUnitFinishState.FAILED, e.ToString());
+                }
+                if (!failed && endTest)
+                    testContext.EndTest(UUnitFinishState.PASSED, null);
+            }
+            );
+        }
+
+        protected Task<PlayFabResult<T>> ThrowIfApiError<T>(Task<PlayFabResult<T>> original) where T : PlayFabResultCommon
+        {
+            return original.ContinueWith(_ =>
+            {
+                if (_.IsFaulted) throw _.Exception;
+                if (_.Result.Error != null) throw new Exception(_.Result.Error.GenerateErrorReport());
+                return _.Result;
+            });
         }
     }
 }

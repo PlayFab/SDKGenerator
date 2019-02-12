@@ -287,6 +287,44 @@ private:
     PlayFabDataPtr dataAPI = nullptr;
 };
 
+/*
+ * ==== Multiple Users ====
+ */
+class PlayFabApiTest_MultipleUsers : public IAutomationLatentCommand
+{
+public:
+    PlayFabApiTest_MultipleUsers();
+
+    bool Update() override;
+private:
+    void OnUser1LoginSuccess(const PlayFab::ClientModels::FLoginResult& result);
+    void OnUser2LoginSuccess(const PlayFab::ClientModels::FLoginResult& result);
+    void OnBothUsersLoggedIn();
+    void OnUser1GetProfileSuccess(const PlayFab::ClientModels::FGetPlayerProfileResult& result);
+    void OnUser2GetProfileSuccess(const PlayFab::ClientModels::FGetPlayerProfileResult& result);
+    void OnBothUsersGetProfile();
+
+    void OnError(const PlayFab::FPlayFabCppError& ErrorResult);
+
+    /**
+     *  Restore the static credentials originally set by LoginOrRegister but wiped in this test, as other tests depend on them
+     *  TODO: Update test framework with a setup/teardown for each test that handles this, so that tests don't depend on each other's side effects
+     */
+    void RestoreCachedStaticCredentials();
+
+    PlayFabClientPtr clientAPI = nullptr;
+
+    PlayFab::ClientModels::FLoginResult user1LoginResult;
+    PlayFab::ClientModels::FLoginResult user2LoginResult;
+
+    PlayFab::ClientModels::FGetPlayerProfileResult user1ProfileResult;
+    PlayFab::ClientModels::FGetPlayerProfileResult user2ProfileResult;
+
+    FString cachedEntityToken;
+    FString cachedClientSessionTicket;
+    FString cachedDeveloperSecretKey;
+};
+
 
 /*
 * ==== Test Suite ====
@@ -337,6 +375,7 @@ public:
         ADD_TEST(WriteEvent);
         ADD_TEST(GetEntityToken);
         ADD_TEST(ObjectApi);
+        ADD_TEST(MultipleUsers);
     }
 
 #if (ENGINE_MAJOR_VERSION == 4 && ENGINE_MINOR_VERSION >= 11)
@@ -519,6 +558,13 @@ protected:
 
         return true;
     };
+
+    bool MultipleUsers() const
+    {
+        ADD_LATENT_AUTOMATION_COMMAND(PlayFabApiTest_MultipleUsers());
+
+        return true;
+    }
 
     PlayFabAuthenticationPtr authenticationAPI;
     PlayFabClientPtr clientAPI;

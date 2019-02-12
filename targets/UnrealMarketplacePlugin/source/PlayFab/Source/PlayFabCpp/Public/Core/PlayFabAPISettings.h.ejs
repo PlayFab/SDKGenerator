@@ -28,12 +28,22 @@ public:
         return VerticalName;
     }
 
+    const FString& GetVerticalName() const
+    {
+        return VerticalName;
+    }
+
     void SetVerticalName(FString InVerticalName)
     {
         VerticalName = InVerticalName;
     }
 
     FString& GetBaseServiceHost()
+    {
+        return BaseServiceHost;
+    }
+
+    const FString& GetBaseServiceHost() const
     {
         return BaseServiceHost;
     }
@@ -48,12 +58,25 @@ public:
         return TitleId;
     }
 
+    const FString& GetTitleId() const
+    {
+        return TitleId;
+    }
+
     void SetTitleId(FString InTitleId)
     {
         TitleId = InTitleId;
     }
 
     FString& GetAdvertisingIdType()
+    {
+#ifdef DISABLE_PLAYFABCLIENT_API
+        checkf(false, TEXT("AdvertisingIdType is disabled because DISABLE_PLAYFABCLIENT_API is set."));
+#endif
+        return AdvertisingIdType;
+    }
+
+    const FString& GetAdvertisingIdType() const
     {
 #ifdef DISABLE_PLAYFABCLIENT_API
         checkf(false, TEXT("AdvertisingIdType is disabled because DISABLE_PLAYFABCLIENT_API is set."));
@@ -79,6 +102,15 @@ public:
         return AdvertisingIdValue;
     }
 
+    const FString& GetAdvertisingIdValue() const
+    {
+#ifdef DISABLE_PLAYFABCLIENT_API
+        checkf(false, TEXT("AdvertisingIdValue is disabled because DISABLE_PLAYFABCLIENT_API is set."));
+#endif
+
+        return AdvertisingIdValue;
+    }
+
     void SetAdvertisingIdValue(FString InAdvertisingIdValue)
     {
 #ifdef DISABLE_PLAYFABCLIENT_API
@@ -88,7 +120,7 @@ public:
         AdvertisingIdValue = InAdvertisingIdValue;
     }
 
-    bool GetDisableAdvertising()
+    bool GetDisableAdvertising() const
     {
 #ifdef DISABLE_PLAYFABCLIENT_API
         checkf(false, TEXT("DisableAdvertising is disabled because DISABLE_PLAYFABCLIENT_API is set."));

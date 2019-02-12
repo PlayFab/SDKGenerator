@@ -25,8 +25,7 @@ namespace PlayFab.UUnit
         private static bool TITLE_INFO_SET = false;
 
         // Fixed values provided from testInputs
-        private static string USER_EMAIL;
-        private static Dictionary<string, string> extraHeaders;
+        private static TestTitleData testTitleData;
 
         // Information fetched by appropriate API calls
         private static string entityId;
@@ -40,14 +39,10 @@ namespace PlayFab.UUnit
         public static void SetTitleInfo(TestTitleData testInputs)
         {
             TITLE_INFO_SET = true;
-
-            PlayFabSettings.TitleId = testInputs.titleId;
-            USER_EMAIL = testInputs.userEmail;
-            extraHeaders = testInputs.extraHeaders;
-
+            testTitleData = testInputs;
             // Verify all the inputs won't cause crashes in the tests
             TITLE_INFO_SET &= !string.IsNullOrEmpty(PlayFabSettings.TitleId)
-                && !string.IsNullOrEmpty(USER_EMAIL);
+                && !string.IsNullOrEmpty(testTitleData.userEmail);
         }
 
         public override void SetUp(UUnitTestContext testContext)
@@ -59,48 +54,6 @@ namespace PlayFab.UUnit
         public override void Tick(UUnitTestContext testContext)
         {
             // No work needed, async tests will end themselves
-        }
-
-        public override void TearDown(UUnitTestContext testContext)
-        {
-        }
-
-        private static void ContinueWithContext<T>(Task<PlayFabResult<T>> srcTask, UUnitTestContext testContext, Action<PlayFabResult<T>, UUnitTestContext, string> continueAction, bool expectSuccess, string failMessage, bool endTest) where T : PlayFabResultCommon
-        {
-            srcTask.ContinueWith(task =>
-            {
-                var failed = true;
-                try
-                {
-                    if (expectSuccess)
-                    {
-                        testContext.NotNull(task.Result, failMessage);
-                        testContext.IsNull(task.Result.Error, PlayFabUtil.GenerateErrorReport(task.Result.Error));
-                        testContext.NotNull(task.Result.Result, failMessage);
-                    }
-                    if (continueAction != null)
-                        continueAction.Invoke(task.Result, testContext, failMessage);
-                    failed = false;
-                }
-                catch (UUnitSkipException uu)
-                {
-                    // Silence the assert and ensure the test is marked as complete - The exception is just to halt the test process
-                    testContext.EndTest(UUnitFinishState.SKIPPED, uu.Message);
-                }
-                catch (UUnitException uu)
-                {
-                    // Silence the assert and ensure the test is marked as complete - The exception is just to halt the test process
-                    testContext.EndTest(UUnitFinishState.FAILED, uu.Message + "\n" + uu.StackTrace);
-                }
-                catch (Exception e)
-                {
-                    // Report this exception as an unhandled failure in the test
-                    testContext.EndTest(UUnitFinishState.FAILED, e.ToString());
-                }
-                if (!failed && endTest)
-                    testContext.EndTest(UUnitFinishState.PASSED, null);
-            }
-            );
         }
 
         /// <summary>
@@ -115,10 +68,10 @@ namespace PlayFab.UUnit
             var request = new LoginWithEmailAddressRequest
             {
                 TitleId = PlayFabSettings.TitleId,
-                Email = USER_EMAIL,
+                Email = testTitleData.userEmail,
                 Password = "INVALID",
             };
-            var loginTask = PlayFabClientAPI.LoginWithEmailAddressAsync(request, null, extraHeaders);
+            var loginTask = PlayFabClientAPI.LoginWithEmailAddressAsync(request, null, testTitleData.extraHeaders);
             ContinueWithContext(loginTask, testContext, InvalidLoginContinued, false, "Login should fail", true);
         }
         private void InvalidLoginContinued(PlayFabResult<LoginResult> loginResult, UUnitTestContext testContext, string failMessage)
@@ -126,7 +79,7 @@ namespace PlayFab.UUnit
             testContext.NotNull(loginResult, failMessage);
             testContext.IsNull(loginResult.Result, failMessage);
             testContext.NotNull(loginResult.Error, failMessage);
-            testContext.True(loginResult.Error.ErrorMessage.Contains("password"), loginResult.Error.ErrorMessage + ", for: " + USER_EMAIL + ", on: " + PlayFabSettings.TitleId);
+            testContext.True(loginResult.Error.ErrorMessage.Contains("password"), loginResult.Error.ErrorMessage + ", for: " + testTitleData.userEmail + ", on: " + PlayFabSettings.TitleId);
         }
 
         /// <summary>
@@ -144,7 +97,7 @@ namespace PlayFab.UUnit
                 Email = "x",
                 Password = "x",
             };
-            var registerTask = PlayFabClientAPI.RegisterPlayFabUserAsync(registerRequest, null, extraHeaders);
+            var registerTask = PlayFabClientAPI.RegisterPlayFabUserAsync(registerRequest, null, testTitleData.extraHeaders);
             ContinueWithContext(registerTask, testContext, InvalidRegistrationContinued, false, "Registration should fail", true);
         }
         private void InvalidRegistrationContinued(PlayFabResult<RegisterPlayFabUserResult> registerResult, UUnitTestContext testContext, string failMessage)
@@ -174,7 +127,7 @@ namespace PlayFab.UUnit
                 CustomId = PlayFabSettings.BuildIdentifier,
                 CreateAccount = true
             };
-            var loginTask = PlayFabClientAPI.LoginWithCustomIDAsync(loginRequest, null, extraHeaders);
+            var loginTask = PlayFabClientAPI.LoginWithCustomIDAsync(loginRequest, null, testTitleData.extraHeaders);
             ContinueWithContext(loginTask, testContext, LoginOrRegisterContinued, true, "User login failed", true);
         }
         private void LoginOrRegisterContinued(PlayFabResult<LoginResult> loginResult, UUnitTestContext testContext, string failMessage)
@@ -199,7 +152,7 @@ namespace PlayFab.UUnit
                 CustomId = PlayFabSettings.BuildIdentifier,
                 CreateAccount = true
             };
-            var loginTask = PlayFabClientAPI.LoginWithCustomIDAsync(loginRequest, null, extraHeaders);
+            var loginTask = PlayFabClientAPI.LoginWithCustomIDAsync(loginRequest, null, testTitleData.extraHeaders);
             ContinueWithContext(loginTask, testContext, LoginWithAdvertisingIdContinued, true, "Login with advertId failed", true);
         }
         private void LoginWithAdvertisingIdContinued(PlayFabResult<LoginResult> loginResult, UUnitTestContext testContext, string failMessage)
@@ -221,7 +174,7 @@ namespace PlayFab.UUnit
         public void UserDataApi(UUnitTestContext testContext)
         {
             var getRequest = new GetUserDataRequest();
-            var getDataTask1 = PlayFabClientAPI.GetUserDataAsync(getRequest, null, extraHeaders);
+            var getDataTask1 = PlayFabClientAPI.GetUserDataAsync(getRequest, null, testTitleData.extraHeaders);
             ContinueWithContext(getDataTask1, testContext, UserDataApiContinued1, true, "GetUserData1 call failed", false);
         }
         private void UserDataApiContinued1(PlayFabResult<GetUserDataResult> getDataResult1, UUnitTestContext testContext, string failMessage)
@@ -233,13 +186,13 @@ namespace PlayFab.UUnit
             _testInteger = (_testInteger + 1) % 100; // This test is about the expected value changing - but not testing more complicated issues like bounds
 
             var updateRequest = new UpdateUserDataRequest { Data = new Dictionary<string, string> { { TEST_DATA_KEY, _testInteger.ToString() } } };
-            var updateTask = PlayFabClientAPI.UpdateUserDataAsync(updateRequest, null, extraHeaders);
+            var updateTask = PlayFabClientAPI.UpdateUserDataAsync(updateRequest, null, testTitleData.extraHeaders);
             ContinueWithContext(updateTask, testContext, UserDataApiContinued2, true, "UpdateUserData call failed", false); // The update doesn't return anything interesting except versionID.  It's better to just re-call GetUserData again below to verify the update
         }
         private void UserDataApiContinued2(PlayFabResult<UpdateUserDataResult> updateResult, UUnitTestContext testContext, string failMessage)
         {
             var getRequest = new GetUserDataRequest();
-            var getDataTask2 = PlayFabClientAPI.GetUserDataAsync(getRequest, null, extraHeaders);
+            var getDataTask2 = PlayFabClientAPI.GetUserDataAsync(getRequest, null, testTitleData.extraHeaders);
             ContinueWithContext(getDataTask2, testContext, UserDataApiContinued3, true, "GetUserData2 call failed", true);
         }
         private void UserDataApiContinued3(PlayFabResult<GetUserDataResult> getDataResult2, UUnitTestContext testContext, string failMessage)
@@ -266,7 +219,7 @@ namespace PlayFab.UUnit
         public void ParallelRequests(UUnitTestContext testContext)
         {
             var tasks = Enumerable.Range(0, 10)
-                .Select(_ => PlayFabClientAPI.GetUserDataAsync(new GetUserDataRequest(), _, extraHeaders))
+                .Select(_ => PlayFabClientAPI.GetUserDataAsync(new GetUserDataRequest(), _, testTitleData.extraHeaders))
                 .Select(ThrowIfApiError);
 
             Task.WhenAll(tasks).ContinueWith(whenAll =>
@@ -293,7 +246,7 @@ namespace PlayFab.UUnit
         public void PlayerStatisticsApi(UUnitTestContext testContext)
         {
             var getRequest = new GetPlayerStatisticsRequest();
-            var getStatTask1 = PlayFabClientAPI.GetPlayerStatisticsAsync(getRequest, null, extraHeaders);
+            var getStatTask1 = PlayFabClientAPI.GetPlayerStatisticsAsync(getRequest, null, testTitleData.extraHeaders);
             ContinueWithContext(getStatTask1, testContext, PlayerStatisticsApiContinued1, true, "GetPlayerStatistics1 call failed", false);
         }
         private void PlayerStatisticsApiContinued1(PlayFabResult<GetPlayerStatisticsResult> getStatResult1, UUnitTestContext testContext, string failMessage)
@@ -304,13 +257,13 @@ namespace PlayFab.UUnit
             _testInteger = (_testInteger + 1) % 100; // This test is about the expected value changing (incrementing through from TEST_STAT_BASE to TEST_STAT_BASE * 2 - 1)
 
             var updateRequest = new UpdatePlayerStatisticsRequest { Statistics = new List<StatisticUpdate> { new StatisticUpdate { StatisticName = TEST_STAT_NAME, Value = _testInteger } } };
-            var updateTask = PlayFabClientAPI.UpdatePlayerStatisticsAsync(updateRequest, null, extraHeaders);
+            var updateTask = PlayFabClientAPI.UpdatePlayerStatisticsAsync(updateRequest, null, testTitleData.extraHeaders);
             ContinueWithContext(updateTask, testContext, PlayerStatisticsApiContinued2, true, "UpdatePlayerStatistics call failed", false);
         }
         private void PlayerStatisticsApiContinued2(PlayFabResult<UpdatePlayerStatisticsResult> updateResult, UUnitTestContext testContext, string failMessage)
         {
             var getRequest = new GetPlayerStatisticsRequest();
-            var getStatTask2 = PlayFabClientAPI.GetPlayerStatisticsAsync(getRequest, null, extraHeaders);
+            var getStatTask2 = PlayFabClientAPI.GetPlayerStatisticsAsync(getRequest, null, testTitleData.extraHeaders);
             ContinueWithContext(getStatTask2, testContext, PlayerStatisticsApiContinued3, true, "GetPlayerStatistics2 call failed", true);
         }
         private void PlayerStatisticsApiContinued3(PlayFabResult<GetPlayerStatisticsResult> getStatResult2, UUnitTestContext testContext, string failMessage)
@@ -331,7 +284,7 @@ namespace PlayFab.UUnit
         public void UserCharacter(UUnitTestContext testContext)
         {
             var request = new ListUsersCharactersRequest { PlayFabId = PlayFabId };
-            var getCharsTask = PlayFabClientAPI.GetAllUsersCharactersAsync(request, null, extraHeaders);
+            var getCharsTask = PlayFabClientAPI.GetAllUsersCharactersAsync(request, null, testTitleData.extraHeaders);
             ContinueWithContext(getCharsTask, testContext, null, true, "Failed to GetChars", true);
         }
 
@@ -348,7 +301,7 @@ namespace PlayFab.UUnit
                 MaxResultsCount = 3,
                 StatisticName = TEST_STAT_NAME,
             };
-            var clientTask = PlayFabClientAPI.GetLeaderboardAsync(clientRequest, null, extraHeaders);
+            var clientTask = PlayFabClientAPI.GetLeaderboardAsync(clientRequest, null, testTitleData.extraHeaders);
             ContinueWithContext(clientTask, testContext, LeaderBoardContinued, true, "Failed to get client leaderboard", true);
         }
         private void LeaderBoardContinued(PlayFabResult<GetLeaderboardResult> clientResult, UUnitTestContext testContext, string failMessage)
@@ -365,7 +318,7 @@ namespace PlayFab.UUnit
         public void AccountInfo(UUnitTestContext testContext)
         {
             var request = new GetAccountInfoRequest { PlayFabId = PlayFabId };
-            var accountTask = PlayFabClientAPI.GetAccountInfoAsync(request, null, extraHeaders);
+            var accountTask = PlayFabClientAPI.GetAccountInfoAsync(request, null, testTitleData.extraHeaders);
             ContinueWithContext(accountTask, testContext, LeaderBoardContinued, true, "Failed to get accountInfo", true);
         }
         private void LeaderBoardContinued(PlayFabResult<GetAccountInfoResult> accountResult, UUnitTestContext testContext, string failMessage)
@@ -381,7 +334,7 @@ namespace PlayFab.UUnit
         public void CloudScript(UUnitTestContext testContext)
         {
             var request = new ClientModels.ExecuteCloudScriptRequest { FunctionName = "helloWorld" };
-            var cloudTask = PlayFabClientAPI.ExecuteCloudScriptAsync(request, null, extraHeaders);
+            var cloudTask = PlayFabClientAPI.ExecuteCloudScriptAsync(request, null, testTitleData.extraHeaders);
             ContinueWithContext(cloudTask, testContext, CloudScriptContinued, true, "Failed to Execute CloudScript", true);
         }
         private void CloudScriptContinued(PlayFabResult<ClientModels.ExecuteCloudScriptResult> cloudResult, UUnitTestContext testContext, string failMessage)
@@ -406,7 +359,7 @@ namespace PlayFab.UUnit
         public void CloudScriptError(UUnitTestContext testContext)
         {
             var request = new ClientModels.ExecuteCloudScriptRequest { FunctionName = "throwError" };
-            var cloudTask = PlayFabClientAPI.ExecuteCloudScriptAsync(request, null, extraHeaders);
+            var cloudTask = PlayFabClientAPI.ExecuteCloudScriptAsync(request, null, testTitleData.extraHeaders);
             ContinueWithContext(cloudTask, testContext, CloudScriptErrorContinued, true, "Failed to Execute CloudScript", true);
         }
         private void CloudScriptErrorContinued(PlayFabResult<ClientModels.ExecuteCloudScriptResult> cloudResult, UUnitTestContext testContext, string failMessage)
@@ -429,23 +382,13 @@ namespace PlayFab.UUnit
                 EventName = "ForumPostEvent",
                 Timestamp = DateTime.UtcNow,
                 Body = new Dictionary<string, object> {
-                    { "Subject", "My First Post" },
-                    { "Body", "My awesome Post." },
-                }
+                            { "Subject", "My First Post" },
+                            { "Body", "My awesome Post." },
+                        }
             };
 
-            var writeTask = PlayFabClientAPI.WritePlayerEventAsync(request, null, extraHeaders);
+            var writeTask = PlayFabClientAPI.WritePlayerEventAsync(request, null, testTitleData.extraHeaders);
             ContinueWithContext(writeTask, testContext, null, true, "PlayStream WriteEvent failed", true);
-        }
-
-        private static Task<PlayFabResult<T>> ThrowIfApiError<T>(Task<PlayFabResult<T>> original) where T : PlayFabResultCommon
-        {
-            return original.ContinueWith(_ =>
-            {
-                if (_.IsFaulted) throw _.Exception;
-                if (_.Result.Error != null) throw new Exception(_.Result.Error.GenerateErrorReport());
-                return _.Result;
-            });
         }
 
 #if !DISABLE_PLAYFABENTITY_API
@@ -456,7 +399,7 @@ namespace PlayFab.UUnit
         [UUnitTest]
         public void GetEntityToken(UUnitTestContext testContext)
         {
-            var writeTask = PlayFabAuthenticationAPI.GetEntityTokenAsync(new GetEntityTokenRequest(), null, extraHeaders);
+            var writeTask = PlayFabAuthenticationAPI.GetEntityTokenAsync(new GetEntityTokenRequest(), null, testTitleData.extraHeaders);
             ContinueWithContext(writeTask, testContext, GetEntityTokenContinued, true, "GetEntityToken failed", true);
         }
         private void GetEntityTokenContinued(PlayFabResult<GetEntityTokenResponse> result, UUnitTestContext testContext, string failMessage)
@@ -484,7 +427,7 @@ namespace PlayFab.UUnit
                 },
                 EscapeObject = true
             };
-            var eachTask = PlayFabDataAPI.GetObjectsAsync(request, null, extraHeaders);
+            var eachTask = PlayFabDataAPI.GetObjectsAsync(request, null, testTitleData.extraHeaders);
             ContinueWithContext(eachTask, testContext, GetObjects1Continued, true, "GetObjects1 failed", false);
         }
         private void GetObjects1Continued(PlayFabResult<GetObjectsResponse> result, UUnitTestContext testContext, string failMessage)
@@ -504,15 +447,15 @@ namespace PlayFab.UUnit
                     Type = entityType,
                 },
                 Objects = new List<SetObject>
-                {
-                    new SetObject
-                    {
-                        DataObject = _testInteger,
-                        ObjectName = TEST_DATA_KEY
-                    }
-                }
+                        {
+                            new SetObject
+                            {
+                                DataObject = _testInteger,
+                                ObjectName = TEST_DATA_KEY
+                            }
+                        }
             };
-            var eachTask = PlayFabDataAPI.SetObjectsAsync(request, null, extraHeaders);
+            var eachTask = PlayFabDataAPI.SetObjectsAsync(request, null, testTitleData.extraHeaders);
             ContinueWithContext(eachTask, testContext, SetObjectsContinued, true, "SetObjects failed", false);
         }
         private void SetObjectsContinued(PlayFabResult<SetObjectsResponse> result, UUnitTestContext testContext, string failMessage)
@@ -526,7 +469,7 @@ namespace PlayFab.UUnit
                 },
                 EscapeObject = true
             };
-            var eachTask = PlayFabDataAPI.GetObjectsAsync(request, null, extraHeaders);
+            var eachTask = PlayFabDataAPI.GetObjectsAsync(request, null, testTitleData.extraHeaders);
             ContinueWithContext(eachTask, testContext, GetObjects2Continued, true, "GetObjects2 failed", false);
         }
         private void GetObjects2Continued(PlayFabResult<GetObjectsResponse> result, UUnitTestContext testContext, string failMessage)
@@ -537,10 +480,169 @@ namespace PlayFab.UUnit
             if (!int.TryParse(result.Result.Objects[TEST_DATA_KEY].EscapedDataObject, out int actualValue))
                 actualValue = -1000;
             testContext.IntEquals(_testInteger, actualValue, "Failed: " + _testInteger + "!=" + actualValue + ", Returned json: " + result.Result.Objects[TEST_DATA_KEY].EscapedDataObject);
-
             testContext.EndTest(UUnitFinishState.PASSED, null);
         }
 #endif
+        /// <summary>
+        /// CLIENT API
+        /// Test that Multiple login can be done
+        /// </summary>
+        [UUnitTest]
+        public void MultipleLogin(UUnitTestContext testContext)
+        {
+            // If the setup failed to log in a user, we need to create one.
+            var loginRequest = new LoginWithCustomIDRequest
+            {
+                TitleId = PlayFabSettings.TitleId,
+                CustomId = PlayFabSettings.BuildIdentifier,
+                CreateAccount = true,
+            };
+            var loginRequest2 = new LoginWithCustomIDRequest
+            {
+                TitleId = PlayFabSettings.TitleId,
+                CustomId = PlayFabSettings.BuildIdentifier,
+                CreateAccount = true,
+            };
+
+            var loginTask = PlayFabClientAPI.LoginWithCustomIDAsync(loginRequest, null, testTitleData.extraHeaders).Result;
+            var loginTask2 = PlayFabClientAPI.LoginWithCustomIDAsync(loginRequest2, null, testTitleData.extraHeaders).Result;
+
+            testContext.NotNull(loginTask.Result, "Login Result is null for loginRequest");
+            testContext.NotNull(loginTask2.Result, "Login Result is null for loginRequest2");
+            testContext.IsNull(loginTask.Error, "Login error occured for loginRequest: " + loginTask.Error?.ErrorMessage ?? string.Empty);
+            testContext.IsNull(loginTask2.Error, "Login error occured for loginRequest2: " + loginTask2.Error?.ErrorMessage ?? string.Empty);
+            testContext.NotNull(loginTask.Result.AuthenticationContext, "AuthenticationContext is not set for loginRequest");
+            testContext.NotNull(loginTask2.Result.AuthenticationContext, "AuthenticationContext is not set for loginRequest2");
+
+            if (string.Equals(loginTask.Result.AuthenticationContext.ClientSessionTicket, loginTask2.Result.AuthenticationContext.ClientSessionTicket))
+            {
+                testContext.Fail("Multiple Login Failed AuthenticationContexts are same");
+            }
+            testContext.EndTest(UUnitFinishState.PASSED, null);
+        }
+
+        /// <summary>
+        /// CLIENT API
+        /// Test that Multiple player can do api calls
+        /// </summary>
+        [UUnitTest]
+        public void MultiplePlayerApiCall(UUnitTestContext testContext)
+        {
+            // If the setup failed to log in a user, we need to create one.
+            var loginRequest = new LoginWithCustomIDRequest
+            {
+                TitleId = PlayFabSettings.TitleId,
+                CustomId = PlayFabSettings.BuildIdentifier,
+                CreateAccount = true,
+            };
+
+            var loginRequest2 = new LoginWithCustomIDRequest
+            {
+                TitleId = PlayFabSettings.TitleId,
+                CustomId = PlayFabSettings.BuildIdentifier,
+                CreateAccount = true,
+            };
+
+            var loginTask = PlayFabClientAPI.LoginWithCustomIDAsync(loginRequest, null, testTitleData.extraHeaders).Result;
+            var loginTask2 = PlayFabClientAPI.LoginWithCustomIDAsync(loginRequest2, null, testTitleData.extraHeaders).Result;
+
+            testContext.NotNull(loginTask.Result, "Login Result is null for loginRequest");
+            testContext.NotNull(loginTask2.Result, "Login Result is null for loginRequest2");
+            testContext.IsNull(loginTask.Error, "Login error occured for loginRequest: " + loginTask.Error?.ErrorMessage ?? string.Empty);
+            testContext.IsNull(loginTask2.Error, "Login error occured for loginRequest2: " + loginTask2.Error?.ErrorMessage ?? string.Empty);
+            testContext.NotNull(loginTask.Result.AuthenticationContext, "AuthenticationContext is not set for loginRequest");
+            testContext.NotNull(loginTask2.Result.AuthenticationContext, "AuthenticationContext is not set for loginRequest2");
+
+            if (string.Equals(loginTask.Result.AuthenticationContext.ClientSessionTicket, loginTask2.Result.AuthenticationContext.ClientSessionTicket))
+            {
+                testContext.Fail("MultipleApiCall Failed AuthenticationContexts are same");
+            }
+            var getPlayerProfileRequest = new GetPlayerProfileRequest()
+            {
+                AuthenticationContext = loginTask.Result.AuthenticationContext,
+                PlayFabId = PlayFabId
+            };
+            var getPlayerProfileRequest2 = new GetPlayerProfileRequest()
+            {
+                AuthenticationContext = loginTask2.Result.AuthenticationContext,
+                PlayFabId = PlayFabId
+            };
+
+            var getPlayerProfileTask = PlayFabClientAPI.GetPlayerProfileAsync(getPlayerProfileRequest, null, testTitleData.extraHeaders).Result;
+            var getPlayerProfileTask2 = PlayFabClientAPI.GetPlayerProfileAsync(getPlayerProfileRequest2, null, testTitleData.extraHeaders).Result;
+
+            testContext.NotNull(getPlayerProfileTask.Result, "GetPlayerProfile Failed for getPlayerProfileRequest");
+            testContext.NotNull(getPlayerProfileTask2.Result, "GetPlayerProfile Failed for getPlayerProfileRequest2");
+            testContext.IsNull(getPlayerProfileTask.Error, "GetPlayerProfile error occured for getPlayerProfileRequest: " + getPlayerProfileTask.Error?.ErrorMessage ?? string.Empty);
+            testContext.IsNull(getPlayerProfileTask2.Error, "GetPlayerProfile error occured for getPlayerProfileRequest2: " + getPlayerProfileTask2.Error?.ErrorMessage ?? string.Empty);
+
+            testContext.EndTest(UUnitFinishState.PASSED, null);
+        }
+
+        /// <summary>
+        /// CLIENT API
+        /// Tests async api calls with multiple users
+        /// </summary>
+        [UUnitTest]
+        public void AsyncApiCallWithMultipleUser(UUnitTestContext testContext)
+        {
+            var loginRequest = new LoginWithCustomIDRequest
+            {
+                TitleId = PlayFabSettings.TitleId,
+                CustomId = PlayFabSettings.BuildIdentifier,
+                CreateAccount = true,
+            };
+            var loginRequest2 = new LoginWithCustomIDRequest
+            {
+                TitleId = PlayFabSettings.TitleId,
+                CustomId = PlayFabSettings.BuildIdentifier,
+                CreateAccount = true,
+            };
+            var loginRequest3 = new LoginWithCustomIDRequest
+            {
+                TitleId = PlayFabSettings.TitleId,
+                CustomId = PlayFabSettings.BuildIdentifier,
+                CreateAccount = true,
+            };
+
+            var loginTask = PlayFabClientAPI.LoginWithCustomIDAsync(loginRequest, null, testTitleData.extraHeaders).Result;
+            var loginTask2 = PlayFabClientAPI.LoginWithCustomIDAsync(loginRequest2, null, testTitleData.extraHeaders).Result;
+            var loginTask3 = PlayFabClientAPI.LoginWithCustomIDAsync(loginRequest3, null, testTitleData.extraHeaders).Result;
+
+            testContext.NotNull(loginTask.Result, "Login Result is null for loginRequest");
+            testContext.NotNull(loginTask2.Result, "Login Result is null for loginRequest2");
+            testContext.NotNull(loginTask3.Result, "Login Result is null for loginRequest3");
+            testContext.IsNull(loginTask.Error, "Login error occured for loginRequest: " + loginTask.Error?.ErrorMessage ?? string.Empty);
+            testContext.IsNull(loginTask2.Error, "Login error occured for loginRequest2: " + loginTask2.Error?.ErrorMessage ?? string.Empty);
+            testContext.IsNull(loginTask3.Error, "Login error occured for loginRequest3: " + loginTask3.Error?.ErrorMessage ?? string.Empty);
+            testContext.NotNull(loginTask.Result.AuthenticationContext, "AuthenticationContext is not set for loginRequest");
+            testContext.NotNull(loginTask2.Result.AuthenticationContext, "AuthenticationContext is not set for loginRequest2");
+            testContext.NotNull(loginTask3.Result.AuthenticationContext, "AuthenticationContext is not set for loginRequest3");
+
+            var task = PlayFabClientAPI.GetUserDataAsync(new GetUserDataRequest() { AuthenticationContext = loginTask.Result.AuthenticationContext }, null, testTitleData.extraHeaders);
+            var task2 = PlayFabClientAPI.GetUserDataAsync(new GetUserDataRequest() { AuthenticationContext = loginTask2.Result.AuthenticationContext }, null, testTitleData.extraHeaders);
+            var task3 = PlayFabClientAPI.GetUserDataAsync(new GetUserDataRequest() { AuthenticationContext = loginTask3.Result.AuthenticationContext }, null, testTitleData.extraHeaders);
+            var task4 = PlayFabClientAPI.GetUserDataAsync(new GetUserDataRequest() { AuthenticationContext = loginTask3.Result.AuthenticationContext }, null, testTitleData.extraHeaders);
+            var task5 = PlayFabClientAPI.GetUserDataAsync(new GetUserDataRequest() { AuthenticationContext = loginTask2.Result.AuthenticationContext }, null, testTitleData.extraHeaders);
+            var task6 = PlayFabClientAPI.GetUserDataAsync(new GetUserDataRequest() { AuthenticationContext = loginTask.Result.AuthenticationContext }, null, testTitleData.extraHeaders);
+            var task7 = PlayFabClientAPI.GetUserDataAsync(new GetUserDataRequest() { AuthenticationContext = loginTask2.Result.AuthenticationContext }, null, testTitleData.extraHeaders);
+            var task8 = PlayFabClientAPI.GetUserDataAsync(new GetUserDataRequest() { AuthenticationContext = loginTask3.Result.AuthenticationContext }, null, testTitleData.extraHeaders);
+
+            var tasks = new List<Task>() { task, task2, task3, task4, task5, task6, task7, task8 };
+
+            Task.WhenAll(tasks).ContinueWith(whenAll =>
+            {
+                if (!whenAll.IsCanceled && !whenAll.IsFaulted)
+                {
+                    testContext.EndTest(UUnitFinishState.PASSED, null);
+                }
+                else
+                {
+                    testContext.Fail("Async failed " + whenAll.Exception.Flatten().Message);
+                }
+            });
+        }
+
     }
 }
 #endif

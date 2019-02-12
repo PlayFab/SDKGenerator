@@ -392,7 +392,7 @@ protected:
         bool success = true;
 
         FString jsonInput;
-        FString filename = TEXT("testTitleData.json");
+        FString filename = FPaths::ProjectContentDir() + TEXT("JSON/testTitleData.json");
 
         // Prefer to load path from environment variable, if present
 #if PLATFORM_WINDOWS

@@ -1,6 +1,7 @@
 var path = require("path");
 var cppMakeJsPath = require("./makeCpp.js");
 var bpMakeJsPath = require("./makebp.js");
+var fs = require("fs");
 
 // Making resharper less noisy - These are defined in Generate.js
 if (typeof (generateApiSummaryLines) === "undefined") generateApiSummaryLines = function () { };
@@ -16,6 +17,7 @@ var copyright =
 exports.makeCombinedAPI = function (apis, sourceDir, baseApiOutputDir) {
     // The list of current supported UE versions - Intended to be the latest 3
     var ueTargetVersions = ["4.18", "4.19", "4.20", "4.21"];
+    var testTitleJsonPath = process.env.PF_TEST_TITLE_DATA_JSON;
 
     for (var v = 0; v < ueTargetVersions.length; v++) {
         var ueTargetVersion = ueTargetVersions[v];
@@ -53,7 +55,21 @@ exports.makeCombinedAPI = function (apis, sourceDir, baseApiOutputDir) {
         // Copy the PlayFabPlugin folder just created into the ExampleProject
         // TODO: It causes very confusing problems to copy from an output subdir to another output subdir. Let's fix this
         templatizeTree(locals, path.resolve(apiOutputDir, "PlayFabPlugin"), path.resolve(apiOutputDir, "ExampleProject/Plugins"));
+
+        // Create a Content folder that can hold testTitleJSON, so that UE4 can handle putting it onto mobile devices in particular
+        // This works in conjunction with a line in DefaultGame.ini
+        var jsonFolderPath = path.resolve(apiOutputDir, "ExampleProject", "Content", "JSON");
+        fs.mkdir(jsonFolderPath, { recursive: true }, handleError);
+
+        // Don't require PF_TEST_TITLE_DATA_JSON during SDK generation - some devs don't need it, or might just want to put it into the folder manually
+        if (testTitleJsonPath !== undefined) {
+            fs.copyFile(testTitleJsonPath, path.join(jsonFolderPath, "testTitleData.json"), handleError);
+        }
     }
+}
+
+function handleError(error) {
+    if (error) throw error;
 }
 
 // BP Module: Pull all the enums out of all the apis, and collect them into a single collection of just the enum types and filter duplicates

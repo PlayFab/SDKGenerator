@@ -54,7 +54,7 @@ void UPlayFabClientAPI::MultiStepClientLogin(bool needsAttribution)
 {
     if (needsAttribution && !PlayFabSettings::GetDisableAdvertising() && !PlayFabSettings::GetAdvertisingIdType().IsEmpty() && !PlayFabSettings::GetAdvertisingIdValue().IsEmpty())
     {
-        PlayFab::ClientModels::FAttributeInstallRequest request;
+        PlayFab::ClientModels::FAttributeInstallRequest request{};
         if (PlayFabSettings::GetAdvertisingIdType() == PlayFabSettings::AD_TYPE_IDFA)
             request.Idfa = PlayFabSettings::GetAdvertisingIdValue();
         else if (PlayFabSettings::GetAdvertisingIdType() == PlayFabSettings::AD_TYPE_ANDROID_ID)

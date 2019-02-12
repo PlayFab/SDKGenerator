@@ -69,7 +69,7 @@ void UPlayFab<%- api.name %>InstanceAPI::ForgetAllCredentials()
 TSharedPtr<UPlayFabAuthenticationContext> UPlayFab<%- api.name %>InstanceAPI::GetOrCreateAuthenticationContext()
 {
     if (!this->authContext.IsValid())
-        this->authContext = TSharedPtr<UPlayFabAuthenticationContext>(NewObject<UPlayFabAuthenticationContext>());
+        this->authContext = TSharedPtr<UPlayFabAuthenticationContext>(NewObject<UPlayFabAuthenticationContext>((UObject*)GetTransientPackage(), NAME_None, RF_Standalone));
 
     return this->authContext;
 }
@@ -83,7 +83,7 @@ void UPlayFabClientInstanceAPI::MultiStepClientLogin(bool needsAttribution)
 {
     if (!this->settings.IsValid()) {
         if (needsAttribution && !PlayFabSettings::GetDisableAdvertising() && !PlayFabSettings::GetAdvertisingIdType().IsEmpty() && !PlayFabSettings::GetAdvertisingIdValue().IsEmpty()) {
-            PlayFab::ClientModels::FAttributeInstallRequest request;
+            PlayFab::ClientModels::FAttributeInstallRequest request{};
             if (PlayFabSettings::GetAdvertisingIdType() == PlayFabSettings::AD_TYPE_IDFA)
                 request.Idfa = PlayFabSettings::GetAdvertisingIdValue();
             else if (PlayFabSettings::GetAdvertisingIdType() == PlayFabSettings::AD_TYPE_ANDROID_ID)
@@ -95,7 +95,7 @@ void UPlayFabClientInstanceAPI::MultiStepClientLogin(bool needsAttribution)
     }
     else {
         if (needsAttribution && !settings->GetDisableAdvertising() && settings->GetAdvertisingIdType().Len() > 0 && settings->GetAdvertisingIdValue().Len() > 0) {
-            PlayFab::ClientModels::FAttributeInstallRequest request;
+            PlayFab::ClientModels::FAttributeInstallRequest request{};
             if (settings->GetAdvertisingIdType() == PlayFabSettings::AD_TYPE_IDFA)
                 request.Idfa = settings->GetAdvertisingIdValue();
             else if (settings->GetAdvertisingIdType() == PlayFabSettings::AD_TYPE_ANDROID_ID)

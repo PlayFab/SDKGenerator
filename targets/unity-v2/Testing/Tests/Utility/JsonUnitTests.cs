@@ -322,12 +322,12 @@ namespace PlayFab.UUnit
                     continue;
                 }
 
-                if (testObj.BoolField != actualObj.BoolField) failures.Add("Nullable bool field does not serialize properly: " + testObj.BoolField + ", from " + actualJson);
-                if (testObj.BoolProperty != actualObj.BoolProperty) failures.Add("Nullable bool property does not serialize properly: " + testObj.BoolProperty + ", from " + actualJson);
-                if (testObj.IntField != actualObj.IntField) failures.Add("Nullable integer field does not serialize properly: " + testObj.IntField + ", from " + actualJson);
-                if (testObj.IntProperty != actualObj.IntProperty) failures.Add("Nullable integer property does not serialize properly: " + testObj.IntProperty + ", from " + actualJson);
-                if (testObj.EnumField != actualObj.EnumField) failures.Add("Nullable enum field does not serialize properly: " + testObj.EnumField + ", from " + actualJson);
-                if (testObj.EnumProperty != actualObj.EnumProperty) failures.Add("Nullable enum property does not serialize properly: " + testObj.EnumProperty + ", from " + actualJson);
+                if (NullableNotEquals(testObj.BoolField,actualObj.BoolField)) failures.Add("Nullable bool field does not serialize properly: " + testObj.BoolField + ", from " + actualJson);
+                if (NullableNotEquals(testObj.BoolProperty, actualObj.BoolProperty)) failures.Add("Nullable bool property does not serialize properly: " + testObj.BoolProperty + ", from " + actualJson);
+                if (NullableNotEquals(testObj.IntField, actualObj.IntField)) failures.Add("Nullable integer field does not serialize properly: " + testObj.IntField + ", from " + actualJson);
+                if (NullableNotEquals(testObj.IntProperty, actualObj.IntProperty)) failures.Add("Nullable integer property does not serialize properly: " + testObj.IntProperty + ", from " + actualJson);
+                if (NullableNotEquals(testObj.EnumField, actualObj.EnumField)) failures.Add("Nullable enum field does not serialize properly: " + testObj.EnumField + ", from " + actualJson);
+                if (NullableNotEquals(testObj.EnumProperty, actualObj.EnumProperty)) failures.Add("Nullable enum property does not serialize properly: " + testObj.EnumProperty + ", from " + actualJson);
 
                 if (testObj.TimeField.HasValue != actualObj.TimeField.HasValue)
                     failures.Add("Nullable struct field does not serialize properly: " + testObj.TimeField + ", from " + actualJson);
@@ -371,6 +371,21 @@ namespace PlayFab.UUnit
             testContext.StringEquals(expectedJson, actualJson, actualJson);
 
             testContext.EndTest(UUnitFinishState.PASSED, null);
+        }
+
+        private static bool NullableEquals<T>(T? left, T? right) where T : struct
+        {
+            // If both have a value, return whether the values match.
+            if (left.HasValue && right.HasValue)
+                return left.Value.Equals(right.Value);
+
+            // If neither has a value, return true. If only one does, return false.
+            return !left.HasValue && !right.HasValue;
+        }
+
+        private static bool NullableNotEquals<T>(T? left, T? right) where T : struct
+        {
+            return !NullableEquals(left, right);
         }
     }
 }

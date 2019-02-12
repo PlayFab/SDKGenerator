@@ -3,6 +3,7 @@
 #pragma once
 
 #include "CoreMinimal.h"
+#include "PlayFabCommonSettings.h"
 #include "PlayFabAuthenticationContext.generated.h"
 
 /**
@@ -13,7 +14,18 @@ class PLAYFABCOMMON_API UPlayFabAuthenticationContext : public UObject
 {
     GENERATED_BODY()
 public:
-    UPlayFabAuthenticationContext();
+    UPlayFabAuthenticationContext()
+    {
+#ifndef DISABLE_PLAYFABCLIENT_API
+        ClientSessionTicket = PlayFabCommon::PlayFabCommonSettings::clientSessionTicket;
+#endif
+#ifndef DISABLE_PLAYFABENTITY_API
+        EntityToken = PlayFabCommon::PlayFabCommonSettings::entityToken;
+#endif
+#if defined(ENABLE_PLAYFABSERVER_API) || defined(ENABLE_PLAYFABADMIN_API)
+        DeveloperSecretKey = PlayFabCommon::PlayFabCommonSettings::developerSecretKey;
+#endif
+    }
 
     // Get the client session ticket that is used as an authentication token in many PlayFab API methods.
     UFUNCTION(BlueprintCallable, BlueprintPure, Category = "PlayFab | Core")

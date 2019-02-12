@@ -15,7 +15,7 @@ exports.makeClientAPI2 = function (apis, sourceDir, apiOutputDir) {
     for (var i = 0; i < apis.length; i++)
         makeApi(apis[i], sourceDir, apiOutputDir);
     generateSimpleFiles(apis, sourceDir, apiOutputDir);
-    generateProject(apis, sourceDir, apiOutputDir, "Client", "");
+    generateProject(apis, sourceDir, apiOutputDir, "Client", ";ENABLE_PLAYFABCLIENT_API");
 }
 
 exports.makeServerAPI = function (apis, sourceDir, apiOutputDir) {
@@ -25,9 +25,13 @@ exports.makeServerAPI = function (apis, sourceDir, apiOutputDir) {
     copyTree(path.resolve(sourceDir, "source"), apiOutputDir);
     makeDatatypes(apis, sourceDir, apiOutputDir);
     for (var i = 0; i < apis.length; i++)
+    {
         makeApi(apis[i], sourceDir, apiOutputDir);
+        makeApiInstance(apis[i], sourceDir, apiOutputDir);
+    }
+        
     generateSimpleFiles(apis, sourceDir, apiOutputDir);
-    generateProject(apis, sourceDir, apiOutputDir, "Server", ";DISABLE_PLAYFABCLIENT_API");
+    generateProject(apis, sourceDir, apiOutputDir, "Server", ";DISABLE_PLAYFABCLIENT_API;ENABLE_PLAYFABSERVER_API");
 }
 
 exports.makeCombinedAPI = function (apis, sourceDir, apiOutputDir) {
@@ -39,9 +43,12 @@ exports.makeCombinedAPI = function (apis, sourceDir, apiOutputDir) {
     copyFile(path.resolve(sourceDir, "PlayFabSDK+Unit.sln"), path.resolve(apiOutputDir, "PlayFabSDK+Unit.sln"));
     makeDatatypes(apis, sourceDir, apiOutputDir);
     for (var i = 0; i < apis.length; i++)
+    {
         makeApi(apis[i], sourceDir, apiOutputDir);
+        makeApiInstance(apis[i], sourceDir, apiOutputDir);
+    }
     generateSimpleFiles(apis, sourceDir, apiOutputDir);
-    generateProject(apis, sourceDir, apiOutputDir, "All", ";ENABLE_PLAYFABADMIN_API;ENABLE_PLAYFABSERVER_API");
+    generateProject(apis, sourceDir, apiOutputDir, "All", ";ENABLE_PLAYFABADMIN_API;ENABLE_PLAYFABSERVER_API;ENABLE_PLAYFABCLIENT_API");
 }
 
 function getBaseTypeSyntax(datatype) {
@@ -112,6 +119,23 @@ function makeApi(api, sourceDir, apiOutputDir) {
     writeFile(path.resolve(apiOutputDir, "source/PlayFab" + api.name + "API.cs"), apiTemplate(apiLocals));
 }
 
+function makeApiInstance(api, sourceDir, apiOutputDir) {
+    console.log("Generating C# " + api.name + "Instance library to " + apiOutputDir);
+
+    var apiLocals = {
+        api: api,
+        getAuthParams: getAuthParams,
+        getRequestActions: getRequestActions,
+        getResultActions: getResultActions,
+        getDeprecationAttribute: getDeprecationAttribute,
+        generateApiSummary: generateApiSummary,
+        hasClientOptions: getAuthMechanisms([api]).includes("SessionTicket")
+    };
+
+    var apiTemplate = getCompiledTemplate(path.resolve(sourceDir, "templates/APIInstance.cs.ejs"));
+    writeFile(path.resolve(apiOutputDir, "source/PlayFab" + api.name + "InstanceAPI.cs"), apiTemplate(apiLocals));
+}
+
 function generateSimpleFiles(apis, sourceDir, apiOutputDir) {
     var authMechanisms = getAuthMechanisms(apis);
     var locals = {
@@ -132,6 +156,12 @@ function generateSimpleFiles(apis, sourceDir, apiOutputDir) {
 
     var settingsTemplate = getCompiledTemplate(path.resolve(sourceDir, "templates/PlayFabSettings.cs.ejs"));
     writeFile(path.resolve(apiOutputDir, "source/PlayFabSettings.cs"), settingsTemplate(locals));
+
+    var settingsInstanceTemplate = getCompiledTemplate(path.resolve(sourceDir, "templates/PlayFabApiSettings.cs.ejs"));
+    writeFile(path.resolve(apiOutputDir, "source/PlayFabApiSettings.cs"), settingsInstanceTemplate(locals));
+
+    var authenticationContextTemplate = getCompiledTemplate(path.resolve(sourceDir, "templates/PlayFabAuthenticationContext.cs.ejs"));
+    writeFile(path.resolve(apiOutputDir, "source/PlayFabAuthenticationContext.cs"), authenticationContextTemplate(locals));
 }
 
 function generateProject(apis, sourceDir, apiOutputDir, libname, extraDefines) {
@@ -223,19 +253,22 @@ function getPropertyCsType(property, datatype, needOptional) {
         throw "Unknown property type: " + property.actualtype + " for " + property.name + " in " + datatype.name;
 }
 
-function getAuthParams(apiCall) {
+function getAuthParams(apiCall, isApiInstance = false) {
     if (apiCall.url === "/Authentication/GetEntityToken")
         return "authKey, authValue";
     if (apiCall.auth === "EntityToken")
         return "\"X-EntityToken\", PlayFabSettings.EntityToken";
-    if (apiCall.auth === "SecretKey")
+    if (apiCall.auth === "SecretKey" && isApiInstance === false)
         return "\"X-SecretKey\", PlayFabSettings.DeveloperSecretKey";
+    if (apiCall.auth === "SecretKey" && isApiInstance === true)
+        return "\"X-SecretKey\", developerSecretKey";
+
     else if (apiCall.auth === "SessionTicket")
         return "\"X-Authorization\", PlayFabSettings.ClientSessionTicket";
     return "null, null";
 }
 
-function getRequestActions(tabbing, apiCall) {
+function getRequestActions(tabbing, apiCall, isApiInstance = false) {
     if (apiCall.result === "LoginResult" || apiCall.request === "RegisterPlayFabUserRequest")
         return tabbing + "request.TitleId = PlayFabSettings.TitleId ?? request.TitleId;\n"
             + tabbing + "if (request.TitleId == null) throw new PlayFabException(PlayFabExceptionCode.TitleNotSet, \"Must be have PlayFabSettings.TitleId set to call this method\");\n";
@@ -243,8 +276,10 @@ function getRequestActions(tabbing, apiCall) {
         return tabbing + "if (PlayFabSettings.EntityToken == null) throw new PlayFabException(PlayFabExceptionCode.EntityTokenNotSet, \"Must call GetEntityToken before calling this method\");\n";
     if (apiCall.auth === "SessionTicket")
         return tabbing + "if (PlayFabSettings.ClientSessionTicket == null) throw new PlayFabException(PlayFabExceptionCode.NotLoggedIn, \"Must be logged in to call this method\");\n";
-    if (apiCall.auth === "SecretKey")
+    if (apiCall.auth === "SecretKey" && isApiInstance === false)
         return tabbing + "if (PlayFabSettings.DeveloperSecretKey == null) throw new PlayFabException(PlayFabExceptionCode.DeveloperKeyNotSet, \"Must have PlayFabSettings.DeveloperSecretKey set to call this method\");\n";
+    if (apiCall.auth === "SecretKey" && isApiInstance === true)
+        return tabbing + "var developerSecretKey = request.AuthenticationContext?.DeveloperSecretKey ?? (authenticationContext?.DeveloperSecretKey ?? PlayFabSettings.DeveloperSecretKey);\n            if (developerSecretKey == null) throw new PlayFabException(PlayFabExceptionCode.DeveloperKeyNotSet, \"DeveloperSecretKey is not found in Request, Server Instance or PlayFabSettings\");\n";
     if (apiCall.url === "/Authentication/GetEntityToken")
         return tabbing + "string authKey = null, authValue = null;\n"
             + tabbing + "if (PlayFabSettings.ClientSessionTicket != null) { authKey = \"X-Authorization\"; authValue = PlayFabSettings.ClientSessionTicket; }\n"

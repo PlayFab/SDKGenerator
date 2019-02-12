@@ -12,10 +12,9 @@ namespace PlayFab.Internal
     {
         private readonly HttpClient _client = new HttpClient();
 
-        public async Task<object> DoPost(string urlPath, object request, Dictionary<string, string> extraHeaders)
+        public async Task<object> DoPost(string fullUrl, object request, Dictionary<string, string> extraHeaders)
         {
             var serializer = PluginManager.GetPlugin<ISerializerPlugin>(PluginContract.PlayFab_Serializer);
-            var fullUrl = PlayFabSettings.GetFullUrl(urlPath, PlayFabSettings.RequestGetParams);
             string bodyString;
 
             if (request == null)

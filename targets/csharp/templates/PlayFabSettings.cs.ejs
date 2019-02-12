@@ -37,20 +37,20 @@ namespace PlayFab
         public static readonly string AD_TYPE_IDFA = "Idfa";
         public static readonly string AD_TYPE_ANDROID_ID = "Adid";
 <% } %>
-        public static string GetFullUrl(string apiCall, Dictionary<string, string> getParams)
+        public static string GetFullUrl(string apiCall, Dictionary<string, string> getParams, PlayFabApiSettings apiSettings = null)
         {
             StringBuilder sb = new StringBuilder(1000);
         
-            var baseUrl = ProductionEnvironmentUrl;
+            var baseUrl = apiSettings?.ProductionEnvironmentUrl ?? ProductionEnvironmentUrl;
             if (!baseUrl.StartsWith("http"))
             {
-                if (VerticalName != null)
+                if ((apiSettings?.VerticalName ?? VerticalName) != null)
                 {
-                    sb.Append("https://").Append(VerticalName);
+                    sb.Append("https://").Append(apiSettings?.VerticalName ?? VerticalName);
                 }
                 else
                 {
-                    sb.Append("https://").Append(TitleId);
+                    sb.Append("https://").Append(apiSettings?.TitleId ?? TitleId);
                 }
             }
                 

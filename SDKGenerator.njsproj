@@ -223,6 +223,7 @@
     <Content Include="targets\csharp\source\source\PluginManager.cs" />
     <Content Include="targets\csharp\source\source\Uunit\tests\PlayFabApiTest.cs" />
     <Content Include="targets\csharp\source\source\Uunit\PluginManagerTest.cs" />
+    <Content Include="targets\csharp\source\source\Uunit\tests\PlayFabServerApiTest.cs" />
     <Content Include="targets\csharp\source\source\Uunit\UUnitAssertException.cs" />
     <Content Include="targets\csharp\source\source\Uunit\UUnitIncrementalTestRunner.cs" />
     <Content Include="targets\csharp\source\source\Uunit\UUnitTestCase.cs" />
@@ -231,10 +232,13 @@
     <Content Include="targets\csharp\source\source\Uunit\UUnitTestSuite.cs" />
     <Content Include="targets\csharp\source\source\WsaReflectionExtensions.cs" />
     <Content Include="targets\csharp\templates\API.cs.ejs" />
+    <Content Include="targets\csharp\templates\APIInstance.cs.ejs" />
     <Content Include="targets\csharp\templates\Enum.cs.ejs" />
     <Content Include="targets\csharp\templates\Errors.cs.ejs" />
     <Content Include="targets\csharp\templates\Model.cs.ejs" />
     <Content Include="targets\csharp\templates\Models.cs.ejs" />
+    <Content Include="targets\csharp\templates\PlayFabApiSettings.cs.ejs" />
+    <Content Include="targets\csharp\templates\PlayFabAuthenticationContext.cs.ejs" />
     <Content Include="targets\csharp\templates\PlayFabSDK.csproj.ejs" />
     <Content Include="targets\csharp\templates\PlayFabSDK.nuspec.ejs" />
     <Content Include="targets\csharp\templates\PlayFabSettings.cs.ejs" />

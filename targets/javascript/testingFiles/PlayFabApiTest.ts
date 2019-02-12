@@ -44,6 +44,7 @@ var PlayFabApiTests = {
         QUnit.test("InvalidRegistration", PlayFabApiTests.InvalidRegistration);
         QUnit.test("LoginOrRegister", PlayFabApiTests.LoginOrRegister);
         QUnit.test("LoginWithAdvertisingId", PlayFabApiTests.LoginWithAdvertisingId);
+        QUnit.test("LoginWithAuthenticationContext", PlayFabApiTests.LoginWithAuthenticationContext);
 
         setTimeout(function (): void { PlayFabApiTests.PostLoginTests(0); }, PlayFabApiTests.testRetryDelay);
         setTimeout(function (): void { PlayFabApiTests.PostEntityTokenTests(0); }, PlayFabApiTests.testRetryDelay);
@@ -114,10 +115,10 @@ var PlayFabApiTests = {
         };
     },
 
-    SimpleCallbackWrapper: function (callbackName: string, callback: IAction, assert): IAction {
+    SimpleCallbackWrapper: function (callbackName: string, callback: IAction, assert, kwargs): IAction {
         return function (): void {
             try {
-                callback();
+                callback(kwargs);
             } catch (e) {
                 console.log("Exception thrown during " + callbackName + " callback: " + e.toString() + "\n" + e.stack); // Very irritatingly, qunit doesn't report failure results until all async callbacks return, which doesn't always happen when there's an exception
                 assert.ok(false, "Exception thrown during " + callbackName + " callback: " + e.toString() + "\n" + e.stack);
@@ -232,6 +233,96 @@ var PlayFabApiTests = {
             CreateAccount: true
         };
         PlayFabClientSDK.LoginWithCustomID(loginRequest, PlayFabApiTests.CallbackWrapper("advertLoginCallback", advertLoginCallback, assert));
+    },
+
+    /* CLIENT API
+     * Test that the login call sequence uses the AuthenticationContext when set
+     */
+    LoginWithAuthenticationContext: function (assert) {
+        var loginCount = 4;
+        var loginDone = assert.async(loginCount);
+        var testDone = assert.async();
+        // We need a dictionary of counts storing one count per playFabId
+        var retryCountDict = {};
+        var resultDataDict = {};
+
+        var checkAuthenticationContext = function (result_data) {
+             // Capture the playFabId, and make sure the authenticationContext exists with the ID in question
+            playFabId = typeof result_data['playFabId'] != "undefined" ? result_data['playFabId'] : null;
+            retryCountDict[playFabId] = typeof retryCountDict[playFabId] != "undefined" ? retryCountDict[playFabId] + 1 : -1;
+            sessionTicket = typeof result_data['sessionTicket'] != "undefined" ? result_data['sessionTicket'] : null;
+            entityToken = typeof result_data['entityToken'] != "undefined" ? result_data['entityToken'] : null;
+            // TODO: Handle the playFabId/sessionTicket/entityToken = null case
+            console.log(retryCountDict[playFabId]);
+            if (retryCountDict[playFabId] <= 10 && PlayFab._internalSettings.authenticationContext.hasOwnProperty(playFabId) == false) {
+                setTimeout(PlayFabApiTests.SimpleCallbackWrapper("checkAuthenticationContext", checkAuthenticationContext, assert, result_data), 200);
+            }
+            else {
+                assert.ok(PlayFab._internalSettings.authenticationContext[playFabId]['sessionTicket'] === sessionTicket, "Testing whether authenticationContext updated sessionTicket properly");
+                assert.ok(PlayFab._internalSettings.authenticationContext[playFabId]['entityToken'] === entityToken, "Testing whether authenticationContext updated entityToken properly");
+                loginDone();
+            }
+        };
+        var authenticationContextLoginCallback = function (result, error) {
+            var playFabId = playFabId = result.data.PlayFabId;
+            var sessionTicket = null;
+            var entityToken = null;
+
+            sessionTicket = result.data.SessionTicket;
+            entityToken = result.data.EntityToken.EntityToken;
+            resultDataDict[playFabId] = {
+                'playFabId': playFabId,
+                'sessionTicket': sessionTicket,
+                'entityToken': entityToken
+            };
+
+            PlayFabApiTests.VerifyNullError(result, error, assert, "Testing AuthenticationContext-Login result");
+            setTimeout(PlayFabApiTests.SimpleCallbackWrapper("checkAuthenticationContext", checkAuthenticationContext, assert, resultDataDict[playFabId]), 200);
+        };
+
+        function runTestWrapup (){
+            // TODO: PlayFab._internalSettings.authenticationContext has one more key/value pair than it should here
+            console.log("TestWrapup() called");
+            setTimeout(assert.ok(Object.keys(PlayFab._internalSettings.authenticationContext).length === loginCount, "Testing whether authenticationContext was updated properly"), 200);
+            testDone();
+        }
+
+        function runLoginWrapper(){
+            var multiUserLoginRequests = [];
+            for (var i=loginCount; i>0; i--){
+                var loginRequest = {
+                    CustomId: PlayFab.buildIdentifier+i,
+                    CreateAccount: true,
+                    AuthenticationContext: true
+                };
+                multiUserLoginRequests.push(runLogin(loginRequest));
+            }
+            var resolvedPromises = Promise.all(multiUserLoginRequests);
+            resolvedPromises.then(function(result){
+                console.log("then result", result);
+                setTimeout(runTestWrapup, 500, "resolvedPromise.then() called");
+//                runTestWrapup();
+            }).catch(err => {
+                return {
+                    name: null,
+                    // err.code or whatever your error looks like, maybe just 404
+                    status: err.code
+                }
+            });
+            // TODO: Try to wait on resolvePromises to resolve without forcing a delay via setTimeout()
+            // This setTimeout delay isn't guaranteed to work every time
+//            setTimeout(function(){
+//                runTestWrapup();
+//            }, 5000);
+
+        }
+        var runLogin = function (loginRequest){
+            return new Promise(resolve => {
+                PlayFabClientSDK.LoginWithCustomID(loginRequest, PlayFabApiTests.CallbackWrapper("authenticationContextLoginCallback", authenticationContextLoginCallback, assert));
+                setTimeout(resolve, 500);
+            });
+        };
+        runLoginWrapper();
     },
 
     /* CLIENT API
@@ -565,6 +656,7 @@ var PlayFabApiTests = {
     ForgetCredentials: function (assert): void {
         assert.ok(PlayFabClientSDK.IsClientLoggedIn(), "Client should be logged in.");
         PlayFabClientSDK.ForgetAllCredentials();
+        assert.ok($.isEmptyObject(PlayFab._internalSettings.authenticationContext), "Client authenticationContext should be empty.");
         assert.ok(!PlayFabClientSDK.IsClientLoggedIn(), "Client should NOT be logged in.");
     },
 };

@@ -59,7 +59,7 @@ if(!PlayFab._internalSettings) {
             }
         },
 
-        ExecuteRequest: function (url, request, authkey, authValue, callback, customData, extraHeaders) {
+        ExecuteRequest: async function (url, request, authkey, authValue, callback, customData, extraHeaders) {
             if (callback != null && typeof (callback) != "function")
                 throw "Callback must be null of a function";
 
@@ -151,10 +151,44 @@ if(!PlayFab._internalSettings) {
                 callback(null, result);
             }
 
-            xhr.send(requestBody);
+            function sendRequest(xhr) {
+                return new Promise(resolve => {
+                    xhr.send(requestBody);
+                });
+            }
+            var resolvedPromise = await sendRequest(xhr);
+            return resolvedPromise;
         }
     }
 }
+
+if (typeof PlayFab._internalSettings.authenticationContext == "undefined") {
+    // Initialize the authenticationContext if it doesnt exist
+    // We could use a ternary operator here, but length of the line of code would effect readability
+    PlayFab._internalSettings.authenticationContext = {};
+}
+
+PlayFab._internalSettings.GetAuthValue = function (request, authKey) {
+    // Use the most-recently saved sessionTicket, unless one was provided in the request via the PlayFabId property
+    var authInfoMap = {
+        'X-EntityToken': 'entityToken',
+        'X-Authorization': 'sessionTicket',
+        'X-SecretKey': 'developerSecretKey'
+    };
+    var authAttr = authInfoMap[authKey];
+    var sessionTicket = PlayFab._internalSettings.sessionTicket;
+    var authValue = authAttr ==  'developerSecretKey' ? PlayFab.settings[authAttr]: PlayFab._internalSettings[authAttr];
+    if (request.hasOwnProperty('PlayFabId')) {
+        var playFabId = request.PlayFabId;
+        // Make sure that the authenticationContext exists before attempting to access it
+        if (PlayFab._internalSettings.authenticationContext.hasOwnProperty(playFabId)) {
+            if (PlayFab._internalSettings.authenticationContext[playFabId].hasOwnProperty(authAttr)) {
+                authValue = PlayFab._internalSettings.authenticationContext[playFabId][authAttr];
+            }
+        }
+    }
+    return authValue;
+};
 
 PlayFab.buildIdentifier = "<%- buildIdentifier %>";
 PlayFab.sdkVersion = "<%- sdkVersion %>";
@@ -176,6 +210,7 @@ PlayFab.<%- api.name %>Api = {
 <% } %>    ForgetAllCredentials: function () {
         PlayFab._internalSettings.sessionTicket = null;
         PlayFab._internalSettings.entityToken = null;
+        PlayFab._internalSettings.authenticationContext = {};
     },
 <% for(var i in api.calls) { var apiCall = api.calls[i]; %>
 <%- getDeprecationAttribute("    ", apiCall)

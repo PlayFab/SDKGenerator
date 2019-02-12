@@ -97,12 +97,21 @@ function hasResultActions(apiCall) {
 function getResultActions(tabbing, apiCall) {
     if (apiCall.result === "LoginResult")
         return tabbing + "if (result != null) {\n"
-            + tabbing + "       if(result.data.SessionTicket != null) {\n"
-            + tabbing + "           PlayFab._internalSettings.sessionTicket = result.data.SessionTicket;\n"
-            + tabbing + "       }\n"
-            + tabbing + "       if (result.data.EntityToken != null) {\n"
-            + tabbing + "           PlayFab._internalSettings.entityToken = result.data.EntityToken.EntityToken;\n"
-            + tabbing + "       }\n"
+            + tabbing + "   // Capture the playFabId, and make sure the authenticationContext exists with the ID in question\n"
+            + tabbing + "   var playFabId = result.data.PlayFabId;\n"
+            + tabbing + "\n"
+            + tabbing + "   if(PlayFab._internalSettings.authenticationContext.hasOwnProperty(playFabId) == false) {\n"
+            + tabbing + "       var playFabId = result.data.PlayFabId;\n"
+            + tabbing + "   }\n"
+            + tabbing + "\n"
+            + tabbing + "   if(result.data.SessionTicket != null) {\n"
+            + tabbing + "       PlayFab._internalSettings.sessionTicket = result.data.SessionTicket;\n"
+            + tabbing + "       PlayFab._internalSettings.authenticationContext[playFabId]['sessionTicket'] = result.data.SessionTicket;\n"
+            + tabbing + "   }\n"
+            + tabbing + "   if (result.data.EntityToken != null) {\n"
+            + tabbing + "       PlayFab._internalSettings.entityToken = result.data.EntityToken.EntityToken;\n"
+            + tabbing + "       PlayFab._internalSettings.authenticationContext[playFabId]['entityToken'] = result.data.EntityToken.EntityToken;\n"
+            + tabbing + "   }\n"
             + tabbing + "    PlayFab.ClientApi._MultiStepClientLogin(result.data.SettingsForUser.NeedsAttribution);\n"
             + tabbing + "}";
     if (apiCall.result === "RegisterPlayFabUserResult")
@@ -127,11 +136,11 @@ function getAuthParams(apiCall) {
     if (apiCall.url === "/Authentication/GetEntityToken")
         return "authKey, authValue";
     if (apiCall.auth === "EntityToken")
-        return "\"X-EntityToken\", PlayFab._internalSettings.entityToken";
+        return "\"X-EntityToken\", PlayFab._internalSettings.GetAuthValue(request, \"X-EntityToken\")";
     if (apiCall.auth === "SecretKey")
-        return "\"X-SecretKey\", PlayFab.settings.developerSecretKey";
+        return "\"X-SecretKey\", PlayFab._internalSettings.GetAuthValue(request, \"X-SecretKey\")";
     if (apiCall.auth === "SessionTicket")
-        return "\"X-Authorization\", PlayFab._internalSettings.sessionTicket";
+        return "\"X-Authorization\", PlayFab._internalSettings.GetAuthValue(request, \"X-Authorization\")";
     return "null, null";
 }
 

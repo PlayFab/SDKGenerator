@@ -1,4 +1,5 @@
-﻿using PlayFab.Internal;
+﻿#if ENABLE_PLAYFABSERVER_API || ENABLE_PLAYFABADMIN_API 
+using PlayFab.Internal;
 using PlayFab.Json;
 using System;
 using System.Collections.Generic;
@@ -256,3 +257,4 @@ namespace PlayFab.UUnit
         }
     }
 }
+#endif 

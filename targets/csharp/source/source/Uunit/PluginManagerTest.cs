@@ -40,7 +40,7 @@ namespace PlayFab.UUnit
         {
             public string Name;
 
-            public async Task<object> DoPost(string urlPath, object request, Dictionary<string, string> headers, PlayFabAbiSettings apiSettings = null)
+            public async Task<object> DoPost(string urlPath, object request, Dictionary<string, string> headers)
             {
                 throw new NotImplementedException();
             }

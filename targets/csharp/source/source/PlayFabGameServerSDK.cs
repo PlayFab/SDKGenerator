@@ -7,35 +7,59 @@ using System.Threading.Tasks;
 
 namespace PlayFab
 {
+    // The states a Game server can get into during its lifecycle
     public enum GameState
     {
+        // A state has not yet been set
         Invalid,
+
+        // The game server is starting
         Initializing,
+
+        // The game server has finished initialization and called ReadyForPlayers
         StandingBy,
+
+        // The game server has been allocated, players are about to connect
         Active,
+
+        // The game server is shutting down
         Terminating,
+
+        // The game server has ended
         Terminated,
-        Quarentined
+
+        // PlayFab is requesting this game server remain idle for debugging purposes.
+        // Note that this state is not yet being used
+        Quarantined
     }
 
+    // The operations our PlayFab Agent can ask the game to perform
     public enum GameOperation
     {
+        // An operation was not sent in the heartbeat
         Invalid,
+
+        // No state changes required
         Continue,
-        GetManifest,
+
+        // Place this game server in a Quarantined state
         Quarantine,
+
+        // Place this game server in an Active state
         Active,
-        Terminate,
-        Operation_Count
+
+        // Place this game server in a Terminating state
+        Terminate
     }
 
-    public static class PlayFabGameserverSDK
+    public static class PlayFabGameServerSDK
     {
         // These two keys are only available after allocation (once readyForPlayers returns true)
         public const string SessionCookieKey = "sessionCookie";
         public const string SessionIdKey = "sessionId";
-        public const string HeartbeatEndpointKey = "gsmsBaseUrl";
-        public const string ServerIdKey = "instanceId";
+
+        public const string HeartbeatEndpointKey = "heartbeatEndpoint";
+        public const string ServerIdKey = "serverId";
         public const string LogFolderKey = "logFolder";
         public const string SharedContentFolderKey = "sharedContentFolder";
         public const string CertificateFolderKey = "certificateFolder";
@@ -45,7 +69,7 @@ namespace PlayFab
 
         public const string GsdkConfigFileEnvVarKey = "GSDK_CONFIG_FILE";
 
-        private static GameserverInternalSdk _internalSdk = new GameserverInternalSdk();
+        private static GameServerInternalSdk _internalSdk = new GameServerInternalSdk();
 
         /// <summary>
         /// Called when the game server is ready to accept clients.
@@ -87,9 +111,9 @@ namespace PlayFab
         /// Kicks off communication threads, heartbeats, etc.
         /// Called implicitly by ReadyForPlayers if not called beforehand.
         /// </summary>
-        public static void Start(bool debugLogs = false)
+        public static void Start(bool shouldWriteDebugLogs = false)
         {
-            Task.WhenAll(_internalSdk.StartAsync(debugLogs))
+            Task.WhenAll(_internalSdk.StartAsync(shouldWriteDebugLogs))
                 .Wait();
         }
 
@@ -97,7 +121,7 @@ namespace PlayFab
         /// Tells the PlayFab service information on who is connected.
         /// </summary>
         /// <param name="currentlyConnectedPlayers"></param>
-        public static void UpdateConnectedPlayers(IList<GameserverConnectedPlayer> currentlyConnectedPlayers)
+        public static void UpdateConnectedPlayers(IList<GameServerConnectedPlayer> currentlyConnectedPlayers)
         {
             Task.WhenAll(_internalSdk.StartAsync())
                 .Wait();
@@ -153,7 +177,7 @@ namespace PlayFab
             Task.WhenAll(_internalSdk.StartAsync())
                 .Wait();
 
-            if (_internalSdk.ConfigMap.TryGetValue(PlayFabGameserverSDK.LogFolderKey, out string folder))
+            if (_internalSdk.ConfigMap.TryGetValue(PlayFabGameServerSDK.LogFolderKey, out string folder))
             {
                 return folder;
             }
@@ -170,7 +194,7 @@ namespace PlayFab
             Task.WhenAll(_internalSdk.StartAsync())
                 .Wait();
 
-            if (_internalSdk.ConfigMap.TryGetValue(PlayFabGameserverSDK.SharedContentFolderKey, out string folder))
+            if (_internalSdk.ConfigMap.TryGetValue(PlayFabGameServerSDK.SharedContentFolderKey, out string folder))
             {
                 return folder;
             }

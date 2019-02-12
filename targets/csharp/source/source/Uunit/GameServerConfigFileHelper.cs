@@ -11,9 +11,9 @@ using PlayFab;
 
 namespace PlayFabAllSDK.Uunit
 {
-    class GameserverConfigFileHelper
+    class GameServerConfigFileHelper
     {
-        private GameserverConfigFileHelper(ISerializerPlugin jsonSerializer) { }
+        private GameServerConfigFileHelper(ISerializerPlugin jsonSerializer) { }
 
         public async static Task WrapAsync<T>(ISerializerPlugin jsonSerializer, T objRef, Func<string, Task> doWorkAsync)
         {

@@ -18,16 +18,16 @@ namespace PlayFab
     {
         public static ILogger CreateInstance(string logFolder)
         {
-            return new FilesystemLogger(logFolder);
+            return new FileSystemLogger(logFolder);
         }
     }
 
-    public class FilesystemLogger : ILogger
+    public class FileSystemLogger : ILogger
     {
         private StreamWriter _logWriter;
         private string _logFolder;
 
-        public FilesystemLogger(string logFolder)
+        public FileSystemLogger(string logFolder)
         {
             _logFolder = logFolder;
         }
@@ -75,7 +75,8 @@ namespace PlayFab
 
         public void Stop()
         {
-            throw new System.NotImplementedException();
+            _logWriter?.Dispose();
+            _logWriter = null;
         }
     }
 }

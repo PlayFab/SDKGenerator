@@ -11,19 +11,19 @@ using PlayFabAllSDK.Uunit;
 
 namespace PlayFab.UUnit
 {
-    public class GameserverSDKTests : UUnitTestCase
+    public class GameServerSDKTests : UUnitTestCase
     {
-        private MockGameserverHttp _clientMock = null;
+        private MockGameServerHttp _clientMock = null;
         private ISerializerPlugin _jsonWrapper = null;
 
-        private class MockGameserverHttp : IGameserverHttpClient
+        private class MockGameServerHttp : IGameServerHttpClient
         {
             private HeartbeatResponse _response;
 
             public int HeartbeatCount { get; set; }
             public HeartbeatRequest LastRequest { get; private set; }
 
-            public MockGameserverHttp()
+            public MockGameServerHttp()
             {
                 AssignResponse(new HeartbeatResponse());
                 HeartbeatCount = 0;
@@ -44,15 +44,15 @@ namespace PlayFab.UUnit
 
         public override void ClassSetUp()
         {
-            _clientMock = new MockGameserverHttp();
+            _clientMock = new MockGameServerHttp();
             _jsonWrapper = PlayFab.PluginManager.GetPlugin<ISerializerPlugin>(PluginContract.PlayFab_Serializer);
-            GameserverHttpClientFactory.Instance = _clientMock;
+            GameServerHttpClientFactory.Instance = _clientMock;
         }
 
         public override void ClassTearDown()
         {
             _jsonWrapper = null;
-            GameserverHttpClientFactory.Instance = null;
+            GameServerHttpClientFactory.Instance = null;
         }
 
         [UUnitTest]
@@ -60,11 +60,11 @@ namespace PlayFab.UUnit
         {
             var testConfig = new { ShouldLog = false };
 
-            var task = GameserverConfigFileHelper.WrapAsync(_jsonWrapper, testConfig, async (fileName) =>
+            var task = GameServerConfigFileHelper.WrapAsync(_jsonWrapper, testConfig, async (fileName) =>
             {
                 try
                 {
-                    var sdk = new GameserverInternalSdk(fileName);
+                    var sdk = new GameServerInternalSdk(fileName);
                     await sdk.StartAsync(false);
                 }
                 catch (GSDKInitializationException e)
@@ -107,9 +107,9 @@ namespace PlayFab.UUnit
                 }
             };
 
-            var task = GameserverConfigFileHelper.WrapAsync(_jsonWrapper, testConfig, async (fileName) =>
+            var task = GameServerConfigFileHelper.WrapAsync(_jsonWrapper, testConfig, async (fileName) =>
             {
-                using (var sdk = new GameserverInternalSdk(fileName))
+                using (var sdk = new GameServerInternalSdk(fileName))
                 {
                     await sdk.StartAsync(false);
                     testContext.ObjEquals(GameState.Invalid, sdk.State);
@@ -137,9 +137,9 @@ namespace PlayFab.UUnit
 
             _clientMock.HeartbeatCount = 0;
 
-            var task = GameserverConfigFileHelper.WrapAsync(_jsonWrapper, testConfig, async (fileName) =>
+            var task = GameServerConfigFileHelper.WrapAsync(_jsonWrapper, testConfig, async (fileName) =>
             {
-                var sdk = new GameserverInternalSdk(fileName);
+                var sdk = new GameServerInternalSdk(fileName);
 
                 try
                 {
@@ -174,9 +174,9 @@ namespace PlayFab.UUnit
                 Operation = GameOperation.Active
             });
 
-            var task = GameserverConfigFileHelper.WrapAsync(_jsonWrapper, testConfig, async (fileName) =>
+            var task = GameServerConfigFileHelper.WrapAsync(_jsonWrapper, testConfig, async (fileName) =>
             {
-                using (var sdk = new GameserverInternalSdk(fileName))
+                using (var sdk = new GameServerInternalSdk(fileName))
                 {
                     await sdk.StartAsync(false);
 
@@ -206,9 +206,9 @@ namespace PlayFab.UUnit
                 Operation = GameOperation.Terminate
             });
 
-            var task = GameserverConfigFileHelper.WrapAsync(_jsonWrapper, testConfig, async (fileName) =>
+            var task = GameServerConfigFileHelper.WrapAsync(_jsonWrapper, testConfig, async (fileName) =>
             {
-                using (var sdk = new GameserverInternalSdk(fileName))
+                using (var sdk = new GameServerInternalSdk(fileName))
                 {
                     await sdk.StartAsync(false);
                     Thread.Sleep(2000);
@@ -238,12 +238,12 @@ namespace PlayFab.UUnit
                 NextScheduledMaintenanceUtc = "2018-11-12T04:11:14Z",
             });
 
-            var task = GameserverConfigFileHelper.WrapAsync(_jsonWrapper, testConfig, async (fileName) =>
+            var task = GameServerConfigFileHelper.WrapAsync(_jsonWrapper, testConfig, async (fileName) =>
             {
                 DateTimeOffset maintDate = DateTime.MinValue;
                 var evt = new ManualResetEvent(false);
 
-                using (var sdk = new GameserverInternalSdk(fileName))
+                using (var sdk = new GameServerInternalSdk(fileName))
                 {
                     sdk.MaintenanceCallback = (dt) =>
                     {
@@ -282,11 +282,11 @@ namespace PlayFab.UUnit
                 NextScheduledMaintenanceUtc = "2018-11-12T04:11:14Z",
             });
 
-            var task = GameserverConfigFileHelper.WrapAsync(_jsonWrapper, testConfig, async (fileName) =>
+            var task = GameServerConfigFileHelper.WrapAsync(_jsonWrapper, testConfig, async (fileName) =>
             {
                 int invocationCount = 0;
 
-                using (var sdk = new GameserverInternalSdk(fileName))
+                using (var sdk = new GameServerInternalSdk(fileName))
                 {
                     sdk.MaintenanceCallback = (dt) =>
                     {
@@ -325,9 +325,9 @@ namespace PlayFab.UUnit
                 }
             });
 
-            var task = GameserverConfigFileHelper.WrapAsync(_jsonWrapper, testConfig, async (fileName) =>
+            var task = GameServerConfigFileHelper.WrapAsync(_jsonWrapper, testConfig, async (fileName) =>
             {
-                using (var sdk = new GameserverInternalSdk(fileName))
+                using (var sdk = new GameServerInternalSdk(fileName))
                 {
                     await sdk.StartAsync(false);
 
@@ -369,9 +369,9 @@ namespace PlayFab.UUnit
                 }
             });
 
-            var task = GameserverConfigFileHelper.WrapAsync(_jsonWrapper, testConfig, async (fileName) =>
+            var task = GameServerConfigFileHelper.WrapAsync(_jsonWrapper, testConfig, async (fileName) =>
             {
-                using (var sdk = new GameserverInternalSdk(fileName))
+                using (var sdk = new GameServerInternalSdk(fileName))
                 {
                     await sdk.StartAsync(false);
 
@@ -402,11 +402,11 @@ namespace PlayFab.UUnit
                 Operation = GameOperation.Terminate
             });
 
-            var task = GameserverConfigFileHelper.WrapAsync(_jsonWrapper, testConfig, async (fileName) =>
+            var task = GameServerConfigFileHelper.WrapAsync(_jsonWrapper, testConfig, async (fileName) =>
             {
                 bool shutdownInvoked = false;
 
-                using (var sdk = new GameserverInternalSdk(fileName))
+                using (var sdk = new GameServerInternalSdk(fileName))
                 {
                     sdk.ShutdownCallback = () => { shutdownInvoked = true; };
 
@@ -436,9 +436,9 @@ namespace PlayFab.UUnit
                 Operation = GameOperation.Active
             });
 
-            var task = GameserverConfigFileHelper.WrapAsync(_jsonWrapper, testConfig, async (fileName) =>
+            var task = GameServerConfigFileHelper.WrapAsync(_jsonWrapper, testConfig, async (fileName) =>
             {
-                using (var sdk = new GameserverInternalSdk(fileName))
+                using (var sdk = new GameServerInternalSdk(fileName))
                 {
                     sdk.HealthCallback = () => { return false; };
 
@@ -472,9 +472,9 @@ namespace PlayFab.UUnit
                 Operation = GameOperation.Active
             });
 
-            var task = GameserverConfigFileHelper.WrapAsync(_jsonWrapper, testConfig, async (fileName) =>
+            var task = GameServerConfigFileHelper.WrapAsync(_jsonWrapper, testConfig, async (fileName) =>
             {
-                using (var sdk = new GameserverInternalSdk(fileName))
+                using (var sdk = new GameServerInternalSdk(fileName))
                 {
                     sdk.HealthCallback = () => { return true; };
 

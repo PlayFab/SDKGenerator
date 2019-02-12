@@ -10,33 +10,35 @@ using System.Xml;
 namespace PlayFab
 {
     // TODO: This should eventually be merged with PlayFabHttp
-    interface IGameserverHttpClient
+    interface IGameServerHttpClient
     {
         Task<HeartbeatResponse> SendHeartbeatAsync(HeartbeatRequest request);
     }
 
-    static class GameserverHttpClientFactory
+    static class GameServerHttpClientFactory
     {
-        public static IGameserverHttpClient Instance { get; set; }
+        // TODO: Consider getting rid of set here and using dependency injection
+        // in the GSDK to allow Unit Tests to set this
+        public static IGameServerHttpClient Instance { get; set; }
 
-        public static IGameserverHttpClient CreateInstance(string baseUrl)
+        public static IGameServerHttpClient CreateInstance(string baseUrl)
         {
             if (Instance == null)
             {
-                Instance = new GameserverHttpClientProxy(baseUrl);
+                Instance = new GameServerHttpClientProxy(baseUrl);
             }
 
             return Instance;
         }
     }
 
-    class GameserverHttpClientProxy : HttpClient, IGameserverHttpClient
+    class GameServerHttpClientProxy : HttpClient, IGameServerHttpClient
     {
         private string _baseUrl;
         private HttpClient _client;
         private ISerializerPlugin _jsonSerializer;
 
-        public GameserverHttpClientProxy(string baseUrl)
+        public GameServerHttpClientProxy(string baseUrl)
         {
             _baseUrl = baseUrl;
             _client = new HttpClient();
@@ -62,10 +64,8 @@ namespace PlayFab
 
             responseMessage.EnsureSuccessStatusCode();
 
-            HeartbeatResponse response = _jsonSerializer.DeserializeObject<HeartbeatResponse>(
+            return _jsonSerializer.DeserializeObject<HeartbeatResponse>(
                 await responseMessage.Content.ReadAsStringAsync());
-
-            return response;
         }
     }
 }

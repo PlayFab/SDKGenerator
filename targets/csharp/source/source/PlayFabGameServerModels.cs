@@ -7,11 +7,11 @@ using PlayFab.Json;
 
 namespace PlayFab
 {
-    public class GameserverConnectedPlayer
+    public class GameServerConnectedPlayer
     {
         public string PlayerId { get; set; }
 
-        public GameserverConnectedPlayer(string playerid)
+        public GameServerConnectedPlayer(string playerid)
         {
             this.PlayerId = playerid;
         }
@@ -26,7 +26,9 @@ namespace PlayFab
             : base(message, innerException) { }
     }
 
-    class GameserverConfiguration
+    // TODO: Simplify the configuration classes + schema class. We also probably don't
+    // need the Environment configuration anymore
+    class GameServerConfiguration
     {
         public string HeartbeatEndpoint { get; protected set; }
         public string ServerId { get; protected set; }
@@ -55,7 +57,7 @@ namespace PlayFab
         protected const string REGION_ENV_VAR = "PF_REGION";
         protected const string SHARED_CONTENT_FOLDER_ENV_VAR = "SHARED_CONTENT_FOLDER";
 
-        public GameserverConfiguration()
+        public GameServerConfiguration()
         {
             GameCertificates = new Dictionary<string, string>();
             BuildMetadata = new Dictionary<string, string>();
@@ -63,7 +65,7 @@ namespace PlayFab
         }
     }
 
-    class EnvironmentVariableConfiguration : GameserverConfiguration
+    class EnvironmentVariableConfiguration : GameServerConfiguration
     {
         public EnvironmentVariableConfiguration() : base()
         {
@@ -78,7 +80,7 @@ namespace PlayFab
         }
     }
 
-    class JsonFileConfiguration : GameserverConfiguration
+    class JsonFileConfiguration : GameServerConfiguration
     {
         private bool _shouldLog;
 
@@ -152,7 +154,7 @@ namespace PlayFab
     {
         public GameState CurrentGameState { get; set; }
         public string CurrentGameHealth { get; set; }
-        public GameserverConnectedPlayer[] CurrentPlayers { get; set; }
+        public GameServerConnectedPlayer[] CurrentPlayers { get; set; }
     }
 
     class HeartbeatResponse

@@ -10,19 +10,19 @@ using System.Threading.Tasks;
 
 namespace PlayFab
 {
-    class GameserverInternalSdk : IDisposable
+    class GameServerInternalSdk : IDisposable
     {
         private string _overrideConfigFileName;
         private GameState _state;
 
         private Task _heartbeatTask;
-        private GameserverConfiguration _configuration;
-        private IGameserverHttpClient _webClient;
+        private GameServerConfiguration _configuration;
+        private IGameServerHttpClient _webClient;
         private bool _heartbeatRunning;
         private DateTime _cachedScheduleMaintDate;
         private ManualResetEvent _heartbeatDoneEvent = new ManualResetEvent(false);
         private ManualResetEvent _signalHeartbeatEvent = new ManualResetEvent(false);
-        private bool _debug;
+        private bool _shouldWriteDebugLogs;
 
         public ManualResetEvent TransitionToActiveEvent { get; set; }
         public IDictionary<string, string> ConfigMap { get; private set; }
@@ -40,7 +40,7 @@ namespace PlayFab
             }
         }
 
-        public IList<GameserverConnectedPlayer> ConnectedPlayers { get; set; }
+        public IList<GameServerConnectedPlayer> ConnectedPlayers { get; set; }
 
         public IList<string> InitialPlayers { get; set; }
 
@@ -50,15 +50,15 @@ namespace PlayFab
         public Action<DateTimeOffset> MaintenanceCallback { get; set; }
 
 
-        public GameserverInternalSdk(string configFileName = null)
+        public GameServerInternalSdk(string configFileName = null)
         {
             _overrideConfigFileName = configFileName;
-            ConnectedPlayers = new List<GameserverConnectedPlayer>();
+            ConnectedPlayers = new List<GameServerConnectedPlayer>();
             InitialPlayers = new List<string>();
             TransitionToActiveEvent = new ManualResetEvent(false);
         }
 
-        public Task StartAsync(bool debugLogs = false)
+        public Task StartAsync(bool shouldWriteDebugLogs = false)
         {
             // If we already initialized everything, no need to do it again
             if (_heartbeatTask != null)
@@ -66,32 +66,24 @@ namespace PlayFab
                 return Task.CompletedTask;
             }
 
-            _debug = debugLogs;
+            _shouldWriteDebugLogs = shouldWriteDebugLogs;
 
-
-            if (_configuration == null)
-            {
-                _configuration = GetConfiguration();
-            }
-
-            if (ConfigMap == null)
-            {
-                ConfigMap = CreateConfigMap(_configuration);
-            }
-
-            Logger = LoggerFactory.CreateInstance(ConfigMap[PlayFabGameserverSDK.LogFolderKey]);
+            _configuration = _configuration ?? GetConfiguration();
+            ConfigMap = ConfigMap ?? CreateConfigMap(_configuration);
+            Logger = LoggerFactory.CreateInstance(ConfigMap[PlayFabGameServerSDK.LogFolderKey]);
+            
             if (_configuration.ShouldLog())
             {
                 Logger.Start();
             }
 
-            string gsmsBaseUrl = ConfigMap[PlayFabGameserverSDK.HeartbeatEndpointKey];
-            string instanceId = ConfigMap[PlayFabGameserverSDK.ServerIdKey];
+            string gsmsBaseUrl = ConfigMap[PlayFabGameServerSDK.HeartbeatEndpointKey];
+            string instanceId = ConfigMap[PlayFabGameServerSDK.ServerIdKey];
 
             Logger.Log($"VM Agent Endpoint: {gsmsBaseUrl}");
             Logger.Log($"Instance Id: {instanceId}");
 
-            _webClient = GameserverHttpClientFactory.CreateInstance($"http://{gsmsBaseUrl}/v1/sessionHosts/{instanceId}");
+            _webClient = GameServerHttpClientFactory.CreateInstance($"http://{gsmsBaseUrl}/v1/sessionHosts/{instanceId}");
 
             _heartbeatRunning = true;
             _signalHeartbeatEvent.Reset();
@@ -101,20 +93,12 @@ namespace PlayFab
             return Task.CompletedTask;
         }
 
-        private GameserverConfiguration GetConfiguration()
+        private GameServerConfiguration GetConfiguration()
         {
-            string fileName;
+            string fileName = !string.IsNullOrWhiteSpace(_overrideConfigFileName) ? _overrideConfigFileName
+                                : Environment.GetEnvironmentVariable(PlayFabGameServerSDK.GsdkConfigFileEnvVarKey);
 
-            if (!string.IsNullOrWhiteSpace(_overrideConfigFileName))
-            {
-                fileName = _overrideConfigFileName;
-            }
-            else
-            {
-                fileName = Environment.GetEnvironmentVariable(PlayFabGameserverSDK.GsdkConfigFileEnvVarKey);
-            }
-
-            GameserverConfiguration localConfig;
+            GameServerConfiguration localConfig;
 
             if (!string.IsNullOrWhiteSpace(fileName) && File.Exists(fileName))
             {
@@ -130,7 +114,7 @@ namespace PlayFab
             return localConfig;
         }
 
-        private IDictionary<string, string> CreateConfigMap(GameserverConfiguration localConfig)
+        private IDictionary<string, string> CreateConfigMap(GameServerConfiguration localConfig)
         {
             var finalConfig = new Dictionary<string, string>();
 
@@ -149,14 +133,14 @@ namespace PlayFab
                 finalConfig[port.Key] = port.Value;
             }
 
-            finalConfig[PlayFabGameserverSDK.HeartbeatEndpointKey] = localConfig.HeartbeatEndpoint;
-            finalConfig[PlayFabGameserverSDK.ServerIdKey] = localConfig.ServerId;
-            finalConfig[PlayFabGameserverSDK.LogFolderKey] = localConfig.LogFolder;
-            finalConfig[PlayFabGameserverSDK.SharedContentFolderKey] = localConfig.SharedContentFolder;
-            finalConfig[PlayFabGameserverSDK.CertificateFolderKey] = localConfig.CertificateFolder;
-            finalConfig[PlayFabGameserverSDK.TitleIdKey] = localConfig.TitleId;
-            finalConfig[PlayFabGameserverSDK.BuildIdKey] = localConfig.BuildId;
-            finalConfig[PlayFabGameserverSDK.RegionKey] = localConfig.Region;
+            finalConfig[PlayFabGameServerSDK.HeartbeatEndpointKey] = localConfig.HeartbeatEndpoint;
+            finalConfig[PlayFabGameServerSDK.ServerIdKey] = localConfig.ServerId;
+            finalConfig[PlayFabGameServerSDK.LogFolderKey] = localConfig.LogFolder;
+            finalConfig[PlayFabGameServerSDK.SharedContentFolderKey] = localConfig.SharedContentFolder;
+            finalConfig[PlayFabGameServerSDK.CertificateFolderKey] = localConfig.CertificateFolder;
+            finalConfig[PlayFabGameServerSDK.TitleIdKey] = localConfig.TitleId;
+            finalConfig[PlayFabGameServerSDK.BuildIdKey] = localConfig.BuildId;
+            finalConfig[PlayFabGameServerSDK.RegionKey] = localConfig.Region;
 
             return finalConfig;
         }
@@ -167,9 +151,9 @@ namespace PlayFab
             {
                 if (_signalHeartbeatEvent.WaitOne(1000))
                 {
-                    if (_debug)
+                    if (_shouldWriteDebugLogs)
                     {
-                        Logger.Log("State transition signaled an early heartbeat.");
+                        Logger.Log($"Game state transition occurred, new game state is {this.State}. Sending heartbeat sooner than the configured 1 second interval.");
                     }
 
                     _signalHeartbeatEvent.Reset();
@@ -184,16 +168,16 @@ namespace PlayFab
 
         internal async virtual Task SendHeartbeatAsync()
         {
-            bool gameHealth = false;
+            bool isGameHealthy = false;
             if (HealthCallback != null)
             {
-                gameHealth = HealthCallback();
+                isGameHealthy = HealthCallback();
             }
 
             var payload = new HeartbeatRequest
             {
                 CurrentGameState = this.State,
-                CurrentGameHealth = gameHealth ? "Healthy" : "Unhealthy",
+                CurrentGameHealth = isGameHealthy ? "Healthy" : "Unhealthy",
                 CurrentPlayers = ConnectedPlayers.ToArray(),
             };
 
@@ -202,7 +186,7 @@ namespace PlayFab
                 HeartbeatResponse response = await _webClient.SendHeartbeatAsync(payload);
                 await UpdateStateFromHeartbeatAsync(response);
 
-                if (_debug)
+                if (_shouldWriteDebugLogs)
                 {
                     Logger.Log($"Heartbeat request: {{ state = {payload.CurrentGameState} }} response: {{ operation = {response.Operation} }}");
                 }
@@ -221,7 +205,9 @@ namespace PlayFab
                 ConfigMap.AddIfNotNullOrEmpty("sessionCookie", response.SessionConfig?.SessionCookie);
                 ConfigMap.AddIfNotNullOrEmpty("sessionId", response.SessionConfig?.SessionId.ToString());
 
-                if (response.SessionConfig?.InitialPlayers != null && response.SessionConfig.InitialPlayers.Any())
+                // Only setting InitialPlayers if something was sent from the Agent, this will prevent us effectively
+                // deleting our initial player list if the next heartbeat comes back empty.
+                if (response.SessionConfig?.InitialPlayers?.Count > 0)
                 {
                     InitialPlayers = response.SessionConfig.InitialPlayers;
                 }

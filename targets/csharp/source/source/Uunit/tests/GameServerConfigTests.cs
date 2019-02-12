@@ -9,7 +9,7 @@ using PlayFabAllSDK.Uunit;
 
 namespace PlayFab.UUnit
 {
-    public class GameserverConfigTests : UUnitTestCase
+    public class GameServerConfigTests : UUnitTestCase
     {
         private ISerializerPlugin _jsonWrapper;
 
@@ -31,11 +31,11 @@ namespace PlayFab.UUnit
                 sessionHostId = "serverid" 
             };
 
-            var task = GameserverConfigFileHelper.WrapAsync(_jsonWrapper, testConfig, (fileName) =>
+            var task = GameServerConfigFileHelper.WrapAsync(_jsonWrapper, testConfig, (fileName) =>
             {
                 try
                 {
-                    GameserverConfiguration c = new JsonFileConfiguration(_jsonWrapper, fileName);
+                    GameServerConfiguration c = new JsonFileConfiguration(_jsonWrapper, fileName);
                 }
                 catch (GSDKInitializationException e)
                 {
@@ -60,11 +60,11 @@ namespace PlayFab.UUnit
                 heartbeatEndpoint = "heartbeatendpoint"
             };
 
-            var task = GameserverConfigFileHelper.WrapAsync(_jsonWrapper, testConfig, (fileName) =>
+            var task = GameServerConfigFileHelper.WrapAsync(_jsonWrapper, testConfig, (fileName) =>
             {
                 try
                 {
-                    GameserverConfiguration c = new JsonFileConfiguration(_jsonWrapper, fileName);
+                    GameServerConfiguration c = new JsonFileConfiguration(_jsonWrapper, fileName);
                 }
                 catch (GSDKInitializationException e)
                 {
@@ -91,9 +91,9 @@ namespace PlayFab.UUnit
                 foo = "berry",
             };
 
-            var task = GameserverConfigFileHelper.WrapAsync(_jsonWrapper, testConfig, (fileName) =>
+            var task = GameServerConfigFileHelper.WrapAsync(_jsonWrapper, testConfig, (fileName) =>
             {
-                GameserverConfiguration c = new JsonFileConfiguration(_jsonWrapper, fileName);
+                GameServerConfiguration c = new JsonFileConfiguration(_jsonWrapper, fileName);
                 return Task.CompletedTask;
             });
 
@@ -114,9 +114,9 @@ namespace PlayFab.UUnit
                 }
             };
 
-            var task = GameserverConfigFileHelper.WrapAsync(_jsonWrapper, testConfig, (fileName) =>
+            var task = GameServerConfigFileHelper.WrapAsync(_jsonWrapper, testConfig, (fileName) =>
             {
-                GameserverConfiguration c = new JsonFileConfiguration(_jsonWrapper, fileName);
+                GameServerConfiguration c = new JsonFileConfiguration(_jsonWrapper, fileName);
                 testContext.NotNull(c.GameCertificates);
                 testContext.IntEquals(0, c.GameCertificates.Count);
                 return Task.CompletedTask;
@@ -141,9 +141,9 @@ namespace PlayFab.UUnit
                 }
             };
 
-            var task = GameserverConfigFileHelper.WrapAsync(_jsonWrapper, testConfig, (fileName) =>
+            var task = GameServerConfigFileHelper.WrapAsync(_jsonWrapper, testConfig, (fileName) =>
             {
-                GameserverConfiguration c = new JsonFileConfiguration(_jsonWrapper, fileName);
+                GameServerConfiguration c = new JsonFileConfiguration(_jsonWrapper, fileName);
                 testContext.NotNull(c.GameCertificates);
                 testContext.IntEquals(2, c.GameCertificates.Count);
                 return Task.CompletedTask;
@@ -166,9 +166,9 @@ namespace PlayFab.UUnit
                 }
             };
 
-            var task = GameserverConfigFileHelper.WrapAsync(_jsonWrapper, testConfig, (fileName) =>
+            var task = GameServerConfigFileHelper.WrapAsync(_jsonWrapper, testConfig, (fileName) =>
             {
-                GameserverConfiguration c = new JsonFileConfiguration(_jsonWrapper, fileName);
+                GameServerConfiguration c = new JsonFileConfiguration(_jsonWrapper, fileName);
                 testContext.NotNull(c.GamePorts);
                 testContext.IntEquals(0, c.GamePorts.Count);
                 return Task.CompletedTask;
@@ -193,9 +193,9 @@ namespace PlayFab.UUnit
                 }
             };
 
-            var task = GameserverConfigFileHelper.WrapAsync(_jsonWrapper, testConfig, (fileName) =>
+            var task = GameServerConfigFileHelper.WrapAsync(_jsonWrapper, testConfig, (fileName) =>
             {
-                GameserverConfiguration c = new JsonFileConfiguration(_jsonWrapper, fileName);
+                GameServerConfiguration c = new JsonFileConfiguration(_jsonWrapper, fileName);
                 testContext.NotNull(c.GamePorts);
                 testContext.IntEquals(2, c.GamePorts.Count);
                 return Task.CompletedTask;

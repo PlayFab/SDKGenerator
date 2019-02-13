@@ -1,4 +1,8 @@
-﻿// GSDK Only has the following supported frameworks for now
+﻿////////////////////////////////////////////////
+// Copyright (C) Microsoft. All rights reserved.
+////////////////////////////////////////////////
+
+// GSDK Only has the following supported frameworks for now
 #if NETSTANDARD2_0 || NETCOREAPP2_1
 using System;
 using System.Collections.Generic;
@@ -7,15 +11,15 @@ using System.Text;
 using System.Threading.Tasks;
 using System.Xml;
 
-namespace PlayFab
+namespace PlayFab.GSDK
 {
     // TODO: This should eventually be merged with PlayFabHttp
-    interface IGameServerHttpClient
+    internal interface IGameServerHttpClient
     {
         Task<HeartbeatResponse> SendHeartbeatAsync(HeartbeatRequest request);
     }
 
-    static class GameServerHttpClientFactory
+    internal static class GameServerHttpClientFactory
     {
         // TODO: Consider getting rid of set here and using dependency injection
         // in the GSDK to allow Unit Tests to set this
@@ -32,7 +36,7 @@ namespace PlayFab
         }
     }
 
-    class GameServerHttpClientProxy : HttpClient, IGameServerHttpClient
+    internal class GameServerHttpClientProxy : HttpClient, IGameServerHttpClient
     {
         private string _baseUrl;
         private HttpClient _client;
@@ -43,7 +47,6 @@ namespace PlayFab
             _baseUrl = baseUrl;
             _client = new HttpClient();
             _jsonSerializer = PlayFab.PluginManager.GetPlugin<ISerializerPlugin>(PluginContract.PlayFab_Serializer);
-
 
             _client.DefaultRequestHeaders.Clear();
             _client.DefaultRequestHeaders.Add("Accept", "application/json");

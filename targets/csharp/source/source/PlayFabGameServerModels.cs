@@ -1,11 +1,15 @@
-﻿// GSDK Only has the following supported frameworks for now
+﻿////////////////////////////////////////////////
+// Copyright (C) Microsoft. All rights reserved.
+////////////////////////////////////////////////
+
+// GSDK Only has the following supported frameworks for now
 #if NETSTANDARD2_0 || NETCOREAPP2_1
 using System;
 using System.Collections.Generic;
 using System.IO;
 using PlayFab.Json;
 
-namespace PlayFab
+namespace PlayFab.GSDK
 {
     public class GameServerConnectedPlayer
     {
@@ -26,9 +30,7 @@ namespace PlayFab
             : base(message, innerException) { }
     }
 
-    // TODO: Simplify the configuration classes + schema class. We also probably don't
-    // need the Environment configuration anymore
-    class GameServerConfiguration
+    public class GameServerConfiguration
     {
         public string HeartbeatEndpoint { get; protected set; }
         public string ServerId { get; protected set; }
@@ -47,44 +49,51 @@ namespace PlayFab
         public IDictionary<string, string> BuildMetadata { get; set; }
         public IDictionary<string, string> GamePorts { get; set; }
 
-        public virtual bool ShouldLog() { return true; }
+        // These two fields will be non-null only after allocation
+        public string SessionId { get; set; }
+        public string SessionCookie { get; set; }
 
-        protected const string HEARTBEAT_ENDPOINT_ENV_VAR = "HEARTBEAT_ENDPOINT";
-        protected const string SERVER_ID_ENV_VAR = "SESSION_HOST_ID";
-        protected const string LOG_FOLDER_ENV_VAR = "GSDK_LOG_FOLDER";
+        internal virtual bool ShouldLog() { return true; }
+
         protected const string TITLE_ID_ENV_VAR = "PF_TITLE_ID";
         protected const string BUILD_ID_ENV_VAR = "PF_BUILD_ID";
         protected const string REGION_ENV_VAR = "PF_REGION";
-        protected const string SHARED_CONTENT_FOLDER_ENV_VAR = "SHARED_CONTENT_FOLDER";
 
         public GameServerConfiguration()
         {
             GameCertificates = new Dictionary<string, string>();
             BuildMetadata = new Dictionary<string, string>();
             GamePorts = new Dictionary<string, string>();
-        }
-    }
 
-    class EnvironmentVariableConfiguration : GameServerConfiguration
-    {
-        public EnvironmentVariableConfiguration() : base()
+            // These are always set as environment variables
+            TitleId = Environment.GetEnvironmentVariable(TITLE_ID_ENV_VAR);
+            BuildId = Environment.GetEnvironmentVariable(BUILD_ID_ENV_VAR);
+            Region = Environment.GetEnvironmentVariable(REGION_ENV_VAR);
+        }
+
+        public GameServerConfiguration(GameServerConfiguration other)
         {
-            HeartbeatEndpoint = Environment.GetEnvironmentVariable(HEARTBEAT_ENDPOINT_ENV_VAR);
-            ServerId = Environment.GetEnvironmentVariable(SERVER_ID_ENV_VAR);
-            LogFolder = Environment.GetEnvironmentVariable(LOG_FOLDER_ENV_VAR);
-            SharedContentFolder = Environment.GetEnvironmentVariable(SHARED_CONTENT_FOLDER_ENV_VAR);
-            if (string.IsNullOrWhiteSpace(HeartbeatEndpoint) || string.IsNullOrWhiteSpace(ServerId))
-            {
-                throw new GSDKInitializationException("Heartbeat endpoint and Server id are required configuration values.");
-            }
+            HeartbeatEndpoint = other.HeartbeatEndpoint;
+            ServerId = other.ServerId;
+            LogFolder = other.LogFolder;
+            CertificateFolder = other.CertificateFolder;
+            SharedContentFolder = other.SharedContentFolder;
+            GameCertificates = new Dictionary<string, string>(other.GameCertificates);
+            TitleId = other.TitleId;
+            BuildId = other.BuildId;
+            Region = other.Region;
+            BuildMetadata = new Dictionary<string, string>(other.BuildMetadata);
+            GamePorts = new Dictionary<string, string>(other.GamePorts);
+            SessionId = other.SessionId;
+            SessionCookie = other.SessionCookie;
         }
     }
 
-    class JsonFileConfiguration : GameServerConfiguration
+    internal class JsonFileConfiguration : GameServerConfiguration
     {
         private bool _shouldLog;
 
-        public override bool ShouldLog()
+        internal override bool ShouldLog()
         {
             return _shouldLog;
         }
@@ -120,44 +129,44 @@ namespace PlayFab
         }
     }
 
-    class JsonGsdkSchema
+    internal class JsonGsdkSchema
     {
         [JsonProperty(PropertyName = "heartbeatEndpoint")]
-        public string HeartbeatEndpoint { get; set; }
+        public string HeartbeatEndpoint;
 
         [JsonProperty(PropertyName = "sessionHostId")]
-        public string SessionHostId { get; set; }
+        public string SessionHostId;
 
         [JsonProperty(PropertyName = "logFolder")]
-        public string LogFolder { get; set; }
+        public string LogFolder;
 
         [JsonProperty(PropertyName = "sharedContentFolder")]
-        public string SharedContentFolder { get; set; }
+        public string SharedContentFolder;
 
         [JsonProperty(PropertyName = "certificateFolder")]
-        public string CertificateFolder { get; set; }
+        public string CertificateFolder;
 
         [JsonProperty(PropertyName = "gameCertificates")]
-        public IDictionary<string, string> GameCertificates { get; set; }
+        public IDictionary<string, string> GameCertificates;
 
         [JsonProperty(PropertyName = "buildMetadata")]
-        public IDictionary<string, string> BuildMetadata { get; set; }
+        public IDictionary<string, string> BuildMetadata;
 
         [JsonProperty(PropertyName = "gamePorts")]
-        public IDictionary<string, string> GamePorts { get; set; }
+        public IDictionary<string, string> GamePorts;
 
         [JsonProperty(PropertyName = "shouldLog")]
-        public bool? ShouldLog { get; set; }
+        public bool? ShouldLog;
     }
 
-    class HeartbeatRequest
+    internal class HeartbeatRequest
     {
         public GameState CurrentGameState { get; set; }
         public string CurrentGameHealth { get; set; }
         public GameServerConnectedPlayer[] CurrentPlayers { get; set; }
     }
 
-    class HeartbeatResponse
+    internal class HeartbeatResponse
     {
         [JsonProperty(PropertyName = "sessionConfig")]
         public SessionConfig SessionConfig { get; set; }
@@ -169,7 +178,7 @@ namespace PlayFab
         public GameOperation Operation { get; set; }
     }
 
-    class SessionConfig
+    internal class SessionConfig
     {
         [JsonProperty(PropertyName = "sessionId")]
         public Guid SessionId { get; set; }

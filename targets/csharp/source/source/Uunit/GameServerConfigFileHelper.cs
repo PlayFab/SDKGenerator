@@ -1,4 +1,8 @@
-﻿// GSDK Only has the following supported frameworks for now
+﻿////////////////////////////////////////////////
+// Copyright (C) Microsoft. All rights reserved.
+////////////////////////////////////////////////
+
+// GSDK Only has the following supported frameworks for now
 #if NETSTANDARD2_0 || NETCOREAPP2_1
 
 using System;
@@ -11,13 +15,12 @@ using PlayFab;
 
 namespace PlayFabAllSDK.Uunit
 {
-    class GameServerConfigFileHelper
+    public class GameServerConfigFileHelper
     {
         private GameServerConfigFileHelper(ISerializerPlugin jsonSerializer) { }
 
         public async static Task WrapAsync<T>(ISerializerPlugin jsonSerializer, T objRef, Func<string, Task> doWorkAsync)
         {
-            // TODO: Is this necessary?
             string testConfigFileName = Path.ChangeExtension(Path.GetTempFileName(), ".json");
 
             using (var writer = new StreamWriter(testConfigFileName))
@@ -35,9 +38,9 @@ namespace PlayFabAllSDK.Uunit
                 using (var reader = new StreamReader(testConfigFileName))
                 {
                     Console.WriteLine();
-                    Console.WriteLine("*******************************");
-                    Console.WriteLine("  CONFIGURATION FILE CONTENTS  ");
-                    Console.WriteLine("*******************************");
+                    Console.WriteLine("*******************************************");
+                    Console.WriteLine("  FAILED TEST CONFIGURATION FILE CONTENTS  ");
+                    Console.WriteLine("*******************************************");
                     Console.WriteLine(reader.ReadToEnd());
                     Console.WriteLine();
                     Console.WriteLine();

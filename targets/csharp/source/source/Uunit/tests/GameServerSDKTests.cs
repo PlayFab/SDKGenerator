@@ -1,4 +1,8 @@
-﻿// GSDK Only has the following supported frameworks for now
+﻿////////////////////////////////////////////////
+// Copyright (C) Microsoft. All rights reserved.
+////////////////////////////////////////////////
+
+// GSDK Only has the following supported frameworks for now
 #if NETSTANDARD2_0 || NETCOREAPP2_1
 
 using System;
@@ -8,6 +12,7 @@ using System.Net;
 using System.Threading;
 using System.Threading.Tasks;
 using PlayFabAllSDK.Uunit;
+using PlayFab.GSDK;
 
 namespace PlayFab.UUnit
 {
@@ -113,8 +118,12 @@ namespace PlayFab.UUnit
                 {
                     await sdk.StartAsync(false);
                     testContext.ObjEquals(GameState.Invalid, sdk.State);
-                    testContext.NotNull(sdk.ConfigMap);
-                    testContext.True(sdk.ConfigMap.Count > 0, "GSDK Config should have more than 0 properties.");
+                    testContext.NotNull(sdk.Configuration);
+                    testContext.StringEquals("heartbeatendpoint", sdk.Configuration.HeartbeatEndpoint);
+                    testContext.StringEquals("serverid", sdk.Configuration.ServerId);
+                    testContext.IntEquals(3, sdk.Configuration.GameCertificates.Count);
+                    testContext.IntEquals(3, sdk.Configuration.BuildMetadata.Count);
+                    testContext.IntEquals(1, sdk.Configuration.GamePorts.Count);
                     testContext.NotNull(sdk.ConnectedPlayers);
                     testContext.IntEquals(0, sdk.ConnectedPlayers.Count);
                 }
@@ -331,9 +340,9 @@ namespace PlayFab.UUnit
                 {
                     await sdk.StartAsync(false);
 
-                    testContext.False(sdk.ConfigMap.ContainsKey("sessionCookie"));
+                    testContext.IsNull(sdk.Configuration.SessionCookie);
                     Thread.Sleep(2000);
-                    testContext.True(sdk.ConfigMap.ContainsKey("sessionCookie"));
+                    testContext.StringEquals("awesomeCookie", sdk.Configuration.SessionCookie);
                     testContext.IntEquals(0, sdk.InitialPlayers.Count, "Initial Player List not returned");
                 }
             });
@@ -375,9 +384,9 @@ namespace PlayFab.UUnit
                 {
                     await sdk.StartAsync(false);
 
-                    testContext.False(sdk.ConfigMap.ContainsKey("sessionCookie"));
+                    testContext.IsNull(sdk.Configuration.SessionCookie);
                     Thread.Sleep(2000);
-                    testContext.True(sdk.ConfigMap.ContainsKey("sessionCookie"));
+                    testContext.StringEquals("awesomeCookie", sdk.Configuration.SessionCookie);
                     testContext.SequenceEquals(playerList, sdk.InitialPlayers, "Initial Player List returned");
                 }
             });

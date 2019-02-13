@@ -1,4 +1,8 @@
-﻿// GSDK Only has the following supported frameworks for now
+﻿////////////////////////////////////////////////
+// Copyright (C) Microsoft. All rights reserved.
+////////////////////////////////////////////////
+
+// GSDK Only has the following supported frameworks for now
 #if NETSTANDARD2_0 || NETCOREAPP2_1
 
 using System;
@@ -6,6 +10,7 @@ using System.Collections.Generic;
 using System.Net;
 using System.Threading.Tasks;
 using PlayFabAllSDK.Uunit;
+using PlayFab.GSDK;
 
 namespace PlayFab.UUnit
 {

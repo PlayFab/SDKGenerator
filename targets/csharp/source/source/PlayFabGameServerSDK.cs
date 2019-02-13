@@ -1,11 +1,15 @@
-﻿// GSDK Only has the following supported frameworks for now
+﻿////////////////////////////////////////////////
+// Copyright (C) Microsoft. All rights reserved.
+////////////////////////////////////////////////
+
+// GSDK Only has the following supported frameworks for now
 #if NETSTANDARD2_0 || NETCOREAPP2_1
 using System;
 using System.Collections.Generic;
 using System.Text;
 using System.Threading.Tasks;
 
-namespace PlayFab
+namespace PlayFab.GSDK
 {
     // The states a Game server can get into during its lifecycle
     public enum GameState
@@ -99,12 +103,12 @@ namespace PlayFab
         /// Returns all configuration settings
         /// </summary>
         /// <returns>Optional</returns>
-        public static IDictionary<string, string> getConfigSettings()
+        public static GameServerConfiguration GetConfigSettings()
         {
             Task.WhenAll(_internalSdk.StartAsync())
                 .Wait();
 
-            return new Dictionary<string, string>(_internalSdk.ConfigMap);
+            return new GameServerConfiguration(_internalSdk.Configuration);
         }
 
         /// <summary>
@@ -177,12 +181,7 @@ namespace PlayFab
             Task.WhenAll(_internalSdk.StartAsync())
                 .Wait();
 
-            if (_internalSdk.ConfigMap.TryGetValue(PlayFabGameServerSDK.LogFolderKey, out string folder))
-            {
-                return folder;
-            }
-
-            return string.Empty;
+            return _internalSdk.Configuration.LogFolder;
         }
 
         /// <summary>
@@ -193,13 +192,8 @@ namespace PlayFab
         {
             Task.WhenAll(_internalSdk.StartAsync())
                 .Wait();
-
-            if (_internalSdk.ConfigMap.TryGetValue(PlayFabGameServerSDK.SharedContentFolderKey, out string folder))
-            {
-                return folder;
-            }
-
-            return string.Empty;
+            
+            return _internalSdk.Configuration.SharedContentFolder;
         }
 
         /// <summary>

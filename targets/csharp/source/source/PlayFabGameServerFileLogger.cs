@@ -1,20 +1,24 @@
-﻿// GSDK Only has the following supported frameworks for now
+﻿////////////////////////////////////////////////
+// Copyright (C) Microsoft. All rights reserved.
+////////////////////////////////////////////////
+
+// GSDK Only has the following supported frameworks for now
 #if NETSTANDARD2_0 || NETCOREAPP2_1
 using System;
 using System.Collections.Generic;
 using System.IO;
 using System.Text;
 
-namespace PlayFab
+namespace PlayFab.GSDK
 {
-    public interface ILogger
+    internal interface ILogger
     {
         void Start();
         void Stop();
         void Log(string message);
     }
 
-    public static class LoggerFactory
+    internal static class LoggerFactory
     {
         public static ILogger CreateInstance(string logFolder)
         {
@@ -22,7 +26,7 @@ namespace PlayFab
         }
     }
 
-    public class FileSystemLogger : ILogger
+    internal class FileSystemLogger : ILogger
     {
         private StreamWriter _logWriter;
         private string _logFolder;
@@ -55,17 +59,9 @@ namespace PlayFab
                 _logFolder = Environment.CurrentDirectory;
             }
 
-            try
+            if (!Directory.Exists(_logFolder))
             {
-                if (!Directory.Exists(_logFolder))
-                {
-                    Directory.CreateDirectory(_logFolder);
-                }
-            }
-            catch (Exception ex)
-            {
-                _logFolder = Environment.CurrentDirectory;
-                throw ex;
+                Directory.CreateDirectory(_logFolder);
             }
 
             long datePart = DateTime.UtcNow.ToFileTime();

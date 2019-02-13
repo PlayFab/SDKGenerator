@@ -1,4 +1,8 @@
-﻿// GSDK Only has the following supported frameworks for now
+﻿////////////////////////////////////////////////
+// Copyright (C) Microsoft. All rights reserved.
+////////////////////////////////////////////////
+
+// GSDK Only has the following supported frameworks for now
 #if NETSTANDARD2_0 || NETCOREAPP2_1
 using System;
 using System.Collections.Generic;
@@ -8,15 +12,14 @@ using System.Linq;
 using System.Threading;
 using System.Threading.Tasks;
 
-namespace PlayFab
+namespace PlayFab.GSDK
 {
-    class GameServerInternalSdk : IDisposable
+    internal class GameServerInternalSdk : IDisposable
     {
         private string _overrideConfigFileName;
         private GameState _state;
 
         private Task _heartbeatTask;
-        private GameServerConfiguration _configuration;
         private IGameServerHttpClient _webClient;
         private bool _heartbeatRunning;
         private DateTime _cachedScheduleMaintDate;
@@ -24,8 +27,9 @@ namespace PlayFab
         private ManualResetEvent _signalHeartbeatEvent = new ManualResetEvent(false);
         private bool _shouldWriteDebugLogs;
 
+        internal GameServerConfiguration Configuration { get; private set; }
+
         public ManualResetEvent TransitionToActiveEvent { get; set; }
-        public IDictionary<string, string> ConfigMap { get; private set; }
         public ILogger Logger { get; private set; }
         public GameState State
         {
@@ -49,7 +53,6 @@ namespace PlayFab
         public Func<bool> HealthCallback { get; set; }
         public Action<DateTimeOffset> MaintenanceCallback { get; set; }
 
-
         public GameServerInternalSdk(string configFileName = null)
         {
             _overrideConfigFileName = configFileName;
@@ -68,22 +71,21 @@ namespace PlayFab
 
             _shouldWriteDebugLogs = shouldWriteDebugLogs;
 
-            _configuration = _configuration ?? GetConfiguration();
-            ConfigMap = ConfigMap ?? CreateConfigMap(_configuration);
-            Logger = LoggerFactory.CreateInstance(ConfigMap[PlayFabGameServerSDK.LogFolderKey]);
+            Configuration = Configuration ?? GetConfiguration();
+            Logger = LoggerFactory.CreateInstance(Configuration.LogFolder);
             
-            if (_configuration.ShouldLog())
+            if (Configuration.ShouldLog())
             {
                 Logger.Start();
             }
 
-            string gsmsBaseUrl = ConfigMap[PlayFabGameServerSDK.HeartbeatEndpointKey];
-            string instanceId = ConfigMap[PlayFabGameServerSDK.ServerIdKey];
+            string heartbeatEndpoint = Configuration.HeartbeatEndpoint;
+            string serverId = Configuration.ServerId;
 
-            Logger.Log($"VM Agent Endpoint: {gsmsBaseUrl}");
-            Logger.Log($"Instance Id: {instanceId}");
+            Logger.Log($"VM Agent Endpoint: {heartbeatEndpoint}");
+            Logger.Log($"Server Id: {serverId}");
 
-            _webClient = GameServerHttpClientFactory.CreateInstance($"http://{gsmsBaseUrl}/v1/sessionHosts/{instanceId}");
+            _webClient = GameServerHttpClientFactory.CreateInstance($"http://{heartbeatEndpoint}/v1/sessionHosts/{serverId}");
 
             _heartbeatRunning = true;
             _signalHeartbeatEvent.Reset();
@@ -95,54 +97,18 @@ namespace PlayFab
 
         private GameServerConfiguration GetConfiguration()
         {
-            string fileName = !string.IsNullOrWhiteSpace(_overrideConfigFileName) ? _overrideConfigFileName
-                                : Environment.GetEnvironmentVariable(PlayFabGameServerSDK.GsdkConfigFileEnvVarKey);
-
-            GameServerConfiguration localConfig;
-
-            if (!string.IsNullOrWhiteSpace(fileName) && File.Exists(fileName))
+            string fileName;
+            if (!string.IsNullOrWhiteSpace(_overrideConfigFileName))
             {
-                var jsonWrapper = PlayFab.PluginManager.GetPlugin<ISerializerPlugin>(PluginContract.PlayFab_Serializer);
-
-                localConfig = new JsonFileConfiguration(jsonWrapper, fileName);
+                fileName = _overrideConfigFileName;
             }
             else
             {
-                localConfig = new EnvironmentVariableConfiguration();
+                fileName = Environment.GetEnvironmentVariable(PlayFabGameServerSDK.GsdkConfigFileEnvVarKey);
             }
 
-            return localConfig;
-        }
-
-        private IDictionary<string, string> CreateConfigMap(GameServerConfiguration localConfig)
-        {
-            var finalConfig = new Dictionary<string, string>();
-
-            foreach (KeyValuePair<string, string> certEntry in localConfig.GameCertificates)
-            {
-                finalConfig[certEntry.Key] = certEntry.Value;
-            }
-
-            foreach (KeyValuePair<string, string> metadata in localConfig.BuildMetadata)
-            {
-                finalConfig[metadata.Key] = metadata.Value;
-            }
-
-            foreach (KeyValuePair<string, string> port in localConfig.GamePorts)
-            {
-                finalConfig[port.Key] = port.Value;
-            }
-
-            finalConfig[PlayFabGameServerSDK.HeartbeatEndpointKey] = localConfig.HeartbeatEndpoint;
-            finalConfig[PlayFabGameServerSDK.ServerIdKey] = localConfig.ServerId;
-            finalConfig[PlayFabGameServerSDK.LogFolderKey] = localConfig.LogFolder;
-            finalConfig[PlayFabGameServerSDK.SharedContentFolderKey] = localConfig.SharedContentFolder;
-            finalConfig[PlayFabGameServerSDK.CertificateFolderKey] = localConfig.CertificateFolder;
-            finalConfig[PlayFabGameServerSDK.TitleIdKey] = localConfig.TitleId;
-            finalConfig[PlayFabGameServerSDK.BuildIdKey] = localConfig.BuildId;
-            finalConfig[PlayFabGameServerSDK.RegionKey] = localConfig.Region;
-
-            return finalConfig;
+            var jsonWrapper = PlayFab.PluginManager.GetPlugin<ISerializerPlugin>(PluginContract.PlayFab_Serializer);
+            return new JsonFileConfiguration(jsonWrapper, fileName); ;
         }
 
         private async Task HeartbeatAsync()
@@ -200,13 +166,20 @@ namespace PlayFab
 
         private Task UpdateStateFromHeartbeatAsync(HeartbeatResponse response)
         {
+            // Only setting these values if something was sent from the Agent, this will prevent us from
+            // deleting our session config if the next heartbeat comes back empty.
             if (response.SessionConfig != null)
             {
-                ConfigMap.AddIfNotNullOrEmpty("sessionCookie", response.SessionConfig?.SessionCookie);
-                ConfigMap.AddIfNotNullOrEmpty("sessionId", response.SessionConfig?.SessionId.ToString());
+                if (!string.IsNullOrEmpty(response.SessionConfig.SessionCookie))
+                {
+                    Configuration.SessionCookie = response.SessionConfig.SessionCookie;
+                }
 
-                // Only setting InitialPlayers if something was sent from the Agent, this will prevent us effectively
-                // deleting our initial player list if the next heartbeat comes back empty.
+                if (response.SessionConfig.SessionId != Guid.Empty)
+                {
+                    Configuration.SessionId = response.SessionConfig.SessionId.ToString();
+                }
+
                 if (response.SessionConfig?.InitialPlayers?.Count > 0)
                 {
                     InitialPlayers = response.SessionConfig.InitialPlayers;
@@ -232,50 +205,41 @@ namespace PlayFab
             switch (response.Operation)
             {
                 case GameOperation.Continue:
-                    {
-                        // No action required
-                        break;
-                    }
+                    // No action required
+                    break;
                 case GameOperation.Active:
+                    if (State != GameState.Active)
                     {
-                        if (State != GameState.Active)
-                        {
-                            State = GameState.Active;
-                        }
-
-                        TransitionToActiveEvent.Set();
-
-                        break;
+                        State = GameState.Active;
                     }
+
+                    TransitionToActiveEvent.Set();
+
+                    break;
                 case GameOperation.Terminate:
+                    if (State != GameState.Terminating)
                     {
-                        if (State != GameState.Terminating)
-                        {
-                            State = GameState.Terminating;
-                            ShutdownCallback?.Invoke();
-                        }
-
-                        TransitionToActiveEvent.Set();
-
-                        break;
+                        State = GameState.Terminating;
+                        ShutdownCallback?.Invoke();
                     }
+
+                    TransitionToActiveEvent.Set();
+
+                    break;
                 default:
-                    {
-                        Logger.Log($"Unknown operation received: {Enum.GetName(typeof(GameOperation), response.Operation)}");
-                        break;
-                    }
-
+                    Logger.Log($"Unknown operation received: {Enum.GetName(typeof(GameOperation), response.Operation)}");
+                    break;
             }
 
             return Task.CompletedTask;
         }
 
 #region IDisposable Support
-        private bool disposedValue = false; // To detect redundant calls
+        private bool _disposedValue = false; // To detect redundant calls
 
         private void DisposeManagedResources(bool disposing)
         {
-            if (!disposedValue)
+            if (!_disposedValue)
             {
                 if (disposing)
                 {
@@ -283,26 +247,15 @@ namespace PlayFab
                     _heartbeatDoneEvent.WaitOne();
                 }
 
-                // TODO: free unmanaged resources (unmanaged objects) and override a finalizer below.
-                // TODO: set large fields to null.
-
-                disposedValue = true;
+                _disposedValue = true;
             }
         }
-
-        // TODO: override a finalizer only if Dispose(bool disposing) above has code to free unmanaged resources.
-        // ~InternalSdk() {
-        //   // Do not change this code. Put cleanup code in Dispose(bool disposing) above.
-        //   Dispose(false);
-        // }
 
         // This code added to correctly implement the disposable pattern.
         public void Dispose()
         {
             // Do not change this code. Put cleanup code in Dispose(bool disposing) above.
             DisposeManagedResources(true);
-            // TODO: uncomment the following line if the finalizer is overridden above.
-            // GC.SuppressFinalize(this);
         }
 #endregion
     }

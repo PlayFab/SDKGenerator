@@ -23,12 +23,13 @@ namespace PlayFab
         virtual ~PlayFabWinHttpPlugin();
 
         virtual void MakePostRequest(std::unique_ptr<CallRequestContainerBase> requestContainer) override;
+        virtual void SimplePostCall(std::string fullUrl, std::string requestBody, std::function<void(int, std::string)> successCallback, std::function<void(std::string)> errorCallback) override;
         virtual size_t Update() override;
 
     protected:
         virtual void ExecuteRequest(std::unique_ptr<CallRequestContainer> requestContainer);
         virtual std::string GetUrl(CallRequestContainer& requestContainer) const;
-        virtual void SetPredefinedHeaders(CallRequestContainer& requestContainer, HINTERNET hRequest);
+        virtual void SetPredefinedHeaders(HINTERNET hRequest);
         virtual bool GetBinaryPayload(CallRequestContainer& requestContainer, LPVOID& payload, DWORD& payloadSize) const;
         virtual void ProcessResponse(CallRequestContainer& requestContainer, const int httpCode);
         void WorkerThread();

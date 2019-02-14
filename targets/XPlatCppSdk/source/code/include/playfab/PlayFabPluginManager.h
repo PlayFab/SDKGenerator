@@ -38,6 +38,11 @@ namespace PlayFab
         virtual void MakePostRequest(std::unique_ptr<CallRequestContainerBase>) = 0;
 
         /// <summary>
+        /// Makes a simple POST call to the specified url.
+        /// </summary>
+        virtual void SimplePostCall(std::string fullUrl, std::string requestBody, std::function<void(int, std::string)> successCallback, std::function<void(std::string)> errorCallback) = 0;
+
+        /// <summary>
         /// updates the process of making post requests.
         /// This method can be used when plugin is not using a working thread and instead should execute 
         /// its long-running operations via polling using this method.

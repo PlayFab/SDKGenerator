@@ -143,6 +143,12 @@
     <ClInclude Include="$(SdkSourceDir)\include\playfab\QoS\QoSSocket.h" />
     <ClInclude Include="$(SdkSourceDir)\include\playfab\QoS\XPlatSocket.h" />
     <ClInclude Include="$(SdkSourceDir)\stdafx.h" />
+    <ClInclude Include="$(SdkSourceDir)\include\playfab\PlayFabGameServerModels.h" />
+    <ClInclude Include="$(SdkSourceDir)\include\playfab\PlayFabGameServerSDK.h" />
+    <ClInclude Include="$(SdkSourceDir)\include\playfab\PlayFabGameServerUtils.h" />
+    <ClInclude Include="$(SdkSourceDir)\include\playfab\PlayFabGameServerLog.h" />
+    <ClInclude Include="$(SdkSourceDir)\include\playfab\ManualResetEvent.h" />
+    <ClInclude Include="$(SdkSourceDir)\include\playfab\PlayFabGameServerInternal.h" />
   </ItemGroup>
   <ItemGroup>
     <ClCompile Include="$(SdkSourceDir)\source\playfab\OneDSWinHttpPlugin.cpp" />
@@ -173,6 +179,11 @@
       <PrecompiledHeader Condition="'$(Configuration)|$(Platform)'=='Debug|x64'">Create</PrecompiledHeader>
       <PrecompiledHeader Condition="'$(Configuration)|$(Platform)'=='Release|x64'">Create</PrecompiledHeader>
     </ClCompile>
+    <ClCompile Include="$(SdkSourceDir)\source\playfab\PlayFabGameServerModels.cpp" />
+    <ClCompile Include="$(SdkSourceDir)\source\playfab\PlayFabGameServerSDK.cpp" />
+    <ClCompile Include="$(SdkSourceDir)\source\playfab\PlayFabGameServerLog.cpp" />
+    <ClCompile Include="$(SdkSourceDir)\source\playfab\PlayFabGameServerUtils.cpp" />
+    <ClCompile Include="$(SdkSourceDir)\source\playfab\ManualResetEvent.cpp" />
   </ItemGroup>
   <ItemGroup>
     <ProjectReference Include="..\..\external\jsoncpp-build\lib_json.vcxproj">

@@ -94,6 +94,175 @@ namespace PlayFab
         } // UNLOCK httpRequestMutex
     }
 
+    // TODO: This should be merged with ExecuteRequest below
+    void PlayFabWinHttpPlugin::SimplePostCall(std::string fullUrl, std::string requestBody, std::function<void(int, std::string)> successCallback, std::function<void(std::string)> errorCallback)
+    {
+        // Set up variables
+        DWORD dwStatusCode = 0;
+        DWORD dwSize = 0;
+        DWORD dwDownloaded = 0;
+        BOOL bResults = FALSE;
+        HINTERNET hSession = NULL, hConnect = NULL, hRequest = NULL;
+        constexpr size_t MaxUrlLength = 2048;
+        constexpr size_t MaxSchemeLength = 6; // HTTP, HTTPS (plus zero terminator)
+
+        // WinHTTP requires HOST and PATH parts of URL separately, we need to crack it (there is special API to do it)
+        std::wstring urlWideStr(fullUrl.begin(), fullUrl.end());
+        const wchar_t* url = urlWideStr.c_str();
+        wchar_t urlHost[MaxUrlLength]; // we need to reserve a buffer to store HOST. If it doesn't fit we simply get an error.
+        wchar_t urlScheme[MaxSchemeLength]; // we need to reserve a buffer to store SCHEME. If it doesn't fit we simply get an error.
+        DWORD winHttpOpenRequestFlags = NULL;
+
+        // please read docs on URL_COMPONENTS and WinHttpCrackUrl to understand these parameters:
+        URL_COMPONENTS urlComponents;
+        urlComponents.lpszExtraInfo = nullptr;
+        urlComponents.dwExtraInfoLength = 0;
+        urlComponents.lpszHostName = urlHost;
+        urlComponents.dwHostNameLength = MaxUrlLength;
+        urlComponents.lpszPassword = nullptr;
+        urlComponents.dwPasswordLength = 0;
+        urlComponents.lpszScheme = urlScheme;
+        urlComponents.dwSchemeLength = MaxSchemeLength;
+        urlComponents.lpszUrlPath = nullptr;
+        urlComponents.dwUrlPathLength = 1;
+        urlComponents.lpszUserName = nullptr;
+        urlComponents.dwUserNameLength = 0;
+        urlComponents.dwStructSize = sizeof(urlComponents);
+
+        bResults = WinHttpCrackUrl(url, 0, 0, &urlComponents); // parse the URL
+        if (!bResults)
+        {
+            errorCallback("Error in WinHttpCrackUrl, failed to parse the URL string");
+        }
+        else
+        {
+            if (urlComponents.nPort == INTERNET_DEFAULT_HTTPS_PORT)
+            {
+                winHttpOpenRequestFlags = WINHTTP_FLAG_SECURE;
+            }
+
+            // Use WinHttpOpen to obtain a session handle
+            hSession = WinHttpOpen(L"PlayFab Agent",
+                WINHTTP_ACCESS_TYPE_DEFAULT_PROXY,
+                WINHTTP_NO_PROXY_NAME,
+                WINHTTP_NO_PROXY_BYPASS, 0);
+            if (!hSession)
+            {
+                errorCallback("Error in WinHttpOpen, failed to open an HTTP session");
+            }
+            else
+            {
+                // Specify an HTTP server
+                hConnect = WinHttpConnect(hSession, urlComponents.lpszHostName, urlComponents.nPort, 0);
+                if (!hConnect)
+                {
+                    errorCallback("Error in WinHttpConnect, failed to connect to host");
+                }
+                else
+                {
+                    // Create an HTTP request handle
+                    hRequest = WinHttpOpenRequest(hConnect, L"POST", urlComponents.lpszUrlPath, NULL, WINHTTP_NO_REFERER, NULL, winHttpOpenRequestFlags);
+                    if (!hRequest)
+                    {
+                        errorCallback("Error in WinHttpOpenRequest, failed to open an HTTP request");
+                    }
+                    else
+                    {
+                        // Add HTTP headers
+                        SetPredefinedHeaders(hRequest);
+
+                        // Send a request
+                        DWORD payloadSize = (DWORD)requestBody.size();
+                        LPVOID payload = const_cast<char*>(requestBody.c_str());
+
+                        bResults = WinHttpSendRequest(hRequest, WINHTTP_NO_ADDITIONAL_HEADERS, 0, payload, payloadSize, payloadSize, 0);
+                        if (!bResults)
+                        {
+                            errorCallback("Error in WinHttpSendRequest, failed to send an HTTP request");
+                        }
+                        else
+                        {
+                            // End the request
+                            bResults = WinHttpReceiveResponse(hRequest, NULL);
+                            if (!bResults)
+                            {
+                                errorCallback("Error in WinHttpReceiveResponse, failed to receive an HTTP response");
+                            }
+                            else
+                            {
+                                // Get HTTP response code
+                                dwSize = sizeof(dwStatusCode);
+                                bResults = WinHttpQueryHeaders(hRequest,
+                                    WINHTTP_QUERY_STATUS_CODE | WINHTTP_QUERY_FLAG_NUMBER,
+                                    WINHTTP_HEADER_NAME_BY_INDEX,
+                                    &dwStatusCode, &dwSize, WINHTTP_NO_HEADER_INDEX);
+                                if (!bResults)
+                                {
+                                    errorCallback("Error in WinHttpQueryHeaders, failed to read HTTP response code");
+                                }
+                                else
+                                {
+                                    // Keep checking for data until there is nothing left
+                                    std::string responseString("");
+                                    do
+                                    {
+                                        // Check for available data block
+                                        dwSize = 0;
+                                        if (!WinHttpQueryDataAvailable(hRequest, &dwSize))
+                                        {
+                                            errorCallback("Error in WinHttpQueryDataAvailable, failed to check for an available data block in HTTP response");
+                                            bResults = FALSE;
+                                            break;
+                                        }
+
+                                        // Allocate space for the buffer
+                                        auto outBuffer = std::unique_ptr<char>(new char[dwSize + 1]);
+                                        if (!outBuffer)
+                                        {
+                                            errorCallback("Out of memory, failed to allocate a buffer to read a data block in HTTP response");
+                                            bResults = FALSE;
+                                            break;
+                                        }
+                                        else
+                                        {
+                                            // Read the data block
+                                            ZeroMemory(outBuffer.get(), dwSize + 1);
+                                            if (!WinHttpReadData(hRequest, (LPVOID)outBuffer.get(), dwSize, &dwDownloaded))
+                                            {
+                                                errorCallback("Error in WinHttpReadData, failed to read a data block in HTTP response");
+                                                bResults = FALSE;
+                                                break;
+                                            }
+                                            else
+                                            {
+                                                // successfully received a block of data
+                                                responseString.append(outBuffer.get());
+                                            }
+
+                                            // Free the memory allocated to the buffer
+                                            outBuffer = nullptr;
+                                        }
+
+                                    } while (dwSize > 0);
+
+                                    if (bResults)
+                                    {
+                                        successCallback(dwStatusCode, responseString.c_str());
+                                    }
+                                } // WinHttpQueryHeaders
+                            } // WinHttpReceiveResponse
+                        } // WinHttpSendRequest
+                    } // WinHttpOpenRequest
+                } // WinHttpConnect
+            } // WinHttpOpen
+        } // WinHttpCrackUrl
+
+        // Close any open handles
+        if (hRequest) WinHttpCloseHandle(hRequest);
+        if (hConnect) WinHttpCloseHandle(hConnect);
+        if (hSession) WinHttpCloseHandle(hSession);
+    }
+
     void PlayFabWinHttpPlugin::ExecuteRequest(std::unique_ptr<CallRequestContainer> requestContainer)
     {
         CallRequestContainer& reqContainer = *requestContainer;
@@ -171,7 +340,7 @@ namespace PlayFab
                     else
                     {
                         // Add HTTP headers
-                        SetPredefinedHeaders(reqContainer, hRequest);
+                        SetPredefinedHeaders(hRequest);
                         auto headers = reqContainer.GetHeaders();
                         if (headers.size() > 0)
                         {
@@ -291,7 +460,7 @@ namespace PlayFab
         return reqContainer.GetFullUrl();
     }
 
-    void PlayFabWinHttpPlugin::SetPredefinedHeaders(CallRequestContainer& requestContainer, HINTERNET hRequest)
+    void PlayFabWinHttpPlugin::SetPredefinedHeaders(HINTERNET hRequest)
     {
         WinHttpAddRequestHeaders(hRequest, L"Accept: application/json", -1, 0);
         WinHttpAddRequestHeaders(hRequest, L"Content-Type: application/json; charset=utf-8", -1, 0);

@@ -27,10 +27,12 @@ namespace PlayFab
         virtual ~PlayFabCurlHttpPlugin();
 
         virtual void MakePostRequest(std::unique_ptr<CallRequestContainerBase> requestContainer) override;
+        virtual void SimplePostCall(std::string fullUrl, std::string requestBody, std::function<void(int, std::string)> successCallback, std::function<void(std::string)> errorCallback) override;
         virtual size_t Update() override;
 
     protected:
         static size_t CurlReceiveData(char* buffer, size_t blockSize, size_t blockCount, void* userData);
+        static size_t CurlReceiveDataString(char* buffer, size_t blockSize, size_t blockCount, void* userData);
         virtual void ExecuteRequest(std::unique_ptr<CallRequestContainer> requestContainer);
         void WorkerThread();
         void HandleCallback(std::unique_ptr<CallRequestContainer> requestContainer);

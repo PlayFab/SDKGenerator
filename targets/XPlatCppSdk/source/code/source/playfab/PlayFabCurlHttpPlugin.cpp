@@ -90,6 +90,13 @@ namespace PlayFab
         return (blockSize * blockCount);
     }
 
+    size_t PlayFabCurlHttpPlugin::CurlReceiveDataString(char* buffer, size_t blockSize, size_t blockCount, void* userData)
+    {
+        ((std::string*)userData)->append(buffer, blockSize * blockCount);
+
+        return (blockSize * blockCount);
+    }
+
     void PlayFabCurlHttpPlugin::MakePostRequest(std::unique_ptr<CallRequestContainerBase> requestContainer)
     {
         { // LOCK httpRequestMutex
@@ -97,6 +104,55 @@ namespace PlayFab
             pendingRequests.push_back(std::move(requestContainer));
             activeRequestCount++;
         } // UNLOCK httpRequestMutex
+    }
+
+    // TODO: This should be merged with ExecuteRequest below
+    void PlayFabCurlHttpPlugin::SimplePostCall(std::string fullUrl, std::string requestBody, std::function<void(int, std::string)> successCallback, std::function<void(std::string)> errorCallback)
+    {
+        // Set up curl handle
+        CURL* curlHandle = curl_easy_init();
+        curl_easy_reset(curlHandle);
+        curl_easy_setopt(curlHandle, CURLOPT_NOSIGNAL, true);
+        curl_easy_setopt(curlHandle, CURLOPT_URL, fullUrl.c_str());
+
+        // Set up headers
+        curl_slist* curlHttpHeaders = nullptr;
+        curlHttpHeaders = curl_slist_append(curlHttpHeaders, "Accept: application/json");
+        curlHttpHeaders = curl_slist_append(curlHttpHeaders, "Content-Type: application/json; charset=utf-8");
+        curlHttpHeaders = curl_slist_append(curlHttpHeaders, ("X-PlayFabSDK: " + PlayFabSettings::versionString).c_str());
+        curlHttpHeaders = curl_slist_append(curlHttpHeaders, "X-ReportErrorAsSuccess: true");
+
+        curl_easy_setopt(curlHandle, CURLOPT_HTTPHEADER, curlHttpHeaders);
+
+        // Set up post & payload
+        curl_easy_setopt(curlHandle, CURLOPT_POST, nullptr);
+        curl_easy_setopt(curlHandle, CURLOPT_POSTFIELDS, requestBody.c_str());
+
+        // Process result
+        // TODO: CURLOPT_ERRORBUFFER ?
+        std::string responseString;
+
+        curl_easy_setopt(curlHandle, CURLOPT_TIMEOUT_MS, 10000L);
+        curl_easy_setopt(curlHandle, CURLOPT_WRITEDATA, &responseString);
+        curl_easy_setopt(curlHandle, CURLOPT_WRITEFUNCTION, CurlReceiveDataString);
+
+        // Send
+        curl_easy_setopt(curlHandle, CURLOPT_SSL_VERIFYPEER, false); // TODO: Replace this with a ca-bundle ref???
+        const auto res = curl_easy_perform(curlHandle);
+        long curlHttpResponseCode = 0;
+        curl_easy_getinfo(curlHandle, CURLINFO_RESPONSE_CODE, &curlHttpResponseCode);
+
+        if (res != CURLE_OK)
+        {
+            errorCallback("Failed to contact server, curl error: " + std::to_string(res));
+        }
+        else
+        {
+            successCallback(curlHttpResponseCode, responseString.c_str());
+        }
+
+        curl_easy_reset(curlHandle);
+        curlHttpHeaders = nullptr;
     }
 
     void PlayFabCurlHttpPlugin::ExecuteRequest(std::unique_ptr<CallRequestContainer> requestContainer)

@@ -90,6 +90,12 @@ namespace PlayFab
         } // UNLOCK httpRequestMutex
     }
 
+    void PlayFabIXHR2HttpPlugin::SimplePostCall(std::string fullUrl, std::string requestBody, std::function<void(int, std::string)> successCallback, std::function<void(std::string)> errorCallback)
+    {
+        // TODO: This is currently only used by the GSDK, which does not run on Xbox
+        throw std::runtime_error("SimplePostCall is not currently implemented for PlayFabIXHR2HttpPlugin");
+    }
+
     void PlayFabIXHR2HttpPlugin::SetupRequestHeaders(const CallRequestContainer& reqContainer, std::vector< HttpHeaderInfo>& headers)
     {
         // Header 1

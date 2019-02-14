@@ -28,6 +28,7 @@ namespace PlayFab
         virtual ~PlayFabIXHR2HttpPlugin();
 
         virtual void MakePostRequest(std::unique_ptr<CallRequestContainerBase> requestContainer) override;
+        virtual void SimplePostCall(std::string fullUrl, std::string requestBody, std::function<void(int, std::string)> successCallback, std::function<void(std::string)> errorCallback) override;
         virtual size_t Update() override;
 
     protected:

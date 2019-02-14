@@ -54,8 +54,8 @@ namespace PlayFab
 
             // Keys for the map returned by getConfigSettings
 
-            static constexpr const char* HEARTBEAT_ENDPOINT_KEY = "gsmsBaseUrl";
-            static constexpr const char* SERVER_ID_KEY = "instanceId";
+            static constexpr const char* HEARTBEAT_ENDPOINT_KEY = "heartbeatEndpoint";
+            static constexpr const char* SERVER_ID_KEY = "serverId";
             static constexpr const char* LOG_FOLDER_KEY = "logFolder";
             static constexpr const char* SHARED_CONTENT_FOLDER_KEY = "sharedContentFolder";
             static constexpr const char* CERTIFICATE_FOLDER_KEY = "certificateFolder";

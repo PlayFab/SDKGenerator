@@ -21,6 +21,9 @@
     <ClInclude Include="$(TestSourceDir)\LibUnitTest\targetver.h"> 
       <Filter>Header Files</Filter>    
     </ClInclude>
+	<ClInclude Include="$(TestSourceDir)\LibUnitTest\TestGSDKConfig.h"> 
+      <Filter>Header Files</Filter>    
+    </ClInclude>
   </ItemGroup>
   <ItemGroup>
     <ClCompile Include="$(TestSourceDir)\LibUnitTest\stdafx.cpp">
@@ -33,6 +36,12 @@
       <Filter>Source Files</Filter>
     </ClCompile>
     <ClCompile Include="$(TestSourceDir)\LibUnitTest\PlayFabServerTest.cpp">
+      <Filter>Source Files</Filter> 
+    </ClCompile>
+	<ClCompile Include="$(TestSourceDir)\LibUnitTest\TestGSDKConfig.cpp">
+      <Filter>Source Files</Filter> 
+    </ClCompile>
+	<ClCompile Include="$(TestSourceDir)\LibUnitTest\PlayFabGameServerSDKTest.cpp">
       <Filter>Source Files</Filter> 
     </ClCompile>
   </ItemGroup>

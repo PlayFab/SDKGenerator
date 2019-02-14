@@ -104,11 +104,14 @@
   <ItemGroup>
     <ClInclude Include="$(TestSourceDir)\LibUnitTest\stdafx.h" />
     <ClInclude Include="$(TestSourceDir)\LibUnitTest\targetver.h" />
+	<ClInclude Include="$(TestSourceDir)\LibUnitTest\TestGSDKConfig.h" />
   </ItemGroup>
   <ItemGroup>
     <ClCompile Include="$(TestSourceDir)\LibUnitTest\PlayFabClientTest.cpp" />
     <ClCompile Include="$(TestSourceDir)\LibUnitTest\PlayFabEntityTest.cpp" />
     <ClCompile Include="$(TestSourceDir)\LibUnitTest\PlayFabServerTest.cpp" />
+	<ClCompile Include="$(TestSourceDir)\LibUnitTest\PlayFabGameServerSDKTest.cpp" />
+	<ClCompile Include="$(TestSourceDir)\LibUnitTest\TestGSDKConfig.cpp" />
     <ClCompile Include="$(TestSourceDir)\LibUnitTest\stdafx.cpp">
       <PrecompiledHeader Condition="'$(Configuration)|$(Platform)'=='Debug|x64'">Create</PrecompiledHeader>
       <PrecompiledHeader Condition="'$(Configuration)|$(Platform)'=='Release|x64'">Create</PrecompiledHeader>

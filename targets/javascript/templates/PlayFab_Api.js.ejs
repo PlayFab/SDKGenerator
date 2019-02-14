@@ -176,7 +176,6 @@ PlayFab._internalSettings.GetAuthValue = function (request, authKey) {
         'X-SecretKey': 'developerSecretKey'
     };
     var authAttr = authInfoMap[authKey];
-    var sessionTicket = PlayFab._internalSettings.sessionTicket;
     var authValue = authAttr ==  'developerSecretKey' ? PlayFab.settings[authAttr]: PlayFab._internalSettings[authAttr];
     if (request.hasOwnProperty('PlayFabId')) {
         var playFabId = request.PlayFabId;
@@ -188,6 +187,39 @@ PlayFab._internalSettings.GetAuthValue = function (request, authKey) {
         }
     }
     return authValue;
+};
+
+PlayFab._internalSettings.GetAuthInfo = function (request, authKey) {
+    // Use the most-recently saved sessionTicket, unless one was provided in the request via the PlayFabId property
+    var authInfoMap = {
+        'X-EntityToken': {
+            'authAttr': 'entityToken',
+            'authError': 'errorEntityToken'
+        },
+        'X-Authorization': {
+            'authAttr': 'sessionTicket',
+            'authError': 'errorLoggedIn'
+        },
+        'X-SecretKey': {
+            'authAttr': 'developerSecretKey',
+            'authError': 'errorSecretKey'
+        }
+    };
+    var authAttr = authInfoMap[authKey]['authAttr'];
+    var authValue = authAttr ==  'developerSecretKey' ? PlayFab.settings[authAttr]: PlayFab._internalSettings[authAttr];
+    if (request.hasOwnProperty('PlayFabId')) {
+        var playFabId = request.PlayFabId;
+        // Make sure that the authenticationContext exists before attempting to access it
+        if (PlayFab._internalSettings.authenticationContext.hasOwnProperty(playFabId)) {
+            if (PlayFab._internalSettings.authenticationContext[playFabId].hasOwnProperty(authAttr)) {
+                authValue = PlayFab._internalSettings.authenticationContext[playFabId][authAttr];
+            }
+        }
+    }
+    authAttr = authInfoMap[authKey]['authError'];
+    var authError = PlayFab._internalSettings[authAttr];
+
+    return {'authValue': authValue, 'authError': authError};
 };
 
 PlayFab.buildIdentifier = "<%- buildIdentifier %>";

@@ -76,11 +76,20 @@ function getRequestActions(tabbing, apiCall) {
     if (apiCall.result === "LoginResult" || apiCall.request === "RegisterPlayFabUserRequest")
         return tabbing + "request.TitleId = PlayFab.settings.titleId ? PlayFab.settings.titleId : request.TitleId; if (!request.TitleId) throw PlayFab._internalSettings.errorTitleId;\n";
     if (apiCall.auth === "EntityToken")
-        return tabbing + "if (!PlayFab._internalSettings.entityToken) throw PlayFab._internalSettings.errorEntityToken;\n";
+        return tabbing + "var authKey = \"X-EntityToken\"; var authValue = PlayFab._internalSettings.GetAuthValue(request, authKey);\n"
+            + tabbing + "if (!authValue) throw PlayFab._internalSettings.errorEntityToken;\n";
     if (apiCall.auth === "SessionTicket")
-        return tabbing + "if (!PlayFab._internalSettings.sessionTicket) throw PlayFab._internalSettings.errorLoggedIn;\n";
+        return tabbing + "var authKey = \"X-Authorization\"; var authValue = PlayFab._internalSettings.GetAuthValue(request, authKey);\n"
+            + tabbing + "if (!authValue) throw PlayFab._internalSettings.errorLoggedIn;\n";
     if (apiCall.auth === "SecretKey")
-        return tabbing + "if (!PlayFab.settings.developerSecretKey) throw PlayFab._internalSettings.errorSecretKey;\n";
+        return tabbing + "var authKey = \"X-SecretKey\"; var authValue = PlayFab._internalSettings.GetAuthValue(request, authKey);\n"
+            + tabbing + "if (!authValue) throw PlayFab._internalSettings.errorSecretKey;\n";
+//    TODO: Replace the 3 apiCall.auth if-blocks above with the generic solution below once PlayFab._internalSettings.GetAuthInfo() is ready
+//    if (["EntityToken", "SessionTicket", "SecretKey"].includes(apiCall.auth))
+//        return tabbing + "var authKey = \"X-EntityToken\"; var authInfo = PlayFab._internalSettings.GetAuthInfo(request, authKey);\n"
+//        + tabbing + "var authValue = authInfo.authValue; var authError = authInfo.authError;\n"
+//        + tabbing + "if (!authValue) throw authError;\n";
+
     return "";
 }
 
@@ -101,7 +110,7 @@ function getResultActions(tabbing, apiCall) {
             + tabbing + "   var playFabId = result.data.PlayFabId;\n"
             + tabbing + "\n"
             + tabbing + "   if(PlayFab._internalSettings.authenticationContext.hasOwnProperty(playFabId) == false) {\n"
-            + tabbing + "       var playFabId = result.data.PlayFabId;\n"
+            + tabbing + "       PlayFab._internalSettings.authenticationContext[playFabId] = {};"
             + tabbing + "   }\n"
             + tabbing + "\n"
             + tabbing + "   if(result.data.SessionTicket != null) {\n"
@@ -133,14 +142,21 @@ function getUrl(apiCall) {
 }
 
 function getAuthParams(apiCall) {
-    if (apiCall.url === "/Authentication/GetEntityToken")
+    var authConditionArray = [
+        apiCall.url === "/Authentication/GetEntityToken",
+        apiCall.auth === "EntityToken",
+        apiCall.auth === "SecretKey",
+        apiCall.auth === "SessionTicket"
+    ];
+
+    function checkAuthCondition(evaluatedExpression) {
+      return evaluatedExpression === true;
+    }
+
+    // EntityToken, SecretKey, & SessionTicket auth conditions now support authKey and authValue in getRequestActions()
+    // The some() method tests that at least one element in the array passes the test implemented by the provided function
+    if (authConditionArray.some(checkAuthCondition))
         return "authKey, authValue";
-    if (apiCall.auth === "EntityToken")
-        return "\"X-EntityToken\", PlayFab._internalSettings.GetAuthValue(request, \"X-EntityToken\")";
-    if (apiCall.auth === "SecretKey")
-        return "\"X-SecretKey\", PlayFab._internalSettings.GetAuthValue(request, \"X-SecretKey\")";
-    if (apiCall.auth === "SessionTicket")
-        return "\"X-Authorization\", PlayFab._internalSettings.GetAuthValue(request, \"X-Authorization\")";
     return "null, null";
 }
 

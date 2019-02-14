@@ -35,6 +35,7 @@ exports.makeServerAPI = function (apis, sourceDir, apiOutputDir) {
 }
 
 exports.makeCombinedAPI = function (apis, sourceDir, apiOutputDir) {
+    const rootOutputDir = apiOutputDir;
     apiOutputDir = path.join(apiOutputDir, "PlayFabSDK");
     console.log("Generating C-sharp combined SDK to " + apiOutputDir);
 
@@ -49,6 +50,11 @@ exports.makeCombinedAPI = function (apis, sourceDir, apiOutputDir) {
     }
     generateSimpleFiles(apis, sourceDir, apiOutputDir);
     generateProject(apis, sourceDir, apiOutputDir, "All", ";ENABLE_PLAYFABADMIN_API;ENABLE_PLAYFABSERVER_API;ENABLE_PLAYFABCLIENT_API");
+
+    const xamarinOutputDir = path.join(rootOutputDir, "XamarinTestRunner");
+    copyTree(path.resolve(sourceDir, "XamarinTestRunner"), xamarinOutputDir);
+    copyTree(path.join(apiOutputDir, "source"), path.join(xamarinOutputDir, "XamarinTestRunner", "PlayFabSDK"));
+    copyFile(path.resolve(sourceDir, ".gitignore"), path.join(rootOutputDir, ".gitignore"));
 }
 
 function getBaseTypeSyntax(datatype) {

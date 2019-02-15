@@ -513,7 +513,7 @@ namespace PlayFab.UUnit
             testContext.NotNull(loginTask2.Result, "Login Result is null for loginRequest2");
             testContext.IsNull(loginTask1.Error, "Login error occured for loginRequest1: " + loginTask1.Error?.ErrorMessage ?? string.Empty);
             testContext.IsNull(loginTask2.Error, "Login error occured for loginRequest2: " + loginTask2.Error?.ErrorMessage ?? string.Empty);
-            testContext.NotNull(loginTask1.Result.AuthenticationContext, "AuthenticationContext is not set for loginRequest1");
+            testContext.NotNull(loginTask1.Result.AuthenticationContext, "AuthenticationContext is not set for loginRequest1,");
             testContext.NotNull(loginTask2.Result.AuthenticationContext, "AuthenticationContext is not set for loginRequest2");
 
             if (string.Equals(loginTask1.Result.AuthenticationContext.ClientSessionTicket, loginTask2.Result.AuthenticationContext.ClientSessionTicket))

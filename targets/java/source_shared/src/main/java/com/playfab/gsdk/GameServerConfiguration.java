@@ -8,7 +8,7 @@ import java.util.Map;
  * As long as it implements this interface, the GSDK can accept configurations
  * from various sources, such as environment variables, json files, etc.
  */
-abstract class GameServerConfiguration {
+public abstract class GameServerConfiguration {
     private String heartbeatEndpoint;
     private String serverId;
     private String logFolder;
@@ -23,6 +23,10 @@ abstract class GameServerConfiguration {
     // These two will be non-null only after allocation
     private String sessionId;
     private String sessionCookie;
+
+    final String TITLE_ID_VARIABLE_NAME = "PF_TITLE_ID";
+    final String BUILD_ID_VARIABLE_NAME = "PF_BUILD_ID";
+    final String REGION_VARIABLE_NAME = "PF_REGION";
 
     public GameServerConfiguration()
     {
@@ -42,15 +46,15 @@ abstract class GameServerConfiguration {
         this.setTitleId(other.getTitleId());
         this.setBuildId(other.getBuildId());
         this.setRegion(other.getRegion());
-        this.setBuildMetadata(new HashMap<>(other.getBuildMetadata()));
-        this.setGamePorts(new HashMap<>(other.getGamePorts()));
+
+        Map<String, String> metadata = other.getBuildMetadata();
+        this.setBuildMetadata(metadata == null? null : new HashMap<>(metadata));
+
+        Map<String, String> ports = other.getGamePorts();
+        this.setGamePorts(ports == null? null : new HashMap<>(ports));
     }
 
     abstract void validate() throws GSDKInitializationException;
-
-    final String TITLE_ID_VARIABLE_NAME = "PF_TITLE_ID";
-    final String BUILD_ID_VARIABLE_NAME = "PF_BUILD_ID";
-    final String REGION_VARIABLE_NAME = "PF_REGION";
 
     public String getHeartbeatEndpoint() {
         return heartbeatEndpoint;
@@ -146,5 +150,38 @@ abstract class GameServerConfiguration {
 
     public void setSessionCookie(String sessionCookie) {
         this.sessionCookie = sessionCookie;
+    }
+
+    @Override
+    public String toString()
+    {
+        StringBuilder result = new StringBuilder();
+        result.append("HeartbeatEndpoint: ");
+        result.append(this.getHeartbeatEndpoint());
+        result.append("\nServerId: ");
+        result.append(this.getServerId());
+        result.append("\nLogFolder: ");
+        result.append(this.getLogFolder());
+        result.append("\nSharedContentFolder: ");
+        result.append(this.getSharedContentFolder());
+        result.append("\nCertificateFolder: ");
+        result.append(this.getCertificateFolder());
+        result.append("\nTitleId: ");
+        result.append(this.getTitleId());
+        result.append("\nBuildId: ");
+        result.append(this.getBuildId());
+        result.append("\nRegion: ");
+        result.append(this.getRegion());
+
+        result.append("\nBuildMetadata: ");
+        Map<String, String> metadata = this.getBuildMetadata();
+        result.append(metadata == null? "" : metadata.toString());
+
+        result.append("\nGamePorts: ");
+        Map<String, String> ports = this.getGamePorts();
+        result.append(ports == null? "" : new HashMap<>(ports));
+
+        result.append("\n");
+        return result.toString();
     }
 }

@@ -106,9 +106,7 @@ void UPlayFabClientInstanceAPI::MultiStepClientLogin(bool needsAttribution)
         }
     }
 }
-<% } %>
-<% for(var i in api.calls) { var apiCall = api.calls[i];%>
-<% if (!hasRequest(apiCall, api)) { %>
+<% } %><% for(var i in api.calls) { var apiCall = api.calls[i];%><% if (!hasRequest(apiCall, api)) { %>
 bool UPlayFab<%- api.name %>InstanceAPI::<%- apiCall.name %>(
     const F<%- apiCall.name %>Delegate& SuccessDelegate,
     const FPlayFabErrorDelegate& ErrorDelegate)
@@ -117,7 +115,6 @@ bool UPlayFab<%- api.name %>InstanceAPI::<%- apiCall.name %>(
     return UPlayFab<%- api.name %>InstanceAPI::<%- apiCall.name %>(emptyRequest, SuccessDelegate, ErrorDelegate);
 }
 <% } %>
-
 bool UPlayFab<%- api.name %>InstanceAPI::<%- apiCall.name %>(
     <%- api.name %>Models::F<%- apiCall.request %>& request,
     const F<%- apiCall.name %>Delegate& SuccessDelegate,

@@ -612,7 +612,8 @@ function getRequestActions(tabbing, apiCall, isInstanceApi) {
                 + tabbing + "    request.TitleId = this->settings->GetTitleId();\n";
         }
         else {
-            return tabbing + "request.TitleId = PlayFabSettings::GetTitleId();\n";
+            return tabbing + "if (PlayFabSettings::GetTitleId().Len() > 0)\n" 
+                + tabbing + "    request.TitleId = PlayFabSettings::GetTitleId();\n";
         }
     }
     else if (apiCall.url === "/Authentication/GetEntityToken")
@@ -664,10 +665,10 @@ function getResultActions(tabbing, apiCall, isInstanceApi) {
             + (isInstanceApi ? tabbing + "    " + "this->GetOrCreateAuthenticationContext();\n" : "")
             + tabbing + "    " + getAuthReference(isInstanceApi, false) + "SetClientSessionTicket(outResult.SessionTicket);\n"
             + tabbing + "    outResult.AuthenticationContext->SetClientSessionTicket(outResult.SessionTicket);\n"
-            + tabbing + "    if (outResult.EntityToken.IsValid()) {\n" 
-            + tabbing + "        " + getAuthReference(isInstanceApi, false) + "SetEntityToken(outResult.EntityToken->EntityToken);\n"
-            + tabbing + "        outResult.AuthenticationContext->SetEntityToken(outResult.EntityToken->EntityToken);\n"
-            + tabbing + "    }\n"
+            + tabbing + "}\n"
+            + tabbing + "if (outResult.EntityToken.IsValid()) {\n" 
+            + tabbing + "    " + getAuthReference(isInstanceApi, false) + "SetEntityToken(outResult.EntityToken->EntityToken);\n"
+            + tabbing + "    outResult.AuthenticationContext->SetEntityToken(outResult.EntityToken->EntityToken);\n"
             + tabbing + "}\n"
             + tabbing + "MultiStepClientLogin(outResult.SettingsForUser->NeedsAttribution);\n\n";
     }

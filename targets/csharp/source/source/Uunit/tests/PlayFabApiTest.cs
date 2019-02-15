@@ -32,7 +32,7 @@ namespace PlayFab.UUnit
         private static string entityType;
         public static string PlayFabId;
 
-        private static PlayFabAuthenticationContext authenticationContext1, authenticationContext2;
+        private static PlayFabAuthenticationContext authenticationContext1, authenticationContext2, authenticationContext3;
 
         /// <summary>
         /// PlayFab Title cannot be created from SDK tests, so you must provide your titleId to run unit tests.
@@ -496,33 +496,52 @@ namespace PlayFab.UUnit
             var loginRequest1 = new LoginWithCustomIDRequest
             {
                 TitleId = PlayFabSettings.TitleId,
-                CustomId = PlayFabSettings.BuildIdentifier,
+                CustomId = "test_SDK1",
                 CreateAccount = true,
             };
             var loginRequest2 = new LoginWithCustomIDRequest
             {
                 TitleId = PlayFabSettings.TitleId,
-                CustomId = PlayFabSettings.BuildIdentifier,
+                CustomId = "test_SDK2",
+                CreateAccount = true,
+            };
+            var loginRequest3 = new LoginWithCustomIDRequest
+            {
+                TitleId = PlayFabSettings.TitleId,
+                CustomId = "test_SDK3",
                 CreateAccount = true,
             };
 
             var loginTask1 = PlayFabClientAPI.LoginWithCustomIDAsync(loginRequest1, null, testTitleData.extraHeaders).Result;
             var loginTask2 = PlayFabClientAPI.LoginWithCustomIDAsync(loginRequest2, null, testTitleData.extraHeaders).Result;
+            var loginTask3 = PlayFabClientAPI.LoginWithCustomIDAsync(loginRequest3, null, testTitleData.extraHeaders).Result;
 
             testContext.NotNull(loginTask1.Result, "Login Result is null for loginRequest1");
             testContext.NotNull(loginTask2.Result, "Login Result is null for loginRequest2");
+            testContext.NotNull(loginTask3.Result, "Login Result is null for loginRequest3");
             testContext.IsNull(loginTask1.Error, "Login error occured for loginRequest1: " + loginTask1.Error?.ErrorMessage ?? string.Empty);
             testContext.IsNull(loginTask2.Error, "Login error occured for loginRequest2: " + loginTask2.Error?.ErrorMessage ?? string.Empty);
+            testContext.IsNull(loginTask3.Error, "Login error occured for loginRequest3: " + loginTask3.Error?.ErrorMessage ?? string.Empty);
             testContext.NotNull(loginTask1.Result.AuthenticationContext, "AuthenticationContext is not set for loginRequest1,");
             testContext.NotNull(loginTask2.Result.AuthenticationContext, "AuthenticationContext is not set for loginRequest2");
+            testContext.NotNull(loginTask3.Result.AuthenticationContext, "AuthenticationContext is not set for loginRequest3");
 
             if (string.Equals(loginTask1.Result.AuthenticationContext.ClientSessionTicket, loginTask2.Result.AuthenticationContext.ClientSessionTicket))
             {
-                testContext.Fail("Multiple Login Failed AuthenticationContexts are same: " + loginTask1.Result.AuthenticationContext.ClientSessionTicket);
+                testContext.Fail("Multiple Login Failed AuthenticationContexts are same for task1 and task2: " + loginTask1.Result.AuthenticationContext.ClientSessionTicket);
+            }
+            if (string.Equals(loginTask2.Result.AuthenticationContext.ClientSessionTicket, loginTask3.Result.AuthenticationContext.ClientSessionTicket))
+            {
+                testContext.Fail("Multiple Login Failed AuthenticationContexts are same for task2 and task3:  " + loginTask2.Result.AuthenticationContext.ClientSessionTicket);
+            }
+            if (string.Equals(loginTask1.Result.AuthenticationContext.ClientSessionTicket, loginTask3.Result.AuthenticationContext.ClientSessionTicket))
+            {
+                testContext.Fail("Multiple Login Failed AuthenticationContexts are same for task1 and task3: " + loginTask1.Result.AuthenticationContext.ClientSessionTicket);
             }
 
             authenticationContext1 = loginTask1.Result.AuthenticationContext;
             authenticationContext2 = loginTask2.Result.AuthenticationContext;
+            authenticationContext3 = loginTask3.Result.AuthenticationContext;
 
             testContext.EndTest(UUnitFinishState.PASSED, null);
         }
@@ -568,49 +587,16 @@ namespace PlayFab.UUnit
         [UUnitTest]
         public void AsyncApiCallWithMultipleUser(UUnitTestContext testContext)
         {
-            var loginRequest = new LoginWithCustomIDRequest
+            if (authenticationContext1?.ClientSessionTicket == null || authenticationContext2?.ClientSessionTicket == null || authenticationContext3?.ClientSessionTicket == null)
             {
-                TitleId = PlayFabSettings.TitleId,
-                CustomId = PlayFabSettings.BuildIdentifier,
-                CreateAccount = true,
-            };
-            var loginRequest2 = new LoginWithCustomIDRequest
-            {
-                TitleId = PlayFabSettings.TitleId,
-                CustomId = PlayFabSettings.BuildIdentifier,
-                CreateAccount = true,
-            };
-            var loginRequest3 = new LoginWithCustomIDRequest
-            {
-                TitleId = PlayFabSettings.TitleId,
-                CustomId = PlayFabSettings.BuildIdentifier,
-                CreateAccount = true,
-            };
+                testContext.Skip("To run this test MultipleLoginWithStaticMethods test should be passed and store authenticationContext values");
+            }
 
-            var loginTask = PlayFabClientAPI.LoginWithCustomIDAsync(loginRequest, null, testTitleData.extraHeaders).Result;
-            var loginTask2 = PlayFabClientAPI.LoginWithCustomIDAsync(loginRequest2, null, testTitleData.extraHeaders).Result;
-            var loginTask3 = PlayFabClientAPI.LoginWithCustomIDAsync(loginRequest3, null, testTitleData.extraHeaders).Result;
+            var task1 = PlayFabClientAPI.GetUserDataAsync(new GetUserDataRequest() { AuthenticationContext = authenticationContext1 }, null, testTitleData.extraHeaders);
+            var task2 = PlayFabClientAPI.GetUserDataAsync(new GetUserDataRequest() { AuthenticationContext = authenticationContext2 }, null, testTitleData.extraHeaders);
+            var task3 = PlayFabClientAPI.GetUserDataAsync(new GetUserDataRequest() { AuthenticationContext = authenticationContext3 }, null, testTitleData.extraHeaders);
 
-            testContext.NotNull(loginTask.Result, "Login Result is null for loginRequest");
-            testContext.NotNull(loginTask2.Result, "Login Result is null for loginRequest2");
-            testContext.NotNull(loginTask3.Result, "Login Result is null for loginRequest3");
-            testContext.IsNull(loginTask.Error, "Login error occured for loginRequest: " + loginTask.Error?.ErrorMessage ?? string.Empty);
-            testContext.IsNull(loginTask2.Error, "Login error occured for loginRequest2: " + loginTask2.Error?.ErrorMessage ?? string.Empty);
-            testContext.IsNull(loginTask3.Error, "Login error occured for loginRequest3: " + loginTask3.Error?.ErrorMessage ?? string.Empty);
-            testContext.NotNull(loginTask.Result.AuthenticationContext, "AuthenticationContext is not set for loginRequest");
-            testContext.NotNull(loginTask2.Result.AuthenticationContext, "AuthenticationContext is not set for loginRequest2");
-            testContext.NotNull(loginTask3.Result.AuthenticationContext, "AuthenticationContext is not set for loginRequest3");
-
-            var task = PlayFabClientAPI.GetUserDataAsync(new GetUserDataRequest() { AuthenticationContext = loginTask.Result.AuthenticationContext }, null, testTitleData.extraHeaders);
-            var task2 = PlayFabClientAPI.GetUserDataAsync(new GetUserDataRequest() { AuthenticationContext = loginTask2.Result.AuthenticationContext }, null, testTitleData.extraHeaders);
-            var task3 = PlayFabClientAPI.GetUserDataAsync(new GetUserDataRequest() { AuthenticationContext = loginTask3.Result.AuthenticationContext }, null, testTitleData.extraHeaders);
-            var task4 = PlayFabClientAPI.GetUserDataAsync(new GetUserDataRequest() { AuthenticationContext = loginTask3.Result.AuthenticationContext }, null, testTitleData.extraHeaders);
-            var task5 = PlayFabClientAPI.GetUserDataAsync(new GetUserDataRequest() { AuthenticationContext = loginTask2.Result.AuthenticationContext }, null, testTitleData.extraHeaders);
-            var task6 = PlayFabClientAPI.GetUserDataAsync(new GetUserDataRequest() { AuthenticationContext = loginTask.Result.AuthenticationContext }, null, testTitleData.extraHeaders);
-            var task7 = PlayFabClientAPI.GetUserDataAsync(new GetUserDataRequest() { AuthenticationContext = loginTask2.Result.AuthenticationContext }, null, testTitleData.extraHeaders);
-            var task8 = PlayFabClientAPI.GetUserDataAsync(new GetUserDataRequest() { AuthenticationContext = loginTask3.Result.AuthenticationContext }, null, testTitleData.extraHeaders);
-
-            var tasks = new List<Task>() { task, task2, task3, task4, task5, task6, task7, task8 };
+            var tasks = new List<Task>() { task1, task2, task3 };
 
             Task.WhenAll(tasks).ContinueWith(whenAll =>
             {

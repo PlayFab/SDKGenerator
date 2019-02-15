@@ -639,7 +639,7 @@ function getRequestActions(tabbing, apiCall, isInstanceApi) {
             + tabbing + "}\n";
     else if (apiCall.auth === "EntityToken")
         return tabbing + "if ((request.AuthenticationContext.IsValid() && request.AuthenticationContext->GetEntityToken().Len() == 0)\n"
-            + tabbing + "    || (request.AuthenticationContext.IsValid() && " + getAuthReference(isInstanceApi, true) + "GetEntityToken().Len() == 0)) {\n"
+            + tabbing + "    || (!request.AuthenticationContext.IsValid() && " + getAuthReference(isInstanceApi, true) + "GetEntityToken().Len() == 0)) {\n"
             + tabbing + "    UE_LOG(LogPlayFabCpp, Error, TEXT(\"You must call GetEntityToken API Method before calling this function.\"));\n"
             + tabbing + "}\n";
     else if (apiCall.auth === "SecretKey")

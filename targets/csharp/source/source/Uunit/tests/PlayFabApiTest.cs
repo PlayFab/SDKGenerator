@@ -32,6 +32,8 @@ namespace PlayFab.UUnit
         private static string entityType;
         public static string PlayFabId;
 
+        private static PlayFabAuthenticationContext authenticationContext1, authenticationContext2;
+
         /// <summary>
         /// PlayFab Title cannot be created from SDK tests, so you must provide your titleId to run unit tests.
         /// (Also, we don't want lots of excess unused titles)
@@ -382,9 +384,9 @@ namespace PlayFab.UUnit
                 EventName = "ForumPostEvent",
                 Timestamp = DateTime.UtcNow,
                 Body = new Dictionary<string, object> {
-                            { "Subject", "My First Post" },
-                            { "Body", "My awesome Post." },
-                        }
+                    { "Subject", "My First Post" },
+                    { "Body", "My awesome Post." },
+                }
             };
 
             var writeTask = PlayFabClientAPI.WritePlayerEventAsync(request, null, testTitleData.extraHeaders);
@@ -447,13 +449,13 @@ namespace PlayFab.UUnit
                     Type = entityType,
                 },
                 Objects = new List<SetObject>
-                        {
-                            new SetObject
-                            {
-                                DataObject = _testInteger,
-                                ObjectName = TEST_DATA_KEY
-                            }
-                        }
+                {
+                    new SetObject
+                    {
+                        DataObject = _testInteger,
+                        ObjectName = TEST_DATA_KEY
+                    }
+                }
             };
             var eachTask = PlayFabDataAPI.SetObjectsAsync(request, null, testTitleData.extraHeaders);
             ContinueWithContext(eachTask, testContext, SetObjectsContinued, true, "SetObjects failed", false);
@@ -485,13 +487,13 @@ namespace PlayFab.UUnit
 #endif
         /// <summary>
         /// CLIENT API
-        /// Test that Multiple login can be done
+        /// Test that Multiple login can be done with static methods
         /// </summary>
         [UUnitTest]
-        public void MultipleLogin(UUnitTestContext testContext)
+        public void MultipleLoginWithStaticMethods(UUnitTestContext testContext)
         {
             // If the setup failed to log in a user, we need to create one.
-            var loginRequest = new LoginWithCustomIDRequest
+            var loginRequest1 = new LoginWithCustomIDRequest
             {
                 TitleId = PlayFabSettings.TitleId,
                 CustomId = PlayFabSettings.BuildIdentifier,
@@ -504,20 +506,24 @@ namespace PlayFab.UUnit
                 CreateAccount = true,
             };
 
-            var loginTask = PlayFabClientAPI.LoginWithCustomIDAsync(loginRequest, null, testTitleData.extraHeaders).Result;
+            var loginTask1 = PlayFabClientAPI.LoginWithCustomIDAsync(loginRequest1, null, testTitleData.extraHeaders).Result;
             var loginTask2 = PlayFabClientAPI.LoginWithCustomIDAsync(loginRequest2, null, testTitleData.extraHeaders).Result;
 
-            testContext.NotNull(loginTask.Result, "Login Result is null for loginRequest");
+            testContext.NotNull(loginTask1.Result, "Login Result is null for loginRequest1");
             testContext.NotNull(loginTask2.Result, "Login Result is null for loginRequest2");
-            testContext.IsNull(loginTask.Error, "Login error occured for loginRequest: " + loginTask.Error?.ErrorMessage ?? string.Empty);
+            testContext.IsNull(loginTask1.Error, "Login error occured for loginRequest1: " + loginTask1.Error?.ErrorMessage ?? string.Empty);
             testContext.IsNull(loginTask2.Error, "Login error occured for loginRequest2: " + loginTask2.Error?.ErrorMessage ?? string.Empty);
-            testContext.NotNull(loginTask.Result.AuthenticationContext, "AuthenticationContext is not set for loginRequest");
+            testContext.NotNull(loginTask1.Result.AuthenticationContext, "AuthenticationContext is not set for loginRequest1");
             testContext.NotNull(loginTask2.Result.AuthenticationContext, "AuthenticationContext is not set for loginRequest2");
 
-            if (string.Equals(loginTask.Result.AuthenticationContext.ClientSessionTicket, loginTask2.Result.AuthenticationContext.ClientSessionTicket))
+            if (string.Equals(loginTask1.Result.AuthenticationContext.ClientSessionTicket, loginTask2.Result.AuthenticationContext.ClientSessionTicket))
             {
-                testContext.Fail("Multiple Login Failed AuthenticationContexts are same");
+                testContext.Fail("Multiple Login Failed AuthenticationContexts are same: " + loginTask1.Result.AuthenticationContext.ClientSessionTicket);
             }
+
+            authenticationContext1 = loginTask1.Result.AuthenticationContext;
+            authenticationContext2 = loginTask2.Result.AuthenticationContext;
+
             testContext.EndTest(UUnitFinishState.PASSED, null);
         }
 
@@ -528,43 +534,19 @@ namespace PlayFab.UUnit
         [UUnitTest]
         public void MultiplePlayerApiCall(UUnitTestContext testContext)
         {
-            // If the setup failed to log in a user, we need to create one.
-            var loginRequest = new LoginWithCustomIDRequest
+            if(authenticationContext1?.ClientSessionTicket == null || authenticationContext2?.ClientSessionTicket == null)
             {
-                TitleId = PlayFabSettings.TitleId,
-                CustomId = PlayFabSettings.BuildIdentifier,
-                CreateAccount = true,
-            };
-
-            var loginRequest2 = new LoginWithCustomIDRequest
-            {
-                TitleId = PlayFabSettings.TitleId,
-                CustomId = PlayFabSettings.BuildIdentifier,
-                CreateAccount = true,
-            };
-
-            var loginTask = PlayFabClientAPI.LoginWithCustomIDAsync(loginRequest, null, testTitleData.extraHeaders).Result;
-            var loginTask2 = PlayFabClientAPI.LoginWithCustomIDAsync(loginRequest2, null, testTitleData.extraHeaders).Result;
-
-            testContext.NotNull(loginTask.Result, "Login Result is null for loginRequest");
-            testContext.NotNull(loginTask2.Result, "Login Result is null for loginRequest2");
-            testContext.IsNull(loginTask.Error, "Login error occured for loginRequest: " + loginTask.Error?.ErrorMessage ?? string.Empty);
-            testContext.IsNull(loginTask2.Error, "Login error occured for loginRequest2: " + loginTask2.Error?.ErrorMessage ?? string.Empty);
-            testContext.NotNull(loginTask.Result.AuthenticationContext, "AuthenticationContext is not set for loginRequest");
-            testContext.NotNull(loginTask2.Result.AuthenticationContext, "AuthenticationContext is not set for loginRequest2");
-
-            if (string.Equals(loginTask.Result.AuthenticationContext.ClientSessionTicket, loginTask2.Result.AuthenticationContext.ClientSessionTicket))
-            {
-                testContext.Fail("MultipleApiCall Failed AuthenticationContexts are same");
+                testContext.Skip("To run this test MultipleLoginWithStaticMethods test should be passed and store authenticationContext values");
             }
+
             var getPlayerProfileRequest = new GetPlayerProfileRequest()
             {
-                AuthenticationContext = loginTask.Result.AuthenticationContext,
+                AuthenticationContext = authenticationContext1,
                 PlayFabId = PlayFabId
             };
             var getPlayerProfileRequest2 = new GetPlayerProfileRequest()
             {
-                AuthenticationContext = loginTask2.Result.AuthenticationContext,
+                AuthenticationContext = authenticationContext2,
                 PlayFabId = PlayFabId
             };
 

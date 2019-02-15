@@ -20,7 +20,7 @@
 #include "PlayFabError.h"
 
 #include "Misc/AutomationTest.h"
-#include "PlayFabClientInstanceAPI.h"
+#include "PlayFabClientInstanceAPI.h" // TODO: Move Instance API tests to their own testing suite
 
 DECLARE_LOG_CATEGORY_EXTERN(LogPlayFabTest, Log, All);
 

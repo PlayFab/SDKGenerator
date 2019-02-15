@@ -328,6 +328,7 @@ private:
 
 /*
  * ==== Multiple Users (Instanced Apis) ====
+ * TODO: Move Instance API tests to their own testing suite
  */
 class PlayFabApiTest_MultipleUsersWithInstancedApis : public IAutomationLatentCommand
 {

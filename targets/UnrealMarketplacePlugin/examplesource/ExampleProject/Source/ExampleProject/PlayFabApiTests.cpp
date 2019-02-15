@@ -776,7 +776,8 @@ void PlayFabApiTest_MultipleUsersWithStaticApis::OnUser2LoginSuccess(const PlayF
 
 void PlayFabApiTest_MultipleUsersWithStaticApis::OnBothUsersLoggedIn()
 {
-    // Ensure that classic credentials (global, statically stored) aren't used:
+    // Clear out the static credentials, so as to cause any incorrect MultipleUsers implementation that
+    //  references the static credentials instead of a provided AuthenticationContext to fail.
     IPlayFabCommonModuleInterface::Get().SetClientSessionTicket(TEXT(""));
     IPlayFabCommonModuleInterface::Get().SetEntityToken(TEXT(""));
     IPlayFabCommonModuleInterface::Get().SetDeveloperSecretKey(TEXT(""));
@@ -809,7 +810,6 @@ void PlayFabApiTest_MultipleUsersWithStaticApis::OnUser1GetProfileSuccess(const 
 
 void PlayFabApiTest_MultipleUsersWithStaticApis::OnUser2GetProfileSuccess(const PlayFab::ClientModels::FGetPlayerProfileResult& result)
 {
-    RestoreCachedStaticCredentials();
     UE_LOG(LogPlayFabTest, Log, TEXT("MultipleUsersWithStaticApis: Got User 2 Profile with player ID %s"), *result.PlayerProfile->PlayerId);
 
     user2ProfileResult = result;
@@ -828,6 +828,7 @@ void PlayFabApiTest_MultipleUsersWithStaticApis::OnBothUsersGetProfile()
         return;
     }
 
+    RestoreCachedStaticCredentials();
     UE_LOG(LogPlayFabTest, Log, TEXT("MultipleUsersWithStaticApis Succeeded"));
 }
 
@@ -846,6 +847,7 @@ void PlayFabApiTest_MultipleUsersWithStaticApis::RestoreCachedStaticCredentials(
 
 /*
 * ==== Multiple Users (Instanced Apis) ====
+* TODO: Move Instance API tests to their own testing suite
 */
 PlayFabApiTest_MultipleUsersWithInstancedApis::PlayFabApiTest_MultipleUsersWithInstancedApis()
 {
@@ -854,7 +856,7 @@ PlayFabApiTest_MultipleUsersWithInstancedApis::PlayFabApiTest_MultipleUsersWithI
 bool PlayFabApiTest_MultipleUsersWithInstancedApis::Update()
 {
     // Initialize, setup the call, and wait for the result
-    if (!clientAPI1.IsValid())
+    if (!clientAPI1.IsValid() && !clientAPI2.IsValid())
     {
         // Cache the static login credentials. We will be clearing these in order to test the multi-user functionality
         //  that circumvents them, but other tests depend on these being set so we need to clean up after ourselves
@@ -907,7 +909,8 @@ void PlayFabApiTest_MultipleUsersWithInstancedApis::OnUser2LoginSuccess(const Pl
 
 void PlayFabApiTest_MultipleUsersWithInstancedApis::OnBothUsersLoggedIn()
 {
-    // Ensure that classic credentials (global, statically stored) aren't used:
+    // Clear out the static credentials, so as to cause any incorrect Instance API implementation that
+    //  references static credentials instead of the API Instances' AuthenticationContexts to fail
     IPlayFabCommonModuleInterface::Get().SetClientSessionTicket(TEXT(""));
     IPlayFabCommonModuleInterface::Get().SetEntityToken(TEXT(""));
     IPlayFabCommonModuleInterface::Get().SetDeveloperSecretKey(TEXT(""));
@@ -938,7 +941,6 @@ void PlayFabApiTest_MultipleUsersWithInstancedApis::OnUser1GetProfileSuccess(con
 
 void PlayFabApiTest_MultipleUsersWithInstancedApis::OnUser2GetProfileSuccess(const PlayFab::ClientModels::FGetPlayerProfileResult& result)
 {
-    RestoreCachedStaticCredentials();
     UE_LOG(LogPlayFabTest, Log, TEXT("MultipleUsersWithInstancedApis: Got User 2 Profile with player ID %s"), *result.PlayerProfile->PlayerId);
 
     user2ProfileResult = result;
@@ -957,6 +959,7 @@ void PlayFabApiTest_MultipleUsersWithInstancedApis::OnBothUsersGetProfile()
         return;
     }
 
+    RestoreCachedStaticCredentials();
     UE_LOG(LogPlayFabTest, Log, TEXT("MultipleUsersWithInstancedApis Succeeded"));
 }
 

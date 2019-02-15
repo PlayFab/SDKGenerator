@@ -68,10 +68,7 @@ void UPlayFabClientAPI::MultiStepClientLogin(bool needsAttribution)
 void UPlayFab<%- api.name %>API::SetDevSecretKey(const FString& developerSecretKey)
 {
     PlayFabSettings::SetDeveloperSecretKey(developerSecretKey);
-}
-<% for(var i in api.calls) { var apiCall = api.calls[i];
-%>
-<% if (!hasRequest(apiCall, api)) { %>
+}<% for(var i in api.calls) { var apiCall = api.calls[i];%><% if (!hasRequest(apiCall, api)) { %>
 bool UPlayFab<%- api.name %>API::<%- apiCall.name %>(
     const F<%- apiCall.name %>Delegate& SuccessDelegate,
     const FPlayFabErrorDelegate& ErrorDelegate)
@@ -80,7 +77,6 @@ bool UPlayFab<%- api.name %>API::<%- apiCall.name %>(
     return UPlayFab<%- api.name %>API::<%- apiCall.name %>(emptyRequest, SuccessDelegate, ErrorDelegate);
 }
 <% } %>
-
 bool UPlayFab<%- api.name %>API::<%- apiCall.name %>(
     <%- api.name %>Models::F<%- apiCall.request %>& request,
     const F<%- apiCall.name %>Delegate& SuccessDelegate,

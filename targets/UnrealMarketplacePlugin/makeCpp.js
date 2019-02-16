@@ -577,14 +577,19 @@ function addTypeAndDependencies(datatype, datatypes, orderedTypes, addedSet) {
 
 function getAuthReference(isInstanceApi, getOrCreate)
 {
-    return (isInstanceApi ? "this->" + (getOrCreate ? "GetOrCreateAuthenticationContext()" : "authContext") + "->" : "PlayFabSettings::");
+    if(isInstanceApi && getOrCreate)
+        return "this->GetOrCreateAuthenticationContext()->";
+    else if(isInstanceApi)
+        return "this->authContext->";
+    else
+        return "PlayFabSettings::";
 }
 
 function getAuthParams(apiCall, isInstanceApi) {
     if (apiCall.url === "/Authentication/GetEntityToken")
         return "authKey, authValue";
     else if (apiCall.auth === "EntityToken")
-      return "TEXT(\"X-EntityToken\"), !request.AuthenticationContext.IsValid() ? " + getAuthReference(isInstanceApi, true) + "GetEntityToken() : request.AuthenticationContext->GetEntityToken()";
+        return "TEXT(\"X-EntityToken\"), !request.AuthenticationContext.IsValid() ? " + getAuthReference(isInstanceApi, true) + "GetEntityToken() : request.AuthenticationContext->GetEntityToken()";
     else if (apiCall.auth === "SecretKey")
         return "TEXT(\"X-SecretKey\"), !request.AuthenticationContext.IsValid() ? " + getAuthReference(isInstanceApi, true) + "GetDeveloperSecretKey() : request.AuthenticationContext->GetDeveloperSecretKey()";
     else if (apiCall.auth === "SessionTicket")

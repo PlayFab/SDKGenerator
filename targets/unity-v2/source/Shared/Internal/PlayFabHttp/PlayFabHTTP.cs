@@ -186,7 +186,7 @@ namespace PlayFab.Internal
         /// </summary>
         protected internal static void MakeApiCall<TResult>(string apiEndpoint,
             PlayFabRequestCommon request, AuthType authType, Action<TResult> resultCallback,
-            Action<PlayFabError> errorCallback, object customData = null, Dictionary<string, string> extraHeaders = null, bool allowQueueing = false)
+            Action<PlayFabError> errorCallback, object customData = null, Dictionary<string, string> extraHeaders = null, bool allowQueueing = false, string developerSecretKey = null, PlayFabApiSettings apiSettings = null)
             where TResult : PlayFabResultCommon
         {
             InitializeHttp();
@@ -196,7 +196,7 @@ namespace PlayFab.Internal
             var reqContainer = new CallRequestContainer
             {
                 ApiEndpoint = apiEndpoint,
-                FullUrl = PlayFabSettings.GetFullUrl(apiEndpoint, PlayFabSettings.RequestGetParams),
+                FullUrl = apiSettings == null ?  PlayFabSettings.GetFullUrl(apiEndpoint, PlayFabSettings.RequestGetParams) : apiSettings.GetFullUrl(apiEndpoint, apiSettings.RequestGetParams),
                 CustomData = customData,
                 Payload = Encoding.UTF8.GetBytes(serializer.SerializeObject(request)),
                 ApiRequest = request,
@@ -220,7 +220,7 @@ namespace PlayFab.Internal
             switch (authType)
             {
 #if ENABLE_PLAYFABSERVER_API || ENABLE_PLAYFABADMIN_API || UNITY_EDITOR
-                case AuthType.DevSecretKey: reqContainer.RequestHeaders["X-SecretKey"] = PlayFabSettings.DeveloperSecretKey; break;
+                case AuthType.DevSecretKey: reqContainer.RequestHeaders["X-SecretKey"] = developerSecretKey ?? PlayFabSettings.DeveloperSecretKey;  break;
 #endif
                 case AuthType.LoginSession: reqContainer.RequestHeaders["X-Authorization"] = transport.AuthKey; break;
                 case AuthType.EntityToken: reqContainer.RequestHeaders["X-EntityToken"] = transport.EntityToken; break;

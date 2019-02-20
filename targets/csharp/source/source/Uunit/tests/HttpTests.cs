@@ -29,7 +29,7 @@ namespace PlayFab.UUnit
                 MockTransport.errorResult = errorResult;
             }
 
-            public async Task<object> DoPost(string urlPath, object request, Dictionary<string, string> headers, PlayFabAbiSettings apiSettings = null)
+            public async Task<object> DoPost(string urlPath, object request, Dictionary<string, string> headers)
             {
                 if (code == HttpStatusCode.OK)
                     return successResultJson;

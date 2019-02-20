@@ -210,6 +210,68 @@ namespace PlayFab.UUnit
             }
            
         }   
+		
+		/// <summary>
+        /// SERVER API
+        /// Try to parallel request at same time
+        /// </summary>
+        [UUnitTest]
+        public void ParallelRequest(UUnitTestContext testContext)
+        {
+            
+            PlayFabApiSettings settings = new PlayFabApiSettings();
+            settings.TitleId = PlayFabSettings.TitleId;
+
+            PlayFabAuthenticationContext context = new PlayFabAuthenticationContext();
+            context.DeveloperSecretKey = testTitleData.developerSecretKey;
+
+            PlayFabAuthenticationContext context2 = new PlayFabAuthenticationContext();
+            context2.DeveloperSecretKey = "GETERROR";
+
+            PlayFabAuthenticationContext context3 = new PlayFabAuthenticationContext();
+            context3.DeveloperSecretKey = testTitleData.developerSecretKey;
+
+            PlayFabAuthenticationContext context4 = new PlayFabAuthenticationContext();
+            context4.DeveloperSecretKey = "TESTKEYERROR";
+
+            PlayFabAuthenticationContext context5 = new PlayFabAuthenticationContext();
+            context5.DeveloperSecretKey = "123421";
+
+            PlayFabServerInstanceAPI serverInstance = new PlayFabServerInstanceAPI(settings, context);
+            PlayFabServerInstanceAPI serverInstance1 = new PlayFabServerInstanceAPI(settings, context);
+            PlayFabServerInstanceAPI serverInstance2 = new PlayFabServerInstanceAPI(settings, context2);
+            PlayFabServerInstanceAPI serverInstance3 = new PlayFabServerInstanceAPI(settings, context3);
+            PlayFabServerInstanceAPI serverInstance4 = new PlayFabServerInstanceAPI(settings, context4);
+            PlayFabServerInstanceAPI serverInstance5 = new PlayFabServerInstanceAPI(settings, context5);
+
+            serverInstance.GetAllSegments(new GetAllSegmentsRequest(), PlayFabUUnitUtils.ApiActionWrapper<GetAllSegmentsResult>(testContext, ParallelRequestSuccessCallBack), PlayFabUUnitUtils.ApiActionWrapper<PlayFabError>(testContext, ParallelRequestExpectedErrorCallBack), testContext);
+            serverInstance1.GetAllSegments(new GetAllSegmentsRequest(), PlayFabUUnitUtils.ApiActionWrapper<GetAllSegmentsResult>(testContext, ParallelRequestSuccessCallBack), PlayFabUUnitUtils.ApiActionWrapper<PlayFabError>(testContext, ParallelRequestExpectedErrorCallBack), testContext);
+            serverInstance2.GetAllSegments(new GetAllSegmentsRequest(), PlayFabUUnitUtils.ApiActionWrapper<GetAllSegmentsResult>(testContext, ParallelRequestSuccessCallBack), PlayFabUUnitUtils.ApiActionWrapper<PlayFabError>(testContext, ParallelRequestExpectedErrorCallBack), testContext);
+            serverInstance3.GetAllSegments(new GetAllSegmentsRequest(), PlayFabUUnitUtils.ApiActionWrapper<GetAllSegmentsResult>(testContext, ParallelRequestSuccessCallBack), PlayFabUUnitUtils.ApiActionWrapper<PlayFabError>(testContext, ParallelRequestExpectedErrorCallBack), testContext);
+            serverInstance4.GetAllSegments(new GetAllSegmentsRequest(), PlayFabUUnitUtils.ApiActionWrapper<GetAllSegmentsResult>(testContext, ParallelRequestSuccessCallBack), PlayFabUUnitUtils.ApiActionWrapper<PlayFabError>(testContext, ParallelRequestExpectedErrorCallBack), testContext);
+            serverInstance5.GetAllSegments(new GetAllSegmentsRequest(), PlayFabUUnitUtils.ApiActionWrapper<GetAllSegmentsResult>(testContext, ParallelRequestSuccessCallBack), PlayFabUUnitUtils.ApiActionWrapper<PlayFabError>(testContext, ParallelRequestExpectedErrorCallBack), testContext);
+        }
+
+        private void ParallelRequestSuccessCallBack(GetAllSegmentsResult result)
+        {
+            ParallelRequestSuccessfuCount++;
+            var testContext = (UUnitTestContext)result.CustomData;
+            if (ParallelRequestSuccessfuCount == 3 && ParallelRequestUnsuccessfuCount == 3)
+            {
+                testContext.EndTest(UUnitFinishState.PASSED, null);
+            }
+
+        }
+        private void ParallelRequestExpectedErrorCallBack(PlayFabError error)
+        {
+            ParallelRequestUnsuccessfuCount++;
+            var testContext = (UUnitTestContext)error.CustomData;
+            if (ParallelRequestSuccessfuCount == 3 && ParallelRequestUnsuccessfuCount == 3)
+            {
+                testContext.EndTest(UUnitFinishState.PASSED, null);
+            }
+
+        }
     }
 }
 #endif

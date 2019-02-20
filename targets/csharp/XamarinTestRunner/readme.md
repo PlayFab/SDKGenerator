@@ -5,3 +5,5 @@ Prerequisites:
 - Follow: [Installing Xamarin.iOS on Windows](https://docs.microsoft.com/en-us/xamarin/ios/get-started/installation/windows/index)
 
 Assign the environment variables `Remote-Build_Mac_ip` and `Remote-Build_Mac_username` which the build script uses to know where to connect over SSH to build the iOS IPA file.
+
+Copy your `testTitle.json` file into `XamarinTestRunner\XamarinTestRunner` (next to `XamarinTestRunner.csproj` and `App.xaml`).

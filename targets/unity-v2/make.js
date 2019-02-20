@@ -164,6 +164,7 @@ function makeInstanceApi(api, sourceDir, apiOutputDir) {
         api: api,
         getApiDefineFlag: getApiDefineFlag,
         getAuthParams: getAuthParams,
+		getInstanceParams: getInstanceParams,
         generateApiSummary: generateApiSummary,
         getDeprecationAttribute: getDeprecationAttribute,
         getRequestActions: getRequestActions,
@@ -416,6 +417,13 @@ function getAuthParams(apiCall) {
     else if (apiCall.auth === "EntityToken")
         return "AuthType.EntityToken";
     return "AuthType.None";
+}
+
+function getInstanceParams(apiCall){
+	if (apiCall.auth === "SecretKey")
+        return "developerSecretKey, apiSettings"
+	else 
+		return "null, apiSettings"
 }
 
 function getRequestActions(tabbing, apiCall, isApiInstance = false) {

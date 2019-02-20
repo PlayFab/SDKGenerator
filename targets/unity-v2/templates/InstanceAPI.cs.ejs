@@ -84,7 +84,7 @@ namespace PlayFab
 %>        public void <%- apiCall.name %>(<%- apiCall.request %> request, Action<<%- apiCall.result %>> resultCallback, Action<PlayFabError> errorCallback, object customData = null, Dictionary<string, string> extraHeaders = null)
         {
 <%- getRequestActions("            ", apiCall, true) %>
-            PlayFabHttp.MakeApiCall("<%- apiCall.url %>", request, <%- getAuthParams(apiCall) %>, resultCallback, errorCallback, customData, extraHeaders, false, <% if (apiCall.auth === "SecretKey") { %> developerSecretKey, <% } else { %> null, <% } %> apiSettings);
+            PlayFabHttp.MakeApiCall("<%- apiCall.url %>", request, <%- getAuthParams(apiCall) %>, resultCallback, errorCallback, customData, extraHeaders, false, <%- getInstanceParams(apiCall) %>);
         }<%- getCustomApiFunction("        ", apiCall, true) %>
 
 <% } %>

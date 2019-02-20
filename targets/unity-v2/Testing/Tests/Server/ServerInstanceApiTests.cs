@@ -9,8 +9,7 @@ namespace PlayFab.UUnit
     {
         private const string FakePlayFabId = "1337"; // A real playfabId here would be nice, but without a client login, it's hard to get one
 
-        private static int SuccessfulLoginCount = 0, SuccessfulGetAllSegmentsCount = 0;
-
+        private static int SuccessfulLoginCount = 0, SuccessfulGetAllSegmentsCount = 0, UnsuccessfulGetAllSegmentsCount = 0, ParallelRequestSuccessfuCount = 0, ParallelRequestUnsuccessfuCount = 0;
 
         private static TestTitleDataLoader.TestTitleData testTitleData;
 
@@ -194,7 +193,7 @@ namespace PlayFab.UUnit
         {
             SuccessfulGetAllSegmentsCount++;
             var testContext = (UUnitTestContext)result.CustomData;
-            if (SuccessfulGetAllSegmentsCount == 2)
+            if (SuccessfulGetAllSegmentsCount == 1 && UnsuccessfulGetAllSegmentsCount == 1)
             {
                 testContext.EndTest(UUnitFinishState.PASSED, null);
             }
@@ -202,9 +201,9 @@ namespace PlayFab.UUnit
         }
         private void CheckWithAuthContextAndWithoutAuthContextExpectedErrorCallBack(PlayFabError error)
         {
-            SuccessfulGetAllSegmentsCount++;
+            UnsuccessfulGetAllSegmentsCount++;
             var testContext = (UUnitTestContext)error.CustomData;
-            if (SuccessfulGetAllSegmentsCount == 2)
+            if (SuccessfulGetAllSegmentsCount == 1 && UnsuccessfulGetAllSegmentsCount == 1)
             {
                 testContext.EndTest(UUnitFinishState.PASSED, null);
             }

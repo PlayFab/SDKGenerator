@@ -54,7 +54,6 @@ exports.makeCombinedAPI = function (apis, sourceDir, apiOutputDir) {
     const xamarinOutputDir = path.join(rootOutputDir, "XamarinTestRunner");
     copyTree(path.resolve(sourceDir, "XamarinTestRunner"), xamarinOutputDir);
     copyTree(path.join(apiOutputDir, "source"), path.join(xamarinOutputDir, "XamarinTestRunner", "PlayFabSDK"));
-    copyFile(path.resolve(sourceDir, ".gitignore"), path.join(rootOutputDir, ".gitignore"));
 }
 
 function getBaseTypeSyntax(datatype) {

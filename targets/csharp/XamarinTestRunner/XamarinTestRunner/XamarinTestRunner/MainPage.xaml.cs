@@ -15,14 +15,10 @@ namespace XamarinTestRunner
     {
         private bool _onCompleted;
 
-
-
         public MainPage()
         {
             InitializeComponent();
         }
-
-
 
         private void RunTests(object sender, EventArgs e)
         {
@@ -44,6 +40,7 @@ namespace XamarinTestRunner
                 }
 
                 while (!UUnitIncrementalTestRunner.SuiteFinished)
+                {
                     try
                     {
                         UUnitIncrementalTestRunner.Tick();
@@ -53,6 +50,7 @@ namespace XamarinTestRunner
                         DisplayException(exception);
                         return;
                     }
+                }
 
                 Device.BeginInvokeOnMainThread(() =>
                 {
@@ -74,7 +72,6 @@ namespace XamarinTestRunner
             });
         }
 
-
         private static TestTitleData GetTestTitleData()
         {
             var assembly = IntrospectionExtensions.GetTypeInfo(typeof(MainPage)).Assembly;
@@ -85,7 +82,6 @@ namespace XamarinTestRunner
             var testInputs = PluginManager.GetPlugin<ISerializerPlugin>(PluginContract.PlayFab_Serializer).DeserializeObject<TestTitleData>(testInputsFile);
             return testInputs;
         }
-
 
         private void OnComplete(PlayFabResult<ExecuteCloudScriptResult> result)
         {

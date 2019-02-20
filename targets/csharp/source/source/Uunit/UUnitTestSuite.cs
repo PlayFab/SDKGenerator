@@ -123,6 +123,9 @@ namespace PlayFab.UUnit
                     newTestCase = (UUnitTestCase)constructorInfo.Invoke(null);
                 }
                 catch (Exception) { } // Ignore it and try the next one
+
+                if (newTestCase != null)
+                    break;
             }
             if (newTestCase == null)
                 throw new Exception(testCaseType.Name + " must have a parameter-less constructor.");

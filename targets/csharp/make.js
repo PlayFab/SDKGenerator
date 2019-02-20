@@ -3,6 +3,7 @@ var path = require("path");
 // Making resharper less noisy - These are defined in Generate.js
 if (typeof (copyFile) === "undefined") copyFile = function () { };
 if (typeof (copyTree) === "undefined") copyTree = function () { };
+if (typeof (templatizeTree) === "undefined") templatizeTree = function () { };
 if (typeof (generateApiSummaryLines) === "undefined") generateApiSummaryLines = function () { };
 if (typeof (getCompiledTemplate) === "undefined") getCompiledTemplate = function () { };
 
@@ -52,8 +53,9 @@ exports.makeCombinedAPI = function (apis, sourceDir, apiOutputDir) {
     generateProject(apis, sourceDir, apiOutputDir, "All", ";ENABLE_PLAYFABADMIN_API;ENABLE_PLAYFABSERVER_API;ENABLE_PLAYFABCLIENT_API");
 
     const xamarinOutputDir = path.join(rootOutputDir, "XamarinTestRunner");
-    copyTree(path.resolve(sourceDir, "XamarinTestRunner"), xamarinOutputDir);
-    copyTree(path.join(apiOutputDir, "source"), path.join(xamarinOutputDir, "XamarinTestRunner", "PlayFabSDK"));
+    var locals = {copyright: "\"Copyright © 2019\""};
+    templatizeTree(locals, path.resolve(sourceDir, "XamarinTestRunner"), xamarinOutputDir);
+    templatizeTree(locals, path.join(apiOutputDir, "source"), path.join(xamarinOutputDir, "XamarinTestRunner", "PlayFabSDK"));
 }
 
 function getBaseTypeSyntax(datatype) {

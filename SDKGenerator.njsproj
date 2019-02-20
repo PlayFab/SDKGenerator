@@ -254,7 +254,7 @@
     <Content Include="targets\csharp\XamarinTestRunner\XamarinTestRunner.sln" />
     <Content Include="targets\csharp\XamarinTestRunner\XamarinTestRunner\XamarinTestRunner.Android\MainActivity.cs" />
     <Content Include="targets\csharp\XamarinTestRunner\XamarinTestRunner\XamarinTestRunner.Android\Properties\AndroidManifest.xml" />
-    <Content Include="targets\csharp\XamarinTestRunner\XamarinTestRunner\XamarinTestRunner.Android\Properties\AssemblyInfo.cs" />
+    <Content Include="targets\csharp\XamarinTestRunner\XamarinTestRunner\XamarinTestRunner.Android\Properties\AssemblyInfo.cs.ejs" />
     <Content Include="targets\csharp\XamarinTestRunner\XamarinTestRunner\XamarinTestRunner.Android\Resources\layout\Tabbar.axml" />
     <Content Include="targets\csharp\XamarinTestRunner\XamarinTestRunner\XamarinTestRunner.Android\Resources\layout\Toolbar.axml" />
     <Content Include="targets\csharp\XamarinTestRunner\XamarinTestRunner\XamarinTestRunner.Android\Resources\mipmap-anydpi-v26\icon.xml" />
@@ -291,7 +291,7 @@
     <Content Include="targets\csharp\XamarinTestRunner\XamarinTestRunner\XamarinTestRunner.iOS\Entitlements.plist" />
     <Content Include="targets\csharp\XamarinTestRunner\XamarinTestRunner\XamarinTestRunner.iOS\Info.plist" />
     <Content Include="targets\csharp\XamarinTestRunner\XamarinTestRunner\XamarinTestRunner.iOS\Main.cs" />
-    <Content Include="targets\csharp\XamarinTestRunner\XamarinTestRunner\XamarinTestRunner.iOS\Properties\AssemblyInfo.cs" />
+    <Content Include="targets\csharp\XamarinTestRunner\XamarinTestRunner\XamarinTestRunner.iOS\Properties\AssemblyInfo.cs.ejs" />
     <Content Include="targets\csharp\XamarinTestRunner\XamarinTestRunner\XamarinTestRunner.iOS\Resources\Default%402x.png" />
     <Content Include="targets\csharp\XamarinTestRunner\XamarinTestRunner\XamarinTestRunner.iOS\Resources\Default-568h%402x.png" />
     <Content Include="targets\csharp\XamarinTestRunner\XamarinTestRunner\XamarinTestRunner.iOS\Resources\Default-Portrait%402x.png" />
@@ -332,7 +332,7 @@
     <Content Include="targets\csharp\XamarinTestRunner\XamarinTestRunner\XamarinTestRunner.UWP\MainPage.xaml" />
     <Content Include="targets\csharp\XamarinTestRunner\XamarinTestRunner\XamarinTestRunner.UWP\MainPage.xaml.cs" />
     <Content Include="targets\csharp\XamarinTestRunner\XamarinTestRunner\XamarinTestRunner.UWP\Package.appxmanifest" />
-    <Content Include="targets\csharp\XamarinTestRunner\XamarinTestRunner\XamarinTestRunner.UWP\Properties\AssemblyInfo.cs" />
+    <Content Include="targets\csharp\XamarinTestRunner\XamarinTestRunner\XamarinTestRunner.UWP\Properties\AssemblyInfo.cs.ejs" />
     <Content Include="targets\csharp\XamarinTestRunner\XamarinTestRunner\XamarinTestRunner.UWP\Properties\Default.rd.xml" />
     <Content Include="targets\csharp\XamarinTestRunner\XamarinTestRunner\XamarinTestRunner.UWP\XamarinTestRunner.UWP.csproj" />
     <Content Include="targets\csharp\XamarinTestRunner\XamarinTestRunner\XamarinTestRunner\App.xaml" />

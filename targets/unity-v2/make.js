@@ -31,7 +31,7 @@ exports.MakeUnityV2Sdk = function (apis, sourceDir, apiOutputDir) {
     for (var i = 0; i < apis.length; i++) {
         makeApiEventFiles(apis[i], sourceDir, apiOutputDir);
         makeApi(apis[i], sourceDir, apiOutputDir);
-		makeInstanceApi(apis[i], sourceDir, apiOutputDir);
+        makeInstanceApi(apis[i], sourceDir, apiOutputDir);
     }
 }
 
@@ -164,7 +164,7 @@ function makeInstanceApi(api, sourceDir, apiOutputDir) {
         api: api,
         getApiDefineFlag: getApiDefineFlag,
         getAuthParams: getAuthParams,
-		getInstanceParams: getInstanceParams,
+        getInstanceParams: getInstanceParams,
         generateApiSummary: generateApiSummary,
         getDeprecationAttribute: getDeprecationAttribute,
         getRequestActions: getRequestActions,
@@ -178,14 +178,11 @@ function makeInstanceApi(api, sourceDir, apiOutputDir) {
     writeFile(path.resolve(apiOutputDir, api.name + "/PlayFab" + api.name + "InstanceAPI.cs"), apiTemplate(apiLocals));
 }
 
-function isPartial(api)
-{
-    if (api === "Multiplayer")
-    {
+function isPartial(api) {
+    if (api === "Multiplayer") {
         return "partial ";
     }
-    else
-    {
+    else {
         return "";
     }
 }
@@ -212,7 +209,7 @@ function getCustomApiFunction(tabbing, apiCall, isApiInstance = false) {
             + tabbing + "    " + apiCall.name + "(request, wrappedResultCallback, errorCallback, customData, extraHeaders);\n"
             + tabbing + "}";
     }
-	else if(apiCall.name === "ExecuteCloudScript" && isApiInstance == true) {
+    else if (apiCall.name === "ExecuteCloudScript" && isApiInstance == true) {
         return "\n\n" + tabbing + "public void " + apiCall.name + "<TOut>(" + apiCall.request + " request, Action<" + apiCall.result + "> resultCallback, Action<PlayFabError> errorCallback, object customData = null, Dictionary<string, string> extraHeaders = null)\n"
             + tabbing + "{\n"
             + tabbing + "    Action<" + apiCall.result + "> wrappedResultCallback = (wrappedResult) =>\n"
@@ -231,7 +228,7 @@ function getCustomApiFunction(tabbing, apiCall, isApiInstance = false) {
             + tabbing + "    };\n"
             + tabbing + "    " + apiCall.name + "(request, wrappedResultCallback, errorCallback, customData, extraHeaders);\n"
             + tabbing + "}";
-    }	
+    }
     return ""; // Most apis don't have a custom alternate
 }
 
@@ -419,11 +416,11 @@ function getAuthParams(apiCall) {
     return "AuthType.None";
 }
 
-function getInstanceParams(apiCall){
-	if (apiCall.auth === "SecretKey")
+function getInstanceParams(apiCall) {
+    if (apiCall.auth === "SecretKey")
         return "developerSecretKey, apiSettings"
-	else 
-		return "null, apiSettings"
+    else
+        return "null, apiSettings"
 }
 
 function getRequestActions(tabbing, apiCall, isApiInstance = false) {
@@ -444,30 +441,25 @@ function getRequestActions(tabbing, apiCall, isApiInstance = false) {
         return tabbing + "if (!IsClientLoggedIn()) throw new PlayFabException(PlayFabExceptionCode.NotLoggedIn,\"Must be logged in to call this method\");\n";
     if (apiCall.auth === "SecretKey" && isApiInstance === false)
         return tabbing + "if (PlayFabSettings.DeveloperSecretKey == null) throw new PlayFabException(PlayFabExceptionCode.DeveloperKeyNotSet,\"Must have PlayFabSettings.DeveloperSecretKey set to call this method\");\n";
-	if (apiCall.auth === "SecretKey" && isApiInstance === true)
-        return tabbing + "string developerSecretKey = null;\n" +
-            tabbing + "if(request.AuthenticationContext != null)\n" +
-            tabbing + "{\n" +
-            tabbing + "    if(request.AuthenticationContext.DeveloperSecretKey != null)\n" +
+    if (apiCall.auth === "SecretKey" && isApiInstance === true)
+        return tabbing + "var developerSecretKey = null;\n" +
+            tabbing + "#if ENABLE_PLAYFABSERVER_API || ENABLE_PLAYFABADMIN_API\n" +
+            tabbing + "    if(string.IsNullOrEmpty(request.AuthenticationContext) == false && string.IsNullOrEmpty(request.AuthenticationContext.DeveloperSecretKey) == false)\n" +
             tabbing + "    {\n" +
             tabbing + "        developerSecretKey = request.AuthenticationContext.DeveloperSecretKey;\n" +
             tabbing + "    }\n" +
-            tabbing + "}\n" +
-            tabbing + "if(developerSecretKey == null)\n" +
-            tabbing + "{\n" +
-            tabbing + "    if (authenticationContext != null)\n" +
+            tabbing + "    if(developerSecretKey == null && authenticationContext != null && string.IsNullOrEmpty(authenticationContext.DeveloperSecretKey) == false)\n" +
             tabbing + "    {\n" +
-            tabbing + "        if (authenticationContext.DeveloperSecretKey  != null)\n" +
-            tabbing + "        {\n" +
-            tabbing + "            developerSecretKey = authenticationContext.DeveloperSecretKey;\n" +
-            tabbing + "        }\n" +
+            tabbing + "        developerSecretKey = authenticationContext.DeveloperSecretKey;\n" +
             tabbing + "    }\n" +
-            tabbing + "}\n" +
-            tabbing + "if(developerSecretKey == null)\n" +
-            tabbing + "{\n" +
+            tabbing + "    if(developerSecretKey == null)\n" +
+            tabbing + "    {\n" +
+            tabbing + "        developerSecretKey = PlayFabSettings.DeveloperSecretKey;\n" +
+            tabbing + "    }\n" +
+            tabbing + "#else\n" +
             tabbing + "    developerSecretKey = PlayFabSettings.DeveloperSecretKey;\n" +
-            tabbing + "}\n" +
-	        tabbing + "if (developerSecretKey == null) throw new PlayFabException(PlayFabExceptionCode.DeveloperKeyNotSet,\"DeveloperSecretKey is not found in Request, Server Instance or PlayFabSettings\");\n";
+            tabbing + "#endif\n" +
+            tabbing + "if (developerSecretKey == null) throw new PlayFabException(PlayFabExceptionCode.DeveloperKeyNotSet,\"DeveloperSecretKey is not found in Request, Server Instance or PlayFabSettings\");\n";
     return "";
 }
 

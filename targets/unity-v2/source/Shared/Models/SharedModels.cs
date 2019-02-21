@@ -9,6 +9,7 @@ namespace PlayFab.SharedModels
 
     public class PlayFabRequestCommon
     {
+        public PlayFabAuthenticationContext AuthenticationContext;
     }
 
     public class PlayFabResultCommon

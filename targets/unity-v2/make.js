@@ -442,9 +442,9 @@ function getRequestActions(tabbing, apiCall, isApiInstance = false) {
     if (apiCall.auth === "SecretKey" && isApiInstance === false)
         return tabbing + "if (PlayFabSettings.DeveloperSecretKey == null) throw new PlayFabException(PlayFabExceptionCode.DeveloperKeyNotSet,\"Must have PlayFabSettings.DeveloperSecretKey set to call this method\");\n";
     if (apiCall.auth === "SecretKey" && isApiInstance === true)
-        return tabbing + "var developerSecretKey = null;\n" +
+        return tabbing + "string developerSecretKey = null;\n" +
             tabbing + "#if ENABLE_PLAYFABSERVER_API || ENABLE_PLAYFABADMIN_API\n" +
-            tabbing + "    if(string.IsNullOrEmpty(request.AuthenticationContext) == false && string.IsNullOrEmpty(request.AuthenticationContext.DeveloperSecretKey) == false)\n" +
+            tabbing + "    if(request.AuthenticationContext != null && string.IsNullOrEmpty(request.AuthenticationContext.DeveloperSecretKey) == false)\n" +
             tabbing + "    {\n" +
             tabbing + "        developerSecretKey = request.AuthenticationContext.DeveloperSecretKey;\n" +
             tabbing + "    }\n" +

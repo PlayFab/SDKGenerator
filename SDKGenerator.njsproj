@@ -207,7 +207,6 @@
     <Content Include="targets\cpp-cocos2dx\templates\PlayFabError.h.ejs" />
     <Content Include="targets\cpp-cocos2dx\templates\PlayFabSettings.cpp.ejs" />
     <Content Include="targets\cpp-cocos2dx\templates\PlayFabSettings.h.ejs" />
-    <Content Include="targets\csharp\.gitignore" />
     <Content Include="targets\csharp\source\Properties\AssemblyInfo.cs" />
     <Content Include="targets\csharp\source\source\IPlayFabPlugin.cs" />
     <Content Include="targets\csharp\source\source\ISerializerPlugin.cs" />

@@ -6,7 +6,7 @@ if (typeof (templatizeTree) === "undefined") templatizeTree = function () { };
 if (typeof (generateApiSummaryLines) === "undefined") generateApiSummaryLines = function () { };
 if (typeof (getCompiledTemplate) === "undefined") getCompiledTemplate = function () { };
 
-var copyright = "\"Copyright © 2019\"";
+const copyright = "\"Copyright Microsoft © 2019\"";
 
 exports.makeClientAPI2 = function (apis, sourceDir, apiOutputDir) {
     apiOutputDir = path.join(apiOutputDir, "PlayFabClientSDK");
@@ -41,8 +41,9 @@ exports.makeCombinedAPI = function (apis, sourceDir, apiOutputDir) {
     apiOutputDir = path.join(apiOutputDir, "PlayFabSDK");
     console.log("Generating C-sharp combined SDK to " + apiOutputDir);
 
-    templatizeTree({}, path.resolve(sourceDir, "source"), apiOutputDir);
-    templatizeTree({}, path.resolve(sourceDir, "UnittestRunner"), path.resolve(apiOutputDir, "UnittestRunner")); // Copy the actual unittest project in the CombinedAPI
+    const locals = {copyright: copyright};
+    templatizeTree(locals, path.resolve(sourceDir, "source"), apiOutputDir);
+    templatizeTree(locals, path.resolve(sourceDir, "UnittestRunner"), path.resolve(apiOutputDir, "UnittestRunner")); // Copy the actual unittest project in the CombinedAPI
     copyOrTemplatizeFile({}, path.resolve(sourceDir, "PlayFabSDK+Unit.sln"), path.resolve(apiOutputDir, "PlayFabSDK+Unit.sln"));
     makeDatatypes(apis, sourceDir, apiOutputDir);
     for (var i = 0; i < apis.length; i++)
@@ -54,7 +55,6 @@ exports.makeCombinedAPI = function (apis, sourceDir, apiOutputDir) {
     generateProject(apis, sourceDir, apiOutputDir, "All", ";ENABLE_PLAYFABADMIN_API;ENABLE_PLAYFABSERVER_API;ENABLE_PLAYFABCLIENT_API");
 
     const xamarinOutputDir = path.join(rootOutputDir, "XamarinTestRunner");
-    var locals = {copyright: copyright};
     templatizeTree(locals, path.resolve(sourceDir, "XamarinTestRunner"), xamarinOutputDir);
     templatizeTree(locals, path.join(apiOutputDir, "source"), path.join(xamarinOutputDir, "XamarinTestRunner", "PlayFabSDK"));
 }

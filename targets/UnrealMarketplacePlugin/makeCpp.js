@@ -675,6 +675,10 @@ function getResultActions(tabbing, apiCall, isInstanceApi) {
             + tabbing + "    " + getAuthReference(isInstanceApi, false) + "SetEntityToken(outResult.EntityToken->EntityToken);\n"
             + tabbing + "    outResult.AuthenticationContext->SetEntityToken(outResult.EntityToken->EntityToken);\n"
             + tabbing + "}\n"
+            + tabbing + "if (outResult.PlayFabId.Len() > 0) {\n"
+            + (isInstanceApi ? tabbing + "    this->authContext->SetPlayFabId(outResult.PlayFabId);\n" : "")
+            + tabbing + "    outResult.AuthenticationContext->SetPlayFabId(outResult.PlayFabId);\n"
+            + tabbing + "}\n"
             + tabbing + "MultiStepClientLogin(outResult.SettingsForUser->NeedsAttribution);\n\n";
     }
     else if (apiCall.result === "RegisterPlayFabUserResult")

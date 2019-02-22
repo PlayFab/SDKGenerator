@@ -56,7 +56,6 @@ public:
         ClientSessionTicket = InTicket;
     }
 
-
     // Get the user's entity token. Entity tokens are required by all Entity API methods.
     UFUNCTION(BlueprintCallable, BlueprintPure, Category = "PlayFab | Core")
         FString& GetEntityToken()
@@ -85,7 +84,6 @@ public:
 #endif
         EntityToken = InToken;
     }
-
 
     // Get the developer secret key. These keys can be used in development environments.
     UFUNCTION(BlueprintCallable, BlueprintPure, Category = "PlayFab | Core")
@@ -120,8 +118,27 @@ public:
 #endif
 
         checkf(false, TEXT("Cannot call SetDeveloperSecretKey in a non-developer build!"));
-    };
+    }
 
+    // Get the player's unique PlayFabId.
+    UFUNCTION(BlueprintCallable, BlueprintPure, Category = "PlayFab | Core")
+        FString& GetPlayFabId()
+    {
+        return PlayFabId;
+    }
+
+    // Get the player's unique PlayFabId.
+    const FString& GetPlayFabId() const
+    {
+        return PlayFabId;
+    }
+
+    // Set the player's unique PlayFabId.
+    UFUNCTION(BlueprintCallable, Category = "PlayFab | Core")
+        void SetPlayFabId(FString InKey)
+    {
+        PlayFabId = InKey;
+    }
 
     // Reset all fields
     UFUNCTION(BlueprintCallable)
@@ -130,6 +147,7 @@ public:
         ClientSessionTicket.Empty();
         EntityToken.Empty();
         DeveloperSecretKey.Empty();
+        PlayFabId.Empty();
     }
 
 private: 
@@ -144,4 +162,8 @@ private:
     // Developer secret key. These keys can be used in development environments.
     UPROPERTY()
     FString DeveloperSecretKey;
+
+    // The player's unique PlayFabId.
+    UPROPERTY()
+    FString PlayFabId;
 };

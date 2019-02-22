@@ -613,7 +613,7 @@ function getRequestActions(tabbing, apiCall, isInstanceApi) {
         if (isInstanceApi) {
             return tabbing + "if (!this->settings.IsValid())\n"
                 + tabbing + "    request.TitleId = PlayFabSettings::GetTitleId();\n"
-                + tabbing + "else \n"
+                + tabbing + "else\n"
                 + tabbing + "    request.TitleId = this->settings->GetTitleId();\n";
         }
         else {
@@ -685,9 +685,9 @@ function getResultActions(tabbing, apiCall, isInstanceApi) {
         var commentLine = tabbing + "// Modify advertisingIdType:  Prevents us from sending the id multiple times, and allows automated tests to determine id was sent successfully\n";
         if(isInstanceApi)
             return commentLine
-                + tabbing + "if(!this->settings.IsValid()) \n"
+                + tabbing + "if(!this->settings.IsValid())\n"
                 + tabbing + "    PlayFabSettings::SetAdvertisingIdType(PlayFabSettings::GetAdvertisingIdType() + \"_Successful\");\n" 
-                + tabbing + "else \n" 
+                + tabbing + "else\n" 
                 + tabbing + "    this->settings->SetAdvertisingIdType(this->settings->GetAdvertisingIdType() + \"_Successful\");\n\n";
         else
             return commentLine

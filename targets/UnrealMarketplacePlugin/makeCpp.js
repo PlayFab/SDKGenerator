@@ -613,7 +613,7 @@ function getRequestActions(tabbing, apiCall, isInstanceApi) {
         if (isInstanceApi) {
             return tabbing + "if (!this->settings.IsValid())\n"
                 + tabbing + "    request.TitleId = PlayFabSettings::GetTitleId();\n"
-                + tabbing + "else \n"
+                + tabbing + "else\n"
                 + tabbing + "    request.TitleId = this->settings->GetTitleId();\n";
         }
         else {
@@ -675,6 +675,10 @@ function getResultActions(tabbing, apiCall, isInstanceApi) {
             + tabbing + "    " + getAuthReference(isInstanceApi, false) + "SetEntityToken(outResult.EntityToken->EntityToken);\n"
             + tabbing + "    outResult.AuthenticationContext->SetEntityToken(outResult.EntityToken->EntityToken);\n"
             + tabbing + "}\n"
+            + tabbing + "if (outResult.PlayFabId.Len() > 0) {\n"
+            + (isInstanceApi ? tabbing + "    this->authContext->SetPlayFabId(outResult.PlayFabId);\n" : "")
+            + tabbing + "    outResult.AuthenticationContext->SetPlayFabId(outResult.PlayFabId);\n"
+            + tabbing + "}\n"
             + tabbing + "MultiStepClientLogin(outResult.SettingsForUser->NeedsAttribution);\n\n";
     }
     else if (apiCall.result === "RegisterPlayFabUserResult")
@@ -685,9 +689,9 @@ function getResultActions(tabbing, apiCall, isInstanceApi) {
         var commentLine = tabbing + "// Modify advertisingIdType:  Prevents us from sending the id multiple times, and allows automated tests to determine id was sent successfully\n";
         if(isInstanceApi)
             return commentLine
-                + tabbing + "if(!this->settings.IsValid()) \n"
+                + tabbing + "if(!this->settings.IsValid())\n"
                 + tabbing + "    PlayFabSettings::SetAdvertisingIdType(PlayFabSettings::GetAdvertisingIdType() + \"_Successful\");\n" 
-                + tabbing + "else \n" 
+                + tabbing + "else\n" 
                 + tabbing + "    this->settings->SetAdvertisingIdType(this->settings->GetAdvertisingIdType() + \"_Successful\");\n\n";
         else
             return commentLine

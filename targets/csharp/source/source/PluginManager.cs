@@ -55,7 +55,7 @@ namespace PlayFab
                         plugin = this.CreatePlugin<SimpleJsonInstance>();
                         break;
                     case PluginContract.PlayFab_Transport:
-                        plugin = this.CreatePlayFabTransportPlugin();
+                        plugin = this.CreatePlugin<PlayFabSysHttp>();
                         break;
                     default:
                         throw new ArgumentException("This contract is not supported", nameof(contract));
@@ -81,21 +81,6 @@ namespace PlayFab
         private IPlayFabPlugin CreatePlugin<T>() where T : IPlayFabPlugin, new()
         {
             return (IPlayFabPlugin)Activator.CreateInstance(typeof(T).AsType());
-        }
-
-        private ITransportPlugin CreatePlayFabTransportPlugin()
-        {
-            var httpInterfaceType = typeof(ITransportPlugin);
-            var types = typeof(PlayFabHttp).GetAssembly().GetTypes();
-            foreach (var eachType in types)
-            {
-                if (httpInterfaceType.IsAssignableFrom(eachType) && !eachType.IsAbstract)
-                {
-                    return (ITransportPlugin)Activator.CreateInstance(eachType.AsType());
-                }
-            }
-
-            throw new Exception("Cannot find a valid ITransportPlugin type");
         }
     }
 }

@@ -1,16 +1,18 @@
 var path = require("path");
 
 // Making resharper less noisy - These are defined in Generate.js
-if (typeof (copyFile) === "undefined") copyFile = function () { };
-if (typeof (copyTree) === "undefined") copyTree = function () { };
+if (typeof (copyOrTemplatizeFile) === "undefined") copyOrTemplatizeFile = function () { };
+if (typeof (templatizeTree) === "undefined") templatizeTree = function () { };
 if (typeof (generateApiSummaryLines) === "undefined") generateApiSummaryLines = function () { };
 if (typeof (getCompiledTemplate) === "undefined") getCompiledTemplate = function () { };
+
+const copyright = "\"Copyright Microsoft © 2019\"";
 
 exports.makeClientAPI2 = function (apis, sourceDir, apiOutputDir) {
     apiOutputDir = path.join(apiOutputDir, "PlayFabClientSDK");
     console.log("Generating C-sharp client SDK to " + apiOutputDir);
 
-    copyTree(path.resolve(sourceDir, "source"), apiOutputDir);
+    templatizeTree({}, path.resolve(sourceDir, "source"), apiOutputDir);
     makeDatatypes(apis, sourceDir, apiOutputDir);
     for (var i = 0; i < apis.length; i++)
         makeApi(apis[i], sourceDir, apiOutputDir);
@@ -22,42 +24,51 @@ exports.makeServerAPI = function (apis, sourceDir, apiOutputDir) {
     apiOutputDir = path.join(apiOutputDir, "PlayFabServerSDK");
     console.log("Generating C-sharp server SDK to " + apiOutputDir);
 
-    copyTree(path.resolve(sourceDir, "source"), apiOutputDir);
+    templatizeTree({}, path.resolve(sourceDir, "source"), apiOutputDir);
     makeDatatypes(apis, sourceDir, apiOutputDir);
-    for (var i = 0; i < apis.length; i++)
-    {
+    for (var i = 0; i < apis.length; i++) {
         makeApi(apis[i], sourceDir, apiOutputDir);
         makeApiInstance(apis[i], sourceDir, apiOutputDir);
     }
-        
+
     generateSimpleFiles(apis, sourceDir, apiOutputDir);
     generateProject(apis, sourceDir, apiOutputDir, "Server", ";DISABLE_PLAYFABCLIENT_API;ENABLE_PLAYFABSERVER_API");
 }
 
 exports.makeCombinedAPI = function (apis, sourceDir, apiOutputDir) {
+    const rootOutputDir = apiOutputDir;
     apiOutputDir = path.join(apiOutputDir, "PlayFabSDK");
     console.log("Generating C-sharp combined SDK to " + apiOutputDir);
 
-    copyTree(path.resolve(sourceDir, "source"), apiOutputDir);
-    copyTree(path.resolve(sourceDir, "UnittestRunner"), path.resolve(apiOutputDir, "UnittestRunner")); // Copy the actual unittest project in the CombinedAPI
-    copyFile(path.resolve(sourceDir, "PlayFabSDK+Unit.sln"), path.resolve(apiOutputDir, "PlayFabSDK+Unit.sln"));
+    const locals = {copyright: copyright};
+    templatizeTree(locals, path.resolve(sourceDir, "source"), apiOutputDir);
+    templatizeTree(locals, path.resolve(sourceDir, "UnittestRunner"), path.resolve(apiOutputDir, "UnittestRunner")); // Copy the actual unittest project in the CombinedAPI
+    copyOrTemplatizeFile({}, path.resolve(sourceDir, "PlayFabSDK+Unit.sln"), path.resolve(apiOutputDir, "PlayFabSDK+Unit.sln"));
     makeDatatypes(apis, sourceDir, apiOutputDir);
-    for (var i = 0; i < apis.length; i++)
-    {
+    for (var i = 0; i < apis.length; i++) {
         makeApi(apis[i], sourceDir, apiOutputDir);
         makeApiInstance(apis[i], sourceDir, apiOutputDir);
     }
     generateSimpleFiles(apis, sourceDir, apiOutputDir);
     generateProject(apis, sourceDir, apiOutputDir, "All", ";ENABLE_PLAYFABADMIN_API;ENABLE_PLAYFABSERVER_API;ENABLE_PLAYFABCLIENT_API");
+
+    const xamarinOutputDir = path.join(rootOutputDir, "XamarinTestRunner");
+    templatizeTree(locals, path.resolve(sourceDir, "XamarinTestRunner"), xamarinOutputDir);
+    templatizeTree(locals, path.join(apiOutputDir, "source"), path.join(xamarinOutputDir, "XamarinTestRunner", "PlayFabSDK"));
 }
 
 function getBaseTypeSyntax(datatype) {
     var parents = [];
 
+    //begin classes - only 1 possible
     if (datatype.className.toLowerCase().endsWith("request"))
         parents.push("PlayFabRequestCommon");
-    if (datatype.className.toLowerCase().endsWith("response") || datatype.className.toLowerCase().endsWith("result"))
+    else if (datatype.className.toLowerCase() === "loginresult")
+        parents.push("PlayFabLoginResultCommon");
+    else if (datatype.className.toLowerCase().endsWith("response") || datatype.className.toLowerCase().endsWith("result"))
         parents.push("PlayFabResultCommon");
+    //end classes - only 1 
+
     if (datatype.sortKey)
         parents.push("IComparable<" + datatype.name + ">");
 
@@ -262,29 +273,51 @@ function getAuthParams(apiCall, isApiInstance = false) {
         return "\"X-SecretKey\", PlayFabSettings.DeveloperSecretKey";
     if (apiCall.auth === "SecretKey" && isApiInstance === true)
         return "\"X-SecretKey\", developerSecretKey";
-
     else if (apiCall.auth === "SessionTicket")
-        return "\"X-Authorization\", PlayFabSettings.ClientSessionTicket";
+        return "\"X-Authorization\", clientSessionTicket";
     return "null, null";
 }
 
 function getRequestActions(tabbing, apiCall, isApiInstance = false) {
     if (apiCall.result === "LoginResult" || apiCall.request === "RegisterPlayFabUserRequest")
-        return tabbing + "request.TitleId = PlayFabSettings.TitleId ?? request.TitleId;\n"
+        return tabbing + "request.TitleId = request.TitleId ?? PlayFabSettings.TitleId;\n"
             + tabbing + "if (request.TitleId == null) throw new PlayFabException(PlayFabExceptionCode.TitleNotSet, \"Must be have PlayFabSettings.TitleId set to call this method\");\n";
     if (apiCall.auth === "EntityToken")
-        return tabbing + "if (PlayFabSettings.EntityToken == null) throw new PlayFabException(PlayFabExceptionCode.EntityTokenNotSet, \"Must call GetEntityToken before calling this method\");\n";
+        return tabbing + "#if !DISABLE_PLAYFABENTITY_API\n"
+            + tabbing + "    if ((request.AuthenticationContext?.EntityToken ?? PlayFabSettings.EntityToken) == null) throw new PlayFabException(PlayFabExceptionCode.EntityTokenNotSet, \"Must call GetEntityToken before calling this method\");\n"
+            + tabbing + "#else\n"
+            + tabbing + "    if ((PlayFabSettings.EntityToken) == null) throw new PlayFabException(PlayFabExceptionCode.EntityTokenNotSet, \"Must call GetEntityToken before calling this method\");\n"
+            + tabbing + "#endif\n";
     if (apiCall.auth === "SessionTicket")
-        return tabbing + "if (PlayFabSettings.ClientSessionTicket == null) throw new PlayFabException(PlayFabExceptionCode.NotLoggedIn, \"Must be logged in to call this method\");\n";
+        return tabbing + "#if !DISABLE_PLAYFABCLIENT_API\n"
+            + tabbing + "    var clientSessionTicket = request.AuthenticationContext?.ClientSessionTicket ?? PlayFabSettings.ClientSessionTicket;\n"
+            + tabbing + "    if (clientSessionTicket == null) throw new PlayFabException(PlayFabExceptionCode.NotLoggedIn, \"Must be logged in to call this method\");\n"
+            + tabbing + "#else\n"
+            + tabbing + "    var clientSessionTicket = PlayFabSettings.ClientSessionTicket;\n"
+            + tabbing + "#endif\n";
     if (apiCall.auth === "SecretKey" && isApiInstance === false)
         return tabbing + "if (PlayFabSettings.DeveloperSecretKey == null) throw new PlayFabException(PlayFabExceptionCode.DeveloperKeyNotSet, \"Must have PlayFabSettings.DeveloperSecretKey set to call this method\");\n";
     if (apiCall.auth === "SecretKey" && isApiInstance === true)
-        return tabbing + "var developerSecretKey = request.AuthenticationContext?.DeveloperSecretKey ?? (authenticationContext?.DeveloperSecretKey ?? PlayFabSettings.DeveloperSecretKey);\n            if (developerSecretKey == null) throw new PlayFabException(PlayFabExceptionCode.DeveloperKeyNotSet, \"DeveloperSecretKey is not found in Request, Server Instance or PlayFabSettings\");\n";
+        return tabbing + "#if ENABLE_PLAYFABSERVER_API || ENABLE_PLAYFABADMIN_API\n"
+            + tabbing + "    var developerSecretKey = request.AuthenticationContext?.DeveloperSecretKey ?? (authenticationContext?.DeveloperSecretKey ?? PlayFabSettings.DeveloperSecretKey);\n"
+            + tabbing + "    if (developerSecretKey == null) throw new PlayFabException(PlayFabExceptionCode.DeveloperKeyNotSet, \"DeveloperSecretKey is not found in Request, Server Instance or PlayFabSettings\");\n"
+            + tabbing + "#else\n"
+            + tabbing + "    var developerSecretKey = PlayFabSettings.DeveloperSecretKey;\n"
+            + tabbing + "#endif\n";
     if (apiCall.url === "/Authentication/GetEntityToken")
         return tabbing + "string authKey = null, authValue = null;\n"
-            + tabbing + "if (PlayFabSettings.ClientSessionTicket != null) { authKey = \"X-Authorization\"; authValue = PlayFabSettings.ClientSessionTicket; }\n"
-            + tabbing + "if (PlayFabSettings.DeveloperSecretKey != null) { authKey = \"X-SecretKey\"; authValue = PlayFabSettings.DeveloperSecretKey; }\n"
-            + tabbing + "if (PlayFabSettings.EntityToken != null) { authKey = \"X-EntityToken\"; authValue = PlayFabSettings.EntityToken; }\n";
+            + tabbing + "#if !DISABLE_PLAYFABCLIENT_API\n"
+            + tabbing + "    var clientSessionTicket = request.AuthenticationContext?.ClientSessionTicket ?? PlayFabSettings.ClientSessionTicket;\n"
+            + tabbing + "    if (clientSessionTicket != null) { authKey = \"X-Authorization\"; authValue = clientSessionTicket; }\n"
+            + tabbing + "#endif\n\n"
+            + tabbing + "#if ENABLE_PLAYFABSERVER_API || ENABLE_PLAYFABADMIN_API\n"
+            + tabbing + "    var developerSecretKey = request.AuthenticationContext?.DeveloperSecretKey ?? PlayFabSettings.DeveloperSecretKey;\n"
+            + tabbing + "    if (developerSecretKey != null) { authKey = \"X-SecretKey\"; authValue = developerSecretKey; }\n"
+            + tabbing + "#endif\n\n"
+            + tabbing + "#if !DISABLE_PLAYFABENTITY_API\n"
+            + tabbing + "    var entityToken = request.AuthenticationContext?.EntityToken ?? PlayFabSettings.EntityToken;\n"
+            + tabbing + "    if (entityToken != null) { authKey = \"X-EntityToken\"; authValue = entityToken; }\n"
+            + tabbing + "#endif\n";
     return "";
 }
 
@@ -292,6 +325,9 @@ function getResultActions(tabbing, apiCall, api) {
     if (apiCall.result === "LoginResult")
         return tabbing + "PlayFabSettings.ClientSessionTicket = result.SessionTicket ?? PlayFabSettings.ClientSessionTicket;\n"
             + tabbing + "PlayFabSettings.EntityToken = result.EntityToken?.EntityToken ?? PlayFabSettings.EntityToken;\n"
+            + tabbing + "result.AuthenticationContext = new PlayFabAuthenticationContext();\n"
+            + tabbing + "result.AuthenticationContext.ClientSessionTicket = PlayFabSettings.ClientSessionTicket;\n"
+            + tabbing + "result.AuthenticationContext.EntityToken = PlayFabSettings.EntityToken;\n"
             + tabbing + "await MultiStepClientLogin(result.SettingsForUser.NeedsAttribution);\n";
     else if (apiCall.result === "RegisterPlayFabUserResult")
         return tabbing + "PlayFabSettings.ClientSessionTicket = result.SessionTicket ?? PlayFabSettings.ClientSessionTicket;\n"

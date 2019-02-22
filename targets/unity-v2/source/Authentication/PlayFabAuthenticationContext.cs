@@ -25,12 +25,12 @@
         public PlayFabAuthenticationContext(string clientSessionTicket, string entityToken, string playFabId) : this()
         {
 #if !DISABLE_PLAYFABCLIENT_API
-                ClientSessionTicket = clientSessionTicket;
+            ClientSessionTicket = clientSessionTicket;
 #endif
 #if !DISABLE_PLAYFABENTITY_API
-                EntityToken = entityToken;
+            EntityToken = entityToken;
 #endif
-                PlayFabId = playFabId;
+            PlayFabId = playFabId;
         }
     }
 }

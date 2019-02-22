@@ -25,7 +25,7 @@ namespace PlayFab
         /// <param name="contract">The plugin contract.</param>
         /// <param name="instanceName">The optional plugin instance name. Instance names allow to have mulptiple plugins with the same contract.</param>
         /// <returns>The plugin instance.</returns>
-        public static T GetPlugin<T>(PluginContract contract, string instanceName = "") where T : IPlayFabPlugin
+        public static T GetPlugin<T>(PluginContract contract, string instanceName = string.Empty) where T : IPlayFabPlugin
         {
             return (T)Instance.GetPluginInternal(contract, instanceName);
         }
@@ -37,7 +37,7 @@ namespace PlayFab
         /// <param name="plugin">The plugin instance.</param>
         /// <param name="contract">The app contract of plugin.</param>
         /// <param name="instanceName">The optional plugin instance name. Instance names allow to have mulptiple plugins with the same contract.</param>
-        public static void SetPlugin(IPlayFabPlugin plugin, PluginContract contract, string instanceName = "")
+        public static void SetPlugin(IPlayFabPlugin plugin, PluginContract contract, string instanceName = string.Empty)
         {
             Instance.SetPluginInternal(plugin, contract, instanceName);
         }
@@ -45,10 +45,10 @@ namespace PlayFab
         private IPlayFabPlugin GetPluginInternal(PluginContract contract, string instanceName)
         {
             var key = new Tuple<PluginContract, string>(contract, instanceName);
-            if (!this.plugins.ContainsKey(key))
+            IPlayFabPlugin plugin;
+            if (!this.plugins.TryGetValue(key, out plugin))
             {
                 // Requested plugin is not in the cache, create the default one
-                IPlayFabPlugin plugin;
                 switch (contract)
                 {
                     case PluginContract.PlayFab_Serializer:
@@ -64,7 +64,7 @@ namespace PlayFab
                 this.plugins[key] = plugin;
             }
 
-            return this.plugins[key];
+            return plugin;
         }
 
         private void SetPluginInternal(IPlayFabPlugin plugin, PluginContract contract, string instanceName)

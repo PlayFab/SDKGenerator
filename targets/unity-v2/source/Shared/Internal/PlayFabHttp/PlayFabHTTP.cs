@@ -431,8 +431,9 @@ namespace PlayFab.Internal
             catch (Exception) { /* Unusual, but shouldn't actually matter */ }
             try
             {
-                if (errorDict != null && errorDict.ContainsKey("errorDetails"))
-                    errorDetails = serializer.DeserializeObject<Dictionary<string, List<string>>>(errorDict["errorDetails"].ToString());
+                object errorDetailsString;
+                if (errorDict != null && errorDict.TryGetValue("errorDetails", out errorDetailsString))
+                    errorDetails = serializer.DeserializeObject<Dictionary<string, List<string>>>(errorDetailsString.ToString());
             }
             catch (Exception) { /* Unusual, but shouldn't actually matter */ }
 

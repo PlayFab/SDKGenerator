@@ -59,6 +59,10 @@ begin
     }
 
     $sdksPath = Resolve-Path (Join-Path $PSScriptRoot "..\..\sdks")
+    if(!(Test-Path $sdksPath))
+    {
+        mkdir $sdksPath
+    }
 
     if($ApiSpecBranch)
     {

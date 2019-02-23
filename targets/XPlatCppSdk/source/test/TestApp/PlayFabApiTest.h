@@ -9,7 +9,6 @@
 namespace PlayFab
 {
     struct PlayFabError;
-    class PlayFabEventAPI;
 
     namespace AuthenticationModels
     {

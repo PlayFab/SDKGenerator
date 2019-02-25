@@ -53,11 +53,11 @@ namespace PlayFab.UUnit
                 if (_player1 == null || _player2 == null) return;
 
                 // reset delegate to avoid calling this method again
-                _tickAction = delegate { };
+                _tickAction = null;
 
                 // players must not be equals
-                testContext.False(_player1 == _player2);
-                testContext.EndTest(UUnitFinishState.PASSED, "Two players are successfully login.");
+                testContext.False(_player1.PlayFabId == _player2.PlayFabId);
+                testContext.EndTest(UUnitFinishState.PASSED, "Two players are successfully login. " + _player1.PlayFabId + ", " + _player2.PlayFabId);
             };
         }
 
@@ -84,14 +84,14 @@ namespace PlayFab.UUnit
                 if (player1AccountInfo == null || player2AccountInfo == null) return;
 
                 // reset delegate to avoid calling this method again
-                _tickAction = delegate { };
+                _tickAction = null;
 
                 // compares received data with cached data to make sure everything works correctly
-                testContext.True(_player1.PlayFabId == player1AccountInfo.PlayFabId, "Player1 Ids not match!");
-                testContext.True(_player2.PlayFabId == player2AccountInfo.PlayFabId, "Player2 Ids not match!");
+                testContext.True(_player1.PlayFabId == player1AccountInfo.PlayFabId, "Player1 PlayFabIds not match!");
+                testContext.True(_player2.PlayFabId == player2AccountInfo.PlayFabId, "Player2 PlayFabIds not match!");
 
                 // playFabId at different players must be different
-                testContext.False(player1AccountInfo.PlayFabId == player2AccountInfo.PlayFabId, "Player ids is equals!");
+                testContext.False(player1AccountInfo.PlayFabId == player2AccountInfo.PlayFabId, "Players PlayFabId is equals!");
                 testContext.EndTest(UUnitFinishState.PASSED, _player1.PlayFabId + ", " + _player2.PlayFabId);
             };
         }

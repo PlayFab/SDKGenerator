@@ -13,7 +13,7 @@ import com.playfab.PlayFabErrors.PlayFabJsonError;
 import com.playfab.PlayFabErrors.PlayFabJsonSuccess;
 
 public class PlayFabHTTP {
-    private const int timeoutInMilliseconds = 60000;
+    private static final int timeoutInMilliseconds = 60000;
     private static Gson gson = new GsonBuilder().setDateFormat("yyyy-MM-dd'T'HH:mm:ss.SSS'Z'").create();
 
     public static FutureTask<Object> doPost(final String url, final Object request, final String authType, final String authKey) {

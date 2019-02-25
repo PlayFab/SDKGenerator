@@ -141,8 +141,9 @@ namespace PlayFab
             HandleCallback(std::move(requestContainer));
         }
 
-        curl_easy_reset(curlHandle);
+        curl_slist_free_all(curlHttpHeaders);
         curlHttpHeaders = nullptr;
+        curl_easy_cleanup(curlHandle);
     }
 }
 

@@ -11,28 +11,28 @@ namespace PlayFab
 <%- generateApiSummary("    ", api, "description")
 %>    public <%- isPartial %>class PlayFab<%- api.name %>InstanceAPI
     {
-	    private PlayFabApiSettings apiSettings = null;
+        private PlayFabApiSettings apiSettings = null;
         private PlayFabAuthenticationContext authenticationContext = null;
 
         public PlayFab<%- api.name %>InstanceAPI() {}
-		
-		public PlayFab<%- api.name %>InstanceAPI(PlayFabApiSettings settings) 
-		{
-		    apiSettings = settings;
-		}
-		
-		public PlayFab<%- api.name %>InstanceAPI(PlayFabAuthenticationContext context) 
-		{
-		    authenticationContext = context;
-		}
-		
-		public PlayFab<%- api.name %>InstanceAPI(PlayFabApiSettings settings, PlayFabAuthenticationContext context) 
-		{
-		    apiSettings = settings;
+
+        public PlayFab<%- api.name %>InstanceAPI(PlayFabApiSettings settings) 
+        {
+            apiSettings = settings;
+        }
+
+        public PlayFab<%- api.name %>InstanceAPI(PlayFabAuthenticationContext context) 
+        {
             authenticationContext = context;
-		}
-		
-		public void SetSettings(PlayFabApiSettings settings)
+        }
+
+        public PlayFab<%- api.name %>InstanceAPI(PlayFabApiSettings settings, PlayFabAuthenticationContext context) 
+        {
+            apiSettings = settings;
+            authenticationContext = context;
+        }
+
+        public void SetSettings(PlayFabApiSettings settings)
         {
             apiSettings = settings;
         }
@@ -51,7 +51,7 @@ namespace PlayFab
         {
             return authenticationContext;
         }
-		
+
 <% if (hasClientOptions) { %>
         /// <summary>
         /// Check to See if the client is logged in.
@@ -60,7 +60,7 @@ namespace PlayFab
         {
             return PlayFabHttp.IsClientLoggedIn();
         }
-<% } %>
+<% }%>
 <% if (hasEntityTokenOptions) { %>
         /// <summary>
         /// Check to See if the entity is logged in.
@@ -70,7 +70,7 @@ namespace PlayFab
             var transport = PluginManager.GetPlugin<IPlayFabTransportPlugin>(PluginContract.PlayFab_Transport);
             return !string.IsNullOrEmpty(transport.EntityToken);
         }
-<% } %>
+<% }%>
         /// <summary>
         /// Clear the Client SessionToken which allows this Client to call API calls requiring login.
         /// A new/fresh login will be required after calling this.
@@ -80,14 +80,12 @@ namespace PlayFab
             PlayFabHttp.ForgetAllCredentials();
         }
 
-<% for(var i in api.calls) { var apiCall = api.calls[i]; %><%- generateApiSummary("        ", apiCall, "summary") %><%- getDeprecationAttribute("        ", apiCall)
-%>        public void <%- apiCall.name %>(<%- apiCall.request %> request, Action<<%- apiCall.result %>> resultCallback, Action<PlayFabError> errorCallback, object customData = null, Dictionary<string, string> extraHeaders = null)
+<% for(var i in api.calls) { var apiCall = api.calls[i]; %><%- generateApiSummary("        ", apiCall, "summary") %><%- getDeprecationAttribute("        ", apiCall)%>
+        public void <%- apiCall.name %>(<%- apiCall.request %> request, Action<<%- apiCall.result %>> resultCallback, Action<PlayFabError> errorCallback, object customData = null, Dictionary<string, string> extraHeaders = null)
         {
-<%- getRequestActions("            ", apiCall, true) %>
-            PlayFabHttp.MakeApiCall("<%- apiCall.url %>", request, <%- getAuthParams(apiCall) %>, resultCallback, errorCallback, customData, extraHeaders, false, <%- getInstanceParams(apiCall) %>);
-        }<%- getCustomApiFunction("        ", apiCall, true) %>
-
-<% } %>
+<%- getRequestActions("            ", apiCall, true) %>            PlayFabHttp.MakeApiCall("<%- apiCall.url %>", request, <%- getAuthParams(apiCall) %>, resultCallback, errorCallback, customData, extraHeaders, false, <%- getInstanceParams(apiCall) %>);
+        }<%- getCustomApiFunction("        ", apiCall, true) %> 
+<% }%>
     }
 }
 #endif

@@ -186,11 +186,33 @@ namespace PlayFab.Internal
         /// </summary>
         protected internal static void MakeApiCall<TResult>(string apiEndpoint,
             PlayFabRequestCommon request, AuthType authType, Action<TResult> resultCallback,
-            Action<PlayFabError> errorCallback, object customData = null, Dictionary<string, string> extraHeaders = null, bool allowQueueing = false, string developerSecretKey = null, PlayFabApiSettings apiSettings = null)
+            Action<PlayFabError> errorCallback, object customData = null, Dictionary<string, string> extraHeaders = null, bool allowQueueing = false, PlayFabAuthenticationContext authenticationContext = null, PlayFabApiSettings apiSettings = null)
             where TResult : PlayFabResultCommon
         {
             InitializeHttp();
             SendEvent(apiEndpoint, request, null, ApiProcessingEventType.Pre);
+
+            string developerSecretKey = null;
+            #if ENABLE_PLAYFABSERVER_API || ENABLE_PLAYFABADMIN_API
+                if(request.AuthenticationContext != null && string.IsNullOrEmpty(request.AuthenticationContext.DeveloperSecretKey) == false)
+                {
+                    developerSecretKey = request.AuthenticationContext.DeveloperSecretKey;
+                }
+                if(developerSecretKey == null && authenticationContext != null && string.IsNullOrEmpty(authenticationContext.DeveloperSecretKey) == false)
+                {
+                    developerSecretKey = authenticationContext.DeveloperSecretKey;
+                }
+                if(developerSecretKey == null)
+                {
+                    developerSecretKey = PlayFabSettings.DeveloperSecretKey;
+                }
+            #else
+                developerSecretKey = PlayFabSettings.DeveloperSecretKey;
+            #endif
+            
+            #if ENABLE_PLAYFABSERVER_API || ENABLE_PLAYFABADMIN_API
+                if (developerSecretKey == null) throw new PlayFabException(PlayFabExceptionCode.DeveloperKeyNotSet,"DeveloperSecretKey is not found in Request, Server Instance or PlayFabSettings");
+            #endif
 
             var serializer = PluginManager.GetPlugin<ISerializerPlugin>(PluginContract.PlayFab_Serializer);
             var reqContainer = new CallRequestContainer
@@ -220,7 +242,7 @@ namespace PlayFab.Internal
             switch (authType)
             {
 #if ENABLE_PLAYFABSERVER_API || ENABLE_PLAYFABADMIN_API || UNITY_EDITOR
-                case AuthType.DevSecretKey: reqContainer.RequestHeaders["X-SecretKey"] = developerSecretKey ?? PlayFabSettings.DeveloperSecretKey;  break;
+                case AuthType.DevSecretKey: reqContainer.RequestHeaders["X-SecretKey"] = developerSecretKey ;  break;
 #endif
                 case AuthType.LoginSession: reqContainer.RequestHeaders["X-Authorization"] = transport.AuthKey; break;
                 case AuthType.EntityToken: reqContainer.RequestHeaders["X-EntityToken"] = transport.EntityToken; break;

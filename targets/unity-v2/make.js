@@ -418,7 +418,7 @@ function getAuthParams(apiCall) {
 
 function getInstanceParams(apiCall) {
     if (apiCall.auth === "SecretKey")
-        return "developerSecretKey, apiSettings"
+        return "authenticationContext, apiSettings"
     else
         return "null, apiSettings"
 }
@@ -434,32 +434,12 @@ function getRequestActions(tabbing, apiCall, isApiInstance = false) {
             tabbing + "if (authType == AuthType.None && !string.IsNullOrEmpty(PlayFabSettings.DeveloperSecretKey))\n" +
             tabbing + "    authType = AuthType.DevSecretKey;\n" +
             "#endif\n";
-
     if (apiCall.result === "LoginResult" || apiCall.request === "RegisterPlayFabUserRequest")
         return tabbing + "request.TitleId = request.TitleId ?? PlayFabSettings.TitleId;\n";
     if (apiCall.auth === "SessionTicket")
         return tabbing + "if (!IsClientLoggedIn()) throw new PlayFabException(PlayFabExceptionCode.NotLoggedIn,\"Must be logged in to call this method\");\n";
     if (apiCall.auth === "SecretKey" && isApiInstance === false)
         return tabbing + "if (PlayFabSettings.DeveloperSecretKey == null) throw new PlayFabException(PlayFabExceptionCode.DeveloperKeyNotSet,\"Must have PlayFabSettings.DeveloperSecretKey set to call this method\");\n";
-    if (apiCall.auth === "SecretKey" && isApiInstance === true)
-        return tabbing + "string developerSecretKey = null;\n" +
-            tabbing + "#if ENABLE_PLAYFABSERVER_API || ENABLE_PLAYFABADMIN_API\n" +
-            tabbing + "    if(request.AuthenticationContext != null && string.IsNullOrEmpty(request.AuthenticationContext.DeveloperSecretKey) == false)\n" +
-            tabbing + "    {\n" +
-            tabbing + "        developerSecretKey = request.AuthenticationContext.DeveloperSecretKey;\n" +
-            tabbing + "    }\n" +
-            tabbing + "    if(developerSecretKey == null && authenticationContext != null && string.IsNullOrEmpty(authenticationContext.DeveloperSecretKey) == false)\n" +
-            tabbing + "    {\n" +
-            tabbing + "        developerSecretKey = authenticationContext.DeveloperSecretKey;\n" +
-            tabbing + "    }\n" +
-            tabbing + "    if(developerSecretKey == null)\n" +
-            tabbing + "    {\n" +
-            tabbing + "        developerSecretKey = PlayFabSettings.DeveloperSecretKey;\n" +
-            tabbing + "    }\n" +
-            tabbing + "#else\n" +
-            tabbing + "    developerSecretKey = PlayFabSettings.DeveloperSecretKey;\n" +
-            tabbing + "#endif\n" +
-            tabbing + "if (developerSecretKey == null) throw new PlayFabException(PlayFabExceptionCode.DeveloperKeyNotSet,\"DeveloperSecretKey is not found in Request, Server Instance or PlayFabSettings\");\n";
     return "";
 }
 

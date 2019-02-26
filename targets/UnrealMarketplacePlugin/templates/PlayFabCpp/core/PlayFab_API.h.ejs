@@ -12,7 +12,7 @@
 
 namespace PlayFab
 {
-    class PLAYFABCPP_API UPlayFab<%- api.name %>API
+    class PLAYFABCPP_API UPlayFab<%- api.name %>API : UObject
     {
     public:
 <% for(var i in api.calls) { var apiCall = api.calls[i]; %>        DECLARE_DELEGATE_OneParam(F<%- apiCall.name %>Delegate, const <%- api.name %>Models::F<%- apiCall.result%>&);

@@ -124,7 +124,7 @@ bool PlayFabApiTest_0LoginWithAdvertisingId::Update()
         request.CreateAccount = true;
 
         clientAPI->LoginWithCustomID(request
-            , PlayFab::UPlayFabClientAPI::FLoginWithCustomIDDelegate::CreateRaw(this, &PlayFabApiTest_0LoginWithAdvertisingId::OnSuccess)
+            , PlayFab::FPlayFabClientAPI::FLoginWithCustomIDDelegate::CreateRaw(this, &PlayFabApiTest_0LoginWithAdvertisingId::OnSuccess)
             , PlayFab::FPlayFabErrorDelegate::CreateRaw(this, &PlayFabApiTest_0LoginWithAdvertisingId::OnError)
         );
     }
@@ -480,7 +480,7 @@ bool PlayFabApiTest_GetLeaderboardS::Update()
         request.StatisticName = TEST_STAT_NAME;
 
         serverAPI->GetLeaderboard(request
-            , PlayFab::UPlayFabServerAPI::FGetLeaderboardDelegate::CreateRaw(this, &PlayFabApiTest_GetLeaderboardS::OnSuccess)
+            , PlayFab::FPlayFabServerAPI::FGetLeaderboardDelegate::CreateRaw(this, &PlayFabApiTest_GetLeaderboardS::OnSuccess)
             , PlayFab::FPlayFabErrorDelegate::CreateRaw(this, &PlayFabApiTest_GetLeaderboardS::OnError)
         );
     }
@@ -695,7 +695,7 @@ bool PlayFabApiTest_ObjectApi::Update()
         request.EscapeObject = true;
 
         dataAPI->GetObjects(request
-            , PlayFab::UPlayFabDataAPI::FGetObjectsDelegate::CreateRaw(this, &PlayFabApiTest_ObjectApi::OnSuccess)
+            , PlayFab::FPlayFabDataAPI::FGetObjectsDelegate::CreateRaw(this, &PlayFabApiTest_ObjectApi::OnSuccess)
             , PlayFab::FPlayFabErrorDelegate::CreateRaw(this, &PlayFabApiTest_ObjectApi::OnError)
         );
     }

@@ -172,6 +172,7 @@ namespace PlayFab
                 reqContainer.errorWrapper.HttpStatus = reqContainer.responseJson.get("status", Json::Value::null).asString();
                 reqContainer.errorWrapper.Data = reqContainer.responseJson.get("data", Json::Value::null);
                 reqContainer.errorWrapper.ErrorName = reqContainer.responseJson.get("error", Json::Value::null).asString();
+                reqContainer.errorWrapper.ErrorCode = static_cast<PlayFabErrorCode>(reqContainer.responseJson.get("errorCode", Json::Value::null).asInt());
                 reqContainer.errorWrapper.ErrorMessage = reqContainer.responseJson.get("errorMessage", Json::Value::null).asString();
                 reqContainer.errorWrapper.ErrorDetails = reqContainer.responseJson.get("errorDetails", Json::Value::null);
             }
@@ -187,8 +188,9 @@ namespace PlayFab
             HandleCallback(std::move(requestContainer));
         }
 
-        curl_easy_reset(curlHandle);
+        curl_slist_free_all(curlHttpHeaders);
         curlHttpHeaders = nullptr;
+        curl_easy_cleanup(curlHandle);
     }
 
     void PlayFabCurlHttpPlugin::HandleResults(std::unique_ptr<CallRequestContainer> requestContainer)

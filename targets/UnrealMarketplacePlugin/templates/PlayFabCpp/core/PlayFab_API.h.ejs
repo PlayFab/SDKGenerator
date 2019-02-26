@@ -12,13 +12,13 @@
 
 namespace PlayFab
 {
-    class PLAYFABCPP_API UPlayFab<%- api.name %>API
+    class PLAYFABCPP_API FPlayFab<%- api.name %>API
     {
     public:
 <% for(var i in api.calls) { var apiCall = api.calls[i]; %>        DECLARE_DELEGATE_OneParam(F<%- apiCall.name %>Delegate, const <%- api.name %>Models::F<%- apiCall.result%>&);
 <% } %>
-        UPlayFab<%- api.name %>API();
-        ~UPlayFab<%- api.name %>API();
+        FPlayFab<%- api.name %>API();
+        ~FPlayFab<%- api.name %>API();
 
         int GetPendingCalls() const;
         FString GetBuildIdentifier() const;

@@ -13,28 +13,28 @@
 #include "PlayFabEnums.h"
 #include "PlayFabCommon/Public/PlayFabAuthenticationContext.h"
 
-FPlayFab<%- api.name %>API::FPlayFab<%- api.name %>API(const FObjectInitializer& ObjectInitializer)
+UPlayFab<%- api.name %>API::UPlayFab<%- api.name %>API(const FObjectInitializer& ObjectInitializer)
     : Super(ObjectInitializer)
     , CallAuthenticationContext(nullptr)
 {
 }
 
-void FPlayFab<%- api.name %>API::SetCallAuthenticationContext(FPlayFabAuthenticationContext* InAuthenticationContext)
+void UPlayFab<%- api.name %>API::SetCallAuthenticationContext(UPlayFabAuthenticationContext* InAuthenticationContext)
 {
     CallAuthenticationContext = InAuthenticationContext;
 }
 
-void FPlayFab<%- api.name %>API::SetRequestObject(FPlayFabJsonObject* JsonObject)
+void UPlayFab<%- api.name %>API::SetRequestObject(UPlayFabJsonObject* JsonObject)
 {
     RequestJsonObj = JsonObject;
 }
 
-FPlayFabJsonObject* FPlayFab<%- api.name %>API::GetResponseObject()
+UPlayFabJsonObject* UPlayFab<%- api.name %>API::GetResponseObject()
 {
     return ResponseJsonObj;
 }
 
-FString FPlayFab<%- api.name %>API::PercentEncode(const FString& Text)
+FString UPlayFab<%- api.name %>API::PercentEncode(const FString& Text)
 {
     FString OutText = Text;
 
@@ -94,21 +94,21 @@ for(var subgroup in api.subgroups)
         {
 
               %>/** <%- apiCall.summary %> */
-<%            %>FPlayFab<%- api.name %>API* FPlayFab<%- api.name %>API::<%- apiCall.name %>(F<%- api.name %><%- apiCall.request %> request,
+<%            %>UPlayFab<%- api.name %>API* UPlayFab<%- api.name %>API::<%- apiCall.name %>(F<%- api.name %><%- apiCall.request %> request,
 <%            %>    FDelegateOnSuccess<%- apiCall.name %> onSuccess,
 <%            %>    FDelegateOnFailurePlayFabError onFailure,
 <%            %>    UObject* customData)
 <%            %>{
 <%            %>    // Objects containing request data
-<%            %>    FPlayFab<%- api.name %>API* manager = NewObject<FPlayFab<%- api.name %>API>();
+<%            %>    UPlayFab<%- api.name %>API* manager = NewObject<UPlayFab<%- api.name %>API>();
 <%            %>    if (manager->IsSafeForRootSet()) manager->AddToRoot();
-<%            %>    FPlayFabJsonObject* OutRestJsonObj = NewObject<FPlayFabJsonObject>();
+<%            %>    UPlayFabJsonObject* OutRestJsonObj = NewObject<UPlayFabJsonObject>();
 <%            %>    manager->mCustomData = customData;
 <%            %>
 <%            %>    // Assign delegates
 <%            %>    manager->OnSuccess<%- apiCall.name %> = onSuccess;
 <%            %>    manager->OnFailure = onFailure;
-<%            %>    manager->OnPlayFabResponse.AddDynamic(manager, &FPlayFab<%- api.name %>API::Helper<%- apiCall.name %>);
+<%            %>    manager->OnPlayFabResponse.AddDynamic(manager, &UPlayFab<%- api.name %>API::Helper<%- apiCall.name %>);
 <%            %>
 <%            %>    // Setup the request
 <%            %>    manager->SetCallAuthenticationContext(request.AuthenticationContext);
@@ -127,7 +127,7 @@ for(var subgroup in api.subgroups)
 <%            %>}
 <%            %>
 <%            %>// Implements FOnPlayFab<%- api.name %>RequestCompleted
-<%            %>void FPlayFab<%- api.name %>API::Helper<%- apiCall.name %>(FPlayFabBaseModel response, UObject* customData, bool successful)
+<%            %>void UPlayFab<%- api.name %>API::Helper<%- apiCall.name %>(FPlayFabBaseModel response, UObject* customData, bool successful)
 <%            %>{
 <%            %>    FPlayFabError error = response.responseError;
 <%            %>    if (error.hasError && OnFailure.IsBound())
@@ -154,7 +154,7 @@ for(var subgroup in api.subgroups)
                     if (datatype.name == apiCall.result) {
                         found = true;
 
-              %>        F<%- api.name %><%- apiCall.result %> ResultStruct = FPlayFab<%- api.name %>ModelDecoder::decode<%- getDataTypeSafeName(datatype, "name") %>Response(response.responseData);
+              %>        F<%- api.name %><%- apiCall.result %> ResultStruct = UPlayFab<%- api.name %>ModelDecoder::decode<%- getDataTypeSafeName(datatype, "name") %>Response(response.responseData);
 <%            %>        OnSuccess<%- apiCall.name %>.Execute(ResultStruct, mCustomData);
 <%
                         break;
@@ -162,7 +162,7 @@ for(var subgroup in api.subgroups)
                 }
 
                 if (!found) {
-              %>        F<%- api.name %><%- apiCall.result %> ResultStruct = FPlayFab<%- api.name %>ModelDecoder::decode<%- apiCall.result %>Response(response.responseData);
+              %>        F<%- api.name %><%- apiCall.result %> ResultStruct = UPlayFab<%- api.name %>ModelDecoder::decode<%- apiCall.result %>Response(response.responseData);
 <%            %>        ResultStruct.Request = RequestJsonObj;
 <%              if (apiCall.result === "LoginResult") {
               %>        // CallAuthenticationContext was set in OnProcessRequestComplete
@@ -180,7 +180,7 @@ for(var subgroup in api.subgroups)
     }
 } %>
 
-void FPlayFab<%- api.name %>API::OnProcessRequestComplete(FHttpRequestPtr Request, FHttpResponsePtr Response, bool bWasSuccessful)
+void UPlayFab<%- api.name %>API::OnProcessRequestComplete(FHttpRequestPtr Request, FHttpResponsePtr Response, bool bWasSuccessful)
 {
     // Be sure that we have no data from previous response
     ResetResponseData();
@@ -240,7 +240,7 @@ void FPlayFab<%- api.name %>API::OnProcessRequestComplete(FHttpRequestPtr Reques
 <% if (hasClientOptions) { %>
     if (returnsSessionTicket || returnsEntityToken)
     {
-        CallAuthenticationContext = NewObject<FPlayFabAuthenticationContext>();
+        CallAuthenticationContext = NewObject<UPlayFabAuthenticationContext>();
     }
     if (returnsSessionTicket && !myResponse.responseError.hasError)
     {
@@ -276,7 +276,7 @@ void FPlayFab<%- api.name %>API::OnProcessRequestComplete(FHttpRequestPtr Reques
             {
                 FDelegateOnSuccessAttributeInstall onSuccess;
                 FDelegateOnFailurePlayFabError onFailure;
-                FPlayFabClientAPI* callObj = AttributeInstall(request, onSuccess, onFailure, mCustomData);
+                UPlayFabClientAPI* callObj = AttributeInstall(request, onSuccess, onFailure, mCustomData);
                 callObj->Activate();
             }
         }
@@ -285,7 +285,7 @@ void FPlayFab<%- api.name %>API::OnProcessRequestComplete(FHttpRequestPtr Reques
     if (returnsEntityToken)
     {
 <% if (!hasClientOptions) { 
-%>        CallAuthenticationContext = NewObject<FPlayFabAuthenticationContext>();
+%>        CallAuthenticationContext = NewObject<UPlayFabAuthenticationContext>();
 <% }
 %>        FString NewEntityToken = myResponse.responseData->GetObjectField("data")->GetStringField("EntityToken");
         pfSettings->setEntityToken(NewEntityToken);
@@ -297,7 +297,7 @@ void FPlayFab<%- api.name %>API::OnProcessRequestComplete(FHttpRequestPtr Reques
     pfSettings->ModifyPendingCallCount(-1);
 }
 
-void FPlayFab<%- api.name %>API::Activate()
+void UPlayFab<%- api.name %>API::Activate()
 {
     IPlayFab* pfSettings = &(IPlayFab::Get());
 
@@ -332,18 +332,18 @@ void FPlayFab<%- api.name %>API::Activate()
     UE_LOG(LogPlayFab, Log, TEXT("Request: %s"), *OutputString);
 
     // Bind event
-    HttpRequest->OnProcessRequestComplete().BindUObject(this, &FPlayFab<%- api.name %>API::OnProcessRequestComplete);
+    HttpRequest->OnProcessRequestComplete().BindUObject(this, &UPlayFab<%- api.name %>API::OnProcessRequestComplete);
 
     // Execute the request
     pfSettings->ModifyPendingCallCount(1);
     HttpRequest->ProcessRequest();
 }
 
-void FPlayFab<%- api.name %>API::ResetResponseData()
+void UPlayFab<%- api.name %>API::ResetResponseData()
 {
     if (ResponseJsonObj != nullptr)
         ResponseJsonObj->Reset();
     else
-        ResponseJsonObj = NewObject<FPlayFabJsonObject>();
+        ResponseJsonObj = NewObject<UPlayFabJsonObject>();
     bIsValidJsonResponse = false;
 }

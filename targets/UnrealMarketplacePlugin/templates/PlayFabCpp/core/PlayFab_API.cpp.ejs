@@ -9,26 +9,26 @@
 using namespace PlayFab;
 using namespace PlayFab::<%- api.name %>Models;
 
-UPlayFab<%- api.name %>API::UPlayFab<%- api.name %>API() {}
+FPlayFab<%- api.name %>API::FPlayFab<%- api.name %>API() {}
 
-UPlayFab<%- api.name %>API::~UPlayFab<%- api.name %>API() {}
+FPlayFab<%- api.name %>API::~FPlayFab<%- api.name %>API() {}
 
-int UPlayFab<%- api.name %>API::GetPendingCalls() const
+int FPlayFab<%- api.name %>API::GetPendingCalls() const
 {
     return PlayFabRequestHandler::GetPendingCalls();
 }
 
-FString UPlayFab<%- api.name %>API::GetBuildIdentifier() const
+FString FPlayFab<%- api.name %>API::GetBuildIdentifier() const
 {
     return PlayFabSettings::buildIdentifier;
 }
 
-void UPlayFab<%- api.name %>API::SetTitleId(const FString& titleId)
+void FPlayFab<%- api.name %>API::SetTitleId(const FString& titleId)
 {
     PlayFabSettings::SetTitleId(titleId);
 }
 <% if (hasClientOptions) { %>
-bool UPlayFabClientAPI::SetAdvertId(const FString& advertisingIdType, const FString& advertisingIdValue)
+bool FPlayFabClientAPI::SetAdvertId(const FString& advertisingIdType, const FString& advertisingIdValue)
 {
     // TODO: Work on exposing PlayFabSettings::AD_TYPE_X vars, for now, just validate against them
     bool valid = advertisingIdType == PlayFabSettings::AD_TYPE_IDFA || advertisingIdType == PlayFabSettings::AD_TYPE_ANDROID_ID;
@@ -40,17 +40,17 @@ bool UPlayFabClientAPI::SetAdvertId(const FString& advertisingIdType, const FStr
     return valid;
 }
 
-bool UPlayFabClientAPI::AdvertIdSuccessful()
+bool FPlayFabClientAPI::AdvertIdSuccessful()
 {
     return PlayFabSettings::GetAdvertisingIdType().EndsWith("_Successful");
 }
 
-bool UPlayFabClientAPI::IsClientLoggedIn() const
+bool FPlayFabClientAPI::IsClientLoggedIn() const
 {
     return !PlayFabSettings::GetClientSessionTicket().IsEmpty();
 }
 
-void UPlayFabClientAPI::MultiStepClientLogin(bool needsAttribution)
+void FPlayFabClientAPI::MultiStepClientLogin(bool needsAttribution)
 {
     if (needsAttribution && !PlayFabSettings::GetDisableAdvertising() && !PlayFabSettings::GetAdvertisingIdType().IsEmpty() && !PlayFabSettings::GetAdvertisingIdValue().IsEmpty())
     {
@@ -65,31 +65,31 @@ void UPlayFabClientAPI::MultiStepClientLogin(bool needsAttribution)
     }
 }
 <% } %>
-void UPlayFab<%- api.name %>API::SetDevSecretKey(const FString& developerSecretKey)
+void FPlayFab<%- api.name %>API::SetDevSecretKey(const FString& developerSecretKey)
 {
     PlayFabSettings::SetDeveloperSecretKey(developerSecretKey);
 }<% for(var i in api.calls) { var apiCall = api.calls[i];%>
 <% if (!hasRequest(apiCall, api)) { %>
-bool UPlayFab<%- api.name %>API::<%- apiCall.name %>(
+bool FPlayFab<%- api.name %>API::<%- apiCall.name %>(
     const F<%- apiCall.name %>Delegate& SuccessDelegate,
     const FPlayFabErrorDelegate& ErrorDelegate)
 {
     <%- api.name %>Models::F<%- apiCall.request %> emptyRequest = <%- api.name %>Models::F<%- apiCall.request %>();
-    return UPlayFab<%- api.name %>API::<%- apiCall.name %>(emptyRequest, SuccessDelegate, ErrorDelegate);
+    return FPlayFab<%- api.name %>API::<%- apiCall.name %>(emptyRequest, SuccessDelegate, ErrorDelegate);
 }
 <% } %>
-bool UPlayFab<%- api.name %>API::<%- apiCall.name %>(
+bool FPlayFab<%- api.name %>API::<%- apiCall.name %>(
     <%- api.name %>Models::F<%- apiCall.request %>& request,
     const F<%- apiCall.name %>Delegate& SuccessDelegate,
     const FPlayFabErrorDelegate& ErrorDelegate)
 {
 <%- getRequestActions("    ", apiCall, false)
 %>    auto HttpRequest = PlayFabRequestHandler::SendRequest(<%- getUrlAccessor(apiCall, false) %>, request.toJSONString(), <%- getAuthParams(apiCall, false) %>);
-    HttpRequest->OnProcessRequestComplete().BindRaw(this, &UPlayFab<%- api.name %>API::On<%- apiCall.name %>Result, SuccessDelegate, ErrorDelegate);
+    HttpRequest->OnProcessRequestComplete().BindRaw(this, &FPlayFab<%- api.name %>API::On<%- apiCall.name %>Result, SuccessDelegate, ErrorDelegate);
     return HttpRequest->ProcessRequest();
 }
 
-void UPlayFab<%- api.name %>API::On<%- apiCall.name %>Result(FHttpRequestPtr HttpRequest, FHttpResponsePtr HttpResponse, bool bSucceeded, F<%- apiCall.name %>Delegate SuccessDelegate, FPlayFabErrorDelegate ErrorDelegate)
+void FPlayFab<%- api.name %>API::On<%- apiCall.name %>Result(FHttpRequestPtr HttpRequest, FHttpResponsePtr HttpResponse, bool bSucceeded, F<%- apiCall.name %>Delegate SuccessDelegate, FPlayFabErrorDelegate ErrorDelegate)
 {
     <%- api.name %>Models::F<%- apiCall.result%> outResult;
     FPlayFabCppError errorResult;

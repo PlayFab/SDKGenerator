@@ -39,7 +39,7 @@ void FPlayFabModule::StartupModule()
 
     // create the API
 	<% for(var a in apis) { %>
-        <%- apis[a].name %>API = MakeShareable(new PlayFab::UPlayFab<%- apis[a].name %>API());<% } %>
+        <%- apis[a].name %>API = MakeShareable(new PlayFab::FPlayFab<%- apis[a].name %>API());<% } %>
 }
 
 void FPlayFabModule::ShutdownModule()

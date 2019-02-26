@@ -11,11 +11,11 @@ DECLARE_LOG_CATEGORY_EXTERN(LogPlayFabCpp, Log, All);
 namespace PlayFab
 {
 <% for(var i = 0; i < apis.length; i++) { var api = apis[i];
-%>    class UPlayFab<%- api.name %>API;
+%>    class FPlayFab<%- api.name %>API;
 <% } %>}
 
 <% for(var i = 0; i < apis.length; i++) { var api = apis[i];
-%>typedef TSharedPtr<class PlayFab::UPlayFab<%- api.name %>API> PlayFab<%- api.name %>Ptr;
+%>typedef TSharedPtr<class PlayFab::FPlayFab<%- api.name %>API> PlayFab<%- api.name %>Ptr;
 <% } %>
 /**
 * The public interface to this module.  In most cases, this interface is only public to sibling modules

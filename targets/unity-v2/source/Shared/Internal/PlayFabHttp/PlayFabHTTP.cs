@@ -194,11 +194,11 @@ namespace PlayFab.Internal
 
             string developerSecretKey = null;
             #if ENABLE_PLAYFABSERVER_API || ENABLE_PLAYFABADMIN_API
-                if(request.AuthenticationContext != null && string.IsNullOrEmpty(request.AuthenticationContext.DeveloperSecretKey) == false)
+                if(request.AuthenticationContext != null && !string.IsNullOrEmpty(request.AuthenticationContext.DeveloperSecretKey))
                 {
                     developerSecretKey = request.AuthenticationContext.DeveloperSecretKey;
                 }
-                if(developerSecretKey == null && authenticationContext != null && string.IsNullOrEmpty(authenticationContext.DeveloperSecretKey) == false)
+                if(developerSecretKey == null && authenticationContext != null && !string.IsNullOrEmpty(authenticationContext.DeveloperSecretKey))
                 {
                     developerSecretKey = authenticationContext.DeveloperSecretKey;
                 }
@@ -242,7 +242,7 @@ namespace PlayFab.Internal
             switch (authType)
             {
 #if ENABLE_PLAYFABSERVER_API || ENABLE_PLAYFABADMIN_API || UNITY_EDITOR
-                case AuthType.DevSecretKey: reqContainer.RequestHeaders["X-SecretKey"] = developerSecretKey ;  break;
+                case AuthType.DevSecretKey: reqContainer.RequestHeaders["X-SecretKey"] = developerSecretKey;  break;
 #endif
                 case AuthType.LoginSession: 
 #if !DISABLE_PLAYFABCLIENT_API                    

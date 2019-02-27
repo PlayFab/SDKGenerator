@@ -25,7 +25,7 @@ namespace PlayFab
         /// <param name="contract">The plugin contract.</param>
         /// <param name="instanceName">The optional plugin instance name. Instance names allow to have mulptiple plugins with the same contract.</param>
         /// <returns>The plugin instance.</returns>
-        public static T GetPlugin<T>(PluginContract contract, string instanceName = string.Empty) where T : IPlayFabPlugin
+        public static T GetPlugin<T>(PluginContract contract, string instanceName = "") where T : IPlayFabPlugin
         {
             return (T)Instance.GetPluginInternal(contract, instanceName);
         }
@@ -37,7 +37,7 @@ namespace PlayFab
         /// <param name="plugin">The plugin instance.</param>
         /// <param name="contract">The app contract of plugin.</param>
         /// <param name="instanceName">The optional plugin instance name. Instance names allow to have mulptiple plugins with the same contract.</param>
-        public static void SetPlugin(IPlayFabPlugin plugin, PluginContract contract, string instanceName = string.Empty)
+        public static void SetPlugin(IPlayFabPlugin plugin, PluginContract contract, string instanceName = "")
         {
             Instance.SetPluginInternal(plugin, contract, instanceName);
         }

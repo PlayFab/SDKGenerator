@@ -8,6 +8,7 @@
 #include <playfab/PlayFabEvent.h>
 #include <playfab/PlayFabEventBuffer.h>
 #include <playfab/PlayFabAuthenticationContext.h>
+#include <mutex>
 
 namespace PlayFab
 {
@@ -58,6 +59,8 @@ namespace PlayFab
         virtual void Start() override;
         virtual void IntakeEvent(std::shared_ptr<const IPlayFabEmitEventRequest> request) override;
 
+        void SetExceptionCallback(ExceptionCallback callback);
+
     protected:
         virtual void SendBatch(size_t& batchCounter);
 
@@ -80,6 +83,8 @@ namespace PlayFab
         PlayFabEventBuffer buffer;
         std::thread workerThread;
         std::atomic<bool> isWorkerThreadRunning;
+        std::mutex userCallbackMutex;
+        ExceptionCallback userExceptionCallback;
     };
 }
 

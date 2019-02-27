@@ -101,6 +101,14 @@ namespace PlayFab
         }
     }
 
+    void PlayFabEventPipeline::SetExceptionCallback(ExceptionCallback ex)
+    {
+        { // LOCK userCallbackMutex
+            std::unique_lock<std::mutex> lock(userCallbackMutex);
+            userExceptionCallback = ex;
+        } // UNLOCK userCallbackMutex
+    }
+
     void PlayFabEventPipeline::WorkerThread()
     {
         try
@@ -168,10 +176,18 @@ namespace PlayFab
                 std::this_thread::sleep_for(std::chrono::milliseconds(this->settings->readBufferWaitTime));
             }
         }
-        catch (...)
+        catch (std::exception ex)
         {
             LOG_PIPELINE("An exception was caught in PlayFabEventPipeline::WorkerThread method");
             this->isWorkerThreadRunning = false;
+
+            { // LOCK userCallbackMutex
+                std::unique_lock<std::mutex> lock(userCallbackMutex);
+                if (userExceptionCallback)
+                {
+                    userExceptionCallback(ex);
+                }
+            } // UNLOCK userCallbackMutex
         }
     }
 

@@ -32,38 +32,51 @@ namespace PlayFab
 
     void PlayFabWinHttpPlugin::WorkerThread()
     {
-        size_t queueSize;
-
-        while (this->threadRunning)
+        try
         {
-            std::unique_ptr<CallRequestContainerBase> requestContainer = nullptr;
+            size_t queueSize;
 
-            { // LOCK httpRequestMutex
-                std::unique_lock<std::mutex> lock(this->httpRequestMutex);
+            while (this->threadRunning)
+            {
+                std::unique_ptr<CallRequestContainerBase> requestContainer = nullptr;
 
-                queueSize = this->pendingRequests.size();
-                if (queueSize != 0)
+                { // LOCK httpRequestMutex
+                    std::unique_lock<std::mutex> lock(this->httpRequestMutex);
+
+                    queueSize = this->pendingRequests.size();
+                    if (queueSize != 0)
+                    {
+                        requestContainer = std::move(this->pendingRequests[0]);
+                        this->pendingRequests.pop_front();
+                    }
+                } // UNLOCK httpRequestMutex
+
+                if (queueSize == 0)
                 {
-                    requestContainer = std::move(this->pendingRequests[0]);
-                    this->pendingRequests.pop_front();
+                    std::this_thread::sleep_for(std::chrono::milliseconds(10));
+                    continue;
+                }
+
+                if (requestContainer != nullptr)
+                {
+                    CallRequestContainer* requestContainerPtr = dynamic_cast<CallRequestContainer*>(requestContainer.get());
+                    if (requestContainerPtr != nullptr)
+                    {
+                        requestContainer.release();
+                        ExecuteRequest(std::unique_ptr<CallRequestContainer>(requestContainerPtr));
+                    }
+                }
+            }
+        }
+        catch (std::exception ex)
+        {
+            { // LOCK httpRequestMutex
+                std::unique_lock<std::mutex> lock(httpRequestMutex);
+                if (userExceptionCallback)
+                {
+                    userExceptionCallback(ex);
                 }
             } // UNLOCK httpRequestMutex
-
-            if (queueSize == 0)
-            {
-                std::this_thread::sleep_for(std::chrono::milliseconds(10));
-                continue;
-            }
-
-            if (requestContainer != nullptr)
-            {
-                CallRequestContainer* requestContainerPtr = dynamic_cast<CallRequestContainer*>(requestContainer.get());
-                if (requestContainerPtr != nullptr)
-                {
-                    requestContainer.release();
-                    ExecuteRequest(std::unique_ptr<CallRequestContainer>(requestContainerPtr));
-                }
-            }
         }
     }
 
@@ -381,5 +394,13 @@ namespace PlayFab
             std::unique_lock<std::mutex> lock(httpRequestMutex);
             return activeRequestCount;
         }
+    }
+
+    void PlayFabWinHttpPlugin::SetExceptionHandler(ExceptionCallback callback)
+    {
+        { // LOCK httpRequestMutex
+            std::unique_lock<std::mutex> lock(httpRequestMutex);
+            userExceptionCallback = callback;
+        } // UNLOCK httpRequestMutex
     }
 }

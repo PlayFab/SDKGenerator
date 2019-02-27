@@ -25,6 +25,8 @@ namespace PlayFab
         virtual void MakePostRequest(std::unique_ptr<CallRequestContainerBase> requestContainer) override;
         virtual size_t Update() override;
 
+        void SetExceptionHandler(ExceptionCallback exceptionHandler);
+
     protected:
         virtual void ExecuteRequest(std::unique_ptr<CallRequestContainer> requestContainer);
         virtual std::string GetUrl(CallRequestContainer& requestContainer) const;
@@ -42,5 +44,6 @@ namespace PlayFab
         int activeRequestCount;
         std::deque<std::unique_ptr<CallRequestContainerBase>> pendingRequests;
         std::deque<std::unique_ptr<CallRequestContainerBase>> pendingResults;
+        ExceptionCallback userExceptionCallback;
     };
 }

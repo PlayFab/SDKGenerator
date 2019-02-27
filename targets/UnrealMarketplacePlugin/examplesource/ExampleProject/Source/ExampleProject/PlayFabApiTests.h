@@ -20,6 +20,7 @@
 #include "PlayFabError.h"
 
 #include "Misc/AutomationTest.h"
+#include "PlayFabClientInstanceAPI.h" // TODO: Move Instance API tests to their own testing suite
 
 DECLARE_LOG_CATEGORY_EXTERN(LogPlayFabTest, Log, All);
 
@@ -288,12 +289,12 @@ private:
 };
 
 /*
- * ==== Multiple Users ====
+ * ==== Multiple Users (Static Apis) ====
  */
-class PlayFabApiTest_MultipleUsers : public IAutomationLatentCommand
+class PlayFabApiTest_MultipleUsersWithStaticApis : public IAutomationLatentCommand
 {
 public:
-    PlayFabApiTest_MultipleUsers();
+    PlayFabApiTest_MultipleUsersWithStaticApis();
 
     bool Update() override;
 private:
@@ -325,6 +326,45 @@ private:
     FString cachedDeveloperSecretKey;
 };
 
+/*
+ * ==== Multiple Users (Instanced Apis) ====
+ * TODO: Move Instance API tests to their own testing suite
+ */
+class PlayFabApiTest_MultipleUsersWithInstancedApis : public IAutomationLatentCommand
+{
+public:
+    PlayFabApiTest_MultipleUsersWithInstancedApis();
+
+    bool Update() override;
+private:
+    void OnUser1LoginSuccess(const PlayFab::ClientModels::FLoginResult& result);
+    void OnUser2LoginSuccess(const PlayFab::ClientModels::FLoginResult& result);
+    void OnBothUsersLoggedIn();
+    void OnUser1GetProfileSuccess(const PlayFab::ClientModels::FGetPlayerProfileResult& result);
+    void OnUser2GetProfileSuccess(const PlayFab::ClientModels::FGetPlayerProfileResult& result);
+    void OnBothUsersGetProfile();
+
+    void OnError(const PlayFab::FPlayFabCppError& ErrorResult);
+
+    /**
+     *  Restore the static credentials originally set by LoginOrRegister but wiped in this test, as other tests depend on them
+     *  TODO: Update test framework with a setup/teardown for each test that handles this, so that tests don't depend on each other's side effects
+     */
+    void RestoreCachedStaticCredentials();
+
+    TSharedPtr<PlayFab::UPlayFabClientInstanceAPI> clientAPI1;
+    TSharedPtr<PlayFab::UPlayFabClientInstanceAPI> clientAPI2;
+
+    PlayFab::ClientModels::FLoginResult user1LoginResult;
+    PlayFab::ClientModels::FLoginResult user2LoginResult;
+
+    PlayFab::ClientModels::FGetPlayerProfileResult user1ProfileResult;
+    PlayFab::ClientModels::FGetPlayerProfileResult user2ProfileResult;
+
+    FString cachedEntityToken;
+    FString cachedClientSessionTicket;
+    FString cachedDeveloperSecretKey;
+};
 
 /*
 * ==== Test Suite ====
@@ -375,7 +415,8 @@ public:
         ADD_TEST(WriteEvent);
         ADD_TEST(GetEntityToken);
         ADD_TEST(ObjectApi);
-        ADD_TEST(MultipleUsers);
+        ADD_TEST(MultipleUsersWithStaticApis);
+        ADD_TEST(MultipleUsersWithInstancedApis);
     }
 
 #if (ENGINE_MAJOR_VERSION == 4 && ENGINE_MINOR_VERSION >= 11)
@@ -559,9 +600,16 @@ protected:
         return true;
     };
 
-    bool MultipleUsers() const
+    bool MultipleUsersWithStaticApis() const
     {
-        ADD_LATENT_AUTOMATION_COMMAND(PlayFabApiTest_MultipleUsers());
+        ADD_LATENT_AUTOMATION_COMMAND(PlayFabApiTest_MultipleUsersWithStaticApis());
+
+        return true;
+    }
+
+    bool MultipleUsersWithInstancedApis() const
+    {
+        ADD_LATENT_AUTOMATION_COMMAND(PlayFabApiTest_MultipleUsersWithInstancedApis());
 
         return true;
     }

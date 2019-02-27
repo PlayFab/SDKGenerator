@@ -17,7 +17,7 @@ namespace PlayFab.SharedModels
         public PlayFabRequestCommon Request;
         public object CustomData;
     }
-
+    
     public class PlayFabLoginResultCommon : PlayFabResultCommon
     {
         public PlayFabAuthenticationContext AuthenticationContext;

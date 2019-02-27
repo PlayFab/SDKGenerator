@@ -244,8 +244,24 @@ namespace PlayFab.Internal
 #if ENABLE_PLAYFABSERVER_API || ENABLE_PLAYFABADMIN_API || UNITY_EDITOR
                 case AuthType.DevSecretKey: reqContainer.RequestHeaders["X-SecretKey"] = developerSecretKey ;  break;
 #endif
-                case AuthType.LoginSession: reqContainer.RequestHeaders["X-Authorization"] = transport.AuthKey; break;
-                case AuthType.EntityToken: reqContainer.RequestHeaders["X-EntityToken"] = transport.EntityToken; break;
+                case AuthType.LoginSession: 
+#if !DISABLE_PLAYFABCLIENT_API                    
+                    reqContainer.RequestHeaders["X-Authorization"] = request.AuthenticationContext != null && request.AuthenticationContext.ClientSessionTicket != null 
+                        ? request.AuthenticationContext.ClientSessionTicket 
+                        : transport.AuthKey;
+#else
+                    reqContainer.RequestHeaders["X-Authorization"] = transport.AuthKey;
+#endif
+                    break;
+                case AuthType.EntityToken: 
+#if !DISABLE_PLAYFABENTITY_API
+                    reqContainer.RequestHeaders["X-EntityToken"] = request.AuthenticationContext != null && request.AuthenticationContext.EntityToken != null 
+                        ? request.AuthenticationContext.EntityToken
+                        : transport.EntityToken;
+#else
+                    reqContainer.RequestHeaders["X-EntityToken"] = transport.EntityToken;
+#endif
+                    break;
             }
 
             // These closures preserve the TResult generic information in a way that's safe for all the devices
@@ -296,6 +312,7 @@ namespace PlayFab.Internal
                 transport.AuthKey = logRes.SessionTicket;
                 if (logRes.EntityToken != null)
                     transport.EntityToken = logRes.EntityToken.EntityToken;
+                logRes.AuthenticationContext = new PlayFabAuthenticationContext(transport.AuthKey, transport.EntityToken, logRes.PlayFabId);
             }
             else if (regRes != null)
             {
@@ -303,6 +320,7 @@ namespace PlayFab.Internal
                 transport.AuthKey = regRes.SessionTicket;
                 if (regRes.EntityToken != null)
                     transport.EntityToken = regRes.EntityToken.EntityToken;
+                regRes.AuthenticationContext = new PlayFabAuthenticationContext(transport.AuthKey, transport.EntityToken, regRes.PlayFabId);
             }
 #endif
         }

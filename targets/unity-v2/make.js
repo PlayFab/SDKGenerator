@@ -95,6 +95,8 @@ function makePlayStreamDatatype(datatype, sourceDir) {
 };
 
 function getBaseTypeSyntax(datatype) {
+    if (datatype.className === "LoginResult" || datatype.className === "RegisterPlayFabUserResult")
+        return " : PlayFabLoginResultCommon";
     if (datatype.className.toLowerCase().endsWith("request"))
         return " : PlayFabRequestCommon";
     if (datatype.className.toLowerCase().endsWith("response") || datatype.className.toLowerCase().endsWith("result"))

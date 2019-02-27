@@ -120,9 +120,15 @@ namespace PlayFab.UUnit
             {
                 try
                 {
+                    // .NET and some versions of Mono will throw an exception when the constructor is not parameterless...
                     newTestCase = (UUnitTestCase)constructorInfo.Invoke(null);
                 }
                 catch (Exception) { } // Ignore it and try the next one
+
+                // ... other versions of Mono will return null instead of throwing an exception.
+                // Either way, newTestCase will be null until it is successfully constructed.
+                if (newTestCase != null)
+                    break;
             }
             if (newTestCase == null)
                 throw new Exception(testCaseType.Name + " must have a parameter-less constructor.");

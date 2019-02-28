@@ -188,6 +188,10 @@ namespace PlayFab
                     }
                 } // UNLOCK userCallbackMutex
             }
+            catch(...)
+            {
+                LOG_PIPELINE("A non std::exception was caught in PlayFabEventPipeline::WorkerThread method");
+            }
         }
     }
 

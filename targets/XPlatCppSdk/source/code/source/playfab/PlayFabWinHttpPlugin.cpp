@@ -71,6 +71,10 @@ namespace PlayFab
             {
                 PlayFabPluginManager::GetInstance().HandleException(ex);
             }
+            catch (...)
+            {
+
+            }
         }
     }
 

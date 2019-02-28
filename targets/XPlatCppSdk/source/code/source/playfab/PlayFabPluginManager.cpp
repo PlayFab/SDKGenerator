@@ -100,7 +100,7 @@ namespace PlayFab
 #endif // PLAYFAB_PLATFORM_XBOX
     }
 
-    void PlayFabPluginManager::HandleException(const std::exception& ex)
+    void PlayFabPluginManager::HandleException(const std::exception ex)
     {
         { // LOCK userExceptionCallbackMutex
             std::unique_lock<std::mutex> lock(userExceptionCallbackMutex);

@@ -104,7 +104,7 @@ namespace PlayFab
     void PlayFabEventPipeline::SetExceptionCallback(ExceptionCallback ex)
     {
         { // LOCK userCallbackMutex
-            std::unique_lock<std::mutex> lock(userCallbackMutex);
+            std::unique_lock<std::mutex> lock(userExceptionCallbackMutex);
             userExceptionCallback = ex;
         } // UNLOCK userCallbackMutex
     }
@@ -182,7 +182,7 @@ namespace PlayFab
             this->isWorkerThreadRunning = false;
 
             { // LOCK userCallbackMutex
-                std::unique_lock<std::mutex> lock(userCallbackMutex);
+                std::unique_lock<std::mutex> lock(userExceptionCallbackMutex);
                 if (userExceptionCallback)
                 {
                     userExceptionCallback(ex);

@@ -70,13 +70,7 @@ namespace PlayFab
         }
         catch (std::exception ex)
         {
-            { // LOCK httpRequestMutex
-                std::unique_lock<std::mutex> lock(httpRequestMutex);
-                if (userExceptionCallback)
-                {
-                    userExceptionCallback(ex);
-                }
-            } // UNLOCK httpRequestMutex
+            PlayFabPluginManager::GetInstance().HandleException(ex);
         }
     }
 
@@ -394,13 +388,5 @@ namespace PlayFab
             std::unique_lock<std::mutex> lock(httpRequestMutex);
             return activeRequestCount;
         }
-    }
-
-    void PlayFabWinHttpPlugin::SetExceptionHandler(ExceptionCallback callback)
-    {
-        { // LOCK httpRequestMutex
-            std::unique_lock<std::mutex> lock(httpRequestMutex);
-            userExceptionCallback = callback;
-        } // UNLOCK httpRequestMutex
     }
 }

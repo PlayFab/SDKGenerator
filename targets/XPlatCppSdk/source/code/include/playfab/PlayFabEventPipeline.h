@@ -83,7 +83,7 @@ namespace PlayFab
         PlayFabEventBuffer buffer;
         std::thread workerThread;
         std::atomic<bool> isWorkerThreadRunning;
-        std::mutex userCallbackMutex;
+        std::mutex userExceptionCallbackMutex;
         ExceptionCallback userExceptionCallback;
     };
 }

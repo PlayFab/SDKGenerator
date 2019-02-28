@@ -67,7 +67,7 @@ namespace PlayFab
                     }
                 }
             }
-            catch (std::exception ex)
+            catch (const std::exception& ex)
             {
                 PlayFabPluginManager::GetInstance().HandleException(ex);
             }

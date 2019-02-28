@@ -15,7 +15,8 @@ var copyright =
 
 exports.makeCombinedAPI = function (apis, sourceDir, baseApiOutputDir) {
     // The list of current supported UE versions - Intended to be the latest 3
-    var ueTargetVersions = ["4.18", "4.19", "4.20", "4.21"];
+    var ueTargetVersions = ["4.19", "4.20", "4.21"];
+    var ueWhitelistPlatforms = '[ "Win64", "Win32", "Mac", "IOS", "Android" ]'; // TODO: Add PS4, Switch, and XBox once the testing stories are done
 
     for (var v = 0; v < ueTargetVersions.length; v++) {
         var ueTargetVersion = ueTargetVersions[v];
@@ -37,11 +38,12 @@ exports.makeCombinedAPI = function (apis, sourceDir, baseApiOutputDir) {
             errors: apis[0].errors,
             generateBpApiSummary: bpMakeJsPath.generateApiSummary,
             getDataTypeSafeName: bpMakeJsPath.getDataTypeSafeName,
+            getDefaultVerticalName: getDefaultVerticalName,
             hasClientOptions: authMechanisms.includes("SessionTicket"),
             hasServerOptions: authMechanisms.includes("SecretKey"),
             sdkVersion: sdkGlobals.sdkVersion,
             ueTargetVersion: ueTargetVersion,
-            getDefaultVerticalName: getDefaultVerticalName
+            ueWhitelistPlatforms: ueWhitelistPlatforms
         };
 
         // Copy the resources, content and the .uplugin file

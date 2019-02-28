@@ -111,15 +111,15 @@ namespace PlayFab
 
     void PlayFabEventPipeline::WorkerThread()
     {
-        try
-        {
-            using clock = std::chrono::steady_clock;
-            using Result = PlayFabEventBuffer::EventConsumingResult;
-            std::shared_ptr<const IPlayFabEmitEventRequest> request;
-            size_t batchCounter = 0; // used to track uniqueness of batches in the map
-            std::chrono::steady_clock::time_point momentBatchStarted; // used to track when a currently assembled batch got its first event
+        using clock = std::chrono::steady_clock;
+        using Result = PlayFabEventBuffer::EventConsumingResult;
+        std::shared_ptr<const IPlayFabEmitEventRequest> request;
+        size_t batchCounter = 0; // used to track uniqueness of batches in the map
+        std::chrono::steady_clock::time_point momentBatchStarted; // used to track when a currently assembled batch got its first event
 
-            while (this->isWorkerThreadRunning)
+        while (this->isWorkerThreadRunning)
+        {
+            try
             {
                 // Process events in the loop
                 if (this->batchesInFlight.size() >= this->settings->maximalNumberOfBatchesInFlight)
@@ -175,19 +175,19 @@ namespace PlayFab
                 // give some time back to CPU, don't starve it without a good reason
                 std::this_thread::sleep_for(std::chrono::milliseconds(this->settings->readBufferWaitTime));
             }
-        }
-        catch (std::exception ex)
-        {
-            LOG_PIPELINE("An exception was caught in PlayFabEventPipeline::WorkerThread method");
-            this->isWorkerThreadRunning = false;
+            catch (std::exception ex)
+            {
+                LOG_PIPELINE("An exception was caught in PlayFabEventPipeline::WorkerThread method");
+                this->isWorkerThreadRunning = false;
 
-            { // LOCK userCallbackMutex
-                std::unique_lock<std::mutex> lock(userExceptionCallbackMutex);
-                if (userExceptionCallback)
-                {
-                    userExceptionCallback(ex);
-                }
-            } // UNLOCK userCallbackMutex
+                { // LOCK userCallbackMutex
+                    std::unique_lock<std::mutex> lock(userExceptionCallbackMutex);
+                    if (userExceptionCallback)
+                    {
+                        userExceptionCallback(ex);
+                    }
+                } // UNLOCK userCallbackMutex
+            }
         }
     }
 

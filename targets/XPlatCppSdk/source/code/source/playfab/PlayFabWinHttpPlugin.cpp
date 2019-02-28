@@ -32,38 +32,45 @@ namespace PlayFab
 
     void PlayFabWinHttpPlugin::WorkerThread()
     {
-        size_t queueSize;
-
-        while (this->threadRunning)
+        try
         {
-            std::unique_ptr<CallRequestContainerBase> requestContainer = nullptr;
+            size_t queueSize;
 
-            { // LOCK httpRequestMutex
-                std::unique_lock<std::mutex> lock(this->httpRequestMutex);
-
-                queueSize = this->pendingRequests.size();
-                if (queueSize != 0)
-                {
-                    requestContainer = std::move(this->pendingRequests[0]);
-                    this->pendingRequests.pop_front();
-                }
-            } // UNLOCK httpRequestMutex
-
-            if (queueSize == 0)
+            while (this->threadRunning)
             {
-                std::this_thread::sleep_for(std::chrono::milliseconds(10));
-                continue;
-            }
+                std::unique_ptr<CallRequestContainerBase> requestContainer = nullptr;
 
-            if (requestContainer != nullptr)
-            {
-                CallRequestContainer* requestContainerPtr = dynamic_cast<CallRequestContainer*>(requestContainer.get());
-                if (requestContainerPtr != nullptr)
+                { // LOCK httpRequestMutex
+                    std::unique_lock<std::mutex> lock(this->httpRequestMutex);
+
+                    queueSize = this->pendingRequests.size();
+                    if (queueSize != 0)
+                    {
+                        requestContainer = std::move(this->pendingRequests[0]);
+                        this->pendingRequests.pop_front();
+                    }
+                } // UNLOCK httpRequestMutex
+
+                if (queueSize == 0)
                 {
-                    requestContainer.release();
-                    ExecuteRequest(std::unique_ptr<CallRequestContainer>(requestContainerPtr));
+                    std::this_thread::sleep_for(std::chrono::milliseconds(10));
+                    continue;
+                }
+
+                if (requestContainer != nullptr)
+                {
+                    CallRequestContainer* requestContainerPtr = dynamic_cast<CallRequestContainer*>(requestContainer.get());
+                    if (requestContainerPtr != nullptr)
+                    {
+                        requestContainer.release();
+                        ExecuteRequest(std::unique_ptr<CallRequestContainer>(requestContainerPtr));
+                    }
                 }
             }
+        }
+        catch (std::exception ex)
+        {
+            PlayFabPluginManager::GetInstance().HandleException(ex);
         }
     }
 

@@ -40,4 +40,5 @@ namespace PlayFab
     };
 
     typedef std::function<void(const PlayFabError& error, void* customData)> ErrorCallback;
+    typedef std::function<void(std::exception exception)> ExceptionCallback;
 }

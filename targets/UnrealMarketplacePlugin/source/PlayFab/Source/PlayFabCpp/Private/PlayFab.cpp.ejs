@@ -38,8 +38,8 @@ void FPlayFabModule::StartupModule()
     PlayFab::PlayFabSettings::AD_TYPE_ANDROID_ID = IPlayFabCommonModuleInterface::Get().GetAD_TYPE_ANDROID_ID();
 
     // create the API
-	<% for(var a in apis) { %>
-        <%- apis[a].name %>API = MakeShareable(new PlayFab::UPlayFab<%- apis[a].name %>API());<% } %>
+<% for(var a in apis) { %>
+    <%- apis[a].name %>API = MakeShareable(NewObject<PlayFab::UPlayFab<%- apis[a].name %>API>());<% } %>
 }
 
 void FPlayFabModule::ShutdownModule()

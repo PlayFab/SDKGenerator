@@ -100,7 +100,7 @@ namespace PlayFab
         void SetExceptionHandler(ExceptionCallback exceptionHandler);
 
         // Called when an exception occured on a worker thread
-        void HandleException(const std::exception&);
+        void HandleException(const std::exception);
 
     private:
         std::shared_ptr<IPlayFabPlugin> GetPluginInternal(const PlayFabPluginContract contract, const std::string& instanceName);

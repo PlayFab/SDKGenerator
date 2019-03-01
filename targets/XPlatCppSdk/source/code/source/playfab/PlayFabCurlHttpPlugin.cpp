@@ -29,11 +29,11 @@ namespace PlayFab
 
     void PlayFabCurlHttpPlugin::WorkerThread()
     {
-        try
-        {
-            size_t queueSize;
+        size_t queueSize;
 
-            while (this->threadRunning)
+        while (this->threadRunning)
+        {
+            try
             {
                 std::unique_ptr<CallRequestContainerBase> requestContainer = nullptr;
 
@@ -64,10 +64,14 @@ namespace PlayFab
                     }
                 }
             }
-        }
-        catch (std::exception ex)
-        {
-            PlayFabPluginManager::GetInstance().HandleException(ex);
+            catch (const std::exception& ex)
+            {
+                PlayFabPluginManager::GetInstance().HandleException(ex);
+            }
+            catch (...)
+            {
+
+            }
         }
     }
 

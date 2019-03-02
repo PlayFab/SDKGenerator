@@ -58,7 +58,7 @@ namespace PlayFab
         /// </summary>
         public bool IsClientLoggedIn()
         {
-            return PlayFabHttp.IsClientLoggedIn();
+            return authenticationContext == null ? false : authenticationContext.IsClientLoggedIn();
         }
 <% }%>
 <% if (hasEntityTokenOptions) { %>
@@ -67,8 +67,7 @@ namespace PlayFab
         /// </summary>
         public bool IsEntityLoggedIn()
         {
-            var transport = PluginManager.GetPlugin<IPlayFabTransportPlugin>(PluginContract.PlayFab_Transport);
-            return !string.IsNullOrEmpty(transport.EntityToken);
+            return authenticationContext == null ? false : authenticationContext.IsEntityLoggedIn();
         }
 <% }%>
         /// <summary>
@@ -77,7 +76,10 @@ namespace PlayFab
         /// </summary>
         public void ForgetAllCredentials()
         {
-            PlayFabHttp.ForgetAllCredentials();
+            if(authenticationContext != null)
+            {
+                authenticationContext.ForgetAllCredentials();
+            }
         }
 
 <% for(var i in api.calls) { var apiCall = api.calls[i]; %><%- generateApiSummary("        ", apiCall, "summary") %><%- getDeprecationAttribute("        ", apiCall)%>

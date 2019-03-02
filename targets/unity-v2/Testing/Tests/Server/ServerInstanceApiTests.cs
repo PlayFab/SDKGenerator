@@ -16,6 +16,8 @@ namespace PlayFab.UUnit
         public override void SetUp(UUnitTestContext testContext)
         {
             testTitleData = TestTitleDataLoader.LoadTestTitleData();
+            PlayFabSettings.TitleId = testTitleData.titleId;
+            PlayFabSettings.DeveloperSecretKey = testTitleData.developerSecretKey;
         }
 
         public override void Tick(UUnitTestContext testContext)
@@ -37,7 +39,7 @@ namespace PlayFab.UUnit
         public void CreateMultipleServerInstance(UUnitTestContext testContext)
         {
             PlayFabApiSettings settings = new PlayFabApiSettings();
-            settings.TitleId = PlayFabSettings.TitleId;
+            settings.TitleId = testTitleData.titleId;
 
             PlayFabAuthenticationContext context = new PlayFabAuthenticationContext();
             context.DeveloperSecretKey = testTitleData.developerSecretKey;
@@ -101,13 +103,13 @@ namespace PlayFab.UUnit
         /// <summary>
         /// SERVER API
         /// Each API instance can be used to login a player separately from any other API instances, 
-        /// and that player’s authentication context is stored in the API instance
+        /// and that playerï¿½s authentication context is stored in the API instance
         /// </summary>
         [UUnitTest]
         public void ApiInstanceLogin(UUnitTestContext testContext)
         {
             PlayFabApiSettings settings = new PlayFabApiSettings();
-            settings.TitleId = PlayFabSettings.TitleId;
+            settings.TitleId = testTitleData.titleId;
 
             PlayFabAuthenticationContext context = new PlayFabAuthenticationContext();
             context.DeveloperSecretKey = testTitleData.developerSecretKey;
@@ -158,8 +160,6 @@ namespace PlayFab.UUnit
         [UUnitTest]
         public void CheckWithNoSettings(UUnitTestContext testContext)
         {
-            PlayFabSettings.DeveloperSecretKey = testTitleData.developerSecretKey;
-
             //It should work with static class only
             PlayFabServerInstanceAPI serverInstanceWithoutAnyParameter = new PlayFabServerInstanceAPI();
             serverInstanceWithoutAnyParameter.GetAllSegments(new GetAllSegmentsRequest(), PlayFabUUnitUtils.ApiActionWrapper<GetAllSegmentsResult>(testContext, CheckWithNoSettingsSuccessCallBack), PlayFabUUnitUtils.ApiActionWrapper<PlayFabError>(testContext, SharedErrorCallback), testContext);
@@ -176,8 +176,6 @@ namespace PlayFab.UUnit
         [UUnitTest]
         public void CheckWithAuthContextAndWithoutAuthContext(UUnitTestContext testContext)
         {
-            PlayFabSettings.DeveloperSecretKey = testTitleData.developerSecretKey;
-
             //IT will  use static developer key - Should has no error 
             PlayFabServerInstanceAPI serverInstance1 = new PlayFabServerInstanceAPI();
             serverInstance1.GetAllSegments(new GetAllSegmentsRequest(), PlayFabUUnitUtils.ApiActionWrapper<GetAllSegmentsResult>(testContext, CheckWithAuthContextAndWithoutAuthContextSuccessCallBack), PlayFabUUnitUtils.ApiActionWrapper<PlayFabError>(testContext, SharedErrorCallback), testContext);
@@ -219,7 +217,7 @@ namespace PlayFab.UUnit
         {
             
             PlayFabApiSettings settings = new PlayFabApiSettings();
-            settings.TitleId = PlayFabSettings.TitleId;
+            settings.TitleId = testTitleData.titleId;
 
             PlayFabAuthenticationContext context = new PlayFabAuthenticationContext();
             context.DeveloperSecretKey = testTitleData.developerSecretKey;

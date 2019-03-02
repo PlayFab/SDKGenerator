@@ -12,11 +12,17 @@
 
 namespace PlayFab
 {
+    class FPlayFab<%- api.name %>APIDelegates
+    {
+public:
+<% for(var i in api.calls) { var apiCall = api.calls[i]; %>        DECLARE_DELEGATE_OneParam(F<%- apiCall.name %>Delegate, const <%- api.name %>Models::F<%- apiCall.result%>&);
+<% } %>
+    };
+
+
     class PLAYFABCPP_API UPlayFab<%- api.name %>API : UObject
     {
     public:
-<% for(var i in api.calls) { var apiCall = api.calls[i]; %>        DECLARE_DELEGATE_OneParam(F<%- apiCall.name %>Delegate, const <%- api.name %>Models::F<%- apiCall.result%>&);
-<% } %>
         UPlayFab<%- api.name %>API();
         ~UPlayFab<%- api.name %>API();
 
@@ -34,17 +40,22 @@ namespace PlayFab
 <% for(var i in api.calls) { var apiCall = api.calls[i];
 if (hasRequest(apiCall, api)) {
 %><%- generateApiSummary("        ", apiCall, "summary")
-%>        bool <%- apiCall.name %>(<%- api.name %>Models::F<%- apiCall.request %>& request, const F<%- apiCall.name %>Delegate& SuccessDelegate = F<%- apiCall.name %>Delegate(), const FPlayFabErrorDelegate& ErrorDelegate = FPlayFabErrorDelegate());
+%>        bool <%- apiCall.name %>(<%- api.name %>Models::F<%- apiCall.request %>& request, const FPlayFab<%- api.name %>APIDelegates::F<%- apiCall.name %>Delegate& SuccessDelegate = FPlayFab<%- api.name %>APIDelegates::F<%- apiCall.name %>Delegate(), const FPlayFabErrorDelegate& ErrorDelegate = FPlayFabErrorDelegate());
 <%    } else  {%><%- generateApiSummary("        ", apiCall, "summary") %>
-        bool <%- apiCall.name %>(const F<%- apiCall.name %>Delegate& SuccessDelegate = F<%- apiCall.name %>Delegate(), const FPlayFabErrorDelegate& ErrorDelegate = FPlayFabErrorDelegate());
+        bool <%- apiCall.name %>(const FPlayFab<%- api.name %>APIDelegates::F<%- apiCall.name %>Delegate& SuccessDelegate = FPlayFab<%- api.name %>APIDelegates::F<%- apiCall.name %>Delegate(), const FPlayFabErrorDelegate& ErrorDelegate = FPlayFabErrorDelegate());
 <%- generateApiSummary("        ", apiCall, "summary")
-%>        bool <%- apiCall.name %>(<%- api.name %>Models::F<%- apiCall.request %>& request, const F<%- apiCall.name %>Delegate& SuccessDelegate = F<%- apiCall.name %>Delegate(), const FPlayFabErrorDelegate& ErrorDelegate = FPlayFabErrorDelegate());
+%>        bool <%- apiCall.name %>(<%- api.name %>Models::F<%- apiCall.request %>& request, const FPlayFab<%- api.name %>APIDelegates::F<%- apiCall.name %>Delegate& SuccessDelegate = FPlayFab<%- api.name %>APIDelegates::F<%- apiCall.name %>Delegate(), const FPlayFabErrorDelegate& ErrorDelegate = FPlayFabErrorDelegate());
 <% } 
 } %>
+    };
+
+    class FPlayFab<%- api.name %>APICallbacks
+    {
+        friend class UPlayFab<%- api.name %>API;
     private:
         // ------------ Generated result handlers
 <% for(var i in api.calls) { var apiCall = api.calls[i];
-%>        void On<%- apiCall.name %>Result(FHttpRequestPtr HttpRequest, FHttpResponsePtr HttpResponse, bool bSucceeded, F<%- apiCall.name %>Delegate SuccessDelegate, FPlayFabErrorDelegate ErrorDelegate);
+%>        void On<%- apiCall.name %>Result(FHttpRequestPtr HttpRequest, FHttpResponsePtr HttpResponse, bool bSucceeded, FPlayFab<%- api.name %>APIDelegates::F<%- apiCall.name %>Delegate SuccessDelegate, FPlayFabErrorDelegate ErrorDelegate);
 <% } %>
     };
-};
+}

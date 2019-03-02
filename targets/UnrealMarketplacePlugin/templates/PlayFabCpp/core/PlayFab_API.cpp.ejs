@@ -71,7 +71,7 @@ void UPlayFab<%- api.name %>API::SetDevSecretKey(const FString& developerSecretK
 }<% for(var i in api.calls) { var apiCall = api.calls[i];%>
 <% if (!hasRequest(apiCall, api)) { %>
 bool UPlayFab<%- api.name %>API::<%- apiCall.name %>(
-    const F<%- apiCall.name %>Delegate& SuccessDelegate,
+    const FPlayFab<%- api.name %>APIDelegates::F<%- apiCall.name %>Delegate& SuccessDelegate,
     const FPlayFabErrorDelegate& ErrorDelegate)
 {
     <%- api.name %>Models::F<%- apiCall.request %> emptyRequest = <%- api.name %>Models::F<%- apiCall.request %>();
@@ -80,17 +80,17 @@ bool UPlayFab<%- api.name %>API::<%- apiCall.name %>(
 <% } %>
 bool UPlayFab<%- api.name %>API::<%- apiCall.name %>(
     <%- api.name %>Models::F<%- apiCall.request %>& request,
-    const F<%- apiCall.name %>Delegate& SuccessDelegate,
+    const FPlayFab<%- api.name %>APIDelegates::F<%- apiCall.name %>Delegate& SuccessDelegate,
     const FPlayFabErrorDelegate& ErrorDelegate)
 {
 <%- getRequestActions("    ", apiCall, false)
 %>    auto HttpRequest = PlayFabRequestHandler::SendRequest(<%- getUrlAccessor(apiCall, false) %>, request.toJSONString(), <%- getAuthParams(apiCall, false) %>);
     // TODO: this needs to be somehow replaced because error C2338: You cannot use raw method delegates with UObjects.
-    //HttpRequest->OnProcessRequestComplete().BindRaw(this, &UPlayFab<%- api.name %>API::On<%- apiCall.name %>Result, SuccessDelegate, ErrorDelegate);
+    //HttpRequest->OnProcessRequestComplete().BindRaw(this, &FPlayFab<%- api.name %>APICallbacks::On<%- apiCall.name %>Result, SuccessDelegate, ErrorDelegate);
     return HttpRequest->ProcessRequest();
 }
 
-void UPlayFab<%- api.name %>API::On<%- apiCall.name %>Result(FHttpRequestPtr HttpRequest, FHttpResponsePtr HttpResponse, bool bSucceeded, F<%- apiCall.name %>Delegate SuccessDelegate, FPlayFabErrorDelegate ErrorDelegate)
+void FPlayFab<%- api.name %>APICallbacks::On<%- apiCall.name %>Result(FHttpRequestPtr HttpRequest, FHttpResponsePtr HttpResponse, bool bSucceeded, FPlayFab<%- api.name %>APIDelegates::F<%- apiCall.name %>Delegate SuccessDelegate, FPlayFabErrorDelegate ErrorDelegate)
 {
     <%- api.name %>Models::F<%- apiCall.result%> outResult;
     FPlayFabCppError errorResult;

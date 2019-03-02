@@ -57,5 +57,11 @@ if (hasRequest(apiCall, api)) {
 <% for(var i in api.calls) { var apiCall = api.calls[i];
 %>        void On<%- apiCall.name %>Result(FHttpRequestPtr HttpRequest, FHttpResponsePtr HttpResponse, bool bSucceeded, FPlayFab<%- api.name %>APIDelegates::F<%- apiCall.name %>Delegate SuccessDelegate, FPlayFabErrorDelegate ErrorDelegate);
 <% } %>
-    };
+ <% if (hasClientOptions) {
+%>        bool SetAdvertId(const FString& typeId, const FString& advertisingIdValue);
+        bool AdvertIdSuccessful();
+        bool IsClientLoggedIn() const;
+        void MultiStepClientLogin(bool needsAttribution);
+<% } %>
+   };
 }

@@ -50,7 +50,7 @@ bool UPlayFabClientAPI::IsClientLoggedIn() const
     return !PlayFabSettings::GetClientSessionTicket().IsEmpty();
 }
 
-void UPlayFabClientAPI::MultiStepClientLogin(bool needsAttribution)
+void FPlayFabClientAPICallbacks::MultiStepClientLogin(bool needsAttribution)
 {
     if (needsAttribution && !PlayFabSettings::GetDisableAdvertising() && !PlayFabSettings::GetAdvertisingIdType().IsEmpty() && !PlayFabSettings::GetAdvertisingIdValue().IsEmpty())
     {

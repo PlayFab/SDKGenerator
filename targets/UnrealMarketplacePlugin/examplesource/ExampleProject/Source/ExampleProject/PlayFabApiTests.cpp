@@ -38,7 +38,7 @@ bool PlayFabApiTest_0LoginWithEmail::Update()
         request.Password = password;
 
         clientAPI->LoginWithEmailAddress(request
-            , PlayFab::UPlayFabClientAPI::FLoginWithEmailAddressDelegate::CreateRaw(this, &PlayFabApiTest_0LoginWithEmail::OnSuccess)
+            , PlayFab::FPlayFabClientAPIDelegates::FLoginWithEmailAddressDelegate::CreateRaw(this, &PlayFabApiTest_0LoginWithEmail::OnSuccess)
             , PlayFab::FPlayFabErrorDelegate::CreateRaw(this, &PlayFabApiTest_0LoginWithEmail::OnError)
         );
     }
@@ -82,7 +82,7 @@ bool PlayFabApiTest_0LoginWithCustomID::Update()
         request.CreateAccount = true;
 
         clientAPI->LoginWithCustomID(request
-            , PlayFab::UPlayFabClientAPI::FLoginWithCustomIDDelegate::CreateRaw(this, &PlayFabApiTest_0LoginWithCustomID::OnSuccess)
+            , PlayFab::FPlayFabClientAPIDelegates::FLoginWithCustomIDDelegate::CreateRaw(this, &PlayFabApiTest_0LoginWithCustomID::OnSuccess)
             , PlayFab::FPlayFabErrorDelegate::CreateRaw(this, &PlayFabApiTest_0LoginWithCustomID::OnError)
         );
     }
@@ -124,7 +124,7 @@ bool PlayFabApiTest_0LoginWithAdvertisingId::Update()
         request.CreateAccount = true;
 
         clientAPI->LoginWithCustomID(request
-            , PlayFab::UPlayFabClientAPI::FLoginWithCustomIDDelegate::CreateRaw(this, &PlayFabApiTest_0LoginWithAdvertisingId::OnSuccess)
+            , PlayFab::FPlayFabClientAPIDelegates::FLoginWithCustomIDDelegate::CreateRaw(this, &PlayFabApiTest_0LoginWithAdvertisingId::OnSuccess)
             , PlayFab::FPlayFabErrorDelegate::CreateRaw(this, &PlayFabApiTest_0LoginWithAdvertisingId::OnError)
         );
     }
@@ -172,7 +172,7 @@ bool PlayFabApiTest_GetUserData::Update()
         PlayFab::ClientModels::FGetUserDataRequest request;
 
         clientAPI->GetUserData(request
-            , PlayFab::UPlayFabClientAPI::FGetUserDataDelegate::CreateRaw(this, &PlayFabApiTest_GetUserData::OnSuccess)
+            , PlayFab::FPlayFabClientAPIDelegates::FGetUserDataDelegate::CreateRaw(this, &PlayFabApiTest_GetUserData::OnSuccess)
             , PlayFab::FPlayFabErrorDelegate::CreateRaw(this, &PlayFabApiTest_GetUserData::OnError)
         );
     }
@@ -255,7 +255,7 @@ bool PlayFabApiTest_UpdateUserData::Update()
         request.Data.Add(TEST_DATA_KEY_1, strUpdateValue);
 
         clientAPI->UpdateUserData(request
-            , PlayFab::UPlayFabClientAPI::FUpdateUserDataDelegate::CreateRaw(this, &PlayFabApiTest_UpdateUserData::OnSuccess)
+            , PlayFab::FPlayFabClientAPIDelegates::FUpdateUserDataDelegate::CreateRaw(this, &PlayFabApiTest_UpdateUserData::OnSuccess)
             , PlayFab::FPlayFabErrorDelegate::CreateRaw(this, &PlayFabApiTest_UpdateUserData::OnError)
         );
     }
@@ -295,7 +295,7 @@ bool PlayFabApiTest_GetPlayerStatistics::Update()
         PlayFab::ClientModels::FGetPlayerStatisticsRequest request;
         clientAPI->GetPlayerStatistics(
             request,
-            PlayFab::UPlayFabClientAPI::FGetPlayerStatisticsDelegate::CreateRaw(this, &PlayFabApiTest_GetPlayerStatistics::OnSuccess)
+            PlayFab::FPlayFabClientAPIDelegates::FGetPlayerStatisticsDelegate::CreateRaw(this, &PlayFabApiTest_GetPlayerStatistics::OnSuccess)
             , PlayFab::FPlayFabErrorDelegate::CreateRaw(this, &PlayFabApiTest_GetPlayerStatistics::OnError)
         );
     }
@@ -356,7 +356,7 @@ bool PlayFabApiTest_UpdatePlayerStatistics::Update()
         request.Statistics.Add(statUpdate);
 
         clientAPI->UpdatePlayerStatistics(request
-            , PlayFab::UPlayFabClientAPI::FUpdatePlayerStatisticsDelegate::CreateRaw(this, &PlayFabApiTest_UpdatePlayerStatistics::OnSuccess)
+            , PlayFab::FPlayFabClientAPIDelegates::FUpdatePlayerStatisticsDelegate::CreateRaw(this, &PlayFabApiTest_UpdatePlayerStatistics::OnSuccess)
             , PlayFab::FPlayFabErrorDelegate::CreateRaw(this, &PlayFabApiTest_UpdatePlayerStatistics::OnError)
         );
     }
@@ -393,7 +393,7 @@ bool PlayFabApiTest_GetAllUsersCharacters::Update()
         PlayFab::ClientModels::FListUsersCharactersRequest request;
 
         clientAPI->GetAllUsersCharacters(request
-            , PlayFab::UPlayFabClientAPI::FGetAllUsersCharactersDelegate::CreateRaw(this, &PlayFabApiTest_GetAllUsersCharacters::OnSuccess)
+            , PlayFab::FPlayFabClientAPIDelegates::FGetAllUsersCharactersDelegate::CreateRaw(this, &PlayFabApiTest_GetAllUsersCharacters::OnSuccess)
             , PlayFab::FPlayFabErrorDelegate::CreateRaw(this, &PlayFabApiTest_GetAllUsersCharacters::OnError)
         );
     }
@@ -432,7 +432,7 @@ bool PlayFabApiTest_GetLeaderboardC::Update()
         request.StatisticName = TEST_STAT_NAME;
 
         clientAPI->GetLeaderboard(request
-            , PlayFab::UPlayFabClientAPI::FGetLeaderboardDelegate::CreateRaw(this, &PlayFabApiTest_GetLeaderboardC::OnSuccess)
+            , PlayFab::FPlayFabClientAPIDelegates::FGetLeaderboardDelegate::CreateRaw(this, &PlayFabApiTest_GetLeaderboardC::OnSuccess)
             , PlayFab::FPlayFabErrorDelegate::CreateRaw(this, &PlayFabApiTest_GetLeaderboardC::OnError)
         );
     }
@@ -525,7 +525,7 @@ bool PlayFabApiTest_GetAccountInfo::Update()
         PlayFab::ClientModels::FGetAccountInfoRequest request;
 
         clientAPI->GetAccountInfo(request
-            , PlayFab::UPlayFabClientAPI::FGetAccountInfoDelegate::CreateRaw(this, &PlayFabApiTest_GetAccountInfo::OnSuccess)
+            , PlayFab::FPlayFabClientAPIDelegates::FGetAccountInfoDelegate::CreateRaw(this, &PlayFabApiTest_GetAccountInfo::OnSuccess)
             , PlayFab::FPlayFabErrorDelegate::CreateRaw(this, &PlayFabApiTest_GetAccountInfo::OnError)
         );
     }
@@ -566,7 +566,7 @@ bool PlayFabApiTest_ExecuteCloudScript::Update()
         request.FunctionName = functionName;
 
         clientAPI->ExecuteCloudScript(request
-            , PlayFab::UPlayFabClientAPI::FExecuteCloudScriptDelegate::CreateRaw(this, &PlayFabApiTest_ExecuteCloudScript::OnSuccess)
+            , PlayFab::FPlayFabClientAPIDelegates::FExecuteCloudScriptDelegate::CreateRaw(this, &PlayFabApiTest_ExecuteCloudScript::OnSuccess)
             , PlayFab::FPlayFabErrorDelegate::CreateRaw(this, &PlayFabApiTest_ExecuteCloudScript::OnError)
         );
     }
@@ -616,7 +616,7 @@ bool PlayFabApiTest_WriteEvent::Update()
         request.Body.Add(TEXT("Body"), TEXT("My awesome Post."));
 
         clientAPI->WritePlayerEvent(request
-            , PlayFab::UPlayFabClientAPI::FWritePlayerEventDelegate::CreateRaw(this, &PlayFabApiTest_WriteEvent::OnSuccess)
+            , PlayFab::FPlayFabClientAPIDelegates::FWritePlayerEventDelegate::CreateRaw(this, &PlayFabApiTest_WriteEvent::OnSuccess)
             , PlayFab::FPlayFabErrorDelegate::CreateRaw(this, &PlayFabApiTest_WriteEvent::OnError)
         );
     }
@@ -740,7 +740,7 @@ bool PlayFabApiTest_MultipleUsersWithStaticApis::Update()
         user1LoginRequest.CustomId = TEXT("UE4MultiUserStaticCpp_1");
         user1LoginRequest.CreateAccount = true;
         clientAPI->LoginWithCustomID(user1LoginRequest
-            , PlayFab::UPlayFabClientAPI::FLoginWithCustomIDDelegate::CreateRaw(this, &PlayFabApiTest_MultipleUsersWithStaticApis::OnUser1LoginSuccess)
+            , PlayFab::FPlayFabClientAPIDelegates::FLoginWithCustomIDDelegate::CreateRaw(this, &PlayFabApiTest_MultipleUsersWithStaticApis::OnUser1LoginSuccess)
             , PlayFab::FPlayFabErrorDelegate::CreateRaw(this, &PlayFabApiTest_MultipleUsersWithStaticApis::OnError)
         );
 
@@ -749,7 +749,7 @@ bool PlayFabApiTest_MultipleUsersWithStaticApis::Update()
         user2LoginRequest.CustomId = TEXT("UE4MultiUserStaticCpp_2");
         user2LoginRequest.CreateAccount = true;
         clientAPI->LoginWithCustomID(user2LoginRequest
-            , PlayFab::UPlayFabClientAPI::FLoginWithCustomIDDelegate::CreateRaw(this, &PlayFabApiTest_MultipleUsersWithStaticApis::OnUser2LoginSuccess)
+            , PlayFab::FPlayFabClientAPIDelegates::FLoginWithCustomIDDelegate::CreateRaw(this, &PlayFabApiTest_MultipleUsersWithStaticApis::OnUser2LoginSuccess)
             , PlayFab::FPlayFabErrorDelegate::CreateRaw(this, &PlayFabApiTest_MultipleUsersWithStaticApis::OnError)
         );
     }
@@ -786,7 +786,7 @@ void PlayFabApiTest_MultipleUsersWithStaticApis::OnBothUsersLoggedIn()
     PlayFab::ClientModels::FGetPlayerProfileRequest user1ProfileRequest{};
     user1ProfileRequest.AuthenticationContext = user1LoginResult.AuthenticationContext;
     clientAPI->GetPlayerProfile(user1ProfileRequest
-        , PlayFab::UPlayFabClientAPI::FGetPlayerProfileDelegate::CreateRaw(this, &PlayFabApiTest_MultipleUsersWithStaticApis::OnUser1GetProfileSuccess)
+        , PlayFab::FPlayFabClientAPIDelegates::FGetPlayerProfileDelegate::CreateRaw(this, &PlayFabApiTest_MultipleUsersWithStaticApis::OnUser1GetProfileSuccess)
         , PlayFab::FPlayFabErrorDelegate::CreateRaw(this, &PlayFabApiTest_MultipleUsersWithStaticApis::OnError)
     );
 
@@ -794,7 +794,7 @@ void PlayFabApiTest_MultipleUsersWithStaticApis::OnBothUsersLoggedIn()
     PlayFab::ClientModels::FGetPlayerProfileRequest user2ProfileRequest{};
     user2ProfileRequest.AuthenticationContext = user2LoginResult.AuthenticationContext;
     clientAPI->GetPlayerProfile(user2ProfileRequest
-        , PlayFab::UPlayFabClientAPI::FGetPlayerProfileDelegate::CreateRaw(this, &PlayFabApiTest_MultipleUsersWithStaticApis::OnUser2GetProfileSuccess)
+        , PlayFab::FPlayFabClientAPIDelegates::FGetPlayerProfileDelegate::CreateRaw(this, &PlayFabApiTest_MultipleUsersWithStaticApis::OnUser2GetProfileSuccess)
         , PlayFab::FPlayFabErrorDelegate::CreateRaw(this, &PlayFabApiTest_MultipleUsersWithStaticApis::OnError)
     );
 }

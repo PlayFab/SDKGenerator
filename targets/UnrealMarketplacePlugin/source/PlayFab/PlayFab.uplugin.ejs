@@ -11,24 +11,30 @@
     "Category": "PlayFab",
     "Description": "PlayFab Marketplace plugin for Unreal Engine <%- ueTargetVersion %> Current API version: <%- sdkVersion %>",
     "MarketplaceURL": "com.epicgames.launcher://ue/marketplace/content/217fdf581b784571af03d3fb6580368f",
-    "Modules": [
-      {
-        "Name": "PlayFabCpp",
-        "Type": "Runtime",
-        "LoadingPhase": "PreDefault",
-        "WhitelistPlatforms": [ "Win64", "Win32", "Mac", "IOS", "Android" ]
-      },
-      {
-        "Name": "PlayFab",
-        "Type": "Runtime",
-        "LoadingPhase": "PreDefault",
-        "WhitelistPlatforms": [ "Win64", "Win32", "Mac", "IOS", "Android" ]
-      },
-      {
-        "Name": "PlayFabCommon",
-        "Type": "Runtime",
-        "LoadingPhase": "PreDefault",
-        "WhitelistPlatforms": [ "Win64", "Win32", "Mac", "IOS", "Android" ]
-      }
-   ]
+	"Modules": [
+		{
+			"Name": "PlayFabCpp",
+			"Type": "Runtime",
+			"LoadingPhase": "PreDefault",
+			"WhitelistPlatforms": [ "Win64", "Win32", "Mac", "IOS", "Android" ]
+		},
+		{
+			"Name": "PlayFab",
+			"Type": "Runtime",
+			"LoadingPhase": "PreDefault",
+			"WhitelistPlatforms": [ "Win64", "Win32", "Mac", "IOS", "Android" ]
+		},
+		{
+			"Name": "PlayFabCommon",
+			"Type": "Runtime",
+			"LoadingPhase": "PreDefault",
+			"WhitelistPlatforms": [ "Win64", "Win32", "Mac", "IOS", "Android" ]
+		},
+		{
+			"Name": "PlayFabTests",
+			"Type": "Runtime",
+			"LoadingPhase": "PreDefault",
+			"WhitelistPlatforms": [ "Win64", "Win32", "Mac", "IOS", "Android" ]
+		}
+	]
 }

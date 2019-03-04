@@ -304,7 +304,7 @@ function getRequestActions(tabbing, apiCall, isApiInstance = false) {
             + tabbing + "#else\n"
             + tabbing + "    var developerSecretKey = PlayFabSettings.DeveloperSecretKey;\n"
             + tabbing + "#endif\n";
-    if (apiCall.url === "/Authentication/GetEntityToken")
+    if (apiCall.url === "/Authentication/GetEntityToken" && isApiInstance === false)
         return tabbing + "string authKey = null, authValue = null;\n"
             + tabbing + "#if !DISABLE_PLAYFABCLIENT_API\n"
             + tabbing + "    var clientSessionTicket = request.AuthenticationContext?.ClientSessionTicket ?? PlayFabSettings.ClientSessionTicket;\n"
@@ -318,6 +318,20 @@ function getRequestActions(tabbing, apiCall, isApiInstance = false) {
             + tabbing + "    var entityToken = request.AuthenticationContext?.EntityToken ?? PlayFabSettings.EntityToken;\n"
             + tabbing + "    if (entityToken != null) { authKey = \"X-EntityToken\"; authValue = entityToken; }\n"
             + tabbing + "#endif\n";
+	if (apiCall.url === "/Authentication/GetEntityToken" && isApiInstance === true)
+        return tabbing + "string authKey = null, authValue = null;\n"
+            + tabbing + "#if !DISABLE_PLAYFABCLIENT_API\n"
+            + tabbing + "    var clientSessionTicket = request.AuthenticationContext?.ClientSessionTicket ?? authenticationContext.ClientSessionTicket;\n"
+            + tabbing + "    if (clientSessionTicket != null) { authKey = \"X-Authorization\"; authValue = clientSessionTicket; }\n"
+            + tabbing + "#endif\n\n"
+            + tabbing + "#if ENABLE_PLAYFABSERVER_API || ENABLE_PLAYFABADMIN_API\n"
+            + tabbing + "    var developerSecretKey = request.AuthenticationContext?.DeveloperSecretKey ?? authenticationContext.DeveloperSecretKey;\n"
+            + tabbing + "    if (developerSecretKey != null) { authKey = \"X-SecretKey\"; authValue = developerSecretKey; }\n"
+            + tabbing + "#endif\n\n"
+            + tabbing + "#if !DISABLE_PLAYFABENTITY_API\n"
+            + tabbing + "    var entityToken = request.AuthenticationContext?.EntityToken ?? authenticationContext.EntityToken;\n"
+            + tabbing + "    if (entityToken != null) { authKey = \"X-EntityToken\"; authValue = entityToken; }\n"
+            + tabbing + "#endif\n";		
     return "";
 }
 

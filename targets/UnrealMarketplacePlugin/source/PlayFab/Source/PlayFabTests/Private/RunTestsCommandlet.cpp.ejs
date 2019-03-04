@@ -20,7 +20,9 @@ URunTestsCommandlet::URunTestsCommandlet()
     IsEditor = false;
     IsServer = false;
     LogToConsole = true;
+#if ENGINE_MINOR_VERSION > 19
     ShowProgress = true;
+#endif
     ShowErrorCount = true;
 }
 
@@ -81,7 +83,7 @@ int32 URunTestsCommandlet::Main(const FString& Params)
 
 bool URunTestsCommandlet::UploadResultToCloud()
 {
-    if (!ClientAPI)
+    if (!ClientAPI.IsValid())
     {
         ClientAPI = IPlayFabModuleInterface::Get().GetClientAPI();
         return false;

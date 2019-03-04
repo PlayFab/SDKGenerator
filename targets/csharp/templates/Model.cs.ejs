@@ -5,7 +5,7 @@
     {<% for(var i in datatype.properties) { var property = datatype.properties[i];%>
 <%- generateApiSummary("        ", property, "description")
 %><%- getDeprecationAttribute("        ", property)
-%>        <%- getPropertyAttribs(property, datatype, api) %>public <%- getModelPropertyDef(property, datatype) %>;
+%>        <%- getPropertyAttribs(property, datatype, api) %>public <%- getModelPropertyDef(property, datatype) %> <%- getMakeFieldOrProperty(datatype) %>
 <% } %><% if (datatype.sortKey) { %>
         public int CompareTo(<%- datatype.name %> other)
         {

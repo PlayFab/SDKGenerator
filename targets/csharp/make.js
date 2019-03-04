@@ -95,6 +95,7 @@ function makeDatatypes(apis, sourceDir, apiOutputDir) {
             datatype: datatype,
             generateApiSummary: generateApiSummary,
             getModelPropertyDef: getModelPropertyDef,
+            getMakeFieldOrProperty: getMakeFieldOrProperty,
             getPropertyAttribs: getPropertyAttribs,
             getBaseTypeSyntax: getBaseTypeSyntax,
             getDeprecationAttribute: getDeprecationAttribute
@@ -120,6 +121,7 @@ function makeApi(api, sourceDir, apiOutputDir) {
         api: api,
         getAuthParams: getAuthParams,
         getRequestActions: getRequestActions,
+        getCustomApiLogic: getCustomApiLogic,
         getResultActions: getResultActions,
         getDeprecationAttribute: getDeprecationAttribute,
         generateApiSummary: generateApiSummary,
@@ -213,6 +215,14 @@ function getModelPropertyDef(property, datatype) {
         basicType = getPropertyCsType(property, datatype, true);
         return basicType + " " + property.name;
     }
+}
+
+function getMakeFieldOrProperty(datatype) {
+    if(datatype.name === "ExecuteFunctionRequest"
+        || datatype.name === "EntityKey"
+        || datatype.name === "EntityRequest")
+        return "{ get; set; }";
+    return ";";
 }
 
 function getPropertyAttribs(property, datatype, api) {
@@ -332,6 +342,29 @@ function getRequestActions(tabbing, apiCall, isApiInstance = false) {
             + tabbing + "    var entityToken = request.AuthenticationContext?.EntityToken ?? authenticationContext.EntityToken;\n"
             + tabbing + "    if (entityToken != null) { authKey = \"X-EntityToken\"; authValue = entityToken; }\n"
             + tabbing + "#endif\n";		
+    return "";
+}
+
+function getCustomApiLogic(tabbing, apiCall)
+{
+    if (apiCall.name === "ExecuteFunction")
+    {
+        return "\n" + tabbing + "string debugUri = PlayFabSettings.DebugUri;\n"
+            + tabbing + "if (!string.IsNullOrEmpty(debugUri))\n"
+            + tabbing + "{\n"
+            + tabbing + "    // Duplicate code necessary to avoid changing all SDK methods to a new convention\n"  
+            + tabbing + "    var debugHttpResult = await PlayFabHttp.DoPostWithFullUri(debugUri, request," +  getAuthParams(apiCall) + ", extraHeaders);\n"
+            + tabbing + "    if (debugHttpResult is PlayFabError debugError)\n"
+            + tabbing + "    {\n"  
+            + tabbing + "        PlayFabSettings.GlobalErrorHandler?.Invoke(debugError);\n"
+            + tabbing + "        return new PlayFabResult<ExecuteFunctionResult> { Error = debugError, CustomData = customData };\n"
+            + tabbing + "    }\n\n"
+            + tabbing + "    var debugResultRawJson = (string) debugHttpResult;\n"
+            + tabbing + "    var debugResultData = PluginManager.GetPlugin<ISerializerPlugin>(PluginContract.PlayFab_Serializer).DeserializeObject<PlayFabJsonSuccess<ExecuteFunctionResult>>(debugResultRawJson);\n"
+            + tabbing + "    var debugResult = debugResultData.data;\n"
+            + tabbing + "    return new PlayFabResult<ExecuteFunctionResult>{ Result = debugResult, CustomData = customData };\n"
+            + tabbing + "}\n";
+    }
     return "";
 }
 

@@ -38,7 +38,7 @@ namespace PlayFab
             { "sdk", VersionString }
         };
 
-        private const string DefaultPlayFabApiUrlPrivate = ".playfabapi.com";
+        private const string DefaultPlayFabApiUrlPrivate = "playfabapi.com";
 
         private static PlayFabSharedSettings GetSharedSettingsObjectPrivate()
         {
@@ -188,13 +188,14 @@ namespace PlayFab
             var baseUrl = productionEnvironmentUrl;
             if (!baseUrl.StartsWith("http"))
             {
-                if (verticalName != null)
+                sb.Append("https://");
+                if (!string.IsNullOrEmpty(TitleId))
                 {
-                    sb.Append("https://").Append(verticalName);
+                    sb.Append(TitleId).Append(".");
                 }
-                else
+                if (!string.IsNullOrEmpty(VerticalName))
                 {
-                    sb.Append("https://").Append(titleId);
+                    sb.Append(VerticalName).Append(".");
                 }
             }
 

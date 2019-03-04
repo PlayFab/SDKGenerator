@@ -13,7 +13,7 @@ namespace PlayFab
         };
 
         /// <summary> This is only for customers running a private cluster.  Generally you shouldn't touch this </summary>
-        public static string ProductionEnvironmentUrl = ".playfabapi.com";
+        public static string ProductionEnvironmentUrl = "playfabapi.com";
         /// <summary> The name of a customer vertical. This is only for customers running a private cluster.  Generally you shouldn't touch this </summary>
         public static string VerticalName = <%- getVerticalNameDefault() %>;
         /// <summary> Session token for Entity API. Auto-Populated by GetEntityToken method. </summary>
@@ -24,6 +24,27 @@ namespace PlayFab
         public static string DeveloperSecretKey = null;
         /// <summary> You must set this value for PlayFabSdk to work properly (Found in the Game Manager for your title, at the PlayFab Website) </summary>
         public static string TitleId;
+		/// <summary> Placeholder for the Local Debugging URI. </summary>
+		private static string _debugUri;
+		/// <summary> Must be manually set by user on .NETStandard 1.1 and .NETPortable for local debugging to work properly </summary>
+        public static string DebugUri 
+        {
+            get 
+            {
+#if NET45 || NETCOREAPP2_0
+                return PlayFabUtil.GetLocalSettingsFileProperty("ExecuteFunctionDebugUri");
+#else
+                return _debugUri;
+#endif
+            }
+#if !NET45 && !NETCOREAPP2_0
+            set
+            {
+                _debugUri = value;
+            }
+#endif
+        }
+
         public static ErrorCallback GlobalErrorHandler;
 <% if (hasClientOptions) {
 %>        /// <summary> Set this to the appropriate AD_TYPE_X constant below </summary>
@@ -40,17 +61,18 @@ namespace PlayFab
         public static string GetFullUrl(string apiCall, Dictionary<string, string> getParams, PlayFabApiSettings apiSettings = null)
         {
             StringBuilder sb = new StringBuilder(1000);
-        
+
             var baseUrl = apiSettings?.ProductionEnvironmentUrl ?? ProductionEnvironmentUrl;
             if (!baseUrl.StartsWith("http"))
             {
+                sb.Append("https://");
+                if ((apiSettings?.TitleId ?? TitleId) != null)
+                {
+                    sb.Append(apiSettings?.TitleId ?? TitleId).Append(".");
+                }
                 if ((apiSettings?.VerticalName ?? VerticalName) != null)
                 {
-                    sb.Append("https://").Append(apiSettings?.VerticalName ?? VerticalName);
-                }
-                else
-                {
-                    sb.Append("https://").Append(apiSettings?.TitleId ?? TitleId);
+                    sb.Append(apiSettings?.VerticalName ?? VerticalName).Append(".");
                 }
             }
                 

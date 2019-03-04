@@ -79,7 +79,7 @@ namespace PlayFab
 %>        // Determine if the client session ticket is set, without actually making it public
         public bool IsClientLoggedIn()
         {
-            return !string.IsNullOrEmpty(PlayFabSettings.ClientSessionTicket);
+            return authenticationContext == null ? false : authenticationContext.IsClientLoggedIn();
         }
 
         private async Task<PlayFabResult<AttributeInstallResult>> MultiStepClientLogin(bool needsAttribution)

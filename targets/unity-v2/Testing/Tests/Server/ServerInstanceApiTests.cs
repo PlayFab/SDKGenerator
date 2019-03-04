@@ -103,7 +103,7 @@ namespace PlayFab.UUnit
         /// <summary>
         /// SERVER API
         /// Each API instance can be used to login a player separately from any other API instances, 
-        /// and that player�s authentication context is stored in the API instance
+        /// and that player's authentication context is stored in the API instance
         /// </summary>
         [UUnitTest]
         public void ApiInstanceLogin(UUnitTestContext testContext)

@@ -419,10 +419,7 @@ function getAuthParams(apiCall) {
 }
 
 function getInstanceParams(apiCall) {
-    if (apiCall.auth === "SecretKey")
-        return "authenticationContext, apiSettings"
-    else
-        return "null, apiSettings"
+    return "authenticationContext, apiSettings"
 }
 
 function getRequestActions(tabbing, apiCall, isApiInstance = false) {

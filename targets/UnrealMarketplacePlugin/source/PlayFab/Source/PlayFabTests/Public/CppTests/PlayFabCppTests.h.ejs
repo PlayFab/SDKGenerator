@@ -103,24 +103,24 @@ public:
     int UserDataAPI_ExpectedValue = -1;
 
     UFUNCTION()
-    void UserDataAPI(); // GET | UPDATE
-    void GetUserDataAPI_Success(const PlayFab::ClientModels::FGetUserDataResult& result); // GET | UPDATE
-    void UpdateUserDataAPI_Success(const PlayFab::ClientModels::FUpdateUserDataResult& result); // GET | UPDATE
+    void UserDataAPI();
+    void GetUserDataAPI_Success(const PlayFab::ClientModels::FGetUserDataResult& result);
+    void UpdateUserDataAPI_Success(const PlayFab::ClientModels::FUpdateUserDataResult& result);
 
     int PlayerStatistics_ExpectedValue = -1;
 
     UFUNCTION()
-    void PlayerStatisticsAPI(); // GET | UPDATE
-    void GetPlayerStatisticsAPI_Success(const PlayFab::ClientModels::FGetPlayerStatisticsResult& result); // GET | UPDATE
-    void UpdatePlayerStatisticsAPI_Success(const PlayFab::ClientModels::FUpdatePlayerStatisticsResult& result); // GET | UPDATE
+    void PlayerStatisticsAPI();
+    void GetPlayerStatisticsAPI_Success(const PlayFab::ClientModels::FGetPlayerStatisticsResult& result);
+    void UpdatePlayerStatisticsAPI_Success(const PlayFab::ClientModels::FUpdatePlayerStatisticsResult& result);
 
     UFUNCTION()
-    void LeaderBoardAPIClient(); // C | S
-    void LeaderBoardAPIClient_Success(const PlayFab::ClientModels::FGetLeaderboardResult& result); // C | S
+    void LeaderBoardAPIClient();
+    void LeaderBoardAPIClient_Success(const PlayFab::ClientModels::FGetLeaderboardResult& result);
 
     UFUNCTION()
-    void LeaderBoardAPIServer(); // C | S
-    void LeaderBoardAPIServer_Success(const PlayFab::ServerModels::FGetLeaderboardResult& result); // C | S
+    void LeaderBoardAPIServer();
+    void LeaderBoardAPIServer_Success(const PlayFab::ServerModels::FGetLeaderboardResult& result);
 
     UFUNCTION()
     void AccountInfo();

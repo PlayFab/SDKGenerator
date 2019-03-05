@@ -14,18 +14,39 @@ var copyright =
 `;
 
 exports.makeCombinedAPI = function (apis, sourceDir, baseApiOutputDir) {
-    // The list of current supported UE versions - Intended to be the latest 3
-    var ueTargetVersions = ["4.18", "4.19", "4.20", "4.21"];
+	class TargetVersion {
+		constructor(inMajor, inMinor, inPatch) {
+			this.major = inMajor;
+			this.minor = inMinor;
+			this.patch = inPatch;
+		}
 
-    for (var v = 0; v < ueTargetVersions.length; v++) {
+		get targetVersionShort() {
+			return `${this.major}.${this.minor}`;
+		}
+
+		get targetVersionLong() {
+			return `${this.major}.${this.minor}.${this.patch}`;
+		}
+	}
+
+	// The list of current supported UE versions - Intended to be the latest 3
+	const ueTargetVersions = [
+		new TargetVersion(4, 18, 0),
+		new TargetVersion(4, 19, 0),
+		new TargetVersion(4, 20, 0),
+		new TargetVersion(4, 21, 0)
+	];
+
+	for (var v = 0; v < ueTargetVersions.length; v++) {
         var ueTargetVersion = ueTargetVersions[v];
-        var apiOutputDir = path.resolve(baseApiOutputDir, ueTargetVersion); // Break multiple versions into separate top level folders
+        var apiOutputDir = path.resolve(baseApiOutputDir, ueTargetVersion.targetVersionShort); // Break multiple versions into separate top level folders
 
         console.log("Generating Unreal Plugin to " + apiOutputDir);
 
         // Create the Source folder in the plugin with all the modules
-        bpMakeJsPath.makeBpCombinedAPI(apis, copyright, sourceDir, apiOutputDir, ueTargetVersion, sdkGlobals.sdkVersion, sdkGlobals.buildIdentifier);
-        cppMakeJsPath.makeCppCombinedAPI(apis, copyright, sourceDir, apiOutputDir, ueTargetVersion, sdkGlobals.sdkVersion, sdkGlobals.buildIdentifier);
+        bpMakeJsPath.makeBpCombinedAPI(apis, copyright, sourceDir, apiOutputDir, ueTargetVersion.targetVersionShort, sdkGlobals.sdkVersion, sdkGlobals.buildIdentifier);
+        cppMakeJsPath.makeCppCombinedAPI(apis, copyright, sourceDir, apiOutputDir, ueTargetVersion.targetVersionShort, sdkGlobals.sdkVersion, sdkGlobals.buildIdentifier);
 
         var authMechanisms = getAuthMechanisms(apis);
         var locals = {
@@ -40,7 +61,11 @@ exports.makeCombinedAPI = function (apis, sourceDir, baseApiOutputDir) {
             hasClientOptions: authMechanisms.includes("SessionTicket"),
             hasServerOptions: authMechanisms.includes("SecretKey"),
             sdkVersion: sdkGlobals.sdkVersion,
-            ueTargetVersion: ueTargetVersion,
+			ueTargetVersionMajor: ueTargetVersion.major,
+			ueTargetVersionMinor: ueTargetVersion.minor,
+			ueTargetVersionPatch: ueTargetVersion.patch,
+			ueTargetVersion: ueTargetVersion.targetVersionShort,
+			ueTargetVersionLong: ueTargetVersion.targetVersionLong,
             getDefaultVerticalName: getDefaultVerticalName
         };
 

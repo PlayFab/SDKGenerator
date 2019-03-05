@@ -240,20 +240,20 @@ namespace PlayFab.Internal
 #if ENABLE_PLAYFABSERVER_API || ENABLE_PLAYFABADMIN_API || UNITY_EDITOR
                 case AuthType.DevSecretKey: reqContainer.RequestHeaders["X-SecretKey"] = developerSecretKey;  break;
 #endif
-                case AuthType.LoginSession: 
-#if !DISABLE_PLAYFABCLIENT_API                    
-                    reqContainer.RequestHeaders["X-Authorization"] = request.AuthenticationContext != null && request.AuthenticationContext.ClientSessionTicket != null 
-                        ? request.AuthenticationContext.ClientSessionTicket 
-                        : transport.AuthKey;
+                case AuthType.LoginSession:
+#if !DISABLE_PLAYFABCLIENT_API
+                    var clientSessionTicket = request.AuthenticationContext != null && request.AuthenticationContext.ClientSessionTicket != null
+                        ? request.AuthenticationContext.ClientSessionTicket : (authenticationContext != null && authenticationContext.ClientSessionTicket != null ? authenticationContext.ClientSessionTicket : transport.AuthKey);
+                    reqContainer.RequestHeaders["X-Authorization"] = clientSessionTicket;
 #else
                     reqContainer.RequestHeaders["X-Authorization"] = transport.AuthKey;
 #endif
                     break;
-                case AuthType.EntityToken: 
+                case AuthType.EntityToken:
 #if !DISABLE_PLAYFABENTITY_API
-                    reqContainer.RequestHeaders["X-EntityToken"] = request.AuthenticationContext != null && request.AuthenticationContext.EntityToken != null 
-                        ? request.AuthenticationContext.EntityToken
-                        : transport.EntityToken;
+                    var entityToken = request.AuthenticationContext != null && request.AuthenticationContext.EntityToken != null
+                        ? request.AuthenticationContext.EntityToken : (authenticationContext != null && authenticationContext.EntityToken != null ? authenticationContext.EntityToken : transport.EntityToken);
+                    reqContainer.RequestHeaders["X-EntityToken"] = entityToken;
 #else
                     reqContainer.RequestHeaders["X-EntityToken"] = transport.EntityToken;
 #endif

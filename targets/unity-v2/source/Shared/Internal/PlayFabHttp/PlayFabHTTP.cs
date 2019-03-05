@@ -206,7 +206,7 @@ namespace PlayFab.Internal
                 {
                     developerSecretKey = PlayFabSettings.DeveloperSecretKey;
                 }
-				
+
                 if (developerSecretKey == null) throw new PlayFabException(PlayFabExceptionCode.DeveloperKeyNotSet,"DeveloperSecretKey is not found in Request, Server Instance or PlayFabSettings");
             #endif
 

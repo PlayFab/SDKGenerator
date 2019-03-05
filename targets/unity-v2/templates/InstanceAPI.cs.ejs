@@ -42,15 +42,6 @@ namespace PlayFab
             return authenticationContext;
         }
 
-<% if (hasClientOptions) { %>
-        /// <summary>
-        /// Check to See if the client is logged in.
-        /// </summary>
-        public bool IsClientLoggedIn()
-        {
-            return authenticationContext == null ? false : authenticationContext.IsClientLoggedIn();
-        }
-<% }%>
 <% if (hasEntityTokenOptions) { %>
         /// <summary>
         /// Check to See if the entity is logged in.

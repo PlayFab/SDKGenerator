@@ -444,7 +444,7 @@ function getRequestActions(tabbing, apiCall, isApiInstance = false) {
     if (apiCall.auth === "SessionTicket"  && isApiInstance === true)
         return tabbing + "if (string.IsNullOrEmpty(request.AuthenticationContext.ClientSessionTicket ?? (authenticationContext.ClientSessionTicket ?? PluginManager.GetPlugin<IPlayFabTransportPlugin>(PluginContract.PlayFab_Transport).AuthKey))) throw new PlayFabException(PlayFabExceptionCode.NotLoggedIn,\"Must be logged in to call this method\");\n";
     if (apiCall.auth === "SessionTicket"  && isApiInstance === false)
-        return tabbing + "if (string.IsNullOrEmpty(request.AuthenticationContext.ClientSessionTicket ?? PluginManager.GetPlugin<IPlayFabTransportPlugin>(PluginContract.PlayFab_Transport).AuthKey)) throw new PlayFabException(PlayFabExceptionCode.NotLoggedIn,\"Must be logged in to call this method\");\n";
+        return tabbing + "if (!IsClientLoggedIn()) throw new PlayFabException(PlayFabExceptionCode.NotLoggedIn,\"Must be logged in to call this method\");\n";
 	return "";
 }
 

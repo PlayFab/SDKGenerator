@@ -166,7 +166,6 @@ function makeInstanceApi(api, sourceDir, apiOutputDir) {
         api: api,
         getApiDefineFlag: getApiDefineFlag,
         getAuthParams: getAuthParams,
-        getInstanceParams: getInstanceParams,
         generateApiSummary: generateApiSummary,
         getDeprecationAttribute: getDeprecationAttribute,
         getRequestActions: getRequestActions,
@@ -418,28 +417,34 @@ function getAuthParams(apiCall) {
     return "AuthType.None";
 }
 
-function getInstanceParams(apiCall) {
-    return "authenticationContext, apiSettings"
-}
-
 function getRequestActions(tabbing, apiCall, isApiInstance = false) {
-    if (apiCall.name === "GetEntityToken")
+    if (apiCall.name === "GetEntityToken" && isApiInstance === false)
         return tabbing + "AuthType authType = AuthType.None;\n" +
             "#if !DISABLE_PLAYFABCLIENT_API\n" +
             tabbing + "if (authType == AuthType.None && PlayFabClientAPI.IsClientLoggedIn())\n" +
             tabbing + "    authType = AuthType.LoginSession;\n" +
             "#endif\n" +
             "#if ENABLE_PLAYFABSERVER_API || ENABLE_PLAYFABADMIN_API || UNITY_EDITOR\n" +
-            tabbing + "if (authType == AuthType.None && !string.IsNullOrEmpty(PlayFabSettings.DeveloperSecretKey))\n" +
+            tabbing + "if (authType == AuthType.None && !string.IsNullOrEmpty(request.AuthenticationContext.DeveloperSecretKey ?? PlayFabSettings.DeveloperSecretKey))\n" +
             tabbing + "    authType = AuthType.DevSecretKey;\n" +
             "#endif\n";
+	if (apiCall.name === "GetEntityToken" && isApiInstance === true)
+        return tabbing + "AuthType authType = AuthType.None;\n" +
+            "#if !DISABLE_PLAYFABCLIENT_API\n" +
+            tabbing + "if (authType == AuthType.None && authenticationContext.IsClientLoggedIn())\n" +
+            tabbing + "    authType = AuthType.LoginSession;\n" +
+            "#endif\n" +
+            "#if ENABLE_PLAYFABSERVER_API || ENABLE_PLAYFABADMIN_API || UNITY_EDITOR\n" +
+            tabbing + "if (authType == AuthType.None && !string.IsNullOrEmpty(request.AuthenticationContext.DeveloperSecretKey ?? (authenticationContext.DeveloperSecretKey ?? PlayFabSettings.DeveloperSecretKey)))\n" +
+            tabbing + "    authType = AuthType.DevSecretKey;\n" +
+            "#endif\n";		
 
     if (apiCall.result === "LoginResult" || apiCall.request === "RegisterPlayFabUserRequest")
         return tabbing + "request.TitleId = request.TitleId ?? PlayFabSettings.TitleId;\n";
-    if (apiCall.auth === "SessionTicket")
+    if (apiCall.auth === "SessionTicket" && isApiInstance === false)
         return tabbing + "if (!IsClientLoggedIn()) throw new PlayFabException(PlayFabExceptionCode.NotLoggedIn,\"Must be logged in to call this method\");\n";
-    if (apiCall.auth === "SecretKey" && isApiInstance === false)
-        return tabbing + "if (PlayFabSettings.DeveloperSecretKey == null) throw new PlayFabException(PlayFabExceptionCode.DeveloperKeyNotSet,\"Must have PlayFabSettings.DeveloperSecretKey set to call this method\");\n";
+	if (apiCall.auth === "SessionTicket" && isApiInstance === true)
+        return tabbing + "if (!authenticationContext.IsClientLoggedIn()) throw new PlayFabException(PlayFabExceptionCode.NotLoggedIn,\"Must be logged in to call this method\");\n";
     return "";
 }
 

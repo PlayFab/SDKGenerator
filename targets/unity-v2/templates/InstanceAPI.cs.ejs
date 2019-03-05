@@ -85,7 +85,7 @@ namespace PlayFab
 <% for(var i in api.calls) { var apiCall = api.calls[i]; %><%- generateApiSummary("        ", apiCall, "summary") %><%- getDeprecationAttribute("        ", apiCall)%>
         public void <%- apiCall.name %>(<%- apiCall.request %> request, Action<<%- apiCall.result %>> resultCallback, Action<PlayFabError> errorCallback, object customData = null, Dictionary<string, string> extraHeaders = null)
         {
-<%- getRequestActions("            ", apiCall, true) %>            PlayFabHttp.MakeApiCall("<%- apiCall.url %>", request, <%- getAuthParams(apiCall) %>, resultCallback, errorCallback, customData, extraHeaders, false, <%- getInstanceParams(apiCall) %>);
+<%- getRequestActions("            ", apiCall, true) %>            PlayFabHttp.MakeApiCall("<%- apiCall.url %>", request, <%- getAuthParams(apiCall) %>, resultCallback, errorCallback, customData, extraHeaders, false, authenticationContext, apiSettings);
         }<%- getCustomApiFunction("        ", apiCall, true) %> 
 <% }%>
     }

@@ -11,14 +11,14 @@ namespace PlayFab
 <%- generateApiSummary("    ", api, "description")
 %>    public <%- isPartial %>class PlayFab<%- api.name %>InstanceAPI
     {
-        private PlayFabApiSettings apiSettings = null;
+        public PlayFabApiSettings ApiSettings = null;
         private PlayFabAuthenticationContext authenticationContext = null;
 
         public PlayFab<%- api.name %>InstanceAPI() {}
 
         public PlayFab<%- api.name %>InstanceAPI(PlayFabApiSettings settings) 
         {
-            apiSettings = settings;
+            ApiSettings = settings;
         }
 
         public PlayFab<%- api.name %>InstanceAPI(PlayFabAuthenticationContext context) 
@@ -28,18 +28,8 @@ namespace PlayFab
 
         public PlayFab<%- api.name %>InstanceAPI(PlayFabApiSettings settings, PlayFabAuthenticationContext context) 
         {
-            apiSettings = settings;
+            ApiSettings = settings;
             authenticationContext = context;
-        }
-
-        public void SetSettings(PlayFabApiSettings settings)
-        {
-            apiSettings = settings;
-        }
-
-        public PlayFabApiSettings GetSettings()
-        {
-            return apiSettings;
         }
 
         public void SetAuthenticationContext(PlayFabAuthenticationContext context)
@@ -85,7 +75,7 @@ namespace PlayFab
 <% for(var i in api.calls) { var apiCall = api.calls[i]; %><%- generateApiSummary("        ", apiCall, "summary") %><%- getDeprecationAttribute("        ", apiCall)%>
         public void <%- apiCall.name %>(<%- apiCall.request %> request, Action<<%- apiCall.result %>> resultCallback, Action<PlayFabError> errorCallback, object customData = null, Dictionary<string, string> extraHeaders = null)
         {
-<%- getRequestActions("            ", apiCall, true) %>            PlayFabHttp.MakeApiCall("<%- apiCall.url %>", request, <%- getAuthParams(apiCall) %>, resultCallback, errorCallback, customData, extraHeaders, false, authenticationContext, apiSettings);
+<%- getRequestActions("            ", apiCall, true) %>            PlayFabHttp.MakeApiCall("<%- apiCall.url %>", request, <%- getAuthParams(apiCall) %>, resultCallback, errorCallback, customData, extraHeaders, false, authenticationContext, ApiSettings);
         }<%- getCustomApiFunction("        ", apiCall, true) %> 
 <% }%>
     }

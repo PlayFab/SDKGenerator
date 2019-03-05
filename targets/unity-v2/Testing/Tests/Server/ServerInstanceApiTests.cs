@@ -85,12 +85,12 @@ namespace PlayFab.UUnit
                 PlayFabServerInstanceAPI serverInstance1 = new PlayFabServerInstanceAPI(settings, context);
                 PlayFabServerInstanceAPI serverInstance2 = new PlayFabServerInstanceAPI(settings2, context2);
 
-                testContext.StringEquals("test1", serverInstance1.GetSettings().TitleId, "MultipleInstanceWithDifferentSettings can not be completed");
-                testContext.StringEquals("https://test1.playfabapi.com", serverInstance1.GetSettings().ProductionEnvironmentUrl, "MultipleInstanceWithDifferentSettings can not be completed");
+                testContext.StringEquals("test1", serverInstance1.ApiSettings.TitleId, "MultipleInstanceWithDifferentSettings can not be completed");
+                testContext.StringEquals("https://test1.playfabapi.com", serverInstance1.ApiSettings.ProductionEnvironmentUrl, "MultipleInstanceWithDifferentSettings can not be completed");
                 testContext.StringEquals("key1", serverInstance1.GetAuthenticationContext().DeveloperSecretKey, "MultipleInstanceWithDifferentSettings can not be completed");
 
-                testContext.StringEquals("test2", serverInstance2.GetSettings().TitleId, "MultipleInstanceWithDifferentSettings can not be completed");
-                testContext.StringEquals("https://test2.playfabapi.com", serverInstance2.GetSettings().ProductionEnvironmentUrl, "MultipleInstanceWithDifferentSettings can not be completed");
+                testContext.StringEquals("test2", serverInstance2.ApiSettings.TitleId, "MultipleInstanceWithDifferentSettings can not be completed");
+                testContext.StringEquals("https://test2.playfabapi.com", serverInstance2.ApiSettings.ProductionEnvironmentUrl, "MultipleInstanceWithDifferentSettings can not be completed");
                 testContext.StringEquals("key2", serverInstance2.GetAuthenticationContext().DeveloperSecretKey, "MultipleInstanceWithDifferentSettings can not be completed");
                 testContext.EndTest(UUnitFinishState.PASSED, null);
             }

@@ -116,7 +116,7 @@ namespace JenkinsConsoleUtility.Commands
                 // Single repo maps to mismatched foldername
                 case "actionscriptsdk": return "actionscript";
                 case "cocos2d-xsdk": return "cpp-cocos2dx";
-                case "javascriptsdk": return "javascript";
+                case "javascriptsdk": case "javascriptbetasdk": return "javascript";
                 case "objective_c_sdk": return "objc";
                 case "playfabgameserver": return "csharp-unity-gameserver";
                 // Multiple repos map to the same folder

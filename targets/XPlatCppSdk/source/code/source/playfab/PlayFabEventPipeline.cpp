@@ -13,7 +13,8 @@ namespace PlayFab
         maximalNumberOfItemsInBatch(5),
         maximalBatchWaitTime(3),
         maximalNumberOfBatchesInFlight(16),
-        readBufferWaitTime(10)
+        readBufferWaitTime(10),
+        authenticationContext(nullptr)
     {
     }
 
@@ -100,17 +101,25 @@ namespace PlayFab
         }
     }
 
+    void PlayFabEventPipeline::SetExceptionCallback(ExceptionCallback ex)
+    {
+        { // LOCK userCallbackMutex
+            std::unique_lock<std::mutex> lock(userExceptionCallbackMutex);
+            userExceptionCallback = ex;
+        } // UNLOCK userCallbackMutex
+    }
+
     void PlayFabEventPipeline::WorkerThread()
     {
-        try
-        {
-            using clock = std::chrono::steady_clock;
-            using Result = PlayFabEventBuffer::EventConsumingResult;
-            std::shared_ptr<const IPlayFabEmitEventRequest> request;
-            size_t batchCounter = 0; // used to track uniqueness of batches in the map
-            std::chrono::steady_clock::time_point momentBatchStarted; // used to track when a currently assembled batch got its first event
+        using clock = std::chrono::steady_clock;
+        using Result = PlayFabEventBuffer::EventConsumingResult;
+        std::shared_ptr<const IPlayFabEmitEventRequest> request;
+        size_t batchCounter = 0; // used to track uniqueness of batches in the map
+        std::chrono::steady_clock::time_point momentBatchStarted; // used to track when a currently assembled batch got its first event
 
-            while (this->isWorkerThreadRunning)
+        while (this->isWorkerThreadRunning)
+        {
+            try
             {
                 // Process events in the loop
                 if (this->batchesInFlight.size() >= this->settings->maximalNumberOfBatchesInFlight)
@@ -166,11 +175,23 @@ namespace PlayFab
                 // give some time back to CPU, don't starve it without a good reason
                 std::this_thread::sleep_for(std::chrono::milliseconds(this->settings->readBufferWaitTime));
             }
-        }
-        catch (...)
-        {
-            LOG_PIPELINE("An exception was caught in PlayFabEventPipeline::WorkerThread method");
-            this->isWorkerThreadRunning = false;
+            catch (const std::exception& ex)
+            {
+                LOG_PIPELINE("An exception was caught in PlayFabEventPipeline::WorkerThread method");
+                this->isWorkerThreadRunning = false;
+
+                { // LOCK userCallbackMutex
+                    std::unique_lock<std::mutex> lock(userExceptionCallbackMutex);
+                    if (userExceptionCallback)
+                    {
+                        userExceptionCallback(ex);
+                    }
+                } // UNLOCK userCallbackMutex
+            }
+            catch(...)
+            {
+                LOG_PIPELINE("A non std::exception was caught in PlayFabEventPipeline::WorkerThread method");
+            }
         }
     }
 
@@ -178,6 +199,11 @@ namespace PlayFab
     {
         // create a WriteEvents API request to send the batch
         EventsModels::WriteEventsRequest batchReq;
+        if (this->settings->authenticationContext != nullptr)
+        {
+            batchReq.authenticationContext = this->settings->authenticationContext;
+        }
+
         for (const auto& eventEmitRequest : this->batch)
         {
             const auto& playFabEmitRequest = std::dynamic_pointer_cast<const PlayFabEmitEventRequest>(eventEmitRequest);

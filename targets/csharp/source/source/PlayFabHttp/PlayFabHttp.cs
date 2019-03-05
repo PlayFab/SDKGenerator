@@ -10,6 +10,7 @@ namespace PlayFab.Internal
     /// </summary>
     public class PlayFabRequestCommon
     {
+        public PlayFabAuthenticationContext AuthenticationContext;
     }
 
     /// <summary>
@@ -19,6 +20,11 @@ namespace PlayFab.Internal
     /// </summary>
     public class PlayFabResultCommon
     {
+    }
+
+    public class PlayFabLoginResultCommon : PlayFabResultCommon
+    {
+        public PlayFabAuthenticationContext AuthenticationContext;
     }
 
     public class PlayFabJsonError
@@ -40,9 +46,11 @@ namespace PlayFab.Internal
 
     public static class PlayFabHttp
     {
-        public static async Task<object> DoPost(string urlPath, PlayFabRequestCommon request, string authType, string authKey, Dictionary<string, string> extraHeaders)
+        public static async Task<object> DoPost(string urlPath, PlayFabRequestCommon request, string authType, string authKey, Dictionary<string, string> extraHeaders, PlayFabApiSettings apiSettings = null)
         {
-            if (PlayFabSettings.TitleId == null)
+            var fullPath = apiSettings == null ? PlayFabSettings.GetFullUrl(urlPath, PlayFabSettings.RequestGetParams) : apiSettings.GetFullUrl(urlPath, PlayFabSettings.RequestGetParams);
+            var titleId = apiSettings?.TitleId == null ? PlayFabSettings.TitleId : apiSettings.TitleId;
+            if (titleId == null)
                 throw new PlayFabException(PlayFabExceptionCode.TitleNotSet, "You must set your titleId before making an api call");
             var transport = PluginManager.GetPlugin<ITransportPlugin>(PluginContract.PlayFab_Transport);
 
@@ -59,7 +67,7 @@ namespace PlayFab.Internal
                 }
             }
 
-            return await transport.DoPost(urlPath, request, headers);
+            return await transport.DoPost(fullPath, request, headers);
         }
     }
 }

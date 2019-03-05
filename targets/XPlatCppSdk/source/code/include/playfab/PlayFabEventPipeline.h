@@ -7,6 +7,8 @@
 
 #include <playfab/PlayFabEvent.h>
 #include <playfab/PlayFabEventBuffer.h>
+#include <playfab/PlayFabAuthenticationContext.h>
+#include <mutex>
 
 namespace PlayFab
 {
@@ -25,6 +27,7 @@ namespace PlayFab
         size_t maximalNumberOfRetries; // The maximal number of retries for transient transport errors, before a batch is discarded.
         size_t maximalNumberOfBatchesInFlight; // The maximal number of batches currently "in flight" (sent to a transport plugin).
         int64_t readBufferWaitTime; // The wait time between attempts to read events from buffer when it is empty, in milliseconds.
+        std::shared_ptr<PlayFabAuthenticationContext> authenticationContext; // The optional PlayFab authentication context that can be used with static PlayFab events API
     };
 
     /// <summary>
@@ -56,6 +59,8 @@ namespace PlayFab
         virtual void Start() override;
         virtual void IntakeEvent(std::shared_ptr<const IPlayFabEmitEventRequest> request) override;
 
+        void SetExceptionCallback(ExceptionCallback callback);
+
     protected:
         virtual void SendBatch(size_t& batchCounter);
 
@@ -78,6 +83,8 @@ namespace PlayFab
         PlayFabEventBuffer buffer;
         std::thread workerThread;
         std::atomic<bool> isWorkerThreadRunning;
+        std::mutex userExceptionCallbackMutex;
+        ExceptionCallback userExceptionCallback;
     };
 }
 

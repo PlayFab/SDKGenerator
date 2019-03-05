@@ -21,18 +21,18 @@ namespace <%- api.name %>Models
     PLAYFABCPP_API <%- datatype.name %> read<%- datatype.name %>FromValue(const TSharedPtr<FJsonValue>& value);
     PLAYFABCPP_API <%- datatype.name %> read<%- datatype.name %>FromValue(const FString& value);
 <% } else { %>
-    struct PLAYFABCPP_API F<%- datatype.name %> : public PlayFab::FPlayFabCppBaseModel
+    struct PLAYFABCPP_API F<%- datatype.name %> : public PlayFab::<%- getBaseType(datatype) %>
     {
 <% for(var i in datatype.properties) { var property = datatype.properties[i]
 %><%- generateApiSummary("        ", property, "description")
 %><%- getPropertyDef("        ", api, datatype, property) %><% }
 %>        F<%- datatype.name %>() :
-            FPlayFabCppBaseModel()<% for(var i in datatype.properties) { var property = datatype.properties[i] %>,
+            <%- getBaseType(datatype) %>()<% for(var i in datatype.properties) { var property = datatype.properties[i] %>,
             <%- getPropertySafeName(property) %>(<%- getPropertyDefaultValue(api, datatype, property) %>)<% } %>
             {}
 
         F<%- datatype.name %>(const F<%- datatype.name %>& src) :
-            FPlayFabCppBaseModel()<% for(var i in datatype.properties) { var property = datatype.properties[i] %>,
+            <%- getBaseType(datatype) %>()<% for(var i in datatype.properties) { var property = datatype.properties[i] %>,
             <%- getPropertySafeName(property) %>(<%- getPropertyCopyValue(property) %>)<% } %>
             {}
 

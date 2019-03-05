@@ -6,6 +6,7 @@
 #include <playfab/PlayFabPluginManager.h>
 #include <playfab/PlayFabSettings.h>
 #include <playfab/PlayFabError.h>
+#include <memory>
 
 #pragma warning (disable: 4100) // formal parameters are part of a public interface
 
@@ -33,7 +34,7 @@ namespace PlayFab
         void* customData
     )
     {
-<%- getRequestActions("        ", apiCall) %>
+<%- getRequestActions("        ", apiCall, false) %>
         IPlayFabHttpPlugin& http = *PlayFabPluginManager::GetPlugin<IPlayFabHttpPlugin>(PlayFabPluginContract::PlayFab_Transport);
         const auto requestJson = request.ToJson();
 
@@ -41,7 +42,7 @@ namespace PlayFab
         std::string jsonAsString = writer.write(requestJson);
 
         std::unordered_map<std::string, std::string> headers;
-        headers.emplace(<%- getAuthParams(apiCall) %>);
+        headers.emplace(<%- getAuthParams(apiCall, false) %>);
 
         auto reqContainer = std::unique_ptr<CallRequestContainer>(new CallRequestContainer(
             "<%- apiCall.url %>",
@@ -63,7 +64,7 @@ namespace PlayFab
         <%- apiCall.result %> outResult;
         if (ValidateResult(outResult, container))
         {
-<%- getResultActions("            ", apiCall) %>
+<%- getResultActions("            ", apiCall, false) %>
             const auto internalPtr = container.successCallback.get();
             if (internalPtr != nullptr)
             {

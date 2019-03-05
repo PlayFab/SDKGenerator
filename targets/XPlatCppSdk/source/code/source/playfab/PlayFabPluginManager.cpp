@@ -99,4 +99,23 @@ namespace PlayFab
         return std::make_shared<OneDSCurlHttpPlugin>();
 #endif // PLAYFAB_PLATFORM_XBOX
     }
+
+    void PlayFabPluginManager::HandleException(const std::exception ex)
+    {
+        { // LOCK userExceptionCallbackMutex
+            std::unique_lock<std::mutex> lock(userExceptionCallbackMutex);
+            if (userExceptionCallback)
+            {
+                userExceptionCallback(ex);
+            }
+        } // UNLOCK userExceptionCallbackMutex
+    }
+
+    void PlayFabPluginManager::SetExceptionHandler(ExceptionCallback exceptionCallback)
+    {
+        { // LOCK userExceptionCallbackMutex
+            std::unique_lock<std::mutex> lock(userExceptionCallbackMutex);
+            userExceptionCallback = exceptionCallback;
+        } // UNLOCK userExceptionCallbackMutex
+    }
 }

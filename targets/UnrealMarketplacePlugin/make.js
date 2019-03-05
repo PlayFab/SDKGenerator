@@ -20,7 +20,6 @@ exports.makeCombinedAPI = function (apis, sourceDir, baseApiOutputDir) {
 			this.minor = inMinor;
 			this.patch = inPatch;
 		}
-
 		get targetVersionShort() {
 			return `${this.major}.${this.minor}`;
 		}
@@ -37,6 +36,8 @@ exports.makeCombinedAPI = function (apis, sourceDir, baseApiOutputDir) {
 		new TargetVersion(4, 20, 0),
 		new TargetVersion(4, 21, 0)
 	];
+
+    var ueWhitelistPlatforms = '[ "Win64", "Win32", "Mac", "IOS", "Android" ]'; // TODO: Add PS4, Switch, and XBox once the testing stories are done
 
 	for (var v = 0; v < ueTargetVersions.length; v++) {
         var ueTargetVersion = ueTargetVersions[v];
@@ -58,6 +59,7 @@ exports.makeCombinedAPI = function (apis, sourceDir, baseApiOutputDir) {
             errors: apis[0].errors,
             generateBpApiSummary: bpMakeJsPath.generateApiSummary,
             getDataTypeSafeName: bpMakeJsPath.getDataTypeSafeName,
+            getDefaultVerticalName: getDefaultVerticalName,
             hasClientOptions: authMechanisms.includes("SessionTicket"),
             hasServerOptions: authMechanisms.includes("SecretKey"),
             sdkVersion: sdkGlobals.sdkVersion,
@@ -66,7 +68,7 @@ exports.makeCombinedAPI = function (apis, sourceDir, baseApiOutputDir) {
 			ueTargetVersionPatch: ueTargetVersion.patch,
 			ueTargetVersion: ueTargetVersion.targetVersionShort,
 			ueTargetVersionLong: ueTargetVersion.targetVersionLong,
-            getDefaultVerticalName: getDefaultVerticalName
+            ueWhitelistPlatforms: ueWhitelistPlatforms
         };
 
         // Copy the resources, content and the .uplugin file

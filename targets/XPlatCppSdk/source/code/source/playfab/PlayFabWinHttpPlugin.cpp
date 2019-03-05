@@ -36,33 +36,44 @@ namespace PlayFab
 
         while (this->threadRunning)
         {
-            std::unique_ptr<CallRequestContainerBase> requestContainer = nullptr;
-
-            { // LOCK httpRequestMutex
-                std::unique_lock<std::mutex> lock(this->httpRequestMutex);
-
-                queueSize = this->pendingRequests.size();
-                if (queueSize != 0)
-                {
-                    requestContainer = std::move(this->pendingRequests[0]);
-                    this->pendingRequests.pop_front();
-                }
-            } // UNLOCK httpRequestMutex
-
-            if (queueSize == 0)
+            try
             {
-                std::this_thread::sleep_for(std::chrono::milliseconds(10));
-                continue;
+                std::unique_ptr<CallRequestContainerBase> requestContainer = nullptr;
+
+                { // LOCK httpRequestMutex
+                    std::unique_lock<std::mutex> lock(this->httpRequestMutex);
+
+                    queueSize = this->pendingRequests.size();
+                    if (queueSize != 0)
+                    {
+                        requestContainer = std::move(this->pendingRequests[0]);
+                        this->pendingRequests.pop_front();
+                    }
+                } // UNLOCK httpRequestMutex
+
+                if (queueSize == 0)
+                {
+                    std::this_thread::sleep_for(std::chrono::milliseconds(10));
+                    continue;
+                }
+
+                if (requestContainer != nullptr)
+                {
+                    CallRequestContainer* requestContainerPtr = dynamic_cast<CallRequestContainer*>(requestContainer.get());
+                    if (requestContainerPtr != nullptr)
+                    {
+                        requestContainer.release();
+                        ExecuteRequest(std::unique_ptr<CallRequestContainer>(requestContainerPtr));
+                    }
+                }
             }
-
-            if (requestContainer != nullptr)
+            catch (const std::exception& ex)
             {
-                CallRequestContainer* requestContainerPtr = dynamic_cast<CallRequestContainer*>(requestContainer.get());
-                if (requestContainerPtr != nullptr)
-                {
-                    requestContainer.release();
-                    ExecuteRequest(std::unique_ptr<CallRequestContainer>(requestContainerPtr));
-                }
+                PlayFabPluginManager::GetInstance().HandleException(ex);
+            }
+            catch (...)
+            {
+
             }
         }
     }
@@ -288,7 +299,7 @@ namespace PlayFab
 
     std::string PlayFabWinHttpPlugin::GetUrl(CallRequestContainer& reqContainer) const
     {
-        return PlayFabSettings::GetUrl(reqContainer.GetUrl(), PlayFabSettings::requestGetParams);
+        return reqContainer.GetFullUrl();
     }
 
     void PlayFabWinHttpPlugin::SetPredefinedHeaders(CallRequestContainer& requestContainer, HINTERNET hRequest)
@@ -318,6 +329,7 @@ namespace PlayFab
             reqContainer.errorWrapper.HttpStatus = reqContainer.responseJson.get("status", Json::Value::null).asString();
             reqContainer.errorWrapper.Data = reqContainer.responseJson.get("data", Json::Value::null);
             reqContainer.errorWrapper.ErrorName = reqContainer.responseJson.get("error", Json::Value::null).asString();
+            reqContainer.errorWrapper.ErrorCode = static_cast<PlayFabErrorCode>(reqContainer.responseJson.get("errorCode", Json::Value::null).asInt());
             reqContainer.errorWrapper.ErrorMessage = reqContainer.responseJson.get("errorMessage", Json::Value::null).asString();
             reqContainer.errorWrapper.ErrorDetails = reqContainer.responseJson.get("errorDetails", Json::Value::null);
         }

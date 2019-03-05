@@ -2,6 +2,7 @@
 
 #include <playfab/PlayFabCallRequestContainer.h>
 #include <playfab/PlayFabError.h>
+#include <mutex>
 #include <unordered_map>
 
 namespace PlayFab
@@ -95,6 +96,12 @@ namespace PlayFab
         // If a plugin with specified contract and optional instance name already exists, it will be replaced with specified instance.
         void SetPluginInstance(std::shared_ptr<IPlayFabPlugin> plugin, const PlayFabPluginContract contract, const std::string& instanceName = "");
 
+        // Sets a custom exception handler for any possible background thread exceptions
+        void SetExceptionHandler(ExceptionCallback exceptionHandler);
+
+        // Called when an exception occured on a worker thread
+        void HandleException(const std::exception);
+
     private:
         std::shared_ptr<IPlayFabPlugin> GetPluginInternal(const PlayFabPluginContract contract, const std::string& instanceName);
         void SetPluginInternal(std::shared_ptr<IPlayFabPlugin> plugin, const PlayFabPluginContract contract, const std::string& instanceName);
@@ -105,5 +112,7 @@ namespace PlayFab
 
     private:
         std::map<const std::pair<const PlayFabPluginContract, const std::string>, std::shared_ptr<IPlayFabPlugin>> plugins;
+        std::mutex userExceptionCallbackMutex;
+        ExceptionCallback userExceptionCallback;
     };
 }

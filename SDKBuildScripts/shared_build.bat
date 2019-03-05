@@ -16,7 +16,7 @@ if [%delSrc%] == [true] (
 )
 popd
 
-if [%apiSpecSource%] == [] (
+if ["%apiSpecSource%"] == [""] (
     set apiSpecSource=-apiSpecGitUrl
 )
 

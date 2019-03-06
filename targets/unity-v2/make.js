@@ -421,7 +421,7 @@ function getRequestActions(tabbing, apiCall, isApiInstance = false) {
     if (apiCall.name === "GetEntityToken" && isApiInstance === false)
         return tabbing + "AuthType authType = AuthType.None;\n" +
             "#if !DISABLE_PLAYFABCLIENT_API\n" +
-            tabbing + "if (authType == AuthType.None && !string.IsNullOrEmpty(request.AuthenticationContext.ClientSessionTicket ?? PluginManager.GetPlugin<IPlayFabTransportPlugin>(PluginContract.PlayFab_Transport).AuthKey))\n" +
+            tabbing + "if (authType == AuthType.None && (request.AuthenticationContext != null ? request.AuthenticationContext.IsClientLoggedIn() : PlayFabClientAPI.IsClientLoggedIn()))\n" +
             tabbing + "    authType = AuthType.LoginSession;\n" +
             "#endif\n" +
             "#if ENABLE_PLAYFABSERVER_API || ENABLE_PLAYFABADMIN_API || UNITY_EDITOR\n" +

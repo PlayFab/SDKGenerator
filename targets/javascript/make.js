@@ -23,7 +23,6 @@ exports.makeCombinedAPI = function (apis, sourceDir, apiOutputDir) {
         getRequestActions: getRequestActions,
         getResultActions: getResultActions,
         getUrl: getUrl,
-        getPartialUrl: getPartialUrl,
         hasResultActions: hasResultActions,
         sdkVersion: sdkGlobals.sdkVersion,
         sourceDir: sourceDir,
@@ -72,13 +71,16 @@ function getVerticalNameDefault() {
 function getRequestActions(tabbing, apiCall) {
     if (apiCall.url === "/Authentication/GetEntityToken")
         return tabbing + "var authKey = null; var authValue = null;\n"
-            + tabbing + "if (!authKey && PlayFab._internalSettings.sessionTicket) { var authInfo = PlayFab._internalSettings.GetAuthInfo(request, authKey=\"X-Authorization\"); authKey = authInfo.authKey, authValue = authInfo.authValue; }\n"
-            + tabbing + "if (!authKey && PlayFab.settings.developerSecretKey) { var authInfo = PlayFab._internalSettings.GetAuthInfo(request, authKey=\"X-SecretKey\"); authKey = authInfo.authKey, authValue = authInfo.authValue; }\n";
+            + tabbing + "if (!authKey && PlayFab._internalSettings.sessionTicket) { authKey = \"X-Authorization\"; authValue = PlayFab._internalSettings.sessionTicket; }\n"
+            + tabbing + "if (!authKey && PlayFab.settings.developerSecretKey) { authKey = \"X-SecretKey\"; authValue = PlayFab.settings.developerSecretKey; }\n";
     if (apiCall.result === "LoginResult" || apiCall.request === "RegisterPlayFabUserRequest")
-        return tabbing + "request.TitleId = PlayFab.settings.titleId ? PlayFab.settings.titleId : request.TitleId; if (!request.TitleId) throw PlayFab._internalSettings.errorTitleId;\n"
-            + tabbing + "// PlayFab._internalSettings.authenticationContext can be modified by other asynchronous login attempts\n"
-            + tabbing + "// Deep-copy the authenticationContext here to safely update it\n"
-            + tabbing + "var authenticationContext = JSON.parse(JSON.stringify(PlayFab._internalSettings.authenticationContext));\n";
+        return tabbing + "request.TitleId = PlayFab.settings.titleId ? PlayFab.settings.titleId : request.TitleId; if (!request.TitleId) throw PlayFab._internalSettings.errorTitleId;\n";
+    if (apiCall.auth === "EntityToken")
+        return tabbing + "if (!PlayFab._internalSettings.entityToken) throw PlayFab._internalSettings.errorEntityToken;\n";
+    if (apiCall.auth === "SessionTicket")
+        return tabbing + "if (!PlayFab._internalSettings.sessionTicket) throw PlayFab._internalSettings.errorLoggedIn;\n";
+    if (apiCall.auth === "SecretKey")
+        return tabbing + "if (!PlayFab.settings.developerSecretKey) throw PlayFab._internalSettings.errorSecretKey;\n";
     return "";
 }
 
@@ -95,20 +97,18 @@ function hasResultActions(apiCall) {
 function getResultActions(tabbing, apiCall) {
     if (apiCall.result === "LoginResult")
         return tabbing + "if (result != null) {\n"
-            + tabbing + "    if(result.data.SessionTicket != null) {\n"
-            + tabbing + "        PlayFab._internalSettings.sessionTicket = result.data.SessionTicket;\n"
-            + tabbing + "    }\n"
-            + tabbing + "    if (result.data.EntityToken != null) {\n"
-            + tabbing + "        PlayFab._internalSettings.entityToken = result.data.EntityToken.EntityToken;\n"
-            + tabbing + "    }\n"
-            + tabbing + "    // Apply the updates for the AuthenticationContext returned to the client\n"
-            + tabbing + "    authenticationContext = PlayFab._internalSettings.UpdateAuthenticationContext(authenticationContext, result);\n"
+            + tabbing + "       if(result.data.SessionTicket != null) {\n"
+            + tabbing + "           PlayFab._internalSettings.sessionTicket = result.data.SessionTicket;\n"
+            + tabbing + "       }\n"
+            + tabbing + "       if (result.data.EntityToken != null) {\n"
+            + tabbing + "           PlayFab._internalSettings.entityToken = result.data.EntityToken.EntityToken;\n"
+            + tabbing + "       }\n"
             + tabbing + "    PlayFab.ClientApi._MultiStepClientLogin(result.data.SettingsForUser.NeedsAttribution);\n"
             + tabbing + "}";
     if (apiCall.result === "RegisterPlayFabUserResult")
         return tabbing + "if (result != null && result.data.SessionTicket != null) {\n"
-            + tabbing + "     PlayFab._internalSettings.sessionTicket = result.data.SessionTicket;\n"
-            + tabbing + "     PlayFab.ClientApi._MultiStepClientLogin(result.data.SettingsForUser.NeedsAttribution);\n"
+            + tabbing + "    PlayFab._internalSettings.sessionTicket = result.data.SessionTicket;\n"
+            + tabbing + "    PlayFab.ClientApi._MultiStepClientLogin(result.data.SettingsForUser.NeedsAttribution);\n"
             + tabbing + "}";
     if (apiCall.url === "/Authentication/GetEntityToken")
         return tabbing + "if (result != null && result.data.EntityToken != null)\n"
@@ -119,26 +119,20 @@ function getResultActions(tabbing, apiCall) {
     return "";
 }
 
-function getPartialUrl(apiCall) {
-    return "\"" + apiCall.url + "\"";
-}
-
 function getUrl(apiCall) {
-    return "PlayFab._internalSettings.GetServerUrl() + " + getPartialUrl(apiCall);
+    return "PlayFab._internalSettings.GetServerUrl() + \"" + apiCall.url + "\"";
 }
 
 function getAuthParams(apiCall) {
-    // Returns the authKey to PlayFab._internalSettings.ExecuteRequestWrapper()
     if (apiCall.url === "/Authentication/GetEntityToken")
-        return "authKey";
+        return "authKey, authValue";
     if (apiCall.auth === "EntityToken")
-        return "\"X-EntityToken\"";
+        return "\"X-EntityToken\", PlayFab._internalSettings.entityToken";
     if (apiCall.auth === "SecretKey")
-        return "\"X-SecretKey\"";
+        return "\"X-SecretKey\", PlayFab.settings.developerSecretKey";
     if (apiCall.auth === "SessionTicket")
-        return "\"X-Authorization\"";
-
-    return "null";
+        return "\"X-Authorization\", PlayFab._internalSettings.sessionTicket";
+    return "null, null";
 }
 
 function getDeprecationAttribute(tabbing, apiObj) {

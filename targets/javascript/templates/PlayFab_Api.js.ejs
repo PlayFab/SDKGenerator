@@ -152,79 +152,6 @@ if(!PlayFab._internalSettings) {
             }
 
             xhr.send(requestBody);
-        },
-
-        authenticationContext: {
-            PlayFabId: null,
-            EntityId: null,
-            EntityType: null,
-            SessionTicket: null,
-            EntityToken: null
-        },
-
-        UpdateAuthenticationContext: function (authenticationContext, result) {
-            var authenticationContextUpdates = {};
-            if(result.data.PlayFabId !== null) {
-                PlayFab._internalSettings.authenticationContext.PlayFabId = result.data.PlayFabId;
-                authenticationContextUpdates.PlayFabId = result.data.PlayFabId;
-            }
-            if(result.data.SessionTicket !== null) {
-                PlayFab._internalSettings.authenticationContext.SessionTicket = result.data.SessionTicket;
-                authenticationContextUpdates.SessionTicket = result.data.SessionTicket;
-            }
-            if (result.data.EntityToken !== null) {
-                PlayFab._internalSettings.authenticationContext.EntityId = result.data.EntityToken.Entity.Id;
-                authenticationContextUpdates.EntityId = result.data.EntityToken.Entity.Id;
-                PlayFab._internalSettings.authenticationContext.EntityType = result.data.EntityToken.Entity.Type;
-                authenticationContextUpdates.EntityType = result.data.EntityToken.Entity.Type;
-                PlayFab._internalSettings.authenticationContext.EntityToken = result.data.EntityToken.EntityToken;
-                authenticationContextUpdates.EntityToken = result.data.EntityToken.EntityToken;
-            }
-            // Update the authenticationContext with values from the result
-            authenticationContext = Object.assign(authenticationContext, authenticationContextUpdates);
-            return authenticationContext;
-        },
-
-        AuthInfoMap: {
-            "X-EntityToken": {
-                authAttr: "entityToken",
-                authError: "errorEntityToken"
-            },
-            "X-Authorization": {
-                authAttr: "sessionTicket",
-                authError: "errorLoggedIn"
-            },
-            "X-SecretKey": {
-                authAttr: "developerSecretKey",
-                authError: "errorSecretKey"
-            }
-        },
-
-        GetAuthInfo: function (request, authKey) {
-            // Use the most-recently saved sessionTicket, unless one was provided in the request via the PlayFabId property
-            var authAttr = PlayFab._internalSettings.AuthInfoMap[authKey].authError;
-            var authError = PlayFab._internalSettings[authAttr];
-            authAttr = PlayFab._internalSettings.AuthInfoMap[authKey].authAttr;
-            var defaultAuthValue = null;
-            if (authAttr === "entityToken")
-                defaultAuthValue = PlayFab._internalSettings.entityToken;
-            else if (authAttr === "sessionTicket")
-                defaultAuthValue = PlayFab._internalSettings.sessionTicket;
-            else if (authAttr === "developerSecretKey")
-                defaultAuthValue = PlayFab.settings.developerSecretKey;
-            var authValue = request.AuthenticationContext ? request.AuthenticationContext[authAttr] : defaultAuthValue;
-            return {"authKey": authKey, "authValue": authValue, "authError": authError};
-        },
-
-        ExecuteRequestWrapper: function (apiURL, request, authKey, callback, customData, extraHeaders) {
-            var authValue = null;
-            if (authKey !== null){
-                var authInfo = PlayFab._internalSettings.GetAuthInfo(request, authKey=authKey);
-                var authKey = authInfo.authKey, authValue = authInfo.authValue, authError = authInfo.authError;
-
-                if (!authValue) throw authError;
-            }
-            PlayFab._internalSettings.ExecuteRequest(PlayFab._internalSettings.GetServerUrl() + apiURL, request, authKey, authValue, callback, customData, extraHeaders);
         }
     }
 }
@@ -259,11 +186,9 @@ PlayFab.<%- api.name %>Api = {
             if (callback != null && typeof (callback) == "function")
                 callback(result, error);
         };
-        PlayFab._internalSettings.ExecuteRequestWrapper(<%- getPartialUrl(apiCall) %>, request, <%- getAuthParams(apiCall) %>, overloadCallback, customData, extraHeaders);<% if (apiCall.result === "LoginResult") { %>
-        // Return a Promise so that multiple asynchronous calls to this method can be handled simultaneously with Promise.all()
-        return new Promise(function(resolve){resolve(authenticationContext);});<% } %><%
+        PlayFab._internalSettings.ExecuteRequest(<%- getUrl(apiCall) %>, request, <%- getAuthParams(apiCall) %>, overloadCallback, customData, extraHeaders);<%
 }else{
-%>        PlayFab._internalSettings.ExecuteRequestWrapper(<%- getPartialUrl(apiCall) %>, request, <%- getAuthParams(apiCall) %>, callback, customData, extraHeaders);<% } %>
+%>        PlayFab._internalSettings.ExecuteRequest(<%- getUrl(apiCall) %>, request, <%- getAuthParams(apiCall) %>, callback, customData, extraHeaders);<% } %>
     },
 <% } if (hasClientOptions) {%>
     _MultiStepClientLogin: function (needsAttribution) {

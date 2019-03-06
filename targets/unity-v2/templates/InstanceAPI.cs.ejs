@@ -1,0 +1,84 @@
+#if <%- getApiDefineFlag(api) %>
+using System;
+using System.Collections.Generic;
+using PlayFab.<%- api.name %>Models;
+using PlayFab.Internal;
+using PlayFab.Json;
+using PlayFab.Public;
+
+namespace PlayFab
+{
+<%- generateApiSummary("    ", api, "description")
+%>    public <%- isPartial %>class PlayFab<%- api.name %>InstanceAPI
+    {
+        public PlayFabApiSettings ApiSettings = null;
+        private PlayFabAuthenticationContext authenticationContext = null;
+
+        public PlayFab<%- api.name %>InstanceAPI() {}
+
+        public PlayFab<%- api.name %>InstanceAPI(PlayFabApiSettings settings) 
+        {
+            ApiSettings = settings;
+        }
+
+        public PlayFab<%- api.name %>InstanceAPI(PlayFabAuthenticationContext context) 
+        {
+            authenticationContext = context;
+        }
+
+        public PlayFab<%- api.name %>InstanceAPI(PlayFabApiSettings settings, PlayFabAuthenticationContext context) 
+        {
+            ApiSettings = settings;
+            authenticationContext = context;
+        }
+
+        public void SetAuthenticationContext(PlayFabAuthenticationContext context)
+        {
+            authenticationContext = context;
+        }
+
+        public PlayFabAuthenticationContext GetAuthenticationContext()
+        {
+            return authenticationContext;
+        }
+
+<% if (hasClientOptions) { %>
+        /// <summary>
+        /// Check to See if the client is logged in.
+        /// </summary>
+        public bool IsClientLoggedIn()
+        {
+            return authenticationContext == null ? false : authenticationContext.IsClientLoggedIn();
+        }
+<% }%>
+
+<% if (hasEntityTokenOptions) { %>
+        /// <summary>
+        /// Check to See if the entity is logged in.
+        /// </summary>
+        public bool IsEntityLoggedIn()
+        {
+            return authenticationContext == null ? false : authenticationContext.IsEntityLoggedIn();
+        }
+<% }%>
+        /// <summary>
+        /// Clear the Client SessionToken which allows this Client to call API calls requiring login.
+        /// A new/fresh login will be required after calling this.
+        /// </summary>
+        public void ForgetAllCredentials()
+        {
+            if(authenticationContext != null)
+            {
+                authenticationContext.ForgetAllCredentials();
+            }
+        }
+
+<% for(var i in api.calls) { var apiCall = api.calls[i]; %><%- generateApiSummary("        ", apiCall, "summary") %><%- getDeprecationAttribute("        ", apiCall)%>
+        public void <%- apiCall.name %>(<%- apiCall.request %> request, Action<<%- apiCall.result %>> resultCallback, Action<PlayFabError> errorCallback, object customData = null, Dictionary<string, string> extraHeaders = null)
+        {
+<%- getRequestActions("            ", apiCall, true) %>            PlayFabHttp.MakeApiCall("<%- apiCall.url %>", request, <%- getAuthParams(apiCall) %>, resultCallback, errorCallback, customData, extraHeaders, false, authenticationContext, ApiSettings);
+        }<%- getCustomApiFunction("        ", apiCall, true) %> 
+<% }%>
+    }
+}
+#endif

@@ -152,25 +152,54 @@ namespace PlayFab
             set { PlayFabSharedPrivate.LogCapLimit = value; }
         }
 
-        public static string GetFullUrl(string apiCall, Dictionary<string, string> getParams)
+        public static string GetFullUrl(string apiCall, Dictionary<string, string> getParams, PlayFabApiSettings apiSettings = null)
         {
             StringBuilder sb = new StringBuilder(1000);
-        
-            var baseUrl = ProductionEnvironmentUrlPrivate;
+
+            string productionEnvironmentUrl = null, verticalName = null, titleId = null;
+            if (apiSettings != null)
+            {
+                if (apiSettings.ProductionEnvironmentUrl != null)
+                {
+                    productionEnvironmentUrl = apiSettings.ProductionEnvironmentUrl;
+                }
+                if (apiSettings.VerticalName != null)
+                {
+                    verticalName = apiSettings.VerticalName;
+                }
+                if (apiSettings.TitleId != null)
+                {
+                    titleId = apiSettings.TitleId;
+                }
+            }
+            if (productionEnvironmentUrl == null)
+            {
+                productionEnvironmentUrl = ProductionEnvironmentUrlPrivate;
+            }
+            if (verticalName == null && !string.IsNullOrEmpty(VerticalName))
+            {
+                verticalName = VerticalName;
+            }
+            if (titleId == null)
+            {
+                titleId = TitleId;
+            }
+
+            var baseUrl = productionEnvironmentUrl;
             if (!baseUrl.StartsWith("http"))
             {
-                if (!string.IsNullOrEmpty(VerticalName))
+                if (verticalName != null)
                 {
-                    sb.Append("https://").Append(VerticalName);
+                    sb.Append("https://").Append(verticalName);
                 }
                 else
                 {
-                    sb.Append("https://").Append(TitleId);
+                    sb.Append("https://").Append(titleId);
                 }
             }
-        
+
             sb.Append(baseUrl).Append(apiCall);
-        
+
             if (getParams != null)
             {
                 bool firstParam = true;
@@ -188,7 +217,7 @@ namespace PlayFab
                     sb.Append(paramPair.Key).Append("=").Append(paramPair.Value);
                 }
             }
-        
+
             return sb.ToString();
         }
     }

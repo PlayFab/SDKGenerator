@@ -31,6 +31,7 @@ exports.MakeUnityV2Sdk = function (apis, sourceDir, apiOutputDir) {
     for (var i = 0; i < apis.length; i++) {
         makeApiEventFiles(apis[i], sourceDir, apiOutputDir);
         makeApi(apis[i], sourceDir, apiOutputDir);
+        makeInstanceApi(apis[i], sourceDir, apiOutputDir);
     }
 }
 
@@ -157,38 +158,76 @@ function makeApi(api, sourceDir, apiOutputDir) {
     writeFile(path.resolve(apiOutputDir, api.name + "/PlayFab" + api.name + "API.cs"), apiTemplate(apiLocals));
 }
 
-function isPartial(api)
-{
-    if (api === "Multiplayer")
-    {
+function makeInstanceApi(api, sourceDir, apiOutputDir) {
+    console.log("   - Generating C# " + api.name + "Instance library to\n   -> " + apiOutputDir);
+
+    var templateDir = path.resolve(sourceDir, "templates");
+    var apiLocals = {
+        api: api,
+        getApiDefineFlag: getApiDefineFlag,
+        getAuthParams: getAuthParams,
+        generateApiSummary: generateApiSummary,
+        getDeprecationAttribute: getDeprecationAttribute,
+        getRequestActions: getRequestActions,
+        getCustomApiFunction: getCustomApiFunction,
+        hasEntityTokenOptions: api.name === "Authentication",
+        hasClientOptions: getAuthMechanisms([api]).includes("SessionTicket"),
+        isPartial: isPartial(api.name)
+    };
+
+    var apiTemplate = getCompiledTemplate(path.resolve(templateDir, "InstanceAPI.cs.ejs"));
+    writeFile(path.resolve(apiOutputDir, api.name + "/PlayFab" + api.name + "InstanceAPI.cs"), apiTemplate(apiLocals));
+}
+
+function isPartial(api) {
+    if (api === "Multiplayer") {
         return "partial ";
     }
-    else
-    {
+    else {
         return "";
     }
 }
 
 // Some apis have entirely custom built functions to augment apis in ways that aren't generate-able
-function getCustomApiFunction(tabbing, apiCall) {
-    if (apiCall.name === "ExecuteCloudScript") {
+function getCustomApiFunction(tabbing, apiCall, isApiInstance = false) {
+    if (apiCall.name === "ExecuteCloudScript" && isApiInstance == false) {
         return "\n\n" + tabbing + "public static void " + apiCall.name + "<TOut>(" + apiCall.request + " request, Action<" + apiCall.result + "> resultCallback, Action<PlayFabError> errorCallback, object customData = null, Dictionary<string, string> extraHeaders = null)\n"
             + tabbing + "{\n"
-            + tabbing + "Action<" + apiCall.result + "> wrappedResultCallback = (wrappedResult) =>\n"
-            + tabbing + "{\n"
-            + tabbing + "    var serializer = PluginManager.GetPlugin<ISerializerPlugin>(PluginContract.PlayFab_Serializer);\n"
-            + tabbing + "    var wrappedJson = serializer.SerializeObject(wrappedResult.FunctionResult);\n"
-            + tabbing + "    try {\n"
-            + tabbing + "        wrappedResult.FunctionResult = serializer.DeserializeObject<TOut>(wrappedJson);\n"
-            + tabbing + "    }\n"
-            + tabbing + "    catch (Exception)\n"
+            + tabbing + "    Action<" + apiCall.result + "> wrappedResultCallback = (wrappedResult) =>\n"
             + tabbing + "    {\n"
-            + tabbing + "        wrappedResult.FunctionResult = wrappedJson;\n"
-            + tabbing + "        wrappedResult.Logs.Add(new LogStatement{ Level = \"Warning\", Data = wrappedJson, Message = \"Sdk Message: Could not deserialize result as: \" + typeof (TOut).Name });\n"
-            + tabbing + "    }\n"
-            + tabbing + "    resultCallback(wrappedResult);\n"
-            + tabbing + "};\n"
-            + tabbing + "" + apiCall.name + "(request, wrappedResultCallback, errorCallback, customData, extraHeaders);\n"
+            + tabbing + "        var serializer = PluginManager.GetPlugin<ISerializerPlugin>(PluginContract.PlayFab_Serializer);\n"
+            + tabbing + "        var wrappedJson = serializer.SerializeObject(wrappedResult.FunctionResult);\n"
+            + tabbing + "        try {\n"
+            + tabbing + "            wrappedResult.FunctionResult = serializer.DeserializeObject<TOut>(wrappedJson);\n"
+            + tabbing + "        }\n"
+            + tabbing + "        catch (Exception)\n"
+            + tabbing + "        {\n"
+            + tabbing + "            wrappedResult.FunctionResult = wrappedJson;\n"
+            + tabbing + "            wrappedResult.Logs.Add(new LogStatement{ Level = \"Warning\", Data = wrappedJson, Message = \"Sdk Message: Could not deserialize result as: \" + typeof (TOut).Name });\n"
+            + tabbing + "        }\n"
+            + tabbing + "        resultCallback(wrappedResult);\n"
+            + tabbing + "    };\n"
+            + tabbing + "    " + apiCall.name + "(request, wrappedResultCallback, errorCallback, customData, extraHeaders);\n"
+            + tabbing + "}";
+    }
+    else if (apiCall.name === "ExecuteCloudScript" && isApiInstance == true) {
+        return "\n\n" + tabbing + "public void " + apiCall.name + "<TOut>(" + apiCall.request + " request, Action<" + apiCall.result + "> resultCallback, Action<PlayFabError> errorCallback, object customData = null, Dictionary<string, string> extraHeaders = null)\n"
+            + tabbing + "{\n"
+            + tabbing + "    Action<" + apiCall.result + "> wrappedResultCallback = (wrappedResult) =>\n"
+            + tabbing + "    {\n"
+            + tabbing + "        var serializer = PluginManager.GetPlugin<ISerializerPlugin>(PluginContract.PlayFab_Serializer);\n"
+            + tabbing + "        var wrappedJson = serializer.SerializeObject(wrappedResult.FunctionResult);\n"
+            + tabbing + "        try {\n"
+            + tabbing + "            wrappedResult.FunctionResult = serializer.DeserializeObject<TOut>(wrappedJson);\n"
+            + tabbing + "        }\n"
+            + tabbing + "        catch (Exception)\n"
+            + tabbing + "        {\n"
+            + tabbing + "            wrappedResult.FunctionResult = wrappedJson;\n"
+            + tabbing + "            wrappedResult.Logs.Add(new LogStatement{ Level = \"Warning\", Data = wrappedJson, Message = \"Sdk Message: Could not deserialize result as: \" + typeof (TOut).Name });\n"
+            + tabbing + "        }\n"
+            + tabbing + "        resultCallback(wrappedResult);\n"
+            + tabbing + "    };\n"
+            + tabbing + "    " + apiCall.name + "(request, wrappedResultCallback, errorCallback, customData, extraHeaders);\n"
             + tabbing + "}";
     }
     return ""; // Most apis don't have a custom alternate
@@ -378,25 +417,35 @@ function getAuthParams(apiCall) {
     return "AuthType.None";
 }
 
-function getRequestActions(tabbing, apiCall) {
-    if (apiCall.name === "GetEntityToken")
+function getRequestActions(tabbing, apiCall, isApiInstance = false) {
+    if (apiCall.name === "GetEntityToken" && isApiInstance === false)
         return tabbing + "AuthType authType = AuthType.None;\n" +
             "#if !DISABLE_PLAYFABCLIENT_API\n" +
-            tabbing + "if (authType == AuthType.None && PlayFabClientAPI.IsClientLoggedIn())\n" +
+            tabbing + "if (authType == AuthType.None && !string.IsNullOrEmpty(request.AuthenticationContext.ClientSessionTicket ?? PluginManager.GetPlugin<IPlayFabTransportPlugin>(PluginContract.PlayFab_Transport).AuthKey))\n" +
             tabbing + "    authType = AuthType.LoginSession;\n" +
             "#endif\n" +
             "#if ENABLE_PLAYFABSERVER_API || ENABLE_PLAYFABADMIN_API || UNITY_EDITOR\n" +
-            tabbing + "if (authType == AuthType.None && !string.IsNullOrEmpty(PlayFabSettings.DeveloperSecretKey))\n" +
+            tabbing + "if (authType == AuthType.None && !string.IsNullOrEmpty(request.AuthenticationContext.DeveloperSecretKey ?? PlayFabSettings.DeveloperSecretKey))\n" +
             tabbing + "    authType = AuthType.DevSecretKey;\n" +
             "#endif\n";
+	if (apiCall.name === "GetEntityToken" && isApiInstance === true)
+        return tabbing + "AuthType authType = AuthType.None;\n" +
+            "#if !DISABLE_PLAYFABCLIENT_API\n" +
+            tabbing + "if (authType == AuthType.None && !string.IsNullOrEmpty(request.AuthenticationContext.ClientSessionTicket ?? (authenticationContext.ClientSessionTicket ?? PluginManager.GetPlugin<IPlayFabTransportPlugin>(PluginContract.PlayFab_Transport).AuthKey)))\n" +
+            tabbing + "    authType = AuthType.LoginSession;\n" +
+            "#endif\n" +
+            "#if ENABLE_PLAYFABSERVER_API || ENABLE_PLAYFABADMIN_API || UNITY_EDITOR\n" +
+            tabbing + "if (authType == AuthType.None && !string.IsNullOrEmpty(request.AuthenticationContext.DeveloperSecretKey ?? (authenticationContext.DeveloperSecretKey ?? PlayFabSettings.DeveloperSecretKey)))\n" +
+            tabbing + "    authType = AuthType.DevSecretKey;\n" +
+            "#endif\n";		
 
     if (apiCall.result === "LoginResult" || apiCall.request === "RegisterPlayFabUserRequest")
         return tabbing + "request.TitleId = request.TitleId ?? PlayFabSettings.TitleId;\n";
-    if (apiCall.auth === "SessionTicket")
+    if (apiCall.auth === "SessionTicket"  && isApiInstance === true)
+        return tabbing + "if (string.IsNullOrEmpty(request.AuthenticationContext.ClientSessionTicket ?? (authenticationContext.ClientSessionTicket ?? PluginManager.GetPlugin<IPlayFabTransportPlugin>(PluginContract.PlayFab_Transport).AuthKey))) throw new PlayFabException(PlayFabExceptionCode.NotLoggedIn,\"Must be logged in to call this method\");\n";
+    if (apiCall.auth === "SessionTicket"  && isApiInstance === false)
         return tabbing + "if (!IsClientLoggedIn()) throw new PlayFabException(PlayFabExceptionCode.NotLoggedIn,\"Must be logged in to call this method\");\n";
-    if (apiCall.auth === "SecretKey")
-        return tabbing + "if (PlayFabSettings.DeveloperSecretKey == null) throw new PlayFabException(PlayFabExceptionCode.DeveloperKeyNotSet,\"Must have PlayFabSettings.DeveloperSecretKey set to call this method\");\n";
-    return "";
+	return "";
 }
 
 function generateApiSummary(tabbing, apiElement, summaryParam, extraLines) {

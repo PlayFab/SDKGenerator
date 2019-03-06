@@ -9,7 +9,6 @@ testTitleData.json is a file that is required by all of the example-test project
 * Your title must have an existing player account registered which matches the email address in your testTitleData.json (described below)
   * The password should be whatever you want, we explicitly test failure to log in with a bad password
 * Unit testing titles should be clean/unused titles with no expectations
-  * A legacy test exists in some SDKs where a character may be added to an account if the character doesn't exist
   * Specific user data, Entity Objects, and other features may be added to the test player that doesn't match existing title expectations
 * One test relies on an advertising plugin being enabled for your title, which is generally not typical. This test will always fail for your test titles, and you can ignore it, or disable it
 * The following Cloud Script functions must exist in your title:
@@ -51,12 +50,9 @@ The format of the testTitleData.json file is as follows:
 {
 	"titleId": "<Found in PlayFab Game Manager>",
 	"developerSecretKey": "<Found in PlayFab Game Manager>",
-	"userEmail": "<your@email.com>",
-	"characterName": "<CharName>"
+	"userEmail": "<your@email.com>"
 }
 ```
-
-Please note characterName is deprecated, and has already been removed from most of the test-examples in our SDKs.  For those few that remain, this can be any valid character name (Those test suites will usually create the character).
 
 Our own testTitleData.json contains the secret key for title 6195, and thus we do not publish this file.  You should create your own file using the format above, as we cannot provide ours.
 

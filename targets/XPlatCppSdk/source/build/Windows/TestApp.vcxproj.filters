@@ -18,37 +18,37 @@
     <ClInclude Include="$(TestSourceDir)\TestApp\TestAppPch.h">
       <Filter>Header Files</Filter>
     </ClInclude>
-    <ClInclude Include="..\..\test\TestApp\PlayFabApiTest.h">
+    <ClInclude Include="$(TestSourceDir)\TestApp\PlayFabApiTest.h">
       <Filter>Header Files</Filter>
     </ClInclude>
-    <ClInclude Include="..\..\test\TestApp\PlayFabEventTest.h">
+    <ClInclude Include="$(TestSourceDir)\TestApp\PlayFabEventTest.h">
       <Filter>Header Files</Filter>
     </ClInclude>
-    <ClInclude Include="..\..\test\TestApp\PlayFabTestMultiUserInstance.h">
+    <ClInclude Include="$(TestSourceDir)\TestApp\PlayFabTestMultiUserInstance.h">
       <Filter>Header Files</Filter>
     </ClInclude>
-    <ClInclude Include="..\..\test\TestApp\PlayFabTestMultiUserStatic.h">
+    <ClInclude Include="$(TestSourceDir)\TestApp\PlayFabTestMultiUserStatic.h">
       <Filter>Header Files</Filter>
     </ClInclude>
-    <ClInclude Include="..\..\test\TestApp\TestCase.h">
+    <ClInclude Include="$(TestSourceDir)\TestApp\TestCase.h">
       <Filter>Header Files</Filter>
     </ClInclude>
-    <ClInclude Include="..\..\test\TestApp\TestContext.h">
+    <ClInclude Include="$(TestSourceDir)\TestApp\TestContext.h">
       <Filter>Header Files</Filter>
     </ClInclude>
-    <ClInclude Include="..\..\test\TestApp\TestDataTypes.h">
+    <ClInclude Include="$(TestSourceDir)\TestApp\TestDataTypes.h">
       <Filter>Header Files</Filter>
     </ClInclude>
-    <ClInclude Include="..\..\test\TestApp\TestReport.h">
+    <ClInclude Include="$(TestSourceDir)\TestApp\TestReport.h">
       <Filter>Header Files</Filter>
     </ClInclude>
-    <ClInclude Include="..\..\test\TestApp\TestRunner.h">
+    <ClInclude Include="$(TestSourceDir)\TestApp\TestRunner.h">
       <Filter>Header Files</Filter>
     </ClInclude>
-    <ClInclude Include="..\..\test\TestApp\TestTitleDataLoader.h">
+    <ClInclude Include="$(TestSourceDir)\TestApp\TestUtils.h">
       <Filter>Header Files</Filter>
     </ClInclude>
-    <ClInclude Include="..\..\test\TestApp\TestUtils.h">
+    <ClInclude Include="$(TestSourceDir)\TestApp\TestApp.h">
       <Filter>Header Files</Filter>
     </ClInclude>
   </ItemGroup>
@@ -59,34 +59,34 @@
     <ClCompile Include="$(TestSourceDir)\TestApp\TestAppPch.cpp">
       <Filter>Source Files</Filter>
     </ClCompile>
-    <ClCompile Include="..\..\test\TestApp\PlayFabApiTest.cpp">
+    <ClCompile Include="$(TestSourceDir)\TestApp\PlayFabApiTest.cpp">
       <Filter>Source Files</Filter>
     </ClCompile>
-    <ClCompile Include="..\..\test\TestApp\PlayFabEventTest.cpp">
+    <ClCompile Include="$(TestSourceDir)\TestApp\PlayFabEventTest.cpp">
       <Filter>Source Files</Filter>
     </ClCompile>
-    <ClCompile Include="..\..\test\TestApp\PlayFabTestMultiUserInstance.cpp">
+    <ClCompile Include="$(TestSourceDir)\TestApp\PlayFabTestMultiUserInstance.cpp">
       <Filter>Source Files</Filter>
     </ClCompile>
-    <ClCompile Include="..\..\test\TestApp\PlayFabTestMultiUserStatic.cpp">
+    <ClCompile Include="$(TestSourceDir)\TestApp\PlayFabTestMultiUserStatic.cpp">
       <Filter>Source Files</Filter>
     </ClCompile>
-    <ClCompile Include="..\..\test\TestApp\TestContext.cpp">
+    <ClCompile Include="$(TestSourceDir)\TestApp\TestContext.cpp">
       <Filter>Source Files</Filter>
     </ClCompile>
-    <ClCompile Include="..\..\test\TestApp\TestReport.cpp">
+    <ClCompile Include="$(TestSourceDir)\TestApp\TestReport.cpp">
       <Filter>Source Files</Filter>
     </ClCompile>
-    <ClCompile Include="..\..\test\TestApp\TestRunner.cpp">
+    <ClCompile Include="$(TestSourceDir)\TestApp\TestRunner.cpp">
       <Filter>Source Files</Filter>
     </ClCompile>
-    <ClCompile Include="..\..\test\TestApp\TestTitleDataLoader.cpp">
+    <ClCompile Include="$(TestSourceDir)\TestApp\TestUtils.cpp">
       <Filter>Source Files</Filter>
     </ClCompile>
-    <ClCompile Include="..\..\test\TestApp\TestTitleDataLoaderWin32.cpp">
+    <ClCompile Include="MainWin32.cpp">
       <Filter>Source Files</Filter>
     </ClCompile>
-    <ClCompile Include="..\..\test\TestApp\TestUtils.cpp">
+    <ClCompile Include="TestAppWin32.cpp">
       <Filter>Source Files</Filter>
     </ClCompile>
   </ItemGroup>

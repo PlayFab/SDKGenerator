@@ -1,6 +1,7 @@
 // Copyright (C) Microsoft Corporation. All rights reserved.
 
 #include "TestAppPch.h"
+#include <thread>
 #include <playfab/PlayFabSettings.h>
 #include "TestCase.h"
 #include "TestContext.h"
@@ -64,6 +65,10 @@ namespace PlayFabUnit
                 if ((TestActiveState::READY != test->activeState) && !timeExpired) // Not finished & not timed out
                 {
                     test->testCase->Tick(*test);
+
+                    // Allow worker threads a chance to run (important for platforms with conservative thread management).
+                    std::this_thread::yield();
+
                     continue;
                 }
                 else if ((TestActiveState::ACTIVE == test->activeState) && timeExpired)

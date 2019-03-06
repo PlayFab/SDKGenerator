@@ -1,16 +1,16 @@
 // Copyright (C) Microsoft Corporation. All rights reserved.
 
 #include "TestAppPch.h"
-
+#include <Windows.h>
 #include <fstream>
-#include "TestTitleDataLoader.h"
+#include "TestApp.h"
 
 namespace PlayFabUnit
 {
-    // Partial class implementation of TestTitleDataLoader.
-    // Each platform gets its own file and implementation of TestTitleDataLoader::LoadTestJson(),
-    // since the file handling logic is likely to be very different on all of them.
-    bool TestTitleDataLoader::LoadTestJson(std::shared_ptr<char*>& testDataJson, size_t& testDataJsonLen)
+    // Partial class implementation of TestApp.
+    // Each platform gets its own file and implementation of the following methods, since the logic
+    // is likely to be very different on all of them.
+    bool TestApp::LoadTitleDataJson(std::shared_ptr<char*>& testDataJson, size_t& testDataJsonLen)
     {
         // Get the path to the test data file from the current environment vars.
         std::string titleDataPath;
@@ -50,5 +50,14 @@ namespace PlayFabUnit
         titleDataFile.close();
 
         return true;
+    }
+
+    void TestApp::LogPut(const char* message)
+    {
+        // Write to STDOUT.
+        puts(message);
+
+        // Write to Visual Studio's Output window.
+        OutputDebugStringA(message);
     }
 }

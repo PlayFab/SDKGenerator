@@ -148,6 +148,7 @@ function makeApi(api, sourceDir, apiOutputDir) {
         generateApiSummary: generateApiSummary,
         getDeprecationAttribute: getDeprecationAttribute,
         getRequestActions: getRequestActions,
+        getCustomApiLogic: getCustomApiLogic,
         getCustomApiFunction: getCustomApiFunction,
         hasEntityTokenOptions: api.name === "Authentication",
         hasClientOptions: getAuthMechanisms([api]).includes("SessionTicket"),
@@ -446,6 +447,19 @@ function getRequestActions(tabbing, apiCall, isApiInstance = false) {
     if (apiCall.auth === "SessionTicket"  && isApiInstance === false)
         return tabbing + "if (!IsClientLoggedIn()) throw new PlayFabException(PlayFabExceptionCode.NotLoggedIn,\"Must be logged in to call this method\");\n";
 	return "";
+}
+
+function getCustomApiLogic(tabbing, apiCall)
+{
+    if (apiCall.name === "ExecuteFunction")
+        return tabbing + "var localApiServerString = PlayFabSettings.LocalApiServer;\n" +
+            tabbing + "if (!string.IsNullOrEmpty(localApiServerString))\n" +
+            tabbing + "{\n" +
+            tabbing + "    var baseUri = new Uri(localApiServerString);\n" +
+            tabbing + "    var fullUri = new Uri(baseUri, \"" + apiCall.url + "\");\n" +
+            tabbing + "    PlayFabHttp.MakeApiCallWithFullUri(fullUri.AbsoluteUri, request, AuthType.EntityToken, resultCallback, errorCallback, customData, extraHeaders);\n" +
+            tabbing + "    return;\n" + 
+            tabbing + "}\n";
 }
 
 function generateApiSummary(tabbing, apiElement, summaryParam, extraLines) {

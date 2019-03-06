@@ -13,7 +13,7 @@ namespace PlayFab
         };
 
         /// <summary> This is only for customers running a private cluster.  Generally you shouldn't touch this </summary>
-        public static string ProductionEnvironmentUrl = ".playfabapi.com";
+        public static string ProductionEnvironmentUrl = "playfabapi.com";
         /// <summary> The name of a customer vertical. This is only for customers running a private cluster.  Generally you shouldn't touch this </summary>
         public static string VerticalName = <%- getVerticalNameDefault() %>;
         /// <summary> Session token for Entity API. Auto-Populated by GetEntityToken method. </summary>
@@ -40,17 +40,18 @@ namespace PlayFab
         public static string GetFullUrl(string apiCall, Dictionary<string, string> getParams, PlayFabApiSettings apiSettings = null)
         {
             StringBuilder sb = new StringBuilder(1000);
-        
+
             var baseUrl = apiSettings?.ProductionEnvironmentUrl ?? ProductionEnvironmentUrl;
             if (!baseUrl.StartsWith("http"))
             {
+                sb.Append("https://");
+                if ((apiSettings?.TitleId ?? TitleId) != null)
+                {
+                    sb.Append(apiSettings?.TitleId ?? TitleId).Append(".");
+                }
                 if ((apiSettings?.VerticalName ?? VerticalName) != null)
                 {
-                    sb.Append("https://").Append(apiSettings?.VerticalName ?? VerticalName);
-                }
-                else
-                {
-                    sb.Append("https://").Append(apiSettings?.TitleId ?? TitleId);
+                    sb.Append(apiSettings?.VerticalName ?? VerticalName).Append(".");
                 }
             }
                 

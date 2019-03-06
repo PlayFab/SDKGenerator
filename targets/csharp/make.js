@@ -95,6 +95,7 @@ function makeDatatypes(apis, sourceDir, apiOutputDir) {
             datatype: datatype,
             generateApiSummary: generateApiSummary,
             getModelPropertyDef: getModelPropertyDef,
+            getMakeFieldOrProperty: getMakeFieldOrProperty,
             getPropertyAttribs: getPropertyAttribs,
             getBaseTypeSyntax: getBaseTypeSyntax,
             getDeprecationAttribute: getDeprecationAttribute
@@ -213,6 +214,14 @@ function getModelPropertyDef(property, datatype) {
         basicType = getPropertyCsType(property, datatype, true);
         return basicType + " " + property.name;
     }
+}
+
+function getMakeFieldOrProperty(datatype) {
+    if(datatype.name === "ExecuteFunctionRequest"
+        || datatype.name === "EntityKey"
+        || datatype.name === "EntityRequest")
+        return "{ get; set; }";
+    return ";";
 }
 
 function getPropertyAttribs(property, datatype, api) {

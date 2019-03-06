@@ -1,3 +1,4 @@
+using PlayFab.Internal;
 using System;
 using System.Collections.Generic;
 using System.Text;
@@ -38,7 +39,7 @@ namespace PlayFab
             { "sdk", VersionString }
         };
 
-        private const string DefaultPlayFabApiUrlPrivate = ".playfabapi.com";
+        private const string DefaultPlayFabApiUrlPrivate = "playfabapi.com";
 
         private static PlayFabSharedSettings GetSharedSettingsObjectPrivate()
         {
@@ -152,6 +153,21 @@ namespace PlayFab
             set { PlayFabSharedPrivate.LogCapLimit = value; }
         }
 
+        private static string _localApiServer;
+
+        public static string LocalApiServer
+        {
+            get
+            {
+                return _localApiServer ?? PlayFabUtil.GetLocalSettingsFileProperty("LocalApiServer");
+            }
+
+            set 
+            {
+                _localApiServer = value;
+            }
+        }
+
         public static string GetFullUrl(string apiCall, Dictionary<string, string> getParams, PlayFabApiSettings apiSettings = null)
         {
             StringBuilder sb = new StringBuilder(1000);
@@ -188,13 +204,14 @@ namespace PlayFab
             var baseUrl = productionEnvironmentUrl;
             if (!baseUrl.StartsWith("http"))
             {
-                if (verticalName != null)
+                sb.Append("https://");
+                if (!string.IsNullOrEmpty(TitleId))
                 {
-                    sb.Append("https://").Append(verticalName);
+                    sb.Append(TitleId).Append(".");
                 }
-                else
+                if (!string.IsNullOrEmpty(VerticalName))
                 {
-                    sb.Append("https://").Append(titleId);
+                    sb.Append(VerticalName).Append(".");
                 }
             }
 

@@ -1,27 +1,92 @@
 ﻿<?xml version="1.0" encoding="utf-8"?>
 <Project ToolsVersion="15.0" xmlns="http://schemas.microsoft.com/developer/msbuild/2003">
   <ItemGroup>
-    <Filter Include="Common">
-      <UniqueIdentifier>0693d9e7-4dec-4457-b2ec-0cfe665293e7</UniqueIdentifier>
-    </Filter>
     <Filter Include="Assets">
       <UniqueIdentifier>7ba540a3-0b1b-483f-99f2-ecdf9bf70340</UniqueIdentifier>
       <Extensions>bmp;dds;fbx;gif;jpg;jpeg;tga;tiff;tif;png</Extensions>
     </Filter>
+    <Filter Include="Header Files">
+      <UniqueIdentifier>{8fe676e8-c067-496b-99d3-60c46e1f3652}</UniqueIdentifier>
+    </Filter>
+    <Filter Include="Source Files">
+      <UniqueIdentifier>{ee4afc04-c3ef-4beb-b2fd-74fb253f5829}</UniqueIdentifier>
+    </Filter>
   </ItemGroup>
   <ItemGroup>
-    <ClInclude Include="pch.h" />
-    <ClInclude Include="Game.h" />
-    <ClInclude Include="StepTimer.h">
-      <Filter>Common</Filter>
+    <ClInclude Include="$(TestSourceDir)\TestApp\PlayFabApiTest.h">
+      <Filter>Header Files</Filter>
     </ClInclude>
-    <ClInclude Include="TestCode.h" />
+    <ClInclude Include="$(TestSourceDir)\TestApp\PlayFabEventTest.h">
+      <Filter>Header Files</Filter>
+    </ClInclude>
+    <ClInclude Include="$(TestSourceDir)\TestApp\PlayFabTestMultiUserInstance.h">
+      <Filter>Header Files</Filter>
+    </ClInclude>
+    <ClInclude Include="$(TestSourceDir)\TestApp\PlayFabTestMultiUserStatic.h">
+      <Filter>Header Files</Filter>
+    </ClInclude>
+    <ClInclude Include="$(TestSourceDir)\TestApp\TestApp.h">
+      <Filter>Header Files</Filter>
+    </ClInclude>
+    <ClInclude Include="$(TestSourceDir)\TestApp\TestAppPch.h">
+      <Filter>Header Files</Filter>
+    </ClInclude>
+    <ClInclude Include="$(TestSourceDir)\TestApp\TestCase.h">
+      <Filter>Header Files</Filter>
+    </ClInclude>
+    <ClInclude Include="$(TestSourceDir)\TestApp\TestContext.h">
+      <Filter>Header Files</Filter>
+    </ClInclude>
+    <ClInclude Include="$(TestSourceDir)\TestApp\TestDataTypes.h">
+      <Filter>Header Files</Filter>
+    </ClInclude>
+    <ClInclude Include="$(TestSourceDir)\TestApp\TestReport.h">
+      <Filter>Header Files</Filter>
+    </ClInclude>
+    <ClInclude Include="$(TestSourceDir)\TestApp\TestRunner.h">
+      <Filter>Header Files</Filter>
+    </ClInclude>
+    <ClInclude Include="$(TestSourceDir)\TestApp\TestUtils.h">
+      <Filter>Header Files</Filter>
+    </ClInclude>
   </ItemGroup>
   <ItemGroup>
-    <ClCompile Include="pch.cpp" />
-    <ClCompile Include="Game.cpp" />
-    <ClCompile Include="Main.cpp" />
-    <ClCompile Include="TestCode.cpp" />
+    <ClCompile Include="$(TestSourceDir)\TestApp\PlayFabApiTest.cpp">
+      <Filter>Source Files</Filter>
+    </ClCompile>
+    <ClCompile Include="$(TestSourceDir)\TestApp\PlayFabEventTest.cpp">
+      <Filter>Source Files</Filter>
+    </ClCompile>
+    <ClCompile Include="$(TestSourceDir)\TestApp\PlayFabTestMultiUserInstance.cpp">
+      <Filter>Source Files</Filter>
+    </ClCompile>
+    <ClCompile Include="$(TestSourceDir)\TestApp\PlayFabTestMultiUserStatic.cpp">
+      <Filter>Source Files</Filter>
+    </ClCompile>
+    <ClCompile Include="$(TestSourceDir)\TestApp\TestApp.cpp">
+      <Filter>Source Files</Filter>
+    </ClCompile>
+    <ClCompile Include="$(TestSourceDir)\TestApp\TestAppPch.cpp">
+      <Filter>Source Files</Filter>
+    </ClCompile>
+    <ClCompile Include="$(TestSourceDir)\TestApp\TestContext.cpp">
+      <Filter>Source Files</Filter>
+    </ClCompile>
+    <ClCompile Include="$(TestSourceDir)\TestApp\TestReport.cpp">
+      <Filter>Source Files</Filter>
+    </ClCompile>
+    <ClCompile Include="$(TestSourceDir)\TestApp\TestRunner.cpp">
+      <Filter>Source Files</Filter>
+    </ClCompile>
+    <ClCompile Include="$(TestSourceDir)\TestApp\TestUtils.cpp">
+      <Filter>Source Files</Filter>
+    </ClCompile>
+    <ClCompile Include="MainXBO.cpp">
+      <Filter>Source Files</Filter>
+    </ClCompile>
+    <ClCompile Include="TestAppXBO.cpp">
+      <Filter>Source Files</Filter>
+    </ClCompile>
   </ItemGroup>
   <ItemGroup>
     <AppxManifest Include="Package.appxmanifest" />

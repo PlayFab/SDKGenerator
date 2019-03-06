@@ -73,6 +73,7 @@
     <IncludePath>$(Console_SdkIncludeRoot)</IncludePath>
     <ExecutablePath>$(Console_SdkRoot)bin;$(VCInstallDir)bin\x86_amd64;$(VCInstallDir)bin;$(WindowsSDK_ExecutablePath_x86);$(VSInstallDir)Common7\Tools\bin;$(VSInstallDir)Common7\tools;$(VSInstallDir)Common7\ide;$(ProgramFiles)\HTML Help Workshop;$(MSBuildToolsPath32);$(FxCopDir);$(PATH);</ExecutablePath>
     <LinkIncremental>false</LinkIncremental>
+    <CustomBuildAfterTargets>MakeDirsForXdcMake</CustomBuildAfterTargets>
   </PropertyGroup>
   <PropertyGroup Condition="'$(Configuration)|$(Platform)'=='Profile|Durango'">
     <ReferencePath>$(Console_SdkLibPath);$(Console_SdkWindowsMetadataPath)</ReferencePath>
@@ -81,6 +82,7 @@
     <IncludePath>$(Console_SdkIncludeRoot)</IncludePath>
     <ExecutablePath>$(Console_SdkRoot)bin;$(VCInstallDir)bin\x86_amd64;$(VCInstallDir)bin;$(WindowsSDK_ExecutablePath_x86);$(VSInstallDir)Common7\Tools\bin;$(VSInstallDir)Common7\tools;$(VSInstallDir)Common7\ide;$(ProgramFiles)\HTML Help Workshop;$(MSBuildToolsPath32);$(FxCopDir);$(PATH);</ExecutablePath>
     <LinkIncremental>false</LinkIncremental>
+    <CustomBuildAfterTargets>MakeDirsForXdcMake</CustomBuildAfterTargets>
   </PropertyGroup>
   <PropertyGroup Condition="'$(Configuration)|$(Platform)'=='Debug|Durango'">
     <ReferencePath>$(Console_SdkLibPath);$(Console_SdkWindowsMetadataPath)</ReferencePath>
@@ -89,6 +91,7 @@
     <IncludePath>$(Console_SdkIncludeRoot)</IncludePath>
     <ExecutablePath>$(Console_SdkRoot)bin;$(VCInstallDir)bin\x86_amd64;$(VCInstallDir)bin;$(WindowsSDK_ExecutablePath_x86);$(VSInstallDir)Common7\Tools\bin;$(VSInstallDir)Common7\tools;$(VSInstallDir)Common7\ide;$(ProgramFiles)\HTML Help Workshop;$(MSBuildToolsPath32);$(FxCopDir);$(PATH);</ExecutablePath>
     <LinkIncremental>true</LinkIncremental>
+    <CustomBuildAfterTargets>MakeDirsForXdcMake</CustomBuildAfterTargets>
   </PropertyGroup>
   <ItemDefinitionGroup Condition="'$(Configuration)|$(Platform)'=='Release|Durango'">
     <Link>
@@ -104,18 +107,26 @@
     </Link>
     <ClCompile>
       <PrecompiledHeader>Use</PrecompiledHeader>
-      <PrecompiledHeaderFile>pch.h</PrecompiledHeaderFile>
+      <PrecompiledHeaderFile>TestAppPch.h</PrecompiledHeaderFile>
       <AdditionalUsingDirectories>$(Console_SdkPackagesRoot);$(Console_SdkWindowsMetadataPath);%(AdditionalUsingDirectories)</AdditionalUsingDirectories>
       <Optimization>MaxSpeed</Optimization>
       <PreprocessorDefinitions>NDEBUG;__WRL_NO_DEFAULT_LIB__;%(PreprocessorDefinitions)</PreprocessorDefinitions>
       <WarningLevel>Level4</WarningLevel>
       <FunctionLevelLinking>true</FunctionLevelLinking>
       <IntrinsicFunctions>true</IntrinsicFunctions>
-      <AdditionalIncludeDirectories>$(SdkSourceDir)\include;$(ExternalDir)\jsoncpp\include;%(AdditionalIncludeDirectories)</AdditionalIncludeDirectories>
+      <AdditionalIncludeDirectories>$(TestSourceDir)\TestApp;$(SdkSourceDir)\include;$(ExternalDir)\jsoncpp\include;%(AdditionalIncludeDirectories)</AdditionalIncludeDirectories>
     </ClCompile>
     <FXCompile>
       <ShaderModel>5.0</ShaderModel>
     </FXCompile>
+    <CustomBuildStep>
+      <Command>copy $(PF_TEST_TITLE_DATA_JSON) $(Platform)\Layout\Image\Loose /Y</Command>
+    </CustomBuildStep>
+    <CustomBuildStep>
+      <Message>Copying testTitleData.json for packaging</Message>
+      <TreatOutputAsContent>true</TreatOutputAsContent>
+      <Outputs>$(Platform)\Layout\Image\Loose\testTitleData.json</Outputs>
+    </CustomBuildStep>
   </ItemDefinitionGroup>
   <ItemDefinitionGroup Condition="'$(Configuration)|$(Platform)'=='Profile|Durango'">
     <Link>
@@ -131,18 +142,26 @@
     </Link>
     <ClCompile>
       <PrecompiledHeader>Use</PrecompiledHeader>
-      <PrecompiledHeaderFile>pch.h</PrecompiledHeaderFile>
+      <PrecompiledHeaderFile>TestAppPch.h</PrecompiledHeaderFile>
       <AdditionalUsingDirectories>$(Console_SdkPackagesRoot);$(Console_SdkWindowsMetadataPath);%(AdditionalUsingDirectories)</AdditionalUsingDirectories>
       <Optimization>MaxSpeed</Optimization>
       <PreprocessorDefinitions>NDEBUG;__WRL_NO_DEFAULT_LIB__;PROFILE;%(PreprocessorDefinitions)</PreprocessorDefinitions>
       <WarningLevel>Level4</WarningLevel>
       <FunctionLevelLinking>true</FunctionLevelLinking>
       <IntrinsicFunctions>true</IntrinsicFunctions>
-      <AdditionalIncludeDirectories>$(SdkSourceDir)\include;$(ExternalDir)\jsoncpp\include;%(AdditionalIncludeDirectories)</AdditionalIncludeDirectories>
+      <AdditionalIncludeDirectories>$(TestSourceDir)\TestApp;$(SdkSourceDir)\include;$(ExternalDir)\jsoncpp\include;%(AdditionalIncludeDirectories)</AdditionalIncludeDirectories>
     </ClCompile>
     <FXCompile>
       <ShaderModel>5.0</ShaderModel>
     </FXCompile>
+    <CustomBuildStep>
+      <Command>copy $(PF_TEST_TITLE_DATA_JSON) $(Platform)\Layout\Image\Loose /Y</Command>
+    </CustomBuildStep>
+    <CustomBuildStep>
+      <Message>Copying testTitleData.json for packaging</Message>
+      <TreatOutputAsContent>true</TreatOutputAsContent>
+      <Outputs>$(Platform)\Layout\Image\Loose\testTitleData.json</Outputs>
+    </CustomBuildStep>
   </ItemDefinitionGroup>
   <ItemDefinitionGroup Condition="'$(Configuration)|$(Platform)'=='Debug|Durango'">
     <Link>
@@ -153,34 +172,58 @@
       <AdditionalLibraryDirectories>$(SdkRootDir)\build\Xbox\Durango\$(Configuration);%(AdditionalLibraryDirectories)</AdditionalLibraryDirectories>
     </Link>
     <ClCompile>
-      <PrecompiledHeaderFile>pch.h</PrecompiledHeaderFile>
+      <PrecompiledHeaderFile>TestAppPch.h</PrecompiledHeaderFile>
       <PrecompiledHeader>Use</PrecompiledHeader>
       <MinimalRebuild>false</MinimalRebuild>
       <AdditionalUsingDirectories>$(Console_SdkPackagesRoot);$(Console_SdkWindowsMetadataPath);%(AdditionalUsingDirectories)</AdditionalUsingDirectories>
       <WarningLevel>Level4</WarningLevel>
       <Optimization>Disabled</Optimization>
       <PreprocessorDefinitions>_DEBUG;__WRL_NO_DEFAULT_LIB__;%(PreprocessorDefinitions)</PreprocessorDefinitions>
-      <AdditionalIncludeDirectories>$(SdkSourceDir)\include;$(ExternalDir)\jsoncpp\include;%(AdditionalIncludeDirectories)</AdditionalIncludeDirectories>
+      <AdditionalIncludeDirectories>$(TestSourceDir)\TestApp;$(SdkSourceDir)\include;$(ExternalDir)\jsoncpp\include;%(AdditionalIncludeDirectories)</AdditionalIncludeDirectories>
     </ClCompile>
     <FXCompile>
       <ShaderModel>5.0</ShaderModel>
     </FXCompile>
+    <CustomBuildStep>
+      <Command>copy $(PF_TEST_TITLE_DATA_JSON) $(Platform)\Layout\Image\Loose /Y</Command>
+    </CustomBuildStep>
+    <CustomBuildStep>
+      <Message>Copying testTitleData.json for packaging</Message>
+      <TreatOutputAsContent>true</TreatOutputAsContent>
+      <Outputs>$(Platform)\Layout\Image\Loose\testTitleData.json</Outputs>
+    </CustomBuildStep>
   </ItemDefinitionGroup>
   <ItemGroup>
-    <ClInclude Include="StepTimer.h" />
-    <ClInclude Include="Game.h" />
-    <ClInclude Include="pch.h" />
-    <ClInclude Include="TestCode.h" />
+    <ClInclude Include="$(TestSourceDir)\TestApp\PlayFabApiTest.h" />
+    <ClInclude Include="$(TestSourceDir)\TestApp\PlayFabEventTest.h" />
+    <ClInclude Include="$(TestSourceDir)\TestApp\PlayFabTestMultiUserInstance.h" />
+    <ClInclude Include="$(TestSourceDir)\TestApp\PlayFabTestMultiUserStatic.h" />
+    <ClInclude Include="$(TestSourceDir)\TestApp\TestApp.h" />
+    <ClInclude Include="$(TestSourceDir)\TestApp\TestAppPch.h" />
+    <ClInclude Include="$(TestSourceDir)\TestApp\TestCase.h" />
+    <ClInclude Include="$(TestSourceDir)\TestApp\TestContext.h" />
+    <ClInclude Include="$(TestSourceDir)\TestApp\TestDataTypes.h" />
+    <ClInclude Include="$(TestSourceDir)\TestApp\TestReport.h" />
+    <ClInclude Include="$(TestSourceDir)\TestApp\TestRunner.h" />
+    <ClInclude Include="$(TestSourceDir)\TestApp\TestUtils.h" />
   </ItemGroup>
   <ItemGroup>
-    <ClCompile Include="Main.cpp" />
-    <ClCompile Include="Game.cpp" />
-    <ClCompile Include="pch.cpp">
+    <ClCompile Include="$(TestSourceDir)\TestApp\PlayFabApiTest.cpp" />
+    <ClCompile Include="$(TestSourceDir)\TestApp\PlayFabEventTest.cpp" />
+    <ClCompile Include="$(TestSourceDir)\TestApp\PlayFabTestMultiUserInstance.cpp" />
+    <ClCompile Include="$(TestSourceDir)\TestApp\PlayFabTestMultiUserStatic.cpp" />
+    <ClCompile Include="$(TestSourceDir)\TestApp\TestApp.cpp" />
+    <ClCompile Include="$(TestSourceDir)\TestApp\TestAppPch.cpp">
+      <PrecompiledHeader Condition="'$(Configuration)|$(Platform)'=='Debug|Durango'">Create</PrecompiledHeader>
       <PrecompiledHeader Condition="'$(Configuration)|$(Platform)'=='Release|Durango'">Create</PrecompiledHeader>
       <PrecompiledHeader Condition="'$(Configuration)|$(Platform)'=='Profile|Durango'">Create</PrecompiledHeader>
-      <PrecompiledHeader Condition="'$(Configuration)|$(Platform)'=='Debug|Durango'">Create</PrecompiledHeader>
     </ClCompile>
-    <ClCompile Include="TestCode.cpp" />
+    <ClCompile Include="$(TestSourceDir)\TestApp\TestContext.cpp" />
+    <ClCompile Include="$(TestSourceDir)\TestApp\TestReport.cpp" />
+    <ClCompile Include="$(TestSourceDir)\TestApp\TestRunner.cpp" />
+    <ClCompile Include="$(TestSourceDir)\TestApp\TestUtils.cpp" />
+    <ClCompile Include="MainXBO.cpp" />
+    <ClCompile Include="TestAppXBO.cpp" />
   </ItemGroup>
   <ItemGroup>
     <AppxManifest Include="Package.appxmanifest" />

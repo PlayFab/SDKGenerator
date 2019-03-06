@@ -452,10 +452,12 @@ function getRequestActions(tabbing, apiCall, isApiInstance = false) {
 function getCustomApiLogic(tabbing, apiCall)
 {
     if (apiCall.name === "ExecuteFunction")
-        return tabbing + "var debugUri = PlayFabUtil.GetLocalSettingsFileProperty(\"ExecuteFunctionDebugUri\");\n" +
-            tabbing + "if (!string.IsNullOrEmpty(debugUri))\n" +
+        return tabbing + "var localApiUriString = PlayFabSettings.LocalApiUri;\n" +
+            tabbing + "if (!string.IsNullOrEmpty(localApiUriString))\n" +
             tabbing + "{\n" +
-            tabbing + "    PlayFabHttp.MakeApiCallWithFullUri(debugUri, request, AuthType.EntityToken, resultCallback, errorCallback, customData, extraHeaders);\n" +
+            tabbing + "    var baseUri = new Uri(localApiUriString);\n" +
+            tabbing + "    var fullUri = new Uri(baseUri, \"" + apiCall.url + "\");\n" +
+            tabbing + "    PlayFabHttp.MakeApiCallWithFullUri(fullUri.AbsoluteUri, request, AuthType.EntityToken, resultCallback, errorCallback, customData, extraHeaders);\n" +
             tabbing + "    return;\n" + 
             tabbing + "}\n";
 }

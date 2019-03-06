@@ -349,11 +349,14 @@ function getCustomApiLogic(tabbing, apiCall)
 {
     if (apiCall.name === "ExecuteFunction")
     {
-        return "\n" + tabbing + "string debugUri = PlayFabSettings.DebugUri;\n"
-            + tabbing + "if (!string.IsNullOrEmpty(debugUri))\n"
+        return "\n" + tabbing + "string localApiUriString = PlayFabSettings.LocalApiUri;\n"
+            + tabbing + "if (!string.IsNullOrEmpty(localApiUriString))\n"
             + tabbing + "{\n"
+            + tabbing + "    var baseUri = new Uri(localApiUriString);\n"
+            + tabbing + "    var fullUri = new Uri(baseUri, \"" + apiCall.url + "\");\n"
+            + tabbing + "    "
             + tabbing + "    // Duplicate code necessary to avoid changing all SDK methods to a new convention\n"  
-            + tabbing + "    var debugHttpResult = await PlayFabHttp.DoPostWithFullUri(debugUri, request," +  getAuthParams(apiCall) + ", extraHeaders);\n"
+            + tabbing + "    var debugHttpResult = await PlayFabHttp.DoPostWithFullUri(fullUri.AbsoluteUri, request," +  getAuthParams(apiCall) + ", extraHeaders);\n"
             + tabbing + "    if (debugHttpResult is PlayFabError debugError)\n"
             + tabbing + "    {\n"  
             + tabbing + "        PlayFabSettings.GlobalErrorHandler?.Invoke(debugError);\n"

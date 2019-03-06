@@ -1,3 +1,4 @@
+using PlayFab.Internal;
 using System;
 using System.Collections.Generic;
 using System.Text;
@@ -150,6 +151,14 @@ namespace PlayFab
         {
             get { return PlayFabSharedPrivate.LogCapLimit; }
             set { PlayFabSharedPrivate.LogCapLimit = value; }
+        }
+
+        public static string LocalApiUri
+        {
+            get
+            {
+                return PlayFabUtil.GetLocalSettingsFileProperty("LocalApiUri");
+            }
         }
 
         public static string GetFullUrl(string apiCall, Dictionary<string, string> getParams, PlayFabApiSettings apiSettings = null)

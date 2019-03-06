@@ -24,25 +24,6 @@ namespace PlayFab
         public static string DeveloperSecretKey = null;
         /// <summary> You must set this value for PlayFabSdk to work properly (Found in the Game Manager for your title, at the PlayFab Website) </summary>
         public static string TitleId;
-        /// <summary> Placeholder for the Local Debugging URI. </summary>
-        private static string _localApiServer;
-        /// <summary> Must be manually set by user on .NETStandard 1.1 and .NETPortable for local debugging to work properly </summary>
-        public static string LocalApiServer 
-        {
-            get 
-            {
-#if NET45 || NETCOREAPP2_0
-                return _localApiServer ?? PlayFabUtil.GetLocalSettingsFileProperty("LocalApiServer");
-#else
-                return _localApiServer;
-#endif
-            }
-            set
-            {
-                _localApiServer = value;
-            }
-        }
-
         public static ErrorCallback GlobalErrorHandler;
 <% if (hasClientOptions) {
 %>        /// <summary> Set this to the appropriate AD_TYPE_X constant below </summary>

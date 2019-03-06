@@ -1,5 +1,6 @@
 using PlayFab.Json;
 using System;
+using System.Collections.Generic;
 using System.Globalization;
 using System.IO;
 using System.Text;
@@ -125,7 +126,14 @@ namespace PlayFab.Internal
             if (!string.IsNullOrEmpty(envFileContent))
             {
                 JsonObject envJson = PlayFabSimpleJson.DeserializeObject<JsonObject>(envFileContent);
-                return envJson[propertyKey]?.ToString();
+                try
+                {
+                    return envJson[propertyKey]?.ToString();
+                } 
+                catch (KeyNotFoundException)
+                {
+                    return string.Empty;
+                }
             }
             return string.Empty;
         }

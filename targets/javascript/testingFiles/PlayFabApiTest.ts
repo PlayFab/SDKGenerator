@@ -114,10 +114,10 @@ var PlayFabApiTests = {
         };
     },
 
-    SimpleCallbackWrapper: function (callbackName: string, callback: IAction, assert, kwargs): IAction {
+    SimpleCallbackWrapper: function (callbackName: string, callback: IAction, assert): IAction {
         return function (): void {
             try {
-                callback(kwargs);
+                callback();
             } catch (e) {
                 console.log("Exception thrown during " + callbackName + " callback: " + e.toString() + "\n" + e.stack); // Very irritatingly, qunit doesn't report failure results until all async callbacks return, which doesn't always happen when there's an exception
                 assert.ok(false, "Exception thrown during " + callbackName + " callback: " + e.toString() + "\n" + e.stack);
@@ -202,9 +202,7 @@ var PlayFabApiTests = {
             loginDone();
         };
 
-        var loginPromise = Promise.resolve(PlayFabClientSDK.LoginWithCustomID(loginRequest, PlayFabApiTests.CallbackWrapper("loginCallback", loginCallback, assert)))
-        // By definition, a promise object should have a .then function, and Promise.resolve(promise) should equal promise
-        assert.ok(typeof loginPromise.then === "function" && Promise.resolve(loginPromise) === loginPromise, "Testing whether the login request returned a promise object");
+        PlayFabClientSDK.LoginWithCustomID(loginRequest, PlayFabApiTests.CallbackWrapper("loginCallback", loginCallback, assert));
     },
 
     /* CLIENT API
@@ -233,7 +231,7 @@ var PlayFabApiTests = {
             CustomId: PlayFab.buildIdentifier,
             CreateAccount: true
         };
-        Promise.resolve(PlayFabClientSDK.LoginWithCustomID(loginRequest, PlayFabApiTests.CallbackWrapper("advertLoginCallback", advertLoginCallback, assert)));
+        PlayFabClientSDK.LoginWithCustomID(loginRequest, PlayFabApiTests.CallbackWrapper("advertLoginCallback", advertLoginCallback, assert));
     },
 
     /* CLIENT API

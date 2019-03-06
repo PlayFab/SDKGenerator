@@ -23,7 +23,7 @@ exports.makeCombinedAPI = function (apis, sourceDir, apiOutputDir) {
         getRequestActions: getRequestActions,
         getResultActions: getResultActions,
         getUrl: getUrl,
-        getPartialUrl: getPartialUrl,
+        getUrlPath: getUrlPath,
         hasResultActions: hasResultActions,
         sdkVersion: sdkGlobals.sdkVersion,
         sourceDir: sourceDir,
@@ -107,8 +107,8 @@ function getResultActions(tabbing, apiCall) {
             + tabbing + "}";
     if (apiCall.result === "RegisterPlayFabUserResult")
         return tabbing + "if (result != null && result.data.SessionTicket != null) {\n"
-            + tabbing + "     PlayFab._internalSettings.sessionTicket = result.data.SessionTicket;\n"
-            + tabbing + "     PlayFab.ClientApi._MultiStepClientLogin(result.data.SettingsForUser.NeedsAttribution);\n"
+            + tabbing + "    PlayFab._internalSettings.sessionTicket = result.data.SessionTicket;\n"
+            + tabbing + "    PlayFab.ClientApi._MultiStepClientLogin(result.data.SettingsForUser.NeedsAttribution);\n"
             + tabbing + "}";
     if (apiCall.url === "/Authentication/GetEntityToken")
         return tabbing + "if (result != null && result.data.EntityToken != null)\n"
@@ -119,12 +119,12 @@ function getResultActions(tabbing, apiCall) {
     return "";
 }
 
-function getPartialUrl(apiCall) {
+function getUrlPath(apiCall) {
     return "\"" + apiCall.url + "\"";
 }
 
 function getUrl(apiCall) {
-    return "PlayFab._internalSettings.GetServerUrl() + " + getPartialUrl(apiCall);
+    return "PlayFab._internalSettings.GetServerUrl() + " + getUrlPath(apiCall);
 }
 
 function getAuthParams(apiCall) {

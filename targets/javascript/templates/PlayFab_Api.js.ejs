@@ -60,98 +60,101 @@ if(!PlayFab._internalSettings) {
         },
 
         ExecuteRequest: function (url, request, authkey, authValue, callback, customData, extraHeaders) {
-            if (callback != null && typeof (callback) != "function")
-                throw "Callback must be null of a function";
+            var resultPromise = new Promise(function (resolve, reject) {
+                if (callback != null && typeof (callback) !== "function")
+                    throw "Callback must be null of a function";
 
-            if (request == null)
-                request = {};
+                if (request == null)
+                    request = {};
 
-            var startTime = new Date();
-            var requestBody = JSON.stringify(request);
+                var startTime = new Date();
+                var requestBody = JSON.stringify(request);
 
-            var urlArr = [url];
-            var getParams = PlayFab._internalSettings.requestGetParams;
-            if (getParams != null) {
-                var firstParam = true;
-                for (var key in getParams) {
-                    if (firstParam) {
-                        urlArr.push("?");
-                        firstParam = false;
-                    } else {
-                        urlArr.push("&");
+                var urlArr = [url];
+                var getParams = PlayFab._internalSettings.requestGetParams;
+                if (getParams != null) {
+                    var firstParam = true;
+                    for (var key in getParams) {
+                        if (firstParam) {
+                            urlArr.push("?");
+                            firstParam = false;
+                        } else {
+                            urlArr.push("&");
+                        }
+                        urlArr.push(key);
+                        urlArr.push("=");
+                        urlArr.push(getParams[key]);
                     }
-                    urlArr.push(key);
-                    urlArr.push("=");
-                    urlArr.push(getParams[key]);
-                }
-            }
-
-            var completeUrl = urlArr.join("");
-
-            var xhr = new XMLHttpRequest();
-            // window.console.log("URL: " + completeUrl);
-            xhr.open("POST", completeUrl, true);
-
-            xhr.setRequestHeader("Content-Type", "application/json");
-            xhr.setRequestHeader("X-PlayFabSDK", "JavaScriptSDK-" + PlayFab._internalSettings.sdkVersion);
-            if (authkey != null)
-                xhr.setRequestHeader(authkey, authValue);
-            PlayFab._internalSettings.InjectHeaders(xhr, PlayFab.settings.GlobalHeaderInjection);
-            PlayFab._internalSettings.InjectHeaders(xhr, extraHeaders);
-
-            xhr.onloadend = function () {
-                if (callback == null)
-                    return;
-
-                var result;
-                try {
-                    // window.console.log("parsing json result: " + xhr.responseText);
-                    result = JSON.parse(xhr.responseText);
-                } catch (e) {
-                    result = {
-                        code: 503, // Service Unavailable
-                        status: "Service Unavailable",
-                        error: "Connection error",
-                        errorCode: 2, // PlayFabErrorCode.ConnectionError
-                        errorMessage: xhr.responseText
-                    };
                 }
 
-                result.CallBackTimeMS = new Date() - startTime;
-                result.Request = request;
-                result.CustomData = customData;
+                var completeUrl = urlArr.join("");
 
-                if (result.code === 200)
-                    callback(result, null);
-                else
+                var xhr = new XMLHttpRequest();
+                // window.console.log("URL: " + completeUrl);
+                xhr.open("POST", completeUrl, true);
+
+                xhr.setRequestHeader("Content-Type", "application/json");
+                xhr.setRequestHeader("X-PlayFabSDK", "JavaScriptSDK-" + PlayFab._internalSettings.sdkVersion);
+                if (authkey != null)
+                    xhr.setRequestHeader(authkey, authValue);
+                PlayFab._internalSettings.InjectHeaders(xhr, PlayFab.settings.GlobalHeaderInjection);
+                PlayFab._internalSettings.InjectHeaders(xhr, extraHeaders);
+
+                xhr.onloadend = function () {
+                    if (callback == null)
+                        return;
+
+                    var result = PlayFab._internalSettings.GetPlayFabResponse(request, xhr, startTime, customData);
+                    if (result.code === 200) {
+                        callback(result, null);
+                    } else {
+                        callback(null, result);
+                    }
+                }
+
+                xhr.onerror = function () {
+                    if (callback == null)
+                        return;
+
+                    var result = PlayFab._internalSettings.GetPlayFabResponse(request, xhr, startTime, customData);
                     callback(null, result);
-            }
-
-            xhr.onerror = function () {
-                if (callback == null)
-                    return;
-
-                var result;
-                try {
-                    result = JSON.parse(xhr.responseText);
-                } catch (e) {
-                    result = {
-                        code: 503, // Service Unavailable
-                        status: "Service Unavailable",
-                        error: "Connection error",
-                        errorCode: 2, // PlayFabErrorCode.ConnectionError
-                        errorMessage: xhr.responseText
-                    };
                 }
 
-                result.CallBackTimeMS = new Date() - startTime;
-                result.Request = request;
-                result.CustomData = customData;
+                xhr.send(requestBody);
+                xhr.onreadystatechange = function () {
+                    if (this.readyState === 4) {
+                        var xhrResult = PlayFab._internalSettings.GetPlayFabResponse(request, this, startTime, customData);
+                        if (this.status === 200) {
+                            resolve(xhrResult);
+                        } else {
+                            reject(xhrResult);
+                        }
+                    }
+                };
+            });
+            // Return a Promise so that calls to various API methods can be handled asynchronously
+            return resultPromise;
+        },
 
-                callback(null, result);
+        GetPlayFabResponse: function(request, xhr, startTime, customData) {
+            var result = null;
+            try {
+                // window.console.log("parsing json result: " + xhr.responseText);
+                result = JSON.parse(xhr.responseText);
+            } catch (e) {
+                result = {
+                    code: 503, // Service Unavailable
+                    status: "Service Unavailable",
+                    error: "Connection error",
+                    errorCode: 2, // PlayFabErrorCode.ConnectionError
+                    errorMessage: xhr.responseText
+                };
             }
 
-            xhr.send(requestBody);
+            result.CallBackTimeMS = new Date() - startTime;
+            result.Request = request;
+            result.CustomData = customData;
+            return result;
         },
 
         authenticationContext: {
@@ -201,10 +204,9 @@ if(!PlayFab._internalSettings) {
         },
 
         GetAuthInfo: function (request, authKey) {
-            // Use the most-recently saved sessionTicket, unless one was provided in the request via the PlayFabId property
-            var authAttr = PlayFab._internalSettings.AuthInfoMap[authKey].authError;
-            var authError = PlayFab._internalSettings[authAttr];
-            authAttr = PlayFab._internalSettings.AuthInfoMap[authKey].authAttr;
+            // Use the most-recently saved authKey, unless one was provided in the request via the AuthenticationContext
+            var authError = PlayFab._internalSettings.AuthInfoMap[authKey].authError;
+            var authAttr = PlayFab._internalSettings.AuthInfoMap[authKey].authAttr;
             var defaultAuthValue = null;
             if (authAttr === "entityToken")
                 defaultAuthValue = PlayFab._internalSettings.entityToken;
@@ -224,7 +226,7 @@ if(!PlayFab._internalSettings) {
 
                 if (!authValue) throw authError;
             }
-            PlayFab._internalSettings.ExecuteRequest(PlayFab._internalSettings.GetServerUrl() + apiURL, request, authKey, authValue, callback, customData, extraHeaders);
+            return PlayFab._internalSettings.ExecuteRequest(PlayFab._internalSettings.GetServerUrl() + apiURL, request, authKey, authValue, callback, customData, extraHeaders);
         }
     }
 }
@@ -256,14 +258,14 @@ PlayFab.<%- api.name %>Api = {
 <%- getRequestActions("        ", apiCall)
 %><% if (hasResultActions(apiCall)) { %>        var overloadCallback = function (result, error) {
 <%- getResultActions("            ", apiCall) %>
-            if (callback != null && typeof (callback) == "function")
+            if (callback != null && typeof (callback) === "function")
                 callback(result, error);
         };
-        PlayFab._internalSettings.ExecuteRequestWrapper(<%- getPartialUrl(apiCall) %>, request, <%- getAuthParams(apiCall) %>, overloadCallback, customData, extraHeaders);<% if (apiCall.result === "LoginResult") { %>
+        <% if (apiCall.result !== "LoginResult") { %>return <% } %>PlayFab._internalSettings.ExecuteRequestWrapper(<%- getUrlPath(apiCall) %>, request, <%- getAuthParams(apiCall) %>, overloadCallback, customData, extraHeaders);<% if (apiCall.result === "LoginResult") { %>
         // Return a Promise so that multiple asynchronous calls to this method can be handled simultaneously with Promise.all()
         return new Promise(function(resolve){resolve(authenticationContext);});<% } %><%
 }else{
-%>        PlayFab._internalSettings.ExecuteRequestWrapper(<%- getPartialUrl(apiCall) %>, request, <%- getAuthParams(apiCall) %>, callback, customData, extraHeaders);<% } %>
+%>        return PlayFab._internalSettings.ExecuteRequestWrapper(<%- getUrlPath(apiCall) %>, request, <%- getAuthParams(apiCall) %>, callback, customData, extraHeaders);<% } %>
     },
 <% } if (hasClientOptions) {%>
     _MultiStepClientLogin: function (needsAttribution) {

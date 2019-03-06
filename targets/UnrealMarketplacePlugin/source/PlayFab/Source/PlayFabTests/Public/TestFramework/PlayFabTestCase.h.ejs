@@ -2,11 +2,6 @@
 
 #pragma once
 
-#include "NoExportTypes.h"
-#include "Engine.h"
-
-#include "TestFramework/PlayFabTestEnums.h"
-
 #include "PlayFabTestCase.generated.h"
 
 class UPlayFabTestContext;
@@ -25,6 +20,7 @@ class PLAYFABTESTS_API UPlayFabTestCase : public UObject
 
 protected:
     // A bunch of constants: load these from testTitleData.json
+    // TODO: Should be moved out of UPlayFabTestCase.
     UPROPERTY() FString TEST_TITLE_DATA_LOC = "testTitleData.json";
     UPROPERTY() FString TEST_DATA_KEY = "testCounter";
     UPROPERTY() FString TEST_STAT_NAME = "str";
@@ -58,21 +54,21 @@ public:
      * This is run once for each test.
      * This is considered part of the active test. A failure or exception in this method will be considered a failure for the active test.
      */
-    virtual void SetUp(UPlayFabTestContext* InTestContext) { }
+    virtual void SetUp(UPlayFabTestContext* /* testContext */) { }
 
     /**
      * During testing, this will be called every tick that a test is asynchronous.
      * This is run every tick until testContext.EndTest() is called, or until the test times out.
      * This is considered part of the active test. A failure or exception in this method will be considered a failure for the active test.
      */
-    virtual void Tick(UPlayFabTestContext* InTestContext) { }
+    virtual void Tick(UPlayFabTestContext* /* testContext */) { }
 
     /**
      * During testing, this will be called once after every test function.
      * This is run once for each test.
      * This is considered part of the active test. A failure or exception in this method will be considered a failure for the active test.
      */
-    virtual void TearDown(UPlayFabTestContext* InTestContext) { }
+    virtual void TearDown(UPlayFabTestContext* /* testContext */) { }
 
     /**
      * During testing, this is the last function that will be called for each TestCase.

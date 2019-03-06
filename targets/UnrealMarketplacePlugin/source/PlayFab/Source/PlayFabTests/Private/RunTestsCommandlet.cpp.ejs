@@ -5,6 +5,7 @@
 #include "PlayFabTests.h"
 
 #include "CppTests/PlayFabCppTests.h"
+#include "BlueprintTests/PlayFabBlueprintTests.h"
 
 #include "IPlayFab.h"
 #include "PlayFabCppBaseModel.h"
@@ -12,7 +13,6 @@
 #include "PlayFabClientAPI.h"
 
 #include "Engine/Engine.h"
-#include "HttpManager.h"
 
 URunTestsCommandlet::URunTestsCommandlet()
 {
@@ -43,6 +43,7 @@ int32 URunTestsCommandlet::Main(const FString& Params)
     }
 
     AddTestCase(NewObject<UPlayFabCppTests>());
+    AddTestCase(NewObject<UPlayFabBlueprintTests>());
 
     bool bSentToCloud = false;
     bool bPrintedTestSummary = false;

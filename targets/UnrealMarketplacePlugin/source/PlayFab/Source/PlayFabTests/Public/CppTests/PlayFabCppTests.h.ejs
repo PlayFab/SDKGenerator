@@ -2,7 +2,6 @@
 
 #pragma once
 
-#include "CoreMinimal.h"
 #include "TestFramework/PlayFabTestCase.h"
 #include "TestFramework/PlayFabTestContext.h"
 
@@ -55,6 +54,7 @@ public:
 
     virtual void GetTests(TArray<UPlayFabTestContext*>& InOutTests) override
     {
+<% if (hasClientOptions) { %>
         InOutTests.ADD_TEST(Invalid Login (CPP), InvalidLogin);
         InOutTests.ADD_TEST(Login Or Register (CPP), LoginOrRegister);
         InOutTests.ADD_TEST(Login With Advertising ID (CPP), LoginWithAdvertisingID);
@@ -66,6 +66,7 @@ public:
         InOutTests.ADD_TEST(Cloud Script (CPP), CloudScript);
         InOutTests.ADD_TEST(Cloud Script Error (CPP), CloudScriptError);
         InOutTests.ADD_TEST(Write Event (CPP), WriteEvent);
+<% } %>
         InOutTests.ADD_TEST(Get Entity Token (CPP), GetEntityToken);
         InOutTests.ADD_TEST(Object API (CPP), ObjectAPI);
     }
@@ -76,7 +77,7 @@ public:
     PlayFabDataPtr DataAPI;
 
     virtual void ClassSetUp() override;
-    virtual void SetUp(UPlayFabTestContext*) override;
+    virtual void SetUp(UPlayFabTestContext* testContext) override;
 
     /**
      * Shared Error callback.
@@ -84,7 +85,8 @@ public:
      * @param InCustomData Additional data about this Error.
      */
     void OnSharedError(const PlayFab::FPlayFabCppError& InError) const;
-
+    
+<% if (hasClientOptions) { %>
     UFUNCTION()
     void InvalidLogin();
     void InvalidLogin_Success(const PlayFab::ClientModels::FLoginResult& result);
@@ -140,8 +142,9 @@ public:
 
     UFUNCTION()
     void WriteEvent();
-    void WriteEvent_Success(const PlayFab::ClientModels::FWriteEventResponse& result);
+    void WriteEvent_Success(const PlayFab::ClientModels::FWriteEventResponse& result);    
 
+<% } %>
     UFUNCTION()
     void GetEntityToken();
     void GetEntityToken_Success(const PlayFab::AuthenticationModels::FGetEntityTokenResponse& result);

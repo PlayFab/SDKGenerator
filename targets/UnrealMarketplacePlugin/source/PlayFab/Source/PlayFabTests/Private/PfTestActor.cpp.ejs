@@ -1,8 +1,9 @@
 <%- copyright %>
 
 #include "PfTestActor.h"
-#include "IPlayFab.h"
+
 #include "CppTests/PlayFabCppTests.h"
+#include "BlueprintTests/PlayFabBlueprintTests.h"
 
 // Sets default values
 APfTestActor::APfTestActor()
@@ -17,6 +18,7 @@ void APfTestActor::BeginPlay()
     Super::BeginPlay();
 
     AddTestCase(NewObject<UPlayFabCppTests>());
+    AddTestCase(NewObject<UPlayFabBlueprintTests>());
 }
 
 // Called every frame

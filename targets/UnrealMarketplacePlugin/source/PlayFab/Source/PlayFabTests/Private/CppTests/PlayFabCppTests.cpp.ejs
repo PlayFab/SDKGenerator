@@ -59,9 +59,9 @@ void UPlayFabCppTests::ClassSetUp()
     ServerAPI->SetDevSecretKey(DevSecretKey);
 }
 
-void UPlayFabCppTests::SetUp(UPlayFabTestContext* InTestContext)
+void UPlayFabCppTests::SetUp(UPlayFabTestContext* testContext)
 {
-    CurrentTestContext = InTestContext;
+    CurrentTestContext = testContext;
 }
 
 void UPlayFabCppTests::OnSharedError(const PlayFab::FPlayFabCppError& InError) const
@@ -72,6 +72,7 @@ void UPlayFabCppTests::OnSharedError(const PlayFab::FPlayFabCppError& InError) c
     CurrentTestContext->EndTest(PlayFabApiTestFinishState::FAILED, InError.ErrorMessage);
 }
 
+<% if (hasClientOptions) { %>
 void UPlayFabCppTests::InvalidLogin()
 {
     UE_LOG(LogPlayFabTests, Log, TEXT("- INVALID LOGIN -"));
@@ -462,7 +463,7 @@ void UPlayFabCppTests::WriteEvent_Success(const PlayFab::ClientModels::FWriteEve
     CurrentTestContext->EndTest();
 }
 
-
+<% } %>
 void UPlayFabCppTests::GetEntityToken()
 {
     CheckIfLoggedIn();

@@ -629,12 +629,13 @@
     <Content Include="targets\unity-v2\Testing\Tests\Utility\PluginManagerTests.cs.meta" />
     <Content Include="targets\unity-v2\Testing\Tests\Utility\UtilTest.cs" />
     <Content Include="targets\unity-v2\Testing\Tests\Utility\UtilTest.cs.meta" />
+    <Content Include="targets\UnrealMarketplacePlugin\examplesource\ExampleProject\BuildAndRunTestsWin64.bat.ejs" />
     <Content Include="targets\UnrealMarketplacePlugin\examplesource\ExampleProject\BuildWin64.bat.ejs" />
     <Content Include="targets\UnrealMarketplacePlugin\examplesource\ExampleProject\Config\DefaultEditor.ini" />
     <Content Include="targets\UnrealMarketplacePlugin\examplesource\ExampleProject\Config\DefaultEngine.ini" />
     <Content Include="targets\UnrealMarketplacePlugin\examplesource\ExampleProject\Config\DefaultGame.ini" />
     <Content Include="targets\UnrealMarketplacePlugin\examplesource\ExampleProject\Content\Maps\Test.umap" />
-    <Content Include="targets\UnrealMarketplacePlugin\examplesource\ExampleProject\Content\PfTestOutput.uasset" />
+    <Content Include="targets\UnrealMarketplacePlugin\examplesource\ExampleProject\Content\PlayFabTestOutput.uasset" />
     <Content Include="targets\UnrealMarketplacePlugin\examplesource\ExampleProject\ExampleProject.sln.ejs" />
     <Content Include="targets\UnrealMarketplacePlugin\examplesource\ExampleProject\ExampleProject.uproject.ejs" />
     <Content Include="targets\UnrealMarketplacePlugin\examplesource\ExampleProject\RunTestsWin64.bat.ejs" />

@@ -421,7 +421,12 @@ function getRequestActions(tabbing, apiCall, isApiInstance = false) {
     if (apiCall.name === "GetEntityToken" && isApiInstance === false)
         return tabbing + "AuthType authType = AuthType.None;\n" +
             "#if !DISABLE_PLAYFABCLIENT_API\n" +
-            tabbing + "if (authType == AuthType.None && (request.AuthenticationContext != null ? request.AuthenticationContext.IsClientLoggedIn() : PlayFabClientAPI.IsClientLoggedIn()))\n" +
+            tabbing + "string clientSessionTicket = null;\n" +
+            tabbing + "if (request.AuthenticationContext != null && !string.IsNullOrEmpty(request.AuthenticationContext.ClientSessionTicket))\n" +
+            tabbing + "    clientSessionTicket = request.AuthenticationContext.ClientSessionTicket;\n" +
+            tabbing + "if (clientSessionTicket == null)\n" +
+            tabbing + "    clientSessionTicket = PluginManager.GetPlugin<IPlayFabTransportPlugin>(PluginContract.PlayFab_Transport).AuthKey;\n" +
+            tabbing + "if (authType == AuthType.None && !string.IsNullOrEmpty(clientSessionTicket))\n" +
             tabbing + "    authType = AuthType.LoginSession;\n" +
             "#endif\n" +
             "#if ENABLE_PLAYFABSERVER_API || ENABLE_PLAYFABADMIN_API || UNITY_EDITOR\n" +
@@ -431,7 +436,14 @@ function getRequestActions(tabbing, apiCall, isApiInstance = false) {
 	if (apiCall.name === "GetEntityToken" && isApiInstance === true)
         return tabbing + "AuthType authType = AuthType.None;\n" +
             "#if !DISABLE_PLAYFABCLIENT_API\n" +
-            tabbing + "if (authType == AuthType.None && !string.IsNullOrEmpty(request.AuthenticationContext.ClientSessionTicket ?? (authenticationContext.ClientSessionTicket ?? PluginManager.GetPlugin<IPlayFabTransportPlugin>(PluginContract.PlayFab_Transport).AuthKey)))\n" +
+            tabbing + "if (request.AuthenticationContext != null && !string.IsNullOrEmpty(request.AuthenticationContext.ClientSessionTicket))\n" +
+            tabbing + "    clientSessionTicket = request.AuthenticationContext.ClientSessionTicket;\n" +
+            tabbing + "if (clientSessionTicket == null && authenticationContext != null && !string.IsNullOrEmpty(authenticationContext.ClientSessionTicket))\n" +
+            tabbing + "string clientSessionTicket = null;\n" +
+            tabbing + "    clientSessionTicket = authenticationContext.ClientSessionTicket;\n" +
+            tabbing + "if (clientSessionTicket == null)\n" +
+            tabbing + "    clientSessionTicket = PluginManager.GetPlugin<IPlayFabTransportPlugin>(PluginContract.PlayFab_Transport).AuthKey;\n" +
+            tabbing + "if (authType == AuthType.None && !string.IsNullOrEmpty(clientSessionTicket))\n" +
             tabbing + "    authType = AuthType.LoginSession;\n" +
             "#endif\n" +
             "#if ENABLE_PLAYFABSERVER_API || ENABLE_PLAYFABADMIN_API || UNITY_EDITOR\n" +
@@ -442,7 +454,14 @@ function getRequestActions(tabbing, apiCall, isApiInstance = false) {
     if (apiCall.result === "LoginResult" || apiCall.request === "RegisterPlayFabUserRequest")
         return tabbing + "request.TitleId = request.TitleId ?? PlayFabSettings.TitleId;\n";
     if (apiCall.auth === "SessionTicket"  && isApiInstance === true)
-        return tabbing + "if (string.IsNullOrEmpty(request.AuthenticationContext.ClientSessionTicket ?? (authenticationContext.ClientSessionTicket ?? PluginManager.GetPlugin<IPlayFabTransportPlugin>(PluginContract.PlayFab_Transport).AuthKey))) throw new PlayFabException(PlayFabExceptionCode.NotLoggedIn,\"Must be logged in to call this method\");\n";
+        return tabbing + "string clientSessionTicket = null;\n" +
+            tabbing + "if (request.AuthenticationContext != null && !string.IsNullOrEmpty(request.AuthenticationContext.ClientSessionTicket))\n" +
+            tabbing + "    clientSessionTicket = request.AuthenticationContext.ClientSessionTicket;\n" +
+            tabbing + "if (clientSessionTicket == null && authenticationContext != null && !string.IsNullOrEmpty(authenticationContext.ClientSessionTicket))\n" +
+            tabbing + "    clientSessionTicket = authenticationContext.ClientSessionTicket;\n" +
+            tabbing + "if (clientSessionTicket == null)\n" +
+            tabbing + "    clientSessionTicket = PluginManager.GetPlugin<IPlayFabTransportPlugin>(PluginContract.PlayFab_Transport).AuthKey;\n" +
+            tabbing + "if (string.IsNullOrEmpty(clientSessionTicket)) throw new PlayFabException(PlayFabExceptionCode.NotLoggedIn,\"Must be logged in to call this method\");\n";
     if (apiCall.auth === "SessionTicket"  && isApiInstance === false)
         return tabbing + "if (!IsClientLoggedIn()) throw new PlayFabException(PlayFabExceptionCode.NotLoggedIn,\"Must be logged in to call this method\");\n";
 	return "";

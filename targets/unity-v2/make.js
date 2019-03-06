@@ -430,16 +430,21 @@ function getRequestActions(tabbing, apiCall, isApiInstance = false) {
             tabbing + "    authType = AuthType.LoginSession;\n" +
             "#endif\n" +
             "#if ENABLE_PLAYFABSERVER_API || ENABLE_PLAYFABADMIN_API || UNITY_EDITOR\n" +
-            tabbing + "if (authType == AuthType.None && !string.IsNullOrEmpty(request.AuthenticationContext.DeveloperSecretKey ?? PlayFabSettings.DeveloperSecretKey))\n" +
+            tabbing + "string developerSecretKey = null;\n" +
+            tabbing + "if (request.AuthenticationContext != null && !string.IsNullOrEmpty(request.AuthenticationContext.DeveloperSecretKey))\n" +
+            tabbing + "    developerSecretKey = request.AuthenticationContext.DeveloperSecretKey;\n" +
+            tabbing + "if (developerSecretKey == null)\n" +
+            tabbing + "    developerSecretKey = PlayFabSettings.DeveloperSecretKey;\n" +
+            tabbing + "if (authType == AuthType.None && !string.IsNullOrEmpty(developerSecretKey))\n" +
             tabbing + "    authType = AuthType.DevSecretKey;\n" +
             "#endif\n";
 	if (apiCall.name === "GetEntityToken" && isApiInstance === true)
         return tabbing + "AuthType authType = AuthType.None;\n" +
             "#if !DISABLE_PLAYFABCLIENT_API\n" +
+			tabbing + "string clientSessionTicket = null;\n" +
             tabbing + "if (request.AuthenticationContext != null && !string.IsNullOrEmpty(request.AuthenticationContext.ClientSessionTicket))\n" +
             tabbing + "    clientSessionTicket = request.AuthenticationContext.ClientSessionTicket;\n" +
             tabbing + "if (clientSessionTicket == null && authenticationContext != null && !string.IsNullOrEmpty(authenticationContext.ClientSessionTicket))\n" +
-            tabbing + "string clientSessionTicket = null;\n" +
             tabbing + "    clientSessionTicket = authenticationContext.ClientSessionTicket;\n" +
             tabbing + "if (clientSessionTicket == null)\n" +
             tabbing + "    clientSessionTicket = PluginManager.GetPlugin<IPlayFabTransportPlugin>(PluginContract.PlayFab_Transport).AuthKey;\n" +
@@ -447,7 +452,14 @@ function getRequestActions(tabbing, apiCall, isApiInstance = false) {
             tabbing + "    authType = AuthType.LoginSession;\n" +
             "#endif\n" +
             "#if ENABLE_PLAYFABSERVER_API || ENABLE_PLAYFABADMIN_API || UNITY_EDITOR\n" +
-            tabbing + "if (authType == AuthType.None && !string.IsNullOrEmpty(request.AuthenticationContext.DeveloperSecretKey ?? (authenticationContext.DeveloperSecretKey ?? PlayFabSettings.DeveloperSecretKey)))\n" +
+            tabbing + "string developerSecretKey = null;\n" +
+            tabbing + "if (request.AuthenticationContext != null && !string.IsNullOrEmpty(request.AuthenticationContext.DeveloperSecretKey))\n" +
+            tabbing + "    developerSecretKey = request.AuthenticationContext.DeveloperSecretKey;\n" +
+            tabbing + "if (developerSecretKey == null && authenticationContext != null && !string.IsNullOrEmpty(authenticationContext.DeveloperSecretKey))\n" +
+            tabbing + "    developerSecretKey = authenticationContext.DeveloperSecretKey;\n" +
+            tabbing + "if (developerSecretKey == null)\n" +
+            tabbing + "    developerSecretKey = PlayFabSettings.DeveloperSecretKey;\n" +
+            tabbing + "if (authType == AuthType.None && !string.IsNullOrEmpty(developerSecretKey))\n" +
             tabbing + "    authType = AuthType.DevSecretKey;\n" +
             "#endif\n";		
 

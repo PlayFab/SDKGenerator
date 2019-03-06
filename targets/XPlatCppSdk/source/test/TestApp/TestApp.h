@@ -16,7 +16,6 @@ namespace PlayFab
     }
 }
 
-
 namespace PlayFabUnit
 {
     class TestApp

@@ -190,7 +190,7 @@ namespace PlayFab.Internal
 
         protected internal static void MakeApiCallWithFullUri<TResult>(string fullUri,
             PlayFabRequestCommon request, AuthType authType, Action<TResult> resultCallback,
-            Action<PlayFabError> errorCallback, object customData = null, Dictionary<string, string> extraHeaders = null, bool allowQueueing = false)
+            Action<PlayFabError> errorCallback, object customData = null, Dictionary<string, string> extraHeaders = null, bool allowQueueing = false, PlayFabAuthenticationContext authenticationContext = null, PlayFabApiSettings apiSettings = null)
             where TResult : PlayFabResultCommon
         {
             // This will not be called if environment file does not exist or does not contain property the debugging URI

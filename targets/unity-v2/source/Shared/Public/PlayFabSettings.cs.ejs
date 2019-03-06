@@ -153,11 +153,18 @@ namespace PlayFab
             set { PlayFabSharedPrivate.LogCapLimit = value; }
         }
 
-        public static string LocalApiUri
+        private static string _localApiServer;
+
+        public static string LocalApiServer
         {
             get
             {
-                return PlayFabUtil.GetLocalSettingsFileProperty("LocalApiUri");
+                return _localApiServer ?? PlayFabUtil.GetLocalSettingsFileProperty("LocalApiServer");
+            }
+
+            set 
+            {
+                _localApiServer = value;
             }
         }
 

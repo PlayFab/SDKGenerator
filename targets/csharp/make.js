@@ -349,10 +349,10 @@ function getCustomApiLogic(tabbing, apiCall)
 {
     if (apiCall.name === "ExecuteFunction")
     {
-        return "\n" + tabbing + "string localApiUriString = PlayFabSettings.LocalApiUri;\n"
-            + tabbing + "if (!string.IsNullOrEmpty(localApiUriString))\n"
+        return "\n" + tabbing + "string localApiServerString = PlayFabSettings.LocalApiServer;\n"
+            + tabbing + "if (!string.IsNullOrEmpty(localApiServerString))\n"
             + tabbing + "{\n"
-            + tabbing + "    var baseUri = new Uri(localApiUriString);\n"
+            + tabbing + "    var baseUri = new Uri(localApiServerString);\n"
             + tabbing + "    var fullUri = new Uri(baseUri, \"" + apiCall.url + "\");\n"
             + tabbing + "    "
             + tabbing + "    // Duplicate code necessary to avoid changing all SDK methods to a new convention\n"  

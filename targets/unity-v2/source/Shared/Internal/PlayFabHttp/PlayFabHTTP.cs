@@ -185,7 +185,7 @@ namespace PlayFab.Internal
             where TResult : PlayFabResultCommon
         {
             var fullUrl = apiSettings == null ?  PlayFabSettings.GetFullUrl(apiEndpoint, PlayFabSettings.RequestGetParams) : apiSettings.GetFullUrl(apiEndpoint, apiSettings.RequestGetParams);
-            _MakeApiCall(apiEndpoint, fullUrl, request, authType, resultCallback, errorCallback, customData, extraHeaders, allowQueueing);
+            _MakeApiCall(apiEndpoint, fullUrl, request, authType, resultCallback, errorCallback, customData, extraHeaders, allowQueueing, authenticationContext, apiSettings);
         }
 
         protected internal static void MakeApiCallWithFullUri<TResult>(string fullUri,
@@ -194,7 +194,7 @@ namespace PlayFab.Internal
             where TResult : PlayFabResultCommon
         {
             // This will not be called if environment file does not exist or does not contain property the debugging URI
-            _MakeApiCall(null, fullUri, request, authType, resultCallback, errorCallback, customData, extraHeaders, allowQueueing);
+            _MakeApiCall(null, fullUri, request, authType, resultCallback, errorCallback, customData, extraHeaders, allowQueueing, authenticationContext, apiSettings);
         }
 
         /// <summary>

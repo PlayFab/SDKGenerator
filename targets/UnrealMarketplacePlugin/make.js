@@ -63,8 +63,7 @@ exports.makeCombinedAPI = function (apis, sourceDir, baseApiOutputDir) {
             hasClientOptions: authMechanisms.includes("SessionTicket"),
             hasServerOptions: authMechanisms.includes("SecretKey"),
             sdkVersion: sdkGlobals.sdkVersion,
-            ueTargetVersionMinor: ueTargetVersion.minor,
-            ueTargetVersionPatch: ueTargetVersion.patch,
+            ueTargetVersionMinor: ueTargetVersion.minor, // This is actually used
             ueTargetVersion: ueTargetVersion.targetVersionShort,
             ueTargetVersionLong: ueTargetVersion.targetVersionLong,
             ueWhitelistPlatforms: ueWhitelistPlatforms

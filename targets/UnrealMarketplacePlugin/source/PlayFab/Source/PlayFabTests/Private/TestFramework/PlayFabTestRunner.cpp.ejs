@@ -103,7 +103,7 @@ void IPlayFabTestRunner::Run(const float InDeltaTime)
             CurrentTestData->testFunc.Execute(CurrentTestData);
         }
 
-        if (CurrentTestData->GetDurationInSeconds() > 10)
+        if (CurrentTestData->GetDurationInSeconds() > TEST_TIMEOUT_SECONDS)
         {
             CurrentTestData->EndTest(PlayFabApiTestFinishState::TIMEDOUT, TEXT("Timed Out"));
         }

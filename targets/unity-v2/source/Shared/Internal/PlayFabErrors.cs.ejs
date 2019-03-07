@@ -10,6 +10,8 @@ namespace PlayFab
     public enum PlayFabErrorCode
     {
         Unknown = 1,
+        ConnectionError = 2,
+        JsonParseError = 3,
         <% for(var i=0; i<errorList.length-1; i++) { var errorProps = errors[errorList[i]] %><%- errorProps.name %> = <%- errorProps.id %>,
         <% } %><% var errorProps = errors[errorList[errorList.length-1]] %><%- errorProps.name %> = <%- errorProps.id %>
     }
@@ -55,6 +57,12 @@ namespace PlayFab
         }
     }
 
+    public class PlayFabBaseResult
+    {
+        public object CustomData;
+        public PlayFabError Error;
+    }
+    
     public class PlayFabException : Exception
     {
         public readonly PlayFabExceptionCode Code;

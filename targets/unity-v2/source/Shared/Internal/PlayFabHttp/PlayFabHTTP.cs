@@ -435,6 +435,12 @@ namespace PlayFab.Internal
                 _internalSignalR.Update();
             }
 #endif
+
+            while (_injectedCoroutines.Count > 0)
+                StartCoroutine(_injectedCoroutines.Dequeue());
+
+            while (_injectedAction.Count > 0)
+                _injectedAction.Dequeue()?.Invoke();
         }
 
         #region Helpers
@@ -534,7 +540,13 @@ namespace PlayFab.Internal
         }
 #endif
         #endregion
-    }
+    
+        private readonly Queue<IEnumerator> _injectedCoroutines = new Queue<IEnumerator>();
+        private readonly Queue<Action> _injectedAction = new Queue<Action>();
+
+        public void InjectInUnityThread(IEnumerator x) => _injectedCoroutines.Enqueue(x);
+        public void InjectInUnityThread(Action action) => _injectedAction.Enqueue(action);
+	}
 
     #region Event Classes
     public enum ApiProcessingEventType

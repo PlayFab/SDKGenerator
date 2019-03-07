@@ -14,32 +14,32 @@ var copyright =
 `;
 
 exports.makeCombinedAPI = function (apis, sourceDir, baseApiOutputDir) {
-	class TargetVersion {
-		constructor(inMajor, inMinor, inPatch) {
-			this.major = inMajor;
-			this.minor = inMinor;
-			this.patch = inPatch;
-		}
-		get targetVersionShort() {
-			return `${this.major}.${this.minor}`;
-		}
+    class TargetVersion {
+        constructor(inMajor, inMinor, inPatch) {
+            this.major = inMajor;
+            this.minor = inMinor;
+            this.patch = inPatch;
+        }
+        get targetVersionShort() {
+            return `${this.major}.${this.minor}`;
+        }
 
-		get targetVersionLong() {
-			return `${this.major}.${this.minor}.${this.patch}`;
-		}
-	}
+        get targetVersionLong() {
+            return `${this.major}.${this.minor}.${this.patch}`;
+        }
+    }
 
-	// The list of current supported UE versions - Intended to be the latest 3
-	const ueTargetVersions = [
-		new TargetVersion(4, 18, 0),
-		new TargetVersion(4, 19, 0),
-		new TargetVersion(4, 20, 0),
-		new TargetVersion(4, 21, 0)
-	];
+    // The list of current supported UE versions - Intended to be the latest 3
+    const ueTargetVersions = [
+        new TargetVersion(4, 18, 0),
+        new TargetVersion(4, 19, 0),
+        new TargetVersion(4, 20, 0),
+        new TargetVersion(4, 21, 0)
+    ];
 
     var ueWhitelistPlatforms = '[ "Win64", "Win32", "Mac", "IOS", "Android" ]'; // TODO: Add PS4, Switch, and XBox once the testing stories are done
 
-	for (var v = 0; v < ueTargetVersions.length; v++) {
+    for (var v = 0; v < ueTargetVersions.length; v++) {
         var ueTargetVersion = ueTargetVersions[v];
         var apiOutputDir = path.resolve(baseApiOutputDir, ueTargetVersion.targetVersionShort); // Break multiple versions into separate top level folders
 
@@ -63,11 +63,10 @@ exports.makeCombinedAPI = function (apis, sourceDir, baseApiOutputDir) {
             hasClientOptions: authMechanisms.includes("SessionTicket"),
             hasServerOptions: authMechanisms.includes("SecretKey"),
             sdkVersion: sdkGlobals.sdkVersion,
-			ueTargetVersionMajor: ueTargetVersion.major,
-			ueTargetVersionMinor: ueTargetVersion.minor,
-			ueTargetVersionPatch: ueTargetVersion.patch,
-			ueTargetVersion: ueTargetVersion.targetVersionShort,
-			ueTargetVersionLong: ueTargetVersion.targetVersionLong,
+            ueTargetVersionMinor: ueTargetVersion.minor,
+            ueTargetVersionPatch: ueTargetVersion.patch,
+            ueTargetVersion: ueTargetVersion.targetVersionShort,
+            ueTargetVersionLong: ueTargetVersion.targetVersionLong,
             ueWhitelistPlatforms: ueWhitelistPlatforms
         };
 
@@ -94,8 +93,7 @@ function collectEnumsFromApis(apis) {
 }
 
 function getDefaultVerticalName() {
-    if (exports.verticalName)
-    {
+    if (exports.verticalName) {
         return exports.verticalName;
     }
     return "";

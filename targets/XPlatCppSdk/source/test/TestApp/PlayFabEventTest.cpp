@@ -27,11 +27,7 @@ namespace PlayFabUnit
         if (result.lastErrorCode == 0)
             testContext.Pass();
         else
-        {
-            std::string errorMessage = "Error Code:"; // Work around XBO C++/CX Platform::String^ error, which happens
-            errorMessage += result.lastErrorCode;     // when trying to create a std::string from a string literal + int
-            testContext.Fail(errorMessage);
-        }
+            testContext.Fail("Error Code:" + std::to_string(result.lastErrorCode));
     }
 
     /// EVENTS API

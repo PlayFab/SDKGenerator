@@ -2,7 +2,7 @@
     "FileVersion": 3,
     "FriendlyName": "PlayFab Marketplace Plugin",
     "Version": 0,
-    "EngineVersion": "<%- ueTargetVersion %>",
+    "EngineVersion": "<%- ueTargetVersionLong %>",
     "VersionName": "<%- sdkVersion %>",
     "CreatedBy": "PlayFab and Phoenix Labs",
     "CreatedByURL": "https://playfab.com/",
@@ -29,6 +29,12 @@
         "Type": "Runtime",
         "LoadingPhase": "PreDefault",
         "WhitelistPlatforms": <%- ueWhitelistPlatforms %>
+      },
+      {
+        "Name": "PlayFabTests",
+        "Type": "Runtime",
+        "LoadingPhase": "PreDefault",
+        "WhitelistPlatforms": <%- ueWhitelistPlatforms %>
       }
-   ]
+    ]
 }

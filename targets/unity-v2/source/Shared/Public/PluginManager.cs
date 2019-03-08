@@ -91,8 +91,6 @@ namespace PlayFab
                 transport = new PlayFabWebRequest();
 #endif
 
-#if UNITY_2017_2_OR_NEWER
-
 #if !UNITY_2018_2_OR_NEWER // PlayFabWww will throw warnings as Unity has deprecated Www
             if (PlayFabSettings.RequestType == WebRequestType.UnityWww)
             {
@@ -102,10 +100,6 @@ namespace PlayFab
 
             if (transport == null)
                 transport = new PlayFabUnityHttp();
-#else
-            if (transport == null)
-                transport = new PlayFabWww();
-#endif
 
             return transport;
         }

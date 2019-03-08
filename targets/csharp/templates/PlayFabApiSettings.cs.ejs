@@ -10,7 +10,7 @@ namespace PlayFab
         };
 
         /// <summary> This is only for customers running a private cluster.  Generally you shouldn't touch this </summary>
-        public string ProductionEnvironmentUrl = ".playfabapi.com";
+        public string ProductionEnvironmentUrl = PlayFabSettings.ProductionEnvironmentUrl;
         /// <summary> The name of a customer vertical. This is only for customers running a private cluster.  Generally you shouldn't touch this </summary>
         public string VerticalName = <%- getVerticalNameDefault() %>;
         /// <summary> Session token for Entity API. Auto-Populated by GetEntityToken method. </summary>
@@ -27,12 +27,6 @@ namespace PlayFab
         public string AdvertisingIdType = null;
         /// <summary> Set this to corresponding device value </summary>
         public string AdvertisingIdValue = null;
-
-        // DisableAdvertising is provided for completeness, but changing it is not suggested
-        // Disabling this may prevent your advertising-related PlayFab marketplace partners from working correctly
-        public bool DisableAdvertising = false;
-        public readonly string AD_TYPE_IDFA = "Idfa";
-        public readonly string AD_TYPE_ANDROID_ID = "Adid";
 <% } %>
         public virtual string GetFullUrl(string apiCall, Dictionary<string, string> getParams)
         {

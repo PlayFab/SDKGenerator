@@ -2,6 +2,8 @@
 
 #pragma once
 
+#include "Paths.h"
+
 #include "PlayFabTestCase.generated.h"
 
 class UPlayFabTestContext;
@@ -21,7 +23,7 @@ class PLAYFABTESTS_API UPlayFabTestCase : public UObject
 protected:
     // A bunch of constants: load these from testTitleData.json
     // TODO: Should be moved out of UPlayFabTestCase.
-    UPROPERTY() FString TEST_TITLE_DATA_LOC = "testTitleData.json";
+    UPROPERTY() FString TEST_TITLE_DATA_LOC = FPaths::ProjectContentDir() + TEXT("/TestTitleData/testTitleData.json");;
     UPROPERTY() FString TEST_DATA_KEY = "testCounter";
     UPROPERTY() FString TEST_STAT_NAME = "str";
     UPROPERTY() FString PlayFabId;

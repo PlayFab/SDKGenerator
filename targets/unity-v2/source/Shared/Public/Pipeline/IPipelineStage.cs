@@ -1,4 +1,5 @@
-﻿using System.Collections.Concurrent;
+﻿#if NET_4_6
+using System.Collections.Concurrent;
 using System.Threading;
 
 namespace PlayFab.Pipeline
@@ -20,3 +21,4 @@ namespace PlayFab.Pipeline
         void RunStage(BlockingCollection<TInputItem> input, BlockingCollection<TOutputItem> output, CancellationTokenSource cts);
     }
 }
+#endif

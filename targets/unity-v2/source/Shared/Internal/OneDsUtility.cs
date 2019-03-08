@@ -1,5 +1,5 @@
+#if NET_4_6
 using System;
-using System.Net.Http;
 
 namespace PlayFab.Internal
 {
@@ -30,14 +30,6 @@ namespace PlayFab.Internal
                 try
                 {
                     httpResponseString = getText.Invoke();
-                }
-                catch (HttpRequestException exception)
-                {
-                    var error = new PlayFabError();
-                    error.Error = PlayFabErrorCode.ConnectionError;
-                    error.ErrorMessage = exception.InnerException.Message;
-                    callback?.Invoke(error);
-                    return;
                 }
                 catch (Exception exception)
                 {
@@ -109,3 +101,4 @@ namespace PlayFab.Internal
         }
     }
 }
+#endif

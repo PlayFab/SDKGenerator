@@ -27,7 +27,7 @@ namespace PlayFab
 
         int GetPendingMessages();
     }
-    
+#if NET_4_6
     /// <summary>
     /// Interface of any OneDS transport SDK plugin.
     /// </summary>
@@ -35,5 +35,5 @@ namespace PlayFab
     {
         void DoPost(object request, Dictionary<string, string> extraHeaders, Action<object> callback);
     }
-
+#endif
 }

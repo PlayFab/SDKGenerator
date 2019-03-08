@@ -3,12 +3,14 @@ using PlayFab.ClientModels;
 using PlayFab.Json;
 using System;
 using System.Collections.Generic;
+using PlayFab.Internal;
+#if NET_4_6
 using System.Linq;
 using System.Threading.Tasks;
-using PlayFab.Internal;
 using PlayFab.Logger;
 using PlayFab.Pipeline;
 using PlayFab.SharedModels;
+#endif
 
 namespace PlayFab.UUnit
 {
@@ -470,7 +472,7 @@ namespace PlayFab.UUnit
             // There's nothing else useful to test about this right now
             ((UUnitTestContext)result.CustomData).EndTest(UUnitFinishState.PASSED, null);
         }
-
+#if NET_4_6
         [UUnitTest]
         public void WriteOneDSEvents(UUnitTestContext testContext) => WriteOneDSEventsAsync(testContext);
         /// <summary>
@@ -621,6 +623,7 @@ namespace PlayFab.UUnit
                 }
             );
         }
+#endif
     }
 }
 #endif

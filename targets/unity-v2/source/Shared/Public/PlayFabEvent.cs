@@ -1,3 +1,4 @@
+#if NET_4_6   
 using System;
 using System.Collections.Generic;
 using System.Threading.Tasks;
@@ -219,3 +220,4 @@ namespace PlayFab
         ulong BatchNumber { get; set; }
     }
 }
+#endif

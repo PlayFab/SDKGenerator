@@ -1,3 +1,4 @@
+#if NET_4_6   
 using System;
 
 namespace PlayFab.Pipeline
@@ -96,3 +97,4 @@ namespace PlayFab.Pipeline
         public int MaxHttpAttempts { get; set; } = DefaultMaxHttpAttempts;
     }
 }
+#endif

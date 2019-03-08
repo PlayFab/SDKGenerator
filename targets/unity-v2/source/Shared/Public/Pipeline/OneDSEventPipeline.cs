@@ -1,4 +1,5 @@
-﻿using System;
+﻿﻿#if NET_4_6   
+using System;
 using System.Collections.Concurrent;
 using System.Threading;
 using System.Threading.Tasks;
@@ -72,13 +73,16 @@ namespace PlayFab.Pipeline
         /// Creates an instance of EventPipeline.
         /// </summary>
         /// <param name="settings">The configuration settings for event pipeline.</param>
-        public OneDSEventPipeline(
-            OneDSEventPipelineSettings settings,
-            ILogger logger)
+        public OneDSEventPipeline(OneDSEventPipelineSettings settings, ILogger logger)
         {
-            this.settings = settings ?? throw new ArgumentNullException(nameof(settings));
-            this.logger = logger ?? throw new ArgumentNullException(nameof(logger));
+            if (settings == null)
+                throw new ArgumentNullException(nameof(settings));
+            this.settings = settings;
 
+            if (logger == null)
+                throw new ArgumentNullException(nameof(logger));
+            this.logger = logger;
+            
             this.batchingStage = new EventBatchingStage(this.settings.BatchSize, this.settings.BatchFillTimeout, logger);
             this.sendingStage = new EventSendingStage(logger);
         }
@@ -350,3 +354,4 @@ namespace PlayFab.Pipeline
         }
     }
 }
+#endif

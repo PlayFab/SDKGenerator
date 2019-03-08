@@ -1,4 +1,5 @@
-﻿using System;
+﻿#if NET_4_6 
+using System;
 using System.Collections.Generic;
 using System.Text;
 
@@ -261,3 +262,4 @@ namespace Microsoft.Applications.Events
     }
 
 }
+#endif

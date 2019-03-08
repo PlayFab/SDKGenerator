@@ -1,3 +1,4 @@
+#if NET_4_6
 using System;
 
 namespace PlayFab.Logger
@@ -72,3 +73,4 @@ namespace PlayFab.Logger
         }
     }
 }
+#endif

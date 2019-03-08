@@ -1,4 +1,5 @@
-﻿using System.Threading.Tasks;
+﻿#if NET_4_6
+using System.Threading.Tasks;
 
 namespace PlayFab.Pipeline
 {
@@ -9,3 +10,4 @@ namespace PlayFab.Pipeline
         Task<IPlayFabEmitEventResponse> IntakeEventAsync(IPlayFabEmitEventRequest request); // Intake an event and return a task which completes when an event is completely processed (sent out or error returned). This method must be thread-safe.
     }
 }
+#endif

@@ -1,3 +1,4 @@
+#if NET_4_6   
 using System.Collections.Generic;
 using System.Threading.Tasks;
 using PlayFab.Logger;
@@ -89,3 +90,4 @@ namespace PlayFab
         }
     }
 }
+#endif

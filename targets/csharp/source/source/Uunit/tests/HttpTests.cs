@@ -40,8 +40,8 @@ namespace PlayFab.UUnit
 
         public override void ClassSetUp()
         {
-            if (string.IsNullOrEmpty(PlayFabSettings.TitleId))
-                PlayFabSettings.TitleId = "ABCD";
+            if (string.IsNullOrEmpty(PlayFabSettings.staticSettings.TitleId))
+                PlayFabSettings.staticSettings.TitleId = "ABCD";
             realHttpPlugin = PluginManager.GetPlugin<IPlayFabPlugin>(PluginContract.PlayFab_Transport);
             mockHttpPlugin = new MockTransport();
             PluginManager.SetPlugin(mockHttpPlugin, PluginContract.PlayFab_Transport);

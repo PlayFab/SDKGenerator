@@ -43,7 +43,7 @@ namespace PlayFab.UUnit
             TITLE_INFO_SET = true;
             testTitleData = testInputs;
             // Verify all the inputs won't cause crashes in the tests
-            TITLE_INFO_SET &= !string.IsNullOrEmpty(PlayFabSettings.TitleId)
+            TITLE_INFO_SET &= !string.IsNullOrEmpty(PlayFabSettings.staticSettings.TitleId)
                 && !string.IsNullOrEmpty(testTitleData.userEmail);
         }
 
@@ -69,7 +69,7 @@ namespace PlayFab.UUnit
             // If the setup failed to log in a user, we need to create one.
             var request = new LoginWithEmailAddressRequest
             {
-                TitleId = PlayFabSettings.TitleId,
+                TitleId = PlayFabSettings.staticSettings.TitleId,
                 Email = testTitleData.userEmail,
                 Password = "INVALID",
             };
@@ -81,7 +81,7 @@ namespace PlayFab.UUnit
             testContext.NotNull(loginResult, failMessage);
             testContext.IsNull(loginResult.Result, failMessage);
             testContext.NotNull(loginResult.Error, failMessage);
-            testContext.True(loginResult.Error.ErrorMessage.Contains("password"), loginResult.Error.ErrorMessage + ", for: " + testTitleData.userEmail + ", on: " + PlayFabSettings.TitleId);
+            testContext.True(loginResult.Error.ErrorMessage.Contains("password"), loginResult.Error.ErrorMessage + ", for: " + testTitleData.userEmail + ", on: " + PlayFabSettings.staticSettings.TitleId);
         }
 
         /// <summary>
@@ -94,7 +94,7 @@ namespace PlayFab.UUnit
         {
             var registerRequest = new RegisterPlayFabUserRequest
             {
-                TitleId = PlayFabSettings.TitleId,
+                TitleId = PlayFabSettings.staticSettings.TitleId,
                 Username = "x",
                 Email = "x",
                 Password = "x",
@@ -125,7 +125,7 @@ namespace PlayFab.UUnit
         {
             var loginRequest = new LoginWithCustomIDRequest
             {
-                TitleId = PlayFabSettings.TitleId,
+                TitleId = PlayFabSettings.staticSettings.TitleId,
                 CustomId = PlayFabSettings.BuildIdentifier,
                 CreateAccount = true
             };
@@ -145,12 +145,12 @@ namespace PlayFab.UUnit
         [UUnitTest]
         public void LoginWithAdvertisingId(UUnitTestContext testContext)
         {
-            PlayFabSettings.AdvertisingIdType = PlayFabSettings.AD_TYPE_ANDROID_ID;
-            PlayFabSettings.AdvertisingIdValue = "PlayFabTestId";
+            PlayFabSettings.staticSettings.AdvertisingIdType = PlayFabSettings.AD_TYPE_ANDROID_ID;
+            PlayFabSettings.staticSettings.AdvertisingIdValue = "PlayFabTestId";
 
             var loginRequest = new LoginWithCustomIDRequest
             {
-                TitleId = PlayFabSettings.TitleId,
+                TitleId = PlayFabSettings.staticSettings.TitleId,
                 CustomId = PlayFabSettings.BuildIdentifier,
                 CreateAccount = true
             };
@@ -162,7 +162,7 @@ namespace PlayFab.UUnit
             PlayFabId = loginResult.Result.PlayFabId; // Needed for subsequent tests
             testContext.True(PlayFabClientAPI.IsClientLoggedIn(), "User login failed");
 
-            testContext.StringEquals(PlayFabSettings.AD_TYPE_ANDROID_ID + "_Successful", PlayFabSettings.AdvertisingIdType);
+            testContext.StringEquals(PlayFabSettings.AD_TYPE_ANDROID_ID + "_Successful", PlayFabSettings.staticSettings.AdvertisingIdType);
         }
 
         /// <summary>
@@ -242,7 +242,7 @@ namespace PlayFab.UUnit
         /// Test a sequence of calls that modifies saved data,
         ///   and verifies that the next sequential API call contains updated data.
         /// Verify that the data is saved correctly, and that specific types are tested
-        /// Parameter types tested: Dictionary&gt;string, int> 
+        /// Parameter types tested: Dictionary&gt;string, int>
         /// </summary>
         [UUnitTest]
         public void PlayerStatisticsApi(UUnitTestContext testContext)
@@ -495,19 +495,19 @@ namespace PlayFab.UUnit
             // If the setup failed to log in a user, we need to create one.
             var loginRequest1 = new LoginWithCustomIDRequest
             {
-                TitleId = PlayFabSettings.TitleId,
+                TitleId = PlayFabSettings.staticSettings.TitleId,
                 CustomId = "test_SDK1",
                 CreateAccount = true,
             };
             var loginRequest2 = new LoginWithCustomIDRequest
             {
-                TitleId = PlayFabSettings.TitleId,
+                TitleId = PlayFabSettings.staticSettings.TitleId,
                 CustomId = "test_SDK2",
                 CreateAccount = true,
             };
             var loginRequest3 = new LoginWithCustomIDRequest
             {
-                TitleId = PlayFabSettings.TitleId,
+                TitleId = PlayFabSettings.staticSettings.TitleId,
                 CustomId = "test_SDK3",
                 CreateAccount = true,
             };
@@ -553,7 +553,7 @@ namespace PlayFab.UUnit
         [UUnitTest]
         public void MultiplePlayerApiCall(UUnitTestContext testContext)
         {
-            if(authenticationContext1?.ClientSessionTicket == null || authenticationContext2?.ClientSessionTicket == null)
+            if (authenticationContext1?.ClientSessionTicket == null || authenticationContext2?.ClientSessionTicket == null)
             {
                 testContext.Skip("To run this test MultipleLoginWithStaticMethods test should be passed and store authenticationContext values");
             }

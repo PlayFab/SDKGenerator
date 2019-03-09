@@ -2,6 +2,8 @@ using PlayFab.Json;
 using System;
 using System.Collections.Generic;
 using System.IO;
+using System.Threading.Tasks;
+
 #if !DISABLE_PLAYFABCLIENT_API
 using PlayFab.ClientModels;
 #endif
@@ -25,20 +27,22 @@ namespace PlayFab.UUnit
         private static UUnitTestSuite _suite;
         private static bool _postResultsToCloudscript;
         public static TestTitleData TestTitleData;
+        public static PlayFabClientInstanceAPI PfClient = new PlayFabClientInstanceAPI(new PlayFabApiSettings(), new PlayFabAuthenticationContext());
+
 #if !DISABLE_PLAYFABCLIENT_API
         private static Action<PlayFabResult<ExecuteCloudScriptResult>> _onComplete;
 #endif
 
-        public static TestTitleData LoadTestTitleData(TestTitleData testInputs = null)
+        public static TestTitleData VerifyTestTitleData()
         {
 #if NET45 || NETCOREAPP2_0
-            if(testInputs == null)
+            if(TestTitleData == null)
             {
                 try
                 {
                     var testTitleDataPath = Environment.GetEnvironmentVariable("PF_TEST_TITLE_DATA_JSON");
                     var jsonContent = File.ReadAllText(testTitleDataPath + "/testTitleData.json");
-                    testInputs = PlayFabSimpleJson.DeserializeObject<TestTitleData>(jsonContent);
+                    TestTitleData = PlayFabSimpleJson.DeserializeObject<TestTitleData>(jsonContent);
                 }
                 catch (Exception)
                 {
@@ -46,12 +50,12 @@ namespace PlayFab.UUnit
             }
 #endif
             // Fall back on hard coded testTitleData if necessary (Put your own data here)
-            if (testInputs == null)
-                testInputs = new TestTitleData { titleId = "6195", userEmail = "paul@playfab.com" };
+            if (TestTitleData == null)
+                TestTitleData = new TestTitleData { titleId = "6195", userEmail = "paul@playfab.com" };
 
-            PlayFabSettings.TitleId = testInputs.titleId;
+            PlayFabSettings.staticSettings.TitleId = TestTitleData.titleId;
 
-            return testInputs;
+            return TestTitleData;
         }
 
         public static void Start(bool postResultsToCloudscript = true, string filter = null, TestTitleData testInputs = null
@@ -60,13 +64,14 @@ namespace PlayFab.UUnit
 #endif
         )
         {
-            testInputs = LoadTestTitleData(testInputs);
+            TestTitleData = testInputs;
+            VerifyTestTitleData();
 
 #if !DISABLE_PLAYFABCLIENT_API
-            PlayFabApiTest.SetTitleInfo(testInputs);
+            PlayFabApiTest.SetTitleInfo(TestTitleData);
 #endif
 #if ENABLE_PLAYFABSERVER_API || ENABLE_PLAYFABADMIN_API
-            PlayFabServerApiTest.SetTitleInfo(testInputs);
+            PlayFabServerApiTest.SetTitleInfo(TestTitleData);
 #endif
 
             SuiteFinished = false;
@@ -79,7 +84,7 @@ namespace PlayFab.UUnit
 #endif
         }
 
-        public static string Tick()
+        public static async Task<string> Tick()
         {
             if (SuiteFinished)
                 return Summary;
@@ -89,33 +94,45 @@ namespace PlayFab.UUnit
             AllTestsPassed = _suite.AllTestsPassed();
 
             if (SuiteFinished)
-                OnSuiteFinish();
+                await OnSuiteFinish();
 
             return Summary;
         }
 
-        private static void OnSuiteFinish()
+        private static async Task OnSuiteFinish()
         {
             if (_postResultsToCloudscript)
-                PostTestResultsToCloudScript(_suite.GetInternalReport());
+                await PostTestResultsToCloudScript(_suite.GetInternalReport());
         }
 
-        private static void PostTestResultsToCloudScript(TestSuiteReport testReport)
+        private static async Task PostTestResultsToCloudScript(TestSuiteReport testReport)
         {
 #if !DISABLE_PLAYFABCLIENT_API
-            var request = new ExecuteCloudScriptRequest
+            PfClient.GetSettings().TitleId = TestTitleData.titleId;
+            var loginRequest = new LoginWithCustomIDRequest
+            {
+                CustomId = PlayFabSettings.BuildIdentifier,
+                CreateAccount = true,
+            };
+            var saveRequest = new ExecuteCloudScriptRequest
             {
                 FunctionName = "SaveTestData",
                 FunctionParameter = new Dictionary<string, object> { { "customId", PlayFabSettings.BuildIdentifier }, { "testReport", new[] { testReport } } },
                 GeneratePlayStreamEvent = true
             };
-            var saveTask = PlayFabClientAPI.ExecuteCloudScriptAsync(request);
-            saveTask.ContinueWith(task =>
+            try
             {
-                if (_onComplete != null)
-                    _onComplete(task.Result);
+                var loginResult = await PfClient.LoginWithCustomIDAsync(loginRequest);
+                var saveResult = await PfClient.ExecuteCloudScriptAsync(saveRequest);
+                _onComplete?.Invoke(saveResult);
             }
-            );
+            catch (Exception e)
+            {
+                var failResult = new PlayFabResult<ExecuteCloudScriptResult>();
+                failResult.Error = new PlayFabError();
+                failResult.Error.ErrorMessage = e.ToString();
+                _onComplete?.Invoke(failResult);
+            }
 #endif
         }
     }

@@ -2,36 +2,44 @@ using PlayFab;
 using PlayFab.UUnit;
 using System;
 using System.IO;
-using System.Threading;
 using PlayFab.ClientModels;
+using System.Threading.Tasks;
 
 namespace UnittestRunner
 {
     static class UUnitTestRunner
     {
         private static bool _onCompleted = false;
+
         public class CsSaveRequest
         {
             public string customId;
             public TestSuiteReport[] testReport;
         }
 
-        private static int Main(string[] args)
+        public static int Main(string[] args)
+        {
+            try
+            {
+                MainTask(args).Wait(60000);
+            }
+            catch (Exception e)
+            {
+                WriteConsoleColor(e.ToString(), ConsoleColor.Red);
+            }
+            return Pause(UUnitIncrementalTestRunner.AllTestsPassed ? 0 : 1);
+        }
+
+        public static async Task<int> MainTask(string[] args)
         {
             var testInputs = GetTestTitleData(args);
             UUnitIncrementalTestRunner.Start(true, null, testInputs, OnComplete);
             while (!UUnitIncrementalTestRunner.SuiteFinished)
-                UUnitIncrementalTestRunner.Tick();
+                await UUnitIncrementalTestRunner.Tick();
 
-            Console.WriteLine(UUnitIncrementalTestRunner.Summary);
-            Console.WriteLine();
+            WriteConsoleColor(UUnitIncrementalTestRunner.Summary);
 
-            // Wait for OnComplete
-            var timeout = DateTime.UtcNow + TimeSpan.FromSeconds(30);
-            while (!_onCompleted && DateTime.UtcNow < timeout)
-                Thread.Sleep(100);
-
-            return Pause(UUnitIncrementalTestRunner.AllTestsPassed ? 0 : 1);
+            return UUnitIncrementalTestRunner.AllTestsPassed ? 0 : 1;
         }
 
         private static void WriteConsoleColor(string msg = null, ConsoleColor textColor = ConsoleColor.White)
@@ -80,7 +88,7 @@ namespace UnittestRunner
 
         private static void OnComplete(PlayFabResult<ExecuteCloudScriptResult> result)
         {
-            WriteConsoleColor("Save to CloudScript result for: " + PlayFabSettings.BuildIdentifier + " => " + PlayFabApiTest.PlayFabId, ConsoleColor.Gray);
+            WriteConsoleColor("Save to CloudScript result for: " + PlayFabSettings.BuildIdentifier + " => " + UUnitIncrementalTestRunner.PfClient.GetAuthenticationContext().PlayFabId, ConsoleColor.Gray);
             if (result.Error != null)
                 WriteConsoleColor(result.Error.GenerateErrorReport(), ConsoleColor.Red);
             else if (result.Result != null)

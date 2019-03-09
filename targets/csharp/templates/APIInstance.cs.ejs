@@ -1,3 +1,5 @@
+#if <%- getApiDefineFlag(api) %>
+
 using PlayFab.<%- api.name %>Models;
 using PlayFab.Internal;
 using PlayFab.Json;
@@ -10,10 +12,10 @@ namespace PlayFab
 <%- generateApiSummary("    ", api, "description")
 %>    public class PlayFab<%- api.name %>InstanceAPI
     {
-	    private PlayFabApiSettings apiSettings = null;
+        private PlayFabApiSettings apiSettings = null;
         private PlayFabAuthenticationContext authenticationContext = null;
-		
-		public PlayFab<%- api.name %>InstanceAPI()
+
+        public PlayFab<%- api.name %>InstanceAPI()
         {
 
         }
@@ -27,14 +29,14 @@ namespace PlayFab
         {
             authenticationContext = context;
         }
-		
-		public PlayFab<%- api.name %>InstanceAPI(PlayFabApiSettings settings = null, PlayFabAuthenticationContext context = null)
+
+        public PlayFab<%- api.name %>InstanceAPI(PlayFabApiSettings settings = null, PlayFabAuthenticationContext context = null)
         {
             apiSettings = settings;
             authenticationContext = context;
         }
-		
-		public void SetSettings(PlayFabApiSettings settings)
+
+        public void SetSettings(PlayFabApiSettings settings)
         {
             apiSettings = settings;
         }
@@ -53,7 +55,7 @@ namespace PlayFab
         {
             return authenticationContext;
         }
-		
+
 <% for(var i in api.calls) { var apiCall = api.calls[i];
 %><%- generateApiSummary("        ", apiCall, "summary")
 %><%- getDeprecationAttribute("        ", apiCall)
@@ -71,7 +73,7 @@ namespace PlayFab
             var resultRawJson = (string)httpResult;
             var resultData = PluginManager.GetPlugin<ISerializerPlugin>(PluginContract.PlayFab_Serializer).DeserializeObject<PlayFabJsonSuccess<<%- apiCall.result %>>>(resultRawJson);
             var result = resultData.data;
-<%- getResultActions("            ", apiCall, api) %>
+<%- getResultActions("            ", apiCall, api, true) %>
             return new PlayFabResult<<%- apiCall.result %>> { Result = result, CustomData = customData };
         }
 
@@ -84,13 +86,13 @@ namespace PlayFab
 
         private async Task<PlayFabResult<AttributeInstallResult>> MultiStepClientLogin(bool needsAttribution)
         {
-            if (needsAttribution && !PlayFabSettings.DisableAdvertising && !string.IsNullOrEmpty(PlayFabSettings.AdvertisingIdType) && !string.IsNullOrEmpty(PlayFabSettings.AdvertisingIdValue))
+            if (needsAttribution && !apiSettings.DisableAdvertising && !string.IsNullOrEmpty(apiSettings.AdvertisingIdType) && !string.IsNullOrEmpty(apiSettings.AdvertisingIdValue))
             {
                 var request = new AttributeInstallRequest();
-                if (PlayFabSettings.AdvertisingIdType == PlayFabSettings.AD_TYPE_IDFA)
-                    request.Idfa = PlayFabSettings.AdvertisingIdValue;
-                else if (PlayFabSettings.AdvertisingIdType == PlayFabSettings.AD_TYPE_ANDROID_ID)
-                    request.Adid = PlayFabSettings.AdvertisingIdValue;
+                if (apiSettings.AdvertisingIdType == PlayFabSettings.AD_TYPE_IDFA)
+                    request.Idfa = apiSettings.AdvertisingIdValue;
+                else if (apiSettings.AdvertisingIdType == PlayFabSettings.AD_TYPE_ANDROID_ID)
+                    request.Adid = apiSettings.AdvertisingIdValue;
                 else
                     return null;
                 return await AttributeInstallAsync(request);
@@ -99,3 +101,4 @@ namespace PlayFab
         }
 <% } %>    }
 }
+#endif

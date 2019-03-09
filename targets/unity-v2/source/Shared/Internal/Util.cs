@@ -128,7 +128,13 @@ namespace PlayFab.Internal
                 JsonObject envJson = PlayFabSimpleJson.DeserializeObject<JsonObject>(envFileContent);
                 try
                 {
-                    return envJson[propertyKey]?.ToString();
+                    object result;
+                    if (envJson.TryGetValue(propertyKey, out result))
+                    {
+                        return result == null ? null : result.ToString();
+                    }
+
+                    return null;
                 } 
                 catch (KeyNotFoundException)
                 {

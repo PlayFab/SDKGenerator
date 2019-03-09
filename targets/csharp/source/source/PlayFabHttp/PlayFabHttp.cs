@@ -46,10 +46,11 @@ namespace PlayFab.Internal
 
     public static class PlayFabHttp
     {
-        public static async Task<object> DoPost(string urlPath, PlayFabRequestCommon request, string authType, string authKey, Dictionary<string, string> extraHeaders, PlayFabApiSettings apiSettings = null)
+        public static async Task<object> DoPost(string urlPath, PlayFabRequestCommon request, string authType, string authKey, Dictionary<string, string> extraHeaders, PlayFabApiSettings instanceSettings = null)
         {
-            var fullPath = apiSettings == null ? PlayFabSettings.GetFullUrl(urlPath, PlayFabSettings.RequestGetParams) : apiSettings.GetFullUrl(urlPath, PlayFabSettings.RequestGetParams);
-            var titleId = apiSettings?.TitleId == null ? PlayFabSettings.TitleId : apiSettings.TitleId;
+            var settings = instanceSettings ?? PlayFabSettings.staticSettings;
+            var fullPath = settings.GetFullUrl(urlPath);
+            var titleId = settings.TitleId;
             if (titleId == null)
                 throw new PlayFabException(PlayFabExceptionCode.TitleNotSet, "You must set your titleId before making an api call");
             var transport = PluginManager.GetPlugin<ITransportPlugin>(PluginContract.PlayFab_Transport);

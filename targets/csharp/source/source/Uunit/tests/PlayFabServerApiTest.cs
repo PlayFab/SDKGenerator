@@ -1,4 +1,4 @@
-#if ENABLE_PLAYFABSERVER_API || ENABLE_PLAYFABADMIN_API 
+#if ENABLE_PLAYFABSERVER_API || ENABLE_PLAYFABADMIN_API
 using System;
 using System.Collections.Generic;
 using System.Threading.Tasks;
@@ -21,14 +21,13 @@ namespace PlayFab.UUnit
             testTitleData = testInputs;
             instanceSettings.TitleId = testTitleData.titleId;
             instanceSettings.DeveloperSecretKey = testTitleData.developerSecretKey;
-            instanceContext.DeveloperSecretKey = testTitleData.developerSecretKey;
         }
 
         public override void SetUp(UUnitTestContext testContext)
         {
             // Clear the global settings, so they can't pollute this test.
-            PlayFabSettings.TitleId = null;
-            PlayFabSettings.DeveloperSecretKey = null;
+            PlayFabSettings.staticSettings.TitleId = null;
+            PlayFabSettings.staticSettings.DeveloperSecretKey = null;
         }
 
         public override void Tick(UUnitTestContext testContext)
@@ -58,36 +57,32 @@ namespace PlayFab.UUnit
         [UUnitTest]
         public void MultipleInstanceWithDifferentSettings(UUnitTestContext testContext)
         {
-            PlayFabApiSettings settings = new PlayFabApiSettings();
-            settings.ProductionEnvironmentUrl = "https://test1.playfabapi.com";
-            settings.TitleId = "test1";
+            PlayFabApiSettings settings1 = new PlayFabApiSettings();
+            settings1.ProductionEnvironmentUrl = "https://test1.playfabapi.com";
+            settings1.TitleId = "test1";
+            settings1.DeveloperSecretKey = "key1";
 
             PlayFabApiSettings settings2 = new PlayFabApiSettings();
             settings2.ProductionEnvironmentUrl = "https://test2.playfabapi.com";
             settings2.TitleId = "test2";
+            settings2.DeveloperSecretKey = "key2";
 
-            PlayFabAuthenticationContext context = new PlayFabAuthenticationContext();
-            context.DeveloperSecretKey = "key1";
-
-            PlayFabAuthenticationContext context2 = new PlayFabAuthenticationContext();
-            context2.DeveloperSecretKey = "key2";
-
-            PlayFabServerInstanceAPI serverInstance1 = new PlayFabServerInstanceAPI(settings, context);
-            PlayFabServerInstanceAPI serverInstance2 = new PlayFabServerInstanceAPI(settings2, context2);
+            PlayFabServerInstanceAPI serverInstance1 = new PlayFabServerInstanceAPI(settings1, null);
+            PlayFabServerInstanceAPI serverInstance2 = new PlayFabServerInstanceAPI(settings2, null);
 
             testContext.StringEquals("test1", serverInstance1.GetSettings().TitleId, "MultipleInstanceWithDifferentSettings can not be completed");
             testContext.StringEquals("https://test1.playfabapi.com", serverInstance1.GetSettings().ProductionEnvironmentUrl, "MultipleInstanceWithDifferentSettings can not be completed");
-            testContext.StringEquals("key1", serverInstance1.GetAuthenticationContext().DeveloperSecretKey, "MultipleInstanceWithDifferentSettings can not be completed");
+            testContext.StringEquals("key1", serverInstance1.GetSettings().DeveloperSecretKey, "MultipleInstanceWithDifferentSettings can not be completed");
 
             testContext.StringEquals("test2", serverInstance2.GetSettings().TitleId, "MultipleInstanceWithDifferentSettings can not be completed");
             testContext.StringEquals("https://test2.playfabapi.com", serverInstance2.GetSettings().ProductionEnvironmentUrl, "MultipleInstanceWithDifferentSettings can not be completed");
-            testContext.StringEquals("key2", serverInstance2.GetAuthenticationContext().DeveloperSecretKey, "MultipleInstanceWithDifferentSettings can not be completed");
+            testContext.StringEquals("key2", serverInstance2.GetSettings().DeveloperSecretKey, "MultipleInstanceWithDifferentSettings can not be completed");
             testContext.EndTest(UUnitFinishState.PASSED, null);
         }
 
         /// <summary>
         /// SERVER API
-        /// Each API instance can be used to login a player separately from any other API instances, 
+        /// Each API instance can be used to login a player separately from any other API instances,
         /// and that player’s authentication context is stored in the API instance
         /// </summary>
         [UUnitTest]
@@ -136,7 +131,7 @@ namespace PlayFab.UUnit
         [UUnitTest]
         public void CheckWithNoSettings(UUnitTestContext testContext)
         {
-            PlayFabSettings.DeveloperSecretKey = testTitleData.developerSecretKey;
+            PlayFabSettings.staticSettings.DeveloperSecretKey = testTitleData.developerSecretKey;
 
             //It should work with static class only
             PlayFabServerInstanceAPI serverInstanceWithoutAnyParameter = new PlayFabServerInstanceAPI();
@@ -151,16 +146,17 @@ namespace PlayFab.UUnit
         [UUnitTest]
         public void CheckWithAuthContextAndWithoutAuthContext(UUnitTestContext testContext)
         {
-            PlayFabSettings.TitleId = testTitleData.titleId;
-            PlayFabSettings.DeveloperSecretKey = testTitleData.developerSecretKey;
+            PlayFabSettings.staticSettings.TitleId = testTitleData.titleId;
+            PlayFabSettings.staticSettings.DeveloperSecretKey = testTitleData.developerSecretKey;
 
-            //IT will  use static developer key - Should has no error 
+            //IT will  use static developer key - Should has no error
             PlayFabServerInstanceAPI serverInstance1 = new PlayFabServerInstanceAPI();
 
             //IT will  use context developer key - Should has error because of wrong key
-            PlayFabAuthenticationContext context2 = new PlayFabAuthenticationContext();
-            context2.DeveloperSecretKey = "WRONGKEYTOFAIL";
-            PlayFabServerInstanceAPI serverInstance2 = new PlayFabServerInstanceAPI(context2);
+            PlayFabApiSettings settings2 = new PlayFabApiSettings();
+            settings2.TitleId = testTitleData.titleId;
+            settings2.DeveloperSecretKey = "WRONGKEYTOFAIL";
+            PlayFabServerInstanceAPI serverInstance2 = new PlayFabServerInstanceAPI(settings2);
 
             PlayFabResult<GetAllSegmentsResult> result1, result2;
 
@@ -193,42 +189,40 @@ namespace PlayFab.UUnit
         {
             List<Task> tasks = new List<Task>();
 
-            PlayFabApiSettings settings = new PlayFabApiSettings();
-            settings.TitleId = testTitleData.titleId;
-            settings.DeveloperSecretKey = testTitleData.developerSecretKey;
+            PlayFabApiSettings settings1 = new PlayFabApiSettings();
+            settings1.TitleId = testTitleData.titleId;
+            settings1.DeveloperSecretKey = testTitleData.developerSecretKey;
 
-            PlayFabAuthenticationContext context = new PlayFabAuthenticationContext();
-            context.DeveloperSecretKey = testTitleData.developerSecretKey;
+            PlayFabApiSettings settings2 = new PlayFabApiSettings();
+            settings2.TitleId = testTitleData.titleId;
+            settings2.DeveloperSecretKey = "GETERROR";
 
-            PlayFabAuthenticationContext context2 = new PlayFabAuthenticationContext();
-            context2.DeveloperSecretKey = "GETERROR";
+            PlayFabApiSettings settings3 = new PlayFabApiSettings();
+            settings3.TitleId = testTitleData.titleId;
+            settings3.DeveloperSecretKey = testTitleData.developerSecretKey;
 
-            PlayFabAuthenticationContext context3 = new PlayFabAuthenticationContext();
-            context3.DeveloperSecretKey = testTitleData.developerSecretKey;
+            PlayFabApiSettings settings4 = new PlayFabApiSettings();
+            settings4.TitleId = testTitleData.titleId;
+            settings4.DeveloperSecretKey = "TESTKEYERROR";
 
-            PlayFabAuthenticationContext context4 = new PlayFabAuthenticationContext();
-            context4.DeveloperSecretKey = "TESTKEYERROR";
-
-            PlayFabAuthenticationContext context5 = new PlayFabAuthenticationContext();
-            context5.DeveloperSecretKey = "123421";
+            PlayFabApiSettings settings5 = new PlayFabApiSettings();
+            settings5.TitleId = testTitleData.titleId;
+            settings5.DeveloperSecretKey = "123421";
 
 
-            PlayFabServerInstanceAPI serverInstance = new PlayFabServerInstanceAPI(settings, context);
-            tasks.Add(serverInstance.GetAllSegmentsAsync(new GetAllSegmentsRequest()));
-
-            PlayFabServerInstanceAPI serverInstance1 = new PlayFabServerInstanceAPI(settings, context);
+            PlayFabServerInstanceAPI serverInstance1 = new PlayFabServerInstanceAPI(settings1);
             tasks.Add(serverInstance1.GetAllSegmentsAsync(new GetAllSegmentsRequest()));
 
-            PlayFabServerInstanceAPI serverInstance2 = new PlayFabServerInstanceAPI(settings, context2);
+            PlayFabServerInstanceAPI serverInstance2 = new PlayFabServerInstanceAPI(settings2);
             tasks.Add(serverInstance2.GetAllSegmentsAsync(new GetAllSegmentsRequest()));
 
-            PlayFabServerInstanceAPI serverInstance3 = new PlayFabServerInstanceAPI(settings, context3);
+            PlayFabServerInstanceAPI serverInstance3 = new PlayFabServerInstanceAPI(settings3);
             tasks.Add(serverInstance3.GetAllSegmentsAsync(new GetAllSegmentsRequest()));
 
-            PlayFabServerInstanceAPI serverInstance4 = new PlayFabServerInstanceAPI(settings, context4);
+            PlayFabServerInstanceAPI serverInstance4 = new PlayFabServerInstanceAPI(settings4);
             tasks.Add(serverInstance4.GetAllSegmentsAsync(new GetAllSegmentsRequest()));
 
-            PlayFabServerInstanceAPI serverInstance5 = new PlayFabServerInstanceAPI(settings, context5);
+            PlayFabServerInstanceAPI serverInstance5 = new PlayFabServerInstanceAPI(settings5);
             tasks.Add(serverInstance5.GetAllSegmentsAsync(new GetAllSegmentsRequest()));
 
             Task.WhenAll(tasks).ContinueWith(whenAll =>

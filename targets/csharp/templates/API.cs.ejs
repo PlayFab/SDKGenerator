@@ -1,3 +1,5 @@
+#if <%- getApiDefineFlag(api) %>
+
 using PlayFab.<%- api.name %>Models;
 using PlayFab.Internal;
 using PlayFab.Json;
@@ -15,7 +17,7 @@ namespace PlayFab
 %><%- getDeprecationAttribute("        ", apiCall)
 %>        public static async Task<PlayFabResult<<%- apiCall.result %>>> <%- apiCall.name %>Async(<%- apiCall.request %> request, object customData = null, Dictionary<string, string> extraHeaders = null)
         {
-<%- getRequestActions("            ", apiCall) %>
+<%- getRequestActions("            ", apiCall, false) %>
             var httpResult = await PlayFabHttp.DoPost("<%- apiCall.url %>", request, <%- getAuthParams(apiCall) %>, extraHeaders);
             if (httpResult is PlayFabError)
             {
@@ -27,7 +29,7 @@ namespace PlayFab
             var resultRawJson = (string)httpResult;
             var resultData = PluginManager.GetPlugin<ISerializerPlugin>(PluginContract.PlayFab_Serializer).DeserializeObject<PlayFabJsonSuccess<<%- apiCall.result %>>>(resultRawJson);
             var result = resultData.data;
-<%- getResultActions("            ", apiCall, api) %>
+<%- getResultActions("            ", apiCall, api, false) %>
             return new PlayFabResult<<%- apiCall.result %>> { Result = result, CustomData = customData };
         }
 
@@ -35,18 +37,18 @@ namespace PlayFab
 %>        // Determine if the client session ticket is set, without actually making it public
         public static bool IsClientLoggedIn()
         {
-            return !string.IsNullOrEmpty(PlayFabSettings.ClientSessionTicket);
+            return PlayFabSettings.staticPlayer.IsClientLoggedIn();
         }
 
         private static async Task<PlayFabResult<AttributeInstallResult>> MultiStepClientLogin(bool needsAttribution)
         {
-            if (needsAttribution && !PlayFabSettings.DisableAdvertising && !string.IsNullOrEmpty(PlayFabSettings.AdvertisingIdType) && !string.IsNullOrEmpty(PlayFabSettings.AdvertisingIdValue))
+            if (needsAttribution && !PlayFabSettings.staticSettings.DisableAdvertising && !string.IsNullOrEmpty(PlayFabSettings.staticSettings.AdvertisingIdType) && !string.IsNullOrEmpty(PlayFabSettings.staticSettings.AdvertisingIdValue))
             {
                 var request = new AttributeInstallRequest();
-                if (PlayFabSettings.AdvertisingIdType == PlayFabSettings.AD_TYPE_IDFA)
-                    request.Idfa = PlayFabSettings.AdvertisingIdValue;
-                else if (PlayFabSettings.AdvertisingIdType == PlayFabSettings.AD_TYPE_ANDROID_ID)
-                    request.Adid = PlayFabSettings.AdvertisingIdValue;
+                if (PlayFabSettings.staticSettings.AdvertisingIdType == PlayFabSettings.AD_TYPE_IDFA)
+                    request.Idfa = PlayFabSettings.staticSettings.AdvertisingIdValue;
+                else if (PlayFabSettings.staticSettings.AdvertisingIdType == PlayFabSettings.AD_TYPE_ANDROID_ID)
+                    request.Adid = PlayFabSettings.staticSettings.AdvertisingIdValue;
                 else
                     return null;
                 return await AttributeInstallAsync(request);
@@ -55,3 +57,4 @@ namespace PlayFab
         }
 <% } %>    }
 }
+#endif

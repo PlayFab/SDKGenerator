@@ -14,6 +14,7 @@ exports.makeClientAPI2 = function (apis, sourceDir, apiOutputDir) {
 
     var locals = {
         buildIdentifier: sdkGlobals.buildIdentifier,
+        hasClientOptions: getAuthMechanisms(apis).includes("SessionTicket"),
         sdkVersion: sdkGlobals.sdkVersion
     };
 
@@ -31,15 +32,14 @@ exports.makeServerAPI = function (apis, sourceDir, apiOutputDir) {
 
     var locals = {
         buildIdentifier: sdkGlobals.buildIdentifier,
+        hasClientOptions: getAuthMechanisms(apis).includes("SessionTicket"),
         sdkVersion: sdkGlobals.sdkVersion
     };
 
     templatizeTree(locals, path.resolve(sourceDir, "source"), apiOutputDir);
     makeDatatypes(apis, sourceDir, apiOutputDir);
-    for (var i = 0; i < apis.length; i++) {
+    for (var i = 0; i < apis.length; i++)
         makeApi(apis[i], sourceDir, apiOutputDir);
-        makeApiInstance(apis[i], sourceDir, apiOutputDir);
-    }
 
     generateSimpleFiles(apis, sourceDir, apiOutputDir);
     generateProject(apis, sourceDir, apiOutputDir, "Server", ";DISABLE_PLAYFABCLIENT_API;ENABLE_PLAYFABSERVER_API");
@@ -53,6 +53,7 @@ exports.makeCombinedAPI = function (apis, sourceDir, apiOutputDir) {
     const locals = {
         buildIdentifier: sdkGlobals.buildIdentifier,
         copyright: copyright,
+        hasClientOptions: getAuthMechanisms(apis).includes("SessionTicket"),
         sdkVersion: sdkGlobals.sdkVersion
     };
 
@@ -60,10 +61,9 @@ exports.makeCombinedAPI = function (apis, sourceDir, apiOutputDir) {
     templatizeTree(locals, path.resolve(sourceDir, "UnittestRunner"), path.resolve(apiOutputDir, "UnittestRunner")); // Copy the actual unittest project in the CombinedAPI
     copyOrTemplatizeFile(locals, path.resolve(sourceDir, "PlayFabSDK+Unit.sln"), path.resolve(apiOutputDir, "PlayFabSDK+Unit.sln"));
     makeDatatypes(apis, sourceDir, apiOutputDir);
-    for (var i = 0; i < apis.length; i++) {
+    for (var i = 0; i < apis.length; i++)
         makeApi(apis[i], sourceDir, apiOutputDir);
-        makeApiInstance(apis[i], sourceDir, apiOutputDir);
-    }
+
     generateSimpleFiles(apis, sourceDir, apiOutputDir);
     generateProject(apis, sourceDir, apiOutputDir, "All", ";ENABLE_PLAYFABADMIN_API;ENABLE_PLAYFABSERVER_API");
 
@@ -130,39 +130,24 @@ function makeDatatypes(apis, sourceDir, apiOutputDir) {
 }
 
 function makeApi(api, sourceDir, apiOutputDir) {
+    var locals = {
+        api: api,
+        getApiDefineFlag: getApiDefineFlag,
+        getAuthParams: getAuthParams,
+        getRequestActions: getRequestActions,
+        getResultActions: getResultActions,
+        getDeprecationAttribute: getDeprecationAttribute,
+        generateApiSummary: generateApiSummary,
+        hasClientOptions: getAuthMechanisms([api]).includes("SessionTicket")
+    };
+
     console.log("Generating C# " + api.name + " library to " + apiOutputDir);
-
-    var apiLocals = {
-        api: api,
-        getApiDefineFlag: getApiDefineFlag,
-        getAuthParams: getAuthParams,
-        getRequestActions: getRequestActions,
-        getResultActions: getResultActions,
-        getDeprecationAttribute: getDeprecationAttribute,
-        generateApiSummary: generateApiSummary,
-        hasClientOptions: getAuthMechanisms([api]).includes("SessionTicket")
-    };
-
     var apiTemplate = getCompiledTemplate(path.resolve(sourceDir, "templates/API.cs.ejs"));
-    writeFile(path.resolve(apiOutputDir, "source/PlayFab" + api.name + "API.cs"), apiTemplate(apiLocals));
-}
+    writeFile(path.resolve(apiOutputDir, "source/PlayFab" + api.name + "API.cs"), apiTemplate(locals));
 
-function makeApiInstance(api, sourceDir, apiOutputDir) {
     console.log("Generating C# " + api.name + "Instance library to " + apiOutputDir);
-
-    var apiLocals = {
-        api: api,
-        getApiDefineFlag: getApiDefineFlag,
-        getAuthParams: getAuthParams,
-        getRequestActions: getRequestActions,
-        getResultActions: getResultActions,
-        getDeprecationAttribute: getDeprecationAttribute,
-        generateApiSummary: generateApiSummary,
-        hasClientOptions: getAuthMechanisms([api]).includes("SessionTicket")
-    };
-
-    var apiTemplate = getCompiledTemplate(path.resolve(sourceDir, "templates/APIInstance.cs.ejs"));
-    writeFile(path.resolve(apiOutputDir, "source/PlayFab" + api.name + "InstanceAPI.cs"), apiTemplate(apiLocals));
+    var instTemplate = getCompiledTemplate(path.resolve(sourceDir, "templates/APIInstance.cs.ejs"));
+    writeFile(path.resolve(apiOutputDir, "source/PlayFab" + api.name + "InstanceAPI.cs"), instTemplate(locals));
 }
 
 function generateSimpleFiles(apis, sourceDir, apiOutputDir) {

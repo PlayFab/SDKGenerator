@@ -27,9 +27,9 @@ namespace PlayFab.UUnit
         private static UUnitTestSuite _suite;
         private static bool _postResultsToCloudscript;
         public static TestTitleData TestTitleData;
-        public static PlayFabClientInstanceAPI PfClient = new PlayFabClientInstanceAPI(new PlayFabApiSettings(), new PlayFabAuthenticationContext());
 
 #if !DISABLE_PLAYFABCLIENT_API
+        public static PlayFabClientInstanceAPI PfClient = new PlayFabClientInstanceAPI(new PlayFabApiSettings(), new PlayFabAuthenticationContext());
         private static Action<PlayFabResult<ExecuteCloudScriptResult>> _onComplete;
 #endif
 

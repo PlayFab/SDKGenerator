@@ -1,4 +1,4 @@
-#if NET_4_6
+#if NET_4_6 && !UNITY_2018_2_OR_NEWER
 using System;
 using System.Collections;
 using System.Collections.Generic;

@@ -120,16 +120,13 @@ namespace PlayFab
             if (PlayFabSettings.RequestType == WebRequestType.HttpWebRequest)
                 transport = new OneDsWebRequestPlugin();
 #endif
-#if UNITY_2017_2_OR_NEWER
+#if !UNITY_2018_2_OR_NEWER
             if (PlayFabSettings.RequestType == WebRequestType.UnityWww)
                 transport = new OneDsWwwPlugin();
-
-            if (transport == null)
-                transport = new OneDsUnityHttpPlugin();
-#else
-            if (transport == null)
-                transport = new OneDSWWWPlugin();
 #endif
+            if(transport == null)
+                transport = new OneDsUnityHttpPlugin();
+
             return transport;
         }
 #endif

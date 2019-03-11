@@ -23,8 +23,10 @@ namespace PlayFab.SharedModels
         public PlayFabAuthenticationContext AuthenticationContext;
     }
 
-    public class PlayFabResult<TResult> : PlayFabBaseResult where TResult : PlayFabResultCommon
+    public class PlayFabResult<TResult> where TResult : PlayFabResultCommon
     {
         public TResult Result;
+        public object CustomData;
+        public PlayFabError Error;
     }
 }

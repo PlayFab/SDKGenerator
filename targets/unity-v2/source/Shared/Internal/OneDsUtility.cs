@@ -7,12 +7,6 @@ namespace PlayFab.Internal
     {
         // public const string ONEDS_SERVICE_URL = "https://mobile.events.data.microsoft.com/OneCollector/1.0/";
         public const string ONEDS_SERVICE_URL = "https://self.events.data.microsoft.com/OneCollector/1.0/";
-        private static readonly long TICKS_AT_1970 = new DateTime(1970, 1, 1, 0, 0, 0, DateTimeKind.Utc).Ticks;
-
-        public static long MsFrom1970()
-        {
-            return (DateTime.UtcNow.Ticks - TICKS_AT_1970) / 10000;
-        }
         
         public static void ParseResponse(long httpCode, Func<string> getText, string errorString, Action<object> callback)
         {
@@ -59,7 +53,7 @@ namespace PlayFab.Internal
                             error.HttpStatus = httpResponseString;
                             error.Error = PlayFabErrorCode.PartialFailure;
                             error.ErrorMessage = "OneDS server did not accept events";
-                            callback?.Invoke(httpResponseString);
+                            callback?.Invoke(error);
                         }
                     }
                     catch (Exception e)

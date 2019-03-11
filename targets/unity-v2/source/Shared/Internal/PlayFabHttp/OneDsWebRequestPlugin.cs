@@ -13,7 +13,7 @@ namespace PlayFab.Internal
         {
             var thread = new Thread(() =>
             {
-                string currentTimestampString = OneDsUtility.MsFrom1970().ToString();
+                string currentTimestampString = Microsoft.Applications.Events.Utils.MsFrom1970().ToString();
                 var httpRequest = (HttpWebRequest) WebRequest.Create(OneDsUtility.ONEDS_SERVICE_URL);
 
                 httpRequest.Method = "POST";

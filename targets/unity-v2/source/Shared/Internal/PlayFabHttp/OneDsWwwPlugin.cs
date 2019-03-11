@@ -36,7 +36,7 @@ namespace PlayFab.Internal
                 method = UnityWebRequest.kHttpVerbPOST
             };
 
-            string currentTimestampString = OneDsUtility.MsFrom1970().ToString();
+            string currentTimestampString = Microsoft.Applications.Events.Utils.MsFrom1970().ToString();
             www.SetRequestHeader("sdk-version", "OCT_C#-0.11.1.0");
             www.SetRequestHeader("Content-Encoding", "gzip");
             www.SetRequestHeader("Content-Type", "application/bond-compact-binary");

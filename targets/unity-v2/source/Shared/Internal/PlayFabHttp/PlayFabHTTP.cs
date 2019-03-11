@@ -1,7 +1,9 @@
 using System;
 using System.Collections;
-using System.Text;
 using System.Collections.Generic;
+using System.Text;
+using PlayFab.AuthenticationModels;
+using PlayFab.ClientModels;
 using PlayFab.Json;
 using PlayFab.Public;
 using PlayFab.SharedModels;

@@ -19,7 +19,7 @@ namespace PlayFab.Internal
             webRequest.uploadHandler = new UploadHandlerRaw(request as byte[]);
             webRequest.downloadHandler = new DownloadHandlerBuffer();
             
-            string currentTimestampString = OneDsUtility.MsFrom1970().ToString();
+            string currentTimestampString = Microsoft.Applications.Events.Utils.MsFrom1970().ToString();
             extraHeaders.Add("sdk-version", "OCT_C#-0.11.1.0");
             extraHeaders.Add("Content-Encoding", "gzip");
             extraHeaders.Add("Content-Type", "application/bond-compact-binary");

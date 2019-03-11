@@ -1,7 +1,6 @@
 #if NET_4_6
 using System;
 using System.Collections.Generic;
-using System.Linq;
 using System.IO;
 using System.Threading.Tasks;
 using Ionic.Zlib;
@@ -59,7 +58,7 @@ namespace PlayFab
         /// </summary>
         public async Task<PlayFabResult<WriteEventsResponse>> WriteTelemetryEventsAsync(WriteEventsRequest request, object customData = null, Dictionary<string, string> extraHeaders = null)
         {
-            if (!request.Events.Any())
+            if (request.Events.Count == 0)
             {
                 var apiMethodResult = new PlayFabResult<WriteEventsResponse>
                 {
@@ -72,7 +71,6 @@ namespace PlayFab
                     CustomData = customData
                 };
 
-                PlayFabSettings.GlobalErrorHandler?.Invoke(apiMethodResult.Error);
                 return apiMethodResult;
             }
 
@@ -89,7 +87,6 @@ namespace PlayFab
                     CustomData = customData
                 };
 
-                PlayFabSettings.GlobalErrorHandler?.Invoke(apiMethodResult.Error);
                 return apiMethodResult;
             }
 
@@ -153,7 +150,6 @@ namespace PlayFab
                 if (httpResult is PlayFabError)
                 {
                     var error = (PlayFabError)httpResult;
-                    PlayFabSettings.GlobalErrorHandler?.Invoke(error);
                     result = new PlayFabResult<WriteEventsResponse> { Error = error, CustomData = customData };
                     return;
                 }
@@ -183,7 +179,6 @@ namespace PlayFab
                 },
                 error =>
                 {
-                    PlayFabSettings.GlobalErrorHandler?.Invoke(error);
                     result = new PlayFabResult<TelemetryIngestionConfigResponse>{Error = error, CustomData = customData};
                 });    
             });

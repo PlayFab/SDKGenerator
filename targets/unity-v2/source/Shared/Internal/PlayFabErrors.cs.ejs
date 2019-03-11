@@ -16,8 +16,6 @@ namespace PlayFab
         <% } %><% var errorProps = errors[errorList[errorList.length-1]] %><%- errorProps.name %> = <%- errorProps.id %>
     }
 
-    public delegate void ErrorCallback(PlayFabError error);
-
     public class PlayFabError
     {
         public string ApiEndpoint;
@@ -55,12 +53,6 @@ namespace PlayFab
                         _tempSb.Append("\n").Append(pair.Key).Append(": ").Append(msg);
             return _tempSb.ToString();
         }
-    }
-
-    public class PlayFabBaseResult
-    {
-        public object CustomData;
-        public PlayFabError Error;
     }
     
     public class PlayFabException : Exception

@@ -76,8 +76,6 @@ namespace PlayFab
             }
         }
 
-        public static ErrorCallback GlobalErrorHandler;
-
         private static string ProductionEnvironmentUrlPrivate
         {
             get { return !string.IsNullOrEmpty(PlayFabSharedPrivate.ProductionEnvironmentUrl) ? PlayFabSharedPrivate.ProductionEnvironmentUrl : DefaultPlayFabApiUrlPrivate; }

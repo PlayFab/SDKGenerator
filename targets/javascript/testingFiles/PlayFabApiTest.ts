@@ -1,6 +1,6 @@
 declare var QUnit: any;
 declare var $: any;
-interface IAction { (): void }
+interface IAction { (any): void }
 
 var PlayFabApiTests = {
     testTitleDataFilename: "testTitleData.json", // Since you never want this to be public, a web page can ONLY load this if it's a local file in the same directory (Also can't convert to environment variable)
@@ -85,7 +85,7 @@ var PlayFabApiTests = {
         }
     },
 
-    SetUp: function (inputTitleData): void {
+    SetUp: function (inputTitleData): boolean {
         // All of these must exist for the titleData load to be successful
         var titleDataValid = inputTitleData.hasOwnProperty("titleId") && inputTitleData.titleId != null
             && inputTitleData.hasOwnProperty("developerSecretKey") && inputTitleData.developerSecretKey != null
@@ -114,7 +114,7 @@ var PlayFabApiTests = {
         };
     },
 
-    SimpleCallbackWrapper: function (callbackName: string, callback: IAction, assert, kwargs): IAction {
+    SimpleCallbackWrapper: function (callbackName: string, callback: IAction, assert, kwargs: any = null): IAction {
         return function (): void {
             try {
                 callback(kwargs);

@@ -1,10 +1,12 @@
-using PlayFab.Json;
-using PlayFab.Public;
-using PlayFab.SharedModels;
 using System;
 using System.Collections;
 using System.Collections.Generic;
 using System.Text;
+using PlayFab.AuthenticationModels;
+using PlayFab.ClientModels;
+using PlayFab.Json;
+using PlayFab.Public;
+using PlayFab.SharedModels;
 using UnityEngine;
 
 namespace PlayFab.Internal
@@ -451,6 +453,13 @@ namespace PlayFab.Internal
                 _internalSignalR.Update();
             }
 #endif
+#if NET_4_6
+            while (_injectedCoroutines.Count > 0)
+                StartCoroutine(_injectedCoroutines.Dequeue());
+
+            while (_injectedAction.Count > 0)
+                _injectedAction.Dequeue()?.Invoke();
+#endif
         }
 
         #region Helpers
@@ -550,7 +559,14 @@ namespace PlayFab.Internal
         }
 #endif
         #endregion
-    }
+#if NET_4_6
+        private readonly Queue<IEnumerator> _injectedCoroutines = new Queue<IEnumerator>();
+        private readonly Queue<Action> _injectedAction = new Queue<Action>();
+
+        public void InjectInUnityThread(IEnumerator x) => _injectedCoroutines.Enqueue(x);
+        public void InjectInUnityThread(Action action) => _injectedAction.Enqueue(action);
+#endif
+	}
 
     #region Event Classes
     public enum ApiProcessingEventType

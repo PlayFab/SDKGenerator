@@ -7,6 +7,8 @@ namespace PlayFab
 {
     public class PluginManager
     {
+        public const string PLUGIN_TRANSPORT_ONEDS = "PLUGIN_TRANSPORT_ONEDS";
+
         private Dictionary<PluginContractKey, IPlayFabPlugin> plugins = new Dictionary<PluginContractKey, IPlayFabPlugin>(new PluginContractKeyComparator());
 
         /// <summary>
@@ -55,7 +57,14 @@ namespace PlayFab
                         plugin = this.CreatePlugin<SimpleJsonInstance>();
                         break;
                     case PluginContract.PlayFab_Transport:
+#if NET_4_6   
+                        if (instanceName == PluginManager.PLUGIN_TRANSPORT_ONEDS)
+                            plugin = this.CreateOneDSTransportPlugin();
+                        else
+                            plugin = this.CreatePlayFabTransportPlugin();
+#else
                         plugin = this.CreatePlayFabTransportPlugin();
+#endif
                         break;
                     default:
                         throw new ArgumentException("This contract is not supported", "contract");
@@ -103,5 +112,23 @@ namespace PlayFab
 
             return transport;
         }
+#if NET_4_6   
+        private IOneDSTransportPlugin CreateOneDSTransportPlugin()
+        {
+            IOneDSTransportPlugin transport = null;
+#if !UNITY_WSA && !UNITY_WP8
+            if (PlayFabSettings.RequestType == WebRequestType.HttpWebRequest)
+                transport = new OneDsWebRequestPlugin();
+#endif
+#if !UNITY_2018_2_OR_NEWER
+            if (PlayFabSettings.RequestType == WebRequestType.UnityWww)
+                transport = new OneDsWwwPlugin();
+#endif
+            if(transport == null)
+                transport = new OneDsUnityHttpPlugin();
+
+            return transport;
+        }
+#endif
     }
 }

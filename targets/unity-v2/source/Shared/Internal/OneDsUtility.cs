@@ -62,7 +62,7 @@ namespace PlayFab.Internal
                         error.HttpCode = (int) httpCode;
                         error.HttpStatus = httpResponseString;
                         error.Error = PlayFabErrorCode.JsonParseError;
-                        error.ErrorMessage = "Failed to parse response from OneDS server";
+                        error.ErrorMessage = "Failed to parse response from OneDS server: " + e.Message;
                         callback?.Invoke(error);
                     }
                 }

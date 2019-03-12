@@ -38,7 +38,9 @@ namespace PlayFab.Internal
 
             string currentTimestampString = Microsoft.Applications.Events.Utils.MsFrom1970().ToString();
             www.SetRequestHeader("sdk-version", "OCT_C#-0.11.1.0");
+#if !UNITY_WSA && !UNITY_WP8 && !UNITY_WEBGL
             www.SetRequestHeader("Content-Encoding", "gzip");
+#endif
             www.SetRequestHeader("Content-Type", "application/bond-compact-binary");
             www.SetRequestHeader("Upload-Time", currentTimestampString);
             www.SetRequestHeader("client-time-epoch-millis", currentTimestampString);

@@ -27,5 +27,12 @@ public class PlayFabCpp : ModuleRules
             "JsonUtilities",
             "PlayFabCommon"
         });
+
+        PrivateDependencyModuleNames.AddRange(
+            new string[]
+            {
+                "PlayFabTests"
+            }
+        );
     }
 }

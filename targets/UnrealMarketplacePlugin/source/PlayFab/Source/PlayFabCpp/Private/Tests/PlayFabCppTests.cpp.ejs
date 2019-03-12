@@ -1,9 +1,8 @@
 <%- copyright %>
 
-#include "CppTests/PlayFabCppTests.h"
+#include "Tests/PlayFabCppTests.h"
 
 #include "PlayFab.h"
-#include "IPlayFab.h"
 
 #include "Core/PlayFabClientAPI.h"
 #include "Core/PlayFabServerAPI.h"
@@ -69,7 +68,7 @@ void UPlayFabCppTests::SetUp(UPlayFabTestContext* testContext)
 
 void UPlayFabCppTests::OnSharedError(const PlayFab::FPlayFabCppError& InError) const
 {
-    UE_LOG(LogPlayFabTests, Error, TEXT("%s encountered an error:\n%s"), *CurrentTestContext->testName, *InError.
+    UE_LOG(LogPlayFabCpp, Error, TEXT("%s encountered an error:\n%s"), *CurrentTestContext->testName, *InError.
         GenerateErrorReport());
 
     CurrentTestContext->EndTest(PlayFabApiTestFinishState::FAILED, InError.ErrorMessage);
@@ -78,7 +77,7 @@ void UPlayFabCppTests::OnSharedError(const PlayFab::FPlayFabCppError& InError) c
 <% if (hasClientOptions) { %>
 void UPlayFabCppTests::InvalidLogin()
 {
-    UE_LOG(LogPlayFabTests, Log, TEXT("- INVALID LOGIN -"));
+    UE_LOG(LogPlayFabCpp, Log, TEXT("- INVALID LOGIN -"));
 
     PlayFab::ClientModels::FLoginWithEmailAddressRequest request;
     request.Email = UserEmail;
@@ -102,7 +101,7 @@ void UPlayFabCppTests::InvalidLogin_Error(const PlayFab::FPlayFabCppError& InErr
     if (InErrorResult.ErrorMessage.Find(TEXT("password")) == -1)
         // Check that we correctly received a notice about invalid password
     {
-        UE_LOG(LogPlayFabTests, Error, TEXT("Non-password error with login"));
+        UE_LOG(LogPlayFabCpp, Error, TEXT("Non-password error with login"));
         CurrentTestContext->EndTest(PlayFabApiTestFinishState::FAILED);
     }
 
@@ -126,7 +125,7 @@ void UPlayFabCppTests::LoginOrRegister()
 void UPlayFabCppTests::LoginOrRegister_Success(const PlayFab::ClientModels::FLoginResult& result)
 {
     PlayFabId = result.PlayFabId;
-    UE_LOG(LogPlayFabTests, Log, TEXT("PlayFab login successful: %s, %s"), *PlayFabId, *ClientAPI->GetBuildIdentifier());
+    UE_LOG(LogPlayFabCpp, Log, TEXT("PlayFab login successful: %s, %s"), *PlayFabId, *ClientAPI->GetBuildIdentifier());
 
     CurrentTestContext->EndTest();
 }
@@ -150,15 +149,14 @@ void UPlayFabCppTests::LoginWithAdvertisingID()
 void UPlayFabCppTests::LoginWithAdvertisingID_Success(const PlayFab::ClientModels::FLoginResult& result)
 {
     PlayFabId = result.PlayFabId;
-    UE_LOG(LogPlayFabTests, Log, TEXT("PlayFab login successful: %s, %s"), *PlayFabId, *ClientAPI->GetBuildIdentifier());
+    UE_LOG(LogPlayFabCpp, Log, TEXT("PlayFab login successful: %s, %s"), *PlayFabId, *ClientAPI->GetBuildIdentifier());
 
     CurrentTestContext->EndTest();
 }
 
 void UPlayFabCppTests::CheckIfLoggedIn()
 {
-    IPlayFab* playFabSettings = &(IPlayFab::Get());
-    if (!playFabSettings->IsClientLoggedIn())
+    if (!(PlayFab::PlayFabSettings::GetClientSessionTicket().Len() > 0))
     {
         CurrentTestContext->EndTest(PlayFabApiTestFinishState::SKIPPED, "Earlier tests failed to log in");
     }
@@ -190,7 +188,7 @@ void UPlayFabCppTests::GetUserDataAPI_Success(const PlayFab::ClientModels::FGetU
         if (UserDataAPI_ExpectedValue != actualValue)
         {
             // If I know what value I'm expecting, and I did not get it, log an error
-            UE_LOG(LogPlayFabTests, Error, TEXT("GetUserData: Update value did not match new value %d!=%d"), UserDataAPI_ExpectedValue, actualValue);
+            UE_LOG(LogPlayFabCpp, Error, TEXT("GetUserData: Update value did not match new value %d!=%d"), UserDataAPI_ExpectedValue, actualValue);
 
             CurrentTestContext->EndTest(PlayFabApiTestFinishState::FAILED, FString::Format(TEXT("Update value did not match new value {0}!={1}"), {UserDataAPI_ExpectedValue, actualValue})); // Error
         }
@@ -207,17 +205,17 @@ void UPlayFabCppTests::GetUserDataAPI_Success(const PlayFab::ClientModels::FGetU
 
                 if (minTest <= updateTime && updateTime <= maxTest)
                 {
-                    UE_LOG(LogPlayFabTests, Log, TEXT("GetUserData: LastUpdated timestamp parsed as expected"));
+                    UE_LOG(LogPlayFabCpp, Log, TEXT("GetUserData: LastUpdated timestamp parsed as expected"));
                     CurrentTestContext->EndTest();
                 }
                 else
                 {
-                    UE_LOG(LogPlayFabTests, Error, TEXT("GetUserData: LastUpdated timestamp was not parsed correctly"));
+                    UE_LOG(LogPlayFabCpp, Error, TEXT("GetUserData: LastUpdated timestamp was not parsed correctly"));
                     CurrentTestContext->EndTest(PlayFabApiTestFinishState::FAILED, TEXT("LastUpdated timestamp was not parsed correctly"));
                 }
             }
 
-            UE_LOG(LogPlayFabTests, Log, TEXT("GetUserData Success"));
+            UE_LOG(LogPlayFabCpp, Log, TEXT("GetUserData Success"));
             CurrentTestContext->EndTest();
         }
     }
@@ -273,12 +271,12 @@ void UPlayFabCppTests::GetPlayerStatisticsAPI_Success(const PlayFab::ClientModel
         {
             const FString errMsg = TEXT("Update value did not match new value");
 
-            UE_LOG(LogPlayFabTests, Error, TEXT("GetPlayerStatistics: %s"), *errMsg);
+            UE_LOG(LogPlayFabCpp, Error, TEXT("GetPlayerStatistics: %s"), *errMsg);
             CurrentTestContext->EndTest(PlayFabApiTestFinishState::FAILED, errMsg); // ERROR
         }
         else
         {
-            UE_LOG(LogPlayFabTests, Log, TEXT("GetPlayerStatistics Success"));
+            UE_LOG(LogPlayFabCpp, Log, TEXT("GetPlayerStatistics Success"));
             CurrentTestContext->EndTest(); // SUCCESS
         }
     }
@@ -330,12 +328,12 @@ void UPlayFabCppTests::LeaderBoardAPIClient_Success(const PlayFab::ClientModels:
     const int count = result.Leaderboard.Num();
     if (count > 0)
     {
-        UE_LOG(LogPlayFabTests, Log, TEXT("GetLeaderboard Succeeded"));
+        UE_LOG(LogPlayFabCpp, Log, TEXT("GetLeaderboard Succeeded"));
         CurrentTestContext->EndTest();
     }
     else
     {
-        UE_LOG(LogPlayFabTests, Error, TEXT("GetLeaderboard found zero results."));
+        UE_LOG(LogPlayFabCpp, Error, TEXT("GetLeaderboard found zero results."));
         CurrentTestContext->EndTest(PlayFabApiTestFinishState::FAILED, TEXT("GetLeaderboard found zero results.")); // ERROR
     }
 }
@@ -360,12 +358,12 @@ void UPlayFabCppTests::LeaderBoardAPIServer_Success(const PlayFab::ServerModels:
     const int count = result.Leaderboard.Num();
     if (count > 0)
     {
-        UE_LOG(LogPlayFabTests, Log, TEXT("GetLeaderboard Succeeded"));
+        UE_LOG(LogPlayFabCpp, Log, TEXT("GetLeaderboard Succeeded"));
         CurrentTestContext->EndTest();
     }
     else
     {
-        UE_LOG(LogPlayFabTests, Error, TEXT("GetLeaderboard found zero results."));
+        UE_LOG(LogPlayFabCpp, Error, TEXT("GetLeaderboard found zero results."));
         CurrentTestContext->EndTest(PlayFabApiTestFinishState::FAILED, TEXT("GetLeaderboard found zero results.")); // ERROR
     }
 }

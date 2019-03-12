@@ -15,8 +15,6 @@ namespace PlayFab
         /// Gets the event router
         /// </summary>
         public IPlayFabEventRouter EventRouter { get; private set; }
-        
-        private ILogger logger;
 
         /// <summary>
         /// Default constructor
@@ -24,7 +22,6 @@ namespace PlayFab
         public PlayFabEventAPI(ILogger logger = null)
         {
             if(logger == null) logger = new DebugLogger();
-            this.logger = logger;
             this.EventRouter = new PlayFabEventRouter(logger); 
         }
 

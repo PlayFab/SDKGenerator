@@ -100,19 +100,24 @@ namespace PlayFab
                 transport = new PlayFabWebRequest();
 #endif
 
-#if !UNITY_2018_2_OR_NEWER // PlayFabWww will throw warnings as Unity has deprecated Www
-            if (PlayFabSettings.RequestType == WebRequestType.UnityWww)
-            {
-                transport = new PlayFabWww();
-            }
-#endif
-
+#if UNITY_2018_2_OR_NEWER // PlayFabWww will throw warnings as Unity has deprecated Www
             if (transport == null)
                 transport = new PlayFabUnityHttp();
+#elif UNITY_2017_2_OR_NEWER
+            if (PlayFabSettings.RequestType == WebRequestType.UnityWww)
+                transport = new PlayFabWww();
+            
+            if (transport == null)
+                transport = new PlayFabUnityHttp();
+#else
+            if (transport == null)
+                transport = new PlayFabWww();
+#endif
 
             return transport;
         }
-#if NET_4_6   
+
+#if NET_4_6
         private IOneDSTransportPlugin CreateOneDSTransportPlugin()
         {
             IOneDSTransportPlugin transport = null;
@@ -120,12 +125,20 @@ namespace PlayFab
             if (PlayFabSettings.RequestType == WebRequestType.HttpWebRequest)
                 transport = new OneDsWebRequestPlugin();
 #endif
-#if !UNITY_2018_2_OR_NEWER
+
+#if UNITY_2018_2_OR_NEWER // OneDsWwwPlugin will throw warnings as Unity has deprecated Www
+            if (transport == null)
+                transport = new OneDsUnityHttpPlugin();
+#elif UNITY_2017_2_OR_NEWER
             if (PlayFabSettings.RequestType == WebRequestType.UnityWww)
                 transport = new OneDsWwwPlugin();
-#endif
-            if(transport == null)
+            
+            if (transport == null)
                 transport = new OneDsUnityHttpPlugin();
+#else
+            if (transport == null)
+                transport = new OneDsWwwPlugin();
+#endif
 
             return transport;
         }

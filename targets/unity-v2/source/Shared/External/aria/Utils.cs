@@ -32,9 +32,8 @@ namespace Microsoft.Applications.Events
             try
             {
                 var endIndex = tenant.IndexOf("-", StringComparison.Ordinal);
-                var tenantId = string.Empty;
                 if (endIndex > 0)
-                    return tenantId = tenant.Substring(0, endIndex);
+                    return tenant.Substring(0, endIndex);
             }
             catch
             {

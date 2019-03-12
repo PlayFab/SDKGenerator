@@ -101,6 +101,7 @@ namespace PlayFab.Internal
             return _sb.ToString();
         }
 
+#if UNITY_2017_1_OR_NEWER
         internal static string GetLocalSettingsFileProperty(string propertyKey)
         {
             string envFileContent = null;
@@ -143,5 +144,6 @@ namespace PlayFab.Internal
             }
             return string.Empty;
         }
+#endif
     }
 }

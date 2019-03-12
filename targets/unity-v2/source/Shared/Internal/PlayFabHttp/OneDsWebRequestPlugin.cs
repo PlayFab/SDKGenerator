@@ -19,7 +19,9 @@ namespace PlayFab.Internal
                 httpRequest.Method = "POST";
                 httpRequest.ContentType = "application/bond-compact-binary";
                 httpRequest.Headers.Add("sdk-version", "OCT_C#-0.11.1.0");
+#if !UNITY_WSA && !UNITY_WP8 && !UNITY_WEBGL
                 httpRequest.Headers.Add("Content-Encoding", "gzip");
+#endif
                 httpRequest.Headers.Add("Upload-Time", currentTimestampString);
                 httpRequest.Headers.Add("client-time-epoch-millis", currentTimestampString);
                 httpRequest.Headers.Add("Client-Id", "NO_AUTH");

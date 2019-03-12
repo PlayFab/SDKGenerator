@@ -3,7 +3,9 @@ using System;
 using System.Collections.Generic;
 using System.IO;
 using System.Threading.Tasks;
+#if !UNITY_WSA && !UNITY_WP8
 using Ionic.Zlib;
+#endif
 using Microsoft.Applications.Events;
 using PlayFab.EventsModels;
 using PlayFab.Internal;
@@ -119,6 +121,7 @@ namespace PlayFab
                     BondHelper.Serialize(csEvent, ms);
                 }
 
+#if !UNITY_WSA && !UNITY_WP8 && !UNITY_WEBGL
                 ms.Position = 0;
                 byte[] packageBytes = ms.ToArray();
                 ms.SetLength(0);
@@ -128,6 +131,7 @@ namespace PlayFab
                 {
                     gZipStream.Write(packageBytes, 0, packageBytes.Length);
                 }
+#endif
 
                 serializedBatch = ms.ToArray();
             }

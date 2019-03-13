@@ -28,14 +28,13 @@ namespace UnrealBuildTool.Rules
                 }
             );
 
-//            PrivateDependencyModuleNames.AddRange(
-//                new string[]
-//                {
-//                    "PlayFab",
-//                    "PlayFabCpp",
-//                    "PlayFabCommon"
-//                }
-//            );
+            PrivateDependencyModuleNames.AddRange(
+                new string[]
+                {
+                    "PlayFab",
+                    "PlayFabCpp"
+                }
+            );
         }
     }
 }

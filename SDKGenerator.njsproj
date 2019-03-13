@@ -680,9 +680,11 @@
     <Content Include="targets\UnrealMarketplacePlugin\source\PlayFab\Source\PlayFabCpp\Public\PlayFab.h.ejs" />
     <Content Include="targets\UnrealMarketplacePlugin\source\PlayFab\Source\PlayFabCpp\Public\Tests\PlayFabCppTests.h.ejs" />
     <Content Include="targets\UnrealMarketplacePlugin\source\PlayFab\Source\PlayFabTests\PlayFabTests.Build.cs" />
+    <Content Include="targets\UnrealMarketplacePlugin\source\PlayFab\Source\PlayFabTests\Private\CppTests\PlayFabCppTests.cpp.ejs" />
     <Content Include="targets\UnrealMarketplacePlugin\source\PlayFab\Source\PlayFabTests\Private\PlayFabTests.cpp.ejs" />
     <Content Include="targets\UnrealMarketplacePlugin\source\PlayFab\Source\PlayFabTests\Private\TestFramework\PlayFabTestCase.cpp.ejs" />
     <Content Include="targets\UnrealMarketplacePlugin\source\PlayFab\Source\PlayFabTests\Private\TestFramework\PlayFabTestRunner.cpp.ejs" />
+    <Content Include="targets\UnrealMarketplacePlugin\source\PlayFab\Source\PlayFabTests\Public\CppTests\PlayFabCppTests.h.ejs" />
     <Content Include="targets\UnrealMarketplacePlugin\source\PlayFab\Source\PlayFabTests\Public\PlayFabTests.h.ejs" />
     <Content Include="targets\UnrealMarketplacePlugin\source\PlayFab\Source\PlayFabTests\Public\TestFramework\PlayFabTestCase.h.ejs" />
     <Content Include="targets\UnrealMarketplacePlugin\source\PlayFab\Source\PlayFabTests\Public\TestFramework\PlayFabTestContext.h.ejs" />
@@ -1101,8 +1103,10 @@
     <Folder Include="targets\UnrealMarketplacePlugin\source\PlayFab\Source\PlayFabCpp\Public\Tests\" />
     <Folder Include="targets\UnrealMarketplacePlugin\source\PlayFab\Source\PlayFabTests\" />
     <Folder Include="targets\UnrealMarketplacePlugin\source\PlayFab\Source\PlayFabTests\Private\" />
+    <Folder Include="targets\UnrealMarketplacePlugin\source\PlayFab\Source\PlayFabTests\Private\CppTests\" />
     <Folder Include="targets\UnrealMarketplacePlugin\source\PlayFab\Source\PlayFabTests\Private\TestFramework\" />
     <Folder Include="targets\UnrealMarketplacePlugin\source\PlayFab\Source\PlayFabTests\Public\" />
+    <Folder Include="targets\UnrealMarketplacePlugin\source\PlayFab\Source\PlayFabTests\Public\CppTests\" />
     <Folder Include="targets\UnrealMarketplacePlugin\source\PlayFab\Source\PlayFabTests\Public\TestFramework\" />
     <Folder Include="targets\UnrealMarketplacePlugin\Source\PlayFab\Source\PlayFab\" />
     <Folder Include="targets\UnrealMarketplacePlugin\Source\PlayFab\Source\PlayFab\Classes\" />

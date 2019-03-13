@@ -2,7 +2,7 @@
 
 #include "RunTestsCommandlet.h"
 
-#include "Tests/PlayFabCppTests.h"
+#include "CppTests/PlayFabCppTests.h"
 #include "Tests/PlayFabBlueprintTests.h"
 
 #include "IPlayFab.h"
@@ -34,7 +34,7 @@ int32 URunTestsCommandlet::Main(const FString& Params)
     }
     else
     {
-        UE_LOG(LogTemp, Error, TEXT("Invalid Engine instance."));
+        UE_LOG(LogPlayFabExampleProject, Error, TEXT("Invalid Engine instance."));
 
         GIsRequestingExit = true;
         GIsRunning = false;
@@ -67,7 +67,7 @@ int32 URunTestsCommandlet::Main(const FString& Params)
             }
             else if (!bPrintedTestSummary)
             {
-                UE_LOG(LogTemp, Log, TEXT("Test Summary:\n%s"), *GenerateTestSummary());
+                UE_LOG(LogPlayFabExampleProject, Log, TEXT("Test Summary:\n%s"), *GenerateTestSummary());
                 bPrintedTestSummary = true;
             }
         }
@@ -130,7 +130,7 @@ bool URunTestsCommandlet::UploadResultToCloud()
     request.FunctionParameter = functionParameter;
     request.GeneratePlayStreamEvent = true;
 
-    UE_LOG(LogTemp, Log, TEXT("Request: \n%s"), *request.toJSONString());
+    UE_LOG(LogPlayFabExampleProject, Log, TEXT("Request: \n%s"), *request.toJSONString());
 
     return ClientAPI->ExecuteCloudScript(
         request,
@@ -141,14 +141,14 @@ bool URunTestsCommandlet::UploadResultToCloud()
 
 void URunTestsCommandlet::OnCloudUploadSuccess(const PlayFab::ClientModels::FExecuteCloudScriptResult& result) const
 {
-    UE_LOG(LogTemp, Log, TEXT("Cloud Upload Success: \n%s"), *result.toJSONString());
+    UE_LOG(LogPlayFabExampleProject, Log, TEXT("Cloud Upload Success: \n%s"), *result.toJSONString());
 
     GIsRequestingExit = true;
 }
 
 void URunTestsCommandlet::OnCloudUploadError(const PlayFab::FPlayFabCppError& error) const
 {
-    UE_LOG(LogTemp, Error, TEXT("Cloud Upload Error: \n%s"), *error.GenerateErrorReport());
+    UE_LOG(LogPlayFabExampleProject, Error, TEXT("Cloud Upload Error: \n%s"), *error.GenerateErrorReport());
 
     GIsRequestingExit = true;
 }

@@ -11,9 +11,9 @@ public class ExampleProject : ModuleRules
         PrivatePCHHeaderFile = "ExampleProject.h";
         PCHUsage = PCHUsageMode.NoSharedPCHs;
 
-        PublicDependencyModuleNames.AddRange(new string[] { "Core", "CoreUObject", "Engine", "InputCore", "PlayFab", "PlayFabCpp"});
+        PublicDependencyModuleNames.AddRange(new string[] { "Core", "CoreUObject", "Engine", "InputCore" });
         PublicDependencyModuleNames.AddRange(new string[] { "Json", "JsonUtilities" });
 
-        PrivateDependencyModuleNames.AddRange(new string[] {  });
+        PrivateDependencyModuleNames.AddRange(new string[] { "PlayFab", "PlayFabCpp", "PlayFabTests" });
     }
 }

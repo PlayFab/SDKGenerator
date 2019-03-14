@@ -17,7 +17,7 @@ namespace PlayFab.Authentication.Strategies
                 AndroidDeviceId = PlayFabSettings.DeviceUniqueIdentifier,
                 CreateAccount = true,
                 InfoRequestParameters = authService.InfoRequestParams
-            }, result, error);
+            }, resultCallback, errorCallback);
 #elif UNITY_IPHONE || UNITY_IOS && !UNITY_EDITOR
             PlayFabClientAPI.LoginWithIOSDeviceID(new LoginWithIOSDeviceIDRequest
             {
@@ -27,7 +27,7 @@ namespace PlayFab.Authentication.Strategies
                 DeviceId = SystemInfo.deviceUniqueIdentifier,
                 CreateAccount = true,
                 InfoRequestParameters = authService.InfoRequestParams
-            }, result, error);
+            }, resultCallback, errorCallback);
 #else
             PlayFabClientAPI.LoginWithCustomID(new LoginWithCustomIDRequest
             {

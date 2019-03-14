@@ -31,7 +31,6 @@ exports.makeCombinedAPI = function (apis, sourceDir, baseApiOutputDir) {
 
     // The list of current supported UE versions - Intended to be the latest 3
     const ueTargetVersions = [
-        new TargetVersion(4, 18, 0),
         new TargetVersion(4, 19, 0),
         new TargetVersion(4, 20, 0),
         new TargetVersion(4, 21, 0)

@@ -15,13 +15,17 @@ typedef enum
 <% for(var d in api.datatypes) { var datatype = api.datatypes[d]; if(!datatype.isenum) { %>
 <% if(datatype.description) { %>
 /// <summary>
+/*
 /// <%- datatype.description %>
+*/
 /// </summary><% } %>
 @interface <%- api.name %><%- datatype.name %> : PlayFabBaseModel
 <% for(var i in datatype.properties) { var property = datatype.properties[i] %>
 <% if(property.description) { %>
 /// <summary>
+/*
 /// <%- property.description %>
+*/
 /// </summary><% } %><%- GetPropertyAttribs(property, datatype) %>
 @property <%- GetPropertyDef(property, datatype, api) %> <% } %>
 /*<% if(isResultHandler(datatype)){ var className = datatype.name.split('Result')[0]; %>

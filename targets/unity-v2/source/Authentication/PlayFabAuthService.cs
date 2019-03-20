@@ -1,9 +1,10 @@
 ﻿using System;
 using System.Collections.Generic;
+using System.Linq;
 using PlayFab.Authentication.Strategies;
 using PlayFab.ClientModels;
+using PlayFab.Internal;
 using UnityEngine;
-using EntityKey = PlayFab.AuthenticationModels.EntityKey;
 
 namespace PlayFab
 {
@@ -14,10 +15,10 @@ namespace PlayFab
     /// </summary>
     public enum AuthTypes
     {
-        None,
+        None = 0,
         Silent,
-        EmailAndPassword,
-        UsernameAndPassword,
+        EmailPassword,
+        UsernamePassword,
         GooglePlayGames,
         Facebook,
         FacebookInstantGames,
@@ -53,15 +54,7 @@ namespace PlayFab
         public string Password;
         public GetPlayerCombinedInfoRequestParams InfoRequestParams;
         public bool ForceLink;
-        
-        public string AuthTicket;
-        public string OpenIdConnectionId;
-        public string WindowsHelloChallengeSignature;
-        public string WindowsHelloPublicKeyHint;
-        
-        public string PlayFabId { get; private set; }
-        public string SessionTicket { get; private set; }
-        public static EntityKey EntityToken { get; private set; }
+
         public PlayFabAuthenticationContext AuthenticationContext { get; private set; }
 
         private const string _LoginRememberKey = "PlayFabLoginRemember";
@@ -79,8 +72,8 @@ namespace PlayFab
         /// </summary>
         public AuthTypes AuthType
         {
-            get { return (AuthTypes) PlayerPrefs.GetInt(_PlayFabAuthTypeKey, 0); }
-            set { PlayerPrefs.SetInt(_PlayFabAuthTypeKey, (int) value); }
+            get { return PlayFabUtil.TryEnumParse<AuthTypes>(PlayerPrefs.GetString(_PlayFabAuthTypeKey)); }
+            set { PlayerPrefs.SetString(_PlayFabAuthTypeKey, value.ToString()); }
         }
 
         /// <summary>
@@ -97,31 +90,28 @@ namespace PlayFab
             }
         }
 
-        private static readonly Dictionary<AuthTypes, IAuthenticationStrategy> AuthStrategies = new Dictionary<AuthTypes, IAuthenticationStrategy>();
+        private readonly Dictionary<AuthTypes, IAuthenticationStrategy> _authStrategies = new Dictionary<AuthTypes, IAuthenticationStrategy>();
 
-        static PlayFabAuthService()
+        public PlayFabAuthService()
         {
-            AuthStrategies.Add(AuthTypes.None, null);
-            AuthStrategies.Add(AuthTypes.Silent, new SilentAuthStrategy());
-            AuthStrategies.Add(AuthTypes.EmailAndPassword, new EmailPasswordAuthStrategy());
-            AuthStrategies.Add(AuthTypes.UsernameAndPassword, new UsernamePasswordAuthStrategy());
-            AuthStrategies.Add(AuthTypes.GooglePlayGames, new GooglePlayGamesAuthStrategy());
-            AuthStrategies.Add(AuthTypes.Facebook, new FacebookAuthStrategy());
-            AuthStrategies.Add(AuthTypes.FacebookInstantGames, new FacebookInstantGameAuthStrategy());
-            AuthStrategies.Add(AuthTypes.GameCenter, new GameCenterAuthStrategy());
-            AuthStrategies.Add(AuthTypes.Kongregate, new KongregateAuthStrategy());
-            AuthStrategies.Add(AuthTypes.NintendoSwitch, new NintendoSwitchAuthStrategy());
-            AuthStrategies.Add(AuthTypes.XBoxLive, new XBoxLiveAuthStrategy());
-            AuthStrategies.Add(AuthTypes.PlayStation, new PlayStationAuthStrategy());
-            AuthStrategies.Add(AuthTypes.OpenId, new OpenIdAuthStrategy());
-            AuthStrategies.Add(AuthTypes.WindowsHello, new WindowsHelloAuthStrategy());
-            AuthStrategies.Add(AuthTypes.Twitch, new TwitchAuthStrategy());
-            AuthStrategies.Add(AuthTypes.Steam, new SteamAuthStrategy());
+            var strategyTypes = typeof(IAuthenticationStrategy).Assembly.GetTypes().Where(type => typeof(IAuthenticationStrategy).IsAssignableFrom(type) && !type.IsInterface);
+
+            foreach (var strategyType in strategyTypes)
+            {
+                var strategy = (IAuthenticationStrategy) Activator.CreateInstance(strategyType);
+                if(!_authStrategies.ContainsKey(strategy.AuthType))
+                    _authStrategies.Add(strategy.AuthType, strategy);
+            }
         }
 
-        public bool IsLoggedIn()
+        public bool IsClientLoggedIn()
         {
-            return AuthenticationContext != null;
+            return AuthenticationContext != null && AuthenticationContext.IsClientLoggedIn();
+        }
+
+        public bool IsEntityLoggedIn()
+        {
+            return AuthenticationContext != null && AuthenticationContext.IsEntityLoggedIn();
         }
 
         public void ClearRememberMe()
@@ -131,30 +121,43 @@ namespace PlayFab
         }
 
         /// <summary>
-        /// Kick off the authentication process by specific authtype.
+        /// Kick off the authentication process by specific authType.
         /// </summary>
         /// <param name="authType"></param>
-        public void Authenticate(AuthTypes authType)
+        /// <param name="authKeys"></param>
+        public void Authenticate(AuthTypes authType, AuthKeys authKeys = null)
         {
             AuthType = authType;
-            Authenticate();
+            Authenticate(authKeys);
         }
 
-        public void Authenticate()
+        public void Authenticate(AuthKeys authKeys = null)
         {
-            var authType = AuthType;
-
-            if (authType == AuthTypes.None)
+            if (AuthType == AuthTypes.None)
             {
-                if(OnDisplayAuthentication != null)
+                if (OnDisplayAuthentication != null)
                     OnDisplayAuthentication.Invoke();
+
                 return;
             }
 
-            var auth = AuthStrategies[authType];
+            if (RememberMe && !string.IsNullOrEmpty(RememberMeId))
+            {
+                PlayFabClientAPI.LoginWithCustomID(new LoginWithCustomIDRequest
+                {
+                    TitleId = PlayFabSettings.TitleId,
+                    CustomId = RememberMeId,
+                    InfoRequestParameters = InfoRequestParams,
+                    CreateAccount = true
+                }, InvokeLoginSuccess, InvokePlayFabError);
+                return;
+            }
+            
+            var auth = _authStrategies[AuthType];
+
             if (auth == null)
             {
-                Debug.LogError("Unhandled auth type: " + authType);
+                Debug.LogError("Unhandled auth type: " + AuthType);
                 return;
             }
 
@@ -162,36 +165,35 @@ namespace PlayFab
             {
                 // Store Identity and session
                 AuthenticationContext = resultCallback.AuthenticationContext;
-                PlayFabId = resultCallback.PlayFabId;
-                SessionTicket = resultCallback.SessionTicket;
 
-                EntityToken = new EntityKey
+                // Note: At this point, they already have an account with PlayFab using a Username (email) & Password
+                // If RememberMe is checked, then generate a new Guid for Login with CustomId.
+                if (RememberMe && string.IsNullOrEmpty(RememberMeId))
                 {
-                    Id = resultCallback.EntityToken.Entity.Id,
-                    Type = resultCallback.EntityToken.Entity.Type
-                };
+                    // When we are reach this point, RememberMeId is empty so, we create one.
+                    RememberMeId = Guid.NewGuid().ToString();
 
-                // check if we want to get this callback directly or send to event subscribers.
-                if (OnLoginSuccess != null)
-                    OnLoginSuccess.Invoke(resultCallback); // report login result back to the subscriber
-            }, errorCallback =>
-            {
-                // report error back to the subscriber
-                if (OnPlayFabError != null)
-                    OnPlayFabError.Invoke(errorCallback);
-                else Debug.LogError(errorCallback.GenerateErrorReport());
-            });
+                    //Fire and forget, but link a custom ID to this PlayFab Account.
+                    PlayFabClientAPI.LinkCustomID(new LinkCustomIDRequest
+                    {
+                        CustomId = RememberMeId,
+                        ForceLink = ForceLink,
+                        AuthenticationContext = AuthenticationContext
+                    }, null, null);
+                }
+                InvokeLoginSuccess(resultCallback);
+            }, InvokePlayFabError, authKeys);
         }
 
         internal void InvokeLink(AuthTypes linkType, PlayFabError error = null)
         {
-            if(OnPlayFabLink != null)
+            if (OnPlayFabLink != null)
                 OnPlayFabLink.Invoke(linkType, error);
         }
 
         internal void InvokeUnlink(AuthTypes unlinkType, PlayFabError error = null)
         {
-            if(OnPlayFabUnlink != null)
+            if (OnPlayFabUnlink != null)
                 OnPlayFabUnlink.Invoke(unlinkType, error);
         }
 
@@ -201,28 +203,52 @@ namespace PlayFab
                 OnDisplayAuthentication.Invoke();
         }
 
-        public void Link(AuthTypes linkType)
+        internal void InvokeLoginSuccess(LoginResult loginResult)
         {
-            var auth = AuthStrategies[linkType];
+            if(OnLoginSuccess != null)
+                OnLoginSuccess.Invoke(loginResult);
+        }
+
+        internal void InvokePlayFabError(PlayFabError playFabError)
+        {
+            if(OnPlayFabError != null)
+                OnPlayFabError.Invoke(playFabError);
+            Debug.LogError(playFabError.GenerateErrorReport());
+        }
+
+        public void Link(AuthTypes linkType, AuthKeys authKeys = null)
+        {
+            var auth = _authStrategies[linkType];
+
             if (auth == null)
             {
                 Debug.LogError("Unhandled link type: " + linkType);
                 return;
             }
-            
-            auth.Link(this);
+
+            auth.Link(this, authKeys);
         }
 
-        public void Unlink(AuthTypes unlinkType)
+        public void Unlink(AuthTypes unlinkType, AuthKeys authKeys = null)
         {
-            var auth = AuthStrategies[unlinkType];
+            var auth = _authStrategies[unlinkType];
+
             if (auth == null)
             {
                 Debug.LogError("Unhandled unlink type: " + unlinkType);
                 return;
             }
-            
-            auth.Unlink(this);
+
+            auth.Unlink(this, authKeys);
         }
+    }
+
+    [Serializable]
+    public sealed class AuthKeys
+    {
+        public string AuthTicket;
+        public string OpenIdConnectionId;
+        public string WindowsHelloChallengeSignature;
+        public string WindowsHelloPublicKeyHint;
     }
 }

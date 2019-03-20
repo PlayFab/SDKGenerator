@@ -5,22 +5,33 @@ namespace PlayFab.Authentication.Strategies
 {
     internal sealed class WindowsHelloAuthStrategy : IAuthenticationStrategy
     {
-        public void Authenticate(PlayFabAuthService authService, Action<LoginResult> resultCallback, Action<PlayFabError> errorCallback)
+        public AuthTypes AuthType
         {
+            get { return AuthTypes.WindowsHello; }
+        }
+
+        public void Authenticate(PlayFabAuthService authService, Action<LoginResult> resultCallback, Action<PlayFabError> errorCallback, AuthKeys authKeys = null)
+        {
+            if (authKeys == null || string.IsNullOrEmpty(authKeys.WindowsHelloPublicKeyHint) || string.IsNullOrEmpty(authKeys.WindowsHelloChallengeSignature))
+            {
+                authService.InvokeDisplayAuthentication();
+                return;
+            }
+
             PlayFabClientAPI.LoginWithWindowsHello(new LoginWithWindowsHelloRequest
             {
                 TitleId = PlayFabSettings.TitleId,
-                ChallengeSignature = authService.WindowsHelloChallengeSignature,
-                PublicKeyHint = authService.WindowsHelloPublicKeyHint,
+                ChallengeSignature = authKeys.WindowsHelloChallengeSignature,
+                PublicKeyHint = authKeys.WindowsHelloPublicKeyHint,
                 InfoRequestParameters = authService.InfoRequestParams
             }, resultCallback, errorCallback);
         }
 
-        public void Link(PlayFabAuthService authService)
+        public void Link(PlayFabAuthService authService, AuthKeys authKeys)
         {
             PlayFabClientAPI.LinkWindowsHello(new LinkWindowsHelloAccountRequest
             {
-                PublicKey = authService.AuthTicket,
+                PublicKey = authKeys.AuthTicket,
                 AuthenticationContext = authService.AuthenticationContext,
                 ForceLink = authService.ForceLink,
                 UserName = authService.Username
@@ -33,12 +44,12 @@ namespace PlayFab.Authentication.Strategies
             });
         }
 
-        public void Unlink(PlayFabAuthService authService)
+        public void Unlink(PlayFabAuthService authService, AuthKeys authKeys)
         {
             PlayFabClientAPI.UnlinkWindowsHello(new UnlinkWindowsHelloAccountRequest
             {
                 AuthenticationContext = authService.AuthenticationContext,
-                PublicKeyHint = authService.AuthTicket 
+                PublicKeyHint = authKeys.AuthTicket 
             }, resultCallback =>
             {
                 authService.InvokeUnlink(AuthTypes.WindowsHello);

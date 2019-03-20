@@ -5,9 +5,14 @@ namespace PlayFab.Authentication.Strategies
 {
     internal sealed class OpenIdAuthStrategy : IAuthenticationStrategy
     {
-        public void Authenticate(PlayFabAuthService authService, Action<LoginResult> resultCallback, Action<PlayFabError> errorCallback)
+        public AuthTypes AuthType
         {
-            if (string.IsNullOrEmpty(authService.AuthTicket))
+            get { return AuthTypes.OpenId; }
+        }
+
+        public void Authenticate(PlayFabAuthService authService, Action<LoginResult> resultCallback, Action<PlayFabError> errorCallback, AuthKeys authKeys)
+        {
+            if (authKeys == null || string.IsNullOrEmpty(authKeys.AuthTicket) || string.IsNullOrEmpty(authKeys.OpenIdConnectionId))
             {
                 authService.InvokeDisplayAuthentication();
                 return;
@@ -16,19 +21,19 @@ namespace PlayFab.Authentication.Strategies
             PlayFabClientAPI.LoginWithOpenIdConnect(new LoginWithOpenIdConnectRequest
             {
                 TitleId = PlayFabSettings.TitleId,
-                ConnectionId = authService.OpenIdConnectionId,
-                IdToken = authService.AuthTicket,
+                ConnectionId = authKeys.OpenIdConnectionId,
+                IdToken = authKeys.AuthTicket,
                 InfoRequestParameters = authService.InfoRequestParams,
                 CreateAccount = true
             }, resultCallback, errorCallback);
         }
 
-        public void Link(PlayFabAuthService authService)
+        public void Link(PlayFabAuthService authService, AuthKeys authKeys)
         {
             PlayFabClientAPI.LinkOpenIdConnect(new LinkOpenIdConnectRequest
             {
-                IdToken = authService.AuthTicket,
-                ConnectionId = authService.OpenIdConnectionId, 
+                IdToken = authKeys.AuthTicket,
+                ConnectionId = authKeys.OpenIdConnectionId, 
                 AuthenticationContext = authService.AuthenticationContext,
                 ForceLink = authService.ForceLink
             }, resultCallback =>
@@ -40,12 +45,12 @@ namespace PlayFab.Authentication.Strategies
             });
         }
 
-        public void Unlink(PlayFabAuthService authService)
+        public void Unlink(PlayFabAuthService authService, AuthKeys authKeys)
         {
             PlayFabClientAPI.UnlinkOpenIdConnect(new UninkOpenIdConnectRequest
             {
                 AuthenticationContext = authService.AuthenticationContext,
-                ConnectionId = authService.OpenIdConnectionId 
+                ConnectionId = authKeys.OpenIdConnectionId 
             }, resultCallback =>
             {
                 authService.InvokeUnlink(AuthTypes.OpenId);

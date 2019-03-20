@@ -6,7 +6,12 @@ namespace PlayFab.Authentication.Strategies
 {
     internal sealed class UsernamePasswordAuthStrategy : SilentAuthStrategy
     {
-        public override void Authenticate(PlayFabAuthService authService, Action<LoginResult> resultCallback, Action<PlayFabError> errorCallback)
+        public new AuthTypes AuthType
+        {
+            get { return AuthTypes.EmailPassword; }
+        }
+
+        public override void Authenticate(PlayFabAuthService authService, Action<LoginResult> resultCallback, Action<PlayFabError> errorCallback, AuthKeys authKeys)
         {
             if (string.IsNullOrEmpty(authService.Email) || string.IsNullOrEmpty(authService.Password))
             {
@@ -14,9 +19,9 @@ namespace PlayFab.Authentication.Strategies
                 return;
             }
 
-            base.Authenticate(authService, silentCallback =>
+            base.Authenticate(authService, silentResultCallback =>
             {
-                if (silentCallback == null)
+                if (silentResultCallback == null)
                 {
                     if (errorCallback != null)
                         errorCallback.Invoke(new PlayFabError
@@ -33,19 +38,19 @@ namespace PlayFab.Authentication.Strategies
                     //Because it is required & Unique and not supplied by User.
                     Username = !string.IsNullOrEmpty(authService.Username)
                         ? authService.Username
-                        : silentCallback.PlayFabId,
+                        : silentResultCallback.PlayFabId,
                     Email = authService.Email,
                     Password = authService.Password
-                }, addResult => resultCallback.Invoke(silentCallback), errorCallback);
-            }, errorCallback);
+                }, addResult => resultCallback.Invoke(silentResultCallback), errorCallback);
+            }, errorCallback, authKeys);
         }
 
-        public override void Link(PlayFabAuthService authService)
+        public override void Link(PlayFabAuthService authService, AuthKeys authKeys)
         {
             throw new NotSupportedException();
         }
 
-        public override void Unlink(PlayFabAuthService authService)
+        public override void Unlink(PlayFabAuthService authService, AuthKeys authKeys)
         {
             throw new NotSupportedException();
         }

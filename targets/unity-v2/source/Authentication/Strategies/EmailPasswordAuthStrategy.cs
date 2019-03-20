@@ -6,22 +6,14 @@ namespace PlayFab.Authentication.Strategies
 {
     internal sealed class EmailPasswordAuthStrategy : IAuthenticationStrategy
     {
-        public void Authenticate(PlayFabAuthService authService, Action<LoginResult> resultCallback, Action<PlayFabError> errorCallback)
+        public AuthTypes AuthType
         {
-            if (authService.RememberMe && !string.IsNullOrEmpty(authService.RememberMeId))
-            {
-                PlayFabClientAPI.LoginWithCustomID(new LoginWithCustomIDRequest
-                {
-                    TitleId = PlayFabSettings.TitleId,
-                    CustomId = authService.RememberMeId,
-                    CreateAccount = true,
-                    InfoRequestParameters = authService.InfoRequestParams
-                }, resultCallback, errorCallback);
+            get { return AuthTypes.EmailPassword; }
+        }
 
-                return;
-            }
-
-            // a good catch: If username & password is empty, then do not continue, and Call back to Authentication UI Display
+        public void Authenticate(PlayFabAuthService authService, Action<LoginResult> resultCallback, Action<PlayFabError> errorCallback, AuthKeys authKeys)
+        {
+            // If username & password is empty, then do not continue, and Call back to Authentication UI Display
             if (!authService.RememberMe && string.IsNullOrEmpty(authService.Email) && string.IsNullOrEmpty(authService.Password))
             {
                 authService.InvokeDisplayAuthentication();
@@ -35,33 +27,15 @@ namespace PlayFab.Authentication.Strategies
                 Email = authService.Email,
                 Password = authService.Password,
                 InfoRequestParameters = authService.InfoRequestParams
-            }, loginResult =>
-            {
-                // Note: At this point, they already have an account with PlayFab using a Username (email) & Password
-                // If RememberMe is checked, then generate a new Guid for Login with CustomId.
-                if (authService.RememberMe)
-                {
-                    authService.RememberMeId = Guid.NewGuid().ToString();
-                    authService.AuthType = AuthTypes.EmailAndPassword;
-
-                    //Fire and forget, but link a custom ID to this PlayFab Account.
-                    PlayFabClientAPI.LinkCustomID(new LinkCustomIDRequest
-                    {
-                        CustomId = authService.RememberMeId,
-                        ForceLink = authService.ForceLink,
-                        AuthenticationContext = loginResult.AuthenticationContext
-                    }, null, null);
-                }
-                resultCallback.Invoke(loginResult);
-            }, errorCallback);
+            }, resultCallback, errorCallback);
         }
 
-        public void Link(PlayFabAuthService authService)
+        public void Link(PlayFabAuthService authService, AuthKeys authKeys)
         {
             throw new NotSupportedException();
         }
 
-        public void Unlink(PlayFabAuthService authService)
+        public void Unlink(PlayFabAuthService authService, AuthKeys authKeys)
         {
             throw new NotSupportedException();
         }

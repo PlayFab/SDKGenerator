@@ -6,7 +6,12 @@ namespace PlayFab.Authentication.Strategies
 {
     internal class SilentAuthStrategy : IAuthenticationStrategy
     {
-        public virtual void Authenticate(PlayFabAuthService authService, Action<LoginResult> resultCallback, Action<PlayFabError> errorCallback)
+        public AuthTypes AuthType
+        {
+            get { return AuthTypes.Silent; }
+        }
+
+        public virtual void Authenticate(PlayFabAuthService authService, Action<LoginResult> resultCallback, Action<PlayFabError> errorCallback, AuthKeys authKeys)
         {
 #if UNITY_ANDROID && !UNITY_EDITOR
             PlayFabClientAPI.LoginWithAndroidDeviceID(new LoginWithAndroidDeviceIDRequest
@@ -24,7 +29,7 @@ namespace PlayFab.Authentication.Strategies
                 TitleId = PlayFabSettings.TitleId,
                 DeviceModel = SystemInfo.deviceModel,
                 OS = SystemInfo.operatingSystem,
-                DeviceId = SystemInfo.deviceUniqueIdentifier,
+                DeviceId = PlayFabSettings.DeviceUniqueIdentifier,
                 CreateAccount = true,
                 InfoRequestParameters = authService.InfoRequestParams
             }, resultCallback, errorCallback);
@@ -32,14 +37,14 @@ namespace PlayFab.Authentication.Strategies
             PlayFabClientAPI.LoginWithCustomID(new LoginWithCustomIDRequest
             {
                 TitleId = PlayFabSettings.TitleId,
-                CustomId = SystemInfo.deviceUniqueIdentifier,
+                CustomId = PlayFabSettings.DeviceUniqueIdentifier,
                 CreateAccount = true,
                 InfoRequestParameters = authService.InfoRequestParams
             }, resultCallback, errorCallback);
 #endif
         }
 
-        public virtual void Link(PlayFabAuthService authService)
+        public virtual void Link(PlayFabAuthService authService, AuthKeys authKeys)
         {
             Authenticate(authService, resultCallback =>
             {
@@ -90,10 +95,10 @@ namespace PlayFab.Authentication.Strategies
             }, errorCallback =>
             {
                 authService.InvokeLink(AuthTypes.Silent, errorCallback);
-            });
+            }, authKeys);
         }
 
-        public virtual void Unlink(PlayFabAuthService authService)
+        public virtual void Unlink(PlayFabAuthService authService, AuthKeys authKeys)
         {
             Authenticate(authService, resultCallback =>
             {
@@ -134,7 +139,7 @@ namespace PlayFab.Authentication.Strategies
                     authService.InvokeUnlink(AuthTypes.Silent, errorCallback);
                 });
 #endif
-            }, errorCallback => authService.InvokeUnlink(AuthTypes.Silent, errorCallback));
+            }, errorCallback => authService.InvokeUnlink(AuthTypes.Silent, errorCallback), authKeys);
         }
     }
 }

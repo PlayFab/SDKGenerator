@@ -6,7 +6,12 @@ namespace PlayFab.Authentication.Strategies
 {
     internal sealed class NintendoSwitchAuthStrategy : IAuthenticationStrategy
     {
-        public void Authenticate(PlayFabAuthService authService, Action<LoginResult> resultCallback, Action<PlayFabError> errorCallback)
+        public AuthTypes AuthType
+        {
+            get { return AuthTypes.NintendoSwitch; }
+        }
+
+        public void Authenticate(PlayFabAuthService authService, Action<LoginResult> resultCallback, Action<PlayFabError> errorCallback, AuthKeys authKeys)
         {
             PlayFabClientAPI.LoginWithNintendoSwitchDeviceId(new LoginWithNintendoSwitchDeviceIdRequest
             {
@@ -17,7 +22,7 @@ namespace PlayFab.Authentication.Strategies
             }, resultCallback, errorCallback);
         }
 
-        public void Link(PlayFabAuthService authService)
+        public void Link(PlayFabAuthService authService, AuthKeys authKeys)
         {
             PlayFabClientAPI.LinkNintendoSwitchDeviceId(new LinkNintendoSwitchDeviceIdRequest
             {
@@ -33,7 +38,7 @@ namespace PlayFab.Authentication.Strategies
             });
         }
 
-        public void Unlink(PlayFabAuthService authService)
+        public void Unlink(PlayFabAuthService authService, AuthKeys authKeys)
         {
             PlayFabClientAPI.UnlinkNintendoSwitchDeviceId(new UnlinkNintendoSwitchDeviceIdRequest
             {

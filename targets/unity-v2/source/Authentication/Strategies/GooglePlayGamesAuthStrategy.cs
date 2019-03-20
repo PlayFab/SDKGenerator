@@ -5,9 +5,14 @@ namespace PlayFab.Authentication.Strategies
 {
     internal sealed class GooglePlayGamesAuthStrategy : IAuthenticationStrategy
     {
-        public void Authenticate(PlayFabAuthService authService, Action<LoginResult> resultCallback, Action<PlayFabError> errorCallback)
+        public AuthTypes AuthType
         {
-            if (string.IsNullOrEmpty(authService.AuthTicket))
+            get { return AuthTypes.GooglePlayGames; }
+        }
+
+        public void Authenticate(PlayFabAuthService authService, Action<LoginResult> resultCallback, Action<PlayFabError> errorCallback, AuthKeys authKeys)
+        {
+            if (authKeys == null || string.IsNullOrEmpty(authKeys.AuthTicket))
             {
                 authService.InvokeDisplayAuthentication();
                 return;
@@ -16,17 +21,17 @@ namespace PlayFab.Authentication.Strategies
             PlayFabClientAPI.LoginWithGoogleAccount(new LoginWithGoogleAccountRequest
             {
                 TitleId = PlayFabSettings.TitleId,
-                ServerAuthCode = authService.AuthTicket,
+                ServerAuthCode = authKeys.AuthTicket,
                 InfoRequestParameters = authService.InfoRequestParams,
                 CreateAccount = true
             }, resultCallback, errorCallback);
         }
 
-        public void Link(PlayFabAuthService authService)
+        public void Link(PlayFabAuthService authService, AuthKeys authKeys)
         {
             PlayFabClientAPI.LinkGoogleAccount(new LinkGoogleAccountRequest
             {
-                ServerAuthCode = authService.AuthTicket,
+                ServerAuthCode = authKeys.AuthTicket,
                 AuthenticationContext = authService.AuthenticationContext,
                 ForceLink = authService.ForceLink
             }, resultCallback =>
@@ -38,7 +43,7 @@ namespace PlayFab.Authentication.Strategies
             });
         }
 
-        public void Unlink(PlayFabAuthService authService)
+        public void Unlink(PlayFabAuthService authService, AuthKeys authKeys)
         {
             PlayFabClientAPI.UnlinkGoogleAccount(new UnlinkGoogleAccountRequest
             {

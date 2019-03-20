@@ -5,9 +5,14 @@ namespace PlayFab.Authentication.Strategies
 {
     internal sealed class FacebookInstantGameAuthStrategy : IAuthenticationStrategy
     {
-        public void Authenticate(PlayFabAuthService authService, Action<LoginResult> resultCallback, Action<PlayFabError> errorCallback)
+        public AuthTypes AuthType
         {
-            if (string.IsNullOrEmpty(authService.AuthTicket))
+            get { return AuthTypes.FacebookInstantGames; }
+        }
+
+        public void Authenticate(PlayFabAuthService authService, Action<LoginResult> resultCallback, Action<PlayFabError> errorCallback, AuthKeys authKeys)
+        {
+            if (authKeys == null || string.IsNullOrEmpty(authKeys.AuthTicket))
             {
                 authService.InvokeDisplayAuthentication();
                 return;
@@ -16,17 +21,17 @@ namespace PlayFab.Authentication.Strategies
             PlayFabClientAPI.LoginWithFacebookInstantGamesId(new LoginWithFacebookInstantGamesIdRequest
             {
                 TitleId = PlayFabSettings.TitleId,
-                FacebookInstantGamesSignature = authService.AuthTicket,
+                FacebookInstantGamesSignature = authKeys.AuthTicket,
                 InfoRequestParameters = authService.InfoRequestParams,
                 CreateAccount = true
             }, resultCallback, errorCallback);
         }
 
-        public void Link(PlayFabAuthService authService)
+        public void Link(PlayFabAuthService authService, AuthKeys authKeys)
         {
             PlayFabClientAPI.LinkFacebookInstantGamesId(new LinkFacebookInstantGamesIdRequest 
             {
-                FacebookInstantGamesSignature = authService.AuthTicket,
+                FacebookInstantGamesSignature = authKeys.AuthTicket,
                 AuthenticationContext = authService.AuthenticationContext,
                 ForceLink = authService.ForceLink
             }, resultCallback =>
@@ -38,12 +43,12 @@ namespace PlayFab.Authentication.Strategies
             });
         }
 
-        public void Unlink(PlayFabAuthService authService)
+        public void Unlink(PlayFabAuthService authService, AuthKeys authKeys)
         {
             PlayFabClientAPI.UnlinkFacebookInstantGamesId(new UnlinkFacebookInstantGamesIdRequest
             {
                 AuthenticationContext = authService.AuthenticationContext,
-                FacebookInstantGamesId = authService.AuthTicket
+                FacebookInstantGamesId = authKeys.AuthTicket
             }, resultCallback =>
             {
                 authService.InvokeUnlink(AuthTypes.FacebookInstantGames);

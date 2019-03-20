@@ -5,9 +5,14 @@ namespace PlayFab.Authentication.Strategies
 {
     internal sealed class XBoxLiveAuthStrategy : IAuthenticationStrategy
     {
-        public void Authenticate(PlayFabAuthService authService, Action<LoginResult> resultCallback, Action<PlayFabError> errorCallback)
+        public AuthTypes AuthType
         {
-            if (string.IsNullOrEmpty(authService.AuthTicket))
+            get { return AuthTypes.XBoxLive; }
+        }
+
+        public void Authenticate(PlayFabAuthService authService, Action<LoginResult> resultCallback, Action<PlayFabError> errorCallback, AuthKeys authKeys = null)
+        {
+            if (authKeys == null || string.IsNullOrEmpty(authKeys.AuthTicket))
             {
                 authService.InvokeDisplayAuthentication();
                 return;
@@ -16,17 +21,17 @@ namespace PlayFab.Authentication.Strategies
             PlayFabClientAPI.LoginWithXbox(new LoginWithXboxRequest
             {
                 TitleId = PlayFabSettings.TitleId,
-                XboxToken = authService.AuthTicket,
+                XboxToken = authKeys.AuthTicket,
                 InfoRequestParameters = authService.InfoRequestParams,
                 CreateAccount = true
             }, resultCallback, errorCallback);
         }
 
-        public void Link(PlayFabAuthService authService)
+        public void Link(PlayFabAuthService authService, AuthKeys authKeys)
         {
             PlayFabClientAPI.LinkXboxAccount(new LinkXboxAccountRequest
             {
-                XboxToken = authService.AuthTicket,
+                XboxToken = authKeys.AuthTicket,
                 AuthenticationContext = authService.AuthenticationContext,
                 ForceLink = authService.ForceLink
             }, resultCallback =>
@@ -38,12 +43,12 @@ namespace PlayFab.Authentication.Strategies
             });
         }
 
-        public void Unlink(PlayFabAuthService authService)
+        public void Unlink(PlayFabAuthService authService, AuthKeys authKeys)
         {
             PlayFabClientAPI.UnlinkXboxAccount(new UnlinkXboxAccountRequest
             {
                 AuthenticationContext = authService.AuthenticationContext,
-                XboxToken = authService.AuthTicket
+                XboxToken = authKeys.AuthTicket
             }, resultCallback =>
             {
                 authService.InvokeUnlink(AuthTypes.XBoxLive);

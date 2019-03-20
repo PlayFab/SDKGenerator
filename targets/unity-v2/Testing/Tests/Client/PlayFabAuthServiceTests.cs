@@ -26,7 +26,7 @@ public class PlayFabAuthServiceTests : UUnitTestCase
         _emailAuthService.OnLoginSuccess += success =>
         {
             testContext.True(!string.IsNullOrEmpty(success.PlayFabId));
-            testContext.NotNull(_emailAuthService.AuthenticationContext);
+            testContext.NotNull(_emailAuthService.IsClientLoggedIn());
             testContext.EndTest(UUnitFinishState.PASSED, "Email & password auth success. " + success.PlayFabId);
         };
         _emailAuthService.OnPlayFabError += error =>
@@ -37,7 +37,7 @@ public class PlayFabAuthServiceTests : UUnitTestCase
         {
             testContext.EndTest(UUnitFinishState.FAILED, "Email & password auth failed.");
         };
-        _emailAuthService.Authenticate(AuthTypes.EmailAndPassword);
+        _emailAuthService.Authenticate(AuthTypes.EmailPassword);
     }
 
     [UUnitTest]
@@ -47,7 +47,7 @@ public class PlayFabAuthServiceTests : UUnitTestCase
         _emailAuthService.OnPlayFabLink += (auth, error) =>
         {
             if (error == null) testContext.EndTest(UUnitFinishState.PASSED, "Link deviceId success.");
-            else testContext.EndTest(UUnitFinishState.FAILED, "Link deviceId failed with error: " + error.GenerateErrorReport());
+            else testContext.Fail("Link deviceId failed with error: " + error.GenerateErrorReport());
         };
         _emailAuthService.Link(AuthTypes.Silent);
     }
@@ -61,16 +61,16 @@ public class PlayFabAuthServiceTests : UUnitTestCase
         }, response =>
         {
 #if UNITY_ANDROID && !UNITY_EDITOR
-            testContext.True(response.AccountInfo.AndroidDeviceInfo.AndroidDeviceId.Equals(PlayFabSettings.DeviceUniqueIdentifier), "Android deviceID not match!");
+            testContext.StringEquals(response.AccountInfo.AndroidDeviceInfo.AndroidDeviceId, PlayFabSettings.DeviceUniqueIdentifier, "Android deviceID not match!");
 #elif UNITY_IPHONE || UNITY_IOS && !UNITY_EDITOR
-            testContext.True(response.AccountInfo.IosDeviceInfo.IosDeviceId.Equals(PlayFabSettings.DeviceUniqueIdentifier), "iOS deviceID not match!");
+            testContext.StringEquals(response.AccountInfo.IosDeviceInfo.IosDeviceId, PlayFabSettings.DeviceUniqueIdentifier, "iOS deviceID not match!");
 #else
-            testContext.True(response.AccountInfo.CustomIdInfo.CustomId.Equals(PlayFabSettings.DeviceUniqueIdentifier), "customId not match!");
+            testContext.StringEquals(response.AccountInfo.CustomIdInfo.CustomId,PlayFabSettings.DeviceUniqueIdentifier, "customId not match!");
 #endif
             testContext.EndTest(UUnitFinishState.PASSED, "DeviceId successfully linked!");
         }, error =>
         {
-            testContext.EndTest(UUnitFinishState.FAILED, "GetAccountInfo error: " + error.ErrorMessage);
+            testContext.Fail("GetAccountInfo error: " + error.ErrorMessage);
         });
     }
 
@@ -80,12 +80,12 @@ public class PlayFabAuthServiceTests : UUnitTestCase
         var silentAuth = new PlayFabAuthService();
         silentAuth.OnLoginSuccess += success =>
         {
-            testContext.True(_emailAuthService.AuthenticationContext.PlayFabId == success.PlayFabId);
+            testContext.StringEquals(_emailAuthService.AuthenticationContext.PlayFabId, success.PlayFabId);
             testContext.EndTest(UUnitFinishState.PASSED, "Silent auth success with playFabId: " + success.PlayFabId);
         };
         silentAuth.OnPlayFabError += error =>
         {
-            testContext.EndTest(UUnitFinishState.FAILED, "Silent auth failed with error: " + error.ErrorMessage);
+            testContext.Fail("Silent auth failed with error: " + error.ErrorMessage);
         };
         silentAuth.Authenticate(AuthTypes.Silent);
     }
@@ -96,7 +96,7 @@ public class PlayFabAuthServiceTests : UUnitTestCase
         _emailAuthService.OnPlayFabUnlink += (auth, error) =>
         {
             if(error == null) testContext.EndTest(UUnitFinishState.PASSED, "UnLink deviceId success.");
-            else testContext.EndTest(UUnitFinishState.FAILED, "UnLink deviceId failed with error: " + error.ErrorMessage);
+            else testContext.Fail("UnLink deviceId failed with error: " + error.ErrorMessage);
         };
         _emailAuthService.Unlink(AuthTypes.Silent);
     }
@@ -110,16 +110,16 @@ public class PlayFabAuthServiceTests : UUnitTestCase
         }, response =>
         {
 #if UNITY_ANDROID && !UNITY_EDITOR
-            testContext.True(response.AccountInfo.AndroidDeviceInfo == null, "Android deviceID should be null!");
+            testContext.IsNull(response.AccountInfo.AndroidDeviceInfo, "Android deviceID should be null!");
 #elif UNITY_IPHONE || UNITY_IOS && !UNITY_EDITOR
-            testContext.True(response.AccountInfo.IosDeviceInfo == null, "iOS deviceID should be null!");
+            testContext.IsNull(response.AccountInfo.IosDeviceInfo, "iOS deviceID should be null!");
 #else
-            testContext.True(response.AccountInfo.CustomIdInfo == null, "customID should be null!");
+            testContext.IsNull(response.AccountInfo.CustomIdInfo, "customID should be null!");
 #endif
             testContext.EndTest(UUnitFinishState.PASSED, "DeviceId successfully unlinked!");
         }, error =>
         {
-            testContext.EndTest(UUnitFinishState.FAILED, "GetAccountInfo error: " + error.ErrorMessage);
+            testContext.Fail("GetAccountInfo error: " + error.ErrorMessage);
         });
     }
 
@@ -134,7 +134,7 @@ public class PlayFabAuthServiceTests : UUnitTestCase
         };
         silentAuth.OnPlayFabError += error =>
         {
-            testContext.EndTest(UUnitFinishState.PASSED, "Silent auth abort with error: " + error.Error.ToString());
+            testContext.Fail("Silent auth abort with error: " + error.Error.ToString());
         };
         silentAuth.Authenticate(AuthTypes.Silent);
     }

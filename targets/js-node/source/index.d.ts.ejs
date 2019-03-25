@@ -3,6 +3,6 @@
 <% } %>
 export const PlayFab: PlayFabModule.IPlayFab;
 export function settings(): PlayFabModule.IPlayFabSettings;
-export function settings(value): void;
+export function settings(value: any): void;
 <% for(var i = 0; i < apis.length; i++) { var api = apis[i]; %>export const PlayFab<%= api.name %>: PlayFab<%- api.name %>Module.IPlayFab<%- api.name %>;
 <% } %>

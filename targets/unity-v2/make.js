@@ -474,7 +474,9 @@ function getRequestActions(tabbing, apiCall, isApiInstance = false) {
 function getCustomApiLogic(tabbing, apiCall) {
     if (apiCall.name === "ExecuteFunction")
         return tabbing + "var localApiServerString = PlayFabSettings.LocalApiServer;\n" +
-            tabbing + "if (!string.IsNullOrEmpty(localApiServerString) && PlayFab.Internal.PlayFabUtil.ShouldDebugFunction(request.FunctionName))\n" +
+            tabbing + "var debugFunctions = PlayFabSettings.LocalDebugFunctions;\n" + 
+            tabbing + "var shouldDebug = debugFunctions.Contains(\"*\") || debugFunctions.Contains(request.FunctionName);\n" +
+            tabbing + "if (!string.IsNullOrEmpty(localApiServerString) && shouldDebug)\n" +
             tabbing + "{\n" +
             tabbing + "    var baseUri = new Uri(localApiServerString);\n" +
             tabbing + "    var fullUri = new Uri(baseUri, \"" + apiCall.url + "\".TrimStart('/'));\n" +

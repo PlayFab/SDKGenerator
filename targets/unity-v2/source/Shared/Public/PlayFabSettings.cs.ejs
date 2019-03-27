@@ -124,6 +124,27 @@ namespace PlayFab
             {
                 _localApiServer = value;
             }
+#endif
+        }
+
+        private static List<string> _localDebugFunctions;
+
+        public static List<string> LocalDebugFunctions
+        {
+            get
+            {
+#if UNITY_2017_1_OR_NEWER
+                return _localDebugFunctions ?? PlayFabUtil.GetLocalDebugFunctions();
+#else
+                return _localDebugFunctions;
+#endif
+            }
+#if !UNITY_2017_1_OR_NEWER
+            set
+            {
+                _localDebugFunctions = value;
+            }
+#endif
         }
 
         public static string GetFullUrl(string apiCall, Dictionary<string, string> getParams, PlayFabApiSettings apiSettings = null)

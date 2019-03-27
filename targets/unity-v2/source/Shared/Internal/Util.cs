@@ -141,10 +141,8 @@ namespace PlayFab.Internal
                     object result;
                     if (envJson.TryGetValue(propertyKey, out result))
                     {
-                        return result == null ? null : result.ToString();
+                        return result == null ? string.Empty : result.ToString();
                     }
-
-                    return null;
                 } 
                 catch (KeyNotFoundException)
                 {
@@ -154,10 +152,16 @@ namespace PlayFab.Internal
             return string.Empty;
         }
 
-        internal static bool ShouldDebugFunction(string functionName)
-        { 
-            var debugFunctions = PlayFabSimpleJson.DeserializeObject<string[]>(GetLocalSettingsFileProperty("DebugFunctions"));
-            return debugFunctions.Contains(functionName);
+        internal static List<string> GetLocalDebugFunctions()
+        {
+            try
+            {
+                return PlayFabSimpleJson.DeserializeObject<List<string>>(GetLocalSettingsFileProperty("DebugFunctions"));
+            }
+            catch (Exception)
+            {
+                return new List<string>();
+            }
         }
 #endif
     }

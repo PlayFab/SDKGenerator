@@ -15,22 +15,22 @@ namespace PlayFab
     /// </summary>
     public enum AuthTypes
     {
-        None = 0,
-        Silent,
         EmailPassword,
-        UsernamePassword,
-        GooglePlayGames,
         Facebook,
         FacebookInstantGames,
         GameCenter,
+        GooglePlayGames,
         Kongregate,
         NintendoSwitch,
-        XBoxLive,
-        PlayStation,
+        None,
         OpenId,
-        WindowsHello,
+        PlayStation,
+        Silent,
+        Steam,
         Twitch,
-        Steam
+        UsernamePassword,
+        WindowsHello,
+        XBoxLive
     }
 
     public class PlayFabAuthService
@@ -57,6 +57,7 @@ namespace PlayFab
 
         public PlayFabAuthenticationContext AuthenticationContext { get; private set; }
 
+        // All PlayerPrefs keys incompatible with split-screen/multi-instance play (issue to be fixed).
         private const string _LoginRememberKey = "PlayFabLoginRemember";
         private const string _PlayFabRememberMeIdKey = "PlayFabIdPassGuid";
         private const string _PlayFabAuthTypeKey = "PlayFabAuthType";

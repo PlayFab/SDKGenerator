@@ -6,7 +6,7 @@ namespace PlayFab.Authentication.Strategies
 {
     internal class SilentAuthStrategy : IAuthenticationStrategy
     {
-        public AuthTypes AuthType
+        public virtual AuthTypes AuthType
         {
             get { return AuthTypes.Silent; }
         }
@@ -37,7 +37,7 @@ namespace PlayFab.Authentication.Strategies
             PlayFabClientAPI.LoginWithCustomID(new LoginWithCustomIDRequest
             {
                 TitleId = PlayFabSettings.TitleId,
-                CustomId = PlayFabSettings.DeviceUniqueIdentifier,
+                CustomId = authService.GetOrCreateRememberMeId(),
                 CreateAccount = true,
                 InfoRequestParameters = authService.InfoRequestParams
             }, resultCallback, errorCallback);
@@ -81,7 +81,7 @@ namespace PlayFab.Authentication.Strategies
 #else
                 PlayFabClientAPI.LinkCustomID(new LinkCustomIDRequest
                 {
-                    CustomId = PlayFabSettings.DeviceUniqueIdentifier,
+                    CustomId = authService.GetOrCreateRememberMeId(),
                     AuthenticationContext = authService.AuthenticationContext,
                     ForceLink = authService.ForceLink
                 }, linkCallback =>
@@ -129,7 +129,7 @@ namespace PlayFab.Authentication.Strategies
 #else
                 PlayFabClientAPI.UnlinkCustomID(new UnlinkCustomIDRequest
                 {
-                    CustomId = PlayFabSettings.DeviceUniqueIdentifier,
+                    CustomId = authService.GetOrCreateRememberMeId(),
                     AuthenticationContext = authService.AuthenticationContext
                 }, unlinkCallback =>
                 {

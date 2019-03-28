@@ -61,6 +61,10 @@ namespace PlayFab
         private const string _PlayFabRememberMeIdKey = "PlayFabIdPassGuid";
         private const string _PlayFabAuthTypeKey = "PlayFabAuthType";
 
+        /// <summary>
+        /// Remember me flag.
+        /// Incompatible with split-screen/multi-instance play (issue to be fixed).
+        /// </summary>
         public bool RememberMe
         {
             get { return PlayerPrefs.GetInt(_LoginRememberKey, 0) != 0; }
@@ -68,17 +72,19 @@ namespace PlayFab
         }
 
         /// <summary>
-        /// Remember the type of authenticate for the user
+        /// Remember the type of authenticate for the user.
+        /// Incompatible with split-screen/multi-instance play (issue to be fixed).
         /// </summary>
         public AuthTypes AuthType
         {
-            get { return PlayFabUtil.TryEnumParse<AuthTypes>(PlayerPrefs.GetString(_PlayFabAuthTypeKey)); }
+            get { return PlayFabUtil.TryEnumParse<AuthTypes>(PlayerPrefs.GetString(_PlayFabAuthTypeKey), AuthTypes.None); }
             set { PlayerPrefs.SetString(_PlayFabAuthTypeKey, value.ToString()); }
         }
 
         /// <summary>
-        /// Generated Remember Me ID
+        /// Generated Remember Me ID.
         /// Pass Null for a value to have one auto-generated.
+        /// Incompatible with split-screen/multi-instance play (issue to be fixed).
         /// </summary>
         public string RememberMeId
         {
@@ -90,6 +96,22 @@ namespace PlayFab
             }
         }
 
+        /// <summary>
+        /// Check PlayerPrefs, and create new remember me id if empty.
+        /// </summary>
+        public string GetOrCreateRememberMeId()
+        {
+            var rememberMeId = PlayerPrefs.GetString(_PlayFabRememberMeIdKey, "");
+
+            if (string.IsNullOrEmpty(rememberMeId))
+            {
+                rememberMeId = Guid.NewGuid().ToString();
+                PlayerPrefs.SetString(_PlayFabRememberMeIdKey, rememberMeId);
+            }
+
+            return rememberMeId;
+        }
+
         private readonly Dictionary<AuthTypes, IAuthenticationStrategy> _authStrategies = new Dictionary<AuthTypes, IAuthenticationStrategy>();
 
         public PlayFabAuthService()
@@ -99,8 +121,7 @@ namespace PlayFab
             foreach (var strategyType in strategyTypes)
             {
                 var strategy = (IAuthenticationStrategy) Activator.CreateInstance(strategyType);
-                if(!_authStrategies.ContainsKey(strategy.AuthType))
-                    _authStrategies.Add(strategy.AuthType, strategy);
+                _authStrategies.Add(strategy.AuthType, strategy);
             }
         }
 
@@ -155,12 +176,6 @@ namespace PlayFab
             
             var auth = _authStrategies[AuthType];
 
-            if (auth == null)
-            {
-                Debug.LogError("Unhandled auth type: " + AuthType);
-                return;
-            }
-
             auth.Authenticate(this, resultCallback =>
             {
                 // Store Identity and session
@@ -170,13 +185,10 @@ namespace PlayFab
                 // If RememberMe is checked, then generate a new Guid for Login with CustomId.
                 if (RememberMe && string.IsNullOrEmpty(RememberMeId))
                 {
-                    // When we are reach this point, RememberMeId is empty so, we create one.
-                    RememberMeId = Guid.NewGuid().ToString();
-
                     //Fire and forget, but link a custom ID to this PlayFab Account.
                     PlayFabClientAPI.LinkCustomID(new LinkCustomIDRequest
                     {
-                        CustomId = RememberMeId,
+                        CustomId = GetOrCreateRememberMeId(),
                         ForceLink = ForceLink,
                         AuthenticationContext = AuthenticationContext
                     }, null, null);
@@ -216,26 +228,26 @@ namespace PlayFab
             Debug.LogError(playFabError.GenerateErrorReport());
         }
 
-        public void Link(AuthTypes linkType, AuthKeys authKeys = null)
+        public void Link(AuthKeys authKeys)
         {
-            var auth = _authStrategies[linkType];
+            var auth = _authStrategies[authKeys.AuthType];
 
             if (auth == null)
             {
-                Debug.LogError("Unhandled link type: " + linkType);
+                Debug.LogError("Unhandled link type: " + authKeys.AuthType);
                 return;
             }
 
             auth.Link(this, authKeys);
         }
 
-        public void Unlink(AuthTypes unlinkType, AuthKeys authKeys = null)
+        public void Unlink(AuthKeys authKeys)
         {
-            var auth = _authStrategies[unlinkType];
+            var auth = _authStrategies[authKeys.AuthType];
 
             if (auth == null)
             {
-                Debug.LogError("Unhandled unlink type: " + unlinkType);
+                Debug.LogError("Unhandled unlink type: " + authKeys.AuthType);
                 return;
             }
 
@@ -246,6 +258,7 @@ namespace PlayFab
     [Serializable]
     public sealed class AuthKeys
     {
+        public AuthTypes AuthType;
         public string AuthTicket;
         public string OpenIdConnectionId;
         public string WindowsHelloChallengeSignature;

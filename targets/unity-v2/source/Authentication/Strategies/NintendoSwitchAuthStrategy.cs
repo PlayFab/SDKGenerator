@@ -26,7 +26,7 @@ namespace PlayFab.Authentication.Strategies
         {
             PlayFabClientAPI.LinkNintendoSwitchDeviceId(new LinkNintendoSwitchDeviceIdRequest
             {
-                NintendoSwitchDeviceId = SystemInfo.deviceUniqueIdentifier,
+                NintendoSwitchDeviceId = PlayFabSettings.DeviceUniqueIdentifier,
                 AuthenticationContext = authService.AuthenticationContext,
                 ForceLink = authService.ForceLink
             }, resultCallback =>

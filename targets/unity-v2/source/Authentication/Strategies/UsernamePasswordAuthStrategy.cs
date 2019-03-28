@@ -6,9 +6,9 @@ namespace PlayFab.Authentication.Strategies
 {
     internal sealed class UsernamePasswordAuthStrategy : SilentAuthStrategy
     {
-        public new AuthTypes AuthType
+        public override AuthTypes AuthType
         {
-            get { return AuthTypes.EmailPassword; }
+            get { return AuthTypes.UsernamePassword; }
         }
 
         public override void Authenticate(PlayFabAuthService authService, Action<LoginResult> resultCallback, Action<PlayFabError> errorCallback, AuthKeys authKeys)

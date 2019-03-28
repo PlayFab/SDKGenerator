@@ -31,11 +31,11 @@ public class PlayFabAuthServiceTests : UUnitTestCase
         };
         _emailAuthService.OnPlayFabError += error =>
         {
-            testContext.EndTest(UUnitFinishState.FAILED, "Email & password auth failed with error: " + error.GenerateErrorReport());
+            testContext.Fail("Email & password auth failed with error: " + error.GenerateErrorReport());
         };
         _emailAuthService.OnDisplayAuthentication += () =>
         {
-            testContext.EndTest(UUnitFinishState.FAILED, "Email & password auth failed.");
+            testContext.Fail("Email & password auth failed.");
         };
         _emailAuthService.Authenticate(AuthTypes.EmailPassword);
     }
@@ -49,7 +49,7 @@ public class PlayFabAuthServiceTests : UUnitTestCase
             if (error == null) testContext.EndTest(UUnitFinishState.PASSED, "Link deviceId success.");
             else testContext.Fail("Link deviceId failed with error: " + error.GenerateErrorReport());
         };
-        _emailAuthService.Link(AuthTypes.Silent);
+        _emailAuthService.Link(new AuthKeys { AuthType = AuthTypes.Silent});
     }
 
     [UUnitTest]
@@ -65,7 +65,7 @@ public class PlayFabAuthServiceTests : UUnitTestCase
 #elif UNITY_IPHONE || UNITY_IOS && !UNITY_EDITOR
             testContext.StringEquals(response.AccountInfo.IosDeviceInfo.IosDeviceId, PlayFabSettings.DeviceUniqueIdentifier, "iOS deviceID not match!");
 #else
-            testContext.StringEquals(response.AccountInfo.CustomIdInfo.CustomId,PlayFabSettings.DeviceUniqueIdentifier, "customId not match!");
+            testContext.StringEquals(response.AccountInfo.CustomIdInfo.CustomId, _emailAuthService.GetOrCreateRememberMeId(), "customId not match!");
 #endif
             testContext.EndTest(UUnitFinishState.PASSED, "DeviceId successfully linked!");
         }, error =>
@@ -98,7 +98,7 @@ public class PlayFabAuthServiceTests : UUnitTestCase
             if(error == null) testContext.EndTest(UUnitFinishState.PASSED, "UnLink deviceId success.");
             else testContext.Fail("UnLink deviceId failed with error: " + error.ErrorMessage);
         };
-        _emailAuthService.Unlink(AuthTypes.Silent);
+        _emailAuthService.Unlink(new AuthKeys {AuthType = AuthTypes.Silent});
     }
 
     [UUnitTest]

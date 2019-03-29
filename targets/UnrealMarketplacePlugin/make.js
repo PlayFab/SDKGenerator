@@ -77,6 +77,8 @@ exports.makeCombinedAPI = function (apis, sourceDir, baseApiOutputDir) {
         // Copy the PlayFabPlugin folder just created into the ExampleProject
         // TODO: It causes very confusing problems to copy from an output subdir to another output subdir. Let's fix this
         templatizeTree(locals, path.resolve(apiOutputDir, "PlayFabPlugin"), path.resolve(apiOutputDir, "ExampleProject/Plugins"));
+
+        copyFile(path.resolve(sourceDir, "testbuildfiles/PlayFab.Build.cs"), path.resolve(apiOutputDir + "/ExampleProject/Plugins/PlayFab/Source/PlayFab/PlayFab.Build.cs"));
     }
 }
 

@@ -650,6 +650,7 @@
     <Content Include="targets\UnrealMarketplacePlugin\examplesource\ExampleProject\Plugins\PlayFab\Source\PlayFabTests\Public\TestFramework\PlayFabTestContext.h.ejs" />
     <Content Include="targets\UnrealMarketplacePlugin\examplesource\ExampleProject\Plugins\PlayFab\Source\PlayFabTests\Public\TestFramework\PlayFabTestEnums.h.ejs" />
     <Content Include="targets\UnrealMarketplacePlugin\examplesource\ExampleProject\Plugins\PlayFab\Source\PlayFabTests\Public\TestFramework\PlayFabTestRunner.h.ejs" />
+    <Content Include="targets\UnrealMarketplacePlugin\TestBuildFiles\PlayFab.Build.cs" />
     <Content Include="targets\UnrealMarketplacePlugin\examplesource\ExampleProject\Plugins\PlayFab\Source\PlayFab\Private\Tests\PlayFabBlueprintTests.cpp.ejs" />
     <Content Include="targets\UnrealMarketplacePlugin\examplesource\ExampleProject\Plugins\PlayFab\Source\PlayFab\Public\Tests\PlayFabBlueprintTests.h.ejs" />
     <Content Include="targets\UnrealMarketplacePlugin\examplesource\ExampleProject\RunTestsWin64.bat.ejs" />
@@ -1139,6 +1140,7 @@
     <Folder Include="targets\UnrealMarketplacePlugin\examplesource\ExampleProject\Plugins\PlayFab\Source\PlayFab\Public\Tests\" />
     <Folder Include="targets\UnrealMarketplacePlugin\examplesource\ExampleProject\Source\" />
     <Folder Include="targets\UnrealMarketplacePlugin\examplesource\ExampleProject\Source\ExampleProject\" />
+    <Folder Include="targets\UnrealMarketplacePlugin\TestBuildFiles\" />
     <Folder Include="targets\UnrealMarketplacePlugin\Source\" />
     <Folder Include="targets\UnrealMarketplacePlugin\Source\PlayFab\" />
     <Folder Include="targets\UnrealMarketplacePlugin\Source\PlayFab\Content\" />

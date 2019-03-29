@@ -101,7 +101,7 @@ namespace PlayFab.Internal
             return _sb.ToString();
         }
 
-        public static T TryEnumParse<T>(string value)
+        public static T TryEnumParse<T>(string value, T defaultValue)
         {
             try
             {
@@ -109,12 +109,12 @@ namespace PlayFab.Internal
             }
             catch (InvalidCastException castException)
             {
-                return default(T);
+                return defaultValue;
             }
             catch (Exception e)
             {
                 UnityEngine.Debug.LogError("Enum cast failed with unknown error: " + e.Message);
-                return default(T);
+                return defaultValue;
             }
         }
 

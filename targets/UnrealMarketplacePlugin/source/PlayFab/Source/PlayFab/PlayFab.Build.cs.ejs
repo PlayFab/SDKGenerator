@@ -28,13 +28,14 @@ namespace UnrealBuildTool.Rules
                     "JsonUtilities",
                     "PlayFabCommon"
                 }
-            );
+            );<% if (addTest) {
+%>
             PrivateDependencyModuleNames.AddRange(
                 new string[]
                 {
                     "PlayFabTests"
                 }
-            );
+            );<% } %>
         }
     }
 }

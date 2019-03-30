@@ -65,7 +65,8 @@ exports.makeCombinedAPI = function (apis, sourceDir, baseApiOutputDir) {
             ueTargetVersionMinor: ueTargetVersion.minor, // This is actually used
             ueTargetVersion: ueTargetVersion.targetVersionShort,
             ueTargetVersionLong: ueTargetVersion.targetVersionLong,
-            ueWhitelistPlatforms: ueWhitelistPlatforms
+            ueWhitelistPlatforms: ueWhitelistPlatforms,
+            addTest: false
         };
 
         // Copy the resources, content and the .uplugin file
@@ -74,9 +75,12 @@ exports.makeCombinedAPI = function (apis, sourceDir, baseApiOutputDir) {
         // Create the Example project folder
         templatizeTree(locals, path.resolve(sourceDir, "examplesource"), apiOutputDir);
 
+        locals.addTest = true;
+
         // Copy the PlayFabPlugin folder just created into the ExampleProject
         // TODO: It causes very confusing problems to copy from an output subdir to another output subdir. Let's fix this
         templatizeTree(locals, path.resolve(apiOutputDir, "PlayFabPlugin"), path.resolve(apiOutputDir, "ExampleProject/Plugins"));
+        templatizeTree(locals, path.resolve(sourceDir, "source"), path.resolve(apiOutputDir, "ExampleProject/Plugins"));
     }
 }
 

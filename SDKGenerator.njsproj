@@ -698,7 +698,7 @@
     <Content Include="targets\UnrealMarketplacePlugin\Source\PlayFab\Source\PlayFab\Classes\PlayFabRequestCommon.h.ejs" />
     <Content Include="targets\UnrealMarketplacePlugin\Source\PlayFab\Source\PlayFab\Classes\PlayFabResultCommon.h.ejs" />
     <Content Include="targets\UnrealMarketplacePlugin\source\PlayFab\Source\PlayFab\Classes\PlayFabUtilities.h.ejs" />
-    <Content Include="targets\UnrealMarketplacePlugin\Source\PlayFab\Source\PlayFab\PlayFab.Build.cs" />
+    <Content Include="targets\UnrealMarketplacePlugin\Source\PlayFab\Source\PlayFab\PlayFab.Build.cs.ejs" />
     <Content Include="targets\UnrealMarketplacePlugin\source\PlayFab\Source\PlayFab\Private\PlayFab.cpp.ejs" />
     <Content Include="targets\UnrealMarketplacePlugin\source\PlayFab\Source\PlayFab\Private\PlayFabBaseModel.cpp.ejs" />
     <Content Include="targets\UnrealMarketplacePlugin\source\PlayFab\Source\PlayFab\Private\PlayFabJsonObject.cpp.ejs" />

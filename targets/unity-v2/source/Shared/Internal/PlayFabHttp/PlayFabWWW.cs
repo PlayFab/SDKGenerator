@@ -80,7 +80,7 @@ namespace PlayFab.Internal
 #endif
 
 #if !UNITY_WEBGL
-                while (request.uploadProgress < 1 && request.downloadProgress < 1)
+                while (request.uploadProgress < 1 || request.downloadProgress < 1)
                 {
                     yield return 1;
                 }

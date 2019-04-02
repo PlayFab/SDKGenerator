@@ -31,8 +31,20 @@ namespace PlayFab.Internal
                 postBody.Headers.Add("Content-Type", "application/json");
                 postBody.Headers.Add("X-PlayFabSDK", PlayFabSettings.SdkVersionString);
                 if (extraHeaders != null)
+                {
                     foreach (var headerPair in extraHeaders)
-                        postBody.Headers.Add(headerPair.Key, headerPair.Value);
+                    {
+                        // Special case for Authorization header
+                        if (headerPair.Key.Equals("Authorization", StringComparison.OrdinalIgnoreCase))
+                        {
+                            _client.DefaultRequestHeaders.Authorization = new AuthenticationHeaderValue("Bearer", headerPair.Value);
+                        }
+                        else
+                        {
+                            postBody.Headers.Add(headerPair.Key, headerPair.Value);
+                        }
+                    }
+                }
 
                 try
                 {

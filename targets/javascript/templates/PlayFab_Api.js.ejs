@@ -62,7 +62,7 @@ if(!PlayFab._internalSettings) {
         ExecuteRequest: function (url, request, authkey, authValue, callback, customData, extraHeaders) {
             var resultPromise = new Promise(function (resolve, reject) {
                 if (callback != null && typeof (callback) !== "function")
-                    throw "Callback must be null of a function";
+                    throw "Callback must be null or a function";
 
                 if (request == null)
                     request = {};

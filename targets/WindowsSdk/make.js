@@ -113,9 +113,9 @@ function getAuthParams(apiCall) {
 }
 
 function getBaseType(datatype) {
-    if (datatype.className.toLowerCase().endsWith("request"))
+    if (datatype.isRequest)
         return "PlayFabRequestCommon";
-    if (datatype.className.toLowerCase().endsWith("response") || datatype.className.toLowerCase().endsWith("result"))
+    if (datatype.isResult)
         return "PlayFabResultCommon";
     return "PlayFabBaseModel";
 }

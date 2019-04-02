@@ -63,7 +63,7 @@ public:
             for(var z in datatype.properties)
             {
                 var property = datatype.properties[z];
-                if(property.name == "TitleId" && datatype.name.endsWith("Request")) continue;
+                if(property.name == "TitleId" && datatype.isRequest) continue;
 %><%- generateApiSummary("    ", property, "description")
 %>    UPROPERTY(EditAnywhere, BlueprintReadWrite, Category = "PlayFab | <%- api.name %> | <%- api.subgroups[subgroup].name %> Models")
         <%- getPropertyCppType(property, datatype) %>

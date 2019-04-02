@@ -132,7 +132,7 @@ for(var subgroup in api.subgroups)
                 {
                     var datatype = api.datatypes[datatypeIndex];
                     if ((datatype.name != apiCall.request && datatype.name != apiCall.result) // Skip my request and my result
-                      || datatype.name.endsWith("Request") // Requests are done separately
+                      || datatype.isRequest // Requests are done separately
                       || modelsArray.indexOf(datatype.name) > -1) // Check if datatype has been made already
                     {
                         continue;

@@ -101,6 +101,23 @@ namespace PlayFab.Internal
             return _sb.ToString();
         }
 
+        public static T TryEnumParse<T>(string value, T defaultValue)
+        {
+            try
+            {
+                return (T) Enum.Parse(typeof(T), value);
+            }
+            catch (InvalidCastException castException)
+            {
+                return defaultValue;
+            }
+            catch (Exception e)
+            {
+                UnityEngine.Debug.LogError("Enum cast failed with unknown error: " + e.Message);
+                return defaultValue;
+            }
+        }
+
 #if UNITY_2017_1_OR_NEWER
         internal static string GetLocalSettingsFileProperty(string propertyKey)
         {

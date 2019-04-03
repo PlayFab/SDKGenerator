@@ -12,12 +12,10 @@ FString PlayFab::PlayFabUtilities::GetLocalSettingsFileContent()
     FString localSettingsFileContent = "";
     if (FFileHelper::LoadFileToString(localSettingsFileContent, *localSettingsFilePath))
     {
-        UE_LOG(LogTemp, Log, TEXT("LOCAL SETTINGS FILE CONTENT: %s"), *localSettingsFileContent);
         return localSettingsFileContent;
     }
     else
     {
-        UE_LOG(LogTemp, Log, TEXT("Failed to retrieve local settings file content"));
         return FString(TEXT(""));
     }
 }

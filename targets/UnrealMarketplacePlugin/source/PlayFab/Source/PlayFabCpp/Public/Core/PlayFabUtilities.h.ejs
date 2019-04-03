@@ -10,9 +10,11 @@ namespace PlayFab
     class PlayFabUtilities
     {
     private:
-        static FString GetLocalSettingsFileContent();
         static FString GetTempDir();
+        static FString GetLocalSettingsFileContent();
+        static TSharedPtr<FJsonObject> GetLocalSettingsFileJson();
     public:
         static FString GetLocalSettingsFileProperty(const FString& propertyKey);
+        static TArray<FString> GetLocalSettingsFileArrayProperty(const FString & propertyKey);
     };
 }

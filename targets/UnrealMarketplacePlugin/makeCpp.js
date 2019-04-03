@@ -664,7 +664,8 @@ function getRequestActions(tabbing, apiCall, isInstanceApi) {
 function getCustomApiLogic(tabbing, api, apiCall, isInstanceApi) {
     if (apiCall.name === "ExecuteFunction")
         return tabbing + "FString localApiServer = PlayFabSettings::GetLocalApiServer();\n"
-            + tabbing + "if (!localApiServer.IsEmpty())\n"
+            + tabbing + "TArray<FString> debugFunctions = PlayFabSettings::GetDebugFunctions();\n"
+            + tabbing + "if (!localApiServer.IsEmpty() && (debugFunctions.Contains(request.FunctionName) || debugFunctions.Contains(TEXT(\"*\"))))\n"
             + tabbing + "{\n"
             + tabbing + "    FString endpoint = TEXT(\"" + apiCall.url + "\");\n"
             + tabbing + "    endpoint.RemoveFromStart(TEXT(\"/\"));\n"

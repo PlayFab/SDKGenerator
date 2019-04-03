@@ -1,4 +1,4 @@
-#if NET_4_6   
+#if NET_4_6
 using System.Collections.Generic;
 using System.Threading.Tasks;
 using PlayFab.Logger;
@@ -22,7 +22,7 @@ namespace PlayFab
         public PlayFabEventAPI(ILogger logger = null)
         {
             if(logger == null) logger = new DebugLogger();
-            this.EventRouter = new PlayFabEventRouter(logger); 
+            this.EventRouter = new PlayFabEventRouter(logger);
         }
 
         public IEnumerable<Task<IPlayFabEmitEventResponse>> EmitEvent(IPlayFabEvent playFabEvent)

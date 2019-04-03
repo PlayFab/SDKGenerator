@@ -30,7 +30,7 @@ namespace PlayFab.UUnit
             // This error was not expected.  Report it and fail.
             ((UUnitTestContext)error.CustomData).Fail(error.GenerateErrorReport());
         }
-        
+
         /// <summary>
         /// SERVER API
         /// Test that CloudScript can be properly set up and invoked

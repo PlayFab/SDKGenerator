@@ -161,7 +161,7 @@ namespace PlayFab
             });
 
             await WaitWhile(() => result == null, 100);
-            
+
             return result;
         }
 
@@ -174,7 +174,7 @@ namespace PlayFab
             if (transport.EntityToken == null) throw new PlayFabException(PlayFabExceptionCode.EntityTokenNotSet, "Must call GetEntityToken before calling this method");
 
             PlayFabResult<TelemetryIngestionConfigResponse> result = null;
-            
+
             PlayFabHttp.instance.InjectInUnityThread(() =>
             {
                 PlayFabHttp.MakeApiCall<TelemetryIngestionConfigResponse>("/Event/GetTelemetryIngestionConfig", request, AuthType.EntityToken, callback =>
@@ -184,13 +184,13 @@ namespace PlayFab
                 error =>
                 {
                     result = new PlayFabResult<TelemetryIngestionConfigResponse>{Error = error, CustomData = customData};
-                });    
+                });
             });
 
             await WaitWhile(() => result == null, 100);
             return result;
         }
-        
+
         public static async Task WaitWhile(Func<bool> condition, int frequency = 25, int timeout = -1)
         {
             var waitTask = Task.Run(async () =>

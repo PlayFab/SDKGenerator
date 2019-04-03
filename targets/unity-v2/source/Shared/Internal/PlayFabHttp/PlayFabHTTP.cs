@@ -2,8 +2,6 @@ using System;
 using System.Collections;
 using System.Collections.Generic;
 using System.Text;
-using PlayFab.AuthenticationModels;
-using PlayFab.ClientModels;
 using PlayFab.Json;
 using PlayFab.Public;
 using PlayFab.SharedModels;
@@ -23,10 +21,6 @@ namespace PlayFab.Internal
         public static event ApiProcessingEvent<ApiProcessingEventArgs> ApiProcessingEventHandler;
         public static event ApiProcessErrorEvent ApiProcessingErrorEventHandler;
         public static readonly Dictionary<string, string> GlobalHeaderInjection = new Dictionary<string, string>();
-
-#if ENABLE_PLAYFABPLAYSTREAM_API && ENABLE_PLAYFABSERVER_API
-        private static IPlayFabSignalR _internalSignalR;
-#endif
 
         private static IPlayFabLogger _logger;
 #if !DISABLE_PLAYFABENTITY_API && !DISABLE_PLAYFABCLIENT_API
@@ -132,36 +126,6 @@ namespace PlayFab.Internal
         }
 #endif
 
-#if ENABLE_PLAYFABPLAYSTREAM_API && ENABLE_PLAYFABSERVER_API
-        public static void InitializeSignalR(string baseUrl, string hubName, Action onConnected, Action<string>onReceived, Action onReconnected, Action onDisconnected, Action<Exception> onError)
-        {
-            CreateInstance();
-            if (_internalSignalR != null) return;
-            _internalSignalR = new PlayFabSignalR (onConnected);
-            _internalSignalR.OnReceived += onReceived;
-            _internalSignalR.OnReconnected += onReconnected;
-            _internalSignalR.OnDisconnected += onDisconnected;
-            _internalSignalR.OnError += onError;
-
-            _internalSignalR.Start(baseUrl, hubName);
-        }
-
-        public static void SubscribeSignalR(string onInvoked, Action<object[]> callbacks)
-        {
-            _internalSignalR.Subscribe(onInvoked, callbacks);
-        }
-
-        public static void InvokeSignalR(string methodName, Action callback, params object[] args)
-        {
-            _internalSignalR.Invoke(methodName, callback, args);
-        }
-
-        public static void StopSignalR()
-        {
-            _internalSignalR.Stop();
-        }
-#endif
-
         public static void SimpleGetCall(string fullUrl, Action<byte[]> successCallback, Action<string> errorCallback)
         {
             InitializeHttp();
@@ -186,7 +150,7 @@ namespace PlayFab.Internal
             Action<PlayFabError> errorCallback, object customData = null, Dictionary<string, string> extraHeaders = null, bool allowQueueing = false, PlayFabAuthenticationContext authenticationContext = null, PlayFabApiSettings apiSettings = null)
             where TResult : PlayFabResultCommon
         {
-            var fullUrl = apiSettings == null ?  PlayFabSettings.GetFullUrl(apiEndpoint, PlayFabSettings.RequestGetParams) : apiSettings.GetFullUrl(apiEndpoint, apiSettings.RequestGetParams);
+            var fullUrl = apiSettings == null ? PlayFabSettings.GetFullUrl(apiEndpoint, PlayFabSettings.RequestGetParams) : apiSettings.GetFullUrl(apiEndpoint, apiSettings.RequestGetParams);
             _MakeApiCall(apiEndpoint, fullUrl, request, authType, resultCallback, errorCallback, customData, extraHeaders, allowQueueing, authenticationContext, apiSettings);
         }
 
@@ -211,22 +175,22 @@ namespace PlayFab.Internal
             SendEvent(apiEndpoint, request, null, ApiProcessingEventType.Pre);
 
             string developerSecretKey = null;
-            #if ENABLE_PLAYFABSERVER_API || ENABLE_PLAYFABADMIN_API
-                if(request.AuthenticationContext != null && !string.IsNullOrEmpty(request.AuthenticationContext.DeveloperSecretKey))
-                {
-                    developerSecretKey = request.AuthenticationContext.DeveloperSecretKey;
-                }
-                if(developerSecretKey == null && authenticationContext != null && !string.IsNullOrEmpty(authenticationContext.DeveloperSecretKey))
-                {
-                    developerSecretKey = authenticationContext.DeveloperSecretKey;
-                }
-                if(developerSecretKey == null)
-                {
-                    developerSecretKey = PlayFabSettings.DeveloperSecretKey;
-                }
+#if ENABLE_PLAYFABSERVER_API || ENABLE_PLAYFABADMIN_API
+            if (request.AuthenticationContext != null && !string.IsNullOrEmpty(request.AuthenticationContext.DeveloperSecretKey))
+            {
+                developerSecretKey = request.AuthenticationContext.DeveloperSecretKey;
+            }
+            if (developerSecretKey == null && authenticationContext != null && !string.IsNullOrEmpty(authenticationContext.DeveloperSecretKey))
+            {
+                developerSecretKey = authenticationContext.DeveloperSecretKey;
+            }
+            if (developerSecretKey == null)
+            {
+                developerSecretKey = PlayFabSettings.DeveloperSecretKey;
+            }
 
-                if (developerSecretKey == null) throw new PlayFabException(PlayFabExceptionCode.DeveloperKeyNotSet,"DeveloperSecretKey is not found in Request, Server Instance or PlayFabSettings");
-            #endif
+            if (developerSecretKey == null) throw new PlayFabException(PlayFabExceptionCode.DeveloperKeyNotSet, "DeveloperSecretKey is not found in Request, Server Instance or PlayFabSettings");
+#endif
 
             var serializer = PluginManager.GetPlugin<ISerializerPlugin>(PluginContract.PlayFab_Serializer);
             var reqContainer = new CallRequestContainer
@@ -256,7 +220,7 @@ namespace PlayFab.Internal
             switch (authType)
             {
 #if ENABLE_PLAYFABSERVER_API || ENABLE_PLAYFABADMIN_API || UNITY_EDITOR
-                case AuthType.DevSecretKey: reqContainer.RequestHeaders["X-SecretKey"] = developerSecretKey;  break;
+                case AuthType.DevSecretKey: reqContainer.RequestHeaders["X-SecretKey"] = developerSecretKey; break;
 #endif
                 case AuthType.LoginSession:
 #if !DISABLE_PLAYFABCLIENT_API
@@ -385,12 +349,7 @@ namespace PlayFab.Internal
             {
                 transport.OnDestroy();
             }
-#if ENABLE_PLAYFABPLAYSTREAM_API && ENABLE_PLAYFABSERVER_API
-            if (_internalSignalR != null)
-            {
-                _internalSignalR.Stop();
-            }
-#endif
+
             if (_logger != null)
             {
                 _logger.OnDestroy();
@@ -447,12 +406,6 @@ namespace PlayFab.Internal
                 transport.Update();
             }
 
-#if ENABLE_PLAYFABPLAYSTREAM_API && ENABLE_PLAYFABSERVER_API
-            if (_internalSignalR != null)
-            {
-                _internalSignalR.Update();
-            }
-#endif
 #if NET_4_6
             while (_injectedCoroutines.Count > 0)
                 StartCoroutine(_injectedCoroutines.Dequeue());
@@ -552,8 +505,10 @@ namespace PlayFab.Internal
         }
 
 #if PLAYFAB_REQUEST_TIMING
-        protected internal static void SendRequestTiming(RequestTiming rt) {
-            if (ApiRequestTimingEventHandler != null) {
+        protected internal static void SendRequestTiming(RequestTiming rt)
+        {
+            if (ApiRequestTimingEventHandler != null)
+            {
                 ApiRequestTimingEventHandler(rt);
             }
         }
@@ -566,7 +521,7 @@ namespace PlayFab.Internal
         public void InjectInUnityThread(IEnumerator x) => _injectedCoroutines.Enqueue(x);
         public void InjectInUnityThread(Action action) => _injectedAction.Enqueue(action);
 #endif
-	}
+    }
 
     #region Event Classes
     public enum ApiProcessingEventType

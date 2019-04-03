@@ -345,12 +345,12 @@ function getResultActions(tabbing, apiCall, api, isInstance) {
             + tabbing + "result.AuthenticationContext = authenticationContext;\n"
             + tabbing + "await MultiStepClientLogin(result.SettingsForUser.NeedsAttribution);\n";
     if ((apiCall.result === "LoginResult" || apiCall.result === "RegisterPlayFabUserResult") && !isInstance)
-        return tabbing + "var newContext = new PlayFabAuthenticationContext(); \n"
-            + tabbing + "PlayFabSettings.staticPlayer.PlayFabId = newContext.PlayFabId = result.PlayFabId; \n"
-            + tabbing + "PlayFabSettings.staticPlayer.ClientSessionTicket = newContext.ClientSessionTicket = result.SessionTicket; \n"
-            + tabbing + "PlayFabSettings.staticPlayer.EntityToken = newContext.EntityToken = result.EntityToken.EntityToken; \n"
-            + tabbing + "result.AuthenticationContext = newContext; \n"
-            + tabbing + "await MultiStepClientLogin(result.SettingsForUser.NeedsAttribution); \n";
+        return tabbing + "var newContext = new PlayFabAuthenticationContext();\n"
+            + tabbing + "PlayFabSettings.staticPlayer.PlayFabId = newContext.PlayFabId = result.PlayFabId;\n"
+            + tabbing + "PlayFabSettings.staticPlayer.ClientSessionTicket = newContext.ClientSessionTicket = result.SessionTicket;\n"
+            + tabbing + "PlayFabSettings.staticPlayer.EntityToken = newContext.EntityToken = result.EntityToken.EntityToken;\n"
+            + tabbing + "result.AuthenticationContext = newContext;\n"
+            + tabbing + "await MultiStepClientLogin(result.SettingsForUser.NeedsAttribution);\n";
     else if (apiCall.result === "AttributeInstallResult" && isInstance)
         return tabbing + "// Modify AdvertisingIdType:  Prevents us from sending the id multiple times, and allows automated tests to determine id was sent successfully\n"
             + tabbing + "if (apiSettings != null) apiSettings.AdvertisingIdType += \"_Successful\";\n";

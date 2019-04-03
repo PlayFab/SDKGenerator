@@ -102,7 +102,7 @@ namespace PlayFab.UUnit
 
         /// <summary>
         /// SERVER API
-        /// Each API instance can be used to login a player separately from any other API instances, 
+        /// Each API instance can be used to login a player separately from any other API instances,
         /// and that player's authentication context is stored in the API instance
         /// </summary>
         [UUnitTest]
@@ -176,7 +176,7 @@ namespace PlayFab.UUnit
         [UUnitTest]
         public void CheckWithAuthContextAndWithoutAuthContext(UUnitTestContext testContext)
         {
-            //IT will  use static developer key - Should has no error 
+            //IT will  use static developer key - Should has no error
             PlayFabServerInstanceAPI serverInstance1 = new PlayFabServerInstanceAPI();
             serverInstance1.GetAllSegments(new GetAllSegmentsRequest(), PlayFabUUnitUtils.ApiActionWrapper<GetAllSegmentsResult>(testContext, CheckWithAuthContextAndWithoutAuthContextSuccessCallBack), PlayFabUUnitUtils.ApiActionWrapper<PlayFabError>(testContext, SharedErrorCallback), testContext);
 
@@ -205,17 +205,17 @@ namespace PlayFab.UUnit
             {
                 testContext.EndTest(UUnitFinishState.PASSED, null);
             }
-           
-        }   
-		
-		/// <summary>
+
+        }
+
+        /// <summary>
         /// SERVER API
         /// Try to parallel request at same time
         /// </summary>
         [UUnitTest]
         public void ParallelRequest(UUnitTestContext testContext)
         {
-            
+
             PlayFabApiSettings settings = new PlayFabApiSettings();
             settings.TitleId = testTitleData.titleId;
 

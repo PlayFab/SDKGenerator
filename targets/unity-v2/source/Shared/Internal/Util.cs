@@ -70,7 +70,7 @@ namespace PlayFab.Internal
         private static StringBuilder _sb;
         /// <summary>
         /// A threadsafe way to block and load a text file
-        /// 
+        ///
         /// Load a text file, and return the file as text.
         /// Used for small (usually json) files.
         /// </summary>
@@ -80,7 +80,7 @@ namespace PlayFab.Internal
             {
                 return string.Empty;
             }
-                
+
             if (_sb == null)
             {
                 _sb = new StringBuilder();
@@ -97,7 +97,7 @@ namespace PlayFab.Internal
                     }
                 }
             }
-            
+
             return _sb.ToString();
         }
 
@@ -105,9 +105,9 @@ namespace PlayFab.Internal
         {
             try
             {
-                return (T) Enum.Parse(typeof(T), value);
+                return (T)Enum.Parse(typeof(T), value);
             }
-            catch (InvalidCastException castException)
+            catch (InvalidCastException)
             {
                 return defaultValue;
             }

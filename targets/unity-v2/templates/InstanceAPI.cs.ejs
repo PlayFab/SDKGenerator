@@ -16,17 +16,17 @@ namespace PlayFab
 
         public PlayFab<%- api.name %>InstanceAPI() {}
 
-        public PlayFab<%- api.name %>InstanceAPI(PlayFabApiSettings settings) 
+        public PlayFab<%- api.name %>InstanceAPI(PlayFabApiSettings settings)
         {
             ApiSettings = settings;
         }
 
-        public PlayFab<%- api.name %>InstanceAPI(PlayFabAuthenticationContext context) 
+        public PlayFab<%- api.name %>InstanceAPI(PlayFabAuthenticationContext context)
         {
             authenticationContext = context;
         }
 
-        public PlayFab<%- api.name %>InstanceAPI(PlayFabApiSettings settings, PlayFabAuthenticationContext context) 
+        public PlayFab<%- api.name %>InstanceAPI(PlayFabApiSettings settings, PlayFabAuthenticationContext context)
         {
             ApiSettings = settings;
             authenticationContext = context;
@@ -77,7 +77,7 @@ namespace PlayFab
         public void <%- apiCall.name %>(<%- apiCall.request %> request, Action<<%- apiCall.result %>> resultCallback, Action<PlayFabError> errorCallback, object customData = null, Dictionary<string, string> extraHeaders = null)
         {
 <%- getRequestActions("            ", apiCall, true) %>            PlayFabHttp.MakeApiCall("<%- apiCall.url %>", request, <%- getAuthParams(apiCall) %>, resultCallback, errorCallback, customData, extraHeaders, false, authenticationContext, ApiSettings);
-        }<%- getCustomApiFunction("        ", apiCall, true) %> 
+        }<%- getCustomApiFunction("        ", apiCall, true) %>
 <% }%>
     }
 }

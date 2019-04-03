@@ -17,6 +17,10 @@
 #define PLAYFAB_PLATFORM_LINUX
 #endif // __linux__
 
+#ifdef __APPLE__
+#define PLAYFAB_PLATFORM_IOS
+#endif // __APPLE__
+
 // Durango is also defined as _WIN32.
 // Hence to specify only Windows, we have check for ! _DURANGO.
 #if defined(_WIN32) && !defined(_DURANGO)

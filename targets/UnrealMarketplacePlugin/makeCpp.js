@@ -39,6 +39,7 @@ function makeApi(api, copyright, sourceDir, apiOutputDir, subdir) {
         generateApiSummary: generateApiSummary,
         getAuthParams: getAuthParams,
         getRequestActions: getRequestActions,
+        getCustomApiLogic: getCustomApiLogic,
         getResultActions: getResultActions,
         getUrlAccessor: getUrlAccessor,
         hasClientOptions: getAuthMechanisms([api]).includes("SessionTicket"),
@@ -658,6 +659,20 @@ function getRequestActions(tabbing, apiCall, isInstanceApi) {
             + tabbing + "    UE_LOG(LogPlayFabCpp, Error, TEXT(\"You must log in before calling this function\"));\n"
             + tabbing + "}\n";
     return "";
+}
+
+function getCustomApiLogic(tabbing, api, apiCall, isInstanceApi) {
+    if (apiCall.name === "ExecuteFunction")
+        return tabbing + "FString localApiServer = PlayFabSettings::GetLocalApiServer();\n"
+            + tabbing + "if (!localApiServer.IsEmpty())\n"
+            + tabbing + "{\n"
+            + tabbing + "    FString endpoint = TEXT(\"" + apiCall.url + "\");\n"
+            + tabbing + "    endpoint.RemoveFromStart(TEXT(\"/\"));\n"
+            + tabbing + "    FString url = localApiServer + endpoint;\n"
+            + tabbing + "    auto HttpRequest = PlayFabRequestHandler::SendRequest(url, request.toJSONString(), TEXT(\"X-EntityToken\"), !request.AuthenticationContext.IsValid() ? PlayFabSettings::GetEntityToken() : request.AuthenticationContext->GetEntityToken());\n"
+            + tabbing + "    HttpRequest->OnProcessRequestComplete().BindRaw(this, &UPlayFab" + api.name + (isInstanceApi ? "Instance" : "") + "API::On" + apiCall.name + "Result, SuccessDelegate, ErrorDelegate);\n"
+            + tabbing + "    return HttpRequest->ProcessRequest();\n"
+            + tabbing + "}\n"
 }
 
 function getResultActions(tabbing, apiCall, isInstanceApi) {

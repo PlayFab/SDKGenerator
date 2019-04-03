@@ -2,6 +2,7 @@
 
 #include "PlayFabSettings.h"
 #include "PlayFabCommon.h"
+#include "PlayFabUtilities.h"
 
 namespace PlayFab
 {
@@ -56,6 +57,10 @@ namespace PlayFab
     FString PlayFabSettings::GetUrl(const FString& callPath)
     {
         return IPlayFabCommonModuleInterface::Get().GetUrl(callPath);
+    }
+    FString PlayFabSettings::GetLocalApiServer()
+    {
+        return PlayFabUtilities::GetLocalSettingsFileProperty(TEXT("LocalApiServer"));
     }
 
     // Setters

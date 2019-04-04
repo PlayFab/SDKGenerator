@@ -38,7 +38,7 @@ public class PlayFabAuthServiceTests : UUnitTestCase
         var authService = new PlayFabAuthService();
         authService.OnPlayFabLink += (auth, error) =>
         {
-            if (error != null) testContext.EndTest(UUnitFinishState.PASSED, "Error handle as expected. " + error.ErrorMessage);
+            if (error != null) testContext.EndTest(UUnitFinishState.PASSED, "Error handle as expected. " + error.GenerateErrorReport());
             else testContext.Fail("Error expected.");
         };
         authService.Link(new AuthKeys {AuthType = AuthTypes.Facebook});
@@ -50,7 +50,7 @@ public class PlayFabAuthServiceTests : UUnitTestCase
         var authService = new PlayFabAuthService();
         authService.OnPlayFabUnlink += (auth, error) =>
         {
-            if (error != null) testContext.EndTest(UUnitFinishState.PASSED, "Error handle as expected. " + error.ErrorMessage);
+            if (error != null) testContext.EndTest(UUnitFinishState.PASSED, "Error handle as expected. " + error.GenerateErrorReport());
             else testContext.Fail("Error expected.");
         };
         authService.Unlink(new AuthKeys {AuthType = AuthTypes.Facebook});
@@ -69,9 +69,9 @@ public class PlayFabAuthServiceTests : UUnitTestCase
     [UUnitTest]
     public void EmailPasswordLoginSuccess(UUnitTestContext testContext)
     {
-        const string email = "LoginTes@gmail.com";
+        const string email = "LoginTest@gmail.com";
         const string password = "395847";
-        const string username = "LoginTes2";
+        const string username = "LoginTest";
 
         _emailAuthService = new PlayFabAuthService();
         _emailAuthService.Email = email;

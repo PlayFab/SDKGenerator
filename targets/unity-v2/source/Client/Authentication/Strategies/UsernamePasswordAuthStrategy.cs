@@ -53,7 +53,6 @@ namespace PlayFab.Authentication.Strategies
                             PlayFabId = registerSuccess.PlayFabId,
                             SessionTicket = registerSuccess.SessionTicket,
                             SettingsForUser = registerSuccess.SettingsForUser,
-                            InfoResultPayload = new GetPlayerCombinedInfoResultPayload(),
                             Request = registerSuccess.Request, 
                             LastLoginTime = DateTime.UtcNow
                         });

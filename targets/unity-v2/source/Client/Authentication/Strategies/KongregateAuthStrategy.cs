@@ -22,7 +22,6 @@ namespace PlayFab.Authentication.Strategies
 
             PlayFabClientAPI.LoginWithKongregate(new LoginWithKongregateRequest
             {
-                TitleId = PlayFabSettings.TitleId,
                 KongregateId = authKeys.AuthTicket,
                 InfoRequestParameters = authService.InfoRequestParams,
                 CreateAccount = true

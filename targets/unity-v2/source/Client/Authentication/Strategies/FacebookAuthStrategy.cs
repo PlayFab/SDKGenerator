@@ -22,7 +22,6 @@ namespace PlayFab.Authentication.Strategies
 
             PlayFabClientAPI.LoginWithFacebook(new LoginWithFacebookRequest
             {
-                TitleId = PlayFabSettings.TitleId,
                 AccessToken = authKeys.AuthTicket,
                 InfoRequestParameters = authService.InfoRequestParams,
                 CreateAccount = true

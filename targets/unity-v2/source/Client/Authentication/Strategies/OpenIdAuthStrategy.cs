@@ -22,7 +22,6 @@ namespace PlayFab.Authentication.Strategies
 
             PlayFabClientAPI.LoginWithOpenIdConnect(new LoginWithOpenIdConnectRequest
             {
-                TitleId = PlayFabSettings.TitleId,
                 ConnectionId = authKeys.OpenIdConnectionId,
                 IdToken = authKeys.AuthTicket,
                 InfoRequestParameters = authService.InfoRequestParams,

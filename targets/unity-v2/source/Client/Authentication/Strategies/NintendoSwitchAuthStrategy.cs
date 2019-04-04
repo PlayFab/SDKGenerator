@@ -16,7 +16,6 @@ namespace PlayFab.Authentication.Strategies
         {
             PlayFabClientAPI.LoginWithNintendoSwitchDeviceId(new LoginWithNintendoSwitchDeviceIdRequest
             {
-                TitleId = PlayFabSettings.TitleId,
                 NintendoSwitchDeviceId = PlayFabSettings.DeviceUniqueIdentifier,
                 InfoRequestParameters = authService.InfoRequestParams,
                 CreateAccount = true

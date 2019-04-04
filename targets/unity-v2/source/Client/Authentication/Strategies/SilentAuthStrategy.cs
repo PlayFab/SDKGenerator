@@ -17,7 +17,6 @@ namespace PlayFab.Authentication.Strategies
 #if UNITY_ANDROID && !UNITY_EDITOR
             PlayFabClientAPI.LoginWithAndroidDeviceID(new LoginWithAndroidDeviceIDRequest
             {
-                TitleId = PlayFabSettings.TitleId,
                 AndroidDevice = SystemInfo.deviceModel,
                 OS = SystemInfo.operatingSystem,
                 AndroidDeviceId = PlayFabSettings.DeviceUniqueIdentifier,
@@ -27,7 +26,6 @@ namespace PlayFab.Authentication.Strategies
 #elif UNITY_IPHONE || UNITY_IOS && !UNITY_EDITOR
             PlayFabClientAPI.LoginWithIOSDeviceID(new LoginWithIOSDeviceIDRequest
             {
-                TitleId = PlayFabSettings.TitleId,
                 DeviceModel = SystemInfo.deviceModel,
                 OS = SystemInfo.operatingSystem,
                 DeviceId = PlayFabSettings.DeviceUniqueIdentifier,
@@ -37,7 +35,6 @@ namespace PlayFab.Authentication.Strategies
 #else
             PlayFabClientAPI.LoginWithCustomID(new LoginWithCustomIDRequest
             {
-                TitleId = PlayFabSettings.TitleId,
                 CustomId = authService.GetOrCreateRememberMeId(),
                 CreateAccount = true,
                 InfoRequestParameters = authService.InfoRequestParams

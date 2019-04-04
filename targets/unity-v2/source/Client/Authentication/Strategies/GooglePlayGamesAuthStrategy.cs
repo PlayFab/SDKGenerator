@@ -22,7 +22,6 @@ namespace PlayFab.Authentication.Strategies
 
             PlayFabClientAPI.LoginWithGoogleAccount(new LoginWithGoogleAccountRequest
             {
-                TitleId = PlayFabSettings.TitleId,
                 ServerAuthCode = authKeys.AuthTicket,
                 InfoRequestParameters = authService.InfoRequestParams,
                 CreateAccount = true

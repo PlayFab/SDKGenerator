@@ -22,7 +22,6 @@ namespace PlayFab.Authentication.Strategies
 
             PlayFabClientAPI.LoginWithSteam(new LoginWithSteamRequest
             {
-                TitleId = PlayFabSettings.TitleId,
                 SteamTicket = authKeys.AuthTicket,
                 InfoRequestParameters = authService.InfoRequestParams,
                 CreateAccount = true

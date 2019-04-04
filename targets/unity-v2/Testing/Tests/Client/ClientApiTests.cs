@@ -76,7 +76,6 @@ namespace PlayFab.UUnit
             // If the setup failed to log in a user, we need to create one.
             var request = new LoginWithEmailAddressRequest
             {
-                TitleId = PlayFabSettings.TitleId,
                 Email = _userEmail,
                 Password = "INVALID",
             };

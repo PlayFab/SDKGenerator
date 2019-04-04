@@ -22,7 +22,6 @@ namespace PlayFab.Authentication.Strategies
 
             PlayFabClientAPI.LoginWithWindowsHello(new LoginWithWindowsHelloRequest
             {
-                TitleId = PlayFabSettings.TitleId,
                 ChallengeSignature = authKeys.WindowsHelloChallengeSignature,
                 PublicKeyHint = authKeys.WindowsHelloPublicKeyHint,
                 InfoRequestParameters = authService.InfoRequestParams

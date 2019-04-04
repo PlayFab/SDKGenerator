@@ -22,7 +22,6 @@ namespace PlayFab.Authentication.Strategies
 
             PlayFabClientAPI.LoginWithFacebookInstantGamesId(new LoginWithFacebookInstantGamesIdRequest
             {
-                TitleId = PlayFabSettings.TitleId,
                 FacebookInstantGamesSignature = authKeys.AuthTicket,
                 InfoRequestParameters = authService.InfoRequestParams,
                 CreateAccount = true

@@ -24,7 +24,6 @@ namespace PlayFab.Authentication.Strategies
             // We have not opted for remember me in a previous session, so now we have to login the user with email & password.
             PlayFabClientAPI.LoginWithEmailAddress(new LoginWithEmailAddressRequest
             {
-                TitleId = PlayFabSettings.TitleId,
                 Email = authService.Email,
                 Password = authService.Password,
                 InfoRequestParameters = authService.InfoRequestParams

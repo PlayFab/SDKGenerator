@@ -22,7 +22,6 @@ namespace PlayFab.Authentication.Strategies
 
             PlayFabClientAPI.LoginWithPSN(new LoginWithPSNRequest
             {
-                TitleId = PlayFabSettings.TitleId,
                 AuthCode = authKeys.AuthTicket,
                 InfoRequestParameters = authService.InfoRequestParams,
                 CreateAccount = true

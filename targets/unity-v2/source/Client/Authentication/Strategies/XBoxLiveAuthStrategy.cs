@@ -22,7 +22,6 @@ namespace PlayFab.Authentication.Strategies
 
             PlayFabClientAPI.LoginWithXbox(new LoginWithXboxRequest
             {
-                TitleId = PlayFabSettings.TitleId,
                 XboxToken = authKeys.AuthTicket,
                 InfoRequestParameters = authService.InfoRequestParams,
                 CreateAccount = true

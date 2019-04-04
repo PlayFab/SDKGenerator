@@ -172,7 +172,6 @@ namespace PlayFab
             {
                 PlayFabClientAPI.LoginWithCustomID(new LoginWithCustomIDRequest
                 {
-                    TitleId = PlayFabSettings.TitleId,
                     CustomId = RememberMeId,
                     InfoRequestParameters = InfoRequestParams,
                     CreateAccount = true

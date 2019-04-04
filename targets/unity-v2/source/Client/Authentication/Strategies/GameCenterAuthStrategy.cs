@@ -22,7 +22,6 @@ namespace PlayFab.Authentication.Strategies
 
             PlayFabClientAPI.LoginWithGameCenter(new LoginWithGameCenterRequest
             {
-                TitleId = PlayFabSettings.TitleId,
                 Signature = authKeys.AuthTicket,
                 InfoRequestParameters = authService.InfoRequestParams,
                 CreateAccount = true

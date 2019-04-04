@@ -58,7 +58,7 @@ namespace PlayFab.Internal
             www.chunkedTransfer = false;
             yield return www.SendWebRequest();
 #else
-            yield return webRequest.Send();
+            yield return www.Send();
 #endif
 
             using (www)

@@ -235,6 +235,16 @@ namespace PlayFab
 
         public void Link(AuthKeys authKeys)
         {
+            if (!IsClientLoggedIn())
+            {
+                InvokeLink(authKeys.AuthType, new PlayFabError
+                {
+                    Error = PlayFabErrorCode.NotAuthorized,
+                    ErrorMessage = "You must authenticate user before call this method."
+                });
+                return;
+            }
+
             var auth = _authStrategies[authKeys.AuthType];
 
             if (auth == null)
@@ -248,6 +258,16 @@ namespace PlayFab
 
         public void Unlink(AuthKeys authKeys)
         {
+            if (!IsClientLoggedIn())
+            {
+                InvokeUnlink(authKeys.AuthType, new PlayFabError
+                {
+                    Error = PlayFabErrorCode.NotAuthorized,
+                    ErrorMessage = "You must authenticate user before call this method."
+                });
+                return;
+            }
+            
             var auth = _authStrategies[authKeys.AuthType];
 
             if (auth == null)

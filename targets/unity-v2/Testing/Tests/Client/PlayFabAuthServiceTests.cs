@@ -14,11 +14,64 @@ public class PlayFabAuthServiceTests : UUnitTestCase
     private PlayFabAuthService _emailAuthService;
 
     [UUnitTest]
-    public void EmailPasswordLoginTest(UUnitTestContext testContext)
+    public void InvalidEmailPasswordLogin(UUnitTestContext testContext)
     {
-        const string email = "LoginTest@gmail.com";
+        const string password = "1";
+        const string username = "1";
+        const string email = "LoginTest.com";
+        
+        var authService = new PlayFabAuthService();
+        authService.Password = password;
+        authService.Username = username;
+        authService.Email = email;
+
+        authService.OnLoginSuccess += success => testContext.Fail("Login fail expected.");
+        authService.OnPlayFabError += error => testContext.EndTest(UUnitFinishState.PASSED, "Error handle as expected.");
+        authService.OnDisplayAuthentication += () => testContext.Fail("Failed with unknown error.");
+        
+        authService.Authenticate(AuthTypes.UsernamePassword);
+    }
+
+    [UUnitTest]
+    public void InvalidLink(UUnitTestContext testContext)
+    {
+        var authService = new PlayFabAuthService();
+        authService.OnPlayFabLink += (auth, error) =>
+        {
+            if (error != null) testContext.EndTest(UUnitFinishState.PASSED, "Error handle as expected. " + error.ErrorMessage);
+            else testContext.Fail("Error expected.");
+        };
+        authService.Link(new AuthKeys {AuthType = AuthTypes.Facebook});
+    }
+    
+    [UUnitTest]
+    public void InvalidUnlink(UUnitTestContext testContext)
+    {
+        var authService = new PlayFabAuthService();
+        authService.OnPlayFabUnlink += (auth, error) =>
+        {
+            if (error != null) testContext.EndTest(UUnitFinishState.PASSED, "Error handle as expected. " + error.ErrorMessage);
+            else testContext.Fail("Error expected.");
+        };
+        authService.Unlink(new AuthKeys {AuthType = AuthTypes.Facebook});
+    }
+
+    [UUnitTest]
+    public void InvalidServiceSetup(UUnitTestContext testContext)
+    {
+        var authService = new PlayFabAuthService();
+        authService.OnDisplayAuthentication += () => testContext.EndTest(UUnitFinishState.PASSED, "Invoke display as expected.");
+        authService.OnLoginSuccess += success => testContext.Fail("Invoke display expected.");
+        authService.OnPlayFabError += error => testContext.EndTest(UUnitFinishState.PASSED, "Error is not expected.");
+        authService.Authenticate(AuthTypes.UsernamePassword);
+    }
+
+    [UUnitTest]
+    public void EmailPasswordLoginSuccess(UUnitTestContext testContext)
+    {
+        const string email = "LoginTes@gmail.com";
         const string password = "395847";
-        const string username = "LoginTest";
+        const string username = "LoginTes2";
 
         _emailAuthService = new PlayFabAuthService();
         _emailAuthService.Email = email;
@@ -43,7 +96,7 @@ public class PlayFabAuthServiceTests : UUnitTestCase
     }
 
     [UUnitTest]
-    public void LinkDeviceToAccount(UUnitTestContext testContext)
+    public void LinkDeviceToAccountSuccess(UUnitTestContext testContext)
     {
         _emailAuthService.ForceLink = true;
         _emailAuthService.OnPlayFabLink += (auth, error) =>

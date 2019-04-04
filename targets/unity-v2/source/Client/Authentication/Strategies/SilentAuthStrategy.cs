@@ -5,14 +5,14 @@ using PlayFab.ClientModels;
 
 namespace PlayFab.Authentication.Strategies
 {
-    internal class SilentAuthStrategy : IAuthenticationStrategy
+    internal sealed class SilentAuthStrategy : IAuthenticationStrategy
     {
-        public virtual AuthTypes AuthType
+        public AuthTypes AuthType
         {
             get { return AuthTypes.Silent; }
         }
 
-        public virtual void Authenticate(PlayFabAuthService authService, Action<LoginResult> resultCallback, Action<PlayFabError> errorCallback, AuthKeys authKeys)
+        public void Authenticate(PlayFabAuthService authService, Action<LoginResult> resultCallback, Action<PlayFabError> errorCallback, AuthKeys authKeys)
         {
 #if UNITY_ANDROID && !UNITY_EDITOR
             PlayFabClientAPI.LoginWithAndroidDeviceID(new LoginWithAndroidDeviceIDRequest
@@ -42,7 +42,7 @@ namespace PlayFab.Authentication.Strategies
 #endif
         }
 
-        public virtual void Link(PlayFabAuthService authService, AuthKeys authKeys)
+        public void Link(PlayFabAuthService authService, AuthKeys authKeys)
         {
             Authenticate(authService, resultCallback =>
             {
@@ -96,7 +96,7 @@ namespace PlayFab.Authentication.Strategies
             }, authKeys);
         }
 
-        public virtual void Unlink(PlayFabAuthService authService, AuthKeys authKeys)
+        public void Unlink(PlayFabAuthService authService, AuthKeys authKeys)
         {
             Authenticate(authService, resultCallback =>
             {

@@ -4,7 +4,7 @@
 // CollectionDebuggerView.cs
 //
 // Authors:
-//	Marek Safar  <marek.safar@gmail.com>
+//    Marek Safar  <marek.safar@gmail.com>
 //
 // Copyright (C) 2009 Novell, Inc (http://www.novell.com)
 //
@@ -32,46 +32,46 @@ using System.Diagnostics;
 
 namespace System.Collections.Generic
 {
-	//
-	// Custom debugger type proxy to display collections as arrays
-	//
-	internal sealed class CollectionDebuggerView<T>
-	{
-		readonly ICollection<T> c;
+    //
+    // Custom debugger type proxy to display collections as arrays
+    //
+    internal sealed class CollectionDebuggerView<T>
+    {
+        readonly ICollection<T> c;
 
-		public CollectionDebuggerView (ICollection<T> col)
-		{
-			this.c = col;
-		}
-		
-		[DebuggerBrowsable(DebuggerBrowsableState.RootHidden)]
-		public T[] Items {
-			get {
-				var o = new T [c.Count];
-				c.CopyTo (o, 0);
-				return o;
-			}
-		}
-	}
-	
-	internal sealed class CollectionDebuggerView<T, U>
-	{
-		readonly ICollection<KeyValuePair<T, U>> c;
+        public CollectionDebuggerView (ICollection<T> col)
+        {
+            this.c = col;
+        }
+        
+        [DebuggerBrowsable(DebuggerBrowsableState.RootHidden)]
+        public T[] Items {
+            get {
+                var o = new T [c.Count];
+                c.CopyTo (o, 0);
+                return o;
+            }
+        }
+    }
+    
+    internal sealed class CollectionDebuggerView<T, U>
+    {
+        readonly ICollection<KeyValuePair<T, U>> c;
 
-		public CollectionDebuggerView (ICollection<KeyValuePair<T, U>> col)
-		{
-			this.c = col;
-		}
+        public CollectionDebuggerView (ICollection<KeyValuePair<T, U>> col)
+        {
+            this.c = col;
+        }
 
-		[DebuggerBrowsable (DebuggerBrowsableState.RootHidden)]
-		public KeyValuePair<T, U>[] Items {
-			get {
-				var o = new KeyValuePair<T, U> [c.Count];
-				c.CopyTo (o, 0);
-				return o;
-			}
-		}
-	}	
+        [DebuggerBrowsable (DebuggerBrowsableState.RootHidden)]
+        public KeyValuePair<T, U>[] Items {
+            get {
+                var o = new KeyValuePair<T, U> [c.Count];
+                c.CopyTo (o, 0);
+                return o;
+            }
+        }
+    }    
 }
 
 #endif

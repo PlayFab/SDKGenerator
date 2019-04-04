@@ -30,52 +30,52 @@ using System;
 
 namespace System.Threading
 {
-	public struct CancellationTokenRegistration: IDisposable, IEquatable<CancellationTokenRegistration>
-	{
-		readonly int id;
-		readonly CancellationTokenSource source;
-		
-		internal CancellationTokenRegistration (int id, CancellationTokenSource source)
-		{
-			this.id = id;
-			this.source = source;
-		}
+    public struct CancellationTokenRegistration: IDisposable, IEquatable<CancellationTokenRegistration>
+    {
+        readonly int id;
+        readonly CancellationTokenSource source;
+        
+        internal CancellationTokenRegistration (int id, CancellationTokenSource source)
+        {
+            this.id = id;
+            this.source = source;
+        }
 
-		#region IDisposable implementation
-		public void Dispose ()
-		{
-			if (source != null)
-				source.RemoveCallback (this);
-		}
-		#endregion
+        #region IDisposable implementation
+        public void Dispose ()
+        {
+            if (source != null)
+                source.RemoveCallback (this);
+        }
+        #endregion
 
-		#region IEquatable<CancellationTokenRegistration> implementation
-		public bool Equals (CancellationTokenRegistration other)
-		{
-			return id == other.id && source == other.source;
-		}
-		
-		public static bool operator== (CancellationTokenRegistration left, CancellationTokenRegistration right)
-		{
-			return left.Equals (right);
-		}
-		
-		public static bool operator!= (CancellationTokenRegistration left, CancellationTokenRegistration right)
-		{
-			return !left.Equals (right);
-		}
-		#endregion
-		
-		public override int GetHashCode ()
-		{
-			return id.GetHashCode () ^ (source == null ? 0 : source.GetHashCode ());
-		}
+        #region IEquatable<CancellationTokenRegistration> implementation
+        public bool Equals (CancellationTokenRegistration other)
+        {
+            return id == other.id && source == other.source;
+        }
+        
+        public static bool operator== (CancellationTokenRegistration left, CancellationTokenRegistration right)
+        {
+            return left.Equals (right);
+        }
+        
+        public static bool operator!= (CancellationTokenRegistration left, CancellationTokenRegistration right)
+        {
+            return !left.Equals (right);
+        }
+        #endregion
+        
+        public override int GetHashCode ()
+        {
+            return id.GetHashCode () ^ (source == null ? 0 : source.GetHashCode ());
+        }
 
-		public override bool Equals (object obj)
-		{
-			return (obj is CancellationTokenRegistration) && Equals ((CancellationTokenRegistration)obj);
-		}
-	}
+        public override bool Equals (object obj)
+        {
+            return (obj is CancellationTokenRegistration) && Equals ((CancellationTokenRegistration)obj);
+        }
+    }
 }
 
 #endif

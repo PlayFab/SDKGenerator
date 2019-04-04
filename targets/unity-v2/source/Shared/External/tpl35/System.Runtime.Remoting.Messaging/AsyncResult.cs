@@ -39,149 +39,149 @@ using System.Runtime.InteropServices;
 
 namespace System.Runtime.Remoting.Messaging {
 
-	[ComVisible (true)]
-	[StructLayout (LayoutKind.Sequential)]
-	internal class AsyncResult : IAsyncResult, IMessageSink {
+    [ComVisible (true)]
+    [StructLayout (LayoutKind.Sequential)]
+    internal class AsyncResult : IAsyncResult, IMessageSink {
 
 #pragma warning disable 169, 414, 649
-		object async_state;
-		WaitHandle handle;
-		object async_delegate;
-		IntPtr data;
-		object object_data;
-		bool sync_completed;
-		bool completed;
-		bool endinvoke_called;
-		object async_callback;
-		ExecutionContext current;
-		ExecutionContext original;
-		long add_time;
+        object async_state;
+        WaitHandle handle;
+        object async_delegate;
+        IntPtr data;
+        object object_data;
+        bool sync_completed;
+        bool completed;
+        bool endinvoke_called;
+        object async_callback;
+        ExecutionContext current;
+        ExecutionContext original;
+        long add_time;
 #pragma warning restore 169, 414, 649
 
-		// not part of MonoAsyncResult...
-		//MonoMethodMessage call_message;
+        // not part of MonoAsyncResult...
+        //MonoMethodMessage call_message;
 #pragma warning disable 0414
-		IMessageCtrl message_ctrl;
+        IMessageCtrl message_ctrl;
 #pragma warning restore
-		IMessage reply_message;
-	
-		internal AsyncResult ()
-		{
-		}
+        IMessage reply_message;
+    
+        internal AsyncResult ()
+        {
+        }
 
-		internal AsyncResult (WaitCallback cb, object state, bool capture_context)
-		{
-			async_state = state;
-			async_delegate = cb;
-			if (capture_context)
-				current = ExecutionContext.Capture ();
-		}
+        internal AsyncResult (WaitCallback cb, object state, bool capture_context)
+        {
+            async_state = state;
+            async_delegate = cb;
+            if (capture_context)
+                current = ExecutionContext.Capture ();
+        }
 
-		public virtual object AsyncState
-		{
-			get {
-				return async_state;
-			}
-		}
+        public virtual object AsyncState
+        {
+            get {
+                return async_state;
+            }
+        }
 
-		public virtual WaitHandle AsyncWaitHandle {
-			get {
-				lock (this) {
-					if (handle == null)
-						handle = new ManualResetEvent (completed);
+        public virtual WaitHandle AsyncWaitHandle {
+            get {
+                lock (this) {
+                    if (handle == null)
+                        handle = new ManualResetEvent (completed);
 
-					return handle;
-				}
-			}
-		}
+                    return handle;
+                }
+            }
+        }
 
-		public virtual bool CompletedSynchronously
-		{
-			get {
-				return sync_completed;
-			}
-		}
+        public virtual bool CompletedSynchronously
+        {
+            get {
+                return sync_completed;
+            }
+        }
 
-		public virtual bool IsCompleted
-		{
-			get {
-				return completed;
-			}
-		}
-		
-		public bool EndInvokeCalled
-		{
-			get {
-				return endinvoke_called;
-			}
-			set {
-				endinvoke_called = value;
-			}
-		}
-		
-		public virtual object AsyncDelegate
-		{
-			get {
-				return async_delegate;
-			}
-		}
+        public virtual bool IsCompleted
+        {
+            get {
+                return completed;
+            }
+        }
+        
+        public bool EndInvokeCalled
+        {
+            get {
+                return endinvoke_called;
+            }
+            set {
+                endinvoke_called = value;
+            }
+        }
+        
+        public virtual object AsyncDelegate
+        {
+            get {
+                return async_delegate;
+            }
+        }
 
-		public IMessageSink NextSink {
-			get {
-				return null;
-			}
-		}
+        public IMessageSink NextSink {
+            get {
+                return null;
+            }
+        }
 
-		public virtual IMessageCtrl AsyncProcessMessage (IMessage msg, IMessageSink replySink)
-		{
-			// Never called
-			throw new NotSupportedException ();
-		}
+        public virtual IMessageCtrl AsyncProcessMessage (IMessage msg, IMessageSink replySink)
+        {
+            // Never called
+            throw new NotSupportedException ();
+        }
 
-		public virtual IMessage GetReplyMessage()
-		{
-			return reply_message;
-		}
+        public virtual IMessage GetReplyMessage()
+        {
+            return reply_message;
+        }
 
-		public virtual void SetMessageCtrl (IMessageCtrl mc)
-		{
-			message_ctrl = mc;
-		}
+        public virtual void SetMessageCtrl (IMessageCtrl mc)
+        {
+            message_ctrl = mc;
+        }
 
-		internal void SetCompletedSynchronously (bool completed)
-		{
-			sync_completed = completed;
-		}
+        internal void SetCompletedSynchronously (bool completed)
+        {
+            sync_completed = completed;
+        }
 
-		internal IMessage EndInvoke ()
-		{
-			lock (this) {
-				if (completed)
-					return reply_message;
-			}
+        internal IMessage EndInvoke ()
+        {
+            lock (this) {
+                if (completed)
+                    return reply_message;
+            }
 
-			AsyncWaitHandle.WaitOne ();
-			return reply_message;
-		}
+            AsyncWaitHandle.WaitOne ();
+            return reply_message;
+        }
 
-		public virtual IMessage SyncProcessMessage (IMessage msg)
-		{
-			reply_message = msg;
+        public virtual IMessage SyncProcessMessage (IMessage msg)
+        {
+            reply_message = msg;
 
-			lock (this) {
-				completed = true;
-				if (handle != null)
-					((ManualResetEvent) AsyncWaitHandle).Set ();
-			}
-		
-			if (async_callback != null) {
-				AsyncCallback ac = (AsyncCallback) async_callback;
-				ac (this);
-			}
+            lock (this) {
+                completed = true;
+                if (handle != null)
+                    ((ManualResetEvent) AsyncWaitHandle).Set ();
+            }
+        
+            if (async_callback != null) {
+                AsyncCallback ac = (AsyncCallback) async_callback;
+                ac (this);
+            }
 
-			return null;
-		}
-	}
+            return null;
+        }
+    }
 }
 
 #endif

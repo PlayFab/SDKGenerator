@@ -4,7 +4,7 @@
 // ICriticalNotifyCompletion.cs
 //
 // Authors:
-//	Marek Safar  <marek.safar@gmail.com>
+//    Marek Safar  <marek.safar@gmail.com>
 //
 // Copyright (C) 2012 Xamarin, Inc (http://www.xamarin.com)
 //
@@ -30,10 +30,10 @@
 
 namespace System.Runtime.CompilerServices
 {
-	public interface ICriticalNotifyCompletion : INotifyCompletion
-	{
-		void UnsafeOnCompleted (Action continuation);
-	}
+    public interface ICriticalNotifyCompletion : INotifyCompletion
+    {
+        void UnsafeOnCompleted (Action continuation);
+    }
 }
 
 #endif

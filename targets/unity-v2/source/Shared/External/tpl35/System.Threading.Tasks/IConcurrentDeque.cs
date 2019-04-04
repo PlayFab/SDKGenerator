@@ -30,13 +30,13 @@ using System.Collections.Generic;
 
 namespace System.Threading.Tasks
 {
-	interface IConcurrentDeque<T>
-	{
-		void PushBottom (T obj);
-		PopResult PopBottom (out T obj);
-		PopResult PopTop (out T obj);
-		IEnumerable<T> GetEnumerable ();
-	}
+    interface IConcurrentDeque<T>
+    {
+        void PushBottom (T obj);
+        PopResult PopBottom (out T obj);
+        PopResult PopTop (out T obj);
+        IEnumerable<T> GetEnumerable ();
+    }
 }
 
 #endif

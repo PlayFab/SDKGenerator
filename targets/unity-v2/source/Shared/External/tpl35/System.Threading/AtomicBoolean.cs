@@ -26,151 +26,151 @@
 
 namespace System.Threading
 {
-	struct AtomicBooleanValue
-	{
-		int flag;
-		const int UnSet = 0;
-		const int Set = 1;
+    struct AtomicBooleanValue
+    {
+        int flag;
+        const int UnSet = 0;
+        const int Set = 1;
 
-		public bool CompareAndExchange (bool expected, bool newVal)
-		{
-			int newTemp = newVal ? Set : UnSet;
-			int expectedTemp = expected ? Set : UnSet;
+        public bool CompareAndExchange (bool expected, bool newVal)
+        {
+            int newTemp = newVal ? Set : UnSet;
+            int expectedTemp = expected ? Set : UnSet;
 
-			return CustomInterlocked.CompareExchange (ref flag, newTemp, expectedTemp) == expectedTemp;
-		}
+            return CustomInterlocked.CompareExchange (ref flag, newTemp, expectedTemp) == expectedTemp;
+        }
 
-		public static AtomicBooleanValue FromValue (bool value)
-		{
-			AtomicBooleanValue temp = new AtomicBooleanValue ();
-			temp.Value = value;
+        public static AtomicBooleanValue FromValue (bool value)
+        {
+            AtomicBooleanValue temp = new AtomicBooleanValue ();
+            temp.Value = value;
 
-			return temp;
-		}
+            return temp;
+        }
 
-		public bool TrySet ()
-		{
-			return !Exchange (true);
-		}
+        public bool TrySet ()
+        {
+            return !Exchange (true);
+        }
 
-		public bool TryRelaxedSet ()
-		{
-			return flag == UnSet && !Exchange (true);
-		}
+        public bool TryRelaxedSet ()
+        {
+            return flag == UnSet && !Exchange (true);
+        }
 
-		public bool Exchange (bool newVal)
-		{
-			int newTemp = newVal ? Set : UnSet;
-			return CustomInterlocked.Exchange (ref flag, newTemp) == Set;
-		}
+        public bool Exchange (bool newVal)
+        {
+            int newTemp = newVal ? Set : UnSet;
+            return CustomInterlocked.Exchange (ref flag, newTemp) == Set;
+        }
 
-		public bool Value {
-			get {
-				return flag == Set;
-			}
-			set {
-				Exchange (value);
-			}
-		}
+        public bool Value {
+            get {
+                return flag == Set;
+            }
+            set {
+                Exchange (value);
+            }
+        }
 
-		public bool Equals (AtomicBooleanValue rhs)
-		{
-			return this.flag == rhs.flag;
-		}
+        public bool Equals (AtomicBooleanValue rhs)
+        {
+            return this.flag == rhs.flag;
+        }
 
-		public override bool Equals (object rhs)
-		{
-			return rhs is AtomicBooleanValue ? Equals ((AtomicBooleanValue)rhs) : false;
-		}
+        public override bool Equals (object rhs)
+        {
+            return rhs is AtomicBooleanValue ? Equals ((AtomicBooleanValue)rhs) : false;
+        }
 
-		public override int GetHashCode ()
-		{
-			return flag.GetHashCode ();
-		}
+        public override int GetHashCode ()
+        {
+            return flag.GetHashCode ();
+        }
 
-		public static explicit operator bool (AtomicBooleanValue rhs)
-		{
-			return rhs.Value;
-		}
+        public static explicit operator bool (AtomicBooleanValue rhs)
+        {
+            return rhs.Value;
+        }
 
-		public static implicit operator AtomicBooleanValue (bool rhs)
-		{
-			return FromValue (rhs);
-		}
-	}
+        public static implicit operator AtomicBooleanValue (bool rhs)
+        {
+            return FromValue (rhs);
+        }
+    }
         
-	class AtomicBoolean
-	{
-		int flag;
-		const int UnSet = 0;
-		const int Set = 1;
+    class AtomicBoolean
+    {
+        int flag;
+        const int UnSet = 0;
+        const int Set = 1;
 
-		public bool CompareAndExchange (bool expected, bool newVal)
-		{
-			int newTemp = newVal ? Set : UnSet;
-			int expectedTemp = expected ? Set : UnSet;
+        public bool CompareAndExchange (bool expected, bool newVal)
+        {
+            int newTemp = newVal ? Set : UnSet;
+            int expectedTemp = expected ? Set : UnSet;
 
-			return CustomInterlocked.CompareExchange (ref flag, newTemp, expectedTemp) == expectedTemp;
-		}
+            return CustomInterlocked.CompareExchange (ref flag, newTemp, expectedTemp) == expectedTemp;
+        }
 
-		public static AtomicBoolean FromValue (bool value)
-		{
-			AtomicBoolean temp = new AtomicBoolean ();
-			temp.Value = value;
+        public static AtomicBoolean FromValue (bool value)
+        {
+            AtomicBoolean temp = new AtomicBoolean ();
+            temp.Value = value;
 
-			return temp;
-		}
+            return temp;
+        }
 
-		public bool TrySet ()
-		{
-			return !Exchange (true);
-		}
+        public bool TrySet ()
+        {
+            return !Exchange (true);
+        }
 
-		public bool TryRelaxedSet ()
-		{
-			return flag == UnSet && !Exchange (true);
-		}
+        public bool TryRelaxedSet ()
+        {
+            return flag == UnSet && !Exchange (true);
+        }
 
-		public bool Exchange (bool newVal)
-		{
-			int newTemp = newVal ? Set : UnSet;
-			return CustomInterlocked.Exchange (ref flag, newTemp) == Set;
-		}
+        public bool Exchange (bool newVal)
+        {
+            int newTemp = newVal ? Set : UnSet;
+            return CustomInterlocked.Exchange (ref flag, newTemp) == Set;
+        }
 
-		public bool Value {
-			get {
-				return flag == Set;
-			}
-			set {
-				Exchange (value);
-			}
-		}
+        public bool Value {
+            get {
+                return flag == Set;
+            }
+            set {
+                Exchange (value);
+            }
+        }
 
-		public bool Equals (AtomicBoolean rhs)
-		{
-			return this.flag == rhs.flag;
-		}
+        public bool Equals (AtomicBoolean rhs)
+        {
+            return this.flag == rhs.flag;
+        }
 
-		public override bool Equals (object rhs)
-		{
-			return rhs is AtomicBoolean ? Equals ((AtomicBoolean)rhs) : false;
-		}
+        public override bool Equals (object rhs)
+        {
+            return rhs is AtomicBoolean ? Equals ((AtomicBoolean)rhs) : false;
+        }
 
-		public override int GetHashCode ()
-		{
-			return flag.GetHashCode ();
-		}
+        public override int GetHashCode ()
+        {
+            return flag.GetHashCode ();
+        }
 
-		public static explicit operator bool (AtomicBoolean rhs)
-		{
-			return rhs.Value;
-		}
+        public static explicit operator bool (AtomicBoolean rhs)
+        {
+            return rhs.Value;
+        }
 
-		public static implicit operator AtomicBoolean (bool rhs)
-		{
-			return FromValue (rhs);
-		}
-	}
+        public static implicit operator AtomicBoolean (bool rhs)
+        {
+            return FromValue (rhs);
+        }
+    }
 }
 
 #endif

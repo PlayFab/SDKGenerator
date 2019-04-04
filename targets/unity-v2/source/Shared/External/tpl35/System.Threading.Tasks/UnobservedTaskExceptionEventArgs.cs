@@ -30,33 +30,33 @@ using System;
 
 namespace System.Threading.Tasks
 {
-	public class UnobservedTaskExceptionEventArgs : EventArgs
-	{
-		AggregateException exception;
-		bool wasObserved;
-		
-		public UnobservedTaskExceptionEventArgs (AggregateException exception)
-		{
-			this.exception = exception;
-		}
-		
-		public AggregateException Exception {
-			get {
-				return exception;
-			}
-		}
-		
-		public bool Observed {
-			get {
-				return wasObserved;
-			}
-		}
-		
-		public void SetObserved ()
-		{
-			wasObserved = true;
-		}
-	}
+    public class UnobservedTaskExceptionEventArgs : EventArgs
+    {
+        AggregateException exception;
+        bool wasObserved;
+        
+        public UnobservedTaskExceptionEventArgs (AggregateException exception)
+        {
+            this.exception = exception;
+        }
+        
+        public AggregateException Exception {
+            get {
+                return exception;
+            }
+        }
+        
+        public bool Observed {
+            get {
+                return wasObserved;
+            }
+        }
+        
+        public void SetObserved ()
+        {
+            wasObserved = true;
+        }
+    }
 }
 
 #endif

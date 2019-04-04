@@ -32,48 +32,48 @@ using System.Threading;
 
 namespace System.Threading.Tasks
 {
-	sealed class SynchronizationContextScheduler : TaskScheduler
-	{
-		readonly SynchronizationContext ctx;
-		readonly SendOrPostCallback callback;
+    sealed class SynchronizationContextScheduler : TaskScheduler
+    {
+        readonly SynchronizationContext ctx;
+        readonly SendOrPostCallback callback;
 
-		public SynchronizationContextScheduler (SynchronizationContext ctx)
-		{
-			this.ctx = ctx;
-			this.callback = TaskLaunchWrapper;
-		}
+        public SynchronizationContextScheduler (SynchronizationContext ctx)
+        {
+            this.ctx = ctx;
+            this.callback = TaskLaunchWrapper;
+        }
 
-		protected internal override void QueueTask (Task task)
-		{
-			ctx.Post (callback, task);
-		}
+        protected internal override void QueueTask (Task task)
+        {
+            ctx.Post (callback, task);
+        }
 
-		void TaskLaunchWrapper (object obj)
-		{
-			TryExecuteTask ((Task)obj);
-		}
+        void TaskLaunchWrapper (object obj)
+        {
+            TryExecuteTask ((Task)obj);
+        }
 
-		protected override IEnumerable<Task> GetScheduledTasks ()
-		{
-			throw new NotImplementedException();
-		}
+        protected override IEnumerable<Task> GetScheduledTasks ()
+        {
+            throw new NotImplementedException();
+        }
 
-		protected internal override bool TryDequeue (Task task)
-		{
-			return false;
-		}
+        protected internal override bool TryDequeue (Task task)
+        {
+            return false;
+        }
 
-		protected override bool TryExecuteTaskInline (Task task, bool taskWasPreviouslyQueued)
-		{
-			return ctx == SynchronizationContext.Current && TryExecuteTask (task);
-		}
+        protected override bool TryExecuteTaskInline (Task task, bool taskWasPreviouslyQueued)
+        {
+            return ctx == SynchronizationContext.Current && TryExecuteTask (task);
+        }
 
-		public override int MaximumConcurrencyLevel {
-			get {
-				return 1;
-			}
-		}
-	}
+        public override int MaximumConcurrencyLevel {
+            get {
+                return 1;
+            }
+        }
+    }
 }
 
 #endif

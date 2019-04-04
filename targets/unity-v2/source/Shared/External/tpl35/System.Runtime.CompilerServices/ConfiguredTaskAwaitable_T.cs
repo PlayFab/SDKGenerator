@@ -4,7 +4,7 @@
 // ConfiguredTaskAwaitable_T.cs
 //
 // Authors:
-//	Marek Safar  <marek.safar@gmail.com>
+//    Marek Safar  <marek.safar@gmail.com>
 //
 // Copyright (C) 2011 Xamarin, Inc (http://www.xamarin.com)
 //
@@ -34,65 +34,65 @@ using System.Runtime.ExceptionServices;
 
 namespace System.Runtime.CompilerServices
 {
-	public struct ConfiguredTaskAwaitable<TResult>
-	{
-		public struct ConfiguredTaskAwaiter : ICriticalNotifyCompletion
-		{
-			readonly Task<TResult> task;
-			readonly bool continueOnSourceContext;
+    public struct ConfiguredTaskAwaitable<TResult>
+    {
+        public struct ConfiguredTaskAwaiter : ICriticalNotifyCompletion
+        {
+            readonly Task<TResult> task;
+            readonly bool continueOnSourceContext;
 
-			internal ConfiguredTaskAwaiter (Task<TResult> task, bool continueOnSourceContext)
-			{
-				this.task = task;
-				this.continueOnSourceContext = continueOnSourceContext;
-			}
+            internal ConfiguredTaskAwaiter (Task<TResult> task, bool continueOnSourceContext)
+            {
+                this.task = task;
+                this.continueOnSourceContext = continueOnSourceContext;
+            }
 
-			public bool IsCompleted {
-				get {
-					return task.IsCompleted;
-				}
-			}
+            public bool IsCompleted {
+                get {
+                    return task.IsCompleted;
+                }
+            }
 
-			public TResult GetResult ()
-			{
-				if (!task.IsCompleted)
-					task.WaitCore (Timeout.Infinite, CancellationToken.None, true);
+            public TResult GetResult ()
+            {
+                if (!task.IsCompleted)
+                    task.WaitCore (Timeout.Infinite, CancellationToken.None, true);
 
-				if (task.Status != TaskStatus.RanToCompletion)
-					ExceptionDispatchInfo.Capture (TaskAwaiter.HandleUnexpectedTaskResult (task)).Throw ();
+                if (task.Status != TaskStatus.RanToCompletion)
+                    ExceptionDispatchInfo.Capture (TaskAwaiter.HandleUnexpectedTaskResult (task)).Throw ();
 
-				return task.Result;
-			}
+                return task.Result;
+            }
 
-			public void OnCompleted (Action continuation)
-			{
-				if (continuation == null)
-					throw new ArgumentNullException ("continuation");
+            public void OnCompleted (Action continuation)
+            {
+                if (continuation == null)
+                    throw new ArgumentNullException ("continuation");
 
-				TaskAwaiter.HandleOnCompleted (task, continuation, continueOnSourceContext, true);
-			}
-			
-			public void UnsafeOnCompleted (Action continuation)
-			{
-				if (continuation == null)
-					throw new ArgumentNullException ("continuation");
+                TaskAwaiter.HandleOnCompleted (task, continuation, continueOnSourceContext, true);
+            }
+            
+            public void UnsafeOnCompleted (Action continuation)
+            {
+                if (continuation == null)
+                    throw new ArgumentNullException ("continuation");
 
-				TaskAwaiter.HandleOnCompleted (task, continuation, continueOnSourceContext, false);
-			}
-		}
-		
-		readonly ConfiguredTaskAwaiter awaiter;
-		
-		internal ConfiguredTaskAwaitable (Task<TResult> task, bool continueOnSourceContext)
-		{
-			awaiter = new ConfiguredTaskAwaiter (task, continueOnSourceContext);
-		}
-		
-		public ConfiguredTaskAwaiter GetAwaiter()
-		{
-			return awaiter;
-		}
-	}
+                TaskAwaiter.HandleOnCompleted (task, continuation, continueOnSourceContext, false);
+            }
+        }
+        
+        readonly ConfiguredTaskAwaiter awaiter;
+        
+        internal ConfiguredTaskAwaitable (Task<TResult> task, bool continueOnSourceContext)
+        {
+            awaiter = new ConfiguredTaskAwaiter (task, continueOnSourceContext);
+        }
+        
+        public ConfiguredTaskAwaiter GetAwaiter()
+        {
+            return awaiter;
+        }
+    }
 }
 
 #endif

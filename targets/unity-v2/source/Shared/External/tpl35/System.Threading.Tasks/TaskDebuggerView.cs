@@ -4,7 +4,7 @@
 // TaskDebuggerView.cs
 //
 // Authors:
-//	Marek Safar  <marek.safar@gmail.com>
+//    Marek Safar  <marek.safar@gmail.com>
 //
 // Copyright 2011 Xamarin, Inc (http://www.xamarin.com)
 //
@@ -32,54 +32,54 @@ using System;
 
 namespace System.Threading.Tasks
 {
-	//
-	// Custom debugger type proxy for tasks
-	//
-	sealed class TaskDebuggerView
-	{
-		readonly Task task;
-		
-		public TaskDebuggerView (Task task)
-		{
-			this.task = task;
-		}
-		
-		public object AsyncState {
-			get {
-				return task.AsyncState;
-			}
-		}
-		
-		public TaskCreationOptions CreationOptions {
-			get {
-				return task.CreationOptions;
-			}
-		}
-		
-		public Exception Exception {
-			get {
-				return task.Exception;
-			}
-		}
-		
-		public int Id {
-			get {
-				return task.Id;
-			}
-		}
-		
-		public string Method {
-			get {
-				return task.DisplayActionMethod;
-			}
-		}
-		
-		public TaskStatus Status {
-			get {
-				return task.Status;
-			}
-		}
-	}
+    //
+    // Custom debugger type proxy for tasks
+    //
+    sealed class TaskDebuggerView
+    {
+        readonly Task task;
+        
+        public TaskDebuggerView (Task task)
+        {
+            this.task = task;
+        }
+        
+        public object AsyncState {
+            get {
+                return task.AsyncState;
+            }
+        }
+        
+        public TaskCreationOptions CreationOptions {
+            get {
+                return task.CreationOptions;
+            }
+        }
+        
+        public Exception Exception {
+            get {
+                return task.Exception;
+            }
+        }
+        
+        public int Id {
+            get {
+                return task.Id;
+            }
+        }
+        
+        public string Method {
+            get {
+                return task.DisplayActionMethod;
+            }
+        }
+        
+        public TaskStatus Status {
+            get {
+                return task.Status;
+            }
+        }
+    }
 }
 
 #endif

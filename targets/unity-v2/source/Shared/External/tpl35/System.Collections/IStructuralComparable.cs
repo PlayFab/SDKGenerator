@@ -30,9 +30,9 @@
 
 namespace System.Collections
 {
-	public interface IStructuralComparable {
-		int CompareTo (object other, IComparer comparer);
-	}
+    public interface IStructuralComparable {
+        int CompareTo (object other, IComparer comparer);
+    }
 }
 
 #endif

@@ -4,7 +4,7 @@
 // TaskAwaiter_T.cs
 //
 // Authors:
-//	Marek Safar  <marek.safar@gmail.com>
+//    Marek Safar  <marek.safar@gmail.com>
 //
 // Copyright (C) 2011 Novell, Inc (http://www.novell.com)
 // Copyright (C) 2011 Xamarin, Inc (http://www.xamarin.com)
@@ -35,48 +35,48 @@ using System.Runtime.ExceptionServices;
 
 namespace System.Runtime.CompilerServices
 {
-	public struct TaskAwaiter<TResult> : ICriticalNotifyCompletion
-	{
-		readonly Task<TResult> task;
+    public struct TaskAwaiter<TResult> : ICriticalNotifyCompletion
+    {
+        readonly Task<TResult> task;
 
-		internal TaskAwaiter (Task<TResult> task)
-		{
-			this.task = task;
-		}
+        internal TaskAwaiter (Task<TResult> task)
+        {
+            this.task = task;
+        }
 
-		public bool IsCompleted {
-			get {
-				return task.IsCompleted;
-			}
-		}
+        public bool IsCompleted {
+            get {
+                return task.IsCompleted;
+            }
+        }
 
-		public TResult GetResult ()
-		{
-			if (!task.IsCompleted)
-				task.WaitCore (Timeout.Infinite, CancellationToken.None, true);
+        public TResult GetResult ()
+        {
+            if (!task.IsCompleted)
+                task.WaitCore (Timeout.Infinite, CancellationToken.None, true);
 
-			if (task.Status != TaskStatus.RanToCompletion)
-				ExceptionDispatchInfo.Capture (TaskAwaiter.HandleUnexpectedTaskResult (task)).Throw ();
+            if (task.Status != TaskStatus.RanToCompletion)
+                ExceptionDispatchInfo.Capture (TaskAwaiter.HandleUnexpectedTaskResult (task)).Throw ();
 
-			return task.Result;
-		}
+            return task.Result;
+        }
 
-		public void OnCompleted (Action continuation)
-		{
-			if (continuation == null)
-				throw new ArgumentNullException ("continuation");
+        public void OnCompleted (Action continuation)
+        {
+            if (continuation == null)
+                throw new ArgumentNullException ("continuation");
 
-			TaskAwaiter.HandleOnCompleted (task, continuation, true, true);
-		}
+            TaskAwaiter.HandleOnCompleted (task, continuation, true, true);
+        }
 
-		public void UnsafeOnCompleted (Action continuation)
-		{
-			if (continuation == null)
-				throw new ArgumentNullException ("continuation");
+        public void UnsafeOnCompleted (Action continuation)
+        {
+            if (continuation == null)
+                throw new ArgumentNullException ("continuation");
 
-			TaskAwaiter.HandleOnCompleted (task, continuation, true, false);
-		}
-	}
+            TaskAwaiter.HandleOnCompleted (task, continuation, true, false);
+        }
+    }
 }
 
 #endif

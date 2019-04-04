@@ -35,49 +35,49 @@ using System.Collections.Generic;
 
 namespace System.Threading.Tasks
 {
-	sealed class TpScheduler: TaskScheduler
-	{
-		static readonly WaitCallback callback = TaskExecuterCallback;
+    sealed class TpScheduler: TaskScheduler
+    {
+        static readonly WaitCallback callback = TaskExecuterCallback;
 
-		protected internal override void QueueTask (Task task)
-		{
-			if ((task.CreationOptions & TaskCreationOptions.LongRunning) != 0) {
-				var thread = new Thread (l => ((Task)l).Execute ()) {
-					IsBackground = true
-				};
+        protected internal override void QueueTask (Task task)
+        {
+            if ((task.CreationOptions & TaskCreationOptions.LongRunning) != 0) {
+                var thread = new Thread (l => ((Task)l).Execute ()) {
+                    IsBackground = true
+                };
 
-				thread.Start (task);
-				return;
-			}
+                thread.Start (task);
+                return;
+            }
 
-			ThreadPool.QueueUserWorkItem (callback, task);
-		}
+            ThreadPool.QueueUserWorkItem (callback, task);
+        }
 
-		static void TaskExecuterCallback (object obj)
-		{
-			Task task = (Task)obj;
-			task.Execute ();
-		}
+        static void TaskExecuterCallback (object obj)
+        {
+            Task task = (Task)obj;
+            task.Execute ();
+        }
 
-		protected override IEnumerable<Task> GetScheduledTasks ()
-		{
-			throw new NotImplementedException();
-		}
+        protected override IEnumerable<Task> GetScheduledTasks ()
+        {
+            throw new NotImplementedException();
+        }
 
-		
-		protected internal override bool TryDequeue (Task task)
-		{
-			return false;
-		}
+        
+        protected internal override bool TryDequeue (Task task)
+        {
+            return false;
+        }
 
-		protected override bool TryExecuteTaskInline (Task task, bool taskWasPreviouslyQueued)
-		{
-			if (taskWasPreviouslyQueued && !TryDequeue (task))
-				return false;
+        protected override bool TryExecuteTaskInline (Task task, bool taskWasPreviouslyQueued)
+        {
+            if (taskWasPreviouslyQueued && !TryDequeue (task))
+                return false;
 
-			return TryExecuteTask (task);
-		}
-	}
+            return TryExecuteTask (task);
+        }
+    }
 }
 
 #endif

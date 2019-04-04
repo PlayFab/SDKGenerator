@@ -28,38 +28,38 @@ using System;
 
 namespace System.Threading
 {
-	internal struct Watch
-	{
-		long startTicks;
-		
-		public static Watch StartNew ()
-		{
-			Watch watch = new Watch ();
-			watch.Start ();
-			return watch;
-		}
-		
-		public void Start ()
-		{
-			startTicks = TicksNow ();
-		}
-		
-		public void Stop ()
-		{
-			
-		}
-		
-		public long ElapsedMilliseconds {
-			get {
-				return (TicksNow () - startTicks) / TimeSpan.TicksPerMillisecond;
-			}
-		}
-		
-		static long TicksNow ()
-		{
-			return DateTime.Now.Ticks;
-		}
-	}
+    internal struct Watch
+    {
+        long startTicks;
+        
+        public static Watch StartNew ()
+        {
+            Watch watch = new Watch ();
+            watch.Start ();
+            return watch;
+        }
+        
+        public void Start ()
+        {
+            startTicks = TicksNow ();
+        }
+        
+        public void Stop ()
+        {
+            
+        }
+        
+        public long ElapsedMilliseconds {
+            get {
+                return (TicksNow () - startTicks) / TimeSpan.TicksPerMillisecond;
+            }
+        }
+        
+        static long TicksNow ()
+        {
+            return DateTime.Now.Ticks;
+        }
+    }
 }
 
 #endif

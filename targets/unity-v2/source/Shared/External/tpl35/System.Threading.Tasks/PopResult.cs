@@ -28,11 +28,11 @@
 
 namespace System.Threading.Tasks
 {
-	enum PopResult	{
-		Succeed,
-		Empty,
-		Abort
-	}
+    enum PopResult    {
+        Succeed,
+        Empty,
+        Abort
+    }
 }
 
 #endif

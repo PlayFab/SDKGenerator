@@ -33,54 +33,54 @@ using System.Collections.Concurrent;
 
 namespace System.Threading.Tasks
 {
-	internal struct TaskCompletionQueue<TCompletion> where TCompletion : class
-	{
-		object single; //TCompletion
-		TCompletion Single
-		{
-			get { return (TCompletion)single; }
-		}
-		object completed; //ConcurrentOrderedList<TCompletion>
-		ConcurrentOrderedList<TCompletion> Completed
-		{
-			get { return (ConcurrentOrderedList<TCompletion>)completed; }
-		}
+    internal struct TaskCompletionQueue<TCompletion> where TCompletion : class
+    {
+        object single; //TCompletion
+        TCompletion Single
+        {
+            get { return (TCompletion)single; }
+        }
+        object completed; //ConcurrentOrderedList<TCompletion>
+        ConcurrentOrderedList<TCompletion> Completed
+        {
+            get { return (ConcurrentOrderedList<TCompletion>)completed; }
+        }
 
-		public void Add (TCompletion continuation)
-		{
-			if (single == null && CustomInterlocked.CompareExchange (ref single, continuation, null) == null)
-				return;
-			if (completed == null)
-				CustomInterlocked.CompareExchange (ref completed, new ConcurrentOrderedList<TCompletion> (), null);
-			Completed.TryAdd (continuation);
-		}
+        public void Add (TCompletion continuation)
+        {
+            if (single == null && CustomInterlocked.CompareExchange (ref single, continuation, null) == null)
+                return;
+            if (completed == null)
+                CustomInterlocked.CompareExchange (ref completed, new ConcurrentOrderedList<TCompletion> (), null);
+            Completed.TryAdd (continuation);
+        }
 
-		public bool Remove (TCompletion continuation)
-		{
-			TCompletion temp = Single;
-			if (temp != null && temp == continuation && CustomInterlocked.CompareExchange (ref single, null, continuation) == continuation)
-				return true;
-			if (completed != null)
-				return Completed.TryRemove (continuation);
-			return false;
-		}
+        public bool Remove (TCompletion continuation)
+        {
+            TCompletion temp = Single;
+            if (temp != null && temp == continuation && CustomInterlocked.CompareExchange (ref single, null, continuation) == continuation)
+                return true;
+            if (completed != null)
+                return Completed.TryRemove (continuation);
+            return false;
+        }
 
-		public bool HasElements {
-			get {
-				return single != null || (completed != null && Completed.Count != 0);
-			}
-		}
+        public bool HasElements {
+            get {
+                return single != null || (completed != null && Completed.Count != 0);
+            }
+        }
 
-		public bool TryGetNextCompletion (out TCompletion continuation)
-		{
-			continuation = null;
+        public bool TryGetNextCompletion (out TCompletion continuation)
+        {
+            continuation = null;
 
-			if (single != null && (continuation = (TCompletion)CustomInterlocked.Exchange (ref single, null)) != null)
-				return true;
+            if (single != null && (continuation = (TCompletion)CustomInterlocked.Exchange (ref single, null)) != null)
+                return true;
 
-			return completed != null && Completed.TryPop (out continuation);
-		}
-	}
+            return completed != null && Completed.TryPop (out continuation);
+        }
+    }
 }
 
 #endif

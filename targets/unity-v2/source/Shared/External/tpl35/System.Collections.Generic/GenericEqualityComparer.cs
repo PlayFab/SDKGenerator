@@ -4,7 +4,7 @@
 //  GenericEqualityComparer.cs
 //
 //  Author:
-//  	Jim Borden  <jim.borden@couchbase.com>
+//      Jim Borden  <jim.borden@couchbase.com>
 //
 //  Copyright (c) 2015 Couchbase, Inc All rights reserved.
 //

@@ -4,7 +4,7 @@
 // YieldAwaitable.cs
 //
 // Authors:
-//	Marek Safar  <marek.safar@gmail.com>
+//    Marek Safar  <marek.safar@gmail.com>
 //
 // Copyright (C) 2011 Novell, Inc (http://www.novell.com)
 // Copyright (C) 2011 Xamarin, Inc (http://www.xamarin.com)
@@ -34,64 +34,64 @@ using System.Threading.Tasks;
 
 namespace System.Runtime.CompilerServices
 {
-	public struct YieldAwaitable
-	{
-		public struct YieldAwaiter : ICriticalNotifyCompletion
-		{
-			public bool IsCompleted {
-				get {
-					return false;
-				}
-			}
+    public struct YieldAwaitable
+    {
+        public struct YieldAwaiter : ICriticalNotifyCompletion
+        {
+            public bool IsCompleted {
+                get {
+                    return false;
+                }
+            }
 
-			public void OnCompleted (Action continuation)
-			{
-				OnCompleted (continuation, false);
-			}
+            public void OnCompleted (Action continuation)
+            {
+                OnCompleted (continuation, false);
+            }
 
-			public void UnsafeOnCompleted (Action continuation)
-			{
-				OnCompleted (continuation, true);
-			}
+            public void UnsafeOnCompleted (Action continuation)
+            {
+                OnCompleted (continuation, true);
+            }
 
-			void OnCompleted (Action continuation, bool isUnsafe)
-			{
-				if (continuation == null)
-					throw new ArgumentNullException ("continuation");
+            void OnCompleted (Action continuation, bool isUnsafe)
+            {
+                if (continuation == null)
+                    throw new ArgumentNullException ("continuation");
 
-				var ctx = SynchronizationContext.Current;
-				if (ctx != null && ctx.GetType () != typeof (SynchronizationContext)) {
-					ctx.Post (l => ((Action) l) (), continuation);
-					return;
-				}
+                var ctx = SynchronizationContext.Current;
+                if (ctx != null && ctx.GetType () != typeof (SynchronizationContext)) {
+                    ctx.Post (l => ((Action) l) (), continuation);
+                    return;
+                }
 
-				if (TaskScheduler.IsDefault) {
-					//
-					// Pass continuation as an argument to avoid allocating
-					// hoisting class
-					//
-					WaitCallback callBack = l => ((Action) l) ();
-					//if (isUnsafe) {
-					//	ThreadPool.UnsafeQueueUserWorkItem (callBack, continuation);
-					//} else {
-					ThreadPool.QueueUserWorkItem (callBack, continuation);
-					//}
-					return;
-				}
+                if (TaskScheduler.IsDefault) {
+                    //
+                    // Pass continuation as an argument to avoid allocating
+                    // hoisting class
+                    //
+                    WaitCallback callBack = l => ((Action) l) ();
+                    //if (isUnsafe) {
+                    //    ThreadPool.UnsafeQueueUserWorkItem (callBack, continuation);
+                    //} else {
+                    ThreadPool.QueueUserWorkItem (callBack, continuation);
+                    //}
+                    return;
+                }
 
-				new Task (continuation).Start (TaskScheduler.Current);
-			}
+                new Task (continuation).Start (TaskScheduler.Current);
+            }
 
-			public void GetResult ()
-			{
-			}
-		}
+            public void GetResult ()
+            {
+            }
+        }
 
-		public YieldAwaiter GetAwaiter ()
-		{
-			return new YieldAwaiter ();
-		}
-	}
+        public YieldAwaiter GetAwaiter ()
+        {
+            return new YieldAwaiter ();
+        }
+    }
 }
 
 #endif

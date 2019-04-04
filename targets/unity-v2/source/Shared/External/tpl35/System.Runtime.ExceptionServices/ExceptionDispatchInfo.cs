@@ -30,36 +30,36 @@
 
 namespace System.Runtime.ExceptionServices
 {
-	public sealed class ExceptionDispatchInfo
-	{
-		readonly Exception exception;
+    public sealed class ExceptionDispatchInfo
+    {
+        readonly Exception exception;
 
-		private ExceptionDispatchInfo (Exception source)
-		{
-			this.exception = source;
-		}
+        private ExceptionDispatchInfo (Exception source)
+        {
+            this.exception = source;
+        }
 
-		public Exception SourceException {
-			get {
-				return exception;
-			}
-		}
+        public Exception SourceException {
+            get {
+                return exception;
+            }
+        }
 
-		public static ExceptionDispatchInfo Capture (Exception source)
-		{
-			if (source == null)
-				throw new ArgumentNullException ("source");
+        public static ExceptionDispatchInfo Capture (Exception source)
+        {
+            if (source == null)
+                throw new ArgumentNullException ("source");
 
-			return new ExceptionDispatchInfo (source);
-		}
+            return new ExceptionDispatchInfo (source);
+        }
 
-		public void Throw ()
-		{
-			//exception.CaptureTrace ();
+        public void Throw ()
+        {
+            //exception.CaptureTrace ();
 
-			throw exception;
-		}
-	}
+            throw exception;
+        }
+    }
 }
 
 #endif

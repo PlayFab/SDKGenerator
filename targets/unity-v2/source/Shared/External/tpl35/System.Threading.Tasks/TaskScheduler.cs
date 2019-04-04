@@ -33,136 +33,136 @@ using System.Diagnostics;
 
 namespace System.Threading.Tasks
 {
-	[DebuggerDisplay ("Id={Id}")]
-	[DebuggerTypeProxy (typeof (TaskSchedulerDebuggerView))]
-	public abstract class TaskScheduler
-	{
-		sealed class TaskSchedulerDebuggerView
-		{
-			readonly TaskScheduler scheduler;
+    [DebuggerDisplay ("Id={Id}")]
+    [DebuggerTypeProxy (typeof (TaskSchedulerDebuggerView))]
+    public abstract class TaskScheduler
+    {
+        sealed class TaskSchedulerDebuggerView
+        {
+            readonly TaskScheduler scheduler;
 
-			public TaskSchedulerDebuggerView (TaskScheduler scheduler)
-			{
-				this.scheduler = scheduler;
-			}
+            public TaskSchedulerDebuggerView (TaskScheduler scheduler)
+            {
+                this.scheduler = scheduler;
+            }
 
-			public IEnumerable<Task> ScheduledTasks {
-				get {
-					return scheduler.GetScheduledTasks ();
-				}
-			}
-		}
+            public IEnumerable<Task> ScheduledTasks {
+                get {
+                    return scheduler.GetScheduledTasks ();
+                }
+            }
+        }
 
-		static readonly TaskScheduler defaultScheduler = new TpScheduler ();
-		
-		[ThreadStatic]
-		static TaskScheduler currentScheduler;
-		
-		int id;
-		static int lastId = int.MinValue;
-		
-		public static event EventHandler<UnobservedTaskExceptionEventArgs> UnobservedTaskException;
-		
-		protected TaskScheduler ()
-		{
-			this.id = CustomInterlocked.Increment (ref lastId);
-		}
-		
-		public static TaskScheduler FromCurrentSynchronizationContext ()
-		{
-			var syncCtx = SynchronizationContext.Current;
-			if (syncCtx == null)
-				throw new InvalidOperationException ("The current SynchronizationContext is null and cannot be used as a TaskScheduler");
+        static readonly TaskScheduler defaultScheduler = new TpScheduler ();
+        
+        [ThreadStatic]
+        static TaskScheduler currentScheduler;
+        
+        int id;
+        static int lastId = int.MinValue;
+        
+        public static event EventHandler<UnobservedTaskExceptionEventArgs> UnobservedTaskException;
+        
+        protected TaskScheduler ()
+        {
+            this.id = CustomInterlocked.Increment (ref lastId);
+        }
+        
+        public static TaskScheduler FromCurrentSynchronizationContext ()
+        {
+            var syncCtx = SynchronizationContext.Current;
+            if (syncCtx == null)
+                throw new InvalidOperationException ("The current SynchronizationContext is null and cannot be used as a TaskScheduler");
 
-			return new SynchronizationContextScheduler (syncCtx);
-		}
-		
-		public static TaskScheduler Default  {
-			get {
-				return defaultScheduler;
-			}
-		}
-		
-		public static TaskScheduler Current  {
-			get {
-				if (currentScheduler != null)
-					return currentScheduler;
-				
-				return defaultScheduler;
-			}
-			internal set {
-				currentScheduler = value;
-			}
-		}
-		
-		public int Id {
-			get {
-				return id;
-			}
-		}
+            return new SynchronizationContextScheduler (syncCtx);
+        }
+        
+        public static TaskScheduler Default  {
+            get {
+                return defaultScheduler;
+            }
+        }
+        
+        public static TaskScheduler Current  {
+            get {
+                if (currentScheduler != null)
+                    return currentScheduler;
+                
+                return defaultScheduler;
+            }
+            internal set {
+                currentScheduler = value;
+            }
+        }
+        
+        public int Id {
+            get {
+                return id;
+            }
+        }
 
-		internal static bool IsDefault {
-			get {
-				return currentScheduler == null || currentScheduler == defaultScheduler;
-			}
-		}
-		
-		public virtual int MaximumConcurrencyLevel {
-			get {
-				return int.MaxValue;
-			}
-		}
+        internal static bool IsDefault {
+            get {
+                return currentScheduler == null || currentScheduler == defaultScheduler;
+            }
+        }
+        
+        public virtual int MaximumConcurrencyLevel {
+            get {
+                return int.MaxValue;
+            }
+        }
 
-		protected abstract IEnumerable<Task> GetScheduledTasks ();
-		protected internal abstract void QueueTask (Task task);
+        protected abstract IEnumerable<Task> GetScheduledTasks ();
+        protected internal abstract void QueueTask (Task task);
 
-		protected internal virtual bool TryDequeue (Task task)
-		{
-			return false;
-		}
+        protected internal virtual bool TryDequeue (Task task)
+        {
+            return false;
+        }
 
-		internal protected bool TryExecuteTask (Task task)
-		{
-			if (task.IsCompleted)
-				return false;
+        internal protected bool TryExecuteTask (Task task)
+        {
+            if (task.IsCompleted)
+                return false;
 
-			if (task.Status == TaskStatus.WaitingToRun) {
-				task.Execute ();
-				if (task.WaitOnChildren ())
-					task.Wait ();
+            if (task.Status == TaskStatus.WaitingToRun) {
+                task.Execute ();
+                if (task.WaitOnChildren ())
+                    task.Wait ();
 
-				return true;
-			}
+                return true;
+            }
 
-			return false;
-		}
+            return false;
+        }
 
-		protected abstract bool TryExecuteTaskInline (Task task, bool taskWasPreviouslyQueued);
+        protected abstract bool TryExecuteTaskInline (Task task, bool taskWasPreviouslyQueued);
 
-		internal bool RunInline (Task task, bool taskWasPreviouslyQueued)
-		{
-			if (!TryExecuteTaskInline (task, taskWasPreviouslyQueued))
-				return false;
+        internal bool RunInline (Task task, bool taskWasPreviouslyQueued)
+        {
+            if (!TryExecuteTaskInline (task, taskWasPreviouslyQueued))
+                return false;
 
-			if (!task.IsCompleted)
-				throw new InvalidOperationException ("The TryExecuteTaskInline call to the underlying scheduler succeeded, but the task body was not invoked");
+            if (!task.IsCompleted)
+                throw new InvalidOperationException ("The TryExecuteTaskInline call to the underlying scheduler succeeded, but the task body was not invoked");
 
-			return true;
-		}
+            return true;
+        }
 
-		internal static UnobservedTaskExceptionEventArgs FireUnobservedEvent (Task task, AggregateException e)
-		{
-			UnobservedTaskExceptionEventArgs args = new UnobservedTaskExceptionEventArgs (e);
-			
-			EventHandler<UnobservedTaskExceptionEventArgs> temp = UnobservedTaskException;
-			if (temp == null)
-				return args;
-			
-			temp (task, args);
-			
-			return args;
-		}
-	}
+        internal static UnobservedTaskExceptionEventArgs FireUnobservedEvent (Task task, AggregateException e)
+        {
+            UnobservedTaskExceptionEventArgs args = new UnobservedTaskExceptionEventArgs (e);
+            
+            EventHandler<UnobservedTaskExceptionEventArgs> temp = UnobservedTaskException;
+            if (temp == null)
+                return args;
+            
+            temp (task, args);
+            
+            return args;
+        }
+    }
 }
 
 #endif

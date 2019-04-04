@@ -31,183 +31,183 @@ using System.Diagnostics;
 
 namespace System.Threading
 {
-	[DebuggerDisplay ("Initial Count={InitialCount}, Current Count={CurrentCount}")]
-	public class CountdownEvent : IDisposable
-	{
-		int initialCount;
-		int initial;
-		ManualResetEventSlim evt;
-		
-		public CountdownEvent (int initialCount)
-		{
-			if (initialCount < 0)
-				throw new ArgumentOutOfRangeException ("initialCount");
+    [DebuggerDisplay ("Initial Count={InitialCount}, Current Count={CurrentCount}")]
+    public class CountdownEvent : IDisposable
+    {
+        int initialCount;
+        int initial;
+        ManualResetEventSlim evt;
+        
+        public CountdownEvent (int initialCount)
+        {
+            if (initialCount < 0)
+                throw new ArgumentOutOfRangeException ("initialCount");
 
-			evt = new ManualResetEventSlim (initialCount == 0);
-			this.initial = this.initialCount = initialCount;
-		}
+            evt = new ManualResetEventSlim (initialCount == 0);
+            this.initial = this.initialCount = initialCount;
+        }
 
-		public int CurrentCount {
-			get {
-				return initialCount;
-			}
-		}
-		
-		public int InitialCount {
-			get {
-				return initial;
-			}
-		}
-			
-		public bool IsSet {
-			get {
-				return initialCount == 0;
-			}
-		}
-		
-		public WaitHandle WaitHandle {
-			get {
-				return evt.WaitHandle;
-			}
-		}
-		
-		public bool Signal ()
-		{
-			return Signal (1);
-		}
-		
-		public bool Signal (int signalCount)
-		{
-			if (signalCount <= 0)
-				throw new ArgumentOutOfRangeException ("signalCount");
+        public int CurrentCount {
+            get {
+                return initialCount;
+            }
+        }
+        
+        public int InitialCount {
+            get {
+                return initial;
+            }
+        }
+            
+        public bool IsSet {
+            get {
+                return initialCount == 0;
+            }
+        }
+        
+        public WaitHandle WaitHandle {
+            get {
+                return evt.WaitHandle;
+            }
+        }
+        
+        public bool Signal ()
+        {
+            return Signal (1);
+        }
+        
+        public bool Signal (int signalCount)
+        {
+            if (signalCount <= 0)
+                throw new ArgumentOutOfRangeException ("signalCount");
 
-			CheckDisposed ();
+            CheckDisposed ();
 
-			int newValue;
-			if (!ApplyOperation (-signalCount, out newValue))
-				throw new InvalidOperationException ("The event is already set");
-			
-			if (newValue == 0) {
-				evt.Set ();
-				return true;
-			}
-			
-			return false;
-		}
-		
-		public void AddCount ()
-		{
-			AddCount (1);
-		}
-		
-		public void AddCount (int signalCount)
-		{
-			if (!TryAddCount (signalCount))
-				throw new InvalidOperationException ("The event is already signaled and cannot be incremented");
-		}
-		
-		public bool TryAddCount ()
-		{
-			return TryAddCount (1);
-		}
-		
-		public bool TryAddCount (int signalCount)
-		{	
-			if (signalCount <= 0)
-				throw new ArgumentOutOfRangeException ("signalCount");
+            int newValue;
+            if (!ApplyOperation (-signalCount, out newValue))
+                throw new InvalidOperationException ("The event is already set");
+            
+            if (newValue == 0) {
+                evt.Set ();
+                return true;
+            }
+            
+            return false;
+        }
+        
+        public void AddCount ()
+        {
+            AddCount (1);
+        }
+        
+        public void AddCount (int signalCount)
+        {
+            if (!TryAddCount (signalCount))
+                throw new InvalidOperationException ("The event is already signaled and cannot be incremented");
+        }
+        
+        public bool TryAddCount ()
+        {
+            return TryAddCount (1);
+        }
+        
+        public bool TryAddCount (int signalCount)
+        {    
+            if (signalCount <= 0)
+                throw new ArgumentOutOfRangeException ("signalCount");
 
-			CheckDisposed ();
+            CheckDisposed ();
 
-			int temp;
-			return ApplyOperation (signalCount, out temp);
-		}
-		
-		bool ApplyOperation (int num, out int newValue)
-		{
-			int oldCount;
-			
-			do {
-				oldCount = initialCount;
-				if (oldCount == 0) {
-					newValue = 0;
-					return false;
-				}
-				
-				newValue = oldCount + num;
+            int temp;
+            return ApplyOperation (signalCount, out temp);
+        }
+        
+        bool ApplyOperation (int num, out int newValue)
+        {
+            int oldCount;
+            
+            do {
+                oldCount = initialCount;
+                if (oldCount == 0) {
+                    newValue = 0;
+                    return false;
+                }
+                
+                newValue = oldCount + num;
 
-				if (newValue < 0)
-					return false;
-			} while (CustomInterlocked.CompareExchange (ref initialCount, newValue, oldCount) != oldCount);
-			
-			return true;
-		}
-		
-		public void Wait ()
-		{
-			evt.Wait ();
-		}
-		
-		public void Wait (CancellationToken cancellationToken)
-		{
-			evt.Wait (cancellationToken);
-		}
-		
-		public bool Wait (int millisecondsTimeout)
-		{
-			return evt.Wait (millisecondsTimeout);
-		}
-		
-		public bool Wait(TimeSpan timeout)
-		{
-			return evt.Wait (timeout);
-		}
-		
-		public bool Wait (int millisecondsTimeout, CancellationToken cancellationToken)
-		{
-			return evt.Wait (millisecondsTimeout, cancellationToken);
-		}
-		
-		public bool Wait(TimeSpan timeout, CancellationToken cancellationToken)
-		{
-			return evt.Wait (timeout, cancellationToken);
-		}
+                if (newValue < 0)
+                    return false;
+            } while (CustomInterlocked.CompareExchange (ref initialCount, newValue, oldCount) != oldCount);
+            
+            return true;
+        }
+        
+        public void Wait ()
+        {
+            evt.Wait ();
+        }
+        
+        public void Wait (CancellationToken cancellationToken)
+        {
+            evt.Wait (cancellationToken);
+        }
+        
+        public bool Wait (int millisecondsTimeout)
+        {
+            return evt.Wait (millisecondsTimeout);
+        }
+        
+        public bool Wait(TimeSpan timeout)
+        {
+            return evt.Wait (timeout);
+        }
+        
+        public bool Wait (int millisecondsTimeout, CancellationToken cancellationToken)
+        {
+            return evt.Wait (millisecondsTimeout, cancellationToken);
+        }
+        
+        public bool Wait(TimeSpan timeout, CancellationToken cancellationToken)
+        {
+            return evt.Wait (timeout, cancellationToken);
+        }
 
-		public void Reset ()
-		{
-			Reset (initial);
-		}
-		
-		public void Reset (int count)
-		{
-			if (count < 0)
-				throw new ArgumentOutOfRangeException ("count");
+        public void Reset ()
+        {
+            Reset (initial);
+        }
+        
+        public void Reset (int count)
+        {
+            if (count < 0)
+                throw new ArgumentOutOfRangeException ("count");
 
-			CheckDisposed ();
+            CheckDisposed ();
 
-			initialCount = initial = count;
-			if (count == 0)
-				evt.Set ();
-			else
-				evt.Reset ();
-		}
-		
-		public void Dispose ()
-		{
-			Dispose (true);
-		}
-		
-		protected virtual void Dispose (bool disposing)
-		{
-			if (disposing)
-				evt.Dispose ();
-		}
+            initialCount = initial = count;
+            if (count == 0)
+                evt.Set ();
+            else
+                evt.Reset ();
+        }
+        
+        public void Dispose ()
+        {
+            Dispose (true);
+        }
+        
+        protected virtual void Dispose (bool disposing)
+        {
+            if (disposing)
+                evt.Dispose ();
+        }
 
-		void CheckDisposed ()
-		{
-			if (evt.disposed.Value)
-				throw new ObjectDisposedException ("CountdownEvent");
-		}
-	}
+        void CheckDisposed ()
+        {
+            if (evt.disposed.Value)
+                throw new ObjectDisposedException ("CountdownEvent");
+        }
+    }
 }
 
 #endif

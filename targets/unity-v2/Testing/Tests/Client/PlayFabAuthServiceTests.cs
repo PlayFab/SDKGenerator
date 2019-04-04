@@ -1,4 +1,4 @@
-﻿#if !DISABLE_PLAYFABCLIENT_API
+#if !DISABLE_PLAYFABCLIENT_API
 
 using PlayFab;
 using PlayFab.ClientModels;
@@ -19,16 +19,16 @@ public class PlayFabAuthServiceTests : UUnitTestCase
         const string password = "1";
         const string username = "1";
         const string email = "LoginTest.com";
-        
+
         var authService = new PlayFabAuthService();
         authService.Password = password;
         authService.Username = username;
         authService.Email = email;
 
-        authService.OnLoginSuccess += success => testContext.Fail("Login fail expected.");
-        authService.OnPlayFabError += error => testContext.EndTest(UUnitFinishState.PASSED, "Error handle as expected.");
+        authService.OnLoginSuccess += (success) => testContext.Fail("Login fail expected.");
+        authService.OnPlayFabError += (error) => testContext.EndTest(UUnitFinishState.PASSED, "Error handle as expected.");
         authService.OnDisplayAuthentication += () => testContext.Fail("Failed with unknown error.");
-        
+
         authService.Authenticate(AuthTypes.UsernamePassword);
     }
 
@@ -38,22 +38,34 @@ public class PlayFabAuthServiceTests : UUnitTestCase
         var authService = new PlayFabAuthService();
         authService.OnPlayFabLink += (auth, error) =>
         {
-            if (error != null) testContext.EndTest(UUnitFinishState.PASSED, "Error handle as expected. " + error.GenerateErrorReport());
-            else testContext.Fail("Error expected.");
+            if (error != null)
+            {
+                testContext.EndTest(UUnitFinishState.PASSED, "Error handle as expected. " + error.GenerateErrorReport());
+            }
+            else
+            {
+                testContext.Fail("Error expected.");
+            }
         };
-        authService.Link(new AuthKeys {AuthType = AuthTypes.Facebook});
+        authService.Link(new AuthKeys { AuthType = AuthTypes.Facebook });
     }
-    
+
     [UUnitTest]
     public void InvalidUnlink(UUnitTestContext testContext)
     {
         var authService = new PlayFabAuthService();
         authService.OnPlayFabUnlink += (auth, error) =>
         {
-            if (error != null) testContext.EndTest(UUnitFinishState.PASSED, "Error handle as expected. " + error.GenerateErrorReport());
-            else testContext.Fail("Error expected.");
+            if (error != null)
+            {
+                testContext.EndTest(UUnitFinishState.PASSED, "Error handle as expected. " + error.GenerateErrorReport());
+            }
+            else
+            {
+                testContext.Fail("Error expected.");
+            }
         };
-        authService.Unlink(new AuthKeys {AuthType = AuthTypes.Facebook});
+        authService.Unlink(new AuthKeys { AuthType = AuthTypes.Facebook });
     }
 
     [UUnitTest]
@@ -61,8 +73,8 @@ public class PlayFabAuthServiceTests : UUnitTestCase
     {
         var authService = new PlayFabAuthService();
         authService.OnDisplayAuthentication += () => testContext.EndTest(UUnitFinishState.PASSED, "Invoke display as expected.");
-        authService.OnLoginSuccess += success => testContext.Fail("Invoke display expected.");
-        authService.OnPlayFabError += error => testContext.EndTest(UUnitFinishState.PASSED, "Error is not expected.");
+        authService.OnLoginSuccess += (success) => testContext.Fail("Invoke display expected.");
+        authService.OnPlayFabError += (error) => testContext.EndTest(UUnitFinishState.PASSED, "Error is not expected.");
         authService.Authenticate(AuthTypes.UsernamePassword);
     }
 
@@ -78,13 +90,13 @@ public class PlayFabAuthServiceTests : UUnitTestCase
         _emailAuthService.Password = password;
         _emailAuthService.Username = username;
 
-        _emailAuthService.OnLoginSuccess += success =>
+        _emailAuthService.OnLoginSuccess += (success) =>
         {
             testContext.True(!string.IsNullOrEmpty(success.PlayFabId));
             testContext.NotNull(_emailAuthService.IsClientLoggedIn());
             testContext.EndTest(UUnitFinishState.PASSED, "Email & password auth success. " + success.PlayFabId);
         };
-        _emailAuthService.OnPlayFabError += error =>
+        _emailAuthService.OnPlayFabError += (error) =>
         {
             testContext.Fail("Email & password auth failed with error: " + error.GenerateErrorReport());
         };
@@ -104,7 +116,7 @@ public class PlayFabAuthServiceTests : UUnitTestCase
             if (error == null) testContext.EndTest(UUnitFinishState.PASSED, "Link deviceId success.");
             else testContext.Fail("Link deviceId failed with error: " + error.GenerateErrorReport());
         };
-        _emailAuthService.Link(new AuthKeys { AuthType = AuthTypes.Silent});
+        _emailAuthService.Link(new AuthKeys { AuthType = AuthTypes.Silent });
     }
 
     [UUnitTest]
@@ -133,12 +145,12 @@ public class PlayFabAuthServiceTests : UUnitTestCase
     public void LoginWithDeviceId(UUnitTestContext testContext)
     {
         var silentAuth = new PlayFabAuthService();
-        silentAuth.OnLoginSuccess += success =>
+        silentAuth.OnLoginSuccess += (success) =>
         {
             testContext.StringEquals(_emailAuthService.AuthenticationContext.PlayFabId, success.PlayFabId);
             testContext.EndTest(UUnitFinishState.PASSED, "Silent auth success with playFabId: " + success.PlayFabId);
         };
-        silentAuth.OnPlayFabError += error =>
+        silentAuth.OnPlayFabError += (error) =>
         {
             testContext.Fail("Silent auth failed with error: " + error.ErrorMessage);
         };
@@ -150,10 +162,10 @@ public class PlayFabAuthServiceTests : UUnitTestCase
     {
         _emailAuthService.OnPlayFabUnlink += (auth, error) =>
         {
-            if(error == null) testContext.EndTest(UUnitFinishState.PASSED, "UnLink deviceId success.");
+            if (error == null) testContext.EndTest(UUnitFinishState.PASSED, "UnLink deviceId success.");
             else testContext.Fail("UnLink deviceId failed with error: " + error.ErrorMessage);
         };
-        _emailAuthService.Unlink(new AuthKeys {AuthType = AuthTypes.Silent});
+        _emailAuthService.Unlink(new AuthKeys { AuthType = AuthTypes.Silent });
     }
 
     [UUnitTest]
@@ -182,12 +194,12 @@ public class PlayFabAuthServiceTests : UUnitTestCase
     public void TestSilentLoginAfterUnlink(UUnitTestContext testContext)
     {
         var silentAuth = new PlayFabAuthService();
-        silentAuth.OnLoginSuccess += success =>
+        silentAuth.OnLoginSuccess += (success) =>
         {
             testContext.True(success.PlayFabId != _emailAuthService.AuthenticationContext.PlayFabId, "Silent auth and email auth playFabIds is match!");
             testContext.EndTest(UUnitFinishState.PASSED, "Silent auth completed as expected. New playFabId: " + success.PlayFabId);
         };
-        silentAuth.OnPlayFabError += error =>
+        silentAuth.OnPlayFabError += (error) =>
         {
             testContext.Fail("Silent auth abort with error: " + error.Error.ToString());
         };

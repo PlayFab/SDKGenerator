@@ -240,7 +240,7 @@ namespace PlayFab
                 InvokeLink(authKeys.AuthType, new PlayFabError
                 {
                     Error = PlayFabErrorCode.NotAuthorized,
-                    ErrorMessage = "You must authenticate user before call this method."
+                    ErrorMessage = "You must log in before you can call L7ink."
                 });
                 return;
             }
@@ -263,11 +263,11 @@ namespace PlayFab
                 InvokeUnlink(authKeys.AuthType, new PlayFabError
                 {
                     Error = PlayFabErrorCode.NotAuthorized,
-                    ErrorMessage = "You must authenticate user before call this method."
+                    ErrorMessage = "You must log in before you can call Unlink."
                 });
                 return;
             }
-            
+
             var auth = _authStrategies[authKeys.AuthType];
 
             if (auth == null)

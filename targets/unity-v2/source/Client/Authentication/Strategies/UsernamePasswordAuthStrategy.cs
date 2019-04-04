@@ -20,14 +20,16 @@ namespace PlayFab.Authentication.Strategies
                 authService.InvokeDisplayAuthentication();
                 return;
             }
-            
+
             PlayFabClientAPI.LoginWithPlayFab(new LoginWithPlayFabRequest
             {
                 InfoRequestParameters = authService.InfoRequestParams,
                 Password = authService.Password,
                 Username = authService.Username,
                 TitleId = PlayFabSettings.TitleId
-            }, resultCallback, error =>
+            },
+            resultCallback,
+            error =>
             {
                 // If user not registered, create one.
                 // Do it because LoginWithPlayFabRequest does not contains "CreateAccount" option.
@@ -53,7 +55,7 @@ namespace PlayFab.Authentication.Strategies
                             PlayFabId = registerSuccess.PlayFabId,
                             SessionTicket = registerSuccess.SessionTicket,
                             SettingsForUser = registerSuccess.SettingsForUser,
-                            Request = registerSuccess.Request, 
+                            Request = registerSuccess.Request,
                             LastLoginTime = DateTime.UtcNow
                         });
                     }, errorCallback);

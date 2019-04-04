@@ -28,10 +28,11 @@ namespace PlayFab.Authentication.Strategies
                 Password = authService.Password,
                 InfoRequestParameters = authService.InfoRequestParams,
                 TitleId = PlayFabSettings.TitleId
-            }, resultCallback, error =>
+            },
+            resultCallback,
+            error =>
             {
-                // If user not registered, create one.
-                // Do it because LoginWithEmailAddressRequest does not contains "CreateAccount" option.
+                // If user not registered, create one with RegisterPlayFabUser, because LoginWithEmailAddressRequest does not contains "CreateAccount" option.
                 if (error.Error == PlayFabErrorCode.AccountNotFound)
                 {
                     UnityEngine.Debug.LogWarning("Authentication failed. Try to register account.");
@@ -54,7 +55,7 @@ namespace PlayFab.Authentication.Strategies
                             PlayFabId = registerSuccess.PlayFabId,
                             SessionTicket = registerSuccess.SessionTicket,
                             SettingsForUser = registerSuccess.SettingsForUser,
-                            Request = registerSuccess.Request, 
+                            Request = registerSuccess.Request,
                             LastLoginTime = DateTime.UtcNow
                         });
                     }, errorCallback);

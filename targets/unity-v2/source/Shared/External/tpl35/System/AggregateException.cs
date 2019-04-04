@@ -44,32 +44,32 @@ namespace System
     {
         List<Exception> innerExceptions = new List<Exception> ();
         const string defaultMessage = "One or more errors occurred";
-        
+
         public AggregateException () : base (defaultMessage)
         {
         }
-        
+
         public AggregateException (string message): base (message)
         {
         }
-        
+
         public AggregateException (string message, Exception innerException): base (message, innerException)
         {
             if (innerException == null)
                 throw new ArgumentNullException ("innerException");
             innerExceptions.Add (innerException);
         }
-        
+
         protected AggregateException (SerializationInfo info, StreamingContext context)
             : base (info, context)
         {
         }
-        
+
         public AggregateException (params Exception[] innerExceptions)
             : this (defaultMessage, innerExceptions)
         {
         }
-        
+
         public AggregateException (string message, params Exception[] innerExceptions)
             : base (message, innerExceptions == null || innerExceptions.Length == 0 ? null : innerExceptions[0])
         {
@@ -81,33 +81,33 @@ namespace System
 
             this.innerExceptions.AddRange (innerExceptions);
         }
-        
+
         public AggregateException (IEnumerable<Exception> innerExceptions)
             : this (defaultMessage, innerExceptions)
         {
         }
-        
+
         public AggregateException (string message, IEnumerable<Exception> innerExceptions)
             : this (message, new List<Exception> (innerExceptions).ToArray ())
         {
         }
-        
+
         public AggregateException Flatten ()
         {
             List<Exception> inner = new List<Exception> ();
-            
+
             foreach (Exception e in innerExceptions) {
                 AggregateException aggEx = e as AggregateException;
                 if (aggEx != null) {
                     inner.AddRange (aggEx.Flatten ().InnerExceptions);
                 } else {
                     inner.Add (e);
-                }                
+                }
             }
 
             return new AggregateException (inner);
         }
-        
+
         public void Handle (Func<Exception, bool> predicate)
         {
             if (predicate == null)
@@ -122,7 +122,7 @@ namespace System
             if (failed.Count > 0)
                 throw new AggregateException (failed);
         }
-        
+
         public ReadOnlyCollection<Exception> InnerExceptions {
             get {
                 return innerExceptions.AsReadOnly ();
@@ -138,7 +138,7 @@ namespace System
 
             innerExceptions.Add (childEx);
         }
-        
+
         public override string ToString ()
         {
             StringBuilder finalMessage = new StringBuilder (base.ToString ());

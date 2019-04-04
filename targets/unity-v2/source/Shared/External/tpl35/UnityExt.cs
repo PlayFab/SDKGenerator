@@ -35,7 +35,7 @@ namespace System
                 return t.Result;
             }
         }
-            
+
         public static void Await(this Task t)
         {
             using(var mre = new ManualResetEventSlim()) {

@@ -132,7 +132,7 @@ namespace System.Collections.Concurrent
             // FIXME: this should have a CAS-like behavior
             return current.Data = updateValue;
         }
-        
+
         public bool Insert (uint key, TKey subKey, T data)
         {
             Node current;
@@ -167,7 +167,7 @@ namespace System.Collections.Concurrent
 
             return true;
         }
-        
+
         public bool Find (uint key, TKey subKey, out T data)
         {
             Node node;
@@ -251,12 +251,12 @@ namespace System.Collections.Concurrent
 
             return SetBucket (b, dummy);
         }
-        
+
         // Turn v's MSB off
         static uint GetParent (uint v)
         {
             uint t, tt;
-            
+
             // Find MSB position in v
             var pos = (tt = v >> 16) > 0 ?
                 (t = tt >> 8) > 0 ? 24 + logTable[t] : 16 + logTable[tt] :
@@ -270,7 +270,7 @@ namespace System.Collections.Concurrent
         {
             return ComputeDummyKey (key) | 1;
         }
-        
+
         // Reverse integer bits
         static ulong ComputeDummyKey (uint key)
         {
@@ -335,19 +335,19 @@ namespace System.Collections.Concurrent
                     t = tNext.Marked ? tNext.Next : tNext;
                     if (t == tail)
                         break;
-                    
+
                     tNext = t.Next;
                 } while (tNext.Marked || t.Key < key || (tNext.Key == key && !comparer.Equals (subKey, t.SubKey)));
-                
+
                 rightNode = t;
-                
+
                 if (leftNodeNext == rightNode) {
                     if (rightNode != tail && rightNode.Next.Marked)
                         continue;
-                    else 
+                    else
                         return rightNode;
                 }
-                
+
                 if (CustomInterlocked.CompareExchange (ref left.next, rightNode, leftNodeNext) == leftNodeNext) {
                     if (rightNode != tail && rightNode.Next.Marked)
                         continue;
@@ -362,7 +362,7 @@ namespace System.Collections.Concurrent
             Node rightNode = null, rightNodeNext = null, leftNode = null;
             data = default (T);
             Node markedNode = null;
-            
+
             do {
                 rightNode = ListSearch (key, subKey, ref leftNode, startPoint);
                 if (rightNode == tail || rightNode.Key != key || !comparer.Equals (subKey, rightNode.SubKey))
@@ -380,23 +380,23 @@ namespace System.Collections.Concurrent
                         break;
                 }
             } while (true);
-            
+
             if (CustomInterlocked.CompareExchange (ref leftNode.next, rightNodeNext, rightNode) != rightNode)
                 ListSearch (rightNode.Key, subKey, ref leftNode, startPoint);
-            
+
             return true;
         }
-        
+
         bool ListInsert (Node newNode, Node startPoint, out Node current, Func<T> dataCreator)
         {
             ulong key = newNode.Key;
             Node rightNode = null, leftNode = null;
-            
+
             do {
                 rightNode = current = ListSearch (key, newNode.SubKey, ref leftNode, startPoint);
                 if (rightNode != tail && rightNode.Key == key && comparer.Equals (newNode.SubKey, rightNode.SubKey))
                     return false;
-                
+
                 newNode.next = rightNode;
                 if (dataCreator != null)
                     newNode.Data = dataCreator ();
@@ -404,15 +404,15 @@ namespace System.Collections.Concurrent
                     return true;
             } while (true);
         }
-        
+
         bool ListFind (ulong key, TKey subKey, Node startPoint, out Node data)
         {
             Node rightNode = null, leftNode = null;
             data = null;
-            
+
             rightNode = ListSearch (key, subKey, ref leftNode, startPoint);
             data = rightNode;
-            
+
             return rightNode != tail && rightNode.Key == key && comparer.Equals (subKey, rightNode.SubKey);
         }
 

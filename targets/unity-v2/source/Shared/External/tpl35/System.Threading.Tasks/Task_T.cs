@@ -40,7 +40,7 @@ namespace System.Threading.Tasks
         static readonly TaskFactory<TResult> factory = new TaskFactory<TResult> ();
 
         TResult value;
-        
+
         [DebuggerBrowsable (DebuggerBrowsableState.Never)]
         public TResult Result {
             get {
@@ -61,58 +61,58 @@ namespace System.Threading.Tasks
             get {
                 if ((Status & (TaskStatus.RanToCompletion)) != 0)
                     return "" + value;
-                
+
                 return "<value not available>";
             }
         }
-        
+
         public static new TaskFactory<TResult> Factory {
             get {
                 return factory;
             }
         }
-        
+
         public Task (Func<TResult> function)
             : this (function, TaskCreationOptions.None)
         {
-            
+
         }
-        
+
         public Task (Func<TResult> function, CancellationToken cancellationToken)
             : this (function, cancellationToken, TaskCreationOptions.None)
         {
-            
+
         }
-        
+
         public Task (Func<TResult> function, TaskCreationOptions creationOptions)
             : this (function, CancellationToken.None, creationOptions)
         {
-            
+
         }
-        
+
         public Task (Func<TResult> function, CancellationToken cancellationToken, TaskCreationOptions creationOptions)
             : base (TaskActionInvoker.Create (function), null, cancellationToken, creationOptions)
         {
             if (function == null)
                 throw new ArgumentNullException ("function");
         }
-        
+
         public Task (Func<object, TResult> function, object state)
             : this (function, state, TaskCreationOptions.None)
         {
-            
+
         }
-        
+
         public Task (Func<object, TResult> function, object state, CancellationToken cancellationToken)
             : this (function, state, cancellationToken, TaskCreationOptions.None)
         {
-            
+
         }
-        
+
         public Task (Func<object, TResult> function, object state, TaskCreationOptions creationOptions)
             : this (function, state, CancellationToken.None, creationOptions)
         {
-            
+
         }
 
         public Task (Func<object, TResult> function, object state, CancellationToken cancellationToken, TaskCreationOptions creationOptions)
@@ -131,22 +131,22 @@ namespace System.Threading.Tasks
         {
             return ContinueWith (continuationAction, TaskContinuationOptions.None);
         }
-        
+
         public Task ContinueWith (Action<Task<TResult>> continuationAction, TaskContinuationOptions continuationOptions)
         {
             return ContinueWith (continuationAction, CancellationToken.None, continuationOptions, TaskScheduler.Current);
         }
-        
+
         public Task ContinueWith (Action<Task<TResult>> continuationAction, CancellationToken cancellationToken)
         {
             return ContinueWith (continuationAction, cancellationToken, TaskContinuationOptions.None, TaskScheduler.Current);
         }
-        
+
         public Task ContinueWith (Action<Task<TResult>> continuationAction, TaskScheduler scheduler)
         {
             return ContinueWith (continuationAction, CancellationToken.None, TaskContinuationOptions.None, scheduler);
         }
-        
+
         public Task ContinueWith (Action<Task<TResult>> continuationAction, CancellationToken cancellationToken,
                                   TaskContinuationOptions continuationOptions, TaskScheduler scheduler)
         {
@@ -162,7 +162,7 @@ namespace System.Threading.Tasks
                                null,
                                this);
             ContinueWithCore (t, continuationOptions, scheduler);
-            
+
             return t;
         }
 
@@ -170,22 +170,22 @@ namespace System.Threading.Tasks
         {
             return ContinueWith<TNewResult> (continuationFunction, CancellationToken.None, TaskContinuationOptions.None, TaskScheduler.Current);
         }
-        
+
         public Task<TNewResult> ContinueWith<TNewResult> (Func<Task<TResult>, TNewResult> continuationFunction, CancellationToken cancellationToken)
         {
             return ContinueWith<TNewResult> (continuationFunction, cancellationToken, TaskContinuationOptions.None, TaskScheduler.Current);
         }
-        
+
         public Task<TNewResult> ContinueWith<TNewResult> (Func<Task<TResult>, TNewResult> continuationFunction, TaskContinuationOptions continuationOptions)
         {
             return ContinueWith<TNewResult> (continuationFunction, CancellationToken.None, continuationOptions, TaskScheduler.Current);
         }
-        
+
         public Task<TNewResult> ContinueWith<TNewResult> (Func<Task<TResult>, TNewResult> continuationFunction, TaskScheduler scheduler)
         {
             return ContinueWith<TNewResult> (continuationFunction, CancellationToken.None, TaskContinuationOptions.None, scheduler);
         }
-        
+
         public Task<TNewResult> ContinueWith<TNewResult> (Func<Task<TResult>, TNewResult> continuationFunction,
                                                           CancellationToken cancellationToken,
                                                           TaskContinuationOptions continuationOptions,
@@ -203,7 +203,7 @@ namespace System.Threading.Tasks
                                           null,
                                           this);
             ContinueWithCore (t, continuationOptions, scheduler);
-            
+
             return t;
         }
 
@@ -211,7 +211,7 @@ namespace System.Threading.Tasks
         {
             if (IsCompleted)
                 return false;
-            
+
             if (!executing.TryRelaxedSet ()) {
                 var sw = new SpinWait ();
                 while (!IsCompleted)
@@ -219,7 +219,7 @@ namespace System.Threading.Tasks
 
                 return false;
             }
-            
+
             Status = TaskStatus.Running;
 
             this.value = result;
@@ -249,7 +249,7 @@ namespace System.Threading.Tasks
 
             return t;
         }
-        
+
         public Task ContinueWith (Action<Task<TResult>, object> continuationAction, object state)
         {
             return ContinueWith (continuationAction, state, CancellationToken.None, TaskContinuationOptions.None, TaskScheduler.Current);

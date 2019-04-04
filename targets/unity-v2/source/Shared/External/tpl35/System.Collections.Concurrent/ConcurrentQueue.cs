@@ -47,7 +47,7 @@ namespace System.Collections.Concurrent
             }
             public object next;
         }
-        
+
         object head = new Node ();
         Node Head {
             get { return (Node)head; }
@@ -64,26 +64,26 @@ namespace System.Collections.Concurrent
         {
             tail = head;
         }
-        
+
         public ConcurrentQueue (IEnumerable<T> collection): this()
         {
             foreach (T item in collection)
                 Enqueue (item);
         }
-        
+
         public void Enqueue (T item)
         {
             Node node = new Node ();
             node.Value = item;
-            
+
             Node oldTail = null;
             Node oldNext = null;
-            
+
             bool update = false;
             while (!update) {
                 oldTail = Tail;
                 oldNext = oldTail.Next;
-                
+
                 // Did tail was already updated ?
                 if (tail == oldTail) {
                     if (oldNext == null) {
@@ -99,7 +99,7 @@ namespace System.Collections.Concurrent
             CustomInterlocked.CompareExchange (ref tail, node, oldTail);
             CustomInterlocked.Increment (ref count);
         }
-        
+
         bool IProducerConsumerCollection<T>.TryAdd (T item)
         {
             Enqueue (item);
@@ -116,7 +116,7 @@ namespace System.Collections.Concurrent
                 Node oldHead = Head;
                 Node oldTail = Tail;
                 oldNext = oldHead.Next;
-                
+
                 if (oldHead == head) {
                     // Empty case ?
                     if (oldHead == oldTail) {
@@ -141,12 +141,12 @@ namespace System.Collections.Concurrent
 
             return true;
         }
-        
+
         public bool TryPeek (out T result)
         {
             result = default (T);
             bool update = true;
-            
+
             while (update)
             {
                 Node oldHead = Head;
@@ -158,29 +158,29 @@ namespace System.Collections.Concurrent
                 }
 
                 result = oldNext.Value;
-                
+
                 //check if head has been updated
                 update = head != oldHead;
             }
             return true;
         }
-        
+
         internal void Clear ()
         {
             count = 0;
             tail = head = new Node ();
         }
-        
+
         IEnumerator IEnumerable.GetEnumerator ()
         {
             return (IEnumerator)InternalGetEnumerator ();
         }
-        
+
         public IEnumerator<T> GetEnumerator ()
         {
             return InternalGetEnumerator ();
         }
-        
+
         IEnumerator<T> InternalGetEnumerator ()
         {
             Node my_head = Head;
@@ -188,7 +188,7 @@ namespace System.Collections.Concurrent
                 yield return my_head.Value;
             }
         }
-        
+
         void ICollection.CopyTo (Array array, int index)
         {
             if (array == null)
@@ -203,7 +203,7 @@ namespace System.Collections.Concurrent
                 throw new ArgumentException ("The array cannot be cast to the collection element type", "array");
             CopyTo (dest, index);
         }
-        
+
         public void CopyTo (T[] array, int index)
         {
             if (array == null)
@@ -221,12 +221,12 @@ namespace System.Collections.Concurrent
                 array[i++] = e.Current;
             }
         }
-        
+
         public T[] ToArray ()
         {
             return new List<T> (this).ToArray ();
         }
-        
+
         bool ICollection.IsSynchronized {
             get { return true; }
         }
@@ -235,18 +235,18 @@ namespace System.Collections.Concurrent
         {
             return TryDequeue (out item);
         }
-        
+
         object syncRoot = new object();
         object ICollection.SyncRoot {
             get { return syncRoot; }
         }
-        
+
         public int Count {
             get {
                 return count;
             }
         }
-        
+
         public bool IsEmpty {
             get {
                 return count == 0;

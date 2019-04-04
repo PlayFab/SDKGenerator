@@ -37,7 +37,7 @@ namespace System.Threading.Tasks
         public static readonly TaskActionInvoker Empty = new EmptyTaskActionInvoker ();
         public static readonly TaskActionInvoker Promise = new EmptyTaskActionInvoker ();
         public static readonly TaskActionInvoker Delay = new DelayTaskInvoker ();
-        
+
         sealed class EmptyTaskActionInvoker : TaskActionInvoker
         {
             public override Delegate Action {

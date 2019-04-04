@@ -1,25 +1,25 @@
 #if !NET_4_6 && (NET_2_0_SUBSET || NET_2_0)
 
-// 
+//
 // TaskCompletionSource.cs
-//  
+//
 // Authors:
 //       Jérémie "Garuma" Laval <jeremie.laval@gmail.com>
 //       Marek Safar <marek.safar@gmail.com>
-// 
+//
 // Copyright (c) 2009 Jérémie "Garuma" Laval
 // Copyright 2011 Xamarin, Inc (http://www.xamarin.com)
-// 
+//
 // Permission is hereby granted, free of charge, to any person obtaining a copy
 // of this software and associated documentation files (the "Software"), to deal
 // in the Software without restriction, including without limitation the rights
 // to use, copy, modify, merge, publish, distribute, sublicense, and/or sell
 // copies of the Software, and to permit persons to whom the Software is
 // furnished to do so, subject to the following conditions:
-// 
+//
 // The above copyright notice and this permission notice shall be included in
 // all copies or substantial portions of the Software.
-// 
+//
 // THE SOFTWARE IS PROVIDED "AS IS", WITHOUT WARRANTY OF ANY KIND, EXPRESS OR
 // IMPLIED, INCLUDING BUT NOT LIMITED TO THE WARRANTIES OF MERCHANTABILITY,
 // FITNESS FOR A PARTICULAR PURPOSE AND NONINFRINGEMENT. IN NO EVENT SHALL THE
@@ -41,17 +41,17 @@ namespace System.Threading.Tasks
             : this (null, TaskCreationOptions.None)
         {
         }
-        
+
         public TaskCompletionSource (object state)
             : this (state, TaskCreationOptions.None)
         {
         }
-        
+
         public TaskCompletionSource (TaskCreationOptions creationOptions)
             : this (null, creationOptions)
         {
         }
-        
+
         public TaskCompletionSource (object state, TaskCreationOptions creationOptions)
         {
             if ((creationOptions & Tasks.Task.WorkerTaskNotSupportedOptions) != 0)
@@ -60,51 +60,51 @@ namespace System.Threading.Tasks
             source = new Task<TResult> (TaskActionInvoker.Empty, state, CancellationToken.None, creationOptions, null);
             source.SetupScheduler (TaskScheduler.Current);
         }
-        
+
         public void SetCanceled ()
         {
             if (!TrySetCanceled ())
                 ThrowInvalidException ();
         }
-        
+
         public void SetException (Exception exception)
         {
             if (exception == null)
                 throw new ArgumentNullException ("exception");
-            
+
             SetException (new Exception[] { exception });
         }
-        
+
         public void SetException (IEnumerable<Exception> exceptions)
         {
             if (!TrySetException (exceptions))
                 ThrowInvalidException ();
         }
-        
+
         public void SetResult (TResult result)
         {
             if (!TrySetResult (result))
                 ThrowInvalidException ();
         }
-                
+
         static void ThrowInvalidException ()
         {
             throw new InvalidOperationException ("The underlying Task is already in one of the three final states: RanToCompletion, Faulted, or Canceled.");
         }
-        
+
         public bool TrySetCanceled ()
         {
             return source.TrySetCanceled ();
         }
-        
+
         public bool TrySetException (Exception exception)
         {
             if (exception == null)
                 throw new ArgumentNullException ("exception");
-            
+
             return TrySetException (new Exception[] { exception });
         }
-        
+
         public bool TrySetException (IEnumerable<Exception> exceptions)
         {
             if (exceptions == null)
@@ -116,7 +116,7 @@ namespace System.Threading.Tasks
 
             return source.TrySetException (aggregate, false, false);
         }
-        
+
         public bool TrySetResult (TResult result)
         {
             return source.TrySetResult (result);

@@ -9,11 +9,14 @@ namespace PlayFab.Internal
 
         public static void ParseResponse(long httpCode, Func<string> getText, string errorString, Action<object> callback)
         {
-            if (callback == null) return;
+            if (callback == null)
+            {
+                return;
+            }
 
             if (!string.IsNullOrEmpty(errorString))
             {
-                callback.Invoke(new OneDsError
+                callback(new OneDsError
                 {
                     Error = PlayFabErrorCode.Unknown,
                     ErrorMessage = errorString
@@ -25,11 +28,11 @@ namespace PlayFab.Internal
 
                 try
                 {
-                    httpResponseString = getText.Invoke();
+                    httpResponseString = getText();
                 }
                 catch (Exception exception)
                 {
-                    callback.Invoke(new OneDsError
+                    callback(new OneDsError
                     {
                         Error = PlayFabErrorCode.ConnectionError,
                         ErrorMessage = exception.Message
@@ -39,12 +42,6 @@ namespace PlayFab.Internal
 
                 if (httpCode >= 200 && httpCode < 300)
                 {
-                    Action<Exception> printErrorMessage = e =>
-                    {
-                        var errorMsg = string.Format("Exception in callback method. Source: {0}, Error: {1}", e.Source, e.Message);
-                        UnityEngine.Debug.LogException(new Exception(errorMsg));
-                    };
-                    
                     var responseObj = PluginManager.GetPlugin<ISerializerPlugin>(PluginContract.PlayFab_Serializer).DeserializeObject(httpResponseString) as Json.JsonObject;
                     ulong oneDsResult = 0;
 
@@ -54,9 +51,9 @@ namespace PlayFab.Internal
                     }
                     catch (NullReferenceException e)
                     {
-                        callback.Invoke(new OneDsError
+                        callback(new OneDsError
                         {
-                            HttpCode = (int) httpCode,
+                            HttpCode = (int)httpCode,
                             HttpStatus = httpResponseString,
                             Error = PlayFabErrorCode.JsonParseError,
                             ErrorMessage = "Failed to parse response from OneDS server: " + e.Message
@@ -66,7 +63,7 @@ namespace PlayFab.Internal
                     }
                     catch (Exception e)
                     {
-                        printErrorMessage.Invoke(e);
+                        UnityEngine.Debug.LogException(e);
                         return;
                     }
 
@@ -74,13 +71,13 @@ namespace PlayFab.Internal
                     {
                         if (oneDsResult > 0)
                         {
-                            callback.Invoke(httpResponseString);
+                            callback(httpResponseString);
                         }
                         else
                         {
-                            callback.Invoke(new OneDsError
+                            callback(new OneDsError
                             {
-                                HttpCode = (int) httpCode,
+                                HttpCode = (int)httpCode,
                                 HttpStatus = httpResponseString,
                                 Error = PlayFabErrorCode.PartialFailure,
                                 ErrorMessage = "OneDS server did not accept events"
@@ -89,7 +86,7 @@ namespace PlayFab.Internal
                     }
                     catch (Exception e)
                     {
-                        printErrorMessage.Invoke(e);
+                        UnityEngine.Debug.LogException(e);
                     }
                 }
                 else if ((httpCode >= 500 && httpCode != 501 && httpCode != 505) || httpCode == 408 || httpCode == 429)
@@ -100,9 +97,9 @@ namespace PlayFab.Internal
                     // TODO implement a retry policy
                     // As a placeholder, return an immediate error
 
-                    callback.Invoke(new OneDsError
+                    callback(new OneDsError
                     {
-                        HttpCode = (int) httpCode,
+                        HttpCode = (int)httpCode,
                         HttpStatus = httpResponseString,
                         Error = PlayFabErrorCode.UnknownError,
                         ErrorMessage = "Failed to send a batch of events to OneDS"
@@ -111,9 +108,9 @@ namespace PlayFab.Internal
                 else
                 {
                     // following One-DS recommendations, all other HTTP response codes are errors that should not be retried
-                    callback.Invoke(new OneDsError
+                    callback(new OneDsError
                     {
-                        HttpCode = (int) httpCode,
+                        HttpCode = (int)httpCode,
                         HttpStatus = httpResponseString,
                         Error = PlayFabErrorCode.UnknownError,
                         ErrorMessage = "Failed to send a batch of events to OneDS"
@@ -123,7 +120,7 @@ namespace PlayFab.Internal
         }
     }
 
-    public class OneDsError 
+    public class OneDsError
     {
         public int HttpCode;
         public string HttpStatus;

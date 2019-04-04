@@ -1,25 +1,25 @@
 #if !NET_4_6 && (NET_2_0_SUBSET || NET_2_0)
 
-// 
+//
 // CancellationTokenSource.cs
-//  
+//
 // Authors:
 //       Jérémie "Garuma" Laval <jeremie.laval@gmail.com>
 //       Marek Safar (marek.safar@gmail.com)
-// 
+//
 // Copyright (c) 2009 Jérémie "Garuma" Laval
 // Copyright 2011 Xamarin, Inc (http://www.xamarin.com)
-// 
+//
 // Permission is hereby granted, free of charge, to any person obtaining a copy
 // of this software and associated documentation files (the "Software"), to deal
 // in the Software without restriction, including without limitation the rights
 // to use, copy, modify, merge, publish, distribute, sublicense, and/or sell
 // copies of the Software, and to permit persons to whom the Software is
 // furnished to do so, subject to the following conditions:
-// 
+//
 // The above copyright notice and this permission notice shall be included in
 // all copies or substantial portions of the Software.
-// 
+//
 // THE SOFTWARE IS PROVIDED "AS IS", WITHOUT WARRANTY OF ANY KIND, EXPRESS OR
 // IMPLIED, INCLUDING BUT NOT LIMITED TO THE WARRANTIES OF MERCHANTABILITY,
 // FITNESS FOR A PARTICULAR PURPOSE AND NONINFRINGEMENT. IN NO EVENT SHALL THE
@@ -50,14 +50,14 @@ namespace System.Threading
         object _linkedTokens;
 
         ManualResetEvent handle;
-        
+
         internal static readonly CancellationTokenSource NoneSource = new CancellationTokenSource ();
         internal static readonly CancellationTokenSource CanceledSource = new CancellationTokenSource ();
-        
+
         static readonly TimerCallback timer_callback;
         object timer;
         Timer Timer
-        { 
+        {
             get { return (Timer)timer; }
         }
 
@@ -98,25 +98,25 @@ namespace System.Threading
                 return new CancellationToken (this);
             }
         }
-        
+
         public bool IsCancellationRequested {
             get {
                 return (state & StateCanceled) != 0;
             }
         }
-        
+
         internal WaitHandle WaitHandle {
             get {
                 CheckDisposed ();
                 return handle;
             }
         }
-        
+
         public void Cancel ()
         {
             Cancel (false);
         }
-        
+
         // If parameter is true we throw exception as soon as they appear otherwise we aggregate them
         public void Cancel (bool throwOnFirstException)
         {
@@ -208,7 +208,7 @@ namespace System.Threading
         {
             return CreateLinkedTokenSource (new [] { token1, token2 });
         }
-        
+
         public static CancellationTokenSource CreateLinkedTokenSource (params CancellationToken[] tokens)
         {
             if (tokens == null)
@@ -226,7 +226,7 @@ namespace System.Threading
                     registrations.Add (token.Register (action));
             }
             src._linkedTokens = registrations.ToArray ();
-            
+
             return src;
         }
 
@@ -279,7 +279,7 @@ namespace System.Threading
             foreach (var linked in (CancellationTokenRegistration[])registrations)
                 linked.Dispose ();
         }
-        
+
         internal CancellationTokenRegistration Register (Action callback, bool useSynchronizationContext)
         {
             CheckDisposed ();
@@ -297,7 +297,7 @@ namespace System.Threading
                 if (IsCancellationRequested && callbacks.TryRemove (tokenReg, out callback))
                     callback ();
             }
-            
+
             return tokenReg;
         }
 

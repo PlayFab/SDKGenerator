@@ -32,7 +32,7 @@ namespace System.Threading.Tasks
     public class TaskSchedulerException : Exception
     {
         const string exceptionDefaultMessage = "An exception was thrown by a TaskScheduler";
-      
+
         public TaskSchedulerException () : base (exceptionDefaultMessage)
         {
 
@@ -46,19 +46,19 @@ namespace System.Threading.Tasks
         protected TaskSchedulerException (SerializationInfo info, StreamingContext context)
             : base (info, context)
         {
-        
+
         }
-    
+
         public TaskSchedulerException (Exception innerException)
             : base (exceptionDefaultMessage, innerException)
         {
-        
+
         }
-    
+
         public TaskSchedulerException (string message, Exception innerException)
             : base (message, innerException)
         {
-        
+
         }
     }
 }

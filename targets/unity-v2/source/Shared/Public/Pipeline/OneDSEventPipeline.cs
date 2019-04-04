@@ -91,7 +91,7 @@ namespace PlayFab.Pipeline
                 throw new ArgumentNullException("logger");
 #else
                 throw new ArgumentNullException(nameof(logger));
-#endif                
+#endif
             this.logger = logger;
 
             this.batchingStage = new EventBatchingStage(this.settings.BatchSize, this.settings.BatchFillTimeout, logger);

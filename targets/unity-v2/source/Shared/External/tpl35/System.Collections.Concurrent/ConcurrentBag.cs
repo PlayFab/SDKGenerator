@@ -1,23 +1,23 @@
 #if !NET_4_6 && (NET_2_0_SUBSET || NET_2_0)
 
-// 
+//
 // ConcurrentBag.cs
-//  
+//
 // Author:
 //       Jérémie "Garuma" Laval <jeremie.laval@gmail.com>
-// 
+//
 // Copyright (c) 2009 Jérémie "Garuma" Laval
-// 
+//
 // Permission is hereby granted, free of charge, to any person obtaining a copy
 // of this software and associated documentation files (the "Software"), to deal
 // in the Software without restriction, including without limitation the rights
 // to use, copy, modify, merge, publish, distribute, sublicense, and/or sell
 // copies of the Software, and to permit persons to whom the Software is
 // furnished to do so, subject to the following conditions:
-// 
+//
 // The above copyright notice and this permission notice shall be included in
 // all copies or substantial portions of the Software.
-// 
+//
 // THE SOFTWARE IS PROVIDED "AS IS", WITHOUT WARRANTY OF ANY KIND, EXPRESS OR
 // IMPLIED, INCLUDING BUT NOT LIMITED TO THE WARRANTIES OF MERCHANTABILITY,
 // FITNESS FOR A PARTICULAR PURPOSE AND NONINFRINGEMENT. IN NO EVENT SHALL THE
@@ -50,17 +50,17 @@ namespace System.Collections.Concurrent
         ConcurrentDictionary<int, CyclicDeque<T>> container = new ConcurrentDictionary<int, CyclicDeque<T>> ();
         // The staging area is where non-empty bag are located for fast iteration
         ConcurrentDictionary<int, CyclicDeque<T>> staging = new ConcurrentDictionary<int, CyclicDeque<T>> ();
-        
+
         public ConcurrentBag ()
         {
         }
-        
+
         public ConcurrentBag (IEnumerable<T> collection) : this ()
         {
             foreach (T item in collection)
                 Add (item);
         }
-        
+
         public void Add (T item)
         {
             int index;
@@ -76,7 +76,7 @@ namespace System.Collections.Concurrent
             Add (element);
             return true;
         }
-        
+
         public bool TryTake (out T result)
         {
             result = default (T);
@@ -87,7 +87,7 @@ namespace System.Collections.Concurrent
             int hintIndex;
             CyclicDeque<T> bag = GetBag (out hintIndex, false);
             bool ret = true;
-            
+
             if (bag == null || bag.PopBottom (out result) != PopResult.Succeed) {
                 var self = bag;
                 ret = false;
@@ -104,7 +104,7 @@ namespace System.Collections.Concurrent
                         hintIndex = other.Key;
                         bag = other.Value;
                     }
-                    
+
                     // If we found something, stop
                     if (ret)
                         break;
@@ -174,85 +174,85 @@ namespace System.Collections.Concurrent
 
             return index > 0;
         }
-        
+
         public int Count {
             get {
                 return count;
             }
         }
-        
+
         public bool IsEmpty {
             get {
                 return count == 0;
             }
         }
-        
+
         object ICollection.SyncRoot  {
             get {
                 return this;
             }
         }
-        
+
         bool ICollection.IsSynchronized  {
             get {
                 return true;
             }
         }
-        
+
         IEnumerator IEnumerable.GetEnumerator ()
         {
             return GetEnumeratorInternal ();
         }
-        
+
         public IEnumerator<T> GetEnumerator ()
         {
             return GetEnumeratorInternal ();
         }
-        
+
         IEnumerator<T> GetEnumeratorInternal ()
         {
             foreach (var bag in container)
             foreach (T item in bag.Value.GetEnumerable ())
                 yield return item;
         }
-        
+
         void ICollection.CopyTo (Array array, int index)
         {
             T[] a = array as T[];
             if (a == null)
                 return;
-            
+
             CopyTo (a, index);
         }
-        
+
         public void CopyTo (T[] array, int index)
         {
             int c = count;
             if (array.Length < c + index)
                 throw new InvalidOperationException ("Array is not big enough");
-            
+
             CopyTo (array, index, c);
         }
-        
+
         void CopyTo (T[] array, int index, int num)
         {
             int i = index;
-            
+
             foreach (T item in this) {
                 if (i >= num)
                     break;
-                
+
                 array[i++] = item;
             }
         }
-        
+
         public T[] ToArray ()
         {
             int c = count;
             T[] temp = new T[c];
-            
+
             CopyTo (temp, 0, c);
-            
+
             return temp;
         }
 
@@ -260,7 +260,7 @@ namespace System.Collections.Concurrent
         {
             return Thread.CurrentThread.ManagedThreadId;
         }
-                
+
         CyclicDeque<T> GetBag (out int index, bool createBag = true)
         {
             index = GetIndex ();

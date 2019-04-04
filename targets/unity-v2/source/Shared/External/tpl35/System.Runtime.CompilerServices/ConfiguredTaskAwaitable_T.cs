@@ -71,7 +71,7 @@ namespace System.Runtime.CompilerServices
 
                 TaskAwaiter.HandleOnCompleted (task, continuation, continueOnSourceContext, true);
             }
-            
+
             public void UnsafeOnCompleted (Action continuation)
             {
                 if (continuation == null)
@@ -80,14 +80,14 @@ namespace System.Runtime.CompilerServices
                 TaskAwaiter.HandleOnCompleted (task, continuation, continueOnSourceContext, false);
             }
         }
-        
+
         readonly ConfiguredTaskAwaiter awaiter;
-        
+
         internal ConfiguredTaskAwaitable (Task<TResult> task, bool continueOnSourceContext)
         {
             awaiter = new ConfiguredTaskAwaiter (task, continueOnSourceContext);
         }
-        
+
         public ConfiguredTaskAwaiter GetAwaiter()
         {
             return awaiter;

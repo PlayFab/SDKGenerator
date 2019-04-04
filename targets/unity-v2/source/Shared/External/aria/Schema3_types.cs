@@ -659,7 +659,7 @@ namespace Microsoft.Applications.Events.DataModels
             iKey = String.Empty;
             flags = 0;
             cV = String.Empty;
-            
+
             SafeClear(ext);
             SafeClear(extIngest);
             SafeClear(extProtocol);
@@ -687,7 +687,7 @@ namespace Microsoft.Applications.Events.DataModels
             {
                 baseType = String.Empty;
             }
-            
+
             ext = null;
             extIngest = null;
             extProtocol = null;

@@ -140,7 +140,7 @@ namespace PlayFab.Internal
                     envFileContent = ReadAllFileText(tempDirEnvFile);
                 }
             }
-            
+
             if (!string.IsNullOrEmpty(envFileContent))
             {
                 JsonObject envJson = PlayFabSimpleJson.DeserializeObject<JsonObject>(envFileContent);
@@ -153,7 +153,7 @@ namespace PlayFab.Internal
                     }
 
                     return null;
-                } 
+                }
                 catch (KeyNotFoundException)
                 {
                     return string.Empty;

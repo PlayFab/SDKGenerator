@@ -1,25 +1,25 @@
 #if !NET_4_6 && (NET_2_0_SUBSET || NET_2_0)
 
-// 
+//
 // TaskFactory.cs
-//  
+//
 // Authors:
 //       Jérémie "Garuma" Laval <jeremie.laval@gmail.com>
 //       Marek Safar <marek.safar@gmail.com>
-// 
+//
 // Copyright (c) 2009 Jérémie "Garuma" Laval
 // Copyright 2011 Xamarin, Inc (http://www.xamarin.com)
-// 
+//
 // Permission is hereby granted, free of charge, to any person obtaining a copy
 // of this software and associated documentation files (the "Software"), to deal
 // in the Software without restriction, including without limitation the rights
 // to use, copy, modify, merge, publish, distribute, sublicense, and/or sell
 // copies of the Software, and to permit persons to whom the Software is
 // furnished to do so, subject to the following conditions:
-// 
+//
 // The above copyright notice and this permission notice shall be included in
 // all copies or substantial portions of the Software.
-// 
+//
 // THE SOFTWARE IS PROVIDED "AS IS", WITHOUT WARRANTY OF ANY KIND, EXPRESS OR
 // IMPLIED, INCLUDING BUT NOT LIMITED TO THE WARRANTIES OF MERCHANTABILITY,
 // FITNESS FOR A PARTICULAR PURPOSE AND NONINFRINGEMENT. IN NO EVENT SHALL THE
@@ -36,7 +36,7 @@ namespace System.Threading.Tasks
         TaskCreationOptions creationOptions;
         TaskContinuationOptions continuationOptions;
         CancellationToken cancellationToken;
-        
+
         public TaskFactory ()
             : this (CancellationToken.None, TaskCreationOptions.None, TaskContinuationOptions.None, null)
         {
@@ -44,19 +44,19 @@ namespace System.Threading.Tasks
 
         public TaskFactory (CancellationToken cancellationToken)
             : this (cancellationToken, TaskCreationOptions.None, TaskContinuationOptions.None, null)
-        {    
+        {
         }
 
         public TaskFactory (TaskScheduler scheduler)
             : this (CancellationToken.None, TaskCreationOptions.None, TaskContinuationOptions.None, scheduler)
-        {    
+        {
         }
-        
+
         public TaskFactory (TaskCreationOptions creationOptions, TaskContinuationOptions continuationOptions)
             : this (CancellationToken.None, creationOptions, continuationOptions, null)
-        {    
+        {
         }
-        
+
         public TaskFactory (CancellationToken cancellationToken, TaskCreationOptions creationOptions, TaskContinuationOptions continuationOptions,
                             TaskScheduler scheduler)
         {
@@ -67,25 +67,25 @@ namespace System.Threading.Tasks
 
             CheckContinuationOptions (continuationOptions);
         }
-        
+
         public TaskScheduler Scheduler {
             get {
                 return scheduler;
             }
         }
-        
+
         public TaskContinuationOptions ContinuationOptions {
             get {
                 return continuationOptions;
             }
         }
-        
+
         public TaskCreationOptions CreationOptions {
             get {
                 return creationOptions;
             }
         }
-        
+
         public CancellationToken CancellationToken {
             get {
                 return cancellationToken;
@@ -101,18 +101,18 @@ namespace System.Threading.Tasks
             if ((continuationOptions & long_running) == long_running)
                 throw new ArgumentOutOfRangeException ("continuationOptions", "Synchronous continuations cannot be long running");
         }
-        
+
         #region StartNew for Task
         public Task StartNew (Action action)
         {
             return StartNew (action, cancellationToken, creationOptions, GetScheduler ());
         }
-        
+
         public Task StartNew (Action action, CancellationToken cancellationToken)
         {
             return StartNew (action, cancellationToken, creationOptions, GetScheduler ());
         }
-        
+
         public Task StartNew (Action action, TaskCreationOptions creationOptions)
         {
             return StartNew (action, cancellationToken, creationOptions, GetScheduler ());
@@ -130,22 +130,22 @@ namespace System.Threading.Tasks
 
             return t;
         }
-        
+
         public Task StartNew (Action<object> action, object state)
         {
             return StartNew (action, state, cancellationToken, creationOptions, GetScheduler ());
         }
-        
+
         public Task StartNew (Action<object> action, object state, CancellationToken cancellationToken)
         {
             return StartNew (action, state, cancellationToken, creationOptions, GetScheduler ());
         }
-        
+
         public Task StartNew (Action<object> action, object state, TaskCreationOptions creationOptions)
         {
             return StartNew (action, state, cancellationToken, creationOptions, GetScheduler ());
         }
-        
+
         public Task StartNew (Action<object> action, object state, CancellationToken cancellationToken, TaskCreationOptions creationOptions,
                               TaskScheduler scheduler)
         {
@@ -156,28 +156,28 @@ namespace System.Threading.Tasks
             //
             if (!t.IsCompleted)
                 t.Start (scheduler);
-            
+
             return t;
         }
         #endregion
-        
-        #region StartNew for Task<TResult>    
+
+        #region StartNew for Task<TResult>
         public Task<TResult> StartNew<TResult> (Func<TResult> function)
         {
             return StartNew<TResult> (function, cancellationToken, creationOptions, GetScheduler ());
         }
-        
+
         public Task<TResult> StartNew<TResult> (Func<TResult> function, TaskCreationOptions creationOptions)
         {
             return StartNew<TResult> (function, cancellationToken, creationOptions, GetScheduler ());
 
         }
-        
+
         public Task<TResult> StartNew<TResult> (Func<TResult> function, CancellationToken cancellationToken)
         {
             return StartNew<TResult> (function, cancellationToken, creationOptions, GetScheduler ());
         }
-        
+
         public Task<TResult> StartNew<TResult> (Func<TResult> function,
                                                 CancellationToken cancellationToken,
                                                 TaskCreationOptions creationOptions,
@@ -193,29 +193,29 @@ namespace System.Threading.Tasks
 
             return t;
         }
-        
+
         public Task<TResult> StartNew<TResult> (Func<object, TResult> function, object state)
         {
             return StartNew<TResult> (function, state, cancellationToken, creationOptions, GetScheduler ());
         }
-        
+
         public Task<TResult> StartNew<TResult> (Func<object, TResult> function, object state, CancellationToken cancellationToken)
         {
             return StartNew<TResult> (function, state, cancellationToken, creationOptions, GetScheduler ());
         }
-        
+
         public Task<TResult> StartNew<TResult> (Func<object, TResult> function, object state, TaskCreationOptions creationOptions)
         {
             return StartNew<TResult> (function, state, cancellationToken, creationOptions, GetScheduler ());
         }
-        
+
         public Task<TResult> StartNew<TResult> (Func<object, TResult> function, object state,
                                                 CancellationToken cancellationToken,
                                                 TaskCreationOptions creationOptions,
                                                 TaskScheduler scheduler)
         {
             var t = new Task<TResult> (function, state, cancellationToken, creationOptions);
-            
+
             //
             // Don't start cancelled task it would throw an exception
             //
@@ -225,19 +225,19 @@ namespace System.Threading.Tasks
             return t;
         }
         #endregion
-        
+
         #region Continue
-        
+
         public Task ContinueWhenAny (Task[] tasks, Action<Task> continuationAction)
         {
             return ContinueWhenAny (tasks, continuationAction, cancellationToken, continuationOptions, GetScheduler ());
         }
-        
+
         public Task ContinueWhenAny (Task[] tasks, Action<Task> continuationAction, CancellationToken cancellationToken)
         {
             return ContinueWhenAny (tasks, continuationAction, cancellationToken, continuationOptions, GetScheduler ());
         }
-        
+
         public Task ContinueWhenAny (Task[] tasks, Action<Task> continuationAction, TaskContinuationOptions continuationOptions)
         {
             return ContinueWhenAny (tasks, continuationAction, cancellationToken, continuationOptions, GetScheduler ());
@@ -251,20 +251,20 @@ namespace System.Threading.Tasks
 
             return cont;
         }
-        
+
         public Task ContinueWhenAny<TAntecedentResult> (Task<TAntecedentResult>[] tasks,
                                                         Action<Task<TAntecedentResult>> continuationAction)
         {
             return ContinueWhenAny (tasks, continuationAction, cancellationToken, continuationOptions, GetScheduler ());
         }
-        
+
         public Task ContinueWhenAny<TAntecedentResult> (Task<TAntecedentResult>[] tasks,
                                                         Action<Task<TAntecedentResult>> continuationAction,
                                                         CancellationToken cancellationToken)
         {
             return ContinueWhenAny (tasks, continuationAction, cancellationToken, continuationOptions, GetScheduler ());
         }
-        
+
         public Task ContinueWhenAny<TAntecedentResult> (Task<TAntecedentResult>[] tasks,
                                                         Action<Task<TAntecedentResult>> continuationAction,
                                                         TaskContinuationOptions continuationOptions)
@@ -347,23 +347,23 @@ namespace System.Threading.Tasks
                                              continuationOptions,
                                              scheduler);
         }
-        
+
         public Task ContinueWhenAll (Task[] tasks, Action<Task[]> continuationAction)
         {
             return ContinueWhenAll (tasks, continuationAction, cancellationToken, continuationOptions, GetScheduler ());
         }
-        
+
         public Task ContinueWhenAll (Task[] tasks, Action<Task[]> continuationAction, CancellationToken cancellationToken)
         {
             return ContinueWhenAll (tasks, continuationAction, cancellationToken, continuationOptions, GetScheduler ());
         }
-        
+
         public Task ContinueWhenAll (Task[] tasks, Action<Task[]> continuationAction,
                                      TaskContinuationOptions continuationOptions)
         {
             return ContinueWhenAll (tasks, continuationAction, cancellationToken, continuationOptions, GetScheduler ());
         }
-        
+
         public Task ContinueWhenAll (Task[] tasks, Action<Task[]> continuationAction, CancellationToken cancellationToken,
                                      TaskContinuationOptions continuationOptions, TaskScheduler scheduler)
         {
@@ -373,26 +373,26 @@ namespace System.Threading.Tasks
 
             return cont;
         }
-        
+
         public Task ContinueWhenAll<TAntecedentResult> (Task<TAntecedentResult>[] tasks,
                                                         Action<Task<TAntecedentResult>[]> continuationAction)
         {
             return ContinueWhenAll (tasks, continuationAction, cancellationToken, continuationOptions, GetScheduler ());
         }
-        
+
         public Task ContinueWhenAll<TAntecedentResult> (Task<TAntecedentResult>[] tasks,
                                                         Action<Task<TAntecedentResult>[]> continuationAction, CancellationToken cancellationToken)
         {
             return ContinueWhenAll (tasks, continuationAction, cancellationToken, continuationOptions, GetScheduler ());
         }
-        
+
         public Task ContinueWhenAll<TAntecedentResult> (Task<TAntecedentResult>[] tasks, Action<Task<TAntecedentResult>[]> continuationAction,
                                                         TaskContinuationOptions continuationOptions)
         {
             return ContinueWhenAll (tasks, continuationAction, cancellationToken, continuationOptions, GetScheduler ());
         }
-        
-        public Task ContinueWhenAll<TAntecedentResult> (Task<TAntecedentResult>[] tasks, 
+
+        public Task ContinueWhenAll<TAntecedentResult> (Task<TAntecedentResult>[] tasks,
                                                         Action<Task<TAntecedentResult>[]> continuationAction,
                                                         CancellationToken cancellationToken, TaskContinuationOptions continuationOptions,
                                                         TaskScheduler scheduler)
@@ -400,24 +400,24 @@ namespace System.Threading.Tasks
             return ContinueWhenAll ((Task[]) tasks, (o) => continuationAction (tasks), cancellationToken,
                                     continuationOptions, scheduler);
         }
-        
+
         public Task<TResult> ContinueWhenAll<TResult> (Task[] tasks, Func<Task[], TResult> continuationFunction)
         {
             return ContinueWhenAll<TResult> (tasks, continuationFunction, cancellationToken, continuationOptions, GetScheduler ());
         }
-        
+
         public Task<TResult> ContinueWhenAll<TResult> (Task[] tasks, Func<Task[], TResult> continuationFunction,
                                                        TaskContinuationOptions continuationOptions)
         {
             return ContinueWhenAll<TResult> (tasks, continuationFunction, cancellationToken, continuationOptions, GetScheduler ());
         }
-        
+
         public Task<TResult> ContinueWhenAll<TResult> (Task[] tasks, Func<Task[], TResult> continuationFunction,
                                                        CancellationToken cancellationToken)
         {
             return ContinueWhenAll<TResult> (tasks, continuationFunction, cancellationToken, continuationOptions, GetScheduler ());
         }
-        
+
         public Task<TResult> ContinueWhenAll<TResult> (Task[] tasks, Func<Task[], TResult> continuationFunction,
                                                        CancellationToken cancellationToken,
                                                        TaskContinuationOptions continuationOptions, TaskScheduler scheduler)
@@ -428,28 +428,28 @@ namespace System.Threading.Tasks
 
             return cont;
         }
-        
+
         public Task<TResult> ContinueWhenAll<TAntecedentResult, TResult> (Task<TAntecedentResult>[] tasks,
                                                                           Func<Task<TAntecedentResult>[], TResult> continuationFunction)
         {
             return ContinueWhenAll<TAntecedentResult, TResult> (tasks, continuationFunction, cancellationToken, continuationOptions, GetScheduler ());
         }
-        
-        public Task<TResult> ContinueWhenAll<TAntecedentResult, TResult> (Task<TAntecedentResult>[] tasks, 
+
+        public Task<TResult> ContinueWhenAll<TAntecedentResult, TResult> (Task<TAntecedentResult>[] tasks,
                                                                           Func<Task<TAntecedentResult>[], TResult> continuationFunction,
                                                                           TaskContinuationOptions continuationOptions)
         {
             return ContinueWhenAll<TAntecedentResult, TResult> (tasks, continuationFunction, cancellationToken, continuationOptions, GetScheduler ());
         }
-        
+
         public Task<TResult> ContinueWhenAll<TAntecedentResult, TResult> (Task<TAntecedentResult>[] tasks,
                                                                           Func<Task<TAntecedentResult>[], TResult> continuationFunction,
                                                                           CancellationToken cancellationToken)
         {
             return ContinueWhenAll<TAntecedentResult, TResult> (tasks, continuationFunction, cancellationToken, continuationOptions, GetScheduler ());
         }
-        
-        public Task<TResult> ContinueWhenAll<TAntecedentResult, TResult> (Task<TAntecedentResult>[] tasks, 
+
+        public Task<TResult> ContinueWhenAll<TAntecedentResult, TResult> (Task<TAntecedentResult>[] tasks,
                                                                           Func<Task<TAntecedentResult>[], TResult> continuationFunction,
                                                                           CancellationToken cancellationToken,
                                                                           TaskContinuationOptions continuationOptions,
@@ -464,12 +464,12 @@ namespace System.Threading.Tasks
         #endregion
 
         #region FromAsync IAsyncResult
-        
+
         public Task FromAsync (IAsyncResult asyncResult, Action<IAsyncResult> endMethod)
         {
             return FromAsync (asyncResult, endMethod, creationOptions);
         }
-        
+
         public Task FromAsync (IAsyncResult asyncResult, Action<IAsyncResult> endMethod, TaskCreationOptions creationOptions)
         {
             return FromAsync (asyncResult, endMethod, creationOptions, GetScheduler ());
@@ -486,17 +486,17 @@ namespace System.Threading.Tasks
                                                              return null;
                                                          }, creationOptions, scheduler);
         }
-        
+
         public Task<TResult> FromAsync<TResult> (IAsyncResult asyncResult, Func<IAsyncResult, TResult> endMethod)
         {
             return FromAsync<TResult> (asyncResult, endMethod, creationOptions);
         }
-        
+
         public Task<TResult> FromAsync<TResult> (IAsyncResult asyncResult, Func<IAsyncResult, TResult> endMethod, TaskCreationOptions creationOptions)
         {
             return FromAsync<TResult> (asyncResult, endMethod, creationOptions, GetScheduler ());
         }
-        
+
         public Task<TResult> FromAsync<TResult> (IAsyncResult asyncResult, Func<IAsyncResult, TResult> endMethod, TaskCreationOptions creationOptions, TaskScheduler scheduler)
         {
             return TaskFactory<TResult>.FromIAsyncResult (asyncResult, endMethod, creationOptions, scheduler);
@@ -646,7 +646,7 @@ namespace System.Threading.Tasks
             if (scheduler == null)
                 throw new ArgumentNullException ("scheduler");
 
-            const TaskContinuationOptions notAllowedOptions = 
+            const TaskContinuationOptions notAllowedOptions =
                 TaskContinuationOptions.NotOnRanToCompletion  |
                 TaskContinuationOptions.NotOnFaulted |
                 TaskContinuationOptions.NotOnCanceled |

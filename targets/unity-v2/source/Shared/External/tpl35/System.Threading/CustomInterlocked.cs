@@ -83,7 +83,7 @@ namespace System.Threading
             {
                 throw new NullReferenceException("Passed value location1 is null.");
             }
-            
+
             lock (locker)
             {
                 var result = location1;
@@ -142,7 +142,7 @@ namespace System.Threading
             {
                 throw new NullReferenceException("Passed value location1 is null.");
             }
-            
+
             lock (locker)
             {
                 location1 += value;
@@ -167,7 +167,7 @@ namespace System.Threading
             {
                 throw new NullReferenceException("Passed value location1 is null.");
             }
-            
+
             lock (locker)
             {
                 location1 += value;
@@ -192,7 +192,7 @@ namespace System.Threading
             {
                 throw new NullReferenceException("Passed value location1 is null.");
             }
-            
+
             lock (locker)
             {
                 var result = location1;
@@ -218,7 +218,7 @@ namespace System.Threading
             {
                 throw new NullReferenceException("Passed parameter location1 is null.");
             }
-            
+
             lock (locker)
             {
                 var result = location1;

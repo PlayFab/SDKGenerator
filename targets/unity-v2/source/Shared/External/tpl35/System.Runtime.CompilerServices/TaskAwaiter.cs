@@ -118,7 +118,7 @@ namespace System.Runtime.CompilerServices
 
             HandleOnCompleted (task, continuation, true, true);
         }
-        
+
         public void UnsafeOnCompleted (Action continuation)
         {
             if (continuation == null)

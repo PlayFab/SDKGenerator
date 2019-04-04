@@ -84,7 +84,7 @@ namespace PlayFab
                 return Task.Run(() => apiMethodResult);
 #else
                 return apiMethodResult;
-#endif                
+#endif
             }
 
             if (!this.IsOneDSAuthenticated)
@@ -103,7 +103,7 @@ namespace PlayFab
                 return Task.Run(() => apiMethodResult);
 #else
                 return apiMethodResult;
-#endif    
+#endif
             }
 
             // get transport plugin for OneDS
@@ -182,7 +182,7 @@ namespace PlayFab
 #else
             await WaitWhile(() => result == null);
             return result;
-#endif    
+#endif
         }
 
         /// <summary>
@@ -198,7 +198,7 @@ namespace PlayFab
             if (transport.EntityToken == null) throw new PlayFabException(PlayFabExceptionCode.EntityTokenNotSet, "Must call GetEntityToken before calling this method");
 
             PlayFabResult<TelemetryIngestionConfigResponse> result = null;
-            
+
             PlayFabHttp.instance.InjectInUnityThread(() =>
             {
                 PlayFabHttp.MakeApiCall<TelemetryIngestionConfigResponse>("/Event/GetTelemetryIngestionConfig", request, AuthType.EntityToken, callback =>
@@ -214,20 +214,20 @@ namespace PlayFab
                         Error = error.Error,
                         ErrorMessage = error.ErrorMessage
                     }, CustomData = customData};
-                });    
+                });
             });
 #if TPL_35
             return Task.Run(() =>
             {
                 WaitWhile(() => result == null).Await();
                 return result;
-            }); 
+            });
 #else
             await WaitWhile(() => result == null);
             return result;
 #endif
         }
-        
+
         private const int WaitWhileFrequencyDefault = 25;
         private const int WaitWhileTimeoutDefault = -1;
 #if TPL_35
@@ -242,7 +242,7 @@ namespace PlayFab
                         Task.Delay(frequency).Await();
                     }
                 });
-            
+
                 if(waitTask != Task.WhenAny(waitTask, Task.Delay(timeout)).Await())
                     throw new TimeoutException();
             });
@@ -252,7 +252,7 @@ namespace PlayFab
         {
             var waitTask = Task.Run(async () =>
             {
-                while (condition()) 
+                while (condition())
                 {
                     await Task.Delay(frequency);
                 }

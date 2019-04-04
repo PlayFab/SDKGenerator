@@ -521,12 +521,12 @@ namespace PlayFab.Internal
         private readonly Queue<IEnumerator> _injectedCoroutines = new Queue<IEnumerator>();
         private readonly Queue<Action> _injectedAction = new Queue<Action>();
 
-        public void InjectInUnityThread(IEnumerator x) 
+        public void InjectInUnityThread(IEnumerator x)
         {
             _injectedCoroutines.Enqueue(x);
         }
 
-        public void InjectInUnityThread(Action action) 
+        public void InjectInUnityThread(Action action)
         {
             _injectedAction.Enqueue(action);
         }

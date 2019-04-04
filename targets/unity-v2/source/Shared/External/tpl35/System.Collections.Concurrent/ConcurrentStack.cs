@@ -36,7 +36,7 @@ using System.Diagnostics;
 
 namespace System.Collections.Concurrent
 {
-    
+
     [DebuggerDisplay ("Count = {Count}")]
     [DebuggerTypeProxy (typeof (CollectionDebuggerView<>))]
     public class ConcurrentStack<T> : IProducerConsumerCollection<T>, IEnumerable<T>,
@@ -47,34 +47,34 @@ namespace System.Collections.Concurrent
             public T Value = default (T);
             public Node Next;
         }
-        
+
         object head;
         Node Head
         {
             get { return (Node)head; }
         }
-        
+
         int count;
-        
+
         public ConcurrentStack ()
         {
         }
-        
+
         public ConcurrentStack (IEnumerable<T> collection)
         {
             if (collection == null)
                 throw new ArgumentNullException ("collection");
 
-            foreach (T item in collection) 
+            foreach (T item in collection)
                 Push (item);
         }
-        
+
         bool IProducerConsumerCollection<T>.TryAdd (T elem)
         {
             Push (elem);
             return true;
         }
-        
+
         public void Push (T item)
         {
             Node temp = new Node ();
@@ -82,7 +82,7 @@ namespace System.Collections.Concurrent
             do {
                 temp.Next = Head;
             } while (CustomInterlocked.CompareExchange (ref head, temp, temp.Next) != temp.Next);
-            
+
             CustomInterlocked.Increment (ref count);
         }
 
@@ -93,31 +93,31 @@ namespace System.Collections.Concurrent
 
             PushRange (items, 0, items.Length);
         }
-        
+
         public void PushRange (T[] items, int startIndex, int count)
         {
             RangeArgumentsCheck (items, startIndex, count);
 
             Node insert = null;
             Node first = null;
-            
+
             for (int i = startIndex; i < count; i++) {
                 Node temp = new Node ();
                 temp.Value = items[i];
                 temp.Next = insert;
                 insert = temp;
-                
+
                 if (first == null)
                     first = temp;
             }
-            
+
             do {
                 first.Next = Head;
             } while (CustomInterlocked.CompareExchange (ref head, insert, first.Next) != first.Next);
-            
+
             CustomInterlocked.Add (ref this.count, count);
         }
-        
+
         public bool TryPop (out T result)
         {
             Node temp;
@@ -129,9 +129,9 @@ namespace System.Collections.Concurrent
                     return false;
                 }
             } while (CustomInterlocked.CompareExchange (ref head, temp.Next, temp) != temp);
-            
+
             CustomInterlocked.Decrement (ref count);
-            
+
             result = temp.Value;
 
             return true;
@@ -150,7 +150,7 @@ namespace System.Collections.Concurrent
 
             Node temp;
             Node end;
-            
+
             do {
                 temp = Head;
                 if (temp == null)
@@ -162,7 +162,7 @@ namespace System.Collections.Concurrent
                         break;
                 }
             } while (CustomInterlocked.CompareExchange (ref head, end, temp) != temp);
-            
+
             int i;
             for (i = startIndex; i < startIndex + count && temp != null; i++) {
                 items[i] = temp.Value;
@@ -170,10 +170,10 @@ namespace System.Collections.Concurrent
                 temp = temp.Next;
             }
             CustomInterlocked.Add (ref this.count, -(i - startIndex));
-            
+
             return i - startIndex;
         }
-        
+
         public bool TryPeek (out T result)
         {
             Node myHead = Head;
@@ -184,19 +184,19 @@ namespace System.Collections.Concurrent
             result = myHead.Value;
             return true;
         }
-        
+
         public void Clear ()
         {
             // This is not satisfactory
             count = 0;
             head = null;
         }
-        
+
         IEnumerator IEnumerable.GetEnumerator ()
         {
             return (IEnumerator)InternalGetEnumerator ();
         }
-        
+
         public IEnumerator<T> GetEnumerator ()
         {
             return InternalGetEnumerator ();
@@ -213,13 +213,13 @@ namespace System.Collections.Concurrent
                 } while ((my_head = my_head.Next) != null);
             }
         }
-        
+
         void ICollection.CopyTo (Array array, int index)
         {
             ICollection ic = new List<T> (this);
             ic.CopyTo (array, index);
         }
-        
+
         public void CopyTo (T[] array, int index)
         {
             if (array == null)
@@ -237,33 +237,33 @@ namespace System.Collections.Concurrent
                 array[i++] = e.Current;
             }
         }
-        
+
         bool ICollection.IsSynchronized {
             get { return false; }
         }
-        
+
         bool IProducerConsumerCollection<T>.TryTake (out T item)
         {
             return TryPop (out item);
         }
-        
+
         object ICollection.SyncRoot {
             get {
                 throw new NotSupportedException ();
             }
         }
-        
+
         public T[] ToArray ()
         {
             return new List<T> (this).ToArray ();
         }
-        
+
         public int Count {
             get {
                 return count;
             }
         }
-        
+
         public bool IsEmpty {
             get {
                 return count == 0;

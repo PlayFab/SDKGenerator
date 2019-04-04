@@ -1,7 +1,7 @@
 #if !NET_4_6 && (NET_2_0_SUBSET || NET_2_0)
 
-// 
-// System.Runtime.Remoting.Messaging/AsyncResult.cs 
+//
+// System.Runtime.Remoting.Messaging/AsyncResult.cs
 //
 // Authors:
 //   Joe Shaw (joe@ximian.com)
@@ -19,10 +19,10 @@
 // distribute, sublicense, and/or sell copies of the Software, and to
 // permit persons to whom the Software is furnished to do so, subject to
 // the following conditions:
-// 
+//
 // The above copyright notice and this permission notice shall be
 // included in all copies or substantial portions of the Software.
-// 
+//
 // THE SOFTWARE IS PROVIDED "AS IS", WITHOUT WARRANTY OF ANY KIND,
 // EXPRESS OR IMPLIED, INCLUDING BUT NOT LIMITED TO THE WARRANTIES OF
 // MERCHANTABILITY, FITNESS FOR A PARTICULAR PURPOSE AND
@@ -64,7 +64,7 @@ namespace System.Runtime.Remoting.Messaging {
         IMessageCtrl message_ctrl;
 #pragma warning restore
         IMessage reply_message;
-    
+
         internal AsyncResult ()
         {
         }
@@ -108,7 +108,7 @@ namespace System.Runtime.Remoting.Messaging {
                 return completed;
             }
         }
-        
+
         public bool EndInvokeCalled
         {
             get {
@@ -118,7 +118,7 @@ namespace System.Runtime.Remoting.Messaging {
                 endinvoke_called = value;
             }
         }
-        
+
         public virtual object AsyncDelegate
         {
             get {
@@ -173,7 +173,7 @@ namespace System.Runtime.Remoting.Messaging {
                 if (handle != null)
                     ((ManualResetEvent) AsyncWaitHandle).Set ();
             }
-        
+
             if (async_callback != null) {
                 AsyncCallback ac = (AsyncCallback) async_callback;
                 ac (this);

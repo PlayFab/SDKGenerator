@@ -1,23 +1,23 @@
 #if !NET_4_6 && (NET_2_0_SUBSET || NET_2_0)
 
-// 
+//
 // EnumerablePartitioner.cs
-//  
+//
 // Author:
 //       Jérémie "Garuma" Laval <jeremie.laval@gmail.com>
-// 
+//
 // Copyright (c) 2009 Jérémie "Garuma" Laval
-// 
+//
 // Permission is hereby granted, free of charge, to any person obtaining a copy
 // of this software and associated documentation files (the "Software"), to deal
 // in the Software without restriction, including without limitation the rights
 // to use, copy, modify, merge, publish, distribute, sublicense, and/or sell
 // copies of the Software, and to permit persons to whom the Software is
 // furnished to do so, subject to the following conditions:
-// 
+//
 // The above copyright notice and this permission notice shall be included in
 // all copies or substantial portions of the Software.
-// 
+//
 // THE SOFTWARE IS PROVIDED "AS IS", WITHOUT WARRANTY OF ANY KIND, EXPRESS OR
 // IMPLIED, INCLUDING BUT NOT LIMITED TO THE WARRANTIES OF MERCHANTABILITY,
 // FITNESS FOR A PARTICULAR PURPOSE AND NONINFRINGEMENT. IN NO EVENT SHALL THE
@@ -35,10 +35,10 @@ namespace System.Collections.Concurrent.Partitioners
     internal class EnumerablePartitioner<T> : OrderablePartitioner<T>
     {
         IEnumerable<T> source;
-        
+
         const int InitialPartitionSize = 1;
         const int PartitionMultiplier = 2;
-        
+
         int initialPartitionSize;
         int partitionMultiplier;
 
@@ -47,7 +47,7 @@ namespace System.Collections.Concurrent.Partitioners
         {
 
         }
-        
+
         // This is used to get striped partitionning (for Take and Skip for instance
         public EnumerablePartitioner (IEnumerable<T> source, int initialPartitionSize, int partitionMultiplier)
             : base (true, false, true)
@@ -56,12 +56,12 @@ namespace System.Collections.Concurrent.Partitioners
             this.initialPartitionSize = initialPartitionSize;
             this.partitionMultiplier = partitionMultiplier;
         }
-        
+
         public override IList<IEnumerator<KeyValuePair<long, T>>> GetOrderablePartitions (int partitionCount)
         {
             if (partitionCount <= 0)
                 throw new ArgumentOutOfRangeException ("partitionCount");
-            
+
             IEnumerator<KeyValuePair<long, T>>[] enumerators
                 = new IEnumerator<KeyValuePair<long, T>>[partitionCount];
 
@@ -72,7 +72,7 @@ namespace System.Collections.Concurrent.Partitioners
             for (int i = 0; i < enumerators.Length; i++) {
                 enumerators[i] = isSimple ? GetPartitionEnumeratorSimple (src, state, i == enumerators.Length - 1) : GetPartitionEnumerator (src, state);
             }
-            
+
             return enumerators;
         }
 
@@ -104,22 +104,22 @@ namespace System.Collections.Concurrent.Partitioners
                     src.Dispose ();
             }
         }
-        
+
         IEnumerator<KeyValuePair<long, T>> GetPartitionEnumerator (IEnumerator<T> src, PartitionerState state)
         {
             int count = initialPartitionSize;
             List<T> list = new List<T> ();
-            
+
             while (!state.Finished) {
                 list.Clear ();
                 long ind = -1;
-                
+
                 lock (state.SyncLock) {
                     if (state.Finished)
                         break;
 
                     ind = state.Index;
-                    
+
                     for (int i = 0; i < count; i++) {
                         if (state.Finished = !src.MoveNext ()) {
                             if (list.Count == 0)
@@ -127,15 +127,15 @@ namespace System.Collections.Concurrent.Partitioners
                             else
                                 break;
                         }
-                        
+
                         list.Add (src.Current);
                         state.Index++;
-                    }                    
+                    }
                 }
-                
+
                 for (int i = 0; i < list.Count; i++)
                     yield return new KeyValuePair<long, T> (ind + i, list[i]);
-                
+
                 count *= partitionMultiplier;
             }
         }

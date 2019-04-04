@@ -64,7 +64,7 @@ namespace System.Runtime.CompilerServices
             where TStateMachine : IAsyncStateMachine
         {
             var action = new Action (stateMachine.MoveNext);
-            awaiter.UnsafeOnCompleted (action); 
+            awaiter.UnsafeOnCompleted (action);
         }
 
         public static AsyncTaskMethodBuilder<TResult> Create ()

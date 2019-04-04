@@ -43,7 +43,7 @@ namespace System.Collections.Concurrent
                 get { return (Node)next; }
             }
 
-            public bool Marked;           
+            public bool Marked;
 
             public Node ()
             {
@@ -66,7 +66,7 @@ namespace System.Collections.Concurrent
 
         public ConcurrentOrderedList () : this (EqualityComparer<T>.Default)
         {
-            
+
         }
 
         public ConcurrentOrderedList (IEqualityComparer<T> comparer)
@@ -193,19 +193,19 @@ namespace System.Collections.Concurrent
                     t = tNext.Marked ? tNext.Next : tNext;
                     if (t == tail)
                         break;
-                    
+
                     tNext = t.Next;
                 } while (tNext.Marked || t.Key < key);
 
                 rightNode = t;
-                
+
                 if (leftNodeNext == rightNode) {
                     if (rightNode != tail && rightNode.Next.Marked)
                         continue;
-                    else 
+                    else
                         return rightNode;
                 }
-                
+
                 if (CustomInterlocked.CompareExchange (ref left.next, rightNode, leftNodeNext) == leftNodeNext) {
                     if (rightNode != tail && rightNode.Next.Marked)
                         continue;
@@ -219,23 +219,23 @@ namespace System.Collections.Concurrent
         {
             Node rightNode = null, rightNodeNext = null, leftNode = null;
             data = default (T);
-            
+
             do {
                 rightNode = ListSearch (key, ref leftNode);
                 if (rightNode == tail || rightNode.Key != key)
                     return false;
 
                 data = rightNode.Data;
-                
+
                 rightNodeNext = rightNode.Next;
                 if (!rightNodeNext.Marked)
                     if (CustomInterlocked.CompareExchange (ref rightNode.next, new Node (rightNodeNext), rightNodeNext) == rightNodeNext)
                         break;
             } while (true);
-            
+
             if (CustomInterlocked.CompareExchange (ref leftNode.next, rightNodeNext, rightNode) != rightNodeNext)
                 ListSearch (rightNode.Key, ref leftNode);
-            
+
             return true;
         }
 
@@ -262,30 +262,30 @@ namespace System.Collections.Concurrent
 
             return true;
         }
-        
+
         bool ListInsert (Node newNode)
         {
             int key = newNode.Key;
             Node rightNode = null, leftNode = null;
-            
+
             do {
                 rightNode = ListSearch (key, ref leftNode);
                 if (rightNode != tail && rightNode.Key == key)
                     return false;
-                
+
                 newNode.next = rightNode;
                 if (CustomInterlocked.CompareExchange (ref leftNode.next, newNode, rightNode) == rightNode)
                     return true;
             } while (true);
         }
-        
+
         bool ListFind (int key, out Node data)
         {
             Node rightNode = null, leftNode = null;
             data = null;
-            
+
             data = rightNode = ListSearch (key, ref leftNode);
-            
+
             return rightNode != tail && rightNode.Key == key;
         }
 

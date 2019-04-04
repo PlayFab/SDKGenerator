@@ -1,23 +1,23 @@
 #if !NET_4_6 && (NET_2_0_SUBSET || NET_2_0)
 
-// 
+//
 // CyclicDeque.cs
-//  
+//
 // Author:
 //       Jérémie "Garuma" Laval <jeremie.laval@gmail.com>
-// 
+//
 // Copyright (c) 2009 Jérémie "Garuma" Laval
-// 
+//
 // Permission is hereby granted, free of charge, to any person obtaining a copy
 // of this software and associated documentation files (the "Software"), to deal
 // in the Software without restriction, including without limitation the rights
 // to use, copy, modify, merge, publish, distribute, sublicense, and/or sell
 // copies of the Software, and to permit persons to whom the Software is
 // furnished to do so, subject to the following conditions:
-// 
+//
 // The above copyright notice and this permission notice shall be included in
 // all copies or substantial portions of the Software.
-// 
+//
 // THE SOFTWARE IS PROVIDED "AS IS", WITHOUT WARRANTY OF ANY KIND, EXPRESS OR
 // IMPLIED, INCLUDING BUT NOT LIMITED TO THE WARRANTIES OF MERCHANTABILITY,
 // FITNESS FOR A PARTICULAR PURPOSE AND NONINFRINGEMENT. IN NO EVENT SHALL THE
@@ -35,17 +35,17 @@ namespace System.Threading.Tasks
     class CyclicDeque<T> : IConcurrentDeque<T>
     {
         const int BaseSize = 11;
-        
+
         int bottom;
         int top;
         int upperBound;
         CircularArray<T> array = new CircularArray<T> (BaseSize);
-        
+
         public void PushBottom (T obj)
         {
             int b = bottom;
             var a = array;
-            
+
             // Take care of growing
             var size = b - top - upperBound;
             if (size > a.Size) {
@@ -53,35 +53,35 @@ namespace System.Threading.Tasks
                 a = a.Grow (b, upperBound);
                 array = a;
             }
-            
+
             // Register the new value
             a.segment[b % a.size] = obj;
             CustomInterlocked.Increment (ref bottom);
         }
-        
+
         public PopResult PopBottom (out T obj)
         {
             obj = default (T);
-            
+
             int b = CustomInterlocked.Decrement (ref bottom);
             var a = array;
             int t = top;
             int size = b - t;
-            
+
             if (size < 0) {
                 // Set bottom to t
                 CustomInterlocked.Add (ref bottom, t - b);
                 return PopResult.Empty;
             }
-            
+
             obj = a.segment[b % a.size];
             if (size > 0)
                 return PopResult.Succeed;
             CustomInterlocked.Add (ref bottom, t + 1 - b);
-            
+
             if (CustomInterlocked.CompareExchange (ref top, t + 1, t) != t)
                 return PopResult.Empty;
-            
+
             return PopResult.Succeed;
         }
 
@@ -100,23 +100,23 @@ namespace System.Threading.Tasks
             obj = a.segment[b % a.size];
             return true;
         }
-        
+
         public PopResult PopTop (out T obj)
         {
             obj = default (T);
-            
+
             int t = top;
             int b = bottom;
-            
+
             if (b - t <= 0)
                 return PopResult.Empty;
-            
+
             if (CustomInterlocked.CompareExchange (ref top, t + 1, t) != t)
                 return PopResult.Abort;
-            
+
             var a = array;
             obj = a.segment[t % a.size];
-            
+
             return PopResult.Succeed;
         }
 
@@ -135,7 +135,7 @@ namespace System.Threading.Tasks
 
             return true;
         }
-        
+
         public IEnumerable<T> GetEnumerable ()
         {
             var a = array;
@@ -150,26 +150,26 @@ namespace System.Threading.Tasks
             }
         }
     }
-    
+
     internal class CircularArray<T>
     {
         readonly int baseSize;
         public readonly int size;
         public readonly T[] segment;
-        
+
         public CircularArray (int baseSize)
         {
             this.baseSize = baseSize;
             this.size = 1 << baseSize;
             this.segment = new T[size];
         }
-        
+
         public int Size {
             get {
                 return size;
             }
         }
-        
+
         public T this[int index] {
             get {
                 return segment[index % size];
@@ -178,18 +178,18 @@ namespace System.Threading.Tasks
                 segment[index % size] = value;
             }
         }
-        
+
         public CircularArray<T> Grow (int bottom, int top)
         {
             var grow = new CircularArray<T> (baseSize + 1);
-            
+
             for (int i = top; i < bottom; i++) {
                 grow.segment[i] = segment[i % size];
             }
-            
+
             return grow;
         }
-        
+
         public IEnumerable<T> GetEnumerable (int bottom, ref int top)
         {
             int instantTop = top;

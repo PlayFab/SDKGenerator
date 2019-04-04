@@ -1,23 +1,23 @@
 #if !NET_4_6 && (NET_2_0_SUBSET || NET_2_0)
 
-// 
+//
 // UserRangePartitioner.cs
-//  
+//
 // Author:
 //       Jérémie "Garuma" Laval <jeremie.laval@gmail.com>
-// 
+//
 // Copyright (c) 2010 Jérémie "Garuma" Laval
-// 
+//
 // Permission is hereby granted, free of charge, to any person obtaining a copy
 // of this software and associated documentation files (the "Software"), to deal
 // in the Software without restriction, including without limitation the rights
 // to use, copy, modify, merge, publish, distribute, sublicense, and/or sell
 // copies of the Software, and to permit persons to whom the Software is
 // furnished to do so, subject to the following conditions:
-// 
+//
 // The above copyright notice and this permission notice shall be included in
 // all copies or substantial portions of the Software.
-// 
+//
 // THE SOFTWARE IS PROVIDED "AS IS", WITHOUT WARRANTY OF ANY KIND, EXPRESS OR
 // IMPLIED, INCLUDING BUT NOT LIMITED TO THE WARRANTIES OF MERCHANTABILITY,
 // FITNESS FOR A PARTICULAR PURPOSE AND NONINFRINGEMENT. IN NO EVENT SHALL THE
@@ -44,12 +44,12 @@ namespace System.Collections.Concurrent.Partitioners
             this.end = end;
             this.rangeSize = rangeSize;
         }
-        
+
         public override IList<IEnumerator<KeyValuePair<long, Tuple<int, int>>>> GetOrderablePartitions (int partitionCount)
         {
             if (partitionCount <= 0)
                 throw new ArgumentOutOfRangeException ("partitionCount");
-            
+
             int currentIndex = 0;
             Func<int> getNextIndex = () => CustomInterlocked.Increment (ref currentIndex) - 1;
 
@@ -59,7 +59,7 @@ namespace System.Collections.Concurrent.Partitioners
 
             return enumerators;
         }
-        
+
         IEnumerator<KeyValuePair<long, Tuple<int, int>>> GetEnumerator (Func<int> getNextIndex)
         {
             while (true) {
@@ -87,12 +87,12 @@ namespace System.Collections.Concurrent.Partitioners
             this.end = end;
             this.rangeSize = rangeSize;
         }
-        
+
         public override IList<IEnumerator<KeyValuePair<long, Tuple<long, long>>>> GetOrderablePartitions (int partitionCount)
         {
             if (partitionCount <= 0)
                 throw new ArgumentOutOfRangeException ("partitionCount");
-            
+
             long currentIndex = 0;
             Func<long> getNextIndex = () => CustomInterlocked.Increment (ref currentIndex) - 1;
 
@@ -102,7 +102,7 @@ namespace System.Collections.Concurrent.Partitioners
 
             return enumerators;
         }
-        
+
         IEnumerator<KeyValuePair<long, Tuple<long, long>>> GetEnumerator (Func<long> getNextIndex)
         {
             while (true) {

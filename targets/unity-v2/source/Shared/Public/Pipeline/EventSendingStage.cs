@@ -57,7 +57,7 @@ namespace PlayFab.Pipeline
                     foreach (var request in batch.Events)
                     {
                         PlayFabEmitEventRequest eventRequest = (PlayFabEmitEventRequest)request;
-                        if (eventRequest.ResultPromise != null) 
+                        if (eventRequest.ResultPromise != null)
                         {
                             eventRequest.ResultPromise.SetCanceled();
                         }
@@ -76,11 +76,11 @@ namespace PlayFab.Pipeline
             catch (Exception e)
             {
                 // Cancel result promises that will never be fulfilled
-                // and move on to the next batch. 
+                // and move on to the next batch.
                 foreach (var request in batch.Events)
                 {
                     PlayFabEmitEventRequest eventRequest = (PlayFabEmitEventRequest)request;
-                    if (eventRequest.ResultPromise != null) 
+                    if (eventRequest.ResultPromise != null)
                     {
                         eventRequest.ResultPromise.SetCanceled();
                     }

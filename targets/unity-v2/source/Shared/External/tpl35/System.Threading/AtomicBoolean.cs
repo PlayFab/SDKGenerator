@@ -98,7 +98,7 @@ namespace System.Threading
             return FromValue (rhs);
         }
     }
-        
+
     class AtomicBoolean
     {
         int flag;

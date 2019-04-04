@@ -1,3 +1,5 @@
+using PlayFab.Internal;
+
 namespace PlayFab.SharedModels
 {
     public class HttpResponseObject
@@ -27,6 +29,6 @@ namespace PlayFab.SharedModels
     {
         public TResult Result;
         public object CustomData;
-        public PlayFabError Error;
+        public OneDsError Error;
     }
 }

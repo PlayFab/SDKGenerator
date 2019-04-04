@@ -1,11 +1,10 @@
 ﻿<%- copyright %>
 
-#include "PlayFabUtilities.h"
-#include "Json.h"
+#include "PlayFabCommonUtils.h"
 
-using namespace PlayFab;
+using namespace PlayFabCommon;
 
-FString PlayFabUtilities::GetTempDir()
+FString PlayFabCommonUtils::GetTempDir()
 {
     // Unix
     FString tempDir = FPlatformMisc::GetEnvironmentVariable(TEXT("TEMPDIR"));
@@ -22,9 +21,9 @@ FString PlayFabUtilities::GetTempDir()
     return tempDir;
 }
 
-FString PlayFabUtilities::GetLocalSettingsFileContent()
+FString PlayFabCommonUtils::GetLocalSettingsFileContent()
 {
-    FString tempDirPath = PlayFabUtilities::GetTempDir();
+    FString tempDirPath = PlayFabCommonUtils::GetTempDir();
     FString localSettingsFilePath = FPaths::Combine(tempDirPath, TEXT("playfab.local.settings.json"));
     FString localSettingsFileContent = "";
     return FFileHelper::LoadFileToString(localSettingsFileContent, *localSettingsFilePath)
@@ -32,9 +31,9 @@ FString PlayFabUtilities::GetLocalSettingsFileContent()
         : FString();
 }
 
-TSharedPtr<FJsonObject> PlayFabUtilities::GetLocalSettingsFileJson()
+TSharedPtr<FJsonObject> PlayFabCommonUtils::GetLocalSettingsFileJson()
 {
-    FString fileContent = PlayFabUtilities::GetLocalSettingsFileContent();
+    FString fileContent = PlayFabCommonUtils::GetLocalSettingsFileContent();
     TSharedPtr<FJsonObject> JsonObject = MakeShareable(new FJsonObject());
     TSharedRef<TJsonReader<>> JsonReader = TJsonReaderFactory<>::Create(fileContent);
     return (FJsonSerializer::Deserialize(JsonReader, JsonObject) && JsonObject.IsValid())
@@ -42,16 +41,16 @@ TSharedPtr<FJsonObject> PlayFabUtilities::GetLocalSettingsFileJson()
         : MakeShareable(new FJsonObject);
 }
 
-FString PlayFabUtilities::GetLocalSettingsFileProperty(const FString& propertyKey)
+FString PlayFabCommonUtils::GetLocalSettingsFileProperty(const FString& propertyKey)
 {
-    TSharedPtr<FJsonObject> jsonObject = PlayFabUtilities::GetLocalSettingsFileJson();
+    TSharedPtr<FJsonObject> jsonObject = PlayFabCommonUtils::GetLocalSettingsFileJson();
     FString outString;
     return jsonObject->TryGetStringField(propertyKey, outString) ? outString : FString();
 }
 
-TArray<FString> PlayFabUtilities::GetLocalSettingsFileArrayProperty(const FString& propertyKey)
+TArray<FString> PlayFabCommonUtils::GetLocalSettingsFileArrayProperty(const FString& propertyKey)
 {
-    TSharedPtr<FJsonObject> jsonObject = PlayFabUtilities::GetLocalSettingsFileJson();
+    TSharedPtr<FJsonObject> jsonObject = PlayFabCommonUtils::GetLocalSettingsFileJson();
     TArray<FString> jsonArray;
     return jsonObject->TryGetStringArrayField(propertyKey, jsonArray) ? jsonArray : TArray<FString>();
 }

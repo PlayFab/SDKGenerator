@@ -5,9 +5,11 @@
 #include "CoreMinimal.h"
 #include "FileHelper.h"
 #include "Misc/Paths.h"
-namespace PlayFab
+#include "Json.h"
+
+namespace PlayFabCommon
 {
-    class PlayFabUtilities
+    class PLAYFABCOMMON_API PlayFabCommonUtils
     {
     private:
         static FString GetTempDir();

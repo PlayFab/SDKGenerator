@@ -44,6 +44,8 @@ function makeApiFiles(api, copyright, apiOutputDir, sourceDir, libName) {
         getPropertySerialization: getPropertySerialization,
         getPropertyDeserialization: getPropertyDeserialization,
         getDataTypeSafeName: getDataTypeSafeName,
+        getCustomApiAssignmentLogic: getCustomApiAssignmentLogic,
+        getApiActivationUrlLogic: getApiActivationUrlLogic,
         hasClientOptions: getAuthMechanisms([api]).includes("SessionTicket"),
         libName: libName,
         sdkVersion: sdkGlobals.sdkVersion
@@ -295,4 +297,31 @@ function getAuthBools(tabbing, apiCall) {
         output += tabbing + "manager->returnsEntityToken = true;\n";
 
     return output;
+}
+
+function getCustomApiAssignmentLogic(tabbing, apiCall) {
+    if (apiCall.name === "ExecuteFunction")
+    {
+        return tabbing + "// Check for local debugging\n"
+            + tabbing + "FString localApiServer = PlayFabCommon::PlayFabCommonUtils::GetLocalSettingsFileProperty(TEXT(\"LocalApiServer\"));\n"
+            + tabbing + "TArray<FString> debugFunctions = PlayFabCommon::PlayFabCommonUtils::GetLocalSettingsFileArrayProperty(TEXT(\"DebugFunctions\"));\n"
+            + tabbing + "if (!localApiServer.IsEmpty() && (debugFunctions.Contains(TEXT(\"*\")) || debugFunctions.Contains(request.FunctionName)))\n"
+            + tabbing + "{\n"
+            + tabbing + "    FString endpoint = TEXT(\"/CloudScript/ExecuteFunction\");\n"
+            + tabbing + "    endpoint.RemoveFromStart(TEXT(\"/\"));\n"
+            + tabbing + "    FString url = localApiServer + endpoint;\n"
+            + tabbing + "    manager->PlayFabRequestFullURL = url;\n"
+            + tabbing + "}\n"
+    }
+}
+
+function getApiActivationUrlLogic(api) {
+    if (api.name === "CloudScript")
+    {
+        return "RequestUrl = this->PlayFabRequestFullURL.IsEmpty() ? pfSettings->getUrl(PlayFabRequestURL) : this->PlayFabRequestFullURL;\n"
+    }
+    else 
+    {
+        return "RequestUrl = pfSettings->getUrl(PlayFabRequestURL);\n"
+    }
 }

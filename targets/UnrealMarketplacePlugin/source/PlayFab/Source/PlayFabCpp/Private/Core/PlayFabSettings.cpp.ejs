@@ -2,7 +2,7 @@
 
 #include "PlayFabSettings.h"
 #include "PlayFabCommon.h"
-#include "PlayFabUtilities.h"
+#include "PlayFabCommonUtils.h"
 
 namespace PlayFab
 {
@@ -60,11 +60,11 @@ namespace PlayFab
     }
     FString PlayFabSettings::GetLocalApiServer()
     {
-        return PlayFabUtilities::GetLocalSettingsFileProperty(TEXT("LocalApiServer"));
+        return PlayFabCommon::PlayFabCommonUtils::GetLocalSettingsFileProperty(TEXT("LocalApiServer"));
     }
     TArray<FString> PlayFabSettings::GetDebugFunctions()
     {
-        return PlayFabUtilities::GetLocalSettingsFileArrayProperty(TEXT("DebugFunctions"));
+        return PlayFabCommon::PlayFabCommonUtils::GetLocalSettingsFileArrayProperty(TEXT("DebugFunctions"));
     }
 
     // Setters

@@ -29,7 +29,7 @@ namespace PlayFab.Internal
         /// </summary>
         public static void SkipCertificateValidation()
         {
-            var rcvc = new System.Net.Security.RemoteCertificateValidationCallback(AcceptAllCertifications); //(sender, cert, chain, ssl) => true	
+            var rcvc = new System.Net.Security.RemoteCertificateValidationCallback(AcceptAllCertifications); //(sender, cert, chain, ssl) => true
             ServicePointManager.ServerCertificateValidationCallback = rcvc;
             certValidationSet = true;
         }

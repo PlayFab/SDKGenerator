@@ -1,4 +1,4 @@
-﻿#if NET_4_6
+#if NET_4_6
 using System;
 using System.Collections.Generic;
 using System.Threading.Tasks;
@@ -23,7 +23,7 @@ public class LightweightEventsTests : UUnitTestCase
         // get Entity Token which is needed for work events
         PlayFabClientAPI.LoginWithCustomID(new LoginWithCustomIDRequest
         {
-            CustomId = PlayFabSettings.BuildIdentifier, 
+            CustomId = PlayFabSettings.BuildIdentifier,
             TitleId = PlayFabSettings.TitleId
         }, loginCallback =>
         {
@@ -80,7 +80,7 @@ public class LightweightEventsTests : UUnitTestCase
 
         // call OneDS events API
         var writeTask = await oneDSEventsApi.WriteTelemetryEventsAsync(request, null, new Dictionary<string, string>());
-        
+
         testContext.NotNull(writeTask);
         testContext.IsNull(writeTask.Error, "Failed to send a batch of custom OneDS events");
         testContext.NotNull(writeTask.Result, "Failed to send a batch of custom OneDS events. Result is null!");
@@ -141,7 +141,7 @@ public class LightweightEventsTests : UUnitTestCase
             if (batch.Value == 8) event8++;
             else if (batch.Value == 2) event2++;
         }
-        
+
         // 6 full batches of 8 events and 1 incomplete batch of 2 events are expected
         testContext.True(event8 == 6, "Wrong number of full batches");
         testContext.True(event2 == 1, "Wrong number of incomplete batches");

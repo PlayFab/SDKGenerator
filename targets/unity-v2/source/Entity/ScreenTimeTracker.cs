@@ -118,7 +118,7 @@ namespace PlayFab.Public
             {
                 focusStateDuration = (currentUtcDateTime - focusOnDateTime).TotalSeconds;
 
-                // this check safeguards from manual time changes while app is running                
+                // this check safeguards from manual time changes while app is running
                 if (focusStateDuration < 0)
                 {
                     focusStateDuration = 0;

@@ -300,7 +300,7 @@ function getResultActions(tabbing, apiCall, isInstanceApi) {
     if (apiCall.url === "/Authentication/GetEntityToken")
         return tabbing + "if (outResult.EntityToken.length() > 0)"
             + tabbing + "{\n"
-            + tabbing + "    " + (isInstanceApi ? "this->GetOrCreateAuthenticationContext()->" : "PlayFabSettings::") + "entityToken = outResult.EntityToken; \n"
+            + tabbing + "    " + (isInstanceApi ? "this->GetOrCreateAuthenticationContext()->" : "PlayFabSettings::") + "entityToken = outResult.EntityToken;\n"
             + tabbing + "}\n";
     if (apiCall.result === "LoginResult") {
         var authContext;

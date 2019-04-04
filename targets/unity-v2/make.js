@@ -439,10 +439,10 @@ function getRequestActions(tabbing, apiCall, isApiInstance = false) {
             tabbing + "if (authType == AuthType.None && !string.IsNullOrEmpty(developerSecretKey))\n" +
             tabbing + "    authType = AuthType.DevSecretKey;\n" +
             "#endif\n";
-	if (apiCall.name === "GetEntityToken" && isApiInstance === true)
+    if (apiCall.name === "GetEntityToken" && isApiInstance === true)
         return tabbing + "AuthType authType = AuthType.None;\n" +
             "#if !DISABLE_PLAYFABCLIENT_API\n" +
-			tabbing + "string clientSessionTicket = null;\n" +
+            tabbing + "string clientSessionTicket = null;\n" +
             tabbing + "if (request.AuthenticationContext != null && !string.IsNullOrEmpty(request.AuthenticationContext.ClientSessionTicket))\n" +
             tabbing + "    clientSessionTicket = request.AuthenticationContext.ClientSessionTicket;\n" +
             tabbing + "if (clientSessionTicket == null && authenticationContext != null && !string.IsNullOrEmpty(authenticationContext.ClientSessionTicket))\n" +
@@ -462,11 +462,11 @@ function getRequestActions(tabbing, apiCall, isApiInstance = false) {
             tabbing + "    developerSecretKey = PlayFabSettings.DeveloperSecretKey;\n" +
             tabbing + "if (authType == AuthType.None && !string.IsNullOrEmpty(developerSecretKey))\n" +
             tabbing + "    authType = AuthType.DevSecretKey;\n" +
-            "#endif\n";		
+            "#endif\n";
 
     if (apiCall.result === "LoginResult" || apiCall.request === "RegisterPlayFabUserRequest")
         return tabbing + "request.TitleId = request.TitleId ?? PlayFabSettings.TitleId;\n";
-    if (apiCall.auth === "SessionTicket"  && isApiInstance === true)
+    if (apiCall.auth === "SessionTicket" && isApiInstance === true)
         return tabbing + "string clientSessionTicket = null;\n" +
             tabbing + "if (request.AuthenticationContext != null && !string.IsNullOrEmpty(request.AuthenticationContext.ClientSessionTicket))\n" +
             tabbing + "    clientSessionTicket = request.AuthenticationContext.ClientSessionTicket;\n" +
@@ -475,13 +475,12 @@ function getRequestActions(tabbing, apiCall, isApiInstance = false) {
             tabbing + "if (clientSessionTicket == null)\n" +
             tabbing + "    clientSessionTicket = PluginManager.GetPlugin<IPlayFabTransportPlugin>(PluginContract.PlayFab_Transport).AuthKey;\n" +
             tabbing + "if (string.IsNullOrEmpty(clientSessionTicket)) throw new PlayFabException(PlayFabExceptionCode.NotLoggedIn,\"Must be logged in to call this method\");\n";
-    if (apiCall.auth === "SessionTicket"  && isApiInstance === false)
+    if (apiCall.auth === "SessionTicket" && isApiInstance === false)
         return tabbing + "if (!IsClientLoggedIn()) throw new PlayFabException(PlayFabExceptionCode.NotLoggedIn,\"Must be logged in to call this method\");\n";
-	return "";
+    return "";
 }
 
-function getCustomApiLogic(tabbing, apiCall)
-{
+function getCustomApiLogic(tabbing, apiCall) {
     if (apiCall.name === "ExecuteFunction")
         return tabbing + "var localApiServerString = PlayFabSettings.LocalApiServer;\n" +
             tabbing + "if (!string.IsNullOrEmpty(localApiServerString))\n" +
@@ -489,7 +488,7 @@ function getCustomApiLogic(tabbing, apiCall)
             tabbing + "    var baseUri = new Uri(localApiServerString);\n" +
             tabbing + "    var fullUri = new Uri(baseUri, \"" + apiCall.url + "\".TrimStart('/'));\n" +
             tabbing + "    PlayFabHttp.MakeApiCallWithFullUri(fullUri.AbsoluteUri, request, AuthType.EntityToken, resultCallback, errorCallback, customData, extraHeaders);\n" +
-            tabbing + "    return;\n" + 
+            tabbing + "    return;\n" +
             tabbing + "}\n";
 }
 

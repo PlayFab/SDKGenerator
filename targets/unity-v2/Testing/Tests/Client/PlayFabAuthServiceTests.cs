@@ -1,4 +1,6 @@
-﻿using PlayFab;
+﻿#if !DISABLE_PLAYFABCLIENT_API
+
+using PlayFab;
 using PlayFab.ClientModels;
 using PlayFab.UUnit;
 
@@ -139,3 +141,5 @@ public class PlayFabAuthServiceTests : UUnitTestCase
         silentAuth.Authenticate(AuthTypes.Silent);
     }
 }
+
+#endif

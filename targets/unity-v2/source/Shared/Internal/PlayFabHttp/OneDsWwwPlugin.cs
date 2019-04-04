@@ -63,7 +63,7 @@ namespace PlayFab.Internal
 
             using (www)
             {
-                OneDsUtility.ParseResponse(www.responseCode, () => www.downloadHandler.text, www.error, callback);                
+                OneDsUtility.ParseResponse(www.responseCode, () => www.downloadHandler.text, www.error, callback);
             }
         }
     }

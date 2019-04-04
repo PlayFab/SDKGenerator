@@ -135,7 +135,8 @@ public class PlayFabAuthServiceTests : UUnitTestCase
             testContext.StringEquals(response.AccountInfo.CustomIdInfo.CustomId, _emailAuthService.GetOrCreateRememberMeId(), "customId not match!");
 #endif
             testContext.EndTest(UUnitFinishState.PASSED, "DeviceId successfully linked!");
-        }, error =>
+        },
+        (error) =>
         {
             testContext.Fail("GetAccountInfo error: " + error.ErrorMessage);
         });
@@ -184,7 +185,8 @@ public class PlayFabAuthServiceTests : UUnitTestCase
             testContext.IsNull(response.AccountInfo.CustomIdInfo, "customID should be null!");
 #endif
             testContext.EndTest(UUnitFinishState.PASSED, "DeviceId successfully unlinked!");
-        }, error =>
+        },
+        (error) =>
         {
             testContext.Fail("GetAccountInfo error: " + error.ErrorMessage);
         });

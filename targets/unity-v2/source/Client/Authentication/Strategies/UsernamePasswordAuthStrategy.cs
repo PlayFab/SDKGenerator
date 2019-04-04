@@ -43,7 +43,8 @@ namespace PlayFab.Authentication.Strategies
                         Email = authService.Email,
                         InfoRequestParameters = authService.InfoRequestParams,
                         TitleId = PlayFabSettings.TitleId
-                    }, registerSuccess =>
+                    },
+                    (registerSuccess) =>
                     {
                         // convert RegisterResult to LoginResult
                         resultCallback.Invoke(new LoginResult

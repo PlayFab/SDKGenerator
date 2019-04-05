@@ -112,7 +112,11 @@ namespace PlayFabUnit
 
         va_list args;
         va_start(args, format);
+#ifdef PLAYFAB_PLATFORM_IOS
+        vsnprintf(message, sizeof(message), format, args);
+#else // PLAYFAB_PLATFORM_IOS
         _vsnprintf_s(message, sizeof(message), format, args);
+#endif // PLAYFAB_PLATFORM_IOS
         va_end(args);
 
         // Output the message in a platform-dependent way.

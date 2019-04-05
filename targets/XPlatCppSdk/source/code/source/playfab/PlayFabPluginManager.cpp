@@ -84,6 +84,8 @@ namespace PlayFab
         return std::make_shared<PlayFabIXHR2HttpPlugin>();
 #elif defined(PLAYFAB_PLATFORM_WINDOWS)
         return std::make_shared<PlayFabWinHttpPlugin>();
+#elif defined(PLAYFAB_PLATFORM_IOS)
+        return std::make_shared<PlayFabIOSHttpPlugin>();
 #else
         return std::make_shared<PlayFabCurlHttpPlugin>();
 #endif // PLAYFAB_PLATFORM_XBOX
@@ -95,6 +97,8 @@ namespace PlayFab
         return std::make_shared<OneDSIXHR2Plugin>();
 #elif defined(PLAYFAB_PLATFORM_WINDOWS)
         return std::make_shared<OneDSWinHttpPlugin>();
+#elif defined(PLAYFAB_PLATFORM_IOS)
+        return std::make_shared<OneDSIOSHttpPlugin>();
 #else
         return std::make_shared<OneDSCurlHttpPlugin>();
 #endif // PLAYFAB_PLATFORM_XBOX

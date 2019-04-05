@@ -24,7 +24,7 @@ namespace PlayFab
     typedef unsigned __int64 Uint64;
     typedef unsigned __int32 Uint32;
     typedef unsigned __int16 Uint16;
-#elif defined(PLAYFAB_PLATFORM_LINUX)
+#elif defined(PLAYFAB_PLATFORM_LINUX) || defined(PLAYFAB_PLATFORM_IOS)
     typedef int64_t Int64;
     typedef int32_t Int32;
     typedef int16_t Int16;
@@ -100,7 +100,7 @@ namespace PlayFab
         tm timeInfo;
 #if defined(PLAYFAB_PLATFORM_WINDOWS) || defined(PLAYFAB_PLATFORM_XBOX)
         gmtime_s(&timeInfo, &input);
-#elif defined(PLAYFAB_PLATFORM_LINUX)
+#elif defined(PLAYFAB_PLATFORM_LINUX) || defined(PLAYFAB_PLATFORM_IOS)
         timeInfo = *gmtime(&input);
 #endif
         char buff[40];

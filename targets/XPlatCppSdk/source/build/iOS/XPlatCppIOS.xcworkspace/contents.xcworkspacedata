@@ -1,0 +1,13 @@
+<?xml version="1.0" encoding="UTF-8"?>
+<Workspace
+   version = "1.0">
+   <FileRef
+      location = "group:../../external/jsoncpp-ios-build/lib_json.xcodeproj">
+   </FileRef>
+   <FileRef
+      location = "group:XPlatCppIOS/XPlatCppIOS.xcodeproj">
+   </FileRef>
+   <FileRef
+      location = "group:TestIOSApp/TestIOSApp.xcodeproj">
+   </FileRef>
+</Workspace>

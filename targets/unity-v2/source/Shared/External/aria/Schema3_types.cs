@@ -697,12 +697,14 @@ namespace Microsoft.Applications.Events.DataModels
             extApp = null;
             extUtc = null;
             extNet = null;
+            extDevice = null;
             extCloud = null;
             extLoc = null;
             extXbl = null;
             extSdk = null;
             extJavascript = null;
             extReceipts = null;
+            ext = null;
             tags = null;
             baseType = String.Empty;
             baseData = null;

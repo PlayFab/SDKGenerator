@@ -1,4 +1,7 @@
 using System;
+#if !NET_4_6 && (NET_2_0_SUBSET || NET_2_0)
+using System.Threading.Tasks;
+#endif
 
 namespace PlayFab.Internal
 {
@@ -118,6 +121,42 @@ namespace PlayFab.Internal
                 }
             }
         }
+        
+        private const int WaitWhileFrequencyDefault = 25;
+        private const int WaitWhileTimeoutDefault = -1;
+        
+#if !NET_4_6 && (NET_2_0_SUBSET || NET_2_0)
+        public static Task WaitWhile(Func<bool> condition, int frequency = WaitWhileFrequencyDefault, int timeout = WaitWhileTimeoutDefault)
+        {
+            return Task.Run(() =>
+            {
+                var waitTask = Task.Run(() =>
+                {
+                    while (condition())
+                    {
+                        Task.Delay(frequency).Await();
+                    }
+                });
+
+                if(waitTask != Task.WhenAny(waitTask, Task.Delay(timeout)).Await())
+                    throw new TimeoutException();
+            });
+        }
+#else
+        public static async Task WaitWhile(Func<bool> condition, int frequency = WaitWhileFrequencyDefault, int timeout = WaitWhileTimeoutDefault)
+        {
+            var waitTask = Task.Run(async () =>
+            {
+                while (condition())
+                {
+                    await Task.Delay(frequency);
+                }
+            });
+
+            if(waitTask != await Task.WhenAny(waitTask, Task.Delay(timeout)))
+                throw new TimeoutException();
+        }
+#endif
     }
 
     public class OneDsError

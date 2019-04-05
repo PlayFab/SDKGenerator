@@ -79,19 +79,23 @@ namespace PlayFab.Pipeline
         public OneDSEventPipeline(OneDSEventPipelineSettings settings, ILogger logger)
         {
             if (settings == null)
+            {
 #if TPL_35
                 throw new ArgumentNullException("settings");
 #else
                 throw new ArgumentNullException(nameof(settings));
 #endif
+            }
             this.settings = settings;
 
             if (logger == null)
+            {
 #if TPL_35
                 throw new ArgumentNullException("logger");
 #else
                 throw new ArgumentNullException(nameof(logger));
 #endif
+            }
             this.logger = logger;
 
             this.batchingStage = new EventBatchingStage(this.settings.BatchSize, this.settings.BatchFillTimeout, logger);

@@ -176,11 +176,11 @@ namespace PlayFab
 #if TPL_35
             return Task.Run(() =>
             {
-                WaitWhile(() => result == null).Await();
+                OneDsUtility.WaitWhile(() => result == null).Await();
                 return result;
             });
 #else
-            await WaitWhile(() => result == null);
+            await OneDsUtility.WaitWhile(() => result == null);
             return result;
 #endif
         }
@@ -219,48 +219,13 @@ namespace PlayFab
 #if TPL_35
             return Task.Run(() =>
             {
-                WaitWhile(() => result == null).Await();
+                OneDsUtility.WaitWhile(() => result == null).Await();
                 return result;
             });
 #else
-            await WaitWhile(() => result == null);
+            await OneDsUtility.WaitWhile(() => result == null);
             return result;
 #endif
         }
-
-        private const int WaitWhileFrequencyDefault = 25;
-        private const int WaitWhileTimeoutDefault = -1;
-#if TPL_35
-        public static Task WaitWhile(Func<bool> condition, int frequency = WaitWhileFrequencyDefault, int timeout = WaitWhileTimeoutDefault)
-        {
-            return Task.Run(() =>
-            {
-                var waitTask = Task.Run(() =>
-                {
-                    while (condition())
-                    {
-                        Task.Delay(frequency).Await();
-                    }
-                });
-
-                if(waitTask != Task.WhenAny(waitTask, Task.Delay(timeout)).Await())
-                    throw new TimeoutException();
-            });
-        }
-#else
-        public static async Task WaitWhile(Func<bool> condition, int frequency = WaitWhileFrequencyDefault, int timeout = WaitWhileTimeoutDefault)
-        {
-            var waitTask = Task.Run(async () =>
-            {
-                while (condition())
-                {
-                    await Task.Delay(frequency);
-                }
-            });
-
-            if(waitTask != await Task.WhenAny(waitTask, Task.Delay(timeout)))
-                throw new TimeoutException();
-        }
-#endif
     }
 }

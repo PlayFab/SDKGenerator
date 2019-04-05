@@ -32,10 +32,6 @@ namespace PlayFab
         __strong NSURLSessionUploadTask* sessionTask;
     };
 
-}
-
-namespace PlayFab
-{
     PlayFabIOSHttpPlugin::RequestTask::RequestTask() :
         state(RequestTask::None),
         impl(nullptr),
@@ -67,11 +63,6 @@ namespace PlayFab
         }
     }
 
-    
-}
-
-namespace PlayFab
-{
     PlayFabIOSHttpPlugin::PlayFabIOSHttpPlugin() :
         workerThread(nullptr),
         threadRunning(false),

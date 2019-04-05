@@ -1,7 +1,5 @@
 using System;
-#if !NET_4_6 && (NET_2_0_SUBSET || NET_2_0)
 using System.Threading.Tasks;
-#endif
 
 namespace PlayFab.Internal
 {

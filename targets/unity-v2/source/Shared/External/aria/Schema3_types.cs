@@ -627,8 +627,7 @@ namespace Microsoft.Applications.Events.DataModels
 
         public CsEvent()
             : this("Microsoft.Applications.Events.DataModels.CsEvent", "CsEvent")
-        {
-        }
+        { }
 
         protected CsEvent(string fullName, string name)
         {
@@ -659,7 +658,6 @@ namespace Microsoft.Applications.Events.DataModels
             iKey = String.Empty;
             flags = 0;
             cV = String.Empty;
-
             SafeClear(ext);
             SafeClear(extIngest);
             SafeClear(extProtocol);
@@ -669,24 +667,18 @@ namespace Microsoft.Applications.Events.DataModels
             SafeClear(extApp);
             SafeClear(extUtc);
             SafeClear(extNet);
+            SafeClear(extDevice);
             SafeClear(extCloud);
             SafeClear(extLoc);
             SafeClear(extXbl);
             SafeClear(extSdk);
             SafeClear(extJavascript);
             SafeClear(extReceipts);
+            SafeClear(ext);
+            if (tags != null) tags.Clear();
+            if (baseType != null) baseType = string.Empty;
             SafeClear(baseData);
             SafeClear(data);
-
-            if (tags != null)
-            {
-                tags.Clear();
-            }
-
-            if (baseType != null)
-            {
-                baseType = String.Empty;
-            }
 
             ext = null;
             extIngest = null;
@@ -711,7 +703,7 @@ namespace Microsoft.Applications.Events.DataModels
             data = null;
         }
 
-        private void SafeClear(IList list)
+        private static void SafeClear(IList list)
         {
             if (list != null)
             {

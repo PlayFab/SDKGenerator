@@ -135,7 +135,9 @@ public class LightweightEventsTests : UUnitTestCase
 
         // create custom event API, add the pipeline
         var playFabEventApi = new PlayFabEventAPI(logger);
+#pragma warning disable 4014
         playFabEventApi.EventRouter.AddAndStartPipeline(EventPipelineKey.OneDS, oneDSPipeline);
+#pragma warning restore 4014
 
         // create and emit many lightweight events
 #if TPL_35

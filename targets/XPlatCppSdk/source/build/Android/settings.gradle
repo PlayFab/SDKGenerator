@@ -1,0 +1,4 @@
+include ':app'
+
+include 'xplatcppsdk'
+project(':xplatcppsdk').projectDir = new File('./XPlatCppSdk')

@@ -1,5 +1,5 @@
 // Copyright (C) Microsoft Corporation. All rights reserved.
-// 
+//
 // This header file is used to define PLAYFAB_PLATFORM macros.
 // Any platform supported by the XPlatCppSdk must be added and redefined here.
 //
@@ -13,13 +13,17 @@
 #define PLAYFAB_PLATFORM_XBOX
 #endif // _DURANGO
 
-#ifdef __linux__
+#if defined(__linux__) && !defined(__ANDROID__)
 #define PLAYFAB_PLATFORM_LINUX
-#endif // __linux__
+#endif // __linux__ && !__ANDROID__
 
 #ifdef __APPLE__
 #define PLAYFAB_PLATFORM_IOS
 #endif // __APPLE__
+
+#ifdef __ANDROID__
+#define PLAYFAB_PLATFORM_ANDROID
+#endif // __ANDROID__
 
 // Durango is also defined as _WIN32.
 // Hence to specify only Windows, we have check for ! _DURANGO.

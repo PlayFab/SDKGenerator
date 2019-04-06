@@ -66,6 +66,9 @@ namespace PlayFab
 #if defined(PLAYFAB_PLATFORM_WINDOWS) || defined(PLAYFAB_PLATFORM_XBOX)
             int s, slen;
             WSADATA wsa;
+#elif defined(PLAYFAB_PLATFORM_ANDROID)
+            unsigned int s;
+            socklen_t slen;
 #else
             unsigned int s, slen;
 #endif

@@ -25,11 +25,11 @@ namespace PlayFabUnit
         json["errors"] = errors;
         json["skipped"] = skipped;
         json["time"] = time;
-#ifdef PLAYFAB_PLATFORM_IOS
+#if defined(PLAYFAB_PLATFORM_IOS) || defined(PLAYFAB_PLATFORM_ANDROID)
         json["timestamp"] = static_cast<Json::Int64>(std::chrono::system_clock::to_time_t(timeStamp));
-#else // PLAYFAB_PLATFORM_IOS
+#else // PLAYFAB_PLATFORM_IOS || PLAYFAB_PLATFORM_ANDROID
         json["timestamp"] = std::chrono::system_clock::to_time_t(timeStamp);
-#endif // PLAYFAB_PLATFORM_IOS
+#endif // PLAYFAB_PLATFORM_IOS || PLAYFAB_PLATFORM_ANDROID
 
         json["testResults"];
         Json::Value init(Json::arrayValue);

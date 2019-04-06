@@ -25,3 +25,8 @@
 #include <playfab/PlayFabIOSHttpPlugin.h>
 #include <playfab/OneDSIOSHttpPlugin.h>
 #endif // PLAYFAB_PLATFORM_IOS
+
+#ifdef PLAYFAB_PLATFORM_ANDROID
+#include <playfab/PlayFabAndroidHttpPlugin.h>
+#include <playfab/OneDSAndroidHttpPlugin.h>
+#endif // PLAYFAB_PLATFORM_ANDROID

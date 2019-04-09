@@ -144,9 +144,9 @@ namespace PlayFab.Internal
                         reqContainer.ApiResult.Request = reqContainer.ApiRequest;
                         reqContainer.ApiResult.CustomData = reqContainer.CustomData;
 
-                        PlayFabHttp.instance.OnPlayFabApiResult(reqContainer.ApiResult);
+                        PlayFabHttp.instance.OnPlayFabApiResult(reqContainer);
 #if !DISABLE_PLAYFABCLIENT_API
-                        PlayFabDeviceUtil.OnPlayFabLogin(reqContainer.ApiResult);
+                        PlayFabDeviceUtil.OnPlayFabLogin(reqContainer.ApiResult, reqContainer.settings, reqContainer.instanceApi);
 #endif
 
                         try

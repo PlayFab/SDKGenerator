@@ -42,7 +42,7 @@ namespace PlayFab
         /// </summary>
         public PlayFabEventRouter(ILogger logger = null)
         {
-            if(logger == null) logger = new DebugLogger();
+            if (logger == null) logger = new DebugLogger();
             this.logger = logger;
             this.Pipelines = new Dictionary<EventPipelineKey, IEventPipeline>();
         }
@@ -66,7 +66,7 @@ namespace PlayFab
             // only events based on PlayFabEmitEventRequest are supported by default pipelines
             var eventRequest = request as PlayFabEmitEventRequest;
 
-            if ( eventRequest == null || eventRequest.Event == null ) return tasks;
+            if (eventRequest == null || eventRequest.Event == null) return tasks;
 
             foreach (var pipeline in this.Pipelines)
             {

@@ -5,9 +5,9 @@ namespace PlayFab.Events
 {
     public partial class PlayFabEvents
     {
-<% if(api.name =="Client"){ %>        public event PlayFabResultEvent<LoginResult> OnLoginResultEvent;
+<% if (api.name =="Client"){ %>        public event PlayFabResultEvent<LoginResult> OnLoginResultEvent;
 
-<% } for(var i in api.calls) { var apiCall = api.calls[i]; var prefix = ""; if(api.name != "Client"){ prefix=api.name } if (apiCall.result == "LoginResult") {
+<% } for(var i in api.calls) { var apiCall = api.calls[i]; var prefix = ""; if (api.name != "Client") { prefix=api.name } if (apiCall.result == "LoginResult") {
 %>        public event PlayFabRequestEvent<<%- apiCall.request %>> On<%- prefix %><%- apiCall.name %>RequestEvent;
 <% } else {
 %>        public event PlayFabRequestEvent<<%- apiCall.request %>> On<%- prefix %><%- apiCall.name %>RequestEvent;

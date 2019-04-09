@@ -42,15 +42,6 @@ namespace PlayFab.Internal
         public const int DEFAULT_LOCAL_OUTPUT_INDEX = 9; // The default format if you want to use local time (This doesn't have universal support in all PlayFab code)
         public static DateTimeStyles DateTimeStyles = DateTimeStyles.RoundtripKind;
 
-        /// <summary>
-        /// This field has moved!
-        /// However, most users shouldn't access this at all
-        /// JsonWrapper.Serialize, and JsonWrapper.Deserialize will always use it automatically (Unless you deliberately mess with them)
-        /// Any Serialization of an object in the PlayFab namespace should just use JsonWrapper
-        /// </summary>
-        [Obsolete(@"This field has moved to SimpleJsonInstance.ApiSerializerStrategy", false)]
-        public static SimpleJsonInstance.PlayFabSimpleJsonCuztomization ApiSerializerStrategy { get { return SimpleJsonInstance.ApiSerializerStrategy; } }
-
         public static string timeStamp
         {
             get { return DateTime.Now.ToString(_defaultDateTimeFormats[DEFAULT_LOCAL_OUTPUT_INDEX]); }

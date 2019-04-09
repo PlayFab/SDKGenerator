@@ -230,7 +230,6 @@ namespace PlayFab
         {
             if (OnPlayFabError != null)
                 OnPlayFabError.Invoke(playFabError);
-            Debug.LogError(playFabError.GenerateErrorReport());
         }
 
         public void Link(AuthKeys authKeys)

@@ -157,7 +157,7 @@ namespace PlayFab
                     result = new PlayFabResult<WriteEventsResponse> { Error = error, CustomData = customData };
                     return;
                 }
-                result = new PlayFabResult<WriteEventsResponse>{ Result = new WriteEventsResponse(), CustomData = customData };
+                result = new PlayFabResult<WriteEventsResponse> { Result = new WriteEventsResponse(), CustomData = customData };
             });
 
             await WaitWhile(() => result == null, 100);
@@ -170,8 +170,7 @@ namespace PlayFab
         /// </summary>
         internal static async Task<PlayFabResult<TelemetryIngestionConfigResponse>> GetTelemetryIngestionConfigAsync(TelemetryIngestionConfigRequest request, object customData = null, Dictionary<string, string> extraHeaders = null)
         {
-            var transport = PluginManager.GetPlugin<IPlayFabTransportPlugin>(PluginContract.PlayFab_Transport);
-            if (transport.EntityToken == null) throw new PlayFabException(PlayFabExceptionCode.EntityTokenNotSet, "Must call GetEntityToken before calling this method");
+            if (PlayFabSettings.staticPlayer.EntityToken == null) throw new PlayFabException(PlayFabExceptionCode.EntityTokenNotSet, "Must call GetEntityToken before calling this method");
 
             PlayFabResult<TelemetryIngestionConfigResponse> result = null;
 
@@ -179,12 +178,12 @@ namespace PlayFab
             {
                 PlayFabHttp.MakeApiCall<TelemetryIngestionConfigResponse>("/Event/GetTelemetryIngestionConfig", request, AuthType.EntityToken, callback =>
                 {
-                    result = new PlayFabResult<TelemetryIngestionConfigResponse> {Result = callback, CustomData = customData};
+                    result = new PlayFabResult<TelemetryIngestionConfigResponse> { Result = callback, CustomData = customData };
                 },
                 error =>
                 {
-                    result = new PlayFabResult<TelemetryIngestionConfigResponse>{Error = error, CustomData = customData};
-                });
+                    result = new PlayFabResult<TelemetryIngestionConfigResponse> { Error = error, CustomData = customData };
+                }, null, null, PlayFabSettings.staticPlayer);
             });
 
             await WaitWhile(() => result == null, 100);
@@ -198,7 +197,7 @@ namespace PlayFab
                 while (condition()) await Task.Delay(frequency);
             });
 
-            if(waitTask != await Task.WhenAny(waitTask, Task.Delay(timeout)))
+            if (waitTask != await Task.WhenAny(waitTask, Task.Delay(timeout)))
                 throw new TimeoutException();
         }
     }

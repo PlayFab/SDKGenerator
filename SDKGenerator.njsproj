@@ -476,8 +476,6 @@
     <Content Include="targets\unity-v2\source\Client\Authentication\Strategies\WindowsHelloAuthStrategy.cs" />
     <Content Include="targets\unity-v2\source\Client\Authentication\Strategies\XBoxLiveAuthStrategy.cs" />
     <Content Include="targets\unity-v2\source\Client\PlayFabDeviceUtil.cs" />
-    <Content Include="targets\unity-v2\source\Client\PlayFabIdfa.cs" />
-    <Content Include="targets\unity-v2\source\Client\PlayFabSettings.cs" />
     <Content Include="targets\unity-v2\source\Entity\ScreenTimeTracker.cs" />
     <Content Include="targets\unity-v2\source\link.xml" />
     <Content Include="targets\unity-v2\source\Shared\Editor.meta" />
@@ -563,8 +561,6 @@
     <Content Include="targets\unity-v2\source\Shared\Public.meta" />
     <Content Include="targets\unity-v2\source\Shared\Public\IPlayFabPlugin.cs" />
     <Content Include="targets\unity-v2\source\Shared\Public\IPlayFabPlugin.cs.meta" />
-    <Content Include="targets\unity-v2\source\Shared\Public\IPlayFabTransportPlugin.cs" />
-    <Content Include="targets\unity-v2\source\Shared\Public\IPlayFabTransportPlugin.cs.meta" />
     <Content Include="targets\unity-v2\source\Shared\Public\ISerializerPlugin.cs" />
     <Content Include="targets\unity-v2\source\Shared\Public\ISerializerPlugin.cs.meta" />
     <Content Include="targets\unity-v2\source\Shared\Public\ITransportPlugin.cs" />

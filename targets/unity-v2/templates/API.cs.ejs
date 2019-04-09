@@ -1,10 +1,9 @@
 #if <%- getApiDefineFlag(api) %>
+
 using System;
 using System.Collections.Generic;
 using PlayFab.<%- api.name %>Models;
 using PlayFab.Internal;
-using PlayFab.Json;
-using PlayFab.Public;
 
 namespace PlayFab
 {
@@ -18,7 +17,7 @@ namespace PlayFab
         /// </summary>
         public static bool IsClientLoggedIn()
         {
-            return PlayFabHttp.IsClientLoggedIn();
+            return PlayFabSettings.staticPlayer.IsClientLoggedIn();
         }
 <% } %>
 <% if (hasEntityTokenOptions) { %>
@@ -27,8 +26,7 @@ namespace PlayFab
         /// </summary>
         public static bool IsEntityLoggedIn()
         {
-            var transport = PluginManager.GetPlugin<IPlayFabTransportPlugin>(PluginContract.PlayFab_Transport);
-            return !string.IsNullOrEmpty(transport.EntityToken);
+            return PlayFabSettings.staticPlayer.IsEntityLoggedIn();
         }
 <% } %>
         /// <summary>
@@ -37,18 +35,20 @@ namespace PlayFab
         /// </summary>
         public static void ForgetAllCredentials()
         {
-            PlayFabHttp.ForgetAllCredentials();
+            PlayFabSettings.staticPlayer.ForgetAllCredentials();
         }
 
 <% for(var i in api.calls) { var apiCall = api.calls[i]; %><%- generateApiSummary("        ", apiCall, "summary") %><%- getDeprecationAttribute("        ", apiCall)
 %>        public static void <%- apiCall.name %>(<%- apiCall.request %> request, Action<<%- apiCall.result %>> resultCallback, Action<PlayFabError> errorCallback, object customData = null, Dictionary<string, string> extraHeaders = null)
         {
+            var context = (request == null ? null : request.AuthenticationContext) ?? PlayFabSettings.staticPlayer;
 <%- getRequestActions("            ", apiCall) %>
 <%- getCustomApiLogic("            ", apiCall) %>
-            PlayFabHttp.MakeApiCall("<%- apiCall.url %>", request, <%- getAuthParams(apiCall) %>, resultCallback, errorCallback, customData, extraHeaders);
-        }<%- getCustomApiFunction("        ", apiCall) %>
+            PlayFabHttp.MakeApiCall("<%- apiCall.url %>", request, <%- getAuthParams(apiCall) %>, resultCallback, errorCallback, customData, extraHeaders, context);
+        }<%- getCustomApiFunction("        ", api, apiCall) %>
 
 <% } %>
     }
 }
+
 #endif

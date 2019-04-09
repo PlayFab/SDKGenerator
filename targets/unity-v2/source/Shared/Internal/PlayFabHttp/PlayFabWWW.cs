@@ -16,12 +16,10 @@ using Ionic.Zlib;
 
 namespace PlayFab.Internal
 {
-    public class PlayFabWww : IPlayFabTransportPlugin
+    public class PlayFabWww : ITransportPlugin
     {
         private bool _isInitialized = false;
         private int _pendingWwwMessages = 0;
-        public string AuthKey { get; set; }
-        public string EntityToken { get; set; }
 
         public bool IsInitialized { get { return _isInitialized; } }
 

@@ -4,7 +4,6 @@ using System;
 using System.Collections.Generic;
 using System.Threading.Tasks;
 using PlayFab;
-using PlayFab.AuthenticationModels;
 using PlayFab.ClientModels;
 using PlayFab.EventsModels;
 using PlayFab.Logger;
@@ -13,6 +12,11 @@ using PlayFab.UUnit;
 
 public class LightweightEventsTests : UUnitTestCase
 {
+    public override void ClassSetUp()
+    {
+        var testTitleData = TestTitleDataLoader.LoadTestTitleData();
+        PlayFabSettings.TitleId = testTitleData.titleId;
+    }
     public override void Tick(UUnitTestContext testContext)
     {
         // no async work needed
@@ -28,16 +32,7 @@ public class LightweightEventsTests : UUnitTestCase
             TitleId = PlayFabSettings.TitleId
         }, loginCallback =>
         {
-            PlayFabAuthenticationAPI.GetEntityToken(new GetEntityTokenRequest
-            {
-                AuthenticationContext = loginCallback.AuthenticationContext
-            }, entityCallback =>
-            {
-                WriteOneDSEventsAsync(testContext);
-            }, entityError =>
-            {
-                testContext.Skip("EntityToken required!");
-            });
+            WriteOneDSEventsAsync(testContext);
         }, loginError =>
         {
             testContext.Skip("Login required!");
@@ -74,10 +69,11 @@ public class LightweightEventsTests : UUnitTestCase
         // get OneDS authentication from PlayFab
         var configRequest = new TelemetryIngestionConfigRequest();
         var authTask = await OneDSEventsAPI.GetTelemetryIngestionConfigAsync(configRequest);
-        var response = authTask.Result;
+        if (authTask.Error != null)
+            testContext.Fail(authTask.Error.GenerateErrorReport());
 
-        testContext.NotNull(response, "Failed to get OneDS authentication info from PlayFab");
-        oneDSEventsApi.SetCredentials("o:" + response.TenantId, response.IngestionKey, response.TelemetryJwtToken, response.TelemetryJwtHeaderKey, response.TelemetryJwtHeaderPrefix);
+        testContext.NotNull(authTask.Result, "Failed to get OneDS authentication info from PlayFab");
+        oneDSEventsApi.SetCredentials("o:" + authTask.Result.TenantId, authTask.Result.IngestionKey, authTask.Result.TelemetryJwtToken, authTask.Result.TelemetryJwtHeaderKey, authTask.Result.TelemetryJwtHeaderPrefix);
 
         // call OneDS events API
         var writeTask = await oneDSEventsApi.WriteTelemetryEventsAsync(request, null, new Dictionary<string, string>());

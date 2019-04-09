@@ -1,24 +1,24 @@
 #if <%- getApiDefineFlag(api) %>
+
 using System;
 using System.Collections.Generic;
 using PlayFab.<%- api.name %>Models;
 using PlayFab.Internal;
-using PlayFab.Json;
-using PlayFab.Public;
+using PlayFab.SharedModels;
 
 namespace PlayFab
 {
 <%- generateApiSummary("    ", api, "description")
-%>    public <%- isPartial %>class PlayFab<%- api.name %>InstanceAPI
+%>    public <%- isPartial %>class PlayFab<%- api.name %>InstanceAPI : IPlayFabInstanceApi
     {
-        public PlayFabApiSettings ApiSettings = null;
+        public PlayFabApiSettings apiSettings = null;
         private PlayFabAuthenticationContext authenticationContext = null;
 
-        public PlayFab<%- api.name %>InstanceAPI() {}
+        public PlayFab<%- api.name %>InstanceAPI() { }
 
         public PlayFab<%- api.name %>InstanceAPI(PlayFabApiSettings settings)
         {
-            ApiSettings = settings;
+            apiSettings = settings;
         }
 
         public PlayFab<%- api.name %>InstanceAPI(PlayFabAuthenticationContext context)
@@ -28,7 +28,7 @@ namespace PlayFab
 
         public PlayFab<%- api.name %>InstanceAPI(PlayFabApiSettings settings, PlayFabAuthenticationContext context)
         {
-            ApiSettings = settings;
+            apiSettings = settings;
             authenticationContext = context;
         }
 
@@ -41,7 +41,6 @@ namespace PlayFab
         {
             return authenticationContext;
         }
-
 <% if (hasClientOptions) { %>
         /// <summary>
         /// Check to See if the client is logged in.
@@ -50,9 +49,7 @@ namespace PlayFab
         {
             return authenticationContext == null ? false : authenticationContext.IsClientLoggedIn();
         }
-<% }%>
-
-<% if (hasEntityTokenOptions) { %>
+<% } %><% if (hasEntityTokenOptions) { %>
         /// <summary>
         /// Check to See if the entity is logged in.
         /// </summary>
@@ -60,25 +57,27 @@ namespace PlayFab
         {
             return authenticationContext == null ? false : authenticationContext.IsEntityLoggedIn();
         }
-<% }%>
+<% } %>
         /// <summary>
         /// Clear the Client SessionToken which allows this Client to call API calls requiring login.
         /// A new/fresh login will be required after calling this.
         /// </summary>
         public void ForgetAllCredentials()
         {
-            if(authenticationContext != null)
+            if (authenticationContext != null)
             {
                 authenticationContext.ForgetAllCredentials();
             }
         }
-
-<% for(var i in api.calls) { var apiCall = api.calls[i]; %><%- generateApiSummary("        ", apiCall, "summary") %><%- getDeprecationAttribute("        ", apiCall)%>
-        public void <%- apiCall.name %>(<%- apiCall.request %> request, Action<<%- apiCall.result %>> resultCallback, Action<PlayFabError> errorCallback, object customData = null, Dictionary<string, string> extraHeaders = null)
+<% for(var i in api.calls) { var apiCall = api.calls[i]; %>
+<%- generateApiSummary("        ", apiCall, "summary") %><%- getDeprecationAttribute("        ", apiCall)
+%>        public void <%- apiCall.name %>(<%- apiCall.request %> request, Action<<%- apiCall.result %>> resultCallback, Action<PlayFabError> errorCallback, object customData = null, Dictionary<string, string> extraHeaders = null)
         {
-<%- getRequestActions("            ", apiCall, true) %>            PlayFabHttp.MakeApiCall("<%- apiCall.url %>", request, <%- getAuthParams(apiCall) %>, resultCallback, errorCallback, customData, extraHeaders, false, authenticationContext, ApiSettings);
-        }<%- getCustomApiFunction("        ", apiCall, true) %>
-<% }%>
+            var context = (request == null ? null : request.AuthenticationContext) ?? authenticationContext;
+<%- getRequestActions("            ", apiCall, true) %>            PlayFabHttp.MakeApiCall("<%- apiCall.url %>", request, <%- getAuthParams(apiCall) %>, resultCallback, errorCallback, customData, extraHeaders, context, apiSettings, this);
+        }<%- getCustomApiFunction("        ", api, apiCall, true) %>
+<% } %>
     }
 }
+
 #endif

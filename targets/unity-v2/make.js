@@ -95,13 +95,13 @@ function makePlayStreamDatatype(datatype, sourceDir) {
 };
 
 function getBaseTypeSyntax(datatype) {
-    if (datatype.className === "LoginResult" || datatype.className === "RegisterPlayFabUserResult")
+    if (datatype.isResult && datatype.className === "LoginResult" || datatype.className === "RegisterPlayFabUserResult")
         return " : PlayFabLoginResultCommon";
-    if (datatype.className.toLowerCase().endsWith("request"))
+    if (datatype.isRequest)
         return " : PlayFabRequestCommon";
-    if (datatype.className.toLowerCase().endsWith("response") || datatype.className.toLowerCase().endsWith("result"))
+    if (datatype.isResult)
         return " : PlayFabResultCommon";
-    return ""; // If both are -1, then neither is greater
+    return " : PlayFabBaseModel"; // If both are -1, then neither is greater
 }
 
 function makeDatatypes(apis, sourceDir, apiOutputDir) {
@@ -190,10 +190,26 @@ function isPartial(api) {
 }
 
 // Some apis have entirely custom built functions to augment apis in ways that aren't generate-able
-function getCustomApiFunction(tabbing, apiCall, isApiInstance = false) {
-    if (apiCall.name === "ExecuteCloudScript" && isApiInstance == false) {
+function getCustomApiFunction(tabbing, api, apiCall, isApiInstance = false) {
+    var varCheckLine = "";
+    if (api.name === "Client")
+        varCheckLine = tabbing + "    if (!IsClientLoggedIn()) throw new PlayFabException(PlayFabExceptionCode.NotLoggedIn, \"Must be logged in to call this method\");\n";
+    else if (api.name === "Server" && !isApiInstance)
+        varCheckLine = tabbing + "    if (string.IsNullOrEmpty(PlayFabSettings.staticSettings.DeveloperSecretKey)) throw new PlayFabException(PlayFabExceptionCode.DeveloperKeyNotSet, \"Must set PlayFabSettings.staticSettings.DeveloperSecretKey to call this method\");\n";
+    else if (api.name === "Server" && isApiInstance)
+        varCheckLine = tabbing + "    if (!string.IsNullOrEmpty(apiSettings.DeveloperSecretKey)) throw new PlayFabException(PlayFabExceptionCode.DeveloperKeyNotSet, \"Must set DeveloperSecretKey to call this method\");\n";
+
+    var authType = "";
+    if (api.name === "Client")
+        authType = "AuthType.LoginSession";
+    else if (api.name === "Server")
+        authType = "AuthType.DevSecretKey";
+
+    if (apiCall.name === "ExecuteCloudScript" && isApiInstance === false) {
         return "\n\n" + tabbing + "public static void " + apiCall.name + "<TOut>(" + apiCall.request + " request, Action<" + apiCall.result + "> resultCallback, Action<PlayFabError> errorCallback, object customData = null, Dictionary<string, string> extraHeaders = null)\n"
             + tabbing + "{\n"
+            + varCheckLine
+            + tabbing + "    var context = (request == null ? null : request.AuthenticationContext) ?? PlayFabSettings.staticPlayer;\n"
             + tabbing + "    Action<" + apiCall.result + "> wrappedResultCallback = (wrappedResult) =>\n"
             + tabbing + "    {\n"
             + tabbing + "        var serializer = PluginManager.GetPlugin<ISerializerPlugin>(PluginContract.PlayFab_Serializer);\n"
@@ -208,12 +224,14 @@ function getCustomApiFunction(tabbing, apiCall, isApiInstance = false) {
             + tabbing + "        }\n"
             + tabbing + "        resultCallback(wrappedResult);\n"
             + tabbing + "    };\n"
-            + tabbing + "    " + apiCall.name + "(request, wrappedResultCallback, errorCallback, customData, extraHeaders);\n"
+            + tabbing + "    PlayFabHttp.MakeApiCall(\"" + apiCall.url + "\", request, " + authType + ", wrappedResultCallback, errorCallback, customData, extraHeaders, context);\n"
             + tabbing + "}";
     }
-    else if (apiCall.name === "ExecuteCloudScript" && isApiInstance == true) {
+    else if (apiCall.name === "ExecuteCloudScript" && isApiInstance === true) {
         return "\n\n" + tabbing + "public void " + apiCall.name + "<TOut>(" + apiCall.request + " request, Action<" + apiCall.result + "> resultCallback, Action<PlayFabError> errorCallback, object customData = null, Dictionary<string, string> extraHeaders = null)\n"
             + tabbing + "{\n"
+            + varCheckLine
+            + tabbing + "    var context = (request == null ? null : request.AuthenticationContext) ?? authenticationContext;\n"
             + tabbing + "    Action<" + apiCall.result + "> wrappedResultCallback = (wrappedResult) =>\n"
             + tabbing + "    {\n"
             + tabbing + "        var serializer = PluginManager.GetPlugin<ISerializerPlugin>(PluginContract.PlayFab_Serializer);\n"
@@ -228,7 +246,7 @@ function getCustomApiFunction(tabbing, apiCall, isApiInstance = false) {
             + tabbing + "        }\n"
             + tabbing + "        resultCallback(wrappedResult);\n"
             + tabbing + "    };\n"
-            + tabbing + "    " + apiCall.name + "(request, wrappedResultCallback, errorCallback, customData, extraHeaders);\n"
+            + tabbing + "    PlayFabHttp.MakeApiCall(\"" + apiCall.url + "\", request, " + authType + ", wrappedResultCallback, errorCallback, customData, extraHeaders, context, apiSettings, this);\n"
             + tabbing + "}";
     }
     return ""; // Most apis don't have a custom alternate
@@ -422,59 +440,32 @@ function getRequestActions(tabbing, apiCall, isApiInstance = false) {
     if (apiCall.name === "GetEntityToken" && isApiInstance === false)
         return tabbing + "AuthType authType = AuthType.None;\n" +
             "#if !DISABLE_PLAYFABCLIENT_API\n" +
-            tabbing + "string clientSessionTicket = null;\n" +
-            tabbing + "if (request.AuthenticationContext != null && !string.IsNullOrEmpty(request.AuthenticationContext.ClientSessionTicket))\n" +
-            tabbing + "    clientSessionTicket = request.AuthenticationContext.ClientSessionTicket;\n" +
-            tabbing + "if (clientSessionTicket == null)\n" +
-            tabbing + "    clientSessionTicket = PluginManager.GetPlugin<IPlayFabTransportPlugin>(PluginContract.PlayFab_Transport).AuthKey;\n" +
-            tabbing + "if (authType == AuthType.None && !string.IsNullOrEmpty(clientSessionTicket))\n" +
-            tabbing + "    authType = AuthType.LoginSession;\n" +
+            tabbing + "if (context.ClientSessionTicket != null) { authType = AuthType.LoginSession; }\n" +
             "#endif\n" +
-            "#if ENABLE_PLAYFABSERVER_API || ENABLE_PLAYFABADMIN_API || UNITY_EDITOR\n" +
-            tabbing + "string developerSecretKey = null;\n" +
-            tabbing + "if (request.AuthenticationContext != null && !string.IsNullOrEmpty(request.AuthenticationContext.DeveloperSecretKey))\n" +
-            tabbing + "    developerSecretKey = request.AuthenticationContext.DeveloperSecretKey;\n" +
-            tabbing + "if (developerSecretKey == null)\n" +
-            tabbing + "    developerSecretKey = PlayFabSettings.DeveloperSecretKey;\n" +
-            tabbing + "if (authType == AuthType.None && !string.IsNullOrEmpty(developerSecretKey))\n" +
-            tabbing + "    authType = AuthType.DevSecretKey;\n" +
+            "#if ENABLE_PLAYFABSERVER_API || ENABLE_PLAYFABADMIN_API\n" +
+            tabbing + "if (PlayFabSettings.staticSettings.DeveloperSecretKey != null) { authType = AuthType.DevSecretKey; } // TODO: Need to get the correct settings first\n" +
+            "#endif\n" +
+            "#if !DISABLE_PLAYFABENTITY_API\n" +
+            tabbing + "if (context.EntityToken != null) { authType = AuthType.EntityToken; }\n" +
             "#endif\n";
     if (apiCall.name === "GetEntityToken" && isApiInstance === true)
         return tabbing + "AuthType authType = AuthType.None;\n" +
             "#if !DISABLE_PLAYFABCLIENT_API\n" +
-            tabbing + "string clientSessionTicket = null;\n" +
-            tabbing + "if (request.AuthenticationContext != null && !string.IsNullOrEmpty(request.AuthenticationContext.ClientSessionTicket))\n" +
-            tabbing + "    clientSessionTicket = request.AuthenticationContext.ClientSessionTicket;\n" +
-            tabbing + "if (clientSessionTicket == null && authenticationContext != null && !string.IsNullOrEmpty(authenticationContext.ClientSessionTicket))\n" +
-            tabbing + "    clientSessionTicket = authenticationContext.ClientSessionTicket;\n" +
-            tabbing + "if (clientSessionTicket == null)\n" +
-            tabbing + "    clientSessionTicket = PluginManager.GetPlugin<IPlayFabTransportPlugin>(PluginContract.PlayFab_Transport).AuthKey;\n" +
-            tabbing + "if (authType == AuthType.None && !string.IsNullOrEmpty(clientSessionTicket))\n" +
-            tabbing + "    authType = AuthType.LoginSession;\n" +
+            tabbing + "if (context.ClientSessionTicket != null) { authType = AuthType.LoginSession; }\n" +
             "#endif\n" +
-            "#if ENABLE_PLAYFABSERVER_API || ENABLE_PLAYFABADMIN_API || UNITY_EDITOR\n" +
-            tabbing + "string developerSecretKey = null;\n" +
-            tabbing + "if (request.AuthenticationContext != null && !string.IsNullOrEmpty(request.AuthenticationContext.DeveloperSecretKey))\n" +
-            tabbing + "    developerSecretKey = request.AuthenticationContext.DeveloperSecretKey;\n" +
-            tabbing + "if (developerSecretKey == null && authenticationContext != null && !string.IsNullOrEmpty(authenticationContext.DeveloperSecretKey))\n" +
-            tabbing + "    developerSecretKey = authenticationContext.DeveloperSecretKey;\n" +
-            tabbing + "if (developerSecretKey == null)\n" +
-            tabbing + "    developerSecretKey = PlayFabSettings.DeveloperSecretKey;\n" +
-            tabbing + "if (authType == AuthType.None && !string.IsNullOrEmpty(developerSecretKey))\n" +
-            tabbing + "    authType = AuthType.DevSecretKey;\n" +
+            "#if ENABLE_PLAYFABSERVER_API || ENABLE_PLAYFABADMIN_API\n" +
+            tabbing + "if (PlayFabSettings.staticSettings.DeveloperSecretKey != null) { authType = AuthType.DevSecretKey; } // TODO: Need to get the correct settings first\n" +
+            "#endif\n" +
+            "#if !DISABLE_PLAYFABENTITY_API\n" +
+            tabbing + "if (context.EntityToken != null) { authType = AuthType.EntityToken; }\n" +
             "#endif\n";
 
-    if (apiCall.result === "LoginResult" || apiCall.request === "RegisterPlayFabUserRequest")
+    if ((apiCall.result === "LoginResult" || apiCall.request === "RegisterPlayFabUserRequest") && isApiInstance === false)
         return tabbing + "request.TitleId = request.TitleId ?? PlayFabSettings.TitleId;\n";
+    if ((apiCall.result === "LoginResult" || apiCall.request === "RegisterPlayFabUserRequest") && isApiInstance === true)
+        return tabbing + "request.TitleId = request.TitleId ?? apiSettings.TitleId;\n";
     if (apiCall.auth === "SessionTicket" && isApiInstance === true)
-        return tabbing + "string clientSessionTicket = null;\n" +
-            tabbing + "if (request.AuthenticationContext != null && !string.IsNullOrEmpty(request.AuthenticationContext.ClientSessionTicket))\n" +
-            tabbing + "    clientSessionTicket = request.AuthenticationContext.ClientSessionTicket;\n" +
-            tabbing + "if (clientSessionTicket == null && authenticationContext != null && !string.IsNullOrEmpty(authenticationContext.ClientSessionTicket))\n" +
-            tabbing + "    clientSessionTicket = authenticationContext.ClientSessionTicket;\n" +
-            tabbing + "if (clientSessionTicket == null)\n" +
-            tabbing + "    clientSessionTicket = PluginManager.GetPlugin<IPlayFabTransportPlugin>(PluginContract.PlayFab_Transport).AuthKey;\n" +
-            tabbing + "if (string.IsNullOrEmpty(clientSessionTicket)) throw new PlayFabException(PlayFabExceptionCode.NotLoggedIn,\"Must be logged in to call this method\");\n";
+        return tabbing + "if (string.IsNullOrEmpty(context.ClientSessionTicket)) throw new PlayFabException(PlayFabExceptionCode.NotLoggedIn,\"Must be logged in to call this method\");\n";
     if (apiCall.auth === "SessionTicket" && isApiInstance === false)
         return tabbing + "if (!IsClientLoggedIn()) throw new PlayFabException(PlayFabExceptionCode.NotLoggedIn,\"Must be logged in to call this method\");\n";
     return "";
@@ -513,7 +504,7 @@ function getDeprecationAttribute(tabbing, apiObj) {
         deprecationTime = new Date(apiObj.deprecation.DeprecatedAfter);
     var isError = isDeprecated && (new Date() > deprecationTime) ? "true" : "false";
 
-    if (isDeprecated && apiObj.deprecation.ReplacedBy != null)
+    if (isDeprecated && apiObj.deprecation.ReplacedBy !== null)
         return tabbing + "[Obsolete(\"Use '" + apiObj.deprecation.ReplacedBy + "' instead\", " + isError + ")]\n";
     else if (isDeprecated)
         return tabbing + "[Obsolete(\"No longer available\", " + isError + ")]\n";

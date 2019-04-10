@@ -96,7 +96,8 @@ namespace PlayFab.UUnit
                 FunctionParameter = new Dictionary<string, object> { { "customId", PlayFabSettings.BuildIdentifier }, { "testReport", new[] { suite.GetInternalReport() } } },
                 GeneratePlayStreamEvent = true
             };
-            PlayFabClientAPI.ExecuteCloudScript(request, OnCloudScriptSubmit, OnPostTestResultsError, null, testTitleData.extraHeaders);
+
+            clientInstance.ExecuteCloudScript(request, OnCloudScriptSubmit, OnPostTestResultsError, null, testTitleData.extraHeaders);
         }
 
         private void OnCloudScriptSubmit(ExecuteCloudScriptResult result)

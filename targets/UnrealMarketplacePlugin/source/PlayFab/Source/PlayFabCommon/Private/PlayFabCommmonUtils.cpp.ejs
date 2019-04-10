@@ -6,19 +6,16 @@ using namespace PlayFabCommon;
 
 FString PlayFabCommonUtils::GetTempDir()
 {
-    // Unix
-    FString tempDir = FPlatformMisc::GetEnvironmentVariable(TEXT("TEMPDIR"));
-    if (tempDir.IsEmpty())
+    FString vars[] = { TEXT("TEMPDIR"), TEXT("TEMP"), TEXT("TMP") };
+    for (auto& envVar : vars)
     {
-        // Windows - Alternative 1
-        tempDir = FPlatformMisc::GetEnvironmentVariable(TEXT("TEMP"));
+        FString tempDir = FPlatformMisc::GetEnvironmentVariable(envVar);
+        if (!tempDir.IsEmpty())
+        {
+            return tempDir;
+        }
     }
-    if (tempDir.IsEmpty())
-    {
-        // Windows - Alternative 2
-        tempDir = FPlatformMisc::GetEnvironmentVariable(TEXT("TMP"));
-    }
-    return tempDir;
+    return FString();
 }
 
 FString PlayFabCommonUtils::GetLocalSettingsFileContent()
@@ -34,11 +31,11 @@ FString PlayFabCommonUtils::GetLocalSettingsFileContent()
 TSharedPtr<FJsonObject> PlayFabCommonUtils::GetLocalSettingsFileJson()
 {
     FString fileContent = PlayFabCommonUtils::GetLocalSettingsFileContent();
-    TSharedPtr<FJsonObject> JsonObject = MakeShareable(new FJsonObject());
-    TSharedRef<TJsonReader<>> JsonReader = TJsonReaderFactory<>::Create(fileContent);
-    return (FJsonSerializer::Deserialize(JsonReader, JsonObject) && JsonObject.IsValid())
-        ? JsonObject
-        : MakeShareable(new FJsonObject);
+    TSharedPtr<FJsonObject> jsonObject = MakeShareable(new FJsonObject());
+    TSharedRef<TJsonReader<>> jsonReader = TJsonReaderFactory<>::Create(fileContent);
+    return (FJsonSerializer::Deserialize(jsonReader, jsonObject) && jsonObject.IsValid())
+        ? jsonObject
+        : MakeShareable(new FJsonObject());
 }
 
 FString PlayFabCommonUtils::GetLocalSettingsFileProperty(const FString& propertyKey)

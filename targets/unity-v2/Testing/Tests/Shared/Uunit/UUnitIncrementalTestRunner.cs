@@ -97,12 +97,7 @@ namespace PlayFab.UUnit
                 GeneratePlayStreamEvent = true
             };
 
-            PlayFabSettings.staticPlayer.ClientSessionTicket = result.SessionTicket;
-            PlayFabSettings.staticPlayer.EntityToken = result.EntityToken.ToString();
-            PlayFabSettings.staticPlayer.ClientSessionTicket = result.SessionTicket;
-            PlayFabSettings.staticPlayer.PlayFabId = result.PlayFabId;
-
-            PlayFabClientAPI.ExecuteCloudScript(request, OnCloudScriptSubmit, OnPostTestResultsError, null, testTitleData.extraHeaders);
+            clientInstance.ExecuteCloudScript(request, OnCloudScriptSubmit, OnPostTestResultsError, null, testTitleData.extraHeaders);
         }
 
         private void OnCloudScriptSubmit(ExecuteCloudScriptResult result)

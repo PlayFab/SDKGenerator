@@ -152,12 +152,6 @@ namespace PlayFab.Internal
             }
             return string.Empty;
         }
-
-        internal static bool ShouldDebugFunction(string functionName)
-        { 
-            var debugFunctions = PlayFabSimpleJson.DeserializeObject<string[]>(GetLocalSettingsFileProperty("DebugFunctions"));
-            return debugFunctions.Contains(functionName);
-        }
 #endif
     }
 }

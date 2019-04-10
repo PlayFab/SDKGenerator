@@ -307,7 +307,7 @@ function getCustomApiAssignmentLogic(tabbing, apiCall) {
             + tabbing + "TArray<FString> debugFunctions = PlayFabCommon::PlayFabCommonUtils::GetLocalSettingsFileArrayProperty(TEXT(\"DebugFunctions\"));\n"
             + tabbing + "if (!localApiServer.IsEmpty() && (debugFunctions.Contains(TEXT(\"*\")) || debugFunctions.Contains(request.FunctionName)))\n"
             + tabbing + "{\n"
-            + tabbing + "    FString endpoint = TEXT(\"/CloudScript/ExecuteFunction\");\n"
+            + tabbing + "    FString endpoint = TEXT(\"" + apiCall.url + "\");\n"
             + tabbing + "    endpoint.RemoveFromStart(TEXT(\"/\"));\n"
             + tabbing + "    FString url = localApiServer + endpoint;\n"
             + tabbing + "    manager->PlayFabRequestFullURL = url;\n"

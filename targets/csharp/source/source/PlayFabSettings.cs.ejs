@@ -63,7 +63,7 @@ namespace PlayFab
             get
             {
 #if NET45 || NETCOREAPP2_0
-                return PlayFabUtil.GetLocalDebugFunctions();
+                return PlayFabUtil.GetLocalSettingsFileArrayProperty("DebugFunctions");
 #else
                 return _localDebugFunctions;
 #endif

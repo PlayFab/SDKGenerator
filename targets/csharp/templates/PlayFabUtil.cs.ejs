@@ -64,30 +64,25 @@ namespace PlayFab
         public static string ReadAllFileText(string filename)
         {
             if (!File.Exists(filename))
+            {
                 return string.Empty;
+            }
                 
             if (_sb == null)
+            {
                 _sb = new StringBuilder();
+            }
             _sb.Length = 0;
 
-            FileStream fs = null;
-            try 
+            using (var fs = new FileStream(filename, FileMode.Open))
             {
-                fs = new FileStream(filename, FileMode.Open);
                 using (BinaryReader br = new BinaryReader(fs))
                 {
-                    // Attempt to release the descriptor immediately
-                    fs = null;
-
                     while (br.BaseStream.Position != br.BaseStream.Length)
+                    {
                         _sb.Append(br.ReadChar());
+                    }
                 }
-            }
-            finally
-            {
-                // Make sure to dispose of the file stream in case the construction of binary reader fails
-                if (fs != null)
-                    fs.Dispose();
             }
             return _sb.ToString();
         }
@@ -131,12 +126,12 @@ namespace PlayFab
             return string.Empty;
         }
 
-        internal static List<string> GetLocalDebugFunctions()
+        internal static List<string> GetLocalSettingsFileArrayProperty(string propertyKey)
         { 
             try
             {
                 var jsonPlugin = PluginManager.GetPlugin<ISerializerPlugin>(PluginContract.PlayFab_Serializer);
-                return jsonPlugin.DeserializeObject<List<string>>(GetLocalSettingsFileProperty("DebugFunctions"));
+                return jsonPlugin.DeserializeObject<List<string>>(GetLocalSettingsFileProperty(propertyKey));
             }
             catch (ArgumentException)
             {

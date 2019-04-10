@@ -58,7 +58,7 @@ namespace PlayFab.Internal
             return await _DoPost(fullUriPath, request, authType, authKey, extraHeaders, instanceSettings);
         }
 
-        public static async Task<object> _DoPost(string fullPath, PlayFabRequestCommon request, string authType, string authKey, Dictionary<string, string> extraHeaders, PlayFabApiSettings instanceSettings = null)
+        private static async Task<object> _DoPost(string fullPath, PlayFabRequestCommon request, string authType, string authKey, Dictionary<string, string> extraHeaders, PlayFabApiSettings instanceSettings = null)
         {
             var settings = instanceSettings ?? PlayFabSettings.staticSettings;
             var titleId = settings.TitleId;

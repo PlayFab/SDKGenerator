@@ -96,6 +96,12 @@ namespace PlayFab.UUnit
                 FunctionParameter = new Dictionary<string, object> { { "customId", PlayFabSettings.BuildIdentifier }, { "testReport", new[] { suite.GetInternalReport() } } },
                 GeneratePlayStreamEvent = true
             };
+
+            PlayFabSettings.staticPlayer.ClientSessionTicket = result.SessionTicket;
+            PlayFabSettings.staticPlayer.EntityToken = result.EntityToken.ToString();
+            PlayFabSettings.staticPlayer.ClientSessionTicket = result.SessionTicket;
+            PlayFabSettings.staticPlayer.PlayFabId = result.PlayFabId;
+
             PlayFabClientAPI.ExecuteCloudScript(request, OnCloudScriptSubmit, OnPostTestResultsError, null, testTitleData.extraHeaders);
         }
 

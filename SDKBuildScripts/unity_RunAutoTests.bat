@@ -95,7 +95,7 @@ goto :EOF
 :RunClientJenkernaught3
 echo === Save test results to Jenkernaught ===
 cd %WORKSPACE%/SDKGenerator/JenkinsConsoleUtility/bin/Debug
-rem JenkinsConsoleUtility --listencs -buildIdentifier %BuildIdentifier% -workspacePath %WORKSPACE% -timeout 30 -verbose true
+JenkinsConsoleUtility --listencs -buildIdentifier %BuildIdentifier% -workspacePath %WORKSPACE% -timeout 30 -verbose true
 if %errorLevel% NEQ 0 (
     exit /b %errorLevel%
 )

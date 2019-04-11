@@ -118,7 +118,7 @@ namespace PlayFab.Internal
             if (settings.AdvertisingIdType != null && settings.AdvertisingIdValue != null)
                 DoAttributeInstall(settings, instanceApi);
             else
-                GetAdvertIdFromUnity(settings);
+                GetAdvertIdFromUnity(settings, instanceApi);
 
             // Device information gathering
             SendDeviceInfoToPlayFab(settings, instanceApi);
@@ -135,7 +135,7 @@ namespace PlayFab.Internal
 #endif
         }
 
-        private static void GetAdvertIdFromUnity(PlayFabApiSettings settings)
+        private static void GetAdvertIdFromUnity(PlayFabApiSettings settings, IPlayFabInstanceApi instanceApi)
         {
 #if UNITY_5_3_OR_NEWER && (UNITY_ANDROID || UNITY_IOS) && (!UNITY_EDITOR || TESTING)
             Application.RequestAdvertisingIdentifierAsync(
@@ -150,7 +150,7 @@ namespace PlayFab.Internal
                     settings.AdvertisingIdType = PlayFabSettings.AD_TYPE_IDFA;
 #endif
                     settings.AdvertisingIdValue = advertisingId;
-                    DoAttributeInstall(settings);
+                    DoAttributeInstall(settings, instanceApi);
                 }
             );
 #endif

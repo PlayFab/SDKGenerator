@@ -1,6 +1,7 @@
 #if !DISABLE_PLAYFABCLIENT_API
 
 using System;
+using UnityEngine;
 using PlayFab.ClientModels;
 
 namespace PlayFab.Authentication.Strategies

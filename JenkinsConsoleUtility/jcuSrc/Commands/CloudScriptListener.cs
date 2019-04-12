@@ -50,6 +50,12 @@ namespace JenkinsConsoleUtility.Commands
             verbose = bool.Parse(JenkinsConsoleUtility.GetArgVar(argsLc, "verbose", "false"));
             _getRequest = new CsGetRequest { customId = buildIdentifier };
 
+            // shortcut if the file already got output
+            if (File.Exists(workspacePath + "\\test.xml"))
+            {
+                return 0;
+            }
+
             JenkinsConsoleUtility.FancyWriteToConsole("Begin CloudScriptListener", null, ConsoleColor.Gray);
             var returnCode = Login(testTitleData.titleId, buildIdentifier, testTitleData);
             if (returnCode != 0)

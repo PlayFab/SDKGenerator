@@ -150,18 +150,6 @@ namespace PlayFab.Internal
             }
             return string.Empty;
         }
-
-        internal static List<string> GetLocalDebugFunctions()
-        {
-            try
-            {
-                return PlayFabSimpleJson.DeserializeObject<List<string>>(GetLocalSettingsFileProperty("DebugFunctions"));
-            }
-            catch (Exception)
-            {
-                return new List<string>();
-            }
-        }
 #endif
     }
 }

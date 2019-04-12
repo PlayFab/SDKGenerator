@@ -35,7 +35,6 @@ namespace PlayFab
 
         [Obsolete("Moved to PlayFabSettings.staticSettings.TitleId")]
         public static string TitleId { get { return staticSettings.TitleId; } set { staticSettings.TitleId = value; } }
-
 <% if (hasClientOptions) { %>
         [Obsolete("Moved to PlayFabSettings.staticSettings.AdvertisingIdType")]
         public static string AdvertisingIdType { get { return staticSettings.AdvertisingIdType; } set { staticSettings.AdvertisingIdType = value; } }

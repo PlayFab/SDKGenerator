@@ -36,6 +36,18 @@ namespace PlayFab
         [Obsolete("Moved to PlayFabSettings.staticSettings.TitleId")]
         public static string TitleId { get { return staticSettings.TitleId; } set { staticSettings.TitleId = value; } }
 
+<% if (hasClientOptions) { %>
+        [Obsolete("Moved to PlayFabSettings.staticSettings.AdvertisingIdType")]
+        public static string AdvertisingIdType { get { return staticSettings.AdvertisingIdType; } set { staticSettings.AdvertisingIdType = value; } }
+
+        [Obsolete("Moved to PlayFabSettings.staticSettings.AdvertisingIdValue")]
+        public static string AdvertisingIdValue { get { return staticSettings.AdvertisingIdValue; } set { staticSettings.AdvertisingIdValue = value; } }
+
+        [Obsolete("Moved to PlayFabSettings.staticSettings.DisableAdvertising")]
+        public static bool DisableAdvertising { get { return staticSettings.DisableAdvertising; } set { staticSettings.DisableAdvertising = value; } }
+<% }
+%>        #endregion Deprecated staticSettingsredirect properties
+
         private static string _localApiServer;
 
         public static string LocalApiServer
@@ -55,18 +67,6 @@ namespace PlayFab
             }
 #endif
         }
-
-<% if (hasClientOptions) { %>
-        [Obsolete("Moved to PlayFabSettings.staticSettings.AdvertisingIdType")]
-        public static string AdvertisingIdType { get { return staticSettings.AdvertisingIdType; } set { staticSettings.AdvertisingIdType = value; } }
-
-        [Obsolete("Moved to PlayFabSettings.staticSettings.AdvertisingIdValue")]
-        public static string AdvertisingIdValue { get { return staticSettings.AdvertisingIdValue; } set { staticSettings.AdvertisingIdValue = value; } }
-
-        [Obsolete("Moved to PlayFabSettings.staticSettings.DisableAdvertising")]
-        public static bool DisableAdvertising { get { return staticSettings.DisableAdvertising; } set { staticSettings.DisableAdvertising = value; } }
-<% }
-%>        #endregion Deprecated staticSettingsredirect properties
 
         public static string GetFullUrl(string apiCall, Dictionary<string, string> getParams, PlayFabApiSettings instanceSettings = null)
         {

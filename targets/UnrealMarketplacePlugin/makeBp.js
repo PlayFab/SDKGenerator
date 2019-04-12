@@ -45,7 +45,7 @@ function makeApiFiles(api, copyright, apiOutputDir, sourceDir, libName) {
         getPropertyDeserialization: getPropertyDeserialization,
         getDataTypeSafeName: getDataTypeSafeName,
         getCustomApiAssignmentLogic: getCustomApiAssignmentLogic,
-        getApiActivationUrlLogic: getApiActivationUrlLogic,
+        getCustomApiActivationUrlLogic: getCustomApiActivationUrlLogic,
         hasClientOptions: getAuthMechanisms([api]).includes("SessionTicket"),
         libName: libName,
         sdkVersion: sdkGlobals.sdkVersion
@@ -314,7 +314,7 @@ function getCustomApiAssignmentLogic(tabbing, apiCall) {
     }
 }
 
-function getApiActivationUrlLogic(api) {
+function getCustomApiActivationUrlLogic(api) {
     if (api.name === "CloudScript")
     {
         return "RequestUrl = this->PlayFabRequestFullURL.IsEmpty() ? pfSettings->getUrl(PlayFabRequestURL) : this->PlayFabRequestFullURL;\n"

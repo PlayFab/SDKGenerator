@@ -51,7 +51,7 @@ namespace JenkinsConsoleUtility.Commands
             _getRequest = new CsGetRequest { customId = buildIdentifier };
 
             // shortcut if the file already got output
-            if (File.Exists(workspacePath + "\\test.xml"))
+            if (File.Exists(Path.Combine(workspacePath, "test.xml")))
             {
                 return 0;
             }

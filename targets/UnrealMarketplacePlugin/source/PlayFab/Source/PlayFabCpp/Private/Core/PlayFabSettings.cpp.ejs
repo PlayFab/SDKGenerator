@@ -62,10 +62,6 @@ namespace PlayFab
     {
         return PlayFabCommon::PlayFabCommonUtils::GetLocalSettingsFileProperty(TEXT("LocalApiServer"));
     }
-    TArray<FString> PlayFabSettings::GetDebugFunctions()
-    {
-        return PlayFabCommon::PlayFabCommonUtils::GetLocalSettingsFileArrayProperty(TEXT("DebugFunctions"));
-    }
 
     // Setters
     void PlayFabSettings::SetServerURL(const FString&  serverURL)

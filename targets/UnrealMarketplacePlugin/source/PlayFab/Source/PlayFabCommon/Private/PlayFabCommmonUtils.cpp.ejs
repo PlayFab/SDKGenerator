@@ -7,9 +7,9 @@ using namespace PlayFabCommon;
 FString PlayFabCommonUtils::GetTempDir()
 {
     FString vars[] = { TEXT("TEMPDIR"), TEXT("TEMP"), TEXT("TMP") };
-    for (auto& envVar : vars)
+    for (FString envVar : vars)
     {
-        FString tempDir = FPlatformMisc::GetEnvironmentVariable(envVar);
+        FString tempDir = FPlatformMisc::GetEnvironmentVariable((TEXT("%s"), *envVar));
         if (!tempDir.IsEmpty())
         {
             return tempDir;
@@ -43,11 +43,4 @@ FString PlayFabCommonUtils::GetLocalSettingsFileProperty(const FString& property
     TSharedPtr<FJsonObject> jsonObject = PlayFabCommonUtils::GetLocalSettingsFileJson();
     FString outString;
     return jsonObject->TryGetStringField(propertyKey, outString) ? outString : FString();
-}
-
-TArray<FString> PlayFabCommonUtils::GetLocalSettingsFileArrayProperty(const FString& propertyKey)
-{
-    TSharedPtr<FJsonObject> jsonObject = PlayFabCommonUtils::GetLocalSettingsFileJson();
-    TArray<FString> jsonArray;
-    return jsonObject->TryGetStringArrayField(propertyKey, jsonArray) ? jsonArray : TArray<FString>();
 }

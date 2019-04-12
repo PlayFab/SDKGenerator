@@ -304,8 +304,7 @@ function getCustomApiAssignmentLogic(tabbing, apiCall) {
     {
         return tabbing + "// Check for local debugging\n"
             + tabbing + "FString localApiServer = PlayFabCommon::PlayFabCommonUtils::GetLocalSettingsFileProperty(TEXT(\"LocalApiServer\"));\n"
-            + tabbing + "TArray<FString> debugFunctions = PlayFabCommon::PlayFabCommonUtils::GetLocalSettingsFileArrayProperty(TEXT(\"DebugFunctions\"));\n"
-            + tabbing + "if (!localApiServer.IsEmpty() && (debugFunctions.Contains(TEXT(\"*\")) || debugFunctions.Contains(request.FunctionName)))\n"
+            + tabbing + "if (!localApiServer.IsEmpty())\n"
             + tabbing + "{\n"
             + tabbing + "    FString endpoint = TEXT(\"" + apiCall.url + "\");\n"
             + tabbing + "    endpoint.RemoveFromStart(TEXT(\"/\"));\n"

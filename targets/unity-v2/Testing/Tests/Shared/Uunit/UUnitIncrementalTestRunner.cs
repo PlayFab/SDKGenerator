@@ -97,15 +97,7 @@ namespace PlayFab.UUnit
                 GeneratePlayStreamEvent = true
             };
 
-            SaveReportToLocalWorkspace(suite.GetInternalReport());
-
             clientInstance.ExecuteCloudScript(request, OnCloudScriptSubmit, OnPostTestResultsError, null, testTitleData.extraHeaders);
-        }
-
-        private void SaveReportToLocalWorkspace(TestSuiteReport testSuiteReport)
-        {
-            // TODO: this should put the file under our workspace directory
-            JUnitXml.WriteXmlFile(Directory.GetCurrentDirectory() + "..\\..\\..\\test.xml", new List<TestSuiteReport>() { testSuiteReport }, true);
         }
 
         private void OnCloudScriptSubmit(ExecuteCloudScriptResult result)

@@ -56,26 +56,6 @@ namespace PlayFab
 #endif
         }
 
-        private static List<string> _localDebugFunctions;
-
-        public static List<string> LocalDebugFunctions
-        {
-            get
-            {
-#if NET45 || NETCOREAPP2_0
-                return PlayFabUtil.GetLocalSettingsFileArrayProperty("DebugFunctions");
-#else
-                return _localDebugFunctions;
-#endif
-            }
-#if !NET45 && !NETCOREAPP2_0
-            set
-            {
-                _localDebugFunctions = value;
-            }
-#endif
-        }
-
 <% if (hasClientOptions) { %>
         [Obsolete("Moved to PlayFabSettings.staticSettings.AdvertisingIdType")]
         public static string AdvertisingIdType { get { return staticSettings.AdvertisingIdType; } set { staticSettings.AdvertisingIdType = value; } }

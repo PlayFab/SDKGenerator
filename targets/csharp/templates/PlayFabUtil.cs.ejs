@@ -125,19 +125,6 @@ namespace PlayFab
             }
             return string.Empty;
         }
-
-        internal static List<string> GetLocalSettingsFileArrayProperty(string propertyKey)
-        { 
-            try
-            {
-                var jsonPlugin = PluginManager.GetPlugin<ISerializerPlugin>(PluginContract.PlayFab_Serializer);
-                return jsonPlugin.DeserializeObject<List<string>>(GetLocalSettingsFileProperty(propertyKey));
-            }
-            catch (ArgumentException)
-            {
-                return new List<string>();
-            }
-        }
 #endif
 
 <% if (hasClientOptions || hasServerOptions) { %>

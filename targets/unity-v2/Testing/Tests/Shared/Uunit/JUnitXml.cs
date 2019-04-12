@@ -88,6 +88,8 @@ namespace PlayFab.UUnit
                     int.TryParse(reader.GetAttribute("skipped"), out _curSuiteReport.skipped);
                     double.TryParse(reader.GetAttribute("time"), out tempSeconds);
                     _curSuiteReport.time = TimeSpan.FromSeconds(tempSeconds);
+
+                    //TODO: add in PlayFabUtil to uncomment this
                     //DateTime.TryParseExact(reader.GetAttribute("timestamp"), PlayFab.PlayFabUtil.DefaultDateTimeFormats, null, System.Globalization.DateTimeStyles.RoundtripKind, out _curSuiteReport.timestamp);
                     break;
                 case ("properties"):
@@ -213,6 +215,7 @@ namespace PlayFab.UUnit
 
         private static void AppendTestSuiteLine(this TestSuiteReport self, ref StringBuilder sb, bool isSingleLine, string tabbing)
         {
+            //TODO: add in PlayFabUtil to uncomment this
             //var suffix = isSingleLine ? " /" : "";
             //if (self.skipped == 0)
             //    sb.Append(tabbing).AppendFormat("<testsuite name=\"{0}\" errors=\"{1}\" tests=\"{2}\" failures=\"{3}\" time=\"{4}\" timestamp=\"{5}\"{6}>\n", self.name, self.errors, self.tests, self.failures, self.time.TotalSeconds.ToString("0.###"), self.timestamp.ToString(PlayFabUtil.DefaultDateTimeFormats[PlayFabUtil.DEFAULT_UTC_OUTPUT_INDEX]), suffix);

@@ -54,7 +54,9 @@ namespace System.Collections.Generic
             return GetHashCode ((T)obj);
         }
 
+#pragma warning disable 108,114
         public bool Equals(object x, object y)
+#pragma warning restore 108,114
         {
 
             if (x == null || y == null) {

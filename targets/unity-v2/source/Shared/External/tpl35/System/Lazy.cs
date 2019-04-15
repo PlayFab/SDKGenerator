@@ -40,7 +40,9 @@ namespace System
 {
     [Serializable]
     [ComVisible(false)]
+#pragma warning disable 618
     [HostProtectionAttribute(SecurityAction.LinkDemand, Synchronization = true, ExternalThreading = true)]
+#pragma warning restore 618
     [DebuggerDisplay ("ThreadSafetyMode={Mode}, IsValueCreated={IsValueCreated}, IsValueFaulted={IsValueFaulted}, Value={ValueForDebugDisplay}")]
     public class Lazy<T>
     {

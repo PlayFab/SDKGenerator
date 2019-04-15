@@ -43,7 +43,7 @@ namespace System.Runtime.Remoting.Messaging {
     [StructLayout (LayoutKind.Sequential)]
     internal class AsyncResult : IAsyncResult, IMessageSink {
 
-#pragma warning disable 169, 414, 649
+#pragma warning disable 414, 649
         object async_state;
         WaitHandle handle;
         object async_delegate;
@@ -56,7 +56,7 @@ namespace System.Runtime.Remoting.Messaging {
         ExecutionContext current;
         ExecutionContext original;
         long add_time;
-#pragma warning restore 169, 414, 649
+#pragma warning restore 414, 649
 
         // not part of MonoAsyncResult...
         //MonoMethodMessage call_message;

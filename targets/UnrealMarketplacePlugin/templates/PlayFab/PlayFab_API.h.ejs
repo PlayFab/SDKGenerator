@@ -93,11 +93,15 @@ public:
 
     /** PlayFab Request Info */
     FString PlayFabRequestURL;
+<% if (api.name === "CloudScript") {
+%>    FString PlayFabRequestFullURL;
+<% } %>
     bool useEntityToken = false;
     bool useSecretKey = false;
     bool useSessionTicket = false;
     bool returnsSessionTicket = false;
     bool returnsEntityToken = false;
+
 
     /** Is the response valid JSON? */
     bool bIsValidJsonResponse;

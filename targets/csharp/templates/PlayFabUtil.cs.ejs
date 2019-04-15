@@ -61,7 +61,7 @@ namespace PlayFab
         /// Load a text file, and return the file as text.
         /// Used for small (usually json) files.
         /// </summary>
-        public static string ReadAllFileText(string filename)
+        private static string ReadAllFileText(string filename)
         {
             if (!File.Exists(filename))
             {

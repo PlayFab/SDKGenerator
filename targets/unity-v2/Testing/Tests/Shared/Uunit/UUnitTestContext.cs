@@ -45,7 +45,11 @@ namespace PlayFab.UUnit
         public void EndTest(UUnitFinishState finishState, string resultMsg)
         {
             EndTime = DateTime.UtcNow;
-            TestResultMsg = resultMsg;
+
+            if (finishState != UUnitFinishState.PASSED)
+            {
+                TestResultMsg = resultMsg;
+            }
             FinishState = finishState;
             ActiveState = UUnitActiveState.READY;
         }

@@ -140,10 +140,8 @@ namespace PlayFab.Internal
                     object result;
                     if (envJson.TryGetValue(propertyKey, out result))
                     {
-                        return result == null ? null : result.ToString();
+                        return result == null ? string.Empty : result.ToString();
                     }
-
-                    return null;
                 } 
                 catch (KeyNotFoundException)
                 {

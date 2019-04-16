@@ -6,6 +6,9 @@
 **/.idea/
 **/.vs/
 **/node_modules/
+**/beta_*.bat
+**/beta_*.sh
+**/.DS_Store*
 
 .project
 .classpath

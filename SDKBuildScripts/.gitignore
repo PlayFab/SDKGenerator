@@ -1,2 +1,5 @@
 beta_*.bat
 var_*.bat
+**/beta_*.bat
+**/beta_*.sh
+**/.DS_Store*

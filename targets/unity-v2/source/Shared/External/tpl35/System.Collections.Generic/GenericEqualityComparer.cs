@@ -56,6 +56,7 @@ namespace System.Collections.Generic.Couchbase
             return GetHashCode ((T)obj);
         }
 
+		// warning CS0108: Hides inheritet member object.Equals(object, object).
 #pragma warning disable 108,114
         public bool Equals(object x, object y)
 #pragma warning restore 108,114

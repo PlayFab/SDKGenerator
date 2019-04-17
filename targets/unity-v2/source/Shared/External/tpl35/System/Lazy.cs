@@ -40,6 +40,7 @@ namespace System
 {
     [Serializable]
     [ComVisible(false)]
+	// warning CS0618: 'System.Security.Premissions.SecutiryAction' is obsolete: 'CAS support is not avaliable with Silverlight applications'
 #pragma warning disable 618
     [HostProtectionAttribute(SecurityAction.LinkDemand, Synchronization = true, ExternalThreading = true)]
 #pragma warning restore 618

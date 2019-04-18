@@ -2,16 +2,15 @@
 
 #pragma once
 
-#include "PlayFabTests.h"
-
 #include "TestFramework/PlayFabTestCase.h"
 #include "TestFramework/PlayFabTestEnums.h"
+#include "PlayFabCommon.h"
 
 #include "PlayFabTestContext.generated.h"
 
 // Represent a running Test, with every information about it's execution.
 UCLASS(Blueprintable, BlueprintType)
-class PLAYFABTESTS_API UPlayFabTestContext : public UObject
+class PLAYFABCOMMON_API UPlayFabTestContext : public UObject
 {
     GENERATED_BODY()
 
@@ -116,7 +115,7 @@ public:
     UFUNCTION()
     void EndTest(PlayFabApiTestFinishState InFinishState = PlayFabApiTestFinishState::PASSED, FString InMessage = "")
     {
-        UE_LOG(LogPlayFabTests, Log, TEXT("Ending Test: %s."), *testName);
+        UE_LOG(LogPlayFabCommon, Log, TEXT("Ending Test: %s."), *testName);
 
         finishState = InFinishState;
         testResultMsg = InMessage;

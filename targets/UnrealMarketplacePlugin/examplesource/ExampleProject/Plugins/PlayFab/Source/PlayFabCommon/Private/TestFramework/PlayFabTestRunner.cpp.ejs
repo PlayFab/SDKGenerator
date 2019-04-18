@@ -94,7 +94,7 @@ void IPlayFabTestRunner::Run(const float InDeltaTime)
         {
             numberOfTests++;
 
-            UE_LOG(LogPlayFabTests, Log, TEXT("Starting test: %s"), *CurrentTestData->testName);
+            UE_LOG(LogPlayFabCommon, Log, TEXT("Starting test: %s"), *CurrentTestData->testName);
 
             CurrentTestCase->SetUp(CurrentTestData);
             CurrentTestData->activeState = PlayFabApiTestActiveState::ACTIVE;

@@ -229,12 +229,5 @@ namespace System.Threading
             return Interlocked.Exchange(ref location1, value);
 #endif
         }
-
-        private static unsafe bool IsZeroPtr<T>(T obj)
-        {
-            TypedReference tr = __makeref(obj);
-            IntPtr ptr = **(IntPtr**) (&tr);
-            return ptr == IntPtr.Zero;
-        }
     }
 }

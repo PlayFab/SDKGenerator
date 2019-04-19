@@ -43,7 +43,7 @@ public class MainActivity extends AppCompatActivity {
                 TextView textView = (TextView) findViewById(R.id.TextView);
                 textView.setText("Unittest started...");
 
-                //use a handler to run a toast that shows the current timestamp
+                //use a handler to run a XPlatCppSdk Unittest.
                 handler.post(new Runnable() {
                     public void run() {
                         RunUnitTest();

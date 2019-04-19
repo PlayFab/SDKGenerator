@@ -15,6 +15,11 @@ using PlayFab.UUnit;
 
 public class LightweightEventsTests : UUnitTestCase
 {
+    public override void ClassSetUp()
+    {
+        var testTitleData = TestTitleDataLoader.LoadTestTitleData();
+        PlayFabSettings.TitleId = testTitleData.titleId;
+    }
     public override void Tick(UUnitTestContext testContext)
     {
         // no async work needed
@@ -91,8 +96,8 @@ public class LightweightEventsTests : UUnitTestCase
 
         var response = authTask.Result;
 
-        testContext.NotNull(response, "Failed to get OneDS authentication info from PlayFab");
-        oneDSEventsApi.SetCredentials("o:" + response.TenantId, response.IngestionKey, response.TelemetryJwtToken, response.TelemetryJwtHeaderKey, response.TelemetryJwtHeaderPrefix);
+        testContext.NotNull(authTask.Result, "Failed to get OneDS authentication info from PlayFab");
+        oneDSEventsApi.SetCredentials("o:" + authTask.Result.TenantId, authTask.Result.IngestionKey, authTask.Result.TelemetryJwtToken, authTask.Result.TelemetryJwtHeaderKey, authTask.Result.TelemetryJwtHeaderPrefix);
 
         // call OneDS events API
 #if TPL_35

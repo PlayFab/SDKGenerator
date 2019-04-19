@@ -5,53 +5,72 @@ using PlayFab.ClientModels;
 
 namespace PlayFab.Authentication.Strategies
 {
-    internal sealed class UsernamePasswordAuthStrategy : SilentAuthStrategy
+    internal sealed class UsernamePasswordAuthStrategy : IAuthenticationStrategy
     {
-        public override AuthTypes AuthType
+        public AuthTypes AuthType
         {
             get { return AuthTypes.UsernamePassword; }
         }
 
-        public override void Authenticate(PlayFabAuthService authService, Action<LoginResult> resultCallback, Action<PlayFabError> errorCallback, AuthKeys authKeys)
+        public void Authenticate(PlayFabAuthService authService, Action<LoginResult> resultCallback, Action<PlayFabError> errorCallback, AuthKeys authKeys)
         {
-            if (string.IsNullOrEmpty(authService.Email) || string.IsNullOrEmpty(authService.Password))
+            if (string.IsNullOrEmpty(authService.Username) || string.IsNullOrEmpty(authService.Password) || string.IsNullOrEmpty(authService.Email))
             {
                 authService.InvokeDisplayAuthentication();
                 return;
             }
 
-            base.Authenticate(authService, silentResultCallback =>
+            PlayFabClientAPI.LoginWithPlayFab(new LoginWithPlayFabRequest
             {
-                if (silentResultCallback == null)
+                InfoRequestParameters = authService.InfoRequestParams,
+                Password = authService.Password,
+                Username = authService.Username,
+                TitleId = PlayFabSettings.TitleId
+            },
+            resultCallback,
+            error =>
+            {
+                // If user not registered, create one.
+                // Do it because LoginWithPlayFabRequest does not contains "CreateAccount" option.
+                if (error.Error == PlayFabErrorCode.AccountNotFound)
                 {
-                    if (errorCallback != null)
-                        errorCallback.Invoke(new PlayFabError
+                    UnityEngine.Debug.LogWarning("Authentication failed. Try to register account.");
+                    PlayFabClientAPI.RegisterPlayFabUser(new RegisterPlayFabUserRequest
+                    {
+                        Username = authService.Username,
+                        Password = authService.Password,
+                        Email = authService.Email,
+                        InfoRequestParameters = authService.InfoRequestParams,
+                        TitleId = PlayFabSettings.TitleId
+                    },
+                    (registerSuccess) =>
+                    {
+                        // convert RegisterResult to LoginResult
+                        resultCallback.Invoke(new LoginResult
                         {
-                            Error = PlayFabErrorCode.UnknownError,
-                            ErrorMessage = "Silent Authentication by Device failed"
+                            AuthenticationContext = registerSuccess.AuthenticationContext,
+                            EntityToken = registerSuccess.EntityToken,
+                            CustomData = registerSuccess.CustomData,
+                            NewlyCreated = true,
+                            PlayFabId = registerSuccess.PlayFabId,
+                            SessionTicket = registerSuccess.SessionTicket,
+                            SettingsForUser = registerSuccess.SettingsForUser,
+                            Request = registerSuccess.Request,
+                            LastLoginTime = DateTime.UtcNow
                         });
-
-                    return;
+                    }, errorCallback);
                 }
-
-                PlayFabClientAPI.AddUsernamePassword(new AddUsernamePasswordRequest
-                {
-                    //Because it is required & Unique and not supplied by User.
-                    Username = !string.IsNullOrEmpty(authService.Username)
-                        ? authService.Username
-                        : silentResultCallback.PlayFabId,
-                    Email = authService.Email,
-                    Password = authService.Password
-                }, addResult => resultCallback.Invoke(silentResultCallback), errorCallback);
-            }, errorCallback, authKeys);
+                // otherwise return error
+                else errorCallback.Invoke(error);
+            });
         }
 
-        public override void Link(PlayFabAuthService authService, AuthKeys authKeys)
+        public void Link(PlayFabAuthService authService, AuthKeys authKeys)
         {
             throw new NotSupportedException();
         }
 
-        public override void Unlink(PlayFabAuthService authService, AuthKeys authKeys)
+        public void Unlink(PlayFabAuthService authService, AuthKeys authKeys)
         {
             throw new NotSupportedException();
         }

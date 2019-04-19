@@ -171,7 +171,7 @@ namespace PlayFab
                     result = new PlayFabResult<WriteEventsResponse> { Error = error, CustomData = customData };
                     return;
                 }
-                result = new PlayFabResult<WriteEventsResponse>{ Result = new WriteEventsResponse(), CustomData = customData };
+                result = new PlayFabResult<WriteEventsResponse> { Result = new WriteEventsResponse(), CustomData = customData };
             });
 #if TPL_35
             return Task.Run(() =>
@@ -194,8 +194,7 @@ namespace PlayFab
         internal static async Task<PlayFabResult<TelemetryIngestionConfigResponse>> GetTelemetryIngestionConfigAsync(TelemetryIngestionConfigRequest request, object customData = null, Dictionary<string, string> extraHeaders = null)
 #endif
         {
-            var transport = PluginManager.GetPlugin<IPlayFabTransportPlugin>(PluginContract.PlayFab_Transport);
-            if (transport.EntityToken == null) throw new PlayFabException(PlayFabExceptionCode.EntityTokenNotSet, "Must call GetEntityToken before calling this method");
+            if (PlayFabSettings.staticPlayer.EntityToken == null) throw new PlayFabException(PlayFabExceptionCode.EntityTokenNotSet, "Must call GetEntityToken before calling this method");
 
             PlayFabResult<TelemetryIngestionConfigResponse> result = null;
 
@@ -203,7 +202,7 @@ namespace PlayFab
             {
                 PlayFabHttp.MakeApiCall<TelemetryIngestionConfigResponse>("/Event/GetTelemetryIngestionConfig", request, AuthType.EntityToken, callback =>
                 {
-                    result = new PlayFabResult<TelemetryIngestionConfigResponse> {Result = callback, CustomData = customData};
+                    result = new PlayFabResult<TelemetryIngestionConfigResponse> { Result = callback, CustomData = customData };
                 },
                 error =>
                 {
@@ -214,7 +213,7 @@ namespace PlayFab
                         Error = error.Error,
                         ErrorMessage = error.ErrorMessage
                     }, CustomData = customData};
-                });
+                }, null, null, PlayFabSettings.staticPlayer);
             });
 #if TPL_35
             return Task.Run(() =>

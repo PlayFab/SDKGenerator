@@ -20,7 +20,7 @@ namespace PlayFab
         /// </summary>
         public PlayFabEventAPI(ILogger logger = null)
         {
-            if(logger == null) logger = new DebugLogger();
+            if (logger == null) logger = new DebugLogger();
             this.EventRouter = new PlayFabEventRouter(logger);
         }
 

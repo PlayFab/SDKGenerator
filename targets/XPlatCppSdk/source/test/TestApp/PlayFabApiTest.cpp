@@ -190,7 +190,11 @@ namespace PlayFabUnit
         // itoa is not avaialable in android
         char buffer[16];
         std::string temp;
+#ifdef PLAYFAB_PLATFORM_IOS
+        sprintf(buffer, "%d", testMessageInt);
+#else // PLAYFAB_PLATFORM_IOS
         sprintf_s(buffer, "%d", testMessageInt);
+#endif // PLAYFAB_PLATFORM_IOS
         temp.append(buffer);
 
         updateRequest.Data[TEST_DATA_KEY] = temp;
@@ -215,7 +219,11 @@ namespace PlayFabUnit
 
         time_t now = time(nullptr);
         struct tm timeinfo;
+#ifdef PLAYFAB_PLATFORM_IOS
+        timeinfo = *gmtime(&now);
+#else // PLAYFAB_PLATFORM_IOS
         gmtime_s(&timeinfo, &now);
+#endif // PLAYFAB_PLATFORM_IOS
         now = mktime(&timeinfo);
         time_t minTime = now - (60 * 5);
         time_t maxTime = now + (60 * 5);

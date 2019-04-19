@@ -230,11 +230,20 @@ namespace PlayFab
         {
             if (OnPlayFabError != null)
                 OnPlayFabError.Invoke(playFabError);
-            Debug.LogError(playFabError.GenerateErrorReport());
         }
 
         public void Link(AuthKeys authKeys)
         {
+            if (!IsClientLoggedIn())
+            {
+                InvokeLink(authKeys.AuthType, new PlayFabError
+                {
+                    Error = PlayFabErrorCode.NotAuthorized,
+                    ErrorMessage = "You must log in before you can call L7ink."
+                });
+                return;
+            }
+
             var auth = _authStrategies[authKeys.AuthType];
 
             if (auth == null)
@@ -248,6 +257,16 @@ namespace PlayFab
 
         public void Unlink(AuthKeys authKeys)
         {
+            if (!IsClientLoggedIn())
+            {
+                InvokeUnlink(authKeys.AuthType, new PlayFabError
+                {
+                    Error = PlayFabErrorCode.NotAuthorized,
+                    ErrorMessage = "You must log in before you can call Unlink."
+                });
+                return;
+            }
+
             var auth = _authStrategies[authKeys.AuthType];
 
             if (auth == null)

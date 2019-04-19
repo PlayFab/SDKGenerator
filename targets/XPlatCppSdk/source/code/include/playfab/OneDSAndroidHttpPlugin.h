@@ -9,7 +9,7 @@
 namespace PlayFab
 {
     /// <summary>
-    /// OneDSAndroidHttpPlugin is an https implementation to interact with OneDS (One Data Collector) services using WinHTTP.
+    /// OneDSAndroidHttpPlugin is an https implementation to interact with OneDS (One Data Collector) services using okhttp3 though JNI.
     /// </summary>
     class OneDSAndroidHttpPlugin : public PlayFabAndroidHttpPlugin
     {

@@ -6,6 +6,7 @@ import java.util.TimerTask;
 import android.os.Handler;
 import android.support.v7.app.AppCompatActivity;
 import android.os.Bundle;
+import android.widget.TextView;
 
 public class MainActivity extends AppCompatActivity {
     @Override
@@ -19,8 +20,12 @@ public class MainActivity extends AppCompatActivity {
     Timer timer;
     TimerTask timerTask;
     final Handler handler = new Handler();
+    String restResultText = null;
 
     public void startTimer() {
+        TextView textView = (TextView) findViewById(R.id.TextView);
+        textView.setText("Preparing to test...");
+
         //set a new Timer
         timer = new Timer();
 
@@ -28,13 +33,15 @@ public class MainActivity extends AppCompatActivity {
         initializeTimerTask();
 
         //schedule the timer, after the first 5000ms the TimerTask will run every 10000ms
-        timer.schedule(timerTask, 5000, 10000); //
+        timer.schedule(timerTask, 3000); //
     }
 
     public void initializeTimerTask() {
 
         timerTask = new TimerTask() {
             public void run() {
+                TextView textView = (TextView) findViewById(R.id.TextView);
+                textView.setText("Unittest started...");
 
                 //use a handler to run a toast that shows the current timestamp
                 handler.post(new Runnable() {
@@ -47,6 +54,13 @@ public class MainActivity extends AppCompatActivity {
                 timer = null;
             }
         };
+    }
+
+    public void updateText(String text)
+    {
+        restResultText = text;
+        TextView textView = (TextView) findViewById(R.id.TextView);
+        textView.setText(restResultText);
     }
 
     public native int RunUnitTest();

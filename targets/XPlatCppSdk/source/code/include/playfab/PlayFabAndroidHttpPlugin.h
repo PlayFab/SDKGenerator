@@ -30,7 +30,7 @@ namespace PlayFab
         void WorkerThread(void* jniEnv);
         bool ExecuteRequest(RequestTask& requestTask);
         bool CheckResponse(RequestTask& requestTask);
-        void SetResponceAsBadRequest(RequestTask& requestTask);
+        void SetResponseAsBadRequest(RequestTask& requestTask);
 
         virtual std::string GetUrl(RequestTask& requestTask) const;
         virtual void SetPredefinedHeaders(RequestTask& requestTask);
@@ -66,7 +66,7 @@ namespace PlayFab
 #endif
             std::atomic<State> state;
             std::unique_ptr<CallRequestContainerBase> requestContainer;
-            RequestImpl* impl;
+            std::unique_ptr<PlayFabAndroidHttpPlugin::RequestImpl> impl;
         };
         std::unique_ptr<std::thread> workerThread;
         std::mutex httpRequestMutex;

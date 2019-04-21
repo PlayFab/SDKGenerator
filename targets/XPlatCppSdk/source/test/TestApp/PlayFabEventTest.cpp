@@ -17,6 +17,7 @@ using namespace EventsModels;
 
 namespace PlayFabUnit
 {
+#if (!UNITY_IOS && !UNITY_ANDROID) && (!defined(PLAYFAB_PLATFORM_IOS) && !defined(PLAYFAB_PLATFORM_ANDROID))
     /// QoS API
     void PlayFabEventTest::QosResultApi(TestContext& testContext)
     {
@@ -29,6 +30,7 @@ namespace PlayFabUnit
         else
             testContext.Fail("Error Code:" + std::to_string(result.lastErrorCode));
     }
+#endif
 
     /// EVENTS API
     /// Test that sends heavyweight events as a whole batch.
@@ -248,7 +250,9 @@ namespace PlayFabUnit
 
     void PlayFabEventTest::AddTests()
     {
+#if (!UNITY_IOS && !UNITY_ANDROID) && (!defined(PLAYFAB_PLATFORM_IOS) && !defined(PLAYFAB_PLATFORM_ANDROID))
         AddTest("QosResultApi", &PlayFabEventTest::QosResultApi);
+#endif
         AddTest("EventsApi", &PlayFabEventTest::EventsApi);
         AddTest("HeavyweightEvents", &PlayFabEventTest::HeavyweightEvents);
         AddTest("LightweightEvents", &PlayFabEventTest::LightweightEvents);

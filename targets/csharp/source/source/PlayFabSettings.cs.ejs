@@ -47,6 +47,26 @@ namespace PlayFab
 <% }
 %>        #endregion Deprecated staticSettingsredirect properties
 
+        private static string _localApiServer;
+
+        public static string LocalApiServer
+        {
+            get
+            {
+#if NET45 || NETCOREAPP2_0
+                return PlayFabUtil.GetLocalSettingsFileProperty("LocalApiServer");
+#else
+                return _localApiServer;
+#endif
+            }
+#if !NET45 && !NETCOREAPP2_0
+            set
+            {
+                _localApiServer = value;
+            }
+#endif
+        }
+
         public static string GetFullUrl(string apiCall, Dictionary<string, string> getParams, PlayFabApiSettings instanceSettings = null)
         {
             StringBuilder sb = new StringBuilder(1000);

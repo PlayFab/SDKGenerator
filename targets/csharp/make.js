@@ -135,6 +135,7 @@ function makeApi(api, sourceDir, apiOutputDir) {
         getApiDefineFlag: getApiDefineFlag,
         getAuthParams: getAuthParams,
         getRequestActions: getRequestActions,
+        getCustomApiLogic: getCustomApiLogic,
         getResultActions: getResultActions,
         getDeprecationAttribute: getDeprecationAttribute,
         generateApiSummary: generateApiSummary,
@@ -334,6 +335,30 @@ function getRequestActions(tabbing, apiCall, isInstance) {
             + tabbing + "var entityToken = request?.AuthenticationContext?.EntityToken ?? authenticationContext.EntityToken;\n"
             + tabbing + "if (entityToken != null) { authKey = \"X-EntityToken\"; authValue = entityToken; }\n"
             + "#endif\n";
+    return "";
+}
+
+function getCustomApiLogic(tabbing, apiCall) {
+    if (apiCall.name === "ExecuteFunction")
+    {
+        return "\n" + tabbing + "string localApiServerString = PlayFabSettings.LocalApiServer;\n"
+            + tabbing + "if (!string.IsNullOrEmpty(localApiServerString))\n"
+            + tabbing + "{\n"
+            + tabbing + "    var baseUri = new Uri(localApiServerString);\n"
+            + tabbing + "    var fullUri = new Uri(baseUri, \"" + apiCall.url + "\");\n\n"
+            + tabbing + "    // Duplicate code necessary to avoid changing all SDK methods to new convention\n"
+            + tabbing + "    var debugHttpResult = await PlayFabHttp.DoPostWithFullUri(fullUri.AbsoluteUri, request, " + getAuthParams(apiCall) + ", extraHeaders);\n"
+            + tabbing + "    if (debugHttpResult is PlayFabError debugError)\n"
+            + tabbing + "    {\n"
+            + tabbing + "        PlayFabSettings.GlobalErrorHandler?.Invoke(debugError);\n"
+            + tabbing + "        return new PlayFabResult<ExecuteFunctionResult> { Error = debugError, CustomData = customData };\n"
+            + tabbing + "    }\n\n"
+            + tabbing + "    var debugResultRawJson = (string) debugHttpResult;\n"
+            + tabbing + "    var debugResultData = PluginManager.GetPlugin<ISerializerPlugin>(PluginContract.PlayFab_Serializer).DeserializeObject<PlayFabJsonSuccess<ExecuteFunctionResult>>(debugResultRawJson);\n"
+            + tabbing + "    var debugResult = debugResultData.data;\n"
+            + tabbing + "    return new PlayFabResult<ExecuteFunctionResult> { Result = debugResult, CustomData = customData };\n"
+            + tabbing + "}\n";
+     }
     return "";
 }
 

@@ -142,7 +142,7 @@ namespace PlayFab
         // activeRequestCount can be altered by HandleResults, so we have to re-lock and return an updated value
         { // LOCK httpRequestMutex
             std::unique_lock<std::mutex> lock(httpRequestMutex);
-            return pendingRequests.size() + pendingRequests.size();
+            return pendingRequests.size() + pendingResults.size();
         }
     }
 
@@ -327,8 +327,7 @@ namespace PlayFab
         auto callback = requestContainer.GetCallback();
         if (callback != nullptr)
         {
-            callback(
-                     requestContainer.responseJson.get("code", Json::Value::null).asInt(),
+            callback(requestContainer.responseJson.get("code", Json::Value::null).asInt(),
                      requestContainer.responseString,
                      std::unique_ptr<CallRequestContainerBase>(static_cast<CallRequestContainerBase*>(requestTask.requestContainer.release())));
         }

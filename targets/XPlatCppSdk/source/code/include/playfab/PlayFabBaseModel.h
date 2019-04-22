@@ -24,7 +24,7 @@ namespace PlayFab
     typedef unsigned __int64 Uint64;
     typedef unsigned __int32 Uint32;
     typedef unsigned __int16 Uint16;
-#elif defined(PLAYFAB_PLATFORM_LINUX) || defined(PLAYFAB_PLATFORM_IOS)
+#elif defined(PLAYFAB_PLATFORM_LINUX) || defined(PLAYFAB_PLATFORM_IOS) || defined(PLAYFAB_PLATFORM_ANDROID)
     typedef int64_t Int64;
     typedef int32_t Int32;
     typedef int16_t Int16;
@@ -70,7 +70,7 @@ namespace PlayFab
     /// Base class for all PlayFab Requests
     /// Adds a parameter that controls how requests are threaded
     /// </summary>
-    struct PlayFabRequestCommon : public PlayFabBaseModel { 
+    struct PlayFabRequestCommon : public PlayFabBaseModel {
         /// <summary>
         /// An optional authentication context, it can used in multi-user scenarios
         /// </summary>
@@ -100,7 +100,7 @@ namespace PlayFab
         tm timeInfo;
 #if defined(PLAYFAB_PLATFORM_WINDOWS) || defined(PLAYFAB_PLATFORM_XBOX)
         gmtime_s(&timeInfo, &input);
-#elif defined(PLAYFAB_PLATFORM_LINUX) || defined(PLAYFAB_PLATFORM_IOS)
+#elif defined(PLAYFAB_PLATFORM_LINUX) || defined(PLAYFAB_PLATFORM_IOS) || defined(PLAYFAB_PLATFORM_ANDROID)
         timeInfo = *gmtime(&input);
 #endif
         char buff[40];

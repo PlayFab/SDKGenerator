@@ -48,7 +48,11 @@ namespace PlayFab
 
     void PlayFabEvent::SetProperty(const std::string& name, const int64_t value)
     {
+#if defined(PLAYFAB_PLATFORM_ANDROID)
+        this->eventContents.Payload[name] = (Int64)value;
+#else // PLAYFAB_PLATFORM_ANDROID
         this->eventContents.Payload[name] = (long long int)value;
+#endif // PLAYFAB_PLATFORM_ANDROID
     }
 
     void PlayFabEvent::SetProperty(const std::string& name, const uint8_t value)
@@ -68,7 +72,11 @@ namespace PlayFab
 
     void PlayFabEvent::SetProperty(const std::string& name, const uint64_t value)
     {
+#if defined(PLAYFAB_PLATFORM_ANDROID)
+        this->eventContents.Payload[name] = (Uint64)value;
+#else // PLAYFAB_PLATFORM_ANDROID
         this->eventContents.Payload[name] = (long long unsigned int)value;
+#endif // PLAYFAB_PLATFORM_ANDROID
     }
 
     void PlayFabEvent::SetProperty(const std::string& name, const double value)

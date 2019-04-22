@@ -345,7 +345,7 @@ function getCustomApiLogic(tabbing, apiCall) {
             + tabbing + "if (!string.IsNullOrEmpty(localApiServerString))\n"
             + tabbing + "{\n"
             + tabbing + "    var baseUri = new Uri(localApiServerString);\n"
-            + tabbing + "    var fullUri = new Uri(baseUri, \"" + apiCall.url + "\");\n\n"
+            + tabbing + "    var fullUri = new Uri(baseUri, \"" + apiCall.url + "\".TrimStart('/'));\n\n"
             + tabbing + "    // Duplicate code necessary to avoid changing all SDK methods to new convention\n"
             + tabbing + "    var debugHttpResult = await PlayFabHttp.DoPostWithFullUri(fullUri.AbsoluteUri, request, " + getAuthParams(apiCall) + ", extraHeaders);\n"
             + tabbing + "    if (debugHttpResult is PlayFabError debugError)\n"

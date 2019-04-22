@@ -299,8 +299,8 @@ function getAuthBools(tabbing, apiCall) {
     return output;
 }
 
-function getCustomApiAssignmentLogic(tabbing, apiCall) {
-    if (apiCall.name === "ExecuteFunction")
+function getCustomApiAssignmentLogic(tabbing, api, apiCall) {
+    if (api.name === "CloudScript" && apiCall.name === "ExecuteFunction")
     {
         return tabbing + "// Check for local debugging\n"
             + tabbing + "FString localApiServer = PlayFabCommon::PlayFabCommonUtils::GetLocalSettingsFileProperty(TEXT(\"LocalApiServer\"));\n"

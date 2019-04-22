@@ -115,7 +115,7 @@ for(var subgroup in api.subgroups)
 <%            %>    manager->SetCallAuthenticationContext(request.AuthenticationContext);
 <%            %>    manager->PlayFabRequestURL = "<%- apiCall.url %>";
 <%            %><%- getAuthBools("    ", apiCall) %>
-<%            %><%- getCustomApiAssignmentLogic("    ", apiCall) %>
+<%            %><%- getCustomApiAssignmentLogic("    ", api, apiCall) %>
 <%            %>    // Serialize all the request properties to json
 <%          var properties = api.datatypes[apiCall.request].properties;
             for(var z in properties) {

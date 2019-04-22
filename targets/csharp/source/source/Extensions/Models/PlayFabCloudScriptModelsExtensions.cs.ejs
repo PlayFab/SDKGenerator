@@ -1,8 +1,10 @@
-∩╗┐namespace PlayFab.CloudScriptModels
+namespace PlayFab.CloudScriptModels
 {
     public class FunctionExecutionContext<T>
     {
         public PlayFabApiSettings ApiSettings { get; private set; }
+
+        public PlayFabAuthenticationContext AuthenticationContext { get; set; }
 
         public ProfilesModels.EntityProfileBody CallerEntityProfile { get; set; }
 
@@ -19,14 +21,18 @@
                 TitleId = contextInternal.TitleAuthenticationContext.Id,
                 DeveloperSecretKey = contextInternal.TitleAuthenticationContext.SecretKey
             };
+            var authContext = new PlayFabAuthenticationContext
+            {
+                EntityToken = contextInternal.TitleAuthenticationContext.EntityToken
+            };
 
-            // TODO: STATIC ENTITY TOKEN?
-            PlayFabSettings.staticPlayer.EntityToken = contextInternal.TitleAuthenticationContext.EntityToken;
+            
             return new FunctionExecutionContext<T>()
             {
                 ApiSettings = settings,
                 CallerEntityProfile = contextInternal.CallerEntityProfile,
-                FunctionArgument = contextInternal.FunctionArgument
+                FunctionArgument = contextInternal.FunctionArgument,
+                AuthenticationContext = authContext
             };
         }
 

@@ -662,7 +662,7 @@ function getRequestActions(tabbing, apiCall, isInstanceApi) {
 }
 
 function getCustomApiLogic(tabbing, api, apiCall, isInstanceApi) {
-    if (apiCall.name === "ExecuteFunction")
+    if (api.name === "CloudScript" && apiCall.name === "ExecuteFunction")
         return tabbing + "FString localApiServer = PlayFabSettings::GetLocalApiServer();\n"
             + tabbing + "if (!localApiServer.IsEmpty())\n"
             + tabbing + "{\n"

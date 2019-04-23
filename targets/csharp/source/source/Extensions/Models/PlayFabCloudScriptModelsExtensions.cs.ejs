@@ -1,0 +1,63 @@
+namespace PlayFab.CloudScriptModels
+{
+    public class FunctionExecutionContext<T>
+    {
+        public PlayFabApiSettings ApiSettings { get; private set; }
+
+        public PlayFabAuthenticationContext AuthenticationContext { get; set; }
+
+        public ProfilesModels.EntityProfileBody CallerEntityProfile { get; set; }
+
+        public T FunctionArgument { get; set; }
+
+        protected FunctionExecutionContext() { }
+
+        public static async System.Threading.Tasks.Task<FunctionExecutionContext<T>> Create(System.Net.Http.HttpRequestMessage request)
+        {
+            string body = await request.Content.ReadAsStringAsync();
+            var contextInternal = Json.PlayFabSimpleJson.DeserializeObject<FunctionExecutionContextInternal<T>>(body);
+            var settings = new PlayFabApiSettings
+            {
+                TitleId = contextInternal.TitleAuthenticationContext.Id,
+                DeveloperSecretKey = contextInternal.TitleAuthenticationContext.SecretKey
+            };
+            var authContext = new PlayFabAuthenticationContext
+            {
+                EntityToken = contextInternal.TitleAuthenticationContext.EntityToken
+            };
+
+            
+            return new FunctionExecutionContext<T>()
+            {
+                ApiSettings = settings,
+                CallerEntityProfile = contextInternal.CallerEntityProfile,
+                FunctionArgument = contextInternal.FunctionArgument,
+                AuthenticationContext = authContext
+            };
+        }
+
+        private class FunctionExecutionContextInternal<V>
+        {
+            public TitleAuthenticationContext TitleAuthenticationContext { get; set; }
+
+            public ProfilesModels.EntityProfileBody CallerEntityProfile { get; set; }
+
+            public V FunctionArgument { get; set; }
+        }
+
+        private class FunctionExecutionContextInternal : FunctionExecutionContextInternal<object>
+        {
+        }
+
+        private class TitleAuthenticationContext
+        {
+            public string Id { get; set; }
+            public string SecretKey { get; set; }
+            public string EntityToken { get; set; }
+        }
+    }
+
+    public class FunctionExecutionContext : FunctionExecutionContext<object>
+    {
+    }
+}

@@ -86,34 +86,40 @@ CleanCurrentRepo () {
     git remote prune origin
 }
 
-# USAGE: _CloneGitHubRepo <folder> <RepoName>
+# USAGE: _CloneGitHubRepo <folder> <RepoName> <cloneFolderName>
 _CloneGitHubRepo () {
     ForceCD "$1"
-    git clone --recurse-submodules git@github.com:PlayFab/$2.git
-    cd $2
+    git clone --recurse-submodules git@github.com:PlayFab/$2.git $3
+    cd $3
 }
 
-# USAGE: SyncGitHubRepo <folder> <RepoName>
+# USAGE: SyncGitHubRepo <folder> <RepoName> <cloneFolderName>
 SyncGitHubRepo () {
     echo === SyncGitHubRepo $PWD, $@ ===
     ForceCD "$1"
-    cd $2 || _CloneGitHubRepo "$1" "$2"
+    if [ -z "$3" ]; then
+        set -- "$1" "$2" "$2"
+    fi
+    cd $3 || _CloneGitHubRepo "$1" "$2" "$3"
     SetGitHubCreds
     CleanCurrentRepo
 }
 
-# USAGE: _CloneWorkspaceRepo <fromFolder> <toFolder> <RepoName>
+# USAGE: _CloneWorkspaceRepo <fromFolder> <toFolder> <RepoName> <cloneFolderName>
 _CloneWorkspaceRepo () {
     ForceCD "$2"
-    git clone --recurse-submodules --reference "$1/$3" --dissociate git@github.com:PlayFab/$3.git
-    cd $3
+    git clone --recurse-submodules --reference "$1/$3" --dissociate git@github.com:PlayFab/$3.git $4
+    cd $4
 }
 
-# USAGE: SyncWorkspaceRepo <fromFolder> <toFolder> <RepoName>
+# USAGE: SyncWorkspaceRepo <fromFolder> <toFolder> <RepoName> <cloneFolderName>
 SyncWorkspaceRepo () {
     echo === SyncWorkspaceRepo $PWD, $@ ===
+    if [ -z "$4" ]; then
+        set -- "$1" "$2" "$3" "$3"
+    fi
     ForceCD "$2"
-    cd $3 || _CloneWorkspaceRepo "$1" "$2" "$3"
+    cd $4 || _CloneWorkspaceRepo "$1" "$2" "$3" "$4"
     SetGitHubCreds
     CleanCurrentRepo hard
 }

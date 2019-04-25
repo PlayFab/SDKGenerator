@@ -50,6 +50,17 @@ namespace PlayFab.Internal
         {
             var settings = instanceSettings ?? PlayFabSettings.staticSettings;
             var fullPath = settings.GetFullUrl(urlPath);
+            return await _DoPost(fullPath, request, authType, authKey, extraHeaders, instanceSettings);
+        }
+
+        public static async Task<object> DoPostWithFullUri(string fullUriPath, PlayFabRequestCommon request, string authType, string authKey, Dictionary<string, string> extraHeaders, PlayFabApiSettings instanceSettings = null)
+        {
+            return await _DoPost(fullUriPath, request, authType, authKey, extraHeaders, instanceSettings);
+        }
+
+        private static async Task<object> _DoPost(string fullPath, PlayFabRequestCommon request, string authType, string authKey, Dictionary<string, string> extraHeaders, PlayFabApiSettings instanceSettings = null)
+        {
+            var settings = instanceSettings ?? PlayFabSettings.staticSettings;
             var titleId = settings.TitleId;
             if (titleId == null)
                 throw new PlayFabException(PlayFabExceptionCode.TitleNotSet, "You must set your titleId before making an api call");

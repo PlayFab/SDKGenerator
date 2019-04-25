@@ -687,6 +687,7 @@
     <Content Include="targets\UnrealMarketplacePlugin\examplesource\ExampleProject\Source\ExampleProject\RunTestsCommandlet.cpp.ejs" />
     <Content Include="targets\UnrealMarketplacePlugin\examplesource\ExampleProject\Source\ExampleProject\RunTestsCommandlet.h.ejs" />
     <Content Include="targets\UnrealMarketplacePlugin\Source\BuildAndroid.bat.ejs" />
+    <Content Include="targets\UnrealMarketplacePlugin\examplesource\ExampleProject\BuildIOS.sh.ejs" />
     <Content Include="targets\UnrealMarketplacePlugin\Source\BuildWin64.bat.ejs" />
     <Content Include="targets\UnrealMarketplacePlugin\Source\PlayFab\Content\pf_icon.uasset" />
     <Content Include="targets\UnrealMarketplacePlugin\source\PlayFab\PlayFab.uplugin.ejs" />

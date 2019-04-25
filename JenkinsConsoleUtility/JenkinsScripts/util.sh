@@ -2,8 +2,11 @@
 # USAGE: . ./util.sh
 # Includes a bunch of functions shared by other scripts
 
+# This can be reset to change the pfGitRetrySleepDuration but generally it shouldn't change
+pfGitRetrySleepDuration=3
+
 # USAGE: CheckDefault <variable> <new value if unset>
-CheckDefault() {
+CheckDefault () {
     eval $1="\${$1:-\${@:2}}"
 }
 
@@ -58,30 +61,39 @@ SetGitHubCreds () {
     unset testName
 }
 
-# USAGE: CleanCurrentRepo [hard] [sleep] [retryCounter]
+# USAGE: CleanCurrentRepo [gitBranchName]
 CleanCurrentRepo () {
     echo === CleanCurrentRepo $PWD, $@ ===
-    retryCounter="0"
-    if [ -n "$3" ] && [ "$3" -gt "10" ]; then
-        exit 10 # Timeout
-    elif [ -n "$3" ]; then
-        let retryCounter="$3+1"
-    fi
 
-    if [ -n "$2" ]; then
-        # Sleep for a bit before trying to sync
-        sleep $2
-    fi
-
-    git fetch --progress origin || CleanCurrentRepo hard 3 $retryCounter
-    if [ -n "$1" ]; then
-        git reset --hard || CleanCurrentRepo hard 3 $retryCounter
-        git fetch --progress origin
-        git checkout master || git checkout -b master || CleanCurrentRepo hard 3 $retryCounter
-        git reset --hard origin/master || CleanCurrentRepo hard 3 $retryCounter
+    if [ -z "$1" ]; then
+        _CleanCurrentRepo 0 "master"
     else
-        git checkout master || git checkout -b master || CleanCurrentRepo hard 3 $retryCounter
-        git pull --ff-only || CleanCurrentRepo hard 3 $retryCounter
+        _CleanCurrentRepo 0 $1
+    fi
+}
+
+# USAGE: _CleanCurrentRepo <retryCounter> <gitBranchName>
+_CleanCurrentRepo () {
+    # Increment the retryCounter
+    set -- $(("$1+1")) $2
+    if [ "$1" -gt "10" ]; then
+        exit 10 # Timeout
+    fi
+
+    if [ "$1" -gt "0" ]; then
+        # Sleep for a bit before trying to sync
+        sleep $pfGitRetrySleepDuration
+    fi
+
+    git fetch --progress origin || _CleanCurrentRepo $@
+    if [ "$1" -gt "1" ]; then
+        git reset --hard || _CleanCurrentRepo $@
+        git fetch --progress origin
+        git checkout $2 || git checkout -b $2 || _CleanCurrentRepo $@
+        git reset --hard origin/$2 || _CleanCurrentRepo $@
+    else
+        git checkout $2 || git checkout -b $2 || _CleanCurrentRepo $@
+        git pull --ff-only || _CleanCurrentRepo $@
     fi
     git remote prune origin
 }
@@ -90,38 +102,42 @@ CleanCurrentRepo () {
 _CloneGitHubRepo () {
     ForceCD "$1"
     git clone --recurse-submodules git@github.com:PlayFab/$2.git $3
-    cd $3
+    cd "$3"
 }
 
-# USAGE: SyncGitHubRepo <folder> <RepoName> <cloneFolderName>
+# USAGE: SyncGitHubRepo <folder> <RepoName> [cloneFolderName=RepoName] [branchName="master"]
 SyncGitHubRepo () {
     echo === SyncGitHubRepo $PWD, $@ ===
     ForceCD "$1"
     if [ -z "$3" ]; then
-        set -- "$1" "$2" "$2"
+        set -- "$1" "$2" "$2" "master"
+    elif [ -z "$4" ]; then
+        set -- "$1" "$2" "$3" "master"
     fi
-    cd $3 || _CloneGitHubRepo "$1" "$2" "$3"
+    cd "$3" || _CloneGitHubRepo "$1" "$2" "$3"
     SetGitHubCreds
-    CleanCurrentRepo
+    CleanCurrentRepo "$4"
 }
 
 # USAGE: _CloneWorkspaceRepo <fromFolder> <toFolder> <RepoName> <cloneFolderName>
 _CloneWorkspaceRepo () {
     ForceCD "$2"
     git clone --recurse-submodules --reference "$1/$3" --dissociate git@github.com:PlayFab/$3.git $4
-    cd $4
+    cd "$4"
 }
 
-# USAGE: SyncWorkspaceRepo <fromFolder> <toFolder> <RepoName> <cloneFolderName>
+# USAGE: SyncWorkspaceRepo <fromFolder> <toFolder> <RepoName> [cloneFolderName=RepoName] [branchName="master"]
 SyncWorkspaceRepo () {
     echo === SyncWorkspaceRepo $PWD, $@ ===
     if [ -z "$4" ]; then
-        set -- "$1" "$2" "$3" "$3"
+        set -- "$1" "$2" "$3" "$3" "master"
+    elif [ -z "$5" ]; then
+        set -- "$1" "$2" "$3" "$4" "master"
     fi
     ForceCD "$2"
-    cd $4 || _CloneWorkspaceRepo "$1" "$2" "$3" "$4"
+    cd "$4" || _CloneWorkspaceRepo "$1" "$2" "$3" "$4"
     SetGitHubCreds
-    CleanCurrentRepo hard
+    CleanCurrentRepo "$5"
 }
 
 echo util.sh loaded

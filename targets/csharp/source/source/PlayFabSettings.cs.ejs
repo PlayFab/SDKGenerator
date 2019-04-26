@@ -38,8 +38,7 @@ namespace PlayFab
         [Obsolete("Moved to PlayFabSettings.staticSettings.TitleId")]
         public static string TitleId { get { return staticSettings.TitleId; } set { staticSettings.TitleId = value; } }
 
-#if !DISABLE_PLAYFABCLIENT_API
-<% if (hasClientOptions) { %>
+<% if (hasClientOptions) { %>#if !DISABLE_PLAYFABCLIENT_API
         [Obsolete("Moved to PlayFabSettings.staticSettings.AdvertisingIdType")]
         public static string AdvertisingIdType { get { return staticSettings.AdvertisingIdType; } set { staticSettings.AdvertisingIdType = value; } }
 
@@ -48,9 +47,8 @@ namespace PlayFab
 
         [Obsolete("Moved to PlayFabSettings.staticSettings.DisableAdvertising")]
         public static bool DisableAdvertising { get { return staticSettings.DisableAdvertising; } set { staticSettings.DisableAdvertising = value; } }
-<% }
-%>#endif
-        #endregion Deprecated staticSettingsredirect properties
+#endif
+<% } %>        #endregion Deprecated staticSettingsredirect properties
 
         private static string _localApiServer;
 

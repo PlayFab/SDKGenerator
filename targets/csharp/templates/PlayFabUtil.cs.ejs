@@ -1,6 +1,5 @@
 using PlayFab.Json;
 using System;
-using System.Collections.Generic;
 using System.IO;
 using System.Text;
 using System.Threading.Tasks;
@@ -118,7 +117,7 @@ namespace PlayFab
                     result = envJson[propertyKey]?.ToString();
                     return result;
                 }
-                catch (KeyNotFoundException)
+                catch (System.Collections.Generic.KeyNotFoundException)
                 {
                     return string.Empty;
                 }

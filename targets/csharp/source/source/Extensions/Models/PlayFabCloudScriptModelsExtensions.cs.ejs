@@ -1,12 +1,13 @@
 namespace PlayFab.CloudScriptModels
 {
+    using System.Threading.Tasks;
     /// <summary>
     /// Used for extracting the data fields incoming as payload to Azure Functions into their respective objects. 
     /// Provides  fields through ApiSettings and AuthenticationContext, the profile of the caller, as well as the 
     /// arguments passed to the execution request.
     /// </summary>
-    /// <typeparam name="T">Type of FunctionArgument</typeparam>
-    public class FunctionExecutionContext<T>
+    /// <typeparam name="TFunctionArgument">Type of FunctionArgument</typeparam>
+    public class FunctionExecutionContext<TFunctionArgument>
     {
         public PlayFabApiSettings ApiSettings { get; private set; }
 
@@ -14,7 +15,7 @@ namespace PlayFab.CloudScriptModels
 
         public ProfilesModels.EntityProfileBody CallerEntityProfile { get; set; }
 
-        public T FunctionArgument { get; set; }
+        public TFunctionArgument FunctionArgument { get; set; }
 
         protected FunctionExecutionContext() { }
 
@@ -23,10 +24,10 @@ namespace PlayFab.CloudScriptModels
         /// </summary>
         /// <param name="request">The request incoming to an Azure Function from the PlayFab server</param>
         /// <returns>A new populated <c>FunctionExecutionContext</c> instance</returns>
-        public static async System.Threading.Tasks.Task<FunctionExecutionContext<T>> Create(System.Net.Http.HttpRequestMessage request)
+        public static async Task<FunctionExecutionContext<TFunctionArgument>> Create(System.Net.Http.HttpRequestMessage request)
         {
             string body = await request.Content.ReadAsStringAsync();
-            var contextInternal = Json.PlayFabSimpleJson.DeserializeObject<FunctionExecutionContextInternal<T>>(body);
+            var contextInternal = Json.PlayFabSimpleJson.DeserializeObject<FunctionExecutionContextInternal>(body);
             var settings = new PlayFabApiSettings
             {
                 TitleId = contextInternal.TitleAuthenticationContext.Id,
@@ -38,7 +39,7 @@ namespace PlayFab.CloudScriptModels
             };
 
             
-            return new FunctionExecutionContext<T>()
+            return new FunctionExecutionContext<TFunctionArgument>()
             {
                 ApiSettings = settings,
                 CallerEntityProfile = contextInternal.CallerEntityProfile,
@@ -53,7 +54,7 @@ namespace PlayFab.CloudScriptModels
 
             public ProfilesModels.EntityProfileBody CallerEntityProfile { get; set; }
 
-            public T FunctionArgument { get; set; }
+            public TFunctionArgument FunctionArgument { get; set; }
         }
 
         private class TitleAuthenticationContext

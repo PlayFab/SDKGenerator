@@ -18,7 +18,7 @@ _MakeDirCd () {
 
 # USAGE: ForceCD <path>
 ForceCD () {
-    echo === ForceCD $PWD, $@ ===
+    # echo === ForceCD $PWD, $@ ===
     dirs -c
     if [ -z "$@" ]; then
         return 1
@@ -35,7 +35,7 @@ _MakeDirPushD () {
 
 # USAGE: ForcePushD <path>
 ForcePushD () {
-    echo === ForcePushD $PWD, $@ ===
+    # echo === ForcePushD $PWD, $@ ===
     if [ -z "$@" ]; then
         return 1
     fi
@@ -80,7 +80,7 @@ _CleanCurrentRepo () {
         exit 10 # Timeout
     fi
 
-    if [ "$1" -gt "0" ]; then
+    if [ "$1" -gt "1" ]; then
         # Sleep for a bit before trying to sync
         sleep $pfGitRetrySleepDuration
     fi

@@ -17,7 +17,6 @@ namespace PlayFab.Internal
         };
 
 	private static readonly string TestPackageName = "com.PlayFab.Service";
-
         #region Utility Functions
         private static void Setup()
         {

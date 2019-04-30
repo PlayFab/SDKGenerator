@@ -85,17 +85,23 @@ _CleanCurrentRepo () {
         sleep $pfGitRetrySleepDuration
     fi
 
-    git fetch --progress origin || _CleanCurrentRepo $@
-    if [ "$1" -gt "1" ]; then
-        git reset --hard || _CleanCurrentRepo $@
-        git fetch --progress origin
-        git checkout $2 || git checkout -b $2 || _CleanCurrentRepo $@
-        git reset --hard origin/$2 || _CleanCurrentRepo $@
-    else
-        git checkout $2 || git checkout -b $2 || _CleanCurrentRepo $@
-        git pull --ff-only || _CleanCurrentRepo $@
-    fi
-    git remote prune origin
+    (
+        git fetch --progress origin &&
+        if [ "$1" -gt "1" ]; then
+            (
+                git reset --hard &&
+                git fetch --progress origin &&
+                (git checkout $2 || git checkout -b $2) &&
+                git reset --hard origin/$2
+            ) || _CleanCurrentRepo $@
+        else
+            (
+                (git checkout $2 || git checkout -b $2) &&
+                git pull --ff-only
+            ) || _CleanCurrentRepo $@
+        fi &&
+        git remote prune origin
+    ) || _CleanCurrentRepo $@
 }
 
 # USAGE: _CloneGitHubRepo <folder> <RepoName> <cloneFolderName>

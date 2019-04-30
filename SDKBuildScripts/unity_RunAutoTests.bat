@@ -109,6 +109,9 @@ if %errorLevel% NEQ 0 (
     "%ProjRootPath%\buildAndroidOutput.txt"
     exit /b %errorLevel%
 )
+pushd %WORKSPACE%/SDKGenerator/SDKBuildScripts
+.\runAppCenterTests.sh "%ProjRootPath%\%SdkName%_TC\testBuilds\PlayFabAndroid.apk" "%WORKSPACE%\SDKGenerator\AppCenterUITestLauncher\AppCenterUITestLauncher\debugassemblies"
+popd
 goto :EOF
 
 :BuildiPhone

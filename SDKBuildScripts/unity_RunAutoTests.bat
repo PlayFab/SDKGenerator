@@ -110,7 +110,10 @@ if %errorLevel% NEQ 0 (
     exit /b %errorLevel%
 )
 pushd %WORKSPACE%/SDKGenerator/SDKBuildScripts
-.\runAppCenterTests.sh "%ProjRootPath%\%SdkName%_TC\testBuilds\PlayFabAndroid.apk" "%WORKSPACE%\SDKGenerator\AppCenterUITestLauncher\AppCenterUITestLauncher\debugassemblies"
+.\runAppCenterTest.sh "%ProjRootPath%\%SdkName%_TC\testBuilds\PlayFabAndroid.apk" "%WORKSPACE%\SDKGenerator\AppCenterUITestLauncher\AppCenterUITestLauncher\debugassemblies"
+if %errorLevel% NEQ 0 (
+    exit /b %errorLevel%
+)
 popd
 goto :EOF
 

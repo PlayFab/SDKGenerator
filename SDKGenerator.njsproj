@@ -563,6 +563,7 @@
     <Content Include="targets\unity-v2\templates\InstanceAPI.cs.ejs" />
     <Content Include="targets\unity-v2\templates\Model.cs.ejs" />
     <Content Include="targets\unity-v2\templates\Models.cs.ejs" />
+    <Content Include="targets\unity-v2\templates\PlayFabEvents.cs.ejs" />
     <Content Include="targets\unity-v2\Testing\Editor\PlayFabPackager.cs" />
     <Content Include="targets\unity-v2\Testing\scenes\testscene.unity" />
     <Content Include="targets\unity-v2\Testing\scenes\testscene.unity.meta" />

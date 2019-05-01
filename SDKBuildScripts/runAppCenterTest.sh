@@ -8,6 +8,7 @@
 AppApk=$1
 TestsPath=$2
 TestToolsPath=$(printenv XAMARIN_UITEST_TOOLS)
+AppCenterCLIPath=$(printenv APPCENTER_CLI_PATH)
 
 
 #check number of args
@@ -16,9 +17,16 @@ echo "Usage: ./testAndroidWithAppCenter <path to apk to test> <path to xamarin.u
 exit
 fi
 
+echo "=== Starting AppCenter Test Run with Params: ==="
+echo "$AppApk"
+echo "$TestsPath"
+echo "$TestToolsPath"
+echo "$AppCenterCLIPath"
+
+pushd "$AppCenterCLIPath"
 
 #execute the appcenter test run
-appcenter test run uitest \
+./appcenter test run uitest \
 --app "PlayFabSDKTeam/PlayFabUnityAndroid" \
 --devices f749a00a \
 --app-path "$AppApk" \
@@ -26,3 +34,5 @@ appcenter test run uitest \
 --locale "en_US" \
 --build-dir "$TestsPath" \
 --uitest-tools-dir "$TestToolsPath"
+
+popd

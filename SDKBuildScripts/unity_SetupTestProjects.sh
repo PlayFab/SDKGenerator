@@ -5,8 +5,6 @@
 
 . $SHARED_WORKSPACE/SDKGenerator/JenkinsConsoleUtility/JenkinsScripts/util.sh
 
-TitleDataFilePath=$(printenv XAMARIN_UITEST_TOOLS)
-
 # USAGE Nuke <folderLinkName>
 Nuke () {
     rm "$1" 2> /dev/null || rm -f "$1" 2> /dev/null || rm -r "$1" 2> /dev/null || rm -rf "$1" 2> /dev/null || true
@@ -59,7 +57,7 @@ DoWorkTesting () {
     Nuke "Testing"
     cmd <<< "mklink /D Testing \"$WORKSPACE/sdks/$SdkName/Testing\""
     if [ $? -ne 0 ]; then return 1; fi
-    cmd <<< "copy $(PF_TEST_TITLE_DATA_JSON) \"$WORKSPACE/sdks/$SdkName/Testing/Resources/testTitleData.json\""
+    cmd <<< "copy \"$PF_TEST_TITLE_DATA_JSON\" \"$WORKSPACE/sdks/$SdkName/Testing/Resources/testTitleData.json\""
     if [ $? -ne 0 ]; then return 1; fi
     WriteUnitySettingsFile "PlayFabExample/Editor" "$2"
     #set -x

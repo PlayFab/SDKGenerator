@@ -26,26 +26,28 @@ namespace PlayFab.CloudScriptModels
         /// <returns>A new populated <c>FunctionExecutionContext</c> instance</returns>
         public static async Task<FunctionExecutionContext<TFunctionArgument>> Create(System.Net.Http.HttpRequestMessage request)
         {
-            string body = await request.Content.ReadAsStringAsync();
-            var contextInternal = Json.PlayFabSimpleJson.DeserializeObject<FunctionExecutionContextInternal>(body);
-            var settings = new PlayFabApiSettings
+            using (var content = request.Content) 
             {
-                TitleId = contextInternal.TitleAuthenticationContext.Id,
-                DeveloperSecretKey = contextInternal.TitleAuthenticationContext.SecretKey
-            };
-            var authContext = new PlayFabAuthenticationContext
-            {
-                EntityToken = contextInternal.TitleAuthenticationContext.EntityToken
-            };
+                var body = await content.ReadAsStringAsync();
+                var contextInternal = Json.PlayFabSimpleJson.DeserializeObject<FunctionExecutionContextInternal>(body);
+                var settings = new PlayFabApiSettings
+                {
+                    TitleId = contextInternal.TitleAuthenticationContext.Id,
+                    DeveloperSecretKey = contextInternal.TitleAuthenticationContext.SecretKey
+                };
+                var authContext = new PlayFabAuthenticationContext
+                {
+                    EntityToken = contextInternal.TitleAuthenticationContext.EntityToken
+                };
 
-            
-            return new FunctionExecutionContext<TFunctionArgument>()
-            {
-                ApiSettings = settings,
-                CallerEntityProfile = contextInternal.CallerEntityProfile,
-                FunctionArgument = contextInternal.FunctionArgument,
-                AuthenticationContext = authContext
-            };
+                return new FunctionExecutionContext<TFunctionArgument>()
+                {
+                    ApiSettings = settings,
+                    CallerEntityProfile = contextInternal.CallerEntityProfile,
+                    FunctionArgument = contextInternal.FunctionArgument,
+                    AuthenticationContext = authContext
+                };
+            }
         }
 
         private class FunctionExecutionContextInternal

@@ -99,7 +99,7 @@ JenkinsConsoleUtility --listencs -buildIdentifier %BuildIdentifier% -workspacePa
 if %errorLevel% NEQ 0 (
     exit /b %errorLevel%
 )
-goto :EOFz
+goto :EOF
 
 :BuildAndroid
 echo === Build Android Target ===

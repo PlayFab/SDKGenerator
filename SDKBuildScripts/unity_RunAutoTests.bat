@@ -99,7 +99,7 @@ JenkinsConsoleUtility --listencs -buildIdentifier %BuildIdentifier% -workspacePa
 if %errorLevel% NEQ 0 (
     exit /b %errorLevel%
 )
-goto :EOF
+goto :EOFz
 
 :BuildAndroid
 echo === Build Android Target ===
@@ -110,7 +110,7 @@ if %errorLevel% NEQ 0 (
     exit /b %errorLevel%
 )
 pushd "%WORKSPACE%/SDKGenerator/SDKBuildScripts"
-.\runAppCenterTest.sh "%ProjRootPath%\%SdkName%_TC\testBuilds\PlayFabAndroid.apk" "%WORKSPACE%\SDKGenerator\AppCenterUITestLauncher\AppCenterUITestLauncher\debugassemblies"
+sh runAppCenterTest.sh "%ProjRootPath%\%SdkName%_TC\testBuilds\PlayFabAndroid.apk" "%WORKSPACE%\SDKGenerator\AppCenterUITestLauncher\AppCenterUITestLauncher\debugassemblies"
 if %errorLevel% NEQ 0 (
     exit /b %errorLevel%
 )

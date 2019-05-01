@@ -57,7 +57,7 @@ DoWorkTesting () {
     Nuke "Testing"
     cmd <<< "mklink /D Testing \"$WORKSPACE/sdks/$SdkName/Testing\""
     if [ $? -ne 0 ]; then return 1; fi
-    cmd <<< "copy \"$PF_TEST_TITLE_DATA_JSON\" \"$WORKSPACE/sdks/$SdkName/Testing/Resources/testTitleData.json\""
+    cmd <<< "echo f | xcopy /Y \"$PF_TEST_TITLE_DATA_JSON\" \"$WORKSPACE\\sdks\\$SdkName\\Testing\\Resources\\testTitleData.json\""
     if [ $? -ne 0 ]; then return 1; fi
     WriteUnitySettingsFile "PlayFabExample/Editor" "$2"
     #set -x

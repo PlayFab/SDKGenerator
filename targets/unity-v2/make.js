@@ -29,7 +29,6 @@ exports.MakeUnityV2Sdk = function (apis, sourceDir, apiOutputDir) {
     makeSharedEventFiles(apis, sourceDir, apiOutputDir);
     makeDatatypes(apis, sourceDir, apiOutputDir);
     for (var i = 0; i < apis.length; i++) {
-        makeApiEventFiles(apis[i], sourceDir, apiOutputDir);
         makeApi(apis[i], sourceDir, apiOutputDir);
         makeInstanceApi(apis[i], sourceDir, apiOutputDir);
     }
@@ -55,44 +54,19 @@ function makeApiEventFiles(api, sourceDir, apiOutputDir) {
 }
 
 function makeSharedEventFiles(apis, sourceDir, apiOutputDir) {
-    var playStreamEventModels = getApiJson("PlayStreamEventModels");
     var eventLocals = {
         apis: apis,
         sourceDir: sourceDir,
-        psParentTypes: playStreamEventModels.ParentTypes,
-        psChildTypes: playStreamEventModels.ChildTypes,
         generateApiSummary: generateApiSummary,
         getApiDefineFlag: getApiDefineFlag,
         getDeprecationAttribute: getDeprecationAttribute,
-        getPropertyDef: getModelPropertyDef,
-        makeDatatype: makePlayStreamDatatype
+        getPropertyDef: getModelPropertyDef
     };
 
     // Events for api-callbacks
     var eventTemplate = getCompiledTemplate(path.resolve(sourceDir, "templates", "Events.cs.ejs"));
     writeFile(path.resolve(apiOutputDir, "Shared/Public/PlayFabEvents.cs"), eventTemplate(eventLocals));
-
-    // PlayStream event models
-    var psTemplate = getCompiledTemplate(path.resolve(sourceDir, "templates", "PlayStreamEventDataModels.cs.ejs"));
-    writeFile(path.resolve(apiOutputDir, "Shared/Public/PlayStream/PlayStreamEventDataModels.cs"), psTemplate(eventLocals));
 }
-
-function makePlayStreamDatatype(datatype, sourceDir) {
-    var templateDir = path.resolve(sourceDir, "templates");
-    var modelTemplate = getCompiledTemplate(path.resolve(templateDir, "Model.cs.ejs"));
-    var enumTemplate = getCompiledTemplate(path.resolve(templateDir, "Enum.cs.ejs"));
-
-    var modelLocals = {
-        datatype: datatype,
-        generateApiSummary: generateApiSummary,
-        getDeprecationAttribute: getDeprecationAttribute,
-        getPropertyDef: getModelPropertyDef,
-        getPropertyJsonReader: getPropertyJsonReader,
-        getBaseTypeSyntax: function () { return ""; } // No base types in PlayStream
-    };
-
-    return datatype.isenum ? enumTemplate(modelLocals) : modelTemplate(modelLocals);
-};
 
 function getBaseTypeSyntax(datatype) {
     if (datatype.isResult && datatype.className === "LoginResult" || datatype.className === "RegisterPlayFabUserResult")
@@ -141,7 +115,7 @@ function makeApi(api, sourceDir, apiOutputDir) {
     console.log("   - Generating C# " + api.name + " library to\n   -> " + apiOutputDir);
 
     var templateDir = path.resolve(sourceDir, "templates");
-    var apiLocals = {
+    var locals = {
         api: api,
         getApiDefineFlag: getApiDefineFlag,
         getAuthParams: getAuthParams,
@@ -156,7 +130,10 @@ function makeApi(api, sourceDir, apiOutputDir) {
     };
 
     var apiTemplate = getCompiledTemplate(path.resolve(templateDir, "API.cs.ejs"));
-    writeFile(path.resolve(apiOutputDir, api.name + "/PlayFab" + api.name + "API.cs"), apiTemplate(apiLocals));
+    writeFile(path.resolve(apiOutputDir, api.name + "/PlayFab" + api.name + "API.cs"), apiTemplate(locals));
+
+    var eventTemplate = getCompiledTemplate(path.resolve(sourceDir, "templates", "PlayFabEvents.cs.ejs"));
+    writeFile(path.resolve(apiOutputDir, api.name + "/PlayFabEvents.cs"), eventTemplate(locals));
 }
 
 function makeInstanceApi(api, sourceDir, apiOutputDir) {

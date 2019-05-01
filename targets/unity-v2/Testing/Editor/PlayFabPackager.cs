@@ -16,7 +16,7 @@ namespace PlayFab.Internal
             "assets/Testing/scenes/testscene.unity"
         };
 
-		private static readonly string TestPackageName = "com.PlayFab.Service;
+	private static readonly string TestPackageName = "com.PlayFab.Service";
 
         #region Utility Functions
         private static void Setup()

@@ -109,7 +109,7 @@ if %errorLevel% NEQ 0 (
     "%ProjRootPath%\buildAndroidOutput.txt"
     exit /b %errorLevel%
 )
-pushd %WORKSPACE%/SDKGenerator/SDKBuildScripts
+pushd "%WORKSPACE%/SDKGenerator/SDKBuildScripts"
 .\runAppCenterTest.sh "%ProjRootPath%\%SdkName%_TC\testBuilds\PlayFabAndroid.apk" "%WORKSPACE%\SDKGenerator\AppCenterUITestLauncher\AppCenterUITestLauncher\debugassemblies"
 if %errorLevel% NEQ 0 (
     exit /b %errorLevel%

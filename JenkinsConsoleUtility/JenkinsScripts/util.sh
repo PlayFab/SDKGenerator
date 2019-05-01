@@ -18,7 +18,7 @@ _MakeDirCd () {
 
 # USAGE: ForceCD <path>
 ForceCD () {
-    echo === ForceCD $PWD, $@ ===
+    # echo === ForceCD $PWD, $@ ===
     dirs -c
     if [ -z "$@" ]; then
         return 1
@@ -35,7 +35,7 @@ _MakeDirPushD () {
 
 # USAGE: ForcePushD <path>
 ForcePushD () {
-    echo === ForcePushD $PWD, $@ ===
+    # echo === ForcePushD $PWD, $@ ===
     if [ -z "$@" ]; then
         return 1
     fi
@@ -80,22 +80,28 @@ _CleanCurrentRepo () {
         exit 10 # Timeout
     fi
 
-    if [ "$1" -gt "0" ]; then
+    if [ "$1" -gt "1" ]; then
         # Sleep for a bit before trying to sync
         sleep $pfGitRetrySleepDuration
     fi
 
-    git fetch --progress origin || _CleanCurrentRepo $@
-    if [ "$1" -gt "1" ]; then
-        git reset --hard || _CleanCurrentRepo $@
-        git fetch --progress origin
-        git checkout $2 || git checkout -b $2 || _CleanCurrentRepo $@
-        git reset --hard origin/$2 || _CleanCurrentRepo $@
-    else
-        git checkout $2 || git checkout -b $2 || _CleanCurrentRepo $@
-        git pull --ff-only || _CleanCurrentRepo $@
-    fi
-    git remote prune origin
+    (
+        git fetch --progress origin &&
+        if [ "$1" -gt "1" ]; then
+            (
+                git reset --hard &&
+                git fetch --progress origin &&
+                (git checkout $2 || git checkout -b $2) &&
+                git reset --hard origin/$2
+            ) || _CleanCurrentRepo $@
+        else
+            (
+                (git checkout $2 || git checkout -b $2) &&
+                git pull --ff-only
+            ) || _CleanCurrentRepo $@
+        fi &&
+        git remote prune origin
+    ) || _CleanCurrentRepo $@
 }
 
 # USAGE: _CloneGitHubRepo <folder> <RepoName> <cloneFolderName>

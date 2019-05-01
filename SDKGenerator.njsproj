@@ -197,6 +197,7 @@
     <Content Include="targets\csharp\source\source\WsaReflectionExtensions.cs" />
     <Content Include="targets\csharp\templates\API.cs.ejs" />
     <Content Include="targets\csharp\templates\APIInstance.cs.ejs" />
+    <Content Include="targets\csharp\source\source\Extensions\Models\PlayFabCloudScriptModelsExtensions.cs.ejs" />
     <Content Include="targets\csharp\templates\Enum.cs.ejs" />
     <Content Include="targets\csharp\templates\Errors.cs.ejs" />
     <Content Include="targets\csharp\templates\Model.cs.ejs" />
@@ -945,7 +946,9 @@
     <Folder Include="targets\csharp\" />
     <Folder Include="targets\csharp\source\" />
     <Folder Include="targets\csharp\source\source\" />
+    <Folder Include="targets\csharp\source\source\Extensions\Models\" />
     <Folder Include="targets\csharp\source\source\Json\" />
+    <Folder Include="targets\csharp\source\source\Extensions\" />
     <Folder Include="targets\csharp\source\source\PlayFabHttp\" />
     <Folder Include="targets\csharp\source\source\Properties\" />
     <Folder Include="targets\csharp\source\source\Uunit\" />

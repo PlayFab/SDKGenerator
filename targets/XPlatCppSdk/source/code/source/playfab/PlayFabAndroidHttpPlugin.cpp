@@ -478,6 +478,7 @@ namespace PlayFab
                 return false;
             }
 
+            std::string requestBody;
             size_t payloadSize = 0;
             void* payload = nullptr;
             jbyteArray bodyArray = nullptr;
@@ -485,7 +486,7 @@ namespace PlayFab
             if (!GetBinaryPayload(requestTask, payload, payloadSize))
             {
                 // set string payload if binary wasn't provided
-                std::string requestBody = requestContainer.GetRequestBody();
+                requestBody = requestContainer.GetRequestBody();
                 payloadSize = (size_t)requestBody.size();
                 payload = (void*)requestBody.c_str();
             }

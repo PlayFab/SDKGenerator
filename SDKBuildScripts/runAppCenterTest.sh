@@ -26,9 +26,3 @@ appcenter test run uitest \
 --locale "en_US" \
 --build-dir "$TestsPath" \
 --uitest-tools-dir "$TestToolsPath"
-
-if [ "$?" -ne 0 ]; then 
-echo "App Center test run failed!"
-else 
-echo "App Center test run succeeded!"
-fi

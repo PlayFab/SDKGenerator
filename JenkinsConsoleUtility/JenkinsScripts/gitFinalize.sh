@@ -10,7 +10,7 @@ DoGitFinalize() {
     echo === Commit to Git ===
     git fetch --progress origin
     git add -A
-    git commit --allow-empty -m "$commitMessage"
+    git commit --allow-empty -m "$CommitMessage"
     git push origin $GitDestBranch -f -u || (git fetch --progress origin && git push origin $GitDestBranch -f -u)
     popd
 }

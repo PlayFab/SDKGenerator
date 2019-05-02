@@ -37,19 +37,19 @@ CheckVerticalizedParameters() {
     elif [ ! -z "$VerticalName" ]; then
         if [ "$GitDestBranch" != "vertical-$VerticalName" ]; then
             FailIfPublishing "Output branch must be verticalName when building a vertical"
-        elif [ "$apiSpecSource" != "-apiSpecPfUrl" ] && [ "$apiSpecSource" != "-apiSpecPfUrl https://${VerticalName}.playfabapi.com/apispec" ]; then
-            echo "apiSpecSource must be -apiSpecPfUrl when building a vertical, or else it won't build what you expect"
+        elif [ "$ApiSpecSource" != "-apiSpecPfUrl" ] && [ "$ApiSpecSource" != "-apiSpecPfUrl https://${VerticalName}.playfabapi.com/apispec" ]; then
+            echo "ApiSpecSource must be -apiSpecPfUrl when building a vertical, or else it won't build what you expect"
             return 1
         fi
     fi
 }
 
 CheckApiSpecSourceDefault() {
-    if [ -z "$apiSpecSource" ]; then
-        apiSpecSource="-apiSpecGitUrl"
+    if [ -z "$ApiSpecSource" ]; then
+        ApiSpecSource="-apiSpecGitUrl"
     fi
-    if [ "$apiSpecSource" = "-apiSpecPfUrl" ] && [ ! -z "$VerticalName" ]; then
-        apiSpecSource="-apiSpecPfUrl https://${VerticalName}.playfabapi.com/apispec"
+    if [ "$ApiSpecSource" = "-apiSpecPfUrl" ] && [ ! -z "$VerticalName" ]; then
+        ApiSpecSource="-apiSpecPfUrl https://${VerticalName}.playfabapi.com/apispec"
     fi
 }
 

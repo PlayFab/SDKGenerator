@@ -40,9 +40,9 @@ DoWork () {
     echo == DoWork $PWD, $@ ==
 
     # These are always shared, never modified directly, and never arc-patched
-    SyncGitHubRepo "$SHARED_WORKSPACE" "SDKGenerator" "SDKGenerator" "$SdkGenBranch"
+    SyncGitHubRepo "$SHARED_WORKSPACE" "SDKGenerator" "SDKGenerator" "$GitSdkGenBranch"
     SyncGitHubRepo "$SHARED_WORKSPACE/sdks" "$SdkName"
-    SyncWorkspaceRepo "$SHARED_WORKSPACE" "$WORKSPACE" "SDKGenerator" "SDKGenerator" "$SdkGenBranch"
+    SyncWorkspaceRepo "$SHARED_WORKSPACE" "$WORKSPACE" "SDKGenerator" "SDKGenerator" "$GitSdkGenBranch"
     SyncWorkspaceRepo "$SHARED_WORKSPACE/sdks" "$WORKSPACE/sdks" "$SdkName"
 
     DoJcuNugetUpdate

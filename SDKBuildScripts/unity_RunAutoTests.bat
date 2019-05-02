@@ -105,7 +105,7 @@ goto :EOF
 echo === Build Android Target ===
 cd "%ProjRootPath%\%SdkName%_TC"
 pushd "%WORKSPACE%/SDKGenerator/SDKBuildScripts"
-sh unity_copyTestTitleData.sh "%WORKSPACE%/sdks/UnitySDK/Testing/Resources/testTitleData.json"
+sh unity_copyTestTitleData.sh "%WORKSPACE%/sdks/UnitySDK/Testing/Resources"
 popd
 %UnityExe% -projectPath "%ProjRootPath%\%SdkName%_TC" -quit -batchmode -executeMethod PlayFab.Internal.PlayFabPackager.MakeAndroidBuild -logFile "%ProjRootPath%\buildAndroidOutput.txt"
 if %errorLevel% NEQ 0 (

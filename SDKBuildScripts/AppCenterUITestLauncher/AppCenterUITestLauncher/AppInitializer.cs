@@ -22,9 +22,13 @@ namespace XamarinUITestExperiment
                     .EnableLocalScreenshots()
                     .StartApp();
             }
-
-            //return ConfigureApp.iOS.StartApp();
-            throw new PlatformNotSupportedException("Only Android is supported by this UITest assembly! This instance was started for " + platform.ToString());
+            else if (platform == Platform.iOS)
+            {
+                return ConfigureApp.iOS.InstalledApp("com.PlayFab.Service")
+                    .EnableLocalScreenshots()
+                    .StartApp();
+            }
+            throw new PlatformNotSupportedException("Only iOS and Android are supported by this UITest assembly! This instance was started for " + platform.ToString());
         }
     }
 }

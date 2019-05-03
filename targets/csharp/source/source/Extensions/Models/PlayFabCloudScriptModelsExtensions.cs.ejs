@@ -33,7 +33,9 @@ namespace PlayFab.CloudScriptModels
                 var settings = new PlayFabApiSettings
                 {
                     TitleId = contextInternal.TitleAuthenticationContext.Id,
+#if ENABLE_PLAYFABSERVER_API || ENABLE_PLAYFABADMIN_API
                     DeveloperSecretKey = contextInternal.TitleAuthenticationContext.SecretKey
+#endif
                 };
                 var authContext = new PlayFabAuthenticationContext
                 {

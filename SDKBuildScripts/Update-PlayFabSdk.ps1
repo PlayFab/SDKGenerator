@@ -19,14 +19,17 @@ The names of one or more of the supported SDKs to generate an SDK for.
 .PARAMETER ApiSpecPath
 The path to a local set of API specifications which will be used to generate the SDK.
 
-.PARAMETER ApiSpecPfUrl
+.PARAMETER ApiSpecUrl
 The full URL to the API Spec endpoints which will be used to download the API specification
 files used to generate the SDK.
 
-.PARAMETER ApiSpecPfUrlBranch
-The branch/vertical of the API Spec endpoints which will be used to download the API
-specification files used to generate the SDK. This is a short-form for ApiSpecPfUrl and is
-equivalent to using the URL "https://{ApiSpecPfUrlBranch}.playfabapi.com/apispec".
+.PARAMETER ApiSpecVertical
+The PlayFab vertical to use in the API Spec endpoints which will be used to download the API
+specification files used to generate the SDK.  This will default to the master vertical.
+
+.PARAMETER ApiSpecCloud
+The PlayFab cloud to use in the API Spec endpoints which will be used to download the API
+specification files used to generate the SDK. This will default to the main vertical.
 
 .PARAMETER ApiSpecGitUrl
 Indicates that the API specifications checked into Git should be used to generate the SDK.
@@ -45,6 +48,34 @@ Indicates that we should generate the SDK for a platform that does not support n
 
 .PARAMETER Beta
 Indicates whether or not to include any APIs tagged with as beta.
+
+.EXAMPLE
+Run the PlayFab API generation for the CSharp SDK using the API specification documents from
+the PlayFab git repository.
+
+    PS> Update-PlayFabSdk -SdkNames CSharpSDK
+
+.EXAMPLE
+Run the PlayFab API generation for the CSharp and JavaScript SDKs using the API specification
+documents from the example vertical and include all of the beta SDKs.
+
+    PS> Update-PlayFabSdk CSharpSDK,JavaScriptSDK -ApiSpecVertical example
+
+This is functionally identical to using -ApiSpecUrl "https://example.playfabapi.com/apispec"
+
+.EXAMPLE
+Run the PlayFab API generation for the CSharp and JavaScript SDKs using the API specification
+documents from the example vertical and the sample cloud.
+
+    PS> Update-PlayFabSdk CSharpSDK,JavaScriptSDK -ApiSpecVertical example -ApiSpecCloud sample
+
+This is functionally identical to using -ApiSpecUrl "https://example.sample.playfabapi.com/apispec"
+
+.EXAMPLE
+Run the PlayFab API generation for the CSharp and JavaScript SDKs using the API specification
+documents from the example vertical and include all of the beta SDKs.
+
+    PS> Update-PlayFabSdk UnitySDK -Beta
 
 #>
 [CmdletBinding(SupportsShouldProcess = $true, DefaultParameterSetName = "ApiSpecGitUrl")]
@@ -68,14 +99,16 @@ param(
         "WindowsSDK",
         "XPlatCppSDK")]
     [string[]]$SdkNames,
-    [Parameter(ParameterSetName="ApiSpecPath", Mandatory)]
+    [Parameter(ParameterSetName="ApiSpecPath")]
     [string]$ApiSpecPath,
-    [Parameter(ParameterSetName="ApiSpecPfUrl", Mandatory)]
-    [string]$ApiSpecPfUrl,
-    [Parameter(ParameterSetName="ApiSpecPfUrlBranch", Mandatory)]
-    [string]$ApiSpecBranch,
+    [Parameter(ParameterSetName="ApiSpecUrl")]
+    [string]$ApiSpecUrl,
+    [Parameter(ParameterSetName="ApiSpecUrlCloudVertical")]
+    [string]$ApiSpecVertical = "master",
+    [Parameter(ParameterSetName="ApiSpecUrlCloudVertical")]
+    [string]$ApiSpecCloud,
     [Parameter(ParameterSetName="ApiSpecGitUrl")]
-    [switch]$ApiSpecGitUrl,
+    [switch]$UseApiSpecFromGit,
     [string]$OutputPath = "..\..\sdks",
     [switch]$KeepSource,
     [switch]$NonNullable,
@@ -119,9 +152,15 @@ begin
         mkdir $sdksPath | Out-Null
     }
 
-    if($ApiSpecBranch)
+    if($ApiSpecVertical)
     {
-        $ApiSpecPfUrl = "https://$($ApiSpecBranch).playfabapi.com/apispec"
+        $cloudVertical = $ApiSpecVertical;
+        if($ApiSpecCloud)
+        {
+            $cloudVertical += ".$ApiSpecCloud"
+        }
+
+        $ApiSpecUrl = "https://$($cloudVertical).playfabapi.com/apispec"
     }
 
     if($ApiSpecPath)
@@ -133,19 +172,21 @@ begin
 
         $apiSpecSource = "-apiSpecPath $ApiSpecPath"
     }
-    elseif($ApiSpecPfUrl)
+    elseif($ApiSpecUrl)
     {
-        if(![Uri]::IsWellFormedUriString($ApiSpecPfUrl, "Absolute"))
+        if(![Uri]::IsWellFormedUriString($ApiSpecUrl, "Absolute"))
         {
-            throw "You must specify a valid URL for ApiSpecPfUrl.  Unable to parse '$ApiSpecPfUrl' as a URL."
+            throw "You must specify a valid URL for ApiSpecUrl.  Unable to parse '$ApiSpecUrl' as a URL."
         }
 
-        $apiSpecSource = "-apiSpecPfUrl $ApiSpecPfUrl"
+        $apiSpecSource = "-apiSpecPfUrl $ApiSpecUrl"
     }
     else
     {
         $apiSpecSource = "-apiSpecGitUrl"
     }
+
+    Write-Verbose "API Spec Source: $apiSpecSource"
 }
 
 process
@@ -203,8 +244,9 @@ process
 
 
         if($PSCmdlet.ShouldProcess(
-            "$destPath",
-            "Generate $sdkName"
+            "Generating $sdkName into '$destPath'.",
+            "Would you like to generate $sdkName into '$destPath'?",
+            "Generating $sdkName"
         ))
         {
             Push-Location (Split-Path $PSScriptRoot -Parent)

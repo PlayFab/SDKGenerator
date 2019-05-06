@@ -158,8 +158,12 @@ process
         if(!(Test-Path $destPath))
         {
             $repoPath = "https://github.com/PlayFab/$sdkName"
-            $cloneSdk = Read-Host -Prompt "Unable to find SDK repository at '$destPath'.  Would you like to clone from $($repoPath)? [Y/N]"
-            if($cloneSdk -eq "Y")
+
+            if($PSCmdlet.ShouldProcess(
+                "Cloning SDK Repository for $sdkName into '$destPath'.",
+                "Would you like to clone the $sdkName repository from $($repoPath) into '$destPath'?",
+                "Unable to find $sdkName repository")
+              )
             {
                 git clone $repoPath $destPath
             }
@@ -197,19 +201,16 @@ process
             $sdkGenArgs += "-flags beta "
         }
 
-        Push-Location (Split-Path $PSScriptRoot -Parent)
 
-        Write-Host "=== BUILDING $sdkName ==="
-        $exp = "node generate.js `"$targetSrc=$destPath`" $apiSpecSource $sdkGenArgs $buildIdentifier"
-        if($WhatIfPreference)
+        if($PSCmdlet.ShouldProcess(
+            "$destPath",
+            "Generate $sdkName"
+        ))
         {
-            Write-Host "What if: Invoking the expression: `"$exp`""
-        }
-        else
-        {
-            Invoke-Expression $exp
+            Push-Location (Split-Path $PSScriptRoot -Parent)
+            node generate.js "$targetSrc=$destPath" $apiSpecSource $sdkGenArgs $buildIdentifier
+            Pop-Location
         }
 
-        Pop-Location
     }
 }

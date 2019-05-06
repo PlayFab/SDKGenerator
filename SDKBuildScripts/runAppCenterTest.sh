@@ -1,4 +1,6 @@
 #!/bin/sh
+# USAGE: runAppCenterTest.sh <path to apk> <path to test tools assemblies>
+# Uploads an android apk to appcenter and runs the test  (iOS ipa support is coming soon!)
 
 #PREREQUISITES:
 #1. Caller must have the Microsoft AppCenter CLI installed (https://github.com/Microsoft/appcenter-cli)

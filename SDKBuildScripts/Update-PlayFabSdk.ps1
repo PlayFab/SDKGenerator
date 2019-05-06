@@ -40,6 +40,9 @@ The location that the generated SDKs will be written to.  This is a base folder 
 folder under this path will be generated for each provided SDK platform.  The default path
 points to a sibling directory to the SDKGeneratory repository called "sdks".
 
+.PARAMETER TargetSource
+Override the target source parameter name passed to the generation script.
+
 .PARAMETER KeepSource
 Indicites whether or not to remove all generated source files from the destination location.
 
@@ -110,6 +113,7 @@ param(
     [Parameter(ParameterSetName="ApiSpecGitUrl")]
     [switch]$UseApiSpecFromGit,
     [string]$OutputPath = "..\..\sdks",
+    [string]$TargetSource,
     [switch]$KeepSource,
     [switch]$NonNullable,
     [switch]$Beta
@@ -152,14 +156,10 @@ begin
         mkdir $sdksPath | Out-Null
     }
 
-    if($ApiSpecVertical)
+    if($ApiSpecVertical -or $ApiSpecCloud)
     {
-        $cloudVertical = $ApiSpecVertical;
-        if($ApiSpecCloud)
-        {
-            $cloudVertical += ".$ApiSpecCloud"
-        }
-
+        # If either cloud or vertical is not provided, we want to remove the leading or trailing dot.
+        $cloudVertical = "$ApiSpecVertical.$ApiSpecCloud".TrimEnd(".")
         $ApiSpecUrl = "https://$($cloudVertical).playfabapi.com/apispec"
     }
 
@@ -193,7 +193,10 @@ process
 {
     foreach($sdkName in $SdkNames)
     {
-        $targetSrc = $sdkTargetSrcMap[$sdkName]
+        if(!$TargetSource)
+        {
+            $TargetSource = $sdkTargetSrcMap[$sdkName]
+        }
         $destPath = Join-Path $sdksPath $sdkName
 
         if(!(Test-Path $destPath))
@@ -243,14 +246,15 @@ process
         }
 
 
+        $expression = "node generate.js `"$TargetSource=$destPath`" $apiSpecSource $sdkGenArgs $buildIdentifier"
         if($PSCmdlet.ShouldProcess(
-            "Generating $sdkName into '$destPath'.",
+            "Executing '$expression'.",
             "Would you like to generate $sdkName into '$destPath'?",
             "Generating $sdkName"
         ))
         {
             Push-Location (Split-Path $PSScriptRoot -Parent)
-            node generate.js "$targetSrc=$destPath" $apiSpecSource $sdkGenArgs $buildIdentifier
+            Invoke-Expression $expression
             Pop-Location
         }
 

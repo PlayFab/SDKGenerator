@@ -138,7 +138,7 @@ function parseCommandInputs(args, argsByName, errorMessages, targetOutputPathLis
     if (targetOutputPathList.length === 0)
         errorMessages.push("No targets defined, you must define at least one.");
 
-    // Output an error if there's any problems with the api-spec source    
+    // Output an error if there's any problems with the api-spec source
     var specCount = 0;
     if (argsByName.apispecpath) specCount++;
     if (argsByName.apispecgiturl) specCount++;
@@ -614,7 +614,7 @@ String.prototype.wordWrap = function (width: number, brk: string, cut: boolean):
     return this;
 };
 
-// Official padStart implementation 
+// Official padStart implementation
 // https://github.com/uxitten/polyfill/blob/master/string.polyfill.js
 // https://developer.mozilla.org/en-US/docs/Web/JavaScript/Reference/Global_Objects/String/padStart
 if (!String.prototype.padStart) {
@@ -773,5 +773,3 @@ catch (error) {
     setTimeout(doNothing, 30000);
     throw error;
 }
-
-setTimeout(doNothing, 5000);

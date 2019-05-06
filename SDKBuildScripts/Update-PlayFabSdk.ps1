@@ -53,32 +53,32 @@ Indicates that we should generate the SDK for a platform that does not support n
 Indicates whether or not to include any APIs tagged with as beta.
 
 .EXAMPLE
+Update-PlayFabSdk -SdkNames CSharpSDK
+
 Run the PlayFab API generation for the CSharp SDK using the API specification documents from
 the PlayFab git repository.
 
-    PS> Update-PlayFabSdk -SdkNames CSharpSDK
-
 .EXAMPLE
+Update-PlayFabSdk CSharpSDK,JavaScriptSDK -Vertical example
+
 Run the PlayFab API generation for the CSharp and JavaScript SDKs using the API specification
 documents from the example vertical and include all of the beta SDKs.
-
-    PS> Update-PlayFabSdk CSharpSDK,JavaScriptSDK -Vertical example
 
 This is functionally identical to using -ApiSpecUrl "https://example.playfabapi.com/apispec"
 
 .EXAMPLE
+Update-PlayFabSdk CSharpSDK,JavaScriptSDK -Vertical example -Cloud sample
+
 Run the PlayFab API generation for the CSharp and JavaScript SDKs using the API specification
 documents from the example vertical and the sample cloud.
-
-    PS> Update-PlayFabSdk CSharpSDK,JavaScriptSDK -Vertical example -Cloud sample
 
 This is functionally identical to using -ApiSpecUrl "https://example.sample.playfabapi.com/apispec"
 
 .EXAMPLE
+Update-PlayFabSdk UnitySDK -Beta
+
 Run the PlayFab API generation for the CSharp and JavaScript SDKs using the API specification
 documents from the example vertical and include all of the beta SDKs.
-
-    PS> Update-PlayFabSdk UnitySDK -Beta
 
 #>
 [CmdletBinding(SupportsShouldProcess = $true, DefaultParameterSetName = "ApiSpecGitUrl")]

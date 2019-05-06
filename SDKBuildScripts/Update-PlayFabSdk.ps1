@@ -23,11 +23,11 @@ The path to a local set of API specifications which will be used to generate the
 The full URL to the API Spec endpoints which will be used to download the API specification
 files used to generate the SDK.
 
-.PARAMETER ApiSpecVertical
+.PARAMETER Vertical
 The PlayFab vertical to use in the API Spec endpoints which will be used to download the API
 specification files used to generate the SDK.  This will default to the master vertical.
 
-.PARAMETER ApiSpecCloud
+.PARAMETER Cloud
 The PlayFab cloud to use in the API Spec endpoints which will be used to download the API
 specification files used to generate the SDK. This will default to the main vertical.
 
@@ -62,7 +62,7 @@ the PlayFab git repository.
 Run the PlayFab API generation for the CSharp and JavaScript SDKs using the API specification
 documents from the example vertical and include all of the beta SDKs.
 
-    PS> Update-PlayFabSdk CSharpSDK,JavaScriptSDK -ApiSpecVertical example
+    PS> Update-PlayFabSdk CSharpSDK,JavaScriptSDK -Vertical example
 
 This is functionally identical to using -ApiSpecUrl "https://example.playfabapi.com/apispec"
 
@@ -70,7 +70,7 @@ This is functionally identical to using -ApiSpecUrl "https://example.playfabapi.
 Run the PlayFab API generation for the CSharp and JavaScript SDKs using the API specification
 documents from the example vertical and the sample cloud.
 
-    PS> Update-PlayFabSdk CSharpSDK,JavaScriptSDK -ApiSpecVertical example -ApiSpecCloud sample
+    PS> Update-PlayFabSdk CSharpSDK,JavaScriptSDK -Vertical example -Cloud sample
 
 This is functionally identical to using -ApiSpecUrl "https://example.sample.playfabapi.com/apispec"
 
@@ -107,9 +107,9 @@ param(
     [Parameter(ParameterSetName="ApiSpecUrl")]
     [string]$ApiSpecUrl,
     [Parameter(ParameterSetName="ApiSpecUrlCloudVertical")]
-    [string]$ApiSpecVertical = "master",
+    [string]$Vertical = "master",
     [Parameter(ParameterSetName="ApiSpecUrlCloudVertical")]
-    [string]$ApiSpecCloud,
+    [string]$Cloud,
     [Parameter(ParameterSetName="ApiSpecGitUrl")]
     [switch]$UseApiSpecFromGit,
     [string]$OutputPath = "..\..\sdks",
@@ -156,10 +156,10 @@ begin
         mkdir $sdksPath | Out-Null
     }
 
-    if($ApiSpecVertical -or $ApiSpecCloud)
+    if($Vertical -or $Cloud)
     {
         # If either cloud or vertical is not provided, we want to remove the leading or trailing dot.
-        $cloudVertical = "$ApiSpecVertical.$ApiSpecCloud".TrimEnd(".")
+        $cloudVertical = "$Vertical.$Cloud".TrimEnd(".")
         $ApiSpecUrl = "https://$($cloudVertical).playfabapi.com/apispec"
     }
 

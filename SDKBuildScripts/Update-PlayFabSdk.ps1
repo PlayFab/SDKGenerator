@@ -17,11 +17,14 @@ occurred in the SDK.
 The names of one or more of the supported SDKs to generate an SDK for.
 
 .PARAMETER ApiSpecPath
-The path to a local set of API specifications which will be used to generate the SDK.
+The path to a local set of API specifications which will be used to generate the SDK.  If you
+want to use the default API spec path used by the generation scripts, pass you can pass in
+$null, an empty string, or "default".
 
-.PARAMETER ApiSpecUrl
+.PARAMETER ApiSpecPfUrl
 The full URL to the API Spec endpoints which will be used to download the API specification
-files used to generate the SDK.
+files used to generate the SDK.  If you want to use the default API spec playfab URL used by
+the generation scripts, pass you can pass in $null, an empty string, or "default".
 
 .PARAMETER Vertical
 The PlayFab vertical to use in the API Spec endpoints which will be used to download the API
@@ -34,6 +37,8 @@ specification files used to generate the SDK. This will default to the main vert
 .PARAMETER ApiSpecGitUrl
 Indicates that the API specifications checked into Git should be used to generate the SDK.
 This is the default behavior and will be used if no other ApiSpec parameter is provided.
+If you want to use the default API spec GitHub used by the generation scripts, pass you can
+pass in $null, an empty string, or "default".
 
 .PARAMETER OutputPath
 The location that the generated SDKs will be written to.  This is a base folder path.  A new
@@ -64,7 +69,7 @@ Update-PlayFabSdk CSharpSDK,JavaScriptSDK -Vertical example
 Run the PlayFab API generation for the CSharp and JavaScript SDKs using the API specification
 documents from the example vertical and include all of the beta SDKs.
 
-This is functionally identical to using -ApiSpecUrl "https://example.playfabapi.com/apispec"
+This is functionally identical to using -ApiSpecPfUrl "https://example.playfabapi.com/apispec"
 
 .EXAMPLE
 Update-PlayFabSdk CSharpSDK,JavaScriptSDK -Vertical example -Cloud sample
@@ -72,7 +77,7 @@ Update-PlayFabSdk CSharpSDK,JavaScriptSDK -Vertical example -Cloud sample
 Run the PlayFab API generation for the CSharp and JavaScript SDKs using the API specification
 documents from the example vertical and the sample cloud.
 
-This is functionally identical to using -ApiSpecUrl "https://example.sample.playfabapi.com/apispec"
+This is functionally identical to using -ApiSpecPfUrl "https://example.sample.playfabapi.com/apispec"
 
 .EXAMPLE
 Update-PlayFabSdk UnitySDK -Beta
@@ -103,15 +108,18 @@ param(
         "XPlatCppSDK")]
     [string[]]$SdkNames,
     [Parameter(ParameterSetName="ApiSpecPath")]
+    [AllowEmptyString()]
     [string]$ApiSpecPath,
-    [Parameter(ParameterSetName="ApiSpecUrl")]
-    [string]$ApiSpecUrl,
-    [Parameter(ParameterSetName="ApiSpecUrlCloudVertical")]
+    [Parameter(ParameterSetName="ApiSpecPfUrl")]
+    [AllowEmptyString()]
+    [string]$ApiSpecPfUrl,
+    [Parameter(ParameterSetName="ApiSpecPfUrlCloudVertical")]
     [string]$Vertical = "master",
-    [Parameter(ParameterSetName="ApiSpecUrlCloudVertical")]
+    [Parameter(ParameterSetName="ApiSpecPfUrlCloudVertical")]
     [string]$Cloud,
-    [Parameter(ParameterSetName="ApiSpecGitUrl")]
-    [switch]$UseApiSpecFromGit,
+    [Parameter(ParameterSetName="ApiSpecGitUrl", Mandatory)]
+    [AllowEmptyString()]
+    [string]$ApiSpecGitUrl,
     [string]$OutputPath = "..\..\sdks",
     [string]$TargetSource,
     [switch]$KeepSource,
@@ -156,34 +164,52 @@ begin
         mkdir $sdksPath | Out-Null
     }
 
-    if($Vertical -or $Cloud)
+    if($PSCmdlet.ParameterSetName -eq "ApiSpecPfUrlCloudVertical")
     {
-        # If either cloud or vertical is not provided, we want to remove the leading or trailing dot.
-        $cloudVertical = "$Vertical.$Cloud".TrimEnd(".")
-        $ApiSpecUrl = "https://$($cloudVertical).playfabapi.com/apispec"
+        if($Vertical -or $Cloud)
+        {
+            # If either cloud or vertical is not provided, we want to remove the leading or trailing dot.
+            $cloudVertical = "$Vertical.$Cloud".TrimEnd(".")
+            $ApiSpecPfUrl = "https://$($cloudVertical).playfabapi.com/apispec"
+        }
     }
 
-    if($ApiSpecPath)
+    if($PSCmdlet.ParameterSetName -eq "ApiSpecPath")
     {
-        if(!(Test-Path $ApiSpecPath))
-        {
-            throw "Unable to find ApiSpecPath '$ApiSpecPath'."
-        }
+        $apiSpecSource = "-apiSpecPath"
 
-        $apiSpecSource = "-apiSpecPath $ApiSpecPath"
+        if($ApiSpecPath -and $ApiSpecPath -ne "default")
+        {
+            if(!(Test-Path $ApiSpecPath))
+            {
+                throw "Unable to find ApiSpecPath '$ApiSpecPath'."
+            }
+
+            $apiSpecSource += " $ApiSpecPath"
+        }
     }
-    elseif($ApiSpecUrl)
+    elseif($PSCmdlet.ParameterSetName -eq "ApiSpecPfUrl")
     {
-        if(![Uri]::IsWellFormedUriString($ApiSpecUrl, "Absolute"))
-        {
-            throw "You must specify a valid URL for ApiSpecUrl.  Unable to parse '$ApiSpecUrl' as a URL."
-        }
+        $apiSpecSource = "-apiSpecPfUrl"
 
-        $apiSpecSource = "-apiSpecPfUrl $ApiSpecUrl"
+        if($ApiSpecPfUrl -and $ApiSpecPfUrl -ne "default")
+        {
+            if(![Uri]::IsWellFormedUriString($ApiSpecPfUrl, "Absolute"))
+            {
+                throw "You must specify a valid URL for ApiSpecPfUrl.  Unable to parse '$ApiSpecPfUrl' as a URL."
+            }
+
+            $apiSpecSource += " $ApiSpecPfUrl"
+        }
     }
     else
     {
         $apiSpecSource = "-apiSpecGitUrl"
+
+        if($ApiSpecGitUrl -and $ApiSpecGitUrl -ne "default")
+        {
+            $apiSpecSource += " $ApiSpecGitUrl"
+        }
     }
 
     Write-Verbose "API Spec Source: $apiSpecSource"
@@ -246,7 +272,7 @@ process
         }
 
 
-        $expression = "node generate.js `"$TargetSource=$destPath`" $apiSpecSource $sdkGenArgs $buildIdentifier"
+        $expression = "node generate.js `"$TargetSource=$destPath`" $apiSpecSource $sdkGenArgs $buildIdentifier".Trim()
         if($PSCmdlet.ShouldProcess(
             "Executing '$expression'.",
             "Would you like to generate $sdkName into '$destPath'?",

@@ -51,9 +51,6 @@ Override the target source parameter name passed to the generation script.
 .PARAMETER KeepSource
 Indicites whether or not to remove all generated source files from the destination location.
 
-.PARAMETER NonNullable
-Indicates that we should generate the SDK for a platform that does not support nullable types.
-
 .PARAMETER Beta
 Indicates whether or not to include any APIs tagged with as beta.
 
@@ -127,8 +124,6 @@ param(
     [Parameter(ValueFromPipelineByPropertyName = $true)]
     [switch]$KeepSource,
     [Parameter(ValueFromPipelineByPropertyName = $true)]
-    [switch]$NonNullable,
-    [Parameter(ValueFromPipelineByPropertyName = $true)]
     [switch]$Beta
 )
 
@@ -175,7 +170,7 @@ begin
         {
             # If either cloud or vertical is not provided, we want to remove the leading or trailing dot.
             $cloudVertical = "$Vertical.$Cloud".TrimEnd(".")
-            $ApiSpecPfUrl = "https://$($cloudVertical).playfabapi.com/apispec"
+            $ApiSpecPfUrl = "https://$cloudVertical.playfabapi.com/apispec"
         }
     }
 
@@ -183,7 +178,7 @@ begin
     {
         $apiSpecSource = "-apiSpecPath"
 
-        if($ApiSpecPath -and $ApiSpecPath -ne "default")
+        if($ApiSpecPath -and ($ApiSpecPath -ne "default"))
         {
             if(!(Test-Path $ApiSpecPath))
             {
@@ -197,7 +192,7 @@ begin
     {
         $apiSpecSource = "-apiSpecPfUrl"
 
-        if($ApiSpecPfUrl -and $ApiSpecPfUrl -ne "default")
+        if($ApiSpecPfUrl -and ($ApiSpecPfUrl -ne "default"))
         {
             if(![Uri]::IsWellFormedUriString($ApiSpecPfUrl, "Absolute"))
             {
@@ -211,8 +206,13 @@ begin
     {
         $apiSpecSource = "-apiSpecGitUrl"
 
-        if($ApiSpecGitUrl -and $ApiSpecGitUrl -ne "default")
+        if($ApiSpecGitUrl -and ($ApiSpecGitUrl -ne "default"))
         {
+            if(![Uri]::IsWellFormedUriString($ApiSpecGitUrl, "Absolute"))
+            {
+                throw "You must specify a valid URL for ApiSpecGitUrl.  Unable to parse '$ApiSpecGitUrl' as a URL."
+            }
+
             $apiSpecSource += " $ApiSpecGitUrl"
         }
     }
@@ -237,21 +237,11 @@ process
 
             if($PSCmdlet.ShouldProcess(
                 "Cloning SDK Repository for $sdkName into '$destPath'.",
-                "Would you like to clone the $sdkName repository from $($repoPath) into '$destPath'?",
+                "Would you like to clone the $sdkName repository from $repoPath into '$destPath'?",
                 "Unable to find $sdkName repository")
               )
             {
                 git clone $repoPath $destPath
-            }
-        }
-
-        # Add any overrides for a specific SDK
-        if($sdkName -eq "UE4")
-        {
-            # We only set this value if it wasn't explicitly provided.
-            if(!$NonNullable.IsPresent)
-            {
-                $NonNullable = $true
             }
         }
 
@@ -267,14 +257,14 @@ process
         }
 
         $sdkGenArgValues = @()
-        if($NonNullable)
-        {
-            $sdkGenArgValues += "nonnullable"
-        }
-
         if($Beta)
         {
             $sdkGenArgValues += "beta"
+        }
+
+        if($sdkName -eq "UnrealMarketplacePlugin")
+        {
+            $sdkGenArgValues += "nonnullable"
         }
 
         $sdkGenArgs = "";

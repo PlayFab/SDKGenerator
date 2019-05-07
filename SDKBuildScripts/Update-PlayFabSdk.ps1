@@ -88,7 +88,7 @@ documents from the example vertical and include all of the beta SDKs.
 #>
 [CmdletBinding(SupportsShouldProcess = $true, DefaultParameterSetName = "ApiSpecGitUrl")]
 param(
-    [Parameter(Position = 1, ValueFromPipeline = $true, ValueFromPipelineByPropertyName = $true, Mandatory)]
+    [Parameter(Position = 0, ValueFromPipeline = $true, ValueFromPipelineByPropertyName = $true, Mandatory)]
     [ValidateSet(
         "ActionScriptSDK",
         "Cocos2d-xSDK",
@@ -107,23 +107,28 @@ param(
         "WindowsSDK",
         "XPlatCppSDK")]
     [string[]]$SdkNames,
-    [Parameter(ParameterSetName="ApiSpecPath")]
+    [Parameter(ParameterSetName="ApiSpecPath", ValueFromPipelineByPropertyName = $true)]
     [AllowEmptyString()]
     [string]$ApiSpecPath,
-    [Parameter(ParameterSetName="ApiSpecPfUrl")]
+    [Parameter(ParameterSetName="ApiSpecPfUrl", ValueFromPipelineByPropertyName = $true)]
     [AllowEmptyString()]
     [string]$ApiSpecPfUrl,
-    [Parameter(ParameterSetName="ApiSpecPfUrlCloudVertical")]
+    [Parameter(ParameterSetName="ApiSpecPfUrlCloudVertical", ValueFromPipelineByPropertyName = $true)]
     [string]$Vertical = "master",
-    [Parameter(ParameterSetName="ApiSpecPfUrlCloudVertical")]
+    [Parameter(ParameterSetName="ApiSpecPfUrlCloudVertical", ValueFromPipelineByPropertyName = $true)]
     [string]$Cloud,
-    [Parameter(ParameterSetName="ApiSpecGitUrl", Mandatory)]
+    [Parameter(ParameterSetName="ApiSpecGitUrl", ValueFromPipelineByPropertyName = $true)]
     [AllowEmptyString()]
     [string]$ApiSpecGitUrl,
+    [Parameter(ValueFromPipelineByPropertyName = $true)]
     [string]$OutputPath = "..\..\sdks",
+    [Parameter(ValueFromPipelineByPropertyName = $true)]
     [string]$TargetSource,
+    [Parameter(ValueFromPipelineByPropertyName = $true)]
     [switch]$KeepSource,
+    [Parameter(ValueFromPipelineByPropertyName = $true)]
     [switch]$NonNullable,
+    [Parameter(ValueFromPipelineByPropertyName = $true)]
     [switch]$Beta
 )
 
@@ -223,6 +228,7 @@ process
         {
             $TargetSource = $sdkTargetSrcMap[$sdkName]
         }
+
         $destPath = Join-Path $sdksPath $sdkName
 
         if(!(Test-Path $destPath))
@@ -270,7 +276,6 @@ process
         {
             $sdkGenArgs += "-flags beta "
         }
-
 
         $expression = "node generate.js `"$TargetSource=$destPath`" $apiSpecSource $sdkGenArgs $buildIdentifier".Trim()
         if($PSCmdlet.ShouldProcess(

@@ -107,7 +107,11 @@ _CleanCurrentRepo () {
 # USAGE: _CloneGitHubRepo <folder> <RepoName> <cloneFolderName>
 _CloneGitHubRepo () {
     ForceCD "$1"
-    git clone --recurse-submodules git@github.com:PlayFab/$2.git $3
+    (
+        git clone --recurse-submodules git@github.com:PlayFab/$2.git $3 ||
+        sleep $pfGitRetrySleepDuration || 
+        git clone --recurse-submodules git@github.com:PlayFab/$2.git $3
+    )
     cd "$3"
 }
 
@@ -128,7 +132,11 @@ SyncGitHubRepo () {
 # USAGE: _CloneWorkspaceRepo <fromFolder> <toFolder> <RepoName> <cloneFolderName>
 _CloneWorkspaceRepo () {
     ForceCD "$2"
-    git clone --recurse-submodules --reference "$1/$3" --dissociate git@github.com:PlayFab/$3.git $4
+    (
+        git clone --recurse-submodules --reference "$1/$3" --dissociate git@github.com:PlayFab/$3.git $4
+        sleep $pfGitRetrySleepDuration || 
+        git clone --recurse-submodules --reference "$1/$3" --dissociate git@github.com:PlayFab/$3.git $4
+    )
     cd "$4"
 }
 

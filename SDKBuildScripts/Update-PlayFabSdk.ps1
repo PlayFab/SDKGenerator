@@ -266,15 +266,21 @@ process
             $buildIdentifier = "-buildIdentifier JBuild_$($sdkName)_($env:NODE_NAME)_$($env:EXECUTOR_NUMBER)"
         }
 
-        $sdkGenArgs = ""
+        $sdkGenArgValues = @()
         if($NonNullable)
         {
-            $sdkGenArgs += "-flags nonnullable "
+            $sdkGenArgValues += "nonnullable"
         }
 
         if($Beta)
         {
-            $sdkGenArgs += "-flags beta "
+            $sdkGenArgValues += "beta"
+        }
+
+        $sdkGenArgs = "";
+        if($sdkGenArgValues)
+        {
+            $sdkGenArgs = "-flags $($sdkGenArgValues -join " ")"
         }
 
         $expression = "node generate.js `"$TargetSource=$destPath`" $apiSpecSource $sdkGenArgs $buildIdentifier".Trim()

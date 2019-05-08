@@ -232,10 +232,12 @@ process
 {
     foreach($sdkName in $SdkNames)
     {
-        if(!$TargetSource)
+        $sdkTargetSource = $TargetSource
+        if(!$sdkTargetSource)
         {
-            $TargetSource = $sdkTargetSrcMap[$sdkName]
-            if(!$TargetSource)
+            $sdkTargetSource = $sdkTargetSrcMap[$sdkName]
+            Write-Verbose "Setting Targetsource to $sdkTargetSource for $sdkName"
+            if(!$sdkTargetSource)
             {
                 throw "Unable to determine TargetSource for '$sdkName'.  You must explicitly provide a value."
             }
@@ -285,7 +287,7 @@ process
             $sdkGenArgs = "-flags $($sdkGenArgValues -join " ")"
         }
 
-        $expression = "node generate.js `"$TargetSource=$destPath`" $apiSpecSource $sdkGenArgs $buildIdentifier".Trim()
+        $expression = "node generate.js `"$sdkTargetSource=$destPath`" $apiSpecSource $sdkGenArgs $buildIdentifier".Trim()
         if($PSCmdlet.ShouldProcess(
             "Executing '$expression'.",
             "Would you like to generate $sdkName into '$destPath'?",

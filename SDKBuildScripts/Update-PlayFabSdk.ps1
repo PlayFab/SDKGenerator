@@ -86,23 +86,29 @@ documents from the example vertical and include all of the beta SDKs.
 [CmdletBinding(SupportsShouldProcess = $true, DefaultParameterSetName = "ApiSpecGitUrl")]
 param(
     [Parameter(Position = 0, ValueFromPipeline = $true, ValueFromPipelineByPropertyName = $true, Mandatory)]
-    [ValidateSet(
-        "ActionScriptSDK",
-        "Cocos2d-xSDK",
-        "CSharpSDK",
-        "JavaSDK",
-        "JavaScriptSDK",
-        "LuaSDK",
-        "NodeSDK",
-        "Objective_C_SDK",
-        "PhpSDK",
-        "PostmanCollection",
-        "PythonSDK",
-        "SdkTestingCloudScript",
-        "UnrealMarketplacePlugin",
-        "UnitySDK",
-        "WindowsSDK",
-        "XPlatCppSDK")]
+    [ArgumentCompleter(
+        {
+            param($Command, $Parameter, $WordToComplete, $CommandAst, $FakeBoundParams)
+            @(
+                "ActionScriptSDK",
+                "Cocos2d-xSDK",
+                "CSharpSDK",
+                "JavaSDK",
+                "JavaScriptSDK",
+                "LuaSDK",
+                "NodeSDK",
+                "Objective_C_SDK",
+                "PhpSDK",
+                "PostmanCollection",
+                "PythonSDK",
+                "SdkTestingCloudScript",
+                "UnrealMarketplacePlugin",
+                "UnitySDK",
+                "WindowsSDK",
+                "XPlatCppSDK"
+             ) -like "$WordToComplete*"
+        }
+    )]
     [string[]]$SdkNames,
     [Parameter(ParameterSetName="ApiSpecPath", ValueFromPipelineByPropertyName = $true)]
     [AllowEmptyString()]
@@ -229,6 +235,10 @@ process
         if(!$TargetSource)
         {
             $TargetSource = $sdkTargetSrcMap[$sdkName]
+            if(!$TargetSource)
+            {
+                throw "Unable to determine TargetSource for '$sdkName'.  You must explicitly provide a value."
+            }
         }
 
         $destPath = Join-Path $sdksPath $sdkName

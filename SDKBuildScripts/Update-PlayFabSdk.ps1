@@ -164,16 +164,6 @@ begin
         mkdir $sdksPath | Out-Null
     }
 
-    if($PSCmdlet.ParameterSetName -eq "ApiSpecPfUrlCloudVertical")
-    {
-        if($Vertical -or $Cloud)
-        {
-            # If either cloud or vertical is not provided, we want to remove the leading or trailing dot.
-            $cloudVertical = "$Vertical.$Cloud".TrimEnd(".")
-            $ApiSpecPfUrl = "https://$cloudVertical.playfabapi.com/apispec"
-        }
-    }
-
     if($PSCmdlet.ParameterSetName -eq "ApiSpecPath")
     {
         $apiSpecSource = "-apiSpecPath"
@@ -188,9 +178,21 @@ begin
             $apiSpecSource += " $ApiSpecPath"
         }
     }
-    elseif($PSCmdlet.ParameterSetName -eq "ApiSpecPfUrl")
+    elseif($PSCmdlet.ParameterSetName -eq "ApiSpecPfUrl" -or $PSCmdlet.ParameterSetName -eq "ApiSpecPfUrlCloudVertical")
     {
         $apiSpecSource = "-apiSpecPfUrl"
+
+        if($PSCmdlet.ParameterSetName -eq "ApiSpecPfUrlCloudVertical")
+        {
+            if(!$Cloud -and !$Vertical)
+            {
+                throw "You must provide a value for Cloud or Vertical"
+            }
+
+            # If either cloud or vertical is not provided, we want to remove the leading or trailing dot.
+            $cloudVertical = "$Vertical.$Cloud".TrimEnd(".")
+            $ApiSpecPfUrl = "https://$cloudVertical.playfabapi.com/apispec"
+        }
 
         if($ApiSpecPfUrl -and ($ApiSpecPfUrl -ne "default"))
         {

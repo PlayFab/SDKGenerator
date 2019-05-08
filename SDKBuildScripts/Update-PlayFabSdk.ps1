@@ -13,8 +13,8 @@ PlayFab repositories.  This script will clone those repositories if necessary an
 the new SDK overtop of the existing one.  This is useful to determine what changes have
 occurred in the SDK.
 
-.PARAMETER SdkNames
-The names of one or more of the supported SDKs to generate an SDK for.
+.PARAMETER SdkName
+The name(s) of the SDKs to generate as an array of strings.
 
 .PARAMETER ApiSpecPath
 The path to a local set of API specifications which will be used to generate the SDK.  If you
@@ -55,7 +55,7 @@ Indicites whether or not to remove all generated source files from the destinati
 Indicates whether or not to include any APIs tagged with as beta.
 
 .EXAMPLE
-Update-PlayFabSdk -SdkNames CSharpSDK
+Update-PlayFabSdk -SdkName CSharpSDK
 
 Run the PlayFab API generation for the CSharp SDK using the API specification documents from
 the PlayFab git repository.
@@ -109,7 +109,7 @@ param(
              ) -like "$WordToComplete*"
         }
     )]
-    [string[]]$SdkNames,
+    [string[]]$SdkName,
     [Parameter(ParameterSetName="ApiSpecPath", ValueFromPipelineByPropertyName = $true)]
     [AllowEmptyString()]
     [string]$ApiSpecPath,
@@ -230,7 +230,7 @@ begin
 
 process
 {
-    foreach($sdkName in $SdkNames)
+    foreach($sdkName in $SdkName)
     {
         $sdkTargetSource = $TargetSource
         if(!$sdkTargetSource)

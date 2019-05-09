@@ -110,7 +110,7 @@ popd
 %UnityExe% -projectPath "%ProjRootPath%\%SdkName%_TC" -quit -batchmode -executeMethod PlayFab.Internal.PlayFabPackager.MakeAndroidBuild -logFile "%ProjRootPath%\buildAndroidOutput.txt"
 del "%WORKSPACE%/sdks/UnitySDK/Testing/Resources/testTitleData.json"
 if %errorLevel% NEQ 0 (
-    "%ProjRootPath%\buildAndroidOutput.txt"
+    type "%ProjRootPath%\buildAndroidOutput.txt"
     exit /b %errorLevel%
 )
 pushd "%WORKSPACE%/SDKGenerator/SDKBuildScripts"

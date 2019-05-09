@@ -33,6 +33,7 @@ if [%4]==[] (
 if [%TestAndroid%]==[] (set TestAndroid=true)
 if [%TestiPhone%]==[] (set TestiPhone=true)
 if [%TestWp8%]==[] (set TestWp8=true)
+if [%TestPS4%]==[] (set TestPS4=true)
 
 call :SetProjDefines
 if %errorLevel% NEQ 0 (exit /b %errorLevel%)
@@ -47,6 +48,8 @@ if %errorLevel% NEQ 0 (exit /b %errorLevel%)
 IF [%TestiPhone%]==[true] (call :BuildiPhone)
 if %errorLevel% NEQ 0 (exit /b %errorLevel%)
 IF [%TestWp8%]==[true] (call :BuildWp8)
+if %errorLevel% NEQ 0 (exit /b %errorLevel%)
+IF [%TestPS4%]==[true] (call :BuildPS4)
 endlocal
 exit /b %errorLevel%
 
@@ -127,6 +130,16 @@ cd "%ProjRootPath%\%SdkName%_TC"
 %UnityExe% -projectPath "%ProjRootPath%\%SdkName%_TC" -quit -batchmode -executeMethod PlayFab.Internal.PlayFabPackager.MakeWp8Build -logFile "%ProjRootPath%\buildWp8Output.txt"
 if %errorLevel% NEQ 0 (
     type "%ProjRootPath%\buildWp8Output.txt"
+    exit /b %errorLevel%
+)
+goto :EOF
+
+:BuildPS4
+echo === Build PS4 Target ===
+cd "%ProjRootPath%\%SdkName%_PS4"
+%UnityExe% -projectPath "%ProjRootPath%\%SdkName%_PS4" -quit -batchmode -executeMethod PlayFab.Internal.PlayFabPackager.MakePS4Build -logFile "%ProjRootPath%\buildPS4Output.txt"
+if %errorLevel% NEQ 0 (
+    type "%ProjRootPath%\buildPS4Output.txt"
     exit /b %errorLevel%
 )
 goto :EOF

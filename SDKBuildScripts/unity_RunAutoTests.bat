@@ -6,6 +6,7 @@ rem Requires the following environment variables:
 rem   TestAndroid - (Optional - Default true if unset) set to "false" (without quotes) to skip building Android APK
 rem   TestiPhone - (Optional - Default true if unset) set to "false" (without quotes) to skip building iOS XCode project
 rem   TestWp8 - (Optional - Default true if unset) set to "false" (without quotes) to skip building Windows Universal 8 vs-sln
+rem   TestPS4 - (Optional - Default true if unset) set to "false" (without quotes) to skip building PS4
 rem   UNITY_PUBLISH_VERSION - (Not required if %1 is defined) Versioned Unity executable name (Assumes multiple potential Unity installations, all in your PATH, each uniquely renamed)
 rem   EXECUTOR_NUMBER - (Not required if %4 is defined) Automatic Jenkins variable
 

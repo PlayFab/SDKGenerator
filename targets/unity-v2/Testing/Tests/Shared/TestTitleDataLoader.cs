@@ -53,7 +53,7 @@ namespace PlayFab.UUnit
 
             if(_loadedData == null)
             {
-				var textAsset = Resources.Load<TextAsset>(Path.GetFileNameWithoutExtension(TestTitleDataDefaultFilename)); 
+                var textAsset = Resources.Load<TextAsset>(Path.GetFileNameWithoutExtension(TestTitleDataDefaultFilename)); 
                 if(textAsset != null)
                 {
                     _loadedData = LoadTitleDataWithPlugin(textAsset.text);

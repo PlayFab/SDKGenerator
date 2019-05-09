@@ -16,7 +16,8 @@ namespace PlayFab.Internal
             "assets/Testing/scenes/testscene.unity"
         };
 
-	private static readonly string TestPackageName = "com.PlayFab.Service";
+    private static readonly string TestPackageName = "com.playfab.service";
+
         #region Utility Functions
         private static void Setup()
         {
@@ -150,7 +151,7 @@ namespace PlayFab.Internal
         {
             Setup();
             SetScriptingBackend(ScriptingImplementation.Mono2x, BuildTarget.Android, BuildTargetGroup.Android); // Ideal setting for Android
-			SetIdentifier(BuildTargetGroup.Android, TestPackageName);
+            SetIdentifier(BuildTargetGroup.Android, TestPackageName);
             var androidPackage = Path.Combine(GetBuildPath(), "PlayFabAndroid.apk");
             MkDir(GetBuildPath());
             BuildPipeline.BuildPlayer(TestScenes, androidPackage, BuildTarget.Android, BuildOptions.None);
@@ -167,7 +168,7 @@ namespace PlayFab.Internal
 #else
             SetScriptingBackend(ScriptingImplementation.Mono2x, AppleBuildTarget, AppleBuildTargetGroup); // Mono2x is traditionally the one with issues, and it's a lot faster to build/test
 #endif
-			SetIdentifier(AppleBuildTargetGroup, TestPackageName);
+            SetIdentifier(AppleBuildTargetGroup, TestPackageName);
             var iosPath = Path.Combine(GetBuildPath(), "PlayFabIOS");
             MkDir(GetBuildPath());
             MkDir(iosPath);
@@ -182,7 +183,7 @@ namespace PlayFab.Internal
             Setup();
             //SetScriptingBackend(ScriptingImplementation.IL2CPP, OsxBuildTarget, BuildTargetGroup.Standalone);  // IL2CPP can only be built on Mac.
             SetScriptingBackend(ScriptingImplementation.Mono2x, OsxBuildTarget, BuildTargetGroup.Standalone);
-			SetIdentifier(AppleBuildTargetGroup, TestPackageName);
+            SetIdentifier(AppleBuildTargetGroup, TestPackageName);
             var osxAppName = "PlayFabOSX";
             var osxPath = Path.Combine(GetBuildPath(), osxAppName);
             MkDir(GetBuildPath());
@@ -197,7 +198,7 @@ namespace PlayFab.Internal
         {
             Setup();
             SetScriptingBackend(ScriptingImplementation.IL2CPP, BuildTarget.PS4, BuildTargetGroup.PS4);
-			SetIdentifier(BuildTargetGroup.PS4, TestPackageName);
+            SetIdentifier(BuildTargetGroup.PS4, TestPackageName);
 #if UNITY_5_6_OR_NEWER
             PlayerSettings.SplashScreen.show = false;
 #endif
@@ -282,7 +283,7 @@ namespace PlayFab.Internal
             Setup();
             SetScriptingBackend(ScriptingImplementation.IL2CPP, BuildTarget.XboxOne, BuildTargetGroup.XboxOne);
             //SetScriptingBackend( ScriptingImplementation.Mono2x, BuildTarget.XboxOne, BuildTargetGroup.XboxOne );
-            SetIdentifier(BuildTargetGroup.XboxOne, "com.PlayFab.PlayFabTest");
+            SetIdentifier(BuildTargetGroup.XboxOne, TestPackageName);
             var xboxOnePath = Path.Combine(GetBuildPath(), "PlayFabXboxOne");
             MkDir(GetBuildPath());
             MkDir(xboxOnePath);

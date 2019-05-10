@@ -124,10 +124,6 @@ call :RunClientJenkernaught3
 if %errorLevel% NEQ 0 (
     exit /b %errorLevel%
 )
-call :RunClientJenkernaught3
-if %errorLevel% NEQ 0 (
-    exit /b %errorLevel%
-)
 popd
 goto :EOF
 

@@ -105,10 +105,10 @@ goto :EOF
 echo === Build Android Target ===
 cd "%ProjRootPath%\%SdkName%_TC"
 pushd "%WORKSPACE%/SDKGenerator/SDKBuildScripts"
-sh unity_copyTestTitleData.sh "%WORKSPACE%/sdks/UnitySDK/Testing/Resources"
+sh unity_copyTestTitleData.sh "%WORKSPACE%/sdks/UnitySDK/Testing/Resources" copy
 popd
 %UnityExe% -projectPath "%ProjRootPath%\%SdkName%_TC" -quit -batchmode -executeMethod PlayFab.Internal.PlayFabPackager.MakeAndroidBuild -logFile "%ProjRootPath%\buildAndroidOutput.txt"
-del "%WORKSPACE%/sdks/UnitySDK/Testing/Resources/testTitleData.json"
+sh unity_copyTestTitleData.sh "%WORKSPACE%/sdks/UnitySDK/Testing/Resources" delete
 if %errorLevel% NEQ 0 (
     type "%ProjRootPath%\buildAndroidOutput.txt"
     exit /b %errorLevel%
@@ -132,11 +132,26 @@ goto :EOF
 :BuildiPhone
 echo === Build iPhone Target ===
 cd "%ProjRootPath%\%SdkName%_TC"
+pushd "%WORKSPACE%/SDKGenerator/SDKBuildScripts"
+sh unity_copyTestTitleData.sh "%WORKSPACE%/sdks/UnitySDK/Testing/Resources" copy
+popd
 %UnityExe% -projectPath "%ProjRootPath%\%SdkName%_TC" -quit -batchmode -executeMethod PlayFab.Internal.PlayFabPackager.MakeIPhoneBuild -logFile "%ProjRootPath%\buildiPhoneOutput.txt"
+sh unity_copyTestTitleData.sh "%WORKSPACE%/sdks/UnitySDK/Testing/Resources" delete
 if %errorLevel% NEQ 0 (
     type "%ProjRootPath%\buildiPhoneOutput.txt"
     exit /b %errorLevel%
 )
+pushd "%WORKSPACE%/SDKGenerator/SDKBuildScripts"
+sh unity_buildAppCenterTestIOS.sh "%ProjRootPath%/%SdkName%_TC/testBuilds/
+sh runAppCenterTest.sh "PlayFabIOS.apk" "%WORKSPACE%\SDKGenerator\SDKBuildScripts\AppCenterUITestLauncher\AppCenterUITestLauncher\debugassemblies"
+if %errorLevel% NEQ 0 (
+    exit /b %errorLevel%
+)
+call :RunClientJenkernaught3
+if %errorLevel% NEQ 0 (
+    exit /b %errorLevel%
+)
+popd
 goto :EOF
 
 :BuildWp8

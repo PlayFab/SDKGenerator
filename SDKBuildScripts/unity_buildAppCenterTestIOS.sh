@@ -73,7 +73,7 @@ popd
 
 #Download the build if successful, or print the logs if not.
 if [ "$BuildResult" = "\"succeeded\"" ]; then
-appcenter build download --type build --app "PlayFabSDKTeam/PlayFabUnityXCode" --id $BuildNumber --file playfabtest.ipa
+appcenter build download --type build --app "PlayFabSDKTeam/PlayFabUnityXCode" --id $BuildNumber --file PlayFabIOS.ipa
 else
 appcenter build logs --app "PlayFabSDKTeam/PlayFabUnityXCode" --id $BuildNumber
 false

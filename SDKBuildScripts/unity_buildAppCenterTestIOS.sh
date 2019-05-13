@@ -26,6 +26,19 @@ ProjectFolderName=$(basename "$XCodeWorkspaceDirectory")
 rm -fdr "$RepoWorkingDirectory"
 mkdir -p "$RepoWorkingDirectory/.."
 
+#create the appcenter prebuild script in the xcode project
+pushd "$XCodeWorkspaceDirectory"
+touch appcenter-post-clone.sh
+echo '#!/usr/bin/env bash
+
+touch Gemfile
+
+echo -e "source \"https://rubygems.org\"\n\ngem \"calabash-cucumber\", \">= 0.16\", \"< 2.0\"" > Gemfile
+
+bundle ;
+bundle exec calabash-ios download' > appcenter-post-clone.sh
+popd
+
 pushd "$RepoWorkingDirectory/.."
 
 #clone the appcenter build repo to our local workspace
@@ -41,6 +54,7 @@ git push --force
 cp -r "$XCodeWorkspaceDirectory" "$RepoWorkingDirectory/$ProjectFolderName"
 git add .
 git update-index --chmod=+x "$RepoWorkingDirectory/$ProjectFolderName/MapFileParser.sh"
+git update-index --chmod=+x "$RepoWorkingDirectory/$ProjectFolderName/appcenter-post-clone.sh"
 git commit -m "add xcode project for appcenter build"
 git push
 
@@ -53,7 +67,7 @@ BuildStatus="\"notStarted\""
 #monitor the status of the build and wait until it is complete.
 while [ "$BuildStatus" != "\"completed\"" ]
 do 
-sleep 5
+sleep 10
 BuildStatusJSON=$(appcenter build branches show -b $AppCenterGitRepoBranchName -a "PlayFabSDKTeam/PlayFabUnityXCode" --quiet --output json)
 BuildStatus=$(echo "$BuildStatusJSON" | jq .status)
 echo "Build Status: $BuildStatus"
@@ -65,16 +79,15 @@ BuildNumber=$(echo "$BuildStatusJSON" | jq .buildNumber | sed s/\"//g)
 
 echo "Build $BuildNumber has $BuildResult."
 
+#Download the build if successful, or print the logs if not.
+if [ "$BuildResult" = "\"succeeded\"" ]; then
 #Return the appcenter build repo to a clean state for next time.
 git reset --hard $AppCenterGitRepoCleanTag
 git push --force 
-
 popd
-
-#Download the build if successful, or print the logs if not.
-if [ "$BuildResult" = "\"succeeded\"" ]; then
 appcenter build download --type build --app "PlayFabSDKTeam/PlayFabUnityXCode" --id $BuildNumber --file PlayFabIOS.ipa
 else
+popd
 appcenter build logs --app "PlayFabSDKTeam/PlayFabUnityXCode" --id $BuildNumber
 false
 fi

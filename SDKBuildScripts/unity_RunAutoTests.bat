@@ -34,7 +34,7 @@ if [%4]==[] (
 if [%TestAndroid%]==[] (set TestAndroid=true)
 if [%TestiPhone%]==[] (set TestiPhone=true)
 if [%TestWp8%]==[] (set TestWp8=true)
-if [%TestPS4%]==[] (set TestPS4=true)
+if [%TestPS4%]==[] (set TestPS4=false)
 
 call :SetProjDefines
 if %errorLevel% NEQ 0 (exit /b %errorLevel%)

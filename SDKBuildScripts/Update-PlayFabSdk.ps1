@@ -13,8 +13,8 @@ PlayFab repositories.  This script will clone those repositories if necessary an
 the new SDK overtop of the existing one.  This is useful to determine what changes have
 occurred in the SDK.
 
-.PARAMETER SdkNames
-The names of one or more of the supported SDKs to generate an SDK for.
+.PARAMETER SdkName
+The name(s) of the SDKs to generate as an array of strings.
 
 .PARAMETER ApiSpecPath
 The path to a local set of API specifications which will be used to generate the SDK.  If you
@@ -55,7 +55,7 @@ Indicites whether or not to remove all generated source files from the destinati
 Indicates whether or not to include any APIs tagged with as beta.
 
 .EXAMPLE
-Update-PlayFabSdk -SdkNames CSharpSDK
+Update-PlayFabSdk -SdkName CSharpSDK
 
 Run the PlayFab API generation for the CSharp SDK using the API specification documents from
 the PlayFab git repository.
@@ -86,24 +86,30 @@ documents from the example vertical and include all of the beta SDKs.
 [CmdletBinding(SupportsShouldProcess = $true, DefaultParameterSetName = "ApiSpecGitUrl")]
 param(
     [Parameter(Position = 0, ValueFromPipeline = $true, ValueFromPipelineByPropertyName = $true, Mandatory)]
-    [ValidateSet(
-        "ActionScriptSDK",
-        "Cocos2d-xSDK",
-        "CSharpSDK",
-        "JavaSDK",
-        "JavaScriptSDK",
-        "LuaSDK",
-        "NodeSDK",
-        "Objective_C_SDK",
-        "PhpSDK",
-        "PostmanCollection",
-        "PythonSDK",
-        "SdkTestingCloudScript",
-        "UnrealMarketplacePlugin",
-        "UnitySDK",
-        "WindowsSDK",
-        "XPlatCppSDK")]
-    [string[]]$SdkNames,
+    [ArgumentCompleter(
+        {
+            param($Command, $Parameter, $WordToComplete, $CommandAst, $FakeBoundParams)
+            @(
+                "ActionScriptSDK",
+                "Cocos2d-xSDK",
+                "CSharpSDK",
+                "JavaSDK",
+                "JavaScriptSDK",
+                "LuaSDK",
+                "NodeSDK",
+                "Objective_C_SDK",
+                "PhpSDK",
+                "PostmanCollection",
+                "PythonSDK",
+                "SdkTestingCloudScript",
+                "UnrealMarketplacePlugin",
+                "UnitySDK",
+                "WindowsSDK",
+                "XPlatCppSDK"
+             ) -like "$WordToComplete*"
+        }
+    )]
+    [string[]]$SdkName,
     [Parameter(ParameterSetName="ApiSpecPath", ValueFromPipelineByPropertyName = $true)]
     [AllowEmptyString()]
     [string]$ApiSpecPath,
@@ -164,16 +170,6 @@ begin
         mkdir $sdksPath | Out-Null
     }
 
-    if($PSCmdlet.ParameterSetName -eq "ApiSpecPfUrlCloudVertical")
-    {
-        if($Vertical -or $Cloud)
-        {
-            # If either cloud or vertical is not provided, we want to remove the leading or trailing dot.
-            $cloudVertical = "$Vertical.$Cloud".TrimEnd(".")
-            $ApiSpecPfUrl = "https://$cloudVertical.playfabapi.com/apispec"
-        }
-    }
-
     if($PSCmdlet.ParameterSetName -eq "ApiSpecPath")
     {
         $apiSpecSource = "-apiSpecPath"
@@ -188,9 +184,21 @@ begin
             $apiSpecSource += " $ApiSpecPath"
         }
     }
-    elseif($PSCmdlet.ParameterSetName -eq "ApiSpecPfUrl")
+    elseif($PSCmdlet.ParameterSetName -eq "ApiSpecPfUrl" -or $PSCmdlet.ParameterSetName -eq "ApiSpecPfUrlCloudVertical")
     {
         $apiSpecSource = "-apiSpecPfUrl"
+
+        if($PSCmdlet.ParameterSetName -eq "ApiSpecPfUrlCloudVertical")
+        {
+            if(!$Cloud -and !$Vertical)
+            {
+                throw "You must provide a value for Cloud or Vertical"
+            }
+
+            # If either cloud or vertical is not provided, we want to remove the leading or trailing dot.
+            $cloudVertical = "$Vertical.$Cloud".TrimEnd(".")
+            $ApiSpecPfUrl = "https://$cloudVertical.playfabapi.com/apispec"
+        }
 
         if($ApiSpecPfUrl -and ($ApiSpecPfUrl -ne "default"))
         {
@@ -222,11 +230,17 @@ begin
 
 process
 {
-    foreach($sdkName in $SdkNames)
+    foreach($sdkName in $SdkName)
     {
-        if(!$TargetSource)
+        $sdkTargetSource = $TargetSource
+        if(!$sdkTargetSource)
         {
-            $TargetSource = $sdkTargetSrcMap[$sdkName]
+            $sdkTargetSource = $sdkTargetSrcMap[$sdkName]
+            Write-Verbose "Setting Targetsource to $sdkTargetSource for $sdkName"
+            if(!$sdkTargetSource)
+            {
+                throw "Unable to determine TargetSource for '$sdkName'.  You must explicitly provide a value."
+            }
         }
 
         $destPath = Join-Path $sdksPath $sdkName
@@ -273,7 +287,7 @@ process
             $sdkGenArgs = "-flags $($sdkGenArgValues -join " ")"
         }
 
-        $expression = "node generate.js `"$TargetSource=$destPath`" $apiSpecSource $sdkGenArgs $buildIdentifier".Trim()
+        $expression = "node generate.js `"$sdkTargetSource=$destPath`" $apiSpecSource $sdkGenArgs $buildIdentifier".Trim()
         if($PSCmdlet.ShouldProcess(
             "Executing '$expression'.",
             "Would you like to generate $sdkName into '$destPath'?",

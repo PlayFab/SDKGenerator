@@ -116,7 +116,7 @@ if %errorLevel% NEQ 0 (
     exit /b %errorLevel%
 )
 pushd "%WORKSPACE%/SDKGenerator/SDKBuildScripts"
-sh runAppCenterTest.sh "%ProjRootPath%\%SdkName%_TC\testBuilds\PlayFabAndroid.apk" "%WORKSPACE%\SDKGenerator\SDKBuildScripts\AppCenterUITestLauncher\AppCenterUITestLauncher\debugassemblies"
+sh runAppCenterTest.sh "%ProjRootPath%\%SdkName%_TC\testBuilds\PlayFabAndroid.apk" "%WORKSPACE%\SDKGenerator\SDKBuildScripts\AppCenterUITestLauncher\AppCenterUITestLauncher\debugassemblies" android
 if %errorLevel% NEQ 0 (
     exit /b %errorLevel%
 )
@@ -143,7 +143,7 @@ if %errorLevel% NEQ 0 (
 )
 pushd "%WORKSPACE%/SDKGenerator/SDKBuildScripts"
 sh unity_buildAppCenterTestIOS.sh "%ProjRootPath%/%SdkName%_TC/testBuilds/PlayFabIOS" "%WORKSPACE%/vso/PlayFabUnityXCodeTestProject" "git@ssh.dev.azure.com:v3/mimacken/PlayFabUnityXCodeTestProject/PlayFabUnityXCodeTestProject" master init
-sh runAppCenterTest.sh PlayFabIOS.ipa "%WORKSPACE%\SDKGenerator\SDKBuildScripts\AppCenterUITestLauncher\AppCenterUITestLauncher\debugassemblies"
+sh runAppCenterTest.sh "%WORKSPACE%/SDKGenerator/SDKBuildScripts/PlayFabIOS.ipa" "%WORKSPACE%\SDKGenerator\SDKBuildScripts\AppCenterUITestLauncher\AppCenterUITestLauncher\debugassemblies" ios
 if %errorLevel% NEQ 0 (
     exit /b %errorLevel%
 )

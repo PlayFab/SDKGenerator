@@ -42,7 +42,8 @@ namespace XamarinUITestExperiment
             {
                 while (app.Query(x => x.Index(0)).Count() > 0)
                 {
-                    System.Threading.Thread.Sleep(500);
+                    System.Threading.Thread.Sleep(1000);
+                    app.Screenshot("Waiting...");
                 }
             }
             catch(System.Exception e) {

@@ -32,10 +32,7 @@ namespace PlayFab.CloudScriptModels
                 var contextInternal = Json.PlayFabSimpleJson.DeserializeObject<FunctionExecutionContextInternal>(body);
                 var settings = new PlayFabApiSettings
                 {
-                    TitleId = contextInternal.TitleAuthenticationContext.Id,
-#if ENABLE_PLAYFABSERVER_API || ENABLE_PLAYFABADMIN_API
-                    DeveloperSecretKey = contextInternal.TitleAuthenticationContext.SecretKey
-#endif
+                    TitleId = contextInternal.TitleAuthenticationContext.Id
                 };
                 var authContext = new PlayFabAuthenticationContext
                 {
@@ -64,7 +61,6 @@ namespace PlayFab.CloudScriptModels
         private class TitleAuthenticationContext
         {
             public string Id { get; set; }
-            public string SecretKey { get; set; }
             public string EntityToken { get; set; }
         }
     }

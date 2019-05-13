@@ -138,7 +138,7 @@ goto :EOF
 :BuildPS4
 echo === Build PS4 Target ===
 cd "%ProjRootPath%\%SdkName%_PS4"
-%UnityExe% -projectPath "%ProjRootPath%\%SdkName%_PS4" -quit -batchmode -executeMethod PlayFab.Internal.PlayFabPackager.MakePS4Build -logFile "%ProjRootPath%\buildPS4Output.txt"
+%UnityExe% -projectPath="%ProjRootPath%\%SdkName%_PS4" -quit -batchmode -executeMethod PlayFab.Internal.PlayFabPackager.MakePS4Build -logFile "%ProjRootPath%\buildPS4Output.txt"
 if %errorLevel% NEQ 0 (
     type "%ProjRootPath%\buildPS4Output.txt"
     exit /b %errorLevel%

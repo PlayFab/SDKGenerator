@@ -1,35 +1,42 @@
 namespace PlayFab.CloudScriptModels
 {
+    using PlayFab.AdminModels;
+    using PlayFab.Json;
+    using PlayFab.ProfilesModels;
+    using System.Collections.Generic;
+    using System.Net.Http;
     using System.Threading.Tasks;
+
     /// <summary>
     /// Used for extracting the data fields incoming as payload to Azure Functions into their respective objects. 
+    /// Meant to be used with basic HTTP based Azure Functions.
     /// Provides  fields through ApiSettings and AuthenticationContext, the profile of the caller, as well as the 
     /// arguments passed to the execution request.
     /// </summary>
     /// <typeparam name="TFunctionArgument">Type of FunctionArgument</typeparam>
-    public class FunctionExecutionContext<TFunctionArgument>
+    public class FunctionContext<TFunctionArgument>
     {
         public PlayFabApiSettings ApiSettings { get; private set; }
 
         public PlayFabAuthenticationContext AuthenticationContext { get; set; }
 
-        public ProfilesModels.EntityProfileBody CallerEntityProfile { get; set; }
+        public EntityProfileBody CallerEntityProfile { get; set; }
 
         public TFunctionArgument FunctionArgument { get; set; }
 
-        protected FunctionExecutionContext() { }
+        protected FunctionContext() { }
 
         /// <summary>
-        /// Creates a new <c>FunctionExecutionContext</c> out of the incoming request to an Azure Function.
+        /// Creates a new <c>FunctionContext</c> out of the incoming request to an Azure Function.
         /// </summary>
         /// <param name="request">The request incoming to an Azure Function from the PlayFab server</param>
-        /// <returns>A new populated <c>FunctionExecutionContext</c> instance</returns>
-        public static async Task<FunctionExecutionContext<TFunctionArgument>> Create(System.Net.Http.HttpRequestMessage request)
+        /// <returns>A new populated <c>FunctionContext</c> instance</returns>
+        public static async Task<FunctionContext<TFunctionArgument>> Create(HttpRequestMessage request)
         {
             using (var content = request.Content) 
             {
                 var body = await content.ReadAsStringAsync();
-                var contextInternal = Json.PlayFabSimpleJson.DeserializeObject<FunctionExecutionContextInternal>(body);
+                var contextInternal = Json.PlayFabSimpleJson.DeserializeObject<FunctionContextInternal>(body);
                 var settings = new PlayFabApiSettings
                 {
                     TitleId = contextInternal.TitleAuthenticationContext.Id
@@ -39,7 +46,7 @@ namespace PlayFab.CloudScriptModels
                     EntityToken = contextInternal.TitleAuthenticationContext.EntityToken
                 };
 
-                return new FunctionExecutionContext<TFunctionArgument>()
+                return new FunctionContext<TFunctionArgument>()
                 {
                     ApiSettings = settings,
                     CallerEntityProfile = contextInternal.CallerEntityProfile,
@@ -49,7 +56,7 @@ namespace PlayFab.CloudScriptModels
             }
         }
 
-        private class FunctionExecutionContextInternal
+        private class FunctionContextInternal
         {
             public TitleAuthenticationContext TitleAuthenticationContext { get; set; }
 
@@ -57,15 +64,162 @@ namespace PlayFab.CloudScriptModels
 
             public TFunctionArgument FunctionArgument { get; set; }
         }
+    }
 
-        private class TitleAuthenticationContext
+    public class FunctionContext : FunctionContext<object>
+    {
+    }
+
+    /// <summary>
+    /// Used for extracting the data fields incoming as payload to Azure Functions into their respective objects. 
+    /// Meant to be used with Player PlayStream based Azure Functions
+    /// Provides  fields through ApiSettings and AuthenticationContext, the profile of the caller, as well as the 
+    /// arguments passed to the execution request.
+    /// </summary>
+    /// <typeparam name="TFunctionArgument">Type of FunctionArgument</typeparam>
+    public class FunctionPlayerPlayStreamContext<TFunctionArgument>
+    {
+        public PlayFabApiSettings ApiSettings { get; private set; }
+
+        public PlayFabAuthenticationContext AuthenticationContext { get; set; }
+
+        public PlayStreamEventEnvelope PlayStreamEventEnvelope { get; set; }
+
+        public PlayerProfile PlayerProfile { get; set; }
+
+        public TFunctionArgument FunctionArgument { get; set; }
+
+        protected FunctionPlayerPlayStreamContext() { }
+
+        /// <summary>
+        /// Creates a new <c>FunctionPlayerPlayStreamContext</c> out of the incoming request to an Azure Function.
+        /// </summary>
+        /// <param name="request">The request incoming to an Azure Function from the PlayFab server</param>
+        /// <returns>A new populated <c>FunctionPlayerPlayStreamContext</c> instance</returns>
+        public static async Task<FunctionPlayerPlayStreamContext<TFunctionArgument>> Create(HttpRequestMessage request)
         {
-            public string Id { get; set; }
-            public string EntityToken { get; set; }
+            using (var content = request.Content)
+            {
+                var body = await content.ReadAsStringAsync();
+                var contextInternal = PlayFabSimpleJson.DeserializeObject<FunctionPlayerPlayStreamContextInternal>(body);
+                var settings = new PlayFabApiSettings
+                {
+                    TitleId = contextInternal.TitleAuthenticationContext.Id
+                };
+                var authContext = new PlayFabAuthenticationContext
+                {
+                    EntityToken = contextInternal.TitleAuthenticationContext.EntityToken
+                };
+
+                return new FunctionPlayerPlayStreamContext<TFunctionArgument>()
+                {
+                    ApiSettings = settings,
+                    AuthenticationContext = authContext,
+                    PlayStreamEventEnvelope = contextInternal.PlayStreamEventEnvelope,
+                    PlayerProfile = contextInternal.PlayerProfile,
+                    FunctionArgument = contextInternal.FunctionArgument,
+                };
+            }
+        }
+
+        private class FunctionPlayerPlayStreamContextInternal
+        {
+            public TFunctionArgument FunctionArgument { get; set; }
+
+            public PlayStreamEventEnvelope PlayStreamEventEnvelope { get; set; }
+
+            public PlayerProfile PlayerProfile { get; set; }
+
+            public TitleAuthenticationContext TitleAuthenticationContext { get; set; }
         }
     }
 
-    public class FunctionExecutionContext : FunctionExecutionContext<object>
+    /// <summary>
+    /// Used for extracting the data fields incoming as payload to Azure Functions into their respective objects. 
+    /// Meant to be used with task based Azure Functions.
+    /// Provides  fields through ApiSettings and AuthenticationContext, the profile of the caller, as well as the 
+    /// arguments passed to the execution request.
+    /// </summary>
+    /// <typeparam name="TFunctionArgument">Type of FunctionArgument</typeparam>
+    public class FunctionTaskContext<TFunctionArgument>
     {
+        public PlayFabApiSettings ApiSettings { get; private set; }
+
+        public PlayFabAuthenticationContext AuthenticationContext { get; set; }
+
+        public NameIdentifier ScheduledTaskNameId { get; set; }
+
+        public Stack<PlayStreamEventHistory> EventHistory { get; set; }
+
+        public TFunctionArgument FunctionArgument { get; set; }
+
+        protected FunctionTaskContext() { }
+
+        /// <summary>
+        /// Creates a new <c>FunctionTaskContext</c> out of the incoming request to an Azure Function.
+        /// </summary>
+        /// <param name="request">The request incoming to an Azure Function from the PlayFab server</param>
+        /// <returns>A new populated <c>FunctionTaskContext</c> instance</returns>
+        public static async Task<FunctionTaskContext<TFunctionArgument>> Create(HttpRequestMessage request)
+        {
+            using (var content = request.Content)
+            {
+                var body = await content.ReadAsStringAsync();
+                var contextInternal = PlayFabSimpleJson.DeserializeObject<FunctionTaskContextInternal>(body);
+                var settings = new PlayFabApiSettings
+                {
+                    TitleId = contextInternal.TitleAuthenticationContext.Id
+                };
+                var authContext = new PlayFabAuthenticationContext
+                {
+                    EntityToken = contextInternal.TitleAuthenticationContext.EntityToken
+                };
+
+                return new FunctionTaskContext<TFunctionArgument>()
+                {
+                    ApiSettings = settings,
+                    AuthenticationContext = authContext,
+                    ScheduledTaskNameId = contextInternal.ScheduledTaskNameId,
+                    EventHistory = contextInternal.EventHistory,
+                    FunctionArgument = contextInternal.FunctionArgument
+                };
+            }
+        }
+
+        private class FunctionTaskContextInternal
+        {
+            public NameIdentifier ScheduledTaskNameId { get; set; }
+
+            public Stack<PlayStreamEventHistory> EventHistory { get; set; }
+
+            public TitleAuthenticationContext TitleAuthenticationContext { get; set; }
+
+            public TFunctionArgument FunctionArgument { get; set; }
+        }
+    }
+
+    public class PlayStreamEventEnvelope
+    {
+        public string EntityId { get; set; }
+        public string EntityType { get; set; }
+        public string EventName { get; set; }
+        public string EventNamespace { get; set; }
+        public dynamic EventData { get; set; }
+        public string EventSettings { get; set; }
+    }
+
+    public class PlayStreamEventHistory
+    {
+        public string ParentTriggerId { get; set; }
+
+        public string ParentEventId { get; set; }
+
+        public bool TriggeredEvents { get; set; }
+    }
+
+    internal class TitleAuthenticationContext
+    {
+        public string Id { get; set; }
+        public string EntityToken { get; set; }
     }
 }

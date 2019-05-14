@@ -42,10 +42,12 @@ popd
 pushd "$RepoWorkingDirectory/.."
 
 #clone the appcenter build repo to our local workspace
+NewBranch=0
 git clone "$AppCenterGitRepoURL"
 git checkout "$AppCenterGitRepoBranchName"
 if [ $? -ne 0 ] 
 then
+    echo "Failed to checkout existing branch: $AppCenterGitRepoBranchName. Creating as new branch."
     git checkout -b "$AppCenterGitRepoBranchName"
     NewBranch=1
 else

@@ -6,6 +6,7 @@ rem Requires the following environment variables:
 rem   TestAndroid - (Optional - Default true if unset) set to "false" (without quotes) to skip building Android APK
 rem   TestiPhone - (Optional - Default true if unset) set to "false" (without quotes) to skip building iOS XCode project
 rem   TestWp8 - (Optional - Default true if unset) set to "false" (without quotes) to skip building Windows Universal 8 vs-sln
+rem   TestPS4 - (Optional - Default true if unset) set to "false" (without quotes) to skip building PS4
 rem   UNITY_PUBLISH_VERSION - (Not required if %1 is defined) Versioned Unity executable name (Assumes multiple potential Unity installations, all in your PATH, each uniquely renamed)
 rem   EXECUTOR_NUMBER - (Not required if %4 is defined) Automatic Jenkins variable
 
@@ -33,6 +34,7 @@ if [%4]==[] (
 if [%TestAndroid%]==[] (set TestAndroid=true)
 if [%TestiPhone%]==[] (set TestiPhone=true)
 if [%TestWp8%]==[] (set TestWp8=true)
+if [%TestPS4%]==[] (set TestPS4=false)
 
 call :SetProjDefines
 if %errorLevel% NEQ 0 (exit /b %errorLevel%)
@@ -47,6 +49,8 @@ if %errorLevel% NEQ 0 (exit /b %errorLevel%)
 IF [%TestiPhone%]==[true] (call :BuildiPhone)
 if %errorLevel% NEQ 0 (exit /b %errorLevel%)
 IF [%TestWp8%]==[true] (call :BuildWp8)
+if %errorLevel% NEQ 0 (exit /b %errorLevel%)
+IF [%TestPS4%]==[true] (call :BuildPS4)
 endlocal
 exit /b %errorLevel%
 
@@ -160,6 +164,16 @@ cd "%ProjRootPath%\%SdkName%_TC"
 %UnityExe% -projectPath "%ProjRootPath%\%SdkName%_TC" -quit -batchmode -executeMethod PlayFab.Internal.PlayFabPackager.MakeWp8Build -logFile "%ProjRootPath%\buildWp8Output.txt"
 if %errorLevel% NEQ 0 (
     type "%ProjRootPath%\buildWp8Output.txt"
+    exit /b %errorLevel%
+)
+goto :EOF
+
+:BuildPS4
+echo === Build PS4 Target ===
+cd "%ProjRootPath%\%SdkName%_TC"
+%UnityExe% -projectPath="%ProjRootPath%\%SdkName%_TC" -quit -batchmode -executeMethod PlayFab.Internal.PlayFabPackager.MakePS4Build -logFile "%ProjRootPath%\buildPS4Output.txt"
+if %errorLevel% NEQ 0 (
+    type "%ProjRootPath%\buildPS4Output.txt"
     exit /b %errorLevel%
 )
 goto :EOF

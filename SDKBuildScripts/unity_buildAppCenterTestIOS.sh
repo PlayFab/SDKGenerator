@@ -44,18 +44,18 @@ pushd "$RepoWorkingDirectory/.."
 #clone the appcenter build repo to our local workspace
 git clone "$AppCenterGitRepoURL"
 git checkout "$AppCenterGitRepoBranchName"
-NewBranch=0
-if [ $? -ne 0 ]; then
-        git checkout -b "$AppCenterGitRepoBranchName"
-        NewBranch=1
+if [ $? -ne 0 ] 
+then
+    git checkout -b "$AppCenterGitRepoBranchName"
+    NewBranch=1
+else
+    cd $(basename "$AppCenterGitRepoURL")
+
+    #bring the repo back to a clean state
+    git fetch --tags 
+    git reset --hard $AppCenterGitRepoCleanTag
+    git push --force
 fi
-
-cd $(basename "$AppCenterGitRepoURL")
-
-#bring the repo back to a clean state
-git fetch --tags 
-git reset --hard $AppCenterGitRepoCleanTag
-git push --force
 
 #copy the xcode workspace into the appcenter git repo
 cp -r "$XCodeWorkspaceDirectory" "$RepoWorkingDirectory/$ProjectFolderName"

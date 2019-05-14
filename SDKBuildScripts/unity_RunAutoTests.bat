@@ -138,7 +138,13 @@ goto :EOF
 :BuildPS4
 echo === Build PS4 Target ===
 cd "%ProjRootPath%\%SdkName%_TC"
+pushd "%WORKSPACE%/SDKGenerator/SDKBuildScripts"
+sh unity_copyTestTitleData.sh "%WORKSPACE%/sdks/UnitySDK/Testing/Resources" copy
+popd
 %UnityExe% -projectPath="%ProjRootPath%\%SdkName%_TC" -quit -batchmode -executeMethod PlayFab.Internal.PlayFabPackager.MakePS4Build -logFile "%ProjRootPath%\buildPS4Output.txt"
+pushd "%WORKSPACE%/SDKGenerator/SDKBuildScripts"
+sh unity_copyTestTitleData.sh "%WORKSPACE%/sdks/UnitySDK/Testing/Resources" delete
+popd
 if %errorLevel% NEQ 0 (
     type "%ProjRootPath%\buildPS4Output.txt"
     exit /b %errorLevel%

@@ -42,7 +42,14 @@ popd
 pushd "$RepoWorkingDirectory/.."
 
 #clone the appcenter build repo to our local workspace
-git clone -b $AppCenterGitRepoBranchName --single-branch "$AppCenterGitRepoURL"
+git clone "$AppCenterGitRepoURL"
+git checkout "$AppCenterGitRepoBranchName"
+NewBranch=0
+if [ $? -ne 0 ]; then
+        git checkout -b "$AppCenterGitRepoBranchName"
+        NewBranch=1
+fi
+
 cd $(basename "$AppCenterGitRepoURL")
 
 #bring the repo back to a clean state
@@ -56,6 +63,17 @@ git add .
 git update-index --chmod=+x "$RepoWorkingDirectory/$ProjectFolderName/MapFileParser.sh"
 git update-index --chmod=+x "$RepoWorkingDirectory/$ProjectFolderName/appcenter-post-clone.sh"
 git commit -m "add xcode project for appcenter build"
+
+#if a new branch was created AppCenter needs to be manually configured for this branch.  
+if [ $NewBranch -eq 1 ]; then
+git push -u origin "$AppCenterGitRepoBranchName"
+echo 'ERROR: Unity Job '"$AppCenterGitRepoBranchName"' did not yet exist.'
+echo "The branch has been created and populated, but must be manually configured in AppCenter."
+echo "Please try again once the AppCenter build branch has been properly configured."
+false
+exit
+fi
+
 git push
 
 #queue the appcenter build

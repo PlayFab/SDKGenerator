@@ -146,7 +146,7 @@ namespace PlayFab.CloudScriptModels
 
         public PlayFabAuthenticationContext AuthenticationContext { get; set; }
 
-        public ClientModels.NameIdentifier ScheduledTaskNameId { get; set; }
+        public NameIdentifier ScheduledTaskNameId { get; set; }
 
         public Stack<PlayStreamEventHistory> EventHistory { get; set; }
 
@@ -187,7 +187,7 @@ namespace PlayFab.CloudScriptModels
 
         private class FunctionTaskContextInternal
         {
-            public ClientModels.NameIdentifier ScheduledTaskNameId { get; set; }
+            public NameIdentifier ScheduledTaskNameId { get; set; }
 
             public Stack<PlayStreamEventHistory> EventHistory { get; set; }
 
@@ -195,6 +195,13 @@ namespace PlayFab.CloudScriptModels
 
             public TFunctionArgument FunctionArgument { get; set; }
         }
+    }
+
+    public class NameIdentifier
+    {
+        public string Name { get; set; }
+
+        public string Id { get; set; }
     }
 
     public class PlayStreamEventEnvelope

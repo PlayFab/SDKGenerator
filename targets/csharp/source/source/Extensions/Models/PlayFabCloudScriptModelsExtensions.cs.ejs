@@ -1,9 +1,7 @@
 #if NET45 || NETCOREAPP2_0
 namespace PlayFab.CloudScriptModels
 {
-    using PlayFab.AdminModels;
     using PlayFab.Json;
-    using PlayFab.ProfilesModels;
     using System.Collections.Generic;
     using System.Net.Http;
     using System.Threading.Tasks;
@@ -21,7 +19,7 @@ namespace PlayFab.CloudScriptModels
 
         public PlayFabAuthenticationContext AuthenticationContext { get; set; }
 
-        public EntityProfileBody CallerEntityProfile { get; set; }
+        public ProfilesModels.EntityProfileBody CallerEntityProfile { get; set; }
 
         public TFunctionArgument FunctionArgument { get; set; }
 
@@ -86,7 +84,7 @@ namespace PlayFab.CloudScriptModels
 
         public PlayStreamEventEnvelope PlayStreamEventEnvelope { get; set; }
 
-        public PlayerProfile PlayerProfile { get; set; }
+        public AdminModels.PlayerProfile PlayerProfile { get; set; }
 
         public TFunctionArgument FunctionArgument { get; set; }
 
@@ -129,7 +127,7 @@ namespace PlayFab.CloudScriptModels
 
             public PlayStreamEventEnvelope PlayStreamEventEnvelope { get; set; }
 
-            public PlayerProfile PlayerProfile { get; set; }
+            public AdminModels.PlayerProfile PlayerProfile { get; set; }
 
             public TitleAuthenticationContext TitleAuthenticationContext { get; set; }
         }
@@ -148,7 +146,7 @@ namespace PlayFab.CloudScriptModels
 
         public PlayFabAuthenticationContext AuthenticationContext { get; set; }
 
-        public NameIdentifier ScheduledTaskNameId { get; set; }
+        public AdminModels.NameIdentifier ScheduledTaskNameId { get; set; }
 
         public Stack<PlayStreamEventHistory> EventHistory { get; set; }
 
@@ -189,7 +187,7 @@ namespace PlayFab.CloudScriptModels
 
         private class FunctionTaskContextInternal
         {
-            public NameIdentifier ScheduledTaskNameId { get; set; }
+            public AdminModels.NameIdentifier ScheduledTaskNameId { get; set; }
 
             public Stack<PlayStreamEventHistory> EventHistory { get; set; }
 
@@ -205,7 +203,7 @@ namespace PlayFab.CloudScriptModels
         public string EntityType { get; set; }
         public string EventName { get; set; }
         public string EventNamespace { get; set; }
-        public dynamic EventData { get; set; }
+        public string EventData { get; set; }
         public string EventSettings { get; set; }
     }
 

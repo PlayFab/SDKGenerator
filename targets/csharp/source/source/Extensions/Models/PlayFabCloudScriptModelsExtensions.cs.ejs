@@ -1,3 +1,4 @@
+#if NET45 || NETCOREAPP2_0
 namespace PlayFab.CloudScriptModels
 {
     using PlayFab.AdminModels;
@@ -204,11 +205,7 @@ namespace PlayFab.CloudScriptModels
         public string EntityType { get; set; }
         public string EventName { get; set; }
         public string EventNamespace { get; set; }
-#if NET45 || NETCOREAPP2_0
         public dynamic EventData { get; set; }
-#else
-        public string EventData { get; set; }
-#endif
         public string EventSettings { get; set; }
     }
 
@@ -227,3 +224,4 @@ namespace PlayFab.CloudScriptModels
         public string EntityToken { get; set; }
     }
 }
+#endif

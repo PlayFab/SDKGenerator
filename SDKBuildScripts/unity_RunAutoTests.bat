@@ -146,7 +146,7 @@ if %errorLevel% NEQ 0 (
     exit /b %errorLevel%
 )
 pushd "%WORKSPACE%/SDKGenerator/SDKBuildScripts"
-sh unity_buildAppCenterTestIOS.sh "%ProjRootPath%/%SdkName%_TC/testBuilds/PlayFabIOS" "%WORKSPACE%/vso/PlayFabUnityXCodeTestProject" "git@ssh.dev.azure.com:v3/mimacken/PlayFabUnityXCodeTestProject/PlayFabUnityXCodeTestProject" master init
+sh unity_buildAppCenterTestIOS.sh "%ProjRootPath%/%SdkName%_TC/testBuilds/PlayFabIOS" "%WORKSPACE%/vso/PlayFabUnityXCodeTestProject" "git@ssh.dev.azure.com:v3/mimacken/PlayFabUnityXCodeTestProject/PlayFabUnityXCodeTestProject" %JOB_NAME% init
 sh runAppCenterTest.sh "%WORKSPACE%/SDKGenerator/SDKBuildScripts/PlayFabIOS.ipa" "%WORKSPACE%\SDKGenerator\SDKBuildScripts\AppCenterUITestLauncher\AppCenterUITestLauncher\debugassemblies" ios
 if %errorLevel% NEQ 0 (
     exit /b %errorLevel%

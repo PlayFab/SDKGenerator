@@ -84,7 +84,7 @@ namespace PlayFab.CloudScriptModels
 
         public PlayStreamEventEnvelope PlayStreamEventEnvelope { get; set; }
 
-        public AdminModels.PlayerProfile PlayerProfile { get; set; }
+        public ServerModels.PlayerProfile PlayerProfile { get; set; }
 
         public TFunctionArgument FunctionArgument { get; set; }
 
@@ -127,7 +127,7 @@ namespace PlayFab.CloudScriptModels
 
             public PlayStreamEventEnvelope PlayStreamEventEnvelope { get; set; }
 
-            public AdminModels.PlayerProfile PlayerProfile { get; set; }
+            public ServerModels.PlayerProfile PlayerProfile { get; set; }
 
             public TitleAuthenticationContext TitleAuthenticationContext { get; set; }
         }
@@ -146,7 +146,7 @@ namespace PlayFab.CloudScriptModels
 
         public PlayFabAuthenticationContext AuthenticationContext { get; set; }
 
-        public AdminModels.NameIdentifier ScheduledTaskNameId { get; set; }
+        public ClientModels.NameIdentifier ScheduledTaskNameId { get; set; }
 
         public Stack<PlayStreamEventHistory> EventHistory { get; set; }
 
@@ -187,7 +187,7 @@ namespace PlayFab.CloudScriptModels
 
         private class FunctionTaskContextInternal
         {
-            public AdminModels.NameIdentifier ScheduledTaskNameId { get; set; }
+            public ClientModels.NameIdentifier ScheduledTaskNameId { get; set; }
 
             public Stack<PlayStreamEventHistory> EventHistory { get; set; }
 

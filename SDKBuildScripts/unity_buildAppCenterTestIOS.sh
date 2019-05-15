@@ -49,6 +49,8 @@ if [ $? -ne 0 ]
 then
     echo "Failed to checkout existing branch: $AppCenterGitRepoBranchName. Creating as new branch."
     git checkout -b "$AppCenterGitRepoBranchName"
+    mkdir $(basename "$AppCenterGitRepoURL")
+    cd $(basename "$AppCenterGitRepoURL")
     NewBranch=1
 else
     cd $(basename "$AppCenterGitRepoURL")

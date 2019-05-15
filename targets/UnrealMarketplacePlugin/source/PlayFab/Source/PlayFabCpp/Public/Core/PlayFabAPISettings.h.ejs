@@ -16,9 +16,9 @@ public:
         , BaseServiceHost(PlayFab::PlayFabSettings::GetProductionEnvironmentURL())
         , TitleId(PlayFab::PlayFabSettings::GetTitleId())
 #ifndef DISABLE_PLAYFABCLIENT_API
-		, AdvertisingIdType(PlayFab::PlayFabSettings::GetAdvertisingIdType())
-		, AdvertisingIdValue(PlayFab::PlayFabSettings::GetAdvertisingIdValue())
-		, DisableAdvertising(PlayFab::PlayFabSettings::GetDisableAdvertising())
+        , AdvertisingIdType(PlayFab::PlayFabSettings::GetAdvertisingIdType())
+        , AdvertisingIdValue(PlayFab::PlayFabSettings::GetAdvertisingIdValue())
+        , DisableAdvertising(PlayFab::PlayFabSettings::GetDisableAdvertising())
 #endif
     {
     }

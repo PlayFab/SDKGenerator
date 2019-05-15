@@ -78,6 +78,11 @@ git push
 
 #queue the appcenter build
 appcenter build queue --app "PlayFabSDKTeam/PlayFabUnityXCode" --branch $AppCenterGitRepoBranchName --quiet -d 
+if [ $? -ne 0 ]; then
+echo "Error queueing build!"
+false
+exit
+fi
 
 BuildStatusJSON=$(appcenter build branches show -b $AppCenterGitRepoBranchName -a "PlayFabSDKTeam/PlayFabUnityXCode" --quiet --output json)
 BuildStatus="\"notStarted\""

@@ -44,7 +44,7 @@ pushd "$RepoWorkingDirectory/.."
 #clone the appcenter build repo to our local workspace
 NewBranch=0
 git clone "$AppCenterGitRepoURL"
-cd $(basename "$AppCenterGitRepoURL | sed -e 's/.git//g')
+cd $(basename "$AppCenterGitRepoURL" | sed -e 's/.git//g')
 git fetch --tags 
 git reset --hard $AppCenterGitRepoCleanTag
 git push --force

@@ -20,7 +20,7 @@ AppCenterGitRepoBranchName=$4
 AppCenterGitRepoCleanTag=$5
 
 #DERIVED FROM INPUTS
-ProjectFolderName=$(basename "$XCodeWorkspaceDirectory")
+ProjectFolderName=$(basename "$XCodeWorkspaceDirectory" | sed -e 's/.git//g')
 
 #remove cruft from previous runs, if any.
 rm -fdr "$RepoWorkingDirectory"

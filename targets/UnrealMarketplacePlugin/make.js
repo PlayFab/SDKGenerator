@@ -31,9 +31,9 @@ exports.makeCombinedAPI = function (apis, sourceDir, baseApiOutputDir) {
 
     // The list of current supported UE versions - Intended to be the latest 3
     const ueTargetVersions = [
-        new TargetVersion(4, 19, 2),
         new TargetVersion(4, 20, 3),
-        new TargetVersion(4, 21, 2)
+        new TargetVersion(4, 21, 2),
+        new TargetVersion(4, 22, 1)
     ];
 
     var ueWhitelistPlatforms = '[ "Win64", "Win32", "Mac", "IOS", "Android", "PS4", "XBox" ]'; // TODO: Add Switch once the testing story is done

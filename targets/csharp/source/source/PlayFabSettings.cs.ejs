@@ -50,7 +50,9 @@ namespace PlayFab
 #endif
 <% } %>        #endregion Deprecated staticSettingsredirect properties
 
+#if !NET45 && !NETCOREAPP2_0
         private static string _localApiServer;
+#endif
 
         public static string LocalApiServer
         {

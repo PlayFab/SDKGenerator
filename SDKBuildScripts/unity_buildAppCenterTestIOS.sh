@@ -45,19 +45,16 @@ pushd "$RepoWorkingDirectory/.."
 NewBranch=0
 git clone "$AppCenterGitRepoURL"
 cd $(basename "$AppCenterGitRepoURL")
+git fetch --tags 
+git reset --hard $AppCenterGitRepoCleanTag
+git push --force
+
 git checkout "$AppCenterGitRepoBranchName"
 if [ $? -ne 0 ] 
 then
     echo "Failed to checkout existing branch: $AppCenterGitRepoBranchName. Creating as new branch."
     git checkout -b "$AppCenterGitRepoBranchName"
     NewBranch=1
-else
-    cd $(basename "$AppCenterGitRepoURL")
-
-    #bring the repo back to a clean state
-    git fetch --tags 
-    git reset --hard $AppCenterGitRepoCleanTag
-    git push --force
 fi
 
 #copy the xcode workspace into the appcenter git repo

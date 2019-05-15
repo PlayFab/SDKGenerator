@@ -26,7 +26,9 @@ namespace PlayFab
 
     public static partial class PlayFabUtil
     {
+#if NET45 || NETCOREAPP2_0
         private static string _localSettingsFileName = "playfab.local.settings.json";
+#endif
         public static readonly string[] DefaultDateTimeFormats = { // All parseable ISO 8601 formats for DateTime.[Try]ParseExact - Lets us deserialize any legacy timestamps in one of these formats
             // These are the standard format with ISO 8601 UTC markers (T/Z)
             "yyyy-MM-ddTHH:mm:ss.FFFFFFZ",

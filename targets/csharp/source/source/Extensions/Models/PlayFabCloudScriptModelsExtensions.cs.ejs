@@ -24,6 +24,8 @@ namespace PlayFab.CloudScriptModels
 
         public TFunctionArgument FunctionArgument { get; set; }
 
+        public string CurrentPlayerId { get; set; }
+
         protected FunctionContext() { }
 
         /// <summary>
@@ -39,10 +41,9 @@ namespace PlayFab.CloudScriptModels
                 var contextInternal = Json.PlayFabSimpleJson.DeserializeObject<FunctionContextInternal>(body);
                 var settings = new PlayFabApiSettings
                 {
-                    TitleId = contextInternal.TitleAuthenticationContext.Id
+                    TitleId = contextInternal.TitleAuthenticationContext.Id,
+                    DeveloperSecretKey = Environment.GetEnvironmentVariable("PLAYFAB_DEV_SECRET_KEY", EnvironmentVariableTarget.Process)
                 };
-
-                FunctionContextUtil.TrySetSecretKey(settings);
 
                 var authContext = new PlayFabAuthenticationContext
                 {
@@ -54,7 +55,8 @@ namespace PlayFab.CloudScriptModels
                     ApiSettings = settings,
                     CallerEntityProfile = contextInternal.CallerEntityProfile,
                     FunctionArgument = contextInternal.FunctionArgument,
-                    AuthenticationContext = authContext
+                    AuthenticationContext = authContext,
+                    CurrentPlayerId = contextInternal.CallerEntityProfile.Lineage.TitlePlayerAccountId
                 };
             }
         }
@@ -92,6 +94,8 @@ namespace PlayFab.CloudScriptModels
 
         public TFunctionArgument FunctionArgument { get; set; }
 
+        public string CurrentPlayerId { get; set; }
+
         protected FunctionPlayerPlayStreamContext() { }
 
         /// <summary>
@@ -107,10 +111,9 @@ namespace PlayFab.CloudScriptModels
                 var contextInternal = PlayFabSimpleJson.DeserializeObject<FunctionPlayerPlayStreamContextInternal>(body);
                 var settings = new PlayFabApiSettings
                 {
-                    TitleId = contextInternal.TitleAuthenticationContext.Id
+                    TitleId = contextInternal.TitleAuthenticationContext.Id,
+                    DeveloperSecretKey = Environment.GetEnvironmentVariable("PLAYFAB_DEV_SECRET_KEY", EnvironmentVariableTarget.Process)
                 };
-
-                FunctionContextUtil.TrySetSecretKey(settings);
 
                 var authContext = new PlayFabAuthenticationContext
                 {
@@ -124,6 +127,7 @@ namespace PlayFab.CloudScriptModels
                     PlayStreamEventEnvelope = contextInternal.PlayStreamEventEnvelope,
                     PlayerProfile = contextInternal.PlayerProfile,
                     FunctionArgument = contextInternal.FunctionArgument,
+                    CurrentPlayerId = contextInternal.PlayerProfile.PlayerId
                 };
             }
         }
@@ -174,10 +178,9 @@ namespace PlayFab.CloudScriptModels
                 var contextInternal = PlayFabSimpleJson.DeserializeObject<FunctionTaskContextInternal>(body);
                 var settings = new PlayFabApiSettings
                 {
-                    TitleId = contextInternal.TitleAuthenticationContext.Id
+                    TitleId = contextInternal.TitleAuthenticationContext.Id,
+                    DeveloperSecretKey = Environment.GetEnvironmentVariable("PLAYFAB_DEV_SECRET_KEY", EnvironmentVariableTarget.Process)
                 };
-
-                FunctionContextUtil.TrySetSecretKey(settings);
 
                 var authContext = new PlayFabAuthenticationContext
                 {
@@ -237,25 +240,6 @@ namespace PlayFab.CloudScriptModels
     {
         public string Id { get; set; }
         public string EntityToken { get; set; }
-    }
-
-    internal static class FunctionContextUtil
-    {
-        internal static void TrySetSecretKey(PlayFabApiSettings apiSettings)
-        {
-            var secretKey = Environment.GetEnvironmentVariable("PLAYFAB_DEV_SECRET_KEY", EnvironmentVariableTarget.Process);
-            if (string.IsNullOrEmpty(apiSettings.DeveloperSecretKey))
-            {
-                if (!string.IsNullOrEmpty(secretKey))
-                {
-                    apiSettings.DeveloperSecretKey = secretKey;
-                }
-                else
-                {
-                    throw new Exception("Please set the value in the PLAYFAB_DEV_SECRET_KEY field of the local.settings.json file, within the Values object.");
-                }
-            }
-        }
     }
 }
 #endif

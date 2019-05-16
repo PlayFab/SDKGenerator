@@ -113,7 +113,7 @@ namespace PlayFab
             if (!string.IsNullOrEmpty(envFileContent))
             {
                 var jsonPlugin = PluginManager.GetPlugin<ISerializerPlugin>(PluginContract.PlayFab_Serializer);
-                dynamic envJson = jsonPlugin.DeserializeObject(envFileContent);
+                JsonObject envJson = (JsonObject) jsonPlugin.DeserializeObject(envFileContent);
                 string result = string.Empty;
                 try
                 {

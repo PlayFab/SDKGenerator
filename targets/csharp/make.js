@@ -276,7 +276,9 @@ function getPropertyCsType(property, datatype, needOptional) {
 function getAuthParams(apiCall, isInstance = false) {
     if (apiCall.url === "/Authentication/GetEntityToken")
         return "authKey, authValue";
-    if (apiCall.auth === "EntityToken")
+    if (apiCall.auth === "EntityToken" && isInstance)
+        return "\"X-EntityToken\", authenticationContext.EntityToken";
+    if (apiCall.auth === "EntityToken" && !isInstance)
         return "\"X-EntityToken\", PlayFabSettings.staticPlayer.EntityToken";
     if (apiCall.auth === "SecretKey" && !isInstance)
         return "\"X-SecretKey\", PlayFabSettings.staticSettings.DeveloperSecretKey";
@@ -294,7 +296,9 @@ function getRequestActions(tabbing, apiCall, isInstance) {
     if ((apiCall.result === "LoginResult" || apiCall.request === "RegisterPlayFabUserRequest") && !isInstance)
         return tabbing + "if (request != null) request.TitleId = request?.TitleId ?? PlayFabSettings.staticSettings.TitleId;\n"
             + tabbing + "if (request.TitleId == null) throw new PlayFabException(PlayFabExceptionCode.TitleNotSet, \"Must be have PlayFabSettings.staticSettings.TitleId set to call this method\");\n";
-    if (apiCall.auth === "EntityToken")
+    if (apiCall.auth === "EntityToken" && isInstance)
+        return tabbing + "if ((request?.AuthenticationContext?.EntityToken ?? authenticationContext.EntityToken) == null) throw new PlayFabException(PlayFabExceptionCode.EntityTokenNotSet, \"Must call GetEntityToken before calling this method\");\n";
+    if (apiCall.auth === "EntityToken" && !isInstance)
         return tabbing + "if ((request?.AuthenticationContext?.EntityToken ?? PlayFabSettings.staticPlayer.EntityToken) == null) throw new PlayFabException(PlayFabExceptionCode.EntityTokenNotSet, \"Must call GetEntityToken before calling this method\");\n";
     if (apiCall.auth === "SessionTicket" && isInstance)
         return tabbing + "var context = request?.AuthenticationContext ?? authenticationContext; var clientSessionTicket = context.ClientSessionTicket;\n"

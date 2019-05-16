@@ -20,11 +20,12 @@ AppCenterGitRepoBranchName=$4
 AppCenterGitRepoCleanTag=$5
 
 #DERIVED FROM INPUTS
-ProjectFolderName=$(basename "$XCodeWorkspaceDirectory" | sed -e 's/.git//g')
+ProjectFolderName=$(basename "$XCodeWorkspaceDirectory")
+GitRepoFolderName=$(basename "$AppCenterGitRepoURL" | sed -e 's/.git//g')
 
 #remove cruft from previous runs, if any.
-rm -fdr "$RepoWorkingDirectory/$ProjectFolderName"
-mkdir -p "$RepoWorkingDirectory/$ProjectFolderName"
+rm -fdr "$RepoWorkingDirectory/$GitRepoFolderName"
+mkdir -p "$RepoWorkingDirectory/$GitRepoFolderName"
 
 #create the appcenter prebuild script in the xcode project
 pushd "$XCodeWorkspaceDirectory"
@@ -58,10 +59,10 @@ then
 fi
 
 #copy the xcode workspace into the appcenter git repo
-cp -r "$XCodeWorkspaceDirectory" "$RepoWorkingDirectory/$ProjectFolderName"
+cp -r "$XCodeWorkspaceDirectory" "$RepoWorkingDirectory/$GitRepoFolderName"
 git add .
-git update-index --chmod=+x "$RepoWorkingDirectory/$ProjectFolderName/MapFileParser.sh"
-git update-index --chmod=+x "$RepoWorkingDirectory/$ProjectFolderName/appcenter-post-clone.sh"
+git update-index --chmod=+x "$RepoWorkingDirectory/$GitRepoFolderName/$ProjectFolderName/MapFileParser.sh"
+git update-index --chmod=+x "$RepoWorkingDirectory/$GitRepoFolderName/$ProjectFolderName/appcenter-post-clone.sh"
 git commit -m "add xcode project for appcenter build"
 
 #if a new branch was created AppCenter needs to be manually configured for this branch.  

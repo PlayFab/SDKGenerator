@@ -23,8 +23,8 @@ AppCenterGitRepoCleanTag=$5
 ProjectFolderName=$(basename "$XCodeWorkspaceDirectory" | sed -e 's/.git//g')
 
 #remove cruft from previous runs, if any.
-rm -fdr "$RepoWorkingDirectory"
-mkdir -p "$RepoWorkingDirectory/.."
+rm -fdr "$RepoWorkingDirectory/$ProjectFolderName"
+mkdir -p "$RepoWorkingDirectory/$ProjectFolderName"
 
 #create the appcenter prebuild script in the xcode project
 pushd "$XCodeWorkspaceDirectory"
@@ -39,7 +39,7 @@ bundle ;
 bundle exec calabash-ios download' > appcenter-post-clone.sh
 popd
 
-pushd "$RepoWorkingDirectory/.."
+pushd "$RepoWorkingDirectory"
 
 #clone the appcenter build repo to our local workspace
 NewBranch=0

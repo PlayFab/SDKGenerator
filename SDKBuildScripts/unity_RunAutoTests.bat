@@ -146,7 +146,7 @@ if %errorLevel% NEQ 0 (
     exit /b %errorLevel%
 )
 pushd "%WORKSPACE%/SDKGenerator/SDKBuildScripts"
-sh unity_buildAppCenterTestIOS.sh "%ProjRootPath%/%SdkName%_TC/testBuilds/PlayFabIOS" "%WORKSPACE%/vso/PlayFabUnityXCodeTestProject" "git@github.com:PlayFab/Jenkins_SDK_AppCenterBuilds.git" %JOB_NAME% init
+sh unity_buildAppCenterTestIOS.sh "%ProjRootPath%/%SdkName%_TC/testBuilds/PlayFabIOS" "%WORKSPACE%/vso" "git@github.com:PlayFab/Jenkins_SDK_AppCenterBuilds.git" %JOB_NAME% init
 if %errorLevel% NEQ 0 (
     exit /b %errorLevel%
 )

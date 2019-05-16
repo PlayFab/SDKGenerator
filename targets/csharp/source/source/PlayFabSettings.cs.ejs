@@ -50,7 +50,7 @@ namespace PlayFab
 #endif
 <% } %>        #endregion Deprecated staticSettingsredirect properties
 
-#if !NET45 && !NETCOREAPP2_0
+#if !NET45 && !NETSTANDARD2_0
         private static string _localApiServer;
 #endif
 
@@ -58,13 +58,13 @@ namespace PlayFab
         {
             get
             {
-#if NET45 || NETCOREAPP2_0
+#if NET45 || NETSTANDARD2_0
                 return PlayFabUtil.GetLocalSettingsFileProperty("LocalApiServer");
 #else
                 return _localApiServer;
 #endif
             }
-#if !NET45 && !NETCOREAPP2_0
+#if !NET45 && !NETSTANDARD2_0
             set
             {
                 _localApiServer = value;

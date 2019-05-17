@@ -71,7 +71,7 @@ SetProjDefines() {
 
 SetEachProjDefine() {
     pushd "${ProjRootPath}/$1"
-    echo $UNITY_VERSION -projectPath "${ProjRootPath}/$1" -quit -batchmode -executeMethod SetupPlayFabExample.Setup -logFile "${ProjRootPath}/compile$1.txt" || (cat "${ProjRootPath}/compile$1.txt" && return 1)
+    $UNITY_VERSION -projectPath "${ProjRootPath}/$1" -quit -batchmode -executeMethod SetupPlayFabExample.Setup -logFile "${ProjRootPath}/compile$1.txt" || (cat "${ProjRootPath}/compile$1.txt" && return 1)
 	popd
 }
 
@@ -79,17 +79,17 @@ RunClientJenkernaught() {
 	if [ ! -z "$TestWin32Build" ] && [ "$TestWin32Build" = "true" ]; then
 		echo === Build Win32 Client Target ===
 		pushd "${ProjRootPath}/${SdkName}_TC"
-		echo $UNITY_VERSION -projectPath "${ProjRootPath}/${SdkName}_TC" -quit -batchmode -executeMethod PlayFab.Internal.PlayFabPackager.MakeWin32TestingBuild -logFile "${ProjRootPath}/buildWin32Client.txt" || (cat "${ProjRootPath}/buildWin32Client.txt" && return 1)
+		$UNITY_VERSION -projectPath "${ProjRootPath}/${SdkName}_TC" -quit -batchmode -executeMethod PlayFab.Internal.PlayFabPackager.MakeWin32TestingBuild -logFile "${ProjRootPath}/buildWin32Client.txt" || (cat "${ProjRootPath}/buildWin32Client.txt" && return 1)
 		popd
 
 		echo === Run the $UNITY_VERSION Client UnitTests ===
 		pushd "${ProjRootPath}/${SdkName}_TC/testBuilds"
-		echo Win32test -batchmode -nographics -logFile "${ProjRootPath}/clientTestOutput.txt" || (cat "${ProjRootPath}/clientTestOutput.txt" && return 1)
+		Win32test -batchmode -nographics -logFile "${ProjRootPath}/clientTestOutput.txt" || (cat "${ProjRootPath}/clientTestOutput.txt" && return 1)
 		popd
 
 		echo === Save test results to Jenkernaught ===
-		pushd $WORKSPACE/SDKGenerator/JenkinsConsoleUtility/bin/Debug
-		echo JenkinsConsoleUtility --listencs -buildIdentifier $BuildIdentifier -workspacePath $WORKSPACE -timeout 30 -verbose true
+		pushd "$WORKSPACE/SDKGenerator/JenkinsConsoleUtility/bin/Debug"
+		JenkinsConsoleUtility --listencs -buildIdentifier $BuildIdentifier -workspacePath $WORKSPACE -timeout 30 -verbose true
 		popd
 	fi
 }
@@ -98,7 +98,7 @@ BuildClientByFunc() {
 	if [ ! -z "$1" ] && [ "$1" = "true" ]; then
 		echo === Build $2 Target ===
 		pushd "${ProjRootPath}/${SdkName}_TC"
-		echo $UNITY_VERSION -projectPath "${ProjRootPath}/${SdkName}_TC" -quit -batchmode -executeMethod PlayFab.Internal.PlayFabPackager.$2 -logFile "${ProjRootPath}/${1}.txt" || (cat "${ProjRootPath}/${1}.txt" && return 1)
+		$UNITY_VERSION -projectPath "${ProjRootPath}/${SdkName}_TC" -quit -batchmode -executeMethod PlayFab.Internal.PlayFabPackager.$2 -logFile "${ProjRootPath}/${1}.txt" || (cat "${ProjRootPath}/${1}.txt" && return 1)
 		popd
 	fi
 }

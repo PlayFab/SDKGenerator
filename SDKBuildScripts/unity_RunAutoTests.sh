@@ -109,12 +109,12 @@ BuildClientByFunc() {
 }
 
 BuildMainPackage() {
-    IF [ "$UNITY_PUBLISH_VERSION" = "$UNITY_VERSION" ] && [ "$BuildMainUnityPackage" = "true" ]; then
+    if [ "$UNITY_PUBLISH_VERSION" = "$UNITY_VERSION" ] && [ "$BuildMainUnityPackage" = "true" ]; then
         echo === Build the asset bundle ===
         cd "$WORKSPACE/$UNITY_VERSION/${SdkName}_BUP"
         $UNITY_VERSION -projectPath "$WORKSPACE/$UNITY_VERSION/${SdkName}_BUP" -quit -batchmode -executeMethod PlayFab.Internal.PlayFabPackager.PackagePlayFabSdk -logFile "$WORKSPACE/${SdkName}/buildPackageOutput.txt" || (cat "$WORKSPACE/${SdkName}/buildPackageOutput.txt" && return 1)
     fi
-)}
+}
 
 DoWork() {
     CheckVars

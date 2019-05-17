@@ -5,12 +5,12 @@
 # Requires mklink which may require administrator
 # Requires the following environment variables:
 #   TestWin32Build - (Optional - Default false if unset) set to "true" to test building Win32, executing, and geting Jenker! results
-#   TestAndroid - (Optional - Default false if unset) set to "true" to skip building Android APK
-#   TestiPhone - (Optional - Default false if unset) set to "true" to skip building iOS XCode project
-#   TestWp8 - (Optional - Default false if unset) set to "true" to skip building Windows Universal 8 vs-sln
-#   TestPS4 - (Optional - Default false if unset) set to "true" to skip building Sony PS4
-#   TestSwitch - (Optional - Default false if unset) set to "true" to skip building Nintendo Switch
-#   TestXbox - (Optional - Default false if unset) set to "true" to skip building Xbox One
+#   TestAndroid - (Optional - Default false if unset) set to "true" to build Android APK
+#   TestiPhone - (Optional - Default false if unset) set to "true" to build iOS XCode project
+#   TestWp8 - (Optional - Default false if unset) set to "true" to build Windows Universal 8 vs-sln
+#   TestPS4 - (Optional - Default false if unset) set to "true" to build Sony PS4
+#   TestSwitch - (Optional - Default false if unset) set to "true" to build Nintendo Switch
+#   TestXbox - (Optional - Default false if unset) set to "true" to build Xbox One
 #   UNITY_PUBLISH_VERSION - (Not required if $1 is defined) Versioned Unity executable name (Assumes multiple potential Unity installations, all in your PATH, each uniquely renamed)
 #   EXECUTOR_NUMBER - (Not required if $4 is defined) Automatic Jenkins variable
 

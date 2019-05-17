@@ -11,6 +11,7 @@
 #   TestPS4 - (Optional - Default false if unset) set to "true" to build Sony PS4
 #   TestSwitch - (Optional - Default false if unset) set to "true" to build Nintendo Switch
 #   TestXbox - (Optional - Default false if unset) set to "true" to build Xbox One
+#   BuildMainUnityPackage - (Optional - Default false if unset) set to "true" to build Unity Package for the SDK
 #   UNITY_PUBLISH_VERSION - (Not required if $1 is defined) Versioned Unity executable name (Assumes multiple potential Unity installations, all in your PATH, each uniquely renamed)
 #   EXECUTOR_NUMBER - (Not required if $4 is defined) Automatic Jenkins variable
 
@@ -58,15 +59,18 @@ CheckVars() {
     if [ -z "$TestXbox" ]; then
         TestXbox="false"
     fi
+    if [ -z "$BuildMainUnityPackage" ]; then
+        BuildMainUnityPackage="false"
+    fi
 }
 
 SetProjDefines() {
     echo === Test compilation in all example projects ===
     SetEachProjDefine ${SdkName}_BUP
-    SetEachProjDefine ${SdkName}_TA
+    # SetEachProjDefine ${SdkName}_TA
     SetEachProjDefine ${SdkName}_TC
-    SetEachProjDefine ${SdkName}_TS
-    SetEachProjDefine ${SdkName}_TZ
+    # SetEachProjDefine ${SdkName}_TS
+    # SetEachProjDefine ${SdkName}_TZ
 }
 
 SetEachProjDefine() {
@@ -76,7 +80,7 @@ SetEachProjDefine() {
 }
 
 RunClientJenkernaught() {
-    if [ ! -z "$TestWin32Build" ] && [ "$TestWin32Build" = "true" ]; then
+    if [ "$TestWin32Build" = "true" ]; then
         echo === Build Win32 Client Target ===
         pushd "${ProjRootPath}/${SdkName}_TC"
         $UNITY_VERSION -projectPath "${ProjRootPath}/${SdkName}_TC" -quit -batchmode -executeMethod PlayFab.Internal.PlayFabPackager.MakeWin32TestingBuild -logFile "${ProjRootPath}/buildWin32Client.txt" || (cat "${ProjRootPath}/buildWin32Client.txt" && return 1)
@@ -96,13 +100,21 @@ RunClientJenkernaught() {
 }
 
 BuildClientByFunc() {
-    if [ ! -z "$1" ] && [ "$1" = "true" ]; then
+    if [ "$1" = "true" ]; then
         echo === Build $2 Target ===
         pushd "${ProjRootPath}/${SdkName}_TC"
         $UNITY_VERSION -projectPath "${ProjRootPath}/${SdkName}_TC" -quit -batchmode -executeMethod PlayFab.Internal.PlayFabPackager.$2 -logFile "${ProjRootPath}/${1}.txt" || (cat "${ProjRootPath}/${1}.txt" && return 1)
         popd
     fi
 }
+
+BuildMainPackage() {
+    IF [ "$UNITY_PUBLISH_VERSION" = "$UNITY_VERSION" ] && [ "$BuildMainUnityPackage" = "true" ]; then
+        echo === Build the asset bundle ===
+        cd "$WORKSPACE/$UNITY_VERSION/${SdkName}_BUP"
+        $UNITY_VERSION -projectPath "$WORKSPACE/$UNITY_VERSION/${SdkName}_BUP" -quit -batchmode -executeMethod PlayFab.Internal.PlayFabPackager.PackagePlayFabSdk -logFile "$WORKSPACE/${SdkName}/buildPackageOutput.txt" || (cat "$WORKSPACE/${SdkName}/buildPackageOutput.txt" && return 1)
+    fi
+)}
 
 DoWork() {
     CheckVars
@@ -114,6 +126,7 @@ DoWork() {
     BuildClientByFunc "$TestPS4" "MakePS4Build"
     BuildClientByFunc "$TestSwitch" "MakeSwitchBuild"
     BuildClientByFunc "$TestXbox" "MakeXboxOneBuild"
+    BuildMainPackage
 }
 
 DoWork

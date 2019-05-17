@@ -38,25 +38,25 @@ fi
 
 CheckVars() {
 	if [ -z "$TestWin32Build" ]; then
-		TestWin32Build="true"
+		TestWin32Build="false"
 	fi
 	if [ -z "$TestAndroid" ]; then
-		TestAndroid="true"
+		TestAndroid="false"
 	fi
 	if [ -z "$TestiPhone" ]; then
-		TestiPhone="true"
+		TestiPhone="false"
 	fi
 	if [ -z "$TestWp8" ]; then
-		TestWp8="true"
+		TestWp8="false"
 	fi
 	if [ -z "$TestPS4" ]; then
-		TestPS4="true"
+		TestPS4="false"
 	fi
 	if [ -z "$TestSwitch" ]; then
-		TestPS4="true"
+		TestSwitch="false"
 	fi
 	if [ -z "$TestXbox" ]; then
-		TestPS4="true"
+		TestXbox="false"
 	fi
 }
 

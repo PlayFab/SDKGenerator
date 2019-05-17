@@ -37,27 +37,27 @@ else
 fi
 
 CheckVars() {
-	if [ -z "$TestWin32Build" ]; then
-		TestWin32Build="false"
-	fi
-	if [ -z "$TestAndroid" ]; then
-		TestAndroid="false"
-	fi
-	if [ -z "$TestiPhone" ]; then
-		TestiPhone="false"
-	fi
-	if [ -z "$TestWp8" ]; then
-		TestWp8="false"
-	fi
-	if [ -z "$TestPS4" ]; then
-		TestPS4="false"
-	fi
-	if [ -z "$TestSwitch" ]; then
-		TestSwitch="false"
-	fi
-	if [ -z "$TestXbox" ]; then
-		TestXbox="false"
-	fi
+    if [ -z "$TestWin32Build" ]; then
+        TestWin32Build="false"
+    fi
+    if [ -z "$TestAndroid" ]; then
+        TestAndroid="false"
+    fi
+    if [ -z "$TestiPhone" ]; then
+        TestiPhone="false"
+    fi
+    if [ -z "$TestWp8" ]; then
+        TestWp8="false"
+    fi
+    if [ -z "$TestPS4" ]; then
+        TestPS4="false"
+    fi
+    if [ -z "$TestSwitch" ]; then
+        TestSwitch="false"
+    fi
+    if [ -z "$TestXbox" ]; then
+        TestXbox="false"
+    fi
 }
 
 SetProjDefines() {
@@ -72,47 +72,47 @@ SetProjDefines() {
 SetEachProjDefine() {
     pushd "${ProjRootPath}/$1"
     $UNITY_VERSION -projectPath "${ProjRootPath}/$1" -quit -batchmode -executeMethod SetupPlayFabExample.Setup -logFile "${ProjRootPath}/compile$1.txt" || (cat "${ProjRootPath}/compile$1.txt" && return 1)
-	popd
+    popd
 }
 
 RunClientJenkernaught() {
-	if [ ! -z "$TestWin32Build" ] && [ "$TestWin32Build" = "true" ]; then
-		echo === Build Win32 Client Target ===
-		pushd "${ProjRootPath}/${SdkName}_TC"
-		$UNITY_VERSION -projectPath "${ProjRootPath}/${SdkName}_TC" -quit -batchmode -executeMethod PlayFab.Internal.PlayFabPackager.MakeWin32TestingBuild -logFile "${ProjRootPath}/buildWin32Client.txt" || (cat "${ProjRootPath}/buildWin32Client.txt" && return 1)
-		popd
+    if [ ! -z "$TestWin32Build" ] && [ "$TestWin32Build" = "true" ]; then
+        echo === Build Win32 Client Target ===
+        pushd "${ProjRootPath}/${SdkName}_TC"
+        $UNITY_VERSION -projectPath "${ProjRootPath}/${SdkName}_TC" -quit -batchmode -executeMethod PlayFab.Internal.PlayFabPackager.MakeWin32TestingBuild -logFile "${ProjRootPath}/buildWin32Client.txt" || (cat "${ProjRootPath}/buildWin32Client.txt" && return 1)
+        popd
 
-		echo === Run the $UNITY_VERSION Client UnitTests ===
-		pushd "${ProjRootPath}/${SdkName}_TC/testBuilds"
-		Win32test -batchmode -nographics -logFile "${ProjRootPath}/clientTestOutput.txt" || (cat "${ProjRootPath}/clientTestOutput.txt" && return 1)
-		popd
+        echo === Run the $UNITY_VERSION Client UnitTests ===
+        pushd "${ProjRootPath}/${SdkName}_TC/testBuilds"
+        Win32test -batchmode -nographics -logFile "${ProjRootPath}/clientTestOutput.txt" || (cat "${ProjRootPath}/clientTestOutput.txt" && return 1)
+        popd
 
-		echo === Save test results to Jenkernaught ===
-		pushd "$WORKSPACE/SDKGenerator/JenkinsConsoleUtility/bin/Debug"
-		JenkinsConsoleUtility --listencs -buildIdentifier $BuildIdentifier -workspacePath $WORKSPACE -timeout 30 -verbose true
-		popd
-	fi
+        echo === Save test results to Jenkernaught ===
+        pushd "$WORKSPACE/SDKGenerator/JenkinsConsoleUtility/bin/Debug"
+        JenkinsConsoleUtility --listencs -buildIdentifier $BuildIdentifier -workspacePath $WORKSPACE -timeout 30 -verbose true
+        popd
+    fi
 }
 
 BuildClientByFunc() {
-	if [ ! -z "$1" ] && [ "$1" = "true" ]; then
-		echo === Build $2 Target ===
-		pushd "${ProjRootPath}/${SdkName}_TC"
-		$UNITY_VERSION -projectPath "${ProjRootPath}/${SdkName}_TC" -quit -batchmode -executeMethod PlayFab.Internal.PlayFabPackager.$2 -logFile "${ProjRootPath}/${1}.txt" || (cat "${ProjRootPath}/${1}.txt" && return 1)
-		popd
-	fi
+    if [ ! -z "$1" ] && [ "$1" = "true" ]; then
+        echo === Build $2 Target ===
+        pushd "${ProjRootPath}/${SdkName}_TC"
+        $UNITY_VERSION -projectPath "${ProjRootPath}/${SdkName}_TC" -quit -batchmode -executeMethod PlayFab.Internal.PlayFabPackager.$2 -logFile "${ProjRootPath}/${1}.txt" || (cat "${ProjRootPath}/${1}.txt" && return 1)
+        popd
+    fi
 }
 
 DoWork() {
-	CheckVars
+    CheckVars
     SetProjDefines
-	RunClientJenkernaught
-	BuildClientByFunc "$TestAndroid" "MakeAndroidBuild"
-	BuildClientByFunc "$TestiPhone" "MakeIPhoneBuild"
-	BuildClientByFunc "$TestWp8" "MakeWp8Build"
-	BuildClientByFunc "$TestPS4" "MakePS4Build"
-	BuildClientByFunc "$TestSwitch" "MakeSwitchBuild"
-	BuildClientByFunc "$TestXbox" "MakeXboxOneBuild"
+    RunClientJenkernaught
+    BuildClientByFunc "$TestAndroid" "MakeAndroidBuild"
+    BuildClientByFunc "$TestiPhone" "MakeIPhoneBuild"
+    BuildClientByFunc "$TestWp8" "MakeWp8Build"
+    BuildClientByFunc "$TestPS4" "MakePS4Build"
+    BuildClientByFunc "$TestSwitch" "MakeSwitchBuild"
+    BuildClientByFunc "$TestXbox" "MakeXboxOneBuild"
 }
 
 DoWork

@@ -94,7 +94,7 @@ RunClientJenkernaught() {
 
         echo === Save test results to Jenkernaught ===
         pushd "$WORKSPACE/SDKGenerator/JenkinsConsoleUtility/bin/Debug"
-        JenkinsConsoleUtility --listencs -buildIdentifier $BuildIdentifier -workspacePath $WORKSPACE -timeout 30 -verbose true
+        cmd <<< "JenkinsConsoleUtility --listencs -buildIdentifier $BuildIdentifier -workspacePath $WORKSPACE -timeout 30 -verbose true"
         popd
     fi
 }

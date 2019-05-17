@@ -8,43 +8,6 @@ if (typeof (getCompiledTemplate) === "undefined") getCompiledTemplate = function
 
 const copyright = "\"Copyright Microsoft © 2019\"";
 
-exports.makeClientAPI2 = function (apis, sourceDir, apiOutputDir) {
-    apiOutputDir = path.join(apiOutputDir, "PlayFabClientSDK");
-    console.log("Generating C-sharp client SDK to " + apiOutputDir);
-
-    var locals = {
-        buildIdentifier: sdkGlobals.buildIdentifier,
-        hasClientOptions: getAuthMechanisms(apis).includes("SessionTicket"),
-        sdkVersion: sdkGlobals.sdkVersion
-    };
-
-    templatizeTree(locals, path.resolve(sourceDir, "source"), apiOutputDir);
-    makeDatatypes(apis, sourceDir, apiOutputDir);
-    for (var i = 0; i < apis.length; i++)
-        makeApi(apis[i], sourceDir, apiOutputDir);
-    generateSimpleFiles(apis, sourceDir, apiOutputDir);
-    generateProject(apis, sourceDir, apiOutputDir, "Client", "");
-};
-
-exports.makeServerAPI = function (apis, sourceDir, apiOutputDir) {
-    apiOutputDir = path.join(apiOutputDir, "PlayFabServerSDK");
-    console.log("Generating C-sharp server SDK to " + apiOutputDir);
-
-    var locals = {
-        buildIdentifier: sdkGlobals.buildIdentifier,
-        hasClientOptions: getAuthMechanisms(apis).includes("SessionTicket"),
-        sdkVersion: sdkGlobals.sdkVersion
-    };
-
-    templatizeTree(locals, path.resolve(sourceDir, "source"), apiOutputDir);
-    makeDatatypes(apis, sourceDir, apiOutputDir);
-    for (var i = 0; i < apis.length; i++)
-        makeApi(apis[i], sourceDir, apiOutputDir);
-
-    generateSimpleFiles(apis, sourceDir, apiOutputDir);
-    generateProject(apis, sourceDir, apiOutputDir, "Server", ";DISABLE_PLAYFABCLIENT_API;ENABLE_PLAYFABSERVER_API");
-};
-
 exports.makeCombinedAPI = function (apis, sourceDir, apiOutputDir) {
     const rootOutputDir = apiOutputDir;
     apiOutputDir = path.join(apiOutputDir, "PlayFabSDK");

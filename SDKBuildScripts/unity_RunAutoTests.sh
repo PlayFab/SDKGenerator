@@ -103,7 +103,7 @@ BuildClientByFunc() {
     if [ "$1" = "true" ]; then
         echo === Build $2 Target ===
         pushd "${ProjRootPath}/${SdkName}_TC"
-        $UNITY_VERSION -projectPath "${ProjRootPath}/${SdkName}_TC" -quit -batchmode -executeMethod PlayFab.Internal.PlayFabPackager.$2 -logFile "${ProjRootPath}/${1}.txt" || (cat "${ProjRootPath}/${1}.txt" && return 1)
+        $UNITY_VERSION -projectPath "${ProjRootPath}/${SdkName}_TC" -quit -batchmode -executeMethod PlayFab.Internal.PlayFabPackager.$2 -logFile "${ProjRootPath}/${2}.txt" || (cat "${ProjRootPath}/${2}.txt" && return 1)
         popd
     fi
 }

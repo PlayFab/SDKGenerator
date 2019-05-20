@@ -20,9 +20,9 @@ exports.makeCombinedAPI = function (apis, sourceDir, apiOutputDir) {
         sdkVersion: sdkGlobals.sdkVersion
     };
 
-    templatizeTree(locals, path.resolve(sourceDir, "source"), apiOutputDir);
+    templatizeTree(locals, path.resolve(sourceDir, "source"), rootOutputDir);
+
     templatizeTree(locals, path.resolve(sourceDir, "UnittestRunner"), path.resolve(apiOutputDir, "UnittestRunner")); // Copy the actual unittest project in the CombinedAPI
-    copyOrTemplatizeFile(locals, path.resolve(sourceDir, "PlayFabSDK+Unit.sln"), path.resolve(apiOutputDir, "PlayFabSDK+Unit.sln"));
     makeDatatypes(apis, sourceDir, apiOutputDir);
     for (var i = 0; i < apis.length; i++)
         makeApi(apis[i], sourceDir, apiOutputDir);
@@ -33,6 +33,9 @@ exports.makeCombinedAPI = function (apis, sourceDir, apiOutputDir) {
     const xamarinOutputDir = path.join(rootOutputDir, "XamarinTestRunner");
     templatizeTree(locals, path.resolve(sourceDir, "XamarinTestRunner"), xamarinOutputDir);
     templatizeTree(locals, path.join(apiOutputDir, "source"), path.join(xamarinOutputDir, "XamarinTestRunner", "PlayFabSDK"));
+    5
+    const pluginsOutputDir = path.resolve(rootOutputDir, "Plugins");
+    generatePlugins(locals, sourceDir, pluginsOutputDir);
 };
 
 function getBaseTypeSyntax(datatype) {
@@ -63,9 +66,9 @@ function getBaseTypeSyntax(datatype) {
 }
 
 function makeDatatypes(apis, sourceDir, apiOutputDir) {
-    var modelTemplate = getCompiledTemplate(path.resolve(sourceDir, "templates/Model.cs.ejs"));
-    var modelsTemplate = getCompiledTemplate(path.resolve(sourceDir, "templates/Models.cs.ejs"));
-    var enumTemplate = getCompiledTemplate(path.resolve(sourceDir, "templates/Enum.cs.ejs"));
+    var modelTemplate = getCompiledTemplate(path.resolve(sourceDir, "templates", "Model.cs.ejs"));
+    var modelsTemplate = getCompiledTemplate(path.resolve(sourceDir, "templates", "Models.cs.ejs"));
+    var enumTemplate = getCompiledTemplate(path.resolve(sourceDir, "templates", "Enum.cs.ejs"));
 
     var makeDatatype = function (datatype, api) {
         var modelLocals = {
@@ -88,7 +91,7 @@ function makeDatatypes(apis, sourceDir, apiOutputDir) {
             makeDatatype: makeDatatype
         };
 
-        writeFile(path.resolve(apiOutputDir, "source/PlayFab" + apis[a].name + "Models.cs"), modelsTemplate(modelsLocal));
+        writeFile(path.resolve(apiOutputDir, "source", "PlayFab" + apis[a].name + "Models.cs"), modelsTemplate(modelsLocal));
     }
 }
 
@@ -106,12 +109,12 @@ function makeApi(api, sourceDir, apiOutputDir) {
     };
 
     console.log("Generating C# " + api.name + " library to " + apiOutputDir);
-    var apiTemplate = getCompiledTemplate(path.resolve(sourceDir, "templates/API.cs.ejs"));
-    writeFile(path.resolve(apiOutputDir, "source/PlayFab" + api.name + "API.cs"), apiTemplate(locals));
+    var apiTemplate = getCompiledTemplate(path.resolve(sourceDir, "templates", "API.cs.ejs"));
+    writeFile(path.resolve(apiOutputDir, "source", "PlayFab" + api.name + "API.cs"), apiTemplate(locals));
 
     console.log("Generating C# " + api.name + "Instance library to " + apiOutputDir);
-    var instTemplate = getCompiledTemplate(path.resolve(sourceDir, "templates/APIInstance.cs.ejs"));
-    writeFile(path.resolve(apiOutputDir, "source/PlayFab" + api.name + "InstanceAPI.cs"), instTemplate(locals));
+    var instTemplate = getCompiledTemplate(path.resolve(sourceDir, "templates", "APIInstance.cs.ejs"));
+    writeFile(path.resolve(apiOutputDir, "source", "PlayFab" + api.name + "InstanceAPI.cs"), instTemplate(locals));
 }
 
 function generateSimpleFiles(apis, sourceDir, apiOutputDir) {
@@ -126,17 +129,17 @@ function generateSimpleFiles(apis, sourceDir, apiOutputDir) {
         getVerticalNameDefault: getVerticalNameDefault
     };
 
-    var errorsTemplate = getCompiledTemplate(path.resolve(sourceDir, "templates/Errors.cs.ejs"));
-    writeFile(path.resolve(apiOutputDir, "source/PlayFabErrors.cs"), errorsTemplate(locals));
+    var errorsTemplate = getCompiledTemplate(path.resolve(sourceDir, "templates", "Errors.cs.ejs"));
+    writeFile(path.resolve(apiOutputDir, "source", "PlayFabErrors.cs"), errorsTemplate(locals));
 
-    var utilTemplate = getCompiledTemplate(path.resolve(sourceDir, "templates/PlayFabUtil.cs.ejs"));
-    writeFile(path.resolve(apiOutputDir, "source/PlayFabUtil.cs"), utilTemplate(locals));
+    var utilTemplate = getCompiledTemplate(path.resolve(sourceDir, "templates", "PlayFabUtil.cs.ejs"));
+    writeFile(path.resolve(apiOutputDir, "source", "PlayFabUtil.cs"), utilTemplate(locals));
 
     var settingsInstanceTemplate = getCompiledTemplate(path.resolve(sourceDir, "templates/PlayFabApiSettings.cs.ejs"));
-    writeFile(path.resolve(apiOutputDir, "source/PlayFabApiSettings.cs"), settingsInstanceTemplate(locals));
+    writeFile(path.resolve(apiOutputDir, "source", "PlayFabApiSettings.cs"), settingsInstanceTemplate(locals));
 
-    var authenticationContextTemplate = getCompiledTemplate(path.resolve(sourceDir, "templates/PlayFabAuthenticationContext.cs.ejs"));
-    writeFile(path.resolve(apiOutputDir, "source/PlayFabAuthenticationContext.cs"), authenticationContextTemplate(locals));
+    var authenticationContextTemplate = getCompiledTemplate(path.resolve(sourceDir, "templates", "PlayFabAuthenticationContext.cs.ejs"));
+    writeFile(path.resolve(apiOutputDir, "source", "PlayFabAuthenticationContext.cs"), authenticationContextTemplate(locals));
 }
 
 function generateProject(apis, sourceDir, apiOutputDir, libname, extraDefines) {
@@ -149,8 +152,25 @@ function generateProject(apis, sourceDir, apiOutputDir, libname, extraDefines) {
         sdkYear: sdkGlobals.sdkVersion.split(".")[2].substr(0, 2)
     };
 
-    var vcProjTemplate = getCompiledTemplate(path.resolve(sourceDir, "templates/PlayFabSDK.csproj.ejs"));
-    writeFile(path.resolve(apiOutputDir, "source/PlayFabSDK.csproj"), vcProjTemplate(projLocals));
+    var vcProjTemplate = getCompiledTemplate(path.resolve(sourceDir, "templates", "PlayFabSDK.csproj.ejs"));
+    writeFile(path.resolve(apiOutputDir, "source", "PlayFabSDK.csproj"), vcProjTemplate(projLocals));
+}
+
+function generatePlugins(locals, sourceDir, outputDir) {
+    const cloudScriptOutputDir = path.resolve(outputDir, "CloudScript");
+    generateCloudScriptPlugin(locals, sourceDir, cloudScriptOutputDir);
+}
+
+function generateCloudScriptPlugin(locals, sourceDir, outputDir) {
+    var projLocals = {
+        extraDefines: ";NETFX_CORE;SIMPLE_JSON_TYPEINFO",
+        sdkVersion: sdkGlobals.sdkVersion,
+        sdkDate: sdkGlobals.sdkVersion.split(".")[2],
+        sdkYear: sdkGlobals.sdkVersion.split(".")[2].substr(0, 2)
+    };
+
+    var vcProjTemplate = getCompiledTemplate(path.resolve(sourceDir, "templates", "PlayFabCloudScriptPlugin.csproj.ejs"));
+    writeFile(path.resolve(outputDir, "source", "PlayFabCloudScriptPlugin.csproj"), vcProjTemplate(projLocals));
 }
 
 function getVerticalNameDefault() {

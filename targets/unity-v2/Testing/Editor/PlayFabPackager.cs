@@ -12,12 +12,12 @@ using BuildPipeline = UnityEditor.BuildPipeline;
 
 namespace PlayFab.Internal
 {
-    class MyCustomBuildProcessor : IPostprocessBuildWithReport
+    class TestAppPostBuildProcessor : IPostprocessBuildWithReport
     {
         public int callbackOrder { get { return 0; } }
         public void OnPostprocessBuild(BuildReport report)
         {
-            Debug.Log("MyCustomBuildProcessor.OnPostprocessBuild for target " + report.summary.platform + " at path " + report.summary.outputPath);
+            Debug.Log("TestAppPostBuildProcessor.OnPostprocessBuild for target " + report.summary.platform + " at path " + report.summary.outputPath);
             BuildTarget buildTarget = report.summary.platform;
             string path = report.summary.outputPath;
             if (buildTarget == BuildTarget.iOS)

@@ -113,15 +113,15 @@ BuildClientByFunc() {
 }
 
 ExecPs4OnConsole() {
-    . "$WORKSPACE/JenkinsSetupScripts/JenkinsScripts/Consoles/ps4/unity_ps4.sh"
+    . "$WORKSPACE/JenkinsSdkSetupScripts/JenkinsScripts/Consoles/ps4/unity_ps4.sh"
 }
 
 ExecSwitchOnConsole() {
-    . "$WORKSPACE/JenkinsSetupScripts/JenkinsScripts/Consoles/switch/unity_switch.sh"
+    . "$WORKSPACE/JenkinsSdkSetupScripts/JenkinsScripts/Consoles/switch/unity_switch.sh"
 }
 
 ExecXboxOnConsole() {
-    . "$WORKSPACE/JenkinsSetupScripts/JenkinsScripts/Consoles/xbox/unity_xbox.sh"
+    . "$WORKSPACE/JenkinsSdkSetupScripts/JenkinsScripts/Consoles/xbox/unity_xbox.sh"
 }
 
 BuildMainPackage() {

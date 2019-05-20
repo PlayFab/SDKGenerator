@@ -3,9 +3,49 @@ using System.IO;
 using System.Reflection;
 using UnityEngine;
 using UnityEditor;
+using UnityEditor.iOS;
+using UnityEditor.iOS.Xcode;
+using UnityEditor.Build;
+using UnityEditor.Build.Reporting;
+
+using BuildPipeline = UnityEditor.BuildPipeline;
 
 namespace PlayFab.Internal
 {
+    class TestAppPostBuildProcessor : IPostprocessBuildWithReport
+    {
+        public int callbackOrder { get { return 0; } }
+        public void OnPostprocessBuild(BuildReport report)
+        {
+            Debug.Log("TestAppPostBuildProcessor.OnPostprocessBuild for target " + report.summary.platform + " at path " + report.summary.outputPath);
+            BuildTarget buildTarget = report.summary.platform;
+            string path = report.summary.outputPath;
+            if (buildTarget == BuildTarget.iOS)
+            {
+                string projectPath = PBXProject.GetPBXProjectPath(path);
+                PBXProject proj = new PBXProject();
+
+                proj.ReadFromString(File.ReadAllText(projectPath));
+                string xcodeTargetGUID = proj.TargetGuidByName("Unity-iPhone");
+
+                proj.AddFrameworkToProject(xcodeTargetGUID, "calabash.framework", false);
+                //FileUtil.CopyFileOrDirectory("Assets/Testings/Tests/Libs/calabash.framework", Path.Combine(projectPath, "calabash.framework"));
+                proj.AddFileToBuild(xcodeTargetGUID, proj.AddFile("calabash.framework", "calabash.framework", PBXSourceTree.Source));
+
+                proj.SetBuildProperty(xcodeTargetGUID, "FRAMEWORK_SEARCH_PATHS", "$(inherited)");
+                proj.AddBuildProperty(xcodeTargetGUID, "FRAMEWORK_SEARCH_PATHS", "$(PROJECT_DIR)");
+
+                proj.AddBuildProperty(xcodeTargetGUID, "OTHER_LDFLAGS", "-ObjC");
+                proj.AddBuildProperty(xcodeTargetGUID, "OTHER_LDFLAGS", "-force_load");
+                proj.AddBuildProperty(xcodeTargetGUID, "OTHER_LDFLAGS", "$(SOURCE_ROOT)/calabash.framework/calabash");
+                proj.AddBuildProperty(xcodeTargetGUID, "OTHER_LDFLAGS", "-framework");
+                proj.AddBuildProperty(xcodeTargetGUID, "OTHER_LDFLAGS", "CFNetwork");
+
+                File.WriteAllText(projectPath, proj.WriteToString());
+            }
+        }
+    }
+
     public static class PlayFabPackager
     {
         private static readonly string[] SdkAssets = {
@@ -15,6 +55,8 @@ namespace PlayFab.Internal
         private static readonly string[] TestScenes = {
             "assets/Testing/scenes/testscene.unity"
         };
+
+    private static readonly string TestPackageName = "com.playfab.service";
 
         #region Utility Functions
         private static void Setup()
@@ -149,7 +191,7 @@ namespace PlayFab.Internal
         {
             Setup();
             SetScriptingBackend(ScriptingImplementation.Mono2x, BuildTarget.Android, BuildTargetGroup.Android); // Ideal setting for Android
-            SetIdentifier(BuildTargetGroup.Android, "com.PlayFab.PlayFabTest");
+            SetIdentifier(BuildTargetGroup.Android, TestPackageName);
             var androidPackage = Path.Combine(GetBuildPath(), "PlayFabAndroid.apk");
             MkDir(GetBuildPath());
             BuildPipeline.BuildPlayer(TestScenes, androidPackage, BuildTarget.Android, BuildOptions.None);
@@ -166,7 +208,7 @@ namespace PlayFab.Internal
 #else
             SetScriptingBackend(ScriptingImplementation.Mono2x, AppleBuildTarget, AppleBuildTargetGroup); // Mono2x is traditionally the one with issues, and it's a lot faster to build/test
 #endif
-            SetIdentifier(AppleBuildTargetGroup, "com.PlayFab.PlayFabTest");
+            SetIdentifier(AppleBuildTargetGroup, TestPackageName);
             var iosPath = Path.Combine(GetBuildPath(), "PlayFabIOS");
             MkDir(GetBuildPath());
             MkDir(iosPath);
@@ -181,7 +223,7 @@ namespace PlayFab.Internal
             Setup();
             //SetScriptingBackend(ScriptingImplementation.IL2CPP, OsxBuildTarget, BuildTargetGroup.Standalone);  // IL2CPP can only be built on Mac.
             SetScriptingBackend(ScriptingImplementation.Mono2x, OsxBuildTarget, BuildTargetGroup.Standalone);
-            SetIdentifier(AppleBuildTargetGroup, "com.PlayFab.PlayFabTest");
+            SetIdentifier(AppleBuildTargetGroup, TestPackageName);
             var osxAppName = "PlayFabOSX";
             var osxPath = Path.Combine(GetBuildPath(), osxAppName);
             MkDir(GetBuildPath());
@@ -196,7 +238,7 @@ namespace PlayFab.Internal
         {
             Setup();
             SetScriptingBackend(ScriptingImplementation.IL2CPP, BuildTarget.PS4, BuildTargetGroup.PS4);
-            SetIdentifier(BuildTargetGroup.PS4, "com.PlayFab.PlayFabTest");
+            SetIdentifier(BuildTargetGroup.PS4, TestPackageName);
 #if UNITY_5_6_OR_NEWER
             PlayerSettings.SplashScreen.show = false;
 #endif
@@ -281,7 +323,7 @@ namespace PlayFab.Internal
             Setup();
             SetScriptingBackend(ScriptingImplementation.IL2CPP, BuildTarget.XboxOne, BuildTargetGroup.XboxOne);
             //SetScriptingBackend( ScriptingImplementation.Mono2x, BuildTarget.XboxOne, BuildTargetGroup.XboxOne );
-            SetIdentifier(BuildTargetGroup.XboxOne, "com.PlayFab.PlayFabTest");
+            SetIdentifier(BuildTargetGroup.XboxOne, TestPackageName);
             var xboxOnePath = Path.Combine(GetBuildPath(), "PlayFabXboxOne");
             MkDir(GetBuildPath());
             MkDir(xboxOnePath);

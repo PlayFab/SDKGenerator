@@ -108,21 +108,57 @@ goto :EOF
 :BuildAndroid
 echo === Build Android Target ===
 cd "%ProjRootPath%\%SdkName%_TC"
+pushd "%WORKSPACE%/SDKGenerator/SDKBuildScripts"
+sh unity_copyTestTitleData.sh "%WORKSPACE%/sdks/UnitySDK/Testing/Resources" copy
+popd
 %UnityExe% -projectPath "%ProjRootPath%\%SdkName%_TC" -quit -batchmode -executeMethod PlayFab.Internal.PlayFabPackager.MakeAndroidBuild -logFile "%ProjRootPath%\buildAndroidOutput.txt"
+pushd "%WORKSPACE%/SDKGenerator/SDKBuildScripts"
+sh unity_copyTestTitleData.sh "%WORKSPACE%/sdks/UnitySDK/Testing/Resources" delete
+popd
 if %errorLevel% NEQ 0 (
-    "%ProjRootPath%\buildAndroidOutput.txt"
+    type "%ProjRootPath%\buildAndroidOutput.txt"
     exit /b %errorLevel%
 )
+pushd "%WORKSPACE%/SDKGenerator/SDKBuildScripts"
+sh runAppCenterTest.sh "%ProjRootPath%\%SdkName%_TC\testBuilds\PlayFabAndroid.apk" "%WORKSPACE%\SDKGenerator\SDKBuildScripts\AppCenterUITestLauncher\AppCenterUITestLauncher\debugassemblies" android
+if %errorLevel% NEQ 0 (
+    exit /b %errorLevel%
+)
+call :RunClientJenkernaught3
+if %errorLevel% NEQ 0 (
+    exit /b %errorLevel%
+)
+popd
 goto :EOF
 
 :BuildiPhone
 echo === Build iPhone Target ===
 cd "%ProjRootPath%\%SdkName%_TC"
+pushd "%WORKSPACE%/SDKGenerator/SDKBuildScripts"
+sh unity_copyTestTitleData.sh "%WORKSPACE%/sdks/UnitySDK/Testing/Resources" copy
+popd
 %UnityExe% -projectPath "%ProjRootPath%\%SdkName%_TC" -quit -batchmode -executeMethod PlayFab.Internal.PlayFabPackager.MakeIPhoneBuild -logFile "%ProjRootPath%\buildiPhoneOutput.txt"
+pushd "%WORKSPACE%/SDKGenerator/SDKBuildScripts"
+sh unity_copyTestTitleData.sh "%WORKSPACE%/sdks/UnitySDK/Testing/Resources" delete
+popd
 if %errorLevel% NEQ 0 (
     type "%ProjRootPath%\buildiPhoneOutput.txt"
     exit /b %errorLevel%
 )
+pushd "%WORKSPACE%/SDKGenerator/SDKBuildScripts"
+sh unity_buildAppCenterTestIOS.sh "%ProjRootPath%/%SdkName%_TC/testBuilds/PlayFabIOS" "%WORKSPACE%/vso" git@ssh.dev.azure.com:v3/playfab/Playfab%%20SDK%%20Automation/UnitySDK_XCode_AppCenterBuild %JOB_NAME% init
+if %errorLevel% NEQ 0 (
+    exit /b %errorLevel%
+)
+sh runAppCenterTest.sh "%WORKSPACE%/SDKGenerator/SDKBuildScripts/PlayFabIOS.ipa" "%WORKSPACE%\SDKGenerator\SDKBuildScripts\AppCenterUITestLauncher\AppCenterUITestLauncher\debugassemblies" ios
+if %errorLevel% NEQ 0 (
+    exit /b %errorLevel%
+)
+call :RunClientJenkernaught3
+if %errorLevel% NEQ 0 (
+    exit /b %errorLevel%
+)
+popd
 goto :EOF
 
 :BuildWp8

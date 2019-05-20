@@ -28,12 +28,6 @@ namespace XamarinUITestExperiment
             app = AppInitializer.StartApp(platform);
 
         }
-
-        //[Test]
-        //public void TestRepl()
-        //{
-        //    app.Repl();
-        //}
         
         [Test]
         public void WaitAwhile()

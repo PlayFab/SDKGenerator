@@ -227,7 +227,7 @@ DoWork() {
 
     KillUnityProcesses
 
-    exit $(EC $(($AndroidResult + bg$iOSResult + $Wp8Result + $PS4Result + $SwitchResult + $XBoxResult)))
+    exit $(EC $(($AndroidResult + $iOSResult + $Wp8Result + $PS4Result + $SwitchResult + $XBoxResult)))
 }
 
 DoWork

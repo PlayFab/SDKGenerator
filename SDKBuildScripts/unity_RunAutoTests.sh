@@ -148,7 +148,7 @@ TryBuildAndTestAndroid() {
             pushd "$WORKSPACE/SDKGenerator/SDKBuildScripts"
                 ./unity_copyTestTitleData.sh "$WORKSPACE/sdks/UnitySDK/Testing/Resources" delete
                 if [[ $? -ne 0 ]]; then return 1; fi
-                ./runAppCenterTest.sh "$ProjRootPath/${SdkName}_TC/testBuilds/PlayFabAndroid.apk" "$WORKSPACE/SDKGenerator/SDKBuildScripts/AppCenterUITestLauncher/AppCenterUITestLauncher/debugassemblies" unity-android
+                ./runAppCenterTest.sh "$ProjRootPath/${SdkName}_TC/testBuilds/PlayFabAndroid.apk" "$WORKSPACE/SDKGenerator/SDKBuildScripts/AppCenterUITestLauncher/AppCenterUITestLauncher/debugassemblies" android
                 if [[ $? -ne 0 ]]; then return 1; fi
             popd
         popd

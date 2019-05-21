@@ -132,6 +132,37 @@ ExecXboxOnConsole() {
     . "$WORKSPACE/JenkinsSdkSetupScripts/JenkinsScripts/Consoles/xbox/unity_xbox.sh"
 }
 
+TryBuildAndTestAndroid() {
+    if [ "$TestAndroid" = "true"]; then
+        echo === Build and Test Android ===
+        pushd "${ProjRootPath}/${SdkName}_TC"
+            pushd "$WORKSPACE/SDKGenerator/SDKBuildScripts"
+                ./unity_copyTestTitleData.sh "$WORKSPACE/sdks/UnitySDK/Testing/Resources" copy
+            popd
+            if [[ $? -ne 0 ]]; then return 1
+            
+            $UNITY_VERSION -projectPath "$WORKSPACE/$UNITY_VERSION/${SdkName}_TC" -quit -batchmode -executeMethod PlayFab.Internal.PlayFabPackager.MakeAndroidBuild -logFile "$WORKSPACE/${SdkName}/buildPackageOutput.txt" || (cat "$WORKSPACE/${SdkName}/buildAndroidOutput.txt" && return 1)
+            if [[ $? -ne 0 ]]; then return 1
+            
+            pushd "$WORKSPACE/SDKGenerator/SDKBuildScripts"
+                ./unity_copyTestTitleData.sh "$WORKSPACE/sdks/UnitySDK/Testing/Resources" delete
+                if [[ $? -ne 0 ]]; then return 1
+                ./runAppCenterTest.sh "$ProjRootPath/${SdkName}_TC/testBuilds/PlayFabAndroid.apk" "$WORKSPACE/SDKGenerator/SDKBuildScripts/AppCenterUITestLauncher/AppCenterUITestLauncher/debugassemblies" unity-android
+                if [[ $? -ne 0 ]]; then return 1
+            popd
+        popd
+    fi
+}
+
+TryBuildAndTestiOS() {
+    if [ "$TestiPhone" = "true"]; then
+        echo === Build and Test iOS ===
+        pushd "${ProjRootPath}/${SdkName}_TC"
+
+        popd
+    fi
+}
+
 BuildMainPackage() {
     if [ "$UNITY_PUBLISH_VERSION" = "$UNITY_VERSION" ] && [ "$BuildMainUnityPackage" = "true" ]; then
         echo === Build the asset bundle ===
@@ -149,8 +180,8 @@ DoWork() {
     CheckVars
     SetProjDefines
     RunClientJenkernaught
-    BuildClientByFunc "$TestAndroid" "MakeAndroidBuild"
-    BuildClientByFunc "$TestiPhone" "MakeIPhoneBuild"
+    TryBuildAndTestAndroid
+    TryBuildAndTestiOS
     BuildClientByFunc "$TestWp8" "MakeWp8Build"
     BuildClientByFunc "$TestPS4" "MakePS4Build" "ExecPs4OnConsole"
     BuildClientByFunc "$TestSwitch" "MakeSwitchBuild" "ExecSwitchOnConsole"

@@ -139,16 +139,16 @@ TryBuildAndTestAndroid() {
             pushd "$WORKSPACE/SDKGenerator/SDKBuildScripts"
                 ./unity_copyTestTitleData.sh "$WORKSPACE/sdks/UnitySDK/Testing/Resources" copy
             popd
-            if [[ $? -ne 0 ]]; then return 1
+            if [[ $? -ne 0 ]]; then return 1; fi
             
             $UNITY_VERSION -projectPath "$WORKSPACE/$UNITY_VERSION/${SdkName}_TC" -quit -batchmode -executeMethod PlayFab.Internal.PlayFabPackager.MakeAndroidBuild -logFile "$WORKSPACE/${SdkName}/buildPackageOutput.txt" || (cat "$WORKSPACE/${SdkName}/buildAndroidOutput.txt" && return 1)
-            if [[ $? -ne 0 ]]; then return 1
+            if [[ $? -ne 0 ]]; then return 1; fi
             
             pushd "$WORKSPACE/SDKGenerator/SDKBuildScripts"
                 ./unity_copyTestTitleData.sh "$WORKSPACE/sdks/UnitySDK/Testing/Resources" delete
-                if [[ $? -ne 0 ]]; then return 1
+                if [[ $? -ne 0 ]]; then return 1; fi
                 ./runAppCenterTest.sh "$ProjRootPath/${SdkName}_TC/testBuilds/PlayFabAndroid.apk" "$WORKSPACE/SDKGenerator/SDKBuildScripts/AppCenterUITestLauncher/AppCenterUITestLauncher/debugassemblies" unity-android
-                if [[ $? -ne 0 ]]; then return 1
+                if [[ $? -ne 0 ]]; then return 1; fi
             popd
         popd
     fi

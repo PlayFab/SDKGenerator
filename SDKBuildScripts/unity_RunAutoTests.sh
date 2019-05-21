@@ -26,10 +26,10 @@ if [ -z $2 ]; then
 else
     SdkName=$2
 fi
-if [ -z $3 ]; then
+if [ -z "$3" ]; then
     ProjRootPath="${WORKSPACE}/${UNITY_VERSION}"
 else
-    ProjRootPath=$3
+    ProjRootPath="$3"
 fi
 if [ -z $4 ]; then
     BuildIdentifier=JBuild_${SdkName}_${EXECUTOR_NUMBER}

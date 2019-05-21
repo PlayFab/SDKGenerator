@@ -1,9 +1,27 @@
-﻿<%- copyright %>
+<%- copyright %>
 
 #include "PlayFabCommonUtils.h"
 
 using namespace PlayFabCommon;
 
+// see {your unreal root folder}\Engine\Source\Runtime\Launch\Resources\Version.h for more preprocessor defines
+#if ENGINE_MINOR_VERSION==20
+FString PlayFabCommonUtils::GetTempDir()
+{
+    FString vars[] = { TEXT("TEMPDIR"), TEXT("TEMP"), TEXT("TMP") };
+    TCHAR FileSystemPath[256];
+    for (FString& envVar : vars)
+    {
+       FileSystemPath[0] = 0;
+        FPlatformMisc::GetEnvironmentVariable(*envVar, FileSystemPath, 256);
+        if (FileSystemPath[0])
+        {
+            return FString(256, FileSystemPath);
+        }
+    }
+    return FString();
+}
+#else
 FString PlayFabCommonUtils::GetTempDir()
 {
     FString vars[] = { TEXT("TEMPDIR"), TEXT("TEMP"), TEXT("TMP") };
@@ -17,6 +35,7 @@ FString PlayFabCommonUtils::GetTempDir()
     }
     return FString();
 }
+#endif
 
 FString PlayFabCommonUtils::GetLocalSettingsFileContent()
 {

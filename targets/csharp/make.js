@@ -33,7 +33,7 @@ exports.makeCombinedAPI = function (apis, sourceDir, apiOutputDir) {
     const xamarinOutputDir = path.join(rootOutputDir, "XamarinTestRunner");
     templatizeTree(locals, path.resolve(sourceDir, "XamarinTestRunner"), xamarinOutputDir);
     templatizeTree(locals, path.join(apiOutputDir, "source"), path.join(xamarinOutputDir, "XamarinTestRunner", "PlayFabSDK"));
-    5
+
     const pluginsOutputDir = path.resolve(rootOutputDir, "Plugins");
     generatePlugins(locals, sourceDir, pluginsOutputDir);
 };

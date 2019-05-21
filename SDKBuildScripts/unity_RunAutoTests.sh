@@ -68,7 +68,7 @@ SetProjDefines() {
     echo === Test compilation in all example projects ===
 
     # TC is used by essentially all of the test projects
-    . unity_copyTestTitleData.sh "${ProjRootPath}/${SdkName}_TC/Assets/Resources"
+    . unity_copyTestTitleData.sh "${ProjRootPath}/${SdkName}_TC/Assets/Resources" copy
     SetEachProjDefine ${SdkName}_TC
     # TODO: This is limiting the tests that get run on Jenkins...
 

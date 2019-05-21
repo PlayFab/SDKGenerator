@@ -172,7 +172,7 @@ TryBuildAndTestiOS() {
             popd
             if [[ $? -ne 0 ]]; then return 1; fi
             
-            $UNITY_VERSION -projectPath "$WORKSPACE/$UNITY_VERSION/${SdkName}_TC" -quit -batchmode -executeMethod PlayFab.Internal.PlayFabPackager.MakeAndroidBuild -logFile "$WORKSPACE/${SdkName}/buildPackageOutput.txt" || (cat "$WORKSPACE/${SdkName}/buildiPhoneOutput.txt" && return 1)
+            $UNITY_VERSION -projectPath "$WORKSPACE/$UNITY_VERSION/${SdkName}_TC" -quit -batchmode -executeMethod PlayFab.Internal.PlayFabPackager.MakeIPhoneBuild -logFile "$WORKSPACE/${SdkName}/buildPackageOutput.txt" || (cat "$WORKSPACE/${SdkName}/buildiPhoneOutput.txt" && return 1)
             if [[ $? -ne 0 ]]; then return 1; fi
             
             pushd "$WORKSPACE/SDKGenerator/SDKBuildScripts"

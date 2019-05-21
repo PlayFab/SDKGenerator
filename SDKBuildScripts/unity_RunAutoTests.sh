@@ -97,7 +97,7 @@ RunClientJenkernaught() {
         echo === Run the $UNITY_VERSION Client UnitTests ===
         pushd "${ProjRootPath}/${SdkName}_TC/testBuilds"
         ls
-        cmd <<< "Win32test.exe -batchmode -nographics -logFile \"${ProjRootPath}/clientTestOutput.txt" || (cat "${ProjRootPath}/clientTestOutput.txt" && return 1)
+        cmd <<< "Win32test.exe -batchmode -nographics -logFile \"${ProjRootPath}/clientTestOutput.txt\" || (cat "${ProjRootPath}/clientTestOutput.txt" && return 1)
         popd
 
         echo === Save test results to Jenkernaught ===
@@ -133,6 +133,7 @@ ExecXboxOnConsole() {
 }
 
 TryBuildAndTestAndroid() {
+    echo "TestAndroid: $TestAndroid"
     if [ "$TestAndroid" = "true"]; then
         echo === Build and Test Android ===
         pushd "${ProjRootPath}/${SdkName}_TC"
@@ -155,6 +156,7 @@ TryBuildAndTestAndroid() {
 }
 
 TryBuildAndTestiOS() {
+    echo "TestiPhone: $TestiPhone"
     if [ "$TestiPhone" = "true"]; then
         echo === Build and Test iOS ===
         pushd "${ProjRootPath}/${SdkName}_TC"

@@ -66,7 +66,9 @@ CheckVars() {
 
 SetProjDefines() {
     echo === Test compilation in all example projects ===
-    SetEachProjDefine ${SdkName}_BUP
+    if [ "$BuildMainUnityPackage" = "true" ]; then
+        SetEachProjDefine ${SdkName}_BUP
+    fi
     # SetEachProjDefine ${SdkName}_TA
     SetEachProjDefine ${SdkName}_TC
     # SetEachProjDefine ${SdkName}_TS

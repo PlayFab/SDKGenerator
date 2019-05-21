@@ -97,7 +97,7 @@ RunClientJenkernaught() {
         echo === Run the $UNITY_VERSION Client UnitTests ===
         pushd "${ProjRootPath}/${SdkName}_TC/testBuilds"
         ls
-        cmd <<< "Win32test.exe -batchmode -nographics -logFile \"${ProjRootPath}/clientTestOutput.txt\" || (cat "${ProjRootPath}/clientTestOutput.txt" && return 1)
+        cmd <<< "Win32test.exe -batchmode -nographics -logFile \"${ProjRootPath}/clientTestOutput.txt\"" || (cat "${ProjRootPath}/clientTestOutput.txt" && return 1)
         popd
 
         echo === Save test results to Jenkernaught ===

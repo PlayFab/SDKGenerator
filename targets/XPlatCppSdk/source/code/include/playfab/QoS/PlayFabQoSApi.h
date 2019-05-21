@@ -17,10 +17,10 @@ namespace PlayFab
         class PlayFabQoSApi
         {
         public:
-            // Runs a QoS operation asynchronously. The operation pings a set of datacenters and returns a result with average response times.
+            // Runs a QoS operation asynchronously. The operation pings a set of regions and returns a result with average response times.
             std::future<QoSResult> GetQoSResultAsync(unsigned int numThreads, unsigned int timeoutMs = DEFAULT_TIMEOUT_MS);
 
-            // Runs a QoS operation synchronously. The operation pings a set of datacenters and returns a result with average response times.
+            // Runs a QoS operation synchronously. The operation pings a set of regions and returns a result with average response times.
             QoSResult GetQoSResult(unsigned int numThreads, unsigned int timeoutMs = DEFAULT_TIMEOUT_MS);
 
         private:
@@ -40,13 +40,13 @@ namespace PlayFab
             static void WriteEventsSuccessCallBack(const PlayFab::EventsModels::WriteEventsResponse& result, void*);
             static void WriteEventsFailureCallBack(const PlayFab::PlayFabError& error, void*);
 
-            static PingResult GetQoSResultForDatacenter(std::shared_ptr<QoSSocket> socket);
+            static PingResult GetQoSResultForRegion(std::shared_ptr<QoSSocket> socket);
 
         private:
             const int numOfPingIterations = NUM_OF_PING_ITERATIONS; // Number of pings to do to each server, to calculate an average latency.
             const std::chrono::milliseconds threadWaitTimespan = std::chrono::milliseconds(THREAD_WAIT_MS);
 
-            std::unordered_map<PlayFab::MultiplayerModels::AzureRegion, std::string> dataCenterMap;
+            std::unordered_map<PlayFab::MultiplayerModels::AzureRegion, std::string> regionMap;
             bool listQosServersCompleted;
         };
     }

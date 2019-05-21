@@ -59,7 +59,7 @@ namespace PlayFab
             get
             {
 #if NET45 || NETSTANDARD2_0
-                return PlayFabUtil.GetLocalSettingsFileProperty("LocalApiServer");
+                return PlayFabUtil.GetLocalSettingsFile().LocalApiServer;
 #else
                 return _localApiServer;
 #endif

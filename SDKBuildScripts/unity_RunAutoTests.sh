@@ -87,6 +87,13 @@ SetEachProjDefine() {
     popd
 }
 
+JenkernaughtSaveCloudScriptResults() {
+    echo === Save test results to Jenkernaught ===
+    pushd "$WORKSPACE/SDKGenerator/JenkinsConsoleUtility/bin/Debug"
+    cmd <<< "JenkinsConsoleUtility --listencs -buildIdentifier $BuildIdentifier -workspacePath $WORKSPACE -timeout 30 -verbose true"
+    popd
+}
+
 RunClientJenkernaught() {
     if [ "$TestWin32Build" = "true" ]; then
         echo === Build Win32 Client Target ===
@@ -100,10 +107,7 @@ RunClientJenkernaught() {
         cmd <<< "Win32test.exe -batchmode -nographics -logFile \"${ProjRootPath}/clientTestOutput.txt\"" || (cat "${ProjRootPath}/clientTestOutput.txt" && return 1)
         popd
 
-        echo === Save test results to Jenkernaught ===
-        pushd "$WORKSPACE/SDKGenerator/JenkinsConsoleUtility/bin/Debug"
-        cmd <<< "JenkinsConsoleUtility --listencs -buildIdentifier $BuildIdentifier -workspacePath $WORKSPACE -timeout 30 -verbose true"
-        popd
+        JenkernaughtSaveCloudScriptResults
     fi
 }
 
@@ -151,6 +155,9 @@ TryBuildAndTestAndroid() {
                 ./runAppCenterTest.sh "$ProjRootPath/${SdkName}_TC/testBuilds/PlayFabAndroid.apk" "$WORKSPACE/SDKGenerator/SDKBuildScripts/AppCenterUITestLauncher/AppCenterUITestLauncher/debugassemblies" android
                 if [[ $? -ne 0 ]]; then return 1; fi
             popd
+
+            JenkernaughtSaveCloudScriptResults
+            if [[ $? -ne 0 ]]; then return 1; fi
         popd
     fi
 }
@@ -172,12 +179,15 @@ TryBuildAndTestiOS() {
                 ./unity_copyTestTitleData.sh "$WORKSPACE/sdks/UnitySDK/Testing/Resources" delete
                 if [[ $? -ne 0 ]]; then return 1; fi
 
-                ./unity_buildAppCenterTestIOS.sh "$ProjRootPath/${SdkName}_TC/testBuilds/PlayFabIOS" "$WORKSPACE/vso" git@ssh.dev.azure.com:v3/playfab/Playfab%%20SDK%%20Automation/UnitySDK_XCode_AppCenterBuild $JOB_NAME init
+                ./unity_buildAppCenterTestIOS.sh "$ProjRootPath/${SdkName}_TC/testBuilds/PlayFabIOS" "$WORKSPACE/vso" 'git@ssh.dev.azure.com:v3/playfab/Playfab%20SDK%20Automation/UnitySDK_XCode_AppCenterBuild' $JOB_NAME init
                 if [[ $? -ne 0 ]]; then return 1; fi
 
                 ./runAppCenterTest.sh "$ProjRootPath/${SdkName}_TC/testBuilds/PlayFabAndroid.apk" "$WORKSPACE/SDKGenerator/SDKBuildScripts/AppCenterUITestLauncher/AppCenterUITestLauncher/debugassemblies" ios
                 if [[ $? -ne 0 ]]; then return 1; fi
             popd
+
+            JenkernaughtSaveCloudScriptResults
+            if [[ $? -ne 0 ]]; then return 1; fi
         popd
     fi
 }
@@ -208,12 +218,12 @@ DoWork() {
     BuildClientByFunc "$TestXbox" "MakeXboxOneBuild" "ExecXboxOnConsole"; XBoxResult=$?
     BuildMainPackage
 
-    echo "Android Result: $(EM $AndroidResult)"
-    echo "iOS Result: $(EM $iOSResult)"
-    echo "Wp8 Result: $(EM $Wp8Result)"
-    echo "PS4 Result: $(EM $PS4dResult)"
-    echo "Switch Result: $(EM $SwitchResult)"
-    echo "XBox Result: $(EM $XBoxResult)"
+    echo -e "Android Result:\t\t$(EM $AndroidResult)"
+    echo -e "iOS Result:\t\t$(EM $iOSResult)"
+    echo -e"Wp8 Result:\t\t$(EM $Wp8Result)"
+    echo -e "PS4 Result:\t\t$(EM $PS4dResult)"
+    echo -e "Switch Result:\t\t$(EM $SwitchResult)"
+    echo -e "XBox Result:\t\t$(EM $XBoxResult)"
 
     KillUnityProcesses
 

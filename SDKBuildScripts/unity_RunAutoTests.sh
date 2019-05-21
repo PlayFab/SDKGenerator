@@ -160,7 +160,24 @@ TryBuildAndTestiOS() {
     if [ "$TestiPhone" = "true" ]; then
         echo === Build and Test iOS ===
         pushd "${ProjRootPath}/${SdkName}_TC"
+            pushd "$WORKSPACE/SDKGenerator/SDKBuildScripts"
+                ./unity_copyTestTitleData.sh "$WORKSPACE/sdks/UnitySDK/Testing/Resources" copy
+            popd
+            if [[ $? -ne 0 ]]; then return 1; fi
+            
+            $UNITY_VERSION -projectPath "$WORKSPACE/$UNITY_VERSION/${SdkName}_TC" -quit -batchmode -executeMethod PlayFab.Internal.PlayFabPackager.MakeAndroidBuild -logFile "$WORKSPACE/${SdkName}/buildPackageOutput.txt" || (cat "$WORKSPACE/${SdkName}/buildiPhoneOutput.txt" && return 1)
+            if [[ $? -ne 0 ]]; then return 1; fi
+            
+            pushd "$WORKSPACE/SDKGenerator/SDKBuildScripts"
+                ./unity_copyTestTitleData.sh "$WORKSPACE/sdks/UnitySDK/Testing/Resources" delete
+                if [[ $? -ne 0 ]]; then return 1; fi
 
+                ./unity_buildAppCenterTestIOS.sh "$ProjRootPath/${SdkName}_TC/testBuilds/PlayFabIOS" "$WORKSPACE/vso" git@ssh.dev.azure.com:v3/playfab/Playfab%%20SDK%%20Automation/UnitySDK_XCode_AppCenterBuild $JOB_NAME init
+                if [[ $? -ne 0 ]]; then return 1; fi
+
+                ./runAppCenterTest.sh "$ProjRootPath/${SdkName}_TC/testBuilds/PlayFabAndroid.apk" "$WORKSPACE/SDKGenerator/SDKBuildScripts/AppCenterUITestLauncher/AppCenterUITestLauncher/debugassemblies" ios
+                if [[ $? -ne 0 ]]; then return 1; fi
+            popd
         popd
     fi
 }
@@ -173,23 +190,34 @@ BuildMainPackage() {
     fi
 }
 
-KillUnityProcesses() {
-    pushd "$WORKSPACE/SDKGenerator/JenkinsConsoleUtility/bin/Debug"
+}
     cmd <<< "JenkinsConsoleUtility --kill -taskName $UNITY_VERSION"
+EC() {
+    if [ $1 -ne 0 ]; then return 1; else return 0; fi
 }
 
 DoWork() {
     CheckVars
     SetProjDefines
     RunClientJenkernaught
-    TryBuildAndTestAndroid
-    TryBuildAndTestiOS
-    BuildClientByFunc "$TestWp8" "MakeWp8Build"
-    BuildClientByFunc "$TestPS4" "MakePS4Build" "ExecPs4OnConsole"
-    BuildClientByFunc "$TestSwitch" "MakeSwitchBuild" "ExecSwitchOnConsole"
-    BuildClientByFunc "$TestXbox" "MakeXboxOneBuild" "ExecXboxOnConsole"
+    TryBuildAndTestAndroid; AndroidResult=$?;
+    TryBuildAndTestiOS; iOSResult=$?
+    BuildClientByFunc "$TestWp8" "MakeWp8Build"; Wp8Result=$?
+    BuildClientByFunc "$TestPS4" "MakePS4Build" "ExecPs4OnConsole"; PS4Result=$?
+    BuildClientByFunc "$TestSwitch" "MakeSwitchBuild" "ExecSwitchOnConsole"; SwitchResult=$?
+    BuildClientByFunc "$TestXbox" "MakeXboxOneBuild" "ExecXboxOnConsole"; XBoxResult=$?
     BuildMainPackage
+
+    echo "Android Result: $(EM $AndroidResult)"
+    echo "iOS Result: $(EM $iOSResult)"
+    echo "Wp8 Result: $(EM $Wp8Result)"
+    echo "PS4 Result: $(EM $PS4dResult)"
+    echo "Switch Result: $(EM $SwitchResult)"
+    echo "XBox Result: $(EM $XBoxResult)"
+
     KillUnityProcesses
+
+    exit $(EC $(($AndroidResult + bg$iOSResult + $Wp8Result + $PS4Result + $SwitchResult + $XBoxResult)))
 }
 
 DoWork

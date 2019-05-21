@@ -13,7 +13,11 @@ TestToolsPath=$(printenv XAMARIN_UITEST_TOOLS)
 AppCenterCLIPath=$(printenv APPCENTER_CLI_PATH)
 Platform=$3
 
-Usage="Usage: ./runAppCenterTest.sh <path to apk to test> <path to xamarin.uitest test assemblies> <target platform: ios | android>"
+Usage="Usage: ./runAppCenterTest.sh \
+<path to apk to test> \
+<path to xamarin.uitest test assemblies> \
+<target configuration: unity-ios | unity-android | unral-ios | unreal-android > \
+<AppCenterApp name string>"
 
 
 #check number of args
@@ -22,12 +26,17 @@ echo $Usage
 exit
 fi
 
-if [ "$Platform" = "ios" ]; then 
+if [ "$Platform" = "unity-ios" ]; then 
 Devices=a1bf2de1
 AppCenterApp="PlayFabSDKTeam/PlayFabUnityXCode"
-elif [ "$Platform" = "android" ]; then
+elif [ "$Platform" = "unity-android" ]; then
 AppCenterApp="PlayFabSDKTeam/PlayFabUnityAndroid"
 Devices=f749a00a
+elif [ "$Platform" = "unreal-ios" ]; then
+echo "Error: invalid platform entry!"
+elif [ "$Platform" = "unreal-android" ]; then
+AppCenterApp="PlayFabSDKTeam/PlayFabUnrealAndroid"
+Devices=696d7baa
 else #invalid platform
 echo "Error: invalid platform entry!"
 echo $Usage

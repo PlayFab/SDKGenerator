@@ -134,7 +134,7 @@ ExecXboxOnConsole() {
 
 TryBuildAndTestAndroid() {
     echo "TestAndroid: $TestAndroid"
-    if [ "$TestAndroid" = "true"]; then
+    if [ "$TestAndroid" = "true" ]; then
         echo === Build and Test Android ===
         pushd "${ProjRootPath}/${SdkName}_TC"
             pushd "$WORKSPACE/SDKGenerator/SDKBuildScripts"
@@ -157,7 +157,7 @@ TryBuildAndTestAndroid() {
 
 TryBuildAndTestiOS() {
     echo "TestiPhone: $TestiPhone"
-    if [ "$TestiPhone" = "true"]; then
+    if [ "$TestiPhone" = "true" ]; then
         echo === Build and Test iOS ===
         pushd "${ProjRootPath}/${SdkName}_TC"
 

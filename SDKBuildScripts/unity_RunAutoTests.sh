@@ -142,50 +142,71 @@ TryBuildAndTestAndroid() {
     if [ "$TestAndroid" = "true" ]; then
         echo === Build and Test Android ===
         pushd "${ProjRootPath}/${SdkName}_TC"
+
+            #copy test title data in
             pushd "$WORKSPACE/SDKGenerator/SDKBuildScripts"
                 ./unity_copyTestTitleData.sh "$WORKSPACE/sdks/UnitySDK/Testing/Resources" copy
             popd
             if [[ $? -ne 0 ]]; then return 1; fi
             
+            #build the APK
             $UNITY_VERSION -projectPath "$WORKSPACE/$UNITY_VERSION/${SdkName}_TC" -quit -batchmode -executeMethod PlayFab.Internal.PlayFabPackager.MakeAndroidBuild -logFile "$WORKSPACE/${SdkName}/buildPackageOutput.txt" || (cat "$WORKSPACE/${SdkName}/buildAndroidOutput.txt" && return 1)
             if [[ $? -ne 0 ]]; then return 1; fi
             
             pushd "$WORKSPACE/SDKGenerator/SDKBuildScripts"
+                
+                #pull the test title data back out
                 ./unity_copyTestTitleData.sh "$WORKSPACE/sdks/UnitySDK/Testing/Resources" delete
                 if [[ $? -ne 0 ]]; then return 1; fi
+                
+                #upload the APK and run the tests on AppCenter Test
                 ./runAppCenterTest.sh "$ProjRootPath/${SdkName}_TC/testBuilds/PlayFabAndroid.apk" "$WORKSPACE/SDKGenerator/SDKBuildScripts/AppCenterUITestLauncher/AppCenterUITestLauncher/debugassemblies" android
                 if [[ $? -ne 0 ]]; then return 1; fi
+           
             popd
 
+            #check the cloudscript for the test results
             JenkernaughtSaveCloudScriptResults
+
         popd
     fi
 }
+
 
 TryBuildAndTestiOS() {
     echo "TestiPhone: $TestiPhone"
     if [ "$TestiPhone" = "true" ]; then
         echo === Build and Test iOS ===
+        
         pushd "${ProjRootPath}/${SdkName}_TC"
+
+            #copy the test title data in
             pushd "$WORKSPACE/SDKGenerator/SDKBuildScripts"
                 ./unity_copyTestTitleData.sh "$WORKSPACE/sdks/UnitySDK/Testing/Resources" copy
             popd
             if [[ $? -ne 0 ]]; then return 1; fi
             
+            #build the xcode project to prepare for IPA generation
             $UNITY_VERSION -projectPath "$WORKSPACE/$UNITY_VERSION/${SdkName}_TC" -quit -batchmode -executeMethod PlayFab.Internal.PlayFabPackager.MakeIPhoneBuild -logFile "$WORKSPACE/${SdkName}/buildPackageOutput.txt" || (cat "$WORKSPACE/${SdkName}/buildiPhoneOutput.txt" && return 1)
             if [[ $? -ne 0 ]]; then return 1; fi
             
             pushd "$WORKSPACE/SDKGenerator/SDKBuildScripts"
+ 
+                #pull the test title data back out.
                 ./unity_copyTestTitleData.sh "$WORKSPACE/sdks/UnitySDK/Testing/Resources" delete
                 if [[ $? -ne 0 ]]; then return 1; fi
 
+                #build the IPA on AppCenter Build
                 ./unity_buildAppCenterTestIOS.sh "$ProjRootPath/${SdkName}_TC/testBuilds/PlayFabIOS" "$WORKSPACE/vso" 'git@ssh.dev.azure.com:v3/playfab/Playfab%20SDK%20Automation/UnitySDK_XCode_AppCenterBuild' $JOB_NAME init
                 if [[ $? -ne 0 ]]; then return 1; fi
 
+                #run the downloaded IPA on AppCenter Test
                 ./runAppCenterTest.sh "$WORKSPACE/SDKGenerator/SDKBuildScripts/PlayFabIOS.ipa" "$WORKSPACE/SDKGenerator/SDKBuildScripts/AppCenterUITestLauncher/AppCenterUITestLauncher/debugassemblies" ios
                 if [[ $? -ne 0 ]]; then return 1; fi
+            
             popd
 
+            #check the cloudscript for the test results
             JenkernaughtSaveCloudScriptResults
             if [[ $? -ne 0 ]]; then return 1; fi
         popd
@@ -200,6 +221,7 @@ BuildMainPackage() {
     fi
 }
 
+#pretty-print test a  test result codes (if the test was actually run)
 EM() {
     if [ "$2" != "true" ]; then echo "N/A"
     elif [ $1 -ne 0 ]; then echo FAIL
@@ -207,6 +229,7 @@ EM() {
     fi
 }
 
+#boil error codes down to either 1 or 0.
 EC() {
     if [ $1 -ne 0 ]; then return 1; else return 0; fi
 }
@@ -223,6 +246,7 @@ DoWork() {
     BuildClientByFunc "$TestXbox" "MakeXboxOneBuild" "ExecXboxOnConsole"; XBoxResult=$?
     BuildMainPackage
 
+    #show us how it all went
     echo -e "Android Result:\t$(EM $AndroidResult $TestAndroid)"
     echo -e "iOS Result:\t\t$(EM $iOSResult $TestiPhone)"
     echo -e "Wp8 Result:\t\t$(EM $Wp8Result $TestWp8)"
@@ -232,6 +256,7 @@ DoWork() {
 
     KillUnityProcesses
 
+    #trigger a jenkins job failure if it didn't go well
     exit $(EC $(($AndroidResult + $iOSResult + $Wp8Result + $PS4Result + $SwitchResult + $XBoxResult)))
 }
 

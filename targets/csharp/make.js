@@ -8,43 +8,6 @@ if (typeof (getCompiledTemplate) === "undefined") getCompiledTemplate = function
 
 const copyright = "\"Copyright Microsoft © 2019\"";
 
-exports.makeClientAPI2 = function (apis, sourceDir, apiOutputDir) {
-    apiOutputDir = path.join(apiOutputDir, "PlayFabClientSDK");
-    console.log("Generating C-sharp client SDK to " + apiOutputDir);
-
-    var locals = {
-        buildIdentifier: sdkGlobals.buildIdentifier,
-        hasClientOptions: getAuthMechanisms(apis).includes("SessionTicket"),
-        sdkVersion: sdkGlobals.sdkVersion
-    };
-
-    templatizeTree(locals, path.resolve(sourceDir, "source"), apiOutputDir);
-    makeDatatypes(apis, sourceDir, apiOutputDir);
-    for (var i = 0; i < apis.length; i++)
-        makeApi(apis[i], sourceDir, apiOutputDir);
-    generateSimpleFiles(apis, sourceDir, apiOutputDir);
-    generateProject(apis, sourceDir, apiOutputDir, "Client", "");
-};
-
-exports.makeServerAPI = function (apis, sourceDir, apiOutputDir) {
-    apiOutputDir = path.join(apiOutputDir, "PlayFabServerSDK");
-    console.log("Generating C-sharp server SDK to " + apiOutputDir);
-
-    var locals = {
-        buildIdentifier: sdkGlobals.buildIdentifier,
-        hasClientOptions: getAuthMechanisms(apis).includes("SessionTicket"),
-        sdkVersion: sdkGlobals.sdkVersion
-    };
-
-    templatizeTree(locals, path.resolve(sourceDir, "source"), apiOutputDir);
-    makeDatatypes(apis, sourceDir, apiOutputDir);
-    for (var i = 0; i < apis.length; i++)
-        makeApi(apis[i], sourceDir, apiOutputDir);
-
-    generateSimpleFiles(apis, sourceDir, apiOutputDir);
-    generateProject(apis, sourceDir, apiOutputDir, "Server", ";DISABLE_PLAYFABCLIENT_API;ENABLE_PLAYFABSERVER_API");
-};
-
 exports.makeCombinedAPI = function (apis, sourceDir, apiOutputDir) {
     const rootOutputDir = apiOutputDir;
     apiOutputDir = path.join(apiOutputDir, "PlayFabSDK");
@@ -57,9 +20,9 @@ exports.makeCombinedAPI = function (apis, sourceDir, apiOutputDir) {
         sdkVersion: sdkGlobals.sdkVersion
     };
 
-    templatizeTree(locals, path.resolve(sourceDir, "source"), apiOutputDir);
+    templatizeTree(locals, path.resolve(sourceDir, "source"), rootOutputDir);
+
     templatizeTree(locals, path.resolve(sourceDir, "UnittestRunner"), path.resolve(apiOutputDir, "UnittestRunner")); // Copy the actual unittest project in the CombinedAPI
-    copyOrTemplatizeFile(locals, path.resolve(sourceDir, "PlayFabSDK+Unit.sln"), path.resolve(apiOutputDir, "PlayFabSDK+Unit.sln"));
     makeDatatypes(apis, sourceDir, apiOutputDir);
     for (var i = 0; i < apis.length; i++)
         makeApi(apis[i], sourceDir, apiOutputDir);
@@ -70,6 +33,9 @@ exports.makeCombinedAPI = function (apis, sourceDir, apiOutputDir) {
     const xamarinOutputDir = path.join(rootOutputDir, "XamarinTestRunner");
     templatizeTree(locals, path.resolve(sourceDir, "XamarinTestRunner"), xamarinOutputDir);
     templatizeTree(locals, path.join(apiOutputDir, "source"), path.join(xamarinOutputDir, "XamarinTestRunner", "PlayFabSDK"));
+
+    const pluginsOutputDir = path.resolve(rootOutputDir, "Plugins");
+    generatePlugins(locals, sourceDir, pluginsOutputDir);
 };
 
 function getBaseTypeSyntax(datatype) {
@@ -188,6 +154,23 @@ function generateProject(apis, sourceDir, apiOutputDir, libname, extraDefines) {
 
     var vcProjTemplate = getCompiledTemplate(path.resolve(sourceDir, "templates/PlayFabSDK.csproj.ejs"));
     writeFile(path.resolve(apiOutputDir, "source/PlayFabSDK.csproj"), vcProjTemplate(projLocals));
+}
+
+function generatePlugins(locals, sourceDir, outputDir) {
+    const cloudScriptOutputDir = path.resolve(outputDir, "CloudScript");
+    generateCloudScriptPlugin(locals, sourceDir, cloudScriptOutputDir);
+}
+
+function generateCloudScriptPlugin(locals, sourceDir, outputDir) {
+    var projLocals = {
+        extraDefines: ";NETFX_CORE;SIMPLE_JSON_TYPEINFO",
+        sdkVersion: sdkGlobals.sdkVersion,
+        sdkDate: sdkGlobals.sdkVersion.split(".")[2],
+        sdkYear: sdkGlobals.sdkVersion.split(".")[2].substr(0, 2)
+    };
+
+    var vcProjTemplate = getCompiledTemplate(path.resolve(sourceDir, "templates", "PlayFabCloudScriptPlugin.csproj.ejs"));
+    writeFile(path.resolve(outputDir, "source", "PlayFabCloudScriptPlugin.csproj"), vcProjTemplate(projLocals));
 }
 
 function getVerticalNameDefault() {

@@ -52,7 +52,7 @@ namespace PlayFab
             return error.GenerateErrorReport();
         }
 
-#if NET45 || NETCOREAPP2_0
+#if NET45 || NETSTANDARD2_0
         [ThreadStatic]
         private static StringBuilder _sb;
         /// <summary>
@@ -87,7 +87,7 @@ namespace PlayFab
             return _sb.ToString();
         }
 
-        internal static string GetLocalSettingsFileProperty(string propertyKey)
+        internal static LocalSettingsFile GetLocalSettingsFile()
         {
             string envFileContent = null;
             string currDir = Directory.GetCurrentDirectory();
@@ -111,19 +111,15 @@ namespace PlayFab
             if (!string.IsNullOrEmpty(envFileContent))
             {
                 var jsonPlugin = PluginManager.GetPlugin<ISerializerPlugin>(PluginContract.PlayFab_Serializer);
-                dynamic envJson = jsonPlugin.DeserializeObject(envFileContent);
-                string result = string.Empty;
-                try
-                {
-                    result = envJson[propertyKey]?.ToString();
-                    return result;
-                }
-                catch (KeyNotFoundException)
-                {
-                    return string.Empty;
-                }
+                return jsonPlugin.DeserializeObject<LocalSettingsFile>(envFileContent);
             }
-            return string.Empty;
+
+            return new LocalSettingsFile();
+        }
+
+        internal class LocalSettingsFile
+        {
+            public string LocalApiServer { get; set; }
         }
 #endif
 

@@ -66,11 +66,19 @@ CheckVars() {
 
 SetProjDefines() {
     echo === Test compilation in all example projects ===
-    SetEachProjDefine ${SdkName}_BUP
-    # SetEachProjDefine ${SdkName}_TA
+
+    # TC is used by essentially all of the test projects
+    . ./unity_copyTestTitleData.sh "${ProjRootPath}/${SdkName}_TC/Assets/Resources" copy
     SetEachProjDefine ${SdkName}_TC
-    # SetEachProjDefine ${SdkName}_TS
-    # SetEachProjDefine ${SdkName}_TZ
+    # TODO: This is limiting the tests that get run on Jenkins...
+
+    if [ "$BuildMainUnityPackage" = "true" ]; then
+        SetEachProjDefine ${SdkName}_BUP
+    fi
+
+    SetEachProjDefine ${SdkName}_TA
+    SetEachProjDefine ${SdkName}_TS
+    SetEachProjDefine ${SdkName}_TZ
 }
 
 SetEachProjDefine() {
@@ -105,7 +113,23 @@ BuildClientByFunc() {
         pushd "${ProjRootPath}/${SdkName}_TC"
         $UNITY_VERSION -projectPath "${ProjRootPath}/${SdkName}_TC" -quit -batchmode -executeMethod PlayFab.Internal.PlayFabPackager.$2 -logFile "${ProjRootPath}/${2}.txt" || (cat "${ProjRootPath}/${2}.txt" && return 1)
         popd
+        #Run the console test command if present
+        if [ ! -z "$3" ]; then
+            $3
+        fi
     fi
+}
+
+ExecPs4OnConsole() {
+    . "$WORKSPACE/JenkinsSdkSetupScripts/JenkinsScripts/Consoles/ps4/unity_ps4.sh"
+}
+
+ExecSwitchOnConsole() {
+    . "$WORKSPACE/JenkinsSdkSetupScripts/JenkinsScripts/Consoles/switch/unity_switch.sh"
+}
+
+ExecXboxOnConsole() {
+    . "$WORKSPACE/JenkinsSdkSetupScripts/JenkinsScripts/Consoles/xbox/unity_xbox.sh"
 }
 
 BuildMainPackage() {
@@ -123,9 +147,9 @@ DoWork() {
     BuildClientByFunc "$TestAndroid" "MakeAndroidBuild"
     BuildClientByFunc "$TestiPhone" "MakeIPhoneBuild"
     BuildClientByFunc "$TestWp8" "MakeWp8Build"
-    BuildClientByFunc "$TestPS4" "MakePS4Build"
-    BuildClientByFunc "$TestSwitch" "MakeSwitchBuild"
-    BuildClientByFunc "$TestXbox" "MakeXboxOneBuild"
+    BuildClientByFunc "$TestPS4" "MakePS4Build" "ExecPs4OnConsole"
+    BuildClientByFunc "$TestSwitch" "MakeSwitchBuild" "ExecSwitchOnConsole"
+    BuildClientByFunc "$TestXbox" "MakeXboxOneBuild" "ExecXboxOnConsole"
     BuildMainPackage
 }
 

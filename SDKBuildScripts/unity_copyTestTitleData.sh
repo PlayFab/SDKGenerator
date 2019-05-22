@@ -7,10 +7,9 @@
 
 #check number of args
 if [ "$#" -ne 2 ]; then 
-echo "ERROR: Invalid number of arguments."
-echo "Usage: ./unity_copyTestTitleData.sh <target directory to contain testTitleData.json inside of the unity project> <copy | delete>"
-false
-exit
+    echo "ERROR: Invalid number of arguments."
+    echo "Usage: ./unity_copyTestTitleData.sh <target directory to contain testTitleData.json inside of the unity project> <copy | delete>"
+    exit 1
 fi
 
 #collect args
@@ -20,16 +19,15 @@ CopyOrDelete=$2
 
 #validate args
 if [ $CopyOrDelete != "copy"  ] && [ "$CopyOrDelete" != "delete" ]; then 
-echo "ERROR: Second argument must be either copy or delete"
-echo "Usage: ./unity_copyTestTitleData.sh <target directory to contain testTitleData.json inside of the unity project> <copy | delete>"
-false
-exit
+    echo "ERROR: Second argument must be either copy or delete"
+    echo "Usage: ./unity_copyTestTitleData.sh <target directory to contain testTitleData.json inside of the unity project> <copy | delete>"
+    exit 1
 fi
 
 #perform copy or delete
 if [ $CopyOrDelete = "copy" ] ; then
-mkdir -p "$TargetPath"
-cp "$TestTitleData" "$TargetPath/testTitleData.json"
-else
-rm "$TargetPath/testTitleData.json"
+    mkdir -p "$TargetPath"
+    cp "$TestTitleData" "$TargetPath/testTitleData.json"
+    else
+    rm "$TargetPath/testTitleData.json"
 fi

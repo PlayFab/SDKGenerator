@@ -210,10 +210,20 @@ namespace PlayFab.Plugins.CloudScript
         }
     }
 
+    /// <summary>
+    /// Identifier by either name or ID. Note that a name may change due to renaming,
+    /// or reused after being deleted. ID is immutable and unique.
+    /// </summary>
     public class NameIdentifier
     {
+        /// <summary>
+        /// Name Identifier, if present
+        /// </summary>
         public string Name { get; set; }
 
+        /// <summary>
+        /// Id Identifier, if present
+        /// </summary>
         public string Id { get; set; }
     }
 
@@ -236,9 +246,20 @@ namespace PlayFab.Plugins.CloudScript
         public bool TriggeredEvents { get; set; }
     }
 
+    /// <summary>
+    /// Structure that represents the authentication context provided over the wire
+    /// by PlayFab MainServer for a title. Contains a Title ID and a Title Entity Token.
+    /// </summary>
     internal class TitleAuthenticationContext
     {
+        /// <summary>
+        /// Title Id
+        /// </summary>
         public string Id { get; set; }
+
+        /// <summary>
+        /// Title Entity Token
+        /// </summary>
         public string EntityToken { get; set; }
     }
 }

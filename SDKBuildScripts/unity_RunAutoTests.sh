@@ -108,6 +108,7 @@ RunClientJenkernaught() {
         popd
 
         JenkernaughtSaveCloudScriptResults
+        if [[ $? -ne 0 ]]; then return 1; fi
     fi
 }
 
@@ -121,8 +122,6 @@ BuildClientByFunc() {
         if [ ! -z "$3" ]; then
             $3
         fi
-    else
-        return 2
     fi
 }
 
@@ -159,10 +158,7 @@ TryBuildAndTestAndroid() {
             popd
 
             JenkernaughtSaveCloudScriptResults
-            if [[ $? -ne 0 ]]; then return 1; fi
         popd
-    else 
-        return 2
     fi
 }
 
@@ -193,8 +189,6 @@ TryBuildAndTestiOS() {
             JenkernaughtSaveCloudScriptResults
             if [[ $? -ne 0 ]]; then return 1; fi
         popd
-    else 
-        return 2
     fi
 }
 
@@ -207,14 +201,13 @@ BuildMainPackage() {
 }
 
 EM() {
-    if [ $1 -eq 2 ]; then echo "N/A"
+    if [ "$2" != "true" ]; then echo "N/A"
     elif [ $1 -ne 0 ]; then echo FAIL
     else echo PASS
     fi
 }
 
 EC() {
-    if [ $1 -eq 2 ]; then return 0; fi
     if [ $1 -ne 0 ]; then return 1; else return 0; fi
 }
 
@@ -230,12 +223,12 @@ DoWork() {
     BuildClientByFunc "$TestXbox" "MakeXboxOneBuild" "ExecXboxOnConsole"; XBoxResult=$?
     BuildMainPackage
 
-    echo -e "Android Result:\t$(EM $AndroidResult)"
-    echo -e "iOS Result:\t\t$(EM $iOSResult)"
-    echo -e "Wp8 Result:\t\t$(EM $Wp8Result)"
-    echo -e "PS4 Result:\t\t$(EM $PS4Result)"
-    echo -e "Switch Result:\t\t$(EM $SwitchResult)"
-    echo -e "XBox Result:\t\t$(EM $XBoxResult)"
+    echo -e "Android Result:\t$(EM $AndroidResult $TestAndroid)"
+    echo -e "iOS Result:\t\t$(EM $iOSResult $TestiPhone)"
+    echo -e "Wp8 Result:\t\t$(EM $Wp8Result $TestWp8)"
+    echo -e "PS4 Result:\t\t$(EM $PS4Result $TestPS4)"
+    echo -e "Switch Result:\t\t$(EM $SwitchResult $TestSwitch)"
+    echo -e "XBox Result:\t\t$(EM $XBoxResult $TestXbox)"
 
     KillUnityProcesses
 

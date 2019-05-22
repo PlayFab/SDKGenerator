@@ -121,6 +121,8 @@ BuildClientByFunc() {
         if [ ! -z "$3" ]; then
             $3
         fi
+    else
+        return 2
     fi
 }
 
@@ -159,6 +161,8 @@ TryBuildAndTestAndroid() {
             JenkernaughtSaveCloudScriptResults
             if [[ $? -ne 0 ]]; then return 1; fi
         popd
+    else 
+        return 2
     fi
 }
 
@@ -189,6 +193,8 @@ TryBuildAndTestiOS() {
             JenkernaughtSaveCloudScriptResults
             if [[ $? -ne 0 ]]; then return 1; fi
         popd
+    else 
+        return 2
     fi
 }
 
@@ -200,9 +206,15 @@ BuildMainPackage() {
     fi
 }
 
+EM() {
+    if [ $1 -eq 2 ]; then echo "N/A"
+    elif [ $1 -ne 0 ]; then echo FAIL
+    else echo PASS
+    fi
 }
-    cmd <<< "JenkinsConsoleUtility --kill -taskName $UNITY_VERSION"
+
 EC() {
+    if [ $1 -eq 2 ]; then return 0; fi
     if [ $1 -ne 0 ]; then return 1; else return 0; fi
 }
 

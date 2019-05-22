@@ -182,7 +182,7 @@ TryBuildAndTestiOS() {
                 ./unity_buildAppCenterTestIOS.sh "$ProjRootPath/${SdkName}_TC/testBuilds/PlayFabIOS" "$WORKSPACE/vso" 'git@ssh.dev.azure.com:v3/playfab/Playfab%20SDK%20Automation/UnitySDK_XCode_AppCenterBuild' $JOB_NAME init
                 if [[ $? -ne 0 ]]; then return 1; fi
 
-                ./runAppCenterTest.sh "$ProjRootPath/${SdkName}_TC/testBuilds/PlayFabAndroid.apk" "$WORKSPACE/SDKGenerator/SDKBuildScripts/AppCenterUITestLauncher/AppCenterUITestLauncher/debugassemblies" ios
+                ./runAppCenterTest.sh "$WORKSPACE/SDKGenerator/SDKBuildScripts/PlayFabIOS.ipa" "$WORKSPACE/SDKGenerator/SDKBuildScripts/AppCenterUITestLauncher/AppCenterUITestLauncher/debugassemblies" ios
                 if [[ $? -ne 0 ]]; then return 1; fi
             popd
 

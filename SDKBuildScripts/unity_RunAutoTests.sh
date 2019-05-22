@@ -140,6 +140,11 @@ BuildMainPackage() {
     fi
 }
 
+KillUnityProcesses() {
+    pushd "$WORKSPACE/SDKGenerator/JenkinsConsoleUtility/bin/Debug"
+    cmd <<< "JenkinsConsoleUtility --kill -taskName $UNITY_VERSION"
+}
+
 DoWork() {
     CheckVars
     SetProjDefines
@@ -151,6 +156,7 @@ DoWork() {
     BuildClientByFunc "$TestSwitch" "MakeSwitchBuild" "ExecSwitchOnConsole"
     BuildClientByFunc "$TestXbox" "MakeXboxOneBuild" "ExecXboxOnConsole"
     BuildMainPackage
+    KillUnityProcesses
 }
 
 DoWork

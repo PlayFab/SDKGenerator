@@ -218,10 +218,10 @@ DoWork() {
     BuildClientByFunc "$TestXbox" "MakeXboxOneBuild" "ExecXboxOnConsole"; XBoxResult=$?
     BuildMainPackage
 
-    echo -e "Android Result:\t\t$(EM $AndroidResult)"
+    echo -e "Android Result:\t$(EM $AndroidResult)"
     echo -e "iOS Result:\t\t$(EM $iOSResult)"
     echo -e "Wp8 Result:\t\t$(EM $Wp8Result)"
-    echo -e "PS4 Result:\t\t$(EM $PS4dResult)"
+    echo -e "PS4 Result:\t\t$(EM $PS4Result)"
     echo -e "Switch Result:\t\t$(EM $SwitchResult)"
     echo -e "XBox Result:\t\t$(EM $XBoxResult)"
 

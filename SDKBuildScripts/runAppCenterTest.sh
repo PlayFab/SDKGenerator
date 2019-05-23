@@ -31,6 +31,7 @@ Devices=f749a00a
 else #invalid platform
 echo "Error: invalid platform entry!"
 echo $Usage
+exit
 fi
 
 echo "=== Starting AppCenter Test Run with Params: ==="

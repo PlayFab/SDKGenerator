@@ -21,6 +21,11 @@ namespace PlayFab.Internal
         private void OnPostprocessBuildiOS(BuildReport report)
         {
 #if UNITY_IOS
+            if(!IsBuiltForAppCenter)
+            {
+                return;
+            }
+
             Debug.Log("TestAppPostBuildProcessor.OnPostprocessBuild for target " + report.summary.platform + " at path " + report.summary.outputPath);
             BuildTarget buildTarget = report.summary.platform;
             string path = report.summary.outputPath;
@@ -45,6 +50,15 @@ namespace PlayFab.Internal
 
             File.WriteAllText(projectPath, proj.WriteToString());
 #endif
+        }
+
+        private static bool IsBuiltForAppCenter 
+        {
+            get 
+            {
+                var args = new System.Collections.Generic.List<string>(Environment.GetCommandLineArgs());
+                return args.Contains("-appcenter");
+            }
         }
     }
 

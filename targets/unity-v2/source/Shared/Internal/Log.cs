@@ -1,7 +1,10 @@
+using System;
+
 namespace PlayFab.Internal
 {
     public static class Log
     {
+        [Obsolete("Debug has deprecated.")]
         public static void Debug(string text, params object[] args)
         {
             if ((PlayFabSettings.LogLevel & PlayFabLogLevel.Debug) != 0)
@@ -10,6 +13,7 @@ namespace PlayFab.Internal
             }
         }
 
+        [Obsolete("Info has deprecated.")]
         public static void Info(string text, params object[] args)
         {
             if ((PlayFabSettings.LogLevel & PlayFabLogLevel.Info) != 0)
@@ -18,6 +22,7 @@ namespace PlayFab.Internal
             }
         }
 
+        [Obsolete("Warning has deprecated.")]
         public static void Warning(string text, params object[] args)
         {
             if ((PlayFabSettings.LogLevel & PlayFabLogLevel.Warning) != 0)
@@ -26,6 +31,7 @@ namespace PlayFab.Internal
             }
         }
 
+        [Obsolete("Error has deprecated.")]
         public static void Error(string text, params object[] args)
         {
             if ((PlayFabSettings.LogLevel & PlayFabLogLevel.Error) != 0)

@@ -234,6 +234,11 @@ EC() {
     if [ $1 -ne 0 ]; then return 1; else return 0; fi
 }
 
+KillUnityProcesses() {
+    pushd "$WORKSPACE/SDKGenerator/JenkinsConsoleUtility/bin/Debug"
+    cmd <<< "JenkinsConsoleUtility --kill -taskName $UNITY_VERSION"
+}
+
 DoWork() {
     CheckVars
     SetProjDefines

@@ -6,11 +6,6 @@ using UnityEditor;
 using UnityEditor.Build;
 using UnityEditor.Build.Reporting;
 
-#if UNITY_IOS
-using UnityEditor.iOS;
-using UnityEditor.iOS.Xcode;
-#endif
-
 using BuildPipeline = UnityEditor.BuildPipeline;
 
 namespace PlayFab.Internal
@@ -20,25 +15,24 @@ namespace PlayFab.Internal
         public int callbackOrder { get { return 0; } }
         public void OnPostprocessBuild(BuildReport report)
         {
-            OnPostprocessBuildiOS();
+            OnPostprocessBuildiOS(report);
         }
 
-        private void OnPostprocessBuildiOS()
+        private void OnPostprocessBuildiOS(BuildReport report)
         {
 #if UNITY_IOS
             Debug.Log("TestAppPostBuildProcessor.OnPostprocessBuild for target " + report.summary.platform + " at path " + report.summary.outputPath);
             BuildTarget buildTarget = report.summary.platform;
             string path = report.summary.outputPath;
 
-            string projectPath = PBXProject.GetPBXProjectPath(path);
-            var proj = new PBXProject();
+            string projectPath = UnityEditor.iOS.Xcode.PBXProject.GetPBXProjectPath(path);
+            var proj = new UnityEditor.iOS.Xcode.PBXProject();
 
             proj.ReadFromString(File.ReadAllText(projectPath));
             string xcodeTargetGUID = proj.TargetGuidByName("Unity-iPhone");
 
             proj.AddFrameworkToProject(xcodeTargetGUID, "calabash.framework", false);
-            //FileUtil.CopyFileOrDirectory("Assets/Testings/Tests/Libs/calabash.framework", Path.Combine(projectPath, "calabash.framework"));
-            proj.AddFileToBuild(xcodeTargetGUID, proj.AddFile("calabash.framework", "calabash.framework", PBXSourceTree.Source));
+            proj.AddFileToBuild(xcodeTargetGUID, proj.AddFile("calabash.framework", "calabash.framework", UnityEditor.iOS.Xcode.PBXSourceTree.Source));
 
             proj.SetBuildProperty(xcodeTargetGUID, "FRAMEWORK_SEARCH_PATHS", "$(inherited)");
             proj.AddBuildProperty(xcodeTargetGUID, "FRAMEWORK_SEARCH_PATHS", "$(PROJECT_DIR)");

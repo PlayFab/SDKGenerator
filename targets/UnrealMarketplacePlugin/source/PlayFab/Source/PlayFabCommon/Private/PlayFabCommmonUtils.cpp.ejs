@@ -14,7 +14,7 @@ FString PlayFabCommonUtils::GetTempDir()
 {
     FString vars[] = { TEXT("TEMPDIR"), TEXT("TEMP"), TEXT("TMP") };
     const int expectedPathSize = 256;
-    TCHAR FileSystemPath[expectedSize];
+    TCHAR FileSystemPath[expectedPathSize];
     for (FString& envVar : vars)
     {
         FileSystemPath[0] = 0;

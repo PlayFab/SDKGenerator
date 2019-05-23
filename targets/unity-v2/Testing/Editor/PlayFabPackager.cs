@@ -3,8 +3,6 @@ using System.IO;
 using System.Reflection;
 using UnityEngine;
 using UnityEditor;
-using UnityEditor.iOS;
-using UnityEditor.iOS.Xcode;
 using UnityEditor.Build;
 using UnityEditor.Build.Reporting;
 
@@ -17,32 +15,36 @@ namespace PlayFab.Internal
         public int callbackOrder { get { return 0; } }
         public void OnPostprocessBuild(BuildReport report)
         {
+            OnPostprocessBuildiOS(report);
+        }
+
+        private void OnPostprocessBuildiOS(BuildReport report)
+        {
+#if UNITY_IOS
             Debug.Log("TestAppPostBuildProcessor.OnPostprocessBuild for target " + report.summary.platform + " at path " + report.summary.outputPath);
             BuildTarget buildTarget = report.summary.platform;
             string path = report.summary.outputPath;
-            if (buildTarget == BuildTarget.iOS)
-            {
-                string projectPath = PBXProject.GetPBXProjectPath(path);
-                PBXProject proj = new PBXProject();
 
-                proj.ReadFromString(File.ReadAllText(projectPath));
-                string xcodeTargetGUID = proj.TargetGuidByName("Unity-iPhone");
+            string projectPath = UnityEditor.iOS.Xcode.PBXProject.GetPBXProjectPath(path);
+            var proj = new UnityEditor.iOS.Xcode.PBXProject();
 
-                proj.AddFrameworkToProject(xcodeTargetGUID, "calabash.framework", false);
-                //FileUtil.CopyFileOrDirectory("Assets/Testings/Tests/Libs/calabash.framework", Path.Combine(projectPath, "calabash.framework"));
-                proj.AddFileToBuild(xcodeTargetGUID, proj.AddFile("calabash.framework", "calabash.framework", PBXSourceTree.Source));
+            proj.ReadFromString(File.ReadAllText(projectPath));
+            string xcodeTargetGUID = proj.TargetGuidByName("Unity-iPhone");
 
-                proj.SetBuildProperty(xcodeTargetGUID, "FRAMEWORK_SEARCH_PATHS", "$(inherited)");
-                proj.AddBuildProperty(xcodeTargetGUID, "FRAMEWORK_SEARCH_PATHS", "$(PROJECT_DIR)");
+            proj.AddFrameworkToProject(xcodeTargetGUID, "calabash.framework", false);
+            proj.AddFileToBuild(xcodeTargetGUID, proj.AddFile("calabash.framework", "calabash.framework", UnityEditor.iOS.Xcode.PBXSourceTree.Source));
 
-                proj.AddBuildProperty(xcodeTargetGUID, "OTHER_LDFLAGS", "-ObjC");
-                proj.AddBuildProperty(xcodeTargetGUID, "OTHER_LDFLAGS", "-force_load");
-                proj.AddBuildProperty(xcodeTargetGUID, "OTHER_LDFLAGS", "$(SOURCE_ROOT)/calabash.framework/calabash");
-                proj.AddBuildProperty(xcodeTargetGUID, "OTHER_LDFLAGS", "-framework");
-                proj.AddBuildProperty(xcodeTargetGUID, "OTHER_LDFLAGS", "CFNetwork");
+            proj.SetBuildProperty(xcodeTargetGUID, "FRAMEWORK_SEARCH_PATHS", "$(inherited)");
+            proj.AddBuildProperty(xcodeTargetGUID, "FRAMEWORK_SEARCH_PATHS", "$(PROJECT_DIR)");
 
-                File.WriteAllText(projectPath, proj.WriteToString());
-            }
+            proj.AddBuildProperty(xcodeTargetGUID, "OTHER_LDFLAGS", "-ObjC");
+            proj.AddBuildProperty(xcodeTargetGUID, "OTHER_LDFLAGS", "-force_load");
+            proj.AddBuildProperty(xcodeTargetGUID, "OTHER_LDFLAGS", "$(SOURCE_ROOT)/calabash.framework/calabash");
+            proj.AddBuildProperty(xcodeTargetGUID, "OTHER_LDFLAGS", "-framework");
+            proj.AddBuildProperty(xcodeTargetGUID, "OTHER_LDFLAGS", "CFNetwork");
+
+            File.WriteAllText(projectPath, proj.WriteToString());
+#endif
         }
     }
 
@@ -56,7 +58,7 @@ namespace PlayFab.Internal
             "assets/Testing/scenes/testscene.unity"
         };
 
-    private static readonly string TestPackageName = "com.playfab.service";
+        private static readonly string TestPackageName = "com.playfab.service";
 
         #region Utility Functions
         private static void Setup()
@@ -252,7 +254,7 @@ namespace PlayFab.Internal
         }
 
 #if UNITY_5_6_OR_NEWER // Switch is entirely unsupported before 5.6
-        [MenuItem( "PlayFab/Testing/SwitchTestBuild" )]
+        [MenuItem("PlayFab/Testing/SwitchTestBuild")]
         public static void MakeSwitchBuild()
         {
             Setup();

@@ -23,5 +23,15 @@ namespace PlayFab
 
         // Number of times a server is pinged
         constexpr int NUM_OF_PING_ITERATIONS = 3;
+
+        // These are possible error code for QoSResult.errorCode
+        enum QoSErrorCode
+        {
+            Success = 0,
+            NotLoggedIn = 1,
+            FailedToRetrieveServerList = 2,
+            FailedToUploadQosResult = 3,
+            Timeout = 4
+        };
     }
 }

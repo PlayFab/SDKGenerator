@@ -13,6 +13,7 @@
 #include <playfab/PlayFabEventsApi.h>
 #include <playfab/PlayFabEventsDataModels.h>
 #include <playfab/PlayFabSettings.h>
+#include <playfab/PlayFabPluginManager.h>
 
 using namespace std;
 using namespace PlayFab::MultiplayerModels;
@@ -22,6 +23,69 @@ namespace PlayFab
 {
     namespace QoS
     {
+        bool ValidateResult(PlayFabResultCommon& resultCommon, CallRequestContainer& container)
+        {
+            if (container.errorWrapper.HttpCode == 200)
+            {
+                resultCommon.FromJson(container.errorWrapper.Data);
+                resultCommon.Request = container.errorWrapper.Request;
+                return true;
+            }
+            else // Process the error case
+            {
+                if (PlayFabSettings::globalErrorHandler != nullptr)
+                    PlayFabSettings::globalErrorHandler(container.errorWrapper, container.GetCustomData());
+                if (container.errorCallback != nullptr)
+                    container.errorCallback(container.errorWrapper, container.GetCustomData());
+                return false;
+            }
+        }
+
+        void OnWriteEventsResult(int httpCode, std::string result, std::unique_ptr<CallRequestContainerBase> reqContainer)
+        {
+            CallRequestContainer& container = static_cast<CallRequestContainer&>(*reqContainer);
+
+            WriteEventsResponse outResult;
+            if (ValidateResult(outResult, container))
+            {
+                const auto internalPtr = container.successCallback.get();
+                if (internalPtr != nullptr)
+                {
+                    const auto callback = (*static_cast<ProcessApiCallback<WriteEventsResponse> *>(internalPtr));
+                    callback(outResult, container.GetCustomData());
+                }
+            }
+        }
+
+        void WriteTelemetryEvents(
+            WriteEventsRequest& request,
+            ProcessApiCallback<WriteEventsResponse> callback,
+            ErrorCallback errorCallback = nullptr,
+            void* customData = nullptr
+        )
+        {
+            IPlayFabHttpPlugin& http = *PlayFabPluginManager::GetPlugin<IPlayFabHttpPlugin>(PlayFabPluginContract::PlayFab_Transport);
+            const auto requestJson = request.ToJson();
+
+            Json::FastWriter writer;
+            std::string jsonAsString = writer.write(requestJson);
+
+            std::unordered_map<std::string, std::string> headers;
+            headers.emplace("X-EntityToken", request.authenticationContext == nullptr ? PlayFabSettings::entityToken : request.authenticationContext->entityToken);
+
+            auto reqContainer = std::unique_ptr<CallRequestContainer>(new CallRequestContainer(
+                "/Event/WriteTelemetryEvents",
+                headers,
+                jsonAsString,
+                OnWriteEventsResult,
+                customData));
+
+            reqContainer->successCallback = std::shared_ptr<void>((callback == nullptr) ? nullptr : new ProcessApiCallback<WriteEventsResponse>(callback));
+            reqContainer->errorCallback = errorCallback;
+
+            http.MakePostRequest(std::unique_ptr<CallRequestContainerBase>(static_cast<CallRequestContainerBase*>(reqContainer.release())));
+        }
+
         std::future<QoSResult> PlayFabQoSApi::GetQoSResultAsync(unsigned int numThreads, unsigned int timeoutMs)
         {
             return async(launch::async, [&, numThreads, timeoutMs]() { return GetQoSResult(numThreads, timeoutMs); });
@@ -30,6 +94,12 @@ namespace PlayFab
         QoSResult PlayFabQoSApi::GetQoSResult(unsigned int numThreads, unsigned int timeoutMs)
         {
             QoSResult result(move(GetResult(numThreads, timeoutMs)));
+
+            if (result.errorCode != QoSErrorCode::Success)
+            {
+                return result;
+            }
+
             SendResultsToPlayFab(result);
             return result;
         }
@@ -41,13 +111,13 @@ namespace PlayFab
             if (!PlayFabClientAPI::IsClientLoggedIn())
             {
                 LOG_QOS("Client is not logged in" << endl);
-                result.lastErrorCode = -1;
+                result.errorCode = QoSErrorCode::NotLoggedIn;
                 return result;
             }
 
             listQosServersCompleted = false;
 
-            // get datacenter map (call thunderhead)
+            // get region map (call thunderhead)
             PingThunderheadForServerList();
 
             // Wait for the PlayFabMultiplayerAPI::ListQosServers api to complete
@@ -56,27 +126,27 @@ namespace PlayFab
                 this_thread::sleep_for(threadWaitTimespan);
             }
 
-            size_t serverCount = dataCenterMap.size(); // call thunderhead to get a list of all the data centers
-            if (serverCount < 0)
+            size_t serverCount = regionMap.size(); // call thunderhead to get a list of all the data centers
+            if (serverCount <= 0)
             {
-                result.lastErrorCode = -1;
+                result.errorCode = QoSErrorCode::FailedToRetrieveServerList;
                 return result;
             }
 
-            // get a list of datacenter pings that need to be done
-            result.dataCenterResults.reserve(serverCount);
+            // get a list of region pings that need to be done
+            result.regionResults.reserve(serverCount);
             vector<AzureRegion> pings = move(GetPingList(serverCount));
 
             // initialize accumulated results with empty (zeroed) ping results
             unordered_map<AzureRegion, PingResult> accumulatedPingResults;
-            accumulatedPingResults.reserve(dataCenterMap.size());
+            accumulatedPingResults.reserve(regionMap.size());
             InitializeAccumulatedPingResults(accumulatedPingResults);
 
             // Sockets that would be used to ping
             vector<shared_ptr<QoSSocket>> sockets;
-            result.lastErrorCode = SetupSockets(sockets, numThreads, timeoutMs);
+            result.errorCode = SetupSockets(sockets, numThreads, timeoutMs);
 
-            // If no sockets were initialised, return as we cant do anything. The lastErrorCode must already be set at this point
+            // If no sockets were initialised, return as we cant do anything. The errorCode must already be set at this point
             // Update the numThreads as well since if we have n sockets, we can only use n threads
             if ((numThreads = sockets.size()) == 0)
             {
@@ -96,42 +166,41 @@ namespace PlayFab
             {
                 // Calculate the latency
                 int latency = (it->second.pingCount == 0) ? INT32_MAX : it->second.latencyMs / it->second.pingCount;
-                result.dataCenterResults.push_back(move(DataCenterResult(it->first, dataCenterMap[it->first], latency, it->second.errorCode)));
+                result.regionResults.push_back(move(RegionResult(it->first, latency, it->second.errorCode)));
             }
 
+            std::sort(result.regionResults.begin(), result.regionResults.end(), [](const RegionResult& first, const RegionResult& second) -> bool {return first.latencyMs < second.latencyMs; });
             return result;
         }
 
         void PlayFabQoSApi::SendResultsToPlayFab(QoSResult& result)
         {
             Json::Value value;
-            value["ErrorCode"] = Json::Value(result.lastErrorCode);
+            value["ErrorCode"] = Json::Value(result.errorCode);
             
-            Json::Value each_dataCenterResult;
-            for (int i = 0; i < result.dataCenterResults.size(); ++i)
+            Json::Value each_regionCenterResult;
+            for (int i = 0; i < result.regionResults.size(); ++i)
             {
                 Json::Value dcResult;
 
-                dcResult["AzureRegion"] = Json::Value(result.dataCenterResults[i].region);
-                dcResult["DataCenterName"] = Json::Value(result.dataCenterResults[i].dataCenterName.c_str());
-                dcResult["LatencyMs"] = Json::Value(result.dataCenterResults[i].latencyMs);
-                dcResult["ErrorCode"] = Json::Value(result.dataCenterResults[i].lastErrorCode);
+                dcResult["Region"] = Json::Value(result.regionResults[i].region);
+                dcResult["LatencyMs"] = Json::Value(result.regionResults[i].latencyMs);
+                dcResult["ErrorCode"] = Json::Value(result.regionResults[i].errorCode);
 
-                each_dataCenterResult[i] = dcResult;
+                each_regionCenterResult[i] = dcResult;
             }
 
-            value["DataCenterResults"] = each_dataCenterResult;
+            value["RegionResults"] = each_regionCenterResult;
 
             PlayFab::EventsModels::WriteEventsRequest request;
-            PlayFab::EventsModels::EventContents event1;
+            PlayFab::EventsModels::EventContents eventContents;
 
-            event1.Name = "QosResult";
-            event1.EventNamespace = "com.playfab.multiplayer.servers";
-            event1.Payload["TitleId"] = PlayFab::PlayFabSettings::titleId;
-            event1.Payload["Results"] = value;
-            request.Events.push_back(event1);
+            eventContents.Name = "qos_result";
+            eventContents.EventNamespace = "playfab.servers";
+            eventContents.Payload = value;
+            request.Events.push_back(eventContents);
 
-            PlayFab::PlayFabEventsAPI::WriteEvents(request, WriteEventsSuccessCallBack, WriteEventsFailureCallBack);
+            WriteTelemetryEvents(request, WriteEventsSuccessCallBack, WriteEventsFailureCallBack);
         }
 
         void PlayFabQoSApi::WriteEventsSuccessCallBack(const WriteEventsResponse& result, void*)
@@ -146,9 +215,9 @@ namespace PlayFab
 
         void PlayFabQoSApi::PingThunderheadForServerList()
         {
-            if (dataCenterMap.size() > 0)
+            if (regionMap.size() > 0)
             {
-                // If the dataCenterMap is already initialized, return
+                // If the regionMap is already initialized, return
                 listQosServersCompleted = true;
                 return;
             }
@@ -165,7 +234,7 @@ namespace PlayFab
             auto a = result.QosServers;
             for (auto it = a.begin(); it != a.end(); ++it)
             {
-                api->dataCenterMap[it->Region] = move(it->ServerUrl);
+                api->regionMap[it->Region] = move(it->ServerUrl);
             }
 
             api->listQosServersCompleted = true;
@@ -189,8 +258,8 @@ namespace PlayFab
             // Round Robin
             for (int i = 0; i < numOfPingIterations; ++i)
             {
-                for (unordered_map<AzureRegion, string>::iterator it = dataCenterMap.begin();
-                    it != dataCenterMap.end();
+                for (unordered_map<AzureRegion, string>::iterator it = regionMap.begin();
+                    it != regionMap.end();
                     ++it)
                 {
                     pingList.push_back(it->first);
@@ -202,8 +271,8 @@ namespace PlayFab
 
         void PlayFabQoSApi::InitializeAccumulatedPingResults(unordered_map<AzureRegion, PingResult>& accumulatedPingResults)
         {
-            for (auto it = dataCenterMap.begin();
-                it != dataCenterMap.end();
+            for (auto it = regionMap.begin();
+                it != regionMap.end();
                 ++it)
             {
                 accumulatedPingResults[it->first] = PingResult(0, 0, 0);
@@ -282,7 +351,7 @@ namespace PlayFab
 
                     // Update the socket address and start another ping
                     // [NOTE] Order of the following checks is imp since we can loop around and j might be out of bound
-                    while (pingItr < numPings && (errorCode = sockets[i]->SetAddress(dataCenterMap[pings[pingItr]].c_str())) != 0)
+                    while (pingItr < numPings && (errorCode = sockets[i]->SetAddress(regionMap[pings[pingItr]].c_str())) != 0)
                     {
                         // If an error code is seen, save it
                         if (errorCode != 0)
@@ -297,7 +366,7 @@ namespace PlayFab
                     if (pingItr < numPings)
                     {
                         pingedServers[i] = pings[pingItr];
-                        asyncPingResults[i] = async(launch::async, GetQoSResultForDatacenter, sockets[i]);
+                        asyncPingResults[i] = async(launch::async, GetQoSResultForRegion, sockets[i]);
                         ++pingItr;
                     }
                 }
@@ -309,9 +378,14 @@ namespace PlayFab
                 // If the result is valid and available 
                 if (asyncPingResults[i].valid())
                 {
-                    // Update the result for the previous socket ping
-                    PingResult thisResult(asyncPingResults[i].get());
-                    UpdateAccumulatedPingResult(thisResult, pingedServers[i], accumulatedPingResults, timeoutMs);
+                    std::chrono::milliseconds pingWaitTime = std::chrono::milliseconds(timeoutMs);
+                    future_status status = asyncPingResults[i].wait_for(pingWaitTime);
+                    if (status == future_status::ready)
+                    {
+                        // Update the result for the previous socket ping
+                        PingResult thisResult(asyncPingResults[i].get());
+                        UpdateAccumulatedPingResult(thisResult, pingedServers[i], accumulatedPingResults, timeoutMs);
+                    }
                 }
             }
         }
@@ -338,7 +412,7 @@ namespace PlayFab
         // Parameters : Configured socket to ping
         // Return : The ping result
         // Note that the function eat any exceptions thrown to it.
-        PingResult PlayFabQoSApi::GetQoSResultForDatacenter(shared_ptr<QoSSocket> socket)
+        PingResult PlayFabQoSApi::GetQoSResultForRegion(shared_ptr<QoSSocket> socket)
         {
             // Ping a data center and return the ping time
             try

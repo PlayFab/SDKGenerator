@@ -25,10 +25,10 @@ namespace PlayFabUnit
 
         auto result = api.GetQoSResult(5, 200);
 
-        if (result.lastErrorCode == 0)
+        if (result.errorCode == 0)
             testContext.Pass();
         else
-            testContext.Fail("Error Code:" + std::to_string(result.lastErrorCode));
+            testContext.Fail("Error Code:" + std::to_string(result.errorCode));
     }
 #endif
 

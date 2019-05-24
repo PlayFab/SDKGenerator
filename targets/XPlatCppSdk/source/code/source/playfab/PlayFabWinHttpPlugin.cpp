@@ -118,177 +118,183 @@ namespace PlayFab
         constexpr size_t MaxUrlLength = 2048;
         constexpr size_t MaxSchemeLength = 6; // HTTP, HTTPS (plus zero terminator)
 
-        // WinHTTP requires HOST and PATH parts of URL separately, we need to crack it (there is special API to do it)
-        const std::string& urlStr = GetUrl(reqContainer);
-        std::wstring urlWideStr(urlStr.begin(), urlStr.end());
-        const wchar_t* url = urlWideStr.c_str();
-        wchar_t urlHost[MaxUrlLength]; // we need to reserve a buffer to store HOST. If it doesn't fit we simply get an error.
-        wchar_t urlScheme[MaxSchemeLength]; // we need to reserve a buffer to store SCHEME. If it doesn't fit we simply get an error.
-        DWORD winHttpOpenRequestFlags = NULL;
+		if (PlayFabSettings::verticalName.empty() && PlayFabSettings::titleId.empty())
+		{
+			SetErrorInfo(reqContainer, "PlayFabSettings::titleId is not been set properly.");
+		}
+		else
+		{
+			// WinHTTP requires HOST and PATH parts of URL separately, we need to crack it (there is special API to do it)
+			const std::string& urlStr = GetUrl(reqContainer);
+			std::wstring urlWideStr(urlStr.begin(), urlStr.end());
+			const wchar_t* url = urlWideStr.c_str();
+			wchar_t urlHost[MaxUrlLength]; // we need to reserve a buffer to store HOST. If it doesn't fit we simply get an error.
+			wchar_t urlScheme[MaxSchemeLength]; // we need to reserve a buffer to store SCHEME. If it doesn't fit we simply get an error.
+			DWORD winHttpOpenRequestFlags = NULL;
 
-        // please read docs on URL_COMPONENTS and WinHttpCrackUrl to understand these parameters:
-        URL_COMPONENTS urlComponents;
-        urlComponents.lpszExtraInfo = nullptr;
-        urlComponents.dwExtraInfoLength = 0;
-        urlComponents.lpszHostName = urlHost;
-        urlComponents.dwHostNameLength = MaxUrlLength;
-        urlComponents.lpszPassword = nullptr;
-        urlComponents.dwPasswordLength = 0;
-        urlComponents.lpszScheme = urlScheme;
-        urlComponents.dwSchemeLength = MaxSchemeLength;
-        urlComponents.lpszUrlPath = nullptr;
-        urlComponents.dwUrlPathLength = 1;
-        urlComponents.lpszUserName = nullptr;
-        urlComponents.dwUserNameLength = 0;
-        urlComponents.dwStructSize = sizeof(urlComponents);
+			// please read docs on URL_COMPONENTS and WinHttpCrackUrl to understand these parameters:
+			URL_COMPONENTS urlComponents;
+			urlComponents.lpszExtraInfo = nullptr;
+			urlComponents.dwExtraInfoLength = 0;
+			urlComponents.lpszHostName = urlHost;
+			urlComponents.dwHostNameLength = MaxUrlLength;
+			urlComponents.lpszPassword = nullptr;
+			urlComponents.dwPasswordLength = 0;
+			urlComponents.lpszScheme = urlScheme;
+			urlComponents.dwSchemeLength = MaxSchemeLength;
+			urlComponents.lpszUrlPath = nullptr;
+			urlComponents.dwUrlPathLength = 1;
+			urlComponents.lpszUserName = nullptr;
+			urlComponents.dwUserNameLength = 0;
+			urlComponents.dwStructSize = sizeof(urlComponents);
 
-        bResults = WinHttpCrackUrl(url, 0, 0, &urlComponents); // parse the URL
-        if (!bResults)
-        {
-            SetErrorInfo(reqContainer, "Error in WinHttpCrackUrl, failed to parse the URL string");
-        }
-        else
-        {
-            if (urlComponents.nPort == INTERNET_DEFAULT_HTTPS_PORT)
-            {
-                winHttpOpenRequestFlags = WINHTTP_FLAG_SECURE;
-            }
+			bResults = WinHttpCrackUrl(url, 0, 0, &urlComponents); // parse the URL
+			if (!bResults)
+			{
+				SetErrorInfo(reqContainer, "Error in WinHttpCrackUrl, failed to parse the URL string");
+			}
+			else
+			{
+				if (urlComponents.nPort == INTERNET_DEFAULT_HTTPS_PORT)
+				{
+					winHttpOpenRequestFlags = WINHTTP_FLAG_SECURE;
+				}
 
-            // Use WinHttpOpen to obtain a session handle
-            hSession = WinHttpOpen(L"PlayFab Agent",
-                WINHTTP_ACCESS_TYPE_DEFAULT_PROXY,
-                WINHTTP_NO_PROXY_NAME,
-                WINHTTP_NO_PROXY_BYPASS, 0);
-            if (!hSession)
-            {
-                SetErrorInfo(reqContainer, "Error in WinHttpOpen, failed to open an HTTP session");
-            }
-            else
-            {
-                // Specify an HTTP server
-                hConnect = WinHttpConnect(hSession, urlComponents.lpszHostName, urlComponents.nPort, 0);
-                if (!hConnect)
-                {
-                    SetErrorInfo(reqContainer, "Error in WinHttpConnect, failed to connect to host");
-                }
-                else
-                {
-                    // Create an HTTP request handle
-                    hRequest = WinHttpOpenRequest(hConnect, L"POST", urlComponents.lpszUrlPath, NULL, WINHTTP_NO_REFERER, NULL, winHttpOpenRequestFlags);
-                    if (!hRequest)
-                    {
-                        SetErrorInfo(reqContainer, "Error in WinHttpOpenRequest, failed to open an HTTP request");
-                    }
-                    else
-                    {
-                        // Add HTTP headers
-                        SetPredefinedHeaders(reqContainer, hRequest);
-                        auto headers = reqContainer.GetHeaders();
-                        if (headers.size() > 0)
-                        {
-                            for (auto const &obj : headers)
-                            {
-                                if (obj.first.length() != 0 && obj.second.length() != 0) // no empty keys or values in headers
-                                {
-                                    std::string header = obj.first + ": " + obj.second;
-                                    WinHttpAddRequestHeaders(hRequest, std::wstring(header.begin(), header.end()).c_str(), -1, 0);
-                                }
-                            }
-                        }
+				// Use WinHttpOpen to obtain a session handle
+				hSession = WinHttpOpen(L"PlayFab Agent",
+					WINHTTP_ACCESS_TYPE_DEFAULT_PROXY,
+					WINHTTP_NO_PROXY_NAME,
+					WINHTTP_NO_PROXY_BYPASS, 0);
+				if (!hSession)
+				{
+					SetErrorInfo(reqContainer, "Error in WinHttpOpen, failed to open an HTTP session");
+				}
+				else
+				{
+					// Specify an HTTP server
+					hConnect = WinHttpConnect(hSession, urlComponents.lpszHostName, urlComponents.nPort, 0);
+					if (!hConnect)
+					{
+						SetErrorInfo(reqContainer, "Error in WinHttpConnect, failed to connect to host");
+					}
+					else
+					{
+						// Create an HTTP request handle
+						hRequest = WinHttpOpenRequest(hConnect, L"POST", urlComponents.lpszUrlPath, NULL, WINHTTP_NO_REFERER, NULL, winHttpOpenRequestFlags);
+						if (!hRequest)
+						{
+							SetErrorInfo(reqContainer, "Error in WinHttpOpenRequest, failed to open an HTTP request");
+						}
+						else
+						{
+							// Add HTTP headers
+							SetPredefinedHeaders(reqContainer, hRequest);
+							auto headers = reqContainer.GetHeaders();
+							if (headers.size() > 0)
+							{
+								for (auto const &obj : headers)
+								{
+									if (obj.first.length() != 0 && obj.second.length() != 0) // no empty keys or values in headers
+									{
+										std::string header = obj.first + ": " + obj.second;
+										WinHttpAddRequestHeaders(hRequest, std::wstring(header.begin(), header.end()).c_str(), -1, 0);
+									}
+								}
+							}
 
-                        // Send a request
-                        DWORD payloadSize = 0;
-                        LPVOID payload = NULL;
-                        std::string requestBody;
-                        if (!GetBinaryPayload(reqContainer, payload, payloadSize))
-                        {
-                            // set string payload if binary wasn't provided
-                            requestBody = std::move(reqContainer.GetRequestBody());
-                            payloadSize = (DWORD)requestBody.size();
-                            payload = const_cast<char*>(requestBody.c_str());
-                        }
+							// Send a request
+							DWORD payloadSize = 0;
+							LPVOID payload = NULL;
+							std::string requestBody;
+							if (!GetBinaryPayload(reqContainer, payload, payloadSize))
+							{
+								// set string payload if binary wasn't provided
+								requestBody = std::move(reqContainer.GetRequestBody());
+								payloadSize = (DWORD)requestBody.size();
+								payload = const_cast<char*>(requestBody.c_str());
+							}
 
-                        bResults = WinHttpSendRequest(hRequest, WINHTTP_NO_ADDITIONAL_HEADERS, 0, payload, payloadSize, payloadSize, 0);
-                        if (!bResults)
-                        {
-                            SetErrorInfo(reqContainer, "Error in WinHttpSendRequest, failed to send an HTTP request");
-                        }
-                        else
-                        {
-                            // End the request
-                            bResults = WinHttpReceiveResponse(hRequest, NULL);
-                            if (!bResults)
-                            {
-                                SetErrorInfo(reqContainer, "Error in WinHttpReceiveResponse, failed to receive an HTTP response");
-                            }
-                            else
-                            {
-                                // Get HTTP response code
-                                dwSize = sizeof(dwStatusCode);
-                                bResults = WinHttpQueryHeaders(hRequest,
-                                    WINHTTP_QUERY_STATUS_CODE | WINHTTP_QUERY_FLAG_NUMBER,
-                                    WINHTTP_HEADER_NAME_BY_INDEX,
-                                    &dwStatusCode, &dwSize, WINHTTP_NO_HEADER_INDEX);
-                                if (!bResults)
-                                {
-                                    SetErrorInfo(reqContainer, "Error in WinHttpQueryHeaders, failed to read HTTP response code");
-                                }
-                                else
-                                {
-                                    // Keep checking for data until there is nothing left
-                                    do
-                                    {
-                                        // Check for available data block
-                                        dwSize = 0;
-                                        if (!WinHttpQueryDataAvailable(hRequest, &dwSize))
-                                        {
-                                            SetErrorInfo(reqContainer, "Error in WinHttpQueryDataAvailable, failed to check for an available data block in HTTP response");
-                                            bResults = FALSE;
-                                            break;
-                                        }
+							bResults = WinHttpSendRequest(hRequest, WINHTTP_NO_ADDITIONAL_HEADERS, 0, payload, payloadSize, payloadSize, 0);
+							if (!bResults)
+							{
+								SetErrorInfo(reqContainer, "Error in WinHttpSendRequest, failed to send an HTTP request");
+							}
+							else
+							{
+								// End the request
+								bResults = WinHttpReceiveResponse(hRequest, NULL);
+								if (!bResults)
+								{
+									SetErrorInfo(reqContainer, "Error in WinHttpReceiveResponse, failed to receive an HTTP response");
+								}
+								else
+								{
+									// Get HTTP response code
+									dwSize = sizeof(dwStatusCode);
+									bResults = WinHttpQueryHeaders(hRequest,
+										WINHTTP_QUERY_STATUS_CODE | WINHTTP_QUERY_FLAG_NUMBER,
+										WINHTTP_HEADER_NAME_BY_INDEX,
+										&dwStatusCode, &dwSize, WINHTTP_NO_HEADER_INDEX);
+									if (!bResults)
+									{
+										SetErrorInfo(reqContainer, "Error in WinHttpQueryHeaders, failed to read HTTP response code");
+									}
+									else
+									{
+										// Keep checking for data until there is nothing left
+										do
+										{
+											// Check for available data block
+											dwSize = 0;
+											if (!WinHttpQueryDataAvailable(hRequest, &dwSize))
+											{
+												SetErrorInfo(reqContainer, "Error in WinHttpQueryDataAvailable, failed to check for an available data block in HTTP response");
+												bResults = FALSE;
+												break;
+											}
 
-                                        // Allocate space for the buffer
-                                        auto outBuffer = std::unique_ptr<char>(new char[dwSize + 1]);
-                                        if (!outBuffer)
-                                        {
-                                            SetErrorInfo(reqContainer, "Out of memory, failed to allocate a buffer to read a data block in HTTP response");
-                                            bResults = FALSE;
-                                            break;
-                                        }
-                                        else
-                                        {
-                                            // Read the data block
-                                            ZeroMemory(outBuffer.get(), dwSize + 1);
-                                            if (!WinHttpReadData(hRequest, (LPVOID)outBuffer.get(), dwSize, &dwDownloaded))
-                                            {
-                                                SetErrorInfo(reqContainer, "Error in WinHttpReadData, failed to read a data block in HTTP response");
-                                                bResults = FALSE;
-                                                break;
-                                            }
-                                            else
-                                            {
-                                                // successfully received a block of data
-                                                reqContainer.responseString.append(outBuffer.get());
-                                            }
+											// Allocate space for the buffer
+											auto outBuffer = std::unique_ptr<char>(new char[dwSize + 1]);
+											if (!outBuffer)
+											{
+												SetErrorInfo(reqContainer, "Out of memory, failed to allocate a buffer to read a data block in HTTP response");
+												bResults = FALSE;
+												break;
+											}
+											else
+											{
+												// Read the data block
+												ZeroMemory(outBuffer.get(), dwSize + 1);
+												if (!WinHttpReadData(hRequest, (LPVOID)outBuffer.get(), dwSize, &dwDownloaded))
+												{
+													SetErrorInfo(reqContainer, "Error in WinHttpReadData, failed to read a data block in HTTP response");
+													bResults = FALSE;
+													break;
+												}
+												else
+												{
+													// successfully received a block of data
+													reqContainer.responseString.append(outBuffer.get());
+												}
 
-                                            // Free the memory allocated to the buffer
-                                            outBuffer = nullptr;
-                                        }
+												// Free the memory allocated to the buffer
+												outBuffer = nullptr;
+											}
 
-                                    } while (dwSize > 0);
+										} while (dwSize > 0);
 
-                                    if (bResults)
-                                    {
-                                        ProcessResponse(reqContainer, dwStatusCode);
-                                    }
-                                } // WinHttpQueryHeaders
-                            } // WinHttpReceiveResponse
-                        } // WinHttpSendRequest
-                    } // WinHttpOpenRequest
-                } // WinHttpConnect
-            } // WinHttpOpen
-        } // WinHttpCrackUrl
-
+										if (bResults)
+										{
+											ProcessResponse(reqContainer, dwStatusCode);
+										}
+									} // WinHttpQueryHeaders
+								} // WinHttpReceiveResponse
+							} // WinHttpSendRequest
+						} // WinHttpOpenRequest
+					} // WinHttpConnect
+				} // WinHttpOpen
+			} // WinHttpCrackUrl
+		} // Title Id check
         HandleCallback(std::move(requestContainer));
 
         // Close any open handles

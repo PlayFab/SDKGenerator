@@ -69,7 +69,7 @@ add_library( # Sets the name of the library.
              ../../../code/source/playfab/PlayFabSpinLock.cpp
              ../../../code/source/playfab/PlayFabAndroidHttpPlugin.cpp
              ../../../code/source/playfab/OneDSAndroidHttpPlugin.cpp
-#             ../../../code/source/playfab/QoS/DataCenterResult.cpp
+#             ../../../code/source/playfab/QoS/RegionResult.cpp
 #             ../../../code/source/playfab/QoS/PlayFabQoSApi.cpp
 #             ../../../code/source/playfab/QoS/QoSSocket.cpp
 #             ../../../code/source/playfab/QoS/XPlatSocket.cpp

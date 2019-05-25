@@ -739,7 +739,7 @@
     <Content Include="targets\XPlatCppSdk\source\code\include\playfab\PlayFabSpinLock.h" />
     <Content Include="targets\XPlatCppSdk\source\code\include\playfab\PlayFabTransportHeaders.h" />
     <Content Include="targets\XPlatCppSdk\source\code\include\playfab\PlayFabWinHttpPlugin.h" />
-    <Content Include="targets\XPlatCppSdk\source\code\include\playfab\QoS\DataCenterResult.h" />
+    <Content Include="targets\XPlatCppSdk\source\code\include\playfab\QoS\RegionResult.h" />
     <Content Include="targets\XPlatCppSdk\source\code\include\playfab\QoS\PingResult.h" />
     <Content Include="targets\XPlatCppSdk\source\code\include\playfab\QoS\PlayFabQoSApi.h" />
     <Content Include="targets\XPlatCppSdk\source\code\include\playfab\QoS\QoS.h" />
@@ -761,7 +761,7 @@
     <Content Include="targets\XPlatCppSdk\source\code\source\playfab\PlayFabSettings.cpp.ejs" />
     <Content Include="targets\XPlatCppSdk\source\code\source\playfab\PlayFabSpinLock.cpp" />
     <Content Include="targets\XPlatCppSdk\source\code\source\playfab\PlayFabWinHttpPlugin.cpp" />
-    <Content Include="targets\XPlatCppSdk\source\code\source\playfab\QoS\DataCenterResult.cpp" />
+    <Content Include="targets\XPlatCppSdk\source\code\source\playfab\QoS\RegionResult.cpp" />
     <Content Include="targets\XPlatCppSdk\source\code\source\playfab\QoS\PlayFabQoSApi.cpp" />
     <Content Include="targets\XPlatCppSdk\source\code\source\playfab\QoS\QoSSocket.cpp" />
     <Content Include="targets\XPlatCppSdk\source\code\source\playfab\QoS\XPlatSocket.cpp" />

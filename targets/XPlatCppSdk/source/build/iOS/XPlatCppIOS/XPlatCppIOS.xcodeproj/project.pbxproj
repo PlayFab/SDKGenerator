@@ -27,7 +27,7 @@
 		5A3F0A3722418B2B00AC0816 /* PlayFabCloudScriptInstanceApi.cpp in Sources */ = {isa = PBXBuildFile; fileRef = 5A3F0A0422418B2800AC0816 /* PlayFabCloudScriptInstanceApi.cpp */; };
 		5A3F0A3822418B2B00AC0816 /* QoSSocket.cpp in Sources */ = {isa = PBXBuildFile; fileRef = 5A3F0A0622418B2800AC0816 /* QoSSocket.cpp */; };
 		5A3F0A3922418B2B00AC0816 /* PlayFabQoSApi.cpp in Sources */ = {isa = PBXBuildFile; fileRef = 5A3F0A0722418B2800AC0816 /* PlayFabQoSApi.cpp */; };
-		5A3F0A3A22418B2B00AC0816 /* DataCenterResult.cpp in Sources */ = {isa = PBXBuildFile; fileRef = 5A3F0A0822418B2800AC0816 /* DataCenterResult.cpp */; };
+		5A3F0A3A22418B2B00AC0816 /* RegionResult.cpp in Sources */ = {isa = PBXBuildFile; fileRef = 5A3F0A0822418B2800AC0816 /* RegionResult.cpp */; };
 		5A3F0A3B22418B2B00AC0816 /* XPlatSocket.cpp in Sources */ = {isa = PBXBuildFile; fileRef = 5A3F0A0922418B2800AC0816 /* XPlatSocket.cpp */; };
 		5A3F0A3C22418B2B00AC0816 /* PlayFabGroupsInstanceApi.cpp in Sources */ = {isa = PBXBuildFile; fileRef = 5A3F0A0A22418B2800AC0816 /* PlayFabGroupsInstanceApi.cpp */; };
 		5A3F0A3D22418B2B00AC0816 /* PlayFabClientApi.cpp in Sources */ = {isa = PBXBuildFile; fileRef = 5A3F0A0B22418B2800AC0816 /* PlayFabClientApi.cpp */; };
@@ -73,7 +73,7 @@
 		5A3F09AC22418B1400AC0816 /* PlayFabQoSApi.h */ = {isa = PBXFileReference; fileEncoding = 4; lastKnownFileType = sourcecode.c.h; path = PlayFabQoSApi.h; sourceTree = "<group>"; };
 		5A3F09AD22418B1400AC0816 /* XPlatSocket.h */ = {isa = PBXFileReference; fileEncoding = 4; lastKnownFileType = sourcecode.c.h; path = XPlatSocket.h; sourceTree = "<group>"; };
 		5A3F09AE22418B1400AC0816 /* PingResult.h */ = {isa = PBXFileReference; fileEncoding = 4; lastKnownFileType = sourcecode.c.h; path = PingResult.h; sourceTree = "<group>"; };
-		5A3F09AF22418B1400AC0816 /* DataCenterResult.h */ = {isa = PBXFileReference; fileEncoding = 4; lastKnownFileType = sourcecode.c.h; path = DataCenterResult.h; sourceTree = "<group>"; };
+		5A3F09AF22418B1400AC0816 /* RegionResult.h */ = {isa = PBXFileReference; fileEncoding = 4; lastKnownFileType = sourcecode.c.h; path = RegionResult.h; sourceTree = "<group>"; };
 		5A3F09B022418B1400AC0816 /* QoSSocket.h */ = {isa = PBXFileReference; fileEncoding = 4; lastKnownFileType = sourcecode.c.h; path = QoSSocket.h; sourceTree = "<group>"; };
 		5A3F09B122418B1400AC0816 /* QoS.h */ = {isa = PBXFileReference; fileEncoding = 4; lastKnownFileType = sourcecode.c.h; path = QoS.h; sourceTree = "<group>"; };
 		5A3F09B222418B1400AC0816 /* OneDSEventsApi.h */ = {isa = PBXFileReference; fileEncoding = 4; lastKnownFileType = sourcecode.c.h; name = OneDSEventsApi.h; path = ../../../code/include/playfab/OneDSEventsApi.h; sourceTree = "<group>"; };
@@ -151,7 +151,7 @@
 		5A3F0A0422418B2800AC0816 /* PlayFabCloudScriptInstanceApi.cpp */ = {isa = PBXFileReference; fileEncoding = 4; lastKnownFileType = sourcecode.cpp.cpp; name = PlayFabCloudScriptInstanceApi.cpp; path = ../../../code/source/playfab/PlayFabCloudScriptInstanceApi.cpp; sourceTree = "<group>"; };
 		5A3F0A0622418B2800AC0816 /* QoSSocket.cpp */ = {isa = PBXFileReference; fileEncoding = 4; lastKnownFileType = sourcecode.cpp.cpp; path = QoSSocket.cpp; sourceTree = "<group>"; };
 		5A3F0A0722418B2800AC0816 /* PlayFabQoSApi.cpp */ = {isa = PBXFileReference; fileEncoding = 4; lastKnownFileType = sourcecode.cpp.cpp; path = PlayFabQoSApi.cpp; sourceTree = "<group>"; };
-		5A3F0A0822418B2800AC0816 /* DataCenterResult.cpp */ = {isa = PBXFileReference; fileEncoding = 4; lastKnownFileType = sourcecode.cpp.cpp; path = DataCenterResult.cpp; sourceTree = "<group>"; };
+		5A3F0A0822418B2800AC0816 /* RegionResult.cpp */ = {isa = PBXFileReference; fileEncoding = 4; lastKnownFileType = sourcecode.cpp.cpp; path = RegionResult.cpp; sourceTree = "<group>"; };
 		5A3F0A0922418B2800AC0816 /* XPlatSocket.cpp */ = {isa = PBXFileReference; fileEncoding = 4; lastKnownFileType = sourcecode.cpp.cpp; path = XPlatSocket.cpp; sourceTree = "<group>"; };
 		5A3F0A0A22418B2800AC0816 /* PlayFabGroupsInstanceApi.cpp */ = {isa = PBXFileReference; fileEncoding = 4; lastKnownFileType = sourcecode.cpp.cpp; name = PlayFabGroupsInstanceApi.cpp; path = ../../../code/source/playfab/PlayFabGroupsInstanceApi.cpp; sourceTree = "<group>"; };
 		5A3F0A0B22418B2800AC0816 /* PlayFabClientApi.cpp */ = {isa = PBXFileReference; fileEncoding = 4; lastKnownFileType = sourcecode.cpp.cpp; name = PlayFabClientApi.cpp; path = ../../../code/source/playfab/PlayFabClientApi.cpp; sourceTree = "<group>"; };
@@ -330,7 +330,7 @@
 				5A3F09AC22418B1400AC0816 /* PlayFabQoSApi.h */,
 				5A3F09AD22418B1400AC0816 /* XPlatSocket.h */,
 				5A3F09AE22418B1400AC0816 /* PingResult.h */,
-				5A3F09AF22418B1400AC0816 /* DataCenterResult.h */,
+				5A3F09AF22418B1400AC0816 /* RegionResult.h */,
 				5A3F09B022418B1400AC0816 /* QoSSocket.h */,
 				5A3F09B122418B1400AC0816 /* QoS.h */,
 			);
@@ -343,7 +343,7 @@
 			children = (
 				5A3F0A0622418B2800AC0816 /* QoSSocket.cpp */,
 				5A3F0A0722418B2800AC0816 /* PlayFabQoSApi.cpp */,
-				5A3F0A0822418B2800AC0816 /* DataCenterResult.cpp */,
+				5A3F0A0822418B2800AC0816 /* RegionResult.cpp */,
 				5A3F0A0922418B2800AC0816 /* XPlatSocket.cpp */,
 			);
 			name = QoS;
@@ -415,7 +415,7 @@
 				5A3F0A3F22418B2B00AC0816 /* PlayFabAuthenticationInstanceApi.cpp in Sources */,
 				5A3F0A2422418B2B00AC0816 /* PlayFabPluginManager.cpp in Sources */,
 				5A3F0A3822418B2B00AC0816 /* QoSSocket.cpp in Sources */,
-				5A3F0A3A22418B2B00AC0816 /* DataCenterResult.cpp in Sources */,
+				5A3F0A3A22418B2B00AC0816 /* RegionResult.cpp in Sources */,
 				5A3F0A2822418B2B00AC0816 /* PlayFabProfilesApi.cpp in Sources */,
 				5A3F0A4E22418B2B00AC0816 /* PlayFabCallRequestContainer.cpp in Sources */,
 				5A3F0A4622418B2B00AC0816 /* PlayFabError.cpp in Sources */,

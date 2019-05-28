@@ -187,7 +187,7 @@ TryBuildAndTestiOS() {
             if [[ $? -ne 0 ]]; then return 1; fi
             
             #build the xcode project to prepare for IPA generation
-            $UNITY_VERSION -projectPath "$WORKSPACE/$UNITY_VERSION/${SdkName}_TC" -quit -batchmode -executeMethod PlayFab.Internal.PlayFabPackager.MakeIPhoneBuild -logFile "$WORKSPACE/${SdkName}/buildPackageOutput.txt" || (cat "$WORKSPACE/${SdkName}/buildiPhoneOutput.txt" && return 1)
+            $UNITY_VERSION -projectPath "$WORKSPACE/$UNITY_VERSION/${SdkName}_TC" -quit -batchmode -appcenter -executeMethod PlayFab.Internal.PlayFabPackager.MakeIPhoneBuild -logFile "$WORKSPACE/${SdkName}/buildPackageOutput.txt" || (cat "$WORKSPACE/${SdkName}/buildiPhoneOutput.txt" && return 1)
             if [[ $? -ne 0 ]]; then return 1; fi
             
             pushd "$WORKSPACE/SDKGenerator/SDKBuildScripts"

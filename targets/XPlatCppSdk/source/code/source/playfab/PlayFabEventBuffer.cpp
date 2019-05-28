@@ -98,7 +98,7 @@ namespace PlayFab
         // create an event packet, set it to the tail->next and move the tail
 
         const auto currentEventIndex = eventIndex->fetch_add(1, std::memory_order_relaxed);
-        PlayFabEventPacket* event = CreateEventPacket(reinterpret_cast<uint8_t*>(eventStart), currentEventIndex, std::move(request));
+        PlayFabEventPacket* event = CreateEventPacket(reinterpret_cast<uint8_t*>(eventStart), currentEventIndex, request);
         tailPtr->next.store(event, std::memory_order_release);
         tail = event;
 
@@ -122,7 +122,7 @@ namespace PlayFab
         }
 
         // event is available; return its values
-        request = std::move(event->eventRequest);
+        request = event->eventRequest;
         
         // set new head (new last consumed event)
         head.store(event, std::memory_order_release);
@@ -136,7 +136,7 @@ namespace PlayFab
     PlayFabEventPacket* PlayFabEventBuffer::CreateEventPacket(uint8_t *location, const uint64_t index, std::shared_ptr<const IPlayFabEmitEventRequest> request)
     {
         // Use placement new to allocate an event packet in the buffer
-        return new(location)PlayFabEventPacket(index, std::move(request));
+        return new(location)PlayFabEventPacket(index, request);
     }
 
     void PlayFabEventBuffer::DeleteEventPacket(PlayFabEventPacket* event)

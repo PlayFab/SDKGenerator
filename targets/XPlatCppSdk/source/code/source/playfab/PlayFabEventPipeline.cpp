@@ -61,7 +61,7 @@ namespace PlayFab
             EmitEventResult emitResult;
 
             // put event into buffer
-            switch (this->buffer.TryPut(std::move(request)))
+            switch (this->buffer.TryPut(request))
             {
                 case Result::Success:
                     return;

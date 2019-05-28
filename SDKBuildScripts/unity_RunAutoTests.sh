@@ -197,7 +197,7 @@ TryBuildAndTestiOS() {
                 if [[ $? -ne 0 ]]; then return 1; fi
 
                 #build the IPA on AppCenter Build
-                ./unity_buildAppCenterTestIOS.sh "$ProjRootPath/${SdkName}_TC/testBuilds/PlayFabIOS" "$WORKSPACE/vso" 'git@ssh.dev.azure.com:v3/playfab/Playfab%20SDK%20Automation/UnitySDK_XCode_AppCenterBuild' $JOB_NAME init
+                ./unity_buildAppCenterTestIOS.sh "$ProjRootPath/${SdkName}_TC/testBuilds/PlayFabIOS" "$WORKSPACE/vso" 'git@ssh.dev.azure.com:v3/playfab/Playfab%20SDK%20Automation/UnitySDK_XCode_AppCenterBuild' ${SdkName}_${NODE_NAME}_${EXECUTOR_NUMBER} init
                 if [[ $? -ne 0 ]]; then return 1; fi
 
                 #run the downloaded IPA on AppCenter Test

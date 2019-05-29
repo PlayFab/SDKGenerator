@@ -43,8 +43,9 @@ ForcePushD () {
     return 0
 }
 
-# USAGE: SetGitHubCreds
-SetGitHubCreds () {
+# USAGE: CheckCreds
+CheckCreds () {
+    # Check the GitHub credentials and set them if needed
     testEmail=$(git config --global user.email) || true
     testName=$(git config --global user.name) || true
     if [ -z "$testEmail" ] && [ -z "$testName"]; then
@@ -57,6 +58,10 @@ SetGitHubCreds () {
     fi
 	git config --global core.autocrlf "input" || true
 	git config core.autocrlf "input" || true
+
+    # Check the App Center credentials and fail out if unset
+    echo n | appcenter profile list || return 1
+
     unset testEmail
     unset testName
 }
@@ -109,7 +114,7 @@ _CloneGitHubRepo () {
     ForceCD "$1"
     (
         git clone --recurse-submodules git@github.com:PlayFab/$2.git $3 ||
-        sleep $pfGitRetrySleepDuration || 
+        sleep $pfGitRetrySleepDuration ||
         git clone --recurse-submodules git@github.com:PlayFab/$2.git $3
     )
     cd "$3"
@@ -125,7 +130,7 @@ SyncGitHubRepo () {
         set -- "$1" "$2" "$3" "master"
     fi
     cd "$3" || _CloneGitHubRepo "$1" "$2" "$3"
-    SetGitHubCreds
+    CheckCreds
     CleanCurrentRepo "$4"
 }
 
@@ -134,7 +139,7 @@ _CloneWorkspaceRepo () {
     ForceCD "$2"
     (
         git clone --recurse-submodules --reference "$1/$3" --dissociate git@github.com:PlayFab/$3.git $4
-        sleep $pfGitRetrySleepDuration || 
+        sleep $pfGitRetrySleepDuration ||
         git clone --recurse-submodules --reference "$1/$3" --dissociate git@github.com:PlayFab/$3.git $4
     )
     cd "$4"
@@ -150,7 +155,7 @@ SyncWorkspaceRepo () {
     fi
     ForceCD "$2"
     cd "$4" || _CloneWorkspaceRepo "$1" "$2" "$3" "$4"
-    SetGitHubCreds
+    CheckCreds
     CleanCurrentRepo "$5"
 }
 

@@ -22,7 +22,7 @@ ResetRepo (){
     echo === ResetRepo $PWD, $@ ===
 
     # Assumes the current directory is set to the repo to be reset
-    SetGitHubCreds
+    CheckCreds
     git fetch --progress origin
     git checkout master || git checkout -b master || CleanCurrentRepo
     git pull origin master

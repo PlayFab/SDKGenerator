@@ -118,7 +118,7 @@ namespace PlayFab
         constexpr size_t MaxUrlLength = 2048;
         constexpr size_t MaxSchemeLength = 6; // HTTP, HTTPS (plus zero terminator)
 
-		if (PlayFabSettings::verticalName.empty() && PlayFabSettings::titleId.empty())
+		if (PlayFabSettings::titleId.empty())
 		{
 			SetErrorInfo(reqContainer, "PlayFabSettings::titleId is not been set properly.");
 		}

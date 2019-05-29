@@ -1,7 +1,6 @@
 #pragma once
 
-// Headers for CppUnitTest
-#include <CppUnitTest.h>
+#include <string>
 
 inline std::wstring U(std::string input)
 {

@@ -91,32 +91,35 @@ namespace PlayFabUnit
         auto pfEvent = std::dynamic_pointer_cast<const PlayFab::PlayFabEvent>(event);
         auto pfResponse = std::dynamic_pointer_cast<const PlayFab::PlayFabEmitEventResponse>(response);
 
-        // Handle successful event delivery.
-        if (PlayFab::PlayFabErrorCode::PlayFabErrorSuccess == pfResponse->playFabError->ErrorCode)
-        {
-            ++eventPassCount;
-            eventFailLog += pfEvent->GetName() + " was sent successfully " +
-                "in the batch #" + std::to_string(pfResponse->batchNumber) + " "
-                "of " + std::to_string(pfResponse->batch->size()) + " events. "
-                "HTTP code: " + std::to_string(pfResponse->playFabError->HttpCode) +
-                ", app error code: " + std::to_string(pfResponse->playFabError->ErrorCode) + "\n";
+		if (pfResponse->playFabError != nullptr)
+		{
+			// Handle successful event delivery.
+			if (PlayFab::PlayFabErrorCode::PlayFabErrorSuccess == pfResponse->playFabError->ErrorCode)
+			{
+				++eventPassCount;
+				eventFailLog += pfEvent->GetName() + " was sent successfully " +
+					"in the batch #" + std::to_string(pfResponse->batchNumber) + " "
+					"of " + std::to_string(pfResponse->batch->size()) + " events. "
+					"HTTP code: " + std::to_string(pfResponse->playFabError->HttpCode) +
+					", app error code: " + std::to_string(pfResponse->playFabError->ErrorCode) + "\n";
 
-            // Keep track of the highest batch number.
-            eventBatchMax = (pfResponse->batchNumber > eventBatchMax) ? pfResponse->batchNumber : eventBatchMax;
-        }
-        // Handle failed event delivery.
-        else
-        {
-            ++eventFailCount;
-            eventFailLog += pfEvent->GetName() + " received an error back " +
-                "in the batch #" + std::to_string(pfResponse->batchNumber) + " "
-                "of " + std::to_string(pfResponse->batch->size()) + " events. "
-                "HTTP code: " + std::to_string(pfResponse->playFabError->HttpCode) +
-                ", app error code: " + std::to_string(pfResponse->playFabError->ErrorCode) +
-                ", HTTP status: " + pfResponse->playFabError->HttpStatus +
-                ", Message: " + pfResponse->playFabError->ErrorMessage +
-                "\n";
-        }
+				// Keep track of the highest batch number.
+				eventBatchMax = (pfResponse->batchNumber > eventBatchMax) ? pfResponse->batchNumber : eventBatchMax;
+			}
+			// Handle failed event delivery.
+			else
+			{
+				++eventFailCount;
+				eventFailLog += pfEvent->GetName() + " received an error back " +
+					"in the batch #" + std::to_string(pfResponse->batchNumber) + " "
+					"of " + std::to_string(pfResponse->batch->size()) + " events. "
+					"HTTP code: " + std::to_string(pfResponse->playFabError->HttpCode) +
+					", app error code: " + std::to_string(pfResponse->playFabError->ErrorCode) +
+					", HTTP status: " + pfResponse->playFabError->HttpStatus +
+					", Message: " + pfResponse->playFabError->ErrorMessage +
+					"\n";
+			}
+		}
 
         // Complete the test once all events have been processed.
         const int eventCount = eventPassCount + eventFailCount;

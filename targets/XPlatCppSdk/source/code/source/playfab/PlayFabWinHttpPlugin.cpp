@@ -294,8 +294,7 @@ namespace PlayFab
                     } // WinHttpConnect
                 } // WinHttpOpen
             } // WinHttpCrackUrl
-        }
-		//} // Title Id check
+        } // Title Id check
         HandleCallback(std::move(requestContainer));
 
         // Close any open handles

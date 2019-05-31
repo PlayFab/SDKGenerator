@@ -24,7 +24,7 @@ ProjectFolderName=$(basename "$XCodeWorkspaceDirectory")
 GitRepoFolderName=$(basename "$AppCenterGitRepoURL" | sed -e 's/.git//g')
 
 #remove cruft from previous runs, if any.
-ResetRepositories() {
+InitializeBuildEnvironment() {
     rm -fdr "$RepoWorkingDirectory/$GitRepoFolderName"
     mkdir -p "$RepoWorkingDirectory/$GitRepoFolderName"
 

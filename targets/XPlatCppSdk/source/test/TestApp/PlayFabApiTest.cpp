@@ -38,6 +38,42 @@ namespace PlayFabUnit
     }
 
     /// CLIENT API
+    /// Try to deliberately cause a client-side validation error
+    void PlayFabApiTest::InvalidSettings(TestContext& testContext)
+    {
+        LoginWithCustomIDRequest request;
+        request.CustomId = PlayFabSettings::buildIdentifier;
+        request.CreateAccount = true;
+
+        // store current (valid) title id
+        auto validTitleId = PlayFabSettings::titleId;
+
+        // set invalid title id
+        PlayFabSettings::titleId = "";
+
+        PlayFabClientAPI::LoginWithCustomID(request,
+            [&validTitleId](const LoginResult&, void* customData)
+            {
+                PlayFabSettings::titleId = validTitleId;
+                TestContext* testContext = reinterpret_cast<TestContext*>(customData);
+                testContext->Fail("Expected API call to fail on the client side");
+            },
+            [&validTitleId](const PlayFabError& error, void* customData)
+            {
+                PlayFabSettings::titleId = validTitleId;
+                TestContext* testContext = reinterpret_cast<TestContext*>(customData);
+                if (error.HttpCode == 0
+                    && error.HttpStatus == "Client-side validation failure"
+                    && error.ErrorCode == PlayFabErrorCode::PlayFabErrorInvalidParams
+                    && error.ErrorName == error.HttpStatus)
+                    testContext->Pass();
+                else
+                    testContext->Fail("Returned error is different from expected");
+            },
+            &testContext);
+    }
+
+    /// CLIENT API
     /// Try to deliberately log in with an inappropriate password,
     ///   and verify that the error displays as expected.
     void PlayFabApiTest::InvalidLogin(TestContext& testContext)
@@ -599,6 +635,7 @@ namespace PlayFabUnit
 
     void PlayFabApiTest::AddTests()
     {
+        AddTest("InvalidSettings", &PlayFabApiTest::InvalidSettings);
         AddTest("InvalidLogin", &PlayFabApiTest::InvalidLogin);
         AddTest("InvalidLoginLambda", &PlayFabApiTest::InvalidLoginLambda);
         AddTest("InvalidRegistration", &PlayFabApiTest::InvalidRegistration);

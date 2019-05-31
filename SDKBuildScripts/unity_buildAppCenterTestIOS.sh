@@ -129,7 +129,7 @@ CleanupAndDownloadIpa() {
 }
 
 DoWork() {
-    ResetRepositories
+    InitializeBuildEnvironment
     QueueAppCenterBuild
     WaitForAppCenterBuild
     ExtractBuildResults

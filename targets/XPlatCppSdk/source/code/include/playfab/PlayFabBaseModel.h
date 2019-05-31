@@ -114,7 +114,7 @@ namespace PlayFab
         tm timeStruct = {};
         std::istringstream iss(timeStr);
         iss >> std::get_time(&timeStruct, "%Y-%m-%dT%T");
-        output = mktime(&timeStruct);
+        output = _mkgmtime(&timeStruct);
     }
     inline void ToJsonUtilT(const Boxed<time_t>& input, Json::Value& output)
     {

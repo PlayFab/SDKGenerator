@@ -260,7 +260,7 @@ namespace PlayFabUnit
 #else // PLAYFAB_PLATFORM_IOS || PLAYFAB_PLATFORM_ANDROID
         gmtime_s(&timeinfo, &now);
 #endif // PLAYFAB_PLATFORM_IOS || PLAYFAB_PLATFORM_ANDROID
-        now = mktime(&timeinfo);
+        now = _mkgmtime(&timeinfo);
         time_t minTime = now - (60 * 5);
         time_t maxTime = now + (60 * 5);
 

@@ -59,11 +59,13 @@ CheckCreds () {
 	git config --global core.autocrlf "input" || true
 	git config core.autocrlf "input" || true
 
-    # Check the App Center credentials and fail out if unset
-    echo n | appcenter profile list || return 1
-
     unset testEmail
     unset testName
+
+    # Check if App Center CLI is installed, it's ok if it doesn't
+    appcenter --version || return 0
+    # Check the App Center credentials, report "n" to statistics tracking, and fail out if App Center creds are not present
+    echo n | appcenter profile list || return 1
 }
 
 # USAGE: CleanCurrentRepo [gitBranchName]

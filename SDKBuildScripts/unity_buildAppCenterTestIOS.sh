@@ -114,7 +114,7 @@ ExtractBuildResults() {
 }
 
 #Download the build if successful, or print the logs if not.
-FinalCleanup() {
+CleanupAndDownloadIpa() {
     if [ "$BuildResult" = "\"succeeded\"" ]; then
         #Return the appcenter build repo to a clean state for next time.
         git reset --hard $AppCenterGitRepoCleanTag
@@ -133,7 +133,7 @@ DoWork() {
     QueueAppCenterBuild
     WaitForAppCenterBuild
     ExtractBuildResults
-    FinalCleanup
+    CleanupAndDownloadIpa
 }
 
 DoWork

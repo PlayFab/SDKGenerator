@@ -275,9 +275,11 @@ function getRequestActions(tabbing, apiCall, isInstanceApi) {
             + tabbing + "    else if (request.authenticationContext->clientSessionTicket.length() > 0) {\n"
             + tabbing + "        authKey = \"X-Authorization\"; authValue = request.authenticationContext->clientSessionTicket;\n"
             + tabbing + "    }\n"
+            + "    #if defined(ENABLE_PLAYFABSERVER_API) || defined(ENABLE_PLAYFABADMIN_API)\n"
             + tabbing + "    else if (request.authenticationContext->developerSecretKey.length() > 0) {\n"
             + tabbing + "        authKey = \"X-SecretKey\"; authValue = request.authenticationContext->developerSecretKey;\n"
             + tabbing + "    }\n"
+            + "    #endif\n"
             + tabbing + "}\n"
             + tabbing + "else {\n"
             + (isInstanceApi ? tabbing + "    auto authenticationContext = this->GetOrCreateAuthenticationContext();\n" : "")
@@ -287,9 +289,11 @@ function getRequestActions(tabbing, apiCall, isInstanceApi) {
             + tabbing + "    else if (" + authContext + "clientSessionTicket.length() > 0) {\n"
             + tabbing + "        authKey = \"X-Authorization\"; authValue = " + authContext + "clientSessionTicket;\n"
             + tabbing + "    }\n"
+            + "    #if defined(ENABLE_PLAYFABSERVER_API) || defined(ENABLE_PLAYFABADMIN_API)\n"
             + tabbing + "    else if (" + authContext + "developerSecretKey.length() > 0) {\n"
             + tabbing + "        authKey = \"X-SecretKey\"; authValue = " + authContext + "developerSecretKey;\n"
             + tabbing + "    }\n"
+            + "    #endif\n"
             + tabbing + "}\n";
     }
 

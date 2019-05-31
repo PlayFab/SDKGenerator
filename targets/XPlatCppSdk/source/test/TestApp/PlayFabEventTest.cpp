@@ -122,7 +122,7 @@ namespace PlayFabUnit
         }
         else 
         {
-            testContext->Fail("EmitEventCallback received an error");
+            (*eventTestContext)->Fail("EmitEventCallback received an error");
         }
 
         // Complete the test once all events have been processed.

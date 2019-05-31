@@ -2,6 +2,7 @@ using System;
 
 namespace PlayFab.Internal
 {
+    [Obsolete("This logging utility has been deprecated. Use UnityEngine.Debug.Log")]
     public static class Log
     {
         [Obsolete("Debug is deprecated.")]

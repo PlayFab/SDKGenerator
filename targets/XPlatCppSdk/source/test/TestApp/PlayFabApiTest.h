@@ -59,6 +59,10 @@ namespace PlayFabUnit
             void OnErrorSharedCallback(const PlayFab::PlayFabError& error, void* customData);
 
             /// CLIENT API
+            /// Try to deliberately cause a client-side validation error
+            void InvalidSettings(TestContext& testContext);
+
+            /// CLIENT API
             /// Try to deliberately log in with an inappropriate password,
             ///   and verify that the error displays as expected.
             void InvalidLogin(TestContext& testContext);

@@ -1,6 +1,8 @@
 #pragma once
 
 #include <playfab/PlayFabError.h>
+#include <playfab/PlayFabSettings.h>
+#include <playfab/PlayFabCallRequestContainer.h>
 
 namespace PlayFab
 {
@@ -45,6 +47,7 @@ namespace PlayFab
 
         static std::string GetUrl(const std::string& urlPath, const std::map<std::string, std::string>& getParams);
 #endif
+        static bool ValidateSettings(const std::string& apiAuth, const std::shared_ptr<PlayFabAuthenticationContext> authenticationContext, const std::shared_ptr<PlayFabApiSettings> apiSettings, CallRequestContainer& container);
     private:
         PlayFabSettings(); // Private constructor, static class should never have an instance
         PlayFabSettings(const PlayFabSettings& other); // Private copy-constructor, static class should never have an instance

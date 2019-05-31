@@ -120,6 +120,10 @@ namespace PlayFabUnit
                     "\n";
             }
         }
+        else 
+        {
+            testContext->Fail("EmitEventCallback received an error");
+        }
 
         // Complete the test once all events have been processed.
         const int eventCount = eventPassCount + eventFailCount;

@@ -93,7 +93,7 @@ QueueAppCenterBuild() {
 WaitForAppCenterBuild() {
     for i in {1..30}
     do
-        sleep 1
+        sleep 60
         BuildStatusJSON=$(appcenter build branches show -b $AppCenterGitRepoBranchName -a "PlayFabSDKTeam/PlayFabUnityXCode" --quiet --output json)
         BuildStatus=$(echo "$BuildStatusJSON" | jq .status)
         echo "WaitForAppCenterBuild check number: $i, Build Status: $BuildStatus"

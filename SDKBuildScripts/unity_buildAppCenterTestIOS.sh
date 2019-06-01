@@ -24,94 +24,116 @@ ProjectFolderName=$(basename "$XCodeWorkspaceDirectory")
 GitRepoFolderName=$(basename "$AppCenterGitRepoURL" | sed -e 's/.git//g')
 
 #remove cruft from previous runs, if any.
-rm -fdr "$RepoWorkingDirectory/$GitRepoFolderName"
-mkdir -p "$RepoWorkingDirectory/$GitRepoFolderName"
+InitializeBuildEnvironment() {
+    rm -fdr "$RepoWorkingDirectory/$GitRepoFolderName"
+    mkdir -p "$RepoWorkingDirectory/$GitRepoFolderName"
 
-#create the appcenter prebuild script in the xcode project
-pushd "$XCodeWorkspaceDirectory"
-touch appcenter-post-clone.sh
-echo '#!/usr/bin/env bash
+    #create the appcenter prebuild script in the xcode project
+    pushd "$XCodeWorkspaceDirectory"
+    touch appcenter-post-clone.sh
+    echo '#!/usr/bin/env bash
 
-touch Gemfile
+    touch Gemfile
 
-echo -e "source \"https://rubygems.org\"\n\ngem \"calabash-cucumber\", \">= 0.16\", \"< 2.0\"" > Gemfile
+    echo -e "source \"https://rubygems.org\"\n\ngem \"calabash-cucumber\", \">= 0.16\", \"< 2.0\"" > Gemfile
 
-bundle ;
-bundle exec calabash-ios download' > appcenter-post-clone.sh
-popd
+    bundle ;
+    bundle exec calabash-ios download' > appcenter-post-clone.sh
+    popd
 
-pushd "$RepoWorkingDirectory"
+    pushd "$RepoWorkingDirectory"
 
-#clone the appcenter build repo to our local workspace
-NewBranch=0
-git clone "$AppCenterGitRepoURL"
-cd $(basename "$AppCenterGitRepoURL" | sed -e 's/.git//g')
-git fetch --tags 
-git reset --hard $AppCenterGitRepoCleanTag
-git push --force
+    #clone the appcenter build repo to our local workspace
+    NewBranch=0
+    git clone "$AppCenterGitRepoURL"
+    cd $(basename "$AppCenterGitRepoURL" | sed -e 's/.git//g')
+    git fetch --tags 
+    git reset --hard $AppCenterGitRepoCleanTag
+    git push --force
 
-git checkout "$AppCenterGitRepoBranchName"
-if [ $? -ne 0 ] 
-then
-    echo "Failed to checkout existing branch: $AppCenterGitRepoBranchName. Creating as new branch."
-    git checkout -b "$AppCenterGitRepoBranchName"
-    NewBranch=1
-fi
+    git checkout "$AppCenterGitRepoBranchName"
+    if [ $? -ne 0 ]; then
+        echo "Failed to checkout existing branch: $AppCenterGitRepoBranchName. Creating as new branch."
+        git checkout -b "$AppCenterGitRepoBranchName"
+        NewBranch=1
+    fi
 
-#copy the xcode workspace into the appcenter git repo
-cp -r "$XCodeWorkspaceDirectory" "$RepoWorkingDirectory/$GitRepoFolderName"
-git add .
-git update-index --chmod=+x "$RepoWorkingDirectory/$GitRepoFolderName/$ProjectFolderName/MapFileParser.sh"
-git update-index --chmod=+x "$RepoWorkingDirectory/$GitRepoFolderName/$ProjectFolderName/appcenter-post-clone.sh"
-git commit -m "add xcode project for appcenter build"
+    #copy the xcode workspace into the appcenter git repo
+    cp -r "$XCodeWorkspaceDirectory" "$RepoWorkingDirectory/$GitRepoFolderName"
+    git add .
+    git update-index --chmod=+x "$RepoWorkingDirectory/$GitRepoFolderName/$ProjectFolderName/MapFileParser.sh"
+    git update-index --chmod=+x "$RepoWorkingDirectory/$GitRepoFolderName/$ProjectFolderName/appcenter-post-clone.sh"
+    git commit -m "add xcode project for appcenter build"
 
-#if a new branch was created AppCenter needs to be manually configured for this branch.  
-if [ $NewBranch -eq 1 ]; then
-git push -u origin "$AppCenterGitRepoBranchName"
-echo 'ERROR: Unity Job '"$AppCenterGitRepoBranchName"' did not yet exist.'
-echo "The branch has been created and populated, but must be manually configured in AppCenter."
-echo "Please try again once the AppCenter build branch has been properly configured."
-false
-exit
-fi
+    #if a new branch was created AppCenter needs to be manually configured for this branch.  
+    if [ $NewBranch -eq 1 ]; then
+        git push -u origin "$AppCenterGitRepoBranchName"
+        echo 'ERROR: Unity Job '"$AppCenterGitRepoBranchName"' did not yet exist.'
+        echo "The branch has been created and populated, but must be manually configured in AppCenter."
+        echo "Please try again once the AppCenter build branch has been properly configured."
+        exit 1
+    fi
 
-git push
+    git push
+}
 
 #queue the appcenter build
-appcenter build queue --app "PlayFabSDKTeam/PlayFabUnityXCode" --branch $AppCenterGitRepoBranchName --quiet -d 
-if [ $? -ne 0 ]; then
-echo "Error queueing build!"
-false
-exit
-fi
+QueueAppCenterBuild() {
+    appcenter build queue --app "PlayFabSDKTeam/PlayFabUnityXCode" --branch $AppCenterGitRepoBranchName --quiet -d 
+    if [ $? -ne 0 ]; then
+        echo "Error queueing build!"
+        exit 1
+    fi
 
-BuildStatusJSON=$(appcenter build branches show -b $AppCenterGitRepoBranchName -a "PlayFabSDKTeam/PlayFabUnityXCode" --quiet --output json)
-BuildStatus="\"notStarted\""
+    BuildStatusJSON=$(appcenter build branches show -b $AppCenterGitRepoBranchName -a "PlayFabSDKTeam/PlayFabUnityXCode" --quiet --output json)
+    BuildStatus="\"notStarted\""
+}
 
 #monitor the status of the build and wait until it is complete.
-while [ "$BuildStatus" != "\"completed\"" ]
-do 
-sleep 10
-BuildStatusJSON=$(appcenter build branches show -b $AppCenterGitRepoBranchName -a "PlayFabSDKTeam/PlayFabUnityXCode" --quiet --output json)
-BuildStatus=$(echo "$BuildStatusJSON" | jq .status)
-echo "Build Status: $BuildStatus"
-done
+WaitForAppCenterBuild() {
+    for i in {1..30}
+    do
+        sleep 1
+        BuildStatusJSON=$(appcenter build branches show -b $AppCenterGitRepoBranchName -a "PlayFabSDKTeam/PlayFabUnityXCode" --quiet --output json)
+        BuildStatus=$(echo "$BuildStatusJSON" | jq .status)
+        echo "WaitForAppCenterBuild check number: $i, Build Status: $BuildStatus"
+        if [ "$BuildStatus" = "\"completed\"" ]; then
+            return 0
+        fi
+    done
+    
+    exit 1
+}
 
-#extract the results and build number
-BuildResult=$(echo "$BuildStatusJSON" | jq .result)
-BuildNumber=$(echo "$BuildStatusJSON" | jq .buildNumber | sed s/\"//g)
+ExtractBuildResults() {
+    #extract the results and build number
+    BuildResult=$(echo "$BuildStatusJSON" | jq .result)
+    BuildNumber=$(echo "$BuildStatusJSON" | jq .buildNumber | sed s/\"//g)
 
-echo "Build $BuildNumber has $BuildResult."
+    echo "Build $BuildNumber has $BuildResult."
+}
 
 #Download the build if successful, or print the logs if not.
-if [ "$BuildResult" = "\"succeeded\"" ]; then
-#Return the appcenter build repo to a clean state for next time.
-git reset --hard $AppCenterGitRepoCleanTag
-git push --force 
-popd
-appcenter build download --type build --app "PlayFabSDKTeam/PlayFabUnityXCode" --id $BuildNumber --file PlayFabIOS.ipa
-else
-popd
-appcenter build logs --app "PlayFabSDKTeam/PlayFabUnityXCode" --id $BuildNumber
-false
-fi
+CleanupAndDownloadIpa() {
+    if [ "$BuildResult" = "\"succeeded\"" ]; then
+        #Return the appcenter build repo to a clean state for next time.
+        git reset --hard $AppCenterGitRepoCleanTag
+        git push --force 
+        popd
+        appcenter build download --type build --app "PlayFabSDKTeam/PlayFabUnityXCode" --id $BuildNumber --file PlayFabIOS.ipa
+    else
+        popd
+        appcenter build logs --app "PlayFabSDKTeam/PlayFabUnityXCode" --id $BuildNumber
+        exit 1
+    fi
+}
+
+DoWork() {
+    InitializeBuildEnvironment
+    QueueAppCenterBuild
+    WaitForAppCenterBuild
+    ExtractBuildResults
+    CleanupAndDownloadIpa
+}
+
+DoWork

@@ -68,7 +68,7 @@ SetProjDefines() {
     echo === Test compilation in all example projects ===
 
     # TC is used by essentially all of the test projects
-    . ./unity_copyTestTitleData.sh "${ProjRootPath}/${SdkName}_TC/Assets/Resources" copy
+    . ./unity_copyTestTitleData.sh "${ProjRootPath}/${SdkName}_TC/Assets/Resources" copy || exit 1
     SetEachProjDefine ${SdkName}_TC
     # TODO: This is limiting the tests that get run on Jenkins...
 
@@ -145,7 +145,7 @@ TryBuildAndTestAndroid() {
 
             #copy test title data in
             pushd "$WORKSPACE/SDKGenerator/SDKBuildScripts"
-                ./unity_copyTestTitleData.sh "$WORKSPACE/sdks/UnitySDK/Testing/Resources" copy
+                . ./unity_copyTestTitleData.sh "$WORKSPACE/sdks/UnitySDK/Testing/Resources" copy || exit 1
             popd
             if [[ $? -ne 0 ]]; then return 1; fi
             
@@ -156,11 +156,11 @@ TryBuildAndTestAndroid() {
             pushd "$WORKSPACE/SDKGenerator/SDKBuildScripts"
                 
                 #pull the test title data back out
-                ./unity_copyTestTitleData.sh "$WORKSPACE/sdks/UnitySDK/Testing/Resources" delete
+                . ./unity_copyTestTitleData.sh "$WORKSPACE/sdks/UnitySDK/Testing/Resources" delete || exit 1
                 if [[ $? -ne 0 ]]; then return 1; fi
                 
                 #upload the APK and run the tests on AppCenter Test
-                ./runAppCenterTest.sh "$ProjRootPath/${SdkName}_TC/testBuilds/PlayFabAndroid.apk" "$WORKSPACE/SDKGenerator/SDKBuildScripts/AppCenterUITestLauncher/AppCenterUITestLauncher/debugassemblies" android
+                . ./runAppCenterTest.sh "$ProjRootPath/${SdkName}_TC/testBuilds/PlayFabAndroid.apk" "$WORKSPACE/SDKGenerator/SDKBuildScripts/AppCenterUITestLauncher/AppCenterUITestLauncher/debugassemblies" android || exit 1
                 if [[ $? -ne 0 ]]; then return 1; fi
            
             popd
@@ -182,7 +182,7 @@ TryBuildAndTestiOS() {
 
             #copy the test title data in
             pushd "$WORKSPACE/SDKGenerator/SDKBuildScripts"
-                ./unity_copyTestTitleData.sh "$WORKSPACE/sdks/UnitySDK/Testing/Resources" copy
+                . ./unity_copyTestTitleData.sh "$WORKSPACE/sdks/UnitySDK/Testing/Resources" copy || exit 1
             popd
             if [[ $? -ne 0 ]]; then return 1; fi
             
@@ -193,15 +193,15 @@ TryBuildAndTestiOS() {
             pushd "$WORKSPACE/SDKGenerator/SDKBuildScripts"
  
                 #pull the test title data back out.
-                ./unity_copyTestTitleData.sh "$WORKSPACE/sdks/UnitySDK/Testing/Resources" delete
+                . ./unity_copyTestTitleData.sh "$WORKSPACE/sdks/UnitySDK/Testing/Resources" delete || exit 1
                 if [[ $? -ne 0 ]]; then return 1; fi
 
                 #build the IPA on AppCenter Build
-                ./unity_buildAppCenterTestIOS.sh "$ProjRootPath/${SdkName}_TC/testBuilds/PlayFabIOS" "$WORKSPACE/vso" 'git@ssh.dev.azure.com:v3/playfab/Playfab%20SDK%20Automation/UnitySDK_XCode_AppCenterBuild' $JOB_NAME init
+                . ./unity_buildAppCenterTestIOS.sh "$ProjRootPath/${SdkName}_TC/testBuilds/PlayFabIOS" "$WORKSPACE/vso" 'git@ssh.dev.azure.com:v3/playfab/Playfab%20SDK%20Automation/UnitySDK_XCode_AppCenterBuild' ${SdkName}_${NODE_NAME}_${EXECUTOR_NUMBER} init || exit 1
                 if [[ $? -ne 0 ]]; then return 1; fi
 
                 #run the downloaded IPA on AppCenter Test
-                ./runAppCenterTest.sh "$WORKSPACE/SDKGenerator/SDKBuildScripts/PlayFabIOS.ipa" "$WORKSPACE/SDKGenerator/SDKBuildScripts/AppCenterUITestLauncher/AppCenterUITestLauncher/debugassemblies" ios
+                . ./runAppCenterTest.sh "$WORKSPACE/SDKGenerator/SDKBuildScripts/PlayFabIOS.ipa" "$WORKSPACE/SDKGenerator/SDKBuildScripts/AppCenterUITestLauncher/AppCenterUITestLauncher/debugassemblies" ios || exit 1
                 if [[ $? -ne 0 ]]; then return 1; fi
             
             popd

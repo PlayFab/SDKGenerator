@@ -59,7 +59,7 @@
             PlayFabQosApi playFabQosApi = new PlayFabQosApi();
             QosResult qoSResult = playFabQosApi.GetQosResultAsync().Result;
 
-            testContext.IntEquals(0, qoSResult.ErrorCode, $"Qos error: expected ErrorCode 0, actual ErrorCode {qoSResult.ErrorCode}");
+            testContext.IntEquals(0, qoSResult.ErrorCode, $"Qos ErrorMessage: {qoSResult.ErrorMessage}");
             testContext.EndTest(UUnitFinishState.PASSED, null);
         }
     }

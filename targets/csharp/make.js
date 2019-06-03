@@ -14,10 +14,15 @@ exports.makeCombinedAPI = function (apis, sourceDir, apiOutputDir) {
     console.log("Generating C-sharp combined SDK to " + apiOutputDir);
 
     const locals = {
+        apis: apis,
         buildIdentifier: sdkGlobals.buildIdentifier,
         copyright: copyright,
+        extraDefines: ";NETFX_CORE;SIMPLE_JSON_TYPEINFO;ENABLE_PLAYFABADMIN_API;ENABLE_PLAYFABSERVER_API",
         hasClientOptions: getAuthMechanisms(apis).includes("SessionTicket"),
-        sdkVersion: sdkGlobals.sdkVersion
+        libname: "All",
+        sdkDate: sdkGlobals.sdkVersion.split(".")[2],
+        sdkVersion: sdkGlobals.sdkVersion,
+        sdkYear: sdkGlobals.sdkVersion.split(".")[2].substr(0, 2)
     };
 
     templatizeTree(locals, path.resolve(sourceDir, "source"), rootOutputDir);
@@ -28,14 +33,10 @@ exports.makeCombinedAPI = function (apis, sourceDir, apiOutputDir) {
         makeApi(apis[i], sourceDir, apiOutputDir);
 
     generateSimpleFiles(apis, sourceDir, apiOutputDir);
-    generateProject(apis, sourceDir, apiOutputDir, "All", ";ENABLE_PLAYFABADMIN_API;ENABLE_PLAYFABSERVER_API");
 
     const xamarinOutputDir = path.join(rootOutputDir, "XamarinTestRunner");
     templatizeTree(locals, path.resolve(sourceDir, "XamarinTestRunner"), xamarinOutputDir);
     templatizeTree(locals, path.join(apiOutputDir, "source"), path.join(xamarinOutputDir, "XamarinTestRunner", "PlayFabSDK"));
-
-    const pluginsOutputDir = path.resolve(rootOutputDir, "Plugins");
-    generatePlugins(locals, sourceDir, pluginsOutputDir);
 };
 
 function getBaseTypeSyntax(datatype) {
@@ -140,37 +141,6 @@ function generateSimpleFiles(apis, sourceDir, apiOutputDir) {
 
     var authenticationContextTemplate = getCompiledTemplate(path.resolve(sourceDir, "templates/PlayFabAuthenticationContext.cs.ejs"));
     writeFile(path.resolve(apiOutputDir, "source/PlayFabAuthenticationContext.cs"), authenticationContextTemplate(locals));
-}
-
-function generateProject(apis, sourceDir, apiOutputDir, libname, extraDefines) {
-    var projLocals = {
-        apis: apis,
-        libname: libname,
-        extraDefines: ";NETFX_CORE;SIMPLE_JSON_TYPEINFO" + extraDefines,
-        sdkVersion: sdkGlobals.sdkVersion,
-        sdkDate: sdkGlobals.sdkVersion.split(".")[2],
-        sdkYear: sdkGlobals.sdkVersion.split(".")[2].substr(0, 2)
-    };
-
-    var vcProjTemplate = getCompiledTemplate(path.resolve(sourceDir, "templates/PlayFabSDK.csproj.ejs"));
-    writeFile(path.resolve(apiOutputDir, "source/PlayFabSDK.csproj"), vcProjTemplate(projLocals));
-}
-
-function generatePlugins(locals, sourceDir, outputDir) {
-    const cloudScriptOutputDir = path.resolve(outputDir, "CloudScript");
-    generateCloudScriptPlugin(locals, sourceDir, cloudScriptOutputDir);
-}
-
-function generateCloudScriptPlugin(locals, sourceDir, outputDir) {
-    var projLocals = {
-        extraDefines: ";NETFX_CORE;SIMPLE_JSON_TYPEINFO",
-        sdkVersion: sdkGlobals.sdkVersion,
-        sdkDate: sdkGlobals.sdkVersion.split(".")[2],
-        sdkYear: sdkGlobals.sdkVersion.split(".")[2].substr(0, 2)
-    };
-
-    var vcProjTemplate = getCompiledTemplate(path.resolve(sourceDir, "templates", "PlayFabCloudScriptPlugin.csproj.ejs"));
-    writeFile(path.resolve(outputDir, "source", "PlayFabCloudScriptPlugin.csproj"), vcProjTemplate(projLocals));
 }
 
 function getVerticalNameDefault() {

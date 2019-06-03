@@ -2,7 +2,6 @@
 {
     using System;
     using System.Collections.Generic;
-    using System.Linq;
     using System.Threading.Tasks;
     using EventsModels;
     using Internal;
@@ -12,12 +11,6 @@
     {
         private const int DefaultTimeoutMs = 250;
         private readonly Dictionary<AzureRegion, string> _dataCenterMap = new Dictionary<AzureRegion, string>();
-        private readonly Action<string> _logAction;
-
-        public PlayFabQosApi(Action<string> logAction = null)
-        {
-            _logAction = logAction;
-        }
 
         public async Task<QosResult> GetQosResultAsync(int timeoutMs = DefaultTimeoutMs)
         {
@@ -37,18 +30,19 @@
 
             if (!PlayFabClientAPI.IsClientLoggedIn())
             {
-                LogQos("Client is not logged in");
                 result.ErrorCode = (int)QosErrorCode.NotLoggedIn;
+                result.ErrorMessage = "Client is not logged in";
                 return result;
             }
 
             // get datacenter map (call thunderhead)
-            await GetQoSServerList();
+            await InitializeQoSServerList();
 
             int serverCount = _dataCenterMap.Count;
             if (serverCount <= 0)
             {
                 result.ErrorCode = (int)QosErrorCode.FailedToRetrieveServerList;
+                result.ErrorMessage = "Failed to get server list from PlayFab multiplayer servers";
                 return result;
             }
 
@@ -58,7 +52,7 @@
             return result;
         }
 
-        private async Task GetQoSServerList()
+        private async Task InitializeQoSServerList()
         {
             if (_dataCenterMap.Count > 0)
             {
@@ -71,7 +65,6 @@
             
             if (response == null || response.Error != null)
             {
-                LogQos("Could not get the server list from thunderhead\n Error : " + response?.Error.GenerateErrorReport());
                 return;
             }
 
@@ -88,14 +81,16 @@
 
         private async Task<List<QosRegionResult>> GetSortedRegionLatencies(int timeoutMs)
         {
-            List<Task<QosRegionResult>> asyncPingResults = _dataCenterMap.Select(async kvp =>
+            var asyncPingResults = new List<Task<QosRegionResult>>(_dataCenterMap.Count);
+            foreach (KeyValuePair<AzureRegion, string> datacenter in _dataCenterMap)
             {
-                var regionPinger = new RegionPinger(kvp.Value, kvp.Key);
-                return await regionPinger.PingAsync(timeoutMs);
-            }).ToList();
+                var regionPinger = new RegionPinger(datacenter.Value, datacenter.Key);
+                Task<QosRegionResult> pingResult = regionPinger.PingAsync(timeoutMs);
+                asyncPingResults.Add(pingResult);
+            }
 
             await Task.WhenAll(asyncPingResults);
-            List<QosRegionResult> results = new List<QosRegionResult>(asyncPingResults.Count);
+            var results = new List<QosRegionResult>(asyncPingResults.Count);
             foreach (Task<QosRegionResult> asyncPingResult in asyncPingResults)
             {
                 results.Add(asyncPingResult.Result);
@@ -112,7 +107,7 @@
             {
                 Name = "qos_result",
                 EventNamespace = "playfab.servers",
-                Payload = result
+                Payload = QosResultFacade.CreateFrom(result)
             };
 
             var writeEventsRequest = new WriteEventsRequest
@@ -120,20 +115,7 @@
                 Events = new List<EventContents> {eventContents}
             };
 
-            PlayFabResult<WriteEventsResponse> response = null;
-            try
-            {
-                response = await WriteTelemetryAsync(writeEventsRequest);
-            }
-            catch (Exception exception)
-            {
-                LogQos(exception.ToString());
-            }
-
-            if (response == null || response.Error != null)
-            {
-                LogQos(response?.Error.GenerateErrorReport());
-            }
+            await WriteTelemetryAsync(writeEventsRequest);
         }
 
         private static async Task<PlayFabResult<WriteEventsResponse>> WriteTelemetryAsync(WriteEventsRequest request, object customData = null, Dictionary<string, string> extraHeaders = null)
@@ -144,7 +126,6 @@
             if (httpResult is PlayFabError)
             {
                 var error = (PlayFabError)httpResult;
-                PlayFabSettings.GlobalErrorHandler?.Invoke(error);
                 return new PlayFabResult<WriteEventsResponse> { Error = error, CustomData = customData };
             }
 
@@ -153,11 +134,6 @@
             var result = resultData.data;
 
             return new PlayFabResult<WriteEventsResponse> { Result = result, CustomData = customData };
-        }
-
-        private void LogQos(string message)
-        {
-            _logAction?.Invoke(message);
         }
     }
 }

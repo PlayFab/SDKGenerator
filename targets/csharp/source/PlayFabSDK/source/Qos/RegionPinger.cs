@@ -2,7 +2,6 @@
 {
     using System;
     using System.Collections.Generic;
-    using System.Linq;
     using System.Threading.Tasks;
     using MultiplayerModels;
 #if NET45 || NETCOREAPP2_0
@@ -29,16 +28,44 @@
         public async Task<QosRegionResult> PingAsync(int timeoutMs)
         {
             Task timeout = Task.Delay(timeoutMs);
-            List<Task<int>> latencyMeasures = Enumerable.Range(0, PingCount).Select(i => PingInternalAsync()).ToList();
+            var latencyMeasures = new List<Task<int>>(PingCount);
+            for (int i = 0; i < PingCount; i++)
+            {
+                latencyMeasures.Add(PingInternalAsync());
+            }
+
             await Task.WhenAny(Task.WhenAll(latencyMeasures), timeout);
-            List<int> latencies = latencyMeasures.Where(t => t.IsCompleted && t.Result >= 0).Select(t => t.Result).ToList();
+            var latencies = new List<int>(latencyMeasures.Count);
+            int errorCode = 0;
+            foreach (Task<int> measure in latencyMeasures)
+            {
+                if (!measure.IsCompleted || measure.Result < 0)
+                {
+                    errorCode = (int) QosErrorCode.Timeout;
+                    continue;
+                }
+
+                latencies.Add(measure.Result);
+            }
+
+            int averageLatency = UnknownLatencyValue;
+            if (latencies.Count > 0)
+            {
+                int sum = 0;
+                foreach (int latency in latencies)
+                {
+                    sum += latency;
+                }
+
+                averageLatency = sum / latencies.Count;
+            }
 
             // Return the average of the remaining numbers
             return new QosRegionResult
             {
                 Region = _region,
-                LatencyMs = latencies.Any()? (int) latencies.Average() : UnknownLatencyValue,
-                ErrorCode = latencyMeasures.All(t => t.IsCompleted) ? 0 : (int)QosErrorCode.Timeout
+                LatencyMs = averageLatency,
+                ErrorCode = errorCode
             };
         }
 
@@ -49,7 +76,10 @@
             using (var client = new UdpClient(hostEntry.HostName, PortNumber))
             {
                 long startTicks = DateTime.UtcNow.Ticks;
-                byte[] requestBuffer = _initialHeader.Concat(BitConverter.GetBytes(startTicks)).ToArray();
+                byte[] startTicksBytes = BitConverter.GetBytes(startTicks);
+                byte[] requestBuffer = new byte[_initialHeader.Length + startTicksBytes.Length];
+                _initialHeader.CopyTo(requestBuffer, 0);
+                startTicksBytes.CopyTo(requestBuffer, _initialHeader.Length);
 
                 await client.SendAsync(requestBuffer, requestBuffer.Length);
 

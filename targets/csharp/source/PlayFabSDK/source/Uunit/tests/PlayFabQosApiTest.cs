@@ -1,6 +1,7 @@
 ﻿namespace PlayFab.UUnit
 {
     using System;
+    using ClientModels;
     using QoS;
     using ServerModels;
 
@@ -40,21 +41,15 @@
         [UUnitTest]
         public void QosTest(UUnitTestContext testContext)
         {
-            var loginWithServerCustomIdRequest = new LoginWithServerCustomIdRequest()
+            var loginWithCustomIdRequest = new LoginWithCustomIDRequest()
             {
                 CreateAccount = true,
-                ServerCustomId = "test_Instance1",
+                CustomId = "test_Instance1"
             };
 
             try
             {
-                PlayFabSettings.staticSettings.TitleId = testTitleData.titleId;
-                PlayFabSettings.staticSettings.DeveloperSecretKey = testTitleData.developerSecretKey;
-                PlayFabResult<ServerLoginResult> serverLoginResult = PlayFabServerAPI.LoginWithServerCustomIdAsync(loginWithServerCustomIdRequest, null, testTitleData.extraHeaders).Result;
-                PlayFabSettings.staticPlayer.EntityToken = serverLoginResult.Result.EntityToken.EntityToken;
-                PlayFabSettings.staticPlayer.PlayFabId = serverLoginResult.Result.PlayFabId;
-                PlayFabSettings.staticPlayer.ClientSessionTicket = serverLoginResult.Result.SessionTicket;
-
+                PlayFabClientAPI.LoginWithCustomIDAsync(loginWithCustomIdRequest, null, testTitleData.extraHeaders).Wait();
             }
             catch (AggregateException aggregateException) when (aggregateException.InnerException != null)
             {

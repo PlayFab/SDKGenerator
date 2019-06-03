@@ -282,10 +282,7 @@ function GetArrayPropertyDeserializer(property, datatype, api) {
     else if (property.isclass) {
         getter = "[[" + api.name +  property.actualtype + " new] initWithDictionary:[member_list objectAtIndex:i]]";
     }
-    else if (property.isenum) {
-        getter = "(" + api.name +  property.actualtype + ")" + "[member_list objectAtIndex:i]";
-    }
-    else if (property.actualtype === "object") {
+    else if (property.isenum || property.actualtype === "object") {
         getter = "[member_list objectAtIndex:i]";
     }
     else {

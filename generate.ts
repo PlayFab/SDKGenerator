@@ -6,11 +6,11 @@ var path = require("path");
 ejs.delimiter = "\n";
 
 interface IBuildTarget {
-    buildFlags: string[],
-    destPath: string,
-    srcFolder: string,
-    versionKey: string,
-    versionString: string,
+    buildFlags: string[], // The flags applied to this build
+    destPath: string, // The path to the destination (usually a git repo)
+    srcFolder: string, // The SdkGenerator/targets/subfolder
+    versionKey: string, // The key in the API_Specs/SdkManualNotes.json file that has the version for this SDK
+    versionString: string, // The actual version string, from SdkManualNotes, or from another appropriate input
 }
 
 interface IGenConfig {
@@ -29,12 +29,13 @@ interface SdkDoc {
 }
 
 interface SdkGenGlobals {
-    argsByName: { [key: string]: string; };
-    errorMessages: string[];
-    buildTarget: IBuildTarget;
-    apiSrcDescription: string;
-    apiCache: { [key: string]: any; }
-    sdkDocsByMethodName: { [key: string]: SdkDoc; }
+    // Internal note: We lowercase the argsByName-keys, targetNames, buildIdentifier, and the flags.  Case is maintained for all other argsByName-values, and targets
+    argsByName: { [key: string]: string; }; // Command line args compiled into KVP's
+    errorMessages: string[]; // String list of errors during parsing and loading steps
+    buildTarget: IBuildTarget; // Describes where and how to build the target
+    apiSrcDescription: string; // Assigned if/when the api-spec source is fetched properly
+    apiCache: { [key: string]: any; } // We have to pre-cache the api-spec files, because latter steps (like ejs) can't run asynchronously
+    sdkDocsByMethodName: { [key: string]: SdkDoc; } // When loading TOC, match documents to the SdkGen function that should be called for those docs
     specialization: string;
     unitySubfolder: string;
 }
@@ -55,20 +56,18 @@ const defaultSpecialization = "sdk";
 
 var sdkGeneratorGlobals: SdkGenGlobals = {
     // Frequently, these are passed by reference to avoid over-use of global variables. Unfortunately, the async nature of loading api files required some global references
-
-    // Internal note: We lowercase the argsByName-keys, targetNames, buildIdentifier, and the flags.  Case is maintained for all other argsByName-values, and targets
-    argsByName: {}, // Command line args compiled into KVP's
-    errorMessages: [], // String list of errors during parsing and loading steps
+    argsByName: {},
+    errorMessages: [],
     buildTarget: {
-        buildFlags: [], // The flags applied to this build
-        destPath: null, // The path to the destination (usually a git repo)
-        srcFolder: null, // The SdkGenerator/targets/subfolder
-        versionKey: null, // The key in the API_Specs/SdkManualNotes.json file that has the version for this SDK
-        versionString: null, // The actual version string, from SdkManualNotes, or from another appropriate input
-    }, // Describes where and how to build the target
-    apiSrcDescription: "INVALID", // Assigned if/when the api-spec source is fetched properly
-    apiCache: {}, // We have to pre-cache the api-spec files, because latter steps (like ejs) can't run asynchronously
-    sdkDocsByMethodName: {}, // When loading TOC, match documents to the SdkGen function that should be called for those docs
+        buildFlags: [],
+        destPath: null,
+        srcFolder: null,
+        versionKey: null,
+        versionString: null,
+    },
+    apiSrcDescription: "INVALID",
+    apiCache: {},
+    sdkDocsByMethodName: {},
     specialization: defaultSpecialization,
     unitySubfolder: null
 };
@@ -78,7 +77,7 @@ let specializationContent;
 
 /////////////////////////////////// The main build sequence for this program ///////////////////////////////////
 function parseAndLoadApis() {
-    // console.log("My args:" + process.argv.join(" "));
+    console.log("My args:" + process.argv.join(" "));
 
     // Step 1
     parseCommandInputs(process.argv, sdkGeneratorGlobals.argsByName, sdkGeneratorGlobals.errorMessages, sdkGeneratorGlobals.buildTarget);
@@ -158,7 +157,7 @@ function parseCommandInputs(args, argsByName: { [key: string]: string; }, errorM
 
     // Output an error if no targets are defined
     if (!buildTarget.destPath)
-        errorMessages.push("Build target not defined, nothing to build.");
+        errorMessages.push("Build target's destPath not defined.");
 
     // Output an error if there's any problems with the api-spec source
     var specCount = 0;
@@ -194,7 +193,7 @@ function extractArgs(args, argsByName: { [key: string]: string; }, buildTarget: 
             argsByName[activeKey] = "";
         } else if (lcArg.indexOf("=") !== -1) { // any parameter with an "=" is assumed to be a target specification, lowercase the targetName
             var argPair = cmdArgs[i].split("=", 2);
-            checkTarget(argPair[0].toLowerCase(), argPair[1], buildTarget, errorMessages);
+            tryApplyTarget(argPair[0].toLowerCase(), argPair[1], buildTarget, errorMessages);
         } else if (activeKey === null) {
             errorMessages.push("Unexpected token: " + cmdArgs[i]);
         } else {
@@ -208,19 +207,20 @@ function extractArgs(args, argsByName: { [key: string]: string; }, buildTarget: 
 
     // Pull from environment variables if there's no console-defined targets
     if (!buildTarget.destPath) {
-
-        console.log("argsByName: " + JSON.stringify(argsByName) + " " + argsByName["destpath"]);
+        console.log("argsByName: " + JSON.stringify(argsByName) + ", destPath: " + argsByName["destpath"]);
 
         if (argsByName["destpath"]) {
-            checkTarget(argsByName["srcfolder"], argsByName["destpath"], buildTarget, errorMessages);
+            tryApplyTarget(argsByName["srcfolder"], argsByName["destpath"], buildTarget, errorMessages);
         } else if (process.env.hasOwnProperty("SdkName")) {
-            checkTarget(process.env["SdkSource"], process.env["SdkName"], buildTarget, errorMessages);
+            tryApplyTarget(process.env["SdkSource"], process.env["SdkName"], buildTarget, errorMessages);
+        } else {
+            errorMessages.push("Build target's destPath not defined.");
         }
     }
 }
 
-function checkTarget(sdkSrcFolder, sdkDestination, buildTarget: IBuildTarget, errorMessages) {
-    var destPath = path.normalize(sdkDestination);
+function tryApplyTarget(sdkSrcFolder, destPath, buildTarget: IBuildTarget, errorMessages) {
+    var destPath = path.normalize(destPath);
     if (fs.existsSync(destPath) && !fs.lstatSync(destPath).isDirectory()) {
         errorMessages.push("Invalid target output path: " + destPath);
         return;

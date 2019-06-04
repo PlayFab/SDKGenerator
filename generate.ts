@@ -5,9 +5,22 @@ var path = require("path");
 
 ejs.delimiter = "\n";
 
-interface SpecializationTocRef {
-    name: string;
-    path: string;
+interface IBuildTarget {
+    buildFlags: string[],
+    destPath: string,
+    srcFolder: string,
+    versionKey: string,
+    versionString: string,
+}
+
+interface IGenConfig {
+    branchSpecMap: { [key: string]: string; },
+    delSrc: boolean,
+    buildFlags: string,
+    outputDirs: string[],
+    srcFolder: string,
+    versionKey: string,
+    versionString: string,
 }
 
 interface SdkDoc {
@@ -24,6 +37,11 @@ interface SdkGenGlobals {
     sdkDocsByMethodName: { [key: string]: SdkDoc; }
     specialization: string;
     unitySubfolder: string;
+}
+
+interface SpecializationTocRef {
+    name: string;
+    path: string;
 }
 
 const defaultApiSpecFilePath = "../API_Specs"; // Relative path to Generate.js
@@ -201,13 +219,6 @@ function extractArgs(args, argsByName: { [key: string]: string; }, buildTarget: 
     }
 }
 
-interface IBuildTarget {
-    buildFlags: string[],
-    destPath: string,
-    srcFolder: string,
-    versionKey: string,
-    versionString: string,
-}
 function checkTarget(sdkSrcFolder, sdkDestination, buildTarget: IBuildTarget, errorMessages) {
     var destPath = path.normalize(sdkDestination);
     if (fs.existsSync(destPath) && !fs.lstatSync(destPath).isDirectory()) {
@@ -420,15 +431,6 @@ function downloadFromUrl(srcUrl: string, appendUrl: string, apiCache, cacheKey: 
 }
 
 /////////////////////////////////// Major step 3 - Generate the indicated ouptut files ///////////////////////////////////
-interface IGenConfig {
-    branchSpecMap: { [key: string]: string; },
-    delSrc: boolean,
-    buildFlags: string,
-    outputDirs: string[],
-    srcFolder: string,
-    versionKey: string,
-    versionString: string,
-}
 function generateApis(buildIdentifier, target: IBuildTarget) {
     console.log("Generating PlayFab APIs from specs: " + sdkGeneratorGlobals.apiSrcDescription);
 
@@ -816,7 +818,6 @@ function catchAndReport(method) {
     } catch (error) {
         console.error(error);
         setTimeout(doNothing, 30000);
-        // throw(error);
     }
 }
 

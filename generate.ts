@@ -433,13 +433,15 @@ function generateApis(buildIdentifier, target: IBuildTarget) {
     console.log("Generating PlayFab APIs from specs: " + sdkGeneratorGlobals.apiSrcDescription);
 
     var genConfig: IGenConfig = null;
-    var genConfigPath = path.resolve(target.destPath, "genConfig.json");
-    try {
-        genConfig = require(genConfigPath);
-        console.log("Loaded genConfig at: " + genConfigPath);
-    } catch (_) {
-        console.log("Did not find: " + genConfigPath);
-    }
+
+    // This is disabled until we more carefully detect and alert on input conflicts
+    //var genConfigPath = path.resolve(target.destPath, "genConfig.json");
+    //try {
+    //    genConfig = require(genConfigPath);
+    //    console.log("Loaded genConfig at: " + genConfigPath);
+    //} catch (_) {
+    //    console.log("Did not find: " + genConfigPath);
+    //}
 
     if (genConfig) {
         if (genConfig.buildFlags) target.buildFlags = genConfig.buildFlags.split(" ");

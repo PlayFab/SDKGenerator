@@ -51,13 +51,13 @@
             int averageLatency = UnknownLatencyValue;
             if (latencies.Count > 0)
             {
-                int sum = 0;
+                long sum = 0;
                 foreach (int latency in latencies)
                 {
                     sum += latency;
                 }
 
-                averageLatency = sum / latencies.Count;
+                averageLatency = (int)(sum / latencies.Count);
             }
 
             // Return the average of the remaining numbers

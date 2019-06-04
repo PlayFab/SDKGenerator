@@ -1,4 +1,4 @@
-echo ========== BUILDING WIN64 ==========
+echo ========== BUILDING ANDROID EXAMPLE PROJECT ==========
 
 rem # Unreal Path, to change depending on your workspace setup.
 set uePath=C:\Program Files\Epic Games
@@ -13,7 +13,6 @@ rem # Destination Path, where the build will end up (relative to active director
 set archivePath="%WORKSPACE%\Build"
 
 rem # Clear out the destination folder so the build lands on clean ground.
-rd /s /q %archivePath%
 if exist %archivePath% rd /s /q %archivePath%
 
 rem $ Copy testTitleData.json into the build folder

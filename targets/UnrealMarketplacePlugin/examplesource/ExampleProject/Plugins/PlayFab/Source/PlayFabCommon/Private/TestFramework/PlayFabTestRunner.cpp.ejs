@@ -208,24 +208,3 @@ void IPlayFabTestRunner::EmitCloudScriptResults()
 //{
 //    UE_LOG(LogPlayFabCommon, Error, TEXT("Cloud Upload Error: \n%s"), *error.GenerateErrorReport());
 //}
-eter;
-    request.GeneratePlayStreamEvent = true;
-
-    UE_LOG(LogPlayFabExampleProject, Log, TEXT("Request: \n%s"), *request.toJSONString());
-
-    ClientAPI->ExecuteCloudScript(
-        request,
-        PlayFab::UPlayFabClientAPI::FExecuteCloudScriptDelegate::CreateUObject(this, &URunTestsCommandlet::OnCloudUploadSuccess),
-        PlayFab::FPlayFabErrorDelegate::CreateUObject(this, &URunTestsCommandlet::OnCloudUploadError)
-    );
-}
-
-void IPlayFabTestRunner::OnCloudUploadSuccess(const PlayFab::ClientModels::FExecuteCloudScriptResult& result) const
-{
-    UE_LOG(LogPlayFabExampleProject, Log, TEXT("Cloud Upload Success: \n%s"), *result.toJSONString());
-}
-
-void IPlayFabTestRunner::OnCloudUploadError(const PlayFab::FPlayFabCppError& error) const
-{
-    UE_LOG(LogPlayFabExampleProject, Error, TEXT("Cloud Upload Error: \n%s"), *error.GenerateErrorReport());
-}

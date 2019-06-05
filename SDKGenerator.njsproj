@@ -602,6 +602,12 @@
     <Content Include="targets\UnrealMarketplacePlugin\examplesource\ExampleProject\Content\TestTitleData\PutTestTitleDataJsonHereIfNeeded" />
     <Content Include="targets\UnrealMarketplacePlugin\examplesource\ExampleProject\ExampleProject.sln.ejs" />
     <Content Include="targets\UnrealMarketplacePlugin\examplesource\ExampleProject\ExampleProject.uproject.ejs" />
+    <Content Include="targets\UnrealMarketplacePlugin\examplesource\ExampleProject\Plugins\PlayFab\Source\PlayFabCommon\Private\TestFramework\PlayFabTestCase.cpp.ejs" />
+    <Content Include="targets\UnrealMarketplacePlugin\examplesource\ExampleProject\Plugins\PlayFab\Source\PlayFabCommon\Private\TestFramework\PlayFabTestRunner.cpp.ejs" />
+    <Content Include="targets\UnrealMarketplacePlugin\examplesource\ExampleProject\Plugins\PlayFab\Source\PlayFabCommon\Public\TestFramework\PlayFabTestCase.h.ejs" />
+    <Content Include="targets\UnrealMarketplacePlugin\examplesource\ExampleProject\Plugins\PlayFab\Source\PlayFabCommon\Public\TestFramework\PlayFabTestContext.h.ejs" />
+    <Content Include="targets\UnrealMarketplacePlugin\examplesource\ExampleProject\Plugins\PlayFab\Source\PlayFabCommon\Public\TestFramework\PlayFabTestEnums.h.ejs" />
+    <Content Include="targets\UnrealMarketplacePlugin\examplesource\ExampleProject\Plugins\PlayFab\Source\PlayFabCommon\Public\TestFramework\PlayFabTestRunner.h.ejs" />
     <Content Include="targets\UnrealMarketplacePlugin\examplesource\ExampleProject\Plugins\PlayFab\Source\PlayFabTests\PlayFabTests.Build.cs" />
     <Content Include="targets\UnrealMarketplacePlugin\examplesource\ExampleProject\Plugins\PlayFab\Source\PlayFabTests\Private\CppTests\PlayFabCppTests.cpp.ejs" />
     <Content Include="targets\UnrealMarketplacePlugin\examplesource\ExampleProject\Plugins\PlayFab\Source\PlayFabTests\Private\PlayFabTests.cpp.ejs" />
@@ -1121,6 +1127,11 @@
     <Folder Include="targets\UnrealMarketplacePlugin\examplesource\ExampleProject\Plugins\" />
     <Folder Include="targets\UnrealMarketplacePlugin\examplesource\ExampleProject\Plugins\PlayFab\" />
     <Folder Include="targets\UnrealMarketplacePlugin\examplesource\ExampleProject\Plugins\PlayFab\Source\" />
+    <Folder Include="targets\UnrealMarketplacePlugin\examplesource\ExampleProject\Plugins\PlayFab\Source\PlayFabCommon\" />
+    <Folder Include="targets\UnrealMarketplacePlugin\examplesource\ExampleProject\Plugins\PlayFab\Source\PlayFabCommon\Private\" />
+    <Folder Include="targets\UnrealMarketplacePlugin\examplesource\ExampleProject\Plugins\PlayFab\Source\PlayFabCommon\Private\TestFramework\" />
+    <Folder Include="targets\UnrealMarketplacePlugin\examplesource\ExampleProject\Plugins\PlayFab\Source\PlayFabCommon\Public\" />
+    <Folder Include="targets\UnrealMarketplacePlugin\examplesource\ExampleProject\Plugins\PlayFab\Source\PlayFabCommon\Public\TestFramework\" />
     <Folder Include="targets\UnrealMarketplacePlugin\examplesource\ExampleProject\Plugins\PlayFab\Source\PlayFabTests\" />
     <Folder Include="targets\UnrealMarketplacePlugin\examplesource\ExampleProject\Plugins\PlayFab\Source\PlayFabTests\Private\" />
     <Folder Include="targets\UnrealMarketplacePlugin\examplesource\ExampleProject\Plugins\PlayFab\Source\PlayFabTests\Private\CppTests\" />

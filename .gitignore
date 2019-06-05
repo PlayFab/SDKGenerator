@@ -10,6 +10,8 @@
 **/beta_*.sh
 **/.DS_Store*
 
+/privateTemplates/
+
 .project
 .classpath
 *.suo

@@ -5,6 +5,8 @@ var path = require("path");
 
 ejs.delimiter = "\n";
 
+// This is the interface for an internal object withing SdkGenerator, specifically
+// all the information needed to build an SDK from a source to a desination, with all flags and inputs
 interface IBuildTarget {
     buildFlags: string[], // The flags applied to this build
     destPath: string, // The path to the destination (usually a git repo)
@@ -13,34 +15,36 @@ interface IBuildTarget {
     versionString: string, // The actual version string, from SdkManualNotes, or from another appropriate input
 }
 
+// This is the interface of the genConfig.json file at the root of the destination repo
 interface IGenConfig {
-    branchSpecMap: { [key: string]: string; },
-    delSrc: boolean,
-    buildFlags: string,
-    outputDirs: string[],
-    srcFolder: string,
-    versionKey: string,
-    versionString: string,
+    branchSpecMap: { [key: string]: string; }, // Theoretical. Indicates which apiSpec location is used for which branch. May be revised.
+    delSrc: boolean, // Theoretical. Determines if it is safe to delete source files. TODO: This should probably be a list of safe-to-delete file extensions.
+    buildFlags: string, // Active. Examples: "beta", "nonnullable", "beta nonnullable"
+    outputDirs: string[], // Theoretical. List of destination subdirectories to provide to make.js for duplicate generated copies
+    srcFolder: string, // Active. SDKGenerator/targets/<srcFolder> which contains make.js for this SDK target
+    versionKey: string, // Active. The key to read from SdkManualNotes.json, to determine the version number. (use versionKey or versionString, not both)
+    versionString: string, // Active. The version number to apply to the SDK. (use versionKey or versionString, not both)
 }
 
-interface SdkDoc {
-    funcName: string;
-    apiDocKeys: string[];
+// This describes which API documents are provided to which implemented methods in the make.js file in the source templates
+interface ISdkDoc {
+    funcName: string; // SDKGenerator/targets/<sdkSrc>/make.js/exports.<funcName>
+    apiDocKeys: string[]; // List of API document keys, indicating documents to provide to funcName
 }
 
-interface SdkGenGlobals {
+interface ISdkGenGlobals {
     // Internal note: We lowercase the argsByName-keys, targetNames, buildIdentifier, and the flags.  Case is maintained for all other argsByName-values, and targets
     argsByName: { [key: string]: string; }; // Command line args compiled into KVP's
     errorMessages: string[]; // String list of errors during parsing and loading steps
     buildTarget: IBuildTarget; // Describes where and how to build the target
     apiSrcDescription: string; // Assigned if/when the api-spec source is fetched properly
     apiCache: { [key: string]: any; } // We have to pre-cache the api-spec files, because latter steps (like ejs) can't run asynchronously
-    sdkDocsByMethodName: { [key: string]: SdkDoc; } // When loading TOC, match documents to the SdkGen function that should be called for those docs
+    sdkDocsByMethodName: { [key: string]: ISdkDoc; } // When loading TOC, match documents to the SdkGen function that should be called for those docs
     specialization: string;
-    unitySubfolder: string;
+    unitySubfolder: string; // Horrible hack that should be deleted
 }
 
-interface SpecializationTocRef {
+interface ISpecializationTocRef {
     name: string;
     path: string;
 }
@@ -54,7 +58,7 @@ const specializationTocCacheKey = "specializationTOC";
 const defaultSpecialization = "sdk";
 
 
-var sdkGeneratorGlobals: SdkGenGlobals = {
+var sdkGeneratorGlobals: ISdkGenGlobals = {
     // Frequently, these are passed by reference to avoid over-use of global variables. Unfortunately, the async nature of loading api files required some global references
     argsByName: {},
     errorMessages: [],

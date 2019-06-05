@@ -112,11 +112,12 @@ namespace PlayFabUnit
 
         va_list args;
         va_start(args, format);
-#if defined(PLAYFAB_PLATFORM_IOS) || defined(PLAYFAB_PLATFORM_ANDROID)
+#if defined(PLAYFAB_PLATFORM_IOS) || defined(PLAYFAB_PLATFORM_ANDROID) || defined(PLAYFAB_PLATFORM_LINUX)
         vsnprintf(message, sizeof(message), format, args);
-#else // PLAYFAB_PLATFORM_IOS || PLAYFAB_PLATFORM_ANDROID
+#else // PLAYFAB_PLATFORM_IOS || PLAYFAB_PLATFORM_ANDROID || defined(PLAYFAB_PLATFORM_LINUX)
         _vsnprintf_s(message, sizeof(message), format, args);
-#endif // PLAYFAB_PLATFORM_IOS || PLAYFAB_PLATFORM_ANDROID
+#endif // PLAYFAB_PLATFORM_IOS || PLAYFAB_PLATFORM_ANDROID || defined(PLAYFAB_PLATFORM_LINUX)
+        vsnprintf(message, sizeof(message), format, args);
         va_end(args);
 
         // Output the message in a platform-dependent way.

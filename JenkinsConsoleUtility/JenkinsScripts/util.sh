@@ -82,7 +82,7 @@ CleanCurrentRepo () {
 # USAGE: _CleanCurrentRepo <retryCounter> <gitBranchName>
 _CleanCurrentRepo () {
     # Increment the retryCounter
-    set -- $(("$1+1")) $2
+    set -- $(($1+1)) $2
     if [ "$1" -gt "10" ]; then
         exit 10 # Timeout
     fi

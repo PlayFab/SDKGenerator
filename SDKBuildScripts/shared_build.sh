@@ -3,7 +3,7 @@
 . "$WORKSPACE/SDKGenerator/JenkinsConsoleUtility/JenkinsScripts/sdkUtil.sh" 2> /dev/null || . "../JenkinsConsoleUtility/JenkinsScripts/sdkUtil.sh" 2> /dev/null
 
 # Mandatory Variable Checks
-if [ -z "$SdkName" ] || [ -z "$targetSrc" ]; then
+if [ -z "$SdkName" ]; then
     echo Mandatory parameters not defined: SdkName=$SdkName targetSrc=$targetSrc
     exit 1
 fi
@@ -36,10 +36,10 @@ CleanCodeFiles () {
 BuildSdk () {
     pushd ..
     echo === SHARED BUILDING $SdkName ===
-    if [ -z "$quickTest" ]; then
-        node generate.js $targetSrc=$destPath $apiSpecSource $SdkGenArgs $buildIdentifier $VerticalNameInternal
+    if [ -z "$targetSrc" ]; then
+        node generate.js -destPath $destPath $apiSpecSource $SdkGenArgs $buildIdentifier $VerticalNameInternal
     else
-        echo node generate.js $targetSrc=$destPath $apiSpecSource $SdkGenArgs $buildIdentifier $VerticalNameInternal
+        node generate.js $targetSrc=$destPath $apiSpecSource $SdkGenArgs $buildIdentifier $VerticalNameInternal
     fi
     popd
 }

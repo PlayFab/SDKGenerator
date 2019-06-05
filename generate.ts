@@ -822,6 +822,7 @@ function catchAndReport(method) {
     } catch (error) {
         console.error(error);
         setTimeout(doNothing, 30000);
+        throw error;
     }
 }
 

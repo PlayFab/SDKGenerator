@@ -15,15 +15,12 @@ namespace PlayFabUnit
 
         {
             char* titleDataPathCStr = nullptr;
-            size_t titleDataPathCStrLen;
-            errno_t err = _dupenv_s(&titleDataPathCStr, &titleDataPathCStrLen, "PF_TEST_TITLE_DATA_JSON");
+            titleDataPathCStr = getenv("PF_TEST_TITLE_DATA_JSON");
 
-            if ((0 != err) || (nullptr == titleDataPathCStr) || (0 == titleDataPathCStrLen))
+            if (titleDataPathCStr == nullptr)
                 return false;
 
             titleDataPath = titleDataPathCStr;
-
-            delete[] titleDataPathCStr;
         }
 
         // Read the title data from the file into the output character array.
@@ -54,8 +51,5 @@ namespace PlayFabUnit
     {
         // Write to STDOUT.
         puts(message);
-
-        // Write to Visual Studio's Output window.
-        OutputDebugStringA(message);
     }
 }

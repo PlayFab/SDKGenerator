@@ -44,6 +44,14 @@ OBJS = stdafx.o \
 	PlayFabQoSApi.o \
 	QoSSocket.o \
 	XPlatSocket.o \
+    PlayFabEventTest.o \
+    PlayFabTestMultiUserInstance.o \
+    PlayFabTestMultiUserStatic.o \
+    TestContext.o \
+    TestUtils.o \
+    TestReport.o \
+    TestRunner.o \
+    PlayFabApiTest.o \
 	main.o
 
 # Relative path to the project root directory
@@ -97,9 +105,13 @@ COMPILE_CMD = \
 	$(COMPILE_CMD)
 %.o : $(PROJ_DIR)/code/source/playfab/QoS/%.cpp
 	$(COMPILE_CMD)
+%.o : $(PROJ_DIR)/test/TestApp/%.cpp
+	$(COMPILE_CMD)
+TestAppLinux.o : $(PROJ_DIR)/build/Linux/TestAppLinux.cpp
+	$(COMPILE_CMD)
 stdafx.o : $(PROJ_DIR)/code/stdafx.cpp
 	$(COMPILE_CMD)
-main.o : $(PROJ_DIR)/test/TestApp/TestApp.cpp
+main.o : $(PROJ_DIR)/build/Linux/MainLinux.cpp
 	$(COMPILE_CMD)
 # These are Dependency Rules, which are rules without any command.
 # Dependency Rules indicate that if any file to the right of the colon changes,

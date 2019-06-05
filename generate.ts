@@ -457,7 +457,7 @@ function generateApis(buildIdentifier, target: IBuildTarget) {
     }
 
     if (!target.srcFolder) {
-        throw Error("SdkGenerator/target subfolder not defined: " + target.srcFolder);
+        throw Error("SDKGenerator/target/<srcFolder> not defined, for srcFolder: " + target.srcFolder);
     }
 
     var targetsDir = path.resolve(__dirname, "targets");

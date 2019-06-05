@@ -28,10 +28,6 @@ class URunTestsCommandlet : public UCommandlet, public IPlayFabTestRunner
 private:
     PlayFabClientPtr ClientAPI;
 
-    bool UploadResultToCloud();
-    void OnCloudUploadSuccess(const PlayFab::ClientModels::FExecuteCloudScriptResult& result) const;
-    void OnCloudUploadError(const PlayFab::FPlayFabCppError& error) const;
-
 public:
     // Default CTor
     URunTestsCommandlet();

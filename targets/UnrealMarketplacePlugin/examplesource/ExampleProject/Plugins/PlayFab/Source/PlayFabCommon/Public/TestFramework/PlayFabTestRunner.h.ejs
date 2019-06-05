@@ -49,8 +49,8 @@ protected:
     // Number of successful tests
     int passedTests;
 
-    //void OnCloudUploadSuccess(const PlayFab::ClientModels::FExecuteCloudScriptResult& result) const;
-    //void OnCloudUploadError(const PlayFab::FPlayFabCppError& error) const;
+    void OnCloudUploadSuccess(const PlayFab::ClientModels::FExecuteCloudScriptResult& result) const;
+    void OnCloudUploadError(const PlayFab::FPlayFabCppError& error) const;
 
 public:
     // Generates and returns the Tests Summary.

@@ -4,13 +4,6 @@
 
 #include "UObject/Interface.h"
 
-//#include "PlayFab/Public/IPlayFab.h"
-#include "PlayFabCpp/Public/PlayFab.h"
-#include "PlayFabCpp/Public/Core/PlayFabClientDataModels.h"
-//#include "PlayFabCpp/Public/Core/PlayFabCppBaseModel.h"
-//#include "PlayFabCpp/Public/Core/PlayFabError.h"
-//#include "PlayFabCpp/Public/Core/PlayFabClientAPI.h"
-
 #include "TestFramework/PlayFabTestCase.h"
 #include "TestFramework/PlayFabTestEnums.h"
 
@@ -49,9 +42,6 @@ protected:
     // Number of successful tests
     int passedTests;
 
-    void OnCloudUploadSuccess(const PlayFab::ClientModels::FExecuteCloudScriptResult& result) const;
-    void OnCloudUploadError(const PlayFab::FPlayFabCppError& error) const;
-
 public:
     // Generates and returns the Tests Summary.
     UFUNCTION(BlueprintCallable)
@@ -68,7 +58,4 @@ public:
     // Run the Tests.
     UFUNCTION(BlueprintCallable)
     virtual void Run(const float InDeltaTime);
-
-    UFUNCTION()
-    virtual void EmitCloudScriptResults();
 };

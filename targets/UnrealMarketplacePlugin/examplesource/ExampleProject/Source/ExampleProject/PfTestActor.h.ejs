@@ -5,6 +5,14 @@
 #include "GameFramework/Actor.h"
 #include "TestFramework/PlayFabTestRunner.h"
 
+#include "PlayFab.h"
+//#include "PlayFab/Public/IPlayFab.h"
+//#include "PlayFabCpp/Public/PlayFab.h"
+#include "PlayFabCpp/Public/Core/PlayFabClientDataModels.h"
+//#include "PlayFabCpp/Public/Core/PlayFabCppBaseModel.h"
+#include "PlayFabCpp/Public/Core/PlayFabError.h"
+//#include "PlayFabCpp/Public/Core/PlayFabClientAPI.h"
+
 #include "PfTestActor.generated.h"
 
 UCLASS()
@@ -17,4 +25,10 @@ public:
     APfTestActor(); // Sets default values for this actor's properties
     virtual void BeginPlay() override; // Called when the game starts or when spawned
     virtual void Tick(float DeltaTime) override; // Called every frame
+private:
+    bool _submitCloudScript;
+    void OnCloudUploadSuccess(const PlayFab::ClientModels::FExecuteCloudScriptResult& result) const;
+    void OnCloudUploadError(const PlayFab::FPlayFabCppError& error) const;
+
+    void EmitCloudScriptResults();
 };

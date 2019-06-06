@@ -177,9 +177,6 @@ function tryApplyTarget(sdktemplateFolder, destPath, buildTarget, errorMessages)
     buildTarget.versionString = null;
 }
 function getMakeScriptForTemplate(buildTarget) {
-    var allTargets = getAvailableTemplates();
-    if (!allTargets.includes(buildTarget.templateFolder))
-        throw Error("SDKGenerator/(targets|privateTemplates)/<templateFolder> not defined, for templateFolder: " + buildTarget.templateFolder);
     var templateSubDirs = ["privateTemplates", "targets"];
     for (var subIdx in templateSubDirs) {
         var targetMain = path.resolve(__dirname, templateSubDirs[subIdx], buildTarget.templateFolder, "make.js");
@@ -196,9 +193,9 @@ function getMakeScriptForTemplate(buildTarget) {
 }
 function getAvailableTemplates() {
     var targetList = [];
-    var templateSubDirs = ["privateTemplates", "targets"];
-    for (var subIdx in templateSubDirs) {
-        var templateRootDir = path.resolve(__dirname, templateSubDirs[subIdx]);
+    var templateDirs = ["privateTemplates", "targets"];
+    for (var subIdx in templateDirs) {
+        var templateRootDir = path.resolve(__dirname, templateDirs[subIdx]);
         if (!fs.existsSync(templateRootDir))
             continue;
         var templatesInRoot = fs.readdirSync(templateRootDir);
@@ -231,7 +228,7 @@ function getSpecializationTocRef(apiCache) {
     var specializationRefs = apiCache[tocCacheKey].specializations;
     if (specializationRefs) {
         for (var i = 0; i < specializationRefs.length; i++) {
-            if (specializationRefs[i].name == sdkGeneratorGlobals.specialization) {
+            if (specializationRefs[i].name === sdkGeneratorGlobals.specialization) {
                 return specializationRefs[i];
             }
         }

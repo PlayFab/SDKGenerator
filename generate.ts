@@ -239,10 +239,6 @@ function tryApplyTarget(sdktemplateFolder, destPath, buildTarget: IBuildTarget, 
 }
 
 function getMakeScriptForTemplate(buildTarget: IBuildTarget) {
-    var allTargets: any = getAvailableTemplates();
-    if (!allTargets.includes(buildTarget.templateFolder))
-        throw Error("SDKGenerator/(targets|privateTemplates)/<templateFolder> not defined, for templateFolder: " + buildTarget.templateFolder);
-
     var templateSubDirs: string[] = ["privateTemplates", "targets"];
     for (var subIdx in templateSubDirs) {
         var targetMain = path.resolve(__dirname, templateSubDirs[subIdx], buildTarget.templateFolder, "make.js");
@@ -302,7 +298,7 @@ function getSpecializationTocRef(apiCache) {
     var specializationRefs = apiCache[tocCacheKey].specializations;
     if (specializationRefs) {
         for (var i = 0; i < specializationRefs.length; i++) {
-            if (specializationRefs[i].name == sdkGeneratorGlobals.specialization) {
+            if (specializationRefs[i].name === sdkGeneratorGlobals.specialization) {
                 return specializationRefs[i];
             }
         }

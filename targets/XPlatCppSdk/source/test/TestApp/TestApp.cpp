@@ -117,7 +117,6 @@ namespace PlayFabUnit
 #else // PLAYFAB_PLATFORM_IOS || PLAYFAB_PLATFORM_ANDROID || defined(PLAYFAB_PLATFORM_LINUX)
         _vsnprintf_s(message, sizeof(message), format, args);
 #endif // PLAYFAB_PLATFORM_IOS || PLAYFAB_PLATFORM_ANDROID || defined(PLAYFAB_PLATFORM_LINUX)
-        vsnprintf(message, sizeof(message), format, args);
         va_end(args);
 
         // Output the message in a platform-dependent way.

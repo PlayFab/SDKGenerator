@@ -2,7 +2,7 @@
 
 #include "TestApp.h"
 
-// Win32 Entry Point
+// App Entry Point
 int main()
 {
     PlayFabUnit::TestApp testApp;

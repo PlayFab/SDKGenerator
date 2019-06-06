@@ -68,6 +68,9 @@ void ACloudScriptTestResultUploader::UploadToCloudscript(TArray<class UPlayFabTe
 void ACloudScriptTestResultUploader::SuccessfulUpload(const PlayFab::ClientModels::FExecuteCloudScriptResult& result) const
 {
     UE_LOG(LogTestResults, Log, TEXT("Cloud Upload Success: \n%s"), *result.toJSONString());
+    if(TestsAreComplete() && ShouldQuitOnCompletion()) {
+        FGenericPlatformMisc::RequestExit(true);
+    }
 }
 
 void ACloudScriptTestResultUploader::UploadErrored(const PlayFab::FPlayFabCppError& error) const

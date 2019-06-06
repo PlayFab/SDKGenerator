@@ -10,7 +10,7 @@
 #include "GenericPlatformMisc.h"
 DEFINE_LOG_CATEGORY(LogTestResults);
 
-void ACloudScriptTestResultUploader::UploadToCloudscript(TArray<class UPlayFabTestContext*> SuiteTests)
+void ACloudScriptTestResultUploader::UploadToCloudscript(const TArray<class UPlayFabTestContext*>& SuiteTests)
 {
     PlayFabClientPtr ClientAPI = IPlayFabModuleInterface::Get().GetClientAPI();
 

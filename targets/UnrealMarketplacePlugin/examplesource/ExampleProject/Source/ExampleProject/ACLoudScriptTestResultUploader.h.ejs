@@ -17,7 +17,7 @@ class ACloudScriptTestResultUploader : public AActor
 {
     GENERATED_BODY()
 public:
-    void UploadToCloudscript(TArray<class UPlayFabTestContext*> SuiteTests);
+    void UploadToCloudscript(const TArray<class UPlayFabTestContext*>& SuiteTests);
 
 private:
     void SuccessfulUpload(const PlayFab::ClientModels::FExecuteCloudScriptResult& result) const;

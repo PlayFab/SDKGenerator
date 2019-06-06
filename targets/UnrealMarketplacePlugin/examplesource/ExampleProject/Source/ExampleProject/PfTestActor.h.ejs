@@ -25,10 +25,9 @@ public:
     APfTestActor(); // Sets default values for this actor's properties
     virtual void BeginPlay() override; // Called when the game starts or when spawned
     virtual void Tick(float DeltaTime) override; // Called every frame
+    virtual void EndPlay() override;
+
 private:
     bool _submitCloudScript;
-    void OnCloudUploadSuccess(const PlayFab::ClientModels::FExecuteCloudScriptResult& result) const;
-    void OnCloudUploadError(const PlayFab::FPlayFabCppError& error) const;
-
-    void EmitCloudScriptResults();
+    ACloudScriptTestResultUploader* pUploader;
 };

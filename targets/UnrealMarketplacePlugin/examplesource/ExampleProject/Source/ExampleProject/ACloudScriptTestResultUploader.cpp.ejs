@@ -77,3 +77,11 @@ void ACloudScriptTestResultUploader::UploadErrored(const PlayFab::FPlayFabCppErr
 {
     UE_LOG(LogTestResults, Error, TEXT("Cloud Upload Error: \n%s"), *error.GenerateErrorReport());
 }
+
+bool APfTestActor::TestsAreComplete() const {
+    return SuiteState == PlayFabApiTestActiveState::COMPLETE;
+}
+
+bool APfTestActor::ShouldQuitOnCompletion() const {
+    return GetWorld() && !GetWorld()->IsPlayInEditor();
+}

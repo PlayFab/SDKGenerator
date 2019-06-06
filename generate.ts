@@ -107,15 +107,21 @@ function reportErrorsAndExit(errorMessages) {
         return; // No errors to report, so continue
 
     // Else, report all errors and exit the program
-    console.log("Syntax: node generate.js\n" +
-        "\t\t(<templateName>=<outputPath>|-destPath <destFolderPath>)\n" +
-        "\t\t-(apiSpecPath|apiSpecGitUrl|apiSpecPfUrl)[ (<apiSpecPath>|<apiSpecGitUrl>|<apiSpecPfUrl>)]\n" +
-        "\t\t[ -flags <flag>[ <flag> ...]]\n\n" +
-        "\tExample: node generate.js unity-v2=../sdks/UnitySDK -apiSpecPath ../API_Specs -flags xbox playstation\n" +
-        "\t\tThis builds the UnitySDK, from Specs at relative path ../API_Specs, with console APIs included\n" +
-        "\t<apiSpecPath> : Directory or url containing the *.api.json files\n" +
-        "\tYou must list exactly one <templateName>=<outputPath> arguments.\n" +
-        "\tWarning, there can be no spaces in the template to output specification\n");
+    console.log("Syntax: node generate.js\n\n" +
+        "\tCLI Options:\n" +
+        "\t(<templateName>=<outputPath>|-destPath <outputPath>)\n" +
+        "\t-(apiSpecPath|apiSpecGitUrl|apiSpecPfUrl)[ (<apiSpecPath>|<apiSpecGitUrl>|<apiSpecPfUrl>)]\n" +
+        "\t[ -flags <flag>[ <flag> ...]]\n\n" +
+        "\t* Where <templateName> is a subfolder within SDKGenerator/privateTemplates -OR- SDKGenerator/targets.\n" +
+        "\t* Where <outputPath> is a relative path from the working directory where the SDK is written.\n" +
+        "\t* Where <apiSpecPath> is a relative directory or url containing the *.api.json files\n" +
+        "\t* If -destPath is used, then genConfig.json must exist in <outputPath>.\n\n" +
+        "\tExample: node generate.js unity-v2=../sdks/UnitySDK\n" +
+        "\t\tThis builds the UnitySDK, from Specs at the default (GitHub) location\n\n" +
+        "\tExample: node generate.js -destPath ../sdks/UnitySDK\n" +
+        "\t\tThis builds the UnitySDK, using ../sdks/UnitySDK/genConfig.json for configuration\n\n" +
+        "\tYou must list exactly one of: <templateName>=<outputPath> or, -destPath <outputPath>.\n\n" +
+        "\tWarning, <templateName> and <outputPath> can not contain spaces.\n");
 
     console.log("\nError Log:");
     for (var i = 0; i < errorMessages.length; i++)
@@ -253,7 +259,7 @@ function getMakeScriptForTemplate(buildTarget: IBuildTarget) {
         }
     }
 
-    throw Error("SDKGenerator/(targets|privateTemplates)/<templateFolder>/make.js not defined, for templateFolder: " + buildTarget.templateFolder);
+    throw Error("SDKGenerator/(privateTemplates|targets)/<templateFolder>/make.js not defined, for templateFolder: " + buildTarget.templateFolder);
 }
 
 function getAvailableTemplates(): string[] {

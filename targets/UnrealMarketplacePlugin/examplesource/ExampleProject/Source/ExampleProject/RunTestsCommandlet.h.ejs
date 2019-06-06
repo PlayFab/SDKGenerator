@@ -26,7 +26,8 @@ class URunTestsCommandlet : public UCommandlet, public IPlayFabTestRunner
     GENERATED_BODY()
 
 private:
-    PlayFabClientPtr ClientAPI;
+    UPROPERTY()
+    ACloudScriptTestResultUploader* pUploader;
 
 public:
     // Default CTor

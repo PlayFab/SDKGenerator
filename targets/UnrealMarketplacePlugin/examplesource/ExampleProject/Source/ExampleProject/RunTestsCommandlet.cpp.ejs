@@ -6,10 +6,7 @@
 #include "Tests/PlayFabCppTests.h"
 #include "Tests/PlayFabBlueprintTests.h"
 
-#include "IPlayFab.h"
-#include "PlayFabCppBaseModel.h"
-#include "PlayFabError.h"
-#include "Core/PlayFabClientAPI.h"
+#include "ACloudScriptTestResultUploader.h"
 
 #include "Engine/Engine.h"
 
@@ -65,6 +62,9 @@ int32 URunTestsCommandlet::Main(const FString& Params)
             {
                 UE_LOG(LogPlayFabExampleProject, Log, TEXT("Test Summary:\n%s"), *GenerateTestSummary());
                 bPrintedTestSummary = true;
+                ACloudScriptTestResultUploader* uploader = NewObject<ACloudScriptTestResultUploader>();
+                uploader->UploadToCloudscript(SuiteTests);
+                delete uploader;
             }
         }
 

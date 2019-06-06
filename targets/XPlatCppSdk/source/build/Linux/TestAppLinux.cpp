@@ -14,8 +14,7 @@ namespace PlayFabUnit
         std::string titleDataPath;
 
         {
-            char* titleDataPathCStr = nullptr;
-            titleDataPathCStr = getenv("PF_TEST_TITLE_DATA_JSON");
+            char* titleDataPathCStr =  getenv("PF_TEST_TITLE_DATA_JSON");
 
             if (titleDataPathCStr == nullptr)
                 return false;

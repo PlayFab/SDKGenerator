@@ -5,8 +5,6 @@
 #include "Tests/PlayFabCppTests.h"
 #include "Tests/PlayFabBlueprintTests.h"
 
-#include "ACloudScriptTestResultUploader.h"
-
 // Sets default values
 APfTestActor::APfTestActor()
 {
@@ -39,9 +37,9 @@ void APfTestActor::Tick(float DeltaTime)
     }
 }
 
-void APfTestActor::EndPlay()
+void APfTestActor::EndPlay(const EEndPlayReason::Type reason)
 {
-    Super::EndPlay();
+    Super::EndPlay(reason);
     if(pUploader != nullptr)
     {
         delete pUploader;

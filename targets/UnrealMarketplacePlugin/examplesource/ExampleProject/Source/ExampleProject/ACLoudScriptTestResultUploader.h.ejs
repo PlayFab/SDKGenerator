@@ -23,5 +23,9 @@ private:
     void SuccessfulUpload(const PlayFab::ClientModels::FExecuteCloudScriptResult& result) const;
 
     void UploadErrored(const PlayFab::FPlayFabCppError& error) const;
+
+    bool TestsAreComplete() const;
+
+    bool ShouldQuitOnCompletion() const;
 };
 

@@ -68,7 +68,7 @@ void ACloudScriptTestResultUploader::UploadToCloudscript(const TArray<class UPla
 void ACloudScriptTestResultUploader::SuccessfulUpload(const PlayFab::ClientModels::FExecuteCloudScriptResult& result) const
 {
     UE_LOG(LogTestResults, Log, TEXT("Cloud Upload Success: \n%s"), *result.toJSONString());
-    if(TestsAreComplete() && ShouldQuitOnCompletion()) {
+    if(ShouldQuitOnCompletion()) {
         FGenericPlatformMisc::RequestExit(true);
     }
 }
@@ -78,10 +78,6 @@ void ACloudScriptTestResultUploader::UploadErrored(const PlayFab::FPlayFabCppErr
     UE_LOG(LogTestResults, Error, TEXT("Cloud Upload Error: \n%s"), *error.GenerateErrorReport());
 }
 
-bool APfTestActor::TestsAreComplete() const {
-    return SuiteState == PlayFabApiTestActiveState::COMPLETE;
-}
-
-bool APfTestActor::ShouldQuitOnCompletion() const {
+bool ACloudScriptTestResultUploader::ShouldQuitOnCompletion() const {
     return GetWorld() && !GetWorld()->IsPlayInEditor();
 }

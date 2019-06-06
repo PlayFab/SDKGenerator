@@ -625,7 +625,7 @@
     <Content Include="targets\UnrealMarketplacePlugin\examplesource\ExampleProject\Source\ExampleProject.Target.cs" />
     <Content Include="targets\UnrealMarketplacePlugin\examplesource\ExampleProject\Source\ExampleProjectEditor.Target.cs" />
     <Content Include="targets\UnrealMarketplacePlugin\examplesource\ExampleProject\Source\ExampleProject\ACloudScriptTestResultUploader.cpp.ejs" />
-    <Content Include="targets\UnrealMarketplacePlugin\examplesource\ExampleProject\Source\ExampleProject\ACLoudScriptTestResultUploader.h.ejs" />
+    <Content Include="targets\UnrealMarketplacePlugin\examplesource\ExampleProject\Source\ExampleProject\ACloudScriptTestResultUploader.h.ejs" />
     <Content Include="targets\UnrealMarketplacePlugin\examplesource\ExampleProject\Source\ExampleProject\ExampleProject.Build.cs" />
     <Content Include="targets\UnrealMarketplacePlugin\examplesource\ExampleProject\Source\ExampleProject\ExampleProject.cpp" />
     <Content Include="targets\UnrealMarketplacePlugin\examplesource\ExampleProject\Source\ExampleProject\ExampleProject.h" />

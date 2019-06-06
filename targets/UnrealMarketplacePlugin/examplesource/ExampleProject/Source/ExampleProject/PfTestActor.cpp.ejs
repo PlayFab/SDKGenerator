@@ -29,7 +29,7 @@ void APfTestActor::Tick(float DeltaTime)
 
     Run(DeltaTime);
 
-    if (this->SuiteState == PlayFabApiTestActiveState::COMPLETE && !_submitCloudScript)
+    if (TestsAreComplete() && !_submitCloudScript)
     {
         _submitCloudScript = true;
         pUploader = NewObject<ACloudScriptTestResultUploader>();
@@ -44,4 +44,8 @@ void APfTestActor::EndPlay(const EEndPlayReason::Type reason)
     {
         delete pUploader;
     }
+}
+
+bool APfTestActor::TestsAreComplete() const {
+    return SuiteState == PlayFabApiTestActiveState::COMPLETE;
 }

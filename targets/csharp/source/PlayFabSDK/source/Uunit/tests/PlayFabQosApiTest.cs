@@ -1,4 +1,5 @@
-﻿namespace PlayFab.UUnit
+﻿#if !DISABLE_PLAYFABCLIENT_API && !DISABLE_PLAYFABENTITY_API
+namespace PlayFab.UUnit
 {
     using System;
     using ClientModels;
@@ -64,3 +65,4 @@
         }
     }
 }
+#endif

@@ -25,8 +25,8 @@ targetPlatform=iOS
 
 uprojdir="$projectPath/ExampleProject.uproject"
 
-pushd "$uatPath"
+cd "$uatPath"
+
 # The actual build command. To adapt depending on the needs.
 ./RunUAT.sh -ScriptsForProject="$uprojdir" BuildCookRun -nocompile -editorrecompile -installed -nop4 -project="$uprojdir" -cook -stage -archive -archivedirectory="$archivePath" -package -clientconfig=Development -ue4exe=UE4Editor -pak -prereqs -nodebuginfo -targetplatform=IOS -build -utf8output
 
-popd

@@ -13,8 +13,25 @@ cp $(PF_TEST_TITLE_DATA_JSON) $projectPath/Content/TestTitleData
 
 ./BuildIOS.sh $archivePath $projectPath
 
-pushd $archivePath/IOS
+buildResult=$?
+
+rm -f $projectPath/Content/TestTitleData/testTitleData.json
+
+if [ $buildResult -ne 0 ]; then 
+    echo "BUILD FAILED!"
+    exit 1
+fi
+
+cd $archivePath/IOS
+
 unzip ExampleProject.ipa
+
 ios-deploy -b  Payload/ExampleProject.app -I -r
-popd
+
+deployResult=$?
+
+if[ $deployResult -ne 0 ]; then
+    echo "DEPLOY FAILED!" 
+    exit 1
+fi
 

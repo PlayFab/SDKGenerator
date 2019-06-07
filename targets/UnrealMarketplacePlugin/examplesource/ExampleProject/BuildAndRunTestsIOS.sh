@@ -9,7 +9,7 @@ if [ "$#" -ne 2 ]; then
     exit 1
 fi
 
-cp $(PF_TEST_TITLE_DATA_JSON) $projectPath/Content/TestTitleData
+cp $PF_TEST_TITLE_DATA_JSON $projectPath/Content/TestTitleData
 
 ./BuildIOS.sh $archivePath $projectPath
 

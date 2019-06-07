@@ -39,7 +39,7 @@ ios-deploy -b  Payload/ExampleProject.app -I -r
 deployResult=$?
 
 #if the deploy failed, log it out and exit
-if[ $deployResult -ne 0 ]; then
+if[ "$deployResult" -ne 0 ]; then
     echo "DEPLOY FAILED!" 
     exit 1
 fi

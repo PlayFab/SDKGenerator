@@ -47,7 +47,10 @@ namespace PlayFab
     public class PlayFabBaseResult
     {
         public object CustomData;
-        public PlayFabError Error;
+        public string HttpStatus;
+        public PlayFabErrorCode Error;
+        public string ErrorMessage;
+        public Dictionary<string, string[]> ErrorDetails;
     }
 
     public class PlayFabResult<TResult> : PlayFabBaseResult where TResult : PlayFabResultCommon

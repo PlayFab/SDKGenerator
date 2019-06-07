@@ -114,7 +114,11 @@ namespace PlayFab
         tm timeStruct = {};
         std::istringstream iss(timeStr);
         iss >> std::get_time(&timeStruct, "%Y-%m-%dT%T");
+#if defined(PLAYFAB_PLATFORM_IOS) || defined(PLAYFAB_PLATFORM_ANDROID) || defined(PLAYFAB_PLATFORM_LINUX)
+        output = timegm(&timeStruct);
+#else // PLAYFAB_PLATFORM_IOS || PLAYFAB_PLATFORM_ANDROID || PLAYFAB_PLATFORM_LINUX
         output = _mkgmtime(&timeStruct);
+#endif // PLAYFAB_PLATFORM_IOS || PLAYFAB_PLATFORM_ANDROID || PLAYFAB_PLATFORM_LINUX
     }
     inline void ToJsonUtilT(const Boxed<time_t>& input, Json::Value& output)
     {

@@ -1,4 +1,5 @@
 // Copyright (C) Microsoft Corporation. All rights reserved.
+#include <memory>
 
 #include "TestAppPch.h"
 #include <playfab/PlayFabJsonHeaders.h>
@@ -25,11 +26,11 @@ namespace PlayFabUnit
         json["errors"] = errors;
         json["skipped"] = skipped;
         json["time"] = time;
-#if defined(PLAYFAB_PLATFORM_IOS) || defined(PLAYFAB_PLATFORM_ANDROID)
+#if defined(PLAYFAB_PLATFORM_IOS) || defined(PLAYFAB_PLATFORM_ANDROID) || defined(PLAYFAB_PLATFORM_LINUX)
         json["timestamp"] = static_cast<Json::Int64>(std::chrono::system_clock::to_time_t(timeStamp));
-#else // PLAYFAB_PLATFORM_IOS || PLAYFAB_PLATFORM_ANDROID
+#else // PLAYFAB_PLATFORM_IOS || PLAYFAB_PLATFORM_ANDROID || PLAYFAB_PLATFORM_LINUX
         json["timestamp"] = std::chrono::system_clock::to_time_t(timeStamp);
-#endif // PLAYFAB_PLATFORM_IOS || PLAYFAB_PLATFORM_ANDROID
+#endif // PLAYFAB_PLATFORM_IOS || PLAYFAB_PLATFORM_ANDROID || PLAYFAB_PLATFORM_LINUX
 
         json["testResults"];
         Json::Value init(Json::arrayValue);

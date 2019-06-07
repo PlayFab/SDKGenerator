@@ -1,4 +1,5 @@
-﻿namespace PlayFab.QoS
+﻿#if !DISABLE_PLAYFABCLIENT_API && !DISABLE_PLAYFABENTITY_API
+namespace PlayFab.QoS
 {
     using MultiplayerModels;
 
@@ -35,3 +36,4 @@
         public int ErrorCode;
     }
 }
+#endif

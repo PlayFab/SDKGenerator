@@ -1,4 +1,5 @@
-﻿namespace PlayFab.QoS
+﻿#if !DISABLE_PLAYFABCLIENT_API && !DISABLE_PLAYFABENTITY_API
+namespace PlayFab.QoS
 {
     public enum QosErrorCode
     {
@@ -9,3 +10,5 @@
         Timeout = 4
     }
 }
+#endif
+

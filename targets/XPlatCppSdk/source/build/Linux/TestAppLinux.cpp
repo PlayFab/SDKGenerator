@@ -12,7 +12,6 @@ namespace PlayFabUnit
     {
         // Get the path to the test data file from the current environment vars.
         std::string titleDataPath;
-
         {
             char* titleDataPathCStr =  getenv("PF_TEST_TITLE_DATA_JSON");
 

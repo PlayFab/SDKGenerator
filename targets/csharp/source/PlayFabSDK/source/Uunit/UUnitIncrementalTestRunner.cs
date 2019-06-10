@@ -70,6 +70,9 @@ namespace PlayFab.UUnit
 #if !DISABLE_PLAYFABCLIENT_API
             PlayFabApiTest.SetTitleInfo(TestTitleData);
 #endif
+#if !DISABLE_PLAYFABCLIENT_API && !DISABLE_PLAYFABENTITY_API
+            PlayFabQosApiTest.SetTitleInfo(TestTitleData);
+#endif
 #if ENABLE_PLAYFABSERVER_API || ENABLE_PLAYFABADMIN_API
             PlayFabServerApiTest.SetTitleInfo(TestTitleData);
 #endif

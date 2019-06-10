@@ -8,6 +8,10 @@
 #include "Core/PlayFabClientAPI.h"
 #include "PlayFabTestContext.h"
 #include "GenericPlatformMisc.h"
+
+#include "Runtime/Engine/Classes/Engine/World.h"
+
+
 DEFINE_LOG_CATEGORY(LogTestResults);
 
 void ACloudScriptTestResultUploader::UploadToCloudscript(const TArray<class UPlayFabTestContext*>& SuiteTests)

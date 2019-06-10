@@ -1,9 +1,15 @@
-<%- copyright %>
+//////////////////////////////////////////////////////
+// Copyright (C) Microsoft. 2018. All rights reserved.
+//////////////////////////////////////////////////////
+
 
 #include "PfTestActor.h"
 
 #include "Tests/PlayFabCppTests.h"
 #include "Tests/PlayFabBlueprintTests.h"
+
+#include "Runtime/Engine/Classes/Engine/World.h"
+
 
 // Sets default values
 APfTestActor::APfTestActor()
@@ -22,7 +28,13 @@ void APfTestActor::BeginPlay()
     _submitCloudScript = false;
 }
 
-// Called every frame
+ACloudScriptTestResultUploader* SpawnUploader(UWorld* world) {
+       FActorSpawnParameters spawnParams;
+       FVector loc(0, 0, 0);
+       FRotator rot(0, 0, 0);
+       return world->SpawnActor<ACloudScriptTestResultUploader>(loc, rot, spawnParams);
+}
+
 void APfTestActor::Tick(float DeltaTime)
 {
     Super::Tick(DeltaTime);
@@ -31,8 +43,8 @@ void APfTestActor::Tick(float DeltaTime)
 
     if (TestsAreComplete() && !_submitCloudScript)
     {
+        pUploader = SpawnUploader(GetWorld());
         _submitCloudScript = true;
-        pUploader = NewObject<ACloudScriptTestResultUploader>();
         pUploader->UploadToCloudscript(SuiteTests);
     }
 }

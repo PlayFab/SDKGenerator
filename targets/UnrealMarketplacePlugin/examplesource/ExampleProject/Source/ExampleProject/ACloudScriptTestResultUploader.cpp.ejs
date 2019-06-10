@@ -68,7 +68,7 @@ void ACloudScriptTestResultUploader::UploadToCloudscript(const TArray<class UPla
     );
 }
 
-void ACloudScriptTestResultUploader::SuccessfulUpload(const PlayFab::ClientModels::FExecuteCloudScriptResult& result) const
+void ACloudScriptTestResultUploader::SuccessfulUpload(const PlayFab::ClientModels::FExecuteCloudScriptResult& result)
 {
     UE_LOG(LogTestResults, Log, TEXT("Cloud Upload Success: \n%s"), *result.toJSONString());
     if(ShouldQuitOnCompletion()) {
@@ -77,7 +77,7 @@ void ACloudScriptTestResultUploader::SuccessfulUpload(const PlayFab::ClientModel
     Destroy();
 }
 
-void ACloudScriptTestResultUploader::UploadErrored(const PlayFab::FPlayFabCppError& error) const
+void ACloudScriptTestResultUploader::UploadErrored(const PlayFab::FPlayFabCppError& error)
 {
     UE_LOG(LogTestResults, Error, TEXT("Cloud Upload Error: \n%s"), *error.GenerateErrorReport());
     if(ShouldQuitOnCompletion()) {

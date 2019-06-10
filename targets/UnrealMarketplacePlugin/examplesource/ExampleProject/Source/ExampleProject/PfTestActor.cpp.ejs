@@ -39,7 +39,7 @@ void APfTestActor::Tick(float DeltaTime)
 
     if (TestsAreComplete() && !_submitCloudScript)
     {
-        pUploader = SpawnUploader(GetWorld());
+        auto pUploader = SpawnUploader(GetWorld());
         _submitCloudScript = true;
         pUploader->UploadToCloudscript(SuiteTests);
     }

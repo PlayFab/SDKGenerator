@@ -8,6 +8,10 @@ namespace PlayFabUnit
 {
     void TestContext::EndTest(TestFinishState state, std::string resultMsg)
     {
+        if (finishState != TestFinishState::PENDING)
+        {
+            return;
+        }
         endTime = TestTimeNow();
         testResultMsg = resultMsg;
         finishState = state;

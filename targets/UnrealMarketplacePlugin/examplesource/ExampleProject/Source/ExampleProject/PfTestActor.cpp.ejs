@@ -1,4 +1,7 @@
-<%- copyright %>
+//////////////////////////////////////////////////////
+// Copyright (C) Microsoft. 2018. All rights reserved.
+//////////////////////////////////////////////////////
+
 
 #include "PfTestActor.h"
 
@@ -25,10 +28,10 @@ void APfTestActor::BeginPlay()
 }
 
 ACloudScriptTestResultUploader* SpawnUploader(UWorld* world) {
-    FActorSpawnParameters spawnParams;
-    FVector loc(0, 0, 0);
-    FRotator rot(0, 0, 0);
-    return world->SpawnActor<ACloudScriptTestResultUploader>(loc, rot, spawnParams);
+       FActorSpawnParameters spawnParams;
+       FVector loc(0, 0, 0);
+       FRotator rot(0, 0, 0);
+       return world->SpawnActor<ACloudScriptTestResultUploader>(loc, rot, spawnParams);
 }
 
 void APfTestActor::Tick(float DeltaTime)

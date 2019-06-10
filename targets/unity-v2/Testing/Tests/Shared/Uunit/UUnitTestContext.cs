@@ -63,6 +63,7 @@ namespace PlayFab.UUnit
                     return;
                 }
             }
+
             EndTime = DateTime.UtcNow;
             TestResultMsg = resultMsg;
             FinishState = finishState;

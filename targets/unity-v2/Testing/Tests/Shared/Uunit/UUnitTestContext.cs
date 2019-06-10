@@ -44,9 +44,24 @@ namespace PlayFab.UUnit
 
         public void EndTest(UUnitFinishState finishState, string resultMsg)
         {
-            if (finishState != UUnitFinishState.PENDING)
+            if (FinishState != UUnitFinishState.PENDING)
             {
-                return;
+                Debug.Log(Name + ": You can't mark a test as finished twice.\n");
+                if (FinishState == UUnitFinishState.PASSED)
+                {
+                    if (finishState != UUnitFinishState.FAILED)
+                    {
+                        return;
+                    }
+                }
+                else
+                {
+                    if (finishState != UUnitFinishState.FAILED)
+                    {
+                        Debug.Log(Name + ": You can't mark a test as finished twice.\n");
+                    }
+                    return;
+                }
             }
             EndTime = DateTime.UtcNow;
             TestResultMsg = resultMsg;

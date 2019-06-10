@@ -12,6 +12,7 @@ namespace PlayFabUnit
         {
             return;
         }
+
         endTime = TestTimeNow();
         testResultMsg = resultMsg;
         finishState = state;

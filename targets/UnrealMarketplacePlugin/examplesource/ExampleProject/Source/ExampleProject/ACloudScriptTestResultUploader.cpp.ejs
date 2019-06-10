@@ -80,6 +80,9 @@ void ACloudScriptTestResultUploader::SuccessfulUpload(const PlayFab::ClientModel
 void ACloudScriptTestResultUploader::UploadErrored(const PlayFab::FPlayFabCppError& error) const
 {
     UE_LOG(LogTestResults, Error, TEXT("Cloud Upload Error: \n%s"), *error.GenerateErrorReport());
+    if(ShouldQuitOnCompletion()) {
+        FGenericPlatformMisc::RequestExit(true);
+    }
 }
 
 bool ACloudScriptTestResultUploader::ShouldQuitOnCompletion() const {

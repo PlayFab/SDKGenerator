@@ -48,10 +48,6 @@ void APfTestActor::Tick(float DeltaTime)
 void APfTestActor::EndPlay(const EEndPlayReason::Type reason)
 {
     Super::EndPlay(reason);
-    if(pUploader != nullptr)
-    {
-        delete pUploader;
-    }
 }
 
 bool APfTestActor::TestsAreComplete() const {

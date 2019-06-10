@@ -74,6 +74,7 @@ void ACloudScriptTestResultUploader::SuccessfulUpload(const PlayFab::ClientModel
     if(ShouldQuitOnCompletion()) {
         FGenericPlatformMisc::RequestExit(true);
     }
+    Destroy();
 }
 
 void ACloudScriptTestResultUploader::UploadErrored(const PlayFab::FPlayFabCppError& error) const
@@ -82,6 +83,7 @@ void ACloudScriptTestResultUploader::UploadErrored(const PlayFab::FPlayFabCppErr
     if(ShouldQuitOnCompletion()) {
         FGenericPlatformMisc::RequestExit(true);
     }
+    Destroy();
 }
 
 bool ACloudScriptTestResultUploader::ShouldQuitOnCompletion() const {

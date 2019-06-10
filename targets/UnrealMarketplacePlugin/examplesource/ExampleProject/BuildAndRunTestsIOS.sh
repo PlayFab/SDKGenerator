@@ -31,16 +31,15 @@ fi
 
 cd $archivePath/IOS
 
+#remove a preexisting payload folder from a prior unqip if it exists (it really shouldn't tho)
+rm -fdr Payload
+
 #unzip the ipa archive in preparation of deployment
 unzip ExampleProject.ipa
 
 #deploy the project (todo: add support for multiple test devices)
 ios-deploy -b  Payload/ExampleProject.app -I -r
-deployResult=$?
 
-#if the deploy failed, log it out and exit
-if [ "$deployResult" -ne 0 ]; then
-    echo "DEPLOY FAILED!" 
-    exit 1
-fi
+#self termination of the app tells ios-deploy that there was a failure.  this failure must be ignored.  we rely on cloudscript to validate test results.
+exit 0
 

@@ -10,23 +10,23 @@ namespace PlayFabUnit
     {
         if (finishState != TestFinishState::PENDING)
         {
-            resultMsg += testResultMsg;
             resultMsg += "You can't mark a test as finished twice.\n";
             if (finishState == TestFinishState::PASSED)
             {
                 if (state != TestFinishState::FAILED)
                 {
-                    testResultMsg = resultMsg;
+                    testResultMsg += resultMsg;
                     return;
                 }
+                resultMsg = testResultMsg + resultMsg;
             }
-            else 
+            else
             {
                 if (state != TestFinishState::FAILED)
                 {
                     resultMsg += "You can't mark a test as finished twice.\n";
                 }
-                testResultMsg = resultMsg;
+                testResultMsg += resultMsg;
                 return;
             }
         }

@@ -8,6 +8,29 @@ namespace PlayFabUnit
 {
     void TestContext::EndTest(TestFinishState state, std::string resultMsg)
     {
+        if (finishState != TestFinishState::PENDING)
+        {
+            resultMsg += testResultMsg;
+            resultMsg += "You can't mark a test as finished twice.\n";
+            if (finishState == TestFinishState::PASSED)
+            {
+                if (state != TestFinishState::FAILED)
+                {
+                    testResultMsg = resultMsg;
+                    return;
+                }
+            }
+            else 
+            {
+                if (state != TestFinishState::FAILED)
+                {
+                    resultMsg += "You can't mark a test as finished twice.\n";
+                }
+                testResultMsg = resultMsg;
+                return;
+            }
+        }
+
         endTime = TestTimeNow();
         testResultMsg = resultMsg;
         finishState = state;

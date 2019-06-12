@@ -27,11 +27,23 @@ namespace PlayFab
         public Dictionary<string, string[]> ErrorDetails;
 
         private static readonly StringBuilder Sb = new StringBuilder();
+        /// <summary>
+        /// This converts the PlayFabError into a human readable string describing the error.
+        /// If error is not found, it will return the http code, status, and error
+        /// </summary>
+        /// <returns>A description of the error that we just incur.</returns>
         public string GenerateErrorReport()
         {
             Sb.Length = 0;
             if (ErrorMessage != null)
+            {
                 Sb.Append(ErrorMessage);
+            }
+            else
+            {
+                Sb.Append("Http Code: " + HttpCode.ToString() + ", Http Status: " + HttpStatus + ", Error: " + Error.ToString());
+            }
+
             if (ErrorDetails == null)
                 return Sb.ToString();
 

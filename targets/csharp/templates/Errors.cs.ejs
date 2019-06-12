@@ -59,7 +59,7 @@ namespace PlayFab
     public class PlayFabBaseResult
     {
         public object CustomData;
-        public PlayFabErrorCode Error;
+        public PlayFabError Error;
     }
 
     public class PlayFabResult<TResult> : PlayFabBaseResult where TResult : PlayFabResultCommon

@@ -44,33 +44,97 @@ namespace PlayFab.UUnit
 
         public void EndTest(UUnitFinishState finishState, string resultMsg)
         {
-            if (FinishState != UUnitFinishState.PENDING)
+            if (FinishState == UUnitFinishState.PENDING)
             {
-                resultMsg += "You can't mark a test as finished twice.\n";
-                if (FinishState == UUnitFinishState.PASSED)
+                EndTime = DateTime.UtcNow;
+                TestResultMsg = resultMsg;
+                FinishState = finishState;
+                ActiveState = UUnitActiveState.READY;
+            }
+            else if (FinishState == UUnitFinishState.PASSED)
+            {
+                switch (finishState)
                 {
-                    if (finishState != UUnitFinishState.FAILED)
-                    {
-                        TestResultMsg = resultMsg;
-                        return;
-                    }
-                    resultMsg = TestResultMsg + resultMsg;
-                }
-                else
-                {
-                    if (finishState != UUnitFinishState.FAILED)
-                    {
-                        resultMsg += "You can't mark a test as finished twice.\n";
-                    }
-                    TestResultMsg = resultMsg;
-                    return;
+                    case UUnitFinishState.PASSED:
+                        TestResultMsg += "Test try to Pass twice for some reason.\n";
+                        break;
+                    case UUnitFinishState.FAILED:
+                        TestResultMsg += "Test try to Fail after Passing.\n";
+                        break;
+                    case UUnitFinishState.SKIPPED:
+                        TestResultMsg += "Test try to be Skipped after Passing.\n";
+                        break;
+                    case UUnitFinishState.TIMEDOUT:
+                        TestResultMsg += "Test try to Timeout after Passing.\n";
+                        break;
+                    default:
+                        TestResultMsg += "How are you switching back to a Pending state from Passing.\n";
+                        break;
                 }
             }
-
-            EndTime = DateTime.UtcNow;
-            TestResultMsg = resultMsg;
-            FinishState = finishState;
-            ActiveState = UUnitActiveState.READY;
+            else if (FinishState == UUnitFinishState.FAILED)
+            {
+                switch (finishState)
+                {
+                    case UUnitFinishState.PASSED:
+                        TestResultMsg += "Test try to Pass after Failing.\n";
+                        break;
+                    case UUnitFinishState.FAILED:
+                        TestResultMsg += "Test try to Fail twice.\n";
+                        break;
+                    case UUnitFinishState.SKIPPED:
+                        TestResultMsg += "Test try to be Skipped after Failing.\n";
+                        break;
+                    case UUnitFinishState.TIMEDOUT:
+                        TestResultMsg += "Test try to Timeout after Failing.\n";
+                        break;
+                    default:
+                        TestResultMsg += "How are you switching back to a Pending state from Failing.\n";
+                        break;
+                }
+            }
+            else if (FinishState == UUnitFinishState.SKIPPED)
+            {
+                switch (finishState)
+                {
+                    case UUnitFinishState.PASSED:
+                        TestResultMsg += "Test try to Pass after Failing.\n";
+                        break;
+                    case UUnitFinishState.FAILED:
+                        TestResultMsg += "Test try to Fail twice.\n";
+                        break;
+                    case UUnitFinishState.SKIPPED:
+                        TestResultMsg += "Test try to be Skipped after Failing.\n";
+                        break;
+                    case UUnitFinishState.TIMEDOUT:
+                        TestResultMsg += "Test try to Timeout after Failing.\n";
+                        break;
+                    default:
+                        TestResultMsg += "How are you switching back to a Pending state from Failing.\n";
+                        break;
+                }
+            }
+            else
+            {
+                switch (finishState)
+                {
+                    case UUnitFinishState.PASSED:
+                        TestResultMsg += "Test try to Pass after Failing.\n";
+                        break;
+                    case UUnitFinishState.FAILED:
+                        TestResultMsg += "Test try to Fail twice.\n";
+                        break;
+                    case UUnitFinishState.SKIPPED:
+                        TestResultMsg += "Test try to be Skipped after Failing.\n";
+                        break;
+                    case UUnitFinishState.TIMEDOUT:
+                        TestResultMsg += "Test try to Timeout after Failing.\n";
+                        break;
+                    default:
+                        TestResultMsg += "How are you switching back to a Pending state from Failing.\n";
+                        break;
+                }
+            }
         }
 
         public void Skip(string message = "")

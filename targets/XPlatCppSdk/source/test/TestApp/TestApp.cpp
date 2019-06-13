@@ -156,10 +156,14 @@ namespace PlayFabUnit
             cloudResponse = "Test report submitted via cloud script: " + PlayFabSettings::buildIdentifier + ", " + cloudPlayFabId;
         else
             cloudResponse += "Error executing test report cloud script:\n" + result.Error->Error + ": " + result.Error->Message;
+        
+        exit(0);
     }
 
     void TestApp::OnPostReportError(const PlayFabError& error, void* /*customData*/)
     {
         cloudResponse = "Failed to report results via cloud script: " + error.GenerateErrorReport();
+        
+        exit(1);
     }
 }

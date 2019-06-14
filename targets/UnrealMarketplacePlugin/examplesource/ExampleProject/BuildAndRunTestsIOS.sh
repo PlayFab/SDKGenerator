@@ -31,7 +31,7 @@ fi
 
 cd $archivePath/IOS
 
-#remove a preexisting payload folder from a prior unqip if it exists (it really shouldn't tho)
+#remove a preexisting payload folder from a prior unzip if it exists (it really shouldn't tho)
 rm -fdr Payload
 
 #unzip the ipa archive in preparation of deployment

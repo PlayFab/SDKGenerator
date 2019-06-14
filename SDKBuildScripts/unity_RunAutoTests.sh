@@ -160,7 +160,7 @@ TryBuildAndTestAndroid() {
                 if [[ $? -ne 0 ]]; then return 1; fi
                 
                 #upload the APK and run the tests on AppCenter Test
-                ./runAppCenterTest.sh "$ProjRootPath/${SdkName}_TC/testBuilds/PlayFabAndroid.apk" "$WORKSPACE/SDKGenerator/SDKBuildScripts/AppCenterUITestLauncher/AppCenterUITestLauncher/debugassemblies" unity-android || exit 1
+                . ./runAppCenterTest.sh "$ProjRootPath/${SdkName}_TC/testBuilds/PlayFabAndroid.apk" "$WORKSPACE/SDKGenerator/SDKBuildScripts/AppCenterUITestLauncher/AppCenterUITestLauncher/debugassemblies" unity-android || exit 1
                 if [[ $? -ne 0 ]]; then return 1; fi
            
             popd
@@ -201,7 +201,7 @@ TryBuildAndTestiOS() {
                 if [[ $? -ne 0 ]]; then return 1; fi
 
                 #run the downloaded IPA on AppCenter Test
-                ./runAppCenterTest.sh "$WORKSPACE/SDKGenerator/SDKBuildScripts/PlayFabIOS.ipa" "$WORKSPACE/SDKGenerator/SDKBuildScripts/AppCenterUITestLauncher/AppCenterUITestLauncher/debugassemblies" unity-ios || exit 1
+                . ./runAppCenterTest.sh "$WORKSPACE/SDKGenerator/SDKBuildScripts/PlayFabIOS.ipa" "$WORKSPACE/SDKGenerator/SDKBuildScripts/AppCenterUITestLauncher/AppCenterUITestLauncher/debugassemblies" unity-ios || exit 1
                 if [[ $? -ne 0 ]]; then return 1; fi
             
             popd

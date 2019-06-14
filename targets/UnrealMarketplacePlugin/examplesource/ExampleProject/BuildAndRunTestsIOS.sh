@@ -17,7 +17,7 @@ rm -fdr $archivePath/IOS
 cp $PF_TEST_TITLE_DATA_JSON $projectPath/Content/TestTitleData
 
 #build the archive
-./BuildIOS.sh $archivePath $projectPath
+. ./BuildIOS.sh $archivePath $projectPath
 buildResult=$?
 
 #remove the testTitleData from the project now that the build is finished

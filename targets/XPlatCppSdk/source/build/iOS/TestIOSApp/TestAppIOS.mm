@@ -84,8 +84,5 @@ int RunUnittest(void)
     PlayFabUnit::TestApp testApp;
 
     int result = testApp.Main();
-    if(result > 1) {
-        exit(result);
-    }
-    return result;
+    exit(result);
 }

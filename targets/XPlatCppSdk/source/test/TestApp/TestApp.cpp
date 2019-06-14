@@ -31,7 +31,7 @@ namespace PlayFabUnit
         // comment out the return statement and fill out the TestTitleData fields manually.
         if (!loadSuccessful)
         {
-            return 2;
+            return 1;
 
             // TODO: POPULATE THIS SECTION WITH REAL INFORMATION (or set up a testTitleData file, and set your PF_TEST_TITLE_DATA_JSON to the path for that file)
             //testInputs.titleId = ""; // The titleId for your title, found in the "Settings" section of PlayFab Game Manager
@@ -156,14 +156,11 @@ namespace PlayFabUnit
             cloudResponse = "Test report submitted via cloud script: " + PlayFabSettings::buildIdentifier + ", " + cloudPlayFabId;
         else
             cloudResponse += "Error executing test report cloud script:\n" + result.Error->Error + ": " + result.Error->Message;
-        
-        exit(0);
     }
 
     void TestApp::OnPostReportError(const PlayFabError& error, void* /*customData*/)
     {
         cloudResponse = "Failed to report results via cloud script: " + error.GenerateErrorReport();
-        
-        exit(1);
+
     }
 }

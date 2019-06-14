@@ -136,18 +136,31 @@ ExtractBuildResults() {
 }
 
 #Download the build if successful, or print the logs if not.
-CleanupAndDownloadIpa() {
-    if [[ $BuildResult == *"succeeded"* ]]; then
-        #Return the appcenter build repo to a clean state for next time.
-        git reset --hard $AppCenterGitRepoCleanTag
-        git push --force 
-        popd
+DownloadIpa() {
+    if [[ $BuildResult == *"Succeeded"* ]]; then
         appcenter build download --type build --app "PlayFabSDKTeam/PlayFabXPlatIOS" --id $BuildNumber --file PlayFabIOS.ipa
     else
-        popd
         appcenter build logs --app "PlayFabSDKTeam/PlayFabXPlatIOS" --id $BuildNumber >> "build_logs_${BuildNumber}.txt"
         exit 1
     fi
+}
+
+RunAppCenterTest() {
+    appcenter test run uitest --app "PlayFabSDKTeam/PlayFabXPlatIOS" \
+    --devices 3d1d91de \
+    --app-path PlayFabIOS.ipa  \
+    --test-series "master" \
+    --locale "en_US" \
+    --assembly-dir "C:/github/pf/SDKGenerator/SDKBuildScripts/AppCenterUITestLauncher/AppCenterUITestLauncher/debugassemblies"  \
+    --uitest-tools-dir "$XAMARIN_UITEST_TOOLS"
+}
+
+CleanUp() {
+    pushd "$AppCenterRepoParentDir/$GitRepoFolderName"
+    #Return the appcenter build repo to a clean state for next time.
+    reset --hard $AppCenterGitRepoCleanTag
+    git push --force 
+    popd
 }
 
 DoWork() {
@@ -155,7 +168,9 @@ DoWork() {
     QueueAppCenterBuild
     WaitForAppCenterBuild
     ExtractBuildResults
-    CleanupAndDownloadIpa
+    DownloadIpa
+    RunAppCenterTest
+    CleanUp
 }
 
 DoWork

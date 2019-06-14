@@ -1,4 +1,4 @@
-﻿// Copyright (C) Microsoft Corporation. All rights reserved.
+// Copyright (C) Microsoft Corporation. All rights reserved.
 
 #include "TestAppPch.h"
 #include <cstdarg>
@@ -31,7 +31,7 @@ namespace PlayFabUnit
         // comment out the return statement and fill out the TestTitleData fields manually.
         if (!loadSuccessful)
         {
-            return 1;
+            return 2;
 
             // TODO: POPULATE THIS SECTION WITH REAL INFORMATION (or set up a testTitleData file, and set your PF_TEST_TITLE_DATA_JSON to the path for that file)
             //testInputs.titleId = ""; // The titleId for your title, found in the "Settings" section of PlayFab Game Manager

@@ -59,6 +59,8 @@ InitializeBuildEnvironment() {
     cp -rf external $ACB
     mkdir $ACB/build
     cp -rf build/iOS $ACB/build
+    echo "Loading test title data from $PF_TEST_TITLE_DATA_JSON into $ACB/build/iOS/TestIOSApp/TestTitleData..."
+    cp $PF_TEST_TITLE_DATA_JSON $ACB/build/iOS/TestIOSApp/TestTitleData
     popd #$XPlatWorkspaceDirectory
 
     #create the appcenter prebuild script in the xcode project
@@ -135,7 +137,7 @@ ExtractBuildResults() {
 
 #Download the build if successful, or print the logs if not.
 CleanupAndDownloadIpa() {
-    if [ "$BuildResult" = "\"succeeded\"" ]; then
+    if [[ $BuildResult == *"succeeded"* ]]; then
         #Return the appcenter build repo to a clean state for next time.
         git reset --hard $AppCenterGitRepoCleanTag
         git push --force 

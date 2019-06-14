@@ -19,9 +19,18 @@ AppCenterGitRepoURL=$3
 AppCenterGitRepoBranchName=$4
 AppCenterGitRepoCleanTag=$5
 
+echo $XPlatWorkspaceDirectory
+echo $AppCenterRepoParentDir
+echo $AppCenterGitRepoURL
+echo $AppCenterGitRepoBranchName
+echo $AppCenterGitRepoCleanTag
+
 #DERIVED FROM INPUTS
 ProjectFolderName=$(basename "$XPlatWorkspaceDirectory")
 GitRepoFolderName=$(basename "$AppCenterGitRepoURL" | sed -e 's/.git//g')
+
+echo "Project Folder Name: $ProjectFolderName"
+echo "Git Folder Name: $GitRepoFolderName"
 
 #remove cruft from previous runs, if any.
 InitializeBuildEnvironment() {

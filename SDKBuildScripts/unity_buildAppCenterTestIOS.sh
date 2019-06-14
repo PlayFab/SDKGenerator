@@ -91,7 +91,7 @@ QueueAppCenterBuild() {
 
 #monitor the status of the build and wait until it is complete.
 WaitForAppCenterBuild() {
-    for i in {1..30}
+    for i in {1..60}
     do
         sleep 60
         BuildStatusJSON=$(appcenter build branches show -b $AppCenterGitRepoBranchName -a "PlayFabSDKTeam/PlayFabUnityXCode" --quiet --output json)

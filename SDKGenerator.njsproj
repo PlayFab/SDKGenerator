@@ -10,6 +10,7 @@
     <TypeScriptModuleKind>CommonJS</TypeScriptModuleKind>
     <ToolsVersionPromptShown>2.3</ToolsVersionPromptShown>
     <TypeScriptToolsVersion>2.3</TypeScriptToolsVersion>
+    <SaveNodeJsSettingsInProjectFile>True</SaveNodeJsSettingsInProjectFile>
   </PropertyGroup>
   <Import Project="$(MSBuildExtensionsPath)\$(MSBuildToolsVersion)\Microsoft.Common.props" Condition="Exists('$(MSBuildExtensionsPath)\$(MSBuildToolsVersion)\Microsoft.Common.props')" />
   <PropertyGroup>
@@ -170,39 +171,41 @@
     <Content Include="targets\actionscript\templates\API.as.ejs" />
     <Content Include="targets\actionscript\templates\Enum.as.ejs" />
     <Content Include="targets\actionscript\templates\Model.as.ejs" />
-    <Content Include="targets\csharp\source\source\IPlayFabPlugin.cs" />
-    <Content Include="targets\csharp\source\source\ISerializerPlugin.cs" />
-    <Content Include="targets\csharp\source\source\ITransportPlugin.cs" />
-    <Content Include="targets\csharp\source\source\Json\ISerializer.cs" />
-    <Content Include="targets\csharp\source\source\Json\NewtonsoftWrapper.cs" />
-    <Content Include="targets\csharp\source\source\Json\SimpleJson.cs" />
-    <Content Include="targets\csharp\source\source\PlayFabHttp\IPlayFabHttp.cs" />
-    <Content Include="targets\csharp\source\source\PlayFabHttp\PlayFabHttp.cs" />
-    <Content Include="targets\csharp\source\source\PlayFabHttp\PlayFabSysHttp.cs" />
-    <Content Include="targets\csharp\source\source\PlayFabSettings.cs.ejs" />
-    <Content Include="targets\csharp\source\source\PluginContract.cs" />
-    <Content Include="targets\csharp\source\source\PluginManager.cs" />
-    <Content Include="targets\csharp\source\source\Properties\AssemblyInfo.cs" />
-    <Content Include="targets\csharp\source\source\Uunit\PluginManagerTest.cs" />
-    <Content Include="targets\csharp\source\source\Uunit\tests\HttpTests.cs" />
-    <Content Include="targets\csharp\source\source\Uunit\tests\PlayFabApiTest.cs" />
-    <Content Include="targets\csharp\source\source\Uunit\tests\PlayFabServerApiTest.cs" />
-    <Content Include="targets\csharp\source\source\Uunit\UUnitAssertException.cs" />
-    <Content Include="targets\csharp\source\source\Uunit\UUnitIncrementalTestRunner.cs" />
-    <Content Include="targets\csharp\source\source\Uunit\UUnitTestCase.cs" />
-    <Content Include="targets\csharp\source\source\Uunit\UUnitTestContext.cs" />
-    <Content Include="targets\csharp\source\source\Uunit\UUnitTestReport.cs" />
-    <Content Include="targets\csharp\source\source\Uunit\UUnitTestSuite.cs" />
-    <Content Include="targets\csharp\source\source\WsaReflectionExtensions.cs" />
+    <Content Include="targets\csharp\source\PlayFabSDK\Properties\AssemblyInfo.cs" />
+    <Content Include="targets\csharp\source\PlayFabSDK\source\IPlayFabPlugin.cs" />
+    <Content Include="targets\csharp\source\PlayFabSDK\source\ISerializerPlugin.cs" />
+    <Content Include="targets\csharp\source\PlayFabSDK\source\ITransportPlugin.cs" />
+    <Content Include="targets\csharp\source\PlayFabSDK\source\Json\ISerializer.cs" />
+    <Content Include="targets\csharp\source\PlayFabSDK\source\Json\NewtonsoftWrapper.cs" />
+    <Content Include="targets\csharp\source\PlayFabSDK\source\Json\SimpleJson.cs" />
+    <Content Include="targets\csharp\source\PlayFabSDK\source\PlayFabHttp\IPlayFabHttp.cs" />
+    <Content Include="targets\csharp\source\PlayFabSDK\source\PlayFabHttp\PlayFabHttp.cs" />
+    <Content Include="targets\csharp\source\PlayFabSDK\source\PlayFabHttp\PlayFabSysHttp.cs" />
+    <Content Include="targets\csharp\source\PlayFabSDK\source\PlayFabSettings.cs.ejs" />
+    <Content Include="targets\csharp\source\PlayFabSDK\source\PluginContract.cs" />
+    <Content Include="targets\csharp\source\PlayFabSDK\source\PluginManager.cs" />
+    <Content Include="targets\csharp\source\PlayFabSDK\source\Properties\AssemblyInfo.cs" />
+    <Content Include="targets\csharp\source\PlayFabSDK\source\Uunit\PluginManagerTest.cs" />
+    <Content Include="targets\csharp\source\PlayFabSDK\source\Uunit\tests\HttpTests.cs" />
+    <Content Include="targets\csharp\source\PlayFabSDK\source\Uunit\tests\PlayFabApiTest.cs" />
+    <Content Include="targets\csharp\source\PlayFabSDK\source\Uunit\tests\PlayFabServerApiTest.cs" />
+    <Content Include="targets\csharp\source\PlayFabSDK\source\Uunit\UUnitAssertException.cs" />
+    <Content Include="targets\csharp\source\PlayFabSDK\source\Uunit\UUnitIncrementalTestRunner.cs" />
+    <Content Include="targets\csharp\source\PlayFabSDK\source\Uunit\UUnitTestCase.cs" />
+    <Content Include="targets\csharp\source\PlayFabSDK\source\Uunit\UUnitTestContext.cs" />
+    <Content Include="targets\csharp\source\PlayFabSDK\source\Uunit\UUnitTestReport.cs" />
+    <Content Include="targets\csharp\source\PlayFabSDK\source\Uunit\UUnitTestSuite.cs" />
+    <Content Include="targets\csharp\source\PlayFabSDK\source\WsaReflectionExtensions.cs" />
+    <Content Include="targets\csharp\source\Plugins\CloudScript\source\PlayFabFunctionContexts.cs" />
     <Content Include="targets\csharp\templates\API.cs.ejs" />
     <Content Include="targets\csharp\templates\APIInstance.cs.ejs" />
-    <Content Include="targets\csharp\source\source\Extensions\Models\PlayFabCloudScriptModelsExtensions.cs.ejs" />
     <Content Include="targets\csharp\templates\Enum.cs.ejs" />
     <Content Include="targets\csharp\templates\Errors.cs.ejs" />
     <Content Include="targets\csharp\templates\Model.cs.ejs" />
     <Content Include="targets\csharp\templates\Models.cs.ejs" />
     <Content Include="targets\csharp\templates\PlayFabApiSettings.cs.ejs" />
     <Content Include="targets\csharp\templates\PlayFabAuthenticationContext.cs.ejs" />
+    <Content Include="targets\csharp\source\Plugins\CloudScript\source\PlayFabCloudScriptPlugin.csproj.ejs" />
     <Content Include="targets\csharp\templates\PlayFabSDK.csproj.ejs" />
     <Content Include="targets\csharp\templates\PlayFabUtil.cs.ejs" />
     <Content Include="targets\csharp\UnittestRunner\App.config" />
@@ -962,14 +965,17 @@
     <Folder Include="targets\csharp-unity-gameserver\" />
     <Folder Include="targets\csharp\" />
     <Folder Include="targets\csharp\source\" />
-    <Folder Include="targets\csharp\source\source\" />
-    <Folder Include="targets\csharp\source\source\Extensions\Models\" />
-    <Folder Include="targets\csharp\source\source\Json\" />
-    <Folder Include="targets\csharp\source\source\Extensions\" />
-    <Folder Include="targets\csharp\source\source\PlayFabHttp\" />
-    <Folder Include="targets\csharp\source\source\Properties\" />
-    <Folder Include="targets\csharp\source\source\Uunit\" />
-    <Folder Include="targets\csharp\source\source\Uunit\tests\" />
+    <Folder Include="targets\csharp\source\PlayFabSDK\" />
+    <Folder Include="targets\csharp\source\PlayFabSDK\Properties\" />
+    <Folder Include="targets\csharp\source\PlayFabSDK\source\" />
+    <Folder Include="targets\csharp\source\PlayFabSDK\source\Json\" />
+    <Folder Include="targets\csharp\source\PlayFabSDK\source\PlayFabHttp\" />
+    <Folder Include="targets\csharp\source\PlayFabSDK\source\Properties\" />
+    <Folder Include="targets\csharp\source\PlayFabSDK\source\Uunit\" />
+    <Folder Include="targets\csharp\source\PlayFabSDK\source\Uunit\tests\" />
+    <Folder Include="targets\csharp\source\Plugins\" />
+    <Folder Include="targets\csharp\source\Plugins\CloudScript\" />
+    <Folder Include="targets\csharp\source\Plugins\CloudScript\source\" />
     <Folder Include="targets\csharp\templates\" />
     <Folder Include="targets\csharp\UnittestRunner\" />
     <Folder Include="targets\csharp\UnittestRunner\Properties\" />

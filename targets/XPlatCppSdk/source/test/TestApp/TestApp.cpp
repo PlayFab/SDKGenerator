@@ -161,6 +161,5 @@ namespace PlayFabUnit
     void TestApp::OnPostReportError(const PlayFabError& error, void* /*customData*/)
     {
         cloudResponse = "Failed to report results via cloud script: " + error.GenerateErrorReport();
-
     }
 }

@@ -28,6 +28,7 @@
 		5A3F0AD62241BDF100AC0816 /* TestUtils.cpp in Sources */ = {isa = PBXBuildFile; fileRef = 5A3F0ACA2241BDF100AC0816 /* TestUtils.cpp */; };
 		5A3F0ADC2241D92600AC0816 /* TestAppIOS.mm in Sources */ = {isa = PBXBuildFile; fileRef = 5A3F0ADB2241D92600AC0816 /* TestAppIOS.mm */; };
 		5A3F0AEE2241F0BF00AC0816 /* log_bridge.c in Sources */ = {isa = PBXBuildFile; fileRef = 5A3F0AED2241F0BF00AC0816 /* log_bridge.c */; };
+		A68966B822A9E719004FF38A /* TestTitleData in Resources */ = {isa = PBXBuildFile; fileRef = A68966B722A9E719004FF38A /* TestTitleData */; };
 /* End PBXBuildFile section */
 
 /* Begin PBXContainerItemProxy section */
@@ -101,6 +102,7 @@
 		5A3F0AEC2241F0BE00AC0816 /* log_bridge.h */ = {isa = PBXFileReference; fileEncoding = 4; lastKnownFileType = sourcecode.c.h; path = log_bridge.h; sourceTree = "<group>"; };
 		5A3F0AED2241F0BF00AC0816 /* log_bridge.c */ = {isa = PBXFileReference; fileEncoding = 4; lastKnownFileType = sourcecode.c.c; path = log_bridge.c; sourceTree = "<group>"; };
 		5A3F0AEF2241F39000AC0816 /* TestAppIOS.h */ = {isa = PBXFileReference; lastKnownFileType = sourcecode.c.h; path = TestAppIOS.h; sourceTree = "<group>"; };
+		A68966B722A9E719004FF38A /* TestTitleData */ = {isa = PBXFileReference; lastKnownFileType = folder; path = TestTitleData; sourceTree = "<group>"; };
 /* End PBXFileReference section */
 
 /* Begin PBXFrameworksBuildPhase section */
@@ -119,6 +121,7 @@
 		5A3F0A782241BB0200AC0816 = {
 			isa = PBXGroup;
 			children = (
+				A68966B722A9E719004FF38A /* TestTitleData */,
 				5A3F0AB12241BDA800AC0816 /* include */,
 				5A3F0AB02241BDA100AC0816 /* source */,
 				5A3F0A832241BB0200AC0816 /* UI */,
@@ -312,6 +315,7 @@
 			buildActionMask = 2147483647;
 			files = (
 				5A3F0A942241BB0700AC0816 /* LaunchScreen.storyboard in Resources */,
+				A68966B822A9E719004FF38A /* TestTitleData in Resources */,
 				5A3F0A912241BB0600AC0816 /* Assets.xcassets in Resources */,
 				5A3F0A8C2241BB0200AC0816 /* Main.storyboard in Resources */,
 			);
@@ -511,12 +515,19 @@
 			buildSettings = {
 				ASSETCATALOG_COMPILER_APPICON_NAME = AppIcon;
 				CODE_SIGN_STYLE = Automatic;
+				DEVELOPMENT_TEAM = PFBTS56N7Z;
+				ENABLE_BITCODE = NO;
+				FRAMEWORK_SEARCH_PATHS = (
+					"$(inherited)",
+					"$(PROJECT_DIR)",
+				);
 				INFOPLIST_FILE = UI/Info.plist;
 				LD_RUNPATH_SEARCH_PATHS = (
 					"$(inherited)",
 					"@executable_path/Frameworks",
 				);
-				PRODUCT_BUNDLE_IDENTIFIER = com.microsoft.playfab.TestIOSApp;
+				OTHER_LDFLAGS = "";
+				PRODUCT_BUNDLE_IDENTIFIER = com.playfab.service;
 				PRODUCT_NAME = "$(TARGET_NAME)";
 				TARGETED_DEVICE_FAMILY = "1,2";
 			};
@@ -527,16 +538,118 @@
 			buildSettings = {
 				ASSETCATALOG_COMPILER_APPICON_NAME = AppIcon;
 				CODE_SIGN_STYLE = Automatic;
+				DEVELOPMENT_TEAM = PFBTS56N7Z;
+				ENABLE_BITCODE = NO;
+				FRAMEWORK_SEARCH_PATHS = (
+					"$(inherited)",
+					"$(PROJECT_DIR)",
+				);
 				INFOPLIST_FILE = UI/Info.plist;
 				LD_RUNPATH_SEARCH_PATHS = (
 					"$(inherited)",
 					"@executable_path/Frameworks",
 				);
-				PRODUCT_BUNDLE_IDENTIFIER = com.microsoft.playfab.TestIOSApp;
+				OTHER_LDFLAGS = "";
+				PRODUCT_BUNDLE_IDENTIFIER = com.playfab.service;
 				PRODUCT_NAME = "$(TARGET_NAME)";
 				TARGETED_DEVICE_FAMILY = "1,2";
 			};
 			name = Release;
+		};
+		A68966B922AAD940004FF38A /* Calabash */ = {
+			isa = XCBuildConfiguration;
+			buildSettings = {
+				ALWAYS_SEARCH_USER_PATHS = NO;
+				CLANG_ANALYZER_NONNULL = YES;
+				CLANG_ANALYZER_NUMBER_OBJECT_CONVERSION = YES_AGGRESSIVE;
+				CLANG_CXX_LANGUAGE_STANDARD = "gnu++14";
+				CLANG_CXX_LIBRARY = "libc++";
+				CLANG_ENABLE_MODULES = YES;
+				CLANG_ENABLE_OBJC_ARC = YES;
+				CLANG_ENABLE_OBJC_WEAK = YES;
+				CLANG_WARN_BLOCK_CAPTURE_AUTORELEASING = YES;
+				CLANG_WARN_BOOL_CONVERSION = YES;
+				CLANG_WARN_COMMA = YES;
+				CLANG_WARN_CONSTANT_CONVERSION = YES;
+				CLANG_WARN_DEPRECATED_OBJC_IMPLEMENTATIONS = YES;
+				CLANG_WARN_DIRECT_OBJC_ISA_USAGE = YES_ERROR;
+				CLANG_WARN_DOCUMENTATION_COMMENTS = YES;
+				CLANG_WARN_EMPTY_BODY = YES;
+				CLANG_WARN_ENUM_CONVERSION = YES;
+				CLANG_WARN_INFINITE_RECURSION = YES;
+				CLANG_WARN_INT_CONVERSION = YES;
+				CLANG_WARN_NON_LITERAL_NULL_CONVERSION = YES;
+				CLANG_WARN_OBJC_IMPLICIT_RETAIN_SELF = YES;
+				CLANG_WARN_OBJC_LITERAL_CONVERSION = YES;
+				CLANG_WARN_OBJC_ROOT_CLASS = YES_ERROR;
+				CLANG_WARN_RANGE_LOOP_ANALYSIS = YES;
+				CLANG_WARN_STRICT_PROTOTYPES = YES;
+				CLANG_WARN_SUSPICIOUS_MOVE = YES;
+				CLANG_WARN_UNGUARDED_AVAILABILITY = YES_AGGRESSIVE;
+				CLANG_WARN_UNREACHABLE_CODE = YES;
+				CLANG_WARN__DUPLICATE_METHOD_MATCH = YES;
+				CODE_SIGN_IDENTITY = "iPhone Developer";
+				COPY_PHASE_STRIP = NO;
+				DEBUG_INFORMATION_FORMAT = dwarf;
+				ENABLE_STRICT_OBJC_MSGSEND = YES;
+				ENABLE_TESTABILITY = YES;
+				GCC_C_LANGUAGE_STANDARD = gnu11;
+				GCC_DYNAMIC_NO_PIC = NO;
+				GCC_NO_COMMON_BLOCKS = YES;
+				GCC_OPTIMIZATION_LEVEL = 0;
+				GCC_PREPROCESSOR_DEFINITIONS = (
+					ENABLE_PLAYFABADMIN_API,
+					ENABLE_PLAYFABSERVER_API,
+					"DEBUG=1",
+					"$(inherited)",
+				);
+				GCC_WARN_64_TO_32_BIT_CONVERSION = YES;
+				GCC_WARN_ABOUT_RETURN_TYPE = YES_ERROR;
+				GCC_WARN_UNDECLARED_SELECTOR = YES;
+				GCC_WARN_UNINITIALIZED_AUTOS = YES_AGGRESSIVE;
+				GCC_WARN_UNUSED_FUNCTION = YES;
+				GCC_WARN_UNUSED_VARIABLE = YES;
+				HEADER_SEARCH_PATHS = (
+					../../../test/TestApp,
+					../../../code/include,
+					../../../external/jsoncpp/include,
+				);
+				IPHONEOS_DEPLOYMENT_TARGET = 12.1;
+				MTL_ENABLE_DEBUG_INFO = INCLUDE_SOURCE;
+				MTL_FAST_MATH = YES;
+				ONLY_ACTIVE_ARCH = YES;
+				SDKROOT = iphoneos;
+			};
+			name = Calabash;
+		};
+		A68966BA22AAD940004FF38A /* Calabash */ = {
+			isa = XCBuildConfiguration;
+			buildSettings = {
+				ASSETCATALOG_COMPILER_APPICON_NAME = AppIcon;
+				CODE_SIGN_STYLE = Automatic;
+				DEVELOPMENT_TEAM = PFBTS56N7Z;
+				ENABLE_BITCODE = NO;
+				FRAMEWORK_SEARCH_PATHS = (
+					"$(inherited)",
+					"$(PROJECT_DIR)",
+				);
+				INFOPLIST_FILE = UI/Info.plist;
+				LD_RUNPATH_SEARCH_PATHS = (
+					"$(inherited)",
+					"@executable_path/Frameworks",
+				);
+				OTHER_LDFLAGS = (
+					"-ObjC",
+					"-force_load",
+					"\"$(SOURCE_ROOT)/calabash.framework/calabash\"",
+					"-framework",
+					CFNetwork,
+				);
+				PRODUCT_BUNDLE_IDENTIFIER = com.playfab.service;
+				PRODUCT_NAME = "$(TARGET_NAME)";
+				TARGETED_DEVICE_FAMILY = "1,2";
+			};
+			name = Calabash;
 		};
 /* End XCBuildConfiguration section */
 
@@ -545,19 +658,21 @@
 			isa = XCConfigurationList;
 			buildConfigurations = (
 				5A3F0A982241BB0700AC0816 /* Debug */,
+				A68966B922AAD940004FF38A /* Calabash */,
 				5A3F0A992241BB0700AC0816 /* Release */,
 			);
 			defaultConfigurationIsVisible = 0;
-			defaultConfigurationName = Release;
+			defaultConfigurationName = Debug;
 		};
 		5A3F0A9A2241BB0700AC0816 /* Build configuration list for PBXNativeTarget "TestIOSApp" */ = {
 			isa = XCConfigurationList;
 			buildConfigurations = (
 				5A3F0A9B2241BB0700AC0816 /* Debug */,
+				A68966BA22AAD940004FF38A /* Calabash */,
 				5A3F0A9C2241BB0700AC0816 /* Release */,
 			);
 			defaultConfigurationIsVisible = 0;
-			defaultConfigurationName = Release;
+			defaultConfigurationName = Debug;
 		};
 /* End XCConfigurationList section */
 

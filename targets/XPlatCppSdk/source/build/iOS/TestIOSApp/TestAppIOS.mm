@@ -11,8 +11,7 @@
 #define USE_EXTERNAL_JSON_FILE
 
 #ifdef USE_EXTERNAL_JSON_FILE
-#warning "Replace below file name(except ext) with yours, and DO NOT SHARE IT."
-static constexpr NSString* c_jsonFileName = @"YOUR_JSON_FILE_NAME";
+#warning "Replace the contents of $WORKSPACE/TestTitleData/testTitleData.json with your title secret information!"
 #else // USE_EXTERNAL_JSON_FILE
 #warning "Replace below information with yours, and DO NOT SHARE IT."
 static constexpr NSString* c_titleId = @"YOUR_TITLE_ID";
@@ -28,7 +27,7 @@ namespace PlayFabUnit
     bool TestApp::LoadTitleDataJson(std::shared_ptr<char*>& testDataJson, size_t& testDataJsonLen)
     {
 #ifdef USE_EXTERNAL_JSON_FILE
-        NSString *filePath = [[NSBundle mainBundle] pathForResource:c_jsonFileName ofType:@"json"];
+        NSString *filePath = [[NSBundle mainBundle] pathForResource:@"testTitleData" ofType:@"json" inDirectory:@"TestTitleData"];
         if(filePath == nil)
         {
             Log("Failed to get json file path.");
@@ -85,5 +84,5 @@ int RunUnittest(void)
     PlayFabUnit::TestApp testApp;
 
     int result = testApp.Main();
-    return result;
+    exit(result);
 }

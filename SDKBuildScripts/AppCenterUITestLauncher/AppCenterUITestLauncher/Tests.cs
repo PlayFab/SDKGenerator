@@ -28,6 +28,17 @@ namespace XamarinUITestExperiment
             app = AppInitializer.StartApp(platform);
 
         }
+
+        [Test]
+        public void DidWeStart()
+        {
+            for(int i = 0; i < 5; ++i)
+            {
+                System.Threading.Thread.Sleep(3000);
+                app.Screenshot("DidWeStart...");
+            }
+        }
+        
         
         [Test]
         public void WaitAwhile()

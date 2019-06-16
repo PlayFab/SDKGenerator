@@ -58,6 +58,11 @@ InitializeBuildEnvironment() {
     if [ $NewBranch -ne 0 ]; then
         echo "Failed to checkout existing branch: $AppCenterGitRepoBranchName. Creating as new branch."
         git checkout -b "$AppCenterGitRepoBranchName"
+    else 
+        git reset --hard init
+        git stash --all 
+        git stash clear
+        git push --force
     fi
 
     #copy the xcode workspace into the appcenter git repo

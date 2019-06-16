@@ -120,7 +120,7 @@ if %errorLevel% NEQ 0 (
     exit /b %errorLevel%
 )
 pushd "%WORKSPACE%/SDKGenerator/SDKBuildScripts"
-sh runAppCenterTest.sh "%ProjRootPath%\%SdkName%_TC\testBuilds\PlayFabAndroid.apk" "%WORKSPACE%\SDKGenerator\SDKBuildScripts\AppCenterUITestLauncher\AppCenterUITestLauncher\debugassemblies" android
+sh runAppCenterTest.sh "%ProjRootPath%\%SdkName%_TC\testBuilds\PlayFabAndroid.apk" "%WORKSPACE%\SDKGenerator\SDKBuildScripts\AppCenterUITestLauncher\AppCenterUITestLauncher\debugassemblies" unity-android
 if %errorLevel% NEQ 0 (
     exit /b %errorLevel%
 )
@@ -150,7 +150,7 @@ sh unity_buildAppCenterTestIOS.sh "%ProjRootPath%/%SdkName%_TC/testBuilds/PlayFa
 if %errorLevel% NEQ 0 (
     exit /b %errorLevel%
 )
-sh runAppCenterTest.sh "%WORKSPACE%/SDKGenerator/SDKBuildScripts/PlayFabIOS.ipa" "%WORKSPACE%\SDKGenerator\SDKBuildScripts\AppCenterUITestLauncher\AppCenterUITestLauncher\debugassemblies" ios
+sh runAppCenterTest.sh "%WORKSPACE%/SDKGenerator/SDKBuildScripts/PlayFabIOS.ipa" "%WORKSPACE%\SDKGenerator\SDKBuildScripts\AppCenterUITestLauncher\AppCenterUITestLauncher\debugassemblies" unity-ios
 if %errorLevel% NEQ 0 (
     exit /b %errorLevel%
 )

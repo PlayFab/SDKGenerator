@@ -175,7 +175,7 @@ RunAppCenterTest() {
 CleanUp() {
     pushd "$AppCenterRepoParentDir/$GitRepoFolderName"
     #Return the appcenter build repo to a clean state for next time.
-    reset --hard $AppCenterGitRepoCleanTag
+    git reset --hard $AppCenterGitRepoCleanTag
     git push --force 
     popd
 }

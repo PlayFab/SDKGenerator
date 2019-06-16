@@ -62,13 +62,13 @@ InitializeBuildEnvironment() {
     ACB="$AppCenterRepoParentDir/$GitRepoFolderName"
     pushd "$XPlatWorkspaceDirectory" 
     echo "Copying project contents from $PWD into $ACB..."
-    cp -rf test $ACB
-    cp -rf code $ACB
-    cp -rf external $ACB
-    mkdir $ACB/build
-    cp -rf build/iOS $ACB/build
+    cp -rf test "$ACB"
+    cp -rf code "$ACB"
+    cp -rf external "$ACB"
+    mkdir "$ACB/build"
+    cp -rf build/iOS "$ACB/build"
     echo "Loading test title data from $PF_TEST_TITLE_DATA_JSON into $ACB/build/iOS/TestIOSApp/TestTitleData..."
-    cp $PF_TEST_TITLE_DATA_JSON $ACB/build/iOS/TestIOSApp/TestTitleData
+    cp "$PF_TEST_TITLE_DATA_JSON $ACB/build/iOS/TestIOSApp/TestTitleData"
     popd #$XPlatWorkspaceDirectory
 
     #create the appcenter prebuild script in the xcode project
@@ -90,7 +90,7 @@ InitializeBuildEnvironment() {
 
     popd #$ACB/build/iOS
 
-    pushd $ACB
+    pushd "$ACB"
     git add .
     git update-index --chmod=+x "$ACB/build/iOS/appcenter-post-clone.sh"
     git commit -m "add xcode project for appcenter build"

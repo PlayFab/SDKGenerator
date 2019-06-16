@@ -49,6 +49,8 @@ InitializeBuildEnvironment() {
     git fetch --tags 
     git reset --hard $AppCenterGitRepoCleanTag
     git push --force
+    git stash --all
+    git stash clear
 
     echo "About to checkout $AppCenterGitRepoBranchName..."
 
@@ -65,7 +67,7 @@ InitializeBuildEnvironment() {
     cp -rf test "$ACB"
     cp -rf code "$ACB"
     cp -rf external "$ACB"
-    mkdir "$ACB/build"
+    mkdir "$ACB/build" || true
     cp -rf build/iOS "$ACB/build"
     echo "Loading test title data from $PF_TEST_TITLE_DATA_JSON into $ACB/build/iOS/TestIOSApp/TestTitleData..."
     cp "$PF_TEST_TITLE_DATA_JSON" "$ACB/build/iOS/TestIOSApp/TestTitleData"

@@ -5,6 +5,7 @@
 #           <git clone url for the appcenter build>
 #           <git branch name for the appcenter build repo>
 #           <git tag name for the clean branch state>
+#           <path to test xamarin.uitest assemblies that will be uploaded to appcenter>
 
 #PREREQUISITES:
 #1) System must be provisioned with login-free write access to the appcener build git repository.
@@ -18,6 +19,7 @@ AppCenterRepoParentDir=$2
 AppCenterGitRepoURL=$3
 AppCenterGitRepoBranchName=$4
 AppCenterGitRepoCleanTag=$5
+AppCenterTestAssembliesPath=$6
 
 echo $XPlatWorkspaceDirectory
 echo $AppCenterRepoParentDir
@@ -49,27 +51,33 @@ InitializeBuildEnvironment() {
     git fetch --tags 
     git reset --hard $AppCenterGitRepoCleanTag
     git push --force
+    git stash --all
+    git stash clear
 
     echo "About to checkout $AppCenterGitRepoBranchName..."
 
-    git checkout "$AppCenterGitRepoBranchName"
-    if [ $? -ne 0 ]; then
+    git checkout "$AppCenterGitRepoBranchName" || NewBranch=1
+    if [ $NewBranch -ne 0 ]; then
         echo "Failed to checkout existing branch: $AppCenterGitRepoBranchName. Creating as new branch."
         git checkout -b "$AppCenterGitRepoBranchName"
-        NewBranch=1
+    else 
+        git reset --hard init
+        git stash --all 
+        git stash clear
+        git push --force
     fi
 
     #copy the xcode workspace into the appcenter git repo
     ACB="$AppCenterRepoParentDir/$GitRepoFolderName"
     pushd "$XPlatWorkspaceDirectory" 
     echo "Copying project contents from $PWD into $ACB..."
-    cp -rf test $ACB
-    cp -rf code $ACB
-    cp -rf external $ACB
-    mkdir $ACB/build
-    cp -rf build/iOS $ACB/build
+    cp -rf test "$ACB"
+    cp -rf code "$ACB"
+    cp -rf external "$ACB"
+    mkdir "$ACB/build" || true
+    cp -rf build/iOS "$ACB/build"
     echo "Loading test title data from $PF_TEST_TITLE_DATA_JSON into $ACB/build/iOS/TestIOSApp/TestTitleData..."
-    cp $PF_TEST_TITLE_DATA_JSON $ACB/build/iOS/TestIOSApp/TestTitleData
+    cp "$PF_TEST_TITLE_DATA_JSON" "$ACB/build/iOS/TestIOSApp/TestTitleData"
     popd #$XPlatWorkspaceDirectory
 
     #create the appcenter prebuild script in the xcode project
@@ -91,7 +99,7 @@ InitializeBuildEnvironment() {
 
     popd #$ACB/build/iOS
 
-    pushd $ACB
+    pushd "$ACB"
     git add .
     git update-index --chmod=+x "$ACB/build/iOS/appcenter-post-clone.sh"
     git commit -m "add xcode project for appcenter build"
@@ -160,14 +168,14 @@ RunAppCenterTest() {
     --app-path PlayFabIOS.ipa  \
     --test-series "master" \
     --locale "en_US" \
-    --assembly-dir "C:/github/pf/SDKGenerator/SDKBuildScripts/AppCenterUITestLauncher/AppCenterUITestLauncher/debugassemblies"  \
+    --assembly-dir "$AppCenterTestAssembliesPath"  \
     --uitest-tools-dir "$XAMARIN_UITEST_TOOLS"
 }
 
 CleanUp() {
     pushd "$AppCenterRepoParentDir/$GitRepoFolderName"
     #Return the appcenter build repo to a clean state for next time.
-    reset --hard $AppCenterGitRepoCleanTag
+    git reset --hard $AppCenterGitRepoCleanTag
     git push --force 
     popd
 }

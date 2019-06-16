@@ -5,6 +5,7 @@
 #           <git clone url for the appcenter build>
 #           <git branch name for the appcenter build repo>
 #           <git tag name for the clean branch state>
+#           <path to test xamarin.uitest assemblies that will be uploaded to appcenter>
 
 #PREREQUISITES:
 #1) System must be provisioned with login-free write access to the appcener build git repository.
@@ -18,6 +19,7 @@ AppCenterRepoParentDir=$2
 AppCenterGitRepoURL=$3
 AppCenterGitRepoBranchName=$4
 AppCenterGitRepoCleanTag=$5
+AppCenterTestAssembliesPath=$6
 
 echo $XPlatWorkspaceDirectory
 echo $AppCenterRepoParentDir
@@ -166,7 +168,7 @@ RunAppCenterTest() {
     --app-path PlayFabIOS.ipa  \
     --test-series "master" \
     --locale "en_US" \
-    --assembly-dir "C:/github/pf/SDKGenerator/SDKBuildScripts/AppCenterUITestLauncher/AppCenterUITestLauncher/debugassemblies"  \
+    --assembly-dir "$AppCenterTestAssembliesPath"  \
     --uitest-tools-dir "$XAMARIN_UITEST_TOOLS"
 }
 

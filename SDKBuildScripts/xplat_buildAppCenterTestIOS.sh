@@ -68,7 +68,7 @@ InitializeBuildEnvironment() {
     mkdir "$ACB/build"
     cp -rf build/iOS "$ACB/build"
     echo "Loading test title data from $PF_TEST_TITLE_DATA_JSON into $ACB/build/iOS/TestIOSApp/TestTitleData..."
-    cp "$PF_TEST_TITLE_DATA_JSON $ACB/build/iOS/TestIOSApp/TestTitleData"
+    cp "$PF_TEST_TITLE_DATA_JSON" "$ACB/build/iOS/TestIOSApp/TestTitleData"
     popd #$XPlatWorkspaceDirectory
 
     #create the appcenter prebuild script in the xcode project

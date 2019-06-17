@@ -63,7 +63,7 @@ function reportErrorsAndExit(errorMessages) {
         "\t\tThis builds the UnitySDK, from Specs at the default (GitHub) location\n\n" +
         "\tExample: node generate.js -destPath ../sdks/UnitySDK\n" +
         "\t\tThis builds the UnitySDK, using ../sdks/UnitySDK/genConfig.json for configuration\n\n" +
-        "\tYou must list exactly one of: <templateName>=<outputPath> arguments or, -destPath <outputPath>.\n\n" +
+        "\tYou must list exactly one of: <templateName>=<outputPath> or, -destPath <outputPath>.\n\n" +
         "\tWarning, <templateName> and <outputPath> can not contain spaces.\n");
     console.log("\nError Log:");
     for (var i = 0; i < errorMessages.length; i++)

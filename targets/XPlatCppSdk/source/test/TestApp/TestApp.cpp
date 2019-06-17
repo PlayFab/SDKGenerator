@@ -1,4 +1,4 @@
-// Copyright (C) Microsoft Corporation. All rights reserved.
+﻿// Copyright (C) Microsoft Corporation. All rights reserved.
 
 #include "TestAppPch.h"
 #include <cstdarg>
@@ -21,6 +21,11 @@ using namespace ClientModels;
 
 namespace PlayFabUnit
 {
+    TestApp::TestApp(const char* titleDataJson) {
+        if(titleDataJson != nullptr) {
+            mTestDataJson = titleDataJson;
+        }
+    }
     int TestApp::Main()
     {
         // Load the TestTitleData
@@ -82,19 +87,14 @@ namespace PlayFabUnit
     bool TestApp::LoadTitleData(TestTitleData& titleData)
     {
         // Load JSON string in a platform-dependent way.
-        std::shared_ptr<char*> titleJsonPtr;
-        size_t size;
-        const bool loadedSuccessfully = LoadTitleDataJson(titleJsonPtr, size);
-
-        if (!loadedSuccessfully)
-            return false;
+        std::string titleJsonPtr = LoadTitleDataJson();
 
         // Parse JSON string into output TestTitleData.
         Json::CharReaderBuilder jsonReaderFactory;
         Json::CharReader* jsonReader(jsonReaderFactory.newCharReader());
         JSONCPP_STRING jsonParseErrors;
         Json::Value titleDataJson;
-        const bool parsedSuccessfully = jsonReader->parse(*titleJsonPtr, *titleJsonPtr + size + 1, &titleDataJson, &jsonParseErrors);
+        const bool parsedSuccessfully = jsonReader->parse(titleJsonPtr.c_str(), titleJsonPtr.c_str() + titleJsonPtr.size() + 1, &titleDataJson, &jsonParseErrors);
 
         if (parsedSuccessfully)
         {

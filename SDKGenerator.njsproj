@@ -10,7 +10,6 @@
     <TypeScriptModuleKind>CommonJS</TypeScriptModuleKind>
     <ToolsVersionPromptShown>2.3</ToolsVersionPromptShown>
     <TypeScriptToolsVersion>2.3</TypeScriptToolsVersion>
-    <SaveNodeJsSettingsInProjectFile>True</SaveNodeJsSettingsInProjectFile>
   </PropertyGroup>
   <Import Project="$(MSBuildExtensionsPath)\$(MSBuildToolsVersion)\Microsoft.Common.props" Condition="Exists('$(MSBuildExtensionsPath)\$(MSBuildToolsVersion)\Microsoft.Common.props')" />
   <PropertyGroup>
@@ -129,7 +128,6 @@
   <ItemGroup>
     <Compile Include="targets\actionscript\make.js" />
     <Compile Include="targets\csharp-unity-gameserver\make.js" />
-    <Compile Include="targets\csharp\make.js" />
     <Compile Include="targets\javascript\make.js" />
     <Compile Include="targets\java\make.js" />
     <Compile Include="targets\java\source_androidStudio\src\main\java\com\playfab\androidstudioexample\PlayFabExampleActivity.java" />
@@ -171,7 +169,7 @@
     <Content Include="targets\actionscript\templates\API.as.ejs" />
     <Content Include="targets\actionscript\templates\Enum.as.ejs" />
     <Content Include="targets\actionscript\templates\Model.as.ejs" />
-    <Content Include="targets\csharp\source\PlayFabSDK\Properties\AssemblyInfo.cs" />
+    <Content Include="targets\csharp\make.js" />
     <Content Include="targets\csharp\source\PlayFabSDK\source\IPlayFabPlugin.cs" />
     <Content Include="targets\csharp\source\PlayFabSDK\source\ISerializerPlugin.cs" />
     <Content Include="targets\csharp\source\PlayFabSDK\source\ITransportPlugin.cs" />
@@ -185,9 +183,15 @@
     <Content Include="targets\csharp\source\PlayFabSDK\source\PluginContract.cs" />
     <Content Include="targets\csharp\source\PlayFabSDK\source\PluginManager.cs" />
     <Content Include="targets\csharp\source\PlayFabSDK\source\Properties\AssemblyInfo.cs" />
+    <Content Include="targets\csharp\source\PlayFabSDK\source\Qos\PlayFabQosApi.cs" />
+    <Content Include="targets\csharp\source\PlayFabSDK\source\Qos\QosErrorCode.cs" />
+    <Content Include="targets\csharp\source\PlayFabSDK\source\Qos\QosRegionResult.cs" />
+    <Content Include="targets\csharp\source\PlayFabSDK\source\Qos\QosResult.cs" />
+    <Content Include="targets\csharp\source\PlayFabSDK\source\Qos\RegionPinger.cs" />
     <Content Include="targets\csharp\source\PlayFabSDK\source\Uunit\PluginManagerTest.cs" />
     <Content Include="targets\csharp\source\PlayFabSDK\source\Uunit\tests\HttpTests.cs" />
     <Content Include="targets\csharp\source\PlayFabSDK\source\Uunit\tests\PlayFabApiTest.cs" />
+    <Content Include="targets\csharp\source\PlayFabSDK\source\Uunit\tests\PlayFabQosApiTest.cs" />
     <Content Include="targets\csharp\source\PlayFabSDK\source\Uunit\tests\PlayFabServerApiTest.cs" />
     <Content Include="targets\csharp\source\PlayFabSDK\source\Uunit\UUnitAssertException.cs" />
     <Content Include="targets\csharp\source\PlayFabSDK\source\Uunit\UUnitIncrementalTestRunner.cs" />
@@ -205,7 +209,7 @@
     <Content Include="targets\csharp\templates\Models.cs.ejs" />
     <Content Include="targets\csharp\templates\PlayFabApiSettings.cs.ejs" />
     <Content Include="targets\csharp\templates\PlayFabAuthenticationContext.cs.ejs" />
-    <Content Include="targets\csharp\source\Plugins\CloudScript\source\PlayFabCloudScriptPlugin.csproj.ejs" />
+    <Content Include="targets\csharp\templates\PlayFabCloudScriptPlugin.csproj.ejs" />
     <Content Include="targets\csharp\templates\PlayFabSDK.csproj.ejs" />
     <Content Include="targets\csharp\templates\PlayFabUtil.cs.ejs" />
     <Content Include="targets\csharp\UnittestRunner\App.config" />
@@ -966,11 +970,11 @@
     <Folder Include="targets\csharp\" />
     <Folder Include="targets\csharp\source\" />
     <Folder Include="targets\csharp\source\PlayFabSDK\" />
-    <Folder Include="targets\csharp\source\PlayFabSDK\Properties\" />
     <Folder Include="targets\csharp\source\PlayFabSDK\source\" />
     <Folder Include="targets\csharp\source\PlayFabSDK\source\Json\" />
     <Folder Include="targets\csharp\source\PlayFabSDK\source\PlayFabHttp\" />
     <Folder Include="targets\csharp\source\PlayFabSDK\source\Properties\" />
+    <Folder Include="targets\csharp\source\PlayFabSDK\source\Qos\" />
     <Folder Include="targets\csharp\source\PlayFabSDK\source\Uunit\" />
     <Folder Include="targets\csharp\source\PlayFabSDK\source\Uunit\tests\" />
     <Folder Include="targets\csharp\source\Plugins\" />

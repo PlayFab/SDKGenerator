@@ -36,7 +36,9 @@ CleanCodeFiles () {
 BuildSdk () {
     pushd ..
     echo === SHARED BUILDING $SdkName ===
-    if [ -z "$targetSrc" ]; then
+    if [ ! -z "$SdkGenPrvTmplRepo" ]; then
+        node generate.js $SdkGenPrvTmplRepo=$destPath $apiSpecSource $SdkGenArgs $buildIdentifier $VerticalNameInternal
+    elif [ -z "$targetSrc" ]; then
         node generate.js -destPath $destPath $apiSpecSource $SdkGenArgs $buildIdentifier $VerticalNameInternal
     else
         node generate.js $targetSrc=$destPath $apiSpecSource $SdkGenArgs $buildIdentifier $VerticalNameInternal
@@ -55,3 +57,4 @@ if [ "$delSrc" = "true" ]; then
     CleanCodeFiles
 fi
 BuildSdk
+

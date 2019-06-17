@@ -1,6 +1,6 @@
 var path = require("path");
 
-// Making resharper less noisy - These are defined in Generate.js
+// Making resharper less noisy - These are defined in Generate.js (test)
 if (typeof (getCompiledTemplate) === "undefined") getCompiledTemplate = function () { };
 if (typeof (templatizeTree) === "undefined") templatizeTree = function () { };
 

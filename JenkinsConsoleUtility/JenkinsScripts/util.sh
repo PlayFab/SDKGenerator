@@ -93,11 +93,11 @@ _CleanCurrentRepo () {
     fi
 
     (
-        git fetch --progress origin &&
+        git fetch --progress --recurse-submodules origin &&
         if [ "$1" -gt "1" ]; then
             (
                 git reset --hard &&
-                git fetch --progress origin &&
+                git fetch --progress --recurse-submodules origin &&
                 (git checkout $2 || git checkout -b $2) &&
                 git reset --hard origin/$2
             ) || _CleanCurrentRepo $@
@@ -108,6 +108,7 @@ _CleanCurrentRepo () {
             ) || _CleanCurrentRepo $@
         fi &&
         git remote prune origin
+        git submodule update
     ) || _CleanCurrentRepo $@
 }
 

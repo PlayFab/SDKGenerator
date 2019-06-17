@@ -27,8 +27,8 @@ ResetRepo (){
     git checkout master || git checkout -b master || CleanCurrentRepo
     git pull origin master
 
+    # Delete $GitDestBranch, reset it to master, prep for next build and fresh write
     if [ "$GitDestBranch"!="master" ]; then
-        git fetch --progress origin
         git branch -D $GitDestBranch || true
         git checkout -b $GitDestBranch || true
         git checkout $GitDestBranch
@@ -40,10 +40,16 @@ DoWork () {
     echo == DoWork $PWD, $@ ==
 
     # These are always shared, never modified directly, and never arc-patched
-    SyncGitHubRepo "$SHARED_WORKSPACE" "SDKGenerator" "SDKGenerator" "$GitSdkGenBranch"
+    # We sync master on the SHARED_WORKSPACE
+    SyncGitHubRepo "$SHARED_WORKSPACE" "SDKGenerator" "SDKGenerator"
     SyncGitHubRepo "$SHARED_WORKSPACE/sdks" "$SdkName"
+    # We sync $GitSdkGenBranch in the real workspace
     SyncWorkspaceRepo "$SHARED_WORKSPACE" "$WORKSPACE" "SDKGenerator" "SDKGenerator" "$GitSdkGenBranch"
-    SyncWorkspaceRepo "$SHARED_WORKSPACE/sdks" "$WORKSPACE/sdks" "$SdkName"
+    SyncWorkspaceRepo "$SHARED_WORKSPACE/sdks" "$WORKSPACE/sdks" "$SdkName" "$GitSdkDestBranch"
+
+    if [ ! -z "$SdkGenPrvTmplRepo" ]; then
+        SyncGitHubRepo "$WORKSPACE/SDKGenerator/privateTemplates" "$SdkGenPrvTmplRepo" "$GitPrvTmplBranch"
+    fi
 
     DoJcuNugetUpdate
     

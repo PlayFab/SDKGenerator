@@ -3,7 +3,7 @@ apply plugin: 'com.android.application'
 android {
     compileSdkVersion 28
     defaultConfig {
-        applicationId "com.microsoft.xplatcppsdk.unittest"
+        applicationId "com.playfab.service"
         minSdkVersion 19
         targetSdkVersion 28
         versionCode 1

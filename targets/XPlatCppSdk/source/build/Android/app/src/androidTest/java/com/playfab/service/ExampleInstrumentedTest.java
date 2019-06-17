@@ -1,4 +1,4 @@
-package com.microsoft.xplatcppsdk.unittest;
+package com.playfab.service;
 
 import android.content.Context;
 import android.support.test.InstrumentationRegistry;
@@ -21,6 +21,6 @@ public class ExampleInstrumentedTest {
         // Context of the app under test.
         Context appContext = InstrumentationRegistry.getTargetContext();
 
-        assertEquals("com.microsoft.xplatcppsdk.unittest", appContext.getPackageName());
+        assertEquals("com.playfab.service", appContext.getPackageName());
     }
 }

@@ -1,4 +1,4 @@
-package com.microsoft.xplatcppsdk;
+package com.playfab.xplatcppsdk;
 
 import java.io.IOException;
 import java.util.concurrent.TimeUnit;

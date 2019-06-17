@@ -1,4 +1,4 @@
-package com.microsoft.xplatcppsdk.unittest;
+package com.playfab.service;
 
 import org.junit.Test;
 

@@ -14,7 +14,7 @@
 static const char* c_jsonFileName = "YOUR_JSON_FILE_NAME";
 #else // USE_EXTERNAL_JSON_FILE
 #warning "Replace below information with yours, and DO NOT SHARE IT."
-static const char* c_titleId = "YOUR_TITLE_ID"
+static const char* c_titleId = "YOUR_TITLE_ID";
 static const char* c_developerSecretKey = "YOUR_DEVELOPER_SECRET_KEY";
 static const char* c_userEmail = "YOUR_EMAIL";
 #endif // USE_EXTERNAL_JSON_FILE

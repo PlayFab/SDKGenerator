@@ -1,5 +1,7 @@
 #!/bin/bash
-AndroidProjectPath=$1
+pushd ../../sdks/XPlatCppSdk/build/Android
+AndroidProjectPath=$PWD
+popd
 apkPath=$AndroidProjectPath/app/build/outputs/apk/debug/app-debug.apk
 
 CopyTestTitleData() {

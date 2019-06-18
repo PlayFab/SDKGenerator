@@ -48,7 +48,7 @@ DoWork () {
     SyncWorkspaceRepo "$SHARED_WORKSPACE/sdks" "$WORKSPACE/sdks" "$SdkName" "$GitSdkDestBranch"
 
     if [ ! -z "$SdkGenPrvTmplRepo" ]; then
-        SyncGitHubRepo "$WORKSPACE/SDKGenerator/privateTemplates" "$SdkGenPrvTmplRepo" "$GitPrvTmplBranch"
+        SyncGitHubRepo "$WORKSPACE/SDKGenerator/privateTemplates" "$SdkGenPrvTmplRepo" "$SdkGenPrvTmplRepo" "$GitPrvTmplBranch"
     fi
 
     DoJcuNugetUpdate

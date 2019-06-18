@@ -13,6 +13,7 @@ if [%delSrc%] == [true] (
     del /S *.py
     del /S *.ts
     attrib -H *.meta /S /D
+    for /f "usebackq delims=" %%d in (`"dir /ad/b/s | sort /R"`) do rd "%%d" 
 )
 popd
 
@@ -35,4 +36,6 @@ if [%1] == [] (
 )
 popd
 
-pause
+if [%noPause%] == [false] (
+    pause
+)

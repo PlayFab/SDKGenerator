@@ -142,7 +142,6 @@
     <Compile Include="targets\postman\make.js" />
     <Compile Include="targets\PythonSdk\make.js" />
     <Compile Include="targets\SdkTestingCloudScript\make.js" />
-    <Compile Include="targets\unity-v2\make.js" />
     <Compile Include="targets\UnrealMarketplacePlugin\make.js" />
     <Compile Include="targets\UnrealMarketplacePlugin\makeBp.js" />
     <Compile Include="targets\UnrealMarketplacePlugin\makeCpp.js" />
@@ -465,6 +464,7 @@
     <Content Include="targets\SdkTestingCloudScript\templates\Enum.d.ts.ejs" />
     <Content Include="targets\SdkTestingCloudScript\source\package.json.ejs" />
     <Content Include="targets\SdkTestingCloudScript\source\Scripts\typings\PlayFab\PlayStream.d.ts.ejs" />
+    <Content Include="targets\unity-v2\make.js" />
     <Content Include="targets\unity-v2\source\Client\PlayFabDeviceUtil.cs" />
     <Content Include="targets\unity-v2\source\Entity\ScreenTimeTracker.cs" />
     <Content Include="targets\unity-v2\source\link.xml" />
@@ -577,6 +577,8 @@
     <Content Include="targets\unity-v2\Testing\Tests\Client\ClientApiTests.cs" />
     <Content Include="targets\unity-v2\Testing\Tests\Client\ClientEventTests.cs" />
     <Content Include="targets\unity-v2\Testing\Tests\Client\ClientMultiUserTests.cs" />
+    <Content Include="targets\unity-v2\Testing\Tests\Client\InstanceAuthTests.cs" />
+    <Content Include="targets\unity-v2\Testing\Tests\Client\StaticAuthTests.cs" />
     <Content Include="targets\unity-v2\Testing\Tests\Entity\EntityApiTests.cs" />
     <Content Include="targets\unity-v2\Testing\Tests\PersistentSockets\PubSubTest.cs" />
     <Content Include="targets\unity-v2\Testing\Tests\Server\ServerApiTests.cs" />

@@ -64,7 +64,7 @@ namespace PlayFab
         public override string DeveloperSecretKey
         {
             get { var so = GetSO(); return so == null ? base.DeveloperSecretKey : so.DeveloperSecretKey; }
-            set { var so = GetSO(); if (so != null) so.DeveloperSecretKey = value; base.DeveloperSecretKey = value; }
+            set { var so = GetSO(); if(!string.IsNullOrEmpty(value)) if (so != null) so.DeveloperSecretKey = value; base.DeveloperSecretKey = value; }
         }
 #endif
 

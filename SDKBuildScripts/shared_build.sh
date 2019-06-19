@@ -29,6 +29,7 @@ CleanCodeFiles () {
     NukeAll "*.php"
     NukeAll "*.py"
     NukeAll "*.ts"
+    NukeAll "*.git"
     # cmd <<< "attrib -H *.meta /S /D" # Doesn't seem to be working...
     popd
 }

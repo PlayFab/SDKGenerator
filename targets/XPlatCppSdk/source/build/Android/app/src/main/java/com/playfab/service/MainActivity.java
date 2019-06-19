@@ -34,6 +34,13 @@ public class MainActivity extends AppCompatActivity {
         }
     };
 
+    TimerTask killProcessTask = new TimerTask() {
+        @Override
+        public void run() {
+            android.os.Process.killProcess(android.os.Process.myPid());
+        }
+    };
+
     public String loadPackagedTestTitleData() {
         String json = null;
         try {
@@ -98,6 +105,8 @@ public class MainActivity extends AppCompatActivity {
                 runUnitTest.run();
 
                 timer = null;
+                timer = new Timer();
+                timer.schedule(killProcessTask, 5000);
             }
         };
     }

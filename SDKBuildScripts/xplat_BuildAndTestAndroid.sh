@@ -25,7 +25,7 @@ TestAPK() {
 }
 
 DoWork() {
-   # CopyTestTitleData
+    CopyTestTitleData
     BuildAPK
     TestAPK
 }

@@ -12,6 +12,7 @@ if [%delSrc%] == [true] (
     del /S *.php
     del /S *.py
     del /S *.ts
+    attrib -H *.git /S
     del /S *.git
     attrib -H *.meta /S /D
     for /f "usebackq delims=" %%d in (`"dir /ad/b/s | sort /R"`) do rd "%%d" 

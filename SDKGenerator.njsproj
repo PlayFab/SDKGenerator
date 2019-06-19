@@ -924,12 +924,6 @@
     <Content Include="targets\XPlatCppSdk\source\external\jsoncpp-xdk-build\lib_json.vcxproj.ejs" />
     <Content Include="targets\XPlatCppSdk\source\external\jsoncpp-xdk-build\lib_json.vcxproj.filters.ejs" />
     <Content Include="targets\XPlatCppSdk\source\set-gitmodules.bat" />
-    <Content Include="targets\XPlatCppSdk\source\test\LibUnitTest\PlayFabClientTest.cpp" />
-    <Content Include="targets\XPlatCppSdk\source\test\LibUnitTest\PlayFabEntityTest.cpp" />
-    <Content Include="targets\XPlatCppSdk\source\test\LibUnitTest\PlayFabServerTest.cpp" />
-    <Content Include="targets\XPlatCppSdk\source\test\LibUnitTest\stdafx.cpp" />
-    <Content Include="targets\XPlatCppSdk\source\test\LibUnitTest\stdafx.h" />
-    <Content Include="targets\XPlatCppSdk\source\test\LibUnitTest\targetver.h" />
     <Content Include="targets\XPlatCppSdk\source\test\TestApp\PlayFabApiTest.cpp" />
     <Content Include="targets\XPlatCppSdk\source\test\TestApp\PlayFabApiTest.h" />
     <Content Include="targets\XPlatCppSdk\source\test\TestApp\PlayFabEventTest.cpp" />
@@ -1272,7 +1266,6 @@
     <Folder Include="targets\XPlatCppSdk\source\external\jsoncpp-ios-build\lib_json.xcodeproj\" />
     <Folder Include="targets\XPlatCppSdk\source\external\jsoncpp-xdk-build\" />
     <Folder Include="targets\XPlatCppSdk\source\test\" />
-    <Folder Include="targets\XPlatCppSdk\source\test\LibUnitTest\" />
     <Folder Include="targets\XPlatCppSdk\source\test\TestApp\" />
     <Folder Include="targets\XPlatCppSdk\templates\" />
   </ItemGroup>

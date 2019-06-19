@@ -2,7 +2,9 @@
 pushd ../../sdks/XPlatCppSdk/build/Android
 AndroidProjectPath=$PWD
 popd
+
 apkPath=$AndroidProjectPath/app/build/outputs/apk/debug/app-debug.apk
+testAssemblyDir="$1"
 
 CopyTestTitleData() {
     cp -f "$PF_TEST_TITLE_DATA_JSON" $AndroidProjectPath/app/src/main/assets
@@ -20,7 +22,7 @@ TestAPK() {
     --app-path "$apkPath"  \
     --test-series "master" \
     --locale "en_US" \
-    --assembly-dir "C:/github/pf/SDKGenerator/SDKBuildScripts/AppCenterUITestLauncher/AppCenterUITestLauncher/debugassemblies"  \
+    --assembly-dir "$testAssemblyDir"  \
     --uitest-tools-dir "$XAMARIN_UITEST_TOOLS"
 }
 

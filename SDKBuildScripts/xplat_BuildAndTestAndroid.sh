@@ -7,11 +7,11 @@ apkPath=$AndroidProjectPath/app/build/outputs/apk/debug/app-debug.apk
 testAssemblyDir="$1"
 
 CopyTestTitleData() {
-    cp -f "$PF_TEST_TITLE_DATA_JSON" $AndroidProjectPath/app/src/main/assets
+    cp -f "$PF_TEST_TITLE_DATA_JSON" "$AndroidProjectPath/app/src/main/assets"
 }
 
 BuildAPK() {
-    pushd $AndroidProjectPath
+    pushd "$AndroidProjectPath"
     ./gradlew assembleDebug
     popd
 }

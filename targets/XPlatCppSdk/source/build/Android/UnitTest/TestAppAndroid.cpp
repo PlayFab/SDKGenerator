@@ -69,7 +69,7 @@ namespace PlayFabUnit
 }
 
 extern "C" JNIEXPORT jint JNICALL
-Java_com_microsoft_xplatcppsdk_unittest_MainActivity_RunUnitTest(
+Java_com_playfab_service_MainActivity_RunUnitTest(
         JNIEnv* env,
         jobject jobj)
 {
@@ -83,7 +83,7 @@ Java_com_microsoft_xplatcppsdk_unittest_MainActivity_RunUnitTest(
 }
 
 extern "C" JNIEXPORT jint JNICALL
-Java_com_microsoft_xplatcppsdk_unittest_MainActivity_SetTitleData(
+Java_com_playfab_service_MainActivity_SetTitleData(
         JNIEnv *env,
         jobject jobj,
         jstring value) {

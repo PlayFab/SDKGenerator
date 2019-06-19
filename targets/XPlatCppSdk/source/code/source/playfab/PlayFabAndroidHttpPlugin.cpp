@@ -10,7 +10,7 @@
 
 namespace PlayFab
 {
-    const char* JAVA_HTTP_REQUEST_URI = "com/microsoft/xplatcppsdk/HttpRequest";
+    const char* JAVA_HTTP_REQUEST_URI = "com/playfab/xplatcppsdk/HttpRequest";
 
     struct PlayFabAndroidHelper
     {

@@ -5,6 +5,7 @@
 #include <string>
 #include <fstream>
 #include <sstream>
+#include <memory>
 
 #include "TestAppPch.h"
 #include "TestApp.h"
@@ -21,25 +22,39 @@ static const char* c_userEmail = "YOUR_EMAIL";
 
 static JNIEnv* s_jniEnv = nullptr;
 static jobject s_jobject = nullptr;
-static std::string apkLoadedTitleData;
+static std::string cachedTitleData;
 
 namespace PlayFabUnit
 {
-    std::string TestApp::LoadTitleDataJson()
-    {
-        if(mTestDataJson.empty() == false) {
-            return mTestDataJson;
+    bool allocCharBufferFromString(const std::string& str, std::shared_ptr<char*>& strPtr, size_t& strLen) {
+        if(str.empty()) {
+            return false;
         }
 
-        std::stringstream sstr;
-        sstr << "{";
-        sstr << R"(    "titleId": ")" << c_titleId << R"(",)";
-        sstr << R"(    "developerSecretKey": ")" << c_developerSecretKey << R"(",)";
-        sstr << R"(    "userEmail": ")" << c_userEmail << R"(")";
-        sstr << "}";
+        strPtr = std::make_shared<char*>(new char[str.size() + 1]);
+        str.copy(*strPtr, str.size());
+        (*strPtr)[str.size()] = '\0';
+        strLen = str.size();
 
-        mTestDataJson = sstr.str();
-        return mTestDataJson;
+        return true;
+    }
+
+    bool TestApp::LoadTitleDataJson(std::shared_ptr<char*>& testDataJsonPtr, size_t& testDataJsonLen)
+    {
+        if(cachedTitleData.empty() == false) {
+            return allocCharBufferFromString(cachedTitleData, testDataJsonPtr, testDataJsonLen);
+        }
+
+        std::stringstream jsonBuilder;
+        jsonBuilder << "{";
+        jsonBuilder << R"(    "titleId": ")" << c_titleId << R"(",)";
+        jsonBuilder << R"(    "developerSecretKey": ")" << c_developerSecretKey << R"(",)";
+        jsonBuilder << R"(    "userEmail": ")" << c_userEmail << R"(")";
+        jsonBuilder << "}";
+
+        cachedTitleData = jsonBuilder.str();
+
+        return allocCharBufferFromString(cachedTitleData, testDataJsonPtr, testDataJsonLen);
     }
 
     void TestApp::LogPut(const char* message)
@@ -76,7 +91,7 @@ Java_com_playfab_service_MainActivity_RunUnitTest(
     s_jniEnv = env;
     s_jobject = jobj;
 
-    PlayFabUnit::TestApp testApp(apkLoadedTitleData.empty() ? nullptr : apkLoadedTitleData.c_str());
+    PlayFabUnit::TestApp testApp;
 
     int result = testApp.Main();
     return (jint)result;
@@ -94,7 +109,7 @@ Java_com_playfab_service_MainActivity_SetTitleData(
     const char* utf_string;
     jboolean isCopy;
     utf_string = env->GetStringUTFChars(value, &isCopy);;
-    apkLoadedTitleData = utf_string;
+    cachedTitleData = utf_string;
     if(isCopy) {
         env->ReleaseStringUTFChars(value, utf_string);
     }

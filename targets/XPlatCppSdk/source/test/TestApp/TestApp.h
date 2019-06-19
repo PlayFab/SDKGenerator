@@ -22,7 +22,6 @@ namespace PlayFabUnit
     class TestApp
     {
         public:
-            TestApp(const char* titleDataJson = nullptr);
             int Main();
 
         private:
@@ -34,15 +33,13 @@ namespace PlayFabUnit
             void OnPostReportError(const PlayFab::PlayFabError& error, void* /*customData*/);
 
             // Utility
-            bool LoadTitleData(TestTitleData& titleData);
+            static bool LoadTitleData(TestTitleData& titleData);
             static void Log(const char* format, ...);
 
             // Partial class methods
             // Each platform gets its own file and implementation of the following methods, since the logic
             // is likely to be very different on all of them.
-            std::string LoadTitleDataJson();
+            static bool LoadTitleDataJson(std::shared_ptr<char*>& testDataJsonPtr, size_t& testDataJsonLen);
             static void LogPut(const char* message);
-
-            std::string mTestDataJson;
     };
 }

@@ -53,7 +53,7 @@ namespace PlayFab
             _tempSb.Length = 0;
             if (String.IsNullOrEmpty(ErrorMessage))
             {
-                _tempSb.Append("Http Code: ").Append(HttpCode.ToString()).Append("\nHttp Status: ").Append(HttpStatus).Append("\nError: ").Append(Error.ToString()).Append("\n");
+                _tempSb.Append(ApiEndpoint).Append(": ").Append("Http Code: ").Append(HttpCode.ToString()).Append("\nHttp Status: ").Append(HttpStatus).Append("\nError: ").Append(Error.ToString()).Append("\n");
             }
             else
             {

@@ -1,3 +1,0 @@
-[submodule "targets/XPlatCppSdk/source/external/jsoncpp"]
-	path = targets/XPlatCppSdk/source/external/jsoncpp
-	url = https://github.com/open-source-parsers/jsoncpp.git

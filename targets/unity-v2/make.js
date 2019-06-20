@@ -440,7 +440,7 @@ function getRequestActions(tabbing, apiCall, isApiInstance = false) {
     if ((apiCall.result === "LoginResult" || apiCall.request === "RegisterPlayFabUserRequest") && isApiInstance === false)
         return tabbing + "request.TitleId = request.TitleId ?? PlayFabSettings.TitleId;\n";
     if ((apiCall.result === "LoginResult" || apiCall.request === "RegisterPlayFabUserRequest") && isApiInstance === true)
-        return tabbing + "request.TitleId = request.TitleId ?? apiSettings.TitleId;\n";
+        return tabbing + "request.TitleId = request.TitleId ?? callSettings.TitleId;\n";
     if (apiCall.auth === "SessionTicket" && isApiInstance === true)
         return tabbing + "if (string.IsNullOrEmpty(context.ClientSessionTicket)) throw new PlayFabException(PlayFabExceptionCode.NotLoggedIn,\"Must be logged in to call this method\");\n";
     if (apiCall.auth === "SessionTicket" && isApiInstance === false)

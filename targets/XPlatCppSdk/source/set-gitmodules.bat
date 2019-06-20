@@ -1,5 +1,7 @@
 @echo off
 echo ========= Setting Git Submodules to specific commits (BEGIN) =========
+git init
+
 echo --- jsoncpp
 git submodule add https://github.com/open-source-parsers/jsoncpp.git ./external/jsoncpp
 if /I "%ERRORLEVEL%" gtr "1" (

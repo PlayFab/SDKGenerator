@@ -1,6 +1,6 @@
 #!/bin/bash
 #USAGE: xamarin_buildAppCenterTestIOS.sh 
-#           <path to the root of the xplatcppsdk repo to be built> 
+#           <path to the root of the xamarin repo to be built> 
 #           <path to local appcenter test working copy folder> 
 #           <git clone url for the appcenter build>
 #           <git branch name for the appcenter build repo>
@@ -74,7 +74,7 @@ InitializeBuildEnvironment() {
     ACB="$AppCenterRepoParentDir/$GitRepoFolderName"
     pushd "$XamarinWorkspaceDirectory" 
     echo "Copying $XamarinWorkspaceDirectory into $ACB..."
-    cp -rf "$XamarinWorkspaceDirectory" "$ACB"
+    cp -rf "$XamarinWorkspaceDirectory/*" "$ACB"
     echo "Loading test title data from $PF_TEST_TITLE_DATA_JSON into $ACB/XamarinTestRunner/XamarinTestRunner/XamarinTestRunner..."
     pushd "$ACB/XamarinTestRunner/XamarinTestRunner/XamarinTestRunner"
     cp -f "$PF_TEST_TITLE_DATA_JSON" .

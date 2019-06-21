@@ -152,11 +152,14 @@
   </ItemGroup>
   <ItemGroup>
     <PackageReference Include="Xamarin.Forms" Version="3.4.0.1008975" />
+    <PackageReference Include="Xamarin.TestCloud.Agent">
+      <Version>0.21.8</Version>
+    </PackageReference>
   </ItemGroup>
   <Import Project="$(MSBuildExtensionsPath)\Xamarin\iOS\Xamarin.iOS.CSharp.targets" />
   <ItemGroup>
     <ProjectReference Include="..\XamarinTestRunner\XamarinTestRunner.csproj">
-      <Project>{2E936540-091F-4D00-827C-5B232BBF0728}</Project>
+      <Project>{AB89CB5B-5765-463C-8358-7732D75B53BA}</Project>
       <Name>XamarinTestRunner</Name>
     </ProjectReference>
   </ItemGroup>

@@ -129,7 +129,7 @@ function makeApi(api, sourceDir, apiOutputDir) {
         isPartial: isPartial(api.name)
     };
 
-    var apiTemplate = getCompiledTemplate(path.resolve(templateDir, "API.cs.ejs"));
+    var apiTemplate = getCompiledTemplate(path.resolve(templateDir, "PlayFab_API.cs.ejs"));
     writeFile(path.resolve(apiOutputDir, api.name + "/PlayFab" + api.name + "API.cs"), apiTemplate(locals));
 
     var eventTemplate = getCompiledTemplate(path.resolve(sourceDir, "templates", "PlayFabEvents.cs.ejs"));
@@ -153,7 +153,7 @@ function makeInstanceApi(api, sourceDir, apiOutputDir) {
         isPartial: isPartial(api.name)
     };
 
-    var apiTemplate = getCompiledTemplate(path.resolve(templateDir, "InstanceAPI.cs.ejs"));
+    var apiTemplate = getCompiledTemplate(path.resolve(templateDir, "PlayFab_InstanceAPI.cs.ejs"));
     writeFile(path.resolve(apiOutputDir, api.name + "/PlayFab" + api.name + "InstanceAPI.cs"), apiTemplate(apiLocals));
 }
 
@@ -193,11 +193,9 @@ function getCustomApiFunction(tabbing, api, apiCall, isApiInstance = false) {
             + tabbing + "        var wrappedJson = serializer.SerializeObject(wrappedResult.FunctionResult);\n"
             + tabbing + "        try {\n"
             + tabbing + "            wrappedResult.FunctionResult = serializer.DeserializeObject<TOut>(wrappedJson);\n"
-            + tabbing + "        }\n"
-            + tabbing + "        catch (Exception)\n"
-            + tabbing + "        {\n"
+            + tabbing + "        } catch (Exception) {\n"
             + tabbing + "            wrappedResult.FunctionResult = wrappedJson;\n"
-            + tabbing + "            wrappedResult.Logs.Add(new LogStatement{ Level = \"Warning\", Data = wrappedJson, Message = \"Sdk Message: Could not deserialize result as: \" + typeof (TOut).Name });\n"
+            + tabbing + "            wrappedResult.Logs.Add(new LogStatement { Level = \"Warning\", Data = wrappedJson, Message = \"Sdk Message: Could not deserialize result as: \" + typeof(TOut).Name });\n"
             + tabbing + "        }\n"
             + tabbing + "        resultCallback(wrappedResult);\n"
             + tabbing + "    };\n"
@@ -219,7 +217,7 @@ function getCustomApiFunction(tabbing, api, apiCall, isApiInstance = false) {
             + tabbing + "        catch (Exception)\n"
             + tabbing + "        {\n"
             + tabbing + "            wrappedResult.FunctionResult = wrappedJson;\n"
-            + tabbing + "            wrappedResult.Logs.Add(new LogStatement{ Level = \"Warning\", Data = wrappedJson, Message = \"Sdk Message: Could not deserialize result as: \" + typeof (TOut).Name });\n"
+            + tabbing + "            wrappedResult.Logs.Add(new LogStatement { Level = \"Warning\", Data = wrappedJson, Message = \"Sdk Message: Could not deserialize result as: \" + typeof(TOut).Name });\n"
             + tabbing + "        }\n"
             + tabbing + "        resultCallback(wrappedResult);\n"
             + tabbing + "    };\n"
@@ -442,7 +440,7 @@ function getRequestActions(tabbing, apiCall, isApiInstance = false) {
     if ((apiCall.result === "LoginResult" || apiCall.request === "RegisterPlayFabUserRequest") && isApiInstance === true)
         return tabbing + "request.TitleId = request.TitleId ?? callSettings.TitleId;\n";
     if (apiCall.auth === "SessionTicket" && isApiInstance === true)
-        return tabbing + "if (string.IsNullOrEmpty(context.ClientSessionTicket)) throw new PlayFabException(PlayFabExceptionCode.NotLoggedIn,\"Must be logged in to call this method\");\n";
+        return tabbing + "if (string.IsNullOrEmpty(context.ClientSessionTicket)) throw new PlayFabException(PlayFabExceptionCode.NotLoggedIn, \"Must be logged in to call this method\");\n";
     if (apiCall.auth === "SessionTicket" && isApiInstance === false)
         return tabbing + "if (!IsClientLoggedIn()) throw new PlayFabException(PlayFabExceptionCode.NotLoggedIn,\"Must be logged in to call this method\");\n";
     return "";

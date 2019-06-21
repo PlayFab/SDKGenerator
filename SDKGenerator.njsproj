@@ -544,10 +544,10 @@
     <Content Include="targets\unity-v2\source\Shared\Public\Resources.meta" />
     <Content Include="targets\unity-v2\source\Shared\Public\Resources\PlayFabSharedSettings.asset" />
     <Content Include="targets\unity-v2\source\Shared\Public\Resources\PlayFabSharedSettings.asset.meta" />
-    <Content Include="targets\unity-v2\templates\API.cs.ejs" />
+    <Content Include="targets\unity-v2\templates\PlayFab_API.cs.ejs" />
     <Content Include="targets\unity-v2\templates\Enum.cs.ejs" />
     <Content Include="targets\unity-v2\templates\Events.cs.ejs" />
-    <Content Include="targets\unity-v2\templates\InstanceAPI.cs.ejs" />
+    <Content Include="targets\unity-v2\templates\PlayFab_InstanceAPI.cs.ejs" />
     <Content Include="targets\unity-v2\templates\Model.cs.ejs" />
     <Content Include="targets\unity-v2\templates\Models.cs.ejs" />
     <Content Include="targets\unity-v2\templates\PlayFabEvents.cs.ejs" />

@@ -76,7 +76,9 @@ InitializeBuildEnvironment() {
     echo "Copying $XamarinWorkspaceDirectory into $ACB..."
     cp -rf "$XamarinWorkspaceDirectory" "$ACB"
     echo "Loading test title data from $PF_TEST_TITLE_DATA_JSON into $ACB/XamarinTestRunner/XamarinTestRunner/XamarinTestRunner..."
-    cp "$PF_TEST_TITLE_DATA_JSON" "$ACB/XamarinTestRunner/XamarinTestRunner/XamarinTestRunner"
+    pushd "$ACB/XamarinTestRunner/XamarinTestRunner/XamarinTestRunner"
+    cp -f "$PF_TEST_TITLE_DATA_JSON" .
+    popd
     popd #$XamarinWorkspaceDirectory
 
     pushd "$ACB"

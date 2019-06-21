@@ -124,7 +124,7 @@ function makeApi(api, sourceDir, apiOutputDir) {
         getRequestActions: getRequestActions,
         getCustomApiLogic: getCustomApiLogic,
         getCustomApiFunction: getCustomApiFunction,
-        hasEntityTokenOptions: api.name === "Authentication",
+        hasEntityTokenOptions: getAuthMechanisms([api]).includes("EntityToken"),
         hasClientOptions: getAuthMechanisms([api]).includes("SessionTicket"),
         isPartial: isPartial(api.name)
     };
@@ -148,7 +148,7 @@ function makeInstanceApi(api, sourceDir, apiOutputDir) {
         getDeprecationAttribute: getDeprecationAttribute,
         getRequestActions: getRequestActions,
         getCustomApiFunction: getCustomApiFunction,
-        hasEntityTokenOptions: api.name === "Authentication",
+        hasEntityTokenOptions: getAuthMechanisms([api]).includes("EntityToken"),
         hasClientOptions: getAuthMechanisms([api]).includes("SessionTicket"),
         isPartial: isPartial(api.name)
     };

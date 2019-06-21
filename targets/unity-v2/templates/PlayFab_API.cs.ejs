@@ -13,7 +13,7 @@ namespace PlayFab
         static PlayFab<%- api.name %>API() {}
 <% if (hasClientOptions) { %>
         /// <summary>
-        /// Check to See if the client is logged in.
+        /// Verify client login.
         /// </summary>
         public static bool IsClientLoggedIn()
         {
@@ -22,7 +22,7 @@ namespace PlayFab
 <% } %>
 <% if (hasEntityTokenOptions) { %>
         /// <summary>
-        /// Check to See if the entity is logged in.
+        /// Verify entity login.
         /// </summary>
         public static bool IsEntityLoggedIn()
         {

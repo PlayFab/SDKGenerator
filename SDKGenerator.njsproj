@@ -40,6 +40,11 @@
     <OutputPath>bin\</OutputPath>
     <ScriptArguments>csharp=..\sdks\CSharpSDK -apiSpecGitUrl -buildIdentifier CSharpSDK_manual</ScriptArguments>
   </PropertyGroup>
+  <PropertyGroup Condition=" '$(Configuration)' == 'CocosSDK' ">
+    <DebugSymbols>true</DebugSymbols>
+    <OutputPath>bin\</OutputPath>
+    <ScriptArguments>cpp-cocos2dx=..\sdks\Cocos2d-xSDK -apiSpecGitUrl -buildIdentifier CocosSDK_manual</ScriptArguments>
+  </PropertyGroup>
   <PropertyGroup Condition=" '$(Configuration)' == 'JavaSDK' ">
     <DebugSymbols>true</DebugSymbols>
     <OutputPath>bin\</OutputPath>

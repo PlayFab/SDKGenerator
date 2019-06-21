@@ -14,21 +14,24 @@
 #4) System must have AppCenter API Credentials configured and installed: (https://docs.microsoft.com/en-us/appcenter/cli/index) using the APPCENTER_ACCESS_TOKEN envvar
 
 #INPUTS
-XPlatWorkspaceDirectory=$1
+XamarinWorkspaceDirectory=$1
 AppCenterRepoParentDir=$2
 AppCenterGitRepoURL=$3
 AppCenterGitRepoBranchName=$4
 AppCenterGitRepoCleanTag=$5
 AppCenterTestAssembliesPath=$6
 
-echo $XPlatWorkspaceDirectory
+echo $XamarinWorkspaceDirectory
 echo $AppCenterRepoParentDir
 echo $AppCenterGitRepoURL
 echo $AppCenterGitRepoBranchName
 echo $AppCenterGitRepoCleanTag
 
+#HARD CODED APPCENTER APP NAME
+PlayFabApplicationName="PlayFabSDKTeam/PlayFabXamarinIOS-1"
+
 #DERIVED FROM INPUTS
-ProjectFolderName=$(basename "$XPlatWorkspaceDirectory")
+ProjectFolderName=$(basename "$XamarinWorkspaceDirectory")
 GitRepoFolderName=$(basename "$AppCenterGitRepoURL" | sed -e 's/.git//g')
 
 echo "Project Folder Name: $ProjectFolderName"
@@ -67,42 +70,18 @@ InitializeBuildEnvironment() {
         git push --force
     fi
 
-    #copy the xcode workspace into the appcenter git repo
+    #copy the xamarin workspace into the appcenter git repo
     ACB="$AppCenterRepoParentDir/$GitRepoFolderName"
-    pushd "$XPlatWorkspaceDirectory" 
-    echo "Copying project contents from $PWD into $ACB..."
-    cp -rf test "$ACB"
-    cp -rf code "$ACB"
-    cp -rf external "$ACB"
-    mkdir "$ACB/build" || true
-    cp -rf build/iOS "$ACB/build"
-    echo "Loading test title data from $PF_TEST_TITLE_DATA_JSON into $ACB/build/iOS/TestIOSApp/TestTitleData..."
-    cp "$PF_TEST_TITLE_DATA_JSON" "$ACB/build/iOS/TestIOSApp/TestTitleData"
-    popd #$XPlatWorkspaceDirectory
-
-    #create the appcenter prebuild script in the xcode project
-    pushd "$ACB/build/iOS"
-   
-    rm -f appcenter-post-clone.sh
-    echo -e '#!/usr/bin/env bash
-
-    pushd TestIOSApp
-
-    touch Gemfile
-
-    echo -e "source \"https://rubygems.org\"\n\ngem \"calabash-cucumber\", \">= 0.16\", \"< 2.0\"" > Gemfile
-
-    bundle ;
-    bundle exec calabash-ios download
-
-    popd' >> appcenter-post-clone.sh
-
-    popd #$ACB/build/iOS
+    pushd "$XamarinWorkspaceDirectory" 
+    echo "Copying $XamarinWorkspaceDirectory into $ACB..."
+    cp -rf "$XamarinWorkspaceDirectory" "$ACB"
+    echo "Loading test title data from $PF_TEST_TITLE_DATA_JSON into $ACB/XamarinTestRunner/XamarinTestRunner/XamarinTestRunner..."
+    cp "$PF_TEST_TITLE_DATA_JSON" "$ACB/XamarinTestRunner/XamarinTestRunner/XamarinTestRunner"
+    popd #$XamarinWorkspaceDirectory
 
     pushd "$ACB"
     git add .
-    git update-index --chmod=+x "$ACB/build/iOS/appcenter-post-clone.sh"
-    git commit -m "add xcode project for appcenter build"
+    git commit -m "add xamarin project for appcenter build"
 
     #if a new branch was created AppCenter needs to be manually configured for this branch.  
     if [ $NewBranch -eq 1 ]; then
@@ -118,13 +97,13 @@ InitializeBuildEnvironment() {
 
 #queue the appcenter build
 QueueAppCenterBuild() {
-    appcenter build queue --app "PlayFabSDKTeam/PlayFabXPlatIOS" --branch $AppCenterGitRepoBranchName --quiet -d 
+    appcenter build queue --app "$PlayFabApplicationName" --branch $AppCenterGitRepoBranchName --quiet -d 
     if [ $? -ne 0 ]; then
         echo "Error queueing build!"
         exit 1
     fi
 
-    BuildStatusJSON=$(appcenter build branches show -b $AppCenterGitRepoBranchName -a "PlayFabSDKTeam/PlayFabXPlatIOS" --quiet --output json)
+    BuildStatusJSON=$(appcenter build branches show -b $AppCenterGitRepoBranchName -a "$PlayFabApplicationName" --quiet --output json)
     BuildStatus="\"notStarted\""
 }
 
@@ -133,7 +112,7 @@ WaitForAppCenterBuild() {
     for i in {1..30}
     do
         sleep 60
-        BuildStatusJSON=$(appcenter build branches show -b $AppCenterGitRepoBranchName -a "PlayFabSDKTeam/PlayFabXPlatIOS" --quiet --output json)
+        BuildStatusJSON=$(appcenter build branches show -b $AppCenterGitRepoBranchName -a "$PlayFabApplicationName" --quiet --output json)
         BuildStatus=$(echo "$BuildStatusJSON" | jq .status)
         echo "WaitForAppCenterBuild check number: $i, Build Status: $BuildStatus"
         if [ "$BuildStatus" = "\"completed\"" ]; then
@@ -155,16 +134,16 @@ ExtractBuildResults() {
 #Download the build if successful, or print the logs if not.
 DownloadIpa() {
     if [[ $BuildResult == *"Succeeded"* ]]; then
-        appcenter build download --type build --app "PlayFabSDKTeam/PlayFabXPlatIOS" --id $BuildNumber --file PlayFabIOS.ipa
+        appcenter build download --type build --app "$PlayFabApplicationName" --id $BuildNumber --file PlayFabIOS.ipa
     else
-        appcenter build logs --app "PlayFabSDKTeam/PlayFabXPlatIOS" --id $BuildNumber >> "build_logs_${BuildNumber}.txt"
+        appcenter build logs --app "$PlayFabApplicationName" --id $BuildNumber >> "build_logs_${BuildNumber}.txt"
         exit 1
     fi
 }
 
 RunAppCenterTest() {
-    appcenter test run uitest --app "PlayFabSDKTeam/PlayFabXPlatIOS" \
-    --devices 3d1d91de \
+    appcenter test run uitest --app "$PlayFabApplicationName" \
+    --devices c8eccbb6 \
     --app-path PlayFabIOS.ipa  \
     --test-series "master" \
     --locale "en_US" \

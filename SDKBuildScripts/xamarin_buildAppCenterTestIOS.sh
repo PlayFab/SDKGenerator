@@ -74,7 +74,7 @@ InitializeBuildEnvironment() {
     ACB="$AppCenterRepoParentDir/$GitRepoFolderName"
     pushd "$XamarinWorkspaceDirectory" 
     echo "Copying $XamarinWorkspaceDirectory into $ACB..."
-    cp -rf "$XamarinWorkspaceDirectory/*" "$ACB"
+    cp -a "$XamarinWorkspaceDirectory/." "$ACB/"
     echo "Loading test title data from $PF_TEST_TITLE_DATA_JSON into $ACB/XamarinTestRunner/XamarinTestRunner/XamarinTestRunner..."
     pushd "$ACB/XamarinTestRunner/XamarinTestRunner/XamarinTestRunner"
     cp -f "$PF_TEST_TITLE_DATA_JSON" .

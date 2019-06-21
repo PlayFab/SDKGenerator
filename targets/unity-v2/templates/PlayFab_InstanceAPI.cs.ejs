@@ -11,9 +11,9 @@ namespace PlayFab
 <%- generateApiSummary("    ", api, "description")
 %>    public <%- isPartial %>class PlayFab<%- api.name %>InstanceAPI : IPlayFabInstanceApi
     {
-        public PlayFabApiSettings apiSettings = null;
-        private PlayFabAuthenticationContext authenticationContext = null;
-
+        public readonly PlayFabApiSettings apiSettings = null;
+        private readonly PlayFabAuthenticationContext authenticationContext = null;
+<% if( api.name === "Admin" || api.name === "Server" ) { %>
         public PlayFab<%- api.name %>InstanceAPI() { }
 
         public PlayFab<%- api.name %>InstanceAPI(PlayFabApiSettings settings)
@@ -31,19 +31,51 @@ namespace PlayFab
             apiSettings = settings;
             authenticationContext = context;
         }
-
-        public void SetAuthenticationContext(PlayFabAuthenticationContext context)
+<% } else if( api.name === "Client" || api.name === "Authentication" ) { %>
+        public PlayFab<%- api.name %>InstanceAPI()
         {
+            authenticationContext = new PlayFabAuthenticationContext();
+        }
+
+        public PlayFab<%- api.name %>InstanceAPI(PlayFabApiSettings settings)
+        {
+            apiSettings = settings;
+            authenticationContext = new PlayFabAuthenticationContext();
+        }
+
+        public PlayFab<%- api.name %>InstanceAPI(PlayFabAuthenticationContext context)
+        {
+            authenticationContext = context ?? new PlayFabAuthenticationContext();
+        }
+
+        public PlayFab<%- api.name %>InstanceAPI(PlayFabApiSettings settings, PlayFabAuthenticationContext context)
+        {
+            apiSettings = settings;
+            authenticationContext = context ?? new PlayFabAuthenticationContext();
+        }
+<% } else { %>
+        public PlayFab<%- api.name %>InstanceAPI(PlayFabAuthenticationContext context)
+        {
+            if (context == null)
+                throw new PlayFabException(PlayFabExceptionCode.AuthContextRequired, "Context cannot be null, create a PlayFabAuthenticationContext for each player in advance, or call <PlayFabClientInstanceAPI>.GetAuthenticationContext()");
             authenticationContext = context;
         }
 
+        public PlayFab<%- api.name %>InstanceAPI(PlayFabApiSettings settings, PlayFabAuthenticationContext context)
+        {
+            if (context == null)
+                throw new PlayFabException(PlayFabExceptionCode.AuthContextRequired, "Context cannot be null, create a PlayFabAuthenticationContext for each player in advance, or call <PlayFabClientInstanceAPI>.GetAuthenticationContext()");
+            apiSettings = settings;
+            authenticationContext = context;
+        }
+<% } %>
         public PlayFabAuthenticationContext GetAuthenticationContext()
         {
             return authenticationContext;
         }
 <% if (hasClientOptions) { %>
         /// <summary>
-        /// Check to See if the client is logged in.
+        /// Verify client login.
         /// </summary>
         public bool IsClientLoggedIn()
         {
@@ -51,7 +83,7 @@ namespace PlayFab
         }
 <% } %><% if (hasEntityTokenOptions) { %>
         /// <summary>
-        /// Check to See if the entity is logged in.
+        /// Verify entity login.
         /// </summary>
         public bool IsEntityLoggedIn()
         {

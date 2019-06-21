@@ -839,18 +839,16 @@ function getCompiledTemplate(templatePath: string): any {
 }
 global.getCompiledTemplate = getCompiledTemplate;
 
-function doNothing() { }
 function catchAndReport(method) {
     try {
         method();
     } catch (error) {
         console.error(error);
-        setTimeout(doNothing, 30000);
-        throw error;
+        setTimeout(function () { throw error; }, 30000);
     }
 }
 
 // Kick everything off
 catchAndReport(parseAndLoadApis);
 
-setTimeout(doNothing, 5000);
+setTimeout(function() {}, 5000);

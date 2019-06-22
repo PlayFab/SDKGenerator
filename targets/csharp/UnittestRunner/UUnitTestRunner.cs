@@ -88,7 +88,7 @@ namespace UnittestRunner
 
         private static void OnComplete(PlayFabResult<ExecuteCloudScriptResult> result)
         {
-            WriteConsoleColor("Save to CloudScript result for: " + PlayFabSettings.BuildIdentifier + " => " + UUnitIncrementalTestRunner.PfClient.GetAuthenticationContext().PlayFabId, ConsoleColor.Gray);
+            WriteConsoleColor("Save to CloudScript result for: " + PlayFabSettings.BuildIdentifier + " => " + UUnitIncrementalTestRunner.PfClient.authenticationContext.PlayFabId, ConsoleColor.Gray);
             if (result.Error != null)
                 WriteConsoleColor(result.Error.GenerateErrorReport(), ConsoleColor.Red);
             else if (result.Result != null)

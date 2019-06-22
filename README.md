@@ -3,6 +3,8 @@
 
 ## 1. Overview:
 
+This is an internal PlayFab tool, but not necessarily a "product". Feel free to use it as you need, but please note: We expect SdkGenerator users to be more tolerant of breaking changes and conflicts than we would with our SDKs.
+
 This is a node.js based program that takes a json description of the PlayFab API and uses it to generate out all the different SDKs that must be kept up to date. This project also contains the sources for all PlayFab SDKs on all platforms. If you want to make a change in an SDK, this is where the change has to go.
 
 

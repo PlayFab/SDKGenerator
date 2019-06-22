@@ -105,7 +105,7 @@ param(
                 "UnrealMarketplacePlugin",
                 "UnitySDK",
                 "WindowsSDK",
-                "XPlatCppSDK"
+                "XPlatCoreTemplate"
              ) -like "$WordToComplete*"
         }
     )]
@@ -156,7 +156,7 @@ begin
         "UnrealMarketplacePlugin" = "UnrealMarketplacePlugin";
         "UnitySDK" = "unity-v2";
         "WindowsSDK" = "windowssdk";
-        "XPlatCppSDK" = "xplatcppsdk";
+        "XPlatCoreTemplate" = "xplatcoretemplate";
     }
 
     $sdksPath = $OutputPath

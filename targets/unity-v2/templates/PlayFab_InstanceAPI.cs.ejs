@@ -68,12 +68,7 @@ namespace PlayFab
             apiSettings = settings;
             authenticationContext = context;
         }
-<% } %>
-        public PlayFabAuthenticationContext GetAuthenticationContext()
-        {
-            return authenticationContext;
-        }
-<% if (hasClientOptions) { %>
+<% } %><% if (hasClientOptions) { %>
         /// <summary>
         /// Verify client login.
         /// </summary>

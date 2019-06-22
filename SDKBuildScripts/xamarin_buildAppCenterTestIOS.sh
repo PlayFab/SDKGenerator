@@ -72,16 +72,13 @@ InitializeBuildEnvironment() {
 
     #copy the xamarin workspace into the appcenter git repo
     ACB="$AppCenterRepoParentDir/$GitRepoFolderName"
-    pushd "$XamarinWorkspaceDirectory" 
     echo "Copying $XamarinWorkspaceDirectory into $ACB..."
-    cp -a "$XamarinWorkspaceDirectory/." "$ACB/"
+    cp -a "$XamarinWorkspaceDirectory/." .
     echo "Loading test title data from $PF_TEST_TITLE_DATA_JSON into $ACB/XamarinTestRunner/XamarinTestRunner/XamarinTestRunner..."
-    pushd "$ACB/XamarinTestRunner/XamarinTestRunner/XamarinTestRunner"
+    pushd "XamarinTestRunner/XamarinTestRunner/XamarinTestRunner"
     cp -f "$PF_TEST_TITLE_DATA_JSON" .
     popd
-    popd #$XamarinWorkspaceDirectory
 
-    pushd "$ACB"
     git add .
     git commit -m "add xamarin project for appcenter build"
 

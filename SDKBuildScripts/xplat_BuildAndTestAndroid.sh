@@ -7,20 +7,19 @@ apkPath=$AndroidProjectPath/app/build/outputs/apk/debug/app-debug.apk
 testAssemblyDir="$1"
 
 Usage="./xplat_BuildAndTestAndroid.sh <path to test assemblies>"
-
+ArgCount=$#
+CheckParameters() {
+    if [ $ArgCount -ne 1 ]; then
+        echo "ERROR Incorrect number of parameters!"
+        echo "$Usage"
+        exit 1
+    fi
+}
 
 ExitIfError() {
     ErrorStatus=$?
     if [ $ErrorStatus -ne 0 ]; then
         echo "Exiting with Error Code: $ErrorStatus" >&2
-        exit 1
-    fi
-}
-
-CheckParameters() {
-    if [ $# -ne 1 ]; then
-        echo "ERROR Incorrect number of parameters!"
-        echo "$Usage"
         exit 1
     fi
 }

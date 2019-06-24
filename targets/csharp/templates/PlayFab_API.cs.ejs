@@ -10,10 +10,35 @@ using System.Threading.Tasks;
 namespace PlayFab
 {
 <%- generateApiSummary("    ", api, "description")
-%>    public class PlayFab<%- api.name %>API
-    {
+%>    public static class PlayFab<%- api.name %>API
+    {<% if (hasClientOptions) { %>
+        /// <summary>
+        /// Verify client login.
+        /// </summary>
+        public static bool IsClientLoggedIn()
+        {
+            return PlayFabSettings.staticPlayer.IsClientLoggedIn();
+        }
+<% } %><% if (hasEntityTokenOptions) { %>
+        /// <summary>
+        /// Verify entity login.
+        /// </summary>
+        public static bool IsEntityLoggedIn()
+        {
+            return PlayFabSettings.staticPlayer.IsEntityLoggedIn();
+        }
+<% } %>
+        /// <summary>
+        /// Clear the Client SessionToken which allows this Client to call API calls requiring login.
+        /// A new/fresh login will be required after calling this.
+        /// </summary>
+        public static void ForgetAllCredentials()
+        {
+            PlayFabSettings.staticPlayer.ForgetAllCredentials();
+        }
 <% for(var i in api.calls) { var apiCall = api.calls[i];
-%><%- generateApiSummary("        ", apiCall, "summary")
+%>
+<%- generateApiSummary("        ", apiCall, "summary")
 %><%- getDeprecationAttribute("        ", apiCall)
 %>        public static async Task<PlayFabResult<<%- apiCall.result %>>> <%- apiCall.name %>Async(<%- apiCall.request %> request, object customData = null, Dictionary<string, string> extraHeaders = null)
         {
@@ -33,14 +58,7 @@ namespace PlayFab
 <%- getResultActions("            ", apiCall, api, false) %>
             return new PlayFabResult<<%- apiCall.result %>> { Result = result, CustomData = customData };
         }
-
-<% } %><% if (hasClientOptions) {
-%>        // Determine if the client session ticket is set, without actually making it public
-        public static bool IsClientLoggedIn()
-        {
-            return PlayFabSettings.staticPlayer.IsClientLoggedIn();
-        }
-
+<% } %><% if (hasClientOptions) { %>
         private static async Task<PlayFabResult<AttributeInstallResult>> MultiStepClientLogin(bool needsAttribution)
         {
             if (needsAttribution && !PlayFabSettings.staticSettings.DisableAdvertising && !string.IsNullOrEmpty(PlayFabSettings.staticSettings.AdvertisingIdType) && !string.IsNullOrEmpty(PlayFabSettings.staticSettings.AdvertisingIdValue))

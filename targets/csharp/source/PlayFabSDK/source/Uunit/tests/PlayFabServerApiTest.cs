@@ -70,13 +70,13 @@ namespace PlayFab.UUnit
             PlayFabServerInstanceAPI serverInstance1 = new PlayFabServerInstanceAPI(settings1, null);
             PlayFabServerInstanceAPI serverInstance2 = new PlayFabServerInstanceAPI(settings2, null);
 
-            testContext.StringEquals("test1", serverInstance1.GetSettings().TitleId, "MultipleInstanceWithDifferentSettings can not be completed");
-            testContext.StringEquals("https://test1.playfabapi.com", serverInstance1.GetSettings().ProductionEnvironmentUrl, "MultipleInstanceWithDifferentSettings can not be completed");
-            testContext.StringEquals("key1", serverInstance1.GetSettings().DeveloperSecretKey, "MultipleInstanceWithDifferentSettings can not be completed");
+            testContext.StringEquals("test1", serverInstance1.apiSettings.TitleId, "MultipleInstanceWithDifferentSettings can not be completed");
+            testContext.StringEquals("https://test1.playfabapi.com", serverInstance1.apiSettings.ProductionEnvironmentUrl, "MultipleInstanceWithDifferentSettings can not be completed");
+            testContext.StringEquals("key1", serverInstance1.apiSettings.DeveloperSecretKey, "MultipleInstanceWithDifferentSettings can not be completed");
 
-            testContext.StringEquals("test2", serverInstance2.GetSettings().TitleId, "MultipleInstanceWithDifferentSettings can not be completed");
-            testContext.StringEquals("https://test2.playfabapi.com", serverInstance2.GetSettings().ProductionEnvironmentUrl, "MultipleInstanceWithDifferentSettings can not be completed");
-            testContext.StringEquals("key2", serverInstance2.GetSettings().DeveloperSecretKey, "MultipleInstanceWithDifferentSettings can not be completed");
+            testContext.StringEquals("test2", serverInstance2.apiSettings.TitleId, "MultipleInstanceWithDifferentSettings can not be completed");
+            testContext.StringEquals("https://test2.playfabapi.com", serverInstance2.apiSettings.ProductionEnvironmentUrl, "MultipleInstanceWithDifferentSettings can not be completed");
+            testContext.StringEquals("key2", serverInstance2.apiSettings.DeveloperSecretKey, "MultipleInstanceWithDifferentSettings can not be completed");
             testContext.EndTest(UUnitFinishState.PASSED, null);
         }
 

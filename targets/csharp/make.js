@@ -17,7 +17,10 @@ exports.makeCombinedAPI = function (apis, sourceDir, apiOutputDir) {
         apis: apis,
         buildIdentifier: sdkGlobals.buildIdentifier,
         copyright: copyright,
+        errorList: apis[0].errorList,
+        errors: apis[0].errors,
         extraDefines: ";NETFX_CORE;SIMPLE_JSON_TYPEINFO;ENABLE_PLAYFABADMIN_API;ENABLE_PLAYFABSERVER_API",
+        getVerticalNameDefault: getVerticalNameDefault,
         hasClientOptions: getAuthMechanisms(apis).includes("SessionTicket"),
         libname: "All",
         sdkDate: sdkGlobals.sdkVersion.split(".")[2],
@@ -26,17 +29,19 @@ exports.makeCombinedAPI = function (apis, sourceDir, apiOutputDir) {
     };
 
     templatizeTree(locals, path.resolve(sourceDir, "source"), rootOutputDir);
-
     templatizeTree(locals, path.resolve(sourceDir, "UnittestRunner"), path.resolve(apiOutputDir, "UnittestRunner")); // Copy the actual unittest project in the CombinedAPI
     makeDatatypes(apis, sourceDir, apiOutputDir);
-    for (var i = 0; i < apis.length; i++)
-        makeApi(apis[i], sourceDir, apiOutputDir);
-
-    generateSimpleFiles(apis, sourceDir, apiOutputDir);
-
     const xamarinOutputDir = path.join(rootOutputDir, "XamarinTestRunner");
     templatizeTree(locals, path.resolve(sourceDir, "XamarinTestRunner"), xamarinOutputDir);
     templatizeTree(locals, path.join(apiOutputDir, "source"), path.join(xamarinOutputDir, "XamarinTestRunner", "PlayFabSDK"));
+
+    for (var i = 0; i < apis.length; i++) {
+        var apiAuths = getAuthMechanisms([apis[i]]);
+        locals.hasClientOptions = apiAuths.includes("SessionTicket");
+        locals.hasEntityTokenOptions = apiAuths.includes("EntityToken");
+        locals.hasServerOptions = apiAuths.includes("SecretKey");
+        makeApi(apis[i], sourceDir, apiOutputDir);
+    }
 };
 
 function getBaseTypeSyntax(datatype) {
@@ -97,6 +102,7 @@ function makeDatatypes(apis, sourceDir, apiOutputDir) {
 }
 
 function makeApi(api, sourceDir, apiOutputDir) {
+    var apiAuths = getAuthMechanisms([api]);
     var locals = {
         api: api,
         getApiDefineFlag: getApiDefineFlag,
@@ -106,41 +112,18 @@ function makeApi(api, sourceDir, apiOutputDir) {
         getResultActions: getResultActions,
         getDeprecationAttribute: getDeprecationAttribute,
         generateApiSummary: generateApiSummary,
-        hasClientOptions: getAuthMechanisms([api]).includes("SessionTicket")
+        hasClientOptions: apiAuths.includes("SessionTicket"),
+        hasEntityTokenOptions: apiAuths.includes("EntityToken"),
+        hasServerOptions: apiAuths.includes("SecretKey"),
     };
 
     console.log("Generating C# " + api.name + " library to " + apiOutputDir);
-    var apiTemplate = getCompiledTemplate(path.resolve(sourceDir, "templates/API.cs.ejs"));
+    var apiTemplate = getCompiledTemplate(path.resolve(sourceDir, "templates/PlayFab_API.cs.ejs"));
     writeFile(path.resolve(apiOutputDir, "source/PlayFab" + api.name + "API.cs"), apiTemplate(locals));
 
     console.log("Generating C# " + api.name + "Instance library to " + apiOutputDir);
-    var instTemplate = getCompiledTemplate(path.resolve(sourceDir, "templates/APIInstance.cs.ejs"));
+    var instTemplate = getCompiledTemplate(path.resolve(sourceDir, "templates/PlayFab_InstanceAPI.cs.ejs"));
     writeFile(path.resolve(apiOutputDir, "source/PlayFab" + api.name + "InstanceAPI.cs"), instTemplate(locals));
-}
-
-function generateSimpleFiles(apis, sourceDir, apiOutputDir) {
-    var authMechanisms = getAuthMechanisms(apis);
-    var locals = {
-        buildIdentifier: sdkGlobals.buildIdentifier,
-        errorList: apis[0].errorList,
-        errors: apis[0].errors,
-        hasClientOptions: authMechanisms.includes("SessionTicket"),
-        hasServerOptions: authMechanisms.includes("SecretKey"),
-        sdkVersion: sdkGlobals.sdkVersion,
-        getVerticalNameDefault: getVerticalNameDefault
-    };
-
-    var errorsTemplate = getCompiledTemplate(path.resolve(sourceDir, "templates/Errors.cs.ejs"));
-    writeFile(path.resolve(apiOutputDir, "source/PlayFabErrors.cs"), errorsTemplate(locals));
-
-    var utilTemplate = getCompiledTemplate(path.resolve(sourceDir, "templates/PlayFabUtil.cs.ejs"));
-    writeFile(path.resolve(apiOutputDir, "source/PlayFabUtil.cs"), utilTemplate(locals));
-
-    var settingsInstanceTemplate = getCompiledTemplate(path.resolve(sourceDir, "templates/PlayFabApiSettings.cs.ejs"));
-    writeFile(path.resolve(apiOutputDir, "source/PlayFabApiSettings.cs"), settingsInstanceTemplate(locals));
-
-    var authenticationContextTemplate = getCompiledTemplate(path.resolve(sourceDir, "templates/PlayFabAuthenticationContext.cs.ejs"));
-    writeFile(path.resolve(apiOutputDir, "source/PlayFabAuthenticationContext.cs"), authenticationContextTemplate(locals));
 }
 
 function getVerticalNameDefault() {
@@ -244,7 +227,7 @@ function getAuthParams(apiCall, isInstance = false) {
 
 function getRequestActions(tabbing, apiCall, isInstance) {
     if ((apiCall.result === "LoginResult" || apiCall.request === "RegisterPlayFabUserRequest") && isInstance)
-        return tabbing + "if (request != null) request.TitleId = request?.TitleId ?? apiSettings.TitleId ?? PlayFabSettings.staticSettings.TitleId;\n"
+        return tabbing + "if (request != null) request.TitleId = request?.TitleId ?? requestSettings.TitleId;\n"
             + tabbing + "if (request.TitleId == null) throw new PlayFabException(PlayFabExceptionCode.TitleNotSet, \"Must be have PlayFabSettings.staticSettings.TitleId set to call this method\");\n";
     if ((apiCall.result === "LoginResult" || apiCall.request === "RegisterPlayFabUserRequest") && !isInstance)
         return tabbing + "if (request != null) request.TitleId = request?.TitleId ?? PlayFabSettings.staticSettings.TitleId;\n"
@@ -296,8 +279,7 @@ function getRequestActions(tabbing, apiCall, isInstance) {
 }
 
 function getCustomApiLogic(tabbing, apiCall) {
-    if (apiCall.name === "ExecuteFunction")
-    {
+    if (apiCall.name === "ExecuteFunction") {
         return "\n" + tabbing + "string localApiServerString = PlayFabSettings.LocalApiServer;\n"
             + tabbing + "if (!string.IsNullOrEmpty(localApiServerString))\n"
             + tabbing + "{\n"
@@ -315,23 +297,18 @@ function getCustomApiLogic(tabbing, apiCall) {
             + tabbing + "    var debugResult = debugResultData.data;\n"
             + tabbing + "    return new PlayFabResult<ExecuteFunctionResult> { Result = debugResult, CustomData = customData };\n"
             + tabbing + "}\n";
-     }
+    }
     return "";
 }
 
 function getResultActions(tabbing, apiCall, api, isInstance) {
     if ((apiCall.result === "LoginResult" || apiCall.result === "RegisterPlayFabUserResult") && isInstance)
-        return tabbing + "authenticationContext.PlayFabId = result.PlayFabId;\n"
-            + tabbing + "authenticationContext.ClientSessionTicket = result.SessionTicket;\n"
-            + tabbing + "authenticationContext.EntityToken = result.EntityToken.EntityToken;\n"
-            + tabbing + "result.AuthenticationContext = authenticationContext;\n"
+        return tabbing + "result.AuthenticationContext = new PlayFabAuthenticationContext(result.SessionTicket, result.EntityToken.EntityToken, result.PlayFabId, result.EntityToken.Entity.Id, result.EntityToken.Entity.Type);\n"
+            + tabbing + "authenticationContext.CopyFrom(result.AuthenticationContext);\n"
             + tabbing + "await MultiStepClientLogin(result.SettingsForUser.NeedsAttribution);\n";
     if ((apiCall.result === "LoginResult" || apiCall.result === "RegisterPlayFabUserResult") && !isInstance)
-        return tabbing + "var newContext = new PlayFabAuthenticationContext();\n"
-            + tabbing + "PlayFabSettings.staticPlayer.PlayFabId = newContext.PlayFabId = result.PlayFabId;\n"
-            + tabbing + "PlayFabSettings.staticPlayer.ClientSessionTicket = newContext.ClientSessionTicket = result.SessionTicket;\n"
-            + tabbing + "PlayFabSettings.staticPlayer.EntityToken = newContext.EntityToken = result.EntityToken.EntityToken;\n"
-            + tabbing + "result.AuthenticationContext = newContext;\n"
+        return tabbing + "result.AuthenticationContext = new PlayFabAuthenticationContext(result.SessionTicket, result.EntityToken.EntityToken, result.PlayFabId, result.EntityToken.Entity.Id, result.EntityToken.Entity.Type);\n"
+            + tabbing + "PlayFabSettings.staticPlayer.CopyFrom(result.AuthenticationContext);\n"
             + tabbing + "await MultiStepClientLogin(result.SettingsForUser.NeedsAttribution);\n";
     else if (apiCall.result === "AttributeInstallResult" && isInstance)
         return tabbing + "// Modify AdvertisingIdType:  Prevents us from sending the id multiple times, and allows automated tests to determine id was sent successfully\n"
@@ -339,8 +316,16 @@ function getResultActions(tabbing, apiCall, api, isInstance) {
     else if (apiCall.result === "AttributeInstallResult" && !isInstance)
         return tabbing + "// Modify AdvertisingIdType:  Prevents us from sending the id multiple times, and allows automated tests to determine id was sent successfully\n"
             + tabbing + "PlayFabSettings.staticSettings.AdvertisingIdType += \"_Successful\";\n";
+    else if (apiCall.result === "GetEntityTokenResponse" && isInstance)
+        return tabbing + "var updateContext = authenticationContext;\n"
+            + tabbing + "updateContext.EntityToken = result.EntityToken;\n"
+            + tabbing + "updateContext.EntityId = result.Entity.Id;\n"
+            + tabbing + "updateContext.EntityType = result.Entity.Type;\n";
     else if (apiCall.result === "GetEntityTokenResponse")
-        return tabbing + "PlayFabSettings.staticPlayer.EntityToken = result.EntityToken;\n";
+        return tabbing + "var updateContext = PlayFabSettings.staticPlayer;\n"
+            + tabbing + "updateContext.EntityToken = result.EntityToken;\n"
+            + tabbing + "updateContext.EntityId = result.Entity.Id;\n"
+            + tabbing + "updateContext.EntityType = result.Entity.Type;\n";
     return "";
 }
 

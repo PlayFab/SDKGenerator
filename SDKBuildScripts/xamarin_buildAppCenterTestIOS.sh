@@ -27,6 +27,23 @@ echo $AppCenterGitRepoURL
 echo $AppCenterGitRepoBranchName
 echo $AppCenterGitRepoCleanTag
 
+Usage="USAGE: ./xamarin_buildAppCenterTestIOS.sh \
+<path to the root of the xamarin repo to be built> \
+<path to local appcenter test working copy folder> \
+<git clone url for the appcenter build> \
+<git branch name for the appcenter build repo> \
+<git tag name for the clean branch state> \
+<path to test xamarin.uitest assemblies that will be uploaded to appcenter>"
+
+NumArgs=$#
+CheckUsage() {
+    if [ $NumArgs -ne 6 ]; then
+        echo "Error: Invalid number of parameters!"
+        echo "$Usage"
+        exit 1
+    fi
+}
+
 #HARD CODED APPCENTER APP NAME
 PlayFabApplicationName="PlayFabSDKTeam/PlayFabXamarinIOS-1"
 
@@ -37,29 +54,12 @@ GitRepoFolderName=$(basename "$AppCenterGitRepoURL" | sed -e 's/.git//g')
 echo "Project Folder Name: $ProjectFolderName"
 echo "Git Folder Name: $GitRepoFolderName"
 
-
 #error checking utility function
 ExitIfError() {
     ErrorStatus=$?
     if [ $ErrorStatus -ne 0 ]; then 
         echo "Exiting with Error Code: $ErrorStatus"
         exit $ErrorStatus
-    fi
-}
-
-Usage="USAGE: ./xamarin_buildAppCenterTestIOS.sh \
-<path to the root of the xamarin repo to be built> \
-<path to local appcenter test working copy folder> \
-<git clone url for the appcenter build> \
-<git branch name for the appcenter build repo> \
-<git tag name for the clean branch state> \
-<path to test xamarin.uitest assemblies that will be uploaded to appcenter>"
-
-CheckUsage() {
-    if [ $# -ne 6 ]; then 
-        echo "Error: Invalid number of parameters!"
-        echo "$Usage"
-        exit 1
     fi
 }
 

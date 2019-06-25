@@ -453,7 +453,7 @@ function getCustomApiLogic(tabbing, apiCall) {
             tabbing + "{\n" +
             tabbing + "    var baseUri = new Uri(localApiServerString);\n" +
             tabbing + "    var fullUri = new Uri(baseUri, \"" + apiCall.url + "\".TrimStart('/'));\n" +
-            tabbing + "    PlayFabHttp.MakeApiCallWithFullUri(fullUri.AbsoluteUri, request, AuthType.EntityToken, resultCallback, errorCallback, customData, extraHeaders);\n" +
+            tabbing + "    PlayFabHttp.MakeApiCallWithFullUri(fullUri.AbsoluteUri, request, AuthType.EntityToken, resultCallback, errorCallback, customData, extraHeaders, context);\n" +
             tabbing + "    return;\n" +
             tabbing + "}\n";
 }

@@ -41,7 +41,7 @@ BuildAPK() {
 
 TestAPK() {
     appcenter test run uitest --app "PlayFabSDKTeam/PlayFabXPlatAndroid" \
-    --devices ce2f4064 \
+    --devices "PlayFabSDKTeam/android-common" \
     --app-path "$apkPath"  \
     --test-series "master" \
     --locale "en_US" \

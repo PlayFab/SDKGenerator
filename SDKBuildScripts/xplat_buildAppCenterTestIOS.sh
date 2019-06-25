@@ -165,7 +165,7 @@ DownloadIpa() {
 
 RunAppCenterTest() {
     appcenter test run uitest --app "PlayFabSDKTeam/PlayFabXPlatIOS" \
-    --devices 3d1d91de \
+    --devices "PlayFabSDKTeam/ios-common" \
     --app-path PlayFabIOS.ipa  \
     --test-series "master" \
     --locale "en_US" \

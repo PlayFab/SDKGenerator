@@ -154,7 +154,8 @@ ExtractBuildResults() {
 
 #Download the build if successful, or print the logs if not.
 DownloadIpa() {
-    if [[ $BuildResult == *"Succeeded"* ]]; then
+    shopt -s nocasematch
+    if [[ "$BuildResult" == *"succeeded"* ]]; then
         appcenter build download --type build --app "PlayFabSDKTeam/PlayFabXPlatIOS" --id $BuildNumber --file PlayFabIOS.ipa
     else
         appcenter build logs --app "PlayFabSDKTeam/PlayFabXPlatIOS" --id $BuildNumber >> "build_logs_${BuildNumber}.txt"

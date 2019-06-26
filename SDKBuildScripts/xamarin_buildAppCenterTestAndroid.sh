@@ -1,9 +1,9 @@
 #!/bin/bash
-pushd ../../sdks/XPlatCppSdk/build/Android
+pushd ../../sdks/CSharpSdk/XamarinTestRunner
 AndroidProjectPath=$PWD
 popd
 
-apkPath=$AndroidProjectPath/app/build/outputs/apk/debug/app-debug.apk
+apkPath=$AndroidProjectPath/XamarinTestRunner/XamarinTestRunner.Android/bin/Debug/com.companyname.XamarinTestRunner-Signed.apk
 testAssemblyDir="$1"
 
 Usage="./xamarin_BuildAndTestAndroid.sh <path to test assemblies>"
@@ -25,7 +25,7 @@ ExitIfError() {
 }
 
 CopyTestTitleData() {
-    cp -f "$PF_TEST_TITLE_DATA_JSON" "$AndroidProjectPath/XamarinTestRunner/XamarinTestRunner/XamarinTestRunner"
+    cp -f "$PF_TEST_TITLE_DATA_JSON" "$AndroidProjectPath/XamarinTestRunner/XamarinTestRunner/testTitleData.json"
     ExitIfError
 }
 
@@ -33,7 +33,7 @@ BuildAPK() {
     pushd "$AndroidProjectPath"
     ExitIfError
 
-    ./gradlew assembleDebug
+    cmd <<< "call build_Android.cmd"
     ExitIfError
 
     popd

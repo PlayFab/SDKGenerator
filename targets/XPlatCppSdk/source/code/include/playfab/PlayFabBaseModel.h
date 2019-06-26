@@ -509,7 +509,7 @@ namespace PlayFab
             int index = 0;
             for (auto iter = input.begin(); iter != input.end(); ++iter)
             {
-                FromJsonUtilP(*iter, eachOutput);
+                ToJsonUtilP(*iter, eachOutput);
                 output[index++] = eachOutput;
             }
         }

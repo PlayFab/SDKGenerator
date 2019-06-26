@@ -1,12 +1,12 @@
 #!/bin/bash
-pushd ../../sdks/XPlatCppSdk/build/Android
+pushd ../../sdks/CSharpSdk/XamarinTestRunner
 AndroidProjectPath=$PWD
 popd
 
-apkPath=$AndroidProjectPath/app/build/outputs/apk/debug/app-debug.apk
+apkPath=$AndroidProjectPath/XamarinTestRunner/XamarinTestRunner.Android/bin/Debug/com.companyname.XamarinTestRunner-Signed.apk
 testAssemblyDir="$1"
 
-Usage="./xplat_BuildAndTestAndroid.sh <path to test assemblies>"
+Usage="./xamarin_BuildAndTestAndroid.sh <path to test assemblies>"
 ArgCount=$#
 CheckParameters() {
     if [ $ArgCount -ne 1 ]; then
@@ -25,7 +25,7 @@ ExitIfError() {
 }
 
 CopyTestTitleData() {
-    cp -f "$PF_TEST_TITLE_DATA_JSON" "$AndroidProjectPath/app/src/main/assets"
+    cp -f "$PF_TEST_TITLE_DATA_JSON" "$AndroidProjectPath/XamarinTestRunner/XamarinTestRunner/testTitleData.json"
     ExitIfError
 }
 
@@ -33,19 +33,19 @@ BuildAPK() {
     pushd "$AndroidProjectPath"
     ExitIfError
 
-    ./gradlew assembleDebug
+    cmd <<< "call build_Android.cmd"
     ExitIfError
 
     popd
 }
 
 TestAPK() {
-    appcenter test run uitest --app "PlayFabSDKTeam/PlayFabXPlatAndroid" \
+    appcenter test run uitest --app "PlayFabSDKTeam/PlayFabXamarinAndroid" \
     --devices "PlayFabSDKTeam/android-common" \
     --app-path "$apkPath"  \
     --test-series "master" \
     --locale "en_US" \
-    --assembly-dir "$testAssemblyDir"  \
+    --build-dir "$testAssemblyDir" \
     --uitest-tools-dir "$XAMARIN_UITEST_TOOLS"
 
     ExitIfError

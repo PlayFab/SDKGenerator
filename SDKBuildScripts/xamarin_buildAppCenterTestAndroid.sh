@@ -1,20 +1,19 @@
 #!/bin/bash
-pushd ../../sdks/CSharpSdk/XamarinTestRunner
-AndroidProjectPath=$PWD
-popd
-
-apkPath=$AndroidProjectPath/XamarinTestRunner/XamarinTestRunner.Android/bin/Debug/com.companyname.XamarinTestRunner-Signed.apk
-testAssemblyDir="$1"
-
 Usage="./xamarin_BuildAndTestAndroid.sh <path to test assemblies>"
 ArgCount=$#
 CheckParameters() {
-    if [ $ArgCount -ne 1 ]; then
+    if [ $ArgCount -ne 2 ]; then
         echo "ERROR Incorrect number of parameters!"
         echo "$Usage"
         exit 1
     fi
 }
+CheckParameters
+
+testAssemblyDir="$1"
+AndroidProjectPath="$2"
+
+apkPath=$AndroidProjectPath/XamarinTestRunner/XamarinTestRunner.Android/bin/Debug/com.companyname.XamarinTestRunner-Signed.apk
 
 ExitIfError() {
     ErrorStatus=$?

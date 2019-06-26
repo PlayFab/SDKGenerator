@@ -3,7 +3,7 @@
 /// DO NOT RELY ON THE FOLLOWING CODE FOR USE ALONGSIDE PRODUCTION READY CODE.
 /// THIS FILE IS SUBJECT TO CHANGE AT ANY TIME.
 /////////////////////////////////////////////////////////////////////////////////////////////////
-#if NETSTANDARD2_0
+#if NETCOREAPP2_0
 namespace PlayFab.Plugins.CloudScript
 {
     using PlayFab.Json;

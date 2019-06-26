@@ -18,6 +18,7 @@ namespace XamarinTestRunner
         public MainPage()
         {
             InitializeComponent();
+            RunTests(null, null);
         }
 
         private void RunTests(object sender, EventArgs e)
@@ -66,9 +67,15 @@ namespace XamarinTestRunner
                 Device.BeginInvokeOnMainThread(() =>
                 {
                     WriteConsoleColor("Done!", UUnitIncrementalTestRunner.AllTestsPassed ? Color.Green : Color.Red);
-                    RunTestsButton.Text = originalButtonText;
-                    RunTestsButton.Clicked += RunTests;
                 });
+
+                Thread.Sleep(5000);
+
+                Device.BeginInvokeOnMainThread(() =>
+                {
+                    Thread.CurrentThread.Abort();
+                });
+
             });
         }
 

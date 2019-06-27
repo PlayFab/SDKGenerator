@@ -1,5 +1,5 @@
 #!/bin/bash
-Usage="./xamarin_BuildAndTestAndroid.sh <path to test assemblies>"
+Usage="./xamarin_BuildAndTestAndroid.sh <path to test assemblies> <path to XamarinTestRunner project>"
 ArgCount=$#
 CheckParameters() {
     if [ $ArgCount -ne 2 ]; then
@@ -32,7 +32,7 @@ BuildAPK() {
     pushd "$AndroidProjectPath"
     ExitIfError
 
-    cmd <<< "call build_Android.cmd"
+    cmd <<< "call ${AndroidProjectPath}\build_Android.cmd"
     ExitIfError
 
     popd

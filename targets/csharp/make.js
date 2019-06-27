@@ -31,9 +31,6 @@ exports.makeCombinedAPI = function (apis, sourceDir, apiOutputDir) {
     templatizeTree(locals, path.resolve(sourceDir, "source"), rootOutputDir);
     templatizeTree(locals, path.resolve(sourceDir, "UnittestRunner"), path.resolve(apiOutputDir, "UnittestRunner")); // Copy the actual unittest project in the CombinedAPI
     makeDatatypes(apis, sourceDir, apiOutputDir);
-    const xamarinOutputDir = path.join(rootOutputDir, "XamarinTestRunner");
-    templatizeTree(locals, path.resolve(sourceDir, "XamarinTestRunner"), xamarinOutputDir);
-    templatizeTree(locals, path.join(apiOutputDir, "source"), path.join(xamarinOutputDir, "XamarinTestRunner", "PlayFabSDK"));
 
     for (var i = 0; i < apis.length; i++) {
         var apiAuths = getAuthMechanisms([apis[i]]);
@@ -42,6 +39,10 @@ exports.makeCombinedAPI = function (apis, sourceDir, apiOutputDir) {
         locals.hasServerOptions = apiAuths.includes("SecretKey");
         makeApi(apis[i], sourceDir, apiOutputDir);
     }
+
+    const xamarinOutputDir = path.join(rootOutputDir, "XamarinTestRunner");
+    templatizeTree(locals, path.resolve(sourceDir, "XamarinTestRunner"), xamarinOutputDir);
+    templatizeTree(locals, path.join(apiOutputDir, "source"), path.join(xamarinOutputDir, "XamarinTestRunner", "PlayFabSDK"));
 };
 
 function getBaseTypeSyntax(datatype) {

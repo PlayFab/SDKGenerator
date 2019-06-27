@@ -99,7 +99,9 @@ InitializeBuildEnvironment() {
     #copy the xamarin workspace into the appcenter git repo
     ACB="$AppCenterRepoParentDir/$GitRepoFolderName"
     echo "Copying $XamarinWorkspaceDirectory into $ACB..."
-    cp -a "$XamarinWorkspaceDirectory/." .
+    cp -r "$XamarinWorkspaceDirectory/PlayFabSDK" .
+    cp -r "$XamarinWorkspaceDirectory/Plugins" .
+    cp -r "$XamarinWorkspaceDirectory/XamarinTestRunner" .
     echo "Loading test title data from $PF_TEST_TITLE_DATA_JSON into $ACB/XamarinTestRunner/XamarinTestRunner/XamarinTestRunner..."
     pushd "XamarinTestRunner/XamarinTestRunner/XamarinTestRunner"
     cp -f "$PF_TEST_TITLE_DATA_JSON" .

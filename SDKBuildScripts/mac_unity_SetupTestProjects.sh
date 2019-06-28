@@ -77,20 +77,14 @@ WriteUnitySettingsFile () {
     echo "    [MenuItem(\"PlayFab/Testing/SetupDefines\")]" >> SetupPlayFabExample.cs
     echo "    public static void Setup()" >> SetupPlayFabExample.cs
     echo "    {" >> SetupPlayFabExample.cs
-    # echo "        UnityEngine.Debug.Log(\" HERE IS THE ATTEMPT \");" >> SetupPlayFabExample.cs
     echo "        foreach (BuildTargetGroup eachTarget in Enum.GetValues(typeof(BuildTargetGroup)))" >> SetupPlayFabExample.cs
     echo "        {" >> SetupPlayFabExample.cs
-    # echo "            UnityEngine.Debug.Log(\" HERE IS THE Target \" + eachTarget.ToString());" >> SetupPlayFabExample.cs
-    # echo "            UnityEngine.Debug.Log(\" HERE IS THE SECOND PARAM $2\");" >> SetupPlayFabExample.cs
     echo "            if (ValidEnumValue(eachTarget))" >> SetupPlayFabExample.cs
     echo "            {" >> SetupPlayFabExample.cs
     echo "                PlayerSettings.SetScriptingDefineSymbolsForGroup(eachTarget, \"$2}\");" >> SetupPlayFabExample.cs
-    # echo "                UnityEngine.Debug.Log(\" VALIDATED \");" >> SetupPlayFabExample.cs
     echo "            }" >> SetupPlayFabExample.cs
     echo "        }" >> SetupPlayFabExample.cs
-    # echo "        UnityEngine.Debug.Log(\" DONE WITH TARGETGROUP \");" >> SetupPlayFabExample.cs
     echo "        AssetDatabase.Refresh();" >> SetupPlayFabExample.cs
-    # echo "        UnityEngine.Debug.Log(\" DONE WITH ASSET REFRESH \");" >> SetupPlayFabExample.cs
     echo "    }" >> SetupPlayFabExample.cs
     echo "    private static bool ValidEnumValue(BuildTargetGroup value)" >> SetupPlayFabExample.cs
     echo "    {" >> SetupPlayFabExample.cs
@@ -126,7 +120,6 @@ MainScript () {
 CheckDefault WORKSPACE "Users/jenkins/shared_workspace"
 CheckDefault SHARED_WORKSPACE "/Users/jenkins/shared_workspace"
 CheckDefault SdkName "UnitySDK"
-# CheckDefault UNITY_VERSION "Unity181"
 
 # MainScript <all command line args for script>
 MainScript "$@"

@@ -7,16 +7,6 @@
 
 CheckVerticalizedParameters
 
-# Defaults for some variables
-CheckDefault SHARED_WORKSPACE C:/depot
-CheckDefault WORKSPACE C:/proj
-
-# DoJcuNugetUpdate (){
-#     pushd "$WORKSPACE/SDKGenerator/JenkinsConsoleUtility"
-#     cmd <<< "nuget restore JenkinsConsoleUtility.sln"
-#     popd
-# }
-
 # USAGE: ResetRepo
 ResetRepo (){
     echo === ResetRepo $PWD, $@ ===

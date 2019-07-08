@@ -15,6 +15,10 @@ NukeAll () {
     find . -name "$1" -exec rm -f {} \; 2> /dev/null || true
 }
 
+RemoveEmptyDirectories() {
+    find . -type d -empty -delete 2> /dev/null || true
+}
+
 # USAGE CleanCodeFiles
 CleanCodeFiles () {
     pushd "../$destPath"
@@ -29,6 +33,7 @@ CleanCodeFiles () {
     NukeAll "*.php"
     NukeAll "*.py"
     NukeAll "*.ts"
+    RemoveEmptyDirectories
     # cmd <<< "attrib -H *.meta /S /D" # Doesn't seem to be working...
     popd
 }

@@ -230,29 +230,29 @@ begin
 
 process
 {
-    foreach($sdkName in $SdkName)
+    foreach($targetSdkName in $SdkName)
     {
         $sdkTargetSource = $TargetSource
         if(!$sdkTargetSource)
         {
-            $sdkTargetSource = $sdkTargetSrcMap[$sdkName]
-            Write-Verbose "Setting Targetsource to $sdkTargetSource for $sdkName"
+            $sdkTargetSource = $sdkTargetSrcMap[$targetSdkName]
+            Write-Verbose "Setting Targetsource to $sdkTargetSource for $targetSdkName"
             if(!$sdkTargetSource)
             {
-                throw "Unable to determine TargetSource for '$sdkName'.  You must explicitly provide a value."
+                throw "Unable to determine TargetSource for '$targetSdkName'.  You must explicitly provide a value."
             }
         }
 
-        $destPath = Join-Path $sdksPath $sdkName
+        $destPath = Join-Path $sdksPath $targetSdkName
 
         if(!(Test-Path $destPath))
         {
-            $repoPath = "https://github.com/PlayFab/$sdkName"
+            $repoPath = "https://github.com/PlayFab/$targetSdkName"
 
             if($PSCmdlet.ShouldProcess(
-                "Cloning SDK Repository for $sdkName into '$destPath'.",
-                "Would you like to clone the $sdkName repository from $repoPath into '$destPath'?",
-                "Unable to find $sdkName repository")
+                "Cloning SDK Repository for $targetSdkName into '$destPath'.",
+                "Would you like to clone the $targetSdkName repository from $repoPath into '$destPath'?",
+                "Unable to find $targetSdkName repository")
               )
             {
                 git clone $repoPath $destPath
@@ -267,7 +267,7 @@ process
         $buildIdentifier = ""
         if($env:NODE_NAME)
         {
-            $buildIdentifier = "-buildIdentifier JBuild_$($sdkName)_($env:NODE_NAME)_$($env:EXECUTOR_NUMBER)"
+            $buildIdentifier = "-buildIdentifier JBuild_$($targetSdkName)_($env:NODE_NAME)_$($env:EXECUTOR_NUMBER)"
         }
 
         $sdkGenArgValues = @()
@@ -276,7 +276,7 @@ process
             $sdkGenArgValues += "beta"
         }
 
-        if($sdkName -eq "UnrealMarketplacePlugin")
+        if($targetSdkName -eq "UnrealMarketplacePlugin")
         {
             $sdkGenArgValues += "nonnullable"
         }
@@ -290,8 +290,8 @@ process
         $expression = "node generate.js `"$sdkTargetSource=$destPath`" $apiSpecSource $sdkGenArgs $buildIdentifier".Trim()
         if($PSCmdlet.ShouldProcess(
             "Executing '$expression'.",
-            "Would you like to generate $sdkName into '$destPath'?",
-            "Generating $sdkName"
+            "Would you like to generate $targetSdkName into '$destPath'?",
+            "Generating $targetSdkName"
         ))
         {
             Push-Location (Split-Path $PSScriptRoot -Parent)

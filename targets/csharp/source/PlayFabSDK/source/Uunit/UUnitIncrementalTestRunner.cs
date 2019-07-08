@@ -71,6 +71,7 @@ namespace PlayFab.UUnit
             PlayFabApiTest.SetTitleInfo(TestTitleData);
 #endif
 #if !DISABLE_PLAYFABCLIENT_API && !DISABLE_PLAYFABENTITY_API
+            InstanceAuthTests.SetTitleInfo(TestTitleData);
             PlayFabQosApiTest.SetTitleInfo(TestTitleData);
 #endif
 #if ENABLE_PLAYFABSERVER_API || ENABLE_PLAYFABADMIN_API
@@ -111,7 +112,7 @@ namespace PlayFab.UUnit
         private static async Task PostTestResultsToCloudScript(TestSuiteReport testReport)
         {
 #if !DISABLE_PLAYFABCLIENT_API
-            PfClient.GetSettings().TitleId = TestTitleData.titleId;
+            PfClient.apiSettings.TitleId = TestTitleData.titleId;
             var loginRequest = new LoginWithCustomIDRequest
             {
                 CustomId = PlayFabSettings.BuildIdentifier,

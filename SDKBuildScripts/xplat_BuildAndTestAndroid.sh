@@ -1,5 +1,5 @@
 #!/bin/bash
-pushd ../../sdks/XPlatCppSdk/build/Android
+pushd ../../sdks/$SdkName/build/Android
 AndroidProjectPath=$PWD
 popd
 

@@ -1,5 +1,5 @@
 SdkName="XPlatCppSdk"
-targetSrc="xplatcppsdk"
+targetSrc="XPlatCoreTemplate"
 
 cd ..
 

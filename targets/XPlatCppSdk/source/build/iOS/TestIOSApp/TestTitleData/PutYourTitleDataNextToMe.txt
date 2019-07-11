@@ -1,1 +1,0 @@
-put your testTitleData.json file next to this one to package this test app for testing purposes! Cheers, PlayFab!

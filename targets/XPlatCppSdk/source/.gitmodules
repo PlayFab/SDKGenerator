@@ -1,3 +1,0 @@
-[submodule "external/jsoncpp"]
-	path = external/jsoncpp
-	url = https://github.com/open-source-parsers/jsoncpp.git

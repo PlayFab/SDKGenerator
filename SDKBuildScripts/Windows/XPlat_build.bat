@@ -1,6 +1,6 @@
 setlocal
 set SdkName=XPlatCppSdk
-set targetSrc=xplatcppsdk
+set targetSrc=XPlatCoreTemplate
 
 cd ..
 

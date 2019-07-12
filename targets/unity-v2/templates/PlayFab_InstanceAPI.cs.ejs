@@ -12,7 +12,7 @@ namespace PlayFab
 %>    public <%- isPartial %>class PlayFab<%- api.name %>InstanceAPI : IPlayFabInstanceApi
     {
         public readonly PlayFabApiSettings apiSettings = null;
-        private readonly PlayFabAuthenticationContext authenticationContext = null;
+        public readonly PlayFabAuthenticationContext authenticationContext = null;
 <% if( api.name === "Admin" || api.name === "Server" ) { %>
         public PlayFab<%- api.name %>InstanceAPI() { }
 

@@ -146,13 +146,13 @@ function makeDatatypes(apis, sourceDir, apiOutputDir) {
 function getModelPropertyDef(property, datatype) {
     var basicType = getPropertyGoType(property, datatype);
     if (property.collection && property.collection === "array")
-        return property.name + " []" + basicType + " `json:\""+property.name+",omitempty\"`";
+        return capitalizeFirstLetter(property.name) + " []" + basicType + " `json:\""+property.name+",omitempty\"`";
     else if (property.collection && property.collection === "map")
-        return property.name + " map[string]" + basicType + " `json:\""+property.name+",omitempty\"`";
+        return capitalizeFirstLetter(property.name) + " map[string]" + basicType + " `json:\""+property.name+",omitempty\"`";
     else if (property.collection)
         throw "Unknown collection type: " + property.collection + " for " + property.name + " in " + datatype.name;
 
-    return  property.name + " "  + getPropertyGoType(property, datatype) + " `json:\""+property.name+",omitempty\"`";
+    return  capitalizeFirstLetter(property.name) + " "  + getPropertyGoType(property, datatype) + " `json:\""+property.name+",omitempty\"`";
 }
 
 function getPropertyGoType(property, datatype) {
@@ -187,4 +187,9 @@ function getPropertyGoType(property, datatype) {
     else if (property.actualtype === "object")
         return "interface{}";
     throw "Unknown property type: " + property.actualtype + " for " + property.name + " in " + datatype.name;
+}
+
+function capitalizeFirstLetter(string) 
+{
+    return string.charAt(0).toUpperCase() + string.slice(1);
 }

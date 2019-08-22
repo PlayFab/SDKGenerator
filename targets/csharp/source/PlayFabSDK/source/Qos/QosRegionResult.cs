@@ -5,7 +5,7 @@ namespace PlayFab.QoS
 
     public class QosRegionResult
     {
-        public AzureRegion Region;
+        public string Region;
 
         public int LatencyMs;
 
@@ -29,7 +29,7 @@ namespace PlayFab.QoS
             };
         }
 
-        public AzureRegion Region;
+        public string Region;
 
         public int LatencyMs;
 

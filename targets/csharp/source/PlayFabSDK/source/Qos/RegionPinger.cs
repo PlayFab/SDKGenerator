@@ -18,9 +18,9 @@ namespace PlayFab.QoS
         private readonly byte[] _initialHeader = { 0xFF, 0xFF };
         private readonly byte[] _subsequentHeader = { 0x00, 0x00 };
         private readonly string _hostNameOrAddress;
-        private readonly AzureRegion _region;
+        private readonly string _region;
 
-        public RegionPinger(string hostNameOrAddress, AzureRegion region)
+        public RegionPinger(string hostNameOrAddress, string region)
         {
             _hostNameOrAddress = hostNameOrAddress;
             _region = region;

@@ -11,7 +11,7 @@ namespace PlayFab.QoS
     public class PlayFabQosApi
     {
         private const int DefaultTimeoutMs = 250;
-        private readonly Dictionary<AzureRegion, string> _dataCenterMap = new Dictionary<AzureRegion, string>();
+        private readonly Dictionary<string, string> _dataCenterMap = new Dictionary<string, string>();
 
         public async Task<QosResult> GetQosResultAsync(int timeoutMs = DefaultTimeoutMs)
         {
@@ -71,19 +71,19 @@ namespace PlayFab.QoS
 
             foreach (QosServer qosServer in response.Result.QosServers)
             {
-                if (!qosServer.Region.HasValue)
+                if (string.IsNullOrEmpty(qosServer.Region))
                 {
                     continue;
                 }
 
-                _dataCenterMap[qosServer.Region.Value] = qosServer.ServerUrl;
+                _dataCenterMap[qosServer.Region] = qosServer.ServerUrl;
             }
         }
 
         private async Task<List<QosRegionResult>> GetSortedRegionLatencies(int timeoutMs)
         {
             var asyncPingResults = new List<Task<QosRegionResult>>(_dataCenterMap.Count);
-            foreach (KeyValuePair<AzureRegion, string> datacenter in _dataCenterMap)
+            foreach (KeyValuePair<string, string> datacenter in _dataCenterMap)
             {
                 var regionPinger = new RegionPinger(datacenter.Value, datacenter.Key);
                 Task<QosRegionResult> pingResult = regionPinger.PingAsync(timeoutMs);

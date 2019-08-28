@@ -1,0 +1,8 @@
+mvn package
+
+pushd ../
+New-Item -ItemType Directory -Force ./builds
+popd
+
+cd target
+Copy-Item  <%- apiNameLc %>-sdk-<%- sdkVersion %>.jar -Destination ../../builds/<%- apiNameLc %>-sdk-<%- sdkVersion %>.jar

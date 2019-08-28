@@ -1,8 +1,0 @@
-call mvn package
-
-pushd ../
-mkdir -p ./builds
-popd
-
-cd target
-cp  <%- apiNameLc %>-sdk-<%- sdkVersion %>.jar ../../builds/<%- apiNameLc %>-sdk-<%- sdkVersion %>.jar

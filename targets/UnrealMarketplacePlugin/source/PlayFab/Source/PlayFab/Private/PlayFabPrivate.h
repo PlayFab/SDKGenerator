@@ -8,8 +8,6 @@
 
 #pragma once
 
-#include "Engine.h"
-
 #include "Delegates/Delegate.h"
 #include "Http.h"
 #include "Containers/Map.h"

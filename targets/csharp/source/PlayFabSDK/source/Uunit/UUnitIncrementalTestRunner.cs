@@ -88,6 +88,11 @@ namespace PlayFab.UUnit
 #endif
         }
 
+        public static void AddTestAssembly(Assembly assembly, string filter = null)
+        {
+            _suite.FindAndAddAllTestCases(assembly, typeof(UUnitTestCase), filter);
+        }
+
         public static async Task<string> Tick()
         {
             if (SuiteFinished)

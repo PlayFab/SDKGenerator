@@ -25,7 +25,7 @@ namespace JenkinsConsoleUtility.Commands
             foreach (var eachLine in summaryLines)
             {
                 ConsoleColor color = eachLine.Contains("FAILED") ? ConsoleColor.Red : eachLine.Contains("PASSED") ? ConsoleColor.White : ConsoleColor.Yellow;
-                JenkinsConsoleUtility.FancyWriteToConsole(color, eachLine);
+                JcuUtil.FancyWriteToConsole(color, eachLine);
             }
             Console.WriteLine();
             return UUnitIncrementalTestRunner.AllTestsPassed ? 0 : 1;

@@ -52,18 +52,18 @@ namespace JenkinsConsoleUtility.Commands
             verbose = bool.Parse(JenkinsConsoleUtility.GetArgVar(argsLc, "verbose", "false"));
             _getRequest = new CsGetRequest { customId = buildIdentifier };
 
-            JenkinsConsoleUtility.FancyWriteToConsole(ConsoleColor.Gray, "Begin CloudScriptListener");
+            JcuUtil.FancyWriteToConsole(ConsoleColor.Gray, "Begin CloudScriptListener");
             var returnCode = Login(testTitleData.titleId, buildIdentifier, testTitleData);
             if (returnCode != 0)
                 return returnCode;
             returnCode = WaitForTestResult(timeout, testTitleData);
             if (returnCode != 0)
                 return returnCode;
-            JenkinsConsoleUtility.FancyWriteToConsole(ConsoleColor.Gray, "Test data found");
+            JcuUtil.FancyWriteToConsole(ConsoleColor.Gray, "Test data found");
             returnCode = FetchTestResult(buildIdentifier, workspacePath, testTitleData);
             if (returnCode != 0)
                 return returnCode;
-            JenkinsConsoleUtility.FancyWriteToConsole(ConsoleColor.Green, "Test data received");
+            JcuUtil.FancyWriteToConsole(ConsoleColor.Green, "Test data received");
 
             return 0;
         }
@@ -76,12 +76,12 @@ namespace JenkinsConsoleUtility.Commands
             var returnCode = clientApi.IsClientLoggedIn() ? 0 : 1;
             if (returnCode != 0)
             {
-                JenkinsConsoleUtility.FancyWriteToConsole(ConsoleColor.Red, "Failed to log in using CustomID: " + titleId + ", " + buildIdentifier);
-                JenkinsConsoleUtility.FancyWriteToConsole(ConsoleColor.Red, task.Result.Error?.GenerateErrorReport());
+                JcuUtil.FancyWriteToConsole(ConsoleColor.Red, "Failed to log in using CustomID: " + titleId + ", " + buildIdentifier);
+                JcuUtil.FancyWriteToConsole(ConsoleColor.Red, task.Result.Error?.GenerateErrorReport());
             }
             else
             {
-                JenkinsConsoleUtility.FancyWriteToConsole(ConsoleColor.Gray, "Login successful, PlayFabId: " + task.Result.Result.PlayFabId);
+                JcuUtil.FancyWriteToConsole(ConsoleColor.Gray, "Login successful, PlayFabId: " + task.Result.Result.PlayFabId);
             }
             return returnCode;
         }
@@ -103,7 +103,7 @@ namespace JenkinsConsoleUtility.Commands
                     return 1; // The cloudscript call failed
                 Thread.Sleep(TestDataExistsSleepTime);
                 now = DateTime.UtcNow;
-                JenkinsConsoleUtility.FancyWriteToConsole(ConsoleColor.Gray, "Test results ready: " + resultsReady);
+                JcuUtil.FancyWriteToConsole(ConsoleColor.Gray, "Test results ready: " + resultsReady);
             }
 
             return resultsReady ? 0 : 1;

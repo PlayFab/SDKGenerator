@@ -1,8 +1,9 @@
-using PlayFab.Json;
 using System.Collections.Generic;
 using System.IO;
 using System.Net.Http;
 using System.Threading.Tasks;
+using JenkinsConsoleUtility.Util;
+using PlayFab.Json;
 
 namespace JenkinsConsoleUtility.Commands
 {
@@ -41,7 +42,7 @@ namespace JenkinsConsoleUtility.Commands
                 _apiSpecPfUrl = JenkinsConsoleUtility.GetArgVar(argsLc, "apiSpecPfUrl");
             else
             {
-                JenkinsConsoleUtility.FancyWriteToConsole("Api-Spec input not defined.  Please input one of: apiSpecPath, apiSpecGitUrl, apiSpecPfUrl");
+                JcuUtil.FancyWriteToConsole("Api-Spec input not defined.  Please input one of: apiSpecPath, apiSpecGitUrl, apiSpecPfUrl");
                 return 1;
             }
 
@@ -49,8 +50,8 @@ namespace JenkinsConsoleUtility.Commands
             var sdkNotes = JsonWrapper.DeserializeObject<SdkManualNotes>(versionJson);
             if (!sdkNotes.sdkVersion.TryGetValue(sdkGenKey, out sdkVersionString))
             {
-                JenkinsConsoleUtility.FancyWriteToConsole("SdkManualNotes.json does not contain: " + sdkGenKey);
-                JenkinsConsoleUtility.FancyWriteToConsole("SdkManualNotes.json:\n" + versionJson);
+                JcuUtil.FancyWriteToConsole("SdkManualNotes.json does not contain: " + sdkGenKey);
+                JcuUtil.FancyWriteToConsole("SdkManualNotes.json:\n" + versionJson);
                 return 1;
             }
 
@@ -65,8 +66,8 @@ namespace JenkinsConsoleUtility.Commands
                 {
                     outputFile.WriteLine("sdkVersion = " + sdkVersionString);
                     outputFile.WriteLine("sdkDate = " + date);
-                    JenkinsConsoleUtility.FancyWriteToConsole("sdkVersion = " + sdkVersionString);
-                    JenkinsConsoleUtility.FancyWriteToConsole("sdkDate = " + date);
+                    JcuUtil.FancyWriteToConsole("sdkVersion = " + sdkVersionString);
+                    JcuUtil.FancyWriteToConsole("sdkDate = " + date);
                 }
             }
             return 0;

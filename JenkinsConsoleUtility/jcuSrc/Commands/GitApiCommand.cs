@@ -1,8 +1,9 @@
-using Octokit;
-using PlayFab.Json;
 using System;
 using System.Collections.Generic;
 using System.IO;
+using JenkinsConsoleUtility.Util;
+using Octokit;
+using PlayFab.Json;
 
 namespace JenkinsConsoleUtility.Commands
 {
@@ -40,12 +41,12 @@ namespace JenkinsConsoleUtility.Commands
                     return 1;
 
                 var sdkRepo = client.Repository.Get(GitOwner, sdkName).Result;
-                JenkinsConsoleUtility.FancyWriteToConsole(ConsoleColor.Green, sdkRepo.CloneUrl);
+                JcuUtil.FancyWriteToConsole(ConsoleColor.Green, sdkRepo.CloneUrl);
             }
             catch (AggregateException agEx)
             {
                 foreach (var e in agEx.InnerExceptions)
-                    JenkinsConsoleUtility.FancyWriteToConsole(ConsoleColor.Red, e.ToString());
+                    JcuUtil.FancyWriteToConsole(ConsoleColor.Red, e.ToString());
                 return 1;
             }
 

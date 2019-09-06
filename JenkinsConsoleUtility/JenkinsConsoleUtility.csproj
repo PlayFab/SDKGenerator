@@ -80,6 +80,7 @@
     <Compile Include="jcuSrc\Commands\TestingCommand.cs" />
     <Compile Include="jcuSrc\Testing\TestJsonReportSyntax.cs" />
     <Compile Include="jcuSrc\Testing\XmlTests.cs" />
+    <Compile Include="jcuSrc\Util\Util.cs" />
     <Compile Include="jcuSrc\Util\TestTitleDataLoader.cs" />
   </ItemGroup>
   <ItemGroup>

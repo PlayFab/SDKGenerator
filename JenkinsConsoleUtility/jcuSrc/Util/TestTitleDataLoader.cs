@@ -1,8 +1,8 @@
-using PlayFab.Json;
-using PlayFab.UUnit;
 using System;
 using System.Collections.Generic;
 using System.IO;
+using PlayFab.Json;
+using PlayFab.UUnit;
 
 namespace JenkinsConsoleUtility.Util
 {
@@ -42,7 +42,7 @@ namespace JenkinsConsoleUtility.Util
             if (string.IsNullOrEmpty(eachFilepath))
                 return;
             if (!File.Exists(eachFilepath))
-                eachFilepath = eachFilepath.Replace("%WORKSPACE%", workspacePath);
+                eachFilepath = eachFilepath.Replace("%workspace%", workspacePath);
             if (File.Exists(eachFilepath))
                 validFilepaths.Add(eachFilepath);
         }

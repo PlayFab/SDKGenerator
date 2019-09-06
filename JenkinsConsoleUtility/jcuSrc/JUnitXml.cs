@@ -1,11 +1,12 @@
-using PlayFab;
-using PlayFab.UUnit;
 using System;
 using System.Collections.Generic;
 using System.IO;
 using System.Text;
 using System.Web;
 using System.Xml;
+using JenkinsConsoleUtility.Util;
+using PlayFab;
+using PlayFab.UUnit;
 
 namespace JenkinsConsoleUtility
 {
@@ -175,7 +176,7 @@ namespace JenkinsConsoleUtility
                 tabbing = tabbing.Substring(2);
                 sb.Append(tabbing).Append("</testsuites>\n");
 
-                JenkinsConsoleUtility.FancyWriteToConsole(ConsoleColor.Gray, "Write test results: " + destinationFile);
+                JcuUtil.FancyWriteToConsole(ConsoleColor.Gray, "Write test results: " + destinationFile);
                 using (var output = File.Open(destinationFile, FileMode.Create))
                 {
                     byte[] buffer = Encoding.UTF8.GetBytes(sb.ToString());
@@ -185,7 +186,7 @@ namespace JenkinsConsoleUtility
             }
             catch (Exception e)
             {
-                JenkinsConsoleUtility.FancyWriteToConsole(ConsoleColor.Red, "Failure writing xml:\n" + e);
+                JcuUtil.FancyWriteToConsole(ConsoleColor.Red, "Failure writing xml:\n" + e);
                 return 1; // Fail
             }
             return 0; // Success

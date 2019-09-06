@@ -94,9 +94,9 @@ namespace JenkinsConsoleUtility.Commands
             if (JenkinsConsoleUtility.TryGetArgVar(out string tempGapThresholds, argsLc, "GAP_THRESHOLDS"))
                 try { GAP_THRESHOLDS = tempGapThresholds.Split(';').Select(s => int.Parse(s)).ToArray(); } catch (Exception) { }
             if (JenkinsConsoleUtility.TryGetArgVar(out string tempStandby, argsLc, "STANDBY_THRESHOLDS"))
-                try { STANDBY_THRESHOLDS = tempGapThresholds.Split(';').Select(s => int.Parse(s)).ToArray(); } catch (Exception) { }
+                try { STANDBY_THRESHOLDS = tempStandby.Split(';').Select(s => int.Parse(s)).ToArray(); } catch (Exception e) { JcuUtil.FancyWriteToConsole(e); }
             if (JenkinsConsoleUtility.TryGetArgVar(out string tempMaxCap, argsLc, "MAX_CAPACITY_PERCENT_THRESHOLDS"))
-                try { MAX_CAPACITY_PERCENT_THRESHOLDS = tempGapThresholds.Split(';').Select(s => int.Parse(s)).ToArray(); } catch (Exception) { }
+                try { MAX_CAPACITY_PERCENT_THRESHOLDS = tempMaxCap.Split(';').Select(s => int.Parse(s)).ToArray(); } catch (Exception) { }
 
             if (JenkinsConsoleUtility.TryGetArgVar(out string tempCycleDuration, argsLc, "CYCLE_DURATION_MINS"))
                 try { CYCLE_DURATION_MINS = TimeSpan.FromMinutes(double.Parse(tempCycleDuration)); } catch (Exception) { }

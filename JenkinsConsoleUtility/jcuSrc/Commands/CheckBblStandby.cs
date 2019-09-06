@@ -1,14 +1,16 @@
 ﻿using System;
 using System.Collections.Generic;
+using System.Threading;
 using JenkinsConsoleUtility.Util;
 using PlayFab;
 using PlayFab.MultiplayerModels;
+using System.Windows;
 
 namespace JenkinsConsoleUtility.Commands
 {
     public class CheckBblStandby : ICommand
     {
-        private enum Severity
+        private enum Severity : byte
         {
             SEV_0, // Wake up everyone
             SEV_1, // Wake up team
@@ -30,9 +32,16 @@ namespace JenkinsConsoleUtility.Commands
         private PlayFabAuthenticationInstanceAPI authApi;
         private PlayFabMultiplayerInstanceAPI multiplayerApi;
 
+        private readonly TimeSpan cycleDuration = TimeSpan.FromMinutes(1);
+        private readonly TimeSpan cyclePeriod = TimeSpan.FromSeconds(10);
+        private readonly TimeSpan retryDelay = TimeSpan.FromSeconds(10);
+        private const int retryCount = 5;
         private readonly int[] GAP_THRESHOLDS = new[] { 10000, 10000, 1000, 400, 200, 100 };
         private readonly int[] MAX_PERCENT_THRESHOLDS = new[] { 1000, 1000, 100, 95, 80, 75 };
         private readonly int[] STANDBY_THRESHOLDS = new[] { -1, -1, 0, 6, 9, 11 };
+
+        private DateTime endOfCycle;
+        private string bblVersions;
 
         public CheckBblStandby()
         {
@@ -44,8 +53,40 @@ namespace JenkinsConsoleUtility.Commands
 
         public int Execute(Dictionary<string, string> argsLc, Dictionary<string, string> argsCased)
         {
-            string bblVersions = JenkinsConsoleUtility.GetArgVar(argsLc, "BBL_VERSIONS");
+            bblVersions = JenkinsConsoleUtility.GetArgVar(argsLc, "BBL_VERSIONS");
 
+            var setupCode = LoginToPlayfab(argsLc);
+            if (setupCode != 0)
+                return setupCode;
+
+            var cumulativeResult = new Tuple<int, Severity, Severity>(0, Severity.NONE, Severity.SEV_0);
+
+            endOfCycle = DateTime.UtcNow + cycleDuration;
+            while (endOfCycle > DateTime.UtcNow)
+            {
+                var eachSummary = GetBuildSummaryFromPlayfab();
+                var eachResult = EvaluateBuildSummaries(bblVersions, eachSummary);
+
+                // Combine the results
+                cumulativeResult = new Tuple<int, Severity, Severity>(
+                    cumulativeResult.Item1 + eachResult.Item1,
+                    (Severity)Math.Min((byte)cumulativeResult.Item2, (byte)eachResult.Item2), // Worst Error Seen
+                    (Severity)Math.Max((byte)cumulativeResult.Item2, (byte)eachResult.Item2) // Least Error Seen
+                );
+
+                Thread.Sleep((int)cyclePeriod.TotalMilliseconds);
+            }
+
+            JcuUtil.FancyWriteToConsole("Finished Query Cycle");
+            MakeAlert(null, cumulativeResult.Item2, " <- Worst Error Level");
+            MakeAlert(null, cumulativeResult.Item3, " <- Typical Error Level. Total Number of Alerts: " + cumulativeResult.Item1);
+
+            return (cumulativeResult.Item3 <= Severity.SEV_3) ? cumulativeResult.Item1 : 0;
+        }
+
+        private int LoginToPlayfab(Dictionary<string, string> argsLc)
+        {
+            // Get Login Credentials
             var testTitleData = TestTitleDataLoader.Load(argsLc);
             if (testTitleData == null)
             {
@@ -63,27 +104,54 @@ namespace JenkinsConsoleUtility.Commands
             settings.TitleId = testTitleData.titleId;
             settings.DeveloperSecretKey = testTitleData.developerSecretKey;
 
-            var tokenTask = authApi.GetEntityTokenAsync(null);
-            tokenTask.Wait();
+            // Perform PlayFab Login
+            for (int i = 0; i < retryCount; i++)
+            {
+                var tokenTask = authApi.GetEntityTokenAsync(null);
+                tokenTask.Wait();
+
+                if (string.IsNullOrEmpty(context.EntityToken))
+                {
+                    JcuUtil.FancyWriteToConsole(ConsoleColor.Red, "ERROR: CheckBblStandby was not able to authenticate as expected, sleeping...");
+                    Thread.Sleep((int)retryDelay.TotalMilliseconds);
+                }
+                else
+                {
+                    break;
+                }
+            }
+
             if (string.IsNullOrEmpty(context.EntityToken))
             {
-                JcuUtil.FancyWriteToConsole(ConsoleColor.Red, "ERROR: CheckBblStandby was not able to authenticate as expected.");
+                JcuUtil.FancyWriteToConsole(ConsoleColor.Red, "ERROR: CheckBblStandby was not able to authenticate as expected. Failing out.");
                 return 1;
             }
 
+            return 0;
+        }
+
+        private List<BuildSummary> GetBuildSummaryFromPlayfab()
+        {
             var listBuildsRequest = new ListBuildSummariesRequest { PageSize = 100 };
-            var listBuildsTask = multiplayerApi.ListBuildSummariesAsync(listBuildsRequest);
-            listBuildsTask.Wait();
-            var buildSummaries = listBuildsTask?.Result?.Result?.BuildSummaries;
-            if (buildSummaries == null)
+
+            for (int i = 0; i < retryCount; i++)
             {
-                JcuUtil.FancyWriteToConsole(ConsoleColor.Red, "ERROR: Was unable to list build summaries.");
-                return 1;
+                var listBuildsTask = multiplayerApi.ListBuildSummariesAsync(listBuildsRequest);
+                listBuildsTask.Wait();
+                var buildSummaries = listBuildsTask?.Result?.Result?.BuildSummaries;
+                if (buildSummaries == null)
+                {
+                    JcuUtil.FancyWriteToConsole(ConsoleColor.Red, "ERROR: Was unable to list build summaries, sleeping...");
+                    Thread.Sleep((int)retryDelay.TotalMilliseconds);
+                }
+                else
+                {
+                    return buildSummaries;
+                }
             }
 
-            var buildResults = EvaluateBuildSummaries(bblVersions, buildSummaries);
-
-            return (buildResults.Item2 <= Severity.SEV_3) ? buildResults.Item1 : 0;
+            JcuUtil.FancyWriteToConsole(ConsoleColor.Red, "ERROR: Was unable to list build summaries, failing out...");
+            return null;
         }
 
         private Tuple<int, Severity> EvaluateBuildSummaries(string bblVersions, List<BuildSummary> buildSummaries)
@@ -123,7 +191,7 @@ namespace JenkinsConsoleUtility.Commands
                     {
                         if (gap >= GAP_THRESHOLDS[i])
                         {
-                            MakeAlert(thAlerts, (Severity)i, versionString + ", " + eachSummary.BuildId + " - High (StandBy + Propping) Gap in region:" + gap);
+                            MakeAlert(thAlerts, (Severity)i, versionString + ", " + eachSummary.BuildId + " - High \"StandBy + Propping\" Gap (" + gap + ") in region:" + each.Region);
                             worstSeverity = (Severity)i;
                             break;
                         }
@@ -176,7 +244,7 @@ namespace JenkinsConsoleUtility.Commands
                 default: alertColor = ConsoleColor.White; break;
             }
             JcuUtil.FancyWriteToConsole(alertColor, severity + " " + msg);
-            if (severity <= Severity.SEV_4)
+            if (severity <= Severity.SEV_4 && alertList != null)
                 alertList.Add(msg);
         }
     }

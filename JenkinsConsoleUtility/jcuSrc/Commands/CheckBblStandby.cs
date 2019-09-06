@@ -86,22 +86,36 @@ namespace JenkinsConsoleUtility.Commands
                 if (!isDeployed)
                     continue;
 
+                Action<string> makeAlert = (msg) =>
+                {
+                    ConsoleColor alertColor;
+                    switch (msg.Substring(0, 4))
+                    {
+                        case "SEV1": alertColor = ConsoleColor.Magenta; break;
+                        case "SEV2": alertColor = ConsoleColor.Red; break;
+                        case "SEV3": alertColor = ConsoleColor.Yellow; break;
+                        default: alertColor = ConsoleColor.White; break;
+                    }
+                    JcuUtil.FancyWriteToConsole(alertColor, msg);
+                    alerts.Add(msg);
+                };
+
                 JcuUtil.FancyWriteToConsole("Found Version: " + versionString + ",  BuildId: " + eachSummary.BuildId);
                 foreach (var each in eachSummary.RegionConfigurations)
                 {
-                    JcuUtil.FancyWriteToConsole(" - " + each.Region + ", (" + each.CurrentServerStats.StandingBy + "/" + each.CurrentServerStats.Active + "/" + each.MaxServers + ")");
+                    JcuUtil.FancyWriteToConsole(" - " + each.Region + ", (sby:" + each.CurrentServerStats.StandingBy + "/prp:" + each.CurrentServerStats.Propping + "/act:" + each.CurrentServerStats.Active + "/max:" + each.MaxServers + ")");
 
                     if (each.CurrentServerStats.Active >= each.MaxServers)
-                        alerts.Add("SEV1: " + versionString + ", " + eachSummary.BuildId + " - Max Servers reached in region:" + each.Region);
+                        makeAlert("SEV1: " + versionString + ", " + eachSummary.BuildId + " - Max Servers reached in region:" + each.Region);
                     else if (each.CurrentServerStats.Active >= (each.MaxServers * S2_MAX_THRESHHOLD_PERCENT / 100))
-                        alerts.Add("SEV2: " + versionString + ", " + eachSummary.BuildId + " - " + S2_MAX_THRESHHOLD_PERCENT + "% (" + each.CurrentServerStats.Active + "/" + each.MaxServers + ") Max Servers reached in region:" + each.Region);
+                        makeAlert("SEV2: " + versionString + ", " + eachSummary.BuildId + " - " + S2_MAX_THRESHHOLD_PERCENT + "% (" + each.CurrentServerStats.Active + "/" + each.MaxServers + ") Max Servers reached in region:" + each.Region);
                     else if (each.CurrentServerStats.Active >= (each.MaxServers * S3_MAX_THRESHHOLD_PERCENT / 100))
-                        alerts.Add("SEV3: " + versionString + ", " + eachSummary.BuildId + " - " + S3_MAX_THRESHHOLD_PERCENT + "% (" + each.CurrentServerStats.Active + "/" + each.MaxServers + ") Max Servers reached in region:" + each.Region);
+                        makeAlert("SEV3: " + versionString + ", " + eachSummary.BuildId + " - " + S3_MAX_THRESHHOLD_PERCENT + "% (" + each.CurrentServerStats.Active + "/" + each.MaxServers + ") Max Servers reached in region:" + each.Region);
 
                     if (each.CurrentServerStats.StandingBy <= S1_LOW_STANDBY_THRESHHOLD)
-                        alerts.Add("SEV1: " + versionString + ", " + eachSummary.BuildId + " - Standby == 0 for region:" + each.Region + ", " + each.CurrentServerStats.StandingBy + "<=" + S1_LOW_STANDBY_THRESHHOLD);
+                        makeAlert("SEV1: " + versionString + ", " + eachSummary.BuildId + " - Standby == 0 for region:" + each.Region + ", " + each.CurrentServerStats.StandingBy + "<=" + S1_LOW_STANDBY_THRESHHOLD);
                     else if (each.CurrentServerStats.StandingBy <= S2_LOW_STANDBY_THRESHHOLD)
-                        alerts.Add("SEV2: " + versionString + ", " + eachSummary.BuildId + " - Low Standby in region:" + each.Region + ", " + each.CurrentServerStats.StandingBy + "<=" + S2_LOW_STANDBY_THRESHHOLD);
+                        makeAlert("SEV2: " + versionString + ", " + eachSummary.BuildId + " - Low Standby in region:" + each.Region + ", " + each.CurrentServerStats.StandingBy + "<=" + S2_LOW_STANDBY_THRESHHOLD);
                 }
 
                 JcuUtil.FancyWriteToConsole(null);
@@ -109,7 +123,7 @@ namespace JenkinsConsoleUtility.Commands
             }
 
             if (alerts.Count > 0)
-                JcuUtil.FancyWriteToConsole(ConsoleColor.Red, null, alerts, null);
+                JcuUtil.FancyWriteToConsole(ConsoleColor.Yellow, "Alert list:", ConsoleColor.Red, null, alerts, null);
 
             return alerts.Count;
         }

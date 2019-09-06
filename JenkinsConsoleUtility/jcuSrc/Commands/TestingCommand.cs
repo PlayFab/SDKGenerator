@@ -1,6 +1,7 @@
 using PlayFab.UUnit;
 using System;
 using System.Collections.Generic;
+using JenkinsConsoleUtility.Util;
 
 namespace JenkinsConsoleUtility.Commands
 {
@@ -13,11 +14,19 @@ namespace JenkinsConsoleUtility.Commands
 
         public int Execute(Dictionary<string, string> argsLc, Dictionary<string, string> argsCased)
         {
-            UUnitIncrementalTestRunner.Start(false, null, null, null);
+            var testTitleData = TestTitleDataLoader.Load(null);
+            UUnitIncrementalTestRunner.Start(false, null, testTitleData, null);
+            // TODO: UUnitIncrementalTestRunner.AddAssembly();
+
             while (!UUnitIncrementalTestRunner.SuiteFinished)
                 UUnitIncrementalTestRunner.Tick();
 
-            Console.WriteLine(UUnitIncrementalTestRunner.Summary);
+            var summaryLines = UUnitIncrementalTestRunner.Summary.Split('\n');
+            foreach (var eachLine in summaryLines)
+            {
+                ConsoleColor color = eachLine.Contains("FAILED") ? ConsoleColor.Red : eachLine.Contains("PASSED") ? ConsoleColor.White : ConsoleColor.Yellow;
+                JenkinsConsoleUtility.FancyWriteToConsole(color, eachLine);
+            }
             Console.WriteLine();
             return UUnitIncrementalTestRunner.AllTestsPassed ? 0 : 1;
         }

@@ -175,7 +175,7 @@ namespace JenkinsConsoleUtility
                 tabbing = tabbing.Substring(2);
                 sb.Append(tabbing).Append("</testsuites>\n");
 
-                JenkinsConsoleUtility.FancyWriteToConsole("Write test results: " + destinationFile, null, ConsoleColor.Gray);
+                JenkinsConsoleUtility.FancyWriteToConsole(ConsoleColor.Gray, "Write test results: " + destinationFile);
                 using (var output = File.Open(destinationFile, FileMode.Create))
                 {
                     byte[] buffer = Encoding.UTF8.GetBytes(sb.ToString());
@@ -185,7 +185,7 @@ namespace JenkinsConsoleUtility
             }
             catch (Exception e)
             {
-                JenkinsConsoleUtility.FancyWriteToConsole("Failure writing xml:\n" + e, null, ConsoleColor.Red);
+                JenkinsConsoleUtility.FancyWriteToConsole(ConsoleColor.Red, "Failure writing xml:\n" + e);
                 return 1; // Fail
             }
             return 0; // Success

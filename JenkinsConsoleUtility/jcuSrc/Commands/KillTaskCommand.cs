@@ -32,7 +32,7 @@ namespace JenkinsConsoleUtility.Commands
                 hitList.AddRange(eachHitList);
                 foreach (var eachProcess in eachHitList)
                 {
-                    JenkinsConsoleUtility.FancyWriteToConsole("Closing task: " + eachProcess.ProcessName, null, ConsoleColor.Yellow);
+                    JenkinsConsoleUtility.FancyWriteToConsole(ConsoleColor.Yellow, "Closing task: " + eachProcess.ProcessName);
                     eachProcess.CloseMainWindow(); // Gently close the target so they don't throw error codes 
                 }
             }
@@ -56,12 +56,12 @@ namespace JenkinsConsoleUtility.Commands
             {
                 if (eachProcess.HasExited)
                     continue; // Finished skip it
-                JenkinsConsoleUtility.FancyWriteToConsole("Killing task: " + eachProcess.ProcessName, null, ConsoleColor.Red);
+                JenkinsConsoleUtility.FancyWriteToConsole(ConsoleColor.Red, "Killing task: " + eachProcess.ProcessName);
                 eachProcess.Kill(); // If it didn't close gently, then close it better.
             }
 
             if (hitList.Count == 0)
-                JenkinsConsoleUtility.FancyWriteToConsole("No tasks to kill: " + taskNames, null, ConsoleColor.Red);
+                JenkinsConsoleUtility.FancyWriteToConsole(ConsoleColor.Red, "No tasks to kill: " + taskNames);
             return hitList.Count > 0 ? 0 : 1;
         }
     }

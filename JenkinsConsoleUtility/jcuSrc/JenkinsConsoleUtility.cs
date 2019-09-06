@@ -1,4 +1,5 @@
 using System;
+using System.Collections;
 using System.Collections.Generic;
 
 public interface ICommand
@@ -29,20 +30,20 @@ namespace JenkinsConsoleUtility
                     if (!commandLookup.TryGetValue(key, out tempCommand))
                     {
                         success = false;
-                        FancyWriteToConsole("Unexpected command: " + key, null, ConsoleColor.Red);
+                        FancyWriteToConsole(ConsoleColor.Red, "Unexpected command: " + key);
                     }
                 }
 
                 if (orderedCommands.Count == 0)
-                    FancyWriteToConsole("No commands given, no work will be done", null, ConsoleColor.DarkYellow);
+                    FancyWriteToConsole(ConsoleColor.DarkYellow, "No commands given, no work will be done");
                 if (!success || orderedCommands.Count == 0)
                     throw new Exception("Commands not input correctly");
             }
             catch (Exception)
             {
-                FancyWriteToConsole("Run a sequence of ordered commands --<command> [--<command> ...] [-<argKey> <argValue> ...]\nValid commands:", commandLookup.Keys, ConsoleColor.Yellow);
-                FancyWriteToConsole("argValues can have spaces.  Dashes in argValues can cause problems, and are not recommended.", null, ConsoleColor.Yellow);
-                FancyWriteToConsole("Quotes are considered part of the argKey or argValue, and are not parsed as tokens.", null, ConsoleColor.Yellow);
+                FancyWriteToConsole(ConsoleColor.Yellow, "Run a sequence of ordered commands --<command> [--<command> ...] [-<argKey> <argValue> ...]\nValid commands:", ConsoleColor.Gray, commandLookup.Keys);
+                FancyWriteToConsole(ConsoleColor.Yellow, "argValues can have spaces.  Dashes in argValues can cause problems, and are not recommended.");
+                FancyWriteToConsole(ConsoleColor.Yellow, "Quotes are considered part of the argKey or argValue, and are not parsed as tokens.");
                 // TODO: Report list of available commands and valid/required args for commands
                 return Pause(1);
             }
@@ -58,7 +59,7 @@ namespace JenkinsConsoleUtility
                 }
                 if (returnCode != 0)
                 {
-                    FancyWriteToConsole(key + " command returned error code: " + returnCode, null, ConsoleColor.Yellow);
+                    FancyWriteToConsole(ConsoleColor.Yellow, key + " command returned error code: " + returnCode);
                     return Pause(returnCode);
                 }
             }
@@ -81,12 +82,12 @@ namespace JenkinsConsoleUtility
 
             if (getDefault != null) // Don't use string.IsNullOrEmpty() here, because there's a distinction between "undefined" and "empty"
             {
-                FancyWriteToConsole("GetArgVar: " + key + " not defined, reverting to: " + getDefault, null, ConsoleColor.DarkYellow);
+                FancyWriteToConsole(ConsoleColor.DarkYellow, "GetArgVar: " + key + " not defined, reverting to: " + getDefault);
                 return getDefault;
             }
 
             var msg = "ERROR: Required parameter: " + key + " not found";
-            FancyWriteToConsole(msg, null, ConsoleColor.Red);
+            FancyWriteToConsole(ConsoleColor.Red, msg);
             throw new Exception(msg);
         }
 
@@ -143,24 +144,31 @@ namespace JenkinsConsoleUtility
             }
 
             foreach (var eachCmdKey in missingArgKeys)
-                FancyWriteToConsole(cmd.CommandKeys[0] + " - Missing argument: " + eachCmdKey, null, ConsoleColor.Yellow);
+                FancyWriteToConsole(ConsoleColor.Yellow, cmd.CommandKeys[0] + " - Missing argument: " + eachCmdKey);
             return missingArgKeys.Count;
         }
 
-        public static void FancyWriteToConsole(string msg = null, ICollection<string> multiLineMsg = null, ConsoleColor textColor = ConsoleColor.White)
+        public static void FancyWriteToConsole(params object[] lines)
         {
-            Console.ForegroundColor = textColor;
-            if (!string.IsNullOrEmpty(msg))
-                Console.WriteLine(msg);
-            if (multiLineMsg != null)
-                foreach (var eachMsg in multiLineMsg)
-                    Console.WriteLine(eachMsg);
+            Console.ForegroundColor = ConsoleColor.White;
+            foreach (var each in lines)
+            {
+                if (each is ConsoleColor)
+                    Console.ForegroundColor = (ConsoleColor)each;
+                else if (each is string)
+                    Console.WriteLine(each);
+                else if (each is IEnumerable)
+                    foreach (var intEach in (IEnumerable)each)
+                        FancyWriteToConsole(intEach);
+                else
+                    Console.WriteLine(each);
+            }
             Console.ForegroundColor = ConsoleColor.White;
         }
 
         private static int Pause(int code)
         {
-            FancyWriteToConsole("Done! Press any key to close", null, code == 0 ? ConsoleColor.Green : ConsoleColor.DarkRed);
+            FancyWriteToConsole(code == 0 ? ConsoleColor.Green : ConsoleColor.DarkRed, "Done! Press any key to close");
             try
             {
                 Console.ReadKey();

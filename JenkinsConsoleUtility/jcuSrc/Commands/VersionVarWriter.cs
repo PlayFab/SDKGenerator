@@ -184,9 +184,11 @@ namespace JenkinsConsoleUtility.Commands
         /// </summary>
         private class SdkManualNotes
         {
+#pragma warning disable 0649
             public string description;
             public Dictionary<string, string> sdkVersion;
             public Dictionary<string, string> links;
+#pragma warning restore 0649
         }
     }
 }

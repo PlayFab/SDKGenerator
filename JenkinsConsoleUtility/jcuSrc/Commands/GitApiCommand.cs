@@ -40,12 +40,12 @@ namespace JenkinsConsoleUtility.Commands
                     return 1;
 
                 var sdkRepo = client.Repository.Get(GitOwner, sdkName).Result;
-                JenkinsConsoleUtility.FancyWriteToConsole(sdkRepo.CloneUrl, null, ConsoleColor.Green);
+                JenkinsConsoleUtility.FancyWriteToConsole(ConsoleColor.Green, sdkRepo.CloneUrl);
             }
             catch (AggregateException agEx)
             {
                 foreach (var e in agEx.InnerExceptions)
-                    JenkinsConsoleUtility.FancyWriteToConsole(e.ToString(), null, ConsoleColor.Red);
+                    JenkinsConsoleUtility.FancyWriteToConsole(ConsoleColor.Red, e.ToString());
                 return 1;
             }
 
@@ -76,7 +76,9 @@ namespace JenkinsConsoleUtility.Commands
 
         private class GitHubCredentials
         {
+#pragma warning disable 0649
             public string token;
+#pragma warning restore 0649
         }
 
         private class GitHubReleaseRequest : NewRelease

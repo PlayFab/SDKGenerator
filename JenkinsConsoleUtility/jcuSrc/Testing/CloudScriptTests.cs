@@ -14,15 +14,17 @@ namespace JenkinsConsoleUtility.Testing
 
         private TestTitleData testTitleData = null;
 
+        private PlayFabClientInstanceAPI clientApi = new PlayFabClientInstanceAPI();
+
         public override void SetUp(UUnitTestContext testContext)
         {
             testTitleData = TestTitleDataLoader.Load(null);
-            PlayFabSettings.TitleId = testTitleData.titleId;
+            PlayFabSettings.staticSettings.TitleId = testTitleData.titleId;
 
-            var task = PlayFabClientAPI.LoginWithCustomIDAsync(new LoginWithCustomIDRequest { CreateAccount = true, CustomId = TEST_CUSTOM_ID, TitleId = testTitleData.titleId });
+            var task = clientApi.LoginWithCustomIDAsync(new LoginWithCustomIDRequest { CreateAccount = true, CustomId = TEST_CUSTOM_ID, TitleId = testTitleData.titleId });
             task.Wait();
 
-            testContext.True(PlayFabClientAPI.IsClientLoggedIn(), "User login not successful: " + task.Result.Error?.GenerateErrorReport());
+            testContext.True(clientApi.IsClientLoggedIn(), "User login not successful: " + task.Result.Error?.GenerateErrorReport());
         }
 
         /// <summary>
@@ -39,31 +41,33 @@ namespace JenkinsConsoleUtility.Testing
             TestSuiteReport[] testResults;
             object nullReturn;
 
+            var csListenCmd = new CloudScriptListener();
+
             // Reset a previous test if relevant
-            callResult = CloudScriptListener.ExecuteCloudScript(CloudScriptListener.CsFuncGetTestData, getRequest, testTitleData.extraHeaders, out testResults, out fetchErrorReport);
+            callResult = csListenCmd.ExecuteCloudScript(CloudScriptListener.CsFuncGetTestData, getRequest, testTitleData.extraHeaders, out testResults, out fetchErrorReport);
             //UUnitAssert.True(callResult, fetchErrorReport);
 
             // Verify that no data pre-exists
-            callResult = CloudScriptListener.ExecuteCloudScript(CloudScriptListener.CsFuncTestDataExists, getRequest, testTitleData.extraHeaders, out functionResult, out getErrorReport);
+            callResult = csListenCmd.ExecuteCloudScript(CloudScriptListener.CsFuncTestDataExists, getRequest, testTitleData.extraHeaders, out functionResult, out getErrorReport);
             testContext.True(callResult, getErrorReport);
             testContext.False(functionResult, getErrorReport);
 
             // Save some data
-            callResult = CloudScriptListener.ExecuteCloudScript(CloudScriptListener.CsFuncSaveTestData, saveRequest, testTitleData.extraHeaders, out nullReturn, out saveErrorReport);
+            callResult = csListenCmd.ExecuteCloudScript(CloudScriptListener.CsFuncSaveTestData, saveRequest, testTitleData.extraHeaders, out nullReturn, out saveErrorReport);
             testContext.True(callResult, saveErrorReport);
 
             // Verify that the saved data exists
-            callResult = CloudScriptListener.ExecuteCloudScript(CloudScriptListener.CsFuncTestDataExists, getRequest, testTitleData.extraHeaders, out functionResult, out getErrorReport);
+            callResult = csListenCmd.ExecuteCloudScript(CloudScriptListener.CsFuncTestDataExists, getRequest, testTitleData.extraHeaders, out functionResult, out getErrorReport);
             testContext.True(callResult, getErrorReport);
             testContext.True(functionResult, saveErrorReport);
 
             // Fetch that data
-            callResult = CloudScriptListener.ExecuteCloudScript(CloudScriptListener.CsFuncGetTestData, getRequest, testTitleData.extraHeaders, out testResults, out fetchErrorReport);
+            callResult = csListenCmd.ExecuteCloudScript(CloudScriptListener.CsFuncGetTestData, getRequest, testTitleData.extraHeaders, out testResults, out fetchErrorReport);
             testContext.True(callResult, fetchErrorReport);
             testContext.NotNull(testResults, fetchErrorReport);
 
             // Verify that it was consumed
-            callResult = CloudScriptListener.ExecuteCloudScript(CloudScriptListener.CsFuncTestDataExists, getRequest, testTitleData.extraHeaders, out functionResult, out getErrorReport);
+            callResult = csListenCmd.ExecuteCloudScript(CloudScriptListener.CsFuncTestDataExists, getRequest, testTitleData.extraHeaders, out functionResult, out getErrorReport);
             testContext.True(callResult, getErrorReport);
             testContext.False(functionResult, getErrorReport);
 

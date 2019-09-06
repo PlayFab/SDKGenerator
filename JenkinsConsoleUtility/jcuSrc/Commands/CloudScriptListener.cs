@@ -38,8 +38,10 @@ namespace JenkinsConsoleUtility.Commands
         public const string CsFuncGetTestData = "GetTestData";
         public const string CsFuncSaveTestData = "SaveTestData";
 
-        private static CsGetRequest _getRequest;
-        private static bool verbose;
+        private CsGetRequest _getRequest;
+        private bool verbose;
+
+        private PlayFabClientInstanceAPI clientApi = new PlayFabClientInstanceAPI();
 
         public int Execute(Dictionary<string, string> argsLc, Dictionary<string, string> argsCased)
         {
@@ -66,12 +68,12 @@ namespace JenkinsConsoleUtility.Commands
             return 0;
         }
 
-        private static int Login(string titleId, string buildIdentifier, TestTitleData testTitleData)
+        private int Login(string titleId, string buildIdentifier, TestTitleData testTitleData)
         {
-            PlayFabSettings.TitleId = titleId;
-            var task = PlayFabClientAPI.LoginWithCustomIDAsync(new LoginWithCustomIDRequest { TitleId = titleId, CustomId = buildIdentifier, CreateAccount = true }, null, testTitleData.extraHeaders);
+            PlayFabSettings.staticSettings.TitleId = titleId;
+            var task = clientApi.LoginWithCustomIDAsync(new LoginWithCustomIDRequest { TitleId = titleId, CustomId = buildIdentifier, CreateAccount = true }, null, testTitleData.extraHeaders);
             task.Wait();
-            var returnCode = PlayFabClientAPI.IsClientLoggedIn() ? 0 : 1;
+            var returnCode = clientApi.IsClientLoggedIn() ? 0 : 1;
             if (returnCode != 0)
             {
                 JenkinsConsoleUtility.FancyWriteToConsole(ConsoleColor.Red, "Failed to log in using CustomID: " + titleId + ", " + buildIdentifier);
@@ -87,7 +89,7 @@ namespace JenkinsConsoleUtility.Commands
         /// <summary>
         /// Loop and poll for the expected test results
         /// </summary>
-        private static int WaitForTestResult(TimeSpan timeout, TestTitleData testTitleData)
+        private int WaitForTestResult(TimeSpan timeout, TestTitleData testTitleData)
         {
             var now = DateTime.UtcNow;
             var expireTime = now + timeout;
@@ -111,7 +113,7 @@ namespace JenkinsConsoleUtility.Commands
         /// Fetch the result and return
         /// (The cloudscript function should remove the test result from userData and delete the user)
         /// </summary>
-        private static int FetchTestResult(string buildIdentifier, string workspacePath, TestTitleData testTitleData)
+        private int FetchTestResult(string buildIdentifier, string workspacePath, TestTitleData testTitleData)
         {
             List<TestSuiteReport> testResults;
             string errorReport;
@@ -125,7 +127,7 @@ namespace JenkinsConsoleUtility.Commands
             return JUnitXml.WriteXmlFile(tempFileFullPath, testResults, true);
         }
 
-        public static bool ExecuteCloudScript<TIn, TOut>(string functionName, TIn functionParameter, Dictionary<string, string> extraHeaders, out TOut result, out string errorReport)
+        public bool ExecuteCloudScript<TIn, TOut>(string functionName, TIn functionParameter, Dictionary<string, string> extraHeaders, out TOut result, out string errorReport)
         {
             // Perform the request
             var request = new ExecuteCloudScriptRequest
@@ -134,7 +136,7 @@ namespace JenkinsConsoleUtility.Commands
                 FunctionParameter = functionParameter,
                 GeneratePlayStreamEvent = true
             };
-            var task = PlayFabClientAPI.ExecuteCloudScriptAsync(request, null, extraHeaders);
+            var task = clientApi.ExecuteCloudScriptAsync(request, null, extraHeaders);
             task.Wait();
             errorReport = PlayFabUtil.GetCloudScriptErrorReport(task.Result);
 

@@ -2,6 +2,7 @@ using PlayFab.Json;
 using System;
 using System.Collections.Generic;
 using System.IO;
+using System.Reflection;
 using System.Threading.Tasks;
 
 #if !DISABLE_PLAYFABCLIENT_API

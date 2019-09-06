@@ -15,22 +15,36 @@ namespace JenkinsConsoleUtility.Util
             if (testTitleData != null)
                 return testTitleData;
 
-            string filepath;
-            // If testTitleData path is provided, try to load the file
-            if (JenkinsConsoleUtility.TryGetArgVar(out filepath, argsLc, "testTitleData") && !string.IsNullOrEmpty(filepath))
-                _LoadTestTitleData(filepath);
-            // If PF_TEST_TITLE_DATA_JSON exists, get testTitleData path from it, and try to load the file
-            filepath = Environment.GetEnvironmentVariable("PF_TEST_TITLE_DATA_JSON");
-            if (!string.IsNullOrEmpty(filepath))
-                _LoadTestTitleData(filepath);
+            string eachFilepath;
+            HashSet<string> validFilepaths = new HashSet<string>();
+            JenkinsConsoleUtility.TryGetArgVar(out string workspacePath, argsLc, "WORKSPACE");
 
-            if (testTitleData == null)
+            // If testTitleData or PF_TEST_TITLE_DATA_JSON path is provided, save the path and try to load it
+            if (JenkinsConsoleUtility.TryGetArgVar(out eachFilepath, argsLc, "testTitleData"))
+                AddValidPath(validFilepaths, eachFilepath, workspacePath);
+            if (JenkinsConsoleUtility.TryGetArgVar(out eachFilepath, argsLc, "PF_TEST_TITLE_DATA_JSON"))
+                AddValidPath(validFilepaths, eachFilepath, workspacePath);
+
+            // Load the first file path that works
+            foreach (var validFilepath in validFilepaths)
             {
-                Console.WriteLine("ERROR: Must use testTitleData");
-                throw new Exception("ERROR: Must use testTitleData");
+                _LoadTestTitleData(validFilepath);
+                if (testTitleData != null)
+                    return testTitleData;
             }
 
-            return testTitleData;
+            Console.WriteLine("ERROR: Could not find a valid testTitleData");
+            throw new Exception("ERROR: Could not find a valid testTitleData");
+        }
+
+        private static void AddValidPath(HashSet<string> validFilepaths, string eachFilepath, string workspacePath)
+        {
+            if (string.IsNullOrEmpty(eachFilepath))
+                return;
+            if (!File.Exists(eachFilepath))
+                eachFilepath = eachFilepath.Replace("%WORKSPACE%", workspacePath);
+            if (File.Exists(eachFilepath))
+                validFilepaths.Add(eachFilepath);
         }
 
         private static void _LoadTestTitleData(string filepath)

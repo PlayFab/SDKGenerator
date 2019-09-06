@@ -15,9 +15,9 @@ namespace JenkinsConsoleUtility.Commands
             SEV_0, // Wake up everyone
             SEV_1, // Wake up team
             SEV_2, // Wake up on-call
-            SEV_3, // Send an email
-            SEV_4, // File a bug
-            SEV_5, // Follow up if there's lots of them
+            SEV_3, // Send an email for morning
+            SEV_4, // File a bug for next sprint
+            SEV_5, // Follow up someday if I feel like it
 
             NONE, // No issue
         }

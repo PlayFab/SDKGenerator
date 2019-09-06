@@ -32,7 +32,7 @@ namespace JenkinsConsoleUtility.Commands
         private PlayFabAuthenticationInstanceAPI authApi;
         private PlayFabMultiplayerInstanceAPI multiplayerApi;
 
-        private readonly TimeSpan cycleDuration = TimeSpan.FromMinutes(1);
+        private readonly TimeSpan cycleDuration = TimeSpan.FromMinutes(0.5);
         private readonly TimeSpan cyclePeriod = TimeSpan.FromSeconds(10);
         private readonly TimeSpan retryDelay = TimeSpan.FromSeconds(10);
         private const int retryCount = 5;
@@ -42,6 +42,8 @@ namespace JenkinsConsoleUtility.Commands
 
         private DateTime endOfCycle;
         private string bblVersions;
+        Severity worstBblSeverity = Severity.NONE;
+        Severity worstThSeverity = Severity.NONE;
 
         public CheckBblStandby()
         {
@@ -59,7 +61,7 @@ namespace JenkinsConsoleUtility.Commands
             if (setupCode != 0)
                 return setupCode;
 
-            var cumulativeResult = new Tuple<int, Severity, Severity>(0, Severity.NONE, Severity.SEV_0);
+            var cumulativeResult = new Tuple<int, Severity>(0, Severity.SEV_0);
 
             endOfCycle = DateTime.UtcNow + cycleDuration;
             while (endOfCycle > DateTime.UtcNow)
@@ -68,9 +70,8 @@ namespace JenkinsConsoleUtility.Commands
                 var eachResult = EvaluateBuildSummaries(bblVersions, eachSummary);
 
                 // Combine the results
-                cumulativeResult = new Tuple<int, Severity, Severity>(
+                cumulativeResult = new Tuple<int, Severity>(
                     cumulativeResult.Item1 + eachResult.Item1,
-                    (Severity)Math.Min((byte)cumulativeResult.Item2, (byte)eachResult.Item2), // Worst Error Seen
                     (Severity)Math.Max((byte)cumulativeResult.Item2, (byte)eachResult.Item2) // Least Error Seen
                 );
 
@@ -78,10 +79,11 @@ namespace JenkinsConsoleUtility.Commands
             }
 
             JcuUtil.FancyWriteToConsole("Finished Query Cycle");
-            MakeAlert(null, cumulativeResult.Item2, " <- Worst Error Level");
-            MakeAlert(null, cumulativeResult.Item3, " <- Typical Error Level. Total Number of Alerts: " + cumulativeResult.Item1);
+            MakeAlert(null, worstBblSeverity, " <- Worst Bumblelion Error Level");
+            MakeAlert(null, worstThSeverity, " <- Worst Thunderhead Error Level");
+            MakeAlert(null, cumulativeResult.Item2, " <- Typical Error Level. Total Number of Alerts: " + cumulativeResult.Item1);
 
-            return (cumulativeResult.Item3 <= Severity.SEV_3) ? cumulativeResult.Item1 : 0;
+            return (cumulativeResult.Item2 <= Severity.SEV_3) ? cumulativeResult.Item1 : 0;
         }
 
         private int LoginToPlayfab(Dictionary<string, string> argsLc)
@@ -160,7 +162,7 @@ namespace JenkinsConsoleUtility.Commands
             List<string> thAlerts = new List<string>();
             HashSet<string> completedVersions = new HashSet<string>();
 
-            Severity worstSeverity = Severity.NONE;
+            Severity worstTickSeverity = Severity.NONE;
             foreach (var eachSummary in buildSummaries)
             {
                 if (!eachSummary.Metadata.TryGetValue("Version", out string versionString))
@@ -177,12 +179,13 @@ namespace JenkinsConsoleUtility.Commands
                 JcuUtil.FancyWriteToConsole("Found Version: " + versionString + ",  BuildId: " + eachSummary.BuildId);
                 foreach (var each in eachSummary.RegionConfigurations)
                 {
-                    JcuUtil.FancyWriteToConsole(" - " + each.Region + ", (sby:" + each.StandbyServers + "/max:" + each.MaxServers + ")(sby:" + each.CurrentServerStats.StandingBy + "/prp:" + each.CurrentServerStats.Propping + "/act:" + each.CurrentServerStats.Active + "/max:" + each.MaxServers + ")");
+                    JcuUtil.FancyWriteToConsole("    - " + each.Region + ", (sby:" + each.StandbyServers + "/max:" + each.MaxServers + ")(sby:" + each.CurrentServerStats.StandingBy + "/prp:" + each.CurrentServerStats.Propping + "/act:" + each.CurrentServerStats.Active + "/max:" + each.MaxServers + ")");
 
                     if (each.CurrentServerStats.StandingBy == 0 && each.CurrentServerStats.Active == 0 && each.CurrentServerStats.Propping == 0)
                     {
                         MakeAlert(thAlerts, Severity.SEV_4, "Bad region numbers detected");
-                        worstSeverity = Severity.SEV_4;
+                        worstThSeverity = (Severity)Math.Min((byte)worstThSeverity, (byte)Severity.SEV_4);
+                        // worstTickSeverity = (Severity)Math.Min((byte)worstTickSeverity, (byte)Severity.SEV_4); // Thunderhead errors won't count against the tick for now
                         continue; // All hell will break loose below, with these numbers, but they're not legit, so skip it
                     }
 
@@ -192,7 +195,8 @@ namespace JenkinsConsoleUtility.Commands
                         if (gap >= GAP_THRESHOLDS[i])
                         {
                             MakeAlert(thAlerts, (Severity)i, versionString + ", " + eachSummary.BuildId + " - High \"StandBy + Propping\" Gap (" + gap + ") in region:" + each.Region);
-                            worstSeverity = (Severity)i;
+                            worstThSeverity = (Severity)Math.Min((byte)worstThSeverity, i);
+                            // worstTickSeverity = (Severity)Math.Min((byte)worstTickSeverity, i); // Thunderhead errors won't count against the tick for now
                             break;
                         }
                     }
@@ -202,7 +206,8 @@ namespace JenkinsConsoleUtility.Commands
                         if (each.CurrentServerStats.Active >= (each.MaxServers * MAX_PERCENT_THRESHOLDS[i] / 100))
                         {
                             MakeAlert(bblAlerts, (Severity)i, versionString + ", " + eachSummary.BuildId + " - " + MAX_PERCENT_THRESHOLDS[i] + "% (" + each.CurrentServerStats.Active + "/" + each.MaxServers + ") Max Servers reached in region:" + each.Region);
-                            worstSeverity = (Severity)i;
+                            worstBblSeverity = (Severity)Math.Min((byte)worstBblSeverity, i);
+                            worstTickSeverity = (Severity)Math.Min((byte)worstTickSeverity, i);
                             break;
                         }
                     }
@@ -212,7 +217,8 @@ namespace JenkinsConsoleUtility.Commands
                         if (each.CurrentServerStats.StandingBy <= STANDBY_THRESHOLDS[i])
                         {
                             MakeAlert(bblAlerts, (Severity)i, versionString + ", " + eachSummary.BuildId + " - Low Standby in region:" + each.Region + ", " + each.CurrentServerStats.StandingBy + "<=" + STANDBY_THRESHOLDS[i]);
-                            worstSeverity = (Severity)i;
+                            worstBblSeverity = (Severity)Math.Min((byte)worstBblSeverity, i);
+                            worstTickSeverity = (Severity)Math.Min((byte)worstTickSeverity, i);
                             break;
                         }
                     }
@@ -227,7 +233,7 @@ namespace JenkinsConsoleUtility.Commands
             if (thAlerts.Count > 0)
                 JcuUtil.FancyWriteToConsole(ConsoleColor.Yellow, "Thunderhead alert list:", ConsoleColor.Blue, null, thAlerts, null);
 
-            return new Tuple<int, Severity>(bblAlerts.Count + thAlerts.Count, worstSeverity);
+            return new Tuple<int, Severity>(bblAlerts.Count + thAlerts.Count, worstTickSeverity);
         }
 
         private void MakeAlert(List<string> alertList, Severity severity, string msg)

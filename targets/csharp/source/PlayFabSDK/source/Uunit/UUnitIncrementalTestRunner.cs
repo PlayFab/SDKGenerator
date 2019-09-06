@@ -2,6 +2,7 @@ using PlayFab.Json;
 using System;
 using System.Collections.Generic;
 using System.IO;
+using System.Reflection;
 using System.Threading.Tasks;
 
 #if !DISABLE_PLAYFABCLIENT_API
@@ -86,6 +87,11 @@ namespace PlayFab.UUnit
 #if !DISABLE_PLAYFABCLIENT_API
             _onComplete = onComplete;
 #endif
+        }
+
+        public static void AddTestAssembly(Assembly assembly, string filter = null)
+        {
+            _suite.FindAndAddAllTestCases(assembly, typeof(UUnitTestCase), filter);
         }
 
         public static async Task<string> Tick()

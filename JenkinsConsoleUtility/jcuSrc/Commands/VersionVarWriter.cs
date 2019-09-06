@@ -14,9 +14,9 @@ namespace JenkinsConsoleUtility.Commands
         private string _apiSpecPath, _apiSpecGitUrl, _apiSpecPfUrl; // Exactly one of these is expected to be set
 
         private static readonly string[] MyCommandKeys = { "versionVarWriter", "version" };
-        public string[] CommandKeys { get { return MyCommandKeys; } }
+        public string[] CommandKeys => MyCommandKeys;
         private static readonly string[] MyMandatoryArgKeys = { "sdkName" };
-        public string[] MandatoryArgKeys { get { return MyMandatoryArgKeys; } }
+        public string[] MandatoryArgKeys => MyMandatoryArgKeys;
 
         // If this command runs, make the results accessible to other modules
         public static string sdkVersionString;

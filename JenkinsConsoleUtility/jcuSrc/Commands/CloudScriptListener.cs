@@ -30,9 +30,9 @@ namespace JenkinsConsoleUtility.Commands
         private const int TestDataExistsSleepTime = 4500;
 
         private static readonly string[] MyCommandKeys = { "ListenCS" };
-        public string[] CommandKeys { get { return MyCommandKeys; } }
+        public string[] CommandKeys => MyCommandKeys;
         private static readonly string[] MyMandatoryArgKeys = { "buildidentifier" };
-        public string[] MandatoryArgKeys { get { return MyMandatoryArgKeys; } }
+        public string[] MandatoryArgKeys => MyMandatoryArgKeys;
 
         public const string CsFuncTestDataExists = "TestDataExists";
         public const string CsFuncGetTestData = "GetTestData";

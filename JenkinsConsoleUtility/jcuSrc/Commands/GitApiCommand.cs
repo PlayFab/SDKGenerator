@@ -13,11 +13,11 @@ namespace JenkinsConsoleUtility.Commands
 
         // TODO: Validate this
         //private readonly Type[] _commandDependency = { typeof(VersionVarWriter) };
-        //public Type[] CommandDependency { get { return _commandDependency; } }
+        //public Type[] CommandDependency => _commandDependency;
         private readonly string[] _commandKeys = { "GitApi" };
-        public string[] CommandKeys { get { return _commandKeys; } }
+        public string[] CommandKeys => _commandKeys;
         private readonly string[] _mandatoryArgKeys = { "sdkName", "GITHUB_CREDENTIALS_FILE" };
-        public string[] MandatoryArgKeys { get { return _mandatoryArgKeys; } }
+        public string[] MandatoryArgKeys => _mandatoryArgKeys;
 
         public int Execute(Dictionary<string, string> argsLc, Dictionary<string, string> argsCased)
         {

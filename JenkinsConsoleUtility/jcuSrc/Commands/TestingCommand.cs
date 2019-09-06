@@ -8,9 +8,9 @@ namespace JenkinsConsoleUtility.Commands
     public class TestingCommand : ICommand
     {
         private static readonly string[] MyCommandKeys = { "Test", "RunTests" };
-        public string[] CommandKeys { get { return MyCommandKeys; } }
+        public string[] CommandKeys => MyCommandKeys;
         private static readonly string[] MyMandatoryArgKeys = { };
-        public string[] MandatoryArgKeys { get { return MyMandatoryArgKeys; } }
+        public string[] MandatoryArgKeys => MyMandatoryArgKeys;
 
         public int Execute(Dictionary<string, string> argsLc, Dictionary<string, string> argsCased)
         {

@@ -46,7 +46,7 @@ namespace JenkinsConsoleUtility.Util
             if (string.IsNullOrEmpty(eachFilepath))
                 return;
             if (!File.Exists(eachFilepath))
-                eachFilepath = eachFilepath.Replace("%workspace%", workspacePath);
+                eachFilepath = eachFilepath.Replace("%WORKSPACE%", workspacePath).Replace("%workspace%", workspacePath);
             if (File.Exists(eachFilepath))
                 validFilepaths.Add(eachFilepath);
         }

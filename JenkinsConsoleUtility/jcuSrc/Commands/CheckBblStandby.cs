@@ -55,7 +55,7 @@ namespace JenkinsConsoleUtility.Commands
 
         public int Execute(Dictionary<string, string> argsLc, Dictionary<string, string> argsCased)
         {
-            ParseInputs(argsLc);
+            ParseInputs(argsCased);
 
             var setupCode = LoginToPlayfab(argsLc);
             if (setupCode != 0)
@@ -86,25 +86,25 @@ namespace JenkinsConsoleUtility.Commands
             return (cumulativeResult.Item2 <= Severity.SEV_3) ? cumulativeResult.Item1 : 0;
         }
 
-        private void ParseInputs(Dictionary<string, string> argsLc)
+        private void ParseInputs(Dictionary<string, string> argsCased)
         {
-            if (!JenkinsConsoleUtility.TryGetArgVar(out BBL_VERSIONS, argsLc, "BBL_VERSIONS"))
+            if (!JenkinsConsoleUtility.TryGetArgVar(out BBL_VERSIONS, argsCased, "BBL_VERSIONS"))
                 BBL_VERSIONS = "3.0.0;2.0.1";
 
-            if (JenkinsConsoleUtility.TryGetArgVar(out string tempGapThresholds, argsLc, "GAP_MAX_THRESHOLDS"))
+            if (JenkinsConsoleUtility.TryGetArgVar(out string tempGapThresholds, argsCased, "GAP_MAX_THRESHOLDS"))
                 try { GAP_MAX_THRESHOLDS = tempGapThresholds.Split(';').Select(s => int.Parse(s)).ToArray(); } catch (Exception) { }
-            if (JenkinsConsoleUtility.TryGetArgVar(out string tempStandby, argsLc, "STANDBY_MIN_THRESHOLDS"))
+            if (JenkinsConsoleUtility.TryGetArgVar(out string tempStandby, argsCased, "STANDBY_MIN_THRESHOLDS"))
                 try { STANDBY_MIN_THRESHOLDS = tempStandby.Split(';').Select(s => int.Parse(s)).ToArray(); } catch (Exception) { }
-            if (JenkinsConsoleUtility.TryGetArgVar(out string tempMaxCap, argsLc, "MAX_CAPACITY_PERCENT_THRESHOLDS"))
+            if (JenkinsConsoleUtility.TryGetArgVar(out string tempMaxCap, argsCased, "MAX_CAPACITY_PERCENT_THRESHOLDS"))
                 try { MAX_CAPACITY_PERCENT_THRESHOLDS = tempMaxCap.Split(';').Select(s => int.Parse(s)).ToArray(); } catch (Exception) { }
 
-            if (JenkinsConsoleUtility.TryGetArgVar(out string tempCycleDuration, argsLc, "CYCLE_DURATION_MINS"))
+            if (JenkinsConsoleUtility.TryGetArgVar(out string tempCycleDuration, argsCased, "CYCLE_DURATION_MINS"))
                 try { CYCLE_DURATION_MINS = TimeSpan.FromMinutes(double.Parse(tempCycleDuration)); } catch (Exception) { }
-            if (JenkinsConsoleUtility.TryGetArgVar(out string tempCyclePeriod, argsLc, "CYCLE_PERIOD_SEC"))
+            if (JenkinsConsoleUtility.TryGetArgVar(out string tempCyclePeriod, argsCased, "CYCLE_PERIOD_SEC"))
                 try { CYCLE_PERIOD_SEC = TimeSpan.FromSeconds(double.Parse(tempCyclePeriod)); } catch (Exception) { }
-            if (JenkinsConsoleUtility.TryGetArgVar(out string tempRetryDelay, argsLc, "RETRY_DELAY_SEC"))
+            if (JenkinsConsoleUtility.TryGetArgVar(out string tempRetryDelay, argsCased, "RETRY_DELAY_SEC"))
                 try { RETRY_DELAY_SEC = TimeSpan.FromSeconds(double.Parse(tempRetryDelay)); } catch (Exception) { }
-            if (JenkinsConsoleUtility.TryGetArgVar(out string tempRetryCount, argsLc, "RETRY_COUNT"))
+            if (JenkinsConsoleUtility.TryGetArgVar(out string tempRetryCount, argsCased, "RETRY_COUNT"))
                 try { RETRY_COUNT = int.Parse(tempRetryCount); } catch (Exception) { }
         }
 

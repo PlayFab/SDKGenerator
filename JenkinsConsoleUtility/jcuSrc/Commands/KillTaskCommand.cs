@@ -2,6 +2,7 @@ using System;
 using System.Collections.Generic;
 using System.Diagnostics;
 using System.Threading;
+using JenkinsConsoleUtility.Util;
 
 namespace JenkinsConsoleUtility.Commands
 {
@@ -11,9 +12,9 @@ namespace JenkinsConsoleUtility.Commands
         private const int TASK_KILL_SLEEP_MS = 500;
 
         private static readonly string[] MyCommandKeys = { "kill" };
-        public string[] CommandKeys { get { return MyCommandKeys; } }
+        public string[] CommandKeys => MyCommandKeys;
         private static readonly string[] MyMandatoryArgKeys = { "taskName" };
-        public string[] MandatoryArgKeys { get { return MyMandatoryArgKeys; } }
+        public string[] MandatoryArgKeys => MyMandatoryArgKeys;
 
         public int Execute(Dictionary<string, string> argsLc, Dictionary<string, string> argsCased)
         {
@@ -32,7 +33,7 @@ namespace JenkinsConsoleUtility.Commands
                 hitList.AddRange(eachHitList);
                 foreach (var eachProcess in eachHitList)
                 {
-                    JenkinsConsoleUtility.FancyWriteToConsole("Closing task: " + eachProcess.ProcessName, null, ConsoleColor.Yellow);
+                    JcuUtil.FancyWriteToConsole(ConsoleColor.Yellow, "Closing task: " + eachProcess.ProcessName);
                     eachProcess.CloseMainWindow(); // Gently close the target so they don't throw error codes 
                 }
             }
@@ -56,12 +57,12 @@ namespace JenkinsConsoleUtility.Commands
             {
                 if (eachProcess.HasExited)
                     continue; // Finished skip it
-                JenkinsConsoleUtility.FancyWriteToConsole("Killing task: " + eachProcess.ProcessName, null, ConsoleColor.Red);
+                JcuUtil.FancyWriteToConsole(ConsoleColor.Red, "Killing task: " + eachProcess.ProcessName);
                 eachProcess.Kill(); // If it didn't close gently, then close it better.
             }
 
             if (hitList.Count == 0)
-                JenkinsConsoleUtility.FancyWriteToConsole("No tasks to kill: " + taskNames, null, ConsoleColor.Red);
+                JcuUtil.FancyWriteToConsole(ConsoleColor.Red, "No tasks to kill: " + taskNames);
             return hitList.Count > 0 ? 0 : 1;
         }
     }

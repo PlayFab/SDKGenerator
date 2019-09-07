@@ -9,7 +9,7 @@
     <AppDesignerFolder>Properties</AppDesignerFolder>
     <RootNamespace>JenkinsConsoleUtility</RootNamespace>
     <AssemblyName>JenkinsConsoleUtility</AssemblyName>
-    <TargetFrameworkVersion>v4.5</TargetFrameworkVersion>
+    <TargetFrameworkVersion>v4.7.2</TargetFrameworkVersion>
     <FileAlignment>512</FileAlignment>
     <AutoGenerateBindingRedirects>true</AutoGenerateBindingRedirects>
     <TargetFrameworkProfile />
@@ -41,10 +41,24 @@
       <HintPath>packages\Octokit.0.32.0\lib\net45\Octokit.dll</HintPath>
     </Reference>
     <Reference Include="PlayFabAllSDK, Version=1.0.0.0, Culture=neutral, processorArchitecture=MSIL">
-      <HintPath>packages\PlayFabAllSDK.1.38.181001\lib\portable45-net45+win8+wpa81\PlayFabAllSDK.dll</HintPath>
+      <HintPath>packages\PlayFabAllSDK.1.57.190903\lib\net45\PlayFabAllSDK.dll</HintPath>
     </Reference>
     <Reference Include="System" />
+    <Reference Include="System.Collections" />
+    <Reference Include="System.ComponentModel" />
     <Reference Include="System.Core" />
+    <Reference Include="System.Diagnostics.Tools" />
+    <Reference Include="System.Globalization" />
+    <Reference Include="System.Linq" />
+    <Reference Include="System.Net.Primitives" />
+    <Reference Include="System.Reflection" />
+    <Reference Include="System.Reflection.Extensions" />
+    <Reference Include="System.Resources.ResourceManager" />
+    <Reference Include="System.Runtime" />
+    <Reference Include="System.Runtime.Extensions" />
+    <Reference Include="System.Text.Encoding" />
+    <Reference Include="System.Threading" />
+    <Reference Include="System.Threading.Tasks" />
     <Reference Include="System.Web" />
     <Reference Include="System.Xml.Linq" />
     <Reference Include="System.Data.DataSetExtensions" />
@@ -55,6 +69,7 @@
   </ItemGroup>
   <ItemGroup>
     <Compile Include="jcuSrc\AssemblyInfo.cs" />
+    <Compile Include="jcuSrc\Commands\CheckBblStandby.cs" />
     <Compile Include="jcuSrc\Commands\CloudScriptListener.cs" />
     <Compile Include="jcuSrc\Commands\GitApiCommand.cs" />
     <Compile Include="jcuSrc\Commands\KillTaskCommand.cs" />
@@ -65,6 +80,7 @@
     <Compile Include="jcuSrc\Commands\TestingCommand.cs" />
     <Compile Include="jcuSrc\Testing\TestJsonReportSyntax.cs" />
     <Compile Include="jcuSrc\Testing\XmlTests.cs" />
+    <Compile Include="jcuSrc\Util\Util.cs" />
     <Compile Include="jcuSrc\Util\TestTitleDataLoader.cs" />
   </ItemGroup>
   <ItemGroup>

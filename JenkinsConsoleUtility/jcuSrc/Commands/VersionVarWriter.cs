@@ -1,8 +1,9 @@
-using PlayFab.Json;
 using System.Collections.Generic;
 using System.IO;
 using System.Net.Http;
 using System.Threading.Tasks;
+using JenkinsConsoleUtility.Util;
+using PlayFab.Json;
 
 namespace JenkinsConsoleUtility.Commands
 {
@@ -14,9 +15,9 @@ namespace JenkinsConsoleUtility.Commands
         private string _apiSpecPath, _apiSpecGitUrl, _apiSpecPfUrl; // Exactly one of these is expected to be set
 
         private static readonly string[] MyCommandKeys = { "versionVarWriter", "version" };
-        public string[] CommandKeys { get { return MyCommandKeys; } }
+        public string[] CommandKeys => MyCommandKeys;
         private static readonly string[] MyMandatoryArgKeys = { "sdkName" };
-        public string[] MandatoryArgKeys { get { return MyMandatoryArgKeys; } }
+        public string[] MandatoryArgKeys => MyMandatoryArgKeys;
 
         // If this command runs, make the results accessible to other modules
         public static string sdkVersionString;
@@ -41,7 +42,7 @@ namespace JenkinsConsoleUtility.Commands
                 _apiSpecPfUrl = JenkinsConsoleUtility.GetArgVar(argsLc, "apiSpecPfUrl");
             else
             {
-                JenkinsConsoleUtility.FancyWriteToConsole("Api-Spec input not defined.  Please input one of: apiSpecPath, apiSpecGitUrl, apiSpecPfUrl");
+                JcuUtil.FancyWriteToConsole("Api-Spec input not defined.  Please input one of: apiSpecPath, apiSpecGitUrl, apiSpecPfUrl");
                 return 1;
             }
 
@@ -49,8 +50,8 @@ namespace JenkinsConsoleUtility.Commands
             var sdkNotes = JsonWrapper.DeserializeObject<SdkManualNotes>(versionJson);
             if (!sdkNotes.sdkVersion.TryGetValue(sdkGenKey, out sdkVersionString))
             {
-                JenkinsConsoleUtility.FancyWriteToConsole("SdkManualNotes.json does not contain: " + sdkGenKey);
-                JenkinsConsoleUtility.FancyWriteToConsole("SdkManualNotes.json:\n" + versionJson);
+                JcuUtil.FancyWriteToConsole("SdkManualNotes.json does not contain: " + sdkGenKey);
+                JcuUtil.FancyWriteToConsole("SdkManualNotes.json:\n" + versionJson);
                 return 1;
             }
 
@@ -65,8 +66,8 @@ namespace JenkinsConsoleUtility.Commands
                 {
                     outputFile.WriteLine("sdkVersion = " + sdkVersionString);
                     outputFile.WriteLine("sdkDate = " + date);
-                    JenkinsConsoleUtility.FancyWriteToConsole("sdkVersion = " + sdkVersionString);
-                    JenkinsConsoleUtility.FancyWriteToConsole("sdkDate = " + date);
+                    JcuUtil.FancyWriteToConsole("sdkVersion = " + sdkVersionString);
+                    JcuUtil.FancyWriteToConsole("sdkDate = " + date);
                 }
             }
             return 0;
@@ -184,9 +185,11 @@ namespace JenkinsConsoleUtility.Commands
         /// </summary>
         private class SdkManualNotes
         {
+#pragma warning disable 0649
             public string description;
             public Dictionary<string, string> sdkVersion;
             public Dictionary<string, string> links;
+#pragma warning restore 0649
         }
     }
 }

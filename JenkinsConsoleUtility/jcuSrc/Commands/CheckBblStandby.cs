@@ -113,17 +113,7 @@ namespace JenkinsConsoleUtility.Commands
             // Get Login Credentials
             var testTitleData = TestTitleDataLoader.Load(argsLc);
             if (testTitleData == null)
-            {
-                JenkinsConsoleUtility.TryGetArgVar(out string workspacePath, argsLc, "WORKSPACE");
-                JenkinsConsoleUtility.TryGetArgVar(out string titleDataPath1, argsLc, "testTitleData");
-                JenkinsConsoleUtility.TryGetArgVar(out string titleDataPath2, argsLc, "PF_TEST_TITLE_DATA_JSON");
-
-                JcuUtil.FancyWriteToConsole(ConsoleColor.Red, "ERROR: Could not load testTitleData.",
-                    ConsoleColor.Yellow, "WORKSPACE=", ConsoleColor.White, workspacePath,
-                    ConsoleColor.Yellow, "testTitleData=", ConsoleColor.White, titleDataPath1,
-                    ConsoleColor.Yellow, "PF_TEST_TITLE_DATA_JSON=", ConsoleColor.White, titleDataPath2);
                 return 1;
-            }
 
             settings.TitleId = testTitleData.titleId;
             settings.DeveloperSecretKey = testTitleData.developerSecretKey;

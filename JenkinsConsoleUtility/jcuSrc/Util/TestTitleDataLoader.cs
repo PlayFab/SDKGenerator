@@ -15,15 +15,14 @@ namespace JenkinsConsoleUtility.Util
             if (testTitleData != null)
                 return testTitleData;
 
-            string eachFilepath;
-            HashSet<string> validFilepaths = new HashSet<string>();
             JenkinsConsoleUtility.TryGetArgVar(out string workspacePath, argsLc, "WORKSPACE");
+            JenkinsConsoleUtility.TryGetArgVar(out string titleDataPath1, argsLc, "testTitleData");
+            JenkinsConsoleUtility.TryGetArgVar(out string titleDataPath2, argsLc, "PF_TEST_TITLE_DATA_JSON");
 
             // If testTitleData or PF_TEST_TITLE_DATA_JSON path is provided, save the path and try to load it
-            if (JenkinsConsoleUtility.TryGetArgVar(out eachFilepath, argsLc, "testTitleData"))
-                AddValidPath(validFilepaths, eachFilepath, workspacePath);
-            if (JenkinsConsoleUtility.TryGetArgVar(out eachFilepath, argsLc, "PF_TEST_TITLE_DATA_JSON"))
-                AddValidPath(validFilepaths, eachFilepath, workspacePath);
+            HashSet<string> validFilepaths = new HashSet<string>();
+            AddValidPath(validFilepaths, titleDataPath1, workspacePath);
+            AddValidPath(validFilepaths, titleDataPath2, workspacePath);
 
             // Load the first file path that works
             foreach (var validFilepath in validFilepaths)
@@ -33,8 +32,11 @@ namespace JenkinsConsoleUtility.Util
                     return testTitleData;
             }
 
-            Console.WriteLine("ERROR: Could not find a valid testTitleData");
-            throw new Exception("ERROR: Could not find a valid testTitleData");
+            JcuUtil.FancyWriteToConsole(ConsoleColor.Red, "ERROR: Could not load testTitleData.",
+                ConsoleColor.Yellow, "WORKSPACE=", ConsoleColor.White, workspacePath,
+                ConsoleColor.Yellow, "testTitleData=", ConsoleColor.White, titleDataPath1,
+                ConsoleColor.Yellow, "PF_TEST_TITLE_DATA_JSON=", ConsoleColor.White, titleDataPath2);
+            return null;
         }
 
         private static void AddValidPath(HashSet<string> validFilepaths, string eachFilepath, string workspacePath)

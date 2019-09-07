@@ -36,7 +36,7 @@ namespace JenkinsConsoleUtility.Util
                 ConsoleColor.Yellow, "WORKSPACE=", ConsoleColor.White, workspacePath,
                 ConsoleColor.Yellow, "testTitleData=", ConsoleColor.White, titleDataPath1,
                 ConsoleColor.Yellow, "PF_TEST_TITLE_DATA_JSON=", ConsoleColor.White, titleDataPath2,
-                validFilepaths);
+                ConsoleColor.Yellow, "validFilepaths=", ConsoleColor.White, validFilepaths);
 
             return null;
         }

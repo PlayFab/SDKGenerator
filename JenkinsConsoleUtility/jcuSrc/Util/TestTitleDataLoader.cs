@@ -35,7 +35,9 @@ namespace JenkinsConsoleUtility.Util
             JcuUtil.FancyWriteToConsole(ConsoleColor.Red, "ERROR: Could not load testTitleData.",
                 ConsoleColor.Yellow, "WORKSPACE=", ConsoleColor.White, workspacePath,
                 ConsoleColor.Yellow, "testTitleData=", ConsoleColor.White, titleDataPath1,
-                ConsoleColor.Yellow, "PF_TEST_TITLE_DATA_JSON=", ConsoleColor.White, titleDataPath2);
+                ConsoleColor.Yellow, "PF_TEST_TITLE_DATA_JSON=", ConsoleColor.White, titleDataPath2
+                validFilepaths);
+
             return null;
         }
 

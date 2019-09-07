@@ -36,12 +36,12 @@ namespace JenkinsConsoleUtility.Commands
         private TimeSpan CYCLE_PERIOD_SEC = TimeSpan.FromSeconds(30);
         private TimeSpan RETRY_DELAY_SEC = TimeSpan.FromSeconds(10);
         private int RETRY_COUNT = 5;
-        private int[] GAP_THRESHOLDS = new[] { 10000, 10000, 1000, 400, 200, 100 };
+        private int[] GAP_MAX_THRESHOLDS = new[] { 10000, 10000, 1000, 400, 200, 100 };
         private int[] MAX_CAPACITY_PERCENT_THRESHOLDS = new[] { 1000, 1000, 100, 95, 80, 75 };
-        private int[] STANDBY_THRESHOLDS = new[] { -1, -1, 0, 6, 9, 11 };
+        private int[] STANDBY_MIN_THRESHOLDS = new[] { -1, -1, 0, 6, 9, 11 };
+        private string BBL_VERSIONS;
 
         private DateTime endOfCycle;
-        private string bblVersions;
         Severity worstBblSeverity = Severity.NONE;
         Severity worstThSeverity = Severity.NONE;
 
@@ -67,7 +67,7 @@ namespace JenkinsConsoleUtility.Commands
             while (endOfCycle > DateTime.UtcNow)
             {
                 var eachSummary = GetBuildSummaryFromPlayfab();
-                var eachResult = EvaluateBuildSummaries(bblVersions, eachSummary);
+                var eachResult = EvaluateBuildSummaries(BBL_VERSIONS, eachSummary);
 
                 // Combine the results
                 cumulativeResult = new Tuple<int, Severity>(
@@ -88,13 +88,13 @@ namespace JenkinsConsoleUtility.Commands
 
         private void ParseInputs(Dictionary<string, string> argsLc)
         {
-            if (!JenkinsConsoleUtility.TryGetArgVar(out bblVersions, argsLc, "BBL_VERSIONS"))
-                bblVersions = "3.0.0;2.0.1";
+            if (!JenkinsConsoleUtility.TryGetArgVar(out BBL_VERSIONS, argsLc, "BBL_VERSIONS"))
+                BBL_VERSIONS = "3.0.0;2.0.1";
 
-            if (JenkinsConsoleUtility.TryGetArgVar(out string tempGapThresholds, argsLc, "GAP_THRESHOLDS"))
-                try { GAP_THRESHOLDS = tempGapThresholds.Split(';').Select(s => int.Parse(s)).ToArray(); } catch (Exception) { }
-            if (JenkinsConsoleUtility.TryGetArgVar(out string tempStandby, argsLc, "STANDBY_THRESHOLDS"))
-                try { STANDBY_THRESHOLDS = tempStandby.Split(';').Select(s => int.Parse(s)).ToArray(); } catch (Exception e) { JcuUtil.FancyWriteToConsole(e); }
+            if (JenkinsConsoleUtility.TryGetArgVar(out string tempGapThresholds, argsLc, "GAP_MAX_THRESHOLDS"))
+                try { GAP_MAX_THRESHOLDS = tempGapThresholds.Split(';').Select(s => int.Parse(s)).ToArray(); } catch (Exception) { }
+            if (JenkinsConsoleUtility.TryGetArgVar(out string tempStandby, argsLc, "STANDBY_MIN_THRESHOLDS"))
+                try { STANDBY_MIN_THRESHOLDS = tempStandby.Split(';').Select(s => int.Parse(s)).ToArray(); } catch (Exception) { }
             if (JenkinsConsoleUtility.TryGetArgVar(out string tempMaxCap, argsLc, "MAX_CAPACITY_PERCENT_THRESHOLDS"))
                 try { MAX_CAPACITY_PERCENT_THRESHOLDS = tempMaxCap.Split(';').Select(s => int.Parse(s)).ToArray(); } catch (Exception) { }
 
@@ -212,9 +212,9 @@ namespace JenkinsConsoleUtility.Commands
                     }
 
                     var gap = each.StandbyServers - each.CurrentServerStats.StandingBy - each.CurrentServerStats.Propping;
-                    for (var i = 0; i < GAP_THRESHOLDS.Length; i++)
+                    for (var i = 0; i < GAP_MAX_THRESHOLDS.Length; i++)
                     {
-                        if (gap >= GAP_THRESHOLDS[i])
+                        if (gap >= GAP_MAX_THRESHOLDS[i])
                         {
                             MakeAlert(thAlerts, (Severity)i, versionString + ", " + eachSummary.BuildId + " - High \"StandBy + Propping\" Gap (" + gap + ") in region:" + each.Region);
                             worstThSeverity = (Severity)Math.Min((byte)worstThSeverity, i);
@@ -234,11 +234,11 @@ namespace JenkinsConsoleUtility.Commands
                         }
                     }
 
-                    for (var i = 0; i < STANDBY_THRESHOLDS.Length; i++)
+                    for (var i = 0; i < STANDBY_MIN_THRESHOLDS.Length; i++)
                     {
-                        if (each.CurrentServerStats.StandingBy <= STANDBY_THRESHOLDS[i])
+                        if (each.CurrentServerStats.StandingBy <= STANDBY_MIN_THRESHOLDS[i])
                         {
-                            MakeAlert(bblAlerts, (Severity)i, versionString + ", " + eachSummary.BuildId + " - Low Standby in region:" + each.Region + ", " + each.CurrentServerStats.StandingBy + "<=" + STANDBY_THRESHOLDS[i]);
+                            MakeAlert(bblAlerts, (Severity)i, versionString + ", " + eachSummary.BuildId + " - Low Standby in region:" + each.Region + ", " + each.CurrentServerStats.StandingBy + "<=" + STANDBY_MIN_THRESHOLDS[i]);
                             worstBblSeverity = (Severity)Math.Min((byte)worstBblSeverity, i);
                             worstTickSeverity = (Severity)Math.Min((byte)worstTickSeverity, i);
                             break;

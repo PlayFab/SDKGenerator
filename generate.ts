@@ -16,6 +16,8 @@ interface IBuildTarget {
     versionString: string, // The actual version string, from SdkManualNotes, or from another appropriate input
 }
 
+interface IGenConfigFile { [key: string]: IGenConfig; }
+
 // This is the interface of the genConfig.json file at the root of the destination repo
 interface IGenConfig {
     branchSpecMap: { [key: string]: string; }, // Theoretical. Indicates which apiSpec location is used for which branch. May be revised.
@@ -472,13 +474,14 @@ function generateApis(buildIdentifier, target: IBuildTarget) {
     var genConfig: IGenConfig = null;
 
     // This is disabled until we more carefully detect and alert on input conflicts
-    //var genConfigPath = path.resolve(target.destPath, "genConfig.json");
-    //try {
-    //    genConfig = require(genConfigPath);
-    //    console.log("Loaded genConfig at: " + genConfigPath);
-    //} catch (_) {
-    //    console.log("Did not find: " + genConfigPath);
-    //}
+    var genConfigPath = path.resolve(target.destPath, "genConfig.json");
+    try {
+        var genConfigFile = require(genConfigPath);
+        genConfig = genConfigFile["default"];
+        console.log("Loaded genConfig at: " + genConfigPath);
+    } catch (_) {
+        console.log("Did not find: " + genConfigPath);
+    }
 
     if (genConfig) {
         if (genConfig.buildFlags) target.buildFlags = genConfig.buildFlags.split(" ");

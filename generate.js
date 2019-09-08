@@ -142,7 +142,7 @@ function extractArgs(args, argsByName, buildTarget, errorMessages) {
             activeKey = lcArg.substring(1); // remove the "-", lowercase the argsByName-key
             argsByName[activeKey] = "";
         }
-        else if (lcArg.indexOf("=") !== -1) { // any parameter with an "=" is assumed to be a target specification, lowercase the templateSubfolder
+        else if (lcArg.indexOf("=") !== -1) {
             var argPair = cmdArgs[i].split("=", 2);
             tryApplyTarget(argPair[0].toLowerCase(), argPair[1], buildTarget, errorMessages);
         }
@@ -384,13 +384,15 @@ function generateApis(buildIdentifier, target) {
     console.log("Generating PlayFab APIs from specs: " + sdkGeneratorGlobals.apiTemplateDescription);
     var genConfig = null;
     // This is disabled until we more carefully detect and alert on input conflicts
-    //var genConfigPath = path.resolve(target.destPath, "genConfig.json");
-    //try {
-    //    genConfig = require(genConfigPath);
-    //    console.log("Loaded genConfig at: " + genConfigPath);
-    //} catch (_) {
-    //    console.log("Did not find: " + genConfigPath);
-    //}
+    var genConfigPath = path.resolve(target.destPath, "genConfig.json");
+    try {
+        var genConfigFile = require(genConfigPath);
+        genConfig = genConfigFile["default"];
+        console.log("Loaded genConfig at: " + genConfigPath);
+    }
+    catch (_) {
+        console.log("Did not find: " + genConfigPath);
+    }
     if (genConfig) {
         if (genConfig.buildFlags)
             target.buildFlags = genConfig.buildFlags.split(" ");
@@ -503,7 +505,7 @@ function GetFlagConflicts(buildFlags, apiObj, obsoleteFlaged, nonNullableFlagged
     var allInclusiveFlags = [];
     if (apiObj.hasOwnProperty("AllInclusiveFlags"))
         allInclusiveFlags = lowercaseFlagsList(apiObj.AllInclusiveFlags);
-    if (allInclusiveFlags.length !== 0) // If there's no flags, it is always included
+    if (allInclusiveFlags.length !== 0)
         for (var alIdx = 0; alIdx < allInclusiveFlags.length; alIdx++)
             if (buildFlags.indexOf(allInclusiveFlags[alIdx]) === -1)
                 return apiObj.AllInclusiveFlags; // If a required flag is missing, fail out
@@ -592,7 +594,7 @@ if (!String.prototype.padStart) {
 function templatizeTree(locals, sourcePath, destPath) {
     if (!fs.existsSync(sourcePath))
         throw Error("Copy tree source doesn't exist: " + sourcePath);
-    if (!fs.lstatSync(sourcePath).isDirectory()) // File
+    if (!fs.lstatSync(sourcePath).isDirectory())
         return copyOrTemplatizeFile(locals, sourcePath, destPath);
     // Directory
     if (!fs.existsSync(destPath))
@@ -620,7 +622,7 @@ function copyOrTemplatizeFile(locals, sourceFile, destFile) {
 function copyTree(sourcePath, destPath) {
     if (!fs.existsSync(sourcePath))
         throw Error("Copy tree source doesn't exist: " + sourcePath);
-    if (!fs.lstatSync(sourcePath).isDirectory()) // File
+    if (!fs.lstatSync(sourcePath).isDirectory())
         return copyFile(sourcePath, destPath);
     // Directory
     if (!fs.existsSync(destPath))

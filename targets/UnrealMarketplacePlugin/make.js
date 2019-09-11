@@ -29,14 +29,16 @@ exports.makeCombinedAPI = function (apis, sourceDir, baseApiOutputDir) {
         }
     }
 
-    // The list of current supported UE versions - Intended to be the latest 3
+    // The list of current supported UE versions - Intended to be the latest 3 supported by Epic
+    // Although we can target later updates to the versions,
+    // we should set the hotfix version to 0 so that any further updates will not need a prompt when opening with PlayFab
     const ueTargetVersions = [
-        new TargetVersion(4, 20, 3),
-        new TargetVersion(4, 21, 2),
-        new TargetVersion(4, 22, 1)
+        new TargetVersion(4, 21, 0),
+        new TargetVersion(4, 22, 0),
+        new TargetVersion(4, 23, 0)
     ];
 
-    var ueWhitelistPlatforms = '[ "Win64", "Win32", "Mac", "IOS", "Android", "PS4", "XBox" ]'; // TODO: Add Switch once the testing story is done
+    var ueWhitelistPlatforms = '[ "Win64", "Win32", "Mac", "IOS", "Android", "PS4", "XboxOne" ]'; // TODO: Add Switch once the testing story is done
 
     for (var v = 0; v < ueTargetVersions.length; v++) {
         var ueTargetVersion = ueTargetVersions[v];

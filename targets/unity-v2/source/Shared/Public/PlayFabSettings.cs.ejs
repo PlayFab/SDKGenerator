@@ -51,7 +51,8 @@ namespace PlayFab
             var settingsList = Resources.LoadAll<PlayFabSharedSettings>("PlayFabSharedSettings");
             if (settingsList.Length != 1)
             {
-                throw new Exception("The number of PlayFabSharedSettings objects should be 1: " + settingsList.Length);
+                Debug.LogWarning("The number of PlayFabSharedSettings objects should be 1: " + settingsList.Length);
+                Debug.LogWarning("If you are upgrading your SDK, you can ignore this warning as PlayFabSharedSettings will be imported soon. If you are not upgrading your SDK and you see this message, you should re-download the latest PlayFab source code.");
             }
             return settingsList[0];
         }

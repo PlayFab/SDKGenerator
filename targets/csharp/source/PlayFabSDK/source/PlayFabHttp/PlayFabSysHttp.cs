@@ -99,7 +99,15 @@ namespace PlayFab.Internal
                 error.HttpStatus = errorResult.status;
                 error.Error = (PlayFabErrorCode)errorResult.errorCode;
                 error.ErrorMessage = errorResult.errorMessage;
-                error.ErrorDetails = errorResult.errorDetails;
+
+                if (errorResult.errorDetails != null)
+                {
+                    foreach (var detail in errorResult.errorDetails)
+                    {
+                        error.ErrorDetails.Add(detail.Key, detail.Value);
+                    }
+                }
+
                 return error;
             }
 

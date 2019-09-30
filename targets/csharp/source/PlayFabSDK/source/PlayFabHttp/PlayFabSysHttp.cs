@@ -102,6 +102,7 @@ namespace PlayFab.Internal
 
                 if (errorResult.errorDetails != null)
                 {
+                    error.ErrorDetails = new Dictionary<string, string[]>();
                     foreach (var detail in errorResult.errorDetails)
                     {
                         error.ErrorDetails.Add(detail.Key, detail.Value);

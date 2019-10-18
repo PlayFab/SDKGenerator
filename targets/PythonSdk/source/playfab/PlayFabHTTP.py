@@ -71,7 +71,7 @@ def DoPost(urlPath, request, authKey, authVal, callback, customData = None, extr
             # Notify the caller about an API issue, response was none
             emptyResponseError = PlayFabErrors.PlayFabError()
             emptyResponseError.Error = "Empty Response Recieved"
-            emptyResponseError.ErrorMessage = "Recieved an empty response"
+            emptyResponseError.ErrorMessage = "PlayFabHTTP Recieved an empty response"
             emptyResponseError.ErrorCode = PlayFabErrorCode.Unknown;
             callback(None, emptyResponseError)
         except Exception as e:

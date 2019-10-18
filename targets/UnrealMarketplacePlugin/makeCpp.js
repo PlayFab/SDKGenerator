@@ -269,9 +269,18 @@ function getPropertySerializer(tabbing, api, datatype, property) {
     else
         throw "getPropertySerializer: Unknown property type: " + property.actualtype + " for " + property.name + " in " + datatype.name;
 
-    if (property.optional)
-        return tabbing + "if (" + tester + ") { writer->WriteIdentifierPrefix(TEXT(\"" + property.name + "\")); " + writer + " }";
-    return tabbing + "writer->WriteIdentifierPrefix(TEXT(\"" + property.name + "\")); " + writer;
+    if (property.optional) {
+        return tabbing + "if (" + tester + ")\n"+tabbing+"{\n"+tabbing + tabbing + "writer->WriteIdentifierPrefix(TEXT(\"" + property.name + "\"));\n"+tabbing+tabbing+ writer + "\n"+tabbing+"}";
+    }
+    else {
+        // this property is REQUIRED
+        if (property.actualtype === "String") {
+            return tabbing + "if (!" + tester + ")\n"+tabbing+"{\n"+tabbing + tabbing+ "UE_LOG(LogTemp, Error, TEXT(\"This field is required: " + datatype.name + "::" + property.name + ", PlayFab calls may not work if it remains empty.\"));\n"+tabbing+"}\n"+tabbing+"else\n"+tabbing+"{\n"+tabbing +tabbing+"writer->WriteIdentifierPrefix(TEXT(\"" + property.name + "\"));\n" +tabbing+tabbing+ writer + "\n"+tabbing+"}";
+        }
+        else {
+            return tabbing + "writer->WriteIdentifierPrefix(TEXT(\"" + property.name + "\"));\n"+tabbing + writer;
+        }
+    }
 }
 
 function getArrayPropertySerializer(tabbing, api, datatype, property) {

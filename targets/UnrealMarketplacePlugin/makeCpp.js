@@ -234,44 +234,70 @@ function getPropertySerializer(tabbing, api, datatype, property) {
         tester = intTester;
     }
 
-    if (property.actualtype === "String")
+    if (property.actualtype === "String") {
         setTemps("writer->WriteValue(" + safePropName + ");", safePropName + ".IsEmpty() == false");
-    else if (property.isenum && api.datatypes[property.actualtype].enumvalues.length > maxEnumSize)
+    }
+    else if (property.isenum && api.datatypes[property.actualtype].enumvalues.length > maxEnumSize) {
         setTemps("writer->WriteValue(" + safePropName + ");", safePropName + ".IsEmpty() == false");
-    else if (property.actualtype === "Boolean")
+    }
+    else if (property.actualtype === "Boolean") {
         setTemps("writer->WriteValue(" + safePropName + ");", safePropName + ".notNull()");
-    else if (property.actualtype === "int16")
+    }
+    else if (property.actualtype === "int16") {
         setTemps("writer->WriteValue(" + safePropName + ");", safePropName + ".notNull()");
-    else if (property.actualtype === "uint16")
+    }
+    else if (property.actualtype === "uint16") {
         setTemps("writer->WriteValue(" + safePropName + ");", safePropName + ".notNull()");
-    else if (property.actualtype === "int32")
+    }
+    else if (property.actualtype === "int32") {
         setTemps("writer->WriteValue(" + safePropName + ");", safePropName + ".notNull()");
-    else if (property.actualtype === "uint32")
+    }
+    else if (property.actualtype === "uint32") {
         setTemps("writer->WriteValue(static_cast<int64>(" + safePropName + "));", safePropName + ".notNull()");
-    else if (property.actualtype === "int64")
+    }
+    else if (property.actualtype === "int64") {
         setTemps("writer->WriteValue(" + safePropName + ");", safePropName + ".notNull()");
-    else if (property.actualtype === "uint64")
+    }
+    else if (property.actualtype === "uint64") {
         setTemps("writer->WriteValue(static_cast<int64>(" + safePropName + "));", safePropName + ".notNull()");
-    else if (property.actualtype === "float")
+    }
+    else if (property.actualtype === "float") {
         setTemps("writer->WriteValue(" + safePropName + ");", safePropName + ".notNull()");
-    else if (property.actualtype === "double")
+    }
+    else if (property.actualtype === "double") {
         setTemps("writer->WriteValue(" + safePropName + ");", safePropName + ".notNull()");
-    else if (property.actualtype === "DateTime")
+    }
+    else if (property.actualtype === "DateTime") {
         setTemps("writeDatetime(" + safePropName + ", writer);", safePropName + ".notNull()");
-    else if (property.isclass && property.optional)
+    }
+    else if (property.isclass && property.optional) {
         setTemps(safePropName + "->writeJSON(writer);", safePropName + ".IsValid()");
-    else if (property.isclass)
+    }
+    else if (property.isclass) {
         setTemps(safePropName + ".writeJSON(writer);", safePropName + ".IsValid()");
-    else if (property.isenum)
+    }
+    else if (property.isenum) {
         setTemps("write" + property.actualtype + "EnumJSON(" + safePropName + ", writer);", safePropName + ".notNull()");
-    else if (property.actualtype === "object")
+    }
+    else if (property.actualtype === "object") {
         setTemps(safePropName + ".writeJSON(writer);", safePropName + ".notNull()");
-    else
+    }
+    else {
         throw "getPropertySerializer: Unknown property type: " + property.actualtype + " for " + property.name + " in " + datatype.name;
+    }
 
-    if (property.optional)
-        return tabbing + "if (" + tester + ") { writer->WriteIdentifierPrefix(TEXT(\"" + property.name + "\")); " + writer + " }";
-    return tabbing + "writer->WriteIdentifierPrefix(TEXT(\"" + property.name + "\")); " + writer;
+    if (property.optional) {
+        return tabbing + "if (" + tester + ")\n"+tabbing+"{\n"+tabbing + tabbing + "writer->WriteIdentifierPrefix(TEXT(\"" + property.name + "\"));\n"+tabbing+tabbing+ writer + "\n"+tabbing+"}";
+    }
+    else {
+        // this property is REQUIRED
+        if (property.actualtype === "String") {
+            return tabbing + "if (!" + tester + ")\n"+tabbing+"{\n"+tabbing + tabbing+ "UE_LOG(LogTemp, Error, TEXT(\"This field is required: " + datatype.name + "::" + property.name + ", PlayFab calls may not work if it remains empty.\"));\n"+tabbing+"}\n"+tabbing+"else\n"+tabbing+"{\n"+tabbing +tabbing+"writer->WriteIdentifierPrefix(TEXT(\"" + property.name + "\"));\n" +tabbing+tabbing+ writer + "\n"+tabbing+"}";
+        }
+        else {
+            return tabbing + "writer->WriteIdentifierPrefix(TEXT(\"" + property.name + "\"));\n"+tabbing + writer;
+        }
+    }
 }
 
 function getArrayPropertySerializer(tabbing, api, datatype, property) {

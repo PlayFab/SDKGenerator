@@ -25,7 +25,7 @@ namespace PlayFab.UUnit
         private string _userEmail;
         private string PlayFabId;
 
-        // This test operates multi-threaded, so keep some thread-transfer varaibles
+        // This test operates multi-threaded, so keep some thread-transfer variables
         private int _testInteger;
 
         public override void ClassSetUp()
@@ -103,6 +103,9 @@ namespace PlayFab.UUnit
             var testContext = (UUnitTestContext)error.CustomData;
             testContext.False(errorReport.Contains("successful"), errorReport);
             testContext.True(errorReport.Contains("password"), errorReport);
+
+            testContext.StringEquals(error.GenerateErrorReport(), error.ToString());
+
             testContext.EndTest(UUnitFinishState.PASSED, null);
         }
 
@@ -210,7 +213,7 @@ namespace PlayFab.UUnit
         /// Test a sequence of calls that modifies saved data,
         ///   and verifies that the next sequential API call contains updated data.
         /// Verify that the data is correctly modified on the next call.
-        /// Parameter types tested: string, Dictionary&lt;string, string>, DateTime
+        /// Parameter types tested: string, Dictionary&lt;string, string>
         /// </summary>
         [UUnitTest]
         public void UserDataApi(UUnitTestContext testContext)
@@ -254,14 +257,31 @@ namespace PlayFab.UUnit
                 int.TryParse(userDataRecord.Value, out actualValue);
             testContext.IntEquals(_testInteger, actualValue);
             testContext.NotNull(userDataRecord, "UserData record not found");
+            testContext.EndTest(UUnitFinishState.PASSED, actualValue.ToString());
+        }
 
-            var timeUpdated = userDataRecord.LastUpdated;
+        /// <summary>
+        /// CLIENT API
+        /// Test that the DateTime fields deserialize correctly, and accurately represent UTC time
+        /// Relies on the local machine time and time zone being set correctly.
+        /// Parameter types tested: DateTime
+        /// </summary>
+        [UUnitTest]
+        public void GetServerTime(UUnitTestContext testContext)
+        {
+            clientInstance.GetTime(null, PlayFabUUnitUtils.ApiActionWrapper<GetTimeResult>(testContext, OnGetTimeCallback), PlayFabUUnitUtils.ApiActionWrapper<PlayFabError>(testContext, SharedErrorCallback), testContext);
+        }
+        private void OnGetTimeCallback(GetTimeResult result)
+        {
+            var testContext = (UUnitTestContext)result.CustomData;
+
+            var serverTime = result.Time;
             var minTest = DateTime.UtcNow - TimeSpan.FromMinutes(5);
             var maxTest = DateTime.UtcNow + TimeSpan.FromMinutes(5);
-            testContext.True(minTest <= timeUpdated && timeUpdated <= maxTest);
+            testContext.True(minTest <= serverTime && serverTime <= maxTest);
 
-            testContext.True(Math.Abs((DateTime.UtcNow - timeUpdated).TotalMinutes) < 5); // Make sure that this timestamp is recent - This must also account for the difference between local machine time and server time
-            testContext.EndTest(UUnitFinishState.PASSED, actualValue.ToString());
+            testContext.True(Math.Abs((DateTime.UtcNow - serverTime).TotalMinutes) < 5); // Make sure that this timestamp is recent - This must also account for the difference between local machine time and server time
+            testContext.EndTest(UUnitFinishState.PASSED, serverTime.ToString());
         }
 
         /// <summary>

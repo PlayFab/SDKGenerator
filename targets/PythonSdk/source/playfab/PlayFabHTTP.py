@@ -66,6 +66,17 @@ def DoPost(urlPath, request, authKey, authVal, callback, customData = None, extr
         except Exception as e:
             # Global notification about exception in caller's callback
             PlayFabSettings.GlobalExceptionLogger(e) 
+    elif callback:
+        try:
+            # Notify the caller about an API issue, response was none
+            emptyResponseError = PlayFabErrors.PlayFabError()
+            emptyResponseError.Error = "Empty Response Recieved"
+            emptyResponseError.ErrorMessage = "PlayFabHTTP Recieved an empty response"
+            emptyResponseError.ErrorCode = PlayFabErrorCode.Unknown;
+            callback(None, emptyResponseError)
+        except Exception as e:
+            # Global notification about exception in caller's callback
+            PlayFabSettings.GlobalExceptionLogger(e) 
 
 def callGlobalErrorHandler(error):
     if PlayFabSettings.GlobalErrorHandler:

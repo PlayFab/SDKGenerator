@@ -72,7 +72,7 @@ exports.MakeRequest = function (urlStr, request, authType, authValue, callback) 
     if (options.protocol !== "https:")
         throw "Unsupported protocol: " + options.protocol;
     options.method = "POST";
-    options.port = 443;
+    options.port = options.port || 443;
     options.headers = {
         "Content-Type": "application/json",
         "Content-Length": requestBody.length,

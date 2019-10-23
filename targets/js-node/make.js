@@ -72,7 +72,7 @@ function getRequestActions(tabbing, apiCall) {
             + tabbing + "else if (PlayFab.settings.developerSecretKey) { authKey = \"X-SecretKey\"; authValue = PlayFab.settings.developerSecretKey; }\n"
             + tabbing + "else if (PlayFab._internalSettings.entityToken) { authKey = \"X-EntityToken\"; authValue = PlayFab._internalSettings.entityToken; }\n\n";
     else if (apiCall.result === "LoginResult" || apiCall.request === "RegisterPlayFabUserRequest")
-        return tabbing + "request.TitleId = PlayFab.settings.titleId != null ? PlayFab.settings.titleId : request.TitleId;\n"
+        return tabbing + "request.TitleId = request.titleId != null ? request.TitleId : PlayFab.settings.titleId;\n"
             + tabbing + "if (request.TitleId == null) throw \"Must be have PlayFab.settings.titleId set to call this method\";\n";
     else if (apiCall.auth === "SessionTicket")
         return tabbing + "if (PlayFab._internalSettings.sessionTicket == null) throw \"Must be logged in to call this method\";\n";

@@ -9,6 +9,7 @@ declare module PlayFabModule {
         verticalName: string;
         titleId: string;
         developerSecretKey?: string;
+        port?: number;
         advertisingIdType?: string;
         advertisingIdValue?: string;
         disableAdvertising?: boolean;

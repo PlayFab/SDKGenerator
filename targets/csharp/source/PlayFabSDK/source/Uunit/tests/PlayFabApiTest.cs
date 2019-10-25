@@ -1,8 +1,6 @@
 #if !DISABLE_PLAYFABCLIENT_API
 
 using PlayFab.ClientModels;
-using PlayFab.Internal;
-using PlayFab.Json;
 using System;
 using System.Collections.Generic;
 using System.Linq;
@@ -344,12 +342,10 @@ namespace PlayFab.UUnit
             string messageValue = null;
             // Get the helloWorld return message
             testContext.NotNull(cloudResult.Result.FunctionResult);
-            var sjobj = cloudResult.Result.FunctionResult as JsonObject;
+            var serializer = PluginManager.GetPlugin<ISerializerPlugin>(PluginContract.PlayFab_Serializer);
+            var sjobj = serializer.DeserializeObject<Dictionary<string, object>>(serializer.SerializeObject(cloudResult.Result.FunctionResult));
             if (sjobj != null)
                 messageValue = sjobj["messageValue"] as string;
-            //var njobj = cloudResult.Result.FunctionResult as Newtonsoft.Json.Linq.JObject;
-            //if (njobj != null)
-            //    messageValue = njobj["messageValue"].ToObject<string>();
             testContext.StringEquals("Hello " + PlayFabId + "!", messageValue);
         }
 

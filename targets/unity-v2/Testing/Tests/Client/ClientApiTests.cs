@@ -4,7 +4,6 @@ using System;
 using System.Collections.Generic;
 using PlayFab.ClientModels;
 using PlayFab.Internal;
-using PlayFab.Json;
 
 namespace PlayFab.UUnit
 {
@@ -420,7 +419,8 @@ namespace PlayFab.UUnit
         {
             var testContext = (UUnitTestContext)result.CustomData;
             testContext.NotNull(result.FunctionResult);
-            var jobj = (JsonObject)result.FunctionResult;
+            var serializer = PluginManager.GetPlugin<ISerializerPlugin>(PluginContract.PlayFab_Serializer);
+            var jobj = serializer.DeserializeObject<Dictionary<string, object>>(serializer.SerializeObject(result.FunctionResult));
             var messageValue = jobj["messageValue"] as string;
             testContext.StringEquals("Hello " + PlayFabId + "!", messageValue);
             testContext.EndTest(UUnitFinishState.PASSED, null);

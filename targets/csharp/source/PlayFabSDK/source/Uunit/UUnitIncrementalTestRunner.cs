@@ -1,4 +1,3 @@
-using PlayFab.Json;
 using System;
 using System.Collections.Generic;
 using System.IO;
@@ -43,7 +42,8 @@ namespace PlayFab.UUnit
                 {
                     var testTitleDataPath = Environment.GetEnvironmentVariable("PF_TEST_TITLE_DATA_JSON");
                     var jsonContent = File.ReadAllText(testTitleDataPath + "/testTitleData.json");
-                    TestTitleData = PlayFabSimpleJson.DeserializeObject<TestTitleData>(jsonContent);
+                    var serializer = PluginManager.GetPlugin<ISerializerPlugin>(PluginContract.PlayFab_Serializer);
+                    TestTitleData = serializer.DeserializeObject<TestTitleData>(jsonContent);
                 }
                 catch (Exception)
                 {

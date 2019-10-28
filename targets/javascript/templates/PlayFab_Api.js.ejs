@@ -285,7 +285,7 @@ PlayFab.<%- api.name %>Api = {
 var PlayFab<%- api.name %>SDK = PlayFab.<%- api.name %>Api;
 <% if (hasClientOptions) { %>
 PlayFab.RegisterWithPhaser = function() {
-    if ( typeof Phaser === "undefined" )
+    if ( typeof Phaser === "undefined" || typeof Phaser.Plugin === "undefined" )
         return;
 
     Phaser.Plugin.PlayFab = function (game, parent) {

@@ -135,7 +135,12 @@ function getValidPlayFabActionScriptNamespacePrefix(datatype) {
     }
 
     for (var i = 0; i < asIndividualNamespaces.length; i++) {
-        asNamespace += asIndividualNamespaces[i].toLowerCase();
+        if (i < 1) {
+            asNamespace += asIndividualNamespaces[i].toLowerCase();
+        }
+        else {
+            asNamespace += asIndividualNamespaces[i];
+        }
 
         // we expect the input to be playfab.[SDK].[Name]
         // but the actual datatype-callable prefix namespace in ActionScript is com.playfab.[SDK][Name].

@@ -1,6 +1,4 @@
-﻿/// <reference path="Scripts/typings/PlayFab/PlayFab.d.ts" />
-<% for(var i = 0; i < apis.length; i++) { var api = apis[i]; %>/// <reference path="Scripts/typings/PlayFab/PlayFab<%- api.name %>.d.ts" />
-<% } %>
+﻿/// <reference types="typescript" />
 export const PlayFab: PlayFabModule.IPlayFab;
 export function settings(): PlayFabModule.IPlayFabSettings;
 export function settings(value: any): void;

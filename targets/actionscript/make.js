@@ -123,6 +123,34 @@ function getVerticalNameDefault() {
     return "null";
 }
 
+function getValidActionscriptModelPath(datatype, basicType) {
+
+    var asIndividualNamespaces = datatype.classNameSpace.split('.');
+
+    var asNamespace = "com.";
+
+    if (asIndividualNamespaces.length < 2)
+    {
+        throw new Error("Error in Generating API Model: Namespaces are expected to be in the form playfab.[SDK].[Name]");
+    }
+
+    for (var i = 0; i < asIndividualNamespaces.length; i++) {
+        asNamespace += asIndividualNamespaces[i].toLowerCase();
+
+        // we expect the input to be playfab.[SDK].[Name]
+        // but the actual datatype-callable prefix namespace in ActionScript is com.playfab.[SDK][Name].
+        if (i < asIndividualNamespaces.length - 2) {
+            asNamespace += ".";
+        }
+    }
+
+    // Current use expects this before the datatype name
+    asNamespace += ".";
+    asNamespace += basicType;
+
+    return asNamespace;
+}
+
 function getModelPropertyDef(property, datatype) {
     var basicType = getPropertyAsType(property, datatype);
 
@@ -136,7 +164,7 @@ function getModelPropertyDef(property, datatype) {
     } else {
         if (property.optional && (basicType === "Boolean" || basicType === "int" || basicType === "uint" || basicType === "Number"))
             basicType = "*";
-        return property.name + ":" + basicType;
+        return property.name + ":" + getValidActionscriptModelPath(datatype, basicType);
     }
 }
 
@@ -184,7 +212,7 @@ function getModelPropertyInit(tabbing, property, datatype) {
             else
                 throw "Unknown collection type: " + property.collection + " for " + property.name + " in " + datatype.name;
         } else {
-            return tabbing + property.name + " = new " + property.actualtype + "(data." + property.name + ");";
+            return tabbing + property.name + " = new " + getValidActionscriptModelPath(datatype, property.actualtype) + "(data." + property.name + ");";
         }
     } else if (property.collection) {
         if (property.collection === "array") {

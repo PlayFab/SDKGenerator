@@ -29,9 +29,15 @@ interface IPlayFabHttp {
     request(url: string, method?: string, content?: string, contentType?: string, headers?: { [key: string]: string }): string
 }
 
+interface ITriggeredByTask {
+    Name: string;
+    Id: string;
+}
+
 interface IPlayFabContext {
     playStreamEvent: PlayStreamModels.IBasePlayStreamEvent;
     playerProfile: IPlayFabPlayerProfile;
+    triggeredByTask: ITriggeredByTask;
 }
 
 interface IPlayFabPlayerProfile {

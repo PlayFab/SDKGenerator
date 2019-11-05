@@ -163,7 +163,13 @@ function getModelPropertyDef(property, datatype) {
     } else {
         if (property.optional && (basicType === "Boolean" || basicType === "int" || basicType === "uint" || basicType === "Number"))
             basicType = "*";
-        return property.name + ":" + getValidPlayFabActionScriptNamespacePrefix(datatype) + basicType;
+        if (property.isclass) {
+            return property.name + ":" + getValidPlayFabActionScriptNamespacePrefix(datatype) + basicType;
+        }
+        else
+        {
+            return property.name + ":" + basicType;
+        }
     }
 }
 

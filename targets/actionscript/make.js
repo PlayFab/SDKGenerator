@@ -123,7 +123,7 @@ function getVerticalNameDefault() {
     return "null";
 }
 
-function getValidActionscriptModelPath(datatype, basicType) {
+function getValidPlayFabActionScriptNamespacePrefix(datatype) {
 
     var asIndividualNamespaces = datatype.classNameSpace.split('.');
 
@@ -146,7 +146,6 @@ function getValidActionscriptModelPath(datatype, basicType) {
 
     // Current use expects this before the datatype name
     asNamespace += ".";
-    asNamespace += basicType;
 
     return asNamespace;
 }
@@ -164,7 +163,7 @@ function getModelPropertyDef(property, datatype) {
     } else {
         if (property.optional && (basicType === "Boolean" || basicType === "int" || basicType === "uint" || basicType === "Number"))
             basicType = "*";
-        return property.name + ":" + getValidActionscriptModelPath(datatype, basicType);
+        return property.name + ":" + getValidPlayFabActionScriptNamespacePrefix(datatype) + basicType;
     }
 }
 
@@ -212,7 +211,7 @@ function getModelPropertyInit(tabbing, property, datatype) {
             else
                 throw "Unknown collection type: " + property.collection + " for " + property.name + " in " + datatype.name;
         } else {
-            return tabbing + property.name + " = new " + getValidActionscriptModelPath(datatype, property.actualtype) + "(data." + property.name + ");";
+            return tabbing + property.name + " = new " + getValidPlayFabActionScriptNamespacePrefix(datatype) + property.actualtype + "(data." + property.name + ");";
         }
     } else if (property.collection) {
         if (property.collection === "array") {

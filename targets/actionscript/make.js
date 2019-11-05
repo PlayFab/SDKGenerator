@@ -163,7 +163,7 @@ function getModelPropertyDef(property, datatype) {
     } else {
         if (property.optional && (basicType === "Boolean" || basicType === "int" || basicType === "uint" || basicType === "Number"))
             basicType = "*";
-        if (property.isclass) {
+        if (property.isclass && basicType === "TreatmentAssignment") {
             return property.name + ":" + getValidPlayFabActionScriptNamespacePrefix(datatype) + basicType;
         }
         else
@@ -217,7 +217,13 @@ function getModelPropertyInit(tabbing, property, datatype) {
             else
                 throw "Unknown collection type: " + property.collection + " for " + property.name + " in " + datatype.name;
         } else {
-            return tabbing + property.name + " = new " + getValidPlayFabActionScriptNamespacePrefix(datatype) + property.actualtype + "(data." + property.name + ");";
+            if (property.actualtype === "TreatmentAssignment") {
+                return tabbing + property.name + " = new " + getValidPlayFabActionScriptNamespacePrefix(datatype) + property.actualtype + "(data." + property.name + ");";
+            }
+            else {
+
+                return tabbing + property.name + " = new " + property.actualtype + "(data." + property.name + ");";
+            }
         }
     } else if (property.collection) {
         if (property.collection === "array") {

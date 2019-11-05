@@ -155,6 +155,23 @@ function getValidPlayFabActionScriptNamespacePrefix(datatype) {
     return asNamespace;
 }
 
+function fullNamespaceRequired(propName)
+{
+    // NOTE: As of PlayFab version 191029, some objects are not properly getting recognized by ActionScript
+    // Due to the language getting deprecated within a year, we are going to add any breaking objects to this list
+    // and add the full namespace to any new object that breaks actionscript comiplation here.
+    var typesThatNeedFullNamespace = [ "TreatmentAssignment" ];
+
+    for(var i = 0; i < typesThatNeedFullNamespace.length; i++)
+    {
+        if (propName === typesThatNeedFullNamespace[i])
+        {
+            return true;
+        }
+    }
+    return false;
+}
+
 function getModelPropertyDef(property, datatype) {
     var basicType = getPropertyAsType(property, datatype);
 
@@ -168,7 +185,7 @@ function getModelPropertyDef(property, datatype) {
     } else {
         if (property.optional && (basicType === "Boolean" || basicType === "int" || basicType === "uint" || basicType === "Number"))
             basicType = "*";
-        if (property.isclass && basicType === "TreatmentAssignment") {
+        if (property.isclass && fullNamespaceRequired(basicType)) {
             return property.name + ":" + getValidPlayFabActionScriptNamespacePrefix(datatype) + basicType;
         }
         else
@@ -222,7 +239,7 @@ function getModelPropertyInit(tabbing, property, datatype) {
             else
                 throw "Unknown collection type: " + property.collection + " for " + property.name + " in " + datatype.name;
         } else {
-            if (property.actualtype === "TreatmentAssignment") {
+            if (fullNamespaceRequired(property.actualtype)) {
                 return tabbing + property.name + " = new " + getValidPlayFabActionScriptNamespacePrefix(datatype) + property.actualtype + "(data." + property.name + ");";
             }
             else {

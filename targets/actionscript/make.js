@@ -7,6 +7,12 @@ if (typeof (templatizeTree) === "undefined") templatizeTree = function () { };
 
 var airVersion = 30; // Latest version of AirSdk installed overtop of Flex SDK
 
+// NOTE: As of PlayFab version 191029, some objects are not properly getting recognized by ActionScript
+// Due to the language getting deprecated within a year, we are going to add any breaking objects to this list
+// and add the full namespace to any new object that breaks actionscript comiplation here.
+var typesThatNeedFullNamespace = [ "TreatmentAssignment" ];
+var expectedPlayfabNamespace = ["com", "playfab"];
+
 exports.makeCombinedAPI = function (apis, sourceDir, apiOutputDir) {
     apiOutputDir = path.resolve(apiOutputDir, "PfApiTest"); // This is an oddity in the ActionScriptSDK which we shouldn't resolve until we do a major revision number change
 
@@ -123,53 +129,37 @@ function getVerticalNameDefault() {
     return "null";
 }
 
-function getValidPlayFabActionScriptNamespacePrefix(datatype) {
+function getValidPlayFabActionScriptNamespacePrefix(datatype, propName) {
+
+    if (!fullNamespaceRequired(propName))
+    {
+        return propName;
+    }
 
     var asIndividualNamespaces = datatype.classNameSpace.split('.');
-
-    var asNamespace = "com.";
 
     if (asIndividualNamespaces.length < 2)
     {
         throw new Error("Error in Generating API Model: Namespaces are expected to be in the form playfab.[SDK].[Name]");
     }
 
-    for (var i = 0; i < asIndividualNamespaces.length; i++) {
-        if (i < 1) {
-            asNamespace += asIndividualNamespaces[i].toLowerCase();
-        }
-        else {
-            asNamespace += asIndividualNamespaces[i];
-        }
+    var constructingNamespaceList = [...expectedPlayfabNamespace];
 
-        // we expect the input to be playfab.[SDK].[Name]
-        // but the actual datatype-callable prefix namespace in ActionScript is com.playfab.[SDK][Name].
-        if (i < asIndividualNamespaces.length - 2) {
-            asNamespace += ".";
-        }
+    var remainingNamespace = [];
+    for (var i = 1; i < asIndividualNamespaces.length; i++) {
+        remainingNamespace.push(asIndividualNamespaces[i]);
     }
 
-    // Current use expects this before the datatype name
-    asNamespace += ".";
+    constructingNamespaceList.push(remainingNamespace.join(""));
 
-    return asNamespace;
+    constructingNamespaceList.push(propName);
+
+    return constructingNamespaceList.join(".");
 }
 
 function fullNamespaceRequired(propName)
 {
-    // NOTE: As of PlayFab version 191029, some objects are not properly getting recognized by ActionScript
-    // Due to the language getting deprecated within a year, we are going to add any breaking objects to this list
-    // and add the full namespace to any new object that breaks actionscript comiplation here.
-    var typesThatNeedFullNamespace = [ "TreatmentAssignment" ];
-
-    for(var i = 0; i < typesThatNeedFullNamespace.length; i++)
-    {
-        if (propName === typesThatNeedFullNamespace[i])
-        {
-            return true;
-        }
-    }
-    return false;
+    return typesThatNeedFullNamespace.indexOf(propName) > -1;
 }
 
 function getModelPropertyDef(property, datatype) {
@@ -185,12 +175,8 @@ function getModelPropertyDef(property, datatype) {
     } else {
         if (property.optional && (basicType === "Boolean" || basicType === "int" || basicType === "uint" || basicType === "Number"))
             basicType = "*";
-        if (property.isclass && fullNamespaceRequired(basicType)) {
-            return property.name + ":" + getValidPlayFabActionScriptNamespacePrefix(datatype) + basicType;
-        }
-        else
-        {
-            return property.name + ":" + basicType;
+        if (property.isclass) {
+            return property.name + ":" + getValidPlayFabActionScriptNamespacePrefix(datatype, basicType) + basicType;
         }
     }
 }
@@ -239,13 +225,7 @@ function getModelPropertyInit(tabbing, property, datatype) {
             else
                 throw "Unknown collection type: " + property.collection + " for " + property.name + " in " + datatype.name;
         } else {
-            if (fullNamespaceRequired(property.actualtype)) {
-                return tabbing + property.name + " = new " + getValidPlayFabActionScriptNamespacePrefix(datatype) + property.actualtype + "(data." + property.name + ");";
-            }
-            else {
-
-                return tabbing + property.name + " = new " + property.actualtype + "(data." + property.name + ");";
-            }
+            return tabbing + property.name + " = new " + getValidPlayFabActionScriptNamespacePrefix(datatype, property.actualtype) + "(data." + property.name + ");";
         }
     } else if (property.collection) {
         if (property.collection === "array") {

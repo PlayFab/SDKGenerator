@@ -28,7 +28,7 @@ namespace PlayFab.UUnit
                 MockTransport.successResultJson = successResultJson;
                 MockTransport.errorResult = errorResult;
             }
-
+#pragma warning disable 1998
             public async Task<object> DoPost(string urlPath, object request, Dictionary<string, string> headers)
             {
                 if (code == HttpStatusCode.OK)
@@ -36,6 +36,7 @@ namespace PlayFab.UUnit
                 else
                     return errorResult;
             }
+#pragma warning restore 1998
         }
 
         public override void ClassSetUp()

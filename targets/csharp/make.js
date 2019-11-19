@@ -214,9 +214,9 @@ function getAuthParams(apiCall, isInstance = false) {
     if (apiCall.url === "/Authentication/GetEntityToken")
         return "authKey, authValue";
     if (apiCall.auth === "EntityToken" && isInstance)
-        return "\"X-EntityToken\", authenticationContext.EntityToken";
+        return "\"X-EntityToken\", request?.AuthenticationContext?.EntityToken ?? authenticationContext.EntityToken";
     if (apiCall.auth === "EntityToken" && !isInstance)
-        return "\"X-EntityToken\", PlayFabSettings.staticPlayer.EntityToken";
+        return "\"X-EntityToken\", request?.AuthenticationContext?.EntityToken ?? PlayFabSettings.staticPlayer.EntityToken";
     if (apiCall.auth === "SecretKey" && !isInstance)
         return "\"X-SecretKey\", PlayFabSettings.staticSettings.DeveloperSecretKey";
     if (apiCall.auth === "SecretKey" && isInstance)

@@ -5,6 +5,7 @@ using System.IO;
 using PlayFab.ClientModels;
 using System.Threading.Tasks;
 
+#pragma warning disable 0649, 0414
 namespace UnittestRunner
 {
     static class UUnitTestRunner
@@ -97,3 +98,4 @@ namespace UnittestRunner
         }
     }
 }
+#pragma warning restore 0649, 0414

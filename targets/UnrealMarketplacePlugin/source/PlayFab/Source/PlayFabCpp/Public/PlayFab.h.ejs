@@ -10,6 +10,7 @@ DECLARE_LOG_CATEGORY_EXTERN(LogPlayFabCpp, Log, All);
 // forward declaration of classes
 namespace PlayFab
 {
+#if WITH_EDITOR
     template<typename T>
     TSharedPtr<T> MakeSharedUObject()
     {    
@@ -20,6 +21,17 @@ namespace PlayFab
             Instance->ClearFlags(RF_Standalone);
         });
     }
+#else
+    template<typename T>
+    TSharedPtr<T> MakeSharedUObject()
+    {    
+        return TSharedPtr<T>(NewObject<T>((UObject*)GetTransientPackage(), NAME_None, RF_StrongRefOnFrame),
+        [](T* Instance)
+        {
+            Instance->ClearFlags(RF_StrongRefOnFrame);
+        });
+    }
+#endif
 
 <% for(var i = 0; i < apis.length; i++) { var api = apis[i];
 %>    class UPlayFab<%- api.name %>API;

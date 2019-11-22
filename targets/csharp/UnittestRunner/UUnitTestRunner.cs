@@ -5,12 +5,11 @@ using System.IO;
 using PlayFab.ClientModels;
 using System.Threading.Tasks;
 
+#pragma warning disable 0649, 0414
 namespace UnittestRunner
 {
     static class UUnitTestRunner
     {
-        private static bool _onCompleted = false;
-
         public class CsSaveRequest
         {
             public string customId;
@@ -93,7 +92,7 @@ namespace UnittestRunner
                 WriteConsoleColor(result.Error.GenerateErrorReport(), ConsoleColor.Red);
             else if (result.Result != null)
                 WriteConsoleColor("Successful!", ConsoleColor.Green);
-            _onCompleted = true;
         }
     }
 }
+#pragma warning restore 0649, 0414

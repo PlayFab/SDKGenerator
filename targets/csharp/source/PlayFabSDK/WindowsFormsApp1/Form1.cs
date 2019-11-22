@@ -10,6 +10,8 @@ namespace WindowsFormsApp1
 {
     public partial class Form1 : Form
     {
+        private const int MAX_TEST_DURATION_MS = 120000;
+
         public Form1()
         {
             InitializeComponent();
@@ -28,7 +30,7 @@ namespace WindowsFormsApp1
             try
             {
                 var mainTask = MainTask(args);
-                taskFinished = mainTask.Wait(120000);
+                taskFinished = mainTask.Wait(MAX_TEST_DURATION_MS);
                 result = mainTask.Result; // Deliberately try to invoke a mainthread deadlock, but SynchronizationContextRemover should prevent it
             }
             catch (Exception e)

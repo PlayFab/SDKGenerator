@@ -10,8 +10,6 @@ namespace UnittestRunner
 {
     static class UUnitTestRunner
     {
-        private static bool _onCompleted = false;
-
         public class CsSaveRequest
         {
             public string customId;
@@ -94,7 +92,6 @@ namespace UnittestRunner
                 WriteConsoleColor(result.Error.GenerateErrorReport(), ConsoleColor.Red);
             else if (result.Result != null)
                 WriteConsoleColor("Successful!", ConsoleColor.Green);
-            _onCompleted = true;
         }
     }
 }

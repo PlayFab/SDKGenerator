@@ -98,6 +98,7 @@ namespace PlayFab
 %><%- getDeprecationAttribute("        ", apiCall)
 %>        public async Task<PlayFabResult<<%- apiCall.result %>>> <%- apiCall.name %>Async(<%- apiCall.request %> request, object customData = null, Dictionary<string, string> extraHeaders = null)
         {
+            var requestContext = request?.AuthenticationContext ?? authenticationContext;
             var requestSettings = apiSettings ?? PlayFabSettings.staticSettings;
 <%- getRequestActions("            ", apiCall, true) %>
             var httpResult = await PlayFabHttp.DoPost("<%- apiCall.url %>", request, <%- getAuthParams(apiCall, true) %>, extraHeaders, requestSettings);

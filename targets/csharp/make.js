@@ -213,68 +213,35 @@ function getPropertyCsType(property, datatype, needOptional) {
 function getAuthParams(apiCall, isInstance = false) {
     if (apiCall.url === "/Authentication/GetEntityToken")
         return "authKey, authValue";
-    if (apiCall.auth === "EntityToken" && isInstance)
-        return "\"X-EntityToken\", request?.AuthenticationContext?.EntityToken ?? authenticationContext.EntityToken";
-    if (apiCall.auth === "EntityToken" && !isInstance)
-        return "\"X-EntityToken\", request?.AuthenticationContext?.EntityToken ?? PlayFabSettings.staticPlayer.EntityToken";
-    if (apiCall.auth === "SecretKey" && !isInstance)
-        return "\"X-SecretKey\", PlayFabSettings.staticSettings.DeveloperSecretKey";
-    if (apiCall.auth === "SecretKey" && isInstance)
-        return "\"X-SecretKey\", developerSecretKey";
+    if (apiCall.auth === "EntityToken")
+        return "\"X-EntityToken\", requestContext.EntityToken";
+    if (apiCall.auth === "SecretKey")
+        return "\"X-SecretKey\", requestSettings.DeveloperSecretKey";
     else if (apiCall.auth === "SessionTicket")
-        return "\"X-Authorization\", clientSessionTicket";
+        return "\"X-Authorization\", requestContext.ClientSessionTicket";
     return "null, null";
 }
 
 function getRequestActions(tabbing, apiCall, isInstance) {
-    if ((apiCall.result === "LoginResult" || apiCall.request === "RegisterPlayFabUserRequest") && isInstance)
+    if ((apiCall.result === "LoginResult" || apiCall.request === "RegisterPlayFabUserRequest"))
         return tabbing + "if (request != null) request.TitleId = request?.TitleId ?? requestSettings.TitleId;\n"
-            + tabbing + "if (request.TitleId == null) throw new PlayFabException(PlayFabExceptionCode.TitleNotSet, \"Must be have PlayFabSettings.staticSettings.TitleId set to call this method\");\n";
-    if ((apiCall.result === "LoginResult" || apiCall.request === "RegisterPlayFabUserRequest") && !isInstance)
-        return tabbing + "if (request != null) request.TitleId = request?.TitleId ?? PlayFabSettings.staticSettings.TitleId;\n"
-            + tabbing + "if (request.TitleId == null) throw new PlayFabException(PlayFabExceptionCode.TitleNotSet, \"Must be have PlayFabSettings.staticSettings.TitleId set to call this method\");\n";
-    if (apiCall.auth === "EntityToken" && isInstance)
-        return tabbing + "if ((request?.AuthenticationContext?.EntityToken ?? authenticationContext.EntityToken) == null) throw new PlayFabException(PlayFabExceptionCode.EntityTokenNotSet, \"Must call GetEntityToken before calling this method\");\n";
-    if (apiCall.auth === "EntityToken" && !isInstance)
-        return tabbing + "if ((request?.AuthenticationContext?.EntityToken ?? PlayFabSettings.staticPlayer.EntityToken) == null) throw new PlayFabException(PlayFabExceptionCode.EntityTokenNotSet, \"Must call GetEntityToken before calling this method\");\n";
-    if (apiCall.auth === "SessionTicket" && isInstance)
-        return tabbing + "var context = request?.AuthenticationContext ?? authenticationContext; var clientSessionTicket = context.ClientSessionTicket;\n"
-            + tabbing + "if (clientSessionTicket == null) throw new PlayFabException(PlayFabExceptionCode.NotLoggedIn, \"Must be logged in to call this method\");\n";
-    if (apiCall.auth === "SessionTicket" && !isInstance)
-        return tabbing + "var context = request?.AuthenticationContext ?? PlayFabSettings.staticPlayer; var clientSessionTicket = context.ClientSessionTicket;\n"
-            + tabbing + "if (clientSessionTicket == null) throw new PlayFabException(PlayFabExceptionCode.NotLoggedIn, \"Must be logged in to call this method\");\n";
-    if (apiCall.auth === "SecretKey" && !isInstance)
-        return tabbing + "if (PlayFabSettings.staticSettings.DeveloperSecretKey == null) throw new PlayFabException(PlayFabExceptionCode.DeveloperKeyNotSet, \"Must have PlayFabSettings.staticSettings.DeveloperSecretKey set to call this method\");\n";
-    if (apiCall.auth === "SecretKey" && isInstance)
-        return tabbing + "var settings = apiSettings ?? PlayFabSettings.staticSettings; var developerSecretKey = settings.DeveloperSecretKey;\n"
-            + tabbing + "if (developerSecretKey == null) throw new PlayFabException(PlayFabExceptionCode.DeveloperKeyNotSet, \"DeveloperSecretKey is not found in Request, Server Instance or PlayFabSettings\");\n";
-    if (apiCall.url === "/Authentication/GetEntityToken" && !isInstance)
+            + tabbing + "if (request.TitleId == null) throw new PlayFabException(PlayFabExceptionCode.TitleNotSet, \"TitleId must be set in your local or global settings to call this method\");\n";
+    if (apiCall.auth === "EntityToken")
+        return tabbing + "if (requestContext.EntityToken == null) throw new PlayFabException(PlayFabExceptionCode.EntityTokenNotSet, \"Must call Client Login or GetEntityToken before calling this method\");\n";
+    if (apiCall.auth === "SessionTicket")
+        return tabbing + "if (requestContext.ClientSessionTicket == null) throw new PlayFabException(PlayFabExceptionCode.NotLoggedIn, \"Must be logged in to call this method\");\n";
+    if (apiCall.auth === "SecretKey")
+        return tabbing + "if (requestSettings.DeveloperSecretKey == null) throw new PlayFabException(PlayFabExceptionCode.DeveloperKeyNotSet, \"DeveloperSecretKey must be set in your local or global settings to call this method\");\n";
+    if (apiCall.url === "/Authentication/GetEntityToken")
         return tabbing + "string authKey = null, authValue = null;\n"
             + "#if !DISABLE_PLAYFABCLIENT_API\n"
-            + tabbing + "var context = request?.AuthenticationContext ?? PlayFabSettings.staticPlayer; var clientSessionTicket = context.ClientSessionTicket;\n"
-            + tabbing + "if (clientSessionTicket != null) { authKey = \"X-Authorization\"; authValue = clientSessionTicket; }\n"
+            + tabbing + "if (requestContext.ClientSessionTicket != null) { authKey = \"X-Authorization\"; authValue = requestContext.ClientSessionTicket; }\n"
             + "#endif\n\n"
             + "#if ENABLE_PLAYFABSERVER_API || ENABLE_PLAYFABADMIN_API\n"
-            + tabbing + "var developerSecretKey = PlayFabSettings.staticSettings.DeveloperSecretKey;\n"
-            + tabbing + "if (developerSecretKey != null) { authKey = \"X-SecretKey\"; authValue = developerSecretKey; }\n"
+            + tabbing + "if (requestSettings.DeveloperSecretKey != null) { authKey = \"X-SecretKey\"; authValue = requestSettings.DeveloperSecretKey; }\n"
             + "#endif\n\n"
             + "#if !DISABLE_PLAYFABENTITY_API\n"
-            + tabbing + "var entityToken = request?.AuthenticationContext?.EntityToken ?? PlayFabSettings.staticPlayer.EntityToken;\n"
-            + tabbing + "if (entityToken != null) { authKey = \"X-EntityToken\"; authValue = entityToken; }\n"
-            + "#endif\n";
-    if (apiCall.url === "/Authentication/GetEntityToken" && isInstance)
-        return tabbing + "string authKey = null, authValue = null;\n"
-            + "#if !DISABLE_PLAYFABCLIENT_API\n"
-            + tabbing + "var clientSessionTicket = request?.AuthenticationContext?.ClientSessionTicket ?? authenticationContext.ClientSessionTicket;\n"
-            + tabbing + "if (clientSessionTicket != null) { authKey = \"X-Authorization\"; authValue = clientSessionTicket; }\n"
-            + "#endif\n\n"
-            + "#if ENABLE_PLAYFABSERVER_API || ENABLE_PLAYFABADMIN_API\n"
-            + tabbing + "var settings = apiSettings ?? PlayFabSettings.staticSettings; var developerSecretKey = settings.DeveloperSecretKey;\n"
-            + tabbing + "if (developerSecretKey != null) { authKey = \"X-SecretKey\"; authValue = developerSecretKey; }\n"
-            + "#endif\n\n"
-            + "#if !DISABLE_PLAYFABENTITY_API\n"
-            + tabbing + "var entityToken = request?.AuthenticationContext?.EntityToken ?? authenticationContext.EntityToken;\n"
-            + tabbing + "if (entityToken != null) { authKey = \"X-EntityToken\"; authValue = entityToken; }\n"
+            + tabbing + "if (requestContext.EntityToken != null) { authKey = \"X-EntityToken\"; authValue = requestContext.EntityToken; }\n"
             + "#endif\n";
     return "";
 }

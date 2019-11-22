@@ -13,6 +13,8 @@ namespace PlayFab.Internal
 
         public async Task<object> DoPost(string fullUrl, object request, Dictionary<string, string> extraHeaders)
         {
+            await new PlayFabUtil.SynchronizationContextRemover();
+
             var serializer = PluginManager.GetPlugin<ISerializerPlugin>(PluginContract.PlayFab_Serializer);
             string bodyString;
 

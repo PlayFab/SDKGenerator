@@ -16,6 +16,8 @@ namespace PlayFab.QoS
 #pragma warning disable 4014
         public async Task<QosResult> GetQosResultAsync(int timeoutMs = DefaultTimeoutMs)
         {
+            await new PlayFabUtil.SynchronizationContextRemover();
+
             QosResult result = await GetResultAsync(timeoutMs);
             if (result.ErrorCode != (int)QosErrorCode.Success)
             {

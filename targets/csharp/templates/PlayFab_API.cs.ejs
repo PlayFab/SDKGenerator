@@ -40,6 +40,8 @@ namespace PlayFab
 %><%- getDeprecationAttribute("        ", apiCall)
 %>        public static async Task<PlayFabResult<<%- apiCall.result %>>> <%- apiCall.name %>Async(<%- apiCall.request %> request, object customData = null, Dictionary<string, string> extraHeaders = null)
         {
+            await new PlayFabUtil.SynchronizationContextRemover();
+
             var requestContext = request?.AuthenticationContext ?? PlayFabSettings.staticPlayer;
             var requestSettings = PlayFabSettings.staticSettings;
 <%- getRequestActions("            ", apiCall, false) %>

@@ -1,40 +1,53 @@
 using PlayFab;
+using PlayFab.ClientModels;
 using PlayFab.UUnit;
 using System;
 using System.IO;
-using PlayFab.ClientModels;
 using System.Threading.Tasks;
+using System.Windows.Forms;
 
-#pragma warning disable 0649, 0414
-namespace UnittestRunner
+namespace WindowsFormsApp1
 {
-    static class UUnitTestRunner
+    public partial class Form1 : Form
     {
+        public Form1()
+        {
+            InitializeComponent();
+        }
+
         public class CsSaveRequest
         {
             public string customId;
             public TestSuiteReport[] testReport;
         }
 
-        public static int Main(string[] args)
+        public int Main2(string[] args)
         {
+            int result = 1;
+            bool taskFinished = false;
             try
             {
-                MainTask(args).Wait(60000);
+                var mainTask = MainTask(args);
+                taskFinished = mainTask.Wait(120000);
+                result = mainTask.Result; // Deliberately try to invoke a mainthread deadlock, but SynchronizationContextRemover should prevent it
             }
             catch (Exception e)
             {
                 WriteConsoleColor(e.ToString(), ConsoleColor.Red);
             }
-            return Pause(UUnitIncrementalTestRunner.AllTestsPassed ? 0 : 1);
+            return Pause(taskFinished ? result : 1);
         }
 
-        public static async Task<int> MainTask(string[] args)
+        public async Task<int> MainTask(string[] args)
         {
+            await new PlayFabUtil.SynchronizationContextRemover();
+
             var testInputs = GetTestTitleData(args);
             UUnitIncrementalTestRunner.Start(true, null, testInputs, OnComplete);
             while (!UUnitIncrementalTestRunner.SuiteFinished)
-                await UUnitIncrementalTestRunner.Tick();
+            {
+                label1.Text = await UUnitIncrementalTestRunner.Tick();
+            }
 
             WriteConsoleColor(UUnitIncrementalTestRunner.Summary);
 
@@ -93,6 +106,10 @@ namespace UnittestRunner
             else if (result.Result != null)
                 WriteConsoleColor("Successful!", ConsoleColor.Green);
         }
+
+        private void button1_Click(object sender, EventArgs e)
+        {
+            Main2(new string[] { });
+        }
     }
 }
-#pragma warning restore 0649, 0414

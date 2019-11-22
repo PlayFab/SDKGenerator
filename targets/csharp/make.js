@@ -29,7 +29,6 @@ exports.makeCombinedAPI = function (apis, sourceDir, apiOutputDir) {
     };
 
     templatizeTree(locals, path.resolve(sourceDir, "source"), rootOutputDir);
-    templatizeTree(locals, path.resolve(sourceDir, "UnittestRunner"), path.resolve(apiOutputDir, "UnittestRunner")); // Copy the actual unittest project in the CombinedAPI
     makeDatatypes(apis, sourceDir, apiOutputDir);
 
     for (var i = 0; i < apis.length; i++) {

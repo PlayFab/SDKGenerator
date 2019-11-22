@@ -48,6 +48,8 @@ namespace PlayFab.Internal
     {
         public static async Task<object> DoPost(string urlPath, PlayFabRequestCommon request, string authType, string authKey, Dictionary<string, string> extraHeaders, PlayFabApiSettings instanceSettings = null)
         {
+            await new PlayFabUtil.SynchronizationContextRemover();
+
             var settings = instanceSettings ?? PlayFabSettings.staticSettings;
             var fullPath = settings.GetFullUrl(urlPath);
             return await _DoPost(fullPath, request, authType, authKey, extraHeaders, instanceSettings);
@@ -55,6 +57,8 @@ namespace PlayFab.Internal
 
         public static async Task<object> DoPostWithFullUri(string fullUriPath, PlayFabRequestCommon request, string authType, string authKey, Dictionary<string, string> extraHeaders, PlayFabApiSettings instanceSettings = null)
         {
+            await new PlayFabUtil.SynchronizationContextRemover();
+
             return await _DoPost(fullUriPath, request, authType, authKey, extraHeaders, instanceSettings);
         }
 

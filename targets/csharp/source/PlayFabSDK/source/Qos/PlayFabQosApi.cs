@@ -13,8 +13,11 @@ namespace PlayFab.QoS
         private const int DefaultTimeoutMs = 250;
         private readonly Dictionary<string, string> _dataCenterMap = new Dictionary<string, string>();
 
+#pragma warning disable 4014
         public async Task<QosResult> GetQosResultAsync(int timeoutMs = DefaultTimeoutMs)
         {
+            await new PlayFabUtil.SynchronizationContextRemover();
+
             QosResult result = await GetResultAsync(timeoutMs);
             if (result.ErrorCode != (int)QosErrorCode.Success)
             {
@@ -24,6 +27,7 @@ namespace PlayFab.QoS
             Task.Factory.StartNew(() => SendResultsToPlayFab(result));
             return result;
         }
+#pragma warning restore 4014
 
         private async Task<QosResult> GetResultAsync(int timeoutMs)
         {

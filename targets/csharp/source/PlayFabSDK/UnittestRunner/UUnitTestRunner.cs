@@ -1,15 +1,16 @@
 using PlayFab;
+using PlayFab.ClientModels;
 using PlayFab.UUnit;
 using System;
 using System.IO;
-using PlayFab.ClientModels;
 using System.Threading.Tasks;
 
+#pragma warning disable 0649, 0414
 namespace UnittestRunner
 {
     static class UUnitTestRunner
     {
-        private static bool _onCompleted = false;
+        private const int MAX_TEST_DURATION_MS = 120000;
 
         public class CsSaveRequest
         {
@@ -19,15 +20,19 @@ namespace UnittestRunner
 
         public static int Main(string[] args)
         {
+            int result = 1;
+            bool taskFinished = false;
             try
             {
-                MainTask(args).Wait(60000);
+                var mainTask = MainTask(args);
+                taskFinished = mainTask.Wait(MAX_TEST_DURATION_MS);
+                result = mainTask.Result; // Deliberately try to invoke a mainthread deadlock, but SynchronizationContextRemover should prevent it
             }
             catch (Exception e)
             {
                 WriteConsoleColor(e.ToString(), ConsoleColor.Red);
             }
-            return Pause(UUnitIncrementalTestRunner.AllTestsPassed ? 0 : 1);
+            return Pause(taskFinished ? result : 1);
         }
 
         public static async Task<int> MainTask(string[] args)
@@ -93,7 +98,7 @@ namespace UnittestRunner
                 WriteConsoleColor(result.Error.GenerateErrorReport(), ConsoleColor.Red);
             else if (result.Result != null)
                 WriteConsoleColor("Successful!", ConsoleColor.Green);
-            _onCompleted = true;
         }
     }
 }
+#pragma warning restore 0649, 0414

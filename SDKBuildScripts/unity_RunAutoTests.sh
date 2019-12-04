@@ -145,7 +145,7 @@ TryBuildAndTestAndroid() {
 
             #copy test title data in
             pushd "$WORKSPACE/SDKGenerator/SDKBuildScripts"
-                . ./unity_copyTestTitleData.sh "$WORKSPACE/sdks/UnitySDK/Source/PlayFabSDK/Testing/Resources" copy || exit 1
+                . ./unity_copyTestTitleData.sh "$WORKSPACE/sdks/UnitySDK/Testing/Resources" copy || exit 1
             popd
             if [[ $? -ne 0 ]]; then return 1; fi
             
@@ -156,7 +156,7 @@ TryBuildAndTestAndroid() {
             pushd "$WORKSPACE/SDKGenerator/SDKBuildScripts"
                 
                 #pull the test title data back out
-                . ./unity_copyTestTitleData.sh "$WORKSPACE/sdks/UnitySDK/Source/PlayFabSDK/Testing/Resources" delete || exit 1
+                . ./unity_copyTestTitleData.sh "$WORKSPACE/sdks/UnitySDK/Testing/Resources" delete || exit 1
                 if [[ $? -ne 0 ]]; then return 1; fi
                 
                 #upload the APK and run the tests on AppCenter Test
@@ -182,7 +182,7 @@ TryBuildAndTestiOS() {
 
             #copy the test title data in
             pushd "$WORKSPACE/SDKGenerator/SDKBuildScripts"
-                . ./unity_copyTestTitleData.sh "$WORKSPACE/sdks/UnitySDK/Source/PlayFabSDK/Testing/Resources" copy || exit 1
+                . ./unity_copyTestTitleData.sh "$WORKSPACE/sdks/UnitySDK/Testing/Resources" copy || exit 1
             popd
             if [[ $? -ne 0 ]]; then return 1; fi
             
@@ -193,7 +193,7 @@ TryBuildAndTestiOS() {
             pushd "$WORKSPACE/SDKGenerator/SDKBuildScripts"
  
                 #pull the test title data back out.
-                . ./unity_copyTestTitleData.sh "$WORKSPACE/sdks/UnitySDK/Source/PlayFabSDK/Testing/Resources" delete || exit 1
+                . ./unity_copyTestTitleData.sh "$WORKSPACE/sdks/UnitySDK/Testing/Resources" delete || exit 1
                 if [[ $? -ne 0 ]]; then return 1; fi
 
                 #build the IPA on AppCenter Build

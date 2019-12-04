@@ -27,7 +27,7 @@ DeleteUnityCruft () {
 
 CopyTestingFolder() {
     echo === Copying Testing Folder to inside PlayFab to comply with asmdef ===
-    cp "$WORKSPACE/sdks/UnitySDK/Source/PlayFabSDK/Testing/" "${ProjRootPath}/${SdkName}_TC/Assets/PlayFabSdk" || exit 1
+    cp "$WORKSPACE/sdks/UnitySDK/Testing/" "${ProjRootPath}/${SdkName}_TC/Assets/PlayFabSdk/" || exit 1
     rm -rf "${ProjRootPath}/${SdkName}_TC/Assets/Testing/"
 }
 
@@ -41,7 +41,7 @@ DoWorkEditor () {
     cmd <<< "mklink /D PlayFabSdk \"$WORKSPACE/sdks/$SdkName/Source/PlayFabSDK\""
     if [ $? -ne 0 ]; then return 1; fi
     Nuke "Editor"
-    cmd <<< "mklink /D Editor \"$WORKSPACE/sdks/$SdkName/Testing/Editor\""
+    cmd <<< "mklink /D Editor \"$WORKSPACE/sdks/$SdkName/Source/PlayFabSDK/Testing/Editor\""
     if [ $? -ne 0 ]; then return 1; fi
     WriteUnitySettingsFile "PlayFabExample/Editor" "$2"
     #set -x
@@ -60,7 +60,7 @@ DoWorkTesting () {
     cmd <<< "mklink /D PlayFabSdk \"$WORKSPACE/sdks/$SdkName/Source/PlayFabSDK\""
     if [ $? -ne 0 ]; then return 1; fi
     Nuke "Testing"
-    cmd <<< "mklink /D Testing \"$WORKSPACE/sdks/$SdkName/Testing\""
+    cmd <<< "mklink /D Testing \"$WORKSPACE/sdks/$SdkName/Source/PlayFabSDK/Testing\""
     if [ $? -ne 0 ]; then return 1; fi
     WriteUnitySettingsFile "PlayFabExample/Editor" "$2"
     #set -x

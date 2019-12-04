@@ -27,7 +27,7 @@ DeleteUnityCruft () {
 
 CopyTestingFolder() {
     echo === Copying Testing Folder to inside PlayFab to comply with asmdef ===
-    cp "$WORKSPACE/sdks/UnitySDK/Testing/" "${ProjRootPath}/${SdkName}_TC/Assets/PlayFabSdk/" || exit 1
+    cp -r "$WORKSPACE/sdks/UnitySDK/Testing/" "${ProjRootPath}/${SdkName}_TC/Assets/PlayFabSdk/" || exit 1
     rm -rf "${ProjRootPath}/${SdkName}_TC/Assets/Testing/"
 }
 

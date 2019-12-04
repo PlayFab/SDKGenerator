@@ -1,11 +1,7 @@
-{
-    "name": "PlayFabSharedModelsEditor",
-    "references": [
-        "PlayFabShared"
-    ],
-    "includePlatforms": [
-        "Editor"
-    ],
+﻿{
+    "name": "PlayFab",
+    "optionalUnityReferences": [],
+    "includePlatforms": [],
     "excludePlatforms": [],
     "allowUnsafeCode": false,
     "overrideReferences": false,

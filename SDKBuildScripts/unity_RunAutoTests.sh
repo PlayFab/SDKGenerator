@@ -84,6 +84,7 @@ SetProjDefines() {
 CopyTestingFolder() {
     echo === Copying Testing Folder to inside PlayFab to comply with asmdef ===
     cp "$WORKSPACE/sdks/UnitySDK/Source/PlayFabSDK/Testing/" "${ProjRootPath}/${SdkName}_TC/Assets/PlayFabSdk" || exit 1
+    rm -rf "${ProjRootPath}/${SdkName}_TC/Assets/Testing/"
 }
 
 SetEachProjDefine() {

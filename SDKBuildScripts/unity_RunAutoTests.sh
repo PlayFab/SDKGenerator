@@ -81,6 +81,11 @@ SetProjDefines() {
     SetEachProjDefine ${SdkName}_TZ
 }
 
+CopyTestingFolder() {
+    echo === Copying Testing Folder to inside PlayFab to comply with asmdef ===
+    cp "$WORKSPACE/sdks/UnitySDK/Source/PlayFabSDK/Testing/" "${ProjRootPath}/${SdkName}_TC/Assets/PlayFabSdk" || exit 1
+}
+
 SetEachProjDefine() {
     pushd "${ProjRootPath}/$1"
     $UNITY_VERSION -projectPath "${ProjRootPath}/$1" -quit -batchmode -executeMethod SetupPlayFabExample.Setup -logFile "${ProjRootPath}/compile$1.txt" || (cat "${ProjRootPath}/compile$1.txt" && return 1)
@@ -242,6 +247,7 @@ KillUnityProcesses() {
 DoWork() {
     CheckVars
     SetProjDefines
+    CopyTestingFolder
     RunClientJenkernaught
     TryBuildAndTestAndroid; AndroidResult=$?;
     TryBuildAndTestiOS; iOSResult=$?

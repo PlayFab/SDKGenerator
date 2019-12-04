@@ -1,6 +1,8 @@
-﻿{
-    "name": "PlayFabSdkSharedEditor",
-    "references": [],
+{
+    "name": "PlayFabSDKEditor",
+    "references": [
+        "PlayFabShared"
+    ],
     "includePlatforms": [
         "Editor"
     ],

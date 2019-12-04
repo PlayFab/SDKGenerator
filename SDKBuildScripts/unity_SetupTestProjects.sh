@@ -42,7 +42,7 @@ DoWorkEditor () {
     cmd <<< "mklink /D PlayFabSdk \"$WORKSPACE/sdks/$SdkName/Source/PlayFabSDK\""
     if [ $? -ne 0 ]; then return 1; fi
     Nuke "Editor"
-    cmd <<< "mklink /D Editor \"$WORKSPACE/sdks/$SdkName/Source/PlayFabSDK/Testing/Editor\""
+    cmd <<< "mklink /D Editor \"$WORKSPACE/sdks/$SdkName/Testing/Editor\""
     if [ $? -ne 0 ]; then return 1; fi
     WriteUnitySettingsFile "PlayFabExample/Editor" "$2"
     #set -x
@@ -61,7 +61,7 @@ DoWorkTesting () {
     cmd <<< "mklink /D PlayFabSdk \"$WORKSPACE/sdks/$SdkName/Source/PlayFabSDK\""
     if [ $? -ne 0 ]; then return 1; fi
     Nuke "Testing"
-    cmd <<< "mklink /D Testing \"$WORKSPACE/sdks/$SdkName/Source/PlayFabSDK/Testing\""
+    cmd <<< "mklink /D Testing \"$WORKSPACE/sdks/$SdkName/Testing\""
     if [ $? -ne 0 ]; then return 1; fi
     WriteUnitySettingsFile "PlayFabExample/Editor" "$2"
     #set -x

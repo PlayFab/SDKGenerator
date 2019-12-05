@@ -25,13 +25,6 @@ DeleteUnityCruft () {
     Nuke "*.sln"
 }
 
-CopyTestingFolder() {
-    echo === Copying Testing Folder to inside PlayFab to comply with asmdef ===
-    mkdir "${ProjRootPath}/${SdkName}_TC/Assets/PlayFabSdk/Testing"
-    cp -r "$WORKSPACE/sdks/UnitySDK/Testing/" "${ProjRootPath}/${SdkName}_TC/Assets/PlayFabSdk/Testing/" || exit 1
-    rm -rf "$WORKSPACE/sdks/UnitySDK/Testing/"
-}
-
 # USAGE: DoWorkEditor <ProjectSubfolder> <UnityDefineSymbols>
 DoWorkEditor () {
     echo === DoWorkEditor $PWD, $@ ===
@@ -126,4 +119,3 @@ CheckDefault UNITY_VERSION "Unity181"
 
 # MainScript <all command line args for script>
 MainScript "$@"
-CopyTestingFolder

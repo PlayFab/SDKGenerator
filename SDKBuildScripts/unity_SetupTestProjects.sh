@@ -121,5 +121,9 @@ CheckDefault UNITY_VERSION "Unity181"
 echo == copy Testing Folder == 
 cp -r "$WORKSPACE/sdks/$SdkName/Testing" "$WORKSPACE/sdks/$SdkName/Source/PlayFabSDK/Testing"
 
+cd "$WORKSPACE/sdks/$SdkName/Source/PlayFabSDK/Testing"
+ls
+echo == copy Testing Folder COMPLETE == 
+
 # MainScript <all command line args for script>
 MainScript "$@"

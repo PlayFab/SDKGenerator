@@ -51,7 +51,9 @@ DoWorkTesting () {
     DeleteUnityCruft
     ForcePushD "Assets"
     Nuke "PlayFabSdk"
-    cmd <<< "mklink /D PlayFabSdk \"$WORKSPACE/sdks/$SdkName/Source/PlayFabSDK\""
+    # cmd <<< "mklink /D PlayFabSdk \"$WORKSPACE/sdks/$SdkName/Source/PlayFabSDK\"" # so with the use of asmdef's, symbolic links break
+    mkdir PlayFabSdk
+    cp "$WORKSPACE/sdks/$SdkName/Source/PlayFabSDK" PlayFabSdk
     if [ $? -ne 0 ]; then return 1; fi
     Nuke "Testing"
     # cmd <<< "mklink /D Testing \"$WORKSPACE/sdks/$SdkName/Testing\"" # this is no longer required if Testing is copied inside the PlayFabSDK folder

@@ -54,7 +54,7 @@ DoWorkTesting () {
     cmd <<< "mklink /D PlayFabSdk \"$WORKSPACE/sdks/$SdkName/Source/PlayFabSDK\""
     if [ $? -ne 0 ]; then return 1; fi
     Nuke "Testing"
-    cmd <<< "mklink /D Testing \"$WORKSPACE/sdks/$SdkName/Testing\""
+    # cmd <<< "mklink /D Testing \"$WORKSPACE/sdks/$SdkName/Testing\"" # this is no longer required if Testing is copied inside the PlayFabSDK folder
     if [ $? -ne 0 ]; then return 1; fi
     WriteUnitySettingsFile "PlayFabExample/Editor" "$2"
     #set -x
@@ -116,6 +116,9 @@ CheckDefault WORKSPACE "C:/proj"
 CheckDefault SHARED_WORKSPACE "C:/depot"
 CheckDefault SdkName "UnitySDK"
 CheckDefault UNITY_VERSION "Unity181"
+
+# with asmdef files, we need to copy everything under /Testing/ to the /PlayFabSDK/ folder instead of the same parent folder
+cp -r "$WORKSPACE/sdks/$SdkName/Testing" "$WORKSPACE/sdks/$SdkName/Source/PlayFabSDK/Testing"
 
 # MainScript <all command line args for script>
 MainScript "$@"

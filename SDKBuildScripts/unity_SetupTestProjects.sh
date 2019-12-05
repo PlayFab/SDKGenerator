@@ -1,7 +1,7 @@
 #!/bin/bash
 # USAGE: unity_SetupTestProjects.sh
 # Make folder links from the UnitySdk to this test project
-# Requires mklink which may require administrator
+# Requires mklink which may require administrator # This should no longer be required due to Unity not liking symbolic links with asmdef files
 
 . $SHARED_WORKSPACE/SDKGenerator/JenkinsConsoleUtility/JenkinsScripts/util.sh
 
@@ -32,10 +32,14 @@ DoWorkEditor () {
     DeleteUnityCruft
     ForcePushD "Assets"
     Nuke "PlayFabSdk"
-    cmd <<< "mklink /D PlayFabSdk \"$WORKSPACE/sdks/$SdkName/Source/PlayFabSDK\""
+    #cmd <<< "mklink /D PlayFabSdk \"$WORKSPACE/sdks/$SdkName/Source/PlayFabSDK\""
+    mkdir PlayFabSdk
+    cp "$WORKSPACE/sdks/$SdkName/Source/PlayFabSDK" PlayFabSdk
     if [ $? -ne 0 ]; then return 1; fi
     Nuke "Editor"
-    cmd <<< "mklink /D Editor \"$WORKSPACE/sdks/$SdkName/Testing/Editor\""
+    #cmd <<< "mklink /D Editor \"$WORKSPACE/sdks/$SdkName/Testing/Editor\""
+    mkdir Editor
+    cp "$WORKSPACE/sdks/$SdkName/Testing/Editor" Editor
     if [ $? -ne 0 ]; then return 1; fi
     WriteUnitySettingsFile "PlayFabExample/Editor" "$2"
     #set -x

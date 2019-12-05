@@ -118,6 +118,7 @@ CheckDefault SdkName "UnitySDK"
 CheckDefault UNITY_VERSION "Unity181"
 
 # with asmdef files, we need to copy everything under /Testing/ to the /PlayFabSDK/ folder instead of the same parent folder
+echo == copy Testing Folder == 
 cp -r "$WORKSPACE/sdks/$SdkName/Testing" "$WORKSPACE/sdks/$SdkName/Source/PlayFabSDK/Testing"
 
 # MainScript <all command line args for script>

@@ -68,7 +68,7 @@ namespace PlayFab.Internal
             "Assets/PlayFabSDK"
         };
         private static readonly string[] TestScenes = {
-            "assets/PlayFabSDK/Testing/scenes/testscene.unity"
+            "assets/PlayFabSdk/PlayFabSDK/Testing/scenes/testscene.unity"
         };
 
         private static readonly string TestPackageName = "com.playfab.service";

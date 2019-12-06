@@ -1,7 +1,6 @@
 #!/bin/bash
 # USAGE: unity_SetupTestProjects.sh
 # Make folder links from the UnitySdk to this test project
-# Requires mklink which may require administrator # This should no longer be required due to Unity not liking symbolic links with asmdef files
 
 . $SHARED_WORKSPACE/SDKGenerator/JenkinsConsoleUtility/JenkinsScripts/util.sh
 
@@ -32,16 +31,12 @@ DoWorkEditor () {
     DeleteUnityCruft
     ForcePushD "Assets"
     Nuke "PlayFabSdk"
-    #cmd <<< "mklink /D PlayFabSdk \"$WORKSPACE/sdks/$SdkName/Source/PlayFabSDK\""
-    echo === Editor make link replacing with copy ===
     mkdir PlayFabSdk
     cp -r "$WORKSPACE/sdks/$SdkName/Source/PlayFabSDK" PlayFabSdk
 
     if [ $? -ne 0 ]; then return 1; fi
     Nuke "Editor"
-    #cmd <<< "mklink /D Editor \"$WORKSPACE/sdks/$SdkName/Testing/Editor\""
-    mkdir Editor # we are taking the entire Testing folder. This should no longer be necessary?
-    #cp -r "$WORKSPACE/sdks/$SdkName/Testing/Editor" Editor
+    mkdir Editor
     if [ $? -ne 0 ]; then return 1; fi
     WriteUnitySettingsFile "PlayFabExample/Editor" "$2"
     #set -x
@@ -57,12 +52,10 @@ DoWorkTesting () {
     DeleteUnityCruft
     ForcePushD "Assets"
     Nuke "PlayFabSdk"
-    # cmd <<< "mklink /D PlayFabSdk \"$WORKSPACE/sdks/$SdkName/Source/PlayFabSDK\"" # so with the use of asmdef's, symbolic links break
     mkdir PlayFabSdk
     cp -r "$WORKSPACE/sdks/$SdkName/Source/PlayFabSDK" PlayFabSdk
     if [ $? -ne 0 ]; then return 1; fi
     Nuke "Testing"
-    # cmd <<< "mklink /D Testing \"$WORKSPACE/sdks/$SdkName/Testing\"" # this is no longer required if Testing is copied inside the PlayFabSDK folder
     if [ $? -ne 0 ]; then return 1; fi
     WriteUnitySettingsFile "PlayFabExample/Editor" "$2"
     #set -x
@@ -125,7 +118,7 @@ CheckDefault SHARED_WORKSPACE "C:/depot"
 CheckDefault SdkName "UnitySDK"
 CheckDefault UNITY_VERSION "Unity181"
 
-# with asmdef files, we need to copy everything under /Testing/ to the /PlayFabSDK/ folder instead of the same parent folder
+# with asmdef files, we need to copy everything under /Testing/ to the /PlayFabSDK/ folder
 echo == copy Testing Folder == 
 cp -r "$WORKSPACE/sdks/$SdkName/Testing" "$WORKSPACE/sdks/$SdkName/Source/PlayFabSDK/Testing"
 echo == copy Testing Folder COMPLETE == 

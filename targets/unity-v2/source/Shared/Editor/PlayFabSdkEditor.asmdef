@@ -1,7 +1,7 @@
 {
     "name": "PlayFabSDKEditor",
     "references": [
-        "PlayFabShared"
+        "PlayFab"
     ],
     "includePlatforms": [
         "Editor"

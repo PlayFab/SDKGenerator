@@ -1,10 +1,11 @@
-﻿{
-    "name": "PlayFabSDK",
+{
+    "name": "PlayFabTestingEditor",
     "references": [
-        "PlayFabShared"
+        "PlayFab"
     ],
-    "optionalUnityReferences": [],
-    "includePlatforms": [],
+    "includePlatforms": [
+        "Editor"
+    ],
     "excludePlatforms": [],
     "allowUnsafeCode": false,
     "overrideReferences": false,

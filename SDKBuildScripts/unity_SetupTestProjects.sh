@@ -34,10 +34,11 @@ DoWorkEditor () {
     Nuke "PlayFabSdk"
     #cmd <<< "mklink /D PlayFabSdk \"$WORKSPACE/sdks/$SdkName/Source/PlayFabSDK\""
     echo === Editor make link replacing with copy ===
+    PWD
     mkdir PlayFabSdk
     ls
     echo === make sure there is a PlayFabSdk directory created above this line ===
-    cp "$WORKSPACE/sdks/$SdkName/Source/PlayFabSDK" PlayFabSdk
+    cp -r "$WORKSPACE/sdks/$SdkName/Source/PlayFabSDK" PlayFabSdk
     echo === make sure PlayFabSdk got copied into the correct place ===
     ls
     ForcePushD "PlayFabSDK"
@@ -49,7 +50,7 @@ DoWorkEditor () {
     Nuke "Editor"
     #cmd <<< "mklink /D Editor \"$WORKSPACE/sdks/$SdkName/Testing/Editor\""
     mkdir Editor
-    cp "$WORKSPACE/sdks/$SdkName/Testing/Editor" Editor
+    cp -r "$WORKSPACE/sdks/$SdkName/Testing/Editor" Editor
     if [ $? -ne 0 ]; then return 1; fi
     WriteUnitySettingsFile "PlayFabExample/Editor" "$2"
     #set -x
@@ -67,7 +68,7 @@ DoWorkTesting () {
     Nuke "PlayFabSdk"
     # cmd <<< "mklink /D PlayFabSdk \"$WORKSPACE/sdks/$SdkName/Source/PlayFabSDK\"" # so with the use of asmdef's, symbolic links break
     mkdir PlayFabSdk
-    cp "$WORKSPACE/sdks/$SdkName/Source/PlayFabSDK" PlayFabSdk
+    cp -r "$WORKSPACE/sdks/$SdkName/Source/PlayFabSDK" PlayFabSdk
     if [ $? -ne 0 ]; then return 1; fi
     Nuke "Testing"
     # cmd <<< "mklink /D Testing \"$WORKSPACE/sdks/$SdkName/Testing\"" # this is no longer required if Testing is copied inside the PlayFabSDK folder

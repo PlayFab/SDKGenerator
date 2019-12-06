@@ -1,7 +1,6 @@
 #!/bin/bash
 # USAGE: unity_SetupTestProjects.sh
 # Make folder links from the UnitySdk to this test project
-# Requires mklink which may require administrator
 
 . $SHARED_WORKSPACE/SDKGenerator/JenkinsConsoleUtility/JenkinsScripts/util.sh
 
@@ -25,7 +24,6 @@ DeleteUnityCruft () {
     Nuke "*.sln"
 }
 
-
 # USAGE: DoWorkEditor <ProjectSubfolder> <UnityDefineSymbols>
 DoWorkEditor () {
     echo === DoWorkEditor $PWD, $@ ===
@@ -33,10 +31,12 @@ DoWorkEditor () {
     DeleteUnityCruft
     ForcePushD "Assets"
     Nuke "PlayFabSdk"
-    cmd <<< "mklink /D PlayFabSdk \"$WORKSPACE/sdks/$SdkName/Source/PlayFabSDK\""
+    mkdir PlayFabSdk
+    cp -r "$WORKSPACE/sdks/$SdkName/Source/PlayFabSDK" PlayFabSdk
+
     if [ $? -ne 0 ]; then return 1; fi
     Nuke "Editor"
-    cmd <<< "mklink /D Editor \"$WORKSPACE/sdks/$SdkName/Testing/Editor\""
+    mkdir Editor
     if [ $? -ne 0 ]; then return 1; fi
     WriteUnitySettingsFile "PlayFabExample/Editor" "$2"
     #set -x
@@ -52,10 +52,10 @@ DoWorkTesting () {
     DeleteUnityCruft
     ForcePushD "Assets"
     Nuke "PlayFabSdk"
-    cmd <<< "mklink /D PlayFabSdk \"$WORKSPACE/sdks/$SdkName/Source/PlayFabSDK\""
+    mkdir PlayFabSdk
+    cp -r "$WORKSPACE/sdks/$SdkName/Source/PlayFabSDK" PlayFabSdk
     if [ $? -ne 0 ]; then return 1; fi
     Nuke "Testing"
-    cmd <<< "mklink /D Testing \"$WORKSPACE/sdks/$SdkName/Testing\""
     if [ $? -ne 0 ]; then return 1; fi
     WriteUnitySettingsFile "PlayFabExample/Editor" "$2"
     #set -x
@@ -117,6 +117,11 @@ CheckDefault WORKSPACE "C:/proj"
 CheckDefault SHARED_WORKSPACE "C:/depot"
 CheckDefault SdkName "UnitySDK"
 CheckDefault UNITY_VERSION "Unity181"
+
+# with asmdef files, we need to copy everything under /Testing/ to the /PlayFabSDK/ folder
+echo == copy Testing Folder == 
+cp -r "$WORKSPACE/sdks/$SdkName/Testing" "$WORKSPACE/sdks/$SdkName/Source/PlayFabSDK/Testing"
+echo == copy Testing Folder COMPLETE == 
 
 # MainScript <all command line args for script>
 MainScript "$@"

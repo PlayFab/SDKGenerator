@@ -14,7 +14,7 @@ exports.makeCombinedAPI = function (apis, sourceDir, apiOutputDir) {
         extraDefines: "ENABLE_PLAYFABADMIN_API;ENABLE_PLAYFABSERVER_API;",
         sdkVersion: sdkGlobals.sdkVersion,
         sdkDate: sdkGlobals.sdkVersion.split(".")[2],
-        sdkYear: sdkGlobals.sdkVersion.split(".")[2].substr(0, 2),
+        sdkYear: "20" + sdkGlobals.sdkVersion.split(".")[2].substr(0, 2),
         vsVer: "v140", // If we add 141, we'll have to tweak this again
         vsYear: "2015" // If we add 2017, we'll have to tweak this again
     };

@@ -133,7 +133,7 @@ param(
     [AllowEmptyString()]
     [string]$ApiSpecGitUrl,
     [Parameter(ValueFromPipelineByPropertyName = $true)]
-    [string]$OutputPath = "..\..\sdks",
+    [string]$OutputPath,
     [Parameter(ValueFromPipelineByPropertyName = $true)]
     [string]$TargetSource,
     [Parameter(ValueFromPipelineByPropertyName = $true)]
@@ -172,16 +172,22 @@ begin
         "XPlatCoreTemplate" = "xplatcoretemplate";
     }
 
-    $sdksPath = $OutputPath
-    if(![System.IO.Path]::IsPathRooted($sdksPath))
+    if(!$OutputPath)
     {
-        $sdksPath = Resolve-Path (Join-Path $PSScriptRoot $OutputPath)
+        $OutputPath = "../../sdks"
     }
 
-    if(!(Test-Path $sdksPath))
+    if(![System.IO.Path]::IsPathRooted($OutputPath))
     {
-        mkdir $sdksPath | Out-Null
+        $OutputPath = Join-Path $PSScriptRoot $OutputPath
     }
+
+    if(!(Test-Path $OutputPath))
+    {
+        mkdir $OutputPath | Out-Null
+    }
+
+    $OutputPath = Resolve-Path $OutputPath
 
     if($PSCmdlet.ParameterSetName -eq "ApiSpecPath")
     {
@@ -256,7 +262,7 @@ process
             }
         }
 
-        $destPath = Join-Path $sdksPath $targetSdkName
+        $destPath = Join-Path $OutputPath $targetSdkName
 
         if(!(Test-Path $destPath))
         {

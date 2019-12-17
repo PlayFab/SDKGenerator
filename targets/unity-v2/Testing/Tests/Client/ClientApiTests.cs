@@ -34,7 +34,7 @@ namespace PlayFab.UUnit
 #endif
 
             clientInstance.ForgetAllCredentials();
-            PlayFabClientAPI.ForgetAllCredentials();
+            PlayFabSettings.staticPlayer.ForgetAllCredentials();
 
             testTitleData = TestTitleDataLoader.LoadTestTitleData();
             _userEmail = testTitleData.userEmail;

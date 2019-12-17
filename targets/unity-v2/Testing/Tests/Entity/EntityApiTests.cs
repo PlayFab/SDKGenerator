@@ -1,8 +1,8 @@
 #if !DISABLE_PLAYFABCLIENT_API && !DISABLE_PLAYFABENTITY_API
+
 using PlayFab.Internal;
 using System.Collections.Generic;
 using System.Linq;
-using System.Text;
 
 namespace PlayFab.UUnit
 {
@@ -13,27 +13,31 @@ namespace PlayFab.UUnit
         // Test-data constants
         private const string TEST_OBJ_NAME = "testCounter";
         // Test variables
-        private string _entityId;
-        private string _entityType;
         private const string TEST_FILE_NAME = "testfile";
         private readonly byte[] _testPayload = new byte[] { 1, 2, 3, 4, 5, 6, 7, 8, 9, 10 };
         private int _testInteger;
         private bool _shouldDeleteFiles;
 
+        private PlayFabClientInstanceAPI clientApi;
+        private PlayFabAuthenticationInstanceAPI authApi;
+        private PlayFabDataInstanceAPI dataApi;
+
+        public override void ClassSetUp()
+        {
+            testTitleData = TestTitleDataLoader.LoadTestTitleData();
+            clientApi = new PlayFabClientInstanceAPI();
+            authApi = new PlayFabAuthenticationInstanceAPI(clientApi.authenticationContext);
+            dataApi = new PlayFabDataInstanceAPI(clientApi.authenticationContext);
+
+            PlayFabSettings.staticPlayer.ForgetAllCredentials();
+        }
+
         public override void SetUp(UUnitTestContext testContext)
         {
-            _shouldDeleteFiles = false; // Don't delete the file unless it was created
-
-            testTitleData = TestTitleDataLoader.LoadTestTitleData();
-
             // Verify all the inputs won't cause crashes in the tests
             var titleInfoSet = !string.IsNullOrEmpty(PlayFabSettings.TitleId);
             if (!titleInfoSet)
                 testContext.Skip(); // We cannot do client tests if the titleId is not given
-
-            if (testTitleData.extraHeaders != null)
-                foreach (var pair in testTitleData.extraHeaders)
-                    PlayFabHttp.GlobalHeaderInjection[pair.Key] = pair.Value;
         }
 
         public override void Tick(UUnitTestContext testContext)
@@ -51,7 +55,7 @@ namespace PlayFab.UUnit
 
         public override void ClassTearDown()
         {
-            PlayFabAuthenticationAPI.ForgetAllCredentials();
+            PlayFabSettings.staticPlayer.ForgetAllCredentials();
         }
 
         private void SharedErrorCallback(PlayFabError error)
@@ -72,12 +76,13 @@ namespace PlayFab.UUnit
                 CustomId = PlayFabSettings.BuildIdentifier,
                 CreateAccount = true,
             };
-            PlayFabClientAPI.LoginWithCustomID(loginRequest, PlayFabUUnitUtils.ApiActionWrapper<ClientModels.LoginResult>(testContext, LoginCallback), PlayFabUUnitUtils.ApiActionWrapper<PlayFabError>(testContext, SharedErrorCallback), testContext);
+            clientApi.LoginWithCustomID(loginRequest, PlayFabUUnitUtils.ApiActionWrapper<ClientModels.LoginResult>(testContext, LoginCallback), PlayFabUUnitUtils.ApiActionWrapper<PlayFabError>(testContext, SharedErrorCallback), testContext);
         }
         private void LoginCallback(ClientModels.LoginResult result)
         {
             var testContext = (UUnitTestContext)result.CustomData;
-            testContext.True(PlayFabClientAPI.IsClientLoggedIn(), "User login failed");
+            testContext.True(clientApi.IsClientLoggedIn(), "Client login failed");
+            testContext.True(dataApi.IsEntityLoggedIn(), "Entity login didn't transfer to DataApi");
             testContext.EndTest(UUnitFinishState.PASSED, PlayFabSettings.TitleId + ", " + result.PlayFabId);
         }
 
@@ -89,17 +94,16 @@ namespace PlayFab.UUnit
         public void GetEntityToken(UUnitTestContext testContext)
         {
             var tokenRequest = new AuthenticationModels.GetEntityTokenRequest();
-            PlayFabAuthenticationAPI.GetEntityToken(tokenRequest, PlayFabUUnitUtils.ApiActionWrapper<AuthenticationModels.GetEntityTokenResponse>(testContext, GetTokenCallback), PlayFabUUnitUtils.ApiActionWrapper<PlayFabError>(testContext, SharedErrorCallback), testContext);
+            authApi.GetEntityToken(tokenRequest, PlayFabUUnitUtils.ApiActionWrapper<AuthenticationModels.GetEntityTokenResponse>(testContext, GetTokenCallback), PlayFabUUnitUtils.ApiActionWrapper<PlayFabError>(testContext, SharedErrorCallback), testContext);
         }
         private void GetTokenCallback(AuthenticationModels.GetEntityTokenResponse result)
         {
             var testContext = (UUnitTestContext)result.CustomData;
 
-            _entityId = result.Entity.Id;
-            _entityType = result.Entity.Type;
             testContext.StringEquals("title_player_account", result.Entity.Type, "GetEntityToken Entity Type not expected: " + result.Entity.Type);
 
-            testContext.True(PlayFabClientAPI.IsClientLoggedIn(), "Get Entity Token failed");
+            testContext.True(clientApi.IsClientLoggedIn(), "Client login failed");
+            testContext.True(dataApi.IsEntityLoggedIn(), "Entity login didn't transfer to DataApi");
             testContext.EndTest(UUnitFinishState.PASSED, PlayFabSettings.TitleId + ", " + result.EntityToken.Substring(0, 25) + "...");
         }
 
@@ -112,8 +116,9 @@ namespace PlayFab.UUnit
         [UUnitTest]
         public void ObjectApi(UUnitTestContext testContext)
         {
-            var getRequest = new DataModels.GetObjectsRequest { Entity = new DataModels.EntityKey { Id = _entityId, Type = _entityType }, EscapeObject = true };
-            PlayFabDataAPI.GetObjects(getRequest, PlayFabUUnitUtils.ApiActionWrapper<DataModels.GetObjectsResponse>(testContext, GetObjectCallback1), PlayFabUUnitUtils.ApiActionWrapper<PlayFabError>(testContext, SharedErrorCallback), testContext);
+            testContext.True(dataApi.IsEntityLoggedIn(), "Client");
+            var getRequest = new DataModels.GetObjectsRequest { Entity = new DataModels.EntityKey { Id = clientApi.authenticationContext.EntityId, Type = clientApi.authenticationContext.EntityType }, EscapeObject = true };
+            dataApi.GetObjects(getRequest, PlayFabUUnitUtils.ApiActionWrapper<DataModels.GetObjectsResponse>(testContext, GetObjectCallback1), PlayFabUUnitUtils.ApiActionWrapper<PlayFabError>(testContext, SharedErrorCallback), testContext);
         }
         private void GetObjectCallback1(DataModels.GetObjectsResponse result)
         {
@@ -128,19 +133,19 @@ namespace PlayFab.UUnit
 
             var updateRequest = new DataModels.SetObjectsRequest
             {
-                Entity = new DataModels.EntityKey { Id = _entityId, Type = _entityType },
+                Entity = new DataModels.EntityKey { Id = clientApi.authenticationContext.EntityId, Type = clientApi.authenticationContext.EntityType },
                 Objects = new List<DataModels.SetObject> {
                     new DataModels.SetObject{ ObjectName = TEST_OBJ_NAME, DataObject = _testInteger }
                 }
             };
-            PlayFabDataAPI.SetObjects(updateRequest, PlayFabUUnitUtils.ApiActionWrapper<DataModels.SetObjectsResponse>(testContext, UpdateObjectCallback), PlayFabUUnitUtils.ApiActionWrapper<PlayFabError>(testContext, SharedErrorCallback), testContext);
+            dataApi.SetObjects(updateRequest, PlayFabUUnitUtils.ApiActionWrapper<DataModels.SetObjectsResponse>(testContext, UpdateObjectCallback), PlayFabUUnitUtils.ApiActionWrapper<PlayFabError>(testContext, SharedErrorCallback), testContext);
         }
         private void UpdateObjectCallback(DataModels.SetObjectsResponse result)
         {
             var testContext = (UUnitTestContext)result.CustomData;
 
-            var getRequest = new DataModels.GetObjectsRequest { Entity = new DataModels.EntityKey { Id = _entityId, Type = _entityType }, EscapeObject = true };
-            PlayFabDataAPI.GetObjects(getRequest, PlayFabUUnitUtils.ApiActionWrapper<DataModels.GetObjectsResponse>(testContext, GetObjectCallback2), PlayFabUUnitUtils.ApiActionWrapper<PlayFabError>(testContext, SharedErrorCallback), testContext);
+            var getRequest = new DataModels.GetObjectsRequest { Entity = new DataModels.EntityKey { Id = clientApi.authenticationContext.EntityId, Type = clientApi.authenticationContext.EntityType }, EscapeObject = true };
+            dataApi.GetObjects(getRequest, PlayFabUUnitUtils.ApiActionWrapper<DataModels.GetObjectsResponse>(testContext, GetObjectCallback2), PlayFabUUnitUtils.ApiActionWrapper<PlayFabError>(testContext, SharedErrorCallback), testContext);
         }
         private void GetObjectCallback2(DataModels.GetObjectsResponse result)
         {
@@ -170,7 +175,7 @@ namespace PlayFab.UUnit
                 CreateAccount = true,
             };
 
-            PlayFabClientAPI.LoginWithCustomID(loginRequest, PlayFabUUnitUtils.ApiActionWrapper<ClientModels.LoginResult>(testContext, LoginCallbackPutTest), PlayFabUUnitUtils.ApiActionWrapper<PlayFabError>(testContext, SharedErrorCallback), testContext);
+            clientApi.LoginWithCustomID(loginRequest, PlayFabUUnitUtils.ApiActionWrapper<ClientModels.LoginResult>(testContext, LoginCallbackPutTest), PlayFabUUnitUtils.ApiActionWrapper<PlayFabError>(testContext, SharedErrorCallback), testContext);
         }
         private void LoginCallbackPutTest(ClientModels.LoginResult result)
         {
@@ -178,9 +183,6 @@ namespace PlayFab.UUnit
 
             if (result.EntityToken != null)
             {
-                _entityId = result.EntityToken.Entity.Id;
-                _entityType = result.EntityToken.Entity.Type;
-
                 LoadFiles(testContext);
             }
             else
@@ -192,10 +194,10 @@ namespace PlayFab.UUnit
         {
             var request = new DataModels.GetFilesRequest
             {
-                Entity = new DataModels.EntityKey { Id = _entityId, Type = _entityType },
+                Entity = new DataModels.EntityKey { Id = clientApi.authenticationContext.EntityId, Type = clientApi.authenticationContext.EntityType },
             };
 
-            PlayFabDataAPI.GetFiles(request, PlayFabUUnitUtils.ApiActionWrapper<DataModels.GetFilesResponse>(testContext, OnGetFilesInfo), PlayFabUUnitUtils.ApiActionWrapper<PlayFabError>(testContext, SharedErrorCallback), testContext);
+            dataApi.GetFiles(request, PlayFabUUnitUtils.ApiActionWrapper<DataModels.GetFilesResponse>(testContext, OnGetFilesInfo), PlayFabUUnitUtils.ApiActionWrapper<PlayFabError>(testContext, SharedErrorCallback), testContext);
         }
         void OnGetFilesInfo(DataModels.GetFilesResponse result)
         {
@@ -237,14 +239,14 @@ namespace PlayFab.UUnit
         {
             var request = new DataModels.InitiateFileUploadsRequest
             {
-                Entity = new DataModels.EntityKey { Id = _entityId, Type = _entityType },
+                Entity = new DataModels.EntityKey { Id = clientApi.authenticationContext.EntityId, Type = clientApi.authenticationContext.EntityType },
                 FileNames = new List<string>
                 {
                     fileName
                 },
             };
 
-            PlayFabDataAPI.InitiateFileUploads(request, PlayFabUUnitUtils.ApiActionWrapper<DataModels.InitiateFileUploadsResponse>(testContext, OnInitFileUpload), PlayFabUUnitUtils.ApiActionWrapper<PlayFabError>(testContext, OnInitFailed), testContext);
+            dataApi.InitiateFileUploads(request, PlayFabUUnitUtils.ApiActionWrapper<DataModels.InitiateFileUploadsResponse>(testContext, OnInitFileUpload), PlayFabUUnitUtils.ApiActionWrapper<PlayFabError>(testContext, OnInitFailed), testContext);
         }
         void DeleteFiles(UUnitTestContext testContext, List<string> fileName, bool shouldEndTest, UUnitFinishState finishState, string finishMessage)
         {
@@ -253,12 +255,12 @@ namespace PlayFab.UUnit
 
             var request = new DataModels.DeleteFilesRequest
             {
-                Entity = new DataModels.EntityKey { Id = _entityId, Type = _entityType },
+                Entity = new DataModels.EntityKey { Id = clientApi.authenticationContext.EntityId, Type = clientApi.authenticationContext.EntityType },
                 FileNames = fileName,
             };
 
             _shouldDeleteFiles = false; // We have successfully deleted the file, it should not try again in teardown
-            PlayFabDataAPI.DeleteFiles(request, result =>
+            dataApi.DeleteFiles(request, result =>
             {
                 if (shouldEndTest)
                     testContext.EndTest(finishState, finishMessage);
@@ -273,11 +275,11 @@ namespace PlayFab.UUnit
             {
                 var request = new DataModels.AbortFileUploadsRequest
                 {
-                    Entity = new DataModels.EntityKey { Id = _entityId, Type = _entityType },
+                    Entity = new DataModels.EntityKey { Id = clientApi.authenticationContext.EntityId, Type = clientApi.authenticationContext.EntityType },
                     FileNames = new List<string> { TEST_FILE_NAME },
                 };
 
-                PlayFabDataAPI.AbortFileUploads(request, PlayFabUUnitUtils.ApiActionWrapper<DataModels.AbortFileUploadsResponse>(testContext, OnAbortFileUpload), PlayFabUUnitUtils.ApiActionWrapper<PlayFabError>(testContext, SharedErrorCallback), testContext);
+                dataApi.AbortFileUploads(request, PlayFabUUnitUtils.ApiActionWrapper<DataModels.AbortFileUploadsResponse>(testContext, OnAbortFileUpload), PlayFabUUnitUtils.ApiActionWrapper<PlayFabError>(testContext, SharedErrorCallback), testContext);
             }
             else
             {
@@ -314,10 +316,10 @@ namespace PlayFab.UUnit
         {
             var request = new DataModels.FinalizeFileUploadsRequest
             {
-                Entity = new DataModels.EntityKey { Id = _entityId, Type = _entityType },
+                Entity = new DataModels.EntityKey { Id = clientApi.authenticationContext.EntityId, Type = clientApi.authenticationContext.EntityType },
                 FileNames = new List<string> { TEST_FILE_NAME },
             };
-            PlayFabDataAPI.FinalizeFileUploads(request, PlayFabUUnitUtils.ApiActionWrapper<DataModels.FinalizeFileUploadsResponse>(testContext, OnUploadSuccess), PlayFabUUnitUtils.ApiActionWrapper<PlayFabError>(testContext, SharedErrorCallback), testContext);
+            dataApi.FinalizeFileUploads(request, PlayFabUUnitUtils.ApiActionWrapper<DataModels.FinalizeFileUploadsResponse>(testContext, OnUploadSuccess), PlayFabUUnitUtils.ApiActionWrapper<PlayFabError>(testContext, SharedErrorCallback), testContext);
         }
         void OnUploadSuccess(DataModels.FinalizeFileUploadsResponse result)
         {
@@ -340,4 +342,5 @@ namespace PlayFab.UUnit
         #endregion
     }
 }
+
 #endif

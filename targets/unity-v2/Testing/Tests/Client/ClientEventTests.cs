@@ -16,6 +16,8 @@ namespace PlayFab.UUnit
         private static PlayFabEvents _playFabEvents;
         private EventInstanceListener _listener;
 
+        private PlayFabClientInstanceAPI clientApi = new PlayFabClientInstanceAPI();
+
         private class EventInstanceListener
         {
             public void Register()
@@ -65,7 +67,7 @@ namespace PlayFab.UUnit
 
         public override void ClassTearDown()
         {
-            PlayFabClientAPI.ForgetAllCredentials();
+            PlayFabSettings.staticPlayer.ForgetAllCredentials();
         }
 
         private void SharedErrorCallback(PlayFabError error)
@@ -85,7 +87,7 @@ namespace PlayFab.UUnit
             PlayFabHttp.ApiProcessingEventHandler += TestInstCallbacks_GeneralOnly_OnGlobalEventHandler;
 
             var request = new LoginWithCustomIDRequest { CreateAccount = true, CustomId = PlayFabSettings.BuildIdentifier };
-            PlayFabClientAPI.LoginWithCustomID(request,
+            clientApi.LoginWithCustomID(request,
                 PlayFabUUnitUtils.ApiActionWrapper<LoginResult>(testContext, TestInstCallbacks_GeneralOnlyCallback),
                 PlayFabUUnitUtils.ApiActionWrapper<PlayFabError>(testContext, SharedErrorCallback), testContext);
             CheckCallbacks(testContext, "OnRequest_InstGl", Callbacks);
@@ -129,7 +131,7 @@ namespace PlayFab.UUnit
             PlayFabHttp.ApiProcessingEventHandler += TestCallbackFailuresGlobal_OnGlobalEventHandler;
 
             var catalogRequest = new GetCatalogItemsRequest();
-            PlayFabClientAPI.GetCatalogItems(catalogRequest,
+            clientApi.GetCatalogItems(catalogRequest,
                 PlayFabUUnitUtils.ApiActionWrapper<GetCatalogItemsResult>(testContext, GetCatalogItemsCallback_Single),
                 PlayFabUUnitUtils.ApiActionWrapper<PlayFabError>(testContext, SharedErrorCallback),
                 testContext);
@@ -161,7 +163,7 @@ namespace PlayFab.UUnit
             PlayFabHttp.ApiProcessingErrorEventHandler += SharedError_Global;
 
             var registerRequest = new RegisterPlayFabUserRequest(); // A bad request that will fail
-            PlayFabClientAPI.RegisterPlayFabUser(registerRequest, null, PlayFabUUnitUtils.ApiActionWrapper<PlayFabError>(testContext, SharedError_Single), testContext);
+            clientApi.RegisterPlayFabUser(registerRequest, null, PlayFabUUnitUtils.ApiActionWrapper<PlayFabError>(testContext, SharedError_Single), testContext);
         }
         private static void SharedError_Global(PlayFabRequestCommon request, PlayFabError error)
         {

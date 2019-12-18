@@ -167,14 +167,12 @@ function isPartial(api) {
 }
 
 // Some apis have entirely custom built functions to augment apis in ways that aren't generate-able
-function getCustomApiFunction(tabbing, api, apiCall, isApiInstance = false) {
+function getCustomApiFunction(tabbing, api, apiCall, isInstanceApi = false) {
     var varCheckLine = "";
     if (api.name === "Client")
-        varCheckLine = tabbing + "    if (!IsClientLoggedIn()) throw new PlayFabException(PlayFabExceptionCode.NotLoggedIn, \"Must be logged in to call this method\");\n";
-    else if (api.name === "Server" && !isApiInstance)
-        varCheckLine = tabbing + "    if (string.IsNullOrEmpty(PlayFabSettings.staticSettings.DeveloperSecretKey)) throw new PlayFabException(PlayFabExceptionCode.DeveloperKeyNotSet, \"Must set PlayFabSettings.staticSettings.DeveloperSecretKey to call this method\");\n";
-    else if (api.name === "Server" && isApiInstance)
-        varCheckLine = tabbing + "    if (!string.IsNullOrEmpty(apiSettings.DeveloperSecretKey)) throw new PlayFabException(PlayFabExceptionCode.DeveloperKeyNotSet, \"Must set DeveloperSecretKey to call this method\");\n";
+        varCheckLine = tabbing + "    if (!context.IsClientLoggedIn()) throw new PlayFabException(PlayFabExceptionCode.NotLoggedIn, \"Must be logged in to call this method\");\n";
+    else if (api.name === "Server")
+        varCheckLine = tabbing + "    if (!string.IsNullOrEmpty(callSettings.DeveloperSecretKey)) throw new PlayFabException(PlayFabExceptionCode.DeveloperKeyNotSet, \"Must set DeveloperSecretKey in settings to call this method\");\n";
 
     var authType = "";
     if (api.name === "Client")
@@ -182,11 +180,27 @@ function getCustomApiFunction(tabbing, api, apiCall, isApiInstance = false) {
     else if (api.name === "Server")
         authType = "AuthType.DevSecretKey";
 
-    if (apiCall.name === "ExecuteCloudScript" && isApiInstance === false) {
-        return "\n\n" + tabbing + "public static void " + apiCall.name + "<TOut>(" + apiCall.request + " request, Action<" + apiCall.result + "> resultCallback, Action<PlayFabError> errorCallback, object customData = null, Dictionary<string, string> extraHeaders = null)\n"
+    var isStatic = "";
+    var contextVarLine = "";
+    var settingsVarLine = "";
+    var makeApiCallLine = "";
+    if (isInstanceApi) {
+        contextVarLine = tabbing + "    var context = (request == null ? null : request.AuthenticationContext) ?? authenticationContext;\n";
+        settingsVarLine = tabbing + "    var callSettings = apiSettings ?? PlayFabSettings.staticSettings;\n";
+        makeApiCallLine = tabbing + "    PlayFabHttp.MakeApiCall(\"" + apiCall.url + "\", request, " + authType + ", wrappedResultCallback, errorCallback, customData, extraHeaders, context, callSettings, this);\n";
+    } else {
+        isStatic = "static ";
+        contextVarLine = tabbing + "    var context = (request == null ? null : request.AuthenticationContext) ?? PlayFabSettings.staticPlayer;\n";
+        settingsVarLine = tabbing + "    var callSettings = PlayFabSettings.staticSettings;\n";
+        makeApiCallLine = tabbing + "    PlayFabHttp.MakeApiCall(\"" + apiCall.url + "\", request, " + authType + ", wrappedResultCallback, errorCallback, customData, extraHeaders, context, callSettings);\n";
+    }
+
+    if (apiCall.name === "ExecuteCloudScript") {
+        return "\n\n" + tabbing + "public " + isStatic + "void " + apiCall.name + "<TOut>(" + apiCall.request + " request, Action<" + apiCall.result + "> resultCallback, Action<PlayFabError> errorCallback, object customData = null, Dictionary<string, string> extraHeaders = null)\n"
             + tabbing + "{\n"
+            + contextVarLine
+            + settingsVarLine
             + varCheckLine
-            + tabbing + "    var context = (request == null ? null : request.AuthenticationContext) ?? PlayFabSettings.staticPlayer;\n"
             + tabbing + "    Action<" + apiCall.result + "> wrappedResultCallback = (wrappedResult) =>\n"
             + tabbing + "    {\n"
             + tabbing + "        var serializer = PluginManager.GetPlugin<ISerializerPlugin>(PluginContract.PlayFab_Serializer);\n"
@@ -199,31 +213,10 @@ function getCustomApiFunction(tabbing, api, apiCall, isApiInstance = false) {
             + tabbing + "        }\n"
             + tabbing + "        resultCallback(wrappedResult);\n"
             + tabbing + "    };\n"
-            + tabbing + "    PlayFabHttp.MakeApiCall(\"" + apiCall.url + "\", request, " + authType + ", wrappedResultCallback, errorCallback, customData, extraHeaders, context);\n"
+            + makeApiCallLine
             + tabbing + "}";
     }
-    else if (apiCall.name === "ExecuteCloudScript" && isApiInstance === true) {
-        return "\n\n" + tabbing + "public void " + apiCall.name + "<TOut>(" + apiCall.request + " request, Action<" + apiCall.result + "> resultCallback, Action<PlayFabError> errorCallback, object customData = null, Dictionary<string, string> extraHeaders = null)\n"
-            + tabbing + "{\n"
-            + varCheckLine
-            + tabbing + "    var context = (request == null ? null : request.AuthenticationContext) ?? authenticationContext;\n"
-            + tabbing + "    Action<" + apiCall.result + "> wrappedResultCallback = (wrappedResult) =>\n"
-            + tabbing + "    {\n"
-            + tabbing + "        var serializer = PluginManager.GetPlugin<ISerializerPlugin>(PluginContract.PlayFab_Serializer);\n"
-            + tabbing + "        var wrappedJson = serializer.SerializeObject(wrappedResult.FunctionResult);\n"
-            + tabbing + "        try {\n"
-            + tabbing + "            wrappedResult.FunctionResult = serializer.DeserializeObject<TOut>(wrappedJson);\n"
-            + tabbing + "        }\n"
-            + tabbing + "        catch (Exception)\n"
-            + tabbing + "        {\n"
-            + tabbing + "            wrappedResult.FunctionResult = wrappedJson;\n"
-            + tabbing + "            wrappedResult.Logs.Add(new LogStatement { Level = \"Warning\", Data = wrappedJson, Message = \"Sdk Message: Could not deserialize result as: \" + typeof(TOut).Name });\n"
-            + tabbing + "        }\n"
-            + tabbing + "        resultCallback(wrappedResult);\n"
-            + tabbing + "    };\n"
-            + tabbing + "    PlayFabHttp.MakeApiCall(\"" + apiCall.url + "\", request, " + authType + ", wrappedResultCallback, errorCallback, customData, extraHeaders, context, apiSettings, this);\n"
-            + tabbing + "}";
-    }
+
     return ""; // Most apis don't have a custom alternate
 }
 
@@ -411,38 +404,25 @@ function getAuthParams(apiCall) {
     return "AuthType.None";
 }
 
-function getRequestActions(tabbing, apiCall, isApiInstance = false) {
-    if (apiCall.name === "GetEntityToken" && isApiInstance === false)
+function getRequestActions(tabbing, apiCall) {
+    if (apiCall.name === "GetEntityToken")
         return tabbing + "AuthType authType = AuthType.None;\n" +
             "#if !DISABLE_PLAYFABCLIENT_API\n" +
-            tabbing + "if (context.ClientSessionTicket != null) { authType = AuthType.LoginSession; }\n" +
+            tabbing + "if (context.IsClientLoggedIn()) { authType = AuthType.LoginSession; }\n" +
             "#endif\n" +
             "#if ENABLE_PLAYFABSERVER_API || ENABLE_PLAYFABADMIN_API\n" +
-            tabbing + "if (PlayFabSettings.staticSettings.DeveloperSecretKey != null) { authType = AuthType.DevSecretKey; } // TODO: Need to get the correct settings first\n" +
+            tabbing + "if (callSettings.DeveloperSecretKey != null) { authType = AuthType.DevSecretKey; } // TODO: Need to get the correct settings first\n" +
             "#endif\n" +
             "#if !DISABLE_PLAYFABENTITY_API\n" +
-            tabbing + "if (context.EntityToken != null) { authType = AuthType.EntityToken; }\n" +
-            "#endif\n";
-    if (apiCall.name === "GetEntityToken" && isApiInstance === true)
-        return tabbing + "AuthType authType = AuthType.None;\n" +
-            "#if !DISABLE_PLAYFABCLIENT_API\n" +
-            tabbing + "if (context.ClientSessionTicket != null) { authType = AuthType.LoginSession; }\n" +
-            "#endif\n" +
-            "#if ENABLE_PLAYFABSERVER_API || ENABLE_PLAYFABADMIN_API\n" +
-            tabbing + "if (PlayFabSettings.staticSettings.DeveloperSecretKey != null) { authType = AuthType.DevSecretKey; } // TODO: Need to get the correct settings first\n" +
-            "#endif\n" +
-            "#if !DISABLE_PLAYFABENTITY_API\n" +
-            tabbing + "if (context.EntityToken != null) { authType = AuthType.EntityToken; }\n" +
+            tabbing + "if (context.IsEntityLoggedIn()) { authType = AuthType.EntityToken; }\n" +
             "#endif\n";
 
-    if ((apiCall.result === "LoginResult" || apiCall.request === "RegisterPlayFabUserRequest") && isApiInstance === false)
-        return tabbing + "request.TitleId = request.TitleId ?? PlayFabSettings.TitleId;\n";
-    if ((apiCall.result === "LoginResult" || apiCall.request === "RegisterPlayFabUserRequest") && isApiInstance === true)
+    if (apiCall.result === "LoginResult" || apiCall.request === "RegisterPlayFabUserRequest")
         return tabbing + "request.TitleId = request.TitleId ?? callSettings.TitleId;\n";
-    if (apiCall.auth === "SessionTicket" && isApiInstance === true)
-        return tabbing + "if (string.IsNullOrEmpty(context.ClientSessionTicket)) throw new PlayFabException(PlayFabExceptionCode.NotLoggedIn, \"Must be logged in to call this method\");\n";
-    if (apiCall.auth === "SessionTicket" && isApiInstance === false)
-        return tabbing + "if (!IsClientLoggedIn()) throw new PlayFabException(PlayFabExceptionCode.NotLoggedIn,\"Must be logged in to call this method\");\n";
+    if (apiCall.auth === "SessionTicket")
+        return tabbing + "if (!context.IsClientLoggedIn()) throw new PlayFabException(PlayFabExceptionCode.NotLoggedIn,\"Must be logged in to call this method\");\n";
+    if (apiCall.auth === "EntityToken")
+        return tabbing + "if (!context.IsEntityLoggedIn()) throw new PlayFabException(PlayFabExceptionCode.NotLoggedIn,\"Must be logged in to call this method\");\n";
     return "";
 }
 

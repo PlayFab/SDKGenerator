@@ -102,7 +102,7 @@ namespace PlayFab
         {
             var context = (request == null ? null : request.AuthenticationContext) ?? authenticationContext;
             var callSettings = apiSettings ?? PlayFabSettings.staticSettings;
-<%- getRequestActions("            ", apiCall, true) %>            PlayFabHttp.MakeApiCall("<%- apiCall.url %>", request, <%- getAuthParams(apiCall) %>, resultCallback, errorCallback, customData, extraHeaders, context, callSettings, this);
+<%- getRequestActions("            ", apiCall) %>            PlayFabHttp.MakeApiCall("<%- apiCall.url %>", request, <%- getAuthParams(apiCall) %>, resultCallback, errorCallback, customData, extraHeaders, context, callSettings, this);
         }<%- getCustomApiFunction("        ", api, apiCall, true) %>
 <% } %>
     }

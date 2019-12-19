@@ -1,10 +1,10 @@
 ﻿#if !DISABLE_PLAYFABCLIENT_API && !DISABLE_PLAYFABENTITY_API
+
 namespace PlayFab.UUnit
 {
     using System;
     using ClientModels;
     using QoS;
-    using ServerModels;
 
     public class PlayFabQosApiTest : UUnitTestCase
     {
@@ -12,6 +12,8 @@ namespace PlayFab.UUnit
 
         // Functional
         private static bool TITLE_INFO_SET = false;
+
+        private readonly PlayFabClientInstanceAPI clientApi = new PlayFabClientInstanceAPI(PlayFabSettings.staticPlayer);
 
         /// <summary>
         /// PlayFab Title cannot be created from SDK tests, so you must provide your titleId to run unit tests.
@@ -50,7 +52,7 @@ namespace PlayFab.UUnit
 
             try
             {
-                PlayFabClientAPI.LoginWithCustomIDAsync(loginWithCustomIdRequest, null, testTitleData.extraHeaders).Wait();
+                clientApi.LoginWithCustomIDAsync(loginWithCustomIdRequest, null, testTitleData.extraHeaders).Wait();
             }
             catch (AggregateException aggregateException) when (aggregateException.InnerException != null)
             {
@@ -65,4 +67,5 @@ namespace PlayFab.UUnit
         }
     }
 }
+
 #endif

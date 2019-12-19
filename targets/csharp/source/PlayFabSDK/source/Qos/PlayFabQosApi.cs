@@ -1,17 +1,17 @@
 ﻿#if !DISABLE_PLAYFABCLIENT_API && !DISABLE_PLAYFABENTITY_API
 namespace PlayFab.QoS
 {
-    using System;
+    using EventsModels;
+    using MultiplayerModels;
     using System.Collections.Generic;
     using System.Threading.Tasks;
-    using EventsModels;
-    using Internal;
-    using MultiplayerModels;
 
     public class PlayFabQosApi
     {
         private const int DefaultTimeoutMs = 250;
         private readonly Dictionary<string, string> _dataCenterMap = new Dictionary<string, string>();
+        private readonly PlayFabMultiplayerInstanceAPI multiplayerApi = new PlayFabMultiplayerInstanceAPI(PlayFabSettings.staticPlayer);
+        private readonly PlayFabEventsInstanceAPI eventsApi = new PlayFabEventsInstanceAPI(PlayFabSettings.staticPlayer);
 
 #pragma warning disable 4014
         public async Task<QosResult> GetQosResultAsync(int timeoutMs = DefaultTimeoutMs)
@@ -33,7 +33,7 @@ namespace PlayFab.QoS
         {
             var result = new QosResult();
 
-            if (!PlayFabClientAPI.IsClientLoggedIn())
+            if (!PlayFabSettings.staticPlayer.IsClientLoggedIn())
             {
                 result.ErrorCode = (int)QosErrorCode.NotLoggedIn;
                 result.ErrorMessage = "Client is not logged in";
@@ -66,8 +66,8 @@ namespace PlayFab.QoS
             }
 
             var request = new ListQosServersRequest();
-            PlayFabResult<ListQosServersResponse> response = await PlayFabMultiplayerAPI.ListQosServersAsync(request);
-            
+            PlayFabResult<ListQosServersResponse> response = await multiplayerApi.ListQosServersAsync(request);
+
             if (response == null || response.Error != null)
             {
                 return;
@@ -101,7 +101,7 @@ namespace PlayFab.QoS
                 results.Add(asyncPingResult.Result);
             }
 
-            results.Sort((x,y) => x.LatencyMs.CompareTo(y.LatencyMs));
+            results.Sort((x, y) => x.LatencyMs.CompareTo(y.LatencyMs));
 
             return results;
         }
@@ -117,29 +117,12 @@ namespace PlayFab.QoS
 
             var writeEventsRequest = new WriteEventsRequest
             {
-                Events = new List<EventContents> {eventContents}
+                Events = new List<EventContents> { eventContents }
             };
 
-            await WriteTelemetryAsync(writeEventsRequest);
-        }
-
-        private static async Task<PlayFabResult<WriteEventsResponse>> WriteTelemetryAsync(WriteEventsRequest request, object customData = null, Dictionary<string, string> extraHeaders = null)
-        {
-            if ((request?.AuthenticationContext?.EntityToken ?? PlayFabSettings.staticPlayer.EntityToken) == null) throw new PlayFabException(PlayFabExceptionCode.EntityTokenNotSet, "Must call GetEntityToken before calling this method");
-
-            var httpResult = await PlayFabHttp.DoPost("/Event/WriteTelemetryEvents", request, "X-EntityToken", PlayFabSettings.staticPlayer.EntityToken, extraHeaders);
-            if (httpResult is PlayFabError)
-            {
-                var error = (PlayFabError)httpResult;
-                return new PlayFabResult<WriteEventsResponse> { Error = error, CustomData = customData };
-            }
-
-            var resultRawJson = (string)httpResult;
-            var resultData = PluginManager.GetPlugin<ISerializerPlugin>(PluginContract.PlayFab_Serializer).DeserializeObject<PlayFabJsonSuccess<WriteEventsResponse>>(resultRawJson);
-            var result = resultData.data;
-
-            return new PlayFabResult<WriteEventsResponse> { Result = result, CustomData = customData };
+            await eventsApi.WriteTelemetryEventsAsync(writeEventsRequest);
         }
     }
 }
+
 #endif

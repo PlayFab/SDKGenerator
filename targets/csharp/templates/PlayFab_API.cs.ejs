@@ -1,4 +1,4 @@
-#if <%- getApiDefineFlag(api) %>
+#if <%- getApiDefineFlag(api) %> && !DISABLE_PLAYFAB_STATIC_API
 
 using PlayFab.<%- api.name %>Models;
 using PlayFab.Internal;

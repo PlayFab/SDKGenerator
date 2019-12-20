@@ -57,8 +57,8 @@ namespace PlayFab.UUnit
             testContext.False(client2.IsClientLoggedIn(), "Client2 login did not clean up properly.");
             testContext.False(auth1.IsEntityLoggedIn(), "Entity1 login did not clean up properly.");
             testContext.False(auth2.IsEntityLoggedIn(), "Entity2 login did not clean up properly.");
-            testContext.False(PlayFabClientAPI.IsClientLoggedIn(), "Static client login did not clean up properly.");
-            testContext.False(PlayFabAuthenticationAPI.IsEntityLoggedIn(), "Static entity login did not clean up properly.");
+            testContext.False(PlayFabSettings.staticPlayer.IsClientLoggedIn(), "Static client login did not clean up properly.");
+            testContext.False(PlayFabSettings.staticPlayer.IsEntityLoggedIn(), "Static entity login did not clean up properly.");
         }
 
         [UUnitTest]
@@ -77,8 +77,8 @@ namespace PlayFab.UUnit
             testContext.True(player1.IsEntityLoggedIn(), "player1 entity login failed");
             testContext.True(auth1.IsEntityLoggedIn(), "auth1 entity login failed");
 
-            testContext.False(PlayFabClientAPI.IsClientLoggedIn(), "p1 client context leaked to static context");
-            testContext.False(PlayFabAuthenticationAPI.IsEntityLoggedIn(), "p1 entity context leaked to static context");
+            testContext.False(PlayFabSettings.staticPlayer.IsClientLoggedIn(), "p1 client context leaked to static context");
+            testContext.False(PlayFabSettings.staticPlayer.IsEntityLoggedIn(), "p1 entity context leaked to static context");
 
             // Verify useful player information
             testContext.NotNull(player1.PlayFabId);
@@ -104,8 +104,8 @@ namespace PlayFab.UUnit
             testContext.True(player2.IsEntityLoggedIn(), "player2 entity login failed");
             testContext.True(auth2.IsEntityLoggedIn(), "auth2 entity login failed");
 
-            testContext.False(PlayFabClientAPI.IsClientLoggedIn(), "p2 client context leaked to static context");
-            testContext.False(PlayFabAuthenticationAPI.IsEntityLoggedIn(), "p2 entity context leaked to static context");
+            testContext.False(PlayFabSettings.staticPlayer.IsClientLoggedIn(), "p2 client context leaked to static context");
+            testContext.False(PlayFabSettings.staticPlayer.IsEntityLoggedIn(), "p2 entity context leaked to static context");
 
             // Verify useful player information
             testContext.NotNull(player2.PlayFabId);
@@ -115,6 +115,7 @@ namespace PlayFab.UUnit
             testContext.EndTest(UUnitFinishState.PASSED, PlayFabSettings.staticSettings.TitleId + ", " + loginTask.Result.Result.PlayFabId);
         }
 
+#if !DISABLE_PLAYFAB_STATIC_API
         [UUnitTest]
         public void StaticLogin(UUnitTestContext testContext)
         {
@@ -126,8 +127,8 @@ namespace PlayFab.UUnit
             var loginTask = PlayFabClientAPI.LoginWithCustomIDAsync(loginRequest);
             loginTask.Wait();
 
-            testContext.True(PlayFabClientAPI.IsClientLoggedIn(), "p2 client context leaked to static context");
-            testContext.True(PlayFabAuthenticationAPI.IsEntityLoggedIn(), "p2 entity context leaked to static context");
+            testContext.True(PlayFabSettings.staticPlayer.IsClientLoggedIn(), "p2 client context leaked to static context");
+            testContext.True(PlayFabSettings.staticPlayer.IsEntityLoggedIn(), "p2 entity context leaked to static context");
 
             testContext.False(client1.IsClientLoggedIn(), "Static login leaked to Client1");
             testContext.False(client2.IsClientLoggedIn(), "tatic login leaked to Client2");
@@ -139,10 +140,11 @@ namespace PlayFab.UUnit
             testContext.NotNull(PlayFabSettings.staticPlayer.EntityId);
             testContext.NotNull(PlayFabSettings.staticPlayer.EntityType);
 
-            PlayFabClientAPI.ForgetAllCredentials();
+            PlayFabSettings.staticPlayer.ForgetAllCredentials();
 
             testContext.EndTest(UUnitFinishState.PASSED, PlayFabSettings.staticSettings.TitleId + ", " + loginTask.Result.Result.PlayFabId);
         }
+#endif
     }
 }
 

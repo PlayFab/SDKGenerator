@@ -11,6 +11,8 @@ namespace PlayFab.UUnit
         private IPlayFabPlugin realHttpPlugin = null;
         private MockTransport mockHttpPlugin = null;
 
+        private readonly PlayFabClientInstanceAPI clientApi = new PlayFabClientInstanceAPI(PlayFabSettings.staticPlayer);
+
         private class MockTransport : ITransportPlugin
         {
             public static HttpStatusCode code;
@@ -60,7 +62,7 @@ namespace PlayFab.UUnit
             mockHttpPlugin.AssignResponse(HttpStatusCode.OK, "{\"data\": {\"RSAPublicKey\": \"Test Result\"} }", null);
 
             // GetTitlePublicKey has no auth, and trivial input/output so it's pretty ideal for a fake API call
-            var task = PlayFabClientAPI.GetTitlePublicKeyAsync(null);
+            var task = clientApi.GetTitlePublicKeyAsync(null);
             task.Wait();
 
             testContext.IsNull(task.Result.Error);
@@ -83,7 +85,7 @@ namespace PlayFab.UUnit
             mockHttpPlugin.AssignResponse(HttpStatusCode.NotFound, null, expectedError);
 
             // GetTitlePublicKey has no auth, and trivial input/output so it's pretty ideal for a fake API call
-            var task = PlayFabClientAPI.GetTitlePublicKeyAsync(null);
+            var task = clientApi.GetTitlePublicKeyAsync(null);
             task.Wait();
 
             testContext.IsNull(task.Result.Result);
@@ -106,7 +108,7 @@ namespace PlayFab.UUnit
             mockHttpPlugin.AssignResponse(HttpStatusCode.InternalServerError, null, expectedError);
 
             // GetTitlePublicKey has no auth, and trivial input/output so it's pretty ideal for a fake API call
-            var task = PlayFabClientAPI.GetTitlePublicKeyAsync(null);
+            var task = clientApi.GetTitlePublicKeyAsync(null);
             task.Wait();
 
             testContext.IsNull(task.Result.Result);
@@ -117,4 +119,5 @@ namespace PlayFab.UUnit
         }
     }
 }
+
 #endif

@@ -277,12 +277,9 @@ function getResultActions(tabbing, apiCall, api, isInstance) {
         return tabbing + "result.AuthenticationContext = new PlayFabAuthenticationContext(result.SessionTicket, result.EntityToken.EntityToken, result.PlayFabId, result.EntityToken.Entity.Id, result.EntityToken.Entity.Type);\n"
             + tabbing + "PlayFabSettings.staticPlayer.CopyFrom(result.AuthenticationContext);\n"
             + tabbing + "await MultiStepClientLogin(result.SettingsForUser.NeedsAttribution);\n";
-    else if (apiCall.result === "AttributeInstallResult" && isInstance)
+    else if (apiCall.result === "AttributeInstallResult")
         return tabbing + "// Modify AdvertisingIdType:  Prevents us from sending the id multiple times, and allows automated tests to determine id was sent successfully\n"
-            + tabbing + "if (apiSettings != null) apiSettings.AdvertisingIdType += \"_Successful\";\n";
-    else if (apiCall.result === "AttributeInstallResult" && !isInstance)
-        return tabbing + "// Modify AdvertisingIdType:  Prevents us from sending the id multiple times, and allows automated tests to determine id was sent successfully\n"
-            + tabbing + "PlayFabSettings.staticSettings.AdvertisingIdType += \"_Successful\";\n";
+            + tabbing + "requestSettings.AdvertisingIdType += \"_Successful\";\n";
     else if (apiCall.result === "GetEntityTokenResponse" && isInstance)
         return tabbing + "var updateContext = authenticationContext;\n"
             + tabbing + "updateContext.EntityToken = result.EntityToken;\n"

@@ -109,11 +109,11 @@ goto :EOF
 echo === Build Android Target ===
 cd "%ProjRootPath%\%SdkName%_TC"
 pushd "%WORKSPACE%/SDKGenerator/SDKBuildScripts"
-sh unity_copyTestTitleData.sh "%WORKSPACE%/sdks/UnitySDK/Testing/Resources" copy
+sh unity_copyTestTitleData.sh "%WORKSPACE%/sdks/%SdkName%/ExampleTestProject/Assets/Testing/Resources" copy
 popd
 %UnityExe% -projectPath "%ProjRootPath%\%SdkName%_TC" -quit -batchmode -executeMethod PlayFab.Internal.PlayFabPackager.MakeAndroidBuild -logFile "%ProjRootPath%\buildAndroidOutput.txt"
 pushd "%WORKSPACE%/SDKGenerator/SDKBuildScripts"
-sh unity_copyTestTitleData.sh "%WORKSPACE%/sdks/UnitySDK/Testing/Resources" delete
+sh unity_copyTestTitleData.sh "%WORKSPACE%/sdks/%SdkName%/ExampleTestProject/Assets/Testing/Resources" delete
 popd
 if %errorLevel% NEQ 0 (
     type "%ProjRootPath%\buildAndroidOutput.txt"
@@ -135,11 +135,11 @@ goto :EOF
 echo === Build iPhone Target ===
 cd "%ProjRootPath%\%SdkName%_TC"
 pushd "%WORKSPACE%/SDKGenerator/SDKBuildScripts"
-sh unity_copyTestTitleData.sh "%WORKSPACE%/sdks/UnitySDK/Testing/Resources" copy
+sh unity_copyTestTitleData.sh "%WORKSPACE%/sdks/%SdkName%/ExampleTestProject/Assets/Testing/Resources" copy
 popd
 %UnityExe% -projectPath "%ProjRootPath%\%SdkName%_TC" -quit -batchmode -executeMethod PlayFab.Internal.PlayFabPackager.MakeIPhoneBuild -logFile "%ProjRootPath%\buildiPhoneOutput.txt"
 pushd "%WORKSPACE%/SDKGenerator/SDKBuildScripts"
-sh unity_copyTestTitleData.sh "%WORKSPACE%/sdks/UnitySDK/Testing/Resources" delete
+sh unity_copyTestTitleData.sh "%WORKSPACE%/sdks/%SdkName%/ExampleTestProject/Assets/Testing/Resources" delete
 popd
 if %errorLevel% NEQ 0 (
     type "%ProjRootPath%\buildiPhoneOutput.txt"

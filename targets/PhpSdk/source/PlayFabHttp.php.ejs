@@ -17,11 +17,11 @@ if (!class_exists("PlayFabSettings")) {
                 $titleId = PlayFabSettings::$titleId;
 
             $output = "";
-            if (!(substr($productionEnvironmentUrl, 0, 4) === "http"))
+            if (!(substr(self::$productionEnvironmentUrl, 0, 4) === "http"))
             {
-                if (isset($verticalName))
+                if (isset(self::$verticalName))
                 {
-                    $output = "https://" . $verticalName;
+                    $output = "https://" . self::$verticalName;
                 }
                 else
                 {
@@ -29,7 +29,7 @@ if (!class_exists("PlayFabSettings")) {
                 }
             }
             
-            $output .= $productionEnvironmentUrl;
+            $output .= self::$productionEnvironmentUrl;
             $output .= $apiPath;
 
             $firstParam = True;

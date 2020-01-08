@@ -104,7 +104,7 @@ RunClientJenkernaught() {
         echo === Run the $UNITY_VERSION Client UnitTests ===
         pushd "${ProjRootPath}/${SdkName}_TC/testBuilds"
         ls
-        cmd <<< "Win32test.exe -batchmode -nographics -logFile \"${ProjRootPath}/clientTestOutput.txt\"" || (cat "${ProjRootPath}/clientTestOutput.txt" && return 1)
+        cmd <<< "Win32test.exe -batchmode -nographics -logFile \"${WORKSPACE}/logs/clientTestOutput.txt\"" || (cat "${WORKSPACE}/logs/clientTestOutput.txt" && return 1)
         popd
 
         JenkernaughtSaveCloudScriptResults
@@ -150,7 +150,7 @@ TryBuildAndTestAndroid() {
             if [[ $? -ne 0 ]]; then return 1; fi
             
             #build the APK
-            $UNITY_VERSION -projectPath "$WORKSPACE/$UNITY_VERSION/${SdkName}_TC" -quit -batchmode -executeMethod PlayFab.Internal.PlayFabPackager.MakeAndroidBuild -logFile "$WORKSPACE/${SdkName}/buildPackageOutput.txt" || (cat "$WORKSPACE/${SdkName}/buildAndroidOutput.txt" && return 1)
+            $UNITY_VERSION -projectPath "$WORKSPACE/$UNITY_VERSION/${SdkName}_TC" -quit -batchmode -executeMethod PlayFab.Internal.PlayFabPackager.MakeAndroidBuild -logFile "$WORKSPACE/logs/buildPackageOutput.txt" || (cat "$WORKSPACE/logs/buildAndroidOutput.txt" && return 1)
             if [[ $? -ne 0 ]]; then return 1; fi
             
             pushd "$WORKSPACE/SDKGenerator/SDKBuildScripts"
@@ -186,7 +186,7 @@ TryBuildAndTestiOS() {
             if [[ $? -ne 0 ]]; then return 1; fi
             
             #build the xcode project to prepare for IPA generation
-            $UNITY_VERSION -projectPath "$WORKSPACE/$UNITY_VERSION/${SdkName}_TC" -quit -batchmode -appcenter -executeMethod PlayFab.Internal.PlayFabPackager.MakeIPhoneBuild -logFile "$WORKSPACE/${SdkName}/buildPackageOutput.txt" || (cat "$WORKSPACE/${SdkName}/buildiPhoneOutput.txt" && return 1)
+            $UNITY_VERSION -projectPath "$WORKSPACE/$UNITY_VERSION/${SdkName}_TC" -quit -batchmode -appcenter -executeMethod PlayFab.Internal.PlayFabPackager.MakeIPhoneBuild -logFile "$WORKSPACE/logs/buildPackageOutput.txt" || (cat "$WORKSPACE/logs/buildiPhoneOutput.txt" && return 1)
             if [[ $? -ne 0 ]]; then return 1; fi
             
             pushd "$WORKSPACE/SDKGenerator/SDKBuildScripts"
@@ -216,7 +216,7 @@ BuildMainPackage() {
     if [ "$UNITY_PUBLISH_VERSION" = "$UNITY_VERSION" ] && [ "$BuildMainUnityPackage" = "true" ]; then
         echo === Build the asset bundle ===
         cd "$WORKSPACE/$UNITY_VERSION/${SdkName}_BUP"
-        $UNITY_VERSION -projectPath "$WORKSPACE/$UNITY_VERSION/${SdkName}_BUP" -quit -batchmode -executeMethod PlayFab.Internal.PlayFabPackager.PackagePlayFabSdk -logFile "$WORKSPACE/${SdkName}/buildPackageOutput.txt" || (cat "$WORKSPACE/${SdkName}/buildPackageOutput.txt" && return 1)
+        $UNITY_VERSION -projectPath "$WORKSPACE/$UNITY_VERSION/${SdkName}_BUP" -quit -batchmode -executeMethod PlayFab.Internal.PlayFabPackager.PackagePlayFabSdk -logFile "$WORKSPACE/logs/buildPackageOutput.txt" || (cat "$WORKSPACE/logs/buildPackageOutput.txt" && return 1)
     fi
 }
 

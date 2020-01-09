@@ -1,7 +1,7 @@
 #!/bin/bash
 
-. "$WORKSPACE/SDKGenerator/JenkinsConsoleUtility/JenkinsScripts/util.sh" 2> /dev/null || . ./util.sh 2> /dev/null
-. "$WORKSPACE/SDKGenerator/JenkinsConsoleUtility/JenkinsScripts/sdkUtil.sh" 2> /dev/null || . ./sdkUtil.sh 2> /dev/null
+. "$WORKSPACE/JenkinsSdkSetupScripts/JenkinsScripts/Pipeline/util.sh" 2> /dev/null
+. "$WORKSPACE/JenkinsSdkSetupScripts/JenkinsScripts/Pipeline/sdkUtil.sh" 2> /dev/null
 
 CheckDefault PublishToS3 false
 

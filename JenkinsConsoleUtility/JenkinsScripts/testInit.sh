@@ -45,7 +45,7 @@ DoWork () {
     SyncGitHubRepo "$SHARED_WORKSPACE/sdks" "$SdkName"
     # We sync $GitSdkGenBranch in the real workspace
     SyncWorkspaceRepo "$SHARED_WORKSPACE" "$WORKSPACE" "SDKGenerator" "SDKGenerator" "$GitSdkGenBranch"
-    SyncWorkspaceRepo "$SHARED_WORKSPACE/sdks" "$WORKSPACE/sdks" "$SdkName" "$GitSdkDestBranch"
+    SyncWorkspaceRepo "$SHARED_WORKSPACE/sdks" "$WORKSPACE/sdks" "$SdkName" "$SdkName" "$GitSdkDestBranch"
 
     if [ ! -z "$SdkGenPrvTmplRepo" ]; then
         SyncGitHubRepo "$WORKSPACE/SDKGenerator/privateTemplates" "$SdkGenPrvTmplRepo" "$SdkGenPrvTmplRepo" "$GitPrvTmplBranch"

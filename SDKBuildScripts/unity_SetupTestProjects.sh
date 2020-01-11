@@ -2,7 +2,8 @@
 # USAGE: unity_SetupTestProjects.sh
 # Make folder links from the UnitySdk to this test project
 
-. $SHARED_WORKSPACE/SDKGenerator/JenkinsConsoleUtility/JenkinsScripts/util.sh
+. "$WORKSPACE/JenkinsSdkSetupScripts/JenkinsScripts/Pipeline/util.sh" 2> /dev/null
+
 
 # USAGE Nuke <folderLinkName>
 Nuke () {
@@ -32,7 +33,7 @@ DoWorkEditor () {
     ForcePushD "Assets"
     Nuke "PlayFabSdk"
     mkdir PlayFabSdk
-    cp -r "$WORKSPACE/sdks/$SdkName/Source/PlayFabSDK" PlayFabSdk
+    cp -r "${WORKSPACE}/sdks/${SdkName}/ExampleTestProject/Assets/PlayFabSDK" PlayFabSdk
 
     if [ $? -ne 0 ]; then return 1; fi
     Nuke "Editor"
@@ -53,7 +54,7 @@ DoWorkTesting () {
     ForcePushD "Assets"
     Nuke "PlayFabSdk"
     mkdir PlayFabSdk
-    cp -r "$WORKSPACE/sdks/$SdkName/Source/PlayFabSDK" PlayFabSdk
+    cp -r "${WORKSPACE}/sdks/${SdkName}/ExampleTestProject/Assets/PlayFabSDK" PlayFabSdk
     if [ $? -ne 0 ]; then return 1; fi
     Nuke "Testing"
     if [ $? -ne 0 ]; then return 1; fi
@@ -98,7 +99,7 @@ WriteUnitySettingsFile () {
 # USAGE: MainScript
 MainScript () {
     echo == MainScript $PWD, $@ ==
-    ForcePushD "$WORKSPACE/$UNITY_VERSION"
+    ForcePushD "${WORKSPACE}/$UNITY_VERSION"
     Nuke "*.txt"
     DoWorkEditor "${SdkName}_BUP"
     if [ $? -ne 0 ]; then return 1; fi
@@ -120,7 +121,7 @@ CheckDefault UNITY_VERSION "Unity181"
 
 # with asmdef files, we need to copy everything under /Testing/ to the /PlayFabSDK/ folder
 echo == copy Testing Folder == 
-cp -r "$WORKSPACE/sdks/$SdkName/Testing" "$WORKSPACE/sdks/$SdkName/Source/PlayFabSDK/Testing"
+cp -r "${WORKSPACE}/sdks/${SdkName}/ExampleTestProject/Assets/Testing" "${WORKSPACE}/sdks/${SdkName}/ExampleTestProject/Assets/PlayFabSDK/Testing"
 echo == copy Testing Folder COMPLETE == 
 
 # MainScript <all command line args for script>

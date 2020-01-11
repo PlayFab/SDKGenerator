@@ -3,7 +3,7 @@
 # Make folder links from the UnitySdk to this test project
 # Requires mklink which may require administrator
 
-. $SHARED_WORKSPACE/SDKGenerator/JenkinsConsoleUtility/JenkinsScripts/util.sh
+. "$WORKSPACE/JenkinsSdkSetupScripts/JenkinsScripts/Pipeline/util.sh" 2> /dev/null
 
 # USAGE Nuke <folderLinkName>
 Nuke () {

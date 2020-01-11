@@ -8,40 +8,33 @@ if (typeof (templatizeTree) === "undefined") templatizeTree = function () { };
 
 // Automatically called by generate.js
 exports.makeCombinedAPI = function (apis, sourceDir, apiOutputDir) {
-    var defaultUnitySubFolder = "Source/PlayFabSDK";
-
-    exports.MakeUnityV2Sdk(apis, sourceDir, path.resolve(apiOutputDir, sdkGeneratorGlobals.unitySubfolder ? sdkGeneratorGlobals.unitySubfolder : defaultUnitySubFolder));
-    makeTestingFiles(apis, sourceDir, apiOutputDir);
-}
+    exports.MakeUnityV2Sdk(apis, sourceDir, apiOutputDir);
+};
 
 // This function is additionally called from the csharp-unity-gameserver target
 exports.MakeUnityV2Sdk = function (apis, sourceDir, apiOutputDir) {
     var locals = {
+        apis: apis,
         errorList: apis[0].errorList,
         errors: apis[0].errors,
         sdkVersion: sdkGlobals.sdkVersion,
         buildIdentifier: sdkGlobals.buildIdentifier,
+        generateApiSummary: generateApiSummary,
+        getApiDefineFlag: getApiDefineFlag,
+        getDeprecationAttribute: getDeprecationAttribute,
+        getPropertyDef: getModelPropertyDef,
+        getVerticalNameDefault: getVerticalNameDefault,
         hasClientOptions: getAuthMechanisms(apis).includes("SessionTicket"),
-        getVerticalNameDefault: getVerticalNameDefault
+        sourceDir: sourceDir
     };
 
     templatizeTree(locals, path.resolve(sourceDir, "source"), apiOutputDir);
-    makeSharedEventFiles(apis, sourceDir, apiOutputDir);
     makeDatatypes(apis, sourceDir, apiOutputDir);
     for (var i = 0; i < apis.length; i++) {
         makeApi(apis[i], sourceDir, apiOutputDir);
         makeInstanceApi(apis[i], sourceDir, apiOutputDir);
     }
-}
-
-function makeTestingFiles(apis, sourceDir, apiOutputDir) {
-    var testingOutputDir = path.resolve(apiOutputDir, "Testing");
-
-    var locals = {
-    };
-
-    templatizeTree(locals, path.resolve(sourceDir, "Testing"), testingOutputDir);
-}
+};
 
 function makeApiEventFiles(api, sourceDir, apiOutputDir) {
     var apiLocals = {
@@ -50,22 +43,7 @@ function makeApiEventFiles(api, sourceDir, apiOutputDir) {
     };
 
     var apiTemplate = getCompiledTemplate(path.resolve(sourceDir, "templates", "PlayFabEvents.cs.ejs"));
-    writeFile(path.resolve(apiOutputDir, api.name + "/PlayFabEvents.cs"), apiTemplate(apiLocals));
-}
-
-function makeSharedEventFiles(apis, sourceDir, apiOutputDir) {
-    var eventLocals = {
-        apis: apis,
-        sourceDir: sourceDir,
-        generateApiSummary: generateApiSummary,
-        getApiDefineFlag: getApiDefineFlag,
-        getDeprecationAttribute: getDeprecationAttribute,
-        getPropertyDef: getModelPropertyDef
-    };
-
-    // Events for api-callbacks
-    var eventTemplate = getCompiledTemplate(path.resolve(sourceDir, "templates", "Events.cs.ejs"));
-    writeFile(path.resolve(apiOutputDir, "Shared/Public/PlayFabEvents.cs"), eventTemplate(eventLocals));
+    writeFile(path.resolve(apiOutputDir, "ExampleTestProject/Assets/PlayFabSDK/" + api.name + "/PlayFabEvents.cs"), apiTemplate(apiLocals));
 }
 
 function getBaseTypeSyntax(datatype) {
@@ -90,7 +68,7 @@ function makeDatatypes(apis, sourceDir, apiOutputDir) {
 
     for (var a = 0; a < apis.length; a++) {
         modelsLocal.api = apis[a];
-        writeFile(path.resolve(apiOutputDir, apis[a].name + "/PlayFab" + apis[a].name + "Models.cs"), modelsTemplate(modelsLocal));
+        writeFile(path.resolve(apiOutputDir, "ExampleTestProject/Assets/PlayFabSDK/" + apis[a].name + "/PlayFab" + apis[a].name + "Models.cs"), modelsTemplate(modelsLocal));
     }
 }
 
@@ -130,10 +108,10 @@ function makeApi(api, sourceDir, apiOutputDir) {
     };
 
     var apiTemplate = getCompiledTemplate(path.resolve(templateDir, "PlayFab_API.cs.ejs"));
-    writeFile(path.resolve(apiOutputDir, api.name + "/PlayFab" + api.name + "API.cs"), apiTemplate(locals));
+    writeFile(path.resolve(apiOutputDir, "ExampleTestProject/Assets/PlayFabSDK/" + api.name + "/PlayFab" + api.name + "API.cs"), apiTemplate(locals));
 
     var eventTemplate = getCompiledTemplate(path.resolve(sourceDir, "templates", "PlayFabEvents.cs.ejs"));
-    writeFile(path.resolve(apiOutputDir, api.name + "/PlayFabEvents.cs"), eventTemplate(locals));
+    writeFile(path.resolve(apiOutputDir, "ExampleTestProject/Assets/PlayFabSDK/" + api.name + "/PlayFabEvents.cs"), eventTemplate(locals));
 }
 
 function makeInstanceApi(api, sourceDir, apiOutputDir) {
@@ -154,7 +132,7 @@ function makeInstanceApi(api, sourceDir, apiOutputDir) {
     };
 
     var apiTemplate = getCompiledTemplate(path.resolve(templateDir, "PlayFab_InstanceAPI.cs.ejs"));
-    writeFile(path.resolve(apiOutputDir, api.name + "/PlayFab" + api.name + "InstanceAPI.cs"), apiTemplate(apiLocals));
+    writeFile(path.resolve(apiOutputDir, "ExampleTestProject/Assets/PlayFabSDK/" + api.name + "/PlayFab" + api.name + "InstanceAPI.cs"), apiTemplate(apiLocals));
 }
 
 function isPartial(api) {
@@ -172,7 +150,7 @@ function getCustomApiFunction(tabbing, api, apiCall, isInstanceApi = false) {
     if (api.name === "Client")
         varCheckLine = tabbing + "    if (!context.IsClientLoggedIn()) throw new PlayFabException(PlayFabExceptionCode.NotLoggedIn, \"Must be logged in to call this method\");\n";
     else if (api.name === "Server")
-        varCheckLine = tabbing + "    if (!string.IsNullOrEmpty(callSettings.DeveloperSecretKey)) throw new PlayFabException(PlayFabExceptionCode.DeveloperKeyNotSet, \"Must set DeveloperSecretKey in settings to call this method\");\n";
+        varCheckLine = tabbing + "    if (string.IsNullOrEmpty(callSettings.DeveloperSecretKey)) throw new PlayFabException(PlayFabExceptionCode.DeveloperKeyNotSet, \"Must set DeveloperSecretKey in settings to call this method\");\n";
 
     var authType = "";
     if (api.name === "Client")
@@ -411,7 +389,7 @@ function getRequestActions(tabbing, apiCall) {
             tabbing + "if (context.IsClientLoggedIn()) { authType = AuthType.LoginSession; }\n" +
             "#endif\n" +
             "#if ENABLE_PLAYFABSERVER_API || ENABLE_PLAYFABADMIN_API\n" +
-            tabbing + "if (callSettings.DeveloperSecretKey != null) { authType = AuthType.DevSecretKey; } // TODO: Need to get the correct settings first\n" +
+            tabbing + "if (callSettings.DeveloperSecretKey != null) { authType = AuthType.DevSecretKey; }\n" +
             "#endif\n" +
             "#if !DISABLE_PLAYFABENTITY_API\n" +
             tabbing + "if (context.IsEntityLoggedIn()) { authType = AuthType.EntityToken; }\n" +
@@ -423,6 +401,8 @@ function getRequestActions(tabbing, apiCall) {
         return tabbing + "if (!context.IsClientLoggedIn()) throw new PlayFabException(PlayFabExceptionCode.NotLoggedIn,\"Must be logged in to call this method\");\n";
     if (apiCall.auth === "EntityToken")
         return tabbing + "if (!context.IsEntityLoggedIn()) throw new PlayFabException(PlayFabExceptionCode.NotLoggedIn,\"Must be logged in to call this method\");\n";
+    if (apiCall.auth === "SecretKey")
+        return tabbing + "if (string.IsNullOrEmpty(callSettings.DeveloperSecretKey)) { throw new PlayFabException(PlayFabExceptionCode.DeveloperKeyNotSet, \"Must set DeveloperSecretKey in settings to call this method\"); }\n";
     return "";
 }
 
@@ -433,7 +413,7 @@ function getCustomApiLogic(tabbing, apiCall) {
             tabbing + "{\n" +
             tabbing + "    var baseUri = new Uri(localApiServerString);\n" +
             tabbing + "    var fullUri = new Uri(baseUri, \"" + apiCall.url + "\".TrimStart('/'));\n" +
-            tabbing + "    PlayFabHttp.MakeApiCallWithFullUri(fullUri.AbsoluteUri, request, AuthType.EntityToken, resultCallback, errorCallback, customData, extraHeaders, context);\n" +
+            tabbing + "    PlayFabHttp.MakeApiCallWithFullUri(fullUri.AbsoluteUri, request, AuthType.EntityToken, resultCallback, errorCallback, customData, extraHeaders, context, callSettings);\n" +
             tabbing + "    return;\n" +
             tabbing + "}\n";
 }

@@ -44,7 +44,6 @@ interface ISdkGenGlobals {
     apiCache: { [key: string]: any; } // We have to pre-cache the api-spec files, because latter steps (like ejs) can't run asynchronously
     sdkDocsByMethodName: { [key: string]: ISdkDoc; } // When loading TOC, match documents to the SdkGen function that should be called for those docs
     specialization: string;
-    unitySubfolder: string; // Horrible hack that should be deleted
 }
 
 interface ISpecializationTocRef {
@@ -76,8 +75,7 @@ var sdkGeneratorGlobals: ISdkGenGlobals = {
     apiTemplateDescription: "INVALID",
     apiCache: {},
     sdkDocsByMethodName: {},
-    specialization: defaultSpecialization,
-    unitySubfolder: null
+    specialization: defaultSpecialization
 };
 global.sdkGeneratorGlobals = sdkGeneratorGlobals;
 
@@ -165,9 +163,6 @@ function parseCommandInputs(args, argsByName: { [key: string]: string; }, errorM
         argsByName.apispecgiturl = defaultApiSpecGitHubUrl;
     if (argsByName.apispecpfurl === "")
         argsByName.apispecpfurl = defaultApiSpecPlayFabUrl;
-
-    if (argsByName.unityDestinationSubfolder)
-        sdkGeneratorGlobals.unitySubfolder = argsByName.unityDestinationSubfolder;
 
     // Output an error if no templates are defined
     if (!buildTarget.destPath)

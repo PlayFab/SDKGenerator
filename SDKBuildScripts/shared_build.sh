@@ -1,6 +1,6 @@
 #!/bin/bash
 
-. "$WORKSPACE/SDKGenerator/JenkinsConsoleUtility/JenkinsScripts/sdkUtil.sh" 2> /dev/null || . "../JenkinsConsoleUtility/JenkinsScripts/sdkUtil.sh" 2> /dev/null
+. "$WORKSPACE/JenkinsSdkSetupScripts/JenkinsScripts/Pipeline/sdkUtil.sh" 2> /dev/null
 
 # Mandatory Variable Checks
 if [ -z "$SdkName" ]; then

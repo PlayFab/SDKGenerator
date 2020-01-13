@@ -45,7 +45,7 @@ namespace PlayFab
             var callSettings = PlayFabSettings.staticSettings;
 <%- getRequestActions("            ", apiCall) %>
 <%- getCustomApiLogic("            ", apiCall) %>
-            PlayFabHttp.MakeApiCall("<%- apiCall.url %>", request, <%- getAuthParams(apiCall) %>, resultCallback, errorCallback, customData, extraHeaders, context);
+            PlayFabHttp.MakeApiCall("<%- apiCall.url %>", request, <%- getAuthParams(apiCall) %>, resultCallback, errorCallback, customData, extraHeaders, context, callSettings);
         }<%- getCustomApiFunction("        ", api, apiCall) %>
 
 <% } %>

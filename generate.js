@@ -25,8 +25,7 @@ var sdkGeneratorGlobals = {
     apiTemplateDescription: "INVALID",
     apiCache: {},
     sdkDocsByMethodName: {},
-    specialization: defaultSpecialization,
-    unitySubfolder: null
+    specialization: defaultSpecialization
 };
 global.sdkGeneratorGlobals = sdkGeneratorGlobals;
 var specializationContent;
@@ -101,8 +100,6 @@ function parseCommandInputs(args, argsByName, errorMessages, buildTarget) {
         argsByName.apispecgiturl = defaultApiSpecGitHubUrl;
     if (argsByName.apispecpfurl === "")
         argsByName.apispecpfurl = defaultApiSpecPlayFabUrl;
-    if (argsByName.unityDestinationSubfolder)
-        sdkGeneratorGlobals.unitySubfolder = argsByName.unityDestinationSubfolder;
     // Output an error if no templates are defined
     if (!buildTarget.destPath)
         errorMessages.push("Build target's destPath not defined.");

@@ -3,7 +3,7 @@
 # Squash and Merge from "automated-publish"->"master"->"versioned"
 #   If versioned exists: master->versioned, and then tag and notate the release in GitHub
 
-. "$WORKSPACE/SDKGenerator/JenkinsConsoleUtility/JenkinsScripts/util.sh" 2> /dev/null || . ./util.sh 2> /dev/null
+. "$WORKSPACE/JenkinsSdkSetupScripts/JenkinsScripts/Pipeline/util.sh" 2> /dev/null
 
 CheckDefault GitSrcBranch "automated-publish"
 

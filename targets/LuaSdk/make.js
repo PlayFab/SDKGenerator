@@ -182,7 +182,7 @@ function getResultAction(tabbing, apiCall) {
         preCallback = internalTabbing + "PlayFabSettings._internalSettings.entityToken = result.EntityToken\n";
     else if (apiCall.result === "LoginResult") {
         preCallback = internalTabbing + "PlayFabSettings._internalSettings.sessionTicket = result.SessionTicket\n"
-            + internalTabbing + "if (result.Entity) then PlayFabSettings._internalSettings.entityToken = result.Entity.EntityToken end\n";
+            + internalTabbing + "if (result.Entity) then PlayFabSettings._internalSettings.entityToken = result.EntityToken.EntityToken end\n";
         postCallback = internalTabbing + "PlayFabClientApi._MultiStepClientLogin(result.SettingsForUser.NeedsAttribution)\n";
     }
     else if (apiCall.request === "RegisterPlayFabUserRequest") {

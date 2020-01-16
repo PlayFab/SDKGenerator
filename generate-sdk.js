@@ -57,11 +57,13 @@ function generateApiSummaryLines(apiElement, summaryParam, extraLines, linkToDoc
     // Add extra documentation lines linking to PlayFab documentation
     if (linkToDocs && apiElement.hasOwnProperty("url")) {
         var apiName = apiElement.url.split("/")[1];
-        lines.push("API Method Documentation: https://api.playfab.com/Documentation/" + apiName + "/method/" + apiElement.name);
+        var apiCategory = apiElement.subgroup.toLowerCase().replace(" ", "-");
+        var fullApiUrl = "https://docs.microsoft.com/rest/api/playfab/" + apiName.toLowerCase() + "/" + apiCategory + "/" + apiElement.name.toLowerCase();
+        lines.push("API Method Documentation: " + fullApiUrl);
         if (apiElement.hasOwnProperty("request"))
-            lines.push("Request Documentation: https://api.playfab.com/Documentation/" + apiName + "/datatype/PlayFab." + apiName + ".Models/PlayFab." + apiName + ".Models." + apiElement.request);
+            lines.push("API Method Documentation: " + fullApiUrl + "#" + apiElement.request);
         if (apiElement.hasOwnProperty("result"))
-            lines.push("Result Documentation: https://api.playfab.com/Documentation/" + apiName + "/datatype/PlayFab." + apiName + ".Models/PlayFab." + apiName + ".Models." + apiElement.result);
+            lines.push("API Method Documentation: " + fullApiUrl + "#" + apiElement.result);
     }
     // Add explicit extra lines
     if (extraLines && Array.isArray(extraLines))

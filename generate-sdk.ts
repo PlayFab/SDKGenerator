@@ -73,11 +73,11 @@ function generateApiSummaryLines(apiElement: any, summaryParam: string, extraLin
         var apiName = apiElement.url.split("/")[1];
         var apiCategory = apiElement.subgroup.toLowerCase().replace(" ","-");
         var fullApiUrl= "https://docs.microsoft.com/rest/api/playfab/" + apiName.toLowerCase() + "/" + apiCategory + "/" + apiElement.name.toLowerCase();
-        lines.push("API Method Documentation: " + fullApiUrl + ");
+        lines.push("API Method Documentation: " + fullApiUrl);
         if (apiElement.hasOwnProperty("request"))
-            lines.push("API Method Documentation: " + fullApiUrl + "#" + apiElement.request + ");
+            lines.push("API Method Documentation: " + fullApiUrl + "#" + apiElement.request);
         if (apiElement.hasOwnProperty("result"))
-            lines.push("API Method Documentation: " + fullApiUrl + "#" + apiElement.result + ");
+            lines.push("API Method Documentation: " + fullApiUrl + "#" + apiElement.result);
     }
 
     // Add explicit extra lines

@@ -97,14 +97,14 @@ function getPostmanDescription(api, apiCall) {
 
     output += jsonEscape(apiCall.summary); // Make sure quote characters are properly escaped
     if (!isProposed)
-        output += "\\n\\nApi Documentation: https://api.playfab.com/Documentation/" + api.name + "/method/" + apiCall.name;
+        output += "\\n\\nApi Documentation: https://docs.microsoft.com/rest/api/playfab/" + api.name.toLowerCase() + "/" + apiCall.subgroup.toLowerCase().replace(" ","-") + "/" + apiCall.name.toLowerCase();
 
     output += "\\n\\n**The following case-sensitive environment variables are required for this call:**";
     output += "\\n\\n\\\"TitleId\\\" - The Title Id of your game, available in the Game Manager (https://developer.playfab.com)";
     if (apiCall.auth === "SessionTicket")
         output += "\\n\\n\\\"SessionTicket\\\" - The string returned as \\\"SessionTicket\\\" in response to any Login method.";
     if (apiCall.auth === "SecretKey")
-        output += "\\n\\n\\\"SecretKey\\\" - The PlayFab API Secret Key, available in Game Manager for your title (https://developer.playfab.com/en-us/{{titleId}}/settings/credentials)";
+        output += "\\n\\n\\\"SecretKey\\\" - The PlayFab API Secret Key, available in Game Manager for your title (https://developer.playfab.com/{{titleId}}/settings/credentials)";
     if (apiCall.auth === "EntityToken")
         output += "\\n\\n\\\"EntityToken\\\" - The string returned as \\\"EntityToken.EntityToken\\\" in response to any Login method.";
 

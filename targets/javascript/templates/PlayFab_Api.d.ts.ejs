@@ -8,7 +8,7 @@ declare module PlayFab<%- api.name %>Module {
 <% } %>        ForgetAllCredentials(): void;
 
 <% for(var cIdx in api.calls) { var apiCall = api.calls[cIdx];
-%><%- generateApiSummary("        ", apiCall, "summary", "https://api.playfab.com/Documentation/" + api.name + "/method/" + apiCall.name)
+%><%- generateApiSummary("        ", apiCall, "summary", "https://docs.microsoft.com/rest/api/playfab/" + api.name.toLowerCase() + "/" + apiCall.subgroup.toLowerCase().replace(" ","-") + "/" + apiCall.name.toLowerCase())
 %>        <%- apiCall.name %>(request: PlayFab<%- api.name %>Models.<%- apiCall.request %>, callback: PlayFabModule.ApiCallback<PlayFab<%- api.name %>Models.<%- apiCall.result %>>, customData?: any, extraHeaders?: { [key: string]: string }): void;
 <% } %>
     }

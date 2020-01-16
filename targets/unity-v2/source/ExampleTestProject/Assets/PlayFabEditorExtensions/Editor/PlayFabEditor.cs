@@ -422,7 +422,7 @@ namespace PlayFab.PfEditor
 
         private static void ImportLatestEdEx()
         {
-            PlayFabEditorHttp.MakeDownloadCall("https://api.playfab.com/sdks/download/unity-edex-upgrade", (fileName) =>
+            PlayFabEditorHttp.MakeDownloadCall("https://aka.ms/PlayFabUnityEdEx", (fileName) =>
             {
                 AssetDatabase.ImportPackage(fileName, false);
                 Debug.Log("PlayFab EdEx Upgrade: Complete");

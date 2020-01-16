@@ -81,7 +81,7 @@ PlayFab somtimes accepts submissions for new SDKs.  This process is extensive, a
 
 ## 5. Troubleshooting:
 
-For a complete list of available APIs, check out the [online documentation](http://api.playfab.com/Documentation/).
+For a complete list of available APIs, check out the [online documentation](https://docs.microsoft.com/gaming/playfab/api-references/).
 
 #### Contact Us
 We love to hear from our developer community! 

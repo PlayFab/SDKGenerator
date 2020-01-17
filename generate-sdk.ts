@@ -71,7 +71,7 @@ function generateApiSummaryLines(apiElement: any, summaryParam: string, extraLin
     // Add extra documentation lines linking to PlayFab documentation
     if (linkToDocs && apiElement.hasOwnProperty("url")) {
         var apiName = apiElement.url.split("/")[1];
-        var apiCategory = apiElement.subgroup.toLowerCase().replace(" ","-");
+        var apiCategory = apiElement.subgroup.toLowerCase().replaceAll(" ","-");
         var fullApiUrl= "https://docs.microsoft.com/rest/api/playfab/" + apiName.toLowerCase() + "/" + apiCategory + "/" + apiElement.name.toLowerCase();
         lines.push("API Method Documentation: " + fullApiUrl);
         if (apiElement.hasOwnProperty("request"))

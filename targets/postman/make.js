@@ -97,7 +97,7 @@ function getPostmanDescription(api, apiCall) {
 
     output += jsonEscape(apiCall.summary); // Make sure quote characters are properly escaped
     if (!isProposed)
-        output += "\\n\\nApi Documentation: https://docs.microsoft.com/rest/api/playfab/" + api.name.toLowerCase() + "/" + apiCall.subgroup.toLowerCase().replace(" ","-") + "/" + apiCall.name.toLowerCase();
+        output += "\\n\\nApi Documentation: https://docs.microsoft.com/rest/api/playfab/" + api.name.toLowerCase() + "/" + apiCall.subgroup.toLowerCase().replaceAll(" ","-") + "/" + apiCall.name.toLowerCase();
 
     output += "\\n\\n**The following case-sensitive environment variables are required for this call:**";
     output += "\\n\\n\\\"TitleId\\\" - The Title Id of your game, available in the Game Manager (https://developer.playfab.com)";

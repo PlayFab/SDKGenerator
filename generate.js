@@ -533,8 +533,7 @@ function mkdirParentsSync(dirname) {
 }
 // String utilities
 String.prototype.replaceAll = function (search, replacement) {
-    var target = this;
-    return target.replace(new RegExp(search, "g"), replacement);
+    return this.replace(new RegExp(search, "g"), replacement);
 };
 String.prototype.endsWith = function (suffix) {
     return this.indexOf(suffix, this.length - suffix.length) !== -1;

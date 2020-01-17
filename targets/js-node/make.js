@@ -43,7 +43,7 @@ exports.makeCombinedAPI = function (apis, sourceDir, apiOutputDir) {
         writeFile(path.resolve(eachOutputDir, "Scripts/PlayFab/PlayFab" + apis[i].name + ".js"), apiTemplate(locals));
         writeFile(path.resolve(eachOutputDir, "Scripts/typings/PlayFab/PlayFab" + apis[i].name + ".d.ts"), apiTypingsTemplate(locals));
     }
-}
+};
 
 function getVerticalNameDefault() {
     if (sdkGlobals.verticalName) {

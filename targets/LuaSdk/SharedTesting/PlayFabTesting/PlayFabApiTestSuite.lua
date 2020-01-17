@@ -113,7 +113,7 @@ end
 function PlayFabApiTestSuite.LoginOrRegisterTest()
     local loginRequest = {
         -- Currently, you need to look up the correct format for this object in the API-docs:
-        --   https://docs.microsoft.com/rest/api/playfab/client/authentication/LoginWithCustomID
+        --   https://docs.microsoft.com/rest/api/playfab/client/authentication/loginwithcustomid
         CustomId = buildIdentifier,
         CreateAccount = true
     }
@@ -138,7 +138,7 @@ function PlayFabApiTestSuite.LoginWithAdvertisingId()
 
     local loginRequest = {
         -- Currently, you need to look up the correct format for this object in the API-docs:
-        --   https://docs.microsoft.com/rest/api/playfab/client/authentication/LoginWithCustomID
+        --   https://docs.microsoft.com/rest/api/playfab/client/authentication/loginwithcustomid
         CustomId = buildIdentifier,
         CreateAccount = true
     }

@@ -1,4 +1,4 @@
-<%- generateApiSummary("    ", datatype, "summary", "https://api.playfab.com/Documentation/" + api.name + "/datatype/" + datatype.classNameSpace + "/" + datatype.classNameSpace + "." + datatype.name)
+<%- generateApiSummary("    ", datatype, "summary")
 %>    export interface <%- datatype.name %><%- getBaseTypeSyntax(datatype) %> {
 <% if (datatype.properties) { for (var i = 0; i < datatype.properties.length; i++) { var property = datatype.properties[i]
 %><%- generateApiSummary("        ", property, "description")

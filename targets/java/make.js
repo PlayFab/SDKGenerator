@@ -36,7 +36,7 @@ exports.makeClientAPI2 = function (apis, sourceDir, apiOutputDir) {
         else
             templatizeTree(locals, path.resolve(sourceDir, "source_std"), srcOutputDir);
     }
-}
+};
 
 exports.makeServerAPI = function (apis, sourceDir, apiOutputDir) {
     apiOutputDir = path.join(apiOutputDir, "PlayFabServerSDK");
@@ -62,7 +62,7 @@ exports.makeServerAPI = function (apis, sourceDir, apiOutputDir) {
         makeApi(apis[i], sourceDir, apiOutputDir, false);
     templatizeTree(locals, path.resolve(sourceDir, "source_shared"), apiOutputDir);
     templatizeTree(locals, path.resolve(sourceDir, "source_std"), apiOutputDir);
-}
+};
 
 exports.makeCombinedAPI = function (apis, sourceDir, apiOutputDir) {
     apiOutputDir = path.join(apiOutputDir, "PlayFabSDK");
@@ -88,7 +88,7 @@ exports.makeCombinedAPI = function (apis, sourceDir, apiOutputDir) {
         makeApi(apis[i], sourceDir, apiOutputDir, false);
     templatizeTree(locals, path.resolve(sourceDir, "source_shared"), apiOutputDir);
     templatizeTree(locals, path.resolve(sourceDir, "source_std"), apiOutputDir);
-}
+};
 
 function makeDatatypes(apis, sourceDir, apiOutputDir) {
     var templateDir = path.resolve(sourceDir, "templates");

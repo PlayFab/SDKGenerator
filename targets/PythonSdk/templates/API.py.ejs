@@ -25,7 +25,7 @@ def MultiStepClientLogin(settingsForUser):
 <% for(var i in api.calls) { var apiCall = api.calls[i];
 %><%- getDeprecationAttribute("", apiCall)
 %>def <%- apiCall.name %>(request, callback, customData = None, extraHeaders = None):
-<%- generateApiSummary("    ", apiCall, "summary", ["https://api.playfab.com/documentation/" + api.name.toLowerCase() + "/method/" + apiCall.name ])
+<%- generateApiSummary("    ", apiCall, "summary", "https://docs.microsoft.com/rest/api/playfab/" + api.name.toLowerCase() + "/" + apiCall.subgroup.toLowerCase().replaceAll(" ","-") + "/" + apiCall.name.toLowerCase())
 %><%- getRequestActions("    ", apiCall) 
 %>    def wrappedCallback(playFabResult, error):
 <%- getResultActions("        ", apiCall, api) 

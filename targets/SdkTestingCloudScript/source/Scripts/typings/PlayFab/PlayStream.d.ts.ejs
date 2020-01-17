@@ -9,12 +9,12 @@ declare namespace PlayStreamModels {
      */
 
 <% for (var classIdx = 0; classIdx < group.Classes.length; classIdx++) { var pDatatype = group.Classes[classIdx];
-%><%- generateApiSummary("    ", pDatatype, "description", "https://api.playfab.com/playstream/docs/PlayStreamEventModels/" + group.Group + "/" + pDatatype.name)
+%><%- generateApiSummary("    ", pDatatype, "description", "https://docs.microsoft.com/gaming/playfab/api-references/events/" + pDatatype.name.replaceAll("_","-"))
 %><%- makeDatatype("    ", pDatatype, sourceDir, " extends IBasePlayStreamEvent") %><% } %><% }
 %>    /*
      * PlayStream Group: child types
      */
 
 <% for (var childIdx = 0; childIdx < childTypes.length; childIdx++) { var cDatatype = childTypes[childIdx];
-%><%- generateApiSummary("    ", cDatatype, "description", "https://api.playfab.com/playstream/docs/PlayStreamEventModels/childtypes/" + cDatatype.name)
+%><%- generateApiSummary("    ", cDatatype, "description", "https://docs.microsoft.com/gaming/playfab/api-references/events/data-types/" + cDatatype.name.toLowerCase())
 %><%- makeDatatype("    ", cDatatype, sourceDir, "") %><% } %>}

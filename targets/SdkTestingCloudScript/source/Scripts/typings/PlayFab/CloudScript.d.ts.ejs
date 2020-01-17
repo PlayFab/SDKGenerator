@@ -81,7 +81,7 @@ declare var entity: IPlayFabEntityAPI;
 /** <%- api.name %>API.Models as interfaces */
 declare namespace PlayFab<%- api.name %>Models {
 <% for(var i in api.datatypes) { var datatype = api.datatypes[i];
-%><%- generateApiSummary("    ", datatype, "description", "https://api.playfab.com/Documentation/" + api.name + "/datatype/" + datatype.classNameSpace + "/" + datatype.classNameSpace + "." + datatype.name)
+%><%- generateApiSummary("    ", datatype, "description")
 %><%- makeDatatype("    ", datatype, sourceDir, "") %><% }
 %>}<% } %>
 
@@ -89,7 +89,7 @@ declare namespace PlayFab<%- api.name %>Models {
 interface IPlayFabServerAPI {
 <% for(var sa in serverApiList) { var api = serverApiList[sa];
 for(var i in api.calls) { var apiCall = api.calls[i];
-%><%- generateApiSummary("    ", apiCall, "summary", "https://api.playfab.com/Documentation/" + api.name + "/method/" + apiCall.name) -%>
+%><%- generateApiSummary("    ", apiCall, "summary", "https://docs.microsoft.com/rest/api/playfab/" + api.name.toLowerCase() + "/" + apiCall.subgroup.toLowerCase().replaceAll(" ","-") + "/" + apiCall.name.toLowerCase()) -%>
     <%- apiCall.name %>(request: PlayFab<%- api.name %>Models.<%- apiCall.request %>): PlayFab<%- api.name %>Models.<%- apiCall.result %>;
 
 <% } } %>
@@ -99,7 +99,7 @@ for(var i in api.calls) { var apiCall = api.calls[i];
 /** <%- api.name %>API.Models as interfaces */
 declare namespace PlayFab<%- api.name %>Models {
 <% for(var i in api.datatypes) { var datatype = api.datatypes[i];
-%><%- generateApiSummary("    ", datatype, "description", "https://api.playfab.com/Documentation/" + api.name + "/datatype/" + datatype.classNameSpace + "/" + datatype.classNameSpace + "." + datatype.name)
+%><%- generateApiSummary("    ", datatype, "description")
 %><%- makeDatatype("    ", datatype, sourceDir, "") %><% }
 %>}<% } %>
 
@@ -108,7 +108,7 @@ interface IPlayFabEntityAPI {
 <% for(var ea in entityApiList) { var api = entityApiList[ea];
 %>
 <% for(var i in api.calls) { var apiCall = api.calls[i];
-%><%- generateApiSummary("    ", apiCall, "summary", "https://api.playfab.com/Documentation/" + api.name + "/method/" + apiCall.name) -%>
+%><%- generateApiSummary("    ", apiCall, "summary", "https://docs.microsoft.com/rest/api/playfab/" + api.name.toLowerCase() + "/" + apiCall.subgroup.toLowerCase().replaceAll(" ","-") + "/" + apiCall.name.toLowerCase()) -%>
     <%- apiCall.name %>(request: PlayFab<%- api.name %>Models.<%- apiCall.request %>): PlayFab<%- api.name %>Models.<%- apiCall.result %>;
 
 <% } } %>

@@ -4,7 +4,7 @@ include 'PlayFabHttp.php';
 class PlayFab<%- api.name %>Api
 {
 <% for(var i in api.calls) { var apiCall = api.calls[i];
-%><%- generateApiSummary("    ", apiCall, "summary", "https://api.playfab.com/Documentation/" + api.name + "/method/" + apiCall.name)
+%><%- generateApiSummary("    ", apiCall, "summary", "https://docs.microsoft.com/rest/api/playfab/" + api.name.toLowerCase() + "/" + apiCall.subgroup.toLowerCase().replaceAll(" ","-") + "/" + apiCall.name.toLowerCase())
 %>    public static function <%- apiCall.name %>($titleId, <%- getAuthInputParams(apiCall) %>$request)
     {
 <%- getRequestActions("        ", apiCall) %>

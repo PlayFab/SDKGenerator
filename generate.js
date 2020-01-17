@@ -533,8 +533,7 @@ function mkdirParentsSync(dirname) {
 }
 // String utilities
 String.prototype.replaceAll = function (search, replacement) {
-    var target = this;
-    return target.replace(new RegExp(search, "g"), replacement);
+    return this.replace(new RegExp(search, "g"), replacement);
 };
 String.prototype.endsWith = function (suffix) {
     return this.indexOf(suffix, this.length - suffix.length) !== -1;
@@ -570,7 +569,7 @@ String.prototype.wordWrap = function (width, brk, cut) {
 };
 // Official padStart implementation
 // https://github.com/uxitten/polyfill/blob/master/string.polyfill.js
-// https://developer.mozilla.org/en-US/docs/Web/JavaScript/Reference/Global_Objects/String/padStart
+// https://developer.mozilla.org/docs/Web/JavaScript/Reference/Global_Objects/String/padStart
 if (!String.prototype.padStart) {
     String.prototype.padStart = function padStart(targetLength, padString) {
         targetLength = targetLength >> 0; //truncate if number or convert non-number to 0;

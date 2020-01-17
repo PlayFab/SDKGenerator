@@ -1,5 +1,5 @@
 <% var spoofedApiCall = { auth: "EntityToken" }; %>
-<%- generateApiSummary("    ", apiCall, "summary", "https://api.playfab.com/Documentation/" + api.name + "/method/" + apiCall.name)
+<%- generateApiSummary("    ", apiCall, "summary", "https://docs.microsoft.com/rest/api/playfab/" + api.name.toLowerCase() + "/" + apiCall.subgroup.toLowerCase().replaceAll(" ","-") + "/" + apiCall.name.toLowerCase())
 %>    public static function <%- apiCall.name %>WithEntityToken($titleId, <%- getAuthInputParams(spoofedApiCall) %>$request)
     {
 <%- getRequestActions("        ", spoofedApiCall) %>
@@ -7,7 +7,7 @@
         return $result;
     }
 <% spoofedApiCall = { auth: "SessionTicket" }; %>
-<%- generateApiSummary("    ", apiCall, "summary", "https://api.playfab.com/Documentation/" + api.name + "/method/" + apiCall.name)
+<%- generateApiSummary("    ", apiCall, "summary", "https://docs.microsoft.com/rest/api/playfab/" + api.name.toLowerCase() + "/" + apiCall.subgroup.toLowerCase().replaceAll(" ","-") + "/" + apiCall.name.toLowerCase())
 %>    public static function <%- apiCall.name %>WithSessionTicket($titleId, <%- getAuthInputParams(spoofedApiCall) %>$request)
     {
 <%- getRequestActions("        ", spoofedApiCall) %>
@@ -15,7 +15,7 @@
         return $result;
     }
 <% spoofedApiCall = { auth: "SecretKey" }; %>
-<%- generateApiSummary("    ", apiCall, "summary", "https://api.playfab.com/Documentation/" + api.name + "/method/" + apiCall.name)
+<%- generateApiSummary("    ", apiCall, "summary", "https://docs.microsoft.com/rest/api/playfab/" + api.name.toLowerCase() + "/" + apiCall.subgroup.toLowerCase().replaceAll(" ","-") + "/" + apiCall.name.toLowerCase())
 %>    public static function <%- apiCall.name %>WithSecretKey($titleId, <%- getAuthInputParams(spoofedApiCall) %>$request)
     {
 <%- getRequestActions("        ", spoofedApiCall) %>

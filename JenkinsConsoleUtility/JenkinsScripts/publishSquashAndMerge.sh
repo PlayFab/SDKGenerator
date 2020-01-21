@@ -20,7 +20,7 @@ git reset --hard origin/master
 
 echo === Squash-Merge to master ===
 git merge --no-commit --squash origin/$GitSrcBranch
-git commit -m "https://api.playfab.com/releaseNotes/#$sdkDate"
+git commit -m "https://docs.microsoft.com/en-us/gaming/playfab/release-notes/#$sdkDate"
 git push origin master
 
 echo === Merge to versioned ===
@@ -29,7 +29,7 @@ git checkout versioned || git checkout -b versioned
 git reset --hard origin/versioned || exit 0
 
 git merge --no-ff --no-commit origin/master
-git commit -m "https://api.playfab.com/releaseNotes/#$sdkDate"
+git commit -m "https://docs.microsoft.com/en-us/gaming/playfab/release-notes/#$sdkDate"
 git push origin versioned
 
 git tag $sdkVersion

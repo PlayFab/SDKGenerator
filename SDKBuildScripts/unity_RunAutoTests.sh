@@ -1,8 +1,7 @@
 #!/bin/bash
 
-# USAGE: unity_RunAutoTests.bat [<UNITY_VERSION>] [<SdkName>] [<ProjRootPath>] [<BuildIdentifier>]
+# USAGE: unity_RunAutoTests.bat [<UNITY_VERSION>] [<SdkName>]
 # Make folder links from the UnitySdk to this test project
-# Requires mklink which may require administrator
 # Requires the following environment variables:
 #   TestWin32Build - (Optional - Default false if unset) set to "true" to test building Win32, executing, and geting Jenker! results
 #   TestAndroid - (Optional - Default false if unset) set to "true" to build Android APK
@@ -26,16 +25,10 @@ if [ -z $2 ]; then
 else
     SdkName=$2
 fi
-if [ -z "$3" ]; then
-    ProjRootPath="${WORKSPACE}/${UNITY_VERSION}"
-else
-    ProjRootPath="$3"
-fi
-if [ -z $4 ]; then
-    BuildIdentifier=JBuild_${SdkName}_${EXECUTOR_NUMBER}
-else
-    BuildIdentifier=$4
-fi
+
+RepoProject="${WORKSPACE}/sdks/${SdkName}/ExampleTestProject"
+ProjRootPath="${WORKSPACE}/${UNITY_VERSION}"
+BuildIdentifier=JBuild_${SdkName}_${VerticalName}_${NODE_NAME}_${EXECUTOR_NUMBER}
 
 CheckVars() {
     if [ -z "$TestWin32Build" ]; then
@@ -68,13 +61,7 @@ SetProjDefines() {
     echo === Test compilation in all example projects ===
 
     # TC is used by essentially all of the test projects
-    . ./unity_copyTestTitleData.sh "${ProjRootPath}/${SdkName}_TC/Assets/Resources" copy || exit 1
-    SetEachProjDefine ${SdkName}_TC
-    # TODO: This is limiting the tests that get run on Jenkins...
-
-    if [ "$BuildMainUnityPackage" = "true" ]; then
-        SetEachProjDefine ${SdkName}_BUP
-    fi
+    . ./unity_copyTestTitleData.sh "${RepoProject}/Assets/Resources" copy || exit 1
 
     SetEachProjDefine ${SdkName}_TA
     SetEachProjDefine ${SdkName}_TS
@@ -82,6 +69,7 @@ SetProjDefines() {
 }
 
 SetEachProjDefine() {
+    echo === Set Each Proj Define ===
     pushd "${ProjRootPath}/$1"
     $UNITY_VERSION -projectPath "${ProjRootPath}/$1" -quit -batchmode -executeMethod SetupPlayFabExample.Setup -logFile "${ProjRootPath}/compile$1.txt" || (cat "${ProjRootPath}/compile$1.txt" && return 1)
     popd
@@ -91,18 +79,19 @@ JenkernaughtSaveCloudScriptResults() {
     echo === Save test results to Jenkernaught ===
     pushd "$WORKSPACE/SDKGenerator/JenkinsConsoleUtility/bin/Debug"
     cmd <<< "JenkinsConsoleUtility --listencs -buildIdentifier $BuildIdentifier -workspacePath $WORKSPACE -timeout 30 -verbose true"
+    # . ./JenkinsConsoleUtility --listencs -buildIdentifier $BuildIdentifier -workspacePath $WORKSPACE -timeout 30 -verbose true
     popd
 }
 
 RunClientJenkernaught() {
     if [ "$TestWin32Build" = "true" ]; then
         echo === Build Win32 Client Target ===
-        pushd "${ProjRootPath}/${SdkName}_TC"
-        $UNITY_VERSION -projectPath "${ProjRootPath}/${SdkName}_TC" -quit -batchmode -executeMethod PlayFab.Internal.PlayFabPackager.MakeWin32TestingBuild -logFile "${ProjRootPath}/buildWin32Client.txt" || (cat "${ProjRootPath}/buildWin32Client.txt" && return 1)
+        pushd "${RepoProject}"
+        $UNITY_VERSION -projectPath "${RepoProject}" -quit -batchmode -executeMethod PlayFab.Internal.PlayFabPackager.MakeWin32TestingBuild -logFile "${ProjRootPath}/buildWin32Client.txt" || (cat "${ProjRootPath}/buildWin32Client.txt" && return 1)
         popd
 
         echo === Run the $UNITY_VERSION Client UnitTests ===
-        pushd "${ProjRootPath}/${SdkName}_TC/testBuilds"
+        pushd "${WORKSPACE}/testBuilds"
         ls
         cmd <<< "Win32test.exe -batchmode -nographics -logFile \"${WORKSPACE}/logs/clientTestOutput.txt\"" || (cat "${WORKSPACE}/logs/clientTestOutput.txt" && return 1)
         popd
@@ -115,8 +104,8 @@ RunClientJenkernaught() {
 BuildClientByFunc() {
     if [ "$1" = "true" ]; then
         echo === Build $2 Target ===
-        pushd "${ProjRootPath}/${SdkName}_TC"
-        $UNITY_VERSION -projectPath "${ProjRootPath}/${SdkName}_TC" -quit -batchmode -executeMethod PlayFab.Internal.PlayFabPackager.$2 -logFile "${ProjRootPath}/${2}.txt" || (cat "${ProjRootPath}/${2}.txt" && return 1)
+        pushd "${RepoProject}"
+        $UNITY_VERSION -projectPath "${RepoProject}" -quit -batchmode -executeMethod PlayFab.Internal.PlayFabPackager.$2 -logFile "${ProjRootPath}/${2}.txt" || (cat "${ProjRootPath}/${2}.txt" && return 1)
         popd
         #Run the console test command if present
         if [ ! -z "$3" ]; then
@@ -141,28 +130,28 @@ TryBuildAndTestAndroid() {
     echo "TestAndroid: $TestAndroid"
     if [ "$TestAndroid" = "true" ]; then
         echo === Build and Test Android ===
-        pushd "${ProjRootPath}/${SdkName}_TC"
+        pushd "${RepoProject}"
 
             #copy test title data in
             pushd "$WORKSPACE/SDKGenerator/SDKBuildScripts"
                 . ./unity_copyTestTitleData.sh "$WORKSPACE/sdks/${SdkName}/ExampleTestProject/Assets/Testing/Resources" copy || exit 1
             popd
             if [[ $? -ne 0 ]]; then return 1; fi
-            
+
             #build the APK
-            $UNITY_VERSION -projectPath "$WORKSPACE/$UNITY_VERSION/${SdkName}_TC" -quit -batchmode -executeMethod PlayFab.Internal.PlayFabPackager.MakeAndroidBuild -logFile "$WORKSPACE/logs/buildAndroidOutput.txt" || (cat "$WORKSPACE/logs/buildAndroidOutput.txt" && return 1)
+            $UNITY_VERSION -projectPath "${RepoProject}" -quit -batchmode -executeMethod PlayFab.Internal.PlayFabPackager.MakeAndroidBuild -logFile "$WORKSPACE/logs/buildAndroidOutput.txt" || (cat "$WORKSPACE/logs/buildAndroidOutput.txt" && return 1)
             if [[ $? -ne 0 ]]; then return 1; fi
-            
+
             pushd "$WORKSPACE/SDKGenerator/SDKBuildScripts"
-                
+
                 #pull the test title data back out
                 . ./unity_copyTestTitleData.sh "$WORKSPACE/sdks/${SdkName}/ExampleTestProject/Assets/Testing/Resources" delete || exit 1
                 if [[ $? -ne 0 ]]; then return 1; fi
-                
+
                 #upload the APK and run the tests on AppCenter Test
-                . ./runAppCenterTest.sh "$ProjRootPath/${SdkName}_TC/testBuilds/PlayFabAndroid.apk" "$WORKSPACE/SDKGenerator/SDKBuildScripts/AppCenterUITestLauncher/AppCenterUITestLauncher/debugassemblies" unity-android || exit 1
+                . ./runAppCenterTest.sh "${WORKSPACE}/testBuilds/PlayFabAndroid.apk" "$WORKSPACE/SDKGenerator/SDKBuildScripts/AppCenterUITestLauncher/AppCenterUITestLauncher/debugassemblies" unity-android || exit 1
                 if [[ $? -ne 0 ]]; then return 1; fi
-           
+
             popd
 
             #check the cloudscript for the test results
@@ -176,33 +165,33 @@ TryBuildAndTestiOS() {
     echo "TestiPhone: $TestiPhone"
     if [ "$TestiPhone" = "true" ]; then
         echo === Build and Test iOS ===
-        
-        pushd "${ProjRootPath}/${SdkName}_TC"
+
+        pushd "${RepoProject}"
 
             #copy the test title data in
             pushd "$WORKSPACE/SDKGenerator/SDKBuildScripts"
                 . ./unity_copyTestTitleData.sh "$WORKSPACE/sdks/${SdkName}/ExampleTestProject/Assets/Testing/Resources" copy || exit 1
             popd
             if [[ $? -ne 0 ]]; then return 1; fi
-            
+
             #build the xcode project to prepare for IPA generation
-            $UNITY_VERSION -projectPath "$WORKSPACE/$UNITY_VERSION/${SdkName}_TC" -quit -batchmode -appcenter -executeMethod PlayFab.Internal.PlayFabPackager.MakeIPhoneBuild -logFile "$WORKSPACE/logs/buildPackageOutput.txt" || (cat "$WORKSPACE/logs/buildiPhoneOutput.txt" && return 1)
+            $UNITY_VERSION -projectPath "${RepoProject}" -quit -batchmode -appcenter -executeMethod PlayFab.Internal.PlayFabPackager.MakeIPhoneBuild -logFile "$WORKSPACE/logs/buildPackageOutput.txt" || (cat "$WORKSPACE/logs/buildiPhoneOutput.txt" && return 1)
             if [[ $? -ne 0 ]]; then return 1; fi
-            
+
             pushd "$WORKSPACE/SDKGenerator/SDKBuildScripts"
- 
+
                 #pull the test title data back out.
                 . ./unity_copyTestTitleData.sh "$WORKSPACE/sdks/${SdkName}/ExampleTestProject/Assets/Testing/Resources" delete || exit 1
                 if [[ $? -ne 0 ]]; then return 1; fi
 
                 #build the IPA on AppCenter Build
-                . ./unity_buildAppCenterTestIOS.sh "$ProjRootPath/${SdkName}_TC/testBuilds/PlayFabIOS" "$WORKSPACE/vso" 'git@ssh.dev.azure.com:v3/playfab/Playfab%20SDK%20Automation/UnitySDK_XCode_AppCenterBuild' ${SdkName}_${NODE_NAME}_${EXECUTOR_NUMBER} init || exit 1
+                . ./unity_buildAppCenterTestIOS.sh "${WORKSPACE}/testBuilds/PlayFabIOS" "$WORKSPACE/vso" 'git@ssh.dev.azure.com:v3/playfab/Playfab%20SDK%20Automation/UnitySDK_XCode_AppCenterBuild' ${SdkName}_${NODE_NAME}_${EXECUTOR_NUMBER} init || exit 1
                 if [[ $? -ne 0 ]]; then return 1; fi
 
                 #run the downloaded IPA on AppCenter Test
                 . ./runAppCenterTest.sh "$WORKSPACE/SDKGenerator/SDKBuildScripts/PlayFabIOS.ipa" "$WORKSPACE/SDKGenerator/SDKBuildScripts/AppCenterUITestLauncher/AppCenterUITestLauncher/debugassemblies" unity-ios || exit 1
                 if [[ $? -ne 0 ]]; then return 1; fi
-            
+
             popd
 
             #check the cloudscript for the test results
@@ -212,11 +201,14 @@ TryBuildAndTestiOS() {
     fi
 }
 
-BuildMainPackage() {
+BuildPackages() {
     if [ "$UNITY_PUBLISH_VERSION" = "$UNITY_VERSION" ] && [ "$BuildMainUnityPackage" = "true" ]; then
-        echo === Build the asset bundle ===
-        cd "$WORKSPACE/$UNITY_VERSION/${SdkName}_BUP"
-        $UNITY_VERSION -projectPath "$WORKSPACE/$UNITY_VERSION/${SdkName}_BUP" -quit -batchmode -executeMethod PlayFab.Internal.PlayFabPackager.PackagePlayFabSdk -logFile "$WORKSPACE/logs/buildPackageOutput.txt" || (cat "$WORKSPACE/logs/buildPackageOutput.txt" && return 1)
+        echo === Build the SDK asset bundle ===
+        cd "$RepoProject"
+        $UNITY_VERSION -projectPath "$RepoProject" -quit -batchmode -executeMethod PlayFab.Internal.PlayFabPackager.PackagePlayFabSdk -logFile "$WORKSPACE/logs/buildPackageOutput.txt" || (cat "$WORKSPACE/logs/buildPackageOutput.txt" && return 1)
+        echo === Build the EdEx asset bundle ===
+        cd "$RepoProject"
+        $UNITY_VERSION -projectPath "$RepoProject" -quit -batchmode -executeMethod PlayFab.Internal.PlayFabEdExPackager.BuildUnityPackage -logFile "$WORKSPACE/logs/buildEdExOutput.txt" || (cat "$WORKSPACE/logs/buildEdExOutput.txt" && return 1)
     fi
 }
 
@@ -248,7 +240,7 @@ DoWork() {
     BuildClientByFunc "$TestPS4" "MakePS4Build" "ExecPs4OnConsole"; PS4Result=$?
     BuildClientByFunc "$TestSwitch" "MakeSwitchBuild" "ExecSwitchOnConsole"; SwitchResult=$?
     BuildClientByFunc "$TestXbox" "MakeXboxOneBuild" "ExecXboxOnConsole"; XBoxResult=$?
-    BuildMainPackage
+    BuildPackages
 
     #show us how it all went
     echo -e "Android Result:\t$(EM $AndroidResult $TestAndroid)"

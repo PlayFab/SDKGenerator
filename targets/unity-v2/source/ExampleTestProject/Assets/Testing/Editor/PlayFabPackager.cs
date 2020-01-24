@@ -70,7 +70,7 @@ namespace PlayFab.Internal
             "Assets/PlayFabSDK"
         };
         private static readonly string[] TestScenes = {
-            "assets/PlayFabSdk/PlayFabSDK/Testing/scenes/testscene.unity"
+            "assets/Testing/scenes/testscene.unity"
         };
 
         private static readonly string TestPackageName = "com.playfab.service";
@@ -88,7 +88,9 @@ namespace PlayFab.Internal
 
         private static string GetBuildPath()
         {
-            return Path.GetFullPath(Path.Combine(Application.dataPath, "../testBuilds"));
+            var workspacePath = Environment.GetEnvironmentVariable("WORKSPACE"); // This is a Jenkins-Build environment variable
+            var rootPath = workspacePath ?? Application.dataPath;
+            return Path.GetFullPath(Path.Combine(rootPath, "testBuilds"));
         }
 
         private static void MkDir(string path)

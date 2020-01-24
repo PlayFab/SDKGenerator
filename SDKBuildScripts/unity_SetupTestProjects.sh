@@ -25,27 +25,6 @@ DeleteUnityCruft () {
     Nuke "*.sln"
 }
 
-# USAGE: DoWorkEditor <ProjectSubfolder> <UnityDefineSymbols>
-DoWorkEditor () {
-    echo === DoWorkEditor $PWD, $@ ===
-    ForcePushD "$1"
-    DeleteUnityCruft
-    ForcePushD "Assets"
-    Nuke "PlayFabSdk"
-    mkdir PlayFabSdk
-    cp -r "${WORKSPACE}/sdks/${SdkName}/ExampleTestProject/Assets/PlayFabSDK" PlayFabSdk
-
-    if [ $? -ne 0 ]; then return 1; fi
-    Nuke "Editor"
-    mkdir Editor
-    if [ $? -ne 0 ]; then return 1; fi
-    WriteUnitySettingsFile "PlayFabExample/Editor" "$2"
-    #set -x
-    popd
-    popd
-    #set +x
-}
-
 # USAGE: DoWorkTesting <ProjectSubfolder> <UnityDefineSymbols>
 DoWorkTesting () {
     echo === DoWorkTesting $PWD, $@ ===
@@ -53,10 +32,10 @@ DoWorkTesting () {
     DeleteUnityCruft
     ForcePushD "Assets"
     Nuke "PlayFabSdk"
-    mkdir PlayFabSdk
-    cp -r "${WORKSPACE}/sdks/${SdkName}/ExampleTestProject/Assets/PlayFabSDK" PlayFabSdk
-    if [ $? -ne 0 ]; then return 1; fi
+    cp -r "${WORKSPACE}/sdks/${SdkName}/ExampleTestProject/Assets/PlayFabSDK" .
     Nuke "Testing"
+    cp -r "${WORKSPACE}/sdks/${SdkName}/ExampleTestProject/Assets/Testing" .
+
     if [ $? -ne 0 ]; then return 1; fi
     WriteUnitySettingsFile "PlayFabExample/Editor" "$2"
     #set -x
@@ -101,7 +80,6 @@ MainScript () {
     echo == MainScript $PWD, $@ ==
     ForcePushD "${WORKSPACE}/$UNITY_VERSION"
     Nuke "*.txt"
-    DoWorkEditor "${SdkName}_BUP"
     if [ $? -ne 0 ]; then return 1; fi
     DoWorkTesting "${SdkName}_TA" "ENABLE_PLAYFABADMIN_API;DISABLE_PLAYFABCLIENT_API"
     if [ $? -ne 0 ]; then return 1; fi
@@ -117,12 +95,7 @@ MainScript () {
 CheckDefault WORKSPACE "C:/proj"
 CheckDefault SHARED_WORKSPACE "C:/depot"
 CheckDefault SdkName "UnitySDK"
-CheckDefault UNITY_VERSION "Unity181"
-
-# with asmdef files, we need to copy everything under /Testing/ to the /PlayFabSDK/ folder
-echo == copy Testing Folder == 
-cp -r "${WORKSPACE}/sdks/${SdkName}/ExampleTestProject/Assets/Testing" "${WORKSPACE}/sdks/${SdkName}/ExampleTestProject/Assets/PlayFabSDK/Testing"
-echo == copy Testing Folder COMPLETE == 
+CheckDefault UNITY_VERSION "Unity193"
 
 # MainScript <all command line args for script>
 MainScript "$@"

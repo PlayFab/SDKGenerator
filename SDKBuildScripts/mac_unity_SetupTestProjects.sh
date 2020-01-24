@@ -1,7 +1,6 @@
 #!/bin/bash
 # USAGE: unity_SetupTestProjects.sh
 # Make folder links from the UnitySdk to this test project
-# Requires mklink which may require administrator
 
 . "$WORKSPACE/JenkinsSdkSetupScripts/JenkinsScripts/Pipeline/util.sh" 2> /dev/null
 
@@ -23,26 +22,6 @@ DeleteUnityCruft () {
     mkdir testBuilds
     Nuke "*.csproj"
     Nuke "*.sln"
-}
-
-
-# USAGE: DoWorkEditor <ProjectSubfolder> <UnityDefineSymbols>
-DoWorkEditor () {
-    echo === DoWorkEditor $PWD, $@ ===
-    ForcePushD "$1"
-    DeleteUnityCruft
-    ForcePushD "Assets"
-    Nuke "PlayFabSdk"
-    ln -Fvs PlayFabSdk "$WORKSPACE/sdks/$SdkName/Source/PlayFabSDK"
-    if [ $? -ne 0 ]; then return 1; fi
-    Nuke "Editor"
-    ln -Fvs Editor "$WORKSPACE/sdks/$SdkName/Testing/Editor"
-    if [ $? -ne 0 ]; then return 1; fi
-    WriteUnitySettingsFile "PlayFabExample/Editor" "$2"
-    #set -x
-    popd
-    popd
-    #set +x
 }
 
 # USAGE: DoWorkTesting <ProjectSubfolder> <UnityDefineSymbols>
@@ -104,8 +83,6 @@ MainScript () {
     echo == MainScript $PWD, $@ ==
     ForcePushD "$WORKSPACE/$UNITY_VERSION"
     Nuke "*.txt"
-    DoWorkEditor "${SdkName}_BUP"
-    if [ $? -ne 0 ]; then return 1; fi
     DoWorkTesting "${SdkName}_TA" "ENABLE_PLAYFABADMIN_API;DISABLE_PLAYFABCLIENT_API"
     if [ $? -ne 0 ]; then return 1; fi
     DoWorkTesting "${SdkName}_TC" ""

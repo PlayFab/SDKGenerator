@@ -96,7 +96,7 @@ namespace XamarinTestRunner
             {
                 WriteConsoleColor(
                     "Save to CloudScript result for: " + PlayFabSettings.BuildIdentifier + " => " +
-                    PlayFabApiTest.PlayFabId, Color.Gray);
+                    UUnitIncrementalTestRunner.PfClient?.authenticationContext?.PlayFabId, Color.Gray);
                 if (result.Error != null)
                     WriteConsoleColor(result.Error.GenerateErrorReport(), Color.Red);
                 else if (result.Result != null)

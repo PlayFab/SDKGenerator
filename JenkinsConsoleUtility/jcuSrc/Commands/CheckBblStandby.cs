@@ -91,21 +91,47 @@ namespace JenkinsConsoleUtility.Commands
             if (!JenkinsConsoleUtility.TryGetArgVar(out BBL_VERSIONS, argsCased, "BBL_VERSIONS"))
                 BBL_VERSIONS = "3.0.0;2.0.1";
 
-            if (JenkinsConsoleUtility.TryGetArgVar(out string tempGapThresholds, argsCased, "GAP_MAX_THRESHOLDS"))
+            string tempGapThresholds = "";
+            if (JenkinsConsoleUtility.TryGetArgVar(out tempGapThresholds, argsCased, "GAP_MAX_THRESHOLDS"))
+            {
                 try { GAP_MAX_THRESHOLDS = tempGapThresholds.Split(';').Select(s => int.Parse(s)).ToArray(); } catch (Exception) { }
-            if (JenkinsConsoleUtility.TryGetArgVar(out string tempStandby, argsCased, "STANDBY_MIN_THRESHOLDS"))
-                try { STANDBY_MIN_THRESHOLDS = tempStandby.Split(';').Select(s => int.Parse(s)).ToArray(); } catch (Exception) { }
-            if (JenkinsConsoleUtility.TryGetArgVar(out string tempMaxCap, argsCased, "MAX_CAPACITY_PERCENT_THRESHOLDS"))
-                try { MAX_CAPACITY_PERCENT_THRESHOLDS = tempMaxCap.Split(';').Select(s => int.Parse(s)).ToArray(); } catch (Exception) { }
+            }
 
-            if (JenkinsConsoleUtility.TryGetArgVar(out string tempCycleDuration, argsCased, "CYCLE_DURATION_MINS"))
+            string tempStandby = "";
+            if (JenkinsConsoleUtility.TryGetArgVar(out tempStandby, argsCased, "STANDBY_MIN_THRESHOLDS"))
+            {
+                try { STANDBY_MIN_THRESHOLDS = tempStandby.Split(';').Select(s => int.Parse(s)).ToArray(); } catch (Exception) { }
+            }
+
+            string tempMaxCap = "";
+            if (JenkinsConsoleUtility.TryGetArgVar(out tempMaxCap, argsCased, "MAX_CAPACITY_PERCENT_THRESHOLDS"))
+            {
+                try { MAX_CAPACITY_PERCENT_THRESHOLDS = tempMaxCap.Split(';').Select(s => int.Parse(s)).ToArray(); } catch (Exception) { }
+            }
+
+            string tempCycleDuration = "";
+            if (JenkinsConsoleUtility.TryGetArgVar(out tempCycleDuration, argsCased, "CYCLE_DURATION_MINS"))
+            {
                 try { CYCLE_DURATION_MINS = TimeSpan.FromMinutes(double.Parse(tempCycleDuration)); } catch (Exception) { }
-            if (JenkinsConsoleUtility.TryGetArgVar(out string tempCyclePeriod, argsCased, "CYCLE_PERIOD_SEC"))
+            }
+
+            string tempCyclePeriod = "";
+            if (JenkinsConsoleUtility.TryGetArgVar(out tempCyclePeriod, argsCased, "CYCLE_PERIOD_SEC"))
+            {
                 try { CYCLE_PERIOD_SEC = TimeSpan.FromSeconds(double.Parse(tempCyclePeriod)); } catch (Exception) { }
-            if (JenkinsConsoleUtility.TryGetArgVar(out string tempRetryDelay, argsCased, "RETRY_DELAY_SEC"))
+            }
+
+            string tempRetryDelay = "";
+            if (JenkinsConsoleUtility.TryGetArgVar(out tempRetryDelay, argsCased, "RETRY_DELAY_SEC"))
+            {
                 try { RETRY_DELAY_SEC = TimeSpan.FromSeconds(double.Parse(tempRetryDelay)); } catch (Exception) { }
-            if (JenkinsConsoleUtility.TryGetArgVar(out string tempRetryCount, argsCased, "RETRY_COUNT"))
+            }
+
+            string tempRetryCount = "";
+            if (JenkinsConsoleUtility.TryGetArgVar(out tempRetryCount, argsCased, "RETRY_COUNT"))
+            {
                 try { RETRY_COUNT = int.Parse(tempRetryCount); } catch (Exception) { }
+            }
         }
 
         private int LoginToPlayfab(Dictionary<string, string> argsLc)
@@ -177,7 +203,8 @@ namespace JenkinsConsoleUtility.Commands
             Severity worstTickSeverity = Severity.NONE;
             foreach (var eachSummary in buildSummaries)
             {
-                if (!eachSummary.Metadata.TryGetValue("Version", out string versionString))
+                string versionString = "";
+                if (!eachSummary.Metadata.TryGetValue("Version", out versionString))
                     continue;
                 if (!bblVersions.Contains(versionString) || completedVersions.Contains(versionString))
                     continue;

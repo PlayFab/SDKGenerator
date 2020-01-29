@@ -15,9 +15,14 @@ namespace JenkinsConsoleUtility.Util
             if (testTitleData != null)
                 return testTitleData;
 
-            JenkinsConsoleUtility.TryGetArgVar(out string workspacePath, argsLc, "WORKSPACE");
-            JenkinsConsoleUtility.TryGetArgVar(out string titleDataPath1, argsLc, "testTitleData");
-            JenkinsConsoleUtility.TryGetArgVar(out string titleDataPath2, argsLc, "PF_TEST_TITLE_DATA_JSON");
+            string workspacePath = "";
+            JenkinsConsoleUtility.TryGetArgVar(out workspacePath, argsLc, "WORKSPACE");
+
+            string titleDataPath1 = "";
+            JenkinsConsoleUtility.TryGetArgVar(out titleDataPath1, argsLc, "testTitleData");
+
+            string titleDataPath2 = "";
+            JenkinsConsoleUtility.TryGetArgVar(out titleDataPath2, argsLc, "PF_TEST_TITLE_DATA_JSON");
 
             // If testTitleData or PF_TEST_TITLE_DATA_JSON path is provided, save the path and try to load it
             HashSet<string> validFilepaths = new HashSet<string>();

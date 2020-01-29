@@ -181,7 +181,7 @@ namespace JenkinsConsoleUtility.Commands
 
                 if (listBuildsTask != null && listBuildsTask.Result != null && listBuildsTask.Result.Result != null)
                 {
-                    var buildSummaries = listBuildsTask?.Result?.Result?.BuildSummaries;
+                    var buildSummaries = listBuildsTask.Result.Result.BuildSummaries;
 
                     if (buildSummaries == null)
                     {

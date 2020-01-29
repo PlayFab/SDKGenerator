@@ -12,9 +12,9 @@ namespace JenkinsConsoleUtility.Commands
         private const int TASK_KILL_SLEEP_MS = 500;
 
         private static readonly string[] MyCommandKeys = { "kill" };
-        public string[] CommandKeys => MyCommandKeys;
+        public string[] CommandKeys { get { return MyCommandKeys; } }
         private static readonly string[] MyMandatoryArgKeys = { "taskName" };
-        public string[] MandatoryArgKeys => MyMandatoryArgKeys;
+        public string[] MandatoryArgKeys { get { return MyMandatoryArgKeys; } }
 
         public int Execute(Dictionary<string, string> argsLc, Dictionary<string, string> argsCased)
         {

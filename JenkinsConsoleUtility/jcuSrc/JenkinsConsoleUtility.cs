@@ -76,8 +76,11 @@ namespace JenkinsConsoleUtility
         /// <returns>The string associated with this key</returns>
         public static string GetArgVar(Dictionary<string, string> args, string key, string getDefault = null)
         {
-            if (TryGetArgVar(out string output, args, key, getDefault))
+            string output = "";
+            if (TryGetArgVar(out output, args, key, getDefault))
+            {
                 return output;
+            }
 
             if (getDefault != null) // Don't use string.IsNullOrEmpty() here, because there's a distinction between "undefined" and "empty"
             {

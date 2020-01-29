@@ -24,7 +24,10 @@ namespace JenkinsConsoleUtility.Testing
             var task = clientApi.LoginWithCustomIDAsync(new LoginWithCustomIDRequest { CreateAccount = true, CustomId = TEST_CUSTOM_ID, TitleId = testTitleData.titleId });
             task.Wait();
 
-            testContext.True(clientApi.IsClientLoggedIn(), "User login not successful: " + task.Result.Error?.GenerateErrorReport());
+            if (task.Result.Error != null)
+            {
+                testContext.True(clientApi.IsClientLoggedIn(), "User login not successful: " + task.Result.Error.GenerateErrorReport());
+            }
         }
 
         /// <summary>

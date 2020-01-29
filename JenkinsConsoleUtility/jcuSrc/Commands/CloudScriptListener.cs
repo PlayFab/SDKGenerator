@@ -30,9 +30,9 @@ namespace JenkinsConsoleUtility.Commands
         private const int TestDataExistsSleepTime = 4500;
 
         private static readonly string[] MyCommandKeys = { "ListenCS" };
-        public string[] CommandKeys => MyCommandKeys;
+        public string[] CommandKeys { get { return MyCommandKeys; } }
         private static readonly string[] MyMandatoryArgKeys = { "buildidentifier" };
-        public string[] MandatoryArgKeys => MyMandatoryArgKeys;
+        public string[] MandatoryArgKeys { get { return MyMandatoryArgKeys; } }
 
         public const string CsFuncTestDataExists = "TestDataExists";
         public const string CsFuncGetTestData = "GetTestData";
@@ -77,7 +77,10 @@ namespace JenkinsConsoleUtility.Commands
             if (returnCode != 0)
             {
                 JcuUtil.FancyWriteToConsole(ConsoleColor.Red, "Failed to log in using CustomID: " + titleId + ", " + buildIdentifier);
-                JcuUtil.FancyWriteToConsole(ConsoleColor.Red, task.Result.Error?.GenerateErrorReport());
+                if (task.Result.Error != null)
+                {
+                    JcuUtil.FancyWriteToConsole(ConsoleColor.Red, task.Result.Error.GenerateErrorReport());
+                }
             }
             else
             {

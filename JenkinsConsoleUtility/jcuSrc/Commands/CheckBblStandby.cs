@@ -178,15 +178,20 @@ namespace JenkinsConsoleUtility.Commands
             {
                 var listBuildsTask = multiplayerApi.ListBuildSummariesAsync(listBuildsRequest);
                 listBuildsTask.Wait();
-                var buildSummaries = listBuildsTask?.Result?.Result?.BuildSummaries;
-                if (buildSummaries == null)
+
+                if (listBuildsTask != null && listBuildsTask.Result != null && listBuildsTask.Result.Result != null)
                 {
-                    JcuUtil.FancyWriteToConsole(ConsoleColor.Red, "ERROR: Was unable to list build summaries, sleeping...");
-                    Thread.Sleep((int)RETRY_DELAY_SEC.TotalMilliseconds);
-                }
-                else
-                {
-                    return buildSummaries;
+                    var buildSummaries = listBuildsTask?.Result?.Result?.BuildSummaries;
+
+                    if (buildSummaries == null)
+                    {
+                        JcuUtil.FancyWriteToConsole(ConsoleColor.Red, "ERROR: Was unable to list build summaries, sleeping...");
+                        Thread.Sleep((int)RETRY_DELAY_SEC.TotalMilliseconds);
+                    }
+                    else
+                    {
+                        return buildSummaries;
+                    }
                 }
             }
 

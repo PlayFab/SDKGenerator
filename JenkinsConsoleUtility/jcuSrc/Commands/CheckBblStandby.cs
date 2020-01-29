@@ -23,8 +23,8 @@ namespace JenkinsConsoleUtility.Commands
         }
 
         private static readonly string[] MyCommandKeys = { "CheckBbl", "BblStandby" };
-        public string[] CommandKeys => MyCommandKeys;
-        public string[] MandatoryArgKeys => null;
+        public string[] CommandKeys { get { return MyCommandKeys; } }
+        public string[] MandatoryArgKeys { get { return null; } }
 
         private PlayFabAuthenticationContext context;
         private PlayFabApiSettings settings;

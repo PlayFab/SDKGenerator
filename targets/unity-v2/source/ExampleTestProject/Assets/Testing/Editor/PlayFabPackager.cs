@@ -264,6 +264,7 @@ namespace PlayFab.Internal
         public static void MakePS4Build()
         {
             Setup();
+            PlayerSettings.PS4.enableApplicationExit = true; // Only suitable for dev/test applications
             SetScriptingBackend(ScriptingImplementation.IL2CPP, BuildTarget.PS4, BuildTargetGroup.PS4);
             SetIdentifier(BuildTargetGroup.PS4, TestPackageName);
 #if UNITY_5_6_OR_NEWER

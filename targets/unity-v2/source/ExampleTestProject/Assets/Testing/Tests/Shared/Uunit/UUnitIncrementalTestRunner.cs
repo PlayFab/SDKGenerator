@@ -132,6 +132,10 @@ namespace PlayFab.UUnit
             {
                 msg = "Results were not posted to Cloud Script: " + PlayFabSettings.BuildIdentifier;
             }
+            else
+            {
+                msg = "Failed to quit test program: " + autoQuit + Application.isEditor + suite.AllTestsPassed();
+            }
 
             textDisplay.text += "\n" + msg;
             Debug.Log(msg);

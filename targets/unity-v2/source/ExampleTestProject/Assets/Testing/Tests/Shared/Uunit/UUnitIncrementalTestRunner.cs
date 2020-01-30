@@ -134,7 +134,7 @@ namespace PlayFab.UUnit
             }
             else
             {
-                msg = "Failed to quit test program: " + autoQuit + Application.isEditor + suite.AllTestsPassed();
+                msg = "Failed to quit test program: " + autoQuit + !Application.isEditor + suite.AllTestsPassed();
             }
 
             textDisplay.text += "\n" + msg;

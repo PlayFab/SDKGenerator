@@ -64,9 +64,6 @@ SetProjDefines() {
     if [ "$TestCompileFlags" = "true" ]; then
         echo === Test compilation in all example projects ===
 
-        # TC is used by essentially all of the test projects
-        . ./unity_copyTestTitleData.sh "${RepoProject}/Assets/Resources" copy || exit 1
-
         SetEachProjDefine ${SdkName}_TA
         SetEachProjDefine ${SdkName}_TS
         SetEachProjDefine ${SdkName}_TZ
@@ -236,6 +233,8 @@ KillUnityProcesses() {
 }
 
 DoWork() {
+    . ./unity_copyTestTitleData.sh "${RepoProject}/Assets/Resources" copy || exit 1
+
     CheckVars
     SetProjDefines
     RunClientJenkernaught

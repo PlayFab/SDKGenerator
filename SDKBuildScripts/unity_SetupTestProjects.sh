@@ -4,7 +4,6 @@
 
 . "$WORKSPACE/JenkinsSdkSetupScripts/JenkinsScripts/Pipeline/util.sh" 2> /dev/null
 
-
 # USAGE Nuke <folderLinkName>
 Nuke () {
     rm "$1" 2> /dev/null || rm -f "$1" 2> /dev/null || rm -r "$1" 2> /dev/null || rm -rf "$1" 2> /dev/null || true
@@ -96,4 +95,9 @@ CheckDefault SdkName "UnitySDK"
 CheckDefault UNITY_VERSION "Unity193"
 
 # MainScript <all command line args for script>
-MainScript "$@"
+if [ -z "$TestCompileFlags" ]; then
+    TestCompileFlags="true"
+fi
+if [ "$TestCompileFlags" = "true" ]; then
+    MainScript "$@"
+fi

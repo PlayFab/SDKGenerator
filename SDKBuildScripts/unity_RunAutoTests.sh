@@ -52,20 +52,25 @@ CheckVars() {
     if [ -z "$TestXbox" ]; then
         TestXbox="false"
     fi
+    if [ -z "$TestCompileFlags" ]; then
+        TestCompileFlags="true"
+    fi
     if [ -z "$BuildMainUnityPackage" ]; then
         BuildMainUnityPackage="false"
     fi
 }
 
 SetProjDefines() {
-    echo === Test compilation in all example projects ===
+    if [ "$TestCompileFlags" = "true" ]; then
+        echo === Test compilation in all example projects ===
 
-    # TC is used by essentially all of the test projects
-    . ./unity_copyTestTitleData.sh "${RepoProject}/Assets/Resources" copy || exit 1
+        # TC is used by essentially all of the test projects
+        . ./unity_copyTestTitleData.sh "${RepoProject}/Assets/Resources" copy || exit 1
 
-    SetEachProjDefine ${SdkName}_TA
-    SetEachProjDefine ${SdkName}_TS
-    SetEachProjDefine ${SdkName}_TZ
+        SetEachProjDefine ${SdkName}_TA
+        SetEachProjDefine ${SdkName}_TS
+        SetEachProjDefine ${SdkName}_TZ
+    fi
 }
 
 SetEachProjDefine() {

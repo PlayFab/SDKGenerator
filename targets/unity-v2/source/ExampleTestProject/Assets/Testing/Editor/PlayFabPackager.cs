@@ -89,7 +89,7 @@ namespace PlayFab.Internal
         private static string GetBuildPath()
         {
             var workspacePath = Environment.GetEnvironmentVariable("WORKSPACE"); // This is a Jenkins-Build environment variable
-            var rootPath = workspacePath ?? Application.dataPath;
+            var rootPath = workspacePath ?? PathCombine(Application.dataPath, ".."); // Fall back onto a safe local option
             return Path.GetFullPath(Path.Combine(rootPath, "testBuilds"));
         }
 

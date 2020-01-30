@@ -2,7 +2,7 @@
 # USAGE: unity_SetupTestProjects.sh
 # Make folder links from the UnitySdk to this test project
 
-. "$WORKSPACE/JenkinsSdkSetupScripts/JenkinsScripts/Pipeline/util.sh" 2> /dev/null
+. "${WORKSPACE}/JenkinsSdkSetupScripts/JenkinsScripts/Pipeline/util.sh" 2> /dev/null
 
 # USAGE Nuke <folderLinkName>
 Nuke () {

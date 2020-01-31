@@ -55,6 +55,12 @@ namespace PlayFab.UUnit
             // No work needed, async tests will end themselves
         }
 
+        [UUnitTest]
+        public void ExpectFailure(UUnitTestContext testContext)
+        {
+            testContext.Fail("I expect this test to fail, and if it does, that's great.");
+        }
+
         /// <summary>
         /// CLIENT API
         /// Try to deliberately log in with an inappropriate password,

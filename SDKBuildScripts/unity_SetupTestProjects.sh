@@ -2,8 +2,7 @@
 # USAGE: unity_SetupTestProjects.sh
 # Make folder links from the UnitySdk to this test project
 
-. "$WORKSPACE/JenkinsSdkSetupScripts/JenkinsScripts/Pipeline/util.sh" 2> /dev/null
-
+. "${WORKSPACE}/JenkinsSdkSetupScripts/JenkinsScripts/Pipeline/util.sh" 2> /dev/null
 
 # USAGE Nuke <folderLinkName>
 Nuke () {
@@ -96,4 +95,9 @@ CheckDefault SdkName "UnitySDK"
 CheckDefault UNITY_VERSION "Unity193"
 
 # MainScript <all command line args for script>
-MainScript "$@"
+if [ -z "$TestCompileFlags" ]; then
+    TestCompileFlags="true"
+fi
+if [ "$TestCompileFlags" = "true" ]; then
+    MainScript "$@"
+fi

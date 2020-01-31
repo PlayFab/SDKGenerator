@@ -19,16 +19,16 @@ BuildIdentifier=JBuild_${SdkName}_${VerticalName}_${NODE_NAME}_${EXECUTOR_NUMBER
 
 JenkernaughtSaveCloudScriptResults() {
     echo === Save test results to Jenkernaught ===
-    pushd "$WORKSPACE/SDKGenerator/JenkinsConsoleUtility/bin/Debug"
-    cmd <<< "JenkinsConsoleUtility --listencs -buildIdentifier $BuildIdentifier -workspacePath $WORKSPACE -timeout 30 -verbose true"
-    # . ./JenkinsConsoleUtility --listencs -buildIdentifier $BuildIdentifier -workspacePath $WORKSPACE -timeout 30 -verbose true
+    pushd "${WORKSPACE}/SDKGenerator/JenkinsConsoleUtility/bin/Debug"
+    cmd <<< "JenkinsConsoleUtility --listencs -buildIdentifier $BuildIdentifier -workspacePath ${WORKSPACE} -timeout 30 -verbose true"
+    # . ./JenkinsConsoleUtility --listencs -buildIdentifier $BuildIdentifier -workspacePath ${WORKSPACE} -timeout 30 -verbose true
     popd
 }
 
 RunMacJenkernaught() {
     echo === Build OSX Client Target ===
     pushd "${ProjRootPath}/${SdkName}_TC/"
-    $UNITY_VERSION -buildOSXUniversalPlayer "${ProjRootPath}/${SdkName}_TC" -accept-apiupdate -disable-assembly-updater -noUpm -nographics -quit -batchmode -executeMethod PlayFab.Internal.PlayFabPackager.MakeOsxBuild -logFile "${ProjRootPath}/buildOSXClient.txt" || (cat "${ProjRootPath}/buildOSXClient.txt" && return 1)
+    $UNITY_VERSION -buildOSXUniversalPlayer "${ProjRootPath}/${SdkName}_TC" -accept-apiupdate -disable-assembly-updater -noUpm -nographics -quit -batchmode -executeMethod PlayFab.Internal.PlayFabPackager.MakeOsxBuild -logFile "${WORKSPACE}/logs/buildOSXClient.txt" || (cat "${WORKSPACE}/logs/buildOSXClient.txt" && return 1)
     popd
 
     JenkernaughtSaveCloudScriptResults

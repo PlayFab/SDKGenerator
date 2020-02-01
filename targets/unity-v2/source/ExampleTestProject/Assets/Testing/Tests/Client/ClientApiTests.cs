@@ -108,6 +108,11 @@ namespace PlayFab.UUnit
             testContext.EndTest(UUnitFinishState.PASSED, null);
         }
 
+        [UUnitTest]
+        public void FailAlways(UUnitTestContext testContext)
+        {
+            testContext.Fail("Deliberate failure, it's good if Jenkins catches and reports this");
+        }
 
         /// <summary>
         /// CLIENT API

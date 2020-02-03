@@ -33,7 +33,7 @@ BuildAPK() {
     pushd "$AndroidProjectPath"
     ExitIfError
 
-    ./gradlew assembleDebug
+    ./gradlew build
     ExitIfError
 
     popd

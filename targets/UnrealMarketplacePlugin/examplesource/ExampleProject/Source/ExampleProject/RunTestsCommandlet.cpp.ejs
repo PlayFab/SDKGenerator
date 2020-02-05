@@ -35,6 +35,7 @@ int32 URunTestsCommandlet::Main(const FString& Params)
 
         // THIS IS DEPRECATED AND MUST BE REMOVED (it may have been replaced with a function call)
         // GIsRequestingExit = true;
+        // RequestEngineExit("Invalid PlayFab Test UnrealEngine Instance");
         GIsRunning = false;
     }
 
@@ -43,8 +44,7 @@ int32 URunTestsCommandlet::Main(const FString& Params)
 
     bool bPrintedTestSummary = false;
 
-    // THIS IS DEPRECATED AND MUST BE REMOVED (it may have been replaced with a function call)
-    while (GIsRunning /*&& !GIsRequestingExit*/)
+    while (GIsRunning && !IsEngineExitRequested())
     {
         GEngine->UpdateTimeAndHandleMaxTickRate();
         GEngine->Tick(FApp::GetDeltaTime(), false);

@@ -22,7 +22,8 @@ URunTestsCommandlet::URunTestsCommandlet()
 
 int32 URunTestsCommandlet::Main(const FString& Params)
 {
-    GIsRequestingExit = false; // Global used by Unreal to indicate that the commandlet should exit.
+    // THIS IS DEPRECATED AND MUST BE REMOVED (it may have been replaced with a function call)
+    //GIsRequestingExit = false; // Global used by Unreal to indicate that the commandlet should exit.
 
     if (IsValid(GEngine))
     {
@@ -32,7 +33,8 @@ int32 URunTestsCommandlet::Main(const FString& Params)
     {
         UE_LOG(LogPlayFabExampleProject, Error, TEXT("Invalid Engine instance."));
 
-        GIsRequestingExit = true;
+        // THIS IS DEPRECATED AND MUST BE REMOVED (it may have been replaced with a function call)
+        // GIsRequestingExit = true;
         GIsRunning = false;
     }
 
@@ -41,7 +43,8 @@ int32 URunTestsCommandlet::Main(const FString& Params)
 
     bool bPrintedTestSummary = false;
 
-    while (GIsRunning && !GIsRequestingExit)
+    // THIS IS DEPRECATED AND MUST BE REMOVED (it may have been replaced with a function call)
+    while (GIsRunning /*&& !GIsRequestingExit*/)
     {
         GEngine->UpdateTimeAndHandleMaxTickRate();
         GEngine->Tick(FApp::GetDeltaTime(), false);

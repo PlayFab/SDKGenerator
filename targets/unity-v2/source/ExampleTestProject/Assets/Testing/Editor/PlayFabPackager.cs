@@ -89,7 +89,7 @@ namespace PlayFab.Internal
         private static string GetBuildPath()
         {
             var workspacePath = Environment.GetEnvironmentVariable("WORKSPACE"); // This is a Jenkins-Build environment variable
-            var rootPath = workspacePath ?? Application.dataPath;
+            var rootPath = workspacePath ?? PathCombine(Application.dataPath, ".."); // Fall back onto a safe local option
             return Path.GetFullPath(Path.Combine(rootPath, "testBuilds"));
         }
 
@@ -274,7 +274,7 @@ namespace PlayFab.Internal
             var ps4Path = Path.Combine(GetBuildPath(), "PlayFabPS4");
             MkDir(GetBuildPath());
             MkDir(ps4Path);
-            BuildPipeline.BuildPlayer(TestScenes, ps4Path, BuildTarget.PS4, BuildOptions.None);
+            BuildPipeline.BuildPlayer(TestScenes, ps4Path, BuildTarget.PS4, BuildOptions.Development); // Development build is required for final test-result submission (bug)
             if (Directory.GetFiles(ps4Path).Length == 0)
                 throw new PlayFabException(PlayFabExceptionCode.BuildError, "Target directory is empty: " + ps4Path + ", " + string.Join(",", Directory.GetFiles(ps4Path)));
         }

@@ -1,0 +1,40 @@
+!/bin/bash
+
+# echo ========== BUILDING ANDROID EXAMPLE PROJECT ==========
+usage="USAGE: BuildAndroidOnLinux.sh [archive directory]"
+
+if "%~1"=="" then USAGE()
+
+# Unreal Path, to change depending on your workspace setup.
+uePath=/Users/Shared/Epic Games
+
+# Unreal Version, to change on every unreal version
+ueVersion=<%- ueTargetVersion %>
+
+# Full Path. In theory it should not be edited (the engine path/version are the only ones that should be edited).
+uatPath=$uePath/UE_$ueVersion/Engine/Build/BatchFiles
+
+# Destination Path, where the build will end up (relative to active directory).
+archivePath=$1
+
+# Clear out the destination folder so the build lands on clean ground.
+if [ $archivePath ] then rd /s /q %archivePath%
+fi
+
+# Copy testTitleData.json into the build folder
+cp /Y "$PF_TEST_TITLE_DATA_JSON" "$0Content\TestTitleData"
+
+# The actual build command. To adapt depending on the needs.
+pushd "$uatPath"
+.\RunUAT.bat -ScriptsForProject="$0ExampleProject.uproject" BuildCookRun -nocompile -editorrecompile -installed -nop4 -project="$0ExampleProject.uproject" -cook -stage -archive -archivedirectory="$archivePath" -package -clientconfig=Development -pak -prereqs -nodebuginfo -targetplatform=Android -cookflavor=Multi -build -utf8output
+popd 
+
+# Delete testTitleData out of the build folder now that the APK packaging is complete.
+del "$0Content\TestTitleData\testTitleData.json"
+
+break
+
+function USAGE
+{
+    echo "$usage"
+}

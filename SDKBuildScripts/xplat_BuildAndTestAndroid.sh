@@ -45,7 +45,7 @@ TestAPK() {
     --app-path "$apkPath"  \
     --test-series "master" \
     --locale "en_US" \
-    --assembly-dir "$testAssemblyDir"  \
+    --build-dir "$testAssemblyDir"  \
     --uitest-tools-dir "$XAMARIN_UITEST_TOOLS"
 
     ExitIfError

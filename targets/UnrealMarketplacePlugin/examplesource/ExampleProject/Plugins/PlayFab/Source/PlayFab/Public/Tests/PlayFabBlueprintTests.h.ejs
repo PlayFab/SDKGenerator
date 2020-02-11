@@ -45,6 +45,7 @@ public:
         InOutTests.ADD_TEST(Write Event (Blueprint), WriteEvent);
 <% }
 if (hasServerOptions) { %>
+        // BUG 41305 This test fails in AppCenter for Android
         //InOutTests.ADD_TEST(Server Title Data (Blueprint), ServerTitleData);
 <% } %>
         InOutTests.ADD_TEST(Get Entity Token (Blueprint), GetEntityToken);

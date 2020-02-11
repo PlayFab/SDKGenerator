@@ -6,16 +6,6 @@ popd
 apkPath=$AndroidProjectPath/app/build/outputs/apk/debug/app-debug.apk
 testAssemblyDir="$1"
 
-Usage="./xplat_BuildAndTestAndroid.sh <path to test assemblies>"
-ArgCount=$#
-CheckParameters() {
-    if [ $ArgCount -ne 1 ]; then
-        echo "ERROR Incorrect number of parameters!"
-        echo "$Usage"
-        exit 1
-    fi
-}
-
 ExitIfError() {
     ErrorStatus=$?
     if [ $ErrorStatus -ne 0 ]; then
@@ -45,7 +35,7 @@ TestAPK() {
     --app-path "$apkPath"  \
     --test-series "master" \
     --locale "en_US" \
-    --build-dir "$testAssemblyDir"  \
+    --assembly-dir "$testAssemblyDir"  \
     --uitest-tools-dir "$XAMARIN_UITEST_TOOLS"
 
     ExitIfError

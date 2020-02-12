@@ -152,6 +152,7 @@
     <Content Include="targets\csharp\source\PlayFabSDK\source\PluginContract.cs" />
     <Content Include="targets\csharp\source\PlayFabSDK\source\PluginManager.cs" />
     <Content Include="targets\csharp\source\PlayFabSDK\source\Properties\AssemblyInfo.cs" />
+    <Content Include="targets\csharp\source\PlayFabSDK\source\Qos\IRegionPinger.cs" />
     <Content Include="targets\csharp\source\PlayFabSDK\source\Qos\PlayFabQosApi.cs" />
     <Content Include="targets\csharp\source\PlayFabSDK\source\Qos\QosErrorCode.cs" />
     <Content Include="targets\csharp\source\PlayFabSDK\source\Qos\QosRegionResult.cs" />

@@ -1,6 +1,7 @@
 ﻿#if !DISABLE_PLAYFABCLIENT_API && !DISABLE_PLAYFABENTITY_API
 namespace PlayFab.QoS
 {
+    using System;
     using System.Collections.Generic;
 
     public class QosResult
@@ -13,26 +14,29 @@ namespace PlayFab.QoS
     }
 
     /// <summary>
-    /// This class is used to json serialize the content to send to playfab
+    /// This class is used to json serialize the content to send to PlayFab without the ErrorMessage
     /// </summary>
-    internal class QosResultFacade
+    internal class QosResultPlayFabEvent
     {
-        public static QosResultFacade CreateFrom(QosResult result)
+        public static QosResultPlayFabEvent CreateFrom(QosResult result)
         {
-            var regionResults = new List<QosRegionResultFacade>(result.RegionResults.Count);
-            foreach (QosRegionResult regionResult in result.RegionResults)
+#if (NETSTANDARD && !NETSTANDARD1_1) || NETFRAMEWORK || NETCOREAPP
+            return new QosResultPlayFabEvent
             {
-                regionResults.Add(QosRegionResultFacade.CreateFrom(regionResult));
-            }
-
-            return new QosResultFacade
-            {
-                RegionResults = regionResults,
+                RegionResults = result.RegionResults.ConvertAll(x => new QosRegionResultSummary()
+                {
+                    Region = x.Region,
+                    ErrorCode = x.ErrorCode,
+                    LatencyMs = x.LatencyMs
+                }),
                 ErrorCode = result.ErrorCode
             };
+#else
+            throw new NotSupportedException("QoS ping library is only supported on .net standard 2.0 and newer, .net core or full .net framework");
+#endif
         }
 
-        public List<QosRegionResultFacade> RegionResults;
+        public List<QosRegionResultSummary> RegionResults;
 
         public int ErrorCode;
     }

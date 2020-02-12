@@ -120,7 +120,7 @@ namespace JenkinsConsoleUtility.Commands
         {
             List<TestSuiteReport> testResults;
             string errorReport;
-            var callResult = ExecuteCloudScript(CsFuncGetTestData, _getRequest, testTitleData.extraHeaders, out testResults, out errorReport);
+            var callResult = ExecuteCloudScript<CsGetRequest, List<TestSuiteReport>>(CsFuncGetTestData, _getRequest, testTitleData.extraHeaders, out testResults, out errorReport);
 
             var tempFilename = buildIdentifier + ".xml";
             var tempFileFullPath = Path.Combine(workspacePath, tempFilename);

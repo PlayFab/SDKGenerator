@@ -55,7 +55,6 @@ namespace XamarinUITestExperiment
                 Console.WriteLine("Caught Exception: " + e.Message);
                 return;
             }
-                       
         }
     }
 }

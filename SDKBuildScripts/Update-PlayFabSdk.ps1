@@ -54,6 +54,15 @@ Indicites whether or not to remove all generated source files from the destinati
 .PARAMETER Beta
 Indicates whether or not to include any APIs tagged with as beta.
 
+.PARAMETER BuildFlags
+Any additional flags you want to pass to the build.
+
+.PARAMETER Version
+Overrides the default version of the generated SDK.  Note that this will apply to ALL SDKs being
+generated.  You will need to call this function multiple times if you want to use a different
+version for each SDK type.  You can see the current SDK versions by looking at SdkManualNotes.json
+which is downloaded by the API generator.
+
 .EXAMPLE
 Update-PlayFabSdk -SdkName CSharpSDK
 
@@ -124,13 +133,17 @@ param(
     [AllowEmptyString()]
     [string]$ApiSpecGitUrl,
     [Parameter(ValueFromPipelineByPropertyName = $true)]
-    [string]$OutputPath = "..\..\sdks",
+    [string]$OutputPath,
     [Parameter(ValueFromPipelineByPropertyName = $true)]
     [string]$TargetSource,
     [Parameter(ValueFromPipelineByPropertyName = $true)]
     [switch]$KeepSource,
     [Parameter(ValueFromPipelineByPropertyName = $true)]
-    [switch]$Beta
+    [switch]$Beta,
+    [Parameter(ValueFromPipelineByPropertyName = $true)]
+    [string[]]$BuildFlags,
+    [Parameter(ValueFromPipelineByPropertyName = $true)]
+    [string]$Version
 )
 
 begin
@@ -159,16 +172,22 @@ begin
         "XPlatCoreTemplate" = "xplatcoretemplate";
     }
 
-    $sdksPath = $OutputPath
-    if(![System.IO.Path]::IsPathRooted($sdksPath))
+    if(!$OutputPath)
     {
-        $sdksPath = Resolve-Path (Join-Path $PSScriptRoot $OutputPath)
+        $OutputPath = "../../sdks"
     }
 
-    if(!(Test-Path $sdksPath))
+    if(![System.IO.Path]::IsPathRooted($OutputPath))
     {
-        mkdir $sdksPath | Out-Null
+        $OutputPath = Join-Path $PSScriptRoot $OutputPath
     }
+
+    if(!(Test-Path $OutputPath))
+    {
+        mkdir $OutputPath | Out-Null
+    }
+
+    $OutputPath = Resolve-Path $OutputPath
 
     if($PSCmdlet.ParameterSetName -eq "ApiSpecPath")
     {
@@ -243,7 +262,7 @@ process
             }
         }
 
-        $destPath = Join-Path $sdksPath $targetSdkName
+        $destPath = Join-Path $OutputPath $targetSdkName
 
         if(!(Test-Path $destPath))
         {
@@ -270,24 +289,43 @@ process
             $buildIdentifier = "-buildIdentifier JBuild_$($targetSdkName)_($env:NODE_NAME)_$($env:EXECUTOR_NUMBER)"
         }
 
-        $sdkGenArgValues = @()
+        if(!$BuildFlags)
+        {
+            $BuildFlags = @()
+        }
+
         if($Beta)
         {
-            $sdkGenArgValues += "beta"
+            $BuildFlags += "beta"
         }
 
         if($targetSdkName -eq "UnrealMarketplacePlugin")
         {
-            $sdkGenArgValues += "nonnullable"
+            $BuildFlags += "nonnullable"
         }
 
-        $sdkGenArgs = "";
-        if($sdkGenArgValues)
+        $buildFlagsParameter = "";
+        if($BuildFlags)
         {
-            $sdkGenArgs = "-flags $($sdkGenArgValues -join " ")"
+            $buildFlagsParameter = "-flags $($BuildFlags -join " ")"
         }
 
-        $expression = "node generate.js `"$sdkTargetSource=$destPath`" $apiSpecSource $sdkGenArgs $buildIdentifier".Trim()
+        $versionParameter = ""
+        if($Version)
+        {
+            $versionParts = $Version -split ('\.')
+            if($versionParts.Length -eq 2)
+            {
+                $Version += "." + (Get-Date -Format "yyMMdd")
+            }
+            elseif($versionParts.Length -ne 3)
+            {
+                throw "You must provide a two or three part version in the form <major>.<minor>[.<yymmdd>]"
+            }
+            $versionParameter = "-version $Version"
+        }
+
+        $expression = "node generate.js `"$sdkTargetSource=$destPath`" -nowait $apiSpecSource $buildFlagsParameter $versionParameter $buildIdentifier".Trim()
         if($PSCmdlet.ShouldProcess(
             "Executing '$expression'.",
             "Would you like to generate $targetSdkName into '$destPath'?",

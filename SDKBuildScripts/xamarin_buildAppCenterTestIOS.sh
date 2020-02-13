@@ -13,6 +13,8 @@
 #3) System must have the appcenter cli installed
 #4) System must have AppCenter API Credentials configured and installed: (https://docs.microsoft.com/en-us/appcenter/cli/index) using the APPCENTER_ACCESS_TOKEN envvar
 
+. "$WORKSPACE/JenkinsSdkSetupScripts/JenkinsScripts/Pipeline/util.sh" 2> /dev/null
+
 #INPUTS
 XamarinWorkspaceDirectory=$1
 AppCenterRepoParentDir=$2

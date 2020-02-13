@@ -156,7 +156,7 @@ ExtractBuildResults() {
 DownloadIpa() {
     shopt -s nocasematch
     if [[ "$BuildResult" == *"succeeded"* ]]; then
-        appcenter build download --type build --app "PlayFabSDKTeam/PlayFabXPlatIOS" --id $BuildNumber --file PlayFabIOS.ipa
+        RetryLoop appcenter build download --type build --app "PlayFabSDKTeam/PlayFabXPlatIOS" --id $BuildNumber --file PlayFabIOS.ipa
     else
         appcenter build logs --app "PlayFabSDKTeam/PlayFabXPlatIOS" --id $BuildNumber >> "build_logs_${BuildNumber}.txt"
         exit 1

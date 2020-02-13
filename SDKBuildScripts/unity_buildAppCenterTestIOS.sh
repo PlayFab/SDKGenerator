@@ -120,7 +120,7 @@ CleanupAndDownloadIpa() {
         git reset --hard $AppCenterGitRepoCleanTag
         git push --force 
         popd
-        appcenter build download --type build --app "PlayFabSDKTeam/PlayFabUnityXCode" --id $BuildNumber --file PlayFabIOS.ipa
+        RetryLoop appcenter build download --type build --app "PlayFabSDKTeam/PlayFabUnityXCode" --id $BuildNumber --file PlayFabIOS.ipa
     else
         popd
         appcenter build logs --app "PlayFabSDKTeam/PlayFabUnityXCode" --id $BuildNumber

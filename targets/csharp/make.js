@@ -25,7 +25,7 @@ exports.makeCombinedAPI = function (apis, sourceDir, apiOutputDir) {
         libname: "All",
         sdkDate: sdkGlobals.sdkVersion.split(".")[2],
         sdkVersion: sdkGlobals.sdkVersion,
-        sdkYear: sdkGlobals.sdkVersion.split(".")[2].substr(0, 2)
+        sdkYear: "20" + sdkGlobals.sdkVersion.split(".")[2].substr(0, 2)
     };
 
     templatizeTree(locals, path.resolve(sourceDir, "source"), rootOutputDir);

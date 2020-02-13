@@ -7,7 +7,8 @@ namespace PlayFab.QoS
         NotLoggedIn = 1,
         FailedToRetrieveServerList = 2,
         FailedToUploadQosResult = 3,
-        Timeout = 4
+        Timeout = 4,
+        NoResult = 5,
     }
 }
 #endif

@@ -179,7 +179,7 @@ function parseCommandInputs(args, argsByName: { [key: string]: string; }, errorM
     // Parse some other values and defaults
     if (!argsByName.buildidentifier)
         argsByName.buildidentifier = "default_manual_build";
-    argsByName.buildidentifier = argsByName.buildidentifier.toLowerCase(); // lowercase the buildIdentifier
+    argsByName.buildidentifier = argsByName.buildidentifier; // lowercase the buildIdentifier
     if (argsByName.hasOwnProperty("flags"))
         buildTarget.buildFlags = lowercaseFlagsList(argsByName.flags.split(" "));
 }

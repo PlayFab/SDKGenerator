@@ -33,10 +33,11 @@ BuildAPK() {
     ExitIfError
 
     cmd <<< "call ${AndroidProjectPath}\build_Android.cmd"
-    ExitIfError
+    # ExitIfError - Bash can't detect if the internal statement inside cmd failed
 
     if [ ! -f "$debugApkPath" ]; then
         echo "Expected APK file was not created"
+        exit 1
     fi
 
     popd

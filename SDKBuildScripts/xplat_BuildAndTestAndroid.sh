@@ -23,8 +23,8 @@ BuildAPK() {
     pushd "$AndroidProjectPath"
     ExitIfError
 
-    # ./gradlew assembleDebug
-    ./gradlew build
+    ./gradlew assembleDebug
+    # ./gradlew build
     ExitIfError
 
     if [ ! -f "$debugApkPath" ]; then

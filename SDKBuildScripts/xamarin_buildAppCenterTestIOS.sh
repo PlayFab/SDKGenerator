@@ -170,7 +170,7 @@ ExtractBuildResults() {
 DownloadIpa() {
     shopt -s nocasematch
     if [[ $BuildResult == *"succeeded"* ]]; then
-        RetryLoop appcenter build download --type build --app "$PlayFabApplicationName" --id $BuildNumber --file PlayFabIOS.ipa
+        appcenter build download --type build --app "$PlayFabApplicationName" --id $BuildNumber --file PlayFabIOS.ipa
         ExitIfError
     else
         appcenter build logs --app "$PlayFabApplicationName" --id $BuildNumber >> "build_logs_${BuildNumber}.txt"

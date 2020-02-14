@@ -27,6 +27,10 @@ BuildAPK() {
     ./gradlew build
     ExitIfError
 
+    if [ ! -f "$debugApkPath" ]; then
+        echo "Expected APK file was not created"
+    fi
+
     popd
 }
 

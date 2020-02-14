@@ -47,7 +47,7 @@ BuildAPK() {
 
 TestAPK() {
     # Prefer the debug apk for now
-    if [ ! -f "$debugApkPath" ]; then
+    if [ -f "$debugApkPath" ]; then
         appcenter test run uitest --app "PlayFabSDKTeam/PlayFabXPlatAndroid" \
         --devices "PlayFabSDKTeam/android-common" \
         --app-path "$debugApkPath"  \
@@ -55,7 +55,7 @@ TestAPK() {
         --locale "en_US" \
         --build-dir "$testAssemblyDir"  \
         --uitest-tools-dir "$XAMARIN_UITEST_TOOLS"
-    elif [ ! -f "$releaseApkPath" ]; then
+    elif [ -f "$releaseApkPath" ]; then
         appcenter test run uitest --app "PlayFabSDKTeam/PlayFabXPlatAndroid" \
         --devices "PlayFabSDKTeam/android-common" \
         --app-path "$releaseApkPath"  \

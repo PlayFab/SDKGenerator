@@ -3,7 +3,7 @@ pushd ../../sdks/$SdkName/build/Android
 AndroidProjectPath=$PWD
 popd
 
-apkPath=$AndroidProjectPath/app/build/outputs/apk/debug/app-debug.apk
+debugApkPath=$AndroidProjectPath/app/build/outputs/apk/debug/app-debug.apk
 testAssemblyDir="$1"
 
 ExitIfError() {
@@ -23,7 +23,8 @@ BuildAPK() {
     pushd "$AndroidProjectPath"
     ExitIfError
 
-    ./gradlew assembleDebug
+    # ./gradlew assembleDebug
+    ./gradlew build
     ExitIfError
 
     popd
@@ -32,7 +33,7 @@ BuildAPK() {
 TestAPK() {
     appcenter test run uitest --app "PlayFabSDKTeam/PlayFabXPlatAndroid" \
     --devices "PlayFabSDKTeam/android-common" \
-    --app-path "$apkPath"  \
+    --app-path "$debugApkPath"  \
     --test-series "master" \
     --locale "en_US" \
     --build-dir "$testAssemblyDir"  \
@@ -43,8 +44,12 @@ TestAPK() {
 
 DoWork() {
     CopyTestTitleData
-    BuildAPK
-    TestAPK
+    if [ "$TestGradleBuild" = "true" ]; then
+        BuildAPK
+        if [ "$TestOnAppCenter" = "true" ]; then
+            TestAPK
+        fi
+    fi
 }
 
 DoWork

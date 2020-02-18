@@ -6,13 +6,3 @@ You can have as many files and subdirectories as you want, and they're all copie
 
 EJS tags are ignored, so, <%- thisChunk %> is not evaluated in any way.
 (If it were, it would probably throw an exception about how "thisChunk" is not a known variable)
-
-
-
-
-***********************************************************************
-If you can see this, then the SDKGenerator is syncing the ghtest branch
-***********************************************************************
-
-
-

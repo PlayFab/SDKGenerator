@@ -13,7 +13,7 @@ CheckParameters
 testAssemblyDir="$1"
 AndroidProjectPath="$2"
 
-apkPath=$AndroidProjectPath/XamarinTestRunner/XamarinTestRunner.Android/bin/Debug/com.companyname.XamarinTestRunner-Signed.apk
+debugApkPath=$AndroidProjectPath/XamarinTestRunner/XamarinTestRunner.Android/bin/Debug/com.companyname.XamarinTestRunner-Signed.apk
 
 ExitIfError() {
     ErrorStatus=$?
@@ -33,7 +33,12 @@ BuildAPK() {
     ExitIfError
 
     cmd <<< "call ${AndroidProjectPath}\build_Android.cmd"
-    ExitIfError
+    # ExitIfError - Bash can't detect if the internal statement inside cmd failed
+
+    if [ ! -f "$debugApkPath" ]; then
+        echo "Expected APK file was not created"
+        exit 1
+    fi
 
     popd
 }
@@ -41,7 +46,7 @@ BuildAPK() {
 TestAPK() {
     appcenter test run uitest --app "PlayFabSDKTeam/PlayFabXamarinAndroid" \
     --devices "PlayFabSDKTeam/android-common" \
-    --app-path "$apkPath"  \
+    --app-path "$debugApkPath"  \
     --test-series "master" \
     --locale "en_US" \
     --build-dir "$testAssemblyDir" \

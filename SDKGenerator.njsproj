@@ -10,6 +10,7 @@
     <TypeScriptModuleKind>CommonJS</TypeScriptModuleKind>
     <ToolsVersionPromptShown>2.3</ToolsVersionPromptShown>
     <TypeScriptToolsVersion>2.3</TypeScriptToolsVersion>
+    <NXTargetName>Default</NXTargetName>
   </PropertyGroup>
   <Import Project="$(MSBuildExtensionsPath)\$(MSBuildToolsVersion)\Microsoft.Common.props" Condition="Exists('$(MSBuildExtensionsPath)\$(MSBuildToolsVersion)\Microsoft.Common.props')" />
   <PropertyGroup>

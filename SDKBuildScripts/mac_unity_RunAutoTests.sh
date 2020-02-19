@@ -13,6 +13,8 @@ else
     SdkName=$2
 fi
 
+# TODO: we need specific versions of Unity targeted below. Right now we are hard coded to 2019.1.3 (this may be problematic to upgrades)
+
 RepoProject="${WORKSPACE}/sdks/${SdkName}/ExampleTestProject"
 ProjRootPath="${WORKSPACE}/${UNITY_VERSION}"
 BuildIdentifier=JBuild_${SdkName}_${VerticalName}_${NODE_NAME}_${EXECUTOR_NUMBER}

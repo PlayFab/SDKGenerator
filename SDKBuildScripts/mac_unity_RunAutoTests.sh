@@ -26,7 +26,7 @@ JenkernaughtSaveCloudScriptResults() {
 }
 
 RunMacJenkernaught() {
-    echo === Build OSX Client Target ===
+    echo === Build OSX Client Target === [I THOUGHT WE TOOK OUT _TC?! should we redirect?]
     pushd "${ProjRootPath}/${SdkName}_TC/"
     $UNITY_VERSION -buildOSXUniversalPlayer "${ProjRootPath}/${SdkName}_TC" -accept-apiupdate -disable-assembly-updater -noUpm -nographics -quit -batchmode -executeMethod PlayFab.Internal.PlayFabPackager.MakeOsxBuild -logFile "${WORKSPACE}/logs/buildOSXClient.txt" || (cat "${WORKSPACE}/logs/buildOSXClient.txt" && return 1)
     popd

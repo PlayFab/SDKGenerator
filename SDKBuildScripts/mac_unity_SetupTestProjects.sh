@@ -31,10 +31,10 @@ DoWorkTesting () {
     DeleteUnityCruft
     ForcePushD "Assets"
     Nuke "PlayFabSdk"
-    ln -Fvs PlayFabSdk "$WORKSPACE/sdks/$SdkName/Source/PlayFabSDK"
+    ln -Fvs PlayFabSdk "$WORKSPACE/sdks/$SdkName/ExampleTestProject/Assets/PlayFabSDK"
     if [ $? -ne 0 ]; then return 1; fi
     Nuke "Testing"
-    ln -Fvs Testing "$WORKSPACE/sdks/$SdkName/Testing"
+    ln -Fvs Testing "$WORKSPACE/sdks/$SdkName/ExampleTestProject/Assets/Testing"
     if [ $? -ne 0 ]; then return 1; fi
     WriteUnitySettingsFile "PlayFabExample/Editor" "$2"
     #set -x
@@ -94,8 +94,7 @@ MainScript () {
     popd
 }
 
-CheckDefault WORKSPACE "Users/jenkins/shared_workspace"
-CheckDefault SHARED_WORKSPACE "/Users/jenkins/shared_workspace"
+CheckDefault WORKSPACE "Users/jenkins/workspace"
 CheckDefault SdkName "UnitySDK"
 
 # MainScript <all command line args for script>

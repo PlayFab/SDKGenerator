@@ -3,5 +3,5 @@ msbuild %CSProj% -t:Restore
 msbuild %CSProj% ^
     -t:SignAndroidPackage ^
     -p:Configuration=Debug ^
-    -p:EmbedAssembliesIntoApk=true
-
+    -p:EmbedAssembliesIntoApk=true ^
+    -p:AndroidSdkDirectory=%ANDROID_HOME%

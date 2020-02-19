@@ -28,7 +28,7 @@ cd %~dp0
 pushd ..
 if [%1] == [] (
     rem === BUILDING %SdkName% ===
-    node generate.js %targetSrc%=%destPath% %apiSpecSource% %SdkGenArgs% %buildIdentifier%
+    node generate.js %targetSrc%=%destPath% %apiSpecSource% %buildIdentifier%
 ) else (
     rem === BUILDING %SdkName% with params %* ===
     node generate.js %targetSrc%=%destPath% %*

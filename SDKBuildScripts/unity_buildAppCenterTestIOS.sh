@@ -1,4 +1,6 @@
 #!/bin/bash
+set -e
+
 #USAGE: unity_buildAppCenterTestIOS.sh 
 #           <path to xcode workspace folder to be built> 
 #           <path to local appcenter test working copy folder> 
@@ -75,6 +77,10 @@ InitializeBuildEnvironment() {
     fi
 
     git push
+    if [ $? -ne 0 ]; then
+        echo "Failed to push the branch to the remote repository"
+        exit 1
+    fi
 }
 
 #queue the appcenter build

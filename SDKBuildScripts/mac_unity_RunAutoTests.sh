@@ -22,7 +22,7 @@ BuildIdentifier=JBuild_${SdkName}_${VerticalName}_${NODE_NAME}_${EXECUTOR_NUMBER
 JenkernaughtSaveCloudScriptResults() {
     echo === Save test results to Jenkernaught ===
     pushd "${WORKSPACE}/SDKGenerator/JenkinsConsoleUtility/bin/Debug"
-    cmd <<< "JenkinsConsoleUtility --listencs -buildIdentifier $BuildIdentifier -workspacePath ${WORKSPACE} -timeout 30 -verbose true"
+    mono JenkinsConsoleUtility.exe --listencs -buildIdentifier $BuildIdentifier -workspacePath ${WORKSPACE} -timeout 30 -verbose true
     # . ./JenkinsConsoleUtility --listencs -buildIdentifier $BuildIdentifier -workspacePath ${WORKSPACE} -timeout 30 -verbose true
     popd
 }

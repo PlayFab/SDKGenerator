@@ -15,6 +15,22 @@ else
     SdkName=$2
 fi
 
+CurrentInstalledUnityVer=""
+
+if [$UNITY_VERSION=="UNITY193" || $UNITY_VERSION=="UNITY192" || UNITY_VERSION=="UNITY191"]; then
+    CurrentInstalledUnityVer=2019.1.3f1
+fi
+
+if [$UNITY_VERSION="UNITY184"]; then
+    CurrentInstalledUnityVer=2018.4.0f1
+fi
+
+if [UNITY_VERSION="UNITY174"]; then
+    CurrentInstalledUnityVer=2017.4.0f1
+fi
+
+echo current installed unity version - $CurrentInstalledUnityVer
+
 # TODO: we need specific versions of Unity targeted below. Right now we are hard coded to 2019.1.3 (this may be problematic to upgrades)
 
 RepoProject="${WORKSPACE}/sdks/${SdkName}/ExampleTestProject"
@@ -33,7 +49,7 @@ RunMacJenkernaught() {
     echo === Build OSX Client Target ===
     pushd "${RepoProject}/"
     #/Applications/Unity/Hub/Editor/2019.1.3f1/Unity.app/Contents/MacOS/Unity -projectPath "${RepoProject}" -buildOSXUniversalPlayer "${ProjRootPath}/${SdkName}_TC" -accept-apiupdate -disable-assembly-updater -noUpm -nographics -quit -batchmode -executeMethod PlayFab.Internal.PlayFabPackager.MakeOsxBuild -logFile "${WORKSPACE}/logs/buildOSXClient.txt" || (cat "${WORKSPACE}/logs/buildOSXClient.txt" && return 1)
-    /Applications/Unity/Hub/Editor/2019.1.3f1/Unity.app/Contents/MacOS/Unity -projectPath "${RepoProject}" -buildOSXUniversalPlayer "${RepoProject}/testBuilds/PlayFabOSX" -accept-apiupdate -disable-assembly-updater -noUpm -nographics -quit -batchmode -executeMethod PlayFab.Internal.PlayFabPackager.MakeOsxBuild -logFile "${WORKSPACE}/logs/buildMacClient.txt" || (cat "${WORKSPACE}/logs/buildMacClient.txt") || true
+    /Applications/Unity/Hub/Editor/"${CurrentInstalledUnityVer}"/Unity.app/Contents/MacOS/Unity -projectPath "${RepoProject}" -buildOSXUniversalPlayer "${RepoProject}/testBuilds/PlayFabOSX" -accept-apiupdate -disable-assembly-updater -noUpm -nographics -quit -batchmode -executeMethod PlayFab.Internal.PlayFabPackager.MakeOsxBuild -logFile "${WORKSPACE}/logs/buildMacClient.txt" || (cat "${WORKSPACE}/logs/buildMacClient.txt") || true
     popd
     pushd "${WORKSPACE}/testBuilds/PlayFabOSX/"
     #chmod +x "PlayFabOSX.app"

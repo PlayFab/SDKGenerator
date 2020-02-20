@@ -28,5 +28,5 @@ uprojdir="$projectPath/ExampleProject.uproject"
 cd "$uatPath"
 
 # The actual build command. To adapt depending on the needs.
-. ./RunUAT.sh -ScriptsForProject="$uprojdir" BuildCookRun -nocompile -editorrecompile -installed -nop4 -project="$uprojdir" -cook -stage -archive -archivedirectory="$archivePath" -package -clientconfig=Development -ue4exe=UE4Editor -pak -prereqs -nodebuginfo -targetplatform=Mac -build -utf8output
+. ./RunUAT.sh -ScriptsForProject="$uprojdir" BuildCookRun GenerateDSYM -nocompile -editorrecompile -installed -nop4 -project="$uprojdir" -cook -stage -archive -archivedirectory="$archivePath" -package -clientconfig=Development -ue4exe=UE4Editor -pak -prereqs -nodebuginfo -targetplatform=Mac -build -utf8output
 

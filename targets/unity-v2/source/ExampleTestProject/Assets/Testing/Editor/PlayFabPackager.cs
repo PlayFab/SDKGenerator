@@ -154,11 +154,11 @@ namespace PlayFab.Internal
         {
             get
             {
-#if UNITY_2017_3_OR_NEWER
-                return BuildTarget.StandaloneOSX;
-#else
+//#if UNITY_2017_3_OR_NEWER
+//                return BuildTarget.StandaloneOSX;
+//#else
                 return BuildTarget.StandaloneOSXUniversal;
-#endif
+//#endif
             }
         }
 

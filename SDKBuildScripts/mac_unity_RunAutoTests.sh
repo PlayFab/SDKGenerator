@@ -35,7 +35,7 @@ RunMacJenkernaught() {
     #/Applications/Unity/Hub/Editor/2019.1.3f1/Unity.app/Contents/MacOS/Unity -projectPath "${RepoProject}" -buildOSXUniversalPlayer "${ProjRootPath}/${SdkName}_TC" -accept-apiupdate -disable-assembly-updater -noUpm -nographics -quit -batchmode -executeMethod PlayFab.Internal.PlayFabPackager.MakeOsxBuild -logFile "${WORKSPACE}/logs/buildOSXClient.txt" || (cat "${WORKSPACE}/logs/buildOSXClient.txt" && return 1)
     /Applications/Unity/Hub/Editor/2019.1.3f1/Unity.app/Contents/MacOS/Unity -projectPath "${RepoProject}" -buildOSXUniversalPlayer "${RepoProject}/testBuilds/PlayFabOSX" -accept-apiupdate -disable-assembly-updater -noUpm -nographics -quit -batchmode -executeMethod PlayFab.Internal.PlayFabPackager.MakeOsxBuild -logFile "${WORKSPACE}/logs/buildMacClient.txt" || (cat "${WORKSPACE}/logs/buildMacClient.txt") || true
     popd
-    pushd "${RepoProject}/testBuilds/PlayFabOSX/"
+    pushd "${WORKSPACE}/testBuilds/PlayFabOSX/"
     #chmod +x "PlayFabOSX.app"
     open PlayFabOSX.app
     popd

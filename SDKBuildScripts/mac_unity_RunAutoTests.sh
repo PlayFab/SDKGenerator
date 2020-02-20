@@ -1,5 +1,7 @@
 #!/bin/bash
 
+set -e
+
 # USAGE: unity_RunAutoTests.bat [<UNITY_VERSION>] [<SdkName>]
 
 if [ -z $1 ]; then

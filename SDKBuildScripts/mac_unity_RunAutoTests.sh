@@ -30,9 +30,9 @@ JenkernaughtSaveCloudScriptResults() {
 RunMacJenkernaught() {
     echo === Build OSX Client Target ===
     pushd "${RepoProject}/"
-    /Applications/Unity/Hub/Editor/2019.1.3f1/Unity.app/Contents/MacOS/Unity -projectPath "${RepoProject}" -buildOSXUniversalPlayer "${ProjRootPath}/${SdkName}_TC" -accept-apiupdate -disable-assembly-updater -noUpm -nographics -quit -batchmode -executeMethod PlayFab.Internal.PlayFabPackager.MakeOsxBuild -logFile "${WORKSPACE}/logs/buildOSXClient.txt" || (cat "${WORKSPACE}/logs/buildOSXClient.txt" && return 1)
+    #/Applications/Unity/Hub/Editor/2019.1.3f1/Unity.app/Contents/MacOS/Unity -projectPath "${RepoProject}" -buildOSXUniversalPlayer "${ProjRootPath}/${SdkName}_TC" -accept-apiupdate -disable-assembly-updater -noUpm -nographics -quit -batchmode -executeMethod PlayFab.Internal.PlayFabPackager.MakeOsxBuild -logFile "${WORKSPACE}/logs/buildOSXClient.txt" || (cat "${WORKSPACE}/logs/buildOSXClient.txt" && return 1)
+    /Applications/Unity/Hub/Editor/2019.1.3f1/Unity.app/Contents/MacOS/Unity -projectPath "${RepoProject}" -quit -batchmode -executeMethod PlayFab.Internal.PlayFabPackager.MakeOsxBuild -logFile "${WORKSPACE}/logs/buildMacClient.txt" || (cat "${WORKSPACE}/logs/buildMacClient.txt" && return 1)
     popd
-
     JenkernaughtSaveCloudScriptResults
     if [[ $? -ne 0 ]]; then return 1; fi
 }

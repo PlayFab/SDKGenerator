@@ -838,6 +838,7 @@
     <Content Include="targets\UnrealMarketplacePlugin\examplesource\ExampleProject\ExampleProject.sln.ejs" />
     <Content Include="targets\UnrealMarketplacePlugin\examplesource\ExampleProject\ExampleProject.uproject.ejs" />
     <Content Include="targets\UnrealMarketplacePlugin\examplesource\ExampleProject\Plugins\PlayFab\Source\PlayFabCommon\Private\TestFramework\PlayFabTestCase.cpp.ejs" />
+    <Content Include="targets\UnrealMarketplacePlugin\examplesource\ExampleProject\Plugins\PlayFab\Source\PlayFabCommon\Private\TestFramework\PlayFabTestContext.cpp.ejs" />
     <Content Include="targets\UnrealMarketplacePlugin\examplesource\ExampleProject\Plugins\PlayFab\Source\PlayFabCommon\Private\TestFramework\PlayFabTestRunner.cpp.ejs" />
     <Content Include="targets\UnrealMarketplacePlugin\examplesource\ExampleProject\Plugins\PlayFab\Source\PlayFabCommon\Public\TestFramework\PlayFabTestCase.h.ejs" />
     <Content Include="targets\UnrealMarketplacePlugin\examplesource\ExampleProject\Plugins\PlayFab\Source\PlayFabCommon\Public\TestFramework\PlayFabTestContext.h.ejs" />

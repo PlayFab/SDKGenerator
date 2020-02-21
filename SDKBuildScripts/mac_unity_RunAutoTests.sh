@@ -17,16 +17,28 @@ fi
 
 CurrentInstalledUnityVer=""
 
-if [$UNITY_VERSION=="UNITY193" || $UNITY_VERSION=="UNITY192" || UNITY_VERSION=="UNITY191"]; then
+if [$UNITY_VERSION="UNITY201"]; then
+    CurrentInstalledUnityVer=2020.1.0a23
+fi
+
+if [$UNITY_VERSION=="UNITY193" ]; then
+    CurrentInstalledUnityVer=2019.3.2f1
+fi
+
+if [$UNITY_VERSION=="UNITY192" ]; then
+    CurrentInstalledUnityVer=2019.2.21f1
+fi
+
+if [$UNITY_VERSION=="UNITY191" ]; then
     CurrentInstalledUnityVer=2019.1.3f1
 fi
 
 if [$UNITY_VERSION="UNITY184"]; then
-    CurrentInstalledUnityVer=2018.4.0f1
+    CurrentInstalledUnityVer=2018.4.17f1
 fi
 
 if [UNITY_VERSION="UNITY174"]; then
-    CurrentInstalledUnityVer=2017.4.0f1
+    CurrentInstalledUnityVer=2017.4.37f1
 fi
 
 echo current installed unity version - $CurrentInstalledUnityVer

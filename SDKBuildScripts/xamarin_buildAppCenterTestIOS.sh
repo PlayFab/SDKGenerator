@@ -1,4 +1,7 @@
 #!/bin/bash
+
+set -e
+
 #USAGE: xamarin_buildAppCenterTestIOS.sh 
 #           <path to the root of the xamarin repo to be built> 
 #           <path to local appcenter test working copy folder> 
@@ -56,15 +59,6 @@ GitRepoFolderName=$(basename "$AppCenterGitRepoURL" | sed -e 's/.git//g')
 echo "Project Folder Name: $ProjectFolderName"
 echo "Git Folder Name: $GitRepoFolderName"
 
-#error checking utility function
-ExitIfError() {
-    ErrorStatus=$?
-    if [ $ErrorStatus -ne 0 ]; then 
-        echo "Exiting with Error Code: $ErrorStatus"
-        exit $ErrorStatus
-    fi
-}
-
 #remove cruft from previous runs, if any.
 InitializeBuildEnvironment() {
     rm -fdr "$AppCenterRepoParentDir/$GitRepoFolderName"
@@ -104,9 +98,9 @@ InitializeBuildEnvironment() {
     cp -r "$XamarinWorkspaceDirectory/PlayFabSDK" .
     cp -r "$XamarinWorkspaceDirectory/Plugins" .
     cp -r "$XamarinWorkspaceDirectory/XamarinTestRunner" .
-    echo "Loading test title data from $PF_TEST_TITLE_DATA_JSON into $ACB/XamarinTestRunner/XamarinTestRunner/XamarinTestRunner..."
+    echo "Loading test title data from $WORKSPACE/JenkinsSdkSetupScripts/Creds/testTitleData.json into $ACB/XamarinTestRunner/XamarinTestRunner/XamarinTestRunner..."
     pushd "XamarinTestRunner/XamarinTestRunner/XamarinTestRunner"
-    cp -f "$PF_TEST_TITLE_DATA_JSON" .
+    cp -f "$WORKSPACE/JenkinsSdkSetupScripts/Creds/testTitleData.json" .
     popd
 
     git add .
@@ -127,10 +121,8 @@ InitializeBuildEnvironment() {
 #queue the appcenter build
 QueueAppCenterBuild() {
     appcenter build queue --app "$PlayFabApplicationName" --branch $AppCenterGitRepoBranchName --quiet -d 
-    ExitIfError
 
     BuildStatusJSON=$(appcenter build branches show -b $AppCenterGitRepoBranchName -a "$PlayFabApplicationName" --quiet --output json)
-    ExitIfError
 
     BuildStatus="\"notStarted\""
 }
@@ -141,10 +133,8 @@ WaitForAppCenterBuild() {
     do
         sleep 60
         BuildStatusJSON=$(appcenter build branches show -b $AppCenterGitRepoBranchName -a "$PlayFabApplicationName" --quiet --output json)
-        ExitIfError
 
         BuildStatus=$(echo "$BuildStatusJSON" | jq .status)
-        ExitIfError
 
         echo "WaitForAppCenterBuild check number: $i, Build Status: $BuildStatus"
         if [ "$BuildStatus" = "\"completed\"" ]; then
@@ -158,10 +148,8 @@ WaitForAppCenterBuild() {
 ExtractBuildResults() {
     #extract the results and build number
     BuildResult=$(echo "$BuildStatusJSON" | jq .result)
-    ExitIfError
 
     BuildNumber=$(echo "$BuildStatusJSON" | jq .buildNumber | sed s/\"//g)
-    ExitIfError
 
     echo "Build $BuildNumber has $BuildResult."
 }
@@ -171,7 +159,6 @@ DownloadIpa() {
     shopt -s nocasematch
     if [[ $BuildResult == *"succeeded"* ]]; then
         appcenter build download --type build --app "$PlayFabApplicationName" --id $BuildNumber --file PlayFabIOS.ipa
-        ExitIfError
     else
         appcenter build logs --app "$PlayFabApplicationName" --id $BuildNumber >> "build_logs_${BuildNumber}.txt"
         exit 1
@@ -186,20 +173,14 @@ RunAppCenterTest() {
     --locale "en_US" \
     --assembly-dir "$AppCenterTestAssembliesPath"  \
     --uitest-tools-dir "$XAMARIN_UITEST_TOOLS"
-
-    ExitIfError
 }
 
 CleanUp() {
     pushd "$AppCenterRepoParentDir/$GitRepoFolderName"
-    ExitIfError
 
     #Return the appcenter build repo to a clean state for next time.
     git reset --hard $AppCenterGitRepoCleanTag
-    ExitIfError
-
     git push --force 
-    ExitIfError
 
     popd
 }

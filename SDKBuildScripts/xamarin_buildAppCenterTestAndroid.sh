@@ -1,4 +1,7 @@
 #!/bin/bash
+
+set -e
+
 Usage="./xamarin_BuildAndTestAndroid.sh <path to test assemblies> <path to XamarinTestRunner project>"
 ArgCount=$#
 CheckParameters() {
@@ -15,25 +18,15 @@ AndroidProjectPath="$2"
 
 debugApkPath=$AndroidProjectPath/XamarinTestRunner/XamarinTestRunner.Android/bin/Debug/com.companyname.XamarinTestRunner-Signed.apk
 
-ExitIfError() {
-    ErrorStatus=$?
-    if [ $ErrorStatus -ne 0 ]; then
-        echo "Exiting with Error Code: $ErrorStatus" >&2
-        exit 1
-    fi
-}
-
 CopyTestTitleData() {
-    cp -f "$PF_TEST_TITLE_DATA_JSON" "$AndroidProjectPath/XamarinTestRunner/XamarinTestRunner/testTitleData.json"
-    ExitIfError
+    cp -f "$WORKSPACE/JenkinsSdkSetupScripts/Creds/testTitleData.json" "$AndroidProjectPath/XamarinTestRunner/XamarinTestRunner/testTitleData.json"
 }
 
 BuildAPK() {
     pushd "$AndroidProjectPath"
-    ExitIfError
 
+    # NOTE: Bash can't detect if the internal statement inside cmd failed
     cmd <<< "call ${AndroidProjectPath}\build_Android.cmd"
-    # ExitIfError - Bash can't detect if the internal statement inside cmd failed
 
     if [ ! -f "$debugApkPath" ]; then
         echo "Expected APK file was not created"
@@ -51,8 +44,6 @@ TestAPK() {
     --locale "en_US" \
     --build-dir "$testAssemblyDir" \
     --uitest-tools-dir "$XAMARIN_UITEST_TOOLS"
-
-    ExitIfError
 }
 
 DoWork() {

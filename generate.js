@@ -119,6 +119,8 @@ function parseCommandInputs(args, argsByName, errorMessages, buildTarget) {
     argsByName.buildidentifier = argsByName.buildidentifier.toLowerCase(); // lowercase the buildIdentifier
     if (argsByName.hasOwnProperty("flags"))
         buildTarget.buildFlags = lowercaseFlagsList(argsByName.flags.split(" "));
+    if (argsByName.hasOwnProperty("version"))
+        buildTarget.versionString = argsByName.version
 }
 function extractArgs(args, argsByName, buildTarget, errorMessages) {
     var cmdArgs = args.slice(2, args.length); // remove "node.exe generate.js"
@@ -290,7 +292,11 @@ function loadApisFromGitHub(argsByName, apiCache, apiSpecGitUrl, onComplete) {
         finishCountdown -= 1;
         if (finishCountdown === 0) {
             console.log("Finished loading files from GitHub");
-            sdkGeneratorGlobals.apiTemplateDescription = "-apiSpecGitUrl " + argsByName.apiSpecGitUrl;
+            sdkGeneratorGlobals.apiTemplateDescription = "-apiSpecGitUrl"
+            if(argsByName.apiSpecGitUrl)
+            {
+                sdkGeneratorGlobals.apiTemplateDescription += " " + argsByName.apiSpecGitUrl;
+            }
             catchAndReport(onComplete);
         }
     }
@@ -392,7 +398,7 @@ function generateApis(buildIdentifier, target) {
     }
     if (genConfig) {
         if (genConfig.buildFlags)
-            target.buildFlags = genConfig.buildFlags.split(" ");
+            target.buildFlags = target.buildFlags.concat(genConfig.buildFlags.split(" "));
         if (genConfig.templateFolder)
             target.templateFolder = genConfig.templateFolder;
         if (genConfig.versionKey)
@@ -401,14 +407,15 @@ function generateApis(buildIdentifier, target) {
             target.versionString = genConfig.versionString;
     }
     getMakeScriptForTemplate(target);
-    console.log("Making SDK from: " + target.templateFolder + "\n - to: " + target.destPath);
+    console.log("Creating SDK from template: " + target.templateFolder);
+    console.log("Outputing SDK to: " + target.destPath);
     // It would probably be better to pass these into the functions, but I don't want to change all the make___Api parameters for all projects today.
     //   For now, just change the global variables in each with the data loaded from SdkManualNotes.json
     if (target.versionKey && !target.versionString) {
         var apiNotes = getApiJson("SdkManualNotes");
         target.versionString = apiNotes.sdkVersion[target.versionKey];
     }
-    console.log("BuildTarget: " + JSON.stringify(target));
+    console.log("BuildTarget: " + JSON.stringify(target, null, 2));
     sdkGlobals.sdkVersion = target.versionString;
     sdkGlobals.buildIdentifier = buildIdentifier;
     if (sdkGlobals.sdkVersion === null) {
@@ -710,5 +717,8 @@ function catchAndReport(method) {
 }
 // Kick everything off
 catchAndReport(parseAndLoadApis);
-setTimeout(function () { }, 5000);
+if(process.argv.indexOf("-nowait") == -1)
+{
+    setTimeout(function () { }, 5000);
+}
 //# sourceMappingURL=generate.js.map

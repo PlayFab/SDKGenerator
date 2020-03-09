@@ -108,9 +108,9 @@ bool PlayFabRequestHandler::DecodeError(TSharedPtr<FJsonObject> JsonObject, Play
             {
                 if (val.Value->AsArray().Num() > 0)
                 {
-                    for(const auto& obj : val.Value->AsArray())
+                    for(const auto& item : val.Value->AsArray())
                     {
-                        OutError.ErrorDetails.Add(val.Key, obj->AsString());
+                        OutError.ErrorDetails.Add(val.Key, item->AsString());
                     }
                 }
                 else

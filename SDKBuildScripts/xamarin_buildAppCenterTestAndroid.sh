@@ -2,6 +2,8 @@
 
 set -e
 
+. "$WORKSPACE/JenkinsSdkSetupScripts/JenkinsScripts/Pipeline/util.sh" 2> /dev/null
+
 Usage="./xamarin_BuildAndTestAndroid.sh <path to test assemblies> <path to XamarinTestRunner project>"
 ArgCount=$#
 CheckParameters() {
@@ -37,7 +39,7 @@ BuildAPK() {
 }
 
 TestAPK() {
-    appcenter test run uitest --app "PlayFabSDKTeam/PlayFabXamarinAndroid" \
+    RetryLoop appcenter test run uitest --app "PlayFabSDKTeam/PlayFabXamarinAndroid" \
     --devices "PlayFabSDKTeam/android-common" \
     --app-path "$debugApkPath"  \
     --test-series "master" \

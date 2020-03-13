@@ -15,7 +15,7 @@ namespace XamarinUITestExperiment
         {
             if (platform == Platform.Android)
             {
-                return ConfigureApp.Android.InstalledApp("com.playfab.service")
+                return ConfigureApp.Android.InstalledApp("com.microsoft.playfab.sdktest")
 #if USE_LOCAL_KEYSTORE
                     .KeyStore("D:\\uitest.keystore","uitest","uitest","uitest")
 #endif
@@ -24,7 +24,7 @@ namespace XamarinUITestExperiment
             }
             else if (platform == Platform.iOS)
             {
-                return ConfigureApp.iOS.InstalledApp("com.playfab.service")
+                return ConfigureApp.iOS.InstalledApp("com.microsoft.playfab.sdktest")
                     .EnableLocalScreenshots()
                     .StartApp();
             }

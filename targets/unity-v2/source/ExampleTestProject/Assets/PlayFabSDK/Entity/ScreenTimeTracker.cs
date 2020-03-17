@@ -28,7 +28,20 @@ namespace PlayFab.Public
     public class ScreenTimeTracker : IScreenTimeTracker
     {
         private Guid focusId;
-        private Guid gameSessionID;
+        public static Guid? GameSessionId
+        {
+            get
+            {
+                if (gameSessionID == null)
+                {
+                    gameSessionID = Guid.NewGuid();
+                }
+                return gameSessionID;
+            }
+
+            set { gameSessionID = value; }
+        }
+        private static Guid? gameSessionID;
         private bool initialFocus = true;
         private bool isSending = false;
         private DateTime focusOffDateTime = DateTime.UtcNow;
@@ -53,7 +66,10 @@ namespace PlayFab.Public
         /// <param name="playFabUserId">Result of the user's login, represent user ID</param>
         public void ClientSessionStart(string entityId, string entityType, string playFabUserId)
         {
-            gameSessionID = Guid.NewGuid();
+            if (gameSessionID == null)
+            {
+                gameSessionID = Guid.NewGuid();
+            }
 
             entityKey.Id = entityId;
             entityKey.Type = entityType;

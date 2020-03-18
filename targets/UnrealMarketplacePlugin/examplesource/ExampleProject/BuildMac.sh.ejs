@@ -1,0 +1,31 @@
+#!/bin/bash
+set -e
+
+echo ========== BUILDING iOS ==========
+
+Usage="./BuildAndRunTestsIOS.sh <target ipa directory path> <path to project>"
+
+archivePath=$1
+projectPath=$2
+
+if [ "$#" -ne 2 ]; then
+    echo $usage
+    exit 1
+fi
+
+DoWork() {
+    echo ========== BUILDING iOS ==========
+
+    targetPlatform=iOS
+    projectPath=$PWD
+    scriptsForProject="${projectPath}/ExampleProject.uproject"
+    uePath="/Users/Shared/Epic Games"
+    ueVersion="<%- ueTargetVersion %>"
+    uatPath="${uePath}/UE_${ueVersion}/Engine/Build/BatchFiles/"
+    cd "$uatPath"
+
+    # The actual build command. To adapt depending on the needs.
+    . ./RunUAT.sh -ScriptsForProject=$scriptsForProject BuildCookRun -project=$scriptsForProject -noP4 -clientconfig=Development -serverconfig=Development -nocompile -nocompileeditor -installed -utf8output -platform=$targetPlatform -targetplatform=$targetPlatform -ini:Game:[/Script/UnrealEd.ProjectPackagingSettings]:BlueprintNativizationMethod=Disabled -build -cook -compressed -iterativedeploy -stage -deploy
+}
+
+DoWork

@@ -1,16 +1,6 @@
 #!/bin/bash
 set -e
 
-BuildMacUsage="./BuildAndRunTestsIOS.sh <target ipa directory path> <path to project>"
-
-archivePath=$1
-projectPath=$2
-
-if [ "$#" -ne 2 ]; then
-    echo Incorrect Usage: $BuildMacUsage
-    exit 1
-fi
-
 DoWork() {
     echo ========== BUILDING iOS ==========
 

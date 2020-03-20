@@ -25,7 +25,7 @@
 	<key>CFBundleDisplayName</key>
 	<string>XamarinTestRunner</string>
 	<key>CFBundleIdentifier</key>
-	<string>com.playfab.service</string>
+	<string>com.microsoft.playfab.sdktest</string>
 	<key>CFBundleVersion</key>
 	<string>1.0</string>
 	<key>UILaunchStoryboardName</key>

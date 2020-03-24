@@ -42,7 +42,7 @@ DoWork () {
     fi
 
     # DoJcuNugetUpdate
-    
+
     ForcePushD "$WORKSPACE/sdks/$SdkName"
     ResetRepo
 }

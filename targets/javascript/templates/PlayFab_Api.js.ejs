@@ -271,12 +271,13 @@ PlayFab.<%- api.name %>Api = {
     _MultiStepClientLogin: function (needsAttribution) {
         if (needsAttribution && !PlayFab.settings.disableAdvertising && PlayFab.settings.advertisingIdType !== null && PlayFab.settings.advertisingIdValue !== null) {
             var request = {};
-            if (PlayFab.settings.advertisingIdType === PlayFab.settings.AD_TYPE_IDFA)
+            if (PlayFab.settings.advertisingIdType === PlayFab.settings.AD_TYPE_IDFA) {
                 request.Idfa = PlayFab.settings.advertisingIdValue;
-            else if (PlayFab.settings.advertisingIdType === PlayFab.settings.AD_TYPE_ANDROID_ID)
+            } else if (PlayFab.settings.advertisingIdType === PlayFab.settings.AD_TYPE_ANDROID_ID) {
                 request.Adid = PlayFab.settings.advertisingIdValue;
-            else
+            } else {
                 return;
+            }
             PlayFab.ClientApi.AttributeInstall(request, null);
         }
     }

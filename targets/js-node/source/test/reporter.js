@@ -27,23 +27,23 @@ exports.info = "PlayFab minimal output";
  */
 
 // The test report that will ultimately be relayed back to Cloud Script when the suite finishes
-exports.PfTestReport = [{
-    name: "",
-    tests: 0,
-    failures: 0,
-    errors: 0,
-    skipped: 0,
-    time: 0.0,
-    timestamp: (new Date()).toISOString(),
-    testResults: []
-}];
+exports.PfTestReport = [
+    {
+        name: "",
+        tests: 0,
+        failures: 0,
+        errors: 0,
+        skipped: 0,
+        time: 0.0,
+        timestamp: new Date().toISOString(),
+        testResults: [],
+    },
+];
 
 exports.run = function (files, options, callback) {
     if (!options) {
         // load default options
-        var content = fs.readFileSync(
-            __dirname + "/nodeunit.json", "utf8"
-        );
+        var content = fs.readFileSync(__dirname + "/nodeunit.json", "utf8");
         options = JSON.parse(content);
     }
 
@@ -83,7 +83,6 @@ exports.run = function (files, options, callback) {
                     }
                 });
             }
-
         },
         testStart: function (name) {
             tracker.put(name);
@@ -93,7 +92,7 @@ exports.run = function (files, options, callback) {
         testDone: function (name, assertions) {
             tracker.remove(name);
             var testDuration = new Date().getTime() - testStartTimes[name];
-            var testDurationStr = (testDuration).toString(); // Need to know the length of this in string form
+            var testDurationStr = testDuration.toString(); // Need to know the length of this in string form
 
             var numFails = assertions.failures();
             var newTestReport;
@@ -101,8 +100,7 @@ exports.run = function (files, options, callback) {
                 var message = "";
                 for (idx in assertions) {
                     if (assertions[idx].hasOwnProperty("error") && assertions[idx].error) {
-                        if (message.length > 0)
-                            message += "\n";
+                        if (message.length > 0) message += "\n";
                         message += assertions[idx].error.message;
                     }
                 }
@@ -114,24 +112,22 @@ exports.run = function (files, options, callback) {
                     finishState: "FAILED",
                     time: testDuration / 1000.0,
                     message: message,
-                    failureText: "FAILED"
-                }
+                    failureText: "FAILED",
+                };
             } else {
                 newTestReport = {
                     classname: exports.PfTestReport[0].name,
                     name: name[1],
                     finishState: "PASSED",
                     time: testDuration / 1000.0,
-                }
+                };
             }
             exports.PfTestReport[0].testResults.push(newTestReport);
 
             var testLineOutput = "";
-            for (i = testDurationStr.length; i < 10; i++)
-                testLineOutput += " ";
+            for (i = testDurationStr.length; i < 10; i++) testLineOutput += " ";
             testLineOutput += testDurationStr + " - " + newTestReport.name;
-            if (numFails > 0)
-                testLineOutput += " - " + newTestReport.message;
+            if (numFails > 0) testLineOutput += " - " + newTestReport.message;
             console.log(testLineOutput);
 
             // Have to write the duration at the end of each test, because I don't get my done callback below until too-late
@@ -139,10 +135,16 @@ exports.run = function (files, options, callback) {
         },
 
         done: function (assertions) {
-            console.log("Testing complete: " + exports.PfTestReport[0].tests + " test run, "
-                + (exports.PfTestReport[0].tests - exports.PfTestReport[0].failures)
-                + " tests passed, " + exports.PfTestReport[0].failures + " tests failed.");
-        }
+            console.log(
+                "Testing complete: " +
+                    exports.PfTestReport[0].tests +
+                    " test run, " +
+                    (exports.PfTestReport[0].tests - exports.PfTestReport[0].failures) +
+                    " tests passed, " +
+                    exports.PfTestReport[0].failures +
+                    " tests failed.",
+            );
+        },
     };
 
     if (files && files.length) {

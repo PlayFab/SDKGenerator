@@ -1,0 +1,7 @@
+{
+    arrowParens: "always",
+    bracketSpacing: true,
+    endOfLine: "lf",
+    printWidth: 140,
+    trailingComma: "all"
+}

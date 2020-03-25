@@ -33,7 +33,6 @@ exports.makeCombinedAPI = function (apis, sourceDir, baseApiOutputDir) {
     // Although we can target later updates to the versions,
     // we should set the hotfix version to 0 so that any further updates will not need a prompt when opening with PlayFab
     const ueTargetVersions = [
-        new TargetVersion(4, 21, 0),
         new TargetVersion(4, 22, 0),
         new TargetVersion(4, 23, 0),
         new TargetVersion(4, 24, 0)

@@ -12,7 +12,7 @@ void UPlayFabUtilities::setPlayFabSettings(FString GameTitleId, FString PlayFabS
 {
     // Set the settings
     IPlayFab::Get().setGameTitleId(GameTitleId);
-    IPlayFab::Get().setApiSecretKey(PlayFabSecretApiKey);
+    IPlayFab::Get().setDeveloperSecretKey(PlayFabSecretApiKey);
     IPlayFab::Get().PhotonRealtimeAppId = PhotonRealtimeAppId;
     IPlayFab::Get().PhotonTurnbasedAppId = PhotonTurnbasedAppId;
     IPlayFab::Get().PhotonChatAppId = PhotonChatAppId;

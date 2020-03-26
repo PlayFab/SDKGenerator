@@ -20,7 +20,7 @@ DoPublishToS3() {
     pushd "sdks/$SdkName"
     git clean -dfx
     popd
-    
+
     rm -f repo.zip || true
     7z a -r repo.zip "sdks/$SdkName"
 

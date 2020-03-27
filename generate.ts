@@ -486,7 +486,8 @@ function generateApis(buildIdentifier, target: IBuildTarget) {
     }
 
     getMakeScriptForTemplate(target);
-    console.log("Making SDK from: " + target.templateFolder + "\n - to: " + target.destPath);
+    console.log("Creating SDK from template: " + target.templateFolder);
+    console.log("Outputing SDK to: " + target.destPath);
 
     // It would probably be better to pass these into the functions, but I don't want to change all the make___Api parameters for all projects today.
     //   For now, just change the global variables in each with the data loaded from SdkManualNotes.json
@@ -495,7 +496,7 @@ function generateApis(buildIdentifier, target: IBuildTarget) {
         target.versionString = apiNotes.sdkVersion[target.versionKey];
     }
 
-    console.log("BuildTarget: " + JSON.stringify(target));
+    console.log("BuildTarget: " + JSON.stringify(target, null, 2));
 
     sdkGlobals.sdkVersion = target.versionString;
     sdkGlobals.buildIdentifier = buildIdentifier;
@@ -848,4 +849,7 @@ function catchAndReport(method) {
 // Kick everything off
 catchAndReport(parseAndLoadApis);
 
-setTimeout(function() {}, 5000);
+if(process.argv.indexOf("-nowait") == -1)
+{
+    setTimeout(function () { }, 5000);
+}

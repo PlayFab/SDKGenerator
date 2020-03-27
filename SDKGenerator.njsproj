@@ -320,6 +320,9 @@
     <Content Include="targets\java\templates\Model.java.ejs" />
     <Content Include="targets\java\templates\Models.java.ejs" />
     <Content Include="targets\js-node\make.js" />
+    <Content Include="targets\js-node\source\.gitignore" />
+    <Content Include="targets\js-node\source\.npmignore" />
+    <Content Include="targets\js-node\source\.prettierrc" />
     <Content Include="targets\js-node\source\index.d.ts.ejs" />
     <Content Include="targets\js-node\source\index.js.ejs" />
     <Content Include="targets\js-node\source\package.json.ejs" />
@@ -327,10 +330,12 @@
     <Content Include="targets\js-node\source\runTest.sh" />
     <Content Include="targets\js-node\source\Scripts\PlayFab\playfab.js.ejs" />
     <Content Include="targets\js-node\source\test\nodeunit.json" />
+    <Content Include="targets\js-node\source\test\reporter.d.ts.ejs" />
     <Content Include="targets\js-node\source\test\reporter.js" />
     <Content Include="targets\js-node\source\test\run.bat" />
     <Content Include="targets\js-node\source\test\test.ts.ejs" />
-    <Content Include="targets\js-node\source\tsconfig.json.ejs" />
+    <Content Include="targets\js-node\source\tsconfig.json" />
+    <Content Include="targets\js-node\source\tslint.json" />
     <Content Include="targets\js-node\templates\api.js.ejs" />
     <Content Include="targets\js-node\templates\Enum.ejs" />
     <Content Include="targets\js-node\templates\Interface.ejs" />
@@ -1170,6 +1175,7 @@
     <TypeScriptCompile Include="generate.ts" />
     <TypeScriptCompile Include="node.d.ts" />
     <TypeScriptCompile Include="targets\js-node\source\Scripts\typings\PlayFab\PlayFab.d.ts" />
+    <TypeScriptCompile Include="targets\js-node\source\test\test.d.ts" />
   </ItemGroup>
   <!-- Do not delete the following Import Project.  While this appears to do nothing it is a marker for setting TypeScript properties before our import that depends on them. -->
   <Import Project="$(MSBuildExtensionsPath32)\Microsoft\VisualStudio\v$(VisualStudioVersion)\TypeScript\Microsoft.TypeScript.targets" Condition="False" />

@@ -6,7 +6,7 @@
 # Caller must have their testTitleData.json path configured in the PF_TEST_TITLE_DATA_JSON env var.
 
 #check number of args
-if [ "$#" -ne 2 ]; then 
+if [ "$#" -ne 2 ]; then
     echo "ERROR: Invalid number of arguments."
     echo "Usage: ./unity_copyTestTitleData.sh <target directory to contain testTitleData.json inside of the unity project> <copy | delete>"
     exit 1
@@ -18,7 +18,7 @@ TargetPath=$1
 CopyOrDelete=$2
 
 #validate args
-if [ $CopyOrDelete != "copy"  ] && [ "$CopyOrDelete" != "delete" ]; then 
+if [ $CopyOrDelete != "copy"  ] && [ "$CopyOrDelete" != "delete" ]; then
     echo "ERROR: Second argument must be either copy or delete"
     echo "Usage: ./unity_copyTestTitleData.sh <target directory to contain testTitleData.json inside of the unity project> <copy | delete>"
     exit 1

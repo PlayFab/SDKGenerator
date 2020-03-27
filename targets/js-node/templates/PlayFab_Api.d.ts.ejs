@@ -6,7 +6,10 @@ declare module PlayFab<%- api.name %>Module {
 
 <% } %><% for(var cIdx in api.calls) { var apiCall = api.calls[cIdx];
 %><%- generateApiSummary("        ", apiCall, "summary", "https://docs.microsoft.com/rest/api/playfab/" + api.name.toLowerCase() + "/" + apiCall.subgroup.toLowerCase().replaceAll(" ","-") + "/" + apiCall.name.toLowerCase())
-%>        <%- apiCall.name %>(request: PlayFab<%- api.name %>Models.<%- apiCall.request %>, callback: PlayFabModule.ApiCallback<PlayFab<%- api.name %>Models.<%- apiCall.result %>>): void;
+%>        <%- apiCall.name %>(
+            request: PlayFab<%- api.name %>Models.<%- apiCall.request %> | null,
+            callback: PlayFabModule.ApiCallback<PlayFab<%- api.name %>Models.<%- apiCall.result %>> | null,
+        ): void;
 <% } %>
     }
 }
@@ -15,5 +18,4 @@ declare module PlayFab<%- api.name %>Models {
 <% for(var dIdx in api.datatypes) {
 var datatype = api.datatypes[dIdx];
 %><%- generateDatatype(api, datatype, sourceDir) %><%
-} %>
-}
+} %>}

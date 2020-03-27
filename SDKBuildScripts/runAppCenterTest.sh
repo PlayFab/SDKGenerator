@@ -1,6 +1,6 @@
 #!/bin/sh
 # USAGE: runAppCenterTest.sh <path to apk> <path to test tools assemblies> <target platform: ios | android>
-# Uploads an android apk or iOS ipa of the playfab test app to appcenter and then runs the test app 
+# Uploads an android apk or iOS ipa of the playfab test app to appcenter and then runs the test app
 
 #PREREQUISITES:
 #1. Caller must have the Microsoft AppCenter CLI installed (https://github.com/Microsoft/appcenter-cli)
@@ -21,12 +21,12 @@ Usage="Usage: ./runAppCenterTest.sh \
 
 
 #check number of args
-if [ "$#" -ne 3 ]; then 
+if [ "$#" -ne 3 ]; then
 echo $Usage
 exit
 fi
 
-if [ "$Platform" = "unity-ios" ]; then 
+if [ "$Platform" = "unity-ios" ]; then
 Devices=a1bf2de1
 AppCenterApp="PlayFabSDKTeam/PlayFabUnityXCode"
 elif [ "$Platform" = "unity-android" ]; then

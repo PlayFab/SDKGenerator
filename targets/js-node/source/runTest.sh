@@ -1,1 +1,1 @@
-npm install && ./node_modules/typescript/bin/tsc && npm run test
+npm install && npm run build && npm run test

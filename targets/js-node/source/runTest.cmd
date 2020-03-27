@@ -1,2 +1,2 @@
-call npm install && node node_modules\typescript\bin\tsc && npm run test
+call npm install && npm run build && npm run test
 pause

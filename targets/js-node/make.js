@@ -1,9 +1,9 @@
 var path = require("path");
 
 // Making resharper less noisy - These are defined in Generate.js
-if (typeof (generateApiSummaryLines) === "undefined") generateApiSummaryLines = function () { };
-if (typeof (getCompiledTemplate) === "undefined") getCompiledTemplate = function () { };
-if (typeof (templatizeTree) === "undefined") templatizeTree = function () { };
+if (typeof (generateApiSummaryLines) === "undefined") generateApiSummaryLines = function () {};
+if (typeof (getCompiledTemplate) === "undefined") getCompiledTemplate = function () {};
+if (typeof (templatizeTree) === "undefined") templatizeTree = function () {};
 
 exports.makeCombinedAPI = function (apis, sourceDir, apiOutputDir) {
     console.log("Generating Node.js combined SDK to " + apiOutputDir);
@@ -23,7 +23,6 @@ exports.makeCombinedAPI = function (apis, sourceDir, apiOutputDir) {
         getDeprecationAttribute: getDeprecationAttribute,
         getRequestActions: getRequestActions,
         getResultActions: getResultActions,
-        getUrlAccessor: getUrlAccessor,
         // Node is combo-only, which always has all options for all common files
         hasClientOptions: getAuthMechanisms(apis).includes("SessionTicket"),
         projectName: "playfab-sdk",
@@ -53,52 +52,68 @@ function getVerticalNameDefault() {
     return "null";
 }
 
-function getAuthParams(apiCall) {
+function getAuthParams(tabbing, apiCall) {
     if (apiCall.url === "/Authentication/GetEntityToken")
-        return "authKey, authValue";
+        return tabbing + "authKey,\n"
+            + tabbing + "authValue";
     else if (apiCall.auth === "EntityToken")
-        return "\"X-EntityToken\", PlayFab._internalSettings.entityToken";
+        return tabbing + "\"X-EntityToken\",\n"
+            + tabbing + "PlayFab._internalSettings.entityToken";
     else if (apiCall.auth === "SecretKey")
-        return "\"X-SecretKey\", PlayFab.settings.developerSecretKey";
+        return tabbing + "\"X-SecretKey\",\n"
+            + tabbing + "PlayFab.settings.developerSecretKey";
     else if (apiCall.auth === "SessionTicket")
-        return "\"X-Authorization\", PlayFab._internalSettings.sessionTicket";
-    return "null, null";
+        return tabbing + "\"X-Authorization\",\n"
+            + tabbing + "PlayFab._internalSettings.sessionTicket";
+    return tabbing + "null,\n"
+            + tabbing + "null";
 }
 
 function getRequestActions(tabbing, apiCall) {
     if (apiCall.url === "/Authentication/GetEntityToken")
-        return tabbing + "var authKey = \"\"; var authValue = \"\";\n"
-            + tabbing + "if (PlayFab._internalSettings.sessionTicket) { authKey = \"X-Authorization\"; authValue = PlayFab._internalSettings.sessionTicket; }\n"
-            + tabbing + "else if (PlayFab.settings.developerSecretKey) { authKey = \"X-SecretKey\"; authValue = PlayFab.settings.developerSecretKey; }\n"
-            + tabbing + "else if (PlayFab._internalSettings.entityToken) { authKey = \"X-EntityToken\"; authValue = PlayFab._internalSettings.entityToken; }\n\n";
+        return tabbing + "var authKey = \"\";\n"
+            + tabbing + "var authValue = \"\";\n"
+            + tabbing + "if (PlayFab._internalSettings.sessionTicket) {\n"
+            + tabbing + "    authKey = \"X-Authorization\";\n"
+            + tabbing + "    authValue = PlayFab._internalSettings.sessionTicket;\n"
+            + tabbing + "} else if (PlayFab.settings.developerSecretKey) {\n"
+            + tabbing + "    authKey = \"X-SecretKey\";\n"
+            + tabbing + "    authValue = PlayFab.settings.developerSecretKey;\n"
+            + tabbing + "} else if (PlayFab._internalSettings.entityToken) {\n"
+            + tabbing + "    authKey = \"X-EntityToken\";\n"
+            + tabbing + "    authValue = PlayFab._internalSettings.entityToken;\n"
+            + tabbing + "}\n";
     else if (apiCall.result === "LoginResult" || apiCall.request === "RegisterPlayFabUserRequest")
         return tabbing + "request.TitleId = request.titleId != null ? request.TitleId : PlayFab.settings.titleId;\n"
-            + tabbing + "if (request.TitleId == null) throw \"Must be have PlayFab.settings.titleId set to call this method\";\n";
+            + tabbing + "if (request.TitleId == null) {\n"
+            + tabbing + "    throw \"Must be have PlayFab.settings.titleId set to call this method\";\n"
+            + tabbing + "}\n";
     else if (apiCall.auth === "SessionTicket")
-        return tabbing + "if (PlayFab._internalSettings.sessionTicket == null) throw \"Must be logged in to call this method\";\n";
+        return tabbing + "if (PlayFab._internalSettings.sessionTicket == null) {\n"
+            + tabbing + "    throw \"Must be logged in to call this method\";\n"
+            + tabbing + "}\n";
     else if (apiCall.auth === "SecretKey")
-        return tabbing + "if (PlayFab.settings.developerSecretKey == null) throw \"Must have PlayFab.settings.DeveloperSecretKey set to call this method\";\n\n";
+        return tabbing + "if (PlayFab.settings.developerSecretKey == null) {\n"
+            + tabbing + "    throw \"Must have PlayFab.settings.DeveloperSecretKey set to call this method\";\n"
+            + tabbing + "}\n";
     return "";
 }
 
 function getResultActions(tabbing, apiCall) {
     if (apiCall.url === "/Authentication/GetEntityToken")
-        return tabbing + "if (result != null && result.data != null)\n"
-            + tabbing + "    PlayFab._internalSettings.entityToken = result.data.hasOwnProperty(\"EntityToken\") ? result.data.EntityToken : PlayFab._internalSettings.entityToken;\n";
+        return tabbing + "if (result != null && result.data != null) {\n"
+            + tabbing + "    PlayFab._internalSettings.entityToken = result.data.hasOwnProperty(\"EntityToken\") ? result.data.EntityToken : PlayFab._internalSettings.entityToken;\n"
+            + tabbing + "}\n";
     else if (apiCall.result === "LoginResult" || apiCall.result === "RegisterPlayFabUserResult")
         return tabbing + "if (result != null && result.data != null) {\n"
             + tabbing + "    PlayFab._internalSettings.sessionTicket = result.data.hasOwnProperty(\"SessionTicket\") ? result.data.SessionTicket : PlayFab._internalSettings.sessionTicket;\n"
             + tabbing + "    PlayFab._internalSettings.entityToken = result.data.hasOwnProperty(\"EntityToken\") ? result.data.EntityToken.EntityToken : PlayFab._internalSettings.entityToken;\n"
             + tabbing + "    exports._MultiStepClientLogin(result.data.SettingsForUser.NeedsAttribution);\n"
-            + tabbing + "}";
+            + tabbing + "}\n";
     else if (apiCall.result === "AttributeInstallResult")
         return tabbing + "// Modify advertisingIdType:  Prevents us from sending the id multiple times, and allows automated tests to determine id was sent successfully\n"
             + tabbing + "PlayFab.settings.advertisingIdType += \"_Successful\";\n";
     return "";
-}
-
-function getUrlAccessor() {
-    return "PlayFab.GetServerUrl()";
 }
 
 function getDeprecationAttribute(tabbing, apiObj) {

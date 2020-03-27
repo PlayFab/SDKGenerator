@@ -5,30 +5,41 @@ var PlayFab = require("./PlayFab.js");
 exports.settings = PlayFab.settings;
 <% if (hasClientOptions) { %>
 exports.IsClientLoggedIn = function () {
-    return PlayFab._internalSettings.sessionTicket != null && PlayFab._internalSettings.sessionTicket.length > 0
-}
+    return PlayFab._internalSettings.sessionTicket != null && PlayFab._internalSettings.sessionTicket.length > 0;
+};
 <% }
 for(var i in api.calls) { var apiCall = api.calls[i]; %>
 <%- getDeprecationAttribute("", apiCall)
 %>exports.<%- apiCall.name %> = function (request, callback) {
 <%- getRequestActions("    ", apiCall)
-%>    PlayFab.MakeRequest(<%- getUrlAccessor() %> + "<%- apiCall.url %>", request, <%- getAuthParams(apiCall) %>, function (error, result) {
-<%- getResultActions("        ", apiCall, api) %>
-        if (callback != null)
-            callback(error, result);
-    });
+%>    PlayFab.MakeRequest(
+        PlayFab.GetServerUrl() + "<%- apiCall.url %>",
+        request,
+<%- getAuthParams("        ", apiCall) %>,
+        function (error, result) {
+<%- getResultActions("            ", apiCall, api)
+%>            if (callback != null) {
+                callback(error, result);
+            }
+        },
+    );
 };
 <% } if (hasClientOptions) { %>
 exports._MultiStepClientLogin = function (needsAttribution) {
-    if (needsAttribution && !PlayFab.settings.disableAdvertising && Boolean(PlayFab.settings.advertisingIdType) && Boolean(PlayFab.settings.advertisingIdValue))
-    {
+    if (
+        needsAttribution &&
+        !PlayFab.settings.disableAdvertising &&
+        Boolean(PlayFab.settings.advertisingIdType) &&
+        Boolean(PlayFab.settings.advertisingIdValue)
+    ) {
         var request = {};
-        if (PlayFab.settings.advertisingIdType === PlayFab.settings.AD_TYPE_IDFA)
+        if (PlayFab.settings.advertisingIdType === PlayFab.settings.AD_TYPE_IDFA) {
             request.Idfa = PlayFab.settings.advertisingIdValue;
-        else if (PlayFab.settings.advertisingIdType === PlayFab.settings.AD_TYPE_ANDROID_ID)
+        } else if (PlayFab.settings.advertisingIdType === PlayFab.settings.AD_TYPE_ANDROID_ID) {
             request.Adid = PlayFab.settings.advertisingIdValue;
-        else
+        } else {
             return;
+        }
         exports.AttributeInstall(request);
     }
-}<% } %>
+};<% } %>

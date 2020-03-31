@@ -13,7 +13,7 @@ DoWork() {
     cd "$uatPath"
 
     # The actual build command. To adapt depending on the needs.
-    . ./RunUAT.sh -ScriptsForProject=$scriptsForProject BuildCookRun -project=$scriptsForProject -noP4 -clientconfig=Development -serverconfig=Development -nocompile -nocompileeditor -installed -utf8output -platform=$targetPlatform -targetplatform=$targetPlatform -ini:Game:[/Script/UnrealEd.ProjectPackagingSettings]:BlueprintNativizationMethod=Disabled -build -cook -compressed -iterativedeploy -stage -deploy
+    . ./RunUAT.sh -ScriptsForProject=$scriptsForProject BuildCookRun -project=$scriptsForProject -noP4 -clientconfig=Development -serverconfig=Development -nocompile -nocompileeditor -installed -utf8output -platform=$targetPlatform -targetplatform=$targetPlatform -ini:Game:[/Script/UnrealEd.ProjectPackagingSettings]:BlueprintNativizationMethod=Disabled -build -cook -compressed -iterativedeploy -stage -deploy -run
 }
 
 DoWork

@@ -46,8 +46,6 @@ bool UTestTitleDataLoader::LoadFromCode()
 
 bool UTestTitleDataLoader::LoadFromFile()
 {
-    bool success = true;
-
     FString jsonInput;
     FString filename = FPaths::ProjectContentDir() + TEXT("/TestTitleData/testTitleData.json");
 
@@ -66,18 +64,16 @@ bool UTestTitleDataLoader::LoadFromFile()
     }
 
     FString titleDataJson;
-    success &= FPaths::FileExists(filename) && FFileHelper::LoadFileToString(titleDataJson, *filename);
+    bool success = FPaths::FileExists(filename) && FFileHelper::LoadFileToString(titleDataJson, *filename);
     if (!success)
         return success;
 
     TSharedPtr<FJsonObject> ttdJson;
     TSharedRef<TJsonReader<>> Reader = TJsonReaderFactory<>::Create(titleDataJson);
     FJsonSerializer::Deserialize(Reader, ttdJson);
-    success &= ttdJson->TryGetStringField("titleId", titleId);
-    success &= ttdJson->TryGetStringField("developerSecretKey", developerSecretKey);
-    success &= ttdJson->TryGetStringField("userEmail", userEmail);
-
-    userEmail.Len();
+    success &= ttdJson->TryGetStringField("titleId", titleId) && titleId.Len() > 0;
+    success &= ttdJson->TryGetStringField("developerSecretKey", developerSecretKey) && developerSecretKey.Len() > 0;
+    success &= ttdJson->TryGetStringField("userEmail", userEmail) && userEmail.Len() > 0;
 
     return success;
 }
@@ -92,10 +88,12 @@ void UTestTitleDataLoader::ApplyToSettings()
 
 bool UTestTitleDataLoader::LoadTestTitleData()
 {
-    bool result = LoadFromFile() || LoadFromCode();
-    if (result)
+    bool loadSuccessful = LoadFromFile() || LoadFromCode();
+    if (loadSuccessful)
+    {
         ApplyToSettings();
-    return result;
+    }
+    return loadSuccessful;
 }
 
 FString IPlayFabTestRunner::GenerateTestSummary()

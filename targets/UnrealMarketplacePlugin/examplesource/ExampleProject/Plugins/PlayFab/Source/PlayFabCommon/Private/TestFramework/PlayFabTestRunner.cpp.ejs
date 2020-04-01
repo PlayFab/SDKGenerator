@@ -26,11 +26,14 @@ UTestTitleDataLoader::UTestTitleDataLoader()
 bool UTestTitleDataLoader::LoadFromCode()
 {
     // README:
-    // modify the TEST_TITLE_DATA_LOC to a location of a testTitleData.json file
-    // The format of this file is described in the sdk readme
-    //  - OR -
-    // Comment the "return false;" below, and
-    //   Fill in all the variables under: POPULATE THIS SECTION WITH REAL INFORMATION
+    //   In order for tests to run, you need a valid testTitleData.json file
+    //   Format specification here: https://github.com/PlayFab/SDKGenerator/blob/master/JenkinsConsoleUtility/testTitleData.md
+    // Option 1: You can drop a testTitleData.json file into this location in your Unreal Project:
+    //   FPaths::ProjectContentDir() + TEXT("/TestTitleData/testTitleData.json");
+    // Option 2: You can specify the PF_TEST_TITLE_DATA_JSON environment variable
+    //   (Windows or Linux), containing the full path of a testTitleData.json file, anywhere on your computer
+    // Option 3:
+    //   Delete this "return false;", and fill in the code variables below with your title's information
 
     return false;
 

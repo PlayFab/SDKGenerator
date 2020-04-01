@@ -145,7 +145,7 @@ void IPlayFabTestRunner::AddTestCase(UPlayFabTestCase* InTestCase)
 
     TArray<UPlayFabTestContext*>& SuiteTests = GetSuiteTests();
     InTestCase->GetTests(SuiteTests);
-    UTestTitleDataLoader& testTitleData = GetCachedTitleData();
+    const UTestTitleDataLoader& testTitleData = GetCachedTitleData();
     if (testTitleData.isValid)
         InTestCase->SetTestTitleData(testTitleData);
 }

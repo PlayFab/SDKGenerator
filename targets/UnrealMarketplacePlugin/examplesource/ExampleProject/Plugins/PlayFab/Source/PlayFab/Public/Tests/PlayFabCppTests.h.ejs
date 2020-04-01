@@ -68,7 +68,7 @@ public:
         InOutTests.ADD_TEST(Object API (CPP), ObjectAPI);
     }
 
-    virtual void SetTestTitleData(UTestTitleDataLoader& testTitleData) override;
+    virtual void SetTestTitleData(const UTestTitleDataLoader& testTitleData) override;
     virtual void ClassSetUp() override;
     virtual void SetUp(UPlayFabTestContext* testContext) override;
 

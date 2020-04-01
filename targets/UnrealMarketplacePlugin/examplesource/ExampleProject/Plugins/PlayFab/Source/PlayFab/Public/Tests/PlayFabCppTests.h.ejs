@@ -67,7 +67,8 @@ public:
         InOutTests.ADD_TEST(Get Entity Token (CPP), GetEntityToken);
         InOutTests.ADD_TEST(Object API (CPP), ObjectAPI);
     }
-    
+
+    virtual void SetTestTitleData(UTestTitleDataLoader& testTitleData) override;
     virtual void ClassSetUp() override;
     virtual void SetUp(UPlayFabTestContext* testContext) override;
 
@@ -78,6 +79,8 @@ private:
     PlayFabServerPtr ServerAPI;
     PlayFabAuthenticationPtr AuthenticationAPI;
     PlayFabDataPtr DataAPI;
+    UPROPERTY()
+    FString UserEmail;
 
     /**
      * Shared Error callback.

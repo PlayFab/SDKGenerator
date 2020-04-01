@@ -2,6 +2,8 @@
 
 #include "TestFramework/PlayFabTestRunner.h"
 
+#include "PlayFab/Public/IPlayFab.h"
+#include "PlayFab/Private/PlayFabPrivate.h"
 #include "TestFramework/PlayFabTestCase.h"
 #include "TestFramework/PlayFabTestContext.h"
 
@@ -16,10 +18,87 @@ UPlayFabTestRunner::UPlayFabTestRunner(const FObjectInitializer& ObjectInitializ
 {
 }
 
+UTestTitleDataLoader::UTestTitleDataLoader()
+{
+    isValid = LoadTestTitleData();
+}
+
+bool UTestTitleDataLoader::LoadFromCode()
+{
+    // README:
+    // modify the TEST_TITLE_DATA_LOC to a location of a testTitleData.json file
+    // The format of this file is described in the sdk readme
+    //  - OR -
+    // Comment the "return false;" below, and
+    //   Fill in all the variables under: POPULATE THIS SECTION WITH REAL INFORMATION
+
+    return false;
+
+    titleId = "<your title id>";
+    developerSecretKey = "<your title secret>";
+    userEmail = "<a valid email linked to LoginWithEmailAddress>";
+
+    return true;
+}
+
+bool UTestTitleDataLoader::LoadFromFile()
+{
+    bool success = true;
+
+    FString jsonInput;
+    FString filename = FPaths::ProjectContentDir() + TEXT("/TestTitleData/testTitleData.json");
+
+    if (!FPaths::FileExists(filename))
+    {
+        // Prefer to load path from environment variable, if present
+#if PLATFORM_WINDOWS
+        char* envPath = nullptr;
+        size_t envPathStrLen;
+        errno_t err = _dupenv_s(&envPath, &envPathStrLen, "PF_TEST_TITLE_DATA_JSON");
+        if (err == 0 && envPath != nullptr)
+            filename = FString(ANSI_TO_TCHAR(envPath));
+        if (envPath != nullptr)
+            free(envPath);
+#endif
+    }
+
+    FString titleDataJson;
+    success &= FPaths::FileExists(filename) && FFileHelper::LoadFileToString(titleDataJson, *filename);
+    if (!success)
+        return success;
+
+    TSharedPtr<FJsonObject> ttdJson;
+    TSharedRef<TJsonReader<>> Reader = TJsonReaderFactory<>::Create(titleDataJson);
+    FJsonSerializer::Deserialize(Reader, ttdJson);
+    success &= ttdJson->TryGetStringField("titleId", titleId);
+    success &= ttdJson->TryGetStringField("developerSecretKey", developerSecretKey);
+    success &= ttdJson->TryGetStringField("userEmail", userEmail);
+
+    userEmail.Len();
+
+    return success;
+}
+
+void UTestTitleDataLoader::ApplyToSettings()
+{
+    // Settings are globally shared
+    IPlayFab* playFabSettings = &(IPlayFab::Get());
+    playFabSettings->setGameTitleId(titleId);
+    playFabSettings->setDeveloperSecretKey(developerSecretKey);
+}
+
+bool UTestTitleDataLoader::LoadTestTitleData()
+{
+    bool result = LoadFromFile() || LoadFromCode();
+    if (result)
+        ApplyToSettings();
+    return result;
+}
+
 FString IPlayFabTestRunner::GenerateTestSummary()
 {
-    auto& SuiteTests = GetSuiteTests();
-    auto& OutputSummary = GetCachedSummary();
+    TArray<UPlayFabTestContext*>& SuiteTests = GetSuiteTests();
+    FString& OutputSummary = GetCachedSummary();
 
     OutputSummary.Empty(SUMMARY_INIT_BUFFER_SIZE); // Set the capacity to handle everything we're about to put into it
 
@@ -61,8 +140,11 @@ void IPlayFabTestRunner::AddTestCase(UPlayFabTestCase* InTestCase)
     if (SuiteState != PlayFabApiTestActiveState::PENDING)
         return;
 
-    auto& SuiteTests = GetSuiteTests();
+    TArray<UPlayFabTestContext*>& SuiteTests = GetSuiteTests();
     InTestCase->GetTests(SuiteTests);
+    UTestTitleDataLoader& testTitleData = GetCachedTitleData();
+    if (testTitleData.isValid)
+        InTestCase->SetTestTitleData(testTitleData);
 }
 
 void IPlayFabTestRunner::ManageTestCase(UPlayFabTestCase* nextTestCase)
@@ -87,7 +169,7 @@ void IPlayFabTestRunner::Run(const float InDeltaTime)
     if (SuiteState != PlayFabApiTestActiveState::PENDING)
         return;
 
-    auto& SuiteTests = GetSuiteTests();
+    TArray<UPlayFabTestContext*>& SuiteTests = GetSuiteTests();
     const auto Index = CurrentTestIndex;
     if (Index < SuiteTests.Num())
     {
@@ -96,18 +178,18 @@ void IPlayFabTestRunner::Run(const float InDeltaTime)
 
         ManageTestCase(CurrentTestCase);
 
-        if (CurrentTestData->activeState == PlayFabApiTestActiveState::PENDING
-            && CurrentTestData->activeState != PlayFabApiTestActiveState::ACTIVE)
+        if (CurrentTestData->activeState == PlayFabApiTestActiveState::PENDING)
         {
             numberOfTests++;
 
             UE_LOG(LogPlayFabCommon, Log, TEXT("Starting test: %s"), *CurrentTestData->testName);
-
             CurrentTestCase->SetUp(CurrentTestData);
-            CurrentTestData->activeState = PlayFabApiTestActiveState::ACTIVE;
-
             CurrentTestData->startTime = FDateTime::UtcNow();
-            CurrentTestData->testFunc.Execute(CurrentTestData);
+            if (CurrentTestData->activeState == PlayFabApiTestActiveState::PENDING)
+            {
+                CurrentTestData->activeState = PlayFabApiTestActiveState::ACTIVE;
+                CurrentTestData->testFunc.Execute(CurrentTestData);
+            }
         }
 
         if (CurrentTestData->GetDurationInSeconds() > TEST_TIMEOUT_SECONDS)
@@ -115,8 +197,7 @@ void IPlayFabTestRunner::Run(const float InDeltaTime)
             CurrentTestData->EndTest(PlayFabApiTestFinishState::TIMEDOUT, TEXT("Timed Out"));
         }
 
-        if (CurrentTestData->activeState == PlayFabApiTestActiveState::ACTIVE
-            && CurrentTestData->activeState != PlayFabApiTestActiveState::COMPLETE)
+        if (CurrentTestData->activeState == PlayFabApiTestActiveState::ACTIVE)
         {
             CurrentTestCase->Tick(CurrentTestData);
         }
@@ -124,10 +205,8 @@ void IPlayFabTestRunner::Run(const float InDeltaTime)
         {
             switch (CurrentTestData->finishState)
             {
-            case PlayFabApiTestFinishState::PASSED: passedTests++;
-                break;
-            case PlayFabApiTestFinishState::FAILED: failedTests++;
-                break;
+            case PlayFabApiTestFinishState::PASSED: passedTests++; break;
+            case PlayFabApiTestFinishState::FAILED: failedTests++; break;
             default: break;
             }
 

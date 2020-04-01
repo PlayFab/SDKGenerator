@@ -23,6 +23,13 @@ UPlayFabTestCase* APfTestActor::GetActiveTest()
     return activeTestCase;
 }
 
+UTestTitleDataLoader& APfTestActor::GetCachedTitleData()
+{
+    if (ttdLoader == nullptr)
+        ttdLoader = NewObject<UTestTitleDataLoader>();
+    return *ttdLoader;
+}
+
 void APfTestActor::SetActiveTest(UPlayFabTestCase* newTestCase)
 {
     activeTestCase = newTestCase;

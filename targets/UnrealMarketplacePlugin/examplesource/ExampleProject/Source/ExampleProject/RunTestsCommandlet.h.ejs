@@ -24,6 +24,7 @@ namespace PlayFab
 
 class UPlayFabCppTests;
 class UPlayFabBlueprintTests;
+class UTestTitleDataLoader;
 
 UCLASS()
 class URunTestsCommandlet : public UCommandlet, public IPlayFabTestRunner
@@ -36,6 +37,8 @@ private:
     UPROPERTY()
     UPlayFabTestCase* activeTestCase;
     UPROPERTY()
+    UTestTitleDataLoader* ttdLoader;
+    UPROPERTY()
     FString outputSummary;
     UPROPERTY()
     ACloudScriptTestResultUploader* pUploader;
@@ -47,6 +50,7 @@ private:
 protected:
     virtual TArray<UPlayFabTestContext*>& GetSuiteTests();
     virtual UPlayFabTestCase* GetActiveTest();
+    virtual UTestTitleDataLoader& GetCachedTitleData();
     virtual void SetActiveTest(UPlayFabTestCase* newTestCase);
     virtual FString& GetCachedSummary();
 

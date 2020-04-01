@@ -17,6 +17,29 @@ class PLAYFABCOMMON_API UPlayFabTestRunner : public UInterface
     GENERATED_UINTERFACE_BODY()
 };
 
+UCLASS()
+class PLAYFABCOMMON_API UTestTitleDataLoader : public UObject
+{
+    GENERATED_BODY()
+
+private:
+    bool LoadFromCode();
+    bool LoadFromFile();
+    void ApplyToSettings();
+    bool LoadTestTitleData();
+
+public:
+    UTestTitleDataLoader();
+
+    bool isValid;
+    UPROPERTY()
+    FString titleId;
+    UPROPERTY()
+    FString developerSecretKey;
+    UPROPERTY()
+    FString userEmail;
+};
+
 class UPlayFabTestCase;
 
 class PLAYFABCOMMON_API IPlayFabTestRunner
@@ -29,6 +52,7 @@ protected:
 
     virtual TArray<UPlayFabTestContext*>& GetSuiteTests() = 0;
     virtual UPlayFabTestCase* GetActiveTest() = 0;
+    virtual UTestTitleDataLoader& GetCachedTitleData() = 0;
     virtual void SetActiveTest(UPlayFabTestCase* newTestCase) = 0;
     virtual FString& GetCachedSummary() = 0;
 

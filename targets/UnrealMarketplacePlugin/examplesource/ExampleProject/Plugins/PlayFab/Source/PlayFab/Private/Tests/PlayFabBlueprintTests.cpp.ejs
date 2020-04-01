@@ -4,59 +4,22 @@
 #include "TestFramework/PlayFabTestContext.h"
 
 #include "IPlayFab.h"
-
 #include "PlayFabClientApi.h"
 #include "PlayFabAuthenticationApi.h"
 #include "PlayFabDataApi.h"
 #include "PlayFabServerApi.h"
+#include "TestFramework/PlayFabTestRunner.h"
+
+void UPlayFabBlueprintTests::SetTestTitleData(const UTestTitleDataLoader& testTitleData)
+{
+    UserEmail = testTitleData.userEmail;
+}
 
 void UPlayFabBlueprintTests::ClassSetUp()
 {
-    // README:
-    // modify the TEST_TITLE_DATA_LOC to a location of a testTitleData.json file
-    // The format of this file is described in the sdk readme
-    //  - OR -
-    // Comment the "return false;" below, and
-    //   Fill in all the variables under: POPULATE THIS SECTION WITH REAL INFORMATION
-
     IPlayFab* playFabSettings = &(IPlayFab::Get());
-
     playFabSettings->setAdvertisingIdType(TEXT(""));
     playFabSettings->setAdvertisingIdValue(TEXT(""));
-
-    if (!FPaths::FileExists(TEST_TITLE_DATA_LOC))
-    {
-        // Prefer to load path from environment variable, if present
-#if PLATFORM_WINDOWS
-        char* envPath = nullptr;
-        size_t envPathStrLen;
-        errno_t err = _dupenv_s(&envPath, &envPathStrLen, "PF_TEST_TITLE_DATA_JSON");
-        if (err == 0 && envPath != nullptr)
-            TEST_TITLE_DATA_LOC = FString(ANSI_TO_TCHAR(envPath));
-        free(envPath); // It's OK to call free with NULL
-#endif
-    }
-
-    FString titleDataJson;
-    if (FFileHelper::LoadFileToString(titleDataJson, *TEST_TITLE_DATA_LOC))
-    {
-        TSharedPtr<FJsonObject> JsonObject;
-        TSharedRef<TJsonReader<>> Reader = TJsonReaderFactory<>::Create(titleDataJson);
-        FJsonSerializer::Deserialize(Reader, JsonObject);
-        playFabSettings->setGameTitleId(JsonObject->GetStringField(TEXT("titleId")));
-        playFabSettings->setDeveloperSecretKey(JsonObject->GetStringField(TEXT("developerSecretKey")));
-        UserEmail = JsonObject->GetStringField(TEXT("userEmail"));
-    }
-    else
-    {
-        // Add your real test data here and remove this return if you want to skip testTitleData
-        return;
-
-        // Populate this section with real information, if you're not using the testTitleData.json file (or are using a device)
-        playFabSettings->setGameTitleId(TEXT("")); // Without a titleId, your game will do terrible things (usually crash)
-        playFabSettings->setDeveloperSecretKey(TEXT("")); // Non-client api calls will all crash without a secret key
-        UserEmail = "yourEmail"; // This is the email for the user
-    }
 }
 
 <% if (hasClientOptions) { %>

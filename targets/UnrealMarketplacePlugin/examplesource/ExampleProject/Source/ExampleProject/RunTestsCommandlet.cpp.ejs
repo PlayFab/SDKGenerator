@@ -30,6 +30,13 @@ UPlayFabTestCase* URunTestsCommandlet::GetActiveTest()
     return activeTestCase;
 }
 
+UTestTitleDataLoader& URunTestsCommandlet::GetCachedTitleData()
+{
+    if (ttdLoader == nullptr)
+        ttdLoader = NewObject<UTestTitleDataLoader>();
+    return *ttdLoader;
+}
+
 void URunTestsCommandlet::SetActiveTest(UPlayFabTestCase* newTestCase)
 {
     activeTestCase = newTestCase;

@@ -320,6 +320,7 @@ namespace PlayFabApiTest
         static PlayFabSettings* playFabSettings;
 
         // A bunch of constants loaded from testTitleData.json
+        static std::string TEST_TITLE_DATA_LOC;
         static std::string userEmail;
         const static std::string TEST_DATA_KEY;
         const static std::string TEST_STAT_NAME;
@@ -332,6 +333,55 @@ namespace PlayFabApiTest
 
         static bool ClassSetup()
         {
+            // README:
+            // Create an environment variable PF_TEST_TITLE_DATA_JSON, and set it to the location of a valid testTitleData.json file
+            // The format of this file is described in the sdk readme
+            //  - OR -
+            // Comment the "return false;" below, and
+            //   Fill in all the variables under: POPULATE THIS SECTION WITH REAL INFORMATION
+
+#if (CC_TARGET_PLATFORM == CC_PLATFORM_WIN32) // Env vars are only available on Win32
+            // Prefer to load path from environment variable, if present
+            char* envPath = nullptr;
+            size_t envPathStrLen;
+            errno_t err = _dupenv_s(&envPath, &envPathStrLen, "PF_TEST_TITLE_DATA_JSON");
+            if (err == 0 && envPath != nullptr)
+                TEST_TITLE_DATA_LOC = envPath; // If exists, reset path to env var
+            if (envPath != nullptr)
+                free(envPath);
+#endif
+
+            std::ifstream titleInput;
+            if (TEST_TITLE_DATA_LOC.length() > 0)
+                titleInput.open(TEST_TITLE_DATA_LOC, std::ios::binary | std::ios::in);
+            if (titleInput)
+            {
+                auto begin = titleInput.tellg();
+                titleInput.seekg(0, std::ios::end);
+                auto end = titleInput.tellg();
+                int size = static_cast<int>(end - begin);
+                char* titleJson = new char[size + 1];
+                titleInput.seekg(0, std::ios::beg);
+                titleInput.read(titleJson, size);
+                titleJson[size] = '\0';
+
+                Document testInputs;
+                testInputs.Parse<0>(titleJson);
+                SetTitleInfo(testInputs);
+
+                titleInput.close();
+            }
+            else
+            {
+                return false;
+                // TODO: POPULATE THIS SECTION WITH REAL INFORMATION (or set up a testTitleData file, and set your PF_TEST_TITLE_DATA_JSON to the path for that file)
+                playFabSettings->titleId = ""; // The titleId for your title, found in the "Settings" section of PlayFab Game Manager
+                userEmail = ""; // This is the email for a valid user (test tries to log into it with an invalid password, and verifies error result)
+            }
+
+            // Verify all the inputs won't cause crashes in the tests
+            return !playFabSettings->titleId.empty()
+                && !userEmail.empty();
         }
 
         static void PostTestResultsToCloudScript()

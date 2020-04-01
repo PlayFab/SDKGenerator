@@ -1,12 +1,16 @@
 #!/bin/bash
 
+set -e
+
+. "$WORKSPACE/JenkinsSdkSetupScripts/JenkinsScripts/Pipeline/util.sh" 2> /dev/null
 . "$WORKSPACE/JenkinsSdkSetupScripts/JenkinsScripts/Pipeline/sdkUtil.sh" 2> /dev/null
 
 # Mandatory Variable Checks
 if [ -z "$SdkName" ]; then
-    echo Mandatory parameters not defined: SdkName=$SdkName targetSrc=$targetSrc
+    echo Mandatory parameters not defined: SdkName=$SdkName
     exit 1
 fi
+DoesCommandExist node
 
 # Functions
 

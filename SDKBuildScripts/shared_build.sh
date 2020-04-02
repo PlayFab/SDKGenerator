@@ -46,11 +46,11 @@ BuildSdk () {
     pushd ..
     echo === SHARED BUILDING $SdkName ===
     if [ ! -z "$SdkGenPrvTmplRepo" ]; then
-        node generate.js $SdkGenPrvTmplRepo=$destPath $apiSpecSource $buildIdentifier $VerticalNameInternal
+        node generate.js $SdkGenPrvTmplRepo=$destPath $ApiSpecSource $buildIdentifier $VerticalNameInternal
     elif [ -z "$targetSrc" ]; then
-        node generate.js -destPath $destPath $apiSpecSource $buildIdentifier $VerticalNameInternal
+        node generate.js -destPath $destPath $ApiSpecSource $buildIdentifier $VerticalNameInternal
     else
-        node generate.js $targetSrc=$destPath $apiSpecSource $buildIdentifier $VerticalNameInternal
+        node generate.js $targetSrc=$destPath $ApiSpecSource $buildIdentifier $VerticalNameInternal
     fi
     popd
 }

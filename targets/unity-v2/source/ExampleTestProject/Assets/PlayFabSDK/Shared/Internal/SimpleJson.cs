@@ -500,6 +500,7 @@ namespace PlayFab.Json
     }
 
     /// <summary>
+    /// Private. Do not call from client code.
     /// This class encodes and decodes JSON strings.
     /// Spec. details, see http://www.json.org/
     ///

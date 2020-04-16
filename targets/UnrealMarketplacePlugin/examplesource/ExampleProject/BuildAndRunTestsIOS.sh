@@ -14,7 +14,7 @@ fi
 rm -fdr $archivePath/IOS
 
 #inject the testTitleData into the project prior to build
-cp $PF_TEST_TITLE_DATA_JSON $projectPath/Content/TestTitleData
+cp "$PF_TEST_TITLE_DATA_JSON" "$projectPath/Content/TestTitleData"
 
 #build the archive
 . ./BuildIOS.sh $archivePath $projectPath

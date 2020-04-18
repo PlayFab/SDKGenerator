@@ -1,4 +1,5 @@
 #!/bin/bash
+set -e
 usage="./BuildAndRunTestsIOS.sh <target ipa directory path> <path to project> <path to Unreal Engine install>"
 
 archivePath=$1

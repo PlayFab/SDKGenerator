@@ -36,7 +36,9 @@ import com.google.gson.reflect.*;
             task.run();
             return task.get();
         } catch(Exception e) {
-            return null;
+            PlayFabResult<<%- apiCall.result %>> exceptionResult = new PlayFabResult<<%- apiCall.result %>>();
+            exceptionResult.Error = PlayFabHTTP.GeneratePfError(-1, PlayFabErrorCode.Unknown, e.getMessage(), null);
+            return exceptionResult;
         }
     }
 

@@ -76,7 +76,7 @@ InitializeBuildEnvironment() {
         exit 1
     fi
 
-    git push
+    RetryLoop git push
     if [ $? -ne 0 ]; then
         echo "Failed to push the branch to the remote repository"
         exit 1

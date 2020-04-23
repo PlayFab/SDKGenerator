@@ -1,4 +1,5 @@
 #!/bin/bash
+set -e
 
 # USAGE: unity_RunAutoTests.bat [<UNITY_VERSION>] [<SdkName>]
 # Make folder links from the UnitySdk to this test project

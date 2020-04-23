@@ -1,4 +1,6 @@
 #!/bin/sh
+set -e
+
 # USAGE: runAppCenterTest.sh <path to apk> <path to test tools assemblies> <target platform: ios | android>
 # Uploads an android apk or iOS ipa of the playfab test app to appcenter and then runs the test app
 
@@ -22,25 +24,25 @@ Usage="Usage: ./runAppCenterTest.sh \
 
 #check number of args
 if [ "$#" -ne 3 ]; then
-echo $Usage
-exit
+    echo $Usage
+    exit 1
 fi
 
 if [ "$Platform" = "unity-ios" ]; then
-Devices=a1bf2de1
-AppCenterApp="PlayFabSDKTeam/PlayFabUnityXCode"
+    Devices=a1bf2de1
+    AppCenterApp="PlayFabSDKTeam/PlayFabUnityXCode"
 elif [ "$Platform" = "unity-android" ]; then
-AppCenterApp="PlayFabSDKTeam/PlayFabUnityAndroid"
-Devices=f749a00a
+    AppCenterApp="PlayFabSDKTeam/PlayFabUnityAndroid"
+    Devices=f749a00a
 elif [ "$Platform" = "unreal-ios" ]; then
-echo "Error: invalid platform entry!"
+    echo "Error: invalid platform entry!"
 elif [ "$Platform" = "unreal-android" ]; then
-AppCenterApp="PlayFabSDKTeam/PlayFabUnrealAndroid"
-Devices=696d7baa
+    AppCenterApp="PlayFabSDKTeam/PlayFabUnrealAndroid"
+    Devices=696d7baa
 else #invalid platform
-echo "Error: invalid platform entry!"
-echo $Usage
-exit
+    echo "Error: invalid platform entry!"
+    echo $Usage
+    exit 1
 fi
 
 echo "=== Starting AppCenter Test Run with Params: ==="

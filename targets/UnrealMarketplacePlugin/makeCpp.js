@@ -627,7 +627,7 @@ function getRequestActions(tabbing, apiCall, isInstanceApi) {
                 + tabbing + "    request.TitleId = this->settings->GetTitleId();\n";
         }
         else {
-            return tabbing + "if (PlayFabSettings::GetTitleId().Len() > 0)\n" 
+            return tabbing + "if (PlayFabSettings::GetTitleId().Len() > 0)\n"
                 + tabbing + "    request.TitleId = PlayFabSettings::GetTitleId();\n";
         }
     }
@@ -663,13 +663,14 @@ function getRequestActions(tabbing, apiCall, isInstanceApi) {
             + tabbing + "    UE_LOG(LogPlayFabCpp, Error, TEXT(\"You must first set your PlayFab developerSecretKey to use this function (Unreal Settings Menu, or in C++ code)\"));\n"
             + tabbing + "}\n";
     else if (apiCall.auth === "SessionTicket")
-        return tabbing + "if((request.AuthenticationContext.IsValid() && request.AuthenticationContext->GetClientSessionTicket().Len() == 0)\n"
-            + tabbing + "    || (!request.AuthenticationContext.IsValid() && " + getAuthReference(isInstanceApi, true) + "GetClientSessionTicket().Len() == 0)) {\n"
-            + tabbing + "    UE_LOG(LogPlayFabCpp, Error, TEXT(\"You must log in before calling this function\"));\n"
-            + tabbing + "}\n"
-            + tabbing + "if (request.AuthenticationContext.IsValid() && request.AuthenticationContext->GetDeveloperSecretKey().Len() == 0))"
+        return tabbing + "if (request.AuthenticationContext.IsValid() && request.AuthenticationContext->GetDeveloperSecretKey().Len() == 0)"
             + tabbing + "{\n"
             + tabbing + "    UE_LOG(LogPlayFabCpp, Error, TEXT(\"You may not set the DeveloperSecretKey if you are calling a Client API.\"));\n"
+            + tabbing + "    return false;\n"
+            + tabbing + "}\n"
+            + tabbing + "if((request.AuthenticationContext.IsValid() && request.AuthenticationContext->GetClientSessionTicket().Len() == 0)\n"
+            + tabbing + "    || (!request.AuthenticationContext.IsValid() && " + getAuthReference(isInstanceApi, true) + "GetClientSessionTicket().Len() == 0)) {\n"
+            + tabbing + "    UE_LOG(LogPlayFabCpp, Error, TEXT(\"You must log in before calling this function\"));\n"
             + tabbing + "}\n";
     return "";
 }

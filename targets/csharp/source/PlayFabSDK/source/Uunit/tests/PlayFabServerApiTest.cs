@@ -237,6 +237,54 @@ namespace PlayFab.UUnit
                 }
             });
         }
+
+        /// <summary>
+        /// Multiplayer API
+        /// Try to deliberately request a mutliplayer alias that doesn't exist 
+        ///   Verify that response is MutliplayerServerNotFound, not just Not Found
+        /// </summary>
+        [UUnitTest]
+        public async void TestForNotFoundWithImportantInfo(UUnitTestContext testContext)
+        {
+            PlayFabResult<MultiplayerModels.BuildAliasDetailsResponse> res = await UpdateAlias();
+
+            string response = PlayFab.PluginManager.GetPlugin<ISerializerPlugin>(PluginContract.PlayFab_Serializer).SerializeObject(res);
+
+            if (response.Contains("MultiplayerServerNotFound"))
+            {
+                testContext.EndTest(UUnitFinishState.PASSED, "Detected the Expected MultiplayerServerNotFound PlayFabError");
+            }
+            else
+            {
+                testContext.EndTest(UUnitFinishState.FAILED, "We called the Mutliplayer API expecting to not find anything, but we didn't detect this to be the error.");
+            }
+        }
+
+        public static async Task<PlayFabResult<MultiplayerModels.BuildAliasDetailsResponse>> UpdateAlias()
+        {
+            PlayFabSettings.staticSettings.TitleId = testTitleData.titleId;
+            PlayFabSettings.staticSettings.DeveloperSecretKey = testTitleData.developerSecretKey;
+
+            var eReq = new AuthenticationModels.GetEntityTokenRequest();
+            eReq.Entity = new AuthenticationModels.EntityKey();
+            eReq.Entity.Type = "title";
+            eReq.Entity.Id = testTitleData.titleId;
+
+            var tokenTask = await PlayFabAuthenticationAPI.GetEntityTokenAsync(eReq);
+            MultiplayerModels.UpdateBuildAliasRequest updateBuildAliasRequest = new MultiplayerModels.UpdateBuildAliasRequest()
+            {
+                AliasId = "fakeAliasId",
+                AliasName = "aliasName",
+                AuthenticationContext = new PlayFab.PlayFabAuthenticationContext()
+                {
+                    EntityToken = tokenTask.Result.EntityToken // entity token of the title
+                },
+            };
+
+            PlayFab.PlayFabResult<MultiplayerModels.BuildAliasDetailsResponse> res = await PlayFab.PlayFabMultiplayerAPI.UpdateBuildAliasAsync(updateBuildAliasRequest);
+
+            return res;
+        }
     }
 }
 #endif

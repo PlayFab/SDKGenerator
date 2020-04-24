@@ -671,6 +671,7 @@ function getRequestActions(tabbing, apiCall, isInstanceApi) {
             + tabbing + "if((request.AuthenticationContext.IsValid() && request.AuthenticationContext->GetClientSessionTicket().Len() == 0)\n"
             + tabbing + "    || (!request.AuthenticationContext.IsValid() && " + getAuthReference(isInstanceApi, true) + "GetClientSessionTicket().Len() == 0)) {\n"
             + tabbing + "    UE_LOG(LogPlayFabCpp, Error, TEXT(\"You must log in before calling this function\"));\n"
+            + tabbing + "    return false;\n"
             + tabbing + "}\n";
     return "";
 }

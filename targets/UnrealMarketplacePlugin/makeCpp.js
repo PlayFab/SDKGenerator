@@ -666,6 +666,10 @@ function getRequestActions(tabbing, apiCall, isInstanceApi) {
         return tabbing + "if((request.AuthenticationContext.IsValid() && request.AuthenticationContext->GetClientSessionTicket().Len() == 0)\n"
             + tabbing + "    || (!request.AuthenticationContext.IsValid() && " + getAuthReference(isInstanceApi, true) + "GetClientSessionTicket().Len() == 0)) {\n"
             + tabbing + "    UE_LOG(LogPlayFabCpp, Error, TEXT(\"You must log in before calling this function\"));\n"
+            + tabbing + "}\n"
+            + tabbing + "if (request.AuthenticationContext.IsValid() && request.AuthenticationContext->GetDeveloperSecretKey().Len() == 0))"
+            + tabbing + "{\n"
+            + tabbing + "    UE_LOG(LogPlayFabCpp, Error, TEXT(\"You may not set the DeveloperSecretKey if you are calling a Client API.\"));\n"
             + tabbing + "}\n";
     return "";
 }

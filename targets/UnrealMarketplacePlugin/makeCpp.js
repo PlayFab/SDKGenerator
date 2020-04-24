@@ -665,7 +665,7 @@ function getRequestActions(tabbing, apiCall, isInstanceApi) {
     else if (apiCall.auth === "SessionTicket")
         return tabbing + "if (request.AuthenticationContext.IsValid() && request.AuthenticationContext->GetDeveloperSecretKey().Len() != 0)"
             + tabbing + "{\n"
-            + tabbing + "    UE_LOG(LogPlayFabCpp, Error, TEXT(\"You may not set the DeveloperSecretKey if you are calling a Client API.\"));\n"
+            + tabbing + "    UE_LOG(LogPlayFabCpp, Error, TEXT(\"You must not set the DeveloperSecretKey if you are calling a Client API.\"));\n"
             + tabbing + "    return false;\n"
             + tabbing + "}\n"
             + tabbing + "if((request.AuthenticationContext.IsValid() && request.AuthenticationContext->GetClientSessionTicket().Len() == 0)\n"

@@ -263,14 +263,12 @@ namespace PlayFab.UUnit
 
             if(tokenTask.Error != null)
             {
-                testContext.EndTest(UUnitFinishState.FAILED, "Failed to retrieve the Title Entity Token, check your playFabSettings.staticPlayer, are they still logged in? (hint no server api should be called through a logged in client)");
-                return;
+                testContext.Fail("Failed to retrieve the Title Entity Token, check your playFabSettings.staticPlayer, are they still logged in? (hint no server api should be called through a logged in client)");
             }
 
             if(aliasId == "")
             {
-                testContext.EndTest(UUnitFinishState.SKIPPED, "aliasId was blank, we will not get the expected failed NotFound response this test is asking for. Make sure testTitleData.json has a valid aliasId listed (check playfab multiplayer dashboard for your own valid aliasId)");
-                return;
+                testContext.Fail("aliasId was blank, we will not get the expected failed NotFound response this test is asking for. Make sure testTitleData.json has a valid aliasId listed (check playfab multiplayer dashboard for your own valid aliasId)");
             }
 
             MultiplayerModels.UpdateBuildAliasRequest updateBuildAliasRequest = new MultiplayerModels.UpdateBuildAliasRequest()
@@ -287,13 +285,13 @@ namespace PlayFab.UUnit
 
             string response = PlayFab.PluginManager.GetPlugin<ISerializerPlugin>(PluginContract.PlayFab_Serializer).SerializeObject(res);
 
-            if (response.Contains("MultiplayerServerNotFound"))
+            if (response.Contains("MultiplayerServerNotFound") && res.Error.HttpCode == 404)
             {
                 testContext.EndTest(UUnitFinishState.PASSED, "Detected the Expected MultiplayerServerNotFound PlayFabError");
             }
             else
             {
-                testContext.EndTest(UUnitFinishState.FAILED, "We called the Mutliplayer API expecting to not find anything, but we didn't detect this to be the error.");
+                testContext.Fail("We called the Mutliplayer API expecting to not find anything, but we didn't detect this to be the error.");
             }
         }
     }

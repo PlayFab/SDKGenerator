@@ -11,6 +11,7 @@ namespace PlayFab.UUnit
         private static TestTitleData testTitleData;
         private static PlayFabApiSettings instanceSettings = new PlayFabApiSettings();
         private static PlayFabAuthenticationContext instanceContext = new PlayFabAuthenticationContext();
+        private static string aliasId = "";
 
         /// <summary>
         /// PlayFab Title cannot be created from SDK tests, so you must provide your titleId to run unit tests.
@@ -18,6 +19,7 @@ namespace PlayFab.UUnit
         /// </summary>
         public static void SetTitleInfo(TestTitleData testInputs)
         {
+            aliasId = testInputs.aliasId;
             testTitleData = testInputs;
             instanceSettings.TitleId = testTitleData.titleId;
             instanceSettings.DeveloperSecretKey = testTitleData.developerSecretKey;
@@ -28,6 +30,7 @@ namespace PlayFab.UUnit
             // Clear the global settings, so they can't pollute this test.
             PlayFabSettings.staticSettings.TitleId = null;
             PlayFabSettings.staticSettings.DeveloperSecretKey = null;
+            PlayFabSettings.staticPlayer.ForgetAllCredentials();
         }
 
         public override void Tick(UUnitTestContext testContext)
@@ -246,7 +249,41 @@ namespace PlayFab.UUnit
         [UUnitTest]
         public async void TestForNotFoundWithImportantInfo(UUnitTestContext testContext)
         {
-            PlayFabResult<MultiplayerModels.BuildAliasDetailsResponse> res = await UpdateAlias();
+            PlayFabSettings.staticSettings.TitleId = testTitleData.titleId;
+            PlayFabSettings.staticSettings.DeveloperSecretKey = testTitleData.developerSecretKey;
+
+            var eReq = new AuthenticationModels.GetEntityTokenRequest();
+            eReq.Entity = new AuthenticationModels.EntityKey();
+            eReq.Entity.Type = "title";
+            eReq.Entity.Id = testTitleData.titleId;
+
+            var tokenTask = await PlayFabAuthenticationAPI.GetEntityTokenAsync(eReq);
+
+            var staticPlayer = PlayFabSettings.staticPlayer;
+
+            if(tokenTask.Error != null)
+            {
+                testContext.EndTest(UUnitFinishState.FAILED, "Failed to retrieve the Title Entity Token, check your playFabSettings.staticPlayer, are they still logged in? (hint no server api should be called through a logged in client)");
+                return;
+            }
+
+            if(aliasId == "")
+            {
+                testContext.EndTest(UUnitFinishState.SKIPPED, "aliasId was blank, we will not get the expected failed NotFound response this test is asking for. Make sure testTitleData.json has a valid aliasId listed (check playfab multiplayer dashboard for your own valid aliasId)");
+                return;
+            }
+
+            MultiplayerModels.UpdateBuildAliasRequest updateBuildAliasRequest = new MultiplayerModels.UpdateBuildAliasRequest()
+            {
+                AliasId = aliasId,
+                AliasName = "aliasName",
+                AuthenticationContext = new PlayFab.PlayFabAuthenticationContext()
+                {
+                    EntityToken = tokenTask.Result.EntityToken
+                },
+            };
+
+            PlayFab.PlayFabResult<MultiplayerModels.BuildAliasDetailsResponse> res = await PlayFab.PlayFabMultiplayerAPI.UpdateBuildAliasAsync(updateBuildAliasRequest);
 
             string response = PlayFab.PluginManager.GetPlugin<ISerializerPlugin>(PluginContract.PlayFab_Serializer).SerializeObject(res);
 
@@ -258,32 +295,6 @@ namespace PlayFab.UUnit
             {
                 testContext.EndTest(UUnitFinishState.FAILED, "We called the Mutliplayer API expecting to not find anything, but we didn't detect this to be the error.");
             }
-        }
-
-        public static async Task<PlayFabResult<MultiplayerModels.BuildAliasDetailsResponse>> UpdateAlias()
-        {
-            PlayFabSettings.staticSettings.TitleId = testTitleData.titleId;
-            PlayFabSettings.staticSettings.DeveloperSecretKey = testTitleData.developerSecretKey;
-
-            var eReq = new AuthenticationModels.GetEntityTokenRequest();
-            eReq.Entity = new AuthenticationModels.EntityKey();
-            eReq.Entity.Type = "title";
-            eReq.Entity.Id = testTitleData.titleId;
-
-            var tokenTask = await PlayFabAuthenticationAPI.GetEntityTokenAsync(eReq);
-            MultiplayerModels.UpdateBuildAliasRequest updateBuildAliasRequest = new MultiplayerModels.UpdateBuildAliasRequest()
-            {
-                AliasId = "fakeAliasId",
-                AliasName = "aliasName",
-                AuthenticationContext = new PlayFab.PlayFabAuthenticationContext()
-                {
-                    EntityToken = tokenTask.Result.EntityToken // entity token of the title
-                },
-            };
-
-            PlayFab.PlayFabResult<MultiplayerModels.BuildAliasDetailsResponse> res = await PlayFab.PlayFabMultiplayerAPI.UpdateBuildAliasAsync(updateBuildAliasRequest);
-
-            return res;
         }
     }
 }

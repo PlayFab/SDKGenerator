@@ -241,7 +241,7 @@ namespace PlayFab.UUnit
             });
         }
 
-        /// <summary>
+         /// <summary>
         /// Multiplayer API
         /// Try to deliberately request a mutliplayer alias that doesn't exist 
         ///   Verify that response is MutliplayerServerNotFound, not just Not Found
@@ -249,23 +249,21 @@ namespace PlayFab.UUnit
         [UUnitTest]
         public async void TestForNotFoundWithImportantInfo(UUnitTestContext testContext)
         {
-            PlayFabSettings.staticSettings.TitleId = testTitleData.titleId;
-            PlayFabSettings.staticSettings.DeveloperSecretKey = testTitleData.developerSecretKey;
-
             var eReq = new AuthenticationModels.GetEntityTokenRequest();
             eReq.Entity = new AuthenticationModels.EntityKey();
             eReq.Entity.Type = "title";
             eReq.Entity.Id = testTitleData.titleId;
 
-            var tokenTask = await PlayFabAuthenticationAPI.GetEntityTokenAsync(eReq);
+            var multiApiSettings = new PlayFabApiSettings();
 
-            var staticPlayer = PlayFabSettings.staticPlayer;
+            multiApiSettings.TitleId = testTitleData.titleId;
+            multiApiSettings.DeveloperSecretKey = testTitleData.developerSecretKey;
+            var authApi = new PlayFabAuthenticationInstanceAPI(multiApiSettings);
 
-            if(tokenTask.Error != null)
-            {
-                testContext.Fail("Failed to retrieve the Title Entity Token, check your playFabSettings.staticPlayer, are they still logged in? (hint no server api should be called through a logged in client)");
-            }
+            var tokenTask = await authApi.GetEntityTokenAsync(eReq);
 
+            testContext.IsNull(tokenTask.Error, "Failed to retrieve the Title Entity Token, check your playFabSettings.staticPlayer: " + PlayFabSettings.staticPlayer.EntityType);
+            
             if(aliasId == "")
             {
                 testContext.Fail("aliasId was blank, we will not get the expected failed NotFound response this test is asking for. Make sure testTitleData.json has a valid aliasId listed (check playfab multiplayer dashboard for your own valid aliasId)");
@@ -281,17 +279,18 @@ namespace PlayFab.UUnit
                 },
             };
 
-            PlayFab.PlayFabResult<MultiplayerModels.BuildAliasDetailsResponse> res = await PlayFab.PlayFabMultiplayerAPI.UpdateBuildAliasAsync(updateBuildAliasRequest);
+            var multiplayerApi = new PlayFabMultiplayerInstanceAPI(multiApiSettings, updateBuildAliasRequest.AuthenticationContext);
+            PlayFab.PlayFabResult<MultiplayerModels.BuildAliasDetailsResponse> res = await multiplayerApi.UpdateBuildAliasAsync(updateBuildAliasRequest);
 
             string response = PlayFab.PluginManager.GetPlugin<ISerializerPlugin>(PluginContract.PlayFab_Serializer).SerializeObject(res);
 
             if (response.Contains("MultiplayerServerNotFound") && res.Error.HttpCode == 404)
             {
-                testContext.EndTest(UUnitFinishState.PASSED, "Detected the Expected MultiplayerServerNotFound PlayFabError");
+                testContext.EndTest(UUnitFinishState.PASSED, null);
             }
             else
             {
-                testContext.Fail("We called the Mutliplayer API expecting to not find anything, but we didn't detect this to be the error.");
+                testContext.Fail("We called the Mutliplayer API expecting to not find anything, but we didn't detect this to be the error. Details: " + res.Error.ErrorDetails + " and http code: "+res.Error.HttpCode);
             }
         }
     }

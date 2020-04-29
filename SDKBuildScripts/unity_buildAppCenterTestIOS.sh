@@ -1,9 +1,9 @@
 #!/bin/bash
 set -e
 
-#USAGE: unity_buildAppCenterTestIOS.sh 
-#           <path to xcode workspace folder to be built> 
-#           <path to local appcenter test working copy folder> 
+#USAGE: unity_buildAppCenterTestIOS.sh
+#           <path to xcode workspace folder to be built>
+#           <path to local appcenter test working copy folder>
 #           <git clone url for the appcenter build>
 #           <git branch name for the appcenter build repo>
 #           <git tag name for the clean branch state>
@@ -49,7 +49,7 @@ InitializeBuildEnvironment() {
     NewBranch=0
     git clone "$AppCenterGitRepoURL"
     cd $(basename "$AppCenterGitRepoURL" | sed -e 's/.git//g')
-    git fetch --tags 
+    git fetch --tags
     git reset --hard $AppCenterGitRepoCleanTag
     git push --force
 
@@ -67,7 +67,7 @@ InitializeBuildEnvironment() {
     git update-index --chmod=+x "$RepoWorkingDirectory/$GitRepoFolderName/$ProjectFolderName/appcenter-post-clone.sh"
     git commit -m "add xcode project for appcenter build"
 
-    #if a new branch was created AppCenter needs to be manually configured for this branch.  
+    #if a new branch was created AppCenter needs to be manually configured for this branch.
     if [ $NewBranch -eq 1 ]; then
         git push -u origin "$AppCenterGitRepoBranchName"
         echo 'ERROR: Unity Job '"$AppCenterGitRepoBranchName"' did not yet exist.'
@@ -85,7 +85,7 @@ InitializeBuildEnvironment() {
 
 #queue the appcenter build
 QueueAppCenterBuild() {
-    appcenter build queue --app "PlayFabSDKTeam/PlayFabUnityXCode" --branch $AppCenterGitRepoBranchName --quiet -d 
+    appcenter build queue --app "PlayFabSDKTeam/PlayFabUnityXCode" --branch $AppCenterGitRepoBranchName --quiet -d
     if [ $? -ne 0 ]; then
         echo "Error queueing build!"
         exit 1
@@ -107,7 +107,7 @@ WaitForAppCenterBuild() {
             return 0
         fi
     done
-    
+
     exit 1
 }
 
@@ -124,7 +124,7 @@ CleanupAndDownloadIpa() {
     if [ "$BuildResult" = "\"succeeded\"" ]; then
         #Return the appcenter build repo to a clean state for next time.
         git reset --hard $AppCenterGitRepoCleanTag
-        git push --force 
+        git push --force
         popd
         appcenter build download --type build --app "PlayFabSDKTeam/PlayFabUnityXCode" --id $BuildNumber --file PlayFabIOS.ipa
     else

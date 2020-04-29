@@ -92,8 +92,8 @@ namespace PlayFab.QoS
                 return _dataCenterMap;
             }
 
-            var request = new ListQosServersRequest();
-            PlayFabResult<ListQosServersResponse> response = await multiplayerApi.ListQosServersAsync(request);
+            var request = new ListQosServersForTitleRequest();
+            PlayFabResult<ListQosServersForTitleResponse> response = await multiplayerApi.ListQosServersForTitleAsync(request);
 
             if (response == null || response.Error != null)
             {

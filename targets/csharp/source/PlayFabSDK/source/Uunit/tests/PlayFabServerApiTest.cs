@@ -290,7 +290,7 @@ namespace PlayFab.UUnit
             }
             else
             {
-                testContext.Fail("We called the Mutliplayer API expecting to not find anything, but we didn't detect this to be the error. Details: " + res.Error.ErrorMessage + " and http code: "+res.Error.HttpCode);
+                testContext.Fail("We called the Mutliplayer API expecting to not find anything, but we didn't detect this to be the error. Details: " + res.Error.GenerateErrorReport() + " and http code: "+res.Error.HttpCode);
             }
         }
     }

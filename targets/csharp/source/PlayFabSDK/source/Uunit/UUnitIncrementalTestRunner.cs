@@ -15,6 +15,7 @@ namespace PlayFab.UUnit
         public string titleId;
 #if ENABLE_PLAYFABSERVER_API || ENABLE_PLAYFABADMIN_API
         public string developerSecretKey;
+        public string aliasId;
 #endif
         public string userEmail;
         public Dictionary<string, string> extraHeaders;

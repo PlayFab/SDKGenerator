@@ -11,6 +11,7 @@ namespace PlayFab.UUnit
         private static TestTitleData testTitleData;
         private static PlayFabApiSettings instanceSettings = new PlayFabApiSettings();
         private static PlayFabAuthenticationContext instanceContext = new PlayFabAuthenticationContext();
+        private static string aliasId = "";
 
         /// <summary>
         /// PlayFab Title cannot be created from SDK tests, so you must provide your titleId to run unit tests.
@@ -18,6 +19,7 @@ namespace PlayFab.UUnit
         /// </summary>
         public static void SetTitleInfo(TestTitleData testInputs)
         {
+            aliasId = testInputs.aliasId;
             testTitleData = testInputs;
             instanceSettings.TitleId = testTitleData.titleId;
             instanceSettings.DeveloperSecretKey = testTitleData.developerSecretKey;
@@ -28,6 +30,7 @@ namespace PlayFab.UUnit
             // Clear the global settings, so they can't pollute this test.
             PlayFabSettings.staticSettings.TitleId = null;
             PlayFabSettings.staticSettings.DeveloperSecretKey = null;
+            PlayFabSettings.staticPlayer.ForgetAllCredentials();
         }
 
         public override void Tick(UUnitTestContext testContext)
@@ -236,6 +239,59 @@ namespace PlayFab.UUnit
                     testContext.Fail("Parallel Requests failed " + whenAll.Exception.Flatten().Message);
                 }
             });
+        }
+
+         /// <summary>
+        /// Multiplayer API
+        /// Try to deliberately request a mutliplayer alias that doesn't exist 
+        ///   Verify that response is MutliplayerServerNotFound, not just Not Found
+        /// </summary>
+        [UUnitTest]
+        public async void TestForNotFoundWithImportantInfo(UUnitTestContext testContext)
+        {
+            var eReq = new AuthenticationModels.GetEntityTokenRequest();
+            eReq.Entity = new AuthenticationModels.EntityKey();
+            eReq.Entity.Type = "title";
+            eReq.Entity.Id = testTitleData.titleId;
+
+            var multiApiSettings = new PlayFabApiSettings();
+
+            multiApiSettings.TitleId = testTitleData.titleId;
+            multiApiSettings.DeveloperSecretKey = testTitleData.developerSecretKey;
+            var authApi = new PlayFabAuthenticationInstanceAPI(multiApiSettings);
+
+            var tokenTask = await authApi.GetEntityTokenAsync(eReq);
+
+            testContext.IsNull(tokenTask.Error, "Failed to retrieve the Title Entity Token, check your playFabSettings.staticPlayer: " + PlayFabSettings.staticPlayer.EntityType);
+            
+            if(aliasId == "")
+            {
+                testContext.Fail("aliasId was blank, we will not get the expected failed NotFound response this test is asking for. Make sure testTitleData.json has a valid aliasId listed (check playfab multiplayer dashboard for your own valid aliasId)");
+            }
+
+            MultiplayerModels.UpdateBuildAliasRequest updateBuildAliasRequest = new MultiplayerModels.UpdateBuildAliasRequest()
+            {
+                AliasId = aliasId,
+                AliasName = "aliasName",
+                AuthenticationContext = new PlayFab.PlayFabAuthenticationContext()
+                {
+                    EntityToken = tokenTask.Result.EntityToken
+                },
+            };
+
+            var multiplayerApi = new PlayFabMultiplayerInstanceAPI(multiApiSettings, updateBuildAliasRequest.AuthenticationContext);
+            PlayFab.PlayFabResult<MultiplayerModels.BuildAliasDetailsResponse> res = await multiplayerApi.UpdateBuildAliasAsync(updateBuildAliasRequest);
+
+            string response = PlayFab.PluginManager.GetPlugin<ISerializerPlugin>(PluginContract.PlayFab_Serializer).SerializeObject(res);
+
+            if (response.Contains("MultiplayerServerNotFound") && res.Error.HttpCode == 404)
+            {
+                testContext.EndTest(UUnitFinishState.PASSED, null);
+            }
+            else
+            {
+                testContext.Fail("We called the Mutliplayer API expecting to not find anything, but we didn't detect this to be the error. Details: " + res.Error.GenerateErrorReport() + " and http code: "+res.Error.HttpCode);
+            }
         }
     }
 }

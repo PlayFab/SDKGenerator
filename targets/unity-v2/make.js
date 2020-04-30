@@ -12,7 +12,11 @@ exports.makeCombinedAPI = function (apis, sourceDir, apiOutputDir) {
 };
 
 // This function is additionally called from the csharp-unity-gameserver target
-exports.MakeUnityV2Sdk = function (apis, sourceDir, apiOutputDir) {
+exports.MakeUnityV2Sdk = function (apis, sourceDir, baseApiOutputDir) {
+    var sourceExampleProject = "ExampleTestProject";
+    var dependentExampleProjects = ["ExampleMacProject"];
+    var allTemplateProjects = ["ExampleTestProject", "ExampleMacProject"];
+
     var locals = {
         apis: apis,
         errorList: apis[0].errorList,
@@ -28,11 +32,23 @@ exports.MakeUnityV2Sdk = function (apis, sourceDir, apiOutputDir) {
         sourceDir: sourceDir
     };
 
-    templatizeTree(locals, path.resolve(sourceDir, "source"), apiOutputDir);
-    makeDatatypes(apis, sourceDir, apiOutputDir);
-    for (var i = 0; i < apis.length; i++) {
-        makeApi(apis[i], sourceDir, apiOutputDir);
-        makeInstanceApi(apis[i], sourceDir, apiOutputDir);
+    // Copy from the sourceExampleProject to all dependentExampleProjects (basically duplicate core/shared files to each example proj)
+    for (var tmplIdx = 0; tmplIdx < dependentExampleProjects.length; tmplIdx++) {
+        var eachApiOutputDir = path.resolve(baseApiOutputDir, dependentExampleProjects[tmplIdx]);
+        templatizeTree(locals, path.resolve(sourceDir, "source", sourceExampleProject), eachApiOutputDir);
+    }
+
+    // Copy all individual example proj files, specific to each template (including the core example proj)
+    templatizeTree(locals, path.resolve(sourceDir, "source"), baseApiOutputDir);
+
+    // Apply all the api template files into each example project
+    for (var exIdx = 0; exIdx < allTemplateProjects.length; exIdx++) {
+        var eachApiOutputDir = path.resolve(baseApiOutputDir, allTemplateProjects[exIdx]);
+        makeDatatypes(apis, sourceDir, eachApiOutputDir);
+        for (var i = 0; i < apis.length; i++) {
+            makeApi(apis[i], sourceDir, eachApiOutputDir);
+            makeInstanceApi(apis[i], sourceDir, eachApiOutputDir);
+        }
     }
 };
 
@@ -43,7 +59,7 @@ function makeApiEventFiles(api, sourceDir, apiOutputDir) {
     };
 
     var apiTemplate = getCompiledTemplate(path.resolve(sourceDir, "templates", "PlayFabEvents.cs.ejs"));
-    writeFile(path.resolve(apiOutputDir, "ExampleTestProject/Assets/PlayFabSDK/" + api.name + "/PlayFabEvents.cs"), apiTemplate(apiLocals));
+    writeFile(path.resolve(apiOutputDir, "Assets/PlayFabSDK/" + api.name + "/PlayFabEvents.cs"), apiTemplate(apiLocals));
 }
 
 function getBaseTypeSyntax(datatype) {
@@ -68,7 +84,7 @@ function makeDatatypes(apis, sourceDir, apiOutputDir) {
 
     for (var a = 0; a < apis.length; a++) {
         modelsLocal.api = apis[a];
-        writeFile(path.resolve(apiOutputDir, "ExampleTestProject/Assets/PlayFabSDK/" + apis[a].name + "/PlayFab" + apis[a].name + "Models.cs"), modelsTemplate(modelsLocal));
+        writeFile(path.resolve(apiOutputDir, "Assets/PlayFabSDK/" + apis[a].name + "/PlayFab" + apis[a].name + "Models.cs"), modelsTemplate(modelsLocal));
     }
 }
 
@@ -108,10 +124,10 @@ function makeApi(api, sourceDir, apiOutputDir) {
     };
 
     var apiTemplate = getCompiledTemplate(path.resolve(templateDir, "PlayFab_API.cs.ejs"));
-    writeFile(path.resolve(apiOutputDir, "ExampleTestProject/Assets/PlayFabSDK/" + api.name + "/PlayFab" + api.name + "API.cs"), apiTemplate(locals));
+    writeFile(path.resolve(apiOutputDir, "Assets/PlayFabSDK/" + api.name + "/PlayFab" + api.name + "API.cs"), apiTemplate(locals));
 
     var eventTemplate = getCompiledTemplate(path.resolve(sourceDir, "templates", "PlayFabEvents.cs.ejs"));
-    writeFile(path.resolve(apiOutputDir, "ExampleTestProject/Assets/PlayFabSDK/" + api.name + "/PlayFabEvents.cs"), eventTemplate(locals));
+    writeFile(path.resolve(apiOutputDir, "Assets/PlayFabSDK/" + api.name + "/PlayFabEvents.cs"), eventTemplate(locals));
 }
 
 function makeInstanceApi(api, sourceDir, apiOutputDir) {
@@ -132,7 +148,7 @@ function makeInstanceApi(api, sourceDir, apiOutputDir) {
     };
 
     var apiTemplate = getCompiledTemplate(path.resolve(templateDir, "PlayFab_InstanceAPI.cs.ejs"));
-    writeFile(path.resolve(apiOutputDir, "ExampleTestProject/Assets/PlayFabSDK/" + api.name + "/PlayFab" + api.name + "InstanceAPI.cs"), apiTemplate(apiLocals));
+    writeFile(path.resolve(apiOutputDir, "Assets/PlayFabSDK/" + api.name + "/PlayFab" + api.name + "InstanceAPI.cs"), apiTemplate(apiLocals));
 }
 
 function isPartial(api) {

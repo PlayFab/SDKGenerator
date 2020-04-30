@@ -192,7 +192,7 @@ namespace PlayFab.Internal
         {
             var workspacePath = Environment.GetEnvironmentVariable("WORKSPACE"); // This is a Jenkins-Build environment variable
             if (string.IsNullOrEmpty(workspacePath))
-                workspacePath = "C:/depot"; // Expected typical location
+                workspacePath = "C:\\depot"; // Expected typical location
             var repoName = Environment.GetEnvironmentVariable("SdkName"); // This is a Jenkins-Build environment variable
             if (string.IsNullOrEmpty(repoName))
                 repoName = "UnitySDK"; // Default if we aren't building something else

@@ -1,6 +1,5 @@
 using System;
 using System.IO;
-using System.Text.RegularExpressions;
 using UnityEditor;
 using UnityEngine;
 
@@ -8,7 +7,6 @@ namespace PlayFab.Internal
 {
     public static class PlayFabEdExPackager
     {
-        private static string EDEX_VERSION_TEMPLATE = "namespace PlayFab.PfEditor { public static partial class PlayFabEditorHelper { public static string EDEX_VERSION = \"{sdkVersion}\"; } }\n";
         private static string PACKAGE_FILENAME = "PlayFabEditorExtensions.unitypackage";
 
         private static readonly string[] SdkAssets = {
@@ -39,24 +37,10 @@ namespace PlayFab.Internal
         {
             var workspacePath = Environment.GetEnvironmentVariable("WORKSPACE"); // This is a Jenkins-Build environment variable
             if (string.IsNullOrEmpty(workspacePath))
-                workspacePath = "C:/depot"; // Expected typical location
+                workspacePath = "C:\\depot"; // Expected typical location
             var repoName = Environment.GetEnvironmentVariable("SdkName"); // This is a Jenkins-Build environment variable
             if (string.IsNullOrEmpty(repoName))
                 repoName = "UnitySDK"; // Default if we aren't building something else
-
-            var versionSrcFile = PathCombine(workspacePath, "API_Specs", "SdkManualNotes.json");
-            var notes = File.ReadAllText(versionSrcFile);
-            var searchRegex = "\"unity-v2\": \"([0-9]+\\.[0-9]+\\.[0-9]+)\"";
-            var match = Regex.Match(notes, searchRegex);
-            var unitySdkVersion = match.Captures[0].Value.Replace("\"", "").Replace("unity-v2:", "").Trim();
-
-            var versionDefFiles = Directory.GetFiles(Application.dataPath, "PlayFabEditorVersion.cs", SearchOption.AllDirectories);
-            var versionDefFile = versionDefFiles[0];
-            var contents = EDEX_VERSION_TEMPLATE.Replace("{sdkVersion}", unitySdkVersion);
-            File.WriteAllText(versionDefFile, contents);
-
-            // We just changed a file we're about to publish - May not work, we might have to change this to be two console calls
-            AssetDatabase.Refresh();
 
             var packageFolder = PathCombine(workspacePath, "sdks", repoName, "Packages");
             MkDir(packageFolder);

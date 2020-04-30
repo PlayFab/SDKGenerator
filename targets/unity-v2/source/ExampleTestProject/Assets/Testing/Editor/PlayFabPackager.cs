@@ -255,9 +255,11 @@ namespace PlayFab.Internal
             var osxPath = Path.Combine(GetBuildPath(), osxAppName);
             MkDir(GetBuildPath());
             MkDir(osxPath);
+            Debug.Log("Building OSX with scenes: " + string.Join(",", TestScenes));
             BuildPipeline.BuildPlayer(TestScenes, Path.Combine(osxPath, osxAppName), OsxBuildTarget, BuildOptions.None);
             if (Directory.GetFileSystemEntries(osxPath).Length == 0)
                 throw new PlayFabException(PlayFabExceptionCode.BuildError, "Target directory is empty: " + osxPath + ", " + string.Join(",", Directory.GetFiles(osxPath)));
+            Debug.Log("OSX built: " + osxPath);
         }
 
         [MenuItem("PlayFab/Testing/PS4TestBuild")]

@@ -55,7 +55,16 @@ namespace JenkinsConsoleUtility
                 {
                     returnCode = VerifyKeys(tempCommand, lcArgsByName);
                     if (returnCode == 0)
-                        returnCode = tempCommand.Execute(lcArgsByName, casedArgsByName);
+                    {
+                        try
+                        {
+                            returnCode = tempCommand.Execute(lcArgsByName, casedArgsByName);
+                        }
+                        catch
+                        {
+                            returnCode = 1;
+                        }
+                    }
                 }
                 if (returnCode != 0)
                 {

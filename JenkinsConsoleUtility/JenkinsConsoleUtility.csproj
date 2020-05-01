@@ -41,10 +41,11 @@
       <HintPath>packages\Octokit.0.32.0\lib\net45\Octokit.dll</HintPath>
     </Reference>
     <Reference Include="PlayFabAllSDK, Version=1.0.0.0, Culture=neutral, processorArchitecture=MSIL">
-      <HintPath>packages\PlayFabAllSDK.1.57.190903\lib\net45\PlayFabAllSDK.dll</HintPath>
+      <HintPath>packages\PlayFabAllSDK.1.70.200421\lib\net45\PlayFabAllSDK.dll</HintPath>
     </Reference>
     <Reference Include="System" />
     <Reference Include="System.Collections" />
+    <Reference Include="System.Collections.Concurrent" />
     <Reference Include="System.ComponentModel" />
     <Reference Include="System.Core" />
     <Reference Include="System.Diagnostics.Tools" />
@@ -69,6 +70,7 @@
   </ItemGroup>
   <ItemGroup>
     <Compile Include="jcuSrc\AssemblyInfo.cs" />
+    <Compile Include="jcuSrc\Commands\CalendarAlertCommand.cs" />
     <Compile Include="jcuSrc\Commands\CheckBblStandby.cs" />
     <Compile Include="jcuSrc\Commands\CloudScriptListener.cs" />
     <Compile Include="jcuSrc\Commands\GitApiCommand.cs" />

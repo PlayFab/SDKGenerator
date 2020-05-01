@@ -1,6 +1,5 @@
 using PlayFab;
 using PlayFab.ClientModels;
-using PlayFab.Json;
 using PlayFab.UUnit;
 using System;
 using System.Collections.Generic;
@@ -40,8 +39,14 @@ namespace JenkinsConsoleUtility.Commands
 
         private CsGetRequest _getRequest;
         private bool verbose;
+        private readonly ISerializerPlugin json;
 
         private PlayFabClientInstanceAPI clientApi = new PlayFabClientInstanceAPI();
+
+        public CloudScriptListener()
+        {
+            json = PluginManager.GetPlugin<ISerializerPlugin>(PluginContract.PlayFab_Serializer);
+        }
 
         public int Execute(Dictionary<string, string> argsLc, Dictionary<string, string> argsCased)
         {
@@ -145,31 +150,31 @@ namespace JenkinsConsoleUtility.Commands
 
             if (task.Result.Error != null)
             {
-                Console.WriteLine("Execute Cloudscript failure: " + functionName + ":\n" + JsonWrapper.SerializeObject(functionParameter));
+                Console.WriteLine("Execute Cloudscript failure: " + functionName + ":\n" + json.SerializeObject(functionParameter));
                 Console.WriteLine(errorReport);
                 result = default(TOut);
                 return false;
             }
 
             // Re-serialize as the target type
-            var json = JsonWrapper.SerializeObject(task.Result.Result.FunctionResult);
+            var resultJson = json.SerializeObject(task.Result.Result.FunctionResult);
             if (verbose)
             {
                 Console.WriteLine("===== Verbose ExecuteCloudScript Json: =====");
-                Console.WriteLine(json);
+                Console.WriteLine(resultJson);
                 Console.WriteLine("===== End =====");
             }
             try
             {
-                result = JsonWrapper.DeserializeObject<TOut>(json);
+                result = json.DeserializeObject<TOut>(resultJson);
             }
             catch (Exception)
             {
-                Console.WriteLine("Could not serialize text: \"" + json + "\" as " + typeof(TOut).Name);
+                Console.WriteLine("Could not serialize text: \"" + resultJson + "\" as " + typeof(TOut).Name);
                 result = default(TOut);
                 return false;
             }
-            return task.Result.Error == null && task.Result.Result.Error == null && (result != null || json == "null");
+            return task.Result.Error == null && task.Result.Result.Error == null && (result != null || resultJson == "null");
         }
     }
 }

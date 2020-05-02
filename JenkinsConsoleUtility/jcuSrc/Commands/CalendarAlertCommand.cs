@@ -10,9 +10,11 @@ namespace JenkinsConsoleUtility.jcuSrc.Commands
     {
         private class Alert
         {
+#pragma warning disable 0649
             public string date;
             public string name;
             public int alertDays;
+#pragma warning restore 0649
 
             public DateTime GetDate() { return DateTime.Parse(date); }
         }

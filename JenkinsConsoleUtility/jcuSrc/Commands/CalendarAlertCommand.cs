@@ -52,10 +52,17 @@ namespace JenkinsConsoleUtility.jcuSrc.Commands
                     warningAlerts.Add($"Approaching deadline: {eachAlert.name} on: {eachAlert.date}");
             }
 
-            foreach(var eachWarning in warningAlerts)
+            JcuUtil.FancyWriteToConsole(ConsoleColor.White, "\n\n================================================");
+            foreach (var eachWarning in warningAlerts)
                 JcuUtil.FancyWriteToConsole(ConsoleColor.Yellow, eachWarning);
             foreach (var eachAlert in expiredAlerts)
                 JcuUtil.FancyWriteToConsole(ConsoleColor.Red, eachAlert);
+
+            if (warningAlerts.Count + expiredAlerts.Count == 0)
+            {
+                JcuUtil.FancyWriteToConsole(ConsoleColor.Green, "No Calendar alerts");
+            }
+            JcuUtil.FancyWriteToConsole(ConsoleColor.White, "================================================\n\n");
 
             // Strictly speaking, we want to fail the job if there's any alerts at all.
             return warningAlerts.Count + expiredAlerts.Count;

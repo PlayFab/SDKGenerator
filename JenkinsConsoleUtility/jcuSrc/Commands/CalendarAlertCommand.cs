@@ -49,9 +49,9 @@ namespace JenkinsConsoleUtility.jcuSrc.Commands
                 var alertTime = expireTime - TimeSpan.FromDays(alertDays);
 
                 if (today >= expireTime)
-                    expiredAlerts.Add($"Expired alert: {eachAlert.name} on: {eachAlert.date}");
+                    expiredAlerts.Add("Expired alert: " + eachAlert.name + " on: " + eachAlert.date);
                 else if (today >= alertTime)
-                    warningAlerts.Add($"Approaching deadline: {eachAlert.name} on: {eachAlert.date}");
+                    warningAlerts.Add("Approaching deadline: " + eachAlert.name + " on: " + eachAlert.date);
             }
 
             JcuUtil.FancyWriteToConsole(ConsoleColor.White, "\n\n================================================");

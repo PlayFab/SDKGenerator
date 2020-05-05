@@ -74,7 +74,8 @@ namespace JenkinsConsoleUtility.jcuSrc.Commands
         {
             string alertDaysStr;
             JenkinsConsoleUtility.TryGetArgVar(out alertDaysStr, argsLc, "alertDays");
-            if (int.TryParse(alertDaysStr, out int alertDays))
+            int alertDays;
+            if (int.TryParse(alertDaysStr, out alertDays))
                 return alertDays;
 
             return null;

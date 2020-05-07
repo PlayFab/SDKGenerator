@@ -97,7 +97,6 @@ namespace PlayFab
             StreamingAssetsPath = Application.streamingAssetsPath;
             TargetFrameRate = Application.targetFrameRate;
             UnityVersion = Application.unityVersion;
-            RunInBackground = Application.runInBackground;
 
             //DEVICE & OS
             DeviceModel = SystemInfo.deviceModel;

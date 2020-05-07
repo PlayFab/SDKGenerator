@@ -61,8 +61,6 @@ namespace PlayFab.Internal
             if (transport.IsInitialized)
                 return;
 
-            Application.runInBackground = true; // Http requests respond even if you lose focus
-
             transport.Initialize();
             CreateInstance(); // Invoke the SingletonMonoBehaviour
         }

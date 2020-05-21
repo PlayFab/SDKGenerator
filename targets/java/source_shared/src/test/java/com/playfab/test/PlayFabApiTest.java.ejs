@@ -455,7 +455,7 @@ public class PlayFabApiTest
         errRequest.FunctionName = "throwError";
         errRequest.PlayFabId = playFabId;
         PlayFabResult<PlayFabServerModels.ExecuteCloudScriptResult> errResult = PlayFabServerAPI.ExecuteCloudScript(errRequest);
-        VerifyResult(errResult, true);
+        VerifyResult(errResult, false);
         assertTrue(errResult.Result.FunctionResult == null);
         assertNotNull(errResult.Result.Error);
         assertEquals(errResult.Result.Error.Error, "JavascriptException");

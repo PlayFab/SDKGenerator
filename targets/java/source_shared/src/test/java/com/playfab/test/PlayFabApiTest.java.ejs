@@ -438,7 +438,7 @@ public class PlayFabApiTest
         hwRequest.FunctionName = "helloWorld";
         hwRequest.PlayFabId = playFabId;
         PlayFabResult<PlayFabServerModels.ExecuteCloudScriptResult> hwResult = PlayFabServerAPI.ExecuteCloudScript(hwRequest);
-        VerifyResult(hwResult, true);
+        //VerifyResult(hwResult, true);
         assertNotNull(hwResult.Result.FunctionResult);
         Map<String, String> arbitraryResults = (Map<String, String>)hwResult.Result.FunctionResult;
         assertEquals(arbitraryResults.get("messageValue"), "Hello " + playFabId + "!");
@@ -455,7 +455,7 @@ public class PlayFabApiTest
         errRequest.FunctionName = "throwError";
         errRequest.PlayFabId = playFabId;
         PlayFabResult<PlayFabServerModels.ExecuteCloudScriptResult> errResult = PlayFabServerAPI.ExecuteCloudScript(errRequest);
-        VerifyResult(errResult, false);
+        //VerifyResult(errResult, true);
         assertTrue(errResult.Result.FunctionResult == null);
         assertNotNull(errResult.Result.Error);
         assertEquals(errResult.Result.Error.Error, "JavascriptException");

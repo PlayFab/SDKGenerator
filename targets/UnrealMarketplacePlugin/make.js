@@ -35,7 +35,8 @@ exports.makeCombinedAPI = function (apis, sourceDir, baseApiOutputDir) {
     const ueTargetVersions = [
         new TargetVersion(4, 22, 0),
         new TargetVersion(4, 23, 0),
-        new TargetVersion(4, 24, 0)
+        new TargetVersion(4, 24, 0),
+        new TargetVersion(4, 25, 0)
     ];
 
     var ueWhitelistPlatforms = '[ "Win64", "Win32", "Mac", "IOS", "Android", "PS4", "XboxOne" ]'; // TODO: Add Switch once the testing story is done

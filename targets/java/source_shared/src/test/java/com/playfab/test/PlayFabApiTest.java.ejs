@@ -457,8 +457,8 @@ public class PlayFabApiTest
         PlayFabResult<PlayFabServerModels.ExecuteCloudScriptResult> errResult = PlayFabServerAPI.ExecuteCloudScript(errRequest);
 
         String errorMessage = CompileErrorsFromResult(errResult);
-        assertNotNull(errorMessage, result.Error);
-        assertNotNull(errorMessage, result.Result);
+        assertNotNull(errorMessage, errResult.Error);
+        assertNotNull(errorMessage, errResult.Result);
 
         //VerifyResult(errResult, true);
         //assertTrue(errResult.Result.FunctionResult == null);

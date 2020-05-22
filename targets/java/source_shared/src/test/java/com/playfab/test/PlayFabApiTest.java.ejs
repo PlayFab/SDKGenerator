@@ -455,6 +455,11 @@ public class PlayFabApiTest
         errRequest.FunctionName = "throwError";
         errRequest.PlayFabId = playFabId;
         PlayFabResult<PlayFabServerModels.ExecuteCloudScriptResult> errResult = PlayFabServerAPI.ExecuteCloudScript(errRequest);
+
+        String errorMessage = CompileErrorsFromResult(errResult);
+        assertNotNull(errorMessage, result.Error);
+        assertNotNull(errorMessage, result.Result);
+
         //VerifyResult(errResult, true);
         //assertTrue(errResult.Result.FunctionResult == null);
         //assertNotNull(errResult.Result.Error);

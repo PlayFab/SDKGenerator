@@ -444,7 +444,6 @@ public class PlayFabApiTest
         hwRequest.FunctionName = "helloWorld";
         hwRequest.PlayFabId = loginRes.Result.PlayFabId;
         PlayFabResult<PlayFabServerModels.ExecuteCloudScriptResult> hwResult = PlayFabServerAPI.ExecuteCloudScript(hwRequest);
-        
         assertNotNull(hwResult.Result.FunctionResult);
         Map<String, String> arbitraryResults = (Map<String, String>)hwResult.Result.FunctionResult;
         assertEquals(arbitraryResults.get("messageValue"), "Hello " + loginRes.Result.PlayFabId + "!");

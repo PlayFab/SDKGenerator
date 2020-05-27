@@ -436,8 +436,7 @@ public class PlayFabApiTest
     {
         PlayFabServerModels.LoginWithServerCustomIdRequest customIdReq = new PlayFabServerModels.LoginWithServerCustomIdRequest();
         customIdReq.CreateAccount = true;
-        String serverId = playFabId;
-        customIdReq.ServerCustomId = serverId;
+        customIdReq.ServerCustomId = PlayFabSettings.BuildIdentifier;
         PlayFabResult<PlayFabServerModels.ServerLoginResult> loginRes = PlayFabServerAPI.LoginWithServerCustomId(customIdReq);
         assertNotNull(loginRes.Result);
         PlayFabServerModels.ExecuteCloudScriptServerRequest hwRequest = new PlayFabServerModels.ExecuteCloudScriptServerRequest();

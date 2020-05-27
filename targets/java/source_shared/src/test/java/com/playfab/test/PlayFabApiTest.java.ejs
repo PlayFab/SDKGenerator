@@ -434,14 +434,18 @@ public class PlayFabApiTest
     @Test
     public void CloudScriptServer()
     {
+        PlayFabServerModels.LoginWithServerCustomIdRequest customIdReq = new PlayFabServerModels.LoginWithServerCustomIdRequest();
+        customIdReq.CreateAccount = true;
+        customIdReq.ServerCustomId = PlayFabSettings.BuildIdentifier;
+        PlayFabResult<PlayFabServerModels.ServerLoginResult> loginRes = PlayFabServerAPI.LoginWithServerCustomId(customIdReq);
+        assertNotNull(loginRes.Result);
         PlayFabServerModels.ExecuteCloudScriptServerRequest hwRequest = new PlayFabServerModels.ExecuteCloudScriptServerRequest();
         hwRequest.FunctionName = "helloWorld";
-        hwRequest.PlayFabId = playFabId;
+        hwRequest.PlayFabId = loginRes.Result.PlayFabId;
         PlayFabResult<PlayFabServerModels.ExecuteCloudScriptResult> hwResult = PlayFabServerAPI.ExecuteCloudScript(hwRequest);
-        VerifyResult(hwResult, true);
         assertNotNull(hwResult.Result.FunctionResult);
         Map<String, String> arbitraryResults = (Map<String, String>)hwResult.Result.FunctionResult;
-        assertEquals(arbitraryResults.get("messageValue"), "Hello " + playFabId + "!");
+        assertEquals(arbitraryResults.get("messageValue"), "Hello " + loginRes.Result.PlayFabId + "!");
     }
 
     /*
@@ -455,10 +459,8 @@ public class PlayFabApiTest
         errRequest.FunctionName = "throwError";
         errRequest.PlayFabId = playFabId;
         PlayFabResult<PlayFabServerModels.ExecuteCloudScriptResult> errResult = PlayFabServerAPI.ExecuteCloudScript(errRequest);
-        VerifyResult(errResult, true);
-        assertTrue(errResult.Result.FunctionResult == null);
-        assertNotNull(errResult.Result.Error);
-        assertEquals(errResult.Result.Error.Error, "JavascriptException");
+        String errorMessage = CompileErrorsFromResult(errResult);
+        assertNotNull(errorMessage, errResult.Error);
     }
 <% } %><% if (hasClientOptions) { %>
     /**

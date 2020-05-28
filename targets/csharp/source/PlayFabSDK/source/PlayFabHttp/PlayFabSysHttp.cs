@@ -29,6 +29,9 @@ namespace PlayFab.Internal
 
             HttpResponseMessage httpResponse;
             string httpResponseString;
+            IEnumerable<string> requestId;
+            bool hasReqId = false;
+            const string defaultReqId = "NoRequestIdFound";
             using (var postBody = new ByteArrayContent(Encoding.UTF8.GetBytes(bodyString)))
             {
                 postBody.Headers.Add("Content-Type", "application/json");
@@ -53,6 +56,7 @@ namespace PlayFab.Internal
                 {
                     httpResponse = await _client.PostAsync(fullUrl, postBody);
                     httpResponseString = await httpResponse.Content.ReadAsStringAsync();
+                    hasReqId = httpResponse.Headers.TryGetValues("X-RequestId", out requestId);
                 }
                 catch (HttpRequestException e)
                 {
@@ -80,6 +84,7 @@ namespace PlayFab.Internal
                 {
                     error.HttpCode = (int)httpResponse.StatusCode;
                     error.HttpStatus = httpResponse.StatusCode.ToString();
+                    error.RequestId = hasReqId ? requestId.ToString() : defaultReqId;
                     return error;
                 }
 
@@ -94,6 +99,7 @@ namespace PlayFab.Internal
                     error.HttpStatus = httpResponse.StatusCode.ToString();
                     error.Error = PlayFabErrorCode.JsonParseError;
                     error.ErrorMessage = e.Message;
+                    error.RequestId = hasReqId ? requestId.ToString() : defaultReqId;
                     return error;
                 }
 
@@ -111,6 +117,8 @@ namespace PlayFab.Internal
                     }
                 }
 
+                error.RequestId = hasReqId ? requestId.ToString() : defaultReqId;
+
                 return error;
             }
 
@@ -119,7 +127,8 @@ namespace PlayFab.Internal
                 return new PlayFabError
                 {
                     Error = PlayFabErrorCode.Unknown,
-                    ErrorMessage = "Internal server error"
+                    ErrorMessage = "Internal server error",
+                    RequestId = hasReqId ? requestId.ToString() : defaultReqId
                 };
             }
 

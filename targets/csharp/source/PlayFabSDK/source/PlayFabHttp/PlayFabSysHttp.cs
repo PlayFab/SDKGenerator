@@ -31,7 +31,6 @@ namespace PlayFab.Internal
             string httpResponseString;
             IEnumerable<string> requestId;
             bool hasReqId = false;
-            const string defaultReqId = "NoRequestIdFound";
             using (var postBody = new ByteArrayContent(Encoding.UTF8.GetBytes(bodyString)))
             {
                 postBody.Headers.Add("Content-Type", "application/json");
@@ -84,7 +83,7 @@ namespace PlayFab.Internal
                 {
                     error.HttpCode = (int)httpResponse.StatusCode;
                     error.HttpStatus = httpResponse.StatusCode.ToString();
-                    error.RequestId = hasReqId ? requestId.GetEnumerator().Current.ToString() : defaultReqId;
+                    error.RequestId = GetRequestId(hasReqId, requestId);
                     return error;
                 }
 
@@ -99,7 +98,7 @@ namespace PlayFab.Internal
                     error.HttpStatus = httpResponse.StatusCode.ToString();
                     error.Error = PlayFabErrorCode.JsonParseError;
                     error.ErrorMessage = e.Message;
-                    error.RequestId = hasReqId ? requestId.GetEnumerator().Current.ToString() : defaultReqId;
+                    error.RequestId = GetRequestId(hasReqId, requestId); ;
                     return error;
                 }
 
@@ -117,7 +116,7 @@ namespace PlayFab.Internal
                     }
                 }
 
-                error.RequestId = hasReqId ? requestId.GetEnumerator().Current.ToString() : defaultReqId;
+                error.RequestId = GetRequestId(hasReqId, requestId); ;
 
                 return error;
             }
@@ -128,11 +127,28 @@ namespace PlayFab.Internal
                 {
                     Error = PlayFabErrorCode.Unknown,
                     ErrorMessage = "Internal server error",
-                    RequestId = hasReqId ? requestId.GetEnumerator().Current.ToString() : defaultReqId
-                };
+                    RequestId = GetRequestId(hasReqId, requestId)
+            };
             }
 
             return httpResponseString;
+        }
+
+        private string GetRequestId(bool hasReqId, IEnumerable<string> reqIdContainer)
+        {
+            const string defaultReqId = "NoRequestIdFound";
+            string reqId = "";
+
+            try
+            {
+                reqId = hasReqId ? reqIdContainer.GetEnumerator().Current.ToString() : defaultReqId;
+            }
+            catch (Exception e)
+            {
+                return "Failed to Enumerate RequestId. Exception message: " + e.Message;
+            }
+
+            return reqId;
         }
     }
 }

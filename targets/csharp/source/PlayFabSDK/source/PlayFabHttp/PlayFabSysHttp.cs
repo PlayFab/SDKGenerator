@@ -128,7 +128,7 @@ namespace PlayFab.Internal
                     Error = PlayFabErrorCode.Unknown,
                     ErrorMessage = "Internal server error",
                     RequestId = GetRequestId(hasReqId, requestId)
-            };
+                };
             }
 
             return httpResponseString;

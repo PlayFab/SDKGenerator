@@ -84,7 +84,7 @@ namespace PlayFab.Internal
                 {
                     error.HttpCode = (int)httpResponse.StatusCode;
                     error.HttpStatus = httpResponse.StatusCode.ToString();
-                    error.RequestId = hasReqId ? requestId.First<string>() : defaultReqId;
+                    error.RequestId = hasReqId ? requestId.GetEnumerator().Current.ToString() : defaultReqId;
                     return error;
                 }
 
@@ -99,7 +99,7 @@ namespace PlayFab.Internal
                     error.HttpStatus = httpResponse.StatusCode.ToString();
                     error.Error = PlayFabErrorCode.JsonParseError;
                     error.ErrorMessage = e.Message;
-                    error.RequestId = hasReqId ? requestId.First<string>() : defaultReqId;
+                    error.RequestId = hasReqId ? requestId.GetEnumerator().Current.ToString() : defaultReqId;
                     return error;
                 }
 
@@ -117,7 +117,7 @@ namespace PlayFab.Internal
                     }
                 }
 
-                error.RequestId = hasReqId ? requestId.First<string>() : defaultReqId;
+                error.RequestId = hasReqId ? requestId.GetEnumerator().Current.ToString() : defaultReqId;
 
                 return error;
             }
@@ -128,7 +128,7 @@ namespace PlayFab.Internal
                 {
                     Error = PlayFabErrorCode.Unknown,
                     ErrorMessage = "Internal server error",
-                    RequestId = hasReqId ? requestId.First<string>() : defaultReqId
+                    RequestId = hasReqId ? requestId.GetEnumerator().Current.ToString() : defaultReqId
                 };
             }
 

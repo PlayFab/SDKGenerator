@@ -152,8 +152,17 @@ namespace PlayFab.UUnit
             var loginTask = clientApi.LoginWithCustomIDAsync(loginRequest, null, testTitleData.extraHeaders);
             ContinueWithContext(loginTask, testContext, LoginWithAdvertisingIdContinued, true, "Login with advertId failed", true);
         }
+
+        bool advertLoginRetry = true;
         private void LoginWithAdvertisingIdContinued(PlayFabResult<LoginResult> loginResult, UUnitTestContext testContext, string failMessage)
         {
+            if (!clientApi.IsClientLoggedIn() && advertLoginRetry)
+            {
+                advertLoginRetry = false;
+                LoginWithAdvertisingId(testContext);
+                return;
+            }
+
             testContext.True(clientApi.IsClientLoggedIn(), failMessage);
             testContext.StringEquals(PlayFabSettings.AD_TYPE_ANDROID_ID + "_Successful", PlayFabSettings.staticSettings.AdvertisingIdType);
         }

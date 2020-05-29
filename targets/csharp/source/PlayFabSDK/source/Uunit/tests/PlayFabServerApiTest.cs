@@ -183,6 +183,7 @@ namespace PlayFab.UUnit
             testContext.EndTest(UUnitFinishState.PASSED, null);
         }
 
+        bool retryParallelRequest = true;
         /// <summary>
         /// SERVER API
         /// Try to parallel request at same time
@@ -236,6 +237,13 @@ namespace PlayFab.UUnit
                 }
                 else
                 {
+                    if(retryParallelRequest)
+                    {
+                        retryParallelRequest = false;
+                        ParallelRequest(testContext);
+                        return;
+                    }
+
                     testContext.Fail("Parallel Requests failed " + whenAll.Exception.Flatten().Message);
                 }
             });

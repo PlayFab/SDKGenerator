@@ -78,7 +78,7 @@ namespace PlayFab.UUnit
             testContext.NotNull(loginResult, failMessage);
             testContext.IsNull(loginResult.Result, failMessage);
             testContext.NotNull(loginResult.Error, failMessage);
-            testContext.True(loginResult.Error.ErrorMessage.Contains("password"), loginResult.Error.ErrorMessage + ", for: " + testTitleData.userEmail + ", on: " + PlayFabSettings.staticSettings.TitleId);
+            testContext.True(loginResult.Error.GenerateErrorReport().Contains("RequestId") && loginResult.Error.ErrorMessage.Contains("password"), loginResult.Error.ErrorMessage + ", for: "+ testTitleData.userEmail + ", on: " + PlayFabSettings.staticSettings.TitleId);
         }
 
         /// <summary>

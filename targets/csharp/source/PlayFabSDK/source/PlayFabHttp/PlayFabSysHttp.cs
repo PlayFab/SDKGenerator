@@ -29,6 +29,8 @@ namespace PlayFab.Internal
 
             HttpResponseMessage httpResponse;
             string httpResponseString;
+            IEnumerable<string> requestId;
+            bool hasReqId = false;
             using (var postBody = new ByteArrayContent(Encoding.UTF8.GetBytes(bodyString)))
             {
                 postBody.Headers.Add("Content-Type", "application/json");
@@ -53,6 +55,7 @@ namespace PlayFab.Internal
                 {
                     httpResponse = await _client.PostAsync(fullUrl, postBody);
                     httpResponseString = await httpResponse.Content.ReadAsStringAsync();
+                    hasReqId = httpResponse.Headers.TryGetValues("X-RequestId", out requestId);
                 }
                 catch (HttpRequestException e)
                 {
@@ -80,6 +83,7 @@ namespace PlayFab.Internal
                 {
                     error.HttpCode = (int)httpResponse.StatusCode;
                     error.HttpStatus = httpResponse.StatusCode.ToString();
+                    error.RequestId = GetRequestId(hasReqId, requestId);
                     return error;
                 }
 
@@ -94,6 +98,7 @@ namespace PlayFab.Internal
                     error.HttpStatus = httpResponse.StatusCode.ToString();
                     error.Error = PlayFabErrorCode.JsonParseError;
                     error.ErrorMessage = e.Message;
+                    error.RequestId = GetRequestId(hasReqId, requestId); ;
                     return error;
                 }
 
@@ -111,6 +116,8 @@ namespace PlayFab.Internal
                     }
                 }
 
+                error.RequestId = GetRequestId(hasReqId, requestId); ;
+
                 return error;
             }
 
@@ -119,11 +126,29 @@ namespace PlayFab.Internal
                 return new PlayFabError
                 {
                     Error = PlayFabErrorCode.Unknown,
-                    ErrorMessage = "Internal server error"
+                    ErrorMessage = "Internal server error",
+                    RequestId = GetRequestId(hasReqId, requestId)
                 };
             }
 
             return httpResponseString;
+        }
+
+        private string GetRequestId(bool hasReqId, IEnumerable<string> reqIdContainer)
+        {
+            const string defaultReqId = "NoRequestIdFound";
+            string reqId = "";
+
+            try
+            {
+                reqId = hasReqId ? reqIdContainer.GetEnumerator().Current.ToString() : defaultReqId;
+            }
+            catch (Exception e)
+            {
+                return "Failed to Enumerate RequestId. Exception message: " + e.Message;
+            }
+
+            return reqId;
         }
     }
 }

@@ -39,7 +39,7 @@ exports.makeCombinedAPI = function (apis, sourceDir, baseApiOutputDir) {
         new TargetVersion(4, 25, 0)
     ];
 
-    var ueWhitelistPlatforms = '[ "Win64", "Win32", "Mac", "IOS", "Android", "PS4", "XboxOne" ]'; // TODO: Add Switch once the testing story is done
+    var ueWhitelistPlatforms = '[ "Win64", "Win32", "Mac", "IOS", "Android", "PS4", "XboxOne", "Switch" ]';
 
     for (var v = 0; v < ueTargetVersions.length; v++) {
         var ueTargetVersion = ueTargetVersions[v];

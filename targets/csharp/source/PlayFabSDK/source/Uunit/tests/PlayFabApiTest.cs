@@ -46,6 +46,7 @@ namespace PlayFab.UUnit
 
         public override void SetUp(UUnitTestContext testContext)
         {
+            maxRetry = 1;
             if (!TITLE_INFO_SET)
                 testContext.Skip(); // We cannot do client tests if the titleId is not given
         }
@@ -596,7 +597,6 @@ namespace PlayFab.UUnit
                 }
             });
         }
-
     }
 }
 

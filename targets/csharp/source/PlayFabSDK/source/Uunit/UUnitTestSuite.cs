@@ -217,11 +217,21 @@ namespace PlayFab.UUnit
             if (_suiteState == UUnitActiveState.PENDING)
                 _suiteState = UUnitActiveState.ACTIVE;
 
+            // Check if we should cycle to the next test
             var nextTest = _activeIndex < _testContexts.Count ? _testContexts[_activeIndex] : null;
             if (nextTest != null && nextTest.ActiveState == UUnitActiveState.COMPLETE)
             {
-                _activeIndex++;
-                nextTest = (_activeIndex >= _testContexts.Count) ? null : _testContexts[_activeIndex];
+                if (nextTest.FinishState == UUnitFinishState.FAILED && nextTest.retryCount < nextTest.TestInstance.maxRetry)
+                {
+                    // Reset the test and try again
+                    nextTest.AttemptRetry();
+                }
+                else
+                {
+                    // Retrys are expired, move to the next test
+                    _activeIndex++;
+                    nextTest = (_activeIndex >= _testContexts.Count) ? null : _testContexts[_activeIndex];
+                }
             }
 
             if (nextTest != null && nextTest.ActiveState == UUnitActiveState.PENDING)

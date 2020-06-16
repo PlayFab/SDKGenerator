@@ -1,18 +1,41 @@
 #!/bin/bash
-
 set -e
 
-. "$WORKSPACE/JenkinsSdkSetupScripts/JenkinsScripts/Pipeline/util.sh" 2> /dev/null
-. "$WORKSPACE/JenkinsSdkSetupScripts/JenkinsScripts/Pipeline/sdkUtil.sh" 2> /dev/null
+# . "$WORKSPACE/JenkinsSdkSetupScripts/JenkinsScripts/Pipeline/util.sh" 2> /dev/null
+# . "$WORKSPACE/JenkinsSdkSetupScripts/JenkinsScripts/Pipeline/sdkUtil.sh" 2> /dev/null
 
 # Mandatory Variable Checks
 if [ -z "$SdkName" ]; then
     echo Mandatory parameters not defined: SdkName=$SdkName
-    exit 1
+    return 1
 fi
-DoesCommandExist node
 
 # Functions
+
+DoesCommandExist() {
+    command -v $1 2> /dev/null && return 0
+    type $1 2> /dev/null && return 0
+    hash $1 2> /dev/null && return 0
+
+    echo Failed to find command: $1
+    return 1
+}
+
+# MIRRORED FROM sdkUtil.sh
+CheckApiSpecSourceDefault() {
+    if [ -z "$ApiSpecSource" ]; then
+        ApiSpecSource="-apiSpecGitUrl"
+    fi
+}
+
+# MIRRORED FROM sdkUtil.sh
+CheckBuildIdentifierDefault() {
+    if [ -z "$buildIdentifier" ] && [ ! -z "$SdkName" ] && [ ! -z "$NODE_NAME" ] && [ ! -z "$EXECUTOR_NUMBER" ]; then
+        buildIdentifier="-buildIdentifier JBuild_${SdkName}_${VerticalName}_${NODE_NAME}_${EXECUTOR_NUMBER}"
+    elif [ -z "$buildIdentifier" ]; then
+        buildIdentifier="-buildIdentifier Custom_${SdkName}"
+    fi
+}
 
 # USAGE NukeAll <pattern>
 NukeAll () {
@@ -45,25 +68,18 @@ CleanCodeFiles () {
 BuildSdk () {
     pushd ..
     echo === SHARED BUILDING $SdkName ===
-    if [ ! -z "$SdkGenPrvTmplRepo" ]; then
-        node generate.js $SdkGenPrvTmplRepo=$destPath $ApiSpecSource $buildIdentifier $VerticalNameInternal
-    elif [ -z "$targetSrc" ]; then
-        node generate.js -destPath $destPath $ApiSpecSource $buildIdentifier $VerticalNameInternal
-    else
-        node generate.js $targetSrc=$destPath $ApiSpecSource $buildIdentifier $VerticalNameInternal
-    fi
+    node generate.js -destPath $destPath $ApiSpecSource $buildIdentifier ${@:1}
     popd
 }
 
 # Set the script-internal variables
 destPath="../sdks/$SdkName"
+DoesCommandExist node
 CheckApiSpecSourceDefault
 CheckBuildIdentifierDefault
-CheckVerticalNameInternalDefault
 
 # Do the work
 if [ "$delSrc" = "true" ]; then
     CleanCodeFiles
 fi
-BuildSdk
-
+BuildSdk ${@:1}

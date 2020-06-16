@@ -1,5 +1,6 @@
+#!/bin/bash
+
 SdkName="Cocos2d-xSDK"
-targetSrc="cpp-cocos2dx"
 delSrc=true
 
 cd ..

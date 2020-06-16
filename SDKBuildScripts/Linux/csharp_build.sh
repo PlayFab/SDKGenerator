@@ -1,5 +1,6 @@
+#!/bin/bash
+
 SdkName="CSharpSDK"
-targetSrc="csharp"
 
 cd ..
 

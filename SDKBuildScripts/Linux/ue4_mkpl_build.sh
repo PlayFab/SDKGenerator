@@ -1,6 +1,5 @@
 SdkName="UnrealMarketplacePlugin"
 targetSrc="UnrealMarketplacePlugin"
-delSrc=true
 
 cd ..
 

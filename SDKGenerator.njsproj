@@ -18,7 +18,7 @@
     <ProjectGuid>{2ba807ef-310c-43b5-8d42-1abcfff39be9}</ProjectGuid>
     <ProjectHome>.</ProjectHome>
     <ProjectView>ShowAllFiles</ProjectView>
-    <StartupFile>generate.js</StartupFile>
+    <StartupFile>generate.ts</StartupFile>
     <WorkingDirectory>.</WorkingDirectory>
     <OutputPath>.</OutputPath>
     <TargetFrameworkVersion>v4.0</TargetFrameworkVersion>

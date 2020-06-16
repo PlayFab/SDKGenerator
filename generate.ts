@@ -1,3 +1,7 @@
+/// <reference path="node.d.ts"/>
+/// <reference path="generate-plugins.ts"/>
+/// <reference path="generate-sdk.ts"/>
+
 var ejs = require("ejs");
 var fs = require("fs");
 var https = require("https");
@@ -472,8 +476,9 @@ function generateApis(buildIdentifier, target: IBuildTarget) {
     var genConfigPath = path.resolve(target.destPath, "genConfig.json");
     try {
         var genConfigFile = require(genConfigPath);
-        genConfig = genConfigFile["default"];
-        console.log("Loaded genConfig at: " + genConfigPath);
+        var genConfigProfileName = sdkGeneratorGlobals.argsByName.hasOwnProperty("genconfigprofilename") ? sdkGeneratorGlobals.argsByName["genconfigprofilename"] : "default";
+        genConfig = genConfigFile[genConfigProfileName];
+        console.log("Loaded genConfig at: " + genConfigPath + " with profile:" + genConfigProfileName);
     } catch (_) {
         console.log("Did not find: " + genConfigPath);
     }
@@ -486,7 +491,7 @@ function generateApis(buildIdentifier, target: IBuildTarget) {
     }
 
     getMakeScriptForTemplate(target);
-    console.log("Making SDK from: " + target.templateFolder + "\n - to: " + target.destPath);
+    console.log("Making SDK from:\n  - " + target.templateFolder + "\nto:\n  - " + target.destPath);
 
     // It would probably be better to pass these into the functions, but I don't want to change all the make___Api parameters for all projects today.
     //   For now, just change the global variables in each with the data loaded from SdkManualNotes.json

@@ -26,13 +26,8 @@ if defined NODE_NAME (
 
 cd %~dp0
 pushd ..
-if [%1] == [] (
-    rem === BUILDING %SdkName% ===
-    node generate.js %targetSrc%=%destPath% %apiSpecSource% %buildIdentifier%
-) else (
-    rem === BUILDING %SdkName% with params %* ===
-    node generate.js %targetSrc%=%destPath% %*
-)
+rem === BUILDING %SdkName% with params %* ===
+node generate.js -destPath %destPath% %apiSpecSource% %buildIdentifier% %*
 popd
 
 pause

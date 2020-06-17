@@ -222,6 +222,8 @@ namespace PlayFab.UUnit
                 }
                 else
                 {
+                    // Record this test result
+                    TrackTestResult(nextTest);
                     // Retrys are expired, move to the next test
                     _activeIndex++;
                     nextTest = (_activeIndex >= _testContexts.Count) ? null : _testContexts[_activeIndex];
@@ -240,6 +242,11 @@ namespace PlayFab.UUnit
                 ManageInstance(null, activeTestInstance); // Ensure that the final test is cleaned up
             }
             return _suiteState == UUnitActiveState.READY;
+        }
+
+        private void TrackTestResult(UUnitTestContext testContext)
+        {
+            _testReport.TestComplete(testContext.TestDelegate.Target.GetType().Name + "." + testContext.Name, testContext.FinishState, (int)(testContext.EndTime - testContext.StartTime).TotalMilliseconds, testContext.TestResultMsg, null);
         }
 
         /// <summary>
@@ -318,7 +325,7 @@ namespace PlayFab.UUnit
             testContext.EndTime = now;
             Wrap(testContext, testContext.TestInstance.TearDown);
             testContext.ActiveState = UUnitActiveState.COMPLETE;
-            _testReport.TestComplete(testContext.TestDelegate.Target.GetType().Name + "." + testContext.Name, testContext.FinishState, (int)(testContext.EndTime - testContext.StartTime).TotalMilliseconds, testContext.TestResultMsg, null);
+            //_testReport.TestComplete(testContext.TestDelegate.Target.GetType().Name + "." + testContext.Name, testContext.FinishState, (int)(testContext.EndTime - testContext.StartTime).TotalMilliseconds, testContext.TestResultMsg, null);
         }
     }
 }

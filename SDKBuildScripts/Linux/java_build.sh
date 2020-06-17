@@ -1,5 +1,6 @@
+#!/bin/bash
+
 SdkName="JavaSDK"
-targetSrc="java"
 delSrc=true
 
 cd ..

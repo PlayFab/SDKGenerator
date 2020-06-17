@@ -1,4 +1,5 @@
-targetSrc="unity-v2"
+#!/bin/bash
+
 SdkName="UnitySDK"
 delSrc=true
 

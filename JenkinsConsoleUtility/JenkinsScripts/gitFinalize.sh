@@ -24,8 +24,8 @@ DoPublishToS3() {
     rm -f repo.zip || true
     7z a -r repo.zip "sdks/$SdkName"
 
-    CheckDefault VerticalName master
-    aws s3 cp repo.zip s3://playfab-sdk-dist/$VerticalName/$SdkName/$(date +%y%m%d)_${S3BuildNum}_$SdkName.zip --profile jenkins
+    CheckDefault ClusterName master
+    aws s3 cp repo.zip s3://playfab-sdk-dist/$ClusterName/$SdkName/$(date +%y%m%d)_${S3BuildNum}_$SdkName.zip --profile jenkins
 }
 
 CheckVerticalizedParameters

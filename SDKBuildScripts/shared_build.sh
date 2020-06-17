@@ -1,9 +1,6 @@
 #!/bin/bash
 set -e
 
-# . "$WORKSPACE/JenkinsSdkSetupScripts/JenkinsScripts/Pipeline/util.sh" 2> /dev/null
-# . "$WORKSPACE/JenkinsSdkSetupScripts/JenkinsScripts/Pipeline/sdkUtil.sh" 2> /dev/null
-
 # Mandatory Variable Checks
 if [ -z "$SdkName" ]; then
     echo Mandatory parameters not defined: SdkName=$SdkName
@@ -12,6 +9,7 @@ fi
 
 # Functions
 
+# MIRRORED FROM util.sh
 DoesCommandExist() {
     command -v $1 2> /dev/null && return 0
     type $1 2> /dev/null && return 0

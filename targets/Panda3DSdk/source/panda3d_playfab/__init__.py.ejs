@@ -1,0 +1,12 @@
+<% for (var a = 0; a < apis.length; a++) { var api = apis[a];
+%>import panda3d_playfab.PlayFab<%- api.name %>API as PlayFab<%- api.name %>API
+<% } %>
+import panda3d_playfab.PlayFabErrors as PlayFabErrors
+import panda3d_playfab.PlayFabHTTP as PlayFabHTTP
+import panda3d_playfab.PlayFabSettings as PlayFabSettings
+
+__all__ = ["PlayFabErrors", "PlayFabHTTP", "PlayFabSettings"]
+
+<% for (var a = 0; a < apis.length; a++) { var api = apis[a];
+%>__all__.append("PlayFab<%- api.name %>API")
+<% } %>

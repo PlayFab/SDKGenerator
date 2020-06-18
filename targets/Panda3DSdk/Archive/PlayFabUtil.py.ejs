@@ -1,0 +1,57 @@
+import json
+<% if (hasClientOptions) {
+%>import PlayFabClientModels
+<% } else if (hasServerOptions) {
+%>import PlayFabServerModels
+<% } %>
+
+class PlayFab:
+    class Unordered(attribute):
+        def __init__():
+            pass
+
+        def __init__(self, sortProperty):
+            self.SortProperty = sortProperty;
+
+    class PlayFabUtil:
+        """
+        All parseable ISO 8601 formats for DateTime.[Try]ParseExact - Lets us deserialize any legacy timestamps in one of these formats
+        (index 0-4) These are the standard format with ISO 8601 UTC markers (T/Z)
+        (index 5-9) These are the standard format without ISO 8601 UTC markers (T/Z)
+        """
+        DefaultDateTimeFormats = ["yyyy-MM-ddTHH:mm:ss.FFFFFFZ", "yyyy-MM-ddTHH:mm:ss.FFFFZ", "yyyy-MM-ddTHH:mm:ss.FFFZ", "yyyy-MM-ddTHH:mm:ss.FFZ", "yyyy-MM-ddTHH:mm:ssZ", "yyyy-MM-dd HH:mm:ss.FFFFFF", "yyyy-MM-dd HH:mm:ss.FFFF", "yyyy-MM-dd HH:mm:ss.FFF", "yyyy-MM-dd HH:mm:ss.FF", "yyyy-MM-dd HH:mm:ss"]
+
+        DEFAULT_UTC_OUTPUT_INDEX = 2 # The default format everybody should use
+        DEFAULT_LOCAL_OUTPUT_INDEX = 7 # The default format if you want to use local time (This doesn't have universal support in all PlayFab code)
+
+        def GenerateErrorReport(error):
+            if error == None:
+                return None
+            return error.GenerateErrorReport()
+
+        def GetCloudScriptErrorReport(result):
+            if result.Error != None:
+                return result.Error.GenerateErrorReport()
+            if result.Result.Error == None:
+                return None
+
+            str = []
+            hasError = not noneOrEmpty(result.Result.Error.Error)
+            hasMsg = not noneOrEmpty(result.Result.Error.Message)
+            if hasError:
+                str.append(result.Result.Error.Error)
+            if hasError and hasMsg:
+                str.append(" - ")
+            if hasMsg:
+                str.append(result.Result.Error.Message)
+
+            for eachLog in result.Result.Logs:
+                if str.Length > 0:
+                    str.append("\n")
+                str.append(eachLog.Level)
+                if not noneOrEmpty(eachLog.Message):
+                    str.append(" - ").append(eachLog.Message)
+                if eachLog.Data != None:
+                    str.append("\n").append(JsonWrapper.SerializeObject(eachLog.Data))
+
+            return "".join(str)

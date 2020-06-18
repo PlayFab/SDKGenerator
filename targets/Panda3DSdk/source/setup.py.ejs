@@ -1,0 +1,23 @@
+import setuptools
+with open("README.md", "r") as fh:
+        long_description = fh.read()
+        
+setuptools.setup(
+    name="panda3d_playfab",
+    version="<%- sdkVersion %>",
+    author="PlayFab Dev Tools team",
+    author_email="helloplayfab@microsoft.com",
+    description="PlayFab Panda3D SDK current API version: <%- sdkVersion %>",
+    long_description=long_description,
+    url="https://github.com/PlayFab/Panda3DSdk",
+    packages=setuptools.find_packages(),
+    install_requires=[
+        'panda3d',
+    ],
+    classifiers=[
+        "Programming Language :: Python :: 3",
+        "License :: OSI Approved :: Apache Software License",
+        "Operating System :: OS Independent",
+        "Topic :: Games/Entertainment",
+    ],
+)

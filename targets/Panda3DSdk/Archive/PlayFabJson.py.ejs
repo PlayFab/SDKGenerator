@@ -1,0 +1,20 @@
+def serialize_instance(obj):
+    d = { '__classname__' : type(obj).__name__ }
+    d.update(dir(obj)) 
+    return d
+
+classes = {
+<% for(var i in datatype.properties) { var property = datatype.properties[i];
+%>
+<% } %>
+}
+
+def unserialize_object(d):
+    clsname = d.pop('__classname__', None)
+    if clsname:
+        cls = classes[clsname]
+        obj = cls.__new__(cls)  # make instance without calling __init__
+        obj.update(d)
+        return obj
+    else:
+        return d

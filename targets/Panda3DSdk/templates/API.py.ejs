@@ -1,0 +1,37 @@
+import panda3d_playfab.PlayFabErrors as PlayFabErrors
+import panda3d_playfab.PlayFabHTTP as PlayFabHTTP
+import panda3d_playfab.PlayFabSettings as PlayFabSettings
+
+<%- generateApiSummary("", api, "description")
+%><% if (hasClientOptions) {
+%>
+def IsClientLoggedIn():
+    """Determine if the client session ticket is set, without actually making it public"""
+    return bool(PlayFabSettings._internalSettings.ClientSessionTicket)
+
+def MultiStepClientLogin(settingsForUser):
+    disabledAds = PlayFabSettings.DisableAdvertising
+    adIdType = PlayFabSettings.AdvertisingIdType
+    adIdVal = PlayFabSettings.AdvertisingIdValue
+
+    if settingsForUser and settingsForUser["NeedsAttribution"] and not disabledAds and adIdType and adIdVal:
+        request = {}
+        if adIdType == PlayFabSettings.AD_TYPE_IDFA:
+            request["Idfa"] = adIdVal
+        elif adIdType == PlayFabSettings.AD_TYPE_ANDROID_ID:
+            request["Adid"] = adIdVal
+        AttributeInstall(request, None)
+<% } %>
+<% for(var i in api.calls) { var apiCall = api.calls[i];
+%><%- getDeprecationAttribute("", apiCall)
+%>def <%- apiCall.name %>(request, callback, customData = None, extraHeaders = None):
+<%- generateApiSummary("    ", apiCall, "summary", "https://docs.microsoft.com/rest/api/playfab/" + api.name.toLowerCase() + "/" + apiCall.subgroup.toLowerCase().replaceAll(" ","-") + "/" + apiCall.name.toLowerCase())
+%><%- getRequestActions("    ", apiCall) 
+%>    def wrappedCallback(playFabResult, error):
+<%- getResultActions("        ", apiCall, api) 
+%>        if callback:
+            callback(playFabResult, error)
+
+    return PlayFabHTTP.DoPost("<%- apiCall.url %>", request, <%- getAuthParams(apiCall) %>, wrappedCallback, customData, extraHeaders)
+
+<% } %>

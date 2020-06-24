@@ -125,7 +125,7 @@ namespace JenkinsConsoleUtility.Commands
                 case "postmancollection": case "postmanbeta": return "postman";
                 case "unitysdk": case "unitypsn": case "unitybeta": case "unityeditorextensions": return "unity-v2";
                 case "unrealmarketplaceplugin": case "uemkplbetasdk": case "uemkplpsnsdk": return "unrealmarketplaceplugin";
-                case "xplatcppsdk": case "xplatbetasdk": case "xplatcppsdk-private-switch": case "xplatcppsdk-private-ps4": return "xplatcppsdk";
+                case "xplatcppsdk": case "xplatbetasdk": case "xplatcppsdk-private-switch": case "xplatcppsdk-private-ps4": case "xplatcppsdk-private-gdk": return "xplatcppsdk";
                 case "javasdk": case "javabetasdk": return "java";
                 case "pythonsdk": case "pythonbetasdk": return "pythonsdk";
 

@@ -63,7 +63,7 @@ namespace JenkinsConsoleUtility.Commands
 
             if (hitList.Count == 0)
                 JcuUtil.FancyWriteToConsole(ConsoleColor.Red, "No tasks to kill: " + taskNames);
-            return hitList.Count > 0 ? 0 : 1;
+            return 0;
         }
     }
 }

@@ -21,13 +21,13 @@ if ["%apiSpecSource%"] == [""] (
 )
 
 if defined NODE_NAME (
-    set buildIdentifier=-buildIdentifier JBuild_%SdkName%_%NODE_NAME%_%EXECUTOR_NUMBER%
+    set buildIdentifier=JBuild_%SdkName%_%NODE_NAME%_%EXECUTOR_NUMBER%
 )
 
 cd %~dp0
 pushd ..
 rem === BUILDING %SdkName% with params %* ===
-node generate.js -destPath %destPath% %apiSpecSource% %buildIdentifier% %*
+node generate.js -destPath %destPath% %apiSpecSource% -buildIdentifier %buildIdentifier% %*
 popd
 
 pause

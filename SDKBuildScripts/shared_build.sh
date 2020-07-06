@@ -29,9 +29,9 @@ CheckApiSpecSourceDefault() {
 # MIRRORED FROM sdkUtil.sh
 CheckBuildIdentifierDefault() {
     if [ -z "$buildIdentifier" ] && [ ! -z "$SdkName" ] && [ ! -z "$NODE_NAME" ] && [ ! -z "$EXECUTOR_NUMBER" ]; then
-        buildIdentifier="-buildIdentifier JBuild_${SdkName}_${VerticalName}_${NODE_NAME}_${EXECUTOR_NUMBER}"
+        buildIdentifier="JBuild_${SdkName}_${VerticalName}_${NODE_NAME}_${EXECUTOR_NUMBER}"
     elif [ -z "$buildIdentifier" ]; then
-        buildIdentifier="-buildIdentifier Custom_${SdkName}"
+        buildIdentifier="Custom_${SdkName}"
     fi
 }
 
@@ -66,7 +66,7 @@ CleanCodeFiles () {
 BuildSdk () {
     pushd ..
     echo === SHARED BUILDING $SdkName ===
-    node generate.js -destPath $destPath $ApiSpecSource $buildIdentifier ${@:1}
+    node generate.js -destPath $destPath $ApiSpecSource -buildIdentifier $buildIdentifier ${@:1}
     popd
 }
 

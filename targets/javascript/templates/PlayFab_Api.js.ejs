@@ -14,10 +14,8 @@ if(!PlayFab.settings) {
         // Disabling this may prevent your advertising-related PlayFab marketplace partners from working correctly
         disableAdvertising: false,
         AD_TYPE_IDFA: "Idfa",
-        AD_TYPE_ANDROID_ID: "Adid"
-
-        // Required for custom clusters
-        productionServerUrl: ".playfabapi.com",
+        AD_TYPE_ANDROID_ID: "Adid",
+        productionServerUrl: ".playfabapi.com"
     }
 }
 
@@ -36,14 +34,14 @@ if(!PlayFab._internalSettings) {
         errorSecretKey: "Must have PlayFab.settings.developerSecretKey set to call this method",
 
         GetServerUrl: function () {
-            if (!(PlayFab._internalSettings.productionServerUrl.substring(0, 4) === "http")) {
+            if (!(PlayFab.settings.productionServerUrl.substring(0, 4) === "http")) {
                 if (PlayFab._internalSettings.verticalName) {
-                    return "https://" + PlayFab._internalSettings.verticalName + PlayFab._internalSettings.productionServerUrl;
+                    return "https://" + PlayFab._internalSettings.verticalName + PlayFab.settings.productionServerUrl;
                 } else {
-                    return "https://" + PlayFab.settings.titleId + PlayFab._internalSettings.productionServerUrl;
+                    return "https://" + PlayFab.settings.titleId + PlayFab.settings.productionServerUrl;
                 }
             } else {
-                return PlayFab._internalSettings.productionServerUrl;
+                return PlayFab.settings.productionServerUrl;
             }
         },
 

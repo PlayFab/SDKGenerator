@@ -15,6 +15,9 @@ if(!PlayFab.settings) {
         disableAdvertising: false,
         AD_TYPE_IDFA: "Idfa",
         AD_TYPE_ANDROID_ID: "Adid"
+
+        // Required for custom clusters
+        productionServerUrl: ".playfabapi.com",
     }
 }
 
@@ -27,7 +30,6 @@ if(!PlayFab._internalSettings) {
         },
         sessionTicket: null,
         verticalName: <%- getVerticalNameDefault() %>, // The name of a customer vertical. This is only for customers running a private cluster. Generally you shouldn't touch this
-        productionServerUrl: ".playfabapi.com",
         errorTitleId: "Must be have PlayFab.settings.titleId set to call this method",
         errorLoggedIn: "Must be logged in to call this method",
         errorEntityToken: "You must successfully call GetEntityToken before calling this",

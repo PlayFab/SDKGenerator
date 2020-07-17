@@ -36,14 +36,14 @@ if(!PlayFab._internalSettings) {
         errorSecretKey: "Must have PlayFab.settings.developerSecretKey set to call this method",
 
         GetServerUrl: function () {
-            if (!(PlayFab.settings.productionServerUrl.substring(0, 4) === "http")) {
+            if (!(PlayFab._internalSettings.productionServerUrl.substring(0, 4) === "http")) {
                 if (PlayFab._internalSettings.verticalName) {
-                    return "https://" + PlayFab._internalSettings.verticalName + PlayFab.settings.productionServerUrl;
+                    return "https://" + PlayFab._internalSettings.verticalName + PlayFab._internalSettings.productionServerUrl;
                 } else {
-                    return "https://" + PlayFab.settings.titleId + PlayFab.settings.productionServerUrl;
+                    return "https://" + PlayFab.settings.titleId + PlayFab._internalSettings.productionServerUrl;
                 }
             } else {
-                return PlayFab.settings.productionServerUrl;
+                return PlayFab._internalSettings.productionServerUrl;
             }
         },
 

@@ -10,6 +10,7 @@
     <TypeScriptModuleKind>CommonJS</TypeScriptModuleKind>
     <ToolsVersionPromptShown>2.3</ToolsVersionPromptShown>
     <TypeScriptToolsVersion>2.3</TypeScriptToolsVersion>
+    <SaveNodeJsSettingsInProjectFile>True</SaveNodeJsSettingsInProjectFile>
   </PropertyGroup>
   <Import Project="$(MSBuildExtensionsPath)\$(MSBuildToolsVersion)\Microsoft.Common.props" Condition="Exists('$(MSBuildExtensionsPath)\$(MSBuildToolsVersion)\Microsoft.Common.props')" />
   <PropertyGroup>
@@ -25,111 +26,83 @@
     <ProjectTypeGuids>{3AF33F2E-1136-4D97-BBB7-1795711AC8B8};{9092AA53-FB77-4645-B42D-1CCCA6BD08BD}</ProjectTypeGuids>
     <StartWebBrowser>False</StartWebBrowser>
   </PropertyGroup>
-  <PropertyGroup Condition=" '$(Configuration)' == 'ActionScriptSDK' ">
-    <DebugSymbols>true</DebugSymbols>
-    <OutputPath>bin\</OutputPath>
-    <ScriptArguments>actionscript=..\sdks\ActionScriptSDK -apiSpecGitUrl -buildIdentifier ActionScriptSDK_manual</ScriptArguments>
-  </PropertyGroup>
   <PropertyGroup Condition=" '$(Configuration)' == 'CloudScript' ">
     <DebugSymbols>true</DebugSymbols>
     <OutputPath>bin\</OutputPath>
-    <ScriptArguments>SdkTestingCloudScript=..\sdks\SdkTestingCloudScript -apiSpecGitUrl -buildIdentifier CloudTS_manual</ScriptArguments>
+    <ScriptArguments>-destpath ..\sdks\SdkTestingCloudScript -apiSpecGitUrl -buildIdentifier CloudTS_manual</ScriptArguments>
   </PropertyGroup>
   <PropertyGroup Condition=" '$(Configuration)' == 'CSharpSDK' ">
     <DebugSymbols>true</DebugSymbols>
     <OutputPath>bin\</OutputPath>
-    <ScriptArguments>csharp=..\sdks\CSharpSDK -apiSpecGitUrl -buildIdentifier CSharpSDK_manual</ScriptArguments>
+    <ScriptArguments>-destpath ..\sdks\CSharpSDK -apiSpecGitUrl -buildIdentifier CSharpSDK_manual</ScriptArguments>
   </PropertyGroup>
   <PropertyGroup Condition=" '$(Configuration)' == 'CocosSDK' ">
     <DebugSymbols>true</DebugSymbols>
     <OutputPath>bin\</OutputPath>
-    <ScriptArguments>cpp-cocos2dx=..\sdks\Cocos2d-xSDK -apiSpecGitUrl -buildIdentifier CocosSDK_manual</ScriptArguments>
+    <ScriptArguments>-destpath ..\sdks\Cocos2d-xSDK -apiSpecGitUrl -buildIdentifier CocosSDK_manual</ScriptArguments>
   </PropertyGroup>
   <PropertyGroup Condition=" '$(Configuration)' == 'JavaSDK' ">
     <DebugSymbols>true</DebugSymbols>
     <OutputPath>bin\</OutputPath>
-    <ScriptArguments>java=..\sdks\JavaSDK -apiSpecGitUrl -buildIdentifier JavaSDK_manual</ScriptArguments>
+    <ScriptArguments>-destpath ..\sdks\JavaSDK -apiSpecGitUrl -buildIdentifier JavaSDK_manual</ScriptArguments>
   </PropertyGroup>
   <PropertyGroup Condition=" '$(Configuration)' == 'LuaSdk' ">
     <DebugSymbols>true</DebugSymbols>
     <OutputPath>bin\</OutputPath>
-    <ScriptArguments>LuaSdk=..\sdks\LuaSdk -apiSpecGitUrl -buildIdentifier LuaSdk_manual</ScriptArguments>
+    <ScriptArguments>-destpath ..\sdks\LuaSdk -apiSpecGitUrl -buildIdentifier LuaSdk_manual</ScriptArguments>
   </PropertyGroup>
   <PropertyGroup Condition=" '$(Configuration)' == 'JavaScriptSDK' ">
     <DebugSymbols>true</DebugSymbols>
     <OutputPath>bin\</OutputPath>
-    <ScriptArguments>javascript=..\sdks\JavaScriptSDK -apiSpecGitUrl -buildIdentifier JavaScriptSDK_manual</ScriptArguments>
+    <ScriptArguments>-destpath ..\sdks\JavaScriptSDK -apiSpecGitUrl -buildIdentifier JavaScriptSDK_manual</ScriptArguments>
   </PropertyGroup>
   <PropertyGroup Condition=" '$(Configuration)' == 'NewTarget' ">
     <DebugSymbols>true</DebugSymbols>
     <OutputPath>bin\</OutputPath>
-    <ScriptArguments>newTarget=..\sdks\NewTarget -apiSpecGitUrl -buildIdentifier NewTarget_manual</ScriptArguments>
+    <ScriptArguments>-destpath ..\sdks\JcuTestRepo -apiSpecGitUrl -buildIdentifier NewTarget_manual</ScriptArguments>
   </PropertyGroup>
   <PropertyGroup Condition=" '$(Configuration)' == 'NodeSDK' ">
     <DebugSymbols>true</DebugSymbols>
     <OutputPath>bin\</OutputPath>
-    <ScriptArguments>js-node=..\sdks\NodeSDK -apiSpecGitUrl -buildIdentifier NodeSDK_manual</ScriptArguments>
+    <ScriptArguments>-destpath ..\sdks\NodeSDK -apiSpecGitUrl -buildIdentifier NodeSDK_manual</ScriptArguments>
   </PropertyGroup>
   <PropertyGroup Condition=" '$(Configuration)' == 'ObjCSdk' ">
     <DebugSymbols>true</DebugSymbols>
     <OutputPath>bin\</OutputPath>
-    <ScriptArguments>objc=..\sdks\Objective_C_SDK -apiSpecGitUrl -buildIdentifier ObjCSdk_manual</ScriptArguments>
+    <ScriptArguments>-destpath ..\sdks\Objective_C_SDK -apiSpecGitUrl -buildIdentifier ObjCSdk_manual</ScriptArguments>
   </PropertyGroup>
   <PropertyGroup Condition=" '$(Configuration)' == 'PhpSdk' ">
     <DebugSymbols>true</DebugSymbols>
     <OutputPath>bin\</OutputPath>
-    <ScriptArguments>PhpSdk=..\sdks\PhpSdk -apiSpecGitUrl -buildIdentifier PhpSdk_manual</ScriptArguments>
+    <ScriptArguments>-destpath ..\sdks\PhpSdk -apiSpecGitUrl -buildIdentifier PhpSdk_manual</ScriptArguments>
   </PropertyGroup>
   <PropertyGroup Condition=" '$(Configuration)' == 'PostmanCollection' ">
     <DebugSymbols>true</DebugSymbols>
     <OutputPath>bin\</OutputPath>
-    <ScriptArguments>postman=..\sdks\PostmanCollection -apiSpecGitUrl -buildIdentifier PostmanCollection_manual</ScriptArguments>
+    <ScriptArguments>-destpath ..\sdks\PostmanCollection -apiSpecGitUrl -buildIdentifier PostmanCollection_manual</ScriptArguments>
   </PropertyGroup>
   <PropertyGroup Condition=" '$(Configuration)' == 'Python' ">
     <DebugSymbols>true</DebugSymbols>
     <OutputPath>bin\</OutputPath>
-    <ScriptArguments>pythonsdk=..\sdks\PythonSdk -apiSpecGitUrl -buildIdentifier PythonSdk_Manual</ScriptArguments>
+    <ScriptArguments>-destpath ..\sdks\PythonSdk -apiSpecGitUrl -buildIdentifier PythonSdk_Manual</ScriptArguments>
   </PropertyGroup>
   <PropertyGroup Condition=" '$(Configuration)' == 'UnitySdk' ">
     <DebugSymbols>true</DebugSymbols>
     <OutputPath>bin\</OutputPath>
-    <ScriptArguments>unity-v2=..\sdks\UnitySDK -apiSpecGitUrl -buildIdentifier UnitySDK_manual</ScriptArguments>
+    <ScriptArguments>-destpath ..\sdks\UnitySDK -apiSpecGitUrl -buildIdentifier UnitySDK_manual</ScriptArguments>
   </PropertyGroup>
   <PropertyGroup Condition=" '$(Configuration)' == 'Unreal' ">
     <DebugSymbols>true</DebugSymbols>
     <OutputPath>bin\</OutputPath>
-    <ScriptArguments>UnrealMarketplacePlugin=..\sdks\UnrealMarketplacePlugin -flags nonnullable -apiSpecGitUrl -buildIdentifier Unreal_manual</ScriptArguments>
+    <ScriptArguments>-destpath ..\sdks\UnrealMarketplacePlugin -apiSpecGitUrl -buildIdentifier Unreal_manual</ScriptArguments>
   </PropertyGroup>
   <PropertyGroup Condition=" '$(Configuration)' == 'XPlatCppSdk' ">
     <DebugSymbols>true</DebugSymbols>
     <OutputPath>bin\</OutputPath>
-    <ScriptArguments>xplatcppsdk=..\sdks\XPlatCppSdk -apiSpecGitUrl -buildIdentifier XPlatCppSdk_manual</ScriptArguments>
+    <ScriptArguments>-destpath ..\sdks\XPlatCppSdk -apiSpecGitUrl -buildIdentifier XPlatCppSdk_manual</ScriptArguments>
   </PropertyGroup>
   <ItemGroup>
     <Content Include="README.md" />
-    <Content Include="targets\actionscript\make.js" />
-    <Content Include="targets\actionscript\source\asyncUnitTest\ASyncAssert.as" />
-    <Content Include="targets\actionscript\source\asyncUnitTest\ASyncUnitTestCloudScriptReporter.as" />
-    <Content Include="targets\actionscript\source\asyncUnitTest\ASyncUnitTestEvent.as" />
-    <Content Include="targets\actionscript\source\asyncUnitTest\ASyncUnitTestFailError.as" />
-    <Content Include="targets\actionscript\source\asyncUnitTest\ASyncUnitTestFileReporter.as" />
-    <Content Include="targets\actionscript\source\asyncUnitTest\ASyncUnitTestReporter.as" />
-    <Content Include="targets\actionscript\source\asyncUnitTest\ASyncUnitTestSuite.as" />
-    <Content Include="targets\actionscript\source\asyncUnitTest\ASyncUnitTestTraceReporter.as" />
-    <Content Include="targets\actionscript\source\buildTests.bat" />
-    <Content Include="targets\actionscript\source\com\playfab\PlayFabError.as.ejs" />
-    <Content Include="targets\actionscript\source\com\playfab\PlayFabHTTP.as" />
-    <Content Include="targets\actionscript\source\com\playfab\PlayFabSettings.as.ejs" />
-    <Content Include="targets\actionscript\source\com\playfab\PlayFabUtil.as" />
-    <Content Include="targets\actionscript\source\com\playfab\PlayFabVersion.as.ejs" />
-    <Content Include="targets\actionscript\source\flexcfg.xml.ejs" />
-    <Content Include="targets\actionscript\source\How to make this example documentation.txt" />
-    <Content Include="targets\actionscript\source\PfApiTest.as" />
-    <Content Include="targets\actionscript\source\PfApiTest.xml.ejs" />
-    <Content Include="targets\actionscript\source\PlayFabApiTests.as" />
-    <Content Include="targets\actionscript\templates\API.as.ejs" />
-    <Content Include="targets\actionscript\templates\Enum.as.ejs" />
-    <Content Include="targets\actionscript\templates\Model.as.ejs" />
     <Content Include="targets\csharp\make.js" />
     <Content Include="targets\csharp\source\PlayFabSDK\PlayFabSDK+Unit.sln.ejs" />
     <Content Include="targets\csharp\source\PlayFabSDK\PlayFabSDK.sln.ejs" />
@@ -951,12 +924,6 @@
   </ItemGroup>
   <ItemGroup>
     <Folder Include="targets\" />
-    <Folder Include="targets\actionscript\" />
-    <Folder Include="targets\actionscript\source\" />
-    <Folder Include="targets\actionscript\source\asyncUnitTest\" />
-    <Folder Include="targets\actionscript\source\com\" />
-    <Folder Include="targets\actionscript\source\com\playfab\" />
-    <Folder Include="targets\actionscript\templates\" />
     <Folder Include="targets\csharp\" />
     <Folder Include="targets\csharp\source\" />
     <Folder Include="targets\csharp\source\PlayFabSDK\" />
@@ -1202,8 +1169,6 @@
     <TypeScriptCompile Include="generate-sdk.ts" />
     <TypeScriptCompile Include="generate.ts" />
     <TypeScriptCompile Include="node.d.ts" />
-    <TypeScriptCompile Include="targets\js-node\source\Scripts\typings\PlayFab\PlayFab.d.ts" />
-    <TypeScriptCompile Include="targets\js-node\source\test\test.d.ts" />
   </ItemGroup>
   <!-- Do not delete the following Import Project.  While this appears to do nothing it is a marker for setting TypeScript properties before our import that depends on them. -->
   <Import Project="$(MSBuildExtensionsPath32)\Microsoft\VisualStudio\v$(VisualStudioVersion)\TypeScript\Microsoft.TypeScript.targets" Condition="False" />

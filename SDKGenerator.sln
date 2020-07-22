@@ -7,7 +7,6 @@ Project("{9092AA53-FB77-4645-B42D-1CCCA6BD08BD}") = "SDKGenerator", "SDKGenerato
 EndProject
 Global
 	GlobalSection(SolutionConfigurationPlatforms) = preSolution
-		ActionScriptSDK|Any CPU = ActionScriptSDK|Any CPU
 		CloudScript|Any CPU = CloudScript|Any CPU
 		CocosSDK|Any CPU = CocosSDK|Any CPU
 		CSharpSDK|Any CPU = CSharpSDK|Any CPU
@@ -25,8 +24,6 @@ Global
 		XPlatCppSdk|Any CPU = XPlatCppSdk|Any CPU
 	EndGlobalSection
 	GlobalSection(ProjectConfigurationPlatforms) = postSolution
-		{2BA807EF-310C-43B5-8D42-1ABCFFF39BE9}.ActionScriptSDK|Any CPU.ActiveCfg = ActionScriptSDK|Any CPU
-		{2BA807EF-310C-43B5-8D42-1ABCFFF39BE9}.ActionScriptSDK|Any CPU.Build.0 = ActionScriptSDK|Any CPU
 		{2BA807EF-310C-43B5-8D42-1ABCFFF39BE9}.CloudScript|Any CPU.ActiveCfg = CloudScript|Any CPU
 		{2BA807EF-310C-43B5-8D42-1ABCFFF39BE9}.CloudScript|Any CPU.Build.0 = CloudScript|Any CPU
 		{2BA807EF-310C-43B5-8D42-1ABCFFF39BE9}.CocosSDK|Any CPU.ActiveCfg = CocosSDK|Any CPU

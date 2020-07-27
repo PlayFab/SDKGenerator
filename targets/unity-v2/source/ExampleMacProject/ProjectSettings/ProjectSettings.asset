@@ -3,4 +3,4 @@
 --- !u!129 &1
 PlayerSettings:
   scriptingDefineSymbols:
-    1: ENABLE_TEST_CLOUD
+    1: DEBUG;ENABLE_TEST_CLOUD

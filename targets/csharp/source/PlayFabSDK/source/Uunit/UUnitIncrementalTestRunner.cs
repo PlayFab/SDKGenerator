@@ -36,7 +36,7 @@ namespace PlayFab.UUnit
 
         public static TestTitleData VerifyTestTitleData()
         {
-#if NET45 || NETCOREAPP2_0
+#if NET45 || NETCOREAPP2_0 || NETSTANDARD2_0
             if(TestTitleData == null)
             {
                 try

@@ -102,8 +102,10 @@ param(
                 "ActionScriptSDK",
                 "Cocos2d-xSDK",
                 "CSharpSDK",
+                "CSharpBetaSdk",
                 "JavaSDK",
                 "JavaScriptSDK",
+                "JavaScriptBetaSDK",
                 "LuaSDK",
                 "NodeSDK",
                 "Objective_C_SDK",
@@ -114,6 +116,8 @@ param(
                 "UnrealMarketplacePlugin",
                 "UnitySDK",
                 "WindowsSDK",
+                "XPlatCppSdk",
+                "XPlatBetaSdk",
                 "XPlatCoreTemplate"
              ) -like "$WordToComplete*"
         }
@@ -151,25 +155,6 @@ begin
     if(!(Get-Command node))
     {
         throw "You must have Node.js installed to generate the SDK"
-    }
-
-    $sdkTargetSrcMap = @{
-        "ActionScriptSDK" = "actionscript";
-        "Cocos2d-xSDK" = "cpp-cocos2dx";
-        "CSharpSDK" = "csharp";
-        "JavaSDK" = "java";
-        "JavaScriptSDK" = "javascript";
-        "LuaSDK" = "LuaSdk";
-        "NodeSDK" = "js-node";
-        "Objective_C_SDK" = "objc";
-        "PhpSDK" = "PhpSdk";
-        "PostmanCollection" = "postman";
-        "PythonSDK" = "PythonSdk";
-        "SdkTestingCloudScript" = "SdkTestingCloudScript";
-        "UnrealMarketplacePlugin" = "UnrealMarketplacePlugin";
-        "UnitySDK" = "unity-v2";
-        "WindowsSDK" = "windowssdk";
-        "XPlatCoreTemplate" = "xplatcoretemplate";
     }
 
     if(!$OutputPath)
@@ -251,17 +236,6 @@ process
 {
     foreach($targetSdkName in $SdkName)
     {
-        $sdkTargetSource = $TargetSource
-        if(!$sdkTargetSource)
-        {
-            $sdkTargetSource = $sdkTargetSrcMap[$targetSdkName]
-            Write-Verbose "Setting Targetsource to $sdkTargetSource for $targetSdkName"
-            if(!$sdkTargetSource)
-            {
-                throw "Unable to determine TargetSource for '$targetSdkName'.  You must explicitly provide a value."
-            }
-        }
-
         $destPath = Join-Path $OutputPath $targetSdkName
 
         if(!(Test-Path $destPath))
@@ -325,7 +299,7 @@ process
             $versionParameter = "-version $Version"
         }
 
-        $expression = "node generate.js `"$sdkTargetSource=$destPath`" -nowait $apiSpecSource $buildFlagsParameter $versionParameter $buildIdentifier".Trim()
+        $expression = "node generate.js -destPath `"$destPath`" -nowait $apiSpecSource $buildFlagsParameter $versionParameter $buildIdentifier".Trim()
         if($PSCmdlet.ShouldProcess(
             "Executing '$expression'.",
             "Would you like to generate $targetSdkName into '$destPath'?",

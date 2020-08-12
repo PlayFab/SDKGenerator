@@ -27,20 +27,33 @@ namespace PlayFab.Events
             return _instance;
         }
 
+<% for (var x = 0; x < apis.length; x++) {
+    var api = apis[x];
+    for (var callIdx = 0; callIdx < api.calls.length; callIdx += 10) {%>
+        private void <%-api.name%>_UnregisterInstance_<%-callIdx/10%>(object instance)
+        {
+#if <%- getApiDefineFlag(api) %>
+<%  var batchSize = Math.min(api.calls.length - callIdx, 10);
+    for (var j = callIdx; j < callIdx + batchSize; ++j)
+    { var apiCall = api.calls[j]; var prefix = ""; if (api.name != "Client"){ prefix=api.name } %>
+            if (On<%- prefix %><%- apiCall.name %>RequestEvent != null) { foreach (var each in On<%- prefix%><%- apiCall.name %>RequestEvent.GetInvocationList()) { if (ReferenceEquals(each.Target, instance)) { On<%- prefix%><%- apiCall.name %>RequestEvent -= (PlayFabRequestEvent<<%-api.name%>Models.<%- apiCall.request %>>)each; } } }
+<% if (apiCall.result != "LoginResult") { %>            if (On<%- prefix%><%- apiCall.name %>ResultEvent != null) { foreach (var each in On<%- prefix%><%- apiCall.name %>ResultEvent.GetInvocationList()) { if (ReferenceEquals(each.Target, instance)) { On<%- prefix%><%- apiCall.name %>ResultEvent -= (PlayFabResultEvent<<%-api.name%>Models.<%- apiCall.result %>>)each; } } }
+<% } } %>
+#endif
+        }
+ <% }} %>   
+
         public void UnregisterInstance(object instance)
         {
 #if !DISABLE_PLAYFABCLIENT_API
             if (OnLoginResultEvent != null) { foreach (var each in OnLoginResultEvent.GetInvocationList()) { if (ReferenceEquals(each.Target, instance)) { OnLoginResultEvent -= (PlayFabResultEvent<ClientModels.LoginResult>)each; } } }
 #endif
 <% for (var x = 0; x < apis.length; x++) {
-var api = apis[x];
-%>#if <%- getApiDefineFlag(api) %><%
-for (var i in api.calls) { var apiCall = api.calls[i]; var prefix = ""; if (api.name != "Client"){ prefix=api.name } %>
-            if (On<%- prefix %><%- apiCall.name %>RequestEvent != null) { foreach (var each in On<%- prefix%><%- apiCall.name %>RequestEvent.GetInvocationList()) { if (ReferenceEquals(each.Target, instance)) { On<%- prefix%><%- apiCall.name %>RequestEvent -= (PlayFabRequestEvent<<%-api.name%>Models.<%- apiCall.request %>>)each; } } }
-<% if (apiCall.result != "LoginResult") { %>            if (On<%- prefix%><%- apiCall.name %>ResultEvent != null) { foreach (var each in On<%- prefix%><%- apiCall.name %>ResultEvent.GetInvocationList()) { if (ReferenceEquals(each.Target, instance)) { On<%- prefix%><%- apiCall.name %>ResultEvent -= (PlayFabResultEvent<<%-api.name%>Models.<%- apiCall.result %>>)each; } } }
-<% } } %>
-#endif
-<% } %>
+    var api = apis[x];%>
+// <%-api.name%>
+<%      for (var callIdx = 0; callIdx < api.calls.length; callIdx += 10) { %>
+            <%-api.name%>_UnregisterInstance_<%-callIdx / 10%>(instance);
+<% }} %>
         }
 
         private void OnProcessingErrorEvent(PlayFabRequestCommon request, PlayFabError error)
@@ -52,30 +65,75 @@ for (var i in api.calls) { var apiCall = api.calls[i]; var prefix = ""; if (api.
             }
         }
 
+<% for (var x = 0; x < apis.length; x++) {
+    var api = apis[x];
+    for (var callIdx = 0; callIdx < api.calls.length; callIdx += 10) {%>
+        private void <%-api.name%>_OnProcessingEvent_Pre_<%-callIdx/10%>(System.Type type, ApiProcessingEventArgs e)
+        {
+#if <%- getApiDefineFlag(api) %>
+<%  var batchSize = Math.min(api.calls.length - callIdx, 10);
+    for (var j = callIdx; j < callIdx + batchSize; ++j)
+    { 
+        var apiCall = api.calls[j]; 
+        var prefix = ""; 
+        if (api.name != "Client")
+        { 
+            prefix=api.name;
+        } %>
+        if (type == typeof(<%-api.name%>Models.<%- apiCall.request %>)) { if (_instance.On<%- prefix %><%- apiCall.name %>RequestEvent != null) { _instance.On<%- prefix %><%- apiCall.name %>RequestEvent((<%-api.name%>Models.<%- apiCall.request %>)e.Request); return; } }
+<% } %>
+#endif
+        }
+ <% }} %>
+
+ <% for (var x = 0; x < apis.length; x++) {
+    var api = apis[x];
+    for (var callIdx = 0; callIdx < api.calls.length; callIdx += 10) {%>
+        private void <%-api.name%>_OnProcessingEvent_Post_<%-callIdx/10%>(System.Type type, ApiProcessingEventArgs e)
+        {
+#if <%- getApiDefineFlag(api) %>
+<%  if (api.name=="Client" && callIdx == 0) { %>
+                if (type == typeof(ClientModels.LoginResult)) { if (_instance.OnLoginResultEvent != null) { _instance.OnLoginResultEvent((ClientModels.LoginResult)e.Result); return; } }
+<% }
+    var batchSize = Math.min(api.calls.length - callIdx, 10);
+    for (var j = callIdx; j < callIdx + batchSize; ++j)
+    { 
+        var apiCall = api.calls[j];
+        var prefix = ""; 
+        if (api.name != "Client")
+        { 
+            prefix=api.name; 
+        } 
+        
+        if (apiCall.result != "LoginResult") { %>
+                if (type == typeof(<%-api.name%>Models.<%- apiCall.result %>)) { if (_instance.On<%- prefix %><%- apiCall.name %>ResultEvent != null) { _instance.On<%- prefix %><%- apiCall.name %>ResultEvent((<%-api.name%>Models.<%- apiCall.result %>)e.Result); return; } }
+        <% } } %>
+#endif
+        }
+<% }} %>
+
         private void OnProcessingEvent(ApiProcessingEventArgs e)
         {
 
             if (e.EventType == ApiProcessingEventType.Pre)
             {
                 var type = e.Request.GetType();
-<% for (var x = 0; x < apis.length; x++){ var api = apis[x];
-%>#if <%- getApiDefineFlag(api) %><%
-for (var i in api.calls) { var apiCall = api.calls[i]; var prefix = ""; if (api.name != "Client"){ prefix=api.name } %>
-                if (type == typeof(<%-api.name%>Models.<%- apiCall.request %>)) { if (_instance.On<%- prefix %><%- apiCall.name %>RequestEvent != null) { _instance.On<%- prefix %><%- apiCall.name %>RequestEvent((<%-api.name%>Models.<%- apiCall.request %>)e.Request); return; } }<% } %>
-#endif
-<% } %>
+<% for (var x = 0; x < apis.length; x++) {
+    var api = apis[x];%>
+// <%-api.name%>
+<%      for (var callIdx = 0; callIdx < api.calls.length; callIdx += 10) { %>
+            <%-api.name%>_OnProcessingEvent_Pre_<%-callIdx / 10%>(type, e);
+<% }} %>
             }
             else
             {
                 var type = e.Result.GetType();
-<% for (var x = 0; x < apis.length; x++){ var api = apis[x];
-%>#if <%- getApiDefineFlag(api) %><%
-if (api.name=="Client") { %>
-                if (type == typeof(ClientModels.LoginResult)) { if (_instance.OnLoginResultEvent != null) { _instance.OnLoginResultEvent((ClientModels.LoginResult)e.Result); return; } }<% } %>
-<% for (var i in api.calls) { var apiCall = api.calls[i]; var prefix = ""; if (api.name != "Client"){ prefix=api.name } if (apiCall.result != "LoginResult") { %>
-                if (type == typeof(<%-api.name%>Models.<%- apiCall.result %>)) { if (_instance.On<%- prefix %><%- apiCall.name %>ResultEvent != null) { _instance.On<%- prefix %><%- apiCall.name %>ResultEvent((<%-api.name%>Models.<%- apiCall.result %>)e.Result); return; } }<% } } %>
-#endif
-<% } %>
+<% for (var x = 0; x < apis.length; x++) {
+    var api = apis[x];%>
+// <%-api.name%>
+<%      for (var callIdx = 0; callIdx < api.calls.length; callIdx += 10) { %>
+            <%-api.name%>_OnProcessingEvent_Post_<%-callIdx / 10%>(type, e);
+<% }} %>
             }
         }
     }

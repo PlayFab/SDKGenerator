@@ -57,11 +57,11 @@ for (var i in api.calls) { var apiCall = api.calls[i]; var prefix = ""; if (api.
 
             if (e.EventType == ApiProcessingEventType.Pre)
             {
-                PlayFabPreProcessingEvents.ProcessEvent(_instance, e);
+                PlayFabPreEvents.ProcessPreEvents(_instance, e);
             }
             else
             {
-                PlayFabNonPreProcessingEvents.ProcessNonPreEvent(_instance, e);
+                PlayFabNonPreProcessingEvents.ProcessNonPreEvents(_instance, e);
             }
         }
     }

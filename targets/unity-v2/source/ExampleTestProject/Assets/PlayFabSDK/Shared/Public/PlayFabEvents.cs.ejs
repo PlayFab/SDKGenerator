@@ -33,8 +33,8 @@ namespace PlayFab.Events
             private void <%-api.name%>_UnregisterInstance_<%-callIdx/10%>(object instance)
             {
     #if <%- getApiDefineFlag(api) %>
-    <%  var batchSize = Math.min(api.calls.length - callIdx, 10);
-        for (var j = callIdx; j < callIdx + batchSize; ++j)
+    <%  var apiCallSplitBatchSize = Math.min(api.calls.length - callIdx, 10);
+        for (var j = callIdx; j < callIdx + apiCallSplitBatchSize; ++j)
         { var apiCall = api.calls[j]; var prefix = ""; if (api.name != "Client"){ prefix=api.name } %>
                 if (On<%- prefix %><%- apiCall.name %>RequestEvent != null) { foreach (var each in On<%- prefix%><%- apiCall.name %>RequestEvent.GetInvocationList()) { if (ReferenceEquals(each.Target, instance)) { On<%- prefix%><%- apiCall.name %>RequestEvent -= (PlayFabRequestEvent<<%-api.name%>Models.<%- apiCall.request %>>)each; } } }
     <% if (apiCall.result != "LoginResult") { %>            if (On<%- prefix%><%- apiCall.name %>ResultEvent != null) { foreach (var each in On<%- prefix%><%- apiCall.name %>ResultEvent.GetInvocationList()) { if (ReferenceEquals(each.Target, instance)) { On<%- prefix%><%- apiCall.name %>ResultEvent -= (PlayFabResultEvent<<%-api.name%>Models.<%- apiCall.result %>>)each; } } }
@@ -71,8 +71,8 @@ namespace PlayFab.Events
         private void <%-api.name%>_OnProcessingEvent_Pre_<%-callIdx/10%>(System.Type type, ApiProcessingEventArgs e)
         {
 #if <%- getApiDefineFlag(api) %>
-<%  var batchSize = Math.min(api.calls.length - callIdx, 10);
-    for (var j = callIdx; j < callIdx + batchSize; ++j)
+<%  var apiCallSplitBatchSize = Math.min(api.calls.length - callIdx, 10);
+    for (var j = callIdx; j < callIdx + apiCallSplitBatchSize; ++j)
     { 
         var apiCall = api.calls[j]; 
         var prefix = ""; 
@@ -95,8 +95,8 @@ namespace PlayFab.Events
 <%  if (api.name=="Client" && callIdx == 0) { %>
             if (type == typeof(ClientModels.LoginResult)) { if (_instance.OnLoginResultEvent != null) { _instance.OnLoginResultEvent((ClientModels.LoginResult)e.Result); return; } }
 <% }
-    var batchSize = Math.min(api.calls.length - callIdx, 10);
-    for (var j = callIdx; j < callIdx + batchSize; ++j)
+    var apiCallSplitBatchSize = Math.min(api.calls.length - callIdx, 10);
+    for (var j = callIdx; j < callIdx + apiCallSplitBatchSize; ++j)
     { 
         var apiCall = api.calls[j];
         var prefix = ""; 

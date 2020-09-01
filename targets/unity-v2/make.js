@@ -29,7 +29,8 @@ exports.MakeUnityV2Sdk = function (apis, sourceDir, baseApiOutputDir) {
         getPropertyDef: getModelPropertyDef,
         getVerticalNameDefault: getVerticalNameDefault,
         hasClientOptions: getAuthMechanisms(apis).includes("SessionTicket"),
-        sourceDir: sourceDir
+        sourceDir: sourceDir,
+        unityBatchChunkSize: 10
     };
 
     // Copy from the sourceExampleProject to all dependentExampleProjects (basically duplicate core/shared files to each example proj)

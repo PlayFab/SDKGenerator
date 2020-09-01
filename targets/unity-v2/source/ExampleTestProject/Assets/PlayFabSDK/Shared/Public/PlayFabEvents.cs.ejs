@@ -29,11 +29,11 @@ namespace PlayFab.Events
 
     <% for (var x = 0; x < apis.length; x++) {
         var api = apis[x];
-        for (var callIdx = 0; callIdx < api.calls.length; callIdx += 10) {%>
-            private void <%-api.name%>_UnregisterInstance_<%-callIdx/10%>(object instance)
+        for (var callIdx = 0; callIdx < api.calls.length; callIdx += unityBatchChunkSize) {%>
+            private void <%-api.name%>_UnregisterInstance_<%-callIdx/unityBatchChunkSize%>(object instance)
             {
     #if <%- getApiDefineFlag(api) %>
-    <%  var apiCallSplitBatchSize = Math.min(api.calls.length - callIdx, 10);
+    <%  var apiCallSplitBatchSize = Math.min(api.calls.length - callIdx, unityBatchChunkSize);
         for (var j = callIdx; j < callIdx + apiCallSplitBatchSize; ++j)
         { var apiCall = api.calls[j]; var prefix = ""; if (api.name != "Client"){ prefix=api.name } %>
                 if (On<%- prefix %><%- apiCall.name %>RequestEvent != null) { foreach (var each in On<%- prefix%><%- apiCall.name %>RequestEvent.GetInvocationList()) { if (ReferenceEquals(each.Target, instance)) { On<%- prefix%><%- apiCall.name %>RequestEvent -= (PlayFabRequestEvent<<%-api.name%>Models.<%- apiCall.request %>>)each; } } }
@@ -51,8 +51,8 @@ namespace PlayFab.Events
 <% for (var x = 0; x < apis.length; x++) {
     var api = apis[x];
 // <%-api.name%>
-<%      for (var callIdx = 0; callIdx < api.calls.length; callIdx += 10) { %>
-            <%-api.name%>_UnregisterInstance_<%-callIdx / 10%>(instance);
+<%      for (var callIdx = 0; callIdx < api.calls.length; callIdx += unityBatchChunkSize) { %>
+            <%-api.name%>_UnregisterInstance_<%-callIdx / unityBatchChunkSize%>(instance);
 <% }} %>
         }
 
@@ -67,11 +67,11 @@ namespace PlayFab.Events
 
 <% for (var x = 0; x < apis.length; x++) {
     var api = apis[x];
-    for (var callIdx = 0; callIdx < api.calls.length; callIdx += 10) {%>
-        private void <%-api.name%>_OnProcessingEvent_Pre_<%-callIdx/10%>(System.Type type, ApiProcessingEventArgs e)
+    for (var callIdx = 0; callIdx < api.calls.length; callIdx += unityBatchChunkSize) {%>
+        private void <%-api.name%>_OnProcessingEvent_Pre_<%-callIdx/unityBatchChunkSize%>(System.Type type, ApiProcessingEventArgs e)
         {
 #if <%- getApiDefineFlag(api) %>
-<%  var apiCallSplitBatchSize = Math.min(api.calls.length - callIdx, 10);
+<%  var apiCallSplitBatchSize = Math.min(api.calls.length - callIdx, unityBatchChunkSize);
     for (var j = callIdx; j < callIdx + apiCallSplitBatchSize; ++j)
     { 
         var apiCall = api.calls[j]; 
@@ -88,14 +88,14 @@ namespace PlayFab.Events
 
     <% for (var x = 0; x < apis.length; x++) {
     var api = apis[x];
-    for (var callIdx = 0; callIdx < api.calls.length; callIdx += 10) {%>
-        private void <%-api.name%>_OnProcessingEvent_Post_<%-callIdx/10%>(System.Type type, ApiProcessingEventArgs e)
+    for (var callIdx = 0; callIdx < api.calls.length; callIdx += unityBatchChunkSize) {%>
+        private void <%-api.name%>_OnProcessingEvent_Post_<%-callIdx/unityBatchChunkSize%>(System.Type type, ApiProcessingEventArgs e)
         {
 #if <%- getApiDefineFlag(api) %>
 <%  if (api.name=="Client" && callIdx == 0) { %>
             if (type == typeof(ClientModels.LoginResult)) { if (_instance.OnLoginResultEvent != null) { _instance.OnLoginResultEvent((ClientModels.LoginResult)e.Result); return; } }
 <% }
-    var apiCallSplitBatchSize = Math.min(api.calls.length - callIdx, 10);
+    var apiCallSplitBatchSize = Math.min(api.calls.length - callIdx, unityBatchChunkSize);
     for (var j = callIdx; j < callIdx + apiCallSplitBatchSize; ++j)
     { 
         var apiCall = api.calls[j];
@@ -121,8 +121,8 @@ namespace PlayFab.Events
 <% for (var x = 0; x < apis.length; x++) {
     var api = apis[x];%>
     // <%- api.name%>
-<%      for (var callIdx = 0; callIdx < api.calls.length; callIdx += 10) { %>
-                <%-api.name%>_OnProcessingEvent_Pre_<%-callIdx / 10%>(type, e);
+<%      for (var callIdx = 0; callIdx < api.calls.length; callIdx += unityBatchChunkSize) { %>
+                <%-api.name%>_OnProcessingEvent_Pre_<%-callIdx / unityBatchChunkSize%>(type, e);
 <% }} %>
             }
             else
@@ -131,8 +131,8 @@ namespace PlayFab.Events
 <% for (var x = 0; x < apis.length; x++) {
     var api = apis[x];%>
 // <%-api.name%>
-<%      for (var callIdx = 0; callIdx < api.calls.length; callIdx += 10) { %>
-                <%-api.name%>_OnProcessingEvent_Post_<%-callIdx / 10%>(type, e);
+<%      for (var callIdx = 0; callIdx < api.calls.length; callIdx += unityBatchChunkSize) { %>
+                <%-api.name%>_OnProcessingEvent_Post_<%-callIdx / unityBatchChunkSize%>(type, e);
 <% }} %>
             }
         }

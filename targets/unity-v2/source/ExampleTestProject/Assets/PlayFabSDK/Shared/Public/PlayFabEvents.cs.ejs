@@ -117,23 +117,11 @@ namespace PlayFab.Events
 
             if (e.EventType == ApiProcessingEventType.Pre)
             {
-                var type = e.Request.GetType();
-<% for (var x = 0; x < apis.length; x++) {
-    var api = apis[x];%>
-    // <%- api.name%>
-<%      for (var callIdx = 0; callIdx < api.calls.length; callIdx += unityBatchChunkSize) { %>
-                <%-api.name%>_OnProcessingEvent_Pre_<%-callIdx / unityBatchChunkSize%>(type, e);
-<% }} %>
+                PlayFabPreEvents.ProcessPreEvents(_instance, e);
             }
             else
             {
-                var type = e.Result.GetType();
-<% for (var x = 0; x < apis.length; x++) {
-    var api = apis[x];%>
-// <%-api.name%>
-<%      for (var callIdx = 0; callIdx < api.calls.length; callIdx += unityBatchChunkSize) { %>
-                <%-api.name%>_OnProcessingEvent_Post_<%-callIdx / unityBatchChunkSize%>(type, e);
-<% }} %>
+                PlayFabNonPreProcessingEvents.ProcessNonPreEvents(_instance, e);
             }
         }
     }

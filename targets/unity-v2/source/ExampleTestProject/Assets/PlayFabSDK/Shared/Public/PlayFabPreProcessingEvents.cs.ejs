@@ -1,0 +1,28 @@
+using PlayFab.SharedModels;
+using PlayFab.Internal;
+
+namespace PlayFab.Events
+{
+    public partial class PlayFabEvents
+    {
+        public class PlayFabPreEvents
+        {
+            public static void ProcessPreEvents(PlayFabEvents instance, ApiProcessingEventArgs e)
+            {
+                if(e.Result != null)
+                {
+                    var type = e.Result.GetType();
+        <% for (var x = 0; x < apis.length; x++){ var api = apis[x];
+        %>#if <%- getApiDefineFlag(api) %><%
+        if (api.name=="Client") { %>
+                        if (type == typeof(ClientModels.LoginResult)) { if (instance.OnLoginResultEvent != null) { instance.OnLoginResultEvent((ClientModels.LoginResult)e.Result); return; } }<% } %>
+        <% for (var i in api.calls) { var apiCall = api.calls[i]; var prefix = ""; if (api.name != "Client"){ prefix=api.name } if (apiCall.result != "LoginResult") { %>
+                        if (type == typeof(<%-api.name%>Models.<%- apiCall.result %>)) { if (instance.On<%- prefix %><%- apiCall.name %>ResultEvent != null) { instance.On<%- prefix %><%- apiCall.name %>ResultEvent((<%-api.name%>Models.<%- apiCall.result %>)e.Result); return; } }<% } } %>
+        #endif
+        <% } %>
+                }
+            }
+
+        }
+    }
+}

@@ -40,7 +40,6 @@ namespace PlayFab.Internal
             var proj = new UnityEditor.iOS.Xcode.PBXProject();
 
             proj.ReadFromString(File.ReadAllText(projectPath));
-            //string xcodeTargetGUID = proj.TargetGuidByName("Unity-iPhone");
             string xcodeTargetGUID = proj.GetUnityMainTargetGuid();
 
             proj.AddFrameworkToProject(xcodeTargetGUID, "calabash.framework", false);

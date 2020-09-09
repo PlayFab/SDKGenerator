@@ -20,11 +20,6 @@ namespace PlayFab.Internal
 
         private void OnPostprocessBuildiOS(BuildReport report)
         {
-            if(!IsBuiltForAppCenter)
-            {
-                return;
-            }
-
             Debug.Log("TestAppPostBuildProcessor.OnPostprocessBuild for target " + report.summary.platform + " at path " + report.summary.outputPath);
             BuildTarget buildTarget = report.summary.platform;
             string path = report.summary.outputPath;

@@ -20,7 +20,6 @@ namespace PlayFab.Internal
 
         private void OnPostprocessBuildiOS(BuildReport report)
         {
-#if UNITY_IOS
             if(!IsBuiltForAppCenter)
             {
                 return;
@@ -49,7 +48,6 @@ namespace PlayFab.Internal
             proj.AddBuildProperty(xcodeTargetGUID, "OTHER_LDFLAGS", "CFNetwork");
 
             File.WriteAllText(projectPath, proj.WriteToString());
-#endif
         }
 
         private static bool IsBuiltForAppCenter

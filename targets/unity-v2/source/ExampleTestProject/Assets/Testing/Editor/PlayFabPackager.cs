@@ -15,7 +15,13 @@ namespace PlayFab.Internal
         public int callbackOrder { get { return 0; } }
         public void OnPostprocessBuild(BuildReport report)
         {
-            OnPostprocessBuildiOS(report);
+            try {
+                OnPostprocessBuildiOS(report);
+            }
+            catch(Exception e)
+            {
+                Debug.Log("Unhandled exception while attempting to add iOS frameworks with: \n" + e.Message);
+            }
         }
 
         private void OnPostprocessBuildiOS(BuildReport report)

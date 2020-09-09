@@ -20,6 +20,12 @@ namespace PlayFab.Internal
 
         private void OnPostprocessBuildiOS(BuildReport report)
         {
+#if UNITY_IOS || UNITY_MAC
+            if(!IsBuiltForAppCenter)
+            {
+                return;
+            }
+
             Debug.Log("TestAppPostBuildProcessor.OnPostprocessBuild for target " + report.summary.platform + " at path " + report.summary.outputPath);
             BuildTarget buildTarget = report.summary.platform;
             string path = report.summary.outputPath;
@@ -28,7 +34,8 @@ namespace PlayFab.Internal
             var proj = new UnityEditor.iOS.Xcode.PBXProject();
 
             proj.ReadFromString(File.ReadAllText(projectPath));
-            string xcodeTargetGUID = proj.TargetGuidByName("Unity-iPhone");
+            //string xcodeTargetGUID = proj.TargetGuidByName("Unity-iPhone");
+            string xcodeTargetGUID = proj.GetUnityMainTargetGuid();
 
             proj.AddFrameworkToProject(xcodeTargetGUID, "calabash.framework", false);
             proj.AddFileToBuild(xcodeTargetGUID, proj.AddFile("calabash.framework", "calabash.framework", UnityEditor.iOS.Xcode.PBXSourceTree.Source));
@@ -43,6 +50,7 @@ namespace PlayFab.Internal
             proj.AddBuildProperty(xcodeTargetGUID, "OTHER_LDFLAGS", "CFNetwork");
 
             File.WriteAllText(projectPath, proj.WriteToString());
+#endif
         }
 
         private static bool IsBuiltForAppCenter

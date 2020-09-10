@@ -26,11 +26,11 @@ namespace PlayFab.Internal
 
         private void OnPostprocessBuildiOS(BuildReport report)
         {
-#if UNITY_IOS || UNITY_MAC
-            if(!IsBuiltForAppCenter)
-            {
-                return;
-            }
+// #if UNITY_IOS || UNITY_MAC
+//             if(!IsBuiltForAppCenter)
+//             {
+//                 return;
+//             }
 
             Debug.Log("TestAppPostBuildProcessor.OnPostprocessBuild for target " + report.summary.platform + " at path " + report.summary.outputPath);
             BuildTarget buildTarget = report.summary.platform;
@@ -55,7 +55,7 @@ namespace PlayFab.Internal
             proj.AddBuildProperty(xcodeTargetGUID, "OTHER_LDFLAGS", "CFNetwork");
 
             File.WriteAllText(projectPath, proj.WriteToString());
-#endif
+//#endif
         }
 
         private static bool IsBuiltForAppCenter

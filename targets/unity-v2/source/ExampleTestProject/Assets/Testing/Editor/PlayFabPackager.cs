@@ -26,11 +26,11 @@ namespace PlayFab.Internal
 
         private void OnPostprocessBuildiOS(BuildReport report)
         {
-// #if UNITY_IOS || UNITY_MAC
-//             if(!IsBuiltForAppCenter)
-//             {
-//                 return;
-//             }
+#if UNITY_IOS || UNITY_MAC
+            if(!IsBuiltForAppCenter)
+            {
+                return;
+            }
 
             Debug.Log("TestAppPostBuildProcessor.OnPostprocessBuild for target " + report.summary.platform + " at path " + report.summary.outputPath);
             BuildTarget buildTarget = report.summary.platform;
@@ -48,14 +48,14 @@ namespace PlayFab.Internal
             proj.SetBuildProperty(xcodeTargetGUID, "FRAMEWORK_SEARCH_PATHS", "$(inherited)");
             proj.AddBuildProperty(xcodeTargetGUID, "FRAMEWORK_SEARCH_PATHS", "$(PROJECT_DIR)");
 
-            proj.AddBuildProperty(xcodeTargetGUID, "OTHER_LDFLAGS", "-ObjC");
-            proj.AddBuildProperty(xcodeTargetGUID, "OTHER_LDFLAGS", "-force_load");
-            proj.AddBuildProperty(xcodeTargetGUID, "OTHER_LDFLAGS", "$(SOURCE_ROOT)/calabash.framework/calabash");
-            proj.AddBuildProperty(xcodeTargetGUID, "OTHER_LDFLAGS", "-framework");
-            proj.AddBuildProperty(xcodeTargetGUID, "OTHER_LDFLAGS", "CFNetwork");
+            proj.AddBuildProperty(xcodeTargetGUID, "OTHER_LDFLAGS_FRAMEWORK", "-ObjC");
+            proj.AddBuildProperty(xcodeTargetGUID, "OTHER_LDFLAGS_FRAMEWORK", "-force_load");
+            proj.AddBuildProperty(xcodeTargetGUID, "OTHER_LDFLAGS_FRAMEWORK", "$(SOURCE_ROOT)/calabash.framework/calabash");
+            proj.AddBuildProperty(xcodeTargetGUID, "OTHER_LDFLAGS_FRAMEWORK", "-framework");
+            proj.AddBuildProperty(xcodeTargetGUID, "OTHER_LDFLAGS_FRAMEWORK", "CFNetwork");
 
             File.WriteAllText(projectPath, proj.WriteToString());
-//#endif
+#endif
         }
 
         private static bool IsBuiltForAppCenter

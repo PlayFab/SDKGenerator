@@ -49,10 +49,10 @@ namespace PlayFab.Internal
             proj.AddBuildProperty(xcodeTargetGUID, "FRAMEWORK_SEARCH_PATHS", "$(PROJECT_DIR)");
 
             proj.AddBuildProperty(xcodeTargetGUID, "OTHER_LDFLAGS_FRAMEWORK", "-ObjC");
-            proj.AddBuildProperty(xcodeTargetGUID, "OTHER_LDFLAGS_FRAMEWORK", "-force_load");
-            proj.AddBuildProperty(xcodeTargetGUID, "OTHER_LDFLAGS_FRAMEWORK", "$(SOURCE_ROOT)/calabash.framework/calabash");
             proj.AddBuildProperty(xcodeTargetGUID, "OTHER_LDFLAGS_FRAMEWORK", "-framework");
             proj.AddBuildProperty(xcodeTargetGUID, "OTHER_LDFLAGS_FRAMEWORK", "CFNetwork");
+            proj.AddBuildProperty(xcodeTargetGUID, "OTHER_LDFLAGS_FRAMEWORK", "-force_load");
+            proj.AddBuildProperty(xcodeTargetGUID, "OTHER_LDFLAGS_FRAMEWORK", "$(SOURCE_ROOT)/calabash.framework/calabash");
 
             File.WriteAllText(projectPath, proj.WriteToString());
 //#endif
@@ -79,7 +79,7 @@ namespace PlayFab.Internal
             "Assets/Testing/scenes/testscene.unity"
         };
 
-        private static readonly string TestPackageName = "com.playfab.service";
+        private static readonly string TestPackageName = "com.microsoft.playfab.sdktest";
 
         #region Utility Functions
         private static void Setup()

@@ -26,36 +26,6 @@ namespace PlayFab.Internal
 
         private void OnPostprocessBuildiOS(BuildReport report)
         {
-#if UNITY_IOS || UNITY_MAC
-           if(!IsBuiltForAppCenter)
-           {
-               return;
-           }
-
-            Debug.Log("TestAppPostBuildProcessor.OnPostprocessBuild for target " + report.summary.platform + " at path " + report.summary.outputPath);
-            BuildTarget buildTarget = report.summary.platform;
-            string path = report.summary.outputPath;
-
-            string projectPath = UnityEditor.iOS.Xcode.PBXProject.GetPBXProjectPath(path);
-            var proj = new UnityEditor.iOS.Xcode.PBXProject();
-
-            proj.ReadFromString(File.ReadAllText(projectPath));
-            string xcodeTargetGUID = proj.GetUnityMainTargetGuid();
-
-            proj.AddFrameworkToProject(xcodeTargetGUID, "calabash.framework", false);
-            proj.AddFileToBuild(xcodeTargetGUID, proj.AddFile("calabash.framework", "calabash.framework", UnityEditor.iOS.Xcode.PBXSourceTree.Source));
-
-            proj.SetBuildProperty(xcodeTargetGUID, "FRAMEWORK_SEARCH_PATHS", "$(inherited)");
-            proj.AddBuildProperty(xcodeTargetGUID, "FRAMEWORK_SEARCH_PATHS", "$(PROJECT_DIR)");
-
-            proj.AddBuildProperty(xcodeTargetGUID, "OTHER_LDFLAGS_FRAMEWORK", "-ObjC");
-            proj.AddBuildProperty(xcodeTargetGUID, "OTHER_LDFLAGS_FRAMEWORK", "-framework");
-            proj.AddBuildProperty(xcodeTargetGUID, "OTHER_LDFLAGS_FRAMEWORK", "CFNetwork");
-            proj.AddBuildProperty(xcodeTargetGUID, "OTHER_LDFLAGS_FRAMEWORK", "-force_load");
-            proj.AddBuildProperty(xcodeTargetGUID, "OTHER_LDFLAGS_FRAMEWORK", "$(SOURCE_ROOT)/calabash.framework/calabash");
-
-            File.WriteAllText(projectPath, proj.WriteToString());
-#endif
         }
 
         private static bool IsBuiltForAppCenter

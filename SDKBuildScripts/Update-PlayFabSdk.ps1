@@ -51,9 +51,6 @@ Override the target source parameter name passed to the generation script.
 .PARAMETER KeepSource
 Indicites whether or not to remove all generated source files from the destination location.
 
-.PARAMETER Beta
-Indicates whether or not to include any APIs tagged with as beta.
-
 .PARAMETER BuildFlags
 Any additional flags you want to pass to the build.
 
@@ -104,17 +101,22 @@ param(
                 "CSharpSDK",
                 "CSharpBetaSdk",
                 "JavaSDK",
+                "JavaBetaSDK",
                 "JavaScriptSDK",
                 "JavaScriptBetaSDK",
                 "LuaSDK",
                 "NodeSDK",
+                "NodeBetaSDK",
                 "Objective_C_SDK",
                 "PhpSDK",
                 "PostmanCollection",
+                "PostmanBeta",
                 "PythonSDK",
+                "PythonBetaSdk",
                 "SdkTestingCloudScript",
                 "UnrealMarketplacePlugin",
                 "UnitySDK",
+                "UnityBeta",
                 "WindowsSDK",
                 "XPlatCppSdk",
                 "XPlatBetaSdk",
@@ -142,8 +144,6 @@ param(
     [string]$TargetSource,
     [Parameter(ValueFromPipelineByPropertyName = $true)]
     [switch]$KeepSource,
-    [Parameter(ValueFromPipelineByPropertyName = $true)]
-    [switch]$Beta,
     [Parameter(ValueFromPipelineByPropertyName = $true)]
     [string[]]$BuildFlags,
     [Parameter(ValueFromPipelineByPropertyName = $true)]
@@ -266,11 +266,6 @@ process
         if(!$BuildFlags)
         {
             $BuildFlags = @()
-        }
-
-        if($Beta)
-        {
-            $BuildFlags += "beta"
         }
 
         if($targetSdkName -eq "UnrealMarketplacePlugin")

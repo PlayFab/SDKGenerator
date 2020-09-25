@@ -54,7 +54,8 @@ package
             AddTest("InvalidLogin", InvalidLogin);
             AddTest("InvalidRegistration", InvalidRegistration);
             AddTest("LoginOrRegister", LoginOrRegister);
-            AddTest("LoginWithAdvertisingId", LoginWithAdvertisingId);
+            // TODO: Bug 45606 - iOS issue
+            //AddTest("LoginWithAdvertisingId", LoginWithAdvertisingId);
             AddTest("UserDataApi", UserDataApi);
             AddTest("PlayerStatisticsApi", PlayerStatisticsApi);
             AddTest("UserCharacter", UserCharacter);

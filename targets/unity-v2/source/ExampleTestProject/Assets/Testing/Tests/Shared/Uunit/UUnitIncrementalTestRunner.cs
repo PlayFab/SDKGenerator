@@ -75,6 +75,12 @@ namespace PlayFab.UUnit
 #else
         private void OnSuiteFinish()
         {
+            var report = suite.GetInternalReport();
+            if(report.failures > 0)
+            {
+                throw new Exception("Tests have failed! Ending our tests early, see this Test Summary\n" + suite.GenerateTestSummary());
+            }
+
             if (postResultsToCloudscript)
                 PostTestResultsToCloudScript();
             else

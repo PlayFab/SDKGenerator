@@ -75,16 +75,19 @@ namespace PlayFab.UUnit
 #else
         private void OnSuiteFinish()
         {
+            if (postResultsToCloudscript)
+                PostTestResultsToCloudScript();
+            else
+                OnCloudScriptSubmit(null);
+        }
+
+        private void FaultRunIfFailed()
+        {
             var report = suite.GetInternalReport();
             if(report.failures > 0)
             {
                 throw new Exception("Tests have failed! Ending our tests early, see this Test Summary\n" + suite.GenerateTestSummary());
             }
-
-            if (postResultsToCloudscript)
-                PostTestResultsToCloudScript();
-            else
-                OnCloudScriptSubmit(null);
         }
 
         PlayFabClientInstanceAPI clientInstance = new PlayFabClientInstanceAPI(new PlayFabApiSettings(), new PlayFabAuthenticationContext());
@@ -132,6 +135,7 @@ namespace PlayFab.UUnit
             if (autoQuit && !Application.isEditor)
             {
                 msg = "Quitting...";
+                FaultRunIfFailed();
                 Application.Quit();
             }
             else if (!suite.AllTestsPassed())
@@ -145,6 +149,7 @@ namespace PlayFab.UUnit
 
             textDisplay.text += "\n" + msg;
             Debug.Log(msg);
+            FaultRunIfFailed();
         }
     }
 }

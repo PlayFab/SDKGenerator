@@ -135,8 +135,9 @@ namespace PlayFab.UUnit
             if (autoQuit && !Application.isEditor)
             {
                 msg = "Quitting...";
-                FaultRunIfFailed();
-                Application.Quit();
+                
+                var report = suite.GetInternalReport();
+                Application.Quit(report.failures);
             }
             else if (!suite.AllTestsPassed())
             {

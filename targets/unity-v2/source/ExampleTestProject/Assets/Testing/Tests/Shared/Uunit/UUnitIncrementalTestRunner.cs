@@ -81,15 +81,6 @@ namespace PlayFab.UUnit
                 OnCloudScriptSubmit(null);
         }
 
-        private void FaultRunIfFailed()
-        {
-            var report = suite.GetInternalReport();
-            if(report.failures > 0)
-            {
-                throw new Exception("Tests have failed! Ending our tests early, see this Test Summary\n" + suite.GenerateTestSummary());
-            }
-        }
-
         PlayFabClientInstanceAPI clientInstance = new PlayFabClientInstanceAPI(new PlayFabApiSettings(), new PlayFabAuthenticationContext());
         private void PostTestResultsToCloudScript()
         {
@@ -151,6 +142,15 @@ namespace PlayFab.UUnit
             textDisplay.text += "\n" + msg;
             Debug.Log(msg);
             FaultRunIfFailed();
+        }
+
+        private void FaultRunIfFailed()
+        {
+            var report = suite.GetInternalReport();
+            if(report.failures > 0)
+            {
+                throw new Exception("Tests have failed! Ending our tests early, see this Test Summary\n" + suite.GenerateTestSummary());
+            }
         }
     }
 }

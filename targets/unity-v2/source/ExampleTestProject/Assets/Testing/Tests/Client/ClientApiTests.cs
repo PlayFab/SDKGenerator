@@ -109,6 +109,10 @@ namespace PlayFab.UUnit
             testContext.EndTest(UUnitFinishState.PASSED, null);
         }
 
+        private void UnityWebRequestTimeOutTest(UUnitTestContext testContext)
+        {
+            // TODO: add timeout change (set it to less than 1 second, force a timeout and read the timeout error).
+        }
 
         /// <summary>
         /// CLIENT API

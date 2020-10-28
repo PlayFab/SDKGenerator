@@ -109,11 +109,6 @@ namespace PlayFab.UUnit
             testContext.EndTest(UUnitFinishState.PASSED, null);
         }
 
-        private void UnityWebRequestTimeOutTest(UUnitTestContext testContext)
-        {
-            // TODO: add timeout change (set it to less than 1 second, force a timeout and read the timeout error).
-        }
-
         /// <summary>
         /// CLIENT API
         /// Try to deliberately register a user with an invalid email and password.
@@ -502,6 +497,95 @@ namespace PlayFab.UUnit
         {
             // There's nothing else useful to test about this right now
             ((UUnitTestContext)result.CustomData).EndTest(UUnitFinishState.PASSED, null);
+        }
+
+        int originalTimeout = 0;
+        WebRequestType originalWebRequestType = WebRequestType.UnityWebRequest;
+
+        /// <summary>
+        /// CLIENT API
+        /// Test that the client ignores Timeouts for UnityWebRequests
+        /// </summary>
+        [UUnitTest]
+        private void UnityWebRequestTimeOutTest(UUnitTestContext testContext)
+        {
+            originalTimeout = PlayFabSettings.RequestTimeout;
+            originalWebRequestType = PlayFabSettings.RequestType;
+
+            PlayFabSettings.RequestTimeout = 0; // force this timeout
+            PlayFabSettings.RequestType = WebRequestType.HttpWebRequest;
+
+            var loginRequest = new LoginWithCustomIDRequest
+            {
+               CustomId = PlayFabSettings.BuildIdentifier,
+               CreateAccount = true,
+            };
+
+            clientInstance.LoginWithCustomID(loginRequest, LoginTimeout, LoginTimeoutError);
+        }
+
+        private void LoginTimeout(LoginResult result)
+        {
+           RestoreTimeoutSettings();
+           ((UUnitTestContext)result.CustomData).Fail("This test was expected to time out");
+        }
+
+        private void LoginTimeoutError(PlayFabError result)
+        {
+           RestoreTimeoutSettings();
+           if(result.ErrorMessage.Contains("Timeout"))
+           {
+               ((UUnitTestContext)result.CustomData).EndTest(UUnitFinishState.PASSED, "This test was expected to time out");
+           }
+           else
+           {
+               RestoreTimeoutSettings();
+               ((UUnitTestContext)result.CustomData).Fail("This test was expected to time out");
+           }
+        }
+
+        [UUnitTest]
+        private void UnityWebRequestTimeOutIgnoredTest(UUnitTestContext testContext)
+        {
+            originalTimeout = PlayFabSettings.RequestTimeout;
+            originalWebRequestType = PlayFabSettings.RequestType;
+
+            PlayFabSettings.RequestTimeout = -1;
+            PlayFabSettings.RequestType = WebRequestType.UnityWebRequest;
+
+            var loginRequest = new LoginWithCustomIDRequest
+            {
+               CustomId = PlayFabSettings.BuildIdentifier,
+               CreateAccount = true,
+            };
+
+            clientInstance.LoginWithCustomID(loginRequest, LoginTimeoutIgnored, LoginTimeoutIgnoredError, testContext);
+        }
+
+        private void LoginTimeoutIgnored(LoginResult result)
+        {
+            RestoreTimeoutSettings();
+            ((UUnitTestContext)result.CustomData).EndTest(UUnitFinishState.PASSED, "This test was expected to not time out");
+        }
+
+        private void LoginTimeoutIgnoredError(PlayFabError result)
+        {
+           RestoreTimeoutSettings();
+           if(result.ErrorMessage.Contains("Timeout"))
+           {
+               ((UUnitTestContext)result.CustomData).EndTest(UUnitFinishState.TIMEDOUT, "This test was not expected to time out");
+           }
+           else
+           {
+               RestoreTimeoutSettings();
+               ((UUnitTestContext)result.CustomData).Fail("This test was expected to see this error " + result.ErrorMessage);
+           }
+        }
+
+        void RestoreTimeoutSettings()
+        {
+           PlayFabSettings.RequestTimeout = originalTimeout;
+           PlayFabSettings.RequestType = originalWebRequestType;
         }
     }
 }

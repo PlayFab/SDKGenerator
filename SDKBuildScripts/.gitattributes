@@ -1,0 +1,14 @@
+*.as text eol=lf
+*.bat text eol=lf
+*.cpp text eol=lf
+*.cs text eol=lf
+*.ejs text eol=lf
+*.h text eol=lf
+*.java text eol=lf
+*.js text eol=lf
+*.lua text eol=lf
+*.m text eol=lf
+*.php text eol=lf
+*.py text eol=lf
+*.sh text eol=lf
+*.ts text eol=lf

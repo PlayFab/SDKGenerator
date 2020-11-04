@@ -248,6 +248,7 @@ function tryApplyTarget(sdktemplateFolder, destPath, buildTarget: IBuildTarget, 
 function getMakeScriptForTemplate(buildTarget: IBuildTarget) {
     var templateSubDirs: string[] = ["privateTemplates", "targets"];
     for (var subIdx in templateSubDirs) {
+        console.log("Checking: " + __dirname + "/" + templateSubDirs[subIdx] + "/" + buildTarget.templateFolder + "/" + "make.js");
         var targetMain = path.resolve(__dirname, templateSubDirs[subIdx], buildTarget.templateFolder, "make.js");
         if (!fs.existsSync(targetMain))
             continue;
@@ -478,7 +479,8 @@ function generateApis(buildIdentifier, target: IBuildTarget) {
         var genConfigFile = require(genConfigPath);
         var genConfigProfileName = sdkGeneratorGlobals.argsByName.hasOwnProperty("genconfigprofilename") ? sdkGeneratorGlobals.argsByName["genconfigprofilename"] : "default";
         genConfig = genConfigFile[genConfigProfileName];
-        console.log("Loaded genConfig at: " + genConfigPath + " with profile:" + genConfigProfileName);
+        console.log("Loaded genConfig at: " + genConfigPath + " with profile: " + genConfigProfileName);
+        console.log("Config is: " + JSON.stringify(genConfigFile));
     } catch (_) {
         console.log("Did not find: " + genConfigPath);
     }

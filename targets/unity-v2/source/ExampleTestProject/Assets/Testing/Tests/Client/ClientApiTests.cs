@@ -27,9 +27,6 @@ namespace PlayFab.UUnit
         // This test operates multi-threaded, so keep some thread-transfer variables
         private int _testInteger;
 
-        int originalTimeout = 0;
-        WebRequestType originalWebRequestType = WebRequestType.UnityWebRequest;
-
         public override void ClassSetUp()
         {
 #if !UNITY_WSA && !UNITY_WP8
@@ -49,9 +46,6 @@ namespace PlayFab.UUnit
 
         public override void SetUp(UUnitTestContext testContext)
         {
-            originalTimeout = PlayFabSettings.RequestTimeout;
-            originalWebRequestType = PlayFabSettings.RequestType;
-
             maxRetry = 1;
             // Verify all the inputs won't cause crashes in the tests
             var titleInfoSet = !string.IsNullOrEmpty(clientSettings.TitleId) && !string.IsNullOrEmpty(_userEmail);
@@ -67,7 +61,6 @@ namespace PlayFab.UUnit
 
         public override void TearDown(UUnitTestContext testContext)
         {
-            RestoreTimeoutSettings();
             clientSettings.AdvertisingIdType = null;
             clientSettings.AdvertisingIdValue = null;
             _tickAction = null;
@@ -504,48 +497,6 @@ namespace PlayFab.UUnit
         {
             // There's nothing else useful to test about this right now
             ((UUnitTestContext)result.CustomData).EndTest(UUnitFinishState.PASSED, null);
-        }
-
-
-        [UUnitTest]
-        private void UnityWebRequestTimeOutIgnoredTest(UUnitTestContext testContext)
-        {
-            originalTimeout = PlayFabSettings.RequestTimeout;
-            originalWebRequestType = PlayFabSettings.RequestType;
-
-            PlayFabSettings.RequestTimeout = 1;
-            PlayFabSettings.RequestType = WebRequestType.UnityWebRequest;
-
-            var loginRequest = new LoginWithCustomIDRequest
-            {
-               CustomId = PlayFabSettings.BuildIdentifier,
-               CreateAccount = true,
-            };
-
-            clientInstance.LoginWithCustomID(loginRequest, LoginTimeoutIgnored, LoginTimeoutIgnoredError, testContext);
-        }
-
-        private void LoginTimeoutIgnored(LoginResult result)
-        {
-            ((UUnitTestContext)result.CustomData).EndTest(UUnitFinishState.PASSED, null);
-        }
-
-        private void LoginTimeoutIgnoredError(PlayFabError result)
-        {
-           if(result.ErrorMessage.Contains("Timeout"))
-           {
-               ((UUnitTestContext)result.CustomData).EndTest(UUnitFinishState.FAILED, "This test was not expected to time out");
-           }
-           else
-           {
-               ((UUnitTestContext)result.CustomData).Fail("Failed with unexpected error: " + result.GenerateErrorReport());
-           }
-        }
-
-        void RestoreTimeoutSettings()
-        {
-           PlayFabSettings.RequestTimeout = originalTimeout;
-           PlayFabSettings.RequestType = originalWebRequestType;
         }
     }
 }

@@ -27,6 +27,9 @@ namespace PlayFab.UUnit
         // This test operates multi-threaded, so keep some thread-transfer variables
         private int _testInteger;
 
+        int originalTimeout = 0;
+        WebRequestType originalWebRequestType = WebRequestType.UnityWebRequest;
+
         public override void ClassSetUp()
         {
 #if !UNITY_WSA && !UNITY_WP8
@@ -46,6 +49,9 @@ namespace PlayFab.UUnit
 
         public override void SetUp(UUnitTestContext testContext)
         {
+            originalTimeout = PlayFabSettings.RequestTimeout;
+            originalWebRequestType = PlayFabSettings.RequestType;
+
             maxRetry = 1;
             // Verify all the inputs won't cause crashes in the tests
             var titleInfoSet = !string.IsNullOrEmpty(clientSettings.TitleId) && !string.IsNullOrEmpty(_userEmail);
@@ -61,6 +67,7 @@ namespace PlayFab.UUnit
 
         public override void TearDown(UUnitTestContext testContext)
         {
+            RestoreTimeoutSettings();
             clientSettings.AdvertisingIdType = null;
             clientSettings.AdvertisingIdValue = null;
             _tickAction = null;
@@ -499,50 +506,6 @@ namespace PlayFab.UUnit
             ((UUnitTestContext)result.CustomData).EndTest(UUnitFinishState.PASSED, null);
         }
 
-        int originalTimeout = 0;
-        WebRequestType originalWebRequestType = WebRequestType.UnityWebRequest;
-
-        /// <summary>
-        /// CLIENT API
-        /// Test that the client ignores Timeouts for UnityWebRequests
-        /// </summary>
-        [UUnitTest]
-        private void UnityWebRequestTimeOutTest(UUnitTestContext testContext)
-        {
-            originalTimeout = PlayFabSettings.RequestTimeout;
-            originalWebRequestType = PlayFabSettings.RequestType;
-
-            PlayFabSettings.RequestTimeout = 0; // force this timeout
-            PlayFabSettings.RequestType = WebRequestType.HttpWebRequest;
-
-            var loginRequest = new LoginWithCustomIDRequest
-            {
-               CustomId = PlayFabSettings.BuildIdentifier,
-               CreateAccount = true,
-            };
-
-            clientInstance.LoginWithCustomID(loginRequest, LoginTimeout, LoginTimeoutError);
-        }
-
-        private void LoginTimeout(LoginResult result)
-        {
-           RestoreTimeoutSettings();
-           ((UUnitTestContext)result.CustomData).Fail("This test was expected to time out");
-        }
-
-        private void LoginTimeoutError(PlayFabError result)
-        {
-           RestoreTimeoutSettings();
-           if(result.ErrorMessage.Contains("Timeout"))
-           {
-               ((UUnitTestContext)result.CustomData).EndTest(UUnitFinishState.PASSED, "This test was expected to time out");
-           }
-           else
-           {
-               RestoreTimeoutSettings();
-               ((UUnitTestContext)result.CustomData).Fail("This test was expected to time out");
-           }
-        }
 
         [UUnitTest]
         private void UnityWebRequestTimeOutIgnoredTest(UUnitTestContext testContext)
@@ -550,7 +513,7 @@ namespace PlayFab.UUnit
             originalTimeout = PlayFabSettings.RequestTimeout;
             originalWebRequestType = PlayFabSettings.RequestType;
 
-            PlayFabSettings.RequestTimeout = -1;
+            PlayFabSettings.RequestTimeout = 1;
             PlayFabSettings.RequestType = WebRequestType.UnityWebRequest;
 
             var loginRequest = new LoginWithCustomIDRequest
@@ -564,21 +527,18 @@ namespace PlayFab.UUnit
 
         private void LoginTimeoutIgnored(LoginResult result)
         {
-            RestoreTimeoutSettings();
-            ((UUnitTestContext)result.CustomData).EndTest(UUnitFinishState.PASSED, "This test was expected to not time out");
+            ((UUnitTestContext)result.CustomData).EndTest(UUnitFinishState.PASSED, null);
         }
 
         private void LoginTimeoutIgnoredError(PlayFabError result)
         {
-           RestoreTimeoutSettings();
            if(result.ErrorMessage.Contains("Timeout"))
            {
-               ((UUnitTestContext)result.CustomData).EndTest(UUnitFinishState.TIMEDOUT, "This test was not expected to time out");
+               ((UUnitTestContext)result.CustomData).EndTest(UUnitFinishState.FAILED, "This test was not expected to time out");
            }
            else
            {
-               RestoreTimeoutSettings();
-               ((UUnitTestContext)result.CustomData).Fail("This test was expected to see this error " + result.ErrorMessage);
+               ((UUnitTestContext)result.CustomData).Fail("Failed with unexpected error: " + result.GenerateErrorReport());
            }
         }
 

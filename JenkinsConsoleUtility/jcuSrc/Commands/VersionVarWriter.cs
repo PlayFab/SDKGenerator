@@ -28,9 +28,11 @@ namespace JenkinsConsoleUtility.Commands
 
         public int Execute(Dictionary<string, string> argsLc, Dictionary<string, string> argsCased)
         {
-            string destFile, workspacePath;
+            string destFile, workspacePath, varsWithSpaces;
             JenkinsConsoleUtility.TryGetArgVar(out destFile, argsLc, "destFile");
             JenkinsConsoleUtility.TryGetArgVar(out workspacePath, argsLc, "workspacePath");
+            // Jenkins wants a file with spaces around the "=", but Bash wants a file without. This controls which format nuance to use
+            JenkinsConsoleUtility.TryGetArgVar(out varsWithSpaces, argsLc, "varsWithSpaces");
             var sdkName = JenkinsConsoleUtility.GetArgVar(argsLc, "sdkName");
             var sdkGenKey = GetSdkGenKey(sdkName);
 
@@ -60,16 +62,23 @@ namespace JenkinsConsoleUtility.Commands
             set = true;
 
             // Write this to a Jenkins environment variable file, if defined
+            var space = " ";
+            if (!string.IsNullOrEmpty(varsWithSpaces) && varsWithSpaces.ToLower() == "false")
+                space = "";
             if (!string.IsNullOrEmpty(destFile))
             {
                 using (var outputFile = new StreamWriter(Path.Combine(workspacePath, destFile)))
                 {
-                    outputFile.WriteLine("sdkVersion = " + sdkVersionString);
-                    outputFile.WriteLine("sdkDate = " + date);
-                    JcuUtil.FancyWriteToConsole("sdkVersion = " + sdkVersionString);
-                    JcuUtil.FancyWriteToConsole("sdkDate = " + date);
+                    outputFile.WriteLine("sdkVersion" + space + "=" + space + sdkVersionString);
+                    outputFile.WriteLine("sdkDate" + space + "=" + space + date);
                 }
             }
+            else
+            {
+                JcuUtil.FancyWriteToConsole(System.ConsoleColor.Yellow, "WARNING: Output file not defined.");
+            }
+            JcuUtil.FancyWriteToConsole("sdkVersion" + space + "=" + space + sdkVersionString);
+            JcuUtil.FancyWriteToConsole("sdkDate" + space + "=" + space + date);
             return 0;
         }
 

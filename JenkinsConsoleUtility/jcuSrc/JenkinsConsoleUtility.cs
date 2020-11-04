@@ -60,8 +60,9 @@ namespace JenkinsConsoleUtility
                         {
                             returnCode = tempCommand.Execute(lcArgsByName, casedArgsByName);
                         }
-                        catch
+                        catch (Exception e)
                         {
+                            JcuUtil.FancyWriteToConsole(ConsoleColor.Red, key + " command threw exception: " + e.ToString());
                             returnCode = 1;
                         }
                     }

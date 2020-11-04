@@ -80,14 +80,7 @@ namespace PlayFab.UUnit
 
         private void LoginTimeoutIgnoredError(PlayFabError result)
         {
-           if(result.ErrorMessage.Contains("Timeout"))
-           {
-               ((UUnitTestContext)result.CustomData).EndTest(UUnitFinishState.FAILED, "This test was not expected to time out");
-           }
-           else
-           {
-               ((UUnitTestContext)result.CustomData).Fail("Failed with unexpected error: " + result.GenerateErrorReport());
-           }
+            ((UUnitTestContext)result.CustomData).Fail("Failed with unexpected error: " + result.GenerateErrorReport());
         }
 
         void RestoreTimeoutSettings()

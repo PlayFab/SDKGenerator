@@ -9,7 +9,6 @@ namespace PlayFab.UUnit
 {
     public class WebRequestTests : UUnitTestCase
     {
-        private Action _tickAction = null;
         private TestTitleDataLoader.TestTitleData testTitleData;
         private static readonly PlayFabApiSettings clientSettings = new PlayFabApiSettings();
         private static readonly PlayFabAuthenticationContext clientContext = new PlayFabAuthenticationContext();
@@ -38,8 +37,7 @@ namespace PlayFab.UUnit
 
         public override void Tick(UUnitTestContext testContext)
         {
-            if (_tickAction != null)
-                _tickAction();
+
         }
 
         public override void TearDown(UUnitTestContext testContext)
@@ -47,7 +45,6 @@ namespace PlayFab.UUnit
             RestoreTimeoutSettings();
             clientSettings.AdvertisingIdType = null;
             clientSettings.AdvertisingIdValue = null;
-            _tickAction = null;
         }
 
         public override void ClassTearDown()
@@ -58,9 +55,6 @@ namespace PlayFab.UUnit
         [UUnitTest]
         private void UnityWebRequestTimeOutIgnoredTest(UUnitTestContext testContext)
         {
-            originalTimeout = PlayFabSettings.RequestTimeout;
-            originalWebRequestType = PlayFabSettings.RequestType;
-
             PlayFabSettings.RequestTimeout = 1;
             PlayFabSettings.RequestType = WebRequestType.UnityWebRequest;
 

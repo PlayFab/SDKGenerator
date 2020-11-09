@@ -2,6 +2,7 @@ using PlayFab.UUnit;
 using System;
 using System.Collections.Generic;
 using JenkinsConsoleUtility.Util;
+using JenkinsConsoleUtility.Testing;
 
 namespace JenkinsConsoleUtility.Commands
 {
@@ -16,7 +17,7 @@ namespace JenkinsConsoleUtility.Commands
         {
             var testTitleData = TestTitleDataLoader.Load(null);
             UUnitIncrementalTestRunner.Start(false, null, testTitleData, null);
-            // TODO: UUnitIncrementalTestRunner.AddAssembly();
+            UUnitIncrementalTestRunner.AddTestAssembly(typeof(CloudScriptTests).Assembly);
 
             while (!UUnitIncrementalTestRunner.SuiteFinished)
                 UUnitIncrementalTestRunner.Tick();

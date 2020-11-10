@@ -65,7 +65,7 @@ namespace JenkinsConsoleUtility.Commands
             if (returnCode != 0)
                 return returnCode;
             JcuUtil.FancyWriteToConsole(ConsoleColor.Gray, "Test data found");
-            returnCode = FetchTestResult(buildIdentifier, workspacePath, testTitleData);
+            returnCode = FetchTestResult(workspacePath, testTitleData);
             if (returnCode != 0)
                 return returnCode;
             JcuUtil.FancyWriteToConsole(ConsoleColor.Green, "Test data received");
@@ -121,18 +121,27 @@ namespace JenkinsConsoleUtility.Commands
         /// Fetch the result and return
         /// (The cloudscript function should remove the test result from userData and delete the user)
         /// </summary>
-        private int FetchTestResult(string buildIdentifier, string workspacePath, TestTitleData testTitleData)
+        private int FetchTestResult(string workspacePath, TestTitleData testTitleData)
         {
             List<TestSuiteReport> testResults;
             string errorReport;
-            var callResult = ExecuteCloudScript<CsGetRequest, List<TestSuiteReport>>(CsFuncGetTestData, _getRequest, testTitleData.extraHeaders, out testResults, out errorReport);
+            var callResult = ExecuteCloudScript(CsFuncGetTestData, _getRequest, testTitleData.extraHeaders, out testResults, out errorReport);
 
-            var tempFilename = buildIdentifier + ".xml";
-            var tempFileFullPath = Path.Combine(workspacePath, tempFilename);
+            string outputFileFullPath = null;
+            for (int i = 0; i < 100; i++)
+            {
+                string eachOutputFile = Path.Combine(workspacePath, "ListenCsResult" + i + ".xml");
+                if (!File.Exists(eachOutputFile))
+                {
+                    outputFileFullPath = eachOutputFile;
+                    break; // Find the first file that doesn't exist
+                }
+            }
 
             if (!callResult || testResults == null)
                 return 1;
-            return JUnitXml.WriteXmlFile(tempFileFullPath, testResults, true);
+            JcuUtil.FancyWriteToConsole(ConsoleColor.Gray, "Writing test results: " + outputFileFullPath);
+            return JUnitXml.WriteXmlFile(outputFileFullPath, testResults, true);
         }
 
         public bool ExecuteCloudScript<TIn, TOut>(string functionName, TIn functionParameter, Dictionary<string, string> extraHeaders, out TOut result, out string errorReport)

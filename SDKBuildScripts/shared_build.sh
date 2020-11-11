@@ -28,6 +28,7 @@ CheckApiSpecSourceDefault() {
 
 # MIRRORED FROM sdkUtil.sh
 CheckBuildIdentifierDefault() {
+    echo CheckBuildIdentifierDefault $NODE_NAME $EXECUTOR_NUMBER $AGENT_ID
     if [ -z "$buildIdentifier" ] && [ ! -z "$SdkName" ] && [ ! -z "$NODE_NAME" ] && [ ! -z "$EXECUTOR_NUMBER" ]; then
         buildIdentifier="JBuild_${SdkName}_${NODE_NAME}_${EXECUTOR_NUMBER}"
     elif [ -z "$buildIdentifier" ] && [ ! -z "$SdkName" ] && [ ! -z "$AGENT_ID" ]; then

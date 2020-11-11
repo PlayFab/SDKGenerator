@@ -53,7 +53,7 @@ namespace PlayFab.UUnit
         }
 
         [UUnitTest]
-        private void UnityWebRequestTimeOutIgnoredTest(UUnitTestContext testContext)
+        private void UnityWebRequestTimeOutTest(UUnitTestContext testContext)
         {
             PlayFabSettings.RequestTimeout = 1;
             PlayFabSettings.RequestType = WebRequestType.UnityWebRequest;
@@ -64,17 +64,24 @@ namespace PlayFab.UUnit
                CreateAccount = true,
             };
 
-            clientInstance.LoginWithCustomID(loginRequest, LoginTimeoutIgnored, LoginTimeoutIgnoredError, testContext);
+            clientInstance.LoginWithCustomID(loginRequest, LoginTimeout, LoginTimeoutErrorPath, testContext);
         }
 
-        private void LoginTimeoutIgnored(LoginResult result)
+        private void LoginTimeout(LoginResult result)
         {
-            ((UUnitTestContext)result.CustomData).EndTest(UUnitFinishState.PASSED, null);
+            ((UUnitTestContext)result.CustomData).Fail("We were expected to time out.");
         }
 
-        private void LoginTimeoutIgnoredError(PlayFabError result)
+        private void LoginTimeoutErrorPath(PlayFabError result)
         {
-            ((UUnitTestContext)result.CustomData).Fail("Failed with unexpected error: " + result.GenerateErrorReport());
+            if(result.ErrorMessage.Contains("Timeout"))
+            {
+                ((UUnitTestContext)result.CustomData).EndTest(UUnitFinishState.PASSED, null);
+            }
+            else
+            {
+                ((UUnitTestContext)result.CustomData).Fail("Failed with unexpected error: " + result.GenerateErrorReport());
+            }
         }
 
         void RestoreTimeoutSettings()

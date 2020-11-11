@@ -44,6 +44,7 @@ namespace PlayFab.Internal
                 using (UnityWebRequest www = UnityWebRequest.Get(fullUrl))
                 {
 #if UNITY_2017_2_OR_NEWER
+                    www.timeout = PlayFabSettings.RequestTimeout;
                     yield return www.SendWebRequest();
 #else
                     yield return www.Send();
@@ -73,6 +74,7 @@ namespace PlayFab.Internal
 
 
 #if UNITY_2017_2_OR_NEWER
+                request.timeout = PlayFabSettings.RequestTimeout;
 #if !UNITY_2019_1_OR_NEWER
                 request.chunkedTransfer = false; // can be removed after Unity's PUT will be more stable
 #endif
@@ -130,7 +132,8 @@ namespace PlayFab.Internal
             {
                 uploadHandler = new UploadHandlerRaw(reqContainer.Payload),
                 downloadHandler = new DownloadHandlerBuffer(),
-                method = "POST"
+                method = "POST",
+                timeout = PlayFabSettings.RequestTimeout
             };
 
             foreach (var headerPair in reqContainer.RequestHeaders)

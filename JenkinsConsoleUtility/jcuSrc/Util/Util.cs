@@ -24,13 +24,14 @@ namespace JenkinsConsoleUtility.Util
                 if (each is ConsoleColor)
                     Console.ForegroundColor = (ConsoleColor)each;
                 else if (each is string)
-                    Console.WriteLine(each);
+                    Console.Write(each);
                 else if (each is IEnumerable)
                     foreach (var intEach in (IEnumerable)each)
                         _FancyWriteToConsole(intEach);
                 else
-                    Console.WriteLine(each);
+                    Console.Write(each);
             }
+            Console.Write("\n");
         }
     }
 }

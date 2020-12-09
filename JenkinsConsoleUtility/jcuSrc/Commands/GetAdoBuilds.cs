@@ -31,7 +31,7 @@ namespace JenkinsConsoleUtility.jcuSrc.Commands
                 days = 3;
             pat = JenkinsConsoleUtility.GetArgVar(argsLc, "pat");
             string kustoConfigFile = JenkinsConsoleUtility.GetArgVar(argsLc, "kustoConfig");
-            if (! File.Exists(kustoConfigFile))
+            if (!File.Exists(kustoConfigFile))
                 throw new ArgumentException("kustoConfig file does not exist.");
             string kustoConfigJson = File.ReadAllText(kustoConfigFile);
             KustoConfig kustoConfig = JsonConvert.DeserializeObject<KustoConfig>(kustoConfigJson);
@@ -171,6 +171,7 @@ namespace JenkinsConsoleUtility.jcuSrc.Commands
         }
     }
 
+#pragma warning disable 0649 // All these are json-assigned
     class GetBuildsResult
     {
         public int count;
@@ -206,4 +207,5 @@ namespace JenkinsConsoleUtility.jcuSrc.Commands
         public string name;
         public string url;
     }
+#pragma warning restore 0649
 }

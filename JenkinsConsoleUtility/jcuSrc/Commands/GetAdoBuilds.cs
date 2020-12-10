@@ -1,10 +1,11 @@
+using JenkinsConsoleUtility.Util;
+using Newtonsoft.Json;
 using System;
 using System.Collections.Generic;
+using System.IO;
 using System.Net.Http;
 using System.Net.Http.Headers;
 using System.Threading.Tasks;
-using Newtonsoft.Json;
-using JenkinsConsoleUtility.Util;
 
 namespace JenkinsConsoleUtility.jcuSrc.Commands
 {
@@ -15,11 +16,12 @@ namespace JenkinsConsoleUtility.jcuSrc.Commands
 
         private static readonly string[] MyCommandKeys = { "getbuilds", "builds", "adobuilds" };
         public string[] CommandKeys { get { return MyCommandKeys; } }
-        private static readonly string[] MyMandatoryArgKeys = { "pat" };
+        private static readonly string[] MyMandatoryArgKeys = { "kustoConfig", "pat" };
         public string[] MandatoryArgKeys { get { return MyMandatoryArgKeys; } }
 
         private int days;
         private string pat;
+        private KustoWriter kustoWriter;
 
         public int Execute(Dictionary<string, string> argsLc, Dictionary<string, string> argsCased)
         {
@@ -28,14 +30,19 @@ namespace JenkinsConsoleUtility.jcuSrc.Commands
             if (!JenkinsConsoleUtility.TryGetArgVar(out pat, argsLc, "days"))
                 days = 3;
             pat = JenkinsConsoleUtility.GetArgVar(argsLc, "pat");
+            string kustoConfigFile = JenkinsConsoleUtility.GetArgVar(argsLc, "kustoConfig");
+            if (!File.Exists(kustoConfigFile))
+                throw new ArgumentException("kustoConfig file does not exist.");
+            string kustoConfigJson = File.ReadAllText(kustoConfigFile);
+            KustoConfig kustoConfig = JsonConvert.DeserializeObject<KustoConfig>(kustoConfigJson);
+            kustoWriter = new KustoWriter(kustoConfig);
 
-            var getBuildsTask = Task.Run(GetBuilds);
+            Task<string> getBuildsTask = Task.Run(GetBuilds);
             string buildJson = getBuildsTask.Result;
 
-            var json = PlayFab.PluginManager.GetPlugin<PlayFab.ISerializerPlugin>(PlayFab.PluginContract.PlayFab_Serializer);
-            var builds = json.DeserializeObject<GetBuildsResult>(buildJson);
+            var builds = JsonConvert.DeserializeObject<GetBuildsResult>(buildJson);
             var tabbedJson = JsonConvert.SerializeObject(builds, Formatting.Indented);
-            System.IO.File.WriteAllText("temp.json", tabbedJson);
+            File.WriteAllText("temp.json", tabbedJson);
             var buildReports = ProcessBuildList(builds.value);
             foreach (var eachReportPair in buildReports)
             {
@@ -58,9 +65,9 @@ namespace JenkinsConsoleUtility.jcuSrc.Commands
                 }
             }
 
-            KustoWriter.WriteDataForTable(false, rows);
+            bool success = kustoWriter.WriteDataForTable(false, rows);
 
-            return builds.value.Count > 0 ? 0 : 1;
+            return success && builds.value.Count > 0 ? 0 : 1;
         }
 
         public async Task<string> GetBuilds()
@@ -164,6 +171,7 @@ namespace JenkinsConsoleUtility.jcuSrc.Commands
         }
     }
 
+#pragma warning disable 0649 // All these are json-assigned
     class GetBuildsResult
     {
         public int count;
@@ -199,4 +207,5 @@ namespace JenkinsConsoleUtility.jcuSrc.Commands
         public string name;
         public string url;
     }
+#pragma warning restore 0649
 }

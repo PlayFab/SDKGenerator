@@ -28,41 +28,52 @@ namespace JenkinsConsoleUtility.Util
         }
     }
 
-    public static class KustoWriter
+    public class KustoConfig
     {
-        const string CLUSTER_URI = "https://sdktestreporting.westus2.kusto.windows.net";
-        const string APPLICATION_CLIENT_ID = "1baa0fc5-b746-4b84-8184-a4298750fb51";
-        const string APPLICATION_SECRET = "5=u6C4PCa?j:8OwG_3PEAP3PwYjBg@-[";
+        // Defined externally
+        public string clusterUri;
+        public string dbName;
+        public string tableName;
+        public string clientId;
+        public string secretKey;
 
-        const string DATABASE_NAME = "SdkTestReportingDb";
-        const string ADO_RESULTS_TABLE_NAME = "SDK_Ado_Results";
+        // Dependent or constant
+        public string mappingName { get { return tableName + "_Mapping"; } }
+        public readonly string authority = "microsoft.onmicrosoft.com";
+    }
+
+    public class KustoWriter
+    {
+        KustoConfig config;
+        public KustoWriter(KustoConfig config)
+        {
+            this.config = config;
+        }
 
         /// <summary>
         /// Performs a write to the indicated table, sending the appropriately filtered test report to Kusto
         /// Returns the number of lines written
         /// Skips the final write step when testing
         /// </summary>
-        public static void WriteDataForTable(bool testing, List<AdoBuildResultRow> reports)
+        public bool WriteDataForTable(bool testing, List<AdoBuildResultRow> reports)
         {
-            string mappingName = ADO_RESULTS_TABLE_NAME + "_Mapping";
-
             try
             {
                 // Create Kusto connection string with App Authentication
                 var kustoConnectionStringBuilderEngine =
-                    new KustoConnectionStringBuilder(CLUSTER_URI).WithAadApplicationKeyAuthentication(
-                        applicationClientId: APPLICATION_CLIENT_ID,
-                        applicationKey: APPLICATION_SECRET,
-                        authority: "microsoft.onmicrosoft.com");
+                    new KustoConnectionStringBuilder(config.clusterUri).WithAadApplicationKeyAuthentication(
+                        applicationClientId: config.clientId,
+                        applicationKey: config.secretKey,
+                        authority: config.authority);
 
                 using (var ingestClient = KustoIngestFactory.CreateDirectIngestClient(kustoConnectionStringBuilderEngine))
                 {
-                    var ingestProps = new KustoQueuedIngestionProperties(DATABASE_NAME, ADO_RESULTS_TABLE_NAME);
+                    var ingestProps = new KustoQueuedIngestionProperties(config.dbName, config.tableName);
                     // For the sake of getting both failure and success notifications we set this to IngestionReportLevel.FailuresAndSuccesses
                     // Usually the recommended level is IngestionReportLevel.FailuresOnly
                     ingestProps.ReportLevel = IngestionReportLevel.FailuresAndSuccesses;
                     ingestProps.ReportMethod = IngestionReportMethod.Queue;
-                    ingestProps.IngestionMapping = new IngestionMapping { IngestionMappingReference = mappingName };
+                    ingestProps.IngestionMapping = new IngestionMapping { IngestionMappingReference = config.mappingName };
                     ingestProps.Format = DataSourceFormat.json;
 
                     // Prepare data for ingestion
@@ -85,11 +96,13 @@ namespace JenkinsConsoleUtility.Util
                         }
                     }
                 }
+                return true;
             }
             catch (Exception e)
             {
-                Console.WriteLine($"ERROR: Could not write to Table: {ADO_RESULTS_TABLE_NAME}, using Mapping: {mappingName}");
+                Console.WriteLine($"ERROR: Could not write to: {config.clusterUri}.{config.dbName}.{config.tableName}, using Mapping: {config.mappingName}");
                 Console.WriteLine(e.ToString());
+                return false;
             }
         }
     }

@@ -27,7 +27,8 @@ namespace JenkinsConsoleUtility.jcuSrc.Commands
         {
             List<AdoBuildResultRow> rows = new List<AdoBuildResultRow>();
 
-            if (!JenkinsConsoleUtility.TryGetArgVar(out pat, argsLc, "days"))
+            string daysStr;
+            if (!JenkinsConsoleUtility.TryGetArgVar(out daysStr, argsLc, "days") || !int.TryParse(daysStr, out days))
                 days = 3;
             pat = JenkinsConsoleUtility.GetArgVar(argsLc, "pat");
             string kustoConfigFile = JenkinsConsoleUtility.GetArgVar(argsLc, "kustoConfig");

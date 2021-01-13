@@ -11,8 +11,10 @@ namespace JenkinsConsoleUtility.jcuSrc.Commands
 {
     class GetAdoBuilds : ICommand
     {
-        private const string buildsUrl = "https://dev.azure.com/PlayFabInternal/Main/_apis/build/builds?api-version=6.1-preview.6";
-        public static readonly List<string> filterIds = new List<string> { "refs/heads/master", "refs/heads/develop" };
+        private const string expectedFolderPrefix = "\\PlayFabSdk";
+        private const string pipelinesUrl = "https://dev.azure.com/PlayFabInternal/Main/_apis/pipelines";
+        private const string buildsUrl = "https://dev.azure.com/PlayFabInternal/Main/_apis/build/builds?definitions={definitionId}";
+        // public static readonly List<string> filterIds = new List<string> { "refs/heads/master", "refs/heads/develop" };
 
         private static readonly string[] MyCommandKeys = { "getbuilds", "builds", "adobuilds" };
         public string[] CommandKeys { get { return MyCommandKeys; } }
@@ -25,9 +27,16 @@ namespace JenkinsConsoleUtility.jcuSrc.Commands
 
         public int Execute(Dictionary<string, string> argsLc, Dictionary<string, string> argsCased)
         {
+            Task<int> execTask = Task.Run(async () => { return await ExecuteAsync(argsLc, argsCased); });
+            return execTask.Result;
+        }
+
+        private async Task<int> ExecuteAsync(Dictionary<string, string> argsLc, Dictionary<string, string> argsCased)
+        {
             List<AdoBuildResultRow> rows = new List<AdoBuildResultRow>();
 
-            if (!JenkinsConsoleUtility.TryGetArgVar(out pat, argsLc, "days"))
+            string daysStr;
+            if (!JenkinsConsoleUtility.TryGetArgVar(out daysStr, argsLc, "days") || !int.TryParse(daysStr, out days))
                 days = 3;
             pat = JenkinsConsoleUtility.GetArgVar(argsLc, "pat");
             string kustoConfigFile = JenkinsConsoleUtility.GetArgVar(argsLc, "kustoConfig");
@@ -37,41 +46,48 @@ namespace JenkinsConsoleUtility.jcuSrc.Commands
             KustoConfig kustoConfig = JsonConvert.DeserializeObject<KustoConfig>(kustoConfigJson);
             kustoWriter = new KustoWriter(kustoConfig);
 
-            Task<string> getBuildsTask = Task.Run(GetBuilds);
-            string buildJson = getBuildsTask.Result;
-
-            var builds = JsonConvert.DeserializeObject<GetBuildsResult>(buildJson);
-            var tabbedJson = JsonConvert.SerializeObject(builds, Formatting.Indented);
-            File.WriteAllText("temp.json", tabbedJson);
-            var buildReports = ProcessBuildList(builds.value);
-            foreach (var eachReportPair in buildReports)
+            GetPipelinesResult pipelines = await MakeAdoApiCall<GetPipelinesResult>(pipelinesUrl, "pipelines.json");
+            if (!FilterPipelines(pipelines.value))
             {
-                JcuUtil.FancyWriteToConsole(ConsoleColor.DarkCyan, eachReportPair.Value.name);
-                foreach (var eachDailyResultPair in eachReportPair.Value.dailyResults)
-                {
-                    if (eachDailyResultPair.Key > days)
-                        continue; // Skip the old tests
+                JcuUtil.FancyWriteToConsole(ConsoleColor.Red, "No pipelines found in expected folder: " + expectedFolderPrefix);
+                return 1;
+            }
 
-                    DateTime date;
-                    int passed, failed, others, total;
-                    BuildReport.Count(eachDailyResultPair.Value, out date, out passed, out failed, out others, out total);
-                    JcuUtil.FancyWriteToConsole(
-                        ConsoleColor.White, eachDailyResultPair.Key, " days ago(", date, "): (",
-                        ConsoleColor.Green, "P: ", passed, ConsoleColor.White, "/",
-                        ConsoleColor.Red, "F:", failed, ConsoleColor.White, "/",
-                        ConsoleColor.DarkYellow, "O:", others, ConsoleColor.White, "/",
-                        ConsoleColor.Cyan, "T:", total, ConsoleColor.White, ")");
-                    rows.Add(new AdoBuildResultRow(eachReportPair.Value.name, passed, failed, others, total, date));
+            int buildsWritten = 0;
+            foreach (var eachPipeline in pipelines.value)
+            {
+                GetBuildsResult builds = await MakeAdoApiCall<GetBuildsResult>(buildsUrl.Replace("{definitionId}", eachPipeline.id.ToString()), "builds" + eachPipeline.id +".json");
+                var buildReports = ProcessBuildList(builds.value);
+                foreach (var eachReportPair in buildReports)
+                {
+                    JcuUtil.FancyWriteToConsole(ConsoleColor.DarkCyan, eachReportPair.Value.name);
+                    foreach (var eachDailyResultPair in eachReportPair.Value.dailyResults)
+                    {
+                        if (eachDailyResultPair.Key > days)
+                            continue; // Skip the old tests
+
+                        DateTime date;
+                        int passed, failed, others, total;
+                        BuildReport.Count(eachDailyResultPair.Value, out date, out passed, out failed, out others, out total);
+                        JcuUtil.FancyWriteToConsole(
+                            ConsoleColor.White, eachDailyResultPair.Key, " days ago(", date, "): (",
+                            ConsoleColor.Green, "P: ", passed, ConsoleColor.White, "/",
+                            ConsoleColor.Red, "F:", failed, ConsoleColor.White, "/",
+                            ConsoleColor.DarkYellow, "O:", others, ConsoleColor.White, "/",
+                            ConsoleColor.Cyan, "T:", total, ConsoleColor.White, ")");
+                        rows.Add(new AdoBuildResultRow(eachReportPair.Value.name, passed, failed, others, total, date));
+                    }
                 }
+                buildsWritten += builds.value.Count;
             }
 
             bool success = kustoWriter.WriteDataForTable(false, rows);
-
-            return success && builds.value.Count > 0 ? 0 : 1;
+            return success && buildsWritten > 0 ? 0 : 1;
         }
 
-        public async Task<string> GetBuilds()
+        private async Task<T> MakeAdoApiCall<T>(string adoUrl, string cacheFileName) where T : class
         {
+            string jsonResult = null;
             try
             {
                 using (HttpClient client = new HttpClient())
@@ -81,21 +97,37 @@ namespace JenkinsConsoleUtility.jcuSrc.Commands
                     var b64pat = Convert.ToBase64String(System.Text.ASCIIEncoding.ASCII.GetBytes(string.Format("{0}:{1}", "", pat)));
                     client.DefaultRequestHeaders.Authorization = new AuthenticationHeaderValue("Basic", b64pat);
 
-                    using (HttpResponseMessage response = client.GetAsync(buildsUrl).Result)
+                    using (HttpResponseMessage response = client.GetAsync(adoUrl).Result)
                     {
                         response.EnsureSuccessStatusCode();
-                        return await response.Content.ReadAsStringAsync();
+                        jsonResult = await response.Content.ReadAsStringAsync();
                     }
                 }
             }
             catch (Exception ex)
             {
                 Console.WriteLine(ex.ToString());
+                return null;
             }
 
-            return null;
+            var deserializedObj = JsonConvert.DeserializeObject<T>(jsonResult);
+            if (!string.IsNullOrEmpty(cacheFileName))
+            {
+                var tabbedJson = JsonConvert.SerializeObject(deserializedObj, Formatting.Indented);
+                File.WriteAllText(cacheFileName, tabbedJson);
+            }
+            return deserializedObj;
         }
 
+        // Filters in-place, modifying the list that is provided
+        public bool FilterPipelines(List<Pipeline> pipelines)
+        {
+            // Remove any pipelines that don't start with the expected prefix
+            for (int i = pipelines.Count - 1; i >= 0; i--)
+                if (!pipelines[i].folder.StartsWith(expectedFolderPrefix))
+                    pipelines.RemoveAt(i);
+            return pipelines.Count > 0;
+        }
 
         public Dictionary<int, BuildReport> ProcessBuildList(List<BuildResult> allBuilds)
         {
@@ -172,6 +204,19 @@ namespace JenkinsConsoleUtility.jcuSrc.Commands
     }
 
 #pragma warning disable 0649 // All these are json-assigned
+    class GetPipelinesResult
+    {
+        public int count;
+        public List<Pipeline> value;
+    }
+
+    class Pipeline
+    {
+        public int id;
+        public string name;
+        public string folder;
+    }
+
     class GetBuildsResult
     {
         public int count;

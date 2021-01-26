@@ -89,7 +89,7 @@ namespace JenkinsConsoleUtility.Commands
             }
             else
             {
-                JcuUtil.FancyWriteToConsole(ConsoleColor.Gray, "Login successful, PlayFabId: " + task.Result.Result.PlayFabId);
+                JcuUtil.FancyWriteToConsole(ConsoleColor.Gray, "Login successful, TitleId:", titleId, ", PlayFabId: " + task.Result.Result.PlayFabId);
             }
             return returnCode;
         }

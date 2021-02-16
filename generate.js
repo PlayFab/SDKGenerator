@@ -23,7 +23,7 @@ var sdkGeneratorGlobals = {
         templateFolder: null,
         targetMaker: null,
         versionKey: null,
-        versionString: null
+        versionString: null,
     },
     apiTemplateDescription: "INVALID",
     apiCache: {},
@@ -142,7 +142,7 @@ function extractArgs(args, argsByName, buildTarget, errorMessages) {
             activeKey = lcArg.substring(1); // remove the "-", lowercase the argsByName-key
             argsByName[activeKey] = "";
         }
-        else if (lcArg.indexOf("=") !== -1) { // any parameter with an "=" is assumed to be a target specification, lowercase the templateSubfolder
+        else if (lcArg.indexOf("=") !== -1) {
             var argPair = cmdArgs[i].split("=", 2);
             tryApplyTarget(argPair[0].toLowerCase(), argPair[1], buildTarget, errorMessages);
         }
@@ -185,6 +185,7 @@ function tryApplyTarget(sdktemplateFolder, destPath, buildTarget, errorMessages)
 function getMakeScriptForTemplate(buildTarget) {
     var templateSubDirs = ["privateTemplates", "targets"];
     for (var subIdx in templateSubDirs) {
+        console.log("Checking: " + __dirname + "/" + templateSubDirs[subIdx] + "/" + buildTarget.templateFolder + "/" + "make.js");
         var targetMain = path.resolve(__dirname, templateSubDirs[subIdx], buildTarget.templateFolder, "make.js");
         if (!fs.existsSync(targetMain))
             continue;
@@ -389,7 +390,8 @@ function generateApis(buildIdentifier, target) {
         var genConfigFile = require(genConfigPath);
         var genConfigProfileName = sdkGeneratorGlobals.argsByName.hasOwnProperty("genconfigprofilename") ? sdkGeneratorGlobals.argsByName["genconfigprofilename"] : "default";
         genConfig = genConfigFile[genConfigProfileName];
-        console.log("Loaded genConfig at: " + genConfigPath + " with profile:" + genConfigProfileName);
+        console.log("Loaded genConfig at: " + genConfigPath + " with profile: " + genConfigProfileName);
+        console.log("Config is: " + JSON.stringify(genConfigFile));
     }
     catch (_) {
         console.log("Did not find: " + genConfigPath);
@@ -506,7 +508,7 @@ function GetFlagConflicts(buildFlags, apiObj, obsoleteFlaged, nonNullableFlagged
     var allInclusiveFlags = [];
     if (apiObj.hasOwnProperty("AllInclusiveFlags"))
         allInclusiveFlags = lowercaseFlagsList(apiObj.AllInclusiveFlags);
-    if (allInclusiveFlags.length !== 0) // If there's no flags, it is always included
+    if (allInclusiveFlags.length !== 0)
         for (var alIdx = 0; alIdx < allInclusiveFlags.length; alIdx++)
             if (buildFlags.indexOf(allInclusiveFlags[alIdx]) === -1)
                 return apiObj.AllInclusiveFlags; // If a required flag is missing, fail out
@@ -594,7 +596,7 @@ if (!String.prototype.padStart) {
 function templatizeTree(locals, sourcePath, destPath) {
     if (!fs.existsSync(sourcePath))
         throw Error("Copy tree source doesn't exist: " + sourcePath);
-    if (!fs.lstatSync(sourcePath).isDirectory()) // File
+    if (!fs.lstatSync(sourcePath).isDirectory())
         return copyOrTemplatizeFile(locals, sourcePath, destPath);
     // Directory
     if (!fs.existsSync(destPath))
@@ -622,7 +624,7 @@ function copyOrTemplatizeFile(locals, sourceFile, destFile) {
 function copyTree(sourcePath, destPath) {
     if (!fs.existsSync(sourcePath))
         throw Error("Copy tree source doesn't exist: " + sourcePath);
-    if (!fs.lstatSync(sourcePath).isDirectory()) // File
+    if (!fs.lstatSync(sourcePath).isDirectory())
         return copyFile(sourcePath, destPath);
     // Directory
     if (!fs.existsSync(destPath))
@@ -715,3 +717,4 @@ function catchAndReport(method) {
 // Kick everything off
 catchAndReport(parseAndLoadApis);
 setTimeout(function () { }, 5000);
+//# sourceMappingURL=generate.js.map

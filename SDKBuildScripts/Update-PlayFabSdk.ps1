@@ -51,9 +51,6 @@ Override the target source parameter name passed to the generation script.
 .PARAMETER KeepSource
 Indicites whether or not to remove all generated source files from the destination location.
 
-.PARAMETER Beta
-Indicates whether or not to include any APIs tagged with as beta.
-
 .PARAMETER BuildFlags
 Any additional flags you want to pass to the build.
 
@@ -102,18 +99,27 @@ param(
                 "ActionScriptSDK",
                 "Cocos2d-xSDK",
                 "CSharpSDK",
+                "CSharpBetaSdk",
                 "JavaSDK",
+                "JavaBetaSDK",
                 "JavaScriptSDK",
+                "JavaScriptBetaSDK",
                 "LuaSDK",
                 "NodeSDK",
+                "NodeBetaSDK",
                 "Objective_C_SDK",
                 "PhpSDK",
                 "PostmanCollection",
+                "PostmanBeta",
                 "PythonSDK",
+                "PythonBetaSdk",
                 "SdkTestingCloudScript",
                 "UnrealMarketplacePlugin",
                 "UnitySDK",
+                "UnityBeta",
                 "WindowsSDK",
+                "XPlatCppSdk",
+                "XPlatBetaSdk",
                 "XPlatCoreTemplate"
              ) -like "$WordToComplete*"
         }
@@ -139,8 +145,6 @@ param(
     [Parameter(ValueFromPipelineByPropertyName = $true)]
     [switch]$KeepSource,
     [Parameter(ValueFromPipelineByPropertyName = $true)]
-    [switch]$Beta,
-    [Parameter(ValueFromPipelineByPropertyName = $true)]
     [string[]]$BuildFlags,
     [Parameter(ValueFromPipelineByPropertyName = $true)]
     [string]$Version
@@ -151,25 +155,6 @@ begin
     if(!(Get-Command node))
     {
         throw "You must have Node.js installed to generate the SDK"
-    }
-
-    $sdkTargetSrcMap = @{
-        "ActionScriptSDK" = "actionscript";
-        "Cocos2d-xSDK" = "cpp-cocos2dx";
-        "CSharpSDK" = "csharp";
-        "JavaSDK" = "java";
-        "JavaScriptSDK" = "javascript";
-        "LuaSDK" = "LuaSdk";
-        "NodeSDK" = "js-node";
-        "Objective_C_SDK" = "objc";
-        "PhpSDK" = "PhpSdk";
-        "PostmanCollection" = "postman";
-        "PythonSDK" = "PythonSdk";
-        "SdkTestingCloudScript" = "SdkTestingCloudScript";
-        "UnrealMarketplacePlugin" = "UnrealMarketplacePlugin";
-        "UnitySDK" = "unity-v2";
-        "WindowsSDK" = "windowssdk";
-        "XPlatCoreTemplate" = "xplatcoretemplate";
     }
 
     if(!$OutputPath)
@@ -251,17 +236,6 @@ process
 {
     foreach($targetSdkName in $SdkName)
     {
-        $sdkTargetSource = $TargetSource
-        if(!$sdkTargetSource)
-        {
-            $sdkTargetSource = $sdkTargetSrcMap[$targetSdkName]
-            Write-Verbose "Setting Targetsource to $sdkTargetSource for $targetSdkName"
-            if(!$sdkTargetSource)
-            {
-                throw "Unable to determine TargetSource for '$targetSdkName'.  You must explicitly provide a value."
-            }
-        }
-
         $destPath = Join-Path $OutputPath $targetSdkName
 
         if(!(Test-Path $destPath))
@@ -294,11 +268,6 @@ process
             $BuildFlags = @()
         }
 
-        if($Beta)
-        {
-            $BuildFlags += "beta"
-        }
-
         if($targetSdkName -eq "UnrealMarketplacePlugin")
         {
             $BuildFlags += "nonnullable"
@@ -325,7 +294,7 @@ process
             $versionParameter = "-version $Version"
         }
 
-        $expression = "node generate.js `"$sdkTargetSource=$destPath`" -nowait $apiSpecSource $buildFlagsParameter $versionParameter $buildIdentifier".Trim()
+        $expression = "node generate.js -destPath `"$destPath`" -nowait $apiSpecSource $buildFlagsParameter $versionParameter $buildIdentifier".Trim()
         if($PSCmdlet.ShouldProcess(
             "Executing '$expression'.",
             "Would you like to generate $targetSdkName into '$destPath'?",

@@ -3,3 +3,4 @@ exports.initializeSpecialization = function (toc) {
     var pluginRegistryPath = toc.defaultPluginRegistryLocations.pluginRegistryPath;
     var sdkCommonPath = toc.defaultSdkCommonLocations.sdkCommonPath;
 };
+//# sourceMappingURL=generate-plugins.js.map

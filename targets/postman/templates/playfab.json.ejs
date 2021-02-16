@@ -3,6 +3,57 @@
     "name": "PlayFab Postman SDK <%- sdkVersion %><%- getVerticalTag() %>",
     "description": "PlayFab API SDK for Postman.\n\nThis is still under development, and is not yet ready for general use.  Experienced users can utilize this if they carefully examine the post-body and ensure the data is properly entered.  By default, the post-body is NOT defaulting to useable values.",
     "order": [],
+    "events": [
+        {
+            "listen": "prerequest",
+            "script": {
+                "id": "b7114d52-8fee-497d-bb42-4b4d1446174c",
+                "type": "text/javascript",
+                "exec": [
+                    "// When enabled, the following script will ensure that the EntityToken environment",
+                    "// variable always contains a valid title entity token. To enable the script, create",
+                    "// either a global or environment variable named PlayFab_AutoTitleToken and set its ",
+                    "// value to true.",
+                    "",
+                    "if (pm.globals.get(\"PlayFab_AutoTitleToken\") !== \"true\" && ",
+                    "    pm.environment.get(\"PlayFab_AutoTitleToken\") !== \"true\")",
+                    "{",
+                    "    return;",
+                    "}",
+                    "",
+                    "var titleId = pm.environment.get(\"TitleId\");",
+                    "var secretKey = pm.environment.get(\"SecretKey\");",
+                    "",
+                    "if (titleId == null || secretKey == null)",
+                    "{",
+                    "    return;",
+                    "}",
+                    "",
+                    "var tokenExpiration = pm.environment.get(\"TokenExpiration\");",
+                    "var todaysDate = Date.now();",
+                    "var tokenExpired = (tokenExpiration == null)",
+                    "    ? true",
+                    "    : Date.parse(tokenExpiration) < todaysDate;",
+                    "",
+                    "if (tokenExpired)",
+                    "{",
+                    "    pm.sendRequest({",
+                    "        url: 'https://' + titleId + '.playfabapi.com/Authentication/GetEntityToken',",
+                    "        method: 'POST',",
+                    "        header: ['X-SecretKey: ' + secretKey, 'Content-Type: application/json'],",
+                    "        body: {",
+                    "        }",
+                    "    }, function (err, res) {",
+                    "        var response = res.json();",
+                    "        console.log(response);",
+                    "        pm.environment.set(\"EntityToken\", response[\"data\"][\"EntityToken\"]);",
+                    "        pm.environment.set(\"TokenExpiration\", response[\"data\"][\"TokenExpiration\"]);",
+                    "    });",
+                    "}"
+                ]
+            }
+        }
+    ],
     "folders": [
 <% for(var a in apis) { var api = apis[a]; var apiName = api.name.toLowerCase(); %>
         {

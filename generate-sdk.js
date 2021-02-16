@@ -89,3 +89,4 @@ function getAuthMechanisms(apis) {
     return output;
 }
 global.getAuthMechanisms = getAuthMechanisms;
+//# sourceMappingURL=generate-sdk.js.map

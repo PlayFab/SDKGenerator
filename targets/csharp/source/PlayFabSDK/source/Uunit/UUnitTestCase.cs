@@ -86,8 +86,16 @@ namespace PlayFab.UUnit
                 }
                 catch (UUnitException uu)
                 {
-                    // Silence the assert and ensure the test is marked as complete - The exception is just to halt the test process
-                    testContext.EndTest(UUnitFinishState.FAILED, uu.Message + "\n" + uu.StackTrace);
+                    if (uu.Message.Contains("SSL_ERROR_WANT_READ"))
+                    {
+                        // In the case of SSL WANT READ coming back (which happens once in awhile on Android), the proper approach is to retry the test.
+                        testContext.EndTest(UUnitFinishState.SKIPPED, "An SSL_ERROR_WANT_READ has been detected. Please Retry the test \n" + uu.Message);
+                    }
+                    else
+                    {
+                        // Silence the assert and ensure the test is marked as complete - The exception is just to halt the test process
+                        testContext.EndTest(UUnitFinishState.FAILED, uu.Message + "\n" + uu.StackTrace);
+                    }
                 }
                 catch (Exception e)
                 {

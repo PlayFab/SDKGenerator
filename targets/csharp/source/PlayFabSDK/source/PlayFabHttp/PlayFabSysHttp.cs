@@ -9,6 +9,7 @@ namespace PlayFab.Internal
 {
     public class PlayFabSysHttp : ITransportPlugin
     {
+        private static bool OnlyRetrySSLOnce = true;
         private readonly HttpClient _client = new HttpClient();
 
         public async Task<object> DoPost(string fullUrl, object request, Dictionary<string, string> extraHeaders)
@@ -117,6 +118,12 @@ namespace PlayFab.Internal
                 }
 
                 error.RequestId = GetRequestId(hasReqId, requestId); ;
+                if(error.ErrorMessage.Contains("SSL_ERROR_WANT_READ") && OnlyRetrySSLOnce)
+                {
+                    OnlyRetrySSLOnce = false;
+                    // This response is not an error, we are being told to run the request again
+                    return DoPost(fullUrl, request, extraHeaders);
+                }
 
                 return error;
             }

@@ -111,7 +111,6 @@ namespace PlayFab.UUnit
             testContext.EndTest(UUnitFinishState.PASSED, null);
         }
 
-
         /// <summary>
         /// CLIENT API
         /// Try to deliberately register a user with an invalid email and password.
@@ -144,7 +143,6 @@ namespace PlayFab.UUnit
             testContext.EndTest(UUnitFinishState.PASSED, null);
         }
 
-
         /// <summary>
         /// CLIENT API
         /// Log in or create a user, track their PlayFabId
@@ -159,6 +157,7 @@ namespace PlayFab.UUnit
             };
             clientInstance.LoginWithCustomID(loginRequest, PlayFabUUnitUtils.ApiActionWrapper<LoginResult>(testContext, LoginCallback), PlayFabUUnitUtils.ApiActionWrapper<PlayFabError>(testContext, SharedErrorCallback), testContext);
         }
+
         private void LoginCallback(LoginResult result)
         {
             PlayFabId = result.PlayFabId;
@@ -167,7 +166,6 @@ namespace PlayFab.UUnit
             testContext.True(clientInstance.authenticationContext.IsEntityLoggedIn(), "Entity login failed");
             testContext.EndTest(UUnitFinishState.PASSED, clientSettings.TitleId + ", " + result.PlayFabId);
         }
-
 
         /// <summary>
         /// CLIENT API

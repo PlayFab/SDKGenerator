@@ -464,10 +464,6 @@ function GetRequestActions(apiCall, api) {
 function GetResultActions(apiCall, api) {
     if (api.name === "Client" && (apiCall.result === "LoginResult" || apiCall.result === "RegisterPlayFabUserResult")) {
         var val = "if ([class_data valueForKey:@\"SessionTicket\"])\n            self.mUserSessionTicket = [class_data valueForKey:@\"SessionTicket\"];\n";
-        val += "#ifdef USE_IDFA\n";
-        val += "if(model.SettingsForUser.NeedsAttribution)\n";
-        val += "    [[PlayFab" + api.name + "API GetInstance] MultiStepClientLogin:model.SettingsForUser.NeedsAttribution];\n";
-        val += "#endif\n";
         return val;
     }
     return "";

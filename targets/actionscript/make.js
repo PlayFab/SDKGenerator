@@ -274,11 +274,9 @@ function getRequestActions(tabbing, apiCall) {
 function getResultActions(tabbing, apiCall) {
     if (apiCall.result === "LoginResult")
         return tabbing + "PlayFabSettings.ClientSessionTicket = result.SessionTicket != null ? result.SessionTicket : PlayFabSettings.ClientSessionTicket;\n"
-            + tabbing + "PlayFabSettings.EntityToken = result.EntityToken != null ? result.EntityToken.EntityToken : PlayFabSettings.EntityToken;\n"
-            + tabbing + "MultiStepClientLogin(result.SettingsForUser.NeedsAttribution);\n";
+            + tabbing + "PlayFabSettings.EntityToken = result.EntityToken != null ? result.EntityToken.EntityToken : PlayFabSettings.EntityToken;\n";
     else if (apiCall.result === "RegisterPlayFabUserResult")
-        return tabbing + "PlayFabSettings.ClientSessionTicket = result.SessionTicket != null ? result.SessionTicket : PlayFabSettings.ClientSessionTicket;\n"
-            + tabbing + "MultiStepClientLogin(result.SettingsForUser.NeedsAttribution);\n";
+        return tabbing + "PlayFabSettings.ClientSessionTicket = result.SessionTicket != null ? result.SessionTicket : PlayFabSettings.ClientSessionTicket;\n";
     else if (apiCall.url === "/Authentication/GetEntityToken")
         return tabbing + "PlayFabSettings.EntityToken = result.EntityToken != null ? result.EntityToken : PlayFabSettings.EntityToken;\n";
     return "";

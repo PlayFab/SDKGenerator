@@ -224,12 +224,10 @@ function getResultActions(tabbing, apiCall, api) {
     if (apiCall.result === "LoginResult")
         return tabbing + "if playFabResult:\n" 
             + tabbing + "    PlayFabSettings._internalSettings.ClientSessionTicket = playFabResult[\"SessionTicket\"] if \"SessionTicket\" in playFabResult else PlayFabSettings._internalSettings.ClientSessionTicket\n"
-            + tabbing + "    PlayFabSettings._internalSettings.EntityToken = playFabResult[\"EntityToken\"][\"EntityToken\"] if \"EntityToken\" in playFabResult else PlayFabSettings._internalSettings.EntityToken\n"
-            + tabbing + "    MultiStepClientLogin(playFabResult.get(\"SettingsForUser\"))\n";
+            + tabbing + "    PlayFabSettings._internalSettings.EntityToken = playFabResult[\"EntityToken\"][\"EntityToken\"] if \"EntityToken\" in playFabResult else PlayFabSettings._internalSettings.EntityToken\n";
     else if (apiCall.result === "RegisterPlayFabUserResult")
         return tabbing + "if playFabResult:\n" 
-            + tabbing + "    PlayFabSettings._internalSettings.ClientSessionTicket = playFabResult[\"SessionTicket\"] if \"SessionTicket\" in playFabResult else PlayFabSettings._internalSettings.ClientSessionTicket\n"
-            + tabbing + "    MultiStepClientLogin(playFabResult.get(\"SettingsForUser\"))\n";
+            + tabbing + "    PlayFabSettings._internalSettings.ClientSessionTicket = playFabResult[\"SessionTicket\"] if \"SessionTicket\" in playFabResult else PlayFabSettings._internalSettings.ClientSessionTicket\n";
     else if (apiCall.result === "GetEntityTokenResponse")
         return tabbing + "if playFabResult:\n"
             + tabbing + "    PlayFabSettings._internalSettings.EntityToken = playFabResult[\"EntityToken\"] if \"EntityToken\" in playFabResult else PlayFabSettings._internalSettings.EntityToken\n";

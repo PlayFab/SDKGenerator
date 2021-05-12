@@ -173,30 +173,25 @@ function getRequestActions(tabbing, apiCall) {
 
 function getResultAction(tabbing, apiCall) {
     var preCallback = "";
-    var postCallback = "";
     var internalTabbing = tabbing + "    ";
     if (apiCall.url === "/Authentication/GetEntityToken")
         preCallback = internalTabbing + "PlayFabSettings._internalSettings.entityToken = result.EntityToken\n";
     else if (apiCall.result === "LoginResult") {
         preCallback = internalTabbing + "PlayFabSettings._internalSettings.sessionTicket = result.SessionTicket\n"
             + internalTabbing + "if (result.EntityToken) then PlayFabSettings._internalSettings.entityToken = result.EntityToken.EntityToken end\n";
-        postCallback = internalTabbing + "PlayFabClientApi._MultiStepClientLogin(result.SettingsForUser.NeedsAttribution)\n";
     }
     else if (apiCall.request === "RegisterPlayFabUserRequest") {
         preCallback = internalTabbing + "PlayFabSettings._internalSettings.sessionTicket = result.SessionTicket\n";
-        postCallback = internalTabbing + "PlayFabClientApi._MultiStepClientLogin(result.SettingsForUser.NeedsAttribution)\n";
     }
 
     var resultAction = "";
-    if (preCallback || postCallback) // Wrap the logic and the callback in a secondary callback wrapper
+    if (preCallback) // Wrap the logic and the callback in a secondary callback wrapper
         resultAction = "\n" + tabbing + "local externalOnSuccess = onSuccess\n"
             + tabbing + "function wrappedOnSuccess(result)\n"
             + preCallback
             + tabbing + "    if (externalOnSuccess) then\n"
             + tabbing + "        externalOnSuccess(result)\n"
             + tabbing + "    end\n"
-            + postCallback
-            + tabbing + "end\n"
             + tabbing + "onSuccess = wrappedOnSuccess\n";
     return resultAction;
 }

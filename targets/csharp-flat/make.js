@@ -422,7 +422,7 @@ function GetRequestActions(apiCall, api) {
 
 function GetResultActions(apiCall, api) {
     if (api.name === "Client" && (apiCall.result === "LoginResult" || apiCall.result === "RegisterPlayFabUserResult"))
-        return "            _authKey = result.SessionTicket ?? _authKey;\n            await MultiStepClientLogin(result.SettingsForUser.NeedsAttribution);\n";
+        return "            _authKey = result.SessionTicket ?? _authKey;\n            ";
     return "";
 }
 

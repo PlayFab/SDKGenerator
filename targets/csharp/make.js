@@ -271,12 +271,10 @@ function getCustomApiLogic(tabbing, apiCall) {
 function getResultActions(tabbing, apiCall, api, isInstance) {
     if ((apiCall.result === "LoginResult" || apiCall.result === "RegisterPlayFabUserResult") && isInstance)
         return tabbing + "result.AuthenticationContext = new PlayFabAuthenticationContext(result.SessionTicket, result.EntityToken.EntityToken, result.PlayFabId, result.EntityToken.Entity.Id, result.EntityToken.Entity.Type);\n"
-            + tabbing + "authenticationContext.CopyFrom(result.AuthenticationContext);\n"
-            + tabbing + "await MultiStepClientLogin(result.SettingsForUser.NeedsAttribution);\n";
+            + tabbing + "authenticationContext.CopyFrom(result.AuthenticationContext);\n";
     if ((apiCall.result === "LoginResult" || apiCall.result === "RegisterPlayFabUserResult") && !isInstance)
         return tabbing + "result.AuthenticationContext = new PlayFabAuthenticationContext(result.SessionTicket, result.EntityToken.EntityToken, result.PlayFabId, result.EntityToken.Entity.Id, result.EntityToken.Entity.Type);\n"
-            + tabbing + "PlayFabSettings.staticPlayer.CopyFrom(result.AuthenticationContext);\n"
-            + tabbing + "await MultiStepClientLogin(result.SettingsForUser.NeedsAttribution);\n";
+            + tabbing + "PlayFabSettings.staticPlayer.CopyFrom(result.AuthenticationContext);\n";
     else if (apiCall.result === "GetEntityTokenResponse" && isInstance)
         return tabbing + "var updateContext = authenticationContext;\n"
             + tabbing + "updateContext.EntityToken = result.EntityToken;\n"

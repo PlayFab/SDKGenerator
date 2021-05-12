@@ -54,7 +54,6 @@ package
             AddTest("InvalidLogin", InvalidLogin);
             AddTest("InvalidRegistration", InvalidRegistration);
             AddTest("LoginOrRegister", LoginOrRegister);
-            AddTest("LoginWithAdvertisingId", LoginWithAdvertisingId);
             AddTest("UserDataApi", UserDataApi);
             AddTest("PlayerStatisticsApi", PlayerStatisticsApi);
             AddTest("UserCharacter", UserCharacter);
@@ -194,50 +193,6 @@ package
             // Typical success
             playFabId = result.PlayFabId;
             FinishTestHandler(new ASyncUnitTestEvent(ASyncUnitTestEvent.FINISH_TEST, ASyncUnitTestEvent.RESULT_PASSED, result.PlayFabId));
-        }
-
-        /// <summary>
-        /// CLIENT API
-        /// Test that the login call sequence sends the AdvertisingId when set
-        /// </summary>
-        private function LoginWithAdvertisingId() : void
-        {
-            PlayFabSettings.AdvertisingIdType = PlayFabSettings.AD_TYPE_ANDROID_ID;
-            PlayFabSettings.AdvertisingIdValue = "PlayFabTestId";
-
-            var loginRequest:com.playfab.ClientModels.LoginWithCustomIDRequest = new com.playfab.ClientModels.LoginWithCustomIDRequest();
-            loginRequest.TitleId = PlayFabSettings.TitleId;
-            loginRequest.CustomId = PlayFabVersion.BuildIdentifier;
-            loginRequest.CreateAccount = true;
-            // Try to login, but if we fail, just fall-back and try to create character
-            PlayFabClientAPI.LoginWithCustomID(loginRequest, Wrap(LoginWithAdvertisingIdSuccess, "LoginWithAdvertisingId"), Wrap(Shared_ApiCallFailure, "LoginWithAdvertisingId"));
-            function RecursiveWrap():void { CheckAdvertIdSuccess(-1); }
-            Wrap(RecursiveWrap, "RecursiveWrap_First")(); // ODD SYNTAX HERE: Wrap returns a function, which we then need to call.  Normally the wrap-return is passed in as a callback, which gets called by the sdk, or a utility.
-        }
-        private function LoginWithAdvertisingIdSuccess(result:com.playfab.ClientModels.LoginResult) : void
-        {
-            // Typical success
-            playFabId = result.PlayFabId;
-        }
-        private function CheckAdvertIdSuccess(count:Number) : void
-        {
-            TickTestHandler();
-            if (count > 20) // count is the number of attempts to test the successful send of the AdvertisingId.  It needs to be high enough to guarantee regular-case success, but low enough to fail within a reasonable time-limit
-            {
-                ASyncAssert.Fail("AdvertisingId not sent properly: " + PlayFabSettings.AdvertisingIdType);
-            }
-            else if (PlayFabSettings.AdvertisingIdType == PlayFabSettings.AD_TYPE_ANDROID_ID + "_Successful") // Base case, success!
-            {
-                FinishTestHandler(new ASyncUnitTestEvent(ASyncUnitTestEvent.FINISH_TEST, ASyncUnitTestEvent.RESULT_PASSED, ""));
-            }
-            else
-            {
-                function RecursiveWrap():void { CheckAdvertIdSuccess(count + 1); }
-
-                var timer:Timer = new Timer(50, 1); // timer takes a delay, which in this case re-tests the successful send of the AdvertisingId.  It needs to be high enough to guarantee regular-case success, but low enough to fail within a reasonable time-limit
-                timer.addEventListener(TimerEvent.TIMER, Wrap(RecursiveWrap, "RecursiveWrap_" + count));
-                timer.start();
-            }
         }
 
         /// <summary>

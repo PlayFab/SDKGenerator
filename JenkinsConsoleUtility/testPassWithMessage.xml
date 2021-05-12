@@ -11,9 +11,6 @@
     <testcase classname="jbuild_unitysdk_0" name="ClientApiTests.LoginOrRegister" time="0.181">
       <failure message="">PASSED</failure>
     </testcase>
-    <testcase classname="jbuild_unitysdk_0" name="ClientApiTests.LoginWithAdvertisingId" time="0.315">
-      <failure message="PlayFabTestId">PASSED</failure>
-    </testcase>
     <testcase classname="jbuild_unitysdk_0" name="ClientApiTests.UserDataApi" time="0.313">
       <failure message="">PASSED</failure>
     </testcase>

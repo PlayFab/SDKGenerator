@@ -87,8 +87,6 @@ function hasResultActions(apiCall) {
         return true;
     if (apiCall.url === "/Authentication/GetEntityToken")
         return true;
-    if (apiCall.url === "/Client/AttributeInstall")
-        return true;
     return false;
 }
 
@@ -113,9 +111,6 @@ function getResultActions(tabbing, apiCall) {
     if (apiCall.url === "/Authentication/GetEntityToken")
         return tabbing + "if (result != null && result.data.EntityToken != null)\n"
             + tabbing + "    PlayFab._internalSettings.entityToken = result.data.EntityToken;";
-    if (apiCall.url === "/Client/AttributeInstall")
-        return tabbing + "// Modify advertisingIdType:  Prevents us from sending the id multiple times, and allows automated tests to determine id was sent successfully\n"
-            + tabbing + "PlayFab.settings.advertisingIdType += \"_Successful\";\n";
     return "";
 }
 

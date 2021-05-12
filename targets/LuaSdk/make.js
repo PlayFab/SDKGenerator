@@ -160,9 +160,6 @@ function getRequestActions(tabbing, apiCall) {
             + tabbing + "end\n";
     else if (apiCall.result === "LoginResult" || apiCall.request === "RegisterPlayFabUserRequest")
         requestAction = tabbing + "request.TitleId = PlayFabSettings.settings.titleId\n";
-    else if (apiCall.result === "AttributeInstallResult")
-        requestAction = tabbing + "if (not PlayFabClientApi.IsClientLoggedIn()) then error(\"Must be logged in to call this method\") end\n"
-            + tabbing + "PlayFabSettings.settings.advertisingIdType = PlayFabSettings.settings.advertisingIdType .. \"_Successful\"\n";
     else if (apiCall.auth === "SessionTicket")
         requestAction = tabbing + "if (not PlayFabClientApi.IsClientLoggedIn()) then error(\"Must be logged in to call this method\") end\n";
     else if (apiCall.auth === "SecretKey")

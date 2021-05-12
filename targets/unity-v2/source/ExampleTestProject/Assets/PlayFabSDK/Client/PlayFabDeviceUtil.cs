@@ -9,33 +9,6 @@ namespace PlayFab.Internal
     {
         private static bool _needsAttribution, _gatherDeviceInfo, _gatherScreenTime;
 
-        #region Make Attribution API call
-        private static void DoAttributeInstall(PlayFabApiSettings settings, IPlayFabInstanceApi instanceApi)
-        {
-            if (!_needsAttribution || settings.DisableAdvertising)
-                return; // Don't send this value to PlayFab if it's not required
-            var attribRequest = new ClientModels.AttributeInstallRequest();
-            switch (settings.AdvertisingIdType)
-            {
-                case PlayFabSettings.AD_TYPE_ANDROID_ID: attribRequest.Adid = settings.AdvertisingIdValue; break;
-                case PlayFabSettings.AD_TYPE_IDFA: attribRequest.Idfa = settings.AdvertisingIdValue; break;
-            }
-            var clientInstanceApi = instanceApi as PlayFabClientInstanceAPI;
-            if (clientInstanceApi != null)
-                clientInstanceApi.AttributeInstall(attribRequest, OnAttributeInstall, null, settings);
-#if !DISABLE_PLAYFAB_STATIC_API
-            else
-                PlayFabClientAPI.AttributeInstall(attribRequest, OnAttributeInstall, null, settings);
-#endif
-        }
-        private static void OnAttributeInstall(ClientModels.AttributeInstallResult result)
-        {
-            var settings = (PlayFabApiSettings)result.CustomData;
-            // This is for internal testing.
-            settings.AdvertisingIdType += "_Successful";
-        }
-        #endregion Make Attribution API call
-
         #region Scrape Device Info
         private static void SendDeviceInfoToPlayFab(PlayFabApiSettings settings, IPlayFabInstanceApi instanceApi)
         {
@@ -118,10 +91,7 @@ namespace PlayFab.Internal
             }
 
             // Device attribution (adid or idfa)
-            if (settings.AdvertisingIdType != null && settings.AdvertisingIdValue != null)
-                DoAttributeInstall(settings, instanceApi);
-            else
-                GetAdvertIdFromUnity(settings, instanceApi);
+            GetAdvertIdFromUnity(settings, instanceApi);
 
             // Device information gathering
             SendDeviceInfoToPlayFab(settings, instanceApi);
@@ -153,7 +123,6 @@ namespace PlayFab.Internal
                     settings.AdvertisingIdType = PlayFabSettings.AD_TYPE_IDFA;
 #endif
                     settings.AdvertisingIdValue = advertisingId;
-                    DoAttributeInstall(settings, instanceApi);
                 }
             );
 #endif

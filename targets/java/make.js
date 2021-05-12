@@ -243,9 +243,6 @@ function getResultActions(tabbing, apiCall) {
     else if (apiCall.result === "RegisterPlayFabUserResult")
         return tabbing + "PlayFabSettings.ClientSessionTicket = result.SessionTicket != null ? result.SessionTicket : PlayFabSettings.ClientSessionTicket;\n"
             + tabbing + "MultiStepClientLogin(resultData.data.SettingsForUser.NeedsAttribution);\n";
-    else if (apiCall.result === "AttributeInstallResult")
-        return tabbing + "// Modify AdvertisingIdType:  Prevents us from sending the id multiple times, and allows automated tests to determine id was sent successfully\n"
-            + tabbing + "PlayFabSettings.AdvertisingIdType += \"_Successful\";\n";
     return "";
 }
 

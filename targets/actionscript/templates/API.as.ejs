@@ -31,20 +31,5 @@ package com.playfab
             PlayFabHTTP.post(PlayFabSettings.GetURL("<%- apiCall.url %>"), requetJson, <%- getAuthParams(apiCall) %>, onPostComplete);
         }
 
-<% } %><% if (hasClientOptions) {
-%>        public static function MultiStepClientLogin(needsAttribution:Boolean):void
-        {
-            if (needsAttribution && !PlayFabSettings.DisableAdvertising && (PlayFabSettings.AdvertisingIdType != null && PlayFabSettings.AdvertisingIdType != "") && (PlayFabSettings.AdvertisingIdValue != null && PlayFabSettings.AdvertisingIdValue != ""))
-            {
-                var request:AttributeInstallRequest = new AttributeInstallRequest();
-                if (PlayFabSettings.AdvertisingIdType == PlayFabSettings.AD_TYPE_IDFA)
-                    request.Idfa = PlayFabSettings.AdvertisingIdValue;
-                else if (PlayFabSettings.AdvertisingIdType == PlayFabSettings.AD_TYPE_ANDROID_ID)
-                    request.Adid = PlayFabSettings.AdvertisingIdValue;
-                else
-                    return;
-                AttributeInstall(request, null, null);
-            }
-        }
-<% } %>    }
+<% } %>}
 }

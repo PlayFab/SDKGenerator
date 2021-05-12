@@ -123,23 +123,6 @@ namespace PlayFab
             return new PlayFabResult<<%- apiCall.result %>> { Result = result, CustomData = customData };
         }
 
-<% } %><% if (hasClientOptions) {
-%>        private async Task<PlayFabResult<AttributeInstallResult>> MultiStepClientLogin(bool needsAttribution)
-        {
-            var requestSettings = apiSettings ?? PlayFabSettings.staticSettings;
-            if (needsAttribution && !requestSettings.DisableAdvertising && !string.IsNullOrEmpty(requestSettings.AdvertisingIdType) && !string.IsNullOrEmpty(requestSettings.AdvertisingIdValue))
-            {
-                var request = new AttributeInstallRequest();
-                if (requestSettings.AdvertisingIdType == PlayFabSettings.AD_TYPE_IDFA)
-                    request.Idfa = requestSettings.AdvertisingIdValue;
-                else if (requestSettings.AdvertisingIdType == PlayFabSettings.AD_TYPE_ANDROID_ID)
-                    request.Adid = requestSettings.AdvertisingIdValue;
-                else
-                    return null;
-                return await AttributeInstallAsync(request);
-            }
-            return null;
-        }
-<% } %>    }
+<% } %>}
 }
 #endif

@@ -13,11 +13,7 @@ var settings = (exports.settings = {
     globalErrorHandler: null,
     developerSecretKey: null, // You must set this value for PlayFabSdk to work properly (Found in the Game Manager for your title, at the PlayFab Website)
     port: 443,
-<% if (hasClientOptions) {
-%>    advertisingIdType: null, // Set this to the appropriate AD_TYPE_X constant below
-    advertisingIdValue: null, // Set this to corresponding device value
-
-<% } %>});
+});
 
 var _internalSettings = (exports._internalSettings = {
     entityToken: null,

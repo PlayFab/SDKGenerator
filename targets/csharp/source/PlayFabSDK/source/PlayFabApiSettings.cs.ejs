@@ -20,13 +20,7 @@ namespace PlayFab
 
         /// <summary> You must set this value for PlayFabSdk to work properly (Found in the Game Manager for your title, at the PlayFab Website) </summary>
         public string TitleId;
-<% if (hasClientOptions) {%>
-#if !DISABLE_PLAYFABCLIENT_API
-        /// <summary> Set this to the appropriate AD_TYPE_X constant below </summary>
-        public string AdvertisingIdType = null;
-        /// <summary> Set this to corresponding device value </summary>
-        public string AdvertisingIdValue = null;
-#endif<% } %>
+
         public virtual string GetFullUrl(string apiCall)
         {
             return PlayFabSettings.GetFullUrl(apiCall, RequestGetParams, this);

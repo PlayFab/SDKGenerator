@@ -14,8 +14,6 @@
 + (NSString *) ProductionEnvironmentURL;
 + (NSString *) TitleId;
 + (NSString *) DeveloperSecretKey;
-+ (NSString *) AdvertisingIdType;  // Set this to the appropriate AD_TYPE_X constant above
-+ (NSString *) AdvertisingIdValue;
 + (NSString *) VerticalName;
 
 

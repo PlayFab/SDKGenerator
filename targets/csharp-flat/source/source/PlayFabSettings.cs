@@ -67,15 +67,6 @@ namespace PlayFab
         /// You must set this value for PlayFabSdk to work properly (Found in the Game Manager for your title, at the PlayFab Website)
         /// </summary>
         public static string DeveloperSecretKey = null;
-
-        /// <summary>
-        /// Set this to the appropriate AD_TYPE_X constant below
-        /// </summary>
-        public static string AdvertisingIdType = null;
-        /// <summary>
-        /// Set this to corresponding device value
-        /// </summary>
-        public static string AdvertisingIdValue = null;
     }
 
     /// <summary>
@@ -130,15 +121,6 @@ namespace PlayFab
         /// You must set this value for PlayFabSdk to work properly (Found in the Game Manager for your title, at the PlayFab Website)
         /// </summary>
         public string DeveloperSecretKey = PlayFabDefaultSettings.DeveloperSecretKey;
-
-        /// <summary>
-        /// Set this to the appropriate AD_TYPE_X constant below
-        /// </summary>
-        public string AdvertisingIdType = PlayFabDefaultSettings.AdvertisingIdType;
-        /// <summary>
-        /// Set this to corresponding device value
-        /// </summary>
-        public string AdvertisingIdValue = PlayFabDefaultSettings.AdvertisingIdValue;
 
         public string GetURL()
         {

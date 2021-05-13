@@ -18,8 +18,6 @@ static NSString * DeveloperSecretKey = @"";
 
 static NSString * ProductionEnvironmentURL = @".playfabapi.com";
 
-NSString * const AD_TYPE_IDFA = @"Idfa";
-NSString * const AD_TYPE_ANDROID_ID = @"Adid";
 static NSString * AdvertisingIdType;
 static NSString * AdvertisingIdValue;
 
@@ -62,14 +60,6 @@ static NSString * VerticalName = @"<%- GetDefaultVerticalName() %>";
 + (void) setDeveloperSecretKey:(NSString*)setValue
 {
     DeveloperSecretKey = setValue;
-}
-+ (void) setAdvertisingIdType:(NSString*)setValue
-{
-    AdvertisingIdType = setValue;
-}
-+ (void) setAdvertisingIdValue:(NSString*)setValue
-{
-    AdvertisingIdValue = setValue;
 }
 + (void) setVerticalName:(NSString*)setValue
 {

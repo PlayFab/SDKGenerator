@@ -76,15 +76,6 @@ namespace PlayFab
         /// Set this to corresponding device value
         /// </summary>
         public static string AdvertisingIdValue = null;
-
-        /// <summary>
-        /// DisableAdvertising is provided for completeness, but changing it is not suggested
-        /// Disabling this may prevent your advertising-related PlayFab marketplace partners from working correctly
-        /// </summary>
-        public static bool DisableAdvertising = false;
-
-        public static readonly string AD_TYPE_IDFA = "Idfa";
-        public static readonly string AD_TYPE_ANDROID_ID = "Adid";
     }
 
     /// <summary>
@@ -148,12 +139,6 @@ namespace PlayFab
         /// Set this to corresponding device value
         /// </summary>
         public string AdvertisingIdValue = PlayFabDefaultSettings.AdvertisingIdValue;
-
-        /// <summary>
-        /// DisableAdvertising is provided for completeness, but changing it is not suggested
-        /// Disabling this may prevent your advertising-related PlayFab marketplace partners from working correctly
-        /// </summary>
-        public bool DisableAdvertising = PlayFabDefaultSettings.DisableAdvertising;
 
         public string GetURL()
         {

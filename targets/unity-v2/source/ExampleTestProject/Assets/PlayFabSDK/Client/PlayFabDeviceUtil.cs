@@ -107,26 +107,6 @@ namespace PlayFab.Internal
             }
 #endif
         }
-
-        private static void GetAdvertIdFromUnity(PlayFabApiSettings settings, IPlayFabInstanceApi instanceApi)
-        {
-#if UNITY_5_3_OR_NEWER && (UNITY_ANDROID || UNITY_IOS) && (!UNITY_EDITOR || TESTING)
-            Application.RequestAdvertisingIdentifierAsync(
-                (advertisingId, trackingEnabled, error) =>
-                {
-                    settings.DisableAdvertising = !trackingEnabled;
-                    if (!trackingEnabled)
-                        return;
-#if UNITY_ANDROID
-                    settings.AdvertisingIdType = PlayFabSettings.AD_TYPE_ANDROID_ID;
-#elif UNITY_IOS
-                    settings.AdvertisingIdType = PlayFabSettings.AD_TYPE_IDFA;
-#endif
-                    settings.AdvertisingIdValue = advertisingId;
-                }
-            );
-#endif
-        }
     }
 }
 #endif

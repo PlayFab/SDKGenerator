@@ -18,12 +18,6 @@ package com.playfab
 <% if (hasClientOptions) {
 %>        public static var AdvertisingIdType:String = null; // Set this to the appropriate AD_TYPE_X constant below
         public static var AdvertisingIdValue:String = null; // Set this to corresponding device value
-
-        // DisableAdvertising is provided for completeness, but changing it is not suggested
-        // Disabling this may prevent your advertising-related PlayFab marketplace partners from working correctly
-        public static var DisableAdvertising:Boolean = false;
-        public static const AD_TYPE_IDFA:String = "Idfa";
-        public static const AD_TYPE_ANDROID_ID:String = "Adid";
 <% } %>
         public static function GetURL(urlPath:String):String
         {

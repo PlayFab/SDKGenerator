@@ -10,9 +10,6 @@
 
 @interface PlayFabSettings : NSObject
 
-FOUNDATION_EXPORT NSString *const AD_TYPE_IDFA;
-FOUNDATION_EXPORT NSString *const AD_TYPE_ANDROID_ID;
-
 //Set the initial values of these variables in the PlayFabSettings.m file.
 + (NSString *) ProductionEnvironmentURL;
 + (NSString *) TitleId;
@@ -25,8 +22,6 @@ FOUNDATION_EXPORT NSString *const AD_TYPE_ANDROID_ID;
 + (void) setProductionEnvironmentURL:(NSString*)setValue;
 + (void) setTitleId:(NSString*)setValue;
 + (void) setDeveloperSecretKey:(NSString*)setValue;
-+ (void) setAdvertisingIdType:(NSString*)setValue;
-+ (void) setAdvertisingIdValue:(NSString*)setValue;
 + (void) setVerticalName:(NSString*)setValue;
 
 //identifierForAdvertising only available if you explicitly add USE_IDFA=1 to Target > Build Settings > Preprocessor Macros

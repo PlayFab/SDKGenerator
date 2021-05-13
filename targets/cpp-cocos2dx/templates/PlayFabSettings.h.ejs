@@ -29,11 +29,6 @@ namespace PlayFab
 %>        static std::string advertisingIdType; // Set this to the appropriate AD_TYPE_X constant below
         static std::string advertisingIdValue; // Set this to corresponding device value
 
-        // DisableAdvertising is provided for completeness, but changing it is not suggested
-        // Disabling this may prevent your advertising-related PlayFab marketplace partners from working correctly
-        static bool disableAdvertising;
-        static const std::string AD_TYPE_IDFA;
-        static const std::string AD_TYPE_ANDROID_ID;
 <% } %>
         static std::string getURL(const std::string& callPath)
         {

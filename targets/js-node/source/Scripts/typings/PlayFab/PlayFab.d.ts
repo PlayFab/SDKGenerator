@@ -10,8 +10,6 @@ declare module PlayFabModule {
         titleId: string;
         developerSecretKey?: string;
         port?: number;
-        advertisingIdType?: string;
-        advertisingIdValue?: string;
     }
     export interface IPlayFabRequestCommon {}
     export interface IPlayFabError {

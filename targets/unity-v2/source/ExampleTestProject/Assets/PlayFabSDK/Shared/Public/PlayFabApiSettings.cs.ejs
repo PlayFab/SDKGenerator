@@ -67,18 +67,6 @@ namespace PlayFab
             set { var so = GetSO(); if (so != null) so.TitleId = value; base.TitleId = value; }
         }
 
-        public override string AdvertisingIdType
-        {
-            get { var so = GetSO(); return so == null ? base.AdvertisingIdType : so.AdvertisingIdType; }
-            set { var so = GetSO(); if (so != null) so.AdvertisingIdType = value; base.AdvertisingIdType = value; }
-        }
-
-        public override string AdvertisingIdValue
-        {
-            get { var so = GetSO(); return so == null ? base.AdvertisingIdValue : so.AdvertisingIdValue; }
-            set { var so = GetSO(); if (so != null) so.AdvertisingIdValue = value; base.AdvertisingIdValue = value; }
-        }
-
         public override bool DisableDeviceInfo
         {
             get { var so = GetSO(); return so == null ? base.DisableDeviceInfo : so.DisableDeviceInfo; }

@@ -60,8 +60,6 @@ namespace PlayFab.UUnit
 
         public override void TearDown(UUnitTestContext testContext)
         {
-            clientSettings.AdvertisingIdType = null;
-            clientSettings.AdvertisingIdValue = null;
             _tickAction = null;
         }
 

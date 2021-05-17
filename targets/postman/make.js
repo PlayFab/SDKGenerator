@@ -1,3 +1,4 @@
+const { writeFile } = require("node:fs");
 var path = require("path");
 
 // Making resharper less noisy - These are defined in Generate.js
@@ -31,6 +32,8 @@ exports.makeCombinedAPI = function (apis, sourceDir, apiOutputDir) {
     var outputFile = path.resolve(apiOutputDir, "playfab.json");
     var templateDir = path.resolve(sourceDir, "templates");
     var apiTemplate = getCompiledTemplate(path.resolve(templateDir, "playfab.json.ejs"));
+    writeFile(outputFile, apiTemplate(locals));
+    apiTemplate = getCompiledTemplate(path.resolve(templateDir, "playfabV2.json.ejs"));
     writeFile(outputFile, apiTemplate(locals));
 
     try {

@@ -11,7 +11,11 @@ local PlayFabSettings = require("<%- requirePrefix %>PlayFabSettings")
 local PlayFab<%- api.name %>Api = {
     settings = PlayFabSettings.settings
 }
-<% 
+<% if (hasClientOptions) %>
+function PlayFabClientApi.IsClientLoggedIn()
+    return (not (PlayFabSettings._internalSettings.sessionTicket == nil))
+end
+<% }
 for (var c in api.calls) { var apiCall = api.calls[c]; %>
 <%- generateApiSummary("", apiCall, "summary")
 %>function PlayFab<%- api.name %>Api.<%- apiCall.name %>(request, onSuccess, onError)

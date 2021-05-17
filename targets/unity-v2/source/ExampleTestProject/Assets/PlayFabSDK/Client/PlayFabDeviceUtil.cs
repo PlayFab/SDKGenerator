@@ -90,9 +90,6 @@ namespace PlayFab.Internal
                 _gatherScreenTime = settingsForUser.GatherFocusInfo;
             }
 
-            // Device attribution (adid or idfa)
-            GetAdvertIdFromUnity(settings, instanceApi);
-
             // Device information gathering
             SendDeviceInfoToPlayFab(settings, instanceApi);
 

@@ -8,10 +8,6 @@
 
 #import "PlayFabSettings.h"
 
-#ifdef USE_IDFA
-@import AdSupport;
-#endif
-
 static NSString * TitleId = @"XXXX";
 
 static NSString * DeveloperSecretKey = @"";
@@ -65,20 +61,5 @@ static NSString * VerticalName = @"<%- GetDefaultVerticalName() %>";
 {
     VerticalName = setValue;
 }
-
-#ifdef USE_IDFA
-+ (NSString *)identifierForAdvertising
-{
-    if([[ASIdentifierManager sharedManager] isAdvertisingTrackingEnabled])
-    {
-        NSUUID *IDFA = [[ASIdentifierManager sharedManager] advertisingIdentifier];
-        
-        return [IDFA UUIDString];
-    }
-    
-    return nil;
-}
-#endif
-
 
 @end

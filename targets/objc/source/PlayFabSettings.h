@@ -22,9 +22,4 @@
 + (void) setDeveloperSecretKey:(NSString*)setValue;
 + (void) setVerticalName:(NSString*)setValue;
 
-//identifierForAdvertising only available if you explicitly add USE_IDFA=1 to Target > Build Settings > Preprocessor Macros
-#ifdef USE_IDFA
-+ (NSString *)identifierForAdvertising;
-#endif
-
 @end

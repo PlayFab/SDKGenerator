@@ -13,7 +13,7 @@ local PlayFab<%- api.name %>Api = {
 }
 <% if (hasClientOptions) { %>
 function PlayFabClientApi.IsClientLoggedIn()
-    return (not (PlayFabSettings._internalSettings.ClientSessionTicket == nil))
+    return (not (PlayFabSettings._internalSettings.entityToken == nil))
 end
 <% }
 for (var c in api.calls) { var apiCall = api.calls[c]; %>

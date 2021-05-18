@@ -10,11 +10,6 @@ declare module PlayFabModule {
         titleId: string;
         developerSecretKey?: string;
         port?: number;
-        advertisingIdType?: string;
-        advertisingIdValue?: string;
-        disableAdvertising?: boolean;
-        AD_TYPE_IDFA: string;
-        AD_TYPE_ANDROID_ID: string;
     }
     export interface IPlayFabRequestCommon {}
     export interface IPlayFabError {

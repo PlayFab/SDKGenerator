@@ -18,11 +18,4 @@ namespace PlayFab
     std::string PlayFabSettings::entityToken = "";
     std::string PlayFabSettings::developerSecretKey;
     std::string PlayFabSettings::clientSessionTicket = "";
-<% if (hasClientOptions) {
-%>    std::string PlayFabSettings::advertisingIdType = "";
-    std::string PlayFabSettings::advertisingIdValue = "";
-
-    bool PlayFabSettings::disableAdvertising = false;
-    const std::string PlayFabSettings::AD_TYPE_IDFA = "Idfa";
-    const std::string PlayFabSettings::AD_TYPE_ANDROID_ID = "Adid";
-<% } %>}
+}

@@ -63,18 +63,4 @@ void PlayFab<%- api.name %>API::On<%- apiCall.name %>Result(int httpStatus, Http
 {
     return !PlayFabSettings::clientSessionTicket.empty();
 }
-
-void PlayFabClientAPI::MultiStepClientLogin(bool needsAttribution)
-{
-    if (needsAttribution && !PlayFabSettings::disableAdvertising && PlayFabSettings::advertisingIdType.length() > 0 && PlayFabSettings::advertisingIdValue.length() > 0)
-    {
-        AttributeInstallRequest request;
-        if (PlayFabSettings::advertisingIdType == PlayFabSettings::AD_TYPE_IDFA)
-            request.Idfa = PlayFabSettings::advertisingIdValue;
-        else if (PlayFabSettings::advertisingIdType == PlayFabSettings::AD_TYPE_ANDROID_ID)
-            request.Adid = PlayFabSettings::advertisingIdValue;
-        else
-            return;
-        AttributeInstall(request, nullptr, nullptr);
-    }
-}<% } %>
+<% } %>

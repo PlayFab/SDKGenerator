@@ -230,7 +230,6 @@ namespace PlayFabApiTest
                 testContexts.insert(testContexts.end(), new PfTestContext("InvalidLoginLambda", InvalidLoginLambda));
                 testContexts.insert(testContexts.end(), new PfTestContext("InvalidRegistration", InvalidRegistration));
                 testContexts.insert(testContexts.end(), new PfTestContext("LoginOrRegister", LoginOrRegister));
-                testContexts.insert(testContexts.end(), new PfTestContext("LoginWithAdvertisingId", LoginWithAdvertisingId));
                 testContexts.insert(testContexts.end(), new PfTestContext("UserDataApi", UserDataApi));
                 testContexts.insert(testContexts.end(), new PfTestContext("PlayerStatisticsApi", PlayerStatisticsApi));
                 testContexts.insert(testContexts.end(), new PfTestContext("UserCharacter", UserCharacter));
@@ -586,27 +585,6 @@ namespace PlayFabApiTest
             playFabId = result.PlayFabId;
             PfTestContext* testContext = reinterpret_cast<PfTestContext*>(customData);
             EndTest(*testContext, PASSED, playFabId);
-        }
-
-        /// <summary>
-        /// CLIENT API
-        /// Test that the login call sequence sends the AdvertisingId when set
-        /// </summary>
-        static void LoginWithAdvertisingId(PfTestContext& testContext)
-        {
-            playFabSettings->advertisingIdType = playFabSettings->AD_TYPE_ANDROID_ID;
-            playFabSettings->advertisingIdValue = "PlayFabTestId";
-
-            LoginWithCustomIDRequest request;
-            request.CustomId = PlayFabSettings::buildIdentifier;
-            request.CreateAccount = true;
-            PlayFabClientAPI::LoginWithCustomID(request, OnLoginWithAdvertisingId, OnSharedError, &testContext);
-        }
-        static void OnLoginWithAdvertisingId(const LoginResult& result, void* customData)
-        {
-            // TODO: Need to wait for the NEXT api call to complete, and then test PlayFabSettings::advertisingIdType
-            PfTestContext* testContext = reinterpret_cast<PfTestContext*>(customData);
-            EndTest(*testContext, PASSED, "");
         }
 
         /// <summary>

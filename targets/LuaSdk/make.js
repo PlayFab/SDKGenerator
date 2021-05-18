@@ -160,9 +160,6 @@ function getRequestActions(tabbing, apiCall) {
             + tabbing + "end\n";
     else if (apiCall.result === "LoginResult" || apiCall.request === "RegisterPlayFabUserRequest")
         requestAction = tabbing + "request.TitleId = PlayFabSettings.settings.titleId\n";
-    else if (apiCall.result === "AttributeInstallResult")
-        requestAction = tabbing + "if (not PlayFabClientApi.IsClientLoggedIn()) then error(\"Must be logged in to call this method\") end\n"
-            + tabbing + "PlayFabSettings.settings.advertisingIdType = PlayFabSettings.settings.advertisingIdType .. \"_Successful\"\n";
     else if (apiCall.auth === "SessionTicket")
         requestAction = tabbing + "if (not PlayFabClientApi.IsClientLoggedIn()) then error(\"Must be logged in to call this method\") end\n";
     else if (apiCall.auth === "SecretKey")
@@ -176,30 +173,25 @@ function getRequestActions(tabbing, apiCall) {
 
 function getResultAction(tabbing, apiCall) {
     var preCallback = "";
-    var postCallback = "";
     var internalTabbing = tabbing + "    ";
     if (apiCall.url === "/Authentication/GetEntityToken")
         preCallback = internalTabbing + "PlayFabSettings._internalSettings.entityToken = result.EntityToken\n";
     else if (apiCall.result === "LoginResult") {
         preCallback = internalTabbing + "PlayFabSettings._internalSettings.sessionTicket = result.SessionTicket\n"
             + internalTabbing + "if (result.EntityToken) then PlayFabSettings._internalSettings.entityToken = result.EntityToken.EntityToken end\n";
-        postCallback = internalTabbing + "PlayFabClientApi._MultiStepClientLogin(result.SettingsForUser.NeedsAttribution)\n";
     }
     else if (apiCall.request === "RegisterPlayFabUserRequest") {
         preCallback = internalTabbing + "PlayFabSettings._internalSettings.sessionTicket = result.SessionTicket\n";
-        postCallback = internalTabbing + "PlayFabClientApi._MultiStepClientLogin(result.SettingsForUser.NeedsAttribution)\n";
     }
 
     var resultAction = "";
-    if (preCallback || postCallback) // Wrap the logic and the callback in a secondary callback wrapper
+    if (preCallback) // Wrap the logic and the callback in a secondary callback wrapper
         resultAction = "\n" + tabbing + "local externalOnSuccess = onSuccess\n"
             + tabbing + "function wrappedOnSuccess(result)\n"
             + preCallback
             + tabbing + "    if (externalOnSuccess) then\n"
             + tabbing + "        externalOnSuccess(result)\n"
             + tabbing + "    end\n"
-            + postCallback
-            + tabbing + "end\n"
             + tabbing + "onSuccess = wrappedOnSuccess\n";
     return resultAction;
 }

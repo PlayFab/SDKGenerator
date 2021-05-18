@@ -25,16 +25,7 @@ namespace PlayFab
         static std::string entityToken;
         static std::string developerSecretKey; // You must set this value for PlayFabSdk to work properly (Found in the Game Manager for your title, at the PlayFab Website)
         static std::string clientSessionTicket; // This is automatically set by any successful login call, or RegisterPlayFabUser
-<% if (hasClientOptions) {
-%>        static std::string advertisingIdType; // Set this to the appropriate AD_TYPE_X constant below
-        static std::string advertisingIdValue; // Set this to corresponding device value
 
-        // DisableAdvertising is provided for completeness, but changing it is not suggested
-        // Disabling this may prevent your advertising-related PlayFab marketplace partners from working correctly
-        static bool disableAdvertising;
-        static const std::string AD_TYPE_IDFA;
-        static const std::string AD_TYPE_ANDROID_ID;
-<% } %>
         static std::string getURL(const std::string& callPath)
         {
             if (serverURL.length() == 0)

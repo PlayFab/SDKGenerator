@@ -202,34 +202,6 @@ exports.PlayFabApiTests = {
 
     /// <summary>
     /// CLIENT API
-    /// Test that the login call sequence sends the AdvertisingId when set
-    /// </summary>
-    LoginWithAdvertisingId: TestWrapper((test): void => {
-        PlayFab.settings.advertisingIdType = PlayFab.settings.AD_TYPE_ANDROID_ID;
-        PlayFab.settings.advertisingIdValue = "PlayFabTestId";
-
-        let count = -1;
-        const finishAdvertId = (): void => {
-            count += 1;
-            if (count > 10) {
-                test.ok(false, "The advertisingId was not submitted properly");
-                test.done();
-            } else if (PlayFab.settings.advertisingIdType === PlayFab.settings.AD_TYPE_ANDROID_ID + "_Successful") test.done();
-            else setTimeout(SimpleCallbackWrapper("finishAdvertId", finishAdvertId, test), 200);
-        };
-        const advertLoginCallback = (error: PlayFabModule.IPlayFabError, result: PlayFabModule.IPlayFabSuccessContainer<PlayFabClientModels.LoginResult>): void => {
-            VerifyNullError(result, error, test, "Testing Advert-Login result");
-            setTimeout(SimpleCallbackWrapper("finishAdvertId", finishAdvertId, test), 200);
-        };
-        const loginRequest = {
-            CustomId: PlayFab.buildIdentifier,
-            CreateAccount: true,
-        };
-        PlayFabClient.LoginWithCustomID(loginRequest, CallbackWrapper("advertLoginCallback", advertLoginCallback, test));
-    }),
-
-    /// <summary>
-    /// CLIENT API
     /// Test a sequence of calls that modifies saved data,
     ///   and verifies that the next sequential API call contains updated data.
     /// Verify that the data is correctly modified on the next call.

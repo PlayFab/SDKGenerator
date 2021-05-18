@@ -36,29 +36,6 @@ return deviceModel;
     return !([[PlayFab<%- api.name -%>API GetInstance].mUserSessionTicket length]==0);
 }
 
-#ifdef USE_IDFA
--(void) MultiStepClientLogin:(bool) needsAttribution {
-    if (needsAttribution && [PlayFabSettings.AdvertisingIdValue length] != 0) {
-        [PlayFabSettings setAdvertisingIdValue:[PlayFabSettings identifierForAdvertising]];
-    }
-    // Send the ID when appropriate
-    if (needsAttribution && [PlayFabSettings.AdvertisingIdValue length] != 0) {
-        <%- api.name -%>AttributeInstallRequest* install_request = [<%- api.name -%>AttributeInstallRequest new];
-        install_request.Idfa = PlayFabSettings.AdvertisingIdValue;
-
-        [[PlayFabClientAPI GetInstance] AttributeInstall:install_request
-        success:^(<%- api.name -%>AttributeInstallResult* result, NSObject* userData) {
-            // Modify AdvertisingIdType:  Prevents us from sending the id multiple times, and allows automated tests to determine id was sent successfully
-            [PlayFabSettings setAdvertisingIdType:[NSString stringWithFormat:@"%@%@",PlayFabSettings.AdvertisingIdType,@"_Successful"]];
-            NSLog(@"playfab adid %@", PlayFabSettings.AdvertisingIdType);
-        }
-        failure:^(PlayFabError *error, NSObject *userData) {
-            NSLog(@"attribute install fail");
-            //Request errored or failed to connect.
-        } withUserData:nil];
-    }
-}
-#endif
 <% }
 for(var i in api.calls) { var apiCall = api.calls[i];
 if(HasRequest(apiCall, api)) {

@@ -168,25 +168,6 @@ public class PlayFabApiTest
 
     /**
      *  CLIENT API
-     *  Test that the login call sequence sends the AdvertisingId when set
-     */
-    @Test
-    public void LoginWithAdvertisingId()
-    {
-        PlayFabSettings.AdvertisingIdType = PlayFabSettings.AD_TYPE_ANDROID_ID;
-        PlayFabSettings.AdvertisingIdValue = "PlayFabTestId";
-
-        PlayFabClientModels.LoginWithCustomIDRequest request = new PlayFabClientModels.LoginWithCustomIDRequest();
-        request.TitleId = PlayFabSettings.TitleId;
-        request.CustomId = PlayFabSettings.BuildIdentifier;
-        request.CreateAccount = true;
-        PlayFabResult<PlayFabClientModels.LoginResult> result = PlayFabClientAPI.LoginWithCustomID(request);
-
-        assertEquals(PlayFabSettings.AD_TYPE_ANDROID_ID + "_Successful", PlayFabSettings.AdvertisingIdType);
-    }
-
-    /**
-     *  CLIENT API
      *  Test a sequence of calls that modifies saved data,
      *    and verifies that the next sequential API call contains updated data.
      *  Verify that the data is correctly modified on the next call.

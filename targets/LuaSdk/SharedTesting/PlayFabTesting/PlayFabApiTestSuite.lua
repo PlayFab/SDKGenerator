@@ -349,8 +349,8 @@ function PlayFabApiTestSuite.OnGetEntityToken(result)
     if (result.Entity) then 
         PlayFabApiTestSuite.entityId = result.Entity.Id
         PlayFabApiTestSuite.entityType = result.Entity.Type
-        PlayFabSettings._internalSettings.entityToken = result.EntityToken.EntityToken
-        AsyncTestSuite.EndTest("PASSED", result.Entity.Id)
+        PlayFabSettings._internalSettings.entityToken = result.Entity.Id
+        AsyncTestSuite.EndTest("PASSED", result.Entity.Id)  
     else
         AsyncTestSuite.EndTest("FAILED", "EntityId not found in GetEntityToken result" .. json.encode(result))
     end

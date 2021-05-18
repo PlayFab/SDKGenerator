@@ -8,7 +8,7 @@ import playfab.PlayFabSettings as PlayFabSettings
 def IsClientLoggedIn():
     """Determine if the client session ticket is set, without actually making it public"""
     return bool(PlayFabSettings._internalSettings.ClientSessionTicket)
-
+<% } %>
 <% for(var i in api.calls) { var apiCall = api.calls[i];
 %><%- getDeprecationAttribute("", apiCall)
 %>def <%- apiCall.name %>(request, callback, customData = None, extraHeaders = None):

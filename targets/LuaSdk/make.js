@@ -159,7 +159,8 @@ function getRequestActions(tabbing, apiCall) {
             + tabbing + "    authValue = PlayFabSettings.settings.devSecretKey\n"
             + tabbing + "end\n";
     else if (apiCall.result === "LoginResult" || apiCall.request === "RegisterPlayFabUserRequest")
-        requestAction = tabbing + "request.TitleId = PlayFabSettings.settings.titleId\n";
+        requestAction = tabbing + "print(\"--- LOGGING IN ---\")\n"
+         + tabbing + "request.TitleId = PlayFabSettings.settings.titleId\n";
     else if (apiCall.auth === "SessionTicket")
         requestAction = tabbing + "if (not PlayFabClientApi.IsClientLoggedIn()) then error(\"Must be logged in to call this method\") end\n";
     else if (apiCall.auth === "SecretKey")
@@ -177,7 +178,7 @@ function getResultAction(tabbing, apiCall) {
     if (apiCall.url === "/Authentication/GetEntityToken")
         preCallback = internalTabbing + "PlayFabSettings._internalSettings.entityToken = result.EntityToken\n";
     else if (apiCall.result === "LoginResult") {
-        preCallback = internalTabbing + "print(\"TestPrint\")\n"
+        preCallback = "" //internalTabbing + "print(\"TestPrint\")\n"
             + internalTabbing + "PlayFabSettings._internalSettings.sessionTicket = result.SessionTicket\n"
             + internalTabbing + "if (result.EntityToken) then \n"
             + internalTabbing + internalTabbing + "PlayFabSettings._internalSettings.entityToken = result.EntityToken.EntityToken\n"

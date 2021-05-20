@@ -177,17 +177,13 @@ function getResultAction(tabbing, apiCall) {
     if (apiCall.url === "/Authentication/GetEntityToken")
         preCallback = internalTabbing + "PlayFabSettings._internalSettings.entityToken = result.EntityToken\n";
     else if (apiCall.result === "LoginResult") {
-        preCallback = "" //internalTabbing + "print(\"--- LoginResult called --- \")\n"
-            + internalTabbing + "PlayFabSettings._internalSettings.sessionTicket = result.SessionTicket\n"
+        preCallback = internalTabbing + "PlayFabSettings._internalSettings.sessionTicket = result.SessionTicket\n"
             + internalTabbing + "if (result.EntityToken) then \n"
-            //+ internalTabbing + internalTabbing + "print(\"--- Entity Token was present, copy to _internalSetting ---\")\n";
-            + internalTabbing + internalTabbing + "PlayFabSettings._internalSettings.entityToken = result.EntityToken.EntityToken\n";
+            + internalTabbing + internalTabbing + "PlayFabSettings._internalSettings.entityToken = result.EntityToken.EntityToken\n"
             + internalTabbing + "end\n";
     }
     else if (apiCall.request === "RegisterPlayFabUserRequest") {
-        preCallback = "" 
-            // internalTabbing + "print(\"--- Detected Registering Play Fab User Request ---\")\n"
-            + internalTabbing + "PlayFabSettings._internalSettings.sessionTicket = result.SessionTicket\n";
+        preCallback = internalTabbing + "PlayFabSettings._internalSettings.sessionTicket = result.SessionTicket\n";
     }
 
     var resultAction = "";
@@ -196,7 +192,6 @@ function getResultAction(tabbing, apiCall) {
             + tabbing + "function wrappedOnSuccess(result)\n"
             + preCallback
             + tabbing + "    if (externalOnSuccess) then\n"
-            //+ tabbing + "        print(\"--- Login Result On Success Called Back! ---\")\n"
             + tabbing + "        externalOnSuccess(result)\n"
             + tabbing + "    end\n"
             + tabbing + "end\n";

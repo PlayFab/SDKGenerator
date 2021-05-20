@@ -122,7 +122,7 @@ end
 function PlayFabApiTestSuite.OnLoginSuccess(result)
     if (result.PlayFabId) then 
         PlayFabApiTestSuite.playFabId = result.PlayFabId
-        PlayFabSettings._internalSettings.sessionTicket = result.SessionTicket
+        --- PlayFabSettings._internalSettings.sessionTicket = result.SessionTicket
         AsyncTestSuite.EndTest("PASSED", PlayFabApiTestSuite.playFabId)
     else
         AsyncTestSuite.EndTest("FAILED", "PlayFabId not found in login result" .. json.encode(result))
@@ -349,9 +349,9 @@ function PlayFabApiTestSuite.OnGetEntityToken(result)
     if (result.Entity) then 
         PlayFabApiTestSuite.entityId = result.Entity.Id
         PlayFabApiTestSuite.entityType = result.Entity.Type
-        if (result.EntityToken) then
-            PlayFabSettings._internalSettings.EntityToken = result.EntityToken.EntityToken
-        end
+        --- if (result.EntityToken) then
+        ---     PlayFabSettings._internalSettings.EntityToken = result.EntityToken.EntityToken
+        --- end
         AsyncTestSuite.EndTest("PASSED", result.Entity.Id)  
     else
         AsyncTestSuite.EndTest("FAILED", "EntityId not found in GetEntityToken result" .. json.encode(result))

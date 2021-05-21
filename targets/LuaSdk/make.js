@@ -190,7 +190,7 @@ function getResultAction(tabbing, apiCall) {
         resultAction = "\n" 
             + tabbing + "local externalOnSuccess = onSuccess\n"
             + tabbing + "function wrappedOnSuccess(result)\n"
-            + preCallback + ""
+            + preCallback
             + tabbing + "    if (externalOnSuccess) then\n"
             + tabbing + "        externalOnSuccess(result)\n"
             + tabbing + "    end\n"

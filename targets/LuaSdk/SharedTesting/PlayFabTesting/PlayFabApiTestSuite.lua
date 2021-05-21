@@ -122,49 +122,11 @@ end
 function PlayFabApiTestSuite.OnLoginSuccess(result)
     if (result.PlayFabId) then 
         PlayFabApiTestSuite.playFabId = result.PlayFabId
-        --- PlayFabSettings._internalSettings.sessionTicket = result.SessionTicket
+        PlayFabSettings._internalSettings.sessionTicket = result.SessionTicket
         AsyncTestSuite.EndTest("PASSED", PlayFabApiTestSuite.playFabId)
     else
         AsyncTestSuite.EndTest("FAILED", "PlayFabId not found in login result" .. json.encode(result))
     end
-end
-
---- <summary>
---- CLIENT API
---- Test that the login call sequence sends the AdvertisingId when set
---- </summary>
-function PlayFabApiTestSuite.LoginWithAdvertisingId()
-    PlayFabSettings.settings.advertisingIdType = PlayFabSettings.settings.AD_TYPE_ANDROID_ID
-    PlayFabSettings.settings.advertisingIdValue = "PlayFabTestId"
-
-    local loginRequest = {
-        -- Currently, you need to look up the correct format for this object in the API-docs:
-        --   https://docs.microsoft.com/rest/api/playfab/client/authentication/loginwithcustomid
-        CustomId = buildIdentifier,
-        CreateAccount = true
-    }
-    PlayFabClientApi.LoginWithCustomID(loginRequest, AsyncTestSuite.WrapCallback("OnAdvertLoginSuccess", PlayFabApiTestSuite.OnAdvertLoginSuccess), PlayFabApiTestSuite.OnSharedError)
-end
-function PlayFabApiTestSuite.OnAdvertLoginSuccess(result)
-    if (not result.PlayFabId) then 
-        AsyncTestSuite.EndTest("FAILED", "PlayFabId not found in login result" .. json.encode(result))
-        return
-    end
-
-    PlayFabApiTestSuite.playFabId = result.PlayFabId
-    -- Schedule a coroutine which will check for the IDFA result later
-    local co = coroutine.create(PlayFabApiTestSuite.WaitForIdfa)
-    AsyncTestSuite.ScheduleCoroutine("LoginWithAdvertisingId", co)
-end
-function PlayFabApiTestSuite.WaitForIdfa()
-    for i=1,100000 do
-        if (PlayFabSettings.settings.advertisingIdType == (PlayFabSettings.settings.AD_TYPE_ANDROID_ID)) then
-            AsyncTestSuite.EndTest("PASSED", nil)
-            return
-        end
-        coroutine.yield()
-    end
-    AsyncTestSuite.EndTest("FAILED", "Submission of IDFA never succeeded" .. json.encode(PlayFabSettings.settings.advertisingIdType))
 end
 
 --- <summary>
@@ -387,9 +349,9 @@ function PlayFabApiTestSuite.OnGetEntityToken(result)
     if (result.Entity) then 
         PlayFabApiTestSuite.entityId = result.Entity.Id
         PlayFabApiTestSuite.entityType = result.Entity.Type
-        --- if (result.EntityToken) then
-        ---     PlayFabSettings._internalSettings.EntityToken = result.EntityToken.EntityToken
-        --- end
+        if (result.EntityToken) then
+            PlayFabSettings._internalSettings.EntityToken = result.EntityToken.EntityToken
+        end
         AsyncTestSuite.EndTest("PASSED", result.Entity.Id)  
     else
         AsyncTestSuite.EndTest("FAILED", "EntityId not found in GetEntityToken result" .. json.encode(result))
@@ -468,7 +430,6 @@ function PlayFabApiTestSuite.Start()
     AsyncTestSuite.AddTest("InvalidLoginTest", PlayFabApiTestSuite.InvalidLoginTest)
     AsyncTestSuite.AddTest("InvalidRegistrationTest", PlayFabApiTestSuite.InvalidRegistrationTest)
     AsyncTestSuite.AddTest("LoginOrRegisterTest", PlayFabApiTestSuite.LoginOrRegisterTest)
-    AsyncTestSuite.AddTest("LoginWithAdvertisingId", PlayFabApiTestSuite.LoginWithAdvertisingId)
     AsyncTestSuite.AddTest("UserDataApi", PlayFabApiTestSuite.UserDataApi)
     AsyncTestSuite.AddTest("PlayerStatisticsApi", PlayFabApiTestSuite.PlayerStatisticsApi)
     AsyncTestSuite.AddTest("UserCharacter", PlayFabApiTestSuite.UserCharacter)

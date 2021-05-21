@@ -15,19 +15,6 @@ local PlayFab<%- api.name %>Api = {
 function PlayFabClientApi.IsClientLoggedIn()
     return (not (PlayFabSettings._internalSettings.sessionTicket == null))
 end
-function PlayFabClientApi._MultiStepClientLogin(needsAttribution)
-    if (needsAttribution and not PlayFabSettings.settings.disableAdvertising and PlayFabSettings.settings.advertisingIdType and PlayFabSettings.settings.advertisingIdValue) then
-        local request = {}
-        if (PlayFabSettings.settings.advertisingIdType == PlayFabSettings.settings.AD_TYPE_IDFA) then
-            request.Idfa = PlayFabSettings.settings.advertisingIdValue
-        elseif (PlayFabSettings.settings.advertisingIdType == PlayFabSettings.settings.AD_TYPE_ANDROID_ID) then
-            request.Adid = PlayFabSettings.settings.advertisingIdValue
-        else
-            return
-        end
-        PlayFabClientApi.AttributeInstall(request, nil, nil)
-    end
-end
 <% }
 for (var c in api.calls) { var apiCall = api.calls[c]; %>
 <%- generateApiSummary("", apiCall, "summary")

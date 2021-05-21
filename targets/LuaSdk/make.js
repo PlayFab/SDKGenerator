@@ -160,7 +160,8 @@ function getRequestActions(tabbing, apiCall) {
             + tabbing + "end\n";
     else if (apiCall.result === "LoginResult" || apiCall.request === "RegisterPlayFabUserRequest")
         requestAction = tabbing + "print(\"--- LOGGING IN ---\")\n"
-         + tabbing + "request.TitleId = PlayFabSettings.settings.titleId\n";
+         + tabbing + "request.TitleId = PlayFabSettings.settings.titleId\n"; 
+         //+ tabbing + "PlayFabSettings._internalSettings.sessionTicket = result.SessionTicket\n";
     else if (apiCall.auth === "SessionTicket")
         requestAction = tabbing + "if (not PlayFabClientApi.IsClientLoggedIn()) then error(\"Must be logged in to call this method\") end\n";
     else if (apiCall.auth === "SecretKey")
@@ -182,11 +183,11 @@ function getResultAction(tabbing, apiCall) {
         preCallback = internalTabbing + "print(\" --- Login Result Pre Callback --- \")\n"
             + internalTabbing + "PlayFabSettings._internalSettings.sessionTicket = result.SessionTicket\n"
             + internalTabbing + "PlayFabSettings._internalSettings.entityToken = result.EntityToken.EntityToken\n";
-        postCallback = internalTabbing + "PlayFabClientApi._MultiStepClientLogin(result.SettingsForUser.NeedsAttribution)\n";
+        postCallback = internalTabbing + " --- PlayFabClientApi._MultiStepClientLogin(result.SettingsForUser.NeedsAttribution)\n";
     }
     else if (apiCall.request === "RegisterPlayFabUserRequest") {
         preCallback = internalTabbing + "PlayFabSettings._internalSettings.sessionTicket = result.SessionTicket\n";
-        postCallback = internalTabbing + "PlayFabClientApi._MultiStepClientLogin(result.SettingsForUser.NeedsAttribution)\n";
+        postCallback = internalTabbing + " --- PlayFabClientApi._MultiStepClientLogin(result.SettingsForUser.NeedsAttribution)\n";
     }
 
     var resultAction = "";
@@ -197,6 +198,7 @@ function getResultAction(tabbing, apiCall) {
             + preCallback + ""
             //+ tabbing + "    print(\"--- Wrapped On Success Called ---\")\n"
             + tabbing + "    if (externalOnSuccess) then\n"
+            + tabbing + "        print(\"CALLING ON SUCCESS\")\n"
             + tabbing + "        externalOnSuccess(result)\n"
             + tabbing + "    end\n"
             + tabbing + postCallback

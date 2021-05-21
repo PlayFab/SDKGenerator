@@ -122,7 +122,6 @@ end
 function PlayFabApiTestSuite.OnLoginSuccess(result)
     if (result.PlayFabId) then 
         PlayFabApiTestSuite.playFabId = result.PlayFabId
-        PlayFabSettings._internalSettings.sessionTicket = result.SessionTicket
         AsyncTestSuite.EndTest("PASSED", PlayFabApiTestSuite.playFabId)
     else
         AsyncTestSuite.EndTest("FAILED", "PlayFabId not found in login result" .. json.encode(result))

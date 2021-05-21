@@ -11,7 +11,7 @@ local PlayFabSettings = require("<%- requirePrefix %>PlayFabSettings")
 local PlayFab<%- api.name %>Api = {
     settings = PlayFabSettings.settings
 }
-<% if (hasClientOptions) %>
+<% if (hasClientOptions) { %>
 function PlayFabClientApi.IsClientLoggedIn()
     return (not (PlayFabSettings._internalSettings.sessionTicket == nil))
 end

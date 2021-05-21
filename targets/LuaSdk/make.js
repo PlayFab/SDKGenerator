@@ -178,7 +178,7 @@ function getResultAction(tabbing, apiCall) {
         preCallback = internalTabbing + "PlayFabSettings._internalSettings.entityToken = result.EntityToken\n";
     else if (apiCall.result === "LoginResult") {
         preCallback = internalTabbing + "PlayFabSettings._internalSettings.sessionTicket = result.SessionTicket\n"
-            + internalTabbing + "if (result.EntityToken) then PlayFabSettings._internalSettings.entityToken = result.EntityToken.EntityToken end\n";
+            + internalTabbing + "PlayFabSettings._internalSettings.entityToken = result.EntityToken.EntityToken\n";
     }
     else if (apiCall.request === "RegisterPlayFabUserRequest") {
         preCallback = internalTabbing + "PlayFabSettings._internalSettings.sessionTicket = result.SessionTicket\n";
@@ -192,6 +192,7 @@ function getResultAction(tabbing, apiCall) {
             + tabbing + "    if (externalOnSuccess) then\n"
             + tabbing + "        externalOnSuccess(result)\n"
             + tabbing + "    end\n"
+            + tabbing + "end\n"
             + tabbing + "onSuccess = wrappedOnSuccess\n";
     return resultAction;
 }

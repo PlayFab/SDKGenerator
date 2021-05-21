@@ -175,7 +175,6 @@ function getRequestActions(tabbing, apiCall) {
 
 function getResultAction(tabbing, apiCall) {
     var preCallback = "";
-    var postCallback = "";
     var internalTabbing = tabbing + "    ";
     if (apiCall.url === "/Authentication/GetEntityToken")
         preCallback = internalTabbing + "PlayFabSettings._internalSettings.entityToken = result.EntityToken\n";
@@ -183,25 +182,20 @@ function getResultAction(tabbing, apiCall) {
         preCallback = internalTabbing + "print(\" --- Login Result Pre Callback --- \")\n"
             + internalTabbing + "PlayFabSettings._internalSettings.sessionTicket = result.SessionTicket\n"
             + internalTabbing + "PlayFabSettings._internalSettings.entityToken = result.EntityToken.EntityToken\n";
-        postCallback = internalTabbing + " --- PlayFabClientApi._MultiStepClientLogin(result.SettingsForUser.NeedsAttribution)\n";
     }
     else if (apiCall.request === "RegisterPlayFabUserRequest") {
         preCallback = internalTabbing + "PlayFabSettings._internalSettings.sessionTicket = result.SessionTicket\n";
-        postCallback = internalTabbing + " --- PlayFabClientApi._MultiStepClientLogin(result.SettingsForUser.NeedsAttribution)\n";
     }
 
     var resultAction = "";
-    if (preCallback || postCallback) // Wrap the logic and the callback in a secondary callback wrapper
+    if (preCallback) // Wrap the logic and the callback in a secondary callback wrapper
         resultAction = "\n" 
             + tabbing + "local externalOnSuccess = onSuccess\n"
             + tabbing + "function wrappedOnSuccess(result)\n"
             + preCallback + ""
-            //+ tabbing + "    print(\"--- Wrapped On Success Called ---\")\n"
             + tabbing + "    if (externalOnSuccess) then\n"
-            + tabbing + "        print(\"CALLING ON SUCCESS\")\n"
             + tabbing + "        externalOnSuccess(result)\n"
             + tabbing + "    end\n"
-            + tabbing + postCallback
             + tabbing + "end\n"
             + tabbing + "onSuccess = wrappedOnSuccess\n";
     return resultAction;

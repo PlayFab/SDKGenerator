@@ -120,8 +120,7 @@ function PlayFabApiTestSuite.LoginOrRegisterTest()
     PlayFabClientApi.LoginWithCustomID(loginRequest, AsyncTestSuite.WrapCallback("OnLoginSuccess", PlayFabApiTestSuite.OnLoginSuccess), PlayFabApiTestSuite.OnSharedError)
 end
 function PlayFabApiTestSuite.OnLoginSuccess(result)
-    if (result.PlayFabId) then 
-        print("Our External On Login Success WAS called!")
+    if (result.PlayFabId) then
         PlayFabApiTestSuite.playFabId = result.PlayFabId
         AsyncTestSuite.EndTest("PASSED", PlayFabApiTestSuite.playFabId)
     else

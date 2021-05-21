@@ -177,8 +177,7 @@ function getResultAction(tabbing, apiCall) {
     if (apiCall.url === "/Authentication/GetEntityToken")
         preCallback = internalTabbing + "PlayFabSettings._internalSettings.entityToken = result.EntityToken\n";
     else if (apiCall.result === "LoginResult") {
-        preCallback = internalTabbing + "print(\" --- Login Result Pre Callback --- \")\n"
-            + internalTabbing + "PlayFabSettings._internalSettings.sessionTicket = result.SessionTicket\n"
+        preCallback = internalTabbing + "PlayFabSettings._internalSettings.sessionTicket = result.SessionTicket\n"
             + internalTabbing + "PlayFabSettings._internalSettings.entityToken = result.EntityToken.EntityToken\n";
     }
     else if (apiCall.request === "RegisterPlayFabUserRequest") {

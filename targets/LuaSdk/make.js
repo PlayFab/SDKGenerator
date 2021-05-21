@@ -202,8 +202,8 @@ function getResultAction(tabbing, apiCall) {
             + tabbing + "        externalOnSuccess(result)\n"
             + tabbing + "    end\n"
             + tabbing + postCallback
-            + tabbing + "end\n";
-            + tabbing + "onSuccess = wrappedOnSuccess\n"
+            + tabbing + "end\n"
+            + tabbing + "onSuccess = wrappedOnSuccess\n";
     return resultAction;
 }
 

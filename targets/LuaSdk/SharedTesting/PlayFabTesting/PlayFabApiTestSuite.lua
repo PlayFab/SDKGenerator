@@ -158,7 +158,7 @@ function PlayFabApiTestSuite.OnAdvertLoginSuccess(result)
 end
 function PlayFabApiTestSuite.WaitForIdfa()
     for i=1,100000 do
-        if (PlayFabSettings.settings.advertisingIdType == (PlayFabSettings.settings.AD_TYPE_ANDROID_ID .. "_Successful")) then
+        if (PlayFabSettings.settings.advertisingIdType == (PlayFabSettings.settings.AD_TYPE_ANDROID_ID)) then
             AsyncTestSuite.EndTest("PASSED", nil)
             return
         end

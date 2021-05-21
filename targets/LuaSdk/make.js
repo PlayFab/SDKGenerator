@@ -159,9 +159,7 @@ function getRequestActions(tabbing, apiCall) {
             + tabbing + "    authValue = PlayFabSettings.settings.devSecretKey\n"
             + tabbing + "end\n";
     else if (apiCall.result === "LoginResult" || apiCall.request === "RegisterPlayFabUserRequest")
-        requestAction = tabbing + "print(\"--- LOGGING IN ---\")\n"
-         + tabbing + "request.TitleId = PlayFabSettings.settings.titleId\n"; 
-         //+ tabbing + "PlayFabSettings._internalSettings.sessionTicket = result.SessionTicket\n";
+        requestAction = tabbing + "request.TitleId = PlayFabSettings.settings.titleId\n";
     else if (apiCall.auth === "SessionTicket")
         requestAction = tabbing + "if (not PlayFabClientApi.IsClientLoggedIn()) then error(\"Must be logged in to call this method\") end\n";
     else if (apiCall.auth === "SecretKey")

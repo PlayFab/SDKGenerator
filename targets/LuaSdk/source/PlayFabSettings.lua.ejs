@@ -15,7 +15,14 @@ local PlayFabSettings = {
         productionUrl = ".playfabapi.com",
         verticalName = <%- getVerticalNameDefault() %>, -- The name of a customer vertical. This is only for customers running a private cluster. Generally you shouldn't touch this
         devSecretKey = nil,
-        titleId = nil
+<% if (hasClientOptions) {
+    %>        disableAdvertising = false,
+            advertisingIdType = nil,
+            advertisingIdValue = nil,
+            AD_TYPE_IDFA = "Idfa", -- a constant value that can be assigned to advertisingIdType
+            AD_TYPE_ANDROID_ID = "Adid", -- a constant value that can be assigned to advertisingIdType
+    <% } 
+%>      titleId = nil
     }
 }
 

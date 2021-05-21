@@ -186,8 +186,7 @@ function getResultAction(tabbing, apiCall) {
 
     var resultAction = "";
     if (preCallback) // Wrap the logic and the callback in a secondary callback wrapper
-        resultAction = "\n" 
-            + tabbing + "local externalOnSuccess = onSuccess\n"
+        resultAction = "\n" + tabbing + "local externalOnSuccess = onSuccess\n"
             + tabbing + "function wrappedOnSuccess(result)\n"
             + preCallback
             + tabbing + "    if (externalOnSuccess) then\n"

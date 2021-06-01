@@ -100,7 +100,9 @@ namespace PlayFab.Internal
 #if !UNITY_WSA && !UNITY_WP8 && !UNITY_WEBGL &&!UNITY_EDITOR_WIN &&!UNITY_STANDALONE_WIN &&!UNITY_WSA_10_0 // Unity has removed compression in Windows (will be added again at a later point)
             if (PlayFabSettings.CompressApiData)
             {
+#if UNITY_2021_3_ORHIGHER /// or whatever the actual one is
                 reqContainer.RequestHeaders["Content-Encoding"] = "GZIP";
+#endif
                 reqContainer.RequestHeaders["X-Accept-Encoding"] = "GZIP";
 
                 using (var stream = new MemoryStream())

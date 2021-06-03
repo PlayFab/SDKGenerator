@@ -47,6 +47,7 @@ public class PlayFabErrors {
         public PlayFabErrorCode pfErrorCode;
         public String errorMessage;
         public Map<String, List<String>> errorDetails;
+        public Integer retryAfterSeconds;
     }
 
     // This is the internal definition of an error, that matches the json we receive
@@ -57,6 +58,7 @@ public class PlayFabErrors {
         public int errorCode;
         public String errorMessage;
         public Map<String, List<String>> errorDetails;
+        public Integer retryAfterSeconds;
     }
 
     public static class PlayFabJsonSuccess<E> {

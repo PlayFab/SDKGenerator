@@ -78,11 +78,11 @@ public class PlayFabHTTP {
             try {
                 errorResult = gson.fromJson(responseString, PlayFabJsonError.class);
             } catch(Exception e) {
-                return GeneratePfError(httpCode, PlayFabErrorCode.JsonParseError, "Server response not proper json :" + responseString, null);
+                return GeneratePfError(httpCode, PlayFabErrorCode.JsonParseError, "Server response not proper json :" + responseString, null, null);
             }
 
             httpCode = errorResult.code;
-            return GeneratePfError(httpCode, PlayFabErrorCode.getFromCode(errorResult.errorCode), errorResult.errorMessage, errorResult.errorDetails);
+            return GeneratePfError(httpCode, PlayFabErrorCode.getFromCode(errorResult.errorCode), errorResult.errorMessage, errorResult.errorDetails, errorResult.retryAfterSeconds);
         }
 
         return responseString;
@@ -101,7 +101,7 @@ public class PlayFabHTTP {
         return recieved.toString();
     }
 
-    public static PlayFabError GeneratePfError(int httpCode, PlayFabErrorCode pfErrorCode, String errorMessage, Map<String, List<String>> errorDetails) {
+    public static PlayFabError GeneratePfError(int httpCode, PlayFabErrorCode pfErrorCode, String errorMessage, Map<String, List<String>> errorDetails, Integer retryAfterSeconds) {
         PlayFabError output =  new PlayFabError();
 
         output.httpCode = httpCode;
@@ -109,6 +109,7 @@ public class PlayFabHTTP {
         output.pfErrorCode = pfErrorCode;
         output.errorMessage = errorMessage;
         output.errorDetails = errorDetails;
+        output.retryAfterSeconds = retryAfterSeconds;
 
         return output;
     }

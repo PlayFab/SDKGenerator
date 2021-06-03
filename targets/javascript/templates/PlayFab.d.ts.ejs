@@ -18,6 +18,7 @@ declare module PlayFabModule {
         errorDetails?: { [key: string]: string[] };
         request?: any;
         customData?: any;
+        retryAfterSeconds?: number;
     }
     export interface SuccessContainer<TResult extends IPlayFabResultCommon> extends IPlayFabError {
         data: TResult;

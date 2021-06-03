@@ -106,6 +106,7 @@ namespace PlayFab.Internal
                 error.HttpStatus = errorResult.status;
                 error.Error = (PlayFabErrorCode)errorResult.errorCode;
                 error.ErrorMessage = errorResult.errorMessage;
+                error.RetryAfterSeconds = errorResult.retryAfterSeconds;
 
                 if (errorResult.errorDetails != null)
                 {

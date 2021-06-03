@@ -35,6 +35,7 @@ namespace PlayFab.Internal
         public int errorCode;
         public string errorMessage;
         public Dictionary<string, string[]> errorDetails = null;
+        public uint? retryAfterSeconds = null;
     }
 
     public class PlayFabJsonSuccess<TResult> where TResult : PlayFabResultCommon

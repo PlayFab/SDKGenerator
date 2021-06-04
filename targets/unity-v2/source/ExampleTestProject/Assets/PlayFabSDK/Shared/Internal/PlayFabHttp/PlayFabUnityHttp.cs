@@ -100,7 +100,7 @@ namespace PlayFab.Internal
 #if !UNITY_WSA && !UNITY_WP8 && !UNITY_WEBGL
             if (PlayFabSettings.CompressApiData)
             {
-#if UNITY_2019_4_OR_NEWER
+#if !UNITY_2019_4_OR_NEWER
                 reqContainer.RequestHeaders["Content-Encoding"] = "GZIP";
 #endif
                 reqContainer.RequestHeaders["X-Accept-Encoding"] = "GZIP";

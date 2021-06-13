@@ -742,6 +742,8 @@
     <Content Include="targets\unity-v2\source\ExampleTestProject\Assets\PlayFabSDK\Shared\Public\PlayFabEvents.cs.meta" />
     <Content Include="targets\unity-v2\source\ExampleTestProject\Assets\PlayFabSDK\Shared\Public\PlayFabLogger.cs" />
     <Content Include="targets\unity-v2\source\ExampleTestProject\Assets\PlayFabSDK\Shared\Public\PlayFabLogger.cs.meta" />
+    <Content Include="targets\unity-v2\source\ExampleTestProject\Assets\PlayFabSDK\Shared\Public\PlayFabNonPreProcessingEvents.cs.ejs" />
+    <Content Include="targets\unity-v2\source\ExampleTestProject\Assets\PlayFabSDK\Shared\Public\PlayFabPreProcessingEvents.cs.ejs" />
     <Content Include="targets\unity-v2\source\ExampleTestProject\Assets\PlayFabSDK\Shared\Public\PlayFabSettings.cs.ejs" />
     <Content Include="targets\unity-v2\source\ExampleTestProject\Assets\PlayFabSDK\Shared\Public\PlayFabSettings.cs.meta" />
     <Content Include="targets\unity-v2\source\ExampleTestProject\Assets\PlayFabSDK\Shared\Public\PluginContract.cs" />

@@ -18,41 +18,17 @@ namespace PlayFab.Internal
         public int callbackOrder { get { return 0; } }
         public void OnPostprocessBuild(BuildReport report)
         {
-            OnPostprocessBuildiOS(report);
+            try {
+                OnPostprocessBuildiOS(report);
+            }
+            catch(Exception e)
+            {
+                Debug.Log("Unhandled exception while attempting to add iOS frameworks with: \n" + e.Message);
+            }
         }
 
         private void OnPostprocessBuildiOS(BuildReport report)
         {
-#if UNITY_IOS
-            if(!IsBuiltForAppCenter)
-            {
-                return;
-            }
-
-            Debug.Log("TestAppPostBuildProcessor.OnPostprocessBuild for target " + report.summary.platform + " at path " + report.summary.outputPath);
-            BuildTarget buildTarget = report.summary.platform;
-            string path = report.summary.outputPath;
-
-            string projectPath = UnityEditor.iOS.Xcode.PBXProject.GetPBXProjectPath(path);
-            var proj = new UnityEditor.iOS.Xcode.PBXProject();
-
-            proj.ReadFromString(File.ReadAllText(projectPath));
-            string xcodeTargetGUID = proj.TargetGuidByName("Unity-iPhone");
-
-            proj.AddFrameworkToProject(xcodeTargetGUID, "calabash.framework", false);
-            proj.AddFileToBuild(xcodeTargetGUID, proj.AddFile("calabash.framework", "calabash.framework", UnityEditor.iOS.Xcode.PBXSourceTree.Source));
-
-            proj.SetBuildProperty(xcodeTargetGUID, "FRAMEWORK_SEARCH_PATHS", "$(inherited)");
-            proj.AddBuildProperty(xcodeTargetGUID, "FRAMEWORK_SEARCH_PATHS", "$(PROJECT_DIR)");
-
-            proj.AddBuildProperty(xcodeTargetGUID, "OTHER_LDFLAGS", "-ObjC");
-            proj.AddBuildProperty(xcodeTargetGUID, "OTHER_LDFLAGS", "-force_load");
-            proj.AddBuildProperty(xcodeTargetGUID, "OTHER_LDFLAGS", "$(SOURCE_ROOT)/calabash.framework/calabash");
-            proj.AddBuildProperty(xcodeTargetGUID, "OTHER_LDFLAGS", "-framework");
-            proj.AddBuildProperty(xcodeTargetGUID, "OTHER_LDFLAGS", "CFNetwork");
-
-            File.WriteAllText(projectPath, proj.WriteToString());
-#endif
         }
 
         private static bool IsBuiltForAppCenter
@@ -77,7 +53,7 @@ namespace PlayFab.Internal
             "Assets/Testing/scenes/testscene.unity"
         };
 
-        private static readonly string TestPackageName = "com.playfab.service";
+        private static readonly string TestPackageName = "com.microsoft.playfab.sdktest";
 
         #region Utility Functions
         private static void Setup()

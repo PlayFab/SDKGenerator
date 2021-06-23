@@ -93,9 +93,7 @@ namespace PlayFab.Internal
             }
         }
 
-        public void MakeApiCall(object reqContainerObj)0
-
-        
+        public void MakeApiCall(object reqContainerObj)
         {
             CallRequestContainer reqContainer = (CallRequestContainer)reqContainerObj;
             reqContainer.RequestHeaders["Content-Type"] = "application/json";

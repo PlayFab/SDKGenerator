@@ -5,7 +5,6 @@ package com.playfab;
 import com.playfab.PlayFab<%- api.name %>Models.*;
 import com.playfab.PlayFabErrors.*;
 import com.playfab.PlayFabSettings;
-import java.util.concurrent;
 import java.util.concurrent.*;
 import java.util.*;
 import com.google.gson.*;
@@ -38,8 +37,7 @@ import com.google.gson.reflect.*;
             return task.get();
         } catch(Exception e) {
             PlayFabResult<<%- apiCall.result %>> exceptionResult = new PlayFabResult<<%- apiCall.result %>>();
-            ConcurrentHashMap<String, List<String>> errorDetails = new ConcurrentHashMap<String, List<String>>();
-            exceptionResult.Error = PlayFabHTTP.GeneratePfError(-1, PlayFabErrorCode.Unknown, e.getMessage(), errorDetails, Integer.MAX_VALUE);
+            exceptionResult.Error = PlayFabHTTP.GeneratePfError(-1, PlayFabErrorCode.Unknown, e.getMessage(), Integer.MAX_VALUE, null);
             return exceptionResult;
         }
     }

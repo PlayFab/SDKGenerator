@@ -37,7 +37,7 @@ import com.google.gson.reflect.*;
             return task.get();
         } catch(Exception e) {
             PlayFabResult<<%- apiCall.result %>> exceptionResult = new PlayFabResult<<%- apiCall.result %>>();
-            exceptionResult.Error = PlayFabHTTP.GeneratePfError(-1, PlayFabErrorCode.Unknown, e.getMessage(), Integer.MAX_VALUE, null);
+            //exceptionResult.Error = PlayFabHTTP.GeneratePfError(-1, PlayFabErrorCode.Unknown, e.getMessage(), Integer.MAX_VALUE, null);
             return exceptionResult;
         }
     }

@@ -56,7 +56,7 @@ public class PlayFabHTTP {
             writer.close();
             httpCode = con.getResponseCode();
         } catch(Exception e) {
-            return GeneratePfError(httpCode, PlayFabErrorCode.ServiceUnavailable, "Failed to post to server: " + url, Integer.MAX_VALUE, null);
+            return GeneratePfError(httpCode, PlayFabErrorCode.ServiceUnavailable, "Failed to post to server: " + url, null, null);
         }
 
         // Get the response string
@@ -70,7 +70,7 @@ public class PlayFabHTTP {
         // Check for normal error results
         if(httpCode != 200 || responseString == null || responseString.isEmpty()) {
             if(responseString == null || responseString.isEmpty() || httpCode == 404 )
-                return GeneratePfError(httpCode, PlayFabErrorCode.ServiceUnavailable, "Empty server response", Integer.MAX_VALUE, null);
+                return GeneratePfError(httpCode, PlayFabErrorCode.ServiceUnavailable, "Empty server response", null, null);
 
             PlayFabJsonError errorResult = null;
             try {

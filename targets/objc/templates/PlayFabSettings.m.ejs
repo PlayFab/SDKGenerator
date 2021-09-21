@@ -8,20 +8,11 @@
 
 #import "PlayFabSettings.h"
 
-#ifdef USE_IDFA
-@import AdSupport;
-#endif
-
 static NSString * TitleId = @"XXXX";
 
 static NSString * DeveloperSecretKey = @"";
 
 static NSString * ProductionEnvironmentURL = @".playfabapi.com";
-
-NSString * const AD_TYPE_IDFA = @"Idfa";
-NSString * const AD_TYPE_ANDROID_ID = @"Adid";
-static NSString * AdvertisingIdType;
-static NSString * AdvertisingIdValue;
 
 static NSString * VerticalName = @"<%- GetDefaultVerticalName() %>";
 
@@ -39,14 +30,6 @@ static NSString * VerticalName = @"<%- GetDefaultVerticalName() %>";
 {
     return DeveloperSecretKey;
 }
-+ (NSString *) AdvertisingIdType
-{
-    return AdvertisingIdType;
-}
-+ (NSString *) AdvertisingIdValue
-{
-    return AdvertisingIdValue;
-}
 + (NSString *) VerticalName
 {
     return VerticalName;
@@ -63,32 +46,9 @@ static NSString * VerticalName = @"<%- GetDefaultVerticalName() %>";
 {
     DeveloperSecretKey = setValue;
 }
-+ (void) setAdvertisingIdType:(NSString*)setValue
-{
-    AdvertisingIdType = setValue;
-}
-+ (void) setAdvertisingIdValue:(NSString*)setValue
-{
-    AdvertisingIdValue = setValue;
-}
 + (void) setVerticalName:(NSString*)setValue
 {
     VerticalName = setValue;
 }
-
-#ifdef USE_IDFA
-+ (NSString *)identifierForAdvertising
-{
-    if([[ASIdentifierManager sharedManager] isAdvertisingTrackingEnabled])
-    {
-        NSUUID *IDFA = [[ASIdentifierManager sharedManager] advertisingIdentifier];
-        
-        return [IDFA UUIDString];
-    }
-    
-    return nil;
-}
-#endif
-
 
 @end

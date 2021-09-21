@@ -413,15 +413,6 @@ function GetReturnComment(apiCall, api) {
 function GetRequestActions(apiCall, api) {
     if (api.name === "Client" && (apiCall.result === "LoginResult" || apiCall.request === "RegisterPlayFabUserRequest"))
         return "            request.TitleId = Settings.TitleId ?? request.TitleId;\n\t\t\tif(request.TitleId == null) throw new Exception (\"Must be have PlayFabSettings.TitleId set to call this method\");\n";
-    if (api.name === "Client" && (apiCall.name === "AttributeInstall"))
-        return "            if (_authKey == null) throw new Exception (\"Must be logged in to call this method\");\n" +
-                "            if (string.IsNullOrEmpty(request.Adid) && string.IsNullOrEmpty(request.Idfa))\n" +
-                "            {\n" +
-                "                if (Settings.AdvertisingIdType == PlayFabDefaultSettings.AD_TYPE_ANDROID_ID)\n" +
-                "                    request.Adid = Settings.AdvertisingIdValue;\n" +
-                "                if (Settings.AdvertisingIdType == PlayFabDefaultSettings.AD_TYPE_IDFA)\n" +
-                "                    request.Idfa = Settings.AdvertisingIdValue;\n" +
-                "            }\n";
     if (apiCall.auth === "SecretKey")
         return "            if (Settings.DeveloperSecretKey == null) throw new Exception (\"Must have PlayFabSettings.DeveloperSecretKey set to call this method\");\n";
     if (api.name === "Client" && apiCall.auth === "SessionTicket")
@@ -431,9 +422,7 @@ function GetRequestActions(apiCall, api) {
 
 function GetResultActions(apiCall, api) {
     if (api.name === "Client" && (apiCall.result === "LoginResult" || apiCall.result === "RegisterPlayFabUserResult"))
-        return "            _authKey = result.SessionTicket ?? _authKey;\n            await MultiStepClientLogin(result.SettingsForUser.NeedsAttribution);\n";
-    if (api.name === "Client" && (apiCall.name === "AttributeInstall"))
-        return "            Settings.AdvertisingIdType += \"_Successful\";\n";
+        return "            _authKey = result.SessionTicket ?? _authKey;\n            ";
     return "";
 }
 

@@ -6,15 +6,7 @@ if(!PlayFab.settings) {
     PlayFab.settings = {
         titleId: null, // You must set this value for PlayFabSdk to work properly (Found in the Game Manager for your title, at the PlayFab Website)
         developerSecretKey: null, // For security reasons you must never expose this value to the client or players - You must set this value for Server-APIs to work properly (Found in the Game Manager for your title, at the PlayFab Website)
-        advertisingIdType: null,
-        advertisingIdValue: null,
         GlobalHeaderInjection: null,
-
-        // disableAdvertising is provided for completeness, but changing it is not suggested
-        // Disabling this may prevent your advertising-related PlayFab marketplace partners from working correctly
-        disableAdvertising: false,
-        AD_TYPE_IDFA: "Idfa",
-        AD_TYPE_ANDROID_ID: "Adid",
         productionServerUrl: ".playfabapi.com"
     }
 }
@@ -267,21 +259,8 @@ PlayFab.<%- api.name %>Api = {
 }else{
 %>        return PlayFab._internalSettings.ExecuteRequestWrapper(<%- getUrlPath(apiCall) %>, request, <%- getAuthParams(apiCall) %>, callback, customData, extraHeaders);<% } %>
     },
-<% } if (hasClientOptions) {%>
-    _MultiStepClientLogin: function (needsAttribution) {
-        if (needsAttribution && !PlayFab.settings.disableAdvertising && PlayFab.settings.advertisingIdType !== null && PlayFab.settings.advertisingIdValue !== null) {
-            var request = {};
-            if (PlayFab.settings.advertisingIdType === PlayFab.settings.AD_TYPE_IDFA) {
-                request.Idfa = PlayFab.settings.advertisingIdValue;
-            } else if (PlayFab.settings.advertisingIdType === PlayFab.settings.AD_TYPE_ANDROID_ID) {
-                request.Adid = PlayFab.settings.advertisingIdValue;
-            } else {
-                return;
-            }
-            PlayFab.ClientApi.AttributeInstall(request, null);
-        }
-    }
-<% } %>};
+<% } %>
+};
 
 var PlayFab<%- api.name %>SDK = PlayFab.<%- api.name %>Api;
 <% if (hasClientOptions) { %>

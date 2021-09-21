@@ -37,7 +37,7 @@ import com.google.gson.reflect.*;
             return task.get();
         } catch(Exception e) {
             PlayFabResult<<%- apiCall.result %>> exceptionResult = new PlayFabResult<<%- apiCall.result %>>();
-            exceptionResult.Error = PlayFabHTTP.GeneratePfError(-1, PlayFabErrorCode.Unknown, e.getMessage(), null);
+            exceptionResult.Error = PlayFabHTTP.GeneratePfError(-1, PlayFabErrorCode.Unknown, e.getMessage(), null, null);
             return exceptionResult;
         }
     }
@@ -66,39 +66,5 @@ import com.google.gson.reflect.*;
         pfResult.Result = result;
         return pfResult;
     }
-<% } %><% if (hasClientOptions) { %>
-    public static void MultiStepClientLogin(Boolean needsAttribution) {
-<% if (isAndroid) {
-%>        if (needsAttribution && !PlayFabSettings.DisableAdvertising
-        && (PlayFabSettings.AdvertisingIdType == null || PlayFabSettings.AdvertisingIdType == "")
-        && (PlayFabSettings.AdvertisingIdValue == null || PlayFabSettings.AdvertisingIdValue == "")
-        && PlayFabSettings.androidContext != null) {
-            try {
-                // Grab the android advertisingId and fill it in when needed
-                PlayFabGetAdvertId.AdInfo adInfo = com.playfab.PlayFabGetAdvertId.getAdvertisingIdInfo(PlayFabSettings.androidContext);
-                if (adInfo != null) {
-                    PlayFabSettings.AdvertisingIdType = PlayFabSettings.AD_TYPE_ANDROID_ID;
-                    PlayFabSettings.AdvertisingIdValue = adInfo.advertisingId;
-                    PlayFabSettings.DisableAdvertising = adInfo.limitAdTrackingEnabled;
-                } // else change nothing, I just can't provide any automatic values
-            } catch (Exception e) {
-                Log.e("MYAPP", "exception", e);
-                PlayFabSettings.AdvertisingIdType = "error";
-                PlayFabSettings.AdvertisingIdValue = null;
-                PlayFabSettings.DisableAdvertising = null;
-            }
-        }
-
-<% } %>        if (needsAttribution && !PlayFabSettings.DisableAdvertising && PlayFabSettings.AdvertisingIdType != null && PlayFabSettings.AdvertisingIdValue != null) {
-            PlayFabClientModels.AttributeInstallRequest request = new PlayFabClientModels.AttributeInstallRequest();
-            if (PlayFabSettings.AdvertisingIdType == PlayFabSettings.AD_TYPE_IDFA)
-                request.Idfa = PlayFabSettings.AdvertisingIdValue;
-            else if (PlayFabSettings.AdvertisingIdType == PlayFabSettings.AD_TYPE_ANDROID_ID)
-                request.Adid = PlayFabSettings.AdvertisingIdValue;
-            else
-                return;
-            FutureTask<PlayFabResult<AttributeInstallResult>> task = AttributeInstallAsync(request);
-            task.run();
-        }
-    }
-<% } %>}
+<% } %>
+}

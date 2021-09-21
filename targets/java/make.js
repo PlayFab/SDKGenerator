@@ -238,14 +238,9 @@ function getResultActions(tabbing, apiCall) {
         return tabbing + "PlayFabSettings.EntityToken = result.EntityToken != null ? result.EntityToken : PlayFabSettings.EntityToken;\n";
     else if (apiCall.result === "LoginResult")
         return tabbing + "PlayFabSettings.ClientSessionTicket = result.SessionTicket != null ? result.SessionTicket : PlayFabSettings.ClientSessionTicket;\n"
-            + tabbing + "if (result.EntityToken != null) PlayFabSettings.EntityToken = result.EntityToken.EntityToken != null ? result.EntityToken.EntityToken : PlayFabSettings.EntityToken;\n"
-            + tabbing + "MultiStepClientLogin(resultData.data.SettingsForUser.NeedsAttribution);\n";
+            + tabbing + "if (result.EntityToken != null) PlayFabSettings.EntityToken = result.EntityToken.EntityToken != null ? result.EntityToken.EntityToken : PlayFabSettings.EntityToken;\n";
     else if (apiCall.result === "RegisterPlayFabUserResult")
-        return tabbing + "PlayFabSettings.ClientSessionTicket = result.SessionTicket != null ? result.SessionTicket : PlayFabSettings.ClientSessionTicket;\n"
-            + tabbing + "MultiStepClientLogin(resultData.data.SettingsForUser.NeedsAttribution);\n";
-    else if (apiCall.result === "AttributeInstallResult")
-        return tabbing + "// Modify AdvertisingIdType:  Prevents us from sending the id multiple times, and allows automated tests to determine id was sent successfully\n"
-            + tabbing + "PlayFabSettings.AdvertisingIdType += \"_Successful\";\n";
+        return tabbing + "PlayFabSettings.ClientSessionTicket = result.SessionTicket != null ? result.SessionTicket : PlayFabSettings.ClientSessionTicket;\n";
     return "";
 }
 

@@ -28,15 +28,8 @@ public class PlayFabSettings {
     public static String DeveloperSecretKey = null; // You must set this value for PlayFabSdk to work properly (Found in the Game Manager for your title, at the PlayFab Website)
     public static String ClientSessionTicket = null; // Set by any Client Login Call
 <% if (hasClientOptions) {
-%>    public static String AdvertisingIdType = null; // Set this to the appropriate AD_TYPE_X constant below
-    public static String AdvertisingIdValue = null; // Set this to corresponding device value
-<% if (isAndroid) { %>    public static Context androidContext = null; // Context object for android devices
+%><% if (isAndroid) { %>    public static Context androidContext = null; // Context object for android devices
 <% } %>
-    // DisableAdvertising is provided for completeness, but changing it is not suggested
-    // Disabling this may prevent your advertising-related PlayFab marketplace partners from working correctly
-    public static Boolean DisableAdvertising = false;
-    public static final String AD_TYPE_IDFA = "Idfa";
-    public static final String AD_TYPE_ANDROID_ID = "Adid";
 <% } %>
     public static String GetURL(String apiCall) {
         StringBuilder sb = new StringBuilder(1000);

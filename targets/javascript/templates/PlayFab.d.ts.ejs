@@ -6,11 +6,6 @@ declare module PlayFabModule {
         titleId: string;
         developerSecretKey: string;
         GlobalHeaderInjection?: { [key: string]: string };
-        advertisingIdType: string;
-        advertisingIdValue: string;
-        disableAdvertising: boolean;
-        AD_TYPE_IDFA: string;
-        AD_TYPE_ANDROID_ID: string;
         productionServerUrl: string;
     }
     export interface IPlayFabRequestCommon { }
@@ -23,6 +18,7 @@ declare module PlayFabModule {
         errorDetails?: { [key: string]: string[] };
         request?: any;
         customData?: any;
+        retryAfterSeconds?: number;
     }
     export interface SuccessContainer<TResult extends IPlayFabResultCommon> extends IPlayFabError {
         data: TResult;

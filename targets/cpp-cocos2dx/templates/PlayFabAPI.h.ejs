@@ -14,7 +14,6 @@ namespace PlayFab
         template<typename ResType> using ProcessApiCallback = std::function<void(const ResType& result, void* userData)>;
 <% if (hasClientOptions) { %>
         // Public, Client-Specific
-        static void MultiStepClientLogin(bool needsAttribution);
         static bool IsClientLoggedIn();
 <% } %>
         // ------------ Generated API calls

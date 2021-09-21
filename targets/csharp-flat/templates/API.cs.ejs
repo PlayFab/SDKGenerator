@@ -74,20 +74,6 @@ namespace PlayFab
             return !string.IsNullOrEmpty(_authKey);
         }
 
-        private async Task MultiStepClientLogin(bool needsAttribution)
-        {
-            if (needsAttribution && !Settings.DisableAdvertising && !string.IsNullOrEmpty(Settings.AdvertisingIdType) && !string.IsNullOrEmpty(Settings.AdvertisingIdValue))
-            {
-                AttributeInstallRequest request = new AttributeInstallRequest();
-                if (Settings.AdvertisingIdType == PlayFabDefaultSettings.AD_TYPE_IDFA)
-                    request.Idfa = Settings.AdvertisingIdValue;
-                else if (Settings.AdvertisingIdType == PlayFabDefaultSettings.AD_TYPE_ANDROID_ID)
-                    request.Adid = Settings.AdvertisingIdValue;
-                else
-                    return;
-                await AttributeInstallAsync(request);
-            }
-        }
 <% } %><% if(isAdmin) {
 %>
         /// <summary>

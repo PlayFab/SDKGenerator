@@ -135,30 +135,6 @@ namespace PlayFab.UUnit
 
         /// <summary>
         /// CLIENT API
-        /// Test that the login call sequence sends the AdvertisingId when set
-        /// </summary>
-        [UUnitTest]
-        public void LoginWithAdvertisingId()
-        {
-            Client.Settings.AdvertisingIdType = PlayFabDefaultSettings.AD_TYPE_ANDROID_ID;
-            Client.Settings.AdvertisingIdValue = "PlayFabTestId";
-
-            var loginTask = Client.LoginWithCustomIDAsync(Client.Settings.TitleId, PlayFabVersion.BuildIdentifier, true);
-            try
-            {
-                loginTask.Wait();
-            }
-            catch (Exception ex)
-            {
-                UUnitAssert.True(false, ex.Message);
-            }
-            _playFabId = loginTask.Result.PlayFabId; // Needed for subsequent tests
-            UUnitAssert.True(Client.IsClientLoggedIn(), "User login failed");
-            UUnitAssert.StringEquals(PlayFabDefaultSettings.AD_TYPE_ANDROID_ID + "_Successful", Client.Settings.AdvertisingIdType);
-        }
-
-        /// <summary>
-        /// CLIENT API
         /// Test a sequence of calls that modifies saved data,
         ///   and verifies that the next sequential API call contains updated data.
         /// Verify that the data is correctly modified on the next call.

@@ -5,52 +5,46 @@
         "description": "PlayFab API SDK for Postman.\n\nThis is still under development, and is not yet ready for general use.  Experienced users can utilize this if they carefully examine the post-body and ensure the data is properly entered.  By default, the post-body is NOT defaulting to useable values.",
         "schema": "https://schema.getpostman.com/json/collection/v2.0.0/collection.json"
     },
-    "item": [
+    "item": [<% for(var a in apis) { var api = apis[a]; var apiName = api.name.toLowerCase(); %>
     {
-    <% for(var a in apis) { var api = apis[a]; var apiName = api.name.toLowerCase(); %>
-            "name": <%- apiName %>
-            "item": [
-        <% for(var i in api.calls) { var apiCall = api.calls[i]; %>
-            {
-                "name": "<%- apiCall.name %>",
-                "request": {
-                    "method": "POST",
-                    "header": [
-                        "<%- getPostmanHeader(apiCall) %>",
-                    ],
-                    "body": {
-                        "mode": "raw",
-                        "raw": <%- getRequestExample(api, apiCall) %>
-                    },
-                    "url" : {
-                        "raw": "<%- getUrl(apiCall) %>",
-                        "protocol": "https",
-                        "host": [
-                            "{{TitleId}}",
-                            "playfabapi",
-                            "com"
-                        ],
-                        "path": [
-                            "<%- apiName %>",
-                            "<%- apiCall %>",
-                        ],
-                        "query": [
-                            {
-                                "key": "sdk",
-                                "value": "PostmanCollection-<%- sdkVersion %>"
-                            }
-                        ]
-                    },
-                    "description": "<%- getPostmanDescription(api, apiCall) %>"
+        "name": "<%- apiName %>",
+        "item": [<% for(var i in api.calls) { var apiCall = api.calls[i]; %>
+        {
+            "name": "<%- apiCall.name %>",
+            "request": {
+                "method": "POST",
+                "header": [
+                    "<%- getPostmanHeader(apiCall) %>"
+                ],
+                "body": {
+                    "mode": "raw",
+                    "raw": <%- getRequestExample(api, apiCall) %>
                 },
-                "response": []
-            }<% if(parseInt(i) +1 != api.calls.length){ %>,<% } %>
-            <% } %>
-            <% if(parseInt(i) + 1 < api.calls.length || parseInt(a) + 1 < apis.length){ %>],<% } %>
-            ]
-            "description": "PlayFab <%- apiName %> API."
-        }
-    <% } %>
+                "url" : {
+                    "raw": "<%- getUrl(apiCall) %>",
+                    "protocol": "https",
+                    "host": [
+                        "{{TitleId}}",
+                        "playfabapi",
+                        "com"
+                    ],
+                    "path": [
+                        "<%- apiName %>",
+                        "<%- apiCall %>"
+                    ],
+                    "query": [
+                        {
+                            "key": "sdk",
+                            "value": "PostmanCollection-<%- sdkVersion %>"
+                        }
+                    ]
+                },
+                "description": "<%- getPostmanDescription(api, apiCall) %>"
+            },
+            "response": []
+        }<% if(parseInt(i) +1 != api.calls.length){ %>,<% } %><% } %>],
+        "description": "PlayFab <%- apiName %> API."
+    }<% if(parseInt(a)+1 != apis.length){ %>,<% } else { %>],<% } %> <% } %>
     "event": [
         {
             "listen": "prerequest",

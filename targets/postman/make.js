@@ -30,16 +30,23 @@ exports.makeCombinedAPI = function (apis, sourceDir, apiOutputDir) {
     };
 
     var outputFile = path.resolve(apiOutputDir, "playfab.json");
+    var outputFile2 = path.resolve(apiOutputDir, "playfabV2.json");
     var templateDir = path.resolve(sourceDir, "templates");
     var apiTemplate = getCompiledTemplate(path.resolve(templateDir, "playfab.json.ejs"));
     writeFile(outputFile, apiTemplate(locals));
-    //var apiTemplate2 = getCompiledTemplate(path.resolve(templateDir, "playfabV2.json.ejs"));
-    //writeFile(outputFile, apiTemplate2(locals));
+    var apiTemplate2 = getCompiledTemplate(path.resolve(templateDir, "playfabV2.json.ejs"));
+    writeFile(outputFile2, apiTemplate2(locals));
 
     try {
         require(outputFile); // Read the destination file and make sure it is correctly formatted json
     } catch (ex) {
         throw "The Postman Collection output was not properly formatted JSON:\n" + outputFile;
+    }
+
+    try {
+        require(outputFile2); // Read the destination file and make sure it is correctly formatted json
+    } catch (ex) {
+        throw "The Postman Collection output was not properly formatted JSON:\n" + outputFile2;
     }
 }
 

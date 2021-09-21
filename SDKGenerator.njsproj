@@ -416,6 +416,7 @@
     <Content Include="targets\postman\make.js" />
     <Content Include="targets\postman\replacements.json" />
     <Content Include="targets\postman\templates\playfab.json.ejs" />
+    <Content Include="targets\postman\templates\playfabV2.json.ejs" />
     <Content Include="targets\PythonSdk\Archive\Enum.py.ejs" />
     <Content Include="targets\PythonSdk\Archive\Model.py.ejs" />
     <Content Include="targets\PythonSdk\Archive\Models.py.ejs" />

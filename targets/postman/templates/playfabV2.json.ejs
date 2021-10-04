@@ -29,8 +29,8 @@
                         "com"
                     ],
                     "path": [
-                        "<%- apiName %>",
-                        "<%- apiCall %>"
+                        "<%- getController(apiCall) %>",
+                        "<%- apiCall.name %>"
                     ],
                     "query": [
                         {

@@ -18,6 +18,7 @@ namespace PlayFab.UUnit
         public string aliasId;
 #endif
         public string userEmail;
+        public string connectionString;
         public Dictionary<string, string> extraHeaders;
     }
     public static class UUnitIncrementalTestRunner

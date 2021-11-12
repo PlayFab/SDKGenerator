@@ -37,6 +37,8 @@ namespace PlayFab
         public static string TitleId { get { return staticSettings.TitleId; } set { staticSettings.TitleId = value; } }
         #endregion Deprecated staticSettingsredirect properties
 
+        public static string ConnectionString { get { return staticSettings.ConnectionString; } set { staticSettings.ConnectionString = value; } }
+
 #if !NET45 && !NETSTANDARD2_0 && !UNITY_EDITOR && !UNITY_STANDALONE
         private static string _localApiServer;
 #endif
@@ -64,19 +66,26 @@ namespace PlayFab
             StringBuilder sb = new StringBuilder(1000);
 
             var apiSettings = instanceSettings ?? staticSettings;
-
             var baseUrl = apiSettings?.ProductionEnvironmentUrl;
-            if (!baseUrl.StartsWith("http"))
+
+            if(apiSettings.ConnectionString == "")
             {
-                sb.Append("https://");
-                if (!string.IsNullOrEmpty(apiSettings?.TitleId))
+                if (!baseUrl.StartsWith("http"))
                 {
-                    sb.Append(apiSettings.TitleId).Append(".");
+                    sb.Append("https://");
+                    if (!string.IsNullOrEmpty(apiSettings?.TitleId))
+                    {
+                        sb.Append(apiSettings.TitleId).Append(".");
+                    }
+                    if (!string.IsNullOrEmpty(apiSettings?.VerticalName))
+                    {
+                        sb.Append(apiSettings?.VerticalName).Append(".");
+                    }
                 }
-                if (!string.IsNullOrEmpty(apiSettings?.VerticalName))
-                {
-                    sb.Append(apiSettings?.VerticalName).Append(".");
-                }
+            }
+            else
+            {
+                sb.Append(ConnectionString);
             }
 
             sb.Append(baseUrl).Append(apiCall);

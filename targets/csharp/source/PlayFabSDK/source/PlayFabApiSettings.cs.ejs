@@ -21,6 +21,9 @@ namespace PlayFab
         /// <summary> You must set this value for PlayFabSdk to work properly (Found in the Game Manager for your title, at the PlayFab Website) </summary>
         public string TitleId;
 
+        /// <summary> Connects directly to a PlayFab title resource. Terminology subject to change </summary>
+        public string ConnectionString = "";
+
         public virtual string GetFullUrl(string apiCall)
         {
             return PlayFabSettings.GetFullUrl(apiCall, RequestGetParams, this);

@@ -80,6 +80,7 @@ namespace PlayFab.UUnit
 #if ENABLE_PLAYFABSERVER_API || ENABLE_PLAYFABADMIN_API
             PlayFabServerApiTest.SetTitleInfo(TestTitleData);
 #endif
+            PlayFabConnectionStringApiTest.SetTitleInfo(TestTitleData);
 
             SuiteFinished = false;
             AllTestsPassed = false;

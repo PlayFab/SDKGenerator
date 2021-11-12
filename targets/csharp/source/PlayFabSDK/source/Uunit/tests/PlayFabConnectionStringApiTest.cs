@@ -27,9 +27,9 @@ namespace PlayFab.UUnit
 
         private static PlayFabAuthenticationContext authenticationContext1, authenticationContext2, authenticationContext3;
 
-        private readonly PlayFabAuthenticationInstanceAPI authApi = new PlayFabAuthenticationInstanceAPI(PlayFabSettings.staticPlayer);
-        private readonly PlayFabClientInstanceAPI clientApi = new PlayFabClientInstanceAPI(PlayFabSettings.staticPlayer);
-        private readonly PlayFabDataInstanceAPI dataApi = new PlayFabDataInstanceAPI(PlayFabSettings.staticPlayer);
+        private PlayFabAuthenticationInstanceAPI authApi = new PlayFabAuthenticationInstanceAPI(PlayFabSettings.staticPlayer);
+        private PlayFabClientInstanceAPI clientApi = new PlayFabClientInstanceAPI(PlayFabSettings.staticPlayer);
+        private PlayFabDataInstanceAPI dataApi = new PlayFabDataInstanceAPI(PlayFabSettings.staticPlayer);
 
         /// <summary>
         /// PlayFab Title cannot be created from SDK tests, so you must provide your titleId to run unit tests.
@@ -46,6 +46,12 @@ namespace PlayFab.UUnit
 
         public override void SetUp(UUnitTestContext testContext)
         {
+            PlayFabSettings.staticSettings.ConnectionString = testTitleData.connectionString;
+
+            authApi = new PlayFabAuthenticationInstanceAPI(PlayFabSettings.staticSettings, PlayFabSettings.staticPlayer);
+            clientApi = new PlayFabClientInstanceAPI(PlayFabSettings.staticSettings, PlayFabSettings.staticPlayer);
+            dataApi = new PlayFabDataInstanceAPI(PlayFabSettings.staticSettings, PlayFabSettings.staticPlayer);
+
             maxRetry = 1;
             if (!TITLE_INFO_SET)
                 testContext.Skip(); // We cannot do client tests if the titleId is not given

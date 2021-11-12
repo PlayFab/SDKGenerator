@@ -85,7 +85,7 @@ namespace PlayFab
             }
             else
             {
-                sb.Append(ConnectionString);
+                baseUrl = apiSettings.ConnectionString;
             }
 
             sb.Append(baseUrl).Append(apiCall);

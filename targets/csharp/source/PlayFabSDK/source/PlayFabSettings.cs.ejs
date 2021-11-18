@@ -64,19 +64,26 @@ namespace PlayFab
             StringBuilder sb = new StringBuilder(1000);
 
             var apiSettings = instanceSettings ?? staticSettings;
-
             var baseUrl = apiSettings?.ProductionEnvironmentUrl;
-            if (!baseUrl.StartsWith("http"))
+
+            if(apiSettings.ConnectionString == "")
             {
-                sb.Append("https://");
-                if (!string.IsNullOrEmpty(apiSettings?.TitleId))
+                if (!baseUrl.StartsWith("http"))
                 {
-                    sb.Append(apiSettings.TitleId).Append(".");
+                    sb.Append("https://");
+                    if (!string.IsNullOrEmpty(apiSettings?.TitleId))
+                    {
+                        sb.Append(apiSettings.TitleId).Append(".");
+                    }
+                    if (!string.IsNullOrEmpty(apiSettings?.VerticalName))
+                    {
+                        sb.Append(apiSettings?.VerticalName).Append(".");
+                    }
                 }
-                if (!string.IsNullOrEmpty(apiSettings?.VerticalName))
-                {
-                    sb.Append(apiSettings?.VerticalName).Append(".");
-                }
+            }
+            else
+            {
+                baseUrl = apiSettings.ConnectionString;
             }
 
             sb.Append(baseUrl).Append(apiCall);

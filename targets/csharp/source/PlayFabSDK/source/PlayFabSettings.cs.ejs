@@ -37,8 +37,6 @@ namespace PlayFab
         public static string TitleId { get { return staticSettings.TitleId; } set { staticSettings.TitleId = value; } }
         #endregion Deprecated staticSettingsredirect properties
 
-        public static string ConnectionString { get { return staticSettings.ConnectionString; } set { staticSettings.ConnectionString = value; } }
-
 #if !NET45 && !NETSTANDARD2_0 && !UNITY_EDITOR && !UNITY_STANDALONE
         private static string _localApiServer;
 #endif

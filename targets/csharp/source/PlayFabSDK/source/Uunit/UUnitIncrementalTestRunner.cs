@@ -18,6 +18,7 @@ namespace PlayFab.UUnit
         public string aliasId;
 #endif
         public string userEmail;
+        public string connectionString;
         public Dictionary<string, string> extraHeaders;
     }
     public static class UUnitIncrementalTestRunner
@@ -79,6 +80,7 @@ namespace PlayFab.UUnit
 #if ENABLE_PLAYFABSERVER_API || ENABLE_PLAYFABADMIN_API
             PlayFabServerApiTest.SetTitleInfo(TestTitleData);
 #endif
+            PlayFabConnectionStringApiTest.SetTitleInfo(TestTitleData);
 
             SuiteFinished = false;
             AllTestsPassed = false;

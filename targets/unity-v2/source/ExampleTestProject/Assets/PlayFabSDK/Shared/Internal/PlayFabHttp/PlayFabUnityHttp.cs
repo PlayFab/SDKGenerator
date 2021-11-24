@@ -93,6 +93,8 @@ namespace PlayFab.Internal
                 {
                     successCallback(request.downloadHandler.data);
                 }
+
+                request.Dispose();
             }
         }
 

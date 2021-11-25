@@ -38,7 +38,7 @@ namespace PlayFab.UUnit
 
             testTitleData = TestTitleDataLoader.LoadTestTitleData();
             _userEmail = testTitleData.userEmail;
-            //clientSettings.TitleId = testTitleData.titleId;
+            clientSettings.TitleId = testTitleData.titleId;
             clientSettings.ConnectionString = testTitleData.connectionString;
             if (testTitleData.extraHeaders != null)
                 foreach (var pair in testTitleData.extraHeaders)

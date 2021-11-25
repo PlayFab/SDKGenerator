@@ -48,9 +48,6 @@ namespace PlayFab.UUnit
         public override void SetUp(UUnitTestContext testContext)
         {
             maxRetry = 1;
-            // Verify all the inputs won't cause crashes in the tests
-            if (string.IsNullOrEmpty(clientSettings.TitleId))
-                testContext.Skip(); // We cannot do client tests if the titleId is not given
         }
 
         public override void Tick(UUnitTestContext testContext)

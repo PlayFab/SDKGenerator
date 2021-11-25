@@ -13,7 +13,6 @@ namespace PlayFab.UUnit
         private TestTitleDataLoader.TestTitleData testTitleData;
         private static readonly PlayFabApiSettings clientSettings = new PlayFabApiSettings();
         private static readonly PlayFabAuthenticationContext clientContext = new PlayFabAuthenticationContext();
-        //private static readonly PlayFabClientInstanceAPI clientInstance = new PlayFabClientInstanceAPI(PlayFabSettings.staticSettings, PlayFabSettings.staticPlayer);
         private static readonly PlayFabClientInstanceAPI clientInstance = new PlayFabClientInstanceAPI(clientSettings, clientContext);
 
         // Test-data constants

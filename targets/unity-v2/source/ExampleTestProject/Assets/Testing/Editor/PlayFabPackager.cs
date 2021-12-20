@@ -358,6 +358,7 @@ namespace PlayFab.Internal
         [MenuItem("PlayFab/Testing/XboxOneTestBuild")]
         public static void MakeXboxOneBuild()
         {
+            AssetDatabase.SaveAssets();
             Setup();
             SetScriptingBackend(ScriptingImplementation.IL2CPP, BuildTarget.XboxOne, BuildTargetGroup.XboxOne);
             //SetScriptingBackend( ScriptingImplementation.Mono2x, BuildTarget.XboxOne, BuildTargetGroup.XboxOne );

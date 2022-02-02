@@ -519,8 +519,46 @@ namespace PlayFab.Json
         }
         private const int BUILDER_INIT = 2000;
 
-        private static readonly char[] EscapeTable;
-        private static readonly char[] EscapeCharacters = new char[] { '"', '\\', '\b', '\f', '\n', '\r', '\t' };
+        private const char EscapeCharacterRequiresSlashU = char.MaxValue;
+        private static readonly char[] EscapeTable = BuildEscapeTableArray();
+        private static readonly char[] EscapeCharacters = new char[]
+        {
+            '\u0000',
+            '\u0001',
+            '\u0002',
+            '\u0003',
+            '\u0004',
+            '\u0005',
+            '\u0006',
+            '\u0007',
+            '\b',
+            '\t',
+            '\n',
+            '\u000b',
+            '\f',
+            '\r',
+            '\u000e',
+            '\u000f',
+            '\u0010',
+            '\u0011',
+            '\u0012',
+            '\u0013',
+            '\u0014',
+            '\u0015',
+            '\u0016',
+            '\u0017',
+            '\u0018',
+            '\u0019',
+            '\u001a',
+            '\u001b',
+            '\u001c',
+            '\u001d',
+            '\u001e',
+            '\u001f',
+
+            '"',  // 0x22
+            '\\', // 0x92
+        };
         // private static readonly string EscapeCharactersString = new string(EscapeCharacters);
         internal static readonly List<Type> NumberTypes = new List<Type> {
             typeof(bool), typeof(byte), typeof(ushort), typeof(uint), typeof(ulong), typeof(sbyte), typeof(short), typeof(int), typeof(long), typeof(double), typeof(float), typeof(decimal)
@@ -532,16 +570,43 @@ namespace PlayFab.Json
         [ThreadStatic]
         private static StringBuilder _parseStringBuilder;
 
-        static PlayFabSimpleJson()
+        static char[] BuildEscapeTableArray()
         {
-            EscapeTable = new char[93];
-            EscapeTable['"'] = '"';
-            EscapeTable['\\'] = '\\';
-            EscapeTable['\b'] = 'b';
-            EscapeTable['\f'] = 'f';
-            EscapeTable['\n'] = 'n';
-            EscapeTable['\r'] = 'r';
-            EscapeTable['\t'] = 't';
+            // The escape table is a 1:1 translation table
+            // with \0 [default(char)] denoting a safe character.
+            var escapeTable = new char[93];
+
+            // See: https://datatracker.ietf.org/doc/html/rfc4627.html#section-2.5
+            //	"All Unicode characters may be placed within the
+            //	quotation marks except for the characters that must be escaped:
+            //	quotation mark, reverse solidus, and the control characters (U+0000
+            //	through U+001F)."
+            // Also of note:
+            //	"The hexadecimal letters A though F can be upper or lowercase."
+            // We'll always use lowercase in SerializeString.
+
+            // First, populate control characters which will be fully escaped with "popular characters"
+            escapeTable['\b'] = 'b';
+            escapeTable['\t'] = 't';
+            escapeTable['\n'] = 'n';
+            escapeTable['\f'] = 'f';
+            escapeTable['\r'] = 'r';
+
+            // These are outside the 0x1F range, but are fully escaped
+            escapeTable['"'] = '"';
+            escapeTable['\\'] = '\\';
+
+            // Second, populate the remaining characters that will need be generically escaped using \uXXXX.
+            // Yes, including the null character \u0000
+            for (int x = '\x0000'; x <= '\x001f'; x++)
+            {
+                if (escapeTable[x] == default(char))
+                {
+                    escapeTable[x] = EscapeCharacterRequiresSlashU;
+                }
+            }
+
+            return escapeTable;
         }
 
         /// <summary>
@@ -1153,8 +1218,18 @@ namespace PlayFab.Json
                         safeCharacterCount = 0;
                     }
 
-                    builder.Append('\\');
-                    builder.Append(EscapeTable[c]);
+                    if (EscapeTable[c] == EscapeCharacterRequiresSlashU)
+                    {
+                        builder.Append("\\u");
+                        // This is probably a slow (relative) code path, but this case is also in theory rarely ever taken.
+                        // Note: we always use lowercase here.
+                        builder.AppendFormat(CultureInfo.InvariantCulture, "{0:x4}", (uint)c);
+                    }
+                    else
+                    {
+                        builder.Append('\\');
+                        builder.Append(EscapeTable[c]);
+                    }
                 }
             }
 

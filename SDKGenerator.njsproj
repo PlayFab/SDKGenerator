@@ -137,9 +137,7 @@
     <Content Include="targets\csharp\source\PlayFabSDK\source\Uunit\tests\PlayFabApiTest.cs" />
     <Content Include="targets\csharp\source\PlayFabSDK\source\Uunit\tests\PlayFabQosApiTest.cs" />
     <Content Include="targets\csharp\source\PlayFabSDK\source\Uunit\tests\PlayFabServerApiTest.cs" />
-    <Content Include="targets\csharp\source\PlayFabSDK\source\Uunit\tests\Utility\JsonUnitTests.cs">
-      <SubType>Code</SubType>
-    </Content>
+    <Content Include="targets\csharp\source\PlayFabSDK\source\Uunit\tests\Utility\JsonUnitTests.cs" />
     <Content Include="targets\csharp\source\PlayFabSDK\source\Uunit\UUnitAssertException.cs" />
     <Content Include="targets\csharp\source\PlayFabSDK\source\Uunit\UUnitIncrementalTestRunner.cs" />
     <Content Include="targets\csharp\source\PlayFabSDK\source\Uunit\UUnitTestCase.cs" />

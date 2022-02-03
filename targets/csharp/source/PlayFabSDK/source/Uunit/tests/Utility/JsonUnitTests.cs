@@ -391,7 +391,7 @@ namespace PlayFab.UUnit
 
         class StringValueClass
         {
-            public string StringValue;
+            public string StringValue = null;
         };
         [UUnitTest]
         public void TestSimpleJsonSerializeStringWithEscapes(UUnitTestContext testContext)

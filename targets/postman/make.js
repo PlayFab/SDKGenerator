@@ -24,6 +24,7 @@ exports.makeCombinedAPI = function (apis, sourceDir, apiOutputDir) {
         apis: apis,
         getPostmanDescription: getPostmanDescription,
         getPostmanHeader: getPostmanHeader,
+        getPostmanHeaderV2: getPostmanHeaderV2,
         getRequestExample: getRequestExample,
         getUrl: getUrl,
         getVerticalTag: getVerticalTag
@@ -84,6 +85,86 @@ function getPostmanHeader(apiCall) {
     return "";
 }
 
+function getPostmanHeaderV2(apiCall) {
+    if (apiCall.url === "/Authentication/GetEntityToken")
+        return JSON.stringify([
+            {
+                "key": "X-PlayFabSDK",
+                "value": "PostmanCollection-" + sdkGlobals.sdkVersion
+            },
+            {
+                "key": "Content-Type",
+                "value": "application/json"
+            },
+            {
+                "key": "X-Authorization",
+                "value": "{{SessionTicket}}"
+            },
+            {
+                "key": "X-SecretKey",
+                "value": "{{SecretKey}}"
+            }
+        ])
+    if (apiCall.auth === "SessionTicket")
+        return JSON.stringify([
+            {
+                "key": "X-PlayFabSDK",
+                "value": "PostmanCollection-" + sdkGlobals.sdkVersion
+            },
+            {
+                "key": "Content-Type",
+                "value": "application/json"
+            },
+            {
+                "key": "X-Authorization",
+                "value": "{{SessionTicket}}"
+            }
+        ])
+    else if (apiCall.auth === "SecretKey")
+        return JSON.stringify([
+            {
+                "key": "X-PlayFabSDK",
+                "value": "PostmanCollection-" + sdkGlobals.sdkVersion
+            },
+            {
+                "key": "Content-Type",
+                "value": "application/json"
+            },
+            {
+                "key": "X-SecretKey",
+                "value": "{{SecretKey}}"
+            }
+        ])
+    else if (apiCall.auth === "EntityToken")
+        return JSON.stringify([
+            {
+                "key": "X-PlayFabSDK",
+                "value": "PostmanCollection-" + sdkGlobals.sdkVersion
+            },
+            {
+                "key": "Content-Type",
+                "value": "application/json"
+            },
+            {
+                "key": "X-EntityToken",
+                "value": "{{EntityToken}}"
+            }
+        ])
+    else if (apiCall.auth === "None")
+        return JSON.stringify([
+            {
+                "key": "X-PlayFabSDK",
+                "value": "PostmanCollection-" + sdkGlobals.sdkVersion
+            },
+            {
+                "key": "Content-Type",
+                "value": "application/json"
+            }
+        ])
+
+    return "";
+}
+
 function jsonEscape(input) {
     if (input != null)
         input = input.replace(/\r/g, "").replace(/\n/g, "\\n").replace(/"/g, "\\\"");
@@ -107,7 +188,7 @@ function getPostmanDescription(api, apiCall) {
 
     output += jsonEscape(apiCall.summary); // Make sure quote characters are properly escaped
     if (!isProposed)
-        output += "\\n\\nApi Documentation: https://docs.microsoft.com/rest/api/playfab/" + api.name.toLowerCase() + "/" + apiCall.subgroup.toLowerCase().replaceAll(" ","-") + "/" + apiCall.name.toLowerCase();
+        output += "\\n\\nApi Documentation: https://docs.microsoft.com/rest/api/playfab/" + api.name.toLowerCase() + "/" + apiCall.subgroup.toLowerCase().replaceAll(" ", "-") + "/" + apiCall.name.toLowerCase();
 
     output += "\\n\\n**The following case-sensitive environment variables are required for this call:**";
     output += "\\n\\n\\\"TitleId\\\" - The Title Id of your game, available in the Game Manager (https://developer.playfab.com)";

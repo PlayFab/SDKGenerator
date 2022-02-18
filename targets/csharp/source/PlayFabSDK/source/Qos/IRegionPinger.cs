@@ -1,4 +1,5 @@
-﻿using System.Threading.Tasks;
+﻿#if !DISABLE_PLAYFABCLIENT_API && !DISABLE_PLAYFABENTITY_API
+using System.Threading.Tasks;
 
 namespace PlayFab.QoS
 {
@@ -8,3 +9,4 @@ namespace PlayFab.QoS
         QosRegionResult GetResult();
     }
 }
+#endif

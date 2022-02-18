@@ -72,6 +72,7 @@ namespace PlayFab.UUnit
 
 #if !DISABLE_PLAYFABCLIENT_API
             PlayFabApiTest.SetTitleInfo(TestTitleData);
+            PlayFabConnectionStringApiTest.SetTitleInfo(TestTitleData);
 #endif
 #if !DISABLE_PLAYFABCLIENT_API && !DISABLE_PLAYFABENTITY_API
             InstanceAuthTests.SetTitleInfo(TestTitleData);
@@ -80,7 +81,6 @@ namespace PlayFab.UUnit
 #if ENABLE_PLAYFABSERVER_API || ENABLE_PLAYFABADMIN_API
             PlayFabServerApiTest.SetTitleInfo(TestTitleData);
 #endif
-            PlayFabConnectionStringApiTest.SetTitleInfo(TestTitleData);
 
             SuiteFinished = false;
             AllTestsPassed = false;

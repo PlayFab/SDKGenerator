@@ -506,6 +506,7 @@ function generateApis(buildIdentifier, target: IBuildTarget) {
 
     sdkGlobals.sdkVersion = target.versionString;
     sdkGlobals.buildIdentifier = buildIdentifier;
+    sdkGlobals.buildFlags = target.buildFlags;
     if (sdkGlobals.sdkVersion === null) {
         // The point of this error is to force you to add a line to sdkManualNotes.json, to describe the version and date when this sdk/collection is built
         throw Error("SdkManualNotes does not contain sdkVersion for " + target.templateFolder);

@@ -25,3 +25,8 @@ for(var i in api.calls) { var apiCall = api.calls[i]; %>
     );
 };
 <% } %>
+<% if (hasClientOptions) { %>
+    exports.ForgetAllCredentials = function () {
+        PlayFab._internalSettings.sessionTicket = null;
+    }
+<% } %>

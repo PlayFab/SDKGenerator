@@ -16,6 +16,7 @@
                 "header": <%- getPostmanHeaderV2(apiCall) %>,
                 "body": {
                     "mode": "raw",
+                    "Content-Type": "application/json",
                     "raw": <%- getRequestExample(api, apiCall) %>
                 },
                 "url": "<%- getUrl(apiCall) %>",

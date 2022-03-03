@@ -22,6 +22,10 @@ namespace PlayFab.PfEditor
         public static string EDEX_UPGRADE_PATH = "/Resources/PlayFabUnityEditorExtensions.unitypackage";
         public static string EDEX_PACKAGES_PATH = "/Resources/MostRecentPackage.unitypackage";
 
+        public static string AAD_SIGNIN_URL = "https://login.microsoftonline.com/";
+        public static string ED_EX_AAD_SIGNIN_CLIENTID ="TODO";
+        public static string ED_EX_AAD_SIGNNIN_TENANT = "common";
+
         public static string CLOUDSCRIPT_FILENAME = ".CloudScript.js";  //prefixed with a '.' to exclude this code from Unity's compiler
         public static string CLOUDSCRIPT_PATH = EDEX_ROOT + "/Resources/" + CLOUDSCRIPT_FILENAME;
 

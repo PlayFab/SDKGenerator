@@ -68,6 +68,17 @@ namespace PlayFab.PfEditor
                 headers.Add("X-SecretKey", PlayFabEditorDataService.ActiveTitle.SecretKey);
             }
 
+            if(api.Contains("AAD"))
+            {
+                if(PlayFabEditorPrefsSO.Instance.Authorization == "")
+                {
+                    Debug.Log("You MUST login through AAD first before calling this api");
+                    return;
+                }
+
+                headers.Add("Authorization", "Bearer "+(PlayFabEditorPrefsSO.Instance.Authorization));
+            }
+
             //Encode Payload
             var payload = System.Text.Encoding.UTF8.GetBytes(req.Trim());
 #if UNITY_2018_2_OR_NEWER

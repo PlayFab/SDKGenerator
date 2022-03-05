@@ -326,8 +326,7 @@ namespace PlayFab.PfEditor
             try
             {
                 // Always first try to acquire a token silently.
-                authResult = await app.AcquireTokenSilent(scopes, firstAccount)
-                    .ExecuteAsync();
+                authResult = await app.AcquireTokenSilent(scopes, firstAccount).ExecuteAsync();
             }
             catch (MsalUiRequiredException)
             {

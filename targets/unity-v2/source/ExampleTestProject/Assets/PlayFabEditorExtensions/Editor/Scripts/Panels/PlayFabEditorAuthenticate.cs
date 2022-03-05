@@ -18,7 +18,7 @@ namespace PlayFab.PfEditor
 
         private static bool isInitialized = false;
 
-        public enum PanelDisplayStates { Register, AADLogin, Login, TwoFactorPrompt }
+        public enum PanelDisplayStates { Register, Login, TwoFactorPrompt }
         private static PanelDisplayStates activeState = PanelDisplayStates.Login;
         #endregion
 
@@ -31,9 +31,6 @@ namespace PlayFab.PfEditor
             {
                 switch (activeState)
                 {
-                    case PanelDisplayStates.AADLogin:
-                        OnAADLoginButtonClicked();
-                        break;
                     case PanelDisplayStates.Login:
                         OnLoginButtonClicked();
                         break;
@@ -114,11 +111,6 @@ namespace PlayFab.PfEditor
                 // register mode
                 DrawRegister();
             }
-            else if (activeState == PanelDisplayStates.AADLogin)
-            {
-                // login with AAD mode, user is logged out, but wants to login with msft account
-                DrawAADLogin();
-            }
             else
             {
                 DrawRegister();
@@ -126,19 +118,6 @@ namespace PlayFab.PfEditor
 
             using (new UnityVertical(PlayFabEditorHelper.uiStyle.GetStyle("gpStyleGray1")))
             {
-                using (new UnityVertical(PlayFabEditorHelper.uiStyle.GetStyle("gpStyleGray1")))
-                {
-                    using (new UnityHorizontal(PlayFabEditorHelper.uiStyle.GetStyle("gpStyleClear")))
-                    {
-                        GUILayout.FlexibleSpace();
-                        if (GUILayout.Button("Login With AAD", PlayFabEditorHelper.uiStyle.GetStyle("textButton")))
-                        {
-                            activeState = PanelDisplayStates.AADLogin;
-                        }
-                        GUILayout.FlexibleSpace();
-                    }
-                }
-
                 using (new UnityHorizontal(PlayFabEditorHelper.uiStyle.GetStyle("gpStyleClear")))
                 {
                     GUILayout.FlexibleSpace();
@@ -147,25 +126,6 @@ namespace PlayFab.PfEditor
                         Application.OpenURL("https://github.com/PlayFab/UnityEditorExtensions#setup");
                     }
                     GUILayout.FlexibleSpace();
-                }
-            }
-        }
-
-        private static void DrawAADLogin()
-        {
-            using (new UnityVertical(PlayFabEditorHelper.uiStyle.GetStyle("gpStyleGray1")))
-            {
-                var buttonWidth = 140;
-
-                if (GUILayout.Button("Legacy LOG IN", PlayFabEditorHelper.uiStyle.GetStyle("Button"), GUILayout.MinHeight(32), GUILayout.MaxWidth(buttonWidth)))
-                {
-                    // OnLoginButtonClicked();
-                    activeState = PanelDisplayStates.Login;
-                }
-
-                if (GUILayout.Button("LOG IN W/ MSFT", PlayFabEditorHelper.uiStyle.GetStyle("Button"), GUILayout.MinHeight(32), GUILayout.MaxWidth(buttonWidth)))
-                {
-                    OnAADLoginButtonClicked();
                 }
             }
         }
@@ -195,7 +155,7 @@ namespace PlayFab.PfEditor
                         activeState = PanelDisplayStates.Register;
                     }
 
-                    var buttonWidth = 100;
+                    var buttonWidth = 200;
                     GUILayout.Space(EditorGUIUtility.currentViewWidth - buttonWidth * 2);
 
                     if (GUILayout.Button("LOG IN", PlayFabEditorHelper.uiStyle.GetStyle("Button"), GUILayout.MinHeight(32), GUILayout.MaxWidth(buttonWidth)))
@@ -203,7 +163,7 @@ namespace PlayFab.PfEditor
                         OnLoginButtonClicked();
                     }
 
-                    if (GUILayout.Button("LOG IN W/ MSFT", PlayFabEditorHelper.uiStyle.GetStyle("Button"), GUILayout.MinHeight(32), GUILayout.MaxWidth(buttonWidth)))
+                    if (GUILayout.Button("LOG IN WITH MICROSOFT", PlayFabEditorHelper.uiStyle.GetStyle("Button"), GUILayout.MinHeight(32), GUILayout.MaxWidth(buttonWidth)))
                     {
                         OnAADLoginButtonClicked();
                     }

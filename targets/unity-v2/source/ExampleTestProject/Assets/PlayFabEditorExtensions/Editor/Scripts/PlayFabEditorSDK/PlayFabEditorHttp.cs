@@ -68,7 +68,7 @@ namespace PlayFab.PfEditor
                 headers.Add("X-SecretKey", PlayFabEditorDataService.ActiveTitle.SecretKey);
             }
 
-            if(api.Contains("AAD"))
+            if(api.Contains("LoginWithAAD"))
             {
                 if(PlayFabEditorPrefsSO.Instance.Authorization == "")
                 {

@@ -355,7 +355,7 @@ namespace PlayFab.PfEditor
                 {
                     if (audience.Contains(PlayFabEditorHelper.ED_EX_AAD_SIGNIN_CLIENTID))
                     {
-                        PlayFabEditorPrefsSO.Instance.Authorization = authResult.AccessToken;
+                        PlayFabEditorPrefsSO.Instance.AadAuthorization = authResult.AccessToken;
                         
                         PlayFabEditorApi.LoginWithAAD(new LoginWithAADRequest() {
                             DeveloperToolProductName = PlayFabEditorHelper.EDEX_NAME,

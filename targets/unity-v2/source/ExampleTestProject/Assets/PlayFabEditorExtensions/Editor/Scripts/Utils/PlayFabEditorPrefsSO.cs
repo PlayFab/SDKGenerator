@@ -51,7 +51,7 @@ namespace PlayFab.PfEditor
         public string DevAccountEmail;
         public string DevAccountToken;
 
-        public string Authorization;
+        public string AadAuthorization;
 
         public List<Studio> StudioList = null; // Null means not fetched, empty is a possible return result from GetStudios
         public string SelectedStudio;

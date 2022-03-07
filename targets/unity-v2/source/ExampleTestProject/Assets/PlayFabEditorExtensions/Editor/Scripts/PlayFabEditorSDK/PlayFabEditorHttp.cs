@@ -70,13 +70,13 @@ namespace PlayFab.PfEditor
 
             if(api.Contains("LoginWithAAD"))
             {
-                if(PlayFabEditorPrefsSO.Instance.Authorization == "")
+                if(PlayFabEditorPrefsSO.Instance.AadAuthorization == "")
                 {
                     Debug.Log("You MUST login through AAD first before calling this api");
                     return;
                 }
 
-                headers.Add("Authorization", "Bearer "+(PlayFabEditorPrefsSO.Instance.Authorization));
+                headers.Add("Authorization", "Bearer "+(PlayFabEditorPrefsSO.Instance.AadAuthorization));
             }
 
             //Encode Payload

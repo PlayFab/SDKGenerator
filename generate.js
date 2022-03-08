@@ -512,7 +512,7 @@ function GetFlagConflicts(buildFlags, apiObj, obsoleteFlaged, nonNullableFlagged
         for (var alIdx = 0; alIdx < allInclusiveFlags.length; alIdx++)
             if (buildFlags.indexOf(allInclusiveFlags[alIdx]) === -1)
                 return apiObj.AllInclusiveFlags; // If a required flag is missing, fail out
-    // Any Inclusive flags must match at least one if present (Api calls and datatypes)
+    // Any Inclusive flags must match at least one if present (Api calls, datatypes, and properties)
     var anyInclusiveFlags = [];
     if (apiObj.hasOwnProperty("AnyInclusiveFlags"))
         anyInclusiveFlags = lowercaseFlagsList(apiObj.AnyInclusiveFlags);

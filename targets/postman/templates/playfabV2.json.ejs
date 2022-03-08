@@ -13,32 +13,13 @@
             "name": "<%- apiCall.name %>",
             "request": {
                 "method": "POST",
-                "header": [
-                    "<%- getPostmanHeader(apiCall) %>"
-                ],
+                "header": <%- getPostmanHeaderV2(apiCall) %>,
                 "body": {
                     "mode": "raw",
+                    "Content-Type": "application/json",
                     "raw": <%- getRequestExample(api, apiCall) %>
                 },
-                "url" : {
-                    "raw": "<%- getUrl(apiCall) %>",
-                    "protocol": "https",
-                    "host": [
-                        "{{TitleId}}",
-                        "playfabapi",
-                        "com"
-                    ],
-                    "path": [
-                        "<%- apiName %>",
-                        "<%- apiCall.name %>"
-                    ],
-                    "query": [
-                        {
-                            "key": "sdk",
-                            "value": "PostmanCollection-<%- sdkVersion %>"
-                        }
-                    ]
-                },
+                "url": "<%- getUrl(apiCall) %>",
                 "description": "<%- getPostmanDescription(api, apiCall) %>"
             },
             "response": []

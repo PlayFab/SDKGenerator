@@ -7,6 +7,7 @@ if (typeof (generateApiSummaryLines) === "undefined") generateApiSummaryLines = 
 if (typeof (getCompiledTemplate) === "undefined") getCompiledTemplate = function () { };
 
 const copyright = "\"Copyright Microsoft © 2019\"";
+const defaultDefines = ";NETFX_CORE;SIMPLE_JSON_TYPEINFO"
 
 exports.makeCombinedAPI = function (apis, sourceDir, apiOutputDir) {
     const rootOutputDir = apiOutputDir;
@@ -19,7 +20,7 @@ exports.makeCombinedAPI = function (apis, sourceDir, apiOutputDir) {
         copyright: copyright,
         errorList: apis[0].errorList,
         errors: apis[0].errors,
-        extraDefines: ";NETFX_CORE;SIMPLE_JSON_TYPEINFO;ENABLE_PLAYFABADMIN_API;ENABLE_PLAYFABSERVER_API",
+        extraDefines: defaultDefines + ";ENABLE_PLAYFABADMIN_API;ENABLE_PLAYFABSERVER_API",
         getVerticalNameDefault: getVerticalNameDefault,
         hasClientOptions: getAuthMechanisms(apis).includes("SessionTicket"),
         libname: "All",
@@ -32,7 +33,7 @@ exports.makeCombinedAPI = function (apis, sourceDir, apiOutputDir) {
     if (sdkGlobals.buildFlags.includes("azure")) {
         locals.azureSdk = true,
         locals.hasServerOptions = false,
-        locals.extraDefines = ";NETFX_CORE;SIMPLE_JSON_TYPEINFO;DISABLE_PLAYFABCLIENT_API"
+        locals.extraDefines = defaultDefines + ";DISABLE_PLAYFABCLIENT_API"
     }
 
 
@@ -58,11 +59,11 @@ function getBaseTypeSyntax(datatype) {
     var parents = [];
 
     //begin classes - only 1 possible
-    if (datatype.className.toLowerCase().endsWith("request"))
+    if (datatype.className.endsWith("Request"))
         parents.push("PlayFabRequestCommon");
-    else if (datatype.className.toLowerCase() === "loginresult" || datatype.className === "AuthenticateIdentityResult" || datatype.className === "RegisterPlayFabUserResult")
+    else if (datatype.className === "LoginResult" || datatype.className === "AuthenticateIdentityResult" || datatype.className === "RegisterPlayFabUserResult")
         parents.push("PlayFabLoginResultCommon");
-    else if (datatype.className.toLowerCase().endsWith("response") || datatype.className.toLowerCase().endsWith("result"))
+    else if (datatype.className.endsWith("Response") || datatype.className.endsWith("Result"))
         parents.push("PlayFabResultCommon");
     //end classes - only 1
 
@@ -102,14 +103,16 @@ function makeDatatypes(apis, sourceDir, apiOutputDir) {
     };
 
     for (var a = 0; a < apis.length; a++) {
-        if (apis[a].calls.length > 0) {
-            var modelsLocal = {
-                api: apis[a],
-                makeDatatype: makeDatatype
-            };
-
-            writeFile(path.resolve(apiOutputDir, "source/PlayFab" + apis[a].name + "Models.cs"), modelsTemplate(modelsLocal));
+        if (apis[a].calls.length == 0) {
+            continue;
         }
+
+        var modelsLocal = {
+            api: apis[a],
+            makeDatatype: makeDatatype
+        };
+
+        writeFile(path.resolve(apiOutputDir, "source/PlayFab" + apis[a].name + "Models.cs"), modelsTemplate(modelsLocal));
     }
 }
 

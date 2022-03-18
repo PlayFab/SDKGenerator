@@ -13,6 +13,7 @@ exports.makeCombinedAPI = function (apis, sourceDir, apiOutputDir) {
     const rootOutputDir = apiOutputDir;
     apiOutputDir = path.join(apiOutputDir, "PlayFabSDK");
     console.log("Generating C-sharp combined SDK to " + apiOutputDir);
+    console.log("Using build Flags: " + sdkGlobals.buildFlags);
 
     const locals = {
         apis: apis,

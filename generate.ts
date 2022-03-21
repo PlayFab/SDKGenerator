@@ -535,7 +535,7 @@ function generateApis(buildIdentifier, target: IBuildTarget) {
 
 function getApiDefinition(cacheKey, buildFlags) {
     var api = getApiJson(cacheKey);
-    if (!api)
+    if (!api || !api.calls)
         return null;
 
     // Special case, "obsolete" is treated as an SdkGenerator flag, but is not an actual flag in pf-main

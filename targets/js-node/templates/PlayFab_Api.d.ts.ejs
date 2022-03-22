@@ -11,6 +11,10 @@ declare module PlayFab<%- api.name %>Module {
             callback: PlayFabModule.ApiCallback<PlayFab<%- api.name %>Models.<%- apiCall.result %>> | null,
         ): void;
 <% } %>
+<% if (hasClientOptions) { %>
+    // Deletes the internally stored SessionTicket.
+        ForgetAllCredentials() : void;
+<% } %>
     }
 }
 

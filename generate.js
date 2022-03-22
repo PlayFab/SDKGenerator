@@ -417,6 +417,7 @@ function generateApis(buildIdentifier, target) {
     console.log("BuildTarget: " + JSON.stringify(target));
     sdkGlobals.sdkVersion = target.versionString;
     sdkGlobals.buildIdentifier = buildIdentifier;
+    sdkGlobals.buildFlags = target.buildFlags;
     if (sdkGlobals.sdkVersion === null) {
         // The point of this error is to force you to add a line to sdkManualNotes.json, to describe the version and date when this sdk/collection is built
         throw Error("SdkManualNotes does not contain sdkVersion for " + target.templateFolder);
@@ -441,7 +442,7 @@ function generateApis(buildIdentifier, target) {
 }
 function getApiDefinition(cacheKey, buildFlags) {
     var api = getApiJson(cacheKey);
-    if (!api)
+    if (!api || !api.calls)
         return null;
     // Special case, "obsolete" is treated as an SdkGenerator flag, but is not an actual flag in pf-main
     var obsoleteFlaged = false, nonNullableFlagged = false;

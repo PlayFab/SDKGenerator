@@ -93,6 +93,7 @@ namespace PlayFab
         NotLoggedIn,
         TitleNotSet,
         PluginAmbiguity,
-        PluginNotFound
+        PluginNotFound<% if (azureSdk) { %>,
+        PlayerAccountPoolNotSet <% } %>
     }
 }

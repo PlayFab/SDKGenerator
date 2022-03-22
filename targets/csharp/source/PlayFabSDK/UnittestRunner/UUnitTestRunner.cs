@@ -1,5 +1,9 @@
 using PlayFab;
+
+#if !DISABLE_PLAYFABCLIENT_API
 using PlayFab.ClientModels;
+#endif
+
 using PlayFab.UUnit;
 using System;
 using System.IO;
@@ -38,7 +42,11 @@ namespace UnittestRunner
         public static async Task<int> MainTask(string[] args)
         {
             var testInputs = GetTestTitleData(args);
+#if DISABLE_PLAYFABCLIENT_API
+            UUnitIncrementalTestRunner.Start(true, null, testInputs);
+#else
             UUnitIncrementalTestRunner.Start(true, null, testInputs, OnComplete);
+#endif
             while (!UUnitIncrementalTestRunner.SuiteFinished)
                 await UUnitIncrementalTestRunner.Tick();
 
@@ -91,6 +99,7 @@ namespace UnittestRunner
             return testInputs;
         }
 
+#if !DISABLE_PLAYFABCLIENT_API
         private static void OnComplete(PlayFabResult<ExecuteCloudScriptResult> result)
         {
             WriteConsoleColor("Save to CloudScript result for: " + PlayFabSettings.BuildIdentifier + " => " + UUnitIncrementalTestRunner.PfClient.authenticationContext.PlayFabId, ConsoleColor.Gray);
@@ -99,6 +108,7 @@ namespace UnittestRunner
             else if (result.Result != null)
                 WriteConsoleColor("Successful!", ConsoleColor.Green);
         }
+#endif
     }
 }
 #pragma warning restore 0649, 0414

@@ -54,7 +54,7 @@ namespace PlayFab.UUnit
 #endif
             // Fall back on hard coded testTitleData if necessary (Put your own data here)
             if (TestTitleData == null)
-                TestTitleData = new TestTitleData { titleId = "6195", userEmail = "paul@playfab.com" };
+                TestTitleData = new TestTitleData { titleId = "6195", userEmail = "a@b.com" };
 
             PlayFabSettings.staticSettings.TitleId = TestTitleData.titleId;
 

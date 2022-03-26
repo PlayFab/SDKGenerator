@@ -73,6 +73,16 @@ BuildSdk () {
     popd
 }
 
+PreGen () {
+    echo === Install latest ejs ===
+    pushd ../..
+    . ./PreGen.sh
+    popd
+}
+
+# run pre-gen ejs install
+PreGen()
+
 # Set the script-internal variables
 destPath="../sdks/$SdkName"
 DoesCommandExist node

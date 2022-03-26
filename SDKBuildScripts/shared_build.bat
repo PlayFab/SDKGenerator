@@ -26,6 +26,9 @@ if defined NODE_NAME (
 
 cd %~dp0
 pushd ..
+
+call PreGen.bat
+
 rem === BUILDING %SdkName% with params %* ===
 node generate.js -destPath %destPath% %apiSpecSource% -buildIdentifier %buildIdentifier% %*
 popd

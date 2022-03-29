@@ -721,11 +721,13 @@ function templatizeTree(locals: { [key: string]: any }, sourcePath: string, dest
         throw Error("Copy tree source doesn't exist: " + sourcePath);
     if (!fs.lstatSync(sourcePath).isDirectory()) // File
         return copyOrTemplatizeFile(locals, sourcePath, destPath);
+
     // Directory
     if (!fs.existsSync(destPath))
         mkdirParentsSync(destPath);
     else if (!fs.lstatSync(destPath).isDirectory())
         throw Error("Can't copy a directory onto a file: " + sourcePath + " " + destPath);
+
     var filesInDir = fs.readdirSync(sourcePath);
     for (var i = 0; i < filesInDir.length; i++) {
         var filename = filesInDir[i];

@@ -1097,7 +1097,6 @@
     <Folder Include="targets\unity-v2\source\ExampleTestProject\Assets\PlayFabSDK\Localization\" />
     <Folder Include="targets\unity-v2\source\ExampleTestProject\Assets\PlayFabSDK\Matchmaker\" />
     <Folder Include="targets\unity-v2\source\ExampleTestProject\Assets\PlayFabSDK\Multiplayer\" />
-    <Folder Include="targets\unity-v2\source\ExampleTestProject\Assets\PlayFabSDK\Economy\" />
     <Folder Include="targets\unity-v2\source\ExampleTestProject\Assets\PlayFabSDK\Profiles\" />
     <Folder Include="targets\unity-v2\source\ExampleTestProject\Assets\PlayFabSDK\Server\" />
     <Folder Include="targets\unity-v2\source\ExampleTestProject\Assets\PlayFabSDK\Shared\" />

@@ -594,7 +594,7 @@ if (!String.prototype.padStart) {
     };
 }
 // SDK generation utilities
-function templatizeTree(locals, sourcePath, destPath) {
+function templatizeTree(locals, sourcePath, destPath, excludeFolders, excludeFiles) {
     if (!fs.existsSync(sourcePath))
         throw Error("Copy tree source doesn't exist: " + sourcePath);
     if (!fs.lstatSync(sourcePath).isDirectory())
@@ -608,10 +608,16 @@ function templatizeTree(locals, sourcePath, destPath) {
     for (var i = 0; i < filesInDir.length; i++) {
         var filename = filesInDir[i];
         var file = sourcePath + "/" + filename;
-        if (fs.lstatSync(file).isDirectory())
-            templatizeTree(locals, file, destPath + "/" + filename);
-        else
+        if (fs.lstatSync(file).isDirectory()) {
+            if (excludeFolders != null && excludeFolders.includes(filename))
+                continue;
+            templatizeTree(locals, file, destPath + "/" + filename, excludeFolders, excludeFiles);
+        }
+        else {
+            if (excludeFiles != null && excludeFiles.includes(filename))
+                continue;
             copyOrTemplatizeFile(locals, file, destPath + "/" + filename);
+        }
     }
 }
 global.templatizeTree = templatizeTree;

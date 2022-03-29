@@ -7,6 +7,9 @@ using PlayFab;
 public class PlayFabSharedSettings : ScriptableObject
 {
     public string TitleId;
+<% if (azureSdk) { %>
+    public string PlayerAccountPoolId;
+<% } %>
     internal string VerticalName = <%- getVerticalNameDefault() %>;
 #if ENABLE_PLAYFABSERVER_API || ENABLE_PLAYFABADMIN_API || UNITY_EDITOR
     public string DeveloperSecretKey;

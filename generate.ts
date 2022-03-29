@@ -716,10 +716,10 @@ if (!String.prototype.padStart) {
 }
 
 // SDK generation utilities
-function templatizeTree(locals, sourcePath, destPath, excludeFolders, excludeFiles) {
+function templatizeTree(locals: { [key: string]: any }, sourcePath: string, destPath: string, excludeFolders: string, excludeFiles: string): void {
     if (!fs.existsSync(sourcePath))
         throw Error("Copy tree source doesn't exist: " + sourcePath);
-    if (!fs.lstatSync(sourcePath).isDirectory())
+    if (!fs.lstatSync(sourcePath).isDirectory()) // File
         return copyOrTemplatizeFile(locals, sourcePath, destPath);
     // Directory
     if (!fs.existsSync(destPath))

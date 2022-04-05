@@ -23,19 +23,14 @@ namespace JenkinsConsoleUtility.Commands
         public int Execute(Dictionary<string, string> argsLc, Dictionary<string, string> argsCased)
         {
             var sdkName = JenkinsConsoleUtility.GetArgVar(argsCased, "sdkName");
-            //var credsFilename = JenkinsConsoleUtility.GetArgVar(argsLc, "GITHUB_CREDENTIALS_FILE");
             var gitHubToken = JenkinsConsoleUtility.GetArgVar(argsCased, "githubtoken");
             if (!VersionVarWriter.set)
                 return 1;
-
-            //var credsJson = File.ReadAllText(credsFilename);
-            //var creds = JsonWrapper.DeserializeObject<GitHubCredentials>(credsJson);
 
             try
             {
                 var header = new ProductHeaderValue(ProgramHeader);
                 var client = new GitHubClient(header);
-                //client.Credentials = new Credentials(creds.token);
                 client.Credentials = new Credentials(gitHubToken);
                 var releaseRequest = new GitHubReleaseRequest(sdkName, VersionVarWriter.major, VersionVarWriter.minor, VersionVarWriter.date);
                 var result = client.Repository.Release.Create(GitOwner, sdkName, releaseRequest).Result; 

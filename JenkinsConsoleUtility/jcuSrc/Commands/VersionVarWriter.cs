@@ -129,7 +129,7 @@ namespace JenkinsConsoleUtility.Commands
                 case "javascriptsdk": case "javascriptbetasdk": return "javascript";
                 case "objective_c_sdk": return "objc";
                 // Multiple repos map to the same folder
-                case "csharpazuresdk": return "azure";
+                case "xplatcppazuresdk": case "csharpazuresdk": return "azure";
                 case "csharpsdk": case "csharpbetasdk": case "csharppsnsdk": return "csharp";
                 case "nodesdk": case "nodebetasdk": return "js-node";
                 case "postmancollection": case "postmanbeta": return "postman";

@@ -72,6 +72,14 @@ namespace JenkinsConsoleUtility.Commands
                     outputFile.WriteLine("sdkVersion" + space + "=" + space + sdkVersionString);
                     outputFile.WriteLine("sdkDate" + space + "=" + space + date);
                 }
+
+                using (var sdkEnvVarsFile = new StreamWriter(Path.Combine(workspacePath, "setSdkEnvVars.sh")))
+                {
+                    sdkEnvVarsFile.WriteLine("echo sdkVersion=" + sdkVersionString);
+                    sdkEnvVarsFile.WriteLine("sdkVersion=" + sdkVersionString);
+                    sdkEnvVarsFile.WriteLine("echo sdkDate=" + date);
+                    sdkEnvVarsFile.WriteLine("sdkDate=" + date);
+                }
             }
             else
             {

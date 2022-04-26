@@ -72,19 +72,21 @@ namespace JenkinsConsoleUtility.Commands
                     outputFile.WriteLine("sdkVersion" + space + "=" + space + sdkVersionString);
                     outputFile.WriteLine("sdkDate" + space + "=" + space + date);
                 }
-
-                using (var sdkEnvVarsFile = new StreamWriter(Path.Combine(workspacePath, "setSdkEnvVars.sh")))
-                {
-                    sdkEnvVarsFile.WriteLine("echo sdkVersion=" + sdkVersionString);
-                    sdkEnvVarsFile.WriteLine("sdkVersion=" + sdkVersionString);
-                    sdkEnvVarsFile.WriteLine("echo sdkDate=" + date);
-                    sdkEnvVarsFile.WriteLine("sdkDate=" + date);
-                }
             }
             else
             {
                 JcuUtil.FancyWriteToConsole(System.ConsoleColor.Yellow, "WARNING: Output file not defined.");
             }
+
+            JcuUtil.FancyWriteToConsole("Writing file " + workspacePath + "setSdkEnvVars.sh");
+            using (var sdkEnvVarsFile = new StreamWriter(Path.Combine(workspacePath, "setSdkEnvVars.sh")))
+            {
+                sdkEnvVarsFile.WriteLine("echo sdkVersion=" + sdkVersionString);
+                sdkEnvVarsFile.WriteLine("sdkVersion=" + sdkVersionString);
+                sdkEnvVarsFile.WriteLine("echo sdkDate=" + date);
+                sdkEnvVarsFile.WriteLine("sdkDate=" + date);
+            }
+
             JcuUtil.FancyWriteToConsole("sdkVersion" + space + "=" + space + sdkVersionString);
             JcuUtil.FancyWriteToConsole("sdkDate" + space + "=" + space + date);
             return 0;

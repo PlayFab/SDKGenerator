@@ -237,11 +237,20 @@ namespace PlayFab.Internal
             var result = reqContainer.ApiResult;
 
 #if !DISABLE_PLAYFABENTITY_API
+<% if (azureSdk) { %>
+            var authRes = result as AuthenticationModels.AuthenticateIdentityResult;
+            if (authRes != null)
+            {
+                authRes.AuthenticationContext = new PlayFabAuthenticationContext(null, authRes.TitlePlayerAccount.EntityToken, null, authRes.TitlePlayerAccount.Entity.Id, authRes.TitlePlayerAccount.Entity.Type);
+                reqContainer.context.CopyFrom(authRes.AuthenticationContext);
+            }
+<%} else { %>
             var entRes = result as AuthenticationModels.GetEntityTokenResponse;
             if (entRes != null)
             {
                 PlayFabSettings.staticPlayer.EntityToken = entRes.EntityToken;
             }
+<% } %>
 #endif
 #if !DISABLE_PLAYFABCLIENT_API
             var logRes = result as ClientModels.LoginResult;

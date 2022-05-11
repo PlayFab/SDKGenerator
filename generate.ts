@@ -734,22 +734,28 @@ function templatizeTree(locals: { [key: string]: any }, sourcePath: string, dest
         var file = sourcePath + "/" + filename;
 
         var folderExcluded = false;
-        for(var excludedFolderIndex = 0; excludedFolderIndex < excludeFolders.length; excludedFolderIndex++)
+        if(excludeFolders != null)
         {
-            if(excludeFolders[excludedFolderIndex] == filename)
+            for(var excludedFolderIndex = 0; excludedFolderIndex < excludeFolders.length; excludedFolderIndex++)
             {
-                folderExcluded = true;
-                break;
+                if(excludeFolders[excludedFolderIndex] == filename)
+                {
+                    folderExcluded = true;
+                    break;
+                }
             }
         }
 
         var fileExcluded = false;
-        for(var excludedFileIndex = 0; excludedFileIndex < excludeFolders.length; excludedFileIndex++)
+        if(excludeFiles != null)
         {
-            if(excludeFolders[excludedFileIndex] == filename)
+            for(var excludedFileIndex = 0; excludedFileIndex < excludeFiles.length; excludedFileIndex++)
             {
-                fileExcluded = true;
-                break;
+                if(excludeFiles[excludedFileIndex] == filename)
+                {
+                    fileExcluded = true;
+                    break;
+                }
             }
         }
 

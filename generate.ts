@@ -732,13 +732,34 @@ function templatizeTree(locals: { [key: string]: any }, sourcePath: string, dest
     for (var i = 0; i < filesInDir.length; i++) {
         var filename = filesInDir[i];
         var file = sourcePath + "/" + filename;
+
+        var folderExcluded = false;
+        for(var excludedFolderIndex = 0; excludedFolderIndex < excludeFolders.length; excludedFolderIndex++)
+        {
+            if(excludeFolders[excludedFolderIndex] == filename)
+            {
+                folderExcluded = true;
+                break;
+            }
+        }
+
+        var fileExcluded = false;
+        for(var excludedFileIndex = 0; excludedFileIndex < excludeFolders.length; excludedFileIndex++)
+        {
+            if(excludeFolders[excludedFileIndex] == filename)
+            {
+                fileExcluded = true;
+                break;
+            }
+        }
+
         if (fs.lstatSync(file).isDirectory()) {
-            if (excludeFolders != null && excludeFolders.includes(filename))
+            if (excludeFolders != null && folderExcluded)
                 continue;
             templatizeTree(locals, file, destPath + "/" + filename, excludeFolders, excludeFiles);
         }
         else {
-            if (excludeFiles != null && excludeFiles.includes(filename))
+            if (excludeFiles != null && fileExcluded)
                 continue;
             copyOrTemplatizeFile(locals, file, destPath + "/" + filename);
         }

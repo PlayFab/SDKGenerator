@@ -746,7 +746,7 @@ function templatizeTree(locals: { [key: string]: any }, sourcePath: string, dest
                     }
                 }
             }
-            if (excludeFolders != null && folderExcluded)
+            if (folderExcluded)
                 continue;
             templatizeTree(locals, file, destPath + "/" + filename, excludeFolders, excludeFiles);
         }
@@ -763,7 +763,7 @@ function templatizeTree(locals: { [key: string]: any }, sourcePath: string, dest
                     }
                 }
             }
-            if (excludeFiles != null && fileExcluded)
+            if (fileExcluded)
                 continue;
             copyOrTemplatizeFile(locals, file, destPath + "/" + filename);
         }

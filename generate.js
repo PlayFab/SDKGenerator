@@ -626,13 +626,13 @@ function templatizeTree(locals, sourcePath, destPath, excludeFolders, excludeFil
                         }
                     }
                 }
-                if (excludeFolders != null && folderExcluded)
+                if (folderExcluded)
                     continue;
                 templatizeTree(locals, file, destPath + "/" + filename, excludeFolders, excludeFiles);
             }
             else {
                 var fileExcluded = false;
-                if( excludeFiles != null )
+                if(excludeFiles != null )
                 {
                     for(var excludedFileIndex = 0; excludedFileIndex < excludeFiles.length; excludedFileIndex++)
                     {
@@ -643,7 +643,7 @@ function templatizeTree(locals, sourcePath, destPath, excludeFolders, excludeFil
                         }
                     }
                 }
-                if (excludeFiles != null && fileExcluded)
+                if (fileExcluded)
                     continue;
                 copyOrTemplatizeFile(locals, file, destPath + "/" + filename);
             }

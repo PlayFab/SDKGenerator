@@ -733,38 +733,36 @@ function templatizeTree(locals: { [key: string]: any }, sourcePath: string, dest
         var filename = filesInDir[i];
         var file = sourcePath + "/" + filename;
 
-        var folderExcluded = false;
-        if(excludeFolders != null)
-        {
-            for(var excludedFolderIndex = 0; excludedFolderIndex < excludeFolders.length; excludedFolderIndex++)
-            {
-                if(excludeFolders[excludedFolderIndex] == filename)
-                {
-                    folderExcluded = true;
-                    break;
-                }
-            }
-        }
-
-        var fileExcluded = false;
-        if(excludeFiles != null)
-        {
-            for(var excludedFileIndex = 0; excludedFileIndex < excludeFiles.length; excludedFileIndex++)
-            {
-                if(excludeFiles[excludedFileIndex] == filename)
-                {
-                    fileExcluded = true;
-                    break;
-                }
-            }
-        }
-
         if (fs.lstatSync(file).isDirectory()) {
+            var folderExcluded = false;
+            if(excludeFolders != null)
+            {
+                for(var excludedFolderIndex = 0; excludedFolderIndex < excludeFolders.length; excludedFolderIndex++)
+                {
+                    if(excludeFolders[excludedFolderIndex] == filename)
+                    {
+                        folderExcluded = true;
+                        break;
+                    }
+                }
+            }
             if (excludeFolders != null && folderExcluded)
                 continue;
             templatizeTree(locals, file, destPath + "/" + filename, excludeFolders, excludeFiles);
         }
         else {
+            var fileExcluded = false;
+            if(excludeFiles != null)
+            {
+                for(var excludedFileIndex = 0; excludedFileIndex < excludeFiles.length; excludedFileIndex++)
+                {
+                    if(excludeFiles[excludedFileIndex] == filename)
+                    {
+                        fileExcluded = true;
+                        break;
+                    }
+                }
+            }
             if (excludeFiles != null && fileExcluded)
                 continue;
             copyOrTemplatizeFile(locals, file, destPath + "/" + filename);

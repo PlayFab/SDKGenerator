@@ -16,6 +16,8 @@ exports.MakeUnityV2Sdk = function (apis, sourceDir, baseApiOutputDir) {
     var sourceExampleProject = "ExampleTestProject";
     var dependentExampleProjects = ["ExampleMacProject"];
     var allTemplateProjects = ["ExampleTestProject", "ExampleMacProject"];
+    var excludedFolders = [];
+    var excludedFiles = [];
 
     var locals = {
         apis: apis,
@@ -29,23 +31,32 @@ exports.MakeUnityV2Sdk = function (apis, sourceDir, baseApiOutputDir) {
         getPropertyDef: getModelPropertyDef,
         getVerticalNameDefault: getVerticalNameDefault,
         hasClientOptions: getAuthMechanisms(apis).includes("SessionTicket"),
-        sourceDir: sourceDir
+        sourceDir: sourceDir,
+        azureSdk: false
     };
+
+    if (sdkGlobals.buildFlags.includes("azure")) {
+        locals.azureSdk = true;
+        excludedFolders = ["PlayFabEditorExtensions", "Admin", "Client", "Server"];
+        excludedFiles = ["PlayFabEditorExtensions.meta", "Admin.meta", "Client.meta", "Server.meta"]
+    }
 
     // Copy from the sourceExampleProject to all dependentExampleProjects (basically duplicate core/shared files to each example proj)
     for (var tmplIdx = 0; tmplIdx < dependentExampleProjects.length; tmplIdx++) {
         var eachApiOutputDir = path.resolve(baseApiOutputDir, dependentExampleProjects[tmplIdx]);
-        templatizeTree(locals, path.resolve(sourceDir, "source", sourceExampleProject), eachApiOutputDir);
+        templatizeTree(locals, path.resolve(sourceDir, "source", sourceExampleProject), eachApiOutputDir, excludedFolders, excludedFiles);
     }
 
     // Copy all individual example proj files, specific to each template (including the core example proj)
-    templatizeTree(locals, path.resolve(sourceDir, "source"), baseApiOutputDir);
+    templatizeTree(locals, path.resolve(sourceDir, "source"), baseApiOutputDir, excludedFolders, excludedFiles);
 
     // Apply all the api template files into each example project
     for (var exIdx = 0; exIdx < allTemplateProjects.length; exIdx++) {
         var eachApiOutputDir = path.resolve(baseApiOutputDir, allTemplateProjects[exIdx]);
         makeDatatypes(apis, sourceDir, eachApiOutputDir);
         for (var i = 0; i < apis.length; i++) {
+            if (apis[i].calls && apis[i].calls.length <= 0)
+                continue;
             makeApi(apis[i], sourceDir, eachApiOutputDir);
             makeInstanceApi(apis[i], sourceDir, eachApiOutputDir);
         }
@@ -63,7 +74,7 @@ function makeApiEventFiles(api, sourceDir, apiOutputDir) {
 }
 
 function getBaseTypeSyntax(datatype) {
-    if (datatype.isResult && datatype.className === "LoginResult" || datatype.className === "RegisterPlayFabUserResult")
+    if (datatype.isResult && datatype.className === "LoginResult" || datatype.className === "RegisterPlayFabUserResult" || datatype.className === "AuthenticateIdentityResult")
         return " : PlayFabLoginResultCommon";
     if (datatype.isRequest)
         return " : PlayFabRequestCommon";
@@ -83,6 +94,8 @@ function makeDatatypes(apis, sourceDir, apiOutputDir) {
     };
 
     for (var a = 0; a < apis.length; a++) {
+        if (apis[a].calls && apis[a].calls.length <= 0)
+            continue;
         modelsLocal.api = apis[a];
         writeFile(path.resolve(apiOutputDir, "Assets/PlayFabSDK/" + apis[a].name + "/PlayFab" + apis[a].name + "Models.cs"), modelsTemplate(modelsLocal));
     }
@@ -413,6 +426,9 @@ function getRequestActions(tabbing, apiCall) {
 
     if (apiCall.result === "LoginResult" || apiCall.request === "RegisterPlayFabUserRequest")
         return tabbing + "request.TitleId = request.TitleId ?? callSettings.TitleId;\n";
+    if (apiCall.result === "AuthenticateIdentityResult")
+        return tabbing + "request.TitleId = request.TitleId ?? callSettings.TitleId;\n" +
+            tabbing + "request.PlayerAccountPoolId = request.PlayerAccountPoolId ?? callSettings.PlayerAccountPoolId;\n";
     if (apiCall.auth === "SessionTicket")
         return tabbing + "if (!context.IsClientLoggedIn()) throw new PlayFabException(PlayFabExceptionCode.NotLoggedIn,\"Must be logged in to call this method\");\n";
     if (apiCall.auth === "EntityToken")

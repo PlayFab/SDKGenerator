@@ -678,7 +678,7 @@
     <Content Include="targets\unity-v2\source\ExampleTestProject\Assets\PlayFabSDK\Shared\Internal\PlayFabHttp.meta" />
     <Content Include="targets\unity-v2\source\ExampleTestProject\Assets\PlayFabSDK\Shared\Internal\PlayFabHttp\IPlayFabHttp.cs" />
     <Content Include="targets\unity-v2\source\ExampleTestProject\Assets\PlayFabSDK\Shared\Internal\PlayFabHttp\IPlayFabHttp.cs.meta" />
-    <Content Include="targets\unity-v2\source\ExampleTestProject\Assets\PlayFabSDK\Shared\Internal\PlayFabHttp\PlayFabHTTP.cs" />
+    <Content Include="targets\unity-v2\source\ExampleTestProject\Assets\PlayFabSDK\Shared\Internal\PlayFabHttp\PlayFabHTTP.cs.ejs" />
     <Content Include="targets\unity-v2\source\ExampleTestProject\Assets\PlayFabSDK\Shared\Internal\PlayFabHttp\PlayFabHTTP.cs.meta" />
     <Content Include="targets\unity-v2\source\ExampleTestProject\Assets\PlayFabSDK\Shared\Internal\PlayFabHttp\PlayFabUnityHttp.cs" />
     <Content Include="targets\unity-v2\source\ExampleTestProject\Assets\PlayFabSDK\Shared\Internal\PlayFabHttp\PlayFabUnityHttp.cs.meta" />

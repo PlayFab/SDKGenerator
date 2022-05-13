@@ -10,16 +10,16 @@
     <PackageId>PlayFabAllSDK</PackageId>
     <Version><%- sdkVersion %></Version>
     <Title>PlayFab CSharp Sdk</Title>
-    <Authors>PlayFab Inc.</Authors>
-    <Owners>PlayFab Inc.</Owners>
-    <PackageLicenseUrl>https://raw.githubusercontent.com/PlayFab/CSharpSDK/master/LICENSE</PackageLicenseUrl>
+    <Authors>Microsoft</Authors>
+    <Owners>Microsoft</Owners>
+    <copyright>&#169; Microsoft Corporation. All rights reserved.</copyright>
+    <PackageLicenseFile>LICENSE</PackageLicenseFile>
     <PackageProjectUrl>https://github.com/PlayFab/CSharpSDK</PackageProjectUrl>
-    <PackageIconUrl>https://playfab.com/assets/img/playfab-mark.png</PackageIconUrl>
+    <PackageIcon>icon.png</PackageIcon>
     <PackageRequireLicenseAcceptance>false</PackageRequireLicenseAcceptance>
     <Description>Authentication, in-game commerce, player data, title data, inventory, characters, statistics, leaderboards, analytics and reporting, friends, multiplayer, matchmaking, tournaments, cloud script, trading, real-time event handling, player management, live ops, and server hosting for all major platforms/devices and games of any scale. This sdk gives your game the ability log into PlayFab and access cloud data and services.</Description>
     <Company>PlayFab</Company>
     <Product>PlayFabSDK</Product>
-    <Copyright>Copyright 20<%- sdkYear %></Copyright>
     <PackageTags>PlayFab, Baas, Paas, JSON, REST, HTTP, SSL, API, cloud, liveops, game, gamedev, native</PackageTags>
     <PackageReleaseNotes>https://docs.microsoft.com/gaming/playfab/release-notes#<%- sdkDate %></PackageReleaseNotes>
     <NeutralLanguage>en</NeutralLanguage>
@@ -72,5 +72,8 @@
     <Reference Include="System.Net.Http" />
     <Reference Include="Microsoft.CSharp" />
   </ItemGroup>
-
+  <ItemGroup>
+    <None Include="LICENSE" Pack="true" PackagePath="" />
+    <None Include="../images/icon.png" Pack="true" PackagePath=""/>
+  </ItemGroup>
 </Project>

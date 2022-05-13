@@ -594,7 +594,7 @@ if (!String.prototype.padStart) {
     };
 }
 // SDK generation utilities
-function templatizeTree(locals, sourcePath, destPath) {
+function templatizeTree(locals, sourcePath, destPath, excludeFolders, excludeFiles) {
     if (!fs.existsSync(sourcePath))
         throw Error("Copy tree source doesn't exist: " + sourcePath);
     if (!fs.lstatSync(sourcePath).isDirectory())
@@ -604,15 +604,50 @@ function templatizeTree(locals, sourcePath, destPath) {
         mkdirParentsSync(destPath);
     else if (!fs.lstatSync(destPath).isDirectory())
         throw Error("Can't copy a directory onto a file: " + sourcePath + " " + destPath);
-    var filesInDir = fs.readdirSync(sourcePath);
-    for (var i = 0; i < filesInDir.length; i++) {
-        var filename = filesInDir[i];
-        var file = sourcePath + "/" + filename;
-        if (fs.lstatSync(file).isDirectory())
-            templatizeTree(locals, file, destPath + "/" + filename);
-        else
-            copyOrTemplatizeFile(locals, file, destPath + "/" + filename);
-    }
+        var filesInDir = fs.readdirSync(sourcePath);
+        for (var i = 0; i < filesInDir.length; i++) {
+            var filename = filesInDir[i];
+            var file = sourcePath + "/" + filename;
+    
+            
+    
+            
+    
+            if (fs.lstatSync(file).isDirectory()) {
+                var folderExcluded = false;
+                if(excludeFolders != null)
+                {
+                    for(var excludedFolderIndex = 0; excludedFolderIndex < excludeFolders.length; excludedFolderIndex++)
+                    {
+                        if(excludeFolders[excludedFolderIndex] == filename)
+                        {
+                            folderExcluded = true;
+                            break;
+                        }
+                    }
+                }
+                if (folderExcluded)
+                    continue;
+                templatizeTree(locals, file, destPath + "/" + filename, excludeFolders, excludeFiles);
+            }
+            else {
+                var fileExcluded = false;
+                if(excludeFiles != null )
+                {
+                    for(var excludedFileIndex = 0; excludedFileIndex < excludeFiles.length; excludedFileIndex++)
+                    {
+                        if(excludeFiles[excludedFileIndex] == filename)
+                        {
+                            fileExcluded = true;
+                            break;
+                        }
+                    }
+                }
+                if (fileExcluded)
+                    continue;
+                copyOrTemplatizeFile(locals, file, destPath + "/" + filename);
+            }
+        }
 }
 global.templatizeTree = templatizeTree;
 function copyOrTemplatizeFile(locals, sourceFile, destFile) {

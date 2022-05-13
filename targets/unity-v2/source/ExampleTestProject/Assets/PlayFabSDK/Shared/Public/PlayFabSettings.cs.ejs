@@ -84,6 +84,10 @@ namespace PlayFab
         #region staticSettings Redirects
         // You must set this value for PlayFabSdk to work properly (Found in the Game Manager for your title, at the PlayFab Website)
         public static string TitleId { get { return staticSettings.TitleId; } set { staticSettings.TitleId = value; } }
+<% if (azureSdk) { %>
+        // You must set this value in order to call Player Authentication APIs (Found in the Azure Portal as a property of the Player Account Pool resource)
+        public static string PlayerAccountPoolId { get { return staticSettings.PlayerAccountPoolId; } set { staticSettings.PlayerAccountPoolId = value; } }
+<% } %>
         // Set this value to override specific title connection point
         public static string ConnectionString { get {return staticSettings.ConnectionString; } set { staticSettings.ConnectionString = value; } }
         /// <summary> The name of a customer vertical. This is only for customers running a private cluster.  Generally you shouldn't touch this </summary>

@@ -39,6 +39,7 @@ exports.MakeUnityV2Sdk = function (apis, sourceDir, baseApiOutputDir) {
         locals.azureSdk = true;
         excludedFolders = ["PlayFabEditorExtensions", "Admin", "Client", "Server"];
         excludedFiles = ["PlayFabEditorExtensions.meta", "Admin.meta", "Client.meta", "Server.meta"]
+        definePreprocessorDirectives(sourceDir, baseApiOutputDir, allTemplateProjects);
     }
 
     // Copy from the sourceExampleProject to all dependentExampleProjects (basically duplicate core/shared files to each example proj)
@@ -81,6 +82,13 @@ function getBaseTypeSyntax(datatype) {
     if (datatype.isResult)
         return " : PlayFabResultCommon";
     return " : PlayFabBaseModel"; // If both are -1, then neither is greater
+}
+
+function definePreprocessorDirectives(sourceDir, outputDir, projects){
+    var definesTemplate = getCompiledTemplate(path.resolve(sourceDir, "templates", "csc.rsp.ejs"));
+    for (var i = 0; i < projects.length; i++){
+        writeFile(path.resolve(outputDir + "/" + projects[i], "Assets/csc.rsp"), definesTemplate());
+    }
 }
 
 function makeDatatypes(apis, sourceDir, apiOutputDir) {

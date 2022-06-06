@@ -159,6 +159,10 @@ function getPostmanHeaderV2(apiCall) {
             {
                 "key": "Content-Type",
                 "value": "application/json"
+            },
+            {
+                "key": "X-AadToken",
+                "value": "{{AadToken}}"
             }
         ])
     else if (apiCall.auth === "None")

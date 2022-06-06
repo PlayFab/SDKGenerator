@@ -150,6 +150,17 @@ function getPostmanHeaderV2(apiCall) {
                 "value": "{{EntityToken}}"
             }
         ])
+    else if (apiCall.auth === "AadToken")
+        return JSON.stringify([
+            {
+                "key": "X-PlayFabSDK",
+                "value": "PostmanCollection-" + sdkGlobals.sdkVersion
+            },
+            {
+                "key": "Content-Type",
+                "value": "application/json"
+            }
+        ])
     else if (apiCall.auth === "None")
         return JSON.stringify([
             {
@@ -162,7 +173,9 @@ function getPostmanHeaderV2(apiCall) {
             }
         ])
 
-    return "";
+    throw "Postman header was not found, this can be due to newer apiCall.auth's being made. Add any new call to the above conditionals \n";
+
+    return Json.stringify([{ "key": "X-PlayFabSDK", "value": "PostmanCollection-Headerless-Issue-Fix-This-Before-Loading"}]);
 }
 
 function jsonEscape(input) {

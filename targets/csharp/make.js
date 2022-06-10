@@ -257,7 +257,7 @@ function getRequestActions(tabbing, apiCall, isInstance) {
             + "#if !DISABLE_PLAYFABCLIENT_API\n"
             + tabbing + "if (requestContext.ClientSessionTicket != null) { authKey = \"X-Authorization\"; authValue = requestContext.ClientSessionTicket; }\n"
             + "#endif\n\n"
-            + "#if ENABLE_PLAYFABSERVER_API || ENABLE_PLAYFABADMIN_API\n"
+            + "#if ENABLE_PLAYFABSERVER_API || ENABLE_PLAYFABADMIN_API || ENABLE_PLAYFAB_SECRETKEY\n"
             + tabbing + "if (requestSettings.DeveloperSecretKey != null) { authKey = \"X-SecretKey\"; authValue = requestSettings.DeveloperSecretKey; }\n"
             + "#endif\n\n"
             + "#if !DISABLE_PLAYFABENTITY_API\n"

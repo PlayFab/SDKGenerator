@@ -425,7 +425,7 @@ function getRequestActions(tabbing, apiCall) {
             "#if !DISABLE_PLAYFABCLIENT_API\n" +
             tabbing + "if (context.IsClientLoggedIn()) { authType = AuthType.LoginSession; }\n" +
             "#endif\n" +
-            "#if ENABLE_PLAYFABSERVER_API || ENABLE_PLAYFABADMIN_API\n" +
+            "#if ENABLE_PLAYFABSERVER_API || ENABLE_PLAYFABADMIN_API || ENABLE_PLAYFAB_SECRETKEY\n" +
             tabbing + "if (callSettings.DeveloperSecretKey != null) { authType = AuthType.DevSecretKey; }\n" +
             "#endif\n" +
             "#if !DISABLE_PLAYFABENTITY_API\n" +

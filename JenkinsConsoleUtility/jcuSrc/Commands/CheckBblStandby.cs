@@ -176,7 +176,7 @@ namespace JenkinsConsoleUtility.Commands
 
             for (int i = 0; i < RETRY_COUNT; i++)
             {
-                var listBuildsTask = multiplayerApi.ListBuildSummariesAsync(listBuildsRequest);
+                var listBuildsTask = multiplayerApi.ListBuildSummariesV2Async(listBuildsRequest);
                 listBuildsTask.Wait();
 
                 if (listBuildsTask != null && listBuildsTask.Result != null && listBuildsTask.Result.Result != null)

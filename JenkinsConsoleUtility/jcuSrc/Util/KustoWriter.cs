@@ -92,7 +92,9 @@ namespace JenkinsConsoleUtility.Util
                         // Post ingestion message
                         if (!testing)
                         {
-                            ingestClient.IngestFromStream(memStream, ingestProps, leaveOpen: true);
+                            StreamSourceOptions options = new StreamSourceOptions();
+                            options.LeaveOpen = true;
+                            ingestClient.IngestFromStream(memStream, ingestProps, options);
                         }
                     }
                 }

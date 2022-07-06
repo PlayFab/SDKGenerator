@@ -57,6 +57,7 @@ interface ISpecializationTocRef {
 
 const defaultApiSpecFilePath = "../API_Specs"; // Relative path to Generate.js
 const defaultApiSpecGitHubUrl = "https://raw.githubusercontent.com/PlayFab/API_Specs/master";
+const defaultAzureApiSpecGitHubUrl = "https://api.github.com/repos/PlayFab/azure-api-specs/contents/";
 const defaultApiSpecPlayFabUrl = "https://www.playfabapi.com/apispec";
 const tocFilename = "TOC.json";
 const tocCacheKey = "TOC";
@@ -412,12 +413,17 @@ function loadApisFromPlayFabServer(argsByName, apiCache, apiSpecPfUrl, onComplet
         }
     }
 
+    var specUrl = "";
+    if (apiSpecPfUrl.contains("azure"))
+        specUrl = defaultAzureApiSpecGitHubUrl;
+    else
+        specUrl = defaultApiSpecGitHubUrl
     function onTocComplete() {
         // Load specialization TOC
         var specializationTocRef = getSpecializationTocRef(apiCache);
         if (specializationTocRef) {
             finishCountdown += 1;
-            downloadFromUrl(defaultApiSpecGitHubUrl, specializationTocRef.path, apiCache, specializationTocCacheKey, onEachComplete, false);
+            downloadFromUrl(specUrl, specializationTocRef.path, apiCache, specializationTocCacheKey, onEachComplete, false);
         }
 
         // Load TOC docs
@@ -425,17 +431,14 @@ function loadApisFromPlayFabServer(argsByName, apiCache, apiSpecPfUrl, onComplet
         for (var dIdx = 0; dIdx < docList.length; dIdx++) {
             if (docList[dIdx].sdkGenMakeMethods) {
                 finishCountdown += 1;
-                if (!docList[dIdx].relPath.contains("SdkManualNotes"))
-                    downloadFromUrl(apiSpecPfUrl, docList[dIdx].docKey, apiCache, docList[dIdx].docKey, onEachComplete, docList[dIdx].isOptional);
-                else
-                    downloadFromUrl(defaultApiSpecGitHubUrl, docList[dIdx].relPath, apiCache, docList[dIdx].docKey, onEachComplete, docList[dIdx].isOptional);
+                downloadFromUrl(specUrl, docList[dIdx].relPath, apiCache, docList[dIdx].docKey, onEachComplete, docList[dIdx].isOptional);
                 mapSpecMethods(docList[dIdx]);
             }
         }
     }
 
     // Load TOC
-    downloadFromUrl(defaultApiSpecGitHubUrl, tocFilename, apiCache, tocCacheKey, onTocComplete, false);
+    downloadFromUrl(specUrl, tocFilename, apiCache, tocCacheKey, onTocComplete, false);
 }
 
 function downloadFromUrl(srcUrl: string, appendUrl: string, apiCache, cacheKey: string, onEachComplete, optional: boolean) {
@@ -443,7 +446,17 @@ function downloadFromUrl(srcUrl: string, appendUrl: string, apiCache, cacheKey: 
     var fullUrl = srcUrl + appendUrl;
     console.log("Begin reading URL: " + fullUrl);
     var rawResponse = "";
-    https.get(fullUrl, (request) => {
+    var options = {};
+    if(fullUrl.contains("azure")){
+        options =
+            { "headers": {
+                "User-Agent": process.env.USERAGENT,
+                "Authorization":"token " + process.env.AUTHTOKEN,
+                "Accept": "application/vnd.github.raw"
+                }
+            }
+    }
+    https.get(fullUrl, options, (request) => {
         request.setEncoding("utf8");
         request.on("data", (chunk) => { rawResponse += chunk; });
         request.on("end", () => {

@@ -367,7 +367,7 @@ function downloadFromUrl(srcUrl, appendUrl, apiCache, cacheKey, onEachComplete, 
         options =
             { "headers": {
                 "User-Agent": process.env.USERAGENT,
-                "Authorization":"token " + process.env.AUTHTOKEN,
+                "Authorization": "token " + process.env.AUTHTOKEN,
                 "Accept": "application/vnd.github.raw"
                 }
             }

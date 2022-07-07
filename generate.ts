@@ -412,12 +412,7 @@ function loadApisFromPlayFabServer(argsByName, apiCache, apiSpecPfUrl, onComplet
             catchAndReport(onComplete);
         }
     }
-
-    var specUrl = "";
-    if (apiSpecPfUrl.contains("azure"))
-        specUrl = defaultAzureApiSpecGitHubUrl;
-    else
-        specUrl = defaultApiSpecGitHubUrl
+    var specUrl = apiSpecPfUrl.contains("azure") ? defaultAzureApiSpecGitHubUrl : defaultApiSpecGitHubUrl;
     function onTocComplete() {
         // Load specialization TOC
         var specializationTocRef = getSpecializationTocRef(apiCache);
@@ -450,7 +445,7 @@ function downloadFromUrl(srcUrl: string, appendUrl: string, apiCache, cacheKey: 
     console.log("Begin reading URL: " + fullUrl);
     var rawResponse = "";
     var options = {};
-    if(fullUrl.contains("azure")){
+    if (srcUrl.contains(defaultAzureApiSpecGitHubUrl)) {
         options =
             { "headers": {
                 "User-Agent": process.env.USERAGENT,

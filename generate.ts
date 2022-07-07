@@ -462,6 +462,8 @@ function downloadFromUrl(srcUrl: string, appendUrl: string, apiCache, cacheKey: 
         request.on("end", () => {
             console.log("Finished reading: " + fullUrl);
             try {
+                if(rawResponse.contains("defaultSpecLocations"))
+                    console.log("Finished reading: " + rawResponse);
                 apiCache[cacheKey] = JSON.parse(rawResponse);
             } catch (jsonErr) {
                 console.log(" ***** Failed to parse json: " + rawResponse.trim());

@@ -378,7 +378,6 @@ function downloadFromUrl(srcUrl, appendUrl, apiCache, cacheKey, onEachComplete, 
         request.on("end", function () {
             console.log("Finished reading: " + fullUrl);
             try {
-                console.log("Finished reading: " + rawResponse);
                 apiCache[cacheKey] = JSON.parse(rawResponse);
             }
             catch (jsonErr) {

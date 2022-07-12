@@ -47,7 +47,7 @@ namespace PlayFab.Public
             eventApi = new PlayFabEventsInstanceAPI(PlayFabSettings.staticPlayer);
         }
 
-        private EnsureSingleGameSessionId()
+        private void EnsureSingleGameSessionId()
         {
             if (gameSessionID == Guid.Empty)
             {

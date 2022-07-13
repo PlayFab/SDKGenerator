@@ -37,7 +37,7 @@ exports.makeCombinedAPI = function (apis, sourceDir, apiOutputDir) {
         locals.extraDefines = defaultDefines + ";DISABLE_PLAYFABCLIENT_API"
     }
 
-
+    
     templatizeTree(locals, path.resolve(sourceDir, "source"), rootOutputDir);
     makeDatatypes(apis, sourceDir, apiOutputDir);
 
@@ -50,6 +50,8 @@ exports.makeCombinedAPI = function (apis, sourceDir, apiOutputDir) {
             makeApi(apis[i], sourceDir, apiOutputDir);
         }
     }
+    
+    makeTests(locals, sourceDir, rootOutputDir);
 
     const xamarinOutputDir = path.join(rootOutputDir, "XamarinTestRunner");
     templatizeTree(locals, path.resolve(sourceDir, "XamarinTestRunner"), xamarinOutputDir);
@@ -140,6 +142,15 @@ function makeApi(api, sourceDir, apiOutputDir) {
     console.log("Generating C# " + api.name + "Instance library to " + apiOutputDir);
     var instTemplate = getCompiledTemplate(path.resolve(sourceDir, "templates/PlayFab_InstanceAPI.cs.ejs"));
     writeFile(path.resolve(apiOutputDir, "source/PlayFab" + api.name + "InstanceAPI.cs"), instTemplate(locals));
+}
+
+function makeTests(locals, sourceDir, outputDir){
+    if (locals.azureSdk) {
+        var endpointTestTemplate = getCompiledTemplate(path.resolve(sourceDir, "templates/PlayFabEndpointApiTest.cs.ejs"));
+        writeFile(path.resolve(outputDir, "source/PlayFabSDK/source/Uunit/tests/PlayFabEndpointApiTest.cs"), endpointTestTemplate(locals));
+    }
+    var testRunnerTemplate = getCompiledTemplate(path.resolve(sourceDir, "templates/UUnitIncrementalTestRunner.cs.ejs"));
+    writeFile(path.resolve(outputDir, "source/PlayFabSDK/source/Uunit/PlayFabEndpointApiTest.cs"), testRunnerTemplate(locals));
 }
 
 function getVerticalNameDefault() {

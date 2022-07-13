@@ -102,7 +102,7 @@ namespace PlayFab.UUnit
 #if ENABLE_PLAYFABSERVER_API || ENABLE_PLAYFABADMIN_API || UNITY_EDITOR || ENABLE_PLAYFAB_SECRETKEY
             PlayFabSettings.DeveloperSecretKey = _loadedData.developerSecretKey;
 #endif
-            PlayFabSettings.Endpoint = _loadedData.endpoint;
+
         }
     }
 }

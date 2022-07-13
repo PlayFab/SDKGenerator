@@ -7,7 +7,7 @@ using PlayFab.Internal;
 
 namespace PlayFab.UUnit
 {
-    public class ConnectionStringTests : UUnitTestCase
+    public class Endpoint : UUnitTestCase
     {
         private Action _tickAction = null;
         private TestTitleDataLoader.TestTitleData testTitleData;
@@ -38,7 +38,7 @@ namespace PlayFab.UUnit
             testTitleData = TestTitleDataLoader.LoadTestTitleData();
             _userEmail = testTitleData.userEmail;
             clientSettings.TitleId = testTitleData.titleId;
-            clientSettings.ConnectionString = testTitleData.connectionString;
+            clientSettings.Endpoint = testTitleData.Endpoint;
             if (testTitleData.extraHeaders != null)
                 foreach (var pair in testTitleData.extraHeaders)
                     PlayFabHttp.GlobalHeaderInjection[pair.Key] = pair.Value;

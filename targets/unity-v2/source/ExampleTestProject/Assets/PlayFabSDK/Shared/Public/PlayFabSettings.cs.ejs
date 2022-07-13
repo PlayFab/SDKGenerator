@@ -87,9 +87,9 @@ namespace PlayFab
 <% if (azureSdk) { %>
         // You must set this value in order to call Player Authentication APIs (Found in the Azure Portal as a property of the Player Account Pool resource)
         public static string PlayerAccountPoolId { get { return staticSettings.PlayerAccountPoolId; } set { staticSettings.PlayerAccountPoolId = value; } }
-<% } %>
         // Set this value to override specific title connection point
-        public static string ConnectionString { get {return staticSettings.ConnectionString; } set { staticSettings.ConnectionString = value; } }
+        public static string Endpoint { get {return staticSettings.Endpoint; } set { staticSettings.Endpoint = value; } }
+<% } %>
         /// <summary> The name of a customer vertical. This is only for customers running a private cluster.  Generally you shouldn't touch this </summary>
         internal static string VerticalName { get { return staticSettings.VerticalName; } set { staticSettings.VerticalName = value; } }
 #if ENABLE_PLAYFABSERVER_API || ENABLE_PLAYFABADMIN_API || UNITY_EDITOR || ENABLE_PLAYFAB_SECRETKEY
@@ -139,14 +139,17 @@ namespace PlayFab
             StringBuilder sb = new StringBuilder(1000);
 
             string productionEnvironmentUrl = null, verticalName = null, titleId = null;
+
             if (apiSettings != null)
             {
-                if(apiSettings.ConnectionString != "")
+<% if (azureSdk) { %>
+                if(apiSettings.Endpoint != "")
                 {
-                    productionEnvironmentUrl = apiSettings.ConnectionString;
+                    productionEnvironmentUrl = apiSettings.Endpoint;
                 }
                 else
                 {
+<% } %>
                     if (!string.IsNullOrEmpty(apiSettings.ProductionEnvironmentUrl))
                     {
                         productionEnvironmentUrl = apiSettings.ProductionEnvironmentUrl;
@@ -159,12 +162,16 @@ namespace PlayFab
                     {
                         titleId = apiSettings.TitleId;
                     }
+<% if (azureSdk) { %>
                 }
+<% } %>
             }
-            else if(ConnectionString != "")
+<% if (azureSdk) { %>
+            else if(Endpoint != "")
             {
-                productionEnvironmentUrl = ConnectionString;
+                productionEnvironmentUrl = Endpoint;
             }
+<% } %>
 
 
             if (productionEnvironmentUrl == null)

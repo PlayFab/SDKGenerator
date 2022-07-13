@@ -50,7 +50,7 @@ exports.makeCombinedAPI = function (apis, sourceDir, apiOutputDir) {
         }
     }
     
-    makeTests(locals, sourceDir, rootOutputDir);
+    makeTests(locals, sourceDir, apiOutputDir);
 
     const xamarinOutputDir = path.join(rootOutputDir, "XamarinTestRunner");
     templatizeTree(locals, path.resolve(sourceDir, "XamarinTestRunner"), xamarinOutputDir);
@@ -146,10 +146,10 @@ function makeApi(api, sourceDir, apiOutputDir) {
 function makeTests(locals, sourceDir, outputDir){
     if (locals.azureSdk) {
         var endpointTestTemplate = getCompiledTemplate(path.resolve(sourceDir, "templates/PlayFabEndpointApiTest.cs.ejs"));
-        writeFile(path.resolve(outputDir, "source/PlayFabSDK/source/Uunit/tests/PlayFabEndpointApiTest.cs"), endpointTestTemplate(locals));
+        writeFile(path.resolve(outputDir, "source/Uunit/tests/PlayFabEndpointApiTest.cs"), endpointTestTemplate(locals));
     }
     var testRunnerTemplate = getCompiledTemplate(path.resolve(sourceDir, "templates/UUnitIncrementalTestRunner.cs.ejs"));
-    writeFile(path.resolve(outputDir, "source/PlayFabSDK/source/Uunit/PlayFabEndpointApiTest.cs"), testRunnerTemplate(locals));
+    writeFile(path.resolve(outputDir, "source/Uunit/UUnitIncrementalTestRunner.cs"), testRunnerTemplate(locals));
 }
 
 function getVerticalNameDefault() {

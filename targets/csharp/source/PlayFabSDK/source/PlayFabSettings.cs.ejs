@@ -66,8 +66,10 @@ namespace PlayFab
             var apiSettings = instanceSettings ?? staticSettings;
             var baseUrl = apiSettings?.ProductionEnvironmentUrl;
 
-            if(apiSettings.ConnectionString == "")
+<% if (azureSdk) { %>
+            if(apiSettings.Endpoint == "")
             {
+<% } %>
                 if (!baseUrl.StartsWith("http"))
                 {
                     sb.Append("https://");
@@ -80,11 +82,13 @@ namespace PlayFab
                         sb.Append(apiSettings?.VerticalName).Append(".");
                     }
                 }
+<% if (azureSdk) { %>
             }
             else
             {
-                baseUrl = apiSettings.ConnectionString;
-            }
+                baseUrl = apiSettings.Endpoint;
+            }     
+<% } %>
 
             sb.Append(baseUrl).Append(apiCall);
 

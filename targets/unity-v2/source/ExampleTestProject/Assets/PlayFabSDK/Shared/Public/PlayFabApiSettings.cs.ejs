@@ -19,6 +19,8 @@ namespace PlayFab
 <% if (azureSdk) { %>
         /// <summary> You must set this value in order to call Player Authentication APIs (Found in the Azure Portal as a property of the Player Account Pool resource) </summary>
         public virtual string PlayerAccountPoolId { get; set; }
+        /// <summary> Fill this to directly connect to a specific title.</summary>
+        public virtual string Endpoint { get; set; }
 <% } %>
         /// <summary> The name of a customer vertical. This is only for customers running a private cluster.  Generally you shouldn't touch this </summary>
         internal virtual string VerticalName { get; set; }
@@ -31,8 +33,6 @@ namespace PlayFab
         /// <summary> Set this to true to prevent focus change information from leaving the device </summary>
         public virtual bool DisableFocusTimeCollection { get; set; }
 
-        /// <summary> Fill this to directly connect to a specific title.</summary>
-        public virtual string ConnectionString { get; set; }
 
         public virtual string GetFullUrl(string apiCall, Dictionary<string, string> getParams)
         {

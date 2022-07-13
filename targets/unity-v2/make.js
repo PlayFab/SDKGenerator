@@ -62,6 +62,8 @@ exports.MakeUnityV2Sdk = function (apis, sourceDir, baseApiOutputDir) {
             makeInstanceApi(apis[i], sourceDir, eachApiOutputDir);
         }
     }
+
+    makeTests(locals, sourceDir, path.resolve(baseApiOutputDir, sourceExampleProject));
 };
 
 function makeApiEventFiles(api, sourceDir, apiOutputDir) {
@@ -170,6 +172,16 @@ function makeInstanceApi(api, sourceDir, apiOutputDir) {
 
     var apiTemplate = getCompiledTemplate(path.resolve(templateDir, "PlayFab_InstanceAPI.cs.ejs"));
     writeFile(path.resolve(apiOutputDir, "Assets/PlayFabSDK/" + api.name + "/PlayFab" + api.name + "InstanceAPI.cs"), apiTemplate(apiLocals));
+}
+
+function makeTests(locals, sourceDir, outputDir) {
+    var templateDir = path.resolve(sourceDir, "templates");
+    if (locals.azureSdk) {
+        var endpointTestTemplate = getCompiledTemplate(path.resolve(templateDir, "EndpointTests.cs.ejs"));
+        writeFile(path.resolve(outputDir, "Assets/Testing/Tests/Client/EndpointTests.cs"), endpointTestTemplate(locals));
+    }
+    var testTitleLoaderTemplate = getCompiledTemplate(path.resolve(templateDir, "TestTitleDataLoader.cs.ejs"));
+    writeFile(path.resolve(outputDir, "Assets/Testing/Tests/Shared/TestTitleDataLoader.cs"), testTitleLoaderTemplate(locals));
 }
 
 function isPartial(api) {

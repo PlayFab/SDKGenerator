@@ -24,7 +24,9 @@ namespace PlayFab.UUnit
             public string developerSecretKey;
 #endif
             public Dictionary<string, string> extraHeaders;
-            public string connectionString;
+<% if (azureSdk) { %>
+            public string endpoint;
+<% } %>
         }
 
         static TestTitleData LoadTitleDataWithPlugin(string titleDataJSON)
@@ -85,7 +87,9 @@ namespace PlayFab.UUnit
                 {
                     titleId = "your title id here",
                     userEmail = "yourTest@email.com",
-                    connectionString = "replaceWithYourOwnConnectionStringOrElseTheseTestsWillFail"
+<% if (azureSdk) { %>
+                    endpoint = "replaceWithYourOwnEndpointOrElseTheseTestsWillFail"             
+<% } %>
                 };
             }
 
@@ -102,7 +106,9 @@ namespace PlayFab.UUnit
 #if ENABLE_PLAYFABSERVER_API || ENABLE_PLAYFABADMIN_API || UNITY_EDITOR || ENABLE_PLAYFAB_SECRETKEY
             PlayFabSettings.DeveloperSecretKey = _loadedData.developerSecretKey;
 #endif
-            PlayFabSettings.ConnectionString = _loadedData.connectionString;
+<% if (azureSdk) { %>
+            PlayFabSettings.Endpoint = _loadedData.endpoint;
+<% } %>
         }
     }
 }

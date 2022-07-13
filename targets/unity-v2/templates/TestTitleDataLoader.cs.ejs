@@ -24,7 +24,9 @@ namespace PlayFab.UUnit
             public string developerSecretKey;
 #endif
             public Dictionary<string, string> extraHeaders;
+<% if (azureSdk) { %>
             public string endpoint;
+<% } %>
         }
 
         static TestTitleData LoadTitleDataWithPlugin(string titleDataJSON)
@@ -85,7 +87,9 @@ namespace PlayFab.UUnit
                 {
                     titleId = "your title id here",
                     userEmail = "yourTest@email.com",
-                    endpoint = "replaceWithYourOwnEndpointOrElseTheseTestsWillFail"
+<% if (azureSdk) { %>
+                    endpoint = "replaceWithYourOwnEndpointOrElseTheseTestsWillFail"             
+<% } %>
                 };
             }
 

@@ -63,7 +63,7 @@ exports.MakeUnityV2Sdk = function (apis, sourceDir, baseApiOutputDir) {
         }
     }
 
-    makeTests(locals, sourceDir, sourceExampleProject);
+    makeTests(locals, sourceDir, path.resolve(baseApiOutputDir, sourceExampleProject));
 };
 
 function makeApiEventFiles(api, sourceDir, apiOutputDir) {

@@ -37,7 +37,6 @@ exports.makeCombinedAPI = function (apis, sourceDir, apiOutputDir) {
         locals.extraDefines = defaultDefines + ";DISABLE_PLAYFABCLIENT_API"
     }
 
-    
     templatizeTree(locals, path.resolve(sourceDir, "source"), rootOutputDir);
     makeDatatypes(apis, sourceDir, apiOutputDir);
 

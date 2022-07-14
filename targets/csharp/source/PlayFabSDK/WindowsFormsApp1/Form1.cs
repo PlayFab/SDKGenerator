@@ -1,5 +1,9 @@
 using PlayFab;
+
+#if !DISABLE_PLAYFABCLIENT_API
 using PlayFab.ClientModels;
+#endif
+
 using PlayFab.UUnit;
 using System;
 using System.IO;
@@ -45,7 +49,11 @@ namespace WindowsFormsApp1
             await new PlayFabUtil.SynchronizationContextRemover();
 
             var testInputs = GetTestTitleData(args);
+#if DISABLE_PLAYFABCLIENT_API
+            UUnitIncrementalTestRunner.Start(true, null, testInputs);
+#else
             UUnitIncrementalTestRunner.Start(true, null, testInputs, OnComplete);
+#endif
             while (!UUnitIncrementalTestRunner.SuiteFinished)
             {
                 label1.Text = await UUnitIncrementalTestRunner.Tick();
@@ -100,6 +108,7 @@ namespace WindowsFormsApp1
             return testInputs;
         }
 
+#if !DISABLE_PLAYFABCLIENT_API
         private static void OnComplete(PlayFabResult<ExecuteCloudScriptResult> result)
         {
             WriteConsoleColor("Save to CloudScript result for: " + PlayFabSettings.BuildIdentifier + " => " + UUnitIncrementalTestRunner.PfClient.authenticationContext.PlayFabId, ConsoleColor.Gray);
@@ -108,6 +117,7 @@ namespace WindowsFormsApp1
             else if (result.Result != null)
                 WriteConsoleColor("Successful!", ConsoleColor.Green);
         }
+#endif
 
         private void button1_Click(object sender, EventArgs e)
         {

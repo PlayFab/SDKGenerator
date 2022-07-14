@@ -9,7 +9,8 @@ interface SdkGlobals {
 var sdkGlobals: SdkGlobals = {
     buildIdentifier: null,
     sdkVersion: null,
-    verticalName: null
+    verticalName: null,
+    buildFlags: null
 }
 global.sdkGlobals = sdkGlobals;
 

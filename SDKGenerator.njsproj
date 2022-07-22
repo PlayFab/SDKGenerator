@@ -101,6 +101,11 @@
     <OutputPath>bin\</OutputPath>
     <ScriptArguments>-destpath ..\sdks\XPlatCppSdk -apiSpecGitUrl -buildIdentifier XPlatCppSdk_manual</ScriptArguments>
   </PropertyGroup>
+  <PropertyGroup Condition=" '$(Configuration)' == 'XPlatCSdk' ">
+    <DebugSymbols>true</DebugSymbols>
+    <OutputPath>bin\XPlatCSdk\</OutputPath>
+    <ScriptArguments>-destpath ..\..\src\playfabcorec\playfabcorecsdk -apiSpecGitUrl -buildIdentifier playfabcorecsdk_manual</ScriptArguments>
+  </PropertyGroup>
   <ItemGroup>
     <Content Include="README.md" />
     <Content Include="targets\csharp\make.js" />

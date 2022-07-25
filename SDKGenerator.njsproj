@@ -104,7 +104,7 @@
   <PropertyGroup Condition=" '$(Configuration)' == 'XPlatCSdk' ">
     <DebugSymbols>true</DebugSymbols>
     <OutputPath>bin\XPlatCSdk\</OutputPath>
-    <ScriptArguments>-destpath ..\..\src\playfabcorec\playfabcorecsdk -apiSpecGitUrl -buildIdentifier playfabcorecsdk_manual</ScriptArguments>
+    <ScriptArguments>-destpath ..\..\src\PlayFabCore\PlayFabCoreCSdk -apiSpecGitUrl -buildIdentifier PlayFabCoreCSdk_Manual</ScriptArguments>
   </PropertyGroup>
   <ItemGroup>
     <Content Include="README.md" />

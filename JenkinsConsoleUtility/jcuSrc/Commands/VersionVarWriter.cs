@@ -50,7 +50,7 @@ namespace JenkinsConsoleUtility.Commands
 
             var versionJson = GetApiJson("SdkManualNotes.json");
             var sdkNotes = JsonWrapper.DeserializeObject<SdkManualNotes>(versionJson);
-            var cppFilteredSdk = sdkGenKey.StartsWith("XPlatCppSdk") ? "XPlatCppSdk" : sdkGenKey;
+            var cppFilteredSdk = sdkGenKey.StartsWith("xplatcppsdk") ? "xplatcppsdk" : sdkGenKey;
             if (!sdkNotes.sdkVersion.TryGetValue(cppFilteredSdk, out sdkVersionString))
             {
                 JcuUtil.FancyWriteToConsole("SdkManualNotes.json does not contain: " + sdkGenKey);

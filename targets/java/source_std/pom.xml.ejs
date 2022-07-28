@@ -52,10 +52,16 @@
     
     <!-- Distribution -->
     <distributionManagement>
-      <snapshotRepository>
-        <id>ossrh</id>
-        <url>https://oss.sonatype.org/content/repositories/snapshots</url>
-      </snapshotRepository>
+        <repository>
+            <id>PlayFab-JavaSDK-combined</id>
+            <url>https://pkgs.dev.azure.com/PlayFabInternal/_packaging/PlayFab-JavaSDK-combined/maven/v1</url>
+            <releases>
+              <enabled>true</enabled>
+            </releases>
+            <snapshots>
+              <enabled>true</enabled>
+            </snapshots>
+          </repository>
     </distributionManagement>
     
     <dependencies>

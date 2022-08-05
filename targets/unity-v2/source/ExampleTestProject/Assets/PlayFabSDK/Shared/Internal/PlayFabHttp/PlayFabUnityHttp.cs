@@ -114,13 +114,21 @@ namespace PlayFab.Internal
             var startTime = DateTime.UtcNow;
 #endif
 
+#if UNITY_2020_OR_NEWER
             using var www = new UnityWebRequest(reqContainer.FullUrl)
             {
                 uploadHandler = new UploadHandlerRaw(reqContainer.Payload),
                 downloadHandler = new DownloadHandlerBuffer(),
                 method = "POST"
             };
-
+#else
+            var www = new UnityWebRequest(reqContainer.FullUrl)
+            {
+                uploadHandler = new UploadHandlerRaw(reqContainer.Payload),
+                downloadHandler = new DownloadHandlerBuffer(),
+                method = "POST"
+            };
+#endif
             foreach (var headerPair in reqContainer.RequestHeaders)
             {
                 if (!string.IsNullOrEmpty(headerPair.Key) && !string.IsNullOrEmpty(headerPair.Value))

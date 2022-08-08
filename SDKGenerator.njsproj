@@ -101,6 +101,11 @@
     <OutputPath>bin\</OutputPath>
     <ScriptArguments>-destpath ..\sdks\XPlatCppSdk -apiSpecGitUrl -buildIdentifier XPlatCppSdk_manual</ScriptArguments>
   </PropertyGroup>
+  <PropertyGroup Condition=" '$(Configuration)' == 'XPlatCSdk' ">
+    <DebugSymbols>true</DebugSymbols>
+    <OutputPath>bin\XPlatCSdk\</OutputPath>
+    <ScriptArguments>-destpath ..\..\src\PlayFabCore\PlayFabCoreCSdk -apiSpecGitUrl -buildIdentifier PlayFabCoreCSdk_Manual</ScriptArguments>
+  </PropertyGroup>
   <ItemGroup>
     <Content Include="README.md" />
     <Content Include="targets\csharp\make.js" />
@@ -678,7 +683,7 @@
     <Content Include="targets\unity-v2\source\ExampleTestProject\Assets\PlayFabSDK\Shared\Internal\PlayFabHttp.meta" />
     <Content Include="targets\unity-v2\source\ExampleTestProject\Assets\PlayFabSDK\Shared\Internal\PlayFabHttp\IPlayFabHttp.cs" />
     <Content Include="targets\unity-v2\source\ExampleTestProject\Assets\PlayFabSDK\Shared\Internal\PlayFabHttp\IPlayFabHttp.cs.meta" />
-    <Content Include="targets\unity-v2\source\ExampleTestProject\Assets\PlayFabSDK\Shared\Internal\PlayFabHttp\PlayFabHTTP.cs" />
+    <Content Include="targets\unity-v2\source\ExampleTestProject\Assets\PlayFabSDK\Shared\Internal\PlayFabHttp\PlayFabHTTP.cs.ejs" />
     <Content Include="targets\unity-v2\source\ExampleTestProject\Assets\PlayFabSDK\Shared\Internal\PlayFabHttp\PlayFabHTTP.cs.meta" />
     <Content Include="targets\unity-v2\source\ExampleTestProject\Assets\PlayFabSDK\Shared\Internal\PlayFabHttp\PlayFabUnityHttp.cs" />
     <Content Include="targets\unity-v2\source\ExampleTestProject\Assets\PlayFabSDK\Shared\Internal\PlayFabHttp\PlayFabUnityHttp.cs.meta" />

@@ -16,6 +16,8 @@ exports.MakeUnityV2Sdk = function (apis, sourceDir, baseApiOutputDir) {
     var sourceExampleProject = "ExampleTestProject";
     var dependentExampleProjects = ["ExampleMacProject"];
     var allTemplateProjects = ["ExampleTestProject", "ExampleMacProject"];
+    var excludedFolders = [];
+    var excludedFiles = [];
 
     var locals = {
         apis: apis,
@@ -29,27 +31,39 @@ exports.MakeUnityV2Sdk = function (apis, sourceDir, baseApiOutputDir) {
         getPropertyDef: getModelPropertyDef,
         getVerticalNameDefault: getVerticalNameDefault,
         hasClientOptions: getAuthMechanisms(apis).includes("SessionTicket"),
-        sourceDir: sourceDir
+        sourceDir: sourceDir,
+        azureSdk: false
     };
+
+    if (sdkGlobals.buildFlags.includes("azure")) {
+        locals.azureSdk = true;
+        excludedFolders = ["PlayFabEditorExtensions", "Admin", "Client", "Server"];
+        excludedFiles = ["PlayFabEditorExtensions.meta", "Admin.meta", "Client.meta", "Server.meta"]
+        definePreprocessorDirectives(sourceDir, baseApiOutputDir, allTemplateProjects);
+    }
 
     // Copy from the sourceExampleProject to all dependentExampleProjects (basically duplicate core/shared files to each example proj)
     for (var tmplIdx = 0; tmplIdx < dependentExampleProjects.length; tmplIdx++) {
         var eachApiOutputDir = path.resolve(baseApiOutputDir, dependentExampleProjects[tmplIdx]);
-        templatizeTree(locals, path.resolve(sourceDir, "source", sourceExampleProject), eachApiOutputDir);
+        templatizeTree(locals, path.resolve(sourceDir, "source", sourceExampleProject), eachApiOutputDir, excludedFolders, excludedFiles);
     }
 
     // Copy all individual example proj files, specific to each template (including the core example proj)
-    templatizeTree(locals, path.resolve(sourceDir, "source"), baseApiOutputDir);
+    templatizeTree(locals, path.resolve(sourceDir, "source"), baseApiOutputDir, excludedFolders, excludedFiles);
 
     // Apply all the api template files into each example project
     for (var exIdx = 0; exIdx < allTemplateProjects.length; exIdx++) {
         var eachApiOutputDir = path.resolve(baseApiOutputDir, allTemplateProjects[exIdx]);
         makeDatatypes(apis, sourceDir, eachApiOutputDir);
         for (var i = 0; i < apis.length; i++) {
+            if (apis[i].calls && apis[i].calls.length <= 0)
+                continue;
             makeApi(apis[i], sourceDir, eachApiOutputDir);
             makeInstanceApi(apis[i], sourceDir, eachApiOutputDir);
         }
     }
+
+    makeTests(locals, sourceDir, path.resolve(baseApiOutputDir, sourceExampleProject));
 };
 
 function makeApiEventFiles(api, sourceDir, apiOutputDir) {
@@ -63,13 +77,20 @@ function makeApiEventFiles(api, sourceDir, apiOutputDir) {
 }
 
 function getBaseTypeSyntax(datatype) {
-    if (datatype.isResult && datatype.className === "LoginResult" || datatype.className === "RegisterPlayFabUserResult")
+    if (datatype.isResult && datatype.className === "LoginResult" || datatype.className === "RegisterPlayFabUserResult" || datatype.className === "AuthenticateIdentityResult")
         return " : PlayFabLoginResultCommon";
     if (datatype.isRequest)
         return " : PlayFabRequestCommon";
     if (datatype.isResult)
         return " : PlayFabResultCommon";
     return " : PlayFabBaseModel"; // If both are -1, then neither is greater
+}
+
+function definePreprocessorDirectives(sourceDir, outputDir, projects){
+    var definesTemplate = getCompiledTemplate(path.resolve(sourceDir, "templates", "csc.rsp.ejs"));
+    for (var i = 0; i < projects.length; i++){
+        writeFile(path.resolve(outputDir + "/" + projects[i], "Assets/csc.rsp"), definesTemplate());
+    }
 }
 
 function makeDatatypes(apis, sourceDir, apiOutputDir) {
@@ -83,6 +104,8 @@ function makeDatatypes(apis, sourceDir, apiOutputDir) {
     };
 
     for (var a = 0; a < apis.length; a++) {
+        if (apis[a].calls && apis[a].calls.length <= 0)
+            continue;
         modelsLocal.api = apis[a];
         writeFile(path.resolve(apiOutputDir, "Assets/PlayFabSDK/" + apis[a].name + "/PlayFab" + apis[a].name + "Models.cs"), modelsTemplate(modelsLocal));
     }
@@ -149,6 +172,16 @@ function makeInstanceApi(api, sourceDir, apiOutputDir) {
 
     var apiTemplate = getCompiledTemplate(path.resolve(templateDir, "PlayFab_InstanceAPI.cs.ejs"));
     writeFile(path.resolve(apiOutputDir, "Assets/PlayFabSDK/" + api.name + "/PlayFab" + api.name + "InstanceAPI.cs"), apiTemplate(apiLocals));
+}
+
+function makeTests(locals, sourceDir, outputDir) {
+    var templateDir = path.resolve(sourceDir, "templates");
+    if (locals.azureSdk) {
+        var endpointTestTemplate = getCompiledTemplate(path.resolve(templateDir, "EndpointTests.cs.ejs"));
+        writeFile(path.resolve(outputDir, "Assets/Testing/Tests/Client/EndpointTests.cs"), endpointTestTemplate(locals));
+    }
+    var testTitleLoaderTemplate = getCompiledTemplate(path.resolve(templateDir, "TestTitleDataLoader.cs.ejs"));
+    writeFile(path.resolve(outputDir, "Assets/Testing/Tests/Shared/TestTitleDataLoader.cs"), testTitleLoaderTemplate(locals));
 }
 
 function isPartial(api) {
@@ -404,7 +437,7 @@ function getRequestActions(tabbing, apiCall) {
             "#if !DISABLE_PLAYFABCLIENT_API\n" +
             tabbing + "if (context.IsClientLoggedIn()) { authType = AuthType.LoginSession; }\n" +
             "#endif\n" +
-            "#if ENABLE_PLAYFABSERVER_API || ENABLE_PLAYFABADMIN_API\n" +
+            "#if ENABLE_PLAYFABSERVER_API || ENABLE_PLAYFABADMIN_API || ENABLE_PLAYFAB_SECRETKEY\n" +
             tabbing + "if (callSettings.DeveloperSecretKey != null) { authType = AuthType.DevSecretKey; }\n" +
             "#endif\n" +
             "#if !DISABLE_PLAYFABENTITY_API\n" +
@@ -413,6 +446,9 @@ function getRequestActions(tabbing, apiCall) {
 
     if (apiCall.result === "LoginResult" || apiCall.request === "RegisterPlayFabUserRequest")
         return tabbing + "request.TitleId = request.TitleId ?? callSettings.TitleId;\n";
+    if (apiCall.result === "AuthenticateIdentityResult")
+        return tabbing + "request.TitleId = request.TitleId ?? callSettings.TitleId;\n" +
+            tabbing + "request.PlayerAccountPoolId = request.PlayerAccountPoolId ?? callSettings.PlayerAccountPoolId;\n";
     if (apiCall.auth === "SessionTicket")
         return tabbing + "if (!context.IsClientLoggedIn()) throw new PlayFabException(PlayFabExceptionCode.NotLoggedIn,\"Must be logged in to call this method\");\n";
     if (apiCall.auth === "EntityToken")

@@ -28,7 +28,7 @@ namespace PlayFab
         [Obsolete("Moved to PlayFabSettings.staticSettings.VerticalName")]
         public static string VerticalName { get { return staticSettings.VerticalName; } set { staticSettings.VerticalName = value; } }
 
-#if ENABLE_PLAYFABSERVER_API || ENABLE_PLAYFABADMIN_API
+#if ENABLE_PLAYFABSERVER_API || ENABLE_PLAYFABADMIN_API || ENABLE_PLAYFAB_SECRETKEY
         [Obsolete("Moved to PlayFabSettings.staticSettings.DeveloperSecretKey")]
         public static string DeveloperSecretKey { get { return staticSettings.DeveloperSecretKey; } set { staticSettings.DeveloperSecretKey = value; } }
 #endif
@@ -66,8 +66,10 @@ namespace PlayFab
             var apiSettings = instanceSettings ?? staticSettings;
             var baseUrl = apiSettings?.ProductionEnvironmentUrl;
 
-            if(apiSettings.ConnectionString == "")
+<% if (azureSdk) { %>
+            if(apiSettings.Endpoint == "")
             {
+<% } %>
                 if (!baseUrl.StartsWith("http"))
                 {
                     sb.Append("https://");
@@ -80,11 +82,13 @@ namespace PlayFab
                         sb.Append(apiSettings?.VerticalName).Append(".");
                     }
                 }
+<% if (azureSdk) { %>
             }
             else
             {
-                baseUrl = apiSettings.ConnectionString;
-            }
+                baseUrl = apiSettings.Endpoint;
+            }     
+<% } %>
 
             sb.Append(baseUrl).Append(apiCall);
 

@@ -57,6 +57,7 @@ interface ISpecializationTocRef {
 
 const defaultApiSpecFilePath = "../API_Specs"; // Relative path to Generate.js
 const defaultApiSpecGitHubUrl = "https://raw.githubusercontent.com/PlayFab/API_Specs/master";
+const defaultAzureApiSpecGitHubUrl = "https://api.github.com/repos/PlayFab/azure-api-specs/contents/";
 const defaultApiSpecPlayFabUrl = "https://www.playfabapi.com/apispec";
 const tocFilename = "TOC.json";
 const tocCacheKey = "TOC";
@@ -411,13 +412,13 @@ function loadApisFromPlayFabServer(argsByName, apiCache, apiSpecPfUrl, onComplet
             catchAndReport(onComplete);
         }
     }
-
+    var specUrl = apiSpecPfUrl.contains("azure") ? defaultAzureApiSpecGitHubUrl : defaultApiSpecGitHubUrl;
     function onTocComplete() {
         // Load specialization TOC
         var specializationTocRef = getSpecializationTocRef(apiCache);
         if (specializationTocRef) {
             finishCountdown += 1;
-            downloadFromUrl(defaultApiSpecGitHubUrl, specializationTocRef.path, apiCache, specializationTocCacheKey, onEachComplete, false);
+            downloadFromUrl(specUrl, specializationTocRef.path, apiCache, specializationTocCacheKey, onEachComplete, false);
         }
 
         // Load TOC docs
@@ -428,14 +429,14 @@ function loadApisFromPlayFabServer(argsByName, apiCache, apiSpecPfUrl, onComplet
                 if (!docList[dIdx].relPath.contains("SdkManualNotes"))
                     downloadFromUrl(apiSpecPfUrl, docList[dIdx].docKey, apiCache, docList[dIdx].docKey, onEachComplete, docList[dIdx].isOptional);
                 else
-                    downloadFromUrl(defaultApiSpecGitHubUrl, docList[dIdx].relPath, apiCache, docList[dIdx].docKey, onEachComplete, docList[dIdx].isOptional);
+                    downloadFromUrl(specUrl, docList[dIdx].relPath, apiCache, docList[dIdx].docKey, onEachComplete, docList[dIdx].isOptional);
                 mapSpecMethods(docList[dIdx]);
             }
         }
     }
 
     // Load TOC
-    downloadFromUrl(defaultApiSpecGitHubUrl, tocFilename, apiCache, tocCacheKey, onTocComplete, false);
+    downloadFromUrl(specUrl, tocFilename, apiCache, tocCacheKey, onTocComplete, false);
 }
 
 function downloadFromUrl(srcUrl: string, appendUrl: string, apiCache, cacheKey: string, onEachComplete, optional: boolean) {
@@ -443,7 +444,17 @@ function downloadFromUrl(srcUrl: string, appendUrl: string, apiCache, cacheKey: 
     var fullUrl = srcUrl + appendUrl;
     console.log("Begin reading URL: " + fullUrl);
     var rawResponse = "";
-    https.get(fullUrl, (request) => {
+    var options = {};
+    if (srcUrl.contains(defaultAzureApiSpecGitHubUrl)) {
+        options =
+            { "headers": {
+                "User-Agent": process.env.USERAGENT,
+                "Authorization":"token " + process.env.AUTHTOKEN,
+                "Accept": "application/vnd.github.raw"
+                }
+            }
+    }
+    https.get(fullUrl, options, (request) => {
         request.setEncoding("utf8");
         request.on("data", (chunk) => { rawResponse += chunk; });
         request.on("end", () => {
@@ -716,7 +727,7 @@ if (!String.prototype.padStart) {
 }
 
 // SDK generation utilities
-function templatizeTree(locals: { [key: string]: any }, sourcePath: string, destPath: string): void {
+function templatizeTree(locals: { [key: string]: any }, sourcePath: string, destPath: string, excludeFolders: string, excludeFiles: string): void {
     if (!fs.existsSync(sourcePath))
         throw Error("Copy tree source doesn't exist: " + sourcePath);
     if (!fs.lstatSync(sourcePath).isDirectory()) // File
@@ -732,10 +743,41 @@ function templatizeTree(locals: { [key: string]: any }, sourcePath: string, dest
     for (var i = 0; i < filesInDir.length; i++) {
         var filename = filesInDir[i];
         var file = sourcePath + "/" + filename;
-        if (fs.lstatSync(file).isDirectory())
-            templatizeTree(locals, file, destPath + "/" + filename);
-        else
+
+        if (fs.lstatSync(file).isDirectory()) {
+            var folderExcluded = false;
+            if(excludeFolders != null)
+            {
+                for(var excludedFolderIndex = 0; excludedFolderIndex < excludeFolders.length; excludedFolderIndex++)
+                {
+                    if(excludeFolders[excludedFolderIndex] == filename)
+                    {
+                        folderExcluded = true;
+                        break;
+                    }
+                }
+            }
+            if (folderExcluded)
+                continue;
+            templatizeTree(locals, file, destPath + "/" + filename, excludeFolders, excludeFiles);
+        }
+        else {
+            var fileExcluded = false;
+            if(excludeFiles != null)
+            {
+                for(var excludedFileIndex = 0; excludedFileIndex < excludeFiles.length; excludedFileIndex++)
+                {
+                    if(excludeFiles[excludedFileIndex] == filename)
+                    {
+                        fileExcluded = true;
+                        break;
+                    }
+                }
+            }
+            if (fileExcluded)
+                continue;
             copyOrTemplatizeFile(locals, file, destPath + "/" + filename);
+        }
     }
 }
 global.templatizeTree = templatizeTree;

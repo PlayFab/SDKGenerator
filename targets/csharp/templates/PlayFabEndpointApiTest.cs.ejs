@@ -12,7 +12,7 @@ using PlayFab.DataModels;
 
 namespace PlayFab.UUnit
 {
-    public class PlayFabConnectionStringApiTest : UUnitTestCase
+    public class PlayFabEndpointApiTest : UUnitTestCase
     {
         private const string TEST_STAT_NAME = "str";
         private const string TEST_DATA_KEY = "testCounter";
@@ -46,7 +46,7 @@ namespace PlayFab.UUnit
 
         public override void SetUp(UUnitTestContext testContext)
         {
-            PlayFabSettings.staticSettings.ConnectionString = testTitleData.connectionString;
+            PlayFabSettings.staticSettings.Endpoint = testTitleData.endpoint;
 
             authApi = new PlayFabAuthenticationInstanceAPI(PlayFabSettings.staticSettings, PlayFabSettings.staticPlayer);
             clientApi = new PlayFabClientInstanceAPI(PlayFabSettings.staticSettings, PlayFabSettings.staticPlayer);

@@ -1,10 +1,11 @@
+let ejs = require('ejs');
 var path = require("path");
 
 // Making resharper less noisy - These are defined in Generate.js
 if (typeof (copyOrTemplatizeFile) === "undefined") copyOrTemplatizeFile = function () { };
 if (typeof (templatizeTree) === "undefined") templatizeTree = function () { };
 if (typeof (generateApiSummaryLines) === "undefined") generateApiSummaryLines = function () { };
-if (typeof (getCompiledTemplate) === "undefined") getCompiledTemplate = function () { };
+//if (typeof (getCompiledTemplate) === "undefined") getCompiledTemplate = function () { };
 
 const copyright = "\"Copyright Microsoft © 2019\"";
 const defaultDefines = ";NETFX_CORE;SIMPLE_JSON_TYPEINFO"
@@ -85,9 +86,12 @@ function getBaseTypeSyntax(datatype) {
 }
 
 function makeDatatypes(apis, sourceDir, apiOutputDir) {
-    var modelTemplate = getCompiledTemplate(path.resolve(sourceDir, "templates/Model.cs.ejs"));
-    var modelsTemplate = getCompiledTemplate(path.resolve(sourceDir, "templates/Models.cs.ejs"));
-    var enumTemplate = getCompiledTemplate(path.resolve(sourceDir, "templates/Enum.cs.ejs"));
+    //var modelTemplate = getCompiledTemplate(path.resolve(sourceDir, "templates/Model.cs.ejs"));
+    //var modelsTemplate = getCompiledTemplate(path.resolve(sourceDir, "templates/Models.cs.ejs"));
+    //var enumTemplate = getCompiledTemplate(path.resolve(sourceDir, "templates/Enum.cs.ejs"));
+    var modelTemplateFileAsString = readFile((path.resolve(sourceDir, "templates/Model.cs.ejs")));
+    var modelsTemplateFileAsString = readFile((path.resolve(sourceDir, "templates/Models.cs.ejs")));
+    var enumTemplateFileAsString = readFile((path.resolve(sourceDir, "templates/Enum.cs.ejs")));
 
     var makeDatatype = function (datatype, api) {
         var modelLocals = {
@@ -101,7 +105,15 @@ function makeDatatypes(apis, sourceDir, apiOutputDir) {
             getDeprecationAttribute: getDeprecationAttribute
         };
 
-        return (datatype.isenum) ? enumTemplate(modelLocals) : modelTemplate(modelLocals);
+        if (datatype.isenum) {
+            var renderEnumTemplate = ejs.render(enumTemplateFileAsString, modelLocals);
+            return renderEnumTemplate;
+        }
+        else {
+            var renderModelTemplate = ejs.render(modelTemplateFileAsString, modelLocals);
+            return renderModelTemplate;
+        }
+        // return (datatype.isenum) ? enumTemplate(modelLocals) : modelTemplate(modelLocals);
     };
 
     for (var a = 0; a < apis.length; a++) {
@@ -114,7 +126,8 @@ function makeDatatypes(apis, sourceDir, apiOutputDir) {
             makeDatatype: makeDatatype
         };
 
-        writeFile(path.resolve(apiOutputDir, "source/PlayFab" + apis[a].name + "Models.cs"), modelsTemplate(modelsLocal));
+        var modelsTemplate = ejs.render(modelsTemplateFileAsString, modelsLocal);
+        writeFile(path.resolve(apiOutputDir, "source/PlayFab" + apis[a].name + "Models.cs"), modelsTemplate);
     }
 }
 
@@ -135,21 +148,25 @@ function makeApi(api, sourceDir, apiOutputDir) {
     };
 
     console.log("Generating C# " + api.name + " library to " + apiOutputDir);
-    var apiTemplate = getCompiledTemplate(path.resolve(sourceDir, "templates/PlayFab_API.cs.ejs"));
-    writeFile(path.resolve(apiOutputDir, "source/PlayFab" + api.name + "API.cs"), apiTemplate(locals));
+    var apiFileAsString = readFile(path.resolve(sourceDir, "templates/PlayFab_API.cs.ejs"));
+    var apiTemplate = ejs.render(apiFileAsString, locals);// getCompiledTemplate(path.resolve(sourceDir, "templates/PlayFab_API.cs.ejs"));
+    writeFile(path.resolve(apiOutputDir, "source/PlayFab" + api.name + "API.cs"), apiTemplate);
 
     console.log("Generating C# " + api.name + "Instance library to " + apiOutputDir);
-    var instTemplate = getCompiledTemplate(path.resolve(sourceDir, "templates/PlayFab_InstanceAPI.cs.ejs"));
-    writeFile(path.resolve(apiOutputDir, "source/PlayFab" + api.name + "InstanceAPI.cs"), instTemplate(locals));
+    var instFileAsString = readFile(path.resolve(sourceDir, "templates/PlayFab_InstanceAPI.cs.ejs"));
+    var instTemplate = ejs.render(instFileAsString, locals);//; getCompiledTemplate(path.resolve(sourceDir, "templates/PlayFab_InstanceAPI.cs.ejs"));
+    writeFile(path.resolve(apiOutputDir, "source/PlayFab" + api.name + "InstanceAPI.cs"), instTemplate);
 }
 
 function makeTests(locals, sourceDir, outputDir){
     if (locals.azureSdk) {
-        var endpointTestTemplate = getCompiledTemplate(path.resolve(sourceDir, "templates/PlayFabEndpointApiTest.cs.ejs"));
-        writeFile(path.resolve(outputDir, "source/Uunit/tests/PlayFabEndpointApiTest.cs"), endpointTestTemplate(locals));
+        var endpointFileAsString = readFile(path.resolve(sourceDir, "templates/PlayFabEndpointApiTest.cs.ejs"));
+        var endpointTestTemplate = ejs.render(endpointFileAsString, locals);// getCompiledTemplate(path.resolve(sourceDir, "templates/PlayFabEndpointApiTest.cs.ejs"));
+        writeFile(path.resolve(outputDir, "source/Uunit/tests/PlayFabEndpointApiTest.cs"), endpointTestTemplate);
     }
-    var testRunnerTemplate = getCompiledTemplate(path.resolve(sourceDir, "templates/UUnitIncrementalTestRunner.cs.ejs"));
-    writeFile(path.resolve(outputDir, "source/Uunit/UUnitIncrementalTestRunner.cs"), testRunnerTemplate(locals));
+    var testRunnerFileAsString = readFile(path.resolve(sourceDir, "templates/UUnitIncrementalTestRunner.cs.ejs"));
+    var testRunnerTemplate = ejs.render(testRunnerFileAsString, locals);// getCompiledTemplate(path.resolve(sourceDir, "templates/UUnitIncrementalTestRunner.cs.ejs"));
+    writeFile(path.resolve(outputDir, "source/Uunit/UUnitIncrementalTestRunner.cs"), testRunnerTemplate);
 }
 
 function getVerticalNameDefault() {

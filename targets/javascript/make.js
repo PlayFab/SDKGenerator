@@ -1,17 +1,21 @@
+var ejs = require('ejs');
 var path = require("path");
 
 // Making resharper less noisy - These are defined in Generate.js
 if (typeof (templatizeTree) === "undefined") templatizeTree = function () { };
 if (typeof (generateApiSummaryLines) === "undefined") generateApiSummaryLines = function () { };
-if (typeof (getCompiledTemplate) === "undefined") getCompiledTemplate = function () { };
+// if (typeof (getCompiledTemplate) === "undefined") getCompiledTemplate = function () { };
 
 exports.makeCombinedAPI = function (apis, sourceDir, apiOutputDir) {
     console.log("Generating JavaScript Combined SDK to " + apiOutputDir);
 
     var templateDir = path.resolve(sourceDir, "templates");
-    var apiTemplate = getCompiledTemplate(path.resolve(templateDir, "PlayFab_Api.js.ejs"));
-    var apiTypingTemplate = getCompiledTemplate(path.resolve(templateDir, "PlayFab_Api.d.ts.ejs"));
-    var packageTemplate = getCompiledTemplate(path.resolve(templateDir, "package.json.ejs"));
+    //var apiTemplate = getCompiledTemplate(path.resolve(templateDir, "PlayFab_Api.js.ejs"));
+    //var apiTypingTemplate = getCompiledTemplate(path.resolve(templateDir, "PlayFab_Api.d.ts.ejs"));
+    //var packageTemplate = getCompiledTemplate(path.resolve(templateDir, "package.json.ejs"));
+    var apiTemplateFileAsString = readFile(path.resolve(templateDir, "PlayFab_Api.js.ejs"));// getCompiledTemplate(path.resolve(templateDir, "PlayFab_Api.js.ejs"));
+    var apiTypingTemplateAsString = readFile(path.resolve(templateDir, "PlayFab_Api.d.ts.ejs"));// getCompiledTemplate(path.resolve(templateDir, "PlayFab_Api.d.ts.ejs"));
+    var packageTemplateFileAsString = readFile(path.resolve(templateDir, "package.json.ejs"));// getCompiledTemplate(path.resolve(templateDir, "package.json.ejs"));
 
     var locals = {
         apis: apis,
@@ -29,6 +33,10 @@ exports.makeCombinedAPI = function (apis, sourceDir, apiOutputDir) {
         sourceDir: sourceDir,
         getVerticalNameDefault: getVerticalNameDefault
     };
+
+    var apiTemplate = ejs.render(apiTemplateFileAsString, locals);// getCompiledTemplate(path.resolve(templateDir, "PlayFab_Api.js.ejs"));
+    var apiTypingTemplate = ejs.render(apiTypingTemplateAsString, locals);//  getCompiledTemplate(path.resolve(templateDir, "PlayFab_Api.d.ts.ejs"));
+    var packageTemplate = ejs.render(packageTemplateFileAsString, locals);//  getCompiledTemplate(path.resolve(templateDir, "package.json.ejs"));
 
     var destSubFolders = ["PlayFabSdk", "PlayFabTestingExample"]; // Write both the published folder and the testing folder
     for (var fIdx = 0; fIdx < destSubFolders.length; fIdx++) {
@@ -56,7 +64,8 @@ function makeSimpleTemplates(apis, templateDir, apiOutputDir) {
         apis: apis,
         getVerticalNameDefault: getVerticalNameDefault
     };
-    var coreTyping = getCompiledTemplate(path.resolve(templateDir, "PlayFab.d.ts.ejs"));
+    var coreTypeFile = readFile(path.resolve(templateDir, "PlayFab.d.ts.ejs"));
+    var coreTyping = ejs.render(coreTypeFile, apiLocals); // getCompiledTemplate(path.resolve(templateDir, "PlayFab.d.ts.ejs"));
     var genCoreTypings = coreTyping(apiLocals);
     writeFile(path.resolve(apiOutputDir, "src/Typings/PlayFab/Playfab.d.ts"), genCoreTypings);
 }
@@ -168,9 +177,9 @@ function generateApiSummary(tabbing, apiElement, summaryParam, extraLines) {
 
 function generateDatatype(api, datatype, sourceDir) {
     var templateDir = path.resolve(sourceDir, "templates");
-    var interfaceTemplate = getCompiledTemplate(path.resolve(templateDir, "Interface.ejs"));
-    var enumTemplate = getCompiledTemplate(path.resolve(templateDir, "Enum.ejs"));
-
+    var interfaceTemplateFileAsString = readFile(path.resolve(templateDir, "Interface.ejs"));
+    var enumTemplateFileAsString = readFile(path.resolve(templateDir, "Enum.ejs"));
+    
     var locals = {
         api: api,
         generateApiSummary: generateApiSummary,
@@ -178,9 +187,13 @@ function generateDatatype(api, datatype, sourceDir) {
         getPropertyTsType: getPropertyTsType,
         datatype: datatype
     };
+
+    var interfaceTemplate = ejs.render(interfaceTemplateFileAsString, locals);// getCompiledTemplate(path.resolve(templateDir, "Interface.ejs"));
+    var enumTemplate = ejs.render(enumTemplateFileAsString, locals);// getCompiledTemplate(path.resolve(templateDir, "Enum.ejs"));
+
     if (datatype.isenum)
-        return enumTemplate(locals);
-    return interfaceTemplate(locals);
+        return enumTemplate;
+    return interfaceTemplate;
 }
 
 function getBaseTypeSyntax(datatype) {

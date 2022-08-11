@@ -34,10 +34,6 @@ exports.makeCombinedAPI = function (apis, sourceDir, apiOutputDir) {
         getVerticalNameDefault: getVerticalNameDefault
     };
 
-    var apiTemplate = ejs.render(apiTemplateFileAsString, locals);// getCompiledTemplate(path.resolve(templateDir, "PlayFab_Api.js.ejs"));
-    var apiTypingTemplate = ejs.render(apiTypingTemplateAsString, locals);//  getCompiledTemplate(path.resolve(templateDir, "PlayFab_Api.d.ts.ejs"));
-    var packageTemplate = ejs.render(packageTemplateFileAsString, locals);//  getCompiledTemplate(path.resolve(templateDir, "package.json.ejs"));
-
     var destSubFolders = ["PlayFabSdk", "PlayFabTestingExample"]; // Write both the published folder and the testing folder
     for (var fIdx = 0; fIdx < destSubFolders.length; fIdx++) {
         var eachOutputDir = path.resolve(apiOutputDir, destSubFolders[fIdx]);
@@ -48,10 +44,14 @@ exports.makeCombinedAPI = function (apis, sourceDir, apiOutputDir) {
             locals.api = apis[i];
             locals.hasClientOptions = getAuthMechanisms([apis[i]]).includes("SessionTicket"); // NOTE FOR THE d.ts FILE: Individual API interfaces should be limited to just what makes sense to that API
 
-            writeFile(path.resolve(eachOutputDir, "src/PlayFab/PlayFab" + apis[i].name + "Api.js"), apiTemplate(locals));
-            writeFile(path.resolve(eachOutputDir, "src/Typings/PlayFab/PlayFab" + apis[i].name + "Api.d.ts"), apiTypingTemplate(locals));
+            var apiTemplate = ejs.render(apiTemplateFileAsString, locals);// getCompiledTemplate(path.resolve(templateDir, "PlayFab_Api.js.ejs"));
+            var apiTypingTemplate = ejs.render(apiTypingTemplateAsString, locals);//  getCompiledTemplate(path.resolve(templateDir, "PlayFab_Api.d.ts.ejs"));
+            var packageTemplate = ejs.render(packageTemplateFileAsString, locals);//  getCompiledTemplate(path.resolve(templateDir, "package.json.ejs"));
+
+            writeFile(path.resolve(eachOutputDir, "src/PlayFab/PlayFab" + apis[i].name + "Api.js"), apiTemplate);
+            writeFile(path.resolve(eachOutputDir, "src/Typings/PlayFab/PlayFab" + apis[i].name + "Api.d.ts"), apiTypingTemplate);
             if (destSubFolders[fIdx] !== "PlayFabTestingExample")
-                writeFile(path.resolve(eachOutputDir, "package.json"), packageTemplate(locals));
+                writeFile(path.resolve(eachOutputDir, "package.json"), packageTemplate);
         }
     }
 
@@ -66,8 +66,7 @@ function makeSimpleTemplates(apis, templateDir, apiOutputDir) {
     };
     var coreTypeFile = readFile(path.resolve(templateDir, "PlayFab.d.ts.ejs"));
     var coreTyping = ejs.render(coreTypeFile, apiLocals); // getCompiledTemplate(path.resolve(templateDir, "PlayFab.d.ts.ejs"));
-    var genCoreTypings = coreTyping(apiLocals);
-    writeFile(path.resolve(apiOutputDir, "src/Typings/PlayFab/Playfab.d.ts"), genCoreTypings);
+    writeFile(path.resolve(apiOutputDir, "src/Typings/PlayFab/Playfab.d.ts"), coreTyping);
 }
 
 function getVerticalNameDefault() {
@@ -188,11 +187,12 @@ function generateDatatype(api, datatype, sourceDir) {
         datatype: datatype
     };
 
-    var interfaceTemplate = ejs.render(interfaceTemplateFileAsString, locals);// getCompiledTemplate(path.resolve(templateDir, "Interface.ejs"));
-    var enumTemplate = ejs.render(enumTemplateFileAsString, locals);// getCompiledTemplate(path.resolve(templateDir, "Enum.ejs"));
-
-    if (datatype.isenum)
+    if (datatype.isenum) {
+        var enumTemplate = ejs.render(enumTemplateFileAsString, locals);// getCompiledTemplate(path.resolve(templateDir, "Enum.ejs"));
         return enumTemplate;
+    }
+
+    var interfaceTemplate = ejs.render(interfaceTemplateFileAsString, locals);// getCompiledTemplate(path.resolve(templateDir, "Interface.ejs"));
     return interfaceTemplate;
 }
 

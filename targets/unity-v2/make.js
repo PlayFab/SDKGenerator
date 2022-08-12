@@ -157,7 +157,7 @@ function makeApi(api, sourceDir, apiOutputDir) {
     writeFile(path.resolve(apiOutputDir, "Assets/PlayFabSDK/" + api.name + "/PlayFab" + api.name + "API.cs"), apiTemplate);
 
     var eventTemplateFileAsAString = readFile(path.resolve(sourceDir, "templates", "PlayFabEvents.cs.ejs"));
-    var eventTemplate = ejs.render(eventTempalteFileAsAString, locals); // getCompiledTemplate(path.resolve(sourceDir, "templates", "PlayFabEvents.cs.ejs"));
+    var eventTemplate = ejs.render(eventTemplateFileAsAString, locals); // getCompiledTemplate(path.resolve(sourceDir, "templates", "PlayFabEvents.cs.ejs"));
     writeFile(path.resolve(apiOutputDir, "Assets/PlayFabSDK/" + api.name + "/PlayFabEvents.cs"), eventTemplate);
 }
 

@@ -98,7 +98,7 @@ function definePreprocessorDirectives(sourceDir, outputDir, projects){
 
 function makeDatatypes(apis, sourceDir, apiOutputDir) {
     var templateDir = path.resolve(sourceDir, "templates");
-    var modelsFile = path.resolve(teamplteDir, "Models.cs.ejs");
+    var modelsFile = path.resolve(templateDir, "Models.cs.ejs");
     
     var modelsLocal = {
         getApiDefineFlag: getApiDefineFlag,

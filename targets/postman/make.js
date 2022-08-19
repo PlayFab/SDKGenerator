@@ -1,10 +1,5 @@
-//const { writeFile } = require("node:fs");
-
 let ejs = require('ejs');
 var path = require("path");
-
-// Making resharper less noisy - These are defined in Generate.js
-if (typeof (getCompiledTemplate) === "undefined") getCompiledTemplate = function () { };
 
 var propertyReplacements = {};
 
@@ -58,10 +53,6 @@ exports.makeCombinedAPI = function (apis, sourceDir, apiOutputDir) {
     } catch (ex) {
         throw "The Postman Collection output was not properly formatted JSON:\n" + outputFile2Path;
     }
-}
-
-function testMe() {
-    return ['geddyTest', 'neilTest', 'alexTest'];
 }
 
 function callSorter(a, b) {

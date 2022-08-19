@@ -9,6 +9,7 @@
 **/.idea/
 **/.idea/
 **/.vs/
+**/node_modules/
 
 # Mac temp files
 **/.DS_Store*

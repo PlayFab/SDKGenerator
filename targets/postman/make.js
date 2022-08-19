@@ -1,5 +1,8 @@
-let ejs = require('ejs');
+//const { writeFile } = require("node:fs");
 var path = require("path");
+
+// Making resharper less noisy - These are defined in Generate.js
+if (typeof (getCompiledTemplate) === "undefined") getCompiledTemplate = function () { };
 
 var propertyReplacements = {};
 
@@ -27,31 +30,24 @@ exports.makeCombinedAPI = function (apis, sourceDir, apiOutputDir) {
         getVerticalTag: getVerticalTag
     };
 
-
-    var outputFilePath = path.resolve(apiOutputDir, "playfab.json");
-    var outputFile2Path = path.resolve(apiOutputDir, "playfabV2.json");
+    var outputFile = path.resolve(apiOutputDir, "playfab.json");
+    var outputFile2 = path.resolve(apiOutputDir, "playfabV2.json");
     var templateDir = path.resolve(sourceDir, "templates");
-    var templateV1FilePath = path.resolve(templateDir, "playfab.json.ejs");
-    var templateV2FilePath = path.resolve(templateDir, "playfabV2.json.ejs");
-
-    var templateV1AsString = readFile(templateV1FilePath);
-    let postmanV1Render = ejs.render(templateV1AsString, locals);
-    writeFile(outputFilePath, postmanV1Render);
-
-    var templateV2AsString = readFile(templateV2FilePath);
-    let postmanV2Render = ejs.render(templateV2AsString, locals);
-    writeFile(outputFile2Path, postmanV2Render);
+    var apiTemplate = getCompiledTemplate(path.resolve(templateDir, "playfab.json.ejs"));
+    writeFile(outputFile, apiTemplate(locals));
+    var apiTemplate2 = getCompiledTemplate(path.resolve(templateDir, "playfabV2.json.ejs"));
+    writeFile(outputFile2, apiTemplate2(locals));
 
     try {
-        require(outputFilePath); // Read the destination file and make sure it is correctly formatted json
+        require(outputFile); // Read the destination file and make sure it is correctly formatted json
     } catch (ex) {
-        throw "The Postman Collection output was not properly formatted JSON:\n" + outputFilePath;
+        throw "The Postman Collection output was not properly formatted JSON:\n" + outputFile;
     }
 
     try {
-        require(outputFile2Path); // Read the destination file and make sure it is correctly formatted json
+        require(outputFile2); // Read the destination file and make sure it is correctly formatted json
     } catch (ex) {
-        throw "The Postman Collection output was not properly formatted JSON:\n" + outputFile2Path;
+        throw "The Postman Collection output was not properly formatted JSON:\n" + outputFile2;
     }
 }
 

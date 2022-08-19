@@ -1,8 +1,8 @@
-var ejs = require('ejs');
 var path = require("path");
 
 // Making resharper less noisy - These are defined in Generate.js
 if (typeof (generateApiSummaryLines) === "undefined") generateApiSummaryLines = function () { };
+if (typeof (getCompiledTemplate) === "undefined") getCompiledTemplate = function () { };
 if (typeof (templatizeTree) === "undefined") templatizeTree = function () { };
 
 exports.makeClientAPI2 = function (apis, sourceDir, apiOutputDir) {
@@ -91,9 +91,10 @@ exports.makeCombinedAPI = function (apis, sourceDir, apiOutputDir) {
 };
 
 function makeDatatypes(apis, sourceDir, apiOutputDir) {
-    var modelTemplateFileAsString = readFile((path.resolve(sourceDir, "templates/Model.java.ejs")));
-    var modelsTemplateFileAsString = readFile((path.resolve(sourceDir, "templates/Models.java.ejs")));
-    var enumTemplateFileAsString = readFile((path.resolve(sourceDir, "templates/Enum.java.ejs")));
+    var templateDir = path.resolve(sourceDir, "templates");
+    var modelTemplate = getCompiledTemplate(path.resolve(templateDir, "Model.java.ejs"));
+    var modelsTemplate = getCompiledTemplate(path.resolve(templateDir, "Models.java.ejs"));
+    var enumTemplate = getCompiledTemplate(path.resolve(templateDir, "Enum.java.ejs"));
 
     var makeDatatype = function (datatype, api) {
         var locals = {
@@ -103,14 +104,7 @@ function makeDatatypes(apis, sourceDir, apiOutputDir) {
             getPropertyAttribs: getPropertyAttribs,
             generateApiSummary: generateApiSummary
         };
-        if (datatype.isenum) {
-            var renderEnumTemplate = ejs.render(enumTemplateFileAsString, locals);
-            return renderEnumTemplate;
-        }
-        else {
-            var renderModelTemplate = ejs.render(modelTemplateFileAsString, locals);
-            return renderModelTemplate;
-        }
+        return datatype.isenum ? enumTemplate(locals) : modelTemplate(locals);
     };
 
     for (var a = 0; a < apis.length; a++) {
@@ -118,9 +112,7 @@ function makeDatatypes(apis, sourceDir, apiOutputDir) {
             api: apis[a],
             makeDatatype: makeDatatype
         };
-
-        var modelsTemplate = ejs.render(modelsTemplateFileAsString, locals);
-        writeFile(path.resolve(apiOutputDir, "src/main/java/com/playfab/PlayFab" + apis[a].name + "Models.java"), modelsTemplate);
+        writeFile(path.resolve(apiOutputDir, "src/main/java/com/playfab/PlayFab" + apis[a].name + "Models.java"), modelsTemplate(locals));
     }
 }
 
@@ -139,9 +131,8 @@ function makeApi(api, sourceDir, apiOutputDir, isAndroid) {
         hasClientOptions: getAuthMechanisms([api]).includes("SessionTicket"),
     };
 
-    var apiTemplateFile = readFile(path.resolve(sourceDir, "templates/API.java.ejs"));
-    var apiTemplate = ejs.render(apiTemplateFile, locals);
-    writeFile(outFileName, apiTemplate);
+    var apiTemplate = getCompiledTemplate(path.resolve(sourceDir, "templates/API.java.ejs"));
+    writeFile(outFileName, apiTemplate(locals));
 }
 
 function getVerticalNameDefault() {

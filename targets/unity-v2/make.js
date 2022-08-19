@@ -3,7 +3,6 @@ var path = require("path");
 
 // Making resharper less noisy - These are defined in Generate.js
 if (typeof (getApiJson) === "undefined") getApiJson = function () { };
-//if (typeof (getCompiledTemplate) === "undefined") getCompiledTemplate = function () { };
 if (typeof (generateApiSummaryLines) === "undefined") generateApiSummaryLines = function () { };
 if (typeof (templatizeTree) === "undefined") templatizeTree = function () { };
 
@@ -74,7 +73,7 @@ function makeApiEventFiles(api, sourceDir, apiOutputDir) {
     };
 
     var apiTemplateFileAsAString = readFile(path.resolve(sourceDir, "templates", "PlayFabEvents.cs.ejs"));
-    var apiTemplate = ejs.render(apiTemplateFileAsAString, apiLocals);// getCompiledTemplate(path.resolve(sourceDir, "templates", "PlayFabEvents.cs.ejs"));
+    var apiTemplate = ejs.render(apiTemplateFileAsAString, apiLocals);
     writeFile(path.resolve(apiOutputDir, "Assets/PlayFabSDK/" + api.name + "/PlayFabEvents.cs"), apiTemplate);
 }
 
@@ -90,7 +89,7 @@ function getBaseTypeSyntax(datatype) {
 
 function definePreprocessorDirectives(sourceDir, outputDir, projects){
     var definesTemplateFileAsAString=readFile(path.resolve(sourceDir, "templates", "csc.rsp.ejs"));
-    var definesTemplate = ejs.render(definesTemplateFileAsAString, {} );//getCompiledTemplate(path.resolve(sourceDir, "templates", "csc.rsp.ejs"));
+    var definesTemplate = ejs.render(definesTemplateFileAsAString, {} );
     for (var i = 0; i < projects.length; i++){
         writeFile(path.resolve(outputDir + "/" + projects[i], "Assets/csc.rsp"), definesTemplate);
     }
@@ -99,19 +98,20 @@ function definePreprocessorDirectives(sourceDir, outputDir, projects){
 function makeDatatypes(apis, sourceDir, apiOutputDir) {
     var templateDir = path.resolve(sourceDir, "templates");
     var modelsFile = path.resolve(templateDir, "Models.cs.ejs");
-    
+    var modelsFileAsString = readFile(modelsFile);
     var modelsLocal = {
         getApiDefineFlag: getApiDefineFlag,
         makeDatatype: makeApiDatatype,
         sourceDir: sourceDir
     };
     
-    var modelsTemplate = ejs.render(modelsFile, modelsLocal)//;getCompiledTemplate(path.resolve(templateDir, "Models.cs.ejs"));
     for (var a = 0; a < apis.length; a++) {
         if (apis[a].calls && apis[a].calls.length <= 0)
             continue;
         modelsLocal.api = apis[a];
-        writeFile(path.resolve(apiOutputDir, "Assets/PlayFabSDK/" + apis[a].name + "/PlayFab" + apis[a].name + "Models.cs"), modelsTemplate);
+        var modelsTemplate = ejs.render(modelsFileAsString, modelsLocal)
+        var modelOutputFileName = path.resolve(apiOutputDir, "Assets/PlayFabSDK/" + apis[a].name + "/PlayFab" + apis[a].name + "Models.cs");
+        writeFile(modelOutputFileName, modelsTemplate);
     }
 }
 
@@ -127,12 +127,18 @@ function makeApiDatatype(datatype, sourceDir) {
     };
 
     var templateDir = path.resolve(sourceDir, "templates");
-    var modelTemplateFileAsString = readFile(path.resolve(teamplteDir, "Model.cs.ejs"));
-    var modelTemplate = ejs.render(modelTemplateFileAsString, modelLocals);// getCompiledTemplate(path.resolve(templateDir, "Model.cs.ejs"));
-    var enumTemplateFileAsString = readFile(path.resolve(templateDir, "Enum.cs.ejs"));
-    var enumTemplate = ejs.render(enumTemplateFileAsString, modelLocals); //getCompiledTemplate(path.resolve(templateDir, "Enum.cs.ejs"));
+    
 
-    return datatype.isenum ? enumTemplate : modelTemplate;
+    if (datatype.isenum) {
+        var enumTemplateFileAsString = readFile(path.resolve(templateDir, "Enum.cs.ejs"));
+        var enumTemplate = ejs.render(enumTemplateFileAsString, modelLocals);
+        return enumTemplate;
+    }
+    else {
+        var modelTemplateFileAsString = readFile(path.resolve(templateDir, "Model.cs.ejs"));
+        var modelTemplate = ejs.render(modelTemplateFileAsString, modelLocals);
+        return modelTemplate;
+    }
 };
 
 function makeApi(api, sourceDir, apiOutputDir) {

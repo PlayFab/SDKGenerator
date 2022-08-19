@@ -3,7 +3,6 @@ var path = require("path");
 
 // Making resharper less noisy - These are defined in Generate.js
 if (typeof (generateApiSummaryLines) === "undefined") generateApiSummaryLines = function () { };
-//if (typeof (getCompiledTemplate) === "undefined") getCompiledTemplate = function () { };
 if (typeof (templatizeTree) === "undefined") templatizeTree = function () { };
 
 exports.makeClientAPI2 = function (apis, sourceDir, apiOutputDir) {
@@ -92,10 +91,6 @@ exports.makeCombinedAPI = function (apis, sourceDir, apiOutputDir) {
 };
 
 function makeDatatypes(apis, sourceDir, apiOutputDir) {
-    //var templateDir = path.resolve(sourceDir, "templates");
-    //var modelTemplate = getCompiledTemplate(path.resolve(templateDir, "Model.java.ejs"));
-    //var modelsTemplate = getCompiledTemplate(path.resolve(templateDir, "Models.java.ejs"));
-    //var enumTemplate = getCompiledTemplate(path.resolve(templateDir, "Enum.java.ejs"));
     var modelTemplateFileAsString = readFile((path.resolve(sourceDir, "templates/Model.java.ejs")));
     var modelsTemplateFileAsString = readFile((path.resolve(sourceDir, "templates/Models.java.ejs")));
     var enumTemplateFileAsString = readFile((path.resolve(sourceDir, "templates/Enum.java.ejs")));
@@ -116,7 +111,6 @@ function makeDatatypes(apis, sourceDir, apiOutputDir) {
             var renderModelTemplate = ejs.render(modelTemplateFileAsString, locals);
             return renderModelTemplate;
         }
-        // return datatype.isenum ? enumTemplate(locals) : modelTemplate(locals);
     };
 
     for (var a = 0; a < apis.length; a++) {
@@ -146,7 +140,7 @@ function makeApi(api, sourceDir, apiOutputDir, isAndroid) {
     };
 
     var apiTemplateFile = readFile(path.resolve(sourceDir, "templates/API.java.ejs"));
-    var apiTemplate = ejs.render(apiTemplateFile, locals); // getCompiledTemplate(path.resolve(sourceDir, "templates/API.java.ejs"));
+    var apiTemplate = ejs.render(apiTemplateFile, locals);
     writeFile(outFileName, apiTemplate);
 }
 

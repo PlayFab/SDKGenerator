@@ -1,8 +1,8 @@
+var ejs = require('ejs');
 var path = require("path");
 
 // Making resharper less noisy - These are defined in Generate.js
 if (typeof (generateApiSummaryLines) === "undefined") generateApiSummaryLines = function () {};
-if (typeof (getCompiledTemplate) === "undefined") getCompiledTemplate = function () {};
 if (typeof (templatizeTree) === "undefined") templatizeTree = function () {};
 
 exports.makeCombinedAPI = function (apis, sourceDir, apiOutputDir) {
@@ -10,8 +10,9 @@ exports.makeCombinedAPI = function (apis, sourceDir, apiOutputDir) {
 
     // Load the templates
     var templateDir = path.resolve(sourceDir, "templates");
-    var apiTemplate = getCompiledTemplate(path.resolve(templateDir, "api.js.ejs"));
-    var apiTypingsTemplate = getCompiledTemplate(path.resolve(templateDir, "PlayFab_Api.d.ts.ejs"));
+
+    var apiTemplateFileAsString = readFile(path.resolve(templateDir, "api.js.ejs"));
+    var apiTypingsTemplateFileAsString = readFile(path.resolve(templateDir, "PlayFab_Api.d.ts.ejs"));
 
     var locals = {
         apis: apis,
@@ -39,8 +40,11 @@ exports.makeCombinedAPI = function (apis, sourceDir, apiOutputDir) {
         locals.api = apis[i];
         locals.hasClientOptions = getAuthMechanisms([apis[i]]).includes("SessionTicket");
 
-        writeFile(path.resolve(eachOutputDir, "Scripts/PlayFab/PlayFab" + apis[i].name + ".js"), apiTemplate(locals));
-        writeFile(path.resolve(eachOutputDir, "Scripts/typings/PlayFab/PlayFab" + apis[i].name + ".d.ts"), apiTypingsTemplate(locals));
+        var apiTemplate = ejs.render(apiTemplateFileAsString, locals);
+        var apiTypingsTemplate = ejs.render(apiTypingsTemplateFileAsString, locals);
+
+        writeFile(path.resolve(eachOutputDir, "Scripts/PlayFab/PlayFab" + apis[i].name + ".js"), apiTemplate);
+        writeFile(path.resolve(eachOutputDir, "Scripts/typings/PlayFab/PlayFab" + apis[i].name + ".d.ts"), apiTypingsTemplate);
     }
 };
 
@@ -142,8 +146,8 @@ function generateApiSummary(tabbing, apiElement, summaryParam, extraLines) {
 
 function generateDatatype(api, datatype, sourceDir) {
     var templateDir = path.resolve(sourceDir, "templates");
-    var interfaceTemplate = getCompiledTemplate(path.resolve(templateDir, "Interface.ejs"));
-    var enumTemplate = getCompiledTemplate(path.resolve(templateDir, "Enum.ejs"));
+    var interfaceTemplateFileAsString = readFile(path.resolve(templateDir, "Interface.ejs"));
+    var enumTemplateFileAsString = readFile(path.resolve(templateDir, "Enum.ejs"));
 
     var locals = {
         generateApiSummary: generateApiSummary,
@@ -152,9 +156,12 @@ function generateDatatype(api, datatype, sourceDir) {
         api: api,
         datatype: datatype
     };
-    if (datatype.isenum)
-        return enumTemplate(locals);
-    return interfaceTemplate(locals);
+    if (datatype.isenum) {
+        var enumTemplate = ejs.render(enumTemplateFileAsString, locals);
+        return enumTemplate;
+    }
+    var interfaceTemplate = ejs.render(interfaceTemplateFileAsString, locals);
+    return interfaceTemplate;
 }
 
 function getBaseTypeSyntax(datatype) {

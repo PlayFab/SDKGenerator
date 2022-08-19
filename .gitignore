@@ -9,9 +9,6 @@
 **/.idea/
 **/.idea/
 **/.vs/
-**/node_modules/
-**/packages
-**/packages.config
 
 # Mac temp files
 **/.DS_Store*
@@ -25,4 +22,3 @@
 *.tmp
 *.js.map
 .leu
-packages.config

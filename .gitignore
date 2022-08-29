@@ -23,3 +23,5 @@
 *.tmp
 *.js.map
 .leu
+
+node_modules/*

@@ -1,7 +1,7 @@
 #!/bin/bash
 set -e
 
-pushd
+pushd ..
 echo === installing ejs ===
 npm install ejs
 echo === ejs install finished ===

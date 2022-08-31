@@ -1,11 +1,19 @@
 /// <reference path="node.d.ts"/>
 /// <reference path="generate-plugins.ts"/>
 /// <reference path="generate-sdk.ts"/>
-var ejs = require("ejs");
+var ejs;
+try
+{
+    ejs = require("ejs");
+}
+catch(e)
+{
+    console.log("ejs not found, try running the install script under SDKBuildScripts/initejs.sh and re-generate");
+    process.exit();
+}
 var fs = require("fs");
 var https = require("https");
 var path = require("path");
-ejs.delimiter = "\n";
 var defaultApiSpecFilePath = "../API_Specs"; // Relative path to Generate.js
 var defaultApiSpecGitHubUrl = "https://raw.githubusercontent.com/PlayFab/API_Specs/master";
 var defaultAzureApiSpecGitHubUrl = "https://api.github.com/repos/PlayFab/azure-api-specs/contents/";

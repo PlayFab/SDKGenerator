@@ -1,5 +1,6 @@
 using System;
 using System.Collections.Generic;
+using System.Linq;
 using System.Net.Http;
 using System.Net.Http.Headers;
 using System.Text;
@@ -138,18 +139,26 @@ namespace PlayFab.Internal
         private string GetRequestId(bool hasReqId, IEnumerable<string> reqIdContainer)
         {
             const string defaultReqId = "NoRequestIdFound";
-            string reqId = "";
+
+            if (!hasReqId)
+            {
+                return defaultReqId;
+            }
 
             try
             {
-                reqId = hasReqId ? reqIdContainer.GetEnumerator().Current.ToString() : defaultReqId;
+                string reqId = reqIdContainer.FirstOrDefault();
+                if (string.IsNullOrEmpty(reqId))
+                {
+                    reqId = defaultReqId;
+                }
+
+                return reqId;
             }
             catch (Exception e)
             {
                 return "Failed to Enumerate RequestId. Exception message: " + e.Message;
             }
-
-            return reqId;
         }
     }
 }

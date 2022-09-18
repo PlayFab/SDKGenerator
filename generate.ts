@@ -486,6 +486,19 @@ function generateApis(buildIdentifier, target: IBuildTarget) {
 
     // This is disabled until we more carefully detect and alert on input conflicts
     var genConfigPath = path.resolve(target.destPath, "genConfig.json");
+
+    fs.readdir(target.destPath, (err, files) => {
+        files.forEach(file => {
+          console.log(file);
+        });
+    });
+
+    fs.readdir(target.destPath+"/src/PlayFabCore/sdk_templates/generated/", (err, files) => {
+        files.forEach(file => {
+          console.log(file);
+        });
+    });
+
     try {
         var genConfigFile = require(genConfigPath);
         var genConfigProfileName = sdkGeneratorGlobals.argsByName.hasOwnProperty("genconfigprofilename") ? sdkGeneratorGlobals.argsByName["genconfigprofilename"] : "default";

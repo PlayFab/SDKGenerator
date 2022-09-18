@@ -493,11 +493,17 @@ function generateApis(buildIdentifier, target: IBuildTarget) {
           console.log(file);
         });
     });
+    fs.readdir(__dirname, (err, files) => {
+        files.forEach(file => {
+          console.log(file);
+        });
+    });
     console.log("FINISHED LOGGING FILES IN DESTPATH DIR: ");
     console.log("Generating PlayFab APIs from specs: " + sdkGeneratorGlobals.apiTemplateDescription);
     var genConfig: IGenConfig = null;
     // This is disabled until we more carefully detect and alert on input conflicts
     var genConfigPath = path.resolve(target.destPath, "genConfig.json");
+    console.log("Target Dest Path: " + target.destPath);
     try {
         var genConfigFile = require(genConfigPath);
         var genConfigProfileName = sdkGeneratorGlobals.argsByName.hasOwnProperty("genconfigprofilename") ? sdkGeneratorGlobals.argsByName["genconfigprofilename"] : "default";

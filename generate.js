@@ -402,16 +402,18 @@ function downloadFromUrl(srcUrl, appendUrl, apiCache, cacheKey, onEachComplete, 
 }
 /////////////////////////////////// Major step 3 - Generate the indicated ouptut files ///////////////////////////////////
 function generateApis(buildIdentifier, target) {
-    fs.readdir(target.destPath, (err, files) => {
+    console.log("LOGGING FILES IN DESTPATH DIR: ");
+    fs.readdir(path.resolve(target.destPath), (err, files) => {
         files.forEach(file => {
           console.log(file);
         });
     });
-    fs.readdir(target.destPath+"/src/PlayFabCore/sdk_templates/generated/", (err, files) => {
+    fs.readdir(path.resolve(target.destPath, "/src/PlayFabCore/sdk_templates/generated/"), (err, files) => {
         files.forEach(file => {
           console.log(file);
         });
     });
+    console.log("FINISHED LOGGING FILES IN DESTPATH DIR: ");
     console.log("Generating PlayFab APIs from specs: " + sdkGeneratorGlobals.apiTemplateDescription);
     var genConfig = null;
     // This is disabled until we more carefully detect and alert on input conflicts

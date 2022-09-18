@@ -403,6 +403,7 @@ function downloadFromUrl(srcUrl, appendUrl, apiCache, cacheKey, onEachComplete, 
 /////////////////////////////////// Major step 3 - Generate the indicated ouptut files ///////////////////////////////////
 function generateApis(buildIdentifier, target) {
     console.log("LOGGING FILES IN DESTPATH DIR: ");
+    console.log("Current directory:", __dirname);
     fs.readdir(path.resolve(target.destPath), (err, files) => {
         files.forEach(file => {
           console.log(file);

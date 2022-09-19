@@ -482,27 +482,11 @@ function downloadFromUrl(srcUrl: string, appendUrl: string, apiCache, cacheKey: 
 function generateApis(buildIdentifier, target: IBuildTarget) {
     console.log("LOGGING FILES IN DESTPATH DIR: ");
     console.log("Current directory:", __dirname);
-    fs.readdir(target.destPath, (err, files) => {
-        files.forEach(file => {
-          console.log(file);
-        });
-    });
-
-    fs.readdir(target.destPath+"/src/PlayFabCore/sdk_templates/generated/", (err, files) => {
-        files.forEach(file => {
-          console.log(file);
-        });
-    });
-    fs.readdir(__dirname, (err, files) => {
-        files.forEach(file => {
-          console.log(file);
-        });
-    });
     let files1 = fs.readdirSync(__dirname);
     console.log(files1);
     let files2 = fs.readdirSync(target.destPath);
     console.log(files2);
-    var genConfigPath = path.resolve(target.destPath, "genConfig.json");
+    var genConfigPath = path.resolve(target.destPath+"/src/PlayFabCore/sdk_templates/generated/", "genConfig.json");
     console.log("FINISHED LOGGING FILES IN DESTPATH DIR: ");
     console.log("Generating PlayFab APIs from specs: " + sdkGeneratorGlobals.apiTemplateDescription);
     var genConfig: IGenConfig = null;

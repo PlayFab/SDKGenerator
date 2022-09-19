@@ -251,14 +251,12 @@ function getMakeScriptForTemplate(buildTarget: IBuildTarget) {
     for (var subIdx in templateSubDirs) {
         console.log("Checking: " + __dirname + "/" + templateSubDirs[subIdx] + "/" + buildTarget.templateFolder + "/" + "make.js");
         var targetMain = path.resolve(__dirname, templateSubDirs[subIdx], buildTarget.templateFolder, "make.js");
-
-        console.log(targetMain);
-        let templateFiles = fs.readdirSync(targetMain);
-        console.log(templateFiles);
-        
-        if (!fs.existsSync(targetMain))
+        if (!fs.existsSync(targetMain)) {
+            console.log(targetMain);
+            var templateFiles = fs.readdirSync(targetMain);
+            console.log(templateFiles);
             continue;
-
+        }
         var targetMaker = require(targetMain);
         if (targetMaker) {
             buildTarget.templateFolder = path.resolve(__dirname, templateSubDirs[subIdx], buildTarget.templateFolder);

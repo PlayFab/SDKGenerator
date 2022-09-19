@@ -32,7 +32,7 @@ namespace PlayFab.PfEditor
             return "    PlayFab.PlayFabClientAPI.LoginWithCustomID( new PlayFab.ClientModels.LoginWithCustomIDRequest() { CreateAccount = true, CustomId = SystemInfo.deviceUniqueIdentifier, TitleId=PlayFab.PlayFabSettings.TitleId }, result => { PlayFab.PlayFabClientAPI.WriteTitleEvent( new PlayFab.ClientModels.WriteTitleEventRequest() { EventName = \"" + filename + ":" + lifecyclepoint + "\", AuthenticationContext = result.AuthenticationContext }, null, null);}, null);\n";
         }
 
-        private static bool quickStartActivated = false;
+        private static bool QuickBoostActivated = false;
 
         private static string _StartVoidCode = "void Start()";
         private static string _StartVoidSpaceCode = "void Start ()";
@@ -48,16 +48,16 @@ namespace PlayFab.PfEditor
 
         private static List<bool> filesToWriteTo = new List<bool>();
 
-        private static void DrawQuickStart()
+        private static void DrawQuickBoost()
         {
             GUILayout.FlexibleSpace();
-            if (!quickStartActivated)
+            if (!QuickBoostActivated)
             {
                 EditorGUILayout.LabelField("Auto-Tagger: Add telemetry calls to Assets you care about.");
                 if (GUILayout.Button("AutoTag My Assets!", PlayFabEditorHelper.uiStyle.GetStyle("Button"), GUILayout.MinHeight(32), GUILayout.Width(buttonWidth)))
                 {
                     GetAssetFiles();
-                    quickStartActivated = true;
+                    QuickBoostActivated = true;
                 }
             }
             else
@@ -76,7 +76,7 @@ namespace PlayFab.PfEditor
                     EditorGUILayout.LabelField("No MonoBehaviors were found!");
                     if (GUILayout.Button("Back to Add Telemetry", PlayFabEditorHelper.uiStyle.GetStyle("Button"), GUILayout.MinHeight(32), GUILayout.Width(buttonWidth)))
                     {
-                        quickStartActivated = false;
+                        QuickBoostActivated = false;
                     }
                 }
                 else
@@ -94,7 +94,7 @@ namespace PlayFab.PfEditor
                         //TODO: Filter out any check boxes that were told to avoid.
                         WriteAssetFiles();
                         localAssets.Clear();
-                        quickStartActivated = false;
+                        QuickBoostActivated = false;
                     }
                 }
             }
@@ -191,7 +191,7 @@ namespace PlayFab.PfEditor
                     DrawCloudScript();
                     break;
                 case ToolSubMenuStates.QuickScript:
-                    DrawQuickStart();
+                    DrawQuickBoost();
                     break;
 
                 default:
@@ -501,7 +501,7 @@ namespace PlayFab.PfEditor
 
             _menu = CreateInstance<SubMenuComponent>();
             _menu.RegisterMenuItem("CloudScript", OnCloudScriptClicked);
-            _menu.RegisterMenuItem("QuickStart", OnQuickStartClicked);
+            _menu.RegisterMenuItem("QuickBoost", OnQuickBoostClicked);
         }
 
         public static void OnCloudScriptClicked()
@@ -509,7 +509,7 @@ namespace PlayFab.PfEditor
             PlayFabEditor.RaiseStateUpdate(PlayFabEditor.EdExStates.OnSubmenuItemClicked, ToolSubMenuStates.CloudScript.ToString(), "" + (int)ToolSubMenuStates.CloudScript);
         }
 
-        public static void OnQuickStartClicked()
+        public static void OnQuickBoostClicked()
         {
             PlayFabEditor.RaiseStateUpdate(PlayFabEditor.EdExStates.OnSubmenuItemClicked, ToolSubMenuStates.QuickScript.ToString(), "" + (int)ToolSubMenuStates.QuickScript);
         }

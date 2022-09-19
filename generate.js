@@ -192,13 +192,13 @@ function tryApplyTarget(sdktemplateFolder, destPath, buildTarget, errorMessages)
     buildTarget.versionString = null;
 }
 function getMakeScriptForTemplate(buildTarget) {
-    var templateSubDirs = ["privateTemplates", "targets", "../Xbox.Bumblelion/src/PlayFabCore/sdk_templates"];
+    var templateSubDirs = ["privateTemplates", "targets", "../Xbox.Bumblelion/src/PlayFabCore/sdk_templates/generated"];
     for (var subIdx in templateSubDirs) {
         console.log("Checking: " + __dirname + "/" + templateSubDirs[subIdx] + "/" + buildTarget.templateFolder + "/" + "make.js");
         var targetMain = path.resolve(__dirname, templateSubDirs[subIdx], buildTarget.templateFolder, "make.js");
 
-        let templateFiles = fs.readdirSync(targetMain);
         console.log(targetMain);
+        let templateFiles = fs.readdirSync(targetMain);
         console.log(templateFiles);
         
         if (!fs.existsSync(targetMain))

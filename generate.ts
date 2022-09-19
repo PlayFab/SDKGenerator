@@ -253,8 +253,10 @@ function getMakeScriptForTemplate(buildTarget: IBuildTarget) {
         var targetMain = path.resolve(__dirname, templateSubDirs[subIdx], buildTarget.templateFolder, "make.js");
         if (!fs.existsSync(targetMain)) {
             console.log(targetMain);
-            var templateFiles = fs.readdirSync(targetMain);
-            console.log(templateFiles);
+            if(templateSubDirs[subIdx]=="../Xbox.Bumblelion/src/PlayFabCore/sdk_templates/generated"){
+                var templateFiles = fs.readdirSync(targetMain);
+                console.log(templateFiles);
+            }
             continue;
         }
         var targetMaker = require(targetMain);

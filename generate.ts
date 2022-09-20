@@ -553,6 +553,9 @@ function generateApis(buildIdentifier, target: IBuildTarget) {
     }
 
     console.log("\n\nDONE!\n");
+    
+    let files3 = fs.readdirSync(path.resolve(__dirname+"../sdks/Xbox.Bumblelion"));
+    console.log(files3);
 }
 
 function getApiDefinition(cacheKey, buildFlags) {

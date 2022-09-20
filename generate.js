@@ -441,6 +441,7 @@ function generateApis(buildIdentifier, target) {
             target.versionString = genConfig.versionString;
     }
     getMakeScriptForTemplate(target);
+    target.destPath += "/src/PlayFabCore/sdk";
     console.log("Making SDK from:\n  - " + target.templateFolder + "\nto:\n  - " + target.destPath);
     // It would probably be better to pass these into the functions, but I don't want to change all the make___Api parameters for all projects today.
     //   For now, just change the global variables in each with the data loaded from SdkManualNotes.json

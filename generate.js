@@ -475,7 +475,7 @@ function generateApis(buildIdentifier, target) {
     }
     console.log("\n\nDONE!\n");
     
-    let files3 = fs.readdirSync(path.resolve(__dirname+"/../sdks/Xbox.Bumblelion/source"));
+    let files3 = fs.readdirSync(path.resolve(__dirname+"/../sdks/Xbox.Bumblelion/src/PlayFabCore/sdk/source"));
     console.log(files3);
 }
 function getApiDefinition(cacheKey, buildFlags) {

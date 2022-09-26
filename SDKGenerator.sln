@@ -1,7 +1,7 @@
 ﻿
 Microsoft Visual Studio Solution File, Format Version 12.00
-# Visual Studio Version 17
-VisualStudioVersion = 17.3.32901.215
+# Visual Studio 15
+VisualStudioVersion = 15.0.27130.2027
 MinimumVisualStudioVersion = 10.0.40219.1
 Project("{9092AA53-FB77-4645-B42D-1CCCA6BD08BD}") = "SDKGenerator", "SDKGenerator.njsproj", "{2BA807EF-310C-43B5-8D42-1ABCFFF39BE9}"
 EndProject

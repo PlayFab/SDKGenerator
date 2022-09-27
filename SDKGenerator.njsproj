@@ -101,15 +101,15 @@
     <OutputPath>bin\</OutputPath>
     <ScriptArguments>-destpath ..\sdks\XPlatCppSdk -apiSpecGitUrl -buildIdentifier XPlatCppSdk_manual</ScriptArguments>
   </PropertyGroup>
-  <PropertyGroup Condition=" '$(Configuration)' == 'XPlatCCoreSdk' ">
+  <PropertyGroup Condition=" '$(Configuration)' == 'PlayFabCoreCSdk' ">
     <DebugSymbols>true</DebugSymbols>
-    <OutputPath>bin\XPlatCCoreSdk\</OutputPath>
+    <OutputPath>bin\PlayFabCoreCSdk\</OutputPath>
     <ScriptArguments>-destpath ..\..\src\PlayFabCore\sdk_templates\generated -apiSpecGitUrl -buildIdentifier PlayFabCoreCSdk_Manual</ScriptArguments>
   </PropertyGroup>
-  <PropertyGroup Condition=" '$(Configuration)' == 'XPlatCLiveOpsSdk' ">
+  <PropertyGroup Condition=" '$(Configuration)' == 'PlayFabLiveOpsCSdk' ">
     <DebugSymbols>true</DebugSymbols>
     <ScriptArguments>-destpath ..\..\src\PlayFabLive\sdk_templates\generated -apiSpecGitUrl -buildIdentifier PlayFabLiveOpsCSdk_Manual</ScriptArguments>
-    <OutputPath>bin\XPlatCLiveOpsSdk\</OutputPath>
+    <OutputPath>bin\PlayFabLiveOpsCSdk\</OutputPath>
   </PropertyGroup>
   <ItemGroup>
     <Content Include="README.md" />

@@ -108,7 +108,7 @@
   </PropertyGroup>
   <PropertyGroup Condition=" '$(Configuration)' == 'PlayFabLiveOpsCSdk' ">
     <DebugSymbols>true</DebugSymbols>
-    <ScriptArguments>-destpath ..\..\src\PlayFabLive\sdk_templates\generated -apiSpecGitUrl -buildIdentifier PlayFabLiveOpsCSdk_Manual</ScriptArguments>
+    <ScriptArguments>-destpath ..\..\src\PlayFabLiveOps\sdk_templates\generated -apiSpecGitUrl -buildIdentifier PlayFabLiveOpsCSdk_Manual</ScriptArguments>
     <OutputPath>bin\PlayFabLiveOpsCSdk\</OutputPath>
   </PropertyGroup>
   <ItemGroup>

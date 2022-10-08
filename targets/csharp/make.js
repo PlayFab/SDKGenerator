@@ -312,6 +312,11 @@ function getResultActions(tabbing, apiCall, api, isInstance) {
                 + tabbing + "updateContext.EntityToken = result.EntityToken;\n"
                 + tabbing + "updateContext.EntityId = result.Entity.Id;\n"
                 + tabbing + "updateContext.EntityType = result.Entity.Type;\n";
+        else if (apiCall.result === "AuthenticateCustomIdResult")
+            return tabbing + "var updateContext = authenticationContext;\n"
+                + tabbing + "updateContext.EntityToken = result.EntityToken.EntityToken;\n"
+                + tabbing + "updateContext.EntityId = result.EntityToken.Entity.Id;\n"
+                + tabbing + "updateContext.EntityType = result.EntityToken.Entity.Type;\n";
     }
     else {
         if (apiCall.result === "LoginResult" || apiCall.result === "RegisterPlayFabUserResult")

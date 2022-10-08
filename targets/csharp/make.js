@@ -262,7 +262,7 @@ function getRequestActions(tabbing, apiCall, isInstance) {
         return tabbing + "if (requestContext.ClientSessionTicket == null) throw new PlayFabException(PlayFabExceptionCode.NotLoggedIn, \"Must be logged in to call this method\");\n";
     if (apiCall.auth === "SecretKey")
         return tabbing + "if (requestSettings.DeveloperSecretKey == null) throw new PlayFabException(PlayFabExceptionCode.DeveloperKeyNotSet, \"DeveloperSecretKey must be set in your local or global settings to call this method\");\n";
-    if (apiCall.url === "/Authentication/GetEntityToken" || apiCall.url === "/Authentication/AuthenticateGameServerWithCustomId")
+    if (apiCall.url === "/Authentication/GetEntityToken" || apiCall.url === "/GameServerIdentity/AuthenticateGameServerWithCustomId")
         return tabbing + "string authKey = null, authValue = null;\n"
             + "#if !DISABLE_PLAYFABCLIENT_API\n"
             + tabbing + "if (requestContext.ClientSessionTicket != null) { authKey = \"X-Authorization\"; authValue = requestContext.ClientSessionTicket; }\n"

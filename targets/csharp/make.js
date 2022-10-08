@@ -262,7 +262,7 @@ function getRequestActions(tabbing, apiCall, isInstance) {
         return tabbing + "if (requestContext.ClientSessionTicket == null) throw new PlayFabException(PlayFabExceptionCode.NotLoggedIn, \"Must be logged in to call this method\");\n";
     if (apiCall.auth === "SecretKey")
         return tabbing + "if (requestSettings.DeveloperSecretKey == null) throw new PlayFabException(PlayFabExceptionCode.DeveloperKeyNotSet, \"DeveloperSecretKey must be set in your local or global settings to call this method\");\n";
-    if (apiCall.url === "/Authentication/GetEntityToken")
+    if (apiCall.url === "/Authentication/GetEntityToken" || "/Authentication/AuthenticateGameServerWithCustomId")
         return tabbing + "string authKey = null, authValue = null;\n"
             + "#if !DISABLE_PLAYFABCLIENT_API\n"
             + tabbing + "if (requestContext.ClientSessionTicket != null) { authKey = \"X-Authorization\"; authValue = requestContext.ClientSessionTicket; }\n"
@@ -325,6 +325,11 @@ function getResultActions(tabbing, apiCall, api, isInstance) {
                 + tabbing + "updateContext.EntityToken = result.EntityToken;\n"
                 + tabbing + "updateContext.EntityId = result.Entity.Id;\n"
                 + tabbing + "updateContext.EntityType = result.Entity.Type;\n";
+        else if (apiCall.result === "AuthenticateCustomIdResult")
+            return tabbing + "var updateContext = PlayFabSettings.staticPlayer;\n"
+                + tabbing + "updateContext.EntityToken = result.EntityToken.EntityToken;\n"
+                + tabbing + "updateContext.EntityId = result.EntityToken.Entity.Id;\n"
+                + tabbing + "updateContext.EntityType = result.EntityToken.Entity.Type;\n";
     }
     return "";
 }

@@ -71,7 +71,7 @@ function getUrl(apiCall) {
 }
 
 function getPostmanHeader(apiCall) {
-    if (apiCall.url === "/Authentication/GetEntityToken")
+    if (apiCall.url === "/Authentication/GetEntityToken" || apiCall.url === "/GameServerIdentity/AuthenticateGameServerWithCustomId")
         return "X-PlayFabSDK: PostmanCollection-" + sdkGlobals.sdkVersion + "\\nContent-Type: application/json\\nX-Authorization: {{SessionTicket}}\\nX-SecretKey: {{SecretKey}}\\n";
     if (apiCall.auth === "SessionTicket")
         return "X-PlayFabSDK: PostmanCollection-" + sdkGlobals.sdkVersion + "\\nContent-Type: application/json\\nX-Authorization: {{SessionTicket}}\\n";
@@ -86,7 +86,7 @@ function getPostmanHeader(apiCall) {
 }
 
 function getPostmanHeaderV2(apiCall) {
-    if (apiCall.url === "/Authentication/GetEntityToken")
+    if (apiCall.url === "/Authentication/GetEntityToken" || apiCall.url === "/GameServerIdentity/AuthenticateGameServerWithCustomId")
         return JSON.stringify([
             {
                 "key": "X-PlayFabSDK",

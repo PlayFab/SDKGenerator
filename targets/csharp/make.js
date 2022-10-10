@@ -313,7 +313,7 @@ function getResultActions(tabbing, apiCall, api, isInstance) {
                 + tabbing + "updateContext.EntityId = result.Entity.Id;\n"
                 + tabbing + "updateContext.EntityType = result.Entity.Type;\n";
         else if (apiCall.result === "AuthenticateCustomIdResult")
-            return tabbing + "var updateContext = authenticationContext;\n"
+            return tabbing + "var updateContext = gameServerAuthenticationContext;\n"
                 + tabbing + "updateContext.EntityToken = result.EntityToken.EntityToken;\n"
                 + tabbing + "updateContext.EntityId = result.EntityToken.Entity.Id;\n"
                 + tabbing + "updateContext.EntityType = result.EntityToken.Entity.Type;\n";
@@ -331,10 +331,12 @@ function getResultActions(tabbing, apiCall, api, isInstance) {
                 + tabbing + "updateContext.EntityId = result.Entity.Id;\n"
                 + tabbing + "updateContext.EntityType = result.Entity.Type;\n";
         else if (apiCall.result === "AuthenticateCustomIdResult")
-            return tabbing + "var updateContext = PlayFabSettings.staticPlayer;\n"
+            return tabbing + "var updateContext = PlayFabSettings.staticGameServer;\n"
                 + tabbing + "updateContext.EntityToken = result.EntityToken.EntityToken;\n"
                 + tabbing + "updateContext.EntityId = result.EntityToken.Entity.Id;\n"
                 + tabbing + "updateContext.EntityType = result.EntityToken.Entity.Type;\n";
+        else if (apiCall.url === "/GameServerIdentity/Delete")
+            return tabbing + "PlayFabSettings.staticGameServer = null;\n"
     }
     return "";
 }

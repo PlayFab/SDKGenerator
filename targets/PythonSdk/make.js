@@ -192,7 +192,7 @@ function getAuthParams(apiCall) {
 }
 
 function getRequestActions(tabbing, apiCall) {
-    if (apiCall.result === "LoginResult")
+    if (apiCall.result === "LoginResult" || apiCall.request === "RegisterPlayFabUserRequest")
         return tabbing + "request[\"TitleId\"] = PlayFabSettings.TitleId or request.TitleId\n"
             + tabbing + "if not request[\"TitleId\"]:\n"
             + tabbing + "    raise PlayFabErrors.PlayFabException(\"Must be have TitleId set to call this method\")\n\n";
@@ -205,7 +205,7 @@ function getRequestActions(tabbing, apiCall) {
     if (apiCall.auth === "SecretKey")
         return tabbing + "if not PlayFabSettings.DeveloperSecretKey:\n"
             + tabbing + "    raise PlayFabErrors.PlayFabException(\"Must have DeveloperSecretKey set to call this method\")\n\n";
-    if (apiCall.url === "/Authentication/GetEntityToken" || apiCall.url === "/GameServerIdentity/AuthenticateGameServerWithCustomId")
+    if (apiCall.url === "/Authentication/GetEntityToken")
         return tabbing + "authKey = None\n"
             + tabbing + "authValue = None\n"
             + tabbing + "if PlayFabSettings._internalSettings.EntityToken:\n"

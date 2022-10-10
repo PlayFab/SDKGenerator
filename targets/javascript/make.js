@@ -70,7 +70,7 @@ function getVerticalNameDefault() {
 }
 
 function getRequestActions(tabbing, apiCall) {
-    if (apiCall.url === "/Authentication/GetEntityToken" || apiCall.url === "/GameServerIdentity/AuthenticateGameServerWithCustomId")
+    if (apiCall.url === "/Authentication/GetEntityToken")
         return tabbing + "var authKey = null; var authValue = null;\n"
             + tabbing + "if (!authKey && PlayFab._internalSettings.sessionTicket) { var authInfo = PlayFab._internalSettings.GetAuthInfo(request, authKey=\"X-Authorization\"); authKey = authInfo.authKey, authValue = authInfo.authValue; }\n"
             + tabbing + "if (!authKey && PlayFab.settings.developerSecretKey) { var authInfo = PlayFab._internalSettings.GetAuthInfo(request, authKey=\"X-SecretKey\"); authKey = authInfo.authKey, authValue = authInfo.authValue; }\n";
@@ -85,7 +85,7 @@ function getRequestActions(tabbing, apiCall) {
 function hasResultActions(apiCall) {
     if (apiCall.result === "LoginResult" || apiCall.result === "RegisterPlayFabUserResult")
         return true;
-    if (apiCall.url === "/Authentication/GetEntityToken" || apiCall.url === "/GameServerIdentity/AuthenticateGameServerWithCustomId" || apiCall.url === "/GameServerIdentity/Delete")
+    if (apiCall.url === "/Authentication/GetEntityToken" || apiCall.url === "/GameServerIdentity/AuthenticateGameServerWithCustomId")
         return true;
     return false;
 }
@@ -111,9 +111,7 @@ function getResultActions(tabbing, apiCall) {
             + tabbing + "    PlayFab._internalSettings.entityToken = result.data.EntityToken;";
     if (apiCall.url === "/GameServerIdentity/AuthenticateGameServerWithCustomId")
         return tabbing + "if (result != null && result.data.EntityToken != null && result.data.EntityToken.EntityToken != null)\n"
-            + tabbing + "    PlayFab._internalSettings.gameServerEntityToken = result.data.EntityToken.EntityToken;";
-    if (apiCall.url === "/GameServerIdentity/AuthenticateGameServerWithCustomId")
-        return tabbing + "PlayFab._internalSettings.gameServerEntityToken = null;";
+            + tabbing + "    PlayFab._internalSettings.entityToken = result.data.EntityToken.EntityToken;";
     return "";
 }
 
@@ -127,7 +125,7 @@ function getUrl(apiCall) {
 
 function getAuthParams(apiCall) {
     // Returns the authKey to PlayFab._internalSettings.ExecuteRequestWrapper()
-    if (apiCall.url === "/Authentication/GetEntityToken" || apiCall.url === "/GameServerIdentity/AuthenticateGameServerWithCustomId")
+    if (apiCall.url === "/Authentication/GetEntityToken")
         return "authKey";
     if (apiCall.auth === "EntityToken")
         return "\"X-EntityToken\"";

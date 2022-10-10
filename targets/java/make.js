@@ -210,7 +210,7 @@ function getAuthParams(apiCall) {
         return "\"X-SecretKey\", PlayFabSettings.DeveloperSecretKey";
     if (apiCall.auth === "SessionTicket")
         return "\"X-Authorization\", PlayFabSettings.ClientSessionTicket";
-    if (apiCall.url === "/Authentication/GetEntityToken" || apiCall.url === "/GameServerIdentity/AuthenticateGameServerWithCustomId")
+    if (apiCall.url === "/Authentication/GetEntityToken")
         return "authKey, authValue";
     return "null, null";
 }
@@ -219,7 +219,7 @@ function getRequestActions(tabbing, apiCall) {
     if (apiCall.result === "LoginResult" || apiCall.request === "RegisterPlayFabUserRequest")
         return tabbing + "request.TitleId = PlayFabSettings.TitleId != null ? PlayFabSettings.TitleId : request.TitleId;\n"
             + tabbing + "if (request.TitleId == null) throw new Exception (\"Must be have PlayFabSettings.TitleId set to call this method\");\n";
-    if (apiCall.url === "/Authentication/GetEntityToken" || apiCall.url === "/GameServerIdentity/AuthenticateGameServerWithCustomId")
+    if (apiCall.url === "/Authentication/GetEntityToken")
         return tabbing + "String authKey = null, authValue = null;\n"
             + tabbing + "if (PlayFabSettings.EntityToken != null) { authKey = \"X-EntityToken\"; authValue = PlayFabSettings.EntityToken; }\n"
             + tabbing + "else if (PlayFabSettings.ClientSessionTicket != null) { authKey = \"X-Authorization\"; authValue = PlayFabSettings.ClientSessionTicket; }\n"
@@ -237,9 +237,7 @@ function getResultActions(tabbing, apiCall) {
     if (apiCall.url === "/Authentication/GetEntityToken")
         return tabbing + "PlayFabSettings.EntityToken = result.EntityToken != null ? result.EntityToken : PlayFabSettings.EntityToken;\n";
     if (apiCall.url === "/GameServerIdentity/AuthenticateGameServerWithCustomId")
-        return tabbing + "PlayFabSettings.GameServerEntityToken = (result.EntityToken != null && result.EntityToken.EntityToken != null) ? result.EntityToken.EntityToken : PlayFabSettings.EntityToken;\n";
-    if (apiCall.url === "/GameServerIdentity/Delete")
-        return tabbing + "PlayFabSettings.GameServerEntityToken = null\n";
+        return tabbing + "PlayFabSettings.EntityToken = (result.EntityToken != null && result.EntityToken.EntityToken != null) ? result.EntityToken.EntityToken : PlayFabSettings.EntityToken;\n";
     else if (apiCall.result === "LoginResult")
         return tabbing + "PlayFabSettings.ClientSessionTicket = result.SessionTicket != null ? result.SessionTicket : PlayFabSettings.ClientSessionTicket;\n"
             + tabbing + "if (result.EntityToken != null) PlayFabSettings.EntityToken = result.EntityToken.EntityToken != null ? result.EntityToken.EntityToken : PlayFabSettings.EntityToken;\n";

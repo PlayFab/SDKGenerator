@@ -53,7 +53,7 @@ function getVerticalNameDefault() {
 }
 
 function getAuthParams(tabbing, apiCall) {
-    if (apiCall.url === "/Authentication/GetEntityToken" || apiCall.url === "/GameServerIdentity/AuthenticateGameServerWithCustomId")
+    if (apiCall.url === "/Authentication/GetEntityToken")
         return tabbing + "authKey,\n"
             + tabbing + "authValue";
     else if (apiCall.auth === "EntityToken")
@@ -70,7 +70,7 @@ function getAuthParams(tabbing, apiCall) {
 }
 
 function getRequestActions(tabbing, apiCall) {
-    if (apiCall.url === "/Authentication/GetEntityToken" || apiCall.url === "/GameServerIdentity/AuthenticateGameServerWithCustomId")
+    if (apiCall.url === "/Authentication/GetEntityToken")
         return tabbing + "var authKey = \"\";\n"
             + tabbing + "var authValue = \"\";\n"
             + tabbing + "if (PlayFab._internalSettings.sessionTicket) {\n"
@@ -106,11 +106,7 @@ function getResultActions(tabbing, apiCall) {
             + tabbing + "}\n";
     if (apiCall.url === "/GameServerIdentity/AuthenticateGameServerWithCustomId")
         return tabbing + "if (result != null && result.data != null ) {\n"
-            + tabbing + "    PlayFab._internalSettings.gameServerEntityToken = (result.data.hasOwnProperty(\"EntityToken\") && result.data.EntityToken.hasOwnProperty(\"EntityToken\")) ? result.data.EntityToken.EntityToken : PlayFab._internalSettings.entityToken;\n"
-            + tabbing + "}\n";
-    if (apiCall.url === "/GameServerIdentity/Delete")
-        return tabbing + "if (result != null) {\n"
-            + tabbing + "    PlayFab._internalSettings.gameServerEntityToken = null;\n"
+            + tabbing + "    PlayFab._internalSettings.entityToken = (result.data.hasOwnProperty(\"EntityToken\") && result.data.EntityToken.hasOwnProperty(\"EntityToken\")) ? result.data.EntityToken.EntityToken : PlayFab._internalSettings.entityToken;\n"
             + tabbing + "}\n";
     else if (apiCall.result === "LoginResult" || apiCall.result === "RegisterPlayFabUserResult")
         return tabbing + "if (result != null && result.data != null) {\n"

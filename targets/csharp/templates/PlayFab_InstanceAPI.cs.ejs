@@ -17,7 +17,6 @@ namespace PlayFab
     {
         public readonly PlayFabApiSettings apiSettings = null;
         public readonly PlayFabAuthenticationContext authenticationContext = null;
-        public readonly PlayFabAuthenticationContext gameServerAuthenticationContext = null;
 <% if( api.name === "Admin" || api.name === "Server" ) { %>
         public PlayFab<%- api.name %>InstanceAPI() { }
 

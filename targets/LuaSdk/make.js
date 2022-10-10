@@ -143,7 +143,7 @@ function getVerticalNameDefault() {
 function getRequestActions(tabbing, apiCall) {
     var requestAction = "";
 
-    if (apiCall.url === "/Authentication/GetEntityToken" || apiCall.url === "/GameServerIdentity/AuthenticateGameServerWithCustomId")
+    if (apiCall.url === "/Authentication/GetEntityToken")
         requestAction = tabbing + "local authKey = nil\n"
             + tabbing + "local authValue = nil\n"
             + tabbing + "if (PlayFabSettings._internalSettings.entityToken) then\n"
@@ -177,9 +177,7 @@ function getResultAction(tabbing, apiCall) {
     if (apiCall.url === "/Authentication/GetEntityToken")
         preCallback = internalTabbing + "PlayFabSettings._internalSettings.entityToken = result.EntityToken\n";
     if (apiCall.url === "/GameServerIdentity/AuthenticateGameServerWithCustomId")
-        preCallback = internalTabbing + "PlayFabSettings._internalSettings.gameServerEntityToken = result.EntityToken.EntityToken\n";
-    if (apiCall.url === "/GameServerIdentity/AuthenticateGameServerWithCustomId")
-        preCallback = internalTabbing + "PlayFabSettings._internalSettings.gameServerEntityToken = nil\n";
+        preCallback = internalTabbing + "PlayFabSettings._internalSettings.entityToken = result.EntityToken.EntityToken\n";
     else if (apiCall.result === "LoginResult") {
         preCallback = internalTabbing + "PlayFabSettings._internalSettings.sessionTicket = result.SessionTicket\n"
             + internalTabbing + "PlayFabSettings._internalSettings.entityToken = result.EntityToken.EntityToken\n";
@@ -202,7 +200,7 @@ function getResultAction(tabbing, apiCall) {
 }
 
 function getAuthentication(apiCall) {
-    if (apiCall.url === "/Authentication/GetEntityToken" || apiCall.url === "/GameServerIdentity/AuthenticateGameServerWithCustomId")
+    if (apiCall.url === "/Authentication/GetEntityToken")
         return "authKey, authValue";
     if (apiCall.auth === "SessionTicket")
         return "\"X-Authorization\", PlayFabSettings._internalSettings.sessionTicket";

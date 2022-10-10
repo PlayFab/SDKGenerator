@@ -180,7 +180,7 @@ function getPropertyAttribs(tabbing, property, datatype, api) {
 //}
 
 function getAuthParams(apiCall) {
-    if (apiCall.url === "/Authentication/GetEntityToken" || apiCall.url === "/GameServerIdentity/AuthenticateGameServerWithCustomId")
+    if (apiCall.url === "/Authentication/GetEntityToken")
         return "authKey, authValue";
     if (apiCall.auth === "EntityToken")
         return "\"X-EntityToken\", PlayFabSettings._internalSettings.EntityToken";
@@ -192,7 +192,7 @@ function getAuthParams(apiCall) {
 }
 
 function getRequestActions(tabbing, apiCall) {
-    if (apiCall.result === "LoginResult" || apiCall.request === "RegisterPlayFabUserRequest")
+    if (apiCall.result === "LoginResult")
         return tabbing + "request[\"TitleId\"] = PlayFabSettings.TitleId or request.TitleId\n"
             + tabbing + "if not request[\"TitleId\"]:\n"
             + tabbing + "    raise PlayFabErrors.PlayFabException(\"Must be have TitleId set to call this method\")\n\n";
@@ -233,10 +233,7 @@ function getResultActions(tabbing, apiCall, api) {
             + tabbing + "    PlayFabSettings._internalSettings.EntityToken = playFabResult[\"EntityToken\"] if \"EntityToken\" in playFabResult else PlayFabSettings._internalSettings.EntityToken\n";
     else if (apiCall.result === "AuthenticateCustomIdResult")
         return tabbing + "if playFabResult:\n"
-            + tabbing + "    PlayFabSettings._internalSettings.GameServerEntityToken = playFabResult[\"EntityToken\"][\"EntityToken\"]  if \"EntityToken\" in playFabResult and \"EntityToken\" in playFabResult[\"EntityToken\"] else PlayFabSettings._internalSettings.EntityToken\n";
-            else if (apiCall.result === "AuthenticateCustomIdResult")
-        return tabbing + "if playFabResult:\n"
-            + tabbing + "    PlayFabSettings._internalSettings.GameServerEntityToken = None\n";
+            + tabbing + "    PlayFabSettings._internalSettings.EntityToken = playFabResult[\"EntityToken\"][\"EntityToken\"]  if \"EntityToken\" in playFabResult and \"EntityToken\" in playFabResult[\"EntityToken\"] else PlayFabSettings._internalSettings.EntityToken\n";
     return "";
 }
 

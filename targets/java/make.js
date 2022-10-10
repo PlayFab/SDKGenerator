@@ -237,7 +237,9 @@ function getResultActions(tabbing, apiCall) {
     if (apiCall.url === "/Authentication/GetEntityToken")
         return tabbing + "PlayFabSettings.EntityToken = result.EntityToken != null ? result.EntityToken : PlayFabSettings.EntityToken;\n";
     if (apiCall.url === "/GameServerIdentity/AuthenticateGameServerWithCustomId")
-        return tabbing + "PlayFabSettings.EntityToken = (result.EntityToken != null && result.EntityToken.EntityToken != null) ? result.EntityToken.EntityToken : PlayFabSettings.EntityToken;\n";
+        return tabbing + "PlayFabSettings.GameServerEntityToken = (result.EntityToken != null && result.EntityToken.EntityToken != null) ? result.EntityToken.EntityToken : PlayFabSettings.EntityToken;\n";
+    if (apiCall.url === "/GameServerIdentity/Delete")
+        return tabbing + "PlayFabSettings.GameServerEntityToken = null\n";
     else if (apiCall.result === "LoginResult")
         return tabbing + "PlayFabSettings.ClientSessionTicket = result.SessionTicket != null ? result.SessionTicket : PlayFabSettings.ClientSessionTicket;\n"
             + tabbing + "if (result.EntityToken != null) PlayFabSettings.EntityToken = result.EntityToken.EntityToken != null ? result.EntityToken.EntityToken : PlayFabSettings.EntityToken;\n";

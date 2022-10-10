@@ -180,7 +180,7 @@ function getPropertyAttribs(tabbing, property, datatype, api) {
 //}
 
 function getAuthParams(apiCall) {
-    if (apiCall.url === "/Authentication/GetEntityToken")
+    if (apiCall.url === "/Authentication/GetEntityToken" || apiCall.url === "/GameServerIdentity/AuthenticateGameServerWithCustomId")
         return "authKey, authValue";
     if (apiCall.auth === "EntityToken")
         return "\"X-EntityToken\", PlayFabSettings._internalSettings.EntityToken";
@@ -205,7 +205,7 @@ function getRequestActions(tabbing, apiCall) {
     if (apiCall.auth === "SecretKey")
         return tabbing + "if not PlayFabSettings.DeveloperSecretKey:\n"
             + tabbing + "    raise PlayFabErrors.PlayFabException(\"Must have DeveloperSecretKey set to call this method\")\n\n";
-    if (apiCall.url === "/Authentication/GetEntityToken")
+    if (apiCall.url === "/Authentication/GetEntityToken" || apiCall.url === "/GameServerIdentity/AuthenticateGameServerWithCustomId")
         return tabbing + "authKey = None\n"
             + tabbing + "authValue = None\n"
             + tabbing + "if PlayFabSettings._internalSettings.EntityToken:\n"
@@ -231,6 +231,12 @@ function getResultActions(tabbing, apiCall, api) {
     else if (apiCall.result === "GetEntityTokenResponse")
         return tabbing + "if playFabResult:\n"
             + tabbing + "    PlayFabSettings._internalSettings.EntityToken = playFabResult[\"EntityToken\"] if \"EntityToken\" in playFabResult else PlayFabSettings._internalSettings.EntityToken\n";
+    else if (apiCall.result === "AuthenticateCustomIdResult")
+        return tabbing + "if playFabResult:\n"
+            + tabbing + "    PlayFabSettings._internalSettings.GameServerEntityToken = playFabResult[\"EntityToken\"][\"EntityToken\"]  if \"EntityToken\" in playFabResult and \"EntityToken\" in playFabResult[\"EntityToken\"] else PlayFabSettings._internalSettings.EntityToken\n";
+            else if (apiCall.result === "AuthenticateCustomIdResult")
+        return tabbing + "if playFabResult:\n"
+            + tabbing + "    PlayFabSettings._internalSettings.GameServerEntityToken = None\n";
     return "";
 }
 

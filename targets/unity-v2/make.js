@@ -420,7 +420,7 @@ function getPropertyJsonReader(property, datatype) {
 }
 
 function getAuthParams(apiCall) {
-    if (apiCall.url === "/Authentication/GetEntityToken")
+    if (apiCall.url === "/Authentication/GetEntityToken" || apiCall.url === "/GameServerIdentity/AuthenticateGameServerWithCustomId")
         return "authType";
     else if (apiCall.auth === "SecretKey")
         return "AuthType.DevSecretKey";
@@ -432,7 +432,7 @@ function getAuthParams(apiCall) {
 }
 
 function getRequestActions(tabbing, apiCall) {
-    if (apiCall.name === "GetEntityToken")
+    if (apiCall.name === "GetEntityToken" || apiCall.name === "AuthenticateGameServerWithCustomId")
         return tabbing + "AuthType authType = AuthType.None;\n" +
             "#if !DISABLE_PLAYFABCLIENT_API\n" +
             tabbing + "if (context.IsClientLoggedIn()) { authType = AuthType.LoginSession; }\n" +

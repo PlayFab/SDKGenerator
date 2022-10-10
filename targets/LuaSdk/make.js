@@ -177,7 +177,9 @@ function getResultAction(tabbing, apiCall) {
     if (apiCall.url === "/Authentication/GetEntityToken")
         preCallback = internalTabbing + "PlayFabSettings._internalSettings.entityToken = result.EntityToken\n";
     if (apiCall.url === "/GameServerIdentity/AuthenticateGameServerWithCustomId")
-        preCallback = internalTabbing + "PlayFabSettings._internalSettings.entityToken = result.EntityToken.EntityToken\n";
+        preCallback = internalTabbing + "PlayFabSettings._internalSettings.gameServerEntityToken = result.EntityToken.EntityToken\n";
+    if (apiCall.url === "/GameServerIdentity/AuthenticateGameServerWithCustomId")
+        preCallback = internalTabbing + "PlayFabSettings._internalSettings.gameServerEntityToken = nil\n";
     else if (apiCall.result === "LoginResult") {
         preCallback = internalTabbing + "PlayFabSettings._internalSettings.sessionTicket = result.SessionTicket\n"
             + internalTabbing + "PlayFabSettings._internalSettings.entityToken = result.EntityToken.EntityToken\n";

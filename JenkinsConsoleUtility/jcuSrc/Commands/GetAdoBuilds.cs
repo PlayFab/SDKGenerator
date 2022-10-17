@@ -11,7 +11,7 @@ namespace JenkinsConsoleUtility.jcuSrc.Commands
 {
     class GetAdoBuilds : ICommand
     {
-        private const string expectedFolderPrefix = "\\PlayFabSdk";
+        private const string expectedFolderPrefix = "\\Classic-PlayFabSdk";
         private const string pipelinesUrl = "https://dev.azure.com/PlayFabInternal/Main/_apis/pipelines";
         private const string buildsUrl = "https://dev.azure.com/PlayFabInternal/Main/_apis/build/builds?definitions={definitionId}";
         // public static readonly List<string> filterIds = new List<string> { "refs/heads/master", "refs/heads/develop" };

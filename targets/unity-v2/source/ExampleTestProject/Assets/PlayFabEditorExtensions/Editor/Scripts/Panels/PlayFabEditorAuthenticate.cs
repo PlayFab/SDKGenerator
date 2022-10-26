@@ -310,13 +310,13 @@ namespace PlayFab.PfEditor
 
         private static async void OnAADLoginButtonClicked()
         {
-            string[] scopes = new string[] { string.Format("{0}/.default", PlayFabEditorHelper.ED_EX_AAD_SIGNIN_CLIENTID) };
+            string[] scopes = new string[] { string.Format("{0}/plugin", PlayFabEditorHelper.ED_EX_AAD_SIGNIN_CLIENTID) };
 
             AuthenticationResult authResult = null;
 
             var app = PublicClientApplicationBuilder.Create(PlayFabEditorHelper.ED_EX_AAD_SIGNIN_CLIENTID)
                            .WithAuthority($"{PlayFabEditorHelper.AAD_SIGNIN_URL}{PlayFabEditorHelper.ED_EX_AAD_SIGNNIN_TENANT}")
-                           .WithRedirectUri("https://login.microsoftonline.com/oauth2/nativeclient")
+                           .WithDefaultRedirectUri()
                            .Build();
 
             var accounts = await app.GetAccountsAsync();

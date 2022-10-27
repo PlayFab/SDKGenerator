@@ -82,9 +82,7 @@ namespace UnittestRunner
             TestTitleData testInputs = null;
             string filename = null;
             for (var i = 0; i < args.Length; i++) {
-                if (args[i] == "-testInputsFile" && (i + 1) < args.Length)
-                    filename = args[i + 1];
-                else if (args[i] == "-testInputsString" && (i + 1) < args.Length)
+                if (args[i] == "-testInputsString" && (i + 1) < args.Length)
                 {
                     try
                     {
@@ -95,7 +93,9 @@ namespace UnittestRunner
                         WriteConsoleColor("Parsing testSettings string failed: " + args[i + 1], ConsoleColor.Red);
                         return null;
                     }
-                }
+                } else if (args[i] == "-testInputsFile" && (i + 1) < args.Length)
+                    filename = args[i + 1];
+                
             }
             if (string.IsNullOrEmpty(filename))
                 filename = Environment.GetEnvironmentVariable("PF_TEST_TITLE_DATA_JSON");

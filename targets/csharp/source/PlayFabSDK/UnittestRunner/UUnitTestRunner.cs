@@ -81,22 +81,13 @@ namespace UnittestRunner
         {
             TestTitleData testInputs = null;
             string filename = null;
-            for (var i = 0; i < args.Length; i++) {
-                if (args[i] == "-testInputsString" && (i + 1) < args.Length)
+            int fileIndex = 0;
+            for (var i = 0; i < args.Length; i++)
+                if (args[i] == "-testInputsFile" && (i + 1) < args.Length)
                 {
-                    try
-                    {
-                        testInputs = PluginManager.GetPlugin<ISerializerPlugin>(PluginContract.PlayFab_Serializer).DeserializeObject<TestTitleData>(args[i + 1]);
-                        return testInputs;
-                    } catch(Exception e)
-                    {
-                        WriteConsoleColor("Parsing testSettings string failed: " + args[i + 1], ConsoleColor.Red);
-                        return null;
-                    }
-                } else if (args[i] == "-testInputsFile" && (i + 1) < args.Length)
                     filename = args[i + 1];
-                
-            }
+                    fileIndex = i + 1;
+                }
             if (string.IsNullOrEmpty(filename))
                 filename = Environment.GetEnvironmentVariable("PF_TEST_TITLE_DATA_JSON");
             if (File.Exists(filename))
@@ -108,6 +99,24 @@ namespace UnittestRunner
             {
                 WriteConsoleColor("Loading testSettings file failed: " + filename, ConsoleColor.Red);
                 WriteConsoleColor("From: " + Directory.GetCurrentDirectory(), ConsoleColor.Red);
+            }
+            for (var i = ++fileIndex; i < args.Length; i++)
+            {
+                if (args[i] == "-testInputsString" && (i + 3) < args.Length)
+                {
+                    try
+                    {
+                        testInputs.titleId = args[i + 1];
+                        testInputs.developerSecretKey = args[i + 2];
+                        testInputs.aliasId = args[i + 3];
+                        return testInputs;
+                    }
+                    catch (Exception e)
+                    {
+                        WriteConsoleColor("Parsing testSettings string failed: " + e.Message, ConsoleColor.Red);
+                        return null;
+                    }
+                }
             }
             return testInputs;
         }

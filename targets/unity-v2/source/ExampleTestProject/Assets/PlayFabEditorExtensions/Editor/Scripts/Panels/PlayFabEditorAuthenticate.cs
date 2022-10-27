@@ -310,7 +310,7 @@ namespace PlayFab.PfEditor
 
         private static async void OnAADLoginButtonClicked()
         {
-            string[] scopes = new string[] { string.Format("{0}/plugin", PlayFabEditorHelper.ED_EX_AAD_SIGNIN_CLIENTID) };
+            string[] scopes = new string[] { PlayFabEditorHelper.ED_EX_AAD_SCOPES };
 
             AuthenticationResult authResult = null;
 

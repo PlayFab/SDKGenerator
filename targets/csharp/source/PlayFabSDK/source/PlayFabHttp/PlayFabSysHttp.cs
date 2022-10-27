@@ -43,7 +43,7 @@ namespace PlayFab.Internal
                         // Special case for Authorization header
                         if (headerPair.Key.Equals("Authorization", StringComparison.OrdinalIgnoreCase))
                         {
-                            _client.DefaultRequestHeaders.AadAuthorization = new AuthenticationHeaderValue("Bearer", headerPair.Value);
+                            _client.DefaultRequestHeaders.Authorization = new AuthenticationHeaderValue("Bearer", headerPair.Value);
                         }
                         else
                         {

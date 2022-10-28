@@ -102,13 +102,12 @@ namespace UnittestRunner
             }
             for (var i = ++fileIndex; i < args.Length; i++)
             {
-                if (args[i] == "-testInputsString" && (i + 3) < args.Length)
+                if (args[i] == "-testInputsString" && (i + 2) < args.Length)
                 {
                     try
                     {
-                        testInputs.titleId = args[i + 1];
-                        testInputs.developerSecretKey = args[i + 2];
-                        testInputs.aliasId = args[i + 3];
+                        testInputs.developerSecretKey = args[i + 1];
+                        testInputs.aliasId = args[i + 2];
                         return testInputs;
                     }
                     catch (Exception e)

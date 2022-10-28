@@ -7,8 +7,8 @@ if [ -f "util.sh" ]; then
     . "./util.sh" 2> /dev/null
     . "./sdkUtil.sh" 2> /dev/null
 elif [ ! -z "$WORKSPACE" ]; then
-    . "$WORKSPACE/JenkinsSdkSetupScripts/JenkinsScripts/Pipeline/util.sh" 2> /dev/null
-    . "$WORKSPACE/JenkinsSdkSetupScripts/JenkinsScripts/Pipeline/sdkUtil.sh" 2> /dev/null
+    . "$WORKSPACE/SdkGenerator/SetupScripts/util.sh" 2> /dev/null
+    . "$WORKSPACE/SdkGenerator/SetupScripts/sdkUtil.sh" 2> /dev/null
 fi
 
 CheckVerticalizedParameters

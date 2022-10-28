@@ -108,6 +108,7 @@ namespace UnittestRunner
                     {
                         testInputs.developerSecretKey = args[i + 1];
                         testInputs.aliasId = args[i + 2];
+                        WriteConsoleColor("Parsing testSettings finished: " + args[i + 2], ConsoleColor.Red);
                         return testInputs;
                     }
                     catch (Exception e)

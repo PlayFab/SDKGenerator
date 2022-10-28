@@ -87,7 +87,7 @@ namespace UnittestRunner
                 if (args[i] == "-testInputsFile" && (i + 1) < args.Length)
                 {
                     filename = args[i + 1];
-                    fileIndex = i + 1;
+                    fileIndex = i + 2;
                 }
             if (string.IsNullOrEmpty(filename))
                 filename = Environment.GetEnvironmentVariable("PF_TEST_TITLE_DATA_JSON");
@@ -102,7 +102,7 @@ namespace UnittestRunner
                 WriteConsoleColor("Loading testSettings file failed: " + filename, ConsoleColor.Red);
                 WriteConsoleColor("From: " + Directory.GetCurrentDirectory(), ConsoleColor.Red);
             }
-            for (var i = ++fileIndex; i < args.Length; i++)
+            for (var i = fileIndex; i < args.Length; i++)
             {
                 if (args[i] == "-testInputsString" && (i + 2) < args.Length)
                 {
@@ -110,7 +110,7 @@ namespace UnittestRunner
                     {
                         testInputs.developerSecretKey = args[i + 1];
                         testInputs.aliasId = args[i + 2];
-                        WriteConsoleColor("Parsing testSettings finished: " + args[i + 2], ConsoleColor.Red);
+                        WriteConsoleColor("Parsing testSettings finished: ", ConsoleColor.Red);
                         return testInputs;
                     }
                     catch (Exception e)

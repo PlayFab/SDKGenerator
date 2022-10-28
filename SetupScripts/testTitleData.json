@@ -1,7 +1,7 @@
 {
-	"titleId": "",
+	"titleId": "6195",
 	"developerSecretKey": "",
 	"aliasId": "",
 	"userEmail": "a@b.com",
-	"connectionString": ""
+	"connectionString": "https://6195.playfabapi.com"
 }

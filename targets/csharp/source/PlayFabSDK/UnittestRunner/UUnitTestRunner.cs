@@ -79,7 +79,7 @@ namespace UnittestRunner
 
         private static TestTitleData GetTestTitleData(string[] args)
         {
-            WriteConsoleColor("TEST LOG FLAG", ConsoleColor.Red);
+            WriteConsoleColor("args length: " + args.Length, ConsoleColor.Red);
             TestTitleData testInputs = null;
             string filename = null;
             int fileIndex = 0;

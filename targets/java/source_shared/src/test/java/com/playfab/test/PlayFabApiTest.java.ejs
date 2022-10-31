@@ -103,7 +103,7 @@ public class PlayFabApiTest
         TitleData resultData = gson.fromJson(testTitleJson, new TypeToken<TitleData>(){}.getType());
         PlayFabSettings.TitleId = resultData.titleId;
         USER_EMAIL = resultData.userEmail;
-        string devSecretKey = env.get("developerSecretKeyJavaSdk");
+        String devSecretKey = env.get("developerSecretKeyJavaSdk");
         if (devSecretKey)
             resultData.developerSecretKey = devSecretKey;
         PlayFabSettings.DeveloperSecretKey = resultData.developerSecretKey;

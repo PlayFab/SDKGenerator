@@ -1,7 +1,7 @@
 #!/bin/bash
 
-. "$WORKSPACE/SDKGenerator/SetupScripts/util.sh" 2> /dev/null
-. "$WORKSPACE/SDKGenerator/SetupScripts/sdkUtil.sh" 2> /dev/null
+. "$WORKSPACE/SdkGenerator/SetupScripts/util.sh" 2> /dev/null
+. "$WORKSPACE/SdkGenerator/SetupScripts/sdkUtil.sh" 2> /dev/null
 
 CheckDefault PublishToS3 false
 

@@ -94,7 +94,6 @@ namespace UnittestRunner
             {
                 var testInputsFile = File.ReadAllText(filename);
                 testInputs = PluginManager.GetPlugin<ISerializerPlugin>(PluginContract.PlayFab_Serializer).DeserializeObject<TestTitleData>(testInputsFile);
-                WriteConsoleColor(testInputs.titleId , ConsoleColor.Red);
             }
             else
             {

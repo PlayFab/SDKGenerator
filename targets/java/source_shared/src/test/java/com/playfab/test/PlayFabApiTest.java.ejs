@@ -84,6 +84,7 @@ public class PlayFabApiTest
     public static void oneTimeSetUp() {
         Map<String, String> env = System.getenv();
         String testTitleDataFile = env.get("PF_TEST_TITLE_DATA_JSON"); // Set the PF_TEST_TITLE_DATA_JSON env-var to the path of a testTitleData.json file (described here: https://github.com/PlayFab/SDKGenerator/blob/master/JenkinsConsoleUtility/testTitleData.md)
+        System.out.println(testTitleDataFile);
         String testTitleJson;
         try {
             File file = new File(testTitleDataFile);

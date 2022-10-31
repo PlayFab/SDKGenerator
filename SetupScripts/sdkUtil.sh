@@ -153,7 +153,7 @@ CallJCU() {
 CheckDefaultTitleDataLocation() {
     if [ -z "$PF_TEST_TITLE_DATA_JSON" ]; then
         if [ "$1" == "Unity" ]; then
-            PF_TEST_TITLE_DATA_JSON="$WORKSPACE/JenkinsSdkSetupScripts/Creds/unityTestTitleData.json"
+            PF_TEST_TITLE_DATA_JSON="$WORKSPACE/SdkGenerator/SetupScripts/unityTestTitleData.json"
         else
             PF_TEST_TITLE_DATA_JSON="$WORKSPACE/SdkGenerator/SetupScripts/testTitleData.json"
         fi

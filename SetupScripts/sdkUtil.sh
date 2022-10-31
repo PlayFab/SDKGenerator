@@ -155,7 +155,7 @@ CheckDefaultTitleDataLocation() {
         if [ "$1" == "Unity" ]; then
             PF_TEST_TITLE_DATA_JSON="$WORKSPACE/JenkinsSdkSetupScripts/Creds/unityTestTitleData.json"
         else
-            PF_TEST_TITLE_DATA_JSON="$WORKSPACE/JenkinsSdkSetupScripts/Creds/testTitleData.json"
+            PF_TEST_TITLE_DATA_JSON="$WORKSPACE/SdkGenerator/SetupScripts/testTitleData.json"
         fi
     fi
     if [ ! -f "$PF_TEST_TITLE_DATA_JSON" ]; then

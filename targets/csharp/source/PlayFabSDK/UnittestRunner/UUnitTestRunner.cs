@@ -79,7 +79,6 @@ namespace UnittestRunner
 
         private static TestTitleData GetTestTitleData(string[] args)
         {
-            WriteConsoleColor("args length: " + args.Length, ConsoleColor.Red);
             TestTitleData testInputs = null;
             string filename = null;
             int fileIndex = 0;
@@ -110,7 +109,6 @@ namespace UnittestRunner
                     {
                         testInputs.developerSecretKey = args[i + 1];
                         testInputs.aliasId = args[i + 2];
-                        WriteConsoleColor("Parsing testSettings finished: ", ConsoleColor.Red);
                         return testInputs;
                     }
                     catch (Exception e)

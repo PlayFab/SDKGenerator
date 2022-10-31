@@ -105,7 +105,6 @@ public class PlayFabApiTest
         USER_EMAIL = resultData.userEmail;
         String devSecretKey = env.get("DEVELOPER_SECRET_KEY_JAVA_SDK");
         if (devSecretKey != null && !devSecretKey.equals("")) {
-            System.out.println("Acquired key from env var");
             resultData.developerSecretKey = devSecretKey;
         }
         PlayFabSettings.DeveloperSecretKey = resultData.developerSecretKey;

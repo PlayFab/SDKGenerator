@@ -353,7 +353,7 @@ namespace PlayFab.PfEditor
 
                 foreach(var audience in jwtToken.Audiences)
                 {
-                    if (audience.Contains(PlayFabEditorHelper.ED_EX_AAD_SIGNIN_CLIENTID))
+                    if (audience.Contains(PlayFabEditorHelper.ED_EX_AAD_SCOPE))
                     {
                         PlayFabEditorPrefsSO.Instance.AadAuthorization = authResult.AccessToken;
                         

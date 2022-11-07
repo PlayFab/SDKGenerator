@@ -24,7 +24,8 @@ namespace PlayFab.PfEditor
 
         public static string AAD_SIGNIN_URL = "https://login.microsoftonline.com/";
         public static string ED_EX_AAD_SIGNIN_CLIENTID ="2d99511e-13ec-4b59-99c0-9ae8754f84aa";
-        public static string ED_EX_AAD_SCOPES = "448adbda-b8d8-4f33-a1b0-ac58cf44d4c1/plugin";
+        public static string ED_EX_AAD_SCOPE = "448adbda-b8d8-4f33-a1b0-ac58cf44d4c1";
+        public static string ED_EX_AAD_SCOPES = ED_EX_AAD_SCOPE + "/plugin";
         public static string ED_EX_AAD_SIGNNIN_TENANT = "common";
 
         public static string CLOUDSCRIPT_FILENAME = ".CloudScript.js";  //prefixed with a '.' to exclude this code from Unity's compiler

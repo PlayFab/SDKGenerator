@@ -316,7 +316,7 @@ namespace PlayFab.PfEditor
 
             var app = PublicClientApplicationBuilder.Create(PlayFabEditorHelper.ED_EX_AAD_SIGNIN_CLIENTID)
                            .WithAuthority($"{PlayFabEditorHelper.AAD_SIGNIN_URL}{PlayFabEditorHelper.ED_EX_AAD_SIGNNIN_TENANT}")
-                           .WithDefaultRedirectUri()
+                           .WithRedirectUri("http://localhost")
                            .Build();
 
             var accounts = await app.GetAccountsAsync();

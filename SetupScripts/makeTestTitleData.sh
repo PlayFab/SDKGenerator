@@ -24,12 +24,3 @@ MakeTestTitleDataFile()
     popd
     echo === end call ===
 }
-
-DoWork()
-{
-    echo === calling Do Work ===
-    testTitleDir="C:\\pf\\SdkGenerator\\SetupScripts"
-    # MakeTestTitleDataFile $testTitleDir secretKey aliasId
-}
-
-DoWork

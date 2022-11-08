@@ -1,14 +1,14 @@
 # MakeTestTitleDataFile testTitleStartDirectory devSecretKey aliasId
 MakeTestTitleDataFile()
 {
-    if [ ! -d "$1" ]
+    if [ ! -d $1 ]
     then
         echo === testTitleData directory Not Detected ===
         echo ======== Creating ========
-        mkdir "$1"
+        mkdir $1
     fi
 
-    pushd "$1"
+    pushd $1
     touch testTtileData.json
     echo '{
 	"titleId": "6195",

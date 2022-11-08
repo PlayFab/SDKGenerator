@@ -4,7 +4,6 @@ set -e
 # MakeTestTitleDataFile testTitleStartDirectory devSecretKey aliasId
 MakeTestTitleDataFile()
 {
-    echo === start call ====
     if [ ! -d $1 ]
     then
         echo === testTitleData directory Not Detected ===
@@ -22,5 +21,4 @@ MakeTestTitleDataFile()
 	\"connectionString\": \"https://6195.playfabapi.com\"
 }" > testTitleData.json
     popd
-    echo === end call ===
 }

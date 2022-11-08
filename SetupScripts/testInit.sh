@@ -54,7 +54,7 @@ DoWork () {
     fi
 
     ForcePushD "$WORKSPACE/sdks/$SdkName"
-    #ResetRepo
+    ResetRepo
 }
 
 echo === Beginning testInit ===

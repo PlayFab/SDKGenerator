@@ -1,3 +1,6 @@
+#!/bin/bash
+set -e
+
 # MakeTestTitleDataFile testTitleStartDirectory devSecretKey aliasId
 MakeTestTitleDataFile()
 {

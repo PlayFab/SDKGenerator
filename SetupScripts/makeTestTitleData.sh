@@ -28,8 +28,8 @@ MakeTestTitleDataFile()
 DoWork()
 {
     echo === calling Do Work ===
-    testTitleDir="C:\\pf\\SdkGenerator\\SetupScripts"
-    MakeTestTitleDataFile $testTitleDir secretKey aliasId
+    # testTitleDir="C:\\pf\\SdkGenerator\\SetupScripts"
+    # MakeTestTitleDataFile $testTitleDir secretKey aliasId
 }
 
 DoWork

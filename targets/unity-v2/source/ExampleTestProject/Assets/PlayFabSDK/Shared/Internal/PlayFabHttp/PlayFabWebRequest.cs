@@ -251,6 +251,7 @@ namespace PlayFab.Internal
                             case HttpRequestState.Idle:
                                 Post(localActiveRequests[i]); break;
                             case HttpRequestState.Sent:
+                                localActiveRequests[i].HttpRequest.GetResponse();
                                 if (localActiveRequests[i].HttpRequest.HaveResponse) // Else we'll try again next tick
                                     ProcessHttpResponse(localActiveRequests[i]);
                                 break;

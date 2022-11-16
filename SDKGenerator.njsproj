@@ -106,10 +106,10 @@
     <OutputPath>bin\PlayFabCoreCSdk\</OutputPath>
     <ScriptArguments>-destpath ..\..\src\PlayFabCore\sdk_templates\generated -apiSpecGitUrl -buildIdentifier PlayFabCoreCSdk_Manual</ScriptArguments>
   </PropertyGroup>
-  <PropertyGroup Condition=" '$(Configuration)' == 'PlayFabLiveOpsCSdk' ">
+  <PropertyGroup Condition=" '$(Configuration)' == 'PlayFabServicesCSdk' ">
     <DebugSymbols>true</DebugSymbols>
-    <ScriptArguments>-destpath ..\..\src\PlayFabLiveOps\sdk_templates\generated -apiSpecGitUrl -buildIdentifier PlayFabLiveOpsCSdk_Manual</ScriptArguments>
-    <OutputPath>bin\PlayFabLiveOpsCSdk\</OutputPath>
+    <ScriptArguments>-destpath ..\..\src\PlayFabServices\sdk_templates\generated -apiSpecGitUrl -buildIdentifier PlayFabServicesCSdk_Manual</ScriptArguments>
+    <OutputPath>bin\PlayFabServicesCSdk\</OutputPath>
   </PropertyGroup>
   <ItemGroup>
     <Content Include="README.md" />

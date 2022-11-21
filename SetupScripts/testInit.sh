@@ -28,8 +28,8 @@ ResetRepo () {
     # Assumes the current directory is set to the repo to be reset
     CheckCreds
     git fetch --progress origin
-    git checkout master || git checkout -b master || CleanCurrentRepo
-    git pull origin master
+    git checkout $GitSrcBranch || git checkout -b $GitSrcBranch || git checkout master || git checkout -b master || CleanCurrentRepo
+    git pull origin $GitSrcBranch
 
     # Delete $GitDestBranch, reset it to master, prep for next build and fresh write
     if [ "$GitDestBranch"!="master" ]; then

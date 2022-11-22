@@ -83,7 +83,9 @@ namespace PlayFab.UUnit
         public void InvalidLogin(UUnitTestContext testContext)
         {
             if (string.IsNullOrEmpty(_userEmail))
+            {
                 testContext.Skip(); // We need additional information to attempt this test
+            }
 
             // If the setup failed to log in a user, we need to create one.
             var request = new LoginWithEmailAddressRequest
@@ -108,7 +110,6 @@ namespace PlayFab.UUnit
 
             testContext.EndTest(UUnitFinishState.PASSED, null);
         }
-
 
         /// <summary>
         /// CLIENT API
@@ -141,7 +142,6 @@ namespace PlayFab.UUnit
             testContext.True(errorReport.Contains(expectedPasswordMsg), errorReport);
             testContext.EndTest(UUnitFinishState.PASSED, null);
         }
-
 
         /// <summary>
         /// CLIENT API
@@ -333,7 +333,6 @@ namespace PlayFab.UUnit
             testContext.True(result.Leaderboard.Count > 0, "Client leaderboard should not be empty");
             testContext.EndTest(UUnitFinishState.PASSED, null);
         }
-
 
         /// <summary>
         /// CLIENT API

@@ -54,9 +54,11 @@ namespace PlayFab.UUnit
         {
             var playFabSerializer = PluginManager.GetPlugin<ISerializerPlugin>(PluginContract.PlayFab_Serializer);
             var playFabTransport = PluginManager.GetPlugin<ITransportPlugin>(PluginContract.PlayFab_Transport);
+            var playFabTransportWithPolly = PluginManager.GetPlugin<ITransportPlugin>(PluginContract.PlayFab_Transport);
 
             testContext.NotNull(playFabSerializer);
             testContext.NotNull(playFabTransport);
+            testContext.NotNull(playFabTransportWithPolly)
             testContext.EndTest(UUnitFinishState.PASSED, null);
         }
 
@@ -112,6 +114,34 @@ namespace PlayFab.UUnit
             var actualTransport2 = PluginManager.GetPlugin<ITransportPlugin>(PluginContract.PlayFab_Transport, customTransportName2);
             testContext.True(object.ReferenceEquals(actualTransport2, expectedTransport2));
             testContext.EndTest(UUnitFinishState.PASSED, null);
+        }
+
+        /// <summary>
+        /// Test that plugin manager can set and return the polly plugin.
+        /// </summary>
+        [UUnitTest]
+        public void PluginManager_PollyPlugin_Succesful(UUnitTestContext testContext)
+        {
+            var realHttpPlugin = PluginManager.GetPlugin<ITransportPlugin>(PluginContract.PlayFab_Transport);
+            var expectedHttpPollyPlugin = new PollyTransportPlugin();
+            PluginManager.SetPlugin(testHttpPollyPlugin, PluginContract.PlayFab_Transport);
+            try
+            {
+                // Set the polly plugin
+                PluginManager.SetPlugin(testHttpPollyPlugin, PluginContract.PlayFab_Transport);
+
+                // Get polly plugin from manager
+                var actualHttpPollyPlugin = PluginManager.GetPlugin<ITransportPollyPol>(PluginContract.PlayFab_Transport);
+
+                // Verify
+                testContext.True(object.ReferenceEquals(actualHttpPollyPlugin, expectedHttpPollyPlugin));
+                testContext.EndTest(UUnitFinishState.PASSED, null);
+            }
+            finally
+            {
+                // Restore the original plugin
+                PluginManager.SetPlugin(realHttpPlugin, PluginContract.PlayFab_Transport);
+            }
         }
     }
 }

@@ -1,6 +1,8 @@
 #if !DISABLE_PLAYFABCLIENT_API
 
+using System;
 using System.Collections.Generic;
+using System.Linq;
 using System.Net;
 using System.Threading.Tasks;
 
@@ -9,7 +11,9 @@ namespace PlayFab.UUnit
     public class HttpTests : UUnitTestCase
     {
         private IPlayFabPlugin realHttpPlugin = null;
-        private MockTransport mockHttpPlugin = null;
+        private MockTransport mockHttpPluginWithoutPolly = null;
+        private MockTransport mockHttpPluginWithPolly = null;
+
 
         private readonly PlayFabClientInstanceAPI clientApi = new PlayFabClientInstanceAPI(PlayFabSettings.staticPlayer);
 
@@ -44,36 +48,48 @@ namespace PlayFab.UUnit
         public override void ClassSetUp()
         {
             if (string.IsNullOrEmpty(PlayFabSettings.staticSettings.TitleId))
+            {
                 PlayFabSettings.staticSettings.TitleId = "ABCD";
+            }
             realHttpPlugin = PluginManager.GetPlugin<IPlayFabPlugin>(PluginContract.PlayFab_Transport);
-            mockHttpPlugin = new MockTransport();
-            PluginManager.SetPlugin(mockHttpPlugin, PluginContract.PlayFab_Transport);
+            mockHttpPluginWithoutPolly = new MockTransport();
+            PluginManager.SetPlugin(mockHttpPluginWithoutPolly, PluginContract.PlayFab_Transport);
         }
 
         public override void ClassTearDown()
         {
             if (realHttpPlugin != null)
+            {
                 PluginManager.SetPlugin(realHttpPlugin, PluginContract.PlayFab_Transport);
+            }
         }
 
         [UUnitTest]
-        public void Test200Response(UUnitTestContext testContext)
+        public async void TestPluginWithoutPolly_OnSuccess_200Response(UUnitTestContext testContext)
         {
-            mockHttpPlugin.AssignResponse(HttpStatusCode.OK, "{\"data\": {\"RSAPublicKey\": \"Test Result\"} }", null);
+            mockHttpPluginWithoutPolly.AssignResponse(HttpStatusCode.OK, "{\"data\": {\"RSAPublicKey\": \"Test Result\"} }", null);
 
-            // GetTitlePublicKey has no auth, and trivial input/output so it's pretty ideal for a fake API call
-            var task = clientApi.GetTitlePublicKeyAsync(null);
-            task.Wait();
+            var response = await RunRequestAndVerifyResponseAsync(true, null, testContext);
 
-            testContext.IsNull(task.Result.Error);
-            testContext.NotNull(task.Result.Result);
-            testContext.StringEquals("Test Result", task.Result.Result.RSAPublicKey);
+            testContext.StringEquals("Test Result", response.Result.RSAPublicKey);
 
             testContext.EndTest(UUnitFinishState.PASSED, null);
         }
 
         [UUnitTest]
-        public void Test404Response(UUnitTestContext testContext)
+        public async Task TestPluginWithPolly_OnSuccess_200Response(UUnitTestContext testContext)
+        {
+            mockHttpPluginWithPolly.AssignResponse(HttpStatusCode.OK, "{\"data\": {\"RSAPublicKey\": \"Test Result\"} }", null);
+
+            var response = await RunRequestAndVerifyResponseAsync(true, null, testContext);
+
+            testContext.StringEquals("Test Result", response.Result.RSAPublicKey);
+
+            testContext.EndTest(UUnitFinishState.PASSED, null);
+        }
+
+        [UUnitTest]
+        public async Task Test404Response(UUnitTestContext testContext)
         {
             var expectedError = new PlayFabError
             {
@@ -82,21 +98,15 @@ namespace PlayFab.UUnit
                 Error = PlayFabErrorCode.ServiceUnavailable,
                 ErrorMessage = "Test error result",
             };
-            mockHttpPlugin.AssignResponse(HttpStatusCode.NotFound, null, expectedError);
+            mockHttpPluginWithoutPolly.AssignResponse(HttpStatusCode.NotFound, null, expectedError);
 
-            // GetTitlePublicKey has no auth, and trivial input/output so it's pretty ideal for a fake API call
-            var task = clientApi.GetTitlePublicKeyAsync(null);
-            task.Wait();
-
-            testContext.IsNull(task.Result.Result);
-            testContext.NotNull(task.Result.Error);
-            testContext.IntEquals(expectedError.HttpCode, task.Result.Error.HttpCode);
+            await RunRequestAndVerifyResponseAsync(false, expectedError, testContext);
 
             testContext.EndTest(UUnitFinishState.PASSED, null);
         }
 
         [UUnitTest]
-        public void Test500Response(UUnitTestContext testContext)
+        public async Task Test500Response(UUnitTestContext testContext)
         {
             var expectedError = new PlayFabError
             {
@@ -105,17 +115,72 @@ namespace PlayFab.UUnit
                 Error = PlayFabErrorCode.InternalServerError,
                 ErrorMessage = "Test error result",
             };
-            mockHttpPlugin.AssignResponse(HttpStatusCode.InternalServerError, null, expectedError);
+            mockHttpPluginWithoutPolly.AssignResponse(HttpStatusCode.InternalServerError, null, expectedError);
 
-            // GetTitlePublicKey has no auth, and trivial input/output so it's pretty ideal for a fake API call
-            var task = clientApi.GetTitlePublicKeyAsync(null);
-            task.Wait();
-
-            testContext.IsNull(task.Result.Result);
-            testContext.NotNull(task.Result.Error);
-            testContext.IntEquals(expectedError.HttpCode, task.Result.Error.HttpCode);
+            await RunRequestAndVerifyResponseAsync(false, expectedError, testContext);
 
             testContext.EndTest(UUnitFinishState.PASSED, null);
+        }
+
+
+        [UUnitTest]
+        public async Task Test500ResponseTriggerPolly(UUnitTestContext testContext)
+        {
+            var expectedError = new PlayFabError
+            {
+                HttpCode = (int)HttpStatusCode.InternalServerError,
+                HttpStatus = "InternalServerError",
+                Error = PlayFabErrorCode.InternalServerError,
+                ErrorMessage = "Test error result",
+            };
+            mockHttpPluginWithoutPolly.AssignResponse(HttpStatusCode.InternalServerError, null, expectedError);
+
+            const int numberOfFailures = 10;
+            int numberOfExpected500s = 0;
+            int numberOfTimesThrottled = 0;
+            var getPublicKeysRequestTasks = Enumerable.Range(0, numberOfFailures).Select(async _ =>
+            {
+                try
+                {
+                    PlayFabResult<PlayFab.ClientModels.GetTitlePublicKeyResult> result = await clientApi.GetTitlePublicKeyAsync(null);
+
+                    // Verify we were able to get the 500 back
+                    testContext.IsNull(result.Result);
+                    testContext.NotNull(result.Error);
+                    numberOfExpected500s++;
+                }
+                catch (Exception)
+                {
+                    numberOfTimesThrottled++;
+                }
+            });
+
+            await Task.WhenAll(getPublicKeysRequestTasks);
+
+            testContext.True(numberOfTimesThrottled != 0);
+            testContext.True(numberOfExpected500s != 0);
+
+            testContext.EndTest(UUnitFinishState.PASSED, null);
+        }
+
+        private async Task<PlayFabResult<ClientModels.GetTitlePublicKeyResult>> RunRequestAndVerifyResponseAsync(
+            bool shouldExpectSuccess, PlayFabError expectedError, UUnitTestContext testContext)
+        {
+            // GetTitlePublicKey has no auth, and trivial input/output so it's pretty ideal for a fake API call
+            PlayFabResult<PlayFab.ClientModels.GetTitlePublicKeyResult> result = await clientApi.GetTitlePublicKeyAsync(null);
+            if (shouldExpectSuccess)
+            {
+                testContext.NotNull(result.Result);
+                testContext.IsNull(result.Error);
+            }
+            else
+            {
+                testContext.IsNull(result.Result);
+                testContext.NotNull(result.Error);
+                testContext.IntEquals(expectedError.HttpCode, result.Error.HttpCode);
+            }
+
+            return result;
         }
     }
 }

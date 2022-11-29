@@ -22,6 +22,7 @@ exports.makeCombinedAPI = function (apis, sourceDir, apiOutputDir) {
     var locals = {
         sdkVersion: sdkGlobals.sdkVersion,
         apis: apis,
+        getController: getController,
         getPostmanDescription: getPostmanDescription,
         getPostmanHeader: getPostmanHeader,
         getPostmanHeaderV2: getPostmanHeaderV2,
@@ -68,6 +69,10 @@ function getUrl(apiCall) {
         // verticalName isn't an established variable in Postman, and we know it here, so we can just apply it
         return "https://" + sdkGlobals.verticalName + ".playfabapi.com" + apiCall.url + "?sdk=PostmanCollection-" + sdkGlobals.sdkVersion;
     return "https://{{TitleId}}.playfabapi.com" + apiCall.url + "?sdk=PostmanCollection-" + sdkGlobals.sdkVersion;
+}
+
+function getController(apiCall) {
+    return apiCall.url.split("/")[1].toLowerCase();
 }
 
 function getPostmanHeader(apiCall) {

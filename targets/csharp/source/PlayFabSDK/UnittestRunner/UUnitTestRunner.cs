@@ -1,5 +1,9 @@
 using PlayFab;
+
+#if !DISABLE_PLAYFABCLIENT_API
 using PlayFab.ClientModels;
+#endif
+
 using PlayFab.UUnit;
 using System;
 using System.IO;
@@ -38,7 +42,11 @@ namespace UnittestRunner
         public static async Task<int> MainTask(string[] args)
         {
             var testInputs = GetTestTitleData(args);
+#if DISABLE_PLAYFABCLIENT_API
+            UUnitIncrementalTestRunner.Start(true, null, testInputs);
+#else
             UUnitIncrementalTestRunner.Start(true, null, testInputs, OnComplete);
+#endif
             while (!UUnitIncrementalTestRunner.SuiteFinished)
                 await UUnitIncrementalTestRunner.Tick();
 
@@ -73,9 +81,13 @@ namespace UnittestRunner
         {
             TestTitleData testInputs = null;
             string filename = null;
+            int fileIndex = 0;
             for (var i = 0; i < args.Length; i++)
                 if (args[i] == "-testInputsFile" && (i + 1) < args.Length)
+                {
                     filename = args[i + 1];
+                    fileIndex = i + 2;
+                }
             if (string.IsNullOrEmpty(filename))
                 filename = Environment.GetEnvironmentVariable("PF_TEST_TITLE_DATA_JSON");
             if (File.Exists(filename))
@@ -88,9 +100,27 @@ namespace UnittestRunner
                 WriteConsoleColor("Loading testSettings file failed: " + filename, ConsoleColor.Red);
                 WriteConsoleColor("From: " + Directory.GetCurrentDirectory(), ConsoleColor.Red);
             }
+            for (var i = fileIndex; i < args.Length; i++)
+            {
+                if (args[i] == "-testInputsString" && (i + 2) < args.Length)
+                {
+                    try
+                    {
+                        testInputs.developerSecretKey = args[i + 1];
+                        testInputs.aliasId = args[i + 2];
+                        return testInputs;
+                    }
+                    catch (Exception e)
+                    {
+                        WriteConsoleColor("Parsing testSettings string failed: " + e.Message, ConsoleColor.Red);
+                        return null;
+                    }
+                }
+            }
             return testInputs;
         }
 
+#if !DISABLE_PLAYFABCLIENT_API
         private static void OnComplete(PlayFabResult<ExecuteCloudScriptResult> result)
         {
             WriteConsoleColor("Save to CloudScript result for: " + PlayFabSettings.BuildIdentifier + " => " + UUnitIncrementalTestRunner.PfClient.authenticationContext.PlayFabId, ConsoleColor.Gray);
@@ -99,6 +129,7 @@ namespace UnittestRunner
             else if (result.Result != null)
                 WriteConsoleColor("Successful!", ConsoleColor.Green);
         }
+#endif
     }
 }
 #pragma warning restore 0649, 0414

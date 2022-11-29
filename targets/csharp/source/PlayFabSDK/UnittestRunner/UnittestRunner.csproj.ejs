@@ -1,0 +1,45 @@
+<Project Sdk="Microsoft.NET.Sdk">
+
+  <PropertyGroup>
+    <OutputType>Exe</OutputType>
+    <TargetFramework>net5.0</TargetFramework>
+    <RootNamespace>UnittestRunner</RootNamespace>
+    <AssemblyName>UnittestRunner</AssemblyName>
+    <FileAlignment>512</FileAlignment>
+
+    <AssemblyTitle>UnittestRunner</AssemblyTitle>
+    <Description></Description>
+    <Configuration></Configuration>
+    <Company></Company>
+    <Product>UnittestRunner</Product>
+    <Copyright>Copyright © 2015</Copyright>
+    <NeutralLanguage>en</NeutralLanguage>
+    <AssemblyVersion>1.0.0.0</AssemblyVersion>
+    <FileVersion>1.0.0.0</FileVersion>
+    <StartupObject>UnittestRunner.UUnitTestRunner</StartupObject>
+    <AutoGenerateBindingRedirects></AutoGenerateBindingRedirects>
+  </PropertyGroup>
+
+  <PropertyGroup Condition=" '$(Configuration)|$(Platform)' == 'Debug|AnyCPU' ">
+    <PlatformTarget>AnyCPU</PlatformTarget>
+    <DebugSymbols>true</DebugSymbols>
+    <DebugType>full</DebugType>
+    <Optimize>false</Optimize>
+    <DefineConstants>TRACE<%- extraDefines %></DefineConstants>
+    <ErrorReport>prompt</ErrorReport>
+    <WarningLevel>4</WarningLevel>
+  </PropertyGroup>
+  <PropertyGroup Condition=" '$(Configuration)|$(Platform)' == 'Release|AnyCPU' ">
+    <PlatformTarget>AnyCPU</PlatformTarget>
+    <DebugType>pdbonly</DebugType>
+    <Optimize>true</Optimize>
+    <DefineConstants>TRACE;DEBUG<%- extraDefines %></DefineConstants>
+    <ErrorReport>prompt</ErrorReport>
+    <WarningLevel>4</WarningLevel>
+  </PropertyGroup>
+
+  <ItemGroup>
+    <ProjectReference Include="..\source\PlayFabSDK.csproj" />
+  </ItemGroup>
+
+</Project>

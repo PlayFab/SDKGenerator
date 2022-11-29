@@ -1,7 +1,7 @@
 <Project Sdk="Microsoft.NET.Sdk">
 
   <PropertyGroup>
-    <TargetFrameworks>netstandard2.0;netstandard1.1;net45;portable45-net45+win8+wpa81</TargetFrameworks>
+    <TargetFramework>netstandard2.0</TargetFramework>
     <RootNamespace>PlayFab<%- libname %>SDK</RootNamespace>
     <AssemblyName>PlayFab<%- libname %>SDK</AssemblyName>
     <DefaultLanguage>en-US</DefaultLanguage>
@@ -10,28 +10,21 @@
     <PackageId>PlayFabAllSDK</PackageId>
     <Version><%- sdkVersion %></Version>
     <Title>PlayFab CSharp Sdk</Title>
-    <Authors>PlayFab Inc.</Authors>
-    <Owners>PlayFab Inc.</Owners>
-    <PackageLicenseUrl>https://raw.githubusercontent.com/PlayFab/CSharpSDK/master/LICENSE</PackageLicenseUrl>
+    <Authors>Microsoft</Authors>
+    <Owners>Microsoft</Owners>
+    <copyright>&#169; Microsoft Corporation. All rights reserved.</copyright>
+    <PackageLicenseFile>LICENSE</PackageLicenseFile>
     <PackageProjectUrl>https://github.com/PlayFab/CSharpSDK</PackageProjectUrl>
-    <PackageIconUrl>https://playfab.com/assets/img/playfab-mark.png</PackageIconUrl>
+    <PackageIcon>icon.png</PackageIcon>
     <PackageRequireLicenseAcceptance>false</PackageRequireLicenseAcceptance>
     <Description>Authentication, in-game commerce, player data, title data, inventory, characters, statistics, leaderboards, analytics and reporting, friends, multiplayer, matchmaking, tournaments, cloud script, trading, real-time event handling, player management, live ops, and server hosting for all major platforms/devices and games of any scale. This sdk gives your game the ability log into PlayFab and access cloud data and services.</Description>
     <Company>PlayFab</Company>
     <Product>PlayFabSDK</Product>
-    <Copyright>Copyright 20<%- sdkYear %></Copyright>
     <PackageTags>PlayFab, Baas, Paas, JSON, REST, HTTP, SSL, API, cloud, liveops, game, gamedev, native</PackageTags>
     <PackageReleaseNotes>https://docs.microsoft.com/gaming/playfab/release-notes#<%- sdkDate %></PackageReleaseNotes>
     <NeutralLanguage>en</NeutralLanguage>
     <AssemblyVersion>1</AssemblyVersion>
     <FileVersion>1</FileVersion>
-  </PropertyGroup>
-
-  <PropertyGroup Condition=" '$(TargetFramework)' == 'portable45-net45+win8+wpa81' ">
-    <TargetFrameworkIdentifier>.NETPortable</TargetFrameworkIdentifier>
-    <TargetFrameworkVersion>v4.5</TargetFrameworkVersion>
-    <TargetFrameworkProfile>Profile111</TargetFrameworkProfile>
-    <DefineConstants>$(DefineConstants);PORTABLE111</DefineConstants>
   </PropertyGroup>
 
   <PropertyGroup Condition=" '$(Configuration)|$(Platform)' == 'Debug|AnyCPU' ">
@@ -51,26 +44,8 @@
     <WarningLevel>4</WarningLevel>
   </PropertyGroup>
 
-  <ItemGroup Condition=" '$(TargetFramework)' == 'net45' Or '$(TargetFramework)' == 'portable45-net45+win8+wpa81' ">
-    <Reference Include="System" />
-    <Reference Include="System.Collections" />
-    <Reference Include="System.Collections.Concurrent" />
-    <Reference Include="System.Threading" />
-    <Reference Include="System.Threading.Tasks" />
-    <Reference Include="System.Linq" />
-    <Reference Include="System.Core" />
-    <Reference Include="System.Runtime" />
-    <Reference Include="System.Reflection" />
-    <Reference Include="System.Reflection.Extensions" />
-    <Reference Include="System.ComponentModel" />
-    <Reference Include="System.Text.Encoding" />
-    <Reference Include="System.Diagnostics.Tools" />
-    <Reference Include="System.Resources.ResourceManager" />
-    <Reference Include="System.Globalization" />
-    <Reference Include="System.Runtime.Extensions" />
-    <Reference Include="System.Net.Primitives" />
-    <Reference Include="System.Net.Http" />
-    <Reference Include="Microsoft.CSharp" />
+  <ItemGroup>
+    <None Include="LICENSE" Pack="true" PackagePath="" />
+    <None Include="../images/icon.png" Pack="true" PackagePath=""/>
   </ItemGroup>
-
 </Project>

@@ -82,10 +82,14 @@ namespace JenkinsConsoleUtility
                     {
                         name = reader.GetAttribute("name")
                     };
-                    int.TryParse(reader.GetAttribute("errors"), out _curSuiteReport.errors);
-                    int.TryParse(reader.GetAttribute("tests"), out _curSuiteReport.tests);
-                    int.TryParse(reader.GetAttribute("failures"), out _curSuiteReport.failures);
-                    int.TryParse(reader.GetAttribute("skipped"), out _curSuiteReport.skipped);
+
+                    int parsedTests = 0;
+                    int parsedFailures = 0;
+                    int parsedSkipped = 0;
+
+                    int.TryParse(reader.GetAttribute("tests"), out parsedTests);
+                    int.TryParse(reader.GetAttribute("failures"), out parsedFailures);
+                    int.TryParse(reader.GetAttribute("skipped"), out parsedSkipped);
                     double.TryParse(reader.GetAttribute("time"), out tempSeconds);
                     _curSuiteReport.time = TimeSpan.FromSeconds(tempSeconds);
                     DateTime.TryParseExact(reader.GetAttribute("timestamp"), PlayFabUtil.DefaultDateTimeFormats, null, System.Globalization.DateTimeStyles.RoundtripKind, out _curSuiteReport.timestamp);
@@ -215,9 +219,13 @@ namespace JenkinsConsoleUtility
         {
             var suffix = isSingleLine ? " /" : "";
             if (self.skipped == 0)
-                sb.Append(tabbing).AppendFormat("<testsuite name=\"{0}\" errors=\"{1}\" tests=\"{2}\" failures=\"{3}\" time=\"{4}\" timestamp=\"{5}\"{6}>\n", self.name, self.errors, self.tests, self.failures, self.time.TotalSeconds.ToString("0.###"), self.timestamp.ToString(PlayFabUtil.DefaultDateTimeFormats[PlayFabUtil.DEFAULT_UTC_OUTPUT_INDEX]), suffix);
+            {
+                sb.Append(tabbing).AppendFormat("<testsuite name=\"{0}\" tests=\"{1}\" failures=\"{2}\" time=\"{3}\" timestamp=\"{4}\"{5}>\n", self.name, self.tests, self.failures, self.time.TotalSeconds.ToString("0.###"), self.timestamp.ToString(PlayFabUtil.DefaultDateTimeFormats[PlayFabUtil.DEFAULT_UTC_OUTPUT_INDEX]), suffix);
+            }
             else
-                sb.Append(tabbing).AppendFormat("<testsuite name=\"{0}\" errors=\"{1}\" skipped=\"{2}\" tests=\"{3}\" failures=\"{4}\" time=\"{5}\" timestamp=\"{6}\"{7}>\n", self.name, self.errors, self.skipped, self.tests, self.failures, self.time.TotalSeconds.ToString("0.###"), self.timestamp.ToString(PlayFabUtil.DefaultDateTimeFormats[PlayFabUtil.DEFAULT_UTC_OUTPUT_INDEX]), suffix);
+            {
+                sb.Append(tabbing).AppendFormat("<testsuite name=\"{0}\" skipped=\"{1}\" tests=\"{2}\" failures=\"{3}\" time=\"{4}\" timestamp=\"{5}\"{6}>\n", self.name, self.skipped, self.tests, self.failures, self.time.TotalSeconds.ToString("0.###"), self.timestamp.ToString(PlayFabUtil.DefaultDateTimeFormats[PlayFabUtil.DEFAULT_UTC_OUTPUT_INDEX]), suffix);
+            }
         }
 
         private static void AppendProperties(this TestSuiteReport self, ref StringBuilder sb, string tabbing)

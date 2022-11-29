@@ -104,6 +104,10 @@ function getResultActions(tabbing, apiCall) {
         return tabbing + "if (result != null && result.data != null) {\n"
             + tabbing + "    PlayFab._internalSettings.entityToken = result.data.hasOwnProperty(\"EntityToken\") ? result.data.EntityToken : PlayFab._internalSettings.entityToken;\n"
             + tabbing + "}\n";
+    if (apiCall.url === "/GameServerIdentity/AuthenticateGameServerWithCustomId")
+        return tabbing + "if (result != null && result.data != null ) {\n"
+            + tabbing + "    PlayFab._internalSettings.entityToken = (result.data.hasOwnProperty(\"EntityToken\") && result.data.EntityToken.hasOwnProperty(\"EntityToken\")) ? result.data.EntityToken.EntityToken : PlayFab._internalSettings.entityToken;\n"
+            + tabbing + "}\n";
     else if (apiCall.result === "LoginResult" || apiCall.result === "RegisterPlayFabUserResult")
         return tabbing + "if (result != null && result.data != null) {\n"
             + tabbing + "    PlayFab._internalSettings.sessionTicket = result.data.hasOwnProperty(\"SessionTicket\") ? result.data.SessionTicket : PlayFab._internalSettings.sessionTicket;\n"

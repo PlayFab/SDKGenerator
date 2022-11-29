@@ -101,6 +101,16 @@
     <OutputPath>bin\</OutputPath>
     <ScriptArguments>-destpath ..\sdks\XPlatCppSdk -apiSpecGitUrl -buildIdentifier XPlatCppSdk_manual</ScriptArguments>
   </PropertyGroup>
+  <PropertyGroup Condition=" '$(Configuration)' == 'PlayFabCoreCSdk' ">
+    <DebugSymbols>true</DebugSymbols>
+    <OutputPath>bin\PlayFabCoreCSdk\</OutputPath>
+    <ScriptArguments>-destpath ..\..\src\PlayFabCore\sdk_templates\generated -apiSpecGitUrl -buildIdentifier PlayFabCoreCSdk_Manual</ScriptArguments>
+  </PropertyGroup>
+  <PropertyGroup Condition=" '$(Configuration)' == 'PlayFabServicesCSdk' ">
+    <DebugSymbols>true</DebugSymbols>
+    <ScriptArguments>-destpath ..\..\src\PlayFabServices\sdk_templates\generated -apiSpecGitUrl -buildIdentifier PlayFabServicesCSdk_Manual</ScriptArguments>
+    <OutputPath>bin\PlayFabServicesCSdk\</OutputPath>
+  </PropertyGroup>
   <ItemGroup>
     <Content Include="README.md" />
     <Content Include="targets\csharp\make.js" />
@@ -137,6 +147,7 @@
     <Content Include="targets\csharp\source\PlayFabSDK\source\Uunit\tests\PlayFabApiTest.cs" />
     <Content Include="targets\csharp\source\PlayFabSDK\source\Uunit\tests\PlayFabQosApiTest.cs" />
     <Content Include="targets\csharp\source\PlayFabSDK\source\Uunit\tests\PlayFabServerApiTest.cs" />
+    <Content Include="targets\csharp\source\PlayFabSDK\source\Uunit\tests\Utility\JsonUnitTests.cs" />
     <Content Include="targets\csharp\source\PlayFabSDK\source\Uunit\UUnitAssertException.cs" />
     <Content Include="targets\csharp\source\PlayFabSDK\source\Uunit\UUnitIncrementalTestRunner.cs" />
     <Content Include="targets\csharp\source\PlayFabSDK\source\Uunit\UUnitTestCase.cs" />
@@ -677,7 +688,7 @@
     <Content Include="targets\unity-v2\source\ExampleTestProject\Assets\PlayFabSDK\Shared\Internal\PlayFabHttp.meta" />
     <Content Include="targets\unity-v2\source\ExampleTestProject\Assets\PlayFabSDK\Shared\Internal\PlayFabHttp\IPlayFabHttp.cs" />
     <Content Include="targets\unity-v2\source\ExampleTestProject\Assets\PlayFabSDK\Shared\Internal\PlayFabHttp\IPlayFabHttp.cs.meta" />
-    <Content Include="targets\unity-v2\source\ExampleTestProject\Assets\PlayFabSDK\Shared\Internal\PlayFabHttp\PlayFabHTTP.cs" />
+    <Content Include="targets\unity-v2\source\ExampleTestProject\Assets\PlayFabSDK\Shared\Internal\PlayFabHttp\PlayFabHTTP.cs.ejs" />
     <Content Include="targets\unity-v2\source\ExampleTestProject\Assets\PlayFabSDK\Shared\Internal\PlayFabHttp\PlayFabHTTP.cs.meta" />
     <Content Include="targets\unity-v2\source\ExampleTestProject\Assets\PlayFabSDK\Shared\Internal\PlayFabHttp\PlayFabUnityHttp.cs" />
     <Content Include="targets\unity-v2\source\ExampleTestProject\Assets\PlayFabSDK\Shared\Internal\PlayFabHttp\PlayFabUnityHttp.cs.meta" />
@@ -936,6 +947,7 @@
     <Folder Include="targets\csharp\source\PlayFabSDK\source\Qos\" />
     <Folder Include="targets\csharp\source\PlayFabSDK\source\Uunit\" />
     <Folder Include="targets\csharp\source\PlayFabSDK\source\Uunit\tests\" />
+    <Folder Include="targets\csharp\source\PlayFabSDK\source\Uunit\tests\Utility\" />
     <Folder Include="targets\csharp\source\PlayFabSDK\UnittestRunner\" />
     <Folder Include="targets\csharp\source\PlayFabSDK\UnittestRunner\Properties\" />
     <Folder Include="targets\csharp\source\PlayFabSDK\WindowsFormsApp1\" />

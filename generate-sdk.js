@@ -2,7 +2,8 @@
 var sdkGlobals = {
     buildIdentifier: null,
     sdkVersion: null,
-    verticalName: null
+    verticalName: null,
+    buildFlags: null
 };
 global.sdkGlobals = sdkGlobals;
 // Fetch the object parsed from an api-file, from the cache (can't load synchronously from URL-options, so we have to pre-cache them)

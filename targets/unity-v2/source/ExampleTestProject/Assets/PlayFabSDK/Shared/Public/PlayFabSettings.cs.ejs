@@ -84,9 +84,15 @@ namespace PlayFab
         #region staticSettings Redirects
         // You must set this value for PlayFabSdk to work properly (Found in the Game Manager for your title, at the PlayFab Website)
         public static string TitleId { get { return staticSettings.TitleId; } set { staticSettings.TitleId = value; } }
+<% if (azureSdk) { %>
+        // You must set this value in order to call Player Authentication APIs (Found in the Azure Portal as a property of the Player Account Pool resource)
+        public static string PlayerAccountPoolId { get { return staticSettings.PlayerAccountPoolId; } set { staticSettings.PlayerAccountPoolId = value; } }
+        // Set this value to override specific title connection point
+        public static string Endpoint { get {return staticSettings.Endpoint; } set { staticSettings.Endpoint = value; } }
+<% } %>
         /// <summary> The name of a customer vertical. This is only for customers running a private cluster.  Generally you shouldn't touch this </summary>
         internal static string VerticalName { get { return staticSettings.VerticalName; } set { staticSettings.VerticalName = value; } }
-#if ENABLE_PLAYFABSERVER_API || ENABLE_PLAYFABADMIN_API || UNITY_EDITOR
+#if ENABLE_PLAYFABSERVER_API || ENABLE_PLAYFABADMIN_API || UNITY_EDITOR || ENABLE_PLAYFAB_SECRETKEY
         public static string DeveloperSecretKey { get { return staticSettings.DeveloperSecretKey; } set { staticSettings.DeveloperSecretKey = value; } }
 #endif
         /// <summary> Set this to true to prevent hardware information from leaving the device </summary>
@@ -133,21 +139,41 @@ namespace PlayFab
             StringBuilder sb = new StringBuilder(1000);
 
             string productionEnvironmentUrl = null, verticalName = null, titleId = null;
+
             if (apiSettings != null)
             {
-                if (!string.IsNullOrEmpty(apiSettings.ProductionEnvironmentUrl))
+<% if (azureSdk) { %>
+                if(apiSettings.Endpoint != "")
                 {
-                    productionEnvironmentUrl = apiSettings.ProductionEnvironmentUrl;
+                    productionEnvironmentUrl = apiSettings.Endpoint;
                 }
-                if (!string.IsNullOrEmpty(apiSettings.VerticalName))
+                else
                 {
-                    verticalName = apiSettings.VerticalName;
+<% } %>
+                    if (!string.IsNullOrEmpty(apiSettings.ProductionEnvironmentUrl))
+                    {
+                        productionEnvironmentUrl = apiSettings.ProductionEnvironmentUrl;
+                    }
+                    if (!string.IsNullOrEmpty(apiSettings.VerticalName))
+                    {
+                        verticalName = apiSettings.VerticalName;
+                    }
+                    if (!string.IsNullOrEmpty(apiSettings.TitleId))
+                    {
+                        titleId = apiSettings.TitleId;
+                    }
+<% if (azureSdk) { %>
                 }
-                if (!string.IsNullOrEmpty(apiSettings.TitleId))
-                {
-                    titleId = apiSettings.TitleId;
-                }
+<% } %>
             }
+<% if (azureSdk) { %>
+            else if(Endpoint != "")
+            {
+                productionEnvironmentUrl = Endpoint;
+            }
+<% } %>
+
+
             if (productionEnvironmentUrl == null)
             {
                 productionEnvironmentUrl = !string.IsNullOrEmpty(PlayFabSharedPrivate.ProductionEnvironmentUrl) ? PlayFabSharedPrivate.ProductionEnvironmentUrl : DefaultPlayFabApiUrl;

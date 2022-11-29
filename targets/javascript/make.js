@@ -85,7 +85,7 @@ function getRequestActions(tabbing, apiCall) {
 function hasResultActions(apiCall) {
     if (apiCall.result === "LoginResult" || apiCall.result === "RegisterPlayFabUserResult")
         return true;
-    if (apiCall.url === "/Authentication/GetEntityToken")
+    if (apiCall.url === "/Authentication/GetEntityToken" || apiCall.url === "/GameServerIdentity/AuthenticateGameServerWithCustomId")
         return true;
     return false;
 }
@@ -109,6 +109,9 @@ function getResultActions(tabbing, apiCall) {
     if (apiCall.url === "/Authentication/GetEntityToken")
         return tabbing + "if (result != null && result.data.EntityToken != null)\n"
             + tabbing + "    PlayFab._internalSettings.entityToken = result.data.EntityToken;";
+    if (apiCall.url === "/GameServerIdentity/AuthenticateGameServerWithCustomId")
+        return tabbing + "if (result != null && result.data.EntityToken != null && result.data.EntityToken.EntityToken != null)\n"
+            + tabbing + "    PlayFab._internalSettings.entityToken = result.data.EntityToken.EntityToken;";
     return "";
 }
 

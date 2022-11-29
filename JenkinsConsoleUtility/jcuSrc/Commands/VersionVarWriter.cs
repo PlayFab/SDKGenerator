@@ -50,7 +50,8 @@ namespace JenkinsConsoleUtility.Commands
 
             var versionJson = GetApiJson("SdkManualNotes.json");
             var sdkNotes = JsonWrapper.DeserializeObject<SdkManualNotes>(versionJson);
-            if (!sdkNotes.sdkVersion.TryGetValue(sdkGenKey, out sdkVersionString))
+            var cppFilteredSdk = sdkGenKey.StartsWith("xplatcppsdk") ? "xplatcppsdk" : sdkGenKey;
+            if (!sdkNotes.sdkVersion.TryGetValue(cppFilteredSdk, out sdkVersionString))
             {
                 JcuUtil.FancyWriteToConsole("SdkManualNotes.json does not contain: " + sdkGenKey);
                 JcuUtil.FancyWriteToConsole("SdkManualNotes.json:\n" + versionJson);
@@ -129,6 +130,7 @@ namespace JenkinsConsoleUtility.Commands
                 case "javascriptsdk": case "javascriptbetasdk": return "javascript";
                 case "objective_c_sdk": return "objc";
                 // Multiple repos map to the same folder
+                case "xplatcppazuresdk": case "csharpazuresdk": case "unityazuresdk": return "azure";
                 case "csharpsdk": case "csharpbetasdk": case "csharppsnsdk": return "csharp";
                 case "nodesdk": case "nodebetasdk": return "js-node";
                 case "postmancollection": case "postmanbeta": return "postman";

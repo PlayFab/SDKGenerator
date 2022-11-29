@@ -28,7 +28,7 @@ namespace PlayFab
         [Obsolete("Moved to PlayFabSettings.staticSettings.VerticalName")]
         public static string VerticalName { get { return staticSettings.VerticalName; } set { staticSettings.VerticalName = value; } }
 
-#if ENABLE_PLAYFABSERVER_API || ENABLE_PLAYFABADMIN_API
+#if ENABLE_PLAYFABSERVER_API || ENABLE_PLAYFABADMIN_API || ENABLE_PLAYFAB_SECRETKEY
         [Obsolete("Moved to PlayFabSettings.staticSettings.DeveloperSecretKey")]
         public static string DeveloperSecretKey { get { return staticSettings.DeveloperSecretKey; } set { staticSettings.DeveloperSecretKey = value; } }
 #endif
@@ -64,20 +64,31 @@ namespace PlayFab
             StringBuilder sb = new StringBuilder(1000);
 
             var apiSettings = instanceSettings ?? staticSettings;
-
             var baseUrl = apiSettings?.ProductionEnvironmentUrl;
-            if (!baseUrl.StartsWith("http"))
+
+<% if (azureSdk) { %>
+            if(apiSettings.Endpoint == "")
             {
-                sb.Append("https://");
-                if (!string.IsNullOrEmpty(apiSettings?.TitleId))
+<% } %>
+                if (!baseUrl.StartsWith("http"))
                 {
-                    sb.Append(apiSettings.TitleId).Append(".");
+                    sb.Append("https://");
+                    if (!string.IsNullOrEmpty(apiSettings?.TitleId))
+                    {
+                        sb.Append(apiSettings.TitleId).Append(".");
+                    }
+                    if (!string.IsNullOrEmpty(apiSettings?.VerticalName))
+                    {
+                        sb.Append(apiSettings?.VerticalName).Append(".");
+                    }
                 }
-                if (!string.IsNullOrEmpty(apiSettings?.VerticalName))
-                {
-                    sb.Append(apiSettings?.VerticalName).Append(".");
-                }
+<% if (azureSdk) { %>
             }
+            else
+            {
+                baseUrl = apiSettings.Endpoint;
+            }     
+<% } %>
 
             sb.Append(baseUrl).Append(apiCall);
 

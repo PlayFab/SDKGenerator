@@ -14,6 +14,7 @@ This is a node.js based program that takes a json description of the PlayFab API
 1. You must have Node.js installed: http://nodejs.org/
     * The location of node.exe must be in your PATH environment variable.  Default: C:\Program Files (x86)\nodejs\
     * Highly suggested that you install Node.js tools for Visual Studio: https://beta.visualstudio.com/vs/node-js/
+    * Note: If you have logged into another npm registry, you may get login errors when running npm login. Check your .npmrc file to ensure its empty since we pull from the public registery.
 2. SdkGenerator requires several PlayFab repositories, cloned to your local machine, as sibiling folders to SdkGenerator.
     * &lt;parent-folder&gt;/SdkGenerator = https://github.com/PlayFab/SDKGenerator (you're looking at it)
     * &lt;parent-folder&gt;/sdks/&lt;targetSDK&gt; - For every sdk you want to generate, you should git-clone the PlayFab repository for that target into the "sdks" subfolder first.  In many cases, there are required files in the repo which are not generated

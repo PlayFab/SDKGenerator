@@ -239,7 +239,7 @@ function getAuthParams(apiCall, isInstance = false) {
     if (apiCall.url === "/Authentication/GetEntityToken")
         return "authKey, authValue";
     if (apiCall.auth === "EntityToken")
-        return "\"X-EntityToken\", requestContext.EntityToken";
+        return "\"X-EntityToken\", entityToken";
     if (apiCall.auth === "SecretKey")
         return "\"X-SecretKey\", requestSettings.DeveloperSecretKey";
     else if (apiCall.auth === "SessionTicket")
@@ -257,7 +257,8 @@ function getRequestActions(tabbing, apiCall, isInstance) {
             + tabbing + "if (request != null) request.PlayerAccountPoolId = request?.PlayerAccountPoolId ?? requestSettings.PlayerAccountPoolId;\n"
             + tabbing + "if (request.PlayerAccountPoolId == null) throw new PlayFabException(PlayFabExceptionCode.PlayerAccountPoolNotSet, \"PlayerAccountPoolId must be set in your local or global settings to call this method\");\n";
     if (apiCall.auth === "EntityToken")
-        return tabbing + "if (requestContext.EntityToken == null) throw new PlayFabException(PlayFabExceptionCode.EntityTokenNotSet, \"Must call Client Login or GetEntityToken before calling this method\");\n";
+        return "\n"+tabbing+"var entityToken = request?.AuthenticationContext?.EntityToken ?? PlayFabSettings.staticPlayer.EntityToken;\n"
+                    +tabbing + "if ((entityToken) == null) throw new PlayFabException(PlayFabExceptionCode.EntityTokenNotSet, \"Must call Client Login or GetEntityToken before calling this method\");\n";
     if (apiCall.auth === "SessionTicket")
         return tabbing + "if (requestContext.ClientSessionTicket == null) throw new PlayFabException(PlayFabExceptionCode.NotLoggedIn, \"Must be logged in to call this method\");\n";
     if (apiCall.auth === "SecretKey")

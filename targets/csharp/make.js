@@ -238,6 +238,8 @@ function getPropertyCsType(property, datatype, needOptional) {
 function getAuthParams(apiCall, isInstance = false) {
     if (apiCall.url === "/Authentication/GetEntityToken")
         return "authKey, authValue";
+    if (apiCall.auth === "EntityToken" && apiCall.name === "ValidateEntityToken")
+        return "\"X-EntityToken\", entityToken";
     if (apiCall.auth === "EntityToken")
         return "\"X-EntityToken\", requestContext.EntityToken";
     if (apiCall.auth === "SecretKey")
@@ -256,8 +258,15 @@ function getRequestActions(tabbing, apiCall, isInstance) {
             + tabbing + "if (request.TitleId == null) throw new PlayFabException(PlayFabExceptionCode.TitleNotSet, \"TitleId must be set in your local or global settings to call this method\");\n"
             + tabbing + "if (request != null) request.PlayerAccountPoolId = request?.PlayerAccountPoolId ?? requestSettings.PlayerAccountPoolId;\n"
             + tabbing + "if (request.PlayerAccountPoolId == null) throw new PlayFabException(PlayFabExceptionCode.PlayerAccountPoolNotSet, \"PlayerAccountPoolId must be set in your local or global settings to call this method\");\n";
-    if (apiCall.auth === "EntityToken")
+    if (apiCall.auth === "EntityToken" && apiCall.name === "ValidateEntityToken")
+    {
+        return "\n"+tabbing+"var entityToken = request?.AuthenticationContext?.EntityToken ?? PlayFabSettings.staticPlayer.EntityToken;\n"
+                    +tabbing + "if ((entityToken) == null) throw new PlayFabException(PlayFabExceptionCode.EntityTokenNotSet, \"Must call Client Login or GetEntityToken before calling this method\");\n";
+    }
+    else if (apiCall.auth === "EntityToken")
+    {
         return tabbing + "if (requestContext.EntityToken == null) throw new PlayFabException(PlayFabExceptionCode.EntityTokenNotSet, \"Must call Client Login or GetEntityToken before calling this method\");\n";
+    }
     if (apiCall.auth === "SessionTicket")
         return tabbing + "if (requestContext.ClientSessionTicket == null) throw new PlayFabException(PlayFabExceptionCode.NotLoggedIn, \"Must be logged in to call this method\");\n";
     if (apiCall.auth === "SecretKey")

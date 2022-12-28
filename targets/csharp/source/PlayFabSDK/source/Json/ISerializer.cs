@@ -61,7 +61,7 @@ namespace PlayFab.Json
             set { _isInvariantCulture = value;}
         }
 
-        private CultureInfo GetCultureInfoParseType()
+        private static CultureInfo GetCultureInfoParseType()
         {
             if(_isInvariantCulture)
             {

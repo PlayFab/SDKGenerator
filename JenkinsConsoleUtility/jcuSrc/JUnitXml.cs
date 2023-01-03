@@ -181,7 +181,7 @@ namespace JenkinsConsoleUtility
                 sb.Append(tabbing).Append("</testsuites>\n");
 
                 JcuUtil.FancyWriteToConsole(ConsoleColor.Gray, "Write test results: " + destinationFile);
-                using (var output = File.Open(destinationFile, FileMode.Create))
+                using (var output = File.Open(destinationFile, FileMode.OpenOrCreate))
                 {
                     byte[] buffer = Encoding.UTF8.GetBytes(sb.ToString());
                     output.Write(buffer, 0, buffer.Length);

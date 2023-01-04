@@ -55,7 +55,7 @@ namespace PlayFab.UUnit
         {
             // Add a random waiting jitter to each test end to prevent multiplatform parallel tests from throttling the test title.
             Random rand = new Random();
-            System.Threading.Thread.Sleep(rand.Next(250));
+            System.Threading.Thread.Sleep(rand.Next(1000));
 
             // When a test is declared finished for the first time, apply it and return
             if (FinishState == UUnitFinishState.PENDING)

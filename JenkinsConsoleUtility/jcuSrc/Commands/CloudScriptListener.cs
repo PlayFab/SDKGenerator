@@ -136,7 +136,7 @@ namespace JenkinsConsoleUtility.Commands
             if (!callResult || testResults == null)
                 return 1;
             JcuUtil.FancyWriteToConsole(ConsoleColor.Gray, "Writing test results: " + outputFileFullPath);
-            return JUnitXml.WriteXmlFile(outputFileFullPath, testResults, false);
+            return JUnitXml.WriteXmlFile(outputFileFullPath, testResults, true);
         }
 
         public bool ExecuteCloudScript<TIn, TOut>(string functionName, TIn functionParameter, Dictionary<string, string> extraHeaders, out TOut result, out string errorReport)

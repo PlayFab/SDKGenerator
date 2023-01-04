@@ -128,15 +128,10 @@ namespace JenkinsConsoleUtility.Commands
             var callResult = ExecuteCloudScript(CsFuncGetTestData, _getRequest, testTitleData.extraHeaders, out testResults, out errorReport);
 
             string outputFileFullPath = null;
-            for (int i = 0; i < 100; i++)
-            {
-                string eachOutputFile = Path.Combine(workspacePath, "ListenCsResult" + i + ".xml");
-                if (!File.Exists(eachOutputFile))
-                {
-                    outputFileFullPath = eachOutputFile;
-                    break; // Find the first file that doesn't exist
-                }
-            }
+
+            string outputFileName = "ListenCsResult.xml";
+            
+            outputFileFullPath = Path.Combine(workspacePath, outputFileName);
 
             if (!callResult || testResults == null)
                 return 1;

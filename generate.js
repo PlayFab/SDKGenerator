@@ -753,11 +753,14 @@ global.writeFile = writeFile;
  * Wrapper function for boilerplate of compiling templates
  * Also Caches the Templates to avoid reloading and recompiling
  * */
-function getCompiledTemplate(templatePath) {
+function getCompiledTemplate(templatePath, includes = false) {
     if (!this.compiledTemplates)
         this.compiledTemplates = {};
     if (!this.compiledTemplates.hasOwnProperty(templatePath))
-        this.compiledTemplates[templatePath] = ejs.compile(readFile(templatePath));
+        if (includes)
+            this.compiledTemplates[templatePath] = ejs.compile(readFile(templatePath), { filename: templatePath });
+        else
+            this.compiledTemplates[templatePath] = ejs.compile(readFile(templatePath), { filename: templatePath });
     return this.compiledTemplates[templatePath];
 }
 global.getCompiledTemplate = getCompiledTemplate;

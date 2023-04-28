@@ -86,7 +86,7 @@ namespace JenkinsConsoleUtility.Commands
         {
             private const string TagFormat = "{major}.{minor}.{date}";
             private const string NameFormat = "{sdkName} version {major}.{minor}";
-            private const string BodyFormat = "https://learn.microsoft.com/en-us/gaming/playfab/release-notes/#{date}";
+            private const string BodyFormat = "https://learn.microsoft.com/gaming/playfab/release-notes/#{date}";
 
             public GitHubReleaseRequest(string sdkName, string major, string minor, string date) : base(TagFormat.Replace("{major}", major).Replace("{minor}", minor).Replace("{date}", date))
             {

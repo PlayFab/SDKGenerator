@@ -1,0 +1,94 @@
+#if <%- getApiDefineFlag(api) %> && !DISABLE_PLAYFAB_STATIC_API
+
+using PlayFab.<%- api.name %>Models;
+using PlayFab.Internal;
+#pragma warning disable 0649
+using System;
+// This is required for the Obsolete Attribute flag
+//  which is not always present in all API's
+#pragma warning restore 0649
+using System.Collections.Generic;
+using System.Threading.Tasks;
+
+namespace PlayFab
+{
+<%- generateApiSummary("    ", api, "description")
+%>    public static class PlayFab<%- api.name %>API
+    {<% if (hasClientOptions) { %>
+        /// <summary>
+        /// Verify client login.
+        /// </summary>
+        public static bool IsClientLoggedIn()
+        {
+            return PlayFabSettings.staticPlayer.IsClientLoggedIn();
+        }
+<% } %><% if (hasEntityTokenOptions) { %>
+        /// <summary>
+        /// Verify entity login.
+        /// </summary>
+        public static bool IsEntityLoggedIn()
+        {
+            return PlayFabSettings.staticPlayer.IsEntityLoggedIn();
+        }
+<% } %>
+        /// <summary>
+        /// Clear the Client SessionToken which allows this Client to call API calls requiring login.
+        /// A new/fresh login will be required after calling this.
+        /// </summary>
+        public static void ForgetAllCredentials()
+        {
+            PlayFabSettings.staticPlayer.ForgetAllCredentials();
+        }
+<% for(var i in api.calls) { var apiCall = api.calls[i];%>
+<%- generateApiSummary("        ", apiCall, "summary")
+%><%- getDeprecationAttribute("        ", apiCall)
+%>        public static async Task<PlayFabResult<<%- apiCall.result %>>> <%- apiCall.name %>Async(<%- apiCall.request %> request, object customData = null, Dictionary<string, string> extraHeaders = null)
+        {
+            await new PlayFabUtil.SynchronizationContextRemover();
+
+            var requestContext = request?.AuthenticationContext ?? PlayFabSettings.staticPlayer;
+            var requestSettings = PlayFabSettings.staticSettings;
+<%- getRequestActions("            ", apiCall, false) %>
+<%- getCustomApiLogic("            ", apiCall) %>
+            var httpResult = await PlayFabHttp.DoPost("<%- apiCall.url %>", request, <%- getAuthParams(apiCall) %>, extraHeaders);
+            if (httpResult is PlayFabError)
+            {
+                var error = (PlayFabError)httpResult;
+                PlayFabSettings.GlobalErrorHandler?.Invoke(error);
+                return new PlayFabResult<<%- apiCall.result %>> { Error = error, CustomData = customData };
+            }
+
+            var resultRawJson = (string)httpResult;
+            var resultData = PluginManager.GetPlugin<ISerializerPlugin>(PluginContract.PlayFab_Serializer).DeserializeObject<PlayFabJsonSuccess<<%- apiCall.result %>>>(resultRawJson);
+            var result = resultData.data;
+<%- getResultActions("            ", apiCall, api, false) %>
+            return new PlayFabResult<<%- apiCall.result %>> { Result = result, CustomData = customData };
+        } <% if (apiCall.name == "WriteTelemetryEvents") {
+     %>
+
+        /// <summary>
+        /// Write batches of entity based events to as Telemetry events (bypass PlayStream) using a Telemetry Key. The namespace must be 'custom' or start
+        /// with 'custom.'
+        /// </summary>
+        <%- getDeprecationAttribute("        ", apiCall) 
+        %>public static async Task<PlayFabResult<<%- apiCall.result %>>> <%- apiCall.name %>Async(<%- apiCall.request %> request, string telemetryKey, object customData = null, Dictionary<string, string> extraHeaders = null)
+        {
+            await new PlayFabUtil.SynchronizationContextRemover();
+
+            var httpResult = await PlayFabHttp.DoPost("<%- apiCall.url %>", request, "X-TelemetryKey", telemetryKey, extraHeaders);
+            if (httpResult is PlayFabError)
+            {
+                var error = (PlayFabError)httpResult;
+                PlayFabSettings.GlobalErrorHandler?.Invoke(error);
+                return new PlayFabResult<<%- apiCall.result %>> { Error = error, CustomData = customData };
+            }
+
+            var resultRawJson = (string)httpResult;
+            var resultData = PluginManager.GetPlugin<ISerializerPlugin>(PluginContract.PlayFab_Serializer).DeserializeObject<PlayFabJsonSuccess<<%- apiCall.result %>>>(resultRawJson);
+            var result = resultData.data;
+<%- getResultActions("            ", apiCall, api, false) %>
+            return new PlayFabResult<<%- apiCall.result %>> { Result = result, CustomData = customData };
+        } <% } %>
+<% } %>    }
+}
+#endif

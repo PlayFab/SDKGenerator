@@ -1,0 +1,152 @@
+#if <%- getApiDefineFlag(api) %>
+
+using PlayFab.<%- api.name %>Models;
+using PlayFab.Internal;
+#pragma warning disable 0649
+using System;
+// This is required for the Obsolete Attribute flag
+//  which is not always present in all API's
+#pragma warning restore 0649
+using System.Collections.Generic;
+using System.Threading.Tasks;
+
+namespace PlayFab
+{
+<%- generateApiSummary("    ", api, "description")
+%>    public class PlayFab<%- api.name %>InstanceAPI
+    {
+        public readonly PlayFabApiSettings apiSettings = null;
+        public readonly PlayFabAuthenticationContext authenticationContext = null;
+<% if( api.name === "Admin" || api.name === "Server" ) { %>
+        public PlayFab<%- api.name %>InstanceAPI() { }
+
+        public PlayFab<%- api.name %>InstanceAPI(PlayFabApiSettings settings)
+        {
+            apiSettings = settings;
+        }
+
+        public PlayFab<%- api.name %>InstanceAPI(PlayFabAuthenticationContext context)
+        {
+            authenticationContext = context;
+        }
+
+        public PlayFab<%- api.name %>InstanceAPI(PlayFabApiSettings settings, PlayFabAuthenticationContext context)
+        {
+            apiSettings = settings;
+            authenticationContext = context;
+        }
+<% } else if( api.name === "Client" || api.name === "Authentication" ) { %>
+        public PlayFab<%- api.name %>InstanceAPI()
+        {
+            authenticationContext = new PlayFabAuthenticationContext();
+        }
+
+        public PlayFab<%- api.name %>InstanceAPI(PlayFabApiSettings settings)
+        {
+            apiSettings = settings;
+            authenticationContext = new PlayFabAuthenticationContext();
+        }
+
+        public PlayFab<%- api.name %>InstanceAPI(PlayFabAuthenticationContext context)
+        {
+            authenticationContext = context ?? new PlayFabAuthenticationContext();
+        }
+
+        public PlayFab<%- api.name %>InstanceAPI(PlayFabApiSettings settings, PlayFabAuthenticationContext context)
+        {
+            apiSettings = settings;
+            authenticationContext = context ?? new PlayFabAuthenticationContext();
+        }
+<% } else { %>
+        public PlayFab<%- api.name %>InstanceAPI(PlayFabAuthenticationContext context)
+        {
+            if (context == null)
+                throw new PlayFabException(PlayFabExceptionCode.AuthContextRequired, "Context cannot be null, create a PlayFabAuthenticationContext for each player in advance, or get <PlayFabClientInstanceAPI>.authenticationContext");
+            authenticationContext = context;
+        }
+
+        public PlayFab<%- api.name %>InstanceAPI(PlayFabApiSettings settings, PlayFabAuthenticationContext context)
+        {
+            if (context == null)
+                throw new PlayFabException(PlayFabExceptionCode.AuthContextRequired, "Context cannot be null, create a PlayFabAuthenticationContext for each player in advance, or get <PlayFabClientInstanceAPI>.authenticationContext");
+            apiSettings = settings;
+            authenticationContext = context;
+        }
+<% } %><% if (hasClientOptions) { %>
+        /// <summary>
+        /// Verify client login.
+        /// </summary>
+        public bool IsClientLoggedIn()
+        {
+            return authenticationContext == null ? false : authenticationContext.IsClientLoggedIn();
+        }
+<% } %><% if (hasEntityTokenOptions) { %>
+        /// <summary>
+        /// Verify entity login.
+        /// </summary>
+        public bool IsEntityLoggedIn()
+        {
+            return authenticationContext == null ? false : authenticationContext.IsEntityLoggedIn();
+        }
+<% } %>
+        /// <summary>
+        /// Clear the Client SessionToken which allows this Client to call API calls requiring login.
+        /// A new/fresh login will be required after calling this.
+        /// </summary>
+        public void ForgetAllCredentials()
+        {
+            authenticationContext?.ForgetAllCredentials();
+        }
+<% for(var i in api.calls) { var apiCall = api.calls[i];%>
+<%- generateApiSummary("        ", apiCall, "summary")
+%><%- getDeprecationAttribute("        ", apiCall)
+%>        public async Task<PlayFabResult<<%- apiCall.result %>>> <%- apiCall.name %>Async(<%- apiCall.request %> request, object customData = null, Dictionary<string, string> extraHeaders = null)
+        {
+            await new PlayFabUtil.SynchronizationContextRemover();
+
+            var requestContext = request?.AuthenticationContext ?? authenticationContext;
+            var requestSettings = apiSettings ?? PlayFabSettings.staticSettings;
+<%- getRequestActions("            ", apiCall, true) %>
+            var httpResult = await PlayFabHttp.DoPost("<%- apiCall.url %>", request, <%- getAuthParams(apiCall, true) %>, extraHeaders, requestSettings);
+            if (httpResult is PlayFabError)
+            {
+                var error = (PlayFabError)httpResult;
+                PlayFabSettings.GlobalErrorHandler?.Invoke(error);
+                return new PlayFabResult<<%- apiCall.result %>> { Error = error, CustomData = customData };
+            }
+
+            var resultRawJson = (string)httpResult;
+            var resultData = PluginManager.GetPlugin<ISerializerPlugin>(PluginContract.PlayFab_Serializer).DeserializeObject<PlayFabJsonSuccess<<%- apiCall.result %>>>(resultRawJson);
+            var result = resultData.data;
+<%- getResultActions("            ", apiCall, api, true) %>
+            return new PlayFabResult<<%- apiCall.result %>> { Result = result, CustomData = customData };
+        } <% if (apiCall.name == "WriteTelemetryEvents") {
+     %>
+
+        /// <summary>
+        /// Write batches of entity based events to as Telemetry events (bypass PlayStream) using a Telemetry Key. The namespace must be 'custom' or start
+        /// with 'custom.'
+        /// </summary>
+        <%- getDeprecationAttribute("        ", apiCall) 
+        %>public async Task<PlayFabResult<<%- apiCall.result %>>> <%- apiCall.name %>Async(<%- apiCall.request %> request, string telemetryKey, object customData = null, Dictionary<string, string> extraHeaders = null)
+        {
+            await new PlayFabUtil.SynchronizationContextRemover();
+
+            var requestSettings = apiSettings ?? PlayFabSettings.staticSettings;
+            var httpResult = await PlayFabHttp.DoPost("<%- apiCall.url %>", request, "X-TelemetryKey", telemetryKey, extraHeaders);
+            if (httpResult is PlayFabError)
+            {
+                var error = (PlayFabError)httpResult;
+                PlayFabSettings.GlobalErrorHandler?.Invoke(error);
+                return new PlayFabResult<<%- apiCall.result %>> { Error = error, CustomData = customData };
+            }
+
+            var resultRawJson = (string)httpResult;
+            var resultData = PluginManager.GetPlugin<ISerializerPlugin>(PluginContract.PlayFab_Serializer).DeserializeObject<PlayFabJsonSuccess<<%- apiCall.result %>>>(resultRawJson);
+            var result = resultData.data;
+<%- getResultActions("            ", apiCall, api, false) %>
+            return new PlayFabResult<<%- apiCall.result %>> { Result = result, CustomData = customData };
+        } <% } %>
+<% } %>    }
+}
+#endif

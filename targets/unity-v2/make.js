@@ -146,7 +146,8 @@ function makeApi(api, sourceDir, apiOutputDir) {
         isPartial: isPartial(api.name)
     };
 
-    var apiTemplate = getCompiledTemplate(path.resolve(templateDir, "PlayFab_API.cs.ejs"));
+    var templateName = api.name == "Events" ? "PlayFab_Events_API" : "PlayFab_API";
+    var apiTemplate = getCompiledTemplate(path.resolve(templateDir, templateName + ".cs.ejs"));
     writeFile(path.resolve(apiOutputDir, "Assets/PlayFabSDK/" + api.name + "/PlayFab" + api.name + "API.cs"), apiTemplate(locals));
 
     var eventTemplate = getCompiledTemplate(path.resolve(sourceDir, "templates", "PlayFabEvents.cs.ejs"));
@@ -170,7 +171,8 @@ function makeInstanceApi(api, sourceDir, apiOutputDir) {
         isPartial: isPartial(api.name)
     };
 
-    var apiTemplate = getCompiledTemplate(path.resolve(templateDir, "PlayFab_InstanceAPI.cs.ejs"));
+    var instTemplateName = api.name == "Events" ? "PlayFab_Events_InstanceAPI" : "PlayFab_InstanceAPI";
+    var apiTemplate = getCompiledTemplate(path.resolve(templateDir, instTemplateName + ".cs.ejs"));
     writeFile(path.resolve(apiOutputDir, "Assets/PlayFabSDK/" + api.name + "/PlayFab" + api.name + "InstanceAPI.cs"), apiTemplate(apiLocals));
 }
 
@@ -428,6 +430,8 @@ function getAuthParams(apiCall) {
         return "AuthType.LoginSession";
     else if (apiCall.auth === "EntityToken")
         return "AuthType.EntityToken";
+    else if (apiCall.auth === "TelemetryKey")
+        return "AuthType.TelemetryKey";
     return "AuthType.None";
 }
 

@@ -134,12 +134,15 @@ function makeApi(api, sourceDir, apiOutputDir) {
         hasServerOptions: apiAuths.includes("SecretKey"),
     };
 
+    var templateName = api.name == "Events" ? "PlayFab_Events_API" : "PlayFab_API"; 
+    var instTemplateName = api.name == "Events" ? "PlayFab_Events_InstanceAPI" : "PlayFab_InstanceAPI"; 
+
     console.log("Generating C# " + api.name + " library to " + apiOutputDir);
-    var apiTemplate = getCompiledTemplate(path.resolve(sourceDir, "templates/PlayFab_API.cs.ejs"));
+    var apiTemplate = getCompiledTemplate(path.resolve(sourceDir, "templates/" + templateName + ".cs.ejs"));
     writeFile(path.resolve(apiOutputDir, "source/PlayFab" + api.name + "API.cs"), apiTemplate(locals));
 
     console.log("Generating C# " + api.name + "Instance library to " + apiOutputDir);
-    var instTemplate = getCompiledTemplate(path.resolve(sourceDir, "templates/PlayFab_InstanceAPI.cs.ejs"));
+    var instTemplate = getCompiledTemplate(path.resolve(sourceDir, "templates/" + instTemplateName + ".cs.ejs"));
     writeFile(path.resolve(apiOutputDir, "source/PlayFab" + api.name + "InstanceAPI.cs"), instTemplate(locals));
 }
 

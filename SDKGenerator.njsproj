@@ -834,7 +834,9 @@
     <Content Include="targets\unity-v2\templates\Model.cs.ejs" />
     <Content Include="targets\unity-v2\templates\Models.cs.ejs" />
     <Content Include="targets\unity-v2\templates\PlayFabEvents.cs.ejs" />
+    <Content Include="targets\unity-v2\templates\PlayFab_Events_API.cs.ejs" />
     <Content Include="targets\unity-v2\templates\PlayFab_API.cs.ejs" />
+    <Content Include="targets\unity-v2\templates\PlayFab_Events_InstanceAPI.cs.ejs" />
     <Content Include="targets\unity-v2\templates\PlayFab_InstanceAPI.cs.ejs" />
     <Content Include="targets\UnrealMarketplacePlugin\examplesource\ExampleProject\BuildAndroidOnWin64.bat.ejs" />
     <Content Include="targets\UnrealMarketplacePlugin\examplesource\ExampleProject\BuildAndRunTestsIOS.sh" />

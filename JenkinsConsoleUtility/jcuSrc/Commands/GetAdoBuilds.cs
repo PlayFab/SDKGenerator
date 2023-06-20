@@ -28,6 +28,10 @@ namespace JenkinsConsoleUtility.jcuSrc.Commands
         public int Execute(Dictionary<string, string> argsLc, Dictionary<string, string> argsCased)
         {
             Task<int> execTask = Task.Run(async () => { return await ExecuteAsync(argsLc, argsCased); });
+            Console.WriteLine(execTask.Result);
+            Console.WriteLine(execTask.ToString());
+            Console.WriteLine(execTask.Exception);
+            Console.WriteLine(execTask);
             return execTask.Result;
         }
 
@@ -110,6 +114,7 @@ namespace JenkinsConsoleUtility.jcuSrc.Commands
                 return null;
             }
 
+            Console.WriteLine(jsonResult);
             var deserializedObj = JsonConvert.DeserializeObject<T>(jsonResult);
             if (!string.IsNullOrEmpty(cacheFileName))
             {

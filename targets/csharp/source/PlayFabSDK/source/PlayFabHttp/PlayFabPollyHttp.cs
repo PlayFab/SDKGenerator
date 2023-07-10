@@ -23,6 +23,8 @@ namespace PlayFab.Internal
         /// </summary>
         public HashSet<int> HttpStatusCodesWorthRetrying = new HashSet<int> {
             408, //HttpStatusCode.RequestTimeout
+            409, //HttpStatusCode.Conflict
+            429, //HttpStatusCode.TooManyRequests
             500, //HttpStatusCode.InternalServerError
             502, //HttpStatusCode.BadGateway
             503, //HttpStatusCode.ServiceUnavailable

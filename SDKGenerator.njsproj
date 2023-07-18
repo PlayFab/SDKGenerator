@@ -378,6 +378,7 @@
     <Content Include="targets\LuaSdk\GlobalFiles\_Build\CoronaPluginBuilders\server\tmp\build.bat" />
     <Content Include="targets\LuaSdk\GlobalFiles\_Build\CoronaPluginBuilders\server\tmp\build.sh" />
     <Content Include="targets\LuaSdk\GlobalFiles\_Build\Defold\BuildDefoldZips.bat" />
+    <Content Include="targets\LuaSdk\GlobalFiles\_Build\Defold\BuildDefoldZips.sh" />
     <Content Include="targets\LuaSdk\GlobalFiles\_Build\Defold\PlayFabClientSDK\PlayFabTesting\TestOutput.gui" />
     <Content Include="targets\LuaSdk\GlobalFiles\_Build\Defold\PlayFabClientSDK\PlayFabTesting\TestPlayFabDefold.gui_script" />
     <Content Include="targets\LuaSdk\LuaDist\PlayFab\PlayFabHttps_LuaSec.lua" />

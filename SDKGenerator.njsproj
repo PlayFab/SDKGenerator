@@ -9,7 +9,7 @@
     <TypeScriptSourceMap>true</TypeScriptSourceMap>
     <TypeScriptModuleKind>CommonJS</TypeScriptModuleKind>
     <ToolsVersionPromptShown>2.3</ToolsVersionPromptShown>
-    <TypeScriptToolsVersion>2.3</TypeScriptToolsVersion>
+    <TypeScriptToolsVersion>Latest</TypeScriptToolsVersion>
     <SaveNodeJsSettingsInProjectFile>True</SaveNodeJsSettingsInProjectFile>
   </PropertyGroup>
   <Import Project="$(MSBuildExtensionsPath)\$(MSBuildToolsVersion)\Microsoft.Common.props" Condition="Exists('$(MSBuildExtensionsPath)\$(MSBuildToolsVersion)\Microsoft.Common.props')" />
@@ -101,10 +101,15 @@
     <OutputPath>bin\</OutputPath>
     <ScriptArguments>-destpath ..\sdks\XPlatCppSdk -apiSpecGitUrl -buildIdentifier XPlatCppSdk_manual</ScriptArguments>
   </PropertyGroup>
-  <PropertyGroup Condition=" '$(Configuration)' == 'XPlatCSdk' ">
+  <PropertyGroup Condition=" '$(Configuration)' == 'PlayFabCoreCSdk' ">
     <DebugSymbols>true</DebugSymbols>
-    <OutputPath>bin\XPlatCSdk\</OutputPath>
-    <ScriptArguments>-destpath ..\..\src\PlayFabCore\PlayFabCoreCSdk -apiSpecGitUrl -buildIdentifier PlayFabCoreCSdk_Manual</ScriptArguments>
+    <OutputPath>bin\PlayFabCoreCSdk\</OutputPath>
+    <ScriptArguments>-destpath ..\..\Source\PlayFabCoreGeneratorTemplate -apiSpecGitUrl -buildIdentifier PlayFabCoreCSdk_Manual</ScriptArguments>
+  </PropertyGroup>
+  <PropertyGroup Condition=" '$(Configuration)' == 'PlayFabServicesCSdk' ">
+    <DebugSymbols>true</DebugSymbols>
+    <ScriptArguments>-destpath ..\..\Source\PlayFabServicesGeneratorTemplate -apiSpecGitUrl -buildIdentifier PlayFabServicesCSdk_Manual</ScriptArguments>
+    <OutputPath>bin\PlayFabServicesCSdk\</OutputPath>
   </PropertyGroup>
   <ItemGroup>
     <Content Include="README.md" />
@@ -829,7 +834,9 @@
     <Content Include="targets\unity-v2\templates\Model.cs.ejs" />
     <Content Include="targets\unity-v2\templates\Models.cs.ejs" />
     <Content Include="targets\unity-v2\templates\PlayFabEvents.cs.ejs" />
+    <Content Include="targets\unity-v2\templates\PlayFab_Events_API.cs.ejs" />
     <Content Include="targets\unity-v2\templates\PlayFab_API.cs.ejs" />
+    <Content Include="targets\unity-v2\templates\PlayFab_Events_InstanceAPI.cs.ejs" />
     <Content Include="targets\unity-v2\templates\PlayFab_InstanceAPI.cs.ejs" />
     <Content Include="targets\UnrealMarketplacePlugin\examplesource\ExampleProject\BuildAndroidOnWin64.bat.ejs" />
     <Content Include="targets\UnrealMarketplacePlugin\examplesource\ExampleProject\BuildAndRunTestsIOS.sh" />

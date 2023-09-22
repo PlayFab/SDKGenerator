@@ -21,8 +21,9 @@ Global
 		Python|Any CPU = Python|Any CPU
 		UnitySdk|Any CPU = UnitySdk|Any CPU
 		Unreal|Any CPU = Unreal|Any CPU
+		PlayFabCoreCSdk|Any CPU = PlayFabCoreCSdk|Any CPU
+		PlayFabServicesCSdk|Any CPU = PlayFabServicesCSdk|Any CPU
 		XPlatCppSdk|Any CPU = XPlatCppSdk|Any CPU
-		XPlatCSdk|Any CPU = XPlatCSdk|Any CPU
 	EndGlobalSection
 	GlobalSection(ProjectConfigurationPlatforms) = postSolution
 		{2BA807EF-310C-43B5-8D42-1ABCFFF39BE9}.CloudScript|Any CPU.ActiveCfg = CloudScript|Any CPU
@@ -53,10 +54,12 @@ Global
 		{2BA807EF-310C-43B5-8D42-1ABCFFF39BE9}.UnitySdk|Any CPU.Build.0 = UnitySdk|Any CPU
 		{2BA807EF-310C-43B5-8D42-1ABCFFF39BE9}.Unreal|Any CPU.ActiveCfg = Unreal|Any CPU
 		{2BA807EF-310C-43B5-8D42-1ABCFFF39BE9}.Unreal|Any CPU.Build.0 = Unreal|Any CPU
+		{2BA807EF-310C-43B5-8D42-1ABCFFF39BE9}.PlayFabCoreCSdk|Any CPU.ActiveCfg = PlayFabCoreCSdk|Any CPU
+		{2BA807EF-310C-43B5-8D42-1ABCFFF39BE9}.PlayFabCoreCSdk|Any CPU.Build.0 = PlayFabCoreCSdk|Any CPU
+		{2BA807EF-310C-43B5-8D42-1ABCFFF39BE9}.PlayFabServicesCSdk|Any CPU.ActiveCfg = PlayFabServicesCSdk|Any CPU
+		{2BA807EF-310C-43B5-8D42-1ABCFFF39BE9}.PlayFabServicesCSdk|Any CPU.Build.0 = PlayFabServicesCSdk|Any CPU
 		{2BA807EF-310C-43B5-8D42-1ABCFFF39BE9}.XPlatCppSdk|Any CPU.ActiveCfg = XPlatCppSdk|Any CPU
 		{2BA807EF-310C-43B5-8D42-1ABCFFF39BE9}.XPlatCppSdk|Any CPU.Build.0 = XPlatCppSdk|Any CPU
-		{2BA807EF-310C-43B5-8D42-1ABCFFF39BE9}.XPlatCSdk|Any CPU.ActiveCfg = XPlatCSdk|Any CPU
-		{2BA807EF-310C-43B5-8D42-1ABCFFF39BE9}.XPlatCSdk|Any CPU.Build.0 = XPlatCSdk|Any CPU
 	EndGlobalSection
 	GlobalSection(SolutionProperties) = preSolution
 		HideSolutionNode = FALSE

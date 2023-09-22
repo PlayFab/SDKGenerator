@@ -134,12 +134,15 @@ function makeApi(api, sourceDir, apiOutputDir) {
         hasServerOptions: apiAuths.includes("SecretKey"),
     };
 
+    var templateName = api.name == "Events" ? "PlayFab_Events_API" : "PlayFab_API"; 
+    var instTemplateName = api.name == "Events" ? "PlayFab_Events_InstanceAPI" : "PlayFab_InstanceAPI"; 
+
     console.log("Generating C# " + api.name + " library to " + apiOutputDir);
-    var apiTemplate = getCompiledTemplate(path.resolve(sourceDir, "templates/PlayFab_API.cs.ejs"));
+    var apiTemplate = getCompiledTemplate(path.resolve(sourceDir, "templates/" + templateName + ".cs.ejs"));
     writeFile(path.resolve(apiOutputDir, "source/PlayFab" + api.name + "API.cs"), apiTemplate(locals));
 
     console.log("Generating C# " + api.name + "Instance library to " + apiOutputDir);
-    var instTemplate = getCompiledTemplate(path.resolve(sourceDir, "templates/PlayFab_InstanceAPI.cs.ejs"));
+    var instTemplate = getCompiledTemplate(path.resolve(sourceDir, "templates/" + instTemplateName + ".cs.ejs"));
     writeFile(path.resolve(apiOutputDir, "source/PlayFab" + api.name + "InstanceAPI.cs"), instTemplate(locals));
 }
 
@@ -238,6 +241,8 @@ function getPropertyCsType(property, datatype, needOptional) {
 function getAuthParams(apiCall, isInstance = false) {
     if (apiCall.url === "/Authentication/GetEntityToken")
         return "authKey, authValue";
+    if (apiCall.auth === "EntityToken" && apiCall.name === "ValidateEntityToken")
+        return "\"X-EntityToken\", entityToken";
     if (apiCall.auth === "EntityToken")
         return "\"X-EntityToken\", requestContext.EntityToken";
     if (apiCall.auth === "SecretKey")
@@ -256,8 +261,15 @@ function getRequestActions(tabbing, apiCall, isInstance) {
             + tabbing + "if (request.TitleId == null) throw new PlayFabException(PlayFabExceptionCode.TitleNotSet, \"TitleId must be set in your local or global settings to call this method\");\n"
             + tabbing + "if (request != null) request.PlayerAccountPoolId = request?.PlayerAccountPoolId ?? requestSettings.PlayerAccountPoolId;\n"
             + tabbing + "if (request.PlayerAccountPoolId == null) throw new PlayFabException(PlayFabExceptionCode.PlayerAccountPoolNotSet, \"PlayerAccountPoolId must be set in your local or global settings to call this method\");\n";
-    if (apiCall.auth === "EntityToken")
+    if (apiCall.auth === "EntityToken" && apiCall.name === "ValidateEntityToken")
+    {
+        return "\n"+tabbing+"var entityToken = request?.AuthenticationContext?.EntityToken ?? PlayFabSettings.staticPlayer.EntityToken;\n"
+                    +tabbing + "if ((entityToken) == null) throw new PlayFabException(PlayFabExceptionCode.EntityTokenNotSet, \"Must call Client Login or GetEntityToken before calling this method\");\n";
+    }
+    else if (apiCall.auth === "EntityToken")
+    {
         return tabbing + "if (requestContext.EntityToken == null) throw new PlayFabException(PlayFabExceptionCode.EntityTokenNotSet, \"Must call Client Login or GetEntityToken before calling this method\");\n";
+    }
     if (apiCall.auth === "SessionTicket")
         return tabbing + "if (requestContext.ClientSessionTicket == null) throw new PlayFabException(PlayFabExceptionCode.NotLoggedIn, \"Must be logged in to call this method\");\n";
     if (apiCall.auth === "SecretKey")
@@ -312,6 +324,11 @@ function getResultActions(tabbing, apiCall, api, isInstance) {
                 + tabbing + "updateContext.EntityToken = result.EntityToken;\n"
                 + tabbing + "updateContext.EntityId = result.Entity.Id;\n"
                 + tabbing + "updateContext.EntityType = result.Entity.Type;\n";
+        else if (apiCall.result === "AuthenticateCustomIdResult")
+            return tabbing + "var updateContext = authenticationContext;\n"
+                + tabbing + "updateContext.EntityToken = result.EntityToken.EntityToken;\n"
+                + tabbing + "updateContext.EntityId = result.EntityToken.Entity.Id;\n"
+                + tabbing + "updateContext.EntityType = result.EntityToken.Entity.Type;\n";
     }
     else {
         if (apiCall.result === "LoginResult" || apiCall.result === "RegisterPlayFabUserResult")
@@ -325,6 +342,11 @@ function getResultActions(tabbing, apiCall, api, isInstance) {
                 + tabbing + "updateContext.EntityToken = result.EntityToken;\n"
                 + tabbing + "updateContext.EntityId = result.Entity.Id;\n"
                 + tabbing + "updateContext.EntityType = result.Entity.Type;\n";
+        else if (apiCall.result === "AuthenticateCustomIdResult")
+            return tabbing + "var updateContext = PlayFabSettings.staticPlayer;\n"
+                + tabbing + "updateContext.EntityToken = result.EntityToken.EntityToken;\n"
+                + tabbing + "updateContext.EntityId = result.EntityToken.Entity.Id;\n"
+                + tabbing + "updateContext.EntityType = result.EntityToken.Entity.Type;\n";
     }
     return "";
 }

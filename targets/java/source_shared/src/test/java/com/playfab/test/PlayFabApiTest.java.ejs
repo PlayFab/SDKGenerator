@@ -5,6 +5,7 @@ import org.junit.*;
 
 import java.util.*;
 import java.io.*;
+import java.lang.Thread;
 import java.util.Properties;
 
 import com.google.gson.*;
@@ -41,6 +42,7 @@ public class PlayFabApiTest
     // Cached values
     private static String playFabId = "1337D00D"; // This is not a valid player id, but Cloud Script doesn't care unless that id is used by the Cloud Script handler.
 <% } %>
+    private static Random rand = new Random(); 
     // Helpers
     private <RT> void VerifyResult(PlayFabResult<RT> result, boolean expectSuccess)
     {
@@ -55,6 +57,16 @@ public class PlayFabApiTest
         {
             assertNull(errorMessage, result.Result);
             assertNotNull(errorMessage, result.Error);
+        }
+
+        // Add a rest to the tests so they don't throttle themselves. 
+        try
+        {
+            Thread.sleep(rand.nextInt(1000));
+        }
+        catch(Exception e)
+        {
+            System.out.println(e);
         }
     }
 
@@ -103,6 +115,10 @@ public class PlayFabApiTest
         TitleData resultData = gson.fromJson(testTitleJson, new TypeToken<TitleData>(){}.getType());
         PlayFabSettings.TitleId = resultData.titleId;
         USER_EMAIL = resultData.userEmail;
+        String devSecretKey = env.get("DEVELOPER_SECRET_KEY_JAVA_SDK");
+        if (devSecretKey != null && !devSecretKey.equals("")) {
+            resultData.developerSecretKey = devSecretKey;
+        }
         PlayFabSettings.DeveloperSecretKey = resultData.developerSecretKey;
     }
 <% if (hasClientOptions) { %>

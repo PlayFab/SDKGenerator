@@ -19,7 +19,25 @@
                     "Content-Type": "application/json",
                     "raw": <%- getRequestExample(api, apiCall) %>
                 },
-                "url": "<%- getUrl(apiCall) %>",
+                "url" : {
+                    "raw": "<%- getUrl(apiCall) %>",
+                    "protocol": "https",
+                    "host": [
+                        "{{TitleId}}",
+                        "playfabapi",
+                        "com"
+                    ],
+                    "path": [
+                        "<%- getController(apiCall) %>",
+                        "<%- apiCall.name %>"
+                    ],
+                    "query": [
+                        {
+                            "key": "sdk",
+                            "value": "PostmanCollection-<%- sdkVersion %>"
+                        }
+                    ]
+                },
                 "description": "<%- getPostmanDescription(api, apiCall) %>"
             },
             "response": []

@@ -45,18 +45,19 @@ namespace PlayFab.UUnit
                 try
                 {
                     var testTitleDataPath = Environment.GetEnvironmentVariable("PF_TEST_TITLE_DATA_JSON");
-                    var jsonContent = File.ReadAllText(testTitleDataPath + "/testTitleData.json");
+                    var jsonContent = File.ReadAllText(testTitleDataPath);
                     var serializer = PluginManager.GetPlugin<ISerializerPlugin>(PluginContract.PlayFab_Serializer);
                     TestTitleData = serializer.DeserializeObject<TestTitleData>(jsonContent);
                 }
-                catch (Exception)
+                catch (Exception e)
                 {
+                    Console.WriteLine("Error verifying test title data: " + e.Message);
                 }
             }
 #endif
             // Fall back on hard coded testTitleData if necessary (Put your own data here)
             if (TestTitleData == null)
-                TestTitleData = new TestTitleData { titleId = "6195", userEmail = "paul@playfab.com" };
+                TestTitleData = new TestTitleData { titleId = "6195", userEmail = "a@b.com" };
 
             PlayFabSettings.staticSettings.TitleId = TestTitleData.titleId;
 

@@ -81,9 +81,13 @@ namespace UnittestRunner
         {
             TestTitleData testInputs = null;
             string filename = null;
+            int fileIndex = 0;
             for (var i = 0; i < args.Length; i++)
                 if (args[i] == "-testInputsFile" && (i + 1) < args.Length)
+                {
                     filename = args[i + 1];
+                    fileIndex = i + 2;
+                }
             if (string.IsNullOrEmpty(filename))
                 filename = Environment.GetEnvironmentVariable("PF_TEST_TITLE_DATA_JSON");
             if (File.Exists(filename))
@@ -95,6 +99,23 @@ namespace UnittestRunner
             {
                 WriteConsoleColor("Loading testSettings file failed: " + filename, ConsoleColor.Red);
                 WriteConsoleColor("From: " + Directory.GetCurrentDirectory(), ConsoleColor.Red);
+            }
+            for (var i = fileIndex; i < args.Length; i++)
+            {
+                if (args[i] == "-testInputsString" && (i + 2) < args.Length)
+                {
+                    try
+                    {
+                        testInputs.developerSecretKey = args[i + 1];
+                        testInputs.aliasId = args[i + 2];
+                        return testInputs;
+                    }
+                    catch (Exception e)
+                    {
+                        WriteConsoleColor("Parsing testSettings string failed: " + e.Message, ConsoleColor.Red);
+                        return null;
+                    }
+                }
             }
             return testInputs;
         }

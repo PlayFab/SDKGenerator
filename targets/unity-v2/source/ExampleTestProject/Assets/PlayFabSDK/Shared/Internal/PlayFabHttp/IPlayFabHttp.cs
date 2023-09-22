@@ -11,6 +11,7 @@ namespace PlayFab.Internal
         LoginSession, // "X-Authorization"
         DevSecretKey, // "X-SecretKey"
         EntityToken, // "X-EntityToken"
+        TelemetryKey // "X-TelemetryKey"
     }
 
     public enum HttpRequestState
@@ -48,6 +49,7 @@ namespace PlayFab.Internal
         public PlayFabApiSettings settings;
         public PlayFabAuthenticationContext context;
         public IPlayFabInstanceApi instanceApi;
+        public bool CalledGetResponse = false;
 
         public CallRequestContainer()
         {

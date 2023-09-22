@@ -52,6 +52,27 @@ namespace PlayFab.Json
     {
         public static PlayFabJsonSerializerStrategy ApiSerializerStrategy = new PlayFabJsonSerializerStrategy();
         private static DateTimeStyles _dateTimeStyles = DateTimeStyles.RoundtripKind;
+
+        private static bool _isInvariantCulture = false;
+
+        public static bool InvariantCulture
+        {
+            get { return _isInvariantCulture; }
+            set { _isInvariantCulture = value;}
+        }
+
+        private static CultureInfo GetCultureInfoParseType()
+        {
+            if(_isInvariantCulture)
+            {
+                return CultureInfo.InvariantCulture;
+            }
+            else
+            {
+                return CultureInfo.CurrentCulture;
+            }
+        }
+
         public class PlayFabJsonSerializerStrategy : PocoJsonSerializerStrategy
         {
             /// <summary>
@@ -71,14 +92,14 @@ namespace PlayFab.Json
                 else if (type == typeof(DateTime))
                 {
                     DateTime output;
-                    var result = DateTime.TryParseExact(valueStr, PlayFabUtil.DefaultDateTimeFormats, CultureInfo.CurrentCulture, _dateTimeStyles, out output);
+                    var result = DateTime.TryParseExact(valueStr, PlayFabUtil.DefaultDateTimeFormats, GetCultureInfoParseType(), _dateTimeStyles, out output);
                     if (result)
                         return output;
                 }
                 else if (type == typeof(DateTimeOffset))
                 {
                     DateTimeOffset output;
-                    var result = DateTimeOffset.TryParseExact(valueStr, PlayFabUtil.DefaultDateTimeFormats, CultureInfo.CurrentCulture, _dateTimeStyles, out output);
+                    var result = DateTimeOffset.TryParseExact(valueStr, PlayFabUtil.DefaultDateTimeFormats, GetCultureInfoParseType(), _dateTimeStyles, out output);
                     if (result)
                         return output;
                 }
@@ -103,12 +124,12 @@ namespace PlayFab.Json
                 }
                 else if (input is DateTime)
                 {
-                    output = ((DateTime)input).ToString(PlayFabUtil.DefaultDateTimeFormats[PlayFabUtil.DEFAULT_UTC_OUTPUT_INDEX], CultureInfo.CurrentCulture);
+                    output = ((DateTime)input).ToString(PlayFabUtil.DefaultDateTimeFormats[PlayFabUtil.DEFAULT_UTC_OUTPUT_INDEX], GetCultureInfoParseType());
                     return true;
                 }
                 else if (input is DateTimeOffset)
                 {
-                    output = ((DateTimeOffset)input).ToString(PlayFabUtil.DefaultDateTimeFormats[PlayFabUtil.DEFAULT_UTC_OUTPUT_INDEX], CultureInfo.CurrentCulture);
+                    output = ((DateTimeOffset)input).ToString(PlayFabUtil.DefaultDateTimeFormats[PlayFabUtil.DEFAULT_UTC_OUTPUT_INDEX], GetCultureInfoParseType());
                     return true;
                 }
                 else if (input is TimeSpan)

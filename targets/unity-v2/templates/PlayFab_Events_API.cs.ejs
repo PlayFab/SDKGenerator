@@ -1,0 +1,68 @@
+#if <%- getApiDefineFlag(api) %> && !DISABLE_PLAYFAB_STATIC_API
+
+using System;
+using System.Collections.Generic;
+using PlayFab.<%- api.name %>Models;
+using PlayFab.Internal;
+
+namespace PlayFab
+{
+<%- generateApiSummary("    ", api, "description")
+%>    public static <%- isPartial %>class PlayFab<%- api.name %>API
+    {
+        static PlayFab<%- api.name %>API() {}
+<% if (hasClientOptions) { %>
+        /// <summary>
+        /// Verify client login.
+        /// </summary>
+        public static bool IsClientLoggedIn()
+        {
+            return PlayFabSettings.staticPlayer.IsClientLoggedIn();
+        }
+<% } %>
+<% if (hasEntityTokenOptions) { %>
+        /// <summary>
+        /// Verify entity login.
+        /// </summary>
+        public static bool IsEntityLoggedIn()
+        {
+            return PlayFabSettings.staticPlayer.IsEntityLoggedIn();
+        }
+<% } %>
+        /// <summary>
+        /// Clear the Client SessionToken which allows this Client to call API calls requiring login.
+        /// A new/fresh login will be required after calling this.
+        /// </summary>
+        public static void ForgetAllCredentials()
+        {
+            PlayFabSettings.staticPlayer.ForgetAllCredentials();
+        }
+
+<% for(var i in api.calls) { var apiCall = api.calls[i]; %><%- generateApiSummary("        ", apiCall, "summary") %><%- getDeprecationAttribute("        ", apiCall)
+%>        public static void <%- apiCall.name %>(<%- apiCall.request %> request, Action<<%- apiCall.result %>> resultCallback, Action<PlayFabError> errorCallback, object customData = null, Dictionary<string, string> extraHeaders = null)
+        {
+            var context = (request == null ? null : request.AuthenticationContext) ?? PlayFabSettings.staticPlayer;
+            var callSettings = PlayFabSettings.staticSettings;
+<%- getRequestActions("            ", apiCall) %>
+<%- getCustomApiLogic("            ", apiCall) %>
+            PlayFabHttp.MakeApiCall("<%- apiCall.url %>", request, <%- getAuthParams(apiCall) %>, resultCallback, errorCallback, customData, extraHeaders, context, callSettings);
+        }<%- getCustomApiFunction("        ", api, apiCall) %>
+
+<% } %> <% if (apiCall.name == "WriteTelemetryEvents") 
+{ %>       /// <summary>
+        /// Write batches of entity based events to as Telemetry events (bypass PlayStream) using a Telemetry Key. The namespace must be 'custom' or start
+        /// with 'custom.'
+        /// </summary>
+        public static void <%- apiCall.name %>WithTelemetryKey(<%- apiCall.request %> request, Action<<%- apiCall.result %>> resultCallback, Action<PlayFabError> errorCallback, object customData = null, Dictionary<string, string> extraHeaders = null)
+        {
+            var context = (request == null ? null : request.AuthenticationContext) ?? PlayFabSettings.staticPlayer;
+            var callSettings = PlayFabSettings.staticSettings;
+            if (!context.IsTelemetryKeyProvided()) throw new PlayFabException(PlayFabExceptionCode.NotLoggedIn,"Must provide a telemetry key to call this method");
+
+            PlayFabHttp.MakeApiCall("<%- apiCall.url %>", request, AuthType.TelemetryKey, resultCallback, errorCallback, customData, extraHeaders, context, callSettings);
+        }<%- getCustomApiFunction("        ", api, apiCall) %>
+    <% } %>
+    }
+}
+
+#endif

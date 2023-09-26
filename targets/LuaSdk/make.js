@@ -178,12 +178,9 @@ function getResultAction(tabbing, apiCall) {
         preCallback = internalTabbing + "PlayFabSettings._internalSettings.entityToken = result.EntityToken\n";
     if (apiCall.url === "/GameServerIdentity/AuthenticateGameServerWithCustomId")
         preCallback = internalTabbing + "PlayFabSettings._internalSettings.entityToken = result.EntityToken.EntityToken\n";
-    else if (apiCall.result === "LoginResult") {
+    else if (apiCall.result === "LoginResult" || apiCall.result === "RegisterPlayFabUserResult") {
         preCallback = internalTabbing + "PlayFabSettings._internalSettings.sessionTicket = result.SessionTicket\n"
             + internalTabbing + "PlayFabSettings._internalSettings.entityToken = result.EntityToken.EntityToken\n";
-    }
-    else if (apiCall.request === "RegisterPlayFabUserRequest") {
-        preCallback = internalTabbing + "PlayFabSettings._internalSettings.sessionTicket = result.SessionTicket\n";
     }
 
     var resultAction = "";

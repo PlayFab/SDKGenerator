@@ -221,13 +221,10 @@ function getRequestActions(tabbing, apiCall) {
 }
 
 function getResultActions(tabbing, apiCall, api) {
-    if (apiCall.result === "LoginResult")
+    if (apiCall.result === "LoginResult" || apiCall.result === "RegisterPlayFabUserResult")
         return tabbing + "if playFabResult:\n" 
             + tabbing + "    PlayFabSettings._internalSettings.ClientSessionTicket = playFabResult[\"SessionTicket\"] if \"SessionTicket\" in playFabResult else PlayFabSettings._internalSettings.ClientSessionTicket\n"
             + tabbing + "    PlayFabSettings._internalSettings.EntityToken = playFabResult[\"EntityToken\"][\"EntityToken\"] if \"EntityToken\" in playFabResult else PlayFabSettings._internalSettings.EntityToken\n";
-    else if (apiCall.result === "RegisterPlayFabUserResult")
-        return tabbing + "if playFabResult:\n" 
-            + tabbing + "    PlayFabSettings._internalSettings.ClientSessionTicket = playFabResult[\"SessionTicket\"] if \"SessionTicket\" in playFabResult else PlayFabSettings._internalSettings.ClientSessionTicket\n";
     else if (apiCall.result === "GetEntityTokenResponse")
         return tabbing + "if playFabResult:\n"
             + tabbing + "    PlayFabSettings._internalSettings.EntityToken = playFabResult[\"EntityToken\"] if \"EntityToken\" in playFabResult else PlayFabSettings._internalSettings.EntityToken\n";

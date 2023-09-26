@@ -582,11 +582,9 @@ var getResultActions = function (tabbing, apiCall) {
     if (apiCall.url === "/Authentication/GetEntityToken")
         return tabbing + "if (outResult.EntityToken.length() > 0)\n"
             + tabbing + "    PlayFabSettings::entityToken = outResult.EntityToken;\n";
-    else if (apiCall.result === "LoginResult")
+    else if (apiCall.result === "LoginResult" || apiCall.result === "RegisterPlayFabUserResult")
         return tabbing + "if (outResult.SessionTicket.length() > 0) PlayFabSettings::clientSessionTicket = outResult.SessionTicket;\n"
             + tabbing + "if (outResult.EntityToken != nullptr) PlayFabSettings::entityToken = outResult.EntityToken->EntityToken;\n"
-    else if (apiCall.result === "RegisterPlayFabUserResult")
-        return tabbing + "if (outResult.SessionTicket.length() > 0) PlayFabSettings::clientSessionTicket = outResult.SessionTicket;\n\n";
     return "";
 }
 

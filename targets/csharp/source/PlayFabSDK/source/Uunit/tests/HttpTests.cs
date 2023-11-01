@@ -142,7 +142,8 @@ namespace PlayFab.UUnit
             {
                 try
                 {
-                    var result = mockHttpPluginWithPolly.DoPost("https://1b28.playfabapi.com/MultiplayerServer/ListPartyQosServers", null, null).GetAwaiter().GetResult();
+                   
+                    var result = mockHttpPluginWithPolly.DoPost($"https://{PlayFabSettings.staticSettings.TitleId}.playfabapi.com/MultiplayerServer/ListPartyQosServers", null, null).GetAwaiter().GetResult();
                     var response = result as PlayFabJsonSuccess<ListPartyQosServersResponse>;
                     testContext.NotNull(response);
                 }

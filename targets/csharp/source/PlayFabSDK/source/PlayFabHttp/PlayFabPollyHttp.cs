@@ -28,7 +28,7 @@ namespace PlayFab.Internal
             500, //HttpStatusCode.InternalServerError
             502, //HttpStatusCode.BadGateway
             503, //HttpStatusCode.ServiceUnavailable
-            504 //HttpStatusCode.GatewayTimeout
+            504  //HttpStatusCode.GatewayTimeout
         };
 
         /// <summary>
@@ -60,20 +60,22 @@ namespace PlayFab.Internal
             var jitterer = new Random();
             var retryPolicy = Policy
                .Handle<Exception>()
-               .OrResult<object>(r => r != null && HttpStatusCodesWorthRetrying.Contains((r as PlayFabError).HttpCode))
+                .OrResult<object>(r => r != null && (r as PlayFabError) != null && HttpStatusCodesWorthRetrying.Contains((r as PlayFabError).HttpCode))
                     .WaitAndRetryAsync(1,
                       retryAttempt => TimeSpan.FromSeconds(Math.Pow(2, retryAttempt))  // exponential back-off: 2, 4, 8 etc
                                 + TimeSpan.FromMilliseconds(jitterer.Next(0, 1000)));  // plus some jitter: up to 1 second
 
             var breakerPolicy = Policy.Handle<Exception>()
-                .OrResult<object>(r => r != null && HttpStatusCodesWorthRetrying.Contains((r as PlayFabError).HttpCode))
+                .OrResult<object>(r => r != null && (r as PlayFabError) != null && HttpStatusCodesWorthRetrying.Contains((r as PlayFabError).HttpCode))
                 .AdvancedCircuitBreakerAsync(
                     failureThreshold: 0.25,
                     samplingDuration: TimeSpan.FromSeconds(5),
                     minimumThroughput: 2,
                     durationOfBreak: TimeSpan.FromSeconds(20));
 
-            CommonResilience = breakerPolicy.WrapAsync(retryPolicy);
+            CommonResilience = retryPolicy.WrapAsync(breakerPolicy);
+
+            Name = "PlayFabWithPolly";
         }
 
         /// <inheritdoc/>
@@ -82,8 +84,7 @@ namespace PlayFab.Internal
             object doPostResult = await CommonResilience
                 .ExecuteAsync(async () =>
                 {
-                    var result = await base.DoPost(fullPath, request, headers) as PlayFabError;
-                    return result;
+                    return await base.DoPost(fullPath, request, headers);
                 });
 
             return doPostResult;
@@ -92,8 +93,6 @@ namespace PlayFab.Internal
         /// <summary>
         /// Overrides the Polly Policies to enforce.
         /// </summary>
-        /// <param name="retryPolicy">The retry policy to use.</param>
-        /// <param name="breakerPolicy">The circuit breaker policy to use.</param>
         /// <exception cref="ArgumentNullException"> Thrown when retryPolicy and/or breakerPolicy is null.</exception>
         public void OverridePolicies(AsyncPolicyWrap<object> policy)
         {

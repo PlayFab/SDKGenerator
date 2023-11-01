@@ -2,6 +2,7 @@
 
 using PlayFab.ClientModels;
 using PlayFab.Internal;
+using PlayFab.MultiplayerModels;
 using System;
 using System.Collections.Generic;
 using System.Linq;
@@ -81,8 +82,7 @@ namespace PlayFab.UUnit
         [UUnitTest]
         public void TestPluginWithPolly_Success(UUnitTestContext testContext)
         {
-            PluginManager.SetPlugin(mockHttpPluginWithoutPolly, PluginContract.PlayFab_Transport);
-            PluginManager.SetPlugin(mockHttpPluginWithPolly, PluginContract.PlayFab_Transport, "PluginWithPolly");
+            PluginManager.SetPlugin(mockHttpPluginWithPolly, PluginContract.PlayFab_Transport);
 
             PlayFabResult<ClientModels.GetTitlePublicKeyResult> result = clientApi.GetTitlePublicKeyAsync(null).GetAwaiter().GetResult();
 
@@ -136,22 +136,22 @@ namespace PlayFab.UUnit
             // In order to test one of the trigger for polly get hit, we need to add 400 because 
             // the endpoint we are calling will return 400, its the only way to test this without auth. 
             // The request sent to playfab is faultly thus we get back a 400 on the public api.
-            mockHttpPluginWithPolly.HttpStatusCodesWorthRetrying.Add(400);
             const int numberOfFailures = 10;
             int numberOfTimesThrottled = 0;
             var getPublicKeysRequestTasks = Enumerable.Range(0, numberOfFailures).Select(async _ =>
             {
                 try
                 {
-                    var result = mockHttpPluginWithPolly.DoPost("https://bloop.playfabapi.com/Client/GetTitlePublicKey", null, null).GetAwaiter().GetResult() as PlayFabError;
-
-                    testContext.NotNull(result.Error);
+                    var result = mockHttpPluginWithPolly.DoPost("https://1b28.playfabapi.com/MultiplayerServer/ListPartyQosServers", null, null).GetAwaiter().GetResult();
+                    var response = result as PlayFabJsonSuccess<ListPartyQosServersResponse>;
+                    testContext.NotNull(response);
                 }
-                catch (Exception)
+                catch (Polly.CircuitBreaker.BrokenCircuitException)
                 {
                     numberOfTimesThrottled++;
                 }
             });
+
 
             Task.WhenAll(getPublicKeysRequestTasks).Wait();
             testContext.True(numberOfTimesThrottled != 0);

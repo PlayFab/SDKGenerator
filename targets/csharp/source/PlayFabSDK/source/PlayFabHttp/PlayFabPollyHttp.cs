@@ -11,7 +11,8 @@ using System.Net.Http;
 using System.Threading.Tasks;
 
 namespace PlayFab.Internal
-{   /// <summary>
+{   
+    /// <summary>
     /// A Polly wrapped version of PlayFab Transport plug in which used
     /// when making http requests to PlayFab Main Server.
     /// </summary>

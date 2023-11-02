@@ -77,7 +77,6 @@ namespace PlayFab.Internal
         /// <summary>
         /// Overrides the Polly Policies to enforce.
         /// </summary>
-        /// <exception cref="ArgumentNullException"> Thrown when retryPolicy and/or breakerPolicy is null.</exception>
         public void OverridePolicies(AsyncRetryPolicy<object> policy)
         {
             RetryPolicy = policy;

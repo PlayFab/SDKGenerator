@@ -77,7 +77,7 @@ namespace PlayFab.UUnit
                     }
                     if (continueAction != null)
                         continueAction.Invoke(task.Result, testContext, failMessage);
-                    failed = false;
+                    failed = (task.Result.Error != null && expectSuccess == true);
                 }
                 catch (UUnitSkipException uu)
                 {

@@ -78,20 +78,24 @@ namespace PlayFab.UUnit
                     if (continueAction != null)
                         continueAction.Invoke(task.Result, testContext, failMessage);
                     failed = (task.Result.Error != null && expectSuccess == true);
+                    Console.WriteLine("Test failed: " + failed + " for: " + failMessage);
                 }
                 catch (UUnitSkipException uu)
                 {
                     // Silence the assert and ensure the test is marked as complete - The exception is just to halt the test process
+                    Console.WriteLine("UUnitSkipException caught: " + uu.Message);
                     testContext.EndTest(UUnitFinishState.SKIPPED, uu.Message);
                 }
                 catch (UUnitException uu)
                 {
                     // Silence the assert and ensure the test is marked as complete - The exception is just to halt the test process
+                    Console.WriteLine("UUnitException caught: " + uu.Message);
                     testContext.EndTest(UUnitFinishState.FAILED, uu.Message + "\n" + uu.StackTrace);
                 }
                 catch (Exception e)
                 {
                     // Report this exception as an unhandled failure in the test
+                    Console.WriteLine("Exception e: " + e.Message);
                     testContext.EndTest(UUnitFinishState.FAILED, e.ToString());
                 }
                 if (!failed && endTest)

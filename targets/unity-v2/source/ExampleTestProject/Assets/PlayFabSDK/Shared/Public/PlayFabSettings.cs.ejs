@@ -46,6 +46,7 @@ namespace PlayFab
         public const string SdkVersion = "<%- sdkVersion %>";
         public const string BuildIdentifier = "<%- buildIdentifier %>";
         public const string VersionString = "UnitySDK-<%- sdkVersion %>";
+        public static string EngineVersion = UnityEngine.Application.unityVersion;
 
         public const string DefaultPlayFabApiUrl = "playfabapi.com";
 
@@ -217,9 +218,9 @@ namespace PlayFab
 
             sb.Append(baseUrl).Append(apiCall);
 
+            bool firstParam = true;
             if (getParams != null)
             {
-                bool firstParam = true;
                 foreach (var paramPair in getParams)
                 {
                     if (firstParam)
@@ -234,6 +235,9 @@ namespace PlayFab
                     sb.Append(paramPair.Key).Append("=").Append(paramPair.Value);
                 }
             }
+
+            sb.Append(firstParam ? "?" : "&");
+            sb.Append("engineVersion=").Append(EngineVersion);
 
             return sb.ToString();
         }

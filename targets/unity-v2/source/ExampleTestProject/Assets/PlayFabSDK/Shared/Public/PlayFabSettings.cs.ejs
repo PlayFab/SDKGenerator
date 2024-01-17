@@ -47,6 +47,7 @@ namespace PlayFab
         public const string BuildIdentifier = "<%- buildIdentifier %>";
         public const string VersionString = "UnitySDK-<%- sdkVersion %>";
         public static string EngineVersion = UnityEngine.Application.unityVersion;
+        public static string PlatformString;
 
         public const string DefaultPlayFabApiUrl = "playfabapi.com";
 
@@ -148,10 +149,51 @@ namespace PlayFab
             _cachedStringBuilder.Clear();
             return _cachedStringBuilder;
         }
-        
+
+        public static void DeterminePlatform()
+        {
+
+            switch (Application.platform)
+            {
+                case RuntimePlatform.WindowsEditor:
+                case RuntimePlatform.WindowsPlayer:
+                    PlatformString = "Windows";
+                    break;
+
+                case RuntimePlatform.XboxOne:
+                    PlatformString = "GDK";
+                    break;
+
+                case RuntimePlatform.PS4:
+                    PlatformString = "PS4";
+                    break;
+
+                case RuntimePlatform.PS5:
+                    PlatformString = "PS5";
+                    break;
+
+                case RuntimePlatform.Switch:
+                    PlatformString = "Switch";
+                    break;
+
+                case RuntimePlatform.IPhonePlayer:
+                    PlatformString = "iOS";
+                    break;
+
+                case RuntimePlatform.Android:
+                    PlatformString = "Android";
+                    break;
+
+                default:
+                    PlatformString = Application.platform.ToString();
+                    break;
+            }
+        }
+     
         public static string GetFullUrl(string apiCall, Dictionary<string, string> getParams, PlayFabApiSettings apiSettings = null)
         {
             StringBuilder sb = AcquireStringBuilder();
+            DeterminePlatform();
 
             string productionEnvironmentUrl = null, verticalName = null, titleId = null;
 
@@ -238,6 +280,7 @@ namespace PlayFab
 
             sb.Append(firstParam ? "?" : "&");
             sb.Append("engineVersion=").Append(EngineVersion);
+            sb.Append("&platform=").Append(PlatformString);
 
             return sb.ToString();
         }

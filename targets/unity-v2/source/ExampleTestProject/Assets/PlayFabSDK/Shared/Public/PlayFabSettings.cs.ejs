@@ -259,7 +259,7 @@ namespace PlayFab
             }
 
             sb.Append(firstParam ? "?" : "&");
-            sb.Append("engineVersion=").Append(EngineVersion);
+            sb.Append("engine=").Append(EngineVersion);
             sb.Append("&platform=").Append(PlatformString);
 
             return sb.ToString();

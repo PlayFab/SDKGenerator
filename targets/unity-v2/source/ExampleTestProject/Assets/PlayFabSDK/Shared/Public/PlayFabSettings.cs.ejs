@@ -29,7 +29,8 @@ namespace PlayFab
 
     public static class PlayFabSettings
     {
-        static PlayFabSettings() {
+        static PlayFabSettings() 
+        {
 #if UNITY_GAMECORE || UNITY_GAMECORE_XBOXONE || UNITY_GAMECORE_SCARLETT || MICROSOFT_GAME_CORE
             PlatformString = "GDK";
 #else

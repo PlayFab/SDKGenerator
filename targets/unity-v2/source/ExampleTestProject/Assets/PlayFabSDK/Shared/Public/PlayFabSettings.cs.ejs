@@ -29,7 +29,29 @@ namespace PlayFab
 
     public static class PlayFabSettings
     {
-        static PlayFabSettings() { }
+        static PlayFabSettings() 
+        {
+#if UNITY_GAMECORE || UNITY_GAMECORE_XBOXONE || UNITY_GAMECORE_SCARLETT || MICROSOFT_GAME_CORE
+            PlatformString = "GDK";
+#else
+        switch (Application.platform)
+        {
+            case RuntimePlatform.WindowsEditor:
+            case RuntimePlatform.WindowsPlayer:
+            case RuntimePlatform.WindowsServer:
+                PlatformString = "Windows";
+                break;
+
+            case RuntimePlatform.IPhonePlayer:
+                PlatformString = "iOS";
+                break;
+
+            default:
+                PlatformString = Application.platform.ToString();
+                break;
+        }
+#endif
+        }
 
         private static PlayFabSharedSettings _playFabShared = null;
         private static PlayFabSharedSettings PlayFabSharedPrivate { get { if (_playFabShared == null) _playFabShared = GetSharedSettingsObjectPrivate(); return _playFabShared; } }
@@ -47,6 +69,7 @@ namespace PlayFab
         public const string BuildIdentifier = "<%- buildIdentifier %>";
         public const string VersionString = "UnitySDK-<%- sdkVersion %>";
         public static string EngineVersion = UnityEngine.Application.unityVersion;
+        public static string PlatformString;
 
         public const string DefaultPlayFabApiUrl = "playfabapi.com";
 
@@ -148,7 +171,7 @@ namespace PlayFab
             _cachedStringBuilder.Clear();
             return _cachedStringBuilder;
         }
-        
+
         public static string GetFullUrl(string apiCall, Dictionary<string, string> getParams, PlayFabApiSettings apiSettings = null)
         {
             StringBuilder sb = AcquireStringBuilder();
@@ -237,7 +260,8 @@ namespace PlayFab
             }
 
             sb.Append(firstParam ? "?" : "&");
-            sb.Append("engineVersion=").Append(EngineVersion);
+            sb.Append("engine=").Append(EngineVersion);
+            sb.Append("&platform=").Append(PlatformString);
 
             return sb.ToString();
         }

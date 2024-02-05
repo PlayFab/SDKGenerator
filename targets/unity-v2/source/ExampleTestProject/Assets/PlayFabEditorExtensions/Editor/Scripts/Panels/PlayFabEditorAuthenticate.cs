@@ -236,8 +236,12 @@ namespace PlayFab.PfEditor
 
                 using (new UnityHorizontal(PlayFabEditorHelper.uiStyle.GetStyle("labelStyle")))
                 {
+<<<<<<< HEAD
                     GUI.SetNextControlName("create_account");
                     if (GUILayout.Button("CREATE AN ACCOUNT", PlayFabEditorHelper.uiStyle.GetStyle("textButton"), GUILayout.MaxWidth(100)))
+=======
+                    if (GUILayout.Button("CREATE AN ACCOUNT", PlayFabEditorHelper.uiStyle.GetStyle("Button"), GUILayout.MinHeight(35),GUILayout.MaxWidth(180)))
+>>>>>>> 457550793f9e98e54cd8a363a068dfb9cfb8bfa8
                     {
                         activeState = PanelDisplayStates.Register;
                     }
@@ -290,7 +294,7 @@ namespace PlayFab.PfEditor
 
                 using (new UnityHorizontal(PlayFabEditorHelper.uiStyle.GetStyle("gpStyleClear")))
                 {
-                    if (GUILayout.Button("LOG IN", PlayFabEditorHelper.uiStyle.GetStyle("textButton"), GUILayout.MinHeight(32)))
+                    if (GUILayout.Button("LOG IN", PlayFabEditorHelper.uiStyle.GetStyle("Button"), GUILayout.MinHeight(32)))
                     {
                         activeState = PanelDisplayStates.Login;
                     }
@@ -339,7 +343,7 @@ namespace PlayFab.PfEditor
         {
             if (_userPass != _userPass2)
             {
-                Debug.LogError("PlayFab developer account passwords must match.");
+                Debug.LogError("<color=white>PlayFab developer account passwords must match.</color>");
                 return;
             }
 

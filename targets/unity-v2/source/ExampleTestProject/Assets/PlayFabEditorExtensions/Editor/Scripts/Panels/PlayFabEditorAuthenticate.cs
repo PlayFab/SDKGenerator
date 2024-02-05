@@ -236,12 +236,8 @@ namespace PlayFab.PfEditor
 
                 using (new UnityHorizontal(PlayFabEditorHelper.uiStyle.GetStyle("labelStyle")))
                 {
-<<<<<<< HEAD
                     GUI.SetNextControlName("create_account");
-                    if (GUILayout.Button("CREATE AN ACCOUNT", PlayFabEditorHelper.uiStyle.GetStyle("textButton"), GUILayout.MaxWidth(100)))
-=======
                     if (GUILayout.Button("CREATE AN ACCOUNT", PlayFabEditorHelper.uiStyle.GetStyle("Button"), GUILayout.MinHeight(35),GUILayout.MaxWidth(180)))
->>>>>>> 457550793f9e98e54cd8a363a068dfb9cfb8bfa8
                     {
                         activeState = PanelDisplayStates.Register;
                     }

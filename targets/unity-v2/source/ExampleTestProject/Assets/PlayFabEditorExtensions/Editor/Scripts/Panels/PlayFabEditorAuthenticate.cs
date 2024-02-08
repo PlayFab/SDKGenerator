@@ -23,8 +23,8 @@ namespace PlayFab.PfEditor
         private static PanelDisplayStates activeState = PanelDisplayStates.Login;
         #endregion
 
-        #region draw calls
-        private static void shiftKeyHandler()
+#region draw calls
+private static void shiftKeyHandler()
         {
             var e = Event.current;
             if (e.keyCode == KeyCode.LeftShift || e.keyCode == KeyCode.RightShift)
@@ -100,6 +100,74 @@ namespace PlayFab.PfEditor
                             break;
                         case 5:
                             EditorGUI.FocusTextInControl("login_microsoft");
+                            focusIndex = 4;
+                            break;
+                    }
+                }
+            }
+        }
+        public static void CreatHandler()
+        {
+            var e = Event.current;
+            shiftKeyHandler(); // method calling
+            if (e.type == EventType.KeyUp && e.keyCode == KeyCode.Tab)
+            {
+                if (!isShiftKeyPressed)
+                {
+                    switch (focusIndex)
+                    {
+                        case 0:
+                            EditorGUI.FocusTextInControl("email");
+                            focusIndex = 1;
+                            break;
+                        case 1:
+                            EditorGUI.FocusTextInControl("password");
+                            focusIndex = 2;
+                            break;
+                        case 2:
+                            EditorGUI.FocusTextInControl("confirm_password");
+                            focusIndex = 3;
+                            break;
+                        case 3:
+                            EditorGUI.FocusTextInControl("studio_name");
+                            focusIndex = 4;
+                            break;
+                        case 4:
+                            GUI.FocusControl("create_account");
+                            focusIndex = 5;
+                            break;
+                        case 5:
+                            GUI.FocusControl("login");
+                            focusIndex = 0;
+                            break;
+                    }
+                }
+                else
+                {
+                    switch (focusIndex)
+                    {
+                        case 0:
+                            GUI.FocusControl("login");
+                            focusIndex = 5;
+                            break;
+                        case 1:
+                            GUI.FocusControl("email");
+                            focusIndex = 0;
+                            break;
+                        case 2:
+                            EditorGUI.FocusTextInControl("password");
+                            focusIndex = 1;
+                            break;
+                        case 3:
+                            EditorGUI.FocusTextInControl("confirm_password");
+                            focusIndex = 2;
+                            break;
+                        case 4:
+                            EditorGUI.FocusTextInControl("studio_name");
+                            focusIndex = 3;
+                            break;
+                        case 5:
+                            EditorGUI.FocusTextInControl("create_account");
                             focusIndex = 4;
                             break;
                     }
@@ -194,6 +262,7 @@ namespace PlayFab.PfEditor
             {
                 // register mode
                 DrawRegister();
+                CreatHandler();
             }
             else
             {
@@ -267,36 +336,42 @@ namespace PlayFab.PfEditor
                 using (var fwl = new FixedWidthLabel("EMAIL:"))
                 {
                     GUILayout.Space(labelWidth - fwl.fieldWidth);
+                    GUI.SetNextControlName("email");
                     _userEmail = EditorGUILayout.TextField(_userEmail, PlayFabEditorHelper.uiStyle.GetStyle("TextField"), GUILayout.MinHeight(25));
                 }
 
                 using (var fwl = new FixedWidthLabel("PASSWORD:"))
                 {
                     GUILayout.Space(labelWidth - fwl.fieldWidth);
+                    GUI.SetNextControlName("password");
                     _userPass = EditorGUILayout.PasswordField(_userPass, PlayFabEditorHelper.uiStyle.GetStyle("TextField"), GUILayout.MinHeight(25));
                 }
 
                 using (var fwl = new FixedWidthLabel("CONFIRM PASSWORD:  "))
                 {
                     GUILayout.Space(labelWidth - fwl.fieldWidth);
+                    GUI.SetNextControlName("confirm_password");
                     _userPass2 = EditorGUILayout.PasswordField(_userPass2, PlayFabEditorHelper.uiStyle.GetStyle("TextField"), GUILayout.MinHeight(25));
                 }
 
                 using (var fwl = new FixedWidthLabel("STUDIO NAME:  "))
                 {
                     GUILayout.Space(labelWidth - fwl.fieldWidth);
+                    GUI.SetNextControlName("studio_name");
                     _studio = EditorGUILayout.TextField(_studio, PlayFabEditorHelper.uiStyle.GetStyle("TextField"), GUILayout.MinHeight(25));
+
                 }
 
                 using (new UnityHorizontal(PlayFabEditorHelper.uiStyle.GetStyle("gpStyleClear")))
                 {
+                    GUI.SetNextControlName("login");
                     if (GUILayout.Button("LOG IN", PlayFabEditorHelper.uiStyle.GetStyle("Button"), GUILayout.MinHeight(32)))
                     {
                         activeState = PanelDisplayStates.Login;
                     }
 
                     GUILayout.FlexibleSpace();
-
+                    GUI.SetNextControlName("create_account");
                     if (GUILayout.Button("  CREATE AN ACCOUNT  ", PlayFabEditorHelper.uiStyle.GetStyle("Button"), GUILayout.MinHeight(32)))
                     {
                         OnRegisterClicked();

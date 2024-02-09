@@ -106,7 +106,7 @@ private static void shiftKeyHandler()
                 }
             }
         }
-        public static void CreatHandler()
+        public static void CreateHandler()
         {
             var e = Event.current;
             shiftKeyHandler(); // method calling
@@ -262,7 +262,7 @@ private static void shiftKeyHandler()
             {
                 // register mode
                 DrawRegister();
-                CreatHandler();
+                CreateHandler();
             }
             else
             {

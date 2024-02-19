@@ -89,14 +89,18 @@ namespace PlayFab.PfEditor
                             focusIndex = 3;
                             break;
                         case 3:
-                            GUI.FocusControl("add");
+                            EditorGUI.FocusTextInControl("new_value_text_field");
                             focusIndex = 4;
                             break;
                         case 4:
-                            EditorGUI.FocusTextInControl("refresh");
-                            focusIndex = 4;
+                            GUI.FocusControl("add");
+                            focusIndex = 5;
                             break;
                         case 5:
+                            EditorGUI.FocusTextInControl("refresh");
+                            focusIndex = 6;
+                            break;
+                        case 6:
                             GUI.FocusControl("save");
                             focusIndex = 0;
                             break;
@@ -148,6 +152,7 @@ namespace PlayFab.PfEditor
 
                         using (new UnityHorizontal(PlayFabEditorHelper.uiStyle.GetStyle("gpStyleClear")))
                         {
+                            GUI.SetNextControlName("new_value_text_field");
                             items[z].Key = EditorGUILayout.TextField(items[z].Key, keyStyle, GUILayout.Width(keyInputBoxWidth));
 
                             EditorGUILayout.LabelField(":", GUILayout.MaxWidth(10));
@@ -196,9 +201,8 @@ namespace PlayFab.PfEditor
 
         private void AddRecord()
         {
-            GUI.SetNextControlName("new_value_text_field");
+            //GUI.SetNextControlName("new_value_text_field");
             items.Add(new KvpItem("", "NewValue") { isDirty = true });
-            GUI.SetNextControlName("editnew");
         }
 
         public void RefreshTitleData()

@@ -84,7 +84,8 @@ namespace PlayFab.UUnit
         {
             PluginManager.SetPlugin(mockHttpPluginWithPolly, PluginContract.PlayFab_Transport);
 
-            PlayFabResult<ClientModels.GetTitlePublicKeyResult> result = clientApi.GetTitlePublicKeyAsync(null).GetAwaiter().GetResult();
+            LoginWithCustomIDRequest request = new LoginWithCustomIDRequest { CustomId = "TestPluginWithPolly", CreateAccount = true };
+            PlayFabResult<ClientModels.LoginResult> result = clientApi.LoginWithCustomIDAsync(request).GetAwaiter().GetResult();
 
             testContext.NotNull(result.Result);
             testContext.IsNull(result.Error);

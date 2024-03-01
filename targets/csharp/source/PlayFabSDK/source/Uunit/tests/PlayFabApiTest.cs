@@ -137,6 +137,24 @@ namespace PlayFab.UUnit
 
         /// <summary>
         /// CLIENT API
+        /// Log in or create a user, but use response compression.
+        /// </summary>
+        [UUnitTest]
+        public void LoginWithCompression(UUnitTestContext testContext)
+        {
+            try
+            {
+                clientApi.apiSettings.CompressResponses = true;
+                LoginOrRegister(testContext);
+            }
+            finally
+            {
+                clientApi.apiSettings.CompressResponses = false;
+            }
+        }
+
+        /// <summary>
+        /// CLIENT API
         /// Test a sequence of calls that modifies saved data,
         ///   and verifies that the next sequential API call contains updated data.
         /// Verify that the data is correctly modified on the next call.

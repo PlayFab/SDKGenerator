@@ -56,6 +56,9 @@ namespace PlayFab
                     case PluginContract.PlayFab_Transport:
                         plugin = this.CreatePlugin<PlayFabSysHttp>();
                         break;
+                    case PluginContract.PlayFab_Transport_Decompress:
+                        plugin = this.CreatePlugin<HttpTransportWithDecompression>();
+                        break;
                     default:
                         throw new ArgumentException("This contract is not supported", nameof(contract));
                 }

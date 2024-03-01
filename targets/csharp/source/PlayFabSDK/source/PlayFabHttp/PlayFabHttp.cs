@@ -69,7 +69,9 @@ namespace PlayFab.Internal
             var titleId = settings.TitleId;
             if (titleId == null)
                 throw new PlayFabException(PlayFabExceptionCode.TitleNotSet, "You must set your titleId before making an api call");
-            var transport = PluginManager.GetPlugin<ITransportPlugin>(PluginContract.PlayFab_Transport);
+            var transport = settings.CompressResponses ?
+                PluginManager.GetPlugin<ITransportPlugin>(PluginContract.PlayFab_Transport_Decompress) :
+                PluginManager.GetPlugin<ITransportPlugin>(PluginContract.PlayFab_Transport);
 
             var headers = new Dictionary<string, string>();
             if (authType != null && authKey != null)

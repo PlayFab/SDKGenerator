@@ -10,7 +10,7 @@ namespace PlayFab.Internal
 {
     public class PlayFabSysHttp : ITransportPlugin
     {
-        private readonly HttpClient _client = new HttpClient();
+        protected HttpClient _client = new HttpClient();
 
         public async Task<object> DoPost(string fullUrl, object request, Dictionary<string, string> extraHeaders)
         {

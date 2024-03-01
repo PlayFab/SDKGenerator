@@ -144,12 +144,12 @@ namespace PlayFab.UUnit
         {
             try
             {
-                clientApi.apiSettings.CompressResponses = true;
+                PlayFabSettings.staticSettings.CompressResponses = true;
                 LoginOrRegister(testContext);
             }
             finally
             {
-                clientApi.apiSettings.CompressResponses = false;
+                PlayFabSettings.staticSettings.CompressResponses = false;
             }
         }
 

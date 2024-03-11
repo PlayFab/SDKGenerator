@@ -175,12 +175,12 @@ namespace PlayFab.UUnit
         {
             try
             {
-                PlayFabSettings.staticSettings.CompressResponses = true;
+                clientSettings.CompressResponses = true;
                 LoginOrRegister(testContext);
             }
             finally
             {
-                PlayFabSettings.staticSettings.CompressResponses = false;
+                clientSettings.CompressResponses = false;
             }
         }
 

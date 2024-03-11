@@ -140,15 +140,14 @@ namespace PlayFab.Internal
                 method = "POST"
             };
 
-            if (PlayFabSettings.staticSettings.CompressResponses)
+            if (reqContainer.settings.CompressResponses)
             {
                 www.SetRequestHeader("Accept-Encoding", "gzip");
-                www.downloadHandler = PlayFabSettings.staticSettings.DecompressWithDownloadHandler ? new GzipDownloadHandler()
-                                                                                                   : new DownloadHandlerBuffer();
+                www.downloadHandler = reqContainer.settings.DecompressWithDownloadHandler ? new GzipDownloadHandler()
+                                                                                          : new DownloadHandlerBuffer();
             }
             else
             {
-                Debug.Log("Using DownloadHandlerBuffer");
                 www.downloadHandler = new DownloadHandlerBuffer();
             }
 

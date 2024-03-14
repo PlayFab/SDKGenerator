@@ -262,9 +262,14 @@ function getRequestActions(tabbing, apiCall, isInstance) {
             + tabbing + "if (request != null) request.PlayerAccountPoolId = request?.PlayerAccountPoolId ?? requestSettings.PlayerAccountPoolId;\n"
             + tabbing + "if (request.PlayerAccountPoolId == null) throw new PlayFabException(PlayFabExceptionCode.PlayerAccountPoolNotSet, \"PlayerAccountPoolId must be set in your local or global settings to call this method\");\n";
     if (apiCall.auth === "EntityToken" && apiCall.name === "ValidateEntityToken")
-    {
-        return "\n"+tabbing+"var entityToken = request?.AuthenticationContext?.EntityToken ?? PlayFabSettings.staticPlayer.EntityToken;\n"
-                    +tabbing + "if ((entityToken) == null) throw new PlayFabException(PlayFabExceptionCode.EntityTokenNotSet, \"Must call Client Login or GetEntityToken before calling this method\");\n";
+    {   
+        if(isInstance)
+            return "\n" + tabbing + "var entityToken = requestContext?.EntityToken ?? PlayFabSettings.staticPlayer.EntityToken;\n"
+                + tabbing + "if ((entityToken) == null) throw new PlayFabException(PlayFabExceptionCode.EntityTokenNotSet, \"Must call Client Login or GetEntityToken before calling this method\");\n";
+        else
+            return "\n" + tabbing + "var entityToken = request?.AuthenticationContext?.EntityToken ?? PlayFabSettings.staticPlayer.EntityToken;\n"
+                + tabbing + "if ((entityToken) == null) throw new PlayFabException(PlayFabExceptionCode.EntityTokenNotSet, \"Must call Client Login or GetEntityToken before calling this method\");\n";
+
     }
     else if (apiCall.auth === "EntityToken")
     {

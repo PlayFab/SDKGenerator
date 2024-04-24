@@ -48,8 +48,8 @@ namespace PlayFab.PfEditor
 #if UNITY_SERVER
                 NamedBuildTarget buildTarget = NamedBuildTarget.Server;
 #else
-                BuildTarget buildTarget = EditorUserBuildSettings.activeBuildTarget;
-                BuildTargetGroup targetGroup = BuildPipeline.GetBuildTargetGroup(buildTarget);
+                BuildTarget activeBuildTarget = EditorUserBuildSettings.activeBuildTarget;
+                BuildTargetGroup targetGroup = BuildPipeline.GetBuildTargetGroup(activeBuildTarget);
                 NamedBuildTarget buildTarget = NamedBuildTarget.FromBuildTargetGroup(targetGroup);
 #endif
 #else

@@ -60,11 +60,11 @@
     <Reference Include="Kusto.Cloud.Platform, Version=12.2.3.0, Culture=neutral, PublicKeyToken=829a00acde12d551, processorArchitecture=MSIL">
       <HintPath>packages\Microsoft.Azure.Kusto.Cloud.Platform.12.2.3\lib\net472\Kusto.Cloud.Platform.dll</HintPath>
     </Reference>
-    <Reference Include="Kusto.Cloud.Platform.Aad, Version=10.0.3.0, Culture=neutral, PublicKeyToken=829a00acde12d551, processorArchitecture=MSIL">
-      <HintPath>packages\Microsoft.Azure.Kusto.Cloud.Platform.Aad.10.0.3\lib\net472\Kusto.Cloud.Platform.Aad.dll</HintPath>
+    <Reference Include="Kusto.Cloud.Platform.Aad, Version=11.2.3.0, Culture=neutral, PublicKeyToken=829a00acde12d551, processorArchitecture=MSIL">
+      <HintPath>packages\Microsoft.Azure.Kusto.Cloud.Platform.Aad.11.2.3\lib\net472\Kusto.Cloud.Platform.Aad.dll</HintPath>
     </Reference>
-    <Reference Include="Kusto.Cloud.Platform.Azure, Version=10.0.3.0, Culture=neutral, PublicKeyToken=829a00acde12d551, processorArchitecture=MSIL">
-      <HintPath>packages\Microsoft.Azure.Kusto.Cloud.Platform.Azure.10.0.3\lib\net472\Kusto.Cloud.Platform.Azure.dll</HintPath>
+    <Reference Include="Kusto.Cloud.Platform.Azure, Version=11.3.0.0, Culture=neutral, PublicKeyToken=829a00acde12d551, processorArchitecture=MSIL">
+      <HintPath>packages\Microsoft.Azure.Kusto.Cloud.Platform.Azure.11.3.0\lib\net472\Kusto.Cloud.Platform.Azure.dll</HintPath>
     </Reference>
     <Reference Include="Kusto.Cloud.Platform.Msal, Version=12.2.3.0, Culture=neutral, PublicKeyToken=829a00acde12d551, processorArchitecture=MSIL">
       <HintPath>packages\Microsoft.Azure.Kusto.Cloud.Platform.Msal.12.2.3\lib\net472\Kusto.Cloud.Platform.Msal.dll</HintPath>
@@ -236,8 +236,8 @@
     <Reference Include="System.Text.Encodings.Web, Version=8.0.0.0, Culture=neutral, PublicKeyToken=cc7b13ffcd2ddd51, processorArchitecture=MSIL">
       <HintPath>packages\System.Text.Encodings.Web.8.0.0\lib\net462\System.Text.Encodings.Web.dll</HintPath>
     </Reference>
-    <Reference Include="System.Text.Json, Version=8.0.0.1, Culture=neutral, PublicKeyToken=cc7b13ffcd2ddd51, processorArchitecture=MSIL">
-      <HintPath>packages\System.Text.Json.8.0.1\lib\net462\System.Text.Json.dll</HintPath>
+    <Reference Include="System.Text.Json, Version=8.0.0.4, Culture=neutral, PublicKeyToken=cc7b13ffcd2ddd51, processorArchitecture=MSIL">
+      <HintPath>packages\System.Text.Json.8.0.4\lib\net462\System.Text.Json.dll</HintPath>
     </Reference>
     <Reference Include="System.Threading" />
     <Reference Include="System.Threading.Tasks" />

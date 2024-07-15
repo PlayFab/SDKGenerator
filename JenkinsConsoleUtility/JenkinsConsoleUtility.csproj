@@ -42,8 +42,20 @@
     <Reference Include="Azure.Core, Version=1.40.0.0, Culture=neutral, PublicKeyToken=92742159e12e44c8, processorArchitecture=MSIL">
       <HintPath>packages\Azure.Core.1.40.0\lib\net472\Azure.Core.dll</HintPath>
     </Reference>
+    <Reference Include="Azure.Data.Tables, Version=12.8.0.0, Culture=neutral, PublicKeyToken=92742159e12e44c8, processorArchitecture=MSIL">
+      <HintPath>packages\Azure.Data.Tables.12.8.0\lib\netstandard2.0\Azure.Data.Tables.dll</HintPath>
+    </Reference>
     <Reference Include="Azure.Identity, Version=1.12.0.0, Culture=neutral, PublicKeyToken=92742159e12e44c8, processorArchitecture=MSIL">
       <HintPath>packages\Azure.Identity.1.12.0\lib\netstandard2.0\Azure.Identity.dll</HintPath>
+    </Reference>
+    <Reference Include="Azure.Storage.Blobs, Version=12.16.0.0, Culture=neutral, PublicKeyToken=92742159e12e44c8, processorArchitecture=MSIL">
+      <HintPath>packages\Azure.Storage.Blobs.12.16.0\lib\netstandard2.0\Azure.Storage.Blobs.dll</HintPath>
+    </Reference>
+    <Reference Include="Azure.Storage.Common, Version=12.15.0.0, Culture=neutral, PublicKeyToken=92742159e12e44c8, processorArchitecture=MSIL">
+      <HintPath>packages\Azure.Storage.Common.12.15.0\lib\netstandard2.0\Azure.Storage.Common.dll</HintPath>
+    </Reference>
+    <Reference Include="Azure.Storage.Queues, Version=12.14.0.0, Culture=neutral, PublicKeyToken=92742159e12e44c8, processorArchitecture=MSIL">
+      <HintPath>packages\Azure.Storage.Queues.12.14.0\lib\netstandard2.0\Azure.Storage.Queues.dll</HintPath>
     </Reference>
     <Reference Include="Kusto.Cloud.Platform, Version=12.2.3.0, Culture=neutral, PublicKeyToken=829a00acde12d551, processorArchitecture=MSIL">
       <HintPath>packages\Microsoft.Azure.Kusto.Cloud.Platform.12.2.3\lib\net472\Kusto.Cloud.Platform.dll</HintPath>
@@ -60,8 +72,8 @@
     <Reference Include="Kusto.Data, Version=12.2.3.0, Culture=neutral, PublicKeyToken=829a00acde12d551, processorArchitecture=MSIL">
       <HintPath>packages\Microsoft.Azure.Kusto.Data.12.2.3\lib\net472\Kusto.Data.dll</HintPath>
     </Reference>
-    <Reference Include="Kusto.Ingest, Version=10.0.3.0, Culture=neutral, PublicKeyToken=829a00acde12d551, processorArchitecture=MSIL">
-      <HintPath>packages\Microsoft.Azure.Kusto.Ingest.10.0.3\lib\net472\Kusto.Ingest.dll</HintPath>
+    <Reference Include="Kusto.Ingest, Version=12.2.3.0, Culture=neutral, PublicKeyToken=829a00acde12d551, processorArchitecture=MSIL">
+      <HintPath>packages\Microsoft.Azure.Kusto.Ingest.12.2.3\lib\net472\Kusto.Ingest.dll</HintPath>
     </Reference>
     <Reference Include="Microsoft.Azure.KeyVault.Core, Version=3.0.5.0, Culture=neutral, PublicKeyToken=31bf3856ad364e35, processorArchitecture=MSIL">
       <HintPath>packages\Microsoft.Azure.KeyVault.Core.3.0.5\lib\net461\Microsoft.Azure.KeyVault.Core.dll</HintPath>
@@ -146,6 +158,9 @@
     <Reference Include="System.IO.Compression" />
     <Reference Include="System.IO.FileSystem.AccessControl, Version=5.0.0.0, Culture=neutral, PublicKeyToken=b03f5f7f11d50a3a, processorArchitecture=MSIL">
       <HintPath>packages\System.IO.FileSystem.AccessControl.5.0.0\lib\net461\System.IO.FileSystem.AccessControl.dll</HintPath>
+    </Reference>
+    <Reference Include="System.IO.Hashing, Version=6.0.0.0, Culture=neutral, PublicKeyToken=cc7b13ffcd2ddd51, processorArchitecture=MSIL">
+      <HintPath>packages\System.IO.Hashing.6.0.0\lib\net461\System.IO.Hashing.dll</HintPath>
     </Reference>
     <Reference Include="System.Linq" />
     <Reference Include="System.Memory, Version=4.0.1.2, Culture=neutral, PublicKeyToken=cc7b13ffcd2ddd51, processorArchitecture=MSIL">

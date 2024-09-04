@@ -13,6 +13,9 @@ exports.makeCombinedAPI = function (apis, sourceDir, apiOutputDir) {
     var apiTypingTemplate = getCompiledTemplate(path.resolve(templateDir, "PlayFab_Api.d.ts.ejs"));
     var packageTemplate = getCompiledTemplate(path.resolve(templateDir, "package.json.ejs"));
 
+    // Filter empty apis
+    apis = apis.filter(api => api.calls.length > 0);
+
     var locals = {
         apis: apis,
         buildIdentifier: sdkGlobals.buildIdentifier,

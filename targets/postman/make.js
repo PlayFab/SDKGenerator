@@ -15,6 +15,9 @@ exports.makeCombinedAPI = function (apis, sourceDir, apiOutputDir) {
         throw "The file: replacements.json was not properly formatted JSON";
     }
 
+    // Filter empty apis
+    apis = apis.filter(api => api.calls.length > 0);
+
     for (var a = 0; a < apis.length; a++) {
         apis[a].calls.sort(callSorter);
     }

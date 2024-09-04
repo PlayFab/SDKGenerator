@@ -8,6 +8,9 @@ if (typeof (templatizeTree) === "undefined") templatizeTree = function () { };
 exports.makeClientAPI2 = function (apis, sourceDir, apiOutputDir) {
     var srcOutputLoc = ["PlayFabClientSDK", "AndroidStudioExample/app/"];
 
+    // Filter empty apis
+    apis = apis.filter(api => api.calls.length > 0);
+
     var authMechanisms = getAuthMechanisms(apis);
     var locals = {
         apiName: "Client",
@@ -42,6 +45,8 @@ exports.makeServerAPI = function (apis, sourceDir, apiOutputDir) {
     apiOutputDir = path.join(apiOutputDir, "PlayFabServerSDK");
     console.log("Generating Java server SDK to " + apiOutputDir);
 
+    apis = apis.filter(api => api.calls.length > 0);
+
     var authMechanisms = getAuthMechanisms(apis);
     var locals = {
         apiName: "Server",
@@ -67,6 +72,9 @@ exports.makeServerAPI = function (apis, sourceDir, apiOutputDir) {
 exports.makeCombinedAPI = function (apis, sourceDir, apiOutputDir) {
     apiOutputDir = path.join(apiOutputDir, "PlayFabSDK");
     console.log("Generating Java combined SDK to " + apiOutputDir);
+
+    // Filter empty apis
+    apis = apis.filter(api => api.calls.length > 0);
 
     var authMechanisms = getAuthMechanisms(apis);
     var locals = {

@@ -5,6 +5,7 @@ if [%delSrc%] == [true] (
     del /S *.cpp
     del /S *.cs
     del /S *.h
+    del /S *.http
     del /S *.java
     del /S *.js
     del /S *.lua

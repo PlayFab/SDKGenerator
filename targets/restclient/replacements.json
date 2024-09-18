@@ -1,0 +1,30 @@
+{
+    "generic": {
+        "_info": "Allows replacements for parameter-values within the post body (of any API-Call anywhere).  All breaklines in json-strings are currently removed, rather than parsed.  (Known issue)",
+        "CharacterId": "{{characterId}}",
+        "EntityId": "{{entityId}}",
+        "PlayFabId": "{{playFabId}}",
+        "TitleId": "{{titleId}}",
+        "EntityToken": "{{entityToken}}",
+        "CatalogVersion": "{{primaryCatalogName}}",
+        "ConnectionId": "{{connectionId}}"
+    },
+    "Client": {
+        "CustomId": "{{customId}}",
+        "CreateAccount": true,
+        "FriendPlayFabId": "{{friendPlayFabId}}",
+        "PlayFabIds": [
+            "{{playFabId}}"
+        ],
+        "SharedGroupId": "{{sharedGroupId}}"
+    },
+    "Server": {
+    },
+    "Admin": {
+        "NewsId": "{{newsId}}",
+        "SecretKey": "{{sharedSecretKey}}",
+        "SegmentId": "{{segmentId}}",
+        "StatisticName": "{{statisticName}}",
+        "VirtualCurrency": "{{currencyCode}}"
+    }
+}

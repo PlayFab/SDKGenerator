@@ -1,7 +1,7 @@
 ﻿
 Microsoft Visual Studio Solution File, Format Version 12.00
-# Visual Studio 15
-VisualStudioVersion = 15.0.27130.2027
+# Visual Studio Version 17
+VisualStudioVersion = 17.11.35303.130
 MinimumVisualStudioVersion = 10.0.40219.1
 Project("{9092AA53-FB77-4645-B42D-1CCCA6BD08BD}") = "SDKGenerator", "SDKGenerator.njsproj", "{2BA807EF-310C-43B5-8D42-1ABCFFF39BE9}"
 EndProject
@@ -17,17 +17,17 @@ Global
 		NodeSDK|Any CPU = NodeSDK|Any CPU
 		ObjCSdk|Any CPU = ObjCSdk|Any CPU
 		PhpSdk|Any CPU = PhpSdk|Any CPU
+		PlayFabCoreCSdk|Any CPU = PlayFabCoreCSdk|Any CPU
+		PlayFabServicesCSdk|Any CPU = PlayFabServicesCSdk|Any CPU
 		PostmanCollection|Any CPU = PostmanCollection|Any CPU
 		Python|Any CPU = Python|Any CPU
 		UnitySdk|Any CPU = UnitySdk|Any CPU
 		Unreal|Any CPU = Unreal|Any CPU
-		PlayFabCoreCSdk|Any CPU = PlayFabCoreCSdk|Any CPU
-		PlayFabServicesCSdk|Any CPU = PlayFabServicesCSdk|Any CPU
 		XPlatCppSdk|Any CPU = XPlatCppSdk|Any CPU
 	EndGlobalSection
 	GlobalSection(ProjectConfigurationPlatforms) = postSolution
-		{2BA807EF-310C-43B5-8D42-1ABCFFF39BE9}.CloudScript|Any CPU.ActiveCfg = CloudScript|Any CPU
-		{2BA807EF-310C-43B5-8D42-1ABCFFF39BE9}.CloudScript|Any CPU.Build.0 = CloudScript|Any CPU
+		{2BA807EF-310C-43B5-8D42-1ABCFFF39BE9}.CloudScript|Any CPU.ActiveCfg = RESTClientCollection|Any CPU
+		{2BA807EF-310C-43B5-8D42-1ABCFFF39BE9}.CloudScript|Any CPU.Build.0 = RESTClientCollection|Any CPU
 		{2BA807EF-310C-43B5-8D42-1ABCFFF39BE9}.CocosSDK|Any CPU.ActiveCfg = CocosSDK|Any CPU
 		{2BA807EF-310C-43B5-8D42-1ABCFFF39BE9}.CocosSDK|Any CPU.Build.0 = CocosSDK|Any CPU
 		{2BA807EF-310C-43B5-8D42-1ABCFFF39BE9}.CSharpSDK|Any CPU.ActiveCfg = CSharpSDK|Any CPU
@@ -46,6 +46,10 @@ Global
 		{2BA807EF-310C-43B5-8D42-1ABCFFF39BE9}.ObjCSdk|Any CPU.Build.0 = ObjCSdk|Any CPU
 		{2BA807EF-310C-43B5-8D42-1ABCFFF39BE9}.PhpSdk|Any CPU.ActiveCfg = PhpSdk|Any CPU
 		{2BA807EF-310C-43B5-8D42-1ABCFFF39BE9}.PhpSdk|Any CPU.Build.0 = PhpSdk|Any CPU
+		{2BA807EF-310C-43B5-8D42-1ABCFFF39BE9}.PlayFabCoreCSdk|Any CPU.ActiveCfg = PlayFabCoreCSdk|Any CPU
+		{2BA807EF-310C-43B5-8D42-1ABCFFF39BE9}.PlayFabCoreCSdk|Any CPU.Build.0 = PlayFabCoreCSdk|Any CPU
+		{2BA807EF-310C-43B5-8D42-1ABCFFF39BE9}.PlayFabServicesCSdk|Any CPU.ActiveCfg = PlayFabServicesCSdk|Any CPU
+		{2BA807EF-310C-43B5-8D42-1ABCFFF39BE9}.PlayFabServicesCSdk|Any CPU.Build.0 = PlayFabServicesCSdk|Any CPU
 		{2BA807EF-310C-43B5-8D42-1ABCFFF39BE9}.PostmanCollection|Any CPU.ActiveCfg = PostmanCollection|Any CPU
 		{2BA807EF-310C-43B5-8D42-1ABCFFF39BE9}.PostmanCollection|Any CPU.Build.0 = PostmanCollection|Any CPU
 		{2BA807EF-310C-43B5-8D42-1ABCFFF39BE9}.Python|Any CPU.ActiveCfg = Python|Any CPU
@@ -54,10 +58,6 @@ Global
 		{2BA807EF-310C-43B5-8D42-1ABCFFF39BE9}.UnitySdk|Any CPU.Build.0 = UnitySdk|Any CPU
 		{2BA807EF-310C-43B5-8D42-1ABCFFF39BE9}.Unreal|Any CPU.ActiveCfg = Unreal|Any CPU
 		{2BA807EF-310C-43B5-8D42-1ABCFFF39BE9}.Unreal|Any CPU.Build.0 = Unreal|Any CPU
-		{2BA807EF-310C-43B5-8D42-1ABCFFF39BE9}.PlayFabCoreCSdk|Any CPU.ActiveCfg = PlayFabCoreCSdk|Any CPU
-		{2BA807EF-310C-43B5-8D42-1ABCFFF39BE9}.PlayFabCoreCSdk|Any CPU.Build.0 = PlayFabCoreCSdk|Any CPU
-		{2BA807EF-310C-43B5-8D42-1ABCFFF39BE9}.PlayFabServicesCSdk|Any CPU.ActiveCfg = PlayFabServicesCSdk|Any CPU
-		{2BA807EF-310C-43B5-8D42-1ABCFFF39BE9}.PlayFabServicesCSdk|Any CPU.Build.0 = PlayFabServicesCSdk|Any CPU
 		{2BA807EF-310C-43B5-8D42-1ABCFFF39BE9}.XPlatCppSdk|Any CPU.ActiveCfg = XPlatCppSdk|Any CPU
 		{2BA807EF-310C-43B5-8D42-1ABCFFF39BE9}.XPlatCppSdk|Any CPU.Build.0 = XPlatCppSdk|Any CPU
 	EndGlobalSection

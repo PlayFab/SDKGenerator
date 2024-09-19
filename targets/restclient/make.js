@@ -86,13 +86,14 @@ const fixRequestExample = (apiName, example) => {
         return JSON.stringify(output, undefined, 2);
     }
     return example;
-}
+}gi
 
 const getBaseUrl = () => {
-    if (sdkGlobals.verticalName)
+    if (sdkGlobals.verticalName) {
         // verticalName isn't an established variable in Postman, and we know it here, so we can just apply it
-        return "https://" + sdkGlobals.verticalName + ".playfabapi.com";
-    return "https://{{titleId}}.playfabapi.com";
+        return "https://" + sdkGlobals.verticalName + ".{{domain}}";
+    }
+    return "https://{{titleId}}.{{domain}}";
 }
 
 const getHeaders = (apiCall) => {

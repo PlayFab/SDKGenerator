@@ -73,8 +73,15 @@ const checkReplacements = (apiName, obj) => {
 
 const doReplace = (obj, paramName, newValue) => {
     if (obj.hasOwnProperty(paramName)) {
-        console.log("Replaced: " + obj[paramName] + " with " + newValue);
-        obj[paramName] = newValue;
+        console.log("Replaced: " + obj[paramName] + " with " + JSON.stringify(newValue));
+        if (typeof newValue !== 'object' || Array.isArray(newValue)) {
+            obj[paramName] = newValue;
+            return;
+        }
+
+        Object.keys(newValue).forEach(key => {
+            if (!!obj[paramName][key]) obj[paramName][key] = newValue[key];
+        });
     }
 };
 
@@ -86,7 +93,7 @@ const fixRequestExample = (apiName, example) => {
         return JSON.stringify(output, undefined, 2);
     }
     return example;
-}gi
+}
 
 const getBaseUrl = () => {
     if (sdkGlobals.verticalName) {
@@ -134,8 +141,10 @@ const getVariables = () => {
     variables.push("@characterId = {{GrantCharacterToUser.response.body.data.CharacterId}}");
     variables.push("@newsId = {{AddNews.response.body.data.NewsId}}");
     variables.push("@sharedSecretKey = {{CreatePlayerSharedSecret.response.body.data.SecretKey}}");
-    variables.push("@segmentId = {{ GetPlayerSegments.response.body.data.Segments[0].Id }}");
-
+    variables.push("@segmentId = {{GetAllSegments.response.body.data.Segments[0].Id }}");
+    variables.push("@taskId = {{CreateCloudScriptTask.response.body.data.TaskId}}");
+    variables.push("@taskInstanceId = {{RunTask.response.body.data.TaskInstanceId}}");
+    variables.push("@actionsOnPlayersInSegmentTaskId = {{CreateActionsOnPlayersInSegmentTask.response.body.data.TaskId}}");
     return variables.join('\n');
 }
 

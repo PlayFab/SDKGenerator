@@ -22,9 +22,14 @@
     },
     "Admin": {
         "NewsId": "{{newsId}}",
+        "Parameter": {
+            "SegmentId": "{{segmentId}}"
+        },
         "SecretKey": "{{sharedSecretKey}}",
         "SegmentId": "{{segmentId}}",
         "StatisticName": "{{statisticName}}",
+        "TaskId": "{{taskId}}",
+        "TaskInstanceId": "{{taskInstanceId}}",
         "VirtualCurrency": "{{currencyCode}}"
     }
 }

@@ -11,11 +11,12 @@
             var apiCall = subgroup[c]; %>
 ###
 # @name <%- apiCall.name %>
-# @description <%- apiCall.summary %>
+# summary: <%- apiCall.summary %>
+# request details: <%- apiCall.requestDetails %>
 <%- apiCall.method %> <%- getBaseUrl() %><%- `${apiCall.url}?sdk=RESTClientCollection-${sdkVersion}` %>
 <%- getHeaders(apiCall) %>
 
-<%- fixRequestExample(a, apiCall.requestExample) %>
+<%- fixRequestExample(a, apiCall.name, apiCall.requestExample) %>
 <%      }
     }
 } %>

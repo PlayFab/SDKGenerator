@@ -1,35 +1,116 @@
 {
     "generic": {
-        "_info": "Allows replacements for parameter-values within the post body (of any API-Call anywhere).  All breaklines in json-strings are currently removed, rather than parsed.  (Known issue)",
-        "CharacterId": "{{characterId}}",
-        "EntityId": "{{entityId}}",
-        "PlayFabId": "{{playFabId}}",
-        "TitleId": "{{titleId}}",
-        "EntityToken": "{{entityToken}}",
         "CatalogVersion": "{{primaryCatalogName}}",
-        "ConnectionId": "{{connectionId}}"
-    },
-    "Client": {
-        "CustomId": "{{customId}}",
-        "CreateAccount": true,
-        "FriendPlayFabId": "{{friendPlayFabId}}",
-        "PlayFabIds": [
-            "{{playFabId}}"
-        ],
-        "SharedGroupId": "{{sharedGroupId}}"
-    },
-    "Server": {
+        "CharacterId": "{{characterId}}",
+        "ConnectionId": "{{connectionId}}",
+        "EntityId": "{{entityId}}",
+        "EntityToken": "{{entityToken}}",
+        "PlayFabId": "{{playFabId}}",
+        "TitleId": "{{titleId}}"
     },
     "Admin": {
-        "NewsId": "{{newsId}}",
-        "Parameter": {
-            "SegmentId": "{{segmentId}}"
+        "generic": {
+            "NewsId": "{{newsId}}",
+            "Parameter": {
+                "SegmentId": "{{segmentId}}"
+            },
+            "SecretKey": "{{sharedSecretKey}}",
+            "SegmentId": "{{segmentId}}",
+            "StatisticName": "{{statisticName}}",
+            "TaskId": "{{taskId}}",
+            "TaskInstanceId": "{{taskInstanceId}}",
+            "VirtualCurrency": "{{currencyCode}}"
         },
-        "SecretKey": "{{sharedSecretKey}}",
-        "SegmentId": "{{segmentId}}",
-        "StatisticName": "{{statisticName}}",
-        "TaskId": "{{taskId}}",
-        "TaskInstanceId": "{{taskInstanceId}}",
-        "VirtualCurrency": "{{currencyCode}}"
+        "DeleteTask": {
+            "Identifier": {
+                "Id": "{{taskId}}"
+            }
+        },
+        "GetSegmentExport": {
+            "ExportId": "{{segmentExportId}}"
+        },
+        "RunTask": {
+            "Identifier": {
+                "Id": "{{taskId}}"
+            }
+        }
+    },
+    "Authentication": {
+        "generic": {
+            "CustomId": "{{serverCustomId}}"
+        },
+        "Delete": {
+            "Entity": {
+                "Id": "{{gameServerId}}"
+            }
+        }
+    },
+    "Client": {
+        "generic": {
+            "CreateAccount": true,
+            "CustomId": "{{userCustomId}}",
+            "FriendPlayFabId": "{{friendPlayFabId}}",
+            "PlayFabIds": [
+                "{{playFabId}}"
+            ],
+            "SharedGroupId": "{{sharedGroupId}}"
+        }
+    },
+    "CloudScript": {
+        "generic": {
+            "Entity": {
+                "Id": "{{titlePlayerAccountId}}"
+            }
+        },
+        "PostFunctionResultForPlayerTriggeredAction": {
+            "PlayStreamEventEnvelope": {
+                "EntityId": "{{titlePlayerAccountId}}"
+            },
+            "PlayerProfile": {
+                "TitleId": "{{titleId}}",
+                "PlayerId": "{{titlePlayerAccountId}}"
+            }
+        }
+    },
+    "Data": {
+        "generic": {
+            "Entity": {
+                "Id": "{{titlePlayerAccountId}}"
+            },
+            "ExpectedVersion": "profileExptectedVersion"
+        }
+    },
+    "Multiplayer": {
+        "generic": {
+            "Entity": {
+                "Id": "{{titlePlayerAccountId}}"
+            },
+            "ServerEntity": {
+                "Id": "{{gameServerId}}"
+            }
+        }
+    },
+    "Profiles": {
+        "generic": {
+            "Entity": {
+                "Id": "{{titlePlayerAccountId}}"
+            }
+        },
+        "GetTitlePlayersFromMasterPlayerAccountIds": {
+            "MasterPlayerAccountIds": [
+                "{{playFabId}}"
+            ]
+        },
+        "GetProfiles": {
+            "Entities": [
+                {
+                    "Id": "{{titlePlayerAccountId}}",
+                    "Type": "title_player_account",
+                    "TypeString": "title_player_account"
+                }
+            ]
+        }
+    },
+    "Server": {
     }
 }

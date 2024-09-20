@@ -53,7 +53,7 @@ exports.makeCombinedAPI = (apis, sourceDir, apiOutputDir) => {
     writeFile(path.resolve(apiOutputDir, "playfab.http"), generatedTemplateText);
 }
 
-const checkReplacements = (apiName, obj) => {
+const checkReplacements = (apiName, apiCallName, obj) => {
     for (let replaceCategory in propertyReplacements) {
         if (replaceCategory === "generic") {
             for (let genReplaceName1 in propertyReplacements[replaceCategory])
@@ -65,7 +65,10 @@ const checkReplacements = (apiName, obj) => {
                     for (let genReplaceName2 in propertyReplacements[replaceCategory][apiReplaceName])
                         doReplace(obj, genReplaceName2, propertyReplacements[replaceCategory][apiReplaceName][genReplaceName2]);
                 }
-                doReplace(obj, apiReplaceName, propertyReplacements[replaceCategory][apiReplaceName]);
+                if (apiReplaceName === apiCallName) {
+                    for (let apiCallReplaceName in propertyReplacements[replaceCategory][apiReplaceName])
+                        doReplace(obj, apiCallReplaceName, propertyReplacements[replaceCategory][apiReplaceName][apiCallReplaceName]);
+                }
             }
         }
     }
@@ -85,11 +88,11 @@ const doReplace = (obj, paramName, newValue) => {
     }
 };
 
-const fixRequestExample = (apiName, example) => {
+const fixRequestExample = (apiName, apiCallName, example) => {
     if (example) {
         let output = JSON.parse(example);
+        checkReplacements(apiName, apiCallName, output);
         if (Object.keys(output).length === 0) return "";
-        checkReplacements(apiName, output);
         return JSON.stringify(output, undefined, 2);
     }
     return example;
@@ -138,13 +141,18 @@ const getVariables = () => {
     variables.push("# LoginWithCustomID can be replaced by other authentication methods (e.g., LoginWithFacebook)");
     variables.push("@sessionTicket = {{LoginWithCustomID.response.body.data.SessionTicket}}");
     variables.push("@playFabId = {{LoginWithCustomID.response.body.data.PlayFabId}}");
+    variables.push("@titlePlayerAccountId = {{GetAccountInfo.response.body.data.AccountInfo.TitleInfo.TitlePlayerAccount.Id}}");
     variables.push("@characterId = {{GrantCharacterToUser.response.body.data.CharacterId}}");
     variables.push("@newsId = {{AddNews.response.body.data.NewsId}}");
     variables.push("@sharedSecretKey = {{CreatePlayerSharedSecret.response.body.data.SecretKey}}");
     variables.push("@segmentId = {{GetAllSegments.response.body.data.Segments[0].Id }}");
     variables.push("@taskId = {{CreateCloudScriptTask.response.body.data.TaskId}}");
+    variables.push("#@taskId = {{CreateActionsOnPlayersInSegmentTask.response.body.data.TaskId}}");
     variables.push("@taskInstanceId = {{RunTask.response.body.data.TaskInstanceId}}");
-    variables.push("@actionsOnPlayersInSegmentTaskId = {{CreateActionsOnPlayersInSegmentTask.response.body.data.TaskId}}");
+    variables.push("@gameServerId = {{AuthenticateGameServerWithCustomId.response.body.data.EntityToken.Entity.Id}}");
+    variables.push("@profileExpectedVersion = {{GetPlayerProfile.response.body.data.Profile.VersionNumber}}");
+    variables.push("@segmentExportId = {{ExportPlayersInSegment.response.body.data.ExportId}}");
+    variables.push("@policyExpectedVersion = {{GetPolicy.response.body.data.PolicyVersion}}");
     return variables.join('\n');
 }
 

@@ -21,13 +21,14 @@ Global
 		PlayFabServicesCSdk|Any CPU = PlayFabServicesCSdk|Any CPU
 		PostmanCollection|Any CPU = PostmanCollection|Any CPU
 		Python|Any CPU = Python|Any CPU
+		RESTClientCollection|Any CPU = RESTClientCollection|Any CPU
 		UnitySdk|Any CPU = UnitySdk|Any CPU
 		Unreal|Any CPU = Unreal|Any CPU
 		XPlatCppSdk|Any CPU = XPlatCppSdk|Any CPU
 	EndGlobalSection
 	GlobalSection(ProjectConfigurationPlatforms) = postSolution
-		{2BA807EF-310C-43B5-8D42-1ABCFFF39BE9}.CloudScript|Any CPU.ActiveCfg = RESTClientCollection|Any CPU
-		{2BA807EF-310C-43B5-8D42-1ABCFFF39BE9}.CloudScript|Any CPU.Build.0 = RESTClientCollection|Any CPU
+		{2BA807EF-310C-43B5-8D42-1ABCFFF39BE9}.CloudScript|Any CPU.ActiveCfg = CloudScript|Any CPU
+		{2BA807EF-310C-43B5-8D42-1ABCFFF39BE9}.CloudScript|Any CPU.Build.0 = CloudScript|Any CPU
 		{2BA807EF-310C-43B5-8D42-1ABCFFF39BE9}.CocosSDK|Any CPU.ActiveCfg = CocosSDK|Any CPU
 		{2BA807EF-310C-43B5-8D42-1ABCFFF39BE9}.CocosSDK|Any CPU.Build.0 = CocosSDK|Any CPU
 		{2BA807EF-310C-43B5-8D42-1ABCFFF39BE9}.CSharpSDK|Any CPU.ActiveCfg = CSharpSDK|Any CPU
@@ -54,6 +55,8 @@ Global
 		{2BA807EF-310C-43B5-8D42-1ABCFFF39BE9}.PostmanCollection|Any CPU.Build.0 = PostmanCollection|Any CPU
 		{2BA807EF-310C-43B5-8D42-1ABCFFF39BE9}.Python|Any CPU.ActiveCfg = Python|Any CPU
 		{2BA807EF-310C-43B5-8D42-1ABCFFF39BE9}.Python|Any CPU.Build.0 = Python|Any CPU
+		{2BA807EF-310C-43B5-8D42-1ABCFFF39BE9}.RESTClientCollection|Any CPU.ActiveCfg = RESTClientCollection|Any CPU
+		{2BA807EF-310C-43B5-8D42-1ABCFFF39BE9}.RESTClientCollection|Any CPU.Build.0 = RESTClientCollection|Any CPU
 		{2BA807EF-310C-43B5-8D42-1ABCFFF39BE9}.UnitySdk|Any CPU.ActiveCfg = UnitySdk|Any CPU
 		{2BA807EF-310C-43B5-8D42-1ABCFFF39BE9}.UnitySdk|Any CPU.Build.0 = UnitySdk|Any CPU
 		{2BA807EF-310C-43B5-8D42-1ABCFFF39BE9}.Unreal|Any CPU.ActiveCfg = Unreal|Any CPU

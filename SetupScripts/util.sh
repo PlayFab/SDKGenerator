@@ -104,6 +104,13 @@ CallVsDevCmdBat() {
     popd
 }
 
+CallVs2022DevCmdBat() {
+    echo --------------Open a Visual Studio 2022 Command Prompt for BUILDING --------------------
+    pushd "C:/Program Files/Microsoft Visual Studio/2022/Enterprise/Common7/Tools"
+    cmd <<< "VsDevCmd.bat"
+    popd
+}
+
 # ================= END VISUAL STUDIO SECTION =================
 
 # ================= BASH HELPER SECTION =================

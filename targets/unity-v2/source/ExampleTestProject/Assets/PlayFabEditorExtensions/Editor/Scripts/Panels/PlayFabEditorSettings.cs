@@ -268,7 +268,7 @@ namespace PlayFab.PfEditor
                     {
                         EditorGUILayout.LabelField("SECRET KEY:", PlayFabEditorHelper.uiStyle.GetStyle("labelStyle"), GUILayout.Width(labelWidth));
                         GUI.SetNextControlName("secret_key");
-                        EditorGUILayout.TextField("" + title.Value.Title.SecretKey);
+                        EditorGUILayout.TextField("" + title.Value.Title.SecretKey, PlayFabEditorHelper.uiStyle.GetStyle("TextField"), GUILayout.MinWidth(500)); ;
                     }
 
                     using (new UnityHorizontal(PlayFabEditorHelper.uiStyle.GetStyle("gpStyleClear")))

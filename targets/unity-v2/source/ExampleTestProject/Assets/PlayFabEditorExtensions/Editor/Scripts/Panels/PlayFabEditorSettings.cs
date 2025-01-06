@@ -3,6 +3,7 @@ using System;
 using System.Collections.Generic;
 using System.Text;
 using UnityEditor;
+using UnityEditor.Build;
 using UnityEngine;
 
 namespace PlayFab.PfEditor
@@ -104,7 +105,23 @@ namespace PlayFab.PfEditor
         {
             using (new UnityVertical(PlayFabEditorHelper.uiStyle.GetStyle("gpStyleGray1")))
             {
-                var curDefines = PlayerSettings.GetScriptingDefineSymbolsForGroup(EditorUserBuildSettings.selectedBuildTargetGroup);
+#if UNITY_2021_2_OR_NEWER
+#if UNITY_SERVER
+                NamedBuildTarget buildTarget = NamedBuildTarget.Server;
+#else
+                BuildTarget activeBuildTarget = EditorUserBuildSettings.activeBuildTarget;
+                BuildTargetGroup targetGroup = BuildPipeline.GetBuildTargetGroup(activeBuildTarget);
+                NamedBuildTarget buildTarget = NamedBuildTarget.FromBuildTargetGroup(targetGroup);
+#endif
+#else
+                BuildTargetGroup buildTarget = EditorUserBuildSettings.selectedBuildTargetGroup;
+#endif
+                
+#if UNITY_2021_2_OR_NEWER
+                var curDefines = PlayerSettings.GetScriptingDefineSymbols(buildTarget);
+#else
+                var curDefines = PlayerSettings.GetScriptingDefineSymbolsForGroup(buildTarget);
+#endif
                 var changedFlags = false;
                 var allFlags = new Dictionary<string, PfDefineFlag>(PlayFabEditorHelper.FLAG_LABELS);
                 var extraDefines = new HashSet<string>(curDefines.Split(' ', ';'));
@@ -130,7 +147,12 @@ namespace PlayFab.PfEditor
 
                 if (changedFlags)
                 {
-                    PlayerSettings.SetScriptingDefineSymbolsForGroup(EditorUserBuildSettings.selectedBuildTargetGroup, curDefines);
+#if UNITY_2021_2_OR_NEWER
+                    PlayerSettings.SetScriptingDefineSymbols(buildTarget, curDefines);
+#else
+                    PlayerSettings.SetScriptingDefineSymbolsForGroup(buildTarget, curDefines);
+#endif
+                    
                     Debug.Log("Updating Defines: " + curDefines);
                     AssetDatabase.Refresh();
                 }

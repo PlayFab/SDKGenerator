@@ -15,7 +15,7 @@ function getApiJson(cacheKey) {
 global.getApiJson = getApiJson;
 // Returns one of: Null, "Proposed", "Deprecated", "Obsolete"
 function getDeprecationStatus(apiObj) {
-    var deprecation = apiObj.hasOwnProperty("deprecation");
+    var deprecation = apiObj.hasOwnProperty("deprecation") && apiElement.deprecation !== null;
     if (!deprecation)
         return null;
     var deprecationTime = new Date(apiObj.deprecation.DeprecatedAfter);

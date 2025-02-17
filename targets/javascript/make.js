@@ -137,7 +137,7 @@ function getAuthParams(apiCall) {
 }
 
 function getDeprecationAttribute(tabbing, apiObj) {
-    var isDeprecated = apiObj.hasOwnProperty("deprecation");
+    var isDeprecated = apiObj.hasOwnProperty("deprecation") && apiObj.deprecation !== null;
 
     if (isDeprecated && apiObj.deprecation.ReplacedBy != null)
         return tabbing + "/**\n"

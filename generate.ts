@@ -552,9 +552,9 @@ function getApiDefinition(cacheKey, buildFlags) {
     // Special case, "obsolete" is treated as an SdkGenerator flag, but is not an actual flag in pf-main
     var obsoleteFlaged = false, nonNullableFlagged = false;
     for (var b = 0; b < buildFlags.length; b++) {
-        if (buildFlags[b].indexOf("obsolete") !== -1)
+        if (buildFlags[b].indexOf("obsolete") !== -1 && buildFlags[b].obsolete !== null)
             obsoleteFlaged = true;
-        if (buildFlags[b].indexOf("nonnullable") !== -1)
+        if (buildFlags[b].indexOf("nonnullable") !== -1 && buildFlags[b].nonnullable !== null)
             nonNullableFlagged = true;
     }
 

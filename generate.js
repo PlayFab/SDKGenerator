@@ -467,9 +467,9 @@ function getApiDefinition(cacheKey, buildFlags) {
     // Special case, "obsolete" is treated as an SdkGenerator flag, but is not an actual flag in pf-main
     var obsoleteFlaged = false, nonNullableFlagged = false;
     for (var b = 0; b < buildFlags.length; b++) {
-        if (buildFlags[b].indexOf("obsolete") !== -1)
+        if (buildFlags[b].indexOf("obsolete") !== -1 && buildFlags[b].obsolete !== null)
             obsoleteFlaged = true;
-        if (buildFlags[b].indexOf("nonnullable") !== -1)
+        if (buildFlags[b].indexOf("nonnullable") !== -1 && buildFlags[b].nonnullable !== null)
             nonNullableFlagged = true;
     }
     var apiFlagConflicts = GetFlagConflicts(buildFlags, api, obsoleteFlaged, nonNullableFlagged);
@@ -510,24 +510,24 @@ function getApiDefinition(cacheKey, buildFlags) {
 }
 function GetFlagConflicts(buildFlags, apiObj, obsoleteFlaged, nonNullableFlagged) {
     // Filter obsolete elements
-    if (!obsoleteFlaged && apiObj.hasOwnProperty("deprecation")) {
+    if (!obsoleteFlaged && apiObj.hasOwnProperty("deprecation") && apiObj.deprecation !== null) {
         var obsoleteTime = new Date(apiObj.deprecation.ObsoleteAfter);
         if (new Date() > obsoleteTime)
             return "deprecation";
     }
     // Filter governing booleans
-    if (!nonNullableFlagged && apiObj.hasOwnProperty("GovernsProperty"))
+    if (!nonNullableFlagged && apiObj.hasOwnProperty("GovernsProperty") && apiObj.GovernsProperty !== null)
         return "governs";
     // It's pretty easy to exclude (Api calls and datatypes)
     var exclusiveFlags = [];
-    if (apiObj.hasOwnProperty("ExclusiveFlags"))
+    if (apiObj.hasOwnProperty("ExclusiveFlags") && apiObj.ExclusiveFlags !== null)
         exclusiveFlags = lowercaseFlagsList(apiObj.ExclusiveFlags);
     for (var bIdx = 0; bIdx < buildFlags.length; bIdx++)
         if (exclusiveFlags.indexOf(buildFlags[bIdx]) !== -1)
             return apiObj.ExclusiveFlags;
     // All Inclusive flags must match if present (Api calls only)
     var allInclusiveFlags = [];
-    if (apiObj.hasOwnProperty("AllInclusiveFlags"))
+    if (apiObj.hasOwnProperty("AllInclusiveFlags") && apiObj.AllInclusiveFlags !== null)
         allInclusiveFlags = lowercaseFlagsList(apiObj.AllInclusiveFlags);
     if (allInclusiveFlags.length !== 0)
         for (var alIdx = 0; alIdx < allInclusiveFlags.length; alIdx++)
@@ -535,7 +535,7 @@ function GetFlagConflicts(buildFlags, apiObj, obsoleteFlaged, nonNullableFlagged
                 return apiObj.AllInclusiveFlags; // If a required flag is missing, fail out
     // Any Inclusive flags must match at least one if present (Api calls, datatypes, and properties)
     var anyInclusiveFlags = [];
-    if (apiObj.hasOwnProperty("AnyInclusiveFlags"))
+    if (apiObj.hasOwnProperty("AnyInclusiveFlags") && apiObj.AnyInclusiveFlags !== null)
         anyInclusiveFlags = lowercaseFlagsList(apiObj.AnyInclusiveFlags);
     if (anyInclusiveFlags.length === 0)
         return null; // If there's no flags, it is always included

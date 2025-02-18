@@ -595,7 +595,7 @@ function getUrlAccessor(apiCall) {
 function getDeprecationAttribute(tabbing, apiObj) {
     // In C++ there's all kinds of platform-dependent ways to mark deprecation, and they all seem flaky and unreliable.
     // After a lot of investigation, a comment just seems like the easiest and most consistent solution.
-    var isDeprecated = apiObj.hasOwnProperty("deprecation");
+    var isDeprecated = apiObj.hasOwnProperty("deprecation") && apiObj.deprecation !== null;
     if (isDeprecated && apiObj.deprecation.ReplacedBy != null)
         return tabbing + "// Deprecated - Use '" + apiObj.deprecation.ReplacedBy + "' instead\n";
     else if (isDeprecated)

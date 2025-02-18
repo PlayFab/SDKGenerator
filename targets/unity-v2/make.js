@@ -489,7 +489,7 @@ function generateApiSummary(tabbing, apiElement, summaryParam, extraLines) {
 }
 
 function getDeprecationAttribute(tabbing, apiObj) {
-    var isDeprecated = apiObj.hasOwnProperty("deprecation");
+    var isDeprecated = apiObj.hasOwnProperty("deprecation") && apiObj.deprecation !== null;
     var deprecationTime = null;
     if (isDeprecated)
         deprecationTime = new Date(apiObj.deprecation.DeprecatedAfter);

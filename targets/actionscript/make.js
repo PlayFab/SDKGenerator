@@ -281,7 +281,7 @@ function getResultActions(tabbing, apiCall) {
 }
 
 function getDeprecationAttribute(tabbing, apiObj) {
-    var isDeprecated = apiObj.hasOwnProperty("deprecation");
+    var isDeprecated = apiObj.hasOwnProperty("deprecation") && apiObj.deprecation !== null;
 
     if (isDeprecated && apiObj.deprecation.ReplacedBy != null)
         return tabbing + "[Deprecated(message=\"The " + apiObj.name + " API and its associated datatypes are scheduled for deprecation. Use " + apiObj.deprecation.ReplacedBy + " instead.\", replacement=\"" + apiObj.deprecation.ReplacedBy + "\")]\n";
@@ -293,7 +293,7 @@ function getDeprecationAttribute(tabbing, apiObj) {
 // Basically, deprecating fields and models causes tons of deprecation warnings against ourself,
 //   making it nearly impossible to display to the user when THEY are using deprecated fields.
 function getDeprecationComment(tabbing, apiObj) {
-    var isDeprecated = apiObj.hasOwnProperty("deprecation");
+    var isDeprecated = apiObj.hasOwnProperty("deprecation") && apiObj.deprecation !== null;
 
     if (isDeprecated && apiObj.deprecation.ReplacedBy != null)
         return tabbing + "// Deprecated, please use " + apiObj.deprecation.ReplacedBy + "\n";

@@ -180,7 +180,7 @@ function jsonEscape(input) {
 }
 
 function getPostmanDescription(api, apiCall) {
-    var isProposed = apiCall.hasOwnProperty("deprecation");
+    var isProposed = apiCall.hasOwnProperty("deprecation") && apiCall.deprecation !== null;
     var isDeprecated = isProposed && (new Date() > new Date(apiCall.deprecation.DeprecatedAfter));
 
     var output = "";

@@ -49,7 +49,7 @@ function generateApiSummaryLines(apiElement, summaryParam, extraLines, linkToDoc
     else
         lines = [];
     // Add extra documentation lines about deprecation
-    if (deprecationLabel && apiElement.hasOwnProperty("deprecation")) {
+    if (deprecationLabel && apiElement.hasOwnProperty("deprecation") && apiElement.deprecation !== null) {
         if (apiElement.deprecation.ReplacedBy != null)
             lines.push(deprecationLabel + " Please use " + apiElement.deprecation.ReplacedBy + " instead.");
         else

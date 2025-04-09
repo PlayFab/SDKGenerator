@@ -72,7 +72,19 @@ namespace PlayFab.PfEditor
                             break;
                         case 5:
                             EditorGUI.FocusTextInControl("view_service_availability");
-                            focusIndex = 0;
+                            focusIndex = 6;
+                            break;
+                        case 6:
+                            EditorGUI.FocusTextInControl("view_documentation");
+                            focusIndex = 7;
+                            break;
+                        case 7:
+                            EditorGUI.FocusTextInControl("report_issues");
+                            focusIndex = 8;
+                            break;
+                        case 8:
+                            EditorGUI.FocusTextInControl("unInstall");
+                            focusIndex = 9;
                             break;
                     }
                 }
@@ -81,8 +93,8 @@ namespace PlayFab.PfEditor
                     switch (focusIndex)
                     {
                         case 0:
-                            EditorGUI.FocusTextInControl("view_service_availability");
-                            focusIndex = 5;
+                            EditorGUI.FocusTextInControl("unInstall");
+                            focusIndex = 9;
                             break;
                         case 1:
                             EditorGUI.FocusTextInControl("beginners_guide");
@@ -103,6 +115,22 @@ namespace PlayFab.PfEditor
                         case 5:
                             EditorGUI.FocusTextInControl("ask_questions");
                             focusIndex = 4;
+                            break;
+                        case 6:
+                            EditorGUI.FocusTextInControl("view_service_availability");
+                            focusIndex = 5;
+                            break;
+                        case 7:
+                            EditorGUI.FocusTextInControl("view_documentation");
+                            focusIndex = 6;
+                            break;
+                        case 8:
+                            EditorGUI.FocusTextInControl("report_issues");
+                            focusIndex = 7;
+                            break;
+                        case 9:
+                            EditorGUI.FocusTextInControl("unInstall");
+                            focusIndex = 8;
                             break;
                     }
                 }

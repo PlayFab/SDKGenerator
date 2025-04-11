@@ -191,7 +191,7 @@ namespace PlayFab.PfEditor
                     using (new UnityHorizontal())
                     {
                         GUILayout.FlexibleSpace();
-                        GUI.SetNextControlName("upgardEdex");
+                        GUI.SetNextControlName("upgradeEdex");
                         if (GUILayout.Button("UPGRADE EDEX", PlayFabEditorHelper.uiStyle.GetStyle("textButtonOr")))
                         {
                             UpgradeEdEx();

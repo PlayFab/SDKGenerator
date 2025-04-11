@@ -75,16 +75,20 @@ namespace PlayFab.PfEditor
                             focusIndex = 6;
                             break;
                         case 6:
-                            EditorGUI.FocusTextInControl("view_documentation");
+                            EditorGUI.FocusTextInControl("upgradeEdex");
                             focusIndex = 7;
                             break;
                         case 7:
-                            EditorGUI.FocusTextInControl("report_issues");
+                            EditorGUI.FocusTextInControl("view_documentation");
                             focusIndex = 8;
                             break;
                         case 8:
-                            EditorGUI.FocusTextInControl("unInstall");
+                            EditorGUI.FocusTextInControl("report_issues");
                             focusIndex = 9;
+                            break;
+                        case 9:
+                            EditorGUI.FocusTextInControl("unInstall");
+                            focusIndex = 0;
                             break;
                     }
                 }
@@ -121,15 +125,15 @@ namespace PlayFab.PfEditor
                             focusIndex = 5;
                             break;
                         case 7:
-                            EditorGUI.FocusTextInControl("view_documentation");
+                            EditorGUI.FocusTextInControl("upgradeEdex");
                             focusIndex = 6;
                             break;
                         case 8:
-                            EditorGUI.FocusTextInControl("report_issues");
+                            EditorGUI.FocusTextInControl("view_documentation");
                             focusIndex = 7;
                             break;
                         case 9:
-                            EditorGUI.FocusTextInControl("unInstall");
+                            EditorGUI.FocusTextInControl("report_issues");
                             focusIndex = 8;
                             break;
                     }

@@ -76,7 +76,7 @@ public class PlayFabHTTP {
             try {
                 errorResult = gson.fromJson(responseString, PlayFabJsonError.class);
             } catch(Exception e) {
-                return GeneratePfError(httpCode, PlayFabErrorCode.JsonParseError, "Server response not proper json :" + responseString, errorResult.retryAfterSeconds, null);
+                return GeneratePfError(httpCode, PlayFabErrorCode.JsonParseError, "Server response not proper json :" + responseString, null, null);
             }
 
             httpCode = errorResult.code;

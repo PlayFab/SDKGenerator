@@ -13,7 +13,7 @@ using System.Threading.Tasks;
 namespace PlayFab
 {
 <%- generateApiSummary("    ", api, "description")
-%>    public class PlayFab<%- api.name %>InstanceAPI
+%>    public class PlayFab<%- api.name %>InstanceAPI : IPlayFab<%- api.name %>InstanceAPI
     {
         public readonly PlayFabApiSettings apiSettings = null;
         public readonly PlayFabAuthenticationContext authenticationContext = null;

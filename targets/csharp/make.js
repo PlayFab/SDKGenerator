@@ -135,7 +135,8 @@ function makeApi(api, sourceDir, apiOutputDir) {
     };
 
     var templateName = api.name == "Events" ? "PlayFab_Events_API" : "PlayFab_API"; 
-    var instTemplateName = api.name == "Events" ? "PlayFab_Events_InstanceAPI" : "PlayFab_InstanceAPI"; 
+    var instTemplateName = api.name == "Events" ? "PlayFab_Events_InstanceAPI" : "PlayFab_InstanceAPI";
+    var instInterfaceTemplateName = "IPlayFab_InstanceAPI"; 
 
     console.log("Generating C# " + api.name + " library to " + apiOutputDir);
     var apiTemplate = getCompiledTemplate(path.resolve(sourceDir, "templates/" + templateName + ".cs.ejs"));
@@ -144,6 +145,10 @@ function makeApi(api, sourceDir, apiOutputDir) {
     console.log("Generating C# " + api.name + "Instance library to " + apiOutputDir);
     var instTemplate = getCompiledTemplate(path.resolve(sourceDir, "templates/" + instTemplateName + ".cs.ejs"));
     writeFile(path.resolve(apiOutputDir, "source/PlayFab" + api.name + "InstanceAPI.cs"), instTemplate(locals));
+
+    console.log("Generating C# " + api.name + "Instance Interface library to " + apiOutputDir);
+    var instInterfaceTemplate = getCompiledTemplate(path.resolve(sourceDir, "templates/" + instInterfaceTemplateName + ".cs.ejs"));
+    writeFile(path.resolve(apiOutputDir, "source/IPlayFab" + api.name + "InstanceAPI.cs"), instInterfaceTemplate(locals));
 }
 
 function makeTests(locals, sourceDir, outputDir){

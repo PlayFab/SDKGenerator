@@ -173,6 +173,9 @@
     <Content Include="targets\csharp\source\Plugins\CloudScript\source\PlayFabCloudScriptPlugin.csproj.ejs" />
     <Content Include="targets\csharp\source\Plugins\CloudScript\source\PlayFabFunctionContexts.cs" />
     <Content Include="targets\csharp\templates\Enum.cs.ejs" />
+    <Content Include="targets\csharp\templates\IPlayFab_InstanceAPI.cs.ejs">
+      <SubType>Code</SubType>
+    </Content>
     <Content Include="targets\csharp\templates\Model.cs.ejs" />
     <Content Include="targets\csharp\templates\Models.cs.ejs" />
     <Content Include="targets\csharp\templates\PlayFab_API.cs.ejs" />

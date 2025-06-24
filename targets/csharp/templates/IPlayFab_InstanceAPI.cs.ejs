@@ -11,10 +11,10 @@ namespace PlayFab
 <%- generateApiSummary("    ", api, "description") %>
     public interface IPlayFab<%- api.name %>InstanceAPI
     {
-<% for (var i in api.calls) { var apiCall = api.calls[i]; %>
-
-<%- generateApiSummary("        ", apiCall, "summary") %><%- getDeprecationAttribute("        ", apiCall) %>        Task<PlayFabResult<<%- apiCall.result %>>> <%- apiCall.name %>Async(<%- apiCall.request %> request, object customData = null, Dictionary<string, string> extraHeaders = null);
-<% } %>
+<% for (var i = 0; i < api.calls.length; i++) {
+     var apiCall = api.calls[i]; %>
+<%- generateApiSummary("        ", apiCall, "summary") %><%- getDeprecationAttribute("        ", apiCall) %>        Task<PlayFabResult<<%- apiCall.result %>>> <%- apiCall.name %>Async(<%- apiCall.request %> request, object customData = null, Dictionary<string, string> extraHeaders = null);<% if (i < api.calls.length - 1) { %>
+<% } %><% } %>
     }
 }
 #endif

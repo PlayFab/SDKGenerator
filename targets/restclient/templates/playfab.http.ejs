@@ -1,0 +1,22 @@
+# PlayFab REST Client SDK <%- sdkVersion %><%- getVerticalTag() %>
+
+<%- getVariables() %>
+<% for(var a in apis) {
+    var api = apis[a];%>
+###### <%- a %> ######
+<%  for(var g in api) { 
+        var subgroup = api[g]; %>
+##### <%- g %> #####
+<%      for(var c in subgroup) { 
+            var apiCall = subgroup[c]; %>
+###
+# @name <%- apiCall.name %>
+# summary: <%- apiCall.summary %>
+# request details: <%- apiCall.requestDetails %>
+<%- apiCall.method %> <%- getBaseUrl() %><%- `${apiCall.url}?sdk=RESTClientCollection-${sdkVersion}` %>
+<%- getHeaders(apiCall) %>
+
+<%- fixRequestExample(a, apiCall.name, apiCall.requestExample) %>
+<%      }
+    }
+} %>

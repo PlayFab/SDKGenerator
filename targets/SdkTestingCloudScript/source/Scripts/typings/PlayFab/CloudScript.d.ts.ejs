@@ -77,6 +77,8 @@ interface IApiError {
 declare var server: IPlayFabServerAPI;
 /** Static object which allows access to PlayFab Entity API calls */
 declare var entity: IPlayFabEntityAPI;
+/** Static object which allows access to PlayFab Multiplayer API calls (includes Matchmaking, MultiplayerServer, Party, and Lobby) */
+declare var multiplayer: IPlayFabMultiplayerAPI;
 <% for(var sa in serverApiList) { var api = serverApiList[sa]; %>
 /** <%- api.name %>API.Models as interfaces */
 declare namespace PlayFab<%- api.name %>Models {
@@ -108,6 +110,24 @@ interface IPlayFabEntityAPI {
 <% for(var ea in entityApiList) { var api = entityApiList[ea];
 %>
 <% for(var i in api.calls) { var apiCall = api.calls[i];
+%><%- generateApiSummary("    ", apiCall, "summary", "https://docs.microsoft.com/rest/api/playfab/" + api.name.toLowerCase() + "/" + apiCall.subgroup.toLowerCase().replaceAll(" ","-") + "/" + apiCall.name.toLowerCase()) -%>
+    <%- apiCall.name %>(request: PlayFab<%- api.name %>Models.<%- apiCall.request %>): PlayFab<%- api.name %>Models.<%- apiCall.result %>;
+
+<% } } %>
+}
+
+<% for(var ma in multiplayerApiList) { var api = multiplayerApiList[ma]; %>
+/** <%- api.name %>API.Models as interfaces */
+declare namespace PlayFab<%- api.name %>Models {
+<% for(var i in api.datatypes) { var datatype = api.datatypes[i];
+%><%- generateApiSummary("    ", datatype, "description")
+%><%- makeDatatype("    ", datatype, sourceDir, "") %><% }
+%>}<% } %>
+
+/** Multiplayer interface methods (includes Matchmaking, MultiplayerServer, Party, and Lobby) */
+interface IPlayFabMultiplayerAPI {
+<% for(var ma in multiplayerApiList) { var api = multiplayerApiList[ma];
+for(var i in api.calls) { var apiCall = api.calls[i];
 %><%- generateApiSummary("    ", apiCall, "summary", "https://docs.microsoft.com/rest/api/playfab/" + api.name.toLowerCase() + "/" + apiCall.subgroup.toLowerCase().replaceAll(" ","-") + "/" + apiCall.name.toLowerCase()) -%>
     <%- apiCall.name %>(request: PlayFab<%- api.name %>Models.<%- apiCall.request %>): PlayFab<%- api.name %>Models.<%- apiCall.result %>;
 

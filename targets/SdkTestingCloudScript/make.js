@@ -12,18 +12,24 @@ exports.makeServerAPI = function (apis, sourceDir, apiOutputDir) {
     // Get only the server api because this is for CloudScript (only has access to serverAPI)
     var serverApiNames = ["Server"];
     var entityApiNames = ["Authentication", "Data", "Events", "Groups", "Profiles"];
+    var multiplayerApiNames = ["Multiplayer"];
     var serverApiList = [];
     var entityApiList = [];
+    var multiplayerApiList = [];
     for (var i = 0; i < apis.length; i++) {
         if (serverApiNames.includes(apis[i].name))
             serverApiList.push(apis[i]);
         if (entityApiNames.includes(apis[i].name))
             entityApiList.push(apis[i]);
+        if (multiplayerApiNames.includes(apis[i].name))
+            multiplayerApiList.push(apis[i]);
     }
     if (serverApiList.length === 0)
         throw "Could not find Server API";
     if (entityApiList.length === 0)
         throw "Could not find Entity API";
+    if (multiplayerApiList.length === 0)
+        throw "Could not find Multiplayer API";
 
     // Load PlayStream APIs
     var playStreamEventModels = getApiJson("PlayStreamEventModels");
@@ -32,6 +38,7 @@ exports.makeServerAPI = function (apis, sourceDir, apiOutputDir) {
     var locals = {
         serverApiList: serverApiList,
         entityApiList: entityApiList,
+        multiplayerApiList: multiplayerApiList,
         childTypes: playStreamEventModels.ChildTypes,
         parentTypes: playStreamEventModels.ParentTypes,
         sdkVersion: sdkGlobals.sdkVersion,

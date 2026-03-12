@@ -86,6 +86,11 @@
     <OutputPath>bin\</OutputPath>
     <ScriptArguments>-destpath ..\sdks\PythonSdk -apiSpecGitUrl -buildIdentifier PythonSdk_Manual</ScriptArguments>
   </PropertyGroup>
+  <PropertyGroup Condition=" '$(Configuration)' == 'RESTClientCollection' ">
+    <DebugSymbols>true</DebugSymbols>
+    <OutputPath>bin\</OutputPath>
+    <ScriptArguments>-destpath ..\sdks\RESTClientCollection -apiSpecGitUrl -buildIdentifier RESTClientCollection_manual</ScriptArguments>
+  </PropertyGroup>
   <PropertyGroup Condition=" '$(Configuration)' == 'UnitySdk' ">
     <DebugSymbols>true</DebugSymbols>
     <OutputPath>bin\</OutputPath>
@@ -448,6 +453,12 @@
     <Content Include="targets\PythonSdk\source\setup.py.ejs" />
     <Content Include="targets\PythonSdk\source\uploadPython.sh" />
     <Content Include="targets\PythonSdk\templates\API.py.ejs" />
+    <Content Include="targets\restclient\make.js" />
+    <Content Include="targets\restclient\replacements.json">
+      <SubType>Code</SubType>
+    </Content>
+    <Content Include="targets\restclient\templates\playfab.http.ejs" />
+    <Content Include="targets\restclient\templates\settings.json.ejs" />
     <Content Include="targets\SdkTestingCloudScript\make.js" />
     <Content Include="targets\SdkTestingCloudScript\source\package.json.ejs" />
     <Content Include="targets\SdkTestingCloudScript\source\Scripts\typings\PlayFab\CloudScript.d.ts.ejs" />
@@ -940,6 +951,8 @@
     <Content Include="targets\UnrealMarketplacePlugin\templates\PlayFab\PlayFab_Models.h.ejs" />
   </ItemGroup>
   <ItemGroup>
+    <Folder Include="SDKBuildScripts\" />
+    <Folder Include="SDKBuildScripts\Linux\" />
     <Folder Include="targets\" />
     <Folder Include="targets\csharp\" />
     <Folder Include="targets\csharp\source\" />
@@ -1073,6 +1086,8 @@
     <Folder Include="targets\PythonSdk\source\" />
     <Folder Include="targets\PythonSdk\source\playfab\" />
     <Folder Include="targets\PythonSdk\templates\" />
+    <Folder Include="targets\restclient\" />
+    <Folder Include="targets\restclient\templates\" />
     <Folder Include="targets\SdkTestingCloudScript\" />
     <Folder Include="targets\SdkTestingCloudScript\source\" />
     <Folder Include="targets\SdkTestingCloudScript\source\Scripts\" />

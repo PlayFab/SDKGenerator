@@ -250,9 +250,6 @@ namespace PlayFab.UUnit
         public async void TestForNotFoundWithImportantInfo(UUnitTestContext testContext)
         {
             var eReq = new AuthenticationModels.GetEntityTokenRequest();
-            eReq.Entity = new AuthenticationModels.EntityKey();
-            eReq.Entity.Type = "title";
-            eReq.Entity.Id = testTitleData.titleId;
 
             var multiApiSettings = new PlayFabApiSettings();
 

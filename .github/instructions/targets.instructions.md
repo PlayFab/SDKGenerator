@@ -40,3 +40,4 @@ targets/<name>/
 - Don't write anywhere except the configured `apiOutputDir`.
 - Don't hardcode absolute paths — use `path.resolve(...)` from inputs.
 - Don't commit generated SDK output back into `targets/` — it goes to the sibling `sdks/<output>/` repos.
+- Don't commit real credentials or Title IDs in `testTitleData.json` and `unityTestTitleData.json` — use placeholder values only. The file template should be safe to push to the public repo.

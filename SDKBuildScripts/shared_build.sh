@@ -54,6 +54,7 @@ CleanCodeFiles () {
     NukeAll "*.cpp"
     NukeAll "*.cs"
     NukeAll "*.h"
+    NukeAll "*.http"
     NukeAll "*.java"
     NukeAll "*.js"
     NukeAll "*.lua"

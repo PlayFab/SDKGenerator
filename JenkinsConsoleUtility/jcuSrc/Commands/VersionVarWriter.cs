@@ -139,6 +139,7 @@ namespace JenkinsConsoleUtility.Commands
                 case "xplatcppsdk": case "xplatbetasdk": case "xplatcppsdk-private-switch": case "xplatcppsdk-private-ps4": case "xplatcppsdk-private-gdk": return "xplatcppsdk";
                 case "javasdk": case "javabetasdk": return "java";
                 case "pythonsdk": case "pythonbetasdk": return "pythonsdk";
+                case "restclientcollection": return "restclient";
 
                 default: return sdkName.ToLower(); // Most new sdks have matching names
             }

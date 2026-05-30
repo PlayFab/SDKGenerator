@@ -1,0 +1,29 @@
+root = true
+
+[*]
+charset = utf-8
+end_of_line = lf
+insert_final_newline = true
+trim_trailing_whitespace = true
+indent_style = space
+indent_size = 2
+
+[*.{js,ts,mjs,cjs,jsx,tsx,json,ejs,yml,yaml}]
+indent_size = 2
+
+[*.{md,markdown}]
+trim_trailing_whitespace = false
+
+[*.{ps1,psm1,psd1,bat,cmd}]
+end_of_line = crlf
+indent_size = 2
+
+[*.{sh,bash}]
+end_of_line = lf
+indent_size = 2
+
+# Generator output: leave to target's own conventions.
+# Don't enforce indent on generated files — but here we don't store generated output anyway.
+
+[*.{c,cc,cpp,cxx,h,hh,hpp,hxx,cs,java}]
+indent_size = 4

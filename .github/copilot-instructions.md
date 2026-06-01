@@ -94,11 +94,8 @@ Use `targets/newTarget/` as the template:
 ## Conventions
 
 - **Indent**: 2 spaces (Node convention).
-- **Target isolation**: each `targets/<name>/` is independent — don't share state across targets.
-- **EJS templates**: keep logic out; do data prep in `make.js`.
-- **No global state** in `make.js` — re-entry from tests should be safe.
-- **`targets/PlayStation/`** is NDA-scoped content inside this otherwise non-NDA repo. See `partycore-nda-boundary.md` (linked in the footer) for the team-wide NDA-boundary policy that governs it; do not paste PS templates into external AI prompts.
 - **API_Specs** are versioned in a separate repo; don't fork them inline.
+- Target isolation, re-entrant drivers, template responsibility split, output discipline, snapshot-diff validation, new-target scaffolds, and NDA carve-out rules are defined in the shared `partycore-codegen-conventions.md` (footer link). This repo is the canonical consumer of that topic.
 
 ## Test / validation
 
@@ -114,7 +111,7 @@ Use `targets/newTarget/` as the template:
 
 See also: [`AGENTS.md`](../AGENTS.md), [`CONTRIBUTING.md`](../CONTRIBUTING.md), `README.md`.
 
-Cross-cutting conventions (PlayFab C/C++ source patterns reflected in the C/C++ generator targets, and the NDA-boundary policy that scopes the `targets/PlayStation/` target) are documented in the shared instructions repos linked in the footer below.
+Cross-cutting conventions (code-generator authoring patterns, PlayFab C/C++ source conventions for the emitted SDKs, and NDA-boundary policy for the `targets/PlayStation/` carve-out) are documented in the shared instructions repos linked in the footer below.
 
 ---
 
@@ -127,6 +124,7 @@ This repo loads cross-cutting team instructions from one or both of:
 
 Topics most relevant to this repo:
 
+- `partycore-codegen-conventions.md` — target isolation, re-entrant drivers, template responsibility split, output discipline, snapshot-diff validation, new-target scaffolds, and NDA carve-out rules. This repo is the canonical consumer; the L2 instruction files (`targets.instructions.md`, `templates.instructions.md`) layer repo-specific details on top.
 - `partycore-cpp-source-conventions.md` — SDKGenerator emits PlayFab C/C++ client SDK code (e.g. `cpp-cocos2dx`, console targets). The generator templates encode the PF prefix, XAsync pattern, handle lifecycle, and generated-code discipline defined in this shared topic; template authors and generator changes must stay aligned with it so emitted SDKs remain consistent with hand-authored PlayFab C/C++ code.
 - `partycore-nda-boundary.md` — `targets/PlayStation/` is NDA-scoped content inside an otherwise non-NDA public GitHub repo. This shared topic defines what may live in this repo, what must be excluded from external AI prompts, and where NDA-tented sibling repos sit.
 

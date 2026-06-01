@@ -9,11 +9,10 @@ Each target has its own `templates/` directory consumed by that target's `make.j
 ## Rules
 
 - **EJS only.** No other templating engine.
-- **Logic stays in `make.js`.** Templates should focus on rendering. Avoid heavy `<% if %>` chains.
 - **Output formatting**: emit code that already follows the target language's conventions (indent, brace style). The generator is the only place these conventions live for that target.
-- **No cross-target template imports.** Each target owns its own template tree.
 - **Newlines / trailing whitespace**: be deliberate — generated files often go straight to a public SDK repo.
 - **Localization / translations**: kept under the target's templates if the SDK has them.
+- Logic-vs-template split, no cross-target template imports, and other shared rules are in `partycore-codegen-conventions.md` (L1 footer link).
 
 ## Authoring tips
 
@@ -24,5 +23,4 @@ Each target has its own `templates/` directory consumed by that target's `make.j
 ## Don't
 
 - Don't put complex logic in templates (`<% if (...) { for (...) { switch (...) { ... } } } %>`).
-- Don't reach into other targets' templates.
 - Don't bypass EJS by string-concatenating in `make.js` for the bulk of output (defeats the point).

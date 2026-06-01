@@ -17,12 +17,10 @@ targets/<name>/
 
 ## Rules
 
-- **One target = one folder.** Don't share mutable state across targets.
 - **`make.js`** must export a function `makeClientApi(apis, sourceDir, apiOutputDir)` (or sibling variants — see existing targets).
-- Logic in `make.js`, presentation in `templates/<x>.ejs`.
 - **Indent**: 2 spaces.
-- Re-entrant: a target's `make.js` may be invoked multiple times in one process — no module-level mutation that would corrupt subsequent calls.
 - **`targets/PlayStation/`**: NDA-scoped content; see `partycore-nda-boundary.md` (referenced from the L1 footer) for the team-wide NDA-boundary policy. Do not paste source into external AI prompts.
+- Target isolation, re-entrancy, template responsibility split, output discipline, and other cross-target rules are defined in the shared `partycore-codegen-conventions.md` (L1 footer link).
 
 ## Adding a new target
 
@@ -36,8 +34,5 @@ targets/<name>/
 
 ## Don't
 
-- Don't reach across targets (`require('../<other-target>/make')`).
-- Don't write anywhere except the configured `apiOutputDir`.
-- Don't hardcode absolute paths — use `path.resolve(...)` from inputs.
-- Don't commit generated SDK output back into `targets/` — it goes to the sibling `sdks/<output>/` repos.
 - Don't commit real credentials or Title IDs in `testTitleData.json` and `unityTestTitleData.json` — use placeholder values only. The file template should be safe to push to the public repo.
+- Additional "don't" rules (no cross-target imports, no writes outside `apiOutputDir`, no hardcoded absolute paths, no generated output committed back) are in the shared `partycore-codegen-conventions.md`.

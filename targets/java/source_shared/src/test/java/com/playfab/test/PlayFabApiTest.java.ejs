@@ -395,8 +395,16 @@ public class PlayFabApiTest
     @Test
     public void UserCharacterServer()
     {
+        // GetAllUsersCharacters requires a PlayFabId that exists in the title; it returns
+        // "User not found" for an arbitrary id, so log in first to obtain a real one.
+        PlayFabServerModels.LoginWithServerCustomIdRequest customIdReq = new PlayFabServerModels.LoginWithServerCustomIdRequest();
+        customIdReq.CreateAccount = true;
+        customIdReq.ServerCustomId = PlayFabSettings.BuildIdentifier;
+        PlayFabResult<PlayFabServerModels.ServerLoginResult> loginRes = PlayFabServerAPI.LoginWithServerCustomId(customIdReq);
+        VerifyResult(loginRes, true);
+
         PlayFabServerModels.ListUsersCharactersRequest getRequest = new PlayFabServerModels.ListUsersCharactersRequest();
-        getRequest.PlayFabId = playFabId;
+        getRequest.PlayFabId = loginRes.Result.PlayFabId;
         PlayFabResult<PlayFabServerModels.ListUsersCharactersResult> getCharsResult = PlayFabServerAPI.GetAllUsersCharacters(getRequest);
         VerifyResult(getCharsResult, true);
     }
